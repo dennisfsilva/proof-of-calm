@@ -103,7 +103,30 @@ const PT_SOURCES =
   'https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs10.aspx';
 const NOT_LOADED =
   "Your country's rules are not loaded on this device. Reload the page when you are online to export a tax year.";
-const EMPTY_COST = 'An empty cost_basis is a purchase with no recorded cost, not a cost of zero.';
+const HELD_EMPTY = 'On a held row, an empty cost_basis means no cost was recorded, not a cost of zero.';
+const EMPTY_COST = `${HELD_EMPTY} Rows with no acquired date leave cost_basis empty.`;
+const EMPTY_COST_RAW = `${HELD_EMPTY} Sale rows leave cost_basis empty.`;
+
+/** The file's rows as cells by column; the test data puts no comma, quote or line break in a cell. */
+function rowsOf(content: string): Record<string, string>[] {
+  const [columns = '', ...rows] = content
+    .slice(content.indexOf('\n\n') + 2)
+    .replaceAll('\r', '')
+    .trimEnd()
+    .split('\n');
+  const names = columns.split(',');
+  return rows.map((row) => Object.fromEntries(row.split(',').map((cell, index) => [names[index], cell])));
+}
+
+/** A held entry of `units` BTC with no recorded cost on `on`. */
+const heldNoCost = (all: readonly Entry[], on: string, units: string): Entry => ({
+  ...(all[0] as Entry),
+  id: 'b0000000-0000-4000-8000-000000000002' as Entry['id'],
+  kind: 'held',
+  date: on as CalendarDate,
+  units: units as Entry['units'],
+  amount: null,
+});
 
 describe('TaxYearExport', () => {
   it('lists the tax years newest first, GB as 2026 to 2027', async () => {
@@ -222,8 +245,45 @@ describe('TaxYearExport', () => {
     expect(note).toMatch(/A cost without proof counts as zero\.$/u);
     expect(header).toContain('Each sale is matched to purchases of the same coin, last in, first out.');
     expect(header).toContain(textCell(note));
-    expect(header).toContain(EMPTY_COST);
+    expect(header).toContain(textCell(EMPTY_COST));
     expect(header).not.toContain('eligible_from');
+  });
+
+  it("the per-lot file's empty-cost line holds for its held lot with no cost and its unmatched sale", async () => {
+    const entries = (all: readonly Entry[]): Entry[] => [
+      ...all,
+      heldNoCost(all, '2026-02-01', '0.01'),
+      {
+        ...(all[0] as Entry),
+        id: 'b0000000-0000-4000-8000-000000000003' as Entry['id'],
+        kind: 'sell',
+        date: '2026-10-01' as CalendarDate,
+        units: '5' as Entry['units'],
+        amount: '1000' as Entry['amount'],
+      },
+    ];
+    const platform = await mount(withPlan({ country: 'IT' as Plan['country'] }, entries));
+    const { content } = await exportYear(platform, '2026');
+    expect(headerOf(content)).toContain(textCell(EMPTY_COST));
+    const rows = rowsOf(content);
+    const empty = rows.filter((row) => row.cost_basis === '');
+    expect(empty.some((row) => row.kind === 'held')).toBe(true);
+    expect(empty.some((row) => row.acquired === '')).toBe(true);
+    for (const row of empty) expect(row.kind === 'held' || row.acquired === '').toBe(true);
+    for (const row of rows.filter((each) => each.acquired === '')) expect(row.cost_basis).toBe('');
+  });
+
+  it("the raw listing's empty-cost line holds for its held entry with no cost and its sale", async () => {
+    const entries = (all: readonly Entry[]): Entry[] => [...all, heldNoCost(all, '2026-07-01', '0.01')];
+    const platform = await mount(withPlan({ country: 'GB' as Plan['country'], payCurrency: 'GBP' }, entries));
+    const { content } = await exportYear(platform, '2027');
+    expect(headerOf(content)).toContain(textCell(EMPTY_COST_RAW));
+    const rows = rowsOf(content);
+    const empty = rows.filter((row) => row.cost_basis === '');
+    expect(empty.some((row) => row.kind === 'held')).toBe(true);
+    expect(empty.some((row) => row.kind === 'sell')).toBe(true);
+    for (const row of empty) expect(['held', 'sell']).toContain(row.kind);
+    for (const row of rows.filter((each) => each.kind === 'sell')) expect(row.cost_basis).toBe('');
   });
 
   it('under review, the file quotes no rule words', async () => {
