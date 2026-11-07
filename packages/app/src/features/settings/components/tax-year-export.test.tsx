@@ -3,6 +3,8 @@ import { countryRules, loadProfile } from '@proofofcalm/content';
 import { type CalendarDate, type CountryCode, type Entry, type Plan, textCell } from '@proofofcalm/core';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import gbFile from '../../../../../../apps/web/e2e/fixtures/tax-year-2026-27-GB.csv?raw';
+import ptFile from '../../../../../../apps/web/e2e/fixtures/tax-year-2026-PT.csv?raw';
 import { I18nProvider } from '../../../lib/i18n';
 import type { Snapshot } from '../../../lib/ports';
 import { ServicesProvider } from '../../../lib/services';
@@ -10,8 +12,6 @@ import { fixtureNowMs, fixtureSnapshot } from '../../../lib/services/fixtures';
 import { createTestServices, preloadLazyModules, recordingPlatform } from '../../../lib/services/testing';
 import errors from '../../../messages/en/errors.json';
 import settings from '../../../messages/en/settings.json';
-import gbFile from '../../../../../../apps/web/e2e/fixtures/tax-year-2026-27-GB.csv?raw';
-import ptFile from '../../../../../../apps/web/e2e/fixtures/tax-year-2026-PT.csv?raw';
 import { TaxYearExport } from './tax-year-export';
 
 // The tax-year export under Your data (docs/DOMAIN.md §3.13): the years of the plan's country, the file of the
@@ -180,9 +180,7 @@ describe('TaxYearExport', () => {
   it('a plan in USD under Portugal says the amounts are not converted', async () => {
     const platform = await mount(withPlan({ payCurrency: 'USD', displayCurrency: 'USD' }, yearEarlier));
     const header = headerOf((await exportYear(platform)).content);
-    expect(header).toContain(
-      'Amounts are as you logged them and are not converted to EUR. Your pay currency is USD.',
-    );
+    expect(header).toContain('Amounts are as you logged them and are not converted to EUR. Your pay currency is USD.');
   });
 
   it('after a change of country, the currency line claims no amount is in the new pay currency', async () => {
