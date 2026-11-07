@@ -11,6 +11,7 @@ export {
   usePlatform,
   usePrices,
   useRules,
+  useRulesSettled,
   useServices,
   useSnapshot,
   useToasts,
@@ -18,4 +19,4 @@ export {
   useUi,
 } from './hooks';
 export { ServicesProvider, type ServicesProviderProps } from './provider';
-export { useProfile } from './use-profile';
+export { useProfile, useProfileLoad } from './use-profile';

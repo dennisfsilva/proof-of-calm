@@ -2,7 +2,7 @@
 import type { CountryProfile } from '@proofofcalm/content';
 import { act, cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { useProfile } from './use-profile';
+import { useProfile, useProfileLoad } from './use-profile';
 
 // The content module over fakes: `loaded` is what a load has already read, `arriving` what a load elsewhere
 // finishes between the first read and the next, `pending` the loads in flight, each resolved by the test.
@@ -46,6 +46,11 @@ afterEach(() => {
 function Probe({ code }: { code: string | undefined }) {
   rendered();
   return <output>{useProfile(code)?.name ?? 'none'}</output>;
+}
+
+function SettledProbe({ code }: { code: string | undefined }) {
+  const { profile, settled } = useProfileLoad(code);
+  return <output>{`${profile?.name ?? 'none'} ${settled ? 'settled' : 'loading'}`}</output>;
 }
 
 const resolve = (code: string, profile: CountryProfile | null) =>
@@ -119,5 +124,19 @@ describe('useProfile', () => {
     expect(screen.getByRole('status').textContent).toBe('none');
     await resolve('DE', DE);
     expect(screen.getByRole('status').textContent).toBe('Germany');
+  });
+
+  it('useProfileLoad says loading until the load settles, with the profile or with none', async () => {
+    const { rerender } = render(<SettledProbe code="DE" />);
+    expect(screen.getByRole('status').textContent).toBe('none loading');
+    await resolve('DE', DE);
+    expect(screen.getByRole('status').textContent).toBe('Germany settled');
+    rerender(<SettledProbe code="ES" />);
+    expect(screen.getByRole('status').textContent).toBe('none loading');
+    await resolve('ES', null);
+    expect(screen.getByRole('status').textContent).toBe('none settled');
+    loaded.set('PT', PT);
+    rerender(<SettledProbe code="PT" />);
+    expect(screen.getByRole('status').textContent).toBe('Portugal settled');
   });
 });
