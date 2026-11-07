@@ -8,7 +8,8 @@ import { test } from './support';
 // The tax-year export under Settings → Currency & data → Your data on the viewport matrix (docs/DOMAIN.md §3.13):
 // the fixture plan under Portugal (FIFO per venue, the 365-day rule) downloads the running year's per-lot file,
 // and under the United Kingdom (a pooled lot rule) the running 2026 to 2027 year's raw listing, each byte for
-// byte the file in ./fixtures. The local run sends no UK geolocation, so ADR-0029's 451 route does not apply.
+// byte the file in packages/app/src/features/settings/fixtures. The local run sends no UK geolocation, so
+// ADR-0029's 451 route does not apply.
 
 test.use({ serviceWorkers: 'block' });
 
@@ -34,7 +35,8 @@ async function exportYear(page: Page, year: string) {
   return { name: file.suggestedFilename(), text: await readFile(path, 'utf8') };
 }
 
-const expected = (name: string) => readFile(new URL(`./fixtures/${name}`, import.meta.url), 'utf8');
+const expected = (name: string) =>
+  readFile(new URL(`../../../packages/app/src/features/settings/fixtures/${name}`, import.meta.url), 'utf8');
 
 test('the PT fixture downloads the expected CSV', async ({ page }) => {
   await openData(page, {});

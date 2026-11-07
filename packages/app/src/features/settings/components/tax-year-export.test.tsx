@@ -3,8 +3,6 @@ import { countryRules, loadProfile } from '@proofofcalm/content';
 import { type CalendarDate, type CountryCode, type Entry, type Plan, textCell } from '@proofofcalm/core';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import gbFile from '../../../../../../apps/web/e2e/fixtures/tax-year-2026-27-GB.csv?raw';
-import ptFile from '../../../../../../apps/web/e2e/fixtures/tax-year-2026-PT.csv?raw';
 import { I18nProvider } from '../../../lib/i18n';
 import type { Snapshot } from '../../../lib/ports';
 import { ServicesProvider } from '../../../lib/services';
@@ -12,6 +10,8 @@ import { fixtureNowMs, fixtureSnapshot } from '../../../lib/services/fixtures';
 import { createTestServices, preloadLazyModules, recordingPlatform } from '../../../lib/services/testing';
 import errors from '../../../messages/en/errors.json';
 import settings from '../../../messages/en/settings.json';
+import gbFile from '../fixtures/tax-year-2026-27-GB.csv?raw';
+import ptFile from '../fixtures/tax-year-2026-PT.csv?raw';
 import { TaxYearExport } from './tax-year-export';
 
 // The tax-year export under Your data (docs/DOMAIN.md §3.13): the years of the plan's country, the file of the
@@ -207,7 +207,7 @@ describe('TaxYearExport', () => {
     expect(file.content).toContain('\n\nkind,date,coin,venue,units,cost_basis,fee,eligible_from,proceeds,');
   });
 
-  // The e2e spec's expected files (apps/web/e2e/tax-year.spec.ts), byte for byte from the same seed and clock,
+  // The expected files the e2e spec also reads (apps/web/e2e/tax-year.spec.ts), byte for byte from the same seed and clock,
   // so a change of wording or rows fails here before the viewport matrix runs.
   it.each([
     ['PT', {}, '2026', ptFile],
