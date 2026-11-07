@@ -641,7 +641,8 @@
           "rawListed": "For a coin sold in the tax year, every purchase and sale to {to} is listed.",
           "windowOpen": "Made on {today}: purchases after that day are not in this file.",
           "format": "Dates are YYYY-MM-DD; amounts and units use a decimal point.",
-          "uncosted": "An empty cost_basis is a purchase with no recorded cost, not a cost of zero.",
+          "uncosted": "On a held row, an empty cost_basis means no cost was recorded, not a cost of zero. Rows with no acquired date leave cost_basis empty.",
+          "uncostedRaw": "On a held row, an empty cost_basis means no cost was recorded, not a cost of zero. Sale rows leave cost_basis empty.",
           "estimated": "units_estimated yes: Bought as planned filled in the units from the day's price, not from your exchange's confirmation. Any fee or venue it copied came from your latest purchase or sale that recorded one.",
           "unmatched": "A row with no acquired date is a sale no logged purchase covered.",
           "ongoing": "The tax year ends on {to}; this file shows your log as of {today}."

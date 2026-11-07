@@ -776,7 +776,9 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   has a holding rule, what `eligible_from` and `past_holding_rule` mean, each `holdingRuleConditions` sentence,
   and a line when `planRuleDiffers`; per venue, the venue line and the `crossVenue` count; for the raw listing
   what it lists, under `pooled` with the 30-day window and, while `windowOpen`, the export day; the format line;
-  then, when set, `uncosted`, `estimated`, `unmatched` and `ongoing`. No line names a gain, a loss, tax due, a
+  then, when set, `uncosted` (a `held` row's empty `cost_basis` is no recorded cost, and the line names the other
+  rows that leave it empty: the per-lot file's with no acquired date, the raw listing's sales), `estimated`,
+  `unmatched` and `ongoing`. No line names a gain, a loss, tax due, a
   rate or an allowance, calls a row exempt, tax-free or taxable, or calls the file complete or ready to file.
 - `snapshotValue(plan, entries, history, date)`: the portfolio value on a given calendar date from the entry timeline and daily closes; used by the Dutch Portfolio line and the snapshot export; returns `null` with the missing coins listed when history is incomplete (planned: M2).
 
