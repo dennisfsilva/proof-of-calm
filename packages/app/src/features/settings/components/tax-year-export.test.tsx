@@ -389,7 +389,7 @@ describe('TaxYearExport', () => {
     noSemicolon(pool);
   });
 
-  it('no tax-year file line holds a semicolon, whichever the code picks', () => {
+  it("no line of the app's own header copy holds a semicolon, whichever the code picks", () => {
     for (const line of Object.values(settings.data.taxYear.file)) expect(line).not.toContain(';');
   });
 });
