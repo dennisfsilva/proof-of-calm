@@ -45,7 +45,12 @@ test('the PT fixture downloads the expected CSV', async ({ page }) => {
 });
 
 test('the GB fixture downloads the expected CSV', async ({ page }) => {
-  await openData(page, { country: 'GB' as Plan['country'], payCurrency: 'GBP', displayCurrency: 'GBP', holdingRule: { kind: 'none' } });
+  await openData(page, {
+    country: 'GB' as Plan['country'],
+    payCurrency: 'GBP',
+    displayCurrency: 'GBP',
+    holdingRule: { kind: 'none' },
+  });
   await expect(page.getByRole('option')).toHaveText(['2026 to 2027 (still running)', '2025 to 2026']);
   const file = await exportYear(page, '2027');
   expect(file.name).toBe(`proof-of-calm-tax-year-2026-27-GB-${FIXTURE_DATES.buy}.csv`);
