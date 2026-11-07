@@ -766,9 +766,9 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   never from the CSV log's fallback to no rules. `fifo`, `lifo` and `unspecified` take `taxYearLots`, the other
   lot rules `taxYearPool`; the download counts nothing (ADR-0028). The header, its words in
   `docs/CONTENT-STYLE.md` §3, holds in order: the app, the country and the span; the sentence of
-  `docs/JURISDICTIONS.md` §4; the currency line, which says the amounts are as logged and not converted and
-  names the pay currency, and the country's currency when it differs, never that every amount is in the pay
-  currency, since after a change of country the amounts logged before it keep the old currency and nothing
+  `docs/JURISDICTIONS.md` §4, which names no currency; the currency line, which says the amounts are as logged
+  and not converted and names the pay currency, and the country's currency when it differs; no line says that
+  every amount is in the pay currency, since after a change of country the amounts logged before it keep the old currency and nothing
   stored dates the change; the country's review line with the lot and holding rules' sources, or under review
   (`docs/JURISDICTIONS.md` §1) its under-review line and then no `lotRuleNote`, condition or source; the
   matching line (the lot rule, or that the raw listing matches nothing) and the `lotRuleNote`; where the country
