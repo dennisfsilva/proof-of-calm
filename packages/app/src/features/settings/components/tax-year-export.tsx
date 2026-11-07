@@ -4,14 +4,7 @@ import { useId, useMemo, useState } from 'react';
 import { useTranslations } from 'use-intl';
 import { BRAND } from '../../../lib/brand';
 import { reportError } from '../../../lib/errors';
-import {
-  useProfileLoad,
-  useRules,
-  useRulesSettled,
-  useServices,
-  useSnapshot,
-  useToday,
-} from '../../../lib/services';
+import { useProfileLoad, useRules, useRulesSettled, useServices, useSnapshot, useToday } from '../../../lib/services';
 import { dataActions } from '../actions';
 import { useTaxYearWords } from '../tax-year';
 
