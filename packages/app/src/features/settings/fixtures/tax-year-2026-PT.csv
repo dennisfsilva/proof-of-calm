@@ -1,17 +1,17 @@
 Proof of Calm tax-year file · Portugal · 2026-01-01 to 2026-12-31
 Data from your log. Not a tax computation.
 Amounts are as you logged them and are not converted. Your pay currency is EUR.
-"Rules for Portugal reviewed on 2026-11-05 · general information, not advice · Sources: https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs43.aspx, https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs10.aspx"
+"Portugal rules reviewed on 2026-11-05 · general information, not advice · Sources: https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs43.aspx, https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs10.aspx"
 "Each sale is matched to purchases of the same coin, first in, first out."
 "First in, first out, applied separately per custodian or platform when units are held at more than one (art. 43 n.º 9 CIRS, formerly n.º 7)."
-"eligible_from: the first day past the holding rule for Portugal (365 days); past_holding_rule: whether that day had come by the sale, or by 2026-10-20 for units still held. Computed from your dates, not tax advice."
+"eligible_from: the first day past the Portugal holding rule (365 days). past_holding_rule: whether that day had come by the sale, or by 2026-10-20 for units still held. Computed from your dates, not tax advice."
 "Tax-free only when the counterparty is tax-resident in the EU, the EEA, or a treaty jurisdiction (declared in Anexo G Q18B otherwise)."
 Exempt sales must still be declared (Anexo G1 Q7).
 "Whether the holding period carries across a crypto-to-crypto swap is unsettled. Proof of Calm treats a swap as a sale and a new purchase, so a new holding period starts for the coins received."
 "Loss of Portuguese tax residence counts as a disposal (art. 10 n.º 25 CIRS, numbered n.º 22 in 2023–2025 documents)."
-Sales are matched per venue as named in the Log; entries with no venue are one group.
-Dates are YYYY-MM-DD; amounts and units use a decimal point.
-The tax year ends on 2026-12-31; this file shows your log as of 2026-10-20.
+Sales are matched per venue as named in the Log. Entries with no venue are one group.
+Dates are YYYY-MM-DD. Amounts and units use a decimal point.
+The tax year ends on 2026-12-31. This file shows your log as of 2026-10-20.
 
 kind,acquired,coin,venue,units,cost_basis,fee,eligible_from,past_holding_rule,disposed_on,sale_venue,proceeds,disposal_fee,units_estimated
 initial,2026-04-05,BTC,,0.0125,700.00,,2027-04-05,no,,,,,no

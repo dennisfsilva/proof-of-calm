@@ -220,13 +220,13 @@ describe('TaxYearExport', () => {
         'Proof of Calm tax-year file · Portugal · 2025-01-01 to 2025-12-31',
         'Data from your log. Not a tax computation.',
         'Amounts are as you logged them and are not converted. Your pay currency is EUR.',
-        `Rules for Portugal reviewed on 2026-11-05 · general information, not advice · Sources: ${PT_SOURCES}`,
+        `Portugal rules reviewed on 2026-11-05 · general information, not advice · Sources: ${PT_SOURCES}`,
         'Each sale is matched to purchases of the same coin, first in, first out.',
         profile?.lotRuleNote ?? '',
-        'eligible_from: the first day past the holding rule for Portugal (365 days); past_holding_rule: whether that day had come by the sale, or by 2025-12-31 for units still held. Computed from your dates, not tax advice.',
+        'eligible_from: the first day past the Portugal holding rule (365 days). past_holding_rule: whether that day had come by the sale, or by 2025-12-31 for units still held. Computed from your dates, not tax advice.',
         ...(profile?.holdingRuleConditions ?? []),
-        'Sales are matched per venue as named in the Log; entries with no venue are one group.',
-        'Dates are YYYY-MM-DD; amounts and units use a decimal point.',
+        'Sales are matched per venue as named in the Log. Entries with no venue are one group.',
+        'Dates are YYYY-MM-DD. Amounts and units use a decimal point.',
       ),
     );
     expect(file.content).toContain(
@@ -290,7 +290,7 @@ describe('TaxYearExport', () => {
     const platform = await mount(withPlan({}, yearEarlier), { nowMs: Date.parse('2029-01-01T10:00:00Z') });
     const header = headerOf((await exportYear(platform, '2025')).content);
     const profile = await loadProfile('PT');
-    expect(header).toContain('Rules for Portugal not reviewed since 2026-11-05 · general information, not advice');
+    expect(header).toContain('Portugal rules not reviewed since 2026-11-05 · general information, not advice');
     expect(header).not.toContain('Sources');
     expect(header).not.toContain(profile?.lotRuleNote);
     for (const condition of profile?.holdingRuleConditions ?? []) expect(header).not.toContain(condition);
@@ -317,13 +317,13 @@ describe('TaxYearExport', () => {
     expect(file.name).toBe('proof-of-calm-tax-year-2026-27-GB-2026-10-20.csv');
     const header = headerOf(file.content);
     expect(header).toContain(
-      'Sales are not matched to purchases in this file; the pooling or matching is for your accountant.',
+      'Sales are not matched to purchases in this file. The pooling or matching is for your accountant.',
     );
     expect(header).toContain(
-      'For a coin sold in the tax year, every purchase and sale to 2027-04-05 is listed for the pool, and the purchases to 2027-05-05 for the 30-day rule.',
+      'For a coin sold in the tax year, every purchase and sale to 2027-04-05 is listed for the pool. Its purchases to 2027-05-05 are listed for the 30-day rule.',
     );
     expect(header).toContain('Made on 2026-10-20: purchases after that day are not in this file.');
-    expect(header).toContain('The tax year ends on 2027-04-05; this file shows your log as of 2026-10-20.');
+    expect(header).toContain('The tax year ends on 2027-04-05. This file shows your log as of 2026-10-20.');
     expect(file.content).toContain('\n\nkind,date,coin,venue,units,cost_basis,fee,eligible_from,proceeds,');
   });
 
@@ -376,7 +376,7 @@ describe('TaxYearExport', () => {
       'sale_venue shows',
       'its own holding rule',
       'is a sale',
-      'units_estimated yes',
+      "units_estimated yes: Proof of Calm's Bought as planned button filled in",
       'ends on 2026-12-31',
     ];
     for (const words of flags) expect(headerOf(lots)).toContain(words);
