@@ -47,10 +47,13 @@ type FileFacts = {
 
 const notNull = <T>(value: T | null): value is T => value !== null;
 
+/** A count as a plain figure: the file's numbers carry no grouping (`format`), and ICU's `#` would add one. */
+const counted = (count: number) => ({ count, figure: String(count) });
+
 /** The rule's length for the holding line; null where the country has no rule. */
 function ruleLength(rule: HoldingRule) {
   if (rule.kind === 'none') return null;
-  return rule.kind === 'days' ? { unit: 'days', count: rule.days } : { unit: 'years', count: rule.years };
+  return { unit: rule.kind, ...counted(rule.kind === 'days' ? rule.days : rule.years) };
 }
 
 /** The header lines, in docs/DOMAIN.md §3.13's order; ISO dates, each line one cell of the file. */
@@ -101,7 +104,7 @@ export function taxYearHeader(
     ...(reviewing ? [] : [profile.lotRuleNote]),
     ...holding,
     ...(!facts.raw && rules.lotScope === 'per-venue' ? [t('perVenue')] : []),
-    ...(facts.crossVenue > 0 ? [t('crossVenue', { count: facts.crossVenue })] : []),
+    ...(facts.crossVenue > 0 ? [t('crossVenue', counted(facts.crossVenue))] : []),
     ...(facts.raw
       ? [
           pooled
