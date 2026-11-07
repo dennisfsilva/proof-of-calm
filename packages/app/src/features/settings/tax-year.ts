@@ -57,7 +57,7 @@ function ruleLength(rule: HoldingRule) {
 }
 
 /** The header lines, in docs/DOMAIN.md §3.13's order; ISO dates, each line one cell of the file. */
-export function taxYearHeader(
+function taxYearHeader(
   input: {
     readonly plan: Plan;
     readonly rules: CountryRules;
