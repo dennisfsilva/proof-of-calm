@@ -17,11 +17,21 @@ import { TaxYearExport } from './tax-year-export';
 // The tax-year export under Your data (docs/DOMAIN.md §3.13): the years of the plan's country, the file of the
 // chosen one with the header lines the app words, and nothing for the models it does not export yet.
 
-vi.mock('@proofofcalm/content', async (original) =>
-  (await import('../../../lib/services/testing-modules')).profilesInMemory(
+// `gate.held` holds the profiles back, as on a device that has not read them yet: none is known, and a load waits.
+const gate = vi.hoisted(() => ({ held: null as Promise<void> | null }));
+vi.mock('@proofofcalm/content', async (original) => {
+  const content = await (await import('../../../lib/services/testing-modules')).profilesInMemory(
     await original<typeof import('@proofofcalm/content')>(),
-  ),
-);
+  );
+  return {
+    ...content,
+    loadedProfile: (code: string) => (gate.held === null ? content.loadedProfile(code) : null),
+    loadProfile: async (code: string) => {
+      if (gate.held !== null) await gate.held;
+      return content.loadProfile(code);
+    },
+  };
+});
 
 afterEach(cleanup);
 await preloadLazyModules();
@@ -45,7 +55,9 @@ function withPlan(patch: Partial<Plan>, entries?: (all: readonly Entry[]) => Ent
 const yearEarlier = (all: readonly Entry[]) =>
   all.map((entry) => ({ ...entry, date: entry.date.replace('2026-', '2025-') as CalendarDate }));
 
-async function mount(snapshot: Snapshot, { load = rules, nowMs }: { load?: typeof rules; nowMs?: number } = {}) {
+type MountOptions = { load?: typeof rules; nowMs?: number };
+
+async function mountServices(snapshot: Snapshot, { load = rules, nowMs }: MountOptions = {}) {
   const platform = recordingPlatform();
   const services = createTestServices({ snapshot, platform, rules: load, ...(nowMs === undefined ? {} : { nowMs }) });
   await services.start();
@@ -56,7 +68,20 @@ async function mount(snapshot: Snapshot, { load = rules, nowMs }: { load?: typeo
       </I18nProvider>
     </ServicesProvider>,
   );
-  return platform;
+  return { platform, services };
+}
+
+async function mount(snapshot: Snapshot, options: MountOptions = {}) {
+  return (await mountServices(snapshot, options)).platform;
+}
+
+/** A promise the test settles. */
+function deferred<T>() {
+  let settle: (value: T) => void = () => {};
+  const promise = new Promise<T>((resolve) => {
+    settle = resolve;
+  });
+  return { promise, settle };
 }
 
 const options = () => screen.getAllByRole('option').map((option) => option.textContent);
@@ -76,6 +101,8 @@ const lines = (...header: string[]) => header.map(textCell).join('\n');
 const PT_SOURCES =
   'https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs43.aspx, ' +
   'https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs10.aspx';
+const NOT_LOADED =
+  "Your country's rules are not loaded on this device. Reload the page when you are online to export a tax year.";
 const EMPTY_COST = 'An empty cost_basis is a purchase with no recorded cost, not a cost of zero.';
 
 describe('TaxYearExport', () => {
@@ -108,13 +135,45 @@ describe('TaxYearExport', () => {
 
   it("without the country's rules, says so and offers no control", async () => {
     await mount(fixtureSnapshot(), { load: async () => null });
-    expect(
-      await screen.findByText(
-        "Your country's rules are not loaded on this device. Reload the page when you are online to export a tax year.",
-      ),
-    ).toBeTruthy();
+    expect(await screen.findByText(NOT_LOADED)).toBeTruthy();
     expect(screen.queryByRole('combobox')).toBeNull();
     expect(screen.queryByRole('button')).toBeNull();
+  });
+
+  it('while the profile loads, says nothing, then offers the select', async () => {
+    const pt = await rules('PT');
+    const profiles = deferred<void>();
+    gate.held = profiles.promise;
+    try {
+      await mount(fixtureSnapshot(), { load: async () => pt });
+      await act(async () => {});
+      expect(screen.queryByText(NOT_LOADED)).toBeNull();
+      expect(screen.queryByRole('combobox')).toBeNull();
+      gate.held = null;
+      await act(async () => profiles.settle());
+      expect(await screen.findByLabelText('Tax year')).toBeTruthy();
+    } finally {
+      gate.held = null;
+      profiles.settle();
+    }
+  });
+
+  it("while a change of country loads the new country's rules, says nothing, then offers its years", async () => {
+    const gb = deferred<Awaited<ReturnType<typeof rules>>>();
+    const { services } = await mountServices(fixtureSnapshot(), {
+      load: (code) => (code === 'GB' ? gb.promise : rules(code)),
+    });
+    await screen.findByLabelText('Tax year');
+    await act(async () => {
+      await services.domain.write(({ plan }) => ({
+        plan: { ...(plan as Plan), country: 'GB' as Plan['country'], payCurrency: 'GBP' },
+      }));
+    });
+    expect(screen.queryByText(NOT_LOADED)).toBeNull();
+    expect(screen.queryByRole('combobox')).toBeNull();
+    await act(async () => gb.settle(await rules('GB')));
+    expect(await screen.findByLabelText('Tax year')).toBeTruthy();
+    expect(options()).toEqual(['2026 to 2027 (still running)', '2025 to 2026']);
   });
 
   it('is absent for France and the Netherlands', async () => {
