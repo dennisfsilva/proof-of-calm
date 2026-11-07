@@ -759,6 +759,24 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   file: each header line, passed in (the wording is the app's), on its own row as one `textCell`, an empty row,
   then the columns, `coin` and `venue` through `textCell`. No `tax_year` column: the rows are dated, and the
   header names the span and the window.
+- The tax-year file of Settings → Currency & data → Your data (`packages/app/src/features/settings/tax-year.ts`;
+  decided 2026-11-07): a select of `taxYears` with `defaultTaxYear` chosen, under the two export buttons and
+  their export line (`docs/LEGAL.md` §4), offered only under the `per-lot` model, with entries, and while the
+  rules and the profile of the plan's country are on the device: the year and the rules come only from them,
+  never from the CSV log's fallback to no rules. `fifo`, `lifo` and `unspecified` take `taxYearLots`, the other
+  lot rules `taxYearPool`; the download counts nothing (ADR-0028). The header, its words in
+  `docs/CONTENT-STYLE.md` §3, holds in order: the app, the country and the span; the sentence of
+  `docs/JURISDICTIONS.md` §4; the currency line, which says the amounts are as logged and not converted and
+  names the pay currency, and the country's currency when it differs, never that every amount is in the pay
+  currency, since after a change of country the amounts logged before it keep the old currency and nothing
+  stored dates the change; the country's review line with the lot and holding rules' sources, or under review
+  (`docs/JURISDICTIONS.md` §1) its under-review line and then no `lotRuleNote`, condition or source; the
+  matching line (the lot rule, or that the raw listing matches nothing) and the `lotRuleNote`; where the country
+  has a holding rule, what `eligible_from` and `past_holding_rule` mean, each `holdingRuleConditions` sentence,
+  and a line when `planRuleDiffers`; per venue, the venue line and the `crossVenue` count; for the raw listing
+  what it lists, under `pooled` with the 30-day window and, while `windowOpen`, the export day; the format line;
+  then, when set, `uncosted`, `estimated`, `unmatched` and `ongoing`. No line names a gain, a loss, tax due, a
+  rate or an allowance, calls a row exempt, tax-free or taxable, or calls the file complete or ready to file.
 - `snapshotValue(plan, entries, history, date)`: the portfolio value on a given calendar date from the entry timeline and daily closes; used by the Dutch Portfolio line and the snapshot export; returns `null` with the missing coins listed when history is incomplete (planned: M2).
 
 ### 3.14 Chart maths (ADR-0022)

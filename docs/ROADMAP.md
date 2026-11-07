@@ -140,7 +140,8 @@ external links and the Risk link in the mobile export (M3).
   passes the copy-review checklist (`docs/CONTENT-STYLE.md`).
 - Jurisdictions: PT, DE, NL, ES, FR, IT, BE, IE, GB, US, XX as validated data with sources and dates;
   the country library in Learn, built on 2026-11-05 (#329), its country card on 2026-11-03 (#324); the tax-year export aligned to the country's tax year and shaped by
-  its computation model (per lot; France's portfolio-wide cessions with the estimated portfolio value
+  its computation model (per lot, with a raw listing for the lot rules the app does not match, built on
+  2026-11-07 in Settings' Your data; France's portfolio-wide cessions with the estimated portfolio value
   at each sale; the Dutch 1 January snapshot); the "Value on 1 January" line on Portfolio for Dutch
   users; holding-rule conditions shown beside the first date on the Log and the Plan (Portugal's
   counterparty rule), built on 2026-11-02 (#312); the dated
