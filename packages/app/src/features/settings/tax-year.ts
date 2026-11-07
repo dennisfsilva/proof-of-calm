@@ -114,7 +114,7 @@ function taxYearHeader(
       : []),
     ...(facts.windowOpen ? [t('windowOpen', { today })] : []),
     t('format'),
-    ...(facts.uncosted ? [t('uncosted')] : []),
+    ...(facts.uncosted ? [facts.raw ? t('uncostedRaw') : t('uncosted')] : []),
     ...(facts.estimated ? [t('estimated')] : []),
     ...(facts.unmatched ? [t('unmatched')] : []),
     ...(facts.ongoing ? [t('ongoing', { to: span.to, today })] : []),
