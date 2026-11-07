@@ -12,7 +12,7 @@ import { useTaxYearWords } from '../tax-year';
 // covers it (docs/LEGAL.md §4): a native select of the country's tax years, newest first, the latest ended one
 // chosen, then the button. A year across two calendar years reads as the UK card writes it, "2026 to 2027".
 // Without the country's rules or profile on the device it says so and offers nothing; for the models the app
-// does not export yet (France, the Netherlands, #272) it renders nothing.
+// does not export yet (France, the Netherlands) it renders nothing.
 
 export function TaxYearExport() {
   const t = useTranslations('settings.data');

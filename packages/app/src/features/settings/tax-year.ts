@@ -3,7 +3,7 @@
 // the rules of the plan's country, the lot rule's note, the conditions and the sources only from its profile:
 // never the CSV log's fallback to no rules, which would date every lot by the plan's own rule. A per-lot country
 // with a matched lot rule (`fifo`, `lifo`, `unspecified`) gets the lot pieces, one with a rule the app does not
-// match (`pooled`, `specific`, `average`) the raw listing; the shell offers no file for the other models (#272).
+// match (`pooled`, `specific`, `average`) the raw listing; the shell offers no file for the other models.
 // The download counts nothing (ADR-0028: `export_downloaded` stays the backup's and the log's).
 import { type CountryProfile, GENERIC_COUNTRY, loadProfile, ruleSource } from '@proofofcalm/content';
 import {
