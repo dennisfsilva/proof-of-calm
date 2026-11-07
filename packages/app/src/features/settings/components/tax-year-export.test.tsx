@@ -341,4 +341,55 @@ describe('TaxYearExport', () => {
     const platform = await mount(withPlan(patch as Partial<Plan>), { nowMs: fixtureNowMs('buy') });
     expect((await exportYear(platform, year)).content).toBe(expected);
   });
+
+  // A spreadsheet that splits on `;` (the de and pt locales) would cut a header cell in two.
+  const noSemicolon = (content: string) => {
+    for (const cell of headerOf(content).split('\n')) expect(cell).not.toContain(';');
+  };
+
+  it('no header cell of an expected file holds a semicolon', () => {
+    noSemicolon(ptFile);
+    noSemicolon(gbFile);
+  });
+
+  it('with every flag set, no header cell of either file holds a semicolon', async () => {
+    const entry = (all: readonly Entry[], id: string, patch: Partial<Entry>): Entry => ({
+      ...(all[0] as Entry),
+      id: `c0000000-0000-4000-8000-00000000000${id}` as Entry['id'],
+      ...patch,
+    });
+    const flagged = (all: readonly Entry[]): Entry[] => [
+      ...all.map((each, index) => (index === 1 ? { ...each, source: 'one-tap' as const } : each)),
+      heldNoCost(all, '2026-02-01', '0.01'),
+      entry(all, '1', { kind: 'extra', date: '2026-03-01' as CalendarDate, venue: 'Ledger' }),
+      entry(all, '2', {
+        kind: 'sell',
+        date: '2026-03-15' as CalendarDate,
+        venue: 'Bitvavo',
+        units: '0.001' as Entry['units'],
+      }),
+      entry(all, '3', { kind: 'sell', date: '2026-10-01' as CalendarDate, units: '5' as Entry['units'] }),
+    ];
+    const pt = await mount(withPlan({ holdingRule: { kind: 'none' } }, flagged));
+    const lots = (await exportYear(pt, '2026')).content;
+    const flags = [
+      'sale_venue shows',
+      'its own holding rule',
+      'is a sale',
+      'units_estimated yes',
+      'ends on 2026-12-31',
+    ];
+    for (const words of flags) expect(headerOf(lots)).toContain(words);
+    expect(headerOf(lots)).toContain(textCell(EMPTY_COST));
+    noSemicolon(lots);
+    cleanup();
+    const gb = await mount(withPlan({ country: 'GB' as Plan['country'], payCurrency: 'GBP' }, flagged));
+    const pool = (await exportYear(gb, '2027')).content;
+    expect(headerOf(pool)).toContain(textCell(EMPTY_COST_RAW));
+    noSemicolon(pool);
+  });
+
+  it('no tax-year file line holds a semicolon, whichever the code picks', () => {
+    for (const line of Object.values(settings.data.taxYear.file)) expect(line).not.toContain(';');
+  });
 });
