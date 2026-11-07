@@ -15,7 +15,7 @@
   "holdingRuleConditions": [],
   "lotRule": "pooled",
   "lotScope": "global",
-  "lotRuleNote": "One section 104 pool per token type, after the same-day rule and the 30-day rule (TCGA 1992 ss. 104, 105, and 106A). Proof of Calm lists lots first in, first out and leaves the pooling to the accountant.",
+  "lotRuleNote": "One section 104 pool per token type, after the same-day rule and the 30-day rule (TCGA 1992 ss. 104, 105, and 106A). Proof of Calm lists each purchase and leaves the pooling to the accountant.",
   "card": {
     "classification": "Most individuals hold tokens as a personal investment and pay Capital Gains Tax on disposal. Income Tax applies to tokens received from an employer, mining, transaction confirmation, or some airdrops, and when the activity is a trade.",
     "taxableEvents": [
