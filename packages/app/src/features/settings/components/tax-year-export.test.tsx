@@ -6,10 +6,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { I18nProvider } from '../../../lib/i18n';
 import type { Snapshot } from '../../../lib/ports';
 import { ServicesProvider } from '../../../lib/services';
-import { fixtureSnapshot } from '../../../lib/services/fixtures';
+import { fixtureNowMs, fixtureSnapshot } from '../../../lib/services/fixtures';
 import { createTestServices, preloadLazyModules, recordingPlatform } from '../../../lib/services/testing';
 import errors from '../../../messages/en/errors.json';
 import settings from '../../../messages/en/settings.json';
+import gbFile from '../../../../../../apps/web/e2e/fixtures/tax-year-2026-27-GB.csv?raw';
+import ptFile from '../../../../../../apps/web/e2e/fixtures/tax-year-2026-PT.csv?raw';
 import { TaxYearExport } from './tax-year-export';
 
 // The tax-year export under Your data (docs/DOMAIN.md §3.13): the years of the plan's country, the file of the
@@ -135,7 +137,7 @@ describe('TaxYearExport', () => {
       lines(
         'Proof of Calm tax-year file · Portugal · 2025-01-01 to 2025-12-31',
         'Data from your log, in your pay currency. Not a tax computation.',
-        'Amounts in EUR.',
+        'Amounts are as you logged them and are not converted. Your pay currency is EUR.',
         `Rules for Portugal reviewed on 2026-11-05 · general information, not advice · Sources: ${PT_SOURCES}`,
         'Each sale is matched to purchases of the same coin, first in, first out.',
         profile?.lotRuleNote ?? '',
@@ -178,8 +180,17 @@ describe('TaxYearExport', () => {
   it('a plan in USD under Portugal says the amounts are not converted', async () => {
     const platform = await mount(withPlan({ payCurrency: 'USD', displayCurrency: 'USD' }, yearEarlier));
     const header = headerOf((await exportYear(platform)).content);
-    expect(header).toContain('Amounts are in USD, your pay currency, and are not converted to EUR.');
-    expect(header).not.toContain('Amounts in EUR.');
+    expect(header).toContain(
+      'Amounts are as you logged them and are not converted to EUR. Your pay currency is USD.',
+    );
+  });
+
+  it('after a change of country, the currency line claims no amount is in the new pay currency', async () => {
+    // The store dates no change of currency (#272): amounts logged before it keep the old one.
+    const platform = await mount(withPlan({ country: 'GB' as Plan['country'], payCurrency: 'GBP' }));
+    const header = headerOf((await exportYear(platform, '2027')).content);
+    expect(header).toContain('Amounts are as you logged them and are not converted. Your pay currency is GBP.');
+    expect(header).not.toMatch(/Amounts (are )?in GBP/u);
   });
 
   it('the UK file is the raw listing, with the pool and the 30-day window named', async () => {
@@ -196,5 +207,20 @@ describe('TaxYearExport', () => {
     expect(header).toContain('Made on 2026-10-20: purchases after that day are not in this file.');
     expect(header).toContain('The tax year ends on 2027-04-05; this file shows your log as of 2026-10-20.');
     expect(file.content).toContain('\n\nkind,date,coin,venue,units,cost_basis,fee,eligible_from,proceeds,');
+  });
+
+  // The e2e spec's expected files (apps/web/e2e/tax-year.spec.ts), byte for byte from the same seed and clock,
+  // so a change of wording or rows fails here before the viewport matrix runs.
+  it.each([
+    ['PT', {}, '2026', ptFile],
+    [
+      'GB',
+      { country: 'GB', payCurrency: 'GBP', displayCurrency: 'GBP', holdingRule: { kind: 'none' } },
+      '2027',
+      gbFile,
+    ],
+  ] as const)('the %s file is the e2e fixture', async (_, patch, year, expected) => {
+    const platform = await mount(withPlan(patch as Partial<Plan>), { nowMs: fixtureNowMs('buy') });
+    expect((await exportYear(platform, year)).content).toBe(expected);
   });
 });
