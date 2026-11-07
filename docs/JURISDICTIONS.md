@@ -262,7 +262,7 @@ and re-read from the device (a user who moves keeps the country until they chang
 `taxYear` is `{ start, end }` as month-day. The export (M2) takes the span of one tax year, named by
 the calendar year it ends in (`taxYearEndingIn: number`). Its rows, columns, rounding and file name
 are in `docs/DOMAIN.md` §3.13. Its header names the country, the span and the lot rule used, with the
-sentence "Data from your log, in your pay currency. Not a tax computation." Calendar-year countries: 01-01 to 12-31. The UK: 6 April to 5 April,
+sentence "Data from your log. Not a tax computation." Calendar-year countries: 01-01 to 12-31. The UK: 6 April to 5 April,
 the year 2026-27 ending in 2027.
 Ireland's two CGT payment windows (initial period to 30 November, later period 1 to 31 December) are a
 `filingNote`, not logic.

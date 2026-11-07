@@ -623,7 +623,7 @@
         "notLoaded": "Your country's rules are not loaded on this device. Reload the page when you are online to export a tax year.",
         "file": {
           "title": "{product} tax-year file · {country} · {from} to {to}",
-          "owned": "Data from your log, in your pay currency. Not a tax computation.",
+          "owned": "Data from your log. Not a tax computation.",
           "currency": "Amounts are as you logged them and are not converted. Your pay currency is {currency}.",
           "notConverted": "Amounts are as you logged them and are not converted to {countryCurrency}. Your pay currency is {currency}.",
           "reviewed": "Rules for {country} reviewed on {date} · general information, not advice",
