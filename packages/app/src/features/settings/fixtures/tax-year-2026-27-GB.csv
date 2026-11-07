@@ -1,13 +1,13 @@
 Proof of Calm tax-year file · United Kingdom · 2026-04-06 to 2027-04-05
 Data from your log. Not a tax computation.
 Amounts are as you logged them and are not converted. Your pay currency is GBP.
-"Rules for United Kingdom reviewed on 2026-11-05 · general information, not advice · Sources: https://www.gov.uk/hmrc-internal-manuals/cryptoassets-manual/crypto22200, https://www.gov.uk/hmrc-internal-manuals/cryptoassets-manual/crypto22100"
-Sales are not matched to purchases in this file; the pooling or matching is for your accountant.
+"United Kingdom rules reviewed on 2026-11-05 · general information, not advice · Sources: https://www.gov.uk/hmrc-internal-manuals/cryptoassets-manual/crypto22200, https://www.gov.uk/hmrc-internal-manuals/cryptoassets-manual/crypto22100"
+Sales are not matched to purchases in this file. The pooling or matching is for your accountant.
 "One section 104 pool per token type, after the same-day rule and the 30-day rule (TCGA 1992 ss. 104, 105, and 106A). Proof of Calm lists each purchase and leaves the pooling to the accountant."
-"For a coin sold in the tax year, every purchase and sale to 2027-04-05 is listed for the pool, and the purchases to 2027-05-05 for the 30-day rule."
+"For a coin sold in the tax year, every purchase and sale to 2027-04-05 is listed for the pool. Its purchases to 2027-05-05 are listed for the 30-day rule."
 Made on 2026-10-20: purchases after that day are not in this file.
-Dates are YYYY-MM-DD; amounts and units use a decimal point.
-The tax year ends on 2027-04-05; this file shows your log as of 2026-10-20.
+Dates are YYYY-MM-DD. Amounts and units use a decimal point.
+The tax year ends on 2027-04-05. This file shows your log as of 2026-10-20.
 
 kind,date,coin,venue,units,cost_basis,fee,eligible_from,proceeds,disposal_fee,units_estimated
 dca,2026-05-05,BTC,,0.00121,70,,,,,no
