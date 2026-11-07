@@ -54,6 +54,15 @@ export function useRules(): CountryRules | null {
 }
 
 /**
+ * Whether the load of the plan's country's rules has settled, with the rules or without them (`useRules` is
+ * null then); false while it runs, at boot or after a change of country, and with no plan.
+ */
+export function useRulesSettled(): boolean {
+  const country = useSnapshot((snapshot) => snapshot.plan?.country ?? null);
+  return useUi((state) => country !== null && state.rules !== null && state.rules.country === country);
+}
+
+/**
  * The formatters of the plan's country in the UI language (ADR-0023), remade only when the loaded rules
  * change: after a change of country they keep the previous record's locale until the new rules load.
  */

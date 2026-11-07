@@ -6,7 +6,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { EMPTY_SNAPSHOT } from '../adapters/memory-store';
 import type { Snapshot } from '../ports';
 import type { Services } from './create';
-import { useBoot, useFormatters, useNumberInput, useRules, useSnapshot, useToday } from './hooks';
+import { useBoot, useFormatters, useNumberInput, useRules, useRulesSettled, useSnapshot, useToday } from './hooks';
 import { ServicesProvider } from './provider';
 import { createTestServices } from './testing';
 
@@ -25,6 +25,7 @@ function Probe() {
       <output data-testid="entries">{entries}</output>
       <output data-testid="boot">{useBoot()}</output>
       <output data-testid="rules">{useRules() === null ? 'none' : 'loaded'}</output>
+      <output data-testid="settled">{useRulesSettled() ? 'settled' : 'loading'}</output>
       <output data-testid="today">{useToday()}</output>
       <output data-testid="money">{formatters.money(money('1234.56'), 'EUR')}</output>
       <output data-testid="date">{formatters.date(date('2028-03-04'))}</output>
@@ -66,6 +67,28 @@ describe('the services hooks', () => {
     answer(portugal);
     await act(() => started);
     expect(text('boot')).toBe('ready');
+  });
+
+  it('useRulesSettled tells rules still loading from rules the device does not have', async () => {
+    let answer: (rules: CountryRules | null) => void = () => undefined;
+    const pending = new Promise<CountryRules | null>((resolve) => {
+      answer = resolve;
+    });
+    const services = createTestServices({ snapshot: withPlan, rules: () => pending });
+    const text = mount(services);
+    const started = services.start();
+    await waitFor(() => expect(services.domain.store.getState().status).toBe('ready'));
+    expect([text('rules'), text('settled')]).toEqual(['none', 'loading']);
+    answer(null);
+    await act(() => started);
+    expect([text('rules'), text('settled')]).toEqual(['none', 'settled']);
+  });
+
+  it('useRulesSettled is false with no plan', async () => {
+    const services = createTestServices({ snapshot: EMPTY_SNAPSHOT });
+    const text = mount(services);
+    await act(() => services.start());
+    expect(text('settled')).toBe('loading');
   });
 
   it('useFormatters follows the loaded rules: Portugal’s format, British English without any', async () => {

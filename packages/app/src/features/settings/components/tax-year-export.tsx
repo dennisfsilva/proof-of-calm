@@ -4,15 +4,23 @@ import { useId, useMemo, useState } from 'react';
 import { useTranslations } from 'use-intl';
 import { BRAND } from '../../../lib/brand';
 import { reportError } from '../../../lib/errors';
-import { useProfile, useRules, useServices, useSnapshot, useToday } from '../../../lib/services';
+import {
+  useProfileLoad,
+  useRules,
+  useRulesSettled,
+  useServices,
+  useSnapshot,
+  useToday,
+} from '../../../lib/services';
 import { dataActions } from '../actions';
 import { useTaxYearWords } from '../tax-year';
 
 // The tax-year export under Your data's export buttons (docs/DOMAIN.md §3.13), below the one export line that
 // covers it (docs/LEGAL.md §4): a native select of the country's tax years, newest first, the latest ended one
 // chosen, then the button. A year across two calendar years reads as the UK card writes it, "2026 to 2027".
-// Without the country's rules or profile on the device it says so and offers nothing; for the models the app
-// does not export yet (France, the Netherlands) it renders nothing.
+// Once a load has settled without the country's rules or profile it says they are not on the device and offers
+// nothing; while either loads (the profile after boot, the rules after a change of country) it renders nothing,
+// as for the models the app does not export yet (France, the Netherlands).
 
 export function TaxYearExport() {
   const t = useTranslations('settings.data');
@@ -21,14 +29,16 @@ export function TaxYearExport() {
   const services = useServices();
   const actions = useMemo(() => dataActions(services), [services]);
   const rules = useRules();
-  const profile = useProfile(rules?.code);
+  const rulesSettled = useRulesSettled();
+  const { profile, settled: profileSettled } = useProfileLoad(rules?.code);
   const entries = useSnapshot((snapshot) => snapshot.entries);
   const today = useToday();
   const id = useId();
   const [chosen, setChosen] = useState<number | null>(null);
   const [failed, setFailed] = useState<'not-saved' | 'unknown' | null>(null);
 
-  if (rules === null) return <p className="text-ink-2">{t('taxYear.notLoaded')}</p>;
+  const notLoaded = <p className="text-ink-2">{t('taxYear.notLoaded')}</p>;
+  if (rules === null) return rulesSettled ? notLoaded : null;
   const model = rules.computationModel;
   switch (model.kind) {
     case 'per-lot':
@@ -39,7 +49,7 @@ export function TaxYearExport() {
     default:
       return assertNever(model);
   }
-  if (profile === null) return <p className="text-ink-2">{t('taxYear.notLoaded')}</p>;
+  if (profile === null) return profileSettled ? notLoaded : null;
   const years = taxYears(entries, rules.taxYear, today);
   if (years.length === 0) return <p className="text-ink-2">{t('taxYear.noEntries')}</p>;
   const year = chosen !== null && years.includes(chosen) ? chosen : defaultTaxYear(entries, rules.taxYear, today);

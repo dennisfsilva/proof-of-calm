@@ -763,7 +763,8 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   decided 2026-11-07): a select of `taxYears` with `defaultTaxYear` chosen, under the two export buttons and
   their export line (`docs/LEGAL.md` §4), offered only under the `per-lot` model, with entries, and while the
   rules and the profile of the plan's country are on the device: the year and the rules come only from them,
-  never from the CSV log's fallback to no rules. `fifo`, `lifo` and `unspecified` take `taxYearLots`, the other
+  never from the CSV log's fallback to no rules. Once a load has ended without them it says so; while either
+  loads (the profile after boot, the rules after a change of country) it shows nothing. `fifo`, `lifo` and `unspecified` take `taxYearLots`, the other
   lot rules `taxYearPool`; the download counts nothing (ADR-0028). The header, its words in
   `docs/CONTENT-STYLE.md` §3, holds in order: the app, the country and the span; the sentence of
   `docs/JURISDICTIONS.md` §4, which names no currency; the currency line, which says the amounts are as logged
