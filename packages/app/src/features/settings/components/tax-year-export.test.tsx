@@ -43,9 +43,9 @@ function withPlan(patch: Partial<Plan>, entries?: (all: readonly Entry[]) => Ent
 const yearEarlier = (all: readonly Entry[]) =>
   all.map((entry) => ({ ...entry, date: entry.date.replace('2026-', '2025-') as CalendarDate }));
 
-async function mount(snapshot: Snapshot, options: { load?: typeof rules; nowMs?: number } = {}) {
+async function mount(snapshot: Snapshot, { load = rules, nowMs }: { load?: typeof rules; nowMs?: number } = {}) {
   const platform = recordingPlatform();
-  const services = createTestServices({ snapshot, platform, rules: options.load ?? rules, nowMs: options.nowMs });
+  const services = createTestServices({ snapshot, platform, rules: load, ...(nowMs === undefined ? {} : { nowMs }) });
   await services.start();
   render(
     <ServicesProvider services={services}>
@@ -91,7 +91,9 @@ describe('TaxYearExport', () => {
   });
 
   it('with a first buy today, offers only the running year, marked as running', async () => {
-    await mount(withPlan({}, (all) => all.slice(0, 1).map((entry) => ({ ...entry, date: '2026-10-20' as CalendarDate }))));
+    await mount(
+      withPlan({}, (all) => all.slice(0, 1).map((entry) => ({ ...entry, date: '2026-10-20' as CalendarDate }))),
+    );
     await screen.findByLabelText('Tax year');
     expect(options()).toEqual(['2026 (still running)']);
   });
@@ -143,7 +145,9 @@ describe('TaxYearExport', () => {
         'Dates are YYYY-MM-DD; amounts and units use a decimal point.',
       ),
     );
-    expect(file.content).toContain('\n\nkind,acquired,coin,venue,units,cost_basis,fee,eligible_from,past_holding_rule,');
+    expect(file.content).toContain(
+      '\n\nkind,acquired,coin,venue,units,cost_basis,fee,eligible_from,past_holding_rule,',
+    );
   });
 
   it("Italy's file quotes the profile's lot rule note under the empty-cost line", async () => {

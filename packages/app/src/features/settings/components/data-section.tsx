@@ -21,10 +21,11 @@ import { type DataRefusal, dataActions, type ImportOutcome, type PrototypeOutcom
 import { type ReadImport, readImport } from '../model/import';
 import { DeletePlanDialog } from './delete-plan-dialog';
 import { PrototypeImport, PrototypePaste, PrototypeReport } from './prototype-import';
+import { TaxYearExport } from './tax-year-export';
 
 // Settings → data (docs/DOMAIN.md §3.13): the export line and the Risk page link beside the two exports
-// (docs/LEGAL.md §4) and "Delete everything" below them (delete-plan-dialog.tsx), then the import of a JSON
-// backup as "Replace everything" or "Add missing entries only", or as the one "Import this backup" with no
+// (docs/LEGAL.md §4), the tax-year export under them (tax-year-export.tsx) and "Delete everything" below them
+// (delete-plan-dialog.tsx), then the import of a JSON backup as "Replace everything" or "Add missing entries only", or as the one "Import this backup" with no
 // plan, where both modes take the file's plan. Replacing a
 // plan first asks, with the count and an export, as "Delete the plan" does (docs/CONTENT-STYLE.md §3), and
 // the confirming button is the destructive one (docs/DESIGN.md §8); the safe one takes the focus when it opens.
@@ -218,6 +219,7 @@ export function DataSection() {
             <p className="text-ink-2">{t('exportLeftOut', { count: leftOut, figure: figure(leftOut), product })}</p>
           )}
           {exportAlert}
+          <TaxYearExport />
         </>
       ) : (
         <p className="text-ink-2">{t('noPlan')}</p>
