@@ -136,7 +136,7 @@ describe('TaxYearExport', () => {
     expect(headerOf(file.content)).toBe(
       lines(
         'Proof of Calm tax-year file · Portugal · 2025-01-01 to 2025-12-31',
-        'Data from your log, in your pay currency. Not a tax computation.',
+        'Data from your log. Not a tax computation.',
         'Amounts are as you logged them and are not converted. Your pay currency is EUR.',
         `Rules for Portugal reviewed on 2026-11-05 · general information, not advice · Sources: ${PT_SOURCES}`,
         'Each sale is matched to purchases of the same coin, first in, first out.',
@@ -183,12 +183,13 @@ describe('TaxYearExport', () => {
     expect(header).toContain('Amounts are as you logged them and are not converted to EUR. Your pay currency is USD.');
   });
 
-  it('after a change of country, the currency line claims no amount is in the new pay currency', async () => {
+  it('after a change of country, no header line claims the amounts are in the new pay currency', async () => {
     // The store dates no change of currency (#272): amounts logged before it keep the old one.
     const platform = await mount(withPlan({ country: 'GB' as Plan['country'], payCurrency: 'GBP' }));
     const header = headerOf((await exportYear(platform, '2027')).content);
     expect(header).toContain('Amounts are as you logged them and are not converted. Your pay currency is GBP.');
     expect(header).not.toMatch(/Amounts (are )?in GBP/u);
+    expect(header).not.toMatch(/in (your|the) pay currency/u);
   });
 
   it('the UK file is the raw listing, with the pool and the 30-day window named', async () => {
