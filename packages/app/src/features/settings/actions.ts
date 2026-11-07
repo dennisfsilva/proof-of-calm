@@ -38,6 +38,7 @@ import { BRAND } from '../../lib/brand';
 import { reportError } from '../../lib/errors';
 import type { Snapshot, WipedRows } from '../../lib/ports';
 import type { Services } from '../../lib/services';
+import { downloadTaxYear, type TaxYearWords } from './tax-year';
 
 /** Saved and recorded; not saved (no plan, or the platform could not); saved, but its date not stored. */
 type ExportOutcome = 'saved' | 'not-saved' | 'date-not-stored';
@@ -69,6 +70,8 @@ export type DataActions = {
   exportJson(): Promise<ExportOutcome>;
   /** Saves the log as CSV; false when there is no plan or the platform could not save it. */
   exportCsv(): Promise<boolean>;
+  /** Saves the file of the tax year ending in `endingIn`, its header in `words` (./tax-year); false as exportCsv. */
+  exportTaxYear(endingIn: number, words: TaxYearWords): Promise<boolean>;
   /** Applies the file to what the device holds and writes the plan and the entries in one write. */
   importBackup(file: BackupFile, mode: ImportMode): Promise<ImportOutcome>;
   /**
@@ -140,6 +143,10 @@ export function dataActions(services: Services): DataActions {
       const saved = await platform.download(name, logCsv(plan, entries, holdingContext(plan, rules)), 'text/csv');
       if (saved) analytics.count('export_downloaded');
       return saved;
+    },
+    async exportTaxYear(endingIn, words) {
+      const { plan, entries } = (await current(services)).snapshot;
+      return plan !== null && downloadTaxYear(services, { plan, entries }, endingIn, words);
     },
     async importBackup(file, mode) {
       let outcome: ImportOutcome | null = null;
