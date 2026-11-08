@@ -178,7 +178,7 @@ export function taxYearSnapshot(
 }
 
 /** An amount half-even at the currency's minor digits, padded to them; empty for none. */
-function amountCell(value: Money | null, digits: number): string {
+export function roundedAmountCell(value: Money | null, digits: number): string {
   if (value === null) return '';
   const rounded = round(value, digits, 'half-even');
   const places = decimalPlaces(rounded);
@@ -186,8 +186,8 @@ function amountCell(value: Money | null, digits: number): string {
 }
 
 /** The sum of a column's written cells, empty when one of them is (docs/DOMAIN.md §3.13). */
-const totalCell = (cells: readonly string[], digits: number) =>
-  cells.includes('') ? '' : amountCell(sum(cells as Money[]), digits);
+export const writtenTotalCell = (cells: readonly string[], digits: number) =>
+  cells.includes('') ? '' : roundedAmountCell(sum(cells as Money[]), digits);
 
 /**
  * The file, laid out as the per-lot file: each header line as one text cell, an empty row, the columns, one `coin`
@@ -213,7 +213,7 @@ export function taxYearSnapshotCsv(snapshot: TaxYearSnapshot, header: readonly s
     `units_on_${closing}`,
     `value_on_${closing}`,
   ];
-  const amount = (value: Money | null) => amountCell(value, digits);
+  const amount = (value: Money | null) => roundedAmountCell(value, digits);
   const rows = snapshot.rows.map((row) => [
     'coin',
     textCell(row.coin),
@@ -231,7 +231,7 @@ export function taxYearSnapshotCsv(snapshot: TaxYearSnapshot, header: readonly s
     amount(row.closingValue),
   ]);
   const sumOf = (pick: (row: SnapshotRow) => Money | null) =>
-    totalCell(
+    writtenTotalCell(
       snapshot.rows.map((row) => amount(pick(row))),
       digits,
     );

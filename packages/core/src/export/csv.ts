@@ -4,8 +4,8 @@
 import { PRICE_FIGURES } from '../constants';
 import { compareDates, compareInstants } from '../dates/calendar';
 import { holdingStatus } from '../holding/eligible-from';
-import { MINOR_UNITS } from '../money/currency';
-import { type Price, quotientSignificant } from '../money/decimal';
+import { type CurrencyCode, MINOR_UNITS } from '../money/currency';
+import { type Money, type Price, quotientSignificant, type Units } from '../money/decimal';
 import { liveEntries } from '../plan/statuses';
 import { DEFAULT_HOLDING_CONTEXT, type HoldingContext } from '../portfolio/eligibility';
 import type { Entry } from '../schema/entry';
@@ -47,16 +47,14 @@ function eligibleFrom(plan: Plan, entry: Entry, context: HoldingContext): string
   return status.kind === 'dated' ? status.from : '';
 }
 
+/** amount ÷ units as the entry form derives it (§6): never 0 for a coin under a cent; also the French file's price. */
+export function loggedPrice(amount: Money, units: Units, currency: CurrencyCode): Price {
+  return quotientSignificant<Price>(amount, units, PRICE_FIGURES, MINOR_UNITS[currency], 'half-even');
+}
+
 /** The implied price as the entry form derives it; empty for coins held with no recorded cost. */
 function priceCell(plan: Plan, entry: Entry): string {
-  if (entry.amount === null) return '';
-  return quotientSignificant<Price>(
-    entry.amount,
-    entry.units,
-    PRICE_FIGURES,
-    MINOR_UNITS[plan.payCurrency],
-    'half-even',
-  );
+  return entry.amount === null ? '' : loggedPrice(entry.amount, entry.units, plan.payCurrency);
 }
 
 export function logCsv(
