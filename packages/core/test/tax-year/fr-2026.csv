@@ -1,0 +1,10 @@
+Header line one
+'=a second line
+
+row,cession,date,coin,units,units_estimated,venue,sale_price,sale_fee,price,price_source,value,estimated_portfolio_value,purchase_costs_to_date,purchase_fees_to_date,held_without_cost_to_date
+holding,1,2026-04-15,BTC,0.26,no,,,,66666.67,sale,17333.33,,,,
+holding,1,2026-04-15,ETH,2.5,no,,,,,,,,,,
+sale,1,2026-04-15,BTC,0.12,no,Kraken,8000.00,4.00,,,,,14800.00,12.40,1
+holding,2,2026-09-20,BTC,0.152345,yes,,,,65432.1,close,9968.25,,,,
+holding,2,2026-09-20,ETH,2.5,no,,,,2500.1,sale,6250.25,,,,
+sale,2,2026-09-20,ETH,2.5,yes,,6250.25,,,,,16218.50,15800.00,12.40,1
