@@ -254,7 +254,11 @@ describe('JanuaryValue', () => {
     cleanup();
     await mount(NL, histories(), dutch(), ENTRIES, fixtureNowMs('sell'), true);
     const line = screen.getByText(/^Past performance is not a reliable indicator of future results\./);
-    expect(screen.getByText(/^Estimate from the daily closes/).nextElementSibling).toBe(line);    expect(screen.getByRole('link', { name: 'Risk disclosure' }).getAttribute('href')).toBe('/risk');
+    expect(screen.getByText(/^Estimate from the daily closes/).nextElementSibling).toBe(line);
+    // The same type as the estimate line above it (docs/CONTENT-STYLE.md §3, "Portfolio value chart").
+    expect(line.className).toContain('text-14');
+    expect(line.className).not.toContain('text-13');
+    expect(screen.getByRole('link', { name: 'Risk disclosure' }).getAttribute('href')).toBe('/risk');
     cleanup();
     // No figure, no historic data to disclose.
     await mount(NL, histories('EUR', 'ETH'), dutch(), ENTRIES, fixtureNowMs('sell'), true);

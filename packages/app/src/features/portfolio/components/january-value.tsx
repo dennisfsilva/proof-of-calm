@@ -118,7 +118,7 @@ function OpeningValue({ plan, entries, histories, pastPerformance }: Omit<Januar
         </p>
       )}
       {priced && pastPerformance && (
-        <p className="text-13 text-ink-2">
+        <p className="text-14 text-ink-2">
           {chart('pastPerformance')}{' '}
           <a href="/risk" className="text-ink underline underline-offset-4 hover:text-ink-2">
             {chart('riskLink')}
