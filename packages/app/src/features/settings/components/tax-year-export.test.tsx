@@ -426,7 +426,7 @@ describe('TaxYearExport', () => {
     );
     expect(fr).toContain('The tax year ends on 2026-12-31. This file shows your log as of 2026-10-20.');
     const nl = headerOf(files.NL ?? '');
-    expect(nl).toContain('held_units are Coins added entries dated in this year.');
+    expect(nl).toContain('held_units counts the units of Coins added entries dated in this year.');
     expect(nl).toContain('An empty held_cost means a Coins added entry has no recorded cost, not a cost of zero.');
     expect(nl).toContain("Some units come from Proof of Calm's Bought as planned button");
     for (const header of [fr, nl]) {
