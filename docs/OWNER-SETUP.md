@@ -12,10 +12,9 @@ a private repository (HTTP 403: "Upgrade to GitHub Pro or make this repository p
 them. Since 2026-11-08 the repository is public, from fresh history (ADR-0051): the ruleset `main`
 was created again there with the same rules, and it no longer needs Pro; secret scanning, push
 protection and Dependabot security alerts are on there since 2026-11-08 (CodeQL is not set up). The
-history before that day is in the private dennisfsilva/proof-of-calm-archive. Open, the owner's
-(money): nothing else on the account needs Pro (no other private repository has a ruleset, a
-protected branch, a wiki or Pages), so it can go back to Free (Settings → Billing and licensing →
-Additional billing details → Current plan: Edit → Downgrade to Free).
+history before that day is in the private dennisfsilva/proof-of-calm-archive. Nothing else on the
+account needed Pro (no other private repository has a ruleset, a protected branch, a wiki or Pages),
+so the owner cancelled it on 2026-11-08; the account returns to GitHub Free when the paid month ends.
 
 - **Minutes.** Free on the standard runners since 2026-11-08 (ADR-0051); what follows is the
   private repository's. Pro includes 3,000 Actions minutes a month; extra minutes cost $0.006 each on the
