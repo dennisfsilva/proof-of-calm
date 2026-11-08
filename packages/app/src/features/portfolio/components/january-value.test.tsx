@@ -221,11 +221,14 @@ describe('JanuaryValue', () => {
     expect(text()).not.toContain('Coins added');
     cleanup();
     await mount(NL, histories(), dutch(), [...ENTRIES, added('2030-01-02')]);
-    expect(
-      screen.getByText(
-        'Coins added in the Log with a date after 31 Dec 2029 are not counted here: BTC. If you held them on 31 Dec 2029, change their date in the Log.',
-      ),
-    ).toBeDefined();
+    const line = screen.getByText(/^Coins added in the Log/);
+    expect(line.textContent?.replace(/\s/g, ' ')).toBe(
+      'Coins added in the Log with a date after 31 Dec 2029 are not counted here: BTC. If you held them on 31 Dec 2029, change their date in the Log.',
+    );
+    // The step links the Log, as the screen's line for coins not bought yet does.
+    const link = screen.getByRole('link', { name: 'Log' });
+    expect(link.getAttribute('href')).toBe('/log');
+    expect(line.contains(link)).toBe(true);
   });
 
   it('with nothing held on the eve says so only while coins were added after it', async () => {
@@ -251,8 +254,7 @@ describe('JanuaryValue', () => {
     cleanup();
     await mount(NL, histories(), dutch(), ENTRIES, fixtureNowMs('sell'), true);
     const line = screen.getByText(/^Past performance is not a reliable indicator of future results\./);
-    expect(screen.getByText(/^Estimate from the daily closes/).nextElementSibling).toBe(line);
-    expect(screen.getByRole('link', { name: 'Risk disclosure' }).getAttribute('href')).toBe('/risk');
+    expect(screen.getByText(/^Estimate from the daily closes/).nextElementSibling).toBe(line);    expect(screen.getByRole('link', { name: 'Risk disclosure' }).getAttribute('href')).toBe('/risk');
     cleanup();
     // No figure, no historic data to disclose.
     await mount(NL, histories('EUR', 'ETH'), dutch(), ENTRIES, fixtureNowMs('sell'), true);

@@ -11,8 +11,9 @@ import {
   type PriceHistories,
   snapshotValue,
 } from '@proofofcalm/core';
-import { useMemo } from 'react';
+import { type ReactNode, useMemo } from 'react';
 import { useTranslations } from 'use-intl';
+import { Link } from '../../../lib/navigation';
 import { useFormatters, useToday } from '../../../lib/services';
 import { type HistoriesState, servesHistory } from '../lib/use-histories';
 
@@ -63,6 +64,13 @@ const CLOSE_FINAL_AT = '00:10:30';
 function closedAfter(fetchedAt: Instant, year: string): boolean {
   return compareInstants(fetchedAt, `${year}-01-01T${CLOSE_FINAL_AT}Z` as Instant) >= 0;
 }
+
+// The step's Log link, as the screen's `notBought` line links it.
+const logLink = (chunks: ReactNode) => (
+  <Link href="/log" className="text-ink underline underline-offset-4">
+    {chunks}
+  </Link>
+);
 
 function OpeningValue({ plan, entries, histories, pastPerformance }: Omit<JanuaryValueProps, 'rules'>) {
   const t = useTranslations('portfolio.januaryValue');
@@ -118,7 +126,9 @@ function OpeningValue({ plan, entries, histories, pastPerformance }: Omit<Januar
         </p>
       )}
       {addedAfter.length > 0 && (
-        <p className="text-14 text-ink-2">{t('heldAfter', { date, coins: format.list(addedAfter) })}</p>
+        <p className="text-14 text-ink-2">
+          {t.rich('heldAfter', { date, coins: format.list(addedAfter), log: logLink })}
+        </p>
       )}
     </div>
   );
