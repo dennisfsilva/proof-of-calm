@@ -795,8 +795,8 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   rows that leave it empty: the per-lot file's with no acquired date, the raw listing's sales), `estimated`,
   `unmatched` and `ongoing`. The cessions and snapshot headers open with the same four lines (title, export
   sentence, currency, review) and carry no matching, `lotRuleNote`, holding, venue or listing line. The
-  cessions header then says what a block holds and that the file applies no formula, leaving the calculation
-  to the reader or their accountant; that only the coin sold has a price (its sale price), so the estimate
+  cessions header then says what a block holds and that the file leaves the calculation to the person or
+  their accountant; that only the coin sold has a price (its sale price), so the estimate
   fills only when it was the only coin held and the log holds the units sold; what the two running sums hold
   (the amounts of the purchases and the recorded costs of the `held` entries logged before the sale, and
   their fees); the format line; and, when set, `uncosted` (as `held_without_cost_to_date`), `estimatedBlock`
