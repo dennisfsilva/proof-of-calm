@@ -20,9 +20,11 @@ import { useTaxYearWords } from '../tax-year';
 // covers it (docs/LEGAL.md §4): the ui Select of the country's tax years, newest first, the latest ended one
 // chosen, then the button. A year across two calendar years reads as the UK card writes it, "2026 to 2027".
 // Once a load has settled without the country's rules or profile it says they are not on the device and offers
-// nothing; while either loads (the profile after boot, the rules after a change of country) it renders nothing,
-// as for the models the app does not export yet (France, the Netherlands). Not a native <select>: one mounting
-// in WebKit records a style-src-attr violation under the hashed CSP (docs/SECURITY.md §4); the ui Select does not.
+// nothing; while either loads (the profile after boot, the rules after a change of country) it renders nothing.
+// Every computation model has a file (settings/tax-year.ts): the per-lot one, France's cessions and the
+// Netherlands' snapshot; the switch ends in assertNever, so a new model fails the typecheck here first.
+// Not a native <select>: one mounting in WebKit records a style-src-attr violation under the hashed CSP
+// (docs/SECURITY.md §4); the ui Select does not.
 
 export function TaxYearExport() {
   const t = useTranslations('settings.data');
@@ -43,10 +45,9 @@ export function TaxYearExport() {
   const model = rules.computationModel;
   switch (model.kind) {
     case 'per-lot':
-      break;
     case 'portfolio-wide':
     case 'wealth-snapshot':
-      return null;
+      break;
     default:
       return assertNever(model);
   }

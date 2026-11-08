@@ -12,6 +12,8 @@ import { createTestServices, preloadLazyModules, recordingPlatform } from '../..
 import errors from '../../../messages/en/errors.json';
 import settings from '../../../messages/en/settings.json';
 import gbFile from '../fixtures/tax-year-2026-27-GB.csv?raw';
+import frFile from '../fixtures/tax-year-2026-FR.csv?raw';
+import nlFile from '../fixtures/tax-year-2026-NL.csv?raw';
 import ptFile from '../fixtures/tax-year-2026-PT.csv?raw';
 import { TaxYearExport } from './tax-year-export';
 
@@ -208,12 +210,11 @@ describe('TaxYearExport', () => {
     expect(await options()).toEqual(['2026 to 2027 (still running)', '2025 to 2026']);
   });
 
-  it('is absent for France and the Netherlands', async () => {
+  it('offers the years of France and the Netherlands, their portfolio-wide and snapshot models', async () => {
     for (const country of ['FR', 'NL']) {
-      await mount(withPlan({ country: country as Plan['country'] }));
-      // The profile loads after the rules; a tick lets anything it would show render.
-      await act(async () => {});
-      expect(document.body.textContent).toBe('');
+      await mount(withPlan({ country: country as Plan['country'] }, (all) => [...yearEarlier(all), ...all]));
+      expect(await options()).toEqual(['2026 (still running)', '2025']);
+      expect(screen.getByRole('button', { name: 'Export tax-year CSV' })).toBeTruthy();
       cleanup();
     }
   });
@@ -346,6 +347,8 @@ describe('TaxYearExport', () => {
       '2026 to 2027 (still running)',
       gbFile,
     ],
+    ['FR', { country: 'FR' }, '2026 (still running)', frFile],
+    ['NL', { country: 'NL' }, '2026 (still running)', nlFile],
   ] as const)('the %s file is the e2e fixture', async (_, patch, year, expected) => {
     const platform = await mount(withPlan(patch as Partial<Plan>), { nowMs: fixtureNowMs('buy') });
     expect((await exportYear(platform, year)).content).toBe(expected);
@@ -396,6 +399,77 @@ describe('TaxYearExport', () => {
     const pool = (await exportYear(gb, '2026 to 2027 (still running)')).content;
     expect(headerOf(pool)).toContain(textCell(EMPTY_COST_RAW));
     noSemicolon(pool);
+  });
+
+  // France's and the Netherlands' files with every line that applies: a one-tap entry, a held entry with no
+  // cost before the sale and in the year, the running year.
+  const flaggedModel = (all: readonly Entry[]): Entry[] => [
+    ...all.map((each, index) => (index === 1 ? { ...each, source: 'one-tap' as const } : each)),
+    heldNoCost(all, '2026-02-01', '0.01'),
+  ];
+
+  it('with every flag set, no header cell of the French or Dutch file holds a semicolon or the word wealth', async () => {
+    const files: Record<string, string> = {};
+    for (const country of ['FR', 'NL']) {
+      const platform = await mount(withPlan({ country: country as Plan['country'] }, flaggedModel));
+      const file = await exportYear(platform, '2026 (still running)');
+      expect(file.name).toBe(`proof-of-calm-tax-year-2026-${country}-2026-10-20.csv`);
+      files[country] = file.content;
+      noSemicolon(file.content);
+      expect(`${file.name}\n${headerOf(file.content)}`).not.toMatch(/wealth/iu);
+      cleanup();
+    }
+    const fr = headerOf(files.FR ?? '');
+    expect(fr).toContain('held_without_cost_to_date: how many Coins added entries');
+    expect(fr).toContain("units_estimated yes: Proof of Calm's Bought as planned button filled in");
+    expect(fr).toContain('The tax year ends on 2026-12-31. This file shows your log as of 2026-10-20.');
+    const nl = headerOf(files.NL ?? '');
+    expect(nl).toContain('held_units are Coins added entries dated in this year.');
+    expect(nl).toContain('An empty held_cost means a Coins added entry has no recorded cost, not a cost of zero.');
+    expect(nl).toContain("Some units come from Proof of Calm's Bought as planned button");
+    for (const header of [fr, nl]) {
+      for (const dropped of ['matched', 'eligible_from', 'per venue', 'Box 3', 'box 3']) {
+        expect(header).not.toContain(dropped);
+      }
+      expect(header).not.toContain('Check figures before any tax or financial use');
+    }
+  });
+
+  it('the Dutch file of an ended year names the year-end column and leaves every held value empty', async () => {
+    const platform = await mount(withPlan({ country: 'NL' as Plan['country'] }, yearEarlier));
+    const { content } = await exportYear(platform, '2025');
+    expect(headerOf(content)).toContain(
+      textCell(
+        'units_on_01-01 is your log at the start of 2025-01-01, which is the end of 2024-12-31. ' +
+          'units_on_12-31 is your log at the end of 2025-12-31.',
+      ),
+    );
+    const rows = rowsOf(content);
+    expect(rows.length).toBeGreaterThan(1);
+    for (const row of rows.filter((each) => each.row === 'coin')) {
+      for (const day of ['01-01', '12-31']) {
+        expect(row[`value_on_${day}`]).toBe(row[`units_on_${day}`] === '0' ? '0.00' : '');
+      }
+    }
+    expect(rows.find((row) => row.row === 'total')?.['value_on_12-31']).toBe('');
+    expect(rows.find((row) => row.coin === 'BTC')?.['units_on_12-31']).not.toBe('');
+  });
+
+  it('a plan changed from the United Kingdom to France or the Netherlands keeps the currency line', async () => {
+    // Change country sets the new country's currency and converts nothing (#10 decides the build).
+    for (const country of ['FR', 'NL']) {
+      for (const [payCurrency, line] of [
+        ['EUR', 'Amounts are as you logged them and are not converted. Your pay currency is EUR.'],
+        ['GBP', 'Amounts are as you logged them and are not converted to EUR. Your pay currency is GBP.'],
+      ] as const) {
+        const platform = await mount(withPlan({ country: country as Plan['country'], payCurrency }));
+        const header = headerOf((await exportYear(platform, '2026 (still running)')).content);
+        expect(header).toContain(line);
+        expect(header).not.toMatch(/Amounts (are )?in (EUR|GBP)/u);
+        expect(header).not.toMatch(/in (your|the) pay currency/u);
+        cleanup();
+      }
+    }
   });
 
   it("no line of the app's own header copy holds a semicolon, whichever the code picks", () => {
