@@ -24,6 +24,14 @@ import type { ChartState } from '../lib/value-chart';
 // is nothing to draw, the ranges stay and one dated line takes the chart's place. Before the first purchase
 // there is no chart.
 
+/**
+ * Whether the chart shows the past-performance line (docs/LEGAL.md §4): while it loads or draws. In every other
+ * state the screen's next historic figure, the Dutch value on 1 January, carries it.
+ */
+export function chartDiscloses(state: ChartState): boolean {
+  return state.kind === 'loading' || state.kind === 'draws';
+}
+
 /** The value chart's viewBox: chartState places the model in it and ValueChart draws it. */
 export const VALUE_CHART_VIEW_BOX = { width: 300, height: 100 };
 
@@ -91,6 +99,7 @@ export function ValueChart({ currency, range, state }: ValueChartProps) {
 
   const loading = state.kind === 'loading';
   const failed = state.kind === 'unavailable';
+  const undisclosed = !chartDiscloses(state);
   const drawn = state.kind === 'draws' ? state : null;
   const table = { summary: t('table.summary'), columns: [t('table.date'), t('table.value')], numericColumns: [1] };
   // While loading or failed: no line and blank extremes (a no-break space keeps each label's line).
@@ -167,7 +176,7 @@ export function ValueChart({ currency, range, state }: ValueChartProps) {
         )}
       </div>
       {/* With nothing drawn there is no past performance to disclose: the line keeps its place, unseen and unread. */}
-      <p aria-hidden={failed || undefined} className={cn('text-13 text-ink-2', failed && 'invisible')}>
+      <p aria-hidden={undisclosed || undefined} className={cn('text-13 text-ink-2', undisclosed && 'invisible')}>
         {t('pastPerformance')}{' '}
         <a href="/risk" className="text-ink underline underline-offset-4 hover:text-ink-2">
           {t('riskLink')}

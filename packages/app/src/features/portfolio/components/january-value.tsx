@@ -28,23 +28,27 @@ import { type HistoriesState, servesHistory } from '../lib/use-histories';
 // and a copy lives 24 hours on the server and the device (ADR-0036): the point dated 31 December is that
 // day's close only in a copy fetched upstream at or after 00:00 UTC on 1 January. `fetchedAt` is the route's
 // upstream fetch time, carried in its body and kept with the device's copy, and the oldest of the coins'
-// (use-histories); until it reaches that moment no figure shows, and one line says why.
+// (use-histories); until it reaches that moment no figure shows, and one line says why. The past-performance
+// line comes once per path, directly under the historic figure (docs/LEGAL.md §4): the value chart carries it
+// while it loads or draws (chartDiscloses); otherwise this line does, under its figure and the closes' date.
 
 type JanuaryValueProps = {
   readonly plan: Plan;
   readonly entries: readonly Entry[];
   readonly histories: HistoriesState;
   readonly rules: CountryRules;
+  /** Whether this line carries the past-performance line under its figure: the value chart shows none. */
+  readonly pastPerformance: boolean;
 };
 
-export function JanuaryValue({ plan, entries, histories, rules }: JanuaryValueProps) {
+export function JanuaryValue({ plan, entries, histories, rules, pastPerformance }: JanuaryValueProps) {
   const model = rules.computationModel;
   switch (model.kind) {
     case 'per-lot':
     case 'portfolio-wide':
       return null;
     case 'wealth-snapshot':
-      return <OpeningValue plan={plan} entries={entries} histories={histories} />;
+      return <OpeningValue plan={plan} entries={entries} histories={histories} pastPerformance={pastPerformance} />;
     default:
       return assertNever(model);
   }
@@ -55,8 +59,9 @@ function closedAfter(fetchedAt: Instant, year: string): boolean {
   return compareInstants(fetchedAt, `${year}-01-01T00:00:00Z` as Instant) >= 0;
 }
 
-function OpeningValue({ plan, entries, histories }: Omit<JanuaryValueProps, 'rules'>) {
+function OpeningValue({ plan, entries, histories, pastPerformance }: Omit<JanuaryValueProps, 'rules'>) {
   const t = useTranslations('portfolio.januaryValue');
+  const chart = useTranslations('portfolio.chart');
   const format = useFormatters();
   const year = useToday().slice(0, 4);
   const eve = `${Number(year) - 1}-12-31` as CalendarDate;
@@ -97,6 +102,14 @@ function OpeningValue({ plan, entries, histories }: Omit<JanuaryValueProps, 'rul
       {priced && (
         <p className="text-14 text-ink-2">
           {t('estimate', { date, coins: format.list(value.coins.map((coin) => coin.coin)) })}
+        </p>
+      )}
+      {priced && pastPerformance && (
+        <p className="text-13 text-ink-2">
+          {chart('pastPerformance')}{' '}
+          <a href="/risk" className="text-ink underline underline-offset-4 hover:text-ink-2">
+            {chart('riskLink')}
+          </a>
         </p>
       )}
       {addedAfter.length > 0 && (

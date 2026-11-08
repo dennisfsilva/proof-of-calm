@@ -1,15 +1,20 @@
 // @vitest-environment jsdom
 import { countryRules, loadProfile } from '@proofofcalm/content';
-import type { Coin, Entry } from '@proofofcalm/core';
+import { type CalendarDate, type Coin, type Entry, ok, type Plan } from '@proofofcalm/core';
 import { act, cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { EMPTY_SNAPSHOT } from '../../../lib/adapters';
 import { I18nProvider } from '../../../lib/i18n';
 import { NavigationProvider } from '../../../lib/navigation';
-import type { PricesState, Snapshot } from '../../../lib/ports';
+import type { CachedHistory, HistorySource, PricesState, Snapshot } from '../../../lib/ports';
 import { type Services, ServicesProvider } from '../../../lib/services';
 import { FIXTURE_DATES, type FixturePhase, fixtureNowMs, fixtureSnapshot } from '../../../lib/services/fixtures';
-import { createTestServices, FIXTURE_PRICES, fixedPriceSource } from '../../../lib/services/testing';
+import {
+  createTestServices,
+  FIXTURE_PRICES,
+  fixedPriceSource,
+  type TestServicesOptions,
+} from '../../../lib/services/testing';
 import messages from '../../../messages/en/portfolio.json';
 import today from '../../../messages/en/today.json';
 import { PortfolioScreen } from './portfolio-screen';
@@ -29,12 +34,14 @@ async function renderScreen(
   snapshot: Snapshot,
   phase: FixturePhase,
   prices: PricesState | null = FIXTURE_PRICES,
+  overrides: TestServicesOptions = {},
 ): Promise<Services> {
   const nowMs = fixtureNowMs(phase);
   const services = createTestServices({
     snapshot,
     nowMs,
     rules: portugal,
+    ...overrides,
     ...(prices === null ? {} : { priceSource: fixedPriceSource(prices, nowMs) }),
   });
   await act(() => services.start());
@@ -222,5 +229,60 @@ describe('PortfolioScreen', () => {
     expect(screen.getByRole('link', { name: 'import a file' }).getAttribute('href')).toBe('/settings');
     expect(text()).not.toContain('entries');
     expect(screen.queryByRole('table')).toBeNull();
+  });
+
+  // docs/LEGAL.md §4: the past-performance line once per path, directly under the historic figure. The value
+  // chart carries it while it loads or draws; when it draws nothing, the Dutch line on 1 January carries it.
+  describe('the Dutch value on 1 January', () => {
+    const netherlands = async () => {
+      const profile = await loadProfile('NL');
+      return profile === null ? null : countryRules(profile);
+    };
+    const days = ['2029-12-30', '2029-12-31', '2030-03-13', '2030-03-14', '2030-03-15'];
+    const history: HistorySource = {
+      closes: async (coin, currency) =>
+        ok({
+          coin,
+          currency,
+          closes: days.map((day) => [day, coin === 'BTC' ? '50000' : '2000']),
+          fetchedAt: '2030-03-15T10:00:00.000Z',
+        } as unknown as CachedHistory),
+    };
+    const dutch = (entries: readonly Entry[], chartRange: Snapshot['prefs']['chartRange']): Snapshot => {
+      const snapshot = fixtureSnapshot();
+      if (snapshot.plan === null) throw new Error('no fixture plan');
+      const plan: Plan = { ...snapshot.plan, country: 'NL' as Plan['country'], holdingRule: { kind: 'none' } };
+      return { ...snapshot, plan, entries: [...entries], prefs: { ...snapshot.prefs, chartRange } };
+    };
+    const render = (snapshot: Snapshot) =>
+      renderScreen(snapshot, 'sell', FIXTURE_PRICES, { rules: netherlands, historySource: history });
+
+    it('takes the line under its figure when the chart draws none: everything sold on 1 Feb 2030, 7D', async () => {
+      const { entries } = fixtureSnapshot();
+      const lastSale = entries.at(-1);
+      if (lastSale === undefined) throw new Error('the fixture has entries');
+      const sell = (n: string, coin: string, units: string) =>
+        ({
+          ...lastSale,
+          id: `${lastSale.id.slice(0, -3)}${n}`,
+          coin,
+          units,
+          date: '2030-02-01' as CalendarDate,
+        }) as Entry;
+      await render(dutch([...entries, sell('998', 'BTC', '0.02215'), sell('999', 'ETH', '0.119')], '7d'));
+      const estimate = await screen.findByText(/^Estimate from the daily closes of 31 Dec 2029/);
+      expect(screen.queryByRole('img', { name: /^Portfolio value, / })).toBeNull();
+      const lines = screen.getAllByText(/^Past performance is not a reliable indicator/);
+      expect(lines).toHaveLength(1);
+      expect(estimate.nextElementSibling).toBe(lines[0] ?? null);
+      expect(lines[0]?.querySelector('a')?.getAttribute('href')).toBe('/risk');
+    });
+
+    it('leaves the line to the chart when it draws', async () => {
+      await render(dutch(fixtureSnapshot().entries, 'all'));
+      expect(await screen.findByRole('img', { name: /^Portfolio value, / })).toBeDefined();
+      expect(await screen.findByText(/^Estimate from the daily closes of 31 Dec 2029/)).toBeDefined();
+      expect(screen.getAllByText(/^Past performance is not a reliable indicator/)).toHaveLength(1);
+    });
   });
 });
