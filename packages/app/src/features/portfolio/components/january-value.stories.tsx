@@ -9,7 +9,7 @@ import { JanuaryValue } from './january-value';
 
 // The Dutch Portfolio line over the fixture plan seen on 15 March 2030, so 0.02215 BTC and 0.119 ETH are held at
 // the end of 31 December 2029: the value from made-up closes of that day, labelled and credited; while the
-// closes load; with no ETH close that day; with coins added in the Log after it; and carrying the
+// closes load; with no ETH close that day; before the close of that day is final; with coins added in the Log after it; and carrying the
 // past-performance line when the value chart shows none. The test projects of
 // vitest.config.ts render each at 360 and 1280 px, light and dark, with axe.
 
@@ -26,7 +26,7 @@ const plan: Plan = {
 };
 const nowMs = fixtureNowMs('sell');
 
-const histories = (closes: Record<string, string>): HistoriesState => ({
+const histories = (closes: Record<string, string>, fetchedAt = '2030-03-15T09:00:00.000Z'): HistoriesState => ({
   status: 'ready',
   histories: {
     currency: 'EUR' as CurrencyCode,
@@ -34,7 +34,7 @@ const histories = (closes: Record<string, string>): HistoriesState => ({
       Object.entries(closes).map(([coin, close]) => [coin, [['2029-12-31', close]]]),
     ) as unknown as PriceHistories['coins'],
   },
-  fetchedAt: '2030-03-15T09:00:00.000Z' as Instant,
+  fetchedAt: fetchedAt as Instant,
 });
 const [first] = fixture.entries;
 if (first === undefined) throw new Error('no fixture entry');
@@ -104,11 +104,35 @@ export const MissingClose: Story = {
   },
 };
 
+/** At 05:00 UTC on 1 January 2030, with a copy fetched the day before: its point dated 31 December is no close yet. */
+export const NotFinal: Story = {
+  args: {
+    histories: histories({ BTC: '50000', ETH: '2000' }, '2029-12-31T10:00:00.000Z'),
+  },
+  parameters: {
+    services: () =>
+      createTestServices({
+        snapshot: { ...fixture, plan },
+        nowMs: Date.parse('2030-01-01T05:00:00Z'),
+        rules: async () => NL,
+      }),
+  },
+  play: async ({ canvas }) => {
+    await expect(
+      await canvas.findByText(
+        'The daily closes of 31 Dec 2029 are not in the price history yet, so there is no value to show.',
+      ),
+    ).toBeVisible();
+  },
+};
+
 export const AddedAfter: Story = {
   args: { entries: [...fixture.entries, added] },
   play: async ({ canvas }) => {
     await expect(
-      await canvas.findByText('Coins added in the Log with a date after 31 Dec 2029 are not in this value: BTC.'),
+      await canvas.findByText(
+        'Coins added in the Log with a date after 31 Dec 2029 are not counted here: BTC. If you held them on 31 Dec 2029, change their date in the Log.',
+      ),
     ).toBeVisible();
   },
 };
