@@ -1,16 +1,17 @@
 import { loadRules } from '@proofofcalm/content';
 import type { Plan } from '@proofofcalm/core';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, screen, userEvent, waitFor } from 'storybook/test';
+import { expect, screen, userEvent, waitFor, type within } from 'storybook/test';
 import type { Snapshot } from '../../../lib/ports';
 import { fixtureNowMs, fixtureSnapshot } from '../../../lib/services/fixtures';
 import { createTestServices, recordingPlatform } from '../../../lib/services/testing';
 import { TaxYearExport } from './tax-year-export';
 
 // The tax-year export under Your data over the fixture plan in Portugal (the running 2026 chosen), the same plan
-// in the United Kingdom with the select open (its years across two calendar years), a device that saves no file, a plan with no
-// entries and a device without the country's rules; the test projects of vitest.config.ts render each at 360
-// and 1280 px, light and dark, with axe.
+// in the United Kingdom with the select open (its years across two calendar years), in France and in the
+// Netherlands (each downloading its own file), a device that saves no file, a plan with no entries and a device
+// without the country's rules; the test projects of vitest.config.ts render each at 360 and 1280 px, light and
+// dark, with axe.
 
 const nowMs = fixtureNowMs('buy');
 const fixture = fixtureSnapshot();
@@ -49,6 +50,27 @@ export const UnitedKingdom: Story = {
     await expect(options).toEqual(['2026 to 2027 (still running)', '2025 to 2026']);
   },
 };
+
+const downloads = (country: 'FR' | 'NL', firstColumns: string) => {
+  const platform = recordingPlatform();
+  return {
+    parameters: at(withPlan({ country: country as Plan['country'] }), { platform }),
+    play: async ({ canvas }: { canvas: ReturnType<typeof within> }) => {
+      await expect(await canvas.findByRole('combobox', { name: 'Tax year' })).toHaveTextContent('2026 (still running)');
+      await userEvent.click(canvas.getByRole('button', { name: 'Export tax-year CSV' }));
+      await waitFor(() =>
+        expect(platform.calls.downloads.at(-1)?.name).toBe(`proof-of-calm-tax-year-2026-${country}-2026-10-20.csv`),
+      );
+      await expect(platform.calls.downloads.at(-1)?.content).toContain(`
+
+row,${firstColumns}`);
+    },
+  };
+};
+
+export const France: Story = downloads('FR', 'cession,date,coin');
+
+export const Netherlands: Story = downloads('NL', 'coin,units_on_01-01');
 
 export const NotSaved: Story = {
   parameters: at(fixture, { platform: { ...recordingPlatform(), download: async () => false } }),
