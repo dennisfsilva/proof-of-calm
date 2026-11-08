@@ -7,9 +7,10 @@ import { test } from './support';
 
 // The tax-year export under Settings → Currency & data → Your data on the viewport matrix (docs/DOMAIN.md §3.13):
 // the fixture plan under Portugal (FIFO per venue, the 365-day rule) downloads the running year's per-lot file,
-// and under the United Kingdom (a pooled lot rule) the running 2026 to 2027 year's raw listing, each byte for
-// byte the file in packages/app/src/features/settings/fixtures. The local run sends no UK geolocation, so
-// ADR-0029's 451 route does not apply.
+// under the United Kingdom (a pooled lot rule) the running 2026 to 2027 year's raw listing, under France (the
+// portfolio-wide model) the cessions file and under the Netherlands (the snapshot model) the snapshot file, each
+// byte for byte the file in packages/app/src/features/settings/fixtures. The local run sends no UK geolocation,
+// so ADR-0029's 451 route does not apply.
 
 test.use({ serviceWorkers: 'block' });
 
@@ -63,3 +64,14 @@ test('the GB fixture downloads the expected CSV', async ({ page }) => {
   expect(file.name).toBe(`proof-of-calm-tax-year-2026-27-GB-${FIXTURE_DATES.buy}.csv`);
   expect(file.text).toBe(await expected('tax-year-2026-27-GB.csv'));
 });
+
+for (const country of ['FR', 'NL'] as const) {
+  test(`the ${country} fixture downloads the expected CSV`, async ({ page }) => {
+    await openData(page, { country: country as Plan['country'] });
+    await yearSelect(page).click();
+    await page.getByRole('option', { name: '2026 (still running)' }).click();
+    const file = await exportYear(page);
+    expect(file.name).toBe(`proof-of-calm-tax-year-2026-${country}-${FIXTURE_DATES.buy}.csv`);
+    expect(file.text).toBe(await expected(`tax-year-2026-${country}.csv`));
+  });
+}
