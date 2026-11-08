@@ -64,10 +64,11 @@ async function mount(
   state: HistoriesState = histories(),
   plan: Plan = dutch(),
   entries: readonly Entry[] = ENTRIES,
+  nowMs: number = fixtureNowMs('sell'),
 ): Promise<HTMLElement> {
   const services = createTestServices({
     snapshot: { ...fixtureSnapshot(), plan, entries: [...entries] },
-    nowMs: fixtureNowMs('sell'),
+    nowMs,
     rules: async () => NL,
   });
   await act(() => services.start());
@@ -128,6 +129,42 @@ describe('JanuaryValue', () => {
     ).toBeDefined();
     expect(text()).not.toContain('€');
     expect(text()).not.toContain('Estimate');
+  });
+
+  // CoinGecko's last point is the price at the call, dated that UTC day, and a copy lives 24 hours: until a fetch
+  // at or after 00:00 UTC on 1 January, the point dated 31 December is an intraday price, not that day's close.
+  it('shows no figure while the closes of the eve were fetched before 00:00 UTC on 1 January', async () => {
+    const ready = histories();
+    if (ready.status !== 'ready') throw new Error('not ready');
+    const early = { ...ready, fetchedAt: '2029-12-31T10:00:00.000Z' as Instant };
+    const coins = Object.fromEntries(
+      Object.entries(ready.histories.coins).map(([coin, closes]) => [coin, closes.slice(0, 2)]),
+    ) as PriceHistories['coins'];
+    await mount(
+      NL,
+      { ...early, histories: { ...ready.histories, coins } },
+      dutch(),
+      ENTRIES,
+      Date.parse('2030-01-01T05:00:00Z'),
+    );
+    expect(screen.getByText('Value on 1 January 2030')).toBeDefined();
+    expect(
+      screen.getByText(
+        'The daily closes of 31 Dec 2029 are not in the price history yet, so there is no value to show.',
+      ),
+    ).toBeDefined();
+    expect(text()).not.toContain('€');
+    expect(text()).not.toContain('Estimate');
+    cleanup();
+    // A fetch at 00:00 UTC on 1 January holds the close of 31 December.
+    await mount(
+      NL,
+      { ...ready, fetchedAt: '2030-01-01T00:00:00.000Z' as Instant },
+      dutch(),
+      ENTRIES,
+      Date.parse('2030-01-01T05:00:00Z'),
+    );
+    expect(text()).toContain('Estimate from the daily closes of 31 Dec 2029');
   });
 
   it('counts a coin outside the loaded histories as missing', async () => {
