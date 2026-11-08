@@ -97,10 +97,9 @@ required from launch because Hobby forbids commercial use (ADR-0005).
   `.env.example` lists the full shape.
 - Functions run in `fra1` (ADR-0005), pinned in `apps/web/vercel.json`; Hobby allows one region.
 - Deployment Protection keeps Vercel Authentication (Standard Protection) on, so a preview needs a
-  login. Its "Protection Bypass for Automation" secret, created on 2026-10-17, belongs in the
-  repository's Actions secrets as `VERCEL_AUTOMATION_BYPASS_SECRET` (open since 2026-11-08, the
-  owner's: add it to the public repository, which started without it; only the dispatched preview
-  checks use it); `lighthouse-vercel.yml` sends it
+  login. Its "Protection Bypass for Automation" secret, created on 2026-10-17, is in the
+  repository's Actions secrets as `VERCEL_AUTOMATION_BYPASS_SECRET` (added again to the public
+  repository by the owner on 2026-11-08); `lighthouse-vercel.yml` sends it
   only to `proof-of-calm-…-incubating.vercel.app` hosts, so a renamed project or team slug needs that
   check changed too (ADR-0024). The job starts from Vercel's own commit status and measures each
   deployment at its branch URL. The same file's `preview-checks` job sends the same secret to the
