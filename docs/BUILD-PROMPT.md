@@ -60,6 +60,13 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   trigger at index 0, right after each separator, in runs, and a character that is both trigger and
   separator), listed as the property's examples: each review round of #207's fix found one such
   position, and the last held back the tax-year export (#383).
+- A constraint on generated text is checked against every source of that text, the app's own messages
+  and the profile's copied sentences alike (#33).
+- A requirement handed to a reviewer is quoted from the design note, never paraphrased
+  (dennisfsilva/proof-of-calm-archive#387).
+- A native form element on a screen the CSP specs open fails WebKit's hashed CSP (#33: a native select
+  recorded a style-src-attr violation): use the ui components there, or run that CSP spec on the iphone
+  project before the PR.
 
 ## Known gaps
 
