@@ -168,6 +168,14 @@ describe('JanuaryValue', () => {
     expect(text()).toContain('Estimate from the daily closes of 31 Dec 2029');
   });
 
+  it('names coins added after the eve under a missing close too, where no figure stands', async () => {
+    await mount(NL, histories('EUR', 'ETH'), dutch(), [...ENTRIES, added('2030-01-02')]);
+    expect(text()).toContain('for ETH, so there is no value to show.');
+    expect(text()).toContain(
+      'are not counted here: BTC. If you held them on 31 Dec 2029, change their date in the Log.',
+    );
+  });
+
   it('counts a coin outside the loaded histories as missing', async () => {
     const state = histories();
     if (state.status !== 'ready') throw new Error('not ready');
@@ -187,7 +195,9 @@ describe('JanuaryValue', () => {
     cleanup();
     await mount(NL, histories(), dutch(), [...ENTRIES, added('2030-01-02')]);
     expect(
-      screen.getByText('Coins added in the Log with a date after 31 Dec 2029 are not in this value: BTC.'),
+      screen.getByText(
+        'Coins added in the Log with a date after 31 Dec 2029 are not counted here: BTC. If you held them on 31 Dec 2029, change their date in the Log.',
+      ),
     ).toBeDefined();
   });
 
@@ -196,8 +206,8 @@ describe('JanuaryValue', () => {
     expect(container.innerHTML).toBe('');
     cleanup();
     await mount(NL, histories(), dutch(), [added('2030-01-02')]);
-    expect(screen.getByText('The Log holds no coins at the end of 31 Dec 2029.')).toBeDefined();
-    expect(text()).toContain('are not in this value: BTC.');
+    expect(screen.getByText('The Log shows no coins held at the end of 31 Dec 2029.')).toBeDefined();
+    expect(text()).toContain('are not counted here: BTC.');
   });
 
   it('labels the currency the histories and the plan share', async () => {
