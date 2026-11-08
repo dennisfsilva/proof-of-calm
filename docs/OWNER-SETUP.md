@@ -10,9 +10,12 @@ Done on 2026-10-17: the repository stayed private, on GitHub Pro (monthly), unti
 question came back (`docs/LEGAL.md` §9, `docs/RELEASE.md`). On GitHub Free, GitHub refused rulesets on
 a private repository (HTTP 403: "Upgrade to GitHub Pro or make this repository public"); Pro allows
 them. Since 2026-11-08 the repository is public, from fresh history (ADR-0051): the ruleset `main`
-was created again there with the same rules, it no longer needs Pro, and CodeQL and GitHub's secret
-scanning can be turned on. The history before that day is in the private
-dennisfsilva/proof-of-calm-archive.
+was created again there with the same rules, and it no longer needs Pro; secret scanning, push
+protection and Dependabot security alerts are on there since 2026-11-08 (CodeQL is not set up). The
+history before that day is in the private dennisfsilva/proof-of-calm-archive. Open, the owner's
+(money): nothing else on the account needs Pro (no other private repository has a ruleset, a
+protected branch, a wiki or Pages), so it can go back to Free (Settings → Billing and licensing →
+Additional billing details → Current plan: Edit → Downgrade to Free).
 
 - **Minutes.** Free on the standard runners since 2026-11-08 (ADR-0051); what follows is the
   private repository's. Pro includes 3,000 Actions minutes a month; extra minutes cost $0.006 each on the
@@ -70,10 +73,9 @@ read 2026-10-30), so the project settings need no change);
 `main` goes to production and every other branch to a preview. Hobby is fine before launch; Pro is
 required from launch because Hobby forbids commercial use (ADR-0005).
 
-- **Open since 2026-11-08, the owner's: connect the project to the public repository** (Project →
-  Settings → Git: disconnect dennisfsilva/proof-of-calm-archive, connect dennisfsilva/proof-of-calm,
-  and let Vercel's GitHub app see it if asked). Until then production serves the last deployment of
-  the archive's `main`, and a merge deploys nothing (ADR-0051).
+- **Done on 2026-11-08 by the owner: the project builds from the public repository** (Project →
+  Settings → Git, dennisfsilva/proof-of-calm; ADR-0051). Vercel links a project to a repository's
+  GitHub id, not its name, so the rename had left it on dennisfsilva/proof-of-calm-archive.
 
 - Environment variables, Production and Preview: `COINGECKO_API_KEY` (the Demo key, type Secret).
   `ENABLE_EXPERIMENTAL_COREPACK=1` (type Config) was set from the project's creation and removed by
