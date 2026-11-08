@@ -568,7 +568,7 @@
       "loading": "Loading the daily closes of {date}.",
       "pending": "The daily closes of {date} are not in the price history yet, so there is no value to show.",
       "none": "The Log shows no coins held at the end of {date}.",
-      "heldAfter": "Coins added in the Log with a date after {date} are not counted here: {coins}. If you held them on {date}, change their date in the Log."
+      "heldAfter": "Coins added in the Log with a date after {date} are not counted here: {coins}. If you held them on {date}, change their date in the <log>Log</log>."
     },
     "unrecorded": "No recorded cost for {coins}, so Invested, the average cost, and the P/L leave these units out.",
     "notBought": "Not bought yet: {coins}. For coins you already have, open the <log>Log</log> and choose Add coins you already have.",

@@ -126,13 +126,17 @@ export const NotFinal: Story = {
   },
 };
 
+/** Coins added in the Log after 31 December: the line names them, and its step links the Log (axe checks the link). */
 export const AddedAfter: Story = {
   args: { entries: [...fixture.entries, added] },
   play: async ({ canvas }) => {
-    await expect(
-      await canvas.findByText(
-        'Coins added in the Log with a date after 31 Dec 2029 are not counted here: BTC. If you held them on 31 Dec 2029, change their date in the Log.',
-      ),
-    ).toBeVisible();
+    const line = await canvas.findByText(/^Coins added in the Log with a date after 31 Dec 2029/);
+    await expect(line).toBeVisible();
+    await expect(line).toHaveTextContent(
+      'Coins added in the Log with a date after 31 Dec 2029 are not counted here: BTC. If you held them on 31 Dec 2029, change their date in the Log.',
+    );
+    const link = canvas.getByRole('link', { name: 'Log' });
+    await expect(link).toBeVisible();
+    await expect(link).toHaveAttribute('href', '/log');
   },
 };
