@@ -26,7 +26,7 @@ import { type HistoriesState, servesHistory } from '../lib/use-histories';
 // here: the value chart's line names it and the retry. Nothing held and nothing added later: no line.
 // CoinGecko's last point is the price at the call, dated that UTC day (apps/web/lib/history/coingecko.ts),
 // and a copy lives 24 hours on the server and the device (ADR-0036): the point dated 31 December is that
-// day's close only in a copy fetched upstream at or after 00:00 UTC on 1 January. `fetchedAt` is the route's
+// day's close only in a copy fetched upstream at or after 00:10:30 UTC on 1 January. `fetchedAt` is the route's
 // upstream fetch time, carried in its body and kept with the device's copy, and the oldest of the coins'
 // (use-histories); until it reaches that moment no figure shows, and one line says why. The past-performance
 // line comes once per path, directly under the historic figure (docs/LEGAL.md §4): the value chart carries it
@@ -54,9 +54,14 @@ export function JanuaryValue({ plan, entries, histories, rules, pastPerformance 
   }
 }
 
-/** Whether a copy fetched at `fetchedAt` holds the final close of 31 December before `year`: fetched at or after 1 January 00:00 UTC. */
+// The UTC time of day from which a copy holds the close of the day before: CoinGecko's market_chart reference
+// (read 2026-11-08) says "The last completed UTC day (00:00) data is available 10 minutes after midnight
+// (00:10 UTC)", and caches its answer 30 seconds, so 00:10 plus 30 s (ADR-0036's Readings).
+const CLOSE_FINAL_AT = '00:10:30';
+
+/** Whether a copy fetched at `fetchedAt` holds the final close of 31 December before `year`: fetched at or after 1 January {@link CLOSE_FINAL_AT} UTC. */
 function closedAfter(fetchedAt: Instant, year: string): boolean {
-  return compareInstants(fetchedAt, `${year}-01-01T00:00:00Z` as Instant) >= 0;
+  return compareInstants(fetchedAt, `${year}-01-01T${CLOSE_FINAL_AT}Z` as Instant) >= 0;
 }
 
 function OpeningValue({ plan, entries, histories, pastPerformance }: Omit<JanuaryValueProps, 'rules'>) {

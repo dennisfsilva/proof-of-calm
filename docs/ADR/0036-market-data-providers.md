@@ -108,6 +108,16 @@ values stay as the value chart shows them, credited and unlinked (ADR-0050). The
 launch is decided in #21: Demo is for testing, and Basic's licence covers commercial display but asks
 for a linked credit.
 
+### Reading of 2026-11-08: a close dated D is final from 00:10:30 UTC on D+1
+
+On 2026-11-08 CoinGecko's `market_chart` reference (docs.coingecko.com/v3.0.1/reference/coins-id-market-chart)
+settled when a close is final:
+
+- **The close of day D is final from 00:10:30 UTC on D+1.** The 00:00 point of the last completed
+  UTC day appears at 00:10 UTC, and the last point is cached 30 s; before then a copy holds either the
+  price at the call dated D or no point dated D. A close dated D therefore counts as final only in a
+  copy fetched at or after 00:10:30 UTC on D+1 (the Dutch 1 January line, `docs/JURISDICTIONS.md` §7.8).
+
 ## Disagreement
 
 None beyond the source change recorded in ADR-0006.

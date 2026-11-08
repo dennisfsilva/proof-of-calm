@@ -132,9 +132,9 @@ describe('JanuaryValue', () => {
     expect(text()).not.toContain('Estimate');
   });
 
-  // CoinGecko's last point is the price at the call, dated that UTC day, and a copy lives 24 hours: until a fetch
-  // at or after 00:00 UTC on 1 January, the point dated 31 December is an intraday price, not that day's close.
-  it('shows no figure while the closes of the eve were fetched before 00:00 UTC on 1 January', async () => {
+  // CoinGecko's last point is the price at the call, dated that UTC day, and a copy lives 24 hours: a copy fetched
+  // on 31 December holds an intraday price dated that day, not its close.
+  it('shows no figure while the closes of the eve were fetched on 31 December', async () => {
     const ready = histories();
     if (ready.status !== 'ready') throw new Error('not ready');
     const early = { ...ready, fetchedAt: '2029-12-31T10:00:00.000Z' as Instant };
@@ -156,15 +156,42 @@ describe('JanuaryValue', () => {
     ).toBeDefined();
     expect(text()).not.toContain('€');
     expect(text()).not.toContain('Estimate');
-    cleanup();
-    // A fetch at 00:00 UTC on 1 January holds the close of 31 December.
-    await mount(
-      NL,
-      { ...ready, fetchedAt: '2030-01-01T00:00:00.000Z' as Instant },
-      dutch(),
-      ENTRIES,
-      Date.parse('2030-01-01T05:00:00Z'),
-    );
+  });
+
+  // CoinGecko serves the 00:00 point of the last completed UTC day from 00:10 UTC and caches the last point
+  // 30 s (ADR-0036's Readings): before 00:10:30 UTC on 1 January a copy holds either an intraday price dated
+  // 31 December or no point dated that day, and neither is the close.
+  const fetched = (at: string, eve: boolean): HistoriesState => {
+    const ready = histories();
+    if (ready.status !== 'ready') throw new Error('not ready');
+    const coins = Object.fromEntries(
+      Object.entries(ready.histories.coins).map(([coin, closes]) => [
+        coin,
+        eve ? closes : closes.filter(([day]) => day !== EVE),
+      ]),
+    ) as PriceHistories['coins'];
+    return { ...ready, histories: { ...ready.histories, coins }, fetchedAt: `2030-01-01T${at}.000Z` as Instant };
+  };
+
+  it.each([
+    ['00:00:20', true],
+    ['00:05:00', false],
+    ['00:10:29', true],
+  ])('says the close is not final yet in a copy fetched at %s UTC on 1 January', async (at, eve) => {
+    await mount(NL, fetched(at, eve), dutch(), ENTRIES, Date.parse('2030-01-01T05:00:00Z'));
+    expect(
+      screen.getByText(
+        'The daily closes of 31 Dec 2029 are not in the price history yet, so there is no value to show.',
+      ),
+    ).toBeDefined();
+    expect(text()).not.toContain('€');
+    expect(text()).not.toContain('Estimate');
+    expect(text()).not.toContain('has no daily close');
+  });
+
+  it('shows the figure from a copy fetched at 00:10:30 UTC on 1 January', async () => {
+    await mount(NL, fetched('00:10:30', true), dutch(), ENTRIES, Date.parse('2030-01-01T05:00:00Z'));
+    expect(text()).toContain(dutchFormat.money('1345.5' as Decimal, 'EUR' as CurrencyCode).replace(/\s/g, ' '));
     expect(text()).toContain('Estimate from the daily closes of 31 Dec 2029');
   });
 
