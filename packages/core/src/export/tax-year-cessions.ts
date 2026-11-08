@@ -8,6 +8,7 @@ import type { CalendarDate } from '../dates/calendar';
 import { closeDated } from '../market/snapshot';
 import { type CurrencyCode, MINOR_UNITS } from '../money/currency';
 import {
+  compare,
   isPositive,
   type Money,
   minus,
@@ -58,6 +59,8 @@ export type Cession = {
   /** The sale or any of its holdings counts one-tap units. */
   readonly estimated: boolean;
   readonly holdings: readonly CessionHolding[];
+  /** The log holds fewer units of the coin sold just before the sale than it sells, so no estimate is written. */
+  readonly short: boolean;
   /** The recorded amounts of every `dca`, `lump`, `extra` and costed `held` entry ordered before the sale. */
   readonly costs: Money;
   /** The same entries' recorded fees. */
@@ -78,7 +81,7 @@ export type TaxYearCessions = {
   readonly uncosted: boolean;
   /** The coins with no close given on a sale day they were held. */
   readonly missing: readonly CoinId[];
-  /** The sales whose estimate is empty. */
+  /** The sales whose estimate is empty: a holding has no value, or the sale is `short`. */
   readonly unvalued: number;
 };
 
@@ -148,6 +151,7 @@ function cession(
     fee: sale.fee,
     estimated: isEstimate(sale) || holdings.some((holding) => holding.estimated),
     holdings,
+    short: compare(held.get(sale.coin) ?? ZERO, sale.units) < 0,
     costs,
     fees,
     heldWithoutCost,
@@ -182,7 +186,7 @@ export function taxYearCessions(
     missing: coinsWithEntries(plan, live).filter((coin) =>
       cessions.some((sale) => unpriced(sale).some((holding) => holding.coin === coin)),
     ),
-    unvalued: cessions.filter((sale) => unpriced(sale).length > 0).length,
+    unvalued: cessions.filter((sale) => sale.short || unpriced(sale).length > 0).length,
   };
 }
 
@@ -194,7 +198,8 @@ const flag = (value: boolean) => (value ? 'yes' : 'no');
 /**
  * The file, laid out as the other tax-year files: each header line as one text cell, an empty row, the columns, then
  * per sale its holding rows and its sale row. Logged amounts are written as logged, padded to the currency's minor
- * digits; values are rounded half-even at them, and the estimate is the sum of the written values, empty when one is.
+ * digits; values are rounded half-even at them, and the estimate is the sum of the written values, empty when one is
+ * or when the sale is `short`.
  */
 export function taxYearCessionsCsv(file: TaxYearCessions, header: readonly string[]): string {
   const digits = MINOR_UNITS[file.currency];
@@ -219,7 +224,7 @@ export function taxYearCessionsCsv(file: TaxYearCessions, header: readonly strin
       paddedAmountCell(sale.proceeds, digits),
       paddedAmountCell(sale.fee, digits),
       ...['', '', ''],
-      writtenTotalCell(values, digits),
+      sale.short ? '' : writtenTotalCell(values, digits),
       paddedAmountCell(sale.costs, digits),
       paddedAmountCell(sale.fees, digits),
       String(sale.heldWithoutCost),
