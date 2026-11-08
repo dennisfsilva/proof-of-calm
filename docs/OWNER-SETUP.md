@@ -6,12 +6,16 @@ default is until it is done. Checked on 2026-10-17.
 
 ## 1. GitHub: branch protection and Actions minutes
 
-Done on 2026-10-17: the repository stays private, on GitHub Pro (monthly), until the visibility
-question comes back at launch (`docs/LEGAL.md` §9, `docs/RELEASE.md`). On GitHub Free, GitHub refused
-rulesets on a private repository (HTTP 403: "Upgrade to GitHub Pro or make this repository public");
-Pro allows them. CodeQL and GitHub's secret scanning stay unavailable while private.
+Done on 2026-10-17: the repository stayed private, on GitHub Pro (monthly), until the visibility
+question came back (`docs/LEGAL.md` §9, `docs/RELEASE.md`). On GitHub Free, GitHub refused rulesets on
+a private repository (HTTP 403: "Upgrade to GitHub Pro or make this repository public"); Pro allows
+them. Since 2026-11-08 the repository is public, from fresh history (ADR-0051): the ruleset `main`
+was created again there with the same rules, it no longer needs Pro, and CodeQL and GitHub's secret
+scanning can be turned on. The history before that day is in the private
+dennisfsilva/proof-of-calm-archive.
 
-- **Minutes.** Pro includes 3,000 Actions minutes a month; extra minutes cost $0.006 each on the
+- **Minutes.** Free on the standard runners since 2026-11-08 (ADR-0051); what follows is the
+  private repository's. Pro includes 3,000 Actions minutes a month; extra minutes cost $0.006 each on the
   standard Linux runner, capped by an Actions budget (Settings → Billing & Licensing → Budgets and
   alerts). On 2026-10-17, the day M0 was built, 60 CI runs took about 650 minutes (about 11 each).
   From 2026-10-01 to 2026-10-26 all workflows took about 10,900, about 7,900 over the included
@@ -21,7 +25,8 @@ Pro allows them. CodeQL and GitHub's secret scanning stay unavailable while priv
   `.github/workflows/ci.yml`. From 2026-10-27 to 2026-11-05 `lighthouse-vercel.yml` took about 2,840
   minutes, about 2,170 of them on 309 previews of 114 pull requests; since ADR-0024's deviation of
   2026-11-05 it measures production by itself and a preview only by dispatch.
-- **The ruleset `main`** (Settings → Rules → Rulesets), created on 2026-10-17: pull requests only,
+- **The ruleset `main`** (Settings → Rules → Rulesets), created on 2026-10-17 and again in the public
+  repository on 2026-11-08: pull requests only,
   merged by rebase, no approval required; required checks `verify`, `stories`, `export-build` and
   `e2e-visual`, with `lighthouse` and `lighthouse-vercel` too until 2026-11-05 (below); force pushes
   and deletion blocked; no bypass,
@@ -65,6 +70,11 @@ read 2026-10-30), so the project settings need no change);
 `main` goes to production and every other branch to a preview. Hobby is fine before launch; Pro is
 required from launch because Hobby forbids commercial use (ADR-0005).
 
+- **Open since 2026-11-08, the owner's: connect the project to the public repository** (Project →
+  Settings → Git: disconnect dennisfsilva/proof-of-calm-archive, connect dennisfsilva/proof-of-calm,
+  and let Vercel's GitHub app see it if asked). Until then production serves the last deployment of
+  the archive's `main`, and a merge deploys nothing (ADR-0051).
+
 - Environment variables, Production and Preview: `COINGECKO_API_KEY` (the Demo key, type Secret).
   `ENABLE_EXPERIMENTAL_COREPACK=1` (type Config) was set from the project's creation and removed by
   the owner on 2026-10-20 (one dashboard action, Production and Preview), as decided that day. It
@@ -85,8 +95,10 @@ required from launch because Hobby forbids commercial use (ADR-0005).
   `.env.example` lists the full shape.
 - Functions run in `fra1` (ADR-0005), pinned in `apps/web/vercel.json`; Hobby allows one region.
 - Deployment Protection keeps Vercel Authentication (Standard Protection) on, so a preview needs a
-  login. Its "Protection Bypass for Automation" secret, created on 2026-10-17, is in the
-  repository's Actions secrets as `VERCEL_AUTOMATION_BYPASS_SECRET`; `lighthouse-vercel.yml` sends it
+  login. Its "Protection Bypass for Automation" secret, created on 2026-10-17, belongs in the
+  repository's Actions secrets as `VERCEL_AUTOMATION_BYPASS_SECRET` (open since 2026-11-08, the
+  owner's: add it to the public repository, which started without it; only the dispatched preview
+  checks use it); `lighthouse-vercel.yml` sends it
   only to `proof-of-calm-…-incubating.vercel.app` hosts, so a renamed project or team slug needs that
   check changed too (ADR-0024). The job starts from Vercel's own commit status and measures each
   deployment at its branch URL. The same file's `preview-checks` job sends the same secret to the
