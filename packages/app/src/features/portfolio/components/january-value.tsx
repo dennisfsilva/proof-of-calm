@@ -3,7 +3,9 @@ import {
   type CalendarDate,
   type CoinId,
   type CountryRules,
+  compareInstants,
   type Entry,
+  type Instant,
   liveEntries,
   type Plan,
   type PriceHistories,
@@ -22,6 +24,11 @@ import { type HistoriesState, servesHistory } from '../lib/use-histories';
 // or outside the loaded histories, leaves no partial sum, and its name is said instead. Coins added in the
 // Log with a later date are named, since they may have been held that day (§2.2). A failed read says nothing
 // here: the value chart's line names it and the retry. Nothing held and nothing added later: no line.
+// CoinGecko's last point is the price at the call, dated that UTC day (apps/web/lib/history/coingecko.ts),
+// and a copy lives 24 hours on the server and the device (ADR-0036): the point dated 31 December is that
+// day's close only in a copy fetched upstream at or after 00:00 UTC on 1 January. `fetchedAt` is the route's
+// upstream fetch time, carried in its body and kept with the device's copy, and the oldest of the coins'
+// (use-histories); until it reaches that moment no figure shows, and one line says why.
 
 type JanuaryValueProps = {
   readonly plan: Plan;
@@ -41,6 +48,11 @@ export function JanuaryValue({ plan, entries, histories, rules }: JanuaryValuePr
     default:
       return assertNever(model);
   }
+}
+
+/** Whether a copy fetched at `fetchedAt` holds the final close of 31 December before `year`: fetched at or after 1 January 00:00 UTC. */
+function closedAfter(fetchedAt: Instant, year: string): boolean {
+  return compareInstants(fetchedAt, `${year}-01-01T00:00:00Z` as Instant) >= 0;
 }
 
 function OpeningValue({ plan, entries, histories }: Omit<JanuaryValueProps, 'rules'>) {
@@ -64,15 +76,17 @@ function OpeningValue({ plan, entries, histories }: Omit<JanuaryValueProps, 'rul
   if (value.coins.length === 0 && addedAfter.length === 0) return null;
   const date = format.date(eve);
   const loading = histories.status === 'loading' && value.coins.some((coin) => servesHistory(coin.coin));
+  const pending = histories.status === 'ready' && !closedAfter(histories.fetchedAt, year);
   const figure = (() => {
     if (value.coins.length === 0) return <dd className="text-14 text-ink-2">{t('none', { date })}</dd>;
     if (loading) return <dd className="text-14 text-ink-2">{t('loading', { date })}</dd>;
+    if (pending) return <dd className="text-14 text-ink-2">{t('pending', { date })}</dd>;
     if (value.total === null) {
       return <dd className="text-14 text-ink-2">{t('missing', { date, coins: format.list(value.missing) })}</dd>;
     }
     return <dd className="nums font-semibold text-16">{format.money(value.total, value.currency)}</dd>;
   })();
-  const priced = !loading && value.coins.length > 0 && value.total !== null;
+  const priced = !loading && !pending && value.coins.length > 0 && value.total !== null;
 
   return (
     <div className="flex flex-col gap-stack-xs">

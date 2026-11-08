@@ -84,6 +84,7 @@
     "estimate": "Estimate from the daily closes of {date} for {coins} · Price data by CoinGecko",
     "missing": "The price history has no daily close of {date} for {coins}, so there is no value to show.",
     "loading": "Loading the daily closes of {date}.",
+    "pending": "The daily closes of {date} are not in the price history yet, so there is no value to show.",
     "none": "The Log holds no coins at the end of {date}.",
     "heldAfter": "Coins added in the Log with a date after {date} are not in this value: {coins}."
   },
