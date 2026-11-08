@@ -72,6 +72,7 @@ in `.claude/rules/` list them per path.
 | 0048 | Learn modules are MDX compiled at build, with flat front matter | Accepted | `packages/content` (the modules, the front matter parser); `packages/config/vite`; `packages/app` features: learn; the site pages |
 | 0049 | Today boots on a generated rules file, not the country profile | Accepted | `packages/content` (`rules/`, `scripts/rules.ts`, the loaders); `packages/app/src/lib/services` (`browser.ts`, `use-profile.ts`); `tools/size/today.ts` |
 | 0050 | The CoinGecko credit is unlinked, at 14 px or larger | Accepted | `packages/app` features: today (the prices line), portfolio (the source line and credit) |
+| 0051 | The repository is public, from fresh history | Accepted | the repository's settings and history; `docs/OWNER-SETUP.md` §1 and §3 |
 
 Template:
 

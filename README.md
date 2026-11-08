@@ -9,5 +9,7 @@ purchase. Custody-free, minimal account, usable without one. No news, no sentime
 - The rules every session follows: `docs/BUILD-PROMPT.md`
 - Decisions: `docs/ADR/`
 - Owner steps: `docs/OWNER-SETUP.md`
+- The history before 2026-11-08, with its issues and pull requests: the private
+  dennisfsilva/proof-of-calm-archive (ADR-0051)
 
-Status (2026-10-30): M2 in progress. Tracker: #287. Next: /crew:next-checkpoint
+Status (2026-11-08): M2 in progress. Tracker: #23. Next: /crew:next-checkpoint

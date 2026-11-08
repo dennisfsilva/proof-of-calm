@@ -262,7 +262,9 @@ Settled on 2026-10-17, on the owner's delegation:
 - "Data stays in the EU": not a promise; the privacy notice says where each kind of data is
   (ADR-0044).
 
-Still open:
+Settled on 2026-11-08, by the owner:
 
-- Repository visibility (public gives free CodeQL, rulesets and Actions minutes and is itself a trust
-  signal; private costs GitHub Pro and loses CodeQL).
+- Repository visibility: public, from fresh history, with the earlier history kept private
+  (ADR-0051).
+
+None is open.

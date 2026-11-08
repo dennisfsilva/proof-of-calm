@@ -69,8 +69,8 @@ gate and this checklist; every merge to `main` goes to production, tagged or not
       `VersionError` and shows its failure screen. Such a release says so in its PR, ships the
       reader of the new shape one release before the writer where it can, and is rolled forward,
       not back, once deployed.
-- [ ] Repository visibility decided (`docs/LEGAL.md` §9). Anything published starts from a fresh
-      history with no personal email address, for example `packages/core` with a licence.
+- [x] Repository visibility decided (`docs/LEGAL.md` §9): public since 2026-11-08, from a fresh
+      history with no personal email address (ADR-0051). A licence is still the owner's choice.
 
 ## Additional before M3 (accounts)
 

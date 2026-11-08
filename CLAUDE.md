@@ -47,6 +47,7 @@ All commands from the repo root.
 
 ## Conventions (what no tool holds)
 
+- The history before 2026-11-08 is in the private dennisfsilva/proof-of-calm-archive (ADR-0051): an issue or PR number, commit hash or run id in text written before that day is the archive's. Never push a commit of that history here; it carries a personal address.
 - Time is passed in. Nothing in `packages/core` reads the clock, randomness, storage or the network.
 - Money and units are decimals (strings in storage). `number` for an amount is a bug.
 - Dates are `YYYY-MM-DD` strings in the user's calendar; instants are ISO with offset; one in-house date module.
