@@ -47,3 +47,11 @@ rules; their "≥ 10 pt" stands. A credit added later, such as the Log form's (#
 ## Disagreement
 
 None.
+
+## Corrections
+
+- 2026-11-08: the third consequence is wrong. The paid plans' FAQ asks for "Data provided by
+  CoinGecko" with a hyperlink to https://www.coingecko.com/en/api, read on 2026-11-08 (ADR-0036's
+  Reading of that day), so the paid plans do not carry the same clause, and this decision holds only on
+  the Demo plan. The plan the app uses at launch, and with it whether the credit needs a link, is
+  decided in #21.

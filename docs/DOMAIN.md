@@ -750,7 +750,7 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
     - Dates: `reference` is the model's date inside the span (`01-01`). The Dutch "1 January" value is the holdings at the start of that day, which is the end of the day before: `opening` is `snapshotValue` of 31 December of the year before, with the entries dated on it and the close dated on it. `closing` is `snapshotValue` of `span.to`, null while today ≤ `span.to` (`ongoing`), so the year-end cells stay empty while the year runs.
     - Rows: one per coin held on the eve of `reference` or with a live entry dated from `reference` to `span.to`, the plan's coins in order, then the others. Each holds the opening units and value, the year's purchases (`dca`, `lump` and `extra`: units, amount, fee), its `held` entries in their own columns, never as purchases (units and cost; the cost is null when any of them has no recorded cost, which sets `uncosted`), its sales (units, proceeds, fee), and the closing units and value. On a log with no short sale, closing units = opening + bought + held − sold.
     - Flags for the header the shell words: `ongoing`, `uncosted`, `estimated` (a one-tap entry dated on or before `span.to`) and `heldInYear` (a `held` entry dated in the year). The header names `held` entries dated in the year, since such coins may have been there on 1 January, which the roadmap's M2 "Decided against" accepts (§2.2).
-    - Missing closes: a coin with no close dated on the eve or on `span.to`, and every held coin when the histories are not in the pay currency, has empty value cells and is listed in `opening.missing` or `closing.missing`; the file still saves, and the header names those coins with the date. The device holds at most 365 daily closes (ADR-0036 Readings, 2026-10-20), so the 1 January value of the 2025 file, and of the 2026 file from 2027-01-01, is empty until the reference closes of `packages/data` reach that date (planned: M2).
+    - Missing closes: a coin with no close dated on the eve or on `span.to`, and every held coin when the histories are not in the pay currency, has empty value cells and is listed in `opening.missing` or `closing.missing`; the file still saves. The shell passes no closes, since no downloaded file holds values derived from CoinGecko data (ADR-0036 Readings, 2026-11-08): every held coin's value cells stay empty (a coin held at 0 units is worth 0.00) and the header says so rather than naming coins, until the reference closes of `packages/data` exist (planned: M2).
     - File, `taxYearSnapshotCsv(snapshot, header)`, laid out as the per-lot file: the header lines, one empty row, the columns `row, coin, units_on_<MM-DD>, value_on_<MM-DD>, bought_units, bought_amount, bought_fee, held_units, held_cost, sold_units, sold_proceeds, sold_fee, units_on_<MM-DD>, value_on_<MM-DD>` (the reference date, then `span.to`), one `coin` row per coin, then one `total` row. `coin` and each header line go through `textCell`. Each amount cell is rounded half-even at the currency's minor digits and padded to them; units are written as stored. The `total` row's units cells are empty and each amount cell is the sum of the written cells above it, empty when one of them is, so the file adds up as a reader sums it (ADR-0017): in `packages/core/test/tax-year/nl-2026.csv` the 1 January total is 30679.01 + 7502.62 = 38181.63, where the exact 38181.63735 would round to 38181.64.
 - Tax-year raw listing for the lot rules the app does not match (`pooled`, `specific`, `average`; decided
   2026-11-07), `taxYearPool(plan, entries, rules, span, today)` and `taxYearPoolCsv(pool, header)`: nothing is
@@ -772,11 +772,15 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   header names the span and the window.
 - The tax-year file of Settings → Currency & data → Your data (`packages/app/src/features/settings/tax-year.ts`;
   decided 2026-11-07): a select of `taxYears` with `defaultTaxYear` chosen, under the two export buttons and
-  their export line (`docs/LEGAL.md` §4), offered only under the `per-lot` model, with entries, and while the
-  rules and the profile of the plan's country are on the device: the year and the rules come only from them,
-  never from the CSV log's fallback to no rules. Once a load has ended without them it says so; while either
-  loads (the profile after boot, the rules after a change of country) it shows nothing. `fifo`, `lifo` and `unspecified` take `taxYearLots`, the other
-  lot rules `taxYearPool`; the download counts nothing (ADR-0028). The header, its words in
+  their export line (`docs/LEGAL.md` §4), offered under every computation model (a switch ending in
+  `assertNever`), with entries, and while the rules and the profile of the plan's country are on the device:
+  the year and the rules come only from them, never from the CSV log's fallback to no rules. Once a load has
+  ended without them it says so; while either loads (the profile after boot, the rules after a change of
+  country) it shows nothing. The download switches on the model first (decided 2026-11-08): `portfolio-wide`
+  takes `taxYearCessions`, `wealth-snapshot` `taxYearSnapshot`, both with empty histories (no closes, ADR-0036
+  Readings, 2026-11-08), so France's `unspecified` lot rule never reaches the lot pieces; under `per-lot`,
+  `fifo`, `lifo` and `unspecified` take `taxYearLots`, the other lot rules `taxYearPool`. The download counts
+  nothing (ADR-0028). The per-lot file's and the raw listing's header, its words in
   `docs/CONTENT-STYLE.md` §3, holds in order: the app, the country and the span; the sentence of
   `docs/JURISDICTIONS.md` §4, which names no currency; the currency line, which says the amounts are as logged
   and not converted and names the pay currency, and the country's currency when it differs; no line says that
@@ -789,7 +793,19 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   what it lists, under `pooled` with the 30-day window and, while `windowOpen`, the export day; the format line;
   then, when set, `uncosted` (a `held` row's empty `cost_basis` is no recorded cost, and the line names the other
   rows that leave it empty: the per-lot file's with no acquired date, the raw listing's sales), `estimated`,
-  `unmatched` and `ongoing`. No line names a gain, a loss, tax due, a
+  `unmatched` and `ongoing`. The cessions and snapshot headers open with the same four lines (title, export
+  sentence, currency, review) and carry no matching, `lotRuleNote`, holding, venue or listing line. The
+  cessions header then says what a block holds and that the portfolio-wide formula and the figures from the
+  earlier sales' fractions on are left to the reader; that only the coin sold has a price (its sale price), so
+  the estimate fills only when it was the only coin held and the log holds the units sold; what the two running
+  sums hold; the format line; and, when set, `uncosted` (as `held_without_cost_to_date`), `estimated` and
+  `ongoing`. The snapshot header then says which day each `units_on_` column is, the opening as the start of
+  the reference date and the end of the day before, and while the year runs that the year-end column stays
+  empty; that the value cells are empty (0.00 where none was held); the format line; and, when set,
+  `heldInYear` (the coins of such entries may have been there before the reference date), `uncosted` (an empty
+  `held_cost` is no recorded cost), `estimated` (worded without a column, since the file has none) and
+  `ongoing`. Neither names a form line number, a threshold, the Dutch box, a deemed return or a deadline. No
+  line names a gain, a loss, tax due, a
   rate or an allowance, calls a row exempt, tax-free or taxable, or calls the file complete or ready to file.
 - `snapshotValue(plan, entries, histories, date)`: the portfolio value at the end of a calendar date (decided
   2026-11-08): the units of the live entries dated on or before `date` (sales subtract; a negative holding counts
