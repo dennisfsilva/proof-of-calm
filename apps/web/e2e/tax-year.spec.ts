@@ -25,9 +25,10 @@ async function openData(page: Page, patch: Partial<Plan>) {
   await expect(page.getByRole('heading', { level: 2, name: 'Your data' })).toBeVisible();
 }
 
-/** Picks `year` in the select, exports it and returns the file's suggested name and its text. */
-async function exportYear(page: Page, year: string) {
-  await page.getByLabel('Tax year').selectOption(year);
+const yearSelect = (page: Page) => page.getByRole('combobox', { name: 'Tax year' });
+
+/** Exports the year the select shows and returns the file's suggested name and its text. */
+async function exportYear(page: Page) {
   const event = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Export tax-year CSV' }).click();
   const file = await event;
@@ -40,8 +41,10 @@ const expected = (name: string) =>
 
 test('the PT fixture downloads the expected CSV', async ({ page }) => {
   await openData(page, {});
-  await expect(page.getByLabel('Tax year')).toHaveValue('2026');
-  const file = await exportYear(page, '2026');
+  await expect(yearSelect(page)).toContainText('2026 (still running)');
+  await yearSelect(page).click();
+  await page.getByRole('option', { name: '2026 (still running)' }).click();
+  const file = await exportYear(page);
   expect(file.name).toBe(`proof-of-calm-tax-year-2026-PT-${FIXTURE_DATES.buy}.csv`);
   expect(file.text).toBe(await expected('tax-year-2026-PT.csv'));
 });
@@ -53,8 +56,10 @@ test('the GB fixture downloads the expected CSV', async ({ page }) => {
     displayCurrency: 'GBP',
     holdingRule: { kind: 'none' },
   });
+  await yearSelect(page).click();
   await expect(page.getByRole('option')).toHaveText(['2026 to 2027 (still running)', '2025 to 2026']);
-  const file = await exportYear(page, '2027');
+  await page.getByRole('option', { name: '2026 to 2027 (still running)' }).click();
+  const file = await exportYear(page);
   expect(file.name).toBe(`proof-of-calm-tax-year-2026-27-GB-${FIXTURE_DATES.buy}.csv`);
   expect(file.text).toBe(await expected('tax-year-2026-27-GB.csv'));
 });
