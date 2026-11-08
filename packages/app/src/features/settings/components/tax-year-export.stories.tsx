@@ -1,14 +1,14 @@
 import { loadRules } from '@proofofcalm/content';
 import type { Plan } from '@proofofcalm/core';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, userEvent, waitFor } from 'storybook/test';
+import { expect, screen, userEvent, waitFor } from 'storybook/test';
 import type { Snapshot } from '../../../lib/ports';
 import { fixtureNowMs, fixtureSnapshot } from '../../../lib/services/fixtures';
 import { createTestServices, recordingPlatform } from '../../../lib/services/testing';
 import { TaxYearExport } from './tax-year-export';
 
 // The tax-year export under Your data over the fixture plan in Portugal (the running 2026 chosen), the same plan
-// in the United Kingdom (its years across two calendar years), a device that saves no file, a plan with no
+// in the United Kingdom with the select open (its years across two calendar years), a device that saves no file, a plan with no
 // entries and a device without the country's rules; the test projects of vitest.config.ts render each at 360
 // and 1280 px, light and dark, with axe.
 
@@ -35,8 +35,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Portugal: Story = {
   play: async ({ canvas }) => {
-    await expect(await canvas.findByLabelText('Tax year')).toHaveValue('2026');
-    await expect(canvas.getByRole('option', { name: '2026 (still running)' })).toBeInTheDocument();
+    await expect(await canvas.findByRole('combobox', { name: 'Tax year' })).toHaveTextContent('2026 (still running)');
     await expect(canvas.getByRole('button', { name: 'Export tax-year CSV' })).toBeVisible();
   },
 };
@@ -44,8 +43,9 @@ export const Portugal: Story = {
 export const UnitedKingdom: Story = {
   parameters: at(withPlan({ country: 'GB' as Plan['country'], payCurrency: 'GBP', displayCurrency: 'GBP' })),
   play: async ({ canvas }) => {
-    await canvas.findByLabelText('Tax year');
-    const options = canvas.getAllByRole('option').map((option) => option.textContent);
+    await userEvent.click(await canvas.findByRole('combobox', { name: 'Tax year' }));
+    // The popup is portalled outside the canvas.
+    const options = (await screen.findAllByRole('option')).map((option) => option.textContent);
     await expect(options).toEqual(['2026 to 2027 (still running)', '2025 to 2026']);
   },
 };

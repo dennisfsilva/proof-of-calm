@@ -2,6 +2,7 @@
 import { countryRules, loadProfile } from '@proofofcalm/content';
 import { type CalendarDate, type CountryCode, type Entry, type Plan, textCell } from '@proofofcalm/core';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { userEvent } from 'storybook/test';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { I18nProvider } from '../../../lib/i18n';
 import type { Snapshot } from '../../../lib/ports';
@@ -84,12 +85,23 @@ function deferred<T>() {
   return { promise, settle };
 }
 
-const options = () => screen.getAllByRole('option').map((option) => option.textContent);
+// Base UI names the select a render after it shows (its label registers its id in an effect): queries wait for it.
+const yearSelect = () => screen.findByRole('combobox', { name: 'Tax year' });
 
-/** Exports the year shown in the select (or `year` once chosen) and returns the one file saved. */
+/** Opens the select and returns its options' text. */
+async function options() {
+  await userEvent.setup({ document }).click(await yearSelect());
+  return (await screen.findAllByRole('option')).map((option) => option.textContent);
+}
+
+/** Exports the year shown in the select (or the option named `year` once chosen) and returns the one file saved. */
 async function exportYear(platform: ReturnType<typeof recordingPlatform>, year?: string) {
-  const select = await screen.findByLabelText('Tax year');
-  if (year !== undefined) fireEvent.change(select, { target: { value: year } });
+  const select = await yearSelect();
+  if (year !== undefined) {
+    const user = userEvent.setup({ document });
+    await user.click(select);
+    await user.click(await screen.findByRole('option', { name: year }));
+  }
   await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Export tax-year CSV' })));
   expect(platform.calls.downloads).toHaveLength(1);
   return platform.calls.downloads[0] as { name: string; content: string; type: string };
@@ -131,23 +143,21 @@ const heldNoCost = (all: readonly Entry[], on: string, units: string): Entry => 
 describe('TaxYearExport', () => {
   it('lists the tax years newest first, GB as 2026 to 2027', async () => {
     await mount(withPlan({ country: 'GB' as Plan['country'], payCurrency: 'GBP' }));
-    await screen.findByLabelText('Tax year');
-    expect(options()).toEqual(['2026 to 2027 (still running)', '2025 to 2026']);
+    expect(await options()).toEqual(['2026 to 2027 (still running)', '2025 to 2026']);
   });
 
   it('preselects the latest ended year', async () => {
     await mount(withPlan({}, (all) => [...yearEarlier(all), ...all]));
-    const select = (await screen.findByLabelText('Tax year')) as HTMLSelectElement;
-    expect(options()).toEqual(['2026 (still running)', '2025']);
-    expect(select.value).toBe('2025');
+    const shown = (await yearSelect()).querySelector('[data-slot="select-value"]');
+    expect(shown?.textContent).toBe('2025');
+    expect(await options()).toEqual(['2026 (still running)', '2025']);
   });
 
   it('with a first buy today, offers only the running year, marked as running', async () => {
     await mount(
       withPlan({}, (all) => all.slice(0, 1).map((entry) => ({ ...entry, date: '2026-10-20' as CalendarDate }))),
     );
-    await screen.findByLabelText('Tax year');
-    expect(options()).toEqual(['2026 (still running)']);
+    expect(await options()).toEqual(['2026 (still running)']);
   });
 
   it('with no entries, says there is no tax year to export', async () => {
@@ -174,7 +184,7 @@ describe('TaxYearExport', () => {
       expect(screen.queryByRole('combobox')).toBeNull();
       gate.held = null;
       await act(async () => profiles.settle());
-      expect(await screen.findByLabelText('Tax year')).toBeTruthy();
+      expect(await yearSelect()).toBeTruthy();
     } finally {
       gate.held = null;
       profiles.settle();
@@ -186,7 +196,7 @@ describe('TaxYearExport', () => {
     const { services } = await mountServices(fixtureSnapshot(), {
       load: (code) => (code === 'GB' ? gb.promise : rules(code)),
     });
-    await screen.findByLabelText('Tax year');
+    await yearSelect();
     await act(async () => {
       await services.domain.write(({ plan }) => ({
         plan: { ...(plan as Plan), country: 'GB' as Plan['country'], payCurrency: 'GBP' },
@@ -195,8 +205,7 @@ describe('TaxYearExport', () => {
     expect(screen.queryByText(NOT_LOADED)).toBeNull();
     expect(screen.queryByRole('combobox')).toBeNull();
     await act(async () => gb.settle(await rules('GB')));
-    expect(await screen.findByLabelText('Tax year')).toBeTruthy();
-    expect(options()).toEqual(['2026 to 2027 (still running)', '2025 to 2026']);
+    expect(await options()).toEqual(['2026 to 2027 (still running)', '2025 to 2026']);
   });
 
   it('is absent for France and the Netherlands', async () => {
@@ -240,7 +249,7 @@ describe('TaxYearExport', () => {
       { ...(all[0] as Entry), id: 'b0000000-0000-4000-8000-000000000001' as Entry['id'], kind: 'held', amount: null },
     ];
     const platform = await mount(withPlan({ country: 'IT' as Plan['country'] }, held));
-    const header = headerOf((await exportYear(platform, '2026')).content);
+    const header = headerOf((await exportYear(platform, '2026 (still running)')).content);
     const note = (await loadProfile('IT'))?.lotRuleNote ?? '';
     expect(note).toMatch(/A cost without proof counts as zero\.$/u);
     expect(header).toContain('Each sale is matched to purchases of the same coin, last in, first out.');
@@ -263,7 +272,7 @@ describe('TaxYearExport', () => {
       },
     ];
     const platform = await mount(withPlan({ country: 'IT' as Plan['country'] }, entries));
-    const { content } = await exportYear(platform, '2026');
+    const { content } = await exportYear(platform, '2026 (still running)');
     expect(headerOf(content)).toContain(textCell(EMPTY_COST));
     const rows = rowsOf(content);
     const empty = rows.filter((row) => row.cost_basis === '');
@@ -276,7 +285,7 @@ describe('TaxYearExport', () => {
   it("the raw listing's empty-cost line holds for its held entry with no cost and its sale", async () => {
     const entries = (all: readonly Entry[]): Entry[] => [...all, heldNoCost(all, '2026-07-01', '0.01')];
     const platform = await mount(withPlan({ country: 'GB' as Plan['country'], payCurrency: 'GBP' }, entries));
-    const { content } = await exportYear(platform, '2027');
+    const { content } = await exportYear(platform, '2026 to 2027 (still running)');
     expect(headerOf(content)).toContain(textCell(EMPTY_COST_RAW));
     const rows = rowsOf(content);
     const empty = rows.filter((row) => row.cost_basis === '');
@@ -305,7 +314,7 @@ describe('TaxYearExport', () => {
   it('after a change of country, no header line claims the amounts are in the new pay currency', async () => {
     // The store dates no change of currency (#272): amounts logged before it keep the old one.
     const platform = await mount(withPlan({ country: 'GB' as Plan['country'], payCurrency: 'GBP' }));
-    const header = headerOf((await exportYear(platform, '2027')).content);
+    const header = headerOf((await exportYear(platform, '2026 to 2027 (still running)')).content);
     expect(header).toContain('Amounts are as you logged them and are not converted. Your pay currency is GBP.');
     expect(header).not.toMatch(/Amounts (are )?in GBP/u);
     expect(header).not.toMatch(/in (your|the) pay currency/u);
@@ -313,7 +322,7 @@ describe('TaxYearExport', () => {
 
   it('the UK file is the raw listing, with the pool and the 30-day window named', async () => {
     const platform = await mount(withPlan({ country: 'GB' as Plan['country'], payCurrency: 'GBP' }));
-    const file = await exportYear(platform, '2027');
+    const file = await exportYear(platform, '2026 to 2027 (still running)');
     expect(file.name).toBe('proof-of-calm-tax-year-2026-27-GB-2026-10-20.csv');
     const header = headerOf(file.content);
     expect(header).toContain(
@@ -330,11 +339,11 @@ describe('TaxYearExport', () => {
   // The expected files the e2e spec also reads (apps/web/e2e/tax-year.spec.ts), byte for byte from the same seed and clock,
   // so a change of wording or rows fails here before the viewport matrix runs.
   it.each([
-    ['PT', {}, '2026', ptFile],
+    ['PT', {}, '2026 (still running)', ptFile],
     [
       'GB',
       { country: 'GB', payCurrency: 'GBP', displayCurrency: 'GBP', holdingRule: { kind: 'none' } },
-      '2027',
+      '2026 to 2027 (still running)',
       gbFile,
     ],
   ] as const)('the %s file is the e2e fixture', async (_, patch, year, expected) => {
@@ -371,7 +380,7 @@ describe('TaxYearExport', () => {
       entry(all, '3', { kind: 'sell', date: '2026-10-01' as CalendarDate, units: '5' as Entry['units'] }),
     ];
     const pt = await mount(withPlan({ holdingRule: { kind: 'none' } }, flagged));
-    const lots = (await exportYear(pt, '2026')).content;
+    const lots = (await exportYear(pt, '2026 (still running)')).content;
     const flags = [
       'sale_venue shows',
       'its own holding rule',
@@ -384,7 +393,7 @@ describe('TaxYearExport', () => {
     noSemicolon(lots);
     cleanup();
     const gb = await mount(withPlan({ country: 'GB' as Plan['country'], payCurrency: 'GBP' }, flagged));
-    const pool = (await exportYear(gb, '2027')).content;
+    const pool = (await exportYear(gb, '2026 to 2027 (still running)')).content;
     expect(headerOf(pool)).toContain(textCell(EMPTY_COST_RAW));
     noSemicolon(pool);
   });
