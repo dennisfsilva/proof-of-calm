@@ -6,7 +6,7 @@ import {
   fixtureNowMs,
   fixtureSnapshot,
 } from '@proofofcalm/app/lib/services/fixtures';
-import type { CurrencyCode, Decimal } from '@proofofcalm/core';
+import type { CurrencyCode, Decimal, Plan } from '@proofofcalm/core';
 import { seedPlan } from './seed';
 import { test } from './support';
 
@@ -17,7 +17,8 @@ import { test } from './support';
 // request it makes itself passes the page's routes by. The plan is Portugal's, so the figures are
 // formatted in pt-PT, as the app formats them; the expected text allows for the browsers' spaces.
 // The value chart reads /api/history/:coin, answered the same way from fixture closes; an open holdings
-// row draws its coin's closes over the value chart's range.
+// row draws its coin's closes over the value chart's range. The same plan in the Netherlands, in nl-NL, adds
+// the value on 1 January from the close of 31 December before the fixed clock (docs/JURISDICTIONS.md §7.8).
 
 test.use({ serviceWorkers: 'block' });
 
@@ -185,3 +186,40 @@ for (const phase of Object.keys(FIXTURE_DATES) as FixturePhase[]) {
     await expect(ranges.getByRole('button', { name: '90D, last 90 days' })).toHaveAttribute('aria-pressed', 'true');
   });
 }
+
+test('a Dutch plan shows its value on 1 January from the closes of 31 December, as an estimate, credited', async ({
+  page,
+}) => {
+  const nowMs = fixtureNowMs('sell');
+  await page.clock.setFixedTime(new Date(nowMs));
+  await page.route('**/api/prices?*', (route) =>
+    route.fulfill({
+      json: {
+        at: new Date(nowMs - 30_000).toISOString(),
+        prices: { BTC: { EUR: '60000.12', USD: '70000' }, ETH: { EUR: '2500.5', USD: '2900' } },
+      },
+    }),
+  );
+  await page.route('**/api/history/*', history(nowMs));
+  const fixture = fixtureSnapshot();
+  if (fixture.plan === null) throw new Error('no fixture plan');
+  const plan: Plan = {
+    ...fixture.plan,
+    country: 'NL' as Plan['country'],
+    countryRuleVersion: 1,
+    holdingRule: { kind: 'none' },
+  };
+  await seedPlan(page, { ...fixture, plan });
+  await page.goto('/portfolio');
+  await expect(page.getByRole('heading', { level: 1, name: 'Portfolio' })).toBeVisible();
+
+  // The closes of 31 Dec 2029, 74 days before the clock: BTC 55,718.35 and ETH 2,322.06, for 0.02215 BTC
+  // and 0.119 ETH.
+  const dutch = createFormatters('nl-NL', 'en-GB');
+  await expect(page.getByText('Value on 1 January 2030')).toBeVisible();
+  await expect(page.getByText(loosely(dutch.money('1510.4865925' as Decimal, EUR)))).toBeVisible();
+  await expect(
+    page.getByText(loosely('Estimate from the daily closes of 31 Dec 2029 for BTC and ETH · Price data by CoinGecko')),
+  ).toBeVisible();
+  await expect(page.getByText(/wealth|box 3|taxable/i)).toHaveCount(0);
+});
