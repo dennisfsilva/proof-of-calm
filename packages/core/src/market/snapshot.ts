@@ -26,8 +26,8 @@ export type SnapshotValue = {
   readonly missing: readonly CoinId[];
 };
 
-/** The close dated exactly `date`, else null. */
-function closeDated(history: PriceHistory, date: CalendarDate): Price | null {
+/** The close dated exactly `date`, else null: no neighbouring close stands in. */
+export function closeDated(history: PriceHistory, date: CalendarDate): Price | null {
   let low = 0;
   let high = history.length;
   while (low < high) {

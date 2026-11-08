@@ -236,7 +236,7 @@ const COLUMNS =
   'kind,acquired,coin,venue,units,cost_basis,fee,eligible_from,past_holding_rule,disposed_on,sale_venue,proceeds,disposal_fee,units_estimated';
 
 /** An amount at least at the currency's minor digits (a split may keep the total's own third decimal). */
-function amountCell(value: Money | null, digits: number): string {
+export function paddedAmountCell(value: Money | null, digits: number): string {
   if (value === null) return '';
   const places = decimalPlaces(value);
   if (places >= digits) return value;
@@ -255,14 +255,14 @@ export function taxYearLotsCsv(lots: TaxYearLots, header: readonly string[]): st
       textCell(piece.coin),
       textCell(piece.venue ?? ''),
       piece.units,
-      amountCell(piece.costBasis, digits),
-      amountCell(piece.fee, digits),
+      paddedAmountCell(piece.costBasis, digits),
+      paddedAmountCell(piece.fee, digits),
       piece.eligibleFrom ?? '',
       flagCell(piece.pastHoldingRule),
       piece.disposedOn ?? '',
       textCell(piece.saleVenue ?? ''),
-      amountCell(piece.proceeds, digits),
-      amountCell(piece.disposalFee, digits),
+      paddedAmountCell(piece.proceeds, digits),
+      paddedAmountCell(piece.disposalFee, digits),
       flagCell(piece.estimated),
     ].join(','),
   );
