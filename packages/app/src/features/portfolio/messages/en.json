@@ -79,6 +79,14 @@
       "fewCloses": "The price history has fewer than two daily closes for {coin} from {start} to {end}, so there is no chart."
     }
   },
+  "januaryValue": {
+    "value": "Value on 1 January {year}",
+    "estimate": "Estimate from the daily closes of {date} for {coins} · Price data by CoinGecko",
+    "missing": "The price history has no daily close of {date} for {coins}, so there is no value to show.",
+    "loading": "Loading the daily closes of {date}.",
+    "none": "The Log holds no coins at the end of {date}.",
+    "heldAfter": "Coins added in the Log with a date after {date} are not in this value: {coins}."
+  },
   "unrecorded": "No recorded cost for {coins}, so Invested, the average cost, and the P/L leave these units out.",
   "notBought": "Not bought yet: {coins}. For coins you already have, open the <log>Log</log> and choose Add coins you already have.",
   "unmatched": "{units} sold without a purchase dated on or before the sale. Check the dates and amounts in the Log."
