@@ -82,6 +82,32 @@ left open for recent charts:
   allow-list; anything else is a 400 with `no-store` before any upstream call. The key travels in
   the `x-cg-demo-api-key` header, never in a URL.
 
+### Reading of 2026-11-08: no downloaded file holds values derived from CoinGecko data
+
+The build session read the API Terms, the pricing page and the Crypto Data License page live on
+2026-11-08, with archived copies of 2026-09-27 to 2026-10-25 where the site refuses automated reads
+(confidence medium).
+
+- The app uses the Demo plan (`x-cg-demo-api-key`). The pricing page shows Demo with an empty licence
+  cell, "Attribution required", and "good for testing and exploration".
+- API Terms 6.2 forbids to "duplicate, reproduce, copy, store, derive from or translate any Data …
+  except as expressly permitted". The only storage 6.1 allows is a cache refreshed every 24 hours and
+  deleted on termination; §7(b) binds users to terms "no less protective of CoinGecko".
+- The Crypto Data License page (published 2026-11-05) puts "data access beyond on-screen display"
+  under Data Redistribution, "Enterprise only". A downloaded file is a lasting copy beyond on-screen
+  display, and a value next to its units gives the close back (value ÷ units).
+- The attribution guide says "Do not remove or obscure the attribution". The quotes above this
+  Reading still match the live terms word for word.
+
+Decided: the tax-year files carry no value derived from CoinGecko closes, neither France's estimated
+portfolio value before each sale nor the Netherlands' values on 1 January and 31 December. The core
+keeps the value columns and computes them from the closes it is given; the shell gives none, so the
+cells stay empty and each file's header says so in plain words (`docs/DOMAIN.md` §3.13). They fill
+from the reference closes of `packages/data` (planned: M2), which carry their own credit. On-screen
+values stay as the value chart shows them, credited and unlinked (ADR-0050). The plan the app uses at
+launch is decided in #21: Demo is for testing, and Basic's licence covers commercial display but asks
+for a linked credit.
+
 ## Disagreement
 
 None beyond the source change recorded in ADR-0006.

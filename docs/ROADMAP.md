@@ -141,8 +141,11 @@ external links and the Risk link in the mobile export (M3).
 - Jurisdictions: PT, DE, NL, ES, FR, IT, BE, IE, GB, US, XX as validated data with sources and dates;
   the country library in Learn, built on 2026-11-05 (#329), its country card on 2026-11-03 (#324); the tax-year export aligned to the country's tax year and shaped by
   its computation model (per lot, with a raw listing for the lot rules the app does not match, built on
-  2026-11-07 in Settings' Your data; France's portfolio-wide cessions with the estimated portfolio value
-  at each sale; the Dutch 1 January snapshot); the "Value on 1 January" line on Portfolio for Dutch
+  2026-11-07 in Settings' Your data, #33; France's portfolio-wide cessions with the estimated portfolio value
+  at each sale and the Dutch 1 January snapshot, their core built on 2026-11-08 in
+  dennisfsilva/proof-of-calm-archive#388, dennisfsilva/proof-of-calm-archive#389, #38 and #39 and offered in
+  Your data the same day, their value cells empty until the reference closes of `packages/data` (#13) fill
+  them, ADR-0036 Readings, 2026-11-08); the "Value on 1 January" line on Portfolio for Dutch
   users; holding-rule conditions shown beside the first date on the Log and the Plan (Portugal's
   counterparty rule), built on 2026-11-02 (#312); the dated
   rule-change notice, built on 2026-11-03 (#320); the "under review" state when `nextReviewDue` is more
@@ -241,7 +244,8 @@ external links and the Risk link in the mobile export (M3).
 
 - Playwright: each module opens from its "Why?" link and from Learn on all projects; Red day banner
   and page with a fixture price history that triggers each threshold; simulator with fixture data;
-  tax-year export produces the expected CSV for fixtures in PT (calendar year) and GB (6 April);
+  tax-year export produces the expected CSV for fixtures in PT (calendar year), GB (6 April), FR (the
+  cessions) and NL (the snapshot);
   country library pages; UK path per ADR-0029.
 - Content tests: every jurisdiction file validates; every module has the required front matter;
   banned words lint on content and UI strings.
