@@ -4,7 +4,7 @@ Amounts are as you logged them and are not converted. Your pay currency is EUR.
 "France rules reviewed on 2026-11-05 · general information, not advice · Sources: https://bofip.impots.gouv.fr/bofip/11968-PGP.html/identifiant=BOI-RPPM-PVBMC-30-20-20190902, https://www.impots.gouv.fr/particulier/questions/comment-declarer-les-plus-ou-moins-values-sur-cessions-dactifs-numeriques"
 "Each block is one sale from your log: a holding row for each coin held just before it, then the sale row. Purchases have no rows here: the CSV log lists every entry. The portfolio-wide formula and every figure from the earlier sales' fractions on are left to you or your accountant."
 "On holding rows, the coin sold is valued at its own sale price. The other coins carry no market price in this file, so estimated_portfolio_value is filled only when the coin sold was the only coin held and your log holds the units sold."
-"purchase_costs_to_date sums the amounts of the purchases logged before each sale, and purchase_fees_to_date their fees. Neither is reduced by earlier sales. Amounts are as you logged them, whether or not they include a fee."
+"purchase_costs_to_date sums the amounts of the purchases and the recorded costs of the Coins added entries logged before each sale, and purchase_fees_to_date their fees. Neither is reduced by earlier sales. Amounts are as you logged them, whether or not they include a fee."
 Dates are YYYY-MM-DD. Amounts and units use a decimal point.
 The tax year ends on 2026-12-31. This file shows your log as of 2026-10-20.
 
