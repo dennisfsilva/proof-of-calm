@@ -222,4 +222,6 @@ test('a Dutch plan shows its value on 1 January from the closes of 31 December, 
     page.getByText(loosely('Estimate from the daily closes of 31 Dec 2029 for BTC and ETH · Price data by CoinGecko')),
   ).toBeVisible();
   await expect(page.getByText(/wealth|box 3|taxable/i)).toHaveCount(0);
+  // The value chart draws, so it carries the past-performance line and the January line adds none (LEGAL §4).
+  await expect(page.getByText(/^Past performance is not a reliable indicator/)).toHaveCount(1);
 });
