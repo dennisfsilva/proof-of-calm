@@ -1,0 +1,9 @@
+{
+  "extends": "@proofofcalm/config/tsconfig.react.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "resolvePackageJsonImports": true,
+    "allowImportingTsExtensions": true
+  },
+  "include": ["src", "test", ".storybook/**/*", "*.config.ts"]
+}

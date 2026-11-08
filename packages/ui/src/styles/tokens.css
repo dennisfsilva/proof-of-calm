@@ -1,0 +1,337 @@
+/*
+ * Design tokens: the one place where colour, type, spacing, radius, motion and elevation are defined
+ * (docs/DESIGN.md §3 to §6). Plain custom properties, so any stylesheet can read them; theme.css maps
+ * them to Tailwind utilities and to shadcn's names.
+ *
+ * Every colour is declared in hex first and in OKLCH second, inside @supports: repeating a custom
+ * property is no fallback (the last declaration wins whatever the browser can render), so the OKLCH
+ * values wait behind a support check and the hex values serve browsers without oklch(). Dark values are
+ * declared under the media query, guarded by :not([data-theme="light"]), and again under
+ * [data-theme="dark"], so the in-app choice wins both ways. test/tokens.test.ts recomputes the contrast
+ * table and test/palette.test.ts the chart palette checks from this file.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* Colour, light (docs/DESIGN.md §3) */
+  --background: #f7f4ef;
+  --surface: #fbfaf7;
+  --surface-2: #f0ece7;
+  --surface-3: #e8e4de;
+  --ink: #1c1a18;
+  --ink-2: #5d5a56;
+  --ink-3: #83807b;
+  --line: #dad7d2;
+  --line-2: #83807b;
+  --accent: #ac7300;
+  --on-accent: #110f0d;
+  --positive: #146720;
+  --negative: #b63039;
+  --focus: var(--ink);
+
+  /* Coins, then the extended palette for other coins, light (docs/DESIGN.md §4) */
+  --coin-btc: #cb5a00;
+  --coin-eth: #5635b6;
+  --coin-sol: #007c60;
+  --coin-link: #287ccf;
+  --coin-magenta: #a8347f;
+  --coin-purple: #7b3b9d;
+  --coin-olive: #748322;
+  --coin-rose: #b03557;
+  --coin-brown: #855732;
+  --coin-steel: #3e799a;
+  --coin-other: #808080;
+
+  /* Overlays (docs/DESIGN.md §6): in light, a sheet or dialog is lifted by a shadow */
+  --overlay: var(--surface);
+  --overlay-border: transparent;
+  --overlay-shadow: 0 1px 2px #1816111a, 0 8px 24px -8px #18161140;
+  --scrim: #18161140;
+
+  /* Type (docs/DESIGN.md §5). The families come from fonts.css, which every host imports. */
+  --typeface-text:
+    "Calm Sans", "Calm Sans Fallback", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --typeface-mono: "Calm Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --type-12: 0.75rem; /* axis ticks only */
+  --type-12-leading: 1.4;
+  --type-13: 0.8125rem; /* captions and meta, never lighter than ink-2 */
+  --type-13-leading: 1.45;
+  --type-14: 0.875rem; /* dense tables */
+  --type-14-leading: 1.45;
+  --type-16: 1rem; /* body */
+  --type-16-leading: 1.5;
+  --type-18: 1.125rem;
+  --type-18-leading: 1.4;
+  --type-20: 1.25rem;
+  --type-20-leading: 1.35;
+  --type-24: 1.5rem;
+  --type-24-leading: 1.3;
+  --type-28: 1.75rem;
+  --type-28-leading: 1.25;
+  --type-32: 2rem;
+  --type-32-leading: 1.2;
+  --type-40: 2.5rem; /* the portfolio number */
+  --type-40-leading: 1.1;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --heading-tracking: -0.01em;
+  --measure-reading: 40rem; /* 640 px */
+  --measure-table: 60rem; /* 960 px */
+
+  /* Spacing (docs/DESIGN.md §6): a 4 px base in rem, so text zoom scales the layout */
+  --space-unit: 0.25rem;
+  --inset-sm: 0.75rem;
+  --inset: 1rem;
+  --inset-lg: 1.5rem;
+  --stack-xs: 0.25rem;
+  --stack-sm: 0.5rem;
+  --stack-md: 1rem;
+  --stack-lg: 1.5rem;
+  --stack-xl: 2.5rem;
+  --gutter: 1rem;
+  --fill-gap: 2px; /* between adjacent fills only */
+
+  /* Touch (docs/DESIGN.md §6) */
+  --target: 2.75rem; /* 44 px */
+  --target-gap: 0.5rem; /* 8 px between adjacent targets */
+  --row: 3rem; /* 48 px list rows */
+  --chart-hit: 1.5rem; /* 24 px around a 2 px line */
+
+  /*
+   * Navigation (docs/DESIGN.md §7): the phone tab bar's height, and --bottom-bar, what fixed and
+   * scrolled-to content keeps clear of at the bottom: the bar and the home indicator while a tab bar is
+   * on the page (set below), nothing otherwise.
+   */
+  --tab-bar-height: 3.5rem; /* 56 px */
+  --bottom-bar: 0px;
+
+  /* Radius (docs/DESIGN.md §6): no 2 px radii, no asymmetric corners */
+  --corner-sm: 4px; /* tags, tooltips, cell highlights */
+  --corner-md: 8px; /* buttons, inputs, menus, text chips */
+  --corner-lg: 14px; /* cards, sheets, dialogs */
+  --corner-full: 9999px; /* the now dot, pills */
+
+  /* Motion (docs/DESIGN.md §6) */
+  --duration-fast: 120ms; /* hover, toggle */
+  --duration-base: 180ms; /* fade, expand, tooltip */
+  --duration-slow: 240ms; /* sheet, dialog, page */
+  --duration-draw: 400ms; /* the one chart draw-in per page view */
+  --easing-enter: cubic-bezier(0.2, 0, 0, 1);
+  --easing-exit: cubic-bezier(0.3, 0, 1, 1);
+
+  /* Focus (docs/DESIGN.md §6) */
+  --focus-width: 2px;
+  --focus-offset: 2px;
+
+  /* Charts (docs/DESIGN.md §4, ADR-0022): 2 px lines, markers of at least 8 px, the heights of the marks */
+  --chart-line: 2px;
+  --chart-marker: 8px;
+  --chart-height: 10rem;
+  --sparkline-height: 2rem;
+  --strip-height: 1.25rem;
+  --allocation-height: 0.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    /* Colour, dark (docs/DESIGN.md §3) */
+    --background: #151412;
+    --surface: #1f1e1b;
+    --surface-2: #282623;
+    --surface-3: #32302d;
+    --ink: #f1f0ec;
+    --ink-2: #bcbab6;
+    --ink-3: #8e8c87;
+    --line: #2f2d2a;
+    --line-2: #8e8c87;
+    --accent: #e4b65c;
+    --on-accent: var(--background);
+    --positive: #74c878;
+    --negative: #f16f78;
+
+    /* Coins and the extended palette, dark (docs/DESIGN.md §4) */
+    --coin-btc: #f4873a;
+    --coin-eth: #886acf;
+    --coin-sol: #50d0b4;
+    --coin-link: #59aff4;
+    --coin-magenta: #e57bba;
+    --coin-purple: #b57dd6;
+    --coin-olive: #b7c86b;
+    --coin-rose: #f17993;
+    --coin-brown: #c4926c;
+    --coin-steel: #78b3d6;
+    --coin-other: #a4a4a4;
+
+    /* Overlays, dark: surface-2, a perceivable border and a scrim instead of a shadow */
+    --overlay: var(--surface-2);
+    --overlay-border: var(--line-2);
+    --overlay-shadow: 0 0 transparent;
+    --scrim: #03030380;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Colour, dark (docs/DESIGN.md §3) */
+  --background: #151412;
+  --surface: #1f1e1b;
+  --surface-2: #282623;
+  --surface-3: #32302d;
+  --ink: #f1f0ec;
+  --ink-2: #bcbab6;
+  --ink-3: #8e8c87;
+  --line: #2f2d2a;
+  --line-2: #8e8c87;
+  --accent: #e4b65c;
+  --on-accent: var(--background);
+  --positive: #74c878;
+  --negative: #f16f78;
+
+  /* Coins and the extended palette, dark (docs/DESIGN.md §4) */
+  --coin-btc: #f4873a;
+  --coin-eth: #886acf;
+  --coin-sol: #50d0b4;
+  --coin-link: #59aff4;
+  --coin-magenta: #e57bba;
+  --coin-purple: #b57dd6;
+  --coin-olive: #b7c86b;
+  --coin-rose: #f17993;
+  --coin-brown: #c4926c;
+  --coin-steel: #78b3d6;
+  --coin-other: #a4a4a4;
+
+  /* Overlays, dark: surface-2, a perceivable border and a scrim instead of a shadow */
+  --overlay: var(--surface-2);
+  --overlay-border: var(--line-2);
+  --overlay-shadow: 0 0 transparent;
+  --scrim: #03030380;
+}
+
+@supports (color: oklch(0 0 0)) {
+  :root {
+    --background: oklch(0.967 0.007 80);
+    --surface: oklch(0.985 0.004 80);
+    --surface-2: oklch(0.945 0.008 80);
+    --surface-3: oklch(0.92 0.009 80);
+    --ink: oklch(0.22 0.005 80);
+    --ink-2: oklch(0.47 0.008 80);
+    --ink-3: oklch(0.6 0.008 80);
+    --line: oklch(0.88 0.008 80);
+    --line-2: oklch(0.6 0.008 80);
+    --accent: oklch(0.6 0.127 75);
+    --on-accent: oklch(0.17 0.005 80);
+    --positive: oklch(0.45 0.13 145);
+    --negative: oklch(0.52 0.17 22);
+
+    --coin-btc: oklch(0.6 0.164 48);
+    --coin-eth: oklch(0.45 0.19 288);
+    --coin-sol: oklch(0.52 0.103 170);
+    --coin-link: oklch(0.58 0.15 252);
+    --coin-magenta: oklch(0.52 0.17 345);
+    --coin-purple: oklch(0.48 0.16 312);
+    --coin-olive: oklch(0.58 0.12 118);
+    --coin-rose: oklch(0.52 0.16 8);
+    --coin-brown: oklch(0.5 0.08 58);
+    --coin-steel: oklch(0.55 0.08 235);
+    --coin-other: oklch(0.6 0 0);
+
+    --overlay-shadow: 0 1px 2px oklch(0.2 0.01 80 / 0.1), 0 8px 24px -8px oklch(0.2 0.01 80 / 0.25);
+    --scrim: oklch(0.2 0.01 80 / 0.25);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --background: oklch(0.19 0.004 80);
+      --surface: oklch(0.235 0.005 80);
+      --surface-2: oklch(0.27 0.006 80);
+      --surface-3: oklch(0.31 0.006 80);
+      --ink: oklch(0.955 0.005 90);
+      --ink-2: oklch(0.79 0.007 85);
+      --ink-3: oklch(0.64 0.007 85);
+      --line: oklch(0.3 0.006 80);
+      --line-2: oklch(0.64 0.007 85);
+      --accent: oklch(0.8 0.12 82);
+      --positive: oklch(0.76 0.14 145);
+      --negative: oklch(0.7 0.16 18);
+
+      --coin-btc: oklch(0.73 0.16 52);
+      --coin-eth: oklch(0.6 0.15 295);
+      --coin-sol: oklch(0.78 0.12 176);
+      --coin-link: oklch(0.73 0.13 245);
+      --coin-magenta: oklch(0.72 0.15 345);
+      --coin-purple: oklch(0.68 0.14 312);
+      --coin-olive: oklch(0.8 0.12 118);
+      --coin-rose: oklch(0.72 0.15 8);
+      --coin-brown: oklch(0.7 0.08 58);
+      --coin-steel: oklch(0.74 0.08 235);
+      --coin-other: oklch(0.72 0 0);
+
+      --scrim: oklch(0.1 0 0 / 0.5);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --background: oklch(0.19 0.004 80);
+    --surface: oklch(0.235 0.005 80);
+    --surface-2: oklch(0.27 0.006 80);
+    --surface-3: oklch(0.31 0.006 80);
+    --ink: oklch(0.955 0.005 90);
+    --ink-2: oklch(0.79 0.007 85);
+    --ink-3: oklch(0.64 0.007 85);
+    --line: oklch(0.3 0.006 80);
+    --line-2: oklch(0.64 0.007 85);
+    --accent: oklch(0.8 0.12 82);
+    --positive: oklch(0.76 0.14 145);
+    --negative: oklch(0.7 0.16 18);
+
+    --coin-btc: oklch(0.73 0.16 52);
+    --coin-eth: oklch(0.6 0.15 295);
+    --coin-sol: oklch(0.78 0.12 176);
+    --coin-link: oklch(0.73 0.13 245);
+    --coin-magenta: oklch(0.72 0.15 345);
+    --coin-purple: oklch(0.68 0.14 312);
+    --coin-olive: oklch(0.8 0.12 118);
+    --coin-rose: oklch(0.72 0.15 8);
+    --coin-brown: oklch(0.7 0.08 58);
+    --coin-steel: oklch(0.74 0.08 235);
+    --coin-other: oklch(0.72 0 0);
+
+    --scrim: oklch(0.1 0 0 / 0.5);
+  }
+}
+
+/* From 600 px the gutter widens (docs/DESIGN.md §6). */
+@media (width >= 37.5rem) {
+  :root {
+    --gutter: 1.5rem;
+  }
+}
+
+/* Below 48rem, where the tab bar shows, a page that has one keeps its bottom clear of it (docs/DESIGN.md §7). */
+@media (width < 48rem) {
+  :root:has([data-slot="tab-bar"]) {
+    --bottom-bar: calc(var(--tab-bar-height) + env(safe-area-inset-bottom));
+  }
+}
+
+/* Reduced motion: every duration becomes 1 ms, from the system setting or the in-app one (docs/DESIGN.md §6). */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 1ms;
+    --duration-base: 1ms;
+    --duration-slow: 1ms;
+    --duration-draw: 1ms;
+  }
+}
+
+:root[data-motion="reduce"] {
+  --duration-fast: 1ms;
+  --duration-base: 1ms;
+  --duration-slow: 1ms;
+  --duration-draw: 1ms;
+}

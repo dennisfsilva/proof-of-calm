@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh issue view *)",
+      "Bash(gh issue list *)",
+      "Bash(gh pr list *)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr checks *)",
+      "Bash(gh run list *)",
+      "Bash(git worktree list *)",
+      "Bash(git branch *)",
+      "Workflow(crew:review-tiers)",
+      "Bash(crew-metrics *)",
+      "Bash(crew-cleanup-worktrees *)"
+    ],
+    "deny": [
+      "Read(./apps/web/.env.local)",
+      "Edit(./apps/web/.env.local)",
+      "Read(./.env)",
+      "Edit(./.env)"
+    ]
+  }
+}

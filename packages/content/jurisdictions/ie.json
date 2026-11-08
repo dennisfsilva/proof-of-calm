@@ -1,0 +1,223 @@
+{
+  "schemaVersion": 1,
+  "code": "IE",
+  "name": "Ireland",
+  "currency": "EUR",
+  "locales": ["en-IE", "ga-IE"],
+  "numberFormatLocale": "en-IE",
+  "dateFormatLocale": "en-IE",
+  "timezones": ["Europe/Dublin"],
+  "taxYear": { "start": "01-01", "end": "12-31" },
+  "filingNote": "Calendar tax year. CGT on disposals from 1 January to 30 November is paid by 15 December of the same year, on December disposals by 31 January. The return (Form CG1, Form 11, or Form 12) is filed by 31 October of the following year.",
+  "computationModel": { "kind": "per-lot" },
+  "holdingRule": { "kind": "none" },
+  "holdingRuleOverrides": [],
+  "holdingRuleConditions": [],
+  "lotRule": "fifo",
+  "lotScope": "global",
+  "lotRuleNote": "First in, first out, Revenue's rule for shares: the oldest units are treated as sold first. The crypto-asset manual sets no lot rule and is silent on the four-week rules for shares.",
+  "card": {
+    "classification": "Chargeable assets for Capital Gains Tax: a sale, transfer, or redemption of crypto-assets is most likely a disposal (Tax and Duty Manual Part 02-01-03). A trade of dealing in crypto-assets falls under income tax instead.",
+    "taxableEvents": [
+      {
+        "event": "sale-to-fiat",
+        "taxable": "yes",
+        "note": "A disposal: the amount subject to CGT is the sales proceeds less the cost of the asset, calculated separately for each disposal."
+      },
+      {
+        "event": "crypto-to-crypto",
+        "taxable": "yes",
+        "note": "Exchanging one asset for another is a disposal (Revenue, CGT on the disposal of an asset)."
+      },
+      {
+        "event": "crypto-to-stablecoin",
+        "taxable": "yes",
+        "note": "An exchange of one asset for another, like any other swap; no Revenue page sets a separate rule for stablecoins."
+      },
+      {
+        "event": "spending",
+        "taxable": "yes",
+        "note": "The manual's Example 3: using crypto-assets to purchase goods in a local café is a disposal for CGT purposes."
+      },
+      {
+        "event": "own-wallet-transfer",
+        "taxable": "no",
+        "note": "No sale, gift, or exchange takes place, so Revenue's definition of a disposal is not met; no Revenue page addresses the case (medium confidence)."
+      },
+      {
+        "event": "gift-or-inheritance",
+        "taxable": "depends",
+        "note": "A gift is a disposal for the giver; the recipient may owe Capital Acquisitions Tax on the euro market value at the valuation date. No CGT on an asset transferred on death; the heir's cost is the market value at death."
+      },
+      {
+        "event": "staking-or-airdrop",
+        "taxable": "depends",
+        "note": "The manual is silent on staking and airdrops. A trade of dealing in crypto-assets is taxed under income tax rules; units received are crypto-assets whose later disposal is a CGT event (medium confidence)."
+      }
+    ],
+    "rates": [
+      {
+        "label": "Capital Gains Tax",
+        "value": "31 %",
+        "validFrom": "2026-10-07",
+        "validTo": null,
+        "note": "Set by Financial Resolution No. 3 of 6 October 2026 (Budget 2027), in force under the Provisional Collection of Taxes Act 1927 until the Finance (No. 2) Bill 2026 is enacted."
+      },
+      {
+        "label": "Capital Gains Tax to 6 October 2026",
+        "value": "33 %",
+        "validFrom": "2012-12-06",
+        "validTo": "2026-10-06",
+        "note": "33 % on disposals from 6 December 2012 (Finance Act 2013 s. 43; Revenue's rate table prints 6 December 2021 for this row) to 6 October 2026. Development land stays at 33 %."
+      }
+    ],
+    "allowances": [
+      "EUR 1,270 of chargeable gains a year per person, deducted after allowable losses. The exemption only reduces that year's chargeable gains; a part left over cannot be used."
+    ],
+    "holdingRuleText": "No holding rule: every disposal is a CGT event whatever the holding time. The amount subject to CGT is calculated separately on each asset on a disposal-by-disposal basis, the sales proceeds less the cost (Tax and Duty Manual Part 02-01-03).",
+    "lotRuleText": "First in, first out: Revenue's rule for shares treats the oldest units as sold first. The crypto-asset manual sets no lot rule and is silent on the four-week rules for shares.",
+    "losses": "An allowable loss is deducted from chargeable gains of the same tax year. Losses that exceed them carry forward against the next available gains in later years.",
+    "reporting": [
+      "File by 31 October of the year after the disposal. Form CG1 if you file no annual tax return or use the online Form 12. Form 11 if you are self-employed or have income not taxed under PAYE, or the paper Form 12 if you are under PAYE.",
+      "The return is due even if no tax is due because of reliefs or allowable losses. A late payment incurs an interest charge; a late return incurs a penalty.",
+      "Payment: disposals from 1 January to 30 November by 15 December of the same year; December disposals by 31 January of the next year."
+    ],
+    "caveats": [
+      "Whether the four-week rules for shares (a sale within four weeks of a purchase is matched to that purchase; a loss on shares repurchased within four weeks is restricted) reach crypto-assets.",
+      "Staking and airdrop income.",
+      "Trading or investing: whether the activity is a trade of dealing in crypto-assets.",
+      "Capital Acquisitions Tax on gifts and inheritances.",
+      "Which rate, 33 % or 31 %, applies to a disposal made while the Finance (No. 2) Bill 2026 is not yet enacted."
+    ],
+    "summary60": "Ireland charges Capital Gains Tax on every crypto disposal: selling, swapping, spending, or gifting. Rate 33 % to 6 October 2026 and 31 % from 7 October 2026, after a EUR 1,270 yearly exemption. No holding-period exemption. Pay by 15 December for January to November disposals, by 31 January for December's; file by 31 October next year. Losses carry forward."
+  },
+  "pendingChanges": [
+    {
+      "title": "Finance (No. 2) Bill 2026, section 36: the 31 % rate",
+      "status": "proposed",
+      "effectiveFrom": "2026-10-07",
+      "summary": "Section 36 substitutes 31 per cent for 33 per cent in section 28(3) of the Taxes Consolidation Act 1997 for disposals made on or after 7 October 2026. Passed Dáil Second Stage on 20 October 2026 and referred to the Select Committee on Finance, Public Expenditure, Public Service Reform and Digitalisation, and Taoiseach (Dáil record). Until enacted, the rate rests on Financial Resolution No. 3.",
+      "source": {
+        "title": "Dáil Éireann debate of 20 October 2026: Finance (No. 2) Bill 2026: Second Stage and Referral to Select Committee",
+        "url": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-10-20/debate/mul@/main.xml",
+        "publisher": "Houses of the Oireachtas",
+        "kind": "law",
+        "published": "2026-10-20",
+        "accessed": "2026-11-05"
+      }
+    },
+    {
+      "title": "DAC8: reporting by crypto-asset service providers",
+      "status": "in-force",
+      "effectiveFrom": "2026-01-01",
+      "summary": "Section 891HA of the Taxes Consolidation Act 1997, inserted by section 92 of the Finance Act 2025, applies from 1 January 2026. A reporting crypto-asset service provider reports relevant transactions to Revenue by 31 May for the previous calendar year, first by 31 May 2027, and gives each crypto-asset user a copy of their information by 31 May.",
+      "source": {
+        "title": "DAC8 and the Crypto-Asset Reporting Framework (CARF)",
+        "url": "https://www.revenue.ie/en/companies-and-charities/international-tax/aeoi/dac8/index.aspx",
+        "publisher": "Revenue Commissioners",
+        "kind": "authority",
+        "published": "2026-03-30",
+        "accessed": "2026-11-05"
+      }
+    }
+  ],
+  "sources": [
+    {
+      "key": "ie-revenue-tdm-02-01-03",
+      "title": "Tax and Duty Manual Part 02-01-03: Taxation of Crypto-Asset Transactions",
+      "url": "https://www.revenue.ie/en/tax-professionals/tdm/income-tax-capital-gains-tax-corporation-tax/part-02/02-01-03.pdf",
+      "publisher": "Revenue Commissioners",
+      "kind": "authority",
+      "published": null,
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "ie-revenue-pay-and-file-cgt",
+      "title": "When and how do you pay and file CGT?",
+      "url": "https://www.revenue.ie/en/gains-gifts-and-inheritance/transfering-an-asset/when-and-how-do-you-pay-and-file-cgt.aspx",
+      "publisher": "Revenue Commissioners",
+      "kind": "authority",
+      "published": "2026-10-27",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "ie-revenue-how-to-calculate-cgt",
+      "title": "How to calculate CGT",
+      "url": "https://www.revenue.ie/en/gains-gifts-and-inheritance/transfering-an-asset/how-to-calculate-cgt.aspx",
+      "publisher": "Revenue Commissioners",
+      "kind": "authority",
+      "published": "2026-10-07",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "ie-revenue-if-you-make-a-loss",
+      "title": "If you make a loss",
+      "url": "https://www.revenue.ie/en/gains-gifts-and-inheritance/transfering-an-asset/if-you-make-a-loss.aspx",
+      "publisher": "Revenue Commissioners",
+      "kind": "authority",
+      "published": "2025-05-02",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "ie-revenue-selling-shares",
+      "title": "Selling or disposing of shares",
+      "url": "https://www.revenue.ie/en/gains-gifts-and-inheritance/transfering-an-asset/selling-or-disposing-of-shares.aspx",
+      "publisher": "Revenue Commissioners",
+      "kind": "authority",
+      "published": "2026-07-24",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "ie-revenue-cgt-disposal",
+      "title": "Capital Gains Tax (CGT) on the disposal of an asset",
+      "url": "https://www.revenue.ie/en/gains-gifts-and-inheritance/transfering-an-asset/index.aspx",
+      "publisher": "Revenue Commissioners",
+      "kind": "authority",
+      "published": "2026-10-28",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "ie-oireachtas-financial-resolution-3-2026",
+      "title": "Dáil Éireann debate of 6 October 2026: Financial Resolution No. 3: Capital Gains Tax",
+      "url": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-10-06/debate/mul@/main.xml",
+      "publisher": "Houses of the Oireachtas",
+      "kind": "law",
+      "published": "2026-10-06",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "ie-oireachtas-finance-no-2-bill-2026",
+      "title": "Finance (No. 2) Bill 2026, as initiated (No. 98 of 2026)",
+      "url": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/98/eng/initiated/b9826d.pdf",
+      "publisher": "Houses of the Oireachtas",
+      "kind": "law",
+      "published": "2026-10-19",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "ie-finance-act-2013-s43",
+      "title": "Finance Act 2013, Section 43",
+      "url": "https://www.irishstatutebook.ie/eli/2013/act/8/section/43/enacted/en/html",
+      "publisher": "Office of the Attorney General",
+      "kind": "law",
+      "published": null,
+      "accessed": "2026-11-05"
+    }
+  ],
+  "ruleSources": {
+    "holdingRule": "ie-revenue-tdm-02-01-03",
+    "lotRule": "ie-revenue-selling-shares",
+    "rates": "ie-revenue-how-to-calculate-cgt",
+    "losses": "ie-revenue-if-you-make-a-loss",
+    "reporting": "ie-revenue-pay-and-file-cgt"
+  },
+  "status": {
+    "confidence": "high",
+    "version": 1,
+    "changedOn": "2026-10-07",
+    "changeNotice": null,
+    "lastReviewed": "2026-11-05",
+    "nextReviewDue": "2027-11-05",
+    "reviewedBy": "owner"
+  }
+}

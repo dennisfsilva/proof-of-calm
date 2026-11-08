@@ -1,0 +1,178 @@
+# Proof of Calm architecture
+
+How the repository is organised, what each part owns, and what may import what. The rule is enforced
+by lint (ADR-0025), not by memory. Decision record for the shape: ADR-0032.
+
+## Repository layout
+
+```
+proof-of-calm/
+├── apps/
+│   ├── web/                  Vite host for the web and the PWA (ADR-0045): the app shell, the one API function, `vercel.json`, the service worker, the prerendered site pages, e2e
+│   └── mobile/               Vite static-export host for the Capacitor wrapper, hash location (skeleton from M0; Capacitor project in M3)
+├── packages/
+│   ├── app/                  the product: feature folders, ports and adapters, messages (host-agnostic React)
+│   ├── core/                 pure domain logic (docs/DOMAIN.md); no framework, no I/O, no clock
+│   ├── ui/                   design tokens, Tailwind preset, restyled shadcn (Base UI) components, charts, Storybook
+│   ├── content/              Learn modules in MDX, templates, jurisdiction data, facts, cycle data, banned words, their schemas and tests
+│   ├── data/                 the reference-close price history and DATA-LICENSE.md (planned: M2), only a README today
+│   └── config/               tsconfig bases, the dependency-cruiser rules and the hosts' Vite factory with its plugins (`packages/config/vite`, ADR-0045; Biome and ESLint configs are root files, ADR-0025)
+├── tools/                    repository scripts, tested like code (each one: tools/README.md); the data pipeline from M2
+├── docs/                     decisions (ADR/), specs, standards, research
+├── .github/                  CI workflows, the PR template (a content-review one from M2), CODEOWNERS; scheduled: the weekly OSV scan, and from M2 the content review, the daily price-history append with its weekly re-check and the nightly backup dump (ADR-0037)
+├── pnpm-workspace.yaml       workspaces, pnpm settings, the single-version catalog
+├── biome.json                formatter, lint rules and the editor-time layer rules
+├── eslint.config.mjs         the minimal ESLint layer (the React Compiler rules)
+├── knip.jsonc                dead files, exports and dependencies
+├── renovate.json             weekly grouped dependency updates
+├── turbo.json
+├── CLAUDE.md
+└── README.md
+```
+
+Thin hosts, fat packages: a host's `src/main.tsx` composes the services over the browser's adapters (`lib/services/browser.ts`), mounts `features/shell`'s `AppShell` around the route table under its location (the browser's in `apps/web`, which also hands the shell the service-worker registration; the hash in `apps/mobile`) and adds nothing else; the routes come from `lib/navigation`'s `APP_ROUTES`. Everything a user sees or does is in `packages/app`; everything the domain computes is in `packages/core`.
+
+## Packages and their boundaries
+
+| Package | Owns | May import | Must not |
+|---|---|---|---|
+| `packages/core` | types, zod schemas (`zod/mini`), every derived view, validation, import and export formats, chart maths, the calendar-date module, the money module, constants | `big.js`, `zod` | React, Next, DOM, `Date.now`, `Math.random`, `fetch`, storage, i18n strings, formatting, anything in the repo |
+| `packages/ui` | tokens (`packages/ui/src/styles/tokens.css`, OKLCH, light and dark on `data-theme`), `theme.css` (`@theme inline` mapping), `globals.css`, restyled shadcn primitives (Base UI), chart components, the navigation and platform adapters' React pieces, Storybook | React, `@base-ui/react`, `lucide-react`, `class-variance-authority`, `clsx`, Tailwind utilities, `packages/core` types only; `tailwind-merge` only in the class-conflict check of the story tests and the e2e matrix | `packages/app`, `packages/content`, `next/*`, `server-only` |
+| `packages/content` | MDX modules, templates, jurisdictions, facts, cycle data, the banned-words list, loaders and tests | `zod`, `packages/core` types only; a compiled module imports `react/jsx-runtime`, which the host serves (ADR-0048, Deviations of 2026-11-02) | React components, app code |
+| `packages/data` | daily reference closes per coin, ECB rates, `DATA-LICENSE.md`, the pipeline's validation schema (planned: M2) | `zod` | anything else |
+| `packages/app` | `features/*`, `lib/*` (ports, adapters with the api-client and the web platform, store, i18n, format, errors, brand, pwa, theme, navigation; the auth client (planned: M3)), `messages/*` | `packages/core`, `packages/ui`, `packages/content`, `packages/data`, React, `use-intl`, `wouter`, `zustand`, `idb`, `zod` (`zod/mini`), `lucide-react` (icons), `@supabase/supabase-js` | `next/*`, `server-only`, anything in `apps/*`; features import other features only through their `index.ts`; `lib` never imports `features` |
+| `packages/config` | shared configuration: the TypeScript bases, the dependency-cruiser rules, the Vite host factory (`packages/config/vite`: the host table, the Learn modules' MDX pipeline with the front-matter transform, the closed-body check and the metadata module (ADR-0048), the boot script and its hash, the font preload, the message precompiler, the client-never-imports-server guard, the web host's chunk report that `tools/size/today.ts` reads) | dev dependencies only; the boot script is inlined into the hosts' documents (`apps/web/app.html`, `apps/mobile/index.html`) at build time | runtime code that a bundle imports |
+| `apps/web` | `app.html` (the shell), `src/main.tsx`, `src/chunk-reload.ts`, `src/site/*` (the prerendered holding, legal, offline and 404 pages), `server/api.ts` (the one function: `/api/prices`, `/api/history/<coin>`, `/api/csp-report`), `api/index.mjs`, `vercel.json` written by `scripts/vercel-config.ts` (headers, the hashed CSP, the UK route, rewrites), `src/sw.ts` with the stamped prices copy it keeps (`src/prices-copy.ts`) and the kill switch `public/serwist/sw.js`, `lib/pwa/manifest.ts`, `public/.well-known` (planned: M3), e2e tests, Lighthouse config | everything above | business logic of its own |
+| `apps/mobile` | `index.html`, `src/main.tsx` with the hash location, `scripts/check-export.ts`, Capacitor config and native projects (planned: M3) | everything above except `server/`, `vercel.json` and the service worker | server-only APIs |
+
+Direction of dependencies, strictly downward:
+
+```
+apps/* (routes, config)  →  packages/app/features  →  packages/app/lib  →  packages/{core, ui, content, data}
+packages/ui, packages/content  →  packages/core (types)
+packages/core  →  (nothing in the repo)
+```
+
+Product code (the hosts' `src`, `lib`, `server` and `api`, and every package's `src`) reaches no module outside the product folders and no module named as test data, directly or through other modules, and every module in the product folders that imports test tooling is named as test data: `product-reaches-only-product` lets product code reach only the product folders and the one virtual module generated from them (`virtual:learn-modules`, ADR-0048, Deviations), so an e2e seed, the Lighthouse seed or a package's `test` folder fails however it is reached; `no-test-data-in-product` keeps out the modules named as test data inside them (the fixtures, the services over fakes and other .testing modules, the tests and stories; `packages/config/dependency-cruiser.cjs`); and `tools/lint/test-data-rule.test.ts` fails when a module in the product folders imports a test runner or test library (Vitest, Testing Library, Playwright, axe, Storybook, fake-indexeddb, fast-check, jsdom) under a name the rules do not know.
+
+## Inside `packages/app`
+
+The layout the product builds toward. On 2026-11-02 `packages/app/src/features` holds the shell, Today, the Log, Plan, Portfolio, Settings with its four tabs, onboarding's two paths and Learn's module index, module view, and "Why?" sheet;
+every other folder and item below carries the milestone that builds it.
+
+```
+packages/app/src/
+├── features/
+│   ├── shell/          the route table (from ADR-0045's switch) and `AppShell`: the skip link, the header, the screen frame (`ScreenFrame`, the one `main` around the screen area; a screen renders none of its own; `docs/DESIGN.md` §6), the tab bar, the toast viewport, the boot states over `lib/services`, the screen area's error boundary (`ScreenBoundary`, `ScreenError`), the newer-version screen over a newer plan and its line on Today (`NewerVersion`, ADR-0019 Readings, "Row shape") and the shell effects (scroll to top, appearance, tick and prices, refreshed also when the network comes back, the update toast), ADR-0045 §9
+│   ├── onboarding/     country → template → numbers with the early-opening notice, or the custom path (coins, dates) → why → reminder (the calendar file) → summary with the acknowledged disclosure → Today (the order and the way back: `docs/DOMAIN.md` §5); the session draft, reopened on the step it was left on (ADR-0020 Readings); the re-ask of the disclosure, in Today's place (`docs/DOMAIN.md` §2.1)
+│   ├── today/          the lead action (`leadAction`, `docs/DOMAIN.md` §3.3) with its coin chips, pending list, portfolio number, strip (the way to Plan), the foot: the one banner `bannerFor` picks, the rule-change notice (`RuleChangeBanner`, Review and Dismiss, recorded by `dismissRuleChange` in `actions.ts`) or the backup banner, or in its place the durability line, worded by `Platform.installed`, and `NoPlan`, the no-plan state Plan and Portfolio share, and `PricesLine` with `useOnline`, the one prices line (live, delayed, offline; `docs/CONTENT-STYLE.md` §3) Portfolio shows under its value too; on a due or late month the one tap ("Bought as planned", written by `boughtAsPlanned` in `actions.ts`, with Edit in its toast) and "Bought a different amount" (the Log's entry sheet, prefilled), "Skip <month>" beside it opening the Log's skip sheet, loaded lazily; while a pause lasts and nothing asks for a buy, "Resume" (`resume` in `actions.ts`); in the hold phase the "Why?" link (`WhyLink`, from the learn feature's index); the red-day banner (planned: M2)
+│   ├── log/            transactions by month with their holding line, Show all, delete with undo, "No entries yet" while no entry is live with the skipped months under it; the entry form's state, defaults and three-way fill as pure steps (`lib/form.ts`, the row helpers in `lib/row.ts`, the date guard that empties a filled price on an earlier date in `lib/dated.ts`, `rowSource` in `lib/source.ts`, shared by the sale warning and `keepUnchanged`, with the sale warning's stored sales, and which sale warnings show and their wording in `lib/warning.ts`) and its session draft's steps (`lib/draft.ts`); the entry form in a sheet for purchases, sales and coins added (`held`), its venue and note in `components/entry-details.tsx`, opened by "Record a purchase" (with the choice of kinds of `docs/CONTENT-STYLE.md` §3, one session draft per kind), by "Add coins you already have" (no choice of kinds) and a row's Edit, showing a sale's holding warning without blocking it, saving in the domain store's write on the entries as stored (`saveOn`); the skip sheet with its note and the toast's Undo (`skipMonthAction` and `undoSkip` in the domain store's write), also offered by the sheet of a new monthly buy
+│   ├── portfolio/      value, P/L, allocation, holdings, Today's prices line under the value; the value chart (`components/value-chart.tsx`, its range the device preference `chartRange`), its geometry and its one state over the core's value series (`lib/value-chart.ts`), the daily closes of each coin it needs (`lib/use-histories.ts`) and the source line's widest forms that hold its place (`lib/source-reserve.ts`); the per-coin chart drawn in an open holding's row (`components/coin-row-chart.tsx`) from its geometry (`lib/coin-chart.ts`), the Dutch 1 January line (planned: M2)
+│   ├── plan/           reference text, timeline, totals, sellable now, Edit plan (opens Settings); the coin editor with its split (`lib/split.ts`) and the amount-and-dates editor (`lib/schedule.ts`), the holding-rule editor (`lib/holding.ts`), the sell-window editor (`lib/sell-window.ts`) and the early-opening notice with its acceptance (`components/early-window-notice.tsx`), hosted by Settings' tabs, the notice also by onboarding's numbers step and Settings' country change, the editors by onboarding's custom path; the plan's calendar file and its words (`lib/reminder.ts`, `reminderFile`, `reminderGap`, `useReminderWords`), offered by onboarding's reminder step and Settings, which reads `reminderGap` (`'paused' | 'none-left' | 'ended'`) to tell a paused plan, one with no buy day left and an ended one apart when there is no file to offer; the pause section (`components/pause-section.tsx`), Pause from today or Resume while buying lasts, written by `planActions` in `actions.ts` (Pause and Resume); the end-buying control (`components/end-buying.tsx`), End buying today and the toast's Undo, written by `planActions` (`endBuying`, `undoEndBuying`), which sits with Edit plan under the Change the plan heading
+│   ├── learn/          module index, module view, module sheet and the "Why?" link; the country card's date line (`components/country-date-line.tsx`), shared by the holding-rule editor, the early-opening notice, the country change, onboarding's summary and the conditions (`plan/index.ts` re-exports it for onboarding and Settings), and the holding conditions beside the first date on the Log and the Plan (`components/holding-conditions.tsx`; its `ConditionLines`, the sentences alone, the early-opening notice and the country change's last-buy row show under their note), both worded in the shell's messages, which every screen has (the feature's index exports the link, the date line, the conditions, `ConditionLines` and `loadLearnScreen`, never the screen, so Today carries no module); the country card (`components/country-card.tsx`: every field of a profile's card, each rule's Sources, the date line, then the profile's sources list, worded in `learn.card`; not exported from the index, so Today carries none of it); the country library (`components/country-library.tsx`: the list at `/learn/countries` and one card at `/learn/countries/<code>`, routed ahead of the modules' `/:slug`, each reading its plain model from the `countries` port of Services through `use()` on a promise kept per day in the module, so the lazy chunk imports no value of content or core (`lazy-chunk.test.ts`, `docs/ENGINEERING.md` §4), worded in `learn.countries`); simulator, red day (planned: M2)
+│   ├── settings/       the data section (the JSON backup and the CSV log beside the export line, the import of a JSON backup or a file from the DCA plan page, chosen or pasted into the paste box (`PrototypePaste` in `components/prototype-import.tsx`, `importPrototype` in `actions.ts`, the file's reader in `model/import.ts`) as Replace everything, asked first over a plan, or Add missing entries only, and with no plan a file from the page through onboarding's `CountryStep` (from `onboarding/index.ts`), whose one tap confirms the country and imports; below the export line Delete everything (`delete-plan-dialog.tsx`), which deletes at once and offers Undo for `UNDO_WINDOW_MS`); the tabs Plan, Coins & split, Hold & sell and Currency & data, the first three hosting the plan editors and saving the changed fields (`savePlan`), the Plan tab also the calendar file again under its form (`calendar-row.tsx`); on Currency & data above the data section, the country change (`country-section.tsx`, `model/country.ts`, `changeCountryOf`), which lists what moves and asks before it replaces the holding rule; About (`about-section.tsx`) below the tabs, on every tab
+│   └── account/        sign-in, passkeys, sync status, deletion (planned: M3)
+├── lib/
+│   ├── brand/          the product's name and slug, in one place (copy takes {product}), and the disclosure's wording version
+│   ├── ports/          Clock, PlanStore (with `wipe` and its undo `restore`), PriceSource, HistoryCache (the 24-hour device cache of daily closes, stored only beside a live plan, ADR-0019 readings), HistorySource (the closes of one coin from GET /api/history, the history cache first; ADR-0016), Mailer (server) (planned: M3), Analytics, Router, Platform
+│   ├── adapters/       idb store (rows, migrations, quarantine, outbox, history cache), memory store, api-client (injectable base URL, bearer token, failures as values), price source with its cache and prices-line policy, history source (the device cache, then the API), session drafts, the clock (the device's date in the user's timezone; `deviceLocale`, the languages and zone the country suggestion reads), ics builder, web platform (share, download, the storage-persistence request, the page reload, the installed display mode); supabase auth client with its storage adapter (planned: M3), csv import (planned: M2)
+│   ├── store/          domainStore and uiStore (Zustand), hydration, cross-tab channel; the toast lives in packages/ui's manager; the outbox push (planned: M3)
+│   ├── services/       the composition of the ports and the stores for the screens: `createServices` (the first entry's persistence request, the rules of the plan's country and any country's on request (`rules`, the country change's), the country library's list entries and card models derived from the profiles at today (`countries`, `countries.ts`: the Learn screens' only way to the profiles), one price refresh at a time, the tick of `today`, the daily closes through the history source), `ServicesProvider`, the hooks over both stores and the ports, `use-profile.ts` with `useProfile`, the profile of a country where a card, a source link or the picker shows it (the shell boots on the rules file, not the profile; ADR-0049), `browser.ts` with the services over the browser's adapters (the hosts call it once), `testing.ts` with the services over fakes, `fixtures.ts` with the one fixture plan and its history, seen at a buying date and a sell-window date (the component tests, the stories' `parameters.snapshot`, the e2e seed `apps/web/e2e/seed.ts`)
+│   ├── i18n/           use-intl provider wiring, message loading, the country → formatting-locale map
+│   ├── format/         the single formatting layer: money, units, percent, dates, times, relative days, lists, minus sign, parts; the numeric-input parser
+│   ├── errors/         the single error surface: core error codes → copy (its own messages/); reporting hook
+│   ├── pwa/            the hand-written service-worker registration on the platform events (`register.ts`, ADR-0045 §5) and the first idle period the host waits for before it (`idle.ts`, ADR-0045's deviation of 2026-10-26); the toast that shows its update prompt, handed to the host by the shell
+│   ├── theme/          the theme-before-paint script and its CSP hash, the `poc.appearance` mirror's key, schema and writer (`before-paint.ts`, ADR-0045 §3)
+│   └── navigation/     `APP_ROUTES` (`routes.ts`, the list the hosts' routes and the UK route are generated from), `NavigationProvider`, Link and the router over wouter, its only importer (ADR-0045 §9)
+└── messages/           en.json merged from the features’ and lib modules’ message files (it types the keys) and en/<namespace>.json, one per namespace for per-route loading (ADR-0045 §8), written by `pnpm --filter @proofofcalm/tools messages` and committed (a test fails when one is stale); pt-PT and de (planned: M2)
+```
+
+Feature folder contents: `components/`, `model/` (feature state and the calls into the core), hooks when a feature needs them, `actions.ts` (the only writer: validate with the core, then the domain store's `write`, which persists the rows with their outbox copies in one transaction, updates the snapshot and tells the other tabs), `messages/`, `index.ts` (public surface), `*.test.tsx` beside the code, `*.stories.tsx` for stateful components. On 2026-10-20 `today/` and the two placeholder screens hold `components/`, `messages/` and `index.ts`; `plan/`, `portfolio/` and `log/` add their components' tests and stories, `plan/` a `lib/` with the timeline, reference, totals and sellable lines over the core (`timeline.ts`) and the coin editor's value read into the coins and the split (`split.ts`), and the coin editor itself (`coin-editor.tsx`, controlled by its host), and `log/` a `lib/` with the entry form's pure steps (`form.ts`); `shell/` holds its route table, `AppShell`, the screen frame, their tests and stories. On 2026-10-21 `today/` adds `actions.ts` (the one tap's write) with its test, `log/lib` the entry form's session draft (`draft.ts`), and `settings/` the data section's writers in `actions.ts`, a `model/` with the import file's reader, and the section's test and story; `plan/` the amount-and-dates editor (`schedule-editor.tsx`) and its value read (`lib/schedule.ts`), with their tests and story; then `savePlan` in `actions.ts`, the Plan and Coins & split tabs over a shared form (`plan-form.tsx`) and the tabbed screen, with their tests and stories; then `plan/` the holding-rule editor (`holding-rule-editor.tsx`, `lib/holding.ts`) and `settings/` the Hold & sell tab (`hold-sell-tab.tsx`). On 2026-10-22 `plan/` adds the sell-window editor (`sell-window-editor.tsx`, `lib/sell-window.ts`) and the early-opening notice (`early-window-notice.tsx`), and `settings/` the delete dialog (`delete-plan-dialog.tsx`), each with its test and story. Later that day `onboarding/` adds its steps (`components/`), each with its test and story, and the test that holds the disclosure's words per wording version (`model/disclosure.test.ts`; the version itself is in `lib/brand`, for the route table). Then `onboarding/` adds the custom path's coins and dates steps and the sentence, reminder and summary steps of both paths, each with its test and story, the plan's setup in `model/setup.ts` (`startPlan`, `startCustomPlan`, `buyDayOf`, `needsLastBuy`, `checkPlan`) and in `actions.ts` the one plan write (`createPlan`); then `model/draft.ts`, the session draft's schema and `resumeStep`, with its test. Then `plan/` adds the country card's date line (`country-date-line.tsx`), and `settings/` the country change: `changeCountryOf` in `actions.ts`, its model (`model/country.ts`) and section (`country-section.tsx`), each with its test, the section with its story, and the country card that Hold & sell and the Plan tab share (`components/use-holding-country.ts`). By 2026-10-27 `portfolio/` adds the value chart (`components/value-chart.tsx`) and a `lib/` with its geometry and state (`value-chart.ts`) and the closes it reads (`use-histories.ts`), each with its test, and `settings/` the import of a file from the DCA plan page with its report (`components/prototype-import.tsx`), tested through the data section's import test. On 2026-10-27 `settings/` adds the paste box (`PrototypePaste` in `components/prototype-import.tsx`), which reads a pasted export through the same path as a chosen file, tested through the same import test and the data section's story. Later that day `portfolio/` adds the source line's widest forms in `lib/source-reserve.ts`, with its test, then the holdings row's coin chart (`components/coin-row-chart.tsx`) and its geometry (`lib/coin-chart.ts`), each with its test, drawn in an open row while the value chart draws. On 2026-10-28 `plan/` adds its `actions.ts` (Pause, Resume, End buying today and its undo), the pause section (`components/pause-section.tsx`) and the end-buying control (`components/end-buying.tsx`), with their tests and stories. On 2026-11-02 `learn/` replaces its placeholder with the module index (`components/module-index.tsx`) and the module view (`components/module-view.tsx`), nested under its route in `components/learn-screen.tsx`, with a body's elements in `lib/body-elements.tsx`, the virtual module's types in `learn-modules.d.ts`, and a fixture module in `fixtures/start-here.mdx` for its tests and stories. Later that day `onboarding/` adds the re-ask of the disclosure (`components/reacknowledge.tsx`, with its test and story) and in `actions.ts` its one write (`reacknowledge`), the second plan write beside `createPlan`. On 2026-11-02 `learn/` adds the sheet (`components/module-sheet.tsx`) and the "Why?" link (`components/why-link.tsx`), each with its test and story, over the lazy bodies the route now shares with the sheet (`lib/bodies.ts`); then it takes the date line from `plan/` and adds the holding conditions (`components/holding-conditions.tsx`). On 2026-11-03 `learn/` adds the country card (`components/country-card.tsx`), with its test and story over the profiles of `fixtures/profiles.ts` (the shipped three and four shapes derived from Portugal's), mounted by no route yet.
+
+## Functional core, imperative shell
+
+- The **core** is a library of pure functions over plain data. It receives `today`, prices, the plan, entries and a country profile and returns views and `Result`s (ADR-0016).
+- The **shell** (`packages/app` plus the hosts) owns time, storage, network, randomness, formatting and rendering. The `Clock` port yields `today` from the device clock and the user's timezone once per render tick; the `PlanStore` port (idb adapter) hydrates the in-memory snapshot and persists writes; the `PriceSource` port talks to `/api/prices` through the api-client, and the `HistorySource` port to `/api/history/:coin` after the device's history cache; `Router` and `Platform` hide the host.
+- State: one immutable domain snapshot in Zustand, hydrated at startup; ephemeral UI state in a second store; drafts in session storage (ADR-0019, ADR-0020).
+
+## The API, the hosts and the store wrapper
+
+The API is one Vercel Node function, `apps/web/api/index.mjs`, which loads the esbuild bundle of `apps/web/server/api.ts` (`createApi(deps)` returns `{ fetch(request) }`; the handlers' logic stays in `apps/web/lib`; `vercel.json` rewrites `/api/prices`, `/api/csp-report` and `/api/history/<coin>` to it): `GET /api/prices?currency=EUR` (the core's `PriceSnapshot` for the allow-listed coins of `packages/content/coins.json`, every currency's price and the 24-hour change in the asked one; cached, key server-side), `GET /api/history/:coin?currency=EUR` (one allow-listed coin's daily closes on UTC days, at most 365, from CoinGecko's `market_chart` with the key in the header; one upstream call per coin and currency per day per instance through the shared cache until the Runtime Cache store lands, then once across instances; canonical URLs only, no query or exactly `?currency=` and an upper-case code, anything else a 400; `s-maxage` the rest of that day so no copy is 24 hours old once the device's cache is counted, 502 when the upstream fails; for M1's Portfolio charts, ADR-0006, ADR-0036) and `POST /api/csp-report`. Planned: `POST /api/sync/push`, `GET /api/sync/pull`, `GET /api/cron/reminders`, `POST /api/unsubscribe`, `POST /api/webhooks/mail` (planned: M3). From M2 the long history is served from `packages/data` through the CDN. Every handler validates input with zod and checks the bearer token where needed (ADR-0037 for the cron route); the routes the app calls (`/api/prices` and `/api/history/:coin`) answer CORS preflight for the allow-listed origins (`https://<domain>`, `capacitor://localhost`, `https://localhost`) with `authorization` allowed and the stale marker exposed. No handler limits requests itself: `docs/SECURITY.md` §2 puts the limit on `/api/prices` and `/api/history/:coin` in one Vercel WAF rule per IP, which `docs/RELEASE.md` tests before the public launch, and gives M3's auth and sync routes Upstash fixed windows (ADR-0035 for the auth routes).
+
+Nothing runs in front of the pages: `apps/web/vercel.json`, written by `apps/web/scripts/vercel-config.ts` from `apps/web/lib/vercel-config.ts` and compared with it by a test, holds the headers (the hashed CSP and its `Reporting-Endpoints` header from `apps/web/lib/security/csp.ts`, the rest from `apps/web/lib/security/headers.ts`; `docs/SECURITY.md` §4), the UK route (Vercel's geolocation header → the explanatory page with status 451 for everything but the legal pages, `security.txt`, the API and the static files; ADR-0029, ADR-0045 §4), the rewrite of every `APP_ROUTES` entry to the shell (`/app`, the built `app.html`) and the immutable cache of `/assets/`. `pnpm build` (`apps/web/scripts/build.ts`) builds the shell with Vite, prerenders the site pages of `apps/web/src/site` with `render.tsx` (the holding page, the legal pages, `/~offline`, the 404 page; the site footer, no providers, no script but the theme script on `/~offline`, `docs/DESIGN.md` §3), then bundles the function and the service worker; `vercel.json` is committed, not built. The shell's `src/main.tsx` mounts the app with the services, the navigation and the i18n provider, and hands `AppShell` the service worker's registration. The redirects Vercel answers before the app carry none of the headers. Authentication is client-side: the Supabase browser client with a storage adapter, tokens sent as bearer headers (ADR-0032, ADR-0035).
+
+Rules that keep the wrapper a packaging step (ADR-0002, ADR-0032):
+
+1. No server-only APIs in `packages/app`: the packages' client code never imports `server-only` or anything under `apps/web/server` and `apps/web/lib/server` (`packages/config/vite`'s guard fails the build; dependency-cruiser the lint).
+2. All API calls through `packages/app/src/lib/adapters/api-client.ts` with an injectable base URL; no cookies.
+3. Navigation through `lib/navigation`, over wouter (ADR-0045 §9): the browser location in
+   `apps/web`, the hash location in `apps/mobile`; nothing imports `next/*`. The prerendered site
+   pages link with plain anchors. `packages/ui`'s tab bar, top navigation and header take the app's
+   `link` component as a prop, or render a plain anchor; the shell renders them with `lib/navigation`'s
+   `Link`.
+4. The `Platform` port (`packages/app/src/lib/ports`, its web adapter `packages/app/src/lib/adapters/web-platform.ts`; ADR-0032 named the folder lib/platform) abstracts share, download, storage persistence, the page reload and the installed display mode, with no notification method yet (ADR-0032 plans one); the service worker registers only when not native.
+5. `apps/mobile` builds in CI from M0 (`pnpm build:export`); a screen that breaks the export fails the PR.
+6. Universal Links and App Links files live in `apps/web/public/.well-known` (planned: M3).
+
+Plan B (ADR-0005) was triggered by ADR-0045 and carried out in M1's sessions 2 and 3: both hosts are Vite single-page apps with wouter behind `lib/navigation` (hash location in `apps/mobile`); the Next packages left the catalog on 2026-10-20 (ADR-0045, migration step 6, and ADR-0005's deviation of that date).
+
+## Content and data packages
+
+```
+packages/content/
+├── jurisdictions/   pt.json, de.json, …, xx.json (schema: docs/JURISDICTIONS.md §2)
+├── rules/           <code>.json, generated from each profile by `pnpm --filter @proofofcalm/content rules`: the core's rules the shell boots on (ADR-0049)
+├── templates/       four starting points (docs/DOMAIN.md §5)
+├── learn/           MDX modules with front matter (docs/EDUCATION.md §10): start-here; the other six (planned: M2)
+├── facts/           every cited number with source, date, lastReviewed (docs/CONTENT-OPS.md §7)
+├── cycles/          completed cycles' maximum drawdowns per coin; the current cycle is computed, never stored (docs/EDUCATION.md §2 and §6)
+├── style/           banned.json: the banned words in en, de and pt, the filler words, and the allow-list with a reason per phrase (docs/CONTENT-STYLE.md)
+├── coins.json       the coin catalogue: the picker's coins and the price route's allow-list (ADR-0036)
+├── sources.allow.json
+├── scripts/         validate.ts, run by `pnpm validate:content`; rules.ts, which writes rules/
+└── src/             schemas, loaders (typed, without zod at run time; one chunk per profile and per rules file; the Learn modules' parser with the reading time needs zod, so it is the subpath `./modules`), tests that validate every file
+
+packages/data/           (planned: M2), only its README exists
+├── prices/          <coin>.json daily reference closes in EUR
+├── fx/              ECB reference rates
+├── DATA-LICENSE.md  sources, dates, derivation method, attribution text
+└── src/             schema and loader
+```
+
+Content and data are data. Nothing in them decides behaviour; the core and the shell consume them.
+
+## Naming
+
+- Files and folders kebab-case; React components PascalCase exports in kebab-case files.
+- Core functions say what they return (`slotStatuses`, `eligibleFrom`, `plannedParts`); booleans read as predicates.
+- Schemas `PlanSchema`, types `Plan`; a type is never written twice.
+- Messages `feature.screen.element`; tests `<name>.test.ts` beside the code, property tests `<name>.property.test.ts`, golden fixtures under `packages/core/test/golden/`, a hand-derived fixture with no prototype counterpart in its own folder under `packages/core/test/` (the country change's: `docs/DOMAIN.md` §7).
+- Branches `feat/…`, `fix/…`, `chore/…`, `docs/…`; conventional commits.
+
+## Data flow for the monthly loop (reference)
+
+```
+reminder (ics / email / push) → opens /today
+  shell: today = clock.today(); snapshot = domainStore; prices = priceSource.latest(plan.payCurrency) when shouldFetchPrices (a Result; kept with fetchedAt as snapshot.prices)
+  core:  action = leadAction(actionsNow(plan, entries, today), phaseOf(plan, today))
+  UI:    the action, coin chips (plannedParts), "Bought as planned"
+  tap:   actions.boughtAsPlanned(action, shown parts and currency) → domain.write(fn), in the queue's turn on the plan as stored:
+         core.actionsNow again; amount, parts (sameParts) or currency not as shown → plan-changed, nothing written (docs/DOMAIN.md §6 One-tap);
+         rows that would take the plan past MAX_ENTRIES live entries → too-many-entries, nothing written, no form opened (docs/DOMAIN.md §6 One-tap);
+         else draft = oneTapEntries({ plan, action, prices, today, fee: defaultFee(live), ids, now, venue })
+         → idb.put rows + outbox (one transaction) → snapshot → channel.post
+  UI:    done block with "Add to it" and the next due date; toast with "Edit"
+```
+
+`domain.write` takes the changes or a function of the snapshot. The function runs in the store's queue,
+on the rows as stored, read in the write's own transaction (`PlanStore.update`, ADR-0019 Readings), so a
+change built from the current state (Show all, a delete and its Undo) never drops a write still on its
+way, from this tab or another. A write of the plan or of at least one
+entry stamps `prefs.changedAt` with `clock.now()` in the same stored write, which `backupNeeded`
+compares with `lastBackupAt` (`docs/DOMAIN.md` §3.11). The stamp travels as `changedAt` beside the
+changes and the adapter sets it on the prefs row as stored, so it never puts back preferences another
+tab wrote since this tab loaded; preferences alone, prices, an empty list of entries and another tab's
+reload are not stamped, and an import is. `changedAt` belongs to the stamp alone: a prefs write keeps the
+stored row's `changedAt` whatever its record holds, so a preference built from an older snapshot never
+moves it back, and only "Delete everything" resets it with the rest; its Undo puts the stored rows back as they
+were, the stamp included, and stamps nothing (ADR-0019 Readings).

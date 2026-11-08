@@ -1,0 +1,27 @@
+{
+  "$schema": "https://turborepo.dev/schema.json",
+  "globalEnv": ["NODE_ENV", "CI"],
+  "globalPassThroughEnv": ["NO_COLOR", "FORCE_COLOR", "CREW_QUIET"],
+  "tasks": {
+    "transit": {
+      "dependsOn": ["^transit"]
+    },
+    "build": {
+      "dependsOn": ["^build", "transit"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md", ".env*"],
+      "outputs": ["dist/**", "server-dist/**", "storybook-static/**", "node_modules/.cache/chunk-report.json"],
+      "env": ["VITE_*", "SENTRY_AUTH_TOKEN"]
+    },
+    "dev": { "cache": false, "persistent": true },
+    "typecheck": { "dependsOn": ["transit"] },
+    "lint": {},
+    "validate": { "dependsOn": ["transit"] },
+    "test": { "dependsOn": ["transit"] },
+    "test:watch": { "cache": false, "persistent": true },
+    "test:coverage": { "dependsOn": ["transit"], "outputs": ["coverage/**"] },
+    "test:e2e": { "cache": false, "dependsOn": ["build"], "passThroughEnv": ["PORT"] },
+    "storybook": { "cache": false, "persistent": true },
+    "storybook:build": { "dependsOn": ["transit"], "outputs": ["storybook-static/**"] },
+    "storybook:test": { "dependsOn": ["transit"], "passThroughEnv": ["PLAYWRIGHT_BROWSERS_PATH"] }
+  }
+}

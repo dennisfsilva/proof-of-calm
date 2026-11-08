@@ -1,0 +1,47 @@
+{
+  "name": "proof-of-calm",
+  "version": "0.0.0",
+  "private": true,
+  "description": "A calm, noise-free crypto DCA planner and educator. Monorepo: apps/web, apps/mobile, packages/app, packages/core, packages/ui, packages/content, packages/data, packages/config.",
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@12.14.0",
+  "engines": {
+    "node": ">=24.11.0",
+    "pnpm": ">=12.14.0"
+  },
+  "scripts": {
+    "dev": "turbo run dev --filter=@proofofcalm/web",
+    "build": "turbo run build",
+    "build:export": "turbo run build --filter=@proofofcalm/mobile",
+    "typecheck": "turbo run typecheck",
+    "check": "node tools/check.ts",
+    "lint": "turbo run lint && pnpm lint:deps && pnpm lint:styles && pnpm lint:docs && pnpm lint:size",
+    "lint:fix": "biome check --write .",
+    "lint:deps": "depcruise --config packages/config/dependency-cruiser.cjs apps packages tools",
+    "lint:styles": "node tools/lint/styles.ts",
+    "lint:docs": "node tools/lint/docs.ts",
+    "lint:size": "node tools/lint/size.ts",
+    "lint:dead": "knip",
+    "lint:commits": "node tools/commits/check.ts origin/main HEAD",
+    "test": "turbo run test",
+    "testCount": "node tools/lint/test-count.ts",
+    "test:watch": "turbo run test:watch --filter=@proofofcalm/core",
+    "test:coverage": "turbo run test:coverage",
+    "test:e2e": "turbo run test:e2e --filter=@proofofcalm/web --",
+    "storybook": "turbo run storybook",
+    "storybook:build": "turbo run storybook:build",
+    "storybook:test": "turbo run storybook:test",
+    "validate:content": "turbo run validate",
+    "gate": "turbo run typecheck lint test validate build storybook:test test:e2e && pnpm lint:deps && pnpm lint:styles && pnpm lint:docs && pnpm lint:size && pnpm lint:dead && pnpm lint:commits"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "catalog:",
+    "@typescript-eslint/parser": "catalog:",
+    "dependency-cruiser": "catalog:",
+    "eslint": "catalog:",
+    "eslint-plugin-react-hooks": "catalog:",
+    "knip": "catalog:",
+    "turbo": "catalog:",
+    "typescript": "catalog:"
+  }
+}

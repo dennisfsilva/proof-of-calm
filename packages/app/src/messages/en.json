@@ -1,0 +1,843 @@
+{
+  "errors": {
+    "input": {
+      "number-empty": "Enter a number.",
+      "number-negative": "Enter the number without a minus sign.",
+      "number-invalid": "Enter a number such as {example}."
+    },
+    "action": {
+      "no-coins": "Enter at least one coin.",
+      "amount-and-units": "{coin}: enter both the amount and the units.",
+      "unknown-coin": "{coin} is not in your plan. Add it in Settings first.",
+      "units-precision": "{coin}: use at most 10 decimal places.",
+      "fee-negative": "Enter a fee of zero or more.",
+      "fee-not-allowed": "Leave the fee empty for coins added; include any fee you paid in the cost.",
+      "slot-required": "Choose the month this buy is for.",
+      "slot-not-allowed": "Only a monthly buy has a month.",
+      "unknown-slot": "{slot} is not a month of your plan.",
+      "sell-exceeds-held": "This sale is {excess} more than you hold ({held} on {date}). Check the amount and the date, or log the missing purchases first.",
+      "slot-done": "{slot} is already recorded. Edit or delete that entry in the Log.",
+      "slot-skipped": "{slot} is already skipped. Log this purchase as an extra buy.",
+      "note-too-long": "Use at most {max} characters in the note.",
+      "venue-too-long": "Use at most {max} characters in the venue.",
+      "pause-order": "Choose an end on or after the start.",
+      "pauses-overlap": "This pause overlaps another one. Choose other dates.",
+      "not-paused": "The plan is not paused.",
+      "before-first-buy": "The plan has not started yet, so there is no buying to end.",
+      "buying-over": "Buying has already ended.",
+      "plan-changed": "Your plan changed in another browser tab, so this purchase was not recorded. Check the amounts shown, then record it again.",
+      "too-many-entries": "Recording this would take the plan past {max} entries, the most a plan holds. Delete entries in the Log to make room."
+    },
+    "backup": {
+      "not-recognised": "This file is not in a format {product} can read. Export a backup from {product}, then import that file.",
+      "not-recognised-pasted": "This text is not in a format {product} can read. Copy the whole export again, then paste it.",
+      "prototype-invalid": "The plan in this file from the DCA plan page is not complete, so nothing was imported. Check its amounts and dates there, export it again, then import the new file.",
+      "newer-version": "This backup comes from a newer version of {product}. Update the app, then import it again.",
+      "invalid-backup": "This backup is damaged and cannot be imported. Export a new one.",
+      "not-prototype": "This file is not a backup from the DCA plan page.",
+      "invalid-plan": "The plan in this file is not complete. Check the dates and amounts, then import it again."
+    },
+    "unknown": "This could not be completed. Try again; if it happens again, export a copy of your data."
+  },
+  "learn": {
+    "title": "Learn",
+    "index": {
+      "readingTime": "{minutes} min read"
+    },
+    "module": {
+      "back": "Back to Learn",
+      "lastReviewed": "Last reviewed {date}",
+      "pastPerformance": "Past performance is not a reliable indicator of future results.",
+      "riskLink": "Risk disclosure"
+    },
+    "countries": {
+      "title": "Countries",
+      "line": "Tax and holding rules by country, with their sources and the date each was last reviewed.",
+      "back": "Back to countries",
+      "lastReviewed": "Last reviewed {date}",
+      "notReviewedSince": "Not reviewed since {date}"
+    },
+    "sheet": {
+      "close": "Close"
+    },
+    "card": {
+      "classification": "How crypto is classified",
+      "events": "What is taxed",
+      "eventLine": "{event} · {taxable}",
+      "event": {
+        "sale-to-fiat": "Selling for money",
+        "crypto-to-crypto": "Swapping one coin for another",
+        "crypto-to-stablecoin": "Swapping for a stablecoin",
+        "spending": "Paying with crypto",
+        "own-wallet-transfer": "Moving coins between your own wallets",
+        "gift-or-inheritance": "A gift or an inheritance",
+        "staking-or-airdrop": "Staking rewards and airdrops"
+      },
+      "taxable": {
+        "yes": "Taxable",
+        "no": "Not taxed at the time",
+        "depends": "Taxable in some cases"
+      },
+      "rates": "Rates",
+      "rateLine": "{label}: {value}",
+      "validFrom": "From {date}",
+      "validRange": "{from} to {to}",
+      "allowances": "Allowances",
+      "holdingRule": "Holding rule",
+      "lotRule": "Matching sales to purchases",
+      "losses": "Losses",
+      "reporting": "Reporting",
+      "caveats": "Questions for an accountant",
+      "sources": "Sources",
+      "sourceList": "Sources for this card",
+      "sourcePublished": "{publisher} · dated {date}",
+      "sourceAccessed": "{publisher} · accessed {date}",
+      "sourcesName": "Sources for {rule, select, rates {the rates} holdingRule {the holding rule} lotRule {matching sales to purchases} losses {losses} reporting {reporting} other {this rule}}"
+    }
+  },
+  "log": {
+    "title": "Log",
+    "table": {
+      "entry": "Entry",
+      "amount": "Amount"
+    },
+    "kind": {
+      "dca": "Monthly buy",
+      "lump": "Starting amount",
+      "extra": "Extra buy",
+      "sell": "Sale",
+      "held": "Coins added"
+    },
+    "month": {
+      "bought": "bought {amount}",
+      "sold": "sold {amount}"
+    },
+    "skip": {
+      "line": "Skipped",
+      "lineWithNote": "Skipped · {note}",
+      "title": "Skip {month}",
+      "note": "Note (optional)",
+      "placeholder": "e.g. car repair",
+      "done": "{month} skipped.",
+      "alreadySkipped": "{month} is already skipped."
+    },
+    "row": {
+      "item": "{units} for {amount}",
+      "estimate": "{units} (estimated) for {amount}",
+      "fee": "Fee {amount}",
+      "edit": "Edit entry",
+      "delete": "Delete entry",
+      "deleted": "Entry deleted.",
+      "undo": "Undo",
+      "notRestored": "{reason, select, skipped {{month} was skipped after you deleted this entry, so it stays deleted.} other {{month} was recorded after you deleted this entry, so it stays deleted.}}",
+      "notRestoredReplaced": "A backup replaced your plan after you deleted this entry, so it stays deleted.",
+      "notRestoredSold": "Your {coin} entries changed after you deleted this sale, so it stays deleted.",
+      "notRestoredFull": "Restoring this entry would take the plan past the {max} entries a plan holds, so it stays deleted.",
+      "noCost": "Cost unknown",
+      "notDeleted": "This purchase covers a later {coin} sale, so it stays. Change or delete the sale first.",
+      "failed": "The change could not be saved. Try again."
+    },
+    "holding": {
+      "exempt": "Tax-free from {date}",
+      "lowerRate": "Long-term rate from {date}",
+      "note": "Computed from your dates, not tax advice"
+    },
+    "showAll": "Show all {count} entries",
+    "empty": {
+      "noPlan": "No entries yet. Set up a plan or import a file.",
+      "firstBuy": "No entries yet. Your first buy day is {date}.",
+      "firstBuyPast": "No entries yet. Your first buy day was {date}."
+    },
+    "form": {
+      "title": {
+        "dca": "Log the monthly buy",
+        "lump": "Log the starting amount",
+        "extra": "Log an extra buy",
+        "sell": "Log a sale",
+        "held": "Log coins you already have",
+        "edit": "Edit the entry"
+      },
+      "kind": {
+        "label": "Type of transaction"
+      },
+      "date": "Date",
+      "dateInvalid": "Choose a full date: day, month, and year.",
+      "slot": "For {month}",
+      "amount": "{coin} paid ({currency})",
+      "units": "{coin} received (units)",
+      "sold": "{coin} sold (units)",
+      "received": "Received for {coin} ({currency})",
+      "price": "{coin} price ({currency})",
+      "cost": "{coin} cost ({currency}, if known)",
+      "costHint": "Leave it empty if you do not know the cost: Invested, the average cost, and the P/L then leave these units out. Type 0 if you paid nothing.",
+      "heldDate": "The day you bought or received them.{rule, select, none {} other { If you are not sure, the latest possible day never starts a holding rule too early.}} The value chart counts the coins from that day.",
+      "hint": "Type two of the three; the form fills the third.",
+      "estimateHint": "Bought as planned filled in these units from the day's price. Any fee or venue it copied came from your latest purchase or sale that recorded one. Type the units from your exchange's confirmation.",
+      "earlierDate": "The price the form filled in does not apply to an earlier date. Type what you paid and the units received, as your exchange's confirmation shows them.",
+      "fee": "Fee ({currency}, optional)",
+      "details": "Venue and note",
+      "addNote": "Add a note",
+      "venue": "Venue (optional)",
+      "note": "Note (optional)",
+      "save": "Save",
+      "saleWarning": {
+        "exempt": "{share, select, none {None of the {sold} sold{at, select, venue { at {venue}} unnamed { with no venue} other {}} is past the holding rule on {date}. It may be taxed.} other {Only {eligible} of the {sold} sold{at, select, venue { at {venue}} unnamed { with no venue} other {}} are past the holding rule on {date}. The rest may be taxed.}}",
+        "lowerRate": "{share, select, none {None of the {sold} sold{at, select, venue { at {venue}} unnamed { with no venue} other {}} is past the holding rule on {date}. It may be taxed at the short-term rate.} other {Only {eligible} of the {sold} sold{at, select, venue { at {venue}} unnamed { with no venue} other {}} are past the holding rule on {date}. The rest may be taxed at the short-term rate.}}"
+      },
+      "coversSale": "This change leaves a later {coin} sale without the purchases that cover it. Change or delete the sale first.",
+      "close": "Close",
+      "saved": "Entry saved.",
+      "deleted": "This entry was deleted in another browser tab, so the change was not saved.",
+      "planDeleted": "The plan was deleted in another browser tab, so this entry was not saved."
+    },
+    "record": "Record a purchase",
+    "recordHeld": "Add coins you already have",
+    "recorded": {
+      "one": "Recorded: {amount} of {coin} on {date}.",
+      "several": "Recorded: {amount} on {date}.",
+      "sold": {
+        "one": "Recorded: sold {amount} of {coin} on {date}.",
+        "several": "Recorded: sold {amount} on {date}."
+      },
+      "held": {
+        "one": "Recorded: {units} added{cost, select, known { for {amount}} other {}} on {date}.",
+        "several": "Recorded: {units} added on {date}."
+      }
+    }
+  },
+  "onboarding": {
+    "title": "Set up a plan",
+    "back": "Back",
+    "next": "Continue",
+    "start": "Accept and start the plan",
+    "country": {
+      "heading": "Where do you live?",
+      "suggested": "This device suggests {country}.",
+      "confirm": "Continue with {country}",
+      "label": "Country",
+      "placeholder": "Choose a country",
+      "languageDiffers": "Residence, not language, decides tax."
+    },
+    "template": {
+      "heading": "Choose a starting point",
+      "line": "A starting point some people use. You choose every setting. Not advice.",
+      "band": "{falls}, {count, plural, one {high to low} other {each high to low}} between {from} and {to}",
+      "about": "Show how it works and what can go wrong",
+      "custom": {
+        "title": "Your own coins",
+        "line": "You choose the coins and how each buy is split across them."
+      }
+    },
+    "coins": {
+      "heading": "Choose your coins and their split"
+    },
+    "dates": {
+      "heading": "Choose the amounts and dates",
+      "startingHint": "Bought once on the first buy day and split across your coins like each monthly buy. Enter 0 for none. For coins you already have, choose Add coins you already have on the Log after setup."
+    },
+    "numbers": {
+      "heading": "Amounts and dates",
+      "monthly": "Monthly amount ({currency})",
+      "starting": "Starting amount ({currency})",
+      "startingHint": "Bought once on the first buy day and split across your coins like each monthly buy. Enter 0 for none. For coins you already have, choose Add coins you already have on the Log after setup.",
+      "firstBuy": "First buy",
+      "lastBuy": "Last buy",
+      "dateEmpty": "Choose a full date: day, month, and year.",
+      "issue": {
+        "no-amount": "Enter a monthly amount, a starting amount, or both.",
+        "amount-precision": "Use at most {max} decimal places.",
+        "last-buy-before-first-buy": "{field, select, firstBuy {Choose a first buy on or before {date}, this starting point's last buy.} other {Choose a last buy on or after the first buy.}}",
+        "plan-too-long": "{field, select, firstBuy {A plan holds at most {max} monthly buys. Choose a later first buy.} other {A plan holds at most {max} monthly buys. Choose an earlier last buy.}}"
+      }
+    },
+    "why": {
+      "heading": "In one sentence, why are you doing this?",
+      "line": "You will see it on the days the market falls.",
+      "placeholder": "I buy on the 1st and I do not check the price on other days."
+    },
+    "reminder": {
+      "heading": "Where should the monthly reminder go?",
+      "calendar": "Add to calendar",
+      "later": "Later",
+      "noneLeftHeading": "Monthly reminder",
+      "noneLeft": "No buy days left, so there is no reminder to add.",
+      "notSaved": "The calendar file was not saved. Add it again, or choose Later."
+    },
+    "summary": {
+      "heading": "Check your plan",
+      "country": "Country",
+      "holdingRule": "Holding rule",
+      "holdingRuleValue": "{kind, select, generic {The general profile's rule} other {{name}'s rule}}. {words}",
+      "startingPoint": "Starting point",
+      "coins": "Coins & split",
+      "monthly": "Monthly amount",
+      "starting": "Starting amount",
+      "firstBuy": "First buy",
+      "buyDay": "Buy day",
+      "buyDayValue": "Day {day} of each month",
+      "lastBuy": "Last buy",
+      "sellWindow": "Sell window",
+      "sellWindowValue": "{opens} to {closes}",
+      "sellWindowEarly": "{opens} to {closes}, opening before the last buy passes the holding rule, as you accepted",
+      "why": "Your sentence",
+      "reminder": "Reminder",
+      "reminderValue": "{choice, select, calendar {Calendar file saved} other {No reminder set}}"
+    },
+    "disclosure": {
+      "text": "{product} is software for a plan you design: no orders, no financial or tax advice. You can lose all of it: Bitcoin has fallen more than 75 % from a high four times since 2011; Ethereum fell 94 % in 2018. Use only money you will not need for years.",
+      "riskLink": "Risk disclosure"
+    },
+    "reask": {
+      "title": "The risk text has changed",
+      "continue": "Accept and open Today"
+    },
+    "existing": {
+      "body": "A plan is already set up on this device.",
+      "link": "Open the plan"
+    }
+  },
+  "plan": {
+    "title": "Plan",
+    "edit": "Edit plan",
+    "change": {
+      "heading": "Change the plan"
+    },
+    "why": {
+      "window": "Why? The sell window",
+      "parts": "Why? The three parts",
+      "partsLine": "The sell window has three parts."
+    },
+    "reference": {
+      "window": "Your plan buys until {lastBuy}, holds, then sells in three parts between {opens} and {closes}, out by {exitBy}.",
+      "openEnded": "Your plan buys until {lastBuy}, then holds with no sell window.",
+      "amounts": "{starting} to start, then {monthly} a month on day {buyDay}: {split}.",
+      "monthly": "{monthly} a month on day {buyDay}: {split}.",
+      "why": "In your words: {why}"
+    },
+    "totals": {
+      "planned": "{invested} of {planned} invested so far ({percent}). Buys left: {left}.",
+      "sellPhase": "{invested} of {planned} invested ({percent}).",
+      "nothingPlanned": "{invested} invested so far.",
+      "ended": "{invested} invested. Buying ended on {date}.",
+      "beforeFirstBuy": "{count, plural, one {{figure} extra buy dated before the first buy day, {date}, is not in the amount invested above. Portfolio's Invested counts it.} other {{figure} extra buys dated before the first buy day, {date}, are not in the amount invested above. Portfolio's Invested counts them.}}",
+      "heldWithCost": "{count, plural, one {{figure} entry of coins added with a recorded cost is not in the amount invested above. Portfolio's Invested counts it.} other {{figure} entries of coins added with a recorded cost are not in the amount invested above. Portfolio's Invested counts them.}}",
+      "beforeFirstBuyAndHeld": "{count, plural, one {{figure} extra buy dated before the first buy day, {date}, is not in the amount invested above.} other {{figure} extra buys dated before the first buy day, {date}, are not in the amount invested above.}} {held, plural, one {{heldFigure} entry of coins added with a recorded cost is not in it either.} other {{heldFigure} entries of coins added with a recorded cost are not in it either.}} Portfolio's Invested counts all of them."
+    },
+    "sellable": {
+      "now": "{units} sellable now",
+      "later": "{units} from {date}"
+    },
+    "coins": {
+      "legend": "Coins & split",
+      "share": "{coin} share (%)",
+      "remove": "Remove {coin}",
+      "add": "Add a coin",
+      "addCoin": "Add {coin}",
+      "limit": "A plan holds at most {max} coins.",
+      "issue": {
+        "split-sum": "Make the shares add up to 100 %.",
+        "split-precision": "Use at most 4 decimal places."
+      }
+    },
+    "schedule": {
+      "legend": "Amounts and dates",
+      "monthly": "Monthly amount ({currency})",
+      "starting": "Starting amount ({currency})",
+      "startingHint": "Bought once on the first buy day and split across your coins like each monthly buy. Enter 0 for none.",
+      "firstBuy": "First buy",
+      "buyDay": "Buy day",
+      "buyDayHint": "The day of the month of every buy after the first.",
+      "lastBuy": "Last buy",
+      "issue": {
+        "no-amount": "Enter a monthly amount, a starting amount, or both.",
+        "amount-precision": "Use at most {max} decimal places.",
+        "date-required": "Choose a full date: day, month, and year.",
+        "last-buy-before-first-buy": "Choose a last buy on or after the first buy.",
+        "plan-too-long": "A plan holds at most {max} monthly buys. Choose an earlier last buy.",
+        "plan-too-long-years": "A plan lasts at most {years} years from the first buy. Choose an earlier last buy."
+      }
+    },
+    "sellWindow": {
+      "legend": "Sell window",
+      "none": "No sell window",
+      "noneLine": "Your plan buys, then holds.",
+      "dates": "A sell window",
+      "datesLine": "Your plan sells in three parts between the opening and closing dates, out by the last.",
+      "opens": "Opens",
+      "closes": "Closes",
+      "exitBy": "Out by",
+      "issue": {
+        "date-required": "Choose a full date: day, month, and year.",
+        "order": {
+          "closes": "Choose a closing date on or after the opening date.",
+          "exitBy": "Choose an out-by date on or after the closing date."
+        }
+      }
+    },
+    "earlyWindow": {
+      "notice": "The sell window opens on {opensOn}. {on, select, lastBuy {This last buy} template {The template's last buy} other {Your last buy}} is {effect, select, exempt {tax-free} other {at the long-term rate}} from {eligibleOn} under {rule, select, country {your plan's holding rule} named {{country}'s rule} generic {the general profile's rule} other {your own rule}}. You can also {on, select, lastBuy {choose an earlier last buy} template {choose another starting point} other {{host, select, country {cancel this change and choose a later opening date on Hold & sell} other {choose a later opening date}}}}.",
+      "accept": "Open the sell window on {opensOn}, before {on, select, lastBuy {this} template {the template's} other {your}} last buy passes the holding rule",
+      "refused": "{on, select, template {Tick the box to open the sell window early, or choose another starting point.} lastBuy {Tick the box to open the sell window early, or choose an earlier last buy.} other {{host, select, country {Tick the box to open the sell window early, or cancel this change and choose a later opening date on Hold & sell.} other {Tick the box to open the sell window early, or choose a later opening date.}}}}"
+    },
+    "holding": {
+      "exempt": "Tax-free from {date}",
+      "lowerRate": "Long-term rate from {date}",
+      "note": "Computed from your dates, not tax advice",
+      "templateNote": "Computed from the template's dates, not tax advice"
+    },
+    "holdingRule": {
+      "legend": "Holding rule",
+      "country": "{kind, select, named {{name}'s rule} generic {The general profile's rule} other {Your country's rule}}",
+      "countryUnknown": "Your country's rule is not loaded on this device.",
+      "own": "Your own rule",
+      "ownLine": "It applies to every purchase, whatever its date.",
+      "kind": "Rule",
+      "kinds": {
+        "none": "No holding rule",
+        "days": "A number of days",
+        "years": "A number of years"
+      },
+      "count": {
+        "days": "Days",
+        "years": "Years"
+      },
+      "effect": "After the period",
+      "effects": {
+        "exempt": "Tax-free",
+        "lower-rate": "Long-term rate"
+      },
+      "text": {
+        "none": "No holding rule.",
+        "days": "{count, plural, one {{figure} day} other {{figure} days}}, then {effect, select, exempt {tax-free} other {the long-term rate}}.",
+        "years": "{count, plural, one {{figure} year} other {{figure} years}}, then {effect, select, exempt {tax-free} other {the long-term rate}}."
+      },
+      "issue": {
+        "count-whole": "Enter a whole number of {kind, select, years {years} other {days}}.",
+        "count-range": "Enter from {min} to {max} {kind, select, years {years} other {days}}.",
+        "country-unknown": "Your country's rule is not loaded on this device. Choose your own rule."
+      }
+    },
+    "timeline": {
+      "heading": "Timeline",
+      "phase": {
+        "buy": "Buying",
+        "hold": "Holding",
+        "sell": "Selling",
+        "exit": "Out by"
+      },
+      "current": {
+        "buy": "in the buy phase",
+        "hold": "in the hold phase",
+        "sell": "in the sell window",
+        "exit": "after the sell window closed"
+      },
+      "milestone": {
+        "first": "First buy",
+        "last": "Last buy",
+        "exempt": "Last buy tax-free",
+        "lowerRate": "Last buy at the long-term rate",
+        "part1": "Part 1 of 3: a third of your holding",
+        "part2": "Part 2 of 3: a third of your holding",
+        "part3": "Part 3 of 3: the rest of your holding",
+        "out": "Out by",
+        "today": "Today",
+        "halving": "Halving",
+        "peak": "Cycle high {source, select, template {the template} other {the DCA plan page}} assumes"
+      },
+      "range": "{from} to {to}",
+      "noEnd": "No end set",
+      "around": "Around {month}",
+      "today": "Today, {date}",
+      "label": "Plan from {start}{open, select, yes {, with no end set} other { to {end}}}.",
+      "labelToday": "Plan from {start}{open, select, yes {, with no end set} other { to {end}}}. Today, {date}, is {phase}.",
+      "table": {
+        "summary": "Show as a table",
+        "date": "Date",
+        "milestone": "Milestone"
+      }
+    },
+    "pause": {
+      "heading": "Pause the plan",
+      "body": "Buy days in the pause are marked paused, not missed. Your entries stay. A calendar file you added keeps its events. When you resume, the next buy day and the last buy keep their dates.",
+      "pause": "Pause from today",
+      "since": "Paused since {date}",
+      "resume": "Resume",
+      "overlap": "The plan was not paused, because a pause still to come would overlap a pause from today."
+    },
+    "endBuying": {
+      "title": "End buying",
+      "body": "No buy days after today, {date}.{count, plural, =0 {{window, select, yes { Your sell window stays.} other {}}} one { Your {figure} entry{window, select, yes { and your sell window stay} other { stays}}.} other { Your {figure} entries{window, select, yes { and your sell window stay} other { stay}}.}} A calendar file you added keeps its events.",
+      "confirm": "End buying today",
+      "keep": "Keep the plan as it is",
+      "ended": "Buying ended on {date}.",
+      "undo": "Undo",
+      "notRestored": "Your plan changed after you ended buying, so the earlier last buy was not put back."
+    },
+    "reminder": {
+      "event": {
+        "summary": "Your buy day",
+        "description": "It is your buy day. Open {product} to record it."
+      }
+    }
+  },
+  "portfolio": {
+    "title": "Portfolio",
+    "summary": {
+      "value": "Value",
+      "unpriced": "No price yet for {coins}.",
+      "pnl": "P/L",
+      "invested": "Invested",
+      "fees": "Fees (not in P/L)"
+    },
+    "chart": {
+      "label": "Portfolio value, {range, select, 7d {last 7 days} 30d {last 30 days} 90d {last 90 days} 1y {last 12 months} other {since the first entry}} ({start} to {end}), from {from} to {to}",
+      "labelOwnDates": "Portfolio value, {start} to {end}, from {from} to {to}",
+      "range": "Chart range",
+      "ranges": {
+        "7d": "7D",
+        "30d": "30D",
+        "90d": "90D",
+        "1y": "1Y",
+        "all": "All"
+      },
+      "rangeNames": {
+        "7d": "{label}, last 7 days",
+        "30d": "{label}, last 30 days",
+        "90d": "{label}, last 90 days",
+        "1y": "{label}, last 12 months",
+        "all": "{label}, since the first entry"
+      },
+      "empty": "There is no value to draw {range, select, 7d {for the last 7 days, {start} to {end}. Choose a longer range.} 30d {for the last 30 days, {start} to {end}. Choose a longer range.} 90d {for the last 90 days, {start} to {end}. Choose a longer range.} 1y {for the last 12 months, {start} to {end}. Choose a longer range.} other {since the first entry: the daily closes end on {end}. The chart starts with the next daily close.}}",
+      "nothingHeld": "There is no value to draw: you held no coins from {start} to {end}, the dates the daily closes cover.",
+      "unavailable": "The price history could not be loaded, so there is no chart. Open Portfolio again to retry.",
+      "tooFewCloses": "The price history has fewer than two daily closes for {coins}, so there is no chart.",
+      "source": "Daily closes, {start} to {end}, as of {time}, {date} · Price data by CoinGecko",
+      "pastPerformance": "Past performance is not a reliable indicator of future results.",
+      "riskLink": "Risk disclosure",
+      "failed": "The chart range could not be saved. Choose it again.",
+      "table": {
+        "summary": "Show the values as a table",
+        "date": "Date",
+        "value": "Value"
+      }
+    },
+    "allocation": {
+      "byValue": "Allocation by value: {shares}",
+      "byInvested": "Allocation by amount invested: {shares}",
+      "table": "Show the allocation as a table",
+      "coin": "Coin",
+      "share": "Share",
+      "value": "Value",
+      "invested": "Invested"
+    },
+    "holdings": {
+      "caption": "Holdings",
+      "coin": "Coin",
+      "value": "Value",
+      "pnl": "P/L",
+      "noPrice": "No price",
+      "units": "Units",
+      "average": "Average cost",
+      "invested": "Invested",
+      "chart": {
+        "label": "{coin} price, {range, select, 7d {last 7 days} 30d {last 30 days} 90d {last 90 days} 1y {last 12 months} other {since the first entry}} ({start} to {end}), from {from} to {to}",
+        "labelOwnDates": "{coin} price, {start} to {end}, from {from} to {to}",
+        "legend": {
+          "price": "{coin} price",
+          "buy": "Purchase",
+          "sell": "Sale",
+          "average": "Average cost"
+        },
+        "average": "Average cost {price}",
+        "tooltip": "{date}: {close}{trades, select, bought {, bought {bought}} sold {, sold {sold}} both {, bought {bought}, sold {sold}} other {}}",
+        "table": {
+          "summary": "Show the daily closes as a table",
+          "date": "Date",
+          "close": "Close",
+          "bought": "Bought",
+          "sold": "Sold"
+        },
+        "credit": "Price data by CoinGecko",
+        "fewCloses": "The price history has fewer than two daily closes for {coin} from {start} to {end}, so there is no chart."
+      }
+    },
+    "unrecorded": "No recorded cost for {coins}, so Invested, the average cost, and the P/L leave these units out.",
+    "notBought": "Not bought yet: {coins}. For coins you already have, open the <log>Log</log> and choose Add coins you already have.",
+    "unmatched": "{units} sold without a purchase dated on or before the sale. Check the dates and amounts in the Log."
+  },
+  "settings": {
+    "title": "Settings",
+    "tabs": {
+      "plan": "Plan",
+      "coins": "Coins & split",
+      "hold": "Hold & sell",
+      "data": "Currency & data"
+    },
+    "plan": {
+      "ended": "Buying ended on {date}. Saving a later last buy adds buy days again."
+    },
+    "save": "Save changes",
+    "saved": "Changes saved.",
+    "notSaved": "Not saved: this change conflicts with another part of your plan.",
+    "changed": "Your plan changed in another browser tab, so this change was not saved. The form now shows the saved plan; make your change again.",
+    "country": {
+      "heading": "Country",
+      "line": "The country you live in sets the plan's holding rule, the currency for new amounts, and how numbers and dates are written.",
+      "label": "Country",
+      "notLoaded": "The country profiles are not loaded on this device.",
+      "ruleNotLoaded": "Your country's rule is not loaded on this device. Reload the page when you are online to change the country.",
+      "summary": "Changing to {name}:",
+      "row": {
+        "country": "Country: {from} to {to}",
+        "payCurrency": "Currency for new amounts: {from} to {to}",
+        "displayCurrency": "Currency shown: {from} to {to}",
+        "ruleNow": "Holding rule now: {name}. {rule}",
+        "ruleAfter": "After the change: {name}. {rule}",
+        "lastBuyEligible": "{effect, select, exempt {Last buy tax-free} other {Last buy at the long-term rate}} from {from} now, from {to} after the change"
+      },
+      "ruleName": "{kind, select, own {your own rule} generic {the general profile's rule} other {{country}'s rule}}",
+      "logged": "Amounts you already logged stay as typed; nothing is converted.",
+      "confirmRule": "Replace {from} with {to}",
+      "confirmRuleIssue": "Tick the box to replace the holding rule.",
+      "notSaved": "Not saved: this change conflicts with another part of your plan. Check Plan and Hold & sell, then change the country again.",
+      "confirm": "Change country to {name}",
+      "changed": "Country changed to {name}.",
+      "alreadyChanged": "Your plan was changed to {name} in another browser tab."
+    },
+    "data": {
+      "heading": "Your data",
+      "exportLine": "Exports are generated by {product} from your own entries; not advice. Check figures before any tax or financial use.",
+      "riskLink": "Risk disclosure",
+      "exportJson": "Export JSON backup",
+      "exportCsv": "Export CSV log",
+      "exportNotSaved": "The file was not saved. Export again to keep a copy.",
+      "exportDateFailed": "The backup file was saved, but this device could not record the export date. Export again to record it.",
+      "exportLeftOut": "Exports leave out {figure} {count, plural, one {entry} other {entries}} saved by a newer version of {product}. Reload the page, then export to include {count, plural, one {it} other {them}}.",
+      "noPlan": "Nothing to export yet. Set up a plan or import a file.",
+      "import": {
+        "heading": "Import a file",
+        "choose": "Choose a file",
+        "file": "{name}, exported on {date}. Entries in this backup: {count}.",
+        "pasted": "Pasted backup, exported on {date}. Entries in this backup: {count}.",
+        "replace": "Replace everything",
+        "addMissing": "Add missing entries only",
+        "importThis": "Import this backup",
+        "result": "Entries added: {added}. Already in this plan, not added: {skipped}.",
+        "deletedHere": "Deleted earlier on this device, not added: {deleted}.",
+        "taken": "Month already recorded or skipped on this device, not added: {taken}.",
+        "replaced": "Plan replaced. Entries now: {count}.",
+        "imported": "Plan imported. Entries now: {count}.",
+        "currencyMismatch": "The purchases in this file are in {file}, and this plan's are in {plan}, so nothing was added. Amounts are never converted. If you want the file's plan and its currency in place of this one, choose the file again, then Replace everything.",
+        "currencyMismatchPasted": "The purchases in the pasted text are in {file}, and this plan's are in {plan}, so nothing was added. Amounts are never converted. If you want the pasted plan and its currency in place of this one, paste the text again, then Replace everything.",
+        "tooManyEntries": "Adding these entries would leave {entries} entries in this plan, more than the {max} a plan holds, so nothing was added. Delete entries in the Log, then import again. To keep only the file's entries, import again with Replace everything.",
+        "tooManyInFile": "This export from the DCA plan page holds {file} purchases, more than the {max} entries a plan holds, so nothing was imported. Delete purchases there, export again, then import the new file.",
+        "tooLarge": "This file is larger than {max} MB, larger than any backup of a plan, so it was not read. Choose a backup from {product} or an export from the DCA plan page.",
+        "newerRows": "A newer version of {product} saved or deleted entries on this device, so nothing was imported. Reload the page, then import again."
+      },
+      "paste": {
+        "label": "Paste a backup or an export from the DCA plan page",
+        "read": "Read the pasted text"
+      },
+      "prototype": {
+        "file": "{name}, exported from the DCA plan page. Purchases in this file: {count}.",
+        "pasted": "Pasted text, exported from the DCA plan page. Purchases in this text: {count}.",
+        "country": "Files from the DCA plan page have no country. Choose the country you live in; the plan keeps the file's holding rule and currencies, which you can change in Hold & sell and Currency & data.",
+        "confirmBody": "The plan and purchases in this file take their place, with the file's holding rule; export a copy first if you want to keep this plan.",
+        "report": {
+          "coins-defaulted": "The file listed no coins, so the plan has the DCA plan page's four starting coins: Bitcoin, Chainlink, Ethereum, and Solana. You can change them in Coins & split.",
+          "coin-added": "{coin} had purchases but was not in the file's list of coins, so it was added to the plan.",
+          "coin-not-in-plan": "{count, plural, one {{figure} purchase of {coin} was} other {{figure} purchases of {coin} were}} added. This plan does not list {coin}, so Portfolio shows it after the plan's coins; you can add it in Coins & split.",
+          "split-from-dca-split": "The split comes from the file's older monthly split.",
+          "split-normalised": "The {coin} share changed from {from} to {to}, so the split adds up to 100 %.",
+          "currency-defaulted": "{field, select, payCurrency {The currency you pay in} other {The currency shown}} was missing or unknown, so it is {field, select, payCurrency {EUR} other {USD}}.",
+          "starting-amount-from-steps": "The starting amount is the sum of the file's lump-sum steps.",
+          "plan-amounts-rounded": "The monthly and starting amounts were rounded to the cent.",
+          "first-buy-from-entries": "The first buy is the date of the earliest purchase in the file.",
+          "last-buy-defaulted": "The file had no last buy, so it is {date}, as on the DCA plan page.",
+          "buy-day-clamped": "The file's buy day was outside 1 to 28, so the buy day is now {day}.",
+          "hold-days-defaulted": "The file had no holding period, so the holding rule is 365 days.",
+          "sell-window-dropped": "The file's sell window had a date missing, so the plan has no sell window. You can set one in Hold & sell.",
+          "sell-window-accepted-early": "The sell window opens before the last buy has been held for the holding period; it stays as the file had it.",
+          "expectation-dropped": "The {scenario, select, bear {low} base {middle} other {high}} multiple you set on the DCA plan page was not a number, so it was left out.",
+          "tax-note-dropped": "The file's tax note was not imported. Copy it from the DCA plan page if you want to keep it.",
+          "entries-dropped": "{count, plural, one {{figure} purchase was not imported: it was} other {{figure} purchases were not imported: they were}} missing a coin, an amount, units or a date.",
+          "entries-rounded": "{count, plural, one {{figure} purchase was} other {{figure} purchases were}} rounded: amounts to the cent, units to 10 decimal places.",
+          "monthly-without-month": "{count, plural, one {{figure} monthly buy had no month, so it is} other {{figure} monthly buys had no month, so they are}} logged as extra buys.",
+          "fees-dropped": "{count, plural, one {{figure} fee was not an amount, so it was} other {{figure} fees were not amounts, so they were}} left out.",
+          "notes-shortened": "{count, plural, one {{figure} note was} other {{figure} notes were}} cut to 500 characters.",
+          "ids-regenerated": "{count, plural, one {{figure} purchase in this file had no usable reference, so importing this file again adds it} other {{figure} purchases in this file had no usable reference, so importing this file again adds them}} a second time."
+        }
+      },
+      "confirm": {
+        "title": "Replace this plan and its {count, plural, one {{figure} entry} other {{figure} entries}}?",
+        "body": "The backup's plan and entries take their place; export a copy first if you want to keep this plan.",
+        "export": "Export a copy first",
+        "cancel": "Keep this plan",
+        "replace": "Replace everything"
+      }
+    },
+    "delete": {
+      "open": "Delete everything",
+      "title": "{count, plural, =0 {Delete this plan?} one {Delete this plan and its {figure} entry?} other {Delete this plan and its {figure} entries?}}",
+      "body": "{count, plural, =0 {Export a copy first if you want to keep it.} other {Export a copy first if you want to keep them.}}",
+      "cancel": "Keep this plan",
+      "export": "Export a copy first",
+      "confirm": "Delete everything",
+      "deleted": "Plan deleted.",
+      "undo": "Undo",
+      "undoRefused": "Another browser tab started or imported a plan after you deleted this one, so it stays deleted."
+    },
+    "about": {
+      "heading": "About",
+      "line": "Data and tools, not advice. Crypto-assets can lose all their value.",
+      "riskLink": "Risk disclosure",
+      "legal": "Legal information",
+      "terms": "Terms of use",
+      "privacy": "Privacy notice",
+      "cookies": "Cookie-free statement",
+      "contact": "Contact"
+    },
+    "reminder": {
+      "heading": "Calendar reminder",
+      "line": "One event on each buy day left in your plan. Add it if you chose Later, or again after you change the buy day. Your calendar may keep the earlier event; delete it there.",
+      "calendar": "Add to calendar",
+      "saved": "Calendar file saved.",
+      "notSaved": "The calendar file was not saved. Add it again.",
+      "noneLeft": "No buy days left, so there is no reminder to add.",
+      "ended": "Buying ended on {date}, so there is no reminder to add. If you added the calendar file, your calendar keeps its events after that day; delete them there.",
+      "paused": "The buy days left are paused, so there is no reminder to add. After you resume the plan, you can add it here."
+    }
+  },
+  "shell": {
+    "skip": "Skip to content",
+    "why": {
+      "link": "Why?",
+      "failed": "This explanation could not be loaded. Check your connection, then reload the page."
+    },
+    "holdingConditions": {
+      "more": "Show {count} more {count, plural, one {condition} other {conditions}}"
+    },
+    "countryLine": {
+      "plain": "Reviewed on {date} · general information, not advice",
+      "generic": "Reviewed on {date}: the general profile, not a rule for your country · general information, not advice",
+      "sources": "Reviewed on {date} · general information, not advice · <sources>Sources</sources>",
+      "underReview": "Not reviewed since {date} · general information, not advice"
+    },
+    "nav": {
+      "label": "Main",
+      "today": "Today",
+      "portfolio": "Portfolio",
+      "log": "Log",
+      "learn": "Learn"
+    },
+    "settings": "Settings",
+    "toast": {
+      "close": "Close"
+    },
+    "update": {
+      "title": "A new version is ready.",
+      "reload": "Reload"
+    },
+    "failure": {
+      "title": "Your data could not be opened.",
+      "retry": "Try again"
+    },
+    "newer": {
+      "title": "Your plan was saved by a newer version of {product}.",
+      "line": "This version cannot open it, so it stays as it was saved. Reload the page to open it in the newer version.",
+      "again": "If this screen comes back after the reload, your plan stays on this device, unread; a newer version of {product} can open it.",
+      "reload": "Reload",
+      "entries": "{count, plural, one {{figure} entry was} other {{figure} entries were}} saved by a newer version of {product}, so {count, plural, one {it is} other {they are}} not shown here. Reload the page to see {count, plural, one {it} other {them}}."
+    },
+    "screenError": {
+      "title": "This screen could not be loaded.",
+      "line": "Check your connection, then reload the page.",
+      "reload": "Reload"
+    }
+  },
+  "today": {
+    "title": "Today",
+    "empty": {
+      "title": "No plan yet",
+      "noPlan": "<setup>Set up a plan</setup> or <import>import a file</import>."
+    },
+    "action": {
+      "late": "{month} is still open",
+      "lateBody": "Buy day was {date}, {days, plural, one {{figure} day} other {{figure} days}} ago. Record it or skip the month.",
+      "due": "Today is the {month} buy day",
+      "upcoming": "Next buy day: {date}",
+      "noneLeft": "No buy days left",
+      "starting": "Starting amount: due {date}",
+      "startingLate": "It was due on {date}, {days, plural, one {{figure} day} other {{figure} days}} ago.",
+      "done": "{month} is recorded",
+      "skipped": "{month} is skipped",
+      "pausedMonth": "{month} is paused",
+      "paused": "Paused until {date}",
+      "pausedOpen": "Paused since {date}",
+      "resume": "Resume",
+      "next": "Next buy day: {date}.",
+      "record": "Record a purchase",
+      "asPlanned": "Bought as planned",
+      "different": "Bought a different amount",
+      "skip": "Skip {month}",
+      "edit": "Edit",
+      "parts": "Planned split"
+    },
+    "phase": {
+      "hold": "In the hold phase",
+      "holdBody": "The sell window opens on {date}.",
+      "sell": "In the sell window",
+      "sellBody": "It closes on {date}.",
+      "exit": "The sell window has closed",
+      "exitBody": "The plan ends on {date}.",
+      "done": "The plan ended on {date}"
+    },
+    "why": {
+      "hold": "Why? The hold phase",
+      "window": "Why? The sell window"
+    },
+    "pending": {
+      "heading": "Also open",
+      "dca": "{month}: due {date}"
+    },
+    "portfolio": {
+      "value": "Portfolio value",
+      "invested": "Invested"
+    },
+    "prices": {
+      "asOf": "Prices as of {time}, {date}",
+      "asOfLive": "Prices as of {time}, {date} · Price data by CoinGecko",
+      "delayed": "Prices as of {time}, {date} · delayed",
+      "delayedLive": "Prices as of {time}, {date} · delayed · Price data by CoinGecko",
+      "fromOffline": "Prices from {time}, {date} · offline",
+      "fromOfflineLive": "Prices from {time}, {date} · offline · Price data by CoinGecko"
+    },
+    "strip": {
+      "link": "Your plan",
+      "buy": "Buying",
+      "hold": "Holding",
+      "sell": "Selling",
+      "exit": "Out by",
+      "range": "{from} to {to}",
+      "from": "from {from}",
+      "label": "Plan from {start}{open, select, yes {, with no end set} other { to {end}}}. Today is {today}.",
+      "table": "Show the dates as a table",
+      "phase": "Phase",
+      "start": "From",
+      "end": "To"
+    },
+    "banner": {
+      "never": "Your data lives only on this device. <link>Export a copy.</link>",
+      "last": "Your data lives only on this device. Last export {date}. <link>Export a copy.</link>"
+    },
+    "ruleChange": {
+      "notice": "{date}: {notice}",
+      "generic": "{date}: {kind, select, generic {the general profile} other {the rules for {country}}} changed. Review your plan.",
+      "review": "Review",
+      "dismiss": "Dismiss",
+      "failed": "The notice could not be dismissed. Try again."
+    },
+    "durability": "Your data lives only in this browser. Install the app or export a copy to keep it.",
+    "durabilityInstalled": "Your data lives only on this device. Export a copy to keep it."
+  }
+}

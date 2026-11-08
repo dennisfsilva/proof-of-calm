@@ -1,0 +1,25 @@
+{
+  "$schema": "https://turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "test": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/packages/app/src/{features,lib}/*/messages/*.json",
+        "$TURBO_ROOT$/packages/app/src/messages/**",
+        "$TURBO_ROOT$/apps/web/lighthouserc.json",
+        "$TURBO_ROOT$/.github/workflows/lighthouse-vercel.yml",
+        "$TURBO_ROOT$/.github/workflows/ci.yml",
+        "$TURBO_ROOT$/.github/workflows/lighthouse-branch.yml",
+        "$TURBO_ROOT$/apps/web/public/**",
+        "$TURBO_ROOT$/apps/web/lib/pwa/brand-colors.json",
+        "$TURBO_ROOT$/packages/app/src/lib/brand/**",
+        "$TURBO_ROOT$/.env.example",
+        "$TURBO_ROOT$/packages/content/turbo.json",
+        "$TURBO_ROOT$/apps/web/messages/**",
+        "$TURBO_ROOT$/apps/{web,mobile}/{src,lib,server,api}/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}",
+        "$TURBO_ROOT$/packages/*/src/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}"
+      ]
+    }
+  }
+}

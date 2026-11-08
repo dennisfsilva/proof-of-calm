@@ -1,0 +1,98 @@
+{
+  "$comment": "The banned-words lint (docs/CONTENT-STYLE.md §1 and §2, docs/LEGAL.md §6). Patterns are matched case-insensitively between word boundaries; `allow` lists phrases removed before matching, each with its reason.",
+  "advice": {
+    "en": [
+      "recommend\\p{L}*",
+      "should (buy|hold|sell)",
+      "you should",
+      "must buy",
+      "guarantee\\p{L}*",
+      "safe(r|ly)?",
+      "secure investment",
+      "wealth",
+      "get rich",
+      "best coins?",
+      "top coins?",
+      "will (rise|go up|recover)",
+      "expected return",
+      "target price",
+      "passive income",
+      "we suggest",
+      "our pick",
+      "buy the dip",
+      "dip",
+      "stack sats",
+      "don['’]?t miss",
+      "now is the time",
+      "inflation hedge",
+      "digital gold",
+      "undervalued",
+      "outperform\\p{L}*",
+      "beat (the market|inflation)",
+      "to the moon",
+      "hodl",
+      "bullish",
+      "bearish",
+      "regulated",
+      "licen[sc]ed",
+      "authori[sz]ed",
+      "MiCA-compliant",
+      "approved by"
+    ],
+    "de": [
+      "empfehl\\p{L}*",
+      "empfohlen\\p{L}*",
+      "sollte(n|st)? (kaufen|halten|verkaufen)",
+      "sicher(e|er|es|en)?",
+      "sichere anlage",
+      "garantiert\\p{L}*",
+      "vermögen aufbauen",
+      "reich werden",
+      "reguliert\\p{L}*",
+      "lizenziert\\p{L}*",
+      "zugelassen\\p{L}*"
+    ],
+    "pt": [
+      "recomend\\p{L}*",
+      "deve (comprar|manter|vender)",
+      "segur(o|a|os|as)",
+      "garantid\\p{L}*",
+      "riqueza",
+      "enriquecer",
+      "regulad(o|a|os|as)",
+      "licenciad(o|a|os|as)",
+      "autorizad(o|a|os|as)"
+    ]
+  },
+  "filler": [
+    "deliver",
+    "empower",
+    "leverage",
+    "key",
+    "robust",
+    "streamline",
+    "seamless",
+    "powerful",
+    "journey",
+    "unlock",
+    "boost"
+  ],
+  "allow": [
+    { "phrase": "API key", "reason": "names the thing the app never asks for (ADR-0039)" },
+    { "phrase": "API keys", "reason": "names the thing the app never asks for (ADR-0039)" },
+    { "phrase": "imposta di bollo", "reason": "the proper name of an Italian tax" },
+    { "phrase": "box 3", "reason": "the proper name of the Dutch wealth tax box" },
+    {
+      "phrase": "providers authorised under MiCA",
+      "reason": "the Risk page's register sentence (docs/LEGAL.md §3.4): ESMA's list, said of other providers, never of the product"
+    },
+    {
+      "phrase": "nach MiCA zugelassenen Anbieter",
+      "reason": "the Risk page's register sentence in German (docs/LEGAL.md §3.4)"
+    },
+    {
+      "phrase": "prestadores autorizados ao abrigo do MiCA",
+      "reason": "the Risk page's register sentence in Portuguese (docs/LEGAL.md §3.4)"
+    }
+  ]
+}

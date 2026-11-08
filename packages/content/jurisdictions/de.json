@@ -1,0 +1,289 @@
+{
+  "schemaVersion": 1,
+  "code": "DE",
+  "name": "Germany",
+  "currency": "EUR",
+  "locales": ["de-DE"],
+  "numberFormatLocale": "de-DE",
+  "dateFormatLocale": "de-DE",
+  "timezones": ["Europe/Berlin", "Europe/Busingen"],
+  "taxYear": { "start": "01-01", "end": "12-31" },
+  "filingNote": "Calendar tax year. The return for 2026 is due on 31 July 2027 (29 February 2028 with an adviser), filed through ELSTER.",
+  "computationModel": { "kind": "per-lot" },
+  "holdingRule": { "kind": "years", "years": 1, "effect": "exempt" },
+  "holdingRuleOverrides": [],
+  "holdingRuleConditions": [
+    "A swap or a purchase paid in crypto starts a new holding period for the coins received.",
+    "Gifts keep the giver's holding period."
+  ],
+  "lotRule": "fifo",
+  "lotScope": "per-venue",
+  "lotRuleNote": "Per wallet: the BMF accepts first in, first out or individual identification, elected per wallet and per crypto-asset and applied consistently; average cost is the fallback (medium-high confidence).",
+  "card": {
+    "classification": "A private sale (§ 23(1) sentence 1 no. 2 EStG) taxed at the personal progressive rate, not the flat Abgeltungsteuer; staking and lending rewards under § 22 no. 3 EStG. Basis: BMF-Schreiben of 6 March 2025; BFH IX R 3/22 of 14 February 2023.",
+    "taxableEvents": [
+      {
+        "event": "sale-to-fiat",
+        "taxable": "yes",
+        "note": "Taxable when one year or less lies between purchase and sale; tax-free after more than one year."
+      },
+      {
+        "event": "crypto-to-crypto",
+        "taxable": "yes",
+        "note": "A disposal at market value and a new acquisition; a new holding period starts for the coin received."
+      },
+      {
+        "event": "crypto-to-stablecoin",
+        "taxable": "yes",
+        "note": "The same as any swap: a disposal at market value and a new acquisition."
+      },
+      {
+        "event": "spending",
+        "taxable": "yes",
+        "note": "A disposal at the value of the goods or services."
+      },
+      {
+        "event": "own-wallet-transfer",
+        "taxable": "no",
+        "note": "Not a disposal; records are needed so the holding period can be traced from wallet to wallet."
+      },
+      {
+        "event": "gift-or-inheritance",
+        "taxable": "depends",
+        "note": "No income tax; gift or inheritance tax may apply; the recipient steps into the acquisition date and cost of the giver (§ 23(1) sentence 3 EStG)."
+      },
+      {
+        "event": "staking-or-airdrop",
+        "taxable": "yes",
+        "note": "§ 22 no. 3 income at receipt (Freigrenze EUR 256); passive staking or lending does not extend the holding period to ten years (BMF 2022 and 2025)."
+      }
+    ],
+    "rates": [
+      {
+        "label": "Personal income tax (§ 32a EStG)",
+        "value": "0–45 % by taxable income (2026 tariff)",
+        "validFrom": "2026-01-01",
+        "validTo": null,
+        "note": "0 % up to EUR 12,348; 14 % rising to 42 % at EUR 69,879; 45 % from EUR 277,826."
+      },
+      {
+        "label": "Solidarity surcharge (§ 3 SolZG 1995)",
+        "value": "5.5 % of the income tax",
+        "validFrom": "2026-01-01",
+        "validTo": null,
+        "note": "Only where the income tax exceeds EUR 20,350 (single) or EUR 40,700 (joint), with a sliding zone above."
+      },
+      {
+        "label": "Church tax",
+        "value": "8–9 % of the income tax",
+        "validFrom": "2026-01-01",
+        "validTo": null,
+        "note": "Where applicable."
+      }
+    ],
+    "allowances": [
+      "Freigrenze of EUR 1,000 a year on all § 23 gains together (crypto and other private sales): at EUR 1,000 or more the whole amount is taxable, a cliff, not an allowance. Since assessment year 2024 (previously EUR 600).",
+      "Freigrenze of EUR 256 per year for § 22 no. 3 income (staking, lending).",
+      "The Sparer-Pauschbetrag does not apply to § 23 gains today."
+    ],
+    "holdingRuleText": "Taxable only when “der Zeitraum zwischen Anschaffung und Veräußerung nicht mehr als ein Jahr beträgt” (§ 23(1) sentence 1 no. 2 EStG). The day of purchase is not counted and the year ends on the same calendar day a year later (§ 108 AO, §§ 187–188 BGB): bought on 15 March 2026, a sale on 15 March 2027 is still inside the year; from 16 March 2027 it is tax-free.",
+    "lotRuleText": "First in, first out per wallet (“walletbezogene Betrachtung”); the BMF accepts FIFO or individual identification, elected per wallet and per crypto-asset; average cost is the fallback.",
+    "losses": "Only against § 23 gains, not salary or capital income; carried back one year and forward without limit within § 23. Losses under § 22 no. 3 offset only § 22 no. 3 income.",
+    "reporting": [
+      "The taxpayer bears the burden of proof; software tax reports are accepted if plausible and consistent (BMF-Schreiben of 6 March 2025)."
+    ],
+    "caveats": [
+      "The exact day count.",
+      "The EUR 1,000 cliff.",
+      "Staking and lending (the EUR 256 rule).",
+      "The cut-off and grandfathering of the reform, a draft that may change.",
+      "Losses.",
+      "Church tax.",
+      "The records the Finanzamt expects."
+    ],
+    "summary60": "Germany: crypto sold more than one year after purchase is tax-free. Sold within a year, the gain is taxed at your personal income-tax rate, and swaps and purchases with crypto count as sales. All such gains under EUR 1,000 per year are tax-free. First-in, first-out per wallet. A draft law would end the one-year rule for coins bought from 2027."
+  },
+  "pendingChanges": [
+    {
+      "title": "Referentenentwurf of 30 September 2026: Gesetz zur Reform der Besteuerung bestimmter Kryptowerte im Privatvermögen",
+      "status": "proposed",
+      "effectiveFrom": "2027-01-01",
+      "summary": "Tauschkryptowerte such as BTC and ETH acquired after 31 December 2026 would become capital income at 25 % plus solidarity surcharge, whatever the holding period, withheld by domestic providers from 1 January 2028; earlier purchases keep the one-year rule. E-money tokens, NFTs, security and RWA tokens are excluded. The cabinet slot of 14 October 2026 passed without a decision.",
+      "source": {
+        "title": "BMF: Entwurf eines Gesetzes zur Reform der Besteuerung bestimmter Kryptowerte im Privatvermögen",
+        "url": "https://blogs.pwc.de/de/steuern-und-recht/article/257144/",
+        "publisher": "PwC Germany",
+        "kind": "secondary",
+        "published": "2026-10-05",
+        "accessed": "2026-10-16"
+      }
+    },
+    {
+      "title": "Tariff values for 2027",
+      "status": "proposed",
+      "effectiveFrom": null,
+      "summary": "The 2027 basic allowance (Grundfreibetrag) and the solidarity-surcharge thresholds arrive with the annual tax law.",
+      "source": {
+        "title": "Einkommensteuergesetz (EStG), § 32a",
+        "url": "https://www.gesetze-im-internet.de/estg/__32a.html",
+        "publisher": "Bundesministerium der Justiz",
+        "kind": "law",
+        "published": null,
+        "accessed": "2026-10-16"
+      }
+    }
+  ],
+  "sources": [
+    {
+      "key": "de-estg-23",
+      "title": "Einkommensteuergesetz (EStG), § 23",
+      "url": "https://www.gesetze-im-internet.de/estg/__23.html",
+      "publisher": "Bundesministerium der Justiz",
+      "kind": "law",
+      "published": null,
+      "accessed": "2026-11-03"
+    },
+    {
+      "key": "de-estg-22",
+      "title": "Einkommensteuergesetz (EStG), § 22",
+      "url": "https://www.gesetze-im-internet.de/estg/__22.html",
+      "publisher": "Bundesministerium der Justiz",
+      "kind": "law",
+      "published": null,
+      "accessed": "2026-10-16"
+    },
+    {
+      "key": "de-estg-32a",
+      "title": "Einkommensteuergesetz (EStG), § 32a",
+      "url": "https://www.gesetze-im-internet.de/estg/__32a.html",
+      "publisher": "Bundesministerium der Justiz",
+      "kind": "law",
+      "published": null,
+      "accessed": "2026-10-16"
+    },
+    {
+      "key": "de-solzg-3",
+      "title": "Solidaritätszuschlaggesetz 1995 (SolZG 1995), § 3",
+      "url": "https://www.gesetze-im-internet.de/solzg_1995/__3.html",
+      "publisher": "Bundesministerium der Justiz",
+      "kind": "law",
+      "published": null,
+      "accessed": "2026-10-16"
+    },
+    {
+      "key": "de-ao-108",
+      "title": "Abgabenordnung (AO), § 108",
+      "url": "https://www.gesetze-im-internet.de/ao_1977/__108.html",
+      "publisher": "Bundesministerium der Justiz",
+      "kind": "law",
+      "published": null,
+      "accessed": "2026-11-04"
+    },
+    {
+      "key": "de-bgb-187",
+      "title": "Bürgerliches Gesetzbuch (BGB), § 187",
+      "url": "https://www.gesetze-im-internet.de/bgb/__187.html",
+      "publisher": "Bundesministerium der Justiz",
+      "kind": "law",
+      "published": null,
+      "accessed": "2026-11-04"
+    },
+    {
+      "key": "de-bgb-188",
+      "title": "Bürgerliches Gesetzbuch (BGB), § 188",
+      "url": "https://www.gesetze-im-internet.de/bgb/__188.html",
+      "publisher": "Bundesministerium der Justiz",
+      "kind": "law",
+      "published": null,
+      "accessed": "2026-11-04"
+    },
+    {
+      "key": "de-bmf-2025-03-06",
+      "title": "BMF-Schreiben vom 6. März 2025: Einzelfragen zur ertragsteuerrechtlichen Behandlung bestimmter Kryptowerte (IV C 1 - S 2256/00042/064/043)",
+      "url": "https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Einkommensteuer/2025-03-06-einzelfragen-kryptowerte-bmf-schreiben.pdf?__blob=publicationFile&v=2",
+      "publisher": "Bundesministerium der Finanzen",
+      "kind": "authority",
+      "published": "2025-03-06",
+      "accessed": "2026-11-04"
+    },
+    {
+      "key": "de-bmf-2022-05-10",
+      "title": "BMF-Schreiben vom 10. Mai 2022: Einzelfragen zur ertragsteuerrechtlichen Behandlung von virtuellen Währungen und von sonstigen Token (IV C 1 - S 2256/19/10003 :001)",
+      "url": "https://www.bundesfinanzministerium.de/Content/DE/Pressemitteilungen/Finanzpolitik/2022/05/2022-05-09-einzelfragen-zur-ertragsteuerrechtlichen-behandlung-von-virtuellen-waehrungen-und-von-sonstigen-token-bmf-schreiben.pdf?__blob=publicationFile&v=1",
+      "publisher": "Bundesministerium der Finanzen",
+      "kind": "authority",
+      "published": "2022-05-10",
+      "accessed": "2026-11-04"
+    },
+    {
+      "key": "de-bfh-ix-r-3-22",
+      "title": "Bundesfinanzhof, Urteil vom 14. Februar 2023, IX R 3/22",
+      "url": "https://www.bundesfinanzhof.de/en/entscheidungen/entscheidungen-online/decision-detail/STRE202310057/",
+      "publisher": "Bundesfinanzhof",
+      "kind": "court",
+      "published": "2023-02-14",
+      "accessed": "2026-11-04"
+    },
+    {
+      "key": "de-forvis-mazars-bmf-2025",
+      "title": "BMF-Schreiben Einzelfragen … Kryptowerte (Newsletter Steuern 2/2025)",
+      "url": "https://www.forvismazars.com/de/en/who-we-are/news/press-media/newsletters/newsletter-steuern/newsletter-steuern-2-2025/ertragsteuerrechtliche-behandlung-von-kryptowerten",
+      "publisher": "Forvis Mazars",
+      "kind": "secondary",
+      "published": null,
+      "accessed": "2026-10-16"
+    },
+    {
+      "key": "de-cms-bmf-2025",
+      "title": "Update des BMF-Schreibens zu Kryptowerten",
+      "url": "https://cms.law/de/deu/legal-updates/Update-des-BMF-Schreibens-zu-Kryptowerten",
+      "publisher": "CMS Germany",
+      "kind": "secondary",
+      "published": "2025-06-26",
+      "accessed": "2026-11-03"
+    },
+    {
+      "key": "de-pwc-reform-draft",
+      "title": "BMF: Entwurf eines Gesetzes zur Reform der Besteuerung bestimmter Kryptowerte im Privatvermögen",
+      "url": "https://blogs.pwc.de/de/steuern-und-recht/article/257144/",
+      "publisher": "PwC Germany",
+      "kind": "secondary",
+      "published": "2026-10-05",
+      "accessed": "2026-10-16"
+    },
+    {
+      "key": "de-grant-thornton-reform-draft",
+      "title": "BMF plant Reform der Krypto-Besteuerung",
+      "url": "https://www.grantthornton.de/themen/2026/bmf-plant-reform-der-krypto-besteuerung/",
+      "publisher": "Grant Thornton Germany",
+      "kind": "secondary",
+      "published": "2026-09-25",
+      "accessed": "2026-10-16"
+    },
+    {
+      "key": "de-etl-reform-draft",
+      "title": "Kryptobesteuerung soll sich ab 2027 grundlegend ändern",
+      "url": "https://www.etl.de/aktuelles/kryptobesteuerung-soll-sich-ab-2027-aendern/",
+      "publisher": "ETL",
+      "kind": "secondary",
+      "published": "2026-10-12",
+      "accessed": "2026-10-16"
+    }
+  ],
+  "ruleSources": {
+    "holdingRule": "de-estg-23",
+    "lotRule": "de-forvis-mazars-bmf-2025",
+    "rates": "de-estg-32a",
+    "losses": "de-estg-23",
+    "reporting": "de-cms-bmf-2025"
+  },
+  "status": {
+    "confidence": "high",
+    "version": 1,
+    "changedOn": "2026-10-16",
+    "changeNotice": null,
+    "lastReviewed": "2026-11-05",
+    "nextReviewDue": "2027-01-01",
+    "reviewedBy": "owner"
+  }
+}

@@ -1,0 +1,7 @@
+/*
+ * The stories' stylesheet, as the hosts' app.css: the shared sheet of packages/ui, the self-hosted
+ * faces (ADR-0045 §7) and this package's sources, so their utilities are compiled here.
+ */
+@import "@proofofcalm/ui/globals.css";
+@import "@proofofcalm/ui/styles/fonts.css";
+@source "../src";

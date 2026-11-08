@@ -1,0 +1,37 @@
+{
+  "code": "FR",
+  "name": "France",
+  "currency": "EUR",
+  "locales": ["fr-FR"],
+  "numberFormatLocale": "fr-FR",
+  "dateFormatLocale": "fr-FR",
+  "timezones": [
+    "Europe/Paris",
+    "America/Martinique",
+    "America/Guadeloupe",
+    "America/Cayenne",
+    "Indian/Reunion",
+    "Indian/Mayotte"
+  ],
+  "taxYear": {
+    "start": "01-01",
+    "end": "12-31"
+  },
+  "computationModel": {
+    "kind": "portfolio-wide"
+  },
+  "holdingRule": {
+    "kind": "none"
+  },
+  "holdingRuleOverrides": [],
+  "holdingRuleConditions": [],
+  "lotRule": "unspecified",
+  "lotScope": "global",
+  "status": {
+    "version": 1,
+    "changedOn": "2026-01-01",
+    "changeNotice": null,
+    "lastReviewed": "2026-11-05",
+    "nextReviewDue": "2027-01-01"
+  }
+}

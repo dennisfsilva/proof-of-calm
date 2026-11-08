@@ -1,0 +1,32 @@
+{
+  "name": "@proofofcalm/mobile",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The Vite static host for the Capacitor wrapper (skeleton until M3; built, checked and smoke-tested in CI from M0).",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "check:export": "node scripts/check-export.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check . && eslint .",
+    "test": "vitest run",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@proofofcalm/app": "workspace:*",
+    "@proofofcalm/ui": "workspace:*",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@playwright/test": "catalog:",
+    "@proofofcalm/config": "workspace:*",
+    "@proofofcalm/content": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

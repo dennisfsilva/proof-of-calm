@@ -1,0 +1,265 @@
+{
+  "schemaVersion": 1,
+  "code": "GB",
+  "name": "United Kingdom",
+  "currency": "GBP",
+  "locales": ["en-GB", "cy-GB"],
+  "numberFormatLocale": "en-GB",
+  "dateFormatLocale": "en-GB",
+  "timezones": ["Europe/London"],
+  "taxYear": { "start": "04-06", "end": "04-05" },
+  "filingNote": "Tax year 6 April to 5 April. The online Self Assessment return is due by 31 January after the tax year ends. The real time Capital Gains Tax service takes a report by 31 December after the tax year and payment by 31 January.",
+  "computationModel": { "kind": "per-lot" },
+  "holdingRule": { "kind": "none" },
+  "holdingRuleOverrides": [],
+  "holdingRuleConditions": [],
+  "lotRule": "pooled",
+  "lotScope": "global",
+  "lotRuleNote": "One section 104 pool per token type, after the same-day rule and the 30-day rule (TCGA 1992 ss. 104, 105, and 106A). Proof of Calm lists lots first in, first out and leaves the pooling to the accountant.",
+  "card": {
+    "classification": "Most individuals hold tokens as a personal investment and pay Capital Gains Tax on disposal. Income Tax applies to tokens received from an employer, mining, transaction confirmation, or some airdrops, and when the activity is a trade.",
+    "taxableEvents": [
+      {
+        "event": "sale-to-fiat",
+        "taxable": "yes",
+        "note": "Selling tokens for money is a disposal; the gain or loss is worked out on each disposal (HMRC Cryptoassets Manual CRYPTO22100)."
+      },
+      {
+        "event": "crypto-to-crypto",
+        "taxable": "yes",
+        "note": "Exchanging tokens for a different type of token is a disposal (CRYPTO22100)."
+      },
+      {
+        "event": "crypto-to-stablecoin",
+        "taxable": "yes",
+        "note": "Exchanging tokens for a stablecoin is an exchange for a different type of token, so a disposal (CRYPTO22100)."
+      },
+      {
+        "event": "spending",
+        "taxable": "yes",
+        "note": "Using tokens to pay for goods or services is a disposal (CRYPTO22100)."
+      },
+      {
+        "event": "own-wallet-transfer",
+        "taxable": "no",
+        "note": "No disposal while the individual keeps beneficial ownership throughout, for example moving tokens between public addresses they control (CRYPTO22100)."
+      },
+      {
+        "event": "gift-or-inheritance",
+        "taxable": "depends",
+        "note": "Giving tokens away is a disposal at their pound sterling value, unless to a spouse or civil partner; a gift to charity has no Capital Gains Tax unless tainted (CRYPTO22100). Inherited tokens are not covered by this card."
+      },
+      {
+        "event": "staking-or-airdrop",
+        "taxable": "depends",
+        "note": "Staking rewards outside a trade: miscellaneous income at their pound sterling value on receipt (CRYPTO21200). Airdrops received for nothing in return: no Income Tax (CRYPTO21250). Capital Gains Tax on a later disposal."
+      }
+    ],
+    "rates": [
+      {
+        "label": "Gains within the basic rate band",
+        "value": "18 %",
+        "validFrom": "2024-10-30",
+        "validTo": null,
+        "note": "Disposals from 30 October 2024. The basic rate band is £37,700 for the 2026 to 2027 tax year; gains sit on top of income, so the unused part of the band is taxed at 18 %."
+      },
+      {
+        "label": "Gains above the basic rate band",
+        "value": "24 %",
+        "validFrom": "2024-10-30",
+        "validTo": null,
+        "note": "Disposals from 30 October 2024, for any amount above the basic rate band and for higher or additional rate taxpayers."
+      },
+      {
+        "label": "Gains within the basic rate band, 6 April to 29 October 2024",
+        "value": "10 %",
+        "validFrom": "2024-04-06",
+        "validTo": "2024-10-29",
+        "note": "Disposals from 6 April 2024 to 29 October 2024, not residential property or carried interest (GOV.UK rates and allowances table)."
+      },
+      {
+        "label": "Gains above the basic rate band, 6 April to 29 October 2024",
+        "value": "20 %",
+        "validFrom": "2024-04-06",
+        "validTo": "2024-10-29",
+        "note": "Disposals from 6 April 2024 to 29 October 2024, not residential property or carried interest (GOV.UK rates and allowances table)."
+      }
+    ],
+    "allowances": [
+      "Annual exempt amount £3,000 for individuals in the 2024 to 2025, 2025 to 2026, and 2026 to 2027 tax years; tax is due only on gains above it."
+    ],
+    "holdingRuleText": "No holding exemption: every sale is a taxable event.",
+    "lotRuleText": "Tokens of one type form one pool with one allowable cost (section 104 pool, TCGA 1992 s. 104). The same-day rule (s. 105) applies first; tokens acquired within 30 days after a disposal are matched to it, earliest disposal first (s. 106A).",
+    "losses": "Claimed on the tax return, up to 4 years after the end of the tax year of the disposal; deducted from the same year's gains, the rest carried forward. A negligible value claim for worthless tokens covers the whole section 104 pool.",
+    "reporting": [
+      "The Self Assessment Capital Gains Tax summary (SA108) has a Cryptoassets section, boxes 13.1 to 13.8, for the 2024 to 2025 tax year. It takes the number of disposals, proceeds, allowable costs, gains, and losses, plus the computations.",
+      "Real time Capital Gains Tax service: a gain or loss on tokens already reported through it goes in box 13.7, the tax already paid in box 13.8, and the reference numbers in box 54 (SA108 notes 2024 to 2025)."
+    ],
+    "caveats": [
+      "Which Income Tax band the gains fall in.",
+      "The 30-day rule around any sale.",
+      "The pooled cost per token type: Proof of Calm lists each purchase and leaves the pooling to the accountant.",
+      "Staking and airdrop income.",
+      "Inherited tokens.",
+      "Negligible value claims.",
+      "Cryptoasset loans and liquidity pools from 6 April 2027, a proposal in Finance Bill 2026-27."
+    ],
+    "summary60": "The UK taxes crypto gains at 18 % or 24 % by income band, after a £3,000 allowance. Selling, swapping, spending, and gifting (except to a spouse or civil partner) are disposals; own-wallet moves are not. No holding exemption. Costs pool per token with same-day and 30-day matching. Self Assessment by 31 January; real time service by 31 December."
+  },
+  "pendingChanges": [
+    {
+      "title": "Cryptoasset loans and liquidity pools: certain transfers into and out of qualifying arrangements, no gain no loss until an economic disposal",
+      "status": "proposed",
+      "effectiveFrom": "2027-04-06",
+      "summary": "Budget 2026 of 28 October 2026, OOTLAR paragraph 1.48: the government will introduce legislation in Finance Bill 2026-27 for cryptoasset loans and liquidity pools. Certain transfers by individuals and trustees into and out of qualifying arrangements would be on a no gain no loss basis until an economic disposal. The change would take effect from 6 April 2027; a proposal until Royal Assent.",
+      "source": {
+        "title": "Budget 2026: Overview of Tax Legislation and Rates (OOTLAR)",
+        "url": "https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/budget-2026-overview-of-tax-legislation-and-rates-ootlar",
+        "publisher": "HM Revenue & Customs",
+        "kind": "authority",
+        "published": "2026-10-28",
+        "accessed": "2026-11-05"
+      }
+    },
+    {
+      "title": "Cryptoasset Reporting Framework (CARF): providers report their users' data to HMRC",
+      "status": "in-force",
+      "effectiveFrom": "2026-01-01",
+      "summary": "UK cryptoasset service providers submit their first report by 31 May 2027, giving details for 1 January 2026 to 31 December 2026. They collect details of all their users and report the details and a summary of the transactions of users tax resident in the UK or another country signed up to CARF rules.",
+      "source": {
+        "title": "Reporting cryptoasset user and transaction data",
+        "url": "https://www.gov.uk/guidance/reporting-cryptoasset-user-and-transaction-data",
+        "publisher": "HM Revenue & Customs",
+        "kind": "authority",
+        "published": "2025-05-14",
+        "accessed": "2026-11-05"
+      }
+    }
+  ],
+  "sources": [
+    {
+      "key": "gb-hmrc-crypto20050",
+      "title": "Cryptoassets Manual CRYPTO20050: Cryptoassets for individuals: which taxes apply",
+      "url": "https://www.gov.uk/hmrc-internal-manuals/cryptoassets-manual/crypto20050",
+      "publisher": "HM Revenue & Customs",
+      "kind": "authority",
+      "published": "2021-03-30",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "gb-hmrc-crypto22100",
+      "title": "Cryptoassets Manual CRYPTO22100: Capital Gains Tax: what is a disposal",
+      "url": "https://www.gov.uk/hmrc-internal-manuals/cryptoassets-manual/crypto22100",
+      "publisher": "HM Revenue & Customs",
+      "kind": "authority",
+      "published": "2021-03-30",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "gb-hmrc-crypto22200",
+      "title": "Cryptoassets Manual CRYPTO22200: Capital Gains Tax: pooling",
+      "url": "https://www.gov.uk/hmrc-internal-manuals/cryptoassets-manual/crypto22200",
+      "publisher": "HM Revenue & Customs",
+      "kind": "authority",
+      "published": "2021-03-30",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "gb-hmrc-crypto21200",
+      "title": "Cryptoassets Manual CRYPTO21200: Income Tax: staking",
+      "url": "https://www.gov.uk/hmrc-internal-manuals/cryptoassets-manual/crypto21200",
+      "publisher": "HM Revenue & Customs",
+      "kind": "authority",
+      "published": "2021-03-30",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "gb-hmrc-crypto21250",
+      "title": "Cryptoassets Manual CRYPTO21250: Income Tax: airdrops",
+      "url": "https://www.gov.uk/hmrc-internal-manuals/cryptoassets-manual/crypto21250",
+      "publisher": "HM Revenue & Customs",
+      "kind": "authority",
+      "published": "2021-03-30",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "gb-hmrc-crypto22500",
+      "title": "Cryptoassets Manual CRYPTO22500: Capital Gains Tax: S24 and negligible value",
+      "url": "https://www.gov.uk/hmrc-internal-manuals/cryptoassets-manual/crypto22500",
+      "publisher": "HM Revenue & Customs",
+      "kind": "authority",
+      "published": "2021-03-30",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "gb-govuk-cgt-rates",
+      "title": "Capital Gains Tax: what you pay it on, rates and allowances (2026 to 2027)",
+      "url": "https://www.gov.uk/capital-gains-tax/rates",
+      "publisher": "HM Revenue & Customs",
+      "kind": "authority",
+      "published": null,
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "gb-govuk-cgt-rates-and-allowances",
+      "title": "Capital Gains Tax rates and allowances (the table by tax year, updated 13 April 2026)",
+      "url": "https://www.gov.uk/guidance/capital-gains-tax-rates-and-allowances",
+      "publisher": "HM Revenue & Customs",
+      "kind": "authority",
+      "published": "2018-06-04",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "gb-govuk-cgt-losses",
+      "title": "Capital Gains Tax: losses",
+      "url": "https://www.gov.uk/capital-gains-tax/losses",
+      "publisher": "HM Revenue & Customs",
+      "kind": "authority",
+      "published": null,
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "gb-govuk-sa-deadlines",
+      "title": "Self Assessment tax returns: deadlines",
+      "url": "https://www.gov.uk/self-assessment-tax-returns/deadlines",
+      "publisher": "HM Revenue & Customs",
+      "kind": "authority",
+      "published": null,
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "gb-govuk-cgt-report-other-gains",
+      "title": "Report and pay your Capital Gains Tax: if you have other capital gains to report (the real time Capital Gains Tax service)",
+      "url": "https://www.gov.uk/report-and-pay-your-capital-gains-tax/if-you-have-other-capital-gains-to-report",
+      "publisher": "HM Revenue & Customs",
+      "kind": "authority",
+      "published": null,
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "gb-hmrc-sa108-notes-2025",
+      "title": "Capital Gains Tax summary notes, tax year 6 April 2024 to 5 April 2025 (SA108 Notes 2025)",
+      "url": "https://assets.publishing.service.gov.uk/media/67e1612564220b68ed6a7009/SA108-Notes-2025.pdf",
+      "publisher": "HM Revenue & Customs",
+      "kind": "authority",
+      "published": null,
+      "accessed": "2026-11-05"
+    }
+  ],
+  "ruleSources": {
+    "holdingRule": "gb-hmrc-crypto22100",
+    "lotRule": "gb-hmrc-crypto22200",
+    "rates": "gb-govuk-cgt-rates",
+    "losses": "gb-govuk-cgt-losses",
+    "reporting": "gb-hmrc-sa108-notes-2025"
+  },
+  "status": {
+    "confidence": "high",
+    "version": 1,
+    "changedOn": "2024-10-30",
+    "changeNotice": null,
+    "lastReviewed": "2026-11-05",
+    "nextReviewDue": "2027-04-06",
+    "reviewedBy": "owner"
+  }
+}

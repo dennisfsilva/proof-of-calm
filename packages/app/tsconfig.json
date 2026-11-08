@@ -1,0 +1,4 @@
+{
+  "extends": "@proofofcalm/config/tsconfig.react.json",
+  "include": ["src", ".storybook/**/*", "vitest.config.ts"]
+}

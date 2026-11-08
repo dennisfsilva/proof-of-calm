@@ -1,0 +1,32 @@
+{
+  "name": "@proofofcalm/config",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Shared configuration: the TypeScript bases, the dependency-cruiser rules and the hosts' Vite factory with its plugins (ADR-0045). Biome and ESLint are root files (ADR-0025); Vitest and Playwright configs live in their packages. Dev-time only.",
+  "type": "module",
+  "exports": {
+    "./tsconfig.base.json": "./tsconfig.base.json",
+    "./tsconfig.react.json": "./tsconfig.react.json",
+    "./vite": "./vite/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@babel/core": "catalog:",
+    "@mdx-js/rollup": "catalog:",
+    "@rolldown/plugin-babel": "catalog:",
+    "@tailwindcss/vite": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "babel-plugin-react-compiler": "catalog:",
+    "icu-minify": "catalog:",
+    "vite": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

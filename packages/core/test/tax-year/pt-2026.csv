@@ -1,0 +1,12 @@
+Header line one
+'=a second line
+
+kind,acquired,coin,venue,units,cost_basis,fee,eligible_from,past_holding_rule,disposed_on,sale_venue,proceeds,disposal_fee,units_estimated
+extra,2025-08-01,BTC,Ledger,0.1,3333.33,3.33,2026-08-01,no,2026-03-01,Bitvavo,6000.00,3.00,no
+extra,2025-08-01,BTC,Ledger,0.1,3333.34,3.34,2026-08-01,no,2026-06-01,Ledger,7000.00,3.50,no
+extra,2025-08-01,BTC,Ledger,0.1,3333.33,3.33,2026-08-01,yes,,,,,no
+dca,2025-10-01,BTC,Bitvavo,0.05,3000.00,1.50,2026-10-01,no,2026-03-01,Bitvavo,3000.00,1.50,no
+held,2026-01-10,BTC,,0.02,,,2027-01-10,no,,,,,no
+held,2026-02-01,BTC,Ledger,0.01,0.00,,2027-02-01,no,,,,,no
+dca,2026-04-01,ETH,,0.05,30.00,,2027-04-01,no,,,,,yes
+,,ETH,,0.02,,,,,2026-02-15,,50.00,0.50,no

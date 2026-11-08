@@ -1,0 +1,155 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "root": true,
+  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true, "defaultBranch": "main" },
+  "files": {
+    "includes": [
+      "**",
+      "!**/out",
+      "!**/coverage",
+      "!**/storybook-static",
+      "!**/playwright-report",
+      "!**/test-results",
+      "!docs/research",
+      "!packages/core/test/golden/fixtures",
+      "!packages/content/rules",
+      "!.claude/settings.json"
+    ]
+  },
+  "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2, "lineWidth": 120, "lineEnding": "lf" },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "jsxQuoteStyle": "double",
+      "semicolons": "always",
+      "trailingCommas": "all",
+      "arrowParentheses": "always"
+    }
+  },
+  "css": { "parser": { "tailwindDirectives": true } },
+  "assist": { "enabled": true, "actions": { "source": { "organizeImports": "on" } } },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended",
+      "a11y": {
+        "noLabelWithoutControl": {
+          "level": "error",
+          "options": { "inputComponents": ["Checkbox", "Switch"] }
+        }
+      },
+      "correctness": {
+        "useExhaustiveDependencies": "off",
+        "useHookAtTopLevel": "off"
+      },
+      "suspicious": {
+        "noExplicitAny": "error",
+        "noConsole": "error",
+        "noFocusedTests": "error",
+        "noSkippedTests": "error"
+      },
+      "style": {
+        "noNonNullAssertion": "error",
+        "noHexColors": "error",
+        "noJsxLiterals": { "level": "error", "options": { "ignoreProps": true } },
+        "useFilenamingConvention": {
+          "level": "error",
+          "options": { "filenameCases": ["kebab-case"], "requireAscii": true }
+        }
+      },
+      "nursery": {
+        "noTailwindRawColors": "error",
+        "useSortedClasses": { "level": "info", "options": { "functions": ["cn", "cva", "clsx"] } }
+      }
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["packages/core/src/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedGlobals": {
+              "level": "error",
+              "options": {
+                "deniedGlobals": {
+                  "Date": "The core never reads the clock or builds Date objects: take a CalendarDate (ADR-0018).",
+                  "fetch": "The core does no I/O (ADR-0016).",
+                  "window": "The core has no DOM (ADR-0016).",
+                  "document": "The core has no DOM (ADR-0016).",
+                  "navigator": "The core has no DOM (ADR-0016).",
+                  "localStorage": "The core does no storage (ADR-0016).",
+                  "sessionStorage": "The core does no storage (ADR-0016).",
+                  "indexedDB": "The core does no storage (ADR-0016).",
+                  "process": "The core reads no environment (ADR-0016).",
+                  "console": "The core returns values; the shell reports (ADR-0016).",
+                  "setTimeout": "The core has no timers (ADR-0016).",
+                  "setInterval": "The core has no timers (ADR-0016)."
+                }
+              }
+            },
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "react",
+                      "react-dom",
+                      "react/*",
+                      "idb",
+                      "zustand",
+                      "use-intl",
+                      "use-intl/*",
+                      "@proofofcalm/*"
+                    ],
+                    "message": "packages/core is pure TypeScript: no framework, no I/O, nothing from the repository (docs/ARCHITECTURE.md)."
+                  }
+                ]
+              }
+            }
+          },
+          "nursery": {
+            "noJsRestrictedProperties": {
+              "level": "error",
+              "options": {
+                "entries": [
+                  {
+                    "object": "Math",
+                    "property": "random",
+                    "message": "The core is deterministic: ids and randomness come from the shell."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/ui/src/styles/**"],
+      "linter": { "rules": { "style": { "noHexColors": "off" } } }
+    },
+    {
+      "includes": ["**/*.test.ts", "**/*.test.tsx", "**/*.stories.tsx", "**/e2e/**", "**/test/**"],
+      "linter": {
+        "rules": {
+          "style": { "noNonNullAssertion": "off", "noJsxLiterals": "off", "noRestrictedGlobals": "off" },
+          "suspicious": { "noConsole": "off" }
+        }
+      }
+    },
+    {
+      "includes": ["tools/**", "packages/content/scripts/**", "**/*.config.ts", "**/*.config.mjs", "**/*.cjs"],
+      "linter": { "rules": { "suspicious": { "noConsole": "off" } } }
+    },
+    {
+      "includes": ["apps/*/app.html", "apps/*/index.html"],
+      "linter": { "enabled": false }
+    },
+    {
+      "includes": ["apps/web/vercel.json"],
+      "formatter": { "enabled": false }
+    }
+  ]
+}

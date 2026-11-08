@@ -1,0 +1,33 @@
+/*
+ * The self-hosted families (src/fonts/README.md; docs/DESIGN.md §5): both hosts and Storybook import
+ * this sheet, and the hosts' build preloads the sans file (packages/config/vite's font preload plugin).
+ */
+@font-face {
+  font-family: "Calm Sans";
+  src: url("../fonts/calm-sans-latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+}
+
+/*
+ * The size-adjusted fallback (ADR-0045 §7): Arial with the metric overrides next/font generated for the
+ * sans on main's last Next build, so the text does not reflow when Calm Sans arrives. Second in
+ * --typeface-text (tokens.css); a test under test/tokens.test.ts holds the four values.
+ */
+@font-face {
+  font-family: "Calm Sans Fallback";
+  src: local("Arial");
+  ascent-override: 101.35%;
+  descent-override: 27.19%;
+  line-gap-override: 0%;
+  size-adjust: 101.13%;
+}
+
+@font-face {
+  font-family: "Calm Mono";
+  src: url("../fonts/calm-mono-latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}

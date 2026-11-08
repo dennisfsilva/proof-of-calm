@@ -1,0 +1,248 @@
+{
+  "schemaVersion": 1,
+  "code": "US",
+  "name": "United States",
+  "currency": "USD",
+  "locales": ["en-US"],
+  "numberFormatLocale": "en-US",
+  "dateFormatLocale": "en-US",
+  "timezones": [
+    "America/New_York",
+    "America/Chicago",
+    "America/Denver",
+    "America/Phoenix",
+    "America/Los_Angeles",
+    "America/Anchorage",
+    "Pacific/Honolulu"
+  ],
+  "taxYear": { "start": "01-01", "end": "12-31" },
+  "filingNote": "Calendar tax year. Form 1040 is due on 15 April of the following year; an automatic six-month extension moves the date to file, not the date to pay.",
+  "computationModel": { "kind": "per-lot" },
+  "holdingRule": { "kind": "years", "years": 1, "effect": "lower-rate" },
+  "holdingRuleOverrides": [],
+  "holdingRuleConditions": [
+    "A swap or a purchase paid in crypto starts a new holding period for the units received (IRS FAQ Q16 and Q29).",
+    "Gifted units keep the giver's holding period when records show it; inherited units are long-term at once (IRS FAQ Q33; IRS Publication 544).",
+    "Federal rate only. Most states tax the gain at their own rates (42 levy an income tax; Tax Foundation, 2026; medium confidence). Confirm your state."
+  ],
+  "lotRule": "specific",
+  "lotScope": "per-venue",
+  "lotRuleNote": "You choose which units you sold when your records identify them and what they cost, kept per account, wallet, or address; otherwise first in, first out (IRS FAQ Q39 to Q41).",
+  "card": {
+    "classification": "Property for federal tax purposes, not currency. Selling, exchanging, or spending units held as a capital asset is a capital gain or loss; rewards, mining, staking, and payment for services are ordinary income (IRS, Digital assets).",
+    "taxableEvents": [
+      {
+        "event": "sale-to-fiat",
+        "taxable": "yes",
+        "note": "Capital gain or loss: the amount received less the adjusted basis, where basis is what you spent in US dollars, fees and commissions included (IRS FAQ Q7 and Q8)."
+      },
+      {
+        "event": "crypto-to-crypto",
+        "taxable": "yes",
+        "note": "Exchanging units held as a capital asset for another digital asset is a capital gain or loss on the units given. The units received take their fair market value at the exchange as basis (IRS FAQ Q16 and Q18)."
+      },
+      {
+        "event": "crypto-to-stablecoin",
+        "taxable": "yes",
+        "note": "A stablecoin is a digital asset (IRS, Digital assets), so the swap is an exchange like any other: gain or loss on the units given (IRS FAQ Q16)."
+      },
+      {
+        "event": "spending",
+        "taxable": "yes",
+        "note": "Paying for goods or services with units held as a capital asset exchanges a capital asset: gain or loss between the fair market value of what you received and your adjusted basis (IRS FAQ Q14 to Q17)."
+      },
+      {
+        "event": "own-wallet-transfer",
+        "taxable": "no",
+        "note": "Moving units between wallets or accounts you own or control is not a transaction, even if a platform sends an information return. A transaction fee paid in digital assets is one (IRS, Digital assets; FAQ Q38)."
+      },
+      {
+        "event": "gift-or-inheritance",
+        "taxable": "depends",
+        "note": "A gift received is not income; a later gain uses the giver's basis, a loss the lesser of that basis or the value at the gift (FAQ Q31, Q32). Inherited units are long-term at once, generally with the value at death as basis (Pub. 544, 551)."
+      },
+      {
+        "event": "staking-or-airdrop",
+        "taxable": "yes",
+        "note": "Mining and staking rewards are reported as income on Form 1040 Schedule 1 (IRS, Digital assets). An airdrop after a hard fork is ordinary income at its fair market value when received, which becomes the basis of the units (FAQ Q24 and Q25)."
+      }
+    ],
+    "rates": [
+      {
+        "label": "Long-term capital gains (held more than one year)",
+        "value": "0 %, 15 % or 20 % by taxable income",
+        "validFrom": "2026-01-01",
+        "validTo": null,
+        "note": "2026 taxable income: 0 % up to USD 49,450 single or USD 98,900 joint; 15 % up to USD 545,500 or USD 613,700; other filing statuses differ (Rev. Proc. 2025-32 §4.03). 20 % above; collectibles up to 28 % (Topic 409)."
+      },
+      {
+        "label": "Short-term capital gains (held one year or less)",
+        "value": "10 % to 37 % by bracket, as ordinary income",
+        "validFrom": "2026-01-01",
+        "validTo": null,
+        "note": "Taxed with your other income at the graduated rates (Topic 409). For 2026 the 37 % bracket begins above USD 640,600 of taxable income for a single filer and USD 768,700 for a joint return (Rev. Proc. 2025-32 §4.01)."
+      },
+      {
+        "label": "Net investment income tax",
+        "value": "3.8 %",
+        "validFrom": "2026-01-01",
+        "validTo": null,
+        "note": "On the lesser of net investment income or modified adjusted gross income above USD 200,000 for a single filer or head of household, USD 250,000 for a joint return and USD 125,000 married filing separately (Topic 559)."
+      }
+    ],
+    "allowances": [
+      "No allowance specific to digital assets: every taxable transaction is reported, whatever the amount and whether or not a statement arrives (IRS FAQ Q42).",
+      "Fees, commissions, and other acquisition costs paid in US dollars are part of the basis (IRS FAQ Q8).",
+      "A net capital loss lowers other income by up to USD 3,000 a year, USD 1,500 if married filing separately (Topic 409)."
+    ],
+    "holdingRuleText": "Held more than one year before the sale or exchange, a gain or loss is long-term and the lower capital gains rates apply. Held one year or less, it is short-term and taxed as ordinary income. The holding period begins on the day after you acquired the units and ends on the day you sell or exchange them (IRS FAQ Q6). A unit bought on 15 March 2026 is long-term when sold from 16 March 2027.",
+    "lotRuleText": "You choose which units you sold when your records identify them and what they cost, kept per account, wallet, or address; otherwise first in, first out (IRS FAQ Q39 to Q41).",
+    "losses": "Short- and long-term gains and losses are netted; a net loss lowers other income by the lesser of USD 3,000 (USD 1,500 if married filing separately) or the total net loss, and the rest carries forward to later years (Topic 409).",
+    "reporting": [
+      "Form 1040 asks every filer whether they received, sold, exchanged, or otherwise disposed of a digital asset during the year (IRS, Digital assets).",
+      "Form 8949, Sales and Other Dispositions of Capital Assets, for each sale, exchange, or other disposal of units held as a capital asset (IRS, Digital assets); the totals go on Schedule D (Topic 409).",
+      "Form 1040 Schedule 1 for income from forks, staking, and mining; Schedule C when the activity is a business (IRS, Digital assets).",
+      "Form 709 when you gave digital assets as a gift (IRS, Digital assets).",
+      "Brokers that take possession of your units report gross proceeds of sales from 1 January 2025 and the basis of certain sales from 1 January 2026 on Form 1099-DA. Non-custodial brokers are not covered (IRS, Digital assets).",
+      "A broker must report basis only for units acquired after 2025 in the custodial account that sells them; for units transferred in, basis reporting is voluntary and your own records give it (Instructions for Form 1099-DA, 2026)."
+    ],
+    "caveats": [
+      "State income tax: 42 states levy one, with top rates from 2.5 % to 13.3 %; eight levy none, and Washington taxes capital gains only (Tax Foundation, 2026; medium confidence).",
+      "Units held with a broker: your own books and records, or a standing order kept there, identify the units sold until 31 December 2026 (Notice 2026-20 §3.03 and §4.02). The relief ends with that date (Notice 2026-20 §5).",
+      "An NFT is a collectible when the right or asset behind it is one (Notice 2023-27); long-term gains on collectibles are taxed at up to 28 % (Topic 409).",
+      "Pending federal bills on digital asset taxation.",
+      "A Form 1099-DA without basis for units transferred in.",
+      "Staking and mining income, and whether the activity is a business.",
+      "Gifts and inheritances.",
+      "The net investment income tax above its thresholds."
+    ],
+    "summary60": "The US taxes crypto as property. Selling, swapping or spending is a taxable event; moving between your own wallets is not. Held more than one year, gains use the lower long-term rates; one year or less, ordinary rates up to 37 %. Sales match purchases per wallet. Losses offset gains, then USD 3,000 of income a year. Federal rules only."
+  },
+  "pendingChanges": [],
+  "sources": [
+    {
+      "key": "us-irs-digital-assets",
+      "title": "Digital assets",
+      "url": "https://www.irs.gov/filing/digital-assets",
+      "publisher": "Internal Revenue Service",
+      "kind": "authority",
+      "published": null,
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "us-irs-faq-virtual-currency",
+      "title": "Frequently asked questions on virtual currency transactions",
+      "url": "https://www.irs.gov/individuals/international-taxpayers/frequently-asked-questions-on-virtual-currency-transactions",
+      "publisher": "Internal Revenue Service",
+      "kind": "authority",
+      "published": null,
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "us-irs-topic-409",
+      "title": "Topic no. 409, Capital gains and losses",
+      "url": "https://www.irs.gov/taxtopics/tc409",
+      "publisher": "Internal Revenue Service",
+      "kind": "authority",
+      "published": null,
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "us-irs-rp-2025-32",
+      "title": "Rev. Proc. 2025-32, 2026 adjusted items",
+      "url": "https://www.irs.gov/pub/irs-drop/rp-25-32.pdf",
+      "publisher": "Internal Revenue Service",
+      "kind": "authority",
+      "published": null,
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "us-irs-1099da-instructions",
+      "title": "Instructions for Form 1099-DA (2026)",
+      "url": "https://www.irs.gov/instructions/i1099da",
+      "publisher": "Internal Revenue Service",
+      "kind": "authority",
+      "published": null,
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "us-irs-when-to-file",
+      "title": "When to file",
+      "url": "https://www.irs.gov/filing/individuals/when-to-file",
+      "publisher": "Internal Revenue Service",
+      "kind": "authority",
+      "published": null,
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "us-irs-topic-559",
+      "title": "Topic no. 559, Net investment income tax",
+      "url": "https://www.irs.gov/taxtopics/tc559",
+      "publisher": "Internal Revenue Service",
+      "kind": "authority",
+      "published": null,
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "us-irs-pub-544",
+      "title": "Publication 544 (2025), Sales and Other Dispositions of Assets",
+      "url": "https://www.irs.gov/publications/p544",
+      "publisher": "Internal Revenue Service",
+      "kind": "authority",
+      "published": null,
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "us-irs-pub-551",
+      "title": "Publication 551 (12/2025), Basis of Assets",
+      "url": "https://www.irs.gov/publications/p551",
+      "publisher": "Internal Revenue Service",
+      "kind": "authority",
+      "published": null,
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "us-irs-notice-2026-20",
+      "title": "Notice 2026-20, Extension of temporary relief under section 1.1012-1(j)(3)(ii)",
+      "url": "https://www.irs.gov/pub/irs-drop/n-26-20.pdf",
+      "publisher": "Internal Revenue Service",
+      "kind": "authority",
+      "published": null,
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "us-irs-notice-2023-27",
+      "title": "Notice 2023-27, Treatment of certain nonfungible tokens as collectibles",
+      "url": "https://www.irs.gov/pub/irs-drop/n-23-27.pdf",
+      "publisher": "Internal Revenue Service",
+      "kind": "authority",
+      "published": null,
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "us-taxfoundation-state-rates",
+      "title": "State individual income tax rates and brackets, 2026",
+      "url": "https://taxfoundation.org/data/all/state/state-income-tax-rates-2026/",
+      "publisher": "Tax Foundation",
+      "kind": "secondary",
+      "published": "2026-02-17",
+      "accessed": "2026-11-05"
+    }
+  ],
+  "ruleSources": {
+    "holdingRule": "us-irs-faq-virtual-currency",
+    "lotRule": "us-irs-faq-virtual-currency",
+    "rates": "us-irs-rp-2025-32",
+    "losses": "us-irs-topic-409",
+    "reporting": "us-irs-digital-assets"
+  },
+  "status": {
+    "confidence": "high",
+    "version": 1,
+    "changedOn": "2026-01-01",
+    "changeNotice": null,
+    "lastReviewed": "2026-11-05",
+    "nextReviewDue": "2027-01-01",
+    "reviewedBy": "owner"
+  }
+}

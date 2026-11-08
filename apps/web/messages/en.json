@@ -1,0 +1,58 @@
+{
+  "holding": {
+    "body": "A planner and log for buying crypto on a fixed monthly schedule. It is not open yet."
+  },
+  "site": {
+    "footer": "Data and tools, not advice. Crypto-assets can lose all their value.",
+    "risk": "Read the risk disclosure",
+    "legal": "Legal information",
+    "home": "Home"
+  },
+  "legal": {
+    "placeholder": "This page is published in full before {product} opens. Until then the service is not available and collects nothing.",
+    "terms": {
+      "title": "Terms of use",
+      "lead": "{product} is software for recording and visualising a plan you design."
+    },
+    "privacy": {
+      "title": "Privacy notice",
+      "lead": "{product} collects only what the service you ask for needs, and never sells or shares it for advertising."
+    },
+    "risk": {
+      "title": "Risk disclosure",
+      "lead": "{product} is software for a plan you design. It gives no financial, investment or tax advice and never tells anyone what, when or where to buy. Crypto-assets are highly volatile; you could lose all the money you put in. Only use money you can afford to lose."
+    },
+    "cookies": {
+      "title": "Cookie-free statement",
+      "lead": "{product} sets no advertising or analytics cookies, loads no third-party scripts, and does no fingerprinting.",
+      "storesOffline": "Your browser keeps your plan, your entries, and the prices fetched for your coins on this device, so the app works offline. It keeps the app's files, so the app opens offline. It keeps the pages you opened for up to 7 days and the latest price data for 24 hours, so they show offline. It keeps the date each copy was saved, so copies past their limit are cleared.",
+      "storesSettings": "Your browser also keeps your display settings (theme, reduced motion, chart range, and the Log's view), so they stay as you chose them. It keeps the dates of your last JSON backup and your last change, so the app can remind you to export a copy. It keeps the banners you dismissed, so they stay hidden. It keeps the date of your last annual review, so the next review shows when it is due.",
+      "storesRecords": "Your browser keeps a record of the entries you deleted on this device, so an import with Add missing entries only cannot bring them back. It keeps the plan and entries that Replace everything removed, in full and marked as deleted, so that import cannot bring the entries back either. These records stay until you choose Delete everything in Settings or clear this site's data in your browser.",
+      "storesSync": "It keeps a random identifier for this device, so your changes apply in the order you made them. It does not leave this browser: no request and no backup carries it. It keeps a copy of each change to your plan and entries, for syncing between devices, which the app does not offer. It keeps any stored data that failed its check when read, set aside instead of deleted, so a failed check erases nothing. Delete everything in Settings clears these too.",
+      "storesTab": "Your browser keeps form drafts until the tab closes, so what you typed comes back when you return to the form. After an update, if part of the app fails to load, the tab keeps a short note until it closes, so it reloads only once."
+    },
+    "contact": {
+      "title": "Contact",
+      "lead": "The full contact details and the legal notice are published before {product} opens.",
+      "securityTitle": "Security",
+      "security": "Report a security issue to the address in security.txt. You get an acknowledgement within 72 hours. Good-faith research does not lead to legal action when it accesses no data beyond what proves the issue, does not disrupt the service, and is not made public before a fix. Credit on request.",
+      "securityFile": "security.txt"
+    }
+  },
+  "unavailable": {
+    "title": "Not available in the United Kingdom",
+    "body": "{product} is not available in the United Kingdom yet.",
+    "legal": "Legal information"
+  },
+  "manifest": {
+    "description": "A planner and log for buying crypto on a fixed monthly schedule."
+  },
+  "offline": {
+    "title": "Offline",
+    "body": "This page needs a connection. Today and the pages you have opened before work offline."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "There is no page at this address. The home page and the legal pages are linked below."
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "code": "ES",
+  "name": "Spain",
+  "currency": "EUR",
+  "locales": ["es-ES", "ca-ES", "gl-ES", "eu-ES"],
+  "numberFormatLocale": "es-ES",
+  "dateFormatLocale": "es-ES",
+  "timezones": ["Europe/Madrid", "Atlantic/Canary", "Africa/Ceuta"],
+  "taxYear": {
+    "start": "01-01",
+    "end": "12-31"
+  },
+  "computationModel": {
+    "kind": "per-lot"
+  },
+  "holdingRule": {
+    "kind": "none"
+  },
+  "holdingRuleOverrides": [],
+  "holdingRuleConditions": [],
+  "lotRule": "fifo",
+  "lotScope": "global",
+  "status": {
+    "version": 1,
+    "changedOn": "2025-01-01",
+    "changeNotice": null,
+    "lastReviewed": "2026-11-05",
+    "nextReviewDue": "2027-11-05"
+  }
+}

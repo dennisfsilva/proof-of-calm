@@ -1,0 +1,30 @@
+{
+  "code": "XX",
+  "name": "Other country",
+  "currency": "EUR",
+  "locales": ["und"],
+  "numberFormatLocale": "und",
+  "dateFormatLocale": "und",
+  "timezones": ["UTC"],
+  "taxYear": {
+    "start": "01-01",
+    "end": "12-31"
+  },
+  "computationModel": {
+    "kind": "per-lot"
+  },
+  "holdingRule": {
+    "kind": "none"
+  },
+  "holdingRuleOverrides": [],
+  "holdingRuleConditions": [],
+  "lotRule": "unspecified",
+  "lotScope": "global",
+  "status": {
+    "version": 1,
+    "changedOn": "2026-10-17",
+    "changeNotice": null,
+    "lastReviewed": "2026-10-17",
+    "nextReviewDue": "2027-10-17"
+  }
+}

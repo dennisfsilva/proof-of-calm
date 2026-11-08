@@ -1,0 +1,47 @@
+{
+  "skip": "Skip to content",
+  "why": {
+    "link": "Why?",
+    "failed": "This explanation could not be loaded. Check your connection, then reload the page."
+  },
+  "holdingConditions": {
+    "more": "Show {count} more {count, plural, one {condition} other {conditions}}"
+  },
+  "countryLine": {
+    "plain": "Reviewed on {date} · general information, not advice",
+    "generic": "Reviewed on {date}: the general profile, not a rule for your country · general information, not advice",
+    "sources": "Reviewed on {date} · general information, not advice · <sources>Sources</sources>",
+    "underReview": "Not reviewed since {date} · general information, not advice"
+  },
+  "nav": {
+    "label": "Main",
+    "today": "Today",
+    "portfolio": "Portfolio",
+    "log": "Log",
+    "learn": "Learn"
+  },
+  "settings": "Settings",
+  "toast": {
+    "close": "Close"
+  },
+  "update": {
+    "title": "A new version is ready.",
+    "reload": "Reload"
+  },
+  "failure": {
+    "title": "Your data could not be opened.",
+    "retry": "Try again"
+  },
+  "newer": {
+    "title": "Your plan was saved by a newer version of {product}.",
+    "line": "This version cannot open it, so it stays as it was saved. Reload the page to open it in the newer version.",
+    "again": "If this screen comes back after the reload, your plan stays on this device, unread; a newer version of {product} can open it.",
+    "reload": "Reload",
+    "entries": "{count, plural, one {{figure} entry was} other {{figure} entries were}} saved by a newer version of {product}, so {count, plural, one {it is} other {they are}} not shown here. Reload the page to see {count, plural, one {it} other {them}}."
+  },
+  "screenError": {
+    "title": "This screen could not be loaded.",
+    "line": "Check your connection, then reload the page.",
+    "reload": "Reload"
+  }
+}

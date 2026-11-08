@@ -1,0 +1,33 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
+  "rules": {
+    // Every catalog entry is in use since 2026-10-26: a package adds its pin with its first use
+    // (`knip --fix --fix-type catalog` prunes the rest). An unused entry fails `pnpm lint:dead`
+    // (ADR-0005, Deviations).
+    "catalog": "error"
+  },
+  "workspaces": {
+    "apps/web": {
+      // The document, the prerender entry, the function and its Vercel entry, the worker (esbuild builds it
+      // by path), the kill switch the Next-era registration fetches and the build scripts: nothing imports
+      // them (ADR-0045 §1, §2, §5, §6).
+      "entry": [
+        "app.html",
+        "src/site/render.tsx",
+        "server/api.ts",
+        "api/index.mjs",
+        "src/sw.ts",
+        "public/serwist/sw.js",
+        "scripts/*.ts"
+      ]
+    },
+    "apps/mobile": {
+      "entry": ["index.html", "scripts/*.ts"],
+      // Used only by src/app.css (@import "@proofofcalm/ui/globals.css" and "@proofofcalm/ui/styles/fonts.css"), which knip does not read.
+      "ignoreDependencies": ["@proofofcalm/ui"]
+    },
+    "tools": {
+      "entry": ["**/*.ts"]
+    }
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "ci": {
+    "collect": {
+      "startServerCommand": "node ../../tools/serve/vercel-local.ts --port 3000",
+      "startServerReadyPattern": "Ready on",
+      "startServerReadyTimeout": 60000,
+      "url": [
+        "http://localhost:3000/today",
+        "http://localhost:3000/portfolio",
+        "http://localhost:3000/log",
+        "http://localhost:3000/plan",
+        "http://localhost:3000/"
+      ],
+      "numberOfRuns": 5,
+      "puppeteerScript": "node_modules/.cache/lighthouse/seed.cjs",
+      "puppeteerLaunchOptions": {
+        "args": ["--no-sandbox"]
+      },
+      "settings": {
+        "clearStorageTypes": ["file_systems", "shader_cache", "service_workers", "cache_storage"]
+      }
+    },
+    "assert": {
+      "assertMatrix": [
+        {
+          "matchingUrlPattern": "/today$",
+          "aggregationMethod": "median",
+          "assertions": {
+            "categories:performance": ["warn", { "minScore": 0.95 }],
+            "categories:accessibility": ["error", { "minScore": 1 }],
+            "resource-summary:script:size": ["error", { "maxNumericValue": 163840 }],
+            "total-blocking-time": ["warn", { "maxNumericValue": 200 }],
+            "largest-contentful-paint": ["warn", { "maxNumericValue": 2500 }],
+            "cumulative-layout-shift": ["error", { "maxNumericValue": 0.1 }],
+            "errors-in-console": ["error", { "maxLength": 0 }]
+          }
+        },
+        {
+          "matchingUrlPattern": "/portfolio$",
+          "aggregationMethod": "median",
+          "assertions": {
+            "categories:performance": ["warn", { "minScore": 0.95 }],
+            "categories:accessibility": ["error", { "minScore": 1 }],
+            "total-blocking-time": ["warn", { "maxNumericValue": 200 }],
+            "largest-contentful-paint": ["warn", { "maxNumericValue": 2500 }],
+            "cumulative-layout-shift": ["error", { "maxNumericValue": 0.1 }],
+            "errors-in-console": ["error", { "maxLength": 0 }]
+          }
+        },
+        {
+          "matchingUrlPattern": "/log$",
+          "aggregationMethod": "median",
+          "assertions": {
+            "categories:performance": ["warn", { "minScore": 0.95 }],
+            "categories:accessibility": ["error", { "minScore": 1 }],
+            "total-blocking-time": ["warn", { "maxNumericValue": 200 }],
+            "largest-contentful-paint": ["warn", { "maxNumericValue": 2500 }],
+            "cumulative-layout-shift": ["error", { "maxNumericValue": 0.1 }],
+            "errors-in-console": ["error", { "maxLength": 0 }]
+          }
+        },
+        {
+          "matchingUrlPattern": "/plan$",
+          "aggregationMethod": "median",
+          "assertions": {
+            "categories:performance": ["warn", { "minScore": 0.95 }],
+            "categories:accessibility": ["error", { "minScore": 1 }],
+            "total-blocking-time": ["warn", { "maxNumericValue": 200 }],
+            "largest-contentful-paint": ["warn", { "maxNumericValue": 2500 }],
+            "cumulative-layout-shift": ["error", { "maxNumericValue": 0.1 }],
+            "errors-in-console": ["error", { "maxLength": 0 }]
+          }
+        },
+        {
+          "matchingUrlPattern": "://[^/]+/$",
+          "aggregationMethod": "median",
+          "assertions": {
+            "categories:performance": ["error", { "minScore": 0.95 }],
+            "categories:accessibility": ["error", { "minScore": 1 }],
+            "errors-in-console": ["error", { "maxLength": 0 }]
+          }
+        }
+      ]
+    },
+    "upload": {
+      "target": "filesystem",
+      "outputDir": ".lighthouseci"
+    }
+  }
+}

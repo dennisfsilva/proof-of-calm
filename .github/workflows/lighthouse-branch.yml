@@ -1,0 +1,59 @@
+# The local Lighthouse run on a branch, before its merge: ci.yml's lighthouse job, which runs on push to
+# main and never on a pull request, with the same steps (tools/lighthouse/workflows.test.ts holds them
+# equal). By hand, `gh workflow run lighthouse-branch.yml --ref <branch>`, and by itself on a pull request
+# that changes this file, which is how a change to it is tried before the merge (ADR-0046, deviation of
+# 2026-10-27). Its own workflow, not a dispatch of ci.yml: that ran the whole gate again, and skipping
+# the other jobs there would post skipped checks named like the required ones on the branch's commit,
+# where a ruleset may read them in place of the pull request's results (#194).
+name: Lighthouse on a branch
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths: ['.github/workflows/lighthouse-branch.yml']
+
+permissions: {}
+
+concurrency:
+  group: lighthouse-branch-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TURBO_TELEMETRY_DISABLED: '1'
+  STORYBOOK_DISABLE_TELEMETRY: '1'
+
+jobs:
+  lighthouse:
+    name: lighthouse
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build the web host
+        run: pnpm --filter @proofofcalm/web build
+      # Against the production build behind the brotli proxy on every push and dispatch; lighthouse-vercel.yml
+      # runs the same assertions, every one at error, against production's deployment and a dispatched preview (docs/ENGINEERING.md §4).
+      - name: Lighthouse CI with the budgets
+        # The seed's puppeteer-core finds no Chrome by itself (lighthouse-vercel.yml says why).
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
+        run: pnpm --filter @proofofcalm/web lighthouse
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: lighthouse
+          path: apps/web/.lighthouseci
+          # The reports live in a dot-folder, which upload-artifact skips unless asked.
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14

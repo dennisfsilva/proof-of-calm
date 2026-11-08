@@ -1,0 +1,5 @@
+# The owner, for everything. GitHub requests their review on pull requests that others open, such as
+# the content review agent's (M2); the ruleset `main` does not require it (docs/OWNER-SETUP.md §1).
+# Content's gate is CI, which fails any profile or template still at reviewedBy: agent-draft.
+* @dennisfsilva
+/packages/content/ @dennisfsilva

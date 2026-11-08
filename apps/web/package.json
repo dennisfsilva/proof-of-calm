@@ -1,0 +1,46 @@
+{
+  "name": "@proofofcalm/web",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The Vite host for the web and the PWA: the app shell, the prerendered site pages, the API function, the worker, e2e.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "node scripts/build.ts",
+    "vercel-build": "node scripts/bundle-api.ts",
+    "preview": "node scripts/build.ts && node ../../tools/serve/vercel-local.ts",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.sw.json",
+    "lint": "biome check . && eslint .",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "lighthouse": "pnpm run lighthouse:seed && lhci autorun --config=lighthouserc.json",
+    "lighthouse:seed": "esbuild lighthouse/seed.ts --bundle --platform=node --format=cjs --log-level=warning --footer:js=module.exports=module.exports.default --outfile=node_modules/.cache/lighthouse/seed.cjs"
+  },
+  "dependencies": {
+    "@proofofcalm/app": "workspace:*",
+    "@proofofcalm/content": "workspace:*",
+    "@proofofcalm/core": "workspace:*",
+    "@proofofcalm/ui": "workspace:*",
+    "@upstash/redis": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "server-only": "catalog:",
+    "use-intl": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "catalog:",
+    "@lhci/cli": "catalog:",
+    "@playwright/test": "catalog:",
+    "@proofofcalm/config": "workspace:*",
+    "@serwist/build": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "esbuild": "catalog:",
+    "serwist": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

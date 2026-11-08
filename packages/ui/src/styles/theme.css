@@ -1,0 +1,139 @@
+/*
+ * Tailwind's theme, made of the tokens in tokens.css (docs/DESIGN.md §3). Tailwind's own palette,
+ * radii, shadows, fonts, type scale and easings are cleared, so a utility can only name a token and a
+ * raw colour such as `bg-red-500` does not exist. shadcn's names are mapped too, so a restyled
+ * component keeps its vocabulary; `primary` is the accent fill with on-accent text.
+ */
+@theme inline {
+  --color-*: initial;
+
+  /* shadcn's names */
+  --color-background: var(--background);
+  --color-foreground: var(--ink);
+  --color-card: var(--surface);
+  --color-card-foreground: var(--ink);
+  --color-popover: var(--overlay);
+  --color-popover-foreground: var(--ink);
+  --color-primary: var(--accent);
+  --color-primary-foreground: var(--on-accent);
+  --color-secondary: var(--surface);
+  --color-secondary-foreground: var(--ink);
+  --color-muted: var(--surface-2);
+  --color-muted-foreground: var(--ink-2);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--on-accent);
+  --color-destructive: var(--negative);
+  --color-border: var(--line);
+  --color-input: var(--line-2);
+  --color-ring: var(--focus);
+
+  /* Our names */
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-line-2: var(--line-2);
+  --color-on-accent: var(--on-accent);
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
+  --color-focus: var(--focus);
+  --color-overlay: var(--overlay);
+  --color-overlay-border: var(--overlay-border);
+  --color-scrim: var(--scrim);
+  --color-coin-btc: var(--coin-btc);
+  --color-coin-eth: var(--coin-eth);
+  --color-coin-sol: var(--coin-sol);
+  --color-coin-link: var(--coin-link);
+  --color-coin-magenta: var(--coin-magenta);
+  --color-coin-purple: var(--coin-purple);
+  --color-coin-olive: var(--coin-olive);
+  --color-coin-rose: var(--coin-rose);
+  --color-coin-brown: var(--coin-brown);
+  --color-coin-steel: var(--coin-steel);
+  --color-coin-other: var(--coin-other);
+
+  --radius-*: initial;
+  --radius-sm: var(--corner-sm);
+  --radius-md: var(--corner-md);
+  --radius-lg: var(--corner-lg);
+  --radius-full: var(--corner-full);
+
+  --shadow-*: initial;
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
+  --text-shadow-*: initial;
+  --shadow-overlay: var(--overlay-shadow);
+
+  --text-*: initial;
+  --text-12: var(--type-12);
+  --text-12--line-height: var(--type-12-leading);
+  --text-13: var(--type-13);
+  --text-13--line-height: var(--type-13-leading);
+  --text-14: var(--type-14);
+  --text-14--line-height: var(--type-14-leading);
+  --text-16: var(--type-16);
+  --text-16--line-height: var(--type-16-leading);
+  --text-18: var(--type-18);
+  --text-18--line-height: var(--type-18-leading);
+  --text-20: var(--type-20);
+  --text-20--line-height: var(--type-20-leading);
+  --text-24: var(--type-24);
+  --text-24--line-height: var(--type-24-leading);
+  --text-28: var(--type-28);
+  --text-28--line-height: var(--type-28-leading);
+  --text-32: var(--type-32);
+  --text-32--line-height: var(--type-32-leading);
+  --text-40: var(--type-40);
+  --text-40--line-height: var(--type-40-leading);
+
+  /* The families are set in the block below; Plex is loaded from 400 to 600, so there is no bold. */
+  --font-*: initial;
+  --font-weight-*: initial;
+  --font-weight-normal: var(--weight-regular);
+  --font-weight-medium: var(--weight-medium);
+  --font-weight-semibold: var(--weight-semibold);
+
+  --tracking-*: initial;
+  --tracking-heading: var(--heading-tracking);
+
+  --ease-*: initial;
+  --ease-enter: var(--easing-enter);
+  --ease-exit: var(--easing-exit);
+  --default-transition-duration: var(--duration-fast);
+  --default-transition-timing-function: var(--easing-enter);
+
+  --spacing: var(--space-unit);
+  --spacing-inset-sm: var(--inset-sm);
+  --spacing-inset: var(--inset);
+  --spacing-inset-lg: var(--inset-lg);
+  --spacing-stack-xs: var(--stack-xs);
+  --spacing-stack-sm: var(--stack-sm);
+  --spacing-stack-md: var(--stack-md);
+  --spacing-stack-lg: var(--stack-lg);
+  --spacing-stack-xl: var(--stack-xl);
+  --spacing-gutter: var(--gutter);
+  --spacing-target: var(--target);
+  --spacing-target-gap: var(--target-gap);
+  --spacing-row: var(--row);
+  --spacing-chart-hit: var(--chart-hit);
+
+  --container-reading: var(--measure-reading);
+  --container-table: var(--measure-table);
+}
+
+/*
+ * Not inline: utilities read var(--font-sans), so a host that sets --font-sans on <html> takes over
+ * from the stacks in tokens.css without another rule.
+ */
+@theme {
+  --font-sans: var(--typeface-text);
+  --font-mono: var(--typeface-mono);
+}
+
+/* shadcn's base radius, for any vendor class that still reads it. */
+:root {
+  --radius: var(--corner-lg);
+}

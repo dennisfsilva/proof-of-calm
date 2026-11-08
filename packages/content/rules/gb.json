@@ -1,0 +1,30 @@
+{
+  "code": "GB",
+  "name": "United Kingdom",
+  "currency": "GBP",
+  "locales": ["en-GB", "cy-GB"],
+  "numberFormatLocale": "en-GB",
+  "dateFormatLocale": "en-GB",
+  "timezones": ["Europe/London"],
+  "taxYear": {
+    "start": "04-06",
+    "end": "04-05"
+  },
+  "computationModel": {
+    "kind": "per-lot"
+  },
+  "holdingRule": {
+    "kind": "none"
+  },
+  "holdingRuleOverrides": [],
+  "holdingRuleConditions": [],
+  "lotRule": "pooled",
+  "lotScope": "global",
+  "status": {
+    "version": 1,
+    "changedOn": "2024-10-30",
+    "changeNotice": null,
+    "lastReviewed": "2026-11-05",
+    "nextReviewDue": "2027-04-06"
+  }
+}

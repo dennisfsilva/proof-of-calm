@@ -1,0 +1,110 @@
+{
+  "title": "Log",
+  "table": {
+    "entry": "Entry",
+    "amount": "Amount"
+  },
+  "kind": {
+    "dca": "Monthly buy",
+    "lump": "Starting amount",
+    "extra": "Extra buy",
+    "sell": "Sale",
+    "held": "Coins added"
+  },
+  "month": {
+    "bought": "bought {amount}",
+    "sold": "sold {amount}"
+  },
+  "skip": {
+    "line": "Skipped",
+    "lineWithNote": "Skipped · {note}",
+    "title": "Skip {month}",
+    "note": "Note (optional)",
+    "placeholder": "e.g. car repair",
+    "done": "{month} skipped.",
+    "alreadySkipped": "{month} is already skipped."
+  },
+  "row": {
+    "item": "{units} for {amount}",
+    "estimate": "{units} (estimated) for {amount}",
+    "fee": "Fee {amount}",
+    "edit": "Edit entry",
+    "delete": "Delete entry",
+    "deleted": "Entry deleted.",
+    "undo": "Undo",
+    "notRestored": "{reason, select, skipped {{month} was skipped after you deleted this entry, so it stays deleted.} other {{month} was recorded after you deleted this entry, so it stays deleted.}}",
+    "notRestoredReplaced": "A backup replaced your plan after you deleted this entry, so it stays deleted.",
+    "notRestoredSold": "Your {coin} entries changed after you deleted this sale, so it stays deleted.",
+    "notRestoredFull": "Restoring this entry would take the plan past the {max} entries a plan holds, so it stays deleted.",
+    "noCost": "Cost unknown",
+    "notDeleted": "This purchase covers a later {coin} sale, so it stays. Change or delete the sale first.",
+    "failed": "The change could not be saved. Try again."
+  },
+  "holding": {
+    "exempt": "Tax-free from {date}",
+    "lowerRate": "Long-term rate from {date}",
+    "note": "Computed from your dates, not tax advice"
+  },
+  "showAll": "Show all {count} entries",
+  "empty": {
+    "noPlan": "No entries yet. Set up a plan or import a file.",
+    "firstBuy": "No entries yet. Your first buy day is {date}.",
+    "firstBuyPast": "No entries yet. Your first buy day was {date}."
+  },
+  "form": {
+    "title": {
+      "dca": "Log the monthly buy",
+      "lump": "Log the starting amount",
+      "extra": "Log an extra buy",
+      "sell": "Log a sale",
+      "held": "Log coins you already have",
+      "edit": "Edit the entry"
+    },
+    "kind": {
+      "label": "Type of transaction"
+    },
+    "date": "Date",
+    "dateInvalid": "Choose a full date: day, month, and year.",
+    "slot": "For {month}",
+    "amount": "{coin} paid ({currency})",
+    "units": "{coin} received (units)",
+    "sold": "{coin} sold (units)",
+    "received": "Received for {coin} ({currency})",
+    "price": "{coin} price ({currency})",
+    "cost": "{coin} cost ({currency}, if known)",
+    "costHint": "Leave it empty if you do not know the cost: Invested, the average cost, and the P/L then leave these units out. Type 0 if you paid nothing.",
+    "heldDate": "The day you bought or received them.{rule, select, none {} other { If you are not sure, the latest possible day never starts a holding rule too early.}} The value chart counts the coins from that day.",
+    "hint": "Type two of the three; the form fills the third.",
+    "estimateHint": "Bought as planned filled in these units from the day's price. Any fee or venue it copied came from your latest purchase or sale that recorded one. Type the units from your exchange's confirmation.",
+    "earlierDate": "The price the form filled in does not apply to an earlier date. Type what you paid and the units received, as your exchange's confirmation shows them.",
+    "fee": "Fee ({currency}, optional)",
+    "details": "Venue and note",
+    "addNote": "Add a note",
+    "venue": "Venue (optional)",
+    "note": "Note (optional)",
+    "save": "Save",
+    "saleWarning": {
+      "exempt": "{share, select, none {None of the {sold} sold{at, select, venue { at {venue}} unnamed { with no venue} other {}} is past the holding rule on {date}. It may be taxed.} other {Only {eligible} of the {sold} sold{at, select, venue { at {venue}} unnamed { with no venue} other {}} are past the holding rule on {date}. The rest may be taxed.}}",
+      "lowerRate": "{share, select, none {None of the {sold} sold{at, select, venue { at {venue}} unnamed { with no venue} other {}} is past the holding rule on {date}. It may be taxed at the short-term rate.} other {Only {eligible} of the {sold} sold{at, select, venue { at {venue}} unnamed { with no venue} other {}} are past the holding rule on {date}. The rest may be taxed at the short-term rate.}}"
+    },
+    "coversSale": "This change leaves a later {coin} sale without the purchases that cover it. Change or delete the sale first.",
+    "close": "Close",
+    "saved": "Entry saved.",
+    "deleted": "This entry was deleted in another browser tab, so the change was not saved.",
+    "planDeleted": "The plan was deleted in another browser tab, so this entry was not saved."
+  },
+  "record": "Record a purchase",
+  "recordHeld": "Add coins you already have",
+  "recorded": {
+    "one": "Recorded: {amount} of {coin} on {date}.",
+    "several": "Recorded: {amount} on {date}.",
+    "sold": {
+      "one": "Recorded: sold {amount} of {coin} on {date}.",
+      "several": "Recorded: sold {amount} on {date}."
+    },
+    "held": {
+      "one": "Recorded: {units} added{cost, select, known { for {amount}} other {}} on {date}.",
+      "several": "Recorded: {units} added on {date}."
+    }
+  }
+}

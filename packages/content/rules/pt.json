@@ -1,0 +1,38 @@
+{
+  "code": "PT",
+  "name": "Portugal",
+  "currency": "EUR",
+  "locales": ["pt-PT"],
+  "numberFormatLocale": "pt-PT",
+  "dateFormatLocale": "pt-PT",
+  "timezones": ["Europe/Lisbon", "Atlantic/Madeira", "Atlantic/Azores"],
+  "englishConfidence": "low",
+  "taxYear": {
+    "start": "01-01",
+    "end": "12-31"
+  },
+  "computationModel": {
+    "kind": "per-lot"
+  },
+  "holdingRule": {
+    "kind": "days",
+    "days": 365,
+    "effect": "exempt"
+  },
+  "holdingRuleOverrides": [],
+  "holdingRuleConditions": [
+    "Tax-free only when the counterparty is tax-resident in the EU, the EEA, or a treaty jurisdiction (declared in Anexo G Q18B otherwise).",
+    "Exempt sales must still be declared (Anexo G1 Q7).",
+    "Whether the holding period carries across a crypto-to-crypto swap is unsettled. Proof of Calm treats a swap as a sale and a new purchase, so a new holding period starts for the coins received.",
+    "Loss of Portuguese tax residence counts as a disposal (art. 10 n.º 25 CIRS, numbered n.º 22 in 2023–2025 documents)."
+  ],
+  "lotRule": "fifo",
+  "lotScope": "per-venue",
+  "status": {
+    "version": 2,
+    "changedOn": "2026-11-05",
+    "changeNotice": "Portugal lowered six IRS bracket rates for 2026 income. The 28 % rate and the 365-day rule are unchanged.",
+    "lastReviewed": "2026-11-05",
+    "nextReviewDue": "2027-11-02"
+  }
+}

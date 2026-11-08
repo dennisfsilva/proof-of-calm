@@ -1,0 +1,99 @@
+{
+  "lastReviewed": "2026-11-02",
+  "reviewedBy": "owner",
+  "drawdowns": [
+    {
+      "coin": "BTC",
+      "high": "2011-06-08",
+      "low": "2011-11-22",
+      "fall": "94",
+      "source": "https://data.bitcoinity.org/export_data.csv?currency=USD&data_type=price&exchange=mtgox&r=day&t=l&timespan=all",
+      "lowSource": "https://api.coinmarketcap.com/data-api/v3/cryptocurrency/historical?id=1&convertId=2781&timeStart=1317600000&timeEnd=1325376000",
+      "publisher": "Bitcoinity (Mt. Gox) and CoinMarketCap",
+      "accessed": "2026-11-02",
+      "confidence": "medium"
+    },
+    {
+      "coin": "BTC",
+      "high": "2013-11-30",
+      "low": "2015-01-14",
+      "fall": "87",
+      "source": "https://www.bitstamp.net/api/v2/ohlc/btcusd/?step=86400&limit=500&start=1383264000",
+      "publisher": "Bitstamp",
+      "accessed": "2026-11-02",
+      "confidence": "high"
+    },
+    {
+      "coin": "BTC",
+      "high": "2017-12-17",
+      "low": "2018-12-15",
+      "fall": "84",
+      "source": "https://www.bitstamp.net/api/v2/ohlc/btcusd/?step=86400&limit=400&start=1512086400",
+      "publisher": "Bitstamp",
+      "accessed": "2026-11-02",
+      "confidence": "high"
+    },
+    {
+      "coin": "BTC",
+      "high": "2021-11-10",
+      "low": "2022-11-21",
+      "fall": "78",
+      "source": "https://www.bitstamp.net/api/v2/ohlc/btcusd/?step=86400&limit=730&start=1609459200",
+      "publisher": "Bitstamp",
+      "accessed": "2026-11-02",
+      "confidence": "high"
+    },
+    {
+      "coin": "ETH",
+      "high": "2018-01-13",
+      "low": "2018-12-14",
+      "fall": "94",
+      "source": "https://www.bitstamp.net/api/v2/ohlc/ethusd/?step=86400&limit=365&start=1514764800",
+      "publisher": "Bitstamp",
+      "accessed": "2026-11-02",
+      "confidence": "high"
+    },
+    {
+      "coin": "ETH",
+      "high": "2021-11-10",
+      "low": "2022-06-18",
+      "fall": "82",
+      "source": "https://www.bitstamp.net/api/v2/ohlc/ethusd/?step=86400&limit=730&start=1609459200",
+      "publisher": "Bitstamp",
+      "accessed": "2026-11-02",
+      "confidence": "high"
+    },
+    {
+      "coin": "LINK",
+      "high": "2018-01-08",
+      "low": "2018-06-29",
+      "fall": "89",
+      "source": "https://api.coinmarketcap.com/data-api/v3/cryptocurrency/historical?id=1975&convertId=2781&timeStart=1514764800&timeEnd=1546300800",
+      "publisher": "CoinMarketCap",
+      "accessed": "2026-11-02",
+      "confidence": "medium"
+    },
+    {
+      "coin": "LINK",
+      "high": "2021-05-10",
+      "low": "2023-06-10",
+      "fall": "91",
+      "source": "https://www.bitstamp.net/api/v2/ohlc/linkusd/?step=86400&limit=1000&start=1609459200",
+      "lowSource": "https://www.bitstamp.net/api/v2/ohlc/linkusd/?step=259200&limit=1000&start=1609459200",
+      "publisher": "Bitstamp",
+      "accessed": "2026-11-02",
+      "confidence": "high"
+    },
+    {
+      "coin": "SOL",
+      "high": "2021-11-06",
+      "low": "2022-12-29",
+      "fall": "97",
+      "source": "https://api.exchange.coinbase.com/products/SOL-USD/candles?granularity=86400&start=2021-10-01T00:00:00Z&end=2022-07-27T00:00:00Z",
+      "lowSource": "https://api.exchange.coinbase.com/products/SOL-USD/candles?granularity=86400&start=2022-07-27T00:00:00Z&end=2023-01-31T00:00:00Z",
+      "publisher": "Coinbase",
+      "accessed": "2026-11-02",
+      "confidence": "high"
+    }
+  ]
+}

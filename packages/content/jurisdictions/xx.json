@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "code": "XX",
+  "name": "Other country",
+  "currency": "EUR",
+  "locales": ["und"],
+  "numberFormatLocale": "und",
+  "dateFormatLocale": "und",
+  "timezones": ["UTC"],
+  "taxYear": { "start": "01-01", "end": "12-31" },
+  "filingNote": "Not reviewed for your country: the calendar year stands in for the tax year, and the filing dates are for a local accountant to confirm.",
+  "computationModel": { "kind": "per-lot" },
+  "holdingRule": { "kind": "none" },
+  "holdingRuleOverrides": [],
+  "holdingRuleConditions": [],
+  "lotRule": "unspecified",
+  "lotScope": "global",
+  "lotRuleNote": "Not reviewed for your country; the app matches sales to purchases first in, first out per coin.",
+  "card": {
+    "classification": "Not reviewed: Proof of Calm has no reviewed rule set for your country.",
+    "taxableEvents": [
+      { "event": "sale-to-fiat", "taxable": "depends", "note": "Treat every sale as a possibly taxable event." },
+      { "event": "crypto-to-crypto", "taxable": "depends", "note": "A swap can count as a sale." },
+      { "event": "spending", "taxable": "depends", "note": "Paying with crypto can count as a sale." }
+    ],
+    "rates": [
+      {
+        "label": "Rate on gains",
+        "value": "Not reviewed for your country",
+        "validFrom": "2026-10-16",
+        "validTo": null
+      }
+    ],
+    "allowances": ["Not reviewed for your country."],
+    "holdingRuleText": "No holding exemption is applied: treat every sale as a possibly taxable event.",
+    "lotRuleText": "Not reviewed for your country.",
+    "losses": "Not reviewed for your country.",
+    "reporting": [
+      "Not reviewed for your country.",
+      "In the EU, crypto-asset service providers report the transactions of their users to the tax authorities from calendar year 2026 (DAC8); the first exchange between member states is due by 30 September 2027."
+    ],
+    "caveats": [
+      "Whether your country taxes each sale, swap or payment, and at what rate.",
+      "Whether your country exempts crypto held for a period."
+    ],
+    "summary60": "Proof of Calm has no reviewed rule set for your country. Treat every sale as a possibly taxable event and check with a local accountant. You can still use the plan, the log and the portfolio."
+  },
+  "pendingChanges": [],
+  "sources": [
+    {
+      "key": "eu-dac8",
+      "title": "Council Directive (EU) 2023/2226 of 17 October 2023 amending Directive 2011/16/EU on administrative cooperation in the field of taxation (DAC8)",
+      "url": "https://eur-lex.europa.eu/eli/dir/2023/2226/oj",
+      "publisher": "Publications Office of the European Union",
+      "kind": "law",
+      "published": "2023-10-24",
+      "accessed": "2026-10-17"
+    }
+  ],
+  "ruleSources": {
+    "holdingRule": "eu-dac8",
+    "lotRule": "eu-dac8",
+    "rates": "eu-dac8",
+    "losses": "eu-dac8",
+    "reporting": "eu-dac8"
+  },
+  "status": {
+    "confidence": "high",
+    "version": 1,
+    "changedOn": "2026-10-17",
+    "changeNotice": null,
+    "lastReviewed": "2026-10-17",
+    "nextReviewDue": "2027-10-17",
+    "reviewedBy": "owner"
+  }
+}

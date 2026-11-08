@@ -1,0 +1,30 @@
+{
+  "code": "IE",
+  "name": "Ireland",
+  "currency": "EUR",
+  "locales": ["en-IE", "ga-IE"],
+  "numberFormatLocale": "en-IE",
+  "dateFormatLocale": "en-IE",
+  "timezones": ["Europe/Dublin"],
+  "taxYear": {
+    "start": "01-01",
+    "end": "12-31"
+  },
+  "computationModel": {
+    "kind": "per-lot"
+  },
+  "holdingRule": {
+    "kind": "none"
+  },
+  "holdingRuleOverrides": [],
+  "holdingRuleConditions": [],
+  "lotRule": "fifo",
+  "lotScope": "global",
+  "status": {
+    "version": 1,
+    "changedOn": "2026-10-07",
+    "changeNotice": null,
+    "lastReviewed": "2026-11-05",
+    "nextReviewDue": "2027-11-05"
+  }
+}

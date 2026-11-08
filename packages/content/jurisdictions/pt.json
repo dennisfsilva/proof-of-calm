@@ -1,0 +1,364 @@
+{
+  "schemaVersion": 1,
+  "code": "PT",
+  "name": "Portugal",
+  "currency": "EUR",
+  "locales": ["pt-PT"],
+  "numberFormatLocale": "pt-PT",
+  "dateFormatLocale": "pt-PT",
+  "timezones": ["Europe/Lisbon", "Atlantic/Madeira", "Atlantic/Azores"],
+  "englishConfidence": "low",
+  "taxYear": { "start": "01-01", "end": "12-31" },
+  "filingNote": "Calendar tax year. The return (Modelo 3) is filed from 1 April to 30 June of the following year.",
+  "computationModel": { "kind": "per-lot" },
+  "holdingRule": { "kind": "days", "days": 365, "effect": "exempt" },
+  "holdingRuleOverrides": [],
+  "holdingRuleConditions": [
+    "Tax-free only when the counterparty is tax-resident in the EU, the EEA, or a treaty jurisdiction (declared in Anexo G Q18B otherwise).",
+    "Exempt sales must still be declared (Anexo G1 Q7).",
+    "Whether the holding period carries across a crypto-to-crypto swap is unsettled. Proof of Calm treats a swap as a sale and a new purchase, so a new holding period starts for the coins received.",
+    "Loss of Portuguese tax residence counts as a disposal (art. 10 n.º 25 CIRS, numbered n.º 22 in 2023–2025 documents)."
+  ],
+  "lotRule": "fifo",
+  "lotScope": "per-venue",
+  "lotRuleNote": "First in, first out, applied separately per custodian or platform when units are held at more than one (art. 43 n.º 9 CIRS, formerly n.º 7).",
+  "card": {
+    "classification": "Category G gains (art. 10(1)(k) CIRS) for crypto that is not a security; category E (28 %) for staking or lending paid in fiat; category B if habitual or professional, and always for mining and validation. NFTs are excluded.",
+    "taxableEvents": [
+      {
+        "event": "sale-to-fiat",
+        "taxable": "yes",
+        "note": "Excluded from tax when held 365 days or more and the counterparty is tax-resident in the EU, the EEA, or a treaty jurisdiction. Excluded sales are still declared (Anexo G1 Quadro 7)."
+      },
+      {
+        "event": "crypto-to-crypto",
+        "taxable": "no",
+        "note": "Deferred: the crypto received takes the acquisition value of the crypto given, unless either party is tax-resident outside the EU, the EEA, or a treaty jurisdiction (art. 10 n.ºs 23–24 CIRS, numbered n.ºs 20–21 in 2023–2025 documents)."
+      },
+      {
+        "event": "crypto-to-stablecoin",
+        "taxable": "no",
+        "note": "Deferred like any swap; AT ruling PIV 28969 of 31 October 2025 treats an immediate technical conversion as a non-event (medium confidence)."
+      },
+      {
+        "event": "spending",
+        "taxable": "yes",
+        "note": "Paying for goods or services with crypto triggers tax like a sale."
+      },
+      {
+        "event": "own-wallet-transfer",
+        "taxable": "no",
+        "note": "Moving units between wallets of the same owner is not a disposal; nothing to declare."
+      },
+      {
+        "event": "gift-or-inheritance",
+        "taxable": "depends",
+        "note": "No IRS; stamp duty of 10 % on crypto deposited with an institution in Portugal, or with no institution when a gift's recipient or the deceased is domiciled there; spouses, partners, descendants, and ascendants exempt (medium confidence)."
+      },
+      {
+        "event": "staking-or-airdrop",
+        "taxable": "yes",
+        "note": "Category E at 28 % when paid in fiat; paid in crypto, taxed as a gain when the units are sold."
+      }
+    ],
+    "rates": [
+      {
+        "label": "Autonomous rate on crypto gains",
+        "value": "28 %",
+        "validFrom": "2023-01-01",
+        "validTo": null,
+        "note": "On the positive balance of category G crypto gains (art. 72(1)(c) CIRS). The 35 % rate for blacklisted jurisdictions does not list crypto; there the exclusion and the swap deferral are lost instead."
+      },
+      {
+        "label": "Optional aggregation (englobamento)",
+        "value": "12.2–48 % by bracket, plus the solidarity surcharge",
+        "validFrom": "2026-01-01",
+        "validTo": null,
+        "note": "The 2026 progressive scale (art. 68(1) CIRS), amended by Decreto-Lei n.º 212/2026 of 4 November 2026 for 2026 income from 1 January 2026. The brackets: 12.2 %, 15.2 %, 20.7 %, 23.6 %, 30.6 %, 34.6 %, 43.1 %, 44.6 %, and 48 %."
+      }
+    ],
+    "allowances": [
+      "No allowance: the only relief is the 365-day exclusion.",
+      "Fees that were necessary and actually paid (“necessárias e efetivamente suportadas”) are deductible.",
+      "Purchases made before 2023 count toward the 365 days (art. 220 Lei 24-D/2022)."
+    ],
+    "holdingRuleText": "Gains and losses on crypto held 365 days or more are excluded from tax: “detidos por um período igual ou superior a 365 dias” (art. 10 n.º 22 CIRS, numbered n.º 19 in 2023–2025 documents). A unit bought on 1 March 2026 qualifies on 1 March 2027.",
+    "lotRuleText": "First in, first out (“os alienados são os adquiridos há mais tempo”, art. 43 n.º 8(g) CIRS, formerly n.º 6(g)), separately per custodian or platform (art. 43 n.º 9, formerly n.º 7).",
+    "losses": "Netted against same-year crypto gains, leaving out units held 365 days or more. A net loss carries forward five years only with aggregation (art. 55(1)(d)); losses with blacklisted counterparties never count (art. 43 n.º 7).",
+    "reporting": [
+      "Modelo 3, Anexo G Quadro 18A: disposals of units held under 365 days, per operation, with the country of the counterparty.",
+      "Anexo G Quadro 18B: disposals with a counterparty outside the EU or the EEA.",
+      "Anexo G1 Quadro 7: exempt disposals, mandatory.",
+      "Anexo J Quadro 9.4 for income treated as foreign-sourced; which annex applies to a sale on a foreign exchange is a recurring practitioner question.",
+      "Anexo E code E21 for crypto income; Anexo B fields 419 and 422 for trading and mining as a business.",
+      "DAC8: Lei n.º 26/2026 of 3 June 2026, in effect from 1 January 2026; providers report Portuguese residents to the AT by 31 May of the following year, first on 31 May 2027."
+    ],
+    "caveats": [
+      "Counterparties outside the EU or the EEA.",
+      "Whether the holding period carries across a swap.",
+      "Anexo G Quadro 18A or Anexo J Quadro 9.4 for foreign platforms.",
+      "Losses, usable only with aggregation.",
+      "Staking income.",
+      "The risk that the activity counts as professional.",
+      "Stamp duty on gifts."
+    ],
+    "summary60": "Portugal: gains on crypto held under 365 days are taxed at 28 % by default. Units held 365 days or more are exempt when the counterparty is tax-resident in the EU, the EEA, or a treaty jurisdiction, but every sale must be declared. Crypto-to-crypto swaps are not taxed at the time. First-in, first-out per platform. Return filed April to June."
+  },
+  "pendingChanges": [
+    {
+      "title": "State Budget 2027 proposal (OE2027)",
+      "status": "proposed",
+      "effectiveFrom": null,
+      "summary": "Delivered on 8 October 2026 with no crypto measure; general debate from 27 October 2026, final vote expected late November 2026.",
+      "source": {
+        "title": "Proposta de lei do Orçamento do Estado 2027",
+        "url": "https://kpmg.com/pt/pt/insights/2026/10/orcamento-estado-2027.html",
+        "publisher": "KPMG Portugal",
+        "kind": "secondary",
+        "published": null,
+        "accessed": "2026-10-16"
+      }
+    },
+    {
+      "title": "State Budget 2026 (Lei n.º 73-A/2025)",
+      "status": "in-force",
+      "effectiveFrom": null,
+      "summary": "No change to the taxation of crypto, as reported on the budget; the law itself is still to be read (medium confidence).",
+      "source": {
+        "title": "Orçamento do Estado para 2026: o que precisa de saber",
+        "url": "https://www.montepio.org/ei/mais-recentes/orcamento-do-estado-para-2026-o-que-precisa-de-saber/",
+        "publisher": "Montepio",
+        "kind": "secondary",
+        "published": "2025-10-10",
+        "accessed": "2026-10-16"
+      }
+    },
+    {
+      "title": "Lower rates in six IRS brackets (Decreto-Lei n.º 212/2026)",
+      "status": "in-force",
+      "effectiveFrom": "2026-01-01",
+      "summary": "The 28 % rate of art. 72(1)(c) does not change. Decreto-Lei n.º 212/2026 of 4 November 2026 (Diário da República n.º 214/2026, Série I), under Lei n.º 64-B/2026 (Proposta de Lei n.º 108/XVII/2.ª), lowers the first six rates of art. 68 n.º 1 CIRS to 12.2 %, 15.2 %, 20.7 %, 23.6 %, 30.6 %, and 34.6 %. In force since 5 November 2026; its preamble applies the cut to 2026 income from 1 January 2026.",
+      "source": {
+        "title": "Decreto-Lei n.º 212/2026, de 4 de novembro",
+        "url": "https://files.diariodarepublica.pt/1s/2026/11/21400/0000500006.pdf",
+        "publisher": "Diário da República",
+        "kind": "law",
+        "published": "2026-11-04",
+        "accessed": "2026-11-05"
+      }
+    },
+    {
+      "title": "AT binding ruling PIV 28969",
+      "status": "in-force",
+      "effectiveFrom": "2025-10-31",
+      "summary": "An immediate technical conversion into a stablecoin to reach a euro pair is not a taxable moment, so the original asset keeps its exclusion (medium confidence).",
+      "source": {
+        "title": "Informação vinculativa, processo 28969",
+        "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/informacoes_vinculativas/rendimento/cirs/Documents/PIV_28969.pdf",
+        "publisher": "Autoridade Tributária e Aduaneira",
+        "kind": "authority",
+        "published": "2025-10-31",
+        "accessed": "2026-10-16"
+      }
+    },
+    {
+      "title": "AT binding ruling PIV 29052",
+      "status": "in-force",
+      "effectiveFrom": "2025-12-04",
+      "summary": "Purchases from 2019 count toward the 365 days; the exclusion is limited to counterparties in the EU, the EEA, or a treaty jurisdiction; a habituality test decides category B.",
+      "source": {
+        "title": "Informação vinculativa, processo 29052",
+        "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/informacoes_vinculativas/rendimento/cirs/Documents/PIV_29052.pdf",
+        "publisher": "Autoridade Tributária e Aduaneira",
+        "kind": "authority",
+        "published": "2025-12-04",
+        "accessed": "2026-10-16"
+      }
+    },
+    {
+      "title": "Renumbered crypto rules in art. 10 CIRS",
+      "status": "in-force",
+      "effectiveFrom": null,
+      "summary": "The consolidated text of the AT numbers the crypto rules n.ºs 20 to 25 (formerly 17 to 22); this profile cites both numberings.",
+      "source": {
+        "title": "Código do IRS, artigo 10.º",
+        "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs10.aspx",
+        "publisher": "Autoridade Tributária e Aduaneira",
+        "kind": "law",
+        "published": null,
+        "accessed": "2026-10-16"
+      }
+    }
+  ],
+  "sources": [
+    {
+      "key": "pt-cirs-art10",
+      "title": "Código do IRS, artigo 10.º",
+      "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs10.aspx",
+      "publisher": "Autoridade Tributária e Aduaneira",
+      "kind": "law",
+      "published": null,
+      "accessed": "2026-11-03"
+    },
+    {
+      "key": "pt-cirs-art43",
+      "title": "Código do IRS, artigo 43.º",
+      "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs43.aspx",
+      "publisher": "Autoridade Tributária e Aduaneira",
+      "kind": "law",
+      "published": null,
+      "accessed": "2026-10-16"
+    },
+    {
+      "key": "pt-cirs-art55",
+      "title": "Código do IRS, artigo 55.º",
+      "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs55.aspx",
+      "publisher": "Autoridade Tributária e Aduaneira",
+      "kind": "law",
+      "published": null,
+      "accessed": "2026-10-16"
+    },
+    {
+      "key": "pt-cirs-art72",
+      "title": "Código do IRS, artigo 72.º",
+      "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs72.aspx",
+      "publisher": "Autoridade Tributária e Aduaneira",
+      "kind": "law",
+      "published": null,
+      "accessed": "2026-10-16"
+    },
+    {
+      "key": "pt-at-criptoativos-leaflet",
+      "title": "Criptoativos – Conceito fiscal e tributação",
+      "url": "https://info.portaldasfinancas.gov.pt/pt/apoio_contribuinte/Folhetos_informativos/Documents/Criptoativos.pdf",
+      "publisher": "Autoridade Tributária e Aduaneira",
+      "kind": "authority",
+      "published": null,
+      "accessed": "2026-10-16"
+    },
+    {
+      "key": "pt-at-oficio-20269-2024",
+      "title": "Ofício Circulado n.º 20269/2024",
+      "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/legislacao/instrucoes_administrativas/Documents/Oficio_Circulado_20269_2024.pdf",
+      "publisher": "Autoridade Tributária e Aduaneira",
+      "kind": "authority",
+      "published": "2024-03-24",
+      "accessed": "2026-10-16"
+    },
+    {
+      "key": "pt-at-piv-28969",
+      "title": "Informação vinculativa, processo 28969",
+      "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/informacoes_vinculativas/rendimento/cirs/Documents/PIV_28969.pdf",
+      "publisher": "Autoridade Tributária e Aduaneira",
+      "kind": "authority",
+      "published": "2025-10-31",
+      "accessed": "2026-10-16"
+    },
+    {
+      "key": "pt-at-piv-29052",
+      "title": "Informação vinculativa, processo 29052",
+      "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/informacoes_vinculativas/rendimento/cirs/Documents/PIV_29052.pdf",
+      "publisher": "Autoridade Tributária e Aduaneira",
+      "kind": "authority",
+      "published": "2025-12-04",
+      "accessed": "2026-10-16"
+    },
+    {
+      "key": "pt-lei-26-2026",
+      "title": "Lei n.º 26/2026, de 3 de junho (Diário da República n.º 107/2026, Série I)",
+      "url": "https://files.diariodarepublica.pt/1s/2026/06/10700/0001000066.pdf",
+      "publisher": "Diário da República",
+      "kind": "law",
+      "published": "2026-06-03",
+      "accessed": "2026-10-16"
+    },
+    {
+      "key": "pt-lei-64-b-2026",
+      "title": "Lei n.º 64-B/2026, de 22 de outubro (Diário da República n.º 205/2026, Série I, Suplemento)",
+      "url": "https://files.diariodarepublica.pt/1s/2026/10/20501/0000400004.pdf",
+      "publisher": "Diário da República",
+      "kind": "law",
+      "published": "2026-10-22",
+      "accessed": "2026-11-02"
+    },
+    {
+      "key": "pt-dl-212-2026",
+      "title": "Decreto-Lei n.º 212/2026, de 4 de novembro (Diário da República n.º 214/2026, Série I)",
+      "url": "https://files.diariodarepublica.pt/1s/2026/11/21400/0000500006.pdf",
+      "publisher": "Diário da República",
+      "kind": "law",
+      "published": "2026-11-04",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "pt-cirs-art68",
+      "title": "Código do IRS, artigo 68.º",
+      "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs68.aspx",
+      "publisher": "Autoridade Tributária e Aduaneira",
+      "kind": "law",
+      "published": null,
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "pt-lei-24-d-2022",
+      "title": "Lei n.º 24-D/2022, de 30 de dezembro (Diário da República n.º 251/2022, Série I, 2.º Suplemento)",
+      "url": "https://files.diariodarepublica.pt/1s/2022/12/25102/0009000377.pdf",
+      "publisher": "Diário da República",
+      "kind": "law",
+      "published": "2022-12-30",
+      "accessed": "2026-11-04"
+    },
+    {
+      "key": "pt-cis-art1",
+      "title": "Código do Imposto do Selo, artigo 1.º",
+      "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/selo/Pages/selo1.aspx",
+      "publisher": "Autoridade Tributária e Aduaneira",
+      "kind": "law",
+      "published": null,
+      "accessed": "2026-11-04"
+    },
+    {
+      "key": "pt-cis-art4",
+      "title": "Código do Imposto do Selo, artigo 4.º",
+      "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/selo/Pages/selo4.aspx",
+      "publisher": "Autoridade Tributária e Aduaneira",
+      "kind": "law",
+      "published": null,
+      "accessed": "2026-11-04"
+    },
+    {
+      "key": "pt-cis-art6",
+      "title": "Código do Imposto do Selo, artigo 6.º",
+      "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/selo/Pages/selo6.aspx",
+      "publisher": "Autoridade Tributária e Aduaneira",
+      "kind": "law",
+      "published": null,
+      "accessed": "2026-11-04"
+    },
+    {
+      "key": "pt-cis-tabela-geral",
+      "title": "Tabela Geral do Imposto do Selo",
+      "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/selo/Pages/ccod-selo-tabgiselo.aspx",
+      "publisher": "Autoridade Tributária e Aduaneira",
+      "kind": "law",
+      "published": null,
+      "accessed": "2026-11-04"
+    }
+  ],
+  "ruleSources": {
+    "holdingRule": "pt-cirs-art10",
+    "lotRule": "pt-cirs-art43",
+    "rates": "pt-cirs-art72",
+    "losses": "pt-cirs-art55",
+    "reporting": "pt-at-oficio-20269-2024"
+  },
+  "status": {
+    "confidence": "high",
+    "version": 2,
+    "changedOn": "2026-11-05",
+    "changeNotice": "Portugal lowered six IRS bracket rates for 2026 income. The 28 % rate and the 365-day rule are unchanged.",
+    "lastReviewed": "2026-11-05",
+    "nextReviewDue": "2027-11-02",
+    "reviewedBy": "owner"
+  }
+}

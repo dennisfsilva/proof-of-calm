@@ -1,0 +1,349 @@
+# Two checks against a Vercel deployment: the lighthouse job by itself on each production deployment
+# and by hand on a preview, the preview-checks job by hand.
+#
+# lighthouse: Lighthouse CI against a deployment (ADR-0024, docs/ENGINEERING.md §4): the budgets of
+# apps/web/lighthouserc.json, measured as Vercel serves the pages. The job posts its result as the
+# commit status `lighthouse-vercel` on the deployed commit. The lighthouse job of ci.yml keeps
+# measuring the local production build.
+#
+# What starts it: Vercel's own `Vercel` commit status turning success on main's head, which is
+# production's deployment (GitHub runs a `status` workflow from the default branch, with GITHUB_SHA at
+# main's head), measured at the production origin https://proofofcalm.com, which Vercel points at the
+# deployment as it turns ready and which no deployment protection covers: no bypass header is sent
+# there, and tools/lighthouse/vercel.ts asserts errors-in-console on the seeded screens there, where a
+# preview cannot (the comment of the Lighthouse steps). Vercel's status on any other commit, a preview's
+# among them, skips the run before a runner starts (ADR-0024, deviation of 2026-11-05: the previews took
+# about three quarters of this file's minutes). A preview is measured by hand, at its branch URL
+# (proof-of-calm-git-<branch>-incubating, so branch names stay at 34 characters or fewer), and the run
+# posts the same status on that commit:
+#   gh workflow run lighthouse-vercel.yml -f url=<branch URL> -f sha=<the branch's head SHA>
+# Every target measures the URLs of lighthouserc.json at its origin: Today, Portfolio, Log and Plan with
+# the fixture plan that apps/web/lighthouse/seed.ts puts into the store before each URL, and `/`.
+# Vercel's repository_dispatch event, the documented trigger, never reached this repository on
+# 2026-10-17; it stays wired, for production only, in case it starts. Production is measured with main's
+# copy of this file: a change to it is tried before the merge by dispatching it on its branch
+# (--ref <branch>) with a preview URL or the production origin.
+#
+# preview-checks: the preview checklist of ADR-0045 (Risks 1 and 2, the deviations): the request-level
+# specs against the deployment with the protection-bypass header, and apps/web/e2e/deployment.spec.ts
+# for the lines only a deployment can answer (Vercel's 404 and the clean-URL 308, the function seeing
+# the requested path on every /api route, the CDN bound, what deployment protection does to the worker).
+# The UK route and the worker's control of Today stay local. By hand only: the specs post CSP reports
+# and call the price API, so they never run by themselves against a deployment, production least of
+# all. Run it before the switch merges and whenever vercel.json, the function or the worker changes:
+#   gh workflow run lighthouse-vercel.yml --ref <branch> -f url=<deployment URL> -f sha=<commit SHA> -f checks=true
+# runs both jobs; the result is the commit status `preview-checks`. The plain dispatch, without
+# `checks`, measures only (a branch URL only while the SHA is its branch's head: the resolve job's
+# comment); `-f checks=true` adds the preview checks, which run only at the branch URL
+# (proof-of-calm-git-<branch>-…) of a branch of this repository other than main whose head is the SHA:
+# the resolve job fails the whole run before either job starts for any other URL, production's
+# (https://proofofcalm.com, proof-of-calm-git-main-… and its own deployment URLs) whatever the input
+# says, and the preview-checks job refuses production again. The job lives in this file
+# because GitHub resolves a dispatch against the default branch: a workflow file that is not on main
+# cannot be dispatched, and this one is there.
+name: Checks on Vercel
+
+on:
+  status:
+  repository_dispatch:
+    types: [vercel.deployment.success]
+  # By hand: gh workflow run lighthouse-vercel.yml [--ref <branch>] -f url=<deployment URL> -f sha=<commit SHA> [-f checks=true]
+  workflow_dispatch:
+    inputs:
+      url:
+        description: The deployment URL, https://proof-of-calm-…-incubating.vercel.app, or https://proofofcalm.com
+        required: true
+      sha:
+        description: The full SHA of the commit the deployment was built from
+        required: true
+      checks:
+        description: Also run the preview checks (the request-level specs) against the deployment; never for production
+        type: boolean
+        default: false
+
+permissions: {}
+
+concurrency:
+  group: lighthouse-vercel-${{ github.event.client_payload.git.sha || inputs.sha || github.event.sha }}
+  cancel-in-progress: true
+
+jobs:
+  resolve:
+    name: resolve the deployment
+    # By itself for production only: Vercel's success status on main's head (GITHUB_SHA on a status
+    # event), or Vercel's event for production. Any other status, a preview's too, skips the run here.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'status' && github.event.context == 'Vercel' && github.event.state == 'success' && github.event.sha == github.sha) ||
+      (github.event_name == 'repository_dispatch' && github.event.client_payload.environment == 'production')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    # contents: read for the branches whose head is the SHA (the guard below).
+    permissions:
+      contents: read
+    outputs:
+      url: ${{ steps.resolve.outputs.url }}
+      sha: ${{ steps.resolve.outputs.sha }}
+      target: ${{ steps.resolve.outputs.target }}
+    steps:
+      # The bypass secret goes to this project's own previews only, and only of branches in this
+      # repository: a fork's commit is on none of them, so its preview is never sent the secret, and the
+      # production origin is measured without it. Production is the origin, not the deployment's own
+      # URL: that one sits behind deployment protection like a preview, so /today's console could not be
+      # asserted there (the Lighthouse steps), and the origin is what people get. A run that started by
+      # itself measures production and takes no URL from its event; any other URL comes by dispatch.
+      # A deployment's own URL is proof-of-calm-<hash>-incubating, the hash without a hyphen, so a host of
+      # another team whose slug ends in -incubating fails the URL check. A branch URL,
+      # proof-of-calm-git-<slug>-incubating, cannot be told from another team's by its shape, since both
+      # slugs take hyphens: it passes only when <slug> is the branch URL of a branch of this repository
+      # with the SHA at its head, so a dispatch of a branch that has moved past the SHA, and any other
+      # branch URL, fails. A dispatch with checks=true runs only against such a
+      # branch URL of a branch other than main: production's own URL, a fork's commit and a SHA the URL
+      # was not built from stop here, before any job posts a status.
+      - id: resolve
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          PAYLOAD_SHA: ${{ github.event.client_payload.git.sha }}
+          PAYLOAD_ENVIRONMENT: ${{ github.event.client_payload.environment }}
+          PRODUCTION_ORIGIN: https://proofofcalm.com
+          INPUT_URL: ${{ inputs.url }}
+          INPUT_SHA: ${{ inputs.sha }}
+          INPUT_CHECKS: ${{ inputs.checks }}
+          STATUS_SHA: ${{ github.event.sha }}
+        run: |
+          # Vercel's branch URL: the name in lower case, every run of other characters one hyphen.
+          slugify() { tr '[:upper:]' '[:lower:]' <<< "$1" | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//'; }
+          # The job's condition holds both automatic events to production; the script holds them again,
+          # so an automatic run that reaches it any other way measures nothing.
+          case "$EVENT" in
+            repository_dispatch)
+              if [ "$PAYLOAD_ENVIRONMENT" != production ]; then
+                echo "Vercel's event names a $PAYLOAD_ENVIRONMENT deployment; a preview is measured by hand."
+                exit 0
+              fi
+              url="$PRODUCTION_ORIGIN"; sha="$PAYLOAD_SHA"; target=production ;;
+            workflow_dispatch) url="$INPUT_URL"; sha="$INPUT_SHA"; target=requested ;;
+            status)
+              if [ "$STATUS_SHA" != "$GITHUB_SHA" ]; then
+                echo "$STATUS_SHA is not main's head; a preview is measured by hand."
+                exit 0
+              fi
+              url="$PRODUCTION_ORIGIN"; sha="$STATUS_SHA"; target=production ;;
+          esac
+          [[ "$url" =~ ^https://(proof-of-calm-(git-[a-z0-9-]+|[a-z0-9]+)-incubating\.vercel\.app|proofofcalm\.com)$ ]] || { echo "Not a deployment of this project: $url"; exit 1; }
+          [[ "$sha" =~ ^[0-9a-f]{40}$ ]] || { echo "Not a full commit SHA: $sha"; exit 1; }
+          # A branch slug and a team slug both take hyphens, so the pattern above cannot tell this
+          # project's branch URL from another team's: one passes only as the URL of a branch of this
+          # repository with the SHA at its head.
+          has_slug() { while IFS= read -r name; do if [ -n "$name" ] && [ "$(slugify "$name")" = "$2" ]; then return 0; fi; done <<< "$1"; return 1; }
+          if [[ "$url" =~ ^https://proof-of-calm-git-([a-z0-9-]+)-incubating\.vercel\.app$ ]]; then
+            slug="${BASH_REMATCH[1]}"
+            heads=$(gh api "repos/$GITHUB_REPOSITORY/commits/$sha/branches-where-head" --jq '.[].name' 2>/dev/null) ||
+              { echo "Could not list the branches with $sha at their head"; exit 1; }
+            if ! has_slug "$heads" "$slug"; then
+              echo "No branch of this repository with $sha at its head has the branch URL $url"
+              exit 1
+            fi
+          fi
+          if [ "$EVENT" = workflow_dispatch ] && [ "$INPUT_CHECKS" = true ]; then
+            [[ "$url" =~ ^https://proof-of-calm-git-([a-z0-9-]+)-incubating\.vercel\.app$ ]] && [ "${BASH_REMATCH[1]}" != main ] ||
+              { echo "The preview checks run only against a branch URL other than main's: $url"; exit 1; }
+          fi
+          { echo "url=$url"; echo "sha=$sha"; echo "target=$target"; } >> "$GITHUB_OUTPUT"
+
+  lighthouse:
+    name: lighthouse-vercel
+    needs: resolve
+    if: needs.resolve.outputs.url != ''
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      statuses: write
+    env:
+      DEPLOYMENT_URL: ${{ needs.resolve.outputs.url }}
+      SHA: ${{ needs.resolve.outputs.sha }}
+      TARGET: ${{ needs.resolve.outputs.target }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      GH_TOKEN: ${{ github.token }}
+      # With a puppeteerScript LHCI asks puppeteer-core for Chrome, which throws without a path; the
+      # runner image's Chrome (its readme names no CHROME_PATH).
+      CHROME_PATH: /usr/bin/google-chrome
+    steps:
+      - name: Mark the commit pending
+        run: >-
+          gh api "repos/$GITHUB_REPOSITORY/statuses/$SHA" -f state=pending -f context=lighthouse-vercel
+          -f description="Measuring the $TARGET deployment" -f target_url="$RUN_URL"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SHA }}
+          persist-credentials: false
+      # The job's own script (Node's built-ins only) comes from this workflow's commit, main's for a status
+      # run, not from the deployed one: a deployment of a commit that predates the script is measured too.
+      # The repository is named, though it is this one, so knip reads this as a side checkout and keeps
+      # resolving working-directory against the workspace.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ github.repository }}
+          ref: ${{ github.workflow_sha }}
+          path: .workflow
+          sparse-checkout: tools/lighthouse
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # LHCI's puppeteerScript, from the deployed commit: lighthouserc.json names it there. A commit that
+      # predates the seed has no script and no puppeteerScript, and is measured without a plan.
+      - name: Bundle the seed
+        working-directory: apps/web
+        run: pnpm run --if-present lighthouse:seed
+      # lighthouserc.json's URLs at the deployment's origin, its runs, seed, settings and budgets without
+      # its local server, and no console error on `/` (tools/lighthouse/vercel.ts). The production origin has no deployment protection and no
+      # toolbar: no header goes there, the secret is not even in that step's environment, and the tool
+      # keeps errors-in-console on the seeded screens as well. At a preview the headers are the bypass and the one
+      # that keeps Vercel's toolbar out of the page. The bypass header reaches every request of the page
+      # except the service worker's script fetch, which deployment protection redirects (run 39070269335)
+      # and the page logs, so a preview asserts errors-in-console on `/` only (docs/BUILD-PROMPT.md, Known
+      # gaps). No x-vercel-set-bypass-cookie: Vercel answers it with a redirect that sets the bypass as a
+      # cookie (Protection Bypass for Automation, Vercel's documentation of 2026-09-16); that never reached
+      # the worker's fetch, and at production's own deployment URL, where the Next-era shell linked the
+      # manifest without credentials, every manifest request got another redirect until it failed (runs
+      # 39072367099 and 39073337602). The headers reach LHCI through the environment, not a file this job
+      # writes; LHCI hands them to each run in a flags file under .lighthouseci that it deletes after the
+      # run. As one JSON string, which Lighthouse parses: as an object, the CLI turns "1" into a number,
+      # which Chrome refuses as a header value. The seed reads the same string from LHCI's options for
+      # the page it opens before each URL, and writes it nowhere.
+      - name: Lighthouse against the production origin
+        if: needs.resolve.outputs.url == 'https://proofofcalm.com'
+        working-directory: apps/web
+        run: |
+          node ../../.workflow/tools/lighthouse/vercel.ts config lighthouserc.json "$RUNNER_TEMP/lighthouserc.json" "$DEPLOYMENT_URL"
+          pnpm exec lhci collect --config="$RUNNER_TEMP/lighthouserc.json"
+      - name: Lighthouse against the preview
+        if: needs.resolve.outputs.url != 'https://proofofcalm.com'
+        working-directory: apps/web
+        env:
+          BYPASS: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: |
+          if [ -z "$BYPASS" ]; then echo "VERCEL_AUTOMATION_BYPASS_SECRET is not set"; exit 1; fi
+          node ../../.workflow/tools/lighthouse/vercel.ts config lighthouserc.json "$RUNNER_TEMP/lighthouserc.json" "$DEPLOYMENT_URL"
+          headers=$(jq -nc '{"x-vercel-protection-bypass": env.BYPASS, "x-vercel-skip-toolbar": "1"}')
+          LHCI_SETTINGS__EXTRA_HEADERS="$headers" pnpm exec lhci collect --config="$RUNNER_TEMP/lighthouserc.json"
+      # Lighthouse writes the request headers into its reports, and a run that dies leaves LHCI's flags
+      # file behind: the secret leaves every file there before anything reads or uploads them.
+      - name: Redact the bypass secret from the reports
+        id: redact
+        if: ${{ !cancelled() }}
+        working-directory: apps/web
+        env:
+          BYPASS: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: |
+          node -e '
+            const fs = require("node:fs");
+            const secret = process.env.BYPASS;
+            if (!secret) throw new Error("VERCEL_AUTOMATION_BYPASS_SECRET is not set");
+            if (fs.existsSync(".lighthouseci")) {
+              for (const entry of fs.readdirSync(".lighthouseci", { withFileTypes: true })) {
+                if (!entry.isFile()) continue;
+                const file = `.lighthouseci/${entry.name}`;
+                const text = fs.readFileSync(file, "utf8");
+                if (text.includes(secret)) fs.writeFileSync(file, text.replaceAll(secret, "[redacted]"));
+              }
+            }
+          '
+          if [ -d .lighthouseci ] && grep -rqF -- "$BYPASS" .lighthouseci; then echo "The bypass secret is still in the reports"; exit 1; fi
+      # LHCI applies the budgets by each report's final URL: a page that a redirect took elsewhere, such
+      # as Vercel's login, would pass with no budget checked, so the check fails it first.
+      - name: Assert the budgets
+        working-directory: apps/web
+        run: |
+          node ../../.workflow/tools/lighthouse/vercel.ts check .lighthouseci
+          pnpm exec lhci assert --config="$RUNNER_TEMP/lighthouserc.json"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ !cancelled() && steps.redact.outcome == 'success' }}
+        with:
+          name: lighthouse-vercel
+          path: apps/web/.lighthouseci
+          # The reports live in a dot-folder, which upload-artifact skips unless asked.
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Report the result on the commit
+        if: ${{ !cancelled() }}
+        env:
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          if [ "$JOB_STATUS" = success ]; then
+            state=success; description="Budgets met on the $TARGET deployment"
+          else
+            state=failure; description="Budgets missed or the run failed on the $TARGET deployment"
+          fi
+          gh api "repos/$GITHUB_REPOSITORY/statuses/$SHA" -f state="$state" -f context=lighthouse-vercel \
+            -f description="$description" -f target_url="$RUN_URL"
+
+  # Dispatch with checks=true only (the header says why), never against production, at its origin or
+  # its own deployment URL; resolve has validated the URL and the SHA before they get here.
+  preview-checks:
+    name: preview-checks
+    needs: resolve
+    if: github.event_name == 'workflow_dispatch' && inputs.checks && needs.resolve.outputs.url != '' && needs.resolve.outputs.url != 'https://proofofcalm.com' && !startsWith(needs.resolve.outputs.url, 'https://proof-of-calm-git-main-')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      statuses: write
+    env:
+      DEPLOYMENT_URL: ${{ needs.resolve.outputs.url }}
+      SHA: ${{ needs.resolve.outputs.sha }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Mark the commit pending
+        run: >-
+          gh api "repos/$GITHUB_REPOSITORY/statuses/$SHA" -f state=pending -f context=preview-checks
+          -f description="Checking the preview" -f target_url="$RUN_URL"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SHA }}
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @proofofcalm/web exec playwright install --with-deps chromium
+      # The request-level specs and deployment.spec.ts on the desktop project, chosen by file name: a
+      # --grep on the titles also caught offline.spec.ts, layout-shift.spec.ts, today.spec.ts and
+      # country.spec.ts through "prices" in a title, and offline.spec.ts waits for a worker that
+      # deployment protection never lets install (run 40585126489, 2026-10-27). A new request-level spec
+      # joins the list by name. uk-block stays out (GB is not observable from outside the UK, ADR-0045
+      # Risk 3) and matrix too (viewport layout, local and in CI); the worker's "controls Today" test stays local because the bypass header never reaches
+      # the worker's script fetch, while deployment.spec.ts records what the preview does. The list
+      # reporter prints no request header; Playwright's HTML report and the trace it keeps of a failed
+      # test hold every request header, the bypass among them, so this job writes no report and uploads
+      # nothing: a trace dies with the runner.
+      - name: The request-level specs against the deployment
+        env:
+          BYPASS: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: |
+          if [ -z "$BYPASS" ]; then echo "VERCEL_AUTOMATION_BYPASS_SECRET is not set"; exit 1; fi
+          BASE_URL="$DEPLOYMENT_URL" VERCEL_AUTOMATION_BYPASS_SECRET="$BYPASS" \
+            pnpm --filter @proofofcalm/web test:e2e --project=desktop --reporter=list \
+            "e2e/(csp|csp-report|prices|site|pwa|deployment)\.spec\.ts" --grep-invert "controls Today"
+      - name: Report the result on the commit
+        if: ${{ !cancelled() }}
+        env:
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          if [ "$JOB_STATUS" = success ]; then
+            state=success; description="The preview answers the checklist"
+          else
+            state=failure; description="The preview missed a line of the checklist or the run failed"
+          fi
+          gh api "repos/$GITHUB_REPOSITORY/statuses/$SHA" -f state="$state" -f context=preview-checks \
+            -f description="$description" -f target_url="$RUN_URL"

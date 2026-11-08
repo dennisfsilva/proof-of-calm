@@ -1,0 +1,53 @@
+# Known advisories accepted for development and build tooling, each with its reason and an expiry
+# that forces a fresh look (docs/SECURITY.md §9). None of these packages ships in a bundle. Advisories
+# with a fixed release in the same major are fixed with pnpm `overrides` instead (pnpm-workspace.yaml).
+
+[[IgnoredVulns]]
+id = "GHSA-vfj7-8cjw-p6xm"
+ignoreUntil = 2027-01-31
+reason = "braces 3.0.3 (no fixed release on 2026-10-17), stack exhaustion on deeply nested brace patterns. Reached only through the shadcn CLI (a dev dependency of packages/ui, run by hand to copy component sources) via shadcn, @shadcn/registry and @ts-morph/common -> fast-glob -> micromatch, which expand the CLI's own registry patterns at development time; no untrusted pattern is ever expanded and nothing ships in a bundle."
+
+[[IgnoredVulns]]
+id = "GHSA-7pqw-9j4j-h8q3"
+ignoreUntil = 2027-01-31
+reason = "extract-zip 2.0.1 (no fixed release), symlink entries in untrusted archives. Reached only through @lhci/cli's puppeteer browser downloader, which CI never uses: Lighthouse runs the runner's installed Chrome and nothing is extracted."
+
+[[IgnoredVulns]]
+id = "GHSA-jmr9-qjv8-65gv"
+ignoreUntil = 2027-01-31
+reason = "extract-zip 2.0.1 (no fixed release), symlink path traversal in untrusted archives. Same path as GHSA-7pqw-9j4j-h8q3: never invoked."
+
+[[IgnoredVulns]]
+id = "GHSA-hp3w-g68c-fv3c"
+ignoreUntil = 2027-01-31
+reason = "sprintf-js 1.0.3 (no fixed 1.0.x release), denial of service through unbounded precision specifiers. Reached only through @lhci/cli -> js-yaml 3 -> argparse 1, which formats the repository's own help and config messages."
+
+[[IgnoredVulns]]
+id = "GHSA-c475-qrg2-pj4r"
+ignoreUntil = 2027-01-31
+reason = "basic-ftp 5.3.1 (fixed only in the 6.x major), quadratic parsing of an FTP server's directory listing. Reached only if @lhci/cli's proxy agent fetches an ftp:// URL, which this configuration never does."
+
+[[IgnoredVulns]]
+id = "GHSA-w5hq-g745-h8pq"
+ignoreUntil = 2027-01-31
+reason = "uuid 8.3.2 (fixed only in the 11.x major), missing bounds check when v3, v5 or v6 write into a caller-provided buffer. @lhci/cli calls only uuid.v4() without a buffer."
+
+[[IgnoredVulns]]
+id = "GHSA-mrhx-c7xc-m3w5"
+ignoreUntil = 2027-01-31
+reason = "zod 3.25.76 (fixed only in 4.6.6; no fixed 3.x release on 2026-10-26), memory exhaustion when an array schema without a length limit collects an issue for every failing element of an oversized array. Reached only through @lhci/cli -> lighthouse 12.6.1 -> puppeteer-core 24.43.1 -> chromium-bidi 14.0.0, which validates protocol messages from the local browser that Lighthouse launched, never untrusted input; nothing ships in a bundle. The product's own zod is the catalog's 4.6.7."
+
+[[IgnoredVulns]]
+id = "GHSA-gcqx-w48m-w2h4"
+ignoreUntil = 2027-01-31
+reason = "deepmerge 4.3.1 (no fixed release on 2026-10-28), prototype poisoning in the mergeObject() function: a malicious source object can inject properties into the returned object's prototype. Reached only through the shadcn CLI (a dev dependency of packages/ui, run by hand to copy component sources) via shadcn 4.22.0 and @shadcn/registry 0.2.0, which merge the CLI's own config and registry JSON at development time; no untrusted object is ever merged and nothing ships in a bundle."
+
+[[IgnoredVulns]]
+id = "GHSA-3g3m-2fjr-6pw4"
+ignoreUntil = 2027-01-31
+reason = "glob 13.0.6 (fixed only in the 14.x major, 14.0.2), an aborted async walk keeps reading directories after its AbortSignal fired, so a service that bounds walks over attacker-influenced patterns or trees with a signal still pays for them. Reached through @serwist/build 9.5.13, which runs at build time in every production build (apps/web/scripts/bundle-worker.ts) on the repository's own globPatterns over its own dist, and through @storybook/react-vite -> @joshwooding/vite-plugin-react-docgen-typescript 0.7.0 in packages/app and packages/ui, loaded only when Storybook's reactDocgen option names it, which neither config does. Both call globSync without a signal; no untrusted pattern or tree is walked and nothing ships in a bundle."
+
+[[IgnoredVulns]]
+id = "GHSA-g3hv-75wg-m249"
+ignoreUntil = 2027-01-31
+reason = "minimatch 10.2.6 and 3.1.5 (fixed only in the 11.x major, 11.0.1), an attacker-supplied pattern multiplies its parts in the preprocessing that runs at optimizationLevel 2 or above, then quadratic comparison exhausts CPU and memory. 10.2.6 is reached through eslint, @typescript-eslint/parser and shadcn -> ts-morph -> @ts-morph/common at the default level 1, which skips that step, and at level 2 only through glob 13 on the patterns of GHSA-3g3m-2fjr-6pw4, the repository's own, at build time. 3.1.5 is reached through @lhci/cli -> chrome-launcher 0.13.4 -> rimraf 3.0.2 -> glob 7.2.3 and has no such step. No untrusted pattern is ever compiled and nothing ships in a bundle."

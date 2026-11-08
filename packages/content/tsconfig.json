@@ -1,0 +1,9 @@
+{
+  "extends": "@proofofcalm/config/tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["es2023"],
+    "types": ["node"],
+    "erasableSyntaxOnly": true
+  },
+  "include": ["src", "scripts", "vitest.config.ts"]
+}

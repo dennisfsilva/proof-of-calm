@@ -1,0 +1,30 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "ADR-0025: best-practices preset, three-day release age (as pnpm's minimumReleaseAge), one grouped weekly PR for minor and patch updates, majors separate, the full gate decides.",
+  "extends": ["config:best-practices"],
+  "minimumReleaseAge": "3 days",
+  "timezone": "Europe/Lisbon",
+  "schedule": ["before 6am on monday"],
+  "labels": ["dependencies"],
+  "packageRules": [
+    {
+      "description": "One grouped pull request a week for minor and patch updates; majors keep their own pull requests.",
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "groupName": "weekly minor and patch updates"
+    },
+    {
+      "description": "The Playwright package and its pinned container move together: visual baselines are only valid in the matching image (ADR-0024). Never automerged, because snapshots may change.",
+      "matchPackageNames": ["@playwright/test", "playwright", "mcr.microsoft.com/playwright"],
+      "groupName": "playwright and its container",
+      "automerge": false
+    },
+    {
+      "description": "Development-dependency patches merge themselves once the gate is green.",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch"],
+      "matchPackageNames": ["*", "!@playwright/test", "!playwright"],
+      "automerge": true,
+      "automergeType": "pr"
+    }
+  ]
+}

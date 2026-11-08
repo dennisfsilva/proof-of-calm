@@ -1,0 +1,5 @@
+Contact: mailto:security@proofofcalm.com
+Expires: 2027-10-01T00:00:00.000Z
+Preferred-Languages: en, pt, de
+Canonical: https://proofofcalm.com/.well-known/security.txt
+Policy: https://proofofcalm.com/contact#security

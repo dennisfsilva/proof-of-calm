@@ -1,0 +1,7 @@
+/*
+ * The web host's stylesheet: the shared sheet of packages/ui, the self-hosted faces (ADR-0045 §7) and
+ * the product's components as a Tailwind source, so their utilities are compiled here.
+ */
+@import "@proofofcalm/ui/globals.css";
+@import "@proofofcalm/ui/styles/fonts.css";
+@source "../../../packages/app/src";

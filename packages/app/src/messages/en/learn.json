@@ -1,0 +1,56 @@
+{
+  "title": "Learn",
+  "index": {
+    "readingTime": "{minutes} min read"
+  },
+  "module": {
+    "back": "Back to Learn",
+    "lastReviewed": "Last reviewed {date}",
+    "pastPerformance": "Past performance is not a reliable indicator of future results.",
+    "riskLink": "Risk disclosure"
+  },
+  "countries": {
+    "title": "Countries",
+    "line": "Tax and holding rules by country, with their sources and the date each was last reviewed.",
+    "back": "Back to countries",
+    "lastReviewed": "Last reviewed {date}",
+    "notReviewedSince": "Not reviewed since {date}"
+  },
+  "sheet": {
+    "close": "Close"
+  },
+  "card": {
+    "classification": "How crypto is classified",
+    "events": "What is taxed",
+    "eventLine": "{event} · {taxable}",
+    "event": {
+      "sale-to-fiat": "Selling for money",
+      "crypto-to-crypto": "Swapping one coin for another",
+      "crypto-to-stablecoin": "Swapping for a stablecoin",
+      "spending": "Paying with crypto",
+      "own-wallet-transfer": "Moving coins between your own wallets",
+      "gift-or-inheritance": "A gift or an inheritance",
+      "staking-or-airdrop": "Staking rewards and airdrops"
+    },
+    "taxable": {
+      "yes": "Taxable",
+      "no": "Not taxed at the time",
+      "depends": "Taxable in some cases"
+    },
+    "rates": "Rates",
+    "rateLine": "{label}: {value}",
+    "validFrom": "From {date}",
+    "validRange": "{from} to {to}",
+    "allowances": "Allowances",
+    "holdingRule": "Holding rule",
+    "lotRule": "Matching sales to purchases",
+    "losses": "Losses",
+    "reporting": "Reporting",
+    "caveats": "Questions for an accountant",
+    "sources": "Sources",
+    "sourceList": "Sources for this card",
+    "sourcePublished": "{publisher} · dated {date}",
+    "sourceAccessed": "{publisher} · accessed {date}",
+    "sourcesName": "Sources for {rule, select, rates {the rates} holdingRule {the holding rule} lotRule {matching sales to purchases} losses {losses} reporting {reporting} other {this rule}}"
+  }
+}

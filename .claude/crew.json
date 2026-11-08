@@ -1,0 +1,29 @@
+{
+  "check": "pnpm check",
+  "gate": "pnpm gate",
+  "test": "pnpm test",
+  "testCount": "pnpm testCount",
+  "e2e": "pnpm test:e2e",
+  "deadCode": "pnpm lint:dead",
+  "docsLint": "pnpm lint:docs",
+  "defaultBranch": "main",
+  "subjectMax": 100,
+  "branchMax": 34,
+  "prLines": 300,
+  "evaluator": { "projects": ["android-small", "zoom-125"] },
+  "roles": {
+    "copy": ["counsel", "brand"],
+    "copyPaths": [
+      "**/packages/app/src/**/messages/**",
+      "**/apps/web/messages/**",
+      "**/packages/content/**",
+      "**/apps/web/src/site/**",
+      "docs/LEGAL.md",
+      "docs/CONTENT-STYLE.md",
+      "docs/JURISDICTIONS.md",
+      "docs/EDUCATION.md",
+      "docs/BENCHMARK.md"
+    ]
+  },
+  "previewHint": "Vercel preview behind deployment protection; sign in to Vercel once"
+}

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- The theme before the first paint: fixed text, hashed in the CSP (ADR-0045 §3; packages/app/src/lib/theme/before-paint.ts). -->
+    <script>(function(){try{var p=JSON.parse(localStorage.getItem("poc.appearance")),d=document.documentElement;if(p.theme==="light"||p.theme==="dark")d.setAttribute("data-theme",p.theme);if(p.motion==="reduce")d.setAttribute("data-motion","reduce")}catch(e){}})()</script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Proof of Calm</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f7f4ef" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#151412" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

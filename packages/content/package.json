@@ -1,0 +1,29 @@
+{
+  "name": "@proofofcalm/content",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Content as data, validated: jurisdiction profiles, templates, facts, the banned-words list (docs/CONTENT-OPS.md).",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./modules": "./src/loaders/modules.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "rules": "node scripts/rules.ts",
+    "test": "vitest run",
+    "validate": "node scripts/validate.ts"
+  },
+  "dependencies": {
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@proofofcalm/config": "workspace:*",
+    "@proofofcalm/core": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

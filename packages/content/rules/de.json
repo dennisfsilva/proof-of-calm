@@ -1,0 +1,35 @@
+{
+  "code": "DE",
+  "name": "Germany",
+  "currency": "EUR",
+  "locales": ["de-DE"],
+  "numberFormatLocale": "de-DE",
+  "dateFormatLocale": "de-DE",
+  "timezones": ["Europe/Berlin", "Europe/Busingen"],
+  "taxYear": {
+    "start": "01-01",
+    "end": "12-31"
+  },
+  "computationModel": {
+    "kind": "per-lot"
+  },
+  "holdingRule": {
+    "kind": "years",
+    "years": 1,
+    "effect": "exempt"
+  },
+  "holdingRuleOverrides": [],
+  "holdingRuleConditions": [
+    "A swap or a purchase paid in crypto starts a new holding period for the coins received.",
+    "Gifts keep the giver's holding period."
+  ],
+  "lotRule": "fifo",
+  "lotScope": "per-venue",
+  "status": {
+    "version": 1,
+    "changedOn": "2026-10-16",
+    "changeNotice": null,
+    "lastReviewed": "2026-11-05",
+    "nextReviewDue": "2027-01-01"
+  }
+}

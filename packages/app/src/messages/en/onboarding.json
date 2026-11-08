@@ -1,0 +1,91 @@
+{
+  "title": "Set up a plan",
+  "back": "Back",
+  "next": "Continue",
+  "start": "Accept and start the plan",
+  "country": {
+    "heading": "Where do you live?",
+    "suggested": "This device suggests {country}.",
+    "confirm": "Continue with {country}",
+    "label": "Country",
+    "placeholder": "Choose a country",
+    "languageDiffers": "Residence, not language, decides tax."
+  },
+  "template": {
+    "heading": "Choose a starting point",
+    "line": "A starting point some people use. You choose every setting. Not advice.",
+    "band": "{falls}, {count, plural, one {high to low} other {each high to low}} between {from} and {to}",
+    "about": "Show how it works and what can go wrong",
+    "custom": {
+      "title": "Your own coins",
+      "line": "You choose the coins and how each buy is split across them."
+    }
+  },
+  "coins": {
+    "heading": "Choose your coins and their split"
+  },
+  "dates": {
+    "heading": "Choose the amounts and dates",
+    "startingHint": "Bought once on the first buy day and split across your coins like each monthly buy. Enter 0 for none. For coins you already have, choose Add coins you already have on the Log after setup."
+  },
+  "numbers": {
+    "heading": "Amounts and dates",
+    "monthly": "Monthly amount ({currency})",
+    "starting": "Starting amount ({currency})",
+    "startingHint": "Bought once on the first buy day and split across your coins like each monthly buy. Enter 0 for none. For coins you already have, choose Add coins you already have on the Log after setup.",
+    "firstBuy": "First buy",
+    "lastBuy": "Last buy",
+    "dateEmpty": "Choose a full date: day, month, and year.",
+    "issue": {
+      "no-amount": "Enter a monthly amount, a starting amount, or both.",
+      "amount-precision": "Use at most {max} decimal places.",
+      "last-buy-before-first-buy": "{field, select, firstBuy {Choose a first buy on or before {date}, this starting point's last buy.} other {Choose a last buy on or after the first buy.}}",
+      "plan-too-long": "{field, select, firstBuy {A plan holds at most {max} monthly buys. Choose a later first buy.} other {A plan holds at most {max} monthly buys. Choose an earlier last buy.}}"
+    }
+  },
+  "why": {
+    "heading": "In one sentence, why are you doing this?",
+    "line": "You will see it on the days the market falls.",
+    "placeholder": "I buy on the 1st and I do not check the price on other days."
+  },
+  "reminder": {
+    "heading": "Where should the monthly reminder go?",
+    "calendar": "Add to calendar",
+    "later": "Later",
+    "noneLeftHeading": "Monthly reminder",
+    "noneLeft": "No buy days left, so there is no reminder to add.",
+    "notSaved": "The calendar file was not saved. Add it again, or choose Later."
+  },
+  "summary": {
+    "heading": "Check your plan",
+    "country": "Country",
+    "holdingRule": "Holding rule",
+    "holdingRuleValue": "{kind, select, generic {The general profile's rule} other {{name}'s rule}}. {words}",
+    "startingPoint": "Starting point",
+    "coins": "Coins & split",
+    "monthly": "Monthly amount",
+    "starting": "Starting amount",
+    "firstBuy": "First buy",
+    "buyDay": "Buy day",
+    "buyDayValue": "Day {day} of each month",
+    "lastBuy": "Last buy",
+    "sellWindow": "Sell window",
+    "sellWindowValue": "{opens} to {closes}",
+    "sellWindowEarly": "{opens} to {closes}, opening before the last buy passes the holding rule, as you accepted",
+    "why": "Your sentence",
+    "reminder": "Reminder",
+    "reminderValue": "{choice, select, calendar {Calendar file saved} other {No reminder set}}"
+  },
+  "disclosure": {
+    "text": "{product} is software for a plan you design: no orders, no financial or tax advice. You can lose all of it: Bitcoin has fallen more than 75 % from a high four times since 2011; Ethereum fell 94 % in 2018. Use only money you will not need for years.",
+    "riskLink": "Risk disclosure"
+  },
+  "reask": {
+    "title": "The risk text has changed",
+    "continue": "Accept and open Today"
+  },
+  "existing": {
+    "body": "A plan is already set up on this device.",
+    "link": "Open the plan"
+  }
+}

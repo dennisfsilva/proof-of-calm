@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- The theme before the first paint: the same fixed text as the web host's (packages/app/src/lib/theme/before-paint.ts). -->
+    <script>(function(){try{var p=JSON.parse(localStorage.getItem("poc.appearance")),d=document.documentElement;if(p.theme==="light"||p.theme==="dark")d.setAttribute("data-theme",p.theme);if(p.motion==="reduce")d.setAttribute("data-motion","reduce")}catch(e){}})()</script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Proof of Calm</title>
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f7f4ef" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#151412" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

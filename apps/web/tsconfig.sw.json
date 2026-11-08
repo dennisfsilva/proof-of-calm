@@ -1,0 +1,8 @@
+{
+  "extends": "@proofofcalm/config/tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["es2023", "webworker"],
+    "types": []
+  },
+  "include": ["src/sw.ts"]
+}

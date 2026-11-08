@@ -1,0 +1,184 @@
+{
+  "title": "Plan",
+  "edit": "Edit plan",
+  "change": {
+    "heading": "Change the plan"
+  },
+  "why": {
+    "window": "Why? The sell window",
+    "parts": "Why? The three parts",
+    "partsLine": "The sell window has three parts."
+  },
+  "reference": {
+    "window": "Your plan buys until {lastBuy}, holds, then sells in three parts between {opens} and {closes}, out by {exitBy}.",
+    "openEnded": "Your plan buys until {lastBuy}, then holds with no sell window.",
+    "amounts": "{starting} to start, then {monthly} a month on day {buyDay}: {split}.",
+    "monthly": "{monthly} a month on day {buyDay}: {split}.",
+    "why": "In your words: {why}"
+  },
+  "totals": {
+    "planned": "{invested} of {planned} invested so far ({percent}). Buys left: {left}.",
+    "sellPhase": "{invested} of {planned} invested ({percent}).",
+    "nothingPlanned": "{invested} invested so far.",
+    "ended": "{invested} invested. Buying ended on {date}.",
+    "beforeFirstBuy": "{count, plural, one {{figure} extra buy dated before the first buy day, {date}, is not in the amount invested above. Portfolio's Invested counts it.} other {{figure} extra buys dated before the first buy day, {date}, are not in the amount invested above. Portfolio's Invested counts them.}}",
+    "heldWithCost": "{count, plural, one {{figure} entry of coins added with a recorded cost is not in the amount invested above. Portfolio's Invested counts it.} other {{figure} entries of coins added with a recorded cost are not in the amount invested above. Portfolio's Invested counts them.}}",
+    "beforeFirstBuyAndHeld": "{count, plural, one {{figure} extra buy dated before the first buy day, {date}, is not in the amount invested above.} other {{figure} extra buys dated before the first buy day, {date}, are not in the amount invested above.}} {held, plural, one {{heldFigure} entry of coins added with a recorded cost is not in it either.} other {{heldFigure} entries of coins added with a recorded cost are not in it either.}} Portfolio's Invested counts all of them."
+  },
+  "sellable": {
+    "now": "{units} sellable now",
+    "later": "{units} from {date}"
+  },
+  "coins": {
+    "legend": "Coins & split",
+    "share": "{coin} share (%)",
+    "remove": "Remove {coin}",
+    "add": "Add a coin",
+    "addCoin": "Add {coin}",
+    "limit": "A plan holds at most {max} coins.",
+    "issue": {
+      "split-sum": "Make the shares add up to 100 %.",
+      "split-precision": "Use at most 4 decimal places."
+    }
+  },
+  "schedule": {
+    "legend": "Amounts and dates",
+    "monthly": "Monthly amount ({currency})",
+    "starting": "Starting amount ({currency})",
+    "startingHint": "Bought once on the first buy day and split across your coins like each monthly buy. Enter 0 for none.",
+    "firstBuy": "First buy",
+    "buyDay": "Buy day",
+    "buyDayHint": "The day of the month of every buy after the first.",
+    "lastBuy": "Last buy",
+    "issue": {
+      "no-amount": "Enter a monthly amount, a starting amount, or both.",
+      "amount-precision": "Use at most {max} decimal places.",
+      "date-required": "Choose a full date: day, month, and year.",
+      "last-buy-before-first-buy": "Choose a last buy on or after the first buy.",
+      "plan-too-long": "A plan holds at most {max} monthly buys. Choose an earlier last buy.",
+      "plan-too-long-years": "A plan lasts at most {years} years from the first buy. Choose an earlier last buy."
+    }
+  },
+  "sellWindow": {
+    "legend": "Sell window",
+    "none": "No sell window",
+    "noneLine": "Your plan buys, then holds.",
+    "dates": "A sell window",
+    "datesLine": "Your plan sells in three parts between the opening and closing dates, out by the last.",
+    "opens": "Opens",
+    "closes": "Closes",
+    "exitBy": "Out by",
+    "issue": {
+      "date-required": "Choose a full date: day, month, and year.",
+      "order": {
+        "closes": "Choose a closing date on or after the opening date.",
+        "exitBy": "Choose an out-by date on or after the closing date."
+      }
+    }
+  },
+  "earlyWindow": {
+    "notice": "The sell window opens on {opensOn}. {on, select, lastBuy {This last buy} template {The template's last buy} other {Your last buy}} is {effect, select, exempt {tax-free} other {at the long-term rate}} from {eligibleOn} under {rule, select, country {your plan's holding rule} named {{country}'s rule} generic {the general profile's rule} other {your own rule}}. You can also {on, select, lastBuy {choose an earlier last buy} template {choose another starting point} other {{host, select, country {cancel this change and choose a later opening date on Hold & sell} other {choose a later opening date}}}}.",
+    "accept": "Open the sell window on {opensOn}, before {on, select, lastBuy {this} template {the template's} other {your}} last buy passes the holding rule",
+    "refused": "{on, select, template {Tick the box to open the sell window early, or choose another starting point.} lastBuy {Tick the box to open the sell window early, or choose an earlier last buy.} other {{host, select, country {Tick the box to open the sell window early, or cancel this change and choose a later opening date on Hold & sell.} other {Tick the box to open the sell window early, or choose a later opening date.}}}}"
+  },
+  "holding": {
+    "exempt": "Tax-free from {date}",
+    "lowerRate": "Long-term rate from {date}",
+    "note": "Computed from your dates, not tax advice",
+    "templateNote": "Computed from the template's dates, not tax advice"
+  },
+  "holdingRule": {
+    "legend": "Holding rule",
+    "country": "{kind, select, named {{name}'s rule} generic {The general profile's rule} other {Your country's rule}}",
+    "countryUnknown": "Your country's rule is not loaded on this device.",
+    "own": "Your own rule",
+    "ownLine": "It applies to every purchase, whatever its date.",
+    "kind": "Rule",
+    "kinds": {
+      "none": "No holding rule",
+      "days": "A number of days",
+      "years": "A number of years"
+    },
+    "count": {
+      "days": "Days",
+      "years": "Years"
+    },
+    "effect": "After the period",
+    "effects": {
+      "exempt": "Tax-free",
+      "lower-rate": "Long-term rate"
+    },
+    "text": {
+      "none": "No holding rule.",
+      "days": "{count, plural, one {{figure} day} other {{figure} days}}, then {effect, select, exempt {tax-free} other {the long-term rate}}.",
+      "years": "{count, plural, one {{figure} year} other {{figure} years}}, then {effect, select, exempt {tax-free} other {the long-term rate}}."
+    },
+    "issue": {
+      "count-whole": "Enter a whole number of {kind, select, years {years} other {days}}.",
+      "count-range": "Enter from {min} to {max} {kind, select, years {years} other {days}}.",
+      "country-unknown": "Your country's rule is not loaded on this device. Choose your own rule."
+    }
+  },
+  "timeline": {
+    "heading": "Timeline",
+    "phase": {
+      "buy": "Buying",
+      "hold": "Holding",
+      "sell": "Selling",
+      "exit": "Out by"
+    },
+    "current": {
+      "buy": "in the buy phase",
+      "hold": "in the hold phase",
+      "sell": "in the sell window",
+      "exit": "after the sell window closed"
+    },
+    "milestone": {
+      "first": "First buy",
+      "last": "Last buy",
+      "exempt": "Last buy tax-free",
+      "lowerRate": "Last buy at the long-term rate",
+      "part1": "Part 1 of 3: a third of your holding",
+      "part2": "Part 2 of 3: a third of your holding",
+      "part3": "Part 3 of 3: the rest of your holding",
+      "out": "Out by",
+      "today": "Today",
+      "halving": "Halving",
+      "peak": "Cycle high {source, select, template {the template} other {the DCA plan page}} assumes"
+    },
+    "range": "{from} to {to}",
+    "noEnd": "No end set",
+    "around": "Around {month}",
+    "today": "Today, {date}",
+    "label": "Plan from {start}{open, select, yes {, with no end set} other { to {end}}}.",
+    "labelToday": "Plan from {start}{open, select, yes {, with no end set} other { to {end}}}. Today, {date}, is {phase}.",
+    "table": {
+      "summary": "Show as a table",
+      "date": "Date",
+      "milestone": "Milestone"
+    }
+  },
+  "pause": {
+    "heading": "Pause the plan",
+    "body": "Buy days in the pause are marked paused, not missed. Your entries stay. A calendar file you added keeps its events. When you resume, the next buy day and the last buy keep their dates.",
+    "pause": "Pause from today",
+    "since": "Paused since {date}",
+    "resume": "Resume",
+    "overlap": "The plan was not paused, because a pause still to come would overlap a pause from today."
+  },
+  "endBuying": {
+    "title": "End buying",
+    "body": "No buy days after today, {date}.{count, plural, =0 {{window, select, yes { Your sell window stays.} other {}}} one { Your {figure} entry{window, select, yes { and your sell window stay} other { stays}}.} other { Your {figure} entries{window, select, yes { and your sell window stay} other { stay}}.}} A calendar file you added keeps its events.",
+    "confirm": "End buying today",
+    "keep": "Keep the plan as it is",
+    "ended": "Buying ended on {date}.",
+    "undo": "Undo",
+    "notRestored": "Your plan changed after you ended buying, so the earlier last buy was not put back."
+  },
+  "reminder": {
+    "event": {
+      "summary": "Your buy day",
+      "description": "It is your buy day. Open {product} to record it."
+    }
+  }
+}

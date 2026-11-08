@@ -1,0 +1,36 @@
+{
+  "id": "two-coins",
+  "name": "Two coins, no sell window",
+  "oneLine": "Each monthly amount is split between Bitcoin and Ethereum; you can add a sell window.",
+  "riskLabel": "High risk",
+  "explanation": "2 coins, Bitcoin and Ethereum, bought every month and held, with no date to sell unless you add one. Bitcoin fell 78 % from its high on 10 November 2021 to its low on 21 November 2022. Ethereum fell 82 % from its high on 10 November 2021 to its low on 18 June 2022.\n\nPeople pick it when they want 2 coins rather than 3 or 4. What can go wrong: both falls began on the same day, so 2 coins are not 2 separate risks. A fall of that size can come again.",
+  "coins": [
+    { "id": "BTC", "name": "Bitcoin", "geckoId": "bitcoin", "decimals": 8 },
+    { "id": "ETH", "name": "Ethereum", "geckoId": "ethereum", "decimals": 6 }
+  ],
+  "split": { "BTC": "70", "ETH": "30" },
+  "sellWindow": null,
+  "references": {},
+  "drawdowns": [
+    {
+      "coin": "BTC",
+      "high": "2021-11-10",
+      "low": "2022-11-21",
+      "fall": "78",
+      "source": "https://www.bitstamp.net/api/v2/ohlc/btcusd/?step=86400&limit=730&start=1609459200",
+      "publisher": "Bitstamp",
+      "accessed": "2026-10-26"
+    },
+    {
+      "coin": "ETH",
+      "high": "2021-11-10",
+      "low": "2022-06-18",
+      "fall": "82",
+      "source": "https://www.bitstamp.net/api/v2/ohlc/ethusd/?step=86400&limit=730&start=1609459200",
+      "publisher": "Bitstamp",
+      "accessed": "2026-10-26"
+    }
+  ],
+  "lastReviewed": "2026-10-29",
+  "reviewedBy": "owner"
+}

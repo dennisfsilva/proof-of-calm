@@ -1,0 +1,17 @@
+{
+  "$schema": "https://turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "validate": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/packages/app/src/{features,lib}/*/messages/*.json",
+        "$TURBO_ROOT$/apps/web/messages/*.json"
+      ]
+    },
+    "test": { "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/docs/EDUCATION.md", "$TURBO_ROOT$/docs/JURISDICTIONS.md"] },
+    "test:coverage": {
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/docs/EDUCATION.md", "$TURBO_ROOT$/docs/JURISDICTIONS.md"]
+    }
+  }
+}

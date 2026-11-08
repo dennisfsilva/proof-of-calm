@@ -1,0 +1,117 @@
+/*
+ * The stylesheet every host and Storybook imports (docs/DESIGN.md): Tailwind, the enter and exit
+ * animations shadcn's components use, the tokens, the theme and the base layer.
+ */
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "./tokens.css";
+@import "./theme.css";
+
+/* Components are scanned from this package wherever the stylesheet is compiled. */
+@source "../";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* Every number that can change or align: tabular, lining figures (docs/DESIGN.md §5). */
+@utility nums {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/*
+ * The element a script focus move lands on: the least scroll leaves a stack step above it, not the
+ * line flush with the window's top edge (docs/DESIGN.md §6). The header is not sticky (§7).
+ */
+@utility scroll-mt-result {
+  scroll-margin-top: var(--stack-md);
+}
+
+/*
+ * Base UI's rule for the scrollbar it hides on the Select's list, which it would otherwise insert as an
+ * inline <style> the CSP refuses; the ui Select turns those elements off (docs/SECURITY.md §4).
+ */
+.base-ui-disable-scrollbar {
+  scrollbar-width: none;
+}
+.base-ui-disable-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+@layer base {
+  /*
+   * Focus moves and in-page jumps stop clear of the phone tab bar or of a toast on screen, whichever
+   * covers more (the toast sets --toast-inset to the band it covers, the bar or the home indicator's
+   * inset under it included), with the whole focus ring, which is drawn outside the box
+   * (docs/DESIGN.md §6 and §7). At the top edge they stop with the ring's extent plus 1 px clear, as
+   * in the Sheet, since browsers keep scroll offsets to whole pixels: an element left at or above
+   * the top edge (a press lower down scrolled the page first) comes back with its whole ring in view.
+   */
+  html {
+    scroll-padding-top: calc(var(--focus-offset) + var(--focus-width) + 1px);
+    scroll-padding-bottom: calc(
+      max(var(--bottom-bar), var(--toast-inset, 0px)) +
+      var(--focus-offset) +
+      var(--focus-width)
+    );
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: var(--type-16);
+    line-height: var(--type-16-leading);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--heading-tracking);
+  }
+
+  /* Links are ink with an underline (docs/DESIGN.md §3). */
+  a {
+    color: var(--ink);
+    text-decoration-line: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  /* The one focus style: never removed, radius inherited, offset off any fill (docs/DESIGN.md §6). */
+  :focus-visible {
+    outline: var(--focus-width) solid var(--focus);
+    outline-offset: var(--focus-offset);
+  }
+
+  ::selection {
+    background-color: var(--surface-3);
+    color: var(--ink);
+  }
+
+  /*
+   * Reduced motion, from the system or the in-app setting: nothing moves and nothing loops. The
+   * durations are tokens already; this also stops the animations of third-party markup, which is why
+   * it must win over every other rule.
+   */
+  /* biome-ignore-start lint/complexity/noImportantStyles: the reduced-motion override must beat any animation */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 1ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 1ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  :root[data-motion="reduce"] *,
+  :root[data-motion="reduce"] ::before,
+  :root[data-motion="reduce"] ::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* biome-ignore-end lint/complexity/noImportantStyles: see above */
+}

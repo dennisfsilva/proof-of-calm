@@ -1,0 +1,33 @@
+{
+  "name": "@proofofcalm/core",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Pure domain logic (docs/DOMAIN.md): no framework, no I/O, no clock.",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./testing": "./test/builders.ts",
+    "./testing/country-change": "./test/country-change/fixture.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "test": "vitest run --coverage",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "big.js": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@proofofcalm/config": "workspace:*",
+    "@types/big.js": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "date-fns": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "name": "@proofofcalm/app",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The product, host-agnostic: feature folders, ports and adapters, messages (docs/ARCHITECTURE.md).",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    "./features/*": "./src/features/*/index.ts",
+    "./lib/adapters/idb/rows": "./src/lib/adapters/idb/rows.ts",
+    "./lib/navigation/routes": "./src/lib/navigation/routes.ts",
+    "./lib/services/fixtures": "./src/lib/services/fixtures.ts",
+    "./lib/*": "./src/lib/*/index.ts",
+    "./messages/*": "./src/messages/*"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check . && eslint .",
+    "test": "vitest run --project=unit",
+    "storybook": "storybook dev --port 6007 --no-open",
+    "storybook:build": "storybook build --quiet",
+    "storybook:test": "vitest run --project=storybook:*"
+  },
+  "dependencies": {
+    "@proofofcalm/content": "workspace:*",
+    "@proofofcalm/core": "workspace:*",
+    "@proofofcalm/ui": "workspace:*",
+    "idb": "catalog:",
+    "lucide-react": "catalog:",
+    "use-intl": "catalog:",
+    "wouter": "catalog:",
+    "zod": "catalog:",
+    "zustand": "catalog:"
+  },
+  "peerDependencies": {
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@babel/core": "catalog:",
+    "@proofofcalm/config": "workspace:*",
+    "@rolldown/plugin-babel": "catalog:",
+    "@storybook/addon-a11y": "catalog:",
+    "@storybook/addon-vitest": "catalog:",
+    "@storybook/react-vite": "catalog:",
+    "@tailwindcss/vite": "catalog:",
+    "@testing-library/dom": "catalog:",
+    "@testing-library/react": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "@vitest/browser-playwright": "catalog:",
+    "babel-plugin-react-compiler": "catalog:",
+    "fake-indexeddb": "catalog:",
+    "fast-check": "catalog:",
+    "icu-minify": "catalog:",
+    "jsdom": "catalog:",
+    "playwright": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "storybook": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "$comment": "Primary sources a content file may cite (docs/CONTENT-OPS.md §5). A subdomain of a listed domain is allowed.",
+  "PT": [
+    "info.portaldasfinancas.gov.pt",
+    "portaldasfinancas.gov.pt",
+    "diariodarepublica.pt",
+    "files.diariodarepublica.pt",
+    "dre.pt",
+    "parlamento.pt"
+  ],
+  "DE": [
+    "gesetze-im-internet.de",
+    "bundesfinanzministerium.de",
+    "bzst.de",
+    "bundestag.de",
+    "bundesrat.de",
+    "recht.bund.de",
+    "bundesfinanzhof.de"
+  ],
+  "NL": [
+    "belastingdienst.nl",
+    "rijksoverheid.nl",
+    "eerstekamer.nl",
+    "tweedekamer.nl",
+    "officielebekendmakingen.nl",
+    "wetten.overheid.nl"
+  ],
+  "ES": [
+    "sede.agenciatributaria.gob.es",
+    "agenciatributaria.gob.es",
+    "boe.es",
+    "hacienda.gob.es",
+    "lamoncloa.gob.es",
+    "congreso.es"
+  ],
+  "FR": [
+    "impots.gouv.fr",
+    "bofip.impots.gouv.fr",
+    "legifrance.gouv.fr",
+    "assemblee-nationale.fr",
+    "senat.fr",
+    "economie.gouv.fr"
+  ],
+  "IT": ["agenziaentrate.gov.it", "fiscooggi.it", "gazzettaufficiale.it", "mef.gov.it", "normattiva.it"],
+  "BE": [
+    "finances.belgium.be",
+    "financien.belgium.be",
+    "ejustice.just.fgov.be",
+    "ruling.be",
+    "news.belgium.be",
+    "lachambre.be",
+    "dekamer.be"
+  ],
+  "IE": ["revenue.ie", "gov.ie", "assets.gov.ie", "oireachtas.ie", "irishstatutebook.ie"],
+  "GB": ["gov.uk", "legislation.gov.uk", "assets.publishing.service.gov.uk", "fca.org.uk"],
+  "US": ["irs.gov", "congress.gov", "federalregister.gov", "treasury.gov", "taxfoundation.org"],
+  "EU": ["eur-lex.europa.eu", "esma.europa.eu", "ecb.europa.eu", "taxation-customs.ec.europa.eu"],
+  "facts": [
+    "mempool.space",
+    "blockchain.com",
+    "bitstamp.net",
+    "exchange.coinbase.com",
+    "api.coingecko.com",
+    "coinmarketcap.com",
+    "bitcoinity.org",
+    "alternative.me",
+    "coinglass.com",
+    "chainalysis.com",
+    "ftc.gov",
+    "bis.org",
+    "esma.europa.eu",
+    "fca.org.uk",
+    "bafin.de",
+    "cmvm.pt",
+    "bportugal.pt",
+    "diariodarepublica.pt",
+    "recht.bund.de",
+    "normattiva.it",
+    "ejustice.just.fgov.be",
+    "gov.uk",
+    "revenue.ie",
+    "oireachtas.ie"
+  ]
+}

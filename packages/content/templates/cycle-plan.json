@@ -1,0 +1,60 @@
+{
+  "id": "cycle-plan",
+  "name": "Cycle plan",
+  "oneLine": "4 coins bought monthly until 1 June 2028, held, then sold in thirds from 1 June 2029 to 31 October 2029. The plan rests on a forecast that may not come true.",
+  "riskLabel": "Very high risk · time-bound bet on a cycle",
+  "explanation": "This template encodes a forecast about 2029 that may not come true: that Bitcoin’s highs keep coming about 4 years apart, the next between 1 September 2029 and 31 October 2029. It splits each monthly amount 40 % Bitcoin, 30 % Ethereum, 15 % Solana, and 15 % Chainlink. The plan’s last buy is on 1 June 2028, after the halving it places on 15 April 2028. The plan marks thirds to sell from 1 June 2029, 1 August 2029, and 1 October 2029, whatever the price. Nothing is held after 31 December 2029.\n\nPeople pick it to decide the selling in advance rather than on a day the market moves. What can go wrong: past cycles are too few data points to be a law. The high can come before the window, after it, or not at all. Solana fell 97 % from its high on 6 November 2021 to its low on 29 December 2022. Chainlink fell 91 % from its high on 10 May 2021 to its low on 10 June 2023.\n\nFrom 1 June 2028 its dates no longer fill in, and the app asks for new ones.",
+  "coins": [
+    { "id": "BTC", "name": "Bitcoin", "geckoId": "bitcoin", "decimals": 8 },
+    { "id": "ETH", "name": "Ethereum", "geckoId": "ethereum", "decimals": 6 },
+    { "id": "SOL", "name": "Solana", "geckoId": "solana", "decimals": 4 },
+    { "id": "LINK", "name": "Chainlink", "geckoId": "chainlink", "decimals": 4 }
+  ],
+  "split": { "BTC": "40", "ETH": "30", "SOL": "15", "LINK": "15" },
+  "lastBuy": "2028-06-01",
+  "sellWindow": { "opens": "2029-06-01", "closes": "2029-10-31", "exitBy": "2029-12-31" },
+  "references": { "peakFrom": "2029-09-01", "peakTo": "2029-10-31", "halving": "2028-04-15" },
+  "validUntil": "2028-06-01",
+  "drawdowns": [
+    {
+      "coin": "BTC",
+      "high": "2021-11-10",
+      "low": "2022-11-21",
+      "fall": "78",
+      "source": "https://www.bitstamp.net/api/v2/ohlc/btcusd/?step=86400&limit=730&start=1609459200",
+      "publisher": "Bitstamp",
+      "accessed": "2026-11-02"
+    },
+    {
+      "coin": "ETH",
+      "high": "2021-11-10",
+      "low": "2022-06-18",
+      "fall": "82",
+      "source": "https://www.bitstamp.net/api/v2/ohlc/ethusd/?step=86400&limit=730&start=1609459200",
+      "publisher": "Bitstamp",
+      "accessed": "2026-11-02"
+    },
+    {
+      "coin": "SOL",
+      "high": "2021-11-06",
+      "low": "2022-12-29",
+      "fall": "97",
+      "source": "https://api.exchange.coinbase.com/products/SOL-USD/candles?granularity=86400&start=2021-10-01T00:00:00Z&end=2022-07-27T00:00:00Z",
+      "lowSource": "https://api.exchange.coinbase.com/products/SOL-USD/candles?granularity=86400&start=2022-07-27T00:00:00Z&end=2023-01-31T00:00:00Z",
+      "publisher": "Coinbase",
+      "accessed": "2026-11-02"
+    },
+    {
+      "coin": "LINK",
+      "high": "2021-05-10",
+      "low": "2023-06-10",
+      "fall": "91",
+      "source": "https://www.bitstamp.net/api/v2/ohlc/linkusd/?step=86400&limit=1000&start=1609459200",
+      "lowSource": "https://www.bitstamp.net/api/v2/ohlc/linkusd/?step=259200&limit=1000&start=1609459200",
+      "publisher": "Bitstamp",
+      "accessed": "2026-11-02"
+    }
+  ],
+  "lastReviewed": "2026-11-02",
+  "reviewedBy": "owner"
+}

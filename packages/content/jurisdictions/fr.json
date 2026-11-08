@@ -1,0 +1,203 @@
+{
+  "schemaVersion": 1,
+  "code": "FR",
+  "name": "France",
+  "currency": "EUR",
+  "locales": ["fr-FR"],
+  "numberFormatLocale": "fr-FR",
+  "dateFormatLocale": "fr-FR",
+  "timezones": [
+    "Europe/Paris",
+    "America/Martinique",
+    "America/Guadeloupe",
+    "America/Cayenne",
+    "Indian/Reunion",
+    "Indian/Mayotte"
+  ],
+  "taxYear": { "start": "01-01", "end": "12-31" },
+  "filingNote": "Calendar tax year. The online return opens in April of the following year; the closing date differs by département.",
+  "computationModel": { "kind": "portfolio-wide" },
+  "holdingRule": { "kind": "none" },
+  "holdingRuleOverrides": [],
+  "holdingRuleConditions": [],
+  "lotRule": "unspecified",
+  "lotScope": "global",
+  "lotRuleNote": "No matching per lot: the gain on each taxable sale is computed on the whole portfolio (art. 150 VH bis III CGI).",
+  "card": {
+    "classification": "Gains on occasional sales by individuals (art. 150 VH bis CGI; from 1 January 2026, MiCA crypto-assets only; NFTs: art. 150 VH ter). Trading like a professional: non-commercial profits (BNC); as a business: commercial profits (BIC).",
+    "taxableEvents": [
+      {
+        "event": "sale-to-fiat",
+        "taxable": "yes",
+        "note": "Any sale for a currency with legal tender, whatever the holding period; taxed from the first euro once the household's sale prices for the year exceed EUR 305."
+      },
+      {
+        "event": "crypto-to-crypto",
+        "taxable": "no",
+        "note": "Deferred: a swap of one crypto-asset for another with no cash balancing payment (soulte) is not a taxable event; a swap with a balancing payment is taxable."
+      },
+      {
+        "event": "crypto-to-stablecoin",
+        "taxable": "no",
+        "note": "Deferred like any swap."
+      },
+      {
+        "event": "spending",
+        "taxable": "yes",
+        "note": "Paying for a good or a service with crypto is a taxable sale."
+      },
+      {
+        "event": "own-wallet-transfer",
+        "taxable": "no",
+        "note": "Not a sale for consideration: nothing is received in exchange."
+      },
+      {
+        "event": "gift-or-inheritance",
+        "taxable": "depends",
+        "note": "Not a sale for consideration. For the recipient, the acquisition price is the value retained for the gift or inheritance duties (droits de mutation à titre gratuit, art. 150 VH bis III)."
+      },
+      {
+        "event": "staking-or-airdrop",
+        "taxable": "depends",
+        "note": "Rewards from mining or staking are taxed as non-commercial profits (BNC). Airdrops are not addressed by the tax office's FAQ (medium confidence)."
+      }
+    ],
+    "rates": [
+      {
+        "label": "Flat rate (PFU)",
+        "value": "31.4 %",
+        "validFrom": "2025-01-01",
+        "validTo": null,
+        "note": "12.8 % income tax plus 18.6 % social levies. An irrevocable option (box 3CN) puts the gains on the progressive scale."
+      }
+    ],
+    "allowances": [
+      "No tax when the household's sale prices for the year (not the gains) total EUR 305 or less, deferred swaps left out; above EUR 305 every gain of the year is taxed (art. 150 VH bis II B).",
+      "Fees paid on a sale, with proof, reduce the sale price."
+    ],
+    "holdingRuleText": "No holding-period rule: a sale for euros or a payment with crypto is taxable whatever the holding period, once the household's sale prices for the year exceed EUR 305. A swap of crypto for crypto with no balancing payment is deferred until a taxable sale.",
+    "lotRuleText": "No matching per lot. The gain on a sale is the sale price minus the sale's share of the whole portfolio's total cost (total cost × sale price ÷ portfolio value just before the sale); that share then leaves the total cost for later sales.",
+    "losses": "A loss offsets only gains of the same kind made in the same year; it does not carry forward to later years.",
+    "reporting": [
+      "Form 2042 C: box 3AN for a net gain, 3BN for a net loss, 3CN to opt for the progressive scale.",
+      "Annexe 2086 lists every taxable sale: date, value of the whole portfolio, sale price, fees, total acquisition price, and the part of that price already used in earlier sales (the form's 'fractions de capital initial').",
+      "Form 3916-bis for every crypto account on a platform abroad."
+    ],
+    "caveats": [
+      "The value of all your holdings at the moment of each sale.",
+      "The EUR 305 threshold, counted on sale prices.",
+      "Losses, usable in the same year only.",
+      "Declarations for platforms abroad and their fines.",
+      "Staking rewards and airdrops.",
+      "Surtaxes on high incomes.",
+      "The 2027 budget measures, which are not law yet."
+    ],
+    "summary60": "France: selling crypto for euros or paying with crypto is taxable; swapping one crypto for another is not. Gains are taxed at a flat 31.4 %, or at your progressive rate on request. If your household's sales in a year total EUR 305 or less, nothing is due. Gains are computed on your whole portfolio, not per coin."
+  },
+  "pendingChanges": [
+    {
+      "title": "Loi n° 2026-534 of 25 June 2026 against social and tax fraud, art. 91",
+      "status": "in-force",
+      "effectiveFrom": "2026-01-01",
+      "summary": "Art. 150 VH bis now covers crypto-assets under Regulation (EU) 2023/1114 (MiCA); the new art. 150 VH ter taxes unique, non-fungible crypto-assets (NFTs) under the rules of the asset they represent. Both apply to sales from 1 January 2026. Articles 1649 bis C and 1736 add NFTs held abroad to the account declarations and their fines.",
+      "source": {
+        "title": "LOI n° 2026-534 du 25 juin 2026 relative à la lutte contre les fraudes sociales et fiscales, article 91",
+        "url": "https://www.legifrance.gouv.fr/jorf/article_jo/JORFARTI000054310089",
+        "publisher": "Légifrance",
+        "kind": "law",
+        "published": "2026-06-26",
+        "accessed": "2026-11-05"
+      }
+    }
+  ],
+  "sources": [
+    {
+      "key": "fr-impots-faq-actifs-numeriques",
+      "title": "Comment déclarer les plus ou moins-values sur cessions d'actifs numériques ?",
+      "url": "https://www.impots.gouv.fr/particulier/questions/comment-declarer-les-plus-ou-moins-values-sur-cessions-dactifs-numeriques",
+      "publisher": "Direction générale des Finances publiques",
+      "kind": "authority",
+      "published": "2023-06-16",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "fr-bofip-pvbmc-30-10",
+      "title": "BOI-RPPM-PVBMC-30-10: Cession d'actifs numériques, champ d'application",
+      "url": "https://bofip.impots.gouv.fr/doctrine/pgp/11967-PGP",
+      "publisher": "Bulletin officiel des finances publiques",
+      "kind": "authority",
+      "published": "2019-09-02",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "fr-bofip-pvbmc-30-20",
+      "title": "BOI-RPPM-PVBMC-30-20: Cession d'actifs numériques, base d'imposition",
+      "url": "https://bofip.impots.gouv.fr/bofip/11968-PGP.html/identifiant=BOI-RPPM-PVBMC-30-20-20190902",
+      "publisher": "Bulletin officiel des finances publiques",
+      "kind": "authority",
+      "published": "2019-09-02",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "fr-bofip-pvbmc-30-30",
+      "title": "BOI-RPPM-PVBMC-30-30: Cession d'actifs numériques, modalités d'imposition",
+      "url": "https://bofip.impots.gouv.fr/bofip/11969-PGP.html/identifiant=BOI-RPPM-PVBMC-30-30-20240423",
+      "publisher": "Bulletin officiel des finances publiques",
+      "kind": "authority",
+      "published": "2024-04-23",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "fr-dgfip-formulaire-2086",
+      "title": "Formulaire 2086: Déclaration des plus ou moins-values réalisées en 2025 suite à des cessions d'actifs numériques et droits assimilés",
+      "url": "https://www.impots.gouv.fr/sites/default/files/formulaires/2086/2026/2086_5515.pdf",
+      "publisher": "Direction générale des Finances publiques",
+      "kind": "authority",
+      "published": null,
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "fr-cgi-art-150-vh-bis",
+      "title": "Code général des impôts, article 150 VH bis",
+      "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000050366751",
+      "publisher": "Légifrance",
+      "kind": "law",
+      "published": null,
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "fr-loi-2026-534",
+      "title": "LOI n° 2026-534 du 25 juin 2026 relative à la lutte contre les fraudes sociales et fiscales, article 91",
+      "url": "https://www.legifrance.gouv.fr/jorf/article_jo/JORFARTI000054310089",
+      "publisher": "Légifrance",
+      "kind": "law",
+      "published": "2026-06-26",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "fr-lfss-2026-art-12",
+      "title": "LOI n° 2025-1403 du 30 décembre 2025 de financement de la sécurité sociale pour 2026, article 12",
+      "url": "https://www.legifrance.gouv.fr/jorf/article_jo/JORFARTI000053226452",
+      "publisher": "Légifrance",
+      "kind": "law",
+      "published": null,
+      "accessed": "2026-11-05"
+    }
+  ],
+  "ruleSources": {
+    "holdingRule": "fr-impots-faq-actifs-numeriques",
+    "lotRule": "fr-bofip-pvbmc-30-20",
+    "rates": "fr-impots-faq-actifs-numeriques",
+    "losses": "fr-impots-faq-actifs-numeriques",
+    "reporting": "fr-impots-faq-actifs-numeriques"
+  },
+  "status": {
+    "confidence": "high",
+    "version": 1,
+    "changedOn": "2026-01-01",
+    "changeNotice": null,
+    "lastReviewed": "2026-11-05",
+    "nextReviewDue": "2027-01-01",
+    "reviewedBy": "owner"
+  }
+}

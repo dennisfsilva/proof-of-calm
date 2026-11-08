@@ -1,0 +1,628 @@
+{
+  "name": "two-coins",
+  "today": "2026-10-16",
+  "prices": {
+    "BTC": "60000",
+    "ETH": "2000"
+  },
+  "state": {
+    "version": 4,
+    "settings": {
+      "base": "EUR",
+      "quote": "USD",
+      "strategy": "custom",
+      "monthly": 100,
+      "initial": 500,
+      "firstBuy": "2026-01-01",
+      "taxNote": "",
+      "coins": [
+        {
+          "id": "BTC",
+          "name": "Bitcoin",
+          "gecko": "bitcoin",
+          "dec": 8,
+          "color": "#eb6834"
+        },
+        {
+          "id": "ETH",
+          "name": "Ethereum",
+          "gecko": "ethereum",
+          "dec": 6,
+          "color": "#6250d6"
+        }
+      ],
+      "split": {
+        "BTC": 70,
+        "ETH": 30
+      },
+      "dcaDay": 1,
+      "lastBuy": "2026-12-01",
+      "holdDays": 365,
+      "sellFrom": "",
+      "sellTo": "",
+      "exitBy": "",
+      "peakFrom": "",
+      "peakTo": "",
+      "halving": "",
+      "expect": {
+        "bear": 0.7,
+        "base": 2.3,
+        "bull": 3.5
+      }
+    },
+    "purchases": [
+      {
+        "id": "p1001",
+        "kind": "lump",
+        "date": "2026-01-01",
+        "coin": "BTC",
+        "eur": 350,
+        "units": 0.00684294,
+        "fee": 0.7,
+        "note": ""
+      },
+      {
+        "id": "p1002",
+        "kind": "lump",
+        "date": "2026-01-01",
+        "coin": "ETH",
+        "eur": 150,
+        "units": 0.080263,
+        "fee": 0.3,
+        "note": ""
+      },
+      {
+        "id": "p1003",
+        "kind": "dca",
+        "date": "2026-01-01",
+        "coin": "BTC",
+        "eur": 70,
+        "units": 0.00136859,
+        "fee": null,
+        "note": "",
+        "slot": "2026-01"
+      },
+      {
+        "id": "p1004",
+        "kind": "dca",
+        "date": "2026-01-01",
+        "coin": "ETH",
+        "eur": 30,
+        "units": 0.016053,
+        "fee": null,
+        "note": "",
+        "slot": "2026-01"
+      },
+      {
+        "id": "p1005",
+        "kind": "dca",
+        "date": "2026-02-02",
+        "coin": "BTC",
+        "eur": 70,
+        "units": 0.00122063,
+        "fee": 0.35,
+        "note": "",
+        "slot": "2026-02"
+      },
+      {
+        "id": "p1006",
+        "kind": "dca",
+        "date": "2026-02-02",
+        "coin": "ETH",
+        "eur": 30,
+        "units": 0.014317,
+        "fee": 0.15,
+        "note": "",
+        "slot": "2026-02"
+      },
+      {
+        "id": "p1007",
+        "kind": "dca",
+        "date": "2026-04-01",
+        "coin": "BTC",
+        "eur": 70,
+        "units": 0.00121326,
+        "fee": null,
+        "note": "",
+        "slot": "2026-04"
+      },
+      {
+        "id": "p1008",
+        "kind": "dca",
+        "date": "2026-04-01",
+        "coin": "ETH",
+        "eur": 30,
+        "units": 0.014231,
+        "fee": null,
+        "note": "",
+        "slot": "2026-04"
+      },
+      {
+        "id": "p1009",
+        "kind": "dca",
+        "date": "2026-05-04",
+        "coin": "BTC",
+        "eur": 70,
+        "units": 0.00136109,
+        "fee": 0.35,
+        "note": "",
+        "slot": "2026-05"
+      },
+      {
+        "id": "p100a",
+        "kind": "dca",
+        "date": "2026-05-04",
+        "coin": "ETH",
+        "eur": 30,
+        "units": 0.015965,
+        "fee": 0.15,
+        "note": "",
+        "slot": "2026-05"
+      },
+      {
+        "id": "p100b",
+        "kind": "dca",
+        "date": "2026-06-01",
+        "coin": "BTC",
+        "eur": 70,
+        "units": 0.0015137,
+        "fee": null,
+        "note": "",
+        "slot": "2026-06"
+      },
+      {
+        "id": "p100c",
+        "kind": "dca",
+        "date": "2026-06-01",
+        "coin": "ETH",
+        "eur": 30,
+        "units": 0.017755,
+        "fee": null,
+        "note": "",
+        "slot": "2026-06"
+      },
+      {
+        "id": "p100d",
+        "kind": "dca",
+        "date": "2026-07-01",
+        "coin": "BTC",
+        "eur": 70,
+        "units": 0.00158303,
+        "fee": null,
+        "note": "",
+        "slot": "2026-07"
+      },
+      {
+        "id": "p100e",
+        "kind": "dca",
+        "date": "2026-07-01",
+        "coin": "ETH",
+        "eur": 30,
+        "units": 0.018568,
+        "fee": null,
+        "note": "",
+        "slot": "2026-07"
+      },
+      {
+        "id": "p100f",
+        "kind": "dca",
+        "date": "2026-08-03",
+        "coin": "BTC",
+        "eur": 70,
+        "units": 0.00147249,
+        "fee": 0.35,
+        "note": "",
+        "slot": "2026-08"
+      },
+      {
+        "id": "p100g",
+        "kind": "dca",
+        "date": "2026-08-03",
+        "coin": "ETH",
+        "eur": 30,
+        "units": 0.017271,
+        "fee": 0.15,
+        "note": "",
+        "slot": "2026-08"
+      },
+      {
+        "id": "p100h",
+        "kind": "extra",
+        "date": "2026-06-15",
+        "coin": "BTC",
+        "eur": 200,
+        "units": 0.0044736,
+        "fee": null,
+        "note": "dip"
+      },
+      {
+        "id": "p100i",
+        "kind": "sell",
+        "date": "2026-09-20",
+        "coin": "ETH",
+        "eur": 50,
+        "units": 0.02,
+        "fee": null,
+        "note": "car"
+      }
+    ],
+    "checks": {
+      "sell1": false,
+      "sell2": false,
+      "sell3": false
+    },
+    "meta": {
+      "updatedAt": 0,
+      "changedAt": 0,
+      "lastBackupAt": 0,
+      "theme": null,
+      "range": "30",
+      "setupDone": true
+    }
+  },
+  "prototype": {
+    "slots": [
+      {
+        "key": "2026-01",
+        "due": "2026-01-01",
+        "done": true,
+        "late": false
+      },
+      {
+        "key": "2026-02",
+        "due": "2026-02-01",
+        "done": true,
+        "late": false
+      },
+      {
+        "key": "2026-03",
+        "due": "2026-03-01",
+        "done": false,
+        "late": true
+      },
+      {
+        "key": "2026-04",
+        "due": "2026-04-01",
+        "done": true,
+        "late": false
+      },
+      {
+        "key": "2026-05",
+        "due": "2026-05-01",
+        "done": true,
+        "late": false
+      },
+      {
+        "key": "2026-06",
+        "due": "2026-06-01",
+        "done": true,
+        "late": false
+      },
+      {
+        "key": "2026-07",
+        "due": "2026-07-01",
+        "done": true,
+        "late": false
+      },
+      {
+        "key": "2026-08",
+        "due": "2026-08-01",
+        "done": true,
+        "late": false
+      },
+      {
+        "key": "2026-09",
+        "due": "2026-09-01",
+        "done": false,
+        "late": true
+      },
+      {
+        "key": "2026-10",
+        "due": "2026-10-01",
+        "done": false,
+        "late": true
+      },
+      {
+        "key": "2026-11",
+        "due": "2026-11-01",
+        "done": false,
+        "late": false
+      },
+      {
+        "key": "2026-12",
+        "due": "2026-12-01",
+        "done": false,
+        "late": false
+      }
+    ],
+    "actions": [
+      {
+        "type": "dca",
+        "slot": "2026-03",
+        "due": "2026-03-01",
+        "eur": 100,
+        "late": true,
+        "done": false
+      },
+      {
+        "type": "dca",
+        "slot": "2026-09",
+        "due": "2026-09-01",
+        "eur": 100,
+        "late": true,
+        "done": false
+      },
+      {
+        "type": "dca",
+        "slot": "2026-10",
+        "due": "2026-10-01",
+        "eur": 100,
+        "late": true,
+        "done": false
+      }
+    ],
+    "phase": "buy",
+    "totals": {
+      "initial": 500,
+      "dca": 1200,
+      "n": 12,
+      "total": 1700
+    },
+    "portfolio": {
+      "per": [
+        {
+          "id": "BTC",
+          "units": 0.02104933,
+          "bought": 0.02104933,
+          "sold": 0,
+          "invested": 1040,
+          "proceeds": 0,
+          "fees": 1.75,
+          "price": 60000,
+          "value": 1262.9598,
+          "avg": 49407.74837013814,
+          "pnl": 222.9598000000001,
+          "pnlPct": 21.438442307692316,
+          "buys": 9,
+          "sells": 0
+        },
+        {
+          "id": "ETH",
+          "units": 0.17442300000000002,
+          "bought": 0.194423,
+          "sold": 0.02,
+          "invested": 360,
+          "proceeds": 50,
+          "fees": 0.75,
+          "price": 2000,
+          "value": 348.84600000000006,
+          "avg": 1851.6327800723163,
+          "pnl": 38.84600000000006,
+          "pnlPct": 10.790555555555573,
+          "buys": 8,
+          "sells": 1
+        }
+      ],
+      "invested": 1400,
+      "proceeds": 50,
+      "value": 1611.8058,
+      "pnl": 261.8058000000001,
+      "pnlPct": 18.70041428571429,
+      "fees": 2.5,
+      "buys": 17,
+      "sells": 1,
+      "priced": true
+    },
+    "eligibility": {
+      "share": 0,
+      "allBy": "2027-08-03",
+      "any": true
+    },
+    "transactions": [
+      {
+        "key": "sell|2026-09-20|",
+        "kind": "sell",
+        "date": "2026-09-20",
+        "total": 50,
+        "fees": 0,
+        "elig": null,
+        "items": [
+          {
+            "coin": "ETH",
+            "eur": 50,
+            "units": 0.02
+          }
+        ]
+      },
+      {
+        "key": "dca|2026-08-03|2026-08",
+        "kind": "dca",
+        "date": "2026-08-03",
+        "total": 100,
+        "fees": 0.5,
+        "elig": "2027-08-03",
+        "items": [
+          {
+            "coin": "BTC",
+            "eur": 70,
+            "units": 0.00147249
+          },
+          {
+            "coin": "ETH",
+            "eur": 30,
+            "units": 0.017271
+          }
+        ]
+      },
+      {
+        "key": "dca|2026-07-01|2026-07",
+        "kind": "dca",
+        "date": "2026-07-01",
+        "total": 100,
+        "fees": 0,
+        "elig": "2027-07-01",
+        "items": [
+          {
+            "coin": "BTC",
+            "eur": 70,
+            "units": 0.00158303
+          },
+          {
+            "coin": "ETH",
+            "eur": 30,
+            "units": 0.018568
+          }
+        ]
+      },
+      {
+        "key": "extra|2026-06-15|",
+        "kind": "extra",
+        "date": "2026-06-15",
+        "total": 200,
+        "fees": 0,
+        "elig": "2027-06-15",
+        "items": [
+          {
+            "coin": "BTC",
+            "eur": 200,
+            "units": 0.0044736
+          }
+        ]
+      },
+      {
+        "key": "dca|2026-06-01|2026-06",
+        "kind": "dca",
+        "date": "2026-06-01",
+        "total": 100,
+        "fees": 0,
+        "elig": "2027-06-01",
+        "items": [
+          {
+            "coin": "BTC",
+            "eur": 70,
+            "units": 0.0015137
+          },
+          {
+            "coin": "ETH",
+            "eur": 30,
+            "units": 0.017755
+          }
+        ]
+      },
+      {
+        "key": "dca|2026-05-04|2026-05",
+        "kind": "dca",
+        "date": "2026-05-04",
+        "total": 100,
+        "fees": 0.5,
+        "elig": "2027-05-04",
+        "items": [
+          {
+            "coin": "BTC",
+            "eur": 70,
+            "units": 0.00136109
+          },
+          {
+            "coin": "ETH",
+            "eur": 30,
+            "units": 0.015965
+          }
+        ]
+      },
+      {
+        "key": "dca|2026-04-01|2026-04",
+        "kind": "dca",
+        "date": "2026-04-01",
+        "total": 100,
+        "fees": 0,
+        "elig": "2027-04-01",
+        "items": [
+          {
+            "coin": "BTC",
+            "eur": 70,
+            "units": 0.00121326
+          },
+          {
+            "coin": "ETH",
+            "eur": 30,
+            "units": 0.014231
+          }
+        ]
+      },
+      {
+        "key": "dca|2026-02-02|2026-02",
+        "kind": "dca",
+        "date": "2026-02-02",
+        "total": 100,
+        "fees": 0.5,
+        "elig": "2027-02-02",
+        "items": [
+          {
+            "coin": "BTC",
+            "eur": 70,
+            "units": 0.00122063
+          },
+          {
+            "coin": "ETH",
+            "eur": 30,
+            "units": 0.014317
+          }
+        ]
+      },
+      {
+        "key": "lump|2026-01-01|",
+        "kind": "lump",
+        "date": "2026-01-01",
+        "total": 500,
+        "fees": 1,
+        "elig": "2027-01-01",
+        "items": [
+          {
+            "coin": "BTC",
+            "eur": 350,
+            "units": 0.00684294
+          },
+          {
+            "coin": "ETH",
+            "eur": 150,
+            "units": 0.080263
+          }
+        ]
+      },
+      {
+        "key": "dca|2026-01-01|2026-01",
+        "kind": "dca",
+        "date": "2026-01-01",
+        "total": 100,
+        "fees": 0,
+        "elig": "2027-01-01",
+        "items": [
+          {
+            "coin": "BTC",
+            "eur": 70,
+            "units": 0.00136859
+          },
+          {
+            "coin": "ETH",
+            "eur": 30,
+            "units": 0.016053
+          }
+        ]
+      }
+    ],
+    "tranches": [
+      {
+        "k": "sell1",
+        "when": null
+      },
+      {
+        "k": "sell2",
+        "when": null
+      },
+      {
+        "k": "sell3",
+        "when": null
+      }
+    ]
+  }
+}

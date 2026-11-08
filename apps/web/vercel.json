@@ -1,0 +1,132 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "buildCommand": "pnpm run build",
+  "outputDirectory": "dist",
+  "regions": [
+    "fra1"
+  ],
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "routes": [
+    {
+      "src": "^/(?!(?:terms|privacy|risk|cookies|contact|\\.well-known/security\\.txt)/?$|api/|assets/|icons/|sw\\.js$|serwist/|favicon\\.|apple-touch-icon\\.png$).*$",
+      "has": [
+        {
+          "type": "header",
+          "key": "x-vercel-ip-country",
+          "value": "GB"
+        }
+      ],
+      "dest": "/not-available",
+      "status": 451,
+      "caseSensitive": true,
+      "headers": {
+        "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()",
+        "X-Content-Type-Options": "nosniff",
+        "Cross-Origin-Opener-Policy": "same-origin",
+        "Cross-Origin-Resource-Policy": "same-origin",
+        "X-Frame-Options": "DENY",
+        "X-Robots-Tag": "noindex, nofollow",
+        "Content-Security-Policy": "default-src 'self'; script-src 'self' 'sha256-wnpGXoSKl24mPBrgSxtQGoZPqPfH8I2hrV5IqSq/q18=' 'sha256-92ZM1ZTIuAg5GfBEfzDubSanWvwzhnqTfPEc/OMTuSI=' 'strict-dynamic'; style-src 'self' 'sha256-dSZnOanxA/cAZMtwpzDx+jtsj0LWUgAB/eXHYh5Ks0I='; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests; report-uri /api/csp-report; report-to csp-endpoint",
+        "Reporting-Endpoints": "csp-endpoint=\"/api/csp-report\"",
+        "Cache-Control": "no-store"
+      }
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin"
+        },
+        {
+          "key": "Cross-Origin-Resource-Policy",
+          "value": "same-origin"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/((?!\\.well-known/|manifest\\.webmanifest$|api/|assets/|icons/|sw\\.js$|serwist/|favicon\\.|apple-touch-icon\\.png$).*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'sha256-wnpGXoSKl24mPBrgSxtQGoZPqPfH8I2hrV5IqSq/q18=' 'sha256-92ZM1ZTIuAg5GfBEfzDubSanWvwzhnqTfPEc/OMTuSI=' 'strict-dynamic'; style-src 'self' 'sha256-dSZnOanxA/cAZMtwpzDx+jtsj0LWUgAB/eXHYh5Ks0I='; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests; report-uri /api/csp-report; report-to csp-endpoint"
+        },
+        {
+          "key": "Reporting-Endpoints",
+          "value": "csp-endpoint=\"/api/csp-report\""
+        }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/sw.js",
+      "headers": [
+        {
+          "key": "Service-Worker-Allowed",
+          "value": "/"
+        }
+      ]
+    },
+    {
+      "source": "/serwist/sw.js",
+      "headers": [
+        {
+          "key": "Service-Worker-Allowed",
+          "value": "/"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/(prices|csp-report|history/[^/]+)",
+      "destination": "/api"
+    },
+    {
+      "source": "/(today|portfolio|log|plan|settings|learn|onboarding)",
+      "destination": "/app"
+    },
+    {
+      "source": "/(today|portfolio|log|plan|settings|learn|onboarding)/(.*)",
+      "destination": "/app"
+    }
+  ]
+}

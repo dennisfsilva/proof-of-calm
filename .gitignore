@@ -1,0 +1,35 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build output
+out/
+dist/
+server-dist/
+storybook-static/
+*.tsbuildinfo
+.turbo/
+
+# tests
+coverage/
+playwright-report/
+test-results/
+blob-report/
+
+# environment and secrets
+.env
+.env.*
+!.env.example
+
+# local tooling
+.claude/settings.local.json
+# worktrees Claude Code creates for parallel agents (each is a full checkout)
+.claude/worktrees/
+.vercel/
+.DS_Store
+Thumbs.db
+npm-debug.log*
+pnpm-debug.log*
+
+# Lighthouse CI
+.lighthouseci/

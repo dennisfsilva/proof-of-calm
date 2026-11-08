@@ -1,0 +1,85 @@
+{
+  "title": "Today",
+  "empty": {
+    "title": "No plan yet",
+    "noPlan": "<setup>Set up a plan</setup> or <import>import a file</import>."
+  },
+  "action": {
+    "late": "{month} is still open",
+    "lateBody": "Buy day was {date}, {days, plural, one {{figure} day} other {{figure} days}} ago. Record it or skip the month.",
+    "due": "Today is the {month} buy day",
+    "upcoming": "Next buy day: {date}",
+    "noneLeft": "No buy days left",
+    "starting": "Starting amount: due {date}",
+    "startingLate": "It was due on {date}, {days, plural, one {{figure} day} other {{figure} days}} ago.",
+    "done": "{month} is recorded",
+    "skipped": "{month} is skipped",
+    "pausedMonth": "{month} is paused",
+    "paused": "Paused until {date}",
+    "pausedOpen": "Paused since {date}",
+    "resume": "Resume",
+    "next": "Next buy day: {date}.",
+    "record": "Record a purchase",
+    "asPlanned": "Bought as planned",
+    "different": "Bought a different amount",
+    "skip": "Skip {month}",
+    "edit": "Edit",
+    "parts": "Planned split"
+  },
+  "phase": {
+    "hold": "In the hold phase",
+    "holdBody": "The sell window opens on {date}.",
+    "sell": "In the sell window",
+    "sellBody": "It closes on {date}.",
+    "exit": "The sell window has closed",
+    "exitBody": "The plan ends on {date}.",
+    "done": "The plan ended on {date}"
+  },
+  "why": {
+    "hold": "Why? The hold phase",
+    "window": "Why? The sell window"
+  },
+  "pending": {
+    "heading": "Also open",
+    "dca": "{month}: due {date}"
+  },
+  "portfolio": {
+    "value": "Portfolio value",
+    "invested": "Invested"
+  },
+  "prices": {
+    "asOf": "Prices as of {time}, {date}",
+    "asOfLive": "Prices as of {time}, {date} · Price data by CoinGecko",
+    "delayed": "Prices as of {time}, {date} · delayed",
+    "delayedLive": "Prices as of {time}, {date} · delayed · Price data by CoinGecko",
+    "fromOffline": "Prices from {time}, {date} · offline",
+    "fromOfflineLive": "Prices from {time}, {date} · offline · Price data by CoinGecko"
+  },
+  "strip": {
+    "link": "Your plan",
+    "buy": "Buying",
+    "hold": "Holding",
+    "sell": "Selling",
+    "exit": "Out by",
+    "range": "{from} to {to}",
+    "from": "from {from}",
+    "label": "Plan from {start}{open, select, yes {, with no end set} other { to {end}}}. Today is {today}.",
+    "table": "Show the dates as a table",
+    "phase": "Phase",
+    "start": "From",
+    "end": "To"
+  },
+  "banner": {
+    "never": "Your data lives only on this device. <link>Export a copy.</link>",
+    "last": "Your data lives only on this device. Last export {date}. <link>Export a copy.</link>"
+  },
+  "ruleChange": {
+    "notice": "{date}: {notice}",
+    "generic": "{date}: {kind, select, generic {the general profile} other {the rules for {country}}} changed. Review your plan.",
+    "review": "Review",
+    "dismiss": "Dismiss",
+    "failed": "The notice could not be dismissed. Try again."
+  },
+  "durability": "Your data lives only in this browser. Install the app or export a copy to keep it.",
+  "durabilityInstalled": "Your data lives only on this device. Export a copy to keep it."
+}

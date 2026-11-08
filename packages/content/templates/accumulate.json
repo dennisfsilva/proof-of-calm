@@ -1,0 +1,47 @@
+{
+  "id": "accumulate",
+  "name": "Three coins, no sell window",
+  "oneLine": "Each monthly amount is split between Bitcoin, Ethereum, and Solana, with no sell window.",
+  "riskLabel": "Very high risk",
+  "explanation": "3 coins bought every month and held, with no date to sell. People pick it to build up holdings over many years without deciding in advance when money comes out. What can go wrong: 20 % of every amount goes into Solana. Solana fell 97 % from its high on 6 November 2021 to its low on 29 December 2022. With no sell window, the plan’s value on the day money is needed depends on that day’s market prices.",
+  "coins": [
+    { "id": "BTC", "name": "Bitcoin", "geckoId": "bitcoin", "decimals": 8 },
+    { "id": "ETH", "name": "Ethereum", "geckoId": "ethereum", "decimals": 6 },
+    { "id": "SOL", "name": "Solana", "geckoId": "solana", "decimals": 4 }
+  ],
+  "split": { "BTC": "50", "ETH": "30", "SOL": "20" },
+  "sellWindow": null,
+  "references": {},
+  "drawdowns": [
+    {
+      "coin": "BTC",
+      "high": "2021-11-10",
+      "low": "2022-11-21",
+      "fall": "78",
+      "source": "https://www.bitstamp.net/api/v2/ohlc/btcusd/?step=86400&limit=730&start=1609459200",
+      "publisher": "Bitstamp",
+      "accessed": "2026-10-26"
+    },
+    {
+      "coin": "ETH",
+      "high": "2021-11-10",
+      "low": "2022-06-18",
+      "fall": "82",
+      "source": "https://www.bitstamp.net/api/v2/ohlc/ethusd/?step=86400&limit=730&start=1609459200",
+      "publisher": "Bitstamp",
+      "accessed": "2026-10-26"
+    },
+    {
+      "coin": "SOL",
+      "high": "2021-11-06",
+      "low": "2022-12-29",
+      "fall": "97",
+      "source": "https://api.exchange.coinbase.com/products/SOL-USD/candles?granularity=86400&start=2021-10-01T00:00:00Z&end=2022-07-27T00:00:00Z",
+      "lowSource": "https://api.exchange.coinbase.com/products/SOL-USD/candles?granularity=86400&start=2022-07-27T00:00:00Z&end=2023-01-31T00:00:00Z",
+      "publisher": "Coinbase",
+      "accessed": "2026-10-26"
+    }
+  ],
+  "lastReviewed": "2026-10-29",
+  "reviewedBy": "owner"
+}

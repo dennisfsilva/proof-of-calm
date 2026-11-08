@@ -1,0 +1,4 @@
+{
+  "light": { "background": "#f7f4ef", "ink": "#1c1a18", "accent": "#ac7300" },
+  "dark": { "background": "#151412", "ink": "#f1f0ec", "accent": "#e4b65c" }
+}

@@ -1,0 +1,200 @@
+{
+  "schemaVersion": 1,
+  "code": "ES",
+  "name": "Spain",
+  "currency": "EUR",
+  "locales": ["es-ES", "ca-ES", "gl-ES", "eu-ES"],
+  "numberFormatLocale": "es-ES",
+  "dateFormatLocale": "es-ES",
+  "timezones": ["Europe/Madrid", "Atlantic/Canary", "Africa/Ceuta"],
+  "taxYear": { "start": "01-01", "end": "12-31" },
+  "filingNote": "Calendar tax year. The Renta return (Modelo D-100) for 2025 is filed from 8 April to 30 June 2026 (Orden HAC/277/2026); each year an order sets the dates. The return on crypto held abroad (Modelo 721): 1 January to 31 March.",
+  "computationModel": { "kind": "per-lot" },
+  "holdingRule": { "kind": "none" },
+  "holdingRuleOverrides": [],
+  "holdingRuleConditions": [],
+  "lotRule": "fifo",
+  "lotScope": "global",
+  "lotRuleNote": "First in, first out per type of coin: in partial sales of coins bought at different times and values, the coins sold are the ones acquired first («criterio FIFO», the AEAT Renta manual).",
+  "card": {
+    "classification": "Capital gains and losses in the savings base (art. 46 b LIRPF) for operations outside an economic activity; each type of coin is a distinct asset. No AEAT page read covers staking or airdrops.",
+    "taxableEvents": [
+      {
+        "event": "sale-to-fiat",
+        "taxable": "yes",
+        "note": "Gain or loss is the transfer value less the acquisition value, counting the fees and taxes of the operation that the taxpayer paid; taxable whatever the holding period."
+      },
+      {
+        "event": "crypto-to-crypto",
+        "taxable": "yes",
+        "note": "A swap between different coins is an exchange in kind (a permuta, art. 37.1.h LIRPF). The gain is the higher of the two market values less the acquisition value of the coins given. That higher value is the cost of the coins received."
+      },
+      {
+        "event": "crypto-to-stablecoin",
+        "taxable": "yes",
+        "note": "A stablecoin is another type of coin, so the swap is a permuta like any other."
+      },
+      {
+        "event": "spending",
+        "taxable": "yes",
+        "note": "Paying for goods or services with crypto alters the composition of the estate (art. 33.1 LIRPF), so a gain or loss arises as in a sale; no AEAT page read covers payments (medium confidence)."
+      },
+      {
+        "event": "own-wallet-transfer",
+        "taxable": "no",
+        "note": "Moving coins between wallets of the same owner does not alter the composition of the estate, so no gain or loss arises (art. 33.1 LIRPF). Coins whose private keys the holder keeps are not counted for Modelo 721."
+      },
+      {
+        "event": "gift-or-inheritance",
+        "taxable": "depends",
+        "note": "The giver's gain uses the gift and inheritance tax (ISD) value, at most market value (art. 36 LIRPF); none on death (art. 33.3.b). A gift loss is not deductible (art. 33.5.c). The recipient falls under ISD, not income tax (IRPF, art. 6.4)."
+      },
+      {
+        "event": "staking-or-airdrop",
+        "taxable": "depends",
+        "note": "No AEAT page read covers staking rewards or airdrops; coins received this way are taxed as a gain when sold, with their acquisition value an open question (medium confidence)."
+      }
+    ],
+    "rates": [
+      {
+        "label": "Savings-base scale",
+        "value": "19 % to 30 % by bracket",
+        "validFrom": "2025-01-01",
+        "validTo": null,
+        "note": "State half (art. 66.1 LIRPF) and regional half (art. 76) on the same scale: 19 % up to EUR 6,000; 21 % up to EUR 50,000; 23 % up to EUR 200,000; 27 % up to EUR 300,000; 30 % above. The 30 % bracket applies since 1 January 2025 (Ley 7/2024)."
+      }
+    ],
+    "allowances": [
+      "No allowance for crypto gains; the fees and taxes of the operation paid by the taxpayer adjust the values.",
+      "Modelo 721 only when crypto with a custodian abroad exceeds EUR 50,000 on 31 December; later returns once that balance has grown by more than EUR 20,000 since the last one filed (art. 42 quater RGAT). Self-custodied coins are not counted."
+    ],
+    "holdingRuleText": "No holding-period rule: every sale, swap, or payment is a taxable event whatever the time held. The same savings-base scale applies to a coin held 1 day or 10 years.",
+    "lotRuleText": "First in, first out per type of coin («criterio FIFO», the AEAT Renta manual): in partial sales of coins bought at different times and values, the coins sold are the ones acquired first. The manual read names no per-platform split.",
+    "losses": "Netted within the savings base in the year; a remaining negative balance offsets capital income of the year up to 25 % of it, and the rest carries forward 4 years (art. 49.1 LIRPF).",
+    "reporting": [
+      "The Renta return (Modelo D-100): the section «Ganancias y pérdidas patrimoniales derivadas de la transmisión o permuta de monedas virtuales por particulares».",
+      "Losses pending to offset in later years are listed in annex C of the return.",
+      "Modelo 721, from 1 January to 31 March, for crypto held with a custodian abroad above EUR 50,000 on 31 December; for 2025 holdings, 1 January to 31 March 2026."
+    ],
+    "caveats": [
+      "Whether FIFO is mandatory, and per platform or overall.",
+      "Staking rewards and airdrops.",
+      "The 25 % offset against capital income.",
+      "Gifts: the giver pays.",
+      "The Impuesto sobre el Patrimonio and its regional rules.",
+      "The Basque Country and Navarre, with their own IRPF.",
+      "DAC8 reporting by crypto providers: whether Spain has transposed it.",
+      "What changes after the election of 29 November 2026."
+    ],
+    "summary60": "Spain: every sale, crypto-to-crypto swap, or payment with crypto is a taxable event. No holding-period exemption. Net gains are taxed in the savings base at 19 % to 30 %. First-in, first-out per coin. Losses offset gains and carry forward 4 years. Crypto held with a foreign custodian above EUR 50,000 must be reported on Modelo 721 by 31 March."
+  },
+  "pendingChanges": [],
+  "sources": [
+    {
+      "key": "es-aeat-manual-monedas-virtuales",
+      "title": "Manual práctico Renta 2025: Compra y venta de monedas virtuales: tributación en el IRPF del inversor",
+      "url": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025/c11-ganancias-perdidas-patrimoniales/monedas-virtuales/compra-venta-monedas-virtuales-tributacion-inversor.html",
+      "publisher": "Agencia Tributaria",
+      "kind": "authority",
+      "published": "2026-03-17",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "es-aeat-gravamen-estatal",
+      "title": "Manual práctico Renta 2025: Gravamen de la base liquidable del ahorro. Gravamen estatal",
+      "url": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025/c15-calculo-impuesto-determinacion-cuotas-integras/gravamen-base-liquidable-ahorro/gravamen-estatal.html",
+      "publisher": "Agencia Tributaria",
+      "kind": "authority",
+      "published": "2026-03-17",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "es-aeat-gravamen-autonomico",
+      "title": "Manual práctico Renta 2025: Gravamen de la base liquidable del ahorro. Gravamen autonómico",
+      "url": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025/c15-calculo-impuesto-determinacion-cuotas-integras/gravamen-base-liquidable-ahorro/gravamen-autonomico.html",
+      "publisher": "Agencia Tributaria",
+      "kind": "authority",
+      "published": "2026-03-17",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "es-aeat-integracion-ahorro",
+      "title": "Manual práctico Renta 2025: Integración y compensación de rentas en la base imponible del ahorro",
+      "url": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025/c12-integracion-compensacion-rentas/reglas-integracion-compensacion-rentas/integracion-compensacion-rentas-base-imponible-ahorro.html",
+      "publisher": "Agencia Tributaria",
+      "kind": "authority",
+      "published": "2026-03-17",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "es-aeat-721-faq",
+      "title": "Modelo 721. Preguntas frecuentes",
+      "url": "https://sede.agenciatributaria.gob.es/Sede/todas-gestiones/impuestos-tasas/declaraciones-informativas/modelo-721-decla-sobre-monedas-extranjero/preguntas-frecuentes-sobre-modelo-721.html",
+      "publisher": "Agencia Tributaria",
+      "kind": "authority",
+      "published": "2026-09-08",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "es-aeat-721-plazos",
+      "title": "Modelo 721. Plazos de presentación",
+      "url": "https://sede.agenciatributaria.gob.es/Sede/todas-gestiones/impuestos-tasas/declaraciones-informativas/modelo-721-decla-sobre-monedas-extranjero/plazos-presentacion.html",
+      "publisher": "Agencia Tributaria",
+      "kind": "authority",
+      "published": "2026-09-08",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "es-boe-lirpf",
+      "title": "Ley 35/2006, de 28 de noviembre, del Impuesto sobre la Renta de las Personas Físicas (texto consolidado)",
+      "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2006-20764",
+      "publisher": "Boletín Oficial del Estado",
+      "kind": "law",
+      "published": "2026-10-07",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "es-boe-rgat",
+      "title": "Real Decreto 1065/2007, de 27 de julio, Reglamento General de las actuaciones y los procedimientos de gestión e inspección tributaria (RGAT, texto consolidado), art. 42 quater",
+      "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2007-15984",
+      "publisher": "Boletín Oficial del Estado",
+      "kind": "law",
+      "published": "2026-10-07",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "es-boe-ley-7-2024",
+      "title": "Ley 7/2024, de 20 de diciembre, disposición final séptima",
+      "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2024-26694",
+      "publisher": "Boletín Oficial del Estado",
+      "kind": "law",
+      "published": "2024-12-21",
+      "accessed": "2026-11-05"
+    },
+    {
+      "key": "es-boe-orden-hac-277-2026",
+      "title": "Orden HAC/277/2026, de 25 de marzo, por la que se aprueban los modelos de declaración del IRPF y del Impuesto sobre el Patrimonio, ejercicio 2025",
+      "url": "https://www.boe.es/diario_boe/txt.php?id=BOE-A-2026-7041",
+      "publisher": "Boletín Oficial del Estado",
+      "kind": "law",
+      "published": "2026-03-27",
+      "accessed": "2026-11-05"
+    }
+  ],
+  "ruleSources": {
+    "holdingRule": "es-aeat-manual-monedas-virtuales",
+    "lotRule": "es-aeat-manual-monedas-virtuales",
+    "rates": "es-aeat-gravamen-estatal",
+    "losses": "es-aeat-integracion-ahorro",
+    "reporting": "es-aeat-manual-monedas-virtuales"
+  },
+  "status": {
+    "confidence": "high",
+    "version": 1,
+    "changedOn": "2025-01-01",
+    "changeNotice": null,
+    "lastReviewed": "2026-11-05",
+    "nextReviewDue": "2027-11-05",
+    "reviewedBy": "owner"
+  }
+}

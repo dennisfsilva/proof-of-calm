@@ -1,0 +1,44 @@
+{
+  "code": "US",
+  "name": "United States",
+  "currency": "USD",
+  "locales": ["en-US"],
+  "numberFormatLocale": "en-US",
+  "dateFormatLocale": "en-US",
+  "timezones": [
+    "America/New_York",
+    "America/Chicago",
+    "America/Denver",
+    "America/Phoenix",
+    "America/Los_Angeles",
+    "America/Anchorage",
+    "Pacific/Honolulu"
+  ],
+  "taxYear": {
+    "start": "01-01",
+    "end": "12-31"
+  },
+  "computationModel": {
+    "kind": "per-lot"
+  },
+  "holdingRule": {
+    "kind": "years",
+    "years": 1,
+    "effect": "lower-rate"
+  },
+  "holdingRuleOverrides": [],
+  "holdingRuleConditions": [
+    "A swap or a purchase paid in crypto starts a new holding period for the units received (IRS FAQ Q16 and Q29).",
+    "Gifted units keep the giver's holding period when records show it; inherited units are long-term at once (IRS FAQ Q33; IRS Publication 544).",
+    "Federal rate only. Most states tax the gain at their own rates (42 levy an income tax; Tax Foundation, 2026; medium confidence). Confirm your state."
+  ],
+  "lotRule": "specific",
+  "lotScope": "per-venue",
+  "status": {
+    "version": 1,
+    "changedOn": "2026-01-01",
+    "changeNotice": null,
+    "lastReviewed": "2026-11-05",
+    "nextReviewDue": "2027-01-01"
+  }
+}
