@@ -25,6 +25,7 @@ export * from './log/transactions';
 export * from './market/fx';
 export * from './market/red-day';
 export * from './market/series';
+export * from './market/snapshot';
 export * from './market/today-change';
 export * from './money/currency';
 export * from './money/decimal';

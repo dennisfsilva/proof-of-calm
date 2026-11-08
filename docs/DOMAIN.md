@@ -780,7 +780,16 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   rows that leave it empty: the per-lot file's with no acquired date, the raw listing's sales), `estimated`,
   `unmatched` and `ongoing`. No line names a gain, a loss, tax due, a
   rate or an allowance, calls a row exempt, tax-free or taxable, or calls the file complete or ready to file.
-- `snapshotValue(plan, entries, history, date)`: the portfolio value on a given calendar date from the entry timeline and daily closes; used by the Dutch Portfolio line and the snapshot export; returns `null` with the missing coins listed when history is incomplete (planned: M2).
+- `snapshotValue(plan, entries, histories, date)`: the portfolio value at the end of a calendar date (decided
+  2026-11-08): the units of the live entries dated on or before `date` (sales subtract; a negative holding counts
+  as none, as in `valueSeries`, §3.11), each coin priced at the close dated exactly `date`, the price at 00:00 UTC
+  on the day after (ADR-0036 Readings, 2026-10-20); no neighbouring close stands in. It returns `{ date,
+  currency, coins, total, missing }`: `coins` are the coins with positive units, the plan's in its order, then
+  the others, each `{ coin, units, value }`; a coin with no close dated `date`, and every held coin when the
+  histories are not in the pay currency, has a null `value` and is listed in `missing`; `total` is the exact sum,
+  null while `missing` is not empty. Amounts are exact; the file and the Portfolio line round.
+  `holdingsValue(plan, units, histories, closeOn)` is its pricing half, for units counted elsewhere (the French
+  cessions). Used by the Dutch Portfolio line (planned: M2) and the snapshot export.
 
 ### 3.14 Chart maths (ADR-0022)
 
