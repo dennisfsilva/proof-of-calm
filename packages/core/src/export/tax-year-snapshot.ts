@@ -3,8 +3,8 @@
 // and the holdings at the year end. Data, not a computation of tax: no deemed return, no allowance, no rate.
 import { addDays, type CalendarDate, clampDay, dateParts } from '../dates/calendar';
 import { type SnapshotValue, snapshotValue } from '../market/snapshot';
-import type { CurrencyCode } from '../money/currency';
-import { type Money, plus, type Units } from '../money/decimal';
+import { type CurrencyCode, MINOR_UNITS } from '../money/currency';
+import { decimalPlaces, type Money, plus, round, sum, type Units } from '../money/decimal';
 import { liveEntries } from '../plan/statuses';
 import { coinsWithEntries } from '../portfolio/portfolio';
 import { assertNever } from '../result';
@@ -13,6 +13,7 @@ import { type Entry, isEstimate } from '../schema/entry';
 import type { CoinId } from '../schema/ids';
 import type { Plan } from '../schema/plan';
 import type { PriceHistories } from '../schema/prices';
+import { textCell } from './csv';
 import type { TaxYearSpan } from './tax-year';
 
 /**
@@ -174,4 +175,81 @@ export function taxYearSnapshot(
     estimated: live.some((entry) => entry.date <= span.to && isEstimate(entry)),
     heldInYear: inYear.some((entry) => entry.kind === 'held'),
   };
+}
+
+/** An amount half-even at the currency's minor digits, padded to them; empty for none. */
+function amountCell(value: Money | null, digits: number): string {
+  if (value === null) return '';
+  const rounded = round(value, digits, 'half-even');
+  const places = decimalPlaces(rounded);
+  return places === digits ? rounded : `${rounded}${places === 0 ? '.' : ''}${'0'.repeat(digits - places)}`;
+}
+
+/** The sum of a column's written cells, empty when one of them is (docs/DOMAIN.md §3.13). */
+const totalCell = (cells: readonly string[], digits: number) =>
+  cells.includes('') ? '' : amountCell(sum(cells as Money[]), digits);
+
+/**
+ * The file, laid out as the per-lot file: each header line as one text cell, an empty row, the columns, one `coin`
+ * row per coin, then a `total` row whose units cells are empty and whose amounts sum the written cells above.
+ */
+export function taxYearSnapshotCsv(snapshot: TaxYearSnapshot, header: readonly string[]): string {
+  const digits = MINOR_UNITS[snapshot.currency];
+  const opening = snapshot.reference.slice(5);
+  const closing = snapshot.span.to.slice(5);
+  const columns = [
+    'row',
+    'coin',
+    `units_on_${opening}`,
+    `value_on_${opening}`,
+    'bought_units',
+    'bought_amount',
+    'bought_fee',
+    'held_units',
+    'held_cost',
+    'sold_units',
+    'sold_proceeds',
+    'sold_fee',
+    `units_on_${closing}`,
+    `value_on_${closing}`,
+  ];
+  const amount = (value: Money | null) => amountCell(value, digits);
+  const rows = snapshot.rows.map((row) => [
+    'coin',
+    textCell(row.coin),
+    row.openingUnits,
+    amount(row.openingValue),
+    row.boughtUnits,
+    amount(row.boughtAmount),
+    amount(row.boughtFee),
+    row.heldUnits,
+    amount(row.heldCost),
+    row.soldUnits,
+    amount(row.proceeds),
+    amount(row.saleFee),
+    row.closingUnits ?? '',
+    amount(row.closingValue),
+  ]);
+  const sumOf = (pick: (row: SnapshotRow) => Money | null) =>
+    totalCell(
+      snapshot.rows.map((row) => amount(pick(row))),
+      digits,
+    );
+  const total = [
+    'total',
+    '',
+    '',
+    sumOf((row) => row.openingValue),
+    '',
+    sumOf((row) => row.boughtAmount),
+    sumOf((row) => row.boughtFee),
+    '',
+    sumOf((row) => row.heldCost),
+    '',
+    sumOf((row) => row.proceeds),
+    sumOf((row) => row.saleFee),
+    '',
+    sumOf((row) => row.closingValue),
+  ];
+  return [...header.map(textCell), '', columns.join(','), ...[...rows, total].map((row) => row.join(','))].join('\n');
 }

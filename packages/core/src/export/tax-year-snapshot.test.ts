@@ -1,10 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import { anEntry, BTC, date, money, units } from '../../test/builders';
-import { EXPORT_DAY, NL_ENTRIES, NL_HISTORIES, NL_PLAN, NL_RULES, SPAN_2026 } from '../../test/tax-year/nl-fixture';
+import expected from '../../test/tax-year/nl-2026.csv?raw';
+import {
+  EXPORT_DAY,
+  NL_ENTRIES,
+  NL_HEADER,
+  NL_HISTORIES,
+  NL_PLAN,
+  NL_RULES,
+  SPAN_2026,
+} from '../../test/tax-year/nl-fixture';
 import type { Entry } from '../schema/entry';
 import type { PriceHistories } from '../schema/prices';
 import { taxYearSpan } from './tax-year';
-import { taxYearSnapshot } from './tax-year-snapshot';
+import { taxYearSnapshot, taxYearSnapshotCsv } from './tax-year-snapshot';
 
 const snapshot = (entries: readonly Entry[], today = EXPORT_DAY, histories = NL_HISTORIES) =>
   taxYearSnapshot(NL_PLAN, entries, NL_RULES, SPAN_2026, histories, today);
@@ -132,5 +141,34 @@ describe('taxYearSnapshot (docs/DOMAIN.md §3.13)', () => {
     );
     const odd = anEntry({ kind: 'other' as never, date: date('2026-03-01'), slot: null });
     expect(() => snapshot([odd])).toThrow('Unhandled case');
+  });
+});
+
+describe('taxYearSnapshotCsv (docs/DOMAIN.md §3.13)', () => {
+  it('the NL fixture gives exactly nl-2026.csv', () => {
+    expect(`${taxYearSnapshotCsv(snapshot(NL_ENTRIES), NL_HEADER)}\n`).toBe(expected);
+  });
+
+  it('leaves the year-end cells empty while the year runs, and a missing value empty in its total', () => {
+    const lines = taxYearSnapshotCsv(snapshot(NL_ENTRIES, date('2026-06-30')), []).split('\n');
+    expect(lines[2]).toBe('coin,BTC,0.35,30679.01,0.022345,1900.00,0.45,0.02,,0.1,9500.00,4.75,,');
+    expect(lines[4]).toBe('total,,,38181.63,,1900.00,0.45,,,,12700.00,6.35,,');
+    const gapped = { ...NL_HISTORIES, coins: { BTC: NL_HISTORIES.coins[BTC.id] } } as PriceHistories;
+    const missing = taxYearSnapshotCsv(snapshot(NL_ENTRIES, EXPORT_DAY, gapped), []).split('\n');
+    expect(missing[3]).toBe('coin,ETH,2.5,,0,0.00,0.00,0.5,0.00,1,3200.00,1.60,2,');
+    expect(missing[4]).toBe('total,,,,,1900.00,0.45,,,,12700.00,6.35,,');
+  });
+
+  it('names the columns by the reference date and the year end, and guards the coin and the header', () => {
+    const april = { ...NL_RULES, taxYear: { start: '04-06', end: '04-05' } };
+    const span = taxYearSpan(april.taxYear, 2027);
+    const coin = anEntry({ kind: 'extra', slot: null, coin: '-A1' as never, date: date('2027-02-01') });
+    const file = taxYearSnapshotCsv(taxYearSnapshot(NL_PLAN, [coin], april, span, NL_HISTORIES, EXPORT_DAY), [
+      '+header',
+    ]).split('\n');
+    expect(file[0]).toBe("'+header");
+    expect(file[2]).toContain('units_on_01-01,value_on_01-01,');
+    expect(file[2]).toMatch(/,units_on_04-05,value_on_04-05$/);
+    expect(file[3]?.startsWith("coin,'-A1,0,0.00,0.001,")).toBe(true);
   });
 });
