@@ -184,6 +184,8 @@ kind), as plans are (§2.1), so the previous build, which reads entries at v2, r
 The Log's `Add coins you already have` writes `held` (`docs/CONTENT-STYLE.md` §3), with the units, a date,
 an optional venue and note, a cost only when one is known (0 when nothing was paid) and no fee; v3 is read by
 a release before one writes it (`docs/RELEASE.md`, Versioning).
+The Dutch tax-year file lists `held` entries in their own columns, never as purchases, and its header names
+those dated in the year (§3.13).
 
 ### 2.3 Device-local preferences (not synced, not part of the plan)
 
@@ -740,7 +742,11 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
     - Order: the plan's coins in its order, then any other coin of the log; per coin the lots in `compareEntries` order, each lot's disposal pieces before its year-end piece, then the coin's unmatched rows by sale. The file: the header lines the shell words (rule, span, `ongoing` while today ≤ `span.to`, and the flags `uncosted`, `estimated`, `unmatched`, `crossVenue`, `planRuleDiffers`), one empty row, the columns, the rows.
     - File name, `taxYearFileName(slug, span, code, today)`: `proof-of-calm-tax-year-2026-PT-YYYY-MM-DD.csv`, a year across two calendar years `2026-27`; it ends with the export day, so the running year's partial file and a later corrected one differ.
   - `portfolio-wide` (France): per taxable cession, `date, coin, units, proceeds, fee, estimated_portfolio_value_before_sale, total_acquisition_cost_to_date`, the estimate from daily closes labelled as such.
-  - `wealth-snapshot` (Netherlands): `value_on_<MM-DD>` per coin and in total for the reference date, the year's totals of purchases and sales, and the value on the last day of the year.
+  - `wealth-snapshot` (Netherlands), `taxYearSnapshot(plan, entries, rules, span, histories, today)` (decided 2026-11-08); any other model throws a `RangeError`. The years offered and the default year are the per-lot file's (`taxYears`, `defaultTaxYear`).
+    - Dates: `reference` is the model's date inside the span (`01-01`). The Dutch "1 January" value is the holdings at the start of that day, which is the end of the day before: `opening` is `snapshotValue` of 31 December of the year before, with the entries dated on it and the close dated on it. `closing` is `snapshotValue` of `span.to`, null while today ≤ `span.to` (`ongoing`), so the year-end cells stay empty while the year runs.
+    - Rows: one per coin held on the eve of `reference` or with a live entry dated from `reference` to `span.to`, the plan's coins in order, then the others. Each holds the opening units and value, the year's purchases (`dca`, `lump` and `extra`: units, amount, fee), its `held` entries in their own columns, never as purchases (units and cost; the cost is null when any of them has no recorded cost, which sets `uncosted`), its sales (units, proceeds, fee), and the closing units and value. On a log with no short sale, closing units = opening + bought + held − sold.
+    - Flags for the header the shell words: `ongoing`, `uncosted`, `estimated` (a one-tap entry dated on or before `span.to`) and `heldInYear` (a `held` entry dated in the year). The header names `held` entries dated in the year, since such coins may have been there on 1 January, which the roadmap's M2 "Decided against" accepts (§2.2).
+    - Missing closes: a coin with no close dated on the eve or on `span.to`, and every held coin when the histories are not in the pay currency, has empty value cells and is listed in `opening.missing` or `closing.missing`; the file still saves, and the header names those coins with the date. The device holds at most 365 daily closes (ADR-0036 Readings, 2026-10-20), so the 1 January value of the 2025 file, and of the 2026 file from 2027-01-01, is empty until the reference closes of `packages/data` reach that date (planned: M2).
 - Tax-year raw listing for the lot rules the app does not match (`pooled`, `specific`, `average`; decided
   2026-11-07), `taxYearPool(plan, entries, rules, span, today)` and `taxYearPoolCsv(pool, header)`: nothing is
   matched. A coin with a sale dated in the span lists every live entry dated on or before `span.to`, purchases

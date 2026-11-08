@@ -41,7 +41,7 @@ function closeDated(history: PriceHistory, date: CalendarDate): Price | null {
 }
 
 /** Units held per coin after the live entries dated on or before `date`, sales subtracted, as in `valueSeries`. */
-export function unitsHeldOn(entries: readonly Entry[], date: CalendarDate): Map<CoinId, Units> {
+function unitsHeldOn(entries: readonly Entry[], date: CalendarDate): Map<CoinId, Units> {
   const held = new Map<CoinId, Units>();
   for (const entry of liveEntries(entries)) {
     if (entry.date > date) continue;
