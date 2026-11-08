@@ -314,8 +314,8 @@ A finding that shapes the whole feature: of the ten countries, only Portugal and
 holding **exemption**; the US changes the **rate** after one year; the other seven have no holding
 rule at all. "No holding rule here: every sale is a taxable event" is the common case, not the
 exception, and the UI copy, the templates and the onboarding are written with that in mind. Two
-countries do not even fit the per-lot model: France computes each gain on the whole portfolio (the
-export must carry the estimated portfolio value at each sale), and the Netherlands taxes a deemed
+countries do not even fit the per-lot model: France computes each gain on the whole portfolio (form 2086
+asks for the estimated portfolio value at each sale; what the export carries: §7.10, Product note), and the Netherlands taxes a deemed
 return on the value held on 1 January (the export is a snapshot, and the Portfolio page shows the
 1 January value for Dutch users). Portugal applies FIFO per platform and Germany per wallet, which
 is why entries carry an optional venue label.

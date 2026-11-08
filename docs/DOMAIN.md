@@ -818,7 +818,7 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   histories are not in the pay currency, has a null `value` and is listed in `missing`; `total` is the exact sum,
   null while `missing` is not empty. Amounts are exact; the file and the Portfolio line round.
   `holdingsValue(plan, units, histories, closeOn)` is its pricing half, for units counted elsewhere; the French
-  cessions read the same exact-date close (`closeDated`) with its price, which their file writes. Used by the Dutch Portfolio line (planned: M2) and the snapshot export.
+  cessions read the same exact-date close (`closeDated`) with its price, which their file writes. Used by the Dutch Portfolio line (`docs/JURISDICTIONS.md` §7.8) and the snapshot export.
 
 ### 3.14 Chart maths (ADR-0022)
 
@@ -1063,7 +1063,9 @@ unmatched imported sale and a one-tap purchase; `pt-2026.csv` and `pt-2027.csv` 
 "the PT fixture gives the expected CSVs" in `packages/core/src/export/tax-year.test.ts`. `gb-fixture.ts` holds a
 pooled plan with sales in 2025-26 and on 2027-03-20, a purchase on 2027-04-06 inside the 30-day window, a lot with no
 recorded cost and a one-tap purchase; `gb-2026-27.csv` is its raw listing, compared by
-`packages/core/test/tax-year/gb.test.ts`.
+`packages/core/test/tax-year/gb.test.ts`. France's cessions file (`fr-fixture.ts`, `fr-2026.csv`) and the Netherlands' snapshot file
+(`nl-fixture.ts`, `nl-2026.csv`) are described with their functions in §3.13 and compared in
+`packages/core/src/export/tax-year-cessions.test.ts` and `packages/core/src/export/tax-year-snapshot.test.ts`.
 
 ---
 
