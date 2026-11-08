@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { anEntry, aPlan, BTC, date, ETH, instant, money, units } from '../../test/builders';
 import { EXPORT_DAY, FR_HISTORIES, FR_PLAN, FR_RULES, SPAN_2026 } from '../../test/tax-year/fr-fixture';
 import { addDays } from '../dates/calendar';
-import { compare, type Money, sum } from '../money/decimal';
+import { compare, type Money, sum, type Units } from '../money/decimal';
 import { liveEntries } from '../plan/statuses';
 import { compareEntries } from '../portfolio/lots';
 import type { Entry } from '../schema/entry';
@@ -100,16 +100,21 @@ describe('taxYearCessions properties (docs/DOMAIN.md §3.13)', () => {
     );
   });
 
-  it('the estimate is empty when any holding value is, else the sum of the written holding values', () => {
+  it('the estimate is empty when a holding value is or fewer units are held than sold, else their sum', () => {
     fc.assert(
       fc.property(fc.array(entry, { maxLength: 14 }), histories, (entries, market) => {
+        let empty = 0;
         for (const block of blocks(entries, market).values()) {
           const sale = block.at(-1) ?? [];
-          const values = block.slice(0, -1).map((cells) => cells[11] ?? '');
+          const holdings = block.slice(0, -1);
+          const values = holdings.map((cells) => cells[11] ?? '');
+          const own = holdings.find((cells) => cells[3] === sale[3])?.[4] ?? '0';
           expect(sale[0]).toBe('sale');
-          if (values.includes('')) expect(sale[12]).toBe('');
+          if (sale[12] === '') empty += 1;
+          if (values.includes('') || compare(own as Units, sale[4] as Units) < 0) expect(sale[12]).toBe('');
           else expect(compare(sale[12] as Money, sum(values as Money[]))).toBe(0);
         }
+        expect(run(entries, market).unvalued).toBe(empty);
       }),
       RUNS,
     );

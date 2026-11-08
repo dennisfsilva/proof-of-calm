@@ -92,6 +92,37 @@ describe('taxYearCessions (docs/DOMAIN.md §3.13)', () => {
     ]);
   });
 
+  it('empties the estimate of a sale the log holds no units of the coin sold for, and counts it unvalued', () => {
+    const sale = entry('sell', '2026-04-15', BTC.id, { units: units('0.12'), amount: money('8000') });
+    expect(csvRows([sale])).toEqual(['sale,1,2026-04-15,BTC,0.12,no,,8000.00,,,,,,0.00,0.00,0']);
+    expect(cessions([sale])).toMatchObject({ missing: [], unvalued: 1 });
+  });
+
+  it('empties the estimate of a sale of a coin not held while another coin is, and keeps that coin’s row', () => {
+    const entries = [
+      entry('lump', '2026-01-05', BTC.id, { units: units('1'), amount: money('50000') }),
+      entry('sell', '2026-09-20', ETH.id, { units: units('2'), amount: money('5000') }),
+    ];
+    expect(csvRows(entries)).toEqual([
+      'holding,1,2026-09-20,BTC,1,no,,,,65432.1,close,65432.10,,,,',
+      'sale,1,2026-09-20,ETH,2,no,,5000.00,,,,,,50000.00,0.00,0',
+    ]);
+    expect(cessions(entries)).toMatchObject({ missing: [], unvalued: 1 });
+  });
+
+  it('empties the estimate of a sale of more units than the log holds, and keeps the sale-priced row', () => {
+    const entries = [
+      entry('lump', '2026-01-05', BTC.id, { units: units('0.03'), amount: money('2400'), venue: 'Kraken' }),
+      entry('lump', '2026-02-05', BTC.id, { units: units('0.02'), amount: money('1600'), venue: 'Bitvavo' }),
+      entry('sell', '2026-04-15', BTC.id, { units: units('0.12'), amount: money('8000') }),
+    ];
+    expect(csvRows(entries)).toEqual([
+      'holding,1,2026-04-15,BTC,0.05,no,,,,66666.67,sale,3333.33,,,,',
+      'sale,1,2026-04-15,BTC,0.12,no,,8000.00,,,,,,4000.00,0.00,0',
+    ]);
+    expect(cessions(entries)).toMatchObject({ missing: [], unvalued: 1 });
+  });
+
   it('lists only the sales up to today while the year runs', () => {
     const result = cessions(FR_ENTRIES, FR_HISTORIES, date('2026-09-19'));
     expect(result.ongoing).toBe(true);
