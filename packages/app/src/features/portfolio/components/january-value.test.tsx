@@ -65,6 +65,7 @@ async function mount(
   plan: Plan = dutch(),
   entries: readonly Entry[] = ENTRIES,
   nowMs: number = fixtureNowMs('sell'),
+  pastPerformance = false,
 ): Promise<HTMLElement> {
   const services = createTestServices({
     snapshot: { ...fixtureSnapshot(), plan, entries: [...entries] },
@@ -75,7 +76,7 @@ async function mount(
   const { container } = render(
     <ServicesProvider services={services}>
       <I18nProvider messages={{ portfolio: messages }}>
-        <JanuaryValue plan={plan} entries={entries} histories={state} rules={rules} />
+        <JanuaryValue plan={plan} entries={entries} histories={state} rules={rules} pastPerformance={pastPerformance} />
       </I18nProvider>
     </ServicesProvider>,
   );
@@ -204,5 +205,20 @@ describe('JanuaryValue', () => {
     expect(text()).toContain(dutchFormat.money('1345.5' as never, 'USD' as CurrencyCode).replace(/\s/g, ' '));
     expect(text()).toContain('US$');
     expect(text()).not.toContain('€');
+  });
+
+  // docs/LEGAL.md §4: once per path, directly under the figure; the screen asks for it when the chart shows none.
+  it('carries the past-performance line under a figure only when asked', async () => {
+    await mount(NL);
+    expect(text()).not.toContain('Past performance');
+    cleanup();
+    await mount(NL, histories(), dutch(), ENTRIES, fixtureNowMs('sell'), true);
+    const line = screen.getByText(/^Past performance is not a reliable indicator of future results\./);
+    expect(screen.getByText(/^Estimate from the daily closes/).nextElementSibling).toBe(line);
+    expect(screen.getByRole('link', { name: 'Risk disclosure' }).getAttribute('href')).toBe('/risk');
+    cleanup();
+    // No figure, no historic data to disclose.
+    await mount(NL, histories('EUR', 'ETH'), dutch(), ENTRIES, fixtureNowMs('sell'), true);
+    expect(text()).not.toContain('Past performance');
   });
 });

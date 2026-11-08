@@ -9,7 +9,8 @@ import { JanuaryValue } from './january-value';
 
 // The Dutch Portfolio line over the fixture plan seen on 15 March 2030, so 0.02215 BTC and 0.119 ETH are held at
 // the end of 31 December 2029: the value from made-up closes of that day, labelled and credited; while the
-// closes load; with no ETH close that day; and with coins added in the Log after it. The test projects of
+// closes load; with no ETH close that day; with coins added in the Log after it; and carrying the
+// past-performance line when the value chart shows none. The test projects of
 // vitest.config.ts render each at 360 and 1280 px, light and dark, with axe.
 
 const profile = await loadProfile('NL');
@@ -50,7 +51,13 @@ const meta = {
   title: 'Features/Portfolio/JanuaryValue',
   component: JanuaryValue,
   parameters: { services: () => createTestServices({ snapshot: { ...fixture, plan }, nowMs, rules: async () => NL }) },
-  args: { plan, entries: fixture.entries, histories: histories({ BTC: '50000', ETH: '2000' }), rules: NL },
+  args: {
+    plan,
+    entries: fixture.entries,
+    histories: histories({ BTC: '50000', ETH: '2000' }),
+    rules: NL,
+    pastPerformance: false,
+  },
 } satisfies Meta<typeof JanuaryValue>;
 
 export default meta;
@@ -65,6 +72,17 @@ export const Valued: Story = {
         'Estimate from the daily closes of 31 Dec 2029 for BTC and ETH · Price data by CoinGecko',
       ),
     ).toBeVisible();
+  },
+};
+
+/** The value chart draws nothing (everything sold before the range): this line carries the past-performance line. */
+export const CarriesPastPerformance: Story = {
+  args: { pastPerformance: true },
+  play: async ({ canvas }) => {
+    await expect(
+      await canvas.findByText(/^Past performance is not a reliable indicator of future results\./),
+    ).toBeVisible();
+    await expect(canvas.getByRole('link', { name: 'Risk disclosure' })).toBeVisible();
   },
 };
 

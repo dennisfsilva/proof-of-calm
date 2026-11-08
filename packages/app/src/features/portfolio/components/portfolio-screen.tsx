@@ -27,7 +27,7 @@ import { useHistories } from '../lib/use-histories';
 import { chartCoins, chartState } from '../lib/value-chart';
 import { formatPnl, Holdings, pnlTone } from './holdings';
 import { JanuaryValue } from './january-value';
-import { VALUE_CHART_VIEW_BOX, ValueChart } from './value-chart';
+import { chartDiscloses, VALUE_CHART_VIEW_BOX, ValueChart } from './value-chart';
 
 // The Portfolio screen (docs/DOMAIN.md §3.6, docs/DESIGN.md §7): the value of what is held in the pay
 // currency, P/L against cost with the fees beside it (never subtracted), the allocation, the holdings
@@ -40,7 +40,8 @@ import { VALUE_CHART_VIEW_BOX, ValueChart } from './value-chart';
 // there is no allocation: a bar weighed by the amount invested would sit beside a value of 0. Coins added
 // with no recorded cost are named after the summary, whose Invested and P/L leave them out (§3.6), and the
 // not-bought line links to the Log, where they go in. Last, for the Netherlands' model only, the value on
-// 1 January from the same closes (january-value.tsx), where its load moves nothing below it.
+// 1 January from the same closes (january-value.tsx), where its load moves nothing below it; it carries the
+// past-performance line when the value chart, in the same state, shows none (docs/LEGAL.md §4).
 
 const SCREEN = 'mx-auto flex w-full max-w-reading flex-col gap-stack-lg px-gutter py-stack-lg';
 const TEN = '10' as Percent;
@@ -211,7 +212,15 @@ function PlanPortfolio({ plan }: { plan: Plan }) {
           {text}
         </p>
       ))}
-      {rules !== null && <JanuaryValue plan={plan} entries={entries} histories={histories} rules={rules} />}
+      {rules !== null && (
+        <JanuaryValue
+          plan={plan}
+          entries={entries}
+          histories={histories}
+          rules={rules}
+          pastPerformance={!chartDiscloses(chart)}
+        />
+      )}
     </div>
   );
 }
