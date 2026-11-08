@@ -146,7 +146,7 @@ external links and the Risk link in the mobile export (M3).
   dennisfsilva/proof-of-calm-archive#388, dennisfsilva/proof-of-calm-archive#389, #38 and #39 and offered in
   Your data the same day, their value cells empty until the reference closes of `packages/data` (#13) fill
   them, ADR-0036 Readings, 2026-11-08); the "Value on 1 January" line on Portfolio for Dutch
-  users; holding-rule conditions shown beside the first date on the Log and the Plan (Portugal's
+  users, built on 2026-11-08 (#40); holding-rule conditions shown beside the first date on the Log and the Plan (Portugal's
   counterparty rule), built on 2026-11-02 (#312); the dated
   rule-change notice, built on 2026-11-03 (#320); the "under review" state when `nextReviewDue` is more
   than 12 months past, on every jurisdiction card (the earliest trigger is DE's, on 2028-01-02), built

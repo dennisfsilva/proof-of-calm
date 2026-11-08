@@ -48,7 +48,7 @@ rules; their "≥ 10 pt" stands. A credit added later, such as the Log form's (#
 
 None.
 
-## Corrections
+## Corrections recorded on 2026-11-08
 
 - 2026-11-08: the third consequence is wrong. The paid plans' FAQ asks for "Data provided by
   CoinGecko" with a hyperlink to https://www.coingecko.com/en/api, read on 2026-11-08 (ADR-0036's
