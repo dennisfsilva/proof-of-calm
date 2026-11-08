@@ -141,7 +141,10 @@ function taxYearHeader(input: HeaderInput & { readonly facts: FileFacts }, t: Ta
   ];
 }
 
-/** The cessions file's header (France): no lot, matching or holding-rule line, and no threshold or form line number. */
+/**
+ * The cessions file's header (France): no lot, matching or holding-rule line, and no threshold or form line number.
+ * Its estimate line names the block, since a sale row carries the flag of every row in it.
+ */
 function cessionsHeader(input: HeaderInput, file: TaxYearCessions, t: TaxYearWords): string[] {
   return [
     ...openingLines(input, t),
@@ -150,7 +153,7 @@ function cessionsHeader(input: HeaderInput, file: TaxYearCessions, t: TaxYearWor
     t('cessionCosts'),
     t('format'),
     ...(file.uncosted ? [t('heldWithoutCost')] : []),
-    ...(file.estimated ? [t('estimated', { product: BRAND.name })] : []),
+    ...(file.estimated ? [t('estimatedBlock', { product: BRAND.name })] : []),
     ...(file.ongoing ? [t('ongoing', { to: input.span.to, today: input.today })] : []),
   ];
 }

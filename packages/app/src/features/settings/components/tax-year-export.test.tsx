@@ -421,7 +421,9 @@ describe('TaxYearExport', () => {
     }
     const fr = headerOf(files.FR ?? '');
     expect(fr).toContain('held_without_cost_to_date: how many Coins added entries');
-    expect(fr).toContain("units_estimated yes: Proof of Calm's Bought as planned button filled in");
+    expect(fr).toContain(
+      "units_estimated yes: the sale or a holding row in its block counts units that Proof of Calm's",
+    );
     expect(fr).toContain('The tax year ends on 2026-12-31. This file shows your log as of 2026-10-20.');
     const nl = headerOf(files.NL ?? '');
     expect(nl).toContain('held_units are Coins added entries dated in this year.');
@@ -433,6 +435,44 @@ describe('TaxYearExport', () => {
       }
       expect(header).not.toContain('Check figures before any tax or financial use');
     }
+  });
+
+  it("a hand-typed sale whose block holds a one-tap buy of another coin gets the French block's estimate line", async () => {
+    // The fixture's ETH sale is typed by hand; its BTC holding row counts the one-tap BTC buy of 2026-04-05.
+    const oneTapBtc = (all: readonly Entry[]) =>
+      all.map((each, index) => (index === 2 ? { ...each, source: 'one-tap' as const } : each));
+    const platform = await mount(withPlan({ country: 'FR' as Plan['country'] }, oneTapBtc));
+    const { content } = await exportYear(platform, '2026 (still running)');
+    const rows = rowsOf(content);
+    // The sale row carries its block's flag: no estimated ETH, but the BTC holding row counts the one-tap buy.
+    expect(rows.find((row) => row.row === 'holding' && row.coin === 'ETH')?.units_estimated).toBe('no');
+    expect(rows.find((row) => row.row === 'holding' && row.coin === 'BTC')?.units_estimated).toBe('yes');
+    expect(rows.find((row) => row.row === 'sale')?.units_estimated).toBe('yes');
+    expect(headerOf(content)).toContain(
+      textCell(
+        "units_estimated yes: the sale or a holding row in its block counts units that Proof of Calm's Bought as " +
+          "planned button filled in from the day's price, not from your exchange's confirmation. Any fee or venue it " +
+          'copied came from your latest purchase or sale that recorded one.',
+      ),
+    );
+    expect(headerOf(content)).not.toContain('Bought as planned button filled in the units');
+  });
+
+  it('the French cost line names the Coins added entries whose recorded cost it sums', async () => {
+    const heldWithCost = (all: readonly Entry[]): Entry[] => [
+      ...all,
+      { ...heldNoCost(all, '2026-02-01', '0.01'), amount: '5000' as Entry['amount'] },
+    ];
+    const platform = await mount(withPlan({ country: 'FR' as Plan['country'] }, heldWithCost));
+    const { content } = await exportYear(platform, '2026 (still running)');
+    expect(rowsOf(content).find((row) => row.row === 'sale')?.purchase_costs_to_date).toBe('6700.00');
+    expect(headerOf(content)).toContain(
+      textCell(
+        'purchase_costs_to_date sums the amounts of the purchases and the recorded costs of the Coins added entries ' +
+          'logged before each sale, and purchase_fees_to_date their fees. Neither is reduced by earlier sales. ' +
+          'Amounts are as you logged them, whether or not they include a fee.',
+      ),
+    );
   });
 
   it('the Dutch file of an ended year names the year-end column and leaves every held value empty', async () => {
