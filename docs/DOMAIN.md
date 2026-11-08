@@ -795,11 +795,13 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   rows that leave it empty: the per-lot file's with no acquired date, the raw listing's sales), `estimated`,
   `unmatched` and `ongoing`. The cessions and snapshot headers open with the same four lines (title, export
   sentence, currency, review) and carry no matching, `lotRuleNote`, holding, venue or listing line. The
-  cessions header then says what a block holds and that the portfolio-wide formula and the figures from the
-  earlier sales' fractions on are left to the reader; that only the coin sold has a price (its sale price), so
-  the estimate fills only when it was the only coin held and the log holds the units sold; what the two running
-  sums hold; the format line; and, when set, `uncosted` (as `held_without_cost_to_date`), `estimated` and
-  `ongoing`. The snapshot header then says which day each `units_on_` column is, the opening as the start of
+  cessions header then says what a block holds and that the file applies no formula, leaving the calculation
+  to the reader or their accountant; that only the coin sold has a price (its sale price), so the estimate
+  fills only when it was the only coin held and the log holds the units sold; what the two running sums hold
+  (the amounts of the purchases and the recorded costs of the `held` entries logged before the sale, and
+  their fees); the format line; and, when set, `uncosted` (as `held_without_cost_to_date`), `estimatedBlock`
+  (in place of `estimated`, since a sale row's `units_estimated` is its block's: yes when the sale or any
+  holding row in it counts estimated units) and `ongoing`. The snapshot header then says which day each `units_on_` column is, the opening as the start of
   the reference date and the end of the day before, and while the year runs that the year-end column stays
   empty; that the value cells are empty (0.00 where none was held); the format line; and, when set,
   `heldInYear` (the coins of such entries may have been there before the reference date), `uncosted` (an empty
