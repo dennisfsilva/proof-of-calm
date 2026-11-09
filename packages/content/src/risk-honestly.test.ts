@@ -64,9 +64,60 @@ describe('the Risk honestly module', () => {
       'd.mt-gox',
       'd.ftx',
       'f.leverage',
-      'e.scams',
       'm.emergency-fund',
+      'e.unknown-platforms',
+      'e.romance-investment',
+      'e.impersonation',
+      'e.seed-phrase-requests',
+      'e.profit-promises',
+      'e.address-poisoning',
+      'e.seed-phrase-never-asked',
     ]);
+  });
+
+  // Each scam pattern and the support sentence rests on a fact of its own, quoted from the ESAs' factsheet: the
+  // module's words on the left, the factsheet's on the right. A pattern no source states leaves the module.
+  it('rests each scam pattern and the support sentence on a fact of its own, from one dated source', () => {
+    const { module, body } = read();
+    const plain = body.replaceAll(' ', ' ');
+    const patterns = [
+      ['e.unknown-platforms', '- An exchange platform you had not heard of.', 'Unknown exchange platform.'],
+      [
+        'e.romance-investment',
+        '- A stranger who builds trust, then steers the talk to investing.',
+        'building trust using fake profiles. Gradually, they steer the conversation toward financial opportunities',
+      ],
+      [
+        'e.impersonation',
+        '- Someone posing as support, or as a company you know.',
+        'pretending to be a trusted contact',
+      ],
+      [
+        'e.seed-phrase-requests',
+        '- Any request for your seed phrase.',
+        'A request to send or share private keys and seed phrases',
+      ],
+      ['e.profit-promises', '- A promise of high returns with low risk.', 'promises of high returns and low risk'],
+      [
+        'e.address-poisoning',
+        '- A look-alike address slipped into your history, so a copied address pays someone else.',
+        'copy the wrong address from your wallet history',
+      ],
+      [
+        'e.seed-phrase-never-asked',
+        'Nobody from support ever asks for a seed phrase, so a request for one is a scam.',
+        'Legitimate companies will never ask',
+      ],
+    ] as const;
+    for (const [key, words, quote] of patterns) {
+      const fact = facts.find((item) => item.key === key);
+      expect(plain, key).toContain(words);
+      expect(module.facts, key).toContain(key);
+      expect(fact?.value, key).toContain(quote);
+      expect([fact?.date, fact?.accessed, fact?.lastReviewed], key).toEqual(['2025-12-15', '2026-11-09', '2026-11-09']);
+    }
+    expect(new Set(patterns.map(([key]) => facts.find((item) => item.key === key)?.source)).size).toBe(1);
+    expect(plain).not.toMatch(/weeks of messages|a balance you cannot withdraw|friendly stranger/u);
   });
 
   it("draws the chart before any other historic figure and quotes the chart's falls at its whole percent", () => {

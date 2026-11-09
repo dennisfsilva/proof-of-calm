@@ -56,14 +56,91 @@
   },
   {
     "key": "e.scams",
-    "value": "Chainalysis: on-chain scam revenue at least $14bn in 2025 (Chainalysis says the figure could exceed $17bn as it identifies more illicit wallet addresses) after about $12bn in 2024 (revised); total illicit volume 2024 revised to $57.2bn; impersonation scams grew more than 1,400 % in 2025; crypto sent to address-poisoning scams grew more than 15,000 % in 2024, largely from 1 attack in May 2024. US FTC: $15.9bn reported fraud losses in 2025, investment scams $7.9bn (about half), median investment-scam loss $9,196 in 2024. FCA 2025: UK adult crypto ownership fell from 12 % to 8 %; 7 % of UK crypto users say they have personally been a victim of crime, scams, or fraud involving crypto. Patterns with authoritative descriptions: fake investment websites and apps (FTC), unknown exchange platforms (ESAs), pig-butchering (FinCEN alert 8 Sept 2023), fake support and impersonation (ESAs factsheet, December 2025), seed-phrase phishing (ESAs), \"guaranteed returns\" (FTC: \"Only scammers will guarantee profits or big returns\"), address poisoning (ESAs; Chainalysis).",
+    "value": "Chainalysis: on-chain scam revenue at least $14bn in 2025 (Chainalysis says the figure could exceed $17bn as it identifies more illicit wallet addresses) after about $12bn in 2024 (revised); impersonation scams grew more than 1,400 % in 2025.",
     "unit": "USD per year; %",
     "date": "2026-01-13",
     "source": "https://www.chainalysis.com/blog/crypto-scams-2026/",
     "publisher": "Chainalysis",
     "accessed": "2026-11-02",
     "confidence": "high",
-    "lastReviewed": "2026-11-02"
+    "lastReviewed": "2026-11-09"
+  },
+  {
+    "key": "e.unknown-platforms",
+    "value": "ESAs factsheet \"Crypto frauds & scams: stay alert and protect yourself\" (15 Dec 2025), warning signs: \"Unknown exchange platform.\"",
+    "unit": "quotation",
+    "date": "2025-12-15",
+    "source": "https://www.esma.europa.eu/sites/default/files/2025-12/Crypto_fraud_and_scams_factsheet.pdf",
+    "publisher": "European Supervisory Authorities (EBA, EIOPA, ESMA)",
+    "accessed": "2026-11-09",
+    "confidence": "high",
+    "lastReviewed": "2026-11-09"
+  },
+  {
+    "key": "e.romance-investment",
+    "value": "ESAs factsheet \"Crypto frauds & scams: stay alert and protect yourself\" (15 Dec 2025), romance investment scam: \"You have been contacted on social media, dating apps, or phone/text by someone you have not met in real life. This person may engage in frequent, personal and romantic conversations, building trust using fake profiles. Gradually, they steer the conversation toward financial opportunities, claiming huge profits from crypto-investments and encouraging you to invest with promises of high returns and low risk.\"",
+    "unit": "quotation",
+    "date": "2025-12-15",
+    "source": "https://www.esma.europa.eu/sites/default/files/2025-12/Crypto_fraud_and_scams_factsheet.pdf",
+    "publisher": "European Supervisory Authorities (EBA, EIOPA, ESMA)",
+    "accessed": "2026-11-09",
+    "confidence": "high",
+    "lastReviewed": "2026-11-09"
+  },
+  {
+    "key": "e.impersonation",
+    "value": "ESAs factsheet \"Crypto frauds & scams: stay alert and protect yourself\" (15 Dec 2025), impersonation scam: \"you receive an unexpected direct message (DM) or an email from someone pretending to be a trusted contact (e.g., a crypto-exchange, wallet provider, IT support, or even a friend).\"",
+    "unit": "quotation",
+    "date": "2025-12-15",
+    "source": "https://www.esma.europa.eu/sites/default/files/2025-12/Crypto_fraud_and_scams_factsheet.pdf",
+    "publisher": "European Supervisory Authorities (EBA, EIOPA, ESMA)",
+    "accessed": "2026-11-09",
+    "confidence": "high",
+    "lastReviewed": "2026-11-09"
+  },
+  {
+    "key": "e.seed-phrase-requests",
+    "value": "ESAs factsheet \"Crypto frauds & scams: stay alert and protect yourself\" (15 Dec 2025), warning signs: \"A request to send or share private keys and seed phrases (list of words to access and recover your crypto wallet).\"",
+    "unit": "quotation",
+    "date": "2025-12-15",
+    "source": "https://www.esma.europa.eu/sites/default/files/2025-12/Crypto_fraud_and_scams_factsheet.pdf",
+    "publisher": "European Supervisory Authorities (EBA, EIOPA, ESMA)",
+    "accessed": "2026-11-09",
+    "confidence": "high",
+    "lastReviewed": "2026-11-09"
+  },
+  {
+    "key": "e.profit-promises",
+    "value": "ESAs factsheet \"Crypto frauds & scams: stay alert and protect yourself\" (15 Dec 2025), warning signs: \"A guaranteed fast and high return.\"; romance investment scam: \"promises of high returns and low risk\".",
+    "unit": "quotation",
+    "date": "2025-12-15",
+    "source": "https://www.esma.europa.eu/sites/default/files/2025-12/Crypto_fraud_and_scams_factsheet.pdf",
+    "publisher": "European Supervisory Authorities (EBA, EIOPA, ESMA)",
+    "accessed": "2026-11-09",
+    "confidence": "high",
+    "lastReviewed": "2026-11-09"
+  },
+  {
+    "key": "e.address-poisoning",
+    "value": "ESAs factsheet \"Crypto frauds & scams: stay alert and protect yourself\" (15 Dec 2025), look-alike address: \"Scammers can make fake wallet addresses appear in your transaction history by sending a tiny amount of crypto from a look-alike address to your wallet.\" \"When you try to send crypto and copy the wrong address from your wallet history, you unknowingly send funds to the scammer's wallet.\"",
+    "unit": "quotation",
+    "date": "2025-12-15",
+    "source": "https://www.esma.europa.eu/sites/default/files/2025-12/Crypto_fraud_and_scams_factsheet.pdf",
+    "publisher": "European Supervisory Authorities (EBA, EIOPA, ESMA)",
+    "accessed": "2026-11-09",
+    "confidence": "high",
+    "lastReviewed": "2026-11-09"
+  },
+  {
+    "key": "e.seed-phrase-never-asked",
+    "value": "ESAs factsheet \"Crypto frauds & scams: stay alert and protect yourself\" (15 Dec 2025): \"Never share passwords, private keys, or seed phrases: Anyone with access to them can take control of your assets. Legitimate companies will never ask for your passwords or security codes by email, text, or phone.\" In its impersonation scam, someone \"pretending to be a trusted contact (e.g., a crypto-exchange, wallet provider, IT support, or even a friend)\" asks for \"your seed phrase\".",
+    "unit": "quotation",
+    "date": "2025-12-15",
+    "source": "https://www.esma.europa.eu/sites/default/files/2025-12/Crypto_fraud_and_scams_factsheet.pdf",
+    "publisher": "European Supervisory Authorities (EBA, EIOPA, ESMA)",
+    "accessed": "2026-11-09",
+    "confidence": "high",
+    "lastReviewed": "2026-11-09"
   },
   {
     "key": "f.leverage",
