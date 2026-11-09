@@ -29,10 +29,10 @@ const FALLS = [
   { row: ['BTC', '2013-11-30', BITSTAMP], fact: [A, '2013 to 2015,', '−86.9 %', BITSTAMP] },
   { row: ['BTC', '2017-12-17', BITSTAMP], fact: [A, '2017 to 2018,', '−84.1 %', BITSTAMP] },
   { row: ['BTC', '2021-11-10', BITSTAMP], fact: [A, '2021 to 2022,', '−77.6 %', BITSTAMP] },
-  { row: ['ETH', '2018-01-13', BITSTAMP], fact: [B, 'ETH 2018', '−94.3 %', COINBASE] },
-  { row: ['ETH', '2021-11-10', BITSTAMP], fact: [B, 'ETH 2022', '−81.9 %', COINBASE] },
+  { row: ['ETH', '2018-01-13', COINBASE], fact: [B, 'ETH 2018', '−94.3 %', COINBASE] },
+  { row: ['ETH', '2021-11-10', COINBASE], fact: [B, 'ETH 2022', '−81.9 %', COINBASE] },
   { row: ['LINK', '2018-01-08', CMC], fact: [B, 'LINK 2018', '−88.7 %', CMC] },
-  { row: ['LINK', '2021-05-10', BITSTAMP], fact: [B, 'LINK 2021', '−90.7 %', COINBASE] },
+  { row: ['LINK', '2021-05-10', COINBASE], fact: [B, 'LINK 2021', '−90.7 %', COINBASE] },
   { row: ['SOL', '2021-11-06', COINBASE], fact: [B, 'SOL', '−96.9 %', COINBASE] },
 ] as const;
 // What follows the last row's clause of each fact: the current cycle, and the line on 16 Oct 2026.
@@ -67,6 +67,37 @@ describe('the cycles file (docs/EDUCATION.md §2 and §6)', () => {
       expect(Math.round(Number(figure.replace(/[^\d.]/gu, '')))).toBe(Number(fall));
       expect(clause).toContain(written(high));
       expect(clause).toContain(written(low));
+    }
+  });
+
+  it("cites Coinbase Exchange's daily candles for each Coinbase row, a request of at most 300 holding its date", () => {
+    const { drawdowns } = CycleDrawdownsSchema.parse(cycles);
+    const day = 86_400_000;
+    const windowOf = (href: string, coin: string) => {
+      const url = new URL(href);
+      const [start = '', end = ''] = ['start', 'end'].map((key) => url.searchParams.get(key) ?? '');
+      const daily = `${url.origin}${url.pathname}` === `https://api.exchange.coinbase.com/products/${coin}-USD/candles`;
+      const midnight = [start, end].every((at) => at.endsWith('T00:00:00Z'));
+      if (!daily || url.searchParams.get('granularity') !== '86400' || !midnight) return { start: '', end: '' };
+      return { start: start.slice(0, 10), end: end.slice(0, 10) };
+    };
+    const holds = (url: string, coin: string, date: string) => {
+      const { start, end } = windowOf(url, coin);
+      return start <= date && date <= end && (Date.parse(end) - Date.parse(start)) / day < 300;
+    };
+    const coinbase = drawdowns.filter(({ publisher }) => publisher === COINBASE);
+    expect(coinbase.map(({ coin, high }) => `${coin} ${high}`)).toEqual([
+      'ETH 2018-01-13',
+      'ETH 2021-11-10',
+      'LINK 2021-05-10',
+      'SOL 2021-11-06',
+    ]);
+    for (const { coin, high, low, source, lowSource } of coinbase) {
+      expect(holds(source, coin, high), source).toBe(true);
+      // One request holds both ends, or the low's window is its own (src/schema/drawdown.ts).
+      const lowUrl = lowSource ?? source;
+      expect(holds(lowUrl, coin, low), lowUrl).toBe(true);
+      if (lowSource) expect(holds(source, coin, low), source).toBe(false);
     }
   });
 
