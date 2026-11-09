@@ -26,7 +26,7 @@ import type { Services } from '../../lib/services';
 import { fixtureSnapshot } from '../../lib/services/fixtures';
 import { createTestServices, recordingPlatform } from '../../lib/services/testing';
 import { crossTabChannel } from '../../lib/store/channel';
-import { changeCountryOf, dataActions, savePlan } from './actions';
+import { changeCountryOf, changePayCurrencyOf, dataActions, savePlan } from './actions';
 
 describe('dataActions', () => {
   // DOMAIN §3.13: the backup's moment is taken in its turn in the queue, so a write queued behind the
@@ -470,6 +470,68 @@ describe('changeCountryOf (docs/DOMAIN.md §6 "Change country")', () => {
     const opened = stored(services) as Plan;
     await services.domain.write({ plan: null });
     expect(await changeCountryOf(services, FIXTURE_RULES.DE, opened, false, null)).toEqual({ ok: false, error: [] });
+  });
+});
+
+// Currency & data's "Change to GBP" (ADR-0053, docs/DOMAIN.md §6 "Change pay currency"): a wrong "Keep" fixed
+// without changing country again. The display currency follows when it was the pay currency (§2.1).
+describe('changePayCurrencyOf', () => {
+  const started = async (fields: Partial<Plan>) => {
+    const snapshot = fixtureSnapshot();
+    const services = createTestServices({ snapshot: { ...snapshot, plan: { ...(snapshot.plan as Plan), ...fields } } });
+    await services.start();
+    return services;
+  };
+  const stored = (services: Awaited<ReturnType<typeof started>>) => services.domain.store.getState().snapshot.plan;
+  const moved = { country: 'GB' as Plan['country'] };
+
+  it('relabels the plan to the currency, converts nothing, and leaves the entries untouched', async () => {
+    const services = await started(moved);
+    const opened = stored(services) as Plan;
+    const before = services.domain.store.getState().snapshot.entries;
+    expect(await changePayCurrencyOf(services, opened, 'GBP')).toEqual({ ok: true, value: { written: true } });
+    expect(stored(services)).toMatchObject({
+      country: 'GB',
+      payCurrency: 'GBP',
+      displayCurrency: 'GBP',
+      monthlyAmount: opened.monthlyAmount,
+      startingAmount: opened.startingAmount,
+    });
+    expect(services.domain.store.getState().snapshot.entries).toBe(before);
+  });
+
+  it('keeps a display currency the plan set apart from its pay currency', async () => {
+    const services = await started({ ...moved, displayCurrency: 'USD' });
+    await changePayCurrencyOf(services, stored(services) as Plan, 'GBP');
+    expect(stored(services)).toMatchObject({ payCurrency: 'GBP', displayCurrency: 'USD' });
+  });
+
+  it('writes nothing when the plan is already in the currency', async () => {
+    const services = await started(moved);
+    const opened = stored(services) as Plan;
+    expect(await changePayCurrencyOf(services, opened, 'EUR')).toEqual({ ok: true, value: { written: false } });
+    expect(stored(services)).toBe(opened);
+  });
+
+  it('refuses plan-changed when the country or a currency moved since it opened', async () => {
+    for (const change of [{ country: 'PT' }, { payCurrency: 'USD' }, { displayCurrency: 'USD' }] as Partial<Plan>[]) {
+      const services = await started(moved);
+      const opened = stored(services) as Plan;
+      await services.domain.write(({ plan }) => ({ plan: { ...(plan as Plan), ...change } }));
+      const current = stored(services);
+      expect(await changePayCurrencyOf(services, opened, 'GBP')).toEqual({
+        ok: false,
+        error: { code: 'plan-changed', plan: current },
+      });
+      expect(stored(services)).toBe(current);
+    }
+  });
+
+  it('saves nothing once the plan is gone', async () => {
+    const services = await started(moved);
+    const opened = stored(services) as Plan;
+    await services.domain.write({ plan: null });
+    expect(await changePayCurrencyOf(services, opened, 'GBP')).toEqual({ ok: false, error: [] });
   });
 });
 

@@ -13,7 +13,9 @@ import {
   type CoinId,
   type CountryRules,
   type CurrencyAnswer,
+  type CurrencyCode,
   changeCountry,
+  changePayCurrency,
   currencyQuestion,
   EntityIdSchema,
   type Entry,
@@ -370,5 +372,28 @@ export async function changeCountryOf(
     return issues.length > 0 ? {} : { plan: next };
   });
   if (result === null) throw new Error('the change of country did not run');
+  return result;
+}
+
+const CURRENCY_FIELDS = ['country', 'payCurrency', 'displayCurrency'] as const;
+/** Currency & data's "Change to GBP" on the plan as stored, as docs/DOMAIN.md §6 "Change pay currency" says. */
+export async function changePayCurrencyOf(
+  { domain, clock }: Pick<Services, 'domain' | 'clock'>,
+  opened: Plan,
+  currency: CurrencyCode,
+): Promise<Result<CountryWrite, PlanChanged | PlanIssue[]>> {
+  let result: Result<CountryWrite, PlanChanged | PlanIssue[]> = err([]);
+  await domain.write(({ plan }) => {
+    const moved = plan !== null && CURRENCY_FIELDS.some((key) => plan[key] !== opened[key]);
+    if (plan === null || moved || plan.payCurrency === currency) {
+      if (plan !== null) result = moved ? err({ code: 'plan-changed', plan }) : ok({ written: false });
+      return {};
+    }
+    const display = plan.displayCurrency === plan.payCurrency ? currency : plan.displayCurrency;
+    const next: Plan = { ...changePayCurrency(plan, currency, clock.now()), displayCurrency: display };
+    const issues = planIssues(next);
+    result = issues.length > 0 ? err(issues) : ok({ written: true });
+    return issues.length > 0 ? {} : { plan: next };
+  });
   return result;
 }
