@@ -1,6 +1,7 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { anEntry, aPlan, BTC, date, ETH, instant, money, month, split, units } from '../../test/builders';
+import { PT_MOVE_ENTRIES } from '../../test/tax-year/pt-fixture';
 import { minus, type Price, plus } from '../money/decimal';
 import type { LotRule, LotScope } from '../schema/country';
 import type { Entry } from '../schema/entry';
@@ -179,6 +180,19 @@ describe('portfolio (docs/DOMAIN.md §3.6)', () => {
     expect(priceOf(snapshot('60000', null), 'BTC' as never, { ...plan, payCurrency: 'GBP' })).toBeNull();
     expect(priceOf(snapshot('0', null), 'BTC' as never, plan)).toBeNull();
     expect(priceOf(null, 'BTC' as never, plan)).toBeNull();
+  });
+
+  it('a move lowers units, value and P/L by its fee and keeps invested and the average (the PT move fixture)', () => {
+    const context: HoldingContext = { overrides: [], lotScope: 'per-venue', lotRule: 'fifo' };
+    const [position] = portfolio(plan, PT_MOVE_ENTRIES, snapshot('80000', null), context).positions;
+    expect(position).toMatchObject({
+      units: '0.1498',
+      soldUnits: '0.0002',
+      invested: '5000',
+      average: '33333.3333333333',
+      value: '11984',
+      pnl: '6984',
+    });
   });
 });
 

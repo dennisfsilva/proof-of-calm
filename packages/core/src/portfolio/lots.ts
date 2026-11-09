@@ -4,6 +4,7 @@
 import { type CalendarDate, compareDates, compareInstants, type Instant } from '../dates/calendar';
 import { isPositive, type Money, max, min, minus, plus, sum, type Units } from '../money/decimal';
 import { liveEntries } from '../plan/statuses';
+import { defined } from '../result';
 import type { LotRule, LotScope } from '../schema/country';
 import type { Entry } from '../schema/entry';
 import type { HoldingRuleOverride } from '../schema/holding-rule';
@@ -11,8 +12,8 @@ import type { CoinId, EntityId } from '../schema/ids';
 import { entryRole, sameDayRank, unitsIn, unitsOut } from './effect';
 
 /**
- * Where some of a lot's open units are: their venue and the day they arrived there, null while they are still where
- * they were bought (no entry moves units between venues yet).
+ * Where some of a lot's open units are: their venue and the day a move delivered them there, null while they are still
+ * where they were bought.
  */
 export type Place = { readonly venue: string | null; readonly since: CalendarDate | null; readonly units: Units };
 
@@ -31,8 +32,13 @@ export type Lot = {
   readonly places: readonly Place[];
 };
 
-/** The units a sale took from one lot, and the venue they were held at. */
-export type SaleTake = { readonly lot: EntityId; readonly units: Units; readonly venue: string | null };
+/** The units a sale or a move took from one lot, and the place they were held at (its venue and `since`). */
+export type SaleTake = {
+  readonly lot: EntityId;
+  readonly units: Units;
+  readonly venue: string | null;
+  readonly since: CalendarDate | null;
+};
 
 /**
  * A sale's units, how many of them it took from lots with no cost (`held`, unknown cost), how many no lot held at its
@@ -46,11 +52,34 @@ export type SaleMatch = {
   readonly takes: readonly SaleTake[];
 };
 
+/**
+ * A move's units sent, its fee in the coin (sent less received), how many of the units sent no piece outside its
+ * destination covered at its date, and the pieces it took in the order taken, the fee's first: Σ `takes.units` +
+ * `unmatched` = `units`.
+ */
+export type MoveMatch = {
+  readonly id: EntityId;
+  readonly units: Units;
+  readonly fee: Units;
+  readonly unmatched: Units;
+  readonly takes: readonly SaleTake[];
+};
+
+/** The part of a move's fee no piece covered: the fee is taken first, so what the units received leave uncovered. */
+export function feeUnmatched(move: Pick<MoveMatch, 'units' | 'fee' | 'unmatched'>): Units {
+  return max(minus(move.unmatched, minus(move.units, move.fee)), '0' as Units);
+}
+
 export type LotMatch = {
   readonly lots: readonly Lot[];
   /** The coin's sales in `compareEntries` order. */
   readonly sales: readonly SaleMatch[];
-  /** Units sold that no lot of the coin held at the sale's date could cover: inconsistent data, reported. */
+  /** The coin's moves in `compareEntries` order. */
+  readonly moves: readonly MoveMatch[];
+  /**
+   * Units sold, or paid as a move's fee, that no lot of the coin held at that date could cover: inconsistent data,
+   * reported.
+   */
   readonly unmatchedUnits: Units;
 };
 
@@ -106,11 +135,12 @@ function takeFromPlaces(places: readonly Place[], units: Units): Place[] {
  * Matches the coin's sales to its purchases in one global order (`runningHeld`'s: date, purchases before sales, then
  * `compareEntries`), so a sale takes only lots bought on or before its date. A sale takes its own group's open lots
  * first (its venue under per-venue scope), the earliest first, or the latest first under LIFO; the units its group
- * cannot cover come from the other groups' lots open at that moment, in the same order (the Log has no record of a move
- * between venues yet). Only units no lot of the coin covers then stay unmatched, so the units left in total and each
- * sale's unmatched units never depend on the scope. Other lot rules (average, pooled, specific, unspecified) are
- * matched FIFO here: holding eligibility only needs remaining units, and the tax-year export names the country's own
- * method (§3.13).
+ * cannot cover come from the other groups' lots open at that moment, in the same order. Only units no lot of the coin
+ * covers then stay unmatched, so the units left in total and each sale's unmatched units never depend on the scope.
+ * A move takes its units sent the same way from the pieces at its source venue, then from the pieces anywhere but its
+ * destination, whatever the scope: its fee first, which leaves the lot, then the units received, which stay in their
+ * lot at a place at `to` dated the move. Other lot rules (average, pooled, specific, unspecified) are matched FIFO here:
+ * holding eligibility only needs remaining units, and the tax-year export names the country's own method (§3.13).
  */
 export function matchLots(entries: readonly Entry[], coin: CoinId, scope: LotScope, rule: LotRule = 'fifo'): LotMatch {
   const own = liveEntries(entries)
@@ -135,20 +165,30 @@ export function matchLots(entries: readonly Entry[], coin: CoinId, scope: LotSco
       open.push(lot);
       continue;
     }
-    const group = venueGroup(entry.venue, scope);
-    const pieces = open.flatMap((each) => each.places.map((place) => ({ lot: each, place })));
-    const ours = (piece: (typeof pieces)[number]) => venueGroup(piece.place.venue, scope) === group;
-    let toMatch = unitsOut(entry);
+    const move = entryRole(entry.kind) === 'move';
+    const group = venueGroup(entry.venue, move ? 'per-venue' : scope);
+    const pieces = open
+      .flatMap((each) => each.places.map((place) => ({ lot: each, place })))
+      .filter(({ place }) => !move || place.venue !== entry.to);
+    const ours = (piece: (typeof pieces)[number]) =>
+      venueGroup(piece.place.venue, move ? 'per-venue' : scope) === group;
+    let toMatch = entry.units;
+    // The units that leave the coin come first: all of a sale's, a move's fee; a move's other units change place.
+    let leaving = unitsOut(entry);
     let uncosted = '0' as Units;
     const takes: SaleTake[] = [];
     for (const { lot: next, place } of [...inOrder(pieces.filter(ours)), ...inOrder(pieces.filter((p) => !ours(p)))]) {
       const taken = min(place.units, toMatch);
       if (!isPositive(taken)) continue;
+      const gone = min(taken, leaving);
       place.units = minus(place.units, taken);
-      next.left = minus(next.left, taken);
+      next.left = minus(next.left, gone);
+      leaving = minus(leaving, gone);
       toMatch = minus(toMatch, taken);
-      takes.push({ lot: next.entry.id, units: taken, venue: place.venue });
+      takes.push({ lot: next.entry.id, units: taken, venue: place.venue, since: place.since });
       if (next.entry.amount === null) uncosted = plus(uncosted, taken);
+      const kept = minus(taken, gone);
+      if (isPositive(kept)) arrive(next.places, defined(entry.to, 'destination'), entry.date, kept);
     }
     matched.set(entry.id, { uncosted, unmatched: toMatch, takes });
   }
@@ -167,11 +207,30 @@ export function matchLots(entries: readonly Entry[], coin: CoinId, scope: LotSco
       places: places.filter((place) => isPositive(place.units)),
     }),
   );
-  const sales = own.flatMap((entry): SaleMatch[] => {
-    const sale = matched.get(entry.id);
-    return sale === undefined ? [] : [{ id: entry.id, units: entry.units, ...sale }];
-  });
-  return { lots, sales, unmatchedUnits: sum(sales.map((sale) => sale.unmatched)) };
+  const sales: SaleMatch[] = [];
+  const moves: MoveMatch[] = [];
+  for (const entry of own) {
+    const match = matched.get(entry.id);
+    if (match === undefined) continue;
+    const { unmatched, takes } = match;
+    if (entryRole(entry.kind) === 'move')
+      moves.push({ id: entry.id, units: entry.units, fee: unitsOut(entry), unmatched, takes });
+    else sales.push({ id: entry.id, units: entry.units, ...match });
+  }
+  const unmatchedUnits = sum([...sales.map((sale) => sale.unmatched), ...moves.map(feeUnmatched)]);
+  return { lots, sales, moves, unmatchedUnits };
+}
+
+/** Adds `units` to the lot's place at `venue` since `since`, or a new place there. */
+function arrive(
+  places: { venue: string | null; since: CalendarDate | null; units: Units }[],
+  venue: string,
+  since: CalendarDate,
+  units: Units,
+) {
+  const place = places.find((each) => each.venue === venue && each.since === since);
+  if (place === undefined) places.push({ venue, since, units });
+  else place.units = plus(place.units, units);
 }
 
 /**
@@ -183,17 +242,22 @@ export function matchLots(entries: readonly Entry[], coin: CoinId, scope: LotSco
  */
 export function heldLots(match: LotMatch): LotMatch {
   const left = match.lots.map((lot) => ({ lot, left: lot.remainingUnits }));
-  const sales = match.sales.map((sale): SaleMatch => {
-    let excess = sale.unmatched;
-    let uncosted = sale.uncosted;
+  /** Takes `excess` off the oldest lots left; the units it took from lots with no cost. */
+  const takeOldest = (excess: Units) => {
+    let uncosted = '0' as Units;
     for (const each of left) {
       const taken = min(each.left, excess);
       each.left = minus(each.left, taken);
       excess = minus(excess, taken);
       if (each.lot.cost === null) uncosted = plus(uncosted, taken);
     }
-    return { ...sale, uncosted };
-  });
+    return uncosted;
+  };
+  const sales = match.sales.map(
+    (sale): SaleMatch => ({ ...sale, uncosted: plus(sale.uncosted, takeOldest(sale.unmatched)) }),
+  );
+  // A move's fee no piece covered leaves the coin all the same.
+  for (const move of match.moves) takeOldest(feeUnmatched(move));
   const held = left.map(({ lot, left }) => ({
     ...lot,
     remainingUnits: left,

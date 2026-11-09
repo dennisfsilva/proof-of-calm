@@ -737,8 +737,8 @@ describe('EntryForm', () => {
           'None of the 1 BTC sold at Ledger is past the holding rule on 20 Oct 2026. It may be taxed.',
         ]);
         expect(sales.map((sale) => [sale.id, sale.takes])).toEqual([
-          [bitvavo.id, [{ lot: ledger.id, units: '1', venue: 'Ledger' }]],
-          [onLedger.id, [{ lot: kraken.id, units: '1', venue: 'Kraken' }]],
+          [bitvavo.id, [{ lot: ledger.id, units: '1', venue: 'Ledger', since: null }]],
+          [onLedger.id, [{ lot: kraken.id, units: '1', venue: 'Kraken', since: null }]],
         ]);
       });
 
@@ -755,9 +755,9 @@ describe('EntryForm', () => {
           'None of the 0,5 BTC sold at Bitvavo is past the holding rule on 20 Oct 2026. It may be taxed.',
         ]);
         expect(sales.map((sale) => [sale.id, sale.takes])).toEqual([
-          [bitvavo.id, [{ lot: ledger.id, units: '1', venue: 'Ledger' }]],
-          [onLedger.id, [{ lot: kraken.id, units: '1', venue: 'Kraken' }]],
-          [later.id, [{ lot: kraken.id, units: '0.5', venue: 'Kraken' }]],
+          [bitvavo.id, [{ lot: ledger.id, units: '1', venue: 'Ledger', since: null }]],
+          [onLedger.id, [{ lot: kraken.id, units: '1', venue: 'Kraken', since: null }]],
+          [later.id, [{ lot: kraken.id, units: '0.5', venue: 'Kraken', since: null }]],
         ]);
       });
     });
