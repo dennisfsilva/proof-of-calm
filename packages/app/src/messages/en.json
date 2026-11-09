@@ -68,7 +68,7 @@
       "missing": "{coin} is not in these figures: {product} has no price history for it.",
       "data": "Daily closes in {currency}, {first} to {last} · Price data by CoinGecko",
       "failed": "The price history could not be loaded, so today's figures are not shown. Open this page again to retry.",
-      "fallsOf": "Earlier falls of {coin}, high to low, in {product}'s own computation from each source's intraday prices in US dollars:",
+      "fallsOf": "Earlier falls of {coin}, computed by {product} from each source's intraday highs and lows in US dollars:",
       "fall": "{fall} from {high} to {low} · {publisher}",
       "noFalls": "{product} has no dated earlier fall for {coin}.",
       "fallsFailed": "The earlier falls could not be loaded. Open this page again to retry.",
@@ -115,7 +115,7 @@
       "sourcesName": "Sources for {rule, select, rates {the rates} holdingRule {the holding rule} lotRule {matching sales to purchases} losses {losses} reporting {reporting} other {this rule}}"
     },
     "chart": {
-      "label": "Falls from each completed cycle's high to its low for {coins}, {first} to {last}",
+      "label": "Falls from each high to the lowest low after it for {coins}, {first} to {last}",
       "description": "One bar per coin and cycle, its length the fall from the intraday high to the intraday low, in US dollars.",
       "bar": "{coin} {year}",
       "summary": "Show the falls as a table",
@@ -125,7 +125,7 @@
         "low": "Date of low",
         "fall": "Fall"
       },
-      "source": "{publishers} intraday highs and lows in US dollars, {first} to {last}, in {product}'s own computation.",
+      "source": "{publishers} intraday highs and lows in US dollars, {first} to {last}; the falls are {product}'s own computation.",
       "failed": "The earlier falls could not be loaded. Open this page again to retry."
     }
   },
