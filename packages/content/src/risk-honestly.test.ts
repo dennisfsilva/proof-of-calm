@@ -47,7 +47,7 @@ describe('the Risk honestly module', () => {
   it('lists every fact whose figures its body quotes, the falls of a and b included', () => {
     const { module, body } = read();
     const quotes = [
-      ['a.btc-drawdowns', /bitcoin fell \d+ %/u],
+      ['a.btc-drawdowns', /bitcoin fell (?:more than )?\d+ %/u],
       ['b.alt-drawdowns', /Ether fell \d+ %/u],
     ] as const;
     const quoted = quotes.filter(([, figure]) => figure.test(body.replaceAll(' ', ' '))).map(([key]) => key);
@@ -119,15 +119,22 @@ describe('the Risk honestly module', () => {
     const chart = body.indexOf('<Chart />');
     expect(chart).toBeGreaterThan(-1);
     expect(body.slice(0, chart)).not.toMatch(/\d/u);
-    const btc = falls('BTC');
-    const lowest = btc.reduce((low, fall) => (Number.parseInt(fall, 10) < Number.parseInt(low, 10) ? fall : low));
     // The chart's completed bitcoin falls, from the first high's year to the last low's: fact a's current cycle,
-    // from the high of 6 Oct 2025, is not one of them, so the sentence counts the falls and dates them.
+    // from the high of 6 Oct 2025, is not one of them, so the sentence counts the falls and dates them. The bound
+    // holds for fact a's unrounded falls, not the chart's whole percents: 2021's 77.6 % is the chart's 78 %.
     const rows = drawdowns.drawdowns.filter((row) => row.coin === 'BTC');
-    const [first, last] = [rows[0]?.high.slice(0, 4), rows.at(-1)?.low.slice(0, 4)];
-    expect(body).toContain(
-      `In the chart, bitcoin fell ${lowest} or more ${btc.length === 4 ? 'four' : btc.length} times between ${first} and ${last}.`,
-    );
+    const factA = facts.find((fact) => fact.key === 'a.btc-drawdowns')?.value ?? '';
+    const unrounded = [...factA.matchAll(/\), \u2212(\d+\.\d) %(?! so far)/gu)].map(([, fall]) => Number(fall));
+    expect(unrounded.map((fall) => String(Math.round(fall)))).toEqual(rows.map((row) => row.fall));
+    const sentence =
+      /In the chart, bitcoin fell more than (\d+)\u00a0% (\w+) times between (\d{4}) and (\d{4})\./u.exec(body);
+    const bound = Number(sentence?.[1]);
+    expect(unrounded.every((fall) => fall > bound)).toBe(true);
+    expect(sentence?.slice(2)).toEqual([
+      rows.length === 4 ? 'four' : String(rows.length),
+      rows[0]?.high.slice(0, 4),
+      rows.at(-1)?.low.slice(0, 4),
+    ]);
     const [eth1, eth2] = falls('ETH');
     const [link1, link2] = falls('LINK');
     const [sol] = falls('SOL');
