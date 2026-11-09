@@ -152,7 +152,7 @@ describe('the Risk honestly module', () => {
         ['10 Nov 2022', 'FTX and FTX US halted all trading and withdrawals', 'over $8 billion in customer deposits'],
       ],
       ['f.leverage', ['10 Oct 2025', '$19 billion', '2025 annual report']],
-      ['m.emergency-fund', ['3 and 6 months', "3 months' income"]],
+      ['m.emergency-fund', ['3 and 6 months', 'outgoings']],
     ] as const) {
       for (const text of quoted) expect(`${key}: ${value(key)}`).toContain(text);
     }
@@ -168,8 +168,11 @@ describe('the Risk honestly module', () => {
   it('gives the order of operations, self-custody in five sentences, and six scam patterns', () => {
     const { body } = read();
     expect(body).toMatch(/First, an emergency fund\..*Then no borrowed money.*Last, an amount small enough/u);
-    expect(body).toContain('FCA');
-    expect(body).toContain('BaFin');
+    // EDUCATION §9 row m: the FCA's one quote; "recommend" is on the ban list (CONTENT-STYLE §2), so "advise".
+    expect(body.replaceAll(' ', ' ')).toContain(
+      "The FCA's InvestSmart page says many experts advise a fund that covers 3 to 6 months of outgoings.",
+    );
+    expect(body).not.toMatch(/BaFin|CFPB/u);
     const custody = body.slice(body.indexOf('## Keeping coins yourself'), body.indexOf('## Six patterns'));
     expect(custody.replace('## Keeping coins yourself', '').match(/[.?]( |$)/gu)).toHaveLength(5);
     const lines = read().module.body;
