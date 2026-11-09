@@ -68,24 +68,28 @@ describe('recentEpisode', () => {
       { arbitrary: fc.integer({ min: 2, max: 9 }), weight: 8 },
       { arbitrary: fc.integer({ min: 91, max: 200 }), weight: 1 },
     );
-    const numRuns = 25;
-    let runs = 0;
-    await fc.assert(
-      fc.asyncProperty(
+    // Shrinking a failure of hundreds of points outlasts the test's timeout, so limitShrink caps it at 30 tries in all:
+    // enough to halve a series a few times for a readable counterexample. A time limit would cap generation too, and
+    // fast-check counts a run cut before any failure as a pass.
+    const input = fc.limitShrink(
+      fc.tuple(
         fc.array(day, { minLength: 1, maxLength: 500, size: 'max' }),
         fc.array(gap, { maxLength: 500, size: 'max' }),
         fc.integer({ min: 0, max: 20 }),
-        async (values, gaps, after) => {
-          runs += 1;
-          const series = seriesOf(values, gaps);
-          await matchesWhole(series, addDays(series[series.length - 1]?.date ?? START, after));
-        },
       ),
-      // Shrinking a failure of hundreds of points outlasts the test's timeout: stop it after 2 s and report the
-      // smallest counterexample found by then.
-      { numRuns, interruptAfterTimeLimit: 2000 },
+      30,
     );
-    // Every generated series ran: a run cut by a time limit passes silently and drops the deep, gappy series.
+    const numRuns = 25;
+    let runs = 0;
+    await fc.assert(
+      fc.asyncProperty(input, async ([values, gaps, after]) => {
+        runs += 1;
+        const series = seriesOf(values, gaps);
+        await matchesWhole(series, addDays(series[series.length - 1]?.date ?? START, after));
+      }),
+      { numRuns },
+    );
+    // Every generated series ran, the deep and gappy ones included.
     expect(runs).toBe(numRuns);
   });
 
