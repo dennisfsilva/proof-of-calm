@@ -118,6 +118,26 @@ settled when a close is final:
   price at the call dated D or no point dated D. A close dated D therefore counts as final only in a
   copy fetched at or after 00:10:30 UTC on D+1 (the Dutch 1 January line, `docs/JURISDICTIONS.md` §7.8).
 
+### Reading of 2026-11-09: CoinGecko's answer leaves downloaded files open
+
+The owner asked CoinGecko whether a user may download a CSV of their own holdings valued at its
+closes, and whether a plain-text credit with a linked data-sources page meets the paid plans' rule.
+Its support answered on 2026-11-09:
+
+- Demo has no commercial rights ("treat Demo as suitable for development only"). Every paid plan,
+  Basic included, covers "displaying data in customer-facing websites and apps with attribution".
+- The licensing article "does not address a downloadable file of a user's own holdings valued at
+  specific dates, so it doesn't settle this case either way". Such a file is "a downloadable, portable
+  copy of CoinGecko-derived figures", and "If users can obtain reusable data from your product, you
+  should contact CoinGecko to confirm the appropriate rights." Enterprise "is not clearly required".
+- An export keeps to the valuations, never full price series. Display caches refresh at least every
+  24 hours, and stored data is deleted when API access ends. The answer says nothing on the credit's link.
+
+Decided: the Reading of 2026-11-08 stands. No downloaded file holds a value derived from CoinGecko
+data, and the value cells wait for the reference closes of `packages/data` (planned: M2). The three
+caches above already keep a copy one day from the fetch. The paid plan (Basic at least) and the
+credit's link stay the owner's decision in #21.
+
 ## Disagreement
 
 None beyond the source change recorded in ADR-0006.
