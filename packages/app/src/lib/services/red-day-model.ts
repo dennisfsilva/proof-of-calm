@@ -17,7 +17,7 @@ import {
 } from '@proofofcalm/core';
 import { epochMs, todayIn } from '../adapters/clock';
 import type { CachedHistory, HistorySource } from '../ports';
-import type { PastFall, RedDayInput, RedDayModel } from './red-day';
+import type { PastFall, RedDayInput, RedDayModel } from './red-day-types';
 
 const WINDOW_DAYS = 90;
 

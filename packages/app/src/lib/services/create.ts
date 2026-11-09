@@ -15,7 +15,8 @@ import { type CrossTabChannel, localOnly } from '../store/channel';
 import { createDomainStore, type DomainStore } from '../store/domain';
 import { createUiStore, type UiState } from '../store/ui';
 import type { Countries } from './countries';
-import { createRedDay, type RedDayPort } from './red-day';
+import { createRedDay } from './red-day';
+import type { RedDayPort } from './red-day-types';
 
 export type ServicesOptions = {
   readonly planStore: PlanStore;
