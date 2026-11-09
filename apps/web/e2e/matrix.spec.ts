@@ -16,8 +16,10 @@ import { routeFixturePrices, test } from './support';
 // serves a visitor from the United Kingdom (ADR-0029); the not-found page is what a path that does not
 // exist answers, with status 404 (ADR-0045 §1). A `phase` seeds the fixture plan and fixes the
 // clock on that phase's date: the buying phase on 20 October 2026, the sell window on 15 March 2030.
-// `heading` is the page's own h1, which says its screen has rendered.
-type Entry = { name: string; path: string; heading: string; country?: string; phase?: FixturePhase };
+// `heading` is the page's own h1, which says its screen has rendered. A `shape` routes the closes of that
+// shape (support.ts), so the fall page has a fall of the held coins to show.
+type Shape = Parameters<typeof routeFixturePrices>[2];
+type Entry = { name: string; path: string; heading: string; country?: string; phase?: FixturePhase; shape?: Shape };
 const PAGES: readonly Entry[] = [
   { name: 'today', path: '/today', heading: 'Today' },
   { name: 'today-plan', path: '/today', heading: 'Today', phase: 'buy' },
@@ -35,6 +37,13 @@ const PAGES: readonly Entry[] = [
   { name: 'learn', path: '/learn', heading: 'Learn' },
   { name: 'learn-start-here', path: '/learn/start-here', heading: 'Start here' },
   { name: 'learn-cycles', path: '/learn/cycles', heading: 'Cycles' },
+  {
+    name: 'learn-this-fall',
+    path: '/learn/this-fall',
+    heading: 'This fall and your plan',
+    phase: 'buy',
+    shape: 'week-fall',
+  },
   { name: 'learn-countries', path: '/learn/countries', heading: 'Countries' },
   { name: 'learn-country-pt', path: '/learn/countries/pt', heading: portugal.name },
   { name: 'onboarding', path: '/onboarding', heading: 'Set up a plan' },
@@ -138,7 +147,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
   test.describe(colorScheme, () => {
     test.use({ colorScheme });
 
-    for (const { name, path, heading, country, phase } of PAGES) {
+    for (const { name, path, heading, country, phase, shape } of PAGES) {
       test(`${name} fits the viewport, keeps its targets and passes axe`, async ({ page }, testInfo) => {
         if (country !== undefined) await page.setExtraHTTPHeaders({ 'x-vercel-ip-country': country });
         if (phase !== undefined) {
@@ -146,6 +155,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
           await page.clock.setFixedTime(new Date(fixtureNowMs(phase)));
           await seedPlan(page, fixtureSnapshot());
         }
+        if (shape !== undefined) await routeFixturePrices(page, fixtureNowMs(phase ?? 'buy'), shape);
         await page.goto(path);
         await screenReady(page, heading);
         const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
@@ -168,7 +178,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
     test.describe('screenshots', () => {
       test.use({ serviceWorkers: 'block' });
 
-      for (const { name, path, heading, country, phase } of PAGES) {
+      for (const { name, path, heading, country, phase, shape } of PAGES) {
         test(`${name} matches its reviewed baseline`, async ({ page }, testInfo) => {
           const snapshot = `${name}-${colorScheme}.png`;
           const updating = testInfo.config.updateSnapshots === 'all' || testInfo.config.updateSnapshots === 'changed';
@@ -177,7 +187,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
           test.skip(!updating && !existsSync(baseline), 'no reviewed baseline for this platform yet');
           const nowMs = fixtureNowMs(phase ?? 'buy');
           await page.clock.setFixedTime(new Date(nowMs));
-          await routeFixturePrices(page, nowMs);
+          await routeFixturePrices(page, nowMs, shape);
           if (country !== undefined) await page.setExtraHTTPHeaders({ 'x-vercel-ip-country': country });
           if (phase !== undefined) await seedPlan(page, fixtureSnapshot());
           await page.goto(path);
