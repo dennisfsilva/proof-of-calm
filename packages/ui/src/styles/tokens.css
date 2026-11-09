@@ -132,6 +132,7 @@
   --sparkline-height: 2rem;
   --strip-height: 1.25rem;
   --allocation-height: 0.5rem;
+  --bar-row: 1.75rem;
 }
 
 @media (prefers-color-scheme: dark) {

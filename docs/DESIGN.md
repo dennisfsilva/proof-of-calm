@@ -288,7 +288,8 @@ dark mode uses the dark steps above, not an inversion; the validator runs whenev
   `--overlay`, `--overlay-border`, `--overlay-shadow` and `--scrim`; `theme.css` turns them into the
   utilities `rounded-md`, `text-13`, `ease-enter`, `shadow-overlay` and the rest. Values this document
   left open: `stack-sm` 8, `stack-md` 16, `stack-lg` 24; the chart heights 160 (line chart), 32
-  (sparkline), 20 (strip) and 8 (allocation bar); in-app reduced motion is `data-motion="reduce"` on
+  (sparkline), 20 (strip) and 8 (allocation bar), and a bar chart's row 28 (`--bar-row`, in rem so it grows
+  with the text); in-app reduced motion is `data-motion="reduce"` on
   `<html>`, beside `data-theme`.
 - **Touch targets**: 44 × 44 CSS px for every interactive element (WCAG 2.5.5 and Apple's 44 pt;
   4 px under Material's 48 dp), 8 px between adjacent targets, 48 px list rows, icon buttons padded
