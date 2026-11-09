@@ -1,17 +1,26 @@
 import { expect, type Page } from '@playwright/test';
 import { DATABASE_NAME } from '@proofofcalm/app/lib/adapters';
-import { type EntryRow, entryRow, type PlanRow, planRow } from '@proofofcalm/app/lib/adapters/idb/rows';
+import {
+  type EntryRow,
+  entryRow,
+  type PlanRow,
+  planRow,
+  ROW_SCHEMA_VERSIONS,
+} from '@proofofcalm/app/lib/adapters/idb/rows';
 import { fixtureNowMs, fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
 import { test } from './support';
 
 // Rows a newer build wrote, on the viewport matrix (ADR-0019 Readings, "Row shape"; docs/RELEASE.md,
-// Versioning; docs/CONTENT-STYLE.md, Newer version): this build reads plans and entries up to v3, so a
-// plan row and an entry row at v4 bring the full newer-version screen, and an entry row at v4 beside a
-// plan this build reads brings the one line above Today. The rows are built by the store's own row
-// builders, as `seed.ts` does, then raised to v4 with a payload this build does not know.
+// Versioning; docs/CONTENT-STYLE.md, Newer version): this build reads plans up to v3 and entries up to
+// v4 (`ROW_SCHEMA_VERSIONS`), so a plan row and an entry row one version above those bring the full
+// newer-version screen, and such an entry row beside a plan this build reads brings the one line above
+// Today. The rows are built by the store's own row builders, as `seed.ts` does, then raised one version
+// above this build's with a payload this build does not know.
 
 const SEED_DEVICE_ID = '00000000-0000-4000-8000-00000000e2e1' as Parameters<typeof planRow>[1];
-const NEWER = { schemaVersion: 4, payload: { shape: 'a newer build' } } as const;
+const NEWER_PAYLOAD = { shape: 'a newer build' } as const;
+const NEWER_PLAN = { schemaVersion: ROW_SCHEMA_VERSIONS.plans + 1, payload: NEWER_PAYLOAD } as const;
+const NEWER_ENTRY = { schemaVersion: ROW_SCHEMA_VERSIONS.entries + 1, payload: NEWER_PAYLOAD } as const;
 
 type Rows = { readonly plans: readonly PlanRow[]; readonly entries: readonly unknown[] };
 
@@ -57,7 +66,7 @@ test.beforeEach(async ({ page }) => {
 
 test('a plan and an entry a newer version saved bring the newer-version screen', async ({ page }) => {
   const { plan, first } = fixtureRows();
-  await seedRows(page, { plans: [{ ...plan, ...NEWER }], entries: [{ ...first, ...NEWER }] });
+  await seedRows(page, { plans: [{ ...plan, ...NEWER_PLAN }], entries: [{ ...first, ...NEWER_ENTRY }] });
 
   await expect(
     page.getByRole('heading', { name: 'Your plan was saved by a newer version of Proof of Calm.' }),
@@ -80,7 +89,7 @@ test('an entry a newer version saved, beside a plan this version reads, brings t
   page,
 }) => {
   const { plan, first, rest } = fixtureRows();
-  await seedRows(page, { plans: [plan], entries: [{ ...first, ...NEWER }, ...rest] });
+  await seedRows(page, { plans: [plan], entries: [{ ...first, ...NEWER_ENTRY }, ...rest] });
 
   await expect(
     page.getByText(
