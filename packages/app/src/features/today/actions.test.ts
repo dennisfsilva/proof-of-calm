@@ -367,3 +367,34 @@ describe('todayActions.dismissRuleChange (docs/DOMAIN.md §3.11, §3.12)', () =>
     expect(planStore.current().plan?.countryRuleVersion).toBe(1);
   });
 });
+
+describe('todayActions.recordBanner (docs/DOMAIN.md §3.11)', () => {
+  const withKeys = (dismissedBanners: string[]): Snapshot => {
+    const snapshot = fixtureSnapshot();
+    return { ...snapshot, prefs: { ...snapshot.prefs, dismissedBanners } };
+  };
+
+  it('appends the key once, on the prefs as stored, and stamps nothing', async () => {
+    const { planStore, actions } = await tab({ snapshot: withKeys(['backup-needed:2026-09-01']) });
+    const before = planStore.current().prefs.changedAt;
+    await actions.recordBanner('red-day:2026-10-15');
+    await actions.recordBanner('red-day:2026-10-15');
+    const { prefs } = planStore.current();
+    expect(prefs.dismissedBanners).toEqual(['backup-needed:2026-09-01', 'red-day:2026-10-15']);
+    expect(prefs.changedAt).toBe(before);
+  });
+
+  it('drops the red-day keys more than 365 days before today', async () => {
+    const { planStore, actions } = await tab({ snapshot: withKeys(['red-day:2025-10-19', 'red-day:2025-10-20']) });
+    await actions.recordBanner('red-day:2026-10-15');
+    expect(planStore.current().prefs.dismissedBanners).toEqual(['red-day:2025-10-20', 'red-day:2026-10-15']);
+  });
+
+  it('keeps a key another tab recorded since this tab loaded', async () => {
+    const shared = memoryPlanStore(fixtureSnapshot());
+    const [a, b] = [await tab({ shared }), await tab({ shared })];
+    await a.actions.recordBanner('red-day:2026-10-15');
+    await b.actions.recordBanner('backup-needed:2026-10-20');
+    expect(shared.current().prefs.dismissedBanners).toEqual(['red-day:2026-10-15', 'backup-needed:2026-10-20']);
+  });
+});
