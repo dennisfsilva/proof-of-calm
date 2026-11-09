@@ -15,6 +15,7 @@ import { type CrossTabChannel, localOnly } from '../store/channel';
 import { createDomainStore, type DomainStore } from '../store/domain';
 import { createUiStore, type UiState } from '../store/ui';
 import type { Countries } from './countries';
+import { createRedDay, type RedDayPort } from './red-day';
 
 export type ServicesOptions = {
   readonly planStore: PlanStore;
@@ -59,6 +60,8 @@ export type Services = {
   readonly rules: (country: CountryCode) => Promise<CountryRules | null>;
   /** The country library (the Learn screens): the list and one country's card as plain models. */
   readonly countries: Countries;
+  /** The Red day page's figures and past falls as plain models, over the history source (`./red-day`). */
+  readonly redDay: RedDayPort;
   /** Hydrates the snapshot, loads the plan country's rules and sets today. */
   start(): Promise<void>;
   /** Moves `today` on when the date changed in the user's zone (the host calls it on an interval and on focus). */
@@ -168,6 +171,7 @@ export function createServices(options: ServicesOptions): Services {
     history: historySource,
     rules: options.rules,
     countries: options.countries,
+    redDay: createRedDay(historySource),
     async start() {
       await domain.hydrate();
       await loading;
