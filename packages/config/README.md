@@ -25,8 +25,8 @@ configs live in their packages. See `docs/ENGINEERING.md`.
     transform blanks the block between the two `---` lines and keeps every line number; `@mdx-js/rollup`
     in the `pre` phase with the remark plugin `closedBody`, which fails the build, naming the file and
     line, on an `import` or `export`, an `{expression}` (in the text, as an attribute value or as a
-    `{...spread}` of an allowed element), an element outside `elements` (none by default; the hosts allow
-    `PastPerformance`, ADR-0048, Deviations), or a Markdown
+    `{...spread}` of an allowed element), an element outside `elements` (none by default; the hosts,
+    Storybook and the app's tests pass `MODULE_BODY_ELEMENTS`, ADR-0048, Deviations), or a Markdown
     link, image or link definition (a module holds no link: ADR-0048, Deviations); and the
     virtual module `virtual:learn-modules`, which reads the `.mdx` files of `dir` (the hosts: the Learn folder
     of `packages/content`; `packages/app`'s tests and stories: its fixture folder; a missing folder is
@@ -34,6 +34,8 @@ configs live in their packages. See `docs/ENGINEERING.md`.
     or two files with one slug fails the build) and exports `LEARN_MODULES`, the metadata in the slug
     order of `docs/EDUCATION.md` §10 with no body text, and `LEARN_BODIES`, one lazy import per slug, so
     each body is its own chunk and imports only `react/jsx-runtime`.
+  - `checkModuleBody(source, path, elements = MODULE_BODY_ELEMENTS)`: the same compiler and `closedBody` on
+    one module with its front matter blanked; the build's message, or null. `pnpm validate:content` runs it.
   - `bootScriptPlugin()`: after every other html hook, in the client build only, the one module entry
     becomes the inline boot script `BOOT_SCRIPT` with the entry URL in `data-entry`; its fixed text
     has the fixed hash `BOOT_SCRIPT_HASH` that the CSP carries (`sha256()` computes such a hash). An
