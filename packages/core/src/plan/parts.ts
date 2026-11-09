@@ -114,17 +114,30 @@ export function canOneTap(drafts: readonly EntryDraft[]): boolean {
  */
 export function defaultFee(entries: readonly Entry[]): Money | null {
   const withFee = liveEntries(entries).filter((entry) => entry.fee !== null);
-  let latest: Entry | null = null;
-  for (const entry of withFee) {
-    if (
-      latest === null ||
-      entry.date > latest.date ||
-      (entry.date === latest.date && compareInstants(entry.createdAt, latest.createdAt) > 0)
-    ) {
-      latest = entry;
-    }
-  }
+  const latest = latestOf(withFee);
   if (latest === null) return null;
   const key = transactionKey(latest);
   return sum(withFee.filter((entry) => transactionKey(entry) === key).map((entry) => entry.fee as Money));
+}
+
+/** The latest of `entries`: the latest date, then the latest `createdAt` as moments; the first of exact ties. */
+function latestOf(entries: readonly Entry[]): Entry | null {
+  let latest: Entry | null = null;
+  for (const entry of entries) {
+    const later =
+      latest === null ||
+      entry.date > latest.date ||
+      (entry.date === latest.date && compareInstants(entry.createdAt, latest.createdAt) > 0);
+    if (later) latest = entry;
+  }
+  return latest;
+}
+
+/**
+ * The venue a new transaction starts with: that of the latest live entry that named one, a purchase or a sale, "latest"
+ * as for `defaultFee`; coins added (`held`) never count, since their venue is no transaction's default. Null when none.
+ */
+export function lastVenue(entries: readonly Entry[]): string | null {
+  const named = liveEntries(entries).filter((entry) => entry.venue !== null && entry.kind !== 'held');
+  return latestOf(named)?.venue ?? null;
 }

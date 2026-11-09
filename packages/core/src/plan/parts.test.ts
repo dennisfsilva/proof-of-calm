@@ -3,7 +3,7 @@ import { anEntry, aPlan, BTC, date, ETH, id, instant, money, split } from '../..
 import type { Price } from '../money/decimal';
 import type { Coin } from '../schema/coin';
 import type { PriceSnapshot } from '../schema/prices';
-import { canOneTap, defaultFee, oneTapEntries, plannedParts, sameParts } from './parts';
+import { canOneTap, defaultFee, lastVenue, oneTapEntries, plannedParts, sameParts } from './parts';
 import type { Action } from './statuses';
 
 const SOL: Coin = { id: 'SOL' as never, name: 'Solana', geckoId: 'solana', decimals: 4 };
@@ -215,5 +215,42 @@ describe('defaultFee', () => {
     ];
     // 10:00+02:00 is 08:00 UTC, before 09:00Z.
     expect(defaultFee(entries)).toBe('1.5');
+  });
+});
+
+describe('lastVenue (docs/DOMAIN.md §3.4)', () => {
+  const at = (day: string, time: string, venue: string | null, kind: 'extra' | 'sell' | 'held' = 'extra') =>
+    anEntry({ kind, slot: null, date: date(day), createdAt: instant(`${day}T${time}`), venue });
+
+  it('is the venue of the latest entry that named one, a purchase or a sale, latest by date then creation moment', () => {
+    expect(lastVenue([at('2026-03-01', '09:00:00Z', 'Kraken'), at('2026-02-01', '10:00:00Z', 'Bitvavo')])).toBe(
+      'Kraken',
+    );
+    expect(lastVenue([at('2026-03-01', '09:00:00Z', 'Kraken'), at('2026-03-01', '09:30:00Z', 'Bitvavo', 'sell')])).toBe(
+      'Bitvavo',
+    );
+    // 10:00+01:00 is 09:00Z: compared as moments, not as strings, so the 09:30Z sale is the later one.
+    expect(lastVenue([at('2026-03-01', '10:00:00+01:00', 'Kraken'), at('2026-03-01', '09:30:00Z', 'Ledger')])).toBe(
+      'Ledger',
+    );
+  });
+
+  it('skips entries without a venue, coins added (held) and deleted entries; null when none is left', () => {
+    const deleted = { ...at('2026-05-01', '09:00:00Z', 'Coinbase'), deletedAt: instant('2026-05-02T09:00:00Z') };
+    const entries = [
+      at('2026-01-01', '09:00:00Z', 'Kraken'),
+      at('2026-02-01', '09:00:00Z', null),
+      at('2026-03-01', '09:00:00Z', 'Ledger', 'held'),
+      deleted,
+    ];
+    expect(lastVenue(entries)).toBe('Kraken');
+    expect(lastVenue(entries.slice(1))).toBeNull();
+    expect(lastVenue([])).toBeNull();
+  });
+
+  it('keeps the first of two entries logged at one moment, as the order of the stored entries gives them', () => {
+    expect(lastVenue([at('2026-03-01', '09:00:00Z', 'Kraken'), at('2026-03-01', '09:00:00Z', 'Bitvavo')])).toBe(
+      'Kraken',
+    );
   });
 });

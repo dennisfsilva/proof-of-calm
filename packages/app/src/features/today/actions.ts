@@ -7,12 +7,12 @@ import {
   type CountryCode,
   type CurrencyCode,
   compare,
-  compareInstants,
   defaultFee,
   EntityIdSchema,
   type Entry,
   err,
   isOpen,
+  lastVenue,
   liveEntries,
   ok,
   oneTapEntries,
@@ -149,18 +149,4 @@ export function todayActions({ domain, clock }: Pick<Services, 'domain' | 'clock
       }));
     },
   };
-}
-
-/** The venue of the latest entry that named one, as the Log form remembers it; coins added (`held`) never count. */
-function lastVenue(live: readonly Entry[]): string | null {
-  let latest: Entry | null = null;
-  for (const entry of live) {
-    if (entry.venue === null || entry.kind === 'held') continue;
-    const later =
-      latest === null ||
-      entry.date > latest.date ||
-      (entry.date === latest.date && compareInstants(entry.createdAt, latest.createdAt) > 0);
-    if (later) latest = entry;
-  }
-  return latest?.venue ?? null;
 }
