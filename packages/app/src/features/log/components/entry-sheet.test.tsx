@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { type Entry, type EntryKind, heldUnits, isPositive } from '@proofofcalm/core';
+import { type Entry, heldUnits, isPositive, type TransactionKind } from '@proofofcalm/core';
 import { anEntry, BTC, date } from '@proofofcalm/core/testing';
 import { Toaster } from '@proofofcalm/ui/components/toast';
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
@@ -29,7 +29,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-type HostProps = { onUndone(): void; kind?: EntryKind; editing?: readonly Entry[]; offerKinds?: boolean };
+type HostProps = { onUndone(): void; kind?: TransactionKind; editing?: readonly Entry[]; offerKinds?: boolean };
 
 function Host({ onUndone, kind = 'dca', editing = [], offerKinds = true }: HostProps) {
   const [open, setOpen] = useState(true);
@@ -51,7 +51,7 @@ function Host({ onUndone, kind = 'dca', editing = [], offerKinds = true }: HostP
   );
 }
 
-type MountOptions = { kind?: EntryKind; editing?: readonly Entry[]; held?: boolean; offerKinds?: boolean };
+type MountOptions = { kind?: TransactionKind; editing?: readonly Entry[]; held?: boolean; offerKinds?: boolean };
 
 async function mount(onUndone: () => void = () => undefined, options: MountOptions = {}) {
   const snapshot = fixtureSnapshot();

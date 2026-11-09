@@ -209,8 +209,11 @@ export function LogScreen() {
       });
   };
   const edit = (row: TransactionRow) => {
+    const { kind } = row;
+    // A move's row offers no Edit (LogRow): the form records purchases and sales.
+    if (kind === 'move') return;
     edited.current = { from: row.key, to: null };
-    openForm({ kind: row.kind, editing: row.items });
+    openForm({ kind, editing: row.items });
   };
   // Nothing saved (an entry being edited was deleted meanwhile) closes the sheet; the form has said why.
   const done = (saved: readonly Entry[]) => {

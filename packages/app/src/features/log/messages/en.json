@@ -9,7 +9,8 @@
     "lump": "Starting amount",
     "extra": "Extra buy",
     "sell": "Sale",
-    "held": "Coins added"
+    "held": "Coins added",
+    "move": "Coins moved"
   },
   "month": {
     "bought": "bought {amount}",

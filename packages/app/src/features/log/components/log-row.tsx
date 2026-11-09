@@ -91,9 +91,12 @@ export function LogRow({ row, plan, note, open, onOpenChange, onDelete, onEdit }
         </>
       )}
       <div className="flex flex-wrap gap-target-gap">
-        <Button variant="secondary" onClick={() => onEdit(row)}>
-          {t('row.edit')}
-        </Button>
+        {/* A move's row offers Delete only: the Log's form records purchases and sales. */}
+        {row.kind !== 'move' && (
+          <Button variant="secondary" onClick={() => onEdit(row)}>
+            {t('row.edit')}
+          </Button>
+        )}
         <Button variant="destructive" onClick={() => onDelete(row)}>
           {t('row.delete')}
         </Button>

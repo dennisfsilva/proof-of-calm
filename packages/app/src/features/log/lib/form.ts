@@ -120,8 +120,9 @@ export function editedVenues(editing: readonly Entry[]): { named: string[]; unna
 
 /** An edit's values; its price is implied by the stored amount and units, at the significant figures fillRow keeps. */
 function editedState(editing: readonly Entry[], ctx: FormContext): FormState {
+  // The Log opens no move in the form (its row offers Delete only), so an edit's first entry is a purchase or a sale.
+  const [first] = editing as readonly [Entry & { kind: TransactionKind }, ...Entry[]];
   const { plan, numberInput } = ctx;
-  const [first] = editing as readonly [Entry, ...Entry[]];
   const fees = editing.flatMap((entry) => (entry.fee === null ? [] : [entry.fee]));
   const rows = editing.map((entry): FormRow => {
     const price =
