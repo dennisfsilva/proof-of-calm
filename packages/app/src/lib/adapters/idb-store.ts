@@ -166,7 +166,7 @@ export function idbPlanStore(options: IdbPlanStoreOptions): IdbPlanStore {
     const planId = plan === undefined ? (newest(live, (row) => row)?.id ?? null) : (plan?.id ?? null);
     const held = await Promise.all(entries.map(({ id }) => tx.objectStore('entries').get(id)));
     const written = entries.filter((_, index) => !isLaterVersion(held[index], 'entries', rowVersions));
-    const entryRows = written.map((entry) => entryRow(entry, planId, deviceId));
+    const entryRows = written.map((entry) => entryRow(entry, planId, deviceId, rowVersions));
     await Promise.all([
       ...planRows.flatMap((row) => [plans.put(row), outbox.put(outboxRecord('plans', row))]),
       ...entryRows.flatMap((row) => [tx.objectStore('entries').put(row), outbox.put(outboxRecord('entries', row))]),

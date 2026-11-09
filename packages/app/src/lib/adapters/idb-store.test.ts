@@ -49,10 +49,15 @@ const prices: PricesState = {
 };
 const prefs = { ...DEFAULT_PREFS, theme: 'dark' as const, dismissedBanners: ['backup-needed:2026-10-01'] };
 
-/** The row versions the previous build read and wrote: its plans were v2 (rows.ts). */
-const PREVIOUS_BUILD = { plans: 2, entries: 2 } as const;
+/**
+ * The row versions the previous build read and wrote, the build before the entries' v4 rise (rows.ts). A store
+ * opened with them writes what that build wrote: no entry row above its own `entries` (`entryRow`).
+ */
+const PREVIOUS_BUILD = { plans: 3, entries: 3 } as const;
 /** The row versions of the build before coins held: plans at v3, entries at v2 (rows.ts). */
 const ENTRIES_V2_BUILD = { plans: 3, entries: 2 } as const;
+/** The row versions of the build before the risk acknowledgement: plans and entries at v2 (rows.ts). */
+const PLANS_V2_BUILD = { plans: 2, entries: 2 } as const;
 
 type PlanStamp = { id: EntityId; updatedAt: Instant; deletedAt: Instant | null; deviceId: EntityId };
 
@@ -661,7 +666,7 @@ describe('idb plan store: plan schema v3, the risk acknowledgement (docs/DOMAIN.
   const acknowledged = (overrides: Partial<Plan> = {}) =>
     aPlan({ riskAcknowledgedAt: instant('2026-10-17T08:30:00.000Z'), riskWordingVersion: 1, ...overrides });
 
-  it('reads a plan row the previous build wrote (schemaVersion 2) as a v3 plan with no acknowledgement, sets nothing aside, and writes it back as v2 while nothing is recorded', async () => {
+  it('reads a plan row a build at plans v2 wrote (schemaVersion 2) as a v3 plan with no acknowledgement, sets nothing aside, and writes it back as v2 while nothing is recorded', async () => {
     const plan = aPlan();
     const entry = anEntry();
     await open().write({ plan, entries: [entry] });
@@ -708,16 +713,16 @@ describe('idb plan store: plan schema v3, the risk acknowledgement (docs/DOMAIN.
     expect([acknowledgementDue(again, 2), acknowledgementDue(again, 1)]).toEqual([false, false]);
   });
 
-  it('a build of the previous version reads the plan row this build writes while nothing is recorded', async () => {
+  it('a build at plans v2 reads the plan row this build writes while nothing is recorded', async () => {
     const plan = aPlan();
     const entry = anEntry();
     await open().write({ plan, entries: [entry] });
     const [written] = (await raw('plans')) as { schemaVersion: number; payload: unknown }[];
-    // The previous build's own plan schema (6548d03, frozen in the core's test builders) reads the payload.
+    // The plans v2 build's own plan schema (6548d03, frozen in the core's test builders) reads the payload.
     expect(written?.schemaVersion).toBe(2);
     expect(PreviousBuildPlanSchema.parse(written?.payload)).toStrictEqual(written?.payload);
 
-    expect(await open({ rowVersions: PREVIOUS_BUILD }).load()).toStrictEqual({
+    expect(await open({ rowVersions: PLANS_V2_BUILD }).load()).toStrictEqual({
       ...EMPTY_SNAPSHOT,
       plan,
       entries: [entry],
@@ -726,14 +731,14 @@ describe('idb plan store: plan schema v3, the risk acknowledgement (docs/DOMAIN.
     expect(await raw('plans')).toStrictEqual([written]);
   });
 
-  it('a build of the previous version leaves the v3 row of an acknowledged plan in place, unread and not set aside, still reads the v2 entries, and never tombstones the v3 row on its own write', async () => {
+  it('a build at plans v2 leaves the v3 row of an acknowledged plan in place, unread and not set aside, still reads the v2 entries, and never tombstones the v3 row on its own write', async () => {
     const plan = acknowledged();
     const entry = anEntry();
     await open().write({ plan, entries: [entry] });
     const [written] = await raw('plans');
     expect(written).toMatchObject({ schemaVersion: 3, payload: plan });
 
-    expect(await open({ rowVersions: PREVIOUS_BUILD }).load()).toStrictEqual({
+    expect(await open({ rowVersions: PLANS_V2_BUILD }).load()).toStrictEqual({
       ...EMPTY_SNAPSHOT,
       entries: [entry],
       newer: { plans: 1, entries: 0 },
@@ -741,7 +746,7 @@ describe('idb plan store: plan schema v3, the risk acknowledgement (docs/DOMAIN.
     expect(await raw('plans')).toStrictEqual([written]);
     expect((await raw('meta')).filter(Array.isArray)).toEqual([]);
     // Its own plan write tombstones the live plans it reads, never the v3 row it cannot read.
-    await open({ rowVersions: PREVIOUS_BUILD }).write({ plan: aPlan(), entries: [anEntry()] });
+    await open({ rowVersions: PLANS_V2_BUILD }).write({ plan: aPlan(), entries: [anEntry()] });
     expect(await raw('plans')).toContainEqual(written);
   });
 });
@@ -843,12 +848,12 @@ describe('idb plan store: a write over a row of a later version (ADR-0019 readin
     expect(loaded.newerTombstones).toBe(2);
   });
 
-  it('a build of the previous version writing the plan it no longer reads leaves its v3 row', async () => {
+  it('a build at plans v2 writing the plan it no longer reads leaves its v3 row', async () => {
     const plan = aPlan({ riskAcknowledgedAt: instant('2026-10-17T08:30:00.000Z'), riskWordingVersion: 1 });
     await open().write({ plan, entries: [anEntry()] });
     const before = await dump();
 
-    await open({ rowVersions: PREVIOUS_BUILD }).write({ plan: { ...plan, why: 'Changed.', updatedAt: NOW } });
+    await open({ rowVersions: PLANS_V2_BUILD }).write({ plan: { ...plan, why: 'Changed.', updatedAt: NOW } });
 
     expect(await dump()).toStrictEqual(before);
   });
@@ -959,6 +964,64 @@ describe('idb plan store: entries v3, coins held (docs/DOMAIN.md §2.2, docs/REL
     expect(loaded.entries).toEqual(expect.arrayContaining(entries));
     expect(loaded).toMatchObject({ plan, newer: { plans: 0, entries: 0 }, newerTombstones: 0, quarantined: 0 });
     expect(await dump()).toStrictEqual(before);
+  });
+});
+
+describe('idb plan store: the previous build’s real writes (docs/RELEASE.md, rollback)', () => {
+  const acknowledged = () =>
+    aPlan({ riskAcknowledgedAt: instant('2026-10-17T08:30:00.000Z'), riskWordingVersion: 1 });
+  /** Every kind, a held entry and a tombstone among them. */
+  const everyKind = () => [
+    anEntry(),
+    anEntry({ kind: 'lump', slot: null }),
+    anEntry({ kind: 'extra', slot: null }),
+    anEntry({ kind: 'sell', slot: null }),
+    anEntry({ kind: 'held', slot: null, fee: null, amount: null, date: date('2025-03-01') }),
+    anEntry({ kind: 'extra', slot: null, deletedAt: NOW, updatedAt: NOW }),
+  ];
+  const entryVersions = async () =>
+    ((await raw('entries')) as { schemaVersion: number }[]).map((row) => row.schemaVersion).sort();
+  const readsAll = (loaded: Awaited<ReturnType<IdbPlanStore['load']>>, plan: Plan, entries: readonly Entry[]) => {
+    expect(loaded.plan).toStrictEqual(plan);
+    expect(loaded.entries).toHaveLength(entries.length);
+    expect(loaded.entries).toEqual(expect.arrayContaining([...entries]));
+    expect(loaded).toMatchObject({ newer: { plans: 0, entries: 0 }, newerTombstones: 0, quarantined: 0 });
+  };
+
+  it('a build writes no entry row above its own entries version', async () => {
+    const entries = everyKind();
+    await open({ rowVersions: ENTRIES_V2_BUILD }).write({ plan: aPlan(), entries });
+    expect(await entryVersions()).toEqual([2, 2, 2, 2, 2, 2]);
+    await open({ rowVersions: PREVIOUS_BUILD }).write({ entries });
+    expect(await entryVersions()).toEqual([2, 2, 2, 2, 2, 3]);
+  });
+
+  it('forward: this build reads every row the previous build writes, and rewrites none on load', async () => {
+    const plan = acknowledged();
+    const entries = everyKind();
+    await open({ rowVersions: PREVIOUS_BUILD }).write({ plan, entries });
+    const before = await dump();
+
+    readsAll(await open().load(), plan, entries);
+    expect(await dump()).toStrictEqual(before);
+  });
+
+  it('rollback: the previous build reads the v2 and v3 rows this build writes, and this build reads its write', async () => {
+    const plan = acknowledged();
+    const entries = everyKind();
+    await open().write({ plan, entries });
+    expect(await raw('plans')).toStrictEqual([expect.objectContaining({ schemaVersion: 3 })]);
+    expect(await entryVersions()).toEqual([2, 2, 2, 2, 2, 3]);
+    const before = await dump();
+
+    const previous = open({ rowVersions: PREVIOUS_BUILD });
+    readsAll(await previous.load(), plan, entries);
+    expect(await dump()).toStrictEqual(before);
+    const [, , , , held] = entries;
+    if (held === undefined) throw new Error('a held entry');
+    const edited = { ...held, note: 'A gift.', updatedAt: instant('2026-10-17T10:00:00.000Z') };
+    await previous.write({ entries: [edited] });
+    expect((await open().load()).entries).toContainEqual(edited);
   });
 });
 
