@@ -59,7 +59,7 @@ function asks(ctx: Rolldown.ChunkingContext, reach: Reach, from: string, to: str
   const names = ctx.getModuleInfo(to)?.exports ?? [];
   const code = source?.code;
   if (typeof code !== 'string' || names.length === 0 || /\bexport\s*\*/.test(code)) return [];
-  const own = new Set(walksInto(from) ? [] : source.exports);
+  const own = new Set(walksInto(from) ? [] : (source?.exports ?? []));
   const asked = reach.asked.get(from);
   const found = names.filter((name) => mentions(code, name) && (!own.has(name) || asked?.has(name)));
   return found.length > 0 ? found : null;
