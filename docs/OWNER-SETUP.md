@@ -153,7 +153,8 @@ a null MX (`MX 0 .`), so the domain has no MX record and mail sent to it is not 
 ## 6. Still open from the planning sessions
 
 - The TMview search and the EUTM filing in classes 9, 36, 41 and 42 (`docs/LEGAL.md` §1).
-- The letters to Kraken and Bitstamp before M2 (ADR-0036): drafted as
-  `docs/research/letters/kraken.md` and `docs/research/letters/bitstamp.md`; fill in the name and
-  the contact address, send, and record the answers in ADR-0036.
+- The answers to the letters to Kraken and Bitstamp (ADR-0036), drafted as
+  `docs/research/letters/kraken.md` and `docs/research/letters/bitstamp.md`: sent on 2026-11-09,
+  Bitstamp's to partners@bitstamp.net and Kraken's through Kraken Institutional's contact form; the
+  answers are recorded in ADR-0036 when they arrive. Only the answers keep this item open.
 - The email provider's final pick at M3 (ADR-0026); the `Mailer` port makes it a one-file change.
