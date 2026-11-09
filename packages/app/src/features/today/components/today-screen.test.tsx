@@ -57,8 +57,8 @@ async function mount(
   const services = { ...created, redDay };
   await act(() => services.start());
   if (priced !== false) await act(() => services.prices.refresh());
-  // The foot's red-day half loads on demand: loaded here once, it resolves inside the render's act.
-  await import('./red-day-foot');
+  // Today's foot loads on demand: loaded here once, it resolves inside the render's act.
+  await import('./foot');
   const tree = (
     <NavigationProvider location="memory" initialPath="/today">
       <ServicesProvider services={services}>
