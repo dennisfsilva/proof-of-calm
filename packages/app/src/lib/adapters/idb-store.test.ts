@@ -968,8 +968,7 @@ describe('idb plan store: entries v3, coins held (docs/DOMAIN.md §2.2, docs/REL
 });
 
 describe('idb plan store: the previous build’s real writes (docs/RELEASE.md, rollback)', () => {
-  const acknowledged = () =>
-    aPlan({ riskAcknowledgedAt: instant('2026-10-17T08:30:00.000Z'), riskWordingVersion: 1 });
+  const acknowledged = () => aPlan({ riskAcknowledgedAt: instant('2026-10-17T08:30:00.000Z'), riskWordingVersion: 1 });
   /** Every kind, a held entry and a tombstone among them. */
   const everyKind = () => [
     anEntry(),
