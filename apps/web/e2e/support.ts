@@ -27,11 +27,33 @@ export const test = base.extend({
 });
 
 /**
+ * The history fixture's shape, each over 365 points whose last is the live price dated `nowMs`'s UTC day (the
+ * red-day model drops it, docs/DOMAIN.md §3.11): 'rise' gains about 0.1 % a day; 'week-fall' is flat, then falls
+ * 11 % in the last week, Red from two closes before `nowMs`'s date; 'high-fall' is flat, then falls 0.9 % of the
+ * high a day for 36 days, 30 % below its 90-day high from two closes before (packages/app's red-day test shapes).
+ */
+type HistoryShape = 'rise' | 'week-fall' | 'high-fall';
+
+const FALLS: Readonly<Record<Exclude<HistoryShape, 'rise'>, readonly number[]>> = {
+  'week-fall': [97, 95, 93, 91, 89, 88, 87],
+  'high-fall': Array.from({ length: 36 }, (_, n) => (1000 - 9 * (n + 1)) / 10),
+};
+
+/** The closes relative to the live price, oldest first. */
+function shapeFactors(shape: HistoryShape): number[] {
+  if (shape === 'rise') return Array.from({ length: 365 }, (_, index) => 0.999 ** (364 - index));
+  const fall = FALLS[shape];
+  const values = [...Array.from({ length: 365 - fall.length }, () => 100), ...fall];
+  return values.map((value) => value / (fall.at(-1) ?? 100));
+}
+
+/**
  * Answers /api/prices and /api/history/:coin from fixtures, never CoinGecko: the fixture prices fetched
- * 30 s before `nowMs`, and a year of daily closes ending on `nowMs`'s date, rising by about 0.1 % a day.
+ * 30 s before `nowMs`, and a year of daily closes of `shape` ending on `nowMs`'s date with the fixture price.
  * A request the service worker makes itself passes the page's routes by, so the caller blocks the worker.
  */
-export async function routeFixturePrices(page: Page, nowMs: number): Promise<void> {
+export async function routeFixturePrices(page: Page, nowMs: number, shape: HistoryShape = 'rise'): Promise<void> {
+  const factors = shapeFactors(shape);
   await page.route('**/api/prices?*', (route) =>
     route.fulfill({
       json: {
@@ -45,9 +67,9 @@ export async function routeFixturePrices(page: Page, nowMs: number): Promise<voi
     const coin = decodeURIComponent(url.pathname.split('/').at(-1) ?? '');
     const currency = url.searchParams.get('currency') ?? 'EUR';
     const last = coin === 'ETH' ? 2500.5 : 60000.12;
-    const closes = Array.from({ length: 365 }, (_, index) => {
+    const closes = factors.map((factor, index) => {
       const back = 364 - index;
-      const close = Math.round(last * 0.999 ** back * 100) / 100;
+      const close = Math.round(last * factor * 100) / 100;
       return [new Date(nowMs - back * 86_400_000).toISOString().slice(0, 10), String(close)];
     });
     return route.fulfill({ json: { coin, currency, closes, fetchedAt: new Date(nowMs - 60_000).toISOString() } });
