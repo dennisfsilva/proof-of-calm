@@ -51,14 +51,14 @@ test("during a fall, the figure's Why? opens the module in the sheet, and the mo
   await seed(page, 'week-fall');
   await page.goto('/learn/fall-under-way');
   await ready(page, TITLE);
-  await page.getByRole('button', { name: 'Why? Falls and a monthly plan' }).click();
+  await page.getByRole('button', { name: 'Why? The fall under way' }).click();
   const sheet = page.getByRole('dialog');
   await expect(sheet.getByText(/^A monthly buyer can do nothing, log the buy on the buy day/)).toBeVisible();
-  await expect(sheet.getByRole('link', { name: 'See the fall under way' })).toHaveCount(0);
+  await expect(sheet.getByRole('link', { name: 'See its figures' })).toHaveCount(0);
   await expect(page).toHaveURL(/\/learn\/fall-under-way$/);
   await page.goto('/learn/when-the-market-drops');
   await ready(page, 'When the market drops');
-  await page.getByRole('link', { name: 'See the fall under way' }).click();
+  await page.getByRole('link', { name: 'See its figures' }).click();
   await ready(page, TITLE);
 });
 
@@ -70,7 +70,7 @@ test('with no fall under way Learn has no row for the page, and its path gives t
   await page.goto('/learn/fall-under-way');
   await ready(page, 'When the market drops');
   await expect(page).toHaveURL(/\/learn\/when-the-market-drops$/);
-  await expect(page.getByRole('link', { name: 'See the fall under way' })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'See its figures' })).toHaveCount(0);
 });
 
 test('a price history that cannot be loaded leaves the failure line in the figure’s place', async ({ page }) => {
