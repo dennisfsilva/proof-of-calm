@@ -1,3 +1,4 @@
+import { countryRules, loadProfile } from '@proofofcalm/content';
 import type { CountryCode, Plan } from '@proofofcalm/core';
 import { FIXTURE_RULES } from '@proofofcalm/core/testing/country-change';
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -8,11 +9,18 @@ import { createTestServices } from '../../../lib/services/testing';
 import { CountrySection } from './country-section';
 
 // Currency & data's country change over the fixture plan (Portugal): the select at rest, the change to Germany
-// listed with each holding rule in its own row and the day the last buy passes each, a window the new rule
-// opens early, and the plan's rule not loaded; the test projects of vitest.config.ts render each at 360 and
+// listed with each holding rule in its own row and the day the last buy passes each, the currency question of a
+// move to the United Kingdom with amounts logged, the line that offers the country's currency, a window the new
+// rule opens early, and the plan's rule not loaded; the test projects of vitest.config.ts render each at 360 and
 // 1280 px, light and dark, with axe.
 
 const rules = async (code: CountryCode) => (code in FIXTURE_RULES ? FIXTURE_RULES[code as 'PT' | 'DE' | 'XX'] : null);
+// The United Kingdom's rules from its profile, for the currency question (GBP against the plan's EUR).
+const withUk = async (code: CountryCode) => {
+  if (code !== 'GB') return rules(code);
+  const profile = await loadProfile(code);
+  return profile === null ? null : countryRules(profile);
+};
 const nowMs = fixtureNowMs('buy');
 const fixture = fixtureSnapshot();
 const early: Snapshot = {
@@ -76,6 +84,30 @@ export const ToOtherCountry: Story = {
   play: async ({ canvas }) => {
     await choose(canvas, 'Other country');
     await expect(canvas.getByText(/the general profile, not a rule for your country/)).toBeVisible();
+  },
+};
+
+// ADR-0053: the fixture's entries hold amounts in EUR, so the move asks which currency they were paid in.
+export const ToUnitedKingdom: Story = {
+  parameters: at(fixture, withUk),
+  play: async ({ canvas }) => {
+    await choose(canvas, 'United Kingdom');
+    await expect(canvas.getByRole('radiogroup')).toBeVisible();
+    for (const box of canvas.getAllByRole('checkbox')) await userEvent.click(box);
+    await userEvent.click(canvas.getByRole('button', { name: 'Change country to United Kingdom' }));
+    await expect(await canvas.findByRole('alert')).toHaveTextContent('Choose Keep EUR or Change to GBP.');
+    await userEvent.click(canvas.getByRole('radio', { name: /^Change to GBP/ }));
+    await expect(canvas.getByText(/^Monthly amount: .+ becomes .+\. Check it in Plan\.$/)).toBeVisible();
+    await expect(canvas.getByText(/^Tax-year files follow your current country's rules/)).toBeVisible();
+  },
+};
+
+// A plan kept in EUR after a move to the United Kingdom: the line offers GBP, so a wrong "Keep" is fixed here.
+export const PlanInAnotherCurrency: Story = {
+  parameters: at({ ...fixture, plan: { ...(fixture.plan as Plan), country: 'GB' as Plan['country'] } }, withUk),
+  play: async ({ canvas }) => {
+    await expect(await canvas.findByRole('button', { name: 'Change to GBP' })).toBeVisible();
+    await expect(canvas.getByText(/^Your plan is in EUR, and your country's currency is GBP\./)).toBeVisible();
   },
 };
 

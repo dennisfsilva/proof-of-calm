@@ -44,7 +44,7 @@ describe('PayCurrencyLine', () => {
     expect(screen.queryByRole('button')).toBeNull();
   });
 
-  it('says the currencies differ, and relabels the plan to the country\'s currency on the button', async () => {
+  it("says the currencies differ, and relabels the plan to the country's currency on the button", async () => {
     const { services, onDone } = await mount(withPlan({ payCurrency: 'USD', displayCurrency: 'USD' }));
     expect(screen.getByText(/^Your plan is in USD, and your country's currency is EUR\./)).toBeTruthy();
     const before = stored(services);
