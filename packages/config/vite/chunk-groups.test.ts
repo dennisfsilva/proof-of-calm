@@ -143,6 +143,92 @@ describe('chunkGroups', () => {
       [COLLAPSIBLE]: 'today',
     });
   });
+
+  /** Today's screen importing Learn through `today`, with the barrel's two re-exports in `learn`. */
+  const throughLearn = (today: string, learn: string, why: string[]) =>
+    contextOf(
+      {
+        [ENTRY]: [SHELL],
+        [SHELL]: [TODAY],
+        [TODAY]: [LEARN],
+        [LEARN]: [WHY, HOLDING],
+        [WHY]: [REACT_DOM],
+        [HOLDING]: [COLLAPSIBLE],
+        [REACT_DOM]: [],
+        [COLLAPSIBLE]: [],
+      },
+      {
+        [TODAY]: { exports: ['TodayScreen'], code: today },
+        [LEARN]: { exports: ['WhyLink', 'HoldingConditions', 'default'], code: learn },
+        [WHY]: { exports: why, code: 'export default function WhyLink() {}' },
+        [HOLDING]: { exports: ['HoldingConditions'], code: 'export function HoldingConditions() {}' },
+      },
+    );
+
+  it("takes another feature's module that Today imports by default", () => {
+    const ctx = contextOf(
+      { [ENTRY]: [SHELL], [SHELL]: [TODAY], [TODAY]: [WHY], [WHY]: [REACT_DOM], [REACT_DOM]: [] },
+      {
+        [TODAY]: { exports: ['TodayScreen'], code: "import WhyLink from '../../learn/components/why-link';" },
+        [WHY]: { exports: ['default'], code: 'export default function WhyLink() {}' },
+      },
+    );
+    expect(names(ctx, [TODAY, WHY, REACT_DOM])).toEqual({ [TODAY]: 'today', [WHY]: 'today', [REACT_DOM]: 'today' });
+  });
+
+  it('follows a default through a barrel, by default import and by a named re-export of it', () => {
+    const learn = "export { HoldingConditions } from './components/holding-conditions';\n";
+    for (const [today, reexport] of [
+      ["import WhyLink from '../../learn';", "export { default } from './components/why-link';"],
+      ["import { WhyLink } from '../../learn';", "export { default as WhyLink } from './components/why-link';"],
+    ]) {
+      const ctx = throughLearn(today ?? '', learn + reexport, ['default']);
+      expect(names(ctx, [LEARN, WHY, REACT_DOM, HOLDING])).toEqual({
+        [LEARN]: 'today',
+        [WHY]: 'today',
+        [REACT_DOM]: 'today',
+        [HOLDING]: null,
+      });
+    }
+  });
+
+  it('asks a renamed import for its source name, and a renamed re-export for the name its target exports', () => {
+    const renamedImport = throughLearn(
+      "import { WhyLink as Why } from '../../learn';",
+      "export { HoldingConditions } from './components/holding-conditions';\nexport { WhyLink } from './components/why-link';",
+      ['WhyLink'],
+    );
+    const renamedExport = throughLearn(
+      "import { WhyLink } from '../../learn';",
+      "export { Conditions as HoldingConditions } from './components/holding-conditions';\nexport { HoldingConditions as WhyLink } from './components/why-link';",
+      ['HoldingConditions'],
+    );
+    expect(names(renamedImport, [WHY, REACT_DOM, HOLDING])).toEqual({
+      [WHY]: 'today',
+      [REACT_DOM]: 'today',
+      [HOLDING]: null,
+    });
+    // The barrel also exports the name `why-link` exports, from `holding-conditions`: an over-count
+    // may take that module too, but the one Today runs must be in the group.
+    expect(names(renamedExport, [WHY, REACT_DOM])).toEqual({ [WHY]: 'today', [REACT_DOM]: 'today' });
+  });
+
+  it('walks a namespace import, and a statement it cannot read, whole', () => {
+    const learn =
+      "export { HoldingConditions } from './components/holding-conditions';\nexport { WhyLink } from './components/why-link';";
+    for (const today of [
+      "import * as learn from '../../learn';\nlearn.WhyLink;",
+      "import { /* the link */ WhyLink } from '../../learn';",
+    ]) {
+      const ctx = throughLearn(today, learn, ['WhyLink']);
+      expect(names(ctx, [LEARN, WHY, HOLDING, COLLAPSIBLE])).toEqual({
+        [LEARN]: 'today',
+        [WHY]: 'today',
+        [HOLDING]: 'today',
+        [COLLAPSIBLE]: 'today',
+      });
+    }
+  });
 });
 
 /** The guard's error for chunks that each import the named files, `null` when it passes them. */

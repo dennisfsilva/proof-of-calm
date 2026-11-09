@@ -41,27 +41,61 @@ function entriesAbove(ctx: Rolldown.ChunkingContext, id: string): string[] {
   return found;
 }
 
-/** Whether a module's code names an export: an over-count, since a mention needs no import. */
-const mentions = (code: string, name: string): boolean =>
-  new RegExp(`(?<![\\w$])${name.replaceAll('$', '\\$')}(?![\\w$])`).test(code);
+/** A static `import … from` or `export { … } from` with its clause, and every `from '…'` of a module. */
+const STATEMENT = /\b(import|export)\s+((?:(?!\b(?:import|export)\b)[\w$\s,{}])*?)\s*\bfrom\s*['"]/g;
+const FROM = /\bfrom\s*['"]/g;
+
+/**
+ * The names a module's static imports ask of the modules they import: `imported`, which its code
+ * runs on, and per name it re-exports the name its target exports (`passed`). `null` for the forms
+ * it does not resolve: a namespace import or re-export, an `export *`, an import read for its
+ * effects, and a `from '…'` outside a statement it reads (a comment in a clause, say).
+ */
+function statementsOf(code: string): { imported: Set<string>; passed: [string, string][] } | null {
+  if (/\b(import|export)\s*(['"]|\*)|\bimport\s[^;'"]*\*\s*as\b/.test(code)) return null;
+  const imported = new Set<string>();
+  const passed: [string, string][] = [];
+  const statements = [...code.matchAll(STATEMENT)];
+  if (statements.length !== [...code.matchAll(FROM)].length) return null;
+  for (const [, kind, clause = ''] of statements) {
+    const braces = /\{([^}]*)\}/.exec(clause);
+    if (kind === 'import' && /^\s*(type\s+)?[\w$]+\s*(,|$)/.test(clause.replace(/\{[^}]*\}/, ''))) {
+      imported.add('default');
+    }
+    for (const item of braces?.[1]?.split(',') ?? []) {
+      const [source, as = source] = item
+        .replace(/^\s*type\s+/, '')
+        .trim()
+        .split(/\s+as\s+/);
+      if (!source) continue;
+      if (kind === 'import') imported.add(source);
+      else passed.push([source, as ?? source]);
+    }
+  }
+  return { imported, passed };
+}
 
 /**
  * The names an import from `from` asks of another feature's module `to`, or `null` when the walk
- * leaves `to` out: the names of `to` that `from`'s code mentions, less, when `from` is another
- * feature's module too, those it exports itself unless the walk asked them of it (a barrel passes on
- * only what its importers ask). A module read
- * for its effects, one without its code, and an `export *` are walked whole, since an under-count
- * would leave a module Today runs outside its chunk.
+ * leaves `to` out. Resolved by name, from `from`'s code: `import X from` (asks `default`),
+ * `import { X } from` and `import { X as Y } from` (ask `X`), and `export { X } from`,
+ * `export { X as Y } from`, `export { default } from` and `export { default as Y } from` (ask `X` or
+ * `default` when the walk asked `Y` of `from`, or always when `from` is walked into). It cannot tell
+ * which statement imports `to`, so it asks every statement's names of each module `from` imports:
+ * an over-count, as is a name imported for its type only. Walked whole (every export of `to`
+ * asked), since an under-count would leave a module Today runs outside its chunk: `to` without
+ * exports, `from` without its code, and `from` with any form `statementsOf` does not resolve.
  */
 function asks(ctx: Rolldown.ChunkingContext, reach: Reach, from: string, to: string): string[] | null {
   if (walksInto(to)) return [];
-  const source = ctx.getModuleInfo(from);
   const names = ctx.getModuleInfo(to)?.exports ?? [];
-  const code = source?.code;
-  if (typeof code !== 'string' || names.length === 0 || /\bexport\s*\*/.test(code)) return [];
-  const own = new Set(walksInto(from) ? [] : (source?.exports ?? []));
+  const code = ctx.getModuleInfo(from)?.code;
+  const statements = typeof code === 'string' ? statementsOf(code) : null;
+  if (names.length === 0 || statements === null) return names;
   const asked = reach.asked.get(from);
-  const found = names.filter((name) => mentions(code, name) && (!own.has(name) || asked?.has(name)));
+  const wanted = new Set(statements.imported);
+  for (const [source, as] of statements.passed) if (walksInto(from) || asked?.has(as)) wanted.add(source);
+  const found = names.filter((name) => wanted.has(name));
   return found.length > 0 ? found : null;
 }
 
