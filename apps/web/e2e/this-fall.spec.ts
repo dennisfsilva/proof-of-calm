@@ -10,7 +10,7 @@ import { routeFixturePrices, test } from './support';
 
 test.use({ serviceWorkers: 'block' });
 
-const TITLE = 'This fall and your plan';
+const TITLE = 'The fall under way and your plan';
 const NOW_MS = fixtureNowMs('buy');
 
 type Shape = Parameters<typeof routeFixturePrices>[2];
@@ -36,7 +36,7 @@ for (const shape of ['week-fall', 'high-fall'] as const) {
     await ready(page, 'Learn');
     await page.getByRole('link', { name: new RegExp(`^${TITLE}`) }).click();
     await ready(page, TITLE);
-    await expect(page).toHaveURL(/\/learn\/this-fall$/);
+    await expect(page).toHaveURL(/\/learn\/fall-under-way$/);
     await expect(page.getByText(/below (its|their) 90-day high/)).toBeVisible();
     await expect(page.getByText(/Price data by CoinGecko$/)).toBeVisible();
     await expect(page.getByText(/^Earlier falls of Bitcoin/)).toBeVisible();
@@ -49,7 +49,7 @@ test('with no fall under way Learn has no row for the page, and its path gives t
   await page.goto('/learn');
   await ready(page, 'Learn');
   await expect(page.getByRole('link', { name: new RegExp(`^${TITLE}`) })).toHaveCount(0);
-  await page.goto('/learn/this-fall');
+  await page.goto('/learn/fall-under-way');
   await ready(page, 'Learn');
   await expect(page).toHaveURL(/\/learn$/);
 });
@@ -57,7 +57,7 @@ test('with no fall under way Learn has no row for the page, and its path gives t
 test('a price history that cannot be loaded leaves the failure line in the figure’s place', async ({ page }) => {
   await seed(page, 'week-fall');
   await page.route('**/api/history/*', (route) => route.fulfill({ status: 502 }));
-  await page.goto('/learn/this-fall');
+  await page.goto('/learn/fall-under-way');
   await ready(page, TITLE);
   await expect(page.getByText(/^The price history could not be loaded/)).toBeVisible();
   await expect(page.getByText(/Price data by CoinGecko/)).toHaveCount(0);
