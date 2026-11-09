@@ -37,6 +37,8 @@ const PAGES: readonly Entry[] = [
   { name: 'learn', path: '/learn', heading: 'Learn' },
   { name: 'learn-start-here', path: '/learn/start-here', heading: 'Start here' },
   { name: 'learn-cycles', path: '/learn/cycles', heading: 'Cycles' },
+  { name: 'learn-noise', path: '/learn/noise', heading: 'Noise' },
+  { name: 'learn-when-the-market-drops', path: '/learn/when-the-market-drops', heading: 'When the market drops' },
   {
     name: 'learn-fall-under-way',
     path: '/learn/fall-under-way',
