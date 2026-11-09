@@ -6,19 +6,17 @@ import {
   type CurrencyCode,
   coinsWithEntries,
   compare,
-  compareInstants,
   type Decimal,
   decimalPlaces,
   defaultFee,
   type Entry,
-  type EntryKind,
-  EntryKindSchema,
   err,
   type FillField,
   focusSlot,
   heldUnits,
   isNegative,
   isPositive,
+  lastVenue,
   liveEntries,
   MAX_UNIT_DECIMALS,
   MINOR_UNITS,
@@ -41,6 +39,8 @@ import {
   slotStatuses,
   sum,
   type TransactionDraft,
+  type TransactionKind,
+  TransactionKindSchema,
   type Units,
   unitsFor,
 } from '@proofofcalm/core';
@@ -56,7 +56,7 @@ import { rowSource } from './source';
 /** The form as typed; a session draft stores it (ADR-0020), so the schema reads it back. */
 export const FormStateSchema = z.readonly(
   z.object({
-    kind: EntryKindSchema,
+    kind: TransactionKindSchema,
     /** The date input's text: '' when cleared or partly typed, so `toDraft` reads it (ADR-0034). */
     date: z.string(),
     slot: z.nullable(MonthKeySchema),
@@ -80,9 +80,6 @@ export type FieldIssue = { readonly field: string; readonly error: NumberInputEr
 
 const decimalsOf = (plan: Plan, coin: CoinId): number =>
   plan.coins.find((each) => each.id === coin)?.decimals ?? MAX_UNIT_DECIMALS;
-
-const latestFirst = (a: Entry, b: Entry): number =>
-  a.date === b.date ? compareInstants(b.createdAt, a.createdAt) : a.date < b.date ? 1 : -1;
 
 function emptyRow(plan: Plan, coin: CoinId): FormRow {
   return { source: null, coin, decimals: decimalsOf(plan, coin), amount: '', units: '', price: '', derived: null };
@@ -167,7 +164,7 @@ function editedState(editing: readonly Entry[], ctx: FormContext): FormState {
  * never another transaction's default.
  */
 export function initialState(
-  kind: EntryKind,
+  kind: TransactionKind,
   editing: readonly Entry[],
   slot: MonthKey | undefined,
   ctx: FormContext,
@@ -176,7 +173,7 @@ export function initialState(
   const { plan, entries, today, numberInput } = ctx;
   const live = liveEntries(entries);
   const fee = defaultFee(live);
-  const venue = [...live].sort(latestFirst).find((entry) => entry.venue !== null && entry.kind !== 'held')?.venue ?? '';
+  const venue = lastVenue(live) ?? '';
   if (kind === 'held') {
     const rows = plan.coins.map((coin) => emptyRow(plan, coin.id));
     return { kind, date: '', slot: null, fee: '', venue: '', note: '', rows };

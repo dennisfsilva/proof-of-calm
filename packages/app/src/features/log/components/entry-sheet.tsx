@@ -1,7 +1,6 @@
 import {
   type CalendarDate,
   type Entry,
-  type EntryKind,
   focusSlot,
   heldUnits,
   isOpen,
@@ -9,6 +8,7 @@ import {
   type MonthKey,
   type Plan,
   slotStatuses,
+  type TransactionKind,
 } from '@proofofcalm/core';
 import { Button } from '@proofofcalm/ui/components/button';
 import { SegmentedControl } from '@proofofcalm/ui/components/segmented-control';
@@ -50,7 +50,7 @@ export function EntrySheet({ open, onOpenChange, finalFocus, onUndone, offerKind
   const today = useToday();
   // The month being skipped, kept as the skip is written: the month is no longer open as its sheet closes.
   const [skipping, setSkipping] = useState<{ readonly slot: MonthKey; readonly open: boolean } | null>(null);
-  const [chosen, setChosen] = useState<EntryKind | null>(null);
+  const [chosen, setChosen] = useState<TransactionKind | null>(null);
   // Whether coins are held is read once per opening (CONTENT-STYLE §3, Record a sale): a sale being typed stays
   // a sale when another tab sells the last units, and the save then names what is held.
   const held = plan !== null && holds(plan, entries);
@@ -116,9 +116,9 @@ function holds(plan: Plan, entries: readonly Entry[]) {
 }
 
 /** The kinds a new transaction opened on `opened` offers, in order: the opened kind, an extra buy, a sale while held. */
-function kindsFor(opened: EntryKind, held: boolean): readonly EntryKind[] {
+function kindsFor(opened: TransactionKind, held: boolean): readonly TransactionKind[] {
   if (opened === 'sell') return [];
-  const buys: readonly EntryKind[] = opened === 'extra' ? ['extra'] : [opened, 'extra'];
+  const buys: readonly TransactionKind[] = opened === 'extra' ? ['extra'] : [opened, 'extra'];
   return held ? [...buys, 'sell'] : buys;
 }
 
