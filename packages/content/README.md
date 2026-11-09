@@ -30,7 +30,8 @@ of it. Specifications: `docs/JURISDICTIONS.md`, `docs/EDUCATION.md`, `docs/CONTE
 schema and the rules of `docs/JURISDICTIONS.md` §2: owner review, review dates, sources on the
 allow-list, the 60-word card, and the banned words in everything the app shows (the card, the
 taxable-event notes, the rates, the holding-rule override notes, the pending changes; source titles
-are quoted as published). Templates must split exactly 100 over their own coins, each coin as the
+are quoted as published), each literal percentage with the number locale's joiner (`percent-joiner`)
+and each locale tag well formed (`locale-tag`), as `docs/JURISDICTIONS.md` §2 says. Templates must split exactly 100 over their own coins, each coin as the
 catalogue lists it, and keep each paragraph of the explanation (paragraphs separated by a blank line)
 to five sentences (`docs/CONTENT-STYLE.md` §1 rule 4). Each template carries at least one drawdown,
 its sources and any `lowSource` on the facts allow-list and `accessed` no later than `lastReviewed`;
@@ -58,11 +59,12 @@ unique tickers and CoinGecko ids in ticker order, an order that ranks no coin.
 | `TEMPLATES`, `templateById(id)` | `OfferedTemplate`: the core's `Template` with its `drawdowns` | `planFromTemplate`, `followsTemplate`, the card's dated band |
 | `COINS` | the core's `Coin` | the coin picker, `/api/prices` |
 
-One export sits apart, on the subpath `@proofofcalm/content/modules`, because it needs zod at run time:
+Two exports sit apart, on the subpaths `@proofofcalm/content/modules` and `@proofofcalm/content/cycles`, because they need zod at run time:
 
 | Export | Gives | For |
 |---|---|---|
 | `parseModule(path, source)` | `LearnModule`: the front matter, the body, `words` and `readingMinutes`, or its problems | the hosts' Learn plugin, `pnpm validate:content`, the content test |
+| `loadCycleDrawdowns(source?)` (`./cycles`) | the cycles file's rows in its order, each with its publisher, parsed with the `zod/mini` cycles schema, or one line per issue | the red-day model's earlier falls (`packages/app/src/lib/services/red-day-model.ts`), loaded on demand |
 
 Three decisions shape them:
 
@@ -71,7 +73,8 @@ Three decisions shape them:
   types only and assert the core's brands (dates, tickers, decimals) in one place,
   `src/loaders/brands.ts`; an app that imports a loader from the index ships the data and nothing
   else (checked in the web build on 2026-10-17: the price route's chunk holds `coins.json` and two
-  small modules).
+  small modules). So Today's entry carries no zod from content; the red-day model's lazy chunk alone
+  parses the cycles file with `zod/mini`, through the `./cycles` subpath (2026-11-09).
 - **One chunk per profile.** A profile is 1.3 to 4.0 kB brotli (quality 3) of card text and
   sources, so `loadProfile` imports its file dynamically, and the shell does not load it at all: it
   boots on the country's rules file, a small generated file (the measurement: ADR-0049), so Today pays for the

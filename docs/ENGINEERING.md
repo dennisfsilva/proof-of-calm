@@ -138,7 +138,8 @@ as ADR-0024's Corrections say, and the test skips on a platform without one.
   brotli (the measurement: ADR-0049), never on the profile with its card text. Main at a20d28d9
   measured 40,215 bytes in 10 chunks, Portugal's the profile, on 2026-10-29; at 044e2619, with the
   country library, 46,030 bytes in 12 chunks on 2026-11-05; at 9a543833, booting on the rules file
-  (ADR-0049), 42,142 bytes in 12 chunks on 2026-11-05. A lazy screen takes shared data through
+  (ADR-0049), 42,142 bytes in 12 chunks on 2026-11-05; at 3f7d7523, with the red-day port's stub,
+  44,870 bytes in 13 chunks on 2026-11-09. A lazy screen takes shared data through
   Services, because a value import of content or core from a lazy chunk splits the entry's shared
   chunk and costs Today bytes (Rolldown groups modules by the entries that reach them).
 - Lighthouse mobile ≥ 95 for Performance (TBT ≤ 200 ms, LCP ≤ 2.5 s, CLS ≤ 0.1) and 100 for

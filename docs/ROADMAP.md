@@ -156,7 +156,8 @@ external links and the Risk link in the mobile export (M3).
 - The review pipeline: the scheduled agent job that compares stored rules with official sources and
   opens a PR with diff, sources and confidence (`docs/CONTENT-OPS.md`), dry-run proven once.
 - Red day: thresholds in core with tests; the page with the plan's current drawdown next to past cycle
-  drawdowns and the user's sentence; the banner, once per episode, highest priority.
+  drawdowns and the user's sentence, built on 2026-11-09 as the fall page (#51, `docs/EDUCATION.md`
+  §6); the banner, once per episode, highest priority.
 - Simulator: monthly buying into a split from date A to B with the path, drawdowns and time under
   water shown, from the reference-close dataset in `packages/data` (built by the pipeline in `tools/`
   from Kraken bulk data, Bitstamp and Coinbase with ECB rates, ADR-0036) refreshed by the scheduled

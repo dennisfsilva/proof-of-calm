@@ -602,8 +602,8 @@ or after it adds its amount to `investedSoFar`, changes no other field but `perc
   `RED_DAY` is a named constant with those defaults, with tests at the boundaries. Calibration on
   bitcoin's last five years (`docs/research/brand-content-education.md` §7): a seven-day fall of 10 %
   or more occurred on about 5.7 % of days, roughly six episodes a year; the two conditions together
-  cover about 15 % of days. The Red day page states this frequency, so the banner is honest about
-  how ordinary a red day is.
+  cover about 15 % of days. The module "When the market drops" states this frequency, the fall page
+  none (`docs/EDUCATION.md` §6, `docs/CONTENT-STYLE.md` §3).
 - `redDays(series)`: each date flagged on its own drawdown. `redDayEpisode(days, today)`: the episode
   under way on `today` as `{ start, last }`, or null. An episode starts on a Red day; a later Red day
   belongs to it while at most six clear days lie between them; it ends once the condition has been clear
