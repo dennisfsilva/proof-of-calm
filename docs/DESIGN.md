@@ -220,7 +220,7 @@ dark mode uses the dark steps above, not an inversion; the validator runs whenev
   keep scroll offsets to whole pixels (Chromium and WebKit, measured on 2026-10-26): a field scrolled into it, or a
   button Tab reaches, stops with its whole ring inside it (the keyboard e2e check). Chromium's Tab into
   a text field scrolls at most its caret's line, so the Sheet itself, on `focusin` of a control that
-  shows its ring, scrolls by the least that shows the whole control and ring after layout
+  shows its ring, scrolls by the least that shows the whole control and ring as it takes the focus
   (`reveal` in `packages/ui/src/lib/reveal.ts`, at once, as the browser's own focus scroll); the
   entry form's "Venue and note" panel, once open to its height, scrolls into the Sheet the same way,
   gliding unless motion is reduced (android-small and zoom-125, 2026-11-09); the module sheet's

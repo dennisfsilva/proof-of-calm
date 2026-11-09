@@ -15,7 +15,8 @@ import { Button } from './button';
 // respects the home-indicator inset, and scrolls inside when it is taller than the screen. Its scroll
 // padding is the focus ring's extent and a pixel for the whole-pixel scroll offsets, so a field scrolled
 // into view stops with its whole ring inside the popup, which clips it (docs/DESIGN.md §6). A control focused from the
-// keyboard is brought wholly into view after layout: Chromium's Tab into a text field scrolls at most its caret's line.
+// keyboard is brought wholly into view as it takes the focus: Chromium's Tab into a text field scrolls at most its
+// caret's line, and its own focus scroll, which follows, then finds the control in view.
 
 function Sheet(props: SheetPrimitive.Root.Props) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;
@@ -53,13 +54,15 @@ type SheetContentProps = WithClassName<SheetPrimitive.Popup.Props> &
     closeLabel?: string;
   };
 
-/** On `focusin`, once laid out, the least scroll that shows the focused control and its ring inside the sheet. */
+/**
+ * On `focusin`, the least scroll that shows the focused control and its ring inside the sheet, measured then (reading
+ * the rects lays the page out). Not a frame later: a frame that comes late (a page in the background) would pull the
+ * control back after the reader or a script has scrolled away. A press focuses no button (no `:focus-visible`), so a
+ * scroll never moves one from under the pointer.
+ */
 function revealFocused(event: FocusEvent<HTMLDivElement>) {
-  const control = event.target;
-  if (control === event.currentTarget || !control.matches(':focus-visible')) return;
-  requestAnimationFrame(() => {
-    if (control.ownerDocument.activeElement === control) reveal(control);
-  });
+  const { target: control, currentTarget: scroller } = event;
+  if (control !== scroller && control.matches(':focus-visible')) reveal(control, { scroller });
 }
 
 function SheetContent({ className, children, side, closeLabel, onFocus, ...props }: SheetContentProps) {

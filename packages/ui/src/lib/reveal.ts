@@ -21,10 +21,15 @@ function scrollerOf(box: Element): HTMLElement | null {
   return scroller;
 }
 
-/** `smooth` glides there unless the person reduced motion; a focus move scrolls at once, as the browser's own does. */
-export function reveal(box: Element, { smooth = false }: { readonly smooth?: boolean } = {}): void {
-  const scroller = scrollerOf(box);
-  if (scroller === null) {
+type RevealOptions = {
+  /** The scroller to move, when the caller holds it (the Sheet's popup); else the box's nearest scrolling ancestor. */
+  readonly scroller?: HTMLElement;
+  /** Glides there unless the person reduced motion; a focus move scrolls at once, as the browser's own does. */
+  readonly smooth?: boolean;
+};
+
+export function reveal(box: Element, { scroller = scrollerOf(box) ?? undefined, smooth = false }: RevealOptions = {}) {
+  if (scroller === undefined) {
     box.scrollIntoView({ block: 'nearest' });
     return;
   }
