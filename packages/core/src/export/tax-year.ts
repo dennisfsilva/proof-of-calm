@@ -8,7 +8,7 @@ import { type CurrencyCode, MINOR_UNITS } from '../money/currency';
 import { decimalPlaces, isPositive, type Money, type Units } from '../money/decimal';
 import { cumulativeShares } from '../money/split';
 import { liveEntries } from '../plan/statuses';
-import { matchLots, venueGroup } from '../portfolio/lots';
+import { matchLots, type SaleTake, venueGroup } from '../portfolio/lots';
 import { assertNever, defined } from '../result';
 import type { CountryRules, LotRule, LotScope } from '../schema/country';
 import { type Entry, type EntryKind, isEstimate } from '../schema/entry';
@@ -145,10 +145,11 @@ export function taxYearLots(
   const yearEnd = today < span.to ? today : span.to;
   const coins = new Set<CoinId>([...plan.coins.map((coin) => coin.id), ...upTo.map((entry) => entry.coin)]);
   const pieces: LotPiece[] = [];
+  let crossVenue = 0;
   for (const coin of coins) {
     const match = matchLots(upTo, coin, rules.lotScope, lotRule);
     // Each lot's takes in sale order, with the sale's proceeds and fee shares for those units.
-    const taken = new Map<EntityId, { sale: Entry; units: Units; proceeds: Money | null; fee: Money | null }[]>();
+    const taken = new Map<EntityId, (SaleTake & { sale: Entry; proceeds: Money | null; fee: Money | null })[]>();
     const unmatched: LotPiece[] = [];
     for (const sold of match.sales) {
       const sale = defined(byId.get(sold.id), 'sale');
@@ -157,7 +158,7 @@ export function taxYearLots(
       const fees = shares(sale.fee, weights, digits);
       sold.takes.forEach((take, index) => {
         const list = taken.get(take.lot) ?? [];
-        list.push({ sale, units: take.units, proceeds: at(proceeds, index), fee: at(fees, index) });
+        list.push({ ...take, sale, proceeds: at(proceeds, index), fee: at(fees, index) });
         taken.set(take.lot, list);
       });
       if (isPositive(sold.unmatched) && sale.date >= span.from) {
@@ -180,7 +181,8 @@ export function taxYearLots(
     for (const lot of match.lots) {
       const entry = defined(byId.get(lot.id), 'lot');
       const takes = taken.get(lot.id) ?? [];
-      const weights = [...takes.map((take) => take.units), lot.remainingUnits];
+      // The units sold, then what the lot still holds at each place (none once it is all sold).
+      const weights = [...takes.map((take) => take.units), ...lot.places.map((place) => place.units)];
       const costs = shares(lot.cost, weights, digits);
       const fees = shares(lot.fee, weights, digits);
       const status = holdingStatus(lot.date, rules.holdingRule, rules.holdingRuleOverrides);
@@ -200,6 +202,8 @@ export function taxYearLots(
       });
       takes.forEach((take, index) => {
         if (take.sale.date < span.from) return;
+        // Sold from another group than the one it was held in: the units' place, not the purchase venue.
+        if (venueGroup(take.venue, rules.lotScope) !== venueGroup(take.sale.venue, rules.lotScope)) crossVenue += 1;
         pieces.push({
           ...piece(index, take.units, take.sale.date),
           disposedOn: take.sale.date,
@@ -208,7 +212,7 @@ export function taxYearLots(
           disposalFee: take.fee,
         });
       });
-      if (isPositive(lot.remainingUnits)) pieces.push(piece(takes.length, lot.remainingUnits, yearEnd));
+      pieces.push(...lot.places.map((place, index) => piece(takes.length + index, place.units, yearEnd)));
     }
     pieces.push(...unmatched);
   }
@@ -222,12 +226,7 @@ export function taxYearLots(
     uncosted: pieces.some((piece) => piece.acquired !== null && piece.costBasis === null),
     estimated: pieces.some((piece) => piece.estimated),
     unmatched: pieces.some((piece) => piece.acquired === null),
-    crossVenue: pieces.filter(
-      (piece) =>
-        piece.disposedOn !== null &&
-        piece.acquired !== null &&
-        venueGroup(piece.venue, rules.lotScope) !== venueGroup(piece.saleVenue, rules.lotScope),
-    ).length,
+    crossVenue,
     planRuleDiffers: !sameHoldingRule(plan.holdingRule, rules.holdingRule),
   };
 }

@@ -8,6 +8,13 @@ import type { LotRule, LotScope } from '../schema/country';
 import type { Entry } from '../schema/entry';
 import type { HoldingRuleOverride } from '../schema/holding-rule';
 import type { CoinId, EntityId } from '../schema/ids';
+import { entryRole, sameDayRank, unitsIn, unitsOut } from './effect';
+
+/**
+ * Where some of a lot's open units are: their venue and the day they arrived there, null while they are still where
+ * they were bought (no entry moves units between venues yet).
+ */
+export type Place = { readonly venue: string | null; readonly since: CalendarDate | null; readonly units: Units };
 
 export type Lot = {
   readonly id: EntityId;
@@ -20,10 +27,12 @@ export type Lot = {
   readonly cost: Money | null;
   readonly fee: Money | null;
   readonly remainingUnits: Units;
+  /** The open units by place, none of them empty; they sum to `remainingUnits`. */
+  readonly places: readonly Place[];
 };
 
-/** The units a sale took from one lot. */
-export type SaleTake = { readonly lot: EntityId; readonly units: Units };
+/** The units a sale took from one lot, and the venue they were held at. */
+export type SaleTake = { readonly lot: EntityId; readonly units: Units; readonly venue: string | null };
 
 /**
  * A sale's units, how many of them it took from lots with no cost (`held`, unknown cost), how many no lot held at its
@@ -75,6 +84,25 @@ export function compareEntries(
 }
 
 /**
+ * The order `matchLots` and `runningHeld` read a coin's entries in: date, then purchases before sales
+ * (`sameDayRank`), then `compareEntries`, so a purchase and a sale on one date can match.
+ */
+export function matchingOrder(a: Entry, b: Entry): number {
+  return compareDates(a.date, b.date) || sameDayRank(a) - sameDayRank(b) || compareEntries(a, b);
+}
+
+/** `places` less `units`, taken from the first place on; the places left empty go. */
+function takeFromPlaces(places: readonly Place[], units: Units): Place[] {
+  let toTake = units;
+  return places.flatMap((place) => {
+    const taken = min(place.units, toTake);
+    toTake = minus(toTake, taken);
+    const left = minus(place.units, taken);
+    return isPositive(left) ? [{ ...place, units: left }] : [];
+  });
+}
+
+/**
  * Matches the coin's sales to its purchases in one global order (`runningHeld`'s: date, purchases before sales, then
  * `compareEntries`), so a sale takes only lots bought on or before its date. A sale takes its own group's open lots
  * first (its venue under per-venue scope), the earliest first, or the latest first under LIFO; the units its group
@@ -88,41 +116,45 @@ export function matchLots(entries: readonly Entry[], coin: CoinId, scope: LotSco
   const own = liveEntries(entries)
     .filter((entry) => entry.coin === coin)
     .sort(compareEntries);
-  const isSale = (entry: Entry) => Number(entry.kind === 'sell');
-  // Stable after `compareEntries`: buys before sells on the same day, so a purchase and a sale on one date can match.
-  const events = [...own].sort((a, b) => compareDates(a.date, b.date) || isSale(a) - isSale(b));
 
-  // Each purchase becomes a lot whose remaining units the matching below reduces in place.
-  const byId = new Map<EntityId, { entry: Entry; left: Units }>();
-  for (const entry of own) if (entry.kind !== 'sell') byId.set(entry.id, { entry, left: entry.units });
+  // Each purchase becomes a lot whose remaining units, and the places holding them, the matching reduces in place.
+  type Open = { entry: Entry; left: Units; places: { -readonly [key in keyof Place]: Place[key] }[] };
+  const byId = new Map<EntityId, Open>();
+  for (const entry of own) {
+    if (entryRole(entry.kind) !== 'purchase') continue;
+    const units = unitsIn(entry);
+    byId.set(entry.id, { entry, left: units, places: [{ venue: entry.venue, since: null, units }] });
+  }
 
   const matched = new Map<EntityId, Omit<SaleMatch, 'id' | 'units'>>();
-  const open: { entry: Entry; left: Units }[] = [];
+  const open: Open[] = [];
   const inOrder = <T>(list: T[]) => (rule === 'lifo' ? list.reverse() : list);
-  for (const entry of events) {
+  for (const entry of [...own].sort(matchingOrder)) {
     const lot = byId.get(entry.id);
     if (lot !== undefined) {
       open.push(lot);
       continue;
     }
     const group = venueGroup(entry.venue, scope);
-    const ours = (candidate: { entry: Entry }) => venueGroup(candidate.entry.venue, scope) === group;
-    let toMatch = entry.units;
+    const pieces = open.flatMap((each) => each.places.map((place) => ({ lot: each, place })));
+    const ours = (piece: (typeof pieces)[number]) => venueGroup(piece.place.venue, scope) === group;
+    let toMatch = unitsOut(entry);
     let uncosted = '0' as Units;
     const takes: SaleTake[] = [];
-    for (const next of [...inOrder(open.filter(ours)), ...inOrder(open.filter((each) => !ours(each)))]) {
-      const taken = min(next.left, toMatch);
+    for (const { lot: next, place } of [...inOrder(pieces.filter(ours)), ...inOrder(pieces.filter((p) => !ours(p)))]) {
+      const taken = min(place.units, toMatch);
       if (!isPositive(taken)) continue;
+      place.units = minus(place.units, taken);
       next.left = minus(next.left, taken);
       toMatch = minus(toMatch, taken);
-      takes.push({ lot: next.entry.id, units: taken });
+      takes.push({ lot: next.entry.id, units: taken, venue: place.venue });
       if (next.entry.amount === null) uncosted = plus(uncosted, taken);
     }
     matched.set(entry.id, { uncosted, unmatched: toMatch, takes });
   }
 
   const lots = [...byId.values()].map(
-    ({ entry, left }): Lot => ({
+    ({ entry, left, places }): Lot => ({
       id: entry.id,
       coin: entry.coin,
       date: entry.date,
@@ -132,6 +164,7 @@ export function matchLots(entries: readonly Entry[], coin: CoinId, scope: LotSco
       cost: entry.amount,
       fee: entry.fee,
       remainingUnits: left,
+      places: places.filter((place) => isPositive(place.units)),
     }),
   );
   const sales = own.flatMap((entry): SaleMatch[] => {
@@ -161,7 +194,12 @@ export function heldLots(match: LotMatch): LotMatch {
     }
     return { ...sale, uncosted };
   });
-  return { ...match, lots: left.map(({ lot, left }) => ({ ...lot, remainingUnits: left })), sales };
+  const held = left.map(({ lot, left }) => ({
+    ...lot,
+    remainingUnits: left,
+    places: takeFromPlaces(lot.places, minus(lot.remainingUnits, left)),
+  }));
+  return { ...match, lots: held, sales };
 }
 
 /** A live entry of a coin with the units held after it. */
@@ -172,13 +210,12 @@ export type HeldAfter = { readonly entry: Entry; readonly held: Units };
  * `compareEntries`), each with the units held after it: a sale that finds too few leaves 0, its excess unmatched.
  */
 export function runningHeld(entries: readonly Entry[], coin: CoinId): HeldAfter[] {
-  const sale = (entry: Entry) => Number(entry.kind === 'sell');
   const own = liveEntries(entries)
     .filter((entry) => entry.coin === coin)
-    .sort((a, b) => compareDates(a.date, b.date) || sale(a) - sale(b) || compareEntries(a, b));
+    .sort(matchingOrder);
   let held = '0' as Units;
   return own.map((entry) => {
-    held = entry.kind === 'sell' ? max(minus(held, entry.units), '0' as Units) : plus(held, entry.units);
+    held = max(minus(plus(held, unitsIn(entry)), unitsOut(entry)), '0' as Units);
     return { entry, held };
   });
 }
@@ -186,4 +223,26 @@ export function runningHeld(entries: readonly Entry[], coin: CoinId): HeldAfter[
 /** The coin's lots in `compareEntries` order, each with its remaining units. */
 export function lots(entries: readonly Entry[], coin: CoinId, scope: LotScope, rule: LotRule = 'fifo'): readonly Lot[] {
   return matchLots(entries, coin, scope, rule).lots;
+}
+
+/** The units of a coin held at one venue; `venue` null for the units bought with none named. */
+export type VenueUnits = { readonly venue: string | null; readonly units: Units };
+
+/**
+ * The units of `coin` held at each venue at the end of `date`: the live entries dated on or before it matched per venue
+ * whatever the country's scope (units sit at a venue even where the law pools them), read through `heldLots`, so they
+ * sum to the units held then. Venues with none left out, in the order of their first lot.
+ */
+export function venueUnits(
+  entries: readonly Entry[],
+  coin: CoinId,
+  date: CalendarDate,
+  rule: LotRule = 'fifo',
+): readonly VenueUnits[] {
+  const upTo = entries.filter((entry) => compareDates(entry.date, date) <= 0);
+  const byVenue = new Map<string | null, Units>();
+  for (const lot of heldLots(matchLots(upTo, coin, 'per-venue', rule)).lots) {
+    for (const { venue, units } of lot.places) byVenue.set(venue, plus(byVenue.get(venue) ?? ('0' as Units), units));
+  }
+  return [...byVenue].map(([venue, units]) => ({ venue, units }));
 }
