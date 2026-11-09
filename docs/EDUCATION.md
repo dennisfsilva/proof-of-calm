@@ -108,14 +108,27 @@ matters (the Red day page).
 ## 6. When the market drops
 
 **Idea**: this has happened before; your plan already assumed it would.
-**Says**: the Red day page in its resting state: how the trigger works (a seven-day fall of 10 % or
+**Two surfaces.** The module (planned: M2) is the resting text, in Learn's index like any other. The
+fall page, `/learn/this-fall`, is the other: Learn's index opens with its row (`This fall and your
+plan`) only while the red-day port (`docs/DOMAIN.md` §3.11) finds a fall of the held coins under way
+on the device, and the page's path gives the index in its place when nothing is held or no fall is
+under way, so a bookmark or the back button never shows old figures. The page holds, in order: the
+back link to Today and its heading; the figure with the market as its subject, truncated to whole
+percents and dated by the last complete close (the coins with no price history named under it); the
+data line (currency, the closes' first and last dates, CoinGecko as the source; ADR-0050); the
+past-performance sentence with its `Risk disclosure` link, once (`docs/LEGAL.md` §4); each held coin's
+earlier falls from the cycles file (§9 a–c), oldest first, each with its publisher as unlinked text,
+and a line for a coin that has none; the next buy day; and the person's note with its date. While the
+figures are asked their place keeps its height; a history that cannot be loaded leaves one failure line
+there, and the past-performance sentence moves under the earlier falls. No chart, no button, no red,
+no P/L or portfolio value; the words are in `docs/CONTENT-STYLE.md` §3.
+**Says** (the module, moved here from the page): how the trigger works (a seven-day fall of 10 % or
 more, or a price 30 % or more below the 90-day high, computed from prices only, never from headlines;
-together true on about 15 % of bitcoin's days in the last five years, and the page says so), the
-plan's current drawdown next to past cycle drawdowns, the one sentence the user wrote at setup, and
-the three things a monthly buyer can actually do (nothing; log the buy on buy day; re-read the plan).
-Nothing about buying the dip; nothing about selling. The page keeps one past-performance sentence,
-dated and sourced, directly under the drawdown figure (`docs/LEGAL.md` §4); no other disclosure.
-**Chart**: one: the current drawdown as a marker on a horizontal scale of past drawdowns (the same
+together true on about 15 % of bitcoin's days in the last five years), the 118-plan figure, and the
+three things a monthly buyer can actually do (nothing; log the buy on buy day; re-read the plan).
+Nothing about buying the dip; nothing about selling. One past-performance sentence, dated and sourced,
+directly under the first figure (`docs/LEGAL.md` §4); no other disclosure.
+**Chart** (the module): one: a drawdown as a marker on a horizontal scale of past drawdowns (the same
 data as module 2, different form).
 **Caveat**: "A drawdown can get deeper. The page is here to stop a decision, not to make one."
 **Facts needed**: §9 a–c; the threshold calibration from `docs/research/brand-content-education.md`.
