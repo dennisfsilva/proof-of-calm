@@ -1342,3 +1342,16 @@ check became.
   and Risks "a check from a UK vantage point", one check. Since #345 `docs/RELEASE.md` holds two,
   both from a UK vantage point before launch; it owns what each looks at, and the second measures
   the installed-shell leakage that ADR-0029's Reading of 2026-11-05 accepts.
+
+## Deviations recorded on 2026-11-09
+
+The decision stands; this records the chunking choice the entries of 2026-10-20 left untaken.
+
+- **2026-11-09, one code-splitting group for Today** (§9; the build session's deviation on lazy
+  screens and the Reading of 2026-10-20 on the shared chunk). Since #57 the hosts' Vite factory
+  (`packages/config/vite/host-config.ts`) sets Rolldown's `output.codeSplitting` from `chunkGroups()`
+  (`packages/config/vite/chunk-groups.ts`): one group, `today`, in both hosts, which keeps the modules
+  the entry imports statically, Today's among them, in the entry's chunk; a lazy screen reads what it
+  shares with Today from that chunk instead of a separate shared one. `noChunkCycles()` fails a build whose chunks import each
+  other statically. The measurements are in `docs/ENGINEERING.md` §4 and the rule in
+  `packages/config/README.md`.
