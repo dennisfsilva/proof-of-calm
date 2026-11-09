@@ -85,8 +85,28 @@ function jurisdiction(file: ContentFile, options: ValidationOptions): Problem[] 
     problems.push({ path, code: 'overrides-unapplied', detail: UNAPPLIED });
   }
   for (const [field, text] of profileTexts(profile)) problems.push(...bannedProblems(path, field, text));
-  problems.push(...percentProblems(path, profile));
+  problems.push(...localeTagProblems(path, profile), ...percentProblems(path, profile));
   return problems;
+}
+
+const wellFormed = (tag: string) => {
+  try {
+    return Intl.getCanonicalLocales(tag).length > 0;
+  } catch {
+    return false;
+  }
+};
+
+/** A tag Intl refuses would throw out of the joiner check below, so it is the file's problem instead. */
+function localeTagProblems(path: string, profile: CountryProfile): Problem[] {
+  const fields: [string, string][] = [
+    ...profile.locales.map((tag, index): [string, string] => [`locales.${index}`, tag]),
+    ['numberFormatLocale', profile.numberFormatLocale],
+    ['dateFormatLocale', profile.dateFormatLocale],
+  ];
+  return fields
+    .filter(([, tag]) => !wellFormed(tag))
+    .map(([field, tag]) => ({ path, code: 'locale-tag', detail: `${field}: ${tag}` }));
 }
 
 /** What a number locale writes between a numeral and its percent sign, as Intl formats it (docs/CONTENT-STYLE.md §4). */
@@ -111,10 +131,12 @@ const URL_IN_TEXT = /https?:\/\/\S+/g;
  */
 function percentProblems(path: string, profile: CountryProfile): Problem[] {
   const { locales, numberFormatLocale } = profile;
+  // A malformed tag is reported by localeTagProblems; without a number locale there is no joiner to hold the text to.
+  if (!wellFormed(numberFormatLocale)) return [];
   const joiner = percentJoiner(numberFormatLocale);
   const expected = codePoints(joiner);
   const problems = locales
-    .filter((locale) => percentJoiner(locale) !== joiner)
+    .filter((locale) => wellFormed(locale) && percentJoiner(locale) !== joiner)
     .map((locale) => {
       const detail = `locales: ${locale} writes ${codePoints(percentJoiner(locale))}, numberFormatLocale ${numberFormatLocale} writes ${expected}`;
       return { path, code: 'percent-joiner', detail };
