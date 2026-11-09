@@ -27,6 +27,9 @@ const KAS = { id: 'KAS', name: 'Kaspa', geckoId: 'kaspa', decimals: 8 } as Coin;
 const DOGE = { id: 'DOGE', name: 'Dogecoin', geckoId: 'dogecoin', decimals: 8 } as Coin;
 
 type Figure = NonNullable<RedDayModel['figure']>;
+type Held = RedDayModel['held'];
+const BITCOIN = { coin: 'BTC', name: 'Bitcoin' } as Held[number];
+const ETHEREUM = { coin: 'ETH', name: 'Ethereum' } as Held[number];
 const FIGURE = {
   coins: ['BTC'],
   missing: [],
@@ -41,6 +44,7 @@ const FIGURE = {
 const episode = (figure: Partial<Figure> = {}, rest: Partial<RedDayModel> = {}): RedDayModel =>
   ({
     state: 'episode',
+    held: [BITCOIN],
     figure: { ...FIGURE, ...figure },
     episode: { start: '2026-11-07', last: '2026-11-08' },
     lastRed: { date: '2026-11-08', sevenDay: FIGURE.sevenDay, fromHigh90: FIGURE.fromHigh90 },
@@ -48,12 +52,19 @@ const episode = (figure: Partial<Figure> = {}, rest: Partial<RedDayModel> = {}):
     buyDayToday: false,
     ...rest,
   }) as RedDayModel;
-const bare = (state: RedDayModel['state']): RedDayModel =>
-  ({ state, figure: null, episode: null, lastRed: null, nextBuy: '2026-12-01', buyDayToday: false }) as RedDayModel;
+const bare = (state: RedDayModel['state'], held: Held = [BITCOIN]): RedDayModel =>
+  ({
+    state,
+    held,
+    figure: null,
+    episode: null,
+    lastRed: null,
+    nextBuy: '2026-12-01',
+    buyDayToday: false,
+  }) as RedDayModel;
 
 const loaded = loadCycleDrawdowns();
 const ROWS = loaded.ok ? loaded.value : [];
-const never = new Promise<never>(() => {});
 
 type Mount = {
   model: Promise<RedDayModel>;
@@ -67,7 +78,7 @@ async function rulesOf(country: CountryCode) {
   return profile === null ? null : countryRules(profile);
 }
 
-async function mount({ model, falls, plan = {}, path = '/learn/this-fall' }: Mount) {
+async function mount({ model, falls, plan = {}, path = '/learn/fall-under-way' }: Mount) {
   const base = fixtureSnapshot();
   const planned = { ...(base.plan as Plan), why: 'I buy every month and hold for four years.', ...plan };
   const services = createTestServices({ snapshot: { ...base, plan: planned }, nowMs: NOW_MS, rules: rulesOf });
@@ -106,7 +117,7 @@ const leaves = (value: unknown): string[] =>
 describe('ThisFallPage, a fall under way', () => {
   it('reads one coin in the market as subject, dated by the last close, with the data line beside it', async () => {
     await mount({ model: Promise.resolve(episode()) });
-    expect(await screen.findByRole('heading', { level: 1, name: 'This fall and your plan' })).toBeDefined();
+    expect(await screen.findByRole('heading', { level: 1, name: 'The fall under way and your plan' })).toBeDefined();
     expect(screen.getByRole('link', { name: 'Back to Today' }).getAttribute('href')).toBe('/today');
     expect(text()).toContain('Bitcoin is 33% below its 90-day high and fell 16% in the seven days to 8 Nov 2026.');
     const data = screen.getByText(/^Daily closes in EUR/);
@@ -118,15 +129,19 @@ describe('ThisFallPage, a fall under way', () => {
 
   it('reads several coins together, at the units held today, and names a coin it has no history for', async () => {
     await mount({
-      model: Promise.resolve(episode({ coins: ['BTC', 'ETH'], missing: ['KAS'] } as unknown as Partial<Figure>)),
+      model: Promise.resolve(
+        episode({ coins: ['BTC', 'ETH'], missing: ['KAS'] } as unknown as Partial<Figure>, {
+          held: [BITCOIN, ETHEREUM, { coin: 'KAS', name: 'Kaspa' }] as Held,
+        }),
+      ),
       plan: { coins: [...(fixtureSnapshot().plan as Plan).coins, KAS] },
     });
-    await screen.findByText(/^Together/);
+    await screen.findByText(/^The coins you hold/);
     expect(text()).toContain(
-      'Together, the coins you hold (BTC and ETH), valued at the units you hold today, are 33% below their 90-day high and fell 16% in the seven days to 8 Nov 2026.',
+      "The coins you hold (BTC and ETH), at today's units, are 33% below their 90-day high and fell 16% in the seven days to 8 Nov 2026.",
     );
-    expect(text()).toContain('KAS is not in these figures: Proof of Calm has no price history for it.');
-    expect(text()).toContain('Proof of Calm has no dated earlier fall for KAS.');
+    expect(text()).toContain('Kaspa is not in these figures: Proof of Calm has no price history for it.');
+    expect(text()).toContain('Proof of Calm has no dated earlier fall for Kaspa.');
   });
 
   it('names the first close as the high it measures from on a short window', async () => {
@@ -147,24 +162,47 @@ describe('ThisFallPage, a fall under way', () => {
   it('lists the earlier falls of each held coin only, oldest first, each with its publisher as unlinked text', async () => {
     await mount({ model: Promise.resolve(episode()), plan: { coins: [...(fixtureSnapshot().plan as Plan).coins] } });
     const heading = await screen.findByText(/^Earlier falls of Bitcoin/);
-    expect(heading.textContent).toBe('Earlier falls of Bitcoin, high to low, intraday prices in US dollars:');
+    expect(heading.textContent).toBe(
+      'Earlier falls of Bitcoin, high to low, intraday prices in US dollars, with their source:',
+    );
     const items = screen.getAllByRole('listitem').map((item) => item.textContent?.replaceAll(' ', ' '));
     const btc = ROWS.filter((row) => row.coin === 'BTC').sort((a, b) => a.high.localeCompare(b.high));
     expect(items).toHaveLength(btc.length);
     expect(items[0]).toBe('−94% from 8 Jun 2011 to 22 Nov 2011 · Bitcoinity (Mt. Gox) and CoinMarketCap');
     expect(items.map((item, index) => item?.endsWith(btc[index]?.publisher ?? '?'))).toEqual(btc.map(() => true));
-    // ETH is in the plan but not in the figure's held coins: none of its falls.
+    // ETH is in the plan at 0 units, so not among the held coins: none of its falls.
     expect(screen.queryByText(/^Earlier falls of Ethereum/)).toBeNull();
     const links = screen.getAllByRole('link').map((link) => link.textContent);
     expect(links).toEqual(['Back to Today', 'Risk disclosure']);
   });
 
-  it('says a held coin has no dated earlier fall', async () => {
+  it('lists the earlier falls of a held coin outside the plan, as the figure names it', async () => {
+    // ETH left the plan in Settings; its entries stay, so the portfolio still holds it.
     await mount({
-      model: Promise.resolve(episode({ coins: ['BTC', 'DOGE'] } as unknown as Partial<Figure>)),
+      model: Promise.resolve(
+        episode({ coins: ['BTC', 'ETH'] } as unknown as Partial<Figure>, { held: [BITCOIN, ETHEREUM] }),
+      ),
+      plan: { coins: (fixtureSnapshot().plan as Plan).coins.filter((coin) => coin.id === 'BTC') },
+    });
+    await screen.findByText(/^The coins you hold \(BTC and ETH\)/);
+    expect(await screen.findByText(/^Earlier falls of Ethereum/)).toBeDefined();
+    const eth = ROWS.filter((row) => row.coin === 'ETH');
+    const btc = ROWS.filter((row) => row.coin === 'BTC');
+    expect(eth.length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('listitem')).toHaveLength(btc.length + eth.length);
+  });
+
+  it('says a held coin has no dated earlier fall, by the name the falls use', async () => {
+    await mount({
+      model: Promise.resolve(
+        episode({ coins: ['BTC', 'DOGE'] } as unknown as Partial<Figure>, {
+          held: [BITCOIN, { coin: 'DOGE', name: 'Dogecoin' }] as Held,
+        }),
+      ),
       plan: { coins: [...(fixtureSnapshot().plan as Plan).coins, DOGE] },
     });
-    expect(await screen.findByText('Proof of Calm has no dated earlier fall for DOGE.')).toBeDefined();
+    expect(await screen.findByText('Proof of Calm has no dated earlier fall for Dogecoin.')).toBeDefined();
+    expect(screen.getByText(/^Earlier falls of Bitcoin/)).toBeDefined();
   });
 
   it('carries the past-performance line and the risk link as one element, once, under the data line', async () => {
@@ -217,6 +255,8 @@ describe('ThisFallPage, a fall under way', () => {
     ).toBeDefined();
     expect(screen.queryByText(/^Earlier falls of/)).toBeNull();
     expect(text()).not.toContain('cycles');
+    // The figure above is historic data, so the past-performance line stays.
+    expect(screen.getAllByText(/^Past performance/)).toHaveLength(1);
   });
 });
 
@@ -232,45 +272,65 @@ describe('ThisFallPage, other states', () => {
     expect(failure.compareDocumentPosition(falls[0] as Node) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect((falls.at(-1) as Node).compareDocumentPosition(line) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(text()).toContain('Your next buy day is 1 Dec 2026.');
+    // ETH is a plan coin at 0 units: the held coins leave it out.
+    expect(screen.queryByText(/Ethereum|ETH/)).toBeNull();
   });
 
-  it('keeps the figure’s place busy while the model is pending, with the falls and the note shown', async () => {
-    await mount({ model: never });
-    expect(await screen.findByRole('heading', { level: 1, name: 'This fall and your plan' })).toBeDefined();
+  it('shows no past-performance line when no historic figure is on the page', async () => {
+    await mount({ model: Promise.resolve(bare('failed')), falls: () => Promise.reject(new Error('cycles')) });
+    await screen.findByText('The earlier falls could not be loaded. Open this page again to retry.');
+    expect(screen.queryByText(/Past performance/)).toBeNull();
+    cleanup();
+    const doge = { coin: 'DOGE', name: 'Dogecoin' } as Held[number];
+    await mount({ model: Promise.resolve(bare('failed', [doge])), plan: { coins: [DOGE] } });
+    await screen.findByText('Proof of Calm has no dated earlier fall for Dogecoin.');
+    expect(screen.queryByText(/Past performance/)).toBeNull();
+  });
+
+  it('keeps the figure’s place busy while the model is pending, with the note, then the held coins’ falls', async () => {
+    let answer: (model: RedDayModel) => void = () => undefined;
+    await mount({ model: new Promise((resolve) => (answer = resolve)) });
+    expect(await screen.findByRole('heading', { level: 1, name: 'The fall under way and your plan' })).toBeDefined();
     expect(document.querySelectorAll('[aria-busy="true"]')).toHaveLength(1);
-    expect(await screen.findByText(/^Earlier falls of Bitcoin/)).toBeDefined();
     expect(screen.getByText('Your note to yourself')).toBeDefined();
     expect(screen.queryByText(/^Bitcoin is/)).toBeNull();
+    // No coin is named before the model says which are held, and no disclosure sits under no figure.
+    expect(screen.queryByText(/^Earlier falls of/)).toBeNull();
+    expect(screen.queryByText(/Past performance/)).toBeNull();
+    await act(async () => answer(bare('failed')));
+    expect(await screen.findByText(/^Earlier falls of Bitcoin/)).toBeDefined();
+    expect(screen.queryByText(/Ethereum/)).toBeNull();
   });
 
   it.each(['nothing-held', 'clear'] as const)('replaces the route with /learn in the state %s', async (state) => {
     await mount({ model: Promise.resolve(bare(state)) });
     expect(path()).toBe('/learn');
-    expect(screen.queryByText('This fall and your plan')).toBeNull();
+    expect(screen.queryByText('The fall under way and your plan')).toBeNull();
   });
 });
 
 describe("Learn's row for the page", () => {
   it('shows only during an episode', async () => {
     await mount({ model: Promise.resolve(episode()), path: '/learn' });
-    expect((await screen.findByRole('link', { name: /^This fall and your plan/ })).getAttribute('href')).toBe(
-      '/learn/this-fall',
+    expect((await screen.findByRole('link', { name: /^The fall under way and your plan/ })).getAttribute('href')).toBe(
+      '/learn/fall-under-way',
     );
     for (const state of ['clear', 'failed', 'nothing-held'] as const) {
       cleanup();
       await mount({ model: Promise.resolve(bare(state)), path: '/learn' });
       await screen.findByRole('heading', { level: 1, name: 'Learn' });
-      expect(screen.queryByRole('link', { name: /^This fall/ })).toBeNull();
+      expect(screen.queryByRole('link', { name: /^The fall under way/ })).toBeNull();
     }
   });
 });
 
 describe('the percentages and the words of the page', () => {
   const several = { coins: ['BTC', 'ETH'], missing: [] } as unknown as Partial<Figure>;
+  const both = { held: [BITCOIN, ETHEREUM] };
 
   it('writes every percent as Portugal does, the sign against its number', async () => {
-    await mount({ model: Promise.resolve(episode(several)), plan: { country: 'PT' as CountryCode } });
-    await screen.findByText(/^Together/);
+    await mount({ model: Promise.resolve(episode(several, both)), plan: { country: 'PT' as CountryCode } });
+    await screen.findByText(/^The coins you hold/);
     const written = page();
     const signs = written.match(/.%/g) ?? [];
     expect(signs.length).toBeGreaterThan(4);
@@ -278,8 +338,8 @@ describe('the percentages and the words of the page', () => {
   });
 
   it("writes every percent with Germany's no-break joiner", async () => {
-    await mount({ model: Promise.resolve(episode(several)), plan: { country: 'DE' as CountryCode } });
-    await screen.findByText(/^Together/);
+    await mount({ model: Promise.resolve(episode(several, both)), plan: { country: 'DE' as CountryCode } });
+    await screen.findByText(/^The coins you hold/);
     const written = page();
     const signs = written.match(/..%/g) ?? [];
     expect(signs.length).toBeGreaterThan(4);

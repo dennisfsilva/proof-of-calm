@@ -1,4 +1,4 @@
-import type { Coin, Decimal, Plan } from '@proofofcalm/core';
+import type { Decimal, Plan } from '@proofofcalm/core';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'use-intl';
 import { BRAND } from '../../../lib/brand';
@@ -16,6 +16,7 @@ import { BACK_LINK } from './country-library';
 // bookmark or the back button never shows old figures.
 
 type Figure = NonNullable<RedDayModel['figure']>;
+type Held = RedDayModel['held'];
 type Falls = readonly PastFall[] | 'failed';
 
 /** The model of the plan on today, null while it is asked; a rejection, which the port never makes, reads as failed. */
@@ -28,8 +29,10 @@ export function useFallModel(): RedDayModel | null {
   useEffect(() => {
     if (plan === null) return;
     let live = true;
+    // With no model there are no held coins to name, so the page shows no earlier fall either.
     const failed: RedDayModel = {
       state: 'failed',
+      held: [],
       figure: null,
       episode: null,
       lastRed: null,
@@ -47,28 +50,34 @@ export function useFallModel(): RedDayModel | null {
   return model;
 }
 
-/** The cycles file's rows of the plan's coins, null while they load. */
-function usePastFalls(coins: readonly Coin[]): Falls | null {
+/** The cycles file's rows of the held coins, null while the model or they load. */
+function usePastFalls(held: Held | null): Falls | null {
   const { redDay } = useServices();
-  const key = coins.map((coin) => coin.id).join(' ');
-  const [falls, setFalls] = useState<Falls | null>(null);
+  const key = held === null ? null : held.map(({ coin }) => coin).join(' ');
+  const [falls, setFalls] = useState<{ key: string; falls: Falls } | null>(null);
   useEffect(() => {
+    if (key === null) return;
     let live = true;
-    redDay.pastFalls(key.split(' ') as PastFall['coin'][]).then(
-      (rows) => live && setFalls(rows),
-      () => live && setFalls('failed'),
+    const coins = key.split(' ').filter((coin) => coin !== '') as PastFall['coin'][];
+    redDay.pastFalls(coins).then(
+      (rows) => live && setFalls({ key, falls: rows }),
+      () => live && setFalls({ key, falls: 'failed' }),
     );
     return () => {
       live = false;
     };
   }, [redDay, key]);
-  return falls;
+  // Rows read for other coins are never shown under these.
+  return falls !== null && falls.key === key ? falls.falls : null;
 }
+
+/** The held coin's name, as the earlier falls write it. */
+const nameIn = (held: Held, coin: string) => held.find((known) => known.coin === coin)?.name ?? coin;
 
 /** A figure truncated toward zero to whole percent, without its sign, as the page writes it (docs/DOMAIN.md §3.11). */
 const whole = (value: Decimal): Decimal => (value.replace(/^[-+]/, '').split('.')[0] ?? '0') as Decimal;
 
-function FigureLine({ figure, plan }: { figure: Figure; plan: Plan }) {
+function FigureLine({ figure, held }: { figure: Figure; held: Held }) {
   const t = useTranslations('learn.thisFall');
   const f = useFormatters();
   const seven = figure.sevenDay === null ? ('0' as Decimal) : whole(figure.sevenDay);
@@ -82,17 +91,16 @@ function FigureLine({ figure, plan }: { figure: Figure; plan: Plan }) {
     date: f.date(figure.last),
   };
   const [only] = figure.coins;
-  const name = plan.coins.find((coin) => coin.id === only)?.name ?? only;
   return (
     <>
       <p className="text-18">
-        {figure.coins.length === 1 && name !== undefined
-          ? t('one', { ...values, coin: name })
+        {figure.coins.length === 1 && only !== undefined
+          ? t('one', { ...values, coin: nameIn(held, only) })
           : t('several', { ...values, coins: f.list(figure.coins) })}
       </p>
       {figure.missing.map((coin) => (
         <p key={coin} className="text-16">
-          {t('missing', { coin, product: BRAND.name })}
+          {t('missing', { coin: nameIn(held, coin), product: BRAND.name })}
         </p>
       ))}
       <p className="nums text-14 text-ink-2">
@@ -102,21 +110,21 @@ function FigureLine({ figure, plan }: { figure: Figure; plan: Plan }) {
   );
 }
 
-function EarlierFalls({ coins, falls }: { coins: readonly Coin[]; falls: Falls }) {
+function EarlierFalls({ held, falls }: { held: Held; falls: Falls }) {
   const t = useTranslations('learn.thisFall');
   const f = useFormatters();
   if (falls === 'failed') return <p className="text-16">{t('fallsFailed')}</p>;
-  return coins.map((coin) => {
-    const rows = falls.filter((row) => row.coin === coin.id).sort((a, b) => a.high.localeCompare(b.high));
+  return held.map((coin) => {
+    const rows = falls.filter((row) => row.coin === coin.coin).sort((a, b) => a.high.localeCompare(b.high));
     if (rows.length === 0) {
       return (
-        <p key={coin.id} className="text-16">
-          {t('noFalls', { coin: coin.id, product: BRAND.name })}
+        <p key={coin.coin} className="text-16">
+          {t('noFalls', { coin: coin.name, product: BRAND.name })}
         </p>
       );
     }
     return (
-      <section key={coin.id} className="flex flex-col gap-stack-xs">
+      <section key={coin.coin} className="flex flex-col gap-stack-xs">
         <p className="text-16">{t('fallsOf', { coin: coin.name })}</p>
         <ul className="flex list-disc flex-col gap-stack-xs ps-inset-lg">
           {rows.map((row) => (
@@ -143,12 +151,9 @@ export function ThisFallView({ plan, model, falls }: ThisFallViewProps) {
   const f = useFormatters();
   const { timeZone } = useClock();
   const figure = model?.figure ?? null;
-  const failed = model?.state === 'failed';
-  // Held coins in the plan's order: the figure's when it names them, the plan's while it is pending or failed.
-  const held =
-    figure === null
-      ? plan.coins
-      : plan.coins.filter((coin) => figure.coins.includes(coin.id) || figure.missing.includes(coin.id));
+  const held = model?.held ?? [];
+  // The past-performance line sits under historic data only (docs/LEGAL.md §4): the figure, else an earlier fall.
+  const pastRow = Array.isArray(falls) && falls.some((row) => held.some(({ coin }) => coin === row.coin));
   const disclosure = (
     <p className="text-16">
       <MODULE_ELEMENTS.PastPerformance />
@@ -171,12 +176,12 @@ export function ThisFallView({ plan, model, falls }: ThisFallViewProps) {
         <p className="text-18">{t('failed')}</p>
       ) : (
         <div className="flex flex-col gap-stack-sm">
-          <FigureLine figure={figure} plan={plan} />
+          <FigureLine figure={figure} held={held} />
         </div>
       )}
-      {failed ? null : disclosure}
-      {falls === null ? null : <EarlierFalls coins={held} falls={falls} />}
-      {failed ? disclosure : null}
+      {figure === null ? null : disclosure}
+      {falls === null ? null : <EarlierFalls held={held} falls={falls} />}
+      {figure === null && pastRow ? disclosure : null}
       {model?.nextBuy == null ? null : (
         <p className="text-16">{t(model.buyDayToday ? 'buyDayToday' : 'nextBuy', { date: f.date(model.nextBuy) })}</p>
       )}
@@ -190,11 +195,11 @@ export function ThisFallView({ plan, model, falls }: ThisFallViewProps) {
   );
 }
 
-/** `/learn/this-fall`: the page, or Learn's index in its place without a plan, with nothing held or no fall under way. */
+/** `/learn/fall-under-way`: the page, or Learn's index in its place without a plan, with nothing held or no fall under way. */
 export function ThisFallPage() {
   const plan = useSnapshot((snapshot) => snapshot.plan);
   const model = useFallModel();
-  const falls = usePastFalls(plan?.coins ?? []);
+  const falls = usePastFalls(model?.held ?? null);
   if (plan === null || model?.state === 'nothing-held' || model?.state === 'clear') {
     return <Redirect to="~/learn" replace />;
   }

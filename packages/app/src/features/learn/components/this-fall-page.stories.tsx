@@ -25,8 +25,10 @@ const FIGURE = {
   currency: 'EUR',
   shortWindow: false,
 } as unknown as Figure;
+const BITCOIN = { coin: 'BTC', name: 'Bitcoin' };
 const EPISODE = {
   state: 'episode',
+  held: [BITCOIN],
   figure: FIGURE,
   episode: { start: '2026-11-07', last: '2026-11-08' },
   lastRed: { date: '2026-11-08', sevenDay: FIGURE.sevenDay, fromHigh90: FIGURE.fromHigh90 },
@@ -42,7 +44,7 @@ const FALLS = [
 const meta = {
   title: 'Features/Learn/ThisFallPage',
   component: ThisFallView,
-  parameters: { path: '/learn/this-fall' },
+  parameters: { path: '/learn/fall-under-way' },
   decorators: [
     (Story) => (
       <div className="mx-auto flex w-full max-w-reading flex-col gap-stack-lg px-gutter py-stack-lg">
@@ -59,7 +61,7 @@ type Story = StoryObj<typeof meta>;
 export const OneCoin: Story = {
   args: { plan: { ...PLAN, coins: PLAN.coins.slice(0, 1) }, model: EPISODE, falls: FALLS },
   play: async ({ canvas }) => {
-    await expect(canvas.getByRole('heading', { level: 1, name: 'This fall and your plan' })).toBeVisible();
+    await expect(canvas.getByRole('heading', { level: 1, name: 'The fall under way and your plan' })).toBeVisible();
     await expect(canvas.getByText(/^Bitcoin is 33\s?% below its 90-day high/)).toBeVisible();
     await expect(canvas.getAllByRole('listitem')).toHaveLength(2);
     await expect(canvas.getAllByRole('link').map((link) => link.textContent)).toEqual([
@@ -70,16 +72,22 @@ export const OneCoin: Story = {
   },
 };
 
+/** ETH left the plan while its entries stay, so it is held; KAS has no price history. */
 export const SeveralCoins: Story = {
   args: {
-    plan: { ...PLAN, coins: [...PLAN.coins, KAS] },
-    model: { ...EPISODE, figure: { ...FIGURE, coins: ['BTC', 'ETH'], missing: ['KAS'] } } as unknown as RedDayModel,
+    plan: { ...PLAN, coins: [...PLAN.coins.filter((coin) => coin.id === 'BTC'), KAS] },
+    model: {
+      ...EPISODE,
+      held: [BITCOIN, { coin: 'ETH', name: 'Ethereum' }, { coin: 'KAS', name: 'Kaspa' }],
+      figure: { ...FIGURE, coins: ['BTC', 'ETH'], missing: ['KAS'] },
+    } as unknown as RedDayModel,
     falls: FALLS,
   },
   play: async ({ canvas }) => {
-    await expect(canvas.getByText(/^Together, the coins you hold \(BTC and ETH\)/)).toBeVisible();
-    await expect(canvas.getByText(/^KAS is not in these figures/)).toBeVisible();
-    await expect(canvas.getByText(/no dated earlier fall for KAS/)).toBeVisible();
+    await expect(canvas.getByText(/^The coins you hold \(BTC and ETH\), at today's units/)).toBeVisible();
+    await expect(canvas.getByText(/^Kaspa is not in these figures/)).toBeVisible();
+    await expect(canvas.getByText(/^Earlier falls of Ethereum/)).toBeVisible();
+    await expect(canvas.getByText(/no dated earlier fall for Kaspa/)).toBeVisible();
   },
 };
 
@@ -92,13 +100,18 @@ export const Failed: Story = {
   play: async ({ canvas }) => {
     await expect(canvas.getByText(/^The price history could not be loaded/)).toBeVisible();
     await expect(canvas.queryByText(/Price data by CoinGecko/)).toBeNull();
+    // ETH is a plan coin at 0 units: only Bitcoin's falls, with the past-performance line under them.
+    await expect(canvas.getAllByRole('listitem')).toHaveLength(2);
+    await expect(canvas.getByText(/^Past performance/)).toBeVisible();
   },
 };
 
+/** The earlier falls wait for the model, which names the held coins. */
 export const Pending: Story = {
-  args: { plan: PLAN, model: null, falls: FALLS },
+  args: { plan: PLAN, model: null, falls: null },
   play: async ({ canvasElement, canvas }) => {
     await expect(canvasElement.querySelectorAll('[aria-busy="true"]')).toHaveLength(1);
-    await expect(canvas.getAllByRole('listitem')).toHaveLength(3);
+    await expect(canvas.queryAllByRole('listitem')).toHaveLength(0);
+    await expect(canvas.queryByText(/^Past performance/)).toBeNull();
   },
 };
