@@ -173,8 +173,9 @@ function PlanPortfolio({ plan }: { plan: Plan }) {
         <dl className="grid grid-cols-[auto_1fr] gap-x-stack-md gap-y-stack-xs text-14">
           {pnl !== null && (
             <div className="contents">
-              <dt className="text-ink-2">{t('summary.pnl')}</dt>
-              <dd className="flex flex-wrap items-center gap-x-stack-xs">
+              {/* The Why? target makes the row 44 px tall: the label meets the figure on its baseline. */}
+              <dt className="self-baseline text-ink-2">{t('summary.pnl')}</dt>
+              <dd className="flex flex-wrap items-center gap-x-stack-xs self-baseline">
                 <span className={`nums ${pnlTone(value)}`}>{pnl}</span>
                 <WhyLink module="risk-honestly" name={t('summary.why')} standalone />
               </dd>

@@ -251,10 +251,18 @@ describe('PortfolioScreen', () => {
     const WHY = 'Why? Risk honestly';
     const IDEA = "The third fixture's idea, for Portfolio's Why? on the P/L line.";
     const why = () => screen.queryByRole('button', { name: WHY });
-    /** The link sits in the P/L figure's own cell, after the figure. */
+    /**
+     * The link sits in the P/L figure's own cell, after the figure. Its 44 px target makes the row taller than the
+     * label, so the label and the figure meet on their baseline, not at the row's top.
+     */
     const besidePnl = () => {
-      const link = why();
-      expect(link?.closest('dd')?.previousElementSibling?.textContent).toBe('P/L');
+      const cell = why()?.closest('dd');
+      const label = cell?.previousElementSibling;
+      expect(label?.textContent).toBe('P/L');
+      expect([label?.classList.contains('self-baseline'), cell?.classList.contains('self-baseline')]).toEqual([
+        true,
+        true,
+      ]);
     };
 
     it('stands beside the P/L with no entry yet', async () => {
