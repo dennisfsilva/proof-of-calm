@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { anEntry, aPlan, BTC, date, ETH, instant, money, units } from '../../test/builders';
+import { aMove, anEntry, aPlan, BTC, date, ETH, instant, money, units } from '../../test/builders';
 import { FIXTURE_RULES } from '../../test/country-change/fixture';
 import expectedMove from '../../test/tax-year/pt-2025-move.csv?raw';
 import expected2026 from '../../test/tax-year/pt-2026.csv?raw';
 import expected2027 from '../../test/tax-year/pt-2027.csv?raw';
 import { PT_ENTRIES, PT_HEADER, PT_MOVE_ENTRIES, PT_PLAN, PT_RULES } from '../../test/tax-year/pt-fixture';
+import { minus } from '../money/decimal';
+import { portfolio } from '../portfolio/portfolio';
 import type { CountryRules } from '../schema/country';
 import type { Entry } from '../schema/entry';
 import type { CoinId } from '../schema/ids';
@@ -248,6 +250,27 @@ describe('taxYearLots: single cases', () => {
     const atZero = lotsIn(2026, [buy('2026-03-01', '1', '0', { kind: 'held' })], '2027-01-10');
     expect(atZero.uncosted).toBe(false);
     expect(taxYearLotsCsv(atZero, []).split('\n')[2]).toBe('held,2026-03-01,BTC,,1,0.00,,2027-03-01,no,,,,,no,,');
+  });
+
+  it("a move's fee no lot covered gets a row with no acquired date and sets unmatched, as a sale's does", () => {
+    // Kraken holds 0.0001 of the fee's 0.0002, and a move never takes from its destination.
+    const entries = [
+      buy('2026-01-10', '0.0001', '10', { venue: 'Kraken' }),
+      buy('2026-01-11', '0.1', '5000', { venue: 'Ledger' }),
+      aMove({ date: date('2026-03-01'), units: units('0.05'), received: units('0.0498'), createdAt: at() }),
+    ];
+    const lots = lotsIn(2026, entries, '2027-01-10');
+    expect(lots.pieces.map(figures)).toEqual([
+      ['2026-01-10', '0.0001', '10', null, '2026-03-01'],
+      ['2026-01-11', '0.1', '5000', null, null],
+      [null, '0.0001', null, null, '2026-03-01'],
+    ]);
+    expect(lots.pieces[2]).toMatchObject({ kind: null, venue: null, saleVenue: null, proceeds: null, heldAt: null });
+    expect([lots.moveFees, lots.unmatched]).toEqual([true, true]);
+    // The year end less the units no lot covered is what Portfolio holds.
+    const held = portfolio(PT_PLAN, entries).positions[0]?.units;
+    expect(minus(lots.pieces[1]?.units ?? units('0'), lots.pieces[2]?.units ?? units('0'))).toBe(held);
+    expect(taxYearLotsCsv(lots, []).split('\n')[4]).toBe(',,BTC,,0.0001,,,,,2026-03-01,,,,no,,');
   });
 
   it('exports an initial buy as initial, as the log does', () => {
