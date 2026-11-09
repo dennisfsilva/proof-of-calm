@@ -1,3 +1,4 @@
+import { readdirSync, readFileSync } from 'node:fs';
 import {
   CalendarDateSchema,
   TemplateSchema as CoreTemplateSchema,
@@ -8,7 +9,7 @@ import { describe, expect, it } from 'vitest';
 import allowList from '../sources.allow.json' with { type: 'json' };
 import { CountryProfileSchema } from './schema/jurisdiction.ts';
 import { TemplateSchema } from './schema/template.ts';
-import { type ContentFile, validateContent } from './validate.ts';
+import { type ContentFile, percentJoiner, validateContent } from './validate.ts';
 
 const { $comment: _, ...allow } = allowList;
 const options = { today: '2026-10-17', allow };
@@ -52,7 +53,7 @@ const profile = (overrides: Record<string, unknown> = {}) => ({
   card: {
     classification: 'Crypto held privately is a capital asset.',
     taxableEvents: [{ event: 'sale-to-fiat', taxable: 'depends', note: 'Tax-free after 365 days of holding.' }],
-    rates: [{ label: 'Flat rate on gains', value: '28 %', validFrom: '2023-01-01', validTo: null }],
+    rates: [{ label: 'Flat rate on gains', value: '28%', validFrom: '2023-01-01', validTo: null }],
     allowances: [],
     holdingRuleText: 'A purchase held for 365 days or more can be sold without tax on the gain.',
     lotRuleText: 'First in, first out, per platform.',
@@ -60,7 +61,7 @@ const profile = (overrides: Record<string, unknown> = {}) => ({
     reporting: ['Annex G of the IRS return.'],
     caveats: ['A professional should confirm how a swap counts.'],
     summary60:
-      'Purchases held for 365 days or more are tax-free when sold. Gains on purchases held for less are taxed at 28 %.',
+      'Purchases held for 365 days or more are tax-free when sold. Gains on purchases held for less are taxed at 28%.',
   },
   pendingChanges: [],
   sources: [keyed('pt-cirs', CIRS)],
@@ -176,7 +177,7 @@ describe('validateContent: jurisdictions (docs/JURISDICTIONS.md §2)', () => {
       ...profile().card,
       taxableEvents: [{ event: 'sale-to-fiat', taxable: 'yes', note: 'A safe bet after a year.' }],
       rates: [
-        { label: 'Guaranteed rate', value: 'a 12 % return', validFrom: '2023-01-01', validTo: null, note: 'Robust.' },
+        { label: 'Guaranteed rate', value: 'a 12% return', validFrom: '2023-01-01', validTo: null, note: 'Robust.' },
       ],
     };
     const pendingChanges = [
@@ -197,7 +198,7 @@ describe('validateContent: jurisdictions (docs/JURISDICTIONS.md §2)', () => {
       banned('advice', 'name', 'safe'),
       banned('advice', 'card.taxableEvents.0.note', 'safe'),
       banned('advice', 'card.rates.0.label', 'Guaranteed'),
-      banned('return-percentage', 'card.rates.0.value', '12 % return'),
+      banned('return-percentage', 'card.rates.0.value', '12% return'),
       banned('filler', 'card.rates.0.note', 'Robust'),
       banned('advice', 'holdingRuleOverrides.0.note', 'Recommended'),
       banned('advice', 'pendingChanges.0.title', 'Our pick'),
@@ -256,6 +257,98 @@ describe('validateContent: jurisdictions (docs/JURISDICTIONS.md §2)', () => {
   it('rejects holdingRuleOverrides while the core ignores them', () => {
     const holdingRuleOverrides = [{ acquiredFrom: '2027-01-01', rule: { kind: 'none' }, note: 'Bought from 2027.' }];
     expect(codes([file(pt, profile({ holdingRuleOverrides }))])).toEqual([UNAPPLIED]);
+  });
+});
+
+describe('validateContent: the percent sign keeps its number locale’s spacing (docs/CONTENT-STYLE.md §4)', () => {
+  const pt = 'packages/content/jurisdictions/pt.json';
+  const NBSP = String.fromCodePoint(0xa0);
+  const NNBSP = String.fromCodePoint(0x20_2f);
+  const JOINER = { 'pt-PT': '', 'de-DE': NBSP } as const;
+  const NAME = { 'pt-PT': 'none', 'de-DE': 'U+00A0' } as const;
+  type Locale = keyof typeof JOINER;
+  // A profile in the locale whose one caveat is `text`; its own rate and card write the locale's joiner.
+  const inLocale = (locale: Locale, text: string, overrides: Record<string, unknown> = {}) => {
+    const base = profile();
+    const rate = { ...base.card.rates[0], value: `28${JOINER[locale]}%` };
+    const summary60 = base.card.summary60.replace('28%', `28${JOINER[locale]}%`);
+    const card = { ...base.card, rates: [rate], summary60, caveats: [text] };
+    const at = { locales: [locale], numberFormatLocale: locale, dateFormatLocale: locale };
+    return codes([file(pt, profile({ ...at, card, ...overrides }))]);
+  };
+  const refused = (locale: Locale, excerpt: string, found: string) =>
+    `percent-joiner: card.caveats.0: ${JSON.stringify(excerpt)} has ${found}, expected ${NAME[locale]}`;
+
+  it('pins the joiners Intl gives: none in Portugal, a no-break space in Germany, Spain and France', () => {
+    expect(['pt-PT', 'de-DE', 'es-ES', 'fr-FR'].map(percentJoiner)).toEqual(['', NBSP, NBSP, NBSP]);
+    expect(['en-GB', 'en-IE', 'en-US', 'it-IT', 'nl-NL', 'und'].map(percentJoiner)).toEqual(['', '', '', '', '', '']);
+  });
+
+  describe.each(['pt-PT', 'de-DE'] as const)('in a %s profile', (locale) => {
+    const j = JOINER[locale];
+
+    it('refuses an ordinary space at the start of a text, and allows the locale’s joiner there', () => {
+      expect(inLocale(locale, '5 % of the gain is taxed.')).toEqual([refused(locale, '5 %', 'U+0020')]);
+      expect(inLocale(locale, `5${j}% of the gain is taxed.`)).toEqual([]);
+    });
+
+    it('refuses the sign with no joiner where the locale has one', () => {
+      const expected = locale === 'pt-PT' ? [] : [refused(locale, '5%', 'none')];
+      expect(inLocale(locale, '5% of the gain is taxed.')).toEqual(expected);
+    });
+
+    it('checks a sign at the end of a text, after a separator, and at the end of a range', () => {
+      expect(inLocale(locale, 'Gains are taxed at 28 %')).toEqual([refused(locale, '28 %', 'U+0020')]);
+      expect(inLocale(locale, 'A flat rate (28 %) applies.')).toEqual([refused(locale, '28 %', 'U+0020')]);
+      expect(inLocale(locale, 'Rates run from 10 to 30 % by bracket.')).toEqual([refused(locale, '30 %', 'U+0020')]);
+      expect(inLocale(locale, `Taxed at 28${j}%`)).toEqual([]);
+      expect(inLocale(locale, `A flat rate (28${j}%) applies.`)).toEqual([]);
+      expect(inLocale(locale, `Rates run from 10 to 30${j}% by bracket.`)).toEqual([]);
+    });
+
+    it('refuses two spaces, a tab and a line break before the sign', () => {
+      expect(inLocale(locale, 'At 5  %, 6\t% or 7\n%.')).toEqual([
+        refused(locale, '5  %', 'U+0020 U+0020'),
+        refused(locale, '6\t%', 'U+0009'),
+        refused(locale, '7\n%', 'U+000A'),
+      ]);
+    });
+
+    it('refuses the no-break character the locale does not use', () => {
+      const others = locale === 'pt-PT' ? [NBSP, NNBSP] : [NNBSP];
+      for (const other of others) {
+        const name = `U+${other.codePointAt(0)?.toString(16).toUpperCase().padStart(4, '0')}`;
+        expect(inLocale(locale, `Taxed at 28${other}%.`)).toEqual([refused(locale, `28${other}%`, name)]);
+      }
+    });
+
+    it('allows a sign with no numeral before it, and a URL that holds an escaped space', () => {
+      expect(inLocale(locale, 'A rate in % of the gain; see https://example.org/a1%20b.')).toEqual([]);
+      const sources = [keyed('pt-cirs', `${CIRS}/art1%20b`)];
+      expect(inLocale(locale, `Taxed at 28${j}%.`, { sources })).toEqual([]);
+    });
+  });
+
+  it('refuses a profile whose locales disagree with its number locale on the joiner', () => {
+    expect(codes([file(pt, profile({ locales: ['pt-PT', 'de-DE'] }))])).toEqual([
+      'percent-joiner: locales: de-DE writes U+00A0, numberFormatLocale pt-PT writes none',
+    ]);
+    expect(codes([file(pt, profile({ locales: ['pt-PT', 'en-GB'] }))])).toEqual([]);
+  });
+
+  it('refuses the profiles as main wrote them, with an ordinary space before every sign', () => {
+    const folder = new URL('../jurisdictions/', import.meta.url);
+    const asMain = readdirSync(folder).map((name) => {
+      const json = JSON.stringify(JSON.parse(readFileSync(new URL(name, folder), 'utf8')));
+      const text = json.replaceAll(new RegExp(String.raw`(\d)${NBSP}?%(?!\w)`, 'g'), '$1 %');
+      return file(`packages/content/jurisdictions/${name}`, JSON.parse(text));
+    });
+    const problems = validateContent(asMain, options).filter(({ code }) => code === 'percent-joiner');
+    expect(problems).toHaveLength(97);
+    expect(new Set(problems.map(({ path }) => path.slice(-7)))).toEqual(
+      new Set(['de.json', 'es.json', 'fr.json', 'gb.json', 'ie.json', 'it.json', 'nl.json', 'pt.json', 'us.json']),
+    );
+    expect(problems.every(({ detail }) => detail.includes('has U+0020, expected '))).toBe(true);
   });
 });
 

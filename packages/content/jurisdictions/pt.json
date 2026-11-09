@@ -23,7 +23,7 @@
   "lotScope": "per-venue",
   "lotRuleNote": "First in, first out, applied separately per custodian or platform when units are held at more than one (art. 43 n.º 9 CIRS, formerly n.º 7).",
   "card": {
-    "classification": "Category G gains (art. 10(1)(k) CIRS) for crypto that is not a security; category E (28 %) for staking or lending paid in fiat; category B if habitual or professional, and always for mining and validation. NFTs are excluded.",
+    "classification": "Category G gains (art. 10(1)(k) CIRS) for crypto that is not a security; category E (28%) for staking or lending paid in fiat; category B if habitual or professional, and always for mining and validation. NFTs are excluded.",
     "taxableEvents": [
       {
         "event": "sale-to-fiat",
@@ -53,28 +53,28 @@
       {
         "event": "gift-or-inheritance",
         "taxable": "depends",
-        "note": "No IRS; stamp duty of 10 % on crypto deposited with an institution in Portugal, or with no institution when a gift's recipient or the deceased is domiciled there; spouses, partners, descendants, and ascendants exempt (medium confidence)."
+        "note": "No IRS; stamp duty of 10% on crypto deposited with an institution in Portugal, or with no institution when a gift's recipient or the deceased is domiciled there; spouses, partners, descendants, and ascendants exempt (medium confidence)."
       },
       {
         "event": "staking-or-airdrop",
         "taxable": "yes",
-        "note": "Category E at 28 % when paid in fiat; paid in crypto, taxed as a gain when the units are sold."
+        "note": "Category E at 28% when paid in fiat; paid in crypto, taxed as a gain when the units are sold."
       }
     ],
     "rates": [
       {
         "label": "Autonomous rate on crypto gains",
-        "value": "28 %",
+        "value": "28%",
         "validFrom": "2023-01-01",
         "validTo": null,
-        "note": "On the positive balance of category G crypto gains (art. 72(1)(c) CIRS). The 35 % rate for blacklisted jurisdictions does not list crypto; there the exclusion and the swap deferral are lost instead."
+        "note": "On the positive balance of category G crypto gains (art. 72(1)(c) CIRS). The 35% rate for blacklisted jurisdictions does not list crypto; there the exclusion and the swap deferral are lost instead."
       },
       {
         "label": "Optional aggregation (englobamento)",
-        "value": "12.2–48 % by bracket, plus the solidarity surcharge",
+        "value": "12.2–48% by bracket, plus the solidarity surcharge",
         "validFrom": "2026-01-01",
         "validTo": null,
-        "note": "The 2026 progressive scale (art. 68(1) CIRS), amended by Decreto-Lei n.º 212/2026 of 4 November 2026 for 2026 income from 1 January 2026. The brackets: 12.2 %, 15.2 %, 20.7 %, 23.6 %, 30.6 %, 34.6 %, 43.1 %, 44.6 %, and 48 %."
+        "note": "The 2026 progressive scale (art. 68(1) CIRS), amended by Decreto-Lei n.º 212/2026 of 4 November 2026 for 2026 income from 1 January 2026. The brackets: 12.2%, 15.2%, 20.7%, 23.6%, 30.6%, 34.6%, 43.1%, 44.6%, and 48%."
       }
     ],
     "allowances": [
@@ -102,7 +102,7 @@
       "The risk that the activity counts as professional.",
       "Stamp duty on gifts."
     ],
-    "summary60": "Portugal: gains on crypto held under 365 days are taxed at 28 % by default. Units held 365 days or more are exempt when the counterparty is tax-resident in the EU, the EEA, or a treaty jurisdiction, but every sale must be declared. Crypto-to-crypto swaps are not taxed at the time. First-in, first-out per platform. Return filed April to June."
+    "summary60": "Portugal: gains on crypto held under 365 days are taxed at 28% by default. Units held 365 days or more are exempt when the counterparty is tax-resident in the EU, the EEA, or a treaty jurisdiction, but every sale must be declared. Crypto-to-crypto swaps are not taxed at the time. First-in, first-out per platform. Return filed April to June."
   },
   "pendingChanges": [
     {
@@ -137,7 +137,7 @@
       "title": "Lower rates in six IRS brackets (Decreto-Lei n.º 212/2026)",
       "status": "in-force",
       "effectiveFrom": "2026-01-01",
-      "summary": "The 28 % rate of art. 72(1)(c) does not change. Decreto-Lei n.º 212/2026 of 4 November 2026 (Diário da República n.º 214/2026, Série I), under Lei n.º 64-B/2026 (Proposta de Lei n.º 108/XVII/2.ª), lowers the first six rates of art. 68 n.º 1 CIRS to 12.2 %, 15.2 %, 20.7 %, 23.6 %, 30.6 %, and 34.6 %. In force since 5 November 2026; its preamble applies the cut to 2026 income from 1 January 2026.",
+      "summary": "The 28% rate of art. 72(1)(c) does not change. Decreto-Lei n.º 212/2026 of 4 November 2026 (Diário da República n.º 214/2026, Série I), under Lei n.º 64-B/2026 (Proposta de Lei n.º 108/XVII/2.ª), lowers the first six rates of art. 68 n.º 1 CIRS to 12.2%, 15.2%, 20.7%, 23.6%, 30.6%, and 34.6%. In force since 5 November 2026; its preamble applies the cut to 2026 income from 1 January 2026.",
       "source": {
         "title": "Decreto-Lei n.º 212/2026, de 4 de novembro",
         "url": "https://files.diariodarepublica.pt/1s/2026/11/21400/0000500006.pdf",
@@ -356,7 +356,7 @@
     "confidence": "high",
     "version": 2,
     "changedOn": "2026-11-05",
-    "changeNotice": "Portugal lowered six IRS bracket rates for 2026 income. The 28 % rate and the 365-day rule are unchanged.",
+    "changeNotice": "Portugal lowered six IRS bracket rates for 2026 income. The 28% rate and the 365-day rule are unchanged.",
     "lastReviewed": "2026-11-05",
     "nextReviewDue": "2027-11-02",
     "reviewedBy": "owner"

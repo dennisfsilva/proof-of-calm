@@ -58,28 +58,28 @@
     "rates": [
       {
         "label": "Gains within the basic rate band",
-        "value": "18 %",
+        "value": "18%",
         "validFrom": "2024-10-30",
         "validTo": null,
-        "note": "Disposals from 30 October 2024. The basic rate band is £37,700 for the 2026 to 2027 tax year; gains sit on top of income, so the unused part of the band is taxed at 18 %."
+        "note": "Disposals from 30 October 2024. The basic rate band is £37,700 for the 2026 to 2027 tax year; gains sit on top of income, so the unused part of the band is taxed at 18%."
       },
       {
         "label": "Gains above the basic rate band",
-        "value": "24 %",
+        "value": "24%",
         "validFrom": "2024-10-30",
         "validTo": null,
         "note": "Disposals from 30 October 2024, for any amount above the basic rate band and for higher or additional rate taxpayers."
       },
       {
         "label": "Gains within the basic rate band, 6 April to 29 October 2024",
-        "value": "10 %",
+        "value": "10%",
         "validFrom": "2024-04-06",
         "validTo": "2024-10-29",
         "note": "Disposals from 6 April 2024 to 29 October 2024, not residential property or carried interest (GOV.UK rates and allowances table)."
       },
       {
         "label": "Gains above the basic rate band, 6 April to 29 October 2024",
-        "value": "20 %",
+        "value": "20%",
         "validFrom": "2024-04-06",
         "validTo": "2024-10-29",
         "note": "Disposals from 6 April 2024 to 29 October 2024, not residential property or carried interest (GOV.UK rates and allowances table)."
@@ -104,7 +104,7 @@
       "Negligible value claims.",
       "Cryptoasset loans and liquidity pools from 6 April 2027, a proposal in Finance Bill 2026-27."
     ],
-    "summary60": "The UK taxes crypto gains at 18 % or 24 % by income band, after a £3,000 allowance. Selling, swapping, spending, and gifting (except to a spouse or civil partner) are disposals; own-wallet moves are not. No holding exemption. Costs pool per token with same-day and 30-day matching. Self Assessment by 31 January; real time service by 31 December."
+    "summary60": "The UK taxes crypto gains at 18% or 24% by income band, after a £3,000 allowance. Selling, swapping, spending, and gifting (except to a spouse or civil partner) are disposals; own-wallet moves are not. No holding exemption. Costs pool per token with same-day and 30-day matching. Self Assessment by 31 January; real time service by 31 December."
   },
   "pendingChanges": [
     {

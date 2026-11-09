@@ -58,10 +58,10 @@
     "rates": [
       {
         "label": "Savings-base scale",
-        "value": "19 % to 30 % by bracket",
+        "value": "19\u00a0% to 30\u00a0% by bracket",
         "validFrom": "2025-01-01",
         "validTo": null,
-        "note": "State half (art. 66.1 LIRPF) and regional half (art. 76) on the same scale: 19 % up to EUR 6,000; 21 % up to EUR 50,000; 23 % up to EUR 200,000; 27 % up to EUR 300,000; 30 % above. The 30 % bracket applies since 1 January 2025 (Ley 7/2024)."
+        "note": "State half (art. 66.1 LIRPF) and regional half (art. 76) on the same scale: 19\u00a0% up to EUR 6,000; 21\u00a0% up to EUR 50,000; 23\u00a0% up to EUR 200,000; 27\u00a0% up to EUR 300,000; 30\u00a0% above. The 30\u00a0% bracket applies since 1 January 2025 (Ley 7/2024)."
       }
     ],
     "allowances": [
@@ -70,7 +70,7 @@
     ],
     "holdingRuleText": "No holding-period rule: every sale, swap, or payment is a taxable event whatever the time held. The same savings-base scale applies to a coin held 1 day or 10 years.",
     "lotRuleText": "First in, first out per type of coin («criterio FIFO», the AEAT Renta manual): in partial sales of coins bought at different times and values, the coins sold are the ones acquired first. The manual read names no per-platform split.",
-    "losses": "Netted within the savings base in the year; a remaining negative balance offsets capital income of the year up to 25 % of it, and the rest carries forward 4 years (art. 49.1 LIRPF).",
+    "losses": "Netted within the savings base in the year; a remaining negative balance offsets capital income of the year up to 25\u00a0% of it, and the rest carries forward 4 years (art. 49.1 LIRPF).",
     "reporting": [
       "The Renta return (Modelo D-100): the section «Ganancias y pérdidas patrimoniales derivadas de la transmisión o permuta de monedas virtuales por particulares».",
       "Losses pending to offset in later years are listed in annex C of the return.",
@@ -79,14 +79,14 @@
     "caveats": [
       "Whether FIFO is mandatory, and per platform or overall.",
       "Staking rewards and airdrops.",
-      "The 25 % offset against capital income.",
+      "The 25\u00a0% offset against capital income.",
       "Gifts: the giver pays.",
       "The Impuesto sobre el Patrimonio and its regional rules.",
       "The Basque Country and Navarre, with their own IRPF.",
       "DAC8 reporting by crypto providers: whether Spain has transposed it.",
       "What changes after the election of 29 November 2026."
     ],
-    "summary60": "Spain: every sale, crypto-to-crypto swap, or payment with crypto is a taxable event. No holding-period exemption. Net gains are taxed in the savings base at 19 % to 30 %. First-in, first-out per coin. Losses offset gains and carry forward 4 years. Crypto held with a foreign custodian above EUR 50,000 must be reported on Modelo 721 by 31 March."
+    "summary60": "Spain: every sale, crypto-to-crypto swap, or payment with crypto is a taxable event. No holding-period exemption. Net gains are taxed in the savings base at 19\u00a0% to 30\u00a0%. First-in, first-out per coin. Losses offset gains and carry forward 4 years. Crypto held with a foreign custodian above EUR 50,000 must be reported on Modelo 721 by 31 March."
   },
   "pendingChanges": [],
   "sources": [

@@ -65,10 +65,10 @@
     "rates": [
       {
         "label": "Flat rate (PFU)",
-        "value": "31.4 %",
+        "value": "31.4\u00a0%",
         "validFrom": "2025-01-01",
         "validTo": null,
-        "note": "12.8 % income tax plus 18.6 % social levies. An irrevocable option (box 3CN) puts the gains on the progressive scale."
+        "note": "12.8\u00a0% income tax plus 18.6\u00a0% social levies. An irrevocable option (box 3CN) puts the gains on the progressive scale."
       }
     ],
     "allowances": [
@@ -92,7 +92,7 @@
       "Surtaxes on high incomes.",
       "The 2027 budget measures, which are not law yet."
     ],
-    "summary60": "France: selling crypto for euros or paying with crypto is taxable; swapping one crypto for another is not. Gains are taxed at a flat 31.4 %, or at your progressive rate on request. If your household's sales in a year total EUR 305 or less, nothing is due. Gains are computed on your whole portfolio, not per coin."
+    "summary60": "France: selling crypto for euros or paying with crypto is taxable; swapping one crypto for another is not. Gains are taxed at a flat 31.4\u00a0%, or at your progressive rate on request. If your household's sales in a year total EUR 305 or less, nothing is due. Gains are computed on your whole portfolio, not per coin."
   },
   "pendingChanges": [
     {

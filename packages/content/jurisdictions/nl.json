@@ -58,10 +58,10 @@
     "rates": [
       {
         "label": "Box 3 rate on the deemed return",
-        "value": "36 %",
+        "value": "36%",
         "validFrom": "2026-01-01",
         "validTo": null,
-        "note": "On the deemed return for 2026 (36 % in 2025 and 2024 as well). The deemed percentage for crypto is 6.00 % in 2026 (5.88 % in 2025), applied to the value held on 1 January above the allowance."
+        "note": "On the deemed return for 2026 (36% in 2025 and 2024 as well). The deemed percentage for crypto is 6.00% in 2026 (5.88% in 2025), applied to the value held on 1 January above the allowance."
       }
     ],
     "allowances": [
@@ -83,14 +83,14 @@
       "The rate of your exchange on 1 January.",
       "What your exchange reports to the Belastingdienst from 2026."
     ],
-    "summary60": "Netherlands: selling, swapping, or spending crypto is not taxed. Your crypto's value on 1 January counts in box 3: in 2026 a deemed 6.00 % of assets above EUR 59,357 per person is taxed at 36 %. If what you actually made was lower, you can report that instead. A system taxing what you actually make is proposed for 2029."
+    "summary60": "Netherlands: selling, swapping, or spending crypto is not taxed. Your crypto's value on 1 January counts in box 3: in 2026 a deemed 6.00% of assets above EUR 59,357 per person is taxed at 36%. If what you actually made was lower, you can report that instead. A system taxing what you actually make is proposed for 2029."
   },
   "pendingChanges": [
     {
       "title": "Tax plan 2027 (Belastingplan 2027): the box 3 figures for 2027",
       "status": "proposed",
       "effectiveFrom": "2027-01-01",
-      "summary": "As reported on 17 September 2026: the deemed percentage for other assets comes to 6.37 %, and the rate stays 36 % in 2027 (medium confidence).",
+      "summary": "As reported on 17 September 2026: the deemed percentage for other assets comes to 6.37%, and the rate stays 36% in 2027 (medium confidence).",
       "source": {
         "title": "Pakket Belastingplan 2027 - tarieven en heffingskortingen",
         "url": "https://www.deloitte.com/nl/nl/services/tax/blogs/pakket-belastingplan-2027-tarieven-heffingskortingen.html",
