@@ -62,7 +62,7 @@ export function aPlan(overrides: Partial<Plan> = {}): Plan {
   };
 }
 
-export { PreviousBuildPlanSchema } from './previous-build';
+export { PreviousBuildPlanSchema, previousBuildBackupGate } from './previous-build';
 
 /** The plan as the previous build stored and exported it: schema version 2, with no acknowledgement fields. */
 export function asV2Plan(plan: Plan): Record<string, unknown> {
@@ -88,4 +88,18 @@ export function anEntry(overrides: Partial<Entry> = {}): Entry {
     deletedAt: null,
     ...overrides,
   };
+}
+
+/** A move of 0.01 units from Kraken to Ledger, 0.0001 of them its fee in the coin (docs/DOMAIN.md §2.2). */
+export function aMove(overrides: Partial<Entry> = {}): Entry {
+  return anEntry({
+    kind: 'move',
+    amount: null,
+    units: units('0.01'),
+    slot: null,
+    venue: 'Kraken',
+    to: 'Ledger',
+    received: units('0.0099'),
+    ...overrides,
+  });
 }

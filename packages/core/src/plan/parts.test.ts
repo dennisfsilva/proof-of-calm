@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { anEntry, aPlan, BTC, date, ETH, id, instant, money, split } from '../../test/builders';
+import { aMove, anEntry, aPlan, BTC, date, ETH, id, instant, money, split } from '../../test/builders';
 import type { Price } from '../money/decimal';
 import type { Coin } from '../schema/coin';
 import type { PriceSnapshot } from '../schema/prices';
@@ -235,7 +235,7 @@ describe('lastVenue (docs/DOMAIN.md §3.4)', () => {
     );
   });
 
-  it('skips entries without a venue, coins added (held) and deleted entries; null when none is left', () => {
+  it('skips entries without a venue, coins added (held), moves and deleted entries; null when none is left', () => {
     const deleted = { ...at('2026-05-01', '09:00:00Z', 'Coinbase'), deletedAt: instant('2026-05-02T09:00:00Z') };
     const entries = [
       at('2026-01-01', '09:00:00Z', 'Kraken'),
@@ -245,6 +245,14 @@ describe('lastVenue (docs/DOMAIN.md §3.4)', () => {
     ];
     expect(lastVenue(entries)).toBe('Kraken');
     expect(lastVenue(entries.slice(1))).toBeNull();
+    // A move's venue is where units left, not where the person buys or sells: never a new transaction's default.
+    const move = aMove({
+      date: date('2026-04-01'),
+      createdAt: instant('2026-04-01T09:00:00Z'),
+      venue: 'Bitvavo',
+      to: 'Ledger',
+    });
+    expect(lastVenue([...entries, move])).toBe('Kraken');
     expect(lastVenue([])).toBeNull();
   });
 

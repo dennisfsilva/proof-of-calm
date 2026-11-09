@@ -107,7 +107,8 @@ export function transactions(
       months.push(header);
     }
     // Coins held were not bought in the month (a gift among them), as the plan's totals leave them out (§3.10).
-    if (row.type === 'transaction' && row.kind !== 'held') {
+    // A move neither buys nor sells: it has no amount.
+    if (row.type === 'transaction' && row.kind !== 'held' && row.kind !== 'move') {
       const index = months.indexOf(header);
       const total = sum(recordedAmounts(row.items));
       months[index] =
