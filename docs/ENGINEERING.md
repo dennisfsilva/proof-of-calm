@@ -140,12 +140,17 @@ as ADR-0024's Corrections say, and the test skips on a platform without one.
   country library, 46,030 bytes in 12 chunks on 2026-11-05; at 9a543833, booting on the rules file
   (ADR-0049), 42,142 bytes in 12 chunks on 2026-11-05; at 3f7d7523, with the red-day port's stub,
   44,870 bytes in 13 chunks on 2026-11-09; at 5c03211d, 44,928 bytes in 14 chunks, and with Today's
-  code-splitting group 37,094 bytes in 5 chunks, the same 196 static modules, on 2026-11-09. Rolldown
+  code-splitting group 35,928 bytes in 3 chunks, the same static modules, on 2026-11-09. Rolldown
   groups modules by the entries that reach them, so a lazy chunk that imports some of the entry's
   modules would split them into new shared chunks; one group (`packages/config/vite/chunk-groups.ts`,
-  both hosts) keeps every module the entry imports statically in its chunk instead, and leaves out
-  another feature's modules that only a barrel's re-export reaches. A lazy screen still takes shared
-  data through Services.
+  both hosts) keeps every module the entry imports statically in its chunk instead, and enters
+  another feature's modules only for the names Today imports through its barrel. A module Today runs
+  that the group left out would sit in a chunk importing the group's back, and that chunk runs before
+  the code it reads (the app stopped at boot so on 2026-11-09): the build fails on any static import
+  cycle between chunks. today.ts multiplies each chunk's brotli by its app share, so its figure
+  depends on how chunks mix vendor and app code (37,094 bytes in one mixed chunk against about 46,900
+  under a vendor split for the same modules, 2026-11-09), and Lighthouse's script total on Today is
+  the measure that decides a chunking change. A lazy screen still takes shared data through Services.
 - Lighthouse mobile ≥ 95 for Performance (TBT ≤ 200 ms, LCP ≤ 2.5 s, CLS ≤ 0.1) and 100 for
   Accessibility on Today, Portfolio, Log, Plan; five runs per measured deployment, each screen with
   the fixture plan in IndexedDB (`apps/web/lighthouse/seed.ts`, run before each URL; Lighthouse's reset
