@@ -160,31 +160,37 @@ for (const colorScheme of ['light', 'dark'] as const) {
     test.use({ colorScheme });
 
     for (const { name, path, heading, country, phase, shape, holds } of PAGES) {
-      test(`${name} fits the viewport, keeps its targets and passes axe`, async ({ page }, testInfo) => {
-        if (country !== undefined) await page.setExtraHTTPHeaders({ 'x-vercel-ip-country': country });
-        if (phase !== undefined) {
-          // The fixture plan on its phase's date: the primary action, its chips, the strip and the banner.
-          await page.clock.setFixedTime(new Date(fixtureNowMs(phase)));
-          await seedPlan(page, fixtureSnapshot());
-        }
-        if (shape !== undefined) await routeFixturePrices(page, fixtureNowMs(phase ?? 'buy'), shape);
-        await page.goto(path);
-        await screenReady(page, heading);
-        if (holds !== undefined) {
-          await expect(page.getByText(holds)).toBeVisible();
-          await expect(page, 'the page stays on its path').toHaveURL((url) => url.pathname === path);
-        }
-        const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
-        expect(overflow, 'no horizontal page scroll').toBeLessThanOrEqual(0);
-        expect(await smallTargets(page, TARGET), 'touch targets of at least 44 × 44 px').toEqual([]);
-        expect(await conflictingClasses(page), 'no two utilities for one property on an element').toEqual([]);
-        const axe = await new AxeBuilder({ page })
-          .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
-          .analyze();
-        expect(axe.violations.map((violation) => `${violation.id}: ${violation.help}`)).toEqual([]);
-        if (testInfo.project.name === 'reduced-motion') {
-          expect(await page.evaluate(() => document.getAnimations().length), 'no animation').toBe(0);
-        }
+      // An entry that routes the closes blocks the worker: on WebKit a page the worker controls sends its
+      // fetches past the page's routes (support.ts), and the fall page, given the server's closes, turns into
+      // the module. The others keep it, as a visitor has it.
+      test.describe(() => {
+        test.use({ serviceWorkers: shape === undefined ? 'allow' : 'block' });
+        test(`${name} fits the viewport, keeps its targets and passes axe`, async ({ page }, testInfo) => {
+          if (country !== undefined) await page.setExtraHTTPHeaders({ 'x-vercel-ip-country': country });
+          if (phase !== undefined) {
+            // The fixture plan on its phase's date: the primary action, its chips, the strip and the banner.
+            await page.clock.setFixedTime(new Date(fixtureNowMs(phase)));
+            await seedPlan(page, fixtureSnapshot());
+          }
+          if (shape !== undefined) await routeFixturePrices(page, fixtureNowMs(phase ?? 'buy'), shape);
+          await page.goto(path);
+          await screenReady(page, heading);
+          if (holds !== undefined) {
+            await expect(page.getByText(holds)).toBeVisible();
+            await expect(page, 'the page stays on its path').toHaveURL((url) => url.pathname === path);
+          }
+          const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+          expect(overflow, 'no horizontal page scroll').toBeLessThanOrEqual(0);
+          expect(await smallTargets(page, TARGET), 'touch targets of at least 44 × 44 px').toEqual([]);
+          expect(await conflictingClasses(page), 'no two utilities for one property on an element').toEqual([]);
+          const axe = await new AxeBuilder({ page })
+            .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+            .analyze();
+          expect(axe.violations.map((violation) => `${violation.id}: ${violation.help}`)).toEqual([]);
+          if (testInfo.project.name === 'reduced-motion') {
+            expect(await page.evaluate(() => document.getAnimations().length), 'no animation').toBe(0);
+          }
+        });
       });
     }
 
