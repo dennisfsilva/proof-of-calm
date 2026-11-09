@@ -8,10 +8,28 @@ import { createTestServices, preloadLazyModules } from '../../../lib/services/te
 import learn from '../../../messages/en/learn.json';
 import { ModuleSheet } from './module-sheet';
 
-// The fixture through the real pipeline, as the hosts' build gives it; loaded here so that a findBy waits
+// The second fixture as a module with a chart whose idea and caveat write `N %` with an ordinary space, as a real
+// one does (docs/CONTENT-STYLE.md §4); its body holds no `<Chart />`, so nothing is drawn.
+const { CHARTED } = vi.hoisted(() => ({ CHARTED: 'Falls of 80 % came back, and so did falls of 94 %.' }));
+vi.mock('virtual:learn-modules', async (original) => {
+  const modules = await original<typeof import('virtual:learn-modules')>();
+  return {
+    ...modules,
+    LEARN_MODULES: modules.LEARN_MODULES.map((module) =>
+      module.slug === 'when-the-market-drops'
+        ? { ...module, chart: 'drawdowns-bar', idea: CHARTED, caveat: CHARTED }
+        : module,
+    ),
+  };
+});
+
+// The fixtures through the real pipeline, as the hosts' build gives them; loaded here so that a findBy waits
 // on React's render of the lazy body, not on Vite's first transform of it.
 await preloadLazyModules([
-  () => import('virtual:learn-modules').then((modules) => modules.LEARN_BODIES['start-here']?.()),
+  () =>
+    import('virtual:learn-modules').then((modules) =>
+      Promise.all([modules.LEARN_BODIES['start-here']?.(), modules.LEARN_BODIES['when-the-market-drops']?.()]),
+    ),
 ]);
 
 afterEach(cleanup);
@@ -40,6 +58,15 @@ describe('ModuleSheet', () => {
     expect(within(dialog).getByText("The fixture's caveat, in its box.")).toBeDefined();
     expect(within(dialog).getByRole('heading', { level: 2, name: 'A section' })).toBeDefined();
     expect(within(dialog).getByRole('button', { name: 'Close' })).toBeDefined();
+  });
+
+  it("a module with a chart joins its idea's `N %` with the page's joiner, as its caveat and the route's title do", async () => {
+    mount({ slug: 'when-the-market-drops' });
+    const dialog = await screen.findByRole('dialog');
+    const caveat = dialog.querySelector('[data-slot="card"]')?.textContent ?? '';
+    expect(caveat).not.toBe(CHARTED);
+    expect(dialog.querySelector('[data-slot="sheet-title"]')?.textContent).toBe(caveat);
+    expect(screen.getByRole('dialog', { name: caveat })).toBe(dialog);
   });
 
   it('with a section the focus lands on that heading', async () => {
