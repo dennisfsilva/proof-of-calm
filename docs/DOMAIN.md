@@ -579,8 +579,9 @@ Port of `transactions()`:
 
 - group non-deleted entries by `kind | date | (kind === 'dca' ? slot : '')`, except a move, which is a row of its
   own, `move | date | id` (`transactionKey`), so two moves of one day are two rows; a move's row has no holding date
-  and stays out of the month's bought and sold totals, and it offers Delete only, since the Log's form records
-  purchases and sales;
+  and stays out of the month's bought and sold totals, and it opens, read-only, to its units sent and route (the
+  source with no venue named as the Log names it) and, when above 0, its network fee in the coin (`unitsOut`), with
+  Delete only, since the Log's form records purchases and sales;
 - per group: `total = Σ amount` of the items with a recorded cost, `null` when none has one (a `held`
   group with no cost), `fees = Σ fee`, items sorted by `amount` descending, the items with no cost last,
   `eligibleFrom` of the group's first item for buys (`null` for sells);

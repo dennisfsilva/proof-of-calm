@@ -160,6 +160,8 @@
       "item": "{units} for {amount}",
       "estimate": "{units} (estimated) for {amount}",
       "fee": "Fee {amount}",
+      "move": "{at, select, venue {{units} moved from {from} to {to}} other {{units} with no venue moved to {to}}}",
+      "moveFee": "Network fee {units}",
       "edit": "Edit entry",
       "delete": "Delete entry",
       "deleted": "Entry deleted.",
