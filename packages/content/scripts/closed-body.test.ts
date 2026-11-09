@@ -52,6 +52,17 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
       ]);
     });
 
+    // The page renders no children of an allowed element, so a nested <Chart /> would leave the module chartless.
+    it('refuses a <Chart /> inside another element, with its line', async () => {
+      const nested = 'Text.\n\n<PastPerformance>\n\n<Chart />\n\n</PastPerformance>\n';
+      expect(await problemsOf('drawdowns-bar', nested)).toEqual([
+        expect.stringMatching(/^module-closed-body: line 15: <PastPerformance> takes no content/),
+      ]);
+      expect(await problemsOf('drawdowns-bar', '<Chart>\n\n<Chart />\n\n</Chart>\n')).toEqual([
+        expect.stringMatching(/^module-closed-body: line 13: <Chart> takes no content/),
+      ]);
+    });
+
     it('counts an escaped <Chart /> and one in a code span as no chart', async () => {
       expect(await problemsOf('drawdowns-bar', 'A \\<Chart /> sign.\n')).toEqual([ONE]);
       expect(await problemsOf('drawdowns-bar', 'A `<Chart />` sign.\n')).toEqual([ONE]);

@@ -104,8 +104,9 @@ export const MODULE_FLOW_ELEMENTS = ['Chart'] as const;
 /**
  * The remark plugin that keeps a body text, never code (ADR-0048): it throws, naming the file and line, on
  * an `import` or `export`, on an `{expression}` (in the text or in an attribute of an allowed element), on
- * any element outside `elements`, on an element of `flowOnly` inside a paragraph, and on a Markdown link,
- * image or link definition.
+ * any element outside `elements`, on an element of `flowOnly` inside a paragraph, on an allowed element with
+ * content between its tags (each is self-closing and renders no children), and on a Markdown link, image or
+ * link definition.
  */
 export function closedBody(elements: readonly string[], flowOnly: readonly string[] = MODULE_FLOW_ELEMENTS) {
   const allowed = new Set(elements);
@@ -128,6 +129,11 @@ export function closedBody(elements: readonly string[], flowOnly: readonly strin
           throw new Error(
             `${at(node)}: <${node.name ?? ''}> stands on a line of its own, never in a sentence (ADR-0048)`,
           );
+        // The renderer passes no children to an allowed element, so anything inside one would never show.
+        if ((node.children ?? []).length > 0)
+          throw new Error(
+            `${at(node)}: <${node.name ?? ''}> takes no content; write it self-closing, as <${node.name ?? ''} /> (ADR-0048)`,
+          );
         for (const attribute of node.attributes ?? []) {
           const attributeWhat = attributeCode(attribute);
           if (attributeWhat !== undefined) refuse(attribute, attributeWhat);
@@ -145,7 +151,10 @@ export function closedBody(elements: readonly string[], flowOnly: readonly strin
  */
 export const MODULE_BODY_ELEMENTS = ['PastPerformance', 'Chart'] as const;
 
-/** A remark plugin that records the name of every flow element of the tree, in document order. */
+/**
+ * A remark plugin that records the name of every flow element of the tree, in document order. Its list is read
+ * only when `closedBody` passed, and then no element sits inside another, so each one named is one the page renders.
+ */
 const flowElements = (names: string[]) => () => (tree: MdastNode) => {
   const visit = (node: MdastNode): void => {
     if (node.type === 'mdxJsxFlowElement') names.push(node.name ?? '');
