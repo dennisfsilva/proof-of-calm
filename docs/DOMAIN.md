@@ -616,8 +616,9 @@ or after it adds its amount to `investedSoFar`, changes no other field but `perc
   Services, `packages/app/src/lib/services/red-day.ts`) drops the rest from each held coin's copy, then
   runs `heldValueSeries` at today's units, `drawdowns`, `redDay` on each date and `redDayEpisode`. A held
   coin outside the catalogue is named as missing without a read, and so is one with fewer than two
-  complete closes; one failed read fails the figure as a whole. The maths and the past falls load on
-  the port's first question, so Today's entry carries only its stub.
+  complete closes; one failed read fails the figure as a whole (`failed`, which a retry can mend), and
+  with no read failed and no held coin left with two complete closes the state is `no-history`. The
+  maths and the past falls load on the port's first question, so Today's entry carries only its stub.
 - `bannerFor({ today, redDay, ruleChange, backupNeeded, dismissed })`: returns at most one of
   `red-day`, `rule-change`, `backup-needed`, in that priority, or `null` (never stacked), with its key.
   The shell adds the key to `dismissedBanners` when the user dismisses the banner:
