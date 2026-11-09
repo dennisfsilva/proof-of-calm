@@ -8,9 +8,9 @@ import { createTestServices, preloadLazyModules } from '../../../lib/services/te
 import learn from '../../../messages/en/learn.json';
 import { ModuleSheet } from './module-sheet';
 
-// The second fixture as a module with a chart whose idea and caveat write `N %` with an ordinary space, as a real
-// one does (docs/CONTENT-STYLE.md §4); its body holds no `<Chart />`, so nothing is drawn.
-const { CHARTED } = vi.hoisted(() => ({ CHARTED: 'Falls of 80 % came back, and so did falls of 94 %.' }));
+// The second fixture as a module with a chart whose idea and caveat write `N %` with an ordinary space and with a
+// no-break one, as real ones do (docs/CONTENT-STYLE.md §4); its body holds no `<Chart />`, so nothing is drawn.
+const { CHARTED } = vi.hoisted(() => ({ CHARTED: 'Falls of 80 % came back, and so did falls of 94\u00a0%.' }));
 vi.mock('virtual:learn-modules', async (original) => {
   const modules = await original<typeof import('virtual:learn-modules')>();
   return {
@@ -64,7 +64,7 @@ describe('ModuleSheet', () => {
     mount({ slug: 'when-the-market-drops' });
     const dialog = await screen.findByRole('dialog');
     const caveat = dialog.querySelector('[data-slot="card"]')?.textContent ?? '';
-    expect(caveat).not.toBe(CHARTED);
+    expect(caveat).toBe('Falls of 80% came back, and so did falls of 94%.');
     expect(dialog.querySelector('[data-slot="sheet-title"]')?.textContent).toBe(caveat);
     expect(screen.getByRole('dialog', { name: caveat })).toBe(dialog);
   });

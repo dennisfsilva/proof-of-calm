@@ -66,10 +66,14 @@ export function pageJoiner(format: Pick<Formatters, 'percent'>): string {
   return format.percent('0' as Decimal, { decimals: 0 }).replace(/[0%]/g, '');
 }
 
-/** A module's `N %`, written with an ordinary space (docs/CONTENT-STYLE.md §4), with the joiner in its place. */
-export const withJoiner = (text: string, joiner: string) => text.replace(/(\d) %/g, `$1${joiner}%`);
+/**
+ * A module's `N %`, written with an ordinary or a no-break space (docs/CONTENT-STYLE.md §4), with the page's joiner in
+ * its place. A module without a chart has no page joiner (`undefined`): its text stays as written, no-break spaces too.
+ */
+export const withJoiner = (text: string, joiner: string | undefined) =>
+  joiner === undefined ? text : text.replace(/(\d)[ \u00a0]%/g, `$1${joiner}%`);
 
-const joined = (children: ReactNode, joiner: string): ReactNode =>
+const joined = (children: ReactNode, joiner: string | undefined): ReactNode =>
   typeof children === 'string'
     ? withJoiner(children, joiner)
     : Children.map(children, (child) => (typeof child === 'string' ? withJoiner(child, joiner) : child));
@@ -78,7 +82,7 @@ const joined = (children: ReactNode, joiner: string): ReactNode =>
  * The elements of one module: with a chart, its formatted figures set the page's percent spacing, so the text's
  * strings take the joiner (docs/CONTENT-STYLE.md §4); without one, the text renders as written.
  */
-export function moduleElements(chart: LearnModuleMeta['chart'], joiner: string): BodyElements {
+export function moduleElements(chart: LearnModuleMeta['chart'], joiner: string | undefined): BodyElements {
   if (chart === 'none') return MODULE_ELEMENTS;
   const E = MODULE_ELEMENTS;
   return {

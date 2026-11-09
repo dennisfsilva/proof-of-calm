@@ -27,7 +27,7 @@ export function ModuleView({ module, Body, heading, lead }: ModuleViewProps) {
   const t = useTranslations('learn');
   const f = useFormatters();
   const { chart } = module;
-  const joiner = chart === 'none' ? ' ' : pageJoiner(f);
+  const joiner = chart === 'none' ? undefined : pageJoiner(f);
   const components = useMemo(
     () => ({ ...moduleElements(chart, joiner), Chart: () => <ModuleChart chart={chart} /> }),
     [chart, joiner],

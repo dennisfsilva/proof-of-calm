@@ -17,11 +17,11 @@ afterEach(cleanup);
 
 const module = LEARN_MODULES[0] as LearnModuleMeta;
 
-const mount = () =>
+const mount = (shown: LearnModuleMeta = module) =>
   render(
     <ServicesProvider services={createTestServices()}>
       <I18nProvider messages={{ learn }}>
-        <ModuleView module={module} Body={Body} />
+        <ModuleView module={shown} Body={Body} />
       </I18nProvider>
     </ServicesProvider>,
   );
@@ -47,6 +47,21 @@ describe('ModuleView', () => {
     expect(screen.queryByRole('heading', { level: 1 })).toBeNull();
     const heading = screen.getByRole('heading', { level: 2, name: 'The idea' });
     expect(heading.nextElementSibling?.textContent).toMatch(/^Last reviewed 30\sOct\s2026$/u);
+  });
+
+  // The title and the caveat written with a no-break space before the sign, as Risk honestly and Cycles write them.
+  const NBSP_TEXT = 'Falls of 94\u00a0% and 78 %';
+
+  it("a module with a chart joins every `N %` with the page's joiner, a no-break one too", () => {
+    const { container } = mount({ ...module, chart: 'drawdowns-bar', title: NBSP_TEXT, caveat: NBSP_TEXT });
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Falls of 94% and 78%');
+    expect(container.querySelector('[data-slot="card"]')?.textContent).toBe('Falls of 94% and 78%');
+  });
+
+  it('a module without a chart keeps its no-break space, so the line cannot break before the sign', () => {
+    const { container } = mount({ ...module, chart: 'none', title: NBSP_TEXT, caveat: NBSP_TEXT });
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(NBSP_TEXT);
+    expect(container.querySelector('[data-slot="card"]')?.textContent).toBe(NBSP_TEXT);
   });
 
   it('renders the body through the mapped elements', () => {
