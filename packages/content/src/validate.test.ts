@@ -853,14 +853,32 @@ describe('validateContent: Learn modules (docs/EDUCATION.md §10, ADR-0048)', ()
   });
 
   it('an unescaped < fails, an escaped one passes', () => {
+    const ANGLE = 'write \\< to show a less-than sign; the elements a body holds are <PastPerformance /> and <Chart />';
     expect(body({}, 'Falls \\< 10 % and \\{ both.')).toEqual([]);
-    expect(body({}, 'Falls < 10 %.')).toEqual([
-      `module-syntax: line ${BODY_LINE}: write \\< to show a less-than sign; the one element a body holds is <PastPerformance />`,
-    ]);
-    expect(body({}, '<Chart />')).toEqual([
-      `module-syntax: line ${BODY_LINE}: write \\< to show a less-than sign; the one element a body holds is <PastPerformance />`,
-    ]);
+    expect(body({}, 'Falls < 10 %.')).toEqual([`module-syntax: line ${BODY_LINE}: ${ANGLE}`]);
+    expect(body({}, '<Foo />')).toEqual([`module-syntax: line ${BODY_LINE}: ${ANGLE}`]);
     expect(body({}, 'A backslash \\\\< is not an escape.')).toHaveLength(1);
+  });
+
+  // The renderer draws the front matter's chart where the body writes the element, so the two agree.
+  describe('a module holds one <Chart /> exactly when its front matter names a chart', () => {
+    const chart = { chart: 'drawdowns-bar' };
+    const NONE = 'module-chart: remove <Chart />: the front matter says chart: none';
+    const ONE = 'module-chart: write <Chart /> once, on a line of its own, where the drawdowns-bar chart stands';
+
+    it('passes a chart with its element, and no chart without one', () => {
+      expect(body(chart, 'Text.\n\n<Chart />\n\nMore text.')).toEqual([]);
+      expect(body({}, 'Text.')).toEqual([]);
+    });
+
+    it('refuses the element on a module without a chart', () => {
+      expect(body({}, 'Text.\n\n<Chart />')).toEqual([NONE]);
+    });
+
+    it('refuses a chart with no element, or with two', () => {
+      expect(body(chart, 'Text.')).toEqual([ONE]);
+      expect(body(chart, '<Chart />\n\nText.\n\n<Chart />')).toEqual([ONE]);
+    });
   });
 
   describe('the past-performance sentence and its Risk link are one element (docs/LEGAL.md §4)', () => {

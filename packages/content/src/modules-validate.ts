@@ -1,5 +1,6 @@
 // The gate on one Learn module (docs/EDUCATION.md §10, ADR-0048): what the parser refuses, the file name, the
-// 400 words, its facts, its age, the owner's review, the syntax, and the banned words. Pure, like validate.ts.
+// 400 words, its facts, its age, the owner's review, the syntax, its chart element, and the banned words. Pure, like
+// validate.ts.
 import { type LearnModule, parseModule, plainText } from './loaders/modules.ts';
 import { monthsBefore } from './months.ts';
 import { bannedProblems, findingProblems, type Problem } from './problem.ts';
@@ -32,12 +33,14 @@ const HARD_BREAK = /\\$/gm;
 // An even run of backslashes escapes nothing: \{ is text, \\{ is a backslash and an expression.
 const UNESCAPED = /(?<!\\)(?:\\\\)*([{<])/g;
 const BRACE = 'write \\{ to show a brace; a module carries text, never an expression';
-const ANGLE = 'write \\< to show a less-than sign; the one element a body holds is <PastPerformance />';
+const ANGLE = 'write \\< to show a less-than sign; the elements a body holds are <PastPerformance /> and <Chart />';
 // The inline link's and image's mark; a reference link has none and falls to the compiler's tree walk.
 const INLINE_LINK = '](';
 const LINK = 'a module holds no link; the screen that shows it links to it (ADR-0048)';
-// The one element a body holds: it sets the past-performance sentence and the Risk link as one (docs/LEGAL.md §4).
+// The elements a body holds: the past-performance sentence and the Risk link as one (docs/LEGAL.md §4), and the place
+// of the front matter's chart (docs/EDUCATION.md §10).
 const ELEMENT = '<PastPerformance />';
+const CHART = '<Chart />';
 // So a module never writes those words itself: in any case, across marks, a line end, a dash, an escape or an entity.
 const PAST_PERFORMANCE = /past(?:[\s\p{Pd}\\]|&#?\w+;)+performance/iu;
 
@@ -70,7 +73,9 @@ function syntaxProblems(path: string, body: string, offset: number): Problem[] {
       ...(statement ? [report('this line is code in MDX. Reword it or remove it')] : []),
       // Reports early, and may refuse more than the compiler (a code span, plain brackets): `closedBody` is the gate.
       ...(line.includes(INLINE_LINK) ? [report(LINK)] : []),
-      ...[...line.replaceAll(ELEMENT, '').matchAll(UNESCAPED)].map((match) => report(match[1] === '{' ? BRACE : ANGLE)),
+      ...[...line.replaceAll(ELEMENT, '').replaceAll(CHART, '').matchAll(UNESCAPED)].map((match) =>
+        report(match[1] === '{' ? BRACE : ANGLE),
+      ),
     ];
   });
 }
@@ -81,6 +86,18 @@ function pastPerformanceProblems(path: string, module: LearnModule): Problem[] {
   if (!read.some((text) => PAST_PERFORMANCE.test(text))) return [];
   const detail = `write ${ELEMENT} in place of these words: it sets the sentence and the Risk link together (docs/LEGAL.md §4)`;
   return [{ path, code: 'module-past-performance', detail }];
+}
+
+/** The renderer draws the front matter's chart where the body writes the element: one exactly when it names a chart. */
+function chartProblems(path: string, module: LearnModule): Problem[] {
+  const count = module.body.split(CHART).length - 1;
+  if (module.chart === 'none') {
+    if (count === 0) return [];
+    return [{ path, code: 'module-chart', detail: `remove ${CHART}: the front matter says chart: none` }];
+  }
+  if (count === 1) return [];
+  const detail = `write ${CHART} once, on a line of its own, where the ${module.chart} chart stands`;
+  return [{ path, code: 'module-chart', detail }];
 }
 
 function factProblems(path: string, keys: readonly string[], context: ModuleContext): Problem[] {
@@ -128,6 +145,7 @@ export function moduleProblems(file: ModuleFile, context: ModuleContext): Proble
     ...factProblems(path, module.facts, context),
     ...syntaxProblems(path, module.body, linesAbove),
     ...pastPerformanceProblems(path, module),
+    ...chartProblems(path, module),
     ...(['title', 'idea', 'caveat'] as const).flatMap((field) => bannedProblems(path, field, module[field])),
     ...findingProblems(path, 'body', bodyFindings(module.body)),
   ];

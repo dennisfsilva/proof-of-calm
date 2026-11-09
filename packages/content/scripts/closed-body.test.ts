@@ -10,10 +10,16 @@ const FRONT = ['---', 'slug: noise', 'title: Noise', '---', ''].join('\n');
 describe('closedBodyProblems: pnpm validate:content refuses what the build refuses (ADR-0048)', () => {
   it('reports a module holding an element outside the set, with its line', async () => {
     const path = 'packages/content/learn/noise.mdx';
-    const problems = await closedBodyProblems([{ path, source: `${FRONT}Text.\n\n<Chart />\n` }]);
+    const problems = await closedBodyProblems([{ path, source: `${FRONT}Text.\n\n<Foo />\n` }]);
     expect(problems).toEqual([
-      { path, code: 'module-closed-body', detail: expect.stringMatching(/^line 7: <Chart> is not allowed/) },
+      { path, code: 'module-closed-body', detail: expect.stringMatching(/^line 7: <Foo> is not allowed/) },
     ]);
+  });
+
+  it('passes <Chart /> on a module with a chart', async () => {
+    const front = ['---', 'slug: risk-honestly', 'chart: drawdowns-bar', '---', ''].join('\n');
+    const path = 'packages/content/learn/risk-honestly.mdx';
+    expect(await closedBodyProblems([{ path, source: `${front}Text.\n\n<Chart />\n` }])).toEqual([]);
   });
 
   it('reports one problem per refused module', async () => {

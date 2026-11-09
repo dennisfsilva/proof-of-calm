@@ -224,8 +224,9 @@ describe('checkModuleBody', () => {
   });
 
   it('allows the elements of MODULE_BODY_ELEMENTS by default', async () => {
-    expect(MODULE_BODY_ELEMENTS).toEqual(['PastPerformance']);
+    expect(MODULE_BODY_ELEMENTS).toEqual(['PastPerformance', 'Chart']);
     expect(await checkModuleBody(module('noise', 'A line. <PastPerformance />\n'), path)).toBeNull();
+    expect(await checkModuleBody(module('noise', 'Text.\n\n<Chart />\n'), path)).toBeNull();
   });
 
   it('takes another set of elements', async () => {
