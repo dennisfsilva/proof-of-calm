@@ -68,11 +68,16 @@ export function CurrencyQuestionGroup({ question, onAnswer, invalid }: QuestionP
         aria-describedby={invalid ? ids.issue : undefined}
         onValueChange={onAnswer}
       >
-        <RadioCard value="keep" title={t('keep', { logged })} line={t('keepLine', { logged })} describedBy={ids.line} />
+        <RadioCard
+          value="keep"
+          title={t('keep', { logged })}
+          line={t('keepLine', { count, logged })}
+          describedBy={ids.line}
+        />
         <RadioCard
           value="country"
           title={t('country', { country })}
-          line={t('countryLine', { country })}
+          line={t('countryLine', { count, country })}
           describedBy={ids.line}
         />
       </RadioGroup>
