@@ -4,6 +4,7 @@ import { FIXTURE_RULES } from '@proofofcalm/core/testing/country-change';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, screen, userEvent, waitFor } from 'storybook/test';
 import type { Snapshot } from '../../../lib/ports';
+import type { Services } from '../../../lib/services';
 import { fixtureNowMs, fixtureSnapshot } from '../../../lib/services/fixtures';
 import { createTestServices } from '../../../lib/services/testing';
 import { CountrySection } from './country-section';
@@ -30,7 +31,7 @@ const early: Snapshot = {
     sellWindow: { opens: '2028-03-05', closes: '2028-08-31', exitBy: '2028-12-31' } as Plan['sellWindow'],
   },
 };
-const at = (snapshot: Snapshot, load = rules) => ({
+const at = (snapshot: Snapshot, load: Services['rules'] = rules) => ({
   path: '/settings',
   services: () => createTestServices({ snapshot, nowMs, rules: load }),
 });
