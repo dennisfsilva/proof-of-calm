@@ -32,7 +32,9 @@ const at = (phase: FixturePhase, lastBackupAt?: Instant, installed = false) => {
   const snapshot: Snapshot = { ...fixture, prefs, prices: pricesAt(FIXTURE_PRICES, nowMs) };
   const platform = recordingPlatform({ installed });
   // No episode under way: the foot settles on the next box once its red-day half has loaded.
-  return { services: () => ({ ...createTestServices({ snapshot, nowMs, rules: portugal, platform }), redDay: clearRedDay() }) };
+  return {
+    services: () => ({ ...createTestServices({ snapshot, nowMs, rules: portugal, platform }), redDay: clearRedDay() }),
+  };
 };
 
 /** The foot loads on demand, after the red-day model answers: its first fetch can be slow under a full run. */
