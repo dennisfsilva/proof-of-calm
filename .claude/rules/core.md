@@ -13,6 +13,8 @@ docs:
   - path: docs/ADR/0017-exact-arithmetic.md
   - path: docs/ADR/0018-date-policy.md
   - path: docs/ADR/0042-today-in-the-clock-adapter.md
+  - path: docs/ADR/0053-one-currency-per-plan.md
+  - path: docs/ADR/0054-move-between-venues.md
 ---
 
 # packages/core
