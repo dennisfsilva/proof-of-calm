@@ -2,6 +2,7 @@ import {
   type Action,
   type ActionError,
   acknowledgeRuleChange,
+  type BannerKey,
   actionsNow,
   type CountryCode,
   type CurrencyCode,
@@ -21,6 +22,7 @@ import {
   type Result,
   resumePlan,
   sameParts,
+  withBannerKey,
 } from '@proofofcalm/core';
 import type { Services } from '../../lib/services';
 
@@ -52,6 +54,12 @@ export type TodayActions = {
    * than the notice's (another tab moved it since the notice showed); a failed write throws.
    */
   dismissRuleChange(country: CountryCode, version: number): Promise<void>;
+  /**
+   * Records a banner key in this device's `prefs.dismissedBanners` (docs/DOMAIN.md §3.11), on the prefs as
+   * stored: the key once, the red-day keys more than a year old dropped; preferences alone stamp no
+   * `changedAt`. A failed write throws.
+   */
+  recordBanner(key: BannerKey): Promise<void>;
 };
 
 /** What the card showed for the action: the parts and the currency they are in. */
@@ -134,6 +142,11 @@ export function todayActions({ domain, clock }: Pick<Services, 'domain' | 'clock
         if (plan === null || plan.country !== country || plan.countryRuleVersion >= version) return {};
         return { plan: acknowledgeRuleChange(plan, version, clock.now()) };
       });
+    },
+    async recordBanner(key) {
+      await domain.write(({ prefs }) => ({
+        prefs: { ...prefs, dismissedBanners: withBannerKey(prefs.dismissedBanners, key, clock.today()) },
+      }));
     },
   };
 }
