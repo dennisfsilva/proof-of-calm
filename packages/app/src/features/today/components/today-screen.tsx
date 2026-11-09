@@ -1,10 +1,8 @@
 import {
   actionsNow,
-  type BannerKey,
   backupNeeded,
   bannerFor,
   type CalendarDate,
-  type CoinId,
   holdingContext,
   isOpen,
   isPositive,
@@ -16,31 +14,25 @@ import {
   ruleChangeNotice,
   type StripSegment,
   strip,
-  UNDO_WINDOW_MS,
 } from '@proofofcalm/core';
 import { ProgressStrip } from '@proofofcalm/ui/charts/progress-strip';
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from '@proofofcalm/ui/components/empty';
-import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { Component, lazy, type ReactNode, Suspense, useMemo, useState } from 'react';
 import { useTranslations } from 'use-intl';
-import { reportError } from '../../../lib/errors';
 import { Link } from '../../../lib/navigation';
 import {
-  type RedDayModel,
   useClock,
   useFormatters,
   usePlatform,
   usePrices,
   useRules,
-  useServices,
   useSnapshot,
   useToday,
 } from '../../../lib/services';
 import { WhyLink } from '../../learn';
-import { todayActions } from '../actions';
 import { PendingList } from './pending-list';
 import { PricesLine, useOnline } from './prices-line';
 import { PrimaryAction } from './primary-action';
-import { RedDayBanner } from './red-day-banner';
 import { RuleChangeBanner } from './rule-change-banner';
 
 // Today (docs/DOMAIN.md §3.3 to §3.5, §3.10, §3.11; docs/DESIGN.md §7): the primary action first, the
@@ -191,71 +183,49 @@ function PlanStrip({ plan, today }: { plan: Plan; today: CalendarDate }) {
   );
 }
 
-type RedDayFoot = {
-  readonly key: BannerKey;
-  readonly lastRed: NonNullable<RedDayModel['lastRed']>;
-  readonly coins: readonly CoinId[];
-};
+// The red-day half of the foot loads on demand, only on a visit that starts with units held, so Today's entry
+// carries none of it (docs/ENGINEERING.md §4); the service worker precaches its chunk with every hashed asset.
+const RedDayFoot = lazy(async () => ({ default: (await import('./red-day-foot')).RedDayFoot }));
+
+type FootBoundaryProps = { readonly next: ReactNode; readonly children: ReactNode };
+type FootBoundaryState = { readonly failed: boolean };
 
 /**
- * The red-day banner of this visit (docs/DOMAIN.md §3.11; docs/DESIGN.md §8): asked once, when the visit starts
- * with units held, and recorded as it shows, so it shows on this visit only; undefined while the model is on its
- * way, null for none. A failed read is no episode, and says nothing. `dismiss` hides it, repeating the write
- * if the first failed; that one toasts on failure, as the rule-change notice does.
+ * A red-day half that cannot load, or cannot render, stops here and leaves the foot's next box, as a failed read
+ * does: the banner is optional reading and says nothing about its own absence.
  */
-function useRedDayFoot(plan: Plan, held: boolean) {
-  const t = useTranslations('today.redDay');
-  const services = useServices();
-  const [asked] = useState(held);
-  const [foot, setFoot] = useState<RedDayFoot | null | undefined>(asked ? undefined : null);
-  const recorded = useRef(false);
-  useEffect(() => {
-    if (!asked) return;
-    let live = true;
-    const { domain, clock, redDay } = services;
-    const today = clock.today();
-    const settle = async () => {
-      const model = await redDay
-        .model({ plan, entries: domain.store.getState().snapshot.entries, today })
-        .catch(() => null);
-      if (!live) return;
-      const banner = bannerFor({
-        today,
-        redDay: model?.episode ?? null,
-        ruleChange: null,
-        backupNeeded: false,
-        dismissed: domain.store.getState().snapshot.prefs.dismissedBanners,
-      });
-      const lastRed = model?.lastRed ?? null;
-      if (banner === null || lastRed === null) return setFoot(null);
-      setFoot({ key: banner.key, lastRed, coins: model?.figure?.coins ?? [] });
-      try {
-        await todayActions(services).recordBanner(banner.key);
-        recorded.current = true;
-      } catch (error) {
-        reportError(error);
-      }
-    };
-    void settle();
-    return () => {
-      live = false;
-    };
-  }, [asked, plan, services]);
-  const record = async (key: BannerKey) => {
-    if (recorded.current) return;
-    try {
-      await todayActions(services).recordBanner(key);
-      recorded.current = true;
-    } catch (error) {
-      reportError(error);
-      services.toasts.add({ title: t('failed'), timeout: UNDO_WINDOW_MS });
-    }
-  };
-  return { foot, record, hide: () => setFoot(null) };
+class FootBoundary extends Component<FootBoundaryProps, FootBoundaryState> {
+  override state: FootBoundaryState = { failed: false };
+
+  static getDerivedStateFromError(): FootBoundaryState {
+    return { failed: true };
+  }
+
+  override render() {
+    return this.state.failed ? this.props.next : this.props.children;
+  }
 }
 
-/** The foot of Today: the one banner `bannerFor` picks, else the durability line. */
+/**
+ * The foot of Today (docs/DOMAIN.md §3.11; docs/DESIGN.md §8): it settles once per visit. A visit that starts with
+ * units held waits for the red-day model, then shows its banner or the next box; otherwise the next box at once.
+ */
 function FootBanner({ plan, today }: { plan: Plan; today: CalendarDate }) {
+  const entries = useSnapshot((snapshot) => snapshot.entries);
+  const [held] = useState(() => portfolio(plan, entries).positions.some((position) => isPositive(position.units)));
+  const next = <NextBanner plan={plan} today={today} />;
+  if (!held) return next;
+  return (
+    <FootBoundary next={next}>
+      <Suspense fallback={null}>
+        <RedDayFoot plan={plan} next={next} />
+      </Suspense>
+    </FootBoundary>
+  );
+}
+
+/** The foot's box after the red day: the one banner `bannerFor` picks, else the durability line. */
+function NextBanner({ plan, today }: { plan: Plan; today: CalendarDate }) {
   const t = useTranslations('today');
   const f = useFormatters();
   const clock = useClock();
@@ -263,31 +233,8 @@ function FootBanner({ plan, today }: { plan: Plan; today: CalendarDate }) {
   const rules = useRules();
   const entries = useSnapshot((snapshot) => snapshot.entries);
   const prefs = useSnapshot((snapshot) => snapshot.prefs);
-  const held = useMemo(
-    () => portfolio(plan, entries).positions.some((position) => isPositive(position.units)),
-    [plan, entries],
-  );
-  const red = useRedDayFoot(plan, held);
   // A country with no profile of its own gets the generic rules, under another code: no notice applies to it.
   const ruleChange = rules !== null && rules.code === plan.country ? ruleChangeNotice(plan, rules) : null;
-  if (red.foot === undefined) return null;
-  if (red.foot !== null) {
-    const { key } = red.foot;
-    const dismiss = () => {
-      red.hide();
-      document.getElementById('today-action')?.focus({ preventScroll: true });
-      void red.record(key);
-    };
-    return (
-      <RedDayBanner
-        lastRed={red.foot.lastRed}
-        coins={red.foot.coins}
-        onOpen={() => void red.record(key)}
-        onDismiss={dismiss}
-      />
-    );
-  }
-  // The red day settled for this visit: once shown or passed over, it never comes back before the next visit.
   const banner = bannerFor({
     today,
     redDay: null,
