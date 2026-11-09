@@ -76,6 +76,7 @@
     "heldDate": "The day you bought or received them.{rule, select, none {} other { If you are not sure, the latest possible day never starts a holding rule too early.}} The value chart counts the coins from that day.",
     "hint": "Type two of the three; the form fills the third.",
     "estimateHint": "Bought as planned filled in these units from the day's price. Any fee or venue it copied came from your latest purchase or sale that recorded one. Type the units from your exchange's confirmation.",
+    "venuesHint": "Venues on these entries: {venues}.{unnamed, plural, =0 {} one { # has none.} other { # have none.}} Each keeps its own unless you type a venue for all of them.",
     "earlierDate": "The price the form filled in does not apply to an earlier date. Type what you paid and the units received, as your exchange's confirmation shows them.",
     "fee": "Fee ({currency}, optional)",
     "details": "Venue and note",
