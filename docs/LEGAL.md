@@ -190,7 +190,9 @@ The counsel checklist, answered for every change to messages, content, Learn, em
 4. Does it link to or name an exchange, wallet or provider, other than the Risk page's register
    link (§3.4)? Naming a figure's publisher as its source, unlinked and with no word on what the
    publisher offers or how it compares, is not naming a provider (§4's `[Source]`,
-   `docs/EDUCATION.md` §9).
+   `docs/EDUCATION.md` §9). Naming a provider as the subject of a dated, sourced event its customers
+   suffered (a halt, an insolvency, a theft), unlinked, with no word on what it offers now and no
+   comparison, is not naming a provider (`docs/EDUCATION.md` §9 rows `d.mt-gox` and `d.ftx`).
 5. Does it state or imply regulatory status, protection or compliance (regulated, licensed,
    authorised, MiCA-compliant, approved by)?
 6. Is every historic figure dated, sourced and carrying the past-performance line (§3), with no
