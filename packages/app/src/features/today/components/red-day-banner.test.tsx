@@ -56,12 +56,7 @@ async function banner(props: Partial<RedDayBannerProps> = {}) {
   const services = createTestServices({ snapshot: fixtureSnapshot(), nowMs: fixtureNowMs('buy') });
   await act(() => services.start());
   const handlers = { onOpen: vi.fn(), onDismiss: vi.fn() };
-  render(
-    wrap(
-      services,
-      <RedDayBanner lastRed={lastRed('-16.4', '-12')} coins={[BTC]} {...handlers} {...props} />,
-    ),
-  );
+  render(wrap(services, <RedDayBanner lastRed={lastRed('-16.4', '-12')} coins={[BTC]} {...handlers} {...props} />));
   return handlers;
 }
 
@@ -94,7 +89,9 @@ describe('RedDayBanner', () => {
 
   it('several coins: named in their order, the figure combined over the amounts held', async () => {
     await banner({ coins: [BTC, ETH] });
-    expect(sentence()).toBe('Bitcoin and Ethereum, in the amounts you hold, fell 16% in the seven days to 19 Oct 2026.');
+    expect(sentence()).toBe(
+      'Bitcoin and Ethereum, in the amounts you hold, fell 16% in the seven days to 19 Oct 2026.',
+    );
     cleanup();
     await banner({ coins: [BTC, ETH], lastRed: lastRed('-2', '-31') });
     expect(sentence()).toBe(
