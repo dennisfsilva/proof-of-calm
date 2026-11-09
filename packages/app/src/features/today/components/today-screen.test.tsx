@@ -430,7 +430,7 @@ const CLEAR_LAST = { date: '2026-10-19' as CalendarDate, sevenDay: null, fromHig
 // The red-day banner at the foot (docs/DOMAIN.md §3.11; docs/DESIGN.md §8): the model answers once per visit; the
 // fixture plan holds BTC and ETH and was never exported, so the backup banner waits behind it.
 describe('TodayScreen, the red-day banner', () => {
-  const RED = /^Together, the coins you hold fell 16% in the seven days to 19 Oct 2026\.$/;
+  const RED = /^Bitcoin and Ethereum, in the amounts you hold, fell 16% in the seven days to 19 Oct 2026\.$/;
   const BACKUP = /^Your data lives only on this device\./;
   const episode = () =>
     episodeRedDay({ date: '2026-10-19' as CalendarDate, sevenDay: '-16.4' as Percent, fromHigh90: '-20' as Percent }, [

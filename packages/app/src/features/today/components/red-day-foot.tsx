@@ -1,4 +1,4 @@
-import { type BannerKey, bannerFor, type CoinId, type Plan, UNDO_WINDOW_MS } from '@proofofcalm/core';
+import { type BannerKey, bannerFor, type Plan, UNDO_WINDOW_MS } from '@proofofcalm/core';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'use-intl';
 import { reportError } from '../../../lib/errors';
@@ -12,7 +12,7 @@ import { RedDayBanner } from './red-day-banner';
 type Shown = {
   readonly key: BannerKey;
   readonly lastRed: NonNullable<RedDayModel['lastRed']>;
-  readonly coins: readonly CoinId[];
+  readonly coins: RedDayModel['held'];
 };
 
 /**
@@ -45,7 +45,9 @@ function useRedDay(plan: Plan) {
       });
       const lastRed = model?.lastRed ?? null;
       if (banner === null || lastRed === null) return setShown(null);
-      setShown({ key: banner.key, lastRed, coins: model?.figure?.coins ?? [] });
+      const covered = model?.figure?.coins ?? [];
+      const coins = model?.held.filter(({ coin }) => covered.includes(coin)) ?? [];
+      setShown({ key: banner.key, lastRed, coins: coins.length > 0 ? coins : (model?.held ?? []) });
       try {
         await todayActions(services).recordBanner(banner.key);
         recorded.current = true;

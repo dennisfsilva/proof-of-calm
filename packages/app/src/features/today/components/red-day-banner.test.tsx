@@ -22,6 +22,10 @@ import { TodayScreen } from './today-screen';
 afterEach(cleanup);
 Element.prototype.scrollIntoView = vi.fn();
 
+const BTC = { coin: 'BTC' as CoinId, name: 'Bitcoin' };
+const ETH = { coin: 'ETH' as CoinId, name: 'Ethereum' };
+const SOL = { coin: 'SOL' as CoinId, name: 'Solana' };
+
 const lastRed = (sevenDay: string | null, fromHigh90: string): RedDayBannerProps['lastRed'] => ({
   date: '2026-10-19' as CalendarDate,
   sevenDay: sevenDay as Percent | null,
@@ -53,7 +57,7 @@ async function banner(props: Partial<RedDayBannerProps> = {}) {
   render(
     wrap(
       services,
-      <RedDayBanner lastRed={lastRed('-16.4', '-12')} coins={['BTC' as CoinId]} {...handlers} {...props} />,
+      <RedDayBanner lastRed={lastRed('-16.4', '-12')} coins={[BTC]} {...handlers} {...props} />,
     ),
   );
   return handlers;
@@ -81,12 +85,24 @@ describe('RedDayBanner', () => {
     expect(sentence()).toBe('On 19 Oct 2026 Bitcoin was 30% below its 90-day high.');
   });
 
-  it('several coins: the coins held together', async () => {
-    await banner({ coins: ['BTC', 'ETH'] as CoinId[] });
-    expect(sentence()).toBe('Together, the coins you hold fell 16% in the seven days to 19 Oct 2026.');
+  it('one coin is named as the model names it, never by a lowercase id', async () => {
+    await banner({ coins: [{ coin: 'bitcoin' as CoinId, name: 'Bitcoin' }] });
+    expect(sentence()).toBe('Bitcoin fell 16% in the seven days to 19 Oct 2026.');
+  });
+
+  it('several coins: named in their order, the figure combined over the amounts held', async () => {
+    await banner({ coins: [BTC, ETH] });
+    expect(sentence()).toBe('Bitcoin and Ethereum, in the amounts you hold, fell 16% in the seven days to 19 Oct 2026.');
     cleanup();
-    await banner({ coins: ['BTC', 'ETH'] as CoinId[], lastRed: lastRed('-2', '-31') });
-    expect(sentence()).toBe('On 19 Oct 2026 the coins you hold were together 31% below their 90-day high.');
+    await banner({ coins: [BTC, ETH], lastRed: lastRed('-2', '-31') });
+    expect(sentence()).toBe(
+      'On 19 Oct 2026 Bitcoin and Ethereum, in the amounts you hold, were 31% below their combined 90-day high.',
+    );
+    cleanup();
+    await banner({ coins: [ETH, SOL, BTC] });
+    expect(sentence()).toBe(
+      'Ethereum, Solana, and Bitcoin, in the amounts you hold, fell 16% in the seven days to 19 Oct 2026.',
+    );
   });
 
   it('the link opens the page about the fall under way, and Dismiss calls back', async () => {
@@ -110,7 +126,7 @@ describe('the red-day banner on Today', () => {
     const services = { ...created, redDay: episodeRedDay(lastRed('-16.4', '-12')) };
     await act(() => services.start());
     render(wrap(services, <TodayScreen />));
-    await screen.findByText(/^Bitcoin fell|^Together, the coins you hold fell/);
+    await screen.findByText(/^Bitcoin fell/);
     return services;
   }
 
@@ -119,14 +135,14 @@ describe('the red-day banner on Today', () => {
     await onToday(planStore);
     await waitFor(() => expect(planStore.current().prefs.dismissedBanners).toEqual(['red-day:2026-10-15']));
     fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
-    expect(screen.queryByText(/coins you hold fell/)).toBeNull();
+    expect(screen.queryByText(/^Bitcoin fell/)).toBeNull();
     expect(screen.queryByText(today.redDay.failed)).toBeNull();
   });
 
   it('a write that keeps failing: Dismiss hides it and the toast says it may show again', async () => {
     await onToday(refusing());
     fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
-    expect(screen.queryByText(/coins you hold fell/)).toBeNull();
+    expect(screen.queryByText(/^Bitcoin fell/)).toBeNull();
     expect(await screen.findByText(today.redDay.failed)).toBeDefined();
   });
 });
