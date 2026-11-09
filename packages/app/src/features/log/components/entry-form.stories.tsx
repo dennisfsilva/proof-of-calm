@@ -158,3 +158,35 @@ export const SaleWithVenueUpFront: Story = {
     await expect(canvas.getByRole('button', { name: 'Add a note' })).toBeVisible();
   },
 };
+
+// A grouped edit of two sales on one day at different venues (#10): the Venue field opens empty and the line under the
+// form's hint names both venues, since a venue typed there applies to every sale.
+const saleAt = (venue: string, moment: string) =>
+  anEntry({
+    kind: 'sell',
+    date: date('2026-10-05'),
+    slot: null,
+    units: units('0.001'),
+    venue,
+    createdAt: instant(`2026-10-05T${moment}:00Z`),
+  });
+const grouped = [saleAt('Wallet A', '09:00'), saleAt('Ledger', '10:00')];
+
+export const GroupedSaleAtTwoVenues: Story = {
+  args: { kind: 'sell', editing: grouped },
+  parameters: {
+    services: () =>
+      createTestServices({
+        snapshot: { ...EMPTY_SNAPSHOT, prefs: DEFAULT_PREFS, plan, entries: [older, ...grouped], prices: TEST_PRICES },
+        rules: portugal,
+      }),
+  },
+  play: async ({ canvas }) => {
+    await expect(await canvas.findByLabelText('Venue (optional)')).toHaveValue('');
+    await expect(
+      canvas.getByText(
+        'Venues on these entries: Wallet A and Ledger. Each keeps its own unless you type a venue for all of them.',
+      ),
+    ).toBeVisible();
+  },
+};
