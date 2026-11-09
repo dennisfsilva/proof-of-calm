@@ -303,15 +303,93 @@ describe('CountrySection', () => {
     expect(ruleLines()[0]).toBe('Holding rule now: your own rule. 1.000 days, then tax-free.');
   });
 
-  // ADR-0053: until the section asks the currency question, a change that would relabel logged amounts keeps the
-  // plan's currencies. The fixture plan pays in EUR and its live entries hold amounts; the United Kingdom's is GBP.
-  it("keeps the plan's currencies on a move to the United Kingdom with amounts logged, and lists no currency row", async () => {
+  // ADR-0053: a change that would relabel logged amounts asks which currency they were paid in, with nothing chosen.
+  // The fixture plan pays in EUR and its live entries hold amounts; the United Kingdom's is GBP.
+  it('asks the currency question on a move to the United Kingdom with amounts logged, nothing chosen', async () => {
+    await mount();
+    await choose('United Kingdom');
+    const group = screen.getByRole('radiogroup');
+    expect(group.getAttribute('aria-labelledby')).toBeTruthy();
+    expect(document.getElementById(group.getAttribute('aria-labelledby') ?? '')?.textContent).toMatch(
+      /^\d+ logged entries, from .+ to .+, hold amounts or fees in EUR\. Which currency were they paid in\?$/,
+    );
+    const cards = screen.getAllByRole('radio');
+    expect(cards.map((card) => card.getAttribute('aria-checked'))).toEqual(['false', 'false']);
+    expect(screen.getByRole('radio', { name: /^Keep EUR/ })).toBeTruthy();
+    expect(screen.getByRole('radio', { name: /^Change to GBP/ })).toBeTruthy();
+    expect(screen.getByText(/^A plan holds one currency\./)).toBeTruthy();
+    // The question carries the claim the plain line makes when nothing is asked.
+    expect(screen.queryByText('Amounts you already logged stay as typed; nothing is converted.')).toBeNull();
+    // Before an answer the list relabels nothing.
+    expect(items().filter((item) => item?.startsWith('Currency'))).toEqual([]);
+  });
+
+  it('refuses a confirm with no answer next to the question, focusing its first card', async () => {
     const services = await mount();
     await choose('United Kingdom');
-    expect(items().filter((item) => item?.startsWith('Currency'))).toEqual([]);
+    for (const box of screen.getAllByRole('checkbox')) fireEvent.click(box);
+    await confirm('United Kingdom');
+    expect(screen.getByRole('alert').textContent).toBe('Choose Keep EUR or Change to GBP.');
+    const group = screen.getByRole('radiogroup');
+    expect(group.getAttribute('aria-invalid')).toBe('true');
+    expect(group.contains(document.activeElement)).toBe(true);
+    expect(stored(services).country).toBe('PT');
+  });
+
+  it('keeps the currencies on "Keep EUR", listing no currency row', async () => {
+    const services = await mount();
+    await choose('United Kingdom');
+    fireEvent.click(screen.getByRole('radio', { name: /^Keep EUR/ }));
+    expect(items().filter((item) => item?.startsWith('Currency') || item?.includes('becomes'))).toEqual([]);
     for (const box of screen.getAllByRole('checkbox')) fireEvent.click(box);
     await confirm('United Kingdom');
     expect(stored(services)).toMatchObject({ country: 'GB', payCurrency: 'EUR', displayCurrency: 'EUR' });
+  });
+
+  it('relabels on "Change to GBP", naming the plan\'s own amounts, and stores both currencies', async () => {
+    const services = await mount();
+    const before = stored(services);
+    await choose('United Kingdom');
+    fireEvent.click(screen.getByRole('radio', { name: /^Change to GBP/ }));
+    // The fixture formats in Portuguese: the figure stays, the symbol moves.
+    const rows = items().filter((item) => item?.startsWith('Currency') || item?.includes('becomes'));
+    expect(rows.map((item) => item?.replace(/\s/g, ' '))).toEqual([
+      'Currency for new amounts: EUR to GBP',
+      'Currency shown: EUR to GBP',
+      'Monthly amount: 100,00 € becomes 100,00 £. Check it in Plan.',
+      'Starting amount: 1000,00 € becomes 1000,00 £. Check it in Plan.',
+    ]);
+    for (const box of screen.getAllByRole('checkbox')) fireEvent.click(box);
+    await confirm('United Kingdom');
+    expect(stored(services)).toMatchObject({
+      country: 'GB',
+      payCurrency: 'GBP',
+      displayCurrency: 'GBP',
+      monthlyAmount: before.monthlyAmount,
+      startingAmount: before.startingAmount,
+    });
+  });
+
+  // A wrong "Keep" is fixed without changing country again: Currency & data offers the country's currency.
+  it("offers the country's currency while the plan's differs, and reports the change on the result line", async () => {
+    const services = await mount(withPlan({ country: 'GB' as Plan['country'] }));
+    expect(screen.getByText(/^Your plan is in EUR, and your country's currency is GBP\./)).toBeTruthy();
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Change to GBP' })));
+    expect(stored(services)).toMatchObject({ country: 'GB', payCurrency: 'GBP', displayCurrency: 'GBP' });
+    expect(resultLine().textContent).toBe('Plan currency changed to GBP.');
+    expect(document.activeElement).toBe(resultLine());
+    expect(screen.queryByRole('button', { name: 'Change to GBP' })).toBeNull();
+  });
+
+  it('offers the tax-year files first while live entries exist, and not without them', async () => {
+    await mount();
+    await choose('Germany');
+    expect(screen.getByText(/^Tax-year files follow your current country's rules/)).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Export tax-year CSV' })).toBeTruthy();
+    cleanup();
+    await mount({ ...fixtureSnapshot(), entries: [] });
+    await choose('Germany');
+    expect(screen.queryByText(/^Tax-year files follow your current country's rules/)).toBeNull();
   });
 
   it('lets the currencies follow the country when no entry holds an amount, and lists both rows', async () => {
@@ -442,8 +520,10 @@ describe('CountrySection', () => {
     await confirm('Germany');
     expect(screen.getByRole('alert').textContent).toContain('Your plan changed in another browser tab');
     tick();
+    // The stored plan now pays in USD with amounts logged, so the change to Germany (EUR) asks the question.
+    fireEvent.click(screen.getByRole('radio', { name: /^Keep USD/ }));
     await confirm('Germany');
-    expect(stored(services).country).toBe('DE');
+    expect(stored(services)).toMatchObject({ country: 'DE', payCurrency: 'USD' });
     expect(resultLine().textContent).toBe('Country changed to Germany.');
     expect(screen.queryByRole('alert')?.textContent ?? null).toBeNull();
   });
