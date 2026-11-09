@@ -122,7 +122,8 @@ const codePoints = (text: string) =>
   text === ''
     ? 'none'
     : [...text].map((char) => `U+${(char.codePointAt(0) ?? 0).toString(16).toUpperCase().padStart(4, '0')}`).join(' ');
-const PERCENT = /\d+(?:[.,]\d+)*(\s*)%/g;
+// A sign followed by two hexadecimal digits is a URL's percent-escape (`a1%20b`), never a percentage.
+const PERCENT = /\d+(?:[.,]\d+)*(\s*)%(?![\dA-Fa-f]{2})/g;
 const URL_IN_TEXT = /https?:\/\/\S+/g;
 
 /**
