@@ -72,7 +72,9 @@ describe('recentEpisode', () => {
           await matchesWhole(series, addDays(series[series.length - 1]?.date ?? START, after));
         },
       ),
-      { numRuns: 25 },
+      // Shrinking a failure of hundreds of points outlasts the test's timeout: stop it after 2 s and report the
+      // smallest counterexample found by then.
+      { numRuns: 25, interruptAfterTimeLimit: 2000 },
     );
   });
 
