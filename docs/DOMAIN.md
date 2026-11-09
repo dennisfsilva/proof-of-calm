@@ -299,7 +299,7 @@ exactly to `total`:
 - `venue` goes on every entry as given. Today passes `defaultFee` of the live entries (below) as the
   fee and, as the venue, that of the latest live entry that named one, a purchase or a sale, coins
   added (`held`) left out, "latest" as for `defaultFee` (`lastVenue` in `packages/core/src/plan/parts.ts`,
-  which the Log form's venue reads too; whether a kind adds or removes units is its role, `entryRole`);
+  which the Log form's venue reads too; whether a kind adds or removes units is its role, `entryRole`, §3.7);
 - a part that rounds to zero (a total too small to give every coin a cent) is left out: a zero buy
   cannot be recorded;
 - the result is a draft the user can edit before saving; typing exact units stays available.
@@ -334,7 +334,8 @@ in: the end wins over a pause, as on the Plan screen, and an ended plan can be n
 Port of `portfolio()`, per coin over non-deleted entries, for the plan's coins in order and then any
 other coin that has entries:
 
-- `boughtUnits = Σ units` of buys (`kind !== 'sell'`), `soldUnits = Σ units` of sells.
+- `boughtUnits = Σ unitsIn` and `soldUnits = Σ unitsOut` over the coin's entries: the units of its purchases
+  (`dca`, `lump`, `extra`, `held`) and of its sales, by the kind's role (§3.7).
 - `units = max(0, boughtUnits − soldUnits)`.
 - The value counts every unit held. Invested and the average count only the purchases with a recorded
   cost, and P/L only the units with one: a `held` entry with no cost (§2.2) adds its units to `units`
@@ -405,19 +406,34 @@ rule), only while the plan keeps the profile's rule: the first in full, the rest
 
 One total order of a coin's entries, `compareEntries`: the date, then `createdAt` compared as moments, then the id, so
 entries logged at one moment (the prototype import stamps one) still have one order and the result never depends on the
-order the entries were stored in. `lots`, `runningHeld` and `saleWarning` all use it.
+order the entries were stored in. `lots` lists its lots, and `matchLots` its sales, in that order.
 
-`lots(entries, coin, scope, lotRule)`: the buy entries of the coin in that order, each with `remainingUnits` after matching sells in time order: a sell consumes
+Each kind has a role, `entryRole` (`packages/core/src/portfolio/effect.ts`): `dca`, `lump`, `extra` and `held` are
+purchases, `sell` is a sale; a kind without a role fails the build (`assertNever`). The role states what the entry does
+to its coin's units and nothing else reads the kind for that: a purchase brings its `units` in (`unitsIn`) and takes
+none out (`unitsOut` is 0), a sale takes its `units` out and brings none in, the units as stored. It also gives the
+entry's place among its coin's entries of one date, `sameDayRank`: 0 for a purchase, 2 for a sale, so purchases come
+first. The matching order, `matchingOrder(a, b)`: the date, then the same-day rank, then `compareEntries`, so a purchase
+and a sale on one date can match. `matchLots` and `runningHeld` read a coin's entries in it, and `saleWarning` takes the
+entries before a draft sale in it.
+
+`lots(entries, coin, scope, lotRule)`: the purchases of the coin in `compareEntries` order, each with `remainingUnits` after matching sells in the matching order: a sell consumes
 only lots bought on or before its date (same-day buys first), the earliest first, or the latest first
 where the lot rule is `lifo`; the other lot rules are matched FIFO here and named by the tax-year
 export. Units a sell could not match (inconsistent data) are reported by `matchLots`, never dropped
-silently. `matchLots` also lists each sale, in `compareEntries` order, with its units, its `unmatched` units,
+silently. Each lot also keeps its open units by place, `places`: one `{ venue, since, units }` per place, none of them
+empty, and the places sum to the lot's `remainingUnits`, never more and never fewer. A lot starts with one place, the
+venue it was bought at (`null` when none was named) with `since` null, which means the units are still where they were
+bought. No entry moves units between venues yet, so every lot has at most that one place and `since` stays null until
+a later release moves units. A sale takes units place by place: each open lot's places are its pieces, and the sale's
+group (below) is that of a piece's venue. `matchLots` also lists each sale, in `compareEntries` order, with its units, its `unmatched` units,
 `uncosted`, the units it took from lots with no cost (a `held` entry without one), which leave out a matching share of its
-proceeds in the Portfolio's P/L (§3.6), and `takes`, each lot it took units from as `{ lot, units }` in the order taken
-(Σ `takes.units` + `unmatched` = `units`); the Portfolio names them per coin in one line ("0.002 BTC sold without a purchase dated on or before the
+proceeds in the Portfolio's P/L (§3.6), and `takes`, each lot it took units from as `{ lot, units, venue }` in the order
+taken, `venue` the place the units were held at (Σ `takes.units` + `unmatched` = `units`); the Portfolio names them per coin in one line ("0.002 BTC sold without a purchase dated on or before the
 sale. Check the dates and amounts in the Log.", in the plan's locale). Every write from this device keeps each sale covered by purchases dated
 on or before it (#136): `runningHeld(entries, coin)` lists the coin's live entries in the order of one global
-queue (date, buys before sales, then `compareEntries`) with the units held after each; `heldOn(entries, coin, date)` is
+queue (the matching order, `matchingOrder`) with the units held after each, those before it plus its `unitsIn` less
+its `unitsOut`, never below 0; `heldOn(entries, coin, date)` is
 what a sale dated `date` can take, the fewest held from the end of that day on, so a sale never leaves a later one
 short; `uncoveredSale(entries, written)` refuses a write (`sell-exceeds-held`, the first sale left short with the
 units held before it), an edit, a delete or an undo as well as a new entry, that leaves more units of a coin sold than bought, or more of them unmatched in one global queue, than before it. A sale is also bounded by the units held in all (`heldUnits`, purchases less sales whatever their dates), so no write makes the units of a coin sold exceed those bought, or exceed them by more than imported data already did. The checks are
@@ -448,8 +464,8 @@ the country profile and a parameter here, default FIFO).
   `holdingContext(plan, countryRules)`: acquisition-date overrides apply only while the plan uses the
   country's own rule (compared field by field), because a custom rule from Settings applies to every purchase.
 
-Matching per venue (`matchLots`): the coin's events are matched in one global order, `runningHeld`'s (date, purchases
-before sales, then `compareEntries`), so a sale reaches only lots bought on or before its date. A sale first takes its
+Matching per venue (`matchLots`): the coin's events are matched in one global order, `runningHeld`'s (the matching
+order, `matchingOrder`), so a sale reaches only lots bought on or before its date. A sale first takes its
 own group's open lots by the lot rule. The units its group cannot cover (the save checks coverage in one global queue, so
 it accepts such a sale) come from the other groups' lots still open at that moment, earliest first, or latest first under
 `lifo`; the Log has no record of a move between venues yet (#274). Units taken from a lot with no cost join `uncosted`;
@@ -465,13 +481,23 @@ global scope.
 its date covers (imported data; the save refuses it) leaves the lots more units than are held, so each sale's unmatched
 units, in sale order, come off the oldest lots left, whatever the scope and rule. Units this takes from a lot with no
 cost join that sale's `uncosted`, as when matching takes a no-cost lot: a no-cost unit is held (unrecorded) or sold
-uncosted, never costed. The sale's `unmatched` and `takes` keep the match at its date, so the Portfolio's line about units
+uncosted, never costed. The units it takes off a lot come off that lot's places too, from the first place on, and a
+place left empty goes, so the places still sum to `remainingUnits`. The sale's `unmatched` and `takes` keep the match at its date, so the Portfolio's line about units
 sold without a purchase dated on or before the sale still names them. FIFO, 1 BTC sold for €30,000 on 2025-01-01, 1 BTC
 `held` with no cost on 2025-02-01 and an extra buy of 1 BTC for €100 on 2025-03-01: the sale's unit comes off the
 February lot, so it is uncosted and its €30,000 drop out; the €100 lot is held, and at €60,000 the P/L is +€59,900 under
 either scope (+€29,900 without the `held` entry, where the unit comes off the €100 lot). `sellableNow` and `portfolio`
 (§3.6) both read the lots and sales through it, so the units sellable and the units out of P/L describe the same
 remaining lots.
+
+`venueUnits(entries, coin, date, lotRule = 'fifo')`: the units of the coin held at each venue at the end of `date`, as
+`{ venue, units }`, `venue` null for the units bought with none named. It matches the live entries dated on or before
+`date` per venue whatever the country's scope (units sit at a venue even where the law pools them), with the lot rule
+given, reads the lots through `heldLots` and adds up their places by venue, so the venues sum to the units held then:
+the purchases less the sales dated on or before `date`, never below 0. A venue with no units left is left out; the
+venues come in the order of the first lot that still holds units there (`compareEntries`). Per venue, FIFO, 1 BTC bought
+at Kraken on 2025-01-01, 1 BTC bought at Ledger on 2025-02-01 and a sale of 0.4 BTC at Ledger on 2025-03-01: on
+2025-03-01 Kraken holds 1 and Ledger 0.6; on 2025-01-31 only Kraken, 1.
 
 `sellableNow(plan, entries, coin, today)`: `{ now, later }`, the units past the rule today and the units
 that pass it later, by date, over the lots `heldLots` leaves. Shown as one line per coin in the sell phase
@@ -483,7 +509,8 @@ units past the rule; `eligibility` caps its count at the units held instead, and
 its own group's lots give it past the rule on `date`, return the sale's id (`sale`) and the text data for "only X of the Y
 sold are past the holding rule on this date; the rest may be taxed" (port of `dateHint()`). Each sale counts only its own group, `venueGroup(venue,
 lotScope)`, the lots it takes first: with `'per-venue'` its venue's lots (a sale without a venue counts the
-lots without one), with `'global'` every lot whatever the venue; `eligibleUnits` without a venue counts every group.
+lots without one), with `'global'` every lot whatever the venue; `eligibleUnits` with a venue counts the places in that
+venue's group of the lots past the rule, without one every place.
 The matching may also give it another group's lots for the units its group cannot cover ("Matching per venue" above);
 the warning leaves those out, so it warns more, never less.
 The entry form reads each sale as the save stores it (a grouped row can hold two sales of a coin at two venues): its
@@ -496,8 +523,8 @@ warning's `sale` gives the form that sale's venue, which it names where a coin w
 The warning matches the entries as the save leaves them: the stored entries less the draft's own and the `replaced`
 ids (the entry form passes every entry being edited, because the save replaces or deletes each of them, a row whose
 units were cleared included), plus the draft's sales on `date`. Each sale's units past the rule, for the warning, are
-those of its own group's lots that the lot matching gives it, with the profile's lot rule and scope, in the order
-`compareEntries`: the units past the rule of its group's lots, on `date`, after the purchases up to `date` and the sales
+those of its own group's lots that the lot matching gives it, with the profile's lot rule and scope, in the matching
+order (`matchingOrder`): the units past the rule of its group's lots, on `date`, after the purchases up to `date` and the sales
 before it, less those after it is matched too; other groups' lots it takes are left out (above). So under `lifo` a sale that takes the latest lots can warn while a later one takes older lots past the
 rule, and a stored sale dated after the draft takes nothing from it. The warnings are listed in draft order. Never
 blocks the save.
