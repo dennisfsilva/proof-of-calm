@@ -76,6 +76,8 @@ export function CountrySection() {
   const [confirmed, setConfirmed] = useState(false);
   const [acceptEarly, setAcceptEarly] = useState(false);
   const [answer, setAnswer] = useState<CurrencyAnswer | null>(null);
+  /** Counts the times the answer was cleared: the question's key, so the cards show it cleared as well. */
+  const [asked, setAsked] = useState(0);
   const [refused, setRefused] = useState(0);
   const [problem, setProblem] = useState<'changed' | 'notSaved' | 'conflict' | null>(null);
   const [result, setResult] = useState('');
@@ -154,6 +156,7 @@ export function CountrySection() {
     setConfirmed(false);
     setAcceptEarly(false);
     setAnswer(null);
+    setAsked((count) => count + 1);
     setRefused(0);
     setProblem(shown);
     setResult(said);
@@ -291,7 +294,7 @@ export function CountrySection() {
                 <p className="text-13 text-ink-2">{t('logged')}</p>
               ) : (
                 <CurrencyQuestionGroup
-                  key={`${pending.rules.code}:${pending.opened.updatedAt}`}
+                  key={asked}
                   question={currency.question}
                   onAnswer={setAnswer}
                   invalid={refused > 0 && answer === null}

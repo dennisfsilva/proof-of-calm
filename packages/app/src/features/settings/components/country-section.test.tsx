@@ -336,6 +336,23 @@ describe('CountrySection', () => {
     expect(stored(services).country).toBe('PT');
   });
 
+  // The plan leaves and comes back (Delete everything, then its Undo, or another tab) while the change stays open:
+  // the group mounts again with nothing chosen, so the answer the write takes is the one shown, none.
+  it('drops the answer when the question mounts again, refusing a confirm the cards do not show', async () => {
+    const services = await mount();
+    const before = services.domain.store.getState().snapshot;
+    await choose('United Kingdom');
+    fireEvent.click(screen.getByRole('radio', { name: /^Change to GBP/ }));
+    await act(async () => services.domain.write({ plan: null, entries: [] }));
+    await act(async () => services.domain.write({ plan: before.plan, entries: before.entries }));
+    const cards = screen.getAllByRole('radio');
+    expect(cards.map((card) => card.getAttribute('aria-checked'))).toEqual(['false', 'false']);
+    for (const box of screen.getAllByRole('checkbox')) fireEvent.click(box);
+    await confirm('United Kingdom');
+    expect(screen.getByRole('alert').textContent).toBe('Choose Keep EUR or Change to GBP.');
+    expect(stored(services)).toMatchObject({ country: 'PT', payCurrency: 'EUR', displayCurrency: 'EUR' });
+  });
+
   it('keeps the currencies on "Keep EUR", listing no currency row', async () => {
     const services = await mount();
     await choose('United Kingdom');
