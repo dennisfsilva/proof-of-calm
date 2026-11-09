@@ -42,7 +42,9 @@ tickers and adds 4 of its own: whole percents (`drawdown-fall-not-whole`), rows 
 then by high (`cycles-out-of-order`), each coin's high once (`cycles-duplicate`), and the one name
 `cycles/drawdowns.json` (`file-name`). The owner's sign-off is `reviewedBy: owner` (`agent-draft` until
 the owner sets it), and the reviewer still recomputes every fall from its source. The catalogue lists
-unique tickers and CoinGecko ids in ticker order, an order that ranks no coin.
+unique tickers and CoinGecko ids in ticker order, an order that ranks no coin. Each Learn module's body
+also goes through the build's own compiler and element list (`scripts/closed-body.ts`, ADR-0048
+Deviations): one `module-closed-body` problem, with the line, per module the build would refuse.
 
 ## Loaders (the public index)
 

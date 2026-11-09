@@ -1,9 +1,10 @@
 // `pnpm validate:content`: reads every content file and every UI message file, and fails on any problem
-// that validateContent finds (docs/CONTENT-OPS.md §1). The clock gives today's date in UTC.
+// that validateContent or the build's closed-body check finds (docs/CONTENT-OPS.md §1). The clock gives today's date in UTC.
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type ContentFile, validateContent } from '../src/validate.ts';
+import { closedBodyProblems } from './closed-body.ts';
 
 const root = fileURLToPath(new URL('../../../', import.meta.url));
 const filesIn = (directory: string, extension: string) => {
@@ -51,6 +52,8 @@ for (const absolute of paths) {
 }
 const allow = JSON.parse(readFileSync(join(root, 'packages/content/sources.allow.json'), 'utf8'));
 problems.push(...validateContent(files, { today: new Date().toISOString().slice(0, 10), allow, modules }));
+// The build's own compiler and element list on every module body (ADR-0048).
+problems.push(...(await closedBodyProblems(modules)));
 
 for (const problem of problems) console.error(`${problem.path}: ${problem.code}: ${problem.detail}`);
 console.log(`${files.length + modules.length} files checked, ${problems.length} problems`);
