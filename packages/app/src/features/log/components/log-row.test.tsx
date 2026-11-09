@@ -9,7 +9,7 @@ import {
   type TransactionRow,
   transactions,
 } from '@proofofcalm/core';
-import { anEntry, units } from '@proofofcalm/core/testing';
+import { aMove, anEntry, units } from '@proofofcalm/core/testing';
 import { Table, TableBody } from '@proofofcalm/ui/components/table';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -167,6 +167,22 @@ describe('LogRow', () => {
     expect(screen.getByRole('button', { name: 'Delete entry' })).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Edit entry' }));
     expect(onEdit).toHaveBeenLastCalledWith(sale);
+  });
+
+  it('labels a move Coins moved and opens it to Delete only, since the form records purchases and sales', async () => {
+    const { entries } = fixtureSnapshot();
+    const coin = entries.find((entry) => entry.kind === 'dca')?.coin as CoinId;
+    const move = aMove({ coin, date: '2026-10-20' as Entry['date'] });
+    const rows = transactions(plan, [...entries, move], holdingContext(plan, await portugal())).rows;
+    const row = find(rows, 'move');
+    const onDelete = vi.fn();
+    await mount(row, plan, { onDelete });
+    const toggle = screen.getByRole('button', { expanded: false });
+    expect(toggle.textContent).toContain('Coins moved');
+    fireEvent.click(toggle);
+    expect(screen.queryByRole('button', { name: 'Edit entry' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Delete entry' }));
+    expect(onDelete).toHaveBeenCalledWith(row);
   });
 
   it('shows one holding line for a transaction of two coins, with the note only where the screen puts it', async () => {
