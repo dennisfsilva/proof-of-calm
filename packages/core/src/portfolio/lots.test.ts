@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { anEntry, date, instant, money, units } from '../../test/builders';
 import { compare, isNegative, minus, sum, type Units } from '../money/decimal';
 import type { Entry } from '../schema/entry';
-import { lots, matchLots } from './lots';
+import { heldLots, lots, matchLots, venueUnits } from './lots';
 
 const BTC = 'BTC' as never;
 const buy = (day: string, quantity: string, venue: string | null = null, created = '2026-01-01T09:00:00Z') =>
@@ -148,8 +148,20 @@ describe('the units a sale’s own venue cannot cover (docs/DOMAIN.md §3.7)', (
     const september = { ...sell('2025-09-01', '1', 'Ledger'), amount: money('300') };
     const match = matchLots([september, august, june, january], BTC, 'per-venue');
     expect(match.sales).toEqual([
-      { id: june.id, units: '1', uncosted: '1', unmatched: '0', takes: [{ lot: january.id, units: '1' }] },
-      { id: september.id, units: '1', uncosted: '0', unmatched: '0', takes: [{ lot: august.id, units: '1' }] },
+      {
+        id: june.id,
+        units: '1',
+        uncosted: '1',
+        unmatched: '0',
+        takes: [{ lot: january.id, units: '1', venue: 'Ledger' }],
+      },
+      {
+        id: september.id,
+        units: '1',
+        uncosted: '0',
+        unmatched: '0',
+        takes: [{ lot: august.id, units: '1', venue: 'Ledger' }],
+      },
     ]);
     expect(match.lots.map((lot) => lot.remainingUnits)).toEqual(['0', '0']);
     expect(match.unmatchedUnits).toBe('0');
@@ -258,5 +270,73 @@ describe('lot conservation (docs/ROADMAP.md M0: FIFO conservation)', () => {
         }
       }),
     );
+  });
+});
+
+describe('the places of a lot (docs/DOMAIN.md §3.7)', () => {
+  it('keeps a lot’s open units at its venue, not yet moved, and names that venue on each take', () => {
+    const kraken = buy('2026-01-01', '0.5', 'Kraken');
+    const ledger = buy('2026-02-01', '0.3', 'Ledger');
+    const sale = sell('2026-03-01', '0.6', 'Kraken');
+    const match = matchLots([kraken, ledger, sale], BTC, 'per-venue');
+    expect(match.lots.map((lot) => lot.places)).toEqual([[], [{ venue: 'Ledger', since: null, units: '0.2' }]]);
+    expect(match.sales[0]?.takes).toEqual([
+      { lot: kraken.id, units: '0.5', venue: 'Kraken' },
+      { lot: ledger.id, units: '0.1', venue: 'Ledger' },
+    ]);
+  });
+
+  it('takes the units held count off from the places too', () => {
+    // The sale is dated before any purchase, so the lots keep 0.5 though 0.3 are held.
+    const match = heldLots(
+      matchLots([sell('2025-12-01', '0.2', 'Kraken'), buy('2026-01-01', '0.5', 'Kraken')], BTC, 'global'),
+    );
+    expect(match.lots.map((lot) => [lot.remainingUnits, lot.places])).toEqual([
+      ['0.3', [{ venue: 'Kraken', since: null, units: '0.3' }]],
+    ]);
+    const all = heldLots(matchLots([sell('2025-12-01', '0.5'), buy('2026-01-01', '0.5')], BTC, 'global'));
+    expect(all.lots.map((lot) => [lot.remainingUnits, lot.places])).toEqual([['0', []]]);
+  });
+});
+
+describe('venueUnits (docs/DOMAIN.md §3.7)', () => {
+  it('gives the units held at each venue on a date, matched per venue whatever the scope, no venue a place of its own', () => {
+    const entries = [
+      buy('2026-01-01', '0.5', 'Kraken'),
+      buy('2026-02-01', '0.3'),
+      buy('2026-03-01', '0.2', 'Ledger'),
+      sell('2026-04-01', '0.6', 'Kraken'),
+      buy('2026-05-01', '0.4', 'Bitvavo'),
+    ];
+    // Kraken's 0.5 cannot cover its 0.6 sale: the 0.1 left comes off the oldest other lot, the one with no venue.
+    expect(venueUnits(entries, BTC, date('2026-04-01'))).toEqual([
+      { venue: null, units: '0.2' },
+      { venue: 'Ledger', units: '0.2' },
+    ]);
+    // Before the sale and the Bitvavo buy; dated on the day, a purchase counts.
+    expect(venueUnits(entries, BTC, date('2026-03-01'))).toEqual([
+      { venue: 'Kraken', units: '0.5' },
+      { venue: null, units: '0.3' },
+      { venue: 'Ledger', units: '0.2' },
+    ]);
+    // Under LIFO the shortfall comes off the latest other lot held then, Ledger's.
+    expect(venueUnits(entries, BTC, date('2026-05-01'), 'lifo')).toEqual([
+      { venue: null, units: '0.3' },
+      { venue: 'Ledger', units: '0.1' },
+      { venue: 'Bitvavo', units: '0.4' },
+    ]);
+    expect(venueUnits(entries, BTC, date('2025-12-31'))).toEqual([]);
+  });
+
+  it('sums to the units held on the date, a sale no lot covered then taken off the oldest lots', () => {
+    const entries = [
+      sell('2025-12-01', '0.2', 'Kraken'),
+      buy('2026-01-01', '0.5', 'Ledger'),
+      buy('2026-02-01', '0.1', 'Kraken'),
+    ];
+    expect(venueUnits(entries, BTC, date('2026-02-01'))).toEqual([
+      { venue: 'Ledger', units: '0.3' },
+      { venue: 'Kraken', units: '0.1' },
+    ]);
   });
 });

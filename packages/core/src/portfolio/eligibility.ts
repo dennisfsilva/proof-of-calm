@@ -21,13 +21,14 @@ import type { CoinId, EntityId } from '../schema/ids';
 import type { Plan } from '../schema/plan';
 import type { PriceSnapshot } from '../schema/prices';
 import {
-  compareEntries,
   DEFAULT_HOLDING_CONTEXT,
   type HoldingContext,
   heldLots,
   type Lot,
   lots,
+  matchingOrder,
   matchLots,
+  type Place,
   venueGroup,
 } from './lots';
 import { portfolio } from './portfolio';
@@ -87,12 +88,12 @@ export function eligibleUnits(
   context: HoldingContext = DEFAULT_HOLDING_CONTEXT,
   venue?: string | null,
 ): Units {
-  const inGroup = (lot: Lot) =>
-    venue === undefined || venueGroup(lot.venue, context.lotScope) === venueGroup(venue, context.lotScope);
+  const inGroup = (place: Place) =>
+    venue === undefined || venueGroup(place.venue, context.lotScope) === venueGroup(venue, context.lotScope);
   return sum(
     lots(entries, coin, context.lotScope, context.lotRule)
-      .filter((lot) => inGroup(lot) && isEligible(plan, lot, context, at))
-      .map((lot) => lot.remainingUnits),
+      .filter((lot) => isEligible(plan, lot, context, at))
+      .flatMap((lot) => lot.places.filter(inGroup).map((place) => place.units)),
   );
 }
 
@@ -203,7 +204,7 @@ export type DraftSale = Pick<Entry, 'id' | 'coin' | 'units' | 'venue' | 'created
  * taxed." The matching may also give it another group's lots for units its group cannot cover; the warning leaves those
  * out, so it warns more, never less. The sales are matched as the save stores them: the entries less the draft's and the
  * `replaced` ones (the save replaces or deletes those), plus the draft's sales on `date`, in the order `matchLots` takes
- * them (`compareEntries`), with the profile's lot rule and scope. Never blocks the save (port of the prototype's
+ * them (`matchingOrder`), with the profile's lot rule and scope. Never blocks the save (port of the prototype's
  * dateHint(), which counted every lot).
  */
 export function saleWarning(
@@ -234,9 +235,7 @@ export function saleWarning(
     if (!isPositive(sale.units)) return [];
     // What the matching has reached by this sale (purchases of its day first, then the sales before it), with and
     // without it: the units of its group's lots past the rule that it takes.
-    const before = stored.filter((entry) =>
-      entry.kind === 'sell' ? compareEntries(entry, sale) < 0 : compareDates(entry.date, date) <= 0,
-    );
+    const before = stored.filter((entry) => matchingOrder(entry, sale) < 0);
     const eligible = minus(
       eligibleUnits(plan, before, sale.coin, date, context, sale.venue),
       eligibleUnits(plan, [...before, sale], sale.coin, date, context, sale.venue),
