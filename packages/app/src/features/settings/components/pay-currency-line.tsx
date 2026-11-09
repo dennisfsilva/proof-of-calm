@@ -53,7 +53,7 @@ export function PayCurrencyLine({ plan, rules, onDone }: PayCurrencyLineProps) {
 
   return (
     <div className="flex flex-col gap-stack-sm">
-      <p className="text-16 text-ink">{t('line', { logged: plan.payCurrency, country })}</p>
+      <p className="text-13 text-ink-2">{t('line', { logged: plan.payCurrency, country })}</p>
       {problem !== null && (
         <p ref={problemLine} tabIndex={-1} role="alert" className="text-13 text-negative">
           {settings(problem)}
