@@ -49,3 +49,11 @@ export const PreviousBuildPlanSchema = z.strictObject({
   createdAt: InstantSchema,
   updatedAt: InstantSchema,
 });
+
+/**
+ * The version gate of the previous build's `readBackup`, frozen: that build wrote and read backups up to version 4
+ * (the `held` kind) and answered `newer-version` above it before it read anything else.
+ */
+export function previousBuildBackupGate(json: { readonly schemaVersion: number }) {
+  return json.schemaVersion > 4 ? { code: 'newer-version' as const, schemaVersion: json.schemaVersion } : null;
+}

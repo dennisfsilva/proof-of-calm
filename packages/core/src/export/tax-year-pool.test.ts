@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { anEntry, aPlan, BTC, date, ETH, money, units } from '../../test/builders';
+import { aMove, anEntry, aPlan, BTC, date, ETH, money, units } from '../../test/builders';
 import { GB_PLAN, GB_RULES } from '../../test/tax-year/gb-fixture';
 import { POOLED_MATCH_DAYS } from '../constants';
 import type { CountryRules } from '../schema/country';
@@ -106,6 +106,8 @@ describe('taxYearPool (docs/DOMAIN.md §3.13)', () => {
         proceeds: null,
         disposalFee: null,
         estimated: false,
+        toVenue: null,
+        unitsReceived: null,
       },
       {
         kind: 'sell',
@@ -119,9 +121,28 @@ describe('taxYearPool (docs/DOMAIN.md §3.13)', () => {
         proceeds: money('80'),
         disposalFee: money('0.40'),
         estimated: false,
+        toVenue: null,
+        unitsReceived: null,
       },
     ]);
-    expect(pool).toMatchObject({ uncosted: false, estimated: false });
+    expect(pool).toMatchObject({ uncosted: false, estimated: false, moves: false });
+  });
+
+  it('lists a move with its destination and units received, and never counts it as a purchase without cost', () => {
+    const entries = [buy('2026-05-01', { venue: 'Kraken' }), aMove({ date: date('2026-05-02') })];
+    const pool = taxYearPool(GB_PLAN, entries, GB_RULES, span, today);
+    expect(pool.rows[1]).toMatchObject({
+      kind: 'move',
+      venue: 'Kraken',
+      units: units('0.01'),
+      costBasis: null,
+      eligibleFrom: null,
+      proceeds: null,
+      toVenue: 'Ledger',
+      unitsReceived: units('0.0099'),
+    });
+    expect(pool).toMatchObject({ uncosted: false, moves: true });
+    expect(taxYearPoolCsv(pool, []).split('\n')[3]).toBe('move,2026-05-02,BTC,Kraken,0.01,,,,,,no,Ledger,0.0099');
   });
 
   it('a held lot at cost 0 is costed; one with no cost is not', () => {
@@ -151,7 +172,8 @@ describe('taxYearPool (docs/DOMAIN.md §3.13)', () => {
 });
 
 describe('taxYearPoolCsv (docs/DOMAIN.md §3.13)', () => {
-  const columns = 'kind,date,coin,venue,units,cost_basis,fee,eligible_from,proceeds,disposal_fee,units_estimated';
+  const columns =
+    'kind,date,coin,venue,units,cost_basis,fee,eligible_from,proceeds,disposal_fee,units_estimated,to_venue,units_received';
 
   it('writes the header rows, an empty row and the columns when nothing is listed', () => {
     const pool = taxYearPool(GB_PLAN, [], GB_RULES, span, today);
@@ -164,7 +186,7 @@ describe('taxYearPoolCsv (docs/DOMAIN.md §3.13)', () => {
     ];
     const pool = taxYearPool(GB_PLAN, entries, GB_RULES, span, today);
     expect(taxYearPoolCsv(pool, [])).toBe(
-      ['', columns, `extra,2026-05-01,'-X,"'=A;'@B\nC",0.001,1,,,,,yes`].join('\n'),
+      ['', columns, `extra,2026-05-01,'-X,"'=A;'@B\nC",0.001,1,,,,,yes,,`].join('\n'),
     );
   });
 });

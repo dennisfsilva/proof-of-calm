@@ -1,6 +1,7 @@
 // The Log as CSV (docs/DOMAIN.md §3.13), ported from the prototype's csvText(): one line per entry in
 // date order, the price derived from amount and units as the entry form derives it (§6, never 0 for a coin
-// under a cent), and the date each purchase passes the rule.
+// under a cent), the date each purchase passes the rule, and the venue; a move adds where it went and how many units
+// arrived.
 import { PRICE_FIGURES } from '../constants';
 import { compareDates, compareInstants } from '../dates/calendar';
 import { holdingStatus } from '../holding/eligible-from';
@@ -24,6 +25,9 @@ const HEADER = [
   'fee',
   'holding_eligible_from',
   'note',
+  'venue',
+  'to_venue',
+  'units_received',
 ];
 
 /**
@@ -78,6 +82,9 @@ export function logCsv(
         entry.fee ?? '',
         eligibleFrom(plan, entry, context),
         textCell(entry.note),
+        textCell(entry.venue ?? ''),
+        textCell(entry.to ?? ''),
+        entry.received ?? '',
       ].join(','),
     );
   return [HEADER.join(','), ...rows].join('\n');

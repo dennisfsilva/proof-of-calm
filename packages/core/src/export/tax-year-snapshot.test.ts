@@ -40,6 +40,7 @@ describe('taxYearSnapshot: the NL fixture (test/tax-year/nl-fixture.ts)', () => 
         soldUnits: '0.1',
         proceeds: '9500',
         saleFee: '4.75',
+        feeUnits: '0',
         closingUnits: '0.292345',
         closingValue: '27772.9211725',
       },
@@ -55,6 +56,7 @@ describe('taxYearSnapshot: the NL fixture (test/tax-year/nl-fixture.ts)', () => 
         soldUnits: '1',
         proceeds: '3200',
         saleFee: '1.6',
+        feeUnits: '0',
         closingUnits: '2',
         closingValue: '7000.5',
       },
@@ -156,12 +158,12 @@ describe('taxYearSnapshotCsv (docs/DOMAIN.md §3.13)', () => {
 
   it('leaves the year-end cells empty while the year runs, and a missing value empty in its total', () => {
     const lines = taxYearSnapshotCsv(snapshot(NL_ENTRIES, date('2026-06-30')), []).split('\n');
-    expect(lines[2]).toBe('coin,BTC,0.35,30679.01,0.022345,1900.00,0.45,0.02,,0.1,9500.00,4.75,,');
-    expect(lines[4]).toBe('total,,,38181.63,,1900.00,0.45,,,,12700.00,6.35,,');
+    expect(lines[2]).toBe('coin,BTC,0.35,30679.01,0.022345,1900.00,0.45,0.02,,0.1,9500.00,4.75,0,,');
+    expect(lines[4]).toBe('total,,,38181.63,,1900.00,0.45,,,,12700.00,6.35,,,');
     const gapped = { ...NL_HISTORIES, coins: { BTC: NL_HISTORIES.coins[BTC.id] } } as PriceHistories;
     const missing = taxYearSnapshotCsv(snapshot(NL_ENTRIES, EXPORT_DAY, gapped), []).split('\n');
-    expect(missing[3]).toBe('coin,ETH,2.5,,0,0.00,0.00,0.5,0.00,1,3200.00,1.60,2,');
-    expect(missing[4]).toBe('total,,,,,1900.00,0.45,,,,12700.00,6.35,,');
+    expect(missing[3]).toBe('coin,ETH,2.5,,0,0.00,0.00,0.5,0.00,1,3200.00,1.60,0,2,');
+    expect(missing[4]).toBe('total,,,,,1900.00,0.45,,,,12700.00,6.35,,,');
   });
 
   it('names the columns by the reference date and the year end, and guards the coin and the header', () => {

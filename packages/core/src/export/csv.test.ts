@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { anEntry, aPlan, date, instant, money, month, units } from '../../test/builders';
+import { aMove, anEntry, aPlan, date, instant, money, month, units } from '../../test/builders';
 import { logCsv, textCell } from './csv';
 
 const plan = aPlan();
-const header = 'date,coin,kind,slot,amount,currency,units,price,fee,holding_eligible_from,note';
+const header =
+  'date,coin,kind,slot,amount,currency,units,price,fee,holding_eligible_from,note,venue,to_venue,units_received';
 
 describe('logCsv (docs/DOMAIN.md §3.13)', () => {
   it('writes one line per entry in date order, with the derived price and the holding date', () => {
@@ -21,9 +22,9 @@ describe('logCsv (docs/DOMAIN.md §3.13)', () => {
     ];
     expect(logCsv(plan, entries).split('\n')).toEqual([
       header,
-      '2026-01-01,BTC,initial,,500,EUR,0.0083,60240.96,,2027-01-01,',
-      '2026-02-01,BTC,dca,2026-02,70,EUR,0.0011,63636.36,,2027-02-01,',
-      '2027-03-02,BTC,sell,,150,EUR,0.002,75000,0.75,,',
+      '2026-01-01,BTC,initial,,500,EUR,0.0083,60240.96,,2027-01-01,,,,',
+      '2026-02-01,BTC,dca,2026-02,70,EUR,0.0011,63636.36,,2027-02-01,,,,',
+      '2027-03-02,BTC,sell,,150,EUR,0.002,75000,0.75,,,,,',
     ]);
   });
 
@@ -49,7 +50,8 @@ describe('logCsv (docs/DOMAIN.md §3.13)', () => {
     const noted = (note: string) =>
       logCsv(plan, [anEntry({ note })])
         .slice(header.length + 1)
-        .split(',2027-01-01,')[1];
+        .split(',2027-01-01,')[1]
+        ?.slice(0, -',,,'.length);
     expect(noted('plain')).toBe('plain');
     expect(noted('fee, "maker"')).toBe('"fee, ""maker"""');
     expect(noted('line\nbreak')).toBe('"line\nbreak"');
@@ -63,7 +65,7 @@ describe('logCsv (docs/DOMAIN.md §3.13)', () => {
   it('writes the note through textCell, the rule every free-text cell takes', () => {
     const text = 'a;=b, "c"';
     const line = logCsv(plan, [anEntry({ note: text })]).split('\n')[1] ?? '';
-    expect(line.endsWith(`,${textCell(text)}`)).toBe(true);
+    expect(line.endsWith(`,${textCell(text)},,,`)).toBe(true);
   });
 
   it('writes the coin through textCell, since a CoinId may start with -', () => {
@@ -99,8 +101,16 @@ describe('logCsv (docs/DOMAIN.md §3.13)', () => {
       });
     expect(logCsv(plan, [held(null, '2025-03-01'), held('0', '2025-04-01')]).split('\n')).toEqual([
       header,
-      '2025-03-01,BTC,held,,,EUR,0.5,,,2026-03-01,',
-      '2025-04-01,BTC,held,,0,EUR,0.5,0,,2026-04-01,',
+      '2025-03-01,BTC,held,,,EUR,0.5,,,2026-03-01,,,,',
+      '2025-04-01,BTC,held,,0,EUR,0.5,0,,2026-04-01,,,,',
+    ]);
+  });
+
+  it('writes a move with no holding date, its venue, destination and units received, the venues through textCell', () => {
+    const move = aMove({ date: date('2026-03-01'), note: 'cold', venue: '=Kraken', to: 'Ledger, home' });
+    expect(logCsv(plan, [move]).split('\n')).toEqual([
+      header,
+      `2026-03-01,BTC,move,,,EUR,0.01,,,,cold,'=Kraken,"Ledger, home",0.0099`,
     ]);
   });
 

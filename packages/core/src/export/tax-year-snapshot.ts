@@ -6,6 +6,7 @@ import { type SnapshotValue, snapshotValue } from '../market/snapshot';
 import { type CurrencyCode, MINOR_UNITS } from '../money/currency';
 import { decimalPlaces, type Money, plus, round, sum, type Units } from '../money/decimal';
 import { liveEntries } from '../plan/statuses';
+import { unitsOut } from '../portfolio/effect';
 import { coinsWithEntries } from '../portfolio/portfolio';
 import { assertNever } from '../result';
 import type { CountryRules, MonthDay } from '../schema/country';
@@ -33,6 +34,8 @@ export type SnapshotRow = {
   readonly soldUnits: Units;
   readonly proceeds: Money;
   readonly saleFee: Money;
+  /** Units the year's moves paid as their fee in the coin. */
+  readonly feeUnits: Units;
   readonly closingUnits: Units | null;
   readonly closingValue: Money | null;
 };
@@ -80,7 +83,15 @@ function within(day: MonthDay, span: TaxYearSpan): CalendarDate {
 const ZERO = '0' as Money & Units;
 type Flows = Pick<
   SnapshotRow,
-  'boughtUnits' | 'boughtAmount' | 'boughtFee' | 'heldUnits' | 'heldCost' | 'soldUnits' | 'proceeds' | 'saleFee'
+  | 'boughtUnits'
+  | 'boughtAmount'
+  | 'boughtFee'
+  | 'heldUnits'
+  | 'heldCost'
+  | 'soldUnits'
+  | 'proceeds'
+  | 'saleFee'
+  | 'feeUnits'
 >;
 const NONE: Flows = {
   boughtUnits: ZERO,
@@ -91,6 +102,7 @@ const NONE: Flows = {
   soldUnits: ZERO,
   proceeds: ZERO,
   saleFee: ZERO,
+  feeUnits: ZERO,
 };
 
 /** One entry of the year added to a coin's flows. */
@@ -121,6 +133,8 @@ function addEntry(flows: Flows, entry: Entry): Flows {
         proceeds: plus(flows.proceeds, amount),
         saleFee: plus(flows.saleFee, fee),
       };
+    case 'move':
+      return { ...flows, feeUnits: plus(flows.feeUnits, unitsOut(entry)) };
     default:
       return assertNever(entry.kind);
   }
@@ -210,6 +224,7 @@ export function taxYearSnapshotCsv(snapshot: TaxYearSnapshot, header: readonly s
     'sold_units',
     'sold_proceeds',
     'sold_fee',
+    'fee_units',
     `units_on_${closing}`,
     `value_on_${closing}`,
   ];
@@ -227,6 +242,7 @@ export function taxYearSnapshotCsv(snapshot: TaxYearSnapshot, header: readonly s
     row.soldUnits,
     amount(row.proceeds),
     amount(row.saleFee),
+    row.feeUnits,
     row.closingUnits ?? '',
     amount(row.closingValue),
   ]);
@@ -248,6 +264,7 @@ export function taxYearSnapshotCsv(snapshot: TaxYearSnapshot, header: readonly s
     '',
     sumOf((row) => row.proceeds),
     sumOf((row) => row.saleFee),
+    '',
     '',
     sumOf((row) => row.closingValue),
   ];

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  aMove,
   anEntry,
   aPlan,
   asV2Plan,
@@ -11,6 +12,7 @@ import {
   money,
   month,
   PreviousBuildPlanSchema,
+  previousBuildBackupGate,
   split,
   units,
 } from '../../test/builders';
@@ -38,7 +40,7 @@ describe('exportBackup (docs/DOMAIN.md §3.13)', () => {
   it('writes the plan and the entries that are not deleted, in the Proof of Calm format', () => {
     expect(exportBackup(plan, [kept, deleted], exportedAt)).toEqual({
       format: BACKUP_FORMAT,
-      schemaVersion: 4,
+      schemaVersion: 5,
       exportedAt,
       plan,
       entries: [kept],
@@ -65,13 +67,44 @@ describe('exportBackup (docs/DOMAIN.md §3.13)', () => {
     const acknowledged = aPlan({ riskAcknowledgedAt: instant('2026-10-22T09:00:00+01:00'), riskWordingVersion: 1 });
     for (const withPlan of [plan, acknowledged]) {
       const exported = exportBackup(withPlan, [kept, held], exportedAt);
-      expect(writtenBackup(exported)).toStrictEqual(exported);
-      expect(writtenBackup(exported).schemaVersion).toBe(4);
+      expect(writtenBackup(exported)).toStrictEqual({ ...exported, schemaVersion: 4 });
       expect(readBackup(roundTrip(writtenBackup(exported)))).toStrictEqual({ ok: true, value: exported });
     }
     // A deleted held entry is never exported, so it raises nothing.
     const gone = { ...held, deletedAt: instant('2026-02-01T10:00:00Z') };
     expect(writtenBackup(exportBackup(plan, [kept, gone], exportedAt)).schemaVersion).toBe(2);
+  });
+
+  it('writes v5 only with a move', () => {
+    const move = aMove();
+    const held = anEntry({ kind: 'held', slot: null, amount: null, units: units('0.5') });
+    for (const entries of [
+      [kept, move],
+      [kept, held, move],
+    ]) {
+      const exported = exportBackup(plan, entries, exportedAt);
+      expect(writtenBackup(exported)).toStrictEqual(exported);
+      expect(writtenBackup(exported).schemaVersion).toBe(5);
+      expect(readBackup(roundTrip(writtenBackup(exported)))).toStrictEqual({ ok: true, value: exported });
+    }
+    // A deleted move is never exported, so it raises nothing; no other kind carries `to` or `received`.
+    const gone = { ...move, deletedAt: instant('2026-02-01T10:00:00Z') };
+    expect(writtenBackup(exportBackup(plan, [kept, held, gone], exportedAt)).schemaVersion).toBe(4);
+    expect(writtenBackup(exportBackup(plan, [kept, gone], exportedAt)).schemaVersion).toBe(2);
+    for (const entry of writtenBackup(exportBackup(plan, [kept, held], exportedAt)).entries) {
+      expect(Object.keys(entry)).not.toContain('to');
+      expect(Object.keys(entry)).not.toContain('received');
+    }
+  });
+
+  it('the previous build answers newer-version to a v5 file', () => {
+    const held = anEntry({ kind: 'held', slot: null, amount: null, units: units('0.5') });
+    const withMove = writtenBackup(exportBackup(plan, [kept, aMove()], exportedAt));
+    expect(previousBuildBackupGate(withMove)).toEqual({ code: 'newer-version', schemaVersion: 5 });
+    // Every file without a move stays at a version that build reads.
+    for (const entries of [[kept], [kept, held]]) {
+      expect(previousBuildBackupGate(writtenBackup(exportBackup(plan, entries, exportedAt)))).toBeNull();
+    }
   });
 
   it('names the files by kind and day', () => {
@@ -112,13 +145,13 @@ describe('readBackup (docs/DOMAIN.md §3.13)', () => {
   });
 
   it('says when the file comes from a newer version of the app', () => {
-    expect(readBackup({ ...(roundTrip(file) as object), schemaVersion: 5 })).toEqual({
+    expect(readBackup({ ...(roundTrip(file) as object), schemaVersion: 6 })).toEqual({
       ok: false,
-      error: { code: 'newer-version', schemaVersion: 5 },
+      error: { code: 'newer-version', schemaVersion: 6 },
     });
   });
 
-  it('reads files at versions 2, 3 and 4 as this build holds them', () => {
+  it('reads v2, v3 and v4 files', () => {
     const acknowledged = aPlan({ riskAcknowledgedAt: instant('2026-10-22T09:00:00+01:00'), riskWordingVersion: 1 });
     const v3 = exportBackup(acknowledged, [kept], exportedAt);
     for (const version of [3, 4]) {

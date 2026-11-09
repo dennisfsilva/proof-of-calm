@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { anEntry, aPlan, BTC, date, ETH, instant, money, units } from '../../test/builders';
 import { FIXTURE_RULES } from '../../test/country-change/fixture';
+import expectedMove from '../../test/tax-year/pt-2025-move.csv?raw';
 import expected2026 from '../../test/tax-year/pt-2026.csv?raw';
 import expected2027 from '../../test/tax-year/pt-2027.csv?raw';
-import { PT_ENTRIES, PT_HEADER, PT_PLAN, PT_RULES } from '../../test/tax-year/pt-fixture';
+import { PT_ENTRIES, PT_HEADER, PT_MOVE_ENTRIES, PT_PLAN, PT_RULES } from '../../test/tax-year/pt-fixture';
 import type { CountryRules } from '../schema/country';
 import type { Entry } from '../schema/entry';
 import type { CoinId } from '../schema/ids';
@@ -149,10 +150,18 @@ describe('taxYearLots: the PT fixture (test/tax-year/pt-fixture.ts)', () => {
       estimated: true,
       unmatched: true,
       crossVenue: 1,
+      moveFees: false,
       planRuleDiffers: false,
     });
     const in2027 = lotsIn(2027, PT_ENTRIES, '2027-05-10');
     expect([in2027.ongoing, in2027.unmatched, in2027.crossVenue]).toEqual([true, false, 0]);
+  });
+
+  it('the move fixture, the audit P1 example, gives the expected CSV: a fee piece and a lot held at Ledger', () => {
+    const in2025 = lotsIn(2025, PT_MOVE_ENTRIES, '2026-02-10');
+    expect(`${taxYearLotsCsv(in2025, PT_HEADER)}
+`).toBe(expectedMove);
+    expect([in2025.moveFees, in2025.crossVenue, in2025.unmatched]).toEqual([true, 0, false]);
   });
 });
 
@@ -238,12 +247,14 @@ describe('taxYearLots: single cases', () => {
     expect(noCost.uncosted).toBe(true);
     const atZero = lotsIn(2026, [buy('2026-03-01', '1', '0', { kind: 'held' })], '2027-01-10');
     expect(atZero.uncosted).toBe(false);
-    expect(taxYearLotsCsv(atZero, []).split('\n')[2]).toBe('held,2026-03-01,BTC,,1,0.00,,2027-03-01,no,,,,,no');
+    expect(taxYearLotsCsv(atZero, []).split('\n')[2]).toBe('held,2026-03-01,BTC,,1,0.00,,2027-03-01,no,,,,,no,,');
   });
 
   it('exports an initial buy as initial, as the log does', () => {
     const lots = lotsIn(2026, [buy('2026-03-01', '1', '100', { kind: 'lump', fee: money('1') })], '2027-01-10');
-    expect(taxYearLotsCsv(lots, []).split('\n')[2]).toBe('initial,2026-03-01,BTC,,1,100.00,1.00,2027-03-01,no,,,,,no');
+    expect(taxYearLotsCsv(lots, []).split('\n')[2]).toBe(
+      'initial,2026-03-01,BTC,,1,100.00,1.00,2027-03-01,no,,,,,no,,',
+    );
   });
 
   it("lists the plan's coins in its order, then any other coin of the log", () => {

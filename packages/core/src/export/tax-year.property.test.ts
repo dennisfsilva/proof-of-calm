@@ -1,9 +1,9 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { anEntry, aPlan, BTC, date, instant } from '../../test/builders';
+import { aMove, anEntry, aPlan, BTC, date, instant } from '../../test/builders';
 import { PT_RULES } from '../../test/tax-year/pt-fixture';
 import { addDays } from '../dates/calendar';
-import { compare, decimal, type Money, sum, type Units } from '../money/decimal';
+import { compare, decimal, type Money, minus, sum, type Units } from '../money/decimal';
 import type { CountryRules } from '../schema/country';
 import type { Entry } from '../schema/entry';
 import type { CoinId } from '../schema/ids';
@@ -12,7 +12,8 @@ import { type LotPiece, type TaxYearLots, taxYearLots, taxYearLotsCsv, taxYearSp
 
 // The per-lot file (docs/DOMAIN.md §3.13) over random logs of one coin from 2025 to 2027: every entry on its own day,
 // so a lot is named by its purchase date and a sale by its date. Purchases and sales at two venues or none, sales that
-// no lot covers (imported data), lots with no recorded cost, fees or none, amounts with up to three decimals.
+// no lot covers (imported data), lots with no recorded cost, fees or none, amounts with up to three decimals, and moves
+// from one venue to the other, from none, with a fee of 0.01 or none (ADR-0054).
 
 const START = date('2025-01-01');
 const plan = aPlan();
@@ -21,7 +22,7 @@ const amount = fc
   .map((scaled) => decimal<Money>(`${Math.floor(scaled / 1000)}.${String(scaled % 1000).padStart(3, '0')}`));
 const event = fc.record({
   day: fc.integer({ min: 0, max: 3 * 365 - 1 }),
-  sale: fc.boolean(),
+  kind: fc.constantFrom('buy', 'buy', 'sale', 'move'),
   venue: fc.constantFrom('A', 'B', null),
   units: fc.integer({ min: 1, max: 50 }).map((n) => decimal<Units>(`0.${String(n).padStart(2, '0')}`)),
   amount,
@@ -30,16 +31,22 @@ const event = fc.record({
 });
 const log = fc.uniqueArray(event, { selector: (each) => each.day, maxLength: 10 }).map((events) =>
   events.map((each, index): Entry => {
-    const held = !each.sale && each.noCost;
+    const createdAt = instant(`2025-01-01T09:00:${String(index).padStart(2, '0')}+00:00`);
+    if (each.kind === 'move') {
+      const received = each.fee === null || each.units === '0.01' ? each.units : minus(each.units, '0.01' as Units);
+      const to = each.venue === 'A' ? 'B' : 'A';
+      return aMove({ date: addDays(START, each.day), venue: each.venue, to, units: each.units, received, createdAt });
+    }
+    const held = each.kind === 'buy' && each.noCost;
     return anEntry({
-      kind: each.sale ? 'sell' : held ? 'held' : 'extra',
+      kind: each.kind === 'sale' ? 'sell' : held ? 'held' : 'extra',
       slot: null,
       date: addDays(START, each.day),
       venue: each.venue,
       units: each.units,
       amount: held ? null : each.amount,
       fee: held ? null : each.fee,
-      createdAt: instant(`2025-01-01T09:00:${String(index).padStart(2, '0')}+00:00`),
+      createdAt,
     });
   }),
 );
@@ -56,6 +63,52 @@ const same = (a: Money | Units | null, b: Money | Units | null) =>
   a === null || b === null ? expect(a).toBe(b) : expect(compare(a, b)).toBe(0);
 const ofLot = (file: TaxYearLots, acquired: string) => file.pieces.filter((piece) => piece.acquired === acquired);
 const yearEnd = (piece: LotPiece) => piece.disposedOn === null;
+const isPurchase = (entry: Entry) => entry.kind !== 'sell' && entry.kind !== 'move';
+
+// The edge cases every run tries (§3.7): a move whose fee crosses a year end's lot, one from a venue with nothing there,
+// one that sends a whole lot, and one moved twice, each followed by a sale at the destination.
+const on = (day: string, entry: Partial<Entry>, second: number) =>
+  anEntry({ slot: null, date: date(day), createdAt: instant(`2025-01-01T09:00:0${second}+00:00`), ...entry });
+const buyAt = (day: string, venue: string | null, quantity: string, second: number) =>
+  on(day, { kind: 'extra', venue, units: quantity as Units, amount: '100' as Money }, second);
+const moveAt = (day: string, venue: string | null, to: string, quantity: string, received: string, second: number) =>
+  aMove({
+    date: date(day),
+    venue,
+    to,
+    units: quantity as Units,
+    received: received as Units,
+    createdAt: instant(`2025-01-01T09:00:0${second}+00:00`),
+  });
+const sellAt = (day: string, venue: string, quantity: string, second: number) =>
+  on(day, { kind: 'sell', venue, units: quantity as Units, amount: '90' as Money }, second);
+const MOVES: Entry[][] = [
+  [
+    buyAt('2025-03-01', 'A', '0.10', 0),
+    moveAt('2025-12-31', 'A', 'B', '0.05', '0.04', 1),
+    sellAt('2026-02-01', 'B', '0.04', 2),
+  ],
+  [
+    buyAt('2025-03-01', 'A', '0.10', 0),
+    moveAt('2025-05-01', null, 'B', '0.05', '0.04', 1),
+    sellAt('2026-02-01', 'B', '0.04', 2),
+  ],
+  [
+    buyAt('2025-03-01', null, '0.10', 0),
+    moveAt('2025-05-01', null, 'A', '0.10', '0.09', 1),
+    sellAt('2027-02-01', 'A', '0.09', 2),
+  ],
+  [
+    buyAt('2025-03-01', 'A', '0.10', 0),
+    moveAt('2025-05-01', 'A', 'B', '0.06', '0.05', 1),
+    moveAt('2026-05-01', 'B', 'A', '0.05', '0.05', 2),
+    sellAt('2027-02-01', 'B', '0.01', 3),
+  ],
+];
+const examples = MOVES.flatMap((entries) => [
+  [entries, PT_RULES] as [Entry[], CountryRules],
+  [entries, { ...PT_RULES, lotScope: 'global' as const }] as [Entry[], CountryRules],
+]);
 
 describe('taxYearLots (property)', () => {
   it("in year Y's file a lot's year-end row equals, in units, cost and fee, the sum of its rows in year Y+1's file", () => {
@@ -63,27 +116,29 @@ describe('taxYearLots (property)', () => {
       fc.property(log, rules, (entries, country) => {
         for (const year of [2025, 2026]) {
           const [file, next] = [fileFor(entries, country, year), fileFor(entries, country, year + 1)];
-          for (const purchase of entries.filter((entry) => entry.kind !== 'sell' && entry.date <= `${year}-12-31`)) {
-            const held = ofLot(file, purchase.date).find(yearEnd);
+          for (const purchase of entries.filter((entry) => isPurchase(entry) && entry.date <= `${year}-12-31`)) {
+            // A lot held at more than one place at the year end has a year-end row per place.
+            const held = ofLot(file, purchase.date).filter(yearEnd);
             const rows = ofLot(next, purchase.date);
-            if (held === undefined) {
+            if (held.length === 0) {
               expect(rows).toEqual([]);
               continue;
             }
-            same(held.units, sum(rows.map((row) => row.units)));
-            same(held.costBasis, total(rows.map((row) => row.costBasis)));
-            same(held.fee, total(rows.map((row) => row.fee)));
+            same(sum(held.map((row) => row.units)), sum(rows.map((row) => row.units)));
+            same(total(held.map((row) => row.costBasis)), total(rows.map((row) => row.costBasis)));
+            same(total(held.map((row) => row.fee)), total(rows.map((row) => row.fee)));
           }
         }
       }),
+      { examples },
     );
   });
 
-  it("a lot's disposal pieces across the years plus its latest year-end piece add up to its units, cost and fee", () => {
+  it("tax-year pieces sum to each lot's units, cost and fee: its sold and fee pieces over the years, its last year end", () => {
     fc.assert(
       fc.property(log, rules, (entries, country) => {
         const files = [2025, 2026, 2027].map((year) => fileFor(entries, country, year));
-        for (const purchase of entries.filter((entry) => entry.kind !== 'sell')) {
+        for (const purchase of entries.filter(isPurchase)) {
           const pieces = files.flatMap((file, index) =>
             ofLot(file, purchase.date).filter((piece) => !yearEnd(piece) || index === files.length - 1),
           );
@@ -92,6 +147,7 @@ describe('taxYearLots (property)', () => {
           same(purchase.fee, total(pieces.map((piece) => piece.fee)));
         }
       }),
+      { examples },
     );
   });
 
@@ -106,12 +162,13 @@ describe('taxYearLots (property)', () => {
           same(sale.fee, total(pieces.map((piece) => piece.disposalFee)));
         }
       }),
+      { examples },
     );
   });
 });
 
 // Every free-text cell of the file goes through textCell (docs/DOMAIN.md §3.13, #207): the header lines, the coin
-// (a ticker may start with -), the lot's venue and the sale's venue.
+// (a ticker may start with -), the lot's venue, the sale's venue and the place the units were held at.
 /** The edge positions, tried on every run: each trigger at index 0, one after each separator, runs, a CR first. */
 const EDGES = ['=1', '+1', '-1', '@1', '\t1', '\r1', 'a;=1', 'a\r=1', 'a\n=1', ';;=1', '\r\r=1', '\r\n=1', 'a,"b"'];
 const text = fc.oneof(fc.constantFrom(...EDGES), fc.string({ minLength: 1, maxLength: 12 }));
@@ -149,9 +206,9 @@ describe('taxYearLotsCsv (property)', () => {
           [
             ...header.map(textCell),
             '',
-            'kind,acquired,coin,venue,units,cost_basis,fee,eligible_from,past_holding_rule,disposed_on,sale_venue,proceeds,disposal_fee,units_estimated',
-            `extra,2026-01-05,${c},${v},0.5,50.00,,2027-01-05,no,2026-02-05,${s},80.00,,no`,
-            `extra,2026-01-05,${c},${v},0.5,50.00,,2027-01-05,no,,,,,no`,
+            'kind,acquired,coin,venue,units,cost_basis,fee,eligible_from,past_holding_rule,disposed_on,sale_venue,proceeds,disposal_fee,units_estimated,held_at,moved_on',
+            `extra,2026-01-05,${c},${v},0.5,50.00,,2027-01-05,no,2026-02-05,${s},80.00,,no,${v},`,
+            `extra,2026-01-05,${c},${v},0.5,50.00,,2027-01-05,no,,,,,no,${v},`,
           ].join('\n'),
         );
       }),
