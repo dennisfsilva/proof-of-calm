@@ -8,10 +8,12 @@ export { sha256 } from './hash.ts';
 export { createHostConfig, type Host, type HostConfigOptions } from './host-config.ts';
 export {
   blankFrontMatter,
+  checkModuleBody,
   closedBody,
   LEARN_MODULES_ID,
   type LearnPluginOptions,
   learnPlugins,
+  MODULE_BODY_ELEMENTS,
   type ParseModule,
 } from './learn-plugin.ts';
 export {

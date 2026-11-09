@@ -1,5 +1,5 @@
 import { resolve } from 'node:path';
-import { learnPlugins } from '@proofofcalm/config/vite';
+import { learnPlugins, MODULE_BODY_ELEMENTS } from '@proofofcalm/config/vite';
 import { parseModule } from '@proofofcalm/content/modules';
 import { TESTED_VIEWPORTS } from '@proofofcalm/ui/storybook';
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
@@ -61,7 +61,7 @@ export default defineConfig({
         plugins: learnPlugins({
           dir: resolve(import.meta.dirname, 'src/features/learn/fixtures'),
           parseModule,
-          elements: ['PastPerformance'],
+          elements: MODULE_BODY_ELEMENTS,
         }),
         test: {
           // The lib modules run in Node; a component test chooses jsdom per file

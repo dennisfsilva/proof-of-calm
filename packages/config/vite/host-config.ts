@@ -8,7 +8,7 @@ import { chunkGroups, noChunkCycles } from './chunk-groups.ts';
 import { chunkReport } from './chunk-report-plugin.ts';
 import { clientNeverImportsServer } from './client-never-imports-server.ts';
 import { fontPreloadPlugin } from './font-preload-plugin.ts';
-import { learnPlugins, type ParseModule } from './learn-plugin.ts';
+import { learnPlugins, MODULE_BODY_ELEMENTS, type ParseModule } from './learn-plugin.ts';
 import { precompileMessagesPlugin } from './precompile-messages-plugin.ts';
 
 export type Host = 'web' | 'mobile';
@@ -50,7 +50,7 @@ export function createHostConfig({ host, root, parseModule }: HostConfigOptions)
   const { input, apiBase, serviceWorker, chunkReport: report } = HOSTS[host];
   const plugins: PluginOption[] = [
     // The past-performance sentence with its Risk link, the one element a module's body holds (ADR-0048 Deviations).
-    ...learnPlugins({ dir: resolve(root, LEARN_DIR), parseModule, elements: ['PastPerformance'] }),
+    ...learnPlugins({ dir: resolve(root, LEARN_DIR), parseModule, elements: MODULE_BODY_ELEMENTS }),
     react({ include: /\.(mdx|[tj]sx?)$/ }),
     babel({ presets: [reactCompilerPreset()] }),
     tailwindcss(),

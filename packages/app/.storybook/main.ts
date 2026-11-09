@@ -16,7 +16,7 @@ const config: StorybookConfig = {
     const { default: react, reactCompilerPreset } = await import('@vitejs/plugin-react');
     const { default: babel } = await import('@rolldown/plugin-babel');
     const { default: tailwindcss } = await import('@tailwindcss/vite');
-    const { clientNeverImportsServer, learnPlugins, precompileMessagesPlugin } = await import(
+    const { clientNeverImportsServer, learnPlugins, MODULE_BODY_ELEMENTS, precompileMessagesPlugin } = await import(
       '@proofofcalm/config/vite'
     );
     const { parseModule } = await import('@proofofcalm/content/modules');
@@ -25,7 +25,7 @@ const config: StorybookConfig = {
         ...learnPlugins({
           dir: resolve(import.meta.dirname, '../src/features/learn/fixtures'),
           parseModule,
-          elements: ['PastPerformance'],
+          elements: MODULE_BODY_ELEMENTS,
         }),
         react({ include: /\.(mdx|[tj]sx?)$/ }),
         babel({ presets: [reactCompilerPreset()] }),

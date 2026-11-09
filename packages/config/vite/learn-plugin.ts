@@ -127,6 +127,32 @@ export function closedBody(elements: readonly string[]) {
   };
 }
 
+/**
+ * The elements a module body may use, the ones the renderer passes through `components` (ADR-0048, Deviations):
+ * the hosts, Storybook, the tests and `pnpm validate:content` read this one list.
+ */
+export const MODULE_BODY_ELEMENTS = ['PastPerformance'] as const;
+
+/**
+ * The build's own check on one module, for `pnpm validate:content`: the MDX compiler with `closedBody` on the
+ * source with its front matter blanked. Returns the message the build would fail with, or null when the body
+ * compiles. `path` is the module's `.mdx` path; the message names it with the line.
+ */
+export async function checkModuleBody(
+  source: string,
+  path: string,
+  elements: readonly string[] = MODULE_BODY_ELEMENTS,
+): Promise<string | null> {
+  const compile = mdx({ remarkPlugins: [closedBody(elements)] });
+  try {
+    // The compiler skips an id outside its extensions: a body it never read is not a pass.
+    const result = await compile.transform(blankFrontMatter(source), path);
+    return result === undefined ? `${path}: not an .mdx file, so the compiler did not read it (ADR-0048)` : null;
+  } catch (error) {
+    return error instanceof Error ? error.message : String(error);
+  }
+}
+
 const frontMatterPlugin = (): Plugin => ({
   name: 'poc:learn-front-matter',
   enforce: 'pre',
