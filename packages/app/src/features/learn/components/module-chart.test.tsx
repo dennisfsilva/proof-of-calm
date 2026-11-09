@@ -62,7 +62,9 @@ describe('ModuleChart', () => {
     const services = createTestServices();
     const failing = { ...services, redDay: { ...services.redDay, pastFalls: () => Promise.reject(new Error('x')) } };
     mount(failing);
-    expect(await screen.findByText('The earlier falls could not be loaded. Open this page again to retry.')).toBeTruthy();
+    expect(
+      await screen.findByText('The earlier falls could not be loaded. Open this page again to retry.'),
+    ).toBeTruthy();
     expect(screen.queryByRole('img')).toBeNull();
   });
 
