@@ -265,6 +265,12 @@ statistics cite only their own series, since no publisher offers a documented eq
 An author types `facts` as one comma-separated line, empty when a module cites none (ADR-0048), and
 never types `words` or `readingMinutes`: the parser computes them and refuses them in front matter. A
 module over 400 words fails the content test. The banned-words lint runs on a module's title, idea,
-caveat, and body. `<PastPerformance />`, the one element a body holds, sets the past-performance sentence
+caveat, and body. A body holds two elements. `<PastPerformance />` sets the past-performance sentence
 and the link `Risk disclosure` as one, after the line's source and dates (`docs/LEGAL.md` §4). The content
-test refuses those words anywhere in a module's own text.
+test refuses those words anywhere in a module's own text. `<Chart />`, on a line of its own, draws the
+chart the front matter names where it stands, followed by its source's publishers as unlinked text, the
+span of its data and the past-performance line, all inside the element; a module holds it exactly once when
+`chart` is not `none`, and never otherwise (`pnpm validate:content`). A module with a chart writes its
+`N %` with an ordinary space, and the page sets it with the joiner of the chart's figures in each locale
+(`docs/CONTENT-STYLE.md` §4); a module with `chart: none` renders as written. Only `drawdowns-bar` has a
+renderer; another chart draws nothing until its own branch lands.
