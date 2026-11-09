@@ -26,8 +26,9 @@ configs live in their packages. See `docs/ENGINEERING.md`.
     in the `pre` phase with the remark plugin `closedBody`, which fails the build, naming the file and
     line, on an `import` or `export`, an `{expression}` (in the text, as an attribute value or as a
     `{...spread}` of an allowed element), an element outside `elements` (none by default; the hosts,
-    Storybook and the app's tests pass `MODULE_BODY_ELEMENTS`, ADR-0048, Deviations), or a Markdown
-    link, image or link definition (a module holds no link: ADR-0048, Deviations); and the
+    Storybook and the app's tests pass `MODULE_BODY_ELEMENTS`, ADR-0048, Deviations), an element of
+    `MODULE_FLOW_ELEMENTS` (`Chart`) that shares a line with text, where its block would sit inside a
+    `<p>`, or a Markdown link, image or link definition (a module holds no link: ADR-0048, Deviations); and the
     virtual module `virtual:learn-modules`, which reads the `.mdx` files of `dir` (the hosts: the Learn folder
     of `packages/content`; `packages/app`'s tests and stories: its fixture folder; a missing folder is
     no modules), parses each with `parseModule` (a failed parse
@@ -35,7 +36,8 @@ configs live in their packages. See `docs/ENGINEERING.md`.
     order of `docs/EDUCATION.md` §10 with no body text, and `LEARN_BODIES`, one lazy import per slug, so
     each body is its own chunk and imports only `react/jsx-runtime`.
   - `checkModuleBody(source, path, elements = MODULE_BODY_ELEMENTS)`: the same compiler and `closedBody` on
-    one module with its front matter blanked; the build's message, or null. `pnpm validate:content` runs it.
+    one module with its front matter blanked; `problem` is the build's message or null, and `flow` names the
+    tree's flow elements, so an escaped element or a code span is none. `pnpm validate:content` runs it.
   - `bootScriptPlugin()`: after every other html hook, in the client build only, the one module entry
     becomes the inline boot script `BOOT_SCRIPT` with the entry URL in `data-entry`; its fixed text
     has the fixed hash `BOOT_SCRIPT_HASH` that the CSP carries (`sha256()` computes such a hash). An

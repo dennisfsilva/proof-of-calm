@@ -217,32 +217,47 @@ describe('checkModuleBody', () => {
     ['a link definition', 'Text.\n\n[plan]: /plan', /noise\.mdx:8: a link definition is not allowed/],
     ['an {expression} attribute', 'Text.\n\n<PastPerformance id={1} />\n', /noise\.mdx:8: an \{expression\} as/],
     ['a {...spread} attribute', 'Text.\n\n<PastPerformance {...x} />\n', /noise\.mdx:8: a \{\.\.\.spread\}/],
+    // A text element's block would nest inside the paragraph's <p>.
+    ['<Chart /> in a paragraph', 'A sign. <Chart />\n', /noise\.mdx:6: <Chart> stands on a line of its own/],
   ];
+  const PASS = { problem: null, flow: [] };
 
   it.each(refused)('refuses %s, naming the file and line', async (_name, body, message) => {
-    expect(await checkModuleBody(module('noise', body), path)).toMatch(message);
+    expect((await checkModuleBody(module('noise', body), path)).problem).toMatch(message);
   });
 
   it('allows the elements of MODULE_BODY_ELEMENTS by default', async () => {
     expect(MODULE_BODY_ELEMENTS).toEqual(['PastPerformance', 'Chart']);
-    expect(await checkModuleBody(module('noise', 'A line. <PastPerformance />\n'), path)).toBeNull();
-    expect(await checkModuleBody(module('noise', 'Text.\n\n<Chart />\n'), path)).toBeNull();
+    expect(await checkModuleBody(module('noise', 'A line. <PastPerformance />\n'), path)).toEqual(PASS);
+    const chart = await checkModuleBody(module('noise', 'Text.\n\n<Chart />\n'), path);
+    expect(chart).toEqual({ problem: null, flow: ['Chart'] });
+  });
+
+  // `pnpm validate:content` counts the charts from the tree: an escaped element or a code span is text, no chart.
+  it('names the flow elements in order, and none for an escaped element or a code span', async () => {
+    const body = 'Text.\n\n<Chart />\n\nA line. <PastPerformance />\n\n- <Chart />\n';
+    expect((await checkModuleBody(module('noise', body), path)).flow).toEqual(['Chart', 'Chart']);
+    // On its own line, even right under a paragraph's line, the element ends the paragraph and stands as a block.
+    expect((await checkModuleBody(module('noise', 'A sign.\n<Chart />\n'), path)).flow).toEqual(['Chart']);
+    expect(await checkModuleBody(module('noise', 'A \\<Chart /> sign.\n'), path)).toEqual(PASS);
+    expect(await checkModuleBody(module('noise', 'A `<Chart />` sign.\n'), path)).toEqual(PASS);
   });
 
   it('takes another set of elements', async () => {
-    expect(await checkModuleBody(module('noise', 'Text.\n\n<Chart />\n'), path, ['Chart'])).toBeNull();
-    expect(await checkModuleBody(module('noise', 'A line. <PastPerformance />\n'), path, [])).toMatch(
+    expect((await checkModuleBody(module('noise', 'Text.\n\n<Chart />\n'), path, ['Chart'])).problem).toBeNull();
+    expect((await checkModuleBody(module('noise', 'A line. <PastPerformance />\n'), path, [])).problem).toMatch(
       /<PastPerformance> is not allowed; no element is allowed/,
     );
   });
 
   it('refuses a path the compiler would skip, instead of passing a body it never read', async () => {
-    expect(await checkModuleBody(module('noise', 'Text.'), 'packages/content/learn/noise.txt')).toMatch(
+    expect((await checkModuleBody(module('noise', 'Text.'), 'packages/content/learn/noise.txt')).problem).toMatch(
       /noise\.txt: not an \.mdx file/,
     );
   });
 
   it('passes Markdown text and ignores the front matter', async () => {
-    expect(await checkModuleBody(module('noise', '# Noise\n\nA *calm* plan.\n\n- one\n- two\n'), path)).toBeNull();
+    const markdown = '# Noise\n\nA *calm* plan.\n\n- one\n- two\n';
+    expect(await checkModuleBody(module('noise', markdown), path)).toEqual(PASS);
   });
 });

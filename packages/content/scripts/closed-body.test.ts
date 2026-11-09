@@ -16,10 +16,54 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
     ]);
   });
 
-  it('passes <Chart /> on a module with a chart', async () => {
-    const front = ['---', 'slug: risk-honestly', 'chart: drawdowns-bar', '---', ''].join('\n');
+  // The early check counts the words `<Chart />`; this gate counts the elements in the compiled tree.
+  describe('one flow <Chart /> exactly when the front matter names a chart (docs/EDUCATION.md §10)', () => {
     const path = 'packages/content/learn/risk-honestly.mdx';
-    expect(await closedBodyProblems([{ path, source: `${front}Text.\n\n<Chart />\n` }])).toEqual([]);
+    const source = (chart: string, body: string) =>
+      [
+        '---',
+        'slug: risk-honestly',
+        'title: Risk, honestly',
+        'idea: A plan can lose money.',
+        'caveat: A calm plan can still lose money.',
+        `chart: ${chart}`,
+        'facts: ',
+        'lastReviewed: 2026-10-16',
+        'nextReviewDue: 2027-10-16',
+        'reviewedBy: owner',
+        '---',
+        '',
+        body,
+      ].join('\n');
+    const problemsOf = async (chart: string, body: string) =>
+      (await closedBodyProblems([{ path, source: source(chart, body) }])).map(
+        ({ code, detail }) => `${code}: ${detail}`,
+      );
+    const ONE =
+      'module-chart-element: write <Chart /> once, on a line of its own, where the drawdowns-bar chart stands';
+
+    it('passes <Chart /> on a line of its own on a module with a chart', async () => {
+      expect(await problemsOf('drawdowns-bar', 'Text.\n\n<Chart />\n\nMore text.\n')).toEqual([]);
+    });
+
+    it('refuses <Chart /> at the end of a paragraph line, where its block would sit inside the <p>', async () => {
+      expect(await problemsOf('drawdowns-bar', 'A sign. <Chart />\n')).toEqual([
+        expect.stringMatching(/^module-closed-body: line 13: <Chart> stands on a line of its own/),
+      ]);
+    });
+
+    it('counts an escaped <Chart /> and one in a code span as no chart', async () => {
+      expect(await problemsOf('drawdowns-bar', 'A \\<Chart /> sign.\n')).toEqual([ONE]);
+      expect(await problemsOf('drawdowns-bar', 'A `<Chart />` sign.\n')).toEqual([ONE]);
+      expect(await problemsOf('none', 'A `<Chart />` sign.\n')).toEqual([]);
+    });
+
+    it('refuses two charts, and a chart on a module with chart: none', async () => {
+      expect(await problemsOf('drawdowns-bar', '<Chart />\n\nText.\n\n<Chart />\n')).toEqual([ONE]);
+      expect(await problemsOf('none', 'Text.\n\n<Chart />\n')).toEqual([
+        'module-chart-element: remove <Chart />: the front matter says chart: none',
+      ]);
+    });
   });
 
   it('reports one problem per refused module', async () => {

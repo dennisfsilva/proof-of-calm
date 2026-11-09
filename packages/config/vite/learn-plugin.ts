@@ -96,12 +96,20 @@ function attributeCode(attribute: MdxAttribute): string | undefined {
 }
 
 /**
+ * The elements that draw a block, so each stands on a line of its own: MDX makes one that shares a line with
+ * text a text element, and its block would nest inside the paragraph's `<p>`.
+ */
+export const MODULE_FLOW_ELEMENTS = ['Chart'] as const;
+
+/**
  * The remark plugin that keeps a body text, never code (ADR-0048): it throws, naming the file and line, on
  * an `import` or `export`, on an `{expression}` (in the text or in an attribute of an allowed element), on
- * any element outside `elements`, and on a Markdown link, image or link definition.
+ * any element outside `elements`, on an element of `flowOnly` inside a paragraph, and on a Markdown link,
+ * image or link definition.
  */
-export function closedBody(elements: readonly string[]) {
+export function closedBody(elements: readonly string[], flowOnly: readonly string[] = MODULE_FLOW_ELEMENTS) {
   const allowed = new Set(elements);
+  const blocks = new Set(flowOnly);
   const set = allowed.size === 0 ? 'no element is allowed' : `the elements allowed are ${[...allowed].join(', ')}`;
   return () => (tree: MdastNode, file: { readonly path?: string }) => {
     const at = (node: MdastNode | MdxAttribute) => `${file.path ?? 'a module'}:${node.position?.start.line ?? 0}`;
@@ -116,6 +124,10 @@ export function closedBody(elements: readonly string[]) {
       if (node.type === 'mdxJsxFlowElement' || node.type === 'mdxJsxTextElement') {
         if (!allowed.has(node.name ?? ''))
           throw new Error(`${at(node)}: <${node.name ?? ''}> is not allowed; ${set} (ADR-0048)`);
+        if (node.type === 'mdxJsxTextElement' && blocks.has(node.name ?? ''))
+          throw new Error(
+            `${at(node)}: <${node.name ?? ''}> stands on a line of its own, never in a sentence (ADR-0048)`,
+          );
         for (const attribute of node.attributes ?? []) {
           const attributeWhat = attributeCode(attribute);
           if (attributeWhat !== undefined) refuse(attribute, attributeWhat);
@@ -133,23 +145,38 @@ export function closedBody(elements: readonly string[]) {
  */
 export const MODULE_BODY_ELEMENTS = ['PastPerformance', 'Chart'] as const;
 
+/** A remark plugin that records the name of every flow element of the tree, in document order. */
+const flowElements = (names: string[]) => () => (tree: MdastNode) => {
+  const visit = (node: MdastNode): void => {
+    if (node.type === 'mdxJsxFlowElement') names.push(node.name ?? '');
+    for (const child of node.children ?? []) visit(child);
+  };
+  visit(tree);
+};
+
+/** What the compiler read in one module body: the build's message or null, and its flow elements by name. */
+export type ModuleBodyCheck = { readonly problem: string | null; readonly flow: readonly string[] };
+
 /**
  * The build's own check on one module, for `pnpm validate:content`: the MDX compiler with `closedBody` on the
- * source with its front matter blanked. Returns the message the build would fail with, or null when the body
- * compiles. `path` is the module's `.mdx` path; the message names it with the line.
+ * source with its front matter blanked. `problem` is the message the build would fail with, or null when the
+ * body compiles; `path` is the module's `.mdx` path, and the message names it with the line. `flow` names the
+ * flow elements the tree holds, so an escaped `\<Chart />` or a code span counts as no element.
  */
 export async function checkModuleBody(
   source: string,
   path: string,
   elements: readonly string[] = MODULE_BODY_ELEMENTS,
-): Promise<string | null> {
-  const compile = mdx({ remarkPlugins: [closedBody(elements)] });
+): Promise<ModuleBodyCheck> {
+  const flow: string[] = [];
+  const compile = mdx({ remarkPlugins: [closedBody(elements), flowElements(flow)] });
   try {
     // The compiler skips an id outside its extensions: a body it never read is not a pass.
     const result = await compile.transform(blankFrontMatter(source), path);
-    return result === undefined ? `${path}: not an .mdx file, so the compiler did not read it (ADR-0048)` : null;
+    if (result !== undefined) return { problem: null, flow };
+    return { problem: `${path}: not an .mdx file, so the compiler did not read it (ADR-0048)`, flow: [] };
   } catch (error) {
-    return error instanceof Error ? error.message : String(error);
+    return { problem: error instanceof Error ? error.message : String(error), flow: [] };
   }
 }
 

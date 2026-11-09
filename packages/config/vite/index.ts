@@ -14,6 +14,8 @@ export {
   type LearnPluginOptions,
   learnPlugins,
   MODULE_BODY_ELEMENTS,
+  MODULE_FLOW_ELEMENTS,
+  type ModuleBodyCheck,
   type ParseModule,
 } from './learn-plugin.ts';
 export {
