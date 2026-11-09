@@ -70,5 +70,19 @@
     "sourcePublished": "{publisher} · dated {date}",
     "sourceAccessed": "{publisher} · accessed {date}",
     "sourcesName": "Sources for {rule, select, rates {the rates} holdingRule {the holding rule} lotRule {matching sales to purchases} losses {losses} reporting {reporting} other {this rule}}"
+  },
+  "chart": {
+    "label": "Falls from each completed cycle’s high to its low, {coins}, {first} to {last}",
+    "description": "One bar per coin and cycle, its length the fall from the intraday high to the intraday low, in US dollars.",
+    "bar": "{coin} {year}",
+    "summary": "Show the falls as a table",
+    "columns": {
+      "coin": "Coin",
+      "high": "High",
+      "low": "Low",
+      "fall": "Fall"
+    },
+    "source": "{publishers} intraday highs and lows, {first} to {last}.",
+    "failed": "The earlier falls could not be loaded. Open this page again to retry."
   }
 }

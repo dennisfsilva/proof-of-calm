@@ -1,5 +1,8 @@
-import type { ComponentProps } from 'react';
+import type { LearnModuleMeta } from '@proofofcalm/content';
+import type { Decimal } from '@proofofcalm/core';
+import { Children, type ComponentProps, type ReactNode } from 'react';
 import { useTranslations } from 'use-intl';
+import type { Formatters } from '../../../lib/format';
 
 /** A section's id: the heading's words, lower case, joined by hyphens (`Why some people hold` to `why-some-people-hold`). */
 export function headingId(text: string): string {
@@ -48,6 +51,42 @@ export const MODULE_ELEMENTS = {
   li: (props: ComponentProps<'li'>) => <li className="text-16" {...props} />,
   strong: (props: ComponentProps<'strong'>) => <strong className="font-semibold" {...props} />,
   PastPerformance,
+  // Unbound: `ModuleView` binds it to the module's chart, and only a module with a chart writes it.
+  Chart: (): ReactNode => null,
 };
 
 export type BodyElements = typeof MODULE_ELEMENTS;
+
+/**
+ * What the page's percent formatter writes between a numeral and its sign: the joiner of the profiles' literals
+ * (`percentJoiner` in packages/content) read from the formatter the chart's figures come from, so this lazy chunk
+ * imports no value of content.
+ */
+export function pageJoiner(format: Pick<Formatters, 'percent'>): string {
+  return format.percent('0' as Decimal, { decimals: 0 }).replace(/[0%]/g, '');
+}
+
+/** A module's `N %`, written with an ordinary space (docs/CONTENT-STYLE.md §4), with the joiner in its place. */
+export const withJoiner = (text: string, joiner: string) => text.replace(/(\d) %/g, `$1${joiner}%`);
+
+const joined = (children: ReactNode, joiner: string): ReactNode =>
+  typeof children === 'string'
+    ? withJoiner(children, joiner)
+    : Children.map(children, (child) => (typeof child === 'string' ? withJoiner(child, joiner) : child));
+
+/**
+ * The elements of one module: with a chart, its formatted figures set the page's percent spacing, so the text's
+ * strings take the joiner (docs/CONTENT-STYLE.md §4); without one, the text renders as written.
+ */
+export function moduleElements(chart: LearnModuleMeta['chart'], joiner: string): BodyElements {
+  if (chart === 'none') return MODULE_ELEMENTS;
+  const E = MODULE_ELEMENTS;
+  return {
+    ...E,
+    h2: ({ children, ...props }) => <E.h2 {...props}>{joined(children, joiner)}</E.h2>,
+    h3: ({ children, ...props }) => <E.h3 {...props}>{joined(children, joiner)}</E.h3>,
+    p: ({ children, ...props }) => <E.p {...props}>{joined(children, joiner)}</E.p>,
+    li: ({ children, ...props }) => <E.li {...props}>{joined(children, joiner)}</E.li>,
+    strong: ({ children, ...props }) => <E.strong {...props}>{joined(children, joiner)}</E.strong>,
+  };
+}
