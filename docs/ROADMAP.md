@@ -174,6 +174,8 @@ external links and the Risk link in the mobile export (M3).
 - The "moved to my wallet" step (ADR-0039): units move between venues without changing acquisition
   dates or costs, so per-venue lot matching stays right; the annual review asks the user to compare
   the units per venue with what the exchange and the wallet show. Specified in `docs/DOMAIN.md` first.
+  The reader built on 2026-11-09 (the entry kind `move`, ADR-0054; #82); the Log step that records a
+  move follows one release later (#81, `docs/RELEASE.md`, Versioning).
 - Purchases off the schedule (decided 2026-11-05 and revised the same day after an independent
   check, #350; session 12a; the behaviour specified in `docs/DOMAIN.md` §3.10 and §6), built on
   2026-11-06. The sheet of `Record a purchase` offers the open action's kind (`Monthly buy`, or

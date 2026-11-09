@@ -12,6 +12,7 @@ docs:
     sections: Functional core, imperative shell; the data flow at the end
   - path: docs/ADR/0019-persistence.md
   - path: docs/ADR/0020-ui-state.md
+  - path: docs/ADR/0054-move-between-venues.md
 ---
 
 # Storage and the store (packages/app)

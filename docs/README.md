@@ -25,7 +25,7 @@ files in `.claude/rules/`; the process itself is the crew plugin (ADR-0046).
 | `OWNER-SETUP.md` | Steps only the owner can take (GitHub plan and rulesets, Renovate, Vercel, DNS, keys), with the defaults until they are done |
 | `GROWTH.md` | The three-year growth plan: position, brand, release stages, channels, targets and the rules for marketing; accepted by the owner on 2026-10-17, its decisions in ADR-0039 to ADR-0041 and the open ones in §9 |
 | `ADR/` | Decision records, numbered, with an index that says which paths each one applies to |
-| `research/` | Dated research reports with sources, read-only history: the planning session's (2026-10-16) with its scripts, the host measurements behind ADR-0045 (`research/host-plan-b.md`, 2026-10-17), the draft letters to Kraken and Bitstamp (`research/letters/`, 2026-10-17), the trade-mark search for the name (`research/trademark-search.md`, 2026-11-09); nothing here is a rule |
+| `research/` | Dated research reports with sources, read-only history: the planning session's (2026-10-16) with its scripts, the host measurements behind ADR-0045 (`research/host-plan-b.md`, 2026-10-17), the draft letters to Kraken and Bitstamp (`research/letters/`, 2026-10-17), the trade-mark search for the name (`research/trademark-search.md`, 2026-11-09), the design check of the move between venues behind ADR-0054 (`research/move-step-2026-11-09.md`, 2026-11-09); nothing here is a rule |
 
 Conventions for documents: plain words, dated facts with sources, no filler; one owner per fact,
 every other document points to it; a path or command that does not exist yet carries a planned

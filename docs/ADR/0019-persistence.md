@@ -53,14 +53,16 @@ The decision stands; these are the choices its text left open, made while implem
 - **Row shape.** `plans` and `entries` hold `{ id, payload, updatedAt, deletedAt, deviceId,
   schemaVersion, encVersion }`. `payload` is the entity itself, in plain text (`encVersion: 0`);
   `schemaVersion` is the payload's schema version (`docs/DOMAIN.md` §2), not the database's: plans
-  are read at v2 and v3 and entries at v2 and v3 (`ROW_SCHEMA_VERSIONS` in `idb/rows.ts`; since
-  2026-11-06 for entries, whose v3 adds the `held` kind to the same payload). A v2 plan row is
+  are read at v2 and v3 and entries at v2, v3 and v4 (`ROW_SCHEMA_VERSIONS` in `idb/rows.ts`; since
+  2026-11-06 for entries, whose v3 adds the `held` kind to the same payload, and since 2026-11-09 v4,
+  which adds the `move` kind and its `to` and `received` keys, ADR-0054). A v2 plan row is
   upgraded when read (`upgradePlan`: no acknowledgement); a load rewrites nothing. Since 2026-10-22
   rows are written at the lowest version that holds them (`writtenPlan`, `docs/DOMAIN.md` §2.1): a plan
   row is v2 until an acknowledgement is recorded and v3 only then, so the previous build reads every
-  plan row a rollback finds; an entry row is v3 only for a `held` entry and v2 for every other kind
-  (`writtenEntryVersion`, `docs/DOMAIN.md` §2.2), so the previous build reads every other entry row and
-  counts a `held` one, its tombstone included, as newer and leaves it as it is;
+  plan row a rollback finds; an entry row is v4 only for a move (since 2026-11-09), v3 only for a
+  `held` entry and v2 for every other kind (`writtenEntryVersion`, `docs/DOMAIN.md` §2.2), so the
+  previous build, which reads entries up to v3, reads every other entry row and counts a move, its
+  tombstone included, as newer and leaves it as it is;
   `updatedAt` and `deletedAt` repeat the entity's, so nothing that compares or purges rows reads the
   payload; `deviceId` is the device that wrote the row. A plan has no `deletedAt` of its own: one
   plan is live at a time, and writing a plan with another id, or `null`, turns the live row into a

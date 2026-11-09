@@ -189,9 +189,10 @@ save changes the units; only data from before launch holds such rows. An entry s
 units, price and fee and keeps the person's note and venue.
 
 `held` is coins the plan did not buy: held before it, or received as a gift. Its cost may be unknown
-(`amount: null`) or nothing (`'0'`), and it carries no fee; only `held` may have either, and every other
-kind keeps an amount above 0 (`entryIssues`: `amount-required` for null on another kind,
-`amount-not-positive` for 0 or less on one, `fee-not-allowed` for a fee on `held`). Its rows are the
+(`amount: null`) or nothing (`'0'`), and it carries no fee; only `held` may have either among the kinds
+that carry a cost, and a purchase or sale keeps an amount above 0 (`entryIssues`: `amount-required` for
+null on one, `amount-not-positive` for 0 or less on one, `fee-not-allowed` for a fee on `held`); a move
+carries no amount at all (its paragraph below). Its rows are the
 plan's coins: a coin outside the plan joins it at 0 % in Settings → Coins & split first (`unknown-coin`,
 §6). The entries' payload is v3 since 2026-11-06 and v2 before: the same shape without `held`. An entry
 is written at the lowest version that holds it (`writtenEntryVersion`: 3 for `held`, 2 for every other
