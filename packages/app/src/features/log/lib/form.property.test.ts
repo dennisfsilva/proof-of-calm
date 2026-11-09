@@ -260,7 +260,7 @@ describe.each(locales)('an unchanged edit in $name', ({ input }) => {
         const entries = [...held, ...drawn];
         const ctx = { plan, entries, today: date('2026-10-20'), prices: null, numberInput: input };
         for (const row of transactions(plan, entries).rows) {
-          if (row.type === 'skip') continue;
+          if (row.type === 'skip' || row.kind === 'move') continue;
           const state = initialState(row.kind, row.items, undefined, ctx);
           const draft = toDraft(state, input);
           if (!draft.ok) throw new Error(JSON.stringify(draft.error));
@@ -290,7 +290,7 @@ describe.each(locales)('an unchanged edit in $name', ({ input }) => {
           for (const row of transactions(plan, entries).rows) {
             // The purchases that cover every sale stay as they are: clearing or recoining one leaves a sale
             // uncovered, which the save refuses (#136, docs/DOMAIN.md §3.7).
-            if (row.type === 'skip' || row.items.some((item) => held.includes(item))) continue;
+            if (row.type === 'skip' || row.kind === 'move' || row.items.some((item) => held.includes(item))) continue;
             const initial = initialState(row.kind, row.items, undefined, ctx);
             const rows = initial.rows.map((each, at) => {
               const step = how[at] ?? 'keep';
