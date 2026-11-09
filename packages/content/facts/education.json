@@ -276,14 +276,14 @@
   },
   {
     "key": "m.emergency-fund",
-    "value": "FCA InvestSmart (updated 16 May 2025): \"Many experts recommend having an emergency fund that can cover your outgoings for between 3 and 6 months.\" BaFin: a rule of thumb of 3 months' income. The CFPB gives no number.",
+    "value": "FCA InvestSmart (updated 16 May 2025): \"Many experts recommend having an emergency fund that can cover your outgoings for between 3 and 6 months.\"",
     "unit": "months",
     "date": "2025-05-16",
     "source": "https://www.fca.org.uk/investsmart/should-you-invest",
     "publisher": "Financial Conduct Authority",
-    "accessed": "2026-11-02",
+    "accessed": "2026-11-09",
     "confidence": "high",
-    "lastReviewed": "2026-11-02"
+    "lastReviewed": "2026-11-09"
   },
   {
     "key": "n.risk-phrasings",
