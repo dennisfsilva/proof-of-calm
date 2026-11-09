@@ -86,6 +86,8 @@
         "planRule": "Your plan uses its own holding rule. This file uses the {country} rule.",
         "perVenue": "Sales are matched per venue as named in the Log. Entries with no venue are one group.",
         "crossVenue": "In {count, plural, one {{figure} row} other {{figure} rows}}, the sale took units bought at another venue. sale_venue shows where those sales were made.",
+        "moveFee": "A row with disposed_on but no proceeds is units paid as a network fee when you moved coins between venues. held_at shows where the units were, and moved_on the date a move took them there.",
+        "moveRows": "A move row lists units sent from venue to to_venue. units_received is what arrived there, and the difference is the network fee, paid in the coin.",
         "pooledListed": "For a coin sold in the tax year, every purchase and sale to {to} is listed for the pool. Its purchases to {windowEnd} are listed for the 30-day rule.",
         "rawListed": "For a coin sold in the tax year, every purchase and sale to {to} is listed.",
         "windowOpen": "Made on {today}: purchases after that day are not in this file.",

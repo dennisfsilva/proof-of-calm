@@ -9,16 +9,16 @@ Made on 2026-10-20: purchases after that day are not in this file.
 Dates are YYYY-MM-DD. Amounts and units use a decimal point.
 The tax year ends on 2027-04-05. This file shows your log as of 2026-10-20.
 
-kind,date,coin,venue,units,cost_basis,fee,eligible_from,proceeds,disposal_fee,units_estimated
-dca,2026-05-05,BTC,,0.00121,70,,,,,no
-dca,2026-06-05,BTC,,0.00121,70,,,,,no
-extra,2026-06-18,BTC,,0.0036,200,,,,,no
-dca,2026-08-05,BTC,,0.00121,70,,,,,no
-dca,2026-09-05,BTC,,0.00121,70,,,,,no
-initial,2026-04-05,ETH,,0.12,300,,,,,no
-dca,2026-04-05,ETH,,0.0118,30,,,,,no
-dca,2026-05-05,ETH,,0.0118,30,,,,,no
-dca,2026-06-05,ETH,,0.0118,30,,,,,no
-dca,2026-08-05,ETH,,0.0118,30,,,,,no
-dca,2026-09-05,ETH,,0.0118,30,,,,,no
-sell,2026-09-20,ETH,,0.06,,,,150,,no
+kind,date,coin,venue,units,cost_basis,fee,eligible_from,proceeds,disposal_fee,units_estimated,to_venue,units_received
+dca,2026-05-05,BTC,,0.00121,70,,,,,no,,
+dca,2026-06-05,BTC,,0.00121,70,,,,,no,,
+extra,2026-06-18,BTC,,0.0036,200,,,,,no,,
+dca,2026-08-05,BTC,,0.00121,70,,,,,no,,
+dca,2026-09-05,BTC,,0.00121,70,,,,,no,,
+initial,2026-04-05,ETH,,0.12,300,,,,,no,,
+dca,2026-04-05,ETH,,0.0118,30,,,,,no,,
+dca,2026-05-05,ETH,,0.0118,30,,,,,no,,
+dca,2026-06-05,ETH,,0.0118,30,,,,,no,,
+dca,2026-08-05,ETH,,0.0118,30,,,,,no,,
+dca,2026-09-05,ETH,,0.0118,30,,,,,no,,
+sell,2026-09-20,ETH,,0.06,,,,150,,no,,

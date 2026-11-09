@@ -53,6 +53,10 @@ type FileFacts = {
   readonly estimated: boolean;
   readonly unmatched: boolean;
   readonly crossVenue: number;
+  /** The per-lot file holds a piece a move paid as its fee in the coin. */
+  readonly moveFees: boolean;
+  /** The raw listing holds a move. */
+  readonly moves: boolean;
   readonly windowOpen: boolean;
 };
 
@@ -125,6 +129,8 @@ function taxYearHeader(input: HeaderInput & { readonly facts: FileFacts }, t: Ta
     ...holding,
     ...(!facts.raw && rules.lotScope === 'per-venue' ? [t('perVenue')] : []),
     ...(facts.crossVenue > 0 ? [t('crossVenue', counted(facts.crossVenue))] : []),
+    ...(facts.moveFees ? [t('moveFee')] : []),
+    ...(facts.moves ? [t('moveRows')] : []),
     ...(facts.raw
       ? [
           pooled
@@ -189,11 +195,11 @@ function perLotFile(input: HeaderInput, entries: readonly Entry[], t: TaxYearWor
     case 'lifo':
     case 'unspecified': {
       const lots = taxYearLots(plan, entries, rules, span, today);
-      return taxYearLotsCsv(lots, header({ ...lots, raw: false, windowOpen: false }));
+      return taxYearLotsCsv(lots, header({ ...lots, raw: false, moves: false, windowOpen: false }));
     }
     default: {
       const pool = taxYearPool(plan, entries, rules, span, today);
-      return taxYearPoolCsv(pool, header({ ...pool, raw: true, unmatched: false, crossVenue: 0 }));
+      return taxYearPoolCsv(pool, header({ ...pool, raw: true, unmatched: false, crossVenue: 0, moveFees: false }));
     }
   }
 }
