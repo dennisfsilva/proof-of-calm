@@ -17,6 +17,14 @@ const meta = {
   component: RedDayBanner,
   parameters: { path: '/today', snapshot: fixtureSnapshot(), nowMs: fixtureNowMs('buy') },
   args: { lastRed, coins: [BTC], onOpen: fn(), onDismiss: fn() },
+  // The shell's column (app-shell.tsx), so the banner has the width it has at Today's foot.
+  decorators: [
+    (Story) => (
+      <div className="mx-auto w-full max-w-reading px-gutter">
+        <Story />
+      </div>
+    ),
+  ],
 } satisfies Meta<typeof RedDayBanner>;
 
 export default meta;
@@ -26,7 +34,13 @@ type Story = StoryObj<typeof meta>;
 export const SevenDays: Story = {
   play: async ({ args, canvas, userEvent }) => {
     await expect(canvas.getByText(/^Bitcoin fell 16% in the seven days to 19/u)).toBeVisible();
-    await expect(canvas.getByRole('link', { name: 'See the fall under way and your plan' })).toBeVisible();
+    const link = canvas.getByRole('link', { name: 'See the fall under way' });
+    await expect(link).toBeVisible();
+    // The label keeps to one line (the button's base is nowrap), so at 360 px it must fit the banner's width.
+    const actions = link.parentElement;
+    await expect(link.scrollWidth).toBeLessThanOrEqual(link.clientWidth);
+    await expect(actions?.scrollWidth).toBeLessThanOrEqual(actions?.clientWidth ?? 0);
+    await expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(window.innerWidth);
     await userEvent.click(canvas.getByRole('button', { name: 'Dismiss' }));
     await expect(args.onDismiss).toHaveBeenCalledOnce();
   },

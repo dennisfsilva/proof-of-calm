@@ -65,7 +65,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
 
     test('the link opens the page about the fall under way', async ({ page }) => {
       await onToday(page, 'week-fall');
-      await page.getByRole('link', { name: 'See the fall under way and your plan' }).click();
+      await page.getByRole('link', { name: 'See the fall under way' }).click();
       await expect(page).toHaveURL(/\/learn\/fall-under-way$/u);
     });
 

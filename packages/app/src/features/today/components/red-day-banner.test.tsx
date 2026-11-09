@@ -109,7 +109,7 @@ describe('RedDayBanner', () => {
     const { onOpen, onDismiss } = await banner();
     fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
     expect(onDismiss).toHaveBeenCalledOnce();
-    fireEvent.click(screen.getByRole('link', { name: 'See the fall under way and your plan' }));
+    fireEvent.click(screen.getByRole('link', { name: 'See the fall under way' }));
     expect(onOpen).toHaveBeenCalledOnce();
     expect(screen.getByTestId('path').textContent).toBe('/learn/fall-under-way');
   });
