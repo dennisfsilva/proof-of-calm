@@ -1,5 +1,5 @@
 {
-  "lastReviewed": "2026-11-02",
+  "lastReviewed": "2026-11-09",
   "reviewedBy": "owner",
   "drawdowns": [
     {
@@ -48,9 +48,10 @@
       "high": "2018-01-13",
       "low": "2018-12-14",
       "fall": "94",
-      "source": "https://www.bitstamp.net/api/v2/ohlc/ethusd/?step=86400&limit=365&start=1514764800",
-      "publisher": "Bitstamp",
-      "accessed": "2026-11-02",
+      "source": "https://api.exchange.coinbase.com/products/ETH-USD/candles?granularity=86400&start=2017-12-01T00:00:00Z&end=2018-09-26T00:00:00Z",
+      "lowSource": "https://api.exchange.coinbase.com/products/ETH-USD/candles?granularity=86400&start=2018-09-26T00:00:00Z&end=2019-01-31T00:00:00Z",
+      "publisher": "Coinbase",
+      "accessed": "2026-11-09",
       "confidence": "high"
     },
     {
@@ -58,9 +59,9 @@
       "high": "2021-11-10",
       "low": "2022-06-18",
       "fall": "82",
-      "source": "https://www.bitstamp.net/api/v2/ohlc/ethusd/?step=86400&limit=730&start=1609459200",
-      "publisher": "Bitstamp",
-      "accessed": "2026-11-02",
+      "source": "https://api.exchange.coinbase.com/products/ETH-USD/candles?granularity=86400&start=2021-10-01T00:00:00Z&end=2022-07-27T00:00:00Z",
+      "publisher": "Coinbase",
+      "accessed": "2026-11-09",
       "confidence": "high"
     },
     {
@@ -78,10 +79,10 @@
       "high": "2021-05-10",
       "low": "2023-06-10",
       "fall": "91",
-      "source": "https://www.bitstamp.net/api/v2/ohlc/linkusd/?step=86400&limit=1000&start=1609459200",
-      "lowSource": "https://www.bitstamp.net/api/v2/ohlc/linkusd/?step=259200&limit=1000&start=1609459200",
-      "publisher": "Bitstamp",
-      "accessed": "2026-11-02",
+      "source": "https://api.exchange.coinbase.com/products/LINK-USD/candles?granularity=86400&start=2021-04-01T00:00:00Z&end=2022-01-25T00:00:00Z",
+      "lowSource": "https://api.exchange.coinbase.com/products/LINK-USD/candles?granularity=86400&start=2023-01-01T00:00:00Z&end=2023-10-27T00:00:00Z",
+      "publisher": "Coinbase",
+      "accessed": "2026-11-09",
       "confidence": "high"
     },
     {
