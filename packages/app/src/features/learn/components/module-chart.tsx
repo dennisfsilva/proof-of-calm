@@ -38,6 +38,16 @@ function useDrawdowns(): Falls | null {
 const earliest = <T extends string>(dates: readonly T[]) => dates.reduce((a, b) => (b < a ? b : a));
 const latest = <T extends string>(dates: readonly T[]) => dates.reduce((a, b) => (b > a ? b : a));
 
+// A row whose high and low come from two series names both, "Bitcoinity (Mt. Gox) and CoinMarketCap": the word
+// "and" between two names joins them, and no publisher's own name holds it.
+const JOINED_PUBLISHERS = / and /;
+
+/** Each publisher once, by name, compound values split into their names, for the source sentence. */
+const publisherNames = (publishers: readonly string[]) =>
+  [...new Set(publishers.flatMap((publisher) => publisher.split(JOINED_PUBLISHERS)))].sort((a, b) =>
+    a.localeCompare(b),
+  );
+
 function DrawdownsBar() {
   const t = useTranslations('learn.chart');
   const f = useFormatters();
@@ -48,7 +58,7 @@ function DrawdownsBar() {
   const last = f.date(latest(falls.map(({ low }) => low)));
   const percent = (fall: PastFall['fall']) => f.percent(`-${fall}` as Decimal, { decimals: 0 });
   const coins = [...new Set(falls.map(({ coin }) => coin))];
-  const publishers = [...new Set(falls.map(({ publisher }) => publisher))].sort((a, b) => a.localeCompare(b));
+  const publishers = publisherNames(falls.map(({ publisher }) => publisher));
   return (
     <div className="flex flex-col gap-stack-xs">
       <BarChart

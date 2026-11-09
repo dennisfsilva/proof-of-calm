@@ -31,9 +31,10 @@ describe('ModuleChart', () => {
 
   it('draws one labelled bar per cycle, with its table', async () => {
     const { container } = mount();
-    const drawing = await screen.findByRole('img', { name: /^Falls from each completed cycle’s high to its low/ });
+    const drawing = await screen.findByRole('img', { name: /^Falls from each completed cycle's high to its low/ });
+    // "for" keeps the list of coins apart from the dates when a screen reader reads the label.
     expect(drawing.getAttribute('aria-label')).toBe(
-      'Falls from each completed cycle’s high to its low, BTC, ETH, LINK, and SOL, 8\u00a0Jun\u00a02011 to 10\u00a0Jun\u00a02023',
+      "Falls from each completed cycle's high to its low for BTC, ETH, LINK, and SOL, 8\u00a0Jun\u00a02011 to 10\u00a0Jun\u00a02023",
     );
     expect(container.querySelectorAll('[data-slot="bar-chart-bar"]')).toHaveLength(9);
     const values = [...container.querySelectorAll('[data-slot="bar-chart-value"]')].map((value) => value.textContent);
@@ -42,14 +43,22 @@ describe('ModuleChart', () => {
     expect(container.querySelectorAll('details tbody tr')).toHaveLength(9);
   });
 
-  it('sets the sentence directly under the chart, the publishers as text with no link', async () => {
+  it('heads the table columns that hold dates as dates (docs/CONTENT-STYLE.md §1)', async () => {
+    const { container } = mount();
+    await screen.findByRole('img');
+    const headers = [...container.querySelectorAll('details thead th')].map((header) => header.textContent);
+    expect(headers).toEqual(['Coin', 'Date of high', 'Date of low', 'Fall']);
+  });
+
+  it('sets the sentence directly under the chart, each publisher once, as text with no link', async () => {
     const { container } = mount();
     await screen.findByRole('img');
     const figure = container.querySelector('[data-slot="bar-chart"]');
     const line = figure?.nextElementSibling;
     expect(line?.tagName).toBe('P');
+    // One row's publisher is "Bitcoinity (Mt. Gox) and CoinMarketCap": split, CoinMarketCap is named once.
     expect(line?.textContent).toBe(
-      'Bitcoinity (Mt. Gox) and CoinMarketCap, Bitstamp, Coinbase, and CoinMarketCap intraday highs and lows, ' +
+      'Bitcoinity (Mt. Gox), Bitstamp, Coinbase, and CoinMarketCap intraday highs and lows in US dollars, ' +
         '8\u00a0Jun\u00a02011 to 10\u00a0Jun\u00a02023. Past performance is not a reliable indicator of future results. Risk disclosure',
     );
     // The one link is the Risk page's: no publisher links to an exchange (docs/LEGAL.md §3.4).
