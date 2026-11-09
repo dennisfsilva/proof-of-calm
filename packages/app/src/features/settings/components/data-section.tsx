@@ -34,6 +34,7 @@ import { TaxYearExport } from './tax-year-export';
 // Add missing from a file in another pay currency adds nothing, and the alert names both (docs/DOMAIN.md §3.13)
 // and, for a paste, the paste's own step. An import that would leave more entries than a plan holds writes nothing.
 // Rows from a newer version refuse both modes, and the alert names the fix; under the exports one line names the entries left out.
+// An import whose entries to store do not all read as entries writes nothing, and the alert counts them.
 // A file from the DCA plan page imports through the same buttons and dialog (prototype-import.tsx), and a text
 // pasted into the paste box is read as a chosen file is. One import runs at a time: while it writes, every import
 // button, "Choose a file" and the paste's button stay focusable and a press does nothing, a file chosen meanwhile
@@ -268,7 +269,9 @@ export function DataSection() {
                         file: figure(problem.file),
                         max: figure(problem.max),
                       })
-                    : tErrors(`backup.${problem.code}`, { product })}
+                    : problem.code === 'invalid-entries'
+                      ? t('import.invalidEntries', { count: problem.ids.length, figure: figure(problem.ids.length) })
+                      : tErrors(`backup.${problem.code}`, { product })}
         </p>
       )}
       {chosen?.read.kind === 'prototype' && (
