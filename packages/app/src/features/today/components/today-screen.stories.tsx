@@ -45,7 +45,8 @@ export const Late: Story = {
     await expect(canvas.getByRole('list', { name: 'Planned split' })).toBeVisible();
     await expect(canvas.getByRole('button', { name: 'Bought as planned' })).toBeVisible();
     await expect(canvas.getByRole('link', { name: 'Your plan' })).toBeVisible();
-    await expect(canvas.getByRole('link', { name: 'Export a copy.' })).toBeVisible();
+    // The foot waits for the red-day model's answer, which loads on the first question.
+    await expect(await canvas.findByRole('link', { name: 'Export a copy.' })).toBeVisible();
   },
 };
 

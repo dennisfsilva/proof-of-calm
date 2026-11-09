@@ -1,0 +1,132 @@
+// @vitest-environment jsdom
+import type { CalendarDate, CoinId, Percent } from '@proofofcalm/core';
+import { Toaster } from '@proofofcalm/ui/components/toast';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import type { ReactNode } from 'react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { memoryPlanStore } from '../../../lib/adapters/memory-store';
+import { I18nProvider } from '../../../lib/i18n';
+import { NavigationProvider, usePathname } from '../../../lib/navigation';
+import type { PlanStore } from '../../../lib/ports';
+import { type Services, ServicesProvider } from '../../../lib/services';
+import { fixtureNowMs, fixtureSnapshot } from '../../../lib/services/fixtures';
+import { createTestServices, episodeRedDay } from '../../../lib/services/testing';
+import shell from '../../../messages/en/shell.json';
+import today from '../../../messages/en/today.json';
+import { RedDayBanner, type RedDayBannerProps } from './red-day-banner';
+import { TodayScreen } from './today-screen';
+
+// The red-day banner at Today's foot (docs/DOMAIN.md §3.11, docs/CONTENT-STYLE.md §3) over the fixture plan
+// (BTC and ETH) on 20 October 2026.
+
+afterEach(cleanup);
+Element.prototype.scrollIntoView = vi.fn();
+
+const lastRed = (sevenDay: string | null, fromHigh90: string): RedDayBannerProps['lastRed'] => ({
+  date: '2026-10-19' as CalendarDate,
+  sevenDay: sevenDay as Percent | null,
+  fromHigh90: fromHigh90 as Percent,
+});
+
+function Path() {
+  return <output data-testid="path">{usePathname()}</output>;
+}
+
+function wrap(services: Services, children: ReactNode) {
+  return (
+    <NavigationProvider location="memory" initialPath="/today">
+      <ServicesProvider services={services}>
+        <I18nProvider messages={{ shell, today }}>
+          {children}
+          <Path />
+          <Toaster closeLabel="Close" toastManager={services.toasts} />
+        </I18nProvider>
+      </ServicesProvider>
+    </NavigationProvider>
+  );
+}
+
+async function banner(props: Partial<RedDayBannerProps> = {}) {
+  const services = createTestServices({ snapshot: fixtureSnapshot(), nowMs: fixtureNowMs('buy') });
+  await act(() => services.start());
+  const handlers = { onOpen: vi.fn(), onDismiss: vi.fn() };
+  render(
+    wrap(
+      services,
+      <RedDayBanner lastRed={lastRed('-16.4', '-12')} coins={['BTC' as CoinId]} {...handlers} {...props} />,
+    ),
+  );
+  return handlers;
+}
+
+/** The sentence, its no-break spaces (the date's) read as spaces. */
+const sentence = () => document.querySelector('[data-slot="banner-description"]')?.textContent?.replace(/ /gu, ' ');
+
+describe('RedDayBanner', () => {
+  it('names the seven-day fall of the one coin held, dated', async () => {
+    await banner();
+    expect(sentence()).toBe('Bitcoin fell 16% in the seven days to 19 Oct 2026.');
+  });
+
+  it('the seven-day fall first when both conditions fired', async () => {
+    await banner({ lastRed: lastRed('-10', '-33.2') });
+    expect(sentence()).toBe('Bitcoin fell 10% in the seven days to 19 Oct 2026.');
+  });
+
+  it('the fall from the 90-day high when only that one fired, or the week has no figure', async () => {
+    await banner({ lastRed: lastRed('-9.9999', '-33.2') });
+    expect(sentence()).toBe('On 19 Oct 2026 Bitcoin was 33% below its 90-day high.');
+    cleanup();
+    await banner({ lastRed: lastRed(null, '-30') });
+    expect(sentence()).toBe('On 19 Oct 2026 Bitcoin was 30% below its 90-day high.');
+  });
+
+  it('several coins: the coins held together', async () => {
+    await banner({ coins: ['BTC', 'ETH'] as CoinId[] });
+    expect(sentence()).toBe('Together, the coins you hold fell 16% in the seven days to 19 Oct 2026.');
+    cleanup();
+    await banner({ coins: ['BTC', 'ETH'] as CoinId[], lastRed: lastRed('-2', '-31') });
+    expect(sentence()).toBe('On 19 Oct 2026 the coins you hold were together 31% below their 90-day high.');
+  });
+
+  it('the link opens the page about this fall, and Dismiss calls back', async () => {
+    const { onOpen, onDismiss } = await banner();
+    fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
+    expect(onDismiss).toHaveBeenCalledOnce();
+    fireEvent.click(screen.getByRole('link', { name: 'See this fall and your plan' }));
+    expect(onOpen).toHaveBeenCalledOnce();
+    expect(screen.getByTestId('path').textContent).toBe('/learn/this-fall');
+  });
+});
+
+describe('the red-day banner on Today', () => {
+  const refusing = (): PlanStore => ({
+    ...memoryPlanStore(fixtureSnapshot()),
+    update: () => Promise.reject(new Error('disk full')),
+  });
+
+  async function onToday(planStore: PlanStore) {
+    const created = createTestServices({ planStore, nowMs: fixtureNowMs('buy') });
+    const services = { ...created, redDay: episodeRedDay(lastRed('-16.4', '-12')) };
+    await act(() => services.start());
+    render(wrap(services, <TodayScreen />));
+    await screen.findByText(/^Bitcoin fell|^Together, the coins you hold fell/);
+    return services;
+  }
+
+  it('records the episode on its first show, and Dismiss hides it with no toast', async () => {
+    const planStore = memoryPlanStore(fixtureSnapshot());
+    await onToday(planStore);
+    await waitFor(() => expect(planStore.current().prefs.dismissedBanners).toEqual(['red-day:2026-10-15']));
+    fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
+    expect(screen.queryByText(/coins you hold fell/)).toBeNull();
+    expect(screen.queryByText(today.redDay.failed)).toBeNull();
+  });
+
+  it('a write that keeps failing: Dismiss hides it and the toast says it may show again', async () => {
+    await onToday(refusing());
+    fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
+    expect(screen.queryByText(/coins you hold fell/)).toBeNull();
+    expect(await screen.findByText(today.redDay.failed)).toBeDefined();
+  });
+});

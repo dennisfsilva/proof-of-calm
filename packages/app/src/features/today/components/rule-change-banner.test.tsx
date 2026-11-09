@@ -10,7 +10,7 @@ import { NavigationProvider, usePathname } from '../../../lib/navigation';
 import type { PlanStore, Snapshot } from '../../../lib/ports';
 import { type Services, ServicesProvider } from '../../../lib/services';
 import { fixtureNowMs, fixtureSnapshot } from '../../../lib/services/fixtures';
-import { createTestServices } from '../../../lib/services/testing';
+import { clearRedDay, createTestServices } from '../../../lib/services/testing';
 import shell from '../../../messages/en/shell.json';
 import today from '../../../messages/en/today.json';
 import { TodayScreen } from './today-screen';
@@ -53,23 +53,27 @@ type Options = {
 
 async function mount({ changeNotice = null, planStore = memoryPlanStore(unseen()), rules = PORTUGAL }: Options = {}) {
   const changedOn = '2027-01-01' as CalendarDate;
-  const services = createTestServices({
+  const created = createTestServices({
     planStore,
     nowMs: fixtureNowMs('buy'),
     rules: async () => ({ ...rules, status: { ...rules.status, changedOn, changeNotice } }),
   });
+  // No episode under way: the foot settles on the notice inside the render's act.
+  const services = { ...created, redDay: clearRedDay() };
   await act(() => services.start());
-  render(
-    <NavigationProvider location="memory" initialPath="/today">
-      <ServicesProvider services={services}>
-        <I18nProvider messages={{ shell, today }}>
-          <Toaster closeLabel="Close" toastManager={services.toasts}>
-            <TodayScreen />
-            <Path />
-          </Toaster>
-        </I18nProvider>
-      </ServicesProvider>
-    </NavigationProvider>,
+  await act(async () =>
+    render(
+      <NavigationProvider location="memory" initialPath="/today">
+        <ServicesProvider services={services}>
+          <I18nProvider messages={{ shell, today }}>
+            <Toaster closeLabel="Close" toastManager={services.toasts}>
+              <TodayScreen />
+              <Path />
+            </Toaster>
+          </I18nProvider>
+        </ServicesProvider>
+      </NavigationProvider>,
+    ),
   );
   return services;
 }

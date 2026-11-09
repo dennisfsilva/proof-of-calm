@@ -1,16 +1,18 @@
 // @vitest-environment jsdom
 import { countryRules, loadProfile } from '@proofofcalm/content';
-import type { Entry, Instant, Pause, Plan } from '@proofofcalm/core';
-import { act, cleanup, render, screen, within } from '@testing-library/react';
+import type { CalendarDate, CoinId, Entry, Instant, Pause, Percent, Plan } from '@proofofcalm/core';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { EMPTY_SNAPSHOT } from '../../../lib/adapters';
 import { I18nProvider } from '../../../lib/i18n';
 import { NavigationProvider } from '../../../lib/navigation';
 import type { PricesState, Snapshot } from '../../../lib/ports';
-import { ServicesProvider } from '../../../lib/services';
+import { type RedDayModel, type RedDayPort, ServicesProvider } from '../../../lib/services';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
 import {
+  clearRedDay,
   createTestServices,
+  episodeRedDay,
   FIXTURE_PRICES,
   fixedPriceSource,
   pricesAt,
@@ -35,31 +37,42 @@ const portugal = async () => {
 const at = (date: string) => Date.parse(`${date}T10:00:00Z`);
 const entityId = '00000000-0000-4000-8000-000000003000';
 
-/** `priced` refreshes the fixture prices, or the given ones, once the services start. */
+/**
+ * `priced` refreshes the fixture prices, or the given ones, once the services start; `redDay` answers the foot's
+ * question (no episode by default), which settles inside the render's act.
+ */
 async function mount(
   snapshot: Snapshot,
   nowMs: number,
   priced: boolean | PricesState = false,
-  extra: TestServicesOptions = {},
+  { redDay = clearRedDay(), ...extra }: TestServicesOptions & { readonly redDay?: RedDayPort } = {},
 ) {
-  const services = createTestServices({
+  const created = createTestServices({
     snapshot,
     nowMs,
     rules: portugal,
     ...(priced === false ? {} : { priceSource: fixedPriceSource(priced === true ? FIXTURE_PRICES : priced, nowMs) }),
     ...extra,
   });
+  const services = { ...created, redDay };
   await act(() => services.start());
   if (priced !== false) await act(() => services.prices.refresh());
-  render(
+  const tree = (
     <NavigationProvider location="memory" initialPath="/today">
       <ServicesProvider services={services}>
         <I18nProvider messages={{ shell, today }}>
           <TodayScreen />
         </I18nProvider>
       </ServicesProvider>
-    </NavigationProvider>,
+    </NavigationProvider>
   );
+  const view = await act(async () => render(tree));
+  /** Leaves Today and comes back: a new visit. */
+  const remount = async () => {
+    await act(async () => view.rerender(<div />));
+    await act(async () => view.rerender(tree));
+  };
+  return { services, remount };
 }
 
 const href = (name: string) => screen.getByRole('link', { name }).getAttribute('href');
@@ -407,5 +420,69 @@ describe('TodayScreen', () => {
   it('a plan that has seen the version: no notice', async () => {
     await mount(fixtureSnapshot(), at('2026-10-20'));
     expect(screen.queryByRole('button', { name: 'Dismiss' })).toBeNull();
+  });
+});
+
+const CLEAR_LAST = { date: '2026-10-19' as CalendarDate, sevenDay: null, fromHigh90: '-1' as Percent };
+
+// The red-day banner at the foot (docs/DOMAIN.md §3.11; docs/DESIGN.md §8): the model answers once per visit; the
+// fixture plan holds BTC and ETH and was never exported, so the backup banner waits behind it.
+describe('TodayScreen, the red-day banner', () => {
+  const RED = /^Together, the coins you hold fell 16% in the seven days to 19 Oct 2026\.$/;
+  const BACKUP = /^Your data lives only on this device\./;
+  const episode = () =>
+    episodeRedDay({ date: '2026-10-19' as CalendarDate, sevenDay: '-16.4' as Percent, fromHigh90: '-20' as Percent }, [
+      'BTC',
+      'ETH',
+    ] as CoinId[]);
+  const unseen = (snapshot: Snapshot): Snapshot =>
+    ({ ...snapshot, plan: { ...snapshot.plan, countryRuleVersion: 0 } }) as Snapshot;
+
+  it('outranks the rule-change notice and the backup banner', async () => {
+    await mount(unseen(fixtureSnapshot()), at('2026-10-20'), false, { redDay: episode() });
+    expect(screen.getByText(RED)).toBeDefined();
+    expect(screen.queryByText(BACKUP)).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Review' })).toBeNull();
+    expect(screen.getAllByRole('status')).toHaveLength(1);
+  });
+
+  it('shows nothing at the foot while the model is on its way', async () => {
+    const waiting = episodeRedDay(CLEAR_LAST, undefined, () => new Promise<RedDayModel>(() => {}));
+    await mount(fixtureSnapshot(), at('2026-10-20'), false, { redDay: waiting });
+    expect(screen.getByRole('button', { name: 'Bought as planned' })).toBeDefined();
+    expect(screen.queryByText(BACKUP)).toBeNull();
+    expect(screen.queryByRole('status')).toBeNull();
+  });
+
+  it('a failed read counts as no episode: the next banner, and nothing said', async () => {
+    const failing = episodeRedDay(CLEAR_LAST, undefined, () => Promise.reject(new Error('offline')));
+    await mount(fixtureSnapshot(), at('2026-10-20'), false, { redDay: failing });
+    expect(screen.getByText(BACKUP)).toBeDefined();
+    expect(screen.getAllByRole('status')).toHaveLength(1);
+  });
+
+  it('no units held: no question asked, and no banner', async () => {
+    const redDay = episode();
+    const model = vi.spyOn(redDay, 'model');
+    await mount({ ...fixtureSnapshot(), entries: [] }, at('2026-10-20'), false, { redDay });
+    expect(model).not.toHaveBeenCalled();
+    expect(screen.queryByRole('status')).toBeNull();
+  });
+
+  it('recorded on its first show, it stays for the visit; a remount shows the next banner', async () => {
+    const { services, remount } = await mount(fixtureSnapshot(), at('2026-10-20'), false, { redDay: episode() });
+    expect(services.domain.store.getState().snapshot.prefs.dismissedBanners).toEqual(['red-day:2026-10-15']);
+    expect(screen.getByText(RED)).toBeDefined();
+    expect(screen.queryByText(BACKUP)).toBeNull();
+    await remount();
+    expect(screen.queryByText(RED)).toBeNull();
+    expect(screen.getByText(BACKUP)).toBeDefined();
+  });
+
+  it('Dismiss hides it and the next banner takes the foot', async () => {
+    await mount(fixtureSnapshot(), at('2026-10-20'), false, { redDay: episode() });
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Dismiss' })));
+    expect(screen.queryByText(RED)).toBeNull();
+    expect(screen.getByText(BACKUP)).toBeDefined();
   });
 });
