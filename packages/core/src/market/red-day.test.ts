@@ -137,6 +137,15 @@ describe('redDay (RED_DAY at its boundaries)', () => {
     expect(redDay(day('3', '-45'))).toBe(true);
   });
 
+  it('is a Red day at exactly −30 from the 90-day high and −10 over seven days, with null sevenDay', () => {
+    expect(redDay(day('-10', '-30'))).toBe(true);
+    expect(redDay(day('-10', '-29.9999'))).toBe(true);
+    expect(redDay(day('-9.9999', '-30'))).toBe(true);
+    expect(redDay(day(null, '-30'))).toBe(true);
+    expect(redDay(day(null, '-29.9999'))).toBe(false);
+    expect(redDay(day(null, '0'))).toBe(false);
+  });
+
   it('takes other thresholds when given', () => {
     expect(redDay(day('-6', '0'), { sevenDay: '-5' as Percent, fromHigh90: '-20' as Percent })).toBe(true);
   });
@@ -164,6 +173,14 @@ describe('redDayEpisode (docs/DOMAIN.md §3.11)', () => {
   it('keeps one episode through six clear days and starts another after seven', () => {
     expect(redDayEpisode(flags([0, 7], 8), day(7))).toEqual({ start: day(0), last: day(7) });
     expect(redDayEpisode(flags([0, 8], 9), day(8))).toEqual({ start: day(8), last: day(8) });
+  });
+
+  it('counts missing days as clear', () => {
+    const only = (reds: readonly number[]): RedDayFlag[] => reds.map((offset) => ({ date: day(offset), red: true }));
+    expect(redDayEpisode(only([0, 8]), day(8))).toEqual({ start: day(8), last: day(8) });
+    expect(redDayEpisode(only([0, 7]), day(7))).toEqual({ start: day(0), last: day(7) });
+    expect(redDayEpisode(only([0]), day(6))).toEqual({ start: day(0), last: day(0) });
+    expect(redDayEpisode(only([0]), day(7))).toBeNull();
   });
 
   it('has no episode without a Red day', () => {
