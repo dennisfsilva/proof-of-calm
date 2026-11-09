@@ -74,6 +74,10 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - A rule on when external data is final cites the vendor's documented publish time and cache. #40
   counted the close of 31 December as final from 00:00 UTC. CoinGecko publishes it at 00:10 UTC and
   caches the answer for 30 s, so #42 reworked it.
+- A branch that changes what Today loads runs `lighthouse-branch.yml` before review, not only
+  `node tools/size/today.ts`. today.ts counts Today's entry; Lighthouse counts every script the page
+  loads. #52 passed the first (45,051 of 46,080 bytes) and failed the second (169,093 bytes over
+  the script budget of `docs/ENGINEERING.md` §4).
 
 ## Known gaps
 
