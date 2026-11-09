@@ -13,18 +13,18 @@ Sales are matched per venue as named in the Log. Entries with no venue are one g
 Dates are YYYY-MM-DD. Amounts and units use a decimal point.
 The tax year ends on 2026-12-31. This file shows your log as of 2026-10-20.
 
-kind,acquired,coin,venue,units,cost_basis,fee,eligible_from,past_holding_rule,disposed_on,sale_venue,proceeds,disposal_fee,units_estimated
-initial,2026-04-05,BTC,,0.0125,700.00,,2027-04-05,no,,,,,no
-dca,2026-04-05,BTC,,0.00121,70.00,,2027-04-05,no,,,,,no
-dca,2026-05-05,BTC,,0.00121,70.00,,2027-05-05,no,,,,,no
-dca,2026-06-05,BTC,,0.00121,70.00,,2027-06-05,no,,,,,no
-extra,2026-06-18,BTC,,0.0036,200.00,,2027-06-18,no,,,,,no
-dca,2026-08-05,BTC,,0.00121,70.00,,2027-08-05,no,,,,,no
-dca,2026-09-05,BTC,,0.00121,70.00,,2027-09-05,no,,,,,no
-initial,2026-04-05,ETH,,0.06,150.00,,2027-04-05,no,2026-09-20,,150.00,,no
-initial,2026-04-05,ETH,,0.06,150.00,,2027-04-05,no,,,,,no
-dca,2026-04-05,ETH,,0.0118,30.00,,2027-04-05,no,,,,,no
-dca,2026-05-05,ETH,,0.0118,30.00,,2027-05-05,no,,,,,no
-dca,2026-06-05,ETH,,0.0118,30.00,,2027-06-05,no,,,,,no
-dca,2026-08-05,ETH,,0.0118,30.00,,2027-08-05,no,,,,,no
-dca,2026-09-05,ETH,,0.0118,30.00,,2027-09-05,no,,,,,no
+kind,acquired,coin,venue,units,cost_basis,fee,eligible_from,past_holding_rule,disposed_on,sale_venue,proceeds,disposal_fee,units_estimated,held_at,moved_on
+initial,2026-04-05,BTC,,0.0125,700.00,,2027-04-05,no,,,,,no,,
+dca,2026-04-05,BTC,,0.00121,70.00,,2027-04-05,no,,,,,no,,
+dca,2026-05-05,BTC,,0.00121,70.00,,2027-05-05,no,,,,,no,,
+dca,2026-06-05,BTC,,0.00121,70.00,,2027-06-05,no,,,,,no,,
+extra,2026-06-18,BTC,,0.0036,200.00,,2027-06-18,no,,,,,no,,
+dca,2026-08-05,BTC,,0.00121,70.00,,2027-08-05,no,,,,,no,,
+dca,2026-09-05,BTC,,0.00121,70.00,,2027-09-05,no,,,,,no,,
+initial,2026-04-05,ETH,,0.06,150.00,,2027-04-05,no,2026-09-20,,150.00,,no,,
+initial,2026-04-05,ETH,,0.06,150.00,,2027-04-05,no,,,,,no,,
+dca,2026-04-05,ETH,,0.0118,30.00,,2027-04-05,no,,,,,no,,
+dca,2026-05-05,ETH,,0.0118,30.00,,2027-05-05,no,,,,,no,,
+dca,2026-06-05,ETH,,0.0118,30.00,,2027-06-05,no,,,,,no,,
+dca,2026-08-05,ETH,,0.0118,30.00,,2027-08-05,no,,,,,no,,
+dca,2026-09-05,ETH,,0.0118,30.00,,2027-09-05,no,,,,,no,,
