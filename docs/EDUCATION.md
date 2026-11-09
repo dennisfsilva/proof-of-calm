@@ -109,8 +109,8 @@ matters (the Red day page).
 
 **Idea**: this has happened before; your plan already assumed it would.
 **Two surfaces.** The module (planned: M2) is the resting text, in Learn's index like any other. The
-fall page, `/learn/this-fall`, is the other: Learn's index opens with its row (`This fall and your
-plan`) only while the red-day port (`docs/DOMAIN.md` §3.11) finds a fall of the held coins under way
+fall page, `/learn/fall-under-way`, is the other: Learn's index opens with its row (`The fall under
+way and your plan`) only while the red-day port (`docs/DOMAIN.md` §3.11) finds a fall of the held coins under way
 on the device, and the page's path gives the index in its place when nothing is held or no fall is
 under way, so a bookmark or the back button never shows old figures. The page holds, in order: the
 back link to Today and its heading; the figure with the market as its subject, truncated to whole
@@ -118,9 +118,12 @@ percents and dated by the last complete close (the coins with no price history n
 data line (currency, the closes' first and last dates, CoinGecko as the source; ADR-0050); the
 past-performance sentence with its `Risk disclosure` link, once (`docs/LEGAL.md` §4); each held coin's
 earlier falls from the cycles file (§9 a–c), oldest first, each with its publisher as unlinked text,
-and a line for a coin that has none; the next buy day; and the person's note with its date. While the
-figures are asked their place keeps its height; a history that cannot be loaded leaves one failure line
-there, and the past-performance sentence moves under the earlier falls. No chart, no button, no red,
+and a line for a coin that has none; the next buy day; and the person's note with its date. The held
+coins are the portfolio's with units above 0 (`docs/DOMAIN.md` §3.6): a plan coin at 0 units is not
+one, and a coin that left the plan while its entries stay is, under its name. While the figures are
+asked their place keeps its height and no coin is named; a history that cannot be loaded leaves one
+failure line there, and the past-performance sentence moves under the earlier falls, shown only when
+at least one earlier fall is: the sentence sits under historic data or not at all. No chart, no button, no red,
 no P/L or portfolio value; the words are in `docs/CONTENT-STYLE.md` §3.
 **Says** (the module, moved here from the page): how the trigger works (a seven-day fall of 10 % or
 more, or a price 30 % or more below the 90-day high, computed from prices only, never from headlines;
