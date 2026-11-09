@@ -113,12 +113,18 @@ export function planTombstone(row: PlanRow, deviceId: EntityId, now: Instant): P
 
 /**
  * An entry's row, at the lowest version that holds the entry, so the previous build reads every row but a
- * held one's, and counts that one as newer (docs/RELEASE.md, rollback).
+ * held one's, and counts that one as newer (docs/RELEASE.md, rollback). Never above the build's own
+ * `versions.entries`, so a test's previous build writes the rows that build wrote.
  */
-export function entryRow(entry: Entry, planId: EntityId | null, deviceId: EntityId): EntryRow {
-  const versions = { schemaVersion: writtenEntryVersion(entry), encVersion: PLAINTEXT } as const;
+export function entryRow(
+  entry: Entry,
+  planId: EntityId | null,
+  deviceId: EntityId,
+  versions: RowVersions = ROW_SCHEMA_VERSIONS,
+): EntryRow {
+  const schemaVersion = Math.min(writtenEntryVersion(entry), versions.entries);
   const stamps = { updatedAt: entry.updatedAt, deletedAt: entry.deletedAt };
-  return { id: entry.id, payload: entry, ...stamps, deviceId, ...versions, planId };
+  return { id: entry.id, payload: entry, ...stamps, deviceId, schemaVersion, encVersion: PLAINTEXT, planId };
 }
 
 export type SyncedStore = 'plans' | 'entries';
