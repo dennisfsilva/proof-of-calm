@@ -28,7 +28,7 @@ describe('constants', () => {
     expect(LOG_PAGE).toBe(12);
     expect(UNDO_WINDOW_MS).toBe(8000);
     expect(TOMBSTONE_TTL_DAYS).toBe(90);
-    expect(RED_DAY).toEqual({ sevenDay: '-10', fromHigh90: '-30', episodeClearDays: 7 });
+    expect(RED_DAY).toEqual({ sevenDay: '-10', fromHigh90: '-30', episodeClearDays: 7, coverDays: 7, keptDays: 365 });
     expect(CHART_RANGES).toEqual(['7d', '30d', '90d', '1y', 'all']);
     expect(PRICE_FIGURES).toBe(4);
     expect(PRICE_TTL).toEqual({ clientSeconds: 60, serverSeconds: 600 });
