@@ -81,8 +81,8 @@
     "failed": "The notice could not be dismissed. Try again."
   },
   "redDay": {
-    "week": "{coins, select, one {{coin}} other {Together, the coins you hold}} fell {fall} in the seven days to {date}.",
-    "high": "On {date} {coins, select, one {{coin} was} other {the coins you hold were together}} {fall} below {coins, select, one {its} other {their}} 90-day high.",
+    "week": "{names}{coins, select, one {} other {, in the amounts you hold,}} fell {fall} in the seven days to {date}.",
+    "high": "On {date} {names}{coins, select, one { was} other {, in the amounts you hold, were}} {fall} below {coins, select, one {its} other {their combined}} 90-day high.",
     "open": "See the fall under way and your plan",
     "dismiss": "Dismiss",
     "failed": "This could not be dismissed on this device, so it may show again."
