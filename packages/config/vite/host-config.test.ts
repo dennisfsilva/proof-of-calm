@@ -47,6 +47,15 @@ describe('createHostConfig', () => {
     });
   });
 
+  it("both hosts carry the code-splitting groups that keep Today's static modules together", () => {
+    for (const host of ['web', 'mobile'] as const) {
+      const output = createHostConfig({ host, root: `/repo/apps/${host}`, parseModule }).build?.rolldownOptions?.output;
+      const splitting = output && !Array.isArray(output) ? output.codeSplitting : undefined;
+      if (typeof splitting !== 'object') throw new Error(`${host}: expected codeSplitting groups`);
+      expect(splitting.groups?.map((group) => group.debugName)).toEqual(['today']);
+    }
+  });
+
   it('the MDX plugins run before react (ADR-0048)', () => {
     const names = pluginNames(createHostConfig({ host: 'web', root: '/repo/apps/web', parseModule }).plugins);
     const react = names.findIndex((name) => name.includes('react'));
