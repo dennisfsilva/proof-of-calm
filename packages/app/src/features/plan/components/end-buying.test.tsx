@@ -14,6 +14,7 @@ import { type FixturePhase, fixtureNowMs, fixtureSnapshot } from '../../../lib/s
 import { createTestServices, type TestServicesOptions } from '../../../lib/services/testing';
 import errors from '../../../messages/en/errors.json';
 import plan from '../../../messages/en/plan.json';
+import shell from '../../../messages/en/shell.json';
 import today from '../../../messages/en/today.json';
 import { EndBuying } from './end-buying';
 import { PlanScreen } from './plan-screen';
@@ -26,7 +27,14 @@ import { PlanScreen } from './plan-screen';
 beforeAll(() => {
   Element.prototype.scrollIntoView = vi.fn();
 });
-afterEach(cleanup);
+// A namespace the screen reads but the provider lacks is reported on the console, not thrown: every test fails on it.
+const logged = vi.spyOn(console, 'error');
+afterEach(() => {
+  cleanup();
+  const missing = logged.mock.calls.filter((call) => String(call[0]).includes('MISSING_MESSAGE'));
+  logged.mockClear();
+  expect(missing).toEqual([]);
+});
 
 const ENDED = 'Buying ended on 20 Oct 2026.';
 const rules = async (code: string) => FIXTURE_RULES[code as FixtureCountry] ?? null;
@@ -44,7 +52,7 @@ async function mount(
   render(
     <NavigationProvider location="memory" initialPath="/plan">
       <ServicesProvider services={services}>
-        <I18nProvider messages={{ errors, plan, today }}>
+        <I18nProvider messages={{ errors, plan, shell, today }}>
           <Toaster closeLabel="Close" toastManager={services.toasts}>
             {content}
           </Toaster>
