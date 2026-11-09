@@ -128,7 +128,9 @@ const URL_IN_TEXT = /https?:\/\/\S+/g;
 
 /**
  * Each literal percentage in a profile's prose takes its number locale's joiner, so the sign never wraps away from
- * its number; every locale of the profile writes the same joiner, since the app formats with either.
+ * its number. The app formats numbers with `numberFormatLocale`, or with a `locales` entry whose language is a UI
+ * language (packages/app/src/lib/i18n/locale.ts, `localesFor`); a locale of no UI language, such as eu-ES, which
+ * writes the sign first (`% 30`), never formats one. Every locale of the profile is still held to the one joiner.
  */
 function percentProblems(path: string, profile: CountryProfile): Problem[] {
   const { locales, numberFormatLocale } = profile;
