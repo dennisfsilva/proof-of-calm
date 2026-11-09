@@ -111,9 +111,10 @@ matters (the Red day page).
 **Two surfaces.** The module (planned: M2) is the resting text, in Learn's index like any other. The
 fall page, `/learn/fall-under-way`, is the other: Learn's index opens with its row (`The fall under
 way and your plan`) only while the red-day port (`docs/DOMAIN.md` §3.11) finds a fall of the held coins under way
-on the device, and the page's path gives the index in its place when nothing is held or no fall is
-under way, so a bookmark or the back button never shows old figures. The page holds, in order: the
-back link to Today and its heading; the figure with the market as its subject, truncated to whole
+on the device, and the page's path gives the index in its place when nothing is held, no held coin has
+a price history to read, or no fall is under way, so a bookmark or the back button never shows old
+figures. The page holds, in order: the back link to Today and its heading; the figure with the
+market as its subject, truncated to whole
 percents and dated by the last complete close (the coins with no price history named under it); the
 data line (currency, the closes' first and last dates, CoinGecko as the source; ADR-0050); the
 past-performance sentence with its `Risk disclosure` link, once (`docs/LEGAL.md` §4); each held coin's
