@@ -329,7 +329,7 @@ describe('domain store (ADR-0019, ADR-0020)', () => {
         plan,
         snapshot.entries,
         [deleted.id],
-        { at, ids: [deleted.id], slots: [] },
+        { at, ids: [deleted.id], slots: [], currency: plan.payCurrency },
         now(),
       );
       return { entries: restored.ok ? restored.value : [] };
