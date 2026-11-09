@@ -17,9 +17,18 @@ import { routeFixturePrices, test } from './support';
 // exist answers, with status 404 (ADR-0045 §1). A `phase` seeds the fixture plan and fixes the
 // clock on that phase's date: the buying phase on 20 October 2026, the sell window on 15 March 2030.
 // `heading` is the page's own h1, which says its screen has rendered. A `shape` routes the closes of that
-// shape (support.ts), so the fall page has a fall of the held coins to show.
+// shape (support.ts), so the fall page has a fall of the held coins to show; `holds` is text the screen shows
+// once its data has loaded, with the URL still on `path` (the fall page gives way to the module without a fall).
 type Shape = Parameters<typeof routeFixturePrices>[2];
-type Entry = { name: string; path: string; heading: string; country?: string; phase?: FixturePhase; shape?: Shape };
+type Entry = {
+  name: string;
+  path: string;
+  heading: string;
+  country?: string;
+  phase?: FixturePhase;
+  shape?: Shape;
+  holds?: RegExp;
+};
 const PAGES: readonly Entry[] = [
   { name: 'today', path: '/today', heading: 'Today' },
   { name: 'today-plan', path: '/today', heading: 'Today', phase: 'buy' },
@@ -45,6 +54,7 @@ const PAGES: readonly Entry[] = [
     heading: 'The fall under way and your plan',
     phase: 'buy',
     shape: 'week-fall',
+    holds: /below (its|their) 90-day high/,
   },
   { name: 'learn-countries', path: '/learn/countries', heading: 'Countries' },
   { name: 'learn-country-pt', path: '/learn/countries/pt', heading: portugal.name },
@@ -149,7 +159,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
   test.describe(colorScheme, () => {
     test.use({ colorScheme });
 
-    for (const { name, path, heading, country, phase, shape } of PAGES) {
+    for (const { name, path, heading, country, phase, shape, holds } of PAGES) {
       test(`${name} fits the viewport, keeps its targets and passes axe`, async ({ page }, testInfo) => {
         if (country !== undefined) await page.setExtraHTTPHeaders({ 'x-vercel-ip-country': country });
         if (phase !== undefined) {
@@ -160,6 +170,10 @@ for (const colorScheme of ['light', 'dark'] as const) {
         if (shape !== undefined) await routeFixturePrices(page, fixtureNowMs(phase ?? 'buy'), shape);
         await page.goto(path);
         await screenReady(page, heading);
+        if (holds !== undefined) {
+          await expect(page.getByText(holds)).toBeVisible();
+          await expect(page, 'the page stays on its path').toHaveURL((url) => url.pathname === path);
+        }
         const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
         expect(overflow, 'no horizontal page scroll').toBeLessThanOrEqual(0);
         expect(await smallTargets(page, TARGET), 'touch targets of at least 44 × 44 px').toEqual([]);
