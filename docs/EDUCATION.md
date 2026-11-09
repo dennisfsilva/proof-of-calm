@@ -122,7 +122,7 @@ percents and dated by the last complete close (the coins with no price history n
 data line (currency, the closes' first and last dates, CoinGecko as the source; ADR-0050); the
 past-performance sentence with its `Risk disclosure` link, once (`docs/LEGAL.md` §4); each held coin's
 earlier falls from the cycles file (§9 a–c), oldest first, each with its publisher as unlinked text,
-and a line for a coin that has none; the next buy day; and the person's note with its date. The held
+and a line for a coin that has none; the next buy day, left out with none ahead; and the person's note with its date. The held
 coins are the portfolio's with units above 0 (`docs/DOMAIN.md` §3.6): a plan coin at 0 units is not
 one, and a coin that left the plan while its entries stay is, under its name. While the figures are
 asked their place keeps its height and no coin is named; a history that cannot be loaded leaves one

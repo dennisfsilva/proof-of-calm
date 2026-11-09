@@ -79,6 +79,17 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   loads. #52 passed the first (45,051 of 46,080 bytes) and failed the second (169,093 bytes over
   the script budget of `docs/ENGINEERING.md` §4). Since Today's code-splitting group lowered
   today.ts's figure, that Lighthouse run is what holds Today's scripts before a merge (§4 there).
+  A branch that changes what Today runs at mount also reads that dispatch's performance median and
+  total blocking time beside main's latest push run at a matched `environment.benchmarkIndex`, not
+  only the script size. #52 passed its script budget and its review; only the dispatch showed
+  Today's blocking time at 334 ms against main's 94 ms at the same runner speed (runs 42597401623
+  and 42596180364).
+- A module's `<PastPerformance />` ends its source line inside the paragraph, as
+  `packages/content/learn/cycles.mdx` does. On a line of its own its `Risk disclosure` link fails
+  the e2e matrix's touch-target check (#61's first CI run, 42631547433).
+- A product claim in a module or message is checked in every state a person can be in, the hold
+  phase included. #61 said the fall page shows "the next buy day", which it leaves out when no buy
+  is ahead.
 
 ## Known gaps
 

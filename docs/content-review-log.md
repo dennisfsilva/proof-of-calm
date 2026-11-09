@@ -4,6 +4,23 @@ What each owner's review found wrong in the drafts, so the review skill improves
 (`docs/CONTENT-OPS.md` §8 step 5). Newest first. Each row names the kind of mistake, which is what the
 next draft can check for.
 
+## 2026-11-09: #61, the Noise and When the market drops modules
+
+The owner delegated this read and the merge to a session, by message (the session's question that morning), with
+the session's other checkpoint PRs (ADR-0015 Deviations). `reviewedBy: owner` on these modules records that
+delegation; no person opened the sources. An agent re-read every figure against its source: 30 figures, with facts q
+and o re-run from Bitstamp's daily candles. 28 matched; the 2 differences, both in fact f's BIS text, were fixed
+before the merge. The read is in #61's comment.
+
+| Kind | What was wrong | What it became |
+|---|---|---|
+| A figure under another source's fact | The BIS app-user figures sat in the text of fact `f.leverage`, a fact about leverage | The new fact `r.app-user-losses`, sourced to BIS Working Paper 1049 (Nov 2022, revised Jul 2023) |
+| A figure from another case of the same paper | The October 2022 valuation belongs to the paper's one-purchase case, not to the monthly buyer the module describes | Dropped |
+
+Found outside the read: the builder's and the session's check of the modules' product claims against the code
+found that #61 said the fall page shows "the next buy day", which it leaves out when no buy is ahead; the page is
+now described by what it always holds. The read only listed the claims for the code reviewer.
+
 ## 2026-11-05: #335, #347, #338, #333, #334, #340, #339 and #332, the 8 country PRs
 
 Read on 5 November 2026 at each source's own address: agents re-fetched every source of each PR that day
