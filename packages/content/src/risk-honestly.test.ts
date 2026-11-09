@@ -42,10 +42,31 @@ describe('the Risk honestly module', () => {
     expect(BREAKS.flatMap((rule) => read().module.body.match(rule) ?? [])).toEqual([]);
   });
 
+  // EDUCATION §10: `facts` lets the review job flag the module when a fact it quotes goes stale. The falls in the
+  // body rest on a (bitcoin) and b (the other coins), so both keys belong to the list.
+  it('lists every fact whose figures its body quotes, the falls of a and b included', () => {
+    const { module, body } = read();
+    const quotes = [
+      ['a.btc-drawdowns', /bitcoin fell \d+ %/u],
+      ['b.alt-drawdowns', /Ether fell \d+ %/u],
+    ] as const;
+    const quoted = quotes.filter(([, figure]) => figure.test(body.replaceAll(' ', ' '))).map(([key]) => key);
+    expect(quoted).toEqual(['a.btc-drawdowns', 'b.alt-drawdowns']);
+    expect(quoted.filter((key) => !module.facts.includes(key))).toEqual([]);
+  });
+
   it('names only the facts it quotes, among a to f and m', () => {
     const { module } = read();
     expect(module.chart).toBe('drawdowns-bar');
-    expect(module.facts).toEqual(['d.mt-gox', 'd.ftx', 'f.leverage', 'e.scams', 'm.emergency-fund']);
+    expect(module.facts).toEqual([
+      'a.btc-drawdowns',
+      'b.alt-drawdowns',
+      'd.mt-gox',
+      'd.ftx',
+      'f.leverage',
+      'e.scams',
+      'm.emergency-fund',
+    ]);
   });
 
   it("draws the chart before any other historic figure and quotes the chart's falls at its whole percent", () => {
