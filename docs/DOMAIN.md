@@ -608,13 +608,19 @@ or after it adds its amount to `investedSoFar`, changes no other field but `perc
   under way on `today` as `{ start, last }`, or null. An episode starts on a Red day; a later Red day
   belongs to it while at most six clear days lie between them; it ends once the condition has been clear
   for `RED_DAY.episodeClearDays` (7) consecutive days, missing days counting as clear. Flags dated after
-  `today` are not read, so `start <= last <= today`. The banner is
-  shown once per episode until dismissed; the page stays reachable from Learn.
+  `today` are not read, so `start <= last <= today`. The banner shows on one visit per episode
+  (`bannerFor` below); the page stays reachable from Learn.
 - The complete-closes rule, which the Red day figures follow: the history route dates its last point,
   the live price at the fetch, with the UTC day of the fetch, so a copy's closes count only before the
   UTC day of its `fetchedAt` and never after the user's `today`. The red-day port (`redDay` on the
   Services, `packages/app/src/lib/services/red-day.ts`) drops the rest from each held coin's copy, then
-  runs `heldValueSeries` at today's units, `drawdowns`, `redDay` on each date and `redDayEpisode`. A held
+  runs `heldValueSeries` at today's units and reads the episode from the recent drawdowns
+  (`recentEpisode` in `packages/app/src/lib/services/red-day-model.ts`): `drawdowns` and `redDay` on
+  the last 14 days first, read with the 90 days before them and one older point so each figure is
+  exact, then on earlier 90-day blocks only while the episode could have started before what it read,
+  with a pause between blocks. The episode and the flags it finds are those of `drawdowns`, `redDay` and
+  `redDayEpisode` over the whole series (`packages/app/src/lib/services/red-day-model.property.test.ts`);
+  why it reads less: Today's load, `docs/ENGINEERING.md` §4. A held
   coin outside the catalogue is named as missing without a read, and so is one with fewer than two
   complete closes; one failed read fails the figure as a whole (`failed`, which a retry can mend), and
   with no read failed and no held coin left with two complete closes the state is `no-history`. The
