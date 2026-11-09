@@ -463,6 +463,23 @@ describe('TodayScreen, the red-day banner', () => {
     expect(screen.getAllByRole('status')).toHaveLength(1);
   });
 
+  it('no served history counts as no episode: the next banner, and nothing recorded', async () => {
+    const model: RedDayModel = {
+      state: 'no-history',
+      held: [{ coin: 'BTC' as CoinId, name: 'Bitcoin' }],
+      figure: null,
+      episode: null,
+      lastRed: null,
+      nextBuy: null,
+      buyDayToday: false,
+    };
+    const unserved = episodeRedDay(CLEAR_LAST, undefined, async () => model);
+    const { services } = await mount(fixtureSnapshot(), at('2026-10-20'), false, { redDay: unserved });
+    expect(screen.queryByText(RED)).toBeNull();
+    expect(screen.getByText(BACKUP)).toBeDefined();
+    expect(services.domain.store.getState().snapshot.prefs.dismissedBanners).toEqual([]);
+  });
+
   it('no units held: no question asked, and no banner', async () => {
     const redDay = episode();
     const model = vi.spyOn(redDay, 'model');
