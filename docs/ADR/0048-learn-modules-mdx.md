@@ -143,3 +143,6 @@ delegated the call to a session (ADR-0015 Deviations).
 - 2026-11-09: `<Chart />` draws a block, so `closedBody` refuses it inside a sentence (`MODULE_FLOW_ELEMENTS`), and
   `pnpm validate:content` counts the flow `<Chart />` elements of the compiled tree against the front matter's
   `chart` (`module-chart-element`); an escaped element or a code span counts as none.
+- 2026-11-09: an allowed element is self-closing: the renderer passes it no children, so `closedBody` refuses one with
+  anything between its tags, a flow or a text element alike (an empty `<Chart></Chart>` passes). No `<Chart />` can
+  then sit inside another element, where it would never mount, and the count above is the page's.

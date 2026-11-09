@@ -28,7 +28,8 @@ configs live in their packages. See `docs/ENGINEERING.md`.
     `{...spread}` of an allowed element), an element outside `elements` (none by default; the hosts,
     Storybook and the app's tests pass `MODULE_BODY_ELEMENTS`, ADR-0048, Deviations), an element of
     `MODULE_FLOW_ELEMENTS` (`Chart`) that shares a line with text, where its block would sit inside a
-    `<p>`, or a Markdown link, image or link definition (a module holds no link: ADR-0048, Deviations); and the
+    `<p>`, an allowed element with anything between its tags (each is self-closing and renders no
+    children), or a Markdown link, image or link definition (a module holds no link: ADR-0048, Deviations); and the
     virtual module `virtual:learn-modules`, which reads the `.mdx` files of `dir` (the hosts: the Learn folder
     of `packages/content`; `packages/app`'s tests and stories: its fixture folder; a missing folder is
     no modules), parses each with `parseModule` (a failed parse
