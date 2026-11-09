@@ -32,9 +32,21 @@ import {
 } from '../../plan';
 import { changeCountryOf } from '../actions';
 import { countryOptions, countrySummary, type RuleWords, ruleWordsOf } from '../model/country';
+import {
+  AmountRows,
+  CurrencyQuestionGroup,
+  FilesFirst,
+  givenAnswer,
+  previewAnswer,
+  unanswered,
+} from './currency-question';
+import { PayCurrencyLine } from './pay-currency-line';
 
 // Currency & data's country change (docs/DOMAIN.md §6 "Change country"): a select of the countries with a
-// profile; choosing another lists what the change moves, says logged amounts stay as typed, asks the person to
+// profile, under the line that offers the country's currency while the plan's differs (`PayCurrencyLine`);
+// choosing another lists what the change moves, asks the currency question when logged amounts would change
+// meaning (ADR-0053; otherwise says they stay as typed), names the plan's own amounts the currency moves, offers
+// the current tax-year files first, asks the person to
 // confirm the new holding rule in place of the plan's (their own or the old country's, never silently), and
 // shows the early-window notice when the new rule makes the sell window open early. Each country's rule in the
 // list carries that country's card date line as Hold & sell shows it; the generic profile's gives its own text
@@ -63,6 +75,7 @@ export function CountrySection() {
   const [pending, setPending] = useState<Pending | null>(null);
   const [confirmed, setConfirmed] = useState(false);
   const [acceptEarly, setAcceptEarly] = useState(false);
+  const [answer, setAnswer] = useState<CurrencyAnswer | null>(null);
   const [refused, setRefused] = useState(0);
   const [problem, setProblem] = useState<'changed' | 'notSaved' | 'conflict' | null>(null);
   const [result, setResult] = useState('');
@@ -77,7 +90,10 @@ export function CountrySection() {
   const resultLine = useRef<HTMLParagraphElement>(null);
   const problemLine = useRef<HTMLParagraphElement>(null);
   useEffect(() => {
-    if (refused > 0) form.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+    if (refused === 0) return;
+    // An invalid group (the currency question) is no tab stop itself: its own stop, a radio, takes the focus.
+    const invalid = form.current?.querySelector<HTMLElement>('[aria-invalid="true"]');
+    (invalid?.querySelector<HTMLElement>('[tabindex="0"]') ?? invalid)?.focus();
   }, [refused]);
   useEffect(() => {
     if (reported > 0) problemLine.current?.focus();
@@ -104,6 +120,7 @@ export function CountrySection() {
   }, [services]);
   if (plan === null || options === null) return null;
 
+  const own = options.find(({ code }) => code === plan.country);
   const nameOf = (code: CountryCode) => options.find((rules) => rules.code === code)?.name ?? code;
   const ruleName = (rule: HoldingRule, country: CountryCode) => {
     const rules = options.find((candidate) => candidate.code === country) ?? null;
@@ -136,6 +153,7 @@ export function CountrySection() {
     setPending(next);
     setConfirmed(false);
     setAcceptEarly(false);
+    setAnswer(null);
     setRefused(0);
     setProblem(shown);
     setResult(said);
@@ -150,12 +168,16 @@ export function CountrySection() {
     const rules = options.find((candidate) => candidate.code === code);
     reopen(rules === undefined || code === plan.country ? null : { rules, opened: plan }, null);
   };
-  // Until the section asks the currency question, a change that would relabel logged amounts keeps the plan's
-  // currencies (ADR-0053); with nothing to relabel they follow the country.
-  const answer: CurrencyAnswer | null =
-    pending === null || currencyQuestion(pending.opened, entries, pending.rules) === null ? null : 'keep';
+  // The currency question, asked when the change would relabel logged amounts (ADR-0053); with nothing to relabel
+  // the currencies follow the country. The list shows the answer given, `keep` while there is none.
+  const currency = {
+    question: pending === null ? null : currencyQuestion(pending.opened, entries, pending.rules),
+    answer,
+  };
   const change =
-    pending === null ? null : changeCountry(pending.opened, pending.rules, services.clock.now(), answer ?? 'country');
+    pending === null
+      ? null
+      : changeCountry(pending.opened, pending.rules, services.clock.now(), previewAnswer(currency));
   const rows =
     pending === null || change === null
       ? []
@@ -170,7 +192,7 @@ export function CountrySection() {
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (pending === null || busy.current) return;
-    if ((ruleMoves && !confirmed) || (early !== null && !acceptEarly)) {
+    if (unanswered(currency) || (ruleMoves && !confirmed) || (early !== null && !acceptEarly)) {
       setRefused((count) => count + 1);
       return;
     }
@@ -178,7 +200,7 @@ export function CountrySection() {
     setChanging(true);
     let outcome: Awaited<ReturnType<typeof changeCountryOf>>;
     try {
-      outcome = await changeCountryOf(services, pending.rules, pending.opened, acceptEarly, answer);
+      outcome = await changeCountryOf(services, pending.rules, pending.opened, acceptEarly, givenAnswer(currency));
     } finally {
       busy.current = false;
       setChanging(false);
@@ -215,12 +237,19 @@ export function CountrySection() {
       <p className="text-13 text-ink-2">{t('line')}</p>
       {options.length === 0 ? (
         <p className="text-13 text-ink-2">{t('notLoaded')}</p>
-      ) : !options.some(({ code }) => code === plan.country) ? (
+      ) : own === undefined ? (
         // Without the plan's country's rules the list cannot tell the person's own rule from that country's, so no
         // change is offered until they load (docs/DOMAIN.md §6 "Change country"; Hold & sell's disabled card).
         <p className="text-13 text-ink-2">{t('ruleNotLoaded')}</p>
       ) : (
         <form ref={form} onSubmit={(event) => void submit(event)} noValidate className="flex flex-col gap-stack-md">
+          {pending === null && (
+            <PayCurrencyLine
+              plan={plan}
+              rules={own}
+              onDone={done}
+            />
+          )}
           <Select<CountryCode> value={pending?.rules.code ?? plan.country} onValueChange={choose}>
             <SelectLabel>{t('label')}</SelectLabel>
             <SelectTrigger>
@@ -262,8 +291,18 @@ export function CountrySection() {
                     </li>
                   ),
                 )}
+                <AmountRows opened={pending.opened} next={change.plan} />
               </ul>
-              <p className="text-13 text-ink-2">{t('logged')}</p>
+              {currency.question === null ? (
+                <p className="text-13 text-ink-2">{t('logged')}</p>
+              ) : (
+                <CurrencyQuestionGroup
+                  key={`${pending.rules.code}:${pending.opened.updatedAt}`}
+                  question={currency.question}
+                  onAnswer={setAnswer}
+                  invalid={refused > 0 && answer === null}
+                />
+              )}
               {ruleMoves && (
                 <div className="flex flex-col gap-stack-xs">
                   <label className="flex items-start gap-1 text-16 text-ink">
@@ -300,6 +339,7 @@ export function CountrySection() {
                   invalid={refused > 0 && !acceptEarly}
                 />
               )}
+              <FilesFirst entries={entries} />
               {problem !== null && (
                 <p ref={problemLine} tabIndex={-1} role="alert" className="text-13 text-negative">
                   {problem === 'conflict' ? t('notSaved') : settings(problem)}

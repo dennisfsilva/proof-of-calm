@@ -26,10 +26,26 @@
       "displayCurrency": "Currency shown: {from} to {to}",
       "ruleNow": "Holding rule now: {name}. {rule}",
       "ruleAfter": "After the change: {name}. {rule}",
-      "lastBuyEligible": "{effect, select, exempt {Last buy tax-free} other {Last buy at the long-term rate}} from {from} now, from {to} after the change"
+      "lastBuyEligible": "{effect, select, exempt {Last buy tax-free} other {Last buy at the long-term rate}} from {from} now, from {to} after the change",
+      "amount": "{field, select, startingAmount {Starting amount} other {Monthly amount}}: {from} becomes {to}. Check it in Plan."
     },
     "ruleName": "{kind, select, own {your own rule} generic {the general profile's rule} other {{country}'s rule}}",
     "logged": "Amounts you already logged stay as typed; nothing is converted.",
+    "question": {
+      "legend": "{count, plural, one {{figure} logged entry, on {first}, holds an amount or a fee} other {{figure} logged entries, from {first} to {last}, hold amounts or fees}} in {logged}. Which currency were they paid in?",
+      "keep": "Keep {logged}",
+      "keepLine": "If you moved: they were paid in {logged}, and new amounts are logged in {logged} too.",
+      "country": "Change to {country}",
+      "countryLine": "If the country was wrong from the start: they were paid in {country}. They show as {country}, as typed; nothing is converted.",
+      "oneCurrency": "A plan holds one currency. To pay in {country} from now on, keep {logged}, export a copy, and start a plan in {country} with the coins you already hold.",
+      "issue": "Choose Keep {logged} or Change to {country}."
+    },
+    "files": "Tax-year files follow your current country's rules until you change it. Export the years you need first.",
+    "payCurrency": {
+      "line": "Your plan is in {logged}, and your country's currency is {country}. If your amounts were paid in {country}, change the plan to {country}. Every amount then shows as {country}, as typed; nothing is converted.",
+      "button": "Change to {country}",
+      "changed": "Plan currency changed to {country}."
+    },
     "confirmRule": "Replace {from} with {to}",
     "confirmRuleIssue": "Tick the box to replace the holding rule.",
     "notSaved": "Not saved: this change conflicts with another part of your plan. Check Plan and Hold & sell, then change the country again.",
