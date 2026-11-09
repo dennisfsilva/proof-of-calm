@@ -7,6 +7,7 @@
   "sideEffects": false,
   "exports": {
     ".": "./src/index.ts",
+    "./cycles": "./src/loaders/cycles.ts",
     "./modules": "./src/loaders/modules.ts"
   },
   "scripts": {
