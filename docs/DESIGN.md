@@ -218,7 +218,12 @@ dark mode uses the dark steps above, not an inversion; the validator runs whenev
   window's top edge comes back with its whole ring in view. A popup that scrolls (the Sheet) clips
   at its padding box, so it gets `scroll-padding` of the ring's extent plus 1 px, since browsers
   keep scroll offsets to whole pixels (Chromium and WebKit, measured on 2026-10-26): a field scrolled into it, or a
-  button Tab reaches, stops with its whole ring inside it (the keyboard e2e check); the module sheet's
+  button Tab reaches, stops with its whole ring inside it (the keyboard e2e check). Chromium's Tab into
+  a text field scrolls at most its caret's line, so the Sheet itself, on `focusin` of a control that
+  shows its ring, scrolls by the least that shows the whole control and ring after layout
+  (`reveal` in `packages/ui/src/lib/reveal.ts`, at once, as the browser's own focus scroll); the
+  entry form's "Venue and note" panel, once open to its height, scrolls into the Sheet the same way,
+  gliding unless motion is reduced (android-small and zoom-125, 2026-11-09); the module sheet's
   sticky `Close` adds no padding, its module taking a scroll margin instead (§8). A container that
   clips its children or draws a border around them (the collapsible's panel, the segmented control,
   the tab list, the table's scroller) is padded by the ring's extent on every side, so a focused
