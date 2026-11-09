@@ -246,7 +246,7 @@ describe('DataSection', () => {
   it('rollback: a backup with a newer schemaVersion is refused as newer-version and nothing is written', async () => {
     const { services } = await mount(fixtureSnapshot());
     const before = current(services);
-    await choose(JSON.stringify({ format: 'proof-of-calm', schemaVersion: 5, exportedAt: NOW, plan: {}, entries: [] }));
+    await choose(JSON.stringify({ format: 'proof-of-calm', schemaVersion: 6, exportedAt: NOW, plan: {}, entries: [] }));
     expect(screen.getByText(/^This backup comes from a newer version of Proof of Calm\./)).toBeDefined();
     expect(screen.queryByRole('button', { name: 'Replace everything' })).toBeNull();
     expect(current(services)).toBe(before);

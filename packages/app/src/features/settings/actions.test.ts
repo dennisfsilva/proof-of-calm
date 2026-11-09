@@ -648,7 +648,7 @@ describe('dataActions beside rows from a newer version (docs/DOMAIN.md §3.13)',
 
   /** As a newer build stored it: the first entry's row, or what a test's `rewrite` does to the stored rows. */
   const newerEntry: Rewrite = async (db, _plan, entry) => {
-    await db.put('entries', { ...entry, ...unknown, schemaVersion: 4 });
+    await db.put('entries', { ...entry, ...unknown, schemaVersion: 5 });
   };
 
   /** A tombstone of a newer build at OTHER_PLAN, the id of the plan in a test's file. */
@@ -731,7 +731,7 @@ describe('dataActions beside rows from a newer version (docs/DOMAIN.md §3.13)',
 
   it('add-missing beside a newer entry tombstone is refused and writes nothing', async () => {
     const { services, plan, newer, before } = await started(async (db, _plan, entry) => {
-      await db.put('entries', { ...entry, ...unknown, ...deleted, schemaVersion: 4 });
+      await db.put('entries', { ...entry, ...unknown, ...deleted, schemaVersion: 5 });
     });
     const file = exportBackup(plan, [newer], NOW);
     expect(await dataActions(services).importBackup(file, 'add-missing')).toEqual(refused);
@@ -763,7 +763,7 @@ describe('dataActions beside rows from a newer version (docs/DOMAIN.md §3.13)',
   it('an export beside newer tombstones alone stamps lastBackupAt', async () => {
     const { services, planStore } = await started(async (db, row, entry) => {
       await newerPlanTombstone(db, row, entry);
-      await db.put('entries', { ...entry, ...unknown, ...deleted, schemaVersion: 4 });
+      await db.put('entries', { ...entry, ...unknown, ...deleted, schemaVersion: 5 });
     });
     expect(await dataActions(services).exportJson()).toBe('saved');
     const stamped = (await planStore.load()).prefs.lastBackupAt;
