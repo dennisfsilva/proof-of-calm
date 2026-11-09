@@ -32,7 +32,7 @@ const FALLS = [
   { row: ['ETH', '2018-01-13', COINBASE], fact: [B, 'ETH 2018', '−94.3 %', COINBASE] },
   { row: ['ETH', '2021-11-10', COINBASE], fact: [B, 'ETH 2022', '−81.9 %', COINBASE] },
   { row: ['LINK', '2018-01-08', CMC], fact: [B, 'LINK 2018', '−88.7 %', CMC] },
-  { row: ['LINK', '2021-05-10', COINBASE], fact: [B, 'LINK 2021', '−90.7 %', COINBASE] },
+  { row: ['LINK', '2021-05-10', BITSTAMP], fact: [B, 'LINK 2021', '−90.7 %', COINBASE] },
   { row: ['SOL', '2021-11-06', COINBASE], fact: [B, 'SOL', '−96.9 %', COINBASE] },
 ] as const;
 // What follows the last row's clause of each fact: the current cycle, and the line on 16 Oct 2026.
@@ -89,7 +89,6 @@ describe('the cycles file (docs/EDUCATION.md §2 and §6)', () => {
     expect(coinbase.map(({ coin, high }) => `${coin} ${high}`)).toEqual([
       'ETH 2018-01-13',
       'ETH 2021-11-10',
-      'LINK 2021-05-10',
       'SOL 2021-11-06',
     ]);
     for (const { coin, high, low, source, lowSource } of coinbase) {
@@ -98,6 +97,32 @@ describe('the cycles file (docs/EDUCATION.md §2 and §6)', () => {
       const lowUrl = lowSource ?? source;
       expect(holds(lowUrl, coin, low), lowUrl).toBe(true);
       if (lowSource) expect(holds(source, coin, low), source).toBe(false);
+    }
+  });
+
+  it('gives a coin that has not regained its high a low window from its low to the day the row was read', () => {
+    // Fact b's line at the 16 Oct 2026 close: LINK is still below its 2021 high, while SOL passed it in Nov 2024.
+    const unregained = ['LINK 2021-05-10'];
+    const isoDay = (ms: number) => new Date(ms).toISOString().slice(0, 10);
+    // The window one request returns: Bitstamp's `limit` candles of `step` seconds from `start`, or Coinbase's start to end.
+    const windowOf = (href: string) => {
+      const url = new URL(href);
+      const param = (key: string) => url.searchParams.get(key) ?? '';
+      if (url.hostname === 'www.bitstamp.net') {
+        const start = Number(param('start')) * 1000;
+        return { start: isoDay(start), end: isoDay(start + Number(param('step')) * Number(param('limit')) * 1000) };
+      }
+      if (url.hostname === 'api.exchange.coinbase.com')
+        return { start: param('start').slice(0, 10), end: param('end').slice(0, 10) };
+      return { start: '', end: '' };
+    };
+    const rows = CycleDrawdownsSchema.parse(cycles).drawdowns.filter(({ coin, high }) =>
+      unregained.includes(`${coin} ${high}`),
+    );
+    expect(rows.map(({ coin, high }) => `${coin} ${high}`)).toEqual(unregained);
+    for (const { low, lowSource = '', accessed } of rows) {
+      const { start, end } = windowOf(lowSource);
+      expect(start !== '' && start <= low && accessed <= end, lowSource).toBe(true);
     }
   });
 

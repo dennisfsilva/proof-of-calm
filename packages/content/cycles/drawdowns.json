@@ -79,10 +79,10 @@
       "high": "2021-05-10",
       "low": "2023-06-10",
       "fall": "91",
-      "source": "https://api.exchange.coinbase.com/products/LINK-USD/candles?granularity=86400&start=2021-04-01T00:00:00Z&end=2022-01-25T00:00:00Z",
-      "lowSource": "https://api.exchange.coinbase.com/products/LINK-USD/candles?granularity=86400&start=2023-01-01T00:00:00Z&end=2023-10-27T00:00:00Z",
-      "publisher": "Coinbase",
-      "accessed": "2026-11-09",
+      "source": "https://www.bitstamp.net/api/v2/ohlc/linkusd/?step=86400&limit=1000&start=1609459200",
+      "lowSource": "https://www.bitstamp.net/api/v2/ohlc/linkusd/?step=259200&limit=1000&start=1609459200",
+      "publisher": "Bitstamp",
+      "accessed": "2026-11-02",
       "confidence": "high"
     },
     {
