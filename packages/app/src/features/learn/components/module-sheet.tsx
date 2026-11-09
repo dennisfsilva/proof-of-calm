@@ -49,7 +49,7 @@ export function ModuleSheet({ slug, section, open, onOpenChange, finalFocus }: M
   const module = LEARN_MODULES.find((known) => known.slug === slug);
   const Body = moduleBody(slug);
   if (module === undefined || Body === undefined) return null;
-  const joiner = module.chart === 'none' ? ' ' : pageJoiner(f);
+  const joiner = module.chart === 'none' ? undefined : pageJoiner(f);
   const heading = () =>
     (section !== undefined && popup.current?.querySelector<HTMLElement>(`[id="${section}"]`)) || true;
   return (

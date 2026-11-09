@@ -214,8 +214,9 @@ page takes the spacing of the country's number locale, as `format.percent` write
 Portugal, `40 %` with a no-break space in Germany. Research figures in messages go through
 `format.percent`, and a country profile writes its literal percentages with its own locale's joiner,
 which `pnpm validate:content` checks, so the sign never wraps away from its number. Facts, templates
-and modules still write `N %` with an ordinary space; they take the page's joiner when a page first
-shows them beside a formatted figure. A sheet is the module's surface, not the page's, so a module opened in a sheet
+and modules still write `N %` with an ordinary space, or a no-break one where the sign must not wrap
+away; either takes the page's joiner when a page first shows them beside a formatted figure, and a module
+without a chart keeps its spacing as written. A sheet is the module's surface, not the page's, so a module opened in a sheet
 keeps its own spacing beside the page's figures, as the Cycles sheet over Plan does. A page with formatted figures shows no `N %` with an ordinary
 space: a template's `oneLine` holds no percentage, the card builds its
 split line from `split`, and the app formats a research figure such as an explanation's; the

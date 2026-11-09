@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { createFormatters } from '../../../lib/format';
 import { I18nProvider } from '../../../lib/i18n';
 import learn from '../../../messages/en/learn.json';
-import { headingId, MODULE_ELEMENTS, moduleElements, pageJoiner } from './body-elements';
+import { headingId, MODULE_ELEMENTS, moduleElements, pageJoiner, withJoiner } from './body-elements';
 
 // A section's id comes from its heading's text, so the compiled module carries no id and a link names the
 // section by the words on the page (ADR-0048 Deviations).
@@ -65,15 +65,38 @@ describe('moduleElements', () => {
     );
   });
 
+  // Risk honestly writes its `N %` with a no-break space, so the sign cannot wrap away before a page joins it.
+  it.each([
+    ['en', ''],
+    ['de', NBSP],
+  ])('%s: a no-break space before the sign takes the joiner too', (locale, joiner) => {
+    const elements = moduleElements('drawdowns-bar', pageJoiner(createFormatters(locale, 'en-GB')));
+    const { container } = render(<elements.p>{`Falls of 94${NBSP}% and 78 %`}</elements.p>);
+    expect(container.textContent).toBe(`Falls of 94${joiner}% and 78${joiner}%`);
+  });
+
   it('a module without a chart keeps its text as written', () => {
-    expect(moduleElements('none', NBSP)).toBe(MODULE_ELEMENTS);
-    expect(text(moduleElements('none', ''))).toBe('Bitcoin fell 77 % and Ether 94 %.A share of 5 %');
+    expect(moduleElements('none', undefined)).toBe(MODULE_ELEMENTS);
+    expect(text(moduleElements('none', undefined))).toBe('Bitcoin fell 77 % and Ether 94 %.A share of 5 %');
   });
 
   it('an h2 keeps the id of its text', () => {
     const elements = moduleElements('drawdowns-bar', '');
     render(<elements.h2>Falls of 80 %</elements.h2>);
     expect(screen.getByRole('heading', { level: 2, name: 'Falls of 80%' }).id).toBe('falls-of-80');
+  });
+});
+
+// A module without a chart has no page joiner: Cycles writes `−94.0 %` with a no-break space so the line cannot
+// break there, and that space stays.
+describe('withJoiner', () => {
+  it('with no joiner the text stays as written, its no-break spaces too', () => {
+    const text = `fell \u221294.0\u00a0% and 77 %`;
+    expect(withJoiner(text, undefined)).toBe(text);
+  });
+
+  it('with a joiner both spaces before the sign give way to it', () => {
+    expect(withJoiner(`94\u00a0% and 77 %`, '')).toBe('94% and 77%');
   });
 });
 
