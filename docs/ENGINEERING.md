@@ -159,10 +159,12 @@ as ADR-0024's Corrections say, and the test skips on a platform without one.
   2026-11-09 measured Today at 144,222 bytes of scripts in 3 requests (main: 161,818 in 14),
   Portfolio 207,689 (225,487), Log 213,258 (230,866) and Plan 188,441 (206,179), performance medians
   0.99 on Today and 0.96 on the other three. A lazy screen still takes shared data through Services.
-  Today's foot (its banners, DESIGN §8) loads on demand as one chunk behind its own error boundary,
-  precached by the service worker: with the red-day banner in the entry the branch measured 46,441
-  bytes in 13 chunks against main's 44,874 at 3f7d7523 on 2026-11-09, and with the foot on demand
-  44,992 bytes in 17 chunks; loading only the red-day half split the shared chunks to 46,554.
+  Today's foot (its banners, DESIGN §8) ships statically with the screen. Before the group the
+  red-day banner's branch measured 46,441 bytes in 13 chunks with the foot in the entry and 44,992 in
+  17 with it on demand behind its own error boundary; with the group, a local merge with the foot
+  static measured 37,270 bytes (46,466 without the group) and the rebased branch 37,414 bytes in 3
+  chunks, on 2026-11-09, so the on-demand chunk and its boundary went. Lighthouse's script total on
+  the branch is the measure against the budget and main's figures above.
 - Lighthouse mobile ≥ 95 for Performance (TBT ≤ 200 ms, LCP ≤ 2.5 s, CLS ≤ 0.1) and 100 for
   Accessibility on Today, Portfolio, Log, Plan; five runs per measured deployment, each screen with
   the fixture plan in IndexedDB (`apps/web/lighthouse/seed.ts`, run before each URL; Lighthouse's reset

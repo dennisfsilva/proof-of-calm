@@ -249,9 +249,10 @@ dark mode uses the dark steps above, not an inversion; the validator runs whenev
   was before the toast. Once the toast has given the focus back, a Log row's Undo moves it to the
   restored row's toggle and a skipped month's Undo on Today to the action card's heading
   (`today-action`, `tabindex="-1"`) and on Log to the screen's `h1`. Dismissing the rule-change
-  notice at Today's foot takes its button away, so the focus moves to that same heading by the
-  script focus move above, since on a phone the heading is above the window once the foot has been
-  scrolled to. Accepting the re-ask of the risk text takes its button away with no new pathname for
+  notice or the red-day banner at Today's foot takes its button away, so the focus moves to that
+  same heading by the script focus move above, once the commit has removed the banner, since on a
+  phone the heading is above the window once the foot has been scrolled to.
+  Accepting the re-ask of the risk text takes its button away with no new pathname for
   the shell to act on, so the focus moves to Today's `h1` by the script focus move above. An action
   that ends in a problem with no result to show (the import of a file) moves the focus to the
   `role="alert"` line that words it, also given `tabindex="-1"`, through every button and the dialog
