@@ -4,13 +4,14 @@ import { loadCycleDrawdowns } from '@proofofcalm/content/cycles';
 import type { Coin, CountryCode, Instant, Plan } from '@proofofcalm/core';
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { Suspense } from 'react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { I18nProvider } from '../../../lib/i18n';
 import { NavigationProvider, Route, usePathname } from '../../../lib/navigation';
 import { ServicesProvider } from '../../../lib/services';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
+import { pastFalls } from '../../../lib/services/red-day-model';
 import type { PastFall, RedDayModel, RedDayPort } from '../../../lib/services/red-day-types';
-import { createTestServices } from '../../../lib/services/testing';
+import { createTestServices, preloadLazyModules } from '../../../lib/services/testing';
 import learn from '../../../messages/en/learn.json';
 import shell from '../../../messages/en/shell.json';
 import { LearnScreen } from './learn-screen';
@@ -19,6 +20,25 @@ import { LearnScreen } from './learn-screen';
 // figure in the market's words, dated by the last close; the data line; the past-performance line once; the earlier
 // falls of each held coin with their publishers; the next buy day; the person's note. The port is stubbed for the
 // figure, so each state is set here; the earlier falls are the cycles file's own rows, read as the port reads them.
+
+// Under Vitest each import() is a round trip to the main process, and a module's first one waits on Vite's
+// transform: under load the Why? sheet's chunk (the sheet, the learn namespace, the body) outlasted the dialog's
+// findBy (1 s). The profiles and the namespaces answer from memory, the earlier falls come from the maths module
+// loaded with this file, and the sheet and the two fixture bodies load here (lib/services/testing-modules.ts).
+vi.mock('@proofofcalm/content', async (original) =>
+  (await import('../../../lib/services/testing-modules')).profilesInMemory(await original()),
+);
+vi.mock('../../../lib/i18n/namespaces', async (original) =>
+  (await import('../../../lib/services/testing-modules')).namespacesInMemory(await original()),
+);
+
+await preloadLazyModules([
+  () => import('./module-sheet'),
+  () =>
+    import('virtual:learn-modules').then((modules) =>
+      Promise.all([modules.LEARN_BODIES['start-here']?.(), modules.LEARN_BODIES['when-the-market-drops']?.()]),
+    ),
+]);
 
 afterEach(cleanup);
 
@@ -84,7 +104,7 @@ async function mount({ model, falls, plan = {}, path = '/learn/fall-under-way' }
   const services = createTestServices({ snapshot: { ...base, plan: planned }, nowMs: NOW_MS, rules: rulesOf });
   const port: RedDayPort = {
     model: () => model,
-    pastFalls: (coins) => (falls === undefined ? services.redDay.pastFalls(coins) : falls(coins)),
+    pastFalls: (coins) => (falls === undefined ? pastFalls(coins) : falls(coins)),
   };
   const stubbed = { ...services, redDay: port };
   await stubbed.start();
