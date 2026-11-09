@@ -25,7 +25,7 @@ const CMC = 'CoinMarketCap';
 // Each fall opens its own clause of the fact, and the words after `fact`'s key are that opening. A value holds every
 // cycle's dates and figures, so a row is read inside its clause alone.
 const FALLS = [
-  { row: ['BTC', '2011-06-08', `Bitcoinity (Mt. Gox) and ${CMC}`], fact: [A, '2011, from', '−94 %', CMC] },
+  { row: ['BTC', '2011-06-08', `Bitcoinity (Mt. Gox) and ${CMC}`], fact: [A, '2011, from', '−94.0 %', CMC] },
   { row: ['BTC', '2013-11-30', BITSTAMP], fact: [A, '2013 to 2015,', '−86.9 %', BITSTAMP] },
   { row: ['BTC', '2017-12-17', BITSTAMP], fact: [A, '2017 to 2018,', '−84.1 %', BITSTAMP] },
   { row: ['BTC', '2021-11-10', BITSTAMP], fact: [A, '2021 to 2022,', '−77.6 %', BITSTAMP] },
@@ -33,11 +33,13 @@ const FALLS = [
   { row: ['ETH', '2021-11-10', COINBASE], fact: [B, 'ETH 2022', '−81.9 %', COINBASE] },
   { row: ['LINK', '2018-01-08', CMC], fact: [B, 'LINK 2018', '−88.7 %', CMC] },
   { row: ['LINK', '2021-05-10', BITSTAMP], fact: [B, 'LINK 2021', '−90.7 %', COINBASE] },
-  { row: ['SOL', '2021-11-06', COINBASE], fact: [B, 'SOL', '−96.9 %', COINBASE] },
+  { row: ['SOL', '2021-11-06', COINBASE], fact: [B, 'SOL (Coinbase)', '−96.9 %', COINBASE] },
 ] as const;
-// What follows the last row's clause of each fact: the current cycle, and the line on 16 Oct 2026.
+// What follows the last row's clause of each fact: the current cycle, and the line at the 16 Oct 2026 close. Fact b
+// names its coins by ticker in its opening too, so SOL's clause opens with its series, read as plain text.
+const literally = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
 const CLAUSE_STARTS = new RegExp(
-  `(?=${[...FALLS.map(({ fact }) => fact[1]), 'current cycle,', 'On 16 Oct'].join('|')})`,
+  `(?=${[...FALLS.map(({ fact }) => fact[1]), 'current cycle,', 'At the close on 16 Oct'].map(literally).join('|')})`,
   'u',
 );
 const clauseOf = (value: string, opening: string) =>
