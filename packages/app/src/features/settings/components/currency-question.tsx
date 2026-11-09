@@ -8,7 +8,7 @@ import {
   type Plan,
 } from '@proofofcalm/core';
 import { RadioCard, RadioGroup } from '@proofofcalm/ui/components/radio-group';
-import { useId, useMemo } from 'react';
+import { useEffect, useId, useMemo } from 'react';
 import { useTranslations } from 'use-intl';
 import { BRAND } from '../../../lib/brand';
 import { createNumberInput } from '../../../lib/format';
@@ -37,13 +37,20 @@ export const unanswered = ({ question, answer }: CurrencyState): boolean => ques
 
 type QuestionProps = {
   readonly question: CurrencyQuestion;
-  readonly onAnswer: (answer: CurrencyAnswer) => void;
+  /** Takes each choice, and null when the group mounts; a stable function (the section's state setter). */
+  readonly onAnswer: (answer: CurrencyAnswer | null) => void;
   /** Marks the group and shows the refusal under it after a confirm without an answer. */
   readonly invalid: boolean;
 };
 
-/** Uncontrolled, so nothing is chosen at first; the section remounts it (a key) whenever it clears the answer. */
+/**
+ * Uncontrolled, so nothing is chosen at first. What it shows checked is the answer the write takes, both ways: each
+ * mount clears the answer (the group can mount again while a change stays open, when the plan leaves and comes back),
+ * and the section remounts it (a key) whenever it clears the answer. Not controlled: the group's value type has no
+ * "nothing chosen", and a stand-in value would take the first card's tab stop from a group with none chosen.
+ */
 export function CurrencyQuestionGroup({ question, onAnswer, invalid }: QuestionProps) {
+  useEffect(() => onAnswer(null), [onAnswer]);
   const t = useTranslations('settings.country.question');
   const f = useFormatters();
   const figures = useMemo(() => createNumberInput(f.locales.numbers), [f.locales.numbers]);
