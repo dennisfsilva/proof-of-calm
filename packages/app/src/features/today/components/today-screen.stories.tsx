@@ -4,7 +4,13 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, waitFor } from 'storybook/test';
 import type { Snapshot } from '../../../lib/ports';
 import { type FixturePhase, fixtureNowMs, fixtureSnapshot } from '../../../lib/services/fixtures';
-import { createTestServices, FIXTURE_PRICES, pricesAt, recordingPlatform } from '../../../lib/services/testing';
+import {
+  clearRedDay,
+  createTestServices,
+  FIXTURE_PRICES,
+  pricesAt,
+  recordingPlatform,
+} from '../../../lib/services/testing';
 import { TodayScreen } from './today-screen';
 
 // Today over the fixture plan on 20 October 2026 (October's buy is late, so it leads) and on
@@ -25,7 +31,8 @@ const at = (phase: FixturePhase, lastBackupAt?: Instant, installed = false) => {
   const prefs = lastBackupAt === undefined ? fixture.prefs : { ...fixture.prefs, lastBackupAt };
   const snapshot: Snapshot = { ...fixture, prefs, prices: pricesAt(FIXTURE_PRICES, nowMs) };
   const platform = recordingPlatform({ installed });
-  return { services: () => createTestServices({ snapshot, nowMs, rules: portugal, platform }) };
+  // No episode under way: the foot settles on the next box once its red-day half has loaded.
+  return { services: () => ({ ...createTestServices({ snapshot, nowMs, rules: portugal, platform }), redDay: clearRedDay() }) };
 };
 
 const meta = {
@@ -45,7 +52,7 @@ export const Late: Story = {
     await expect(canvas.getByRole('list', { name: 'Planned split' })).toBeVisible();
     await expect(canvas.getByRole('button', { name: 'Bought as planned' })).toBeVisible();
     await expect(canvas.getByRole('link', { name: 'Your plan' })).toBeVisible();
-    // The foot waits for the red-day model's answer, which loads on the first question.
+    // The foot waits for its red-day half, which loads on demand.
     await expect(await canvas.findByRole('link', { name: 'Export a copy.' })).toBeVisible();
   },
 };

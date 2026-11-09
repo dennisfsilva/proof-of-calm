@@ -61,6 +61,8 @@ async function mount({ changeNotice = null, planStore = memoryPlanStore(unseen()
   // No episode under way: the foot settles on the notice inside the render's act.
   const services = { ...created, redDay: clearRedDay() };
   await act(() => services.start());
+  // The foot's red-day half loads on demand: loaded here once, it resolves inside the render's act.
+  await import('./red-day-foot');
   await act(async () =>
     render(
       <NavigationProvider location="memory" initialPath="/today">

@@ -57,6 +57,8 @@ async function mount(
   const services = { ...created, redDay };
   await act(() => services.start());
   if (priced !== false) await act(() => services.prices.refresh());
+  // The foot's red-day half loads on demand: loaded here once, it resolves inside the render's act.
+  await import('./red-day-foot');
   const tree = (
     <NavigationProvider location="memory" initialPath="/today">
       <ServicesProvider services={services}>
@@ -477,6 +479,17 @@ describe('TodayScreen, the red-day banner', () => {
     await remount();
     expect(screen.queryByText(RED)).toBeNull();
     expect(screen.getByText(BACKUP)).toBeDefined();
+  });
+
+  it('a plan written during the visit leaves the banner in place, asked once', async () => {
+    const redDay = episode();
+    const model = vi.spyOn(redDay, 'model');
+    const { services } = await mount(fixtureSnapshot(), at('2026-10-20'), false, { redDay });
+    const plan = services.domain.store.getState().snapshot.plan;
+    await act(() => services.domain.write({ plan: { ...plan } as Plan }));
+    expect(screen.getByText(RED)).toBeDefined();
+    expect(screen.queryByText(BACKUP)).toBeNull();
+    expect(model).toHaveBeenCalledOnce();
   });
 
   it('Dismiss hides it and the next banner takes the foot', async () => {
