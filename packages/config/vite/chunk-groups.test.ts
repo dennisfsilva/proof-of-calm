@@ -32,7 +32,12 @@ function contextOf(graph: Record<string, string[]>): Rolldown.ChunkingContext {
   return {
     getModuleInfo: (id: string) =>
       id in graph
-        ? ({ id, isEntry: id === ENTRY, importedIds: graph[id], importers: importers(id) } as unknown as Rolldown.ModuleInfo)
+        ? ({
+            id,
+            isEntry: id === ENTRY,
+            importedIds: graph[id],
+            importers: importers(id),
+          } as unknown as Rolldown.ModuleInfo)
         : null,
   };
 }
