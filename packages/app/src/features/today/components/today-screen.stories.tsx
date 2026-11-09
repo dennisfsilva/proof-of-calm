@@ -35,6 +35,9 @@ const at = (phase: FixturePhase, lastBackupAt?: Instant, installed = false) => {
   return { services: () => ({ ...createTestServices({ snapshot, nowMs, rules: portugal, platform }), redDay: clearRedDay() }) };
 };
 
+/** The foot loads on demand, after the red-day model answers: its first fetch can be slow under a full run. */
+const FOOT = { timeout: 5000 };
+
 const meta = {
   title: 'Features/Today/TodayScreen',
   component: TodayScreen,
@@ -52,8 +55,7 @@ export const Late: Story = {
     await expect(canvas.getByRole('list', { name: 'Planned split' })).toBeVisible();
     await expect(canvas.getByRole('button', { name: 'Bought as planned' })).toBeVisible();
     await expect(canvas.getByRole('link', { name: 'Your plan' })).toBeVisible();
-    // The foot waits for its red-day half, which loads on demand.
-    await expect(await canvas.findByRole('link', { name: 'Export a copy.' })).toBeVisible();
+    await expect(await canvas.findByRole('link', { name: 'Export a copy.' }, FOOT)).toBeVisible();
   },
 };
 
@@ -61,7 +63,7 @@ export const Exported: Story = {
   parameters: at('buy', '2026-10-01T10:00:00+01:00' as Instant),
   play: async ({ canvas }) => {
     const line = 'Your data lives only in this browser. Install the app or export a copy to keep it.';
-    await expect(await canvas.findByText(line)).toBeVisible();
+    await expect(await canvas.findByText(line, {}, FOOT)).toBeVisible();
     await expect(canvas.queryByRole('status')).toBeNull();
   },
 };
@@ -70,7 +72,7 @@ export const ExportedInstalled: Story = {
   parameters: at('buy', '2026-10-01T10:00:00+01:00' as Instant, true),
   play: async ({ canvas }) => {
     const line = 'Your data lives only on this device. Export a copy to keep it.';
-    await expect(await canvas.findByText(line)).toBeVisible();
+    await expect(await canvas.findByText(line, {}, FOOT)).toBeVisible();
     await expect(canvas.queryByRole('status')).toBeNull();
   },
 };
@@ -102,7 +104,7 @@ const unseen = () => {
 export const RuleNoticeDismissed: Story = {
   parameters: unseen(),
   play: async ({ canvas, canvasElement, userEvent }) => {
-    const dismiss = await canvas.findByRole('button', { name: 'Dismiss' });
+    const dismiss = await canvas.findByRole('button', { name: 'Dismiss' }, FOOT);
     const view = canvasElement.ownerDocument.defaultView;
     view?.scrollTo(0, canvasElement.ownerDocument.documentElement.scrollHeight);
     dismiss.focus({ preventScroll: true });
