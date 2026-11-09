@@ -14,11 +14,17 @@ function pluginNames(plugins: PluginOption[] | undefined): string[] {
   return names;
 }
 
-const OWN = ['poc:precompile-messages', 'poc:client-never-imports-server', 'poc:font-preload', 'poc:boot-script'];
+const OWN = [
+  'poc:precompile-messages',
+  'poc:client-never-imports-server',
+  'poc:font-preload',
+  'poc:no-chunk-cycles',
+  'poc:boot-script',
+];
 const parseModule = () => ({ ok: false as const, error: [] });
 
 describe('createHostConfig', () => {
-  it('web: React with the compiler through Babel, Tailwind, the four plugins and the chunk report, app.html, no inlined assets', () => {
+  it('web: React with the compiler through Babel, Tailwind, the five plugins and the chunk report, app.html, no inlined assets', () => {
     const config = createHostConfig({ host: 'web', root: '/repo/apps/web', parseModule });
     const names = pluginNames(config.plugins);
     for (const name of OWN) expect(names).toContain(name);

@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 import type { PluginOption, UserConfig } from 'vite';
 import { bootScriptPlugin } from './boot-plugin.ts';
-import { chunkGroups } from './chunk-groups.ts';
+import { chunkGroups, noChunkCycles } from './chunk-groups.ts';
 import { chunkReport } from './chunk-report-plugin.ts';
 import { clientNeverImportsServer } from './client-never-imports-server.ts';
 import { fontPreloadPlugin } from './font-preload-plugin.ts';
@@ -57,6 +57,7 @@ export function createHostConfig({ host, root, parseModule }: HostConfigOptions)
     precompileMessagesPlugin(),
     clientNeverImportsServer(),
     fontPreloadPlugin({ file: 'calm-sans-latin' }),
+    noChunkCycles(),
     ...(report ? [chunkReport({ file: resolve(root, CHUNK_REPORT) })] : []),
     bootScriptPlugin(),
   ];
