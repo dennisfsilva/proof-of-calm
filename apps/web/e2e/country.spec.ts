@@ -6,7 +6,9 @@ import { applyTextZoom, cspViolations, recordCspViolations, test } from './suppo
 // Settings → Currency & data, the country change on the viewport matrix (docs/DOMAIN.md §6 "Change country",
 // docs/CONTENT-STYLE.md "Change country"): Portugal to Germany lists the change and names Portugal's rule being
 // replaced and the day the last buy passes each rule, waits for the tick, then changes the plan and focuses the
-// line that says so; the Plan page and a reload show Germany's plan. The select opens with no CSP violation.
+// line that says so; the Plan page and a reload show Germany's plan. Portugal to the United Kingdom with EUR
+// amounts logged asks which currency they were paid in (ADR-0053), and "Keep EUR" leaves them in €, with the
+// line that offers GBP afterwards. The select opens with no CSP violation.
 
 test('the Country select opens with no CSP violation', async ({ page }) => {
   await page.addInitScript(recordCspViolations);
@@ -64,6 +66,38 @@ test('a change from Portugal to Germany lists the rule it replaces, then changes
   await page.goto('/settings');
   await page.getByRole('tab', { name: 'Currency & data' }).click();
   await expect(page.getByRole('combobox', { name: 'Country' })).toHaveText(/Germany/);
+});
+
+test('a change from Portugal to the United Kingdom with EUR amounts asks, and Keep leaves them in €', async ({
+  page,
+}) => {
+  await page.clock.setFixedTime(new Date(fixtureNowMs('buy')));
+  await seedPlan(page, fixtureSnapshot());
+  await page.goto('/settings');
+  await expect(page.locator('main#main')).not.toHaveAttribute('aria-busy', 'true');
+  await page.getByRole('tab', { name: 'Currency & data' }).click();
+  await page.getByRole('combobox', { name: 'Country' }).click();
+  await page.getByRole('option', { name: 'United Kingdom' }).click();
+
+  const keep = page.getByRole('radio', { name: /^Keep EUR/ });
+  await expect(keep).toBeVisible();
+  await expect(page.getByRole('radio', { name: /^Change to GBP/ })).toBeVisible();
+  await expect(page.getByText(/^Tax-year files follow your current country's rules/)).toBeVisible();
+  for (const box of await page.getByRole('checkbox').all()) await box.click();
+  const change = page.getByRole('button', { name: 'Change country to United Kingdom' });
+  // Nothing is chosen for the person: a confirm without an answer is refused next to the question.
+  await change.click();
+  await expect(page.getByRole('alert').filter({ hasText: 'Choose Keep EUR or Change to GBP.' })).toBeVisible();
+  await keep.click();
+  await change.click();
+  await expect(page.getByRole('status').filter({ hasText: 'Country changed to United Kingdom.' })).toBeFocused();
+  // The plan stays in EUR, so Currency & data offers the country's currency, and the amounts still read in €.
+  await expect(page.getByText(/^Your plan is in EUR, and your country's currency is GBP\./)).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Change to GBP' })).toBeVisible();
+  await page.goto('/log');
+  await expect(page.locator('main#main')).not.toHaveAttribute('aria-busy', 'true');
+  await expect(page.locator('tbody [data-slot="table-row"]').first()).toContainText('€');
+  await expect(page.locator('main#main')).not.toContainText('£');
 });
 
 // A card more than twelve months past its nextReviewDue (docs/JURISDICTIONS.md §1): on 1 January 2029 Portugal's,
