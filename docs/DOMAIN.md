@@ -298,8 +298,8 @@ exactly to `total`:
   (the prototype's `round2(feeAll × amount / total)` drifted by a cent);
 - `venue` goes on every entry as given. Today passes `defaultFee` of the live entries (below) as the
   fee and, as the venue, that of the latest live entry that named one, a purchase or a sale, coins
-  added (`held`) left out, "latest" as for `defaultFee` (`lastVenue` in
-  `packages/app/src/features/today/actions.ts`);
+  added (`held`) left out, "latest" as for `defaultFee` (`lastVenue` in `packages/core/src/plan/parts.ts`,
+  which the Log form's venue reads too; whether a kind adds or removes units is its role, `entryRole`);
 - a part that rounds to zero (a total too small to give every coin a cent) is left out: a zero buy
   cannot be recorded;
 - the result is a draft the user can edit before saving; typing exact units stays available.
