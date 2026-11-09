@@ -47,6 +47,10 @@ The decision stands; these are the choices its text left open, made while buildi
   every rule above: `role="img"`, the `aria-label`, the description and the table. Its rows are HTML,
   and an HTML element has no `<desc>`, so the description is a hidden paragraph the drawing names with
   `aria-describedby`, which gives assistive technology the same description.
+- **2026-11-09, BarChart.** A component the Decision's list leaves out, added for a module's
+  `drawdowns-bar` chart (#62): one horizontal bar per row from a shared zero, its label before it and
+  its value after it in HTML, every row one `--bar-row` high (`docs/DESIGN.md` §6), one series in the
+  neutral fill, `role="img"` with the summary as its label, and the table with the same values.
 
 ## Deviations recorded on 2026-10-26
 

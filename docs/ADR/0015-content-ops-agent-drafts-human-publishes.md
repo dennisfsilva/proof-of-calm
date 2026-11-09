@@ -71,3 +71,11 @@ corrected here instead of rewritten (`docs/ADR/README.md`).
   Agents re-fetched the sources and read every value, fix builders applied the findings, and the session
   decided what a read left open and merged, so on those files `reviewedBy: owner` records the delegation, not
   a person's read. What it found: `docs/content-review-log.md`. The rule stands for every other content PR.
+- 2026-11-09: the owner delegated the read and the merge of #61, the Noise and When the market drops modules,
+  to a session, by message (the session's question that morning), with the session's other checkpoint PRs. An
+  agent re-read every figure against its source: 30 figures, facts q and o re-run from Bitstamp's daily
+  candles; 28 matched, and the 2 differences, both in fact f's BIS text, were fixed: the BIS figures moved to
+  the new fact r.app-user-losses (BIS Working Paper 1049, Nov 2022, revised Jul 2023), and the October 2022
+  valuation was dropped because it belongs to the paper's one-purchase case. The read is in #61's comment; on
+  those files `reviewedBy: owner` records the delegation, not a person's read. What it found:
+  `docs/content-review-log.md`. The rule stands for every other content PR.

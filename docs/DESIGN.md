@@ -181,7 +181,10 @@ dark mode uses the dark steps above, not an inversion; the validator runs whenev
    device's zone, and its zone's name, in the UI language, joins it when the zone's offset at that
    moment differs from its offset now, because the clocks changed in between (`lib/format` `time`).
 10. Percentages: one decimal for changes, none for shares over 10 %; differences between percentages
-    are "percentage points".
+    are "percentage points". One exception (2026-11-09): a cycle's fall read from
+    `packages/content/cycles/drawdowns.json` shows as a whole percent, the data's precision, on the fall
+    page's earlier falls and in the drawdowns-bar chart (#62), and a module's text quotes such a fall at
+    the same precision.
 
 ## 6. Spacing, radius, motion, elevation, focus, touch
 
@@ -337,13 +340,14 @@ modules and forms), Toast with one action (undo, edit, reload), Tooltip, Table w
 (holdings, log) and month group headers, Progress strip with today marker, Timeline (SVG on
 desktop, list on phones), Banner (one at a time), Empty state, Card, Menu, Switch, Date input,
 Navigation (tab bar, top nav), Charts (`LineChart`, `CoinChart`, `AllocationBar`, `Sparkline`,
-`SimulatorChart`, `ProgressStrip`). Every component: Storybook stories at 360 px and 1280 px in
+`SimulatorChart`, `ProgressStrip`, `BarChart`). Every component: Storybook stories at 360 px and 1280 px in
 light and dark with the a11y addon; tokens only; `data-slot` attributes from shadcn kept for
 styling hooks.
 
 Built so far (M0): Button, Input (text, numeric, date) in a Field, Select, Segmented control, Coin
 chip, Tabs, Dialog, Sheet, Toast, Table with expandable rows and group headers, Banner, Empty state,
-Card, and the charts `ProgressStrip`, `LineChart`, `AllocationBar`, `Sparkline`. Notes: the sheet
+Card, and the charts `ProgressStrip`, `LineChart`, `AllocationBar`, `Sparkline`; `BarChart`, one
+labelled bar per row with its table, on 2026-11-09 (#62). Notes: the sheet
 floats 8 px off the screen edges so its four corners keep one radius; one toast shows at a time; the
 banner is a polite status, not an alert; labels are props, never strings inside `packages/ui`. A
 table wider than its column scrolls inside its wrapper, which only then takes a tab stop, so the
