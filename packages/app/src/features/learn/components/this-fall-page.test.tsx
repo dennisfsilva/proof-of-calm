@@ -138,12 +138,22 @@ describe('ThisFallPage, a fall under way', () => {
     });
     await screen.findByText(/^Bitcoin and Ethereum, in the amounts you hold/);
     expect(text()).toContain(
-      'Bitcoin and Ethereum, in the amounts you hold, are 33% below their 90-day high and fell 16% in the seven days to 8 Nov 2026.',
+      'Bitcoin and Ethereum, in the amounts you hold, are 33% below their 90-day high. They fell 16% in the seven days to 8 Nov 2026.',
     );
     // One name per coin: the held coins' names, never their ids beside them.
     expect(text()).not.toMatch(/\b(BTC|ETH|KAS)\b/);
     expect(text()).toContain('Kaspa is not in these figures: Proof of Calm has no price history for it.');
     expect(text()).toContain('Proof of Calm has no dated earlier fall for Kaspa.');
+  });
+
+  it.each([
+    ['a rise', { sevenDay: '2.4' }, '33% below their 90-day high. They rose 2% in the seven days to 8 Nov 2026.'],
+    ['no seven-day figure', { sevenDay: null }, '33% below their 90-day high (8 Nov 2026).'],
+  ])('reads several coins in two sentences, the second after %s, or one with the date', async (_, change, end) => {
+    const coins = { coins: ['BTC', 'ETH'], ...change } as unknown as Partial<Figure>;
+    await mount({ model: Promise.resolve(episode(coins, { held: [BITCOIN, ETHEREUM] })) });
+    await screen.findByText(/^Bitcoin and Ethereum, in the amounts you hold/);
+    expect(text()).toContain(`Bitcoin and Ethereum, in the amounts you hold, are ${end}`);
   });
 
   it('names the first close as the high it measures from on a short window', async () => {
@@ -253,7 +263,7 @@ describe('ThisFallPage, a fall under way', () => {
 
   it("opens When the market drops in the sheet from the figure's Why?, and the route stays", async () => {
     await mount({ model: Promise.resolve(episode()) });
-    const why = await screen.findByRole('button', { name: 'Why? Falls and a monthly plan' });
+    const why = await screen.findByRole('button', { name: 'Why? The fall under way' });
     expect(why.closest('p')?.textContent).toMatch(/^Bitcoin is 33%/);
     fireEvent.click(why);
     const sheet = await screen.findByRole('dialog', {
@@ -262,7 +272,7 @@ describe('ThisFallPage, a fall under way', () => {
     expect(within(sheet).getByText('Fixture text of the module the fall page explains.')).toBeDefined();
     expect(path()).toBe('/learn/fall-under-way');
     // The line to the fall page belongs to the module's route, never to its sheet.
-    expect(within(sheet).queryByRole('link', { name: 'See the fall under way' })).toBeNull();
+    expect(within(sheet).queryByRole('link', { name: 'See its figures' })).toBeNull();
   });
 
   it('says the earlier falls could not be loaded when the cycles file fails', async () => {
@@ -326,7 +336,7 @@ describe('ThisFallPage, other states', () => {
       expect(await screen.findByRole('heading', { level: 1, name: 'When the market drops' })).toBeDefined();
       expect(path()).toBe('/learn/when-the-market-drops');
       expect(screen.queryByText('The fall under way and your plan')).toBeNull();
-      expect(screen.queryByRole('link', { name: 'See the fall under way' })).toBeNull();
+      expect(screen.queryByRole('link', { name: 'See its figures' })).toBeNull();
     },
   );
 });
@@ -349,9 +359,9 @@ describe("Learn's row for the page", () => {
 describe('the route of When the market drops', () => {
   it('holds one line to the fall page above the body while a fall is under way', async () => {
     await mount({ model: Promise.resolve(episode()), path: '/learn/when-the-market-drops' });
-    const link = await screen.findByRole('link', { name: 'See the fall under way' });
+    const link = await screen.findByRole('link', { name: 'See its figures' });
     expect(link.getAttribute('href')).toBe('/learn/fall-under-way');
-    expect(link.closest('p')?.textContent).toBe('A fall of the coins you hold is under way. See the fall under way');
+    expect(link.closest('p')?.textContent).toBe('A fall of the coins you hold is under way. See its figures');
     const body = screen.getByText('Fixture text of the module the fall page explains.');
     expect(link.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     fireEvent.click(link);
@@ -364,7 +374,7 @@ describe('the route of When the market drops', () => {
       await mount({ model: Promise.resolve(bare(state)), path: '/learn/when-the-market-drops' });
       await screen.findByText('Fixture text of the module the fall page explains.');
       await act(async () => undefined);
-      expect(screen.queryByRole('link', { name: 'See the fall under way' })).toBeNull();
+      expect(screen.queryByRole('link', { name: 'See its figures' })).toBeNull();
     },
   );
 
@@ -372,7 +382,7 @@ describe('the route of When the market drops', () => {
     await mount({ model: Promise.resolve(episode()), path: '/learn/start-here' });
     await screen.findByRole('heading', { level: 1, name: 'Start here' });
     await act(async () => undefined);
-    expect(screen.queryByRole('link', { name: 'See the fall under way' })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'See its figures' })).toBeNull();
   });
 });
 

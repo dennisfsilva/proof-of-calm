@@ -8,7 +8,7 @@
     "lastReviewed": "Last reviewed {date}",
     "pastPerformance": "Past performance is not a reliable indicator of future results.",
     "riskLink": "Risk disclosure",
-    "fallUnderWay": "A fall of the coins you hold is under way. <page>See the fall under way</page>"
+    "fallUnderWay": "A fall of the coins you hold is under way. <page>See its figures</page>"
   },
   "countries": {
     "title": "Countries",
@@ -22,8 +22,8 @@
     "back": "Back to Today",
     "title": "The fall under way and your plan",
     "one": "{coin} is {high} below {window, select, short {its highest close since {since}} other {its 90-day high}}{change, select, fell { and fell {seven} in the seven days to {date}.} rose { and rose {seven} in the seven days to {date}.} other { ({date}).}}",
-    "several": "{coins}, in the amounts you hold, are {high} below {window, select, short {their highest close since {since}} other {their 90-day high}}{change, select, fell { and fell {seven} in the seven days to {date}.} rose { and rose {seven} in the seven days to {date}.} other { ({date}).}}",
-    "why": "Why? Falls and a monthly plan",
+    "several": "{coins}, in the amounts you hold, are {high} below {window, select, short {their highest close since {since}} other {their 90-day high}}{change, select, fell {. They fell {seven} in the seven days to {date}.} rose {. They rose {seven} in the seven days to {date}.} other { ({date}).}}",
+    "why": "Why? The fall under way",
     "missing": "{coin} is not in these figures: {product} has no price history for it.",
     "data": "Daily closes in {currency}, {first} to {last} · Price data by CoinGecko",
     "failed": "The price history could not be loaded, so today's figures are not shown. Open this page again to retry.",
