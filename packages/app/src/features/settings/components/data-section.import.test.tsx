@@ -10,10 +10,18 @@ import errors from '../../../messages/en/errors.json';
 import settings from '../../../messages/en/settings.json';
 import { choose, type Mounted, mount, NOW, paste } from './data-section.testing';
 
-// The profiles load once, in memory, as in data-section.test.tsx (lib/services/testing-modules.ts).
+// The profiles and the lazy namespaces load once, in memory, as in data-section.test.tsx: the country step of a
+// file from the DCA plan page loads the profiles and onboarding's words with import(), each a round trip to the
+// main process that under parallel load outlasted a findBy. Each factory loads its files while this file loads,
+// outside any test's timeout (lib/services/testing-modules.ts).
 vi.mock('@proofofcalm/content', async (original) =>
   (await import('../../../lib/services/testing-modules')).profilesInMemory(
     await original<typeof import('@proofofcalm/content')>(),
+  ),
+);
+vi.mock('../../../lib/i18n/namespaces', async (original) =>
+  (await import('../../../lib/services/testing-modules')).namespacesInMemory(
+    await original<typeof import('../../../lib/i18n/namespaces')>(),
   ),
 );
 // The counts of a result, stubbed onto the core's own result so a test needs no thousand entries; null passes
