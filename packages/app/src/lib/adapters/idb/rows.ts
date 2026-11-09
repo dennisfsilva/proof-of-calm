@@ -34,10 +34,10 @@ import { epochMs } from '../clock';
  * The latest payload schema version each store reads and writes (docs/DOMAIN.md §2), so a reader knows
  * which shape a row holds. Plans are read at v2 (through `upgradePlan`) and v3, and written at the lowest
  * version that holds them (`writtenPlan`: v3 only once an acknowledgement is recorded). Entries are read at
- * v2 and v3, which share one payload shape, and written the same way (`writtenEntryVersion`: v3 only for
- * coins held, a kind the previous build does not know).
+ * v2, v3 and v4, which share one payload shape, and written the same way (`writtenEntryVersion`: v4 only for
+ * a move, which the previous build does not know, v3 for coins held, which the build before it does not know).
  */
-export const ROW_SCHEMA_VERSIONS = { plans: 3, entries: 3 } as const;
+export const ROW_SCHEMA_VERSIONS = { plans: 3, entries: 4 } as const;
 /** A build's row versions; a test passes the previous build's to prove a rollback (docs/RELEASE.md). */
 export type RowVersions = { readonly [store in SyncedStore]: number };
 /** The oldest payload version any build wrote; every later one up to the build's own is read. */

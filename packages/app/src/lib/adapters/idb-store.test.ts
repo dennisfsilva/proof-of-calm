@@ -20,7 +20,16 @@ import {
   type PriceHistory,
   type PriceSnapshot,
 } from '@proofofcalm/core';
-import { anEntry, aPlan, asV2Plan, date, instant, PreviousBuildPlanSchema, split } from '@proofofcalm/core/testing';
+import {
+  aMove,
+  anEntry,
+  aPlan,
+  asV2Plan,
+  date,
+  instant,
+  PreviousBuildPlanSchema,
+  split,
+} from '@proofofcalm/core/testing';
 import { forceCloseDatabase, IDBFactory } from 'fake-indexeddb';
 import { openDB } from 'idb';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -50,7 +59,7 @@ const prices: PricesState = {
 const prefs = { ...DEFAULT_PREFS, theme: 'dark' as const, dismissedBanners: ['backup-needed:2026-10-01'] };
 
 /**
- * The row versions the previous build read and wrote, the build before the entries' v4 rise (rows.ts). A store
+ * The row versions the previous build read and wrote, the build before the entries' v4 rise, moves (rows.ts). A store
  * opened with them writes what that build wrote: no entry row above its own `entries` (`entryRow`).
  */
 const PREVIOUS_BUILD = { plans: 3, entries: 3 } as const;
@@ -534,7 +543,7 @@ describe('idb plan store: quarantine (ADR-0019)', () => {
     const entry = anEntry();
     await open().write({ plan, entries: [entry] });
     const [row] = (await raw('plans')) as Record<string, unknown>[];
-    const newer = { ...row, schemaVersion: 4, payload: { shape: 'unknown here' } };
+    const newer = { ...row, schemaVersion: 5, payload: { shape: 'unknown here' } };
     await put('plans', newer);
     // A tombstone of the newer build is no plan anyone could lose: it is left in place, counted apart.
     const gone = { ...newer, id: aPlan().id, deletedAt: NOW, updatedAt: NOW };
@@ -555,7 +564,7 @@ describe('idb plan store: quarantine (ADR-0019)', () => {
   it('a newer plan row whose deletedAt is not an instant is counted as live', async () => {
     await open().write({ plan: aPlan(), entries: [] });
     const [row] = (await raw('plans')) as Record<string, unknown>[];
-    const newer = { ...row, schemaVersion: 4, payload: { shape: 'unknown here' } };
+    const newer = { ...row, schemaVersion: 5, payload: { shape: 'unknown here' } };
     await put('plans', { ...newer, deletedAt: NOW, updatedAt: NOW });
     const odd = ['', false, 0, 'garbage'];
     for (const deletedAt of odd) await put('plans', { ...newer, id: aPlan().id, deletedAt });
@@ -596,8 +605,8 @@ describe('idb plan store: quarantine (ADR-0019)', () => {
     const [planRow] = (await raw('plans')) as Record<string, unknown>[];
     const rows = (await raw('entries')) as Record<string, unknown>[];
     const row = (id: EntityId) => rows.find((candidate) => candidate.id === id) as Record<string, unknown>;
-    const newerPlan = { ...planRow, schemaVersion: 4, payload: { shape: 'unknown here' } };
-    const newerEntry = { ...row(later.id), schemaVersion: 4, keyId: 'k1' };
+    const newerPlan = { ...planRow, schemaVersion: 5, payload: { shape: 'unknown here' } };
+    const newerEntry = { ...row(later.id), schemaVersion: 5, keyId: 'k1' };
     const encrypted = { ...row(sealed.id), encVersion: 1, payload: 'ciphertext', nonce: 'n1' };
     await put('plans', newerPlan);
     await put('entries', newerEntry);
@@ -767,7 +776,7 @@ describe('idb plan store: a write over a row of a later version (ADR-0019 readin
 
   it('a write over a later-version entry of the same id leaves it byte for byte, with no outbox copy', async () => {
     const { store, entry, entryRow } = await stored();
-    const newer = { ...entryRow, schemaVersion: 4, payload: unknown, keyId: 'k1' };
+    const newer = { ...entryRow, schemaVersion: 5, payload: unknown, keyId: 'k1' };
     await put('entries', newer);
     const outbox = await raw('outbox');
     const beside = anEntry();
@@ -784,7 +793,7 @@ describe('idb plan store: a write over a row of a later version (ADR-0019 readin
 
   it('a write of a plan over a later-version row of its id leaves it', async () => {
     const { store, plan, planRow } = await stored();
-    await put('plans', { ...planRow, schemaVersion: 4, payload: unknown });
+    await put('plans', { ...planRow, schemaVersion: 5, payload: unknown });
     const before = await dump();
 
     await store.write({ plan: { ...plan, why: 'Changed.', updatedAt: NOW } });
@@ -798,7 +807,7 @@ describe('idb plan store: a write over a row of a later version (ADR-0019 readin
     await put('plans', {
       ...planRow,
       id: other.id,
-      schemaVersion: 4,
+      schemaVersion: 5,
       payload: unknown,
       deletedAt: NOW,
       updatedAt: NOW,
@@ -821,7 +830,7 @@ describe('idb plan store: a write over a row of a later version (ADR-0019 readin
 
   it('update returns only the rows it wrote', async () => {
     const { store, plan, entry, planRow, entryRow } = await stored();
-    await put('entries', { ...entryRow, schemaVersion: 4, payload: unknown, deletedAt: NOW, updatedAt: NOW });
+    await put('entries', { ...entryRow, schemaVersion: 5, payload: unknown, deletedAt: NOW, updatedAt: NOW });
     const beside = anEntry();
 
     const written = await store.update(() => ({ plan, entries: [{ ...entry, updatedAt: NOW }, beside] }));
@@ -829,7 +838,7 @@ describe('idb plan store: a write over a row of a later version (ADR-0019 readin
     expect(written.changes).toStrictEqual({ plan, entries: [beside] });
 
     const other = aPlan();
-    await put('plans', { ...planRow, id: other.id, schemaVersion: 4, payload: unknown });
+    await put('plans', { ...planRow, id: other.id, schemaVersion: 5, payload: unknown });
     const skipped = await store.update(() => ({ plan: other, entries: [anEntry()], changedAt: NOW }));
 
     expect(skipped.changes).toStrictEqual({});
@@ -838,9 +847,9 @@ describe('idb plan store: a write over a row of a later version (ADR-0019 readin
   it('a later-version tombstone is counted apart from live rows', async () => {
     const { store, planRow, entryRow } = await stored();
     const deleted = { payload: unknown, deletedAt: NOW, updatedAt: NOW };
-    await put('plans', { ...planRow, ...deleted, id: aPlan().id, schemaVersion: 4 });
-    await put('entries', { ...entryRow, ...deleted, schemaVersion: 4 });
-    await put('entries', { ...entryRow, id: anEntry().id, schemaVersion: 4, payload: unknown });
+    await put('plans', { ...planRow, ...deleted, id: aPlan().id, schemaVersion: 5 });
+    await put('entries', { ...entryRow, ...deleted, schemaVersion: 5 });
+    await put('entries', { ...entryRow, id: anEntry().id, schemaVersion: 5, payload: unknown });
 
     const loaded = await store.load();
 
@@ -860,7 +869,7 @@ describe('idb plan store: a write over a row of a later version (ADR-0019 readin
 
   it('a write over a newer tombstone of the same id leaves it', async () => {
     const { store, plan, entry, planRow, entryRow } = await stored();
-    const deleted = { schemaVersion: 4, payload: unknown, deletedAt: NOW, updatedAt: NOW };
+    const deleted = { schemaVersion: 5, payload: unknown, deletedAt: NOW, updatedAt: NOW };
     await put('plans', { ...planRow, ...deleted });
     await put('entries', { ...entryRow, ...deleted });
     const before = await dump();
@@ -914,7 +923,7 @@ describe('idb plan store: entries v3, coins held (docs/DOMAIN.md §2.2, docs/REL
 
     const loaded = await open().load();
 
-    expect(ROW_SCHEMA_VERSIONS.entries).toBe(3);
+    expect(ROW_SCHEMA_VERSIONS.entries).toBeGreaterThanOrEqual(3);
     expect(loaded.entries).toHaveLength(previous.length + 1);
     expect(loaded.entries).toEqual(expect.arrayContaining([...previous, coins]));
     expect(loaded).toMatchObject({ newer: { plans: 0, entries: 0 }, newerTombstones: 0, quarantined: 0 });
@@ -959,6 +968,106 @@ describe('idb plan store: entries v3, coins held (docs/DOMAIN.md §2.2, docs/REL
     const before = await dump();
 
     const loaded = await open({ rowVersions: ENTRIES_V2_BUILD }).load();
+
+    expect(loaded.entries).toHaveLength(entries.length);
+    expect(loaded.entries).toEqual(expect.arrayContaining(entries));
+    expect(loaded).toMatchObject({ plan, newer: { plans: 0, entries: 0 }, newerTombstones: 0, quarantined: 0 });
+    expect(await dump()).toStrictEqual(before);
+  });
+});
+
+describe('idb plan store: entries v4, moves (docs/DOMAIN.md §2.2, docs/RELEASE.md rollback)', () => {
+  const others = () => [
+    anEntry(),
+    anEntry({ kind: 'lump', slot: null }),
+    anEntry({ kind: 'extra', slot: null }),
+    anEntry({ kind: 'sell', slot: null }),
+    anEntry({ kind: 'extra', slot: null, deletedAt: NOW, updatedAt: NOW }),
+  ];
+  const held = () => anEntry({ kind: 'held', slot: null, fee: null, amount: null, date: date('2025-03-01') });
+  const versionsById = async () =>
+    Object.fromEntries(
+      ((await raw('entries')) as { id: string; schemaVersion: number }[]).map((row) => [row.id, row.schemaVersion]),
+    );
+
+  it('writes a move at schemaVersion 4, held at 3, every other kind at 2', async () => {
+    const moves = [aMove(), aMove({ deletedAt: NOW, updatedAt: NOW })];
+    const coins = held();
+    const rest = others();
+    await open().write({ plan: aPlan(), entries: [...moves, coins, ...rest] });
+
+    expect(await versionsById()).toStrictEqual(
+      Object.fromEntries([
+        ...moves.map((entry) => [entry.id, 4]),
+        [coins.id, 3],
+        ...rest.map((entry) => [entry.id, 2]),
+      ]),
+    );
+  });
+
+  it('reads entries v2 and v3 rows forward under entries v4', async () => {
+    const plan = aPlan();
+    const store = open();
+    await store.write({ plan, entries: [] });
+    const previous = [...others(), held()];
+    for (const entry of previous) {
+      const { updatedAt, deletedAt } = entry;
+      const stamps = { updatedAt, deletedAt, deviceId: DEVICE, encVersion: 0, planId: plan.id };
+      const schemaVersion = entry.kind === 'held' ? 3 : 2;
+      await put('entries', { id: entry.id, payload: entry, ...stamps, schemaVersion });
+    }
+    const move = aMove();
+    await store.write({ entries: [move] });
+    const before = await raw('entries');
+
+    const loaded = await open().load();
+
+    expect(ROW_SCHEMA_VERSIONS.entries).toBe(4);
+    expect(loaded.entries).toHaveLength(previous.length + 1);
+    expect(loaded.entries).toEqual(expect.arrayContaining([...previous, move]));
+    expect(loaded).toMatchObject({ newer: { plans: 0, entries: 0 }, newerTombstones: 0, quarantined: 0 });
+    expect(await raw('entries')).toStrictEqual(before);
+  });
+
+  it('a build at entries v3 leaves a v4 move row unread, counts it as newer and never writes over it, its tombstone included', async () => {
+    const plan = aPlan();
+    const kept = anEntry();
+    const coins = held();
+    const live = aMove();
+    const gone = aMove({ deletedAt: NOW, updatedAt: NOW });
+    await open().write({ plan, entries: [kept, coins, live, gone] });
+    const before = await dump();
+
+    const previous = open({ rowVersions: PREVIOUS_BUILD });
+    const loaded = await previous.load();
+    expect(loaded).toStrictEqual({
+      ...EMPTY_SNAPSHOT,
+      plan,
+      entries: expect.arrayContaining([kept, coins]),
+      newer: { plans: 0, entries: 1 },
+      newerTombstones: 1,
+    });
+    expect(loaded.entries).toHaveLength(2);
+    expect(await dump()).toStrictEqual(before);
+
+    // Even an entry of the same ids reaching it (by sync) leaves both rows as this build wrote them.
+    const later = instant('2026-10-17T10:00:00.000Z');
+    const { to: _to, received: _received, ...plain } = live;
+    const asExtra = { ...plain, kind: 'extra' as const, amount: '10' as Money, updatedAt: later };
+    await previous.write({ entries: [asExtra, { ...asExtra, id: gone.id }] });
+    await previous.update(() => ({ entries: [asExtra] }));
+    expect(await dump()).toStrictEqual(before);
+  });
+
+  it('a build at entries v3 reads every non-move row this build writes, none carrying `to` or `received`', async () => {
+    const plan = aPlan();
+    const entries = [...others(), held()];
+    await open().write({ plan, entries });
+    const before = await dump();
+    const payloads = ((await raw('entries')) as { payload: object }[]).map((row) => row.payload);
+    expect(payloads.filter((payload) => 'to' in payload || 'received' in payload)).toEqual([]);
+
+    const loaded = await open({ rowVersions: PREVIOUS_BUILD }).load();
 
     expect(loaded.entries).toHaveLength(entries.length);
     expect(loaded.entries).toEqual(expect.arrayContaining(entries));
@@ -1026,10 +1135,10 @@ describe('idb plan store: the previous build’s real writes (docs/RELEASE.md, r
 
 describe('idb plan store: the row versions this build may write (docs/RELEASE.md, Versioning)', () => {
   const carried =
-    'docs/RELEASE.md, Versioning: the newer-version screen ships in a release before any release writes plans above v3, entries above v3 or encVersion above 0';
+    'docs/RELEASE.md, Versioning: the newer-version screen ships in a release before any release writes plans above v3, entries above v4 or encVersion above 0';
 
-  it('reads and writes plans at v3 at most and entries at v3 at most, in plain text, until a release with that screen has shipped', async () => {
-    expect(ROW_SCHEMA_VERSIONS, carried).toEqual({ plans: 3, entries: 3 });
+  it('reads and writes plans at v3 at most and entries at v4 at most, in plain text, until a release with that screen has shipped', async () => {
+    expect(ROW_SCHEMA_VERSIONS, carried).toEqual({ plans: 3, entries: 4 });
     const plan = aPlan({ riskAcknowledgedAt: instant('2026-10-17T08:30:00.000Z'), riskWordingVersion: 1 });
     await open().write({ plan, entries: [anEntry()] });
     const rows = [...(await raw('plans')), ...(await raw('entries'))] as { encVersion: number }[];
@@ -1109,7 +1218,7 @@ describe('idb plan store: device id, wipe, connection', () => {
     await store.history.put({ coin: 'BTC' as CoinId, currency: 'EUR', closes: [], fetchedAt: NOW });
     const rows = (await raw('entries')) as Record<string, unknown>[];
     const row = (id: EntityId) => rows.find((candidate) => candidate.id === id) as Record<string, unknown>;
-    await put('entries', { ...row(later.id), schemaVersion: 4, keyId: 'k1' });
+    await put('entries', { ...row(later.id), schemaVersion: 5, keyId: 'k1' });
     await put('entries', { ...row(broken.id), payload: kept });
     expect((await store.load()).quarantined).toBe(1);
     const before = await dump();
@@ -1146,7 +1255,7 @@ describe('idb plan store: device id, wipe, connection', () => {
     const [row] = (await raw('plans')) as Record<string, unknown>[];
     const wiped = await store.wipe();
     const payload = { shape: 'unknown here' };
-    await put('plans', { ...row, id: aPlan().id, schemaVersion: 4, payload, deletedAt: 'garbage' });
+    await put('plans', { ...row, id: aPlan().id, schemaVersion: 5, payload, deletedAt: 'garbage' });
     const before = await dump();
 
     expect(await store.restore(wiped)).toBe(false);
