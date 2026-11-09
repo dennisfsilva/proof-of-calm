@@ -36,7 +36,7 @@
     "notRestoredReplaced": "A backup replaced your plan after you deleted this entry, so it stays deleted.",
     "notRestoredSold": "Your {coin} entries changed after you deleted this sale, so it stays deleted.",
     "notRestoredFull": "Restoring this entry would take the plan past the {max} entries a plan holds, so it stays deleted.",
-    "notRestoredCurrency": "Your plan's currency changed from {from} to {to} after you deleted this entry, so it stays deleted. Its amount was in {from}, and nothing is converted. To keep it, log it again in {to}.",
+    "notRestoredCurrency": "{count, plural, one {Your plan's currency changed from {from} to {to} after the delete, so this entry stays deleted. It was recorded in {from}; log it again only if you paid it in {to}.} other {Your plan's currency changed from {from} to {to} after the delete, so these {figure} entries stay deleted. They were recorded in {from}; log them again only if you paid them in {to}.}}",
     "noCost": "Cost unknown",
     "notDeleted": "This purchase covers a later {coin} sale, so it stays. Change or delete the sale first.",
     "failed": "The change could not be saved. Try again."

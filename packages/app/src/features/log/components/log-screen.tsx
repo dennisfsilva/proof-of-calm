@@ -170,7 +170,12 @@ export function LogScreen() {
                     : error.code === 'too-many-entries'
                       ? t('row.notRestoredFull', { max: figure(f, error.max) })
                       : error.code === 'currency-changed'
-                        ? t('row.notRestoredCurrency', { from: error.from, to: error.to })
+                        ? t('row.notRestoredCurrency', {
+                            from: error.from,
+                            to: error.to,
+                            count: ids.length,
+                            figure: figure(f, ids.length),
+                          })
                         : t('row.notRestored', {
                             reason: error.code === 'slot-skipped' ? 'skipped' : 'recorded',
                             month: f.month(error.slot),
