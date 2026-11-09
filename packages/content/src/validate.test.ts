@@ -322,10 +322,20 @@ describe('validateContent: the percent sign keeps its number locale’s spacing 
       }
     });
 
-    it('allows a sign with no numeral before it, and a URL that holds an escaped space', () => {
-      expect(inLocale(locale, 'A rate in % of the gain; see https://example.org/a1%20b.')).toEqual([]);
+    it('allows a sign with no numeral before it, and a URL that holds a sign after a numeral', () => {
+      expect(inLocale(locale, 'A rate in % of the gain; see https://example.org/rate-5%-gains.')).toEqual([]);
       const sources = [keyed('pt-cirs', `${CIRS}/art1%20b`)];
       expect(inLocale(locale, `Taxed at 28${j}%.`, { sources })).toEqual([]);
+    });
+
+    it('reads a percent-escape in a URL without a scheme as an escape, and still judges the signs beside it', () => {
+      const letter = 'See bundesfinanzministerium.de/Content/a1%20b for the letter.';
+      expect(inLocale(locale, letter)).toEqual([]);
+      const expected = [
+        refused(locale, '28 %', 'U+0020'),
+        ...(locale === 'pt-PT' ? [] : [refused(locale, '28%', 'none')]),
+      ];
+      expect(inLocale(locale, `Taxed at 28 % or 28%. ${letter}`)).toEqual(expected);
     });
   });
 
