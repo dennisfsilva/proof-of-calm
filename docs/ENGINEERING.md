@@ -164,7 +164,13 @@ as ADR-0024's Corrections say, and the test skips on a platform without one.
   17 with it on demand behind its own error boundary; with the group, a local merge with the foot
   static measured 37,270 bytes (46,466 without the group) and the rebased branch 37,414 bytes in 3
   chunks, on 2026-11-09, so the on-demand chunk and its boundary went. Lighthouse's script total on
-  the branch is the measure against the budget and main's figures above.
+  the branch is the measure against the budget and main's figures above. The foot asks the red-day
+  model on Today's load, and its drawdowns over the year of closes, three exact divisions a day, were
+  one long task: dispatch 42597401623 measured TBT 334 ms and performance 0.91 against main's 94 ms
+  and 0.98. The model now reads the last two weeks' drawdowns, and earlier 90-day blocks only while
+  the episode may have started before them, with a pause between its steps
+  (`packages/app/src/lib/services/red-day-model.ts`); at 4x CPU locally Today's TBT median went from
+  82 ms to 47 ms (main 43 ms), with no long task of its own, on 2026-11-09.
 - Lighthouse mobile ≥ 95 for Performance (TBT ≤ 200 ms, LCP ≤ 2.5 s, CLS ≤ 0.1) and 100 for
   Accessibility on Today, Portfolio, Log, Plan; five runs per measured deployment, each screen with
   the fixture plan in IndexedDB (`apps/web/lighthouse/seed.ts`, run before each URL; Lighthouse's reset
