@@ -136,3 +136,7 @@ delegated the call to a session (ADR-0015 Deviations).
   own text, so the sentence cannot stand without its link and a module with no such line shows no link. One element
   was chosen over a link that must follow the sentence: two review rounds showed that a check on the text could not
   read a list, a quote, a heading or a sentence's end, and only the compiler reads those.
+
+- 2026-11-09: `pnpm validate:content` runs the build's compiler and `closedBody` on every module (`checkModuleBody`),
+  with the one list `MODULE_BODY_ELEMENTS` that the hosts, Storybook and the app's tests also take; it reports
+  `module-closed-body`.
