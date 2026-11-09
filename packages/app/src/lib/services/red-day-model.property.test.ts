@@ -31,7 +31,8 @@ function seriesOf(values: readonly number[], gaps: readonly number[] = [], start
 }
 
 /** `days` closes falling 2 % a day from a million, rounded to whole units. */
-const falling = (days: number, from = 1_000_000) => Array.from({ length: days }, (_, n) => Math.round(from * 0.98 ** n));
+const falling = (days: number, from = 1_000_000) =>
+  Array.from({ length: days }, (_, n) => Math.round(from * 0.98 ** n));
 
 const whole = (series: Series, today: CalendarDate) => ({
   episode: redDayEpisode(redDays(series), today),
@@ -46,7 +47,12 @@ async function matchesWhole(series: Series, today: CalendarDate) {
   expect(flags.at(-1)?.date).toBe(series.at(-1)?.date);
   for (const flag of flags) {
     const point = expected.points.get(flag.date);
-    expect(flag).toEqual({ date: flag.date, sevenDay: point?.sevenDay, fromHigh90: point?.fromHigh90, red: point?.red });
+    expect(flag).toEqual({
+      date: flag.date,
+      sevenDay: point?.sevenDay,
+      fromHigh90: point?.fromHigh90,
+      red: point?.red,
+    });
   }
   return { episode, flags };
 }
@@ -119,7 +125,10 @@ describe('recentEpisode', () => {
     // 20 % under the last close before it, Red at once, and the fall goes on for 150 days: two earlier blocks back.
     const before = falling(120);
     const after = falling(150, Math.round((before[119] ?? 0) * 0.8));
-    const series = seriesOf([...before, ...after], Array.from({ length: 121 }, (_, n) => (n === 120 ? 120 : 1)));
+    const series = seriesOf(
+      [...before, ...after],
+      Array.from({ length: 121 }, (_, n) => (n === 120 ? 120 : 1)),
+    );
     const today = addDays(series[269]?.date ?? START, 1);
     const { episode, flags } = await matchesWhole(series, today);
     expect(episode).toEqual({ start: series[120]?.date, last: series[269]?.date });
