@@ -6,7 +6,9 @@ import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle } from '@proof
 import { XIcon } from 'lucide-react';
 import { type ComponentProps, useRef } from 'react';
 import { useTranslations } from 'use-intl';
+import { useFormatters } from '../../../lib/services';
 import { moduleBody } from '../lib/bodies';
+import { pageJoiner, withJoiner } from '../lib/body-elements';
 import { ModuleView } from './module-view';
 
 export type ModuleSheetProps = {
@@ -21,7 +23,8 @@ export type ModuleSheetProps = {
 
 /**
  * One Learn module in a sheet (docs/CONTENT-STYLE.md §3): the same view as the route's, its title the module's
- * idea, so the dialog is named by what it says. With a section, the focus moves to that heading inside the
+ * idea, so the dialog is named by what it says; a module with a chart joins its `N %` there as the view does its
+ * title, caveat and body (docs/CONTENT-STYLE.md §4). With a section, the focus moves to that heading inside the
  * popup: the browser scrolls it into view, and the keyboard and a screen reader land on it, with no scroll code.
  * Without one, or for a section the module does not have, Base UI's default stands: the first tab stop, which is
  * `Close` (docs/DESIGN.md §6 and §8). The closing focus goes to the host's `finalFocus`. The body suspends under
@@ -41,10 +44,12 @@ export type ModuleSheetProps = {
  */
 export function ModuleSheet({ slug, section, open, onOpenChange, finalFocus }: ModuleSheetProps) {
   const t = useTranslations('learn');
+  const f = useFormatters();
   const popup = useRef<HTMLDivElement>(null);
   const module = LEARN_MODULES.find((known) => known.slug === slug);
   const Body = moduleBody(slug);
   if (module === undefined || Body === undefined) return null;
+  const joiner = module.chart === 'none' ? ' ' : pageJoiner(f);
   const heading = () =>
     (section !== undefined && popup.current?.querySelector<HTMLElement>(`[id="${section}"]`)) || true;
   return (
@@ -67,7 +72,7 @@ export function ModuleSheet({ slug, section, open, onOpenChange, finalFocus }: M
           Body={Body}
           heading={
             <SheetHeader>
-              <SheetTitle>{module.idea}</SheetTitle>
+              <SheetTitle>{withJoiner(module.idea, joiner)}</SheetTitle>
             </SheetHeader>
           }
         />
