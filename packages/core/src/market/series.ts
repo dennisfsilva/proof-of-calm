@@ -3,6 +3,7 @@
 import { addDays, type CalendarDate, compareDates } from '../dates/calendar';
 import { isPositive, type Money, minus, type Price, plus, sum, type Units, valueAt } from '../money/decimal';
 import { liveEntries } from '../plan/statuses';
+import { unitsIn, unitsOut } from '../portfolio/effect';
 import { coinsWithEntries } from '../portfolio/portfolio';
 import { defined } from '../result';
 import type { Entry } from '../schema/entry';
@@ -107,10 +108,7 @@ export function valueSeries(
       for (const holding of holdings) {
         const later = holding.pending.findIndex((entry) => entry.date > date);
         const due = holding.pending.splice(0, later === -1 ? holding.pending.length : later);
-        holding.units = due.reduce(
-          (held, entry) => (entry.kind === 'sell' ? minus(held, entry.units) : plus(held, entry.units)),
-          holding.units,
-        );
+        holding.units = due.reduce((held, entry) => minus(plus(held, unitsIn(entry)), unitsOut(entry)), holding.units);
         if (isPositive(holding.units)) value = plus(value, valueAt(holding.units, closeOn(holding.history, date)));
       }
       return { date, value };
