@@ -127,7 +127,7 @@ packages/content/
 ├── facts/           every cited number with source, date, lastReviewed (docs/CONTENT-OPS.md §7)
 ├── cycles/          completed cycles' maximum drawdowns per coin; the current cycle is computed, never stored (docs/EDUCATION.md §2 and §6)
 ├── style/           banned.json: the banned words in en, de and pt, the filler words, and the allow-list with a reason per phrase (docs/CONTENT-STYLE.md)
-├── coins.json       the coin catalogue: the picker's coins and the price route's allow-list (ADR-0036)
+├── coins.json       the coin catalogue: the picker's coins and the price route's allow-list (ADR-0036, ADR-0052)
 ├── sources.allow.json
 ├── scripts/         validate.ts, run by `pnpm validate:content`; rules.ts, which writes rules/
 └── src/             schemas, loaders (typed, without zod at run time; one chunk per profile and per rules file; the Learn modules' parser with the reading time needs zod, so it is the subpath `./modules`), tests that validate every file
