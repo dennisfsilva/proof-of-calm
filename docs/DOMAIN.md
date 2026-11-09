@@ -610,6 +610,14 @@ or after it adds its amount to `investedSoFar`, changes no other field but `perc
   for `RED_DAY.episodeClearDays` (7) consecutive days, missing days counting as clear. Flags dated after
   `today` are not read, so `start <= last <= today`. The banner is
   shown once per episode until dismissed; the page stays reachable from Learn.
+- The complete-closes rule, which the Red day figures follow: the history route dates its last point,
+  the live price at the fetch, with the UTC day of the fetch, so a copy's closes count only before the
+  UTC day of its `fetchedAt` and never after the user's `today`. The red-day port (`redDay` on the
+  Services, `packages/app/src/lib/services/red-day.ts`) drops the rest from each held coin's copy, then
+  runs `heldValueSeries` at today's units, `drawdowns`, `redDay` on each date and `redDayEpisode`. A held
+  coin outside the catalogue is named as missing without a read, and so is one with fewer than two
+  complete closes; one failed read fails the figure as a whole. The maths and the past falls load on
+  the port's first question, so Today's entry carries only its stub.
 - `bannerFor({ today, redDay, ruleChange, backupNeeded, dismissed })`: returns at most one of
   `red-day`, `rule-change`, `backup-needed`, in that priority, or `null` (never stacked), with its key.
   The shell adds the key to `dismissedBanners` when the user dismisses the banner:
