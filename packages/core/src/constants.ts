@@ -36,12 +36,15 @@ export const TOMBSTONE_TTL_DAYS = 90;
 
 /**
  * Red day thresholds in percent (docs/DOMAIN.md §3.11). True on about 15 % of bitcoin's days in the
- * five years to 2026-10-16 (docs/EDUCATION.md §9 `q.red-day-frequency`).
+ * five years to 2026-10-16 (docs/EDUCATION.md §9 `q.red-day-frequency`). A recorded banner key covers an
+ * episode that starts up to `coverDays` after it; a red-day key older than `keptDays` is dropped.
  */
 export const RED_DAY = {
   sevenDay: '-10' as Percent,
   fromHigh90: '-30' as Percent,
   episodeClearDays: 7,
+  coverDays: 7,
+  keptDays: 365,
 } as const;
 
 /** A dismissed "backup needed" banner stays away this many days (ADR-0004). */
