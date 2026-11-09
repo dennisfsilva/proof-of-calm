@@ -71,13 +71,12 @@ describe('the Risk honestly module', () => {
       'e.seed-phrase-requests',
       'e.profit-promises',
       'e.address-poisoning',
-      'e.seed-phrase-never-asked',
     ]);
   });
 
-  // Each scam pattern and the support sentence rests on a fact of its own, quoted from the ESAs' factsheet: the
+  // Each sign of a scam rests on a fact of its own, quoted from the ESAs' factsheet: the
   // module's words on the left, the factsheet's on the right. A pattern no source states leaves the module.
-  it('rests each scam pattern and the support sentence on a fact of its own, from one dated source', () => {
+  it('rests each sign of a scam on a fact of its own, from one dated source', () => {
     const { module, body } = read();
     const plain = body.replaceAll(' ', ' ');
     const patterns = [
@@ -102,11 +101,6 @@ describe('the Risk honestly module', () => {
         'e.address-poisoning',
         '- A look-alike address slipped into your history, so a copied address pays someone else.',
         'copy the wrong address from your wallet history',
-      ],
-      [
-        'e.seed-phrase-never-asked',
-        'Nobody from support ever asks for a seed phrase, so a request for one is a scam.',
-        'Legitimate companies will never ask',
       ],
     ] as const;
     for (const [key, words, quote] of patterns) {
@@ -163,28 +157,47 @@ describe('the Risk honestly module', () => {
     expect(plain(body)).toContain('Mt. Gox closed its site on 25 Feb 2014.');
     // Both FTX statements are the complaint's, attributed and dated.
     expect(plain(body)).toContain(
-      "The US Commodity Futures Trading Commission's complaint of 13 Dec 2022 says FTX and FTX US halted all trading and withdrawals on 10 Nov 2022, and that over $8 billion in customer deposits were missing.",
+      "The US Commodity Futures Trading Commission's complaint of 13 Dec 2022 says FTX and FTX US halted all trading and withdrawals on 10 Nov 2022. It says over $8 billion in customer deposits were missing.",
     );
-    expect(plain(body)).toContain('over $19 billion of liquidations on 10 Oct 2025 alone.');
+    expect(plain(body)).toContain(
+      'over $19 billion of liquidations on 10 Oct 2025 alone, far above any earlier day in its data.',
+    );
     // EDUCATION §9 row f: one dated leverage figure; ESMA's CFD figure and the FCA ban stay out.
     expect(body).not.toMatch(/ESMA|CFD|banned/u);
     // docs/LEGAL.md §6 Q4: a provider named only as the subject of a dated event, with no word on it now.
     expect(body).not.toMatch(/Bybit|Celsius|Voyager|Quadriga/u);
   });
 
-  it('gives the order of operations, self-custody in five sentences, and six scam patterns', () => {
+  it("gives the FCA page's order, self-custody in five sentences, and six signs of a scam", () => {
     const { body } = read();
-    expect(body).toMatch(
-      /A common order: first, an emergency fund\..*Then no borrowed money.*Last, an amount small enough/u,
+    const plain = body.replaceAll('\u00a0', ' ');
+    const value = (key: string) => facts.find((fact) => fact.key === key)?.value ?? '';
+    // EDUCATION §9 row m: each step is the FCA page's own, in its order, debt before the emergency fund, and no step
+    // the page does not hold; "recommend" is on the ban list (CONTENT-STYLE §2), so "advise".
+    expect(plain).toContain(
+      'Before investing, the FCA puts paying off short-term debt first, then an emergency cash fund.',
     );
-    // EDUCATION §9 row m: the FCA's one quote; "recommend" is on the ban list (CONTENT-STYLE §2), so "advise".
-    expect(body.replaceAll(' ', ' ')).toContain(
-      "The FCA's InvestSmart page says many experts advise a fund that covers 3 to 6 months of outgoings.",
+    expect(plain).toContain(
+      "The FCA's InvestSmart page, updated 16 May 2025, says many experts advise a fund that covers 3 to 6 months of outgoings.",
     );
+    expect(plain).toContain('It also says never to use a credit card to buy an investment.');
+    for (const quote of [
+      'Prioritise paying off any short-term debt, build an emergency cash fund',
+      "Before you begin to invest it's sensible to pay off any debts.",
+      'never use a credit card to buy an investment',
+      'Build up an emergency cash fund before you begin to invest',
+      'between 3 and 6 months',
+    ]) {
+      expect(value('m.emergency-fund')).toContain(quote);
+    }
+    expect(plain).not.toMatch(/A common order|no borrowed money|untouched for years|changes nothing important/u);
     expect(body).not.toMatch(/BaFin|CFPB/u);
-    const custody = body.slice(body.indexOf('## Keeping coins yourself'), body.indexOf('## Six patterns'));
+    // e.seed-phrase-requests calls a request a warning sign; e.impersonation names whom it may seem to come from.
+    expect(plain).toContain('A request for a seed phrase is a warning sign of a scam, whoever it seems to come from.');
+    expect(plain).not.toMatch(/Nobody from support/u);
+    const custody = body.slice(body.indexOf('## Keeping coins yourself'), body.indexOf('## Six signs of a scam'));
     expect(custody.replace('## Keeping coins yourself', '').match(/[.?]( |$)/gu)).toHaveLength(5);
     const lines = read().module.body;
-    expect(lines.slice(lines.indexOf('## Six patterns')).match(/^- /gmu)).toHaveLength(6);
+    expect(lines.slice(lines.indexOf('## Six signs of a scam')).match(/^- /gmu)).toHaveLength(6);
   });
 });

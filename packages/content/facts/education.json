@@ -132,17 +132,6 @@
     "lastReviewed": "2026-11-09"
   },
   {
-    "key": "e.seed-phrase-never-asked",
-    "value": "ESAs factsheet \"Crypto frauds & scams: stay alert and protect yourself\" (15 Dec 2025): \"Never share passwords, private keys, or seed phrases: Anyone with access to them can take control of your assets. Legitimate companies will never ask for your passwords or security codes by email, text, or phone.\" In its impersonation scam, someone \"pretending to be a trusted contact (e.g., a crypto-exchange, wallet provider, IT support, or even a friend)\" asks for \"your seed phrase\".",
-    "unit": "quotation",
-    "date": "2025-12-15",
-    "source": "https://www.esma.europa.eu/sites/default/files/2025-12/Crypto_fraud_and_scams_factsheet.pdf",
-    "publisher": "European Supervisory Authorities (EBA, EIOPA, ESMA)",
-    "accessed": "2026-11-09",
-    "confidence": "high",
-    "lastReviewed": "2026-11-09"
-  },
-  {
     "key": "f.leverage",
     "value": "CoinGlass 2025 annual report (data from 1 Jan to 20 Nov 2025): on 10 Oct 2025, combined long and short liquidations exceeded $19 billion, far surpassing the single-day highs of all previous liquidation rounds.",
     "unit": "USD",
@@ -276,7 +265,7 @@
   },
   {
     "key": "m.emergency-fund",
-    "value": "FCA InvestSmart (updated 16 May 2025): \"Many experts recommend having an emergency fund that can cover your outgoings for between 3 and 6 months.\"",
+    "value": "FCA InvestSmart \"Should you invest?\" (updated 16 May 2025): \"Prioritise paying off any short-term debt, build an emergency cash fund\"; \"Before you begin to invest it's sensible to pay off any debts.\"; \"Build up an emergency cash fund before you begin to invest\"; \"Many experts recommend having an emergency fund that can cover your outgoings for between 3 and 6 months.\"; \"You should never use a credit card to buy an investment.\"",
     "unit": "months",
     "date": "2025-05-16",
     "source": "https://www.fca.org.uk/investsmart/should-you-invest",
