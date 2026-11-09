@@ -45,7 +45,7 @@ describe('the Cookie-free statement (docs/LEGAL.md §5)', () => {
     ['the date each copy was saved', 'so copies past their limit are cleared'],
     ['your display settings', 'so they stay as you chose them'],
     ['the dates of your last JSON backup and your last change', 'so the app can remind you to export a copy'],
-    ['the banners you dismissed', 'so they stay hidden'],
+    ['the banners you dismissed or that showed once', 'so they stay hidden'],
     ['the date of your last annual review', 'so the next review shows when it is due'],
     ['the entries you deleted on this device', 'so an import with Add missing entries only cannot bring them back'],
     [
