@@ -185,6 +185,27 @@ describe('LogRow', () => {
     expect(onDelete).toHaveBeenCalledWith(row);
   });
 
+  it("shows a move's route, its units and its fee in the coin, and no fee line when nothing was lost", async () => {
+    const { entries } = fixtureSnapshot();
+    const coin = entries.find((entry) => entry.kind === 'dca')?.coin as CoinId;
+    const shown = async (fields: Partial<Entry>) => {
+      const move = aMove({ coin, date: '2026-10-20' as Entry['date'], units: units('0.05'), ...fields });
+      const rows = transactions(plan, [...entries, move], holdingContext(plan, await portugal())).rows;
+      await mount(find(rows, 'move'), plan);
+      fireEvent.click(screen.getByRole('button', { expanded: false }));
+      const text = screen.getByRole('list').parentElement?.textContent;
+      cleanup();
+      return text;
+    };
+    // The fixture plan writes units in the Portuguese format, at the coin's decimals with a no-break space, as the Log's other rows.
+    const paid = await shown({ received: units('0.0498') });
+    expect(paid).toContain(`0,05000000 ${coin} moved from Kraken to Ledger`);
+    expect(paid).toContain(`Network fee 0,00020000 ${coin}`);
+    const free = await shown({ venue: null, received: units('0.05') });
+    expect(free).toContain(`0,05000000 ${coin} with no venue moved to Ledger`);
+    expect(free).not.toContain('Network fee');
+  });
+
   it('shows one holding line for a transaction of two coins, with the note only where the screen puts it', async () => {
     const lump = find(await fixtureRows(), 'lump');
     await mount(lump, plan, { note: true });
