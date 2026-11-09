@@ -192,6 +192,10 @@ for (const colorScheme of ['light', 'dark'] as const) {
           if (phase !== undefined) await seedPlan(page, fixtureSnapshot());
           await page.goto(path);
           await screenReady(page, heading);
+          // Today's foot waits for the red-day model (docs/DESIGN.md §8); over the rising history it settles on
+          // the backup banner or the durability line.
+          if (path === '/today' && phase !== undefined)
+            await expect(page.getByText(/^Your data lives only/)).toBeVisible();
           await page.evaluate(() => document.fonts.ready.then(() => undefined));
           await expect(page).toHaveScreenshot(snapshot, {
             fullPage: true,
