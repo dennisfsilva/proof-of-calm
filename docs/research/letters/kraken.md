@@ -1,7 +1,8 @@
 # Letter to Kraken: written confirmation for derived daily closes
 
-Draft of 2026-10-17 for the owner to send before M2 (ADR-0006, ADR-0036). Fill in the bracketed
-details. Kraken's terms contain no written market-data licence, so the question is whether the use
+Draft of 2026-10-17, revised 2026-11-09 to the catalogue rule (ADR-0052), for the owner to send
+before M2 (ADR-0006, ADR-0036). Fill in the bracketed details.
+Kraken's terms contain no written market-data licence, so the question is whether the use
 below is acceptable as described; the answer is recorded in ADR-0036.
 
 ---
@@ -18,10 +19,11 @@ run from Portugal, by [owner name].
 I would like your written confirmation that the use of Kraken's public market data described below
 is acceptable, or to learn which licence or conditions apply.
 
-**The data.** Kraken's bulk OHLCVT downloads for the EUR pairs XBT/EUR (from September 2013),
-ETH/EUR (from August 2015), LINK/EUR (from September 2019) and SOL/EUR (from June 2021), read once,
-and the previous day's daily candle from the public OHLC endpoint, read once a day per pair (four
-requests a day).
+**The data.** Kraken's bulk OHLCVT downloads, read once, for the EUR and USD pairs of the coins in
+our catalogue that Kraken lists; then the previous day's daily candle from the public OHLC endpoint,
+read once a day per pair. The catalogue follows a published rule: the largest crypto-assets by market
+value, up to about 100, that Kraken, Bitstamp or Coinbase lists, without stablecoins or wrapped and
+staked tokens, reviewed every quarter.
 
 **What we do with it.** For each day we compute one reference close: the median of the daily closes
 available that day from Kraken, Bitstamp and Coinbase. Only that derived daily figure is published,
