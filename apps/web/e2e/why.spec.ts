@@ -152,7 +152,7 @@ test('the Risk link stands beside the past-performance line, with no plan and in
 test("the P/L line's Why? on /portfolio opens Risk honestly, and closing gives the focus back", async ({ page }) => {
   await seedInHold(page);
   await page.goto('/portfolio');
-  const link = page.getByRole('button', { name: 'Why? Risk honestly', exact: true });
+  const link = page.getByRole('button', { name: 'Why? Your profit and loss', exact: true });
   await link.press('Enter');
   const sheet = page.getByRole('dialog', { name: RISK });
   await expect(sheet).toBeVisible();

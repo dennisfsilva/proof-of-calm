@@ -248,7 +248,7 @@ describe('PortfolioScreen', () => {
   // docs/EDUCATION.md, the links table: the P/L line's Why? opens Risk honestly, and it
   // stands wherever the P/L line does. The core gives no P/L only while a held coin has no price.
   describe("the P/L line's Why?", () => {
-    const WHY = 'Why? Risk honestly';
+    const WHY = 'Why? Your profit and loss';
     const IDEA = "The third fixture's idea, for Portfolio's Why? on the P/L line.";
     const why = () => screen.queryByRole('button', { name: WHY });
     /**
