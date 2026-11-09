@@ -86,3 +86,18 @@ The same design adds, around the question (planned: M2), in feat/currency-questi
   2026-11-09).
 - Not decided here: holding rules that apply backwards after a move, the tax years offered after a
   change, and the last fee copied across currencies. Session 16's plan (#10) holds them.
+
+## Corrections recorded on 2026-11-09
+
+- What the Decision and the Consequences mark as planned for feat/currency-question shipped there:
+  the confirmation asks the question with nothing chosen and refuses a confirm without an answer;
+  the files-first block shows with any live entry; Currency & data shows the line and its "Change
+  to" button while the plan's currency and the country's differ. Currency & data no longer answers
+  `keep` for the person, so the interim Consequence has ended.
+- The amount row is one row for each of the plan's own amounts that is not zero, the starting
+  amount as well as the monthly amount, shown whenever the change moves the pay currency.
+- Currency & data's button calls `changePayCurrencyOf` in
+  `packages/app/src/features/settings/actions.ts`, which wraps the core's `changePayCurrency`. The
+  display currency follows the pay currency when the two were equal, so the button stores the same
+  plan as the question's "Change to" answer. A display currency set apart from the pay currency
+  stays, since no screen can set it again (`docs/DOMAIN.md` §2.1).
