@@ -59,12 +59,18 @@ const BTC_ONLY = SNAPSHOT.entries.filter((entry) => entry.coin === 'BTC');
 
 function model(
   copies: Readonly<Record<string, Copy | 'fail' | 'never'>>,
-  { entries = BTC_ONLY, today = TODAY }: { readonly entries?: readonly Entry[]; readonly today?: CalendarDate } = {},
+  {
+    entries = BTC_ONLY,
+    today = TODAY,
+    plan = PLAN,
+  }: { readonly entries?: readonly Entry[]; readonly today?: CalendarDate; readonly plan?: Plan } = {},
 ) {
   const history = historyOf(copies);
   const services = createTestServices({ historySource: history.source });
-  return { reads: history.reads, answer: services.redDay.model({ plan: PLAN, entries, today }) };
+  return { reads: history.reads, answer: services.redDay.model({ plan, entries, today }) };
 }
+
+const BITCOIN = { coin: 'BTC', name: 'Bitcoin' };
 
 describe('the red-day port (docs/DOMAIN.md §3.11)', () => {
   it('reads no history when nothing is held', async () => {
@@ -136,7 +142,26 @@ describe('the red-day port (docs/DOMAIN.md §3.11)', () => {
     expect(result.state).toBe('clear');
     expect(result.figure?.coins).toEqual(['BTC']);
     expect(result.figure?.missing).toEqual(['ZZZ']);
+    expect(result.held).toEqual([BITCOIN, { coin: 'ZZZ', name: 'ZZZ' }]);
     expect(reads).toEqual(['BTC']);
+  });
+
+  it('holds a coin removed from the plan whose entries stay, named from the catalogue, after the plan’s coins', async () => {
+    const btcOnly = { ...PLAN, coins: PLAN.coins.filter((coin) => coin.id === 'BTC') };
+    const { answer } = model(
+      { BTC: { values: RISE }, ETH: { values: RISE } },
+      { entries: SNAPSHOT.entries, plan: btcOnly },
+    );
+    const result = await answer;
+    expect(result.held).toEqual([BITCOIN, { coin: 'ETH', name: 'Ethereum' }]);
+    expect(result.figure?.coins).toEqual(['BTC', 'ETH']);
+  });
+
+  it('leaves a plan coin with 0 units out of the held coins, in every state', async () => {
+    // The plan holds BTC and ETH; only BTC has entries.
+    expect((await model({ BTC: { values: RISE } }).answer).held).toEqual([BITCOIN]);
+    expect(await model({ BTC: 'fail' }).answer).toEqual(expect.objectContaining({ state: 'failed', held: [BITCOIN] }));
+    expect((await model({}, { entries: [] }).answer).held).toEqual([]);
   });
 
   it('fails when one coin’s read fails', async () => {
