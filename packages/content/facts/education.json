@@ -89,8 +89,8 @@
   },
   {
     "key": "i.diminishing",
-    "value": "Proof of Calm's own computation (Bitstamp BTC/USD daily candles; the 2011 high is Mt. Gox's $31.91 on 8 Jun 2011; the ranges also use Mt. Gox and CoinMarketCap highs and lows): multiples from one cycle high to the next, about 36× to 39× (2011 → 2013), 15.8× to 17.4× (→ 2017), 3.4× to 3.5× (→ 2021), 1.83× so far (→ the 2025 high). Trough to cycle high within cycles: about 520× to 650× (→ 2013), 115× to 132× (→ 2017), 21.6× to 22.1× (→ 2021), 8.1× to 8.2× so far (→ the 2025 high). Drawdown sequence −94 % (2011), −87 % (2013 to 2015), −84 % (2017 to 2018), −78 % (2021 to 2022), −54 % so far (from the 2025 high). 4 completed cycles are 4 data points; the current one is not final; the series is measured on the asset that survived.",
-    "unit": "multiple; % from cycle high",
+    "value": "Proof of Calm's own computation (Bitstamp BTC/USD daily candles; the 2011 high is Mt. Gox's $31.91 on 8 Jun 2011; the 2011 low is CoinMarketCap's): drawdown sequence −94 % (2011), −87 % (2013 to 2015), −84 % (2017 to 2018), −78 % (2021 to 2022), −54 % so far (from the 2025 high). 4 completed cycles are 4 data points; the current one is not final; the series is measured on the asset that survived.",
+    "unit": "% from cycle high",
     "date": "2026-10-16",
     "source": "https://www.bitstamp.net/api/v2/ohlc/btcusd/?step=86400",
     "publisher": "Bitstamp",
