@@ -30,7 +30,7 @@ const TEST_DATA = [
 const PRODUCT_FOLDERS = [
   '^apps/(web|mobile)/(src|lib|server|api|messages)/',
   '^packages/[^/]+/src/',
-  '^packages/content/(coins[.]json|templates/|jurisdictions/|rules/|facts/|style/|learn/)',
+  '^packages/content/(coins[.]json|templates/|jurisdictions/|rules/|facts/|cycles/|style/|learn/)',
   '(^|/)node_modules/',
   '^node:',
   '^virtual:learn-modules$',
