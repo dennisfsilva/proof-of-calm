@@ -324,6 +324,27 @@ describe('CountrySection', () => {
     expect(items().filter((item) => item?.startsWith('Currency'))).toEqual([]);
   });
 
+  it('asks about one logged entry in the singular, and names a new plan as the way to pay in GBP', async () => {
+    const snapshot = fixtureSnapshot();
+    await mount({ ...snapshot, entries: snapshot.entries.slice(0, 1) });
+    await choose('United Kingdom');
+    const group = screen.getByRole('radiogroup');
+    expect(document.getElementById(group.getAttribute('aria-labelledby') ?? '')?.textContent).toMatch(
+      /^1 logged entry, on .+, holds an amount or a fee in EUR\. Which currency was it paid in\?$/,
+    );
+    expect(screen.getByText('If you moved: it was paid in EUR, and new amounts are logged in EUR too.')).toBeTruthy();
+    expect(
+      screen.getByText(
+        'If the country was wrong from the start: it was paid in GBP. It shows as GBP, as typed; nothing is converted.',
+      ),
+    ).toBeTruthy();
+    expect(
+      screen.getByText(
+        'A plan holds one currency. To pay in GBP from now on, keep EUR, export a copy, and start a new plan in GBP.',
+      ),
+    ).toBeTruthy();
+  });
+
   it('refuses a confirm with no answer next to the question, focusing its first card', async () => {
     const services = await mount();
     await choose('United Kingdom');
@@ -401,7 +422,11 @@ describe('CountrySection', () => {
   it('offers the tax-year files first while live entries exist, and not without them', async () => {
     await mount();
     await choose('Germany');
-    expect(screen.getByText(/^Tax-year files follow your current country's rules/)).toBeTruthy();
+    expect(
+      screen.getByText(
+        "Tax-year files follow your current country's rules until you change country. Export the years you need first.",
+      ),
+    ).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Export tax-year CSV' })).toBeTruthy();
     cleanup();
     await mount({ ...fixtureSnapshot(), entries: [] });
