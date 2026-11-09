@@ -91,11 +91,13 @@ export function redDays(series: readonly ValuePoint[], thresholds: RedDayThresho
 
 /**
  * The episode under way on `today`, if any: it starts on a Red day and ends once the condition has been
- * clear for RED_DAY.episodeClearDays consecutive days (missing days count as clear). `days` ascend.
+ * clear for RED_DAY.episodeClearDays consecutive days (missing days count as clear). `days` ascend;
+ * those after `today` are not read, so an episode never starts or lasts past it.
  */
 export function redDayEpisode(days: readonly RedDayFlag[], today: CalendarDate): RedDayEpisode | null {
   let episode: RedDayEpisode | null = null;
   for (const day of days) {
+    if (daysBetween(day.date, today) < 0) break;
     if (!day.red) continue;
     episode =
       episode !== null && daysBetween(episode.last, day.date) <= RED_DAY.episodeClearDays
