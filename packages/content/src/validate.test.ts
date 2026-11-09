@@ -336,6 +336,16 @@ describe('validateContent: the percent sign keeps its number locale’s spacing 
     expect(codes([file(pt, profile({ locales: ['pt-PT', 'en-GB'] }))])).toEqual([]);
   });
 
+  it('reports a malformed locale tag for its file, and goes on with the other checks and files', () => {
+    const other = file(pt, profile({ name: 'Country, with a spaced 5 %' }));
+    const run = (overrides: Record<string, unknown>) => () => codes([file(pt, profile(overrides)), other]);
+    const otherFile = 'percent-joiner: name: "5 %" has U+0020, expected none';
+    expect(run({ numberFormatLocale: 'de_DE' })).not.toThrow();
+    expect(run({ numberFormatLocale: 'de_DE' })()).toEqual(['locale-tag: numberFormatLocale: de_DE', otherFile]);
+    expect(run({ locales: ['pt-PT', 'pt_PT'] })()).toEqual(['locale-tag: locales.1: pt_PT', otherFile]);
+    expect(run({ dateFormatLocale: 'pt_PT' })()).toEqual(['locale-tag: dateFormatLocale: pt_PT', otherFile]);
+  });
+
   it('refuses the profiles as main wrote them, with an ordinary space before every sign', () => {
     const folder = new URL('../jurisdictions/', import.meta.url);
     const asMain = readdirSync(folder).map((name) => {
