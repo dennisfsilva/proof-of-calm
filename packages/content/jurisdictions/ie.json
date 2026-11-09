@@ -58,17 +58,17 @@
     "rates": [
       {
         "label": "Capital Gains Tax",
-        "value": "31 %",
+        "value": "31%",
         "validFrom": "2026-10-07",
         "validTo": null,
         "note": "Set by Financial Resolution No. 3 of 6 October 2026 (Budget 2027), in force under the Provisional Collection of Taxes Act 1927 until the Finance (No. 2) Bill 2026 is enacted."
       },
       {
         "label": "Capital Gains Tax to 6 October 2026",
-        "value": "33 %",
+        "value": "33%",
         "validFrom": "2012-12-06",
         "validTo": "2026-10-06",
-        "note": "33 % on disposals from 6 December 2012 (Finance Act 2013 s. 43; Revenue's rate table prints 6 December 2021 for this row) to 6 October 2026. Development land stays at 33 %."
+        "note": "33% on disposals from 6 December 2012 (Finance Act 2013 s. 43; Revenue's rate table prints 6 December 2021 for this row) to 6 October 2026. Development land stays at 33%."
       }
     ],
     "allowances": [
@@ -87,13 +87,13 @@
       "Staking and airdrop income.",
       "Trading or investing: whether the activity is a trade of dealing in crypto-assets.",
       "Capital Acquisitions Tax on gifts and inheritances.",
-      "Which rate, 33 % or 31 %, applies to a disposal made while the Finance (No. 2) Bill 2026 is not yet enacted."
+      "Which rate, 33% or 31%, applies to a disposal made while the Finance (No. 2) Bill 2026 is not yet enacted."
     ],
-    "summary60": "Ireland charges Capital Gains Tax on every crypto disposal: selling, swapping, spending, or gifting. Rate 33 % to 6 October 2026 and 31 % from 7 October 2026, after a EUR 1,270 yearly exemption. No holding-period exemption. Pay by 15 December for January to November disposals, by 31 January for December's; file by 31 October next year. Losses carry forward."
+    "summary60": "Ireland charges Capital Gains Tax on every crypto disposal: selling, swapping, spending, or gifting. Rate 33% to 6 October 2026 and 31% from 7 October 2026, after a EUR 1,270 yearly exemption. No holding-period exemption. Pay by 15 December for January to November disposals, by 31 January for December's; file by 31 October next year. Losses carry forward."
   },
   "pendingChanges": [
     {
-      "title": "Finance (No. 2) Bill 2026, section 36: the 31 % rate",
+      "title": "Finance (No. 2) Bill 2026, section 36: the 31% rate",
       "status": "proposed",
       "effectiveFrom": "2026-10-07",
       "summary": "Section 36 substitutes 31 per cent for 33 per cent in section 28(3) of the Taxes Consolidation Act 1997 for disposals made on or after 7 October 2026. Passed Dáil Second Stage on 20 October 2026 and referred to the Select Committee on Finance, Public Expenditure, Public Service Reform and Digitalisation, and Taoiseach (Dáil record). Until enacted, the rate rests on Financial Resolution No. 3.",

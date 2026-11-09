@@ -72,11 +72,13 @@ describe("France's profile (docs/JURISDICTIONS.md §7.10)", () => {
     expect(profile.ruleSources.rates).toBe('fr-impots-faq-actifs-numeriques');
     const [rate] = profile.card.rates;
     const note = rate?.note ?? '';
-    expect([rate?.value, rate?.validFrom]).toEqual(['31.4 %', '2025-01-01']);
+    // A no-break space before the sign, as fr-FR formats a percentage (docs/CONTENT-STYLE.md §4).
+    const percent = (figure: string) => `${figure}${String.fromCodePoint(0xa0)}%`;
+    expect([rate?.value, rate?.validFrom]).toEqual([percent('31.4'), '2025-01-01']);
     expect(note).not.toMatch(/loi|n°|art\./i);
-    for (const percentage of note.match(/\d+(?:\.\d+)? %/g) ?? []) {
-      expect(['12.8 %', '18.6 %', '31.4 %']).toContain(percentage);
-    }
+    const percentages = note.match(/\d+(?:\.\d+)?\s*%/g) ?? [];
+    expect(percentages.length).toBeGreaterThan(0);
+    for (const percentage of percentages) expect(['12.8', '18.6', '31.4'].map(percent)).toContain(percentage);
     expect(note).toMatch(/3CN/);
   });
 

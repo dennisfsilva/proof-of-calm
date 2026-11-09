@@ -61,21 +61,21 @@
     "rates": [
       {
         "label": "Personal income tax (§ 32a EStG)",
-        "value": "0–45 % by taxable income (2026 tariff)",
+        "value": "0–45\u00a0% by taxable income (2026 tariff)",
         "validFrom": "2026-01-01",
         "validTo": null,
-        "note": "0 % up to EUR 12,348; 14 % rising to 42 % at EUR 69,879; 45 % from EUR 277,826."
+        "note": "0\u00a0% up to EUR 12,348; 14\u00a0% rising to 42\u00a0% at EUR 69,879; 45\u00a0% from EUR 277,826."
       },
       {
         "label": "Solidarity surcharge (§ 3 SolZG 1995)",
-        "value": "5.5 % of the income tax",
+        "value": "5.5\u00a0% of the income tax",
         "validFrom": "2026-01-01",
         "validTo": null,
         "note": "Only where the income tax exceeds EUR 20,350 (single) or EUR 40,700 (joint), with a sliding zone above."
       },
       {
         "label": "Church tax",
-        "value": "8–9 % of the income tax",
+        "value": "8–9\u00a0% of the income tax",
         "validFrom": "2026-01-01",
         "validTo": null,
         "note": "Where applicable."
@@ -108,7 +108,7 @@
       "title": "Referentenentwurf of 30 September 2026: Gesetz zur Reform der Besteuerung bestimmter Kryptowerte im Privatvermögen",
       "status": "proposed",
       "effectiveFrom": "2027-01-01",
-      "summary": "Tauschkryptowerte such as BTC and ETH acquired after 31 December 2026 would become capital income at 25 % plus solidarity surcharge, whatever the holding period, withheld by domestic providers from 1 January 2028; earlier purchases keep the one-year rule. E-money tokens, NFTs, security and RWA tokens are excluded. The cabinet slot of 14 October 2026 passed without a decision.",
+      "summary": "Tauschkryptowerte such as BTC and ETH acquired after 31 December 2026 would become capital income at 25\u00a0% plus solidarity surcharge, whatever the holding period, withheld by domestic providers from 1 January 2028; earlier purchases keep the one-year rule. E-money tokens, NFTs, security and RWA tokens are excluded. The cabinet slot of 14 October 2026 passed without a decision.",
       "source": {
         "title": "BMF: Entwurf eines Gesetzes zur Reform der Besteuerung bestimmter Kryptowerte im Privatvermögen",
         "url": "https://blogs.pwc.de/de/steuern-und-recht/article/257144/",

@@ -11,11 +11,14 @@ import { CountryProfileSchema } from './schema/jurisdiction.ts';
 const root = new URL('../', import.meta.url);
 const doc = readFileSync(new URL('../../docs/JURISDICTIONS.md', root), 'utf8');
 
-/** The document from a heading on, with every run of whitespace collapsed: the §2 quote wraps across lines. */
+/**
+ * The document from a heading on, with every run of spaces, tabs and line breaks collapsed: the §2 quote wraps
+ * across lines. A no-break space stays, since a card writes one before the percent sign in Spain and France.
+ */
 function section(heading: string): string {
   const start = doc.indexOf(heading);
   if (start === -1) throw new Error(`docs/JURISDICTIONS.md has no heading "${heading}"`);
-  return doc.slice(start).replace(/\s+/g, ' ');
+  return doc.slice(start).replace(/[ \t\r\n]+/g, ' ');
 }
 
 const profiles = readdirSync(new URL('jurisdictions/', root))

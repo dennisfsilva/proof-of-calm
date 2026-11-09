@@ -67,9 +67,9 @@ describe('Ireland (docs/JURISDICTIONS.md §7.3)', () => {
 
   it('splits 2026 by disposal date: 33 % from 6 December 2012 to 6 October 2026, 31 % from 7 October 2026', () => {
     const rates = ireland.card.rates.map(({ value, validFrom, validTo }) => ({ value, validFrom, validTo }));
-    expect(rates).toContainEqual({ value: '31 %', validFrom: '2026-10-07', validTo: null });
+    expect(rates).toContainEqual({ value: '31%', validFrom: '2026-10-07', validTo: null });
     // Finance Act 2013 s. 43(2): 33 % "applies to disposals made on or after 6 December 2012"; Revenue's table prints 2021.
-    expect(rates).toContainEqual({ value: '33 %', validFrom: '2012-12-06', validTo: '2026-10-06' });
+    expect(rates).toContainEqual({ value: '33%', validFrom: '2012-12-06', validTo: '2026-10-06' });
   });
 });
 

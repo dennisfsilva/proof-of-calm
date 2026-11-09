@@ -85,6 +85,47 @@ function jurisdiction(file: ContentFile, options: ValidationOptions): Problem[] 
     problems.push({ path, code: 'overrides-unapplied', detail: UNAPPLIED });
   }
   for (const [field, text] of profileTexts(profile)) problems.push(...bannedProblems(path, field, text));
+  problems.push(...percentProblems(path, profile));
+  return problems;
+}
+
+/** What a number locale writes between a numeral and its percent sign, as Intl formats it (docs/CONTENT-STYLE.md §4). */
+export function percentJoiner(locale: string): string {
+  const parts = new Intl.NumberFormat(locale, { style: 'percent' }).formatToParts(0);
+  return parts
+    .filter((part) => part.type === 'literal')
+    .map((part) => part.value)
+    .join('');
+}
+
+const codePoints = (text: string) =>
+  text === ''
+    ? 'none'
+    : [...text].map((char) => `U+${(char.codePointAt(0) ?? 0).toString(16).toUpperCase().padStart(4, '0')}`).join(' ');
+const PERCENT = /\d+(?:[.,]\d+)*(\s*)%/g;
+const URL_IN_TEXT = /https?:\/\/\S+/g;
+
+/**
+ * Each literal percentage in a profile's prose takes its number locale's joiner, so the sign never wraps away from
+ * its number; every locale of the profile writes the same joiner, since the app formats with either.
+ */
+function percentProblems(path: string, profile: CountryProfile): Problem[] {
+  const { locales, numberFormatLocale } = profile;
+  const joiner = percentJoiner(numberFormatLocale);
+  const expected = codePoints(joiner);
+  const problems = locales
+    .filter((locale) => percentJoiner(locale) !== joiner)
+    .map((locale) => {
+      const detail = `locales: ${locale} writes ${codePoints(percentJoiner(locale))}, numberFormatLocale ${numberFormatLocale} writes ${expected}`;
+      return { path, code: 'percent-joiner', detail };
+    });
+  for (const [field, text] of profileTexts(profile)) {
+    for (const [excerpt, gap = ''] of text.replaceAll(URL_IN_TEXT, ' ').matchAll(PERCENT)) {
+      if (gap === joiner) continue;
+      const detail = `${field}: ${JSON.stringify(excerpt)} has ${codePoints(gap)}, expected ${expected}`;
+      problems.push({ path, code: 'percent-joiner', detail });
+    }
+  }
   return problems;
 }
 

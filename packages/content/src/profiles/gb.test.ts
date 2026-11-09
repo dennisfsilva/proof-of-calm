@@ -55,10 +55,10 @@ describe('United Kingdom (docs/JURISDICTIONS.md §7.4)', () => {
 
   it('splits 2024/25 by disposal date: 10 % and 20 % to 29 October 2024, 18 % and 24 % from 30 October 2024', () => {
     const rates = kingdom.card.rates.map(({ value, validFrom, validTo }) => ({ value, validFrom, validTo }));
-    expect(rates).toContainEqual({ value: '18 %', validFrom: '2024-10-30', validTo: null });
-    expect(rates).toContainEqual({ value: '24 %', validFrom: '2024-10-30', validTo: null });
-    expect(rates).toContainEqual({ value: '10 %', validFrom: '2024-04-06', validTo: '2024-10-29' });
-    expect(rates).toContainEqual({ value: '20 %', validFrom: '2024-04-06', validTo: '2024-10-29' });
+    expect(rates).toContainEqual({ value: '18%', validFrom: '2024-10-30', validTo: null });
+    expect(rates).toContainEqual({ value: '24%', validFrom: '2024-10-30', validTo: null });
+    expect(rates).toContainEqual({ value: '10%', validFrom: '2024-04-06', validTo: '2024-10-29' });
+    expect(rates).toContainEqual({ value: '20%', validFrom: '2024-04-06', validTo: '2024-10-29' });
   });
 
   it('keeps the Finance Bill measure a proposal (§2: a proposal is never a rule), effective from 6 April 2027', () => {

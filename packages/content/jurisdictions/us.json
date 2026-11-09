@@ -70,21 +70,21 @@
     "rates": [
       {
         "label": "Long-term capital gains (held more than one year)",
-        "value": "0 %, 15 % or 20 % by taxable income",
+        "value": "0%, 15% or 20% by taxable income",
         "validFrom": "2026-01-01",
         "validTo": null,
-        "note": "2026 taxable income: 0 % up to USD 49,450 single or USD 98,900 joint; 15 % up to USD 545,500 or USD 613,700; other filing statuses differ (Rev. Proc. 2025-32 §4.03). 20 % above; collectibles up to 28 % (Topic 409)."
+        "note": "2026 taxable income: 0% up to USD 49,450 single or USD 98,900 joint; 15% up to USD 545,500 or USD 613,700; other filing statuses differ (Rev. Proc. 2025-32 §4.03). 20% above; collectibles up to 28% (Topic 409)."
       },
       {
         "label": "Short-term capital gains (held one year or less)",
-        "value": "10 % to 37 % by bracket, as ordinary income",
+        "value": "10% to 37% by bracket, as ordinary income",
         "validFrom": "2026-01-01",
         "validTo": null,
-        "note": "Taxed with your other income at the graduated rates (Topic 409). For 2026 the 37 % bracket begins above USD 640,600 of taxable income for a single filer and USD 768,700 for a joint return (Rev. Proc. 2025-32 §4.01)."
+        "note": "Taxed with your other income at the graduated rates (Topic 409). For 2026 the 37% bracket begins above USD 640,600 of taxable income for a single filer and USD 768,700 for a joint return (Rev. Proc. 2025-32 §4.01)."
       },
       {
         "label": "Net investment income tax",
-        "value": "3.8 %",
+        "value": "3.8%",
         "validFrom": "2026-01-01",
         "validTo": null,
         "note": "On the lesser of net investment income or modified adjusted gross income above USD 200,000 for a single filer or head of household, USD 250,000 for a joint return and USD 125,000 married filing separately (Topic 559)."
@@ -107,16 +107,16 @@
       "A broker must report basis only for units acquired after 2025 in the custodial account that sells them; for units transferred in, basis reporting is voluntary and your own records give it (Instructions for Form 1099-DA, 2026)."
     ],
     "caveats": [
-      "State income tax: 42 states levy one, with top rates from 2.5 % to 13.3 %; eight levy none, and Washington taxes capital gains only (Tax Foundation, 2026; medium confidence).",
+      "State income tax: 42 states levy one, with top rates from 2.5% to 13.3%; eight levy none, and Washington taxes capital gains only (Tax Foundation, 2026; medium confidence).",
       "Units held with a broker: your own books and records, or a standing order kept there, identify the units sold until 31 December 2026 (Notice 2026-20 §3.03 and §4.02). The relief ends with that date (Notice 2026-20 §5).",
-      "An NFT is a collectible when the right or asset behind it is one (Notice 2023-27); long-term gains on collectibles are taxed at up to 28 % (Topic 409).",
+      "An NFT is a collectible when the right or asset behind it is one (Notice 2023-27); long-term gains on collectibles are taxed at up to 28% (Topic 409).",
       "Pending federal bills on digital asset taxation.",
       "A Form 1099-DA without basis for units transferred in.",
       "Staking and mining income, and whether the activity is a business.",
       "Gifts and inheritances.",
       "The net investment income tax above its thresholds."
     ],
-    "summary60": "The US taxes crypto as property. Selling, swapping or spending is a taxable event; moving between your own wallets is not. Held more than one year, gains use the lower long-term rates; one year or less, ordinary rates up to 37 %. Sales match purchases per wallet. Losses offset gains, then USD 3,000 of income a year. Federal rules only."
+    "summary60": "The US taxes crypto as property. Selling, swapping or spending is a taxable event; moving between your own wallets is not. Held more than one year, gains use the lower long-term rates; one year or less, ordinary rates up to 37%. Sales match purchases per wallet. Losses offset gains, then USD 3,000 of income a year. Federal rules only."
   },
   "pendingChanges": [],
   "sources": [
