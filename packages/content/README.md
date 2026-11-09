@@ -74,7 +74,9 @@ Three decisions shape them:
   `src/loaders/brands.ts`; an app that imports a loader from the index ships the data and nothing
   else (checked in the web build on 2026-10-17: the price route's chunk holds `coins.json` and two
   small modules). So Today's entry carries no zod from content; the red-day model's lazy chunk alone
-  parses the cycles file with `zod/mini`, through the `./cycles` subpath (2026-11-09).
+  parses the cycles file with `zod/mini`, through the `./cycles` subpath (checked in the web build's
+  chunks on 2026-11-09: content's schemas sit only in that chunk, and Today's static chunks hold
+  content's loaders alone, their zod coming from the app's own boundaries).
 - **One chunk per profile.** A profile is 1.3 to 4.0 kB brotli (quality 3) of card text and
   sources, so `loadProfile` imports its file dynamically, and the shell does not load it at all: it
   boots on the country's rules file, a small generated file (the measurement: ADR-0049), so Today pays for the
