@@ -1,13 +1,16 @@
 # Letter to Kraken: written confirmation for derived daily closes
 
-Draft of 2026-10-17, revised 2026-11-09 to the catalogue rule (ADR-0052), for the owner to send
-before M2 (ADR-0006, ADR-0036). Fill in the bracketed details.
+Draft of 2026-10-17, revised 2026-11-09 to the catalogue rule (ADR-0052), sent 2026-11-09, for
+the owner to send before M2 (ADR-0006, ADR-0036). Fill in the bracketed details.
 Kraken's terms contain no written market-data licence, so the question is whether the use
-below is acceptable as described; the answer is recorded in ADR-0036.
+below is acceptable as described; the answer is recorded in ADR-0036. Kraken's legal inquiry form
+(support.kraken.com, "How do I submit a legal inquiry?") serves only law enforcement and legal
+representatives, and its "Something else" path ends at the support pages, so the letter went
+through Kraken Institutional's contact form.
 
 ---
 
-**To:** Kraken, legal or market data team (via the support form, asking to route it to legal)
+**To:** Kraken Institutional's contact form (https://www.kraken.com/institutions/exchange)
 **Subject:** Written confirmation: publishing derived daily closes from Kraken public data
 
 Hello,
