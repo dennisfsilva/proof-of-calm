@@ -144,7 +144,7 @@ most one chart, the fall page already shows the live figure beside the earlier f
 model's fall from the 90-day high is not the cycle high-to-low fall a scale of past drawdowns holds.
 The `drawdown-scale` value stays in §10's schema.
 **Caveat**: "A drawdown can get deeper. This page is here to stop a decision, not to make one."
-**Facts needed**: §9 q, o, f.
+**Facts needed**: §9 q, o, r.
 
 ## 7. Simulator
 
