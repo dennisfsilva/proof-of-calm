@@ -302,11 +302,14 @@ describe('ThisFallPage, other states', () => {
     expect(screen.queryByText(/Ethereum/)).toBeNull();
   });
 
-  it.each(['nothing-held', 'clear'] as const)('replaces the route with /learn in the state %s', async (state) => {
-    await mount({ model: Promise.resolve(bare(state)) });
-    expect(path()).toBe('/learn');
-    expect(screen.queryByText('The fall under way and your plan')).toBeNull();
-  });
+  it.each(['nothing-held', 'clear', 'no-history'] as const)(
+    'replaces the route with /learn in the state %s',
+    async (state) => {
+      await mount({ model: Promise.resolve(bare(state)) });
+      expect(path()).toBe('/learn');
+      expect(screen.queryByText('The fall under way and your plan')).toBeNull();
+    },
+  );
 });
 
 describe("Learn's row for the page", () => {
@@ -315,7 +318,7 @@ describe("Learn's row for the page", () => {
     expect((await screen.findByRole('link', { name: /^The fall under way and your plan/ })).getAttribute('href')).toBe(
       '/learn/fall-under-way',
     );
-    for (const state of ['clear', 'failed', 'nothing-held'] as const) {
+    for (const state of ['clear', 'failed', 'nothing-held', 'no-history'] as const) {
       cleanup();
       await mount({ model: Promise.resolve(bare(state)), path: '/learn' });
       await screen.findByRole('heading', { level: 1, name: 'Learn' });
