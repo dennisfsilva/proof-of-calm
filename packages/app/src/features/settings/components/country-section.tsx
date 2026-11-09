@@ -1,5 +1,13 @@
 import { COUNTRY_CODES, type CountryProfile, loadProfile } from '@proofofcalm/content';
-import { type CountryCode, type CountryRules, changeCountry, type HoldingRule, type Plan } from '@proofofcalm/core';
+import {
+  type CountryCode,
+  type CountryRules,
+  type CurrencyAnswer,
+  changeCountry,
+  currencyQuestion,
+  type HoldingRule,
+  type Plan,
+} from '@proofofcalm/core';
 import { Button } from '@proofofcalm/ui/components/button';
 import { Checkbox } from '@proofofcalm/ui/components/checkbox';
 import {
@@ -47,6 +55,7 @@ export function CountrySection() {
   const f = useFormatters();
   const today = useToday();
   const plan = useSnapshot((snapshot) => snapshot.plan);
+  const entries = useSnapshot((snapshot) => snapshot.entries);
   const headingId = useId();
   const confirmIssue = useId();
   const [options, setOptions] = useState<readonly CountryRules[] | null>(null);
@@ -141,7 +150,12 @@ export function CountrySection() {
     const rules = options.find((candidate) => candidate.code === code);
     reopen(rules === undefined || code === plan.country ? null : { rules, opened: plan }, null);
   };
-  const change = pending === null ? null : changeCountry(pending.opened, pending.rules, services.clock.now());
+  // Until the section asks the currency question, a change that would relabel logged amounts keeps the plan's
+  // currencies (ADR-0053); with nothing to relabel they follow the country.
+  const answer: CurrencyAnswer | null =
+    pending === null || currencyQuestion(pending.opened, entries, pending.rules) === null ? null : 'keep';
+  const change =
+    pending === null ? null : changeCountry(pending.opened, pending.rules, services.clock.now(), answer ?? 'country');
   const rows =
     pending === null || change === null
       ? []
@@ -164,7 +178,7 @@ export function CountrySection() {
     setChanging(true);
     let outcome: Awaited<ReturnType<typeof changeCountryOf>>;
     try {
-      outcome = await changeCountryOf(services, pending.rules, pending.opened, acceptEarly);
+      outcome = await changeCountryOf(services, pending.rules, pending.opened, acceptEarly, answer);
     } finally {
       busy.current = false;
       setChanging(false);

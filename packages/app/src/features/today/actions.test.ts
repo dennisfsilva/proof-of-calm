@@ -293,7 +293,7 @@ describe('todayActions.dismissRuleChange (docs/DOMAIN.md §3.11, §3.12)', () =>
     const germany = await rulesAt('DE', 1);
     await actions.dismissRuleChange('PT', 2);
     await services.domain.write(({ plan }) =>
-      plan === null ? {} : { plan: changeCountry(plan, germany, services.clock.now()).plan },
+      plan === null ? {} : { plan: changeCountry(plan, germany, services.clock.now(), 'country').plan },
     );
     const { plan, prefs } = planStore.current();
     if (plan === null) throw new Error('no plan');
@@ -328,7 +328,7 @@ describe('todayActions.dismissRuleChange (docs/DOMAIN.md §3.11, §3.12)', () =>
     const germany = await rulesAt('DE', 1);
     // Tab b still shows Portugal's version 2: tab a's move reaches the store before b's broadcast reload lands.
     await a.services.domain.write(({ plan }) =>
-      plan === null ? {} : { plan: changeCountry(plan, germany, a.services.clock.now()).plan },
+      plan === null ? {} : { plan: changeCountry(plan, germany, a.services.clock.now(), 'country').plan },
     );
     const before = shared.current();
     await b.actions.dismissRuleChange('PT', 2);

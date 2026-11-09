@@ -536,7 +536,7 @@ describe('CountrySection', () => {
     const services = await mount(undefined, rules, tab());
     await choose('Germany');
     fireEvent.click(screen.getByRole('checkbox', { name: "Replace Portugal's rule with Germany's rule" }));
-    await act(async () => void (await changeCountryOf(other, FIXTURE_RULES.DE, stored(other), false)));
+    await act(async () => void (await changeCountryOf(other, FIXTURE_RULES.DE, stored(other), false, null)));
     await waitFor(() => expect(stored(services).country).toBe('DE'));
     const updatedAt = shared.current().plan?.updatedAt;
     screen.getByRole('button', { name: 'Change country to Germany' }).focus();
