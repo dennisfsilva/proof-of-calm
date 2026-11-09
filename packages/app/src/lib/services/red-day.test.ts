@@ -124,7 +124,9 @@ describe('the red-day port (docs/DOMAIN.md §3.11)', () => {
     expect(result.figure?.last).toBe(TODAY);
     // A copy fetched a day later keeps the close of 21 Oct, which today's date still drops.
     const later = await model({ BTC: { ...late, fetchedAt: '2026-10-22T04:30:00Z' } }).answer;
-    expect(later).toEqual(expect.objectContaining({ state: 'clear', figure: expect.objectContaining({ last: TODAY }) }));
+    expect(later).toEqual(
+      expect.objectContaining({ state: 'clear', figure: expect.objectContaining({ last: TODAY }) }),
+    );
   });
 
   it('reports a held coin the history route does not serve as missing, without waiting for it', async () => {
@@ -167,10 +169,14 @@ describe('the red-day port (docs/DOMAIN.md §3.11)', () => {
     const buying = await model({ BTC: { values: RISE } }).answer;
     expect(buying).toEqual(expect.objectContaining({ nextBuy: '2026-11-05', buyDayToday: false }));
     const buyDay = '2026-11-05' as CalendarDate;
-    const onTheDay = await model({ BTC: { values: RISE, end: buyDay, fetchedAt: `${buyDay}T10:00:00Z` } }, { today: buyDay }).answer;
+    const onTheDay = await model(
+      { BTC: { values: RISE, end: buyDay, fetchedAt: `${buyDay}T10:00:00Z` } },
+      { today: buyDay },
+    ).answer;
     expect(onTheDay).toEqual(expect.objectContaining({ nextBuy: buyDay, buyDayToday: true }));
     const over = '2027-03-06' as CalendarDate;
-    const after = await model({ BTC: { values: RISE, end: over, fetchedAt: `${over}T10:00:00Z` } }, { today: over }).answer;
+    const after = await model({ BTC: { values: RISE, end: over, fetchedAt: `${over}T10:00:00Z` } }, { today: over })
+      .answer;
     expect(after).toEqual(expect.objectContaining({ nextBuy: null, buyDayToday: false }));
   });
 });
