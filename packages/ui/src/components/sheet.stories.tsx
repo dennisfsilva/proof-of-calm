@@ -12,6 +12,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from './sheet';
+import { Textarea } from './textarea';
 
 const meta = {
   title: 'Components/Sheet',
@@ -98,5 +99,50 @@ export const FocusRingInsideTheScroller: Story = {
       await expect(own.top - ring).toBeGreaterThanOrEqual(outer.top + px(style.borderTopWidth));
       await expect(own.bottom + ring).toBeLessThanOrEqual(outer.bottom - px(style.borderBottomWidth));
     }
+  },
+};
+
+/**
+ * The carry-over from the entry form: Tab from the last field above the sheet's edge into a note below it shows the
+ * whole note with its ring. Chromium's Tab into a text field scrolls at most the caret's line into view, so the play
+ * focuses the note with no scroll of the browser's own: the sheet then reveals the whole control on `focusin`.
+ */
+export const TabIntoALowerField: Story = {
+  render: () => (
+    <Sheet defaultOpen>
+      <SheetContent closeLabel="Close">
+        <SheetHeader>
+          <SheetTitle>Edit the entry</SheetTitle>
+        </SheetHeader>
+        {FIELDS.map((name) => (
+          <Input key={name} aria-label={name} inputMode="decimal" />
+        ))}
+        <Textarea aria-label="Note (optional)" rows={4} />
+      </SheetContent>
+    </Sheet>
+  ),
+  play: async ({ canvasElement }) => {
+    const document = canvasElement.ownerDocument;
+    await waitFor(() => expect(document.querySelector('[data-slot="sheet-content"]')).not.toBeNull());
+    const sheet = document.querySelector<HTMLElement>('[data-slot="sheet-content"]');
+    const last = document.querySelector<HTMLElement>(`[aria-label="${FIELDS.at(-1)}"]`);
+    const note = document.querySelector<HTMLElement>('[aria-label="Note (optional)"]');
+    if (sheet === null || last === null || note === null) throw new Error('no sheet');
+    // The last amount sits on the sheet's bottom edge, the note wholly below it.
+    last.focus({ preventScroll: true });
+    sheet.scrollTop = last.offsetTop + last.offsetHeight - sheet.clientHeight + 8;
+    await expect(note.getBoundingClientRect().top).toBeGreaterThan(sheet.getBoundingClientRect().bottom);
+    const root = getComputedStyle(document.documentElement);
+    const px = (value: string) => Number(value.trim().replace('px', ''));
+    const ring = px(root.getPropertyValue('--focus-offset')) + px(root.getPropertyValue('--focus-width'));
+    const style = getComputedStyle(sheet);
+    note.focus({ preventScroll: true });
+    await expect(note).toHaveFocus();
+    await waitFor(async () => {
+      const own = note.getBoundingClientRect();
+      const outer = sheet.getBoundingClientRect();
+      await expect(own.top - ring).toBeGreaterThanOrEqual(outer.top + px(style.borderTopWidth));
+      await expect(own.bottom + ring).toBeLessThanOrEqual(outer.bottom - px(style.borderBottomWidth));
+    });
   },
 };

@@ -3,8 +3,9 @@
 import { Dialog as SheetPrimitive } from '@base-ui/react/dialog';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { XIcon } from 'lucide-react';
-import type { ComponentProps } from 'react';
+import type { ComponentProps, FocusEvent } from 'react';
 import { ModalLayer } from '#lib/modal-layer';
+import { reveal } from '#lib/reveal';
 import type { WithClassName } from '#lib/types';
 import { cn } from '#lib/utils';
 import { Button } from './button';
@@ -13,7 +14,8 @@ import { Button } from './button';
 // "Why?" modules and the forms. It floats a step off the edges so every corner keeps the same radius,
 // respects the home-indicator inset, and scrolls inside when it is taller than the screen. Its scroll
 // padding is the focus ring's extent and a pixel for the whole-pixel scroll offsets, so a field scrolled
-// into view stops with its whole ring inside the popup, which clips it (docs/DESIGN.md §6).
+// into view stops with its whole ring inside the popup, which clips it (docs/DESIGN.md §6). A control focused from the
+// keyboard is brought wholly into view after layout: Chromium's Tab into a text field scrolls at most its caret's line.
 
 function Sheet(props: SheetPrimitive.Root.Props) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;
@@ -51,14 +53,31 @@ type SheetContentProps = WithClassName<SheetPrimitive.Popup.Props> &
     closeLabel?: string;
   };
 
-function SheetContent({ className, children, side, closeLabel, ...props }: SheetContentProps) {
+/** On `focusin`, once laid out, the least scroll that shows the focused control and its ring inside the sheet. */
+function revealFocused(event: FocusEvent<HTMLDivElement>) {
+  const control = event.target;
+  if (control === event.currentTarget || !control.matches(':focus-visible')) return;
+  requestAnimationFrame(() => {
+    if (control.ownerDocument.activeElement === control) reveal(control);
+  });
+}
+
+function SheetContent({ className, children, side, closeLabel, onFocus, ...props }: SheetContentProps) {
   return (
     <SheetPrimitive.Portal data-slot="sheet-portal">
       <SheetPrimitive.Backdrop
         data-slot="sheet-overlay"
         className="fixed inset-0 z-50 bg-scrim transition-opacity duration-(--duration-slow) ease-enter data-ending-style:opacity-0 data-starting-style:opacity-0"
       />
-      <SheetPrimitive.Popup data-slot="sheet-content" className={cn(sheetVariants({ side }), className)} {...props}>
+      <SheetPrimitive.Popup
+        data-slot="sheet-content"
+        className={cn(sheetVariants({ side }), className)}
+        onFocus={(event) => {
+          revealFocused(event);
+          onFocus?.(event);
+        }}
+        {...props}
+      >
         <ModalLayer />
         {children}
         {closeLabel !== undefined && (
