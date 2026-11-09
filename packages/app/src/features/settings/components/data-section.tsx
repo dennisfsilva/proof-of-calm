@@ -270,7 +270,11 @@ export function DataSection() {
                         max: figure(problem.max),
                       })
                     : problem.code === 'invalid-entries'
-                      ? t('import.invalidEntries', { count: problem.ids.length, figure: figure(problem.ids.length) })
+                      ? t(problem.pasted ? 'import.invalidEntriesPasted' : 'import.invalidEntries', {
+                          count: problem.ids.length,
+                          figure: figure(problem.ids.length),
+                          product,
+                        })
                       : tErrors(`backup.${problem.code}`, { product })}
         </p>
       )}
