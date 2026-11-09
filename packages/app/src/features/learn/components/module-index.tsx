@@ -5,19 +5,28 @@ import { Link } from '../../../lib/navigation';
 const ROW = 'flex min-h-target flex-col justify-center gap-stack-xs no-underline';
 const TITLE = 'font-semibold text-18 text-ink underline underline-offset-4';
 
-export type ModuleIndexProps = { modules: readonly LearnModuleMeta[] };
+export type ModuleIndexProps = { modules: readonly LearnModuleMeta[]; thisFall?: boolean };
 
 /**
  * Learn's index: the heading, a row per module, the whole row its link, then the country library's row. With
  * no module, the heading and that row, and no empty-state copy. The route nests under `/learn`, so a row's
- * href is relative to it.
+ * href is relative to it. While a fall of the held coins is under way on this device (`thisFall`), the fall
+ * page's row comes first.
  */
-export function ModuleIndex({ modules }: ModuleIndexProps) {
+export function ModuleIndex({ modules, thisFall = false }: ModuleIndexProps) {
   const t = useTranslations('learn');
   return (
     <>
       <h1 className="text-28">{t('title')}</h1>
       <ul className="flex flex-col gap-stack-md">
+        {thisFall && (
+          <li>
+            <Link href="/this-fall" className={ROW}>
+              <span className={TITLE}>{t('thisFall.title')}</span>
+              <span className="text-16 text-ink-2">{t('thisFall.row')}</span>
+            </Link>
+          </li>
+        )}
         {modules.map((module) => (
           <li key={module.slug}>
             <Link href={`/${module.slug}`} className={ROW}>

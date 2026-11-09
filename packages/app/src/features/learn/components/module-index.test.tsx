@@ -51,6 +51,22 @@ describe('ModuleIndex', () => {
     for (const row of rows) expect(row.className).toContain('min-h-target');
   });
 
+  it("opens with the fall page's row only when told a fall is under way", () => {
+    render(
+      <NavigationProvider location="memory" initialPath="/learn">
+        <I18nProvider messages={{ learn }}>
+          <ModuleIndex modules={[start]} thisFall />
+        </I18nProvider>
+      </NavigationProvider>,
+    );
+    const rows = screen.getAllByRole('link');
+    expect(rows[0]?.textContent).toBe(`${learn.thisFall.title}${learn.thisFall.row}`);
+    expect(rows.map((row) => row.getAttribute('href'))).toEqual(['/this-fall', '/start-here', '/countries']);
+    cleanup();
+    mount([start]);
+    expect(screen.queryByRole('link', { name: new RegExp(`^${learn.thisFall.title}`) })).toBeNull();
+  });
+
   it('with no modules shows the heading and the countries row', () => {
     const { container } = mount([]);
     expect(screen.getByRole('heading', { level: 1, name: 'Learn' })).toBeDefined();

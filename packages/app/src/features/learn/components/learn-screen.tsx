@@ -6,6 +6,7 @@ import { moduleBody } from '../lib/bodies';
 import { BACK_LINK, CountryList, CountryRoute } from './country-library';
 import { ModuleIndex } from './module-index';
 import { ModuleView } from './module-view';
+import { ThisFallPage, useFallModel } from './this-fall-page';
 
 const PAGE = 'mx-auto flex w-full max-w-reading flex-col gap-stack-lg px-gutter py-stack-lg';
 // The index from inside the nest, absolute: `/` here would resolve to `/learn/`, with the trailing slash.
@@ -26,15 +27,23 @@ function ModuleRoute({ slug }: { slug: string }) {
   );
 }
 
-// Learn's routes, nested under `/learn` by the route table: the index, the country library ahead of the
-// modules' `/:slug`, one module, and back to the index from anything else below it.
+/** The index, with the fall page's row while a fall of the held coins is under way on this device. */
+function IndexRoute() {
+  const model = useFallModel();
+  return (
+    <div className={PAGE}>
+      <ModuleIndex modules={LEARN_MODULES} thisFall={model?.state === 'episode'} />
+    </div>
+  );
+}
+
+// Learn's routes, nested under `/learn` by the route table: the index, the country library and the fall page
+// ahead of the modules' `/:slug`, one module, and back to the index from anything else below it.
 export function LearnScreen() {
   return (
     <Switch>
       <Route path="/">
-        <div className={PAGE}>
-          <ModuleIndex modules={LEARN_MODULES} />
-        </div>
+        <IndexRoute />
       </Route>
       <Route path="/countries">
         <div className={PAGE}>
@@ -47,6 +56,11 @@ export function LearnScreen() {
             <CountryRoute code={code} />
           </div>
         )}
+      </Route>
+      <Route path="/this-fall">
+        <div className={PAGE}>
+          <ThisFallPage />
+        </div>
       </Route>
       <Route path="/:slug">{({ slug }) => <ModuleRoute slug={slug} />}</Route>
       <Route>
