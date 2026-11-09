@@ -155,7 +155,9 @@ allow-list (`sources.allow.json`, with the `EU` domains for every country), or e
 secondary; the file name is not the lower-case code; `summary60` exceeds 60 words; any banned word
 appears in what users read (`docs/CONTENT-STYLE.md`); two sources share a key (`source-key-duplicate`);
 a `ruleSources` key names no source (`source-key-unknown`); `holdingRuleOverrides` is not empty
-(`overrides-unapplied`). The gate is `pnpm validate:content`
+(`overrides-unapplied`); a literal percentage in the profile's text, or a `locales` entry, does not use
+the joiner of `numberFormatLocale` between number and sign (`percent-joiner`, `docs/CONTENT-STYLE.md`
+§4); a locale tag is malformed, which is reported rather than thrown (`locale-tag`). The gate is `pnpm validate:content`
 (`packages/content/scripts/validate.ts`), which also lints every UI message file.
 
 The holding card links the source `ruleSources.holdingRule` names; each other rule links to the source its
