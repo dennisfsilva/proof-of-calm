@@ -68,6 +68,8 @@ export async function redDayModel(history: HistorySource, input: RedDayInput): P
   const copies = await read(history, held.map((position) => position.coin).filter(served), input);
   if (copies === null) return { state: 'failed', ...none };
   const closed = new Set(copies.filter((copy) => copy.closes.length > 1).map((copy) => copy.coin));
+  // Every held coin unserved or short of closes: no retry brings a figure, so this is not a failed read.
+  if (closed.size === 0) return { state: 'no-history', ...none };
   const histories: PriceHistories = {
     currency: plan.payCurrency,
     coins: Object.fromEntries(copies.map((copy) => [copy.coin, copy.closes])),
@@ -78,7 +80,7 @@ export async function redDayModel(history: HistorySource, input: RedDayInput): P
   );
   const points = series === null ? [] : drawdowns(series);
   const [first, last] = [points[0], points.at(-1)];
-  if (first === undefined || last === undefined) return { state: 'failed', ...none };
+  if (first === undefined || last === undefined) return { state: 'no-history', ...none };
 
   const episode = redDayEpisode(
     points.map((point) => ({ date: point.date, red: redDay(point) })),
