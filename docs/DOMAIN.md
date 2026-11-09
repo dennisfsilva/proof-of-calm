@@ -607,7 +607,8 @@ or after it adds its amount to `investedSoFar`, changes no other field but `perc
 - `redDays(series)`: each date flagged on its own drawdown. `redDayEpisode(days, today)`: the episode
   under way on `today` as `{ start, last }`, or null. An episode starts on a Red day; a later Red day
   belongs to it while at most six clear days lie between them; it ends once the condition has been clear
-  for `RED_DAY.episodeClearDays` (7) consecutive days, missing days counting as clear. The banner is
+  for `RED_DAY.episodeClearDays` (7) consecutive days, missing days counting as clear. Flags dated after
+  `today` are not read, so `start <= last <= today`. The banner is
   shown once per episode until dismissed; the page stays reachable from Learn.
 - `bannerFor({ today, redDay, ruleChange, backupNeeded, dismissed })`: returns at most one of
   `red-day`, `rule-change`, `backup-needed`, in that priority, or `null` (never stacked), with its key.

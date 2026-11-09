@@ -175,6 +175,12 @@ describe('redDayEpisode (docs/DOMAIN.md §3.11)', () => {
     expect(redDayEpisode(flags([0, 8], 9), day(8))).toEqual({ start: day(8), last: day(8) });
   });
 
+  it('reads no day after today', () => {
+    expect(redDayEpisode(flags([3, 6], 10), day(4))).toEqual({ start: day(3), last: day(3) });
+    expect(redDayEpisode(flags([0, 9], 10), day(5))).toEqual({ start: day(0), last: day(0) });
+    expect(redDayEpisode(flags([8], 10), day(5))).toBeNull();
+  });
+
   it('counts missing days as clear', () => {
     const only = (reds: readonly number[]): RedDayFlag[] => reds.map((offset) => ({ date: day(offset), red: true }));
     expect(redDayEpisode(only([0, 8]), day(8))).toEqual({ start: day(8), last: day(8) });
@@ -211,5 +217,65 @@ describe('redDayEpisode (docs/DOMAIN.md §3.11)', () => {
         if (before !== undefined) expect(daysBetween(before, episode.start)).toBeGreaterThan(clear);
       }),
     );
+  });
+
+  it('runs from start to last to today at the latest, for any flags, dates after today among them', () => {
+    const flagsArb = fc
+      .array(fc.record({ gap: fc.integer({ min: 1, max: 10 }), red: fc.boolean() }), { maxLength: 60 })
+      .map((steps) => {
+        let offset = -1;
+        return steps.map((step) => {
+          offset += step.gap;
+          return { date: day(offset), red: step.red };
+        });
+      });
+    fc.assert(
+      fc.property(flagsArb, fc.integer({ min: 0, max: 300 }), (days, offset) => {
+        const today = day(offset);
+        const episode = redDayEpisode(days, today);
+        expect(episode).toEqual(
+          redDayEpisode(
+            days.filter((flag) => daysBetween(flag.date, today) >= 0),
+            today,
+          ),
+        );
+        if (episode === null) return;
+        expect(daysBetween(episode.start, episode.last)).toBeGreaterThanOrEqual(0);
+        expect(daysBetween(episode.last, today)).toBeGreaterThanOrEqual(0);
+      }),
+    );
+  });
+});
+
+describe('the Red day from a series of closes, end to end', () => {
+  // The closes an end-to-end fixture of the Red day banner copies. A week and more at 100, then two
+  // a day down: 90 on day 14 is 10 % below day 7's 100, the first seven-day fall to reach the threshold.
+  const WEEKLY_FALL = daily([...repeat('100', 10), '98', '96', '94', '92', '90', '90']);
+  // One a day down from 100: 70 on day 30 is 30 % below the 90-day high, while no week falls 10 %.
+  const SLOW_FALL = daily([...Array.from({ length: 31 }, (_, offset) => String(100 - offset)), '70']);
+  const day = (offset: number) => addDays(START, offset);
+  const reds = (series: readonly ValuePoint[]) =>
+    redDays(series)
+      .filter((flag) => flag.red)
+      .map((flag) => flag.date);
+
+  it('a series falling 10 % in seven days, and one 30 % below its 90-day high, start an episode on the crossing day', () => {
+    expect(drawdowns(WEEKLY_FALL)[14]).toEqual(
+      expect.objectContaining({ date: day(14), sevenDay: '-10', fromHigh90: '-10' }),
+    );
+    expect(drawdowns(WEEKLY_FALL)[13]?.sevenDay).toBe('-8');
+    expect(reds(WEEKLY_FALL)).toEqual([day(14), day(15)]);
+    expect(redDayEpisode(redDays(WEEKLY_FALL), day(13))).toBeNull();
+    expect(redDayEpisode(redDays(WEEKLY_FALL), day(14))).toEqual({ start: day(14), last: day(14) });
+    expect(redDayEpisode(redDays(WEEKLY_FALL), day(15))).toEqual({ start: day(14), last: day(15) });
+
+    expect(drawdowns(SLOW_FALL)[30]).toEqual(
+      expect.objectContaining({ date: day(30), sevenDay: '-9.0909', fromHigh90: '-30' }),
+    );
+    expect(drawdowns(SLOW_FALL)[29]?.fromHigh90).toBe('-29');
+    expect(reds(SLOW_FALL)).toEqual([day(30), day(31)]);
+    expect(redDayEpisode(redDays(SLOW_FALL), day(29))).toBeNull();
+    expect(redDayEpisode(redDays(SLOW_FALL), day(30))).toEqual({ start: day(30), last: day(30) });
+    expect(redDayEpisode(redDays(SLOW_FALL), day(31))).toEqual({ start: day(30), last: day(31) });
   });
 });
