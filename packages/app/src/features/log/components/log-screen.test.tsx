@@ -335,11 +335,35 @@ describe('LogScreen', () => {
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Undo' })));
     await vi.waitFor(() =>
       expect(screen.getByRole('status').textContent).toContain(
-        "Your plan's currency changed from EUR to GBP after you deleted this entry, so it stays deleted. " +
-          'Its amount was in EUR, and nothing is converted. To keep it, log it again in GBP.',
+        "Your plan's currency changed from EUR to GBP after the delete, so this entry stays deleted. " +
+          'It was recorded in EUR; log it again only if you paid it in GBP.',
       ),
     );
     expect(rows()).toHaveLength(12);
+  });
+
+  it("keeps a row of several entries deleted and counts them when the plan's currency changed before the Undo", async () => {
+    // A second extra buy on 12 October joins the first in one row, which one delete removes whole.
+    const services = await mount(withMoreBuys('2026-10-12'));
+    const october = screen
+      .getAllByRole('button', { expanded: false })
+      .find((button) => /^12\sOct\s2026Extra buy/.test(button.textContent));
+    fireEvent.click(october as HTMLElement);
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Delete entry' })));
+    await act(() =>
+      services.domain.write(({ plan }) => ({
+        plan: plan === null ? null : { ...plan, payCurrency: 'GBP', displayCurrency: 'GBP' },
+      })),
+    );
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Undo' })));
+    await vi.waitFor(() =>
+      expect(screen.getByRole('status').textContent).toContain(
+        "Your plan's currency changed from EUR to GBP after the delete, so these 2 entries stay deleted. " +
+          'They were recorded in EUR; log them again only if you paid them in GBP.',
+      ),
+    );
+    const both = services.domain.store.getState().snapshot.entries.filter((entry) => entry.date === '2026-10-12');
+    expect(both.map((entry) => entry.deletedAt === null)).toEqual([false, false]);
   });
 
   // #136 (docs/DOMAIN.md §3.7): every write leaves each sale covered by purchases dated on or before it.
