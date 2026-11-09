@@ -104,7 +104,7 @@ describe('AppRoutes', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Today' })).toBeDefined();
   });
 
-  // Learn nests its own routes: the unit project's virtual module holds the one fixture, start-here.
+  // Learn nests its own routes: the unit project's virtual module holds start-here and when-the-market-drops.
   it('/learn/start-here opens the module', async () => {
     shell('/learn/start-here');
     expect(await screen.findByRole('heading', { level: 1, name: 'Start here' })).toBeDefined();

@@ -22,7 +22,7 @@ leaving the screen:
 | The sell window on Plan and the strip | Cycles → "the window is a discipline device" |
 | The hold phase on Today | Start here → "why some people hold" |
 | The three sell parts | Cycles → "three parts" |
-| The drawdown figure on the Red day page | When the market drops |
+| The figure on the fall page (`/learn/fall-under-way`) | When the market drops |
 | The portfolio P/L | Risk honestly |
 | The simulator's result | Simulator → "what this does not show" |
 
@@ -96,24 +96,27 @@ situation."
 ## 5. Noise
 
 **Idea**: the news does not know your plan.
-**Says**: why Proof of Calm shows no news feed, no sentiment index and no alerts (engagement machinery
-produces the behaviour DCA exists to remove); what sentiment indexes are (the Fear & Greed index:
-when it started, what goes into it), why traders watch them, and why a monthly buyer does not need
-one; what to do with a headline (nothing, until buy day); how the app handles the one moment that
-matters (the Red day page).
+**Says**: why Proof of Calm shows no news feed, no sentiment index and no price notifications
+(engagement machinery produces the behaviour DCA exists to remove); what sentiment indexes are (the
+Fear & Greed index: when it started, what goes into it), why traders watch them, and why a monthly
+buyer does not need one; what a plan needs from a headline (nothing: the next purchase falls on the
+buy day); what the app shows instead: one line on Today, once per fall, from prices alone, linking to
+the fall page.
 **Chart**: none.
-**Caveat**: "Ignoring noise is not the same as ignoring risk; the risk module is next door."
+**Caveat**: "Leaving out noise is not leaving out risk; a fall can go deeper than any before it." (Risk
+honestly is not built, so the caveat points to no module.)
 **Facts needed**: §9 l.
 
 ## 6. When the market drops
 
 **Idea**: this has happened before; your plan already assumed it would.
-**Two surfaces.** The module (planned: M2) is the resting text, in Learn's index like any other. The
-fall page, `/learn/fall-under-way`, is the other: Learn's index opens with its row (`The fall under
-way and your plan`) only while the red-day port (`docs/DOMAIN.md` §3.11) finds a fall of the held coins under way
-on the device, and the page's path gives the index in its place when nothing is held, no held coin has
-a price history to read, or no fall is under way, so a bookmark or the back button never shows old
-figures. The page holds, in order: the back link to Today and its heading; the figure with the
+**Two surfaces.** The module, `/learn/when-the-market-drops`, is the resting text, in Learn's index
+like any other; while the red-day port finds a fall under way, its route (never its sheet) holds one
+line above the body linking to the fall page. The fall page, `/learn/fall-under-way`, is the other:
+Learn's index opens with its row (`The fall under way and your plan`) only while the red-day port
+(`docs/DOMAIN.md` §3.11) finds a fall of the held coins under way on the device, and the page's path
+gives the module in its place when nothing is held, no held coin has a price history to read, or no
+fall is under way, so a bookmark or the back button never shows old figures. The page holds, in order: the back link to Today and its heading; the figure with the
 market as its subject, truncated to whole
 percents and dated by the last complete close (the coins with no price history named under it); the
 data line (currency, the closes' first and last dates, CoinGecko as the source; ADR-0050); the
@@ -124,18 +127,24 @@ coins are the portfolio's with units above 0 (`docs/DOMAIN.md` §3.6): a plan co
 one, and a coin that left the plan while its entries stay is, under its name. While the figures are
 asked their place keeps its height and no coin is named; a history that cannot be loaded leaves one
 failure line there, and the past-performance sentence moves under the earlier falls, shown only when
-at least one earlier fall is: the sentence sits under historic data or not at all. No chart, no button, no red,
-no P/L or portfolio value; the words are in `docs/CONTENT-STYLE.md` §3.
+at least one earlier fall is: the sentence sits under historic data or not at all. The figure names
+each held coin once, by its name, and ends with a Why? that opens this module in the sheet. No chart,
+and no control but the figure's Why?; no red, no P/L or portfolio value; the words are in
+`docs/CONTENT-STYLE.md` §3.
 **Says** (the module, moved here from the page): how the trigger works (a seven-day fall of 10 % or
-more, or a price 30 % or more below the 90-day high, computed from prices only, never from headlines;
-together true on about 15 % of bitcoin's days in the last five years), the 118-plan figure, and the
-three things a monthly buyer can actually do (nothing; log the buy on buy day; re-read the plan).
-Nothing about buying the dip; nothing about selling. One past-performance sentence, dated and sourced,
-directly under the first figure (`docs/LEGAL.md` §4); no other disclosure.
-**Chart** (the module): one: a drawdown as a marker on a horizontal scale of past drawdowns (the same
-data as module 2, different form).
-**Caveat**: "A drawdown can get deeper. The page is here to stop a decision, not to make one."
-**Facts needed**: §9 a–c; the threshold calibration from `docs/research/brand-content-education.md`.
+more, or a close 30 % or more below the 90-day high, computed from prices only, never from headlines);
+how often it fired on bitcoin, with fact q's series and window (Bitstamp BTC/USD daily closes, 16 Oct
+2021 to 16 Oct 2026: either condition on 15.1 % of days); the 118-plan figure with its start months
+and Bitstamp named, and the BIS counterweight beside it (§9 f, `docs/CONTENT-STYLE.md` §5); and
+counsel's sentence on the three things: "A monthly buyer can do nothing, log the buy on the buy day,
+or re-read the plan." Nothing about buying the dip; nothing about selling. One past-performance
+sentence directly under the first historic figure (`docs/LEGAL.md` §4); no other disclosure.
+**Chart**: none. The drawdown-scale chart with a live marker is cut: ROADMAP M2 allows a module at
+most one chart, the fall page already shows the live figure beside the earlier falls, and the red-day
+model's fall from the 90-day high is not the cycle high-to-low fall a scale of past drawdowns holds.
+The `drawdown-scale` value stays in §10's schema.
+**Caveat**: "A drawdown can get deeper. This page is here to stop a decision, not to make one."
+**Facts needed**: §9 q, o, f.
 
 ## 7. Simulator
 
@@ -225,7 +234,7 @@ Each fact's `confidence` field holds its rating, and a value never states one.
 | `f.leverage` | CoinGlass on X, 10 Oct 2025 23:48 UTC: "1,618,240 traders were liquidated, with a total liquidation amount of $19.13 billion" in 24 hours, the largest in its dataset; exchanges under-report, so the real figure was likely higher. Liquidations in 2025 to 20 Nov 2025: about $150bn, roughly $400m to $500m a day; first half of 2026: $73.35bn, about $405m a day. ESMA 2018: 74 to 89 % of retail CFD accounts lose money (average losses €1,600 to €29,000); the FCA banned crypto derivatives for retail consumers from 6 Jan 2021. BIS Working Paper 1049 (14 Nov 2022), a simulation of users who downloaded a crypto app from August 2015 to June 2022, valued at October 2022 prices: 73 % would have lost money on a first purchase at download; buying $100 of bitcoin a month from download, 81 % would have, and the median investor would have lost 48 % of $900 invested. | CoinGlass post and annual and H1 2026 reports; ESMA71-98-128; FCA 2020-10-06; BIS |
 | `g.halvings` | Block 210,000 on 28 Nov 2012 15:24 UTC (50 → 25 BTC); 420,000 on 9 Jul 2016 16:46 UTC (25 → 12.5 BTC); 630,000 on 11 May 2020 19:23 UTC (12.5 → 6.25 BTC); 840,000 on 20 Apr 2024 00:09 UTC (6.25 → 3.125 BTC; that block carried 37.6 BTC of fees). | mempool.space and blockchain.com block data |
 | `h.halving-to-high` | Proof of Calm's own computation (mempool.space block times; Bitstamp BTC/USD daily candles): months from halving to the cycle high, 12.1 (2013), 17.3 (2017), 18.0 (2021), 17.5 (2025, the high so far). | derived from g and a |
-| `i.diminishing` | Proof of Calm's own computation (Bitstamp BTC/USD daily candles; the 2011 high is Mt. Gox's $31.91 on 8 Jun 2011; the 2011 low is CoinMarketCap's): drawdown sequence −94 % (2011), −87 % (2013 to 2015), −84 % (2017 to 2018), −78 % (2021 to 2022), −54 % so far (from the 2025 high). 4 completed cycles are 4 data points; the current one is not final; the series is measured on the asset that survived. | derived from a and research §6b |
+| `i.diminishing` | Proof of Calm's own computation (Bitstamp BTC/USD daily candles; the 2011 high is Mt. Gox's $31.91 on 8 Jun 2011; the 2011 low is CoinMarketCap's): drawdown sequence −94 % (2011), −87 % (2013 to 2015), −84 % (2017 to 2018), −78 % (2021 to 2022), −54 % so far (from the 2025 high). 4 completed cycles are 4 data points; the current one is not final; the series is measured on the asset that survived. | derived from a and research §6b (the cycle-to-cycle and trough-to-high multiples stay there: no module quotes them) |
 | `j.next-halving` | Block 1,050,000; 78,267 blocks remained at height 971,733 on 16 Oct 2026; at 10-minute blocks 12 Apr 2028, at the average since the last halving 9 Apr 2028, at the last 2,016 blocks' average 13 Mar 2028. | mempool.space tip height |
 | `k.pt-2023`, `k.de-2024`, `k.it-2026`, `k.be-2026`, `k.gb-2024`, `k.ie-2026` | Portugal taxed crypto gains from 1 Jan 2023 (28 %, 365-day exclusion; Lei 24-D/2022). Germany raised the private-sales Freigrenze from €600 to €1,000 from tax year 2024 (Wachstumschancengesetz, BGBl. 2024 I Nr. 108). Italy raised the substitute tax from 26 % to 33 % for gains from 1 Jan 2026 and removed the €2,000 threshold from 2025 (L. 207/2024); euro e-money tokens keep 26 % (L. 199/2025). Belgium introduced a 10 % tax on gains on financial assets including crypto from 1 Jan 2026 (law of 6 Apr 2026, Moniteur belge 21 Apr 2026). The UK cut the CGT annual exempt amount from £12,300 to £6,000 for 2023 to 2024 and to £3,000 for 2024 to 2025. From 30 Oct 2024 it raised individuals' main rates, which cover crypto disposals, from 10 % and 20 % to 18 % and 24 %. Ireland's Budget 2027 cut CGT from 33 % to 31 % for most gains, on disposals from 7 Oct 2026, by Financial Resolution No. 3 of 6 Oct 2026, a Dáil resolution with temporary statutory effect. Section 36 of the Finance (No. 2) Bill 2026 would enact the cut (not enacted on 2 Nov 2026). From 1 Jan 2023 to 7 Oct 2026, 5 of these jurisdictions changed rules that tax crypto gains (Portugal and Italy in crypto-specific provisions). Ireland cut its CGT rate by a Dáil resolution; the Finance (No. 2) Bill 2026 was not enacted on 2 Nov 2026. | `docs/JURISDICTIONS.md` §7 and its sources |
 | `l.fear-greed` | alternative.me Crypto Fear & Greed Index: Bitcoin only, 0 to 100, daily data from 1 Feb 2018; 6 inputs as published: volatility 25 %, momentum and volume 25 %, social media 15 %, surveys 15 % (marked "currently paused", redistribution undisclosed), dominance 10 %, Google Trends 10 %. CoinMarketCap's index: launched 3 Aug 2023, 5 components, weights undisclosed ("a complex weighting system"). On 16 Oct 2026 they read 63 "Greed" and 50 "Neutral", 13 points apart on the same day. | alternative.me page and API; CMC chart page and API docs |
