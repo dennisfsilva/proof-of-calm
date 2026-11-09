@@ -119,7 +119,7 @@ more tracker with a calm name.
 
 - **"Just a DCA app."** Exchanges already run free recurring buys, and calculators funded by
   affiliate links own the generic searches (research §3.5, threat 3). It would also draw people who
-  expect alerts and live charts. The calm is the one thing competitors cannot copy without hurting
+  expect price notifications and live charts. The calm is the one thing competitors cannot copy without hurting
   how they earn: exchanges earn when people trade, most free tools from affiliate links.
 - **"The best strategy to build wealth with less risk."** It is not true: DCA removes the timing
   decision and the asset's risk stays; the app's own computation found 12-month Bitcoin DCA windows
@@ -143,7 +143,7 @@ English, except the UK (ADR-0029).
   the 365-day rule stands for now (`docs/JURISDICTIONS.md` §7.6).
 
 Not for: someone with one exchange who buys automatically and never withdraws, because the exchange's
-own view is enough; traders; anyone looking for signals or alerts; money that cannot be lost. The
+own view is enough; traders; anyone looking for signals or price notifications; money that cannot be lost. The
 landing page says so in one sentence. It loses a few sign-ups and keeps the wrong users away.
 
 ### 2.5 The brand
