@@ -4,13 +4,17 @@
 # commit subjects, and the PR's label and body lines. stories: every story at two widths in both themes
 # with axe. export-build: the Vite export of apps/mobile, its export check and its smoke test in the
 # pinned container. e2e-visual: in the pinned container, e2e-build makes the web build once, with the
-# bundle secret scan and Today's application code (`node tools/size/today.ts`), and three e2e-shard jobs
+# bundle secret scan and Today's application code (`node tools/size/today.ts`; weaker since Today's
+# code-splitting group put vendor and app code in one chunk, its method and budget kept: the lighthouse
+# job's script budget replaces the lost margin, docs/ENGINEERING.md §4), and three e2e-shard jobs
 # run a third of the Playwright matrix each on it (Playwright's --shard=i/3, 45 min each; a shard is
 # added once a green shard passes 35 min); the e2e-visual job, the required check, passes when the build
 # and all three shards passed and is skipped when they are. lighthouse: the budgets against the local
 # build, on push to main (on a branch before a merge, `gh workflow run lighthouse-branch.yml --ref <branch>` runs the same steps), never on
 # a pull request (lighthouse-vercel.yml measures production at Vercel by itself, a preview by dispatch); the performance score, TBT and LCP of
 # the seeded screens only warn there until main measures them within budget (docs/ENGINEERING.md §4).
+# Today's script budget (resource-summary:script:size) is at error there, and a branch that changes
+# what Today loads runs lighthouse-branch.yml before review (docs/BUILD-PROMPT.md).
 # The main ruleset requires verify, stories, export-build and e2e-visual (docs/OWNER-SETUP.md §1).
 # A change that touches only docs/,
 # README.md or CLAUDE.md (the PR's files; on push, the diff from the previous head) runs verify and
