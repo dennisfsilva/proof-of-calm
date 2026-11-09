@@ -71,8 +71,14 @@ describe('the Risk honestly module', () => {
     const value = (key: string) => facts.find((fact) => fact.key === key)?.value ?? '';
     const plain = (text: string) => text.replaceAll(' ', ' ');
     for (const [key, quoted] of [
-      ['d.mt-gox', ['25 Feb 2014', '28 Feb 2014', 'civil rehabilitation', 'Tokyo', '750,000 bitcoins deposited by users']],
-      ['d.ftx', ['10 Nov 2022', 'FTX and FTX US halted all trading and withdrawals', 'over $8 billion in customer deposits']],
+      [
+        'd.mt-gox',
+        ['25 Feb 2014', '28 Feb 2014', 'civil rehabilitation', 'Tokyo', '750,000 bitcoins deposited by users'],
+      ],
+      [
+        'd.ftx',
+        ['10 Nov 2022', 'FTX and FTX US halted all trading and withdrawals', 'over $8 billion in customer deposits'],
+      ],
       ['f.leverage', ['10 Oct 2025', '$19 billion', '2025 annual report']],
       ['m.emergency-fund', ['3 and 6 months', "3 months' income"]],
     ] as const) {
