@@ -88,7 +88,11 @@ function pastPerformanceProblems(path: string, module: LearnModule): Problem[] {
   return [{ path, code: 'module-past-performance', detail }];
 }
 
-/** The renderer draws the front matter's chart where the body writes the element: one exactly when it names a chart. */
+/**
+ * The renderer draws the front matter's chart where the body writes the element: one exactly when it names a chart.
+ * Reports early from the words alone; the gate is `module-chart-element` in scripts/closed-body.ts, which counts the
+ * flow elements of the compiled tree, so an escaped element, a code span or one inside a sentence is its case.
+ */
 function chartProblems(path: string, module: LearnModule): Problem[] {
   const count = module.body.split(CHART).length - 1;
   if (module.chart === 'none') {
