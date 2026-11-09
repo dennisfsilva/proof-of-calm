@@ -140,3 +140,6 @@ delegated the call to a session (ADR-0015 Deviations).
 - 2026-11-09: `pnpm validate:content` runs the build's compiler and `closedBody` on every module (`checkModuleBody`),
   with the one list `MODULE_BODY_ELEMENTS` that the hosts, Storybook and the app's tests also take; it reports
   `module-closed-body`.
+- 2026-11-09: `<Chart />` draws a block, so `closedBody` refuses it inside a sentence (`MODULE_FLOW_ELEMENTS`), and
+  `pnpm validate:content` counts the flow `<Chart />` elements of the compiled tree against the front matter's
+  `chart` (`module-chart-element`); an escaped element or a code span counts as none.
