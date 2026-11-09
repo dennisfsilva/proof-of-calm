@@ -20,7 +20,7 @@
 import type { CountryRules } from '../../src/schema/country';
 import type { Entry } from '../../src/schema/entry';
 import type { Plan } from '../../src/schema/plan';
-import { anEntry, aPlan, BTC, date, ETH, instant, money, month, units } from '../builders';
+import { aMove, anEntry, aPlan, BTC, date, ETH, instant, money, month, units } from '../builders';
 import { FIXTURE_RULES } from '../country-change/fixture';
 
 export const PT_RULES: CountryRules = FIXTURE_RULES.PT;
@@ -63,3 +63,27 @@ export const PT_ENTRIES: readonly Entry[] = [
 
 /** The header lines the shell would pass; their wording is not the core's. */
 export const PT_HEADER = ['Header line one', '=a second line'];
+
+// The move fixture, the audit's P1 example (ADR-0054, docs/research/move-step-2026-11-09.md §4), derived by hand for
+// pt-2025-move.csv:
+// - L1 extra 2025-01-10 Bitvavo 0.1 for 2000, no fee (from 2026-01-10)
+// - L2 extra 2025-02-01 Kraken 0.05 for 3000, no fee (from 2026-02-01)
+// - M1 move 2025-06-01 Kraken to Ledger, 0.05 sent, 0.0498 received: a fee of 0.0002
+// M1 takes from its source, Kraken, so all 0.05 from L2, the fee first: a fee piece of 0.0002 dated 2025-06-01 at
+// 3000 x 0.0002 / 0.05 = 12.00, held at Kraken, with no proceeds and no past_holding_rule. L2's other 0.0498 stay in
+// L2 at a place at Ledger since 2025-06-01: its year-end piece costs 3000 - 12.00 = 2988.00, held at Ledger, moved on
+// 2025-06-01. L1 holds its 0.1 at Bitvavo. On 2025-12-31 neither lot is past the 365 days. No sale: crossVenue 0.
+// Invested stays 5000 and units drop to 0.1498, so at 80000 the value is 11984 and the P/L 6984.
+export const PT_MOVE_ENTRIES: readonly Entry[] = [
+  purchase('extra', '2025-01-10', BTC.id, { venue: 'Bitvavo', units: units('0.1'), amount: money('2000') }),
+  purchase('extra', '2025-02-01', BTC.id, { venue: 'Kraken', units: units('0.05'), amount: money('3000') }),
+  aMove({
+    coin: BTC.id,
+    date: date('2025-06-01'),
+    venue: 'Kraken',
+    to: 'Ledger',
+    units: units('0.05'),
+    received: units('0.0498'),
+    createdAt: at('2025-06-01'),
+  }),
+];
