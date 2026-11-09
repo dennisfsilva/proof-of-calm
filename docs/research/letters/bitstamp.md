@@ -1,7 +1,8 @@
 # Letter to Bitstamp: the Data License Agreement
 
-Draft of 2026-10-17 for the owner to send before M2 (ADR-0006, ADR-0036). Fill in the bracketed
-details. Bitstamp states that it "allows the incorporation and redistribution of our exchange data for
+Draft of 2026-10-17, revised 2026-11-09 to the catalogue rule (ADR-0052), for the owner to send
+before M2 (ADR-0006, ADR-0036). Fill in the bracketed details.
+Bitstamp states that it "allows the incorporation and redistribution of our exchange data for
 commercial purposes" through a signed Data License Agreement; this asks for it and its price. The
 answer is recorded in ADR-0036. With the licence signed, bitcoin history in USD starts in August 2011.
 
@@ -19,9 +20,12 @@ run from Portugal, by [owner name].
 Your website says that Bitstamp allows the incorporation and redistribution of its exchange data for
 commercial purposes under a signed Data License Agreement. I would like to request that agreement.
 
-**The data.** Daily OHLC for BTC/USD from 18 August 2011, BTC/EUR, ETH/USD and ETH/EUR, and, where
-listed, SOL and LINK against USD and EUR: the history once, then the previous day's daily candle from
-your public API, once a day per pair.
+**The data.** Daily OHLC for the coins in our catalogue that Bitstamp lists, against USD and EUR
+(BTC/USD from 18 August 2011): the history once, then the previous day's daily candle from your public
+API, once a day per pair. The catalogue follows a published rule: the largest crypto-assets by market
+value, up to about 100, that Kraken, Bitstamp or Coinbase lists, without stablecoins or wrapped and
+staked tokens, reviewed every quarter. We would ask the agreement to cover coins added under the same
+rule.
 
 **What we do with it.** For each day we compute one reference close: the median of the daily closes
 available that day from Bitstamp, Kraken and Coinbase. Only that derived daily figure is published, in
