@@ -599,11 +599,12 @@ or after it adds its amount to `investedSoFar`, changes no other field but `perc
   figure crosses it. One pass over the series. `drawdownNow` is the last date's, with that date, which
   the page shows ("(6 Feb 2026)").
 - `redDay(drawdown, thresholds = RED_DAY)`: `true` when `sevenDay <= −10` or `fromHigh90 <= −30`.
-  `RED_DAY` is a named constant with those defaults, with tests at the boundaries. Calibration on
-  bitcoin's last five years (`docs/research/brand-content-education.md` §7): a seven-day fall of 10 %
-  or more occurred on about 5.7 % of days, roughly six episodes a year; the two conditions together
-  cover about 15 % of days. The module "When the market drops" states this frequency, the fall page
-  none (`docs/EDUCATION.md` §6, `docs/CONTENT-STYLE.md` §3).
+  `RED_DAY` is a named constant with those defaults, with tests at the boundaries. Calibration
+  (`docs/EDUCATION.md` §9 q): on Bitstamp BTC/USD daily closes from 16 Oct 2021 to 16 Oct 2026, a
+  seven-day fall of 10 % or more held on 5.7 % of days, about six episodes a year; a close 30 % or
+  more below the 90-day high on 11.8 %; either condition on 15.1 %. The module "When the market drops"
+  states this frequency with that series and window, the fall page none (`docs/EDUCATION.md` §6,
+  `docs/CONTENT-STYLE.md` §3).
 - `redDays(series)`: each date flagged on its own drawdown. `redDayEpisode(days, today)`: the episode
   under way on `today` as `{ start, last }`, or null. An episode starts on a Red day; a later Red day
   belongs to it while at most six clear days lie between them; it ends once the condition has been clear

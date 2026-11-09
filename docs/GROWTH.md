@@ -89,7 +89,7 @@ The name carries the calm; the line under it carries the category. People search
 |---|---|---|
 | Name | Calm, and a nod to crypto's "proof of work" and "proof of stake" | everywhere |
 | Category | A DCA planner for Bitcoin, Ether, Solana and Chainlink | store titles, page titles, the first line of every listing and post |
-| Difference | Every purchase kept with its date and price after the coins leave the exchange; one record across exchanges and wallets; the day each purchase passes the holding period in Portugal and Germany; a plan with its end decided in advance; custody-free and usable without an account; no news, no alerts, no feed | the landing page, screenshots, store subtitles |
+| Difference | Every purchase kept with its date and price after the coins leave the exchange; one record across exchanges and wallets; the day each purchase passes the holding period in Portugal and Germany; a plan with its end decided in advance; custody-free and usable without an account; no news, no feed and no price notifications (one line on Today, once per fall) | the landing page, screenshots, store subtitles |
 | Proof | Dated country rules with sources; a "what this app leaves out" page; a simulator that shows drawdowns first; "free core forever" in writing; no affiliate links; never asks for keys (ADR-0039) | the site, the press page |
 | Promise about DCA | It takes the timing decision away. It does not make crypto less risky. | the landing page, store descriptions, Learn "Start here" |
 
@@ -153,7 +153,7 @@ landing page says so in one sentence. It loses a few sign-ups and keeps the wron
 | Promise | A plan you keep, and a record of every purchase wherever the coins are |
 | Motto | "Discipline. Consistency. Averaging." Its initials spell DCA. Chosen by the owner on 2026-10-17 over "Don't chase. Accumulate.", whose "Accumulate." is a second-person imperative about buying that `docs/CONTENT-STYLE.md` §2 and `docs/LEGAL.md` §6 ban. It stays in English in every language, because the initials work only in English. It goes on the landing page, in bios and on the press page; at 35 characters it does not fit the 30-character store subtitle (§4.6) |
 | Character | "A careful friend who happens to be an accountant and a developer": precise, calm, on the user's side; never cheerful, urgent, clever or reassuring (`docs/CONTENT-STYLE.md` §1) |
-| Signature page | "What this app leaves out": news, alerts, sentiment indexes, ads, affiliate links, streaks and badges, trading, exchange keys, a token; one sentence of reason for each |
+| Signature page | "What this app leaves out": news, price notifications (one line on Today, once per fall, in their place), sentiment indexes, ads, affiliate links, streaks and badges, trading, exchange keys, a token; one sentence of reason for each |
 | Look | The ring is the plan and the accent dot is "now" (`docs/DESIGN.md` §1–2); warm paper, matte charcoal, no gradients or illustration. Marketing images show the mark, a product screen or one sentence, never a price chart |
 | Descriptor | "DCA planner" in English; the German and Portuguese descriptors chosen by native speakers against the search terms in §4.1 |
 | Form of address | German "du" or "Sie"; Portuguese "tu", "você" or impersonal forms. Decided once, before any translation (§9). "Du" reads as the careful friend, "Sie" as a bank |
@@ -200,7 +200,7 @@ Lines that pass the rules, for the owner to choose from; each still goes through
 - "The day each purchase passes the holding period, wherever the coins are now."
 - "A DCA planner with nothing to watch."
 - "Plan once. Log each buy in under a minute."
-- "No news, no alerts, no feed."
+- "No news, no feed, no price notifications: one line on Today, once per fall."
 - "The crypto app you open once a month."
 - "See the day each purchase passes Portugal's 365 days." One per country with a holding rule.
 - "DCA takes the timing decision away. It does not make crypto less risky."
