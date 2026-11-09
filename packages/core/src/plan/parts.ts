@@ -135,9 +135,12 @@ function latestOf(entries: readonly Entry[]): Entry | null {
 
 /**
  * The venue a new transaction starts with: that of the latest live entry that named one, a purchase or a sale, "latest"
- * as for `defaultFee`; coins added (`held`) never count, since their venue is no transaction's default. Null when none.
+ * as for `defaultFee`; coins added (`held`) and moves never count, since their venue is no transaction's default. Null
+ * when none.
  */
 export function lastVenue(entries: readonly Entry[]): string | null {
-  const named = liveEntries(entries).filter((entry) => entry.venue !== null && entry.kind !== 'held');
+  const named = liveEntries(entries).filter(
+    (entry) => entry.venue !== null && entry.kind !== 'held' && entry.kind !== 'move',
+  );
   return latestOf(named)?.venue ?? null;
 }

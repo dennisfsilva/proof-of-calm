@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { anEntry, money, month, units } from '../../test/builders';
+import { aMove, anEntry, money, month, units } from '../../test/builders';
 import {
   ENTRY_SCHEMA_VERSION,
   type Entry,
@@ -59,8 +59,35 @@ describe('EntrySchema (docs/DOMAIN.md §2.2)', () => {
     expect(EntrySchema.parse(unknownCost)).toEqual(unknownCost);
   });
 
-  it('writes an entry at the lowest version that holds it: 3 for coins held, 2 for every other kind', () => {
-    expect(ENTRY_SCHEMA_VERSION).toBe(3);
+  it('takes a move with no amount, fee or slot, its destination and its units received, 0 < received ≤ units', () => {
+    const move = aMove();
+    expect(EntrySchema.parse(move)).toEqual(move);
+    expect(codes(aMove({ received: move.units }))).toEqual([]);
+    expect(codes(aMove({ venue: null }))).toEqual([]);
+    expect(codes(aMove({ amount: money('1') }))).toEqual(['amount-not-allowed']);
+    expect(codes(aMove({ fee: money('0') }))).toEqual(['fee-not-allowed']);
+    expect(codes(aMove({ slot: month('2026-01') }))).toEqual(['slot-not-allowed']);
+    expect(codes(aMove({ received: units('0') }))).toEqual(['received-not-positive']);
+    expect(codes(aMove({ received: units('0.011') }))).toEqual(['received-exceeds-units']);
+    expect(codes(aMove({ received: units('0.00999999999') }))).toEqual(['units-precision']);
+    expect(codes(aMove({ to: 'Kraken' }))).toEqual(['same-venue']);
+  });
+
+  it('requires both `to` and `received` on a move and refuses either key, even undefined, on any other kind', () => {
+    const { to: _to, received: _received, ...bare } = aMove();
+    expect(codes(bare)).toEqual(['move-required', 'move-required']);
+    expect(codes({ ...bare, to: 'Ledger' })).toEqual(['move-required']);
+    expect(entryIssues({ ...bare, received: units('0.01') })).toEqual([{ code: 'move-required', path: ['to'] }]);
+    expect(entryIssues(anEntry({ to: 'Ledger' }))).toEqual([{ code: 'move-not-allowed', path: ['to'] }]);
+    expect(entryIssues(anEntry({ received: units('0.001') }))).toEqual([
+      { code: 'move-not-allowed', path: ['received'] },
+    ]);
+    expect(EntrySchema.safeParse({ ...anEntry(), to: undefined }).success).toBe(false);
+  });
+
+  it('writes an entry at the lowest version that holds it: 4 for a move, 3 for coins held, 2 for every other kind', () => {
+    expect(ENTRY_SCHEMA_VERSION).toBe(4);
+    expect(writtenEntryVersion(aMove())).toBe(4);
     expect(writtenEntryVersion(anEntry({ kind: 'held', slot: null, amount: null }))).toBe(3);
     expect(writtenEntryVersion(anEntry({ kind: 'dca', slot: month('2026-01') }))).toBe(2);
     for (const kind of ['lump', 'extra', 'sell'] as const) expect(writtenEntryVersion(anEntry({ kind }))).toBe(2);
