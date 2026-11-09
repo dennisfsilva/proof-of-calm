@@ -131,7 +131,7 @@ export function closedBody(elements: readonly string[]) {
  * The elements a module body may use, the ones the renderer passes through `components` (ADR-0048, Deviations):
  * the hosts, Storybook, the tests and `pnpm validate:content` read this one list.
  */
-export const MODULE_BODY_ELEMENTS = ['PastPerformance'] as const;
+export const MODULE_BODY_ELEMENTS = ['PastPerformance', 'Chart'] as const;
 
 /**
  * The build's own check on one module, for `pnpm validate:content`: the MDX compiler with `closedBody` on the
