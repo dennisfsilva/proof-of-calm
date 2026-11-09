@@ -4,6 +4,7 @@ export * from './actions/errors';
 export * from './actions/fill';
 export * from './actions/plan';
 export * from './actions/rows';
+export * from './actions/undo';
 export * from './banner/banner';
 export * from './charts/downsample';
 export * from './charts/path';

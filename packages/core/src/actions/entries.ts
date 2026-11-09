@@ -37,6 +37,7 @@ import type { Plan } from '../schema/plan';
 import { overCap, type TooManyEntries } from './cap';
 import type { ActionError } from './errors';
 import { type RowOwner, rowEntries } from './rows';
+import { type CurrencyMoved, currencyMoved, type SlotsAtDelete } from './undo';
 
 /**
  * One coin of the form; an empty field is null. `entry` is the edited entry the row was opened from, which the row
@@ -309,22 +310,6 @@ export function deleteEntries(entries: readonly Entry[], ids: readonly EntityId[
     .map((entry) => ({ ...entry, deletedAt: now, updatedAt: now }));
 }
 
-/** A month of a deleted monthly buy as it stood at the delete: skipped or not, and the other monthly buys recording it. */
-export type SlotAtDelete = {
-  readonly slot: MonthKey;
-  readonly skipped: boolean;
-  readonly recordedBy: readonly EntityId[];
-};
-/**
- * What the undo needs of its delete: the stamp the delete wrote (`at`), the live entries it deleted (`ids`) and
- * the months as they stood.
- */
-export type SlotsAtDelete = {
-  readonly at: Instant;
-  readonly ids: readonly EntityId[];
-  readonly slots: readonly SlotAtDelete[];
-};
-
 /**
  * Taken with the delete, on the same state, for its undo: the stamp the delete writes (`now`, or one millisecond
  * after the latest stamp of the entries it deletes when `now` is not later), the live entries among `ids` and the
@@ -351,14 +336,19 @@ export function slotsAtDelete(
           },
         ],
   );
-  return { at: stamp, ids: touched.map((entry) => entry.id), slots };
+  return { at: stamp, ids: touched.map((entry) => entry.id), slots, currency: plan?.payCurrency ?? null };
 }
 
 /**
- * Why a delete's undo restores nothing: a month taken since, a tombstone written again since (a replace), or a sale
- * whose units are no longer held.
+ * Why a delete's undo restores nothing: a month taken since, a tombstone written again since (a replace), a sale
+ * whose units are no longer held, the cap, or a pay currency moved since.
  */
-export type RestoreRefusal = SlotRefusal | SaleRefusal | TooManyEntries | { readonly code: 'changed-since-delete' };
+export type RestoreRefusal =
+  | SlotRefusal
+  | SaleRefusal
+  | TooManyEntries
+  | CurrencyMoved
+  | { readonly code: 'changed-since-delete' };
 
 /**
  * The undo of deleteEntries, given what the delete wrote (`slotsAtDelete`): only the entries among `ids` that the
@@ -367,8 +357,8 @@ export type RestoreRefusal = SlotRefusal | SaleRefusal | TooManyEntries | { read
  * clock) and refuses the undo (`changed-since-delete`), as does a deleted monthly buy whose month was skipped, or
  * recorded by another monthly buy, since the delete (`slot-skipped`, `slot-done`), or a deleted sale whose units were
  * sold again since (`sell-exceeds-held`, `uncoveredSale`), or one that would leave more live entries than the cap
- * (`too-many-entries`, `overCap`); nothing is restored and the entries stay deleted. What the month already held
- * stays allowed.
+ * (`too-many-entries`, `overCap`), or an amount or a fee when the pay currency moved since (`currencyMoved`); nothing
+ * is restored and the entries stay deleted. What the month already held stays allowed.
  */
 export function restoreEntries(
   plan: Plan,
@@ -384,6 +374,8 @@ export function restoreEntries(
   const written = (entry: Entry & { readonly deletedAt: Instant }) =>
     compareInstants(entry.updatedAt, before.at) === 0 && compareInstants(entry.deletedAt, before.at) === 0;
   if (!deleted.every(written)) return err({ code: 'changed-since-delete' });
+  const moved = currencyMoved(plan, deleted, before.currency);
+  if (moved !== null) return err(moved);
   for (const entry of deleted) {
     if (entry.kind !== 'dca' || entry.slot === null) continue;
     const slot = entry.slot;
