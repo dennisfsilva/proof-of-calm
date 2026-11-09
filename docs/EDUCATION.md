@@ -61,7 +61,7 @@ labelled, from `packages/content/cycles`). Directly under the chart sits the fir
 historic data of `docs/LEGAL.md` §4, "[Source] closes, [first date] to [last date]. Past performance is
 not a reliable indicator of future results.", as §6 says for the Red day page. The publisher shows as
 attribution text, never as a link to the exchange's domain (`docs/LEGAL.md` §3.4).
-**Caveat**: "Past drawdowns are a floor for your imagination, not a ceiling for the market."
+**Caveat**: "The deepest falls so far are not a limit: a coin can fall further, to zero."
 **Facts needed**: §9 a, b, d, f, m and the e rows of the patterns (c stays out: the module quotes no
 current-cycle figure; `e.scams` stays out: it quotes none of its figures).
 
