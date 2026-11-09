@@ -243,13 +243,7 @@ export function CountrySection() {
         <p className="text-13 text-ink-2">{t('ruleNotLoaded')}</p>
       ) : (
         <form ref={form} onSubmit={(event) => void submit(event)} noValidate className="flex flex-col gap-stack-md">
-          {pending === null && (
-            <PayCurrencyLine
-              plan={plan}
-              rules={own}
-              onDone={done}
-            />
-          )}
+          {pending === null && <PayCurrencyLine plan={plan} rules={own} onDone={done} />}
           <Select<CountryCode> value={pending?.rules.code ?? plan.country} onValueChange={choose}>
             <SelectLabel>{t('label')}</SelectLabel>
             <SelectTrigger>
