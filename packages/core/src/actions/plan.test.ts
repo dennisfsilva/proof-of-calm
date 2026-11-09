@@ -311,14 +311,15 @@ describe('changeCountry (docs/DOMAIN.md §6)', () => {
     const uk = rules({ code: 'GB', currency: 'GBP' });
     const march = anEntry({ date: date('2026-03-01') });
     const january = anEntry({ date: date('2026-01-01'), amount: null, fee: money('1') });
+    const sale = anEntry({ kind: 'sell', date: date('2026-05-01'), amount: money('90'), slot: null });
     const held = anEntry({ kind: 'held', date: date('2025-06-01'), amount: null, fee: null, slot: null });
     const deleted = anEntry({ date: date('2025-01-01'), deletedAt: now });
-    expect(currencyQuestion(plan, [march, january, held, deleted], uk)).toEqual({
+    expect(currencyQuestion(plan, [march, january, held, sale, deleted], uk)).toEqual({
       logged: 'EUR',
       country: 'GBP',
-      count: 2,
+      count: 3,
       first: '2026-01-01',
-      last: '2026-03-01',
+      last: '2026-05-01',
     });
     expect(currencyQuestion(plan, [held, deleted], uk)).toBeNull();
     expect(currencyQuestion(plan, [march], rules({}))).toBeNull();
