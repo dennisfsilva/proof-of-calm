@@ -24,7 +24,7 @@ type Story = StoryObj<typeof meta>;
 
 export const DrawdownsBar: Story = {
   play: async ({ canvas, canvasElement }) => {
-    await expect(await canvas.findByRole('img', { name: /^Falls from each completed cycle’s high/ })).toBeVisible();
+    await expect(await canvas.findByRole('img', { name: /^Falls from each completed cycle's high/ })).toBeVisible();
     await expect(canvasElement.querySelectorAll('[data-slot="bar-chart-bar"]')).toHaveLength(9);
     await expect(canvas.getByText(/intraday highs and lows/)).toBeVisible();
     await expect(canvas.getByRole('link', { name: 'Risk disclosure' })).toBeVisible();
