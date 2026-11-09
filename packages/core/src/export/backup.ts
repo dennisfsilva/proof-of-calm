@@ -10,8 +10,8 @@ import type { CurrencyCode } from '../money/currency';
 import { liveEntries } from '../plan/statuses';
 import { err, ok, type Result } from '../result';
 import { BACKUP_FORMAT, BACKUP_SCHEMA_VERSION, type BackupFile, BackupFileSchema } from '../schema/backup';
-import { ENTRY_SCHEMA_VERSION, type Entry, writtenEntryVersion } from '../schema/entry';
-import type { CountryCode } from '../schema/ids';
+import { ENTRY_SCHEMA_VERSION, type Entry, invalidEntryIds, writtenEntryVersion } from '../schema/entry';
+import type { CountryCode, EntityId } from '../schema/ids';
 import { PLAN_SCHEMA_VERSION, type Plan } from '../schema/plan';
 import { upgradePlan, writtenPlan } from '../schema/upgrade';
 import type { TaxYearSpan } from './tax-year';
@@ -86,11 +86,13 @@ export type ImportMode = 'replace' | 'add-missing';
 
 /**
  * Why an import applied nothing: add-missing from a file whose amounts are in `file`, this plan's in `plan` (never
- * converted); or `entries` live entries after it, over the `max` a plan holds, `file` of them the file's live ones.
+ * converted); `entries` live entries after it, over the `max` a plan holds, `file` of them the file's live ones; or
+ * entries to store that `EntrySchema` refuses, by id, which a later load would set aside.
  */
 export type ImportRefusal =
   | { readonly code: 'currency-mismatch'; readonly file: CurrencyCode; readonly plan: CurrencyCode }
-  | { readonly code: 'too-many-entries'; readonly entries: number; readonly file: number; readonly max: number };
+  | { readonly code: 'too-many-entries'; readonly entries: number; readonly file: number; readonly max: number }
+  | { readonly code: 'invalid-entries'; readonly ids: readonly EntityId[] };
 
 export type ImportResult = {
   readonly plan: Plan;
@@ -122,6 +124,12 @@ function refuse(current: Parameters<typeof applyImport>[0], filePlan: Plan, refu
     refused,
   };
 }
+/** Every entry to store reads as an entry, or the import is refused rather than set aside on the next load. */
+function checked(current: Parameters<typeof applyImport>[0], filePlan: Plan, result: ImportResult): ImportResult {
+  const ids = invalidEntryIds(result.entries);
+  return ids.length === 0 ? result : refuse(current, filePlan, { code: 'invalid-entries', ids });
+}
+
 /** More live entries than a plan holds would leave an export that `readBackup` refuses: the person's only restore file. */
 const overCap = (entries: number, file: number): ImportRefusal | null =>
   entries > MAX_ENTRIES ? { code: 'too-many-entries', entries, file, max: MAX_ENTRIES } : null;
@@ -151,7 +159,7 @@ export function applyImport(
       // tombstoned here is deleted `now`, so a delete another tab wrote over it on a snapshot this one has not
       // read yet is not taken for that delete either.
       .map((entry) => ({ ...entry, deletedAt: entry.deletedAt ?? now, updatedAt: after(entry.id) }));
-    return {
+    return checked(current, filePlan, {
       plan: filePlan,
       entries: [...file.entries.map(stamp), ...removed],
       added: incoming.size,
@@ -159,7 +167,7 @@ export function applyImport(
       deleted: 0,
       taken: 0,
       refused: null,
-    };
+    });
   }
   if (current.plan !== null && current.plan.payCurrency !== file.plan.payCurrency) {
     const refused = { code: 'currency-mismatch', file: file.plan.payCurrency, plan: current.plan.payCurrency } as const;
@@ -182,7 +190,7 @@ export function applyImport(
   const added = missing.filter((entry) => entry.kind !== 'dca' || !months.has(entry.slot));
   const tooMany = overCap(liveEntries(current.entries).length + added.length, fileLive.length);
   if (tooMany !== null) return refuse(current, filePlan, tooMany);
-  return {
+  return checked(current, filePlan, {
     plan: current.plan ?? filePlan,
     entries: [...current.entries, ...added.map(stamp)],
     added: added.length,
@@ -190,5 +198,5 @@ export function applyImport(
     deleted,
     taken: missing.length - added.length,
     refused: null,
-  };
+  });
 }

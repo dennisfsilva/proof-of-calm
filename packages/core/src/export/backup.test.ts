@@ -262,6 +262,24 @@ describe('applyImport (docs/DOMAIN.md §3.13, ADR-0019)', () => {
     expect([taken.refused, taken.plan.payCurrency, taken.added]).toEqual([null, 'USD', 1]);
   });
 
+  it('refuses an import whose merged entries do not all read as entries, naming them, and applies nothing', () => {
+    // A file read by readBackup holds valid entries; a caller that builds one by hand may not.
+    const malformed = { ...theirs, units: units('0') };
+    const damaged: BackupFile = { ...file, entries: [malformed, mine] };
+    for (const mode of ['replace', 'add-missing'] as const) {
+      const result = applyImport({ plan, entries: [gone] }, damaged, mode, now);
+      expect(result).toEqual({
+        plan,
+        entries: [gone],
+        added: 0,
+        skipped: 0,
+        deleted: 0,
+        taken: 0,
+        refused: { code: 'invalid-entries', ids: [theirs.id] },
+      });
+    }
+  });
+
   it('takes the plan from the file when there is none yet', () => {
     expect(applyImport({ plan: null, entries: [] }, file, 'add-missing', now).plan).toEqual({
       ...file.plan,

@@ -417,6 +417,18 @@ describe('importPrototype (docs/DOMAIN.md §7)', () => {
     const purchases = [{ kind: 'extra', date: '2026-02-01', coin: 'BTC', eur: 10, units: 0.1 }];
     expect(() => importPrototype(withSettings({}, purchases), input({ ids: [] }))).toThrow('Missing a fresh id');
   });
+
+  it('refuses entries that do not read as entries, naming them, and imports nothing', () => {
+    const purchases = [
+      { id: 'p1', kind: 'extra', date: '2026-02-01', coin: 'BTC', eur: 10, units: 0.1 },
+      { kind: 'extra', date: '2026-02-02', coin: 'BTC', eur: 10, units: 0.1 },
+    ];
+    const ids = ['not-an-id' as EntityId];
+    expect(importPrototype(withSettings({}, purchases), input({ ids }))).toEqual({
+      ok: false,
+      error: { code: 'invalid-entries', ids },
+    });
+  });
 });
 
 describe('recogniseImport', () => {
