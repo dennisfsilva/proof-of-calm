@@ -15,8 +15,9 @@ configs live in their packages. See `docs/ENGINEERING.md`.
   `docs/ARCHITECTURE.md`, Packages and their boundaries.
 - `vite/`: the hosts' Vite factory and its plugins (`@proofofcalm/config/vite`, ADR-0045):
   - `createHostConfig({ host, root, parseModule })`: the Learn modules' plugins ahead of React, React
-    with the compiler through Babel (its `include` covers `.mdx`), Tailwind, the four plugins below
+    with the compiler through Babel (its `include` covers `.mdx`), Tailwind, the five plugins below
     (and, on the web host, the chunk report), `resolve.dedupe: ['react']`, `build.assetsInlineLimit: 0`,
+    Rolldown's `output.codeSplitting` from `chunkGroups()`,
     the host's `import.meta.env.VITE_API_BASE` and `VITE_SERVICE_WORKER`, and the document (`app.html` on the
     web, `index.html` in the wrapper). `parseModule` is the host's import from
     `@proofofcalm/content/modules` (ADR-0048, Deviations).
@@ -43,6 +44,12 @@ configs live in their packages. See `docs/ENGINEERING.md`.
     `use-intl/format-message` aliased to its format-only entry, so the ICU parser leaves the bundle (§8).
   - `clientNeverImportsServer()`: the client build fails in `resolveId` when a server module is
     resolved, naming the importer chain (§11, the first of the three guards).
+  - `noChunkCycles()`: both hosts; fails the build on a static import cycle between chunks, naming
+    it, since without `strictExecutionOrder` a chunk in one can run before the chunk it reads
+    (`docs/ENGINEERING.md` §4).
+  - `chunkGroups()` (`packages/config/vite/chunk-groups.ts`): not a plugin; the code-splitting
+    options, one group that keeps the modules Today's entry imports statically in its chunk, entering
+    another feature's modules only for the names Today imports (`docs/ENGINEERING.md` §4).
   - `chunkReport({ file })`: web host only; writes every chunk's brotli size at quality 3 and its
     share of code outside `node_modules` to `node_modules/.cache/chunk-report.json`, which
     `tools/size/today.ts` reads (`docs/ENGINEERING.md` §4).
