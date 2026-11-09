@@ -1,6 +1,6 @@
 # ADR-0036: Market data providers and licensing
 
-Status: Accepted; Next's Data Cache superseded by Vercel's Runtime Cache (ADR-0045); the credit's link superseded by ADR-0050 · Date: 2026-10-16 · Deciders: planning session (research: `docs/research/market-data-competitors.md` §1–2, `docs/research/stack-backend-security.md` §14)
+Status: Accepted; Next's Data Cache superseded by Vercel's Runtime Cache (ADR-0045); the credit's link superseded by ADR-0050; the four coins of the reference closes and the hand-picked allow-list superseded by ADR-0052 · Date: 2026-10-16 · Deciders: planning session (research: `docs/research/market-data-competitors.md` §1–2, `docs/research/stack-backend-security.md` §14)
 
 ## Context
 

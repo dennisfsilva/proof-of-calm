@@ -57,7 +57,7 @@ in `.claude/rules/` list them per path.
 | 0033 | PWA and offline | Accepted; `@serwist/turbopack`, `app/manifest.ts` and `@serwist/window` superseded by 0045 | `apps/web` (the service worker, the manifest); `packages/app/src/lib/pwa` |
 | 0034 | Forms, validation and numeric input | Accepted | `packages/app` features (forms, drafts); `packages/app/src/lib/format`; `packages/ui` inputs |
 | 0035 | Authentication: one-time email code and passkeys, no password | Accepted; session handling in `proxy.ts` superseded by 0045 | `packages/app` features: account (M3); `apps/web` server functions (M3) |
-| 0036 | Market data providers and licensing | Accepted; Next's Data Cache superseded by 0045; the credit's link superseded by 0050 | `apps/web/server` (prices); `packages/data`; `tools` (the data pipeline, M2) |
+| 0036 | Market data providers and licensing | Accepted; Next's Data Cache superseded by 0045; the credit's link superseded by 0050; the four coins of the reference closes and the hand-picked allow-list superseded by 0052 | `apps/web/server` (prices); `packages/data`; `tools` (the data pipeline, M2) |
 | 0037 | Scheduled jobs | Accepted | `.github/workflows` (scheduled jobs); `apps/web/server` (the cron route, M3) |
 | 0038 | Payments: merchant of record (deferred to M5, constraints recorded) | Accepted; its CSV-import finding settled by 0039 (all CSV import in the free core) | `packages/app` features: account, settings (M5) |
 | 0039 | Automation limits: no orders, no exchange keys, no address watching; CSV import in the free core | Accepted | the product's scope; `packages/app/src/lib/adapters` (imports); `apps/web/server` |
@@ -73,6 +73,7 @@ in `.claude/rules/` list them per path.
 | 0049 | Today boots on a generated rules file, not the country profile | Accepted | `packages/content` (`rules/`, `scripts/rules.ts`, the loaders); `packages/app/src/lib/services` (`browser.ts`, `use-profile.ts`); `tools/size/today.ts` |
 | 0050 | The CoinGecko credit is unlinked, at 14 px or larger | Accepted | `packages/app` features: today (the prices line), portfolio (the source line and credit) |
 | 0051 | The repository is public, from fresh history | Accepted | the repository's settings and history; `docs/OWNER-SETUP.md` §1 and §3 |
+| 0052 | The coin catalogue follows a published rule | Accepted | `packages/content` (`coins.json`); `packages/app` features: onboarding, plan, settings (the coin picker); `apps/web/server` (the price route's allow-list); `packages/data`; `docs/research/letters` |
 
 Template:
 
