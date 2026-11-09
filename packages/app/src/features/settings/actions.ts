@@ -12,7 +12,9 @@ import {
   type CalendarDate,
   type CoinId,
   type CountryRules,
+  type CurrencyAnswer,
   changeCountry,
+  currencyQuestion,
   EntityIdSchema,
   type Entry,
   err,
@@ -331,25 +333,31 @@ const REDERIVED = ['country', 'payCurrency', 'displayCurrency', 'holdingRule', '
  * with that plan (`plan-changed`) when another tab moved the country, a currency, the holding rule, the window or
  * the last buy since `opened`; a window the new rule makes early saves only with `acceptEarly`, which then marks it accepted;
  * any other issue refuses with every issue. Nothing to change writes nothing (`written: false`, so the caller
- * announces nothing); no plan left saves nothing.
+ * announces nothing); no plan left saves nothing. `currency` is the person's answer to the currency question
+ * (ADR-0053), or null when the screen asked none: if the stored entries now need one (another tab logged an amount),
+ * the change is refused as `plan-changed`; with no question asked, the currencies follow the country. An answer stands
+ * even when the stored entries no longer need it (another tab deleted them): `keep` relabels nothing, so it is never
+ * wrong, and the person's word is never swapped for another.
  */
 export async function changeCountryOf(
   { domain, clock }: Pick<Services, 'domain' | 'clock'>,
   rules: CountryRules,
   opened: Plan,
   acceptEarly: boolean,
+  currency: CurrencyAnswer | null,
 ): Promise<Result<CountryWrite, PlanChanged | PlanIssue[]>> {
   let result: Result<CountryWrite, PlanChanged | PlanIssue[]> | null = null;
-  await domain.write(({ plan }) => {
+  await domain.write(({ plan, entries }) => {
     if (plan === null) {
       result = err([]);
       return {};
     }
-    if (REDERIVED.some((key) => !same(plan[key], opened[key]))) {
+    const unasked = currency === null && currencyQuestion(plan, entries, rules) !== null;
+    if (unasked || REDERIVED.some((key) => !same(plan[key], opened[key]))) {
       result = err({ code: 'plan-changed', plan });
       return {};
     }
-    const change = changeCountry(plan, rules, clock.now());
+    const change = changeCountry(plan, rules, clock.now(), currency ?? 'country');
     if (change.changes.length === 0) {
       result = ok({ written: false });
       return {};

@@ -33,7 +33,9 @@ describe('the holding-rule overrides (docs/ROADMAP.md M2)', () => {
 
 describe('countrySummary', () => {
   it('lists the country and both holding rules in words', () => {
-    expect(countrySummary(changeCountry(fixturePlan('PT'), FIXTURE_RULES.DE, now), FIXTURE_RULES.PT, format)).toEqual([
+    expect(
+      countrySummary(changeCountry(fixturePlan('PT'), FIXTURE_RULES.DE, now, 'country'), FIXTURE_RULES.PT, format),
+    ).toEqual([
       { field: 'country', from: 'PT', to: 'DE' },
       {
         field: 'holdingRule',
@@ -42,7 +44,11 @@ describe('countrySummary', () => {
       },
       { field: 'lastBuyEligible', from: '2025-10-29', to: '2025-10-30', effect: 'exempt' },
     ]);
-    const generic = countrySummary(changeCountry(fixturePlan('DE'), FIXTURE_RULES.XX, now), FIXTURE_RULES.DE, format);
+    const generic = countrySummary(
+      changeCountry(fixturePlan('DE'), FIXTURE_RULES.XX, now, 'country'),
+      FIXTURE_RULES.DE,
+      format,
+    );
     expect(generic.at(-1)).toEqual({
       field: 'holdingRule',
       from: { key: 'years', values: { count: 1, figure: '1', effect: 'exempt' } },
@@ -52,20 +58,22 @@ describe('countrySummary', () => {
 
   it('lists a currency the country moves, and nothing when nothing moves', () => {
     const us = { ...FIXTURE_RULES.DE, code: 'US', currency: 'USD' } as const;
-    expect(countrySummary(changeCountry(fixturePlan('DE'), us, now), FIXTURE_RULES.DE, format)).toEqual([
+    expect(countrySummary(changeCountry(fixturePlan('DE'), us, now, 'country'), FIXTURE_RULES.DE, format)).toEqual([
       { field: 'country', from: 'DE', to: 'US' },
       { field: 'payCurrency', from: 'EUR', to: 'USD' },
       { field: 'displayCurrency', from: 'EUR', to: 'USD' },
     ]);
-    expect(countrySummary(changeCountry(fixturePlan('PT'), FIXTURE_RULES.PT, now), FIXTURE_RULES.PT, format)).toEqual(
-      [],
-    );
+    expect(
+      countrySummary(changeCountry(fixturePlan('PT'), FIXTURE_RULES.PT, now, 'country'), FIXTURE_RULES.PT, format),
+    ).toEqual([]);
   });
 
   // The last buy's holding date moves only between two countries' rules with the same effect: the person's own
   // rule, the generic profile and a rule with no period say nothing of a country's date.
   const lastBuyRows = (plan: Plan, to: CountryRules, opened: CountryRules | null) =>
-    countrySummary(changeCountry(plan, to, now), opened, format).filter((row) => row.field === 'lastBuyEligible');
+    countrySummary(changeCountry(plan, to, now, 'country'), opened, format).filter(
+      (row) => row.field === 'lastBuyEligible',
+    );
 
   it("lists no last-buy date to or from the generic profile, or from the person's own rule", () => {
     expect(lastBuyRows(fixturePlan('DE'), FIXTURE_RULES.XX, FIXTURE_RULES.DE)).toEqual([]);

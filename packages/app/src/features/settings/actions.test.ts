@@ -371,7 +371,7 @@ describe('changeCountryOf (docs/DOMAIN.md §6 "Change country")', () => {
     const services = await started();
     const opened = stored(services) as Plan;
     const before = services.domain.store.getState().snapshot.entries;
-    expect(await changeCountryOf(services, FIXTURE_RULES.DE, opened, false)).toEqual({
+    expect(await changeCountryOf(services, FIXTURE_RULES.DE, opened, false, null)).toEqual({
       ok: true,
       value: { written: true },
     });
@@ -392,7 +392,7 @@ describe('changeCountryOf (docs/DOMAIN.md §6 "Change country")', () => {
       const opened = stored(services) as Plan;
       await services.domain.write(({ plan }) => ({ plan: { ...(plan as Plan), ...moved } }));
       const current = stored(services);
-      const result = await changeCountryOf(services, FIXTURE_RULES.DE, opened, false);
+      const result = await changeCountryOf(services, FIXTURE_RULES.DE, opened, false, null);
       expect(result).toEqual({ ok: false, error: { code: 'plan-changed', plan: current } });
       expect(stored(services)).toBe(current);
     }
@@ -401,32 +401,75 @@ describe('changeCountryOf (docs/DOMAIN.md §6 "Change country")', () => {
   it('refuses a window the new rule makes early until accepted, then stores the acceptance', async () => {
     const services = await started({ sellWindow: early });
     const opened = stored(services) as Plan;
-    const refused = await changeCountryOf(services, FIXTURE_RULES.DE, opened, false);
+    const refused = await changeCountryOf(services, FIXTURE_RULES.DE, opened, false, null);
     expect(refused.ok ? [] : refused.error).toEqual([
       { code: 'sell-window-before-eligibility', path: ['sellWindow', 'opens'] },
     ]);
     expect(stored(services)).toBe(opened);
-    expect((await changeCountryOf(services, FIXTURE_RULES.DE, opened, true)).ok).toBe(true);
+    expect((await changeCountryOf(services, FIXTURE_RULES.DE, opened, true, null)).ok).toBe(true);
     expect(stored(services)?.sellWindow).toEqual({ ...early, acceptedEarlyOpen: true });
   });
 
   it('records no acceptance on a window that opens in time, and writes nothing when nothing changes', async () => {
     const services = await started();
     const opened = stored(services) as Plan;
-    expect(await changeCountryOf(services, FIXTURE_RULES.PT, opened, true)).toEqual({
+    expect(await changeCountryOf(services, FIXTURE_RULES.PT, opened, true, null)).toEqual({
       ok: true,
       value: { written: false },
     });
     expect(stored(services)).toBe(opened);
-    await changeCountryOf(services, FIXTURE_RULES.DE, opened, true);
+    await changeCountryOf(services, FIXTURE_RULES.DE, opened, true, null);
     expect(stored(services)?.sellWindow).toEqual(opened.sellWindow);
+  });
+
+  describe('the currency question (ADR-0053)', () => {
+    const uk = { ...FIXTURE_RULES.DE, code: 'GB' as Plan['country'], currency: 'GBP' as const };
+    const withEntries = async (entries: readonly Entry[]) => {
+      const snapshot = fixtureSnapshot();
+      const services = createTestServices({ snapshot: { ...snapshot, entries } });
+      await services.start();
+      return services;
+    };
+    const [logged] = fixtureSnapshot().entries;
+
+    it('refuses plan-changed when another tab logs an amount the screen asked nothing about', async () => {
+      const services = await withEntries([]);
+      const opened = stored(services) as Plan;
+      await services.domain.write({ entries: [logged as Entry] });
+      const current = stored(services);
+      expect(await changeCountryOf(services, uk, opened, false, null)).toEqual({
+        ok: false,
+        error: { code: 'plan-changed', plan: current },
+      });
+      expect(stored(services)).toBe(current);
+    });
+
+    it('keeps the currencies on keep, follows the country without entries, and takes them on country', async () => {
+      const kept = await withEntries([logged as Entry]);
+      await changeCountryOf(kept, uk, stored(kept) as Plan, false, 'keep');
+      expect(stored(kept)).toMatchObject({ country: 'GB', payCurrency: 'EUR', displayCurrency: 'EUR' });
+      const empty = await withEntries([]);
+      await changeCountryOf(empty, uk, stored(empty) as Plan, false, null);
+      expect(stored(empty)).toMatchObject({ country: 'GB', payCurrency: 'GBP', displayCurrency: 'GBP' });
+      const corrected = await withEntries([logged as Entry]);
+      await changeCountryOf(corrected, uk, stored(corrected) as Plan, false, 'country');
+      expect(stored(corrected)).toMatchObject({ country: 'GB', payCurrency: 'GBP', displayCurrency: 'GBP' });
+    });
+
+    it('keeps the answer when another tab deleted the entries it was given for', async () => {
+      const services = await withEntries([logged as Entry]);
+      const opened = stored(services) as Plan;
+      await services.domain.write({ entries: [{ ...(logged as Entry), deletedAt: opened.updatedAt }] });
+      await changeCountryOf(services, uk, opened, false, 'keep');
+      expect(stored(services)).toMatchObject({ country: 'GB', payCurrency: 'EUR', displayCurrency: 'EUR' });
+    });
   });
 
   it('saves nothing once the plan is gone', async () => {
     const services = await started();
     const opened = stored(services) as Plan;
     await services.domain.write({ plan: null });
-    expect(await changeCountryOf(services, FIXTURE_RULES.DE, opened, false)).toEqual({ ok: false, error: [] });
+    expect(await changeCountryOf(services, FIXTURE_RULES.DE, opened, false, null)).toEqual({ ok: false, error: [] });
   });
 });
 
