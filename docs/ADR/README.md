@@ -35,7 +35,7 @@ in `.claude/rules/` list them per path.
 | 0011 | Honesty is a feature | Accepted; its placement list superseded by 0047 | every piece of copy; `docs/LEGAL.md`, `docs/CONTENT-STYLE.md` |
 | 0012 | Coin prices in the pay currency by default, USD as the toggle | Accepted | `packages/core` (prices, portfolio); `packages/app` features: settings, today |
 | 0013 | No news, no sentiment, no alerts; the Red day page instead | Accepted | the product's scope; `packages/app` features: today, learn |
-| 0014 | Country adaptation: profiles, cards, holding rules, tax-year export | Accepted | `packages/content/jurisdictions`; `packages/core` (eligibility, lots, export) |
+| 0014 | Country adaptation: profiles, cards, holding rules, tax-year export | Accepted; the currency a country change re-derives superseded in part by 0053 | `packages/content/jurisdictions`; `packages/core` (eligibility, lots, export) |
 | 0015 | Content operations: the agent drafts, a human publishes | Accepted | `packages/content`; `.github/workflows` (the content review, M2) |
 | 0016 | Functional core, imperative shell | Accepted; the location of the ports and adapters set by 0032 | `packages/core`; `packages/app/src/lib/ports`, `packages/app/src/lib/adapters` |
 | 0017 | Exact arithmetic with a decimal type; strings in storage | Accepted | `packages/core` (money, units); `packages/app/src/lib/format` |
@@ -74,6 +74,7 @@ in `.claude/rules/` list them per path.
 | 0050 | The CoinGecko credit is unlinked, at 14 px or larger | Accepted | `packages/app` features: today (the prices line), portfolio (the source line and credit) |
 | 0051 | The repository is public, from fresh history | Accepted | the repository's settings and history; `docs/OWNER-SETUP.md` §1 and §3 |
 | 0052 | The coin catalogue follows a published rule | Accepted | `packages/content` (`coins.json`); `packages/app` features: onboarding, plan, settings (the coin picker); `apps/web/server` (the price route's allow-list); `packages/data`; `docs/research/letters` |
+| 0053 | One currency per plan: a change of country asks before it relabels | Accepted | `packages/core` (`actions/plan.ts`); `packages/app` features: settings (the country change) |
 
 Template:
 
