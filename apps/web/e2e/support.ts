@@ -28,15 +28,18 @@ export const test = base.extend({
 
 /**
  * The history fixture's shape, each over 365 points whose last is the live price dated `nowMs`'s UTC day (the
- * red-day model drops it, docs/DOMAIN.md §3.11): 'rise' gains about 0.1 % a day; 'week-fall' is flat, then falls
- * 11 % in the last week, Red from two closes before `nowMs`'s date; 'high-fall' is flat, then falls 0.9 % of the
- * high a day for 36 days, 30 % below its 90-day high from two closes before (packages/app's red-day test shapes).
+ * red-day model drops it, docs/DOMAIN.md §3.11): 'rise' gains about 0.1 % a day; 'week-fall' and 'high-fall' are
+ * packages/core's WEEKLY_FALL and SLOW_FALL (src/market/red-day.test.ts) after a flat year at 100, Red on the last
+ * two complete closes, from two days before `nowMs`'s date. The crossing close sits a margin past the threshold
+ * (89, not 90: 11 % in a week; 69.5, not 70: 30.5 % below the 90-day high) and the close before it one short as in
+ * core (8 %, 29 %): the closes are rounded to cents of the fixture prices and the core truncates a percent toward
+ * zero, so a close exactly on the threshold could read 9.9999 % and start no episode.
  */
 type HistoryShape = 'rise' | 'week-fall' | 'high-fall';
 
 const FALLS: Readonly<Record<Exclude<HistoryShape, 'rise'>, readonly number[]>> = {
-  'week-fall': [97, 95, 93, 91, 89, 88, 87],
-  'high-fall': Array.from({ length: 36 }, (_, n) => (1000 - 9 * (n + 1)) / 10),
+  'week-fall': [98, 96, 94, 92, 89, 89, 89],
+  'high-fall': [...Array.from({ length: 29 }, (_, n) => 99 - n), 69.5, 69.5, 69.5],
 };
 
 /** The closes relative to the live price, oldest first. */

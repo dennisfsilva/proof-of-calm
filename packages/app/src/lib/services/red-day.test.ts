@@ -15,21 +15,17 @@ import { createTestServices } from './testing';
 
 // The red-day port on in-memory Services (docs/DOMAIN.md §3.11, the complete-closes rule): each copy's closes end on
 // the UTC day of its fetch with the live price, as the history route answers (apps/web/lib/history/coingecko.ts).
-// WEEKLY_FALL and SLOW_FALL are the shapes apps/web/e2e/support.ts serves as 'week-fall' and 'high-fall'.
+// WEEKLY_FALL and SLOW_FALL are packages/core's (src/market/red-day.test.ts) with the live point after them, which
+// the model drops: Red on the last two complete closes, the first of them exactly on the threshold. apps/web/e2e's
+// 'week-fall' and 'high-fall' cross on the same days, a margin past it (support.ts says why).
 
 const TODAY = '2026-10-20' as CalendarDate;
 const FETCHED = '2026-10-20T10:00:00.000Z';
 const repeat = (value: string, times: number) => Array.from({ length: times }, () => value);
-/** Flat, then a fall of 11 % in a week: the first Red day is the third value from the end (index 97 of 100). */
-const WEEKLY_FALL = [...repeat('100', 93), '97', '95', '93', '91', '89', '88', '87'];
-/** Flat, then 0.9 a day for 36 days: 30.6 % below the 90-day high on index 93 of 96, never 10 % in a week. */
-const SLOW_FALL = [
-  ...repeat('100', 60),
-  ...Array.from({ length: 36 }, (_, n) => {
-    const tenths = 1000 - 9 * (n + 1);
-    return `${Math.trunc(tenths / 10)}.${tenths % 10}`;
-  }),
-];
+/** A week and more at 100, then two a day down: 90 is 10 % below the close seven days before. */
+const WEEKLY_FALL = [...repeat('100', 10), '98', '96', '94', '92', '90', '90', '90'];
+/** One a day down from 100: 70 is 30 % below the 90-day high, while no week falls 10 %. */
+const SLOW_FALL = [...Array.from({ length: 31 }, (_, offset) => String(100 - offset)), '70', '70'];
 const RISE = Array.from({ length: 120 }, (_, n) => String(100 + n));
 
 type Copy = { readonly values: readonly string[]; readonly end?: CalendarDate; readonly fetchedAt?: string };
@@ -100,14 +96,14 @@ describe('the red-day port (docs/DOMAIN.md §3.11)', () => {
     const result = await model({ BTC: { values: WEEKLY_FALL } }).answer;
     expect(result.state).toBe('episode');
     expect(result.episode).toEqual({ start: addDays(TODAY, -2), last: addDays(TODAY, -1) });
-    expect(result.lastRed).toEqual({ date: addDays(TODAY, -1), sevenDay: '-12', fromHigh90: '-12' });
+    expect(result.lastRed).toEqual({ date: addDays(TODAY, -1), sevenDay: '-10', fromHigh90: '-10' });
   });
 
   it('starts the episode on the day a slow fall reaches 30 % below the 90-day high', async () => {
     const result = await model({ BTC: { values: SLOW_FALL } }).answer;
     expect(result.state).toBe('episode');
     expect(result.episode).toEqual({ start: addDays(TODAY, -2), last: addDays(TODAY, -1) });
-    expect(result.lastRed?.fromHigh90).toBe('-31.5');
+    expect(result.lastRed).toEqual({ date: addDays(TODAY, -1), sevenDay: '-7.8947', fromHigh90: '-30' });
   });
 
   it('drops the live point dated the UTC day of the fetch, so it starts no episode', async () => {
