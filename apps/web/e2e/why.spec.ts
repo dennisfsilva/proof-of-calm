@@ -23,6 +23,7 @@ const IDEA = 'Averaging takes away the timing decision, not the risk.';
 const CYCLES =
   "Since 2013, bitcoin's highs have come about 4 years apart so far; 4 completed cycles are 4 data points, not a law.";
 const WINDOW = 'The window is a discipline device';
+const RISK = 'You can lose everything, and the order of operations matters.';
 
 const LINKS = [
   { path: '/today', name: 'Why? The hold phase', idea: IDEA, section: 'Why some people hold' },
@@ -144,6 +145,31 @@ test('the Risk link stands beside the past-performance line, with no plan and in
   await page.getByRole('button', { name: 'Why? The three parts', exact: true }).press('Enter');
   const sheet = page.getByRole('dialog', { name: CYCLES });
   await expect(sheet.getByText(line).getByRole('link', { name: 'Risk disclosure' })).toHaveAttribute('href', '/risk');
+});
+
+// docs/EDUCATION.md, the links table: Portfolio's P/L line opens Risk honestly at its top, since the module is the
+// answer as a whole; the link stands wherever the P/L does. Escape closes, as a press of Close does above.
+test("the P/L line's Why? on /portfolio opens Risk honestly, and closing gives the focus back", async ({ page }) => {
+  await seedInHold(page);
+  await page.goto('/portfolio');
+  const link = page.getByRole('button', { name: 'Why? Risk honestly', exact: true });
+  await link.press('Enter');
+  const sheet = page.getByRole('dialog', { name: RISK });
+  await expect(sheet).toBeVisible();
+  await expect(sheet.getByRole('heading', { level: 2, name: 'The order that matters' })).toBeAttached();
+  expect(new URL(page.url()).pathname).toBe('/portfolio');
+
+  await page.keyboard.press('Escape');
+  await expect(sheet).toBeHidden();
+  await expect(link).toBeFocused();
+});
+
+test('from /learn the Risk honestly row opens its module', async ({ page }) => {
+  await page.goto('/learn');
+  await page.getByRole('link', { name: /^Risk honestly/u }).click();
+  await expect(page).toHaveURL(/\/learn\/risk-honestly$/u);
+  await expect(page.getByRole('heading', { level: 1, name: 'Risk honestly' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 2, name: 'Keeping coins yourself' })).toBeVisible();
 });
 
 test('from /learn the row opens the same module', async ({ page }) => {
