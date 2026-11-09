@@ -139,7 +139,7 @@ describe('in Portugal, a grouped edit of BTC sales at Bitvavo, at Ledger and at 
   const editing = [onBitvavo, onLedger, nowhere];
 
   const hint =
-    'Venues on these entries: Bitvavo and Ledger. 1 has none. Each keeps its own unless you type a venue for all of them.';
+    'Venues on these entries: Bitvavo and Ledger. 1 entry has none. Each keeps its own unless you type a venue for all of them.';
 
   it('saved unchanged, keeps each sale under its own entry and venue', async () => {
     const saved = await edit(editing, () => undefined, hint);
