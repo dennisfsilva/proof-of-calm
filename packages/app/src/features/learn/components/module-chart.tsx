@@ -3,6 +3,7 @@ import type { Decimal } from '@proofofcalm/core';
 import { BarChart } from '@proofofcalm/ui/charts/bar-chart';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'use-intl';
+import { BRAND } from '../../../lib/brand';
 import { useFormatters, useServices } from '../../../lib/services';
 import type { PastFall } from '../../../lib/services/red-day-types';
 import { MODULE_ELEMENTS } from '../lib/body-elements';
@@ -78,7 +79,8 @@ function DrawdownsBar() {
         }}
       />
       <p className="text-16">
-        {t('source', { publishers: f.list(publishers), first, last })} <MODULE_ELEMENTS.PastPerformance />
+        {t('source', { publishers: f.list(publishers), first, last, product: BRAND.name })}{' '}
+        <MODULE_ELEMENTS.PastPerformance />
       </p>
     </div>
   );
