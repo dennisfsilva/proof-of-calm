@@ -31,10 +31,11 @@ describe('ModuleChart', () => {
 
   it('draws one labelled bar per cycle, with its table', async () => {
     const { container } = mount();
-    const drawing = await screen.findByRole('img', { name: /^Falls from each completed cycle's high to its low/ });
+    // Every bar's low is the lowest after its high, LINK's 2021 one included, which has not regained its high.
+    const drawing = await screen.findByRole('img', { name: /^Falls from each high to the lowest low after it/ });
     // "for" keeps the list of coins apart from the dates when a screen reader reads the label.
     expect(drawing.getAttribute('aria-label')).toBe(
-      "Falls from each completed cycle's high to its low for BTC, ETH, LINK, and SOL, 8\u00a0Jun\u00a02011 to 10\u00a0Jun\u00a02023",
+      'Falls from each high to the lowest low after it for BTC, ETH, LINK, and SOL, 8\u00a0Jun\u00a02011 to 10\u00a0Jun\u00a02023',
     );
     expect(container.querySelectorAll('[data-slot="bar-chart-bar"]')).toHaveLength(9);
     const values = [...container.querySelectorAll('[data-slot="bar-chart-value"]')].map((value) => value.textContent);
@@ -59,7 +60,7 @@ describe('ModuleChart', () => {
     // One row's publisher is "Bitcoinity (Mt. Gox) and CoinMarketCap": split, CoinMarketCap is named once.
     expect(line?.textContent).toBe(
       'Bitcoinity (Mt. Gox), Bitstamp, Coinbase, and CoinMarketCap intraday highs and lows in US dollars, ' +
-        "8\u00a0Jun\u00a02011 to 10\u00a0Jun\u00a02023, in Proof of Calm's own computation. " +
+        "8\u00a0Jun\u00a02011 to 10\u00a0Jun\u00a02023; the falls are Proof of Calm's own computation. " +
         'Past performance is not a reliable indicator of future results. Risk disclosure',
     );
     // The one link is the Risk page's: no publisher links to an exchange (docs/LEGAL.md §3.4).

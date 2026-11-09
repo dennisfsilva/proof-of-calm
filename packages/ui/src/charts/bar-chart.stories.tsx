@@ -26,7 +26,7 @@ const meta = {
   component: BarChart,
   args: {
     bars,
-    label: "Falls from each completed cycle's high to its low for BTC, ETH and SOL, 8 Jun 2011 to 29 Dec 2022",
+    label: 'Falls from each high to the lowest low after it for BTC, ETH and SOL, 8 Jun 2011 to 29 Dec 2022',
     description: 'One bar per coin and cycle, its length the fall from the intraday high to the intraday low.',
     table: {
       summary: 'Show the falls as a table',
@@ -58,7 +58,7 @@ export const CycleFalls: Story = {};
 export const TwoBars: Story = {
   args: {
     bars: bars.slice(0, 2),
-    label: "Falls from each completed cycle's high to its low for BTC, 8 Jun 2011 to 14 Jan 2015",
+    label: 'Falls from each high to the lowest low after it for BTC, 8 Jun 2011 to 14 Jan 2015',
     description: 'One bar per cycle of BTC, its length the fall from the intraday high to the intraday low.',
     table: {
       summary: 'Show the falls as a table',
