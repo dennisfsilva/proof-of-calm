@@ -22,6 +22,7 @@ import {
   actionMessage,
   changedFields,
   detailFieldOf,
+  editedVenues,
   editRow,
   type FormContext,
   type FormState,
@@ -204,6 +205,23 @@ describe('initialState', () => {
         derived: 'price',
       },
     ]);
+  });
+
+  // The session-16 carry-over (#10): a grouped edit at two venues showed the first one's, as if both were there. Its
+  // Venue field opens empty, so a save keeps each entry's own until a venue is typed for all (`keepUnchanged`).
+  it('opens a grouped edit with the Venue field empty when its entries were at different venues', () => {
+    const at = (venue: string | null) => anEntry({ kind: 'sell', slot: null, date: date('2026-04-01'), venue });
+    const venueOf = (...editing: Entry[]) => initialState('sell', editing, undefined, context()).venue;
+    expect(venueOf(at('Bitvavo'), at('Ledger'))).toBe('');
+    expect(venueOf(at('Bitvavo'), at('Bitvavo'), at('Ledger'))).toBe('');
+    expect(venueOf(at('Bitvavo'), at(null))).toBe('');
+    expect(venueOf(at('Bitvavo'), at('Bitvavo'))).toBe('Bitvavo');
+    expect(venueOf(at(null), at(null))).toBe('');
+    expect(editedVenues([at('Bitvavo'), at(null), at('Ledger'), at('Bitvavo'), at(null)])).toEqual({
+      named: ['Bitvavo', 'Ledger'],
+      unnamed: 2,
+    });
+    expect(editedVenues([at('Bitvavo'), at('Bitvavo')])).toBeNull();
   });
 
   // Coins held may carry no recorded cost (DOMAIN §2.2): the edit shows an empty amount and no implied price.

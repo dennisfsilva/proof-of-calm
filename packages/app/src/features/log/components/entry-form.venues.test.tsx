@@ -13,10 +13,10 @@ import log from '../../../messages/en/log.json';
 import { EntryForm } from './entry-form';
 
 // The session-13a carry-over (#32): in Portugal (per venue) the Log groups the sales of a day into one row, so an edit
-// can hold a BTC sale at Bitvavo and one at Ledger while the form shows one Venue field, holding the first's. The save
-// keeps each sale's own entry and venue unless the person changes that field (DOMAIN §6, Edit a transaction): moving the
-// Ledger sale to Bitvavo would change which lots it takes (§3.7). Each case asserts the entry each row's save takes
-// (`rowEntries`) and the venue it stores.
+// can hold a BTC sale at Bitvavo and one at Ledger while the form shows one Venue field. The save keeps each sale's own
+// entry and venue unless the person changes that field (DOMAIN §6, Edit a transaction): moving the Ledger sale to
+// Bitvavo would change which lots it takes (§3.7). Each case asserts the entry each row's save takes (`rowEntries`) and
+// the venue it stores. Since session 16 (#10) the field opens empty when the venues differ, and a line names them.
 
 afterEach(cleanup);
 // jsdom has no `scrollIntoView`: a save refused from a field scrolls its alert line into view.
@@ -43,10 +43,12 @@ const sold = (quantity: string, amount: string, venue: string | null, moment: st
     createdAt: instant(`2026-04-01T${moment}:00Z`),
   });
 
+const VENUES =
+  'Venues on these entries: Bitvavo and Ledger. Each keeps its own unless you type a venue for all of them.';
 const lots = [bought('1', 'Bitvavo'), bought('1', 'Ledger'), bought('0.5', null)];
 
 /** Opens the grouped sale for an edit, runs `change` on the form and saves; what the save gave, in its order. */
-async function edit(editing: readonly Entry[], change: () => void) {
+async function edit(editing: readonly Entry[], change: () => void, hint = VENUES) {
   const all = [...lots, ...editing];
   const services = createTestServices({
     snapshot: { ...EMPTY_SNAPSHOT, prefs: DEFAULT_PREFS, plan, entries: all, prices: TEST_PRICES },
@@ -61,8 +63,9 @@ async function edit(editing: readonly Entry[], change: () => void) {
     </ServicesProvider>,
   );
   await act(() => services.start());
-  // What the evaluator saw: one Venue field, holding the first sale's venue.
-  expect(screen.getByLabelText<HTMLInputElement>('Venue (optional)').value).toBe('Bitvavo');
+  // One Venue field, empty, so it never reads as if every sale were at the first one's venue; the line names them.
+  expect(screen.getByLabelText<HTMLInputElement>('Venue (optional)').value).toBe('');
+  expect(screen.getByText(hint)).toBeTruthy();
   change();
   await act(async () => void fireEvent.click(screen.getByRole('button', { name: 'Save' })));
   expect(onDone).toHaveBeenCalledTimes(1);
@@ -135,26 +138,63 @@ describe('in Portugal, a grouped edit of BTC sales at Bitvavo, at Ledger and at 
   const nowhere = sold('0.5', '30000', null, '11:00');
   const editing = [onBitvavo, onLedger, nowhere];
 
+  const hint =
+    'Venues on these entries: Bitvavo and Ledger. 1 has none. Each keeps its own unless you type a venue for all of them.';
+
   it('saved unchanged, keeps each sale under its own entry and venue', async () => {
-    const saved = await edit(editing, () => undefined);
+    const saved = await edit(editing, () => undefined, hint);
     expect(saved).toEqual([kept(onBitvavo, 'Bitvavo'), kept(onLedger, 'Ledger'), kept(nowhere, null)]);
   });
 
   it('with the middle row cleared, soft-deletes the Ledger sale and keeps the others where they were', async () => {
-    const saved = await edit(editing, () => clearRow(1));
+    const saved = await edit(editing, () => clearRow(1), hint);
     expect(saved).toEqual([kept(onBitvavo, 'Bitvavo'), kept(nowhere, null), removed(onLedger)]);
   });
 
   it('with row 1 cleared, soft-deletes the Bitvavo sale and keeps Ledger and no venue', async () => {
-    const saved = await edit(editing, () => clearRow(0));
+    const saved = await edit(editing, () => clearRow(0), hint);
     expect(saved).toEqual([kept(onLedger, 'Ledger'), kept(nowhere, null), removed(onBitvavo)]);
   });
 
   it('with the middle row cleared and the Venue field changed to Kraken, moves the two kept sales to Kraken', async () => {
+    const saved = await edit(
+      editing,
+      () => {
+        clearRow(1);
+        setVenue('Kraken');
+      },
+      hint,
+    );
+    expect(saved).toEqual([kept(onBitvavo, 'Kraken'), kept(nowhere, 'Kraken'), removed(onLedger)]);
+  });
+});
+
+describe('in Portugal, a grouped edit of two BTC sales at Bitvavo and one at Ledger on 1 Apr 2026', () => {
+  const first = sold('0.5', '30000', 'Bitvavo', '09:00');
+  const onLedger = sold('1', '60000', 'Ledger', '10:00');
+  const second = sold('0.5', '30000', 'Bitvavo', '11:00');
+  const editing = [first, onLedger, second];
+
+  it('saved unchanged, keeps each sale under its own entry and venue', async () => {
+    const saved = await edit(editing, () => undefined);
+    expect(saved).toEqual([kept(first, 'Bitvavo'), kept(onLedger, 'Ledger'), kept(second, 'Bitvavo')]);
+  });
+
+  it('with the Ledger row cleared, soft-deletes the Ledger sale and keeps both Bitvavo sales at Bitvavo', async () => {
+    const saved = await edit(editing, () => clearRow(1));
+    expect(saved).toEqual([kept(first, 'Bitvavo'), kept(second, 'Bitvavo'), removed(onLedger)]);
+  });
+
+  it('with the first row cleared, soft-deletes the first Bitvavo sale and keeps Ledger and the second', async () => {
+    const saved = await edit(editing, () => clearRow(0));
+    expect(saved).toEqual([kept(onLedger, 'Ledger'), kept(second, 'Bitvavo'), removed(first)]);
+  });
+
+  it('with the last row cleared and Kraken typed as the venue, moves the two kept sales to Kraken', async () => {
     const saved = await edit(editing, () => {
-      clearRow(1);
+      clearRow(2);
       setVenue('Kraken');
     });
-    expect(saved).toEqual([kept(onBitvavo, 'Kraken'), kept(nowhere, 'Kraken'), removed(onLedger)]);
+    expect(saved).toEqual([kept(first, 'Kraken'), kept(onLedger, 'Kraken'), removed(second)]);
   });
 });

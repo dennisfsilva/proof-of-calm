@@ -1,11 +1,14 @@
 import { type Entry, isEstimate } from '@proofofcalm/core';
 import { useTranslations } from 'use-intl';
+import { useFormatters } from '../../../lib/services';
+import { editedVenues } from '../lib/form';
 
 // The lines above the entry form's rows (docs/CONTENT-STYLE.md §3): how the three-way fill works; for coins added,
 // how to type an unknown cost; on an edit of a one-tap row, what the one tap filled and where the exact units are
 // (ADR-0003). Its fee and venue sentence holds whether or not the tap copied either, since a stored entry cannot tell
 // a copied fee from a typed one. The estimate line names no consequence of saving: only a change of the units clears
-// the label (DOMAIN §2.2).
+// the label (DOMAIN §2.2). A grouped edit at different venues names them, since its Venue field opens empty and a
+// venue typed there applies to every entry (DOMAIN §6, Edit a transaction).
 
 export type FormHintsProps = {
   /** The form records coins already held (`held`). */
@@ -16,11 +19,18 @@ export type FormHintsProps = {
 
 export function FormHints({ added, editing }: FormHintsProps) {
   const t = useTranslations('log.form');
+  const format = useFormatters();
+  const venues = editedVenues(editing);
   return (
     <>
       <p className="text-14 text-ink-2">{t('hint')}</p>
       {added && <p className="text-14 text-ink-2">{t('costHint')}</p>}
       {editing.some(isEstimate) && <p className="text-14 text-ink-2">{t('estimateHint')}</p>}
+      {venues !== null && (
+        <p className="text-14 text-ink-2">
+          {t('venuesHint', { venues: format.list(venues.named), unnamed: venues.unnamed })}
+        </p>
+      )}
     </>
   );
 }

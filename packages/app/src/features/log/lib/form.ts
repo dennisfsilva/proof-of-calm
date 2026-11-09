@@ -111,6 +111,16 @@ function plannedRows(kind: 'dca' | 'lump', ctx: FormContext): FormRow[] {
   return plannedParts(ctx.plan, total).map(({ coin, amount }) => buyRow(coin, amount, ctx));
 }
 
+/**
+ * A grouped edit's venues when its entries' differ: the named ones in the entries' order, and how many name none; null
+ * when every entry has the same venue, or none.
+ */
+export function editedVenues(editing: readonly Entry[]): { named: string[]; unnamed: number } | null {
+  if (new Set(editing.map((entry) => entry.venue)).size < 2) return null;
+  const named = editing.flatMap((entry) => (entry.venue === null ? [] : [entry.venue]));
+  return { named: [...new Set(named)], unnamed: editing.length - named.length };
+}
+
 /** An edit's values; its price is implied by the stored amount and units, at the significant figures fillRow keeps. */
 function editedState(editing: readonly Entry[], ctx: FormContext): FormState {
   const { plan, numberInput } = ctx;
@@ -144,7 +154,8 @@ function editedState(editing: readonly Entry[], ctx: FormContext): FormState {
     date: first.date,
     slot: first.slot,
     fee: fees.length === 0 ? '' : numberInput.format(sum(fees), 2),
-    venue: first.venue ?? '',
+    // Entries at different venues open the field empty, so it never reads as if all were at the first one's.
+    venue: editedVenues(editing) === null ? (first.venue ?? '') : '',
     note: first.note,
     rows,
   };
@@ -242,7 +253,10 @@ export function toDraft(state: FormState, numberInput: NumberInput): Result<Tran
   return ok({ kind, date: date.data, slot, fee, note: state.note.trim(), venue: venue === '' ? null : venue, rows });
 }
 
-/** The transaction-wide fields an edit changed: the form shows a grouped row's first venue and note and its fees summed. */
+/**
+ * The transaction-wide fields an edit changed: the form shows a grouped row's first note, its fees summed, and its venue
+ * when all its entries share one (else none).
+ */
 export type EditedFields = { readonly fee: boolean; readonly venue: boolean; readonly note: boolean };
 
 /** Which of the fee, venue and note the person changed since the form opened, read as `toDraft` reads them. */
