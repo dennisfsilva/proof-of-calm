@@ -19,6 +19,9 @@ import { CoinIdSchema, type EntityId, EntityIdSchema } from './ids';
 export const ENTRY_KINDS = ['dca', 'lump', 'extra', 'sell', 'held'] as const;
 export const EntryKindSchema = z.enum(ENTRY_KINDS);
 export type EntryKind = z.infer<typeof EntryKindSchema>;
+/** The kinds the Log's transaction form saves (`saveTransaction`): every kind until one gets a form of its own. */
+export const TransactionKindSchema = z.enum(ENTRY_KINDS);
+export type TransactionKind = z.infer<typeof TransactionKindSchema>;
 
 export const EntrySourceSchema = z.enum(['manual', 'one-tap', 'import-prototype', 'import-json', 'import-csv']);
 export type EntrySource = z.infer<typeof EntrySourceSchema>;

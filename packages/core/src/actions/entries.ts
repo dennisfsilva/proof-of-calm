@@ -21,15 +21,17 @@ import {
   min,
   minus,
   plus,
+  sum,
   type Units,
 } from '../money/decimal';
 import { splitLargestRemainder } from '../money/split';
 import { slots } from '../plan/slots';
 import { liveEntries } from '../plan/statuses';
+import { unitsIn, unitsOut } from '../portfolio/effect';
 import { matchLots, runningHeld } from '../portfolio/lots';
 import { coinsWithEntries } from '../portfolio/portfolio';
 import { defined, err, ok, type Result } from '../result';
-import { type Entry, type EntryKind, MAX_UNIT_DECIMALS, recordedAmounts, savedSource } from '../schema/entry';
+import { type Entry, MAX_UNIT_DECIMALS, recordedAmounts, savedSource, type TransactionKind } from '../schema/entry';
 import type { CoinId, EntityId } from '../schema/ids';
 import type { Plan } from '../schema/plan';
 import { overCap, type TooManyEntries } from './cap';
@@ -43,7 +45,7 @@ import { type RowOwner, rowEntries } from './rows';
 export type EntryRow = RowOwner & { readonly amount: Money | null; readonly units: Units | null };
 
 export type TransactionDraft = {
-  readonly kind: EntryKind;
+  readonly kind: TransactionKind;
   readonly date: CalendarDate;
   readonly slot: MonthKey | null;
   /** The transaction's fee, split across its entries in proportion to their amounts. */
@@ -72,7 +74,7 @@ export function heldUnits(entries: readonly Entry[], coin: CoinId, except: Reado
   let held = '0' as Units;
   for (const entry of liveEntries(entries)) {
     if (entry.coin !== coin || except.has(entry.id)) continue;
-    held = entry.kind === 'sell' ? minus(held, entry.units) : plus(held, entry.units);
+    held = minus(plus(held, unitsIn(entry)), unitsOut(entry));
   }
   return max(held, '0' as Units);
 }
@@ -131,8 +133,7 @@ function textError(draft: TransactionDraft): ActionError | null {
  * A row's amount and units as the save reads them: both positive, or for coins held (`held`) positive units and an
  * amount that is unknown (null) or 0 or more; null when the row is empty, and the refusal when only one is given.
  */
-function rowFigures(kind: EntryKind, row: EntryRow): Result<Pick<FilledRow, 'amount' | 'units'> | null, ActionError> {
-  const held = kind === 'held';
+function rowFigures(held: boolean, row: EntryRow): Result<Pick<FilledRow, 'amount' | 'units'> | null, ActionError> {
   const typed = row.amount !== null;
   const amount = typed && (held ? !isNegative(row.amount) : isPositive(row.amount)) ? row.amount : null;
   const units = row.units !== null && isPositive(row.units) ? row.units : null;
@@ -148,7 +149,7 @@ function rowsOrError(draft: TransactionDraft, context: SaveContext): Result<Fill
   const coins = coinsWithEntries(context.plan, liveEntries(context.entries));
   const filled: FilledRow[] = [];
   for (const row of draft.rows) {
-    const figures = rowFigures(draft.kind, row);
+    const figures = rowFigures(draft.kind === 'held', row);
     if (!figures.ok) return figures;
     if (figures.value === null) continue;
     const { amount, units } = figures.value;
@@ -190,11 +191,8 @@ function moreUnmatched(before: readonly Entry[], after: readonly Entry[], coin: 
 
 /** Units of `coin` sold beyond all its purchases, whatever the dates; zero while the purchases cover the sales. */
 function oversold(entries: readonly Entry[], coin: CoinId): Units {
-  let net = '0' as Units;
-  for (const entry of liveEntries(entries)) {
-    if (entry.coin === coin) net = entry.kind === 'sell' ? plus(net, entry.units) : minus(net, entry.units);
-  }
-  return max(net, '0' as Units);
+  const own = liveEntries(entries).filter((entry) => entry.coin === coin);
+  return max(minus(sum(own.map(unitsOut)), sum(own.map(unitsIn))), '0' as Units);
 }
 
 /** Whether `after` leaves `coin` with more uncovered units than `before`, by date or in all (§3.7). */
@@ -216,8 +214,8 @@ export function uncoveredSale(entries: readonly Entry[], written: readonly Entry
     if (!worseCovered(entries, after, coin)) continue;
     let held = '0' as Units;
     for (const step of runningHeld(after, coin)) {
-      const sold = step.entry.units;
-      if (step.entry.kind === 'sell' && compare(sold, held) > 0) return { code: 'sell-exceeds-held', coin, held, sold };
+      const sold = unitsOut(step.entry);
+      if (compare(sold, held) > 0) return { code: 'sell-exceeds-held', coin, held, sold };
       held = step.held;
     }
   }

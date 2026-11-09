@@ -1,13 +1,13 @@
 import {
   EntityIdSchema,
   type Entry,
-  type EntryKind,
   type FillField,
   holdingContext,
   isPositive,
   MINOR_UNITS,
   type MonthKey,
   type Plan,
+  type TransactionKind,
   UNDO_WINDOW_MS,
 } from '@proofofcalm/core';
 import { Button } from '@proofofcalm/ui/components/button';
@@ -50,7 +50,7 @@ import { FormHints } from './form-hints';
 
 export type EntryFormProps = {
   /** A purchase or a sale (`sell`); an edit takes its kind from the entries. */
-  readonly kind: EntryKind;
+  readonly kind: TransactionKind;
   /** The live entries of the transaction to edit; empty for a new one. */
   readonly editing: readonly Entry[];
   /** The month a monthly buy is for; the focus slot when omitted. */
