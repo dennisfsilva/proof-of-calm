@@ -159,7 +159,7 @@ describe('backup file (docs/DOMAIN.md §3.13)', () => {
     };
     expect(BackupFileSchema.safeParse(file).success).toBe(true);
     expect(BackupFileSchema.safeParse({ ...file, format: 'dca-plan' }).success).toBe(false);
-    expect(BACKUP_SCHEMA_VERSION).toBe(4);
+    expect(BACKUP_SCHEMA_VERSION).toBe(5);
     expect(BackupFileSchema.safeParse({ ...file, schemaVersion: 1 }).success).toBe(false);
     expect(BackupFileSchema.safeParse({ ...file, schemaVersion: 2 }).success).toBe(false);
     expect(BackupFileSchema.safeParse({ ...file, schemaVersion: 3 }).success).toBe(false);

@@ -1,6 +1,6 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { anEntry, BTC, date, ETH, money, units } from '../../test/builders';
+import { aMove, anEntry, BTC, date, ETH, money, units } from '../../test/builders';
 import { EXPORT_DAY, NL_HISTORIES, NL_PLAN, NL_RULES, SPAN_2026 } from '../../test/tax-year/nl-fixture';
 import { addDays } from '../dates/calendar';
 import { type Money, minus, plus, sum } from '../money/decimal';
@@ -8,10 +8,11 @@ import type { PriceHistories, PriceHistory } from '../schema/prices';
 import { taxYearSnapshot, taxYearSnapshotCsv } from './tax-year-snapshot';
 
 // docs/DOMAIN.md §3.13: on a log with no short sale, each coin's year-end units are its 1 January units plus the
-// year's purchases and held entries, less its sales; nothing dated before or after the year counts as a flow. In the
-// file, the total row's amount cells are the sums of the coin rows' written cells, empty when one of them is.
+// year's purchases and held entries, less its sales and the units its moves paid as fees; nothing dated before or after
+// the year counts as a flow. In the file, the total row's amount cells are the sums of the coin rows' written cells,
+// empty when one of them is.
 
-const KINDS = ['dca', 'lump', 'extra', 'held', 'sell'] as const;
+const KINDS = ['dca', 'lump', 'extra', 'held', 'sell', 'move'] as const;
 /** Each coin starts with 100 units in 2025, and at most 12 entries of at most 5 units follow: no sale goes short. */
 const start = [BTC, ETH].map((coin) =>
   anEntry({ kind: 'lump', slot: null, coin: coin.id, date: date('2025-01-01'), units: units('100') }),
@@ -26,33 +27,52 @@ const entry = fc
   })
   .map(({ kind, coin, day, quantity, costed }) => {
     const on = addDays(date('2025-01-02'), day);
+    const sent = units(`${Math.floor(quantity / 100)}.${String(quantity % 100).padStart(2, '0')}`);
+    // A move's fee is 0 or 0.01 of its units sent: received = sent and received < sent both occur.
+    if (kind === 'move')
+      return aMove({
+        coin,
+        date: on,
+        units: sent,
+        received: costed || quantity === 1 ? sent : minus(sent, units('0.01')),
+      });
     return anEntry({
       kind,
       coin,
       date: on,
       slot: kind === 'dca' ? (on.slice(0, 7) as never) : null,
-      units: units(`${Math.floor(quantity / 100)}.${String(quantity % 100).padStart(2, '0')}`),
+      units: sent,
       amount: kind === 'held' && !costed ? null : money('100'),
     });
   });
 
 describe('taxYearSnapshot properties (docs/DOMAIN.md §3.13)', () => {
-  it('closing units = opening + bought + held − sold, per coin', () => {
+  it('closing units = opening + bought + held − sold − fee units, per coin', () => {
     fc.assert(
       fc.property(fc.array(entry, { maxLength: 12 }), (entries) => {
         const result = taxYearSnapshot(NL_PLAN, [...start, ...entries], NL_RULES, SPAN_2026, NL_HISTORIES, EXPORT_DAY);
         expect(result.rows.map((row) => row.coin)).toEqual(['BTC', 'ETH']);
         for (const row of result.rows) {
-          const expected = minus(plus(plus(row.openingUnits, row.boughtUnits), row.heldUnits), row.soldUnits);
+          const added = plus(plus(row.openingUnits, row.boughtUnits), row.heldUnits);
+          const expected = minus(minus(added, row.soldUnits), row.feeUnits);
           expect(row.closingUnits).toBe(expected);
         }
       }),
-      { numRuns: 200 },
+      {
+        numRuns: 200,
+        // A move with a fee on the year's first and last day, one the year before (no flow), one with no fee.
+        examples: [
+          [[aMove({ coin: BTC.id, date: date('2026-01-01'), units: units('2'), received: units('1.5') })]],
+          [[aMove({ coin: BTC.id, date: date('2026-12-31'), units: units('2'), received: units('0.01') })]],
+          [[aMove({ coin: ETH.id, date: date('2025-12-31'), units: units('2'), received: units('1') })]],
+          [[aMove({ coin: ETH.id, date: date('2026-06-01'), units: units('2'), received: units('2') })]],
+        ],
+      },
     );
   });
 
   it('the total row’s value cells equal the sum of the coin cells', () => {
-    const AMOUNTS = [3, 5, 6, 8, 10, 11, 13];
+    const AMOUNTS = [3, 5, 6, 8, 10, 11, 14];
     /** A close with up to six decimals on each date, or none. */
     const close = fc.option(
       fc.integer({ min: 1, max: 99_999_999 }).map((value) => `${Math.floor(value / 1000)}.${value % 1000}5`),
@@ -80,7 +100,7 @@ describe('taxYearSnapshot properties (docs/DOMAIN.md §3.13)', () => {
           const expected = written.includes('') ? '' : sum(written as Money[]);
           expect(total[column] === '' ? '' : sum([total[column] as Money])).toBe(expected);
         }
-        for (const column of [2, 4, 7, 9, 12]) expect(total[column]).toBe('');
+        for (const column of [2, 4, 7, 9, 12, 13]) expect(total[column]).toBe('');
       }),
       { numRuns: 200 },
     );

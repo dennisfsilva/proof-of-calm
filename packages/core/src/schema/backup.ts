@@ -6,8 +6,8 @@ import { PlanSchema } from './plan';
 
 // The JSON export: the backup format, the import format and the sync payload shape (docs/DOMAIN.md §3.13).
 export const BACKUP_FORMAT = 'proof-of-calm';
-/** The latest version this build reads and writes; `readBackup` also reads 2 and 3 (docs/DOMAIN.md §3.13). */
-export const BACKUP_SCHEMA_VERSION = 4;
+/** The latest version this build reads and writes; `readBackup` also reads 2, 3 and 4 (docs/DOMAIN.md §3.13). */
+export const BACKUP_SCHEMA_VERSION = 5;
 
 export const BackupFileSchema = z.strictObject({
   format: z.literal(BACKUP_FORMAT),

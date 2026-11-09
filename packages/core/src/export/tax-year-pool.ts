@@ -14,7 +14,10 @@ import type { CoinId } from '../schema/ids';
 import type { Plan } from '../schema/plan';
 import { textCell } from './csv';
 
-/** One entry as listed: a purchase fills cost, fee and holding date, a sale its proceeds and fee. */
+/**
+ * One entry as listed: a purchase fills cost, fee and holding date, a sale its proceeds and fee, a move where its units
+ * went and how many arrived (the rest its fee in the coin).
+ */
 export type PoolRow = {
   readonly kind: EntryKind;
   readonly date: CalendarDate;
@@ -27,6 +30,8 @@ export type PoolRow = {
   readonly proceeds: Money | null;
   readonly disposalFee: Money | null;
   readonly estimated: boolean;
+  readonly toVenue: string | null;
+  readonly unitsReceived: Units | null;
 };
 
 export type TaxYearPool = {
@@ -41,6 +46,8 @@ export type TaxYearPool = {
   readonly uncosted: boolean;
   /** A one-tap purchase's units are listed (`isEstimate`). */
   readonly estimated: boolean;
+  /** A move is listed: units sent from one venue to another, its fee paid in the coin. */
+  readonly moves: boolean;
 };
 
 const COLUMNS = [
@@ -55,6 +62,8 @@ const COLUMNS = [
   'proceeds',
   'disposal_fee',
   'units_estimated',
+  'to_venue',
+  'units_received',
 ];
 
 function poolRow(entry: Entry, rules: CountryRules): PoolRow {
@@ -74,6 +83,8 @@ function poolRow(entry: Entry, rules: CountryRules): PoolRow {
     proceeds: sale ? entry.amount : null,
     disposalFee: sale ? entry.fee : null,
     estimated: isEstimate(entry),
+    toVenue: entry.to ?? null,
+    unitsReceived: entry.received ?? null,
   };
 }
 
@@ -111,6 +122,7 @@ export function taxYearPool(
     rows,
     uncosted: rows.some((row) => entryRole(row.kind) === 'purchase' && row.costBasis === null),
     estimated: rows.some((row) => row.estimated),
+    moves: rows.some((row) => entryRole(row.kind) === 'move'),
   };
 }
 
@@ -133,6 +145,8 @@ export function taxYearPoolCsv(pool: TaxYearPool, header: readonly string[]): st
       row.proceeds ?? '',
       row.disposalFee ?? '',
       row.estimated ? 'yes' : 'no',
+      textCell(row.toVenue ?? ''),
+      row.unitsReceived ?? '',
     ].join(','),
   );
   return [...header.map(textCell), '', COLUMNS.join(','), ...rows].join('\n');

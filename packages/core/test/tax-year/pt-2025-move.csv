@@ -1,0 +1,7 @@
+Header line one
+'=a second line
+
+kind,acquired,coin,venue,units,cost_basis,fee,eligible_from,past_holding_rule,disposed_on,sale_venue,proceeds,disposal_fee,units_estimated,held_at,moved_on
+extra,2025-01-10,BTC,Bitvavo,0.1,2000.00,,2026-01-10,no,,,,,no,Bitvavo,
+extra,2025-02-01,BTC,Kraken,0.0002,12.00,,2026-02-01,,2025-06-01,,,,no,Kraken,
+extra,2025-02-01,BTC,Kraken,0.0498,2988.00,,2026-02-01,no,,,,,no,Ledger,2025-06-01

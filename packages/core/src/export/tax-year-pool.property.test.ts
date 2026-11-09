@@ -30,17 +30,20 @@ const entries = fc
   .map((rows) =>
     rows.map((row, index): Entry => {
       const on = fromEpochDay(row.day);
+      const quantity = units(`0.${String(index + 1).padStart(4, '0')}`);
+      const move = row.kind === 'move' ? { venue: 'Kraken', to: 'Ledger', received: quantity } : {};
       return anEntry({
         kind: row.kind,
         date: on,
         coin: row.coin as CoinId,
         slot: null,
         // Units unique per entry, so a row names the entry it came from.
-        units: units(`0.${String(index + 1).padStart(4, '0')}`),
-        amount: row.kind === 'held' && index % 2 === 0 ? null : money(String(index + 1)),
-        fee: row.kind === 'held' ? null : money('0.10'),
+        units: quantity,
+        amount: row.kind === 'move' || (row.kind === 'held' && index % 2 === 0) ? null : money(String(index + 1)),
+        fee: row.kind === 'held' || row.kind === 'move' ? null : money('0.10'),
         createdAt: instant(`${on}T09:00:0${row.createdSecond}+00:00`),
         deletedAt: row.deleted ? instant(`${on}T10:00:00+00:00`) : null,
+        ...move,
       });
     }),
   );

@@ -20,6 +20,8 @@ import type { TaxYearSpan } from './tax-year';
 const PLAN_V2_SCHEMA_VERSION = 2;
 /** A file whose entries hold no `held` entry: the previous build's, and this one's while none is recorded. */
 const ENTRIES_V2_SCHEMA_VERSION = 3;
+/** A file whose entries hold a `held` entry but no move: the previous build's, and this one's while no move is recorded. */
+const ENTRIES_V3_SCHEMA_VERSION = 4;
 const EXTENSION = { backup: 'json', log: 'csv' } as const;
 
 /** `<slug>-backup-YYYY-MM-DD.json`, `<slug>-log-YYYY-MM-DD.csv`; the shell passes the product's slug. */
@@ -46,11 +48,14 @@ export function exportBackup(plan: Plan, entries: readonly Entry[], exportedAt: 
 }
 
 /**
- * The file as written, at the lowest version that holds it: 4 once an entry is `held` (`writtenEntryVersion`), else 3
- * once an acknowledgement is recorded, else 2 with the v2 plan, so the previous build imports every file it can read.
+ * The file as written, at the lowest version that holds it: 5 once an entry is a move, 4 once one is `held`
+ * (`writtenEntryVersion`), else 3 once an acknowledgement is recorded, else 2 with the v2 plan, so the previous build
+ * imports every file it can read.
  */
 export function writtenBackup(file: BackupFile) {
-  if (file.entries.some((entry) => writtenEntryVersion(entry) === ENTRY_SCHEMA_VERSION)) return file;
+  const versions = file.entries.map(writtenEntryVersion);
+  if (versions.includes(ENTRY_SCHEMA_VERSION)) return file;
+  if (versions.includes(3)) return { ...file, schemaVersion: ENTRIES_V3_SCHEMA_VERSION };
   const plan = writtenPlan(file.plan);
   return plan.schemaVersion === PLAN_SCHEMA_VERSION
     ? { ...file, schemaVersion: ENTRIES_V2_SCHEMA_VERSION }
@@ -69,11 +74,12 @@ export function readBackup(json: unknown): Result<BackupFile, BackupError> {
   if (typeof schemaVersion === 'number' && schemaVersion > BACKUP_SCHEMA_VERSION) {
     return err({ code: 'newer-version', schemaVersion });
   }
-  // Versions 2 and 3 hold the same shape as 4 but for the plan's acknowledgement (2) and the `held` kind (2 and 3).
+  // Versions 2 to 4 hold the same shape as 5 but for the plan's acknowledgement (2), the `held` kind (2 and 3) and
+  // the move (2 to 4).
   const file =
     schemaVersion === PLAN_V2_SCHEMA_VERSION
       ? { ...json, schemaVersion: BACKUP_SCHEMA_VERSION, plan: upgradePlan(json.plan) }
-      : schemaVersion === ENTRIES_V2_SCHEMA_VERSION
+      : schemaVersion === ENTRIES_V2_SCHEMA_VERSION || schemaVersion === ENTRIES_V3_SCHEMA_VERSION
         ? { ...json, schemaVersion: BACKUP_SCHEMA_VERSION }
         : json;
   const parsed = BackupFileSchema.safeParse(file);

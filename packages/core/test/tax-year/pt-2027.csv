@@ -1,9 +1,9 @@
 Header line one
 '=a second line
 
-kind,acquired,coin,venue,units,cost_basis,fee,eligible_from,past_holding_rule,disposed_on,sale_venue,proceeds,disposal_fee,units_estimated
-extra,2025-08-01,BTC,Ledger,0.05,1666.66,1.66,2026-08-01,yes,2027-03-01,Ledger,4000.00,2.00,no
-extra,2025-08-01,BTC,Ledger,0.05,1666.67,1.67,2026-08-01,yes,,,,,no
-held,2026-01-10,BTC,,0.02,,,2027-01-10,yes,,,,,no
-held,2026-02-01,BTC,Ledger,0.01,0.00,,2027-02-01,yes,,,,,no
-dca,2026-04-01,ETH,,0.05,30.00,,2027-04-01,yes,,,,,yes
+kind,acquired,coin,venue,units,cost_basis,fee,eligible_from,past_holding_rule,disposed_on,sale_venue,proceeds,disposal_fee,units_estimated,held_at,moved_on
+extra,2025-08-01,BTC,Ledger,0.05,1666.66,1.66,2026-08-01,yes,2027-03-01,Ledger,4000.00,2.00,no,Ledger,
+extra,2025-08-01,BTC,Ledger,0.05,1666.67,1.67,2026-08-01,yes,,,,,no,Ledger,
+held,2026-01-10,BTC,,0.02,,,2027-01-10,yes,,,,,no,,
+held,2026-02-01,BTC,Ledger,0.01,0.00,,2027-02-01,yes,,,,,no,Ledger,
+dca,2026-04-01,ETH,,0.05,30.00,,2027-04-01,yes,,,,,yes,,

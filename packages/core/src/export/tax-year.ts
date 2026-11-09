@@ -5,10 +5,10 @@
 import { type CalendarDate, clampDay, dateParts } from '../dates/calendar';
 import { holdingStatus, sameHoldingRule } from '../holding/eligible-from';
 import { type CurrencyCode, MINOR_UNITS } from '../money/currency';
-import { decimalPlaces, isPositive, type Money, type Units } from '../money/decimal';
+import { decimalPlaces, isPositive, type Money, min, minus, type Units } from '../money/decimal';
 import { cumulativeShares } from '../money/split';
 import { liveEntries } from '../plan/statuses';
-import { matchLots, type SaleTake, venueGroup } from '../portfolio/lots';
+import { matchingOrder, matchLots, type SaleTake, venueGroup } from '../portfolio/lots';
 import { assertNever, defined } from '../result';
 import type { CountryRules, LotRule, LotScope } from '../schema/country';
 import { type Entry, type EntryKind, isEstimate } from '../schema/entry';
@@ -75,6 +75,9 @@ export type LotPiece = {
   readonly proceeds: Money | null;
   readonly disposalFee: Money | null;
   readonly estimated: boolean;
+  /** Where the units were when sold, paid as a move's fee or at the year end; `movedOn` the move that put them there. */
+  readonly heldAt: string | null;
+  readonly movedOn: CalendarDate | null;
 };
 
 /** The file's rows and what its header names: the rule, an unfinished year, and the flags of §3.13. */
@@ -93,6 +96,8 @@ export type TaxYearLots = {
   readonly unmatched: boolean;
   /** Pieces sold at a venue other than the lot's, under per-venue matching. */
   readonly crossVenue: number;
+  /** A piece a move paid as its fee in the coin. */
+  readonly moveFees: boolean;
   /** The plan keeps its own holding rule; the file dates lots by the country's. */
   readonly planRuleDiffers: boolean;
 };
@@ -129,6 +134,17 @@ const at = (values: readonly (Money | null)[], index: number) => values[index] ?
 /** The cells a piece leaves empty unless it fills them. */
 const BLANK = { costBasis: null, fee: null, eligibleFrom: null, pastHoldingRule: null, saleVenue: null } as const;
 const NO_SALE = { ...BLANK, disposedOn: null, proceeds: null, disposalFee: null } as const;
+const NONE = '0' as Units;
+
+/** The first `fee` units of a move's takes, which `matchLots` takes first: what the move paid in the coin. */
+function feeTakes(takes: readonly SaleTake[], fee: Units): SaleTake[] {
+  let left = fee;
+  return takes.flatMap((take) => {
+    const units = min(take.units, left);
+    left = minus(left, units);
+    return isPositive(units) ? [{ ...take, units }] : [];
+  });
+}
 
 /** The pieces of one year's file; throws a RangeError for a country this file does not describe. */
 export function taxYearLots(
@@ -146,13 +162,20 @@ export function taxYearLots(
   const coins = new Set<CoinId>([...plan.coins.map((coin) => coin.id), ...upTo.map((entry) => entry.coin)]);
   const pieces: LotPiece[] = [];
   let crossVenue = 0;
+  let moveFees = false;
   for (const coin of coins) {
     const match = matchLots(upTo, coin, rules.lotScope, lotRule);
-    // Each lot's takes in sale order, with the sale's proceeds and fee shares for those units.
+    // Each lot's takes in matching order, with the sale's proceeds and fee shares for those units; a move's fee takes
+    // have neither.
     const taken = new Map<EntityId, (SaleTake & { sale: Entry; proceeds: Money | null; fee: Money | null })[]>();
     const unmatched: LotPiece[] = [];
-    for (const sold of match.sales) {
-      const sale = defined(byId.get(sold.id), 'sale');
+    const leaving = [
+      ...match.sales,
+      ...match.moves.map((move) => ({ ...move, takes: feeTakes(move.takes, move.fee), unmatched: NONE })),
+    ]
+      .map((sold) => ({ sold, sale: defined(byId.get(sold.id), 'sale') }))
+      .sort((a, b) => matchingOrder(a.sale, b.sale));
+    for (const { sold, sale } of leaving) {
       const weights = [...sold.takes.map((take) => take.units), sold.unmatched];
       const proceeds = shares(sale.amount, weights, digits);
       const fees = shares(sale.fee, weights, digits);
@@ -175,6 +198,8 @@ export function taxYearLots(
           proceeds: at(proceeds, last),
           disposalFee: at(fees, last),
           estimated: isEstimate(sale),
+          heldAt: null,
+          movedOn: null,
         });
       }
     }
@@ -194,6 +219,8 @@ export function taxYearLots(
         coin,
         venue: lot.venue,
         units,
+        heldAt: lot.venue,
+        movedOn: null,
         costBasis: at(costs, index),
         fee: at(fees, index),
         eligibleFrom: from,
@@ -202,17 +229,36 @@ export function taxYearLots(
       });
       takes.forEach((take, index) => {
         if (take.sale.date < span.from) return;
+        const held = { heldAt: take.venue, movedOn: take.since };
+        if (take.sale.kind === 'move') {
+          // Paid as a move's fee: dated on the move, with no proceeds and no tax label.
+          moveFees = true;
+          pieces.push({
+            ...piece(index, take.units, take.sale.date),
+            ...held,
+            disposedOn: take.sale.date,
+            pastHoldingRule: null,
+          });
+          return;
+        }
         // Sold from another group than the one it was held in: the units' place, not the purchase venue.
         if (venueGroup(take.venue, rules.lotScope) !== venueGroup(take.sale.venue, rules.lotScope)) crossVenue += 1;
         pieces.push({
           ...piece(index, take.units, take.sale.date),
+          ...held,
           disposedOn: take.sale.date,
           saleVenue: take.sale.venue,
           proceeds: take.proceeds,
           disposalFee: take.fee,
         });
       });
-      pieces.push(...lot.places.map((place, index) => piece(takes.length + index, place.units, yearEnd)));
+      pieces.push(
+        ...lot.places.map((place, index) => ({
+          ...piece(takes.length + index, place.units, yearEnd),
+          heldAt: place.venue,
+          movedOn: place.since,
+        })),
+      );
     }
     pieces.push(...unmatched);
   }
@@ -227,12 +273,13 @@ export function taxYearLots(
     estimated: pieces.some((piece) => piece.estimated),
     unmatched: pieces.some((piece) => piece.acquired === null),
     crossVenue,
+    moveFees,
     planRuleDiffers: !sameHoldingRule(plan.holdingRule, rules.holdingRule),
   };
 }
 
 const COLUMNS =
-  'kind,acquired,coin,venue,units,cost_basis,fee,eligible_from,past_holding_rule,disposed_on,sale_venue,proceeds,disposal_fee,units_estimated';
+  'kind,acquired,coin,venue,units,cost_basis,fee,eligible_from,past_holding_rule,disposed_on,sale_venue,proceeds,disposal_fee,units_estimated,held_at,moved_on';
 
 /** An amount at least at the currency's minor digits (a split may keep the total's own third decimal). */
 export function paddedAmountCell(value: Money | null, digits: number): string {
@@ -263,6 +310,8 @@ export function taxYearLotsCsv(lots: TaxYearLots, header: readonly string[]): st
       paddedAmountCell(piece.proceeds, digits),
       paddedAmountCell(piece.disposalFee, digits),
       flagCell(piece.estimated),
+      textCell(piece.heldAt ?? ''),
+      piece.movedOn ?? '',
     ].join(','),
   );
   return [...header.map(textCell), '', COLUMNS, ...rows].join('\n');

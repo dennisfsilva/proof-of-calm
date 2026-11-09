@@ -1,7 +1,7 @@
 Header line one
 '=a second line
 
-row,coin,units_on_01-01,value_on_01-01,bought_units,bought_amount,bought_fee,held_units,held_cost,sold_units,sold_proceeds,sold_fee,units_on_12-31,value_on_12-31
-coin,BTC,0.35,30679.01,0.022345,1900.00,0.45,0.02,,0.1,9500.00,4.75,0.292345,27772.92
-coin,ETH,2.5,7502.62,0,0.00,0.00,0.5,0.00,1,3200.00,1.60,2,7000.50
-total,,,38181.63,,1900.00,0.45,,,,12700.00,6.35,,34773.42
+row,coin,units_on_01-01,value_on_01-01,bought_units,bought_amount,bought_fee,held_units,held_cost,sold_units,sold_proceeds,sold_fee,fee_units,units_on_12-31,value_on_12-31
+coin,BTC,0.35,30679.01,0.022345,1900.00,0.45,0.02,,0.1,9500.00,4.75,0,0.292345,27772.92
+coin,ETH,2.5,7502.62,0,0.00,0.00,0.5,0.00,1,3200.00,1.60,0,2,7000.50
+total,,,38181.63,,1900.00,0.45,,,,12700.00,6.35,,,34773.42
