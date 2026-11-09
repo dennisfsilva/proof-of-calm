@@ -210,8 +210,9 @@ page takes the spacing of the country's number locale, as `format.percent` write
 Portugal, `40 %` with a no-break space in Germany. Research figures in messages go through
 `format.percent`, and a country profile writes its literal percentages with its own locale's joiner,
 which `pnpm validate:content` checks, so the sign never wraps away from its number. Facts, templates
-and modules still write `N %` until a page shows them beside a formatted figure. A page with
-formatted figures shows no `N %`: a template's `oneLine` holds no percentage, the card builds its
+and modules still write `N %` with an ordinary space; they take the page's joiner when a page first
+shows them beside a formatted figure. A page with formatted figures shows no `N %` with an ordinary
+space: a template's `oneLine` holds no percentage, the card builds its
 split line from `split`, and the app formats a research figure such as an explanation's; the
 acknowledged plan-creation text is quoted as versioned (`docs/LEGAL.md` §4). Signed values carry
 their sign; multiples with `×`; ranges with an en dash in tables and "to" in prose; dates with the
