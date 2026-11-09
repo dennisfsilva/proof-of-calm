@@ -75,6 +75,7 @@ in `.claude/rules/` list them per path.
 | 0051 | The repository is public, from fresh history | Accepted | the repository's settings and history; `docs/OWNER-SETUP.md` §1 and §3 |
 | 0052 | The coin catalogue follows a published rule | Accepted | `packages/content` (`coins.json`); `packages/app` features: onboarding, plan, settings (the coin picker); `apps/web/server` (the price route's allow-list); `packages/data`; `docs/research/letters` |
 | 0053 | One currency per plan: a change of country asks before it relabels | Accepted | `packages/core` (`actions/plan.ts`); `packages/app` features: settings (the country change) |
+| 0054 | A move between venues is one entry of kind `move`; its coin fee is the units sent less the units received | Accepted | `packages/core` (schema, lots, exports, backup); `packages/app` (storage rows, the Log, the tax-year header); `docs/research` (the move step) |
 
 Template:
 

@@ -38,7 +38,7 @@ cumulative split `cumulativeShares` instead, whose parts sum exactly too.
 
 ---
 
-## 2. Stored entities (plans v3, entries v3)
+## 2. Stored entities (plans v3, entries v4)
 
 All entities are validated by zod schemas in `packages/core/src/schema/`; types are inferred from the
 schemas. Storage (IndexedDB), export files and sync payloads all use these shapes. A stored row of a
@@ -153,15 +153,17 @@ the schema reports the codes as custom issues, and forms, storage reads and impo
 ```ts
 type Entry = {
   id: EntityId;
-  kind: 'dca' | 'lump' | 'extra' | 'sell' | 'held';
+  kind: 'dca' | 'lump' | 'extra' | 'sell' | 'held' | 'move';
   date: CalendarDate;
   coin: CoinId;
-  amount: Money | null;   // pay currency; > 0; for sells: the proceeds received; for held: null (cost unknown) or >= 0 ('0': nothing paid)
-  units: Units;           // > 0; for sells: units sold
-  fee: Money | null;      // pay currency; share of the transaction's fee attributed to this entry; null for held
+  amount: Money | null;   // pay currency; > 0; for sells: the proceeds received; for held: null (cost unknown) or >= 0 ('0': nothing paid); for move: null
+  units: Units;           // > 0; for sells: units sold; for move: units sent
+  fee: Money | null;      // pay currency; share of the transaction's fee attributed to this entry; null for held and move
   note: string;
   slot: MonthKey | null;  // required when kind === 'dca', null otherwise
-  venue: string | null;   // optional free-text label ("Kraken", "Ledger"); used only to group lots where the country's lot scope is per venue (Portugal: per platform; Germany, US: per wallet). A label, never a checklist.
+  venue: string | null;   // optional free-text label ("Kraken", "Ledger"); used only to group lots where the country's lot scope is per venue (Portugal: per platform; Germany, US: per wallet). A label, never a checklist. For move: the venue the units were sent from (null: none named).
+  to?: string;            // move only: the venue the units were sent to, VenueSchema, never equal to venue; absent (never undefined) on every other kind
+  received?: Units;       // move only: the units that arrived at to, 0 < received <= units; units − received is the move's fee in the coin; absent on every other kind
   source: 'manual' | 'one-tap' | 'import-prototype' | 'import-json' | 'import-csv';
   createdAt: Instant;
   updatedAt: Instant;
@@ -200,6 +202,19 @@ an optional venue and note, a cost only when one is known (0 when nothing was pa
 a release before one writes it (`docs/RELEASE.md`, Versioning).
 The Dutch tax-year file lists `held` entries in their own columns, never as purchases, and its header names
 those dated in the year (§3.13).
+
+`move` is coins sent from one venue to another (ADR-0054): one entry per coin, `venue` the source, `units` the units
+sent, `to` the destination and `received` the units that arrived; `units − received` is the network's fee, paid in the
+coin. Its amount, fee and slot are null (`amount-not-allowed`, `fee-not-allowed`, `slot-not-allowed`), `to` and
+`received` are required on a move (`move-required`) and absent on every other kind (`move-not-allowed`), `received` is
+above 0 (`received-not-positive`) and at most `units` (`received-exceeds-units`) at no more than `MAX_UNIT_DECIMALS`
+places (`units-precision`), and `to` differs from `venue` (`same-venue`). The two keys are optional, not nullable, so a
+row of another kind has the v3 shape exactly: the previous build's strict schema reads it. The entries' payload is v4
+since 2026-11-09: v3 with the `move` kind and its two keys. `writtenEntryVersion` gives 4 for a move, 3 for `held`, 2
+for every other kind, so the previous build, which reads entries at v3, reads every entry but a move and counts that
+one, its tombstone included, as newer. This release reads moves and records none: the Log step that records one ships
+in the next release (planned: M2), as `docs/RELEASE.md` (Versioning) asks; until then a move arrives only in a v5
+backup. A move row in the Log offers Delete and no Edit (§3.9).
 
 ### 2.3 Device-local preferences (not synced, not part of the plan)
 
@@ -302,7 +317,7 @@ exactly to `total`:
   (the prototype's `round2(feeAll × amount / total)` drifted by a cent);
 - `venue` goes on every entry as given. Today passes `defaultFee` of the live entries (below) as the
   fee and, as the venue, that of the latest live entry that named one, a purchase or a sale, coins
-  added (`held`) left out, "latest" as for `defaultFee` (`lastVenue` in `packages/core/src/plan/parts.ts`,
+  added (`held`) and moves left out, "latest" as for `defaultFee` (`lastVenue` in `packages/core/src/plan/parts.ts`,
   which the Log form's venue reads too; whether a kind adds or removes units is its role, `entryRole`, §3.7);
 - a part that rounds to zero (a total too small to give every coin a cent) is left out: a zero buy
   cannot be recorded;
@@ -311,7 +326,8 @@ exactly to `total`:
 `defaultFee(entries)`: the whole fee of the most recent transaction (§3.9) that recorded one, its
 entries' shares summed, else `null`. It is a transaction's fee, not one entry's share, because the
 one-tap fill and the log form split it across the new entries again. "Most recent" is the latest date,
-then the latest `createdAt`, compared as moments (`compareInstants`), not as strings.
+then the latest `createdAt`, compared as moments (`compareInstants`), not as strings. A move's fee is
+null, so `defaultFee` never takes one: its fee is units, not money.
 
 ### 3.5 Phase — `phase(plan, today): Phase`
 
@@ -339,7 +355,9 @@ Port of `portfolio()`, per coin over non-deleted entries, for the plan's coins i
 other coin that has entries:
 
 - `boughtUnits = Σ unitsIn` and `soldUnits = Σ unitsOut` over the coin's entries: the units of its purchases
-  (`dca`, `lump`, `extra`, `held`) and of its sales, by the kind's role (§3.7).
+  (`dca`, `lump`, `extra`, `held`) and of its sales, by the kind's role (§3.7); a move's `unitsOut` is its fee in
+  the coin, so `units`, the value and P/L drop by the fee while `invested`, the average and `fees` stay as they were.
+  A move with `received = units` changes no figure.
 - `units = max(0, boughtUnits − soldUnits)`.
 - The value counts every unit held. Invested and the average count only the purchases with a recorded
   cost, and P/L only the units with one: a `held` entry with no cost (§2.2) adds its units to `units`
@@ -413,11 +431,12 @@ entries logged at one moment (the prototype import stamps one) still have one or
 order the entries were stored in. `lots` lists its lots, and `matchLots` its sales, in that order.
 
 Each kind has a role, `entryRole` (`packages/core/src/portfolio/effect.ts`): `dca`, `lump`, `extra` and `held` are
-purchases, `sell` is a sale; a kind without a role fails the build (`assertNever`). The role states what the entry does
+purchases, `move` is a move, `sell` is a sale; a kind without a role fails the build (`assertNever`). The role states what the entry does
 to its coin's units and nothing else reads the kind for that: a purchase brings its `units` in (`unitsIn`) and takes
-none out (`unitsOut` is 0), a sale takes its `units` out and brings none in, the units as stored. It also gives the
-entry's place among its coin's entries of one date, `sameDayRank`: 0 for a purchase, 2 for a sale, so purchases come
-first. The matching order, `matchingOrder(a, b)`: the date, then the same-day rank, then `compareEntries`, so a purchase
+none out (`unitsOut` is 0), a sale takes its `units` out and brings none in, the units as stored, and a move brings
+none in and takes out its fee in the coin, `units − received`. It also gives the entry's place among its coin's entries
+of one date, `sameDayRank`: 0 for a purchase, 1 for a move, 2 for a sale, so purchases come first, then moves, then
+sales, whenever they were typed. The matching order, `matchingOrder(a, b)`: the date, then the same-day rank, then `compareEntries`, so a purchase
 and a sale on one date can match. `matchLots` and `runningHeld` read a coin's entries in it, and `saleWarning` takes the
 entries before a draft sale in it.
 
@@ -428,12 +447,14 @@ export. Units a sell could not match (inconsistent data) are reported by `matchL
 silently. Each lot also keeps its open units by place, `places`: one `{ venue, since, units }` per place, none of them
 empty, and the places sum to the lot's `remainingUnits`, never more and never fewer. A lot starts with one place, the
 venue it was bought at (`null` when none was named) with `since` null, which means the units are still where they were
-bought. No entry moves units between venues yet, so every lot has at most that one place and `since` stays null until
-a later release moves units. A sale takes units place by place: each open lot's places are its pieces, and the sale's
+bought; a move adds a place at its `to` with `since` the move's date (below). A sale takes units place by place: each open lot's places are its pieces, and the sale's
 group (below) is that of a piece's venue. `matchLots` also lists each sale, in `compareEntries` order, with its units, its `unmatched` units,
 `uncosted`, the units it took from lots with no cost (a `held` entry without one), which leave out a matching share of its
-proceeds in the Portfolio's P/L (§3.6), and `takes`, each lot it took units from as `{ lot, units, venue }` in the order
-taken, `venue` the place the units were held at (Σ `takes.units` + `unmatched` = `units`); the Portfolio names them per coin in one line ("0.002 BTC sold without a purchase dated on or before the
+proceeds in the Portfolio's P/L (§3.6), and `takes`, each lot it took units from as `{ lot, units, venue, since }` in
+the order taken, `venue` and `since` the place the units were held at (Σ `takes.units` + `unmatched` = `units`). It
+lists each move too, `moves`, as `{ id, units, fee, unmatched, takes }` (Σ `takes.units` + `unmatched` = `units`, the fee's
+takes first), and `unmatchedUnits` counts the sales' unmatched units and the part of each move's fee no piece covered
+(`feeUnmatched`); the Portfolio names them per coin in one line ("0.002 BTC sold without a purchase dated on or before the
 sale. Check the dates and amounts in the Log.", in the plan's locale). Every write from this device keeps each sale covered by purchases dated
 on or before it (#136): `runningHeld(entries, coin)` lists the coin's live entries in the order of one global
 queue (the matching order, `matchingOrder`) with the units held after each, those before it plus its `unitsIn` less
@@ -472,7 +493,11 @@ Matching per venue (`matchLots`): the coin's events are matched in one global or
 order, `matchingOrder`), so a sale reaches only lots bought on or before its date. A sale first takes its
 own group's open lots by the lot rule. The units its group cannot cover (the save checks coverage in one global queue, so
 it accepts such a sale) come from the other groups' lots still open at that moment, earliest first, or latest first under
-`lifo`; the Log has no record of a move between venues yet (#274). Units taken from a lot with no cost join `uncosted`;
+`lifo`. A move is matched per venue whatever the scope (units sit at a venue even where the law pools them): it takes
+its units sent from the pieces at its source by the lot rule, then from the pieces at any other venue but its `to`,
+never from `to`. The first units it takes are its fee, which leave their lot (`remainingUnits` drops); the rest stay in
+their lot at a place at `to` dated the move, so a lot moved in part keeps its date and its cost and splits by place.
+Units no piece outside `to` covers stay the move's `unmatched`. Deleting a move gives back exactly its fee. Units taken from a lot with no cost join `uncosted`;
 only units no lot of the coin covers at that moment stay `unmatched`. So per-venue `unmatchedUnits`, each sale's
 `unmatched` and the total remaining units equal the global result for any entries, and the Log's holding dates
 (`eligibleUnits` per group) and the sale warning see a lot that another venue's sale took as gone. Per venue, FIFO, 1 BTC
@@ -483,7 +508,8 @@ global scope.
 
 `heldLots(match)`: the lots as the units held count them (`bought − sold`, whatever the dates). A sale that no lot held at
 its date covers (imported data; the save refuses it) leaves the lots more units than are held, so each sale's unmatched
-units, in sale order, come off the oldest lots left, whatever the scope and rule. Units this takes from a lot with no
+units, in sale order, come off the oldest lots left, whatever the scope and rule, and so does the part of a move's fee
+no piece covered. Units this takes from a lot with no
 cost join that sale's `uncosted`, as when matching takes a no-cost lot: a no-cost unit is held (unrecorded) or sold
 uncosted, never costed. The units it takes off a lot come off that lot's places too, from the first place on, and a
 place left empty goes, so the places still sum to `remainingUnits`. The sale's `unmatched` and `takes` keep the match at its date, so the Portfolio's line about units
@@ -551,7 +577,10 @@ the closing month (tested).
 
 Port of `transactions()`:
 
-- group non-deleted entries by `kind | date | (kind === 'dca' ? slot : '')`;
+- group non-deleted entries by `kind | date | (kind === 'dca' ? slot : '')`, except a move, which is a row of its
+  own, `move | date | id` (`transactionKey`), so two moves of one day are two rows; a move's row has no holding date
+  and stays out of the month's bought and sold totals, and it offers Delete only, since the Log's form records
+  purchases and sales;
 - per group: `total = Σ amount` of the items with a recorded cost, `null` when none has one (a `held`
   group with no cost), `fees = Σ fee`, items sorted by `amount` descending, the items with no cost last,
   `eligibleFrom` of the group's first item for buys (`null` for sells);
@@ -726,17 +755,17 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
 
 - JSON export (`proof-of-calm-backup-YYYY-MM-DD.json`; `exportFileName(slug, kind, today)` with the
   product's slug from the shell) = `exportBackup(plan, entries, exportedAt)` =
-  `{ format: 'proof-of-calm', schemaVersion: 4, exportedAt, plan, entries }`; exports exclude deleted
+  `{ format: 'proof-of-calm', schemaVersion: 5, exportedAt, plan, entries }`; exports exclude deleted
   entries. It is also the sync payload shape and the backup format. The file is written through
-  `writtenBackup`, at the lowest version that holds its plan and entries (§2.1, §2.2): version 4 when
-  any entry is `held`, else version 3 once an acknowledgement is recorded, else version 2 with the v2
-  plan, so the previous build imports every file without `held` and answers `newer-version` for one
+  `writtenBackup`, at the lowest version that holds its plan and entries (§2.1, §2.2): version 5 when
+  any entry is a move, else version 4 when any entry is `held`, else version 3 once an acknowledgement is recorded, else version 2 with the v2
+  plan, so the previous build imports every file without a move and answers `newer-version` for one
   with it.
   The `format` marker stays `proof-of-calm` whatever the product is called, so that old backups keep importing.
 - Import of a Proof of Calm file: `readBackup(json)` validates with the zod schema and answers
-  `not-recognised` (no format marker), `newer-version` (a schema version above 4) or `invalid-backup`
+  `not-recognised` (no format marker), `newer-version` (a schema version above 5) or `invalid-backup`
   (each issue as `path: code`; a file that holds one entry id twice, which no export writes, is
-  `entries: duplicate-id`); files at versions 2 to 4 import, a version 2 file (an earlier build's, or this one's) with its plan read through
+  `entries: duplicate-id`); files at versions 2 to 5 import, a version 2 file (an earlier build's, or this one's) with its plan read through
   `upgradePlan`, with no acknowledgement (§2.1); `applyImport(current, file, mode, now)` then does "Replace everything"
   or "Add missing entries only" (by `id`; the file's skips and pauses are not merged), as the prototype.
   Imported rows are stamped `updatedAt = now` (ADR-0019), or one millisecond after the row stored here
@@ -788,13 +817,13 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   version writes nothing at all (ADR-0019 Readings, "Row shape").
 - "Delete everything" (the stores cleared at once, with an Undo) is owned by ADR-0019 Readings.
 - CSV export of the log (`proof-of-calm-log-YYYY-MM-DD.csv`), `logCsv(plan, entries, context)`: columns
-  `date, coin, kind, slot, amount, currency, units, price, fee, holding_eligible_from, note`
+  `date, coin, kind, slot, amount, currency, units, price, fee, holding_eligible_from, note, venue, to_venue, units_received`
   (`price = amount / units` as the entry form derives it, half-even at `PRICE_FIGURES` significant figures or at
   the currency's minor unit when that keeps more, `quotientSignificant` (§6), so it is never 0 for a coin under a
   cent: 10 for 813,008 PEPE exports 0.0000123; `kind` `lump` is exported as `initial` as in the
-  prototype, and `held` as `held`; `amount` and `price` are empty for a `held` entry with no recorded
-  cost); entries in date order, one day's in creation order; `holding_eligible_from` is empty for
-  sales and where no rule applies; the note, like every free-text cell (the venue in the tax-year export),
+  prototype, `held` as `held` and a move as `move`; `amount` and `price` are empty for a `held` entry with no recorded
+  cost and for a move, and `to_venue` and `units_received` are empty on every row but a move's); entries in date order, one day's in creation order; `holding_eligible_from` is empty for
+  sales and moves and where no rule applies; the note, like every free-text cell (the venue in the tax-year export),
   and the coin, since a `CoinId` may start with `-` (`-A1` reads as the formula `=-A1`), go through
   `textCell(text)`, while the other cells cannot start with a trigger (dates, codes, and amounts, units and
   fees that an entry never holds negative): the text, and every piece of it after a `;` or a line break (CR or LF),
@@ -804,7 +833,7 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
 - Tax-year export (M2), aligned to the country's tax year and shaped by its computation model; data, not a computation of tax:
   - `per-lot`, `taxYearLots(plan, entries, rules, span, today)` and `taxYearLotsCsv(lots, header)`, for a country whose lot rule is `fifo`, `lifo` or `unspecified` (matched FIFO, as in §3.7); any other model or lot rule throws a `RangeError`. The span is `taxYearSpan(rules.taxYear, endingIn)`, named by the calendar year it ends in (`taxYearEndingIn`, `taxYears` newest first, `defaultTaxYear` the latest ended year, else the running one).
     - Rows are lot pieces from `matchLots` over the live entries dated on or before `span.to`, the matching the Log and Portfolio read: one piece per sale dated in the span that took from a lot, one for what the lot still holds at `span.to` (so a later sale never shrinks it), and one per sale in the span with units no lot covered, its acquisition cells empty. On imported data that the save refuses, the file's held units then exceed Portfolio's by those unmatched units, which Portfolio takes off the oldest lots (`heldLots`, §3.7). The sale warning reads the same matching but counts only the lots of the sale's own venue group (§3.7), so a sale that takes another venue's lot can warn that none is past the rule where the file shows that lot past it: in Portugal (per venue, 365 days), an extra buy of 1 BTC for €20,000 at Ledger on 2024-01-01 and a sale of 1 BTC at Bitvavo on 2026-04-01 get the warning, and the 2026 file's row of the Ledger lot has `past_holding_rule` `yes`. The header's `crossVenue` count is where the file names those takes.
-    - Columns: `kind, acquired, coin, venue, units, cost_basis, fee, eligible_from, past_holding_rule, disposed_on, sale_venue, proceeds, disposal_fee, units_estimated`. `kind` uses the log's codes (`lump` is `initial`); `sale_venue` is the sale's own venue; `units_estimated` is `yes` for a one-tap lot. `coin`, `venue`, `sale_venue` and each header line go through `textCell`; amounts are padded to the currency's minor digits and keep a third decimal of their own.
+    - Columns: `kind, acquired, coin, venue, units, cost_basis, fee, eligible_from, past_holding_rule, disposed_on, sale_venue, proceeds, disposal_fee, units_estimated, held_at, moved_on`. `kind` uses the log's codes (`lump` is `initial`); `venue` stays the purchase venue and `held_at` is where the piece's units were when sold, paid as a fee or at the year end, `moved_on` the date of the move that put them there (empty while they are where they were bought); `sale_venue` is the sale's own venue, and the `crossVenue` count compares it with `held_at`; a fee piece, the units a move paid as its fee, is dated on the move in `disposed_on` with no sale venue, proceeds or `past_holding_rule`, and sets `moveFees`; `units_estimated` is `yes` for a one-tap lot. `coin`, `venue`, `sale_venue` and each header line go through `textCell`; amounts are padded to the currency's minor digits and keep a third decimal of their own.
     - Holding: `eligible_from` by the country's rule and its acquisition-date overrides, never the plan's own rule (the result's `planRuleDiffers` says when they differ, for the header). `past_holding_rule` is `yes` when `eligible_from` ≤ `disposed_on` on a disposal row, or ≤ min(`span.to`, today) on a year-end row; empty where the country has no rule.
     - Rounding: a lot's cost and fee are shared over its takes in matching order across every sale up to `span.to`, then its rest, and a sale's proceeds and fee over its takes, then its unmatched units: `cumulativeShares` (piece k = the half-even share of the units through k minus the share through k − 1, at the currency's minor digits or the figure's own), so a piece has the same figures in every year's file that shows it. A `held` lot with no recorded cost has empty `cost_basis` and `fee`, never 0 (`uncosted`); one at cost 0 shows 0.00.
     - Order: the plan's coins in its order, then any other coin of the log; per coin the lots in `compareEntries` order, each lot's disposal pieces before its year-end piece, then the coin's unmatched rows by sale. The file: the header lines the shell words (rule, span, `ongoing` while today ≤ `span.to`, and the flags `uncosted`, `estimated`, `unmatched`, `crossVenue`, `planRuleDiffers`), one empty row, the columns, the rows.
@@ -816,10 +845,10 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
     - Rounding as the snapshot file: `value` and the estimate half-even at the currency's minor digits, the amounts as logged padded to them. `packages/core/test/tax-year/fr-2026.csv` is worked out by hand in `packages/core/test/tax-year/fr-fixture.ts`.
   - `wealth-snapshot` (Netherlands), `taxYearSnapshot(plan, entries, rules, span, histories, today)` (decided 2026-11-08); any other model throws a `RangeError`. The years offered and the default year are the per-lot file's (`taxYears`, `defaultTaxYear`).
     - Dates: `reference` is the model's date inside the span (`01-01`). The Dutch "1 January" value is the holdings at the start of that day, which is the end of the day before: `opening` is `snapshotValue` of 31 December of the year before, with the entries dated on it and the close dated on it. `closing` is `snapshotValue` of `span.to`, null while today ≤ `span.to` (`ongoing`), so the year-end cells stay empty while the year runs.
-    - Rows: one per coin held on the eve of `reference` or with a live entry dated from `reference` to `span.to`, the plan's coins in order, then the others. Each holds the opening units and value, the year's purchases (`dca`, `lump` and `extra`: units, amount, fee), its `held` entries in their own columns, never as purchases (units and cost; the cost is null when any of them has no recorded cost, which sets `uncosted`), its sales (units, proceeds, fee), and the closing units and value. On a log with no short sale, closing units = opening + bought + held − sold.
+    - Rows: one per coin held on the eve of `reference` or with a live entry dated from `reference` to `span.to`, the plan's coins in order, then the others. Each holds the opening units and value, the year's purchases (`dca`, `lump` and `extra`: units, amount, fee), its `held` entries in their own columns, never as purchases (units and cost; the cost is null when any of them has no recorded cost, which sets `uncosted`), its sales (units, proceeds, fee), and the closing units and value. On a log with no short sale, closing units = opening + bought + held − sold − fee units, `fee_units` the units the year's moves paid as their fee.
     - Flags for the header the shell words: `ongoing`, `uncosted`, `estimated` (a one-tap entry dated on or before `span.to`) and `heldInYear` (a `held` entry dated in the year). The header names `held` entries dated in the year, since such coins may have been there on 1 January, which the roadmap's M2 "Decided against" accepts (§2.2).
     - Missing closes: a coin with no close dated on the eve or on `span.to`, and every held coin when the histories are not in the pay currency, has empty value cells and is listed in `opening.missing` or `closing.missing`; the file still saves. The shell passes no closes, since no downloaded file holds values derived from CoinGecko data (ADR-0036 Readings, 2026-11-08): every held coin's value cells stay empty (a coin held at 0 units is worth 0.00) and the header says so rather than naming coins, until the reference closes of `packages/data` exist (planned: M2).
-    - File, `taxYearSnapshotCsv(snapshot, header)`, laid out as the per-lot file: the header lines, one empty row, the columns `row, coin, units_on_<MM-DD>, value_on_<MM-DD>, bought_units, bought_amount, bought_fee, held_units, held_cost, sold_units, sold_proceeds, sold_fee, units_on_<MM-DD>, value_on_<MM-DD>` (the reference date, then `span.to`), one `coin` row per coin, then one `total` row. `coin` and each header line go through `textCell`. Each amount cell is rounded half-even at the currency's minor digits and padded to them; units are written as stored. The `total` row's units cells are empty and each amount cell is the sum of the written cells above it, empty when one of them is, so the file adds up as a reader sums it (ADR-0017): in `packages/core/test/tax-year/nl-2026.csv` the 1 January total is 30679.01 + 7502.62 = 38181.63, where the exact 38181.63735 would round to 38181.64.
+    - File, `taxYearSnapshotCsv(snapshot, header)`, laid out as the per-lot file: the header lines, one empty row, the columns `row, coin, units_on_<MM-DD>, value_on_<MM-DD>, bought_units, bought_amount, bought_fee, held_units, held_cost, sold_units, sold_proceeds, sold_fee, fee_units, units_on_<MM-DD>, value_on_<MM-DD>` (the reference date, then `span.to`), one `coin` row per coin, then one `total` row. `coin` and each header line go through `textCell`. Each amount cell is rounded half-even at the currency's minor digits and padded to them; units are written as stored. The `total` row's units cells are empty and each amount cell is the sum of the written cells above it, empty when one of them is, so the file adds up as a reader sums it (ADR-0017): in `packages/core/test/tax-year/nl-2026.csv` the 1 January total is 30679.01 + 7502.62 = 38181.63, where the exact 38181.63735 would round to 38181.64.
 - Tax-year raw listing for the lot rules the app does not match (`pooled`, `specific`, `average`; decided
   2026-11-07), `taxYearPool(plan, entries, rules, span, today)` and `taxYearPoolCsv(pool, header)`: nothing is
   matched. A coin with a sale dated in the span lists every live entry dated on or before `span.to`, purchases
@@ -830,11 +859,12 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   `span.to` + `POOLED_MATCH_DAYS` under `pooled` (false otherwise), `ongoing` while today ≤ `span.to`. A coin
   with no sale in the span lists its entries dated in the span. Order: the plan's coins, then any other coin with
   entries, each coin's entries in `compareEntries` order (§3.7). Columns `kind, date, coin, venue, units,
-  cost_basis, fee, eligible_from, proceeds, disposal_fee, units_estimated`: `kind` in the Log CSV's codes; a
+  cost_basis, fee, eligible_from, proceeds, disposal_fee, units_estimated, to_venue, units_received`: `kind` in the Log CSV's codes; a
   purchase fills `cost_basis`, `fee` and `eligible_from`, from the country's holding rule with its overrides,
   not the plan's, and empty where the country has none; a sale fills `proceeds` and `disposal_fee`; amounts and
   units as stored; `units_estimated` is `yes` for a one-tap entry (`isEstimate`, §2.2), else `no`. A `held`
-  entry with no recorded cost has an empty `cost_basis` and sets `uncosted`; one-tap units set `estimated`. The
+  entry with no recorded cost has an empty `cost_basis` and sets `uncosted` (a move never does); one-tap units set
+  `estimated`; a move fills `venue`, `units` (sent), `to_venue` and `units_received` and sets `moves`. The
   file: each header line, passed in (the wording is the app's), on its own row as one `textCell`, an empty row,
   then the columns, `coin` and `venue` through `textCell`. No `tax_year` column: the rows are dated, and the
   header names the span and the window.
@@ -857,7 +887,9 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   (`docs/JURISDICTIONS.md` §1) its under-review line and then no `lotRuleNote`, condition or source; the
   matching line (the lot rule, or that the raw listing matches nothing) and the `lotRuleNote`; where the country
   has a holding rule, what `eligible_from` and `past_holding_rule` mean, each `holdingRuleConditions` sentence,
-  and a line when `planRuleDiffers`; per venue, the venue line and the `crossVenue` count; for the raw listing
+  and a line when `planRuleDiffers`; per venue, the venue line and the `crossVenue` count; for the per-lot file, when
+  `moveFees`, what a fee piece is and what `held_at` and `moved_on` hold; for the raw listing, when `moves`, what a
+  move row holds; for the raw listing
   what it lists, under `pooled` with the 30-day window and, while `windowOpen`, the export day; the format line;
   then, when set, `uncosted` (a `held` row's empty `cost_basis` is no recorded cost, and the line names the other
   rows that leave it empty: the per-lot file's with no acquired date, the raw listing's sales), `estimated`,
@@ -1056,6 +1088,7 @@ no longer filled). A plan edited away from a template keeps `templateId` for his
 | Edit the plan | `savePlan(services, fields, opened)` (`packages/app/src/features/settings/actions.ts`): Settings' Plan tab sends the amounts and dates the person changed, Coins & split the coins and the split together once either changed, Hold & sell the holding rule (an own rule equal to the country's goes as the country's, so its acquisition-date overrides still apply, `docs/JURISDICTIONS.md` §5) and the sell window (none, or its three dates in order, `sell-window-order` under the later date), each with the plan as the tab opened it; the fields go onto the plan as stored in the write queue's turn, so another tab's change to the other fields is kept, and the save's stamp follows §3.15; a field it sends that another tab changed since the tab opened the plan refuses with `plan-changed` and the plan as stored, writes nothing, and the tab then shows that plan and says so; `planIssues` on the plan they make refuses with every issue and writes nothing; no changed field writes nothing; with no plan left (deleted in another tab) nothing is saved. On a plan whose buying was ended, a last buy day other than the one stored clears the end (`endedBuyingOn` becomes null, so `lastBuy` stays the end day while it is set, §2): buying runs to the new day, and the months between the end and the edit read as any months past an edited last buy day do; an edit that leaves the last buy day keeps the end. A refused `plan-too-long` names the half that refused it: more than `MAX_SLOTS` buys, or a last buy more than 20 years after the first (a plan with no monthly amount has no buys, so only the years refuse it). A window that opens before the last buy passes the holding rule (§2.1), whether a later last buy on the Plan tab or a rule or window on Hold & sell causes it, shows a notice with both dates and an acceptance; the tab sends the window with `acceptedEarlyOpen` once it is ticked, and a save without it is refused on the acceptance and writes nothing. The Plan tab sends the window only then, as the tab opened it, and never otherwise, so another tab's move of the window is kept. A stored acceptance holds for the last buy (Plan tab) or the rule and dates (Hold & sell) it was given for, which then ask nothing; changing any of them asks again, unticked. |
 | Change country | `changeCountry(plan, profile, now, currency)` re-derives the holding rule and the rule version (formats in the shell), and the pay and display currency as `currency` says (ADR-0053; §2.1 wins over this row): `'keep'` leaves both as they are, `'country'` sets both to the profile's; it never converts an amount. `currencyQuestion(plan, entries, profile)` says when the person is asked: the profile's currency is not the pay currency and a live entry holds an amount or a fee; it returns both currencies and the count and the first and last dates of those entries, else null. Logged amounts are relabelled only on the person's answer; with null no question is asked, the change runs with `'country'`, and the currencies follow the country, so the plan's own amounts (`monthlyAmount`, `startingAmount`) take the new currency as typed, which the confirmation's currency rows show before the person confirms, with a row for each of those amounts that is not zero ("€300 becomes £300. Check it in Plan."). When `currencyQuestion` is not null the confirmation asks it: "Keep EUR" or "Change to GBP", two cards with nothing chosen, under them the line that a plan holds one currency; confirming with no answer is refused next to the cards, as the rule tick is, and the summary relabels nothing until "Change to" is chosen. With any live entry, a block above the confirm button offers the current country's tax-year files (Your data's export, under its own export line) before the rules change. `changeCountry` returns what changed for the confirmation, the holding rule among it for explicit confirmation (rules compare field by field), and any invariant the new rule breaks, such as a sell window that now opens early; a new holding rule drops the window's `acceptedEarlyOpen`, given under the old rule, and the same rule keeps it. `changeCountryOf(services, rules, opened, acceptEarly, currency)` (`packages/app/src/features/settings/actions.ts`) runs it on the plan as stored in the write queue's turn, with the answer the screen gave, or null when it asked none: stored entries that now need a question the screen never showed (another tab logged an amount) refuse with `plan-changed`, and an answer the stored entries no longer need stands, since `'keep'` relabels nothing; a country, a currency, a holding rule, a sell window or a last buy (the window's early opening is measured from it) that another tab changed since Currency & data opened the plan refuses with `plan-changed` and the plan as stored, and writes nothing, and the section then shows the change on that plan with every tick and acceptance cleared, or, when that plan is already in the chosen country (whatever its holding rule), has nothing left to change and closes; a window the new rule opens early is stored with `acceptedEarlyOpen` only once the person ticks the notice's acceptance, otherwise the change is refused with its issues (the new currency's or rule's invariants, fixed in Plan or Hold & sell); nothing changed writes nothing. The confirmation lists each change, names the rule being replaced (the person's own or the old country's) and the new country's, waits for a tick before replacing it, and, when no question is asked, says logged amounts stay as typed. Without the plan's country's rules on the device it cannot tell the person's own rule from that country's, so the section offers no change until they load, as Hold & sell disables that card. |
 | Change pay currency | `changePayCurrency(plan, currency, now)` in the core. While the plan's pay currency differs from its country's, Currency & data shows a line saying so and a "Change to GBP" button (the country's currency), so a wrong "Keep" is fixed without changing country again; nothing is converted. `changePayCurrencyOf(services, opened, currency)` (`packages/app/src/features/settings/actions.ts`) runs it on the plan as stored, with the display currency following when it equalled the pay currency (§2.1); a country or a currency another tab changed since the section opened the plan refuses with `plan-changed` and writes nothing, and a plan already in that currency writes nothing. |
+| Delete a move | as Delete entry: the Log's row of a move offers Delete and the 8-second undo, never Edit (§3.9). A delete gives back the move's fee in the coin, so it never leaves a sale short; a move's undo is bounded by `uncoveredSale` like any entry, its fee counted as units out. Recording a move is the Log step of the next release (planned: M2). |
 | Import prototype data | see §7. |
 
 ---
@@ -1163,7 +1196,7 @@ recorded cost and a one-tap purchase; `gb-2026-27.csv` is its raw listing, compa
 | `MAX_SLOTS` | 240 | plan invariant |
 | `NOTE_MAX_LENGTH` | 200 characters | a skip's or a pause's note: the plan schema, `skipMonth`, `pausePlan` and the skip sheet's field |
 | `ENTRY_NOTE_MAX_LENGTH` | 500 characters | an entry's note: the entry schema, `saveTransaction` and the entry form's field |
-| `VENUE_MAX_LENGTH` | 40 characters | an entry's venue: the entry schema, `saveTransaction` and the entry form's field |
+| `VENUE_MAX_LENGTH` | 40 characters | an entry's venue and a move's `to`: the entry schema, `saveTransaction` and the entry form's field |
 | `MAX_ENTRIES` | 10,000 live entries | a plan's entries: the backup schema and `applyImport` (§3.13), `saveTransaction`, `restoreEntries` and the one tap (§6) |
 | `IMPORT_MAX_BYTES` | 50,000,000 bytes (50 MB) | the import file Settings reads: above the 36.8 MB a full plan's backup weighs at the most (every note at 500 characters, each escaped to six bytes), about 4 MB without notes |
 | `LOG_PAGE` | 12 | Log "show all" threshold |
@@ -1192,7 +1225,8 @@ needs to phrase the message: `ActionError` for the actions of §6 (`sell-exceeds
 `slot-done`, …), `TemplateError`, `BackupError`, `PrototypeImportError` and the simulator's
 `SimulationError` (`invalid-split`, …). The shell maps codes to localised copy. Programmer errors
 (violated invariants) throw. The invariants of the stored entities are coded issues
-(`PLAN_ISSUE_CODES`, `ENTRY_ISSUE_CODES`), such as `split-sum` and `sell-window-before-eligibility`.
+(`PLAN_ISSUE_CODES`, `ENTRY_ISSUE_CODES`), such as `split-sum`, `sell-window-before-eligibility` and a move's
+`received-exceeds-units` (§2.2).
 
 ---
 
@@ -1209,6 +1243,7 @@ randomness, no clock, no React, no i18n strings (it returns codes and data), no 
 | Prototype | Proof of Calm | Why |
 |---|---|---|
 | floats everywhere | exact decimals, strings in storage | correctness; ADR-0017 |
+| no record of coins sent between venues; every unit stays at the purchase venue | the `move` entry: units sent, units received, the fee in the coin, the units' place by lot | per-venue matching (Portugal, Germany, the US) and the units a network fee takes; ADR-0054 |
 | `Date` objects, local clock | `YYYY-MM-DD` strings, `today` passed in | determinism; ADR-0018 |
 | `holdDays` number | `HoldingRule` union | Germany and the US count "more than one year", Portugal counts 365 days |
 | `taxNote` free text | `country` + profile | the differentiator |
