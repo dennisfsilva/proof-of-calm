@@ -6,8 +6,8 @@ import { type RedDayModel, useServices } from '../../../lib/services';
 import { todayActions } from '../actions';
 import { RedDayBanner } from './red-day-banner';
 
-// The red-day half of Today's foot (docs/DOMAIN.md §3.11; docs/DESIGN.md §8), loaded on demand by the foot when
-// the visit starts with units held, so Today's entry carries none of it (docs/ENGINEERING.md §4).
+// The red-day half of Today's foot (docs/DOMAIN.md §3.11; docs/DESIGN.md §8), rendered by the foot when the visit
+// starts with units held.
 
 type Shown = {
   readonly key: BannerKey;
