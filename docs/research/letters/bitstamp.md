@@ -30,7 +30,9 @@ rule.
 **What we do with it.** For each day we compute one reference close: the median of the daily closes
 available that day from Bitstamp, Kraken and Coinbase. Only that derived daily figure is published, in
 the app's history charts and in an educational simulator of past monthly purchases, and in the data
-package of our source repository. Raw candles, volumes and trades are never republished.
+package of our source repository. Raw candles, volumes and trades are never republished. A person
+may also download a CSV of their own holdings with values at these closes on a few dates (for example
+on 1 January, or just before a sale), to keep for their own records or give to their accountant.
 
 **Attribution.** Under every chart that uses the dataset: "Reference closes derived from Kraken,
 Bitstamp and Coinbase public data; FX: ECB reference rates." We will follow the wording the agreement
