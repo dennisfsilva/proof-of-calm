@@ -4,9 +4,10 @@ import { seedPlan } from './seed';
 import { routeFixturePrices, test } from './support';
 
 // The fall page on the viewport matrix (docs/EDUCATION.md §6, docs/CONTENT-STYLE.md §3): during a fall of the held
-// coins Learn opens with the page's row and the row opens the page; with no fall under way the row is not there and
-// the page's path gives Learn's index in its place; a history that cannot be loaded leaves the failure line in the
-// figure's place. The fixture plan holds coins on the buying phase's date, and the closes come from fixtures.
+// coins Learn opens with the page's row and the row opens the page, whose figure's Why? opens When the market drops in
+// the sheet, and that module's route links back to the page; with no fall under way the row is not there and the
+// page's path gives the module in its place; a history that cannot be loaded leaves the failure line in the figure's
+// place. The fixture plan holds coins on the buying phase's date, and the closes come from fixtures.
 
 test.use({ serviceWorkers: 'block' });
 
@@ -44,14 +45,32 @@ for (const shape of ['week-fall', 'high-fall'] as const) {
   });
 }
 
-test('with no fall under way Learn has no row for the page, and its path gives the index', async ({ page }) => {
+test("during a fall, the figure's Why? opens the module in the sheet, and the module's route links to the page", async ({
+  page,
+}) => {
+  await seed(page, 'week-fall');
+  await page.goto('/learn/fall-under-way');
+  await ready(page, TITLE);
+  await page.getByRole('button', { name: 'Why? Falls and a monthly plan' }).click();
+  const sheet = page.getByRole('dialog');
+  await expect(sheet.getByText(/^A monthly buyer can do nothing, log the buy on the buy day/)).toBeVisible();
+  await expect(sheet.getByRole('link', { name: 'See the fall under way' })).toHaveCount(0);
+  await expect(page).toHaveURL(/\/learn\/fall-under-way$/);
+  await page.goto('/learn/when-the-market-drops');
+  await ready(page, 'When the market drops');
+  await page.getByRole('link', { name: 'See the fall under way' }).click();
+  await ready(page, TITLE);
+});
+
+test('with no fall under way Learn has no row for the page, and its path gives the module', async ({ page }) => {
   await seed(page, 'rise');
   await page.goto('/learn');
   await ready(page, 'Learn');
   await expect(page.getByRole('link', { name: new RegExp(`^${TITLE}`) })).toHaveCount(0);
   await page.goto('/learn/fall-under-way');
-  await ready(page, 'Learn');
-  await expect(page).toHaveURL(/\/learn$/);
+  await ready(page, 'When the market drops');
+  await expect(page).toHaveURL(/\/learn\/when-the-market-drops$/);
+  await expect(page.getByRole('link', { name: 'See the fall under way' })).toHaveCount(0);
 });
 
 test('a price history that cannot be loaded leaves the failure line in the figure’s place', async ({ page }) => {
