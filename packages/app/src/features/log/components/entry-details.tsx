@@ -3,6 +3,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@proofofcal
 import { Field, FieldError, FieldLabel } from '@proofofcalm/ui/components/field';
 import { Input } from '@proofofcalm/ui/components/input';
 import { Textarea } from '@proofofcalm/ui/components/textarea';
+import { reveal } from '@proofofcalm/ui/lib/reveal';
 import { useTranslations } from 'use-intl';
 
 export type EntryDetailsProps = {
@@ -18,7 +19,10 @@ export type EntryDetailsProps = {
   onChange(patch: { readonly venue?: string; readonly note?: string }): void;
 };
 
-/** The entry form's "Venue and note": both optional, each stopped at the length an entry stores. */
+/**
+ * The entry form's "Venue and note": both optional, each stopped at the length an entry stores. Opened below a sheet's
+ * fold, the panel scrolls into view once it has grown to its height (a scroll during the growth stops short).
+ */
 export function EntryDetails(props: EntryDetailsProps) {
   const { venue, note, venueError, noteError, venueShown, open, onOpenChange, onChange } = props;
   const t = useTranslations('log.form');
@@ -34,7 +38,12 @@ export function EntryDetails(props: EntryDetailsProps) {
       {venueShown && venueField}
       <Collapsible open={open} onOpenChange={onOpenChange} className="flex flex-col gap-stack-sm">
         <CollapsibleTrigger>{t(venueShown ? 'addNote' : 'details')}</CollapsibleTrigger>
-        <CollapsibleContent className="flex flex-col gap-stack-sm">
+        <CollapsibleContent
+          className="flex flex-col gap-stack-sm"
+          onTransitionEnd={(event) => {
+            if (open && event.target === event.currentTarget) reveal(event.currentTarget, { smooth: true });
+          }}
+        >
           {!venueShown && venueField}
           <Field invalid={noteError !== null}>
             <FieldLabel>{t('note')}</FieldLabel>
