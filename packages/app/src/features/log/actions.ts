@@ -39,7 +39,8 @@ export type LogActions = {
   deleteTransaction(ids: readonly EntityId[]): Promise<Result<SlotsAtDelete, SaleRefusal>>;
   /**
    * Restores the deleted entries; refused, restoring nothing, when a monthly buy's month was skipped or recorded since,
-   * the entries were written again since (a replace in another tab), or a sale's units were sold again since.
+   * the entries were written again since (a replace in another tab), a sale's units were sold again since, or the
+   * plan's pay currency changed since and an entry holds an amount or a fee (ADR-0053).
    */
   undoDelete(ids: readonly EntityId[], before: SlotsAtDelete): Promise<Result<readonly Entry[], RestoreRefusal>>;
 };

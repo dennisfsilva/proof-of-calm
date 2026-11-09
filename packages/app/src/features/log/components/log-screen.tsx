@@ -169,10 +169,12 @@ export function LogScreen() {
                     ? t('row.notRestoredSold', { coin: error.coin })
                     : error.code === 'too-many-entries'
                       ? t('row.notRestoredFull', { max: figure(f, error.max) })
-                      : t('row.notRestored', {
-                          reason: error.code === 'slot-skipped' ? 'skipped' : 'recorded',
-                          month: f.month(error.slot),
-                        });
+                      : error.code === 'currency-changed'
+                        ? t('row.notRestoredCurrency', { from: error.from, to: error.to })
+                        : t('row.notRestored', {
+                            reason: error.code === 'slot-skipped' ? 'skipped' : 'recorded',
+                            month: f.month(error.slot),
+                          });
               toasts.add({ title, timeout: UNDO_WINDOW_MS });
             },
             () => {
