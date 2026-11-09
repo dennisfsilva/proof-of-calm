@@ -89,13 +89,13 @@ describe('RedDayBanner', () => {
     expect(sentence()).toBe('On 19 Oct 2026 the coins you hold were together 31% below their 90-day high.');
   });
 
-  it('the link opens the page about this fall, and Dismiss calls back', async () => {
+  it('the link opens the page about the fall under way, and Dismiss calls back', async () => {
     const { onOpen, onDismiss } = await banner();
     fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
     expect(onDismiss).toHaveBeenCalledOnce();
-    fireEvent.click(screen.getByRole('link', { name: 'See this fall and your plan' }));
+    fireEvent.click(screen.getByRole('link', { name: 'See the fall under way and your plan' }));
     expect(onOpen).toHaveBeenCalledOnce();
-    expect(screen.getByTestId('path').textContent).toBe('/learn/this-fall');
+    expect(screen.getByTestId('path').textContent).toBe('/learn/fall-under-way');
   });
 });
 

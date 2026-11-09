@@ -911,7 +911,7 @@
     "redDay": {
       "week": "{coins, select, one {{coin}} other {Together, the coins you hold}} fell {fall} in the seven days to {date}.",
       "high": "On {date} {coins, select, one {{coin} was} other {the coins you hold were together}} {fall} below {coins, select, one {its} other {their}} 90-day high.",
-      "open": "See this fall and your plan",
+      "open": "See the fall under way and your plan",
       "dismiss": "Dismiss",
       "failed": "This could not be dismissed on this device, so it may show again."
     },
