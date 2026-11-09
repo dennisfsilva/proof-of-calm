@@ -169,6 +169,39 @@ describe('the red-day port (docs/DOMAIN.md §3.11)', () => {
     expect(result).toEqual(expect.objectContaining({ state: 'failed', figure: null, episode: null }));
   });
 
+  it('has no history when every held coin is outside the catalogue, without a read', async () => {
+    const recoined = BTC_ONLY.map((entry) => ({ ...entry, coin: 'ZZZ' as CoinId }));
+    const { reads, answer } = model({ ZZZ: 'never' }, { entries: recoined });
+    expect(await answer).toEqual(
+      expect.objectContaining({ state: 'no-history', held: [{ coin: 'ZZZ', name: 'ZZZ' }], figure: null }),
+    );
+    expect(reads).toEqual([]);
+  });
+
+  it('has no history when the one served coin has a single complete close', async () => {
+    // The second close is dated the UTC day of the fetch, which the model drops.
+    const result = await model({ BTC: { values: ['100', '101'] } }).answer;
+    expect(result).toEqual(expect.objectContaining({ state: 'no-history', held: [BITCOIN], figure: null }));
+  });
+
+  it('stays failed on a rejected read, also beside a coin the route does not serve', async () => {
+    const unserved = { ...(BTC_ONLY[0] as Entry), id: '00000000-0000-4000-8000-000000000099' as Entry['id'] };
+    const entries = [...BTC_ONLY, { ...unserved, coin: 'ZZZ' as CoinId }];
+    expect((await model({ BTC: 'fail' }).answer).state).toBe('failed');
+    expect((await model({ BTC: 'fail', ZZZ: 'never' }, { entries }).answer).state).toBe('failed');
+    // A short copy beside a rejected read: a retry can still bring the other coin's history.
+    const short = await model({ BTC: { values: ['100'] }, ETH: 'fail' }, { entries: SNAPSHOT.entries }).answer;
+    expect(short.state).toBe('failed');
+  });
+
+  it('keeps the episode of the served coin and names the unserved one as missing', async () => {
+    const unserved = { ...(BTC_ONLY[0] as Entry), id: '00000000-0000-4000-8000-000000000099' as Entry['id'] };
+    const entries = [...BTC_ONLY, { ...unserved, coin: 'ZZZ' as CoinId }];
+    const result = await model({ BTC: { values: WEEKLY_FALL }, ZZZ: 'never' }, { entries }).answer;
+    expect(result.state).toBe('episode');
+    expect(result.figure?.missing).toEqual(['ZZZ']);
+  });
+
   it('weighs several coins at today’s units', async () => {
     // Today's units: 0.02215 BTC (0.0125 + 5 × 0.00121 + 0.0036) and 0.119 ETH (0.12 + 5 × 0.0118 − 0.06).
     const btc = { values: repeat('100', 30) };

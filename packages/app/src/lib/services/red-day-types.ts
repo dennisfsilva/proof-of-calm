@@ -22,7 +22,11 @@ type RedDayFigure = {
 };
 
 export type RedDayModel = {
-  readonly state: 'nothing-held' | 'failed' | 'clear' | 'episode';
+  /**
+   * 'failed': a read was rejected, so a retry can still bring history; 'no-history': no read was rejected and no held
+   * coin has a served history with two or more complete closes, so no retry brings one and `figure` is null.
+   */
+  readonly state: 'nothing-held' | 'failed' | 'no-history' | 'clear' | 'episode';
   /**
    * The coins with units above 0, in the portfolio's order (the plan's coins, then any other coin with entries;
    * docs/DOMAIN.md §3.6), each named as the plan names it, else as the catalogue does, else by its id. Read from the
@@ -52,7 +56,7 @@ export type PastFall = {
 };
 
 export type RedDayPort = {
-  /** Never rejects for a read: a failed read is the state 'failed'. */
+  /** Never rejects for a read: a failed read is the state 'failed'; held coins with no served history, 'no-history'. */
   model(input: RedDayInput): Promise<RedDayModel>;
   /** The cycles file's rows of each coin passed, in that order. */
   pastFalls(coins: readonly CoinId[]): Promise<readonly PastFall[]>;
