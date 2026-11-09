@@ -484,7 +484,7 @@ describe('deleteEntries and restoreEntries (docs/DOMAIN.md §6)', () => {
   const later = instant('2026-03-02T10:00:05Z');
   const skipOf = (slot: string) => ({ id: id(), slot: month(slot), note: '', createdAt: later });
   /** What a delete at `now` of `ids` notes when no month of a monthly buy is among them. */
-  const noted = (ids: readonly EntityId[]) => ({ at: now, ids, slots: [] });
+  const noted = (ids: readonly EntityId[]) => ({ at: now, ids, slots: [], currency: plan.payCurrency });
 
   it('soft-deletes the entries named, and the undo restores exactly those', () => {
     const before = slotsAtDelete(plan, [first, second], [first.id], now);
@@ -514,12 +514,14 @@ describe('deleteEntries and restoreEntries (docs/DOMAIN.md §6)', () => {
       at: now,
       ids: [btc.id, eth.id, second.id, unslotted.id],
       slots: [{ slot: '2026-03', skipped: true, recordedBy: [sibling.id] }],
+      currency: 'EUR',
     });
     // Without a plan nothing is skipped.
     expect(slotsAtDelete(null, entries, [april.id, gone.id], now)).toEqual({
       at: now,
       ids: [april.id],
       slots: [{ slot: '2026-04', skipped: false, recordedBy: [] }],
+      currency: null,
     });
   });
 

@@ -12,13 +12,13 @@ import {
   deleteEntries,
   restoreEntries,
   type SaveContext,
-  type SlotsAtDelete,
   saveTransaction,
   slotsAtDelete,
   type TransactionDraft,
   uncoveredSale,
 } from './entries';
 import { skipMonth } from './plan';
+import type { SlotsAtDelete } from './undo';
 
 // docs/DOMAIN.md §6 "Save an entry", "Skip a month" and "Delete entry": whatever order the saves, skips, deletes
 // and undos come in, a month is never both skipped and recorded, and never recorded by two transactions, unless
@@ -125,7 +125,7 @@ function run(world: World, next: Step): void {
         world.plan,
         world.entries,
         ids,
-        world.deletes.get(at) ?? { at: now, ids, slots: [] },
+        world.deletes.get(at) ?? { at: now, ids, slots: [], currency: world.plan.payCurrency },
         now,
       );
       if (restored.ok) world.entries = merge(world.entries, restored.value);
@@ -230,7 +230,7 @@ function cover(world: World, next: CoverStep): void {
     world.deletes.set(at, before);
     return;
   }
-  const before = world.deletes.get(at) ?? { at: now, ids, slots: [] };
+  const before = world.deletes.get(at) ?? { at: now, ids, slots: [], currency: world.plan.payCurrency };
   const restored = restoreEntries(world.plan, world.entries, ids, before, now);
   if (restored.ok) world.entries = merge(world.entries, restored.value);
 }
