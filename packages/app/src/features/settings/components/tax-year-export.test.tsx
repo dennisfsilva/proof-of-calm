@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { countryRules, loadProfile } from '@proofofcalm/content';
 import { type CalendarDate, type CountryCode, type Entry, type Plan, textCell } from '@proofofcalm/core';
+import { aMove } from '@proofofcalm/core/testing';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { userEvent } from 'storybook/test';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -398,6 +399,44 @@ describe('TaxYearExport', () => {
     const gb = await mount(withPlan({ country: 'GB' as Plan['country'], payCurrency: 'GBP' }, flagged));
     const pool = (await exportYear(gb, '2026 to 2027 (still running)')).content;
     expect(headerOf(pool)).toContain(textCell(EMPTY_COST_RAW));
+    noSemicolon(pool);
+  });
+
+  it("a move gives the per-lot file its fee line and the raw listing its move line, each in the header's words", async () => {
+    const MOVE_FEE =
+      'A row with disposed_on but no proceeds is units paid as a network fee when you moved coins between venues. held_at shows where the units were, and moved_on the date a move took them there.';
+    const MOVE_ROWS =
+      'A move row lists units sent from venue to to_venue. units_received is what arrived there, and the difference is the network fee, paid in the coin.';
+    const moved = (all: readonly Entry[]): Entry[] => {
+      const coin = all.find((each) => each.kind === 'dca')?.coin as Entry['coin'];
+      return [
+        ...all,
+        aMove({
+          id: 'd0000000-0000-4000-8000-000000000001' as Entry['id'],
+          coin,
+          venue: null,
+          date: '2026-09-10' as CalendarDate,
+        }),
+      ];
+    };
+    const pt = await mount(withPlan({}, moved));
+    const lots = (await exportYear(pt, '2026 (still running)')).content;
+    expect(headerOf(lots)).toContain(textCell(MOVE_FEE));
+    expect(headerOf(lots)).not.toContain(textCell(MOVE_ROWS));
+    const fee = rowsOf(lots).filter((row) => row.disposed_on === '2026-09-10');
+    expect(fee.map((row) => [row.units, row.proceeds, row.held_at])).toEqual([['0.0001', '', '']]);
+    expect(rowsOf(lots).some((row) => row.held_at === 'Ledger' && row.moved_on === '2026-09-10')).toBe(true);
+    noSemicolon(lots);
+    cleanup();
+    const gb = await mount(withPlan({ country: 'GB' as Plan['country'], payCurrency: 'GBP' }, moved));
+    const pool = (await exportYear(gb, '2026 to 2027 (still running)')).content;
+    expect(headerOf(pool)).toContain(textCell(MOVE_ROWS));
+    expect(headerOf(pool)).not.toContain(textCell(MOVE_FEE));
+    expect(
+      rowsOf(pool)
+        .filter((row) => row.kind === 'move')
+        .map((row) => [row.to_venue, row.units_received]),
+    ).toEqual([['Ledger', '0.0099']]);
     noSemicolon(pool);
   });
 
