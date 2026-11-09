@@ -57,7 +57,7 @@ export function LearnScreen() {
           </div>
         )}
       </Route>
-      <Route path="/this-fall">
+      <Route path="/fall-under-way">
         <div className={PAGE}>
           <ThisFallPage />
         </div>

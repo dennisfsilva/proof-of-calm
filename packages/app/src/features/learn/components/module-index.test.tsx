@@ -61,7 +61,7 @@ describe('ModuleIndex', () => {
     );
     const rows = screen.getAllByRole('link');
     expect(rows[0]?.textContent).toBe(`${learn.thisFall.title}${learn.thisFall.row}`);
-    expect(rows.map((row) => row.getAttribute('href'))).toEqual(['/this-fall', '/start-here', '/countries']);
+    expect(rows.map((row) => row.getAttribute('href'))).toEqual(['/fall-under-way', '/start-here', '/countries']);
     cleanup();
     mount([start]);
     expect(screen.queryByRole('link', { name: new RegExp(`^${learn.thisFall.title}`) })).toBeNull();

@@ -21,7 +21,7 @@ export function ModuleIndex({ modules, thisFall = false }: ModuleIndexProps) {
       <ul className="flex flex-col gap-stack-md">
         {thisFall && (
           <li>
-            <Link href="/this-fall" className={ROW}>
+            <Link href="/fall-under-way" className={ROW}>
               <span className={TITLE}>{t('thisFall.title')}</span>
               <span className="text-16 text-ink-2">{t('thisFall.row')}</span>
             </Link>
