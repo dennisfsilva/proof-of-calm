@@ -24,7 +24,7 @@ type Story = StoryObj<typeof meta>;
 export const SevenDays: Story = {
   play: async ({ args, canvas, userEvent }) => {
     await expect(canvas.getByText(/^Bitcoin fell 16% in the seven days to 19/u)).toBeVisible();
-    await expect(canvas.getByRole('link', { name: 'See this fall and your plan' })).toBeVisible();
+    await expect(canvas.getByRole('link', { name: 'See the fall under way and your plan' })).toBeVisible();
     await userEvent.click(canvas.getByRole('button', { name: 'Dismiss' }));
     await expect(args.onDismiss).toHaveBeenCalledOnce();
   },

@@ -62,10 +62,10 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await expect(page.getByText(HIGH)).toHaveCount(0);
     });
 
-    test('the link opens the page about this fall', async ({ page }) => {
+    test('the link opens the page about the fall under way', async ({ page }) => {
       await onToday(page, 'week-fall');
-      await page.getByRole('link', { name: 'See this fall and your plan' }).click();
-      await expect(page).toHaveURL(/\/learn\/this-fall$/u);
+      await page.getByRole('link', { name: 'See the fall under way and your plan' }).click();
+      await expect(page).toHaveURL(/\/learn\/fall-under-way$/u);
     });
 
     test('a rise: no banner, the foot settles on the next one', async ({ page }) => {

@@ -41,7 +41,7 @@ export function RedDayBanner({ lastRed, coins, onOpen, onDismiss }: RedDayBanner
         <BannerDescription>{t(week ? 'week' : 'high', values)}</BannerDescription>
       </BannerContent>
       <BannerActions>
-        <Link href="/learn/this-fall" className={buttonVariants({ variant: 'secondary' })} onClick={onOpen}>
+        <Link href="/learn/fall-under-way" className={buttonVariants({ variant: 'secondary' })} onClick={onOpen}>
           {t('open')}
         </Link>
         <Button variant="ghost" onClick={onDismiss}>
