@@ -434,9 +434,9 @@ describe('TodayScreen, the red-day banner', () => {
   const BACKUP = /^Your data lives only on this device\./;
   const episode = () =>
     episodeRedDay({ date: '2026-10-19' as CalendarDate, sevenDay: '-16.4' as Percent, fromHigh90: '-20' as Percent }, [
-      'BTC',
-      'ETH',
-    ] as CoinId[]);
+      { coin: 'BTC' as CoinId, name: 'Bitcoin' },
+      { coin: 'ETH' as CoinId, name: 'Ethereum' },
+    ]);
   const unseen = (snapshot: Snapshot): Snapshot =>
     ({ ...snapshot, plan: { ...snapshot.plan, countryRuleVersion: 0 } }) as Snapshot;
 

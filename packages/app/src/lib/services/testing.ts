@@ -132,10 +132,17 @@ function memoryStorage(): Pick<Storage, 'getItem' | 'setItem' | 'removeItem' | '
   };
 }
 
-/** A red-day port whose model answers at once that no episode is under way. */
+/** The fixture plan's coins as the red-day model names them (./fixtures). */
+const FIXTURE_HELD: RedDayModel['held'] = [
+  { coin: 'BTC' as CoinId, name: 'Bitcoin' },
+  { coin: 'ETH' as CoinId, name: 'Ethereum' },
+];
+
+/** A red-day port whose model answers at once that no episode is under way, over the fixture plan's coins. */
 export function clearRedDay(): RedDayPort {
   const model: RedDayModel = {
     state: 'clear',
+    held: FIXTURE_HELD,
     figure: null,
     episode: null,
     lastRed: null,
@@ -147,17 +154,19 @@ export function clearRedDay(): RedDayPort {
 
 /**
  * A red-day port whose model answers an episode under way since 15 Oct 2026, its last Red day `lastRed.date`,
- * over `coins`; `answer` replaces the model's promise (one that never settles, or rejects).
+ * over the `held` coins (Bitcoin alone by default); `answer` replaces the model's promise (one that never settles,
+ * or rejects).
  */
 export function episodeRedDay(
   lastRed: NonNullable<RedDayModel['lastRed']>,
-  coins: readonly CoinId[] = ['BTC' as CoinId],
+  held: RedDayModel['held'] = FIXTURE_HELD.slice(0, 1),
   answer?: () => Promise<RedDayModel>,
 ): RedDayPort {
   const model: RedDayModel = {
     state: 'episode',
+    held,
     figure: {
-      coins,
+      coins: held.map(({ coin }) => coin),
       missing: [],
       sevenDay: lastRed.sevenDay,
       fromHigh90: lastRed.fromHigh90,
