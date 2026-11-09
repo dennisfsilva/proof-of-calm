@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 import type { PluginOption, UserConfig } from 'vite';
 import { bootScriptPlugin } from './boot-plugin.ts';
+import { chunkGroups } from './chunk-groups.ts';
 import { chunkReport } from './chunk-report-plugin.ts';
 import { clientNeverImportsServer } from './client-never-imports-server.ts';
 import { fontPreloadPlugin } from './font-preload-plugin.ts';
@@ -68,6 +69,10 @@ export function createHostConfig({ host, root, parseModule }: HostConfigOptions)
       'import.meta.env.VITE_API_BASE': JSON.stringify(apiBase),
       'import.meta.env.VITE_SERVICE_WORKER': JSON.stringify(serviceWorker),
     },
-    build: { assetsInlineLimit: 0, rolldownOptions: { input: resolve(root, input) } },
+    build: {
+      assetsInlineLimit: 0,
+      // Today's static modules in its entry chunk, whatever lazy chunk shares them (`docs/ENGINEERING.md` §4).
+      rolldownOptions: { input: resolve(root, input), output: { codeSplitting: chunkGroups() } },
+    },
   };
 }
