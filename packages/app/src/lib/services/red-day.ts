@@ -29,7 +29,11 @@ export type RedDayModel = {
   readonly figure: RedDayFigure | null;
   readonly episode: RedDayEpisode | null;
   /** The figures of `episode.last`, for the banner's sentence. */
-  readonly lastRed: { readonly date: CalendarDate; readonly sevenDay: Percent | null; readonly fromHigh90: Percent } | null;
+  readonly lastRed: {
+    readonly date: CalendarDate;
+    readonly sevenDay: Percent | null;
+    readonly fromHigh90: Percent;
+  } | null;
   /** `nextBuyReminder`'s due date: null once no slot ahead is open, never a late slot. */
   readonly nextBuy: CalendarDate | null;
   readonly buyDayToday: boolean;
