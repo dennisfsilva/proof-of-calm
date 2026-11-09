@@ -4,7 +4,7 @@
 // records what it was asked, drafts over a Map, the toast manager, no rules and the country library over
 // the profiles loaded once.
 import { type CountryProfile, loadProfiles } from '@proofofcalm/content';
-import { type CalendarDate, ok, type Percent, type Price, type PriceSnapshot } from '@proofofcalm/core';
+import { type CalendarDate, type CoinId, ok, type Percent, type Price, type PriceSnapshot } from '@proofofcalm/core';
 import { createToastManager } from '@proofofcalm/ui/components/toast';
 import { systemClock } from '../adapters/clock';
 import { sessionDrafts } from '../adapters/drafts';
@@ -13,6 +13,7 @@ import { NAMESPACE_LOADERS } from '../i18n/namespaces';
 import type { CachedHistory, HistorySource, Platform, PriceSource, PricesState, Snapshot } from '../ports';
 import { createCountries, type ProfileLoaders } from './countries';
 import { createServices, type Services, type ServicesOptions } from './create';
+import type { RedDayModel, RedDayPort } from './red-day-types';
 
 export const TEST_NOW_MS = Date.UTC(2026, 9, 20, 10);
 /** TEST_NOW_MS's date in Lisbon, the test clock's today. */
@@ -129,6 +130,48 @@ function memoryStorage(): Pick<Storage, 'getItem' | 'setItem' | 'removeItem' | '
     removeItem: (key) => void items.delete(key),
     key: (index) => [...items.keys()][index] ?? null,
   };
+}
+
+/** A red-day port whose model answers at once that no episode is under way. */
+export function clearRedDay(): RedDayPort {
+  const model: RedDayModel = {
+    state: 'clear',
+    figure: null,
+    episode: null,
+    lastRed: null,
+    nextBuy: null,
+    buyDayToday: false,
+  };
+  return { model: async () => model, pastFalls: async () => [] };
+}
+
+/**
+ * A red-day port whose model answers an episode under way since 15 Oct 2026, its last Red day `lastRed.date`,
+ * over `coins`; `answer` replaces the model's promise (one that never settles, or rejects).
+ */
+export function episodeRedDay(
+  lastRed: NonNullable<RedDayModel['lastRed']>,
+  coins: readonly CoinId[] = ['BTC' as CoinId],
+  answer?: () => Promise<RedDayModel>,
+): RedDayPort {
+  const model: RedDayModel = {
+    state: 'episode',
+    figure: {
+      coins,
+      missing: [],
+      sevenDay: lastRed.sevenDay,
+      fromHigh90: lastRed.fromHigh90,
+      first: '2026-07-22' as CalendarDate,
+      last: lastRed.date,
+      currency: 'EUR',
+      shortWindow: false,
+    },
+    episode: { start: '2026-10-15' as CalendarDate, last: lastRed.date },
+    lastRed,
+    nextBuy: null,
+    buyDayToday: false,
+  };
+  return { model: answer ?? (async () => model), pastFalls: async () => [] };
 }
 
 export type TestServicesOptions = Partial<ServicesOptions> & {
