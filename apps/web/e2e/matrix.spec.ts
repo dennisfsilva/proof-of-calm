@@ -45,7 +45,13 @@ const PAGES: readonly Entry[] = [
   { name: 'settings-buy', path: '/settings', heading: 'Settings', phase: 'buy' },
   { name: 'learn', path: '/learn', heading: 'Learn' },
   { name: 'learn-start-here', path: '/learn/start-here', heading: 'Start here' },
-  { name: 'learn-risk-honestly', path: '/learn/risk-honestly', heading: 'Risk honestly' },
+  // The drawdowns chart loads after the h1, in a lazy chunk with no aria-busy: its source line says it is drawn.
+  {
+    name: 'learn-risk-honestly',
+    path: '/learn/risk-honestly',
+    heading: 'Risk honestly',
+    holds: /intraday highs and lows in US dollars/,
+  },
   { name: 'learn-cycles', path: '/learn/cycles', heading: 'Cycles' },
   { name: 'learn-noise', path: '/learn/noise', heading: 'Noise' },
   { name: 'learn-when-the-market-drops', path: '/learn/when-the-market-drops', heading: 'When the market drops' },
