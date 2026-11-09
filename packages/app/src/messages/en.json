@@ -57,6 +57,24 @@
       "lastReviewed": "Last reviewed {date}",
       "notReviewedSince": "Not reviewed since {date}"
     },
+    "thisFall": {
+      "row": "The coins you hold against their 90-day high, their earlier falls and your next buy day.",
+      "back": "Back to Today",
+      "title": "This fall and your plan",
+      "one": "{coin} is {high} below {window, select, short {its highest close since {since}} other {its 90-day high}}{change, select, fell { and fell {seven} in the seven days to {date}.} rose { and rose {seven} in the seven days to {date}.} other { ({date}).}}",
+      "several": "Together, the coins you hold ({coins}), valued at the units you hold today, are {high} below {window, select, short {their highest close since {since}} other {their 90-day high}}{change, select, fell { and fell {seven} in the seven days to {date}.} rose { and rose {seven} in the seven days to {date}.} other { ({date}).}}",
+      "missing": "{coin} is not in these figures: {product} has no price history for it.",
+      "data": "Daily closes in {currency}, {first} to {last} · Price data by CoinGecko",
+      "failed": "The price history could not be loaded, so today's figures are not shown. Open this page again to retry.",
+      "fallsOf": "Earlier falls of {coin}, high to low, intraday prices in US dollars:",
+      "fall": "{fall} from {high} to {low} · {publisher}",
+      "noFalls": "{product} has no dated earlier fall for {coin}.",
+      "fallsFailed": "The earlier falls could not be loaded. Open this page again to retry.",
+      "nextBuy": "Your next buy day is {date}. Today is not a buy day unless you decided that earlier.",
+      "buyDayToday": "Today, {date}, is your buy day.",
+      "note": "Your note to yourself",
+      "noteLine": "{date}: “{why}”"
+    },
     "sheet": {
       "close": "Close"
     },

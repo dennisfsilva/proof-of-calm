@@ -52,6 +52,15 @@ export const Modules: Story = {
   },
 };
 
+export const DuringAFall: Story = {
+  args: { modules: [start], thisFall: true },
+  play: async ({ canvas }) => {
+    const rows = canvas.getAllByRole('link');
+    await expect(rows[0]).toHaveAttribute('href', '/this-fall');
+    await expect(rows[0]).toHaveTextContent(/^This fall and your plan/);
+  },
+};
+
 export const NoModules: Story = {
   args: { modules: [] },
   play: async ({ canvas }) => {
