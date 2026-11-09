@@ -237,6 +237,7 @@ describe('TaxYearExport', () => {
         'eligible_from: the first day past the Portugal holding rule (365 days). past_holding_rule: whether that day had come by the sale, or by 2025-12-31 for units still held. Computed from your dates, not tax advice.',
         ...(profile?.holdingRuleConditions ?? []),
         'Sales are matched per venue as named in the Log. Entries with no venue are one group.',
+        'held_at: where the units were when sold, paid as a fee or at the year end, empty for no venue. moved_on: the date a Coins moved entry took them there, empty if none did.',
         'Dates are YYYY-MM-DD. Amounts and units use a decimal point.',
       ),
     );
@@ -388,7 +389,7 @@ describe('TaxYearExport', () => {
     const flags = [
       'sale_venue shows',
       'its own holding rule',
-      'is a sale',
+      'holds units sold, or paid as a network fee, that no logged purchase covered',
       "units_estimated yes: Proof of Calm's Bought as planned button filled in",
       'ends on 2026-12-31',
     ];
@@ -404,9 +405,9 @@ describe('TaxYearExport', () => {
 
   it("a move gives the per-lot file its fee line and the raw listing its move line, each in the header's words", async () => {
     const MOVE_FEE =
-      'A row with disposed_on but no proceeds is units paid as a network fee when you moved coins between venues. held_at shows where the units were, and moved_on the date a move took them there.';
+      'A row with disposed_on but no proceeds holds the units a Coins moved entry paid as its network fee, and leaves past_holding_rule empty. This file does not say whether your country treats that fee as a disposal.';
     const MOVE_ROWS =
-      'A move row lists units sent from venue to to_venue. units_received is what arrived there, and the difference is the network fee, paid in the coin.';
+      'A move row lists units sent from venue to to_venue. units_received is what arrived. units less units_received is the network fee, paid in the coin.';
     const moved = (all: readonly Entry[]): Entry[] => {
       const coin = all.find((each) => each.kind === 'dca')?.coin as Entry['coin'];
       return [
@@ -419,9 +420,16 @@ describe('TaxYearExport', () => {
         }),
       ];
     };
+    // held_at and moved_on are on every row of the per-lot file, so their line is there with or without a move.
+    const HELD_AT =
+      'held_at: where the units were when sold, paid as a fee or at the year end, empty for no venue. moved_on: the date a Coins moved entry took them there, empty if none did.';
+    const still = await mount(withPlan({}));
+    expect(headerOf((await exportYear(still, '2026 (still running)')).content)).toContain(textCell(HELD_AT));
+    cleanup();
     const pt = await mount(withPlan({}, moved));
     const lots = (await exportYear(pt, '2026 (still running)')).content;
     expect(headerOf(lots)).toContain(textCell(MOVE_FEE));
+    expect(headerOf(lots)).toContain(textCell(HELD_AT));
     expect(headerOf(lots)).not.toContain(textCell(MOVE_ROWS));
     const fee = rowsOf(lots).filter((row) => row.disposed_on === '2026-09-10');
     expect(fee.map((row) => [row.units, row.proceeds, row.held_at])).toEqual([['0.0001', '', '']]);
@@ -432,6 +440,7 @@ describe('TaxYearExport', () => {
     const pool = (await exportYear(gb, '2026 to 2027 (still running)')).content;
     expect(headerOf(pool)).toContain(textCell(MOVE_ROWS));
     expect(headerOf(pool)).not.toContain(textCell(MOVE_FEE));
+    expect(headerOf(pool)).not.toContain(textCell(HELD_AT));
     expect(
       rowsOf(pool)
         .filter((row) => row.kind === 'move')
@@ -468,6 +477,8 @@ describe('TaxYearExport', () => {
     expect(nl).toContain('held_units counts the units of Coins added entries dated in this year.');
     expect(nl).toContain('An empty held_cost means a Coins added entry has no recorded cost, not a cost of zero.');
     expect(nl).toContain("Some units come from Proof of Calm's Bought as planned button");
+    // The fee_units column is in every Dutch file, so its line is too, as the value columns' line.
+    expect(nl).toContain("fee_units: units the year's Coins moved entries paid as network fees, in the coin.");
     for (const header of [fr, nl]) {
       for (const dropped of ['matched', 'eligible_from', 'per venue', 'Box 3', 'box 3']) {
         expect(header).not.toContain(dropped);

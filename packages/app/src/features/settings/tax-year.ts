@@ -129,6 +129,8 @@ function taxYearHeader(input: HeaderInput & { readonly facts: FileFacts }, t: Ta
     ...holding,
     ...(!facts.raw && rules.lotScope === 'per-venue' ? [t('perVenue')] : []),
     ...(facts.crossVenue > 0 ? [t('crossVenue', counted(facts.crossVenue))] : []),
+    // Every row of the per-lot file fills held_at and moved_on, so their line is there whether or not a move is.
+    ...(facts.raw ? [] : [t('heldAt')]),
     ...(facts.moveFees ? [t('moveFee')] : []),
     ...(facts.moves ? [t('moveRows')] : []),
     ...(facts.raw
@@ -178,6 +180,7 @@ function snapshotHeader(input: HeaderInput, file: TaxYearSnapshot, t: TaxYearWor
       ongoing: file.ongoing ? 'yes' : 'no',
     }),
     t('snapshotValues', columns),
+    t('feeUnits'),
     t('format'),
     ...(file.heldInYear ? [t('heldInYear', { reference, opening: columns.opening })] : []),
     ...(file.uncosted ? [t('heldCost')] : []),
