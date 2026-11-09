@@ -106,7 +106,7 @@ const wordings = [
 describe('the education facts (docs/EDUCATION.md §9)', () => {
   it('the facts hold every key EDUCATION §9 lists, each with a source on the allow-list', () => {
     const keys = educationKeys();
-    expect(keys).toHaveLength(26);
+    expect(keys).toHaveLength(27);
     expect(facts.map((fact) => fact.key).sort()).toEqual([...keys].sort());
     expect(validateContent(files, { today: '2026-10-17', allow })).toEqual([]);
   });
@@ -150,6 +150,23 @@ describe('the education facts (docs/EDUCATION.md §9)', () => {
       expect(accepted.filter((text) => check.test(text))).toEqual([]);
       expect(rejected.filter((text) => !check.test(text))).toEqual([]);
     }
+  });
+
+  // docs/LEGAL.md §6 Q4 and EDUCATION §9 row d: fact d names each failure in its own fact, one source each,
+  // from the company's or a regulator's own document on the facts list.
+  it('d names Mt. Gox and FTX in a fact each, each source on the facts allow-list', () => {
+    const failures = facts.filter((fact) => fact.key.startsWith('d.'));
+    expect(failures.map((fact) => fact.key)).toEqual(['d.mt-gox', 'd.ftx']);
+    const hosts = failures.map((fact) => new URL(fact.source).hostname);
+    const allowed = (host: string) => allow.facts.some((domain) => host === domain || host.endsWith(`.${domain}`));
+    expect(hosts.filter((host) => !allowed(host))).toEqual([]);
+  });
+
+  // EDUCATION §9 row f: one dated leverage figure. ESMA's figure is about CFDs, and the FCA ban reads close to a status word.
+  it('f holds one dated leverage figure and names neither ESMA nor the FCA', () => {
+    const leverage = facts.find((fact) => fact.key === 'f.leverage');
+    expect(leverage?.value).not.toMatch(/ESMA|FCA/u);
+    expect(leverage?.value).toContain('10 Oct 2025');
   });
 
   it("a value writes September as en-GB's Sept (CONTENT-STYLE §4)", () => {

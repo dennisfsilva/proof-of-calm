@@ -33,15 +33,26 @@
     "lastReviewed": "2026-11-02"
   },
   {
-    "key": "d.exchange-failures",
-    "value": "Mt. Gox: bitcoin withdrawals halted 7 Feb 2014, closed 25 Feb 2014; about 850,000 BTC reported missing on 28 Feb 2014, 200,000 BTC reported found on 20 Mar 2014, about 650,000 BTC still missing. QuadrigaCX: founder's death announced 14 Jan 2019; more than 76,000 clients owed C$215m, C$46m recovered or identified; an Ontario Securities Commission staff report of 14 Apr 2020 said \"Quadriga operated like a Ponzi scheme\", staff's view and not a hearing panel's finding. Celsius: withdrawals halted 12 Jun 2022, Chapter 11 on 13 Jul 2022, about $4.7bn owed. Voyager: accounts frozen 1 Jul 2022, customers lost more than $1bn (FTC 12 Oct 2023). FTX: customer withdrawals paused 8 Nov 2022 (SEC complaint), all trading and withdrawals halted 10 Nov 2022, Chapter 11 on 11 Nov 2022, over $8bn of customer deposits missing (CFTC complaint 13 Dec 2022); founder sentenced to 25 years on 28 Mar 2024. Bybit: nearly $1.5bn stolen in February 2025, \"the largest digital heist in crypto history\" (Chainalysis 8 Jan 2026).",
-    "unit": "dates; BTC, USD, CAD",
-    "date": "2023-10-12",
-    "source": "https://www.ftc.gov/news-events/news/press-releases/2023/10/ftc-reaches-settlement-crypto-company-voyager-digital-charges-former-executive-falsely-claiming",
-    "publisher": "Federal Trade Commission",
-    "accessed": "2026-11-02",
-    "confidence": "medium",
-    "lastReviewed": "2026-11-02"
+    "key": "d.mt-gox",
+    "value": "MtGox Co., Ltd., 28 Feb 2014: it applied that day for civil rehabilitation at the Tokyo District Court; it had closed its site at noon on 25 Feb 2014 (Japan time); about 750,000 bitcoins deposited by users had disappeared.",
+    "unit": "dates; BTC",
+    "date": "2014-02-28",
+    "source": "https://www.mtgox.com/img/pdf/20140228-announcement_eng.pdf",
+    "publisher": "MtGox Co., Ltd.",
+    "accessed": "2026-11-09",
+    "confidence": "high",
+    "lastReviewed": "2026-11-09"
+  },
+  {
+    "key": "d.ftx",
+    "value": "CFTC complaint of 13 Dec 2022: on 10 Nov 2022 FTX and FTX US halted all trading and withdrawals; over $8 billion in customer deposits were missing.",
+    "unit": "dates; USD",
+    "date": "2022-12-13",
+    "source": "https://www.cftc.gov/media/7986/enfsamuelbankman-friedcomplaint121322/download",
+    "publisher": "Commodity Futures Trading Commission",
+    "accessed": "2026-11-09",
+    "confidence": "high",
+    "lastReviewed": "2026-11-09"
   },
   {
     "key": "e.scams",
@@ -56,12 +67,12 @@
   },
   {
     "key": "f.leverage",
-    "value": "CoinGlass on X, 10 Oct 2025 23:48 UTC: \"1,618,240 traders were liquidated, with a total liquidation amount of $19.13 billion\" in 24 hours, the largest in its dataset; exchanges under-report, so the real figure was likely higher. Liquidations in 2025 to 20 Nov 2025: about $150bn, roughly $400m to $500m a day; first half of 2026: $73.35bn, about $405m a day. ESMA 2018: 74 to 89 % of retail CFD accounts lose money (average losses €1,600 to €29,000); the FCA banned crypto derivatives for retail consumers from 6 Jan 2021.",
-    "unit": "USD, EUR; accounts; % of accounts",
+    "value": "CoinGlass 2025 annual report (data from 1 Jan to 20 Nov 2025): on 10 Oct 2025, combined long and short liquidations exceeded $19 billion, far surpassing the single-day highs of all previous liquidation rounds.",
+    "unit": "USD",
     "date": "2026-10-16",
     "source": "https://www.coinglass.com/learn/2025-annual-report-en",
     "publisher": "CoinGlass",
-    "accessed": "2026-11-02",
+    "accessed": "2026-11-09",
     "confidence": "high",
     "lastReviewed": "2026-11-09"
   },
