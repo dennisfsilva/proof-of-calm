@@ -25,15 +25,15 @@ import { PortfolioScreen } from './portfolio-screen';
 // against cost with the fees beside it, the allocation, the holdings and the coins not bought yet. The
 // plan is Portugal's and its rules are loaded, so the figures are the ones the product shows, in pt-PT.
 
-// The P/L line's Why? loads the Learn sheet on a press: the namespaces answer from memory, and the sheet and
-// the fixture body load with this file, so a findBy waits on renders (lib/services/testing-modules.ts).
+// The P/L line's Why? loads the Learn sheet on a press: the namespaces answer from memory and the fixture body
+// loads with this file (lib/services/testing-modules.ts). The sheet's own chunk stays behind Learn's index, as
+// the dependency rule wants, so the press below waits longer for its first import().
 vi.mock('../../../lib/i18n/namespaces', async (original) => {
   const { namespacesInMemory } = await import('../../../lib/services/testing-modules');
   return namespacesInMemory(await original<typeof import('../../../lib/i18n/namespaces')>());
 });
 
 await preloadLazyModules([
-  () => import('../../learn/components/module-sheet'),
   () => import('virtual:learn-modules').then((modules) => modules.LEARN_BODIES['risk-honestly']?.()),
 ]);
 
@@ -323,7 +323,7 @@ describe('PortfolioScreen', () => {
       const link = screen.getByRole('button', { name: WHY });
       link.focus();
       fireEvent.click(link);
-      expect(await screen.findByRole('dialog', { name: IDEA })).toBeDefined();
+      expect(await screen.findByRole('dialog', { name: IDEA }, { timeout: 3000 })).toBeDefined();
       fireEvent.click(screen.getByRole('button', { name: 'Close' }));
       await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
       await waitFor(() => expect(document.activeElement).toBe(link));
