@@ -85,7 +85,7 @@
     "high": "On {date} {names}{coins, select, one { was} other {, in the amounts you hold, were}} {fall} below {coins, select, one {its} other {their combined}} 90-day high.",
     "open": "See the fall under way",
     "dismiss": "Dismiss",
-    "failed": "This could not be dismissed on this device, so it may show again."
+    "failed": "The notice could not be dismissed on this device, so it may show again."
   },
   "durability": "Your data lives only in this browser. Install the app or export a copy to keep it.",
   "durabilityInstalled": "Your data lives only on this device. Export a copy to keep it."
