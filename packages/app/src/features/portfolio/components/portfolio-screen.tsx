@@ -22,6 +22,7 @@ import { useTranslations } from 'use-intl';
 import type { Formatters } from '../../../lib/format';
 import { Link } from '../../../lib/navigation';
 import { useFormatters, usePrices, useRules, useSnapshot } from '../../../lib/services';
+import { WhyLink } from '../../learn';
 import { NoPlan, PricesLine, useOnline } from '../../today';
 import { useHistories } from '../lib/use-histories';
 import { chartCoins, chartState } from '../lib/value-chart';
@@ -30,7 +31,8 @@ import { JanuaryValue } from './january-value';
 import { chartDiscloses, VALUE_CHART_VIEW_BOX, ValueChart } from './value-chart';
 
 // The Portfolio screen (docs/DOMAIN.md §3.6, docs/DESIGN.md §7): the value of what is held in the pay
-// currency, P/L against cost with the fees beside it (never subtracted), the allocation, the holdings
+// currency, P/L against cost with the fees beside it (never subtracted) and, wherever the P/L stands, its
+// Why? to Risk honestly (docs/EDUCATION.md, the links table), the allocation, the holdings
 // and the plan's coins not bought yet, and units sold before the purchases that cover them (imported data, §3.7,
 // §3.13: kept as written and named here). No total without a price for every coin held, never a partial
 // sum; the allocation then weighs by the amount invested, as the core does. The value carries Today's prices
@@ -146,7 +148,6 @@ function PlanPortfolio({ plan }: { plan: Plan }) {
   const allocation = shares(value, colours, byValue, currency, format);
   const pnl = formatPnl(value, format, currency);
   const facts: readonly (readonly [string, string, string])[] = [
-    ...(pnl === null ? [] : [[t('summary.pnl'), pnl, pnlTone(value)] as const]),
     [t('summary.invested'), format.money(value.invested, currency), 'text-ink'],
     [t('summary.fees'), format.money(value.fees, currency), 'text-ink'],
   ];
@@ -170,6 +171,15 @@ function PlanPortfolio({ plan }: { plan: Plan }) {
           </p>
         )}
         <dl className="grid grid-cols-[auto_1fr] gap-x-stack-md gap-y-stack-xs text-14">
+          {pnl !== null && (
+            <div className="contents">
+              <dt className="text-ink-2">{t('summary.pnl')}</dt>
+              <dd className="flex flex-wrap items-center gap-x-stack-xs">
+                <span className={`nums ${pnlTone(value)}`}>{pnl}</span>
+                <WhyLink module="risk-honestly" name={t('summary.why')} standalone />
+              </dd>
+            </div>
+          )}
           {facts.map(([term, figure, tone]) => (
             <div key={term} className="contents">
               <dt className="text-ink-2">{term}</dt>

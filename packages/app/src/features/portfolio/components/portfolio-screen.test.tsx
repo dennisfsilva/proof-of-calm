@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { countryRules, loadProfile } from '@proofofcalm/content';
 import { type CalendarDate, type Coin, type Entry, ok, type Plan } from '@proofofcalm/core';
-import { act, cleanup, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { EMPTY_SNAPSHOT } from '../../../lib/adapters';
 import { I18nProvider } from '../../../lib/i18n';
@@ -13,15 +13,29 @@ import {
   createTestServices,
   FIXTURE_PRICES,
   fixedPriceSource,
+  preloadLazyModules,
   type TestServicesOptions,
 } from '../../../lib/services/testing';
 import messages from '../../../messages/en/portfolio.json';
+import shell from '../../../messages/en/shell.json';
 import today from '../../../messages/en/today.json';
 import { PortfolioScreen } from './portfolio-screen';
 
 // The Portfolio screen over the fixture plan (docs/DOMAIN.md §3.6): the value of what is held, P/L
 // against cost with the fees beside it, the allocation, the holdings and the coins not bought yet. The
 // plan is Portugal's and its rules are loaded, so the figures are the ones the product shows, in pt-PT.
+
+// The P/L line's Why? loads the Learn sheet on a press: the namespaces answer from memory, and the sheet and
+// the fixture body load with this file, so a findBy waits on renders (lib/services/testing-modules.ts).
+vi.mock('../../../lib/i18n/namespaces', async (original) => {
+  const { namespacesInMemory } = await import('../../../lib/services/testing-modules');
+  return namespacesInMemory(await original<typeof import('../../../lib/i18n/namespaces')>());
+});
+
+await preloadLazyModules([
+  () => import('../../learn/components/module-sheet'),
+  () => import('virtual:learn-modules').then((modules) => modules.LEARN_BODIES['risk-honestly']?.()),
+]);
 
 afterEach(cleanup);
 
@@ -49,7 +63,7 @@ async function renderScreen(
   render(
     <NavigationProvider location="memory" initialPath="/portfolio">
       <ServicesProvider services={services}>
-        <I18nProvider messages={{ portfolio: messages, today }}>
+        <I18nProvider messages={{ portfolio: messages, today, shell }}>
           <PortfolioScreen />
         </I18nProvider>
       </ServicesProvider>
@@ -229,6 +243,91 @@ describe('PortfolioScreen', () => {
     expect(screen.getByRole('link', { name: 'import a file' }).getAttribute('href')).toBe('/settings');
     expect(text()).not.toContain('entries');
     expect(screen.queryByRole('table')).toBeNull();
+  });
+
+  // docs/EDUCATION.md, the links table (session 15c, decision 5): the P/L line's Why? opens Risk honestly, and it
+  // stands wherever the P/L line does. The core gives no P/L only while a held coin has no price.
+  describe("the P/L line's Why?", () => {
+    const WHY = 'Why? Risk honestly';
+    const IDEA = "The third fixture's idea, for Portfolio's Why? on the P/L line.";
+    const why = () => screen.queryByRole('button', { name: WHY });
+    /** The link sits in the P/L figure's own cell, after the figure. */
+    const besidePnl = () => {
+      const link = why();
+      expect(link?.closest('dd')?.previousElementSibling?.textContent).toBe('P/L');
+    };
+
+    it('stands beside the P/L with no entry yet', async () => {
+      await renderScreen({ ...fixtureSnapshot(), entries: [] }, 'buy');
+      expect(screen.getByText('P/L', { selector: 'dt' })).toBeDefined();
+      besidePnl();
+    });
+
+    it('stands beside the P/L in the hold phase, after the last buy', async () => {
+      const snapshot = fixtureSnapshot();
+      if (snapshot.plan === null) throw new Error('the fixture has a plan');
+      const ended = '2026-09-20' as CalendarDate;
+      await renderScreen({ ...snapshot, plan: { ...snapshot.plan, lastBuy: ended, endedBuyingOn: ended } }, 'buy');
+      expect(text()).toContain('P/L+76,56 € (+4,5%)');
+      besidePnl();
+    });
+
+    it('stands beside a loss', async () => {
+      const low: PricesState = {
+        ...FIXTURE_PRICES,
+        snapshot: {
+          ...FIXTURE_PRICES.snapshot,
+          prices: {
+            ...FIXTURE_PRICES.snapshot.prices,
+            BTC: { EUR: '30000', USD: '35000' },
+          } as PricesState['snapshot']['prices'],
+        },
+      };
+      await renderScreen(fixtureSnapshot(), 'buy', low);
+      expect(text()).toMatch(/P\/L[−-]/u);
+      besidePnl();
+    });
+
+    it('stands beside the P/L when every entry was added with no cost', async () => {
+      const snapshot = fixtureSnapshot();
+      const [first] = snapshot.entries as [Entry];
+      const held: Entry = { ...first, kind: 'held', slot: null, amount: null, fee: null };
+      await renderScreen({ ...snapshot, entries: [held] }, 'buy');
+      expect(text()).toContain('No recorded cost for');
+      besidePnl();
+    });
+
+    it('stands beside the P/L with everything sold', async () => {
+      const snapshot = fixtureSnapshot();
+      const lastSale = snapshot.entries.at(-1);
+      if (lastSale === undefined) throw new Error('the fixture has entries');
+      const sell = (n: string, coin: string, units: string) =>
+        ({ ...lastSale, id: `${lastSale.id.slice(0, -3)}${n}`, coin, units }) as Entry;
+      await renderScreen(
+        { ...snapshot, entries: [...snapshot.entries, sell('998', 'BTC', '0.02215'), sell('999', 'ETH', '0.119')] },
+        'buy',
+      );
+      expect(text()).toContain('Value0,00 €');
+      besidePnl();
+    });
+
+    it('is absent while a held coin has no price, with the P/L line', async () => {
+      await renderScreen(fixtureSnapshot(), 'buy', null);
+      expect(text()).toContain('No price yet for BTC, ETH.');
+      expect(screen.queryByText('P/L', { selector: 'dt' })).toBeNull();
+      expect(why()).toBeNull();
+    });
+
+    it('opens Risk honestly in a sheet, on the Portfolio route, and gives the focus back on close', async () => {
+      await renderScreen(fixtureSnapshot(), 'buy');
+      const link = screen.getByRole('button', { name: WHY });
+      link.focus();
+      fireEvent.click(link);
+      expect(await screen.findByRole('dialog', { name: IDEA })).toBeDefined();
+      fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+      await waitFor(() => expect(document.activeElement).toBe(link));
+    });
   });
 
   // docs/LEGAL.md §4: the past-performance line once per path, directly under the historic figure. The value

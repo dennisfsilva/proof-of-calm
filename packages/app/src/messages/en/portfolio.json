@@ -5,7 +5,8 @@
     "unpriced": "No price yet for {coins}.",
     "pnl": "P/L",
     "invested": "Invested",
-    "fees": "Fees (not in P/L)"
+    "fees": "Fees (not in P/L)",
+    "why": "Why? Risk honestly"
   },
   "chart": {
     "label": "Portfolio value, {range, select, 7d {last 7 days} 30d {last 30 days} 90d {last 90 days} 1y {last 12 months} other {since the first entry}} ({start} to {end}), from {from} to {to}",
