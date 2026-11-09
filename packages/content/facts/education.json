@@ -1,25 +1,25 @@
 [
   {
     "key": "a.btc-drawdowns",
-    "value": "Bitcoin drawdowns from cycle highs: 2011, from $31.91 (Mt. Gox, 8 Jun 2011) to about $2 (CoinMarketCap composite, $1.92 on 22 Nov 2011), −93 to −94 %; 2013 to 2015, from $1,163 (Bitstamp intraday 30 Nov 2013; Mt. Gox traded at $1,242 a day earlier) to $152.40 (14 Jan 2015), −86.9 % (−85.2 % on the CoinMarketCap series); 2017 to 2018, from $19,666 (Bitstamp 17 Dec 2017; CMC $20,089) to $3,122 (15 Dec 2018), −84.1 %; 2021 to 2022, from $69,000 (Bitstamp 10 Nov 2021) to $15,479 (Bitstamp 21 Nov 2022), −77.6 %; current cycle, from $126,272 (Bitstamp 6 Oct 2025; CMC $126,198.07) to $57,735 (1 Jul 2026), −54.3 % so far. On closes the figures from 2013 on are 0.7 to 1.2 percentage points smaller, except Bitstamp's −86.9 %, which becomes −84.9 %.",
+    "value": "Proof of Calm's own computation from intraday prices (Mt. Gox, CoinMarketCap, and Bitstamp) of Bitcoin drawdowns from cycle highs: 2011, from $31.91 (Mt. Gox, 8 Jun 2011) to about $2 (CoinMarketCap composite, $1.92 on 22 Nov 2011), −93 to −94 %; 2013 to 2015, from $1,163 (Bitstamp intraday 30 Nov 2013; Mt. Gox traded at $1,242 a day earlier) to $152.40 (14 Jan 2015), −86.9 % (−85.2 % on the CoinMarketCap series); 2017 to 2018, from $19,666 (Bitstamp 17 Dec 2017; CMC $20,089) to $3,122 (15 Dec 2018), −84.1 %; 2021 to 2022, from $69,000 (Bitstamp 10 Nov 2021) to $15,479 (Bitstamp 21 Nov 2022), −77.6 %; current cycle, from $126,272 (Bitstamp 6 Oct 2025; CMC $126,198.07) to $57,735 (1 Jul 2026), −54.3 % so far. On closes the figures from 2013 on are 0.7 to 1.2 percentage points smaller, except Bitstamp's −86.9 %, which becomes −84.9 %.",
     "unit": "USD; % from cycle high",
     "date": "2026-10-16",
     "source": "https://www.bitstamp.net/api/v2/ohlc/btcusd/?step=86400",
     "publisher": "Bitstamp",
     "accessed": "2026-11-02",
     "confidence": "medium",
-    "lastReviewed": "2026-11-02"
+    "lastReviewed": "2026-11-09"
   },
   {
     "key": "b.alt-drawdowns",
-    "value": "ETH 2018 (Coinbase): $1,420 (13 Jan 2018) to $80.60 (14 Dec 2018), −94.3 %. ETH 2022 (Coinbase): $4,868 (10 Nov 2021) to $880 (18 Jun 2022), −81.9 %. SOL (Coinbase): $260 (6 Nov 2021) to $8.00 (29 Dec 2022), −96.9 %. LINK 2018 (CoinMarketCap series only): $1.435 (8 Jan 2018) to $0.1621 (29 Jun 2018), −88.7 %. LINK 2021 to 2023 (Coinbase): $52.99 (10 May 2021) to $4.93 (10 Jun 2023), −90.7 %. On 16 Oct 2026 (Coinbase) LINK was still 77 % and SOL 60 % below their 2021 highs.",
+    "value": "Proof of Calm's own computation from intraday prices (Coinbase and CoinMarketCap) of Ether, Solana, and Chainlink drawdowns from cycle highs. ETH 2018 (Coinbase): $1,420 (13 Jan 2018) to $80.60 (14 Dec 2018), −94.3 %. ETH 2022 (Coinbase): $4,868 (10 Nov 2021) to $880 (18 Jun 2022), −81.9 %. SOL (Coinbase): $260 (6 Nov 2021) to $8.00 (29 Dec 2022), −96.9 %. LINK 2018 (CoinMarketCap series only): $1.435 (8 Jan 2018) to $0.1621 (29 Jun 2018), −88.7 %. LINK 2021 to 2023 (Coinbase): $52.99 (10 May 2021) to $4.93 (10 Jun 2023), −90.7 %. On 16 Oct 2026 (Coinbase) LINK was still 77 % and SOL 60 % below their 2021 highs.",
     "unit": "USD; % from cycle high",
     "date": "2026-10-16",
     "source": "https://api.exchange.coinbase.com/products/ETH-USD/candles?granularity=86400",
     "publisher": "Coinbase Exchange",
     "accessed": "2026-11-02",
     "confidence": "medium",
-    "lastReviewed": "2026-11-02"
+    "lastReviewed": "2026-11-09"
   },
   {
     "key": "c.current-cycle",

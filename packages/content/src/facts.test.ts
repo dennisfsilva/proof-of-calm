@@ -123,7 +123,7 @@ describe('the education facts (docs/EDUCATION.md §9)', () => {
 
   it('name the data’s publisher, so "[Source] closes" reads as LEGAL §4 writes it; our computation opens the value', () => {
     expect(facts.filter((fact) => fact.publisher.includes('Proof of Calm')).map((fact) => fact.key)).toEqual([]);
-    const computed = facts.filter((fact) => /^[hiopq]\./.test(fact.key));
+    const computed = facts.filter((fact) => /^[abhiopq]\./.test(fact.key));
     expect(
       computed.filter((fact) => !fact.value.startsWith("Proof of Calm's own computation")).map((fact) => fact.key),
     ).toEqual([]);
