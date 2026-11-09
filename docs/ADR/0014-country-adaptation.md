@@ -1,6 +1,6 @@
 # ADR-0014: Country adaptation: profiles, cards, holding rules, tax-year export
 
-Status: Accepted · Date: 2026-10-16 · Deciders: owner (before the session); detailed by the planning session
+Status: Accepted; the currency a country change re-derives superseded in part by ADR-0053 · Date: 2026-10-16 · Deciders: owner (before the session); detailed by the planning session
 
 ## Context
 
@@ -53,3 +53,16 @@ corrected here instead of rewritten (`docs/ADR/README.md`).
   and the card is not replaced: it keeps its title, shows neither its rule's words nor its Sources,
   and its date line takes the under-review form (`docs/JURISDICTIONS.md` §1; `docs/LEGAL.md` §4 owns
   the words).
+
+## Corrections recorded on 2026-11-09
+
+Partly superseded by ADR-0053 ("One currency per plan: a change of country asks before it
+relabels"); the rest of the decision stands.
+
+- **Decision: "The profile sets: pay currency".** It sets the pay currency at setup. A later change
+  of country sets it only on the person's answer when a live entry holds an amount or a fee; with
+  none, the currencies still follow the country (ADR-0053).
+- **Consequences, third bullet: "A country change re-derives defaults".** It re-derives the holding
+  rule and the rule version. The pay and display currencies stay as they are unless the person says
+  the amounts were paid in the new country's currency; nothing is ever converted (ADR-0053,
+  `docs/DOMAIN.md` §2.1 and §6 "Change country").
