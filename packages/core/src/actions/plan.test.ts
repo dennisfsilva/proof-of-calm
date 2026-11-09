@@ -10,6 +10,7 @@ import type { Plan } from '../schema/plan';
 import {
   changeCountry,
   changePayCurrency,
+  currencyQuestion,
   endBuying,
   pausePlan,
   resumePlan,
@@ -262,7 +263,7 @@ describe('changeCountry (docs/DOMAIN.md §6)', () => {
   });
 
   it('re-derives the rule, the currency and the rule version, listing what changed for the user to confirm', () => {
-    const germany = changeCountry(plan, rules({}), now);
+    const germany = changeCountry(plan, rules({}), now, 'country');
     expect(germany.plan).toEqual({
       ...plan,
       country: 'DE',
@@ -286,6 +287,7 @@ describe('changeCountry (docs/DOMAIN.md §6)', () => {
       plan,
       rules({ code: 'US', currency: 'USD', holdingRule: { kind: 'years', years: 1, effect: 'lower-rate' } }),
       now,
+      'country',
     );
     expect(us.plan).toEqual(
       expect.objectContaining({ payCurrency: 'USD', displayCurrency: 'USD', monthlyAmount: '100' }),
@@ -298,15 +300,39 @@ describe('changeCountry (docs/DOMAIN.md §6)', () => {
     ]);
   });
 
+  it('keeps both currencies on a keep answer: logged amounts are never relabelled (ADR-0053)', () => {
+    const uk = rules({ code: 'GB', currency: 'GBP', holdingRule: { kind: 'none' } });
+    const kept = changeCountry(plan, uk, now, 'keep');
+    expect(kept.plan).toEqual(expect.objectContaining({ country: 'GB', payCurrency: 'EUR', displayCurrency: 'EUR' }));
+    expect(kept.changes.map((change) => change.field)).toEqual(['country', 'holdingRule']);
+  });
+
+  it('asks about the currency only when it differs and a live entry holds an amount or a fee', () => {
+    const uk = rules({ code: 'GB', currency: 'GBP' });
+    const march = anEntry({ date: date('2026-03-01') });
+    const january = anEntry({ date: date('2026-01-01'), amount: null, fee: money('1') });
+    const held = anEntry({ kind: 'held', date: date('2025-06-01'), amount: null, fee: null, slot: null });
+    const deleted = anEntry({ date: date('2025-01-01'), deletedAt: now });
+    expect(currencyQuestion(plan, [march, january, held, deleted], uk)).toEqual({
+      logged: 'EUR',
+      country: 'GBP',
+      count: 2,
+      first: '2026-01-01',
+      last: '2026-03-01',
+    });
+    expect(currencyQuestion(plan, [held, deleted], uk)).toBeNull();
+    expect(currencyQuestion(plan, [march], rules({}))).toBeNull();
+  });
+
   it('says nothing changed when the rule is the same, whatever the order of its fields', () => {
     const same = { effect: 'exempt', days: 365, kind: 'days' } as const;
-    expect(changeCountry(plan, rules({ code: 'PT', holdingRule: same }), now).changes).toEqual([]);
+    expect(changeCountry(plan, rules({ code: 'PT', holdingRule: same }), now, 'country').changes).toEqual([]);
   });
 
   it('reports a sell window that the new rule makes early, for the user to accept or move', () => {
     const window = { opens: date('2027-06-01'), closes: date('2027-08-31'), exitBy: date('2027-12-31') };
     const twoYears = rules({ holdingRule: { kind: 'years', years: 2, effect: 'exempt' } });
-    expect(changeCountry({ ...plan, sellWindow: window }, twoYears, now).issues).toEqual([
+    expect(changeCountry({ ...plan, sellWindow: window }, twoYears, now, 'country').issues).toEqual([
       'sell-window-before-eligibility',
     ]);
   });
@@ -320,10 +346,10 @@ describe('changeCountry (docs/DOMAIN.md §6)', () => {
     } as const;
     const early = { ...plan, sellWindow: accepted };
     const twoYears = rules({ holdingRule: { kind: 'years', years: 2, effect: 'exempt' } });
-    const moved = changeCountry(early, twoYears, now);
+    const moved = changeCountry(early, twoYears, now, 'country');
     expect(moved.plan.sellWindow).toEqual({ opens: accepted.opens, closes: accepted.closes, exitBy: accepted.exitBy });
     expect(moved.issues).toEqual(['sell-window-before-eligibility']);
-    const same = changeCountry(early, rules({ holdingRule: plan.holdingRule }), now);
+    const same = changeCountry(early, rules({ holdingRule: plan.holdingRule }), now, 'country');
     expect(same.plan.sellWindow).toBe(accepted);
   });
 
@@ -351,7 +377,7 @@ describe('changeCountry (docs/DOMAIN.md §6)', () => {
         amount,
         (code, currency, rule, monthlyAmount, startingAmount) => {
           const before = { ...plan, monthlyAmount, startingAmount };
-          const { plan: after } = changeCountry(before, rules({ code, currency, holdingRule: rule }), now);
+          const { plan: after } = changeCountry(before, rules({ code, currency, holdingRule: rule }), now, 'country');
           const rederived = [
             'country',
             'payCurrency',
@@ -369,7 +395,7 @@ describe('changeCountry (docs/DOMAIN.md §6)', () => {
   });
 
   it('stamps after the stored plan on a clock behind it (docs/DOMAIN.md §3.15)', () => {
-    const stamp = changeCountry(ahead, rules({}), now).plan.updatedAt;
+    const stamp = changeCountry(ahead, rules({}), now, 'country').plan.updatedAt;
     expect(compareInstants(stamp, ahead.updatedAt)).toBe(1);
     expect(stamp).toBe(stampAfter(now, ahead.updatedAt));
   });

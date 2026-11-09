@@ -121,18 +121,51 @@ export type CountryChange = {
 };
 
 /**
- * The plan re-derived for another country: its currency for amounts from now on (logged amounts stay
- * as typed), its holding rule and its rule version. Formats follow the profile in the shell. An early
+ * The person's word on the plan's currencies (ADR-0053): `keep` leaves both as they are (a move: the amounts were
+ * paid in them, and new ones are too); `country` sets both to the new country's (a correction: the amounts were
+ * paid in that currency). Neither converts an amount.
+ */
+export type CurrencyAnswer = 'keep' | 'country';
+
+/** What the currency question names: the plan's currency, the country's, and the logged entries it covers. */
+export type CurrencyQuestion = {
+  readonly logged: CurrencyCode;
+  readonly country: CurrencyCode;
+  /** The live entries with an amount or a fee, and their first and last dates. */
+  readonly count: number;
+  readonly first: CalendarDate;
+  readonly last: CalendarDate;
+};
+
+/**
+ * The question a change of country asks before it relabels (ADR-0053): null when the country's currency is the plan's
+ * pay currency, or no live entry holds an amount or a fee, so either answer stores the same amounts.
+ */
+export function currencyQuestion(plan: Plan, entries: readonly Entry[], rules: CountryRules): CurrencyQuestion | null {
+  if (plan.payCurrency === rules.currency) return null;
+  const [head, ...rest] = liveEntries(entries).filter((entry) => entry.amount !== null || entry.fee !== null);
+  if (head === undefined) return null;
+  let first = head.date;
+  let last = head.date;
+  for (const { date } of rest) {
+    if (compareDates(date, first) < 0) first = date;
+    if (compareDates(date, last) > 0) last = date;
+  }
+  return { logged: plan.payCurrency, country: rules.currency, count: rest.length + 1, first, last };
+}
+
+/**
+ * The plan re-derived for another country: its holding rule and its rule version, and its currencies only on a
+ * `country` answer (ADR-0053; logged amounts stay as typed). Formats follow the profile in the shell. An early
  * sell window's acceptance holds only for the rule it was given under, so a new rule drops it.
  */
-export function changeCountry(plan: Plan, rules: CountryRules, now: Instant): CountryChange {
+export function changeCountry(plan: Plan, rules: CountryRules, now: Instant, currency: CurrencyAnswer): CountryChange {
   const window = plan.sellWindow;
   const ruleChanged = !sameHoldingRule(plan.holdingRule, rules.holdingRule);
   const next: Plan = {
     ...plan,
     country: rules.code,
-    payCurrency: rules.currency,
-    displayCurrency: rules.currency,
+    ...(currency === 'country' ? { payCurrency: rules.currency, displayCurrency: rules.currency } : {}),
     holdingRule: rules.holdingRule,
     countryRuleVersion: rules.status.version,
     sellWindow:

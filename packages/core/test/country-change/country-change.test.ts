@@ -16,7 +16,7 @@ const expected = (country: FixtureCountry) => BUYS.map((buy) => (country === 'XX
 describe.each(CASES)('changeCountry $from → $to', ({ from, to, issues }) => {
   const before = fixturePlan(from);
   const entries = structuredClone(FIXTURE_ENTRIES);
-  const change = changeCountry(before, FIXTURE_RULES[to], now);
+  const change = changeCountry(before, FIXTURE_RULES[to], now, 'country');
 
   it('lists the country and the holding rule, which the person confirms; the currency stays EUR', () => {
     expect(change.changes).toEqual([
