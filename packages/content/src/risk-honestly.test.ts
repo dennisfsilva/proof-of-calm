@@ -127,8 +127,12 @@ describe('the Risk honestly module', () => {
     expect(body.slice(0, chart)).not.toMatch(/\d/u);
     const btc = falls('BTC');
     const lowest = btc.reduce((low, fall) => (Number.parseInt(fall, 10) < Number.parseInt(low, 10) ? fall : low));
+    // The chart's completed bitcoin falls, from the first high's year to the last low's: fact a's current cycle,
+    // from the high of 6 Oct 2025, is not one of them, so the sentence counts the falls and dates them.
+    const rows = drawdowns.drawdowns.filter((row) => row.coin === 'BTC');
+    const [first, last] = [rows[0]?.high.slice(0, 4), rows.at(-1)?.low.slice(0, 4)];
     expect(body).toContain(
-      `In the chart, bitcoin fell ${lowest} or more from each of its ${btc.length === 4 ? 'four' : btc.length} highs.`,
+      `In the chart, bitcoin fell ${lowest} or more ${btc.length === 4 ? 'four' : btc.length} times between ${first} and ${last}.`,
     );
     const [eth1, eth2] = falls('ETH');
     const [link1, link2] = falls('LINK');
@@ -157,7 +161,10 @@ describe('the Risk honestly module', () => {
       for (const text of quoted) expect(`${key}: ${value(key)}`).toContain(text);
     }
     expect(plain(body)).toContain('Mt. Gox closed its site on 25 Feb 2014.');
-    expect(plain(body)).toContain('On 10 Nov 2022, FTX and FTX US halted all trading and withdrawals.');
+    // Both FTX statements are the complaint's, attributed and dated.
+    expect(plain(body)).toContain(
+      "The US Commodity Futures Trading Commission's complaint of 13 Dec 2022 says FTX and FTX US halted all trading and withdrawals on 10 Nov 2022, and that over $8 billion in customer deposits were missing.",
+    );
     expect(plain(body)).toContain('over $19 billion of liquidations on 10 Oct 2025 alone.');
     // EDUCATION §9 row f: one dated leverage figure; ESMA's CFD figure and the FCA ban stay out.
     expect(body).not.toMatch(/ESMA|CFD|banned/u);
@@ -167,7 +174,9 @@ describe('the Risk honestly module', () => {
 
   it('gives the order of operations, self-custody in five sentences, and six scam patterns', () => {
     const { body } = read();
-    expect(body).toMatch(/First, an emergency fund\..*Then no borrowed money.*Last, an amount small enough/u);
+    expect(body).toMatch(
+      /A common order: first, an emergency fund\..*Then no borrowed money.*Last, an amount small enough/u,
+    );
     // EDUCATION §9 row m: the FCA's one quote; "recommend" is on the ban list (CONTENT-STYLE §2), so "advise".
     expect(body.replaceAll(' ', ' ')).toContain(
       "The FCA's InvestSmart page says many experts advise a fund that covers 3 to 6 months of outgoings.",
