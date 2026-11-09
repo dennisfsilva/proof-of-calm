@@ -5,6 +5,7 @@ import {
   dateScale,
   downsample,
   type Entry,
+  entryRole,
   extent,
   isPositive,
   linearScale,
@@ -104,8 +105,8 @@ export function coinChart(
       close,
       x: x(day),
       y: y(close),
-      bought: total(that.filter((entry) => entry.kind !== 'sell')),
-      sold: total(that.filter((entry) => entry.kind === 'sell')),
+      bought: total(that.filter((entry) => entryRole(entry.kind) === 'purchase')),
+      sold: total(that.filter((entry) => entryRole(entry.kind) === 'sale')),
     };
   });
   // An entry with no cost (coins held, unknown or nothing paid) has no price to mark.
@@ -115,7 +116,7 @@ export function coinChart(
       : [
           {
             id: entry.id,
-            kind: entry.kind === 'sell' ? 'sell' : 'buy',
+            kind: entryRole(entry.kind) === 'sale' ? 'sell' : 'buy',
             x: x(entry.date),
             y: y(quotient<Price>(entry.amount, entry.units, PRICE_DP, 'half-even')),
           },

@@ -5,6 +5,7 @@ import type { CalendarDate } from '../dates/calendar';
 import type { CurrencyCode } from '../money/currency';
 import { isPositive, type Money, minus, type Price, plus, sum, type Units, valueAt } from '../money/decimal';
 import { liveEntries } from '../plan/statuses';
+import { unitsIn, unitsOut } from '../portfolio/effect';
 import { defined } from '../result';
 import type { Entry } from '../schema/entry';
 import type { CoinId } from '../schema/ids';
@@ -46,7 +47,7 @@ function unitsHeldOn(entries: readonly Entry[], date: CalendarDate): Map<CoinId,
   for (const entry of liveEntries(entries)) {
     if (entry.date > date) continue;
     const before = held.get(entry.coin) ?? ('0' as Units);
-    held.set(entry.coin, entry.kind === 'sell' ? minus(before, entry.units) : plus(before, entry.units));
+    held.set(entry.coin, minus(plus(before, unitsIn(entry)), unitsOut(entry)));
   }
   return held;
 }

@@ -20,6 +20,7 @@ import {
   valueAt,
 } from '../money/decimal';
 import { liveEntries } from '../plan/statuses';
+import { entryRole, unitsIn, unitsOut } from '../portfolio/effect';
 import { compareEntries } from '../portfolio/lots';
 import { coinsWithEntries } from '../portfolio/portfolio';
 import { assertNever } from '../result';
@@ -115,9 +116,9 @@ function cession(
   let heldWithoutCost = 0;
   for (const entry of before) {
     const units = held.get(entry.coin) ?? ZERO;
-    held.set(entry.coin, entry.kind === 'sell' ? minus(units, entry.units) : plus(units, entry.units));
+    held.set(entry.coin, minus(plus(units, unitsIn(entry)), unitsOut(entry)));
     if (isEstimate(entry)) estimates.add(entry.coin);
-    if (entry.kind === 'sell') continue;
+    if (entryRole(entry.kind) !== 'purchase') continue;
     // Only a `held` entry may lack an amount (docs/DOMAIN.md §2.2); a recorded 0 is a cost.
     if (entry.amount === null) heldWithoutCost += 1;
     else [costs, fees] = [plus(costs, entry.amount), plus(fees, entry.fee ?? ZERO)];
@@ -172,7 +173,7 @@ export function taxYearCessions(
   const ongoing = today <= span.to;
   const last = ongoing ? today : span.to;
   const sales = live.flatMap((entry, index) =>
-    entry.kind === 'sell' && span.from <= entry.date && entry.date <= last ? [{ entry, index }] : [],
+    entryRole(entry.kind) === 'sale' && span.from <= entry.date && entry.date <= last ? [{ entry, index }] : [],
   );
   const cessions = sales.map(({ entry, index }, n) => cession(plan, entry, live.slice(0, index), histories, n + 1));
   const unpriced = (sale: Cession) => sale.holdings.filter((holding) => holding.value === null);

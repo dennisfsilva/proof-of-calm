@@ -142,6 +142,11 @@ describe('taxYearSnapshot (docs/DOMAIN.md §3.13)', () => {
     const odd = anEntry({ kind: 'other' as never, date: date('2026-03-01'), slot: null });
     expect(() => snapshot([odd])).toThrow('Unhandled case');
   });
+
+  it('fails on an entry kind it does not know while the year is open, with no closing value read first', () => {
+    const odd = anEntry({ kind: 'other' as never, date: date('2026-03-01'), slot: null });
+    expect(() => snapshot([odd], date('2026-12-31'))).toThrow('Unhandled case');
+  });
 });
 
 describe('taxYearSnapshotCsv (docs/DOMAIN.md §3.13)', () => {

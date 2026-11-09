@@ -13,6 +13,7 @@ import { type HoldingStatus, holdingStatus } from '../holding/eligible-from';
 import { compare, type Money, sum } from '../money/decimal';
 import { slots } from '../plan/slots';
 import { liveEntries } from '../plan/statuses';
+import { entryRole } from '../portfolio/effect';
 import { DEFAULT_HOLDING_CONTEXT, type HoldingContext } from '../portfolio/eligibility';
 import { type Entry, type EntryKind, recordedAmounts } from '../schema/entry';
 import type { Plan, Skip } from '../schema/plan';
@@ -86,7 +87,8 @@ export function transactions(
       items,
       total: costs.length === 0 ? null : sum(costs),
       fees: sum(items.map((entry) => entry.fee ?? ('0' as Money))),
-      holding: first.kind === 'sell' ? null : holdingStatus(first.date, plan.holdingRule, context.overrides),
+      holding:
+        entryRole(first.kind) !== 'purchase' ? null : holdingStatus(first.date, plan.holdingRule, context.overrides),
     };
   });
   for (const skip of plan.skips) {
@@ -109,7 +111,7 @@ export function transactions(
       const index = months.indexOf(header);
       const total = sum(recordedAmounts(row.items));
       months[index] =
-        row.kind === 'sell'
+        entryRole(row.kind) === 'sale'
           ? { ...header, sold: sum([header.sold, total]) }
           : { ...header, bought: sum([header.bought, total]) };
     }

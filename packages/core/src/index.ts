@@ -40,6 +40,7 @@ export * from './plan/statuses';
 export * from './plan/template';
 export * from './plan/totals';
 export * from './plan/tranches';
+export * from './portfolio/effect';
 export * from './portfolio/eligibility';
 export * from './portfolio/lots';
 export * from './portfolio/portfolio';

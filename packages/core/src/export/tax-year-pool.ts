@@ -5,6 +5,7 @@ import { addDays, type CalendarDate } from '../dates/calendar';
 import { holdingStatus } from '../holding/eligible-from';
 import type { Money, Units } from '../money/decimal';
 import { liveEntries } from '../plan/statuses';
+import { entryRole } from '../portfolio/effect';
 import { compareEntries } from '../portfolio/lots';
 import { coinsWithEntries } from '../portfolio/portfolio';
 import type { CountryRules, LotRule } from '../schema/country';
@@ -57,7 +58,8 @@ const COLUMNS = [
 ];
 
 function poolRow(entry: Entry, rules: CountryRules): PoolRow {
-  const sale = entry.kind === 'sell';
+  const role = entryRole(entry.kind);
+  const [purchase, sale] = [role === 'purchase', role === 'sale'];
   // The country's rule with its overrides, not the plan's: the file gives the accountant the legal date.
   const status = holdingStatus(entry.date, rules.holdingRule, rules.holdingRuleOverrides);
   return {
@@ -66,9 +68,9 @@ function poolRow(entry: Entry, rules: CountryRules): PoolRow {
     coin: entry.coin,
     venue: entry.venue,
     units: entry.units,
-    costBasis: sale ? null : entry.amount,
-    fee: sale ? null : entry.fee,
-    eligibleFrom: !sale && status.kind === 'dated' ? status.from : null,
+    costBasis: purchase ? entry.amount : null,
+    fee: purchase ? entry.fee : null,
+    eligibleFrom: purchase && status.kind === 'dated' ? status.from : null,
     proceeds: sale ? entry.amount : null,
     disposalFee: sale ? entry.fee : null,
     estimated: isEstimate(entry),
@@ -94,9 +96,10 @@ export function taxYearPool(
   const inSpan = (entry: Entry) => span.from <= entry.date && entry.date <= span.to;
   const rows = coinsWithEntries(plan, live).flatMap((coin) => {
     const own = live.filter((entry) => entry.coin === coin);
-    const sold = own.some((entry) => entry.kind === 'sell' && inSpan(entry));
+    const sold = own.some((entry) => entryRole(entry.kind) === 'sale' && inSpan(entry));
     const listed = sold
-      ? (entry: Entry) => entry.date <= span.to || (pooled && entry.kind !== 'sell' && entry.date <= windowEnd)
+      ? (entry: Entry) =>
+          entry.date <= span.to || (pooled && entryRole(entry.kind) === 'purchase' && entry.date <= windowEnd)
       : inSpan;
     return own.filter(listed).map((entry) => poolRow(entry, rules));
   });
@@ -106,7 +109,7 @@ export function taxYearPool(
     ongoing: today <= span.to,
     windowOpen: pooled && today <= windowEnd,
     rows,
-    uncosted: rows.some((row) => row.kind !== 'sell' && row.costBasis === null),
+    uncosted: rows.some((row) => entryRole(row.kind) === 'purchase' && row.costBasis === null),
     estimated: rows.some((row) => row.estimated),
   };
 }

@@ -25,6 +25,7 @@ import { type Entry, recordedAmounts } from '../schema/entry';
 import type { CoinId } from '../schema/ids';
 import type { Plan } from '../schema/plan';
 import type { PriceSnapshot } from '../schema/prices';
+import { entryRole, unitsIn, unitsOut } from './effect';
 import { DEFAULT_HOLDING_CONTEXT, type HoldingContext, heldLots, matchLots, type SaleMatch } from './lots';
 
 export type Position = {
@@ -105,11 +106,11 @@ export function portfolio(
   const live = liveEntries(entries);
   const raw = coinsWithEntries(plan, live).map((coin) => {
     const own = live.filter((entry) => entry.coin === coin);
-    const buys = own.filter((entry) => entry.kind !== 'sell');
-    const sells = own.filter((entry) => entry.kind === 'sell');
+    const buys = own.filter((entry) => entryRole(entry.kind) === 'purchase');
+    const sells = own.filter((entry) => entryRole(entry.kind) === 'sale');
     const costedBuys = buys.filter((entry) => entry.amount !== null);
-    const boughtUnits = sum(buys.map((entry) => entry.units));
-    const soldUnits = sum(sells.map((entry) => entry.units));
+    const boughtUnits = sum(own.map(unitsIn));
+    const soldUnits = sum(own.map(unitsOut));
     const units = max(minus(boughtUnits, soldUnits), '0' as Units);
     // The lots as `sellableNow` reads them: a sale larger than its venue's lots takes the rest from lots held then, and
     // a sale no lot held at its date covers (imported) from the oldest lots left, uncosted where those had no cost.

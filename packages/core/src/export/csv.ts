@@ -7,6 +7,7 @@ import { holdingStatus } from '../holding/eligible-from';
 import { type CurrencyCode, MINOR_UNITS } from '../money/currency';
 import { type Money, type Price, quotientSignificant, type Units } from '../money/decimal';
 import { liveEntries } from '../plan/statuses';
+import { entryRole } from '../portfolio/effect';
 import { DEFAULT_HOLDING_CONTEXT, type HoldingContext } from '../portfolio/eligibility';
 import type { Entry } from '../schema/entry';
 import type { Plan } from '../schema/plan';
@@ -42,7 +43,7 @@ export function textCell(text: string): string {
 }
 
 function eligibleFrom(plan: Plan, entry: Entry, context: HoldingContext): string {
-  if (entry.kind === 'sell') return '';
+  if (entryRole(entry.kind) !== 'purchase') return '';
   const status = holdingStatus(entry.date, plan.holdingRule, context.overrides);
   return status.kind === 'dated' ? status.from : '';
 }
