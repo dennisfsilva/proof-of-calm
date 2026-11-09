@@ -56,14 +56,14 @@
   },
   {
     "key": "f.leverage",
-    "value": "CoinGlass on X, 10 Oct 2025 23:48 UTC: \"1,618,240 traders were liquidated, with a total liquidation amount of $19.13 billion\" in 24 hours, the largest in its dataset; exchanges under-report, so the real figure was likely higher. Liquidations in 2025 to 20 Nov 2025: about $150bn, roughly $400m to $500m a day; first half of 2026: $73.35bn, about $405m a day. ESMA 2018: 74 to 89 % of retail CFD accounts lose money (average losses €1,600 to €29,000); the FCA banned crypto derivatives for retail consumers from 6 Jan 2021. BIS Working Paper 1049 (14 Nov 2022), a simulation of users who downloaded a crypto app from August 2015 to June 2022, valued at October 2022 prices: 73 % would have lost money on a first purchase at download; buying $100 of bitcoin a month from download, 81 % would have, and the median investor would have lost 48 % of $900 invested.",
+    "value": "CoinGlass on X, 10 Oct 2025 23:48 UTC: \"1,618,240 traders were liquidated, with a total liquidation amount of $19.13 billion\" in 24 hours, the largest in its dataset; exchanges under-report, so the real figure was likely higher. Liquidations in 2025 to 20 Nov 2025: about $150bn, roughly $400m to $500m a day; first half of 2026: $73.35bn, about $405m a day. ESMA 2018: 74 to 89 % of retail CFD accounts lose money (average losses €1,600 to €29,000); the FCA banned crypto derivatives for retail consumers from 6 Jan 2021.",
     "unit": "USD, EUR; accounts; % of accounts",
     "date": "2026-10-16",
     "source": "https://www.coinglass.com/learn/2025-annual-report-en",
     "publisher": "CoinGlass",
     "accessed": "2026-11-02",
     "confidence": "high",
-    "lastReviewed": "2026-11-02"
+    "lastReviewed": "2026-11-09"
   },
   {
     "key": "g.halvings",
@@ -273,5 +273,16 @@
     "accessed": "2026-11-02",
     "confidence": "medium",
     "lastReviewed": "2026-11-02"
+  },
+  {
+    "key": "r.app-user-losses",
+    "value": "BIS Working Paper 1049 (Nov 2022, revised Jul 2023): crypto app downloads in 95 countries from Aug 2015 to Jun 2022; assuming each new user bought $100 of bitcoin in the month of download and every month after, at the time of writing 81 % of these users would have lost money, and the median investor would have lost 48 % of $900 invested.",
+    "unit": "% of users; USD",
+    "date": "2022-11-14",
+    "source": "https://www.bis.org/publ/work1049.htm",
+    "publisher": "BIS",
+    "accessed": "2026-11-09",
+    "confidence": "high",
+    "lastReviewed": "2026-11-09"
   }
 ]
