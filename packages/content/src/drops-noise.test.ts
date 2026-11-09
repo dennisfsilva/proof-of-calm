@@ -66,6 +66,9 @@ describe('the Noise and When the market drops modules', () => {
     expect(body).toContain(
       'never from headlines. It counts a fall when the coins you hold lose 10\u00a0% or more in seven days or close 30\u00a0% or more below their 90-day high.',
     );
+    // The fall page leaves the next buy day out in the hold phase, so the page is named by what it always holds.
+    expect(body).toContain("links to a page with the figure and each coin's earlier falls.");
+    expect(body).not.toMatch(/next buy day/u);
   });
 
   it("When the market drops holds counsel's three things, the frequency with its window, and one past-performance element", () => {
@@ -101,6 +104,8 @@ describe('the Noise and When the market drops modules', () => {
     expect(body).toContain(
       'about 6 episodes a year. A close 30\u00a0% or more below the 90-day high came on 11.8\u00a0% of days. Either one came on 15.1\u00a0% of days.',
     );
+    expect(body).toContain("Learn's first row opens a page with the figure and each coin's earlier falls.");
+    expect(body).not.toMatch(/next buy day/u);
     expect(body).toContain("With no fall under way, that page's address opens this module.");
   });
 
