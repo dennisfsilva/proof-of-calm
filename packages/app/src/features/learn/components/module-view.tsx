@@ -12,6 +12,8 @@ export type ModuleViewProps = {
   Body: ComponentType<{ components: BodyElements }>;
   /** Stands where the title does: the sheet's dialog title, which is the module's idea. */
   heading?: ReactNode;
+  /** Directly above the body: the route's line to the fall page while a fall is under way; the sheet passes none. */
+  lead?: ReactNode;
 };
 
 /**
@@ -21,7 +23,7 @@ export type ModuleViewProps = {
  * A module with a chart writes its `N %` with the joiner of the chart's figures (docs/CONTENT-STYLE.md §4), and
  * its `<Chart />` draws that chart.
  */
-export function ModuleView({ module, Body, heading }: ModuleViewProps) {
+export function ModuleView({ module, Body, heading, lead }: ModuleViewProps) {
   const t = useTranslations('learn');
   const f = useFormatters();
   const { chart } = module;
@@ -42,6 +44,7 @@ export function ModuleView({ module, Body, heading }: ModuleViewProps) {
       <Card>
         <p className="text-16">{withJoiner(module.caveat, joiner)}</p>
       </Card>
+      {lead}
       <div className="flex flex-col gap-stack-md">
         <Body components={components} />
       </div>

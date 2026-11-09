@@ -2,7 +2,7 @@
 import { countryRules, loadProfile } from '@proofofcalm/content';
 import { loadCycleDrawdowns } from '@proofofcalm/content/cycles';
 import type { Coin, CountryCode, Instant, Plan } from '@proofofcalm/core';
-import { act, cleanup, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { Suspense } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { I18nProvider } from '../../../lib/i18n';
@@ -127,7 +127,7 @@ describe('ThisFallPage, a fall under way', () => {
     expect(data.className).toContain('text-14');
   });
 
-  it('reads several coins together, at the units held today, and names a coin it has no history for', async () => {
+  it('reads several coins together, in the amounts held, each by one name, and names a coin it has no history for', async () => {
     await mount({
       model: Promise.resolve(
         episode({ coins: ['BTC', 'ETH'], missing: ['KAS'] } as unknown as Partial<Figure>, {
@@ -136,10 +136,12 @@ describe('ThisFallPage, a fall under way', () => {
       ),
       plan: { coins: [...(fixtureSnapshot().plan as Plan).coins, KAS] },
     });
-    await screen.findByText(/^The coins you hold/);
+    await screen.findByText(/^Bitcoin and Ethereum, in the amounts you hold/);
     expect(text()).toContain(
-      "The coins you hold (BTC and ETH), at today's units, are 33% below their 90-day high and fell 16% in the seven days to 8 Nov 2026.",
+      'Bitcoin and Ethereum, in the amounts you hold, are 33% below their 90-day high and fell 16% in the seven days to 8 Nov 2026.',
     );
+    // One name per coin: the held coins' names, never their ids beside them.
+    expect(text()).not.toMatch(/\b(BTC|ETH|KAS)\b/);
     expect(text()).toContain('Kaspa is not in these figures: Proof of Calm has no price history for it.');
     expect(text()).toContain('Proof of Calm has no dated earlier fall for Kaspa.');
   });
@@ -184,7 +186,7 @@ describe('ThisFallPage, a fall under way', () => {
       ),
       plan: { coins: (fixtureSnapshot().plan as Plan).coins.filter((coin) => coin.id === 'BTC') },
     });
-    await screen.findByText(/^The coins you hold \(BTC and ETH\)/);
+    await screen.findByText(/^Bitcoin and Ethereum, in the amounts you hold/);
     expect(await screen.findByText(/^Earlier falls of Ethereum/)).toBeDefined();
     const eth = ROWS.filter((row) => row.coin === 'ETH');
     const btc = ROWS.filter((row) => row.coin === 'BTC');
@@ -239,13 +241,28 @@ describe('ThisFallPage, a fall under way', () => {
     await mount({ model: Promise.resolve(episode()), plan: { createdAt: '2025-12-12T23:30:00-01:00' as Instant } });
     expect(await screen.findByRole('heading', { level: 2, name: 'Your note to yourself' })).toBeDefined();
     expect(text()).toContain('13 Dec 2025: “I buy every month and hold for four years.”');
-    expect(screen.queryByRole('button')).toBeNull();
+    // The figure's Why? is the page's one control.
+    expect(screen.getAllByRole('button').map((button) => button.textContent)).toEqual(['Why?']);
   });
 
   it('leaves the note out when the plan has none', async () => {
     await mount({ model: Promise.resolve(episode()), plan: { why: '' } });
     await screen.findByText(/^Bitcoin is/);
     expect(screen.queryByText('Your note to yourself')).toBeNull();
+  });
+
+  it("opens When the market drops in the sheet from the figure's Why?, and the route stays", async () => {
+    await mount({ model: Promise.resolve(episode()) });
+    const why = await screen.findByRole('button', { name: 'Why? Falls and a monthly plan' });
+    expect(why.closest('p')?.textContent).toMatch(/^Bitcoin is 33%/);
+    fireEvent.click(why);
+    const sheet = await screen.findByRole('dialog', {
+      name: "The second fixture's idea, for the fall page's Why? and the module route.",
+    });
+    expect(within(sheet).getByText('Fixture text of the module the fall page explains.')).toBeDefined();
+    expect(path()).toBe('/learn/fall-under-way');
+    // The line to the fall page belongs to the module's route, never to its sheet.
+    expect(within(sheet).queryByRole('link', { name: 'See the fall under way' })).toBeNull();
   });
 
   it('says the earlier falls could not be loaded when the cycles file fails', async () => {
@@ -303,11 +320,13 @@ describe('ThisFallPage, other states', () => {
   });
 
   it.each(['nothing-held', 'clear', 'no-history'] as const)(
-    'replaces the route with /learn in the state %s',
+    'replaces the route with the module When the market drops in the state %s',
     async (state) => {
       await mount({ model: Promise.resolve(bare(state)) });
-      expect(path()).toBe('/learn');
+      expect(await screen.findByRole('heading', { level: 1, name: 'When the market drops' })).toBeDefined();
+      expect(path()).toBe('/learn/when-the-market-drops');
       expect(screen.queryByText('The fall under way and your plan')).toBeNull();
+      expect(screen.queryByRole('link', { name: 'See the fall under way' })).toBeNull();
     },
   );
 });
@@ -327,13 +346,43 @@ describe("Learn's row for the page", () => {
   });
 });
 
+describe('the route of When the market drops', () => {
+  it('holds one line to the fall page above the body while a fall is under way', async () => {
+    await mount({ model: Promise.resolve(episode()), path: '/learn/when-the-market-drops' });
+    const link = await screen.findByRole('link', { name: 'See the fall under way' });
+    expect(link.getAttribute('href')).toBe('/learn/fall-under-way');
+    expect(link.closest('p')?.textContent).toBe('A fall of the coins you hold is under way. See the fall under way');
+    const body = screen.getByText('Fixture text of the module the fall page explains.');
+    expect(link.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    fireEvent.click(link);
+    expect(await screen.findByRole('heading', { level: 1, name: 'The fall under way and your plan' })).toBeDefined();
+  });
+
+  it.each(['clear', 'failed', 'nothing-held', 'no-history'] as const)(
+    'holds no such line in the state %s',
+    async (state) => {
+      await mount({ model: Promise.resolve(bare(state)), path: '/learn/when-the-market-drops' });
+      await screen.findByText('Fixture text of the module the fall page explains.');
+      await act(async () => undefined);
+      expect(screen.queryByRole('link', { name: 'See the fall under way' })).toBeNull();
+    },
+  );
+
+  it('holds no such line on another module during a fall', async () => {
+    await mount({ model: Promise.resolve(episode()), path: '/learn/start-here' });
+    await screen.findByRole('heading', { level: 1, name: 'Start here' });
+    await act(async () => undefined);
+    expect(screen.queryByRole('link', { name: 'See the fall under way' })).toBeNull();
+  });
+});
+
 describe('the percentages and the words of the page', () => {
   const several = { coins: ['BTC', 'ETH'], missing: [] } as unknown as Partial<Figure>;
   const both = { held: [BITCOIN, ETHEREUM] };
 
   it('writes every percent as Portugal does, the sign against its number', async () => {
     await mount({ model: Promise.resolve(episode(several, both)), plan: { country: 'PT' as CountryCode } });
-    await screen.findByText(/^The coins you hold/);
+    await screen.findByText(/^Bitcoin and Ethereum/);
     const written = page();
     const signs = written.match(/.%/g) ?? [];
     expect(signs.length).toBeGreaterThan(4);
@@ -342,7 +391,7 @@ describe('the percentages and the words of the page', () => {
 
   it("writes every percent with Germany's no-break joiner", async () => {
     await mount({ model: Promise.resolve(episode(several, both)), plan: { country: 'DE' as CountryCode } });
-    await screen.findByText(/^The coins you hold/);
+    await screen.findByText(/^Bitcoin and Ethereum/);
     const written = page();
     const signs = written.match(/..%/g) ?? [];
     expect(signs.length).toBeGreaterThan(4);

@@ -1,3 +1,4 @@
+import type { LearnModuleMeta } from '@proofofcalm/content';
 import type { Decimal, Plan } from '@proofofcalm/core';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'use-intl';
@@ -7,13 +8,17 @@ import { useClock, useFormatters, useServices, useSnapshot, useToday } from '../
 import type { PastFall, RedDayModel } from '../../../lib/services/red-day-types';
 import { MODULE_ELEMENTS } from '../lib/body-elements';
 import { BACK_LINK } from './country-library';
+import { WhyLink } from './why-link';
 
 // The page a fall of the held coins opens (docs/EDUCATION.md §6, docs/CONTENT-STYLE.md §3): the figure with the
 // market as its subject, the data line, the past-performance line once (docs/LEGAL.md §4), each held coin's earlier
 // falls from the cycles file, the next buy day and the person's note. It reads the plan through the store and the
 // figures through the red-day port, as plain models, so this lazy chunk imports no value of core or content
-// (`../lazy-chunk.test.ts`). With nothing held or no fall under way it replaces itself with Learn's index, so a
-// bookmark or the back button never shows old figures.
+// (`../lazy-chunk.test.ts`). With nothing held or no fall under way it replaces itself with the module When the
+// market drops, so a bookmark or the back button never shows old figures.
+
+/** The module the figure's Why? opens, and the page's path gives when no fall is under way. */
+export const FALL_MODULE = 'when-the-market-drops' satisfies LearnModuleMeta['slug'];
 
 type Figure = NonNullable<RedDayModel['figure']>;
 type Held = RedDayModel['held'];
@@ -96,7 +101,8 @@ function FigureLine({ figure, held }: { figure: Figure; held: Held }) {
       <p className="text-18">
         {figure.coins.length === 1 && only !== undefined
           ? t('one', { ...values, coin: nameIn(held, only) })
-          : t('several', { ...values, coins: f.list(figure.coins) })}
+          : t('several', { ...values, coins: f.list(figure.coins.map((coin) => nameIn(held, coin))) })}{' '}
+        <WhyLink module={FALL_MODULE} name={t('why')} />
       </p>
       {figure.missing.map((coin) => (
         <p key={coin} className="text-16">
@@ -196,15 +202,15 @@ export function ThisFallView({ plan, model, falls }: ThisFallViewProps) {
 }
 
 /**
- * `/learn/fall-under-way`: the page, or Learn's index in its place without a plan, with nothing held, no history of
- * the held coins to read or no fall under way.
+ * `/learn/fall-under-way`: the page, or the module When the market drops in its place without a plan, with nothing
+ * held, no history of the held coins to read or no fall under way.
  */
 export function ThisFallPage() {
   const plan = useSnapshot((snapshot) => snapshot.plan);
   const model = useFallModel();
   const falls = usePastFalls(model?.held ?? null);
   if (plan === null || model?.state === 'nothing-held' || model?.state === 'no-history' || model?.state === 'clear') {
-    return <Redirect to="~/learn" replace />;
+    return <Redirect to={`~/learn/${FALL_MODULE}`} replace />;
   }
   return <ThisFallView plan={plan} model={model} falls={falls} />;
 }
