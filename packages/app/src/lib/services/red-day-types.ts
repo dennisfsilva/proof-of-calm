@@ -5,7 +5,7 @@ import type { CalendarDate, CoinId, CurrencyCode, Entry, Percent, Plan, RedDayEp
 export type RedDayInput = { readonly plan: Plan; readonly entries: readonly Entry[]; readonly today: CalendarDate };
 
 /** The figures of the held portfolio at today's units over the complete closes (docs/DOMAIN.md §3.11). */
-export type RedDayFigure = {
+type RedDayFigure = {
   /** The held coins with closes, in the plan's order. */
   readonly coins: readonly CoinId[];
   /** The held coins with no served history: outside the catalogue, or fewer than two complete closes. */
