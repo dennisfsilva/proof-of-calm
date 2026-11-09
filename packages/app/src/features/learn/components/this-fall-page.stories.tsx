@@ -84,7 +84,8 @@ export const SeveralCoins: Story = {
     falls: FALLS,
   },
   play: async ({ canvas }) => {
-    await expect(canvas.getByText(/^The coins you hold \(BTC and ETH\), at today's units/)).toBeVisible();
+    await expect(canvas.getByText(/^Bitcoin and Ethereum, in the amounts you hold/)).toBeVisible();
+    await expect(canvas.getByRole('button', { name: 'Why? Falls and a monthly plan' })).toBeVisible();
     await expect(canvas.getByText(/^Kaspa is not in these figures/)).toBeVisible();
     await expect(canvas.getByText(/^Earlier falls of Ethereum/)).toBeVisible();
     await expect(canvas.getByText(/no dated earlier fall for Kaspa/)).toBeVisible();

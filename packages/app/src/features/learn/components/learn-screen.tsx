@@ -1,16 +1,31 @@
 /// <reference path="../learn-modules.d.ts" />
 import { LEARN_MODULES } from 'virtual:learn-modules';
+import type { ReactNode } from 'react';
 import { useTranslations } from 'use-intl';
 import { Link, Redirect, Route, Switch } from '../../../lib/navigation';
 import { moduleBody } from '../lib/bodies';
 import { BACK_LINK, CountryList, CountryRoute } from './country-library';
 import { ModuleIndex } from './module-index';
 import { ModuleView } from './module-view';
-import { ThisFallPage, useFallModel } from './this-fall-page';
+import { FALL_MODULE, ThisFallPage, useFallModel } from './this-fall-page';
 
 const PAGE = 'mx-auto flex w-full max-w-reading flex-col gap-stack-lg px-gutter py-stack-lg';
 // The index from inside the nest, absolute: `/` here would resolve to `/learn/`, with the trailing slash.
 const INDEX = '~/learn';
+
+const fallLink = (chunks: ReactNode) => (
+  <Link href="/fall-under-way" className="text-ink underline underline-offset-4 hover:text-ink-2">
+    {chunks}
+  </Link>
+);
+
+/** On the route of When the market drops alone, never in its sheet: a line to the fall page while a fall is under way. */
+function FallUnderWayLine() {
+  const t = useTranslations('learn.module');
+  const model = useFallModel();
+  if (model?.state !== 'episode') return null;
+  return <p className="text-16">{t.rich('fallUnderWay', { page: fallLink })}</p>;
+}
 
 function ModuleRoute({ slug }: { slug: string }) {
   const t = useTranslations('learn');
@@ -22,7 +37,7 @@ function ModuleRoute({ slug }: { slug: string }) {
       <Link href={INDEX} className={BACK_LINK}>
         {t('module.back')}
       </Link>
-      <ModuleView module={module} Body={Body} />
+      <ModuleView module={module} Body={Body} lead={slug === FALL_MODULE ? <FallUnderWayLine /> : undefined} />
     </div>
   );
 }
