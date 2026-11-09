@@ -321,6 +321,27 @@ describe('LogScreen', () => {
     expect(rows()).toHaveLength(12);
   });
 
+  it("keeps an entry deleted and says why when the plan's currency changed before the Undo", async () => {
+    const services = await mount(withMoreBuys());
+    const [newest] = screen.getAllByRole('button', { expanded: false }) as [HTMLElement];
+    fireEvent.click(newest);
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Delete entry' })));
+    // Settings changes the country to the United Kingdom, or the pay currency, while the toast still offers the Undo.
+    await act(() =>
+      services.domain.write(({ plan }) => ({
+        plan: plan === null ? null : { ...plan, payCurrency: 'GBP', displayCurrency: 'GBP' },
+      })),
+    );
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Undo' })));
+    await vi.waitFor(() =>
+      expect(screen.getByRole('status').textContent).toContain(
+        "Your plan's currency changed from EUR to GBP after you deleted this entry, so it stays deleted. " +
+          'Its amount was in EUR, and nothing is converted. To keep it, log it again in GBP.',
+      ),
+    );
+    expect(rows()).toHaveLength(12);
+  });
+
   // #136 (docs/DOMAIN.md §3.7): every write leaves each sale covered by purchases dated on or before it.
   const withSaleOfAll = () => {
     const snapshot = withMoreBuys();
