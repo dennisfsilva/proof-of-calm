@@ -151,6 +151,23 @@ describe('taxYearLots (property)', () => {
     );
   });
 
+  it('the last year end less every row no lot covered is the units bought less the units sold and paid as fees', () => {
+    fc.assert(
+      fc.property(log, rules, (entries, country) => {
+        const files = [2025, 2026, 2027].map((year) => fileFor(entries, country, year));
+        const units = (pieces: readonly LotPiece[]) => sum(pieces.map((piece) => piece.units));
+        const yearEnds = units(files.at(-1)?.pieces.filter(yearEnd) ?? []);
+        const uncovered = units(files.flatMap((file) => file.pieces.filter((piece) => piece.acquired === null)));
+        const leaving = (entry: Entry) =>
+          entry.kind === 'move' ? minus(entry.units, entry.received ?? entry.units) : entry.units;
+        const bought = sum(entries.filter(isPurchase).map((entry) => entry.units));
+        const gone = sum(entries.filter((entry) => !isPurchase(entry)).map(leaving));
+        same(minus(yearEnds, uncovered), minus(bought, gone));
+      }),
+      { examples },
+    );
+  });
+
   it("a sale's shares add up to its amount and fee", () => {
     fc.assert(
       fc.property(log, rules, (entries, country) => {

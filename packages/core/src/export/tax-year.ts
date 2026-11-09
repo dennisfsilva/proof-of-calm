@@ -8,7 +8,7 @@ import { type CurrencyCode, MINOR_UNITS } from '../money/currency';
 import { decimalPlaces, isPositive, type Money, min, minus, type Units } from '../money/decimal';
 import { cumulativeShares } from '../money/split';
 import { liveEntries } from '../plan/statuses';
-import { matchingOrder, matchLots, type SaleTake, venueGroup } from '../portfolio/lots';
+import { feeUnmatched, matchingOrder, matchLots, type SaleTake, venueGroup } from '../portfolio/lots';
 import { assertNever, defined } from '../result';
 import type { CountryRules, LotRule, LotScope } from '../schema/country';
 import { type Entry, type EntryKind, isEstimate } from '../schema/entry';
@@ -56,7 +56,7 @@ export type MatchedLotRule = Extract<LotRule, 'fifo' | 'lifo' | 'unspecified'>;
 
 /**
  * One row: part of a lot sold in the year (`disposedOn` set), what the lot holds at the year end (`disposedOn` null),
- * or units of a sale no lot covered (`acquired` null). `costBasis` and `fee` are the lot's share; `proceeds` and
+ * or units of a sale or of a move's fee no lot covered (`acquired` null). `costBasis` and `fee` are the lot's share; `proceeds` and
  * `disposalFee` the sale's. `eligibleFrom` by the country's holding rule; `pastHoldingRule` on the sale day or on the
  * year end (today while the year runs); both null where the country has no rule.
  */
@@ -92,7 +92,7 @@ export type TaxYearLots = {
   readonly uncosted: boolean;
   /** A lot whose units are a one-tap estimate. */
   readonly estimated: boolean;
-  /** A sale in the year that no lot covered. */
+  /** A sale in the year, or a move's fee, that no lot covered. */
   readonly unmatched: boolean;
   /** Pieces sold at a venue other than the lot's, under per-venue matching. */
   readonly crossVenue: number;
@@ -134,7 +134,6 @@ const at = (values: readonly (Money | null)[], index: number) => values[index] ?
 /** The cells a piece leaves empty unless it fills them. */
 const BLANK = { costBasis: null, fee: null, eligibleFrom: null, pastHoldingRule: null, saleVenue: null } as const;
 const NO_SALE = { ...BLANK, disposedOn: null, proceeds: null, disposalFee: null } as const;
-const NONE = '0' as Units;
 
 /** The first `fee` units of a move's takes, which `matchLots` takes first: what the move paid in the coin. */
 function feeTakes(takes: readonly SaleTake[], fee: Units): SaleTake[] {
@@ -171,7 +170,7 @@ export function taxYearLots(
     const unmatched: LotPiece[] = [];
     const leaving = [
       ...match.sales,
-      ...match.moves.map((move) => ({ ...move, takes: feeTakes(move.takes, move.fee), unmatched: NONE })),
+      ...match.moves.map((move) => ({ ...move, takes: feeTakes(move.takes, move.fee), unmatched: feeUnmatched(move) })),
     ]
       .map((sold) => ({ sold, sale: defined(byId.get(sold.id), 'sale') }))
       .sort((a, b) => matchingOrder(a.sale, b.sale));
@@ -186,6 +185,9 @@ export function taxYearLots(
       });
       if (isPositive(sold.unmatched) && sale.date >= span.from) {
         const last = sold.takes.length;
+        // A move's fee no lot covered: a fee row with no acquired date, as a sale's uncovered units get a sale row.
+        const move = sale.kind === 'move';
+        if (move) moveFees = true;
         unmatched.push({
           ...BLANK,
           kind: null,
@@ -194,7 +196,7 @@ export function taxYearLots(
           venue: null,
           units: sold.unmatched,
           disposedOn: sale.date,
-          saleVenue: sale.venue,
+          saleVenue: move ? null : sale.venue,
           proceeds: at(proceeds, last),
           disposalFee: at(fees, last),
           estimated: isEstimate(sale),
