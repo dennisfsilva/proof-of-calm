@@ -40,8 +40,8 @@ Only the person knows which. Most supported countries share EUR; only GB and US 
 
 Option 5.
 
-- A change of country never relabels logged amounts, or the plan's own amounts, without the
-  person's word. `docs/DOMAIN.md` §2.1 wins over §6.
+- A change of country converts nothing, and relabels logged amounts only on the person's answer to
+  the question below. `docs/DOMAIN.md` §2.1 wins over §6.
 - The question is needed when the new country's currency differs from the plan's pay currency and a
   live entry holds an amount or a fee (`currencyQuestion(plan, entries, rules)`, which returns the
   two currencies and the count and first and last dates of those entries, or null).
@@ -52,7 +52,10 @@ Option 5.
   Confirming with no answer is refused, as the rule tick is.
 - The answer reaches the core as `changeCountry(plan, rules, now, currency: 'keep' | 'country')`.
   `keep` leaves the pay and display currencies as they are; `country` sets both to the country's.
-  With no question needed, the currencies follow the country: no logged amount changes meaning.
+  The answer moves the plan's own amounts with the logged ones. With no question needed, the
+  currencies follow the country: no logged amount changes meaning, and the plan's own amounts (the
+  monthly amount, the starting amount) take the new currency as typed, as the confirmation's summary
+  rows show before the person confirms (the row below adds the monthly amount, planned: M2).
 - To pay in the new currency from now on after a move, the person keeps the old one, exports a copy,
   and starts a plan in the new currency with the coins already held.
 - The write re-runs the question on the stored entries (`changeCountryOf`). A question the screen
