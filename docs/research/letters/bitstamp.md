@@ -1,7 +1,7 @@
 # Letter to Bitstamp: the Data License Agreement
 
-Draft of 2026-10-17, revised 2026-11-09 to the catalogue rule (ADR-0052), sent 2026-11-09, for
-the owner to send before M2 (ADR-0006, ADR-0036). Fill in the bracketed details.
+Draft of 2026-10-17, revised 2026-11-09 to the catalogue rule (ADR-0052), and sent by the owner
+on 2026-11-09 (ADR-0006, ADR-0036).
 Bitstamp states that it "allows the incorporation and redistribution of our exchange data for
 commercial purposes" through a signed Data License Agreement; this asks for it and its price. The
 answer is recorded in ADR-0036. With the licence signed, bitcoin history in USD starts in August 2011.
