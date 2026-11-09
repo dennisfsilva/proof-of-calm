@@ -118,10 +118,9 @@ test('offline, Today shows the stored plan, the same portfolio number and the of
   await goOnline(page);
 });
 
-// Today's foot loads on demand (docs/ENGINEERING.md §4); the service worker precaches its chunk with every hashed
-// asset, so offline it still settles: no closes reach the red-day model, which reads as no episode, and the next
-// box stands, here the backup banner of the fixture plan, never exported.
-test('offline, Today’s foot loads from the precache and settles on the next banner', async ({ page, context }) => {
+// Offline, Today's foot still settles (docs/DESIGN.md §8): no closes reach the red-day model, which reads as no
+// episode, and the next box stands, here the backup banner of the fixture plan, never exported.
+test('offline, Today’s foot settles on the next banner', async ({ page, context }) => {
   await installed(page, context);
   await goOffline(page);
   await reload(page);

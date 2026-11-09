@@ -31,14 +31,11 @@ const at = (phase: FixturePhase, lastBackupAt?: Instant, installed = false) => {
   const prefs = lastBackupAt === undefined ? fixture.prefs : { ...fixture.prefs, lastBackupAt };
   const snapshot: Snapshot = { ...fixture, prefs, prices: pricesAt(FIXTURE_PRICES, nowMs) };
   const platform = recordingPlatform({ installed });
-  // No episode under way: the foot settles on the next box once its red-day half has loaded.
+  // No episode under way: the foot settles on the next box once the red-day model answers.
   return {
     services: () => ({ ...createTestServices({ snapshot, nowMs, rules: portugal, platform }), redDay: clearRedDay() }),
   };
 };
-
-/** The foot loads on demand, after the red-day model answers: its first fetch can be slow under a full run. */
-const FOOT = { timeout: 5000 };
 
 const meta = {
   title: 'Features/Today/TodayScreen',
@@ -57,7 +54,7 @@ export const Late: Story = {
     await expect(canvas.getByRole('list', { name: 'Planned split' })).toBeVisible();
     await expect(canvas.getByRole('button', { name: 'Bought as planned' })).toBeVisible();
     await expect(canvas.getByRole('link', { name: 'Your plan' })).toBeVisible();
-    await expect(await canvas.findByRole('link', { name: 'Export a copy.' }, FOOT)).toBeVisible();
+    await expect(await canvas.findByRole('link', { name: 'Export a copy.' })).toBeVisible();
   },
 };
 
@@ -65,7 +62,7 @@ export const Exported: Story = {
   parameters: at('buy', '2026-10-01T10:00:00+01:00' as Instant),
   play: async ({ canvas }) => {
     const line = 'Your data lives only in this browser. Install the app or export a copy to keep it.';
-    await expect(await canvas.findByText(line, {}, FOOT)).toBeVisible();
+    await expect(await canvas.findByText(line)).toBeVisible();
     await expect(canvas.queryByRole('status')).toBeNull();
   },
 };
@@ -74,7 +71,7 @@ export const ExportedInstalled: Story = {
   parameters: at('buy', '2026-10-01T10:00:00+01:00' as Instant, true),
   play: async ({ canvas }) => {
     const line = 'Your data lives only on this device. Export a copy to keep it.';
-    await expect(await canvas.findByText(line, {}, FOOT)).toBeVisible();
+    await expect(await canvas.findByText(line)).toBeVisible();
     await expect(canvas.queryByRole('status')).toBeNull();
   },
 };
@@ -106,7 +103,7 @@ const unseen = () => {
 export const RuleNoticeDismissed: Story = {
   parameters: unseen(),
   play: async ({ canvas, canvasElement, userEvent }) => {
-    const dismiss = await canvas.findByRole('button', { name: 'Dismiss' }, FOOT);
+    const dismiss = await canvas.findByRole('button', { name: 'Dismiss' });
     const view = canvasElement.ownerDocument.defaultView;
     view?.scrollTo(0, canvasElement.ownerDocument.documentElement.scrollHeight);
     dismiss.focus({ preventScroll: true });
