@@ -205,12 +205,15 @@ The tabs of Settings and the save of the Plan, Coins & split and Hold & sell tab
 
 ## 4. Numbers and dates in copy
 
-Per `docs/DESIGN.md` §5: formatted by the country's locale, never hand-built (figures the app
-formats follow the country's locale, the percent sign's spacing included: `70%` in Portugal, `40 %`
-in Germany; literal percentages in copy are written `N %`, and a page with formatted figures shows
-none: a template's `oneLine` holds no percentage, the card builds its split line from `split`, and
-the app formats a research figure such as an explanation's; the acknowledged plan-creation text is
-quoted as versioned, `docs/LEGAL.md` §4); signed values carry
+Per `docs/DESIGN.md` §5: formatted by the country's locale, never hand-built. Every percentage on a
+page takes the spacing of the country's number locale, as `format.percent` writes it: `70%` in
+Portugal, `40 %` with a no-break space in Germany. Research figures in messages go through
+`format.percent`, and a country profile writes its literal percentages with its own locale's joiner,
+which `pnpm validate:content` checks, so the sign never wraps away from its number. Facts, templates
+and modules still write `N %` until a page shows them beside a formatted figure. A page with
+formatted figures shows no `N %`: a template's `oneLine` holds no percentage, the card builds its
+split line from `split`, and the app formats a research figure such as an explanation's; the
+acknowledged plan-creation text is quoted as versioned (`docs/LEGAL.md` §4). Signed values carry
 their sign; multiples with `×`; ranges with an en dash in tables and "to" in prose; dates with the
 year in records and in anything that can change; ISO 8601 in exports; times with the zone when they
 matter. In English prose, numerals for everything including 2 to 9; `%` always with a numeral.
