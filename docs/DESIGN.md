@@ -354,11 +354,14 @@ charts draw the core's geometry as SVG attributes (positions, path data) and kee
 CSP allows no inline style attributes (`docs/SECURITY.md` §4), and stretched SVG text would distort.
 The strip tells its phases apart by weight and by the labels under it; the accent marks today only.
 
-Today's foot, under the strip, holds one thing at most: the banner `bannerFor` picks (the rule-change
-notice or the Backup needed banner, each a bordered box), or, when `docs/CONTENT-STYLE.md` §3 shows it
+Today's foot, under the strip, holds one thing at most: the banner `bannerFor` picks (the red-day
+banner, the rule-change notice or the Backup needed banner, each a bordered box), or, when `docs/CONTENT-STYLE.md` §3 shows it
 and no banner shows, the durability line as plain 14 px `ink-2` text with no border, no link and no
 dismiss (ADR-0004, ADR-0019). It sits on Today, not in Settings, because Today is the screen a person
-opens each month.
+opens each month. The foot settles once per visit: with units held it shows nothing until the red-day
+model answers (a failed read counts as no episode and says nothing), then the pick, and within the
+visit it never swaps one box for another except by Dismiss; the red-day banner, recorded as it shows,
+gives way to the next banner on the next visit.
 
 Settings ends with About, below its four tabs and outside them, so it shows on every tab: a heading at
 20 px and two `ink-2` lines, the site line with its Risk link and the legal pages in one line joined by

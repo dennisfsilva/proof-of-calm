@@ -622,7 +622,12 @@ or after it adds its amount to `investedSoFar`, changes no other field but `perc
 - `bannerFor({ today, redDay, ruleChange, backupNeeded, dismissed })`: returns at most one of
   `red-day`, `rule-change`, `backup-needed`, in that priority, or `null` (never stacked), with its key.
   The shell adds the key to `dismissedBanners` when the user dismisses the banner:
-  `red-day:<episode start>` and `backup-needed:<today>`. The `rule-change` banner has no stored
+  `red-day:<episode start>` and `backup-needed:<today>`. The red-day key is recorded when the banner
+  first shows, not on Dismiss, so it shows on one visit per episode, per device (the prefs never sync):
+  `red-day:<d>` covers an episode starting on `s` when `s − RED_DAY.coverDays ≤ d ≤ today`, so a flag
+  that clears and returns within a week does not show the banner twice, and the record
+  (`withBannerKey(dismissed, key, today)`) keeps one copy of a key and drops `red-day:` keys older than
+  `RED_DAY.keptDays`. The `rule-change` banner has no stored
   dismissal key: `plan.countryRuleVersion` records it, per plan, so other devices stop showing it and
   a change of country resets it (§3.12, `docs/JURISDICTIONS.md` §6). A dismissed banner
   is passed over and the next one may show; a dismissed backup banner stays away for
@@ -1113,6 +1118,8 @@ recorded cost and a one-tap purchase; `gb-2026-27.csv` is its raw listing, compa
 | `RED_DAY.sevenDay` | −10 % | §3.11 |
 | `RED_DAY.fromHigh90` | −30 % | §3.11 |
 | `RED_DAY.episodeClearDays` | 7 | §3.11 |
+| `RED_DAY.coverDays` | 7 | §3.11 |
+| `RED_DAY.keptDays` | 365 | §3.11 |
 | `BACKUP_SNOOZE_DAYS` | 90 | §3.11 backup banner (ADR-0004) |
 | `CHART_RANGES` | 7d, 30d, 90d, 1y, all | Portfolio |
 | `PRICE_FIGURES` | 4 | §6 the entry form's price: the live price, the price `fillRow` derives and an edit's implied price; §3.13 the CSV's price |
