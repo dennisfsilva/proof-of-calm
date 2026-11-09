@@ -59,7 +59,8 @@ describe('ModuleChart', () => {
     // One row's publisher is "Bitcoinity (Mt. Gox) and CoinMarketCap": split, CoinMarketCap is named once.
     expect(line?.textContent).toBe(
       'Bitcoinity (Mt. Gox), Bitstamp, Coinbase, and CoinMarketCap intraday highs and lows in US dollars, ' +
-        '8\u00a0Jun\u00a02011 to 10\u00a0Jun\u00a02023. Past performance is not a reliable indicator of future results. Risk disclosure',
+        "8\u00a0Jun\u00a02011 to 10\u00a0Jun\u00a02023, in Proof of Calm's own computation. " +
+        'Past performance is not a reliable indicator of future results. Risk disclosure',
     );
     // The one link is the Risk page's: no publisher links to an exchange (docs/LEGAL.md §3.4).
     const links = container.querySelectorAll('a');

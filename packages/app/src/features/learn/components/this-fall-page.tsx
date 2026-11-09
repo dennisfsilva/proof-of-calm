@@ -131,7 +131,7 @@ function EarlierFalls({ held, falls }: { held: Held; falls: Falls }) {
     }
     return (
       <section key={coin.coin} className="flex flex-col gap-stack-xs">
-        <p className="text-16">{t('fallsOf', { coin: coin.name })}</p>
+        <p className="text-16">{t('fallsOf', { coin: coin.name, product: BRAND.name })}</p>
         <ul className="flex list-disc flex-col gap-stack-xs ps-inset-lg">
           {rows.map((row) => (
             <li key={row.high} className="nums text-16">

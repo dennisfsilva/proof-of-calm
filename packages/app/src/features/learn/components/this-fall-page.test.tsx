@@ -195,7 +195,7 @@ describe('ThisFallPage, a fall under way', () => {
     await mount({ model: Promise.resolve(episode()), plan: { coins: [...(fixtureSnapshot().plan as Plan).coins] } });
     const heading = await screen.findByText(/^Earlier falls of Bitcoin/);
     expect(heading.textContent).toBe(
-      'Earlier falls of Bitcoin, high to low, intraday prices in US dollars, with their source:',
+      "Earlier falls of Bitcoin, high to low, in Proof of Calm's own computation from each source's intraday prices in US dollars:",
     );
     const items = screen.getAllByRole('listitem').map((item) => item.textContent?.replaceAll(' ', ' '));
     const btc = ROWS.filter((row) => row.coin === 'BTC').sort((a, b) => a.high.localeCompare(b.high));
