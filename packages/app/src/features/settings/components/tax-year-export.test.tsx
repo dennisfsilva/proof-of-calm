@@ -331,7 +331,7 @@ describe('TaxYearExport', () => {
       'Sales are not matched to purchases in this file. The pooling or matching is for your accountant.',
     );
     expect(header).toContain(
-      'For a coin sold in the tax year, every purchase and sale to 2027-04-05 is listed for the pool. Its purchases to 2027-05-05 are listed for the 30-day rule.',
+      'For a coin sold, or paid as a network fee, in the tax year, every entry to 2027-04-05 is listed for the pool. Its purchases to 2027-05-05 are listed for the 30-day rule.',
     );
     expect(header).toContain('Made on 2026-10-20: purchases after that day are not in this file.');
     expect(header).toContain('The tax year ends on 2027-04-05. This file shows your log as of 2026-10-20.');

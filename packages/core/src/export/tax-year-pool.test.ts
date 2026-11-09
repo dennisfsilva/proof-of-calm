@@ -65,6 +65,21 @@ describe('taxYearPool (docs/DOMAIN.md §3.13)', () => {
     expect(dates(entries)).toEqual(['extra 2026-04-06', 'extra 2027-04-05']);
   });
 
+  it('a move whose fee is above 0 lists the earlier entries as a sale does; one with no fee does not', () => {
+    // A coin fee disposes of the fee units in the US (docs/JURISDICTIONS.md §7.5): earlier purchases give them a basis.
+    const usSpan = { from: date('2026-01-01'), to: date('2026-12-31') };
+    const listed = (received: string, rules: CountryRules) => {
+      const entries = [
+        buy('2025-05-01', { venue: 'Kraken', units: units('0.1') }),
+        aMove({ date: date('2026-05-02'), units: units('0.05'), received: units(received) }),
+      ];
+      return taxYearPool(GB_PLAN, entries, rules, usSpan, today).rows.map((row) => `${row.kind} ${row.date}`);
+    };
+    expect(listed('0.0498', US_RULES)).toEqual(['extra 2025-05-01', 'move 2026-05-02']);
+    expect(listed('0.0498', GB_RULES)).toEqual(['extra 2025-05-01', 'move 2026-05-02']);
+    expect(listed('0.05', US_RULES)).toEqual(['move 2026-05-02']);
+  });
+
   it('windowOpen until span.to + 30; ongoing until span.to', () => {
     const at = (day: string) => taxYearPool(GB_PLAN, [], GB_RULES, span, date(day));
     expect(at('2027-04-05')).toMatchObject({ ongoing: true, windowOpen: true });
