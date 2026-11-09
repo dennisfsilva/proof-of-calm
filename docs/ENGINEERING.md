@@ -150,7 +150,15 @@ as ADR-0024's Corrections say, and the test skips on a platform without one.
   cycle between chunks. today.ts multiplies each chunk's brotli by its app share, so its figure
   depends on how chunks mix vendor and app code (37,094 bytes in one mixed chunk against about 46,900
   under a vendor split for the same modules, 2026-11-09), and Lighthouse's script total on Today is
-  the measure that decides a chunking change. A lazy screen still takes shared data through Services.
+  the measure that decides a chunking change. The group lowered today.ts's figure by 9,000 bytes for
+  the same 195 modules, so its gate in e2e-build is weaker by that margin; what replaces it is the
+  script budget above, at error in Lighthouse on every push to main and, before review, on any branch
+  that changes what Today loads (`gh workflow run lighthouse-branch.yml --ref <branch>`;
+  `docs/BUILD-PROMPT.md`). today.ts's method and its 45 kB budget stay until its measure no longer
+  depends on chunk mixing and the budget is re-based on it. With the group, dispatch 42590923685 on
+  2026-11-09 measured Today at 144,222 bytes of scripts in 3 requests (main: 161,818 in 14),
+  Portfolio 207,689 (225,487), Log 213,258 (230,866) and Plan 188,441 (206,179), performance medians
+  0.99 on Today and 0.96 on the other three. A lazy screen still takes shared data through Services.
 - Lighthouse mobile ≥ 95 for Performance (TBT ≤ 200 ms, LCP ≤ 2.5 s, CLS ≤ 0.1) and 100 for
   Accessibility on Today, Portfolio, Log, Plan; five runs per measured deployment, each screen with
   the fixture plan in IndexedDB (`apps/web/lighthouse/seed.ts`, run before each URL; Lighthouse's reset

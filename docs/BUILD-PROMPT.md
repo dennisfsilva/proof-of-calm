@@ -77,7 +77,8 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - A branch that changes what Today loads runs `lighthouse-branch.yml` before review, not only
   `node tools/size/today.ts`. today.ts counts Today's entry; Lighthouse counts every script the page
   loads. #52 passed the first (45,051 of 46,080 bytes) and failed the second (169,093 bytes over
-  the script budget of `docs/ENGINEERING.md` §4).
+  the script budget of `docs/ENGINEERING.md` §4). Since Today's code-splitting group lowered
+  today.ts's figure, that Lighthouse run is what holds Today's scripts before a merge (§4 there).
 
 ## Known gaps
 
