@@ -303,6 +303,29 @@ describe('CountrySection', () => {
     expect(ruleLines()[0]).toBe('Holding rule now: your own rule. 1.000 days, then tax-free.');
   });
 
+  // ADR-0053: until the section asks the currency question, a change that would relabel logged amounts keeps the
+  // plan's currencies. The fixture plan pays in EUR and its live entries hold amounts; the United Kingdom's is GBP.
+  it("keeps the plan's currencies on a move to the United Kingdom with amounts logged, and lists no currency row", async () => {
+    const services = await mount();
+    await choose('United Kingdom');
+    expect(items().filter((item) => item?.startsWith('Currency'))).toEqual([]);
+    for (const box of screen.getAllByRole('checkbox')) fireEvent.click(box);
+    await confirm('United Kingdom');
+    expect(stored(services)).toMatchObject({ country: 'GB', payCurrency: 'EUR', displayCurrency: 'EUR' });
+  });
+
+  it('lets the currencies follow the country when no entry holds an amount, and lists both rows', async () => {
+    const services = await mount({ ...fixtureSnapshot(), entries: [] });
+    await choose('United Kingdom');
+    expect(items().filter((item) => item?.startsWith('Currency'))).toEqual([
+      'Currency for new amounts: EUR to GBP',
+      'Currency shown: EUR to GBP',
+    ]);
+    for (const box of screen.getAllByRole('checkbox')) fireEvent.click(box);
+    await confirm('United Kingdom');
+    expect(stored(services)).toMatchObject({ country: 'GB', payCurrency: 'GBP', displayCurrency: 'GBP' });
+  });
+
   // #165's round-2 review (docs/CONTENT-STYLE.md §1 rule 8): nothing is refused before the person has tried.
   it('marks nothing invalid and shows no refusal line for an early window before the first change', async () => {
     const early = { opens: '2028-03-05', closes: '2028-08-31', exitBy: '2028-12-31' } as NonNullable<
