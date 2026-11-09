@@ -43,3 +43,20 @@ export function reveal(box: Element, { scroller = scrollerOf(box) ?? undefined, 
   const move = below > 0 ? Math.ceil(Math.min(below, Math.max(-above, 0))) : above > 0 ? -Math.ceil(above) : 0;
   if (move !== 0) scroller.scrollBy({ top: move, behavior: smooth && !reducedMotion() ? 'smooth' : 'instant' });
 }
+
+/**
+ * The controls where Chromium's focus scroll shows at most the caret's line: the text-entry fields. Nothing else is
+ * revealed: the browser scrolls a button or link wholly into view itself, and a heading focused by a sheet's
+ * `initialFocus` (a Learn module's section) is placed by the browser's own focus scroll, which WebKit centres; the least
+ * scroll would leave it on the bottom edge with its section below the fold (docs/DESIGN.md §8).
+ */
+const TEXT_ENTRY = 'input, textarea, select, [contenteditable]:not([contenteditable="false"])';
+
+/**
+ * On `focusin`, the least scroll that shows a focused text field and its ring inside the sheet, when the focus shows
+ * (`:focus-visible`), measured then (reading the rects lays the page out). Not a frame later: a frame that comes late (a
+ * page in the background) would pull the field back after the reader or a script has scrolled away.
+ */
+export function revealFocusedField(control: Element, scroller: HTMLElement) {
+  if (control.matches(TEXT_ENTRY) && control.matches(':focus-visible')) reveal(control, { scroller });
+}

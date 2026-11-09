@@ -3,9 +3,9 @@
 import { Dialog as SheetPrimitive } from '@base-ui/react/dialog';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { XIcon } from 'lucide-react';
-import type { ComponentProps, FocusEvent } from 'react';
+import type { ComponentProps } from 'react';
 import { ModalLayer } from '#lib/modal-layer';
-import { reveal } from '#lib/reveal';
+import { revealFocusedField } from '#lib/reveal';
 import type { WithClassName } from '#lib/types';
 import { cn } from '#lib/utils';
 import { Button } from './button';
@@ -14,9 +14,9 @@ import { Button } from './button';
 // "Why?" modules and the forms. It floats a step off the edges so every corner keeps the same radius,
 // respects the home-indicator inset, and scrolls inside when it is taller than the screen. Its scroll
 // padding is the focus ring's extent and a pixel for the whole-pixel scroll offsets, so a field scrolled
-// into view stops with its whole ring inside the popup, which clips it (docs/DESIGN.md §6). A control focused from the
-// keyboard is brought wholly into view as it takes the focus: Chromium's Tab into a text field scrolls at most its
-// caret's line, and its own focus scroll, which follows, then finds the control in view.
+// into view stops with its whole ring inside the popup, which clips it (docs/DESIGN.md §6). A text field that takes the
+// focus is brought wholly into view (`revealFocusedField`): Chromium's Tab into one scrolls at most its caret's line,
+// and its own focus scroll, which follows, then finds the field in view. Every other focus is the browser's to place.
 
 function Sheet(props: SheetPrimitive.Root.Props) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;
@@ -54,17 +54,6 @@ type SheetContentProps = WithClassName<SheetPrimitive.Popup.Props> &
     closeLabel?: string;
   };
 
-/**
- * On `focusin`, the least scroll that shows the focused control and its ring inside the sheet, measured then (reading
- * the rects lays the page out). Not a frame later: a frame that comes late (a page in the background) would pull the
- * control back after the reader or a script has scrolled away. A press focuses no button (no `:focus-visible`), so a
- * scroll never moves one from under the pointer.
- */
-function revealFocused(event: FocusEvent<HTMLDivElement>) {
-  const { target: control, currentTarget: scroller } = event;
-  if (control !== scroller && control.matches(':focus-visible')) reveal(control, { scroller });
-}
-
 function SheetContent({ className, children, side, closeLabel, onFocus, ...props }: SheetContentProps) {
   return (
     <SheetPrimitive.Portal data-slot="sheet-portal">
@@ -76,7 +65,7 @@ function SheetContent({ className, children, side, closeLabel, onFocus, ...props
         data-slot="sheet-content"
         className={cn(sheetVariants({ side }), className)}
         onFocus={(event) => {
-          revealFocused(event);
+          revealFocusedField(event.target, event.currentTarget);
           onFocus?.(event);
         }}
         {...props}
