@@ -72,7 +72,7 @@ describe('the Noise and When the market drops modules', () => {
   });
 
   it("When the market drops holds counsel's three things, the frequency with its window, and one past-performance element", () => {
-    const { module } = read('when-the-market-drops');
+    const { module, source } = read('when-the-market-drops');
     // A line end reads as a space; the no-break spaces stay, so the window is matched as written.
     const body = module.body.replace(/[ \n]+/gu, ' ');
     expect(module.chart).toBe('none');
@@ -92,6 +92,13 @@ describe('the Noise and When the market drops modules', () => {
     expect(body).toContain(
       "Bitstamp BTC/USD daily closes, 16\u00a0Oct\u00a02021 to 16\u00a0Oct\u00a02026, in Proof of Calm's own computation. <PastPerformance />",
     );
+    // As in Cycles, the element ends its source line, so it renders inside that paragraph and its Risk link
+    // counts as a link in running text (apps/web/e2e/matrix.spec.ts, the touch-target check); on a line of its
+    // own it renders outside the paragraph.
+    const paragraphs = source.replace(/\r\n/gu, '\n').split(/\n{2,}/u);
+    expect(paragraphs.filter((paragraph) => paragraph.includes(ELEMENT))).toEqual([
+      "Bitstamp BTC/USD daily closes, 16\u00a0Oct\u00a02021 to 16\u00a0Oct\u00a02026, in Proof of Calm's own computation. <PastPerformance />",
+    ]);
     // A negation does not lift a ban (docs/CONTENT-STYLE.md §2): no "suggest", even as "suggests no purchase".
     expect(body).not.toMatch(/suggest/iu);
   });
