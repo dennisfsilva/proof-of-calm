@@ -30,7 +30,7 @@ import {
 import { defined, err, ok, type Result } from '../result';
 import { BACKUP_FORMAT } from '../schema/backup';
 import type { Coin } from '../schema/coin';
-import type { Entry, EntryKind } from '../schema/entry';
+import { type Entry, type EntryKind, invalidEntryIds } from '../schema/entry';
 import type { HoldingRule } from '../schema/holding-rule';
 import type { CoinId, CountryCode, EntityId } from '../schema/ids';
 import {
@@ -91,7 +91,8 @@ export type PrototypeImport = {
 
 export type PrototypeImportError =
   | { readonly code: 'not-prototype' }
-  | { readonly code: 'invalid-plan'; readonly issues: readonly string[] };
+  | { readonly code: 'invalid-plan'; readonly issues: readonly string[] }
+  | { readonly code: 'invalid-entries'; readonly ids: readonly EntityId[] };
 
 /** Which importer a parsed file is for. */
 export function recogniseImport(json: unknown): 'backup' | 'prototype' | null {
@@ -446,6 +447,9 @@ export function importPrototype(
       issues: parsed.error.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`),
     });
   }
+  // Built here from checked parts; a fresh id the shell gave that is no id still fails, and nothing is stored.
+  const invalid = invalidEntryIds(entries);
+  if (invalid.length > 0) return err({ code: 'invalid-entries', ids: invalid });
   return ok({
     plan: parsed.data,
     entries,

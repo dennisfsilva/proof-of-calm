@@ -13,7 +13,7 @@ import {
   type Units,
   UnitsSchema,
 } from '../money/decimal';
-import { CoinIdSchema, EntityIdSchema } from './ids';
+import { CoinIdSchema, type EntityId, EntityIdSchema } from './ids';
 
 /** `held`: coins the plan did not buy, held before it or received as a gift (docs/DOMAIN.md §2.2). */
 export const ENTRY_KINDS = ['dca', 'lump', 'extra', 'sell', 'held'] as const;
@@ -93,6 +93,11 @@ export const EntrySchema = EntryFieldsSchema.check(
   }),
 );
 export type Entry = z.infer<typeof EntrySchema>;
+
+/** The ids of the entries an import would store that do not read as entries (docs/DOMAIN.md §3.13). */
+export function invalidEntryIds(entries: readonly Entry[]): EntityId[] {
+  return entries.filter((entry) => !EntrySchema.safeParse(entry).success).map((entry) => entry.id);
+}
 
 /** A one-tap entry's units are an estimate from the day's price (ADR-0003): the Log labels them as such. */
 export function isEstimate(entry: Pick<Entry, 'source'>): boolean {
