@@ -20,7 +20,9 @@ import { TodayScreen } from './today-screen';
 // (BTC and ETH) on 20 October 2026.
 
 afterEach(cleanup);
-Element.prototype.scrollIntoView = vi.fn();
+// jsdom has no `scrollIntoView`: Dismiss's focus move calls it, so it is stubbed and the focus test reads it.
+const scrolled = vi.fn();
+Element.prototype.scrollIntoView = scrolled;
 
 const BTC = { coin: 'BTC' as CoinId, name: 'Bitcoin' };
 const ETH = { coin: 'ETH' as CoinId, name: 'Ethereum' };
@@ -137,6 +139,24 @@ describe('the red-day banner on Today', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
     expect(screen.queryByText(/^Bitcoin fell/)).toBeNull();
     expect(screen.queryByText(today.redDay.failed)).toBeNull();
+  });
+
+  it('after Dismiss the focus is on Today’s heading once the banner is gone, brought into view by the least scroll', async () => {
+    await onToday(memoryPlanStore(fixtureSnapshot()));
+    const heading = document.getElementById('today-action');
+    if (heading === null) throw new Error('no action card heading');
+    const bannerAtFocus: (HTMLElement | null)[] = [];
+    const focus = vi.spyOn(heading, 'focus').mockImplementation(function (this: HTMLElement, options) {
+      bannerAtFocus.push(screen.queryByText(/^Bitcoin fell/));
+      HTMLElement.prototype.focus.call(this, options);
+    });
+    scrolled.mockClear();
+    fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
+    await waitFor(() => expect(document.activeElement).toBe(heading));
+    expect(focus).toHaveBeenCalledWith({ preventScroll: true });
+    expect(bannerAtFocus).toEqual([null]);
+    expect(scrolled.mock.contexts).toEqual([heading]);
+    expect(scrolled).toHaveBeenCalledWith({ block: 'nearest' });
   });
 
   it('a write that keeps failing: Dismiss hides it and the toast says it may show again', async () => {

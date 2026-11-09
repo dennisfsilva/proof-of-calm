@@ -82,11 +82,24 @@ export type RedDayFootProps = {
 /** Nothing until the model answers, then the red-day banner or `next`; only Dismiss turns one into the other. */
 export function RedDayFoot({ plan, next }: RedDayFootProps) {
   const { shown, record, hide } = useRedDay(plan);
+  const dismissed = useRef(false);
+  /**
+   * Dismiss's button goes with the banner, so once the commit has removed it the card's heading takes the focus and
+   * comes into view by the least scroll: read at the foot of a phone's page, the heading is above the window
+   * (docs/DESIGN.md §6).
+   */
+  useEffect(() => {
+    if (shown !== null || !dismissed.current) return;
+    dismissed.current = false;
+    const heading = document.getElementById('today-action');
+    heading?.focus({ preventScroll: true });
+    heading?.scrollIntoView({ block: 'nearest' });
+  }, [shown]);
   if (shown === undefined) return null;
   if (shown === null) return next;
   const dismiss = () => {
+    dismissed.current = true;
     hide();
-    document.getElementById('today-action')?.focus({ preventScroll: true });
     void record(shown.key);
   };
   return (

@@ -28,6 +28,8 @@ import { TodayScreen } from './today-screen';
 // of links before a plan exists. The plan is Portugal's, so the amounts are formatted in pt-PT.
 
 afterEach(cleanup);
+// jsdom has no `scrollIntoView`: a foot banner's Dismiss brings the card's heading into view with it.
+Element.prototype.scrollIntoView = vi.fn();
 
 const portugal = async () => {
   const profile = await loadProfile('PT');
