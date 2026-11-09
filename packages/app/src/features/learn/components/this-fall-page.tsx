@@ -195,12 +195,15 @@ export function ThisFallView({ plan, model, falls }: ThisFallViewProps) {
   );
 }
 
-/** `/learn/fall-under-way`: the page, or Learn's index in its place without a plan, with nothing held or no fall under way. */
+/**
+ * `/learn/fall-under-way`: the page, or Learn's index in its place without a plan, with nothing held, no history of
+ * the held coins to read or no fall under way.
+ */
 export function ThisFallPage() {
   const plan = useSnapshot((snapshot) => snapshot.plan);
   const model = useFallModel();
   const falls = usePastFalls(model?.held ?? null);
-  if (plan === null || model?.state === 'nothing-held' || model?.state === 'clear') {
+  if (plan === null || model?.state === 'nothing-held' || model?.state === 'no-history' || model?.state === 'clear') {
     return <Redirect to="~/learn" replace />;
   }
   return <ThisFallView plan={plan} model={model} falls={falls} />;
