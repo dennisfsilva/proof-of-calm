@@ -1,7 +1,7 @@
 # Letter to Kraken: written confirmation for derived daily closes
 
-Draft of 2026-10-17, revised 2026-11-09 to the catalogue rule (ADR-0052), sent 2026-11-09, for
-the owner to send before M2 (ADR-0006, ADR-0036). Fill in the bracketed details.
+Draft of 2026-10-17, revised 2026-11-09 to the catalogue rule (ADR-0052), and sent by the owner
+on 2026-11-09 (ADR-0006, ADR-0036).
 Kraken's terms contain no written market-data licence, so the question is whether the use
 below is acceptable as described; the answer is recorded in ADR-0036. Kraken's legal inquiry form
 (support.kraken.com, "How do I submit a legal inquiry?") serves only law enforcement and legal
