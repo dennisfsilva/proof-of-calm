@@ -138,7 +138,8 @@ external links and the Risk link in the mobile export (M3).
   the hold phase's link built on 2026-11-02 (#310), the others with their modules (`docs/EDUCATION.md`);
   Noise and When the market drops built on 2026-11-09 (#61), with the drawdown's link as the fall
   page's Why?, and a module's one chart drawn through `<Chart />` the same day (#62); Risk honestly
-  with Portfolio's P/L link, follows in its own session (#63).
+  with Portfolio's P/L link built on 2026-11-09 (#69), the chart's falls named as Proof of Calm's own
+  computation the same day (#68).
 - Templates: the four starting points with risk labels and explanations; the template picker copy
   passes the copy-review checklist (`docs/CONTENT-STYLE.md`).
 - Jurisdictions: PT, DE, NL, ES, FR, IT, BE, IE, GB, US, XX as validated data with sources and dates;

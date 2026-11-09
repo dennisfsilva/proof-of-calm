@@ -60,8 +60,10 @@ wallets, a test transaction first, a request for it is a warning sign of a scam,
 `e.seed-phrase-requests` and `e.impersonation`).
 **Chart**: one bar chart of maximum drawdowns per asset and cycle (categorical by asset, with values
 labelled, from `packages/content/cycles`). Directly under the chart sits the first-view sentence for
-historic data of `docs/LEGAL.md` §4, "[Source] closes, [first date] to [last date]. Past performance is
-not a reliable indicator of future results.", as §6 says for the Red day page. The publisher shows as
+historic data of `docs/LEGAL.md` §4 in its intraday form, since the bars are falls from intraday highs to
+intraday lows: "[Source] intraday highs and lows in US dollars, [first date] to [last date]; the falls are
+Proof of Calm's own computation. Past performance is not a reliable indicator of future results.", as §6
+says for the Red day page. The publisher shows as
 attribution text, never as a link to the exchange's domain (`docs/LEGAL.md` §3.4).
 **Caveat**: "The deepest falls so far are not a limit: a coin can fall further, to zero."
 **Facts needed**: §9 a, b, d, f, m and the e rows of the signs (c stays out: the module quotes no
@@ -216,7 +218,7 @@ Every number a module cites, verified against primary data on 2026-10-16 (two in
 exchange and explorer data agreed to the dollar; full tables with every source URL in
 `docs/research/brand-content-education.md` §6) and read again on 2026-11-02, every source opened and
 every computed figure recomputed from the raw responses (`docs/content-review-log.md`).
-`packages/content/facts/education.json` holds this table with `lastReviewed: 2026-11-02` (a and b: 2026-11-09, when they became our computation): one fact per key, the Fact text as its value, row k one fact
+`packages/content/facts/education.json` holds this table with `lastReviewed: 2026-11-02` (a and b: 2026-11-09, when they became our computation; the d, e and f rows and m: 2026-11-09, read again for Risk honestly; r: 2026-11-09, when it was added): one fact per key, the Fact text as its value, row k one fact
 per law (its closing sentence rests on the 6 k facts and has none of its own). Each fact carries one
 source among those its row names, on the facts allow-list (`docs/CONTENT-OPS.md` §5), with its URL
 from the research report, where the others stay beside those `docs/content-review-log.md` lists
@@ -225,7 +227,7 @@ Diário da República, `k.ie-2026` the Finance (No. 2) Bill 2026 in the Oireacht
 pages. Rows a and b (the falls), h, i and o to q are Proof of Calm's own computation: the value opens with "Proof of Calm's
 own computation" and its series, so a module quoting it says who computed it, and the publisher is
 the exchange whose daily candles it used, so the first-view line opens with the publisher
-("Bitstamp closes, …"; for the falls, "Mt. Gox, CoinMarketCap, and Bitstamp intraday prices, …") (`docs/LEGAL.md` §4). An ETH figure is a fact of its own, sourced to the ETH candles it came from.
+("Bitstamp closes, …"; for the falls, Cycles' own line "Mt. Gox, CoinMarketCap, and Bitstamp intraday prices, …", and in Risk honestly the chart's line "{publishers} intraday highs and lows in US dollars, {first} to {last}; the falls are Proof of Calm's own computation.") (`docs/LEGAL.md` §4). An ETH figure is a fact of its own, sourced to the ETH candles it came from.
 The cycles file's rows read the series rows a and b name, bitcoin's from row a and the other coins' from row b, except LINK 2021: it stays on Bitstamp,
 because only Bitstamp's 3-day candles give a low window that runs to today in one request, while row
 b quotes LINK from Coinbase; both give 91 %.
@@ -294,7 +296,8 @@ caveat, and body. A body holds two elements. `<PastPerformance />` sets the past
 and the link `Risk disclosure` as one, after the line's source and dates (`docs/LEGAL.md` §4). The content
 test refuses those words anywhere in a module's own text. `<Chart />`, on a line of its own, draws the
 chart the front matter names where it stands, followed by its source's publishers as unlinked text, the
-span of its data and the past-performance line, all inside the element; a module holds it exactly once when
+span of its data and the past-performance line, all inside the element (for `drawdowns-bar`, the intraday form
+of `docs/LEGAL.md` §4's line, which also says the falls are Proof of Calm's own computation); a module holds it exactly once when
 `chart` is not `none`, and never otherwise (`pnpm validate:content`). A module with a chart writes its
 `N %` with an ordinary space, and the page sets it with the joiner of the chart's figures in each locale
 (`docs/CONTENT-STYLE.md` §4); a module with `chart: none` renders as written. Only `drawdowns-bar` has a
