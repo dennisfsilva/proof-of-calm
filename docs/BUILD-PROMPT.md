@@ -67,6 +67,13 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - A native form element on a screen the CSP specs open fails WebKit's hashed CSP (#33: a native select
   recorded a style-src-attr violation): use the ui components there, or run that CSP spec on the iphone
   project before the PR.
+- A header line that describes a column is checked against the code that fills the column, not
+  against the column's name. Two of #41's header lines described `purchase_costs_to_date` and
+  `units_estimated` by their names. They missed costed `held` entries and the block-wide estimated
+  flag. The fact check caught both after the words were written.
+- A rule on when external data is final cites the vendor's documented publish time and cache. #40
+  counted the close of 31 December as final from 00:00 UTC. CoinGecko publishes it at 00:10 UTC and
+  caches the answer for 30 s, so #42 reworked it.
 
 ## Known gaps
 
