@@ -101,3 +101,8 @@ The same design adds, around the question (planned: M2), in feat/currency-questi
   display currency follows the pay currency when the two were equal, so the button stores the same
   plan as the question's "Change to" answer. A display currency set apart from the pay currency
   stays, since no screen can set it again (`docs/DOMAIN.md` §2.1).
+- The Decision's "relabels logged amounts only on the person's answer" now also holds for a delete's
+  Undo: the delete notes the plan's pay currency, and an Undo after a change of country or of the pay
+  currency refuses (`currency-changed`) when an entry it would restore holds an amount or a fee, so
+  euros deleted before a move to GBP never come back reading as pounds. Nothing is restored or
+  converted, and the Log's toast says so (`docs/DOMAIN.md` §6, Delete entry).
