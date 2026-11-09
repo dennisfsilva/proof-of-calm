@@ -12,7 +12,9 @@ import { MODULE_ELEMENTS } from '../lib/body-elements';
 // the red-day port the fall page reads, so no value of core or content lands in this lazy chunk.
 
 /** Every coin of the cycles file, in its order (a test holds this to packages/content/cycles). */
-export const DRAWDOWN_COINS = ['BTC', 'ETH', 'LINK', 'SOL'] as readonly PastFall['coin'][];
+export const DRAWDOWN_COINS: readonly PastFall['coin'][] = ['BTC', 'ETH', 'LINK', 'SOL'].map(
+  (coin) => coin as PastFall['coin'],
+);
 
 type Falls = readonly PastFall[] | 'failed';
 
