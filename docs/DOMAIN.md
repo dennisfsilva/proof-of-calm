@@ -851,13 +851,16 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
     - File, `taxYearSnapshotCsv(snapshot, header)`, laid out as the per-lot file: the header lines, one empty row, the columns `row, coin, units_on_<MM-DD>, value_on_<MM-DD>, bought_units, bought_amount, bought_fee, held_units, held_cost, sold_units, sold_proceeds, sold_fee, fee_units, units_on_<MM-DD>, value_on_<MM-DD>` (the reference date, then `span.to`), one `coin` row per coin, then one `total` row. `coin` and each header line go through `textCell`. Each amount cell is rounded half-even at the currency's minor digits and padded to them; units are written as stored. The `total` row's units cells are empty and each amount cell is the sum of the written cells above it, empty when one of them is, so the file adds up as a reader sums it (ADR-0017): in `packages/core/test/tax-year/nl-2026.csv` the 1 January total is 30679.01 + 7502.62 = 38181.63, where the exact 38181.63735 would round to 38181.64.
 - Tax-year raw listing for the lot rules the app does not match (`pooled`, `specific`, `average`; decided
   2026-11-07), `taxYearPool(plan, entries, rules, span, today)` and `taxYearPoolCsv(pool, header)`: nothing is
-  matched. A coin with a sale dated in the span lists every live entry dated on or before `span.to`, purchases
-  and sales, whole, because a pool needs the earlier disposals (buy 1 at 100, sell 1, buy 1 at 200: the
-  section 104 pool's cost is 200, not 150); under `pooled` it also lists the purchases dated from `span.to` + 1
+  matched. A coin with a disposal dated in the span, a sale or a move whose fee in the coin is above 0, lists
+  every live entry dated on or before `span.to`, whole, because a pool needs the earlier disposals (buy 1 at 100, sell 1, buy 1 at 200: the
+  section 104 pool's cost is 200, not 150) and a coin fee, a disposal of the fee units in the US
+  (`docs/JURISDICTIONS.md` §7.5), takes its basis and holding period from the earlier purchases. Every country
+  of this listing widens on a move's fee, since the listing only lists the person's entries and treats none as
+  taxed. Under `pooled` it also lists the purchases dated from `span.to` + 1
   to `span.to` + `POOLED_MATCH_DAYS` (§9) that the log holds on the export day, since the UK matches them to a
   disposal in the year (s. 106A: a buy on 6 April to a sale on 20 March). `windowOpen` is true while today ≤
   `span.to` + `POOLED_MATCH_DAYS` under `pooled` (false otherwise), `ongoing` while today ≤ `span.to`. A coin
-  with no sale in the span lists its entries dated in the span. Order: the plan's coins, then any other coin with
+  with no disposal in the span lists its entries dated in the span. Order: the plan's coins, then any other coin with
   entries, each coin's entries in `compareEntries` order (§3.7). Columns `kind, date, coin, venue, units,
   cost_basis, fee, eligible_from, proceeds, disposal_fee, units_estimated, to_venue, units_received`: `kind` in the Log CSV's codes; a
   purchase fills `cost_basis`, `fee` and `eligible_from`, from the country's holding rule with its overrides,

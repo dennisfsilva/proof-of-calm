@@ -3,9 +3,9 @@
 import { POOLED_MATCH_DAYS } from '../constants';
 import { addDays, type CalendarDate } from '../dates/calendar';
 import { holdingStatus } from '../holding/eligible-from';
-import type { Money, Units } from '../money/decimal';
+import { isPositive, type Money, type Units } from '../money/decimal';
 import { liveEntries } from '../plan/statuses';
-import { entryRole } from '../portfolio/effect';
+import { entryRole, unitsOut } from '../portfolio/effect';
 import { compareEntries } from '../portfolio/lots';
 import { coinsWithEntries } from '../portfolio/portfolio';
 import type { CountryRules, LotRule } from '../schema/country';
@@ -89,8 +89,9 @@ function poolRow(entry: Entry, rules: CountryRules): PoolRow {
 }
 
 /**
- * A coin with a sale dated in the span lists every live entry dated on or before `span.to` (the pool needs the
- * earlier sales), and under `pooled` also the purchases of the `POOLED_MATCH_DAYS` after it that the log holds;
+ * A coin with a disposal dated in the span, a sale or a move whose fee is above 0 (a coin fee is a disposal of the fee
+ * units in the US, docs/JURISDICTIONS.md §7.5), lists every live entry dated on or before `span.to` (the pool needs
+ * the earlier sales, the fee units their basis), and under `pooled` also the purchases of the `POOLED_MATCH_DAYS` after it that the log holds;
  * any other coin lists its entries dated in the span. The plan's coins in order, then the others; each coin's
  * entries in `compareEntries` order.
  */
@@ -107,8 +108,9 @@ export function taxYearPool(
   const inSpan = (entry: Entry) => span.from <= entry.date && entry.date <= span.to;
   const rows = coinsWithEntries(plan, live).flatMap((coin) => {
     const own = live.filter((entry) => entry.coin === coin);
-    const sold = own.some((entry) => entryRole(entry.kind) === 'sale' && inSpan(entry));
-    const listed = sold
+    // Every country of this listing widens on a coin fee: it lists the person's own entries and treats none as taxed.
+    const disposed = own.some((entry) => inSpan(entry) && isPositive(unitsOut(entry)));
+    const listed = disposed
       ? (entry: Entry) =>
           entry.date <= span.to || (pooled && entryRole(entry.kind) === 'purchase' && entry.date <= windowEnd)
       : inSpan;
