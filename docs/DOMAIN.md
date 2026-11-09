@@ -891,9 +891,10 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   (`docs/JURISDICTIONS.md` §1) its under-review line and then no `lotRuleNote`, condition or source; the
   matching line (the lot rule, or that the raw listing matches nothing) and the `lotRuleNote`; where the country
   has a holding rule, what `eligible_from` and `past_holding_rule` mean, each `holdingRuleConditions` sentence,
-  and a line when `planRuleDiffers`; per venue, the venue line and the `crossVenue` count; for the per-lot file, when
-  `moveFees`, what a fee piece is and what `held_at` and `moved_on` hold; for the raw listing, when `moves`, what a
-  move row holds; for the raw listing
+  and a line when `planRuleDiffers`; per venue, the venue line and the `crossVenue` count; for the per-lot file, what `held_at` and `moved_on` hold (every
+  row fills them), and when `moveFees`, what a fee piece is, that it leaves `past_holding_rule` empty and that the
+  file does not say whether the country treats the fee as a disposal; for the raw listing, when `moves`, which
+  columns a move row fills and that `units` less `units_received` is the fee in the coin; for the raw listing
   what it lists, under `pooled` with the 30-day window and, while `windowOpen`, the export day; the format line;
   then, when set, `uncosted` (a `held` row's empty `cost_basis` is no recorded cost, and the line names the other
   rows that leave it empty: the per-lot file's with no acquired date, the raw listing's sales), `estimated`,
@@ -907,7 +908,7 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   (in place of `estimated`, since a sale row's `units_estimated` is its block's: yes when the sale or any
   holding row in it counts estimated units) and `ongoing`. The snapshot header then says which day each `units_on_` column is, the opening as the start of
   the reference date and the end of the day before, and while the year runs that the year-end column stays
-  empty; that the value cells are empty (0.00 where none was held); the format line; and, when set,
+  empty; that the value cells are empty (0.00 where none was held); what `fee_units` holds; the format line; and, when set,
   `heldInYear` (the coins of such entries may have been there before the reference date), `uncosted` (an empty
   `held_cost` is no recorded cost), `estimated` (worded without a column, since the file has none) and
   `ongoing`. Neither names a form line number, a threshold, the Dutch box, a deemed return or a deadline. No
