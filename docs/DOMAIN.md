@@ -730,6 +730,11 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   whatever an import leaves reads back. A backup holds at most the cap, so only "Add missing entries only" over a
   plan, or a DCA plan page file (§7, whose import goes through `applyImport`), can reach it.
   Settings reads no file over `IMPORT_MAX_BYTES` (§9): it checks the size before reading the text and names the refusal in the same alert.
+  Last, `applyImport` reads every entry it would return with `EntrySchema` (decided 2026-11-09, so that no
+  entry reaches a row that its own build, or the one before it, cannot read): one that fails applies nothing in
+  the same way and returns `refused: { code: 'invalid-entries', ids }` (the failing entries' ids), and the
+  import alert counts them. A DCA plan page file is read the same way in `importPrototype` (§7), whose
+  `invalid-entries` error stores nothing and shows the prototype file's alert.
 - Rows from a newer version on this device (ADR-0019 Readings, "Row shape"; decided 2026-10-30): while any
   such row exists, a tombstone included (`newer.plans + newer.entries + newerTombstones > 0`), both imports,
   a backup in either mode and a DCA plan page file (§7), are refused, and Settings' action checks this
@@ -1040,7 +1045,8 @@ doubles as the golden-test fixture source.
 
 `importPrototype(json, { planId, country, countryRuleVersion, ids, now, today })` returns
 `{ plan, entries, prefs, report }`, or `not-prototype` (no `purchases` list) or `invalid-plan` (each
-issue as `path: code`, such as `monthlyAmount: no-amount`). The report lists every adjustment as a
+issue as `path: code`, such as `monthlyAmount: no-amount`) or `invalid-entries` (the ids of the entries it
+built that `EntrySchema` does not read, §3.13). The report lists every adjustment as a
 coded note (`ImportNote`, one per kind, with counts for entries), which the shell words; the defaults
 the prototype itself merged under a file are applied silently, as it did. `recogniseImport(json)` tells
 a Proof of Calm backup from a prototype export. Settings' import takes the file chosen or the text pasted into
