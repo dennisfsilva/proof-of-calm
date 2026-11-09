@@ -146,6 +146,11 @@ describe('learnPlugins', () => {
       ['an export', 'export const x = 1\n\nText.', /noise\.mdx:6.*export/s],
       ['an {expression}', 'Text with {1 + 1} in it.', /noise\.mdx:6.*expression/s],
       ['an element outside the set', 'Text.\n\n<Chart />\n', /noise\.mdx:8.*Chart/s],
+      [
+        'an element in the set with content',
+        'Text.\n\n<DrawdownsBar>\n\n<DrawdownsBar />\n\n</DrawdownsBar>\n',
+        /noise\.mdx:8.*<DrawdownsBar> takes no content/s,
+      ],
     ];
     it.each(cases)('%s', async (_name, body, message) => {
       const files = { ...FIXTURE, 'learn/noise.mdx': module('noise', body) };
@@ -219,6 +224,15 @@ describe('checkModuleBody', () => {
     ['a {...spread} attribute', 'Text.\n\n<PastPerformance {...x} />\n', /noise\.mdx:8: a \{\.\.\.spread\}/],
     // A text element's block would nest inside the paragraph's <p>.
     ['<Chart /> in a paragraph', 'A sign. <Chart />\n', /noise\.mdx:6: <Chart> stands on a line of its own/],
+    // An allowed element renders no children: a <Chart /> inside one would never mount.
+    [
+      'a <Chart /> inside <PastPerformance>',
+      'Text.\n\n<PastPerformance>\n\n<Chart />\n\n</PastPerformance>\n',
+      /noise\.mdx:8: <PastPerformance> takes no content; write it self-closing, as <PastPerformance \/> \(ADR-0048\)/,
+    ],
+    ['a <Chart /> inside <Chart>', 'Text.\n\n<Chart>\n\n<Chart />\n\n</Chart>\n', /noise\.mdx:8: <Chart> takes no/],
+    ['text in a text element', 'A line. <PastPerformance>past</PastPerformance>\n', /noise\.mdx:6: <PastPerf/],
+    ['a space in a text element', 'A line. <PastPerformance> </PastPerformance>\n', /noise\.mdx:6: <PastPerf/],
   ];
   const PASS = { problem: null, flow: [] };
 
@@ -231,6 +245,14 @@ describe('checkModuleBody', () => {
     expect(await checkModuleBody(module('noise', 'A line. <PastPerformance />\n'), path)).toEqual(PASS);
     const chart = await checkModuleBody(module('noise', 'Text.\n\n<Chart />\n'), path);
     expect(chart).toEqual({ problem: null, flow: ['Chart'] });
+  });
+
+  // MDX parses an element with nothing between its tags as one with no children: it renders as <X /> does.
+  it('passes an allowed element closed with nothing inside', async () => {
+    const text = await checkModuleBody(module('noise', 'A line. <PastPerformance></PastPerformance>\n'), path);
+    expect(text).toEqual(PASS);
+    const flow = await checkModuleBody(module('noise', 'Text.\n\n<Chart></Chart>\n'), path);
+    expect(flow).toEqual({ problem: null, flow: ['Chart'] });
   });
 
   // `pnpm validate:content` counts the charts from the tree: an escaped element or a code span is text, no chart.
