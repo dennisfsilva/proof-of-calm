@@ -2,7 +2,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { buildFixtureBundle, type FixtureBuildOptions, type FixtureFiles } from './fixture.ts';
 import { createHostConfig } from './host-config.ts';
-import { learnPlugins, type ParseModule } from './learn-plugin.ts';
+import { checkModuleBody, learnPlugins, MODULE_BODY_ELEMENTS, type ParseModule } from './learn-plugin.ts';
 
 // A stand-in for `@proofofcalm/content/modules`' parseModule, which this package cannot import (it would
 // close a cycle in the package graph): flat `key: value` lines between two `---` lines, the rest the body.
@@ -200,5 +200,48 @@ describe('learnPlugins', () => {
     const files = { ...FIXTURE, 'learn/noise-copy.mdx': module('noise', 'Second body.') };
     const message = /^(?=.*\bnoise\.mdx\b)(?=.*\bnoise-copy\.mdx\b)(?=.*\bslug noise\b)/s;
     await expect(buildLearn(files)).rejects.toThrow(message);
+  });
+});
+
+// `pnpm validate:content` runs the same compiler and the same check, so a refused body shows before a build.
+describe('checkModuleBody', () => {
+  const path = 'packages/content/learn/noise.mdx';
+  const refused: readonly [string, string, RegExp][] = [
+    ['an element outside the set', 'Text.\n\n<Foo />\n', /noise\.mdx:8: <Foo> is not allowed/],
+    ['an {expression}', 'Text with {1} in it.', /noise\.mdx:6: an \{expression\} is not allowed/],
+    ['an import', "import x from 'y'\n\nText.", /noise\.mdx:6: an import or export statement is not allowed/],
+    ['an export', 'export const x = 1\n\nText.', /noise\.mdx:6: an import or export statement is not allowed/],
+    ['a link', 'A [a](b) in the text.', /noise\.mdx:6: a link is not allowed/],
+    ['a reference link', 'A [reference][plan].\n\n[plan]: /plan', /noise\.mdx:6: a reference link is not allowed/],
+    ['an image', 'An ![image](/mark.png).', /noise\.mdx:6: an image is not allowed/],
+    ['a link definition', 'Text.\n\n[plan]: /plan', /noise\.mdx:8: a link definition is not allowed/],
+    ['an {expression} attribute', 'Text.\n\n<PastPerformance id={1} />\n', /noise\.mdx:8: an \{expression\} as/],
+    ['a {...spread} attribute', 'Text.\n\n<PastPerformance {...x} />\n', /noise\.mdx:8: a \{\.\.\.spread\}/],
+  ];
+
+  it.each(refused)('refuses %s, naming the file and line', async (_name, body, message) => {
+    expect(await checkModuleBody(module('noise', body), path)).toMatch(message);
+  });
+
+  it('allows the elements of MODULE_BODY_ELEMENTS by default', async () => {
+    expect(MODULE_BODY_ELEMENTS).toEqual(['PastPerformance']);
+    expect(await checkModuleBody(module('noise', 'A line. <PastPerformance />\n'), path)).toBeNull();
+  });
+
+  it('takes another set of elements', async () => {
+    expect(await checkModuleBody(module('noise', 'Text.\n\n<Chart />\n'), path, ['Chart'])).toBeNull();
+    expect(await checkModuleBody(module('noise', 'A line. <PastPerformance />\n'), path, [])).toMatch(
+      /<PastPerformance> is not allowed; no element is allowed/,
+    );
+  });
+
+  it('refuses a path the compiler would skip, instead of passing a body it never read', async () => {
+    expect(await checkModuleBody(module('noise', 'Text.'), 'packages/content/learn/noise.txt')).toMatch(
+      /noise\.txt: not an \.mdx file/,
+    );
+  });
+
+  it('passes Markdown text and ignores the front matter', async () => {
+    expect(await checkModuleBody(module('noise', '# Noise\n\nA *calm* plan.\n\n- one\n- two\n'), path)).toBeNull();
   });
 });
