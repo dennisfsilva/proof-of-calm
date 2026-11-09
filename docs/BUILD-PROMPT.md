@@ -90,6 +90,10 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - A product claim in a module or message is checked in every state a person can be in, the hold
   phase included. #61 said the fall page shows "the next buy day", which it leaves out when no buy
   is ahead.
+- A counsel read of a fix round is handed every changed copy file, `docs/LEGAL.md` included: on #69,
+  counsel's read of the final delta used main's LEGAL and reported a §6 Q4 gap that the branch had already filled.
+- A fact a module will quote is first trimmed to what its one cited source holds: #69's first read
+  found 14 items in `e.scams` and 2 in `m.emergency-fund` that only the research report held.
 
 ## Known gaps
 

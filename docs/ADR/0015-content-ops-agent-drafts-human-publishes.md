@@ -79,3 +79,15 @@ corrected here instead of rewritten (`docs/ADR/README.md`).
   valuation was dropped because it belongs to the paper's one-purchase case. The read is in #61's comment; on
   those files `reviewedBy: owner` records the delegation, not a person's read. What it found:
   `docs/content-review-log.md`. The rule stands for every other content PR.
+- 2026-11-09: the owner delegated the read and the merge of #68, the falls as Proof of Calm's own computation,
+  and #69, the Risk honestly module, to a session, by message (the session's question that day), with the
+  session's other checkpoint PRs. The question said that Risk honestly "names Mt. Gox and FTX as dated
+  exchange failures and adds one sentence to LEGAL §6 Q4 on naming a provider in a sourced event"; the owner
+  chose "Yes, delegate" at 16:06 on 2026-11-09, so the delegation covers that sentence. An agent re-read every figure against its source before each merge: once on
+  #68, twice on #69, and counsel read #69's final delta a third time. The reads changed fact a's 2011 fall to
+  −94.0 %, dropped fact b's "still" and put its figures at the close, kept LINK 2021 on Bitstamp, trimmed facts
+  e and m to their one source, sourced the six signs of a scam to the ESAs' factsheet, and reworded the support
+  sentence and the FCA order. The session kept "first, then" in the FCA order against counsel's wording, as a
+  judgment recorded on #69. The reads are in each PR's comments; on those files `reviewedBy: owner` records the
+  delegation, not a person's read. What it found: `docs/content-review-log.md`. The rule stands for every other
+  content PR.

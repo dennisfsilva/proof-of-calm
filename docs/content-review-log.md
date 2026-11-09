@@ -4,6 +4,36 @@ What each owner's review found wrong in the drafts, so the review skill improves
 (`docs/CONTENT-OPS.md` §8 step 5). Newest first. Each row names the kind of mistake, which is what the
 next draft can check for.
 
+## 2026-11-09: #68 and #69, the falls as our computation and the Risk honestly module
+
+The owner delegated these reads and the merges to a session, by message (the session's question that day), with
+the session's other checkpoint PRs (ADR-0015 Deviations). The question said that Risk honestly "names Mt. Gox
+and FTX as dated exchange failures and adds one sentence to LEGAL §6 Q4 on naming a provider in a sourced
+event"; the owner chose "Yes, delegate" at 16:06 on 2026-11-09, so the delegation covers that sentence.
+`reviewedBy: owner` on these files records that delegation; no person opened the sources. An agent re-fetched every source and re-read every figure before each
+merge: on #68, 10 drawdown rows recomputed from their candles, all 10 matching; on #69, a first read of the
+module and its facts and a second of the fix round, every quotation matched against the cited PDF's text.
+Counsel read #69's final delta a third time. The reads are in #68's comment and #69's three comments.
+
+| Kind | What was wrong | What it became |
+|---|---|---|
+| A range no cited series gives | Fact a's 2011 fall read "−93 to −94 %"; Mt. Gox's high and CoinMarketCap's low give −94.0 %, and no series gives −93 | −94.0 % |
+| A word the data contradicts | Fact b said LINK and SOL were "still" below their 2021 highs; SOL passed $260 on 10 days from 22 Nov 2024 to 25 Jan 2025 | "still" dropped, the figures put at the close of 16 Oct 2026 |
+| Source windows that miss part of the span | The Coinbase windows #68 gave LINK 2021 left 26 Jan to 31 Dec 2022 uncovered and stopped at 27 Oct 2023 | LINK 2021 kept on Bitstamp, whose 3-day candles run its low window to today; both give 91 % |
+| Items the cited source does not hold | Fact e held 14 items Chainalysis' report does not contain, and fact m BaFin's 3 months' income and a CFPB line the FCA page does not hold | e and m trimmed to their one source |
+| Patterns with no source of their own | 4 of the 6 scam patterns the module named rested on fact e, which does not hold them | Six signs, each quoted from the ESAs' factsheet of 15 Dec 2025 in its own fact |
+| A sentence that says more than its source | "Nobody from support ever asks for a seed phrase, so a request for one is a scam": the factsheet calls a request a warning sign | Reworded from the factsheet: a request is a warning sign, whoever it seems to come from |
+| An order the cited page does not give | "A common order:" put the emergency fund first; the FCA page puts paying off short-term debt first | The paragraph worded from the FCA page itself |
+
+Counsel's judgment the session did not take: counsel asked for "puts paying off short-term debt and building an
+emergency cash fund first", reading the FCA page as listing the two side by side. The session kept "first, then":
+the page says "Prioritise paying off any short-term debt, build an emergency cash fund" and orders its sections
+the same way, and the change would add a word to a body at its limit. Recorded on #69.
+
+Found outside the reads: counsel's Q4 note rested on main's `docs/LEGAL.md`, which did not yet hold the
+branch's new §6 Q4 sentence on naming a provider as the subject of a dated event; and counsel's FTX note rested
+on main's old `d.exchange-failures`. Both were already answered on the branch.
+
 ## 2026-11-09: #61, the Noise and When the market drops modules
 
 The owner delegated this read and the merge to a session, by message (the session's question that morning), with
