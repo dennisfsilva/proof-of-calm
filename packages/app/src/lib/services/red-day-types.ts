@@ -23,6 +23,12 @@ type RedDayFigure = {
 
 export type RedDayModel = {
   readonly state: 'nothing-held' | 'failed' | 'clear' | 'episode';
+  /**
+   * The coins with units above 0, in the portfolio's order (the plan's coins, then any other coin with entries;
+   * docs/DOMAIN.md §3.6), each named as the plan names it, else as the catalogue does, else by its id. Read from the
+   * plan and the entries alone, so every state carries it.
+   */
+  readonly held: readonly { readonly coin: CoinId; readonly name: string }[];
   readonly figure: RedDayFigure | null;
   readonly episode: RedDayEpisode | null;
   /** The figures of `episode.last`, for the banner's sentence. */

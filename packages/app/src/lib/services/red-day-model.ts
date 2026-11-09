@@ -24,6 +24,10 @@ const WINDOW_DAYS = 90;
 /** Whether the history route serves the coin: the coin catalogue is its allow-list (ADR-0036). */
 const served = (coin: CoinId) => COINS.some((known) => known.id === coin);
 
+/** The coin's name in the plan, else in the catalogue, else its id: a held coin can have left the plan. */
+const nameOf = (plan: RedDayInput['plan'], coin: CoinId) =>
+  (plan.coins.find((known) => known.id === coin) ?? COINS.find((known) => known.id === coin))?.name ?? coin;
+
 /**
  * The complete closes of a copy: the route dates the live price at the fetch with that UTC day, so every point on
  * or after the fetch's UTC day goes, and so does every point after the user's today.
@@ -49,8 +53,15 @@ async function read(history: HistorySource, coins: readonly CoinId[], input: Red
 export async function redDayModel(history: HistorySource, input: RedDayInput): Promise<RedDayModel> {
   const { plan, entries, today } = input;
   const nextBuy = nextBuyReminder(plan, entries, today)?.due ?? null;
-  const none = { figure: null, episode: null, lastRed: null, nextBuy, buyDayToday: nextBuy === today } as const;
   const held = portfolio(plan, entries).positions.filter((position) => isPositive(position.units));
+  const none = {
+    held: held.map(({ coin }) => ({ coin, name: nameOf(plan, coin) })),
+    figure: null,
+    episode: null,
+    lastRed: null,
+    nextBuy,
+    buyDayToday: nextBuy === today,
+  } as const;
   if (held.length === 0) return { state: 'nothing-held', ...none };
 
   // A coin outside the catalogue is never asked for: the history route would not answer it.
