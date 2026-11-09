@@ -4,22 +4,42 @@
 import { COINS } from '@proofofcalm/content';
 import { loadCycleDrawdowns } from '@proofofcalm/content/cycles';
 import {
+  addDays,
   type CalendarDate,
   type CoinId,
+  type DrawdownPoint,
+  daysBetween,
+  defined,
   drawdowns,
   heldValueSeries,
   isPositive,
   nextBuyReminder,
   type PriceHistories,
   portfolio,
+  RED_DAY,
+  type RedDayEpisode,
+  type RedDayFlag,
   redDay,
   redDayEpisode,
+  type ValuePoint,
 } from '@proofofcalm/core';
 import { epochMs, todayIn } from '../adapters/clock';
 import type { CachedHistory, HistorySource } from '../ports';
 import type { PastFall, RedDayInput, RedDayModel } from './red-day-types';
 
 const WINDOW_DAYS = 90;
+/** The days a point's drawdown reads back for its 90-day high (core's drawdowns). */
+const HIGH_DAYS = 90;
+/** The days before today read first: an episode under way had a Red day in its last RED_DAY.episodeClearDays. */
+const RECENT_DAYS = 14;
+/** The days read before those, a block at a time, while the episode may have started earlier. */
+const EARLIER_DAYS = 90;
+
+/**
+ * Lets the browser paint and answer input between the model's steps: Today asks on its load, and each step divides
+ * exact decimals over a year of closes, so together they would be one long task (docs/ENGINEERING.md §4).
+ */
+const pause = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 
 /** Whether the history route serves the coin: the coin catalogue is its allow-list (ADR-0036). */
 const served = (coin: CoinId) => COINS.some((known) => known.id === coin);
@@ -47,6 +67,49 @@ async function read(history: HistorySource, coins: readonly CoinId[], input: Red
     );
   } catch {
     return null;
+  }
+}
+
+type Flag = RedDayFlag & Pick<DrawdownPoint, 'sevenDay' | 'fromHigh90'>;
+
+/**
+ * The flags of the series' points dated from `from` until `until` (excluded), with their drawdowns, as drawdowns() over
+ * the whole series gives them: a point's reads the points less than 90 days older and the latest one a week older or
+ * more, so the slice starts at the last point 90 days or more before `from`.
+ */
+function flagsBetween(series: readonly ValuePoint[], from: CalendarDate, until?: CalendarDate): Flag[] {
+  const reach = addDays(from, -HIGH_DAYS);
+  const first = series.findIndex((point) => point.date > reach);
+  if (first === -1) return [];
+  const end = until === undefined ? -1 : series.findIndex((point) => point.date >= until);
+  return drawdowns(series.slice(Math.max(0, first - 1), end === -1 ? series.length : end))
+    .filter((point) => point.date >= from)
+    .map((point) => ({ date: point.date, sevenDay: point.sevenDay, fromHigh90: point.fromHigh90, red: redDay(point) }));
+}
+
+/**
+ * The episode under way on `today`, as redDayEpisode over the whole series finds it, and the flags read for it, the
+ * series' last point among them. The last RECENT_DAYS go first; earlier blocks follow only while the episode could
+ * have started before what was read, a pause apart: three exact divisions a point make the whole year one long task.
+ */
+export async function recentEpisode(
+  series: readonly [ValuePoint, ...ValuePoint[]],
+  today: CalendarDate,
+): Promise<{ readonly episode: RedDayEpisode | null; readonly flags: readonly Flag[] }> {
+  const last = series.at(-1) ?? series[0];
+  const recent = addDays(today, -RECENT_DAYS);
+  let from = recent < last.date ? recent : last.date;
+  let flags = flagsBetween(series, from);
+  for (;;) {
+    const episode = redDayEpisode(flags, today);
+    const whole = from <= series[0].date;
+    if (episode === null || whole || daysBetween(from, episode.start) >= RED_DAY.episodeClearDays) {
+      return { episode, flags };
+    }
+    await pause();
+    const earlier = addDays(from, -EARLIER_DAYS);
+    flags = [...flagsBetween(series, earlier, from), ...flags];
+    from = earlier;
   }
 }
 
@@ -78,15 +141,13 @@ export async function redDayModel(history: HistorySource, input: RedDayInput): P
     held.filter((position) => closed.has(position.coin)),
     histories,
   );
-  const points = series === null ? [] : drawdowns(series);
-  const [first, last] = [points[0], points.at(-1)];
-  if (first === undefined || last === undefined) return { state: 'no-history', ...none };
+  const [first, ...rest] = series ?? [];
+  if (first === undefined) return { state: 'no-history', ...none };
 
-  const episode = redDayEpisode(
-    points.map((point) => ({ date: point.date, red: redDay(point) })),
-    today,
-  );
-  const red = episode === null ? undefined : points.find((point) => point.date === episode.last);
+  await pause();
+  const { episode, flags } = await recentEpisode([first, ...rest], today);
+  const last = defined(flags.at(-1), 'the last point');
+  const red = episode === null ? undefined : flags.find((point) => point.date === episode.last);
   return {
     ...none,
     state: episode === null ? 'clear' : 'episode',
@@ -98,7 +159,7 @@ export async function redDayModel(history: HistorySource, input: RedDayInput): P
       first: first.date,
       last: last.date,
       currency: plan.payCurrency,
-      shortWindow: points.length < WINDOW_DAYS,
+      shortWindow: rest.length + 1 < WINDOW_DAYS,
     },
     episode,
     lastRed: red === undefined ? null : { date: red.date, sevenDay: red.sevenDay, fromHigh90: red.fromHigh90 },
