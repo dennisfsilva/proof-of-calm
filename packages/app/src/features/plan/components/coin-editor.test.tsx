@@ -116,7 +116,9 @@ describe('CoinEditor', () => {
 
   it('works with the keyboard only: Tab through the fields, Enter adds, Space removes', async () => {
     mount();
-    const user = userEvent.setup({ document });
+    // No timer between keys: each key otherwise waits on a setTimeout, which under parallel load queues behind
+    // the worker's other work, where this test failed; the events and their order stay the same.
+    const user = userEvent.setup({ document, delay: null });
     await user.tab();
     expect(document.activeElement).toBe(share('Bitcoin'));
     await user.keyboard('{Control>}a{/Control}50');
