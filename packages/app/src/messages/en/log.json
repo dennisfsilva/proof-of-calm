@@ -98,6 +98,33 @@
     "deleted": "This entry was deleted in another browser tab, so the change was not saved.",
     "planDeleted": "The plan was deleted in another browser tab, so this entry was not saved."
   },
+  "move": {
+    "coin": "Coin",
+    "date": "Date",
+    "dateHint": "The day the coins left, as the withdrawal record shows it.",
+    "from": "Venue the coins left",
+    "noVenue": "With no venue",
+    "to": "Venue the coins went to",
+    "toHint": "The venue's name, as you call it in the Log: an exchange or a wallet.",
+    "sent": "Units sent",
+    "all": "All",
+    "received": "Units received",
+    "fee": "Network fee: {units}",
+    "sourceShort": "{at, select, venue {The Log shows {held} at {from} on {date}.} other {The Log shows {held} with no venue on {date}.}} The rest, {short}, comes from your other venues.",
+    "duplicate": "The Log already has this move on {date}. Save it only if you moved these coins twice.",
+    "saleShort": "This move's network fee leaves a later {coin} sale without the units it sells. Enter more units received, or change the sale first.",
+    "note": "Note (optional)",
+    "save": "Save",
+    "deleted": "This move was deleted in another browser tab, so the change was not saved.",
+    "issue": {
+      "coin-empty": "Choose the coin you moved.",
+      "date-invalid": "Choose a full date: day, month, and year.",
+      "from-empty": "Choose the venue the coins left.",
+      "to-empty": "Enter the venue the coins went to.",
+      "sent-zero": "Enter more than 0 units sent.",
+      "received-zero": "Enter more than 0 units received."
+    }
+  },
   "record": "Record a purchase",
   "recordHeld": "Add coins you already have",
   "recorded": {
