@@ -113,6 +113,17 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   line read a move's source at the end of its date and named a shortfall `matchLots` never takes
   when a sale at the source shared the move's date; `venueUnitsAtMove` now gives both the same
   figure.
+- A refusal that names one entry is tested, from its design note on, in four cases before its words
+  are written: the write worsens only that entry; the data was already short before the write (an
+  import); only the count in total grows, not the one by date; the entry named is the one the write
+  itself stores. #97's three review rounds each found one of these after the words existed: the
+  first short step named instead of the one the write made worse, a later purchase said to cover an
+  earlier move's fee, and a new move named as another move already in the Log.
+- A form decides nothing its core save decides. A fix that refuses in the component before the
+  core does is replaced by a save through the core, and a choice the form offers is read again
+  inside the write, on the entries as stored. The no-source shortcut that fixed the move form's
+  silent Save cost its branch two more review rounds (it refused an edit the core accepts and
+  skipped the core's draft checks) and left a race for the next session (#98).
 
 ## Known gaps
 
