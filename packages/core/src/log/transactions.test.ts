@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { anEntry, aPlan, date, id, instant, money, month } from '../../test/builders';
+import { aMove, anEntry, aPlan, date, id, instant, money, month, units } from '../../test/builders';
 import { DEFAULT_HOLDING_CONTEXT } from '../portfolio/eligibility';
+import type { Entry } from '../schema/entry';
 import { transactions } from './transactions';
 
 const plan = aPlan({ firstBuy: date('2026-01-01'), buyDay: 5, lastBuy: date('2026-12-05') });
@@ -120,5 +121,34 @@ describe('transactions (docs/DOMAIN.md §3.9)', () => {
     const spain = { ...plan, holdingRule: { kind: 'none' } as const };
     const [row] = transactions(spain, january, DEFAULT_HOLDING_CONTEXT).rows;
     expect(row?.type === 'transaction' && row.holding).toEqual({ kind: 'none' });
+  });
+
+  it('a move row carries its shortfall under per-venue lots, and under global lots only when its fee was taken at the destination', () => {
+    const kraken = anEntry({ kind: 'extra', slot: null, date: date('2026-01-10'), units: units('0.02'), venue: 'Kraken' });
+    const ledger = anEntry({ kind: 'extra', slot: null, date: date('2026-01-10'), units: units('0.10'), venue: 'Ledger' });
+    // 0.01 of the 0.05 sent found outside Ledger: the fee is covered there, the units received only in part.
+    const partly = aMove({ date: date('2026-03-01'), units: units('0.05'), received: units('0.0498') });
+    const outsideOf = (entries: Entry[], lotScope: 'per-venue' | 'global') =>
+      transactions(plan, entries, { overrides: [], lotScope, lotRule: 'fifo' }).rows.map((row) =>
+        row.type === 'transaction' ? [row.kind, row.outside?.short ?? null] : [row.type, null],
+      );
+    const sold = anEntry({ kind: 'sell', slot: null, date: date('2026-02-01'), units: units('0.01'), venue: 'Kraken' });
+    expect(outsideOf([kraken, sold, partly], 'per-venue')).toEqual([
+      ['move', '0.04'],
+      ['sell', null],
+      ['extra', null],
+    ]);
+    expect(outsideOf([kraken, sold, partly], 'global')).toEqual([
+      ['move', null],
+      ['sell', null],
+      ['extra', null],
+    ]);
+    // Nothing outside Ledger: the fee is taken at Ledger, so the row carries it in every country.
+    for (const lotScope of ['per-venue', 'global'] as const) {
+      expect(outsideOf([ledger, partly], lotScope)).toEqual([
+        ['move', '0.05'],
+        ['extra', null],
+      ]);
+    }
   });
 });
