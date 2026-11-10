@@ -440,6 +440,36 @@ describe('LogScreen', () => {
     expect(stored?.deletedAt).not.toBeNull();
   });
 
+  // ADR-0055: the Undo of one entry refused for a later move's network fee says this entry, never "these entries".
+  it("keeps a sale deleted and says why when a move's network fee took its units before the Undo", async () => {
+    const { snapshot, sale } = withSaleOfAll();
+    const services = await mount(snapshot);
+    const [newest] = screen.getAllByRole('button', { expanded: false }) as [HTMLElement];
+    fireEvent.click(newest);
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Delete entry' })));
+    // Another tab records a move the next day whose network fee needs the units the sale sold.
+    const move: Entry = {
+      ...sale,
+      id: '00000000-0000-4000-8000-000000000301' as Entry['id'],
+      kind: 'move',
+      amount: null,
+      date: '2026-10-15' as CalendarDate,
+      venue: 'Kraken',
+      to: 'Ledger',
+      received: '0.0001' as Entry['units'],
+      deletedAt: null,
+    };
+    await act(() => services.domain.write(() => ({ entries: [move] })));
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Undo' })));
+    await vi.waitFor(() =>
+      expect(screen.getByRole('status').textContent).toContain(
+        'Your BTC entries changed after you deleted this entry, so it stays deleted.',
+      ),
+    );
+    const stored = services.domain.store.getState().snapshot.entries.find((entry) => entry.id === sale.id);
+    expect(stored?.deletedAt).not.toBeNull();
+  });
+
   // docs/DOMAIN.md §6, §9: a plan holds at most MAX_ENTRIES live entries, the most a backup restores.
   const extraBuys = (count: number, from: number): Entry[] => {
     const [first] = fixtureSnapshot().entries as [Entry];
