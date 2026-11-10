@@ -99,6 +99,14 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   changes the coin. #81's move writer spent both its review rounds on two of them (an edit of only the
   note of a move that an earlier sale left short; an edit into another coin, measured against the old
   coin's excess), and its Log step moved to #87.
+- A design note that sizes a new form counts its pure steps and its component apart, and plans them
+  as two branches, the steps first, when together they pass the PR limit. #87's move form was noted
+  at about 300 lines and built at 520 (steps 210, component 283, copy 27). It was split after the
+  build, its steps used both review rounds, and the component waited for the next session.
+- A copy fix that states what the core does is checked against every branch of the code it
+  describes, the case where nothing matches included. #87's short-source line said the Log counts a
+  move's shortfall from units held elsewhere, while `matchLots` leaves it unmatched when only the
+  destination holds other units. That claim cost a review round.
 
 ## Known gaps
 
