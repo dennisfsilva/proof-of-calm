@@ -2,6 +2,7 @@ export * from './actions/cap';
 export * from './actions/entries';
 export * from './actions/errors';
 export * from './actions/fill';
+export * from './actions/moves';
 export * from './actions/plan';
 export * from './actions/rows';
 export * from './actions/undo';

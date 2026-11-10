@@ -25,7 +25,10 @@ export type ActionError =
   | { readonly code: 'before-first-buy' }
   | { readonly code: 'buying-over' }
   | { readonly code: 'plan-changed' }
-  | { readonly code: 'too-many-entries'; readonly max: number };
+  | { readonly code: 'too-many-entries'; readonly max: number }
+  | { readonly code: 'move-exceeds-held'; readonly coin: CoinId; readonly held: Units; readonly sent: Units }
+  | { readonly code: 'same-venue' }
+  | { readonly code: 'received-exceeds-sent' };
 
 export type ActionErrorCode = ActionError['code'];
 
@@ -52,6 +55,9 @@ export const ACTION_ERROR_CODES = [
   'buying-over',
   'plan-changed',
   'too-many-entries',
+  'move-exceeds-held',
+  'same-venue',
+  'received-exceeds-sent',
 ] as const satisfies readonly ActionErrorCode[];
 
 // The list names every code: a code added to ActionError and not here fails the build.
