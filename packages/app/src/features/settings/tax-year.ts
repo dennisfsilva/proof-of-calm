@@ -205,7 +205,10 @@ function perLotFile(input: HeaderInput, entries: readonly Entry[], t: TaxYearWor
     }
     default: {
       const pool = taxYearPool(plan, entries, rules, span, today);
-      return taxYearPoolCsv(pool, header({ ...pool, raw: true, unmatched: false, crossVenue: 0, moveFees: false, feeAtDestination: 0 }));
+      return taxYearPoolCsv(
+        pool,
+        header({ ...pool, raw: true, unmatched: false, crossVenue: 0, moveFees: false, feeAtDestination: 0 }),
+      );
     }
   }
 }
