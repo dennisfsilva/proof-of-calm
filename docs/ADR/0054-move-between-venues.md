@@ -1,6 +1,6 @@
 # ADR-0054: A move between venues is one entry of kind `move`; its coin fee is the units sent less the units received
 
-Status: Accepted · Date: 2026-11-09 · Deciders: the owner, from session 16's design check of the move (three blind designers, a walk along the app's defaults, an audit of every reason, a reconciler; #10, 2026-11-09)
+Status: Accepted; "never from `to`" superseded in part by ADR-0055 for the fee · Date: 2026-11-09 · Deciders: the owner, from session 16's design check of the move (three blind designers, a walk along the app's defaults, an audit of every reason, a reconciler; #10, 2026-11-09)
 
 ## Context
 
