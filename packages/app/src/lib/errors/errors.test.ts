@@ -32,6 +32,17 @@ describe('errorMessage', () => {
     );
   });
 
+  it('words a move over the holdings with the units sent, the units held and the date the screen formatted', () => {
+    const values = { sent: '0.01 BTC', held: '0.005 BTC', date: '1 Feb 2026' };
+    expect(errorMessage({ code: 'move-exceeds-held', coin: 'BTC', ...values })).toEqual({
+      key: 'errors.action.move-exceeds-held',
+      values: { product: 'Proof of Calm', coin: 'BTC', ...values },
+    });
+    expect(errors.action['move-exceeds-held']).toBe(
+      'This move sends {sent}, more than you hold ({held} on {date}). Check the units and the date, or log the missing purchases first.',
+    );
+  });
+
   it('words a tap refused because the plan changed in another browser tab, with the step to take', () => {
     expect(errorMessage({ code: 'plan-changed' }).key).toBe('errors.action.plan-changed');
     expect(errors.action['plan-changed']).toBe(
