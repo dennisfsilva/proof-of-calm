@@ -1,6 +1,6 @@
 // The closed set of user-caused errors from the actions of docs/DOMAIN.md §6, each with the data the UI
 // needs to phrase it (§10). The shell maps codes to copy; a new code fails the build where it is unmapped.
-import type { MonthKey } from '../dates/calendar';
+import type { CalendarDate, MonthKey } from '../dates/calendar';
 import type { Units } from '../money/decimal';
 import type { CoinId } from '../schema/ids';
 
@@ -15,6 +15,13 @@ export type ActionError =
   | { readonly code: 'slot-not-allowed' }
   | { readonly code: 'unknown-slot'; readonly slot: MonthKey }
   | { readonly code: 'sell-exceeds-held'; readonly coin: CoinId; readonly held: Units; readonly sold: Units }
+  | {
+      readonly code: 'fee-exceeds-held';
+      readonly coin: CoinId;
+      readonly held: Units;
+      readonly fee: Units;
+      readonly date: CalendarDate;
+    }
   | { readonly code: 'slot-done'; readonly slot: MonthKey }
   | { readonly code: 'slot-skipped'; readonly slot: MonthKey }
   | { readonly code: 'note-too-long'; readonly max: number }
@@ -44,6 +51,7 @@ export const ACTION_ERROR_CODES = [
   'slot-not-allowed',
   'unknown-slot',
   'sell-exceeds-held',
+  'fee-exceeds-held',
   'slot-done',
   'slot-skipped',
   'note-too-long',

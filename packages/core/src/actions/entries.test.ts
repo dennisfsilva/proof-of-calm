@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { anEntry, aPlan, BTC, date, ETH, id, instant, money, month, units } from '../../test/builders';
+import { aMove, anEntry, aPlan, BTC, date, ETH, id, instant, money, month, units } from '../../test/builders';
 import { ENTRY_NOTE_MAX_LENGTH, VENUE_MAX_LENGTH } from '../constants';
 import { compareInstants, stampAfter } from '../dates/calendar';
+import { matchLots } from '../portfolio/lots';
 import type { Entry } from '../schema/entry';
 import type { CoinId, EntityId } from '../schema/ids';
 import {
@@ -774,5 +775,99 @@ describe('every sale stays covered by purchases dated on or before it (docs/DOMA
         error: short('0', '0.001'),
       });
     });
+  });
+});
+
+describe("a move's fee stays covered, its venues never refuse a write (docs/DOMAIN.md §3.7, §6; ADR-0055)", () => {
+  const purchase = (quantity: string, venue: string, day = '2026-01-10') =>
+    anEntry({
+      kind: 'extra',
+      slot: null,
+      coin: BTC.id,
+      date: date(day),
+      units: units(quantity),
+      amount: money('3000'),
+      fee: null,
+      note: '',
+      venue,
+    });
+  const move = (from: string, to: string, received = '0.0498', sent = '0.05') =>
+    aMove({ coin: BTC.id, date: date('2026-03-01'), units: units(sent), received: units(received), venue: from, to });
+  type Changes = Partial<TransactionDraft> & { coin?: CoinId; quantity?: string };
+  /** The Log form's edit of `stored`, with the fields it changes. */
+  const edit = (stored: Entry, changes: Changes) => {
+    const { coin = stored.coin, quantity = stored.units, ...fields } = changes;
+    return draft({
+      kind: 'extra',
+      slot: null,
+      date: stored.date,
+      fee: null,
+      note: stored.note,
+      venue: stored.venue,
+      rows: [{ coin, amount: money('3000'), units: units(quantity) }],
+      ...fields,
+    });
+  };
+  const store = (entries: readonly Entry[], written: readonly Entry[]) => {
+    const ids = new Set(written.map((entry) => entry.id));
+    return [...entries.filter((entry) => !ids.has(entry.id)), ...written];
+  };
+  /** The units left unmatched once the edit is stored, or its refusal. */
+  const saved = (stored: Entry, entries: readonly Entry[], changes: Changes) => {
+    const result = saveTransaction(edit(stored, changes), context({ entries, editing: [stored], ids: [id()] }));
+    return result.ok ? matchLots(store(entries, result.value), BTC.id, 'global').unmatchedUnits : result.error;
+  };
+  const feeShort = (held: string) => ({
+    code: 'fee-exceeds-held',
+    coin: BTC.id,
+    held,
+    fee: '0.0002',
+    date: '2026-03-01',
+  });
+
+  it("a purchase edit that changes its venue to a stored move's destination saves and leaves no unit unmatched", () => {
+    const bought = purchase('0.10', 'Kraken');
+    expect(saved(bought, [bought, move('Kraken', 'Ledger')], { venue: 'Ledger' })).toBe('0');
+  });
+
+  it('a purchase edit that keeps its units and date (its note) beside a move imported short saves', () => {
+    const bought = purchase('0.0001', 'Kraken');
+    expect(saved(bought, [bought, move('Kraken', 'Ledger')], { note: 'from the bank' })).toBe('0.0001');
+  });
+
+  it('a purchase edit that raises its units saves', () => {
+    const bought = purchase('0.0001', 'Kraken');
+    expect(saved(bought, [bought, move('Kraken', 'Ledger')], { quantity: '0.10' })).toBe('0');
+  });
+
+  it('a purchase edit that moves its date after the move is refused with fee-exceeds-held: held 0, fee 0.0002, date 2026-03-01, never sell-exceeds-held', () => {
+    const bought = purchase('0.10', 'Kraken');
+    expect(saved(bought, [bought, move('Kraken', 'Ledger')], { date: date('2026-03-15') })).toEqual(feeShort('0'));
+  });
+
+  it("a purchase edit that changes its coin is refused with fee-exceeds-held for the old coin's move", () => {
+    const bought = purchase('0.10', 'Kraken');
+    expect(saved(bought, [bought, move('Kraken', 'Ledger')], { coin: ETH.id })).toEqual(feeShort('0'));
+  });
+
+  it('a venue renamed from "ledger" to "Ledger" that leaves a move to "Ledger" short saves and leaves no unit unmatched', () => {
+    const bought = purchase('0.10', 'ledger');
+    expect(saved(bought, [bought, move('ledger', 'Ledger')], { venue: 'Ledger' })).toBe('0');
+  });
+
+  it('deleting the only purchase before a move is refused with fee-exceeds-held', () => {
+    const bought = purchase('0.10', 'Kraken');
+    const entries = [bought, move('Kraken', 'Ledger')];
+    expect(uncoveredSale(entries, deleteEntries(entries, [bought.id], now))).toEqual(feeShort('0'));
+  });
+
+  it("the undo of a deleted sale that leaves a later move's fee beyond the units held is refused with fee-exceeds-held", () => {
+    const bought = purchase('0.10', 'Kraken');
+    const sold = anEntry({ kind: 'sell', slot: null, coin: BTC.id, date: date('2026-02-01'), units: units('0.10') });
+    const before = slotsAtDelete(plan, [bought, sold], [sold.id], now);
+    const deleted = store([bought, sold], deleteEntries([bought, sold], before.ids, before.at));
+    const stored = [...deleted, move('Kraken', 'Ledger', '0.0998', '0.10')];
+    const later = instant('2026-03-02T10:00:05Z');
+    expect(restoreEntries(plan, stored, before.ids, before, later)).toEqual({ ok: false, error: feeShort('0') });
   });
 });
