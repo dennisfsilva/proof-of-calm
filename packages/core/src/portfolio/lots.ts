@@ -304,9 +304,44 @@ export function venueUnits(
   rule: LotRule = 'fifo',
 ): readonly VenueUnits[] {
   const upTo = entries.filter((entry) => compareDates(entry.date, date) <= 0);
-  const byVenue = new Map<string | null, Units>();
-  for (const lot of heldLots(matchLots(upTo, coin, 'per-venue', rule)).lots) {
-    for (const { venue, units } of lot.places) byVenue.set(venue, plus(byVenue.get(venue) ?? ('0' as Units), units));
+  return byVenue(heldLots(matchLots(upTo, coin, 'per-venue', rule)).lots);
+}
+
+/** The lots' places added up by venue, venues with none left out, in the order of their first lot. */
+function byVenue(lots: readonly Lot[]): readonly VenueUnits[] {
+  const units = new Map<string | null, Units>();
+  for (const lot of lots) {
+    for (const place of lot.places) units.set(place.venue, plus(units.get(place.venue) ?? ('0' as Units), place.units));
   }
-  return [...byVenue].map(([venue, units]) => ({ venue, units }));
+  return [...units].map(([venue, held]) => ({ venue, units: held }));
+}
+
+const MOVE_RANK = sameDayRank({ kind: 'move' });
+
+/**
+ * The units of `coin` at each venue just before a move at its place in the matching order (`matchingOrder`): the
+ * live entries before it matched per venue, as `matchLots` holds them when it reaches the move, so the units at its
+ * source are those it takes there first. `stored` is the move being edited, which keeps its `createdAt` and id among
+ * the date's other moves; a new move (null) comes after all of them, as `saveMove` stamps it at its `now`. `entries`
+ * leave out the entries being edited. Venues with none left out, in the order of their first lot.
+ */
+export function venueUnitsAtMove(
+  entries: readonly Entry[],
+  coin: CoinId,
+  date: CalendarDate,
+  stored: Pick<Entry, 'createdAt' | 'id'> | null,
+  rule: LotRule = 'fifo',
+): readonly VenueUnits[] {
+  const place = (entry: Entry) =>
+    compareDates(entry.date, date) ||
+    sameDayRank(entry) - MOVE_RANK ||
+    (stored === null ? -1 : compareEntries(entry, { createdAt: stored.createdAt, id: stored.id, date }));
+  return byVenue(
+    matchLots(
+      entries.filter((entry) => place(entry) < 0),
+      coin,
+      'per-venue',
+      rule,
+    ).lots,
+  );
 }

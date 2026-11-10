@@ -4,7 +4,7 @@ import { ENTRY_NOTE_MAX_LENGTH, VENUE_MAX_LENGTH } from '../constants';
 import type { CalendarDate } from '../dates/calendar';
 import { compare, decimalPlaces, isPositive, minus, type Units } from '../money/decimal';
 import { liveEntries } from '../plan/statuses';
-import { runningHeld, venueUnits } from '../portfolio/lots';
+import { runningHeld, venueUnitsAtMove } from '../portfolio/lots';
 import { coinsWithEntries } from '../portfolio/portfolio';
 import { defined, err, ok, type Result } from '../result';
 import { type Entry, MAX_UNIT_DECIMALS } from '../schema/entry';
@@ -106,12 +106,15 @@ export function saveMove(draft: MoveDraft, context: SaveContext): Result<Entry[]
 }
 
 /**
- * How many of the units sent the source venue lacks at the end of the move's date (`venueUnits`); null when it holds
- * them. `except` is the move being edited, left out so its own units count back at its source.
+ * How many of the units sent the source venue lacks at the move's place in the matching order (`venueUnitsAtMove`):
+ * after its date's purchases and earlier moves, before its sales, so they are the units `matchLots` looks for outside
+ * the source; null when it holds them. `except` is the move being edited, left out so its own units count back at its
+ * source, and kept at its place among the date's moves.
  */
 export function sourceShort(entries: readonly Entry[], draft: MoveDraft, except: EntityId | null): Units | null {
   const others = entries.filter((entry) => entry.id !== except);
-  const there = venueUnits(others, draft.coin, draft.date).find((place) => place.venue === draft.from);
+  const stored = entries.find((entry) => entry.id === except) ?? null;
+  const there = venueUnitsAtMove(others, draft.coin, draft.date, stored).find((place) => place.venue === draft.from);
   const short = minus(draft.sent, there?.units ?? ('0' as Units));
   return isPositive(short) ? short : null;
 }
