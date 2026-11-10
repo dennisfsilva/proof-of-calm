@@ -22,8 +22,8 @@ import { HoldingConditions } from '../../learn';
 // them, ADR-0003), its fee, its one holding line ("Tax-free from …", nothing
 // under a rule of none), the edit button and the delete button; a skipped month is one line where the buy would have
 // been, under its month header (docs/CONTENT-STYLE.md §3). A move opens to its units and route, its network fee in the
-// coin when units were lost on the way, and the delete button only. The screen holds which rows are open and
-// decides which one carries the "Computed from your dates" line and the country's conditions, so they
+// coin when units were lost on the way, and the edit and delete buttons; its amount cell shows its units sent. The
+// screen holds which rows are open and decides which one carries the "Computed from your dates" line and the country's conditions, so they
 // appear once, beside the first date shown (docs/LEGAL.md §4).
 
 export const LOG_COLUMNS = 2;
@@ -37,7 +37,7 @@ export type LogRowProps = {
   readonly open?: boolean;
   readonly onOpenChange?: (open: boolean) => void;
   readonly onDelete: (row: TransactionRow) => void;
-  /** Opens the entry form on the row, a purchase or a sale. */
+  /** Opens the row's form on it: the entry form for a purchase or a sale, the move form for a move. */
   readonly onEdit: (row: TransactionRow) => void;
 };
 
@@ -118,12 +118,9 @@ export function LogRow({ row, plan, note, open, onOpenChange, onDelete, onEdit }
         </>
       )}
       <div className="flex flex-wrap gap-target-gap">
-        {/* A move's row offers Delete only: the Log's form records purchases and sales. */}
-        {row.kind !== 'move' && (
-          <Button variant="secondary" onClick={() => onEdit(row)}>
-            {t('row.edit')}
-          </Button>
-        )}
+        <Button variant="secondary" onClick={() => onEdit(row)}>
+          {t('row.edit')}
+        </Button>
         <Button variant="destructive" onClick={() => onDelete(row)}>
           {t('row.delete')}
         </Button>
@@ -141,8 +138,15 @@ export function LogRow({ row, plan, note, open, onOpenChange, onDelete, onEdit }
       {...(open !== undefined && { open })}
       {...(onOpenChange !== undefined && { onOpenChange })}
     >
-      {/* Coins added with no recorded cost say so; at no cost they show 0 (DOMAIN §2.2). */}
-      <TableCell numeric>{row.total === null ? t('row.noCost') : f.money(row.total, currency)}</TableCell>
+      {/* A move shows its units sent, as its line does; coins added with no recorded cost say so; at no cost they show
+          0 (DOMAIN §2.2, CONTENT-STYLE §3 "Log, a move"). */}
+      <TableCell numeric>
+        {row.kind === 'move'
+          ? row.items.map((item) => units(item))
+          : row.total === null
+            ? t('row.noCost')
+            : f.money(row.total, currency)}
+      </TableCell>
     </TableExpandableRow>
   );
 }

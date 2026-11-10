@@ -169,20 +169,34 @@ describe('LogRow', () => {
     expect(onEdit).toHaveBeenLastCalledWith(sale);
   });
 
-  it('labels a move Coins moved and opens it to Delete only, since the form records purchases and sales', async () => {
+  it('a move row offers Edit and Delete', async () => {
     const { entries } = fixtureSnapshot();
     const coin = entries.find((entry) => entry.kind === 'dca')?.coin as CoinId;
     const move = aMove({ coin, date: '2026-10-20' as Entry['date'] });
     const rows = transactions(plan, [...entries, move], holdingContext(plan, await portugal())).rows;
     const row = find(rows, 'move');
     const onDelete = vi.fn();
-    await mount(row, plan, { onDelete });
+    const onEdit = vi.fn();
+    await mount(row, plan, { onDelete, onEdit });
     const toggle = screen.getByRole('button', { expanded: false });
     expect(toggle.textContent).toContain('Coins moved');
     fireEvent.click(toggle);
-    expect(screen.queryByRole('button', { name: 'Edit entry' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Edit entry' }));
+    expect(onEdit).toHaveBeenCalledWith(row);
     fireEvent.click(screen.getByRole('button', { name: 'Delete entry' }));
     expect(onDelete).toHaveBeenCalledWith(row);
+  });
+
+  it('a move row\'s Amount cell shows its units sent, never "Cost unknown"', async () => {
+    const { entries } = fixtureSnapshot();
+    const coin = entries.find((entry) => entry.kind === 'dca')?.coin as CoinId;
+    const sent = { units: units('0.05'), received: units('0.0498') };
+    const move = aMove({ coin, date: '2026-10-20' as Entry['date'], ...sent });
+    const rows = transactions(plan, [...entries, move], holdingContext(plan, await portugal())).rows;
+    await mount(find(rows, 'move'), plan);
+    // The units sent, in the Log's unit format as the row's own line writes them; the cell stays right-aligned.
+    expect(document.querySelector('tbody td.text-right')?.textContent).toBe(`0,05000000 ${coin}`);
+    expect(document.body.textContent).not.toContain('Cost unknown');
   });
 
   it("shows a move's route, its units and its fee in the coin, and no fee line when nothing was lost", async () => {
