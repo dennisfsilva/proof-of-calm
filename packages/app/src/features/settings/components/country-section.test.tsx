@@ -450,6 +450,34 @@ describe('CountrySection', () => {
     for (const row of amounts) expect(summary?.contains(row)).toBe(true);
   });
 
+  // Session 16's evaluator: on a phone "Change to GBP" at the screen's bottom edge left the rows under the tab bar.
+  it('the amount rows are brought into view when they appear', async () => {
+    const scroll = vi.mocked(Element.prototype.scrollIntoView);
+    await mount();
+    await choose('United Kingdom');
+    scroll.mockClear();
+    fireEvent.click(screen.getByRole('radio', { name: /^Keep EUR/ }));
+    expect(scroll).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('radio', { name: /^Change to GBP/ }));
+    expect(scroll).toHaveBeenCalledOnce();
+    const [box] = scroll.mock.contexts as Element[];
+    const amounts = screen.getAllByRole('listitem').filter((item) => item.textContent?.includes('becomes'));
+    expect(amounts).toHaveLength(2);
+    for (const row of amounts) expect(box?.contains(row)).toBe(true);
+  });
+
+  // The select's popup scrolls its own items while it opens: only a scroll of the rows counts.
+  it('brings the amount rows into view only on an answer, not when no question is asked', async () => {
+    const scroll = vi.mocked(Element.prototype.scrollIntoView);
+    await mount({ ...fixtureSnapshot(), entries: [] });
+    scroll.mockClear();
+    await choose('United Kingdom');
+    const amounts = screen.getAllByRole('listitem').filter((item) => item.textContent?.includes('becomes'));
+    expect(amounts).toHaveLength(2);
+    const contexts = scroll.mock.contexts as Element[];
+    expect(contexts.filter((box) => amounts.some((row) => box.contains(row)))).toEqual([]);
+  });
+
   it('a country change of a plan with no entries does not say that logged amounts stay as typed', async () => {
     await mount({ ...fixtureSnapshot(), entries: [] });
     await choose('Germany');
