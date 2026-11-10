@@ -316,6 +316,7 @@ describe('a move before a stored move on its route (docs/DOMAIN.md §3.7, §6; A
       held: '0.05',
       fee: '0.0999',
       date: '2026-03-01',
+      written: false,
     });
   });
 });
@@ -333,6 +334,7 @@ describe('a move refused for a later step names the step it made worse (docs/DOM
       held: '0.0001',
       fee: '0.0002',
       date: '2026-04-01',
+      written: false,
     });
   });
 
@@ -344,5 +346,25 @@ describe('a move refused for a later step names the step it made worse (docs/DOM
       held: '0.0001',
       sold: '0.05',
     });
+  });
+});
+
+describe('a move refused for its own fee says the step is the move it saves (docs/DOMAIN.md §3.7, §6; ADR-0055)', () => {
+  const imported = sale('1', { date: date('2026-01-01'), source: 'import-prototype' });
+  const kraken = buy('1', { date: date('2026-02-01') });
+  const march = draft({ date: date('2026-03-01'), sent: units('1'), received: units('0.9999') });
+  const own = { code: 'fee-exceeds-held', coin: BTC.id, held: '0', fee: '0.0001', date: '2026-03-01', written: true };
+
+  it('a new move whose fee a sale imported short leaves no unit for in total is refused as the move it saves', () => {
+    expect(failure(saveMove(march, context([imported, kraken])))).toEqual(own);
+    expect(saveMove(march, context([kraken])).ok).toBe(true);
+  });
+
+  it('an edit of a move into a fee no unit is left for in total is refused as the move it saves', () => {
+    const stored = aMove({ coin: BTC.id, date: date('2026-03-01'), units: units('1'), received: units('1') });
+    const entries = [imported, kraken, stored];
+    expect(failure(saveMove(march, context(entries, { editing: [stored] })))).toEqual(own);
+    const kept = draft({ date: date('2026-03-01'), sent: units('1'), received: units('1'), note: 'new note' });
+    expect(saveMove(kept, context(entries, { editing: [stored] })).ok).toBe(true);
   });
 });

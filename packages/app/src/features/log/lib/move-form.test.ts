@@ -99,10 +99,8 @@ describe('moveErrorField', () => {
   });
 
   it('moveErrorField maps fee-exceeds-held to the received field', () => {
-    const fee = units('0.0002');
-    expect(
-      moveErrorField({ code: 'fee-exceeds-held', coin: BTC.id, held: units('0'), fee, date: date('2026-03-01') }),
-    ).toBe('received');
+    const error = { code: 'fee-exceeds-held', coin: BTC.id, held: units('0'), fee: units('0.0002') } as const;
+    expect(moveErrorField({ ...error, date: date('2026-03-01'), written: false })).toBe('received');
   });
 });
 
@@ -122,6 +120,7 @@ describe('moveMessage', () => {
       held: units('0.05'),
       fee: units('0.0999'),
       date: date('2026-03-01'),
+      written: false,
     } as const;
     // The later move's date, not the date of the move being saved.
     expect(moveMessage(error, plan, format, date('2026-02-01'))).toEqual({

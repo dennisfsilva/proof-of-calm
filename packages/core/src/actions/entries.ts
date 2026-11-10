@@ -211,7 +211,8 @@ function worseCovered(before: readonly Entry[], after: readonly Entry[], coin: C
  * (`worseCovered`), so data imported short stays as written and nothing makes it worse. The refusal names the step the
  * write left worse covered (`firstMadeWorse`: never a step that was as short before), the units held
  * before it and its units; null when every sale stays covered. A move's fee beyond the units held is refused as
- * `fee-exceeds-held`, with the move's date; its units received are a venue matter and never refuse (ADR-0055).
+ * `fee-exceeds-held`, with the move's date and whether that move is one `written` stores (its own fee, never
+ * another move's); its units received are a venue matter and never refuse (ADR-0055).
  */
 export function uncoveredSale(entries: readonly Entry[], written: readonly Entry[]): CoverRefusal | null {
   const ids = new Set(written.map((entry) => entry.id));
@@ -221,7 +222,7 @@ export function uncoveredSale(entries: readonly Entry[], written: readonly Entry
     if (!worseCovered(entries, after, coin)) continue;
     const { entry, held, out } = firstMadeWorse(shortfalls(entries, coin), shortfalls(after, coin));
     return entryRole(entry.kind) === 'move'
-      ? { code: 'fee-exceeds-held', coin, held, fee: out, date: entry.date }
+      ? { code: 'fee-exceeds-held', coin, held, fee: out, date: entry.date, written: ids.has(entry.id) }
       : { code: 'sell-exceeds-held', coin, held, sold: out };
   }
   return null;
