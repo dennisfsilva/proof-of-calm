@@ -16,6 +16,7 @@ import { coinColour } from '@proofofcalm/ui/lib/series';
 import { useTranslations } from 'use-intl';
 import { useFormatters } from '../../../lib/services';
 import { HoldingConditions } from '../../learn';
+import { proseDigits } from '../lib/form';
 
 // One row of the Log (docs/DOMAIN.md §3.9, docs/DESIGN.md §7): a transaction shows its date, kind,
 // coins and total, and opens to its items (a one-tap item's units marked as estimated until an edit changes
@@ -62,6 +63,15 @@ export function LogRow({ row, plan, note, open, onOpenChange, onDelete, onEdit }
   const decimals = (id: Entry['coin']) => plan.coins[coin(id)]?.decimals ?? 8;
   const holding = row.holding?.kind === 'dated' ? row.holding : null;
   const units = (item: Entry, value: Entry['units'] = item.units) => f.units(value, item.coin, decimals(item.coin));
+  // Prose figures (DESIGN §5 rule 7): both at the places the more precise one needs.
+  const shortfall = (value: Entry['units']) =>
+    row.outside === null
+      ? ''
+      : f.units(
+          value,
+          row.outside.coin,
+          proseDigits(decimals(row.outside.coin), row.outside.outside, row.outside.short),
+        );
   /** A move's line: its units and route, read-only; the source with no venue named as the Log names it. */
   const move = (item: Entry) =>
     t('row.move', {
@@ -107,6 +117,16 @@ export function LogRow({ row, plan, note, open, onOpenChange, onDelete, onEdit }
           {t('row.moveFee', { units: units(item, unitsOut(item)) })}
         </p>
       ))}
+      {/* A move the Log finds short outside its destination says so, without refusing anything (DOMAIN §3.7). */}
+      {row.outside !== null && (
+        <p className="nums">
+          {t('row.moveOutside', {
+            outside: shortfall(row.outside.outside),
+            to: row.outside.to,
+            short: shortfall(row.outside.short),
+          })}
+        </p>
+      )}
       {row.items.some((item) => item.fee !== null) && <p>{t('row.fee', { amount: f.money(row.fees, currency) })}</p>}
       {holding !== null && (
         <>
