@@ -4,6 +4,7 @@ import { aMove, anEntry, aPlan, BTC, date, instant } from '../../test/builders';
 import { PT_RULES } from '../../test/tax-year/pt-fixture';
 import { addDays } from '../dates/calendar';
 import { compare, decimal, type Money, minus, sum, type Units } from '../money/decimal';
+import { heldLots, matchLots } from '../portfolio/lots';
 import type { CountryRules } from '../schema/country';
 import type { Entry } from '../schema/entry';
 import type { CoinId } from '../schema/ids';
@@ -104,6 +105,12 @@ const MOVES: Entry[][] = [
     moveAt('2026-05-01', 'B', 'A', '0.05', '0.05', 2),
     sellAt('2027-02-01', 'B', '0.01', 3),
   ],
+  // A move into a venue already holding units, from one holding none: its fee comes from the destination (ADR-0055).
+  [
+    buyAt('2025-03-01', 'A', '0.10', 0),
+    moveAt('2025-05-01', 'B', 'A', '0.05', '0.04', 1),
+    sellAt('2026-02-01', 'A', '0.09', 2),
+  ],
 ];
 const examples = MOVES.flatMap((entries) => [
   [entries, PT_RULES] as [Entry[], CountryRules],
@@ -163,6 +170,24 @@ describe('taxYearLots (property)', () => {
         const bought = sum(entries.filter(isPurchase).map((entry) => entry.units));
         const gone = sum(entries.filter((entry) => !isPurchase(entry)).map(leaving));
         same(minus(yearEnds, uncovered), minus(bought, gone));
+      }),
+      { examples },
+    );
+  });
+
+  it("with no row lacking an acquired date, the last year end equals heldLots' units", () => {
+    fc.assert(
+      fc.property(log, rules, (entries, country) => {
+        const files = [2025, 2026, 2027].map((year) => fileFor(entries, country, year));
+        if (files.some((file) => file.pieces.some((piece) => piece.acquired === null))) return;
+        const yearEnds = sum(
+          files
+            .at(-1)
+            ?.pieces.filter(yearEnd)
+            .map((piece) => piece.units) ?? [],
+        );
+        const held = heldLots(matchLots(entries, BTC.id, country.lotScope)).lots;
+        same(yearEnds, sum(held.map((lot) => lot.remainingUnits)));
       }),
       { examples },
     );
