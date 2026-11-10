@@ -55,6 +55,8 @@ type FileFacts = {
   readonly crossVenue: number;
   /** The per-lot file holds a piece a move paid as its fee in the coin. */
   readonly moveFees: boolean;
+  /** The per-lot file's fee pieces a move took at its destination, since nothing outside it was left (ADR-0055). */
+  readonly feeAtDestination: number;
   /** The raw listing holds a move. */
   readonly moves: boolean;
   readonly windowOpen: boolean;
@@ -132,6 +134,7 @@ function taxYearHeader(input: HeaderInput & { readonly facts: FileFacts }, t: Ta
     // Every row of the per-lot file fills held_at and moved_on, so their line is there whether or not a move is.
     ...(facts.raw ? [] : [t('heldAt')]),
     ...(facts.moveFees ? [t('moveFee')] : []),
+    ...(facts.feeAtDestination > 0 ? [t('feeAtDestination', counted(facts.feeAtDestination))] : []),
     ...(facts.moves ? [t('moveRows')] : []),
     ...(facts.raw
       ? [
@@ -202,7 +205,7 @@ function perLotFile(input: HeaderInput, entries: readonly Entry[], t: TaxYearWor
     }
     default: {
       const pool = taxYearPool(plan, entries, rules, span, today);
-      return taxYearPoolCsv(pool, header({ ...pool, raw: true, unmatched: false, crossVenue: 0, moveFees: false }));
+      return taxYearPoolCsv(pool, header({ ...pool, raw: true, unmatched: false, crossVenue: 0, moveFees: false, feeAtDestination: 0 }));
     }
   }
 }

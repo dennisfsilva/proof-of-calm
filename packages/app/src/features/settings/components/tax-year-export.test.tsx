@@ -449,6 +449,29 @@ describe('TaxYearExport', () => {
     noSemicolon(pool);
   });
 
+  // ADR-0055: a move that finds nothing outside its destination pays its fee from the lots already there.
+  it('the per-lot header counts the rows whose network fee came from the destination', async () => {
+    const AT_DESTINATION =
+      'In 1 row, a Coins moved entry paid its network fee from units already at the venue it sent them to: on that day the Log shows too few elsewhere. Check that move in the Log.';
+    const atLedger = (all: readonly Entry[]): Entry[] => {
+      const coin = all.find((each) => each.kind === 'dca')?.coin as Entry['coin'];
+      return [
+        ...all.map((each) => (each.coin === coin ? { ...each, venue: 'Ledger' } : each)),
+        aMove({ id: 'd0000000-0000-4000-8000-000000000002' as Entry['id'], coin, date: '2026-09-10' as CalendarDate }),
+      ];
+    };
+    const pt = await mount(withPlan({}, atLedger));
+    const lots = (await exportYear(pt, '2026 (still running)')).content;
+    expect(headerOf(lots)).toContain(textCell(AT_DESTINATION));
+    expect(headerOf(lots)).not.toContain('that no logged purchase covered');
+    const fee = rowsOf(lots).filter((row) => row.disposed_on === '2026-09-10');
+    expect(fee.map((row) => [row.units, row.held_at])).toEqual([['0.0001', 'Ledger']]);
+    expect(fee.every((row) => row.acquired_on !== '')).toBe(true);
+    cleanup();
+    const still = await mount(withPlan({}));
+    expect(headerOf((await exportYear(still, '2026 (still running)')).content)).not.toContain(textCell(AT_DESTINATION));
+  });
+
   // France's and the Netherlands' files with every line that applies: a one-tap entry, a held entry with no
   // cost before the sale and in the year, the running year.
   const flaggedModel = (all: readonly Entry[]): Entry[] => [
