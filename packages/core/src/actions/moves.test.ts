@@ -6,7 +6,7 @@ import { matchLots } from '../portfolio/lots';
 import type { Entry } from '../schema/entry';
 import type { CoinId } from '../schema/ids';
 import type { SaveContext } from './entries';
-import { type MoveDraft, sameMove, saveMove, sourceShort } from './moves';
+import { type MoveDraft, movesLeftShort, sameMove, saveMove, sourceShort } from './moves';
 
 // Recording a move between venues (docs/DOMAIN.md §6 "Record a move", ADR-0054).
 const plan = aPlan();
@@ -302,11 +302,27 @@ describe('a move before a stored move on its route (docs/DOMAIN.md §3.7, §6; A
   const february = (received: string) =>
     draft({ date: date('2026-02-01'), sent: units('0.10'), received: units(received) });
 
-  it('saves a new move dated before a stored move on the same route and leaves no unit unmatched', () => {
-    const entries = [kraken, march('0.0998')];
+  it('saves a new move dated before a stored move on the same route, and movesLeftShort names the stored move with 0 BTC outside Ledger', () => {
+    const stored = march('0.0998');
+    const entries = [kraken, stored];
     const saved = saveMove(february('0.0998'), context(entries));
     if (!saved.ok) throw new Error(saved.error.code);
     expect(matchLots([...entries, ...saved.value], BTC.id, 'global').unmatchedUnits).toBe('0');
+    // Its fee is then taken at Ledger, so the line shows in every country.
+    for (const lotScope of ['per-venue', 'global'] as const) {
+      expect(movesLeftShort(entries, saved.value, { overrides: [], lotScope, lotRule: 'fifo' })).toEqual([
+        expect.objectContaining({ id: stored.id, to: 'Ledger', outside: '0', short: '0.1', feeAtDestination: '0.0002' }),
+      ]);
+    }
+  });
+
+  it("movesLeftShort names nothing for a write that leaves every move's shortfall as stored", () => {
+    // A move imported short: a new note on the purchase before it leaves it as short as it was.
+    const entries = [buy('0.01', { date: date('2026-01-10') }), march('0.0998')];
+    const noted = { ...(entries[0] as Entry), note: 'from the bank' };
+    for (const lotScope of ['per-venue', 'global'] as const) {
+      expect(movesLeftShort(entries, [noted], { overrides: [], lotScope, lotRule: 'fifo' })).toEqual([]);
+    }
   });
 
   it("a new move whose fee leaves a later stored move's fee beyond the units held is refused with fee-exceeds-held", () => {

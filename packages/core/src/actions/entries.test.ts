@@ -16,6 +16,7 @@ import {
   type TransactionDraft,
   uncoveredSale,
 } from './entries';
+import { movesLeftShort } from './moves';
 import { rowEntries } from './rows';
 
 const plan = aPlan();
@@ -818,6 +819,14 @@ describe("a move's fee stays covered, its venues never refuse a write (docs/DOMA
     const result = saveTransaction(edit(stored, changes), context({ entries, editing: [stored], ids: [id()] }));
     return result.ok ? matchLots(store(entries, result.value), BTC.id, 'global').unmatchedUnits : result.error;
   };
+  /** The moves `movesLeftShort` names for the saved edit, under each lot scope. */
+  const named = (stored: Entry, entries: readonly Entry[], changes: Changes) => {
+    const result = saveTransaction(edit(stored, changes), context({ entries, editing: [stored], ids: [id()] }));
+    if (!result.ok) throw new Error(result.error.code);
+    return (['per-venue', 'global'] as const).map((lotScope) =>
+      movesLeftShort(entries, result.value, { overrides: [], lotScope, lotRule: 'fifo' }).map((each) => each.id),
+    );
+  };
   const feeShort = (held: string) => ({
     code: 'fee-exceeds-held',
     coin: BTC.id,
@@ -827,19 +836,24 @@ describe("a move's fee stays covered, its venues never refuse a write (docs/DOMA
     written: false,
   });
 
-  it("a purchase edit that changes its venue to a stored move's destination saves and leaves no unit unmatched", () => {
+  it("a purchase edit that changes its venue to a stored move's destination saves, leaves no unit unmatched, and movesLeftShort names the move", () => {
     const bought = purchase('0.10', 'Kraken');
-    expect(saved(bought, [bought, move('Kraken', 'Ledger')], { venue: 'Ledger' })).toBe('0');
+    const moved = move('Kraken', 'Ledger');
+    expect(saved(bought, [bought, moved], { venue: 'Ledger' })).toBe('0');
+    // Its fee is then taken at Ledger: named in every country.
+    expect(named(bought, [bought, moved], { venue: 'Ledger' })).toEqual([[moved.id], [moved.id]]);
   });
 
-  it('a purchase edit that keeps its units and date (its note) beside a move imported short saves', () => {
+  it('a purchase edit that keeps its units and date (its note) beside a move imported short saves and names no move', () => {
     const bought = purchase('0.0001', 'Kraken');
     expect(saved(bought, [bought, move('Kraken', 'Ledger')], { note: 'from the bank' })).toBe('0.0001');
+    expect(named(bought, [bought, move('Kraken', 'Ledger')], { note: 'from the bank' })).toEqual([[], []]);
   });
 
-  it('a purchase edit that raises its units saves', () => {
+  it('a purchase edit that raises its units saves and names no move', () => {
     const bought = purchase('0.0001', 'Kraken');
     expect(saved(bought, [bought, move('Kraken', 'Ledger')], { quantity: '0.10' })).toBe('0');
+    expect(named(bought, [bought, move('Kraken', 'Ledger')], { quantity: '0.10' })).toEqual([[], []]);
   });
 
   it('a purchase edit that moves its date after the move is refused with fee-exceeds-held: held 0, fee 0.0002, date 2026-03-01, never sell-exceeds-held', () => {
@@ -852,9 +866,11 @@ describe("a move's fee stays covered, its venues never refuse a write (docs/DOMA
     expect(saved(bought, [bought, move('Kraken', 'Ledger')], { coin: ETH.id })).toEqual(feeShort('0'));
   });
 
-  it('a venue renamed from "ledger" to "Ledger" that leaves a move to "Ledger" short saves and leaves no unit unmatched', () => {
+  it('a venue renamed from "ledger" to "Ledger" that leaves a move to "Ledger" short saves, and movesLeftShort names it', () => {
     const bought = purchase('0.10', 'ledger');
-    expect(saved(bought, [bought, move('ledger', 'Ledger')], { venue: 'Ledger' })).toBe('0');
+    const moved = move('ledger', 'Ledger');
+    expect(saved(bought, [bought, moved], { venue: 'Ledger' })).toBe('0');
+    expect(named(bought, [bought, moved], { venue: 'Ledger' })).toEqual([[moved.id], [moved.id]]);
   });
 
   it('deleting the only purchase before a move is refused with fee-exceeds-held', () => {
