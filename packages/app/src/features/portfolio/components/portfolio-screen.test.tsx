@@ -198,6 +198,37 @@ describe('PortfolioScreen', () => {
     expect(text()).not.toContain('sold before purchases');
   });
 
+  // ADR-0055: a move's fee no piece of the coin covers is named as a fee; one its destination paid shows nothing.
+  it('names a move’s fee no purchase covered as a network fee, never as a sale, and shows no line for a fee taken at its destination', async () => {
+    const snapshot = fixtureSnapshot();
+    const [first] = snapshot.entries as [Entry];
+    const move = (day: string): Entry => ({
+      ...first,
+      id: '00000000-0000-4000-8000-000000000401' as Entry['id'],
+      kind: 'move',
+      slot: null,
+      amount: null,
+      fee: null,
+      date: day as Entry['date'],
+      units: '0.002' as Entry['units'],
+      received: '0.0015' as Entry['units'],
+      venue: 'Kraken',
+      to: 'Ledger',
+      source: 'import-json',
+    });
+    await renderScreen({ ...snapshot, entries: [...snapshot.entries, move('2024-01-10')] }, 'buy');
+    expect(text()).toContain(
+      '0,0005 BTC paid as a network fee that no purchase dated on or before the move covers. Check the dates and amounts in the Log.',
+    );
+    expect(text()).not.toContain('sold without');
+    cleanup();
+    // Every BTC unit at Ledger: the move finds nothing outside it, so its fee comes from Ledger's own lots.
+    const atLedger = snapshot.entries.map((entry) => (entry.coin === first.coin ? { ...entry, venue: 'Ledger' } : entry));
+    await renderScreen({ ...snapshot, entries: [...atLedger, move(FIXTURE_DATES.buy)] }, 'buy');
+    expect(text()).not.toContain('network fee');
+    expect(text()).not.toContain('sold without');
+  });
+
   it('credits no source for prices typed by hand', async () => {
     await renderScreen(fixtureSnapshot(), 'buy', { ...FIXTURE_PRICES, source: 'manual' });
     expect(screen.getByText('Prices as of 11:00, 20 Oct 2026')).toBeDefined();

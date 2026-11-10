@@ -4,6 +4,7 @@ import {
   type CoinId,
   compare,
   decimalPlaces,
+  feeUnmatched,
   holdingContext,
   isPositive,
   isZero,
@@ -13,6 +14,7 @@ import {
   type Portfolio,
   portfolio,
   product,
+  sum,
   type Units,
 } from '@proofofcalm/core';
 import { AllocationBar, type AllocationSegment } from '@proofofcalm/ui/charts/allocation-bar';
@@ -33,8 +35,8 @@ import { chartDiscloses, VALUE_CHART_VIEW_BOX, ValueChart } from './value-chart'
 // The Portfolio screen (docs/DOMAIN.md §3.6, docs/DESIGN.md §7): the value of what is held in the pay
 // currency, P/L against cost with the fees beside it (never subtracted) and, wherever the P/L stands, its
 // Why? to Risk honestly (docs/EDUCATION.md, the links table), the allocation, the holdings
-// and the plan's coins not bought yet, and units sold before the purchases that cover them (imported data, §3.7,
-// §3.13: kept as written and named here). No total without a price for every coin held, never a partial
+// and the plan's coins not bought yet, and units sold, or paid as a move's network fee, before the purchases that
+// cover them (imported data, §3.7, §3.13: kept as written and named here, a sale's apart from a fee's). No total without a price for every coin held, never a partial
 // sum; the allocation then weighs by the amount invested, as the core does. The value carries Today's prices
 // line: its time, delayed or offline, and for CoinGecko's prices their source (docs/CONTENT-STYLE.md §3).
 // The value chart follows the summary once something was bought; its one state, from the closes read here,
@@ -138,8 +140,14 @@ function PlanPortfolio({ plan }: { plan: Plan }) {
   const unpriced = held.filter((position) => position.price === null).map((position) => position.coin);
   const notBought = value.positions.filter((position) => isZero(position.boughtUnits)).map((position) => position.coin);
   const unmatched = value.positions.flatMap(({ coin }) => {
-    const units = matchLots(entries, coin, 'global').unmatchedUnits;
-    return isPositive(units) ? [{ coin, text: t('unmatched', { units: unitsOf(plan, coin, units, format) }) }] : [];
+    const match = matchLots(entries, coin, 'global');
+    const lines = [
+      { key: 'unmatched', units: sum(match.sales.map((sale) => sale.unmatched)) },
+      { key: 'unmatchedFee', units: sum(match.moves.map(feeUnmatched)) },
+    ] as const;
+    return lines
+      .filter(({ units }) => isPositive(units))
+      .map(({ key, units }) => ({ id: `${coin}-${key}`, text: t(key, { units: unitsOf(plan, coin, units, format) }) }));
   });
   const unrecorded = value.positions
     .filter((position) => isPositive(position.unrecordedUnits))
@@ -218,8 +226,8 @@ function PlanPortfolio({ plan }: { plan: Plan }) {
       {notBought.length > 0 && (
         <p className="text-14 text-ink-2">{t.rich('notBought', { coins: format.list(notBought), log: logLink })}</p>
       )}
-      {unmatched.map(({ coin, text }) => (
-        <p key={coin} className="text-14 text-ink-2">
+      {unmatched.map(({ id, text }) => (
+        <p key={id} className="text-14 text-ink-2">
           {text}
         </p>
       ))}
