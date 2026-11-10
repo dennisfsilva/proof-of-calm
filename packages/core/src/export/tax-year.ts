@@ -98,6 +98,8 @@ export type TaxYearLots = {
   readonly crossVenue: number;
   /** A piece a move paid as its fee in the coin. */
   readonly moveFees: boolean;
+  /** Fee pieces a move took at its destination, since the pieces outside it could not pay its fee (ADR-0055). */
+  readonly feeAtDestination: number;
   /** The plan keeps its own holding rule; the file dates lots by the country's. */
   readonly planRuleDiffers: boolean;
 };
@@ -135,7 +137,10 @@ const at = (values: readonly (Money | null)[], index: number) => values[index] ?
 const BLANK = { costBasis: null, fee: null, eligibleFrom: null, pastHoldingRule: null, saleVenue: null } as const;
 const NO_SALE = { ...BLANK, disposedOn: null, proceeds: null, disposalFee: null } as const;
 
-/** The first `fee` units of a move's takes, which `matchLots` takes first: what the move paid in the coin. */
+/**
+ * The first `fee` units of a move's takes, which `matchLots` takes first, those at its destination last: what the move
+ * paid in the coin.
+ */
 function feeTakes(takes: readonly SaleTake[], fee: Units): SaleTake[] {
   let left = fee;
   return takes.flatMap((take) => {
@@ -162,6 +167,7 @@ export function taxYearLots(
   const pieces: LotPiece[] = [];
   let crossVenue = 0;
   let moveFees = false;
+  let feeAtDestination = 0;
   for (const coin of coins) {
     const match = matchLots(upTo, coin, rules.lotScope, lotRule);
     // Each lot's takes in matching order, with the sale's proceeds and fee shares for those units; a move's fee takes
@@ -235,6 +241,7 @@ export function taxYearLots(
         if (take.sale.kind === 'move') {
           // Paid as a move's fee: dated on the move, with no proceeds and no tax label.
           moveFees = true;
+          if (take.venue === take.sale.to) feeAtDestination += 1;
           pieces.push({
             ...piece(index, take.units, take.sale.date),
             ...held,
@@ -276,6 +283,7 @@ export function taxYearLots(
     unmatched: pieces.some((piece) => piece.acquired === null),
     crossVenue,
     moveFees,
+    feeAtDestination,
     planRuleDiffers: !sameHoldingRule(plan.holdingRule, rules.holdingRule),
   };
 }
