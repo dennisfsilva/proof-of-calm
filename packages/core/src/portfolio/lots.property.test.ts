@@ -6,12 +6,13 @@ import type { LotRule, LotScope } from '../schema/country';
 import { ENTRY_KINDS, type Entry } from '../schema/entry';
 import type { PriceSnapshot } from '../schema/prices';
 import { unitsIn, unitsOut } from './effect';
-import { heldLots, type LotMatch, matchLots } from './lots';
+import { feeUnmatched, heldLots, type LotMatch, matchingOrder, matchLots, runningHeld } from './lots';
 import { portfolio } from './portfolio';
 
 // docs/DOMAIN.md §3.7: a lot's open units are kept by place, the venue they are held at; the places are the lot's
 // remaining units split, never more and never fewer, whatever the kinds, dates, venues, scope and rule. A move (ADR-0054)
-// takes its units sent from its source, never from its destination, and only its fee, sent − received, leaves the coin.
+// takes its units sent from its source, then the other venues, and only its fee, sent − received, leaves the coin; the
+// part of the fee no piece outside its destination covers comes from the destination's pieces (ADR-0055).
 
 const DAYS = ['2025-01-10', '2025-06-10', '2025-11-10', '2026-03-10', '2026-08-10'];
 const QUANTITIES = ['0.001', '0.004', '0.01', '0.025', '0.10'];
@@ -144,14 +145,50 @@ describe('lot places (docs/DOMAIN.md §3.7)', () => {
     );
   });
 
-  it('a move never takes from its destination', () => {
+  it('a move takes from its destination only units of its fee, and only once no piece outside it is left', () => {
     fc.assert(
       fc.property(log, move, scopes, rules, (entries, last, scope, rule) => {
         const all = [...entries, last];
         for (const each of matchLots(all, BTC.id, scope, rule).moves) {
           const to = all.find((one) => one.id === each.id)?.to;
-          expect(each.takes.every((take) => take.venue !== to)).toBe(true);
+          const there = each.takes.filter((take) => take.venue === to);
+          const outside = sum(each.takes.filter((take) => take.venue !== to).map((take) => take.units));
+          same(sum(there.map((take) => take.units)), each.atDestination);
+          // The destination's takes come last, and only while the pieces outside it left part of the fee unpaid.
+          expect(each.takes.slice(each.takes.length - there.length).every((take) => take.venue === to)).toBe(true);
+          if (isPositive(each.atDestination)) {
+            expect(compare(outside, each.fee)).toBe(-1);
+            expect(compare(plus(outside, each.atDestination), each.fee)).toBeLessThanOrEqual(0);
+          }
           same(plus(sum(each.takes.map((take) => take.units)), each.unmatched), each.units);
+        }
+      }),
+      { examples: EDGES.map(([entries, last]) => [entries, last, 'per-venue', 'fifo']) },
+    );
+  });
+
+  it('after every entry the open pieces sum to the units runningHeld holds', () => {
+    fc.assert(
+      fc.property(log, move, scopes, rules, (entries, last, scope, rule) => {
+        const ordered = [...entries, last].sort(matchingOrder);
+        const held = runningHeld(ordered, BTC.id);
+        ordered.forEach((_, index) => {
+          same(placed(matchLots(ordered.slice(0, index + 1), BTC.id, scope, rule)), held[index]?.held ?? null);
+        });
+      }),
+      { examples: EDGES.map(([entries, last]) => [entries, last, 'per-venue', 'fifo']) },
+    );
+  });
+
+  it("a move's unmatched fee is its fee less the units held just before it, never below 0", () => {
+    fc.assert(
+      fc.property(log, move, scopes, rules, (entries, last, scope, rule) => {
+        const all = [...entries, last];
+        const steps = runningHeld(all, BTC.id);
+        for (const each of matchLots(all, BTC.id, scope, rule).moves) {
+          const index = steps.findIndex((step) => step.entry.id === each.id);
+          const before = steps[index - 1]?.held ?? ('0' as Units);
+          same(feeUnmatched(each), max(minus(each.fee, before), '0' as Units));
         }
       }),
       { examples: EDGES.map(([entries, last]) => [entries, last, 'per-venue', 'fifo']) },
