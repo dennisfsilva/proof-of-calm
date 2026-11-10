@@ -102,6 +102,10 @@
     "planDeleted": "The plan was deleted in another browser tab, so this entry was not saved."
   },
   "move": {
+    "title": {
+      "new": "Log coins you moved",
+      "edit": "Edit the move"
+    },
     "coin": "Coin",
     "date": "Date",
     "dateHint": "The day the coins left, as the withdrawal record shows it.",

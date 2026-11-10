@@ -1,7 +1,7 @@
 // The toast after a new transaction is saved on the Log (docs/CONTENT-STYLE.md §3): "Recorded: …" with what was
 // recorded and its date. Coins added name their units, and a cost only when one was typed; a move names its units
 // sent and its route; a purchase or a sale names its amount, and its coin when there is one.
-import { MAX_UNIT_DECIMALS, type Entry, type Plan, recordedAmounts, sum } from '@proofofcalm/core';
+import { type Entry, MAX_UNIT_DECIMALS, type Plan, recordedAmounts, sum } from '@proofofcalm/core';
 import type { Formatters } from '../../../lib/format';
 import { proseDigits } from './form';
 import type { LogWords } from './row-refusal';

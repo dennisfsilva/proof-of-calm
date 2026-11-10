@@ -50,6 +50,43 @@ export const MoveFormStateSchema = z.readonly(
 );
 export type MoveFormState = z.infer<typeof MoveFormStateSchema>;
 
+/**
+ * What the drafts adapter keeps of an open move form (ADR-0020): its text, the number locale it was typed in, and its
+ * base, the edited move with the moment it was last written ('' for a new move), so a draft typed over a move another
+ * tab changed since is not brought back.
+ */
+export const MoveFormDraftSchema = z.object({ numberLocale: z.string(), base: z.string(), state: MoveFormStateSchema });
+export type MoveFormDraft = z.infer<typeof MoveFormDraftSchema>;
+
+/** The draft's entity and base for the form opened on `editing`. */
+export const moveDraftKey = (editing: Entry | null) => ({
+  entity: editing === null ? 'new' : String(editing.id),
+  base: editing === null ? '' : `${editing.id}@${editing.updatedAt}`,
+});
+
+const MOVE_FIELDS: readonly (keyof MoveFormState)[] = [
+  'coin',
+  'date',
+  'from',
+  'to',
+  'sent',
+  'received',
+  'receivedTyped',
+  'note',
+];
+
+/** Whether two states read the same in every field: a form left as it opened is no draft. */
+export const sameMoveForm = (a: MoveFormState, b: MoveFormState) => MOVE_FIELDS.every((key) => a[key] === b[key]);
+
+/** The draft's text while it fits: typed in this number locale, over the move as stored now, and changing something. */
+export function restoredMove(
+  draft: MoveFormDraft | null,
+  fit: { readonly numberLocale: string; readonly base: string; readonly initial: MoveFormState },
+): MoveFormState | null {
+  if (draft === null || draft.numberLocale !== fit.numberLocale || draft.base !== fit.base) return null;
+  return sameMoveForm(draft.state, fit.initial) ? null : draft.state;
+}
+
 export type MoveFormContext = {
   readonly plan: Plan;
   readonly entries: readonly Entry[];
