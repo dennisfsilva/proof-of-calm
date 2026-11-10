@@ -9,12 +9,13 @@ import {
   type PriceSnapshot,
   quotientSignificant,
   round,
+  movesLeftShort,
   saveTransaction,
   type Units,
   unitsFor,
   valueAt,
 } from '@proofofcalm/core';
-import { anEntry, aPlan, BTC, date, ETH, id, instant, money, month, split, units } from '@proofofcalm/core/testing';
+import { aMove, anEntry, aPlan, BTC, date, ETH, id, instant, money, month, split, units } from '@proofofcalm/core/testing';
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { createFormatters, createNumberInput } from '../../../lib/format';
@@ -28,6 +29,7 @@ import {
   type FormState,
   initialState,
   keepUnchanged,
+  moveShortLines,
   proseDigits,
   saveOn,
   toDraft,
@@ -870,6 +872,49 @@ describe('saveOn', () => {
   it('saves nothing when an entry being edited was deleted since the form opened, so it never comes back', () => {
     expect(save([btc, { ...eth, deletedAt: now }], [btc, eth])).toBeNull();
     expect(save([btc], [btc, eth])).toBeNull();
+  });
+});
+
+describe('moveShortLines', () => {
+  const now = instant('2026-10-20T10:00:00.000Z');
+  const perVenue = { overrides: [], lotScope: 'per-venue', lotRule: 'fifo' } as const;
+  const bought = (day: string, venue: string, coin: CoinId = BTC.id, quantity = '0.001') =>
+    anEntry({ kind: 'extra', slot: null, coin, date: date(day), units: units(quantity), venue });
+  const sold = (coin: CoinId, quantity: string, venue: string) =>
+    anEntry({ kind: 'sell', slot: null, coin, date: date('2026-02-01'), units: units(quantity), venue });
+  // The sale at Ledger takes Ledger's units first, so the move finds Kraken's outside Ledger. Saved with no venue (the
+  // field opens empty, as the venues differ) the sale would take Kraken's first and leave the move short.
+  const sale = sold(BTC.id, '0.001', 'Ledger');
+  const entries = [
+    bought('2026-01-05', 'Kraken'),
+    bought('2026-01-10', 'Ledger'),
+    bought('2026-01-10', 'Bitpanda', ETH.id, '0.01'),
+    sale,
+    sold(ETH.id, '0.005', 'Bitpanda'),
+    aMove({ coin: BTC.id, date: date('2026-03-01'), units: units('0.001'), received: units('0.001') }),
+  ];
+  const editing = entries.filter((entry) => entry.kind === 'sell');
+  const form = (stored: readonly Entry[]) => {
+    const initial = initialState('sell', editing, undefined, context({ entries: stored }));
+    const draft = toDraft(initial, en);
+    if (!draft.ok) throw new Error('unreadable draft');
+    const save = { plan, editing, ids: [id()], now, source: 'manual', initial, current: initial } as const;
+    return { draft: draft.value, save };
+  };
+
+  it('moveShortLines reads the entries the save stores, the venue kept when the Venue field is unchanged', () => {
+    const { draft, save } = form(entries);
+    expect(draft.venue).toBeNull();
+    expect(moveShortLines(draft, { entries, save, holding: perVenue })).toEqual([]);
+    // The bare save's entries, each sale with no venue, would name the move.
+    const bare = saveTransaction(draft, { ...save, entries });
+    if (!bare.ok) throw new Error(bare.error.code);
+    expect(movesLeftShort(entries, bare.value, perVenue)).toHaveLength(1);
+    // An entry being edited deleted meanwhile, or a refused save, names nothing.
+    expect(moveShortLines(draft, { entries: entries.filter((entry) => entry !== sale), save, holding: perVenue })).toEqual(
+      [],
+    );
+    expect(moveShortLines({ ...draft, note: 'x'.repeat(1000) }, { entries, save, holding: perVenue })).toEqual([]);
   });
 });
 
