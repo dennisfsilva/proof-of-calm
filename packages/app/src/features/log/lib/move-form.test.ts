@@ -97,6 +97,13 @@ describe('moveErrorField', () => {
     expect(moveErrorField({ code: 'unknown-coin', coin })).toBe('coin');
     expect(moveErrorField({ code: 'too-many-entries', max: 10_000 })).toBeNull();
   });
+
+  it('moveErrorField maps fee-exceeds-held to the received field', () => {
+    const fee = units('0.0002');
+    expect(
+      moveErrorField({ code: 'fee-exceeds-held', coin: BTC.id, held: units('0'), fee, date: date('2026-03-01') }),
+    ).toBe('received');
+  });
 });
 
 describe('moveMessage', () => {
@@ -105,6 +112,21 @@ describe('moveMessage', () => {
     expect(moveMessage(error, plan, format, date('2026-03-01'))).toEqual({
       key: 'log.move.saleShort',
       values: { coin: 'BTC' },
+    });
+  });
+
+  it("moveMessage words fee-exceeds-held as a later move's fee", () => {
+    const error = {
+      code: 'fee-exceeds-held',
+      coin: BTC.id,
+      held: units('0.05'),
+      fee: units('0.0999'),
+      date: date('2026-03-01'),
+    } as const;
+    // The later move's date, not the date of the move being saved.
+    expect(moveMessage(error, plan, format, date('2026-02-01'))).toEqual({
+      key: 'log.move.feeShort',
+      values: { coin: 'BTC', date: '1\u00a0Mar\u00a02026' },
     });
   });
 

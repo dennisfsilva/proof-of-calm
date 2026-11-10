@@ -345,11 +345,21 @@ export function proseDigits(decimals: number, ...values: Decimal[]): number {
 
 /**
  * An action error in words: a refused month names it, a sale over the holdings names the excess and the units held
- * on the sale's `date`, and the cap is a grouped figure (docs/DOMAIN.md §6 "Save an entry", CONTENT-STYLE §4).
+ * on the sale's `date`, a move's fee left short names that move's own date and the units held before it, and the cap
+ * is a grouped figure (docs/DOMAIN.md §6 "Save an entry", CONTENT-STYLE §4).
  */
 export function actionMessage(error: ActionError, plan: Plan, format: Formatters, date: CalendarDate): ErrorMessage {
   if ('slot' in error) return errorMessage({ ...error, slot: format.month(error.slot) });
   if (error.code === 'too-many-entries') return errorMessage({ ...error, max: figure(format, error.max) });
+  if (error.code === 'fee-exceeds-held') {
+    const digits = proseDigits(decimalsOf(plan, error.coin), error.fee, error.held);
+    return errorMessage({
+      ...error,
+      held: format.units(error.held, error.coin, isPositive(error.held) ? digits : 0), // a zero holding reads 0
+      fee: format.units(error.fee, error.coin, digits),
+      date: format.date(error.date),
+    });
+  }
   if (error.code !== 'sell-exceeds-held') return errorMessage(error);
   const excess = minus(error.sold, error.held);
   const digits = proseDigits(decimalsOf(plan, error.coin), excess, error.held);

@@ -15,6 +15,7 @@
       "slot-required": "Choose the month this buy is for.",
       "slot-not-allowed": "Only a monthly buy has a month.",
       "unknown-slot": "{slot} is not a month of your plan.",
+      "fee-exceeds-held": "This change leaves your {coin} move on {date} without the units its network fee takes ({held} held before it). Check that move and the entries before it in the Log.",
       "sell-exceeds-held": "This sale is {excess} more than you hold ({held} on {date}). Check the amount and the date, or log the missing purchases first.",
       "slot-done": "{slot} is already recorded. Edit or delete that entry in the Log.",
       "slot-skipped": "{slot} is already skipped. Log this purchase as an extra buy.",
@@ -172,10 +173,12 @@
       "notRestored": "{reason, select, skipped {{month} was skipped after you deleted this entry, so it stays deleted.} other {{month} was recorded after you deleted this entry, so it stays deleted.}}",
       "notRestoredReplaced": "A backup replaced your plan after you deleted this entry, so it stays deleted.",
       "notRestoredSold": "Your {coin} entries changed after you deleted this sale, so it stays deleted.",
+      "notRestoredFee": "Your {coin} entries changed after the delete, so these entries stay deleted.",
       "notRestoredFull": "Restoring this entry would take the plan past the {max} entries a plan holds, so it stays deleted.",
       "notRestoredCurrency": "{count, plural, one {Your plan's currency changed from {from} to {to} after the delete, so this entry stays deleted. It was recorded in {from}; log it again only if you paid it in {to}.} other {Your plan's currency changed from {from} to {to} after the delete, so these {figure} entries stay deleted. They were recorded in {from}; log them again only if you paid them in {to}.}}",
       "noCost": "Cost unknown",
       "notDeleted": "This purchase covers a later {coin} sale, so it stays. Change or delete the sale first.",
+      "notDeletedFee": "This purchase covers the network fee of a later {coin} move, so it stays. Delete that move first.",
       "failed": "The change could not be saved. Try again."
     },
     "holding": {
@@ -247,6 +250,7 @@
       "sourceShort": "{at, select, venue {The Log shows {held} at {from} on {date}.} other {The Log shows {held} with no venue on {date}.}} The Log looks for the other {short} in the units you held outside {to} on that day.",
       "duplicate": "The Log already has this move on {date}. Save it only if you moved these coins twice.",
       "saleShort": "This move's network fee leaves a later {coin} sale without the units it sells. Check the units received against the deposit record, or change the sale first.",
+      "feeShort": "This move's network fee leaves your {coin} move on {date} without the units its own fee takes. Check the units received against the deposit record.",
       "note": "Note (optional)",
       "save": "Save",
       "deleted": "This move was deleted in another browser tab, so the change was not saved.",
@@ -642,7 +646,8 @@
     },
     "unrecorded": "No recorded cost for {coins}, so Invested, the average cost, and the P/L leave these units out.",
     "notBought": "Not bought yet: {coins}. For coins you already have, open the <log>Log</log> and choose Add coins you already have.",
-    "unmatched": "{units} sold without a purchase dated on or before the sale. Check the dates and amounts in the Log."
+    "unmatched": "{units} sold without a purchase dated on or before the sale. Check the dates and amounts in the Log.",
+    "unmatchedFee": "{units} paid as a network fee that no purchase dated on or before the move covers. Check the dates and amounts in the Log."
   },
   "settings": {
     "title": "Settings",
@@ -734,6 +739,7 @@
           "crossVenue": "In {count, plural, one {{figure} row} other {{figure} rows}}, the sale took units bought at another venue. sale_venue shows where those sales were made.",
           "heldAt": "held_at: where the units were when sold, paid as a fee or at the year end, empty for no venue. moved_on: the date a Coins moved entry took them there, empty if none did.",
           "moveFee": "A row with disposed_on but no proceeds holds the units a Coins moved entry paid as its network fee, and leaves past_holding_rule empty. This file does not say whether your country treats that fee as a disposal.",
+          "feeAtDestination": "{count, plural, one {In 1 row} other {In # rows}}, a Coins moved entry paid its network fee from units already at the venue it sent them to: on that day the Log shows too few elsewhere. Check that move in the Log.",
           "moveRows": "A move row lists units sent from venue to to_venue. units_received is what arrived. units less units_received is the network fee, paid in the coin.",
           "pooledListed": "For a coin sold, or paid as a network fee, in the tax year, every entry to {to} is listed for the pool. Its purchases to {windowEnd} are listed for the 30-day rule.",
           "rawListed": "For a coin sold, or paid as a network fee, in the tax year, every entry to {to} is listed.",

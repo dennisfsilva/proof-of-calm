@@ -1,5 +1,6 @@
 import {
   type ActionError,
+  type CoverRefusal,
   defined,
   deleteEntries,
   type EntityId,
@@ -11,7 +12,6 @@ import {
   type RestoreRefusal,
   type Result,
   restoreEntries,
-  type SaleRefusal,
   type SlotsAtDelete,
   skipMonth,
   slotsAtDelete,
@@ -36,7 +36,7 @@ export type LogActions = {
    * they stood, for the undo, which restores those ids alone. Refused, deleting nothing, when a purchase it takes
    * covers a recorded sale (docs/DOMAIN.md §3.7).
    */
-  deleteTransaction(ids: readonly EntityId[]): Promise<Result<SlotsAtDelete, SaleRefusal>>;
+  deleteTransaction(ids: readonly EntityId[]): Promise<Result<SlotsAtDelete, CoverRefusal>>;
   /**
    * Restores the deleted entries; refused, restoring nothing, when a monthly buy's month was skipped or recorded since,
    * the entries were written again since (a replace in another tab), a sale's units were sold again since, or the
@@ -81,7 +81,7 @@ export function logActions({ domain, clock }: Pick<Services, 'domain' | 'clock'>
       );
     },
     async deleteTransaction(ids) {
-      const box: { result?: Result<SlotsAtDelete, SaleRefusal> } = {};
+      const box: { result?: Result<SlotsAtDelete, CoverRefusal> } = {};
       await quietly(
         domain.write(({ plan, entries }) => {
           const now = clock.now();

@@ -14,6 +14,7 @@
     "slot-required": "Choose the month this buy is for.",
     "slot-not-allowed": "Only a monthly buy has a month.",
     "unknown-slot": "{slot} is not a month of your plan.",
+    "fee-exceeds-held": "This change leaves your {coin} move on {date} without the units its network fee takes ({held} held before it). Check that move and the entries before it in the Log.",
     "sell-exceeds-held": "This sale is {excess} more than you hold ({held} on {date}). Check the amount and the date, or log the missing purchases first.",
     "slot-done": "{slot} is already recorded. Edit or delete that entry in the Log.",
     "slot-skipped": "{slot} is already skipped. Log this purchase as an extra buy.",

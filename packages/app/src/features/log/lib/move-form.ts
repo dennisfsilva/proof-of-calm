@@ -195,6 +195,7 @@ export function moveErrorField(error: ActionError): MoveField | null {
       return 'sent';
     case 'received-exceeds-sent':
     case 'sell-exceeds-held':
+    case 'fee-exceeds-held':
       return 'received';
     case 'same-venue':
     case 'venue-too-long':
@@ -210,10 +211,13 @@ export function moveErrorField(error: ActionError): MoveField | null {
 
 /**
  * A move's refusal in words: one over the holdings names the units sent and held on the move's `date`; a later sale it
- * leaves short is its fee's doing, not a sale's; the rest as the entry form words them.
+ * leaves short is its fee's doing, not a sale's, and so is a later move whose own fee it leaves short, named by that
+ * move's date; the rest as the entry form words them.
  */
 export function moveMessage(error: ActionError, plan: Plan, format: Formatters, date: CalendarDate): ErrorMessage {
   if (error.code === 'sell-exceeds-held') return { key: 'log.move.saleShort', values: { coin: error.coin } };
+  if (error.code === 'fee-exceeds-held')
+    return { key: 'log.move.feeShort', values: { coin: error.coin, date: format.date(error.date) } };
   if (error.code !== 'move-exceeds-held') return actionMessage(error, plan, format, date);
   const decimals = plan.coins.find((coin) => coin.id === error.coin)?.decimals ?? MAX_UNIT_DECIMALS;
   const digits = proseDigits(decimals, error.sent, error.held);
