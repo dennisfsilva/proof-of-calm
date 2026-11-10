@@ -27,9 +27,9 @@
       "buying-over": "Buying has already ended.",
       "plan-changed": "Your plan changed in another browser tab, so this purchase was not recorded. Check the amounts shown, then record it again.",
       "too-many-entries": "Recording this would take the plan past {max} entries, the most a plan holds. Delete entries in the Log to make room.",
-      "move-exceeds-held": "This move sends {sent}, more than the {held} you hold before it. Check the units and the date, or log the missing purchases first.",
-      "same-venue": "Choose a place other than the one the coins left.",
-      "received-exceeds-sent": "Units received can be at most the units sent."
+      "move-exceeds-held": "This move sends {sent}, more than you hold ({held} on {date}). Check the units and the date, or log the missing purchases first.",
+      "same-venue": "Choose a venue other than the one the coins left.",
+      "received-exceeds-sent": "Enter no more units received than units sent."
     },
     "backup": {
       "not-recognised": "This file is not in a format {product} can read. Export a backup from {product}, then import that file.",
