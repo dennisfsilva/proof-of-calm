@@ -112,8 +112,12 @@ function PlanMoveForm({ plan, numberInput: mounted, editing, onDone }: PlanMoveF
       });
     } catch (error) {
       if (error !== REFUSED) return { ...NOTHING, failure: errorMessage(error) };
-      // The group re-renders on the entries as stored, nothing chosen in it, and the refusal focuses its first card.
-      if (box.offered === true) return { ...NOTHING, issues: [CHOOSE_SOURCE] };
+      // Offered on entries this tab may not have loaded yet (another tab's write before its reload landed): the reload
+      // the channel would run brings them in now, so the group renders them, nothing chosen, with the refusal.
+      if (box.offered === true) {
+        await services.domain.hydrate();
+        return { ...NOTHING, issues: [CHOOSE_SOURCE] };
+      }
       if (box.result === undefined) return { ...NOTHING, failure: PLAN_DELETED };
     }
     const { result = null } = box;
@@ -136,14 +140,19 @@ function PlanMoveForm({ plan, numberInput: mounted, editing, onDone }: PlanMoveF
     return refused?.field === field ? refused.text : null;
   };
   // A refused save moves the focus to the first field it names, so the refusal is heard there; a radio group's root
-  // takes no focus, so its checked card does, else its first, where the keyboard lands.
+  // takes no focus, so its checked card does, else its first, where the keyboard lands. Each refusal focuses once, on
+  // the render that first shows its field: a group rendered after the refusal (a reload landing later) is waited for.
   const form = useRef<HTMLFormElement>(null);
+  const focused = useRef(NOTHING);
   useEffect(() => {
-    const named = outcome === NOTHING ? null : form.current?.querySelector<HTMLElement>('[aria-invalid="true"]');
+    if (focused.current === outcome) return;
+    const named = form.current?.querySelector<HTMLElement>('[aria-invalid="true"]');
+    if (named === null || named === undefined) return;
+    focused.current = outcome;
     const cards =
-      named?.getAttribute('role') === 'radiogroup' ? [...named.querySelectorAll<HTMLElement>('[role="radio"]')] : [];
-    (cards.find((card) => card.getAttribute('aria-checked') === 'true') ?? cards[0] ?? named)?.focus();
-  }, [outcome]);
+      named.getAttribute('role') === 'radiogroup' ? [...named.querySelectorAll<HTMLElement>('[role="radio"]')] : [];
+    (cards.find((card) => card.getAttribute('aria-checked') === 'true') ?? cards[0] ?? named).focus();
+  });
 
   const decimals = plan.coins.find((coin) => coin.id === state.coin)?.decimals ?? MAX_UNIT_DECIMALS;
   const prose = (value: Units, ...others: Units[]) =>

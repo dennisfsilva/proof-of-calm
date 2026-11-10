@@ -4,7 +4,7 @@ import { DEFAULT_PREFS, type Entry } from '@proofofcalm/core';
 import { aMove, anEntry, aPlan, date, ETH, instant, units } from '@proofofcalm/core/testing';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { EMPTY_SNAPSHOT } from '../../../lib/adapters';
+import { EMPTY_SNAPSHOT, memoryPlanStore } from '../../../lib/adapters';
 import { I18nProvider } from '../../../lib/i18n';
 import { ServicesProvider } from '../../../lib/services';
 import { createTestServices, TEST_PRICES } from '../../../lib/services/testing';
@@ -29,10 +29,10 @@ const portugal = async () => {
 type Options = { readonly editing?: Entry | null; readonly perVenue?: boolean };
 
 async function open(entries: readonly Entry[], { editing = null, perVenue = false }: Options = {}) {
-  const services = createTestServices({
-    snapshot: { ...EMPTY_SNAPSHOT, prefs: DEFAULT_PREFS, plan, entries, prices: TEST_PRICES },
-    ...(perVenue ? { rules: portugal } : {}),
-  });
+  const snapshot = { ...EMPTY_SNAPSHOT, prefs: DEFAULT_PREFS, plan, entries, prices: TEST_PRICES };
+  // Kept, so a test can write as another tab does: to storage alone, this tab's snapshot left as it was.
+  const planStore = memoryPlanStore(snapshot);
+  const services = createTestServices({ snapshot, planStore, ...(perVenue ? { rules: portugal } : {}) });
   const onDone = vi.fn<(saved: readonly Entry[]) => void>();
   render(
     <ServicesProvider services={services}>
@@ -42,7 +42,7 @@ async function open(entries: readonly Entry[], { editing = null, perVenue = fals
     </ServicesProvider>,
   );
   await act(() => services.start());
-  return { services, onDone };
+  return { services, onDone, planStore };
 }
 
 const field = (label: string) => screen.getByLabelText<HTMLInputElement>(label);
@@ -223,6 +223,50 @@ describe('MoveForm', () => {
       expect(checked()).toHaveLength(0);
       expect(screen.getByText('Choose the venue the coins left.')).toBeTruthy();
       expect(document.activeElement).toBe(radio('Kraken'));
+    });
+
+    it("re-offers the sources another tab stored before this tab reloads, focusing the group's first card", async () => {
+      const { onDone, planStore } = await open(lots);
+      unchosen('2026-01-05');
+      expect(screen.queryAllByRole('radio')).toHaveLength(0);
+      // Stored by another tab; the reload its channel message asks for has not run here.
+      await act(() => planStore.write({ entries: [bought('0.03', '2026-01-01', 'Kraken')] }));
+      await save();
+      expect(onDone).not.toHaveBeenCalled();
+      expect(planStore.current().entries.filter((entry) => entry.kind === 'move')).toEqual([]);
+      expect(screen.getAllByRole('radio')).toHaveLength(1);
+      expect(radio('Kraken').textContent).toContain('0.03 BTC');
+      expect(checked()).toHaveLength(0);
+      expect(screen.getByText('Choose the venue the coins left.')).toBeTruthy();
+      expect(document.activeElement).toBe(radio('Kraken'));
+    });
+
+    it('focuses the first card of a group that renders only after the refusal', async () => {
+      const { services, planStore } = await open(lots);
+      unchosen('2026-01-05');
+      await act(() => planStore.write({ entries: [bought('0.03', '2026-01-01', 'Kraken')] }));
+      // The form's reload held back, so the group renders on a later render than the refusal: the focus waits for it.
+      const reload = services.domain.hydrate;
+      vi.spyOn(services.domain, 'hydrate').mockResolvedValueOnce(undefined);
+      await save();
+      expect(screen.queryAllByRole('radio')).toHaveLength(0);
+      await act(() => reload());
+      expect(screen.getByText('Choose the venue the coins left.')).toBeTruthy();
+      expect(document.activeElement).toBe(radio('Kraken'));
+    });
+
+    it('re-offers every source another tab stored beside those on offer, focusing the first card', async () => {
+      const { onDone, planStore } = await open(lots);
+      unchosen('2026-02-20');
+      expect(screen.getAllByRole('radio')).toHaveLength(2);
+      await act(() => planStore.write({ entries: [bought('0.01', '2026-02-01', 'Bitstamp')] }));
+      await save();
+      expect(onDone).not.toHaveBeenCalled();
+      expect(screen.getAllByRole('radio')).toHaveLength(3);
+      expect(radio('Bitstamp').textContent).toContain('0.01 BTC');
+      expect(checked()).toHaveLength(0);
+      expect(screen.getByText('Choose the venue the coins left.')).toBeTruthy();
+      expect(document.activeElement).toBe(screen.getAllByRole('radio')[0]);
     });
 
     it('with none to offer before or after the write, takes the save refusal from no venue', async () => {
