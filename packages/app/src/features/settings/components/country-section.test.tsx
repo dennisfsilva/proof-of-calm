@@ -403,6 +403,21 @@ describe('CountrySection', () => {
     });
   });
 
+  // Session 16's evaluator: on a phone the rows sat above the cards, out of view once a card was picked.
+  it('the amount rows follow the cards once Change to is picked', async () => {
+    await mount();
+    await choose('United Kingdom');
+    fireEvent.click(screen.getByRole('radio', { name: /^Change to GBP/ }));
+    const line = screen.getByText(/^A plan holds one currency\./);
+    const amounts = screen.getAllByRole('listitem').filter((item) => item.textContent?.includes('becomes'));
+    expect(amounts).toHaveLength(2);
+    const summary = screen.getAllByRole('list')[0];
+    for (const row of amounts) {
+      expect(summary?.contains(row)).toBe(false);
+      expect(line.compareDocumentPosition(row) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    }
+  });
+
   // ADR-0023's Context: numbers follow the country, so the amount after the change reads as Plan will show it.
   it("the right-hand amount reads in the new country's number format", async () => {
     await mount();
@@ -423,6 +438,16 @@ describe('CountrySection', () => {
     expect(relabelled()).toEqual([]);
     fireEvent.click(screen.getByRole('radio', { name: /^Keep EUR/ }));
     expect(relabelled()).toEqual([]);
+  });
+
+  // With no question asked the rows stay in the summary list, before the line that logged amounts stay as typed.
+  it('lists the amount rows in the summary when no question is asked', async () => {
+    await mount({ ...fixtureSnapshot(), entries: [] });
+    await choose('United Kingdom');
+    const summary = screen.getAllByRole('list')[0];
+    const amounts = screen.getAllByRole('listitem').filter((item) => item.textContent?.includes('becomes'));
+    expect(amounts).toHaveLength(2);
+    for (const row of amounts) expect(summary?.contains(row)).toBe(true);
   });
 
   // A wrong "Keep" is fixed without changing country again: Currency & data offers the country's currency.
