@@ -15,7 +15,8 @@ import { routeFixturePrices, test } from './support';
 // A Log row's Edit, saved with the row keeping its place, gives the focus back to Edit entry without passing the
 // shell's skip link on the way (which shows only while it has the focus): a purchase row of the fixture, and a move
 // row of the fixture with a buy at Kraken and a move from Kraken to Ledger. Every `focusin` from before Save until
-// the focus is on Edit entry is recorded.
+// the focus is on Edit entry is recorded. On 2026-11-10 no project gave the link the focus (Save, the popup, then Edit
+// entry once the exit ends); a screenshot during the sheet's exit once showed it without its focus.
 
 test.use({ serviceWorkers: 'block' });
 
