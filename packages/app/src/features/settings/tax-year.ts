@@ -15,9 +15,13 @@ import {
   type CalendarDate,
   type CountryRules,
   type Entry,
+  entryRole,
   type HoldingRule,
+  isPositive,
+  minus,
   type Plan,
   POOLED_MATCH_DAYS,
+  type PoolRow,
   type PriceHistories,
   sameHoldingRule,
   type TaxYearCessions,
@@ -53,7 +57,10 @@ type FileFacts = {
   readonly estimated: boolean;
   readonly unmatched: boolean;
   readonly crossVenue: number;
-  /** The per-lot file holds a piece a move paid as its fee in the coin. */
+  /**
+   * The per-lot file holds a piece a move paid as its fee in the coin; the raw listing a move dated in the year whose
+   * `units` less `units_received` is above 0 (`rawMoveFees`).
+   */
   readonly moveFees: boolean;
   /** The per-lot file's fee pieces a move took at its destination, since nothing outside it was left (ADR-0055). */
   readonly feeAtDestination: number;
@@ -133,9 +140,10 @@ function taxYearHeader(input: HeaderInput & { readonly facts: FileFacts }, t: Ta
     ...(facts.crossVenue > 0 ? [t('crossVenue', counted(facts.crossVenue))] : []),
     // Every row of the per-lot file fills held_at and moved_on, so their line is there whether or not a move is.
     ...(facts.raw ? [] : [t('heldAt')]),
-    ...(facts.moveFees ? [t('moveFee')] : []),
+    ...(facts.moveFees && !facts.raw ? [t('moveFee')] : []),
     ...(facts.feeAtDestination > 0 ? [t('feeAtDestination', counted(facts.feeAtDestination))] : []),
     ...(facts.moves ? [t('moveRows')] : []),
+    ...(facts.moveFees && facts.raw ? [t('moveFeeRaw')] : []),
     ...(facts.raw
       ? [
           pooled
@@ -192,6 +200,20 @@ function snapshotHeader(input: HeaderInput, file: TaxYearSnapshot, t: TaxYearWor
   ];
 }
 
+/**
+ * Whether the raw listing holds a move dated in the year that paid a network fee in the coin: the move row's `units`
+ * less `units_received` above 0, the fee `taxYearPool` widens a coin's listing by.
+ */
+function rawMoveFees(rows: readonly PoolRow[], span: TaxYearSpan): boolean {
+  return rows.some(
+    (row) =>
+      entryRole(row.kind) === 'move' &&
+      span.from <= row.date &&
+      row.date <= span.to &&
+      isPositive(minus(row.units, row.unitsReceived ?? row.units)),
+  );
+}
+
 /** The per-lot model's file: the lot pieces for a matched lot rule, else the raw listing. */
 function perLotFile(input: HeaderInput, entries: readonly Entry[], t: TaxYearWords): string {
   const { plan, rules, span, today } = input;
@@ -205,9 +227,10 @@ function perLotFile(input: HeaderInput, entries: readonly Entry[], t: TaxYearWor
     }
     default: {
       const pool = taxYearPool(plan, entries, rules, span, today);
+      const moveFees = rawMoveFees(pool.rows, span);
       return taxYearPoolCsv(
         pool,
-        header({ ...pool, raw: true, unmatched: false, crossVenue: 0, moveFees: false, feeAtDestination: 0 }),
+        header({ ...pool, raw: true, unmatched: false, crossVenue: 0, moveFees, feeAtDestination: 0 }),
       );
     }
   }
