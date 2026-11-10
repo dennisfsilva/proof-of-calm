@@ -4,6 +4,7 @@ import {
   type FillField,
   holdingContext,
   isPositive,
+  MAX_UNIT_DECIMALS,
   MINOR_UNITS,
   type MonthKey,
   type Plan,
@@ -39,6 +40,7 @@ import {
   type FieldIssue,
   type FormState,
   initialState,
+  moveShortLines,
   proseDigits,
   saveOn,
   toDraft,
@@ -217,6 +219,13 @@ function PlanEntryForm({ plan, numberInput: mounted, kind, editing, slot, onDone
           editing.map((entry) => entry.id),
         )
       : [];
+  // A stored move the save would leave short outside its destination is named before Save, never refused (DOMAIN §3.7):
+  // read on the entries the save stores, so an unchanged Venue field keeps each entry's venue.
+  const typed = drafted ?? toDraft(state, numberInput);
+  const save = { plan, editing, ids: freshIds(ids, state.rows, editing), now: clock.now(), source: 'manual' as const };
+  const [moveShort] = typed.ok
+    ? moveShortLines(typed.value, { entries, save: { ...save, initial, current: state }, holding })
+    : [];
   // A cleared or partly typed date input gives '': toDraft refuses it before the save.
   const dateIssue = issueOf('date') !== undefined;
   const failureAt = (field: DetailField | null) => (outcome.field === field ? outcome.failure : null);
@@ -332,6 +341,22 @@ function PlanEntryForm({ plan, numberInput: mounted, kind, editing, slot, onDone
       })}
       {/* LEGAL §4: the data line once, beside the holding status. */}
       {warnings.length > 0 && <p className="text-13 text-ink-2">{t('log.holding.note')}</p>}
+      {moveShort !== undefined && (
+        <p role="status" className="text-14">
+          {t('log.form.movesShort', {
+            to: moveShort.to,
+            date: format.date(moveShort.date),
+            short: format.units(
+              moveShort.short,
+              moveShort.coin,
+              proseDigits(
+                state.rows.find((row) => row.coin === moveShort.coin)?.decimals ?? MAX_UNIT_DECIMALS,
+                moveShort.short,
+              ),
+            ),
+          })}
+        </p>
+      )}
       {!added &&
         numberField(
           'fee',

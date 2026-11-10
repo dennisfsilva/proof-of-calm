@@ -166,6 +166,7 @@
       "fee": "Fee {amount}",
       "move": "{at, select, venue {{units} moved from {from} to {to}} other {{units} with no venue moved to {to}}}",
       "moveFee": "Network fee {units}",
+      "moveOutside": "The Log shows {outside} outside {to} on this day, {short} fewer than this move sends. Check this move's date and venues against the entries before it.",
       "edit": "Edit entry",
       "delete": "Delete entry",
       "deleted": "{count, plural, one {Entry deleted.} other {{figure} entries deleted.}}",
@@ -194,6 +195,7 @@
       "firstBuyPast": "No entries yet. Your first buy day was {date}."
     },
     "form": {
+      "movesShort": "After this change, your move to {to} on {date} sends {short} more than the Log shows outside {to} that day. Check that move's date and venues in the Log after you save.",
       "title": {
         "dca": "Log the monthly buy",
         "lump": "Log the starting amount",
@@ -252,8 +254,10 @@
       "all": "Fill in all units",
       "received": "Units received",
       "fee": "Network fee {units}",
-      "sourceShort": "{at, select, venue {The Log shows {held} at {from} on {date}.} other {The Log shows {held} with no venue on {date}.}} The Log looks for the other {short} in the units you held outside {to} on that day.",
+      "sourceShort": "{at, select, venue {The Log shows {held} at {from} on {date}.} other {The Log shows {held} with no venue on {date}.}}{found, select, yes {} other { The Log looks for the other {short} in the units you held outside {to} on that day.}}",
+      "sourceFound": "Outside {to}, the Log finds only {outside} on that day.",
       "duplicate": "The Log already has this move on {date}. Save it only if you moved these coins twice.",
+      "laterShort": "After this move, your move to {to} on {date} sends {short} more than the Log shows outside {to} that day. If both record one withdrawal, keep only one. If not, check the units that move sends.",
       "saleShort": "This move's network fee leaves a later {coin} sale without the units it sells. Check the units received against the deposit record, or change the sale first.",
       "feeShort": "This move's network fee leaves your {coin} move on {date} without the units its network fee takes. Check the units received against the deposit record.",
       "ownFeeShort": "This move's network fee takes more units than your other {coin} entries leave for it. Check the units received against the deposit record.",

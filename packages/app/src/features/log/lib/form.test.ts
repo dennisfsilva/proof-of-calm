@@ -4,18 +4,31 @@ import {
   type Entry,
   isPositive,
   type Money,
+  movesLeftShort,
   PRICE_FIGURES,
   type Price,
   type PriceSnapshot,
   quotientSignificant,
   round,
-  movesLeftShort,
   saveTransaction,
   type Units,
   unitsFor,
   valueAt,
 } from '@proofofcalm/core';
-import { aMove, anEntry, aPlan, BTC, date, ETH, id, instant, money, month, split, units } from '@proofofcalm/core/testing';
+import {
+  aMove,
+  anEntry,
+  aPlan,
+  BTC,
+  date,
+  ETH,
+  id,
+  instant,
+  money,
+  month,
+  split,
+  units,
+} from '@proofofcalm/core/testing';
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { createFormatters, createNumberInput } from '../../../lib/format';
@@ -911,9 +924,9 @@ describe('moveShortLines', () => {
     if (!bare.ok) throw new Error(bare.error.code);
     expect(movesLeftShort(entries, bare.value, perVenue)).toHaveLength(1);
     // An entry being edited deleted meanwhile, or a refused save, names nothing.
-    expect(moveShortLines(draft, { entries: entries.filter((entry) => entry !== sale), save, holding: perVenue })).toEqual(
-      [],
-    );
+    expect(
+      moveShortLines(draft, { entries: entries.filter((entry) => entry !== sale), save, holding: perVenue }),
+    ).toEqual([]);
     expect(moveShortLines({ ...draft, note: 'x'.repeat(1000) }, { entries, save, holding: perVenue })).toEqual([]);
   });
 });
