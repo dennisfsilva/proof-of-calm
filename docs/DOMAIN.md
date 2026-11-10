@@ -464,10 +464,9 @@ on or before it (#136): `runningHeld(entries, coin)` lists the coin's live entri
 queue (the matching order, `matchingOrder`) with the units held after each, those before it plus its `unitsIn` less
 its `unitsOut`, never below 0; `heldOn(entries, coin, date)` is
 what a sale dated `date` can take, the fewest held from the end of that day on, so a sale never leaves a later one
-short; `uncoveredSale(entries, written)` refuses a write (`sell-exceeds-held`, the first sale left short with the
-units held before it; `fee-exceeds-held` when the first step left short is a move whose fee no piece of the coin covers,
-with the units held before it, its fee and its date, ADR-0055: a move's units received are a venue matter and never
-refuse), an edit, a delete or an undo as well as a new entry, that leaves more units of a coin sold than bought, or more of them unmatched in one global queue, than before it. A sale is also bounded by the units held in all (`heldUnits`, purchases less sales whatever their dates), so no write makes the units of a coin sold exceed those bought, or exceed them by more than imported data already did. The checks are
+short; `uncoveredSale(entries, written)` refuses a write (`sell-exceeds-held`, a sale with the units held before it;
+`fee-exceeds-held`, a move whose fee no piece of the coin covers, with the units held before it, its fee and its date,
+ADR-0055: a move's units received are a venue matter and never refuse), an edit, a delete or an undo as well as a new entry, that leaves more units of a coin sold than bought, or more of them unmatched in one global queue, than before it. The refusal names the step the write left worse covered (`firstMadeWorse` in `packages/core/src/portfolio/shortfalls.ts`): the first whose units beyond those held before it grew, a step absent before counting from 0; when none grew, the first whose units beyond what all the coin's purchases leave it grew, with the fewer of the units held before it and that remainder. A sale or a move imported short and left as short is never named, so the sentence is true of the entry the write would leave short. A sale is also bounded by the units held in all (`heldUnits`, purchases less sales whatever their dates), so no write makes the units of a coin sold exceed those bought, or exceed them by more than imported data already did. The checks are
 "no worse than before", so data imported short stays as written and unrelated writes still save; it uses the global
 queue, because held units are defined by date alone (a per-venue mismatch is not a dating error). With `scope === 'per-venue'` a sale takes
 its own `venue`'s lots first (entries without a venue form one group), then other venues' (below); with `'global'` all
