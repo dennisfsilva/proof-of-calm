@@ -38,6 +38,7 @@ import {
   FilesFirst,
   givenAnswer,
   previewAnswer,
+  SUMMARY_LIST,
   unanswered,
 } from './currency-question';
 import { PayCurrencyLine } from './pay-currency-line';
@@ -263,7 +264,7 @@ export function CountrySection() {
           {pending !== null && change !== null && (
             <>
               <p className="text-16 text-ink">{t('summary', { name: pending.rules.name })}</p>
-              <ul className="flex list-disc flex-col gap-stack-xs pl-5 text-16 text-ink">
+              <ul className={SUMMARY_LIST}>
                 {rows.map((row) =>
                   row.field === 'holdingRule' ? (
                     [
@@ -288,17 +289,23 @@ export function CountrySection() {
                     </li>
                   ),
                 )}
-                <AmountRows opened={pending.opened} next={change.plan} rules={pending.rules} />
+                {currency.question === null && (
+                  <AmountRows opened={pending.opened} next={change.plan} rules={pending.rules} />
+                )}
               </ul>
               {currency.question === null ? (
                 <p className="text-13 text-ink-2">{t('logged')}</p>
               ) : (
-                <CurrencyQuestionGroup
-                  key={asked}
-                  question={currency.question}
-                  onAnswer={setAnswer}
-                  invalid={refused > 0 && answer === null}
-                />
+                <>
+                  <CurrencyQuestionGroup
+                    key={asked}
+                    question={currency.question}
+                    onAnswer={setAnswer}
+                    invalid={refused > 0 && answer === null}
+                  />
+                  {/* Under the cards, so a row appearing on "Change to" stays in view on a phone. */}
+                  <AmountRows opened={pending.opened} next={change.plan} rules={pending.rules} list />
+                </>
               )}
               {ruleMoves && (
                 <div className="flex flex-col gap-stack-xs">

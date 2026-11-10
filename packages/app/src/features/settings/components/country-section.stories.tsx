@@ -98,11 +98,13 @@ export const ToUnitedKingdom: Story = {
     await userEvent.click(canvas.getByRole('button', { name: 'Change country to United Kingdom' }));
     await expect(await canvas.findByRole('alert')).toHaveTextContent('Choose Keep EUR or Change to GBP.');
     await userEvent.click(canvas.getByRole('radio', { name: /^Change to GBP/ }));
-    // The amount after the change reads in the new country's format (ADR-0023's Context).
+    // The row lands under the cards, the amount after in the new country's format (ADR-0023's Context).
     const gbp = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(100);
     const row = canvas.getByText(/^Monthly amount: .+ becomes .+\. Check it in Plan\.$/);
     await expect(row).toBeVisible();
     await expect(row).toHaveTextContent(`becomes ${gbp}.`);
+    const line = canvas.getByText(/^A plan holds one currency\./);
+    await expect(line.compareDocumentPosition(row) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     await expect(canvas.getByText(/^Tax-year files follow your current country's rules/)).toBeVisible();
   },
 };

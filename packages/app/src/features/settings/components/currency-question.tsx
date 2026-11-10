@@ -18,7 +18,8 @@ import { TaxYearExport } from './tax-year-export';
 
 // The parts the country change adds when the currency can move (ADR-0053, docs/DOMAIN.md §6 "Change country"):
 // the currency question, two choice cards with nothing chosen and the one-currency line under them; the rows that
-// say the plan's own amounts take the new currency; and the files-first block, the current country's tax-year
+// say the plan's own amounts take the new currency (under the cards when the question is asked, so a row appearing
+// on "Change to" sits next to the card picked); and the files-first block, the current country's tax-year
 // files offered under the export line before the rules change (docs/LEGAL.md §4: the block sits above Your data's
 // line, so it carries its own). The cards are packages/ui's radio group, never native inputs (docs/SECURITY.md §4).
 
@@ -94,23 +95,28 @@ export function CurrencyQuestionGroup({ question, onAnswer, invalid }: QuestionP
   );
 }
 
+/** The summary's list style, shared with the rows' own list under the question. */
+export const SUMMARY_LIST = 'flex list-disc flex-col gap-stack-xs pl-5 text-16 text-ink';
+
 type AmountProps = {
   readonly opened: Plan;
   readonly next: Plan;
   /** The new country's rules: the amount after the change reads in its number format, as Plan will show it. */
   readonly rules: CountryRules;
+  /** Their own list, under the question's cards; otherwise items of the summary list. */
+  readonly list?: boolean;
 };
 
 /**
  * One row for each of the plan's own amounts that is not zero, when the change moves the pay currency: the amount
  * now in the current country's format, the amount after in the new country's (ADR-0023's Context).
  */
-export function AmountRows({ opened, next, rules }: AmountProps) {
+export function AmountRows({ opened, next, rules, list = false }: AmountProps) {
   const t = useTranslations('settings.country.row');
   const f = useFormatters();
   const after = useFormattersOf(rules);
   if (next.payCurrency === opened.payCurrency) return null;
-  return (['monthlyAmount', 'startingAmount'] as const)
+  const rows = (['monthlyAmount', 'startingAmount'] as const)
     .filter((field) => !isZero(opened[field]))
     .map((field) => (
       <li key={field}>
@@ -121,6 +127,7 @@ export function AmountRows({ opened, next, rules }: AmountProps) {
         })}
       </li>
     ));
+  return list && rows.length > 0 ? <ul className={SUMMARY_LIST}>{rows}</ul> : rows;
 }
 
 /** The block above the confirm button: with any live entry, the current country's tax-year files first. */
