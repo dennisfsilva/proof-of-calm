@@ -4,6 +4,7 @@ import { type CalendarDate, type CountryCode, type Entry, type Plan, textCell } 
 import { aMove } from '@proofofcalm/core/testing';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { userEvent } from 'storybook/test';
+import { createTranslator } from 'use-intl/core';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { I18nProvider } from '../../../lib/i18n';
 import type { Snapshot } from '../../../lib/ports';
@@ -447,6 +448,16 @@ describe('TaxYearExport', () => {
         .map((row) => [row.to_venue, row.units_received]),
     ).toEqual([['Ledger', '0.0099']]);
     noSemicolon(pool);
+  });
+
+  // Several fee rows can come from one Coins moved entry, so the line names each row's own date, never "those dates".
+  it("the per-lot header's line for several such rows names each row's disposed_on date", () => {
+    const t = createTranslator({ locale: 'en', messages: { settings }, namespace: 'settings.data.taxYear.file' });
+    expect(t('feeAtDestination', { count: 2, figure: '2' })).toBe(
+      "In 2 rows, the Log took a Coins moved entry's network fee from units already at the venue the coins went to. " +
+        "On each row's disposed_on date the Log shows too few units outside that venue for what its Coins moved " +
+        'entry sent. Check the Coins moved entry of each of those rows in the Log.',
+    );
   });
 
   // ADR-0055: a move that finds nothing outside its destination pays its fee from the lots already there.

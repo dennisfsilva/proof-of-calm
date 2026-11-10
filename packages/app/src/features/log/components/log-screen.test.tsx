@@ -395,7 +395,7 @@ describe('LogScreen', () => {
   });
 
   // ADR-0055: a move's network fee stays covered by purchases dated on or before the move.
-  it("a delete refused for a move's fee says the purchase covers that move's network fee", async () => {
+  it("a delete refused for a move's fee says deleting the purchase would leave that move without its fee's units", async () => {
     const snapshot = withMoreBuys();
     const [first] = snapshot.entries as [Entry];
     const move: Entry = {
@@ -416,7 +416,8 @@ describe('LogScreen', () => {
     fireEvent.click(purchase);
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Delete entry' })));
     expect(screen.getByRole('status').textContent).toContain(
-      'This purchase covers the network fee of your BTC move on 14 Oct 2026, so it stays. Check that move in the Log.',
+      'Deleting this purchase would leave your BTC move on 14 Oct 2026 without the units its network fee takes, so it ' +
+        'stays. Check that move in the Log.',
     );
     expect(services.domain.store.getState().snapshot.entries.every((entry) => entry.deletedAt === null)).toBe(true);
   });
@@ -463,7 +464,8 @@ describe('LogScreen', () => {
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Undo' })));
     await vi.waitFor(() =>
       expect(screen.getByRole('status').textContent).toContain(
-        'Restoring this entry would leave a BTC move without the units its network fee takes, so it stays deleted.',
+        'Restoring this entry would leave your BTC move on 15 Oct 2026 without the units its network fee takes, so ' +
+          'it stays deleted.',
       ),
     );
     const stored = services.domain.store.getState().snapshot.entries.find((entry) => entry.id === sale.id);
