@@ -28,8 +28,8 @@ import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'use-intl';
 import { useFormatters, useRules, useServices, useSnapshot, useToday } from '../../../lib/services';
 import { logActions } from '../actions';
-import { figure } from '../lib/figure';
 import { proseDigits } from '../lib/form';
+import { deleteRefusalTitle, undoRefusalTitle } from '../lib/row-refusal';
 import { EntrySheet, type EntrySheetProps } from './entry-sheet';
 import { LOG_COLUMNS, LogRow } from './log-row';
 
@@ -140,11 +140,7 @@ export function LogScreen() {
     try {
       const deleted = await actions.deleteTransaction(ids);
       if (!deleted.ok) {
-        const { error } = deleted;
-        const title =
-          error.code === 'fee-exceeds-held'
-            ? t('row.notDeletedFee', { coin: error.coin, date: f.date(error.date) })
-            : t('row.notDeleted', { coin: error.coin });
+        const title = deleteRefusalTitle(deleted.error, { kind: row.kind, count: ids.length }, f, t);
         toasts.add({ title, timeout: UNDO_WINDOW_MS });
         return;
       }
@@ -166,33 +162,7 @@ export function LogScreen() {
             (restored) => {
               if (restored.ok) return;
               restoring.current = null;
-              const { error } = restored;
-              const title =
-                error.code === 'changed-since-delete'
-                  ? t('row.notRestoredReplaced')
-                  : error.code === 'sell-exceeds-held'
-                    ? t('row.notRestoredSold', { coin: error.coin })
-                    : error.code === 'fee-exceeds-held'
-                      ? t('row.notRestoredFee', {
-                          coin: error.coin,
-                          date: f.date(error.date),
-                          count: ids.length,
-                          figure: figure(f, ids.length),
-                        })
-                      : error.code === 'too-many-entries'
-                        ? t('row.notRestoredFull', { max: figure(f, error.max) })
-                        : error.code === 'currency-changed'
-                          ? t('row.notRestoredCurrency', {
-                              from: error.from,
-                              to: error.to,
-                              count: ids.length,
-                              figure: figure(f, ids.length),
-                            })
-                          : t('row.notRestored', {
-                              reason: error.code === 'slot-skipped' ? 'skipped' : 'recorded',
-                              month: f.month(error.slot),
-                            });
-              toasts.add({ title, timeout: UNDO_WINDOW_MS });
+              toasts.add({ title: undoRefusalTitle(restored.error, ids.length, f, t), timeout: UNDO_WINDOW_MS });
             },
             () => {
               restoring.current = null;

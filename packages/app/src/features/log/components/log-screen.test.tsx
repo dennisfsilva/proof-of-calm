@@ -299,6 +299,35 @@ describe('LogScreen', () => {
     expect(stored?.deletedAt).not.toBeNull();
   });
 
+  it('the undo refusals name the count after a grouped delete', async () => {
+    const snapshot = fixtureSnapshot();
+    const [first] = snapshot.entries as [Entry];
+    const monthly = (coin: string, index: number): Entry => ({
+      ...first,
+      id: `00000000-0000-4000-8000-00000000021${index}` as Entry['id'],
+      kind: 'dca',
+      coin: coin as Entry['coin'],
+      date: '2026-10-05' as CalendarDate,
+      slot: '2026-10' as Entry['slot'],
+    });
+    const october = [monthly('BTC', 0), monthly('ETH', 1)];
+    const services = await mount({ ...snapshot, entries: [...snapshot.entries, ...october] });
+    // The newest row holds October's monthly buy of both coins.
+    const [newest] = screen.getAllByRole('button', { expanded: false }) as [HTMLElement];
+    fireEvent.click(newest);
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Delete entry' })));
+    const stored = () => services.domain.store.getState().snapshot.entries;
+    expect(stored().filter((entry) => entry.deletedAt !== null)).toHaveLength(2);
+    await act(() => logActions(services).skipMonthAction('2026-10' as MonthKey, ''));
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Undo' })));
+    await vi.waitFor(() =>
+      expect(screen.getByRole('status').textContent).toMatch(
+        /October\s2026 was skipped after you deleted these 2 entries, so they stay deleted\./u,
+      ),
+    );
+    expect(stored().filter((entry) => entry.deletedAt !== null)).toHaveLength(2);
+  });
+
   it('keeps an entry deleted and says why when a backup replaced the plan before the Undo', async () => {
     const services = await mount(withMoreBuys());
     const [newest] = screen.getAllByRole('button', { expanded: false }) as [HTMLElement];
@@ -416,8 +445,8 @@ describe('LogScreen', () => {
     fireEvent.click(purchase);
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Delete entry' })));
     expect(screen.getByRole('status').textContent).toContain(
-      'Deleting this purchase would leave your BTC move on 14 Oct 2026 without the units its network fee takes, so it ' +
-        'stays. Check that move in the Log.',
+      'Deleting this purchase would leave your BTC move on 14 Oct 2026 without the units its network fee takes, so the ' +
+        'purchase stays. Check that move in the Log.',
     );
     expect(services.domain.store.getState().snapshot.entries.every((entry) => entry.deletedAt === null)).toBe(true);
   });
