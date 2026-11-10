@@ -15,6 +15,7 @@ docs:
   - path: docs/ADR/0042-today-in-the-clock-adapter.md
   - path: docs/ADR/0053-one-currency-per-plan.md
   - path: docs/ADR/0054-move-between-venues.md
+  - path: docs/ADR/0055-move-fee-at-destination.md
 ---
 
 # packages/core
