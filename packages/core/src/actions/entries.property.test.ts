@@ -648,3 +648,70 @@ describe('a refusal names the step the write made worse (docs/DOMAIN.md §3.7, �
     );
   });
 });
+
+describe('a move refused for a fee names the move it saves or a stored one (docs/DOMAIN.md §3.7, §6; ADR-0055)', () => {
+  const fees = fc.constantFrom(units('0.001'), units('0.002'));
+  // A sale imported short leaves no unit in total for the fee of a move the purchases cover by date: a new move,
+  // then an edit of a stored move that raises its fee.
+  const refuters: [ImportedStep[], CalendarDate, Units, number][] = [
+    [
+      [
+        { kind: 'sell', day: date('2026-01-01'), quantity: units('0.01') },
+        { kind: 'extra', day: DAYS[0] ?? date('2026-01-05'), quantity: units('0.01') },
+      ],
+      DAYS[1] ?? date('2026-02-05'),
+      units('0.001'),
+      -1,
+    ],
+    [
+      [
+        { kind: 'sell', day: date('2026-01-01'), quantity: units('0.01') },
+        { kind: 'extra', day: DAYS[0] ?? date('2026-01-05'), quantity: units('0.003') },
+        { kind: 'extra', day: DAYS[0] ?? date('2026-01-05'), quantity: units('0.008') },
+        { kind: 'move', day: DAYS[1] ?? date('2026-02-05'), quantity: units('0.001') },
+      ],
+      DAYS[1] ?? date('2026-02-05'),
+      units('0.002'),
+      3,
+    ],
+  ];
+
+  it('a saved move refused with fee-exceeds-held is written only when it names that move, and takes more than it finds', () => {
+    let own = 0;
+    fc.assert(
+      fc.property(
+        fc.array(importedStep, { minLength: 1, maxLength: 8 }),
+        day,
+        fees,
+        fc.integer({ min: -1, max: 7 }),
+        (rows, on, fee, pick) => {
+          const entries = rows.map(importedEntry);
+          const stored = entries[pick];
+          const editing = stored?.kind === 'move' ? [stored] : [];
+          const received = minus(SENT, fee);
+          const draft = { coin: BTC.id, date: on, from: 'Kraken', to: 'Ledger', sent: SENT, received, note: '' };
+          const context = { plan: aPlan(), entries, editing, ids: [id()], now, source: 'manual' as const };
+          const saved = saveMove(draft, context);
+          if (saved.ok || saved.error.code !== 'fee-exceeds-held') return;
+          const refused = saved.error;
+          expect(compare(refused.held, refused.fee)).toBeLessThan(0);
+          if (refused.written) {
+            own += 1;
+            expect([refused.date, refused.fee]).toEqual([on, fee]);
+            return;
+          }
+          const named = liveEntries(entries).filter(
+            (entry) =>
+              entry.kind === 'move' &&
+              !editing.includes(entry) &&
+              entry.date === refused.date &&
+              compare(unitsOut(entry), refused.fee) === 0,
+          );
+          expect(named.length).toBeGreaterThan(0);
+        },
+      ),
+      { numRuns: 150, examples: refuters },
+    );
+    expect(own).toBeGreaterThan(0);
+  });
+});

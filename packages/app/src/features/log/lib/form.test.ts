@@ -921,6 +921,7 @@ describe('actionMessage', () => {
       held: units('0.05'),
       fee: units('0.0999'),
       date: date('2026-03-01'),
+      written: false,
     } as const;
     // The move's date, not the date of the edit that left it short (docs/DOMAIN.md §6, ADR-0055).
     expect(actionMessage(error, plan, format, date('2026-10-16'))).toEqual({

@@ -824,6 +824,7 @@ describe("a move's fee stays covered, its venues never refuse a write (docs/DOMA
     held,
     fee: '0.0002',
     date: '2026-03-01',
+    written: false,
   });
 
   it("a purchase edit that changes its venue to a stored move's destination saves and leaves no unit unmatched", () => {
@@ -871,6 +872,19 @@ describe("a move's fee stays covered, its venues never refuse a write (docs/DOMA
     const later = instant('2026-03-02T10:00:05Z');
     expect(restoreEntries(plan, stored, before.ids, before, later)).toEqual({ ok: false, error: feeShort('0') });
   });
+
+  it('the undo of a deleted move whose fee a sale since then leaves without units is refused as the move it restores', () => {
+    const bought = purchase('0.10', 'Kraken');
+    const moved = move('Kraken', 'Ledger', '0.0998', '0.10');
+    const before = slotsAtDelete(plan, [bought, moved], [moved.id], now);
+    const deleted = store([bought, moved], deleteEntries([bought, moved], before.ids, before.at));
+    const sold = anEntry({ kind: 'sell', slot: null, coin: BTC.id, date: date('2026-02-01'), units: units('0.10') });
+    const later = instant('2026-03-02T10:00:05Z');
+    expect(restoreEntries(plan, [...deleted, sold], before.ids, before, later)).toEqual({
+      ok: false,
+      error: { ...feeShort('0'), written: true },
+    });
+  });
 });
 
 describe('a refusal names the step the write made worse (docs/DOMAIN.md §3.7, §6; ADR-0055)', () => {
@@ -909,6 +923,7 @@ describe('a refusal names the step the write made worse (docs/DOMAIN.md §3.7, �
     held,
     fee,
     date: day,
+    written: false,
   });
 
   // The refuter's case: a move imported short before a purchase that covers a later sale.

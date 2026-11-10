@@ -21,6 +21,8 @@ export type ActionError =
       readonly held: Units;
       readonly fee: Units;
       readonly date: CalendarDate;
+      /** Whether the move named is one the write itself stores (the move being saved or edited, or one restored). */
+      readonly written: boolean;
     }
   | { readonly code: 'slot-done'; readonly slot: MonthKey }
   | { readonly code: 'slot-skipped'; readonly slot: MonthKey }
