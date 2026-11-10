@@ -51,7 +51,9 @@ describe('overCap', () => {
   });
 });
 
-describe('saveTransaction at the cap', () => {
+// Run 42724435278 timed out an import cap test at the 5 s default: the core suite takes 46.5 s on CI
+// against 3.4 s here (x14), and the heaviest test below ~0.51 s here under the full suite with coverage.
+describe('saveTransaction at the cap', { timeout: 30_000 }, () => {
   const full = extras(MAX_ENTRIES);
 
   it('refuses a new buy once the plan holds 10,000 live entries', () => {
@@ -83,7 +85,8 @@ describe('saveTransaction at the cap', () => {
   });
 });
 
-describe('restoreEntries at the cap', () => {
+// The same timeout as saveTransaction at the cap, for the same reason.
+describe('restoreEntries at the cap', { timeout: 30_000 }, () => {
   it('refuses an undo that would bring the plan above 10,000 live entries', () => {
     const deleted = extra();
     const before = slotsAtDelete(plan, [deleted], [deleted.id], now);

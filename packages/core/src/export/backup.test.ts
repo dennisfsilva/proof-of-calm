@@ -322,7 +322,10 @@ describe('applyImport (docs/DOMAIN.md §3.13, ADR-0019)', () => {
 });
 
 // A plan holds at most MAX_ENTRIES live entries (docs/DOMAIN.md §9), so that its next export reads back.
-describe('applyImport, the entry cap (docs/DOMAIN.md §3.13)', () => {
+// Run 42724435278 timed out a test here at the 5 s default: the core suite takes 46.5 s on CI against
+// 3.4 s here (x14), and that test ~0.46 s here under the full suite with coverage (now split; the
+// heaviest of this block ~0.36 s).
+describe('applyImport, the entry cap (docs/DOMAIN.md §3.13)', { timeout: 30_000 }, () => {
   const extras = (count: number): Entry[] =>
     Array.from({ length: count }, () => anEntry({ kind: 'extra', slot: null }));
   const backup = (entries: Entry[]): BackupFile => ({ ...exportBackup(plan, [], exportedAt), entries });
