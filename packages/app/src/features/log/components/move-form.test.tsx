@@ -160,6 +160,21 @@ describe('MoveForm', () => {
     expect(document.activeElement).toBe(radio('BTC'));
   });
 
+  it('a move dated before any venue holds the coin is refused at the units sent', async () => {
+    const { onDone } = await open(lots);
+    type('Date', '2026-01-05');
+    type('Venue the coins went to', 'Ledger');
+    type('Units sent', '0.01');
+    await save();
+    expect(onDone).not.toHaveBeenCalled();
+    const refusal = [
+      'This move sends 0.01 BTC, more than you hold (0 BTC on 5 Jan 2026).',
+      'Check the units and the date, or log the missing purchases first.',
+    ];
+    expect(screen.getByText(refusal.join(' '))).toBeTruthy();
+    expect(document.activeElement).toBe(field('Units sent'));
+  });
+
   it('the destination is labelled and hinted as a place name and never asks for an address', async () => {
     await open(lots);
     const to = field('Venue the coins went to');
