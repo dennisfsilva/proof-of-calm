@@ -122,6 +122,8 @@ const NOT_LOADED =
 const HELD_EMPTY = 'On a held row, an empty cost_basis means no cost was recorded, not a cost of zero.';
 const EMPTY_COST = `${HELD_EMPTY} Rows with no acquired date leave cost_basis empty.`;
 const EMPTY_COST_RAW = `${HELD_EMPTY} Sale rows leave cost_basis empty.`;
+const HELD_AT =
+  'held_at: where the units were when sold, paid as a network fee, or at the year end, empty for no venue and on rows with no acquired date. moved_on: the date a Coins moved entry took them there, empty if none did.';
 
 /** The file's rows as cells by column; the test data puts no comma, quote or line break in a cell. */
 function rowsOf(content: string): Record<string, string>[] {
@@ -238,7 +240,7 @@ describe('TaxYearExport', () => {
         'eligible_from: the first day past the Portugal holding rule (365 days). past_holding_rule: whether that day had come by the sale, or by 2025-12-31 for units still held. Computed from your dates, not tax advice.',
         ...(profile?.holdingRuleConditions ?? []),
         'Sales are matched per venue as named in the Log. Entries with no venue are one group.',
-        'held_at: where the units were when sold, paid as a network fee, or at the year end, empty for no venue. moved_on: the date a Coins moved entry took them there, empty if none did.',
+        HELD_AT,
         'Dates are YYYY-MM-DD. Amounts and units use a decimal point.',
       ),
     );
@@ -284,6 +286,27 @@ describe('TaxYearExport', () => {
     expect(empty.some((row) => row.acquired === '')).toBe(true);
     for (const row of empty) expect(row.kind === 'held' || row.acquired === '').toBe(true);
     for (const row of rows.filter((each) => each.acquired === '')) expect(row.cost_basis).toBe('');
+  });
+
+  it('a sale at a named venue with units no logged purchase covers leaves held_at empty on that row, as its line says', async () => {
+    const entries = (all: readonly Entry[]): Entry[] => [
+      ...all,
+      {
+        ...(all[0] as Entry),
+        id: 'b0000000-0000-4000-8000-000000000004' as Entry['id'],
+        kind: 'sell',
+        venue: 'Kraken',
+        date: '2026-10-01' as CalendarDate,
+        units: '1000' as Entry['units'],
+        amount: '50000' as Entry['amount'],
+      },
+    ];
+    const platform = await mount(withPlan({}, entries));
+    const { content } = await exportYear(platform, '2026 (still running)');
+    expect(headerOf(content)).toContain(textCell(HELD_AT));
+    const unmatched = rowsOf(content).filter((row) => row.acquired === '');
+    expect(unmatched).toHaveLength(1);
+    expect(unmatched.map((row) => [row.sale_venue, row.held_at, row.moved_on])).toEqual([['Kraken', '', '']]);
   });
 
   it("the raw listing's empty-cost line holds for its held entry with no cost and its sale", async () => {
@@ -421,9 +444,7 @@ describe('TaxYearExport', () => {
         }),
       ];
     };
-    // held_at and moved_on are on every row of the per-lot file, so their line is there with or without a move.
-    const HELD_AT =
-      'held_at: where the units were when sold, paid as a network fee, or at the year end, empty for no venue. moved_on: the date a Coins moved entry took them there, empty if none did.';
+    // held_at and moved_on are columns of every per-lot file, so their line is there with or without a move.
     const still = await mount(withPlan({}));
     expect(headerOf((await exportYear(still, '2026 (still running)')).content)).toContain(textCell(HELD_AT));
     cleanup();
