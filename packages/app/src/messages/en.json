@@ -277,7 +277,8 @@
       "held": {
         "one": "Recorded: {units} added{cost, select, known { for {amount}} other {}} on {date}.",
         "several": "Recorded: {units} added on {date}."
-      }
+      },
+      "moved": "{at, select, venue {Recorded: {units} moved from {from} to {to} on {date}.} other {Recorded: {units} with no venue moved to {to} on {date}.}}"
     }
   },
   "onboarding": {

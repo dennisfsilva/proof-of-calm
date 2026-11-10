@@ -8,14 +8,11 @@ import {
   holdingContext,
   LOG_PAGE,
   type LogRow as LogRowData,
-  MAX_UNIT_DECIMALS,
   type Money,
   type MonthHeader,
   monthKey,
   primaryAction,
-  recordedAmounts,
   type SlotsAtDelete,
-  sum,
   type TransactionRow,
   transactionKey,
   transactions,
@@ -28,7 +25,7 @@ import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'use-intl';
 import { useFormatters, useRules, useServices, useSnapshot, useToday } from '../../../lib/services';
 import { logActions } from '../actions';
-import { proseDigits } from '../lib/form';
+import { recordedTitle } from '../lib/recorded';
 import { deleteRefusalTitle, undoRefusalTitle } from '../lib/row-refusal';
 import { EntrySheet, type EntrySheetProps } from './entry-sheet';
 import { LOG_COLUMNS, LogRow } from './log-row';
@@ -204,30 +201,7 @@ export function LogScreen() {
     const editing = (target?.editing.length ?? 0) > 0;
     if (editing) edited.current.to = first === undefined ? '' : transactionKey(first);
     if (first === undefined || plan === null) return;
-    if (editing) {
-      toasts.add({ title: t('form.saved'), timeout: UNDO_WINDOW_MS });
-      return;
-    }
-    const date = f.date(first.date);
-    const one = saved.every((entry) => entry.coin === first.coin);
-    if (first.kind === 'held') {
-      // Coins added name their units, and a cost only when one was typed: none is unknown, not 0 (CONTENT-STYLE §3).
-      const held = saved.map((entry) => {
-        const decimals = plan.coins.find((coin) => coin.id === entry.coin)?.decimals ?? MAX_UNIT_DECIMALS;
-        return f.units(entry.units, entry.coin, proseDigits(decimals, entry.units));
-      });
-      const cost = first.amount === null ? 'unknown' : 'known';
-      const amount = first.amount === null ? '' : f.money(first.amount, plan.payCurrency);
-      const title = one
-        ? t('recorded.held.one', { units: held.join(''), cost, amount, date })
-        : t('recorded.held.several', { units: f.list(held), date });
-      toasts.add({ title, timeout: UNDO_WINDOW_MS });
-      return;
-    }
-    const amount = f.money(sum(recordedAmounts(saved)), plan.payCurrency);
-    // A sale says it sold (CONTENT-STYLE §1 rule 2), as the month header does.
-    const said = first.kind === 'sell' ? 'recorded.sold' : 'recorded';
-    const title = one ? t(`${said}.one`, { amount, coin: first.coin, date }) : t(`${said}.several`, { amount, date });
+    const title = editing ? t('form.saved') : recordedTitle(saved, plan, f, t);
     toasts.add({ title, timeout: UNDO_WINDOW_MS });
   };
 
