@@ -212,10 +212,13 @@ export function moveErrorField(error: ActionError): MoveField | null {
 /**
  * A move's refusal in words: one over the holdings names the units sent and held on the move's `date`; a later sale it
  * leaves short is its fee's doing, not a sale's, and so is a later move whose own fee it leaves short, named by that
- * move's date; the rest as the entry form words them.
+ * move's date; a fee refusal that names the move being saved (`written`) is worded as its own fee, naming no other
+ * move; the rest as the entry form words them.
  */
 export function moveMessage(error: ActionError, plan: Plan, format: Formatters, date: CalendarDate): ErrorMessage {
   if (error.code === 'sell-exceeds-held') return { key: 'log.move.saleShort', values: { coin: error.coin } };
+  if (error.code === 'fee-exceeds-held' && error.written)
+    return { key: 'log.move.ownFeeShort', values: { coin: error.coin } };
   if (error.code === 'fee-exceeds-held')
     return { key: 'log.move.feeShort', values: { coin: error.coin, date: format.date(error.date) } };
   if (error.code !== 'move-exceeds-held') return actionMessage(error, plan, format, date);

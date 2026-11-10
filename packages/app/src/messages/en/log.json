@@ -116,6 +116,7 @@
     "duplicate": "The Log already has this move on {date}. Save it only if you moved these coins twice.",
     "saleShort": "This move's network fee leaves a later {coin} sale without the units it sells. Check the units received against the deposit record, or change the sale first.",
     "feeShort": "This move's network fee leaves your {coin} move on {date} without the units its network fee takes. Check the units received against the deposit record.",
+    "ownFeeShort": "This move's network fee takes more {coin} than your other entries leave for it. Check the units received against the deposit record.",
     "note": "Note (optional)",
     "save": "Save",
     "deleted": "This move was deleted in another browser tab, so the change was not saved.",

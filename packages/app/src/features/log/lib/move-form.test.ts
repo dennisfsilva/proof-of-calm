@@ -129,6 +129,22 @@ describe('moveMessage', () => {
     });
   });
 
+  it("moveMessage words fee-exceeds-held for the move it saves as that move's own fee, never another move's", () => {
+    // A sale imported short leaves no unit in total for the fee of the move being saved (docs/DOMAIN.md §3.7).
+    const error = {
+      code: 'fee-exceeds-held',
+      coin: BTC.id,
+      held: units('0'),
+      fee: units('0.0001'),
+      date: date('2026-03-01'),
+      written: true,
+    } as const;
+    expect(moveMessage(error, plan, format, date('2026-03-01'))).toEqual({
+      key: 'log.move.ownFeeShort',
+      values: { coin: 'BTC' },
+    });
+  });
+
   it('words a move over the holdings with the units sent and held on its date, as prose', () => {
     const error = { code: 'move-exceeds-held', coin: BTC.id, held: units('0.03'), sent: units('0.05') } as const;
     expect(moveMessage(error, plan, format, date('2026-03-01'))).toEqual({
