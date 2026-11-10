@@ -328,6 +328,16 @@ describe('LogScreen', () => {
     expect(stored().filter((entry) => entry.deletedAt !== null)).toHaveLength(2);
   });
 
+  it('deleting a row of two entries says 2 entries deleted', async () => {
+    const snapshot = fixtureSnapshot();
+    // The oldest row holds the starting amount of both coins.
+    await mount({ ...snapshot, entries: snapshot.entries.slice(0, 2) });
+    fireEvent.click(screen.getByRole('button', { expanded: false }));
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Delete entry' })));
+    expect(screen.getByRole('status').textContent).toContain('2 entries deleted.');
+    expect(screen.getByRole('status').textContent).not.toContain('Entry deleted.');
+  });
+
   it('keeps an entry deleted and says why when a backup replaced the plan before the Undo', async () => {
     const services = await mount(withMoreBuys());
     const [newest] = screen.getAllByRole('button', { expanded: false }) as [HTMLElement];
@@ -622,6 +632,61 @@ describe('LogScreen', () => {
     const added = services.domain.store.getState().snapshot.entries.filter((entry) => entry.kind === 'held');
     expect(added.map((entry) => [entry.coin, entry.units, entry.amount])).toEqual([['BTC', '0.5', null]]);
     await vi.waitFor(() => expect(document.activeElement).toBe(button));
+  });
+
+  it('the button shows while a coin is held', async () => {
+    await mount(fixtureSnapshot());
+    expect(screen.getByRole('button', { name: 'Log coins you moved' })).toBeTruthy();
+    cleanup();
+    await mount({ ...fixtureSnapshot(), entries: [] });
+    expect(screen.queryByRole('button', { name: 'Log coins you moved' })).toBeNull();
+  });
+
+  /** The fixture with its BTC entries bought at Kraken, and `extra` entries after them. */
+  function atKraken(...extra: Entry[]): Snapshot {
+    const snapshot = fixtureSnapshot();
+    const entries = snapshot.entries.map((entry) => (entry.coin === 'BTC' ? { ...entry, venue: 'Kraken' } : entry));
+    return { ...snapshot, entries: [...entries, ...extra] };
+  }
+
+  it('Edit of a move opens the move form', async () => {
+    const [first] = fixtureSnapshot().entries as [Entry];
+    const move: Entry = {
+      ...first,
+      id: '00000000-0000-4000-8000-000000000300' as Entry['id'],
+      kind: 'move',
+      slot: null,
+      amount: null,
+      date: '2026-10-14' as CalendarDate,
+      units: '0.01' as Entry['units'],
+      venue: 'Kraken',
+      to: 'Ledger',
+      received: '0.0098' as Entry['units'],
+    };
+    await mount(atKraken(move));
+    const [newest] = screen.getAllByRole('button', { expanded: false }) as [HTMLElement];
+    fireEvent.click(newest);
+    fireEvent.click(screen.getByRole('button', { name: 'Edit entry' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Edit the move' });
+    expect(within(dialog).getByLabelText<HTMLInputElement>('Venue the coins went to').value).toBe('Ledger');
+    expect(within(dialog).getByText(/^Network fee 0,0002\sBTC$/)).toBeTruthy();
+  });
+
+  it("a saved move's toast names units, route and date", async () => {
+    const services = await mount(atKraken());
+    fireEvent.click(screen.getByRole('button', { name: 'Log coins you moved' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Log coins you moved' });
+    fireEvent.click(within(dialog).getByRole('radio', { name: 'BTC' }));
+    fireEvent.change(within(dialog).getByLabelText('Date'), { target: { value: '2026-10-14' } });
+    fireEvent.change(within(dialog).getByLabelText('Venue the coins went to'), { target: { value: 'Ledger' } });
+    fireEvent.change(within(dialog).getByLabelText('Units sent'), { target: { value: '0,01' } });
+    await act(async () => fireEvent.click(within(dialog).getByRole('button', { name: 'Save' })));
+    await vi.waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(screen.getByRole('status').textContent).toMatch(
+      /^Recorded: 0,01\sBTC moved from Kraken to Ledger on 14\sOct\s2026\.$/,
+    );
+    const moves = services.domain.store.getState().snapshot.entries.filter((entry) => entry.kind === 'move');
+    expect(moves.map((entry) => [entry.venue, entry.to, entry.units])).toEqual([['Kraken', 'Ledger', '0.01']]);
   });
 
   it('names the cost of coins added when one was typed, 0 included', async () => {

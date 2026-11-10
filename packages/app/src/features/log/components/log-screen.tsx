@@ -2,12 +2,16 @@
 
 import {
   actionsNow,
+  coinsWithEntries,
   compare,
   compareDates,
   type Entry,
+  heldUnits,
   holdingContext,
+  isPositive,
   LOG_PAGE,
   type LogRow as LogRowData,
+  liveEntries,
   type Money,
   type MonthHeader,
   monthKey,
@@ -25,20 +29,24 @@ import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'use-intl';
 import { useFormatters, useRules, useServices, useSnapshot, useToday } from '../../../lib/services';
 import { logActions } from '../actions';
+import { figure } from '../lib/figure';
 import { recordedTitle } from '../lib/recorded';
 import { deleteRefusalTitle, undoRefusalTitle } from '../lib/row-refusal';
 import { EntrySheet, type EntrySheetProps } from './entry-sheet';
 import { LOG_COLUMNS, LogRow } from './log-row';
+import { MoveSheet } from './move-sheet';
 
 // The Log (docs/DOMAIN.md §3.9): the plan's transactions and skipped months, newest first under month
 // headers with the month's bought and sold totals; the last 12 transactions with the skipped months among
 // them (a skip does not count), then "Show all N entries" with N the transactions; that choice is the
 // device preference `logShowAll` (§2.3), so the Log opens the same way next time. A deletion is a
-// soft delete written through the domain store, then the toast "Entry deleted." whose Undo restores the
-// entries within UNDO_WINDOW_MS, unless a monthly buy's month was skipped or recorded since: then they stay
-// deleted and a toast says why (§6, docs/CONTENT-STYLE.md §3). "Record a purchase" opens the entry form
-// on the action Today would offer (the starting amount or a monthly buy still open, else an extra buy), with
-// the choice of kinds (docs/CONTENT-STYLE.md §3, Record on the Log); a row's Edit, a purchase's or a sale's, opens it on the row's entries; a save closes the sheet with "Recorded: …" or
+// soft delete written through the domain store, then the toast "Entry deleted." ("N entries deleted." for a row
+// of several) whose Undo restores the entries within UNDO_WINDOW_MS, unless a monthly buy's month was skipped or
+// recorded since: then they stay deleted and a toast says why (§6, docs/CONTENT-STYLE.md §3). "Record a purchase"
+// opens the entry form on the action Today would offer (the starting amount or a monthly buy still open, else an
+// extra buy), with the choice of kinds (docs/CONTENT-STYLE.md §3, Record on the Log); "Log coins you moved", shown
+// while a coin is held, opens the move form. A row's Edit opens the entry form on a purchase's or a sale's entries,
+// and the move form on a move; a save closes the sheet with "Recorded: …" or
 // "Entry saved." (docs/CONTENT-STYLE.md §3), and the sheet gives the focus back to the button that opened it;
 // an edit that gave the row a new date (a new key) took that button away, so focus moves to the row's
 // toggle under its new key, or to the heading when that row is not shown (docs/ENGINEERING.md §5).
@@ -80,6 +88,9 @@ export function LogScreen() {
   // The form's props outlive the sheet's close, so the closing sheet keeps its content.
   const [target, setTarget] = useState<Target | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  // The move form's, kept the same way: the move being edited, or null for a new move.
+  const [move, setMove] = useState<{ readonly editing: Entry | null } | null>(null);
+  const [moveOpen, setMoveOpen] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
   const screenRef = useRef<HTMLDivElement>(null);
   // Set while Show all is being written: once the rows are there, focus goes to the first one revealed.
@@ -149,7 +160,7 @@ export function LogScreen() {
     // The row and its button are gone: focus moves to the heading rather than to the page's start.
     heading.current?.focus();
     toasts.add({
-      title: t('row.deleted'),
+      title: t('row.deleted', { count: ids.length, figure: figure(f, ids.length) }),
       timeout: UNDO_WINDOW_MS,
       actionProps: {
         children: t('row.undo'),
@@ -187,26 +198,38 @@ export function LogScreen() {
         ...(action.slot !== null && { slot: action.slot }),
       });
   };
+  const openMove = (editing: Entry | null) => {
+    setMove({ editing });
+    setMoveOpen(true);
+  };
   const edit = (row: TransactionRow) => {
     const { kind } = row;
-    // A move's row offers no Edit (LogRow): the form records purchases and sales.
-    if (kind === 'move') return;
     edited.current = { from: row.key, to: null };
-    openForm({ kind, editing: row.items });
+    // A move's row holds that one move (its key carries the move's id).
+    if (kind === 'move') openMove(row.items[0] ?? null);
+    else openForm({ kind, editing: row.items });
   };
   // Nothing saved (an entry being edited was deleted meanwhile) closes the sheet; the form has said why.
-  const done = (saved: readonly Entry[]) => {
-    setSheetOpen(false);
-    const [first] = saved;
-    const editing = (target?.editing.length ?? 0) > 0;
+  const saved = (entries: readonly Entry[], editing: boolean) => {
+    const [first] = entries;
     if (editing) edited.current.to = first === undefined ? '' : transactionKey(first);
     if (first === undefined || plan === null) return;
-    const title = editing ? t('form.saved') : recordedTitle(saved, plan, f, t);
+    const title = editing ? t('form.saved') : recordedTitle(entries, plan, f, t);
     toasts.add({ title, timeout: UNDO_WINDOW_MS });
   };
+  const done = (entries: readonly Entry[]) => {
+    setSheetOpen(false);
+    saved(entries, (target?.editing.length ?? 0) > 0);
+  };
+  const moved = (entries: readonly Entry[]) => {
+    setMoveOpen(false);
+    saved(entries, (move?.editing ?? null) !== null);
+  };
+  const live = liveEntries(entries);
+  const holds = plan !== null && coinsWithEntries(plan, live).some((coin) => isPositive(heldUnits(live, coin)));
 
   // "No entries yet" while no entry is live; the skipped months, the person's own record, stay listed under it.
-  const empty = plan === null || !entries.some((entry) => entry.deletedAt === null);
+  const empty = plan === null || live.length === 0;
   const past = plan !== null && compareDates(plan.firstBuy, today) < 0;
   const visible = log === null ? [] : all ? log.rows : lastTransactions(log.rows, LOG_PAGE);
   const finalFocus = () => {
@@ -300,6 +323,11 @@ export function LogScreen() {
           {t('recordHeld')}
         </Button>
       )}
+      {holds && (
+        <Button variant="secondary" className="self-start" onClick={() => openMove(null)}>
+          {t('recordMoved')}
+        </Button>
+      )}
       {empty && (
         <Empty>
           <EmptyDescription>
@@ -319,6 +347,9 @@ export function LogScreen() {
           finalFocus={finalFocus}
           onUndone={() => heading.current?.focus()}
         />
+      )}
+      {move !== null && (
+        <MoveSheet {...move} open={moveOpen} onOpenChange={setMoveOpen} onDone={moved} finalFocus={finalFocus} />
       )}
     </div>
   );
