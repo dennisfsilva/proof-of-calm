@@ -163,7 +163,8 @@ function PlanEntryForm({ plan, numberInput: mounted, kind, editing, slot, onDone
       // A venue or note too long (a restored draft; the fields stop at their limits) is named under its field.
       const field = detailFieldOf(result.error);
       if (field !== null) setDetailsOpen(true);
-      // A purchase edited or removed from under a later sale names that sale's coin (DOMAIN §3.7).
+      // A purchase edited or removed from under a later sale names that sale's coin (DOMAIN §3.7); one a later move's
+      // fee needs is `fee-exceeds-held`, named by `actionMessage` with the move's date (ADR-0055).
       const failure =
         result.error.code === 'sell-exceeds-held' && draft.value.kind !== 'sell'
           ? { key: 'log.form.coversSale', values: { coin: result.error.coin } }

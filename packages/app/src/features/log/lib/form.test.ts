@@ -914,6 +914,28 @@ describe('actionMessage', () => {
     });
   });
 
+  it("actionMessage words fee-exceeds-held with the move's date and the units held", () => {
+    const error = {
+      code: 'fee-exceeds-held',
+      coin: BTC.id,
+      held: units('0.05'),
+      fee: units('0.0999'),
+      date: date('2026-03-01'),
+    } as const;
+    // The move's date, not the date of the edit that left it short (docs/DOMAIN.md §6, ADR-0055).
+    expect(actionMessage(error, plan, format, date('2026-10-16'))).toEqual({
+      key: 'errors.action.fee-exceeds-held',
+      values: {
+        product: 'Proof of Calm',
+        coin: 'BTC',
+        held: '0.0500\u00a0BTC',
+        fee: '0.0999\u00a0BTC',
+        date: '1 Mar 2026',
+      },
+    });
+    expect(actionMessage({ ...error, held: units('0') }, plan, format, date('2026-10-16')).values.held).toBe('0\u00a0BTC');
+  });
+
   it('names the month of a slot refusal in words', () => {
     expect(actionMessage({ code: 'slot-done', slot: month('2026-10') }, plan, format, date('2026-10-20'))).toEqual({
       key: 'errors.action.slot-done',

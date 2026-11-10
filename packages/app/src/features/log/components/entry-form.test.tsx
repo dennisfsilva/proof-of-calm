@@ -9,7 +9,7 @@ import {
   type Plan,
   VENUE_MAX_LENGTH,
 } from '@proofofcalm/core';
-import { anEntry, aPlan, BTC, date, ETH, instant, money, month, split, units } from '@proofofcalm/core/testing';
+import { aMove, anEntry, aPlan, BTC, date, ETH, instant, money, month, split, units } from '@proofofcalm/core/testing';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { EMPTY_SNAPSHOT, memoryPlanStore, sessionDrafts } from '../../../lib/adapters';
@@ -1139,5 +1139,23 @@ describe('EntryForm', () => {
       await renderForm({ kind: 'sell' });
       expect(screen.queryByLabelText('Venue (optional)')).toBeNull();
     });
+  });
+
+  // ADR-0055: a move's network fee stays covered by a purchase dated on or before the move.
+  it("a purchase date edit refused for a move's fee names the move, not a sale", async () => {
+    const move = aMove({
+      date: date('2026-01-10'),
+      venue: 'Wallet A',
+      units: units('0.003'),
+      received: units('0.0028'),
+    });
+    const { services, onDone } = await renderForm({ kind: 'extra', editing: [older] }, [older, move]);
+    type('Date', '2026-10-18');
+    await save();
+    expect(screen.getByRole('alert').textContent?.replace(/ /g, ' ')).toBe(
+      'This change leaves your BTC move on 10 Jan 2026 without the units its network fee takes (0 BTC held before it). Check that move and the entries before it in the Log.',
+    );
+    expect(onDone).not.toHaveBeenCalled();
+    expect(stored(services).find((entry) => entry.id === older.id)?.date).toBe('2025-09-01');
   });
 });

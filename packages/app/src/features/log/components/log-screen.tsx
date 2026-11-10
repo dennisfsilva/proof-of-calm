@@ -140,7 +140,8 @@ export function LogScreen() {
     try {
       const deleted = await actions.deleteTransaction(ids);
       if (!deleted.ok) {
-        toasts.add({ title: t('row.notDeleted', { coin: deleted.error.coin }), timeout: UNDO_WINDOW_MS });
+        const key = deleted.error.code === 'fee-exceeds-held' ? 'row.notDeletedFee' : 'row.notDeleted';
+        toasts.add({ title: t(key, { coin: deleted.error.coin }), timeout: UNDO_WINDOW_MS });
         return;
       }
       before = deleted.value;
@@ -167,19 +168,21 @@ export function LogScreen() {
                   ? t('row.notRestoredReplaced')
                   : error.code === 'sell-exceeds-held'
                     ? t('row.notRestoredSold', { coin: error.coin })
-                    : error.code === 'too-many-entries'
-                      ? t('row.notRestoredFull', { max: figure(f, error.max) })
-                      : error.code === 'currency-changed'
-                        ? t('row.notRestoredCurrency', {
-                            from: error.from,
-                            to: error.to,
-                            count: ids.length,
-                            figure: figure(f, ids.length),
-                          })
-                        : t('row.notRestored', {
-                            reason: error.code === 'slot-skipped' ? 'skipped' : 'recorded',
-                            month: f.month(error.slot),
-                          });
+                    : error.code === 'fee-exceeds-held'
+                      ? t('row.notRestoredFee', { coin: error.coin })
+                      : error.code === 'too-many-entries'
+                        ? t('row.notRestoredFull', { max: figure(f, error.max) })
+                        : error.code === 'currency-changed'
+                          ? t('row.notRestoredCurrency', {
+                              from: error.from,
+                              to: error.to,
+                              count: ids.length,
+                              figure: figure(f, ids.length),
+                            })
+                          : t('row.notRestored', {
+                              reason: error.code === 'slot-skipped' ? 'skipped' : 'recorded',
+                              month: f.month(error.slot),
+                            });
               toasts.add({ title, timeout: UNDO_WINDOW_MS });
             },
             () => {
