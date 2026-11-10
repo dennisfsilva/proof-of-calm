@@ -83,7 +83,7 @@ function PlanMoveForm({ plan, numberInput: mounted, editing, onDone }: PlanMoveF
   const format = useFormatters();
   const clock = useClock();
   const rules = useRules();
-  const perVenue = holdingContext(plan, rules).lotScope === 'per-venue';
+  const holding = holdingContext(plan, rules);
   // The number locale is read once, as the form opens (ADR-0034 Readings).
   const [numberInput] = useState(() => mounted);
   const ctx = { plan, entries, editing, numberInput };
@@ -182,7 +182,7 @@ function PlanMoveForm({ plan, numberInput: mounted, editing, onDone }: PlanMoveF
   const sources = moveSources(state, ctx);
   const drafted = moveDraft(state, numberInput);
   const fee = typedFee(state, numberInput);
-  const lines = drafted.ok ? moveLines(drafted.value, ctx, perVenue) : null;
+  const lines = drafted.ok ? moveLines(drafted.value, ctx, holding, { ids, now: clock.now() }) : null;
   const coins = movableCoins(ctx);
   const from = sources.findIndex((place) => place.venue === state.from);
   const units = (field: 'sent' | 'received', onValue: (typed: string) => void, after?: ReactNode) => (
@@ -265,12 +265,24 @@ function PlanMoveForm({ plan, numberInput: mounted, editing, onDone }: PlanMoveF
             held: prose(lines.short.held, lines.short.short),
             short: prose(lines.short.short, lines.short.held),
             date: format.date(drafted.value.date),
+            found: lines.outside === null ? 'no' : 'yes',
           })}
+          {lines.outside !== null &&
+            ` ${t('log.move.sourceFound', { to: drafted.value.to, outside: prose(lines.outside, drafted.value.sent) })}`}
         </p>
       )}
       {lines?.same === true && drafted.ok && (
         <p role="status" className="text-14">
           {t('log.move.duplicate', { date: format.date(drafted.value.date) })}
+        </p>
+      )}
+      {lines !== null && lines.later !== null && (
+        <p role="status" className="text-14">
+          {t('log.move.laterShort', {
+            to: lines.later.to,
+            date: format.date(lines.later.date),
+            short: prose(lines.later.short),
+          })}
         </p>
       )}
       <Field invalid={problem('note') !== null}>

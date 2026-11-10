@@ -378,7 +378,10 @@ describe('moveLines and the moves it leaves short (docs/DOMAIN.md §3.7)', () =>
     const march = (received: string) =>
       aMove({ date: date('2026-03-10'), units: units('0.03'), received: units(received) });
     const paid = march('0.0298');
-    expect(moveLines(draft, context([...lots, paid]), perVenue, at).later).toMatchObject({ id: paid.id, short: '0.03' });
+    expect(moveLines(draft, context([...lots, paid]), perVenue, at).later).toMatchObject({
+      id: paid.id,
+      short: '0.03',
+    });
     // Its fee then taken at Ledger: named under global lots too.
     expect(moveLines(draft, context([...lots, paid]), global, at).later).toMatchObject({ feeAtDestination: '0.0002' });
     // With no fee nothing lost its cover: per venue only.
