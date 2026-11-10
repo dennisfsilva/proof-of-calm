@@ -416,7 +416,7 @@ describe('LogScreen', () => {
     fireEvent.click(purchase);
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Delete entry' })));
     expect(screen.getByRole('status').textContent).toContain(
-      'This purchase covers the network fee of a later BTC move, so it stays. Delete that move first.',
+      'This purchase covers the network fee of your BTC move on 14 Oct 2026, so it stays. Check that move in the Log.',
     );
     expect(services.domain.store.getState().snapshot.entries.every((entry) => entry.deletedAt === null)).toBe(true);
   });
@@ -440,7 +440,7 @@ describe('LogScreen', () => {
     expect(stored?.deletedAt).not.toBeNull();
   });
 
-  // ADR-0055: the Undo of one entry refused for a later move's network fee says this entry, never "these entries".
+  // ADR-0055: the Undo of one entry refused for a move's network fee says what restoring would do to that move.
   it("keeps a sale deleted and says why when a move's network fee took its units before the Undo", async () => {
     const { snapshot, sale } = withSaleOfAll();
     const services = await mount(snapshot);
@@ -463,7 +463,7 @@ describe('LogScreen', () => {
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Undo' })));
     await vi.waitFor(() =>
       expect(screen.getByRole('status').textContent).toContain(
-        'Your BTC entries changed after you deleted this entry, so it stays deleted.',
+        'Restoring this entry would leave a BTC move without the units its network fee takes, so it stays deleted.',
       ),
     );
     const stored = services.domain.store.getState().snapshot.entries.find((entry) => entry.id === sale.id);
