@@ -30,6 +30,7 @@ import { liveEntries } from '../plan/statuses';
 import { entryRole, unitsIn, unitsOut } from '../portfolio/effect';
 import { matchLots, runningHeld } from '../portfolio/lots';
 import { coinsWithEntries } from '../portfolio/portfolio';
+import { firstMadeWorse, shortfalls } from '../portfolio/shortfalls';
 import { defined, err, ok, type Result } from '../result';
 import { type Entry, MAX_UNIT_DECIMALS, recordedAmounts, savedSource, type TransactionKind } from '../schema/entry';
 import type { CoinId, EntityId } from '../schema/ids';
@@ -207,10 +208,10 @@ function worseCovered(before: readonly Entry[], after: readonly Entry[], coin: C
 /**
  * The invariant of every write from this device (§6): stored over `entries`, `written` leaves no coin with more units
  * sold than bought, or more units sold that no earlier purchase covers (`matchLots`, one global queue), than before
- * (`worseCovered`), so data imported short stays as written and nothing makes it worse. The refusal names the first
- * sale left short, the units held before it and its units; null when every sale stays covered. A move's fee beyond the
- * units held is refused as `fee-exceeds-held`, with the move's date; its units received are a venue matter and never
- * refuse (ADR-0055).
+ * (`worseCovered`), so data imported short stays as written and nothing makes it worse. The refusal names the step the
+ * write left worse covered (`firstMadeWorse`: never a step that was as short before), the units held
+ * before it and its units; null when every sale stays covered. A move's fee beyond the units held is refused as
+ * `fee-exceeds-held`, with the move's date; its units received are a venue matter and never refuse (ADR-0055).
  */
 export function uncoveredSale(entries: readonly Entry[], written: readonly Entry[]): CoverRefusal | null {
   const ids = new Set(written.map((entry) => entry.id));
@@ -218,15 +219,10 @@ export function uncoveredSale(entries: readonly Entry[], written: readonly Entry
   const touched = [...written, ...entries.filter((entry) => ids.has(entry.id))];
   for (const coin of new Set(touched.map((entry) => entry.coin))) {
     if (!worseCovered(entries, after, coin)) continue;
-    let held = '0' as Units;
-    for (const step of runningHeld(after, coin)) {
-      const sold = unitsOut(step.entry);
-      if (compare(sold, held) > 0)
-        return entryRole(step.entry.kind) === 'move'
-          ? { code: 'fee-exceeds-held', coin, held, fee: sold, date: step.entry.date }
-          : { code: 'sell-exceeds-held', coin, held, sold };
-      held = step.held;
-    }
+    const { entry, held, out } = firstMadeWorse(shortfalls(entries, coin), shortfalls(after, coin));
+    return entryRole(entry.kind) === 'move'
+      ? { code: 'fee-exceeds-held', coin, held, fee: out, date: entry.date }
+      : { code: 'sell-exceeds-held', coin, held, sold: out };
   }
   return null;
 }

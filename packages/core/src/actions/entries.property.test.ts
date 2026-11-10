@@ -1,10 +1,11 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { anEntry, aPlan, BTC, date, ETH, id, instant, money, month, units } from '../../test/builders';
+import { aMove, anEntry, aPlan, BTC, date, ETH, id, instant, money, month, units } from '../../test/builders';
 import type { CalendarDate, MonthKey } from '../dates/calendar';
 import { compare, max, minus, plus, sum, type Units } from '../money/decimal';
 import { liveEntries } from '../plan/statuses';
-import { matchLots } from '../portfolio/lots';
+import { unitsOut } from '../portfolio/effect';
+import { matchLots, runningHeld } from '../portfolio/lots';
 import type { Entry } from '../schema/entry';
 import type { EntityId } from '../schema/ids';
 import type { Plan } from '../schema/plan';
@@ -572,6 +573,78 @@ describe('sales and moves stay covered with venues (docs/DOMAIN.md §3.7, §6)',
         }
       }),
       { numRuns: 40, examples: VENUE_EDGES.map((steps): [VenueStep[], Venue] => [steps, 'Ledger']) },
+    );
+  });
+});
+
+// docs/DOMAIN.md §6 "Delete entry": a refusal's sentence names the sale or the move's fee the write left short, so over
+// data imported short it names a step the write made worse, never one that was as short before.
+
+/** An imported purchase, sale or move (a fee of `quantity`), written as the file had it. */
+const importedStep = fc.record({
+  kind: fc.constantFrom('extra' as const, 'sell' as const, 'move' as const),
+  day: fc.constantFrom(date('2026-01-01'), ...DAYS),
+  quantity,
+});
+type ImportedStep = typeof importedStep extends fc.Arbitrary<infer T> ? T : never;
+
+const SENT = units('0.01');
+const importedEntry = ({ kind, day: on, quantity: units }: ImportedStep): Entry =>
+  kind === 'move'
+    ? aMove({ coin: BTC.id, date: on, units: SENT, received: minus(SENT, units), source: 'import-prototype' })
+    : anEntry({ kind, slot: null, coin: BTC.id, date: on, units, source: 'import-prototype' });
+
+/** Each BTC step's units beyond the units held just before it, by entry id (`runningHeld`, one global queue). */
+function shortByDate(entries: readonly Entry[]): Map<EntityId, Units> {
+  const short = new Map<EntityId, Units>();
+  let held = '0' as Units;
+  for (const step of runningHeld(entries, BTC.id)) {
+    short.set(step.entry.id, max(minus(unitsOut(step.entry), held), '0' as Units));
+    held = step.held;
+  }
+  return short;
+}
+
+describe('a refusal names the step the write made worse (docs/DOMAIN.md §3.7, §6; ADR-0055)', () => {
+  it('a delete refused over data imported short names a sale or a move it left shorter, which takes more than it finds', () => {
+    const refuters: [ImportedStep[], number][] = [
+      [
+        [
+          { kind: 'extra', day: date('2026-01-01'), quantity: units('0.001') },
+          { kind: 'move', day: DAYS[0] ?? date('2026-01-05'), quantity: units('0.002') },
+          { kind: 'extra', day: DAYS[1] ?? date('2026-02-05'), quantity: units('0.003') },
+          { kind: 'sell', day: DAYS[2] ?? date('2026-03-05'), quantity: units('0.002') },
+        ],
+        2,
+      ],
+    ];
+    fc.assert(
+      fc.property(fc.array(importedStep, { minLength: 1, maxLength: 8 }), fc.nat(7), (rows, pick) => {
+        const entries = rows.map(importedEntry);
+        const target = entries[pick % entries.length] ?? entries[0];
+        if (target === undefined) return;
+        const deleted = deleteEntries(entries, [target.id], now);
+        const refused = uncoveredSale(entries, deleted);
+        if (refused === null) return;
+        const taken = refused.code === 'fee-exceeds-held' ? refused.fee : refused.sold;
+        expect(compare(refused.held, taken)).toBeLessThan(0);
+        const was = shortByDate(entries);
+        const after = merge(entries, deleted);
+        const is = shortByDate(after);
+        const none = '0' as Units;
+        const shorter = liveEntries(after).filter(
+          (entry) => compare(is.get(entry.id) ?? none, was.get(entry.id) ?? none) > 0,
+        );
+        // With no step shorter by date, the delete left a step uncovered in total (more sold than bought).
+        if (shorter.length === 0) return;
+        const named = shorter.filter((entry) =>
+          refused.code === 'fee-exceeds-held'
+            ? entry.kind === 'move' && entry.date === refused.date && compare(unitsOut(entry), refused.fee) === 0
+            : entry.kind === 'sell' && compare(entry.units, refused.sold) === 0,
+        );
+        expect(named.length).toBeGreaterThan(0);
+      }),
+      { numRuns: 150, examples: refuters },
     );
   });
 });

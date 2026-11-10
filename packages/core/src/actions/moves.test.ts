@@ -319,3 +319,30 @@ describe('a move before a stored move on its route (docs/DOMAIN.md §3.7, §6; A
     });
   });
 });
+
+describe('a move refused for a later step names the step it made worse (docs/DOMAIN.md §6; ADR-0055)', () => {
+  const imported = [buy('0.0001', { date: date('2026-01-01') }), sale('0.5', { date: date('2026-01-15') })];
+  const kraken = buy('0.10', { date: date('2026-01-20') });
+  const fee = draft({ date: date('2026-02-01'), sent: units('0.10'), received: units('0.0001') });
+
+  it("a new move whose fee leaves a later move's fee short names that move, never a sale imported short before it", () => {
+    const april = aMove({ coin: BTC.id, date: date('2026-04-01'), units: units('0.05'), received: units('0.0498') });
+    expect(failure(saveMove(fee, context([...imported, kraken, april])))).toEqual({
+      code: 'fee-exceeds-held',
+      coin: BTC.id,
+      held: '0.0001',
+      fee: '0.0002',
+      date: '2026-04-01',
+    });
+  });
+
+  it('a new move whose fee leaves a later sale short names that sale, never a sale imported short before it', () => {
+    const later = sale('0.05', { date: date('2026-04-01') });
+    expect(failure(saveMove(fee, context([...imported, kraken, later])))).toEqual({
+      code: 'sell-exceeds-held',
+      coin: BTC.id,
+      held: '0.0001',
+      sold: '0.05',
+    });
+  });
+});

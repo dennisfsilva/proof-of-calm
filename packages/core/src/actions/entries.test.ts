@@ -770,9 +770,10 @@ describe('every sale stays covered by purchases dated on or before it (docs/DOMA
       );
       if (!edited.ok) throw new Error(edited.error.code);
       stored = store(stored, edited.value);
+      // The restored sale is the step the undo leaves uncovered in total: 0.001 of the 0.002 bought is left for it.
       expect(restoreEntries(plan, stored, before.ids, before, later)).toEqual({
         ok: false,
-        error: short('0', '0.001'),
+        error: short('0.001', '0.002'),
       });
     });
   });
@@ -869,5 +870,88 @@ describe("a move's fee stays covered, its venues never refuse a write (docs/DOMA
     const stored = [...deleted, move('Kraken', 'Ledger', '0.0998', '0.10')];
     const later = instant('2026-03-02T10:00:05Z');
     expect(restoreEntries(plan, stored, before.ids, before, later)).toEqual({ ok: false, error: feeShort('0') });
+  });
+});
+
+describe('a refusal names the step the write made worse (docs/DOMAIN.md §3.7, §6; ADR-0055)', () => {
+  const at = (day: string, quantity: string, overrides: Partial<Entry> = {}) =>
+    anEntry({
+      kind: 'extra',
+      slot: null,
+      coin: BTC.id,
+      date: date(day),
+      units: units(quantity),
+      venue: 'Kraken',
+      ...overrides,
+    });
+  const sold = (day: string, quantity: string) => at(day, quantity, { kind: 'sell' });
+  /** A move Kraken→Ledger whose fee is `sent` less `received`. */
+  const moved = (day: string, sent: string, received: string) =>
+    aMove({
+      coin: BTC.id,
+      date: date(day),
+      units: units(sent),
+      received: units(received),
+      venue: 'Kraken',
+      to: 'Ledger',
+    });
+  const deleting = (entries: readonly Entry[], entry: Entry) =>
+    uncoveredSale(entries, deleteEntries(entries, [entry.id], now));
+  const saleShort = (held: string, quantity: string) => ({
+    code: 'sell-exceeds-held',
+    coin: BTC.id,
+    held,
+    sold: quantity,
+  });
+  const feeShort = (held: string, fee: string, day: string) => ({
+    code: 'fee-exceeds-held',
+    coin: BTC.id,
+    held,
+    fee,
+    date: day,
+  });
+
+  // The refuter's case: a move imported short before a purchase that covers a later sale.
+  const shortMove = [at('2026-01-01', '0.0001'), moved('2026-03-01', '0.01', '0.009')];
+  const purchase = at('2026-04-01', '0.5');
+  const sale = sold('2026-05-01', '0.4');
+
+  it('deleting a purchase after a move imported short names the sale it covers, never the move', () => {
+    const entries = [...shortMove, purchase, sale];
+    expect(uncoveredSale(entries, [])).toBeNull();
+    expect(deleting(entries, purchase)).toEqual(saleShort('0', '0.4'));
+  });
+
+  it('a purchase edit after a move imported short that leaves the sale short names the sale', () => {
+    const entries = [...shortMove, purchase, sale];
+    const edit = draft({ kind: 'extra', slot: null, date: purchase.date, fee: null, venue: 'Kraken' });
+    const rows = [{ coin: BTC.id, amount: money('3000'), units: units('0.1') }];
+    const result = saveTransaction({ ...edit, rows }, context({ entries, editing: [purchase], ids: [id()] }));
+    expect(result.ok ? null : result.error).toEqual(saleShort('0.1', '0.4'));
+  });
+
+  it("a delete that leaves only a move's fee short names the move, never a sale imported short before it", () => {
+    const entries = [
+      at('2026-01-01', '0.0001'),
+      sold('2026-02-01', '0.5'),
+      purchase,
+      moved('2026-05-01', '0.1', '0.0998'),
+    ];
+    expect(deleting(entries, purchase)).toEqual(feeShort('0', '0.0002', '2026-05-01'));
+  });
+
+  it("a delete that leaves a move's fee and a later sale short names the move, the first of them", () => {
+    const entries = [purchase, moved('2026-05-01', '0.1', '0.0998'), sold('2026-06-01', '0.05')];
+    expect(deleting(entries, purchase)).toEqual(feeShort('0', '0.0002', '2026-05-01'));
+  });
+
+  it('a delete that leaves a sale imported short before it uncovered in total names that sale', () => {
+    const early = sold('2026-01-01', '0.1');
+    expect(deleting([early, purchase], purchase)).toEqual(saleShort('0', '0.1'));
+  });
+
+  it("a delete that leaves a move's fee imported short before it uncovered in total names that move", () => {
+    const early = moved('2026-01-01', '0.1', '0.0998');
+    expect(deleting([early, purchase], purchase)).toEqual(feeShort('0', '0.0002', '2026-01-01'));
   });
 });
