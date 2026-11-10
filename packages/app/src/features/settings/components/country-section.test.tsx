@@ -450,6 +450,13 @@ describe('CountrySection', () => {
     for (const row of amounts) expect(summary?.contains(row)).toBe(true);
   });
 
+  it('a country change of a plan with no entries does not say that logged amounts stay as typed', async () => {
+    await mount({ ...fixtureSnapshot(), entries: [] });
+    await choose('Germany');
+    expect(screen.getByText('Country: Portugal to Germany')).toBeTruthy();
+    expect(screen.queryByText('Amounts you already logged stay as typed; nothing is converted.')).toBeNull();
+  });
+
   // A wrong "Keep" is fixed without changing country again: Currency & data offers the country's currency.
   it("offers the country's currency while the plan's differs, and reports the change on the result line", async () => {
     const services = await mount(withPlan({ country: 'GB' as Plan['country'] }));
