@@ -179,7 +179,7 @@ export function heldOn(entries: readonly Entry[], coin: CoinId, date: CalendarDa
 }
 
 /** `entries` as the store holds them once `written` is merged in: an entry written replaces the one with its id. */
-function storedOver(entries: readonly Entry[], written: readonly Entry[]): Entry[] {
+export function storedOver(entries: readonly Entry[], written: readonly Entry[]): Entry[] {
   const ids = new Set(written.map((entry) => entry.id));
   return [...entries.filter((entry) => !ids.has(entry.id)), ...written];
 }
@@ -248,7 +248,7 @@ function saleError(
 }
 
 /** `now`, or one millisecond after the entry's stored stamps when `now` is not later (ADR-0021: a later write wins). */
-function stampOver(now: Instant, entry: Entry): Instant {
+export function stampOver(now: Instant, entry: Entry): Instant {
   return stampAfter(now, entry.updatedAt, ...(entry.deletedAt === null ? [] : [entry.deletedAt]));
 }
 
