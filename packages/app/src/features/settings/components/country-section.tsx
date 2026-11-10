@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@proofofcalm/ui/components/select';
+import { reveal } from '@proofofcalm/ui/lib/reveal';
 import { type FormEvent, useEffect, useId, useRef, useState } from 'react';
 import { useTranslations } from 'use-intl';
 import { useFormatters, useServices, useSnapshot, useToday } from '../../../lib/services';
@@ -109,6 +110,14 @@ export function CountrySection() {
     resultLine.current?.focus({ preventScroll: true });
     resultLine.current?.scrollIntoView({ block: 'nearest' });
   }, [ended]);
+  // An answer that shows the amount rows under the cards brings them into view, the focus staying on the card: a card
+  // picked at a phone's bottom edge left them under the tab bar. The page's scroll padding keeps the bar's height
+  // clear (docs/DESIGN.md §6); the box is empty, and hidden, while no row shows.
+  const amountRows = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const box = amountRows.current;
+    if (answer !== null && box !== null && box.childElementCount > 0) reveal(box);
+  }, [answer]);
   useEffect(() => {
     let current = true;
     const load = (code: CountryCode) =>
@@ -306,8 +315,10 @@ export function CountrySection() {
                     onAnswer={setAnswer}
                     invalid={refused > 0 && answer === null}
                   />
-                  {/* Under the cards, so a row appearing on "Change to" stays in view on a phone. */}
-                  <AmountRows opened={pending.opened} next={change.plan} rules={pending.rules} list />
+                  {/* Under the cards, so a row appearing on "Change to" is brought into view below them. */}
+                  <div ref={amountRows} className="empty:hidden">
+                    <AmountRows opened={pending.opened} next={change.plan} rules={pending.rules} list />
+                  </div>
                 </>
               )}
               {ruleMoves && (
