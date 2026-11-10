@@ -223,7 +223,9 @@ describe('PortfolioScreen', () => {
     expect(text()).not.toContain('sold without');
     cleanup();
     // Every BTC unit at Ledger: the move finds nothing outside it, so its fee comes from Ledger's own lots.
-    const atLedger = snapshot.entries.map((entry) => (entry.coin === first.coin ? { ...entry, venue: 'Ledger' } : entry));
+    const atLedger = snapshot.entries.map((entry) =>
+      entry.coin === first.coin ? { ...entry, venue: 'Ledger' } : entry,
+    );
     await renderScreen({ ...snapshot, entries: [...atLedger, move(FIXTURE_DATES.buy)] }, 'buy');
     expect(text()).not.toContain('network fee');
     expect(text()).not.toContain('sold without');

@@ -933,7 +933,9 @@ describe('actionMessage', () => {
         date: '1 Mar 2026',
       },
     });
-    expect(actionMessage({ ...error, held: units('0') }, plan, format, date('2026-10-16')).values.held).toBe('0\u00a0BTC');
+    expect(actionMessage({ ...error, held: units('0') }, plan, format, date('2026-10-16')).values.held).toBe(
+      '0\u00a0BTC',
+    );
   });
 
   it('names the month of a slot refusal in words', () => {
