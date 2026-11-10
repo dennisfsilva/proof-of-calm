@@ -11,7 +11,9 @@ import { routeFixturePrices, test } from './support';
 // Kraken to Ledger with 0.0498 received gets its own row with the route and the network fee, its units sent in the
 // Amount cell, and Portfolio's BTC units drop by the fee, 0.0002. The same move again shows the duplicate line, and
 // a move above the units held is refused. A delete is undone within the toast's 8 seconds. A second move from Kraken
-// dated before the first saves, and Portfolio then names no sale without a purchase.
+// dated before the first saves, and Portfolio then names no sale without a purchase. One of 0.08 BTC dated before the
+// first names it before Save (it then finds only the 0.02215 BTC with no venue outside Ledger), saves, and the first
+// move's row says so (DOMAIN §3.7).
 // The button is reached from "Add coins you already have" with bounded Tab presses, as WebKit's Tab order differs.
 // The form's words come from the Log's messages: the destination's hint and "Fill in all units" (#87).
 
@@ -157,6 +159,42 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await expect(toast).toContainText(/Recorded: 0[.,]02\sBTC moved from Kraken to Ledger on 1\sSept?\s2026\./u);
       await expect(moves).toHaveCount(2);
 
+      await btcUnits(page, /^0[.,]10195000\sBTC$/u);
+      await expect(page.getByText(/sold without a purchase/u)).toHaveCount(0);
+    });
+
+    test(`on ${FIXTURE_DATES.buy} an earlier move that takes all of Kraken's BTC names the later move it leaves short`, async ({
+      page,
+    }) => {
+      const nowMs = fixtureNowMs('buy');
+      await page.clock.setFixedTime(new Date(nowMs));
+      await routeFixturePrices(page, nowMs);
+      await seedPlan(page, withKraken());
+      await page.goto('/log');
+      await ready(page);
+      const sheet = page.getByRole('dialog');
+      const button = page.getByRole('button', { name: log.recordMoved });
+      const moves = page.locator('tbody [data-slot="table-row"]').filter({ hasText: 'Coins moved' });
+
+      await button.click();
+      await fillMove(sheet, '2026-10-14', '0,05', '0,0498');
+      await sheet.getByRole('button', { name: log.move.save }).click();
+      await expect(sheet).toBeHidden();
+
+      // The line shows before Save and never blocks it.
+      await button.click();
+      await fillMove(sheet, '2026-09-01', '0,08', '0,08');
+      await expect(
+        sheet.getByText(/^After this move, your move to Ledger on 14\sOct\s2026 sends 0[.,]02785\sBTC more/u),
+      ).toBeVisible();
+      await sheet.getByRole('button', { name: log.move.save }).click();
+      await expect(sheet).toBeHidden();
+      await expect(moves).toHaveCount(2);
+
+      for (const _ of [1, 2]) await moves.getByRole('button', { expanded: false }).first().click();
+      await expect(
+        page.getByText(/^The Log shows 0[.,]02215\sBTC outside Ledger on this day, 0[.,]02785\sBTC fewer/u),
+      ).toBeVisible();
       await btcUnits(page, /^0[.,]10195000\sBTC$/u);
       await expect(page.getByText(/sold without a purchase/u)).toHaveCount(0);
     });
