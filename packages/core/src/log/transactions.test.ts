@@ -124,8 +124,20 @@ describe('transactions (docs/DOMAIN.md §3.9)', () => {
   });
 
   it('a move row carries its shortfall under per-venue lots, and under global lots only when its fee was taken at the destination', () => {
-    const kraken = anEntry({ kind: 'extra', slot: null, date: date('2026-01-10'), units: units('0.02'), venue: 'Kraken' });
-    const ledger = anEntry({ kind: 'extra', slot: null, date: date('2026-01-10'), units: units('0.10'), venue: 'Ledger' });
+    const kraken = anEntry({
+      kind: 'extra',
+      slot: null,
+      date: date('2026-01-10'),
+      units: units('0.02'),
+      venue: 'Kraken',
+    });
+    const ledger = anEntry({
+      kind: 'extra',
+      slot: null,
+      date: date('2026-01-10'),
+      units: units('0.10'),
+      venue: 'Ledger',
+    });
     // 0.01 of the 0.05 sent found outside Ledger: the fee is covered there, the units received only in part.
     const partly = aMove({ date: date('2026-03-01'), units: units('0.05'), received: units('0.0498') });
     const outsideOf = (entries: Entry[], lotScope: 'per-venue' | 'global') =>

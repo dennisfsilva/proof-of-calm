@@ -311,7 +311,13 @@ describe('a move before a stored move on its route (docs/DOMAIN.md §3.7, §6; A
     // Its fee is then taken at Ledger, so the line shows in every country.
     for (const lotScope of ['per-venue', 'global'] as const) {
       expect(movesLeftShort(entries, saved.value, { overrides: [], lotScope, lotRule: 'fifo' })).toEqual([
-        expect.objectContaining({ id: stored.id, to: 'Ledger', outside: '0', short: '0.1', feeAtDestination: '0.0002' }),
+        expect.objectContaining({
+          id: stored.id,
+          to: 'Ledger',
+          outside: '0',
+          short: '0.1',
+          feeAtDestination: '0.0002',
+        }),
       ]);
     }
   });
@@ -323,7 +329,9 @@ describe('a move before a stored move on its route (docs/DOMAIN.md §3.7, §6; A
     expect(moveShortfallOf([kraken], { ...stored, units: units('0.15') }, perVenue)).toEqual(
       expect.objectContaining({ id: stored.id, outside: '0.1', short: '0.05' }),
     );
-    expect(moveShortfallOf([kraken], { ...stored, units: units('0.15') }, { ...perVenue, lotScope: 'global' })).toBeNull();
+    expect(
+      moveShortfallOf([kraken], { ...stored, units: units('0.15') }, { ...perVenue, lotScope: 'global' }),
+    ).toBeNull();
   });
 
   it("movesLeftShort names nothing for a write that leaves every move's shortfall as stored", () => {
