@@ -8,8 +8,9 @@ import type { CoinId } from '../schema/ids';
 import { saveMove } from './moves';
 
 // docs/DOMAIN.md §6 "Record a move" (research Q9): a new move sends at most the units held just before it in the
-// matching order (§3.7), whatever the later sales; an edit sends no more beyond them than the stored move did (no
-// worse than before). The oracle folds the coin's live entries by hand.
+// matching order (§3.7), whatever the later sales; an edit that keeps the coin sends no more beyond them than the
+// stored move did (no worse than before), and an edit to another coin is judged as a new move of that coin. The oracle
+// folds the coin's live entries by hand.
 
 const DAYS = [date('2026-01-05'), date('2026-02-05'), date('2026-03-05')];
 const QUANTITIES = ['0.001', '0.002', '0.003'] as const;
@@ -31,7 +32,12 @@ type Spec = {
   readonly stamp: number;
   readonly deleted: boolean;
 };
-type Draft = { readonly day: number; readonly sent: (typeof QUANTITIES)[number]; readonly fee: (typeof FEES)[number] };
+type Draft = {
+  readonly coin: CoinId;
+  readonly day: number;
+  readonly sent: (typeof QUANTITIES)[number];
+  readonly fee: (typeof FEES)[number];
+};
 
 const spec: fc.Arbitrary<Spec> = fc.record({
   kind: fc.constantFrom('extra' as const, 'held' as const, 'sell' as const, 'move' as const),
@@ -43,6 +49,7 @@ const spec: fc.Arbitrary<Spec> = fc.record({
   deleted: fc.boolean(),
 });
 const draftSpec: fc.Arbitrary<Draft> = fc.record({
+  coin: fc.constantFrom(BTC.id, BTC.id, ETH.id),
   day: fc.nat(DAYS.length - 1),
   sent: fc.constantFrom(...QUANTITIES),
   fee: fc.constantFrom(...FEES),
@@ -78,10 +85,10 @@ const order = (a: Place, b: Place) =>
   compareInstants(a.createdAt, b.createdAt) ||
   (a.id < b.id ? -1 : Number(a.id > b.id));
 
-/** The units of BTC held just before a move at `place`: the live entries before it in the matching order, never below 0. */
-function heldBefore(entries: readonly Entry[], place: Place): Units {
+/** The units of `coin` held just before a move at `place`: the live entries before it in the matching order, never below 0. */
+function heldBefore(entries: readonly Entry[], coin: CoinId, place: Place): Units {
   const before = entries
-    .filter((entry) => entry.deletedAt === null && entry.coin === BTC.id && order(entry, place) < 0)
+    .filter((entry) => entry.deletedAt === null && entry.coin === coin && order(entry, place) < 0)
     .sort(order);
   let held = units('0');
   for (const entry of before) {
@@ -102,7 +109,7 @@ function check(specs: readonly Spec[], drafted: Draft): void {
   const fresh = id();
   const result = saveMove(
     {
-      coin: BTC.id,
+      coin: drafted.coin,
       date: DAYS[drafted.day] ?? date('2026-01-05'),
       from: 'Kraken',
       to: 'Ledger',
@@ -112,7 +119,7 @@ function check(specs: readonly Spec[], drafted: Draft): void {
     },
     { plan: aPlan(), entries, editing: [], ids: [fresh], now, source: 'manual' },
   );
-  const held = heldBefore(entries, {
+  const held = heldBefore(entries, drafted.coin, {
     kind: 'move',
     date: DAYS[drafted.day] ?? date('2026-01-05'),
     createdAt: now,
@@ -120,26 +127,38 @@ function check(specs: readonly Spec[], drafted: Draft): void {
   });
   const refused = !result.ok && result.error.code === 'move-exceeds-held';
   expect(refused).toBe(compare(sent, held) > 0);
-  if (refused) expect(result.error).toEqual({ code: 'move-exceeds-held', coin: BTC.id, held, sent });
+  if (refused) expect(result.error).toEqual({ code: 'move-exceeds-held', coin: drafted.coin, held, sent });
 }
 
-/** The first entry, a live BTC move, edited into the draft: refused when its units beyond those held grow. */
+/**
+ * The first entry, a live move, edited into the draft: in the same coin refused when its units beyond those held grow,
+ * in another coin refused as a new move of that coin.
+ */
 function checkEdit(specs: readonly Spec[], drafted: Draft): void {
   const [stored, ...others] = specs.map(entryOf);
   if (stored === undefined) return;
   const sent = units(drafted.sent);
   const on = DAYS[drafted.day] ?? date('2026-01-05');
   const result = saveMove(
-    { coin: BTC.id, date: on, from: 'Kraken', to: 'Ledger', sent, received: minus(sent, units(drafted.fee)), note: '' },
+    {
+      coin: drafted.coin,
+      date: on,
+      from: 'Kraken',
+      to: 'Ledger',
+      sent,
+      received: minus(sent, units(drafted.fee)),
+      note: '',
+    },
     { plan: aPlan(), entries: [stored, ...others], editing: [stored], ids: [id()], now, source: 'manual' },
   );
-  const held = heldBefore(others, { ...stored, date: on });
+  const held = heldBefore(others, drafted.coin, { ...stored, date: on });
   const short = minus(sent, held);
   const refused = !result.ok && result.error.code === 'move-exceeds-held';
-  expect(refused).toBe(
-    compare(short, units('0')) > 0 && compare(short, minus(stored.units, heldBefore(others, stored))) > 0,
-  );
-  if (refused) expect(result.error).toEqual({ code: 'move-exceeds-held', coin: BTC.id, held, sent });
+  const beyond = compare(short, units('0')) > 0;
+  const stayed = stored.coin === drafted.coin;
+  const baseline = minus(stored.units, heldBefore(others, stored.coin, stored));
+  expect(refused).toBe(beyond && (!stayed || compare(short, baseline) > 0));
+  if (refused) expect(result.error).toEqual({ code: 'move-exceeds-held', coin: drafted.coin, held, sent });
 }
 
 const of = (kind: Spec['kind'], day: number, quantity: Spec['quantity'], extra: Partial<Spec> = {}): Spec => ({
@@ -160,23 +179,26 @@ describe('saveMove (docs/DOMAIN.md §6, research Q9)', () => {
         // A purchase, a move and a sale on the move's date: the sale comes after it, the stored move before it.
         [
           [of('extra', 1, '0.003'), of('move', 1, '0.002', { fee: '0.0005' }), of('sell', 1, '0.002')],
-          { day: 1, sent: '0.003', fee: '0' },
+          { coin: BTC.id, day: 1, sent: '0.003', fee: '0' },
         ],
         // A sale already short: the units held stop at 0 (the clamp), then the purchase counts in full.
-        [[of('sell', 0, '0.003'), of('extra', 1, '0.002')], { day: 1, sent: '0.002', fee: '0' }],
-        [[of('sell', 0, '0.003'), of('extra', 1, '0.002')], { day: 1, sent: '0.003', fee: '0' }],
+        [[of('sell', 0, '0.003'), of('extra', 1, '0.002')], { coin: BTC.id, day: 1, sent: '0.002', fee: '0' }],
+        [[of('sell', 0, '0.003'), of('extra', 1, '0.002')], { coin: BTC.id, day: 1, sent: '0.003', fee: '0' }],
         // A held entry counts as a purchase.
-        [[of('held', 0, '0.002')], { day: 2, sent: '0.003', fee: '0.0005' }],
+        [[of('held', 0, '0.002')], { coin: BTC.id, day: 2, sent: '0.003', fee: '0.0005' }],
         // A tombstone counts for nothing.
-        [[of('extra', 0, '0.003', { deleted: true }), of('extra', 0, '0.001')], { day: 0, sent: '0.002', fee: '0' }],
+        [
+          [of('extra', 0, '0.003', { deleted: true }), of('extra', 0, '0.001')],
+          { coin: BTC.id, day: 0, sent: '0.002', fee: '0' },
+        ],
         // Sent exactly equal to held saves.
-        [[of('extra', 0, '0.002')], { day: 0, sent: '0.002', fee: '0.0005' }],
+        [[of('extra', 0, '0.002')], { coin: BTC.id, day: 0, sent: '0.002', fee: '0.0005' }],
       ],
     });
   });
 
   it('an edit of a stored move is refused exactly when it sends more beyond the units held than the stored move', () => {
-    const live = { kind: 'move' as const, coin: BTC.id, deleted: false };
+    const live = { kind: 'move' as const, deleted: false };
     const specs = fc
       .tuple(spec, fc.array(spec, { maxLength: IDS.length - 1 }))
       .map(([first, rest]) => [{ ...first, ...live }, ...rest]);
@@ -185,11 +207,21 @@ describe('saveMove (docs/DOMAIN.md §6, research Q9)', () => {
         // The repro of §3.7: a sale dated before the move left it short; the same units and date save, more are refused.
         [
           [of('move', 1, '0.003', { fee: '0.0005' }), of('extra', 0, '0.003'), of('sell', 0, '0.002')],
-          { day: 1, sent: '0.003', fee: '0.0005' },
+          { coin: BTC.id, day: 1, sent: '0.003', fee: '0.0005' },
         ],
         [
           [of('move', 1, '0.002', { fee: '0.0005' }), of('extra', 0, '0.003'), of('sell', 0, '0.002')],
-          { day: 1, sent: '0.003', fee: '0' },
+          { coin: BTC.id, day: 1, sent: '0.003', fee: '0' },
+        ],
+        // The same short BTC move edited into ETH: judged as a new ETH move, not against the BTC move's excess.
+        [
+          [
+            of('move', 1, '0.003', { fee: '0.0005' }),
+            of('extra', 0, '0.003'),
+            of('sell', 0, '0.002'),
+            of('extra', 0, '0.001', { coin: ETH.id }),
+          ],
+          { coin: ETH.id, day: 1, sent: '0.002', fee: '0' },
         ],
       ],
     });
