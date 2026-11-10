@@ -259,6 +259,30 @@ describe('moveSources', () => {
     expect(moveSources({ ...dated('2026-01-20'), coin: '' }, context(lots))).toEqual([]);
     expect(moveSources(dated('2026-01'), context(lots))).toEqual([]);
   });
+
+  it("the source cards and Fill in all units read the units before a sale at the source on the move's date", () => {
+    // The move comes before its date's sales in the matching order, so the cards show what the match finds there.
+    const sold = anEntry({ kind: 'sell', slot: null, date: date('2026-02-20'), units: units('0.01'), venue: 'Kraken' });
+    const state = dated('2026-02-20', 'Kraken');
+    const sources = moveSources(state, context([...lots, sold]));
+    expect(sources).toEqual(
+      expect.arrayContaining([
+        { venue: 'Kraken', units: units('0.03') },
+        { venue: null, units: units('0.02') },
+      ]),
+    );
+    // Fill in all units fills the chosen card's figure, and the short-source line finds those units there.
+    const all = sources.find((place) => place.venue === state.from)?.units;
+    expect(all).toBe(units('0.03'));
+    const filledAll = {
+      ...draft,
+      date: date('2026-02-20'),
+      from: 'Kraken',
+      sent: units('0.03'),
+      received: units('0.03'),
+    };
+    expect(moveLines(filledAll, context([...lots, sold]), true).short).toBeNull();
+  });
 });
 
 describe('withSource', () => {
