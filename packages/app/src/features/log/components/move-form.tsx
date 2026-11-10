@@ -20,19 +20,24 @@ import { type ReactNode, useActionState, useEffect, useId, useRef, useState } fr
 import { useTranslations } from 'use-intl';
 import { type ErrorMessage, errorMessage } from '../../../lib/errors';
 import type { NumberInput } from '../../../lib/format';
+import { localesFor } from '../../../lib/i18n';
 import { useClock, useFormatters, useNumberInput, useRules, useServices, useSnapshot } from '../../../lib/services';
 import { proseDigits } from '../lib/form';
 import {
   initialMoveState,
   type MoveField,
   type MoveFieldIssue,
+  MoveFormDraftSchema,
   type MoveFormState,
   movableCoins,
   moveDraft,
+  moveDraftKey,
   moveErrorField,
   moveLines,
   moveMessage,
   moveSources,
+  restoredMove,
+  sameMoveForm,
   saveMoveOn,
   typedFee,
   typeSent,
@@ -57,6 +62,8 @@ const NOTHING: Outcome = { issues: [], failure: null, field: null };
 const REFUSED = Symbol('refused');
 const PLAN_DELETED: ErrorMessage = { key: 'log.form.planDeleted', values: {} };
 const CHOOSE_SOURCE: MoveFieldIssue = { field: 'from', error: 'from-empty' };
+/** The drafts adapter's name for this form (ADR-0020). */
+const DRAFT_FORM = 'move';
 
 /** Logs coins moved between two venues (ADR-0054): one coin, its source, its destination, the units sent and received. */
 export function MoveForm(props: MoveFormProps) {
@@ -75,11 +82,25 @@ function PlanMoveForm({ plan, numberInput: mounted, editing, onDone }: PlanMoveF
   const entries = useSnapshot((snapshot) => snapshot.entries);
   const format = useFormatters();
   const clock = useClock();
-  const perVenue = holdingContext(plan, useRules()).lotScope === 'per-venue';
+  const rules = useRules();
+  const perVenue = holdingContext(plan, rules).lotScope === 'per-venue';
   // The number locale is read once, as the form opens (ADR-0034 Readings).
   const [numberInput] = useState(() => mounted);
   const ctx = { plan, entries, editing, numberInput };
-  const [state, setState] = useState(() => initialMoveState(editing, ctx));
+  // What was typed before the sheet closed comes back from the session draft while it fits (ADR-0020); `initial` stays
+  // the form as it opens now, and a state that reads as it is keeps no draft.
+  const [opened] = useState(() => {
+    const initial = initialMoveState(editing, ctx);
+    const fit = { ...moveDraftKey(editing), numberLocale: localesFor(services.language, rules).numbers, initial };
+    const draft = services.drafts.read(DRAFT_FORM, fit.entity, MoveFormDraftSchema);
+    return { ...fit, state: restoredMove(draft, fit) ?? initial };
+  });
+  const [state, setState] = useState(opened.state);
+  useEffect(() => {
+    const { entity, base, numberLocale, initial } = opened;
+    if (sameMoveForm(state, initial)) services.drafts.clear(DRAFT_FORM, entity);
+    else services.drafts.write(DRAFT_FORM, entity, { numberLocale, base, state });
+  }, [services, opened, state]);
   const [ids] = useState(() => [EntityIdSchema.parse(crypto.randomUUID())]);
   // Only the coin and the date change the sources, so only they choose the source again: an edit keeps its stored one.
   const update = (change: (current: MoveFormState) => MoveFormState) =>
@@ -126,6 +147,7 @@ function PlanMoveForm({ plan, numberInput: mounted, editing, onDone }: PlanMoveF
       return { issues: [], failure, field: moveErrorField(result.error) };
     }
     if (result === null) services.toasts.add({ title: t('log.move.deleted'), timeout: UNDO_WINDOW_MS });
+    services.drafts.clear(DRAFT_FORM, opened.entity);
     onDone(result?.ok === true ? result.value : []);
     return NOTHING;
   }, NOTHING);
