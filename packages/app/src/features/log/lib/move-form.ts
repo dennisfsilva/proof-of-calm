@@ -9,12 +9,15 @@ import {
   type Entry,
   entryRole,
   err,
+  type HoldingContext,
   heldUnits,
   isPositive,
   liveEntries,
   MAX_UNIT_DECIMALS,
   type MoveDraft,
   minus,
+  moveShortfallOf,
+  movesLeftShort,
   ok,
   type Plan,
   type Result,
@@ -201,15 +204,28 @@ export function typedFee(state: MoveFormState, numberInput: NumberInput): Units 
 }
 
 /**
- * The lines beside a readable move that never block its save: how many units the source lacks at the move's place on
- * its date under per-venue lots (`sourceShort`, with what it holds there, the source card's figure), and whether a live
- * identical move is in the Log.
+ * The lines beside a readable move that never block its save (docs/DOMAIN.md §3.7): how many units the source lacks at
+ * the move's place on its date (`sourceShort`, with what it holds there, the source card's figure), under per-venue lots
+ * or where the scope rule lists the move; what the Log finds outside the destination when the scope rule lists the move
+ * (`outside`, `moveShortfallOf`); the first stored move the save leaves short (`later`, `movesLeftShort`); and whether a
+ * live identical move is in the Log. A save that refuses names no move.
  */
-export function moveLines(draft: MoveDraft, ctx: MoveFormContext, perVenue: boolean) {
+export function moveLines(
+  draft: MoveDraft,
+  ctx: MoveFormContext,
+  holding: HoldingContext,
+  at: Pick<SaveContext, 'ids' | 'now'>,
+) {
   const except = ctx.editing?.id ?? null;
-  const short = perVenue ? sourceShort(ctx.entries, draft, except) : null;
+  const saved = saveMoveOn(ctx.entries, draft, { ...at, plan: ctx.plan, editing: ctx.editing, source: 'manual' });
+  const written = saved?.ok === true ? saved.value : [];
+  const [move] = written;
+  const outside = move === undefined ? null : (moveShortfallOf(ctx.entries, move, holding)?.outside ?? null);
+  const short = holding.lotScope === 'per-venue' || outside !== null ? sourceShort(ctx.entries, draft, except) : null;
   return {
     short: short === null ? null : { short, held: minus(draft.sent, short) },
+    outside,
+    later: movesLeftShort(ctx.entries, written, holding)[0] ?? null,
     same: sameMove(ctx.entries, draft, except) !== null,
   };
 }

@@ -123,7 +123,7 @@ describe('MoveForm', () => {
     const march = aMove({ date: date('2026-03-10'), units: units('0.03'), received: units('0.03') });
     const { onDone } = await open([...lots, march], { perVenue: true });
     fill('0,05');
-    expect(screen.getAllByRole('status').map((each) => each.textContent)).toEqual([
+    expect(screen.getAllByRole('status').map((each) => each.textContent?.replace(/\u00a0/gu, ' '))).toEqual([
       'The Log shows 0,03 BTC at Kraken on 20 Feb 2026. The Log looks for the other 0,02 BTC in the units you held outside Ledger on that day.',
       'After this move, your move to Ledger on 10 Mar 2026 sends 0,03 BTC more than the Log shows outside Ledger that day. If both record one withdrawal, keep only one. If not, check the units that move sends.',
     ]);
@@ -141,7 +141,7 @@ describe('MoveForm', () => {
     const withLedger = [...lots, bought('0.01', '2026-02-01', 'Ledger')];
     await open(withLedger, { perVenue: true });
     fill('0,06');
-    expect(screen.getByRole('status').textContent).toBe(
+    expect(screen.getByRole('status').textContent?.replace(/\u00a0/gu, ' ')).toBe(
       'The Log shows 0,03 BTC at Kraken on 20 Feb 2026. Outside Ledger, the Log finds only 0,05 BTC on that day.',
     );
     // Under global lots the fee is covered outside Ledger: no line.
