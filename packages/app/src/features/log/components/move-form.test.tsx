@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { countryRules, loadProfile } from '@proofofcalm/content';
 import { DEFAULT_PREFS, type Entry } from '@proofofcalm/core';
-import { aMove, anEntry, aPlan, date, ETH, units } from '@proofofcalm/core/testing';
+import { aMove, anEntry, aPlan, date, ETH, instant, units } from '@proofofcalm/core/testing';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { EMPTY_SNAPSHOT } from '../../../lib/adapters';
@@ -189,6 +189,76 @@ describe('MoveForm', () => {
     expect(document.activeElement).toBe(field('Units received'));
     expect(screen.queryByText(/more than you hold/)).toBeNull();
     expect(services.domain.store.getState().snapshot.entries).toEqual(lots);
+  });
+
+  describe('a source is decided on the entries as stored when the save runs', () => {
+    // Another tab's write (entries replace by id or join), queued before the save, lands after the form rendered.
+    type Services = Awaited<ReturnType<typeof open>>['services'];
+    const saveAfter = (services: Services, changed: readonly Entry[]) =>
+      act(async () => {
+        void services.domain.write(() => ({ entries: changed }));
+        fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+      });
+    const stored = (services: Services) => services.domain.store.getState().snapshot.entries;
+    const moves = (services: Services) => stored(services).filter((entry) => entry.kind === 'move');
+    const deleted = lots.map((entry) => ({ ...entry, deletedAt: instant('2026-03-02T09:00:00.000Z') }));
+    /** A move on `on` to Ledger sending 0.01 BTC, its source left to the form. */
+    const unchosen = (on: string) => {
+      type('Date', on);
+      type('Venue the coins went to', 'Ledger');
+      type('Units sent', '0.01');
+    };
+
+    it('re-offers the sources a write added, choosing none, and saves nothing', async () => {
+      const { onDone, services } = await open(lots);
+      unchosen('2026-01-05');
+      expect(screen.queryAllByRole('radio')).toHaveLength(0);
+      const other = bought('0.03', '2026-01-01', 'Kraken');
+      await saveAfter(services, [other]);
+      expect(onDone).not.toHaveBeenCalled();
+      expect(stored(services)).toEqual(expect.arrayContaining([other, ...lots]));
+      expect(moves(services)).toEqual([]);
+      expect(screen.getAllByRole('radio')).toHaveLength(1);
+      expect(radio('Kraken').textContent).toContain('0.03 BTC');
+      expect(checked()).toHaveLength(0);
+      expect(screen.getByText('Choose the venue the coins left.')).toBeTruthy();
+      expect(document.activeElement).toBe(radio('Kraken'));
+    });
+
+    it('with none to offer before or after the write, takes the save refusal from no venue', async () => {
+      const { onDone, services } = await open(lots);
+      unchosen('2026-01-05');
+      const other = bought('0.01', '2026-03-01', 'Bitstamp');
+      await saveAfter(services, [other]);
+      expect(onDone).not.toHaveBeenCalled();
+      expect(stored(services)).toContainEqual(other);
+      expect(moves(services)).toEqual([]);
+      expect(screen.getByText(/more than you hold \(0 BTC on 5 Jan 2026\)/)).toBeTruthy();
+      expect(document.activeElement).toBe(field('Units sent'));
+    });
+
+    it('with sources offered that the write removed, takes the save refusal from no venue', async () => {
+      const { onDone, services } = await open(lots);
+      unchosen('2026-02-20');
+      expect(screen.getAllByRole('radio')).toHaveLength(2);
+      await saveAfter(services, deleted);
+      expect(onDone).not.toHaveBeenCalled();
+      expect(stored(services)).toEqual(expect.arrayContaining(deleted));
+      expect(moves(services)).toEqual([]);
+      expect(screen.queryAllByRole('radio')).toHaveLength(0);
+      expect(screen.getByText(/more than you hold \(0 BTC on 20 Feb 2026\)/)).toBeTruthy();
+      expect(document.activeElement).toBe(field('Units sent'));
+    });
+
+    it('a chosen source the write empties takes the save refusal at its field', async () => {
+      const { onDone, services } = await open(lots);
+      fill('0.01');
+      await saveAfter(services, deleted);
+      expect(onDone).not.toHaveBeenCalled();
+      expect(moves(services)).toEqual([]);
+      expect(screen.getByText(/more than you hold \(0 BTC on 20 Feb 2026\)/)).toBeTruthy();
+      expect(document.activeElement).toBe(field('Units sent'));
+    });
   });
 
   describe('an edit on a day no venue holds its coin keeps its stored source', () => {

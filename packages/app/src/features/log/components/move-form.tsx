@@ -56,6 +56,7 @@ const NOTHING: Outcome = { issues: [], failure: null, field: null };
 /** Thrown inside the write, so a refused save writes nothing. */
 const REFUSED = Symbol('refused');
 const PLAN_DELETED: ErrorMessage = { key: 'log.form.planDeleted', values: {} };
+const CHOOSE_SOURCE: MoveFieldIssue = { field: 'from', error: 'from-empty' };
 
 /** Logs coins moved between two venues (ADR-0054): one coin, its source, its destination, the units sent and received. */
 export function MoveForm(props: MoveFormProps) {
@@ -89,16 +90,21 @@ function PlanMoveForm({ plan, numberInput: mounted, editing, onDone }: PlanMoveF
   const set = (patch: Partial<MoveFormState>) => update((current) => ({ ...current, ...patch }));
 
   const [outcome, submit, pending] = useActionState(async (): Promise<Outcome> => {
-    // With no source to offer on the date, no card can show a source left unchosen: an edit keeps its stored one and a
-    // new move goes from no venue, which holds none there, so the save refuses it at the field it names, in its order.
-    const unchosen = state.from === undefined && moveSources(state, ctx).length === 0;
+    // A source left unchosen is decided in the write, on the entries as stored: with none to offer there, an edit keeps
+    // its stored one and a new move goes from no venue, judged by the save in its order; with any, the person chooses.
+    const unchosen = state.from === undefined;
     const draft = moveDraft(unchosen ? { ...state, from: editing?.venue ?? null } : state, numberInput);
-    if (!draft.ok) return { ...NOTHING, issues: draft.error };
-    const box: { result?: Result<Entry[], ActionError> | null } = {};
+    if (!draft.ok) {
+      const offered = unchosen && moveSources(state, ctx).length > 0;
+      return { ...NOTHING, issues: offered ? [...draft.error, CHOOSE_SOURCE] : draft.error };
+    }
+    const box: { result?: Result<Entry[], ActionError> | null; offered?: boolean } = {};
     try {
       // Saved in the write queue's turn, on the entries as stored then: another tab may have changed them.
       await services.domain.write((snapshot) => {
         if (snapshot.plan === null) throw REFUSED;
+        box.offered = unchosen && moveSources(state, { ...ctx, entries: snapshot.entries }).length > 0;
+        if (box.offered) throw REFUSED;
         const context = { plan: snapshot.plan, editing, ids, now: clock.now(), source: 'manual' as const };
         box.result = saveMoveOn(snapshot.entries, draft.value, context);
         if (box.result === null || !box.result.ok) throw REFUSED;
@@ -106,6 +112,8 @@ function PlanMoveForm({ plan, numberInput: mounted, editing, onDone }: PlanMoveF
       });
     } catch (error) {
       if (error !== REFUSED) return { ...NOTHING, failure: errorMessage(error) };
+      // The group re-renders on the entries as stored, nothing chosen in it, and the refusal focuses its first card.
+      if (box.offered === true) return { ...NOTHING, issues: [CHOOSE_SOURCE] };
       if (box.result === undefined) return { ...NOTHING, failure: PLAN_DELETED };
     }
     const { result = null } = box;
