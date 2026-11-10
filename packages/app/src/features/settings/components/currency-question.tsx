@@ -1,4 +1,5 @@
 import {
+  type CountryRules,
   type CurrencyAnswer,
   type CurrencyQuestion,
   decimal,
@@ -12,7 +13,7 @@ import { useEffect, useId, useMemo } from 'react';
 import { useTranslations } from 'use-intl';
 import { BRAND } from '../../../lib/brand';
 import { createNumberInput } from '../../../lib/format';
-import { useFormatters } from '../../../lib/services';
+import { useFormatters, useFormattersOf } from '../../../lib/services';
 import { TaxYearExport } from './tax-year-export';
 
 // The parts the country change adds when the currency can move (ADR-0053, docs/DOMAIN.md §6 "Change country"):
@@ -93,10 +94,21 @@ export function CurrencyQuestionGroup({ question, onAnswer, invalid }: QuestionP
   );
 }
 
-/** One row for each of the plan's own amounts that is not zero, when the change moves the pay currency. */
-export function AmountRows({ opened, next }: { readonly opened: Plan; readonly next: Plan }) {
+type AmountProps = {
+  readonly opened: Plan;
+  readonly next: Plan;
+  /** The new country's rules: the amount after the change reads in its number format, as Plan will show it. */
+  readonly rules: CountryRules;
+};
+
+/**
+ * One row for each of the plan's own amounts that is not zero, when the change moves the pay currency: the amount
+ * now in the current country's format, the amount after in the new country's (ADR-0023's Context).
+ */
+export function AmountRows({ opened, next, rules }: AmountProps) {
   const t = useTranslations('settings.country.row');
   const f = useFormatters();
+  const after = useFormattersOf(rules);
   if (next.payCurrency === opened.payCurrency) return null;
   return (['monthlyAmount', 'startingAmount'] as const)
     .filter((field) => !isZero(opened[field]))
@@ -105,7 +117,7 @@ export function AmountRows({ opened, next }: { readonly opened: Plan; readonly n
         {t('amount', {
           field,
           from: f.money(opened[field], opened.payCurrency),
-          to: f.money(opened[field], next.payCurrency),
+          to: after.money(opened[field], next.payCurrency),
         })}
       </li>
     ));

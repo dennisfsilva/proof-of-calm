@@ -288,7 +288,7 @@ export function CountrySection() {
                     </li>
                   ),
                 )}
-                <AmountRows opened={pending.opened} next={change.plan} />
+                <AmountRows opened={pending.opened} next={change.plan} rules={pending.rules} />
               </ul>
               {currency.question === null ? (
                 <p className="text-13 text-ink-2">{t('logged')}</p>
