@@ -6,7 +6,7 @@ import { matchLots } from '../portfolio/lots';
 import type { Entry } from '../schema/entry';
 import type { CoinId } from '../schema/ids';
 import type { SaveContext } from './entries';
-import { type MoveDraft, movesLeftShort, sameMove, saveMove, sourceShort } from './moves';
+import { type MoveDraft, moveShortfallOf, movesLeftShort, sameMove, saveMove, sourceShort } from './moves';
 
 // Recording a move between venues (docs/DOMAIN.md §6 "Record a move", ADR-0054).
 const plan = aPlan();
@@ -314,6 +314,16 @@ describe('a move before a stored move on its route (docs/DOMAIN.md §3.7, §6; A
         expect.objectContaining({ id: stored.id, to: 'Ledger', outside: '0', short: '0.1', feeAtDestination: '0.0002' }),
       ]);
     }
+  });
+
+  it('moveShortfallOf reads a move as stored over the entries, null when the scope rule does not list it', () => {
+    const perVenue = { overrides: [], lotScope: 'per-venue', lotRule: 'fifo' } as const;
+    const stored = march('0.0998');
+    expect(moveShortfallOf([kraken], stored, perVenue)).toBeNull();
+    expect(moveShortfallOf([kraken], { ...stored, units: units('0.15') }, perVenue)).toEqual(
+      expect.objectContaining({ id: stored.id, outside: '0.1', short: '0.05' }),
+    );
+    expect(moveShortfallOf([kraken], { ...stored, units: units('0.15') }, { ...perVenue, lotScope: 'global' })).toBeNull();
   });
 
   it("movesLeftShort names nothing for a write that leaves every move's shortfall as stored", () => {

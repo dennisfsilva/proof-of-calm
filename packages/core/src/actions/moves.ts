@@ -4,7 +4,8 @@ import { ENTRY_NOTE_MAX_LENGTH, VENUE_MAX_LENGTH } from '../constants';
 import type { CalendarDate } from '../dates/calendar';
 import { compare, decimalPlaces, isPositive, minus, type Units } from '../money/decimal';
 import { liveEntries } from '../plan/statuses';
-import { runningHeld, venueUnitsAtMove } from '../portfolio/lots';
+import { type HoldingContext, runningHeld, venueUnitsAtMove } from '../portfolio/lots';
+import { type MoveShortfall, moveShortfalls, shortfallMeasure } from '../portfolio/move-shortfalls';
 import { coinsWithEntries } from '../portfolio/portfolio';
 import { defined, err, ok, type Result } from '../result';
 import { type Entry, MAX_UNIT_DECIMALS } from '../schema/entry';
@@ -60,7 +61,9 @@ function heldBefore(others: readonly Entry[], move: Entry): Units {
  * before); an edit to another coin is judged as a new move of that coin. A source venue that holds fewer is not refused:
  * `matchLots` takes the units `sourceShort` names from the units held anywhere but `to`; the part of the fee it cannot
  * find there comes from `to`'s own pieces (ADR-0055), and the units received it cannot find stay the move's `unmatched`.
- * A fee beyond all the units held refuses the write (`fee-exceeds-held`, `uncoveredSale`).
+ * A fee beyond all the units held refuses the write (`fee-exceeds-held`, `uncoveredSale`). No write is refused for a
+ * venue: a stored move it leaves short outside its destination is named before Save (`movesLeftShort`), and the move
+ * itself (`moveShortfallOf`), under the scope rule of `moveShortfalls`.
  * `context.editing` holds the move being edited, or nothing for a new one. Throws a RangeError for an empty `to`, which
  * the form never sends.
  */
@@ -137,4 +140,32 @@ export function sameMove(entries: readonly Entry[], draft: MoveDraft, except: En
       compare(defined(entry.received, 'received'), draft.received) === 0,
   );
   return same?.id ?? null;
+}
+
+/** `move` as `moveShortfalls` reads it once stored over `entries`; null when the scope rule does not list it. */
+export function moveShortfallOf(entries: readonly Entry[], move: Entry, context: HoldingContext): MoveShortfall | null {
+  return moveShortfalls(storedOver(entries, [move]), move.coin, context).find((each) => each.id === move.id) ?? null;
+}
+
+/**
+ * The stored moves (ids not in `written`) of the coins `written` touches, its entries' coins as written and as stored,
+ * whose `short` (per-venue lots) or `feeAtDestination + feeUncovered` (global lots) grows from `entries` to `entries`
+ * once `written` is stored: per coin in the order the write touches them, each coin's in `compareEntries` order.
+ */
+export function movesLeftShort(
+  entries: readonly Entry[],
+  written: readonly Entry[],
+  context: HoldingContext,
+): readonly MoveShortfall[] {
+  const ids = new Set(written.map((entry) => entry.id));
+  const coins = new Set([...written, ...entries.filter((entry) => ids.has(entry.id))].map((entry) => entry.coin));
+  const after = storedOver(entries, written);
+  return [...coins].flatMap((coin) => {
+    const before = new Map(moveShortfalls(entries, coin, context).map((each) => [each.id, each]));
+    return moveShortfalls(after, coin, context).filter((each) => {
+      const stored = before.get(each.id);
+      const was = stored === undefined ? ('0' as Units) : shortfallMeasure(stored, context);
+      return !ids.has(each.id) && compare(shortfallMeasure(each, context), was) > 0;
+    });
+  });
 }

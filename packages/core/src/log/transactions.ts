@@ -15,6 +15,7 @@ import { slots } from '../plan/slots';
 import { liveEntries } from '../plan/statuses';
 import { entryRole } from '../portfolio/effect';
 import { DEFAULT_HOLDING_CONTEXT, type HoldingContext } from '../portfolio/eligibility';
+import { type MoveShortfall, moveShortfalls } from '../portfolio/move-shortfalls';
 import { type Entry, type EntryKind, recordedAmounts } from '../schema/entry';
 import type { Plan, Skip } from '../schema/plan';
 import { transactionKey } from './group';
@@ -32,6 +33,8 @@ export type TransactionRow = {
   readonly fees: Money;
   /** For buys, the holding status of the first item; for sales, null. */
   readonly holding: HoldingStatus | null;
+  /** For a move the scope rule lists (`moveShortfalls`), its first item's shortfall; null for every other row. */
+  readonly outside: MoveShortfall | null;
 };
 
 export type SkipRow = {
@@ -74,6 +77,11 @@ export function transactions(
     groups.set(key, [...(groups.get(key) ?? []), entry]);
   }
 
+  // One matching per coin with a live move, read by the move's id.
+  const moved = new Set(liveEntries(entries).flatMap((entry) => (entry.kind === 'move' ? [entry.coin] : [])));
+  const shortfalls = new Map(
+    [...moved].flatMap((coin) => moveShortfalls(entries, coin, context).map((each) => [each.id, each] as const)),
+  );
   const rows: LogRow[] = [...groups.entries()].map(([key, group]): TransactionRow => {
     const items = [...group].sort(byAmount);
     const costs = recordedAmounts(items);
@@ -89,6 +97,7 @@ export function transactions(
       fees: sum(items.map((entry) => entry.fee ?? ('0' as Money))),
       holding:
         entryRole(first.kind) !== 'purchase' ? null : holdingStatus(first.date, plan.holdingRule, context.overrides),
+      outside: shortfalls.get(first.id) ?? null,
     };
   });
   for (const skip of plan.skips) {
