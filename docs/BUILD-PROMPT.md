@@ -107,6 +107,11 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   describes, the case where nothing matches included. #87's short-source line said the Log counts a
   move's shortfall from units held elsewhere, while `matchLots` leaves it unmatched when only the
   destination holds other units. That claim cost a review round.
+- A figure a form shows beside the core's matching reads the entries at the matching order's place
+  on its date (purchases, then moves, then sales), never at the end of the date. #93's short-source
+  line read a move's source at the end of its date and named a shortfall `matchLots` never takes
+  when a sale at the source shared the move's date; `venueUnitsAtMove` now gives both the same
+  figure.
 
 ## Known gaps
 
