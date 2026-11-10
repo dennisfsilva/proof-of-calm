@@ -6,6 +6,7 @@ import {
   changeCountry,
   currencyQuestion,
   type HoldingRule,
+  liveEntries,
   type Plan,
 } from '@proofofcalm/core';
 import { Button } from '@proofofcalm/ui/components/button';
@@ -46,8 +47,8 @@ import { PayCurrencyLine } from './pay-currency-line';
 // Currency & data's country change (docs/DOMAIN.md §6 "Change country"): a select of the countries with a
 // profile, under the line that offers the country's currency while the plan's differs (`PayCurrencyLine`);
 // choosing another lists what the change moves, asks the currency question when logged amounts would change
-// meaning (ADR-0053; otherwise says they stay as typed), names the plan's own amounts the currency moves, offers
-// the current tax-year files first, asks the person to
+// meaning (ADR-0053; otherwise, with any entry, says they stay as typed), names the plan's own amounts the
+// currency moves, offers the current tax-year files first, asks the person to
 // confirm the new holding rule in place of the plan's (their own or the old country's, never silently), and
 // shows the early-window notice when the new rule makes the sell window open early. Each country's rule in the
 // list carries that country's card date line as Hold & sell shows it; the generic profile's gives its own text
@@ -187,6 +188,8 @@ export function CountrySection() {
       ? []
       : countrySummary(change, options.find((rules) => rules.code === pending.opened.country) ?? null, f);
   const ruleMoves = rows.some((row) => row.field === 'holdingRule');
+  // With nothing logged there is nothing to stay as typed: the line that says so shows with an entry.
+  const logged = liveEntries(entries).length > 0;
   const early =
     change?.issues.includes('sell-window-before-eligibility') === true
       ? earlyOpenOf(change.plan, sellWindowValueOf(change.plan.sellWindow))
@@ -294,7 +297,7 @@ export function CountrySection() {
                 )}
               </ul>
               {currency.question === null ? (
-                <p className="text-13 text-ink-2">{t('logged')}</p>
+                logged && <p className="text-13 text-ink-2">{t('logged')}</p>
               ) : (
                 <>
                   <CurrencyQuestionGroup
