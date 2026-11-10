@@ -2,7 +2,7 @@ import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { anEntry, aPlan, BTC, date, ETH, id, instant, money, month, units } from '../../test/builders';
 import type { CalendarDate, MonthKey } from '../dates/calendar';
-import { compare, max, minus, plus, type Units } from '../money/decimal';
+import { compare, max, minus, plus, sum, type Units } from '../money/decimal';
 import { liveEntries } from '../plan/statuses';
 import { matchLots } from '../portfolio/lots';
 import type { Entry } from '../schema/entry';
@@ -17,6 +17,7 @@ import {
   type TransactionDraft,
   uncoveredSale,
 } from './entries';
+import { saveMove } from './moves';
 import { skipMonth } from './plan';
 import type { SlotsAtDelete } from './undo';
 
@@ -357,6 +358,220 @@ describe('a grouped edit keeps each row its own entry (docs/DOMAIN.md §6, Edit 
           );
         },
       ),
+    );
+  });
+});
+
+// docs/DOMAIN.md §3.7 and §6 with venues (ADR-0055): whatever order the purchases, sales, moves, edits, deletes and
+// undos come in, at venues that may differ only by case, every accepted write leaves every unit sold or paid as a
+// move's fee covered by an earlier purchase; a move's units received outside its destination are never a reason to
+// refuse.
+
+const VENUES = [null, 'Kraken', 'Ledger', 'ledger'] as const;
+const PLACES = ['Kraken', 'Ledger', 'ledger'] as const;
+type Venue = (typeof VENUES)[number];
+
+type VenueStep =
+  | { readonly type: 'buy' | 'sell'; readonly day: CalendarDate; readonly quantity: Units; readonly venue: Venue }
+  | {
+      readonly type: 'move';
+      readonly day: CalendarDate;
+      readonly quantity: Units;
+      readonly venue: Venue;
+      readonly to: (typeof PLACES)[number];
+      readonly whole: boolean;
+    }
+  | {
+      readonly type: 'edit';
+      readonly at: number;
+      readonly field: 'venue' | 'date' | 'units' | 'coin';
+      readonly day: CalendarDate;
+      readonly quantity: Units;
+      readonly venue: Venue;
+    }
+  | { readonly type: 'delete' | 'restore'; readonly at: number };
+
+const venue = fc.constantFrom(...VENUES);
+const venueStep: fc.Arbitrary<VenueStep> = fc.oneof(
+  fc.record({ type: fc.constantFrom('buy' as const, 'sell' as const), day, quantity, venue }),
+  fc.record({
+    type: fc.constant('move' as const),
+    day,
+    quantity,
+    venue,
+    to: fc.constantFrom(...PLACES),
+    whole: fc.boolean(),
+  }),
+  fc.record({
+    type: fc.constant('edit' as const),
+    at: fc.nat(7),
+    field: fc.constantFrom('venue' as const, 'date' as const, 'units' as const, 'coin' as const),
+    day,
+    quantity,
+    venue,
+  }),
+  fc.record({ type: fc.constantFrom('delete' as const, 'restore' as const), at: fc.nat(7) }),
+);
+
+/** The Log form's draft of `entry` with one field changed. */
+function editOf(entry: Entry, next: Extract<VenueStep, { type: 'edit' }>): TransactionDraft {
+  return {
+    kind: entry.kind === 'sell' ? 'sell' : 'extra',
+    date: next.field === 'date' ? next.day : entry.date,
+    slot: null,
+    fee: null,
+    note: '',
+    venue: next.field === 'venue' ? next.venue : entry.venue,
+    rows: [
+      {
+        coin: next.field === 'coin' ? ETH.id : entry.coin,
+        amount: money('100'),
+        units: next.field === 'units' ? next.quantity : entry.units,
+      },
+    ],
+  };
+}
+
+function withVenues(world: World, next: VenueStep): void {
+  const context = (editing: readonly Entry[]): SaveContext => ({
+    plan: world.plan,
+    entries: world.entries,
+    editing,
+    ids: [id()],
+    now,
+    source: 'manual',
+  });
+  const written = (saved: ReturnType<typeof saveTransaction>, add: boolean) => {
+    if (!saved.ok) return;
+    world.entries = merge(world.entries, saved.value);
+    if (add) world.transactions.push(saved.value.map((entry) => entry.id));
+  };
+  switch (next.type) {
+    case 'buy':
+    case 'sell': {
+      const draft: TransactionDraft = {
+        kind: next.type === 'buy' ? 'extra' : 'sell',
+        date: next.day,
+        slot: null,
+        fee: null,
+        note: '',
+        venue: next.venue,
+        rows: [{ coin: BTC.id, amount: money('100'), units: next.quantity }],
+      };
+      written(saveTransaction(draft, context([])), true);
+      return;
+    }
+    case 'move': {
+      const to = next.to === next.venue ? (PLACES[(PLACES.indexOf(next.to) + 1) % PLACES.length] ?? 'Kraken') : next.to;
+      const received = next.whole ? next.quantity : minus(next.quantity, units('0.0001'));
+      const draft = { coin: BTC.id, date: next.day, from: next.venue, to, sent: next.quantity, received, note: '' };
+      written(saveMove(draft, context([])), true);
+      return;
+    }
+    case 'edit': {
+      const ids = world.transactions[next.at % Math.max(world.transactions.length, 1)] ?? [];
+      const [entry] = liveEntries(world.entries).filter((each) => ids.includes(each.id) && each.kind !== 'move');
+      if (entry !== undefined) written(saveTransaction(editOf(entry, next), context([entry])), false);
+      return;
+    }
+    case 'delete':
+    case 'restore':
+      cover(world, next);
+  }
+}
+
+/** Every coin of the world's entries leaves nothing unmatched, and each move's takes and unmatched sum to its units. */
+function covered(world: World, scope: 'global' | 'per-venue'): void {
+  for (const coin of [BTC.id, ETH.id]) {
+    const match = matchLots(world.entries, coin, scope);
+    expect(match.unmatchedUnits).toBe('0');
+    for (const move of match.moves)
+      expect(compare(plus(sum(move.takes.map((take) => take.units)), move.unmatched), move.units)).toBe(0);
+  }
+}
+
+const D1 = DAYS[0] ?? date('2026-01-05');
+const D2 = DAYS[1] ?? date('2026-02-05');
+const D3 = DAYS[2] ?? date('2026-03-05');
+const Q = QUANTITIES[0] ?? units('0.001');
+const Q3 = QUANTITIES[2] ?? units('0.003');
+const buyAt = (at: Venue, on = D1): VenueStep => ({ type: 'buy', day: on, quantity: Q3, venue: at });
+const moveAt = (from: Venue, to: (typeof PLACES)[number], on = D2): VenueStep => ({
+  type: 'move',
+  day: on,
+  quantity: Q3,
+  venue: from,
+  to,
+  whole: false,
+});
+/** The edge positions every run tries (ADR-0055). */
+const VENUE_EDGES: VenueStep[][] = [
+  // A move into a venue already holding units, from one that holds none.
+  [buyAt('Ledger'), moveAt('Kraken', 'Ledger')],
+  // A purchase's venue edited to a move's `to`, and a venue renamed by case.
+  [
+    buyAt('Kraken'),
+    moveAt('Kraken', 'Ledger'),
+    { type: 'edit', at: 0, field: 'venue', day: D1, quantity: Q, venue: 'Ledger' },
+  ],
+  [
+    buyAt('ledger'),
+    moveAt('ledger', 'Ledger'),
+    { type: 'edit', at: 0, field: 'venue', day: D1, quantity: Q, venue: 'Ledger' },
+  ],
+  // A move dated before a stored move on its route.
+  [buyAt('Kraken'), moveAt('Kraken', 'Ledger', D3), moveAt('Kraken', 'Ledger', D2)],
+  // A delete of the only purchase before a move, and its undo.
+  [buyAt('Kraken'), moveAt('Kraken', 'Ledger'), { type: 'delete', at: 0 }, { type: 'restore', at: 0 }],
+];
+const scope = fc.constantFrom('global' as const, 'per-venue' as const);
+
+describe('sales and moves stay covered with venues (docs/DOMAIN.md §3.7, §6)', () => {
+  it('leaves no unit sold or paid as a fee that no earlier purchase covers, after any accepted sequence of purchases, sales, moves, venue edits, deletes and undos', () => {
+    fc.assert(
+      fc.property(fc.array(venueStep, { maxLength: 16 }), scope, (steps, matching) => {
+        const world = startWorld({ shape: 'clean', slot: month('2026-01') });
+        for (const next of steps) {
+          withVenues(world, next);
+          covered(world, matching);
+        }
+      }),
+      {
+        numRuns: 60,
+        examples: VENUE_EDGES.flatMap((steps) => [
+          [steps, 'global'],
+          [steps, 'per-venue'],
+        ]),
+      },
+    );
+  });
+
+  it('a purchase edit that changes only its venue is never refused', () => {
+    fc.assert(
+      fc.property(fc.array(venueStep, { maxLength: 12 }), venue, (steps, moved) => {
+        const world = startWorld({ shape: 'clean', slot: month('2026-01') });
+        for (const next of steps) withVenues(world, next);
+        for (const entry of liveEntries(world.entries).filter((each) => each.kind === 'extra')) {
+          const edit = {
+            type: 'edit',
+            at: 0,
+            field: 'venue',
+            day: entry.date,
+            quantity: entry.units,
+            venue: moved,
+          } as const;
+          const context = {
+            plan: world.plan,
+            entries: world.entries,
+            editing: [entry],
+            ids: [id()],
+            now,
+            source: 'manual' as const,
+          };
+          expect(saveTransaction(editOf(entry, edit), context).ok).toBe(true);
+        }
+      }),
+      { numRuns: 40, examples: VENUE_EDGES.map((steps): [VenueStep[], Venue] => [steps, 'Ledger']) },
     );
   });
 });
