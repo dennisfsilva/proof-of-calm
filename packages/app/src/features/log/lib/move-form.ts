@@ -64,16 +64,7 @@ export const moveDraftKey = (editing: Entry | null) => ({
   base: editing === null ? '' : `${editing.id}@${editing.updatedAt}`,
 });
 
-const MOVE_FIELDS: readonly (keyof MoveFormState)[] = [
-  'coin',
-  'date',
-  'from',
-  'to',
-  'sent',
-  'received',
-  'receivedTyped',
-  'note',
-];
+const MOVE_FIELDS = ['coin', 'date', 'from', 'to', 'sent', 'received', 'receivedTyped', 'note'] as const;
 
 /** Whether two states read the same in every field: a form left as it opened is no draft. */
 export const sameMoveForm = (a: MoveFormState, b: MoveFormState) => MOVE_FIELDS.every((key) => a[key] === b[key]);
