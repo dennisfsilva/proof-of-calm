@@ -7,8 +7,9 @@ import type { Entry } from '../schema/entry';
 import type { CoinId } from '../schema/ids';
 import { saveMove } from './moves';
 
-// docs/DOMAIN.md §6 "Record a move" (research Q9): a move sends at most the units held just before it in the
-// matching order (§3.7), whatever the later sales; the oracle folds the coin's live entries by hand.
+// docs/DOMAIN.md §6 "Record a move" (research Q9): a new move sends at most the units held just before it in the
+// matching order (§3.7), whatever the later sales; an edit sends no more beyond them than the stored move did (no
+// worse than before). The oracle folds the coin's live entries by hand.
 
 const DAYS = [date('2026-01-05'), date('2026-02-05'), date('2026-03-05')];
 const QUANTITIES = ['0.001', '0.002', '0.003'] as const;
@@ -69,20 +70,19 @@ function entryOf(each: Spec, index: number): Entry {
 
 const RANK = { extra: 0, held: 0, move: 1, sell: 2 } as const;
 
-/** The units of BTC held just before a new move on `day`: the live entries before it in the matching order, never below 0. */
-function heldBefore(entries: readonly Entry[], day: number): Units {
-  const on = DAYS[day] ?? date('2026-01-05');
-  const rank = (entry: Entry) => RANK[entry.kind as keyof typeof RANK];
+type Place = Pick<Entry, 'kind' | 'date' | 'createdAt' | 'id'>;
+const rank = (entry: Place) => RANK[entry.kind as keyof typeof RANK];
+const order = (a: Place, b: Place) =>
+  compareDates(a.date, b.date) ||
+  rank(a) - rank(b) ||
+  compareInstants(a.createdAt, b.createdAt) ||
+  (a.id < b.id ? -1 : Number(a.id > b.id));
+
+/** The units of BTC held just before a move at `place`: the live entries before it in the matching order, never below 0. */
+function heldBefore(entries: readonly Entry[], place: Place): Units {
   const before = entries
-    .filter((entry) => entry.deletedAt === null && entry.coin === BTC.id)
-    .filter((entry) => compareDates(entry.date, on) < 0 || (entry.date === on && rank(entry) <= RANK.move))
-    .sort(
-      (a, b) =>
-        compareDates(a.date, b.date) ||
-        rank(a) - rank(b) ||
-        compareInstants(a.createdAt, b.createdAt) ||
-        (a.id < b.id ? -1 : Number(a.id > b.id)),
-    );
+    .filter((entry) => entry.deletedAt === null && entry.coin === BTC.id && order(entry, place) < 0)
+    .sort(order);
   let held = units('0');
   for (const entry of before) {
     const change =
@@ -99,6 +99,7 @@ function heldBefore(entries: readonly Entry[], day: number): Units {
 function check(specs: readonly Spec[], drafted: Draft): void {
   const entries = specs.map(entryOf);
   const sent = units(drafted.sent);
+  const fresh = id();
   const result = saveMove(
     {
       coin: BTC.id,
@@ -109,11 +110,35 @@ function check(specs: readonly Spec[], drafted: Draft): void {
       received: minus(sent, units(drafted.fee)),
       note: '',
     },
-    { plan: aPlan(), entries, editing: [], ids: [id()], now, source: 'manual' },
+    { plan: aPlan(), entries, editing: [], ids: [fresh], now, source: 'manual' },
   );
-  const held = heldBefore(entries, drafted.day);
+  const held = heldBefore(entries, {
+    kind: 'move',
+    date: DAYS[drafted.day] ?? date('2026-01-05'),
+    createdAt: now,
+    id: fresh,
+  });
   const refused = !result.ok && result.error.code === 'move-exceeds-held';
   expect(refused).toBe(compare(sent, held) > 0);
+  if (refused) expect(result.error).toEqual({ code: 'move-exceeds-held', coin: BTC.id, held, sent });
+}
+
+/** The first entry, a live BTC move, edited into the draft: refused when its units beyond those held grow. */
+function checkEdit(specs: readonly Spec[], drafted: Draft): void {
+  const [stored, ...others] = specs.map(entryOf);
+  if (stored === undefined) return;
+  const sent = units(drafted.sent);
+  const on = DAYS[drafted.day] ?? date('2026-01-05');
+  const result = saveMove(
+    { coin: BTC.id, date: on, from: 'Kraken', to: 'Ledger', sent, received: minus(sent, units(drafted.fee)), note: '' },
+    { plan: aPlan(), entries: [stored, ...others], editing: [stored], ids: [id()], now, source: 'manual' },
+  );
+  const held = heldBefore(others, { ...stored, date: on });
+  const short = minus(sent, held);
+  const refused = !result.ok && result.error.code === 'move-exceeds-held';
+  expect(refused).toBe(
+    compare(short, units('0')) > 0 && compare(short, minus(stored.units, heldBefore(others, stored))) > 0,
+  );
   if (refused) expect(result.error).toEqual({ code: 'move-exceeds-held', coin: BTC.id, held, sent });
 }
 
@@ -146,6 +171,26 @@ describe('saveMove (docs/DOMAIN.md §6, research Q9)', () => {
         [[of('extra', 0, '0.003', { deleted: true }), of('extra', 0, '0.001')], { day: 0, sent: '0.002', fee: '0' }],
         // Sent exactly equal to held saves.
         [[of('extra', 0, '0.002')], { day: 0, sent: '0.002', fee: '0.0005' }],
+      ],
+    });
+  });
+
+  it('an edit of a stored move is refused exactly when it sends more beyond the units held than the stored move', () => {
+    const live = { kind: 'move' as const, coin: BTC.id, deleted: false };
+    const specs = fc
+      .tuple(spec, fc.array(spec, { maxLength: IDS.length - 1 }))
+      .map(([first, rest]) => [{ ...first, ...live }, ...rest]);
+    fc.assert(fc.property(specs, draftSpec, checkEdit), {
+      examples: [
+        // The repro of §3.7: a sale dated before the move left it short; the same units and date save, more are refused.
+        [
+          [of('move', 1, '0.003', { fee: '0.0005' }), of('extra', 0, '0.003'), of('sell', 0, '0.002')],
+          { day: 1, sent: '0.003', fee: '0.0005' },
+        ],
+        [
+          [of('move', 1, '0.002', { fee: '0.0005' }), of('extra', 0, '0.003'), of('sell', 0, '0.002')],
+          { day: 1, sent: '0.003', fee: '0' },
+        ],
       ],
     });
   });

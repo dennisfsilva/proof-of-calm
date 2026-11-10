@@ -54,8 +54,10 @@ function heldBefore(others: readonly Entry[], move: Entry): Units {
 
 /**
  * Validates a move and returns the entries to write: the move, and the other edited entries soft-deleted. An edit keeps
- * the move's id, creation time and source and stamps it after its stored stamp. A move sends at most the units held
- * just before it; a source venue that holds fewer is not refused (`sourceShort`): the rest comes from the other venues.
+ * the move's id, creation time and source and stamps it after its stored stamp. A new move sends at most the units held
+ * just before it; an edit is refused only when it sends more beyond them than the stored move did over the same other
+ * entries, so a move left short by an earlier-dated sale still takes a new note (§3.7: no worse than before). A source
+ * venue that holds fewer is not refused (`sourceShort`): the rest comes from the other venues.
  * `context.editing` holds the move being edited, or nothing for a new one. Throws a RangeError for an empty `to`, which
  * the form never sends.
  */
@@ -89,11 +91,13 @@ export function saveMove(draft: MoveDraft, context: SaveContext): Result<Entry[]
       return { ...entry, deletedAt: at, updatedAt: at };
     });
   const editing = new Set(context.editing.map((entry) => entry.id));
-  const held = heldBefore(
-    context.entries.filter((entry) => !editing.has(entry.id)),
-    move,
-  );
-  if (compare(draft.sent, held) > 0)
+  const others = context.entries.filter((entry) => !editing.has(entry.id));
+  const held = heldBefore(others, move);
+  const short = minus(draft.sent, held);
+  if (
+    isPositive(short) &&
+    (existing === undefined || compare(short, minus(existing.units, heldBefore(others, existing))) > 0)
+  )
     return err({ code: 'move-exceeds-held', coin: draft.coin, held, sent: draft.sent });
   const written = [move, ...removed];
   const refused =
