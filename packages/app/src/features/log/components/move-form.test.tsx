@@ -161,7 +161,7 @@ describe('MoveForm', () => {
   });
 
   it('a move dated before any venue holds the coin is refused at the units sent', async () => {
-    const { onDone } = await open(lots);
+    const { onDone, services } = await open(lots);
     type('Date', '2026-01-05');
     type('Venue the coins went to', 'Ledger');
     type('Units sent', '0.01');
@@ -173,6 +173,53 @@ describe('MoveForm', () => {
     ];
     expect(screen.getByText(refusal.join(' '))).toBeTruthy();
     expect(document.activeElement).toBe(field('Units sent'));
+    expect(services.domain.store.getState().snapshot.entries).toEqual(lots);
+  });
+
+  it("a move dated before any venue holds the coin takes the save's refusal, in the save's order", async () => {
+    // With no source to choose, the save judges the move as from no venue: it holds nothing there, so it never saves.
+    const { onDone, services } = await open(lots);
+    type('Date', '2026-01-05');
+    type('Venue the coins went to', 'Ledger');
+    type('Units sent', '0.01');
+    type('Units received', '0.02');
+    await save();
+    expect(onDone).not.toHaveBeenCalled();
+    expect(screen.getByText('Enter no more units received than units sent.')).toBeTruthy();
+    expect(document.activeElement).toBe(field('Units received'));
+    expect(screen.queryByText(/more than you hold/)).toBeNull();
+    expect(services.domain.store.getState().snapshot.entries).toEqual(lots);
+  });
+
+  describe('an edit on a day no venue holds its coin keeps its stored source', () => {
+    // 0.03 BTC bought at Kraken and sold there before the move, so nothing is held anywhere on 20 Jan 2026.
+    const sold = anEntry({ kind: 'sell', slot: null, date: date('2026-01-15'), units: units('0.03'), venue: 'Kraken' });
+    const move = aMove({ date: date('2026-01-20'), venue: 'Kraken', to: 'Ledger', units: units('0.01') });
+    const stored = { ...move, received: units('0.01') };
+    const entries = [bought('0.03', '2026-01-10', 'Kraken'), sold, stored];
+
+    it('saves untouched, as the save takes an edit no worse than before', async () => {
+      const { onDone } = await open(entries, { editing: stored });
+      await save();
+      expect(onDone).toHaveBeenCalledTimes(1);
+      expect(onDone.mock.calls[0]?.[0].map((entry) => [entry.id, entry.venue])).toEqual([[move.id, 'Kraken']]);
+    });
+
+    it('saves a changed note', async () => {
+      const { onDone } = await open(entries, { editing: stored });
+      type('Note (optional)', 'To the hardware wallet');
+      await save();
+      const saved = onDone.mock.calls[0]?.[0] ?? [];
+      expect(saved.map((entry) => [entry.venue, entry.note])).toEqual([['Kraken', 'To the hardware wallet']]);
+    });
+
+    it('never swaps it for the only venue that holds the coin', async () => {
+      const elsewhere = bought('0.02', '2026-01-16', 'Bitstamp');
+      const { onDone } = await open([...entries, elsewhere], { editing: stored });
+      type('Note (optional)', 'To the hardware wallet');
+      await save();
+      expect(onDone.mock.calls[0]?.[0].map((entry) => entry.venue)).toEqual(['Kraken']);
+    });
   });
 
   it('the destination is labelled and hinted as a place name and never asks for an address', async () => {

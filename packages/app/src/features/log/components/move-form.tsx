@@ -1,6 +1,5 @@
 import {
   type ActionError,
-  decimal,
   ENTRY_NOTE_MAX_LENGTH,
   EntityIdSchema,
   type Entry,
@@ -90,16 +89,11 @@ function PlanMoveForm({ plan, numberInput: mounted, editing, onDone }: PlanMoveF
   const set = (patch: Partial<MoveFormState>) => update((current) => ({ ...current, ...patch }));
 
   const [outcome, submit, pending] = useActionState(async (): Promise<Outcome> => {
-    // No venue holds the coin on the date, so no source is offered: the move sends more than the 0 units held, refused
-    // at the units sent in the core's words, never as a source left unchosen with no card to show it on.
-    const unheld = moveSources(state, ctx).length === 0;
-    const draft = moveDraft(unheld ? { ...state, from: null } : state, numberInput);
+    // With no source to offer on the date, no card can show a source left unchosen: an edit keeps its stored one and a
+    // new move goes from no venue, which holds none there, so the save refuses it at the field it names, in its order.
+    const unchosen = state.from === undefined && moveSources(state, ctx).length === 0;
+    const draft = moveDraft(unchosen ? { ...state, from: editing?.venue ?? null } : state, numberInput);
     if (!draft.ok) return { ...NOTHING, issues: draft.error };
-    if (unheld) {
-      const { coin, sent, date } = draft.value;
-      const error = { code: 'move-exceeds-held', coin, held: decimal<Units>('0'), sent } as const;
-      return { issues: [], failure: moveMessage(error, plan, format, date), field: 'sent' };
-    }
     const box: { result?: Result<Entry[], ActionError> | null } = {};
     try {
       // Saved in the write queue's turn, on the entries as stored then: another tab may have changed them.
