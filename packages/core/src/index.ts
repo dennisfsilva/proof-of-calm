@@ -45,6 +45,7 @@ export * from './plan/tranches';
 export * from './portfolio/effect';
 export * from './portfolio/eligibility';
 export * from './portfolio/lots';
+export * from './portfolio/move-shortfalls';
 export * from './portfolio/portfolio';
 export * from './reminders/reminders';
 export * from './result';
