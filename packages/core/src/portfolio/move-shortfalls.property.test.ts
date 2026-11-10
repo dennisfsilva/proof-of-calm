@@ -67,7 +67,8 @@ describe('moveShortfalls and movesLeftShort (docs/DOMAIN.md §3.7)', () => {
       fc.property(log, holding, (entries, context) => {
         const match = matchLots(entries, BTC.id, context.lotScope, context.lotRule);
         const listed = moveShortfalls(entries, BTC.id, context);
-        for (const shortfall of listed) expect(compare(plus(shortfall.outside, shortfall.short), shortfall.sent)).toBe(0);
+        for (const shortfall of listed)
+          expect(compare(plus(shortfall.outside, shortfall.short), shortfall.sent)).toBe(0);
         const expected = match.moves.filter((move) => {
           const to = entries.find((each) => each.id === move.id)?.to;
           const outside = sum(move.takes.filter((take) => take.venue !== to).map((take) => take.units));
@@ -91,7 +92,10 @@ describe('moveShortfalls and movesLeftShort (docs/DOMAIN.md §3.7)', () => {
         const later = moveShortfalls(after, BTC.id, context);
         for (const named of movesLeftShort(entries, written, context)) {
           expect(written.some((each) => each.id === named.id)).toBe(false);
-          const grown = compare(measure(later, named.id, context.lotScope), measure(before, named.id, context.lotScope));
+          const grown = compare(
+            measure(later, named.id, context.lotScope),
+            measure(before, named.id, context.lotScope),
+          );
           expect(grown).toBeGreaterThan(0);
         }
       }),
