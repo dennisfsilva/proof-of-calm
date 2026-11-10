@@ -913,7 +913,7 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   and a line when `planRuleDiffers`; per venue, the venue line and the `crossVenue` count; for the per-lot file, what `held_at` and `moved_on` hold (every
   row fills them), and when `moveFees`, what a fee piece is, that it leaves `past_holding_rule` empty and that the
   file does not say whether the country treats the fee as a disposal, then, when `feeAtDestination` is above 0, how
-  many rows a move paid its fee from units already at its destination, since the Log shows too few elsewhere on that
+  many rows a move paid its fee from units already at its destination, since the Log shows too few units outside it on that
   day (ADR-0055); for the raw listing, when `moves`, which
   columns a move row fills and that `units` less `units_received` is the fee in the coin; for the raw listing
   what it lists, under `pooled` with the 30-day window and, while `windowOpen`, the export day; the format line;
