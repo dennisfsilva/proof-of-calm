@@ -226,6 +226,8 @@ function PlanEntryForm({ plan, numberInput: mounted, kind, editing, slot, onDone
   const [moveShort] = typed.ok
     ? moveShortLines(typed.value, { entries, save: { ...save, initial, current: state }, holding })
     : [];
+  const decimalsOf = (coin: Entry['coin']) =>
+    state.rows.find((row) => row.coin === coin)?.decimals ?? MAX_UNIT_DECIMALS;
   // A cleared or partly typed date input gives '': toDraft refuses it before the save.
   const dateIssue = issueOf('date') !== undefined;
   const failureAt = (field: DetailField | null) => (outcome.field === field ? outcome.failure : null);
@@ -349,10 +351,7 @@ function PlanEntryForm({ plan, numberInput: mounted, kind, editing, slot, onDone
             short: format.units(
               moveShort.short,
               moveShort.coin,
-              proseDigits(
-                state.rows.find((row) => row.coin === moveShort.coin)?.decimals ?? MAX_UNIT_DECIMALS,
-                moveShort.short,
-              ),
+              proseDigits(decimalsOf(moveShort.coin), moveShort.short),
             ),
           })}
         </p>
