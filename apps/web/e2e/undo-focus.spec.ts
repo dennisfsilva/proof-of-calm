@@ -1,7 +1,9 @@
 import { expect, type Locator, type Page } from '@playwright/test';
+import type { Snapshot } from '@proofofcalm/app/lib/ports';
 import { fixtureNowMs, fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
+import type { CalendarDate, Entry } from '@proofofcalm/core';
 import { seedPlan } from './seed';
-import { test } from './support';
+import { routeFixturePrices, test } from './support';
 
 // Where the focus goes after an Undo (docs/DESIGN.md §6 "Focus after an action"), on the viewport matrix: the
 // toast's Undo, reached by a click, by F6 or by Tab, puts the focus on the control that ran the action it
@@ -10,6 +12,10 @@ import { test } from './support';
 // from today and Resume are one button); Delete everything's Undo lands on Delete everything. The seeded fixture
 // plan on 3 October 2026; /api/prices is answered by the page's route. Light and dark, at 125 % text on zoom-125
 // (support.ts).
+// A Log row's Edit, saved with the row keeping its place, gives the focus back to Edit entry without passing the
+// shell's skip link on the way (which shows only while it has the focus): a purchase row of the fixture, and a move
+// row of the fixture with a buy at Kraken and a move from Kraken to Ledger. Every `focusin` from before Save until
+// the focus is on Edit entry is recorded.
 
 test.use({ serviceWorkers: 'block' });
 
@@ -121,5 +127,107 @@ for (const colorScheme of ['light', 'dark'] as const) {
         await focusedWithRing(page.getByRole('button', { name: 'Delete everything' }));
       });
     }
+  });
+}
+
+/** The fixture with an extra buy of 0.08 BTC at Kraken and a move of 0.05 BTC from Kraken to Ledger. */
+function withMove(): Snapshot {
+  const snapshot = fixtureSnapshot();
+  const [first] = snapshot.entries as [Entry];
+  const kraken: Entry = {
+    ...first,
+    id: '00000000-0000-4000-8000-000000000400' as Entry['id'],
+    kind: 'extra',
+    slot: null,
+    date: '2026-06-18' as CalendarDate,
+    amount: '4000' as Entry['amount'],
+    units: '0.08' as Entry['units'],
+    venue: 'Kraken',
+  };
+  const move: Entry = {
+    ...kraken,
+    id: '00000000-0000-4000-8000-000000000401' as Entry['id'],
+    kind: 'move',
+    amount: null,
+    date: '2026-10-14' as CalendarDate,
+    units: '0.05' as Entry['units'],
+    to: 'Ledger',
+    received: '0.0498' as Entry['units'],
+  };
+  return { ...snapshot, entries: [...snapshot.entries, kraken, move] };
+}
+
+/** Starts recording every focus target, the skip link named as such, from this moment. */
+async function recordFocus(page: Page) {
+  await page.evaluate(() => {
+    const targets: string[] = [];
+    Object.assign(window, { focusTargets: targets });
+    document.addEventListener(
+      'focusin',
+      (event) => {
+        const target = event.target as HTMLElement;
+        const skip = target.matches('a[href="#main"]');
+        targets.push(skip ? 'skip link' : `${target.tagName} ${target.textContent?.slice(0, 40) ?? ''}`);
+      },
+      true,
+    );
+  });
+}
+
+const focusTargets = (page: Page) =>
+  page.evaluate(() => (window as unknown as { focusTargets: string[] }).focusTargets);
+
+/** Opens `row`, its Edit by a click with the focus on it, as a keyboard or a pointer leaves it, and returns Edit. */
+async function openEdit(page: Page, row: Locator) {
+  await row.getByRole('button', { expanded: false }).click();
+  const edit = page.getByRole('button', { name: 'Edit entry' });
+  await edit.focus();
+  await edit.click();
+  return edit;
+}
+
+async function saveAndLandOnEdit(page: Page, sheet: Locator, edit: Locator) {
+  await recordFocus(page);
+  await sheet.getByRole('button', { name: 'Save' }).click();
+  await expect(sheet).toHaveCount(0);
+  await expect(page.locator('[data-slot="toast"]:not([hidden])')).toContainText('Entry saved.');
+  await expect(edit).toBeFocused();
+  const targets = await focusTargets(page);
+  expect(targets, `the focus went ${targets.join(' → ')}`).not.toContain('skip link');
+}
+
+for (const colorScheme of ['light', 'dark'] as const) {
+  test.describe(`${colorScheme}, a Log row's Edit`, () => {
+    test.use({ colorScheme });
+
+    const openLog = async (page: Page, snapshot: Snapshot) => {
+      const nowMs = fixtureNowMs('buy');
+      await page.clock.setFixedTime(new Date(nowMs));
+      await routeFixturePrices(page, nowMs);
+      await seedPlan(page, snapshot);
+      await page.goto('/log');
+      await ready(page);
+    };
+    const rows = (page: Page) => page.locator('tbody [data-slot="table-row"]');
+
+    test("after an Edit's save on a purchase row the focus returns to Edit entry and never reaches the skip link", async ({
+      page,
+    }) => {
+      await openLog(page, fixtureSnapshot());
+      const edit = await openEdit(page, rows(page).filter({ hasText: /^5\sSept?\s2026/u }));
+      const sheet = page.getByRole('dialog', { name: 'Edit the entry' });
+      await sheet.getByLabel('BTC paid (EUR)').fill('75');
+      await saveAndLandOnEdit(page, sheet, edit);
+    });
+
+    test("after an Edit's save on a move row the focus returns to Edit entry and never reaches the skip link", async ({
+      page,
+    }) => {
+      await openLog(page, withMove());
+      const edit = await openEdit(page, rows(page).filter({ hasText: 'Coins moved' }));
+      const sheet = page.getByRole('dialog', { name: 'Edit the move' });
+      await sheet.getByLabel('Units received').fill('0.0499');
+      await saveAndLandOnEdit(page, sheet, edit);
+    });
   });
 }
