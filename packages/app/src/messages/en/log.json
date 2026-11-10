@@ -110,7 +110,7 @@
     "all": "Fill in all units",
     "received": "Units received",
     "fee": "Network fee {units}",
-    "sourceShort": "{at, select, venue {The Log shows {held} at {from} on {date}.} other {The Log shows {held} with no venue on {date}.}} The Log counts the other {short} from units you hold elsewhere, never from {to}.",
+    "sourceShort": "{at, select, venue {The Log shows {held} at {from} on {date}.} other {The Log shows {held} with no venue on {date}.}} The Log looks for the other {short} in the units you held outside {to} on that day.",
     "duplicate": "The Log already has this move on {date}. Save it only if you moved these coins twice.",
     "saleShort": "This move's network fee leaves a later {coin} sale without the units it sells. Check the units received against the deposit record, or change the sale first.",
     "note": "Note (optional)",
