@@ -104,9 +104,10 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   at about 300 lines and built at 520 (steps 210, component 283, copy 27). It was split after the
   build, its steps used both review rounds, and the component waited for the next session.
 - A copy fix that states what the core does is checked against every branch of the code it
-  describes, the case where nothing matches included. #87's short-source line said the Log counts a
-  move's shortfall from units held elsewhere, while `matchLots` leaves it unmatched when only the
-  destination holds other units. That claim cost a review round.
+  describes: everything matches, some of it does, nothing does. #87's short-source line said the
+  Log counts a move's shortfall from units held elsewhere, while `matchLots` leaves it unmatched
+  when only the destination holds other units; #93's fix said `matchLots` takes those units
+  "exactly", false where it finds only some. Each claim cost a review round.
 - A figure a form shows beside the core's matching reads the entries at the matching order's place
   on its date (purchases, then moves, then sales), never at the end of the date. #93's short-source
   line read a move's source at the end of its date and named a shortfall `matchLots` never takes
