@@ -24,7 +24,7 @@ import {
   sourceShort,
   type Units,
   type VenueUnits,
-  venueUnits,
+  venueUnitsAtMove,
 } from '@proofofcalm/core';
 import * as z from 'zod/mini';
 import { type ErrorMessage, errorMessage } from '../../../lib/errors';
@@ -74,13 +74,16 @@ export function movableCoins(
   return coinsWithEntries(ctx.plan, ctx.editing ? [...live, ctx.editing] : live).filter((coin) => bought.has(coin));
 }
 
-/** The venues holding the coin at the end of the state's date, the edited move left out; none without both. */
+/**
+ * The venues holding the coin at the move's place on the state's date (`venueUnitsAtMove`: before the date's sales,
+ * the edited move left out and kept at its place), the figures `sourceShort` reads; none without both.
+ */
 export function moveSources(state: MoveFormState, ctx: MoveFormContext): readonly VenueUnits[] {
   const coin = CoinIdSchema.safeParse(state.coin);
   const day = CalendarDateSchema.safeParse(state.date);
   if (!coin.success || !day.success) return [];
   const others = liveEntries(ctx.entries).filter((entry) => entry.id !== ctx.editing?.id);
-  return venueUnits(others, coin.data, day.data);
+  return venueUnitsAtMove(others, coin.data, day.data, ctx.editing);
 }
 
 /** The source kept while it still holds units, else the only group that does, else none chosen. */
@@ -170,8 +173,9 @@ export function typedFee(state: MoveFormState, numberInput: NumberInput): Units 
 }
 
 /**
- * The lines beside a readable move that never block its save: how many units the source lacks on the date under
- * per-venue lots (`sourceShort`, with what it holds there), and whether a live identical move is in the Log.
+ * The lines beside a readable move that never block its save: how many units the source lacks at the move's place on
+ * its date under per-venue lots (`sourceShort`, with what it holds there, the source card's figure), and whether a live
+ * identical move is in the Log.
  */
 export function moveLines(draft: MoveDraft, ctx: MoveFormContext, perVenue: boolean) {
   const except = ctx.editing?.id ?? null;
