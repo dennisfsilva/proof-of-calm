@@ -94,6 +94,11 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   counsel's read of the final delta used main's LEGAL and reported a §6 Q4 gap that the branch had already filled.
 - A fact a module will quote is first trimmed to what its one cited source holds: #69's first read
   found 14 items in `e.scams` and 2 in `m.emergency-fund` that only the research report held.
+- A design note for a save that is checked "no worse than before" names its edits as tests: one that
+  keeps the units and the date, one that raises the units, one that moves the date and one that
+  changes the coin. #81's move writer spent both its review rounds on two of them (an edit of only the
+  note of a move that an earlier sale left short; an edit into another coin, measured against the old
+  coin's excess), and its Log step moved to #87.
 
 ## Known gaps
 
