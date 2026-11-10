@@ -138,7 +138,8 @@ function taxYearHeader(input: HeaderInput & { readonly facts: FileFacts }, t: Ta
     ...holding,
     ...(!facts.raw && rules.lotScope === 'per-venue' ? [t('perVenue')] : []),
     ...(facts.crossVenue > 0 ? [t('crossVenue', counted(facts.crossVenue))] : []),
-    // Every row of the per-lot file fills held_at and moved_on, so their line is there whether or not a move is.
+    // Every row of the per-lot file has the held_at and moved_on columns, so their line is there whether or not a
+    // move is; held_at is empty on a row with no acquired date (docs/DOMAIN.md §3.13).
     ...(facts.raw ? [] : [t('heldAt')]),
     ...(facts.moveFees && !facts.raw ? [t('moveFee')] : []),
     ...(facts.feeAtDestination > 0 ? [t('feeAtDestination', counted(facts.feeAtDestination))] : []),
