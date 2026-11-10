@@ -124,6 +124,11 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   inside the write, on the entries as stored. The no-source shortcut that fixed the move form's
   silent Save cost its branch two more review rounds (it refused an edit the core accepts and
   skipped the core's draft checks) and left a race for the next session (#98).
+- A test of a choice that a save reads again inside the write writes as another tab would, through
+  the stored plan (`planStore.write`), not through `services.domain.write`, which also updates this
+  tab's snapshot. #100's race fix passed its same-tab test while another tab's write refused the
+  Save with no field and no message on screen, and its second round reloads the stored entries
+  before the refusal shows.
 
 ## Known gaps
 
