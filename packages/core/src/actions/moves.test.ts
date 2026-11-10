@@ -101,6 +101,38 @@ describe('saveMove (docs/DOMAIN.md §6)', () => {
     expect(saveMove(draft({ sent: units('0.01'), received: units('0.01') }), context(bought)).ok).toBe(true);
   });
 
+  describe('an edit of a move already above the units held before it (§3.7: no worse than before)', () => {
+    // The sale dated before the move was saved after it: heldOn allowed it, since the move takes out only its fee.
+    const stored = aMove({ date: date('2026-02-01'), units: units('0.01'), received: units('0.0099') });
+    const entries = [...bought, sale('0.005', { date: date('2026-01-15') }), stored];
+    const edit = (overrides: Partial<MoveDraft>) =>
+      saveMove(
+        draft({ sent: units('0.01'), received: units('0.0099'), ...overrides }),
+        context(entries, { editing: [stored] }),
+      );
+
+    it('an edit that keeps units and date saves although an earlier-dated sale left the move above the units held before it', () => {
+      expect(edit({ note: 'a new note' }).ok).toBe(true);
+      expect(edit({ sent: units('0.009'), received: units('0.0089') }).ok).toBe(true);
+    });
+
+    it('an edit that raises the units of a move already short is refused', () => {
+      expect(failure(edit({ sent: units('0.011') }))).toEqual({
+        code: 'move-exceeds-held',
+        coin: BTC.id,
+        held: '0.005',
+        sent: '0.011',
+      });
+      const fresh = saveMove(draft({ sent: units('0.01'), received: units('0.0099') }), context(entries.slice(0, 2)));
+      expect(failure(fresh)).toEqual({
+        code: 'move-exceeds-held',
+        coin: BTC.id,
+        held: '0.005',
+        sent: '0.01',
+      });
+    });
+  });
+
   it('bounds sent by the units held at its place, not by heldOn: a move dated before a later sale it does not affect saves', () => {
     // heldOn on 2026-02-01 is 0.0005 (the March sale takes 0.0095), yet the move removes only its fee of 0.0004.
     const entries = [...bought, sale('0.0095', { date: date('2026-03-01') })];
