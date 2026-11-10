@@ -238,7 +238,7 @@ describe('TaxYearExport', () => {
         'eligible_from: the first day past the Portugal holding rule (365 days). past_holding_rule: whether that day had come by the sale, or by 2025-12-31 for units still held. Computed from your dates, not tax advice.',
         ...(profile?.holdingRuleConditions ?? []),
         'Sales are matched per venue as named in the Log. Entries with no venue are one group.',
-        'held_at: where the units were when sold, paid as a fee or at the year end, empty for no venue. moved_on: the date a Coins moved entry took them there, empty if none did.',
+        'held_at: where the units were when sold, paid as a network fee, or at the year end, empty for no venue. moved_on: the date a Coins moved entry took them there, empty if none did.',
         'Dates are YYYY-MM-DD. Amounts and units use a decimal point.',
       ),
     );
@@ -423,7 +423,7 @@ describe('TaxYearExport', () => {
     };
     // held_at and moved_on are on every row of the per-lot file, so their line is there with or without a move.
     const HELD_AT =
-      'held_at: where the units were when sold, paid as a fee or at the year end, empty for no venue. moved_on: the date a Coins moved entry took them there, empty if none did.';
+      'held_at: where the units were when sold, paid as a network fee, or at the year end, empty for no venue. moved_on: the date a Coins moved entry took them there, empty if none did.';
     const still = await mount(withPlan({}));
     expect(headerOf((await exportYear(still, '2026 (still running)')).content)).toContain(textCell(HELD_AT));
     cleanup();
@@ -450,13 +450,60 @@ describe('TaxYearExport', () => {
     noSemicolon(pool);
   });
 
+  it('a raw or pooled listing with a network fee in the year says the file does not say whether the fee is a disposal; without one it does not', async () => {
+    const MOVE_FEE_RAW = textCell('This file does not say whether your country treats that fee as a disposal.');
+    const MOVE_ROWS = textCell(
+      'A move row lists units sent from venue to to_venue. units_received is what arrived. units less units_received is the network fee, paid in the coin.',
+    );
+    const MOVE_FEE = textCell(
+      'A row with disposed_on but no proceeds holds the units a Coins moved entry paid as its network fee, and leaves past_holding_rule empty. This file does not say whether your country treats that fee as a disposal.',
+    );
+    // The fixture sells ETH on 2026-09-20, so every ETH entry to the year's end is listed, a move before the year too.
+    const withMove =
+      (patch: Partial<Entry>) =>
+      (all: readonly Entry[]): Entry[] => [
+        ...all,
+        aMove({
+          id: 'd0000000-0000-4000-8000-000000000003' as Entry['id'],
+          coin: all.find((each) => each.kind === 'sell')?.coin as Entry['coin'],
+          venue: null,
+          ...patch,
+        }),
+      ];
+    const gb = { country: 'GB' as Plan['country'], payCurrency: 'GBP' } as const;
+    const listing = async (patch: Partial<Entry>) => {
+      const platform = await mount(withPlan(gb, withMove(patch)));
+      const content = (await exportYear(platform, '2026 to 2027 (still running)')).content;
+      cleanup();
+      const moves = rowsOf(content).filter((row) => row.kind === 'move');
+      return { header: headerOf(content), moves: moves.map((row) => [row.date, row.units, row.units_received]) };
+    };
+    const inYear = await listing({ date: '2026-09-10' as CalendarDate });
+    expect(inYear.moves).toEqual([['2026-09-10', '0.01', '0.0099']]);
+    expect(inYear.header).toContain(MOVE_FEE_RAW);
+    expect(inYear.header.indexOf(MOVE_FEE_RAW)).toBeGreaterThan(inYear.header.indexOf(MOVE_ROWS));
+    expect(inYear.header).not.toContain(MOVE_FEE);
+    const before = await listing({ date: '2026-04-05' as CalendarDate });
+    expect(before.moves).toEqual([['2026-04-05', '0.01', '0.0099']]);
+    expect(before.header).toContain(MOVE_ROWS);
+    expect(before.header).not.toContain(MOVE_FEE_RAW);
+    const noFee = await listing({ date: '2026-09-10' as CalendarDate, received: '0.01' as Entry['units'] });
+    expect(noFee.moves).toEqual([['2026-09-10', '0.01', '0.01']]);
+    expect(noFee.header).toContain(MOVE_ROWS);
+    expect(noFee.header).not.toContain(MOVE_FEE_RAW);
+    const pt = await mount(withPlan({}, withMove({ date: '2026-09-10' as CalendarDate })));
+    const lots = headerOf((await exportYear(pt, '2026 (still running)')).content);
+    expect(lots).toContain(MOVE_FEE);
+    expect(lots.split('\n')).not.toContain(MOVE_FEE_RAW);
+  });
+
   // Several fee rows can come from one Coins moved entry, so the line names each row's own date, never "those dates".
   it("the per-lot header's line for several such rows names each row's disposed_on date", () => {
     const t = createTranslator({ locale: 'en', messages: { settings }, namespace: 'settings.data.taxYear.file' });
     expect(t('feeAtDestination', { count: 2, figure: '2' })).toBe(
       "In 2 rows, the Log took a Coins moved entry's network fee from units already at the venue the coins went to. " +
-        "On each row's disposed_on date the Log shows too few units outside that venue for what its Coins moved " +
-        'entry sent. Check the Coins moved entry of each of those rows in the Log.',
+        "On each row's disposed_on date the Log shows too few units outside its held_at venue for what its " +
+        'Coins moved entry sent. Check the Coins moved entry of each of those rows in the Log.',
     );
   });
 

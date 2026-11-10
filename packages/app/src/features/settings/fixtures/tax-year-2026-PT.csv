@@ -10,7 +10,7 @@ Exempt sales must still be declared (Anexo G1 Q7).
 "Whether the holding period carries across a crypto-to-crypto swap is unsettled. Proof of Calm treats a swap as a sale and a new purchase, so a new holding period starts for the coins received."
 "Loss of Portuguese tax residence counts as a disposal (art. 10 n.º 25 CIRS, numbered n.º 22 in 2023–2025 documents)."
 Sales are matched per venue as named in the Log. Entries with no venue are one group.
-"held_at: where the units were when sold, paid as a fee or at the year end, empty for no venue. moved_on: the date a Coins moved entry took them there, empty if none did."
+"held_at: where the units were when sold, paid as a network fee, or at the year end, empty for no venue. moved_on: the date a Coins moved entry took them there, empty if none did."
 Dates are YYYY-MM-DD. Amounts and units use a decimal point.
 The tax year ends on 2026-12-31. This file shows your log as of 2026-10-20.
 
