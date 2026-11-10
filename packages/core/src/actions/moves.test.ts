@@ -294,3 +294,28 @@ describe('saveMove at the cap', { timeout: 30_000 }, () => {
     expect(saveMove(draft(), context(entries, { editing: [stored] })).ok).toBe(true);
   });
 });
+
+describe('a move before a stored move on its route (docs/DOMAIN.md §3.7, §6; ADR-0055)', () => {
+  const kraken = buy('0.10', { date: date('2026-01-10') });
+  const march = (received: string) =>
+    aMove({ coin: BTC.id, date: date('2026-03-01'), units: units('0.10'), received: units(received) });
+  const february = (received: string) =>
+    draft({ date: date('2026-02-01'), sent: units('0.10'), received: units(received) });
+
+  it('saves a new move dated before a stored move on the same route and leaves no unit unmatched', () => {
+    const entries = [kraken, march('0.0998')];
+    const saved = saveMove(february('0.0998'), context(entries));
+    if (!saved.ok) throw new Error(saved.error.code);
+    expect(matchLots([...entries, ...saved.value], BTC.id, 'global').unmatchedUnits).toBe('0');
+  });
+
+  it("a new move whose fee leaves a later stored move's fee beyond the units held is refused with fee-exceeds-held", () => {
+    expect(failure(saveMove(february('0.05'), context([kraken, march('0.0001')])))).toEqual({
+      code: 'fee-exceeds-held',
+      coin: BTC.id,
+      held: '0.05',
+      fee: '0.0999',
+      date: '2026-03-01',
+    });
+  });
+});

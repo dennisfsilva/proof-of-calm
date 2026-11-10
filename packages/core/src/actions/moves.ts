@@ -58,8 +58,9 @@ function heldBefore(others: readonly Entry[], move: Entry): Units {
  * just before it; an edit that keeps the coin is refused only when it sends more beyond them than the stored move did over
  * the same other entries, so a move left short by an earlier-dated sale still takes a new note (§3.7: no worse than
  * before); an edit to another coin is judged as a new move of that coin. A source venue that holds fewer is not refused:
- * `matchLots` takes the units `sourceShort` names from the units held anywhere but `to`, and those it cannot find there
- * stay the move's `unmatched`.
+ * `matchLots` takes the units `sourceShort` names from the units held anywhere but `to`; the part of the fee it cannot
+ * find there comes from `to`'s own pieces (ADR-0055), and the units received it cannot find stay the move's `unmatched`.
+ * A fee beyond all the units held refuses the write (`fee-exceeds-held`, `uncoveredSale`).
  * `context.editing` holds the move being edited, or nothing for a new one. Throws a RangeError for an empty `to`, which
  * the form never sends.
  */
@@ -109,8 +110,10 @@ export function saveMove(draft: MoveDraft, context: SaveContext): Result<Entry[]
 /**
  * How many of the units sent the source venue lacks at the move's place in the matching order (`venueUnitsAtMove`):
  * after its date's purchases and earlier moves, before its sales, so they are the units `matchLots` looks for outside
- * the source, anywhere but `to`, and leaves `unmatched` when it finds none; null when the source holds them. `except` is the move being edited, left out so its own units count back at its
- * source, and kept at its place among the date's moves.
+ * the source, anywhere but `to`: the part of the fee it finds there in none or only some of them comes from `to`'s own
+ * pieces (ADR-0055), and the units received it does not find stay `unmatched`; null when the source holds them.
+ * `except` is the move being edited, left out so its own units count back at its source, and kept at its place among
+ * the date's moves.
  */
 export function sourceShort(entries: readonly Entry[], draft: MoveDraft, except: EntityId | null): Units | null {
   const others = entries.filter((entry) => entry.id !== except);

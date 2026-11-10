@@ -27,7 +27,7 @@ import {
 import { splitLargestRemainder } from '../money/split';
 import { slots } from '../plan/slots';
 import { liveEntries } from '../plan/statuses';
-import { unitsIn, unitsOut } from '../portfolio/effect';
+import { entryRole, unitsIn, unitsOut } from '../portfolio/effect';
 import { matchLots, runningHeld } from '../portfolio/lots';
 import { coinsWithEntries } from '../portfolio/portfolio';
 import { defined, err, ok, type Result } from '../result';
@@ -161,8 +161,11 @@ function rowsOrError(draft: TransactionDraft, context: SaveContext): Result<Fill
   return filled.length === 0 ? err({ code: 'no-coins' }) : ok(filled);
 }
 
-/** A write refused because it leaves a recorded sale with fewer units before it than it sold (§3.7, §6). */
-export type SaleRefusal = Extract<ActionError, { readonly code: 'sell-exceeds-held' }>;
+/**
+ * A write refused because it leaves a recorded sale with fewer units before it than it sold, or a recorded move with
+ * fewer than its fee (§3.7, §6).
+ */
+export type CoverRefusal = Extract<ActionError, { readonly code: 'sell-exceeds-held' | 'fee-exceeds-held' }>;
 
 /**
  * Units of `coin` a sale dated `date` can take and leave every recorded sale covered: the fewest held from the end of
@@ -205,9 +208,11 @@ function worseCovered(before: readonly Entry[], after: readonly Entry[], coin: C
  * The invariant of every write from this device (§6): stored over `entries`, `written` leaves no coin with more units
  * sold than bought, or more units sold that no earlier purchase covers (`matchLots`, one global queue), than before
  * (`worseCovered`), so data imported short stays as written and nothing makes it worse. The refusal names the first
- * sale left short, the units held before it and its units; null when every sale stays covered.
+ * sale left short, the units held before it and its units; null when every sale stays covered. A move's fee beyond the
+ * units held is refused as `fee-exceeds-held`, with the move's date; its units received are a venue matter and never
+ * refuse (ADR-0055).
  */
-export function uncoveredSale(entries: readonly Entry[], written: readonly Entry[]): SaleRefusal | null {
+export function uncoveredSale(entries: readonly Entry[], written: readonly Entry[]): CoverRefusal | null {
   const ids = new Set(written.map((entry) => entry.id));
   const after = storedOver(entries, written);
   const touched = [...written, ...entries.filter((entry) => ids.has(entry.id))];
@@ -216,7 +221,10 @@ export function uncoveredSale(entries: readonly Entry[], written: readonly Entry
     let held = '0' as Units;
     for (const step of runningHeld(after, coin)) {
       const sold = unitsOut(step.entry);
-      if (compare(sold, held) > 0) return { code: 'sell-exceeds-held', coin, held, sold };
+      if (compare(sold, held) > 0)
+        return entryRole(step.entry.kind) === 'move'
+          ? { code: 'fee-exceeds-held', coin, held, fee: sold, date: step.entry.date }
+          : { code: 'sell-exceeds-held', coin, held, sold };
       held = step.held;
     }
   }
@@ -345,7 +353,7 @@ export function slotsAtDelete(
  */
 export type RestoreRefusal =
   | SlotRefusal
-  | SaleRefusal
+  | CoverRefusal
   | TooManyEntries
   | CurrencyMoved
   | { readonly code: 'changed-since-delete' };
