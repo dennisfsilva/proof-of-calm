@@ -97,4 +97,6 @@ numbers. A payload version rises only with an upgrade path, either an upgrade on
 rollback read tests. A new payload version is read by one release before any release writes it: rows
 and files are written at the lowest version that holds their data (`docs/DOMAIN.md` §2.1). The
 newer-version screen (`packages/app/src/features/shell/newer-version.tsx`) ships in a release
-before any release writes a higher row version, so the build a rollback returns to shows it.
+before any release writes a higher row version, so the build a rollback returns to shows it. Until
+the first `vX.Y.Z` tag, a release in this section is a production deployment of a `main` commit,
+since every merge to `main` goes to production: a reader is in production before its writer merges.
