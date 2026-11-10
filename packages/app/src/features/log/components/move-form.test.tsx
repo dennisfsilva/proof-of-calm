@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { countryRules, loadProfile } from '@proofofcalm/content';
 import { DEFAULT_PREFS, type Entry } from '@proofofcalm/core';
-import { aMove, anEntry, aPlan, date, units } from '@proofofcalm/core/testing';
+import { aMove, anEntry, aPlan, date, ETH, units } from '@proofofcalm/core/testing';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { EMPTY_SNAPSHOT } from '../../../lib/adapters';
@@ -141,6 +141,23 @@ describe('MoveForm', () => {
     await save();
     expect(document.activeElement).toBe(field('Units sent'));
     expect(screen.getByText('Enter more than 0 units sent.')).toBeTruthy();
+  });
+
+  it('a refusal at a choice focuses its first card', async () => {
+    await open(lots);
+    type('Date', '2026-02-20');
+    type('Venue the coins went to', 'Ledger');
+    type('Units sent', '0.01');
+    await save();
+    expect(screen.getByText('Choose the venue the coins left.')).toBeTruthy();
+    expect(document.activeElement).toBe(radio('Kraken'));
+    cleanup();
+    // With two coins held, neither is chosen for the person.
+    const ether = anEntry({ kind: 'extra', coin: ETH.id, date: date('2026-01-10'), slot: null, venue: null });
+    await open([...lots, ether]);
+    await save();
+    expect(screen.getByText('Choose the coin you moved.')).toBeTruthy();
+    expect(document.activeElement).toBe(radio('BTC'));
   });
 
   it('the destination is labelled and hinted as a place name and never asks for an address', async () => {

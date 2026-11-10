@@ -120,10 +120,14 @@ function PlanMoveForm({ plan, numberInput: mounted, editing, onDone }: PlanMoveF
     }
     return refused?.field === field ? refused.text : null;
   };
-  // A refused save moves the focus to the first field it names, so the refusal is heard there.
+  // A refused save moves the focus to the first field it names, so the refusal is heard there; a radio group's root
+  // takes no focus, so its checked card does, else its first, where the keyboard lands.
   const form = useRef<HTMLFormElement>(null);
   useEffect(() => {
-    if (outcome !== NOTHING) form.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+    const named = outcome === NOTHING ? null : form.current?.querySelector<HTMLElement>('[aria-invalid="true"]');
+    const cards =
+      named?.getAttribute('role') === 'radiogroup' ? [...named.querySelectorAll<HTMLElement>('[role="radio"]')] : [];
+    (cards.find((card) => card.getAttribute('aria-checked') === 'true') ?? cards[0] ?? named)?.focus();
   }, [outcome]);
 
   const decimals = plan.coins.find((coin) => coin.id === state.coin)?.decimals ?? MAX_UNIT_DECIMALS;
