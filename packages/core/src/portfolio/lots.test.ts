@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { aMove, anEntry, date, instant, money, units } from '../../test/builders';
 import { compare, isNegative, minus, sum, type Units } from '../money/decimal';
 import type { Entry } from '../schema/entry';
-import { heldLots, lots, matchLots, venueUnits } from './lots';
+import { heldLots, lots, matchLots, venueUnits, venueUnitsAtMove } from './lots';
 
 const BTC = 'BTC' as never;
 const buy = (day: string, quantity: string, venue: string | null = null, created = '2026-01-01T09:00:00Z') =>
@@ -338,6 +338,48 @@ describe('venueUnits (docs/DOMAIN.md §3.7)', () => {
       { venue: 'Ledger', units: '0.3' },
       { venue: 'Kraken', units: '0.1' },
     ]);
+  });
+});
+
+describe('venueUnitsAtMove (docs/DOMAIN.md §3.7)', () => {
+  const at = (time: string) => instant(`2026-02-01T${time}:00Z`);
+  const moveOn = (quantity: string, to: string, created: string) =>
+    aMove({
+      coin: BTC,
+      date: date('2026-02-01'),
+      units: units(quantity),
+      received: units(quantity),
+      to,
+      createdAt: at(created),
+    });
+
+  it("reads the venues after the date's purchases and earlier moves, before its sales, the edited move at its own place", () => {
+    const early = moveOn('0.1', 'Ledger', '09:00');
+    const late = moveOn('0.2', 'Coinbase', '11:00');
+    const entries = [
+      buy('2026-01-01', '0.5', 'Kraken'),
+      buy('2026-02-01', '0.1', 'Kraken'),
+      early,
+      late,
+      sell('2026-02-01', '0.6', 'Kraken'),
+      buy('2026-02-02', '1', 'Kraken'),
+    ];
+    // A new move comes after both stored moves; the sale and the next day's purchase never count.
+    expect(venueUnitsAtMove(entries, BTC, date('2026-02-01'), null)).toEqual([
+      { venue: 'Kraken', units: '0.3' },
+      { venue: 'Ledger', units: '0.1' },
+      { venue: 'Coinbase', units: '0.2' },
+    ]);
+    // A move stamped 10:00 sits between them, under LIFO as under FIFO.
+    expect(venueUnitsAtMove(entries, BTC, date('2026-02-01'), { createdAt: at('10:00'), id: late.id }, 'lifo')).toEqual(
+      [
+        { venue: 'Kraken', units: '0.5' },
+        { venue: 'Ledger', units: '0.1' },
+      ],
+    );
+    // Unlike venueUnits, a sale that no lot covered is not taken off the lots bought after it.
+    const short = [sell('2025-12-01', '0.2', 'Kraken'), buy('2026-01-01', '0.5', 'Kraken')];
+    expect(venueUnitsAtMove(short, BTC, date('2026-02-01'), null)).toEqual([{ venue: 'Kraken', units: '0.5' }]);
   });
 });
 

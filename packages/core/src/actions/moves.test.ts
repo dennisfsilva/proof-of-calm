@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { aMove, anEntry, aPlan, BTC, date, ETH, id, instant, money, units } from '../../test/builders';
 import { ENTRY_NOTE_MAX_LENGTH, MAX_ENTRIES, VENUE_MAX_LENGTH } from '../constants';
 import { stampAfter } from '../dates/calendar';
+import { matchLots } from '../portfolio/lots';
 import type { Entry } from '../schema/entry';
 import type { CoinId } from '../schema/ids';
 import type { SaveContext } from './entries';
@@ -177,6 +178,51 @@ describe('saveMove (docs/DOMAIN.md §6)', () => {
     const edited = draft({ sent: units('0.009'), received: units('0.009') });
     expect(sourceShort(entries, edited, null)).toBe('0.007');
     expect(sourceShort(entries, edited, stored.id)).toBeNull();
+  });
+
+  it("sourceShort reads the source before the date's sales, as matchLots matches the move", () => {
+    // Session review round 3: a sale at the source on the move's date comes after the move in the matching order.
+    const entries = [
+      buy('0.05', { date: date('2026-01-15') }),
+      buy('0.02', { date: date('2026-01-15'), venue: 'Bitvavo' }),
+      sale('0.03', { date: date('2026-02-01') }),
+    ];
+    const moved = draft({ sent: units('0.04'), received: units('0.04') });
+    expect(sourceShort(entries, moved, null)).toBeNull();
+    const saved = saveMove(moved, context(entries));
+    if (!saved.ok) throw new Error('the move saves');
+    const [match] = matchLots([...entries, ...saved.value], BTC.id, 'per-venue').moves;
+    expect(match?.takes.map(({ units, venue }) => [units, venue])).toEqual([['0.04', 'Kraken']]);
+    expect(match?.unmatched).toBe('0');
+  });
+
+  it("sourceShort counts a purchase at the source on the move's date", () => {
+    const onTheDay = { date: date('2026-02-01') };
+    const entries = [buy('0.01', onTheDay), sale('0.01', onTheDay)];
+    expect(sourceShort(entries, draft({ sent: units('0.01') }), null)).toBeNull();
+    expect(sourceShort(entries, draft({ sent: units('0.012') }), null)).toBe('0.002');
+  });
+
+  it('sourceShort counts the units an earlier move of the date delivered to the source', () => {
+    const earlier = aMove({ date: date('2026-02-01'), venue: 'Bitvavo', to: 'Kraken', received: units('0.01') });
+    const entries = [buy('0.01', { venue: 'Bitvavo' }), earlier, sale('0.005', { date: date('2026-02-01') })];
+    expect(sourceShort(entries, draft({ sent: units('0.01'), received: units('0.01') }), null)).toBeNull();
+  });
+
+  it("sourceShort counts an edited move's own units back at its source", () => {
+    // The edit keeps its place among the date's moves: before the later move from Kraken, which a new move would follow.
+    const at = (time: string) => instant(`2026-02-01T${time}:00+00:00`);
+    const stored = aMove({
+      date: date('2026-02-01'),
+      units: units('0.008'),
+      received: units('0.008'),
+      createdAt: at('09:00'),
+    });
+    const later = aMove({ date: date('2026-02-01'), units: units('0.002'), to: 'Coinbase', createdAt: at('10:00') });
+    const entries = [buy('0.01', { date: date('2026-01-15') }), stored, later];
+    const edited = draft({ sent: units('0.009'), received: units('0.009') });
+    expect(sourceShort(entries, edited, stored.id)).toBeNull();
+    expect(sourceShort(entries, edited, null)).toBe('0.009');
   });
 
   it('refuses a fee that leaves a later sale short (sell-exceeds-held)', () => {
