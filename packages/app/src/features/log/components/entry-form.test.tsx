@@ -1200,7 +1200,12 @@ describe('EntryForm', () => {
   // ADR-0055: a move's network fee stays covered by a purchase dated on or before the move.
   it('shows before Save the move a venue edit leaves short, and saves the edit', async () => {
     // The move's fee is then taken at Ledger, so the line shows in every country (DOMAIN §3.7).
-    const move = aMove({ date: date('2026-01-10'), venue: 'Wallet A', units: units('0.003'), received: units('0.0028') });
+    const move = aMove({
+      date: date('2026-01-10'),
+      venue: 'Wallet A',
+      units: units('0.003'),
+      received: units('0.0028'),
+    });
     const { services, onDone } = await renderForm({ kind: 'extra', editing: [older] }, [older, move]);
     fireEvent.click(screen.getByRole('button', { name: 'Venue and note' }));
     expect(screen.queryByRole('status')).toBeNull();

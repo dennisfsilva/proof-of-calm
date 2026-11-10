@@ -13,6 +13,7 @@ import {
   err,
   type FillField,
   focusSlot,
+  type HoldingContext,
   heldUnits,
   isNegative,
   isPositive,
@@ -23,7 +24,9 @@ import {
   type Money,
   type MonthKey,
   MonthKeySchema,
+  type MoveShortfall,
   minus,
+  movesLeftShort,
   ok,
   type Plan,
   PRICE_FIGURES,
@@ -327,6 +330,26 @@ export function saveOn(
   const saved = saveTransaction(draft, { ...context, entries, editing: live });
   if (!saved.ok) return saved;
   return ok(keepUnchanged(saved.value, { current, draft, editing: live, changed: changedFields(initial, current) }));
+}
+
+/** What the move line before Save reads: the entries as stored, the save's context, and the country's matching. */
+export type MoveShortContext = {
+  readonly entries: readonly Entry[];
+  readonly save: FormSave;
+  readonly holding: HoldingContext;
+};
+
+/**
+ * The stored moves the entries `saveOn` would store leave short outside their destination (`movesLeftShort`, docs/
+ * DOMAIN.md §3.7), earliest first; none while the save refuses or an edited entry is gone. Never refuses the save.
+ */
+export function moveShortLines(
+  draft: TransactionDraft,
+  { entries, save, holding }: MoveShortContext,
+): readonly MoveShortfall[] {
+  const saved = saveOn(entries, draft, save);
+  if (saved?.ok !== true) return [];
+  return [...movesLeftShort(entries, saved.value, holding)].sort((a, b) => a.date.localeCompare(b.date));
 }
 
 /** A field under "Venue and note" whose message a save's refusal shows under it. */
