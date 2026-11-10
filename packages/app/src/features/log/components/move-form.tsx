@@ -81,8 +81,12 @@ function PlanMoveForm({ plan, numberInput: mounted, editing, onDone }: PlanMoveF
   const ctx = { plan, entries, editing, numberInput };
   const [state, setState] = useState(() => initialMoveState(editing, ctx));
   const [ids] = useState(() => [EntityIdSchema.parse(crypto.randomUUID())]);
+  // Only the coin and the date change the sources, so only they choose the source again: an edit keeps its stored one.
   const update = (change: (current: MoveFormState) => MoveFormState) =>
-    setState((current) => withSource(change(current), ctx));
+    setState((current) => {
+      const next = change(current);
+      return next.coin === current.coin && next.date === current.date ? next : withSource(next, ctx);
+    });
   const set = (patch: Partial<MoveFormState>) => update((current) => ({ ...current, ...patch }));
 
   const [outcome, submit, pending] = useActionState(async (): Promise<Outcome> => {
