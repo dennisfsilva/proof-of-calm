@@ -112,11 +112,11 @@ describe('deleteRefusalTitle', () => {
     const held = (count: number) => ({ kind: 'held' as EntryKind, count });
     expect(deleteRefusalTitle(refusedDelete(entries, [btc]), held(1), f, t)).toBe(
       `Deleting this Coins added entry would leave your BTC move on ${APRIL} ` +
-        'without the units its network fee takes, so it stays. Check that move in the Log.',
+        'without the units its network fee takes, so the entry stays. Check that move in the Log.',
     );
     expect(deleteRefusalTitle(refusedDelete(entries, [btc, eth]), held(2), f, t)).toBe(
       `Deleting these 2 Coins added entries would leave your BTC move on ${APRIL} ` +
-        'without the units its network fee takes, so they stay. Check that move in the Log.',
+        'without the units its network fee takes, so the entries stay. Check that move in the Log.',
     );
   });
 

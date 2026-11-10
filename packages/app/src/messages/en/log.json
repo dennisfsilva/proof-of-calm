@@ -44,7 +44,7 @@
     "notRestoredCurrency": "{count, plural, one {Your plan's currency changed from {from} to {to} after the delete, so this entry stays deleted. It was recorded in {from}; log it again only if you paid it in {to}.} other {Your plan's currency changed from {from} to {to} after the delete, so these {figure} entries stay deleted. They were recorded in {from}; log them again only if you paid them in {to}.}}",
     "noCost": "Cost unknown",
     "notDeleted": "This purchase covers a later {coin} sale, so it stays. Change or delete the sale first.",
-    "notDeletedFee": "{kind, select, held {{count, plural, one {Deleting this Coins added entry would leave your {coin} move on {date} without the units its network fee takes, so it stays. Check that move in the Log.} other {Deleting these {figure} Coins added entries would leave your {coin} move on {date} without the units its network fee takes, so they stay. Check that move in the Log.}}} other {Deleting this purchase would leave your {coin} move on {date} without the units its network fee takes, so the purchase stays. Check that move in the Log.}}",
+    "notDeletedFee": "{kind, select, held {{count, plural, one {Deleting this Coins added entry would leave your {coin} move on {date} without the units its network fee takes, so the entry stays. Check that move in the Log.} other {Deleting these {figure} Coins added entries would leave your {coin} move on {date} without the units its network fee takes, so the entries stay. Check that move in the Log.}}} other {Deleting this purchase would leave your {coin} move on {date} without the units its network fee takes, so the purchase stays. Check that move in the Log.}}",
     "failed": "The change could not be saved. Try again."
   },
   "holding": {

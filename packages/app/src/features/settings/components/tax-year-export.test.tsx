@@ -123,7 +123,7 @@ const HELD_EMPTY = 'On a held row, an empty cost_basis means no cost was recorde
 const EMPTY_COST = `${HELD_EMPTY} Rows with no acquired date leave cost_basis empty.`;
 const EMPTY_COST_RAW = `${HELD_EMPTY} Sale rows leave cost_basis empty.`;
 const HELD_AT =
-  'held_at: where the units were when sold, paid as a network fee, or at the year end, empty for no venue and on rows with no acquired date. moved_on: the date a Coins moved entry took them there, empty if none did.';
+  'held_at: where the units were when sold, paid as a network fee, or at the year end. It is empty for no venue and on rows with no acquired date. moved_on: the date a Coins moved entry took them there, empty if none did.';
 
 /** The file's rows as cells by column; the test data puts no comma, quote or line break in a cell. */
 function rowsOf(content: string): Record<string, string>[] {
