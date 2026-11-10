@@ -453,7 +453,7 @@ describe('TaxYearExport', () => {
   it('the per-lot header counts the rows whose network fee came from the destination', async () => {
     const AT_DESTINATION =
       "In 1 row, the Log took a Coins moved entry's network fee from units already at the venue the coins went to. " +
-      'On that day the Log shows too few units outside that venue for what the entry sent. ' +
+      'On that date the Log shows too few units outside that venue for what the entry sent. ' +
       'Check that Coins moved entry in the Log.';
     const atLedger = (all: readonly Entry[]): Entry[] => {
       const coin = all.find((each) => each.kind === 'dca')?.coin as Entry['coin'];

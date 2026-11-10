@@ -140,8 +140,12 @@ export function LogScreen() {
     try {
       const deleted = await actions.deleteTransaction(ids);
       if (!deleted.ok) {
-        const key = deleted.error.code === 'fee-exceeds-held' ? 'row.notDeletedFee' : 'row.notDeleted';
-        toasts.add({ title: t(key, { coin: deleted.error.coin }), timeout: UNDO_WINDOW_MS });
+        const { error } = deleted;
+        const title =
+          error.code === 'fee-exceeds-held'
+            ? t('row.notDeletedFee', { coin: error.coin, date: f.date(error.date) })
+            : t('row.notDeleted', { coin: error.coin });
+        toasts.add({ title, timeout: UNDO_WINDOW_MS });
         return;
       }
       before = deleted.value;
