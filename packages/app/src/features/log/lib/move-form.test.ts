@@ -1,4 +1,4 @@
-import type { Entry, MoveDraft } from '@proofofcalm/core';
+import type { CoinId, Entry, MoveDraft } from '@proofofcalm/core';
 import { aMove, anEntry, aPlan, BTC, date, ETH, id, instant, units } from '@proofofcalm/core/testing';
 import { describe, expect, it } from 'vitest';
 import { createFormatters, createNumberInput } from '../../../lib/format';
@@ -156,9 +156,16 @@ const draft: MoveDraft = {
   received: units('0.0498'),
   note: '',
 };
+const save = { plan, ids: [id()], now: instant('2026-03-01T09:00:00+00:00'), source: 'manual' } as const;
+// 0.03 BTC bought at Kraken on 10 Jan 2026 and sold on 1 Mar 2026: none held now, 0.03 held all February.
+const gone = [
+  bought('0.03', '2026-01-10', 'Kraken'),
+  anEntry({ kind: 'sell', coin: BTC.id, units: units('0.03'), slot: null, date: date('2026-03-01') }),
+];
+const SOL = 'SOL' as CoinId;
 
 describe('initialMoveState', () => {
-  it('a new move opens with a blank date and the coin chosen only when one is held', () => {
+  it('a new move opens with a blank date, the coin chosen when one is held and none while two are', () => {
     expect(blank).toEqual({
       coin: 'BTC',
       date: '',
@@ -171,6 +178,16 @@ describe('initialMoveState', () => {
     });
     const both = [...lots, bought('0.5', '2026-01-10', 'Kraken', ETH.id)];
     expect(initialMoveState(null, context(both)).coin).toBe('');
+  });
+
+  it('a new move preselects the one coin held now while the choice also lists the coins sold out since', () => {
+    const eth = [...gone, bought('0.5', '2026-01-10', 'Kraken', ETH.id)];
+    expect(movableCoins({ plan, entries: eth })).toEqual(['BTC', 'ETH']);
+    expect(initialMoveState(null, context(eth)).coin).toBe('ETH');
+    // With nothing held now the one coin the Log has held is chosen; with two held now, none.
+    expect(initialMoveState(null, context(gone)).coin).toBe('BTC');
+    const two = [...eth, bought('1', '2026-01-10', 'Kraken', SOL)];
+    expect(initialMoveState(null, context(two)).coin).toBe('');
   });
 
   it('an edit opens on its move, its units received typed only when they differ from the units sent', () => {
@@ -194,11 +211,31 @@ describe('initialMoveState', () => {
 });
 
 describe('movableCoins', () => {
-  it('offers only the coins with units held', () => {
+  it("offers the coins the Log has held at some time, in the portfolio's order", () => {
     const sale = anEntry({ kind: 'sell', coin: ETH.id, units: units('0.5'), slot: null, date: date('2026-01-20') });
     const sold = [bought('0.5', '2026-01-10', 'Kraken', ETH.id), sale];
-    expect(movableCoins({ plan, entries: [...lots, ...sold] })).toEqual(['BTC']);
+    expect(movableCoins({ plan, entries: [...sold, ...lots] })).toEqual(['BTC', 'ETH']);
+    // A plan coin never bought, and a coin whose only purchase was deleted, are not offered.
+    const deleted = { ...bought('1', '2026-01-10', 'Kraken', SOL), deletedAt: instant('2026-01-11T09:00:00+00:00') };
+    expect(movableCoins({ plan, entries: [...lots, deleted] })).toEqual(['BTC']);
     expect(movableCoins({ plan, entries: [] })).toEqual([]);
+  });
+
+  it('a coin sold out since can still be chosen for a move dated while it was held', () => {
+    expect(movableCoins({ plan, entries: gone })).toEqual(['BTC']);
+    expect(initialMoveState(null, context(gone)).coin).toBe('BTC');
+    const february = { ...draft, date: date('2026-02-01'), sent: units('0.01'), received: units('0.01') };
+    expect(saveMoveOn(gone, february, { ...save, editing: null })?.ok).toBe(true);
+  });
+
+  it('an edit keeps its own coin in the choice after a later sale used its units up', () => {
+    const move = aMove({ date: date('2026-02-01'), received: units('0.01') });
+    const others = [bought('0.5', '2026-01-10', 'Kraken', ETH.id), bought('1', '2026-01-10', 'Kraken', SOL)];
+    const entries = [...gone, move, ...others];
+    expect(movableCoins(context(entries, move))).toEqual(['BTC', 'ETH', 'SOL']);
+    expect(initialMoveState(move, context(entries, move)).coin).toBe('BTC');
+    // Its coin stays even when no live purchase of it is left in the Log.
+    expect(movableCoins(context([move, ...others], move))).toEqual(['BTC', 'ETH', 'SOL']);
   });
 });
 
@@ -271,7 +308,6 @@ describe('moveLines', () => {
 });
 
 describe('saveMoveOn', () => {
-  const save = { plan, ids: [id()], now: instant('2026-03-01T09:00:00+00:00'), source: 'manual' } as const;
   const small = { ...draft, sent: units('0.01'), received: units('0.0099') };
 
   it('saves a new move on the entries as stored', () => {

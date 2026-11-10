@@ -2,10 +2,12 @@ import {
   type ActionError,
   type CalendarDate,
   CalendarDateSchema,
+  type CoinId,
   CoinIdSchema,
   coinsWithEntries,
   compare,
   type Entry,
+  entryRole,
   err,
   heldUnits,
   isPositive,
@@ -59,10 +61,17 @@ export type MoveField = 'coin' | 'date' | 'from' | 'to' | 'sent' | 'received' | 
 type MoveIssueCode = 'coin-empty' | 'date-invalid' | 'from-empty' | 'to-empty' | 'sent-zero' | 'received-zero';
 export type MoveFieldIssue = { readonly field: MoveField; readonly error: NumberInputError | MoveIssueCode };
 
-/** The coins with units held, in the portfolio's order: the ones a move can send. */
-export function movableCoins(ctx: Pick<MoveFormContext, 'plan' | 'entries'>): string[] {
+/**
+ * The coins the Log has held at some time (a live purchase of each), the edited move's coin with them, in the
+ * portfolio's order: a move's date comes from a past withdrawal record, and `saveMove` refuses a date with too few units.
+ */
+export function movableCoins(
+  ctx: Pick<MoveFormContext, 'plan' | 'entries'> & { readonly editing?: Entry | null },
+): CoinId[] {
   const live = liveEntries(ctx.entries);
-  return coinsWithEntries(ctx.plan, live).filter((coin) => isPositive(heldUnits(live, coin)));
+  const bought = new Set(live.filter((entry) => entryRole(entry.kind) === 'purchase').map((entry) => entry.coin));
+  if (ctx.editing) bought.add(ctx.editing.coin);
+  return coinsWithEntries(ctx.plan, ctx.editing ? [...live, ctx.editing] : live).filter((coin) => bought.has(coin));
 }
 
 /** The venues holding the coin at the end of the state's date, the edited move left out; none without both. */
@@ -83,14 +92,17 @@ export function withSource(state: MoveFormState, ctx: MoveFormContext): MoveForm
 }
 
 /**
- * A new move opens with no date, since none can be assumed (research move-step Q11), and the coin chosen only when one
- * is held; an edit opens on its move's values.
+ * A new move opens with no date, since none can be assumed (research move-step Q11), and the coin chosen when one coin
+ * is held now, else when the Log has held only one; an edit opens on its move's values.
  */
 export function initialMoveState(editing: Entry | null, ctx: MoveFormContext): MoveFormState {
   if (editing === null) {
     const coins = movableCoins(ctx);
+    const live = liveEntries(ctx.entries);
+    const held = coins.filter((coin) => isPositive(heldUnits(live, coin)));
+    const [only] = held.length === 1 ? held : coins.length === 1 ? coins : [];
     const empty = { date: '', from: undefined, to: '', sent: '', received: '', receivedTyped: false, note: '' };
-    return { ...empty, coin: coins.length === 1 ? (coins[0] ?? '') : '' };
+    return { ...empty, coin: only ?? '' };
   }
   const received = editing.received ?? editing.units;
   return {
