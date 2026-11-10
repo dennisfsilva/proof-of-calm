@@ -53,19 +53,23 @@ export type SaleMatch = {
 };
 
 /**
- * A move's units sent, its fee in the coin (sent less received), how many of the units sent no piece outside its
- * destination covered at its date, and the pieces it took in the order taken, the fee's first: Σ `takes.units` +
- * `unmatched` = `units`.
+ * A move's units sent, its fee in the coin (sent less received), how many of the units sent no piece covered at its
+ * date, the units of its fee taken at its destination (`atDestination`, ADR-0055), and the pieces it took in the order
+ * taken: outside its destination, the fee's first, then at its destination: Σ `takes.units` + `unmatched` = `units`.
  */
 export type MoveMatch = {
   readonly id: EntityId;
   readonly units: Units;
   readonly fee: Units;
   readonly unmatched: Units;
+  readonly atDestination: Units;
   readonly takes: readonly SaleTake[];
 };
 
-/** The part of a move's fee no piece covered: the fee is taken first, so what the units received leave uncovered. */
+/**
+ * The part of a move's fee no piece of the coin covered, its destination's included: the fee is taken first, so what
+ * the units received leave uncovered.
+ */
 export function feeUnmatched(move: Pick<MoveMatch, 'units' | 'fee' | 'unmatched'>): Units {
   return max(minus(move.unmatched, minus(move.units, move.fee)), '0' as Units);
 }
@@ -139,7 +143,9 @@ function takeFromPlaces(places: readonly Place[], units: Units): Place[] {
  * covers then stay unmatched, so the units left in total and each sale's unmatched units never depend on the scope.
  * A move takes its units sent the same way from the pieces at its source venue, then from the pieces anywhere but its
  * destination, whatever the scope: its fee first, which leaves the lot, then the units received, which stay in their
- * lot at a place at `to` dated the move. Other lot rules (average, pooled, specific, unspecified) are matched FIFO here:
+ * lot at a place at `to` dated the move. The part of the fee those pieces cannot pay comes from the destination's own
+ * pieces in the same order and leaves the coin (ADR-0055); units received never come from there, and those no piece
+ * covers stay unmatched where they are. Other lot rules (average, pooled, specific, unspecified) are matched FIFO here:
  * holding eligibility only needs remaining units, and the tax-year export names the country's own method (§3.13).
  */
 export function matchLots(entries: readonly Entry[], coin: CoinId, scope: LotScope, rule: LotRule = 'fifo'): LotMatch {
@@ -156,7 +162,7 @@ export function matchLots(entries: readonly Entry[], coin: CoinId, scope: LotSco
     byId.set(entry.id, { entry, left: units, places: [{ venue: entry.venue, since: null, units }] });
   }
 
-  const matched = new Map<EntityId, Omit<SaleMatch, 'id' | 'units'>>();
+  const matched = new Map<EntityId, Omit<SaleMatch, 'id' | 'units'> & { atDestination: Units }>();
   const open: Open[] = [];
   const inOrder = <T>(list: T[]) => (rule === 'lifo' ? list.reverse() : list);
   for (const entry of [...own].sort(matchingOrder)) {
@@ -167,9 +173,8 @@ export function matchLots(entries: readonly Entry[], coin: CoinId, scope: LotSco
     }
     const move = entryRole(entry.kind) === 'move';
     const group = venueGroup(entry.venue, move ? 'per-venue' : scope);
-    const pieces = open
-      .flatMap((each) => each.places.map((place) => ({ lot: each, place })))
-      .filter(({ place }) => !move || place.venue !== entry.to);
+    const every = open.flatMap((each) => each.places.map((place) => ({ lot: each, place })));
+    const pieces = every.filter(({ place }) => !move || place.venue !== entry.to);
     const ours = (piece: (typeof pieces)[number]) =>
       venueGroup(piece.place.venue, move ? 'per-venue' : scope) === group;
     let toMatch = entry.units;
@@ -177,20 +182,31 @@ export function matchLots(entries: readonly Entry[], coin: CoinId, scope: LotSco
     let leaving = unitsOut(entry);
     let uncosted = '0' as Units;
     const takes: SaleTake[] = [];
-    for (const { lot: next, place } of [...inOrder(pieces.filter(ours)), ...inOrder(pieces.filter((p) => !ours(p)))]) {
-      const taken = min(place.units, toMatch);
-      if (!isPositive(taken)) continue;
-      const gone = min(taken, leaving);
+    const take = (next: Open, place: (typeof every)[number]['place'], taken: Units, gone: Units) => {
       place.units = minus(place.units, taken);
       next.left = minus(next.left, gone);
       leaving = minus(leaving, gone);
       toMatch = minus(toMatch, taken);
       takes.push({ lot: next.entry.id, units: taken, venue: place.venue, since: place.since });
       if (next.entry.amount === null) uncosted = plus(uncosted, taken);
+    };
+    for (const { lot: next, place } of [...inOrder(pieces.filter(ours)), ...inOrder(pieces.filter((p) => !ours(p)))]) {
+      const taken = min(place.units, toMatch);
+      if (!isPositive(taken)) continue;
+      const gone = min(taken, leaving);
+      take(next, place, taken, gone);
       const kept = minus(taken, gone);
       if (isPositive(kept)) arrive(next.places, defined(entry.to, 'destination'), entry.date, kept);
     }
-    matched.set(entry.id, { uncosted, unmatched: toMatch, takes });
+    // The fee the pieces outside its destination left unpaid comes from the destination's own pieces (ADR-0055).
+    let atDestination = '0' as Units;
+    for (const { lot: next, place } of inOrder(every.filter(({ place }) => move && place.venue === entry.to))) {
+      const taken = min(place.units, leaving);
+      if (!isPositive(taken)) continue;
+      atDestination = plus(atDestination, taken);
+      take(next, place, taken, taken);
+    }
+    matched.set(entry.id, { uncosted, unmatched: toMatch, takes, atDestination });
   }
 
   const lots = [...byId.values()].map(
@@ -212,10 +228,10 @@ export function matchLots(entries: readonly Entry[], coin: CoinId, scope: LotSco
   for (const entry of own) {
     const match = matched.get(entry.id);
     if (match === undefined) continue;
-    const { unmatched, takes } = match;
+    const { uncosted, unmatched, takes, atDestination } = match;
     if (entryRole(entry.kind) === 'move')
-      moves.push({ id: entry.id, units: entry.units, fee: unitsOut(entry), unmatched, takes });
-    else sales.push({ id: entry.id, units: entry.units, ...match });
+      moves.push({ id: entry.id, units: entry.units, fee: unitsOut(entry), unmatched, atDestination, takes });
+    else sales.push({ id: entry.id, units: entry.units, uncosted, unmatched, takes });
   }
   const unmatchedUnits = sum([...sales.map((sale) => sale.unmatched), ...moves.map(feeUnmatched)]);
   return { lots, sales, moves, unmatchedUnits };
@@ -256,7 +272,7 @@ export function heldLots(match: LotMatch): LotMatch {
   const sales = match.sales.map(
     (sale): SaleMatch => ({ ...sale, uncosted: plus(sale.uncosted, takeOldest(sale.unmatched)) }),
   );
-  // A move's fee no piece covered leaves the coin all the same.
+  // A move's fee no piece of the coin covered, its destination's included, leaves the coin all the same.
   for (const move of match.moves) takeOldest(feeUnmatched(move));
   const held = left.map(({ lot, left }) => ({
     ...lot,

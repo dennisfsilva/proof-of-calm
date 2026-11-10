@@ -398,6 +398,7 @@ describe('a move (docs/DOMAIN.md §3.7, ADR-0054)', () => {
         units: '0.05',
         fee: '0.0002',
         unmatched: '0',
+        atDestination: '0',
         takes: [{ lot: l2.id, units: '0.05', venue: 'Kraken', since: null }],
       },
     ]);
@@ -411,7 +412,7 @@ describe('a move (docs/DOMAIN.md §3.7, ADR-0054)', () => {
     ]);
   });
 
-  it('takes a shortfall from the other venues, never from its destination, and leaves the rest unmatched', () => {
+  it('takes a shortfall of its units received from the other venues, never from its destination, and leaves the rest unmatched', () => {
     const kraken = buy('2025-01-10', '0.02', 'Kraken');
     const ledger = buy('2025-01-11', '0.5', 'Ledger');
     const bitvavo = buy('2025-01-12', '0.01', 'Bitvavo');
@@ -422,6 +423,7 @@ describe('a move (docs/DOMAIN.md §3.7, ADR-0054)', () => {
       units: '0.05',
       fee: '0.02',
       unmatched: '0.02',
+      atDestination: '0',
       takes: [
         { lot: kraken.id, units: '0.02', venue: 'Kraken', since: null },
         { lot: bitvavo.id, units: '0.01', venue: 'Bitvavo', since: null },
@@ -433,15 +435,60 @@ describe('a move (docs/DOMAIN.md §3.7, ADR-0054)', () => {
     expect(match.unmatchedUnits).toBe('0');
   });
 
-  it('counts the part of its fee no piece covered as unmatched, and heldLots takes it off the oldest lot', () => {
+  it("a move whose pieces outside its destination cannot pay its fee takes the rest of the fee from the destination's pieces by the lot rule and adds none of them to it", () => {
     const ledger = buy('2025-01-10', '0.5', 'Ledger');
     const moved = move('2025-06-01', '0.05', '0.04', 'Kraken', 'Ledger');
     const match = matchLots([ledger, moved], BTC, 'per-venue');
-    expect(match.moves[0]).toMatchObject({ fee: '0.01', unmatched: '0.05', takes: [] });
-    expect(match.unmatchedUnits).toBe('0.01');
-    expect(heldLots(match).lots.map((lot) => [lot.remainingUnits, lot.places])).toEqual([
-      ['0.49', [{ venue: 'Ledger', since: null, units: '0.49' }]],
-    ]);
+    expect(match.moves[0]).toEqual({
+      id: moved.id,
+      units: '0.05',
+      fee: '0.01',
+      unmatched: '0.04',
+      atDestination: '0.01',
+      takes: [{ lot: ledger.id, units: '0.01', venue: 'Ledger', since: null }],
+    });
+    expect(match.unmatchedUnits).toBe('0');
+    const ledgerOnly = [['0.49', [{ venue: 'Ledger', since: null, units: '0.49' }]]];
+    expect(match.lots.map((lot) => [lot.remainingUnits, lot.places])).toEqual(ledgerOnly);
+    expect(heldLots(match).lots.map((lot) => [lot.remainingUnits, lot.places])).toEqual(ledgerOnly);
+  });
+
+  it('LIFO: the rest of the fee comes from the latest piece at the destination', () => {
+    const first = buy('2025-01-10', '0.3', 'Ledger');
+    const second = buy('2025-02-10', '0.2', 'Ledger');
+    const moved = move('2025-06-01', '0.05', '0.04', 'Kraken', 'Ledger');
+    const lifo = matchLots([first, second, moved], BTC, 'per-venue', 'lifo');
+    expect(lifo.moves[0]?.takes).toEqual([{ lot: second.id, units: '0.01', venue: 'Ledger', since: null }]);
+    expect(lifo.lots.map((lot) => lot.remainingUnits)).toEqual(['0.3', '0.19']);
+    const fifo = matchLots([first, second, moved], BTC, 'per-venue', 'fifo');
+    expect(fifo.lots.map((lot) => lot.remainingUnits)).toEqual(['0.29', '0.2']);
+  });
+
+  it("a new move dated before a stored move on its route takes the stored move's fee at the destination", () => {
+    const kraken = buy('2026-01-10', '0.10', 'Kraken');
+    const february = move('2026-02-01', '0.10', '0.0998', 'Kraken', 'Ledger');
+    const march = move('2026-03-01', '0.10', '0.0998', 'Kraken', 'Ledger');
+    const match = matchLots([kraken, february, march], BTC, 'global');
+    expect(match.moves[1]).toEqual({
+      id: march.id,
+      units: '0.10',
+      fee: '0.0002',
+      unmatched: '0.0998',
+      atDestination: '0.0002',
+      takes: [{ lot: kraken.id, units: '0.0002', venue: 'Ledger', since: '2026-02-01' }],
+    });
+    expect(match.unmatchedUnits).toBe('0');
+    expect(match.lots.map((lot) => lot.remainingUnits)).toEqual(['0.0996']);
+    expect(heldLots(match).lots.map((lot) => lot.remainingUnits)).toEqual(['0.0996']);
+  });
+
+  it("a move's fee stays unmatched only when no piece of the coin, the destination's included, covers it", () => {
+    const ledger = buy('2025-01-10', '0.005', 'Ledger');
+    const moved = move('2025-06-01', '0.05', '0.04', 'Kraken', 'Ledger');
+    const match = matchLots([ledger, moved], BTC, 'per-venue');
+    expect(match.moves[0]).toMatchObject({ fee: '0.01', unmatched: '0.045', atDestination: '0.005' });
+    expect(match.unmatchedUnits).toBe('0.005');
+    expect(heldLots(match).lots.map((lot) => lot.remainingUnits)).toEqual(['0']);
   });
 
   it('merges the units a second move brings to one place on one day', () => {

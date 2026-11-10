@@ -1,13 +1,13 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { anEntry, aPlan, BTC, date, ETH, instant, money, month, split, units } from '../../test/builders';
+import { aMove, anEntry, aPlan, BTC, date, ETH, instant, money, month, split, units } from '../../test/builders';
 import { PT_MOVE_ENTRIES } from '../../test/tax-year/pt-fixture';
 import { minus, type Price, plus } from '../money/decimal';
 import type { LotRule, LotScope } from '../schema/country';
 import type { Entry } from '../schema/entry';
 import type { PriceSnapshot } from '../schema/prices';
 import { sellableNow } from './eligibility';
-import type { HoldingContext } from './lots';
+import { type HoldingContext, heldLots, matchLots } from './lots';
 import { coinsWithEntries, portfolio, priceOf } from './portfolio';
 
 const plan = aPlan({ coins: [BTC, ETH], split: split({ BTC: '70', ETH: '30' }) });
@@ -335,6 +335,31 @@ describe('portfolio: the sales of coins held without a cost, per lot rule (docs/
       // Without the held entry the unit comes off the €100 lot, so the €30,000 count.
       expect(btc([sale, march], scope, 'fifo')).toMatchObject({ units: '0', unrecordedUnits: '0', pnl: '29900' });
     }
+  });
+
+  it("FIFO: a move's fee taken at its destination can leave a later sale's last units uncosted, so P/L changes while units, value and invested do not", () => {
+    const b1 = { ...bought('2026-01-01'), units: units('0.10'), venue: 'Ledger' };
+    const move = aMove({
+      date: date('2026-02-01'),
+      units: units('0.05'),
+      received: units('0.0498'),
+      venue: 'Kraken',
+      to: 'Ledger',
+    });
+    const l2 = held('2026-03-01', '0.1');
+    const sale = { ...sold('0.10'), venue: 'Ledger' };
+    const entries = [b1, move, l2, sale];
+    const match = heldLots(matchLots(entries, BTC.id, 'global'));
+    expect(match.sales[0]?.uncosted).toBe('0.0002');
+    expect(match.unmatchedUnits).toBe('0');
+    // The fee leaves B1 at the move's date, so the sale's last 0.0002 come from L2, which has no cost: €0.16 of the
+    // €80 drop out of P/L (-€20 before ADR-0055), and the units held, their value and the invested stay as they were.
+    expect(btc(entries, 'global', 'fifo')).toMatchObject({
+      units: '0.0998',
+      invested: '100',
+      value: '5988',
+      pnl: '-20.16',
+    });
   });
 
   it('adds nothing for a sale without an amount, which the entry schema refuses', () => {
