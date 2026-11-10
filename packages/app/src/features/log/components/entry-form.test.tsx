@@ -909,6 +909,62 @@ describe('EntryForm', () => {
       });
     });
 
+    // DOMAIN §3.7 and §6: the move line reads the entries the save stores, each row first on its own entry (rowEntries),
+    // the venue kept. Kraken and Ledger hold 1 BTC each; a move of 1 BTC from Kraken to Ledger follows the sales.
+    describe('in Portugal, a grouped edit of BTC sales at Kraken and Ledger before a move to Ledger', () => {
+      const rules = async () => {
+        const profile = await loadProfile('PT');
+        return profile === null ? null : countryRules(profile);
+      };
+      const lot = (venue: string) =>
+        anEntry({ kind: 'extra', date: date('2024-01-10'), slot: null, units: units('1'), venue });
+      const logged = (quantity: string, venue: string, moment: string) =>
+        anEntry({
+          kind: 'sell',
+          date: date('2026-10-01'),
+          slot: null,
+          units: units(quantity),
+          amount: money('100'),
+          venue,
+          createdAt: instant(`2026-10-01T${moment}:00Z`),
+        });
+      const moved = aMove({ date: date('2026-10-15'), units: units('1'), received: units('1') });
+      /** Clears row `at`, types `typed` units into row `raised`, and returns the status lines before Save. */
+      const edit = async (editing: readonly Entry[], at: number, raised: number, typed: string) => {
+        const all = [lot('Kraken'), lot('Ledger'), ...editing, moved];
+        const { services, onDone } = await renderForm({ kind: 'sell', editing }, all, servicesWith(all, { rules }));
+        fireEvent.change(screen.getAllByLabelText('BTC sold (units)')[at]!, { target: { value: '' } });
+        fireEvent.change(screen.getAllByLabelText('Received for BTC (EUR)')[at]!, { target: { value: '' } });
+        fireEvent.change(screen.getAllByLabelText('BTC sold (units)')[raised]!, { target: { value: typed } });
+        const lines = screen.getAllByRole('status').map(text);
+        await save();
+        return { lines, onDone, services };
+      };
+      const line =
+        "After this change, your move to Ledger on 15 Oct 2026 sends 1 BTC more than the Log shows outside Ledger that day. Check that move's date and venues in the Log after you save.";
+
+      it('a grouped Log edit with two and with three sales of one coin, one row cleared, shows the move line from the entries rowEntries keeps', async () => {
+        // Two: the Ledger sale cleared, the Kraken sale raised to 1 BTC takes all of Kraken's.
+        const two = await edit([logged('0.5', 'Kraken', '08:00'), logged('0.5', 'Ledger', '09:00')], 1, 0, '1');
+        expect(two.lines).toEqual([line]);
+        expect(two.onDone).toHaveBeenCalledOnce();
+        cleanup();
+        // Three: the middle Ledger sale cleared; the last row keeps its own Kraken sale, raised to 0,6 BTC.
+        const kraken = logged('0.3', 'Kraken', '10:00');
+        const three = await edit(
+          [logged('0.4', 'Kraken', '08:00'), logged('0.3', 'Ledger', '09:00'), kraken],
+          1,
+          2,
+          '0,6',
+        );
+        expect(three.lines).toEqual([line]);
+        expect(stored(three.services).find((entry) => entry.id === kraken.id)).toMatchObject({
+          units: '0.6',
+          venue: 'Kraken',
+        });
+      });
+    });
+
     // #136 (DOMAIN §3.7): a sale dated before the purchases that cover it is refused, with the units held that day.
     it('refuses a sale dated before its purchase and names what was held on that date', async () => {
       const { services } = await renderForm({ kind: 'sell' }, [october]);
@@ -1142,6 +1198,21 @@ describe('EntryForm', () => {
   });
 
   // ADR-0055: a move's network fee stays covered by a purchase dated on or before the move.
+  it('shows before Save the move a venue edit leaves short, and saves the edit', async () => {
+    // The move's fee is then taken at Ledger, so the line shows in every country (DOMAIN §3.7).
+    const move = aMove({ date: date('2026-01-10'), venue: 'Wallet A', units: units('0.003'), received: units('0.0028') });
+    const { services, onDone } = await renderForm({ kind: 'extra', editing: [older] }, [older, move]);
+    fireEvent.click(screen.getByRole('button', { name: 'Venue and note' }));
+    expect(screen.queryByRole('status')).toBeNull();
+    type('Venue (optional)', 'Ledger');
+    expect(screen.getByRole('status').textContent?.replace(/\u00a0/g, ' ')).toBe(
+      "After this change, your move to Ledger on 10 Jan 2026 sends 0.003 BTC more than the Log shows outside Ledger that day. Check that move's date and venues in the Log after you save.",
+    );
+    await save();
+    expect(onDone).toHaveBeenCalledOnce();
+    expect(stored(services).find((entry) => entry.id === older.id)?.venue).toBe('Ledger');
+  });
+
   it("a purchase date edit refused for a move's fee names the move, not a sale", async () => {
     const move = aMove({
       date: date('2026-01-10'),

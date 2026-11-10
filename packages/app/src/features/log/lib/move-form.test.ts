@@ -194,6 +194,10 @@ const draft: MoveDraft = {
   note: '',
 };
 const save = { plan, ids: [id()], now: instant('2026-03-01T09:00:00+00:00'), source: 'manual' } as const;
+const perVenue = { overrides: [], lotScope: 'per-venue', lotRule: 'fifo' } as const;
+const global = { ...perVenue, lotScope: 'global' } as const;
+/** What moveLines runs the save with: the form's fresh id and its clock. */
+const at = { ids: save.ids, now: save.now };
 // 0.03 BTC bought at Kraken on 10 Jan 2026 and sold on 1 Mar 2026: none held now, 0.03 held all February.
 const gone = [
   bought('0.03', '2026-01-10', 'Kraken'),
@@ -318,7 +322,7 @@ describe('moveSources', () => {
       sent: units('0.03'),
       received: units('0.03'),
     };
-    expect(moveLines(filledAll, context([...lots, sold]), true).short).toBeNull();
+    expect(moveLines(filledAll, context([...lots, sold]), perVenue, at).short).toBeNull();
   });
 });
 
@@ -355,16 +359,54 @@ describe('typedFee', () => {
 
 describe('moveLines', () => {
   it('names a short source only under per-venue lots, with what the source holds on the date', () => {
-    expect(moveLines(draft, context(lots), true).short).toEqual({ short: units('0.02'), held: units('0.03') });
-    expect(moveLines(draft, context(lots), false).short).toBeNull();
-    expect(moveLines({ ...draft, sent: units('0.03') }, context(lots), true).short).toBeNull();
+    expect(moveLines(draft, context(lots), perVenue, at).short).toEqual({ short: units('0.02'), held: units('0.03') });
+    expect(moveLines(draft, context(lots), global, at).short).toBeNull();
+    expect(moveLines({ ...draft, sent: units('0.03') }, context(lots), perVenue, at).short).toBeNull();
   });
 
   it('names an identical live move in the Log, never the move being edited', () => {
     const move = aMove({ date: draft.date, units: draft.sent, received: draft.received });
-    expect(moveLines(draft, context([...lots, move]), false).same).toBe(true);
-    expect(moveLines(draft, context([...lots, move], move), false).same).toBe(false);
-    expect(moveLines(draft, context(lots), false).same).toBe(false);
+    expect(moveLines(draft, context([...lots, move]), global, at).same).toBe(true);
+    expect(moveLines(draft, context([...lots, move], move), global, at).same).toBe(false);
+    expect(moveLines(draft, context(lots), global, at).same).toBe(false);
+  });
+});
+
+describe('moveLines and the moves it leaves short (docs/DOMAIN.md §3.7)', () => {
+  it('moveLines names a stored later move the draft leaves short', () => {
+    // The draft takes all 0.05 BTC outside Ledger before a stored move from Kraken on 10 Mar 2026.
+    const march = (received: string) =>
+      aMove({ date: date('2026-03-10'), units: units('0.03'), received: units(received) });
+    const paid = march('0.0298');
+    expect(moveLines(draft, context([...lots, paid]), perVenue, at).later).toMatchObject({ id: paid.id, short: '0.03' });
+    // Its fee then taken at Ledger: named under global lots too.
+    expect(moveLines(draft, context([...lots, paid]), global, at).later).toMatchObject({ feeAtDestination: '0.0002' });
+    // With no fee nothing lost its cover: per venue only.
+    const free = march('0.03');
+    expect(moveLines(draft, context([...lots, free]), perVenue, at).later).toMatchObject({ id: free.id });
+    expect(moveLines(draft, context([...lots, free]), global, at).later).toBeNull();
+    // A refused draft (more than held) names nothing.
+    const refused = moveLines({ ...draft, sent: units('1') }, context(lots), perVenue, at);
+    expect([refused.later, refused.outside]).toEqual([null, null]);
+  });
+
+  it('the short-source line says how much the Log finds outside the destination when that is less than sent', () => {
+    // 0.05 BTC outside Ledger on 20 Feb 2026, 0.01 at Ledger: a move of 0.06 finds 0.05 outside.
+    const withLedger = [...lots, bought('0.01', '2026-02-01', 'Ledger')];
+    const six = { ...draft, sent: units('0.06'), received: units('0.0598') };
+    expect(moveLines(six, context(withLedger), perVenue, at)).toMatchObject({
+      short: { short: '0.03', held: '0.03' },
+      outside: '0.05',
+    });
+    // Under global lots the fee is covered outside Ledger: no line.
+    expect(moveLines(six, context(withLedger), global, at)).toMatchObject({ short: null, outside: null });
+    // Part of the fee taken at Ledger: the line in every country.
+    const thin = [bought('0.05', '2026-01-10', 'Ledger'), bought('0.00005', '2026-01-10', 'Kraken')];
+    const small = { ...draft, sent: units('0.01'), received: units('0.0099') };
+    expect(moveLines(small, context(thin), global, at)).toMatchObject({
+      short: { short: '0.00995', held: '0.00005' },
+      outside: '0.00005',
+    });
   });
 });
 

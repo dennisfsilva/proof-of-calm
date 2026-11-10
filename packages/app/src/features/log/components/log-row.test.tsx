@@ -220,6 +220,19 @@ describe('LogRow', () => {
     expect(free).not.toContain('Network fee');
   });
 
+  it('a move row shows the units the Log finds outside its destination', async () => {
+    // The fixture holds 0.02215 BTC with no venue and none at Kraken: a move of 0.05 BTC from Kraken finds only those.
+    const { entries } = fixtureSnapshot();
+    const coin = entries.find((entry) => entry.kind === 'dca')?.coin as CoinId;
+    const move = aMove({ coin, date: '2026-10-20' as Entry['date'], units: units('0.05'), received: units('0.0498') });
+    const rows = transactions(plan, [...entries, move], holdingContext(plan, await portugal())).rows;
+    await mount(find(rows, 'move'), plan);
+    fireEvent.click(screen.getByRole('button', { expanded: false }));
+    expect(screen.getByText(/^The Log shows/u).textContent?.replace(/\u00a0/g, ' ')).toBe(
+      `The Log shows 0,02215 ${coin} outside Ledger on this day, 0,02785 ${coin} fewer than this move sends. Check this move's date and venues against the entries before it.`,
+    );
+  });
+
   it('shows one holding line for a transaction of two coins, with the note only where the screen puts it', async () => {
     const lump = find(await fixtureRows(), 'lump');
     await mount(lump, plan, { note: true });

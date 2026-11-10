@@ -118,6 +118,39 @@ describe('MoveForm', () => {
     expect(screen.queryByText(/The Log shows/)).toBeNull();
   });
 
+  it('the later-move line names a stored move the draft leaves short', async () => {
+    // The draft takes all 0.05 BTC outside Ledger before a stored move of 0.03 from Kraken (DOMAIN §3.7).
+    const march = aMove({ date: date('2026-03-10'), units: units('0.03'), received: units('0.03') });
+    const { onDone } = await open([...lots, march], { perVenue: true });
+    fill('0,05');
+    expect(screen.getAllByRole('status').map((each) => each.textContent)).toEqual([
+      'The Log shows 0,03 BTC at Kraken on 20 Feb 2026. The Log looks for the other 0,02 BTC in the units you held outside Ledger on that day.',
+      'After this move, your move to Ledger on 10 Mar 2026 sends 0,03 BTC more than the Log shows outside Ledger that day. If both record one withdrawal, keep only one. If not, check the units that move sends.',
+    ]);
+    // The line never blocks the save; under global lots a move with no fee is not named.
+    await save();
+    expect(onDone).toHaveBeenCalledTimes(1);
+    cleanup();
+    await open([...lots, march]);
+    fill('0.05');
+    expect(screen.queryByText(/^After this move/u)).toBeNull();
+  });
+
+  it('the short-source line says how much the Log finds outside the destination when that is less than sent', async () => {
+    // 0.05 BTC outside Ledger on 20 Feb 2026 and 0.01 at Ledger: a move of 0.06 finds only 0.05 outside.
+    const withLedger = [...lots, bought('0.01', '2026-02-01', 'Ledger')];
+    await open(withLedger, { perVenue: true });
+    fill('0,06');
+    expect(screen.getByRole('status').textContent).toBe(
+      'The Log shows 0,03 BTC at Kraken on 20 Feb 2026. Outside Ledger, the Log finds only 0,05 BTC on that day.',
+    );
+    // Under global lots the fee is covered outside Ledger: no line.
+    cleanup();
+    await open(withLedger);
+    fill('0.06');
+    expect(screen.queryByText(/The Log shows/u)).toBeNull();
+  });
+
   it('the duplicate line', async () => {
     const earlier = aMove({ date: date('2026-02-20'), venue: 'Kraken', to: 'Ledger', units: units('0.01') });
     const { onDone } = await open([...lots, { ...earlier, received: units('0.01') }]);
