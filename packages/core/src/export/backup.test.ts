@@ -357,7 +357,7 @@ describe('applyImport, the entry cap (docs/DOMAIN.md §3.13)', () => {
     }
   });
 
-  it('counts only live entries: tombstones here, the file’s tombstones and what a replace removes do not count', () => {
+  it('counts only live entries on an add: tombstones here and the file’s tombstones do not count', () => {
     const gone = extras(3).map((entry) => ({ ...entry, deletedAt: now }));
     const added = applyImport(
       { plan, entries: [...mine, ...gone] },
@@ -366,8 +366,12 @@ describe('applyImport, the entry cap (docs/DOMAIN.md §3.13)', () => {
       now,
     );
     expect([added.refused, added.added]).toEqual([null, 4_000]);
-    const replaced = applyImport({ plan, entries: mine }, backup(extras(MAX_ENTRIES)), 'replace', now);
-    expect([replaced.refused, replaced.added, replaced.entries.length]).toEqual([null, 10_000, 16_000]);
+  });
+
+  it('counts only live entries on a replace: what it removes does not count, at the cap', () => {
+    // A full file over one entry here: counting the removed entry's tombstone would make 10,001 and refuse.
+    const replaced = applyImport({ plan, entries: extras(1) }, backup(extras(MAX_ENTRIES)), 'replace', now);
+    expect([replaced.refused, replaced.added, replaced.entries.length]).toEqual([null, 10_000, 10_001]);
   });
 
   it.each([
