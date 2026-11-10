@@ -173,7 +173,12 @@ export function LogScreen() {
                   : error.code === 'sell-exceeds-held'
                     ? t('row.notRestoredSold', { coin: error.coin })
                     : error.code === 'fee-exceeds-held'
-                      ? t('row.notRestoredFee', { coin: error.coin, count: ids.length, figure: figure(f, ids.length) })
+                      ? t('row.notRestoredFee', {
+                          coin: error.coin,
+                          date: f.date(error.date),
+                          count: ids.length,
+                          figure: figure(f, ids.length),
+                        })
                       : error.code === 'too-many-entries'
                         ? t('row.notRestoredFull', { max: figure(f, error.max) })
                         : error.code === 'currency-changed'
