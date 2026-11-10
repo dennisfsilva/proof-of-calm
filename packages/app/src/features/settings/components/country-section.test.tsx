@@ -389,14 +389,9 @@ describe('CountrySection', () => {
     const before = stored(services);
     await choose('United Kingdom');
     fireEvent.click(screen.getByRole('radio', { name: /^Change to GBP/ }));
-    // The fixture formats in Portuguese: the figure stays, the symbol moves.
     const rows = items().filter((item) => item?.startsWith('Currency') || item?.includes('becomes'));
-    expect(rows.map((item) => item?.replace(/\s/g, ' '))).toEqual([
-      'Currency for new amounts: EUR to GBP',
-      'Currency shown: EUR to GBP',
-      'Monthly amount: 100,00 € becomes 100,00 £. Check it in Plan.',
-      'Starting amount: 1000,00 € becomes 1000,00 £. Check it in Plan.',
-    ]);
+    expect(rows.slice(0, 2)).toEqual(['Currency for new amounts: EUR to GBP', 'Currency shown: EUR to GBP']);
+    expect(rows.slice(2)).toHaveLength(2);
     for (const box of screen.getAllByRole('checkbox')) fireEvent.click(box);
     await confirm('United Kingdom');
     expect(stored(services)).toMatchObject({
@@ -406,6 +401,28 @@ describe('CountrySection', () => {
       monthlyAmount: before.monthlyAmount,
       startingAmount: before.startingAmount,
     });
+  });
+
+  // ADR-0023's Context: numbers follow the country, so the amount after the change reads as Plan will show it.
+  it("the right-hand amount reads in the new country's number format", async () => {
+    await mount();
+    await choose('United Kingdom');
+    fireEvent.click(screen.getByRole('radio', { name: /^Change to GBP/ }));
+    const money = (locale: string, currency: string, amount: number) =>
+      new Intl.NumberFormat(locale, { style: 'currency', currency }).format(amount);
+    expect(items().filter((item) => item?.includes('becomes'))).toEqual([
+      `Monthly amount: ${money('pt-PT', 'EUR', 100)} becomes ${money('en-GB', 'GBP', 100)}. Check it in Plan.`,
+      `Starting amount: ${money('pt-PT', 'EUR', 1000)} becomes ${money('en-GB', 'GBP', 1000)}. Check it in Plan.`,
+    ]);
+  });
+
+  it('no row shows while Keep is picked or nothing is chosen', async () => {
+    await mount();
+    await choose('United Kingdom');
+    const relabelled = () => items().filter((item) => item?.startsWith('Currency') || item?.includes('becomes'));
+    expect(relabelled()).toEqual([]);
+    fireEvent.click(screen.getByRole('radio', { name: /^Keep EUR/ }));
+    expect(relabelled()).toEqual([]);
   });
 
   // A wrong "Keep" is fixed without changing country again: Currency & data offers the country's currency.

@@ -7,6 +7,7 @@ export {
   useDomainStatus,
   useDrafts,
   useFormatters,
+  useFormattersOf,
   useNumberInput,
   usePlatform,
   usePrices,

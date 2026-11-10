@@ -67,8 +67,15 @@ export function useRulesSettled(): boolean {
  * change: after a change of country they keep the previous record's locale until the new rules load.
  */
 export function useFormatters(): Formatters {
+  return useFormattersOf(useUi((state) => state.rules?.rules ?? null));
+}
+
+/**
+ * The formatters of a given country's rules in the UI language, as `useFormatters` derives them for the plan's:
+ * a country change previews an amount as the new country will show it (ADR-0023, ADR-0020).
+ */
+export function useFormattersOf(rules: CountryRules | null): Formatters {
   const { language } = useServices();
-  const rules = useUi((state) => state.rules?.rules ?? null);
   return useMemo(() => {
     const locales = localesFor(language, rules);
     return createFormatters(locales.numbers, locales.ui);
