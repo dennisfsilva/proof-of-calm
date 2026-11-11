@@ -31,8 +31,9 @@ added, renamed or removed here must be added, renamed or removed there too. -->
 - [ ] effective dates and status right; nothing proposed is written as law
 - [ ] `summary60` still true and under 60 words; banned words absent
 - [ ] `validate:content` green; `reviewedBy` set to `owner`; `nextReviewDue` sensible
-- [ ] `lastReviewed` today only when every `reviewed` row read all its sources and you opened each
-  off-list secondary source the notes name; otherwise unchanged
+- [ ] each changed file has a `reviewed` row (the finish refuses one without); its `lastReviewed`
+  today only when that row's `read` equals its `of` and you opened each off-list secondary source the
+  notes name; otherwise unchanged
 - [ ] `status.version` bumped, `changedOn` set and `changeNotice` written when a substantive rule changed;
   a bump that corrects our own file also writes a `changeNotice` that says so (`docs/JURISDICTIONS.md` §6)
 - [ ] when `e2e-visual` fails, the baselines it names deleted in a commit on this branch; new ones sent in a
