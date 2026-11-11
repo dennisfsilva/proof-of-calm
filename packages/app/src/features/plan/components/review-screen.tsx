@@ -129,7 +129,7 @@ function ReviewBody({ plan }: { readonly plan: Plan }) {
           {t('mark')}
         </Button>
       ) : (
-        <p ref={line} tabIndex={-1} className="text-16">
+        <p ref={line} tabIndex={-1} className="scroll-mt-result text-16">
           {t('marked', { date: f.date(dates.reviewedOn), next: f.date(summary.nextOn) })}
         </p>
       )}
