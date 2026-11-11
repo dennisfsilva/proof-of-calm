@@ -172,7 +172,10 @@ is read again at every review, because its low can still move.
 3. Read the `summary60` aloud; cut anything that sounds like advice.
 4. In a commit on the agent's branch, flip `reviewedBy`, set `lastReviewed`, bump `status.version`,
    set `changedOn` and write `changeNotice` when a rule changed in substance; a bump that corrects our
-   own file also writes a `changeNotice` that says so (`docs/JURISDICTIONS.md` §6). Merge; the next
-   deploy shows the dated notice to affected users.
+   own file also writes a `changeNotice` that says so (`docs/JURISDICTIONS.md` §6). The Learn country
+   screens print `lastReviewed`, so `e2e-visual` can fail on the new date: delete the baselines it names
+   in a commit on the agent's branch (the guard accepts a removed baseline, nothing else outside the
+   data folders), and send new ones in a needs-owner PR after the merge (`CLAUDE.md`, Visual
+   snapshots). Merge; the next deploy shows the dated notice to affected users.
 5. Log the run in `docs/content-review-log.md`: its date, the PR, the model and what you corrected,
    so the skill improves. The log goes in its own PR, since the agent's branch takes content data only.

@@ -18,8 +18,9 @@ that shows the owner one line while a review is due.
 
 The rest of `content-review/` guards the review's output (`docs/CONTENT-OPS.md` §3). `check.ts` is the
 guard ci.yml's verify job runs from the base commit: an agent/ head or a PR labelled content-review
-changes only content data, deletes none of it and leaves every changed entry at agent-draft. `body.ts`
-renders the PR body from the agent's JSON draft, every text cell defused and every URL checked against
+changes only content data, deletes none of it (but the owner may remove a visual baseline,
+`docs/CONTENT-OPS.md` §8) and leaves every changed entry at agent-draft. `body.ts` renders the PR body
+from the agent's JSON draft, every text cell defused and every URL checked against
 `packages/content/sources.allow.json`; `render-check.ts` proves that through GitHub's renderer in the
 `render` job of content-review.yml. `propose.ts` does the review's git work, so the agent has no git
 or gh: `node tools/content-review/propose.ts start` refuses a dirty tree or a HEAD other than
