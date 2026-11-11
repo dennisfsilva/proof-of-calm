@@ -3,7 +3,7 @@
 // field is the leaf's path; every row names a changed leaf; a changed module (.mdx) needs at least one
 // row; a file whose changes are all bookkeeping needs a reviewed[] row. The generated rules files are
 // skipped. The agent never sets lastReviewed or nextReviewDue: the owner sets lastReviewed in the flip
-// (§8), so a change to either is refused.
+// (§8), so a change to either is refused, in a module any changed line that names either.
 import type { ReviewDraft } from './body.ts';
 
 /** Leaves the agent changes as it reads, which need no changes[] row of their own. */
@@ -32,15 +32,27 @@ export function leafChanges(before: unknown, after: unknown): string[] {
   return [...new Set([...old.keys(), ...now.keys()])].filter((path) => old.get(path) !== now.get(path));
 }
 
-/** Each staged data file (repo-relative; `leaves` undefined for a module) against the draft's rows. */
-export function rowProblems(draft: ReviewDraft, changed: readonly { file: string; leaves?: string[] }[]): string[] {
+/**
+ * A module's lines that name either owner-only date, anywhere in the file. The loader and
+ * validate:content own the front matter's parse; this reads text and may refuse too much.
+ */
+const dateLines = (source = ''): string[] =>
+  source.split(/\r?\n/).filter((line) => /lastReviewed|nextReviewDue/.test(line));
+
+/** A staged data file (repo-relative): a JSON file's changed leaves, or a module's (.mdx) two sources. */
+type Changed = { file: string; leaves?: string[]; before?: string | undefined; after?: string | undefined };
+
+/** Each staged data file against the draft's rows; a module's date lines are compared as an ordered list. */
+export function rowProblems(draft: ReviewDraft, changed: readonly Changed[]): string[] {
   const problems: string[] = [];
   const itemOf = (file: string) => file.replace(/^packages\/content\//, '');
-  for (const { file, leaves: paths } of changed) {
+  for (const { file, leaves: paths, before, after } of changed) {
     const item = itemOf(file);
     if (item.startsWith('rules/')) continue;
     const rows = draft.changes.filter((change) => change.item === item);
     if (paths === undefined) {
+      if (JSON.stringify(dateLines(before)) !== JSON.stringify(dateLines(after)))
+        problems.push(`${file}: a line with lastReviewed or nextReviewDue changed; ${OWNER} (docs/CONTENT-OPS.md §8)`);
       if (rows.length === 0) problems.push(`${file}: changed, and no changes[] row names it`);
       continue;
     }
