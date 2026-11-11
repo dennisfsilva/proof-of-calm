@@ -31,7 +31,7 @@ tax statements. Decision: ADR-0015 (principle), ADR-0037 (scheduling); mechanics
 | When | What |
 |---|---|
 | 1 January, 1 April, 1 July, 1 October (06:23 UTC) | full review of every jurisdiction and every module's facts: a reminder issue opens, and the owner runs `/review-content` in a Claude Code session |
-| 15 January | second pass on jurisdictions, because budget laws land late December and tax authorities update pages in the first fortnight: a reminder issue opens, and the owner runs `/review-content` with the country codes only |
+| 15 January | second pass on jurisdictions, because budget laws land late December and tax authorities update pages in the first fortnight: a reminder issue opens, and the owner runs `/review-content` with the country codes only, so the pass skips facts, templates and cycles |
 | any time | `/review-content <codes>` on demand (a reader reports a change; a `pendingChanges[].effectiveFrom` date has passed) |
 | continuous | CI fails the build when any profile's `nextReviewDue` is more than twelve months past, so a stale card cannot ship silently |
 
@@ -69,6 +69,14 @@ owns the pipeline around them and its security model.
    sources read of those it cites, the confidence and its reason. Bookkeeping needs no change row:
    `accessed`, `reviewedBy` and `status.confidence`. The agent never sets `lastReviewed` or
    `nextReviewDue`; the owner sets `lastReviewed` in the flip (§8), once every source was read.
+   A `reviewed` row's `of` counts the sources on the item's list (the country's list plus `EU`, or
+   `facts`), each `pendingChanges[].source` included. The agent fetches no off-list `secondary`
+   source, which `packages/content/src/validate.ts` lets a profile cite: it names it in the notes as
+   `secondary, off the list, not fetched: <url>` with the lines that cite only it, and leaves those
+   lines unchanged; the owner opens it (§8, step 1). The agent reads a PDF through
+   `node tools/content-review/pdf.ts <url>`. When that prints the filing rule, the PDF is an
+   `unreachable` row (its `url`, and in `expected` what it should show) plus a note
+   `PDF not read: <url>` naming the lines that rest only on it, which stay unchanged.
 5. **The finish.** `node tools/content-review/propose.ts finish` stages everything and refuses a
    path outside content data, a mode, a binary, a deletion, an entry not at `agent-draft` or a draft
    problem. It compares the draft's rows with the staged diff both ways
@@ -83,9 +91,12 @@ owns the pipeline around them and its security model.
    .content-review/body.md and commits, pushes and opens nothing.
 
 The agent has no git and no gh. The skill's `allowed-tools` pre-approve the data edits, the three
-pnpm commands and the three `propose.ts` commands, and name no git, gh or web rule. Pre-approval does
-not confine: any other tool still asks the owner. WebFetch keeps the session's own permission
-settings, so each new domain's first fetch shows the owner what the agent reads.
+pnpm commands, the three `propose.ts` commands and `node tools/content-review/pdf.ts <url>`, and
+name no git, gh, WebFetch or WebSearch rule. pdf.ts is the one pre-approved fetch: it fetches only
+an https URL on the allow-list, checks every redirect hop the same way and writes only under
+.content-review/pdf/. Pre-approval does not confine: any other tool still asks the owner. WebFetch
+keeps the session's own permission settings, so each new domain's first WebFetch shows the owner
+what the agent reads.
 
 Until the owner's first run, only the tests, which check its git and gh argv, cover the finish's
 non-dry path. The `finish-dry` job of `.github/workflows/content-review.yml` runs the dry path on fixtures. A second
@@ -106,6 +117,9 @@ visible rather than impossible:
   list: a country's file on that country's list or `EU`, any other data file on `facts`; verified
   and unreachable links on any list. The finish refuses any other link, and `pnpm validate:content`
   refuses an off-list source in the data.
+- `tools/content-review/pdf.ts`, the one fetch the skill pre-approves, takes one URL, checks it and
+  every redirect hop against the allow-list, keeps only bytes that start as a PDF and writes only
+  under .content-review/pdf/. The agent reads its text as data, like any fetched page.
 - Deletions are refused: the finish refuses every one, so the agent deletes nothing, and CI's guard
   refuses every one but a removed baseline (next item). The draft names a gone source, and the owner
   deletes it in a session's PR.
@@ -150,7 +164,7 @@ change but never as the sole evidence for one.
 A bill, a case or a draft appears in a `docs/JURISDICTIONS.md` §7 row or a research row only beside
 the source that reported it, named inline with its date (for instance "named by Freshfields,
 2025-12-18; text not fetched"), never as a bare number with "outcome not verified"; no CI job fetches
-a third-party site for such a row, since the review job (§6) already watches the fact (decided
+a third-party site for such a row, since the owner's manual review (§3, §6) already watches the fact (decided
 2026-11-05, after congress.gov refused a fetch with HTTP 403).
 
 ## 6. What the review watches first
@@ -173,7 +187,7 @@ URL, publisher, accessed date, confidence, `lastReviewed`, `reviewedBy` (CI bloc
 `agent-draft`, as it does a profile or a template, §1); the facts test holds its keys against
 `docs/EDUCATION.md` §9. Modules reference facts by key in their front matter; the
 content test fails when a module cites a key that does not exist or whose `lastReviewed` is older
-than twelve months; the review job re-reads the sources and proposes updates.
+than twelve months; the owner's manual review (§3) re-reads the sources and proposes updates.
 Templates carry `lastReviewed` too (the Cycle plan's dates age). The chart rows of the risk module
 and the Red day page live in `packages/content/cycles/drawdowns.json`. `docs/EDUCATION.md` §9 a and b
 quote the same falls to one decimal, each on the series it names; the file rounds them to whole
@@ -184,10 +198,14 @@ is read again at every review, because its low can still move.
 
 1. Open the PR and read its file list first. Close it unmerged when any path lies outside the data
    folders of §1, such as `.github/`, `tools/`, a `src/` folder or a package file. Then, for each
-   change, open the source URL yourself (not the quote) and find the passage.
+   change, open the source URL yourself (not the quote) and find the passage. Open also each
+   off-list secondary source the notes name as not fetched, on its own site, and read the lines that
+   cite it.
 2. Check the effective date and the status word; a proposal is never a rule.
 3. Read the `summary60` aloud; cut anything that sounds like advice.
-4. In a commit on the agent's branch, flip `reviewedBy`, set `lastReviewed`, bump `status.version`,
+4. In a commit on the agent's branch, flip `reviewedBy`; set `lastReviewed` to today only when every
+   `reviewed` row read all its sources and you opened each secondary source of step 1, otherwise
+   leave it unchanged (a partial review moves nothing); bump `status.version`,
    set `changedOn` and write `changeNotice` when a rule changed in substance; a bump that corrects our
    own file also writes a `changeNotice` that says so (`docs/JURISDICTIONS.md` §6). The Learn country
    screens print `lastReviewed`, so `e2e-visual` can fail on the new date: delete the baselines it names
