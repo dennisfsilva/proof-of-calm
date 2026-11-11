@@ -17,7 +17,7 @@ import { type ChangedPath, outsideData, reviewers } from './check.ts';
 export const branchName = (today: string): string => `agent/content-review-${today}`;
 
 /** The two commits; start and finish (without --dry) both refuse a HEAD that is not the local origin/main. */
-export function headProblems(head: string, originMain: string): string[] {
+function headProblems(head: string, originMain: string): string[] {
   if (originMain === '') return ['origin/main is missing: fetch it'];
   if (head === originMain) return [];
   return [`HEAD ${head.slice(0, 8)} is not origin/main ${originMain.slice(0, 8)}: run git switch --detach origin/main`];

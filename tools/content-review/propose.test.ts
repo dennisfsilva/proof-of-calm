@@ -101,12 +101,12 @@ describe('propose', () => {
     };
     try {
       git('init', '--quiet', '--initial-branch', 'main');
-      for (const [key, value] of [
+      const config: [string, string][] = [
         ['user.name', 't'],
         ['user.email', 't@example.invalid'],
         ['commit.gpgsign', 'false'],
-      ])
-        git('config', key, value);
+      ];
+      for (const [key, value] of config) git('config', key, value);
       write(FACTS, '{}\n');
       git('add', '-A');
       git('commit', '--quiet', '--message', 'base');
