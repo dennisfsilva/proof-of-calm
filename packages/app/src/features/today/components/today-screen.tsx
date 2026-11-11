@@ -8,28 +8,38 @@ import {
   isPositive,
   leadAction,
   liveEntries,
+  type PhaseKind,
   type Plan,
   phase as phaseOf,
   portfolio,
+  type RedDayEpisode,
+  reviewAsked,
   ruleChangeNotice,
   type StripSegment,
   strip,
+  UNDO_WINDOW_MS,
 } from '@proofofcalm/core';
 import { ProgressStrip } from '@proofofcalm/ui/charts/progress-strip';
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from '@proofofcalm/ui/components/empty';
-import { type ReactNode, useMemo, useState } from 'react';
+import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'use-intl';
+import { reportError } from '../../../lib/errors';
 import { Link } from '../../../lib/navigation';
 import {
+  reviewSince,
   useClock,
   useFormatters,
   usePlatform,
   usePrices,
+  useReviewDates,
   useRules,
+  useServices,
   useSnapshot,
   useToday,
 } from '../../../lib/services';
 import { WhyLink } from '../../learn';
+import { todayActions } from '../actions';
+import { AnnualReviewBanner } from './annual-review-banner';
 import { PendingList } from './pending-list';
 import { PricesLine, useOnline } from './prices-line';
 import { PrimaryAction } from './primary-action';
@@ -102,7 +112,7 @@ function TodayBody({ plan }: { plan: Plan }) {
       <PendingList actions={pending} />
       <PortfolioNumber plan={plan} />
       <PlanStrip plan={plan} today={today} />
-      <FootBanner plan={plan} today={today} />
+      <FootBanner plan={plan} today={today} phase={phase.kind} />
     </>
   );
 }
@@ -188,20 +198,34 @@ function PlanStrip({ plan, today }: { plan: Plan; today: CalendarDate }) {
  * The foot of Today (docs/DOMAIN.md §3.11; docs/DESIGN.md §8): it settles once per visit. A visit that starts with
  * units held waits for the red-day model, then shows its banner or the next box; otherwise the next box at once.
  */
-function FootBanner({ plan, today }: { plan: Plan; today: CalendarDate }) {
+function FootBanner({ plan, today, phase }: { plan: Plan; today: CalendarDate; phase: PhaseKind }) {
   const entries = useSnapshot((snapshot) => snapshot.entries);
   const [held] = useState(() => portfolio(plan, entries).positions.some((position) => isPositive(position.units)));
-  const next = <NextBanner plan={plan} today={today} />;
-  return held ? <RedDayFoot plan={plan} next={next} /> : next;
+  const next = (redDay: RedDayEpisode | null) => (
+    <NextBanner plan={plan} today={today} phase={phase} held={held} redDay={redDay} />
+  );
+  return held ? <RedDayFoot plan={plan} next={next} /> : next(null);
 }
 
-/** The foot's box after the red day: the one banner `bannerFor` picks, else the durability line. */
-function NextBanner({ plan, today }: { plan: Plan; today: CalendarDate }) {
+type NextBannerProps = {
+  readonly plan: Plan;
+  readonly today: CalendarDate;
+  readonly phase: PhaseKind;
+  /** Units were held when the visit started. */
+  readonly held: boolean;
+  /** The red-day episode under way: it holds the annual review back, and its banner never shows here. */
+  readonly redDay: RedDayEpisode | null;
+};
+
+/** The foot's box after the red day: the one banner `bannerFor` picks, each rendered by its kind, else the durability line. */
+function NextBanner({ plan, today, phase, held, redDay }: NextBannerProps) {
   const t = useTranslations('today');
   const f = useFormatters();
+  const services = useServices();
   const clock = useClock();
   const platform = usePlatform();
   const rules = useRules();
+  const dates = useReviewDates();
   const entries = useSnapshot((snapshot) => snapshot.entries);
   const prefs = useSnapshot((snapshot) => snapshot.prefs);
   // A country with no profile of its own gets the generic rules, under another code: no notice applies to it.
@@ -210,9 +234,21 @@ function NextBanner({ plan, today }: { plan: Plan; today: CalendarDate }) {
     today,
     redDay: null,
     ruleChange,
+    annualReview: dates !== null && reviewAsked(dates, today, { phase, held, redDay }),
     backupNeeded: backupNeeded(entries, prefs, false),
     dismissed: prefs.dismissedBanners,
   });
+  const later = useRef(false);
+  const kind = banner?.kind ?? null;
+  // Later's button goes with the review, so once the commit has removed it the card's heading takes the focus and
+  // comes into view by the least scroll, as after the red day's Dismiss (docs/DESIGN.md §6).
+  useEffect(() => {
+    if (!later.current || kind === 'annual-review') return;
+    later.current = false;
+    const heading = document.getElementById('today-action');
+    heading?.focus({ preventScroll: true });
+    heading?.scrollIntoView({ block: 'nearest' });
+  }, [kind]);
   // Without a banner, the durability line once live entries exist, counted as the banner counts them (ADR-0004):
   // quiet, no dismiss. The backup banner says the same and names the export, so one thing at most stands here.
   // The installed app asks only for the export.
@@ -223,6 +259,21 @@ function NextBanner({ plan, today }: { plan: Plan; today: CalendarDate }) {
   if (banner.kind === 'rule-change' && ruleChange !== null) {
     return <RuleChangeBanner notice={ruleChange} country={rules?.name ?? ruleChange.country} />;
   }
+  if (banner.kind === 'annual-review' && dates !== null) {
+    const key = banner.key;
+    const onLater = async () => {
+      later.current = true;
+      try {
+        await todayActions(services).recordBanner(key);
+      } catch (error) {
+        later.current = false;
+        reportError(error);
+        services.toasts.add({ title: t('review.failed'), timeout: UNDO_WINDOW_MS });
+      }
+    };
+    return <AnnualReviewBanner since={reviewSince(dates)} onLater={() => void onLater()} />;
+  }
+  if (banner.kind !== 'backup-needed') return null;
   const last = prefs.lastBackupAt;
   return (
     <p role="status" className="rounded-lg border border-line p-inset text-14 text-ink-2">

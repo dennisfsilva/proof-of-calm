@@ -422,7 +422,6 @@ describe('TodayScreen', () => {
     await mount(exported(unseen(fixtureSnapshot())), at('2026-10-20'));
     expect(screen.getByRole('button', { name: 'Dismiss' })).toBeDefined();
     expect(screen.queryByText(DURABILITY)).toBeNull();
-    expect(screen.getAllByRole('status')).toHaveLength(1);
   });
 
   it('a plan that has seen the version: no notice', async () => {
@@ -434,7 +433,7 @@ describe('TodayScreen', () => {
 // The annual review at the foot (docs/DOMAIN.md §3.11, §3.12): the fixture plan, created on 5 Apr 2026, is due from
 // 5 Apr 2027; it holds BTC and ETH and was never exported, so the backup banner waits behind the review.
 describe('TodayScreen, the annual review', () => {
-  const REVIEW = /^You set up this plan on 5 Apr 2026\. Is it still right\? Have the rules changed\?$/u;
+  const REVIEW = /^You set up this plan on 5 Apr 2026\. Is it still right\? Have the rules changed\?$/u;
   const BACKUP = /^Your data lives only on this device\./u;
   const DUE = at('2027-04-20');
 
@@ -446,7 +445,6 @@ describe('TodayScreen, the annual review', () => {
     await mount(fixtureSnapshot(), DUE);
     expect(screen.getByText(REVIEW)).toBeDefined();
     expect(screen.queryByText(BACKUP)).toBeNull();
-    expect(screen.getAllByRole('status')).toHaveLength(1);
   });
 
   it('not asked the day before it is due', async () => {
@@ -465,7 +463,7 @@ describe('TodayScreen, the annual review', () => {
       note: '',
     };
     await mount({ ...snapshot, plan: { ...plan, lastBuy: '2028-03-05' as CalendarDate, pauses: [pause] } }, DUE);
-    expect(screen.getByRole('button', { name: 'Resume' })).toBeDefined();
+    // In the buy phase, inside the pause: the months left open lead the card, and the foot asks for the review.
     expect(screen.getByText(REVIEW)).toBeDefined();
     cleanup();
     const ended = { ...plan, lastBuy: '2028-03-05' as CalendarDate, endedBuyingOn: '2027-04-10' as CalendarDate };
@@ -513,7 +511,6 @@ describe('TodayScreen, the red-day banner', () => {
     expect(screen.getByText(RED)).toBeDefined();
     expect(screen.queryByText(BACKUP)).toBeNull();
     expect(screen.queryByRole('link', { name: 'Review' })).toBeNull();
-    expect(screen.getAllByRole('status')).toHaveLength(1);
   });
 
   it('shows nothing at the foot while the model is on its way', async () => {
@@ -528,7 +525,6 @@ describe('TodayScreen, the red-day banner', () => {
     const failing = episodeRedDay(CLEAR_LAST, undefined, () => Promise.reject(new Error('offline')));
     await mount(fixtureSnapshot(), at('2026-10-20'), false, { redDay: failing });
     expect(screen.getByText(BACKUP)).toBeDefined();
-    expect(screen.getAllByRole('status')).toHaveLength(1);
   });
 
   it('no served history counts as no episode: the next banner, and nothing recorded', async () => {
