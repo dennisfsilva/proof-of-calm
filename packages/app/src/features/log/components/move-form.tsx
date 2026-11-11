@@ -143,6 +143,8 @@ function PlanMoveForm({ plan, numberInput: mounted, editing, onDone }: PlanMoveF
     }
     const { result = null } = box;
     if (result?.ok === false) {
+      // Refused on the entries as stored: the reload brings them in, so no source card this tab still shows outlives it.
+      await services.domain.hydrate();
       const failure = moveMessage(result.error, plan, format, draft.value.date);
       return { issues: [], failure, field: moveErrorField(result.error) };
     }
