@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { aMove, anEntry, BTC, date, ETH, units } from '../../test/builders';
+import { aMove, anEntry, BTC, date, ETH, id, units } from '../../test/builders';
 import type { LotRule, LotScope } from '../schema/country';
 import type { Entry } from '../schema/entry';
+import { moveShortfallOf } from '../actions/moves';
 import { moveShortfalls } from './move-shortfalls';
 
 // docs/DOMAIN.md §3.7: the stored moves that send more than the Log finds outside their destination at their place in
@@ -78,5 +79,38 @@ describe('moveShortfalls (docs/DOMAIN.md §3.7)', () => {
       expect.objectContaining({ id: april.id, outside: '0', short: '0.05', feeAtDestination: '0.0001' }),
     ]);
     expect(listed(entries, 'global', 'lifo')).toEqual([]);
+  });
+
+  it("reads outside as the units the Log holds at each venue but the destination at the move's place, as the move form's source cards show", () => {
+    // Global FIFO sells the Kraken lot, but the sale at Ledger leaves 1 BTC at Kraken: the move of 0.5 finds 0.5 there,
+    // and its fee comes from the Ledger lot left. No figure would be wrong, so no line shows.
+    const sale = anEntry({ kind: 'sell', slot: null, date: date('2026-03-10'), units: units('1'), venue: 'Ledger' });
+    const sold = [buy('2026-01-10', '1', 'Kraken'), buy('2026-02-10', '1', 'Ledger'), sale];
+    const april = move('2026-04-01', '0.5', '0.4999');
+    for (const lotScope of ['per-venue', 'global'] as const) {
+      expect(listed([...sold, april], lotScope)).toEqual([]);
+      expect(moveShortfallOf(sold, april, context(lotScope))).toBeNull();
+    }
+
+    // Global FIFO sells the Kraken lot of 0.2 for a sale at Ledger, which leaves 0.2 at Kraken: the move of 0.5 is short
+    // outside Ledger and its fee is taken at Ledger, so it is listed under global lots with the per-venue figures.
+    const thin = move('2026-04-01', '0.5', '0.4999');
+    const atLedger = { ...sale, id: id(), units: units('0.2') };
+    const ledger = [buy('2026-01-10', '0.2', 'Kraken'), buy('2026-02-10', '1', 'Ledger'), atLedger];
+    expect(moveShortfallOf(ledger, thin, context('global'))).toEqual(
+      expect.objectContaining({ outside: '0.2', short: '0.3', feeAtDestination: '0.0001', feeUncovered: '0' }),
+    );
+
+    // A sale imported at Bitvavo, which holds none, takes the Kraken lot: Bitvavo counts 0, never below.
+    const imported = anEntry({
+      kind: 'sell',
+      slot: null,
+      date: date('2026-02-01'),
+      units: units('0.08'),
+      venue: 'Bitvavo',
+    });
+    const short = move('2026-03-01', '0.04', '0.0399');
+    const entries = [buy('2026-01-10', '0.05', 'Kraken'), imported, buy('2026-02-10', '0.02', 'Kraken'), short];
+    expect(listed(entries, 'per-venue')).toEqual([expect.objectContaining({ outside: '0.02', short: '0.02' })]);
   });
 });

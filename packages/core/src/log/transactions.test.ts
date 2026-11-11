@@ -162,5 +162,15 @@ describe('transactions (docs/DOMAIN.md §3.9)', () => {
         ['extra', null],
       ]);
     }
+    // Global FIFO sells the Kraken lot, but the sale at Ledger leaves 0.02 BTC at Kraken, which covers the move: no line.
+    const ledgerSale = { ...sold, id: id(), units: units('0.10'), venue: 'Ledger' };
+    const small = { ...partly, id: id(), units: units('0.02'), received: units('0.0199') };
+    const later = { ...ledger, id: id(), date: date('2026-01-20') };
+    expect(outsideOf([kraken, later, ledgerSale, small], 'global')).toEqual([
+      ['move', null],
+      ['sell', null],
+      ['extra', null],
+      ['extra', null],
+    ]);
   });
 });
