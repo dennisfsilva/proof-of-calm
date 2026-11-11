@@ -74,13 +74,21 @@ describe('VenueList', () => {
     const coins = screen.getAllByRole('heading', { level: 3 }).map((heading) => heading.textContent);
     expect(coins).toEqual(['BTC', 'SOL', 'ETH']);
     const lists = screen.getAllByRole('list');
-    expect(within(lists[0] as HTMLElement).getAllByRole('listitem').map(flat)).toEqual([
-      'Kraken 0.01000000 BTC',
-      'Ledger 0.00990000 BTC',
-      'With no venue 0.00100000 BTC',
-    ]);
-    expect(within(lists[1] as HTMLElement).getAllByRole('listitem').map(flat)).toEqual(['kraken 2.00000000 SOL']);
-    expect(within(lists[2] as HTMLElement).getAllByRole('listitem').map(flat)).toEqual(['Kraken 0.500000 ETH']);
+    expect(
+      within(lists[0] as HTMLElement)
+        .getAllByRole('listitem')
+        .map(flat),
+    ).toEqual(['Kraken 0.01000000 BTC', 'Ledger 0.00990000 BTC', 'With no venue 0.00100000 BTC']);
+    expect(
+      within(lists[1] as HTMLElement)
+        .getAllByRole('listitem')
+        .map(flat),
+    ).toEqual(['kraken 2.00000000 SOL']);
+    expect(
+      within(lists[2] as HTMLElement)
+        .getAllByRole('listitem')
+        .map(flat),
+    ).toEqual(['Kraken 0.500000 ETH']);
     expect(screen.queryByText(/The Log shows no coins/)).toBeNull();
   });
 
