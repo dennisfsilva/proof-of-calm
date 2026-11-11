@@ -264,6 +264,26 @@ describe('ReviewScreen', () => {
     );
   });
 
+  it('a Mark refused because another tab stored another plan records nothing, re-opens on it and says so', async () => {
+    const { services, store } = await mount();
+    const id = '00000000-0000-4000-8000-000000009000' as EntityId;
+    const createdAt = '2026-06-01T10:00:00.000Z' as Instant;
+    // Written straight to the store, as another tab's import is before this tab's reload.
+    await store.write({
+      plan: { ...(store.current().plan as Plan), id, createdAt },
+      prefs: { ...store.current().prefs, reviewedAt: null },
+    });
+    const add = vi.spyOn(services.toasts, 'add');
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Mark as reviewed' })));
+    expect(store.current().prefs.reviewedAt).toBeNull();
+    expect(text(/^You set up this plan on 1 Jun 2026\.$/)).toBeDefined();
+    expect(screen.getByRole('button', { name: 'Mark as reviewed' })).toBeDefined();
+    expect(screen.queryByText(/^You reviewed this plan/)).toBeNull();
+    expect(add).toHaveBeenCalledWith(
+      expect.objectContaining({ title: 'The review could not be recorded. Try again.' }),
+    );
+  });
+
   it('with no plan, the no-plan state', async () => {
     await mount({ plan: null, snapshot: { entries: [] } });
     expect(screen.getByRole('heading', { level: 1, name: 'Review the plan' })).toBeDefined();
