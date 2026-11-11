@@ -1,4 +1,8 @@
-import { readFileSync } from 'node:fs';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { branchName, finishProblems, parseRaw, prArgs, startProblems } from './propose.ts';
 
@@ -86,6 +90,49 @@ describe('propose', () => {
       'HEAD aaaaaaaa is not origin/main bbbbbbbb: run git switch --detach origin/main',
     ]);
     expect(startProblems('', sha, '')).toEqual(['origin/main is missing: fetch it']);
+  });
+
+  it('finish refuses without --dry when HEAD is not origin/main', () => {
+    const repo = mkdtempSync(join(tmpdir(), 'propose-'));
+    const git = (...args: string[]) => execFileSync('git', args, { cwd: repo, encoding: 'utf8' }).trim();
+    const write = (path: string, text: string) => {
+      mkdirSync(join(repo, path, '..'), { recursive: true });
+      writeFileSync(join(repo, path), text);
+    };
+    try {
+      git('init', '--quiet', '--initial-branch', 'main');
+      for (const [key, value] of [
+        ['user.name', 't'],
+        ['user.email', 't@example.invalid'],
+        ['commit.gpgsign', 'false'],
+      ])
+        git('config', key, value);
+      write(FACTS, '{}\n');
+      git('add', '-A');
+      git('commit', '--quiet', '--message', 'base');
+      git('update-ref', 'refs/remotes/origin/main', 'HEAD');
+      git('switch', '--quiet', '--create', 'ahead');
+      write('.github/workflows/ci.yml', 'on: push\n');
+      git('add', '-A');
+      git('commit', '--quiet', '--message', 'outside data');
+      write(FACTS, '{"a":1}\n');
+      const head = git('rev-parse', 'HEAD');
+      const status = git('status', '--porcelain');
+      const tree = git('write-tree');
+      const script = fileURLToPath(new URL('./propose.ts', import.meta.url));
+      const result = spawnSync(process.execPath, [script, 'finish'], { cwd: repo, encoding: 'utf8' });
+      const originMain = git('rev-parse', 'origin/main');
+      expect(result.stdout.trim().split('\n')).toEqual([
+        `HEAD ${head.slice(0, 8)} is not origin/main ${originMain.slice(0, 8)}: run git switch --detach origin/main`,
+        'finish: refused, 1 problems; nothing committed, the index as found',
+      ]);
+      expect(result.status).toBe(1);
+      expect([git('rev-parse', 'HEAD'), git('branch', '--show-current')]).toEqual([head, 'ahead']);
+      expect([git('status', '--porcelain'), git('write-tree')]).toEqual([status, tree]);
+      expect(git('branch', '--list', 'agent/*')).toBe('');
+    } finally {
+      rmSync(repo, { recursive: true, force: true });
+    }
   });
 
   it("SKILL.md's allowed-tools holds no git, gh, WebFetch or WebSearch rule", () => {
