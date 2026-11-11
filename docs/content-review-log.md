@@ -1,7 +1,8 @@
 # Content review log
 
 What each owner's review found wrong in the drafts, so the review skill improves
-(`docs/CONTENT-OPS.md` §8 step 5). Newest first. Each row names the kind of mistake, which is what the
+(`docs/CONTENT-OPS.md` §8 step 5). Newest first. A run of `/review-content` is logged with its date,
+its PR, the model and what the owner corrected. Each row names the kind of mistake, which is what the
 next draft can check for.
 
 ## 2026-11-09: #68 and #69, the falls as our computation and the Risk honestly module

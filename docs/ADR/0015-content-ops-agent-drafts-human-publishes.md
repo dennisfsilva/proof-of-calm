@@ -91,3 +91,8 @@ corrected here instead of rewritten (`docs/ADR/README.md`).
   judgment recorded on #69. The reads are in each PR's comments; on those files `reviewedBy: owner` records the
   delegation, not a person's read. What it found: `docs/content-review-log.md`. The rule stands for every other
   content PR.
+- 2026-11-11: no scheduled job runs the agent (ADR-0037 Deviations). The owner starts it by typing
+  `/review-content` in their own Claude Code session. The agent has no git and no gh;
+  `node tools/content-review/propose.ts finish` refuses anything but agent-drafted content data, then
+  commits, pushes and opens the PR, and never merges. A run costs the owner's subscription, not a few
+  euros. The decision stands: the agent drafts, and only the owner publishes (`docs/CONTENT-OPS.md` §3).
