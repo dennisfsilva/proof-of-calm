@@ -406,6 +406,8 @@ describe('venueUnitsAtMove (docs/DOMAIN.md §3.7)', () => {
     // Unlike venueUnits, a sale that no lot covered is not taken off the lots bought after it.
     const short = [sell('2025-12-01', '0.2', 'Kraken'), buy('2026-01-01', '0.5', 'Kraken')];
     expect(venueUnitsAtMove(short, BTC, date('2026-02-01'), null)).toEqual([{ venue: 'Kraken', units: '0.5' }]);
+    // One convention, not one figure (§3.7): venueUnits reads through heldLots, which takes the sale's 0.2 off that lot.
+    expect(venueUnits(short, BTC, date('2026-02-01'))).toEqual([{ venue: 'Kraken', units: '0.3' }]);
   });
 });
 
