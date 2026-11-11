@@ -45,6 +45,7 @@ export const Buying: Story = {
   play: async ({ canvas, canvasElement }) => {
     await waitFor(() => expect(canvas.getByText(/invested so far/)).toBeVisible());
     await expect(canvas.queryByText(/sellable now/)).toBeNull();
+    await expect(canvas.getByRole('link', { name: 'Review the plan' })).toHaveAttribute('href', '/plan/review');
     await fitsTheWidth(canvasElement);
   },
 };

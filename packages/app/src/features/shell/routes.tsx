@@ -17,6 +17,7 @@ const PortfolioScreen = lazyScreen('portfolio', () =>
 );
 const LogScreen = lazyScreen('log', () => import('../log').then((m) => ({ default: m.LogScreen })));
 const PlanScreen = lazyScreen('plan', () => import('../plan').then((m) => ({ default: m.PlanScreen })));
+const ReviewScreen = lazyScreen('plan', () => import('../plan').then((m) => ({ default: m.ReviewScreen })));
 // Settings' Plan and Coins & split tabs are the plan feature's editors: their messages load with the screen.
 const SettingsScreen = lazyScreen('settings', () =>
   Promise.all([import('../settings'), loadNamespace('plan')]).then(([m]) => ({ default: m.SettingsScreen })),
@@ -56,6 +57,9 @@ export function AppRoutes({ riskWording = RISK_WORDING_VERSION }: { readonly ris
           </Route>
           <Route path="/log">
             <LogScreen />
+          </Route>
+          <Route path="/plan/review">
+            <ReviewScreen />
           </Route>
           <Route path="/plan">
             <PlanScreen />

@@ -14,8 +14,8 @@ import { PauseSection } from './pause-section';
 // The Plan screen (ROADMAP M1, docs/DESIGN.md §8): the plan in its own words, how much is in so far,
 // the timeline with its list and table, the holding note with the country's conditions (docs/LEGAL.md
 // §4), the sellable-now lines in the sell phase, Pause or Resume and End buying while buying lasts (an
-// ended plan says when it ended) and "Edit plan", which opens Settings until
-// the plan editors arrive, under "Change the plan", which shows while a plan exists. It reads no prices and no history. The h1 takes the focus when a dialog closes
+// ended plan says when it ended), "Edit plan", which opens Settings until the plan editors arrive, and
+// "Review the plan", under "Change the plan", which shows while a plan exists. It reads no prices and no history. The h1 takes the focus when a dialog closes
 // with nothing else left to give it to (docs/DESIGN.md §6).
 export function PlanScreen() {
   const t = useTranslations('plan');
@@ -99,6 +99,9 @@ function PlanBody({ plan, entries }: { plan: Plan; entries: readonly Entry[] }) 
         <EndBuying />
         <Link href="/settings" className={buttonVariants({ variant: 'secondary', className: 'self-start' })}>
           {t('edit')}
+        </Link>
+        <Link href="/plan/review" className={buttonVariants({ variant: 'secondary', className: 'self-start' })}>
+          {t('change.review')}
         </Link>
       </section>
     </>
