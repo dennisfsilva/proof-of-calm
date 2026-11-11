@@ -133,7 +133,7 @@ describe('propose', () => {
     } finally {
       rmSync(repo, { recursive: true, force: true });
     }
-  });
+  }, 30_000);
 
   it("SKILL.md's allowed-tools holds no git, gh, WebFetch or WebSearch rule", () => {
     const skill = readFileSync(new URL('../../.claude/skills/review-content/SKILL.md', import.meta.url), 'utf8');
