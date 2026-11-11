@@ -3,12 +3,15 @@ name: review-content
 description: Reviews the country profiles and education facts against their sources and drafts the changes for the owner. Serves the owner's manual run, started by typing /review-content in their own Claude Code session (docs/CONTENT-OPS.md §3); a build session never uses it.
 argument-hint: "[countries] [canary=path] [dry]"
 disable-model-invocation: true
+# Claude Code's Edit rules cover the Write tool too and it ignores a Write(path) rule
+# (code.claude.com/docs/en/permissions), so Edit(/.content-review/*) approves the draft's write.
+# A leading / anchors a path at the project root; a Bash rule matches the command text, and a
+# command joined by &&, ||, ;, | or & runs unasked only when every part matches a rule.
 allowed-tools:
   - Read
   - Grep
   - Glob
   - Edit(/packages/content/jurisdictions/*.json)
-  - Edit(/packages/content/rules/*.json)
   - Edit(/packages/content/facts/*.json)
   - Edit(/packages/content/templates/*.json)
   - Edit(/packages/content/cycles/*.json)
