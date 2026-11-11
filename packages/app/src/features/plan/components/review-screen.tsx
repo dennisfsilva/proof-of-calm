@@ -29,7 +29,8 @@ import { VenueList } from './venue-list';
 // venue (./venue-list); then `Mark as reviewed`. Opening it writes nothing; only the button records a review. The
 // first line keeps the day it named when the page opened, so after the mark the result line alone names the
 // review's. Once the commit has replaced the button, the result line takes the focus (docs/DESIGN.md §6); a failed
-// write keeps the button and the focus where they are, and the toast says so.
+// write keeps the button and the focus where they are, and the toast says so; a mark refused because another tab
+// replaced or deleted the plan re-opens the page on what is stored, and the `h1` takes the focus.
 
 const BACK =
   'inline-flex min-h-target items-center self-start font-semibold text-16 text-ink underline underline-offset-4';
@@ -38,21 +39,35 @@ const SECONDARY = buttonVariants({ variant: 'secondary', className: 'self-start'
 export function ReviewScreen() {
   const t = useTranslations('plan.review');
   const plan = useSnapshot((snapshot) => snapshot.plan);
+  const heading = useRef<HTMLHeadingElement>(null);
+  /** Counts the refused marks: each one re-opened the page, so the heading takes the focus once that commit is in. */
+  const [refused, setRefused] = useState(0);
+
+  useEffect(() => {
+    if (refused === 0) return;
+    heading.current?.focus({ preventScroll: true });
+    heading.current?.scrollIntoView({ block: 'nearest' });
+  }, [refused]);
+
   return (
     <div className="mx-auto flex w-full max-w-reading flex-col gap-stack-lg px-gutter py-stack-lg">
       <Link href="/plan" className={BACK}>
         {t('back')}
       </Link>
-      <h1 tabIndex={-1} className="text-28">
+      <h1 ref={heading} tabIndex={-1} className="text-28">
         {t('title')}
       </h1>
       {/* Another plan (an import in another tab) opens the page anew: its own first line and the button. */}
-      {plan === null ? <NoPlan /> : <ReviewBody key={plan.id} plan={plan} />}
+      {plan === null ? (
+        <NoPlan />
+      ) : (
+        <ReviewBody key={plan.id} plan={plan} onRefused={() => setRefused((count) => count + 1)} />
+      )}
     </div>
   );
 }
 
-function ReviewBody({ plan }: { readonly plan: Plan }) {
+function ReviewBody({ plan, onRefused }: { readonly plan: Plan; readonly onRefused: () => void }) {
   const t = useTranslations('plan.review');
   const tPlan = useTranslations('plan');
   const f = useFormatters();
@@ -89,10 +104,14 @@ function ReviewBody({ plan }: { readonly plan: Plan }) {
     if (busy.current) return;
     busy.current = true;
     try {
-      // Refused when another tab replaced or deleted the plan: the reload re-opens the page on what is stored.
+      // Refused when another tab replaced or deleted the plan: the reload re-opens the page on what is stored,
+      // which takes this button away, so the page's heading takes the focus.
       const recorded = await planActions(services).recordReview(plan.id);
       if (recorded.ok) setMarked(true);
-      else services.toasts.add({ title: t('failed'), timeout: UNDO_WINDOW_MS });
+      else {
+        services.toasts.add({ title: t('failed'), timeout: UNDO_WINDOW_MS });
+        onRefused();
+      }
     } catch (error) {
       reportError(error);
       services.toasts.add({ title: t('failed'), timeout: UNDO_WINDOW_MS });
