@@ -121,7 +121,7 @@
     "received": "Units received",
     "fee": "Network fee {units}",
     "sourceShort": "{at, select, venue {The Log shows {held} at {from} on {date}.} other {The Log shows {held} with no venue on {date}.}}{found, select, yes {} other { The Log looks for the other {short} in the units you held outside {to} on that day.}}",
-    "sourceFound": "Outside {to}, the Log finds {outside} in all on that day, {short} fewer than this move sends.",
+    "sourceFound": "Outside {to}, the Log shows {outside} in all on that day, {short} fewer than this move sends.",
     "duplicate": "The Log already has this move on {date}. Save it only if you moved these coins twice.",
     "laterShort": "After this move, your move to {to} on {date} sends {short} more than the Log shows outside {to} that day. If both record the same withdrawal, leave only one of them in the Log. If not, check the units that move sends.",
     "saleShort": "This move's network fee leaves your {coin} sale on {date} without the units it sells. Check the units received against the deposit record, or change that sale first.",
