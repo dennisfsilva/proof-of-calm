@@ -239,8 +239,8 @@ dark mode uses the dark steps above, not an inversion; the validator runs whenev
   place, the row an Undo restores) focuses with `preventScroll` and then calls `scrollIntoView({ block: 'nearest' })`:
   Chromium's own focus scroll ignores the padding and leaves the element partly under the bar.
   Every element this move lands on carries a top scroll margin of `stack-md` (`scroll-mt-result`;
-  the header is not sticky, §7): the Log rows' toggles, the country change's result line, an
-  import's result and problem lines, the buttons an Undo returns focus to and Today's headings. The
+  the header is not sticky, §7): the Log rows' toggles, the country change's result line, the
+  review's result line, an import's result and problem lines, the buttons an Undo returns focus to and Today's headings. The
   least scroll then leaves room above it: without one, the country change's result line stopped
   flush with the window's top edge, with nothing above it to read it by (android-small and
   zoom-125, 2026-11-05). The entry form's alert line takes none: the form scrolls a box around it
@@ -267,6 +267,9 @@ dark mode uses the dark steps above, not an inversion; the validator runs whenev
   notice or the red-day banner at Today's foot takes its button away, so the focus moves to that
   same heading by the script focus move above, once the commit has removed the banner, since on a
   phone the heading is above the window once the foot has been scrolled to.
+  `Mark as reviewed` on `/plan/review` gives way to its result line (`tabindex="-1"`), which takes the
+  focus by the script focus move above once the commit has replaced the button; a failed write keeps
+  the button and the focus on it, and the toast says so.
   Accepting the re-ask of the risk text takes its button away with no new pathname for
   the shell to act on, so the focus moves to Today's `h1` by the script focus move above. An action
   that ends in a problem with no result to show (the import of a file) moves the focus to the

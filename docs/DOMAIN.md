@@ -778,6 +778,13 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   `plan.createdAt` and `Prefs.reviewedAt` in the user's timezone (the core never derives a date from an
   instant, §1); the later of the two counts, so a review recorded before the plan existed is ignored,
   and the day is clamped (created 29 Feb 2028, due 28 Feb 2029). `nextReviewOn` gives the date.
+  The two days come only from `useReviewDates` in `packages/app/src/lib/services`, so every screen names
+  the same ones. Only `Mark as reviewed` on `/plan/review` writes `Prefs.reviewedAt`: the clock's now, on
+  the prefs as stored, in a prefs-only write that stamps no `changedAt`, so no backup prompt follows;
+  opening the page writes nothing. A JSON import that stores a plan whose id differs from the stored
+  plan's, or with no plan stored, sets `reviewedAt` to null in the same write, since a review of the
+  replaced plan would postpone this one's and be named as its; an import into the stored plan keeps it.
+  A prototype import stamps `createdAt` at the import, so its review counts from that day.
 - `ruleChangeNotice(plan, countryRules)`: the profile carries `status.version`, `changedOn` and
   `changeNotice`; while `status.version > plan.countryRuleVersion` it returns
   `{ country, version, changedOn, changeNotice }` ("Portugal updated its rule for 2027. Review your
