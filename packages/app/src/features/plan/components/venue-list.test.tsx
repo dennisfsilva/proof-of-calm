@@ -121,7 +121,7 @@ describe('VenueList', () => {
     await mount([coin('BTC', 8, [line(null, '0.001')])]);
     expect(
       screen.getByText(
-        "Where your exchange or wallet shows other units, log the missing purchase, sale or move, or correct an entry's units, venue or date.",
+        "Where your exchange or wallet shows other units, log the missing purchase, sale, move, or coins received, or correct an entry's units, venue, or date.",
       ),
     ).toBeDefined();
     expect(screen.getByRole('link', { name: 'Open the Log' }).getAttribute('href')).toBe('/log');
