@@ -74,11 +74,11 @@ owns the pipeline around them and its security model.
    problem. It compares the draft's rows with the staged diff both ways
    (`tools/content-review/rows.ts`): a changed leaf with no row, a row for a leaf that did not
    change, a changed module with no row, a file changed only in bookkeeping with no `reviewed` row,
-   and any change to `lastReviewed` or `nextReviewDue` are refused; the generated `rules/*.json` are
-   skipped. A refusal leaves the index as it found it. Without `--dry` it first refuses a HEAD other
-   than origin/main. When nothing is refused, it renders the body, commits on
-   `agent/content-review-<date>`, pushes, and opens the PR labelled `needs-owner` and
-   `content-review`. It never merges.
+   and any change to `lastReviewed` or `nextReviewDue` (in a module, any changed line naming either)
+   are refused; the generated `rules/*.json` are skipped. A refusal leaves the index as it found
+   it. Without `--dry` it first refuses a HEAD other than origin/main. When nothing is refused, it
+   renders the body, commits on `agent/content-review-<date>`, pushes, and opens the PR labelled
+   `needs-owner` and `content-review`. It never merges.
 6. **Dry mode.** On `dry`, `node tools/content-review/propose.ts finish --dry` writes the body to
    .content-review/body.md and commits, pushes and opens nothing.
 
