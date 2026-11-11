@@ -9,6 +9,29 @@ import { branchName, finishProblems, parseRaw, prArgs, startProblems } from './p
 const FACTS = 'packages/content/facts/education.json';
 const CYCLES = 'packages/content/cycles/drawdowns.json';
 const MODULE = 'packages/content/learn/what-dca-is.mdx';
+const SCRIPT = fileURLToPath(new URL('./propose.ts', import.meta.url));
+
+/** A temporary repository with one committed file per entry, and git and write helpers bound to it. */
+function tempRepo(files: Record<string, string>) {
+  const repo = mkdtempSync(join(tmpdir(), 'propose-'));
+  const git = (...args: string[]) => execFileSync('git', args, { cwd: repo, encoding: 'utf8' }).trim();
+  const write = (path: string, text: string) => {
+    mkdirSync(join(repo, path, '..'), { recursive: true });
+    writeFileSync(join(repo, path), text);
+  };
+  git('init', '--quiet', '--initial-branch', 'main');
+  const config: [string, string][] = [
+    ['user.name', 't'],
+    ['user.email', 't@example.invalid'],
+    ['commit.gpgsign', 'false'],
+    ['core.autocrlf', 'false'],
+  ];
+  for (const [key, value] of config) git('config', key, value);
+  for (const [path, text] of Object.entries(files)) write(path, text);
+  git('add', '-A');
+  git('commit', '--quiet', '--message', 'base');
+  return { repo, git, write };
+}
 
 describe('propose', () => {
   it('parseRaw lists modes, deletions and binaries', () => {
@@ -93,23 +116,8 @@ describe('propose', () => {
   });
 
   it('finish refuses without --dry when HEAD is not origin/main', () => {
-    const repo = mkdtempSync(join(tmpdir(), 'propose-'));
-    const git = (...args: string[]) => execFileSync('git', args, { cwd: repo, encoding: 'utf8' }).trim();
-    const write = (path: string, text: string) => {
-      mkdirSync(join(repo, path, '..'), { recursive: true });
-      writeFileSync(join(repo, path), text);
-    };
+    const { repo, git, write } = tempRepo({ [FACTS]: '{}\n' });
     try {
-      git('init', '--quiet', '--initial-branch', 'main');
-      const config: [string, string][] = [
-        ['user.name', 't'],
-        ['user.email', 't@example.invalid'],
-        ['commit.gpgsign', 'false'],
-      ];
-      for (const [key, value] of config) git('config', key, value);
-      write(FACTS, '{}\n');
-      git('add', '-A');
-      git('commit', '--quiet', '--message', 'base');
       git('update-ref', 'refs/remotes/origin/main', 'HEAD');
       git('switch', '--quiet', '--create', 'ahead');
       write('.github/workflows/ci.yml', 'on: push\n');
@@ -119,8 +127,7 @@ describe('propose', () => {
       const head = git('rev-parse', 'HEAD');
       const status = git('status', '--porcelain');
       const tree = git('write-tree');
-      const script = fileURLToPath(new URL('./propose.ts', import.meta.url));
-      const result = spawnSync(process.execPath, [script, 'finish'], { cwd: repo, encoding: 'utf8' });
+      const result = spawnSync(process.execPath, [SCRIPT, 'finish'], { cwd: repo, encoding: 'utf8' });
       const originMain = git('rev-parse', 'origin/main');
       expect(result.stdout.trim().split('\n')).toEqual([
         `HEAD ${head.slice(0, 8)} is not origin/main ${originMain.slice(0, 8)}: run git switch --detach origin/main`,
@@ -132,6 +139,46 @@ describe('propose', () => {
       expect(git('branch', '--list', 'agent/*')).toBe('');
     } finally {
       rmSync(repo, { recursive: true, force: true });
+    }
+  }, 30_000);
+
+  it("finish --dry refuses a staged module's changed lastReviewed line, with a one-row draft", () => {
+    const front = (by: string, reviewed: string) =>
+      ['---', 'title: What DCA is', `reviewedBy: ${by}`, `lastReviewed: ${reviewed}`, 'nextReviewDue: 2027-10-01']
+        .concat(['---', '', 'Buying the same amount on a schedule.', ''])
+        .join('\n');
+    const template = '.github/PULL_REQUEST_TEMPLATE/content-review.md';
+    const { repo, git, write } = tempRepo({
+      [MODULE]: front('owner', '2026-10-01'),
+      [template]: readFileSync(new URL(`../../${template}`, import.meta.url), 'utf8'),
+      'packages/content/sources.allow.json': '{"facts":["example.org"]}\n',
+    });
+    const outside = mkdtempSync(join(tmpdir(), 'propose-draft-'));
+    try {
+      write(MODULE, front('agent-draft', '2026-11-10'));
+      git('add', '-A');
+      const tree = git('write-tree');
+      const draft = join(outside, 'draft.json');
+      const row = {
+        ...{ item: 'learn/what-dca-is.mdx', field: 'reviewedBy', old: 'owner', new: 'agent-draft' },
+        ...{ quote: 'Buying the same amount on a schedule.', eventDate: '2026-11-10', url: 'https://example.org/dca' },
+        ...{ accessed: '2026-11-10', confidence: 'high', substantive: false, reason: 'The source still says so.' },
+      };
+      const lists = { reviewed: [], verified: [], unreachable: [], pending: [], queue: [], notes: [] };
+      writeFileSync(draft, JSON.stringify({ date: '2026-11-10', model: 'm', countries: [], changes: [row], ...lists }));
+      const args = [SCRIPT, 'finish', '--dry', '--draft', draft];
+      const result = spawnSync(process.execPath, args, { cwd: repo, encoding: 'utf8' });
+      const owner = 'the agent never sets lastReviewed or nextReviewDue; the owner sets lastReviewed in the flip';
+      expect(result.stdout.trim().split('\n')).toEqual([
+        `draft: ${MODULE}: a line with lastReviewed or nextReviewDue changed; ${owner} (docs/CONTENT-OPS.md §8)`,
+        'finish: refused, 1 problems; nothing committed, the index as found',
+      ]);
+      expect(result.status).toBe(1);
+      expect(git('write-tree')).toBe(tree);
+      expect(git('status', '--porcelain', '--', '.content-review')).toBe('');
+    } finally {
+      rmSync(repo, { recursive: true, force: true });
+      rmSync(outside, { recursive: true, force: true });
     }
   }, 30_000);
 
