@@ -343,19 +343,6 @@ function PlanEntryForm({ plan, numberInput: mounted, kind, editing, slot, onDone
       })}
       {/* LEGAL §4: the data line once, beside the holding status. */}
       {warnings.length > 0 && <p className="text-13 text-ink-2">{t('log.holding.note')}</p>}
-      {moveShort !== undefined && (
-        <p role="status" className="text-14">
-          {t('log.form.movesShort', {
-            to: moveShort.to,
-            date: format.date(moveShort.date),
-            short: format.units(
-              moveShort.short,
-              moveShort.coin,
-              proseDigits(decimalsOf(moveShort.coin), moveShort.short),
-            ),
-          })}
-        </p>
-      )}
       {!added &&
         numberField(
           'fee',
@@ -374,6 +361,19 @@ function PlanEntryForm({ plan, numberInput: mounted, kind, editing, slot, onDone
         onOpenChange={setDetailsOpen}
         onChange={set}
       />
+      {moveShort !== undefined && (
+        <p role="status" className="text-14">
+          {t('log.form.movesShort', {
+            to: moveShort.to,
+            date: format.date(moveShort.date),
+            short: format.units(
+              moveShort.short,
+              moveShort.coin,
+              proseDigits(decimalsOf(moveShort.coin), moveShort.short),
+            ),
+          })}
+        </p>
+      )}
       {/* The alert line and Save, each grown by the focus ring's extent: a refused save scrolls one of them in. */}
       <div
         ref={end}
