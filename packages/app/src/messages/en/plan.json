@@ -21,6 +21,15 @@
       "changed": "{date}: {kind, select, generic {the general profile} other {the rules for {country}}} changed.",
       "link": "{kind, select, generic {See the countries} other {See the card for {country}}}"
     },
+    "where": {
+      "heading": "Where your coins are",
+      "intro": "At the end of {date}, after the sales and moves dated on or before it, the Log shows these units at each venue.",
+      "noVenue": "With no venue",
+      "estimated": "{count, plural, one {Bought as planned estimated the units of {figure} {coin} entry from the day's price. Your exchange's confirmation has the exact units.} other {Bought as planned estimated the units of {figure} {coin} entries from the day's price. Your exchange's confirmations have the exact units.}}",
+      "differs": "Where your exchange or wallet shows other units, log the missing purchase, sale or move, or correct an entry's units, venue or date.",
+      "log": "Open the Log",
+      "none": "The Log shows no coins held at the end of {date}."
+    },
     "mark": "Mark as reviewed",
     "marked": "You reviewed this plan on {date}. Next review from {next}.",
     "failed": "The review could not be recorded. Try again."
