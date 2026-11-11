@@ -19,7 +19,7 @@ proof-of-calm/
 │   └── config/               tsconfig bases, the dependency-cruiser rules and the hosts' Vite factory with its plugins (`packages/config/vite`, ADR-0045; Biome and ESLint configs are root files, ADR-0025)
 ├── tools/                    repository scripts, tested like code (each one: tools/README.md); the data pipeline from M2
 ├── docs/                     decisions (ADR/), specs, standards, research
-├── .github/                  CI workflows, the PR template (a content-review one from M2), CODEOWNERS; scheduled: the weekly OSV scan, and from M2 the content review, the daily price-history append with its weekly re-check and the nightly backup dump (ADR-0037)
+├── .github/                  CI workflows, the PR templates (the content review's among them), CODEOWNERS; scheduled: the weekly OSV scan, the content review's reminder issue (docs/CONTENT-OPS.md §2), and from M2 the daily price-history append with its weekly re-check and the nightly backup dump (ADR-0037)
 ├── pnpm-workspace.yaml       workspaces, pnpm settings, the single-version catalog
 ├── biome.json                formatter, lint rules and the editor-time layer rules
 ├── eslint.config.mjs         the minimal ESLint layer (the React Compiler rules)

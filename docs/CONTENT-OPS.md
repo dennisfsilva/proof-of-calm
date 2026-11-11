@@ -80,7 +80,10 @@ settings, so each new domain's first fetch shows the owner what the agent reads.
 Until the owner's first run, only the tests, which check its git and gh argv, cover the finish's
 non-dry path. The `finish-dry` job of `.github/workflows/content-review.yml` runs the dry path on fixtures. A second
 run on the same day fails, at the branch switch or at the push, because today's branch,
-`agent/content-review-<date>`, exists. Delete that branch, local and remote, before a re-run.
+`agent/content-review-<date>`, exists. Delete today's branch, local and remote, only once its PR
+exists or when it holds nothing you need: after a pushed finish whose PR did not open, it holds the
+only copy of the review's edits. Then open the PR by hand from the pushed branch, labelled
+`needs-owner` and `content-review`, with the body the finish wrote to .content-review/body.md.
 
 Trust layers. The agent runs under the owner's identity, so the layers make an injected instruction
 visible rather than impossible:
