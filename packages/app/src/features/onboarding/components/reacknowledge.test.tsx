@@ -11,6 +11,7 @@ import { fixtureSnapshot } from '../../../lib/services/fixtures';
 import { createTestServices, preloadLazyModules } from '../../../lib/services/testing';
 import errors from '../../../messages/en/errors.json';
 import onboarding from '../../../messages/en/onboarding.json';
+import shell from '../../../messages/en/shell.json';
 import today from '../../../messages/en/today.json';
 import { AppRoutes } from '../../shell';
 import { reacknowledge } from '../actions';
@@ -39,10 +40,15 @@ const scrolled = vi.fn();
 Element.prototype.scrollIntoView = scrolled;
 
 const disposers: (() => void)[] = [];
+// A namespace the screen reads but the provider lacks is reported on the console, not thrown: every test fails on it.
+const logged = vi.spyOn(console, 'error');
 afterEach(() => {
   cleanup();
   for (const dispose of disposers.splice(0)) dispose();
   scrolled.mockClear();
+  const missing = logged.mock.calls.filter((call) => String(call[0]).includes('MISSING_MESSAGE'));
+  logged.mockClear();
+  expect(missing).toEqual([]);
 });
 
 const ACKNOWLEDGED_AT = '2026-05-10T09:00:00.000Z' as Instant;
@@ -67,7 +73,7 @@ async function shown() {
   render(
     <NavigationProvider location="memory" initialPath="/today">
       <ServicesProvider services={stored.services}>
-        <I18nProvider messages={{ errors, today }}>
+        <I18nProvider messages={{ errors, shell, today }}>
           <main id="main">
             <AppRoutes riskWording={2} />
           </main>
