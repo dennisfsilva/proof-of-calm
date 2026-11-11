@@ -3,13 +3,13 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { FILING_RULE, type Fetch, fetchPdf, MAX_BYTES, pdfName, pdfTarget, run } from './pdf.ts';
+import { type Fetch, FILING_RULE, fetchPdf, MAX_BYTES, pdfName, pdfTarget, run } from './pdf.ts';
 
 const domains = ['revenue.ie', 'bundesfinanzministerium.de'];
 const URL1 = 'https://www.revenue.ie/en/tdm/part-02/02-01-03.pdf';
 
 /** A one-page PDF written by hand: Helvetica, one line of text, the cross-reference table's offsets exact. */
-function onePagePdf(text: string): Uint8Array {
+function onePagePdf(text: string): Uint8Array<ArrayBuffer> {
   const stream = `BT /F1 12 Tf 20 100 Td (${text}) Tj ET`;
   const objects = [
     '<< /Type /Catalog /Pages 2 0 R >>',
