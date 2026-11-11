@@ -171,6 +171,11 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   on the pure function it calls. Reverting the wiring line (`propose.ts:113`) left all 57
   content-review tests green; a `finish --dry` test in `tools/content-review/propose.test.ts` now
   fails on that revert.
+- A rule added to a skill's allowed-tools is the owner's own line: the auto-mode classifier refuses
+  an agent's edit that widens what an agent may run without asking (Self-Modification). Session
+  18e's `Bash(node tools/content-review/pdf.ts *)` was refused, so pdf.ts asks the owner on each
+  run. Design a skill to work without a new pre-approval, and list any rule still wanted for the
+  owner.
 
 ## Known gaps
 
