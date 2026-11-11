@@ -164,7 +164,7 @@ function rowsOrError(draft: TransactionDraft, context: SaveContext): Result<Fill
 
 /**
  * A write refused because it leaves a recorded sale with fewer units before it than it sold, or a recorded move with
- * fewer than its fee (§3.7, §6).
+ * fewer than its fee, named by its date and whether the write stores it (§3.7, §6).
  */
 export type CoverRefusal = Extract<ActionError, { readonly code: 'sell-exceeds-held' | 'fee-exceeds-held' }>;
 
@@ -210,8 +210,8 @@ function worseCovered(before: readonly Entry[], after: readonly Entry[], coin: C
  * sold than bought, or more units sold that no earlier purchase covers (`matchLots`, one global queue), than before
  * (`worseCovered`), so data imported short stays as written and nothing makes it worse. The refusal names the step the
  * write left worse covered (`firstMadeWorse`: never a step that was as short before), the units held
- * before it and its units; null when every sale stays covered. A move's fee beyond the units held is refused as
- * `fee-exceeds-held`, with the move's date and whether that move is one `written` stores (its own fee, never
+ * before it, its units, its date and whether it is one `written` stores; null when every sale stays covered. A sale
+ * left short is `sell-exceeds-held`, a move's fee beyond the units held `fee-exceeds-held` (its own fee, never
  * another move's); its units received are a venue matter and never refuse (ADR-0055).
  */
 export function uncoveredSale(entries: readonly Entry[], written: readonly Entry[]): CoverRefusal | null {
@@ -223,7 +223,7 @@ export function uncoveredSale(entries: readonly Entry[], written: readonly Entry
     const { entry, held, out } = firstMadeWorse(shortfalls(entries, coin), shortfalls(after, coin));
     return entryRole(entry.kind) === 'move'
       ? { code: 'fee-exceeds-held', coin, held, fee: out, date: entry.date, written: ids.has(entry.id) }
-      : { code: 'sell-exceeds-held', coin, held, sold: out };
+      : { code: 'sell-exceeds-held', coin, held, sold: out, date: entry.date, written: ids.has(entry.id) };
   }
   return null;
 }
@@ -247,7 +247,7 @@ function saleError(
     const sold = rows.filter((row) => row.coin === coin).reduce((total, row) => plus(total, row.units), '0' as Units);
     const held = min(heldUnits(others, coin), heldOn(others, coin, draft.date));
     if (compare(sold, held) <= 0 || !worseCovered(context.entries, after, coin)) continue;
-    return { code: 'sell-exceeds-held', coin, held, sold };
+    return { code: 'sell-exceeds-held', coin, held, sold, date: draft.date, written: true };
   }
   return null;
 }
@@ -360,8 +360,8 @@ export type RestoreRefusal =
  * delete wrote (`before.ids`) are checked and restored, so one another tab deleted first stays deleted. A tombstone whose `updatedAt` or
  * `deletedAt` is not the delete's stamp was written since (in M1 only a replace does so, from any tab and on any
  * clock) and refuses the undo (`changed-since-delete`), as does a deleted monthly buy whose month was skipped, or
- * recorded by another monthly buy, since the delete (`slot-skipped`, `slot-done`), or a deleted sale whose units were
- * sold again since (`sell-exceeds-held`, `uncoveredSale`), or one that would leave more live entries than the cap
+ * recorded by another monthly buy, since the delete (`slot-skipped`, `slot-done`), or one that leaves a sale or a
+ * move's fee, restored or not, worse covered (`uncoveredSale`), or one that would leave more live entries than the cap
  * (`too-many-entries`, `overCap`), or an amount or a fee when the pay currency moved since (`currencyMoved`); nothing
  * is restored and the entries stay deleted. What the month already held stays allowed.
  */

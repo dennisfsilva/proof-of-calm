@@ -652,39 +652,47 @@ describe('a refusal names the step the write made worse (docs/DOMAIN.md ยง3.7, ย
     const write = fc.constantFrom('delete' as const, 'undo' as const, 'sell' as const);
     const seen = { written: 0, other: 0 };
     fc.assert(
-      fc.property(fc.array(importedStep, { minLength: 1, maxLength: 8 }), fc.nat(7), write, day, quantity, (...args) => {
-        const [rows, pick, kind, on, sold] = args;
-        const entries = rows.map(importedEntry);
-        const target = entries[pick % entries.length] ?? entries[0];
-        if (target === undefined) return;
-        const plan = aPlan();
-        const before = slotsAtDelete(plan, entries, [target.id], now);
-        const deleted = merge(entries, deleteEntries(entries, before.ids, before.at));
-        const sale = { kind: 'sell' as const, date: on, slot: null, fee: null, note: '', venue: null };
-        const fresh = id();
-        const context = { plan, entries, editing: [], ids: [fresh], now, source: 'manual' as const };
-        const refused =
-          kind === 'delete'
-            ? uncoveredSale(entries, deleteEntries(entries, [target.id], now))
-            : kind === 'undo'
-              ? restoreEntries(plan, deleted, before.ids, before, instant('2026-03-20T10:00:05Z'))
-              : saveTransaction({ ...sale, rows: [{ coin: BTC.id, amount: money('100'), units: sold }] }, context);
-        const error = refused !== null && 'ok' in refused ? (refused.ok ? null : refused.error) : refused;
-        if (error?.code !== 'sell-exceeds-held') return;
-        // What the store holds once the write is in: the sale saved, or the entries as they were (an undo restores).
-        const after = kind === 'sell' ? [...entries, anEntry({ ...sale, id: fresh, coin: BTC.id, units: sold })] : entries;
-        const stores = kind === 'delete' ? new Set<EntityId>() : new Set(kind === 'sell' ? [fresh] : before.ids);
-        const named = liveEntries(after).filter(
-          (entry) =>
-            entry.kind === 'sell' &&
-            entry.coin === error.coin &&
-            entry.date === error.date &&
-            compare(entry.units, error.sold) === 0 &&
-            stores.has(entry.id) === error.written,
-        );
-        expect(named.length).toBeGreaterThan(0);
-        seen[error.written ? 'written' : 'other'] += 1;
-      }),
+      fc.property(
+        fc.array(importedStep, { minLength: 1, maxLength: 8 }),
+        fc.nat(7),
+        write,
+        day,
+        quantity,
+        (...args) => {
+          const [rows, pick, kind, on, sold] = args;
+          const entries = rows.map(importedEntry);
+          const target = entries[pick % entries.length] ?? entries[0];
+          if (target === undefined) return;
+          const plan = aPlan();
+          const before = slotsAtDelete(plan, entries, [target.id], now);
+          const deleted = merge(entries, deleteEntries(entries, before.ids, before.at));
+          const sale = { kind: 'sell' as const, date: on, slot: null, fee: null, note: '', venue: null };
+          const fresh = id();
+          const context = { plan, entries, editing: [], ids: [fresh], now, source: 'manual' as const };
+          const refused =
+            kind === 'delete'
+              ? uncoveredSale(entries, deleteEntries(entries, [target.id], now))
+              : kind === 'undo'
+                ? restoreEntries(plan, deleted, before.ids, before, instant('2026-03-20T10:00:05Z'))
+                : saveTransaction({ ...sale, rows: [{ coin: BTC.id, amount: money('100'), units: sold }] }, context);
+          const error = refused !== null && 'ok' in refused ? (refused.ok ? null : refused.error) : refused;
+          if (error?.code !== 'sell-exceeds-held') return;
+          // What the store holds once the write is in: the sale saved, or the entries as they were (an undo restores).
+          const after =
+            kind === 'sell' ? [...entries, anEntry({ ...sale, id: fresh, coin: BTC.id, units: sold })] : entries;
+          const stores = kind === 'delete' ? new Set<EntityId>() : new Set(kind === 'sell' ? [fresh] : before.ids);
+          const named = liveEntries(after).filter(
+            (entry) =>
+              entry.kind === 'sell' &&
+              entry.coin === error.coin &&
+              entry.date === error.date &&
+              compare(entry.units, error.sold) === 0 &&
+              stores.has(entry.id) === error.written,
+          );
+          expect(named.length).toBeGreaterThan(0);
+          seen[error.written ? 'written' : 'other'] += 1;
+        },
+      ),
       { numRuns: 200 },
     );
     expect(seen.written).toBeGreaterThan(0);
