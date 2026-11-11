@@ -78,6 +78,10 @@ async function mount(
 }
 
 const href = (name: string) => screen.getByRole('link', { name }).getAttribute('href');
+const reviewedOn = (snapshot: Snapshot, day: string): Snapshot => ({
+  ...snapshot,
+  prefs: { ...snapshot.prefs, reviewedAt: `${day}T10:00:00Z` as Instant },
+});
 
 describe('TodayScreen', () => {
   it('without a plan: one "No plan yet" and the two links, never a repeated "No … yet"', async () => {
@@ -198,7 +202,9 @@ describe('TodayScreen', () => {
   });
 
   it('in the sell window, months left open go to the pending list and the phase leads (DOMAIN §3.3)', async () => {
-    await mount(fixtureSnapshot(), at('2030-03-15'));
+    // Reviewed on the day: the foot keeps the backup banner, which the annual review would otherwise take.
+    await mount(reviewedOn(fixtureSnapshot(), '2030-03-15'), at('2030-03-15'));
+    expect(screen.getByText(/^Your data lives only on this device\./u)).toBeDefined();
     expect(screen.getByRole('heading', { level: 2, name: 'In the sell window' })).toBeDefined();
     expect(screen.queryByText(/is still open/u)).toBeNull();
     const pending = screen.getByRole('list', { name: 'Also open' });
@@ -425,6 +431,68 @@ describe('TodayScreen', () => {
   });
 });
 
+// The annual review at the foot (docs/DOMAIN.md §3.11, §3.12): the fixture plan, created on 5 Apr 2026, is due from
+// 5 Apr 2027; it holds BTC and ETH and was never exported, so the backup banner waits behind the review.
+describe('TodayScreen, the annual review', () => {
+  const REVIEW = /^You set up this plan on 5 Apr 2026\. Is it still right\? Have the rules changed\?$/u;
+  const BACKUP = /^Your data lives only on this device\./u;
+  const DUE = at('2027-04-20');
+
+  it('sits below the rule-change notice and above the backup banner', async () => {
+    await mount({ ...fixtureSnapshot(), plan: { ...fixtureSnapshot().plan, countryRuleVersion: 0 } } as Snapshot, DUE);
+    expect(screen.getByRole('link', { name: 'Review' })).toBeDefined();
+    expect(screen.queryByText(REVIEW)).toBeNull();
+    cleanup();
+    await mount(fixtureSnapshot(), DUE);
+    expect(screen.getByText(REVIEW)).toBeDefined();
+    expect(screen.queryByText(BACKUP)).toBeNull();
+    expect(screen.getAllByRole('status')).toHaveLength(1);
+  });
+
+  it('not asked the day before it is due', async () => {
+    await mount(fixtureSnapshot(), at('2027-04-04'));
+    expect(screen.queryByText(REVIEW)).toBeNull();
+    expect(screen.getByText(BACKUP)).toBeDefined();
+  });
+
+  it('a paused plan and an ended plan on a due clock show the review', async () => {
+    const snapshot = fixtureSnapshot();
+    const plan = snapshot.plan as Plan;
+    const pause: Pause = {
+      id: entityId as Pause['id'],
+      from: '2027-04-01' as CalendarDate,
+      until: '2027-06-30' as CalendarDate,
+      note: '',
+    };
+    await mount({ ...snapshot, plan: { ...plan, lastBuy: '2028-03-05' as CalendarDate, pauses: [pause] } }, DUE);
+    expect(screen.getByRole('button', { name: 'Resume' })).toBeDefined();
+    expect(screen.getByText(REVIEW)).toBeDefined();
+    cleanup();
+    const ended = { ...plan, lastBuy: '2028-03-05' as CalendarDate, endedBuyingOn: '2027-04-10' as CalendarDate };
+    await mount({ ...snapshot, plan: ended }, DUE);
+    expect(screen.getByText(REVIEW)).toBeDefined();
+  });
+
+  it('past the exit date: asked while coins are held, never once none are', async () => {
+    await mount(fixtureSnapshot(), at('2031-02-01'));
+    expect(screen.getByText(REVIEW)).toBeDefined();
+    cleanup();
+    await mount({ ...fixtureSnapshot(), entries: [] }, at('2031-02-01'));
+    expect(screen.queryByText(REVIEW)).toBeNull();
+    expect(screen.queryByRole('status')).toBeNull();
+  });
+
+  it('after Later, the backup banner shows on the same visit, and a new visit keeps the review away', async () => {
+    const { remount } = await mount(fixtureSnapshot(), DUE);
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Later' })));
+    expect(screen.queryByText(REVIEW)).toBeNull();
+    expect(screen.getByText(BACKUP)).toBeDefined();
+    await remount();
+    expect(screen.queryByText(REVIEW)).toBeNull();
+    expect(screen.getByText(BACKUP)).toBeDefined();
+  });
+});
+
 const CLEAR_LAST = { date: '2026-10-19' as CalendarDate, sevenDay: null, fromHigh90: '-1' as Percent };
 
 // The red-day banner at the foot (docs/DOMAIN.md §3.11; docs/DESIGN.md §8): the model answers once per visit; the
@@ -507,6 +575,31 @@ describe('TodayScreen, the red-day banner', () => {
     expect(screen.getByText(RED)).toBeDefined();
     expect(screen.queryByText(BACKUP)).toBeNull();
     expect(model).toHaveBeenCalledOnce();
+  });
+
+  // On a clock the review is due on, the episode under way holds it back (#11 D1), on every visit of the episode.
+  const DUE = at('2027-04-20');
+  const dueEpisode = () =>
+    episodeRedDay({ ...CLEAR_LAST, date: '2027-04-19' as CalendarDate, sevenDay: '-16.4' as Percent });
+  const REVIEW = /Is it still right\?/u;
+
+  it('an episode covered on an earlier visit gives the backup banner, not the review', async () => {
+    const snapshot = fixtureSnapshot();
+    const covered = { ...snapshot, prefs: { ...snapshot.prefs, dismissedBanners: ['red-day:2026-10-15'] } };
+    await mount(covered, DUE, false, { redDay: dueEpisode() });
+    expect(screen.queryByText(/fell 16%/u)).toBeNull();
+    expect(screen.queryByText(REVIEW)).toBeNull();
+    expect(screen.getByText(BACKUP)).toBeDefined();
+  });
+
+  it('after Dismiss of a red day on a due clock, the backup banner, not the review; and on the next visit too', async () => {
+    const { remount } = await mount(fixtureSnapshot(), DUE, false, { redDay: dueEpisode() });
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Dismiss' })));
+    expect(screen.queryByText(REVIEW)).toBeNull();
+    expect(screen.getByText(BACKUP)).toBeDefined();
+    await remount();
+    expect(screen.queryByText(REVIEW)).toBeNull();
+    expect(screen.getByText(BACKUP)).toBeDefined();
   });
 
   it('Dismiss hides it and the next banner takes the foot', async () => {
