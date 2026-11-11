@@ -196,7 +196,7 @@ describe('EntrySheet', () => {
     const save = screen.getByRole('button', { name: 'Save' });
     save.focus();
     await act(async () => void fireEvent.click(save));
-    expect((await screen.findByRole('alert')).textContent).toMatch(/later ETH sale/);
+    expect((await screen.findByRole('alert')).textContent).toMatch(/your ETH sale on/);
     expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Save' }));
   });
 

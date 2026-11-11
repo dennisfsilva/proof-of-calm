@@ -166,12 +166,12 @@ function PlanEntryForm({ plan, numberInput: mounted, kind, editing, slot, onDone
       // A venue or note too long (a restored draft; the fields stop at their limits) is named under its field.
       const field = detailFieldOf(result.error);
       if (field !== null) setDetailsOpen(true);
-      // A purchase edited or removed from under a later sale names that sale's coin (DOMAIN §3.7); one a later move's
-      // fee needs is `fee-exceeds-held`, named by `actionMessage` with the move's date (ADR-0055).
+      // An edit that leaves a sale it does not store short names that sale by its date (DOMAIN §3.7); the sale saved,
+      // and a move's fee left short, are named by `actionMessage` with their own dates (ADR-0055).
       const failure =
-        result.error.code === 'sell-exceeds-held' && draft.value.kind !== 'sell'
-          ? { key: 'log.form.coversSale', values: { coin: result.error.coin } }
-          : actionMessage(result.error, plan, format, draft.value.date);
+        result.error.code === 'sell-exceeds-held' && !result.error.written
+          ? { key: 'log.form.coversSale', values: { coin: result.error.coin, date: format.date(result.error.date) } }
+          : actionMessage(result.error, plan, format);
       return { issues: [], failure, field };
     }
     // An entry being edited was deleted meanwhile: nothing is saved, so the edit never brings it back.
