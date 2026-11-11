@@ -89,8 +89,10 @@ function ReviewBody({ plan }: { readonly plan: Plan }) {
     if (busy.current) return;
     busy.current = true;
     try {
-      await planActions(services).recordReview();
-      setMarked(true);
+      // Refused when another tab replaced or deleted the plan: the reload re-opens the page on what is stored.
+      const recorded = await planActions(services).recordReview(plan.id);
+      if (recorded.ok) setMarked(true);
+      else services.toasts.add({ title: t('failed'), timeout: UNDO_WINDOW_MS });
     } catch (error) {
       reportError(error);
       services.toasts.add({ title: t('failed'), timeout: UNDO_WINDOW_MS });

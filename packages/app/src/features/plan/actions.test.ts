@@ -226,16 +226,38 @@ describe('planActions.undoEndBuying', () => {
 });
 
 describe('recordReview', () => {
+  /** The plan the review page showed. */
+  const shown = fixtureSnapshot().plan?.id as Plan['id'];
+
   it('writes the review in the prefs alone: the plan, the entries and changedAt stay as stored', async () => {
     const changedAt = '2026-10-01T10:00:00.000Z' as Instant;
     const seeded = { ...fixtureSnapshot(), prefs: { ...fixtureSnapshot().prefs, changedAt } };
     const planStore = memoryPlanStore(seeded);
     const { actions } = await tab(seeded, planStore);
-    await actions.recordReview();
+    expect(await actions.recordReview(shown)).toEqual({ ok: true, value: undefined });
     const after = planStore.current();
     expect(after.prefs.reviewedAt).toMatch(/^2026-10-20T10:00:00/);
     expect(after.prefs).toEqual({ ...seeded.prefs, reviewedAt: after.prefs.reviewedAt });
     expect(after.plan).toEqual(seeded.plan);
     expect(after.entries).toEqual(seeded.entries);
+  });
+
+  it('on another plan stored meanwhile (another tab imported it), refuses, writes nothing and reloads', async () => {
+    const planStore = memoryPlanStore(fixtureSnapshot());
+    const { services, actions } = await tab(fixtureSnapshot(), planStore);
+    const theirs = { ...(planStore.current().plan as Plan), id: '00000000-0000-4000-8000-000000009000' as EntityId };
+    await planStore.write({ plan: theirs, prefs: { ...planStore.current().prefs, reviewedAt: null } });
+    expect(await actions.recordReview(shown)).toEqual({ ok: false, error: { code: 'plan-changed' } });
+    expect(planStore.current().prefs.reviewedAt).toBeNull();
+    expect(stored(services)).toEqual(theirs);
+  });
+
+  it('with no plan left (wiped in another tab), refuses and writes nothing', async () => {
+    const planStore = memoryPlanStore(fixtureSnapshot());
+    const { services, actions } = await tab(fixtureSnapshot(), planStore);
+    await planStore.wipe();
+    expect(await actions.recordReview(shown)).toEqual({ ok: false, error: { code: 'plan-changed' } });
+    expect(planStore.current().prefs.reviewedAt).toBeNull();
+    expect(stored(services)).toBeNull();
   });
 });

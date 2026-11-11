@@ -55,9 +55,11 @@ export type PlanActions = {
   undoEndBuying(before: EndUndo): Promise<Result<void, ActionError>>;
   /**
    * `Mark as reviewed` (docs/DOMAIN.md §3.12): the clock's now as `Prefs.reviewedAt`, on the prefs as stored,
-   * in a prefs-only write that stamps no `changedAt`, so no backup prompt follows. A failed write throws.
+   * in a prefs-only write that stamps no `changedAt`, so no backup prompt follows, while the stored plan is the
+   * one the page showed (`planId`). With no plan left or another plan stored (another tab's wipe or import), it
+   * writes nothing, reloads and returns `plan-changed`. A failed write throws.
    */
-  recordReview(): Promise<void>;
+  recordReview(planId: Plan['id']): Promise<Result<void, ActionError>>;
 };
 
 /** Thrown inside the write, so a refused pause writes nothing. */
@@ -150,8 +152,20 @@ export function planActions({ domain, clock }: Pick<Services, 'domain' | 'clock'
       }
       return ok(undefined);
     },
-    async recordReview() {
-      await domain.write(({ prefs }) => ({ prefs: { ...prefs, reviewedAt: clock.now() } }));
+    async recordReview(planId) {
+      try {
+        await domain.write(({ plan, prefs }) => {
+          // Another tab imported another plan or deleted everything since the page opened: a review of the
+          // page's plan would be named as the new one's, or as one set up later.
+          if (plan?.id !== planId) throw NOTHING;
+          return { prefs: { ...prefs, reviewedAt: clock.now() } };
+        });
+      } catch (error) {
+        if (error !== NOTHING) throw error;
+        await reload();
+        return err({ code: 'plan-changed' });
+      }
+      return ok(undefined);
     },
   };
 }
