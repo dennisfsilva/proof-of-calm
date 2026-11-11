@@ -18,7 +18,15 @@
       "reason": "Revenue moved the page; the amount is the same."
     }
   ],
-  "reviewed": [],
+  "reviewed": [
+    {
+      "item": "facts/finish-fixture.json",
+      "read": 1,
+      "of": 1,
+      "confidence": "high",
+      "reason": "The one source was read in full."
+    }
+  ],
   "verified": [],
   "unreachable": [],
   "pending": [],

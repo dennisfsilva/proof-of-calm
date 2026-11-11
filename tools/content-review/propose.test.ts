@@ -164,7 +164,8 @@ describe('propose', () => {
         ...{ quote: 'Buying the same amount on a schedule.', eventDate: '2026-11-10', url: 'https://example.org/dca' },
         ...{ accessed: '2026-11-10', confidence: 'high', substantive: false, reason: 'The source still says so.' },
       };
-      const lists = { reviewed: [], verified: [], unreachable: [], pending: [], queue: [], notes: [] };
+      const reviewed = [{ item: row.item, read: 1, of: 1, confidence: 'high', reason: 'The one source was read.' }];
+      const lists = { reviewed, verified: [], unreachable: [], pending: [], queue: [], notes: [] };
       writeFileSync(draft, JSON.stringify({ date: '2026-11-10', model: 'm', countries: [], changes: [row], ...lists }));
       const args = [SCRIPT, 'finish', '--dry', '--draft', draft];
       const result = spawnSync(process.execPath, args, { cwd: repo, encoding: 'utf8' });
