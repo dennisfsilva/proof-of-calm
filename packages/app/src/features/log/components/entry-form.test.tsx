@@ -1218,6 +1218,33 @@ describe('EntryForm', () => {
     expect(stored(services).find((entry) => entry.id === older.id)?.venue).toBe('Ledger');
   });
 
+  // DESIGN §6, D5: every field that can cause the line comes before it, and a refused save still reveals only the
+  // alert line and Save, so the line sits after the Venue and note panel and outside Save's box.
+  it('in a grouped edit, shows the move line after the Venue field and before Save, outside the box that holds Save', async () => {
+    const bought = (moment: string) =>
+      anEntry({
+        kind: 'extra',
+        date: date('2026-01-05'),
+        slot: null,
+        units: units('0.002'),
+        venue: 'Wallet A',
+        createdAt: instant(`2026-01-05T${moment}:00Z`),
+      });
+    const editing = [bought('08:00'), bought('09:00')];
+    // Its fee is then taken at Ledger, so the line shows in every country (DOMAIN §3.7).
+    const move = aMove({ date: date('2026-01-10'), venue: 'Wallet A', units: units('0.004'), received: units('0.0038') });
+    await renderForm({ kind: 'extra', editing }, [...editing, move]);
+    fireEvent.click(screen.getByRole('button', { name: 'Venue and note' }));
+    const venue = screen.getByLabelText('Venue (optional)');
+    type('Venue (optional)', 'Ledger');
+    const line = screen.getByRole('status');
+    expect(line.textContent?.replace(/ /g, ' ')).toContain('your move to Ledger on 10 Jan 2026');
+    const saveButton = screen.getByRole('button', { name: 'Save' });
+    expect(venue.compareDocumentPosition(line) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(line.compareDocumentPosition(saveButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(saveButton.parentElement?.contains(line)).toBe(false);
+  });
+
   it("a purchase date edit refused for a move's fee names the move, not a sale", async () => {
     const move = aMove({
       date: date('2026-01-10'),
