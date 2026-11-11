@@ -24,6 +24,7 @@ const draft: ReviewDraft = {
       reason: 'r @x',
     },
   ],
+  reviewed: [],
   verified: [],
   unreachable: [],
   pending: [],

@@ -1,0 +1,82 @@
+import { describe, expect, it } from 'vitest';
+import type { Change, ReviewDraft } from './body.ts';
+import { leafChanges, rowProblems } from './rows.ts';
+
+const IE = 'packages/content/jurisdictions/ie.json';
+const MODULE = 'packages/content/learn/what-is-dca.mdx';
+
+const row = (item: string, field: string): Change => ({
+  item,
+  field,
+  old: 'a',
+  new: 'b',
+  quote: 'q',
+  eventDate: '2027-01-01',
+  url: 'https://www.revenue.ie/',
+  accessed: '2027-01-01',
+  confidence: 'high',
+  substantive: false,
+  reason: 'r',
+});
+
+const draft = (changes: Change[], reviewed: string[] = []): ReviewDraft => ({
+  date: '2027-01-01',
+  model: 'm',
+  countries: ['IE'],
+  changes,
+  reviewed: reviewed.map((item) => ({ item, read: 2, of: 2, confidence: 'high', reason: 'both sources read' })),
+  verified: [],
+  unreachable: [],
+  pending: [],
+  queue: [],
+  notes: [],
+});
+
+describe('leafChanges', () => {
+  it('leafChanges lists a changed, added and removed leaf by path', () => {
+    const before = { card: { allowances: ['EUR 1,270', 'none'], rate: 33 }, gone: true, same: null };
+    const after = { card: { allowances: ['EUR 1,500', 'none', 'new'], rate: 33 }, same: null, list: [] };
+    expect(leafChanges(before, after)).toEqual(['card.allowances[0]', 'gone', 'card.allowances[2]', 'list']);
+    expect(leafChanges(undefined, [{ key: 'k', reviewedBy: 'agent-draft' }])).toEqual(['[0].key', '[0].reviewedBy']);
+    expect(leafChanges({ a: 1 }, { a: 1 })).toEqual([]);
+  });
+});
+
+describe('rowProblems', () => {
+  it('rowProblems refuses an uncovered leaf, a row for a non-change and a bookkeeping-only file with no reviewed row', () => {
+    const changed = [
+      { file: IE, leaves: ['card.allowances[0]', 'rules.rate'] },
+      { file: 'packages/content/facts/education.json', leaves: ['[0].sources[0].accessed', '[0].reviewedBy'] },
+      { file: MODULE },
+    ];
+    const rows = [row('jurisdictions/ie.json', 'card.allowances[0]'), row('jurisdictions/ie.json', 'card.summary60')];
+    expect(rowProblems(draft(rows), changed)).toEqual([
+      `${IE}: "rules.rate" changed, and no changes[] row names it`,
+      'packages/content/facts/education.json: only bookkeeping changed, and no reviewed[] row names it',
+      `${MODULE}: changed, and no changes[] row names it`,
+      'changes[1]: a row for a non-change, "jurisdictions/ie.json" "card.summary60"',
+    ]);
+    const covered = [...rows.slice(0, 1), row('jurisdictions/ie.json', 'rules.rate'), row('learn/what-is-dca.mdx', '')];
+    expect(rowProblems(draft(covered, ['facts/education.json']), changed)).toEqual([]);
+  });
+
+  it('rowProblems skips rules/*.json and accepts bookkeeping leaves', () => {
+    const changed = [
+      { file: 'packages/content/rules/ie.json', leaves: ['holdingRules[0].days'] },
+      { file: IE, leaves: ['sources[1].accessed', 'status.reviewedBy', 'status.confidence', 'rules.rate'] },
+    ];
+    expect(rowProblems(draft([row('jurisdictions/ie.json', 'rules.rate')]), changed)).toEqual([]);
+    expect(rowProblems(draft([], ['jurisdictions/ie.json']), [{ file: IE, leaves: ['status.reviewedBy'] }])).toEqual(
+      [],
+    );
+  });
+
+  it('rowProblems refuses a change to lastReviewed or nextReviewDue', () => {
+    const changed = [{ file: IE, leaves: ['status.lastReviewed', 'status.nextReviewDue', 'status.reviewedBy'] }];
+    const owner = 'the agent never sets lastReviewed or nextReviewDue; the owner sets lastReviewed in the flip';
+    expect(rowProblems(draft([], ['jurisdictions/ie.json']), changed)).toEqual([
+      `${IE}: "status.lastReviewed" changed; ${owner} (docs/CONTENT-OPS.md §8)`,
+      `${IE}: "status.nextReviewDue" changed; ${owner} (docs/CONTENT-OPS.md §8)`,
+    ]);
+  });
+});

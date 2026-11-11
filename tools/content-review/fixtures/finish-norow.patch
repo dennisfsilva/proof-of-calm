@@ -1,0 +1,8 @@
+diff --git a/packages/content/facts/finish-fixture.json b/packages/content/facts/finish-fixture.json
+new file mode 100644
+--- /dev/null
++++ b/packages/content/facts/finish-fixture.json
+@@ -0,0 +1,3 @@
++[
++  { "reviewedBy": "agent-draft", "accessed": "2027-01-01" }
++]

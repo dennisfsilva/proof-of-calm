@@ -1,13 +1,14 @@
 {
+  "$comment": "Test-only: the draft for finish-good.patch's fact, which body.test.ts, render-check.ts and the finish-dry job read. It is not an example of a real review; .claude/skills/review-content/SKILL.md owns the agent's draft.",
   "date": "2027-01-01",
   "model": "claude-opus-5-5",
   "countries": ["IE", "ES"],
   "changes": [
     {
-      "item": "IE",
-      "field": "rules.annualExemption",
-      "old": "EUR 1,270",
-      "new": "EUR 1,270 (unchanged amount, new citation)",
+      "item": "facts/finish-fixture.json",
+      "field": "[0].key",
+      "old": "(none)",
+      "new": "finish-fixture",
       "quote": "The first 1,270 euro of chargeable gains in a year is exempt.",
       "eventDate": "2026-12-15",
       "url": "https://www.revenue.ie/en/gains-gifts-and-inheritance/transfering-an-asset/how-to-calculate-cgt.aspx",
@@ -17,11 +18,27 @@
       "reason": "Revenue moved the page; the amount is the same."
     }
   ],
+  "reviewed": [
+    {
+      "item": "facts/finish-fixture.json",
+      "read": 1,
+      "of": 1,
+      "confidence": "high",
+      "reason": "The one source was read in full."
+    },
+    {
+      "item": "jurisdictions/es.json",
+      "read": 2,
+      "of": 3,
+      "confidence": "medium",
+      "reason": "One source is unreachable; the other two agree."
+    }
+  ],
   "verified": [{ "item": "ES", "urls": ["https://www.boe.es/buscar/act.php?id=BOE-A-2006-20764&tn=1&p=20231228"] }],
   "unreachable": [{ "url": "https://www.gov.ie/en/publication/budget-2027/", "expected": "Budget 2027 tax measures" }],
   "pending": [
     {
-      "item": "ES",
+      "item": "jurisdictions/es.json",
       "what": "A proposed change to the savings income bands",
       "effectiveFrom": "2028-01-01",
       "status": "proposed",

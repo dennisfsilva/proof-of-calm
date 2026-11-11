@@ -1,11 +1,11 @@
 {
-  "$comment": "Hostile text in every kind of cell; body.test.ts and render-check.ts (through GitHub's renderer) prove none of it parses. The three source URLs are #125's finding, with the fragment case moved to an allow-listed host.",
+  "$comment": "Hostile text in every kind of cell; body.test.ts and render-check.ts (through GitHub's renderer) prove none of it parses. The three source URLs are #125's finding, with the fragment case moved to an allow-listed host. A change's or pending change's item is a data file, since its link is checked against that file's list (#135), so the hostile items sit in reviewed[].",
   "date": "2027-01-01",
   "model": "@dennisfsilva claude :smile:",
   "countries": ["ES", "IT", "IE"],
   "changes": [
     {
-      "item": "@dennisfsilva at index 0",
+      "item": "jurisdictions/es.json",
       "field": "line one\n@dennisfsilva after a newline",
       "old": "in backticks `@dennisfsilva`",
       "new": "a | pipe and code `span | across` cells",
@@ -18,8 +18,8 @@
       "reason": "a keyword at the end closes #23"
     },
     {
-      "item": "<img src=x onerror=alert(1)>",
-      "field": "<!-- swallow the rest",
+      "item": "jurisdictions/it.json",
+      "field": "<!-- swallow the rest <img src=x onerror=alert(1)>",
       "old": "&#64;dennisfsilva &amp; &copy;",
       "new": "![x](y)",
       "quote": "[boe.es](https://evil.example)",
@@ -29,6 +29,22 @@
       "confidence": "medium",
       "substantive": false,
       "reason": "bidi \u202Eevil\u202C override"
+    }
+  ],
+  "reviewed": [
+    {
+      "item": "@dennisfsilva at index 0",
+      "read": 3,
+      "of": 4,
+      "confidence": "low",
+      "reason": "Closes #23 <img src=x onerror=alert(1)> `span | across` @dennisfsilva [x](https://evil.example)"
+    },
+    {
+      "item": "[x] reviewed",
+      "read": 0,
+      "of": 2,
+      "confidence": "medium",
+      "reason": "- ```\nfence in a reason $x^2$ :smile: 802711b6ba2dcc73"
     }
   ],
   "verified": [
@@ -46,15 +62,15 @@
   ],
   "pending": [
     {
-      "item": "mail foo@bar.com now",
-      "what": "see https://github.com/dennisfsilva/proof-of-calm/issues/23",
+      "item": "jurisdictions/it.json",
+      "what": "mail foo@bar.com now; see https://github.com/dennisfsilva/proof-of-calm/issues/23",
       "effectiveFrom": "2028-01-01",
-      "status": "in force",
+      "status": "in-force",
       "url": "https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.presidente.repubblica:1986-12-22;917~art67"
     },
     {
-      "item": "[ ] pending",
-      "what": "an item that opens with a task box",
+      "item": "jurisdictions/es.json",
+      "what": "[ ] a pending change whose text holds a task box",
       "effectiveFrom": "2028-01-01",
       "status": "proposed",
       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2006-20764&tn=1&p=20231228"

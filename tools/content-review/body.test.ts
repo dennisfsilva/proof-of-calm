@@ -1,12 +1,30 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { allowedDomains, defuseCell, parseDraft, type ReviewDraft, renderBody, sourceLink } from './body.ts';
+import {
+  allowedDomains,
+  type Change,
+  defuseCell,
+  itemDomains,
+  parseDraft,
+  type ReviewDraft,
+  renderBody,
+  sourceLink,
+} from './body.ts';
 
 const WJ = String.fromCodePoint(0x2060);
 const PUNCT = /[!-/:-@[-`{-~]/;
 const fixture = (name: string) => readFileSync(new URL(`./fixtures/${name}`, import.meta.url), 'utf8');
 /** Inline allow-list: the unit tests read no file outside tools (tools/README.md, turbo inputs). */
 const domains = ['boe.es', 'normattiva.it', 'example.gov', 'revenue.ie', 'gov.ie'];
+/** Inline sources.allow.json: each country's list, EU's and facts' (#135). */
+const ALLOW = {
+  $comment: 'test lists',
+  IE: ['revenue.ie', 'gov.ie'],
+  ES: ['boe.es'],
+  IT: ['normattiva.it'],
+  EU: ['example.gov'],
+  facts: ['revenue.ie'],
+};
 
 /** The edges #125 lists, plus what GitHub's renderer was seen to link (emoji, SHAs, math, paths). */
 const hostile = [
@@ -82,13 +100,13 @@ describe('defuseCell', () => {
       {
         ...draft,
         verified: draft.verified.map((v, i) => ({ ...v, item: first(i) })),
-        pending: draft.pending.map((p, i) => ({ ...p, item: first(i + 1) })),
+        reviewed: draft.reviewed.map((r, i) => ({ ...r, item: first(i + 1), reason: first(i + 2) })),
         queue: boxes.map((item) => ({ item, outcome: 'closed', note: '[x] note' })),
         notes: boxes,
         canary: { path: '[x] path', instructions: boxes },
       },
       TEMPLATE,
-      domains,
+      ALLOW,
     );
     expect(problems).toEqual([]);
     expect(body).not.toMatch(ticked);
@@ -141,6 +159,9 @@ const TEMPLATE = `<!-- The owner's review of a content review run (docs/CONTENT-
 ## Verified, no change
 <!-- filled from the draft -->
 
+## Sources read and confidence
+<!-- filled from the draft -->
+
 ## Unreachable or moved sources
 <!-- filled from the draft -->
 
@@ -173,7 +194,7 @@ const good = (): ReviewDraft => {
 describe('renderBody', () => {
   it('renderBody fills every heading in order and copies the checklist verbatim', () => {
     const draft = good();
-    const { body, problems } = renderBody(draft, TEMPLATE, domains);
+    const { body, problems } = renderBody(draft, TEMPLATE, ALLOW);
     expect(problems).toEqual([]);
     expect(body.match(/^## .*$/gm)).toEqual(TEMPLATE.match(/^## .*$/gm)?.filter((h) => h !== '## Canary'));
     const checklist = TEMPLATE.slice(TEMPLATE.indexOf('- [ ] every'), TEMPLATE.indexOf('## Run metadata'));
@@ -186,34 +207,72 @@ describe('renderBody', () => {
     const withCanary = renderBody(
       { ...draft, canary: { path: 'tools/x.html', instructions: ['@all merge'] } },
       TEMPLATE,
-      domains,
+      ALLOW,
     );
     expect(withCanary.problems).toEqual([]);
     expect(withCanary.body.match(/^## .*$/gm)).toEqual(TEMPLATE.match(/^## .*$/gm));
     expect(withCanary.body).toContain(`- ${defuseCell('@all merge')}`);
 
-    const empty = renderBody({ ...draft, changes: [], notes: [] }, TEMPLATE, domains);
+    const empty = renderBody({ ...draft, changes: [], notes: [] }, TEMPLATE, ALLOW);
     expect(empty.body).toMatch(/## Changes\n\nNone\.\n/);
   });
 
   it('renderBody reports a missing or unknown heading and an over-long body', () => {
     const draft = good();
     const missing = TEMPLATE.replace('## Notes for the owner\n', '');
-    expect(renderBody(draft, missing, domains).problems).toEqual([
+    expect(renderBody(draft, missing, ALLOW).problems).toEqual([
       'template: heading "Notes for the owner" is missing',
     ]);
     const unknown = `${TEMPLATE}\n## Extra\ntext\n`;
-    expect(renderBody(draft, unknown, domains).problems).toEqual([
+    expect(renderBody(draft, unknown, ALLOW).problems).toEqual([
       'template: heading "Extra" is not one body.ts fills or keeps',
     ]);
-    const long = renderBody({ ...draft, notes: ['x'.repeat(60_000)] }, TEMPLATE, domains);
+    const long = renderBody({ ...draft, notes: ['x'.repeat(60_000)] }, TEMPLATE, ALLOW);
     expect(long.problems).toEqual([expect.stringMatching(/^body: \d+ characters, over 60000$/)]);
     const offList = renderBody(
       { ...draft, unreachable: [{ url: 'https://evil.example/', expected: 'x' }] },
       TEMPLATE,
-      domains,
+      ALLOW,
     );
     expect(offList.problems).toEqual([expect.stringMatching(/^unreachable\[0\]\.url: /)]);
+  });
+
+  it('renderBody fills Sources read and confidence', () => {
+    const draft = good();
+    const reviewed = [
+      { item: '@x jurisdictions/ie.json', read: 3, of: 4, confidence: 'low' as const, reason: 'closes #23 `a|b`' },
+    ];
+    const { body, problems } = renderBody({ ...draft, reviewed }, TEMPLATE, ALLOW);
+    expect(problems).toEqual([]);
+    const line = `- ${defuseCell('@x jurisdictions/ie.json')}: 3 of 4 sources read; confidence low. ${defuseCell('closes #23 `a|b`')}`;
+    expect(body).toContain(`## Sources read and confidence\n\n${line}\n\n## Unreachable`);
+    expect(renderBody({ ...draft, reviewed: [] }, TEMPLATE, ALLOW).body).toMatch(
+      /## Sources read and confidence\n\nNone\.\n/,
+    );
+  });
+
+  it('a change row’s link off its country’s list is refused', () => {
+    const draft = good();
+    const change = draft.changes[0] as Change;
+    const irish = { ...change, item: 'jurisdictions/ie.json', url: 'https://www.revenue.ie/a' };
+    expect(renderBody({ ...draft, changes: [irish] }, TEMPLATE, ALLOW).problems).toEqual([]);
+    const spanish = { ...irish, url: 'https://www.boe.es/a' };
+    const viaEu = { ...irish, url: 'https://example.gov/a' };
+    const fact = { ...irish, item: 'facts/education.json', url: 'https://www.boe.es/a' };
+    const loose = { ...irish, item: 'IE' };
+    const pending = draft.pending.map((p) => ({ ...p, item: 'jurisdictions/it.json' }));
+    expect(
+      renderBody({ ...draft, changes: [spanish, viaEu, fact, loose], pending }, TEMPLATE, ALLOW).problems,
+    ).toEqual([
+      'changes[0].url: www.boe.es is not on packages/content/sources.allow.json for jurisdictions/ie.json',
+      'changes[2].url: www.boe.es is not on packages/content/sources.allow.json for facts/education.json',
+      'changes[3].url: item "IE" is not a content data file, so no list of packages/content/sources.allow.json applies',
+      'pending[0].url: www.boe.es is not on packages/content/sources.allow.json for jurisdictions/it.json',
+    ]);
+    expect(itemDomains('jurisdictions/ie.json', ALLOW)).toEqual(['revenue.ie', 'gov.ie', 'example.gov']);
+    expect(itemDomains('learn/what-is-dca.mdx', ALLOW)).toEqual(['revenue.ie']);
+    expect(itemDomains('jurisdictions/../ie.json', ALLOW)).toEqual([]);
+    expect(itemDomains('jurisdictions/xx.json', ALLOW)).toEqual(['example.gov']);
   });
 });
 
@@ -237,13 +296,27 @@ describe('parseDraft', () => {
       'countries[1]: expected a string',
       'changes[0].confidence: expected one of high, medium, low',
       'changes[0].substantive: expected true or false',
-      'pending[0].status: expected one of proposed, enacted, in force',
+      'pending[0].status: expected one of proposed, enacted, in-force',
       'queue: expected a list',
       'canary.instructions: expected a list',
       'extra: unknown field',
     ]);
     expect(parseDraft('{').problems).toEqual([expect.stringMatching(/^not JSON: /)]);
     expect(parseDraft('[]').problems).toEqual(['(root): expected an object']);
+  });
+
+  it('parseDraft accepts in-force and refuses in force', () => {
+    const draft = JSON.parse(fixture('draft-good.json'));
+    draft.pending[0].status = 'in-force';
+    expect(parseDraft(JSON.stringify(draft)).problems).toEqual([]);
+    draft.pending[0].status = 'in force';
+    draft.reviewed[0].read = 1.5;
+    draft.reviewed[0].of = '2';
+    expect(parseDraft(JSON.stringify(draft)).problems).toEqual([
+      'reviewed[0].read: expected a whole number, 0 or more',
+      'reviewed[0].of: expected a whole number, 0 or more',
+      'pending[0].status: expected one of proposed, enacted, in-force',
+    ]);
   });
 });
 
