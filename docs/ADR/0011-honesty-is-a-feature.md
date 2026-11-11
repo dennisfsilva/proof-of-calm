@@ -45,3 +45,9 @@ corrected here instead of rewritten (`docs/ADR/README.md`).
 - "labelled 'your own assumptions, not a forecast'": no screen shows expectations and no message
   holds that label. A plan started from a template writes none, and a prototype file keeps its own
   numbers unread (`docs/DOMAIN.md` §2.1 and §5).
+
+## Corrections recorded on 2026-11-11
+
+- "flagged by the review job": no job runs the review; the run is manual (ADR-0037 Deviations). The
+  content test fails on a cited fact reviewed more than twelve months ago, and the owner's review run
+  reads its sources again (`docs/CONTENT-OPS.md` §3 and §7; #136).

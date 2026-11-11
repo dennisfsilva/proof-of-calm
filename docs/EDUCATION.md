@@ -4,7 +4,7 @@ Seven modules at launch and no more. Each is one idea, under 400 words, one char
 its place, one caveat, a reading time in whole minutes (the formula: `docs/CONTENT-STYLE.md` §5) and a
 "last reviewed" date. Modules are MDX files in `packages/content/learn/` with front
 matter validated by a schema; every statistic in them has a source and a date in §9 and is flagged by
-the review job when older than a year (`docs/CONTENT-OPS.md`). A module carries no warning line at the top: the caveat box and the dated
+the owner's review run when older than a year (`docs/CONTENT-OPS.md`). A module carries no warning line at the top: the caveat box and the dated
 figures do that work, and the disclosures sit at decision points (`docs/LEGAL.md` §4). The Learn
 index is an app screen and carries no site line (`docs/LEGAL.md` §5). The index ends with the country
 library: `/learn/countries` lists every shipped profile but the generic one, sorted by name, each with its
@@ -282,7 +282,7 @@ statistics cite only their own series, since no publisher offers a documented eq
   slug: 'start-here' | 'risk-honestly' | 'cycles' | 'taxes-where-you-live' | 'noise' | 'when-the-market-drops' | 'simulator',
   title: string, idea: string (≤ 120 chars), caveat: string (≤ 240 chars),
   chart: 'none' | 'drawdowns-bar' | 'halvings-line' | 'drawdown-scale' | 'simulator',
-  facts: string[] (keys into §9 so the review job can flag staleness),
+  facts: string[] (keys into §9 so the owner's review run can flag staleness),
   lastReviewed: CalendarDate, nextReviewDue: CalendarDate, reviewedBy: 'owner' | 'agent-draft',
   words: number (computed at build), readingMinutes: number (computed at build)
 }
