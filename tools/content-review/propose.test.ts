@@ -182,12 +182,14 @@ describe('propose', () => {
     }
   }, 30_000);
 
-  it("allowed-tools holds no git, gh, WebFetch, WebSearch or rules/ Edit rule and pre-approves pdf.ts and the draft's write", () => {
+  it("allowed-tools holds no git, gh, WebFetch, WebSearch, rules/ Edit or pdf.ts rule, and Edit covers the draft's write", () => {
     const skill = readFileSync(new URL('../../.claude/skills/review-content/SKILL.md', import.meta.url), 'utf8');
     const front = /^---\r?\n([\s\S]*?)\r?\n---/.exec(skill)?.[1] ?? '';
     const list = /^allowed-tools:\r?\n((?:[ \t]+- .*\r?\n?)+)/m.exec(front)?.[1] ?? '';
     const rules = [...list.matchAll(/^[ \t]+- (.*?)[ \t]*$/gm)].map((match) => match[1]);
-    const banned = /^(?:Bash\((?:git|gh)\b|WebFetch|WebSearch|Edit\(\/packages\/content\/rules\/)/;
+    // pdf.ts fetches, so it asks the owner on each run and shows its URL (.claude/rules/skills.md).
+    const banned =
+      /^(?:Bash\((?:git|gh)\b|WebFetch|WebSearch|Edit\(\/packages\/content\/rules\/|Bash\(node tools\/content-review\/pdf\.ts)/;
     expect(rules.filter((rule) => banned.test(rule ?? ''))).toEqual([]);
     expect(rules).toEqual([
       'Read',
@@ -202,7 +204,6 @@ describe('propose', () => {
       'Bash(node tools/content-review/propose.ts start)',
       'Bash(node tools/content-review/propose.ts finish)',
       'Bash(node tools/content-review/propose.ts finish --dry)',
-      'Bash(node tools/content-review/pdf.ts *)',
     ]);
     // Claude Code matches Write against Edit rules and ignores a Write(path) rule, so the draft's write
     // rides on Edit(/.content-review/*), and a comment in the frontmatter says so.
