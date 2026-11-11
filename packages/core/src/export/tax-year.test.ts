@@ -286,6 +286,49 @@ describe('taxYearLots: single cases', () => {
     expect(taxYearLotsCsv(lots, []).split('\n')[3]).toBe(',,BTC,,0.0001,,,,,2026-03-01,,,,no,,');
   });
 
+  // The header's feeAtDestination line counts only the fee rows of the moves the Log names (moveShortfalls, §3.7).
+  const GLOBAL: CountryRules = { ...PT_RULES, lotScope: 'global' };
+  const soldAtLedger = (kraken: string, sold: string) => [
+    buy('2026-01-10', kraken, '20000', { venue: 'Kraken' }),
+    buy('2026-02-10', '1', '50000', { venue: 'Ledger' }),
+    sell('2026-03-10', sold, '30000', { venue: 'Ledger' }),
+    aMove({ date: date('2026-04-01'), units: units('0.5'), received: units('0.4999'), createdAt: at() }),
+  ];
+  const feeRow = (lots: ReturnType<typeof lotsIn>) =>
+    lots.pieces.find((piece) => piece.disposedOn === '2026-04-01' && piece.heldAt === 'Ledger');
+
+  it('under global lots, a fee the matching took at the destination while the Log holds enough outside it counts no feeAtDestination row', () => {
+    // Global FIFO sells the Kraken lot for the sale at Ledger, so the fee leaves the Ledger lot, while the Log still
+    // shows 1 BTC at Kraken for the 0.5 sent: nothing to check.
+    const lots = lotsIn(2026, soldAtLedger('1', '1'), '2027-01-10', GLOBAL);
+    expect(feeRow(lots)).toMatchObject({
+      acquired: '2026-02-10',
+      units: '0.0001',
+      costBasis: '5',
+      heldAt: 'Ledger',
+      pastHoldingRule: null,
+    });
+    expect([lots.moveFees, lots.feeAtDestination]).toEqual([true, 0]);
+  });
+
+  it('under global lots, a move the Log names short counts its fee row taken at the destination', () => {
+    // The sale at Ledger takes the Kraken lot of 0.2 and leaves 0.2 at Kraken in the Log: the move of 0.5 is short.
+    const lots = lotsIn(2026, soldAtLedger('0.2', '0.2'), '2027-01-10', GLOBAL);
+    expect(feeRow(lots)).toMatchObject({ acquired: '2026-02-10', units: '0.0001', costBasis: '5' });
+    expect(lots.feeAtDestination).toBe(1);
+  });
+
+  it('per venue, a move the Log names keeps its count', () => {
+    // Kraken holds nothing: the move's fee leaves the Ledger lot, and the Log names the move.
+    const entries = [
+      buy('2026-01-10', '0.1', '5000', { venue: 'Ledger' }),
+      aMove({ date: date('2026-03-01'), units: units('0.01'), received: units('0.0099'), createdAt: at() }),
+    ];
+    const lots = lotsIn(2026, entries, '2027-01-10');
+    expect(lots.pieces.find((piece) => piece.disposedOn === '2026-03-01')).toMatchObject({ heldAt: 'Ledger' });
+    expect(lots.feeAtDestination).toBe(1);
+  });
+
   it('exports an initial buy as initial, as the log does', () => {
     const lots = lotsIn(2026, [buy('2026-03-01', '1', '100', { kind: 'lump', fee: money('1') })], '2027-01-10');
     expect(taxYearLotsCsv(lots, []).split('\n')[2]).toBe(
