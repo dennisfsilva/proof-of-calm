@@ -111,6 +111,8 @@ describe('saveTransaction (docs/DOMAIN.md ยง6)', () => {
       coin: 'BTC',
       held: '0.0015',
       sold: '0.002',
+      date: '2026-03-01',
+      written: true,
     });
     const editing = [entries[1] as (typeof entries)[1]];
     const edited = saveTransaction(sale, context({ entries, editing }));
@@ -665,7 +667,14 @@ describe('every sale stays covered by purchases dated on or before it (docs/DOMA
       date: date(day),
       rows: [{ coin, amount: money('100'), units: units(quantity) }],
     });
-  const short = (held: string, sold: string) => ({ code: 'sell-exceeds-held', coin: BTC.id, held, sold });
+  const short = (held: string, sold: string, day: string, written = false) => ({
+    code: 'sell-exceeds-held',
+    coin: BTC.id,
+    held,
+    sold,
+    date: day,
+    written,
+  });
   /** The store's merge: an entry written replaces the one with its id. */
   const store = (entries: readonly Entry[], written: readonly Entry[]) => {
     const ids = new Set(written.map((entry) => entry.id));
@@ -687,18 +696,22 @@ describe('every sale stays covered by purchases dated on or before it (docs/DOMA
     const second = saveTransaction(sale('0.002'), context({ entries: stored, ids: [id()] }));
     if (!second.ok) throw new Error(second.error.code);
     stored = store(stored, second.value);
-    expect(restoreEntries(plan, stored, before.ids, before, later)).toEqual({ ok: false, error: short('0', '0.002') });
+    // The second sale sorts after the one restored, so it is the step the undo leaves short: not one the undo stores.
+    expect(restoreEntries(plan, stored, before.ids, before, later)).toEqual({
+      ok: false,
+      error: short('0', '0.002', '2026-03-01'),
+    });
   });
 
   it('refuses a sale dated before the purchases that cover it, or one that leaves a later sale short', () => {
     const bought = on('2026-02-01', buy(BTC.id, '0.002'));
     expect(failure(saveTransaction(sale('0.001', '2026-01-15'), context({ entries: [bought] })))).toEqual(
-      short('0', '0.001'),
+      short('0', '0.001', '2026-01-15', true),
     );
     expect(failure(saveTransaction(sale('0.002', '2026-02-01'), context({ entries: [bought] })))).toBeNull();
     const sold = on('2026-03-01', sell(BTC.id, '0.0015'));
     expect(failure(saveTransaction(sale('0.001', '2026-02-15'), context({ entries: [bought, sold] })))).toEqual(
-      short('0.0005', '0.001'),
+      short('0.0005', '0.001', '2026-02-15', true),
     );
   });
 
@@ -706,12 +719,13 @@ describe('every sale stays covered by purchases dated on or before it (docs/DOMA
     const bought = buy(BTC.id, '0.002');
     const sold = on('2026-02-01', sell(BTC.id, '0.002'));
     const entries = [bought, sold];
-    expect(uncoveredSale(entries, deleteEntries(entries, [bought.id], now))).toEqual(short('0', '0.002'));
+    const covered = (held: string) => short(held, '0.002', '2026-02-01');
+    expect(uncoveredSale(entries, deleteEntries(entries, [bought.id], now))).toEqual(covered('0'));
     expect(uncoveredSale(entries, deleteEntries(entries, [sold.id], now))).toBeNull();
     const edit = (next: TransactionDraft) => failure(saveTransaction(next, context({ entries, editing: [bought] })));
-    expect(edit(purchase(BTC.id, '0.002', '2026-03-01'))).toEqual(short('0', '0.002'));
-    expect(edit(purchase(BTC.id, '0.001', '2026-01-01'))).toEqual(short('0.001', '0.002'));
-    expect(edit(purchase(ETH.id, '0.002', '2026-01-01'))).toEqual(short('0', '0.002'));
+    expect(edit(purchase(BTC.id, '0.002', '2026-03-01'))).toEqual(covered('0'));
+    expect(edit(purchase(BTC.id, '0.001', '2026-01-01'))).toEqual(covered('0.001'));
+    expect(edit(purchase(ETH.id, '0.002', '2026-01-01'))).toEqual(covered('0'));
     expect(edit(purchase(BTC.id, '0.003', '2026-02-01'))).toBeNull();
   });
 
@@ -719,7 +733,8 @@ describe('every sale stays covered by purchases dated on or before it (docs/DOMA
     const orphan = sell(BTC.id, '0.001');
     expect(uncoveredSale([orphan], [on('2026-02-01', buy(BTC.id, '0.002'))])).toBeNull();
     expect(uncoveredSale([orphan], [buy(ETH.id, '1')])).toBeNull();
-    expect(uncoveredSale([orphan], [on('2026-02-01', sell(BTC.id, '0.001'))])).toEqual(short('0', '0.001'));
+    const sold = on('2026-02-01', sell(BTC.id, '0.001'));
+    expect(uncoveredSale([orphan], [sold])).toEqual(short('0', '0.001', '2026-02-01', true));
   });
 
   describe('imported data with a sale dated before its purchase', () => {
@@ -733,12 +748,14 @@ describe('every sale stays covered by purchases dated on or before it (docs/DOMA
       expect(edit({ fee: money('2') })).toBeNull();
       expect(edit({ venue: 'Bitstamp' })).toBeNull();
       expect(edit({ rows: [{ coin: BTC.id, amount: money('90'), units: units('0.0015') }] })).toEqual(
-        short('0', '0.0015'),
+        short('0', '0.0015', '2026-01-15', true),
       );
     });
 
     it('refuses a new sale that would make the units sold exceed the units bought', () => {
-      expect(failure(saveTransaction(sale('0.002'), context({ entries })))).toEqual(short('0.001', '0.002'));
+      expect(failure(saveTransaction(sale('0.002'), context({ entries })))).toEqual(
+        short('0.001', '0.002', '2026-03-01', true),
+      );
       expect(failure(saveTransaction(sale('0.001'), context({ entries })))).toBeNull();
     });
 
@@ -749,13 +766,15 @@ describe('every sale stays covered by purchases dated on or before it (docs/DOMA
         purchase(BTC.id, '0.001', '2026-02-01'),
         context({ entries: stored, editing: [bought] }),
       );
-      expect(failure(edited)).toEqual(short('0', '0.001'));
+      expect(failure(edited)).toEqual(short('0', '0.001', '2026-03-01'));
     });
 
     it('refuses deleting one of two purchases when the other leaves the units sold above the units bought', () => {
       const first = on('2026-02-01', buy(BTC.id, '0.001'));
       const stored = [orphan, first, on('2026-02-01', buy(BTC.id, '0.001')), on('2026-03-01', sell(BTC.id, '0.001'))];
-      expect(uncoveredSale(stored, deleteEntries(stored, [first.id], now))).toEqual(short('0', '0.001'));
+      expect(uncoveredSale(stored, deleteEntries(stored, [first.id], now))).toEqual(
+        short('0', '0.001', '2026-03-01'),
+      );
       expect(uncoveredSale(stored, deleteEntries(stored, [orphan.id], now))).toBeNull();
     });
 
@@ -774,7 +793,7 @@ describe('every sale stays covered by purchases dated on or before it (docs/DOMA
       // The restored sale is the step the undo leaves uncovered in total: 0.001 of the 0.002 bought is left for it.
       expect(restoreEntries(plan, stored, before.ids, before, later)).toEqual({
         ok: false,
-        error: short('0.001', '0.002'),
+        error: short('0.001', '0.002', '2026-03-01', true),
       });
     });
   });
@@ -927,11 +946,13 @@ describe('a refusal names the step the write made worse (docs/DOMAIN.md ยง3.7, ย
     });
   const deleting = (entries: readonly Entry[], entry: Entry) =>
     uncoveredSale(entries, deleteEntries(entries, [entry.id], now));
-  const saleShort = (held: string, quantity: string) => ({
+  const saleShort = (held: string, quantity: string, day: string, written = false) => ({
     code: 'sell-exceeds-held',
     coin: BTC.id,
     held,
     sold: quantity,
+    date: day,
+    written,
   });
   const feeShort = (held: string, fee: string, day: string) => ({
     code: 'fee-exceeds-held',
@@ -950,7 +971,7 @@ describe('a refusal names the step the write made worse (docs/DOMAIN.md ยง3.7, ย
   it('deleting a purchase after a move imported short names the sale it covers, never the move', () => {
     const entries = [...shortMove, purchase, sale];
     expect(uncoveredSale(entries, [])).toBeNull();
-    expect(deleting(entries, purchase)).toEqual(saleShort('0', '0.4'));
+    expect(deleting(entries, purchase)).toEqual(saleShort('0', '0.4', '2026-05-01'));
   });
 
   it('a purchase edit after a move imported short that leaves the sale short names the sale', () => {
@@ -958,7 +979,7 @@ describe('a refusal names the step the write made worse (docs/DOMAIN.md ยง3.7, ย
     const edit = draft({ kind: 'extra', slot: null, date: purchase.date, fee: null, venue: 'Kraken' });
     const rows = [{ coin: BTC.id, amount: money('3000'), units: units('0.1') }];
     const result = saveTransaction({ ...edit, rows }, context({ entries, editing: [purchase], ids: [id()] }));
-    expect(result.ok ? null : result.error).toEqual(saleShort('0.1', '0.4'));
+    expect(result.ok ? null : result.error).toEqual(saleShort('0.1', '0.4', '2026-05-01'));
   });
 
   it("a delete that leaves only a move's fee short names the move, never a sale imported short before it", () => {
@@ -978,7 +999,54 @@ describe('a refusal names the step the write made worse (docs/DOMAIN.md ยง3.7, ย
 
   it('a delete that leaves a sale imported short before it uncovered in total names that sale', () => {
     const early = sold('2026-01-01', '0.1');
-    expect(deleting([early, purchase], purchase)).toEqual(saleShort('0', '0.1'));
+    expect(deleting([early, purchase], purchase)).toEqual(saleShort('0', '0.1', '2026-01-01'));
+  });
+
+  // The four cases a refusal that names one sale holds in (fix/sale-refusal-names-sale): the write worsens only that
+  // sale, the data was short before, only the shortfall in total grew, and the sale named is one the write stores.
+  it('a purchase delete that leaves only a later sale short names that sale by its date, written false', () => {
+    expect(deleting([purchase, sale], purchase)).toEqual(saleShort('0', '0.4', '2026-05-01'));
+  });
+
+  it('over a sale imported short, a purchase date edit names the later sale it makes short, never the sale already short', () => {
+    const early = sold('2026-01-01', '0.1');
+    const bought = at('2026-02-01', '0.5');
+    const entries = [early, bought, sold('2026-03-01', '0.3')];
+    const edit = draft({ kind: 'extra', slot: null, date: date('2026-04-01'), fee: null, venue: 'Kraken' });
+    const rows = [{ coin: BTC.id, amount: money('3000'), units: units('0.5') }];
+    const result = saveTransaction({ ...edit, rows }, context({ entries, editing: [bought], ids: [id()] }));
+    expect(result.ok ? null : result.error).toEqual(saleShort('0', '0.3', '2026-03-01'));
+  });
+
+  it('a purchase delete that grows only the shortfall in total names the sale dated before the purchase, with the fewer of the units held and what the purchases leave', () => {
+    // The March sale finds 0.1 held by date, but once the April purchase goes the purchases leave it nothing.
+    const entries = [sold('2026-01-01', '0.1'), at('2026-02-01', '0.1'), sold('2026-03-01', '0.1'), purchase];
+    expect(deleting(entries, purchase)).toEqual(saleShort('0', '0.1', '2026-03-01'));
+  });
+
+  it('the undo of a deleted sale imported short, with nothing changed since the delete, names that sale with written true', () => {
+    const early = sold('2026-01-01', '0.1');
+    let stored = [early, purchase];
+    const before = slotsAtDelete(plan, stored, [early.id], now);
+    stored = [...deleteEntries(stored, before.ids, before.at), purchase];
+    const restored = restoreEntries(plan, stored, before.ids, before, instant('2026-03-02T10:00:05Z'));
+    expect(restored).toEqual({ ok: false, error: saleShort('0', '0.1', '2026-01-01', true) });
+  });
+
+  it('restoring a deleted move whose fee leaves a later sale short names that sale with written false', () => {
+    const move = moved('2026-03-01', '0.1', '0.0998');
+    let stored = [at('2026-01-10', '0.1'), move, sold('2026-05-01', '0.0999')];
+    const before = slotsAtDelete(plan, stored, [move.id], now);
+    stored = [...stored.filter((entry) => entry.id !== move.id), ...deleteEntries(stored, before.ids, before.at)];
+    const restored = restoreEntries(plan, stored, before.ids, before, instant('2026-03-02T10:00:05Z'));
+    expect(restored).toEqual({ ok: false, error: saleShort('0.0998', '0.0999', '2026-05-01') });
+  });
+
+  it('a sale over the units held carries its own date and written true', () => {
+    const sale = draft({ kind: 'sell', slot: null, date: date('2026-04-15'), fee: null, venue: 'Kraken' });
+    const rows = [{ coin: BTC.id, amount: money('3000'), units: units('0.6') }];
+    const result = saveTransaction({ ...sale, rows }, context({ entries: [purchase], ids: [id()] }));
+    expect(result.ok ? null : result.error).toEqual(saleShort('0.5', '0.6', '2026-04-15', true));
   });
 
   it("a delete that leaves a move's fee imported short before it uncovered in total names that move", () => {
