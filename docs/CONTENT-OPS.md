@@ -7,20 +7,24 @@ tax statements. Decision: ADR-0015 (principle), ADR-0037 (scheduling); mechanics
 
 ## 1. Roles
 
-- **The agent** (a scheduled Claude Code run in GitHub Actions) reads the stored data, fetches the
-  official sources, compares, and opens one pull request per run with a diff, quoted evidence, dates
-  and a confidence per change. It never merges, never edits anything outside `packages/content/**`,
-  never adds a source that is not on the allow-list, and treats every fetched page as untrusted data.
-- **The owner** reads the PR against the sources, flips `reviewedBy` from `agent-draft` to `owner`,
-  sets `lastReviewed`, and merges. CI blocks `agent-draft` on `main`. A session's content PR cannot
+- **The agent** (the `/review-content` skill, which the owner starts in their own Claude Code
+  session, §3) reads the stored data, fetches the official sources and compares. It edits the content
+  data and writes a draft with quoted evidence, dates and a confidence per change, and the finish
+  script opens one pull request per run. It never merges, never edits anything outside the content
+  data, never deletes, never adds a source that is not on the allow-list, and treats every fetched
+  page as untrusted data.
+- **The owner** reads the PR against the sources, flips `reviewedBy` from `agent-draft` to `owner`
+  in a commit on the agent's branch, sets `lastReviewed`, and merges. CI blocks `agent-draft` on
+  `main`. A session's content PR cannot
   carry `agent-draft` past the pre-PR check, so it carries `owner`, is labelled `needs-owner`, and
   the owner's merge is the flip. A session's PR that adds or changes a rule, figure, date or source
   is the owner's to merge, and the session merges one that does not. A new module counts: its
   `Last reviewed` date and `reviewedBy` are the owner's.
 - **CI** validates every content file against its zod schema, the 60-word card limit, the banned
   words, the source-domain allow-list and the coin catalogue (unique tickers and CoinGecko ids, in
-  ticker order, and every template coin as the catalogue lists it). With the review job (M2), a
-  required check also asserts that the diff is confined to `packages/content/**` (§3).
+  ticker order, and every template coin as the catalogue lists it). On an `agent/*` branch or a PR
+  labelled `content-review`, ci.yml's `verify` job also fails a change outside the content data or a
+  deletion (§3).
 
 ## 2. Schedule
 
@@ -46,85 +50,65 @@ The app shows a card as under review when `nextReviewDue` is more than twelve mo
 
 ## 3. Mechanics
 
-Workflow, `.github/workflows/content-review.yml` (planned: M2):
+The run is manual (ADR-0037 Deviations). The owner types `/review-content` in their own Claude Code
+session, on a reminder's date (§2) or on demand, with country codes, `canary=<path>` or `dry` as
+arguments. The skill `.claude/skills/review-content/SKILL.md` owns the agent's steps; this section
+owns the pipeline around them and its security model.
 
-```yaml
-name: Content review (agent drafts, human publishes)
-on:
-  schedule:
-    - cron: "23 6 1 1,4,7,10 *"
-    - cron: "23 6 15 1 *"
-  workflow_dispatch:
-    inputs:
-      countries: { description: "comma-separated ISO codes, empty = all", required: false }
-concurrency: { group: content-review, cancel-in-progress: false }
-permissions: {}
-jobs:
-  review:
-    runs-on: ubuntu-latest
-    timeout-minutes: 90
-    permissions: { contents: write, pull-requests: write, id-token: write }
-    steps:
-      - uses: actions/checkout@<sha>
-      - uses: pnpm/action-setup@<sha>
-      - uses: actions/setup-node@<sha>
-        with: { node-version: 24, cache: pnpm }
-      - run: pnpm install --frozen-lockfile
-      - uses: anthropics/claude-code-action@<sha> # v1
-        with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          branch_prefix: agent/
-          use_commit_signing: "true"
-          prompt: "/review-content ${{ inputs.countries }}"
-          claude_args: |
-            --model claude-opus-5-5
-            --max-turns 80
-            --allowedTools "Read,Grep,Glob,WebFetch,WebSearch,Edit(packages/content/**),Write(packages/content/**),Bash(pnpm run validate:content),Bash(pnpm --filter @proofofcalm/content test),Bash(git status:*),Bash(git add packages/content:*),Bash(git commit:*),Bash(git push:*),Bash(gh pr create:*)"
-```
+1. **Start.** `node tools/content-review/propose.ts start` fetches origin/main and refuses a dirty
+   tree or a HEAD other than origin/main.
+2. **Edits.** The agent edits only content data, marks every change `agent-draft` and deletes
+   nothing. The rules files change only as the output of `pnpm --filter @proofofcalm/content rules`.
+3. **The expected failure.** The agent runs the content checks, and the skill tells it: "The one
+   failure you expect is `agent-draft` on the entries you marked; fix or revert anything else."
+4. **The draft.** The agent writes its findings as JSON in the shape of `ReviewDraft`
+   (`tools/content-review/body.ts`) to .content-review/draft.json, a gitignored folder.
+5. **The finish.** `node tools/content-review/propose.ts finish` stages everything and refuses a
+   path outside content data, a mode, a binary, a deletion, an entry not at `agent-draft` or a draft
+   problem. A refusal leaves the index as it found it. Without `--dry` it first refuses a HEAD other
+   than origin/main. When nothing is refused, it renders the body, commits on
+   `agent/content-review-<date>`, pushes, and opens the PR labelled `needs-owner` and
+   `content-review`. It never merges.
+6. **Dry mode.** On `dry`, `node tools/content-review/propose.ts finish --dry` writes the body to
+   .content-review/body.md and commits, pushes and opens nothing.
 
-The prompt is the repository skill `.claude/skills/review-content/SKILL.md`, built on 2026-11-11
-(#123); it owns the agent's steps (its boundary, what it reads first, the reads per country and per
-fact, the checks on each draft, the `agent-draft` marks and the finish), and this section points to
-it rather than restating them.
+The agent has no git and no gh. The skill's `allowed-tools` pre-approve the data edits, the three
+pnpm commands and the three `propose.ts` commands, and name no git, gh or web rule. Pre-approval does
+not confine: any other tool still asks the owner. WebFetch keeps the session's own permission
+settings, so each new domain's first fetch shows the owner what the agent reads.
 
-Guard rails: human review mandatory, because the job never merges and CI fails any profile,
-template or fact still at `reviewedBy: agent-draft`, on the pull request too; the ruleset `main` requires no
-approval and no code-owner review (`docs/OWNER-SETUP.md` §1), so the CODEOWNERS line
-`/packages/content/` names the owner without gating the merge; the action's token is scoped and
-short-lived; tools and paths restricted as above; `permissions` minimal; only `ANTHROPIC_API_KEY` is
-available to the job; `--max-turns` and `timeout-minutes` cap cost; `concurrency` prevents
-overlapping runs; a required check asserts the diff is confined to `packages/content/**`; signed
-commits; labels `agent-draft` and `needs-human-review`.
+Until the owner's first run, only the tests, which check its git and gh argv, cover the finish's
+non-dry path. The `finish-dry` job of `.github/workflows/content-review.yml` runs the dry path on fixtures. A second
+run on the same day fails, at the branch switch or at the push, because today's branch,
+`agent/content-review-<date>`, exists. Delete that branch, local and remote, before a re-run.
 
-Cost: about five runs a year at roughly USD 5 per run with Opus 5.5 (USD 16 pessimistic, USD 3 with
-Sonnet 5.5), under EUR 100 a year.
+Trust layers. The agent runs under the owner's identity, so the layers make an injected instruction
+visible rather than impossible:
 
-## 4. Pull request template, `.github/PULL_REQUEST_TEMPLATE/content-review.md` (planned: M2)
+- The agent's free Markdown never reaches GitHub. `body.ts` writes every text cell of the draft as
+  literal text, and `tools/content-review/render-check.ts` proves that through GitHub's renderer in
+  the `render` job of `.github/workflows/content-review.yml`.
+- Every link is https, on `packages/content/sources.allow.json` or a subdomain of a listed domain,
+  and shows its true host as its text. The finish refuses any other link, and `pnpm validate:content`
+  refuses an off-list source in the data.
+- Deletions are refused, by the finish and by CI's guard. The draft names a gone source, and the
+  owner deletes it in a session's PR.
+- CI's guard: ci.yml's `verify` job runs the base commit's copy of `tools/content-review/check.ts`
+  before pnpm or any PR code. An `agent/*` branch or a PR labelled `content-review` may change only
+  content data and delete none of it.
+- The guard step is a tripwire. It lives in the PR's own copy of ci.yml, so a PR that edits ci.yml
+  can change or drop it. The robust form, a `pull_request_target` guard as a required check, is not
+  built for the manual mode.
+- The control is the owner's diff read (§8), which starts with the PR's file list. CI fails any
+  entry still at `agent-draft`, so nothing merges before the owner's flip.
 
-```
-## Changes
-| Country/fact | Field | Old | New | Source URL | Accessed | Confidence |
+There is no model job in CI (ADR-0037 Deviations), so no model credential goes into GitHub. The run
+costs the owner's Claude subscription and the owner's time; there is no API cost.
 
-## Verified, no change
-<country list with the sources re-read>
+## 4. Pull request template
 
-## Unreachable or moved sources
-<url, what was expected>
-
-## Pending changes noticed (with effective dates and status: proposed / enacted / in force)
-
-## Reviewer checklist (the owner)
-- [ ] every diff checked against the quoted source, on the source's own site
-- [ ] effective dates and status right; nothing proposed is written as law
-- [ ] `summary60` still true and under 60 words; banned words absent
-- [ ] `validate:content` green; `reviewedBy` set to `owner`; `lastReviewed` today; `nextReviewDue` sensible
-- [ ] `status.version` bumped, `changedOn` set and `changeNotice` written when a substantive rule changed;
-  a bump that corrects our own file also writes a `changeNotice` that says so (`docs/JURISDICTIONS.md` §6)
-- [ ] the verification queue items for this country closed or carried over
-
-## Run metadata
-model, turns, tokens (from the Actions log)
-```
+`.github/PULL_REQUEST_TEMPLATE/content-review.md` owns the body's headings and the owner's checklist;
+`tools/content-review/body.ts` fills the agent's sections from the draft.
 
 ## 5. Source allow-list (`packages/content/sources.allow.json`)
 
@@ -152,7 +136,7 @@ the source that reported it, named inline with its date (for instance "named by 
 a third-party site for such a row, since the review job (§6) already watches the fact (decided
 2026-11-05, after congress.gov refused a fetch with HTTP 403).
 
-## 6. What the job watches first
+## 6. What the review watches first
 
 The per-country watch lists in `docs/JURISDICTIONS.md` §7.11 and §7.12 (Italy's 2027 rate, Ireland's
 Finance (No. 2) Act 2026, Belgium's 2027 parameters and circulars, the US identification relief and bills, the
@@ -160,6 +144,10 @@ UK autumn Budget and DeFi legislation, Germany's reform draft, France's PLF 2027
 Dutch 2027 and 2028 decisions, Spain's post-election bills, Portugal's OE2027 and AT rulings), plus
 the verification queues left by the research of 2026-10-16 (unread primary PDFs, law numbers to
 confirm, penalty figures to quote).
+
+The templates' ETH rows for the 2021–22 fall cite Bitstamp, while `packages/content/cycles/drawdowns.json`
+cites Coinbase for the same fall. The first full run proposes one source for both, or records why
+they differ.
 
 ## 7. Education facts
 
@@ -177,10 +165,14 @@ is read again at every review, because its low can still move.
 
 ## 8. The owner's review, step by step
 
-1. Open the PR; for each change open the source URL yourself (not the quote) and find the passage.
+1. Open the PR and read its file list first. Close it unmerged when any path lies outside the data
+   folders of §1, such as `.github/`, `tools/`, a `src/` folder or a package file. Then, for each
+   change, open the source URL yourself (not the quote) and find the passage.
 2. Check the effective date and the status word; a proposal is never a rule.
 3. Read the `summary60` aloud; cut anything that sounds like advice.
-4. Flip `reviewedBy`, set `lastReviewed`, bump `status.version`, set `changedOn` and write
-   `changeNotice` when a rule changed in substance; a bump that corrects our own file also writes a
-   `changeNotice` that says so (`docs/JURISDICTIONS.md` §6); merge; the next deploy shows the dated notice to affected users.
-5. Note anything the agent got wrong in `docs/content-review-log.md` so the skill improves.
+4. In a commit on the agent's branch, flip `reviewedBy`, set `lastReviewed`, bump `status.version`,
+   set `changedOn` and write `changeNotice` when a rule changed in substance; a bump that corrects our
+   own file also writes a `changeNotice` that says so (`docs/JURISDICTIONS.md` §6). Merge; the next
+   deploy shows the dated notice to affected users.
+5. Log the run in `docs/content-review-log.md`: its date, the PR, the model and what you corrected,
+   so the skill improves. The log goes in its own PR, since the agent's branch takes content data only.
