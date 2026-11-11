@@ -1,7 +1,9 @@
 # The gate, on every pull request and on main (ADR-0024, ADR-0025); this header owns its composition.
 # verify: Biome, ESLint, the dependency, styling, docs and size lints, knip, types, the unit, property
 # and component tests with 100 % coverage on packages/core, content validation, security.txt, the
-# commit subjects, and the PR's label and body lines. stories: every story at two widths in both themes
+# commit subjects, the PR's label and body lines, and the content review guard (an agent/ or content-review
+# PR changes and deletes only content data, judged by the base commit's copy of the guard before pnpm or any
+# PR code runs; every other PR gets the listing as a report). stories: every story at two widths in both themes
 # with axe. export-build: the Vite export of apps/mobile, its export check and its smoke test in the
 # pinned container. e2e-visual: in the pinned container, e2e-build makes the web build once, with the
 # bundle secret scan and Today's application code (`node tools/size/today.ts`; weaker since Today's
@@ -123,6 +125,37 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+      # Node without pnpm's cache, so nothing reads the PR's pnpm configuration before the guard below.
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+      # The content review guard (docs/CONTENT-OPS.md §1, §3): an agent/ branch or a PR labelled content-review
+      # may change only content data and delete none of it. Every other PR gets the same listing as a report
+      # and is never failed by it. Labels are read at run time; the files API lists at most 3,000 files, so the
+      # count is compared. It runs the base commit's copy of the script before pnpm or any PR code runs (which
+      # could write GITHUB_ENV or GITHUB_PATH), so a PR that edits the guard never judges itself. On a base
+      # without the script (no agent branch can exist yet) the PR's own copy only reports, and the step passes.
+      - name: Content data only on agent PRs
+        if: ${{ github.event_name == 'pull_request' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          HEAD_REF: ${{ github.head_ref }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          git cat-file -e "$BASE_SHA^{commit}"
+          script=tools/content-review/check.ts guard="$RUNNER_TEMP/content-review/check.mts" report=
+          if git cat-file -e "$BASE_SHA:$script" 2>/dev/null; then
+            mkdir -p "${guard%/*}" && git cat-file blob "$BASE_SHA:$script" > "$guard"
+          else
+            echo "the base $BASE_SHA has no $script: the PR's own copy reports, not enforced"; guard=$script report=1
+          fi
+          pr=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR" --jq '"\(.changed_files) \([.labels[].name] | any(. == "content-review"))"')
+          read -r changed labelled <<< "$pr"
+          enforce=(); if [ "$labelled" = true ]; then enforce=(--enforce); fi
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$PR/files" --paginate \
+            --jq '.[] | [.filename, .previous_filename // "", .status] | @tsv' \
+            | node "$guard" pr-files "$HEAD_REF" --expect "$changed" "${enforce[@]}" || [ -n "$report" ]
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
