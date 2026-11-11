@@ -149,6 +149,15 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   code spans as trusted context, and each review round found a reading it had predicted wrongly: a
   fence closed by a list item, a code span split by a table cell, then the source URLs its escaping
   broke. The guard and the job moved to session 18b (#125).
+- A skill that an agent runs for the owner is rehearsed once, by an agent following its text in dry
+  mode, before the owner's first run. Session 18b's rehearsal of `/review-content` found ten gaps
+  that no review of its code had shown: PDF sources its tools cannot read, a promise that off-list
+  fetches are refused, bookkeeping fields with no place in the draft, an allowed tool the text
+  forbids, and an example draft whose field does not exist (#136).
+- A guard that limits what an agent's branch may change is checked against every required check that
+  branch must pass. Session 18b's content review guard refused the baseline deletion that the
+  required e2e-visual check needs after any change to text a screen shows; the integration read found
+  it after the guard had merged (#137).
 
 ## Known gaps
 
