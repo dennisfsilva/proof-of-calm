@@ -86,21 +86,32 @@ const rev = (ref: string): string => {
   }
 };
 
-/** A JSON file at a git object (`HEAD:<path>`, `:<path>` for the index), or undefined when absent or not JSON. */
-const staged = (spec: string): unknown => {
+/** A file's text at a git object (`HEAD:<path>`, `:<path>` for the index), or undefined when absent. */
+const shown = (spec: string): string | undefined => {
   try {
-    return JSON.parse(execFileSync('git', ['show', spec], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }));
+    return execFileSync('git', ['show', spec], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
   } catch {
     return undefined;
   }
 };
 
-/** Each staged data file with its changed leaves (none listed for a module), for rows.ts. */
+/** A JSON file at a git object, or undefined when absent or not JSON. */
+const staged = (spec: string): unknown => {
+  try {
+    return JSON.parse(shown(spec) ?? '');
+  } catch {
+    return undefined;
+  }
+};
+
+/** Each staged data file with its changed leaves, or a module's two sources, for rows.ts. */
 const changedLeaves = (kept: readonly string[]) =>
   kept
     .filter((file) => DATA_PATHS.some((pattern) => pattern.test(file)))
     .map((file) =>
-      file.endsWith('.mdx') ? { file } : { file, leaves: leafChanges(staged(`HEAD:${file}`), staged(`:${file}`)) },
+      file.endsWith('.mdx')
+        ? { file, before: shown(`HEAD:${file}`), after: shown(`:${file}`) }
+        : { file, leaves: leafChanges(staged(`HEAD:${file}`), staged(`:${file}`)) },
     );
 
 /** The draft rendered into the body; the countries are the only draft text outside it (the PR title). */
