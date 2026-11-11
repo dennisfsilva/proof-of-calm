@@ -7,7 +7,9 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 type Due = { date: string; scope: 'full' | 'jurisdictions' };
-type Issue = { number: number; state: string; createdAt: string; closedAt?: string | null };
+type Comment = { body: string; authorAssociation?: string; author?: { login?: string } | null };
+/** The fields `gh issue list --json number,state,body,comments` gives. */
+type Issue = { number: number; state: string; body?: string | null; comments?: Comment[] | null };
 
 /** No reminder for a date before the reminder existed. */
 const FIRST_DUE = '2027-01-01';
@@ -22,6 +24,14 @@ const SCHEDULE: [string, Due['scope']][] = [
   ['10-01', 'full'],
 ];
 const LABEL = 'content-review';
+/**
+ * Who may write a due-date marker in a comment: the workflow's token and people with write access.
+ * Anyone can comment on an issue in a public repository, and a forged marker would silence a date.
+ * The body needs no check: only the issue's author and collaborators can edit it, and only
+ * collaborators can set the label.
+ */
+const TRUSTED_ASSOCIATIONS = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
+const TRUSTED_LOGINS = new Set(['github-actions', 'github-actions[bot]']);
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 const display = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
 
@@ -63,24 +73,40 @@ export function issueBody(due: Due): string {
     `1. ${run}`,
     '2. Read the draft pull request against the sources it quotes, set `reviewedBy` to `owner` and merge it (docs/CONTENT-OPS.md §8).',
     '3. Close this issue when that pull request is merged.',
+    '',
+    marker(due),
   ].join('\n');
 }
 
+/** The comment on an issue still open when the next due date comes. */
+export function stillDueComment(due: Due): string {
+  return `Still due: ${format(due.date)}\n\n${marker(due)}`;
+}
+
+/** The hidden line that records which due date an issue body or comment reminded the owner of. */
+const marker = (due: Due) => `<!-- content-review-due: ${due.date} -->`;
 const isOpen = (issue: Issue) => issue.state.toUpperCase() === 'OPEN';
-/** An issue open on the due date or opened after it reminded the owner of that date. */
-const covers = (issue: Issue, due: Due) =>
-  issue.createdAt.slice(0, 10) >= due.date || (issue.closedAt ?? '9999').slice(0, 10) >= due.date;
+const trusted = (comment: Comment) =>
+  TRUSTED_ASSOCIATIONS.has(comment.authorAssociation ?? '') || TRUSTED_LOGINS.has(comment.author?.login ?? '');
+/** An issue covers a due date exactly when its body or a trusted comment carries that date's marker. */
+const carries = (issue: Issue, due: Due) =>
+  [issue.body ?? '', ...(issue.comments ?? []).filter(trusted).map((comment) => comment.body)].some((text) =>
+    text.includes(marker(due)),
+  );
 const newestOpen = (issues: Issue[]) => issues.filter(isOpen).sort((a, b) => b.number - a.number)[0];
 
-/** What the workflow does for a due date: open an issue, comment on the open one, or nothing. */
+/**
+ * What the workflow does for a due date: nothing when an issue, open or closed, already carries it;
+ * otherwise comment on the open issue, or open one. Safe to run twice (ADR-0037).
+ */
 export function reminderAction(
   due: Due,
   issues: Issue[],
 ): { kind: 'open' } | { kind: 'comment' | 'none'; number: number } {
+  const done = issues.find((issue) => carries(issue, due));
+  if (done) return { kind: 'none', number: done.number };
   const open = newestOpen(issues);
-  if (open) return { kind: open.createdAt.slice(0, 10) >= due.date ? 'none' : 'comment', number: open.number };
-  const done = issues.find((issue) => covers(issue, due));
-  return done ? { kind: 'none', number: done.number } : { kind: 'open' };
+  return open ? { kind: 'comment', number: open.number } : { kind: 'open' };
 }
 
 /** The line shown to the owner at session start, or undefined. */
@@ -88,8 +114,8 @@ export function sessionNotice(due: Due | undefined, issues: Issue[]): string | u
   const open = newestOpen(issues);
   if (open)
     return `Content review due (#${open.number}): run /review-content when you have an hour; close #${open.number} when its PR is merged.`;
-  if (!due || issues.some((issue) => covers(issue, due))) return undefined;
-  return `Content review due since ${format(due.date)}, and no reminder issue was opened (GitHub pauses scheduled workflows in public repositories after 60 days without activity): run /review-content, or dispatch content-review-reminder.yml.`;
+  if (!due || issues.some((issue) => carries(issue, due))) return undefined;
+  return `Content review due since ${format(due.date)} with no reminder (GitHub pauses idle schedules): run /review-content now, and restart the reminders with gh workflow enable content-review-reminder.yml.`;
 }
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
@@ -108,7 +134,7 @@ const listIssues = (timeout?: number): Issue[] =>
         '--limit',
         '20',
         '--json',
-        'number,state,createdAt,closedAt',
+        'number,state,body,comments',
       ],
       timeout,
     ),
@@ -129,7 +155,7 @@ function issueCommand(args: string[]): void {
   const action = reminderAction(due, listIssues());
   if (action.kind === 'none') console.log(`#${action.number} already reminds the owner of ${due.date}.`);
   if (action.kind === 'comment') {
-    gh(['issue', 'comment', String(action.number), '--body', `Still due: ${format(due.date)}`]);
+    gh(['issue', 'comment', String(action.number), '--body', stillDueComment(due)]);
     console.log(`Commented on #${action.number}.`);
   }
   if (action.kind === 'open') {

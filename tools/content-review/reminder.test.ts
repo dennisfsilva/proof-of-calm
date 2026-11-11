@@ -1,14 +1,31 @@
 import { describe, expect, it } from 'vitest';
-import { dueDate, issueBody, issueTitle, noticeDue, reminderAction, sessionNotice } from './reminder.ts';
+import {
+  dueDate,
+  issueBody,
+  issueTitle,
+  noticeDue,
+  reminderAction,
+  sessionNotice,
+  stillDueComment,
+} from './reminder.ts';
 
 const full = (date: string) => ({ date, scope: 'full' as const });
 const second = { date: '2027-01-15', scope: 'jurisdictions' as const };
-const issue = (number: number, state: string, createdAt: string, closedAt: string | null = null) => ({
+type Text = { body: string; association?: string; login?: string };
+/** The issue's body (the first text) and its comments, as `gh issue list --json` gives them. */
+const issue = (number: number, state: string, [first, ...rest]: Text[]) => ({
   number,
   state,
-  createdAt,
-  closedAt,
+  body: first?.body ?? '',
+  comments: rest.map(({ body, association = 'NONE', login = 'someone' }) => ({
+    body,
+    authorAssociation: association,
+    author: { login },
+  })),
 });
+const opened = (date: string): Text => ({ body: issueBody(full(date)) });
+const bot = (body: string): Text => ({ body, login: 'github-actions' });
+const owner = (body: string): Text => ({ body, association: 'OWNER', login: 'owner' });
 
 describe('dueDate', () => {
   it('names nothing before the first due date', () => {
@@ -62,52 +79,71 @@ describe('issueBody', () => {
   });
 });
 
+describe('the due-date marker', () => {
+  it('marks the issue body and the comment with the due date, hidden from the reader', () => {
+    expect(issueBody(full('2027-04-01'))).toContain('<!-- content-review-due: 2027-04-01 -->');
+    expect(stillDueComment(second)).toContain('<!-- content-review-due: 2027-01-15 -->');
+    expect(stillDueComment(second)).toContain('Still due: 15 Jan 2027');
+  });
+});
+
 describe('reminderAction', () => {
   const due = full('2027-04-01');
 
-  it('opens an issue when none covers the due date', () => {
+  it('opens an issue when none carries the due date', () => {
     expect(reminderAction(due, [])).toEqual({ kind: 'open' });
-    expect(reminderAction(due, [issue(4, 'CLOSED', '2027-01-15T06:30:00Z', '2027-02-01T10:00:00Z')])).toEqual({
-      kind: 'open',
-    });
+    expect(reminderAction(due, [issue(4, 'CLOSED', [opened('2027-01-15')])])).toEqual({ kind: 'open' });
+  });
+
+  it('opens an issue when the earlier one closed before the due date’s run', () => {
+    // #4 was closed at 05:00 UTC on 1 Apr, before that day's 06:23 run: it never reminded of 1 Apr.
+    expect(reminderAction(due, [issue(4, 'CLOSED', [opened('2027-01-01')])])).toEqual({ kind: 'open' });
+    expect(reminderAction(second, [issue(4, 'CLOSED', [opened('2027-01-01')])])).toEqual({ kind: 'open' });
   });
 
   it('comments on an issue still open from an earlier date', () => {
-    expect(reminderAction(due, [issue(4, 'OPEN', '2027-01-15T06:30:00Z')])).toEqual({ kind: 'comment', number: 4 });
+    expect(reminderAction(due, [issue(4, 'OPEN', [opened('2027-01-15')])])).toEqual({ kind: 'comment', number: 4 });
   });
 
-  it('does nothing twice for the same date', () => {
-    expect(reminderAction(due, [issue(9, 'OPEN', '2027-04-01T06:30:00Z')])).toEqual({ kind: 'none', number: 9 });
-    expect(reminderAction(due, [issue(9, 'CLOSED', '2027-04-01T06:30:00Z', '2027-04-20T08:00:00Z')])).toEqual({
-      kind: 'none',
-      number: 9,
-    });
+  it('does nothing on a re-run once the issue opened or the comment landed', () => {
+    expect(reminderAction(due, [issue(9, 'OPEN', [opened('2027-04-01')])])).toEqual({ kind: 'none', number: 9 });
+    const commented = issue(4, 'OPEN', [opened('2027-01-01'), bot(stillDueComment(second))]);
+    expect(reminderAction(second, [commented])).toEqual({ kind: 'none', number: 4 });
+  });
+
+  it('counts an issue closed after the due date’s reminder as covering it', () => {
+    expect(reminderAction(due, [issue(9, 'CLOSED', [opened('2027-04-01')])])).toEqual({ kind: 'none', number: 9 });
+    const commented = issue(4, 'CLOSED', [opened('2027-01-01'), owner(stillDueComment(second))]);
+    expect(reminderAction(second, [commented])).toEqual({ kind: 'none', number: 4 });
+  });
+
+  it('ignores a marker in a comment from someone outside the repository', () => {
+    const forged = issue(4, 'OPEN', [opened('2027-01-01'), { body: stillDueComment(due), association: 'NONE' }]);
+    expect(reminderAction(due, [forged])).toEqual({ kind: 'comment', number: 4 });
   });
 });
 
 describe('sessionNotice', () => {
   it('points to the open reminder issue', () => {
-    expect(sessionNotice(full('2027-04-01'), [issue(9, 'OPEN', '2027-04-01T06:30:00Z')])).toBe(
+    expect(sessionNotice(full('2027-04-01'), [issue(9, 'OPEN', [opened('2027-04-01')])])).toBe(
       'Content review due (#9): run /review-content when you have an hour; close #9 when its PR is merged.',
     );
-    expect(sessionNotice(undefined, [issue(3, 'open', '2026-12-01T09:00:00Z')])).toContain('(#3)');
+    expect(sessionNotice(undefined, [issue(3, 'open', [opened('2026-12-01')])])).toContain('(#3)');
   });
 
-  it('says so when no reminder issue was opened for a due date', () => {
-    const notice = sessionNotice(full('2027-04-01'), [
-      issue(4, 'CLOSED', '2027-01-15T06:30:00Z', '2027-02-01T10:00:00Z'),
-    ]);
+  it('says so when no reminder carries the due date, and names the way to restart the reminders', () => {
+    // #4 was closed on the morning of 1 Apr, before that day's run.
+    const notice = sessionNotice(noticeDue('2027-04-03'), [issue(4, 'CLOSED', [opened('2027-01-01')])]);
     expect(notice).toContain('due since 1 Apr 2027');
-    expect(notice).toContain('no reminder issue was opened');
-    expect(notice).toContain('content-review-reminder.yml');
+    expect(notice).toContain('/review-content');
+    expect(notice).toContain('gh workflow enable content-review-reminder.yml');
   });
 
-  it('stays quiet when the due date was handled or nothing is due', () => {
-    expect(
-      sessionNotice(full('2027-04-01'), [issue(9, 'CLOSED', '2027-04-01T06:30:00Z', '2027-04-20T08:00:00Z')]),
-    ).toBeUndefined();
-    // An issue open across the due date and closed after it covered that date too.
-    expect(sessionNotice(second, [issue(7, 'CLOSED', '2027-01-01T06:30:00Z', '2027-01-16T08:00:00Z')])).toBeUndefined();
+  it('stays quiet when the due date was reminded of or nothing is due', () => {
+    expect(sessionNotice(full('2027-04-01'), [issue(9, 'CLOSED', [opened('2027-04-01')])])).toBeUndefined();
+    // An issue open across the second pass, commented on, and closed after it covered that date too.
+    const commented = issue(7, 'CLOSED', [opened('2027-01-01'), bot(stillDueComment(second))]);
+    expect(sessionNotice(second, [commented])).toBeUndefined();
     expect(sessionNotice(undefined, [])).toBeUndefined();
   });
 });
