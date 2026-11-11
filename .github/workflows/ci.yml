@@ -2,8 +2,9 @@
 # verify: Biome, ESLint, the dependency, styling, docs and size lints, knip, types, the unit, property
 # and component tests with 100 % coverage on packages/core, content validation, security.txt, the
 # commit subjects, the PR's label and body lines, and the content review guard (an agent/ or content-review
-# PR changes and deletes only content data, judged by the base commit's copy of the script before pnpm or any
-# PR code runs, in a step the PR's copy of this file holds, so a PR that edits ci.yml can change it: a
+# PR changes and deletes only content data, save one exception: it may remove a baseline PNG under
+# apps/web/e2e/*-snapshots/ (the rule: docs/CONTENT-OPS.md §3); judged by the base commit's copy of the
+# script before pnpm or any PR code runs, in a step the PR's copy of this file holds, so a PR that edits ci.yml can change it: a
 # tripwire; the owner's diff read sees any .github/ change, and the review's finish
 # (`node tools/content-review/propose.ts finish`) refuses one before any push; every other PR gets the
 # listing as a report). stories: every story at
