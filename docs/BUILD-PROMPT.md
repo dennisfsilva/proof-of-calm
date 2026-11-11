@@ -136,6 +136,12 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   summarizes such lines elsewhere follows the same listing rule as the lines: the per-lot file's
   `feeAtDestination` header from #97 still counted a fee the global matching took at the
   destination while the Log held enough outside it, a move no line names, until #110.
+- An e2e spec that makes the price history fail routes that failure before `seedPlan`. Seeding loads
+  Today, whose red-day foot requests the history within milliseconds of the seed's return and keeps
+  it in IndexedDB for 24 hours (`packages/app/src/lib/adapters/history-source.ts`), so a route added
+  after the seed can come too late. #118's first CI run lost that race twice in
+  `apps/web/e2e/this-fall.spec.ts` (run 43003072139), while `apps/web/e2e/layout-shift.spec.ts`'s 502
+  test still routes after its seed.
 
 ## Known gaps
 
