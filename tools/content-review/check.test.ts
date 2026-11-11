@@ -82,10 +82,30 @@ describe('prFiles', () => {
     });
     expect(prFiles('feat/x', [], removed).refused).toBe(false);
     const renamed = row('packages/content/facts/b.json', 'renamed', 'packages/content/facts/a.json');
-    expect(prFiles('agent/x', [], renamed).refused).toBe(false);
+    expect(prFiles('agent/x', [], renamed).refused).toBe(true);
     expect(prFiles('agent/x', [], row('packages/content/facts/a.json', 'changed')).lines[0]).toBe(
       'packages/content/facts/a.json: status changed, only added, modified or renamed',
     );
+  });
+
+  it('prFiles refuses a data file renamed away when enforced', () => {
+    const removal = 'removed; the draft names the removal and the owner deletes it';
+    const away = row('packages/content/jurisdictions/zz.json', 'renamed', 'packages/content/jurisdictions/pt.json');
+    expect(prFiles('agent/content-review-x', ['--expect', '1'], away)).toEqual({
+      lines: [`packages/content/jurisdictions/pt.json: ${removal}`, '1 of 1 files fail the guard (enforced)'],
+      refused: true,
+    });
+    expect(prFiles('feat/x', [], away).refused).toBe(false);
+    const within = row('packages/content/facts/b.json', 'renamed', 'packages/content/facts/a.json');
+    expect(prFiles('agent/x', [], within).lines).toEqual([
+      `packages/content/facts/a.json: ${removal}`,
+      '1 of 1 files fail the guard (enforced)',
+    ]);
+    const into = row('packages/content/facts/a.json', 'renamed', 'packages/content/src/index.ts');
+    expect(prFiles('agent/x', [], into).lines).toEqual([
+      'packages/content/facts/a.json: renamed from packages/content/src/index.ts, not content data',
+      '1 of 1 files fail the guard (enforced)',
+    ]);
   });
 
   it('prFiles refuses a listing shorter than --expect', () => {
