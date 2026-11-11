@@ -91,7 +91,12 @@ describe('ReviewScreen', () => {
     expect(text(/^Your plan buys until /)).toBeDefined();
     expect(text(/ a month on day \d+: BTC /)).toBeDefined();
     expect(screen.getByRole('heading', { level: 3, name: 'Your note to yourself' })).toBeDefined();
-    expect(text(/^5 Apr 2026: “For the long run\.”$/)).toBeDefined();
+    // The label and its quote stay together, as the fall page groups them.
+    const quote = text(/^5 Apr 2026: “For the long run\.”$/);
+    expect(screen.getByRole('heading', { level: 3, name: 'Your note to yourself' }).parentElement).toBe(
+      quote.parentElement,
+    );
+    expect(quote.parentElement?.tagName).toBe('DIV');
     expect(screen.queryByText(/In your words/)).toBeNull();
     expect(screen.getByRole('link', { name: 'Back to Plan' }).getAttribute('href')).toBe('/plan');
     expect(screen.queryByRole('link', { name: 'See the plan' })).toBeNull();
@@ -110,6 +115,24 @@ describe('ReviewScreen', () => {
     expect(screen.getByRole('button', { name: 'Mark as reviewed' })).toBeDefined();
     expect(write).not.toHaveBeenCalled();
     expect(store.current().prefs.reviewedAt).toBeNull();
+  });
+
+  it('lists where the coins are between the rules and the button: the fixture names no venue', async () => {
+    await mount();
+    const rules = screen.getByRole('heading', { level: 2, name: 'Have the rules changed?' });
+    const where = screen.getByRole('heading', { level: 2, name: 'Where your coins are' });
+    const button = screen.getByRole('button', { name: 'Mark as reviewed' });
+    expect(rules.compareDocumentPosition(where)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(where.compareDocumentPosition(button)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    // The units held at the end of 20 Oct 2026, the fixture's clock.
+    expect(text(/^At the end of 20 Oct 2026, /)).toBeDefined();
+    expect(screen.getAllByText('With no venue')).toHaveLength(2);
+    expect(screen.getByRole('link', { name: 'Open the Log' }).getAttribute('href')).toBe('/log');
+  });
+
+  it('with no entries, the where part says nothing is held, with the date', async () => {
+    await mount({ snapshot: { entries: [] } });
+    expect(text(/^The Log shows no coins held at the end of 20 Oct 2026\.$/)).toBeDefined();
   });
 
   it('with no note, leaves the note out and keeps the plan and the link', async () => {
@@ -172,7 +195,11 @@ describe('ReviewScreen', () => {
 
   it("with a rule change not yet seen: the dated sentence alone, without Today's call to review", async () => {
     await mount({ plan: { countryRuleVersion: 1 } });
-    expect(text(/^5 Nov 2026: Portugal /)).toBeDefined();
+    const notice = text(/^5 Nov 2026: Portugal /);
+    // The dated sentence leads the section, before the country line (CONTENT-STYLE §1 rule 10).
+    expect(notice.compareDocumentPosition(text(/^Your plan's country: Portugal\.$/))).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
     expect(screen.queryByText(/Review your plan/)).toBeNull();
     cleanup();
     // A profile with no sentence of its own: the generic form, cut before Today's `Review your plan.`
@@ -191,7 +218,24 @@ describe('ReviewScreen', () => {
     expect(line.classList.contains('scroll-mt-result')).toBe(true);
     expect(document.activeElement).toBe(line);
     expect(screen.queryByRole('button', { name: 'Mark as reviewed' })).toBeNull();
-    expect(text(/^You last reviewed this plan on 20 Oct 2026\.$/)).toBeDefined();
+    // The first line keeps its words from when the page opened, so the page names the review's day once.
+    expect(text(/^You set up this plan on 5 Apr 2026\.$/)).toBeDefined();
+    expect(screen.queryByText(/You last reviewed/)).toBeNull();
+  });
+
+  it('a plan that replaces this one while the page is open: its own first line and the button again', async () => {
+    const { services } = await mount();
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Mark as reviewed' })));
+    const createdAt = '2026-06-01T10:00:00.000Z' as Instant;
+    const id = '00000000-0000-4000-8000-000000009000' as EntityId;
+    await act(() =>
+      services.domain.write((snapshot) => ({
+        plan: { ...(snapshot.plan as Plan), id, createdAt },
+        prefs: { ...snapshot.prefs, reviewedAt: null },
+      })),
+    );
+    expect(text(/^You set up this plan on 1 Jun 2026\.$/)).toBeDefined();
+    expect(screen.getByRole('button', { name: 'Mark as reviewed' })).toBeDefined();
   });
 
   it('an overdue review, marked, counts the next one from the day it was marked', async () => {
