@@ -271,7 +271,9 @@ dark mode uses the dark steps above, not an inversion; the validator runs whenev
   review and the focus on its button, and the toast says so.
   `Mark as reviewed` on `/plan/review` gives way to its result line (`tabindex="-1"`), which takes the
   focus by the script focus move above once the commit has replaced the button; a failed write keeps
-  the button and the focus on it, and the toast says so.
+  the button and the focus on it, and the toast says so. A mark refused because another tab replaced
+  or deleted the plan re-opens the page on what is stored, which takes the button away, so the page's
+  `h1` takes the focus by the script focus move above once that commit is in, and the toast says so.
   Accepting the re-ask of the risk text takes its button away with no new pathname for
   the shell to act on, so the focus moves to Today's `h1` by the script focus move above. An action
   that ends in a problem with no result to show (the import of a file) moves the focus to the
