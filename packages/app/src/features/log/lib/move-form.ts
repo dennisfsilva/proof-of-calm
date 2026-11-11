@@ -206,9 +206,10 @@ export function typedFee(state: MoveFormState, numberInput: NumberInput): Units 
 /**
  * The lines beside a readable move that never block its save (docs/DOMAIN.md §3.7): how many units the source lacks at
  * the move's place on its date (`sourceShort`, with what it holds there, the source card's figure), under per-venue lots
- * or where the scope rule lists the move; what the Log finds outside the destination when the scope rule lists the move
- * (`outside`, `moveShortfallOf`); the first stored move the save leaves short (`later`, `movesLeftShort`); and whether a
- * live identical move is in the Log. A save that refuses names no move.
+ * or where the scope rule lists the move; the move's shortfall when the scope rule lists it (`found`, `moveShortfallOf`:
+ * what the Log holds outside the destination and how many fewer than sent), and a listed move's source always holds
+ * fewer than it sends, so `short` is then set; the first stored move the save leaves short (`later`, `movesLeftShort`);
+ * and whether a live identical move is in the Log. A save that refuses names no move.
  */
 export function moveLines(
   draft: MoveDraft,
@@ -220,11 +221,11 @@ export function moveLines(
   const saved = saveMoveOn(ctx.entries, draft, { ...at, plan: ctx.plan, editing: ctx.editing, source: 'manual' });
   const written = saved?.ok === true ? saved.value : [];
   const [move] = written;
-  const outside = move === undefined ? null : (moveShortfallOf(ctx.entries, move, holding)?.outside ?? null);
-  const short = holding.lotScope === 'per-venue' || outside !== null ? sourceShort(ctx.entries, draft, except) : null;
+  const found = move === undefined ? null : moveShortfallOf(ctx.entries, move, holding);
+  const short = holding.lotScope === 'per-venue' || found !== null ? sourceShort(ctx.entries, draft, except) : null;
   return {
     short: short === null ? null : { short, held: minus(draft.sent, short) },
-    outside,
+    found,
     later: movesLeftShort(ctx.entries, written, holding)[0] ?? null,
     same: sameMove(ctx.entries, draft, except) !== null,
   };

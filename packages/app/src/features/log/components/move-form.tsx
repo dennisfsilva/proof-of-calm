@@ -176,9 +176,12 @@ function PlanMoveForm({ plan, numberInput: mounted, editing, onDone }: PlanMoveF
     (cards.find((card) => card.getAttribute('aria-checked') === 'true') ?? cards[0] ?? named).focus();
   });
 
-  const decimals = plan.coins.find((coin) => coin.id === state.coin)?.decimals ?? MAX_UNIT_DECIMALS;
-  const prose = (value: Units, ...others: Units[]) =>
-    format.units(value, state.coin, proseDigits(decimals, value, ...others));
+  // Units in prose, in the form's coin or in a stored move's own (`proseIn`).
+  const proseIn = (coin: MoveFormState['coin'], value: Units, ...others: Units[]) => {
+    const decimals = plan.coins.find((each) => each.id === coin)?.decimals ?? MAX_UNIT_DECIMALS;
+    return format.units(value, coin, proseDigits(decimals, value, ...others));
+  };
+  const prose = (value: Units, ...others: Units[]) => proseIn(state.coin, value, ...others);
   const sources = moveSources(state, ctx);
   const drafted = moveDraft(state, numberInput);
   const fee = typedFee(state, numberInput);
@@ -265,10 +268,14 @@ function PlanMoveForm({ plan, numberInput: mounted, editing, onDone }: PlanMoveF
             held: prose(lines.short.held, lines.short.short),
             short: prose(lines.short.short, lines.short.held),
             date: format.date(drafted.value.date),
-            found: lines.outside === null ? 'no' : 'yes',
+            found: lines.found === null ? 'no' : 'yes',
           })}
-          {lines.outside !== null &&
-            ` ${t('log.move.sourceFound', { to: drafted.value.to, outside: prose(lines.outside, drafted.value.sent) })}`}
+          {lines.found !== null &&
+            ` ${t('log.move.sourceFound', {
+              to: drafted.value.to,
+              outside: prose(lines.found.outside, lines.found.short, lines.found.sent),
+              short: prose(lines.found.short, lines.found.outside, lines.found.sent),
+            })}`}
         </p>
       )}
       {lines?.same === true && drafted.ok && (
@@ -281,7 +288,7 @@ function PlanMoveForm({ plan, numberInput: mounted, editing, onDone }: PlanMoveF
           {t('log.move.laterShort', {
             to: lines.later.to,
             date: format.date(lines.later.date),
-            short: prose(lines.later.short),
+            short: proseIn(lines.later.coin, lines.later.short),
           })}
         </p>
       )}
