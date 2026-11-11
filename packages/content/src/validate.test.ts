@@ -115,9 +115,10 @@ const fact = (overrides: Record<string, unknown> = {}) => ({
   accessed: '2026-10-16',
   confidence: 'high',
   lastReviewed: '2026-10-16',
+  reviewedBy: 'owner',
   ...overrides,
 });
-const file = (path: string, json: unknown): ContentFile => ({ path, json });
+const file =(path: string, json: unknown): ContentFile => ({ path, json });
 const codes = (files: ContentFile[]) =>
   validateContent(files, options).map((problem) => `${problem.code}: ${problem.detail}`);
 const banned = (rule: string, field: string, match: string) =>
@@ -552,8 +553,21 @@ describe('validateContent: facts (docs/CONTENT-OPS.md §7)', () => {
       expect.stringMatching(/^schema: /),
       expect.stringMatching(/^schema: /),
       expect.stringMatching(/^schema: /),
+      expect.stringMatching(/^schema: /),
       'schema: expected a list of facts',
     ]);
+  });
+
+  // CONTENT-OPS §1: the review job proposes a fact at agent-draft, and CI blocks it until the owner flips it.
+  it('reports a fact still at agent-draft, as it does a profile or a template', () => {
+    expect(codes([file(path, [fact({ reviewedBy: 'agent-draft' })])])).toEqual([
+      'agent-draft: the owner sets reviewedBy to owner after the review',
+    ]);
+  });
+
+  it('wants reviewedBy on every fact', () => {
+    const { reviewedBy: _, ...unreviewed } = fact();
+    expect(codes([file(path, [unreviewed])])).toEqual([expect.stringMatching(/^schema: reviewedBy: /)]);
   });
 });
 

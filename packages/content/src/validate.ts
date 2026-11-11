@@ -313,6 +313,9 @@ function facts(file: ContentFile, options: ValidationOptions, seen: Set<string>)
     const fact = parsed.data;
     if (seen.has(fact.key)) problems.push({ path, code: 'duplicate-key', detail: fact.key });
     seen.add(fact.key);
+    if (fact.reviewedBy !== 'owner') {
+      problems.push({ path, code: 'agent-draft', detail: 'the owner sets reviewedBy to owner after the review' });
+    }
     problems.push(...sourceProblems(path, [{ url: fact.source }], options.allow.facts ?? []));
   });
   return problems;

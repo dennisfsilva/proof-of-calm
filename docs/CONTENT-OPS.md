@@ -172,7 +172,8 @@ confirm, penalty figures to quote).
 ## 7. Education facts
 
 `packages/content/facts/*.json` holds every number the modules cite: key, value, unit, date, source
-URL, publisher, accessed date, confidence, `lastReviewed`; the facts test holds its keys against
+URL, publisher, accessed date, confidence, `lastReviewed`, `reviewedBy` (CI blocks a fact still at
+`agent-draft`, as it does a profile or a template, §1); the facts test holds its keys against
 `docs/EDUCATION.md` §9. Modules reference facts by key in their front matter; the
 content test fails when a module cites a key that does not exist or whose `lastReviewed` is older
 than twelve months; the review job re-reads the sources and proposes updates.
