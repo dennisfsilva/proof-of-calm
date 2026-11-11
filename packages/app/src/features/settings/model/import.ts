@@ -7,6 +7,8 @@ import {
   type BackupFile,
   err,
   ok,
+  type Plan,
+  type Prefs,
   type Result,
   readBackup,
   recogniseImport,
@@ -29,4 +31,18 @@ export function readImport(text: string): Result<ReadImport, BackupError> {
   }
   const read = readBackup(json);
   return read.ok ? ok({ kind: 'backup', file: read.value }) : read;
+}
+
+/**
+ * The device's preferences in the write that stores `plan` from an import, with the ones a prototype file
+ * brings (docs/DOMAIN.md §3.12, §3.13): a review recorded here belongs to the plan stored then, so a plan with
+ * another id, or one taken onto a device with none, starts with no review.
+ */
+export function importedPrefs(
+  stored: { readonly plan: Plan | null; readonly prefs: Prefs },
+  plan: Plan,
+  taken: Partial<Prefs> = {},
+): Prefs {
+  const reviewedAt = stored.plan?.id === plan.id ? stored.prefs.reviewedAt : null;
+  return { ...stored.prefs, ...taken, reviewedAt };
 }

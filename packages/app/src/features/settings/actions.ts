@@ -42,6 +42,7 @@ import { BRAND } from '../../lib/brand';
 import { reportError } from '../../lib/errors';
 import type { Snapshot, WipedRows } from '../../lib/ports';
 import type { Services } from '../../lib/services';
+import { importedPrefs } from './model/import';
 import { downloadTaxYear, type TaxYearWords } from './tax-year';
 
 /** Saved and recorded; not saved (no plan, or the platform could not); saved, but its date not stored. */
@@ -168,7 +169,7 @@ export function dataActions(services: Services): DataActions {
         outcome = { kind, result };
         // Adding nothing changes nothing: a write would stamp changedAt and bring the backup banner back.
         if (kind === 'added' && result.added === 0) return {};
-        return { plan: result.plan, entries: result.entries };
+        return { plan: result.plan, entries: result.entries, prefs: importedPrefs(snapshot, result.plan) };
       });
       if (outcome === null) throw new Error('the import did not run');
       return outcome;
@@ -212,7 +213,7 @@ export function dataActions(services: Services): DataActions {
           }
           outcome = { kind, result, report: takenPlanReport(report, result.plan) };
           // The plan taken brings the device preferences of the page with it (§7); Add missing keeps this one's.
-          return { plan: result.plan, entries: result.entries, prefs: { ...snapshot.prefs, ...prefs } };
+          return { plan: result.plan, entries: result.entries, prefs: importedPrefs(snapshot, result.plan, prefs) };
         });
         if (outcome !== null) return outcome;
       }

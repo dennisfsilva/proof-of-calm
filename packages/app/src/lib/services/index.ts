@@ -22,3 +22,4 @@ export {
 export { ServicesProvider, type ServicesProviderProps } from './provider';
 export type { RedDayModel, RedDayPort } from './red-day-types';
 export { useProfile, useProfileLoad } from './use-profile';
+export { type ReviewSince, reviewSince, useReviewDates } from './use-review-dates';
