@@ -2,7 +2,7 @@
 // allowed-tools pre-approve this script and no git, gh or web rule). `start` checks for a clean tree at
 // origin/main. `finish` refuses a HEAD that is not origin/main (without --dry) before it touches anything,
 // then stages everything, refuses a path outside content data, a mode, a binary, a deletion, an entry not
-// at agent-draft and a draft problem, and on a refusal puts the index back as it found it before any
+// at agent-draft, a draft problem and a draft row that does not match the staged diff (rows.ts), and on a refusal puts the index back as it found it before any
 // commit or push. Otherwise
 // it renders the body from the draft through body.ts, commits on agent/content-review-<date>, pushes and
 // opens the pull request with needs-owner and content-review; it never merges. `--dry` stops after the
@@ -11,8 +11,9 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { allowedDomains, parseDraft, renderBody } from './body.ts';
-import { type ChangedPath, outsideData, reviewers } from './check.ts';
+import { parseDraft, renderBody } from './body.ts';
+import { type ChangedPath, DATA_PATHS, outsideData, reviewers } from './check.ts';
+import { leafChanges, rowProblems } from './rows.ts';
 
 export const branchName = (today: string): string => `agent/content-review-${today}`;
 
@@ -85,8 +86,28 @@ const rev = (ref: string): string => {
   }
 };
 
+/** A JSON file at a git object (`HEAD:<path>`, `:<path>` for the index), or undefined when absent or not JSON. */
+const staged = (spec: string): unknown => {
+  try {
+    return JSON.parse(execFileSync('git', ['show', spec], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }));
+  } catch {
+    return undefined;
+  }
+};
+
+/** Each staged data file with its changed leaves (none listed for a module), for rows.ts. */
+const changedLeaves = (kept: readonly string[]) =>
+  kept
+    .filter((file) => DATA_PATHS.some((pattern) => pattern.test(file)))
+    .map((file) =>
+      file.endsWith('.mdx') ? { file } : { file, leaves: leafChanges(staged(`HEAD:${file}`), staged(`:${file}`)) },
+    );
+
 /** The draft rendered into the body; the countries are the only draft text outside it (the PR title). */
-function draftBody(draftPath: string): { body: string; countries: string[]; problems: string[] } {
+function draftBody(
+  draftPath: string,
+  changed: ReturnType<typeof changedLeaves>,
+): { body: string; countries: string[]; problems: string[] } {
   let text: string;
   try {
     text = readFileSync(draftPath, 'utf8');
@@ -96,13 +117,17 @@ function draftBody(draftPath: string): { body: string; countries: string[]; prob
   const { draft, problems } = parseDraft(text);
   if (!draft) return { body: '', countries: [], problems: problems.map((problem) => `draft: ${problem}`) };
   const template = readFileSync('.github/PULL_REQUEST_TEMPLATE/content-review.md', 'utf8');
-  const domains = allowedDomains(JSON.parse(readFileSync('packages/content/sources.allow.json', 'utf8')));
-  const rendered = renderBody(draft, template, domains);
+  const allow: unknown = JSON.parse(readFileSync('packages/content/sources.allow.json', 'utf8'));
+  const rendered = renderBody(draft, template, allow);
   const codes = draft.countries.filter((code) => !/^[A-Z]{2}$/.test(code));
   return {
     body: rendered.body,
     countries: draft.countries,
-    problems: [...rendered.problems, ...codes.map((code) => `draft: country ${JSON.stringify(code)} is not a code`)],
+    problems: [
+      ...rendered.problems,
+      ...codes.map((code) => `draft: country ${JSON.stringify(code)} is not a code`),
+      ...rowProblems(draft, changed).map((problem) => `draft: ${problem}`),
+    ],
   };
 }
 
@@ -129,7 +154,7 @@ function finish(dry: boolean, draftPath: string): number {
     const diff = ['diff', '--cached', '-z', '--no-renames', 'HEAD'];
     paths = parseRaw(run('git', [...diff, '--raw']), run('git', [...diff, '--numstat']));
     const kept = paths.filter((file) => !file.deleted).map((file) => file.path);
-    const drafted = draftBody(draftPath);
+    const drafted = draftBody(draftPath, changedLeaves(kept));
     ({ body, countries } = drafted);
     problems = finishProblems(paths, kept.length > 0 ? reviewers('HEAD', kept) : [], drafted.problems);
   } catch (error) {

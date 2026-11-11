@@ -26,6 +26,7 @@ function expected(d: ReviewDraft): { urls: string[]; texts: string[] } {
   const texts = [
     ...d.changes.flatMap((c) => [c.item, c.field, c.old, c.new, c.quote, c.reason]),
     ...d.verified.map((v) => v.item),
+    ...d.reviewed.flatMap((r) => [r.item, r.reason]),
     ...d.unreachable.map((u) => u.expected),
     ...d.pending.flatMap((p) => [p.item, p.what]),
     ...d.queue.flatMap((q) => [q.item, q.note]),
@@ -100,9 +101,8 @@ const isMain = process.argv[1] !== undefined && fileURLToPath(import.meta.url) =
 if (isMain) {
   const root = new URL('../../', import.meta.url);
   const template = readFileSync(new URL('.github/PULL_REQUEST_TEMPLATE/content-review.md', root), 'utf8');
-  const domains = allowedDomains(
-    JSON.parse(readFileSync(new URL('packages/content/sources.allow.json', root), 'utf8')),
-  );
+  const allow: unknown = JSON.parse(readFileSync(new URL('packages/content/sources.allow.json', root), 'utf8'));
+  const domains = allowedDomains(allow);
   const repository = process.env.GITHUB_REPOSITORY ?? '';
   const token = process.env.GH_TOKEN ?? '';
   if (!/^[\w.-]+\/[\w.-]+$/.test(repository) || token === '') {
@@ -113,7 +113,7 @@ if (isMain) {
   for (const path of process.argv.slice(2)) {
     const { draft, problems } = parseDraft(readFileSync(path, 'utf8'));
     if (draft) {
-      const rendered = renderBody(draft, template, domains);
+      const rendered = renderBody(draft, template, allow);
       problems.push(...rendered.problems);
       if (rendered.problems.length === 0)
         problems.push(...htmlProblems(await render(rendered.body, repository, token), draft, domains));
