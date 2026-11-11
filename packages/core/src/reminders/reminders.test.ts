@@ -2,11 +2,13 @@ import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { anEntry, aPlan, date, id, instant, money, month } from '../../test/builders';
 import { addDays, compareInstants, fromEpochDay } from '../dates/calendar';
+import type { PhaseKind } from '../plan/phase';
 import { CountryRulesSchema } from '../schema/country';
 import {
   acknowledgeRuleChange,
   nextBuyReminder,
   nextReviewOn,
+  reviewAsked,
   reviewDue,
   ruleChangeNotice,
   underReview,
@@ -61,6 +63,35 @@ describe('reviewDue', () => {
   it('clamps 29 February to the 28th and ignores a review from before the plan existed', () => {
     expect(nextReviewOn({ createdOn: date('2028-02-29'), reviewedOn: null })).toBe('2029-02-28');
     expect(nextReviewOn({ createdOn: date('2026-06-01'), reviewedOn: date('2025-12-01') })).toBe('2027-06-01');
+  });
+});
+
+describe('reviewAsked (docs/DOMAIN.md §3.12)', () => {
+  // Created on 5 Apr 2026: due from 5 Apr 2027.
+  const dates = { createdOn: date('2026-04-05'), reviewedOn: null };
+  const due = date('2027-04-05');
+  const episode = { start: date('2027-03-30'), last: date('2027-04-02') };
+  const at = (phase: PhaseKind, held = true, redDay: typeof episode | null = null) => ({ phase, held, redDay });
+  const phases: PhaseKind[] = ['before', 'buy', 'hold', 'sell', 'exit'];
+
+  it('not due gives false, in every phase', () => {
+    for (const phase of [...phases, 'done' as const]) expect(reviewAsked(dates, date('2027-04-04'), at(phase))).toBe(false);
+  });
+
+  it('due gives true in before, buy, hold, sell and exit, with units held or none', () => {
+    for (const phase of phases) {
+      expect(reviewAsked(dates, due, at(phase))).toBe(true);
+      expect(reviewAsked(dates, due, at(phase, false))).toBe(true);
+    }
+  });
+
+  it('a red-day episode under way gives false, whether its banner shows on this visit or showed before', () => {
+    for (const phase of [...phases, 'done' as const]) expect(reviewAsked(dates, due, at(phase, true, episode))).toBe(false);
+  });
+
+  it('done with units held gives true; done with none gives false', () => {
+    expect(reviewAsked(dates, due, at('done', true))).toBe(true);
+    expect(reviewAsked(dates, due, at('done', false))).toBe(false);
   });
 });
 

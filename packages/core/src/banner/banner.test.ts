@@ -1,15 +1,16 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { anEntry, date, instant } from '../../test/builders';
-import { RED_DAY } from '../constants';
+import { RED_DAY, REVIEW_SNOOZE_DAYS } from '../constants';
 import { addDays } from '../dates/calendar';
-import { type BannerState, backupNeeded, bannerFor, withBannerKey } from './banner';
+import { BANNERS, type BannerState, backupNeeded, bannerFor, withBannerKey } from './banner';
 
 const today = date('2026-10-30');
 const state = (overrides: Partial<BannerState>): BannerState => ({
   today,
   redDay: null,
   ruleChange: null,
+  annualReview: false,
   backupNeeded: false,
   dismissed: [],
   ...overrides,
@@ -17,13 +18,22 @@ const state = (overrides: Partial<BannerState>): BannerState => ({
 const everything = state({
   redDay: { start: date('2026-10-28'), last: date('2026-10-29') },
   ruleChange: { version: 4 },
+  annualReview: true,
   backupNeeded: true,
 });
 
 describe('bannerFor (docs/DOMAIN.md §3.11, ADR-0013)', () => {
-  it('shows one banner: Red day, then a rule change, then backup needed', () => {
+  it('shows one banner: Red day, then a rule change, then the annual review, then backup needed', () => {
+    expect(BANNERS).toEqual(['red-day', 'rule-change', 'annual-review', 'backup-needed']);
     expect(bannerFor(everything)).toEqual({ kind: 'red-day', key: 'red-day:2026-10-28' });
     expect(bannerFor({ ...everything, redDay: null })).toEqual({ kind: 'rule-change', key: 'rule-change:4' });
+    expect(bannerFor({ ...everything, redDay: null, ruleChange: null })).toEqual({
+      kind: 'annual-review',
+      key: 'annual-review:2026-10-30',
+    });
+    expect(bannerFor({ ...everything, redDay: null, ruleChange: null, annualReview: false })?.kind).toBe(
+      'backup-needed',
+    );
     expect(bannerFor(state({ backupNeeded: true }))).toEqual({
       kind: 'backup-needed',
       key: 'backup-needed:2026-10-30',
@@ -81,6 +91,31 @@ describe('bannerFor (docs/DOMAIN.md §3.11, ADR-0013)', () => {
     expect(bannerFor({ ...backup, today: date('2026-10-30') })?.kind).toBe('backup-needed');
     expect(bannerFor(state({ backupNeeded: true, dismissed: ['backup-needed:soon'] }))?.kind).toBe('backup-needed');
   });
+
+  it('asks for the annual review only while the shell says it is asked', () => {
+    expect(bannerFor(state({ annualReview: false }))).toBeNull();
+    expect(bannerFor(state({ annualReview: true }))?.kind).toBe('annual-review');
+  });
+
+  it('keeps the review away for 30 days after Later: hidden on day 29, shown on day 30', () => {
+    const later = state({ annualReview: true, backupNeeded: true, dismissed: ['annual-review:2026-10-01'] });
+    expect(REVIEW_SNOOZE_DAYS).toBe(30);
+    expect(bannerFor({ ...later, today: date('2026-10-01') })?.kind).toBe('backup-needed');
+    expect(bannerFor({ ...later, today: date('2026-10-30') })?.kind).toBe('backup-needed');
+    expect(bannerFor({ ...later, today: date('2026-10-31') })?.kind).toBe('annual-review');
+  });
+
+  it('a review key dated after today, or not a date, or of another kind, snoozes nothing', () => {
+    // A clock set back, or a key no build wrote: a key from the future would otherwise hide the review until 30 days
+    // after its day, which may be years away.
+    const shown = (dismissed: string[]) => bannerFor(state({ annualReview: true, dismissed }))?.kind ?? null;
+    expect(shown(['annual-review:2026-10-31'])).toBe('annual-review');
+    expect(shown(['annual-review:2099-01-01'])).toBe('annual-review');
+    expect(shown(['annual-review:soon'])).toBe('annual-review');
+    expect(shown(['backup-needed:2026-10-30', 'red-day:2026-10-30', 'rule-change:4'])).toBe('annual-review');
+    // Several review keys at once: the one fewer than 30 days old snoozes.
+    expect(shown(['annual-review:2025-01-01', 'annual-review:2026-10-20', 'annual-review:2027-01-01'])).toBeNull();
+  });
 });
 
 describe('withBannerKey (docs/DOMAIN.md §3.11)', () => {
@@ -89,6 +124,34 @@ describe('withBannerKey (docs/DOMAIN.md §3.11)', () => {
     expect(withBannerKey(kept, 'red-day:2026-10-28', today)).toEqual([...kept, 'red-day:2026-10-28']);
     expect(withBannerKey([...kept, 'red-day:2026-10-28'], 'red-day:2026-10-28', today)).toEqual([
       ...kept,
+      'red-day:2026-10-28',
+    ]);
+  });
+
+  it('a second Later replaces the first review key, and a review key never stacks', () => {
+    const first = withBannerKey(['backup-needed:2026-08-01'], 'annual-review:2026-09-01', today);
+    expect(first).toEqual(['backup-needed:2026-08-01', 'annual-review:2026-09-01']);
+    expect(withBannerKey(first, 'annual-review:2026-10-30', today)).toEqual([
+      'backup-needed:2026-08-01',
+      'annual-review:2026-10-30',
+    ]);
+  });
+
+  it('adding another kind keeps one review key: the latest dated on or before today, the one that can snooze', () => {
+    const imported = [
+      'annual-review:2026-10-20',
+      'annual-review:2027-01-01',
+      'annual-review:soon',
+      'annual-review:2026-10-25',
+      'annual-review:2026-10-25',
+      'annual-review:2025-01-01',
+    ];
+    expect(withBannerKey(imported, 'red-day:2026-10-28', today)).toEqual([
+      'annual-review:2026-10-25',
+      'red-day:2026-10-28',
+    ]);
+    // None dated on or before today: none can snooze, so none is kept.
+    expect(withBannerKey(['annual-review:2027-01-01', 'annual-review:soon'], 'red-day:2026-10-28', today)).toEqual([
       'red-day:2026-10-28',
     ]);
   });

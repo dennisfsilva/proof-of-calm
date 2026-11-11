@@ -12,6 +12,7 @@ import {
   PRICE_TTL,
   RED_DAY,
   REVIEW_INTERVAL_MONTHS,
+  REVIEW_SNOOZE_DAYS,
   TOMBSTONE_TTL_DAYS,
   UNDO_WINDOW_MS,
   VENUE_MAX_LENGTH,
@@ -34,6 +35,7 @@ describe('constants', () => {
     expect(PRICE_TTL).toEqual({ clientSeconds: 60, serverSeconds: 600 });
     expect(REVIEW_INTERVAL_MONTHS).toBe(12);
     expect(BACKUP_SNOOZE_DAYS).toBe(90);
+    expect(REVIEW_SNOOZE_DAYS).toBe(30);
     expect(MAX_ENTRIES).toBe(10_000);
     expect(IMPORT_MAX_BYTES).toBe(50_000_000);
   });
