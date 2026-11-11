@@ -17,6 +17,10 @@ import { routeFixturePrices, test } from './support';
 // row of the fixture with a buy at Kraken and a move from Kraken to Ledger. Every `focusin` from before Save until
 // the focus is on Edit entry is recorded. On 2026-11-10 no project gave the link the focus (Save, the popup, then Edit
 // entry once the exit ends); a screenshot during the sheet's exit once showed it without its focus.
+// A Log row's Delete entry, far down a Log longer than the window, moves the focus to the toggle of the row now in its
+// place, in view, with the page still scrolled down; its Undo, by a click or by F6, lands on the restored row's toggle,
+// in view; a `scroll` listener's least `scrollY` from the delete to that focus stays above 0 (the page never jumps to
+// its top).
 
 test.use({ serviceWorkers: 'block' });
 
@@ -230,5 +234,80 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await sheet.getByLabel('Units received').fill('0.0499');
       await saveAndLandOnEdit(page, sheet, edit);
     });
+  });
+}
+
+/** The fixture with an extra buy on each day from 6 to 30 April 2026: a Log longer than any project's window. */
+function withLongLog(): Snapshot {
+  const snapshot = fixtureSnapshot();
+  const [first] = snapshot.entries as [Entry];
+  const april = Array.from(
+    { length: 25 },
+    (_, index): Entry => ({
+      ...first,
+      id: `00000000-0000-4000-8000-0000000005${String(index).padStart(2, '0')}` as Entry['id'],
+      kind: 'extra',
+      slot: null,
+      date: `2026-04-${String(index + 6).padStart(2, '0')}` as CalendarDate,
+      amount: '50' as Entry['amount'],
+      units: '0.0008' as Entry['units'],
+    }),
+  );
+  return { ...snapshot, entries: [...snapshot.entries, ...april] };
+}
+
+/** Starts keeping the least `scrollY` from this moment, so a jump to the page's top shows. */
+async function recordLeastScroll(page: Page) {
+  await page.evaluate(() => {
+    const least = { y: window.scrollY };
+    Object.assign(window, { leastScroll: least });
+    window.addEventListener('scroll', () => {
+      least.y = Math.min(least.y, window.scrollY);
+    });
+  });
+}
+
+const leastScroll = (page: Page) =>
+  page.evaluate(() => (window as unknown as { leastScroll: { y: number } }).leastScroll.y);
+
+for (const colorScheme of ['light', 'dark'] as const) {
+  test.describe(`${colorScheme}, a Log row's delete far down a long Log`, () => {
+    test.use({ colorScheme });
+
+    const toggle = (page: Page, day: RegExp) => page.locator('tbody button[aria-expanded]').filter({ hasText: day });
+    const DELETED = /^12\sApr\s2026/u;
+    const NEXT = /^11\sApr\s2026/u;
+
+    for (const reach of ['click', 'F6'] as const) {
+      test(`the focus stays in the deleted row's place, and Undo by ${reach} lands on the restored row`, async ({
+        page,
+      }) => {
+        const nowMs = fixtureNowMs('buy');
+        await page.clock.setFixedTime(new Date(nowMs));
+        await routeFixturePrices(page, nowMs);
+        await seedPlan(page, withLongLog());
+        await page.goto('/log');
+        await ready(page);
+        await page.getByRole('button', { name: /^Show all \d+ entries$/u }).click();
+        await expect(toggle(page, DELETED)).toHaveCount(1);
+
+        await toggle(page, DELETED).click();
+        const remove = page.getByRole('button', { name: 'Delete entry' });
+        await remove.scrollIntoViewIfNeeded();
+        await recordLeastScroll(page);
+        await remove.click();
+        await expect(toggle(page, DELETED)).toHaveCount(0);
+        const next = toggle(page, NEXT);
+        await expect(next).toBeFocused();
+        await expect(next).toBeInViewport();
+        expect(await page.evaluate(() => window.scrollY), 'the page stays scrolled down').toBeGreaterThan(0);
+
+        await undo(page, reach);
+        const restored = toggle(page, DELETED);
+        await expect(restored).toBeFocused();
+        await expect(restored).toBeInViewport();
+        expect(await leastScroll(page), 'from the delete to the restored row, never the page top').toBeGreaterThan(0);
+      });
+    }
   });
 }
