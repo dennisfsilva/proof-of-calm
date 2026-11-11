@@ -170,14 +170,17 @@ external links and the Risk link in the mobile export (M3).
   stated from the dataset; the caveat text. Before this work starts: the letters to Kraken (written
   confirmation) and Bitstamp (Data License Agreement) are sent and their answers recorded in ADR-0036.
 - Attribution text under every price and chart per ADR-0036, shipped with the simulator.
-- Annual review prompt in-app.
+- Annual review prompt in-app. The review page at `/plan/review` built on 2026-11-11 (#114) with its
+  units per venue (#117, 2026-11-11), and Today's prompt at the foot with `Later`'s 30-day snooze on
+  2026-11-11 (#118, `docs/DOMAIN.md` §3.11 and §3.12).
 - The "moved to my wallet" step (ADR-0039): units move between venues without changing acquisition
   dates or costs, so per-venue lot matching stays right; the annual review asks the user to compare
   the units per venue with what the exchange and the wallet show. Specified in `docs/DOMAIN.md` first.
   The reader built on 2026-11-09 (the entry kind `move`, ADR-0054; #82), the core's writer (`saveMove`,
   `sourceShort`, `sameMove`) on 2026-11-10 (#89); the Log step that records and edits a move ("Log
   coins you moved", #102) built on 2026-11-10, one release after the reader (#87, `docs/RELEASE.md`,
-  Versioning).
+  Versioning); the annual review's units per venue on 2026-11-11 (#117), read from `venueUnits`,
+  matched first in, first out per venue (#113).
 - Purchases off the schedule (decided 2026-11-05 and revised the same day after an independent
   check, #350; session 12a; the behaviour specified in `docs/DOMAIN.md` §3.10 and §6), built on
   2026-11-06. The sheet of `Record a purchase` offers the open action's kind (`Monthly buy`, or
