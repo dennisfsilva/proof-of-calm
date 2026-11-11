@@ -16,6 +16,20 @@ opens or comments on the `content-review` issue for the content-review-reminder.
 (`--dry-run` prints it, `--today YYYY-MM-DD` picks the day), and `session` is the `SessionStart` hook
 that shows the owner one line while a review is due.
 
+The rest of `content-review/` guards the review's output (`docs/CONTENT-OPS.md` §3). `check.ts` is the
+guard ci.yml's verify job runs from the base commit: an agent/ head or a PR labelled content-review
+changes only content data, deletes none of it and leaves every changed entry at agent-draft. `body.ts`
+renders the PR body from the agent's JSON draft, every text cell defused and every URL checked against
+`packages/content/sources.allow.json`; `render-check.ts` proves that through GitHub's renderer in the
+`render` job of content-review.yml. `propose.ts` does the review's git work, so the agent has no git
+or gh: `node tools/content-review/propose.ts start` refuses a dirty tree or a HEAD other than
+origin/main; `node tools/content-review/propose.ts finish` (`--dry`, `--draft <path>`) stages
+everything and refuses a path outside content data, a mode, a binary, a deletion, an entry not at
+agent-draft or a draft problem, leaving the index as it found it, before any commit. Otherwise it
+writes the body to `.content-review/` (gitignored) and, without `--dry`, commits on
+agent/content-review-<date>, pushes and opens the PR labelled needs-owner and content-review; it
+never merges. The `finish-dry` job runs it on the fixtures: one change accepted, four refused.
+
 `check.ts` (`pnpm check`) runs the gate's fast half with colour off and vitest's dot reporter, prints
 one line per step and only a failing step's last 40 lines. `lint/docs.ts` (`pnpm lint:docs`) checks
 that the documents name only paths, commands and ADRs that exist, mark planned items, keep each owned
