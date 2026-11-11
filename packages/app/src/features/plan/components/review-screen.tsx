@@ -54,7 +54,7 @@ export function ReviewScreen() {
       <Link href="/plan" className={BACK}>
         {t('back')}
       </Link>
-      <h1 ref={heading} tabIndex={-1} className="text-28">
+      <h1 ref={heading} tabIndex={-1} className="scroll-mt-result text-28">
         {t('title')}
       </h1>
       {/* Another plan (an import in another tab) opens the page anew: its own first line and the button. */}

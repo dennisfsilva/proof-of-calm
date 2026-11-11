@@ -285,7 +285,10 @@ describe('ReviewScreen', () => {
       expect.objectContaining({ title: 'The review could not be recorded. Try again.' }),
     );
     // The pressed button went with the old page: the re-opened page's heading takes the focus, never `body`.
-    expect(document.activeElement).toBe(screen.getByRole('heading', { level: 1, name: 'Review the plan' }));
+    const heading = screen.getByRole('heading', { level: 1, name: 'Review the plan' });
+    expect(document.activeElement).toBe(heading);
+    // Its top scroll margin leaves room above it when the move scrolls it in (DESIGN §6).
+    expect(heading.classList.contains('scroll-mt-result')).toBe(true);
   });
 
   it('a Mark refused because another tab deleted everything: the no-plan state, the heading focused', async () => {
