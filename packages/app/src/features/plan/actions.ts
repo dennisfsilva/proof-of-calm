@@ -53,6 +53,11 @@ export type PlanActions = {
    * writes nothing, reloads and returns `plan-changed`.
    */
   undoEndBuying(before: EndUndo): Promise<Result<void, ActionError>>;
+  /**
+   * `Mark as reviewed` (docs/DOMAIN.md §3.12): the clock's now as `Prefs.reviewedAt`, on the prefs as stored,
+   * in a prefs-only write that stamps no `changedAt`, so no backup prompt follows. A failed write throws.
+   */
+  recordReview(): Promise<void>;
 };
 
 /** Thrown inside the write, so a refused pause writes nothing. */
@@ -144,6 +149,9 @@ export function planActions({ domain, clock }: Pick<Services, 'domain' | 'clock'
         return err({ code: 'plan-changed' });
       }
       return ok(undefined);
+    },
+    async recordReview() {
+      await domain.write(({ prefs }) => ({ prefs: { ...prefs, reviewedAt: clock.now() } }));
     },
   };
 }

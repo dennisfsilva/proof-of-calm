@@ -224,3 +224,18 @@ describe('planActions.undoEndBuying', () => {
     expect(stored(services)).toBeNull();
   });
 });
+
+describe('recordReview', () => {
+  it('writes the review in the prefs alone: the plan, the entries and changedAt stay as stored', async () => {
+    const changedAt = '2026-10-01T10:00:00.000Z' as Instant;
+    const seeded = { ...fixtureSnapshot(), prefs: { ...fixtureSnapshot().prefs, changedAt } };
+    const planStore = memoryPlanStore(seeded);
+    const { actions } = await tab(seeded, planStore);
+    await actions.recordReview();
+    const after = planStore.current();
+    expect(after.prefs.reviewedAt).toMatch(/^2026-10-20T10:00:00/);
+    expect(after.prefs).toEqual({ ...seeded.prefs, reviewedAt: after.prefs.reviewedAt });
+    expect(after.plan).toEqual(seeded.plan);
+    expect(after.entries).toEqual(seeded.entries);
+  });
+});
