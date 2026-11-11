@@ -274,14 +274,34 @@ describe('ReviewScreen', () => {
       prefs: { ...store.current().prefs, reviewedAt: null },
     });
     const add = vi.spyOn(services.toasts, 'add');
-    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Mark as reviewed' })));
+    const button = screen.getByRole('button', { name: 'Mark as reviewed' });
+    button.focus();
+    await act(async () => fireEvent.click(button));
     expect(store.current().prefs.reviewedAt).toBeNull();
     expect(text(/^You set up this plan on 1 Jun 2026\.$/)).toBeDefined();
-    expect(screen.getByRole('button', { name: 'Mark as reviewed' })).toBeDefined();
+    expect(screen.getByRole('button', { name: 'Mark as reviewed' })).not.toBe(button);
     expect(screen.queryByText(/^You reviewed this plan/)).toBeNull();
     expect(add).toHaveBeenCalledWith(
       expect.objectContaining({ title: 'The review could not be recorded. Try again.' }),
     );
+    // The pressed button went with the old page: the re-opened page's heading takes the focus, never `body`.
+    expect(document.activeElement).toBe(screen.getByRole('heading', { level: 1, name: 'Review the plan' }));
+  });
+
+  it('a Mark refused because another tab deleted everything: the no-plan state, the heading focused', async () => {
+    const { services, store } = await mount();
+    // Wiped straight in the store, as another tab's Delete everything is before this tab's reload.
+    await store.wipe();
+    const add = vi.spyOn(services.toasts, 'add');
+    const button = screen.getByRole('button', { name: 'Mark as reviewed' });
+    button.focus();
+    await act(async () => fireEvent.click(button));
+    expect(store.current().plan).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Mark as reviewed' })).toBeNull();
+    expect(add).toHaveBeenCalledWith(
+      expect.objectContaining({ title: 'The review could not be recorded. Try again.' }),
+    );
+    expect(document.activeElement).toBe(screen.getByRole('heading', { level: 1, name: 'Review the plan' }));
   });
 
   it('with no plan, the no-plan state', async () => {
