@@ -153,7 +153,10 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   mode, before the owner's first run. Session 18b's rehearsal of `/review-content` found ten gaps
   that no review of its code had shown: PDF sources its tools cannot read, a promise that off-list
   fetches are refused, bookkeeping fields with no place in the draft, an allowed tool the text
-  forbids, and an example draft whose field does not exist (#136).
+  forbids, and an example draft whose field does not exist (#136). Skills have their own rules file
+  above tier 0 since (`.claude/rules/skills.md`), because a skill steers an agent with pre-approved
+  tools under the owner's identity, and this one's text merged at tier 0 with no review agent before
+  its rehearsal found those ten gaps.
 - A guard that limits what an agent's branch may change is checked against every required check that
   branch must pass. Session 18b's content review guard refused the baseline deletion that the
   required e2e-visual check needs after any change to text a screen shows; the integration read found
