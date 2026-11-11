@@ -58,7 +58,7 @@ export function ModuleSheet({ slug, section, open, onOpenChange, finalFocus }: M
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         ref={popup}
-        className="[&_article_*]:scroll-mt-[calc(var(--space-unit)*2+var(--target))] [&>article]:pr-target"
+        className="[&>article]:pr-target [&_article_*]:scroll-mt-[calc(var(--space-unit)*2+var(--target))]"
         initialFocus={heading}
         finalFocus={finalFocus}
       >
@@ -69,11 +69,7 @@ export function ModuleSheet({ slug, section, open, onOpenChange, finalFocus }: M
             </SheetClose>
           </div>
         </div>
-        <ModuleView
-          module={module}
-          Body={Body}
-          heading={<SheetTitle>{withJoiner(module.idea, joiner)}</SheetTitle>}
-        />
+        <ModuleView module={module} Body={Body} heading={<SheetTitle>{withJoiner(module.idea, joiner)}</SheetTitle>} />
       </SheetContent>
     </Sheet>
   );

@@ -187,14 +187,14 @@ export const TabToALinkUnderClose: Story = {
   },
 };
 
-// The caveat scrolled up to `Close` at 125 % text zoom, a 20 px root as the e2e zoom-125 project sets it: the module
+// The caveat scrolled up to `Close` at 125 % text zoom, the 20 px root the e2e zoom-125 project sets: the module
 // keeps a column clear of the button, so the button never stands over the text that passes under it.
 export const CaveatClearOfCloseAtZoom: Story = {
   decorators: [
     longModule,
     (Story) => (
       <>
-        <style>{':root { font-size: 20px; }'}</style>
+        <style>{':root { font-size: 125%; }'}</style>
         <Story />
       </>
     ),

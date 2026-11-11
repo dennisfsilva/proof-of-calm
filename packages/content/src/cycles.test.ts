@@ -151,7 +151,9 @@ describe('the cycles file (docs/EDUCATION.md §2 and §6)', () => {
     const path = 'packages/content/learn/cycles.mdx';
     const module = parseModule(path, readFileSync(new URL('learn/cycles.mdx', root), 'utf8'));
     if (!module.ok) throw new Error(path);
-    const highs = CycleDrawdownsSchema.parse(cycles).drawdowns.flatMap(({ coin, high }) => (coin === 'BTC' ? [high] : []));
+    const highs = CycleDrawdownsSchema.parse(cycles).drawdowns.flatMap(({ coin, high }) =>
+      coin === 'BTC' ? [high] : [],
+    );
     const [first = ''] = highs.toSorted();
     const last = facts.find(({ key }) => key === A)?.date ?? '';
     // One space for each line end and no-break space, so a line that wraps reads as written; a blank line, which would
