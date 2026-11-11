@@ -1,0 +1,73 @@
+# The content review's reminder (docs/CONTENT-OPS.md §2, ADR-0037 Deviations): on each due date it
+# opens one issue labelled content-review, assigned to the owner, or comments on the one still open.
+# The owner runs /review-content by hand; no model credential reaches CI. A dispatch is a dry run
+# unless dry_run is false. A pull request that changes this file or the script prints a dry run.
+name: Content review reminder
+
+on:
+  schedule:
+    - cron: "23 6 1 1,4,7,10 *"
+    - cron: "23 6 15 1 *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Print the issue without opening or commenting"
+        type: boolean
+        default: true
+  pull_request:
+    paths:
+      - .github/workflows/content-review-reminder.yml
+      - tools/content-review/reminder.ts
+
+permissions: {}
+
+concurrency:
+  group: content-review-reminder-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  remind:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+      - name: Open or comment on the reminder issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          # A schedule has no inputs: only a dispatch can ask for a dry run.
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+        run: |
+          if [ "$DRY_RUN" = "true" ]; then
+            node tools/content-review/reminder.ts issue --dry-run
+          else
+            node tools/content-review/reminder.ts issue
+          fi
+
+  dry-run:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+      - name: Print today's issue and two fixed due dates
+        run: |
+          node tools/content-review/reminder.ts issue --dry-run
+          node tools/content-review/reminder.ts issue --dry-run --today 2027-01-15
+          node tools/content-review/reminder.ts issue --dry-run --today 2027-04-01
