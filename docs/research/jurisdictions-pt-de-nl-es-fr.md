@@ -263,7 +263,7 @@ Caveat needed for: the exact day-count; the Freigrenze cliff; staking/lending (s
 | Timezones | Europe/Amsterdam | high |
 | Tax authority | Belastingdienst, https://www.belastingdienst.nl | high |
 | Tax year | Calendar year | high |
-| Filing window | Aangifte inkomstenbelasting: 1 March–1 May of the following year (extension to 1 September on request; longer via an adviser). | high |
+| Filing window | Aangifte inkomstenbelasting: 1 March–1 May of the following year (extension to 1 September on request; longer via an adviser). No Belastingdienst page read on 2026-11-05 states the opening day; §7.8 holds the deadline page's "often 1 May" (`docs/content-review-log.md`, 2026-11-05). | high |
 
 ### 2. Classification of crypto held privately
 
@@ -553,7 +553,7 @@ Caveat needed for: the portfolio-wide formula (needs the value of all holdings a
 5. DGFiP, formulaire 2086 (revenus 2024, cerfa 16043*06) and notice — https://www.impots.gouv.fr/www2/fichiers/documentation/brochure/ir_2025/pdf_som/2086.pdf — high.
 6. Légifrance, LOI n° 2026-103 du 19 février 2026 de finances pour 2026 — https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000053508155 — located via search, Légifrance blocked the fetch — high (identity).
 7. KPMG Avocats, "Promulgation de la loi de finances 2026", 2026-02-20 — https://kpmg.com/av/fr/avocats/eclairages/2026/02/promulgation-de-la-loi-de-finances-2026.html — medium.
-8. DLA Piper, "Loi de financement de la sécurité sociale 2026 : hausse de la CSG…", Jan 2026 — https://www.dlapiper.com/fr-fr/insights/publications/2026/01/loi-de-finance-de-la-securite-sociale-2026 — medium.
+8. DLA Piper, "Loi de financement de la sécurité sociale 2026 : hausse de la CSG…", Jan 2026 — https://www.dlapiper.com/fr-fr/insights/publications/2026/01/loi-de-finance-de-la-securite-sociale-2026 — medium. The secondary that reported the rise; the law itself, LOI n° 2025-1403 art. 12, was read on Légifrance on 2026-11-05 (`docs/JURISDICTIONS.md` §7.10, Rates).
 9. LégiFiscal, "Hausse CSG 2026 sur certains placements financiers", 2025-12-29 — https://www.legifiscal.fr/actualites-fiscales/4369-janvier-2026-hausse-csg-appliquera-certains-placements-financiers.html — medium.
 10. CMS Francis Lefebvre, "Loi fraudes : plusieurs mesures concernent les crypto-actifs", 2026-06-10 — https://cms.law/fr/fra/legal-updates/loi-fraudes-plusieurs-mesures-concernent-les-crypto-actifs — medium-high.
 11. AFG copy of loi n° 2026-534 du 25 juin 2026 — https://www.afg.asso.fr/app/uploads/2026/06/Loi-2026-534-du-25-juin-2026-lutte-contre-les-fraudes-sociales-et-fiscales.pdf — medium (official text on Légifrance to be re-checked).
@@ -622,7 +622,7 @@ Also worth a watch line in the review job: France's social-levy rate (LFSS 2027,
 
 - Read the BMF Referentenentwurf PDF directly (BMF site returned 503 today) and confirm: title, 31 Dec 2026 cut-off, § 20(1) no. 12-E, § 52 application rule.
 - Read the BMF-Schreiben of 6 Mar 2025 directly for the FIFO/wallet Rn. numbers and the ten-year statement Rn.
-- Confirm the LFSS 2026 law number on Légifrance and the exact wording of the entry into force for revenus du patrimoine (2025 income).
+- ~~Confirm the LFSS 2026 law number on Légifrance and the exact wording of the entry into force for revenus du patrimoine (2025 income).~~ Closed 2026-11-05: LOI n° 2025-1403 du 30 décembre 2025, art. 12, « A compter de l'imposition des revenus de l'année 2025 », read on Légifrance (`docs/JURISDICTIONS.md` §7.10, Rates).
 - Confirm the Dutch verzuimboete amount for 2026 and the Staatsblad citation of the Wet tegenbewijsregeling box 3.
 - Confirm the Portuguese RGIT fine ranges to quote on the card, and the exact OE2027 vote dates after the conference of leaders publishes them.
 - Spain: confirm the Renta 2026 campaign dates when AEAT publishes the 2027 calendar, and whether the new Cortes re-tables bill 121/000060.
