@@ -166,11 +166,18 @@ describe('ReviewScreen', () => {
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Mark as reviewed' })));
     expect(store.current().prefs.reviewedAt).toMatch(/^2026-10-20T10:00:00/);
     expect(store.current().prefs.changedAt).toBe(changedAt);
-    const line = text(/^Reviewed on 20 Oct 2026\. Next review on 20 Oct 2027\.$/);
+    const line = text(/^Reviewed on 20 Oct 2026\. Next review from 20 Oct 2027\.$/);
     expect(line.getAttribute('tabindex')).toBe('-1');
+    expect(line.classList.contains('scroll-mt-result')).toBe(true);
     expect(document.activeElement).toBe(line);
     expect(screen.queryByRole('button', { name: 'Mark as reviewed' })).toBeNull();
     expect(text(/^You last reviewed this plan on 20 Oct 2026\.$/)).toBeDefined();
+  });
+
+  it('an overdue review, marked, counts the next one from the day it was marked', async () => {
+    await mount({ nowMs: at('2028-01-10') });
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Mark as reviewed' })));
+    expect(text(/^Reviewed on 10 Jan 2028\. Next review from 10 Jan 2029\.$/)).toBeDefined();
   });
 
   it('a failed write keeps the button, moves no focus and says so in a toast', async () => {
