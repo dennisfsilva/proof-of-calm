@@ -193,21 +193,15 @@ export type PlanSummary = {
   readonly holdingNote: boolean;
 };
 
-export function planSummary(
-  plan: Plan,
-  entries: readonly Entry[],
-  today: CalendarDate,
-  rules: CountryRules | null,
-  text: PlanText,
-): PlanSummary {
-  const { f, t } = text;
+/** The plan in its own words, the Plan screen's lead and the review page's (docs/CONTENT-STYLE.md §3). */
+export function planReference(plan: Plan, { f, t }: PlanText): readonly string[] {
   const window = plan.sellWindow;
   const money = (amount: Plan['monthlyAmount']) => f.money(amount, plan.payCurrency);
   const split = plan.coins.map(
     (coin) => `${coin.id} ${f.percent(plan.split[coin.id] ?? ('0' as Percent), { decimals: 0 })}`,
   );
   const amounts = { monthly: money(plan.monthlyAmount), buyDay: String(plan.buyDay), split: split.join(', ') };
-  const reference = [
+  return [
     window === null
       ? t('reference.openEnded', { lastBuy: f.date(plan.lastBuy) })
       : t('reference.window', {
@@ -220,6 +214,18 @@ export function planSummary(
       ? t('reference.monthly', amounts)
       : t('reference.amounts', { ...amounts, starting: money(plan.startingAmount) }),
   ];
+}
+
+export function planSummary(
+  plan: Plan,
+  entries: readonly Entry[],
+  today: CalendarDate,
+  rules: CountryRules | null,
+  text: PlanText,
+): PlanSummary {
+  const { f, t } = text;
+  const money = (amount: Plan['monthlyAmount']) => f.money(amount, plan.payCurrency);
+  const reference = planReference(plan, text);
 
   const totals = planTotals(plan, entries, today);
   // A share over 10 % has no decimals, one at or below it (docs/DESIGN.md §5, number typography 10).

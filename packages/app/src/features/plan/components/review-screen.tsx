@@ -5,15 +5,24 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'use-intl';
 import { reportError } from '../../../lib/errors';
 import { Link } from '../../../lib/navigation';
-import { useFormatters, useReviewDates, useRules, useServices, useSnapshot, useToday } from '../../../lib/services';
+import {
+  useFormatters,
+  useProfile,
+  useReviewDates,
+  useRules,
+  useServices,
+  useSnapshot,
+  useToday,
+} from '../../../lib/services';
 import { CountryDateLine } from '../../learn';
 import { NoPlan } from '../../today';
 import { planActions } from '../actions';
 import { reviewSummary } from '../lib/review';
+import { planReference } from '../lib/timeline';
 
 // The annual review page (docs/DOMAIN.md §3.12; CONTENT-STYLE §3 "Annual review page (M2)"): the day the review
-// counts from, the person's note with the ways to the plan and its settings, the rules held with their date
-// line and a rule change not yet seen, then `Mark as reviewed`. Opening it writes nothing; only the button
+// counts from; the plan in the Plan screen's words, the person's note quoted as the fall page quotes it, and
+// `Edit plan`; the rules held with their date line and a rule change not yet seen, then `Mark as reviewed`. Opening it writes nothing; only the button
 // records a review. Once the commit has replaced the button, the result line takes the focus (docs/DESIGN.md
 // §6); a failed write keeps the button and the focus where they are, and the toast says so.
 
@@ -39,11 +48,12 @@ export function ReviewScreen() {
 
 function ReviewBody({ plan }: { readonly plan: Plan }) {
   const t = useTranslations('plan.review');
-  const tNotice = useTranslations('today.ruleChange');
+  const tPlan = useTranslations('plan');
   const f = useFormatters();
   const services = useServices();
   const dates = useReviewDates();
   const rules = useRules();
+  const profile = useProfile(rules?.code);
   const today = useToday();
   const [marked, setMarked] = useState(false);
   /** Set while the write runs: a second press does nothing, and the button keeps the focus (never disabled). */
@@ -57,7 +67,7 @@ function ReviewBody({ plan }: { readonly plan: Plan }) {
   }, [marked]);
 
   if (dates === null) return null;
-  const summary = reviewSummary(plan, rules, dates, today);
+  const summary = reviewSummary(plan, rules, profile, dates, today);
   const held = summary.rules;
   const notice = held?.ruleChange ?? null;
   const generic = held === null || held.generic;
@@ -84,12 +94,19 @@ function ReviewBody({ plan }: { readonly plan: Plan }) {
         <h2 id="review-right" className="font-semibold text-20">
           {t('right.heading')}
         </h2>
-        {summary.note !== null && <p className="text-16 text-ink-2">{t('right.note', { note: summary.note })}</p>}
-        <Link href="/plan" className={SECONDARY}>
-          {t('right.see')}
-        </Link>
+        {planReference(plan, { f, t: tPlan }).map((line) => (
+          <p key={line} className="text-16">
+            {line}
+          </p>
+        ))}
+        {summary.note !== null && (
+          <>
+            <h3 className="font-semibold text-16">{t('right.noteLabel')}</h3>
+            <p className="text-16">{t('right.note', { date: f.date(dates.createdOn), note: summary.note })}</p>
+          </>
+        )}
         <Link href="/settings" className={SECONDARY}>
-          {t('right.change')}
+          {tPlan('edit')}
         </Link>
       </section>
       <section className="flex flex-col gap-stack-sm" aria-labelledby="review-rules">
@@ -98,11 +115,11 @@ function ReviewBody({ plan }: { readonly plan: Plan }) {
         </h2>
         {held !== null && (
           <>
-            <p className="text-16">{t('rules.country', { country: held.country })}</p>
+            {!held.generic && <p className="text-16">{t('rules.country', { country: held.country })}</p>}
             <CountryDateLine
               country={{
                 reviewed: f.date(held.checkedOn),
-                source: null,
+                source: held.source,
                 unreviewed: held.generic ? true : undefined,
                 underReview: held.underReview,
               }}
@@ -112,12 +129,12 @@ function ReviewBody({ plan }: { readonly plan: Plan }) {
         {notice !== null && held !== null && (
           <p className="text-16">
             {notice.changeNotice === null
-              ? tNotice('generic', {
+              ? t('rules.changed', {
                   country: held.country,
                   date: f.date(notice.changedOn),
                   kind: notice.country === GENERIC_COUNTRY ? 'generic' : 'country',
                 })
-              : tNotice('notice', { date: f.date(notice.changedOn), notice: notice.changeNotice })}
+              : t('rules.notice', { date: f.date(notice.changedOn), notice: notice.changeNotice })}
           </p>
         )}
         <Link href={card} className={SECONDARY}>
