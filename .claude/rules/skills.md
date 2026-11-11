@@ -22,7 +22,8 @@ Rules and the tool that checks each:
 
 - `allowed-tools` holds the narrowest rule each step needs and no git, gh, WebFetch or WebSearch
   rule: git and GitHub go through a reviewed script (`tools/content-review/propose.ts`), and a fetch
-  asks the owner. For review-content, `tools/content-review/propose.test.ts` pins the list exactly,
+  asks the owner, except `node tools/content-review/pdf.ts`, which checks the allow-list on the URL
+  and every redirect hop and writes only under .content-review/pdf/. For review-content, `tools/content-review/propose.test.ts` pins the list exactly,
   so a change to the list changes that test in the same PR (`pnpm test`).
 - Every path and command the text names resolves (`pnpm lint:docs` reads every Markdown file under
   `.claude`).

@@ -22,7 +22,9 @@ tools/content-review/pdf.ts <url>` fetches only an https URL whose host, and eve
 keeps only bytes that start with `%PDF-`, saves them under `.content-review/pdf/` (gitignored) named
 by host and hash, runs pdftotext (shipped with Git for Windows) on that file and prints the `.txt`
 path with its word count. When the download fails, or pdftotext is missing or finds no text, it prints the filing rule (an
-unreachable row 'PDF not read') and exits 1; a URL off the list exits 2.
+unreachable row with the url and, in expected, what the source should show, plus a note 'PDF not
+read: <url>' naming the lines that rest only on it) and exits 1; a URL off the list exits 2. The
+review-content skill pre-approves `node tools/content-review/pdf.ts`, its one pre-approved fetch.
 
 The rest of `content-review/` guards the review's output (`docs/CONTENT-OPS.md` §3). `check.ts` is the
 guard ci.yml's verify job runs from the base commit: an agent/ head or a PR labelled content-review
