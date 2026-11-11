@@ -1,0 +1,35 @@
+{
+  "date": "2027-01-01",
+  "model": "claude-opus-5-5",
+  "countries": ["IE", "ES"],
+  "changes": [
+    {
+      "item": "IE",
+      "field": "rules.annualExemption",
+      "old": "EUR 1,270",
+      "new": "EUR 1,270 (unchanged amount, new citation)",
+      "quote": "The first 1,270 euro of chargeable gains in a year is exempt.",
+      "eventDate": "2026-12-15",
+      "url": "https://www.revenue.ie/en/gains-gifts-and-inheritance/transfering-an-asset/how-to-calculate-cgt.aspx",
+      "accessed": "2027-01-01",
+      "confidence": "high",
+      "substantive": false,
+      "reason": "Revenue moved the page; the amount is the same."
+    }
+  ],
+  "verified": [
+    { "item": "ES", "urls": ["https://www.boe.es/buscar/act.php?id=BOE-A-2006-20764&tn=1&p=20231228"] }
+  ],
+  "unreachable": [{ "url": "https://www.gov.ie/en/publication/budget-2027/", "expected": "Budget 2027 tax measures" }],
+  "pending": [
+    {
+      "item": "ES",
+      "what": "A proposed change to the savings income bands",
+      "effectiveFrom": "2028-01-01",
+      "status": "proposed",
+      "url": "https://www.boe.es/diario_boe/"
+    }
+  ],
+  "queue": [{ "item": "IE", "outcome": "closed", "note": "The exemption amount matches the source." }],
+  "notes": ["Nothing else changed in the two countries."]
+}
