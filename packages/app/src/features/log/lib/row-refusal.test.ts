@@ -29,8 +29,7 @@ const plan = aPlan();
 const AT = instant('2026-10-20T10:00:00.000Z');
 const LATER = instant('2026-10-20T10:00:05.000Z');
 // Formatted dates join their parts with no-break spaces (CONTENT-STYLE §4).
-const [JANUARY, FEBRUARY, MARCH_1, APRIL, MARCH] = [
-  '1 Jan 2026',
+const [FEBRUARY, MARCH_1, APRIL, MARCH] = [
   '1 Feb 2026',
   '1 Mar 2026',
   '1 Apr 2026',
@@ -189,7 +188,7 @@ describe('undoRefusalTitle', () => {
       'Restoring this sale would leave it without the units it sells, so it stays deleted.',
     );
     expect(undoRefusalTitle(error, 2, f, t)).toBe(
-      `Restoring these 2 entries would leave your BTC sale on ${JANUARY} without the units it sells, so they stay deleted.`,
+      'Restoring these 2 entries would leave the BTC sale among them without the units it sells, so they stay deleted.',
     );
   });
 
