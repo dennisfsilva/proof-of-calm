@@ -75,7 +75,8 @@ describe('reviewAsked (docs/DOMAIN.md §3.12)', () => {
   const phases: PhaseKind[] = ['before', 'buy', 'hold', 'sell', 'exit'];
 
   it('not due gives false, in every phase', () => {
-    for (const phase of [...phases, 'done' as const]) expect(reviewAsked(dates, date('2027-04-04'), at(phase))).toBe(false);
+    for (const phase of [...phases, 'done' as const])
+      expect(reviewAsked(dates, date('2027-04-04'), at(phase))).toBe(false);
   });
 
   it('due gives true in before, buy, hold, sell and exit, with units held or none', () => {
@@ -86,7 +87,8 @@ describe('reviewAsked (docs/DOMAIN.md §3.12)', () => {
   });
 
   it('a red-day episode under way gives false, whether its banner shows on this visit or showed before', () => {
-    for (const phase of [...phases, 'done' as const]) expect(reviewAsked(dates, due, at(phase, true, episode))).toBe(false);
+    for (const phase of [...phases, 'done' as const])
+      expect(reviewAsked(dates, due, at(phase, true, episode))).toBe(false);
   });
 
   it('done with units held gives true; done with none gives false', () => {

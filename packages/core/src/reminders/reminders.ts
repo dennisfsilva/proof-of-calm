@@ -2,6 +2,8 @@
 // due; the shell schedules, words and dismisses it.
 import { REVIEW_INTERVAL_MONTHS, UNDER_REVIEW_MONTHS } from '../constants';
 import { addMonthsClamped, type CalendarDate, type Instant, maxDate, stampAfter } from '../dates/calendar';
+import type { RedDayEpisode } from '../market/red-day';
+import type { PhaseKind } from '../plan/phase';
 import type { Slot } from '../plan/slots';
 import { isOpen, slotStatuses } from '../plan/statuses';
 import type { CountryRules } from '../schema/country';
@@ -32,6 +34,21 @@ export function nextReviewOn({ createdOn, reviewedOn }: ReviewDates): CalendarDa
 /** True from twelve months after the plan was created, and twelve months after each review. */
 export function reviewDue(dates: ReviewDates, today: CalendarDate): boolean {
   return today >= nextReviewOn(dates);
+}
+
+/**
+ * Whether Today asks for the review: `reviewDue`, but not while a red-day episode is under way, whether its banner
+ * shows on this visit or showed on an earlier one, since "Is it still right?" during a fall invites the change of
+ * plan DCA exists to remove (ADR-0013 Readings); and not in phase `done` once no units are held, since an ended,
+ * empty plan has nothing to check.
+ */
+export function reviewAsked(
+  dates: ReviewDates,
+  today: CalendarDate,
+  at: { readonly phase: PhaseKind; readonly held: boolean; readonly redDay: RedDayEpisode | null },
+): boolean {
+  if (at.redDay !== null || (at.phase === 'done' && !at.held)) return false;
+  return reviewDue(dates, today);
 }
 
 /**

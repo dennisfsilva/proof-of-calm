@@ -23,7 +23,8 @@ const key = fc.oneof(
   fc.constantFrom(`${REVIEW}soon`, 'red-day:soon', 'backup-needed:soon', 'unknown-kind'),
 );
 const dismissed = fc.array(key, { maxLength: 8 });
-const state = fc.record({
+type Drawn = Omit<BannerState, 'today'> & { dismissed: string[] };
+const state: fc.Arbitrary<Drawn> = fc.record({
   redDay: fc.option(
     day.chain((start) =>
       fc
@@ -77,7 +78,11 @@ describe('bannerFor and withBannerKey, the annual review (docs/DOMAIN.md §3.11)
           expect(banner?.kind === 'annual-review').toBe(!snoozed);
         }
       }),
-      { examples: examples.map(([keys]) => [{ redDay: null, ruleChange: null, annualReview: true, backupNeeded: true, dismissed: [...keys] }]) },
+      {
+        examples: examples.map(([keys]): [Drawn] => [
+          { redDay: null, ruleChange: null, annualReview: true, backupNeeded: true, dismissed: [...keys] },
+        ]),
+      },
     );
   });
 
@@ -96,7 +101,7 @@ describe('bannerFor and withBannerKey, the annual review (docs/DOMAIN.md §3.11)
           expect(after.some(snoozes)).toBe(stored.some(snoozes));
         }
       }),
-      { examples: examples.map(([keys]) => [[...keys], `backup-needed:${today}`]) },
+      { examples: examples.map(([keys]): [string[], string] => [[...keys], `backup-needed:${today}`]) },
     );
   });
 });
