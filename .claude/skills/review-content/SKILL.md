@@ -21,6 +21,8 @@ Arguments: $ARGUMENTS
 - Edit only the data files under `packages/content/`: `jurisdictions/*.json`, `rules/*.json`,
   `facts/*.json`, `templates/*.json`, `cycles/*.json` and `learn/*.mdx`. Never `sources.allow.json`,
   the code, the scripts or the style lists. The tools refuse any other path.
+- In a template, change only a dated figure and its source; never its name, risk label, `oneLine`
+  or explanation.
 - Fetch only the domains in `packages/content/sources.allow.json`; the tools refuse the rest. A
   secondary source can show you a change; it is never the only evidence for one (`docs/CONTENT-OPS.md` §5).
 - You have no git and no gh. Open no pull request, merge nothing, edit no workflow. The job takes your
@@ -32,9 +34,12 @@ Arguments: $ARGUMENTS
 
 1. `docs/content-review-log.md`, whole: what the owner's reviews found wrong in earlier drafts. Its
    "Kind" column is your checklist in step 5.
-2. `docs/JURISDICTIONS.md` §2 (the schema), §6 (versions and review dates), §7.11 and §7.12 (the
-   watch lists and the queues). Close each queue item of a country you review, or carry it over.
-3. `docs/CONTENT-OPS.md` §5 and §7, `docs/CONTENT-STYLE.md` §1, §2 and §4, and `docs/LEGAL.md` §6.
+2. `docs/JURISDICTIONS.md` §1 (the honesty rule), §2 (the schema), §6 (versions and review dates),
+   §7.11 and §7.12 (the watch lists and the queues). Report each queue item of a country you review
+   as closed or carried over in the body.
+3. `docs/CONTENT-OPS.md` §5 and §7, `docs/CONTENT-STYLE.md` §1, §2 and §4, and `docs/LEGAL.md` §3,
+   §4 and §6.
+4. Before you edit a module, `docs/CONTENT-STYLE.md` §5; before you edit a template, its §6.
 
 ## 3. Per country
 
@@ -60,7 +65,9 @@ For each profile in `packages/content/jurisdictions/`:
 ## 4. Per fact, template and cycle row
 
 1. Re-read each source. When the number or the date changed, update the entry and its
-   `lastReviewed`; when the source is gone, flag it in the body.
+   `lastReviewed`; when the source is gone, flag it in the body. Every change to a fact, a template,
+   a cycle row or a module sentence needs what step 2 of §3 above asks: a quoted passage from an
+   allow-listed source and the date of the event, both in the body.
 2. Check a date like a figure: the passage holds the day, month and year you write.
 3. A fact a module quotes holds only what its one cited source holds. Trim it to that first.
 4. Read the items of `docs/CONTENT-OPS.md` §6 and §7 for the templates and
@@ -82,7 +89,9 @@ A §7 row of `docs/JURISDICTIONS.md` that disagrees with a card goes in the body
 
 Copy follows `docs/CONTENT-STYLE.md` §1 and §4, and a value holds only the quotable fact: the figure,
 the date and the condition its source states, with no explanation, advice or forecast around them.
-`summary60` stays under 60 words, and no word of the §2 ban list appears.
+`summary60` holds at most 60 words (the validator fails above). No word of the ban lists in
+`docs/CONTENT-STYLE.md` §2 and `docs/LEGAL.md` §6 appears in the product's own words, negated or
+not; a regulator's passage that a fact quotes stays as the source wrote it, in quotation marks.
 
 ## 6. Mark every change
 
