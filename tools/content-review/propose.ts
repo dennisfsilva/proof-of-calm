@@ -1,7 +1,9 @@
 // The content review's git work, so the agent needs no git and no gh (docs/CONTENT-OPS.md §3; the skill's
-// allowed-tools pre-approve this script and no git, gh or web rule). `start` checks for a clean tree at origin/main. `finish` stages everything,
-// refuses a path outside content data, a mode, a binary, a deletion, an entry not at agent-draft and a
-// draft problem, and on a refusal puts the index back as it found it before any commit or push. Otherwise
+// allowed-tools pre-approve this script and no git, gh or web rule). `start` checks for a clean tree at
+// origin/main. `finish` refuses a HEAD that is not origin/main (without --dry) before it touches anything,
+// then stages everything, refuses a path outside content data, a mode, a binary, a deletion, an entry not
+// at agent-draft and a draft problem, and on a refusal puts the index back as it found it before any
+// commit or push. Otherwise
 // it renders the body from the draft through body.ts, commits on agent/content-review-<date>, pushes and
 // opens the pull request with needs-owner and content-review; it never merges. `--dry` stops after the
 // body. git and gh run through execFileSync's argv arrays only, never a shell.
@@ -14,17 +16,18 @@ import { type ChangedPath, outsideData, reviewers } from './check.ts';
 
 export const branchName = (today: string): string => `agent/content-review-${today}`;
 
+/** The two commits; start and finish (without --dry) both refuse a HEAD that is not the local origin/main. */
+export function headProblems(head: string, originMain: string): string[] {
+  if (originMain === '') return ['origin/main is missing: fetch it'];
+  if (head === originMain) return [];
+  return [`HEAD ${head.slice(0, 8)} is not origin/main ${originMain.slice(0, 8)}: run git switch --detach origin/main`];
+}
+
 /** `git status --porcelain` output and the two commits; any line is a change, so empty means clean. */
 export function startProblems(status: string, head: string, originMain: string): string[] {
-  const problems: string[] = [];
   const changed = status.split('\n').filter((line) => line.trim() !== '').length;
-  if (changed > 0) problems.push(`the working tree is not clean: ${changed} paths changed or untracked`);
-  if (originMain === '') problems.push('origin/main is missing: fetch it');
-  else if (head !== originMain)
-    problems.push(
-      `HEAD ${head.slice(0, 8)} is not origin/main ${originMain.slice(0, 8)}: run git switch --detach origin/main`,
-    );
-  return problems;
+  const dirty = changed > 0 ? [`the working tree is not clean: ${changed} paths changed or untracked`] : [];
+  return [...dirty, ...headProblems(head, originMain)];
 }
 
 /**
@@ -73,6 +76,15 @@ export function prArgs(today: string, countries: readonly string[], bodyFile: st
 const run = (command: 'git' | 'gh', args: string[]): string =>
   execFileSync(command, args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] });
 
+/** A ref's commit, or empty when it does not exist. */
+const rev = (ref: string): string => {
+  try {
+    return run('git', ['rev-parse', '--verify', '--quiet', `${ref}^{commit}`]).trim();
+  } catch {
+    return '';
+  }
+};
+
 /** The draft rendered into the body; the countries are the only draft text outside it (the PR title). */
 function draftBody(draftPath: string): { body: string; countries: string[]; problems: string[] } {
   let text: string;
@@ -94,8 +106,19 @@ function draftBody(draftPath: string): { body: string; countries: string[]; prob
   };
 }
 
-/** Stages everything and judges it; the index is put back as found on a refusal, a dry run or an error. */
+/**
+ * Stages everything and judges it; the index is put back as found on a refusal, a dry run or an error.
+ * Without --dry it first refuses, touching nothing, a HEAD that is not the local origin/main (start's
+ * check; no fetch, so the PR's base is never ahead of what start checked). --dry also runs in CI's
+ * merge checkout, where origin/main is missing, and pushes nothing, so it judges the staged data only.
+ */
 function finish(dry: boolean, draftPath: string): number {
+  const base = dry ? [] : headProblems(rev('HEAD'), rev('origin/main'));
+  for (const problem of base) console.log(problem);
+  if (base.length > 0) {
+    console.log(`finish: refused, ${base.length} problems; nothing committed, the index as found`);
+    return 1;
+  }
   const found = run('git', ['write-tree']).trim();
   let paths: ChangedPath[];
   let problems: string[];
@@ -151,13 +174,6 @@ if (isMain) {
   if (command === 'start' && flags.length === 0) {
     process.chdir(root);
     run('git', ['fetch', '--quiet', 'origin', 'main']);
-    const rev = (ref: string) => {
-      try {
-        return run('git', ['rev-parse', '--verify', '--quiet', `${ref}^{commit}`]).trim();
-      } catch {
-        return '';
-      }
-    };
     const problems = startProblems(run('git', ['status', '--porcelain']), rev('HEAD'), rev('origin/main'));
     for (const problem of problems) console.log(problem);
     console.log(problems.length > 0 ? 'start: refused' : 'start: clean at origin/main');
