@@ -5,6 +5,7 @@ import { PT_RULES } from '../../test/tax-year/pt-fixture';
 import { addDays } from '../dates/calendar';
 import { compare, decimal, type Money, minus, sum, type Units } from '../money/decimal';
 import { heldLots, matchLots } from '../portfolio/lots';
+import { moveShortfalls } from '../portfolio/move-shortfalls';
 import type { CountryRules } from '../schema/country';
 import type { Entry } from '../schema/entry';
 import type { CoinId } from '../schema/ids';
@@ -111,6 +112,13 @@ const MOVES: Entry[][] = [
     moveAt('2025-05-01', 'B', 'A', '0.05', '0.04', 1),
     sellAt('2026-02-01', 'A', '0.09', 2),
   ],
+  // Global FIFO sells A's lot for the sale at B, so the move's fee leaves B's lot while the Log still holds 0.10 at A.
+  [
+    buyAt('2025-03-01', 'A', '0.10', 0),
+    buyAt('2025-04-01', 'B', '0.10', 1),
+    sellAt('2025-05-01', 'B', '0.10', 2),
+    moveAt('2025-06-01', 'A', 'B', '0.05', '0.04', 3),
+  ],
 ];
 const examples = MOVES.flatMap((entries) => [
   [entries, PT_RULES] as [Entry[], CountryRules],
@@ -202,6 +210,27 @@ describe('taxYearLots (property)', () => {
           same(sale.units, sum(pieces.map((piece) => piece.units)));
           same(sale.amount, total(pieces.map((piece) => piece.proceeds)));
           same(sale.fee, total(pieces.map((piece) => piece.disposalFee)));
+        }
+      }),
+      { examples },
+    );
+  });
+
+  it('feeAtDestination counts exactly the fee rows taken at the destination whose move moveShortfalls lists', () => {
+    fc.assert(
+      fc.property(log, rules, (entries, country) => {
+        // Every entry is on its own day, so a fee row names its move by its date.
+        const moves = new Map(entries.filter((entry) => entry.kind === 'move').map((move) => [move.date, move]));
+        for (const year of [2025, 2026, 2027]) {
+          const file = fileFor(entries, country, year);
+          const context = { overrides: [], lotScope: country.lotScope, lotRule: country.lotRule };
+          const upTo = entries.filter((entry) => entry.date <= file.span.to);
+          const listed = new Set(moveShortfalls(upTo, BTC.id, context).map((each) => each.id));
+          const counted = file.pieces.filter((piece) => {
+            const move = piece.disposedOn === null ? undefined : moves.get(piece.disposedOn);
+            return piece.acquired !== null && move !== undefined && piece.heldAt === move.to && listed.has(move.id);
+          });
+          expect(file.feeAtDestination).toBe(counted.length);
         }
       }),
       { examples },
