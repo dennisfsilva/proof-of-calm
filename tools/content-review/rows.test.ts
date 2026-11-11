@@ -79,4 +79,33 @@ describe('rowProblems', () => {
       `${IE}: "status.nextReviewDue" changed; ${owner} (docs/CONTENT-OPS.md §8)`,
     ]);
   });
+
+  const front = (lines: string[], body = 'The body.\n') =>
+    ['---', 'slug: what-is-dca', ...lines, 'reviewedBy: owner', '---', '', body].join('\n');
+  const dates = ['lastReviewed: 2026-10-01', 'nextReviewDue: 2027-10-01'];
+
+  it('rowProblems refuses a module whose lines with lastReviewed or nextReviewDue change', () => {
+    const owner = 'the agent never sets lastReviewed or nextReviewDue; the owner sets lastReviewed in the flip';
+    const refused = `${MODULE}: a line with lastReviewed or nextReviewDue changed; ${owner} (docs/CONTENT-OPS.md §8)`;
+    const rows = draft([row('learn/what-is-dca.mdx', 'reviewedBy')]);
+    const afters = [
+      front(['lastReviewed: 2027-01-01', dates[1] as string]),
+      front([...dates, 'nextReviewDue: 2028-01-01']),
+      front([dates[0] as string]),
+      front(['lastReviewed : 2026-10-01', dates[1] as string]),
+      front(dates, 'The body names lastReviewed now.\n'),
+    ];
+    for (const after of afters)
+      expect(rowProblems(rows, [{ file: MODULE, before: front(dates), after }])).toEqual([refused]);
+    expect(rowProblems(rows, [{ file: MODULE, after: front(dates) }])).toEqual([refused]);
+  });
+
+  it('rowProblems accepts a module whose review-date lines are unchanged', () => {
+    const rows = draft([row('learn/what-is-dca.mdx', 'reviewedBy')]);
+    const after = front(dates, 'Another body.\n').replace('reviewedBy: owner', 'reviewedBy: agent-draft');
+    expect(rowProblems(rows, [{ file: MODULE, before: front(dates), after }])).toEqual([]);
+    expect(rowProblems(draft([]), [{ file: MODULE, before: front(dates), after }])).toEqual([
+      `${MODULE}: changed, and no changes[] row names it`,
+    ]);
+  });
 });
