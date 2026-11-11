@@ -81,7 +81,7 @@ owns the pipeline around them and its security model.
    path outside content data, a mode, a binary, a deletion, an entry not at `agent-draft` or a draft
    problem. It compares the draft's rows with the staged diff both ways
    (`tools/content-review/rows.ts`): a changed leaf with no row, a row for a leaf that did not
-   change, a changed module with no row, a file changed only in bookkeeping with no `reviewed` row,
+   change, a changed module with no row, a changed file (a module too) with no `reviewed` row,
    and any change to `lastReviewed` or `nextReviewDue` (in a module, any changed line naming either)
    are refused; the generated `rules/*.json` are skipped. A refusal leaves the index as it found
    it. Without `--dry` it first refuses a HEAD other than origin/main. When nothing is refused, it
@@ -205,9 +205,10 @@ is read again at every review, because its low can still move.
    cite it.
 2. Check the effective date and the status word; a proposal is never a rule.
 3. Read the `summary60` aloud; cut anything that sounds like advice.
-4. In a commit on the agent's branch, flip `reviewedBy`; set `lastReviewed` to today only when every
-   `reviewed` row read all its sources and you opened each secondary source of step 1, otherwise
-   leave it unchanged (a partial review moves nothing); bump `status.version`,
+4. In a commit on the agent's branch, flip `reviewedBy`; set a file's `lastReviewed` to today only
+   when its `reviewed` row shows every source read (`read` equals `of`; the finish refuses a changed
+   file with no row) and you opened each secondary source of step 1, otherwise leave it unchanged (a
+   partial review moves nothing); bump `status.version`,
    set `changedOn` and write `changeNotice` when a rule changed in substance; a bump that corrects our
    own file also writes a `changeNotice` that says so (`docs/JURISDICTIONS.md` §6). The Learn country
    screens print `lastReviewed`, so `e2e-visual` can fail on the new date: delete the baselines it names

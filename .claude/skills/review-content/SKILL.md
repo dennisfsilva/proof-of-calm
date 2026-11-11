@@ -158,7 +158,9 @@ rules files as the generator writes them. The finish refuses a changed entry at 
    with the quote, the event's date and the reason: its `item` is the data file relative to
    `packages/content/` (`jurisdictions/ie.json`), its `field` the changed leaf's path
    (`card.allowances[0]`). `accessed`, `reviewedBy` and `status.confidence` need no `changes` row.
-   Give one `reviewed` row per file reviewed.
+   Give one `reviewed` row per file reviewed; the finish refuses a changed file, a module too, with
+   no `reviewed` row. The owner sets `lastReviewed` to today only when that row shows every source
+   read (`read` equals `of`) and the owner opened each off-list secondary source your notes name.
 3. Give every changed copy (a `summary60`, a note, a module's text) its own `changes` row, so the
    counsel read gets each one.
 4. Write every text as plain words: the finish escapes all Markdown, and refuses a link that is not
