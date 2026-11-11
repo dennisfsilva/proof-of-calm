@@ -3,6 +3,8 @@
 # its parse). `render` renders the good and the hostile fixture drafts with the real template and
 # allow-list through POST /markdown and fails on any mention, reference, commit link, link off the
 # draft's sources or cell not shown as written. Its token reads only; the endpoint posts nothing.
+# `finish-dry` runs tools/content-review/propose.ts finish --dry on the fixtures: one change accepted with
+# its body printed, then a workflow, a deletion, a fact at owner and an off-list citation each refused.
 name: Content review
 
 on:
@@ -12,8 +14,11 @@ on:
       - .github/PULL_REQUEST_TEMPLATE/content-review.md
       - tools/content-review/body.ts
       - tools/content-review/render-check.ts
+      - tools/content-review/check.ts
+      - tools/content-review/propose.ts
       - tools/content-review/fixtures/**
       - packages/content/sources.allow.json
+      - .gitignore
 
 permissions: {}
 
@@ -40,3 +45,48 @@ jobs:
         run: >-
           node tools/content-review/render-check.ts tools/content-review/fixtures/draft-good.json
           tools/content-review/fixtures/draft-hostile.json
+
+  finish-dry:
+    name: finish-dry
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+      # One accepted change, then four refusals, each exiting 1 for its own reason with the tree reset
+      # between; no install, no network, nothing pushed (--dry stops after the body).
+      - name: Accept one draft and refuse four cases
+        run: |
+          f=tools/content-review/fixtures
+          finish() { node tools/content-review/propose.ts finish --dry "$@"; }
+          refused() { # <case> <reason> [finish arguments]
+            local name=$1 reason=$2 code=0 out
+            shift 2
+            out=$(finish "$@") || code=$?
+            echo "$out"
+            if [ "$code" != 1 ] || ! grep -qF -- "$reason" <<<"$out"; then
+              echo "::error::$name: exit $code, expected 1 with \"$reason\""
+              exit 1
+            fi
+            echo "verdict: $name refused"
+            git reset --hard --quiet && git clean -fdq
+          }
+          git apply "$f/finish-good.patch"
+          finish --draft "$f/draft-good.json"
+          cat .content-review/body.md
+          echo "verdict: good draft accepted"
+          git reset --hard --quiet && git clean -fdq
+          git apply "$f/finish-workflow.patch"
+          refused workflow '.github/workflows/finish-fixture.yml: not content data' --draft "$f/draft-good.json"
+          git rm --quiet packages/content/cycles/drawdowns.json
+          refused deletion 'drawdowns.json: removed' --draft "$f/draft-good.json"
+          git apply "$f/finish-owner.patch"
+          refused owner 'reviewedBy is owner, not agent-draft' --draft "$f/draft-good.json"
+          git apply "$f/finish-good.patch"
+          refused off-list 'is not on packages/content/sources.allow.json' --draft "$f/draft-offlist.json"
