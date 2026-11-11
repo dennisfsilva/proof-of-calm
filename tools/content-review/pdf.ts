@@ -45,13 +45,15 @@ export async function fetchPdf(
     try {
       response = await fetchFn(current, { redirect: 'manual', signal });
     } catch (error) {
-      return { problem: `${current} could not be fetched (${(error as Error).name})` };
+      return { problem: `${current} could not be fetched (${String(error).split('\n')[0]})` };
     }
     if (response.status >= 300 && response.status < 400) {
       const location = response.headers.get('location');
       if (!location) return { problem: `${current} answered ${response.status} without a location` };
       if (hop === MAX_REDIRECTS) return { problem: `${url} takes more than ${MAX_REDIRECTS} redirects` };
-      current = new URL(location, current).href;
+      const next = URL.parse(location, current);
+      if (!next) return { problem: `${current} answered ${response.status} with a redirect that does not parse` };
+      current = next.href;
       continue;
     }
     if (!response.ok) return { problem: `${current} answered ${response.status}` };
@@ -109,7 +111,12 @@ export async function run(
   const target = pdfTarget(url, deps.domains);
   if (target.problem) return { line: `pdf: ${target.problem}`, code: 2 };
   const notRead = (why: string) => ({ line: `pdf: PDF not read, ${why}. ${FILING_RULE}`, code: 1 as const });
-  const fetched = await fetchPdf(url, deps.domains, deps.fetchFn);
+  let fetched: Awaited<ReturnType<typeof fetchPdf>>;
+  try {
+    fetched = await fetchPdf(url, deps.domains, deps.fetchFn);
+  } catch (error) {
+    return notRead(`the download failed (${String(error).split('\n')[0]})`);
+  }
   if (!fetched.bytes) return notRead(fetched.problem ?? 'no bytes');
   mkdirSync(join(deps.root, PDF_DIR), { recursive: true });
   const base = join(deps.root, pdfName(url));
