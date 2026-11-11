@@ -12,10 +12,14 @@ import {
 const full = (date: string) => ({ date, scope: 'full' as const });
 const second = { date: '2027-01-15', scope: 'jurisdictions' as const };
 type Text = { body: string; association?: string; login?: string };
-/** The issue's body (the first text) and its comments, as `gh issue list --json` gives them. */
+/**
+ * The issue's body (the first text, opened by the workflow unless it names another login) and its
+ * comments, as `gh issue list --json` gives them.
+ */
 const issue = (number: number, state: string, [first, ...rest]: Text[]) => ({
   number,
   state,
+  author: { login: first?.login ?? 'app/github-actions' },
   body: first?.body ?? '',
   comments: rest.map(({ body, association = 'NONE', login = 'someone' }) => ({
     body,
@@ -139,11 +143,43 @@ describe('sessionNotice', () => {
     expect(notice).toContain('gh workflow enable content-review-reminder.yml');
   });
 
+  it('the paused line names the dispatch that opens the missing issue', () => {
+    // Finding 1: neither the skill nor the enable writes 1 Apr's marker, so only the dispatch clears the line.
+    const closed = [{ number: 4, state: 'CLOSED', body: '<!-- content-review-due: 2027-01-15 -->', comments: [] }];
+    const notice = sessionNotice(noticeDue('2027-04-03'), closed) ?? '';
+    const enable = notice.indexOf('gh workflow enable content-review-reminder.yml');
+    const run = notice.indexOf('gh workflow run content-review-reminder.yml -f dry_run=false');
+    expect(enable).toBeGreaterThan(-1);
+    expect(run).toBeGreaterThan(enable);
+    expect(notice).toContain('to open its issue');
+  });
+
   it('stays quiet when the due date was reminded of or nothing is due', () => {
     expect(sessionNotice(full('2027-04-01'), [issue(9, 'CLOSED', [opened('2027-04-01')])])).toBeUndefined();
     // An issue open across the second pass, commented on, and closed after it covered that date too.
     const commented = issue(7, 'CLOSED', [opened('2027-01-01'), bot(stillDueComment(second))]);
     expect(sessionNotice(second, [commented])).toBeUndefined();
     expect(sessionNotice(undefined, [])).toBeUndefined();
+  });
+});
+
+describe('who may mark a due date in an issue body', () => {
+  const due = full('2027-04-01');
+
+  it('a marker in the body of an issue the workflow did not open covers no date', () => {
+    // Finding 2: a collaborator labels a third party's issue; its author edits the body to add markers.
+    const body = 'PT rule changed\n<!-- content-review-due: 2027-04-01 -->';
+    const unsigned = [{ number: 12, state: 'CLOSED', body, comments: [] }];
+    const someone = [issue(12, 'CLOSED', [{ body, login: 'someone' }])];
+    expect(reminderAction(due, unsigned)).toEqual({ kind: 'open' });
+    expect(reminderAction(due, someone)).toEqual({ kind: 'open' });
+    expect(sessionNotice(due, unsigned)).toContain('due since 1 Apr 2027');
+    expect(sessionNotice(due, someone)).toContain('due since 1 Apr 2027');
+  });
+
+  it('a body from app/github-actions covers its date', () => {
+    const workflow = [issue(9, 'CLOSED', [{ body: issueBody(due), login: 'app/github-actions' }])];
+    expect(reminderAction(due, workflow)).toEqual({ kind: 'none', number: 9 });
+    expect(sessionNotice(due, workflow)).toBeUndefined();
   });
 });
