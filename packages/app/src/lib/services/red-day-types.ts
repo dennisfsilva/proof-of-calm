@@ -46,7 +46,10 @@ export type RedDayModel = {
   readonly buyDayToday: boolean;
 };
 
-/** A completed cycle's fall from packages/content, intraday high to intraday low in positive whole percent, USD. */
+/**
+ * A cycle's fall from packages/content, intraday high to intraday low in positive whole percent, USD: a completed
+ * cycle's, or one from a high the coin has not regained (LINK 2021), to its lowest low so far.
+ */
 export type PastFall = {
   readonly coin: CoinId;
   readonly high: CalendarDate;
