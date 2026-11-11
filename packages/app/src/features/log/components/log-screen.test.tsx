@@ -584,17 +584,79 @@ describe('LogScreen', () => {
     expect(liveEntries(services.domain.store.getState().snapshot.entries)).toHaveLength(MAX_ENTRIES);
   });
 
-  it('moves focus to the toggle of the row Undo restores', async () => {
+  // DESIGN §6 "Focus after an action": the deleted row's place, never the page's top.
+  it('moves focus to the toggle of the row now in the deleted row’s place, then to the toggle of the row Undo restores', async () => {
     await mount(withMoreBuys());
-    const [newest] = screen.getAllByRole('button', { expanded: false }) as [HTMLElement];
+    const [newest, next] = screen.getAllByRole('button', { expanded: false }) as [HTMLElement, HTMLElement];
+    const nextText = next.textContent;
     fireEvent.click(newest);
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Delete entry' })));
-    expect(document.activeElement).toBe(screen.getByRole('heading', { level: 1, name: 'Log' }));
+    expect(document.activeElement?.getAttribute('aria-expanded')).toBe('false');
+    expect(document.activeElement?.textContent).toBe(nextText);
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Undo' })));
     const restored = document.activeElement;
     expect(restored?.getAttribute('aria-expanded')).not.toBeNull();
     expect(restored?.textContent).toContain('12\u00a0Oct\u00a02026');
     expect(scrolled).toHaveBeenLastCalledWith({ block: 'nearest' });
+  });
+
+  it('moves focus after a delete by the script focus move: no browser scroll, then the least scroll that shows it', async () => {
+    await mount(withMoreBuys());
+    const [newest] = screen.getAllByRole('button', { expanded: false }) as [HTMLElement];
+    fireEvent.click(newest);
+    const focused = vi.spyOn(HTMLElement.prototype, 'focus');
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Delete entry' })));
+    expect(focused).toHaveBeenCalledWith({ preventScroll: true });
+    expect(focused.mock.contexts.at(-1)).toBe(document.activeElement);
+    expect(scrolled).toHaveBeenLastCalledWith({ block: 'nearest' });
+    expect(scrolled.mock.contexts.at(-1)).toBe(document.activeElement);
+  });
+
+  it('moves focus to the toggle before after the delete of the last row shown', async () => {
+    await mount(fixtureSnapshot());
+    const toggles = screen.getAllByRole('button', { expanded: false });
+    const [before, last] = toggles.slice(-2) as [HTMLElement, HTMLElement];
+    const beforeText = before.textContent;
+    fireEvent.click(last);
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Delete entry' })));
+    expect(document.activeElement?.textContent).toBe(beforeText);
+    expect(screen.getAllByRole('button', { expanded: false })).toHaveLength(toggles.length - 1);
+  });
+
+  it('moves focus to the heading after the delete of the only row', async () => {
+    const snapshot = fixtureSnapshot();
+    await mount({ ...snapshot, entries: snapshot.entries.slice(0, 1) });
+    fireEvent.click(screen.getByRole('button', { expanded: false }));
+    const focused = vi.spyOn(HTMLElement.prototype, 'focus');
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Delete entry' })));
+    expect(document.activeElement).toBe(screen.getByRole('heading', { level: 1, name: 'Log' }));
+    expect(focused).toHaveBeenLastCalledWith({ preventScroll: true });
+  });
+
+  it('keeps the focus on Delete entry when the delete is refused', async () => {
+    const snapshot = withMoreBuys();
+    const [first] = snapshot.entries as [Entry];
+    // A move whose fee only the newest purchase covers: deleting that purchase is refused (ADR-0055).
+    const move: Entry = {
+      ...first,
+      id: '00000000-0000-4000-8000-000000000300' as Entry['id'],
+      kind: 'move',
+      slot: null,
+      amount: null,
+      date: '2026-10-14' as CalendarDate,
+      units: heldUnits(snapshot.entries, first.coin),
+      venue: 'Kraken',
+      to: 'Ledger',
+      received: '0.0001' as Entry['units'],
+    };
+    await mount({ ...snapshot, entries: [...snapshot.entries, move] });
+    const [, purchase] = screen.getAllByRole('button', { expanded: false }) as [HTMLElement, HTMLElement];
+    fireEvent.click(purchase);
+    const remove = screen.getByRole('button', { name: 'Delete entry' });
+    remove.focus();
+    await act(async () => fireEvent.click(remove));
+    expect(screen.getByRole('status').textContent).toContain('so the purchase stays');
+    expect(document.activeElement).toBe(remove);
   });
 
   it("records October's open monthly buy from the Record button and gives the focus back to it", async () => {
