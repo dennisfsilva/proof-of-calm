@@ -3,6 +3,23 @@ name: review-content
 description: Reviews the country profiles and education facts against their sources and drafts the changes for the owner. Serves only the scheduled content review job (docs/CONTENT-OPS.md §3), which starts it as /review-content; a build session never uses it.
 argument-hint: "[countries] body=[path] canary=[path]"
 disable-model-invocation: true
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - Edit(/packages/content/jurisdictions/*.json)
+  - Edit(/packages/content/rules/*.json)
+  - Edit(/packages/content/facts/*.json)
+  - Edit(/packages/content/templates/*.json)
+  - Edit(/packages/content/cycles/*.json)
+  - Edit(/packages/content/learn/*.mdx)
+  - Edit(/.content-review/*)
+  - Bash(pnpm run validate:content)
+  - Bash(pnpm --filter @proofofcalm/content test)
+  - Bash(pnpm --filter @proofofcalm/content rules)
+  - Bash(node tools/content-review/propose.ts start)
+  - Bash(node tools/content-review/propose.ts finish)
+  - Bash(node tools/content-review/propose.ts finish --dry)
 ---
 
 # Content review

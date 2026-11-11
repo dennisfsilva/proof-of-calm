@@ -91,6 +91,7 @@ describe('turbo inputs', () => {
       'packages/content/turbo.json', // turbo/inputs.test.ts: the content validation case's dry run reads it
       ...filesUnder('apps/web/messages'), // turbo/inputs.test.ts: the content validation case lists them
       ...productModules(), // lint/test-data-rule.test.ts: no product module imports test tooling unnamed
+      '.claude/skills/review-content/SKILL.md', // content-review/propose.test.ts: its allowed-tools
     ];
     expect(read).toContain('packages/app/src/features/today/messages/en.json');
     expect(read).toContain('apps/web/src/main.tsx');
