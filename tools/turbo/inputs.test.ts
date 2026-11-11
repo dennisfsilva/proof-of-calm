@@ -92,6 +92,9 @@ describe('turbo inputs', () => {
       ...filesUnder('apps/web/messages'), // turbo/inputs.test.ts: the content validation case lists them
       ...productModules(), // lint/test-data-rule.test.ts: no product module imports test tooling unnamed
       '.claude/skills/review-content/SKILL.md', // content-review/propose.test.ts: its allowed-tools
+      '.claude/skills/review-content/draft-example.json', // content-review/example.test.ts
+      'packages/content/jurisdictions/ie.json', // content-review/example.test.ts: the example's leaves
+      'packages/content/sources.allow.json', // content-review/example.test.ts: the example's links
     ];
     expect(read).toContain('packages/app/src/features/today/messages/en.json');
     expect(read).toContain('apps/web/src/main.tsx');
