@@ -106,7 +106,8 @@ const wordings = [
 describe('the education facts (docs/EDUCATION.md §9)', () => {
   it('the facts hold every key EDUCATION §9 lists, each with a source on the allow-list', () => {
     const keys = educationKeys();
-    expect(keys).toHaveLength(33);
+    expect(keys).toHaveLength(32);
+    expect(keys).not.toContain('e.scams');
     expect(facts.map((fact) => fact.key).sort()).toEqual([...keys].sort());
     expect(validateContent(files, { today: '2026-10-17', allow })).toEqual([]);
   });

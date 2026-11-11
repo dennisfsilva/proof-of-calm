@@ -60,18 +60,6 @@
     "reviewedBy": "owner"
   },
   {
-    "key": "e.scams",
-    "value": "Chainalysis: on-chain scam revenue at least $14bn in 2025 (Chainalysis says the figure could exceed $17bn as it identifies more illicit wallet addresses) after about $12bn in 2024 (revised); impersonation scams grew more than 1,400 % in 2025.",
-    "unit": "USD per year; %",
-    "date": "2026-01-13",
-    "source": "https://www.chainalysis.com/blog/crypto-scams-2026/",
-    "publisher": "Chainalysis",
-    "accessed": "2026-11-02",
-    "confidence": "high",
-    "lastReviewed": "2026-11-09",
-    "reviewedBy": "owner"
-  },
-  {
     "key": "e.unknown-platforms",
     "value": "ESAs factsheet \"Crypto frauds & scams: stay alert and protect yourself\" (15 Dec 2025), warning signs: \"Unknown exchange platform.\"",
     "unit": "quotation",
