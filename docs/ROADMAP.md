@@ -139,7 +139,9 @@ external links and the Risk link in the mobile export (M3).
   Noise and When the market drops built on 2026-11-09 (#61), with the drawdown's link as the fall
   page's Why?, and a module's one chart drawn through `<Chart />` the same day (#62); Risk honestly
   with Portfolio's P/L link built on 2026-11-09 (#69), the chart's falls named as Proof of Calm's own
-  computation the same day (#68).
+  computation the same day (#68); a reading pass's fixes on 2026-11-11 (#124): Cycles' source line in
+  `docs/LEGAL.md` §4's intraday form, the fall page's "90-day" kept whole, a module sheet's text kept
+  clear of its `Close` (`docs/DESIGN.md` §8).
 - Templates: the four starting points with risk labels and explanations; the template picker copy
   passes the copy-review checklist (`docs/CONTENT-STYLE.md`).
 - Jurisdictions: PT, DE, NL, ES, FR, IT, BE, IE, GB, US, XX as validated data with sources and dates;
@@ -158,7 +160,10 @@ external links and the Risk link in the mobile export (M3).
   the jurisdiction schema, so each rule's "Sources" link no longer takes the profile's first source;
   UK handling per ADR-0029.
 - The review pipeline: the scheduled agent job that compares stored rules with official sources and
-  opens a PR with diff, sources and confidence (`docs/CONTENT-OPS.md`), dry-run proven once.
+  opens a PR with diff, sources and confidence (`docs/CONTENT-OPS.md`), dry-run proven once; the
+  facts' `reviewedBy`, so CI blocks a fact at `agent-draft` as it does a profile, built on 2026-11-11
+  (#122), and the skill the job runs, with the review queue of `docs/JURISDICTIONS.md` §7.12, the same
+  day (#123); the job itself, its pull request template and its diff guard are not built.
 - Red day: thresholds in core with tests; the page with the plan's current drawdown next to past cycle
   drawdowns and the user's sentence, built on 2026-11-09 as the fall page (#51, `docs/EDUCATION.md`
   §6); the banner, once per episode, highest priority, built on 2026-11-09 (#52, `docs/DOMAIN.md`
