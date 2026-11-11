@@ -1,16 +1,16 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { aMove, anEntry, BTC, date, month, units } from '../../test/builders';
-import { movesLeftShort } from '../actions/moves';
+import { movesLeftShort, sourceShort } from '../actions/moves';
 import { compare, isPositive, minus, plus, sum, type Units } from '../money/decimal';
 import type { LotRule, LotScope } from '../schema/country';
 import { ENTRY_KINDS, type Entry } from '../schema/entry';
-import { feeUnmatched, matchLots } from './lots';
+import { feeUnmatched, matchLots, venueUnitsAtMove } from './lots';
 import { type MoveShortfall, moveShortfalls } from './move-shortfalls';
 
-// docs/DOMAIN.md §3.7: a move's units sent are what the Log finds outside its destination plus its `short`; per-venue
-// lots list it exactly when `short` is above 0, global lots exactly when its fee lost its cover outside the destination.
-// `movesLeftShort` names only stored moves whose measure a write made larger.
+// docs/DOMAIN.md §3.7: a listed move's units sent are the units the Log holds outside its destination at its place plus
+// its `short`; per-venue lots list it exactly when `short` is above 0, global lots when its fee also lost its cover
+// outside the destination. `movesLeftShort` names only stored moves whose measure a write made larger.
 
 const DAYS = ['2025-01-10', '2025-06-10', '2025-11-10', '2026-03-10', '2026-08-10'];
 const QUANTITIES = ['0.001', '0.004', '0.01', '0.025', '0.10'];
@@ -62,7 +62,7 @@ const measure = (listed: readonly MoveShortfall[], id: Entry['id'], scope: LotSc
 };
 
 describe('moveShortfalls and movesLeftShort (docs/DOMAIN.md §3.7)', () => {
-  it("a move's outside plus short equals its units sent, and per venue it is listed exactly when short is above 0", () => {
+  it("a listed move's outside plus short equals its units sent, outside the units held at each venue but the destination at its place; per venue it is listed exactly when short is above 0, under global lots when its fee also lost its cover", () => {
     fc.assert(
       fc.property(log, holding, (entries, context) => {
         const match = matchLots(entries, BTC.id, context.lotScope, context.lotRule);
@@ -70,13 +70,41 @@ describe('moveShortfalls and movesLeftShort (docs/DOMAIN.md §3.7)', () => {
         for (const shortfall of listed)
           expect(compare(plus(shortfall.outside, shortfall.short), shortfall.sent)).toBe(0);
         const expected = match.moves.filter((move) => {
-          const to = entries.find((each) => each.id === move.id)?.to;
-          const outside = sum(move.takes.filter((take) => take.venue !== to).map((take) => take.units));
+          const stored = entries.find((each) => each.id === move.id) as Entry;
+          const held = venueUnitsAtMove(entries, BTC.id, stored.date, stored).filter((at) => at.venue !== stored.to);
+          const short = isPositive(minus(move.units, sum(held.map((at) => at.units))));
           return context.lotScope === 'per-venue'
-            ? isPositive(minus(move.units, outside))
-            : isPositive(plus(move.atDestination, feeUnmatched(move)));
+            ? short
+            : short && isPositive(plus(move.atDestination, feeUnmatched(move)));
         });
         expect(listed.map((each) => each.id)).toEqual(expected.map((move) => move.id));
+        // Per venue under FIFO, outside is what the matching took outside the destination, as before (e2e figures).
+        if (context.lotScope !== 'per-venue' || context.lotRule !== 'fifo') return;
+        for (const shortfall of listed) {
+          const takes = match.moves.find((move) => move.id === shortfall.id)?.takes ?? [];
+          const taken = sum(takes.filter((take) => take.venue !== shortfall.to).map((take) => take.units));
+          expect(compare(taken, shortfall.outside)).toBe(0);
+        }
+      }),
+    );
+  });
+
+  it("a listed move's source holds fewer units than it sends, so the move form shows its short-source line", () => {
+    fc.assert(
+      fc.property(log, holding, (entries, context) => {
+        for (const listed of moveShortfalls(entries, BTC.id, context)) {
+          const stored = entries.find((each) => each.id === listed.id) as Entry;
+          const draft = {
+            coin: stored.coin,
+            date: stored.date,
+            from: stored.venue,
+            to: listed.to,
+            sent: stored.units,
+            received: stored.received as Units,
+            note: '',
+          };
+          expect(sourceShort(entries, draft, stored.id)).not.toBeNull();
+        }
       }),
     );
   });
