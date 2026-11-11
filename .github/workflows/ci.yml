@@ -2,9 +2,10 @@
 # verify: Biome, ESLint, the dependency, styling, docs and size lints, knip, types, the unit, property
 # and component tests with 100 % coverage on packages/core, content validation, security.txt, the
 # commit subjects, the PR's label and body lines, and the content review guard (an agent/ or content-review
-# PR changes and deletes only content data, judged by the base commit's copy of the guard before pnpm or any
-# PR code runs; every other PR gets the listing as a report). stories: every story at two widths in both themes
-# with axe. export-build: the Vite export of apps/mobile, its export check and its smoke test in the
+# PR changes and deletes only content data, judged by the base commit's copy of the script before pnpm or any
+# PR code runs, in a step the PR's copy of this file holds, so a PR that edits ci.yml can change it: the
+# owner's diff read catches that; every other PR gets the listing as a report). stories: every story at
+# two widths in both themes with axe. export-build: the Vite export of apps/mobile, its export check and its smoke test in the
 # pinned container. e2e-visual: in the pinned container, e2e-build makes the web build once, with the
 # bundle secret scan and Today's application code (`node tools/size/today.ts`; weaker since Today's
 # code-splitting group put vendor and app code in one chunk, its method and budget kept: the lighthouse
@@ -130,11 +131,16 @@ jobs:
         with:
           node-version-file: .node-version
       # The content review guard (docs/CONTENT-OPS.md §1, §3): an agent/ branch or a PR labelled content-review
-      # may change only content data and delete none of it. Every other PR gets the same listing as a report
-      # and is never failed by it. Labels are read at run time; the files API lists at most 3,000 files, so the
-      # count is compared. It runs the base commit's copy of the script before pnpm or any PR code runs (which
-      # could write GITHUB_ENV or GITHUB_PATH), so a PR that edits the guard never judges itself. On a base
-      # without the script (no agent branch can exist yet) the PR's own copy only reports, and the step passes.
+      # may change only content data and delete none of it (a data file renamed away is a deletion). Every
+      # other PR gets the same listing as a report and is never failed by it. An agent/ head is always
+      # enforced; the label is read when the run starts, so a label added later counts from the next push
+      # (the default pull_request types: a label change starts no run). The files API lists at most 3,000
+      # files, so the count is compared. The script is the base commit's copy, run before pnpm or any PR code
+      # (which could write GITHUB_ENV or GITHUB_PATH), so a PR that edits the script never judges itself; the
+      # step is the PR's copy of this workflow, so a PR that edits ci.yml can change or drop it: a tripwire.
+      # The owner's diff read (docs/CONTENT-OPS.md §8) sees any .github/ change, and the review job's finish
+      # (planned: M2) refuses one before any push. On a base without the script (no agent branch can exist
+      # yet) the PR's own copy only reports, and the step passes.
       - name: Content data only on agent PRs
         if: ${{ github.event_name == 'pull_request' }}
         env:
