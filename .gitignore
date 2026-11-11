@@ -33,3 +33,6 @@ pnpm-debug.log*
 
 # Lighthouse CI
 .lighthouseci/
+
+# the content review's draft and rendered body (tools/content-review/propose.ts)
+/.content-review/
