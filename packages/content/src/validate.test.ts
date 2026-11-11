@@ -118,7 +118,7 @@ const fact = (overrides: Record<string, unknown> = {}) => ({
   reviewedBy: 'owner',
   ...overrides,
 });
-const file =(path: string, json: unknown): ContentFile => ({ path, json });
+const file = (path: string, json: unknown): ContentFile => ({ path, json });
 const codes = (files: ContentFile[]) =>
   validateContent(files, options).map((problem) => `${problem.code}: ${problem.detail}`);
 const banned = (rule: string, field: string, match: string) =>
