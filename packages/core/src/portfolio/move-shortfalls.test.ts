@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { aMove, anEntry, BTC, date, ETH, id, units } from '../../test/builders';
+import { moveShortfallOf } from '../actions/moves';
 import type { LotRule, LotScope } from '../schema/country';
 import type { Entry } from '../schema/entry';
-import { moveShortfallOf } from '../actions/moves';
 import { moveShortfalls } from './move-shortfalls';
 
 // docs/DOMAIN.md §3.7: the stored moves that send more than the Log finds outside their destination at their place in
