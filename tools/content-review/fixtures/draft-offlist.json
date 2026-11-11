@@ -1,0 +1,26 @@
+{
+  "$comment": "draft-good.json with its change cited on a lookalike host off sources.allow.json: propose.ts finish refuses it.",
+  "date": "2027-01-01",
+  "model": "claude-opus-5-5",
+  "countries": ["IE"],
+  "changes": [
+    {
+      "item": "IE",
+      "field": "rules.annualExemption",
+      "old": "EUR 1,270",
+      "new": "EUR 1,270 (unchanged amount, new citation)",
+      "quote": "The first 1,270 euro of chargeable gains in a year is exempt.",
+      "eventDate": "2026-12-15",
+      "url": "https://www.revenue.ie.example.net/en/how-to-calculate-cgt.aspx",
+      "accessed": "2027-01-01",
+      "confidence": "high",
+      "substantive": false,
+      "reason": "Revenue moved the page; the amount is the same."
+    }
+  ],
+  "verified": [],
+  "unreachable": [],
+  "pending": [],
+  "queue": [],
+  "notes": []
+}

@@ -1,0 +1,7 @@
+diff --git a/.github/workflows/finish-fixture.yml b/.github/workflows/finish-fixture.yml
+new file mode 100644
+--- /dev/null
++++ b/.github/workflows/finish-fixture.yml
+@@ -0,0 +1,2 @@
++# A workflow the review agent must never add: propose.ts finish refuses it before any commit.
++name: finish fixture
