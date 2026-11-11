@@ -39,3 +39,16 @@ module: what they are, why traders watch them, why this app does not show one.
 ## Disagreement
 
 None.
+
+## Readings
+
+- 2026-11-11: the annual review prompt is a fourth banner in the one box at Today's foot, between the rule
+  change and backup needed: red day, rule change, annual review, backup needed, never stacked
+  (`docs/DOMAIN.md` §3.11). It is an in-app box and nothing else: no notification, email, badge or streak,
+  and it shows only when the person opens Today. It sits above backup needed because M1's backup box has no
+  Dismiss and shows on every visit until an export, so below it the review would never reach a person who
+  never exports; below the rule change because that notice is dated and specific and its Review already
+  opens Plan. It is not asked while a red-day episode is under way, shown on this visit or an earlier one
+  (`reviewAsked`, `docs/DOMAIN.md` §3.12): asking "Is it still right?" in a fall invites the change of plan
+  this ADR keeps away. Its `Later` is a 30-day snooze (`REVIEW_SNOOZE_DAYS`) and never counts as a
+  review; only `Mark as reviewed` on `/plan/review` counts as one (`docs/DOMAIN.md` §3.12).
