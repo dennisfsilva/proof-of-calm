@@ -39,11 +39,10 @@ export function undoRefusalTitle(error: RestoreRefusal, count: number, f: Format
     case 'changed-since-delete':
       return t('row.notRestoredReplaced', counted(f, count));
     case 'sell-exceeds-held':
-      return t(error.written ? 'row.notRestoredOwnSale' : 'row.notRestoredSold', {
-        coin: error.coin,
-        date: f.date(error.date),
-        ...counted(f, count),
-      });
+      // The restored entries hold the short sale itself, so its words name no date.
+      return error.written
+        ? t('row.notRestoredOwnSale', { coin: error.coin, ...counted(f, count) })
+        : t('row.notRestoredSold', { coin: error.coin, date: f.date(error.date), ...counted(f, count) });
     case 'fee-exceeds-held':
       // A move's row holds one entry (DOMAIN §3.9), so a move restored short of its own fee is the whole row.
       return error.written
