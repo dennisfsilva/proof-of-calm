@@ -225,7 +225,7 @@ describe('saveMove (docs/DOMAIN.md §6)', () => {
     expect(sourceShort(entries, edited, null)).toBe('0.009');
   });
 
-  it('refuses a fee that leaves a later sale short (sell-exceeds-held)', () => {
+  it("a move whose fee leaves a later sale short is refused with sell-exceeds-held naming that sale's date", () => {
     const entries = [...bought, sale('0.01', { date: date('2026-03-01') })];
     const moved = draft({ sent: units('0.01'), received: units('0.0099') });
     expect(failure(saveMove(moved, context(entries)))).toEqual({
@@ -233,6 +233,8 @@ describe('saveMove (docs/DOMAIN.md §6)', () => {
       coin: BTC.id,
       held: '0.0099',
       sold: '0.01',
+      date: '2026-03-01',
+      written: false,
     });
     expect(saveMove({ ...moved, received: units('0.01') }, context(entries)).ok).toBe(true);
   });
@@ -379,6 +381,8 @@ describe('a move refused for a later step names the step it made worse (docs/DOM
       coin: BTC.id,
       held: '0.0001',
       sold: '0.05',
+      date: '2026-04-01',
+      written: false,
     });
   });
 });
