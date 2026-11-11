@@ -139,7 +139,7 @@ describe('ThisFallPage, a fall under way', () => {
     await mount({ model: Promise.resolve(episode()) });
     expect(await screen.findByRole('heading', { level: 1, name: 'The fall under way and your plan' })).toBeDefined();
     expect(screen.getByRole('link', { name: 'Back to Today' }).getAttribute('href')).toBe('/today');
-    expect(text()).toContain('Bitcoin is 33% below its 90-day high and fell 16% in the seven days to 8 Nov 2026.');
+    expect(text()).toContain('Bitcoin is 33% below its 90\u2011day high and fell 16% in the seven days to 8 Nov 2026.');
     const data = screen.getByText(/^Daily closes in EUR/);
     expect(data.textContent?.replaceAll(' ', ' ')).toBe(
       'Daily closes in EUR, 10 Nov 2025 to 8 Nov 2026 · Price data by CoinGecko',
@@ -158,7 +158,7 @@ describe('ThisFallPage, a fall under way', () => {
     });
     await screen.findByText(/^Bitcoin and Ethereum, in the amounts you hold/);
     expect(text()).toContain(
-      'Bitcoin and Ethereum, in the amounts you hold, are 33% below their 90-day high. They fell 16% in the seven days to 8 Nov 2026.',
+      'Bitcoin and Ethereum, in the amounts you hold, are 33% below their 90\u2011day high. They fell 16% in the seven days to 8 Nov 2026.',
     );
     // One name per coin: the held coins' names, never their ids beside them.
     expect(text()).not.toMatch(/\b(BTC|ETH|KAS)\b/);
@@ -167,8 +167,8 @@ describe('ThisFallPage, a fall under way', () => {
   });
 
   it.each([
-    ['a rise', { sevenDay: '2.4' }, '33% below their 90-day high. They rose 2% in the seven days to 8 Nov 2026.'],
-    ['no seven-day figure', { sevenDay: null }, '33% below their 90-day high (8 Nov 2026).'],
+    ['a rise', { sevenDay: '2.4' }, '33% below their 90\u2011day high. They rose 2% in the seven days to 8 Nov 2026.'],
+    ['no seven-day figure', { sevenDay: null }, '33% below their 90\u2011day high (8 Nov 2026).'],
   ])('reads several coins in two sentences, the second after %s, or one with the date', async (_, change, end) => {
     const coins = { coins: ['BTC', 'ETH'], ...change } as unknown as Partial<Figure>;
     await mount({ model: Promise.resolve(episode(coins, { held: [BITCOIN, ETHEREUM] })) });
@@ -187,8 +187,15 @@ describe('ThisFallPage, a fall under way', () => {
   it('leaves the seven-day half out when that figure is null, and keeps the date', async () => {
     await mount({ model: Promise.resolve(episode({ sevenDay: null })) });
     await screen.findByText(/^Bitcoin is/);
-    expect(text()).toContain('Bitcoin is 33% below its 90-day high (8 Nov 2026).');
+    expect(text()).toContain('Bitcoin is 33% below its 90\u2011day high (8 Nov 2026).');
     expect(text()).not.toContain('seven days');
+  });
+
+  it('keeps "90-day" whole in both forms of the figure with a no-break hyphen (U+2011)', () => {
+    for (const form of [learn.thisFall.one, learn.thisFall.several]) {
+      expect(form).toContain('90‑day');
+      expect(form).not.toContain('90-day');
+    }
   });
 
   it('lists the earlier falls of each held coin only, oldest first, each with its publisher as unlinked text', async () => {

@@ -42,7 +42,7 @@ for (const shape of ['week-fall', 'high-fall'] as const) {
     await page.getByRole('link', { name: new RegExp(`^${TITLE}`) }).click();
     await ready(page, TITLE);
     await expect(page).toHaveURL(/\/learn\/fall-under-way$/);
-    await expect(page.getByText(/below (its|their) 90-day high/)).toBeVisible();
+    await expect(page.getByText(/below (its|their) 90\u2011day high/)).toBeVisible();
     await expect(page.getByText(/Price data by CoinGecko$/)).toBeVisible();
     await expect(page.getByText(/^Earlier falls of Bitcoin/)).toBeVisible();
     await expect(page.getByText(/^Your next buy day is |^Today, .* is your buy day\.$/)).toBeVisible();

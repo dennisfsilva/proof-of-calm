@@ -62,7 +62,7 @@ const PAGES: readonly Entry[] = [
     heading: 'The fall under way and your plan',
     phase: 'buy',
     shape: 'week-fall',
-    holds: /below (its|their) 90-day high/,
+    holds: /below (its|their) 90\u2011day high/,
   },
   { name: 'learn-countries', path: '/learn/countries', heading: 'Countries' },
   { name: 'learn-country-pt', path: '/learn/countries/pt', heading: portugal.name },

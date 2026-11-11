@@ -62,7 +62,7 @@ export const OneCoin: Story = {
   args: { plan: { ...PLAN, coins: PLAN.coins.slice(0, 1) }, model: EPISODE, falls: FALLS },
   play: async ({ canvas }) => {
     await expect(canvas.getByRole('heading', { level: 1, name: 'The fall under way and your plan' })).toBeVisible();
-    await expect(canvas.getByText(/^Bitcoin is 33\s?% below its 90-day high/)).toBeVisible();
+    await expect(canvas.getByText(/^Bitcoin is 33\s?% below its 90\u2011day high/)).toBeVisible();
     await expect(canvas.getAllByRole('listitem')).toHaveLength(2);
     await expect(canvas.getAllByRole('link').map((link) => link.textContent)).toEqual([
       'Back to Today',
