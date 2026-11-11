@@ -390,7 +390,29 @@ describe('moveLines and the moves it leaves short (docs/DOMAIN.md §3.7)', () =>
     expect(moveLines(draft, context([...lots, free]), global, at).later).toBeNull();
     // A refused draft (more than held) names nothing.
     const refused = moveLines({ ...draft, sent: units('1') }, context(lots), perVenue, at);
-    expect([refused.later, refused.outside]).toEqual([null, null]);
+    expect([refused.later, refused.found]).toEqual([null, null]);
+  });
+
+  it("under global lots reads outside from the units held at each venue but the destination, as the source cards show", () => {
+    // Global FIFO sells the Kraken lot for the sale at Ledger, which leaves 1 BTC at Kraken: no line anywhere.
+    const sale = anEntry({
+      kind: 'sell',
+      coin: BTC.id,
+      date: date('2026-02-10'),
+      units: units('1'),
+      slot: null,
+      venue: 'Ledger',
+    });
+    const kraken = bought('1', '2026-01-10', 'Kraken');
+    const sold = [kraken, bought('1', '2026-02-01', 'Ledger'), sale];
+    const half = { ...draft, sent: units('0.5'), received: units('0.4999') };
+    expect(moveLines(half, context(sold), global, at)).toMatchObject({ short: null, found: null, later: null });
+    // 0.2 BTC left at Kraken: short outside Ledger and its fee taken at Ledger, so the short-source line shows.
+    const thin = [{ ...kraken, units: units('0.2') }, ...sold.slice(1, 2), { ...sale, units: units('0.2') }];
+    expect(moveLines(half, context(thin), global, at)).toMatchObject({
+      short: { short: '0.3', held: '0.2' },
+      found: { outside: '0.2', short: '0.3', feeAtDestination: '0.0001' },
+    });
   });
 
   it('the short-source line says how much the Log finds outside the destination when that is less than sent', () => {
@@ -399,16 +421,16 @@ describe('moveLines and the moves it leaves short (docs/DOMAIN.md §3.7)', () =>
     const six = { ...draft, sent: units('0.06'), received: units('0.0598') };
     expect(moveLines(six, context(withLedger), perVenue, at)).toMatchObject({
       short: { short: '0.03', held: '0.03' },
-      outside: '0.05',
+      found: { outside: '0.05', short: '0.01' },
     });
     // Under global lots the fee is covered outside Ledger: no line.
-    expect(moveLines(six, context(withLedger), global, at)).toMatchObject({ short: null, outside: null });
+    expect(moveLines(six, context(withLedger), global, at)).toMatchObject({ short: null, found: null });
     // Part of the fee taken at Ledger: the line in every country.
     const thin = [bought('0.05', '2026-01-10', 'Ledger'), bought('0.00005', '2026-01-10', 'Kraken')];
     const small = { ...draft, sent: units('0.01'), received: units('0.0099') };
     expect(moveLines(small, context(thin), global, at)).toMatchObject({
       short: { short: '0.00995', held: '0.00005' },
-      outside: '0.00005',
+      found: { outside: '0.00005', short: '0.00995' },
     });
   });
 });
