@@ -95,7 +95,7 @@ test.describe('with the worker blocked', () => {
     await page.goto('/plan/review');
     await opened(page);
     await page.getByRole('button', { name: 'Mark as reviewed' }).click();
-    const line = page.getByText(/^Reviewed on 20\sOct\s2026\. Next review from 20\sOct\s2027\.$/u);
+    const line = page.getByText(/^You reviewed this plan on 20\sOct\s2026\. Next review from 20\sOct\s2027\.$/u);
     await expect(line).toBeFocused();
     await expect(line).toBeInViewport();
     await expect(page.getByRole('button', { name: 'Mark as reviewed' })).toHaveCount(0);

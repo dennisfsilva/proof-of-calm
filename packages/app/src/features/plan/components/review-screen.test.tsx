@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { countryRules, loadProfile } from '@proofofcalm/content';
+import { countryRules, holdingRuleSource, loadProfile } from '@proofofcalm/content';
 import type { CalendarDate, CountryRules, EntityId, Instant, Pause, Plan } from '@proofofcalm/core';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
@@ -70,7 +70,7 @@ const at = (date: string) => Date.parse(`${date}T10:00:00Z`);
 const text = (pattern: RegExp) => screen.getByText(pattern);
 
 describe('ReviewScreen', () => {
-  it('names the creation day, the note, the links and the rules held; opening it writes nothing', async () => {
+  it('names the creation day, the plan, the note, the link and the rules held; opening it writes nothing', async () => {
     const write = vi.fn();
     const { store } = await mount({
       plan: { why: '  For the long run.  ' },
@@ -87,12 +87,23 @@ describe('ReviewScreen', () => {
     });
     expect(screen.getByRole('heading', { level: 1, name: 'Review the plan' })).toBeDefined();
     expect(text(/^You set up this plan on 5 Apr 2026\.$/)).toBeDefined();
-    expect(text(/^In your words: For the long run\.$/)).toBeDefined();
+    // The plan in the Plan screen's own words, then the note quoted as the person's, as the fall page shows it.
+    expect(text(/^Your plan buys until /)).toBeDefined();
+    expect(text(/ a month on day \d+: BTC /)).toBeDefined();
+    expect(screen.getByRole('heading', { level: 3, name: 'Your note to yourself' })).toBeDefined();
+    expect(text(/^5 Apr 2026: “For the long run\.”$/)).toBeDefined();
+    expect(screen.queryByText(/In your words/)).toBeNull();
     expect(screen.getByRole('link', { name: 'Back to Plan' }).getAttribute('href')).toBe('/plan');
-    expect(screen.getByRole('link', { name: 'See the plan' }).getAttribute('href')).toBe('/plan');
-    expect(screen.getByRole('link', { name: 'Change it in Settings' }).getAttribute('href')).toBe('/settings');
+    expect(screen.queryByRole('link', { name: 'See the plan' })).toBeNull();
+    expect(screen.getByRole('link', { name: 'Edit plan' }).getAttribute('href')).toBe('/settings');
     expect(text(/^Your plan's country: Portugal\.$/)).toBeDefined();
-    expect(text(/^Reviewed on 5 Nov 2026 · general information, not advice$/)).toBeDefined();
+    // The date line takes its Sources form once the profile is read, as the country card's does (LEGAL §4).
+    const profile = await loadProfile('PT');
+    const sources = await screen.findByRole('link', { name: 'Sources' });
+    expect(sources.parentElement?.textContent?.replace(/\s+/g, ' ')).toBe(
+      'Reviewed on 5 Nov 2026 · general information, not advice · Sources',
+    );
+    expect(sources.getAttribute('href')).toBe(profile === null ? null : holdingRuleSource(profile));
     const card = screen.getByRole('link', { name: 'See the card for Portugal' });
     expect(card.getAttribute('href')).toBe('/learn/countries/pt');
     expect(screen.queryByText(/Review your plan/)).toBeNull();
@@ -101,10 +112,11 @@ describe('ReviewScreen', () => {
     expect(store.current().prefs.reviewedAt).toBeNull();
   });
 
-  it('with no note, leaves the note out and keeps the links', async () => {
+  it('with no note, leaves the note out and keeps the plan and the link', async () => {
     await mount();
-    expect(screen.queryByText(/^In your words/)).toBeNull();
-    expect(screen.getByRole('link', { name: 'See the plan' })).toBeDefined();
+    expect(screen.queryByRole('heading', { name: 'Your note to yourself' })).toBeNull();
+    expect(text(/^Your plan buys until /)).toBeDefined();
+    expect(screen.getByRole('link', { name: 'Edit plan' })).toBeDefined();
   });
 
   it('counts from the last review once there is one', async () => {
@@ -144,20 +156,28 @@ describe('ReviewScreen', () => {
     expect(screen.getByRole('link', { name: 'See the countries' }).getAttribute('href')).toBe('/learn/countries');
   });
 
-  it('under the general profile: its date line, and the countries list', async () => {
+  it('under the general profile: its date line with no country line, and the countries list', async () => {
     await mount({ plan: { country: 'XX' as Plan['country'] }, rules: rulesOf('XX') });
     expect(text(/the general profile, not a rule for your country/)).toBeDefined();
+    expect(screen.queryByText(/^Your plan's country/)).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Sources' })).toBeNull();
     expect(screen.getByRole('link', { name: 'See the countries' }).getAttribute('href')).toBe('/learn/countries');
   });
 
   it('under review: the date line says since when the rules were not reviewed', async () => {
     await mount({ nowMs: at('2028-11-03') });
     expect(text(/^Not reviewed since 5 Nov 2026 · general information, not advice$/)).toBeDefined();
+    expect(screen.queryByRole('link', { name: 'Sources' })).toBeNull();
   });
 
-  it('with a rule change not yet seen: the dated sentence', async () => {
+  it("with a rule change not yet seen: the dated sentence alone, without Today's call to review", async () => {
     await mount({ plan: { countryRuleVersion: 1 } });
-    expect(text(/^5 Nov 2026: /)).toBeDefined();
+    expect(text(/^5 Nov 2026: Portugal /)).toBeDefined();
+    expect(screen.queryByText(/Review your plan/)).toBeNull();
+    cleanup();
+    // A profile with no sentence of its own: the generic form, cut before Today's `Review your plan.`
+    await mount({ plan: { country: 'XX' as Plan['country'], countryRuleVersion: 0 }, rules: rulesOf('XX') });
+    expect(text(/^17 Oct 2026: the general profile changed\.$/)).toBeDefined();
   });
 
   it('Mark as reviewed stores the review in the prefs alone and moves the focus to the result line', async () => {
@@ -166,7 +186,7 @@ describe('ReviewScreen', () => {
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Mark as reviewed' })));
     expect(store.current().prefs.reviewedAt).toMatch(/^2026-10-20T10:00:00/);
     expect(store.current().prefs.changedAt).toBe(changedAt);
-    const line = text(/^Reviewed on 20 Oct 2026\. Next review from 20 Oct 2027\.$/);
+    const line = text(/^You reviewed this plan on 20 Oct 2026\. Next review from 20 Oct 2027\.$/);
     expect(line.getAttribute('tabindex')).toBe('-1');
     expect(line.classList.contains('scroll-mt-result')).toBe(true);
     expect(document.activeElement).toBe(line);
@@ -177,7 +197,7 @@ describe('ReviewScreen', () => {
   it('an overdue review, marked, counts the next one from the day it was marked', async () => {
     await mount({ nowMs: at('2028-01-10') });
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Mark as reviewed' })));
-    expect(text(/^Reviewed on 10 Jan 2028\. Next review from 10 Jan 2029\.$/)).toBeDefined();
+    expect(text(/^You reviewed this plan on 10 Jan 2028\. Next review from 10 Jan 2029\.$/)).toBeDefined();
   });
 
   it('a failed write keeps the button, moves no focus and says so in a toast', async () => {

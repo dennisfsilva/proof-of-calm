@@ -39,9 +39,13 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-/** Every link and the button meet the 44 px target (docs/DESIGN.md §5). */
+/**
+ * Every standalone link and the button meet the 44 px target (docs/DESIGN.md §5); the date line's `Sources` is a
+ * link inside a sentence, which the inline exception covers.
+ */
 async function targets(root: HTMLElement) {
   for (const control of root.querySelectorAll<HTMLElement>('a, button')) {
+    if (control.closest('p') !== null) continue;
     await expect(control.getBoundingClientRect().height, control.textContent ?? '').toBeGreaterThanOrEqual(44);
   }
 }
@@ -51,7 +55,10 @@ export const SetUp: Story = {
   play: async ({ canvas, canvasElement }) => {
     await waitFor(() => expect(canvas.getByText("Your plan's country: Portugal.")).toBeVisible());
     await expect(canvas.getByText('You set up this plan on 5 Apr 2026.')).toBeVisible();
-    await expect(canvas.getByText('In your words: Buy every month for a year, then hold.')).toBeVisible();
+    await expect(canvas.getByText(/^Your plan buys until /)).toBeVisible();
+    await expect(canvas.getByRole('heading', { level: 3, name: 'Your note to yourself' })).toBeVisible();
+    await expect(canvas.getByText(/^5\sApr\s2026: “Buy every month for a year, then hold\.”$/u)).toBeVisible();
+    await waitFor(() => expect(canvas.getByRole('link', { name: 'Sources' })).toBeVisible());
     await targets(canvasElement);
   },
 };
@@ -85,6 +92,7 @@ export const GeneralProfile: Story = {
   play: async ({ canvas }) => {
     await waitFor(() => expect(canvas.getByRole('link', { name: 'See the countries' })).toBeVisible());
     await expect(canvas.getByText(/the general profile, not a rule for your country/)).toBeVisible();
+    await expect(canvas.queryByText(/^Your plan's country/)).toBeNull();
   },
 };
 

@@ -11,17 +11,18 @@
     "since": "{kind, select, reviewed {You last reviewed this plan on {date}.} other {You set up this plan on {date}.}}",
     "right": {
       "heading": "Is it still right?",
-      "note": "In your words: {note}",
-      "see": "See the plan",
-      "change": "Change it in Settings"
+      "noteLabel": "Your note to yourself",
+      "note": "{date}: “{note}”"
     },
     "rules": {
       "heading": "Have the rules changed?",
       "country": "Your plan's country: {country}.",
+      "notice": "{date}: {notice}",
+      "changed": "{date}: {kind, select, generic {the general profile} other {the rules for {country}}} changed.",
       "link": "{kind, select, generic {See the countries} other {See the card for {country}}}"
     },
     "mark": "Mark as reviewed",
-    "marked": "Reviewed on {date}. Next review from {next}.",
+    "marked": "You reviewed this plan on {date}. Next review from {next}.",
     "failed": "The review could not be recorded. Try again."
   },
   "why": {
