@@ -14,7 +14,15 @@ export type ActionError =
   | { readonly code: 'slot-required' }
   | { readonly code: 'slot-not-allowed' }
   | { readonly code: 'unknown-slot'; readonly slot: MonthKey }
-  | { readonly code: 'sell-exceeds-held'; readonly coin: CoinId; readonly held: Units; readonly sold: Units }
+  | {
+      readonly code: 'sell-exceeds-held';
+      readonly coin: CoinId;
+      readonly held: Units;
+      readonly sold: Units;
+      readonly date: CalendarDate;
+      /** Whether the sale named is one the write itself stores (the sale being saved or edited, or one restored). */
+      readonly written: boolean;
+    }
   | {
       readonly code: 'fee-exceeds-held';
       readonly coin: CoinId;

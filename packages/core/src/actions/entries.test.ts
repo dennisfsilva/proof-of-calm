@@ -772,9 +772,7 @@ describe('every sale stays covered by purchases dated on or before it (docs/DOMA
     it('refuses deleting one of two purchases when the other leaves the units sold above the units bought', () => {
       const first = on('2026-02-01', buy(BTC.id, '0.001'));
       const stored = [orphan, first, on('2026-02-01', buy(BTC.id, '0.001')), on('2026-03-01', sell(BTC.id, '0.001'))];
-      expect(uncoveredSale(stored, deleteEntries(stored, [first.id], now))).toEqual(
-        short('0', '0.001', '2026-03-01'),
-      );
+      expect(uncoveredSale(stored, deleteEntries(stored, [first.id], now))).toEqual(short('0', '0.001', '2026-03-01'));
       expect(uncoveredSale(stored, deleteEntries(stored, [orphan.id], now))).toBeNull();
     });
 
