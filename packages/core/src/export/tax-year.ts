@@ -9,6 +9,7 @@ import { decimalPlaces, isPositive, type Money, min, minus, type Units } from '.
 import { cumulativeShares } from '../money/split';
 import { liveEntries } from '../plan/statuses';
 import { feeUnmatched, matchingOrder, matchLots, type SaleTake, venueGroup } from '../portfolio/lots';
+import { moveShortfalls } from '../portfolio/move-shortfalls';
 import { assertNever, defined } from '../result';
 import type { CountryRules, LotRule, LotScope } from '../schema/country';
 import { type Entry, type EntryKind, isEstimate } from '../schema/entry';
@@ -98,7 +99,10 @@ export type TaxYearLots = {
   readonly crossVenue: number;
   /** A piece a move paid as its fee in the coin. */
   readonly moveFees: boolean;
-  /** Fee pieces a move took at its destination, since the pieces outside it could not pay its fee (ADR-0055). */
+  /**
+   * Fee pieces a move took at its destination, since the pieces outside it could not pay its fee (ADR-0055), of the
+   * moves the Log names short (`moveShortfalls`, docs/DOMAIN.md §3.7).
+   */
   readonly feeAtDestination: number;
   /** The plan keeps its own holding rule; the file dates lots by the country's. */
   readonly planRuleDiffers: boolean;
@@ -164,12 +168,14 @@ export function taxYearLots(
   const digits = MINOR_UNITS[plan.payCurrency];
   const yearEnd = today < span.to ? today : span.to;
   const coins = new Set<CoinId>([...plan.coins.map((coin) => coin.id), ...upTo.map((entry) => entry.coin)]);
+  const context = { overrides: rules.holdingRuleOverrides, lotScope: rules.lotScope, lotRule };
   const pieces: LotPiece[] = [];
   let crossVenue = 0;
   let moveFees = false;
   let feeAtDestination = 0;
   for (const coin of coins) {
     const match = matchLots(upTo, coin, rules.lotScope, lotRule);
+    const named = new Set(moveShortfalls(upTo, coin, context).map((each) => each.id));
     // Each lot's takes in matching order, with the sale's proceeds and fee shares for those units; a move's fee takes
     // have neither.
     const taken = new Map<EntityId, (SaleTake & { sale: Entry; proceeds: Money | null; fee: Money | null })[]>();
@@ -241,7 +247,9 @@ export function taxYearLots(
         if (take.sale.kind === 'move') {
           // Paid as a move's fee: dated on the move, with no proceeds and no tax label.
           moveFees = true;
-          if (take.venue === take.sale.to) feeAtDestination += 1;
+          // Only where the Log names the move: under global lots a fee can leave a lot at the destination while the
+          // Log holds enough outside it, and then the header has nothing to send the person to check.
+          if (take.venue === take.sale.to && named.has(take.sale.id)) feeAtDestination += 1;
           pieces.push({
             ...piece(index, take.units, take.sale.date),
             ...held,
