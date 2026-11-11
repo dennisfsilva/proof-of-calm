@@ -53,7 +53,7 @@ describe('ModuleSheet', () => {
     mount();
     const dialog = await screen.findByRole('dialog', { name: IDEA });
     const title = within(dialog).getByRole('heading', { name: IDEA });
-    expect(title.parentElement?.nextElementSibling?.textContent).toMatch(/^Last reviewed 30\sOct\s2026$/u);
+    expect(title.nextElementSibling?.textContent).toMatch(/^Last reviewed 30\sOct\s2026$/u);
     expect(within(dialog).queryByRole('heading', { name: 'Start here' })).toBeNull();
     expect(within(dialog).getByText("The fixture's caveat, in its box.")).toBeDefined();
     expect(within(dialog).getByRole('heading', { level: 2, name: 'A section' })).toBeDefined();

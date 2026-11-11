@@ -186,3 +186,30 @@ export const TabToALinkUnderClose: Story = {
     await expect([...link.getClientRects()].filter((fragment) => intersects(fragment, button))).toEqual([]);
   },
 };
+
+// The caveat scrolled up to `Close` at 125 % text zoom, a 20 px root as the e2e zoom-125 project sets it: the module
+// keeps a column clear of the button, so the button never stands over the text that passes under it.
+export const CaveatClearOfCloseAtZoom: Story = {
+  decorators: [
+    longModule,
+    (Story) => (
+      <>
+        <style>{':root { font-size: 20px; }'}</style>
+        <Story />
+      </>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const page = within(canvasElement.ownerDocument.body);
+    const popup = await page.findByRole('dialog', { name: IDEA });
+    const close = within(popup).getByRole('button', { name: 'Close' });
+    const caveat = within(popup).getByText("The fixture's caveat, in its box.");
+    await expect(close.getBoundingClientRect().width).toBe(55);
+
+    popup.scrollTop += caveat.getBoundingClientRect().top - close.getBoundingClientRect().top;
+    await waitFor(() =>
+      expect(caveat.getBoundingClientRect().top - close.getBoundingClientRect().top).toBeCloseTo(0, 0),
+    );
+    await expect(intersects(caveat.getBoundingClientRect(), close.getBoundingClientRect())).toBe(false);
+  },
+};
