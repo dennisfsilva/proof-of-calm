@@ -183,3 +183,26 @@ describe('who may mark a due date in an issue body', () => {
     expect(sessionNotice(due, workflow)).toBeUndefined();
   });
 });
+
+describe('which issues the reminder counts', () => {
+  const due = full('2027-04-01');
+  const reader = (state: string, ...comments: Text[]) =>
+    issue(12, state, [{ body: 'PT rule changed', login: 'reader' }, ...comments]);
+
+  it('an open labelled issue the workflow did not open gets no comment and no session line', () => {
+    // Finding 1 of round 1: a collaborator labels a reader's issue, which stays open.
+    expect(reminderAction(due, [reader('OPEN')])).toEqual({ kind: 'open' });
+    expect(reminderAction(due, [issue(4, 'OPEN', [opened('2027-01-15')]), reader('OPEN')])).toEqual({
+      kind: 'comment',
+      number: 4,
+    });
+    expect(sessionNotice(noticeDue('2026-11-11'), [reader('OPEN')])).toBeUndefined();
+    expect(sessionNotice(noticeDue('2027-04-03'), [reader('OPEN')])).toContain('due since 1 Apr 2027');
+  });
+
+  it('a workflow comment on someone else’s closed issue does not count a date as reminded', () => {
+    const commented = [reader('CLOSED', bot(stillDueComment(due)), owner(stillDueComment(due)))];
+    expect(reminderAction(due, commented)).toEqual({ kind: 'open' });
+    expect(sessionNotice(noticeDue('2027-04-03'), commented)).toContain('due since 1 Apr 2027');
+  });
+});
