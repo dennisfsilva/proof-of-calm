@@ -8,11 +8,14 @@ added, renamed or removed here must be added, renamed or removed there too. -->
 ## Verified, no change
 <!-- Each item with the sources re-read. -->
 
+## Sources read and confidence
+<!-- Each data file reviewed: sources read of those it cites, the confidence and its reason. -->
+
 ## Unreachable or moved sources
 <!-- Each source URL with what was expected there. -->
 
 ## Pending changes noticed
-<!-- Each with its effective date and status: proposed, enacted or in force. -->
+<!-- Each with its effective date and status: proposed, enacted or in-force. -->
 
 ## Review queue
 <!-- The verification queue's items for these countries: closed or carried over. -->

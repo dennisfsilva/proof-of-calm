@@ -3,6 +3,13 @@
 // passed through as Markdown: every text cell is defused so that it reads as literal text under any
 // parse, and every URL is checked against packages/content/sources.allow.json and written as a link
 // whose text is its host. render-check.ts proves both through GitHub's own renderer.
+// A change's or pending change's `item` is a data file relative to packages/content/, and its link must
+// be on that file's list (#135): `jurisdictions/<cc>.json` on the country's list or EU's, any other
+// data file on `facts`; verified and unreachable links on any list. A change's `field` is a leaf path
+// (`card.allowances[0]`). rows.ts ties the rows to the staged diff both ways, with bookkeeping
+// (`*.accessed`, `reviewedBy`, `status.confidence`) exempt and covered by a `reviewed` row
+// (docs/CONTENT-OPS.md §3, steps 4 and 5).
+import { DATA_PATHS } from './check.ts';
 
 export type Change = {
   item: string;
@@ -23,13 +30,15 @@ export type ReviewDraft = {
   model: string;
   countries: string[];
   changes: Change[];
+  /** Each item's sources read of all it cites, the confidence and its reason. */
+  reviewed: { item: string; read: number; of: number; confidence: 'high' | 'medium' | 'low'; reason: string }[];
   verified: { item: string; urls: string[] }[];
   unreachable: { url: string; expected: string }[];
   pending: {
     item: string;
     what: string;
     effectiveFrom: string;
-    status: 'proposed' | 'enacted' | 'in force';
+    status: 'proposed' | 'enacted' | 'in-force';
     url: string;
   }[];
   queue: { item: string; outcome: 'closed' | 'carried over'; note: string }[];
@@ -38,7 +47,7 @@ export type ReviewDraft = {
 };
 
 /** A field's shape: a kind, an enum, a list of a shape, or an object of shapes (`?` marks optional). */
-type Shape = 'string' | 'date' | 'boolean' | readonly string[] | { list: Shape } | { [field: string]: Shape };
+type Shape = 'string' | 'date' | 'boolean' | 'count' | readonly string[] | { list: Shape } | { [field: string]: Shape };
 const LIST = (of: Shape) => ({ list: of });
 const CHANGE: Shape = {
   item: 'string',
@@ -58,13 +67,20 @@ const DRAFT: Shape = {
   model: 'string',
   countries: LIST('string'),
   changes: LIST(CHANGE),
+  reviewed: LIST({
+    item: 'string',
+    read: 'count',
+    of: 'count',
+    confidence: ['high', 'medium', 'low'],
+    reason: 'string',
+  }),
   verified: LIST({ item: 'string', urls: LIST('string') }),
   unreachable: LIST({ url: 'string', expected: 'string' }),
   pending: LIST({
     item: 'string',
     what: 'string',
     effectiveFrom: 'date',
-    status: ['proposed', 'enacted', 'in force'],
+    status: ['proposed', 'enacted', 'in-force'],
     url: 'string',
   }),
   queue: LIST({ item: 'string', outcome: ['closed', 'carried over'], note: 'string' }),
@@ -87,6 +103,9 @@ function check(value: unknown, shape: Shape, path: string, problems: string[]): 
     else if (shape === 'date' && !isDate(value)) problems.push(`${at}: expected a date YYYY-MM-DD`);
   } else if (shape === 'boolean') {
     if (typeof value !== 'boolean') problems.push(`${at}: expected true or false`);
+  } else if (shape === 'count') {
+    if (!Number.isSafeInteger(value) || (value as number) < 0)
+      problems.push(`${at}: expected a whole number, 0 or more`);
   } else if (Array.isArray(shape)) {
     if (!shape.includes(value as string)) problems.push(`${at}: expected one of ${shape.join(', ')}`);
   } else if ('list' in shape) {
@@ -128,6 +147,20 @@ export function allowedDomains(allow: unknown): string[] {
   if (!isObject(allow)) return [];
   const lists = Object.entries(allow).filter(([key, list]) => !key.startsWith('$') && Array.isArray(list));
   return [...new Set(lists.flatMap(([, list]) => (list as unknown[]).filter((d) => typeof d === 'string')))];
+}
+
+const listOf = (allow: unknown, key: string): string[] => {
+  const list = isObject(allow) && Object.hasOwn(allow, key) ? allow[key] : undefined;
+  return Array.isArray(list) ? list.filter((domain): domain is string => typeof domain === 'string') : [];
+};
+
+/** The domains a data file's link may use (#135), as validate:content allows them; none for any other item. */
+export function itemDomains(item: string, allow: unknown): string[] {
+  const path = `packages/content/${item}`;
+  if (!DATA_PATHS.some((pattern) => pattern.test(path))) return [];
+  const country = /^jurisdictions\/([a-z]{2})\.json$/.exec(item)?.[1];
+  if (country) return [...listOf(allow, country.toUpperCase()), ...listOf(allow, 'EU')];
+  return item.startsWith('jurisdictions/') || item.startsWith('rules/') ? [] : listOf(allow, 'facts');
 }
 
 /**
@@ -182,7 +215,7 @@ const list = (lines: string[]) => (lines.length > 0 ? lines.map((line) => `- ${l
 const cells = (values: string[]) => values.map(defuseCell).join(' | ');
 
 /** Each template heading and how the draft fills it; `null` keeps the template's own text. */
-type Fill = (d: ReviewDraft, link: (url: string, path: string) => string) => string | undefined;
+type Fill = (d: ReviewDraft, link: (url: string, path: string, item?: string) => string) => string | undefined;
 const FILLS: Record<string, Fill | null> = {
   Changes: (d, link) =>
     d.changes.length === 0
@@ -192,7 +225,7 @@ const FILLS: Record<string, Fill | null> = {
           `|${' --- |'.repeat(11)}`,
           ...d.changes.map(
             (c, i) =>
-              `| ${cells([c.item, c.field, c.old, c.new, c.quote, c.eventDate])} | ${link(c.url, `changes[${i}].url`)} | ${cells([c.accessed, c.confidence, c.substantive ? 'yes' : 'no', c.reason])} |`,
+              `| ${cells([c.item, c.field, c.old, c.new, c.quote, c.eventDate])} | ${link(c.url, `changes[${i}].url`, c.item)} | ${cells([c.accessed, c.confidence, c.substantive ? 'yes' : 'no', c.reason])} |`,
           ),
         ].join('\n'),
   'Verified, no change': (d, link) =>
@@ -201,13 +234,20 @@ const FILLS: Record<string, Fill | null> = {
         (v, i) => `${defuseCell(v.item)}: ${v.urls.map((u, j) => link(u, `verified[${i}].urls[${j}]`)).join(', ')}`,
       ),
     ),
+  'Sources read and confidence': (d) =>
+    list(
+      d.reviewed.map(
+        (r) =>
+          `${defuseCell(r.item)}: ${defuseCell(`${r.read} of ${r.of}`)} sources read; confidence ${defuseCell(r.confidence)}. ${defuseCell(r.reason)}`,
+      ),
+    ),
   'Unreachable or moved sources': (d, link) =>
     list(d.unreachable.map((u, i) => `${link(u.url, `unreachable[${i}].url`)}: expected ${defuseCell(u.expected)}`)),
   'Pending changes noticed': (d, link) =>
     list(
       d.pending.map(
         (p, i) =>
-          `${defuseCell(p.item)}: ${defuseCell(p.what)}; ${p.status}, effective ${defuseCell(p.effectiveFrom)}; ${link(p.url, `pending[${i}].url`)}`,
+          `${defuseCell(p.item)}: ${defuseCell(p.what)}; ${p.status}, effective ${defuseCell(p.effectiveFrom)}; ${link(p.url, `pending[${i}].url`, p.item)}`,
       ),
     ),
   'Review queue': (d) => list(d.queue.map((q) => `${defuseCell(q.item)}: ${q.outcome}. ${defuseCell(q.note)}`)),
@@ -225,15 +265,15 @@ const FILLS: Record<string, Fill | null> = {
 };
 
 /** The pull-request body: every `## ` heading of the template in order, filled from the draft. */
-export function renderBody(
-  draft: ReviewDraft,
-  template: string,
-  domains: readonly string[],
-): { body: string; problems: string[] } {
+export function renderBody(draft: ReviewDraft, template: string, allow: unknown): { body: string; problems: string[] } {
   const problems: string[] = [];
-  const link = (url: string, path: string) => {
+  const union = allowedDomains(allow);
+  const link = (url: string, path: string, item?: string) => {
+    const domains = item === undefined ? union : itemDomains(item, allow);
     const result = sourceLink(url, domains);
-    if (result.problem) problems.push(`${path}: ${result.problem}`);
+    if (item !== undefined && domains.length === 0)
+      problems.push(`${path}: item ${JSON.stringify(item)} names no list of packages/content/sources.allow.json`);
+    else if (result.problem) problems.push(`${path}: ${result.problem}${item === undefined ? '' : ` for ${item}`}`);
     return result.link ?? defuseCell(url);
   };
   const out: string[] = [];

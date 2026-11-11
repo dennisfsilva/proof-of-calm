@@ -220,9 +220,7 @@ describe('renderBody', () => {
   it('renderBody reports a missing or unknown heading and an over-long body', () => {
     const draft = good();
     const missing = TEMPLATE.replace('## Notes for the owner\n', '');
-    expect(renderBody(draft, missing, ALLOW).problems).toEqual([
-      'template: heading "Notes for the owner" is missing',
-    ]);
+    expect(renderBody(draft, missing, ALLOW).problems).toEqual(['template: heading "Notes for the owner" is missing']);
     const unknown = `${TEMPLATE}\n## Extra\ntext\n`;
     expect(renderBody(draft, unknown, ALLOW).problems).toEqual([
       'template: heading "Extra" is not one body.ts fills or keeps',
@@ -261,14 +259,14 @@ describe('renderBody', () => {
     const fact = { ...irish, item: 'facts/education.json', url: 'https://www.boe.es/a' };
     const loose = { ...irish, item: 'IE' };
     const pending = draft.pending.map((p) => ({ ...p, item: 'jurisdictions/it.json' }));
-    expect(
-      renderBody({ ...draft, changes: [spanish, viaEu, fact, loose], pending }, TEMPLATE, ALLOW).problems,
-    ).toEqual([
-      'changes[0].url: www.boe.es is not on packages/content/sources.allow.json for jurisdictions/ie.json',
-      'changes[2].url: www.boe.es is not on packages/content/sources.allow.json for facts/education.json',
-      'changes[3].url: item "IE" is not a content data file, so no list of packages/content/sources.allow.json applies',
-      'pending[0].url: www.boe.es is not on packages/content/sources.allow.json for jurisdictions/it.json',
-    ]);
+    expect(renderBody({ ...draft, changes: [spanish, viaEu, fact, loose], pending }, TEMPLATE, ALLOW).problems).toEqual(
+      [
+        'changes[0].url: www.boe.es is not on packages/content/sources.allow.json for jurisdictions/ie.json',
+        'changes[2].url: www.boe.es is not on packages/content/sources.allow.json for facts/education.json',
+        'changes[3].url: item "IE" names no list of packages/content/sources.allow.json',
+        'pending[0].url: www.boe.es is not on packages/content/sources.allow.json for jurisdictions/it.json',
+      ],
+    );
     expect(itemDomains('jurisdictions/ie.json', ALLOW)).toEqual(['revenue.ie', 'gov.ie', 'example.gov']);
     expect(itemDomains('learn/what-is-dca.mdx', ALLOW)).toEqual(['revenue.ie']);
     expect(itemDomains('jurisdictions/../ie.json', ALLOW)).toEqual([]);
