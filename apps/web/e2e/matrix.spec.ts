@@ -3,7 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, type Page } from '@playwright/test';
 import type { Snapshot } from '@proofofcalm/app/lib/ports';
 import { type FixturePhase, fixtureNowMs, fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
-import type { CalendarDate, Entry as PlanEntry } from '@proofofcalm/core';
+import type { CalendarDate, Instant, Entry as PlanEntry } from '@proofofcalm/core';
 import { classConflicts } from '@proofofcalm/ui/lib/class-conflicts';
 import portugal from '../../../packages/content/jurisdictions/pt.json' with { type: 'json' };
 import { seedPlan } from './seed';
@@ -78,6 +78,17 @@ const PAGES: readonly Entry[] = [
   { name: 'not-found', path: '/no-such-page', heading: 'Page not found' },
 ];
 const TARGET = 44;
+
+/**
+ * The fixture plan a page seeds. The review page's plan carries a note and has seen PT's profile at version 1 (it is
+ * at 2), so the page shows the quoted note and the rule-change sentence; only there, since the fixture serves the
+ * other pages' baselines as it is.
+ */
+const seeded = (name: string): Snapshot => {
+  const snapshot = fixtureSnapshot();
+  if (name !== 'plan-review' || snapshot.plan === null) return snapshot;
+  return { ...snapshot, plan: { ...snapshot.plan, why: 'For the long run.', countryRuleVersion: 1 } };
+};
 
 /**
  * Waits until the entry's screen has rendered: its own h1 visible, and the screen area not busy, which
@@ -178,7 +189,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
           if (phase !== undefined) {
             // The fixture plan on its phase's date: the primary action, its chips, the strip and the banner.
             await page.clock.setFixedTime(new Date(fixtureNowMs(phase)));
-            await seedPlan(page, fixtureSnapshot());
+            await seedPlan(page, seeded(name));
           }
           if (shape !== undefined) await routeFixturePrices(page, fixtureNowMs(phase ?? 'buy'), shape);
           await page.goto(path);
@@ -219,7 +230,10 @@ for (const colorScheme of ['light', 'dark'] as const) {
           await page.clock.setFixedTime(new Date(nowMs));
           await routeFixturePrices(page, nowMs, shape);
           if (country !== undefined) await page.setExtraHTTPHeaders({ 'x-vercel-ip-country': country });
-          if (phase !== undefined) await seedPlan(page, fixtureSnapshot());
+          // Today's pages were reviewed on the phase's day, so the foot keeps the box its baseline holds: on
+          // 15 March 2030 the annual review would otherwise take the backup banner's place (docs/DOMAIN.md §3.12).
+          const reviewed = path === '/today' ? { reviewedAt: new Date(nowMs).toISOString() as Instant } : undefined;
+          if (phase !== undefined) await seedPlan(page, seeded(name), reviewed);
           await page.goto(path);
           await screenReady(page, heading);
           // Today's foot waits for the red-day model (docs/DESIGN.md §8); over the rising history it settles on

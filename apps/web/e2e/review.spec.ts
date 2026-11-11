@@ -42,66 +42,73 @@ async function opened(page: Page) {
   await expect(page.getByRole('heading', { level: 1, name: 'Offline' })).toHaveCount(0);
 }
 
-test('an offline reload of /plan/review shows the page from the precached shell', async ({
-  page,
-  context,
-  browserName,
-}) => {
-  // biome-ignore lint/suspicious/noSkippedTests: a runtime skip on WebKit, as offline.spec.ts runs the worker on Chromium only
-  test.skip(browserName !== 'chromium', 'the offline path of the service worker is proven on Chromium');
-  await routeContext(context);
-  await seedPlan(page, fixtureSnapshot());
-  await page.goto('/plan/review');
-  await opened(page);
-  await page.evaluate(async () => {
-    await navigator.serviceWorker.ready;
-    if (navigator.serviceWorker.controller !== null) return;
-    await new Promise((resolve) =>
-      navigator.serviceWorker.addEventListener('controllerchange', resolve, { once: true }),
-    );
-  });
-  await context.setOffline(true);
-  await page.reload();
-  await opened(page);
-  await context.setOffline(false);
-});
+// In light and dark: the focus moves and their rings, in both themes (as undo-focus.spec.ts runs them).
+for (const colorScheme of ['light', 'dark'] as const) {
+  test.describe(colorScheme, () => {
+    test.use({ colorScheme });
 
-test.describe('with the worker blocked', () => {
-  test.use({ serviceWorkers: 'block' });
+    test('an offline reload of /plan/review shows the page from the precached shell', async ({
+      page,
+      context,
+      browserName,
+    }) => {
+      // biome-ignore lint/suspicious/noSkippedTests: a runtime skip on WebKit, as offline.spec.ts runs the worker on Chromium only
+      test.skip(browserName !== 'chromium', 'the offline path of the service worker is proven on Chromium');
+      await routeContext(context);
+      await seedPlan(page, fixtureSnapshot());
+      await page.goto('/plan/review');
+      await opened(page);
+      await page.evaluate(async () => {
+        await navigator.serviceWorker.ready;
+        if (navigator.serviceWorker.controller !== null) return;
+        await new Promise((resolve) =>
+          navigator.serviceWorker.addEventListener('controllerchange', resolve, { once: true }),
+        );
+      });
+      await context.setOffline(true);
+      await page.reload();
+      await opened(page);
+      await context.setOffline(false);
+    });
 
-  test.beforeEach(async ({ page }) => {
-    await routeFixturePrices(page, NOW_MS);
-    await seedPlan(page, fixtureSnapshot());
-  });
+    test.describe('with the worker blocked', () => {
+      test.use({ serviceWorkers: 'block' });
 
-  test('a direct load of /plan/review shows the page, and opening it writes nothing', async ({ page }) => {
-    await page.goto('/plan/review');
-    await opened(page);
-    await expect(page.getByRole('button', { name: 'Mark as reviewed' })).toBeVisible();
-    await page.reload();
-    await opened(page);
-  });
+      test.beforeEach(async ({ page }) => {
+        await routeFixturePrices(page, NOW_MS);
+        await seedPlan(page, fixtureSnapshot());
+      });
 
-  test("Plan's link opens the page with the focus on its h1", async ({ page }) => {
-    await page.goto('/plan');
-    await ready(page);
-    await page.getByRole('link', { name: 'Review the plan' }).click();
-    await expect(page).toHaveURL(/\/plan\/review$/);
-    await expect(title(page)).toBeFocused();
-    await expect(page.getByText(SET_UP)).toBeVisible();
-  });
+      test('a direct load of /plan/review shows the page, and opening it writes nothing', async ({ page }) => {
+        await page.goto('/plan/review');
+        await opened(page);
+        await expect(page.getByRole('button', { name: 'Mark as reviewed' })).toBeVisible();
+        await page.reload();
+        await opened(page);
+      });
 
-  test('Mark as reviewed focuses the result line, and a reload counts from the review', async ({ page }) => {
-    await page.goto('/plan/review');
-    await opened(page);
-    await page.getByRole('button', { name: 'Mark as reviewed' }).click();
-    const line = page.getByText(/^You reviewed this plan on 20\sOct\s2026\. Next review from 20\sOct\s2027\.$/u);
-    await expect(line).toBeFocused();
-    await expect(line).toBeInViewport();
-    await expect(page.getByRole('button', { name: 'Mark as reviewed' })).toHaveCount(0);
-    await page.reload();
-    await expect(title(page)).toBeVisible();
-    await ready(page);
-    await expect(page.getByText(/^You last reviewed this plan on 20\sOct\s2026\.$/u)).toBeVisible();
+      test("Plan's link opens the page with the focus on its h1", async ({ page }) => {
+        await page.goto('/plan');
+        await ready(page);
+        await page.getByRole('link', { name: 'Review the plan' }).click();
+        await expect(page).toHaveURL(/\/plan\/review$/);
+        await expect(title(page)).toBeFocused();
+        await expect(page.getByText(SET_UP)).toBeVisible();
+      });
+
+      test('Mark as reviewed focuses the result line, and a reload counts from the review', async ({ page }) => {
+        await page.goto('/plan/review');
+        await opened(page);
+        await page.getByRole('button', { name: 'Mark as reviewed' }).click();
+        const line = page.getByText(/^You reviewed this plan on 20\sOct\s2026\. Next review from 20\sOct\s2027\.$/u);
+        await expect(line).toBeFocused();
+        await expect(line).toBeInViewport();
+        await expect(page.getByRole('button', { name: 'Mark as reviewed' })).toHaveCount(0);
+        await page.reload();
+        await expect(title(page)).toBeVisible();
+        await ready(page);
+        await expect(page.getByText(/^You last reviewed this plan on 20\sOct\s2026\.$/u)).toBeVisible();
+      });
+    });
   });
-});
+}
