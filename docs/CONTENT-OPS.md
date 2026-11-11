@@ -62,10 +62,20 @@ owns the pipeline around them and its security model.
 3. **The expected failure.** The agent runs the content checks, and the skill tells it: "The one
    failure you expect is `agent-draft` on the entries you marked; fix or revert anything else."
 4. **The draft.** The agent writes its findings as JSON in the shape of `ReviewDraft`
-   (`tools/content-review/body.ts`) to .content-review/draft.json, a gitignored folder.
+   (`tools/content-review/body.ts`) to .content-review/draft.json, a gitignored folder. A change row's
+   `item` is the data file relative to `packages/content/` (`jurisdictions/ie.json`) and its `field`
+   the changed leaf's path (`card.allowances[0]`); a pending change's `item` is a file too, and its
+   `status` is `proposed`, `enacted` or `in-force`. Each file reviewed gets a `reviewed` row: the
+   sources read of those it cites, the confidence and its reason. Bookkeeping needs no change row:
+   `accessed`, `reviewedBy` and `status.confidence`. The agent never sets `lastReviewed` or
+   `nextReviewDue`; the owner sets `lastReviewed` in the flip (§8), once every source was read.
 5. **The finish.** `node tools/content-review/propose.ts finish` stages everything and refuses a
    path outside content data, a mode, a binary, a deletion, an entry not at `agent-draft` or a draft
-   problem. A refusal leaves the index as it found it. Without `--dry` it first refuses a HEAD other
+   problem. It compares the draft's rows with the staged diff both ways
+   (`tools/content-review/rows.ts`): a changed leaf with no row, a row for a leaf that did not
+   change, a changed module with no row, a file changed only in bookkeeping with no `reviewed` row,
+   and any change to `lastReviewed` or `nextReviewDue` are refused; the generated `rules/*.json` are
+   skipped. A refusal leaves the index as it found it. Without `--dry` it first refuses a HEAD other
    than origin/main. When nothing is refused, it renders the body, commits on
    `agent/content-review-<date>`, pushes, and opens the PR labelled `needs-owner` and
    `content-review`. It never merges.
@@ -92,7 +102,9 @@ visible rather than impossible:
   literal text, and `tools/content-review/render-check.ts` proves that through GitHub's renderer in
   the `render` job of `.github/workflows/content-review.yml`.
 - Every link is https, on `packages/content/sources.allow.json` or a subdomain of a listed domain,
-  and shows its true host as its text. The finish refuses any other link, and `pnpm validate:content`
+  and shows its true host as its text. A change's or pending change's link must be on its item's
+  list: a country's file on that country's list or `EU`, any other data file on `facts`; verified
+  and unreachable links on any list. The finish refuses any other link, and `pnpm validate:content`
   refuses an off-list source in the data.
 - Deletions are refused: the finish refuses every one, so the agent deletes nothing, and CI's guard
   refuses every one but a removed baseline (next item). The draft names a gone source, and the owner
