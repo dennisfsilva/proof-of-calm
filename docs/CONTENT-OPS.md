@@ -91,10 +91,11 @@ owns the pipeline around them and its security model.
    .content-review/body.md and commits, pushes and opens nothing.
 
 The agent has no git and no gh. The skill's `allowed-tools` pre-approve the data edits, the three
-pnpm commands, the three `propose.ts` commands and `node tools/content-review/pdf.ts <url>`, and
-name no git, gh, WebFetch or WebSearch rule. pdf.ts is the one pre-approved fetch: it fetches only
-an https URL on the allow-list, checks every redirect hop the same way and writes only under
-.content-review/pdf/. Pre-approval does not confine: any other tool still asks the owner. WebFetch
+pnpm commands and the three `propose.ts` commands, and name no git, gh, WebFetch, WebSearch or
+pdf.ts rule. `node tools/content-review/pdf.ts <url>` is not pre-approved: each run asks the owner
+and shows its URL, and it fetches only an https URL on the allow-list, checks every redirect hop the
+same way and writes only under .content-review/pdf/. Pre-approval does not confine: any other tool
+still asks the owner. WebFetch
 keeps the session's own permission settings, so each new domain's first WebFetch shows the owner
 what the agent reads.
 
@@ -117,8 +118,8 @@ visible rather than impossible:
   list: a country's file on that country's list or `EU`, any other data file on `facts`; verified
   and unreachable links on any list. The finish refuses any other link, and `pnpm validate:content`
   refuses an off-list source in the data.
-- `tools/content-review/pdf.ts`, the one fetch the skill pre-approves, takes one URL, checks it and
-  every redirect hop against the allow-list, keeps only bytes that start as a PDF and writes only
+- `tools/content-review/pdf.ts` is not pre-approved: each run asks the owner and shows its URL. It
+  takes one URL, fetches it only over https, checks it and every redirect hop against the allow-list, keeps only bytes that start as a PDF and writes only
   under .content-review/pdf/. The agent reads its text as data, like any fetched page.
 - Deletions are refused: the finish refuses every one, so the agent deletes nothing, and CI's guard
   refuses every one but a removed baseline (next item). The draft names a gone source, and the owner
