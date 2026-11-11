@@ -76,5 +76,8 @@ export const POOLED_MATCH_DAYS = 30;
 /** The annual review asks again this many months after the plan was created or last reviewed. */
 export const REVIEW_INTERVAL_MONTHS = 12;
 
+/** `Later` on the annual review keeps it away this many days; it never counts as a review (docs/DOMAIN.md §3.11). */
+export const REVIEW_SNOOZE_DAYS = 30;
+
 /** A country's card is under review once this many months past its `nextReviewDue` (docs/JURISDICTIONS.md §1). */
 export const UNDER_REVIEW_MONTHS = 12;
