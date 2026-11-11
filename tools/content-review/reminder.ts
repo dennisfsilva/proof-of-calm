@@ -94,17 +94,20 @@ const marker = (due: Due) => `<!-- content-review-due: ${due.date} -->`;
 const isOpen = (issue: Issue) => issue.state.toUpperCase() === 'OPEN';
 const trusted = (comment: Comment) =>
   TRUSTED_ASSOCIATIONS.has(comment.authorAssociation ?? '') || TRUSTED_LOGINS.has(comment.author?.login ?? '');
-/** An issue covers a due date exactly when the workflow's body or a trusted comment carries its marker. */
+/** Only an issue the workflow opened counts: a collaborator can label anyone's issue. */
+const ours = (issue: Issue) => TRUSTED_LOGINS.has(issue.author?.login ?? '');
+/** An issue covers a due date exactly when it is ours and its body or a trusted comment carries the marker. */
 const carries = (issue: Issue, due: Due) =>
-  [
-    TRUSTED_LOGINS.has(issue.author?.login ?? '') ? (issue.body ?? '') : '',
-    ...(issue.comments ?? []).filter(trusted).map((comment) => comment.body),
-  ].some((text) => text.includes(marker(due)));
-const newestOpen = (issues: Issue[]) => issues.filter(isOpen).sort((a, b) => b.number - a.number)[0];
+  ours(issue) &&
+  [issue.body ?? '', ...(issue.comments ?? []).filter(trusted).map((comment) => comment.body)].some((text) =>
+    text.includes(marker(due)),
+  );
+const newestOpen = (issues: Issue[]) =>
+  issues.filter((issue) => ours(issue) && isOpen(issue)).sort((a, b) => b.number - a.number)[0];
 
 /**
  * What the workflow does for a due date: nothing when an issue, open or closed, already carries it;
- * otherwise comment on the open issue, or open one. Safe to run twice (ADR-0037).
+ * otherwise comment on its newest open issue, or open one. Safe to run twice (ADR-0037).
  */
 export function reminderAction(
   due: Due,
