@@ -35,7 +35,10 @@ export function outsideData(paths: readonly ChangedPath[]): string[] {
   return problems;
 }
 
-/** The files API's statuses the agent's PR may show; `removed` is a deletion, any other (`changed`: a mode) is refused. */
+/**
+ * The files API's statuses the agent's PR may show; `removed`, and `renamed` from a data path, are deletions,
+ * any other (`changed`: a mode) is refused.
+ */
 const STATUSES = new Set(['added', 'modified', 'renamed', 'removed']);
 
 /**
@@ -55,6 +58,8 @@ export function prFiles(
       const file: ChangedPath = previous ? { path, previous } : { path };
       if (status === 'removed') file.deleted = true;
       const problems = STATUSES.has(status) ? [] : [`${path}: status ${status}, only added, modified or renamed`];
+      // A rename takes its old name out of the tree: a data file renamed away (to data or not) is a removal.
+      if (status === 'renamed' && isData(previous)) problems.push(`${previous}: removed; ${REMOVAL}`);
       return [...outsideData([file]), ...problems];
     });
   const problems = rows.flat();
