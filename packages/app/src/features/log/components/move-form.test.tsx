@@ -125,7 +125,7 @@ describe('MoveForm', () => {
     fill('0,05');
     expect(screen.getAllByRole('status').map((each) => each.textContent?.replace(/\u00a0/gu, ' '))).toEqual([
       'The Log shows 0,03 BTC at Kraken on 20 Feb 2026. The Log looks for the other 0,02 BTC in the units you held outside Ledger on that day.',
-      'After this move, your move to Ledger on 10 Mar 2026 sends 0,03 BTC more than the Log shows outside Ledger that day. If both record one withdrawal, keep only one. If not, check the units that move sends.',
+      'After this move, your move to Ledger on 10 Mar 2026 sends 0,03 BTC more than the Log shows outside Ledger that day. If both record the same withdrawal, leave only one of them in the Log. If not, check the units that move sends.',
     ]);
     // The line never blocks the save; under global lots a move with no fee is not named.
     await save();
@@ -142,13 +142,54 @@ describe('MoveForm', () => {
     await open(withLedger, { perVenue: true });
     fill('0,06');
     expect(screen.getByRole('status').textContent?.replace(/\u00a0/gu, ' ')).toBe(
-      'The Log shows 0,03 BTC at Kraken on 20 Feb 2026. Outside Ledger, the Log finds only 0,05 BTC on that day.',
+      'The Log shows 0,03 BTC at Kraken on 20 Feb 2026. Outside Ledger, the Log finds 0,05 BTC in all on that day, 0,01 BTC fewer than this move sends.',
     );
     // Under global lots the fee is covered outside Ledger: no line.
     cleanup();
     await open(withLedger);
     fill('0.06');
     expect(screen.queryByText(/The Log shows/u)).toBeNull();
+  });
+
+  it('under global lots the short-source line shows with the units held at each venue, as the source cards show', async () => {
+    // Global FIFO sells the Kraken lot for the sale at Ledger, which leaves 0.2 BTC at Kraken: the move of 0.5 is
+    // short outside Ledger and its fee is taken at Ledger.
+    const sale = anEntry({ kind: 'sell', slot: null, date: date('2026-02-15'), units: units('0.2'), venue: 'Ledger' });
+    const entries = [bought('0.2', '2026-01-10', 'Kraken'), bought('1', '2026-02-10', 'Ledger'), sale];
+    await open(entries);
+    fill('0.5');
+    type('Units received', '0.4999');
+    expect(radio('Kraken').textContent?.replace(/ /gu, ' ')).toContain('0.2 BTC');
+    expect(screen.getByRole('status').textContent?.replace(/\u00a0/gu, ' ')).toBe(
+      'The Log shows 0.2 BTC at Kraken on 20 Feb 2026. Outside Ledger, the Log finds 0.2 BTC in all on that day, 0.3 BTC fewer than this move sends.',
+    );
+    // A sale of all of Ledger's lot leaves 1 BTC at Kraken, which covers the move: no line.
+    cleanup();
+    const covered = [bought('1', '2026-01-10', 'Kraken'), bought('1', '2026-02-10', 'Ledger')];
+    await open([...covered, { ...sale, units: units('1') }]);
+    fill('0.5');
+    type('Units received', '0.4999');
+    expect(screen.queryByRole('status')).toBeNull();
+  });
+
+  it("the later-move line writes the stored move's figure in its own coin", async () => {
+    // Per venue: an edit that turns the first BTC move into an ETH move leaves the BTC move back to Kraken short.
+    const ether = anEntry({
+      kind: 'extra',
+      coin: ETH.id,
+      date: date('2026-01-10'),
+      slot: null,
+      units: units('2'),
+      venue: 'Kraken',
+    });
+    const first = aMove({ date: date('2026-02-01'), units: units('1'), received: units('1') });
+    const back = aMove({ date: date('2026-03-01'), venue: 'Ledger', to: 'Kraken', units: units('1') });
+    const entries = [bought('1', '2026-01-10', 'Kraken'), ether, first, { ...back, received: units('0.9999') }];
+    await open(entries, { editing: first, perVenue: true });
+    fireEvent.click(radio('ETH'));
+    expect(screen.getByText(/^After this move/u).textContent?.replace(/\u00a0/gu, ' ')).toBe(
+      'After this move, your move to Kraken on 1 Mar 2026 sends 1 BTC more than the Log shows outside Kraken that day. If both record the same withdrawal, leave only one of them in the Log. If not, check the units that move sends.',
+    );
   });
 
   it('the duplicate line', async () => {
