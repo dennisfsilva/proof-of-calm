@@ -169,7 +169,8 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - A fix for a wiring bug is proven by a test that goes through the wiring: reverting the fixed line
   must fail a test. In #136, the rows branch's fix for a Learn module's review dates was tested only
   on the pure function it calls. Reverting the wiring line (`propose.ts:113`) left all 57
-  content-review tests green, and the branch waits for that test.
+  content-review tests green; a `finish --dry` test in `tools/content-review/propose.test.ts` now
+  fails on that revert.
 
 ## Known gaps
 
