@@ -235,8 +235,8 @@ dark mode uses the dark steps above, not an inversion; the validator runs whenev
   margin that reaches under a control keeps that control's whole target: the collapsible's trigger
   is positioned (no z-index), so it paints above the open panel, whose margin reaches under its
   bottom edge when the root has no gap, and a tap there still closes it. A script focus move onto
-  an element that may sit under the tab bar (a row after "Show all", the row an Undo
-  restores) focuses with `preventScroll` and then calls `scrollIntoView({ block: 'nearest' })`:
+  an element that may sit under the tab bar (a row after "Show all", the row in a deleted row's
+  place, the row an Undo restores) focuses with `preventScroll` and then calls `scrollIntoView({ block: 'nearest' })`:
   Chromium's own focus scroll ignores the padding and leaves the element partly under the bar.
   Every element this move lands on carries a top scroll margin of `stack-md` (`scroll-mt-result`;
   the header is not sticky, §7): the Log rows' toggles, the country change's result line, an
@@ -256,7 +256,12 @@ dark mode uses the dark steps above, not an inversion; the validator runs whenev
   focus on that heading. End buying's and Delete everything's Undo put the focus on the control that
   ran the action they undo, with its ring showing whether the Undo was reached by a click, F6 or
   Tab, unless the person moved the focus while the undo ran; a refused one gives it back where it
-  was before the toast. Once the toast has given the focus back, a Log row's Undo moves it to the
+  was before the toast. A Log row's `Delete entry` sets its target before the write and, once the
+  commit has removed the row, moves the focus by the script focus move above to the toggle of the
+  row now at the deleted row's index among the transactions shown, else to the toggle before it,
+  else to the Log's `h1`; before that commit the row at that index is still the deleted one, and a
+  refused or failed delete moves no focus. Its Undo keeps the toast's default focus return, so the
+  page never scrolls to its top. Once the toast has given the focus back, a Log row's Undo moves it to the
   restored row's toggle and a skipped month's Undo on Today to the action card's heading
   (`today-action`, `tabindex="-1"`) and on Log to the screen's `h1`. Dismissing the rule-change
   notice or the red-day banner at Today's foot takes its button away, so the focus moves to that

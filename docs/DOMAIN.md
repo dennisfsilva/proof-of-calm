@@ -549,20 +549,29 @@ either scope (+€29,900 without the `held` entry, where the unit comes off the 
 (§3.6) both read the lots and sales through it, so the units sellable and the units out of P/L describe the same
 remaining lots.
 
-`venueUnits(entries, coin, date, lotRule = 'fifo')`: the units of the coin held at each venue at the end of `date`, as
+The venue figures take no lot rule: `venueUnits` and `venueUnitsAtMove` match per venue and FIFO whatever the country's
+scope and rule, and every tax figure keeps the country's rule through `matchLots`. They say where the Log shows the
+units, and a lot rule changes them only when a sale or a move takes units its own venue lacks; FIFO then takes the oldest
+lots, the likeliest to have no venue, since data logged before the move step often lacks one (ADR-0054, option 6). Italy,
+the one LIFO profile, matches globally, so no per-venue LIFO figure exists to agree with. That is one convention, not one
+figure: the move form's source cards read `venueUnitsAtMove`, without `heldLots`, and `venueUnits` reads through it. A
+sale of 0.2 BTC at Kraken on 2025-12-01 that no lot covers (imported data) and 0.5 BTC bought at Kraken on 2026-01-01:
+a move on 2026-02-01 finds 0.5 at Kraken, where `venueUnits` gives 0.3 at the end of the date.
+
+`venueUnits(entries, coin, date)`: the units of the coin held at each venue at the end of `date`, as
 `{ venue, units }`, `venue` null for the units bought with none named. It matches the live entries dated on or before
-`date` per venue whatever the country's scope (units sit at a venue even where the law pools them), with the lot rule
-given, reads the lots through `heldLots` and adds up their places by venue, so the venues sum to the units held then:
+`date` per venue and FIFO whatever the country's scope (units sit at a venue even where the law pools them) and rule,
+reads the lots through `heldLots` and adds up their places by venue, so the venues sum to the units held then:
 the purchases less the sales dated on or before `date`, never below 0. A venue with no units left is left out; the
 venues come in the order of the first lot that still holds units there (`compareEntries`). Per venue, FIFO, 1 BTC bought
 at Kraken on 2025-01-01, 1 BTC bought at Ledger on 2025-02-01 and a sale of 0.4 BTC at Ledger on 2025-03-01: on
 2025-03-01 Kraken holds 1 and Ledger 0.6; on 2025-01-31 only Kraken, 1.
 
-`venueUnitsAtMove(entries, coin, date, stored, lotRule = 'fifo')`: the units of the coin at each venue at a move's place
+`venueUnitsAtMove(entries, coin, date, stored)`: the units of the coin at each venue at a move's place
 in the matching order on `date`, as `{ venue, units }`: after the date's purchases and the moves before it, before the
 date's sales. A move being edited (`stored`) keeps its `createdAt` and id among the date's moves; a new move (null)
 comes after all of them, as `saveMove` places it (stamped at its `now`). `entries` leave out the entries being edited.
-It matches the live entries before that place per venue whatever the scope, with the lot rule given, and adds up their
+It matches the live entries before that place per venue and FIFO whatever the scope and rule, and adds up their
 places by venue without `heldLots`, so a venue holds exactly what `matchLots` finds there when it reaches the move
 (a sale no lot covered is not taken off the lots bought after it). Venues with none are left out, in the order of
 `venueUnits`. Per venue, 0.05 BTC bought at Kraken and 0.02 BTC at Bitvavo on 2026-01-15 and a sale of 0.03 BTC at
