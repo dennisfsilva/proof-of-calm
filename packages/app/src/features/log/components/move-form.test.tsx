@@ -136,13 +136,13 @@ describe('MoveForm', () => {
     expect(screen.queryByText(/^After this move/u)).toBeNull();
   });
 
-  it('the short-source line says how much the Log finds outside the destination when that is less than sent', async () => {
+  it('the short-source line says how much the Log shows outside the destination when that is less than sent', async () => {
     // 0.05 BTC outside Ledger on 20 Feb 2026 and 0.01 at Ledger: a move of 0.06 finds only 0.05 outside.
     const withLedger = [...lots, bought('0.01', '2026-02-01', 'Ledger')];
     await open(withLedger, { perVenue: true });
     fill('0,06');
     expect(screen.getByRole('status').textContent?.replace(/\u00a0/gu, ' ')).toBe(
-      'The Log shows 0,03 BTC at Kraken on 20 Feb 2026. Outside Ledger, the Log finds 0,05 BTC in all on that day, 0,01 BTC fewer than this move sends.',
+      'The Log shows 0,03 BTC at Kraken on 20 Feb 2026. Outside Ledger, the Log shows 0,05 BTC in all on that day, 0,01 BTC fewer than this move sends.',
     );
     // Under global lots the fee is covered outside Ledger: no line.
     cleanup();
@@ -161,7 +161,7 @@ describe('MoveForm', () => {
     type('Units received', '0.4999');
     expect(radio('Kraken').textContent?.replace(/ /gu, ' ')).toContain('0.2 BTC');
     expect(screen.getByRole('status').textContent?.replace(/\u00a0/gu, ' ')).toBe(
-      'The Log shows 0.2 BTC at Kraken on 20 Feb 2026. Outside Ledger, the Log finds 0.2 BTC in all on that day, 0.3 BTC fewer than this move sends.',
+      'The Log shows 0.2 BTC at Kraken on 20 Feb 2026. Outside Ledger, the Log shows 0.2 BTC in all on that day, 0.3 BTC fewer than this move sends.',
     );
     // A sale of all of Ledger's lot leaves 1 BTC at Kraken, which covers the move: no line.
     cleanup();

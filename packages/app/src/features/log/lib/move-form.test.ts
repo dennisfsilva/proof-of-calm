@@ -419,7 +419,7 @@ describe('moveLines and the moves it leaves short (docs/DOMAIN.md §3.7)', () =>
     });
   });
 
-  it('the short-source line says how much the Log finds outside the destination when that is less than sent', () => {
+  it('the short-source line says how much the Log shows outside the destination when that is less than sent', () => {
     // 0.05 BTC outside Ledger on 20 Feb 2026, 0.01 at Ledger: a move of 0.06 finds 0.05 outside.
     const withLedger = [...lots, bought('0.01', '2026-02-01', 'Ledger')];
     const six = { ...draft, sent: units('0.06'), received: units('0.0598') };
