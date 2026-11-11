@@ -3,8 +3,10 @@
 # and component tests with 100 % coverage on packages/core, content validation, security.txt, the
 # commit subjects, the PR's label and body lines, and the content review guard (an agent/ or content-review
 # PR changes and deletes only content data, judged by the base commit's copy of the script before pnpm or any
-# PR code runs, in a step the PR's copy of this file holds, so a PR that edits ci.yml can change it: the
-# owner's diff read catches that; every other PR gets the listing as a report). stories: every story at
+# PR code runs, in a step the PR's copy of this file holds, so a PR that edits ci.yml can change it: a
+# tripwire; the owner's diff read sees any .github/ change, and the review's finish
+# (`node tools/content-review/propose.ts finish`) refuses one before any push; every other PR gets the
+# listing as a report). stories: every story at
 # two widths in both themes with axe. export-build: the Vite export of apps/mobile, its export check and its smoke test in the
 # pinned container. e2e-visual: in the pinned container, e2e-build makes the web build once, with the
 # bundle secret scan and Today's application code (`node tools/size/today.ts`; weaker since Today's
@@ -138,9 +140,9 @@ jobs:
       # files, so the count is compared. The script is the base commit's copy, run before pnpm or any PR code
       # (which could write GITHUB_ENV or GITHUB_PATH), so a PR that edits the script never judges itself; the
       # step is the PR's copy of this workflow, so a PR that edits ci.yml can change or drop it: a tripwire.
-      # The owner's diff read (docs/CONTENT-OPS.md §8) sees any .github/ change, and the review job's finish
-      # (planned: M2) refuses one before any push. On a base without the script (no agent branch can exist
-      # yet) the PR's own copy only reports, and the step passes.
+      # The owner's diff read (docs/CONTENT-OPS.md §8) sees any .github/ change, and the review's finish,
+      # `node tools/content-review/propose.ts finish`, refuses one before any push. On a base without the
+      # script (no agent branch can exist yet) the PR's own copy only reports, and the step passes.
       - name: Content data only on agent PRs
         if: ${{ github.event_name == 'pull_request' }}
         env:
