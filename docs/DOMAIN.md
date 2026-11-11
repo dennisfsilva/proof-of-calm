@@ -781,7 +781,9 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   The two days come only from `useReviewDates` in `packages/app/src/lib/services`, so every screen names
   the same ones. Only `Mark as reviewed` on `/plan/review` writes `Prefs.reviewedAt`: the clock's now, on
   the prefs as stored, in a prefs-only write that stamps no `changedAt`, so no backup prompt follows;
-  opening the page writes nothing. A JSON import that stores a plan whose id differs from the stored
+  opening the page writes nothing. Its third part lists, for each coin held at the end of today, the units at each
+  venue from `venueUnits` (§3.7) and the count of one-tap estimates among the coin's live entries dated on or before
+  today (`reviewVenues` in `packages/app/src/features/plan/lib/venues.ts`), and writes nothing either. A JSON import that stores a plan whose id differs from the stored
   plan's, or with no plan stored, sets `reviewedAt` to null in the same write, since a review of the
   replaced plan would postpone this one's and be named as its; an import into the stored plan keeps it.
   A prototype import stamps `createdAt` at the import, so its review counts from that day.
