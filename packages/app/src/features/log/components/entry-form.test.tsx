@@ -1220,7 +1220,7 @@ describe('EntryForm', () => {
 
   // DESIGN §6, D5: every field that can cause the line comes before it, and a refused save still reveals only the
   // alert line and Save, so the line sits after the Venue and note panel and outside Save's box.
-  it('in a grouped edit, shows the move line after the Venue field and before Save, outside the box that holds Save', async () => {
+  it('in a grouped edit, shows the move line after the Venue and note panel and before Save, outside its box', async () => {
     const bought = (moment: string) =>
       anEntry({
         kind: 'extra',
@@ -1240,12 +1240,14 @@ describe('EntryForm', () => {
     });
     await renderForm({ kind: 'extra', editing }, [...editing, move]);
     fireEvent.click(screen.getByRole('button', { name: 'Venue and note' }));
-    const venue = screen.getByLabelText('Venue (optional)');
+    // The note field ends the panel: the line follows it, not only the Venue field.
+    const note = screen.getByLabelText('Note (optional)');
     type('Venue (optional)', 'Ledger');
     const line = screen.getByRole('status');
     expect(line.textContent?.replace(/ /g, ' ')).toContain('your move to Ledger on 10 Jan 2026');
     const saveButton = screen.getByRole('button', { name: 'Save' });
-    expect(venue.compareDocumentPosition(line) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(note.compareDocumentPosition(line) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(note.parentElement?.contains(line)).toBe(false);
     expect(line.compareDocumentPosition(saveButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(saveButton.parentElement?.contains(line)).toBe(false);
   });
