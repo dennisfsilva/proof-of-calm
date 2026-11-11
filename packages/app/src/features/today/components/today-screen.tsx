@@ -48,7 +48,8 @@ import { RuleChangeBanner } from './rule-change-banner';
 
 // Today (docs/DOMAIN.md §3.3 to §3.5, §3.10, §3.11; docs/DESIGN.md §7): the primary action first, the
 // quiet pending list, the portfolio number, the strip with its today marker (the way to Plan) and at
-// most one banner (the red-day banner, a rule-change notice, or the backup banner), or in its place the durability line.
+// most one banner (the red-day banner, a rule-change notice, the annual review, or the backup banner),
+// or in its place the durability line.
 // Everything but the prices is in the snapshot when the shell shows the screen; the prices line keeps its
 // height before the first fetch, so the value arriving moves nothing below it.
 
