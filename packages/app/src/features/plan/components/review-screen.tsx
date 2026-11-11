@@ -27,8 +27,9 @@ import { VenueList } from './venue-list';
 // counts from; the plan in the Plan screen's words, the person's note quoted as the fall page quotes it, and
 // `Edit plan`; a rule change not yet seen, then the rules held with their date line; the units the Log shows at each
 // venue (./venue-list); then `Mark as reviewed`. Opening it writes nothing; only the button records a review. The
-// first line keeps the day it named when the page opened, so after the mark the result line alone names the review's. Once the commit has replaced the button, the result line takes the focus (docs/DESIGN.md
-// §6); a failed write keeps the button and the focus where they are, and the toast says so.
+// first line keeps the day it named when the page opened, so after the mark the result line alone names the
+// review's. Once the commit has replaced the button, the result line takes the focus (docs/DESIGN.md §6); a failed
+// write keeps the button and the focus where they are, and the toast says so.
 
 const BACK =
   'inline-flex min-h-target items-center self-start font-semibold text-16 text-ink underline underline-offset-4';
