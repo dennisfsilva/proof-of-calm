@@ -393,7 +393,7 @@ describe('moveLines and the moves it leaves short (docs/DOMAIN.md §3.7)', () =>
     expect([refused.later, refused.found]).toEqual([null, null]);
   });
 
-  it("under global lots reads outside from the units held at each venue but the destination, as the source cards show", () => {
+  it('under global lots reads outside from the units held at each venue but the destination, as the source cards show', () => {
     // Global FIFO sells the Kraken lot for the sale at Ledger, which leaves 1 BTC at Kraken: no line anywhere.
     const sale = anEntry({
       kind: 'sell',
