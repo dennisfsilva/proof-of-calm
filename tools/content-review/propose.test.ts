@@ -98,7 +98,9 @@ describe('propose', () => {
       'Read',
       'Grep',
       'Glob',
-      ...['jurisdictions', 'rules', 'facts', 'templates', 'cycles'].map((dir) => `Edit(/packages/content/${dir}/*.json)`),
+      ...['jurisdictions', 'rules', 'facts', 'templates', 'cycles'].map(
+        (dir) => `Edit(/packages/content/${dir}/*.json)`,
+      ),
       'Edit(/packages/content/learn/*.mdx)',
       'Edit(/.content-review/*)',
       'Bash(pnpm run validate:content)',
