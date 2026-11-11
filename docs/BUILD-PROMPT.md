@@ -129,6 +129,13 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   tab's snapshot. #100's race fix passed its same-tab test while another tab's write refused the
   Save with no field and no message on screen, and its second round reloads the stored entries
   before the refusal shows.
+- A figure a line states about where the Log holds units is read from the source of the figures
+  shown beside it (the move form's source cards, `venueUnitsAtMove`), never from the matching's
+  takes: under global lots those sit where global sales left them. #108's round 0 found its
+  outside-the-destination figure, read from the takes, contradicting the cards. A count that
+  summarizes such lines elsewhere follows the same listing rule as the lines: the per-lot file's
+  `feeAtDestination` header from #97 still counted a fee the global matching took at the
+  destination while the Log held enough outside it, a move no line names, until #110.
 
 ## Known gaps
 
