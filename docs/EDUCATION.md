@@ -227,7 +227,7 @@ Diário da República, `k.ie-2026` the Finance (No. 2) Bill 2026 in the Oireacht
 pages. Rows a and b (the falls), h, i and o to q are Proof of Calm's own computation: the value opens with "Proof of Calm's
 own computation" and its series, so a module quoting it says who computed it, and the publisher is
 the exchange whose daily candles it used, so the first-view line opens with the publisher
-("Bitstamp closes, …"; for the falls, Cycles' own line "Mt. Gox, CoinMarketCap, and Bitstamp intraday prices, …", and in Risk honestly the chart's line "{publishers} intraday highs and lows in US dollars, {first} to {last}; the falls are Proof of Calm's own computation.") (`docs/LEGAL.md` §4). An ETH figure is a fact of its own, sourced to the ETH candles it came from.
+("Bitstamp closes, …"; for the falls, Cycles' own line and Risk honestly's chart line "{publishers} intraday highs and lows in US dollars, {first} to {last}; the falls are Proof of Calm's own computation.") (`docs/LEGAL.md` §4). An ETH figure is a fact of its own, sourced to the ETH candles it came from.
 The cycles file's rows read the series rows a and b name, bitcoin's from row a and the other coins' from row b, except LINK 2021: it stays on Bitstamp,
 because only Bitstamp's 3-day candles give a low window that runs to today in one request, while row
 b quotes LINK from Coinbase; both give 91 %.

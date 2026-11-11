@@ -146,4 +146,20 @@ describe('the cycles file (docs/EDUCATION.md §2 and §6)', () => {
     expect(module.value.body).not.toMatch(/Mt\.[ \n]Gox/u);
     expect(module.value.words).toBeLessThan(400);
   });
+
+  it("ends Cycles' source line in LEGAL §4's intraday form, from the first high in the file to fact a's date", () => {
+    const path = 'packages/content/learn/cycles.mdx';
+    const module = parseModule(path, readFileSync(new URL('learn/cycles.mdx', root), 'utf8'));
+    if (!module.ok) throw new Error(path);
+    const highs = CycleDrawdownsSchema.parse(cycles).drawdowns.flatMap(({ coin, high }) => (coin === 'BTC' ? [high] : []));
+    const [first = ''] = highs.toSorted();
+    const last = facts.find(({ key }) => key === A)?.date ?? '';
+    // One space for each line end and no-break space, so a line that wraps reads as written; a blank line, which would
+    // end the paragraph before the element, reads as two and does not match.
+    const prose = module.value.body.replaceAll(/[ \n]/gu, ' ');
+    expect(prose).toContain(
+      `Mt. Gox, CoinMarketCap, and Bitstamp intraday highs and lows in US dollars, ${written(first)} to ${written(last)}; ` +
+        "the falls are Proof of Calm's own computation. <PastPerformance />",
+    );
+  });
 });
