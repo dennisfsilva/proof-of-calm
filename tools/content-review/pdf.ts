@@ -17,9 +17,9 @@ export const MAX_BYTES = 25 * 1024 * 1024;
 export const PDFTOTEXT = 'pdftotext';
 const MAX_REDIRECTS = 3;
 const TIMEOUT_MS = 60_000;
-/** What the agent does when a PDF yields no text (docs/CONTENT-OPS.md §3, the unreachable rows). */
+/** What the agent does when a PDF yields no text (docs/CONTENT-OPS.md §3, step 4). */
 export const FILING_RULE =
-  "File the source as an unreachable row 'PDF not read'; leave the lines that rest only on it unchanged and name them in notes.";
+  "File the source as an unreachable row: its url, and in expected what the source should show; add a note 'PDF not read: <url>' naming the lines that rest only on it, and leave those lines unchanged.";
 
 export type Fetch = (url: string, init: RequestInit) => Promise<Response>;
 export type Exec = (file: string, args: readonly string[]) => unknown;

@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -112,6 +112,18 @@ describe('pdfTarget and fetchPdf', () => {
     const huge = fakeFetch({ [URL1]: () => new Response(endless) });
     expect((await fetchPdf(URL1, domains, huge)).problem).toMatch(/over 25 MB/);
     expect(pulls).toBeLessThan(30);
+  });
+});
+
+describe('FILING_RULE', () => {
+  it('the filing rule names expected and notes, no field the draft lacks', () => {
+    const draft = JSON.parse(readFileSync(new URL('./fixtures/draft-good.json', import.meta.url), 'utf8'));
+    // An unreachable row holds only url and expected; the 'PDF not read' text goes in a note.
+    expect(Object.keys(draft.unreachable[0])).toEqual(['url', 'expected']);
+    expect(Object.keys(draft)).toContain('notes');
+    expect(FILING_RULE).toContain('an unreachable row: its url, and in expected what the source should show');
+    expect(FILING_RULE).toContain("add a note 'PDF not read: <url>' naming the lines that rest only on it");
+    expect(FILING_RULE).not.toMatch(/unreachable row '/);
   });
 });
 
