@@ -934,9 +934,10 @@ describe('moveShortLines', () => {
 describe('actionMessage', () => {
   const format = createFormatters('en-GB', 'en-GB');
 
-  it('words a sale over the holdings with the excess, the units held and today, trimmed as prose', () => {
+  it("actionMessage words sell-exceeds-held with the error's own date", () => {
     const error = { code: 'sell-exceeds-held', coin: BTC.id, held: units('0.312'), sold: units('0.333') } as const;
-    expect(actionMessage(error, plan, format, date('2026-10-16'))).toEqual({
+    const dated = { ...error, date: date('2026-10-16'), written: true };
+    expect(actionMessage(dated, plan, format)).toEqual({
       key: 'errors.action.sell-exceeds-held',
       values: {
         product: 'Proof of Calm',
@@ -950,13 +951,27 @@ describe('actionMessage', () => {
   // The evaluator of issue 205: 0,881000 ETH beside the holding note's 0,119 (DESIGN §5 rule 7, CONTENT-STYLE §4).
   it('writes both figures at the places the more precise one needs, up to the coin decimals', () => {
     const pt = createFormatters('pt-PT', 'pt-PT');
-    const sale = { code: 'sell-exceeds-held', coin: ETH.id, held: units('0.119'), sold: units('1') } as const;
-    expect(actionMessage(sale, plan, pt, date('2026-10-16')).values).toMatchObject({
+    const sale = {
+      code: 'sell-exceeds-held',
+      coin: ETH.id,
+      held: units('0.119'),
+      sold: units('1'),
+      date: date('2026-09-20'),
+      written: false,
+    } as const;
+    expect(actionMessage(sale, plan, pt).values).toMatchObject({
       excess: '0,881\u00a0ETH',
       held: '0,119\u00a0ETH',
     });
-    const small = { code: 'sell-exceeds-held', coin: BTC.id, held: units('0.00012345'), sold: units('0.001') } as const;
-    expect(actionMessage(small, plan, pt, date('2026-10-16')).values).toMatchObject({
+    const small = {
+      code: 'sell-exceeds-held',
+      coin: BTC.id,
+      held: units('0.00012345'),
+      sold: units('0.001'),
+      date: date('2026-09-20'),
+      written: false,
+    } as const;
+    expect(actionMessage(small, plan, pt).values).toMatchObject({
       excess: '0,00087655\u00a0BTC',
       held: '0,00012345\u00a0BTC',
     });
@@ -965,8 +980,15 @@ describe('actionMessage', () => {
   // A sale dated before its purchase holds 0 that day (CONTENT-STYLE \u00a73): a zero figure reads 0, not 0,000.
   it('writes a zero holding as 0 and keeps the excess at its own places', () => {
     const pt = createFormatters('pt-PT', 'pt-PT');
-    const early = { code: 'sell-exceeds-held', coin: BTC.id, held: units('0'), sold: units('0.001') } as const;
-    expect(actionMessage(early, plan, pt, date('2026-09-20')).values).toMatchObject({
+    const early = {
+      code: 'sell-exceeds-held',
+      coin: BTC.id,
+      held: units('0'),
+      sold: units('0.001'),
+      date: date('2026-09-20'),
+      written: false,
+    } as const;
+    expect(actionMessage(early, plan, pt).values).toMatchObject({
       excess: '0,001\u00a0BTC',
       held: '0\u00a0BTC',
     });
@@ -982,7 +1004,7 @@ describe('actionMessage', () => {
       written: false,
     } as const;
     // The move's date, not the date of the edit that left it short (docs/DOMAIN.md §6, ADR-0055).
-    expect(actionMessage(error, plan, format, date('2026-10-16'))).toEqual({
+    expect(actionMessage(error, plan, format)).toEqual({
       key: 'errors.action.fee-exceeds-held',
       values: {
         product: 'Proof of Calm',
@@ -992,20 +1014,18 @@ describe('actionMessage', () => {
         date: '1 Mar 2026',
       },
     });
-    expect(actionMessage({ ...error, held: units('0') }, plan, format, date('2026-10-16')).values.held).toBe(
-      '0\u00a0BTC',
-    );
+    expect(actionMessage({ ...error, held: units('0') }, plan, format).values.held).toBe('0\u00a0BTC');
   });
 
   it('names the month of a slot refusal in words', () => {
-    expect(actionMessage({ code: 'slot-done', slot: month('2026-10') }, plan, format, date('2026-10-20'))).toEqual({
+    expect(actionMessage({ code: 'slot-done', slot: month('2026-10') }, plan, format)).toEqual({
       key: 'errors.action.slot-done',
       values: { product: 'Proof of Calm', slot: 'October\u00a02026' },
     });
   });
 
   it('passes every other error as it is', () => {
-    expect(actionMessage({ code: 'no-coins' }, plan, format, date('2026-10-16'))).toEqual({
+    expect(actionMessage({ code: 'no-coins' }, plan, format)).toEqual({
       key: 'errors.action.no-coins',
       values: { product: 'Proof of Calm' },
     });

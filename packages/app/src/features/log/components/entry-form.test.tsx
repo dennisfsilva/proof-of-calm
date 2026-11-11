@@ -978,13 +978,13 @@ describe('EntryForm', () => {
       expect(stored(services).some((entry) => entry.kind === 'sell')).toBe(false);
     });
 
-    it('refuses to move a purchase after the sale it covers, and says which sale', async () => {
+    it("a purchase date edit refused for a sale names the sale's date", async () => {
       const sale = anEntry({ kind: 'sell', date: date('2026-10-10'), slot: null, units: units('0.005') });
       const { services, onDone } = await renderForm({ kind: 'dca', editing: [october] }, [older, october, sale]);
       type('Date', '2026-10-15');
       await save();
       expect(text(screen.getByRole('alert'))).toBe(
-        'This change leaves a later BTC sale without the purchases that cover it. Change or delete the sale first.',
+        'This change leaves your BTC sale on 10 Oct 2026 without the units it sells. Check that sale in the Log.',
       );
       expect(onDone).not.toHaveBeenCalled();
       expect(stored(services).find((entry) => entry.id === october.id)?.date).toBe('2026-10-01');
