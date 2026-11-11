@@ -30,6 +30,8 @@ added, renamed or removed here must be added, renamed or removed there too. -->
 - [ ] `validate:content` green; `reviewedBy` set to `owner`; `lastReviewed` today; `nextReviewDue` sensible
 - [ ] `status.version` bumped, `changedOn` set and `changeNotice` written when a substantive rule changed;
   a bump that corrects our own file also writes a `changeNotice` that says so (`docs/JURISDICTIONS.md` §6)
+- [ ] when `e2e-visual` fails, the baselines it names deleted in a commit on this branch; new ones sent in a
+  needs-owner PR after the merge
 - [ ] the verification queue items for this country closed or carried over
 - [ ] no live mention or closing keyword: no `@` name, issue number or commit renders as a link
 

@@ -133,8 +133,9 @@ jobs:
         with:
           node-version-file: .node-version
       # The content review guard (docs/CONTENT-OPS.md §1, §3): an agent/ branch or a PR labelled content-review
-      # may change only content data and delete none of it (a data file renamed away is a deletion). Every
-      # other PR gets the same listing as a report and is never failed by it. An agent/ head is always
+      # may change only content data and delete none of it (a data file renamed away is a deletion); it may
+      # also remove a baseline PNG under apps/web/e2e/*-snapshots/, the owner's step when the reviewed date
+      # changed a screen (docs/CONTENT-OPS.md §8), but never add or change one. Every other PR gets the same listing as a report and is never failed by it. An agent/ head is always
       # enforced; the label is read when the run starts, so a label added later counts from the next push
       # (the default pull_request types: a label change starts no run). The files API lists at most 3,000
       # files, so the count is compared. The script is the base commit's copy, run before pnpm or any PR code
