@@ -1,8 +1,6 @@
 // The content review's git work, so the agent needs no git and no gh (docs/CONTENT-OPS.md §3; the skill's
-// allowed-tools pre-approve this script and no git or gh rule). Their one pre-approved fetch is pdf.ts:
-// one argv, the allow-list checked on the URL and on every redirect hop, writing only .content-review/pdf/.
-// `start` checks for a clean tree at
-// origin/main. `finish` refuses a HEAD that is not origin/main (without --dry) before it touches anything,
+// allowed-tools pre-approve this script and no git, gh or web rule; pdf.ts, the fetching tool, asks the owner
+// on each run). `start` checks for a clean tree at origin/main. `finish` refuses a HEAD that is not origin/main (without --dry) before it touches anything,
 // then stages everything, refuses a path outside content data, a mode, a binary, a deletion, an entry not
 // at agent-draft, a draft problem and a draft row that does not match the staged diff (rows.ts), and on a refusal puts the index back as it found it before any
 // commit or push. Otherwise
