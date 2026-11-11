@@ -8,8 +8,14 @@ import { fileURLToPath } from 'node:url';
 
 type Due = { date: string; scope: 'full' | 'jurisdictions' };
 type Comment = { body: string; authorAssociation?: string; author?: { login?: string } | null };
-/** The fields `gh issue list --json number,state,body,comments` gives. */
-type Issue = { number: number; state: string; body?: string | null; comments?: Comment[] | null };
+/** The fields `gh issue list --json` gives for FIELDS. */
+type Issue = {
+  number: number;
+  state: string;
+  body?: string | null;
+  comments?: Comment[] | null;
+  author?: { login?: string } | null;
+};
 
 /** No reminder for a date before the reminder existed. */
 const FIRST_DUE = '2027-01-01';
@@ -25,13 +31,13 @@ const SCHEDULE: [string, Due['scope']][] = [
 ];
 const LABEL = 'content-review';
 /**
- * Who may write a due-date marker in a comment: the workflow's token and people with write access.
- * Anyone can comment on an issue in a public repository, and a forged marker would silence a date.
- * The body needs no check: only the issue's author and collaborators can edit it, and only
- * collaborators can set the label.
+ * Who may write a due-date marker, since a forged one silences a date. A comment: the workflow's
+ * token or a person with write access (anyone can comment on a public issue). A body: only the
+ * workflow's, because the author of any issue a collaborator labels can edit its body.
+ * gh reports the token as `app/github-actions` on an issue and `github-actions` on a comment.
  */
 const TRUSTED_ASSOCIATIONS = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
-const TRUSTED_LOGINS = new Set(['github-actions', 'github-actions[bot]']);
+const TRUSTED_LOGINS = new Set(['app/github-actions', 'github-actions', 'github-actions[bot]']);
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 const display = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
 
@@ -88,11 +94,12 @@ const marker = (due: Due) => `<!-- content-review-due: ${due.date} -->`;
 const isOpen = (issue: Issue) => issue.state.toUpperCase() === 'OPEN';
 const trusted = (comment: Comment) =>
   TRUSTED_ASSOCIATIONS.has(comment.authorAssociation ?? '') || TRUSTED_LOGINS.has(comment.author?.login ?? '');
-/** An issue covers a due date exactly when its body or a trusted comment carries that date's marker. */
+/** An issue covers a due date exactly when the workflow's body or a trusted comment carries its marker. */
 const carries = (issue: Issue, due: Due) =>
-  [issue.body ?? '', ...(issue.comments ?? []).filter(trusted).map((comment) => comment.body)].some((text) =>
-    text.includes(marker(due)),
-  );
+  [
+    TRUSTED_LOGINS.has(issue.author?.login ?? '') ? (issue.body ?? '') : '',
+    ...(issue.comments ?? []).filter(trusted).map((comment) => comment.body),
+  ].some((text) => text.includes(marker(due)));
 const newestOpen = (issues: Issue[]) => issues.filter(isOpen).sort((a, b) => b.number - a.number)[0];
 
 /**
@@ -115,19 +122,15 @@ export function sessionNotice(due: Due | undefined, issues: Issue[]): string | u
   if (open)
     return `Content review due (#${open.number}): run /review-content when you have an hour; close #${open.number} when its PR is merged.`;
   if (!due || issues.some((issue) => carries(issue, due))) return undefined;
-  return `Content review due since ${format(due.date)} with no reminder (GitHub pauses idle schedules): run /review-content now, and restart the reminders with gh workflow enable content-review-reminder.yml.`;
+  return `Content review due since ${format(due.date)} with no reminder (GitHub pauses idle schedules): run /review-content now; restart the reminders with gh workflow enable content-review-reminder.yml, then gh workflow run content-review-reminder.yml -f dry_run=false to open its issue.`;
 }
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const gh = (args: string[], timeout = 30_000) =>
   execFileSync('gh', args, { cwd: root, encoding: 'utf8', timeout, stdio: ['ignore', 'pipe', 'pipe'] });
+const FIELDS = 'number,state,body,comments,author';
 const listIssues = (timeout?: number): Issue[] =>
-  JSON.parse(
-    gh(
-      ['issue', 'list', '--label', LABEL, '--state', 'all', '--limit', '20', '--json', 'number,state,body,comments'],
-      timeout,
-    ),
-  );
+  JSON.parse(gh(['issue', 'list', '--label', LABEL, '--state', 'all', '--limit', '20', '--json', FIELDS], timeout));
 
 function issueCommand(args: string[]): void {
   const at = args.indexOf('--today');
