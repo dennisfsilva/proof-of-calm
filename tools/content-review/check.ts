@@ -1,5 +1,6 @@
 // The content review guard (docs/CONTENT-OPS.md §1, §3). The review agent's output is untrusted data: it may
-// change only content data, deletes nothing, and every change it makes carries agent-draft. It never
+// change only content data, deletes nothing, and every change it makes carries agent-draft; the PR may also
+// remove a visual baseline, the owner's step when `lastReviewed` changed its screen (§8). It never
 // re-implements `pnpm validate:content` (CI's run holds the schemas), so it may refuse too much. ci.yml's
 // verify job runs the base commit's copy of `pr-files` on every PR; it enforces on an agent/ head or --enforce.
 import { spawnSync } from 'node:child_process';
@@ -16,6 +17,13 @@ export const DATA_PATHS: readonly RegExp[] = ['jurisdictions', 'rules', 'facts',
 const isData = (path: string) => DATA_PATHS.some((pattern) => pattern.test(path));
 
 const REMOVAL = 'the draft names the removal and the owner deletes it';
+
+/**
+ * A visual baseline of the web e2e suite. The owner's `lastReviewed` changes the screens that print it, so
+ * the owner deletes their baselines on the review PR (docs/CONTENT-OPS.md §8); only `prFiles` accepts that
+ * removal, and `propose.ts finish` still refuses every deletion.
+ */
+const BASELINE = /^apps\/web\/e2e\/[a-z0-9][a-z0-9.-]*-snapshots\/[a-z0-9][a-z0-9-]*\.png$/;
 
 /** Every changed path that is not content data, or is deleted, with the reason; empty when the change is confined. */
 export function outsideData(paths: readonly ChangedPath[]): string[] {
@@ -36,8 +44,8 @@ export function outsideData(paths: readonly ChangedPath[]): string[] {
 }
 
 /**
- * The files API's statuses the agent's PR may show; `removed`, and `renamed` from a data path, are deletions,
- * any other (`changed`: a mode) is refused.
+ * The files API's statuses the agent's PR may show; `removed`, and `renamed` from a data path, are deletions
+ * (a removed baseline PNG excepted), any other (`changed`: a mode) is refused.
  */
 const STATUSES = new Set(['added', 'modified', 'renamed', 'removed']);
 
@@ -55,6 +63,7 @@ export function prFiles(
     .filter((line) => line.length > 0)
     .map((line) => {
       const [path = '', previous = '', status = ''] = line.split('\t');
+      if (status === 'removed' && BASELINE.test(path)) return [];
       const file: ChangedPath = previous ? { path, previous } : { path };
       if (status === 'removed') file.deleted = true;
       const problems = STATUSES.has(status) ? [] : [`${path}: status ${status}, only added, modified or renamed`];
