@@ -33,9 +33,10 @@ tax statements. Decision: ADR-0015 (principle), ADR-0037 (scheduling); mechanics
 
 The reminder is `.github/workflows/content-review-reminder.yml` (`tools/content-review/reminder.ts`):
 on each date above it opens one issue labelled `content-review`, assigned to the owner, or comments
-`Still due` on the one still open. A date counts as reminded only when an issue, open or closed,
-carries its hidden `content-review-due` marker in a body the workflow wrote or in a comment from the
-workflow, the owner or a collaborator. While a review is due, the `SessionStart` hook in
+`Still due` on the one it opened that is still open. It counts only issues the workflow opened, since
+anyone's issue can carry the label: a date counts as reminded only when such an issue, open or
+closed, carries its hidden `content-review-due` marker in its body or in a comment from the workflow,
+the owner or a collaborator. While a review is due, the `SessionStart` hook in
 `.claude/settings.json` shows the owner one line, also when GitHub paused the schedule after 60 days
 without activity: restart it with `gh workflow enable content-review-reminder.yml`, then open the
 missing issue with `gh workflow run content-review-reminder.yml -f dry_run=false`.
