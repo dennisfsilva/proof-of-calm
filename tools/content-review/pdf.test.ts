@@ -1,9 +1,9 @@
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { type Fetch, FILING_RULE, fetchPdf, MAX_BYTES, PDFTOTEXT, pdfName, pdfTarget, run } from './pdf.ts';
+import { type Fetch, FILING_RULE, fetchPdf, MAX_BYTES, PDF_DIR, PDFTOTEXT, pdfName, pdfTarget, run } from './pdf.ts';
 
 const domains = ['revenue.ie', 'bundesfinanzministerium.de'];
 const URL1 = 'https://www.revenue.ie/en/tdm/part-02/02-01-03.pdf';
@@ -147,6 +147,29 @@ describe('run', () => {
     const offList = await run('https://example.com/a.pdf', { domains, root, fetchFn, exec: missing });
     expect(offList.code).toBe(2);
     expect(offList.line).toMatch(/^pdf: .*example\.com is not on/);
+  });
+
+  it('a redirect whose Location does not parse prints the filing rule', async () => {
+    const root = tempRoot();
+    const fetchFn: Fetch = async () =>
+      new Response(null, { status: 302, headers: { location: 'https://exa mple.com/x.pdf' } });
+    const result = await run(URL1, { domains, root, fetchFn });
+    expect(result.code).toBe(1);
+    expect(result.line).toMatch(/^pdf: PDF not read, .*redirect/);
+    expect(result.line).toContain(FILING_RULE);
+    expect(existsSync(join(root, PDF_DIR))).toBe(false);
+  });
+
+  it('an error thrown by fetch prints the filing rule with its message', async () => {
+    const root = tempRoot();
+    const fetchFn: Fetch = async () => {
+      throw new Error('socket hang up');
+    };
+    const result = await run(URL1, { domains, root, fetchFn });
+    expect(result.code).toBe(1);
+    expect(result.line).toContain('socket hang up');
+    expect(result.line).toContain(FILING_RULE);
+    expect(result.line).not.toContain('\n');
   });
 
   const hasPdftotext = spawnSync(PDFTOTEXT, ['-v']).error === undefined;
