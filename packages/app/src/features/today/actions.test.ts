@@ -305,6 +305,7 @@ describe('todayActions.dismissRuleChange (docs/DOMAIN.md §3.11, §3.12)', () =>
       today,
       redDay: null,
       ruleChange,
+      annualReview: false,
       backupNeeded: false,
       dismissed: prefs.dismissedBanners,
     });
