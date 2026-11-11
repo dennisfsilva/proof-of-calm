@@ -129,7 +129,12 @@ function finish(dry: boolean, draftPath: string): number {
   const today = [date.getFullYear(), date.getMonth() + 1, date.getDate()]
     .map((part) => String(part).padStart(2, '0'))
     .join('-');
-  run('git', ['switch', '--quiet', '--create', branchName(today)]);
+  try {
+    run('git', ['switch', '--quiet', '--create', branchName(today)]); // fails when today's branch exists
+  } catch (error) {
+    run('git', ['read-tree', found]);
+    throw error;
+  }
   run('git', ['commit', '--quiet', '--message', `chore(content): draft the content review of ${today}`]);
   run('git', ['push', '--quiet', '--set-upstream', 'origin', branchName(today)]);
   console.log(run('gh', prArgs(today, countries, '.content-review/body.md')).trim());
