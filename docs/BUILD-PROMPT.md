@@ -161,6 +161,15 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   branch must pass. Session 18b's content review guard refused the baseline deletion that the
   required e2e-visual check needs after any change to text a screen shows; the integration read found
   it after the guard had merged (#137).
+- A check that tells whether a change already landed on main reads the content or the record of the
+  merge, never the patch. In #136, `git cherry` called a rebase-merged review unmerged whenever main
+  had changed a line within 3 lines of the review's edit before the merge, because a patch-id
+  includes its context lines. That was the fourth review round of the branch
+  fix/review-finish-resume, which waits for a check by `git merge-tree` or by the PR's state.
+- A fix for a wiring bug is proven by a test that goes through the wiring: reverting the fixed line
+  must fail a test. In #136, the rows branch's fix for a Learn module's review dates was tested only
+  on the pure function it calls. Reverting the wiring line (`propose.ts:113`) left all 57
+  content-review tests green, and the branch waits for that test.
 
 ## Known gaps
 
