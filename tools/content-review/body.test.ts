@@ -67,6 +67,32 @@ describe('defuseCell', () => {
     expect(defuseCell('Closes: #23')).toBe(`Closes\\:${WJ} \\#${WJ}23`);
     expect(defuseCell('a | b')).toBe('a \\| b');
   });
+
+  it('defuseCell leaves no task-list checkbox at the start of a list item', () => {
+    // GitHub's task-list filter runs after the parse and reads `\[x\]` as `[x]`; it also takes a
+    // leading `- ` or `1. ` and a no-break space after the brackets (gh api markdown, 2026-11-11).
+    const boxes = ['[ ] open task', '[x] done task', '[X] Done task', '- [x] after a dash', '1. [ ] after a number'];
+    const ticked = /\\\[[ xX]\\\]/;
+    for (const input of [...boxes, '[x] no-break space']) {
+      expect(defuseCell(input), input).not.toMatch(ticked);
+    }
+    const draft = good();
+    const first = (i: number) => boxes[i % boxes.length] as string;
+    const { body, problems } = renderBody(
+      {
+        ...draft,
+        verified: draft.verified.map((v, i) => ({ ...v, item: first(i) })),
+        pending: draft.pending.map((p, i) => ({ ...p, item: first(i + 1) })),
+        queue: boxes.map((item) => ({ item, outcome: 'closed', note: '[x] note' })),
+        notes: boxes,
+        canary: { path: '[x] path', instructions: boxes },
+      },
+      TEMPLATE,
+      domains,
+    );
+    expect(problems).toEqual([]);
+    expect(body).not.toMatch(ticked);
+  });
 });
 
 describe('sourceLink', () => {
