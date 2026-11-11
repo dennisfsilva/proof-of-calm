@@ -41,6 +41,7 @@ const PAGES: readonly Entry[] = [
   { name: 'plan', path: '/plan', heading: 'Plan' },
   { name: 'plan-buy', path: '/plan', heading: 'Plan', phase: 'buy' },
   { name: 'plan-sell', path: '/plan', heading: 'Plan', phase: 'sell' },
+  { name: 'plan-review', path: '/plan/review', heading: 'Review the plan', phase: 'buy' },
   { name: 'settings', path: '/settings', heading: 'Settings' },
   { name: 'settings-buy', path: '/settings', heading: 'Settings', phase: 'buy' },
   { name: 'learn', path: '/learn', heading: 'Learn' },
