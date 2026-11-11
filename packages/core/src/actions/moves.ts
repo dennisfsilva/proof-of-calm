@@ -149,8 +149,9 @@ export function moveShortfallOf(entries: readonly Entry[], move: Entry, context:
 
 /**
  * The stored moves (ids not in `written`) of the coins `written` touches, its entries' coins as written and as stored,
- * whose `short` (per-venue lots) or `feeAtDestination + feeUncovered` (global lots) grows from `entries` to `entries`
- * once `written` is stored: per coin in the order the write touches them, each coin's in `compareEntries` order.
+ * that `moveShortfalls` lists once `written` is stored over `entries` and did not list before, or whose measure
+ * (`shortfallMeasure`: `short` under per-venue lots, `feeAtDestination + feeUncovered` under global lots) grew: per coin
+ * in the order the write touches them, each coin's in `compareEntries` order.
  */
 export function movesLeftShort(
   entries: readonly Entry[],
