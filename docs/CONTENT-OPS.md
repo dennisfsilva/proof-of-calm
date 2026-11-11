@@ -33,25 +33,17 @@ tax statements. Decision: ADR-0015 (principle), ADR-0037 (scheduling); mechanics
 
 The reminder is `.github/workflows/content-review-reminder.yml` (`tools/content-review/reminder.ts`):
 on each date above it opens one issue labelled `content-review`, assigned to the owner, or comments
-`Still due` on the one still open. The issue body and each comment carry the date in a hidden
-`content-review-due` marker; a date counts as reminded only when an issue, open or closed, carries
-its marker (in a comment, only from the owner, a collaborator or the workflow), so a second run
-changes nothing and an issue closed before a date's run does not count for it. While a review is
-due, Claude Code shows the owner one line at session start (the `SessionStart` hook in
-`.claude/settings.json`), also when no issue carries the date two days after it, because GitHub
-paused the schedule after 60 days without activity. Then run `/review-content` now and restart the
-reminders with `gh workflow enable content-review-reminder.yml`; a paused workflow cannot be
-dispatched until then. `gh workflow run content-review-reminder.yml -f dry_run=false` opens the
-missing issue; a plain dispatch only prints it.
+`Still due` on the one still open. A date counts as reminded only when an issue, open or closed,
+carries its hidden `content-review-due` marker in a body the workflow wrote or in a comment from the
+workflow, the owner or a collaborator. While a review is due, the `SessionStart` hook in
+`.claude/settings.json` shows the owner one line, also when GitHub paused the schedule after 60 days
+without activity: restart it with `gh workflow enable content-review-reminder.yml`, then open the
+missing issue with `gh workflow run content-review-reminder.yml -f dry_run=false`.
 
 The app shows a card as under review when `nextReviewDue` is more than twelve months past
 (`docs/JURISDICTIONS.md` §1), and shows the dated `changeNotice` once when `status.version` increases (`docs/JURISDICTIONS.md` §6).
 
 ## 3. Mechanics
-
-Since 2026-11-11 the owner runs the review by hand, in a Claude Code session, and no scheduled model
-job runs in CI (ADR-0037, Deviations): the reminder of §2 replaces the schedule. What follows
-describes the scheduled job and is rewritten for the manual run by the session of #125.
 
 Workflow, `.github/workflows/content-review.yml` (planned: M2):
 

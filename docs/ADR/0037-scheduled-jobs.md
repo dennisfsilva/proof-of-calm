@@ -33,10 +33,6 @@ None.
   Claude Code sessions with `/review-content`, instead of the scheduled `claude-code-action` job, so
   no model credential goes into CI. Two reasons: Anthropic's Consumer Terms §3 forbid access
   "through automated or non-human means, whether through a bot, script, or otherwise" except through
-  an API key, and the owner declined an API account for about USD 25 a year. In place of the schedule,
-  `.github/workflows/content-review-reminder.yml` opens one issue labelled `content-review`, assigned
-  to the owner, on each due date (the same five dates at 06:23 UTC), or comments on the one still
-  open; it needs `issues: write` and no secret. Because GitHub pauses scheduled workflows in public
-  repositories after 60 days without activity, a `SessionStart` hook in `.claude/settings.json` also
-  shows the owner one line while a review is due, including when no issue was opened
-  (`docs/CONTENT-OPS.md` §2). The Anthropic API key leaves this ADR's list of secrets.
+  an API key, and the owner declined an API account for about USD 25 a year. A reminder issue on each
+  due date and a line at Claude Code's start replace the schedule (`docs/CONTENT-OPS.md` §2). The
+  Anthropic API key leaves this ADR's list of secrets.
