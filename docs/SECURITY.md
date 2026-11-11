@@ -180,7 +180,9 @@ date; fixed releases in the same major are pinned through pnpm `overrides`); Soc
 decides, once the owner installs it (`docs/OWNER-SETUP.md` §2); CodeQL if the repository is public;
 GitHub Actions pinned to commit digests with `permissions: {}` at the top of every workflow except
 `snapshots.yml`, which sets `contents: read` there for its one job; lockfile changes reviewed by a
-human.
+human. The content review reads source PDFs with pdftotext from Git for Windows, not a package:
+`tools/content-review/pdf.ts` calls it with an argv array and no shell, only on a file it fetched
+from an allow-listed host and wrote into the gitignored .content-review/pdf folder.
 
 ## 10. Backups and the restore drill
 
