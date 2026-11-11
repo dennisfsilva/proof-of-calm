@@ -80,6 +80,14 @@
     "dismiss": "Dismiss",
     "failed": "The notice could not be dismissed. Try again."
   },
+  "review": {
+    "created": "You set up this plan on {date}.",
+    "reviewed": "You last reviewed this plan on {date}.",
+    "question": "Is it still right? Have the rules changed?",
+    "open": "Review the plan",
+    "later": "Later",
+    "failed": "The review could not be postponed. Try again."
+  },
   "redDay": {
     "week": "{names}{coins, select, one {} other {, in the amounts you hold,}} fell {fall} in the seven days to {date}.",
     "high": "On {date} {names}{coins, select, one { was} other {, in the amounts you hold, were}} {fall} below {coins, select, one {its} other {their combined}} 90-day high.",
