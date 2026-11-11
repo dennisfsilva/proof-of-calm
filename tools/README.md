@@ -25,7 +25,9 @@ renders the PR body from the agent's JSON draft, every text cell defused and eve
 or gh: `node tools/content-review/propose.ts start` refuses a dirty tree or a HEAD other than
 origin/main; `node tools/content-review/propose.ts finish` (`--dry`, `--draft <path>`) stages
 everything and refuses a path outside content data, a mode, a binary, a deletion, an entry not at
-agent-draft or a draft problem, leaving the index as it found it, before any commit. Otherwise it
+agent-draft or a draft problem, leaving the index as it found it, before any commit. Without `--dry`
+it first refuses a HEAD other than the commit the local origin/main names, the check start makes,
+before it stages, switches, commits or pushes anything. When nothing is refused it
 writes the body to `.content-review/` (gitignored) and, without `--dry`, commits on
 agent/content-review-<date>, pushes and opens the PR labelled needs-owner and content-review; it
 never merges. The `finish-dry` job runs it on the fixtures: one change accepted, four refused.
