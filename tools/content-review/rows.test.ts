@@ -60,6 +60,23 @@ describe('rowProblems', () => {
     expect(rowProblems(draft(covered, ['facts/education.json']), changed)).toEqual([]);
   });
 
+  it('a changed file with a change row but no reviewed row is refused', () => {
+    const changed = [
+      { file: IE, leaves: ['card.allowances[0]', 'status.reviewedBy'] },
+      { file: MODULE, before: 'a\n', after: 'b\n' },
+      { file: 'packages/content/rules/ie.json', leaves: ['holdingRules[0].days'] },
+    ];
+    const rows = [row('jurisdictions/ie.json', 'card.allowances[0]'), row('learn/what-is-dca.mdx', '')];
+    expect(rowProblems(draft(rows), changed)).toEqual([
+      `${IE}: changed, and no reviewed[] row names it`,
+      `${MODULE}: changed, and no reviewed[] row names it`,
+    ]);
+    expect(rowProblems(draft(rows, ['jurisdictions/ie.json']), changed)).toEqual([
+      `${MODULE}: changed, and no reviewed[] row names it`,
+    ]);
+    expect(rowProblems(draft(rows, ['jurisdictions/ie.json', 'learn/what-is-dca.mdx']), changed)).toEqual([]);
+  });
+
   it('rowProblems skips rules/*.json and accepts bookkeeping leaves', () => {
     const changed = [
       { file: 'packages/content/rules/ie.json', leaves: ['holdingRules[0].days'] },
