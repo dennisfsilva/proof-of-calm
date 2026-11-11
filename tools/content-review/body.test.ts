@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { allowedDomains, defuseCell, parseDraft, type ReviewDraft, renderBody, sourceLink } from './body.ts';
 
-const WJ = '⁠';
+const WJ = String.fromCodePoint(0x2060);
 const PUNCT = /[!-/:-@[-`{-~]/;
 const fixture = (name: string) => readFileSync(new URL(`./fixtures/${name}`, import.meta.url), 'utf8');
 /** Inline allow-list: the unit tests read no file outside tools (tools/README.md, turbo inputs). */
@@ -27,7 +27,7 @@ const hostile = [
   'a | pipe',
   '- ```\nfence in a list item',
   'code `span | across` cells',
-  'bidi ‮evil‬ override',
+  `bidi ${String.fromCodePoint(0x202e)}evil${String.fromCodePoint(0x202c)} override`,
   ':smile: and :+1:',
   '802711b6 and dennisfsilva/proof-of-calm@802711b6ba2dcc7381ffccb66f41ba28941e4e70',
   '$x^2$ and $$y$$ and a$b$c',
@@ -53,11 +53,11 @@ describe('defuseCell', () => {
       const unescaped = out.replace(/\\[!-/:-@[-`{-~]/g, '');
       expect(unescaped, input).not.toMatch(PUNCT);
       // One line, and no control or format character but the word joiner.
-      expect(out, input).not.toMatch(/[\p{Cc}]|(?!⁠)\p{Cf}/u);
+      expect(out.replaceAll(WJ, ''), input).not.toMatch(/[\p{Cc}\p{Cf}]/u);
       // The joiner breaks what GitHub links in text after the Markdown parse.
-      expect(out, input).not.toMatch(/[@#:/][^⁠]|[@#:/]$/);
-      expect(out, input).not.toMatch(/[^⁠]\\\$|\\\$[^⁠]|^\\\$|\\\$$/);
-      expect(out, input).not.toMatch(/www(?!⁠)/i);
+      expect(out.replace(new RegExp(`[@#:/]${WJ}`, 'g'), ''), input).not.toMatch(/[@#:/]/);
+      expect(out.replaceAll(`${WJ}\\$${WJ}`, ''), input).not.toMatch(/\\\$/);
+      expect(out.replace(new RegExp(`www${WJ}`, 'gi'), ''), input).not.toMatch(/www/i);
       expect(out, input).not.toMatch(/gh\\-/i);
       expect(out, input).not.toMatch(/[0-9a-f]{7}/i);
       // Nothing is lost: unescaped and without joiners, the cell reads as its input.
@@ -150,8 +150,8 @@ describe('renderBody', () => {
     const { body, problems } = renderBody(draft, TEMPLATE, domains);
     expect(problems).toEqual([]);
     expect(body.match(/^## .*$/gm)).toEqual(TEMPLATE.match(/^## .*$/gm)?.filter((h) => h !== '## Canary'));
-    const checklist = TEMPLATE.slice(TEMPLATE.indexOf('## Reviewer'), TEMPLATE.indexOf('## Run metadata'));
-    expect(body).toContain(checklist.trim());
+    const checklist = TEMPLATE.slice(TEMPLATE.indexOf('- [ ] every'), TEMPLATE.indexOf('## Run metadata'));
+    expect(body).toContain(`## Reviewer checklist (the owner)\n\n${checklist}## Run metadata`);
     expect(body).not.toContain('<!--');
     expect(body).toMatch(/^\| Item \| Field \| Old \| New \| Quote \|/m);
     expect(body).toContain(sourceLink(draft.changes[0]?.url ?? '', domains).link);
@@ -173,12 +173,20 @@ describe('renderBody', () => {
   it('renderBody reports a missing or unknown heading and an over-long body', () => {
     const draft = good();
     const missing = TEMPLATE.replace('## Notes for the owner\n', '');
-    expect(renderBody(draft, missing, domains).problems).toEqual(['template: heading "Notes for the owner" is missing']);
+    expect(renderBody(draft, missing, domains).problems).toEqual([
+      'template: heading "Notes for the owner" is missing',
+    ]);
     const unknown = `${TEMPLATE}\n## Extra\ntext\n`;
-    expect(renderBody(draft, unknown, domains).problems).toEqual(['template: heading "Extra" is not one body.ts fills or keeps']);
+    expect(renderBody(draft, unknown, domains).problems).toEqual([
+      'template: heading "Extra" is not one body.ts fills or keeps',
+    ]);
     const long = renderBody({ ...draft, notes: ['x'.repeat(60_000)] }, TEMPLATE, domains);
     expect(long.problems).toEqual([expect.stringMatching(/^body: \d+ characters, over 60000$/)]);
-    const offList = renderBody({ ...draft, unreachable: [{ url: 'https://evil.example/', expected: 'x' }] }, TEMPLATE, domains);
+    const offList = renderBody(
+      { ...draft, unreachable: [{ url: 'https://evil.example/', expected: 'x' }] },
+      TEMPLATE,
+      domains,
+    );
     expect(offList.problems).toEqual([expect.stringMatching(/^unreachable\[0\]\.url: /)]);
   });
 });
@@ -191,7 +199,9 @@ describe('parseDraft', () => {
     draft.countries = ['IE', 3];
     draft.changes[0].confidence = 'certain';
     draft.changes[0].substantive = 'yes';
-    draft.pending = [{ item: 'IE', what: 'x', effectiveFrom: '2027-01-01', status: 'rumoured', url: 'https://revenue.ie/' }];
+    draft.pending = [
+      { item: 'IE', what: 'x', effectiveFrom: '2027-01-01', status: 'rumoured', url: 'https://revenue.ie/' },
+    ];
     draft.queue = {};
     draft.canary = { path: 'x', instructions: 'y' };
     draft.extra = true;
