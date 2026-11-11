@@ -85,9 +85,9 @@ describe('rowProblems', () => {
       { file: 'packages/content/rules/ie.json', leaves: ['holdingRules[0].days'] },
       { file: IE, leaves: ['sources[1].accessed', 'status.reviewedBy', 'status.confidence', 'rules.rate'] },
     ];
-    expect(rowProblems(draft([row('jurisdictions/ie.json', 'rules.rate')], ['jurisdictions/ie.json']), changed)).toEqual(
-      [],
-    );
+    expect(
+      rowProblems(draft([row('jurisdictions/ie.json', 'rules.rate')], ['jurisdictions/ie.json']), changed),
+    ).toEqual([]);
     expect(rowProblems(draft([], ['jurisdictions/ie.json']), [{ file: IE, leaves: ['status.reviewedBy'] }])).toEqual(
       [],
     );

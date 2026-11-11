@@ -63,7 +63,8 @@ export function rowProblems(draft: ReviewDraft, changed: readonly Changed[]): st
           problems.push(`${file}: ${JSON.stringify(path)} changed, and no changes[] row names it`);
       }
     }
-    if (!draft.reviewed.some((row) => row.item === item)) problems.push(`${file}: changed, and no reviewed[] row names it`);
+    if (!draft.reviewed.some((row) => row.item === item))
+      problems.push(`${file}: changed, and no reviewed[] row names it`);
   }
   for (const [i, change] of draft.changes.entries()) {
     const file = changed.find((entry) => itemOf(entry.file) === change.item);
