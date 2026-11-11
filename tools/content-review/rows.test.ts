@@ -43,7 +43,7 @@ describe('leafChanges', () => {
 });
 
 describe('rowProblems', () => {
-  it('rowProblems refuses an uncovered leaf, a row for a non-change and a bookkeeping-only file with no reviewed row', () => {
+  it('rowProblems refuses an uncovered leaf, a row for a non-change and a changed file with no reviewed row', () => {
     const changed = [
       { file: IE, leaves: ['card.allowances[0]', 'rules.rate'] },
       { file: 'packages/content/facts/education.json', leaves: ['[0].sources[0].accessed', '[0].reviewedBy'] },
@@ -52,12 +52,15 @@ describe('rowProblems', () => {
     const rows = [row('jurisdictions/ie.json', 'card.allowances[0]'), row('jurisdictions/ie.json', 'card.summary60')];
     expect(rowProblems(draft(rows), changed)).toEqual([
       `${IE}: "rules.rate" changed, and no changes[] row names it`,
-      'packages/content/facts/education.json: only bookkeeping changed, and no reviewed[] row names it',
+      `${IE}: changed, and no reviewed[] row names it`,
+      'packages/content/facts/education.json: changed, and no reviewed[] row names it',
       `${MODULE}: changed, and no changes[] row names it`,
+      `${MODULE}: changed, and no reviewed[] row names it`,
       'changes[1]: a row for a non-change, "jurisdictions/ie.json" "card.summary60"',
     ]);
     const covered = [...rows.slice(0, 1), row('jurisdictions/ie.json', 'rules.rate'), row('learn/what-is-dca.mdx', '')];
-    expect(rowProblems(draft(covered, ['facts/education.json']), changed)).toEqual([]);
+    const reviewed = ['jurisdictions/ie.json', 'facts/education.json', 'learn/what-is-dca.mdx'];
+    expect(rowProblems(draft(covered, reviewed), changed)).toEqual([]);
   });
 
   it('a changed file with a change row but no reviewed row is refused', () => {
@@ -82,7 +85,9 @@ describe('rowProblems', () => {
       { file: 'packages/content/rules/ie.json', leaves: ['holdingRules[0].days'] },
       { file: IE, leaves: ['sources[1].accessed', 'status.reviewedBy', 'status.confidence', 'rules.rate'] },
     ];
-    expect(rowProblems(draft([row('jurisdictions/ie.json', 'rules.rate')]), changed)).toEqual([]);
+    expect(rowProblems(draft([row('jurisdictions/ie.json', 'rules.rate')], ['jurisdictions/ie.json']), changed)).toEqual(
+      [],
+    );
     expect(rowProblems(draft([], ['jurisdictions/ie.json']), [{ file: IE, leaves: ['status.reviewedBy'] }])).toEqual(
       [],
     );
@@ -104,7 +109,7 @@ describe('rowProblems', () => {
   it('rowProblems refuses a module whose lines with lastReviewed or nextReviewDue change', () => {
     const owner = 'the agent never sets lastReviewed or nextReviewDue; the owner sets lastReviewed in the flip';
     const refused = `${MODULE}: a line with lastReviewed or nextReviewDue changed; ${owner} (docs/CONTENT-OPS.md §8)`;
-    const rows = draft([row('learn/what-is-dca.mdx', 'reviewedBy')]);
+    const rows = draft([row('learn/what-is-dca.mdx', 'reviewedBy')], ['learn/what-is-dca.mdx']);
     const afters = [
       front(['lastReviewed: 2027-01-01', dates[1] as string]),
       front([...dates, 'nextReviewDue: 2028-01-01']),
@@ -118,10 +123,10 @@ describe('rowProblems', () => {
   });
 
   it('rowProblems accepts a module whose review-date lines are unchanged', () => {
-    const rows = draft([row('learn/what-is-dca.mdx', 'reviewedBy')]);
+    const rows = draft([row('learn/what-is-dca.mdx', 'reviewedBy')], ['learn/what-is-dca.mdx']);
     const after = front(dates, 'Another body.\n').replace('reviewedBy: owner', 'reviewedBy: agent-draft');
     expect(rowProblems(rows, [{ file: MODULE, before: front(dates), after }])).toEqual([]);
-    expect(rowProblems(draft([]), [{ file: MODULE, before: front(dates), after }])).toEqual([
+    expect(rowProblems(draft([], ['learn/what-is-dca.mdx']), [{ file: MODULE, before: front(dates), after }])).toEqual([
       `${MODULE}: changed, and no changes[] row names it`,
     ]);
   });

@@ -1,8 +1,8 @@
 // The draft's rows against the staged diff, both ways (docs/CONTENT-OPS.md §3, steps 4 and 5): every
 // changed JSON leaf that is not bookkeeping needs a changes[] row whose item is the data file and whose
 // field is the leaf's path; every row names a changed leaf; a changed module (.mdx) needs at least one
-// row; a file whose changes are all bookkeeping needs a reviewed[] row. The generated rules files are
-// skipped. The agent never sets lastReviewed or nextReviewDue: the owner sets lastReviewed in the flip
+// row; every changed file, a module too, needs a reviewed[] row, whose read and of the owner's flip
+// rests on. The generated rules files are skipped. The agent never sets lastReviewed or nextReviewDue: the owner sets lastReviewed in the flip
 // (§8), so a change to either is refused, in a module any changed line that names either.
 import type { ReviewDraft } from './body.ts';
 
@@ -54,17 +54,16 @@ export function rowProblems(draft: ReviewDraft, changed: readonly Changed[]): st
       if (JSON.stringify(dateLines(before)) !== JSON.stringify(dateLines(after)))
         problems.push(`${file}: a line with lastReviewed or nextReviewDue changed; ${OWNER} (docs/CONTENT-OPS.md §8)`);
       if (rows.length === 0) problems.push(`${file}: changed, and no changes[] row names it`);
-      continue;
+    } else {
+      const bookkeeping = (path: string) => BOOKKEEPING.some((pattern) => pattern.test(path));
+      for (const path of paths) {
+        if (OWNER_ONLY.test(path))
+          problems.push(`${file}: ${JSON.stringify(path)} changed; ${OWNER} (docs/CONTENT-OPS.md §8)`);
+        else if (!bookkeeping(path) && !rows.some((change) => change.field === path))
+          problems.push(`${file}: ${JSON.stringify(path)} changed, and no changes[] row names it`);
+      }
     }
-    const bookkeeping = (path: string) => BOOKKEEPING.some((pattern) => pattern.test(path));
-    for (const path of paths) {
-      if (OWNER_ONLY.test(path))
-        problems.push(`${file}: ${JSON.stringify(path)} changed; ${OWNER} (docs/CONTENT-OPS.md §8)`);
-      else if (!bookkeeping(path) && !rows.some((change) => change.field === path))
-        problems.push(`${file}: ${JSON.stringify(path)} changed, and no changes[] row names it`);
-    }
-    if (paths.every(bookkeeping) && !draft.reviewed.some((row) => row.item === item))
-      problems.push(`${file}: only bookkeeping changed, and no reviewed[] row names it`);
+    if (!draft.reviewed.some((row) => row.item === item)) problems.push(`${file}: changed, and no reviewed[] row names it`);
   }
   for (const [i, change] of draft.changes.entries()) {
     const file = changed.find((entry) => itemOf(entry.file) === change.item);
