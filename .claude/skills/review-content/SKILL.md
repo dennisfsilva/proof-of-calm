@@ -78,7 +78,7 @@ For each profile in `packages/content/jurisdictions/`:
 1. Fetch every source the profile lists, each `pendingChanges[].source` included: the validator
    checks those as profile sources (`packages/content/src/validate.ts`), so each is fetched and
    counted in `of`. Fetch a PDF with `node tools/content-review/pdf.ts <url>` and Read the `.txt` it
-   names. Its quotes are verbatim: copy a passage as the `.txt` holds it. Compare every field with
+   names; the command asks the owner on each run and shows its URL. Its quotes are verbatim: copy a passage as the `.txt` holds it. Compare every field with
    what the source says today.
    - `of` counts the sources on the item's list: the country's list plus `EU`, or `facts`.
    - Never fetch a `secondary` source off the list. Name it in `notes` as
