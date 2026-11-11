@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { type Fetch, FILING_RULE, fetchPdf, MAX_BYTES, pdfName, pdfTarget, run } from './pdf.ts';
+import { type Fetch, FILING_RULE, fetchPdf, MAX_BYTES, PDFTOTEXT, pdfName, pdfTarget, run } from './pdf.ts';
 
 const domains = ['revenue.ie', 'bundesfinanzministerium.de'];
 const URL1 = 'https://www.revenue.ie/en/tdm/part-02/02-01-03.pdf';
@@ -149,7 +149,7 @@ describe('run', () => {
     expect(offList.line).toMatch(/^pdf: .*example\.com is not on/);
   });
 
-  const hasPdftotext = spawnSync('pdftotext', ['-v']).error === undefined;
+  const hasPdftotext = spawnSync(PDFTOTEXT, ['-v']).error === undefined;
   it.skipIf(!hasPdftotext)('extracts a hand-written one-page PDF', async () => {
     const root = tempRoot();
     const result = await run(URL1, { domains, root, fetchFn: fakeFetch({ [URL1]: pdf }) });

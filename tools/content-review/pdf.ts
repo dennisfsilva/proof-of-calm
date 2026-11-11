@@ -13,6 +13,8 @@ import { allowedDomains, sourceLink } from './body.ts';
 
 export const PDF_DIR = '.content-review/pdf';
 export const MAX_BYTES = 25 * 1024 * 1024;
+/** The system binary that reads the PDF: xpdf's, in Git for Windows' mingw64/bin, or poppler's. */
+export const PDFTOTEXT = 'pdftotext';
 const MAX_REDIRECTS = 3;
 const TIMEOUT_MS = 60_000;
 /** What the agent does when a PDF yields no text (docs/CONTENT-OPS.md §3, the unreachable rows). */
@@ -115,7 +117,7 @@ export async function run(
   writeFileSync(pdf, fetched.bytes);
   rmSync(txt, { force: true });
   try {
-    (deps.exec ?? pdftotext)('pdftotext', ['-q', '-enc', 'UTF-8', '-layout', pdf, txt]);
+    (deps.exec ?? pdftotext)(PDFTOTEXT, ['-q', '-enc', 'UTF-8', '-layout', pdf, txt]);
   } catch (error) {
     const missing = (error as NodeJS.ErrnoException).code === 'ENOENT';
     return notRead(missing ? 'pdftotext is missing' : 'pdftotext failed');
