@@ -159,11 +159,14 @@ external links and the Risk link in the mobile export (M3).
   on 2026-11-03 (#318); a per-rule source key in
   the jurisdiction schema, so each rule's "Sources" link no longer takes the profile's first source;
   UK handling per ADR-0029.
-- The review pipeline: the scheduled agent job that compares stored rules with official sources and
-  opens a PR with diff, sources and confidence (`docs/CONTENT-OPS.md`), dry-run proven once; the
-  facts' `reviewedBy`, so CI blocks a fact at `agent-draft` as it does a profile, built on 2026-11-11
-  (#122), and the skill the job runs, with the review queue of `docs/JURISDICTIONS.md` §7.12, the same
-  day (#123); the job itself, its pull request template and its diff guard are not built.
+- The review pipeline: the owner's manual run of `/review-content`, which compares stored rules and
+  facts with official sources and opens a PR with diff, sources and confidence (`docs/CONTENT-OPS.md`
+  §3, ADR-0037 Deviations), one manual run proven once; the facts' `reviewedBy`, so CI blocks a fact
+  at `agent-draft` as it does a profile, built on 2026-11-11 (#122), and the skill, with the review
+  queue of `docs/JURISDICTIONS.md` §7.12, the same day (#123); also on 2026-11-11, the reminder issue
+  and its start-of-session line (#130), CI's diff guard (#131), the pull request template with the
+  body rendered from the agent's draft (#132), the finish script that opens the PR (#133) and the
+  skill's manual mode; the one manual run is the owner's and not yet made.
 - Red day: thresholds in core with tests; the page with the plan's current drawdown next to past cycle
   drawdowns and the user's sentence, built on 2026-11-09 as the fall page (#51, `docs/EDUCATION.md`
   §6); the banner, once per episode, highest priority, built on 2026-11-09 (#52, `docs/DOMAIN.md`
