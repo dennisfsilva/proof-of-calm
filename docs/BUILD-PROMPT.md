@@ -142,6 +142,13 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   after the seed can come too late. #118's first CI run lost that race twice in
   `apps/web/e2e/this-fall.spec.ts` (run 43003072139), while `apps/web/e2e/layout-shift.spec.ts`'s 502
   test still routes after its seed.
+- A function that makes untrusted text safe for a renderer (the content review job's pull-request
+  body, rendered by GitHub's Markdown) never predicts the renderer's parse. Its output is safe under
+  every reading, and from the first round its tests and its review render each hostile case through
+  the real renderer (`gh api markdown -f mode=gfm`). Session 18's guard kept the agent's fences and
+  code spans as trusted context, and each review round found a reading it had predicted wrongly: a
+  fence closed by a list item, a code span split by a table cell, then the source URLs its escaping
+  broke. The guard and the job moved to session 18b (#125).
 
 ## Known gaps
 
