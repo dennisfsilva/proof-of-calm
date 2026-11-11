@@ -1006,14 +1006,14 @@ describe('EntryForm', () => {
       it('moves the focus to the alert line when the save is refused from a field', async () => {
         await refuse(() => screen.getByLabelText('Date'));
         const line = screen.getByRole('alert');
-        expect(line.textContent).toContain('later BTC sale');
+        expect(line.textContent).toContain('your BTC sale on');
         expect(document.activeElement).toBe(line);
         expect(line.getAttribute('tabindex')).toBe('-1');
       });
 
       it('keeps the focus on Save when the save is refused from Save', async () => {
         const button = await refuse(() => screen.getByRole('button', { name: 'Save' }));
-        expect(screen.getByRole('alert').textContent).toContain('later BTC sale');
+        expect(screen.getByRole('alert').textContent).toContain('your BTC sale on');
         expect(document.activeElement).toBe(button);
       });
     });

@@ -1,7 +1,8 @@
 // Why a Log row's delete, or its Undo, wrote nothing (docs/DOMAIN.md §6, docs/CONTENT-STYLE.md §3, Delete an entry):
-// the toast's title, from the core's refusal and the row the person acted on. A fee refusal names the move the write
-// left worse covered by its own date (`uncoveredSale`), or, when the Undo would restore that move itself (`written`),
-// the move restored; a row of several entries is counted with the country's figures (CONTENT-STYLE §4).
+// the toast's title, from the core's refusal and the row the person acted on. A cover refusal names the sale or move
+// the write left worse covered by its own date (`uncoveredSale`), or, when the Undo would restore that sale or move
+// itself (`written`), the one restored; a row of several entries is counted with the country's figures
+// (CONTENT-STYLE §4).
 import { assertNever, type CoverRefusal, type EntryKind, type RestoreRefusal } from '@proofofcalm/core';
 import type { useTranslations } from 'use-intl';
 import type { Formatters } from '../../../lib/format';
@@ -14,9 +15,9 @@ export type LogWords = ReturnType<typeof useTranslations<'log'>>;
 const counted = (f: Formatters, count: number) => ({ count, figure: figure(f, count) });
 
 /**
- * The toast of a delete the core refused. Deleting a row only takes units away, so the move a fee refusal names is
- * never one the delete stores; the row is a purchase or a Coins added entry, since deleting a sale or a move leaves
- * every step as covered as before.
+ * The toast of a delete the core refused. Deleting a row only takes units away, so the sale or move a refusal names is
+ * never one the delete stores, and may be dated before the row; the row is a purchase or a Coins added entry, since
+ * deleting a sale or a move leaves every step as covered as before.
  */
 export function deleteRefusalTitle(
   error: CoverRefusal,
@@ -24,8 +25,7 @@ export function deleteRefusalTitle(
   f: Formatters,
   t: LogWords,
 ): string {
-  if (error.code === 'sell-exceeds-held') return t('row.notDeleted', { coin: error.coin });
-  return t('row.notDeletedFee', {
+  return t(error.code === 'sell-exceeds-held' ? 'row.notDeleted' : 'row.notDeletedFee', {
     kind: row.kind,
     coin: error.coin,
     date: f.date(error.date),
@@ -39,7 +39,11 @@ export function undoRefusalTitle(error: RestoreRefusal, count: number, f: Format
     case 'changed-since-delete':
       return t('row.notRestoredReplaced', counted(f, count));
     case 'sell-exceeds-held':
-      return t('row.notRestoredSold', { coin: error.coin });
+      return t(error.written ? 'row.notRestoredOwnSale' : 'row.notRestoredSold', {
+        coin: error.coin,
+        date: f.date(error.date),
+        ...counted(f, count),
+      });
     case 'fee-exceeds-held':
       // A move's row holds one entry (DOMAIN §3.9), so a move restored short of its own fee is the whole row.
       return error.written

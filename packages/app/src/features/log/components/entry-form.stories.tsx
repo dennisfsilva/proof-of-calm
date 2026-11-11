@@ -96,7 +96,7 @@ export const RefusedSaveKeepsFocus: Story = {
     const save = canvas.getByRole('button', { name: 'Save' });
     save.focus();
     await userEvent.keyboard('{Enter}');
-    await expect(await canvas.findByRole('alert')).toHaveTextContent(/later BTC sale/);
+    await expect(await canvas.findByRole('alert')).toHaveTextContent(/your BTC sale on/);
     await expect(save).toHaveFocus();
   },
 };

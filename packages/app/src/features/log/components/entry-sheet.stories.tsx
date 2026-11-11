@@ -51,7 +51,7 @@ async function refusedSaveInView({ canvasElement }: StoryContext) {
   save.focus();
   await userEvent.keyboard('{Enter}');
   const alert = await sheet.findByRole('alert');
-  await expect(alert).toHaveTextContent(/later ETH sale/);
+  await expect(alert).toHaveTextContent(/your ETH sale on/);
   await expect(save).toHaveFocus();
   const extent = ringExtent();
   await expect(extent).toBeGreaterThan(0);
@@ -90,7 +90,7 @@ async function refusedSaveFromField({ canvasElement }: StoryContext) {
   date.focus();
   await userEvent.keyboard('{Enter}');
   const alert = await sheet.findByRole('alert');
-  await expect(alert).toHaveTextContent(/later ETH sale/);
+  await expect(alert).toHaveTextContent(/your ETH sale on/);
   await waitFor(() => expect(alert).toHaveFocus());
   const extent = ringExtent();
   await expect(extent).toBeGreaterThan(0);
