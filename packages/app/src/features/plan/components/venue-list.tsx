@@ -30,22 +30,25 @@ export function VenueList({ venues, today }: { readonly venues: readonly CoinVen
       ) : (
         <>
           <p className="text-16">{t('intro', { date })}</p>
-          {venues.map(({ coin, decimals, venues: places, estimated }) => (
-            <div key={coin} className="flex flex-col gap-stack-xs">
-              <h3 className="font-semibold text-16">{coin}</h3>
-              <ul className="flex flex-col gap-stack-xs text-16">
-                {places.map((place) => (
-                  <li key={place.venue ?? ''} className="flex flex-wrap gap-x-stack-md">
-                    <span>{place.venue ?? t('noVenue')}</span>{' '}
-                    <span className="nums ml-auto whitespace-nowrap">{f.units(place.units, coin, decimals)}</span>
-                  </li>
-                ))}
-              </ul>
-              {estimated > 0 && (
-                <p className="text-16">{t('estimated', { count: estimated, figure: figure(estimated), coin })}</p>
-              )}
-            </div>
-          ))}
+          {/* One coin's group from the next wider than the lines inside a group (docs/DESIGN.md §6). */}
+          <div className="flex flex-col gap-stack-md">
+            {venues.map(({ coin, decimals, venues: places, estimated }) => (
+              <div key={coin} className="flex flex-col gap-stack-xs">
+                <h3 className="font-semibold text-16">{coin}</h3>
+                <ul className="flex flex-col gap-stack-xs text-16">
+                  {places.map((place) => (
+                    <li key={place.venue ?? ''} className="flex flex-wrap gap-x-stack-md">
+                      <span>{place.venue ?? t('noVenue')}</span>{' '}
+                      <span className="nums ml-auto whitespace-nowrap">{f.units(place.units, coin, decimals)}</span>
+                    </li>
+                  ))}
+                </ul>
+                {estimated > 0 && (
+                  <p className="text-16">{t('estimated', { count: estimated, figure: figure(estimated), coin })}</p>
+                )}
+              </div>
+            ))}
+          </div>
         </>
       )}
       <p className="text-16">{t('differs')}</p>

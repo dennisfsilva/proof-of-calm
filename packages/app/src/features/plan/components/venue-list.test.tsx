@@ -92,6 +92,16 @@ describe('VenueList', () => {
     expect(screen.queryByText(/The Log shows no coins/)).toBeNull();
   });
 
+  it('spaces one coin from the next wider than the lines inside a coin (docs/DESIGN.md §6)', async () => {
+    await mount([coin('BTC', 8, [line('Kraken', '0.01')]), coin('ETH', 6, [line('Kraken', '0.5')])]);
+    const groups = screen.getAllByRole('heading', { level: 3 }).map((heading) => heading.parentElement);
+    const wrapper = groups[0]?.parentElement;
+    expect(groups[1]?.parentElement).toBe(wrapper);
+    expect(wrapper?.tagName).toBe('DIV');
+    expect(wrapper?.classList.contains('gap-stack-md')).toBe(true);
+    expect(groups[0]?.classList.contains('gap-stack-xs')).toBe(true);
+  });
+
   it('gives the estimate line only for a count above 0, the count as a figure', async () => {
     await mount([coin('BTC', 8, [line(null, '0.014')], 1234), coin('ETH', 6, [line(null, '0.5')], 0)]);
     expect(
