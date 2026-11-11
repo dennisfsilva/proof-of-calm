@@ -4,7 +4,8 @@
 # allow-list through POST /markdown and fails on any mention, reference, commit link, link off the
 # draft's sources or cell not shown as written. Its token reads only; the endpoint posts nothing.
 # `finish-dry` runs tools/content-review/propose.ts finish --dry on the fixtures: one change accepted with
-# its body printed, then a workflow, a deletion, a fact at owner and an off-list citation each refused.
+# its body printed, then a workflow, a deletion, a fact at owner, an off-list citation and a draft row
+# for a leaf the staged diff does not change each refused.
 name: Content review
 
 on:
@@ -16,6 +17,7 @@ on:
       - tools/content-review/render-check.ts
       - tools/content-review/check.ts
       - tools/content-review/propose.ts
+      - tools/content-review/rows.ts
       - tools/content-review/fixtures/**
       - packages/content/sources.allow.json
       - .gitignore
@@ -59,9 +61,9 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .node-version
-      # One accepted change, then four refusals, each exiting 1 for its own reason with the tree reset
+      # One accepted change, then five refusals, each exiting 1 for its own reason with the tree reset
       # between; no install, no network, nothing pushed (--dry stops after the body).
-      - name: Accept one draft and refuse four cases
+      - name: Accept one draft and refuse five cases
         run: |
           f=tools/content-review/fixtures
           finish() { node tools/content-review/propose.ts finish --dry "$@"; }
@@ -90,3 +92,5 @@ jobs:
           refused owner 'reviewedBy is owner, not agent-draft' --draft "$f/draft-good.json"
           git apply "$f/finish-good.patch"
           refused off-list 'is not on packages/content/sources.allow.json' --draft "$f/draft-offlist.json"
+          git apply "$f/finish-norow.patch"
+          refused 'a row for a non-change' 'a row for a non-change' --draft "$f/draft-good.json"
