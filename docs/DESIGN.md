@@ -487,7 +487,9 @@ the form), so it waits for a screen that does. Notes, and the values this docume
   Sheet or Dialog is open over it (§7), and then runs its whole window again. It rises 16 px and fades in over `slow`, fades out with the exit
   easing, and both take 1 ms under reduced motion.
 - **The module sheet's `Close`.** A "Why?" sheet has no foot, so its `Close` stays in view as the module
-  scrolls, on the `overlay` fill, so text scrolled under it stays out of the way, and the title scrolls
+  scrolls, on the `overlay` fill, with the module keeping a 44 px column clear on its right, as a sheet's
+  header does for its title, so the text scrolling past passes beside it, never under it (the caveat's
+  box did at 125 % text zoom, by the card's padding falling short of the button), and the title scrolls
   off: a module's idea runs to several lines at 360 px, and the focus on the section keeps the place.
   Other sheets keep a `Close` that scrolls with them, because they have Save or Cancel at the foot. At
   rest it sits where theirs does, 8 px from the popup's top right, in the 44 px target. It is the

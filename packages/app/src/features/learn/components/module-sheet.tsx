@@ -2,7 +2,7 @@
 import { LEARN_MODULES } from 'virtual:learn-modules';
 import type { LearnModuleMeta } from '@proofofcalm/content';
 import { Button } from '@proofofcalm/ui/components/button';
-import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle } from '@proofofcalm/ui/components/sheet';
+import { Sheet, SheetClose, SheetContent, SheetTitle } from '@proofofcalm/ui/components/sheet';
 import { XIcon } from 'lucide-react';
 import { type ComponentProps, useRef } from 'react';
 import { useTranslations } from 'use-intl';
@@ -40,7 +40,9 @@ export type ModuleSheetProps = {
  * being sticky it does not move, so only the reader's place would. Every element of the module takes a scroll margin
  * instead, that place and the button's height, so whatever takes the focus there (a section heading, the Risk link,
  * anything a module adds) stops clear of it. A margin applies to its target alone, and `Close` stands outside the
- * module, so it takes none (docs/DESIGN.md §8).
+ * module, so it takes none (docs/DESIGN.md §8). The module keeps a column of the button's width clear on its right,
+ * as `SheetHeader` does for a title, so the text that scrolls past `Close` (the caveat's box was the first, at 125 %
+ * text zoom) passes beside it, never under it; the title takes that column from the module, not a second one.
  */
 export function ModuleSheet({ slug, section, open, onOpenChange, finalFocus }: ModuleSheetProps) {
   const t = useTranslations('learn');
@@ -56,7 +58,7 @@ export function ModuleSheet({ slug, section, open, onOpenChange, finalFocus }: M
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         ref={popup}
-        className="[&_article_*]:scroll-mt-[calc(var(--space-unit)*2+var(--target))]"
+        className="[&_article_*]:scroll-mt-[calc(var(--space-unit)*2+var(--target))] [&>article]:pr-target"
         initialFocus={heading}
         finalFocus={finalFocus}
       >
@@ -70,11 +72,7 @@ export function ModuleSheet({ slug, section, open, onOpenChange, finalFocus }: M
         <ModuleView
           module={module}
           Body={Body}
-          heading={
-            <SheetHeader>
-              <SheetTitle>{withJoiner(module.idea, joiner)}</SheetTitle>
-            </SheetHeader>
-          }
+          heading={<SheetTitle>{withJoiner(module.idea, joiner)}</SheetTitle>}
         />
       </SheetContent>
     </Sheet>
