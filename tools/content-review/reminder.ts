@@ -124,18 +124,7 @@ const gh = (args: string[], timeout = 30_000) =>
 const listIssues = (timeout?: number): Issue[] =>
   JSON.parse(
     gh(
-      [
-        'issue',
-        'list',
-        '--label',
-        LABEL,
-        '--state',
-        'all',
-        '--limit',
-        '20',
-        '--json',
-        'number,state,body,comments',
-      ],
+      ['issue', 'list', '--label', LABEL, '--state', 'all', '--limit', '20', '--json', 'number,state,body,comments'],
       timeout,
     ),
   );
