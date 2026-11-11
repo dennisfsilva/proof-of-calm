@@ -16,6 +16,14 @@ opens or comments on the `content-review` issue for the content-review-reminder.
 (`--dry-run` prints it, `--today YYYY-MM-DD` picks the day), and `session` is the `SessionStart` hook
 that shows the owner one line while a review is due.
 
+`content-review/pdf.ts` gives the review's agent a source PDF as text: `node
+tools/content-review/pdf.ts <url>` fetches only an https URL whose host, and every redirect hop's
+(three at most), is on `packages/content/sources.allow.json`, stops reading past 25 MB or 60 s,
+keeps only bytes that start with `%PDF-`, saves them under `.content-review/pdf/` (gitignored) named
+by host and hash, runs pdftotext (shipped with Git for Windows) on that file and prints the `.txt`
+path with its word count. When the download fails, or pdftotext is missing or finds no text, it prints the filing rule (an
+unreachable row 'PDF not read') and exits 1; a URL off the list exits 2.
+
 The rest of `content-review/` guards the review's output (`docs/CONTENT-OPS.md` §3). `check.ts` is the
 guard ci.yml's verify job runs from the base commit: an agent/ head or a PR labelled content-review
 changes only content data, deletes none of it (but the owner may remove a visual baseline,
