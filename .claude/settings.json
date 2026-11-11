@@ -19,5 +19,20 @@
       "Read(./.env)",
       "Edit(./.env)"
     ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PROJECT_DIR}/tools/content-review/reminder.ts", "session"],
+            "timeout": 10
+          }
+        ]
+      }
+    ]
   }
 }
