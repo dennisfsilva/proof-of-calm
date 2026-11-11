@@ -1,0 +1,67 @@
+{
+  "$comment": "The shape of .content-review/draft.json for a run on IE (SKILL.md step 7.2; ReviewDraft in tools/content-review/body.ts). The paths, URLs and quote are real; tools/content-review/example.test.ts checks them.",
+  "date": "2026-11-11",
+  "model": "claude-opus-5-5",
+  "countries": ["IE"],
+  "changes": [
+    {
+      "$comment": "Shape only: the quote is Revenue's, read on 2026-11-11; the new wording shows a correction of ours, not a finding.",
+      "item": "jurisdictions/ie.json",
+      "field": "card.allowances[0]",
+      "old": "EUR 1,270 of chargeable gains a year per person, deducted after allowable losses. The exemption only reduces that year's chargeable gains; a part left over cannot be used.",
+      "new": "EUR 1,270 of chargeable gains a year for each individual, deducted after allowable losses. The exemption only reduces that year's chargeable gains; a part left over cannot be used.",
+      "quote": "If you are an individual, you have a personal exemption of €1,270 each year.",
+      "eventDate": "2026-10-07",
+      "url": "https://www.revenue.ie/en/gains-gifts-and-inheritance/transfering-an-asset/how-to-calculate-cgt.aspx",
+      "accessed": "2026-11-11",
+      "confidence": "high",
+      "substantive": false,
+      "reason": "Correction of our wording: the exemption is the individual's. The quote gives no start date, so the date is the page's publication date."
+    }
+  ],
+  "reviewed": [
+    {
+      "item": "jurisdictions/ie.json",
+      "read": 10,
+      "of": 11,
+      "confidence": "medium",
+      "reason": "Of the nine sources and the two pending-change sources, all but Tax and Duty Manual Part 02-01-03 (unreachable) were read."
+    }
+  ],
+  "verified": [
+    {
+      "item": "jurisdictions/ie.json",
+      "urls": [
+        "https://www.revenue.ie/en/gains-gifts-and-inheritance/transfering-an-asset/when-and-how-do-you-pay-and-file-cgt.aspx",
+        "https://www.revenue.ie/en/companies-and-charities/international-tax/aeoi/dac8/index.aspx"
+      ]
+    }
+  ],
+  "unreachable": [
+    {
+      "url": "https://www.revenue.ie/en/tax-professionals/tdm/income-tax-capital-gains-tax-corporation-tax/part-02/02-01-03.pdf",
+      "expected": "Tax and Duty Manual Part 02-01-03: a disposal of crypto-assets is chargeable to CGT, with no holding period."
+    }
+  ],
+  "pending": [],
+  "queue": [
+    {
+      "item": "jurisdictions/ie.json",
+      "outcome": "carried over",
+      "note": "Watch item 2, the enactment of the 31% rate: carried over until the Act's own text is read."
+    },
+    {
+      "item": "jurisdictions/ie.json",
+      "outcome": "carried over",
+      "note": "Rehearsal queue 1: Tax and Duty Manual Part 19-07-01 is still not in the profile's sources; the owner adds it."
+    },
+    {
+      "item": "jurisdictions/ie.json",
+      "outcome": "carried over",
+      "note": "Rehearsal queue 2: Part 02-01-03 was not read (unreachable), so the lines that rest on it stay as they are."
+    }
+  ],
+  "notes": [
+    "PDF not read: https://www.revenue.ie/en/tax-professionals/tdm/income-tax-capital-gains-tax-corporation-tax/part-02/02-01-03.pdf. The lines that rest only on it, card.classification and card.holdingRuleText, are unchanged."
+  ]
+}

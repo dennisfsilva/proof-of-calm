@@ -1,5 +1,5 @@
 {
-  "$comment": "Test-only: the draft for finish-good.patch's fact, which body.test.ts, render-check.ts and the finish-dry job read. It is not an example of a real review; .claude/skills/review-content/SKILL.md owns the agent's draft.",
+  "$comment": "Test-only: the draft for finish-good.patch's fact, which body.test.ts, render-check.ts and the finish-dry job read. It is not an example of a real review; .claude/skills/review-content/draft-example.json is the agent's example, and SKILL.md owns the agent's draft.",
   "date": "2027-01-01",
   "model": "claude-opus-5-5",
   "countries": ["IE", "ES"],
