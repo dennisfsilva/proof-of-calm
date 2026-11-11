@@ -133,9 +133,10 @@ export function allowedDomains(allow: unknown): string[] {
 /**
  * One line of literal text under every reading GitHub gives it (CommonMark §2.4 escapes every ASCII
  * punctuation character; GitHub's filters after the parse are broken by a word joiner, U+2060):
- * mentions and references (`@`, `#`, `/`), URLs and emoji (`:`), math (`$`), `www`, `GH-n` and
- * commit SHAs (hex runs over six). Line breaks become spaces; control and format characters
- * (bidi overrides included) are removed. Shaped from what `gh api markdown -f mode=gfm` returned.
+ * mentions and references (`@`, `#`, `/`), URLs and emoji (`:`), math (`$`), task-list boxes
+ * (`[`: `\[x\]` still ticks a list item that opens with it), `www`, `GH-n` and commit SHAs (hex
+ * runs over six). Line breaks become spaces; control and format characters (bidi overrides
+ * included) are removed. Shaped from what `gh api markdown -f mode=gfm` returned.
  */
 export function defuseCell(text: string): string {
   return text
@@ -145,7 +146,7 @@ export function defuseCell(text: string): string {
     .replace(/[0-9a-f]{7,}/gi, (run) => run.replace(/.{6}(?=.)/g, (six) => six + WJ))
     .replace(/www|gh(?=-)/gi, (word) => word + WJ)
     .replace(/[!-/:-@[-`{-~]/g, '\\$&')
-    .replace(/\\[@#/:]/g, (escaped) => escaped + WJ)
+    .replace(/\\[@#/:[]/g, (escaped) => escaped + WJ)
     .replace(/\\\$/g, (dollar) => WJ + dollar + WJ);
 }
 
