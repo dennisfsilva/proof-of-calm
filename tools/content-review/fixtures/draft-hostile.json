@@ -28,7 +28,7 @@
       "accessed": "2027-01-01",
       "confidence": "medium",
       "substantive": false,
-      "reason": "bidi ‮evil‬ override"
+      "reason": "bidi \u202Eevil\u202C override"
     }
   ],
   "verified": [
@@ -40,7 +40,9 @@
       ]
     }
   ],
-  "unreachable": [{ "url": "https://www.revenue.ie/en/gains-gifts-and-inheritance/index.aspx#2", "expected": "fixes owner/repo#1" }],
+  "unreachable": [
+    { "url": "https://www.revenue.ie/en/gains-gifts-and-inheritance/index.aspx#2", "expected": "fixes owner/repo#1" }
+  ],
   "pending": [
     {
       "item": "mail foo@bar.com now",

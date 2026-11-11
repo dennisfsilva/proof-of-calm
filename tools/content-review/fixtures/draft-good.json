@@ -17,9 +17,7 @@
       "reason": "Revenue moved the page; the amount is the same."
     }
   ],
-  "verified": [
-    { "item": "ES", "urls": ["https://www.boe.es/buscar/act.php?id=BOE-A-2006-20764&tn=1&p=20231228"] }
-  ],
+  "verified": [{ "item": "ES", "urls": ["https://www.boe.es/buscar/act.php?id=BOE-A-2006-20764&tn=1&p=20231228"] }],
   "unreachable": [{ "url": "https://www.gov.ie/en/publication/budget-2027/", "expected": "Budget 2027 tax measures" }],
   "pending": [
     {
