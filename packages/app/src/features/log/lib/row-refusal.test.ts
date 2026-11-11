@@ -29,12 +29,9 @@ const plan = aPlan();
 const AT = instant('2026-10-20T10:00:00.000Z');
 const LATER = instant('2026-10-20T10:00:05.000Z');
 // Formatted dates join their parts with no-break spaces (CONTENT-STYLE §4).
-const [FEBRUARY, MARCH_1, APRIL, MARCH] = [
-  '1 Feb 2026',
-  '1 Mar 2026',
-  '1 Apr 2026',
-  'March 2026',
-].map((text) => text.replaceAll(' ', '\u00a0'));
+const [FEBRUARY, MARCH_1, APRIL, MARCH] = ['1 Feb 2026', '1 Mar 2026', '1 Apr 2026', 'March 2026'].map((text) =>
+  text.replaceAll(' ', '\u00a0'),
+);
 
 const bought = (on: string, held: string, overrides: Partial<Entry> = {}) =>
   anEntry({ kind: 'extra', slot: null, date: date(on), units: units(held), ...overrides });
