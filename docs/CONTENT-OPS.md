@@ -24,7 +24,7 @@ tax statements. Decision: ADR-0015 (principle), ADR-0037 (scheduling); mechanics
   words, the source-domain allow-list and the coin catalogue (unique tickers and CoinGecko ids, in
   ticker order, and every template coin as the catalogue lists it). On an `agent/*` branch or a PR
   labelled `content-review`, ci.yml's `verify` job also fails a change outside the content data or a
-  deletion (§3).
+  deletion, the removal of a visual baseline excepted (§3).
 
 ## 2. Schedule
 
@@ -91,11 +91,13 @@ visible rather than impossible:
 - Every link is https, on `packages/content/sources.allow.json` or a subdomain of a listed domain,
   and shows its true host as its text. The finish refuses any other link, and `pnpm validate:content`
   refuses an off-list source in the data.
-- Deletions are refused, by the finish and by CI's guard. The draft names a gone source, and the
-  owner deletes it in a session's PR.
+- Deletions are refused: the finish refuses every one, so the agent deletes nothing, and CI's guard
+  refuses every one but a removed baseline (next item). The draft names a gone source, and the owner
+  deletes it in a session's PR.
 - CI's guard: ci.yml's `verify` job runs the base commit's copy of `tools/content-review/check.ts`
   before pnpm or any PR code. An `agent/*` branch or a PR labelled `content-review` may change only
-  content data and delete none of it.
+  content data and delete none of it, with one exception: the guard also accepts the removal of a
+  visual baseline PNG under `apps/web/e2e/*-snapshots/`, the owner's step 4 in §8.
 - The guard step is a tripwire. It lives in the PR's own copy of ci.yml, so a PR that edits ci.yml
   can change or drop it. The robust form, a `pull_request_target` guard as a required check, is not
   built for the manual mode.
