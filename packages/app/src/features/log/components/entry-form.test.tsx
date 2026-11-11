@@ -1232,7 +1232,12 @@ describe('EntryForm', () => {
       });
     const editing = [bought('08:00'), bought('09:00')];
     // Its fee is then taken at Ledger, so the line shows in every country (DOMAIN §3.7).
-    const move = aMove({ date: date('2026-01-10'), venue: 'Wallet A', units: units('0.004'), received: units('0.0038') });
+    const move = aMove({
+      date: date('2026-01-10'),
+      venue: 'Wallet A',
+      units: units('0.004'),
+      received: units('0.0038'),
+    });
     await renderForm({ kind: 'extra', editing }, [...editing, move]);
     fireEvent.click(screen.getByRole('button', { name: 'Venue and note' }));
     const venue = screen.getByLabelText('Venue (optional)');
