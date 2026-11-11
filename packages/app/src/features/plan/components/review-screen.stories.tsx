@@ -59,6 +59,9 @@ export const SetUp: Story = {
     await expect(canvas.getByRole('heading', { level: 3, name: 'Your note to yourself' })).toBeVisible();
     await expect(canvas.getByText(/^5\sApr\s2026: “Buy every month for a year, then hold\.”$/u)).toBeVisible();
     await waitFor(() => expect(canvas.getByRole('link', { name: 'Sources' })).toBeVisible());
+    // Part 3: the fixture's Log names no venue, so each coin has its one `With no venue` line.
+    await expect(canvas.getByRole('heading', { level: 2, name: 'Where your coins are' })).toBeVisible();
+    await expect(canvas.getAllByText('With no venue')).toHaveLength(2);
     await targets(canvasElement);
   },
 };
@@ -76,7 +79,12 @@ export const Reviewed: Story = {
 export const RuleChange: Story = {
   parameters: at(withPlan({ countryRuleVersion: 1 })),
   play: async ({ canvas }) => {
-    await waitFor(() => expect(canvas.getByText(/^5 Nov 2026: /)).toBeVisible());
+    await waitFor(() => expect(canvas.getByText(/^5\sNov\s2026: /u)).toBeVisible());
+    // The dated sentence comes first under the heading, before the country line.
+    const country = canvas.getByText("Your plan's country: Portugal.");
+    await expect(canvas.getByText(/^5\sNov\s2026: /u).compareDocumentPosition(country)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
   },
 };
 
