@@ -51,6 +51,7 @@ describe('PlanScreen', () => {
     expect(screen.getAllByText('Computed from your dates, not tax advice')).toHaveLength(1);
     expect(screen.queryByText(/sellable now/)).toBeNull();
     expect(screen.getByRole('link', { name: 'Edit plan' }).getAttribute('href')).toBe('/settings');
+    expect(screen.getByRole('link', { name: 'Review the plan' }).getAttribute('href')).toBe('/plan/review');
     expect(screen.getByRole('button', { name: 'Pause from today' })).toBeDefined();
   });
 

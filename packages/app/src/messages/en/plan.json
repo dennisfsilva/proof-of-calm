@@ -2,7 +2,27 @@
   "title": "Plan",
   "edit": "Edit plan",
   "change": {
-    "heading": "Change the plan"
+    "heading": "Change the plan",
+    "review": "Review the plan"
+  },
+  "review": {
+    "title": "Review the plan",
+    "back": "Back to Plan",
+    "since": "{kind, select, reviewed {You last reviewed this plan on {date}.} other {You set up this plan on {date}.}}",
+    "right": {
+      "heading": "Is it still right?",
+      "note": "In your words: {note}",
+      "see": "See the plan",
+      "change": "Change it in Settings"
+    },
+    "rules": {
+      "heading": "Have the rules changed?",
+      "country": "Your plan's country: {country}.",
+      "link": "{kind, select, generic {See the countries} other {See the card for {country}}}"
+    },
+    "mark": "Mark as reviewed",
+    "marked": "Reviewed on {date}. Next review on {next}.",
+    "failed": "The review could not be recorded. Try again."
   },
   "why": {
     "window": "Why? The sell window",
