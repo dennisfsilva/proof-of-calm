@@ -44,7 +44,8 @@ describe('outsideData', () => {
     ];
     expect(paths.every((path) => DATA_PATHS.some((pattern) => pattern.test(path)))).toBe(true);
     expect(outsideData(paths.map((path) => ({ path, mode: '100644' })))).toEqual([]);
-    expect(outsideData([{ path: paths[2] ?? '', previous: paths[3] }])).toEqual([]);
+    const renamed = { path: 'packages/content/facts/b.json', previous: 'packages/content/facts/a.json' };
+    expect(outsideData([renamed])).toEqual([]);
   });
 });
 
