@@ -10,6 +10,7 @@ import { createTestServices, preloadLazyModules } from '../../../lib/services/te
 import errors from '../../../messages/en/errors.json';
 import plan from '../../../messages/en/plan.json';
 import settings from '../../../messages/en/settings.json';
+import shell from '../../../messages/en/shell.json';
 import today from '../../../messages/en/today.json';
 import { PlanScreen } from '../../plan';
 import { PlanTab } from './plan-tab';
@@ -23,7 +24,14 @@ vi.mock('@proofofcalm/content', async (original) =>
   ),
 );
 
-afterEach(cleanup);
+// A namespace the screen reads but the provider lacks is reported on the console, not thrown: every test fails on it.
+const logged = vi.spyOn(console, 'error');
+afterEach(() => {
+  cleanup();
+  const missing = logged.mock.calls.filter((call) => String(call[0]).includes('MISSING_MESSAGE'));
+  logged.mockClear();
+  expect(missing).toEqual([]);
+});
 await preloadLazyModules();
 
 const ENDED_ON = '2026-10-20' as CalendarDate;
@@ -37,7 +45,7 @@ async function mountEnded(): Promise<Services> {
   render(
     <NavigationProvider location="memory" initialPath="/settings">
       <ServicesProvider services={services}>
-        <I18nProvider messages={{ settings, plan, errors, today }}>
+        <I18nProvider messages={{ settings, plan, errors, shell, today }}>
           <PlanTab />
           <PlanScreen />
         </I18nProvider>
