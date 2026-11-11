@@ -746,15 +746,23 @@ or after it adds its amount to `investedSoFar`, changes no other field but `perc
   complete closes; one failed read fails the figure as a whole (`failed`, which a retry can mend), and
   with no read failed and no held coin left with two complete closes the state is `no-history`. The
   maths and the past falls load on the port's first question, so Today's entry carries only its stub.
-- `bannerFor({ today, redDay, ruleChange, backupNeeded, dismissed })`: returns at most one of
-  `red-day`, `rule-change`, `backup-needed`, in that priority, or `null` (never stacked), with its key.
-  The shell adds the key to `dismissedBanners` when the user dismisses the banner:
-  `red-day:<episode start>` and `backup-needed:<today>`. The red-day key is recorded when the banner
+- `bannerFor({ today, redDay, ruleChange, annualReview, backupNeeded, dismissed })`: returns at most one of
+  `red-day`, `rule-change`, `annual-review`, `backup-needed`, in that priority, or `null` (never stacked), with
+  its key (ADR-0013 Readings). The shell adds the key to `dismissedBanners` when the user dismisses the banner:
+  `red-day:<episode start>`, `annual-review:<today>` (`Later`) and `backup-needed:<today>`. The red-day key is recorded when the banner
   first shows, not on Dismiss, so it shows on one visit per episode, per device (the prefs never sync):
   `red-day:<d>` covers an episode starting on `s` when `s − RED_DAY.coverDays ≤ d ≤ today`, so a flag
   that clears and returns within a week does not show the banner twice, and the record
   (`withBannerKey(dismissed, key, today)`) keeps one copy of a key and drops `red-day:` keys older than
-  `RED_DAY.keptDays`. The `rule-change` banner has no stored
+  `RED_DAY.keptDays`. `annualReview` is `reviewAsked` (§3.12); the review is a candidate while no
+  `annual-review:<d>` key is fewer than `REVIEW_SNOOZE_DAYS` (30) days old, with `d` on or before today: a key
+  dated after today (a clock set back wrote it) or one that is not a date snoozes nothing. `withBannerKey` keeps
+  one `annual-review:` key at most: adding one drops the others, and adding another kind keeps only the latest
+  dated on or before today, the one that can snooze. `Later` never counts as a review: only `Prefs.reviewedAt`
+  does. On Today, when the visit starts with units held, the shell asks `bannerFor` twice: the red-day foot with
+  the episode and no other kind, then, once that has settled on none or been dismissed, the next box with
+  `redDay: null` and every other kind, which it renders each by its kind and passes the episode only to
+  `reviewAsked`; with no units held it asks once, the next box's way, with no episode. The `rule-change` banner has no stored
   dismissal key: `plan.countryRuleVersion` records it, per plan, so other devices stop showing it and
   a change of country resets it (§3.12, `docs/JURISDICTIONS.md` §6). A dismissed banner
   is passed over and the next one may show; a dismissed backup banner stays away for
@@ -787,6 +795,13 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   plan's, or with no plan stored, sets `reviewedAt` to null in the same write, since a review of the
   replaced plan would postpone this one's and be named as its; an import into the stored plan keeps it.
   A prototype import stamps `createdAt` at the import, so its review counts from that day.
+- `reviewAsked(dates, today, { phase, held, redDay })`: what Today's foot passes as `annualReview` (§3.11):
+  `reviewDue(dates, today)`, but `false` while a red-day episode is under way (`redDay`, the episode the foot
+  read on this visit, whether its banner shows now or showed on an earlier visit: a review in a fall is the
+  question ADR-0013 keeps away), and `false` in phase `done` once no units are held. A paused plan, an ended
+  one and a plan past its exit date with coins held are asked. The banner names the later of the creation day
+  and the last review's (`reviewSince`) and asks; no wording says a year has passed. `Review the plan` opens
+  `/plan/review` and writes nothing; `Later` records `annual-review:<today>` (§3.11).
 - `ruleChangeNotice(plan, countryRules)`: the profile carries `status.version`, `changedOn` and
   `changeNotice`; while `status.version > plan.countryRuleVersion` it returns
   `{ country, version, changedOn, changeNotice }` ("Portugal updated its rule for 2027. Review your
@@ -1280,6 +1295,7 @@ recorded cost and a one-tap purchase; `gb-2026-27.csv` is its raw listing, compa
 | `PRICE_FIGURES` | 4 | §6 the entry form's price: the live price, the price `fillRow` derives and an edit's implied price; §3.13 the CSV's price |
 | `PRICE_TTL` | live 60 s client / 600 s server (one upstream call per 10 minutes, ADR-0006 and ADR-0036); history daily | shell |
 | `REVIEW_INTERVAL_MONTHS` | 12 | §3.12 |
+| `REVIEW_SNOOZE_DAYS` | 30 | §3.11 the annual review's `Later` |
 | `UNDER_REVIEW_MONTHS` | 12 | §3.12 |
 | `POOLED_MATCH_DAYS` | 30 days | §3.13 the tax-year raw listing under the `pooled` lot rule: the purchases after the year's end that the UK matches to a disposal within it (TCGA 1992 s. 106A; `docs/JURISDICTIONS.md` §7.4) |
 

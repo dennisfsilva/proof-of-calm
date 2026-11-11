@@ -264,9 +264,11 @@ dark mode uses the dark steps above, not an inversion; the validator runs whenev
   page never scrolls to its top. Once the toast has given the focus back, a Log row's Undo moves it to the
   restored row's toggle and a skipped month's Undo on Today to the action card's heading
   (`today-action`, `tabindex="-1"`) and on Log to the screen's `h1`. Dismissing the rule-change
-  notice or the red-day banner at Today's foot takes its button away, so the focus moves to that
+  notice or the red-day banner at Today's foot, or `Later` on the annual review, takes its button away
+  (the review gives way to the next box on the same visit), so the focus moves to that
   same heading by the script focus move above, once the commit has removed the banner, since on a
-  phone the heading is above the window once the foot has been scrolled to.
+  phone the heading is above the window once the foot has been scrolled to; a failed `Later` keeps the
+  review and the focus on its button, and the toast says so.
   `Mark as reviewed` on `/plan/review` gives way to its result line (`tabindex="-1"`), which takes the
   focus by the script focus move above once the commit has replaced the button; a failed write keeps
   the button and the focus on it, and the toast says so.
@@ -376,13 +378,14 @@ CSP allows no inline style attributes (`docs/SECURITY.md` §4), and stretched SV
 The strip tells its phases apart by weight and by the labels under it; the accent marks today only.
 
 Today's foot, under the strip, holds one thing at most: the banner `bannerFor` picks (the red-day
-banner, the rule-change notice or the Backup needed banner, each a bordered box), or, when `docs/CONTENT-STYLE.md` §3 shows it
+banner, the rule-change notice, the annual review or the Backup needed banner, each a bordered box), or, when `docs/CONTENT-STYLE.md` §3 shows it
 and no banner shows, the durability line as plain 14 px `ink-2` text with no border, no link and no
 dismiss (ADR-0004, ADR-0019). It sits on Today, not in Settings, because Today is the screen a person
 opens each month. The foot settles once per visit: with units held it shows nothing until the red-day
 model answers (a failed read counts as no episode and says nothing), then the pick, and within the
-visit it never swaps one box for another except by Dismiss; the red-day banner, recorded as it shows,
-gives way to the next banner on the next visit.
+visit it never swaps one box for another except by Dismiss or the review's `Later`; the red-day banner,
+recorded as it shows, gives way to the next banner on the next visit. While a red-day episode is under way,
+shown on this visit or an earlier one, the annual review waits (`reviewAsked`, `docs/DOMAIN.md` §3.12).
 
 Settings ends with About, below its four tabs and outside them, so it shows on every tab: a heading at
 20 px and two `ink-2` lines, the site line with its Risk link and the legal pages in one line joined by
