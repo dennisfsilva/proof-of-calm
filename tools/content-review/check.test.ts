@@ -108,6 +108,53 @@ describe('prFiles', () => {
     ]);
   });
 
+  const baseline = 'apps/web/e2e/matrix.spec.ts-snapshots/learn-country-pt-light-desktop-linux.png';
+
+  it('prFiles accepts a removed baseline PNG when enforced', () => {
+    const listing = row('packages/content/jurisdictions/pt.json') + row(baseline, 'removed');
+    for (const [head, flags] of [
+      ['agent/content-review-2027-01-01', ['--expect', '2']],
+      ['feat/x', ['--enforce', '--expect', '2']],
+    ] as const)
+      expect(prFiles(head, flags, listing)).toEqual({
+        lines: ['0 of 2 files fail the guard (enforced)'],
+        refused: false,
+      });
+  });
+
+  it('prFiles refuses an added, modified or renamed baseline, and a removed file outside data that is not a baseline, when enforced', () => {
+    const removal = 'removed; the draft names the removal and the owner deletes it';
+    const other = 'apps/web/e2e/matrix.spec.ts-snapshots/learn-country-pt-dark-desktop-linux.png';
+    for (const status of ['added', 'modified'])
+      expect(prFiles('agent/x', [], row(baseline, status))).toEqual({
+        lines: [`${baseline}: not content data`, '1 of 1 files fail the guard (enforced)'],
+        refused: true,
+      });
+    expect(prFiles('agent/x', [], row(other, 'renamed', baseline)).lines).toEqual([
+      `${other}: not content data`,
+      `${other}: renamed from ${baseline}, not content data`,
+      '1 of 1 files fail the guard (enforced)',
+    ]);
+    expect(prFiles('agent/x', [], row(baseline, 'changed')).lines).toEqual([
+      `${baseline}: not content data`,
+      `${baseline}: status changed, only added, modified or renamed`,
+      '1 of 1 files fail the guard (enforced)',
+    ]);
+    for (const path of [
+      'apps/web/e2e/matrix.spec.ts',
+      'apps/web/e2e/matrix.spec.ts-snapshots/notes.txt',
+      'apps/web/e2e/matrix.spec.ts-snapshots/sub/a.png',
+      'apps/web/e2e/snapshots/a.png',
+      'apps/web/public/icon-192.png',
+      'packages/ui/e2e/matrix.spec.ts-snapshots/a.png',
+      'apps/web/e2e/../../../packages/content/src/a-snapshots/a.png',
+    ]) {
+      const step = prFiles('agent/x', [], row(path, 'removed'));
+      expect(step.refused).toBe(true);
+      expect(step.lines).toContain(`${path}: ${removal}`);
+    }
+  });
+
   it('prFiles refuses a listing shorter than --expect', () => {
     const step = prFiles('agent/x', ['--expect', '3001'], row('packages/content/facts/a.json'));
     expect(step.refused).toBe(true);
