@@ -58,7 +58,10 @@ describe('prFiles', () => {
     ] as const) {
       const step = prFiles(head, flags, listing);
       expect(step.refused).toBe(true);
-      expect(step.lines).toEqual(['.github/workflows/ci.yml: not content data', '1 of 2 files fail the guard (enforced)']);
+      expect(step.lines).toEqual([
+        '.github/workflows/ci.yml: not content data',
+        '1 of 2 files fail the guard (enforced)',
+      ]);
     }
     const report = prFiles('feat/x', [], listing);
     expect(report.refused).toBe(false);
