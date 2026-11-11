@@ -1,0 +1,42 @@
+# The content review's pull-request body, proven through GitHub's own renderer (docs/CONTENT-OPS.md;
+# docs/BUILD-PROMPT.md, Brief lessons: a function that makes text safe for a renderer never predicts
+# its parse). `render` renders the good and the hostile fixture drafts with the real template and
+# allow-list through POST /markdown and fails on any mention, reference, commit link, link off the
+# draft's sources or cell not shown as written. Its token reads only; the endpoint posts nothing.
+name: Content review
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/content-review.yml
+      - .github/PULL_REQUEST_TEMPLATE/content-review.md
+      - tools/content-review/body.ts
+      - tools/content-review/render-check.ts
+      - tools/content-review/fixtures/**
+      - packages/content/sources.allow.json
+
+permissions: {}
+
+jobs:
+  render:
+    name: render
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --filter @proofofcalm/tools
+      - name: Render the fixture drafts through GitHub's renderer
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          node tools/content-review/render-check.ts tools/content-review/fixtures/draft-good.json
+          tools/content-review/fixtures/draft-hostile.json
