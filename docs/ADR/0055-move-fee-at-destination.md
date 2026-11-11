@@ -50,3 +50,13 @@ through the same "no worse than before" gate (`docs/DOMAIN.md` §6).
 - The raw listing, the French and the Dutch files are unchanged; a file exported before this change
   keeps its undated fee row.
 - The lines that name a short move before Save and in the Log are later work.
+
+## Readings
+
+- 2026-11-11: Consequences says the per-lot file's header counts the fee rows taken at the
+  destination (`feeAtDestination`). Since #110 it counts such a row only when `moveShortfalls`
+  lists its move (`docs/DOMAIN.md` §3.13): under global lots the matching can take a fee at the
+  destination while the Log holds enough units outside it, and no line names that move.
+  Consequences also says the lines that name a short move before Save and in the Log are later
+  work; #108 built them (`moveShortfalls`, `moveShortfallOf`, `movesLeftShort` and
+  `TransactionRow.outside`; `docs/DOMAIN.md` §3.7, §3.9 and §6).
