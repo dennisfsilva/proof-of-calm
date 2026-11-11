@@ -1,4 +1,4 @@
-import { type BannerKey, bannerFor, type Plan, UNDO_WINDOW_MS } from '@proofofcalm/core';
+import { type BannerKey, bannerFor, type Plan, type RedDayEpisode, UNDO_WINDOW_MS } from '@proofofcalm/core';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'use-intl';
 import { reportError } from '../../../lib/errors';
@@ -26,6 +26,9 @@ function useRedDay(plan: Plan) {
   const services = useServices();
   const [visit] = useState(plan);
   const [shown, setShown] = useState<Shown | null | undefined>(undefined);
+  // The episode under way, whether its banner shows on this visit or showed on an earlier one: it holds the annual
+  // review back (docs/DOMAIN.md §3.12).
+  const [episode, setEpisode] = useState<RedDayEpisode | null>(null);
   const recorded = useRef(false);
   useEffect(() => {
     let live = true;
@@ -36,10 +39,12 @@ function useRedDay(plan: Plan) {
         .model({ plan: visit, entries: domain.store.getState().snapshot.entries, today })
         .catch(() => null);
       if (!live) return;
+      setEpisode(model?.episode ?? null);
       const banner = bannerFor({
         today,
         redDay: model?.episode ?? null,
         ruleChange: null,
+        annualReview: false,
         backupNeeded: false,
         dismissed: domain.store.getState().snapshot.prefs.dismissedBanners,
       });
@@ -70,18 +75,21 @@ function useRedDay(plan: Plan) {
       services.toasts.add({ title: t('failed'), timeout: UNDO_WINDOW_MS });
     }
   };
-  return { shown, record, hide: () => setShown(null) };
+  return { shown, episode, record, hide: () => setShown(null) };
 }
 
 export type RedDayFootProps = {
   readonly plan: Plan;
-  /** The foot's next box, once the red day has settled on none or the banner is dismissed. */
-  readonly next: ReactNode;
+  /**
+   * The foot's next box, once the red day has settled on none or the banner is dismissed; it gets the episode under
+   * way, which holds the annual review back.
+   */
+  next(episode: RedDayEpisode | null): ReactNode;
 };
 
 /** Nothing until the model answers, then the red-day banner or `next`; only Dismiss turns one into the other. */
 export function RedDayFoot({ plan, next }: RedDayFootProps) {
-  const { shown, record, hide } = useRedDay(plan);
+  const { shown, episode, record, hide } = useRedDay(plan);
   const dismissed = useRef(false);
   /**
    * Dismiss's button goes with the banner, so once the commit has removed it the card's heading takes the focus and
@@ -96,7 +104,7 @@ export function RedDayFoot({ plan, next }: RedDayFootProps) {
     heading?.scrollIntoView({ block: 'nearest' });
   }, [shown]);
   if (shown === undefined) return null;
-  if (shown === null) return next;
+  if (shown === null) return next(episode);
   const dismiss = () => {
     dismissed.current = true;
     hide();

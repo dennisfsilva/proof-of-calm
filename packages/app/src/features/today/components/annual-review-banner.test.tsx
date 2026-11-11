@@ -79,7 +79,7 @@ afterEach(cleanup);
 describe('AnnualReviewBanner', () => {
   it('names the day the plan was set up, then asks, with Review the plan and Later', async () => {
     await mount();
-    expect(screen.getByRole('status').textContent).toBe(
+    expect(screen.getByText(QUESTION, { exact: false }).closest('[role="status"]')?.textContent).toBe(
       `You set up this plan on 5 Apr 2026. ${QUESTION}Review the planLater`,
     );
     expect(screen.queryByText(BACKUP)).toBeNull();
@@ -89,7 +89,7 @@ describe('AnnualReviewBanner', () => {
     const snapshot = fixtureSnapshot();
     const reviewed = { ...snapshot, prefs: { ...snapshot.prefs, reviewedAt: '2027-11-11T10:00:00Z' as Instant } };
     await mount({ snapshot: reviewed, nowMs: at('2028-11-20') });
-    expect(screen.getByText(`You last reviewed this plan on 11 Nov 2027. ${QUESTION}`)).toBeDefined();
+    expect(screen.getByText(`You last reviewed this plan on 11 Nov 2027. ${QUESTION}`)).toBeDefined();
     expect(screen.queryByText(/You set up this plan/u)).toBeNull();
   });
 
@@ -106,7 +106,7 @@ describe('AnnualReviewBanner', () => {
 
   it('Later records the day, the backup banner shows on the same visit, and the card’s heading takes the focus', async () => {
     const services = await mount();
-    const heading = screen.getByRole('heading', { level: 2 });
+    const heading = document.getElementById('today-action') as HTMLElement;
     const focus = vi.spyOn(heading, 'focus');
     scrolled.mockClear();
     later();
@@ -115,7 +115,7 @@ describe('AnnualReviewBanner', () => {
     expect(prefs(services).dismissedBanners).toEqual(['annual-review:2027-04-20']);
     expect(prefs(services).reviewedAt).toBeNull();
     await waitFor(() => expect(document.activeElement).toBe(heading));
-    expect(heading.id).toBe('today-action');
+    expect(heading.tagName).toBe('H2');
     expect(focus).toHaveBeenCalledWith({ preventScroll: true });
     expect(scrolled.mock.contexts).toEqual([heading]);
   });

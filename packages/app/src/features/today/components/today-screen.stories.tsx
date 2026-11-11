@@ -17,8 +17,10 @@ import { TodayScreen } from './today-screen';
 // 15 March 2030 (in the sell window, the unlogged buys from October 2026 on still open: the phase leads,
 // the open months are listed), priced at the story's own time; exported after the last change, so the
 // durability line stands where the backup banner would, in a browser tab and in the installed app; with the
-// rule-change notice dismissed from the foot; and before a plan exists. The
-// test projects of vitest.config.ts render each at 360 and 1280 px, light and dark, with axe.
+// rule-change notice dismissed from the foot; on 20 April 2027, a year after the plan was set up, with the annual
+// review at the foot and Later; and before a plan exists. Each phase's plan was reviewed on the story's day, so
+// the review stays away but in its own story. The test projects of vitest.config.ts render each at 360 and 1280 px,
+// light and dark, with axe.
 
 const portugal = async () => {
   const profile = await loadProfile('PT');
@@ -28,7 +30,8 @@ const portugal = async () => {
 const at = (phase: FixturePhase, lastBackupAt?: Instant, installed = false) => {
   const nowMs = fixtureNowMs(phase);
   const fixture = fixtureSnapshot();
-  const prefs = lastBackupAt === undefined ? fixture.prefs : { ...fixture.prefs, lastBackupAt };
+  const reviewed = { ...fixture.prefs, reviewedAt: new Date(nowMs).toISOString() as Instant };
+  const prefs = lastBackupAt === undefined ? reviewed : { ...reviewed, lastBackupAt };
   const snapshot: Snapshot = { ...fixture, prefs, prices: pricesAt(FIXTURE_PRICES, nowMs) };
   const platform = recordingPlatform({ installed });
   // No episode under way: the foot settles on the next box once the red-day model answers.
@@ -86,6 +89,38 @@ export const SellingWithOpenMonths: Story = {
     // On a line of its own, not in a sentence: the 44 px target both ways (docs/DESIGN.md §6).
     const why = canvas.getByRole('button', { name: 'Why? The sell window' }).getBoundingClientRect();
     await expect(Math.min(why.width, why.height)).toBeGreaterThanOrEqual(44);
+  },
+};
+
+/** A year after the plan was set up, in the hold phase: the annual review stands at the foot, above the backup banner. */
+const due = () => {
+  const nowMs = Date.parse('2027-04-20T10:00:00Z');
+  const fixture = fixtureSnapshot();
+  const snapshot: Snapshot = { ...fixture, prices: pricesAt(FIXTURE_PRICES, nowMs) };
+  return {
+    services: () => ({ ...createTestServices({ snapshot, nowMs, rules: portugal }), redDay: clearRedDay() }),
+  };
+};
+
+// Later by keyboard: the backup banner takes the foot on the same visit, and the focus goes to the action card's
+// heading, which comes into view by the least scroll (docs/DESIGN.md §6).
+export const AnnualReviewLater: Story = {
+  parameters: due(),
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const sentence = 'You set up this plan on 5 Apr 2026. Is it still right? Have the rules changed?';
+    await expect(await canvas.findByText(sentence)).toBeVisible();
+    await expect(canvas.getByRole('link', { name: 'Review the plan' })).toHaveAttribute('href', '/plan/review');
+    const later = canvas.getByRole('button', { name: 'Later' });
+    const view = canvasElement.ownerDocument.defaultView;
+    view?.scrollTo(0, canvasElement.ownerDocument.documentElement.scrollHeight);
+    later.focus({ preventScroll: true });
+    await userEvent.keyboard('{Enter}');
+    await expect(await canvas.findByRole('link', { name: 'Export a copy.' })).toBeVisible();
+    const heading = canvasElement.ownerDocument.getElementById('today-action');
+    await waitFor(() => expect(heading).toHaveFocus());
+    const { top, bottom } = heading?.getBoundingClientRect() ?? { top: -1, bottom: -1 };
+    await expect(top).toBeGreaterThanOrEqual(0);
+    await expect(bottom).toBeLessThanOrEqual(view?.innerHeight ?? 0);
   },
 };
 
