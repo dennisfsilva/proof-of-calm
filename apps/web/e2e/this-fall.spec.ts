@@ -16,9 +16,13 @@ const NOW_MS = fixtureNowMs('buy');
 
 type Shape = Parameters<typeof routeFixturePrices>[2];
 
-async function seed(page: Page, shape: Shape) {
+async function seed(page: Page, shape: Shape, history: 'served' | 'unavailable' = 'served') {
   await page.clock.setFixedTime(new Date(NOW_MS));
   await routeFixturePrices(page, NOW_MS, shape);
+  // Today, which `seedPlan` opens, asks for the held coins' history (its red-day foot) as `seedPlan` returns and keeps
+  // the answer in the device's history cache for a day, where the fall page finds it. A history that cannot be loaded
+  // fails from the first request, so no answer reaches that cache; a later route raced Today's requests.
+  if (history === 'unavailable') await page.route('**/api/history/*', (route) => route.fulfill({ status: 502 }));
   await seedPlan(page, fixtureSnapshot());
 }
 
@@ -74,8 +78,7 @@ test('with no fall under way Learn has no row for the page, and its path gives t
 });
 
 test('a price history that cannot be loaded leaves the failure line in the figure’s place', async ({ page }) => {
-  await seed(page, 'week-fall');
-  await page.route('**/api/history/*', (route) => route.fulfill({ status: 502 }));
+  await seed(page, 'week-fall', 'unavailable');
   await page.goto('/learn/fall-under-way');
   await ready(page, TITLE);
   await expect(page.getByText(/^The price history could not be loaded/)).toBeVisible();
