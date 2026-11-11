@@ -97,6 +97,9 @@ export function LogScreen() {
   const revealing = useRef(false);
   // The key of the row an Undo is restoring: once it is back, focus goes to its toggle.
   const restoring = useRef<string | null>(null);
+  // The key of the row being deleted and its index among the transaction toggles shown: once it is gone, focus goes
+  // to the toggle now at that index, else to the one before, else to the heading (docs/DESIGN.md §6).
+  const deleting = useRef<{ key: string; index: number } | null>(null);
   // While the rules of the plan's country load (after a change of country), no row shows a holding date:
   // it would be computed with no country's overrides (ADR-0020 readings, "The first-boot gate").
   const log = useMemo(() => {
@@ -141,24 +144,35 @@ export function LogScreen() {
     restoring.current = null;
     focusInView(mark.closest('button'));
   }, [log]);
+  // Set before the write and moved here once the commit has removed the row: before it, that index is still the row.
+  useEffect(() => {
+    const target = deleting.current;
+    const marks = [...(screenRef.current?.querySelectorAll<HTMLElement>('[data-row]') ?? [])];
+    if (target === null || marks.some((mark) => mark.dataset.row === target.key)) return;
+    deleting.current = null;
+    const toggle = marks[target.index] ?? marks[target.index - 1];
+    focusInView(toggle?.closest('button') ?? heading.current);
+  }, [log]);
   const remove = async (row: TransactionRow) => {
     const ids = row.items.map((item) => item.id);
     restoring.current = null;
+    const marks = [...(screenRef.current?.querySelectorAll<HTMLElement>('[data-row]') ?? [])];
+    deleting.current = { key: row.key, index: marks.findIndex((mark) => mark.dataset.row === row.key) };
     let before: SlotsAtDelete;
     try {
       const deleted = await actions.deleteTransaction(ids);
       if (!deleted.ok) {
+        deleting.current = null;
         const title = deleteRefusalTitle(deleted.error, { kind: row.kind, count: ids.length }, f, t);
         toasts.add({ title, timeout: UNDO_WINDOW_MS });
         return;
       }
       before = deleted.value;
     } catch {
+      deleting.current = null;
       failed();
       return;
     }
-    // The row and its button are gone: focus moves to the heading rather than to the page's start.
-    heading.current?.focus();
     toasts.add({
       title: t('row.deleted', { count: ids.length, figure: figure(f, ids.length) }),
       timeout: UNDO_WINDOW_MS,
