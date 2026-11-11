@@ -296,7 +296,7 @@ shows the country's rule.
 - `lastReviewed` is set by the owner when merging a review PR, even if nothing changed.
 - `nextReviewDue` defaults to `lastReviewed + 12 months`, or the next known effective date of a
   pending change if earlier.
-- The scheduled job (`docs/CONTENT-OPS.md`) proposes changes as PRs with `reviewedBy: agent-draft`;
+- The owner's run of the review (`docs/CONTENT-OPS.md` §3) proposes changes as PRs with `reviewedBy: agent-draft`;
   the owner flips it to `owner` when merging. CI blocks `agent-draft` on `main`.
 
 ## 7. Country facts

@@ -37,7 +37,7 @@ All commands from the repo root.
 - Build: `pnpm build`; the static-export host: `pnpm build:export`
 - After a web build, the bundle secret scan CI runs: `node tools/scan/secrets.ts apps/web/dist`; the security.txt check: `node tools/security-txt/check.ts`; Today's application code against its budget (`docs/ENGINEERING.md` §4), from the chunk report the web build writes into the web host's `node_modules` cache: `node tools/size/today.ts` (`--warn` prints without failing)
 - App icons, after a change to the mark (`tools/icons/mark.ts`) or `apps/web/lib/pwa/brand-colors.json`: `node tools/icons/generate.ts`; review the images (a test fails while the committed files differ)
-- The quiet check before handing a branch back (typecheck, lint, tests, content, the lints, commit subjects; one line per step): `pnpm check`. The full local gate (adds build, renders and e2e): `pnpm gate`; CI adds the security.txt check, the secret scan, the export check, Today's application-code size, Lighthouse and OSV-Scanner
+- The quiet check before handing a branch back (typecheck, lint, tests, content, the lints, commit subjects; one line per step): `pnpm check`. The full local gate (adds build, renders and e2e): `pnpm gate`; CI adds the security.txt check, the secret scan, the export check, Today's application-code size, Lighthouse, OSV-Scanner and the content review guard (the header of `.github/workflows/ci.yml`)
 
 ## Structure
 
