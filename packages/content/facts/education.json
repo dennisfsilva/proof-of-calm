@@ -8,7 +8,8 @@
     "publisher": "Bitstamp",
     "accessed": "2026-11-02",
     "confidence": "medium",
-    "lastReviewed": "2026-11-09"
+    "lastReviewed": "2026-11-09",
+    "reviewedBy": "owner"
   },
   {
     "key": "b.alt-drawdowns",
@@ -19,7 +20,8 @@
     "publisher": "Coinbase Exchange",
     "accessed": "2026-11-02",
     "confidence": "medium",
-    "lastReviewed": "2026-11-09"
+    "lastReviewed": "2026-11-09",
+    "reviewedBy": "owner"
   },
   {
     "key": "c.current-cycle",
@@ -30,7 +32,8 @@
     "publisher": "Bitstamp",
     "accessed": "2026-11-02",
     "confidence": "high",
-    "lastReviewed": "2026-11-02"
+    "lastReviewed": "2026-11-02",
+    "reviewedBy": "owner"
   },
   {
     "key": "d.mt-gox",
@@ -41,7 +44,8 @@
     "publisher": "MtGox Co., Ltd.",
     "accessed": "2026-11-09",
     "confidence": "high",
-    "lastReviewed": "2026-11-09"
+    "lastReviewed": "2026-11-09",
+    "reviewedBy": "owner"
   },
   {
     "key": "d.ftx",
@@ -52,7 +56,8 @@
     "publisher": "Commodity Futures Trading Commission",
     "accessed": "2026-11-09",
     "confidence": "high",
-    "lastReviewed": "2026-11-09"
+    "lastReviewed": "2026-11-09",
+    "reviewedBy": "owner"
   },
   {
     "key": "e.scams",
@@ -63,7 +68,8 @@
     "publisher": "Chainalysis",
     "accessed": "2026-11-02",
     "confidence": "high",
-    "lastReviewed": "2026-11-09"
+    "lastReviewed": "2026-11-09",
+    "reviewedBy": "owner"
   },
   {
     "key": "e.unknown-platforms",
@@ -74,7 +80,8 @@
     "publisher": "European Supervisory Authorities (EBA, EIOPA, ESMA)",
     "accessed": "2026-11-09",
     "confidence": "high",
-    "lastReviewed": "2026-11-09"
+    "lastReviewed": "2026-11-09",
+    "reviewedBy": "owner"
   },
   {
     "key": "e.romance-investment",
@@ -85,7 +92,8 @@
     "publisher": "European Supervisory Authorities (EBA, EIOPA, ESMA)",
     "accessed": "2026-11-09",
     "confidence": "high",
-    "lastReviewed": "2026-11-09"
+    "lastReviewed": "2026-11-09",
+    "reviewedBy": "owner"
   },
   {
     "key": "e.impersonation",
@@ -96,7 +104,8 @@
     "publisher": "European Supervisory Authorities (EBA, EIOPA, ESMA)",
     "accessed": "2026-11-09",
     "confidence": "high",
-    "lastReviewed": "2026-11-09"
+    "lastReviewed": "2026-11-09",
+    "reviewedBy": "owner"
   },
   {
     "key": "e.seed-phrase-requests",
@@ -107,7 +116,8 @@
     "publisher": "European Supervisory Authorities (EBA, EIOPA, ESMA)",
     "accessed": "2026-11-09",
     "confidence": "high",
-    "lastReviewed": "2026-11-09"
+    "lastReviewed": "2026-11-09",
+    "reviewedBy": "owner"
   },
   {
     "key": "e.profit-promises",
@@ -118,7 +128,8 @@
     "publisher": "European Supervisory Authorities (EBA, EIOPA, ESMA)",
     "accessed": "2026-11-09",
     "confidence": "high",
-    "lastReviewed": "2026-11-09"
+    "lastReviewed": "2026-11-09",
+    "reviewedBy": "owner"
   },
   {
     "key": "e.address-poisoning",
@@ -129,7 +140,8 @@
     "publisher": "European Supervisory Authorities (EBA, EIOPA, ESMA)",
     "accessed": "2026-11-09",
     "confidence": "high",
-    "lastReviewed": "2026-11-09"
+    "lastReviewed": "2026-11-09",
+    "reviewedBy": "owner"
   },
   {
     "key": "f.leverage",
@@ -140,7 +152,8 @@
     "publisher": "CoinGlass",
     "accessed": "2026-11-09",
     "confidence": "high",
-    "lastReviewed": "2026-11-09"
+    "lastReviewed": "2026-11-09",
+    "reviewedBy": "owner"
   },
   {
     "key": "g.halvings",
@@ -151,7 +164,8 @@
     "publisher": "mempool.space",
     "accessed": "2026-11-02",
     "confidence": "high",
-    "lastReviewed": "2026-11-02"
+    "lastReviewed": "2026-11-02",
+    "reviewedBy": "owner"
   },
   {
     "key": "h.halving-to-high",
@@ -162,7 +176,8 @@
     "publisher": "Bitstamp",
     "accessed": "2026-11-02",
     "confidence": "high",
-    "lastReviewed": "2026-11-02"
+    "lastReviewed": "2026-11-02",
+    "reviewedBy": "owner"
   },
   {
     "key": "i.diminishing",
@@ -173,7 +188,8 @@
     "publisher": "Bitstamp",
     "accessed": "2026-11-02",
     "confidence": "medium",
-    "lastReviewed": "2026-11-02"
+    "lastReviewed": "2026-11-02",
+    "reviewedBy": "owner"
   },
   {
     "key": "j.next-halving",
@@ -184,7 +200,8 @@
     "publisher": "mempool.space",
     "accessed": "2026-11-02",
     "confidence": "medium",
-    "lastReviewed": "2026-11-02"
+    "lastReviewed": "2026-11-02",
+    "reviewedBy": "owner"
   },
   {
     "key": "k.pt-2023",
@@ -195,7 +212,8 @@
     "publisher": "Diário da República",
     "accessed": "2026-11-02",
     "confidence": "high",
-    "lastReviewed": "2026-11-02"
+    "lastReviewed": "2026-11-02",
+    "reviewedBy": "owner"
   },
   {
     "key": "k.de-2024",
@@ -206,7 +224,8 @@
     "publisher": "Bundesgesetzblatt",
     "accessed": "2026-11-02",
     "confidence": "high",
-    "lastReviewed": "2026-11-02"
+    "lastReviewed": "2026-11-02",
+    "reviewedBy": "owner"
   },
   {
     "key": "k.it-2026",
@@ -217,7 +236,8 @@
     "publisher": "Normattiva",
     "accessed": "2026-11-02",
     "confidence": "high",
-    "lastReviewed": "2026-11-02"
+    "lastReviewed": "2026-11-02",
+    "reviewedBy": "owner"
   },
   {
     "key": "k.be-2026",
@@ -228,7 +248,8 @@
     "publisher": "Moniteur belge",
     "accessed": "2026-11-02",
     "confidence": "high",
-    "lastReviewed": "2026-11-02"
+    "lastReviewed": "2026-11-02",
+    "reviewedBy": "owner"
   },
   {
     "key": "k.gb-2024",
@@ -239,7 +260,8 @@
     "publisher": "HM Revenue & Customs",
     "accessed": "2026-11-02",
     "confidence": "high",
-    "lastReviewed": "2026-11-02"
+    "lastReviewed": "2026-11-02",
+    "reviewedBy": "owner"
   },
   {
     "key": "k.ie-2026",
@@ -250,7 +272,8 @@
     "publisher": "Houses of the Oireachtas",
     "accessed": "2026-11-02",
     "confidence": "high",
-    "lastReviewed": "2026-11-02"
+    "lastReviewed": "2026-11-02",
+    "reviewedBy": "owner"
   },
   {
     "key": "l.fear-greed",
@@ -261,7 +284,8 @@
     "publisher": "alternative.me",
     "accessed": "2026-11-02",
     "confidence": "high",
-    "lastReviewed": "2026-11-02"
+    "lastReviewed": "2026-11-02",
+    "reviewedBy": "owner"
   },
   {
     "key": "m.emergency-fund",
@@ -272,7 +296,8 @@
     "publisher": "Financial Conduct Authority",
     "accessed": "2026-11-09",
     "confidence": "high",
-    "lastReviewed": "2026-11-09"
+    "lastReviewed": "2026-11-09",
+    "reviewedBy": "owner"
   },
   {
     "key": "n.risk-phrasings",
@@ -283,7 +308,8 @@
     "publisher": "European Supervisory Authorities (EBA, EIOPA, ESMA)",
     "accessed": "2026-11-02",
     "confidence": "high",
-    "lastReviewed": "2026-11-02"
+    "lastReviewed": "2026-11-02",
+    "reviewedBy": "owner"
   },
   {
     "key": "o.dca-windows",
@@ -294,7 +320,8 @@
     "publisher": "Bitstamp",
     "accessed": "2026-11-02",
     "confidence": "high",
-    "lastReviewed": "2026-11-02"
+    "lastReviewed": "2026-11-02",
+    "reviewedBy": "owner"
   },
   {
     "key": "o.dca-windows-eth",
@@ -305,7 +332,8 @@
     "publisher": "Coinbase Exchange",
     "accessed": "2026-11-02",
     "confidence": "high",
-    "lastReviewed": "2026-11-02"
+    "lastReviewed": "2026-11-02",
+    "reviewedBy": "owner"
   },
   {
     "key": "p.simulator-examples",
@@ -316,7 +344,8 @@
     "publisher": "Bitstamp",
     "accessed": "2026-11-02",
     "confidence": "high",
-    "lastReviewed": "2026-11-02"
+    "lastReviewed": "2026-11-02",
+    "reviewedBy": "owner"
   },
   {
     "key": "p.simulator-examples-eth",
@@ -327,7 +356,8 @@
     "publisher": "Coinbase Exchange",
     "accessed": "2026-11-02",
     "confidence": "medium",
-    "lastReviewed": "2026-11-02"
+    "lastReviewed": "2026-11-02",
+    "reviewedBy": "owner"
   },
   {
     "key": "q.red-day-frequency",
@@ -338,7 +368,8 @@
     "publisher": "Bitstamp",
     "accessed": "2026-11-02",
     "confidence": "high",
-    "lastReviewed": "2026-11-02"
+    "lastReviewed": "2026-11-02",
+    "reviewedBy": "owner"
   },
   {
     "key": "q.red-day-frequency-eth",
@@ -349,7 +380,8 @@
     "publisher": "Bitstamp",
     "accessed": "2026-11-02",
     "confidence": "medium",
-    "lastReviewed": "2026-11-02"
+    "lastReviewed": "2026-11-02",
+    "reviewedBy": "owner"
   },
   {
     "key": "r.app-user-losses",
@@ -360,6 +392,7 @@
     "publisher": "BIS",
     "accessed": "2026-11-09",
     "confidence": "high",
-    "lastReviewed": "2026-11-09"
+    "lastReviewed": "2026-11-09",
+    "reviewedBy": "owner"
   }
 ]

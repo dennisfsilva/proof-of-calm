@@ -1,6 +1,6 @@
 // Every number a Learn module cites, with its source and date (docs/CONTENT-OPS.md §7, docs/EDUCATION.md §9).
 import * as z from 'zod/mini';
-import { CalendarDateSchema, ConfidenceSchema } from './common.ts';
+import { CalendarDateSchema, ConfidenceSchema, ReviewerSchema } from './common.ts';
 
 export const FactSchema = z.strictObject({
   key: z.string().check(z.regex(/^[a-z]\.[a-z0-9-]+$/, 'Expected a key such as "a.btc-drawdowns"')),
@@ -13,5 +13,7 @@ export const FactSchema = z.strictObject({
   accessed: CalendarDateSchema,
   confidence: ConfidenceSchema,
   lastReviewed: CalendarDateSchema,
+  /** `agent-draft` until the owner has read the change against its source (docs/CONTENT-OPS.md §1). */
+  reviewedBy: ReviewerSchema,
 });
 export type Fact = z.infer<typeof FactSchema>;
