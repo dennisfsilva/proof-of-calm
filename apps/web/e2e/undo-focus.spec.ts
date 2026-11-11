@@ -304,7 +304,10 @@ for (const colorScheme of ['light', 'dark'] as const) {
 
         await undo(page, reach);
         const restored = toggle(page, DELETED);
-        await expect(restored).toBeFocused();
+        // By keyboard, the ring shows on the restored row (docs/DESIGN.md §6 "Focus"); after a pointer's click a
+        // script's focus shows none, by the browsers' focus-visible rule.
+        if (reach === 'F6') await focusedWithRing(restored);
+        else await expect(restored).toBeFocused();
         await expect(restored).toBeInViewport();
         expect(await leastScroll(page), 'from the delete to the restored row, never the page top').toBeGreaterThan(0);
       });

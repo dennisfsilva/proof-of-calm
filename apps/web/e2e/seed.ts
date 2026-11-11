@@ -2,6 +2,7 @@ import { expect, type Page } from '@playwright/test';
 import { DATABASE_NAME } from '@proofofcalm/app/lib/adapters';
 import { type EntryRow, entryRow, type PlanRow, planRow } from '@proofofcalm/app/lib/adapters/idb/rows';
 import type { Snapshot } from '@proofofcalm/app/lib/ports';
+import { DEFAULT_PREFS, type Prefs } from '@proofofcalm/core';
 
 // A plan in the browser's store for a spec (e.g. `fixtureSnapshot()` from lib/services/fixtures): the
 // rows are built here, in Node, by the store's own row builders, and put into the database the app has
@@ -10,12 +11,14 @@ import type { Snapshot } from '@proofofcalm/app/lib/ports';
 // The device id: the rows carry a fixed id, not the one in this device's `meta` store (a fresh device
 // has none until its first write). The store only compares row stamps for sync, so a foreign id is
 // what an imported or synced row would carry. Nothing goes to the outbox: a seeded plan is not a write
-// waiting for sync. The prefs are left as they are.
+// waiting for sync. The prefs are left as they are, unless the spec passes some: then the defaults with those
+// fields go in under the store's one prefs key, `'device'` (PREFS_KEY in
+// packages/app/src/lib/adapters/idb-store.ts:47), in the same transaction.
 const SEED_DEVICE_ID = '00000000-0000-4000-8000-00000000e2e0' as Parameters<typeof planRow>[1];
 
 type Rows = { readonly plans: PlanRow[]; readonly entries: EntryRow[] };
 
-export async function seedPlan(page: Page, snapshot: Snapshot): Promise<void> {
+export async function seedPlan(page: Page, snapshot: Snapshot, prefs?: Partial<Prefs>): Promise<void> {
   const screenArea = page.locator('main#main');
   await page.goto('/today');
   await expect(screenArea).not.toHaveAttribute('aria-busy', 'true');
@@ -25,7 +28,7 @@ export async function seedPlan(page: Page, snapshot: Snapshot): Promise<void> {
     entries: snapshot.entries.map((entry) => entryRow(entry, plan?.id ?? null, SEED_DEVICE_ID)),
   };
   await page.evaluate(
-    async ({ name, rows }) => {
+    async ({ name, rows, prefs }) => {
       // No version: the database opens at the version the app created, so no upgrade runs here.
       const database = await new Promise<IDBDatabase>((resolve, reject) => {
         const request = indexedDB.open(name);
@@ -33,15 +36,16 @@ export async function seedPlan(page: Page, snapshot: Snapshot): Promise<void> {
         request.onerror = () => reject(request.error);
       });
       await new Promise<void>((resolve, reject) => {
-        const transaction = database.transaction(['plans', 'entries'], 'readwrite');
+        const transaction = database.transaction(['plans', 'entries', 'prefs'], 'readwrite');
         for (const row of rows.plans) transaction.objectStore('plans').put(row);
         for (const row of rows.entries) transaction.objectStore('entries').put(row);
+        if (prefs !== null) transaction.objectStore('prefs').put(prefs, 'device');
         transaction.oncomplete = () => resolve();
         transaction.onabort = () => reject(transaction.error);
       });
       database.close();
     },
-    { name: DATABASE_NAME, rows },
+    { name: DATABASE_NAME, rows, prefs: prefs === undefined ? null : { ...DEFAULT_PREFS, ...prefs } },
   );
   await page.reload();
   await expect(screenArea).not.toHaveAttribute('aria-busy', 'true');
