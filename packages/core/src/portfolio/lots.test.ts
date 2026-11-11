@@ -195,6 +195,20 @@ describe('the units a sale’s own venue cannot cover (docs/DOMAIN.md §3.7)', (
     expect(short.lots.map((lot) => lot.remainingUnits)).toEqual(['0', '0', '0', '1']);
     expect(short.unmatchedUnits).toBe('0.2');
     expect(short.sales[0]?.unmatched).toBe('0.2');
+    // LIFO per venue, a sale short at its own venue: the rest comes off the latest other lot held then, Ledger's.
+    const kraken = [
+      buy('2026-01-01', '0.5', 'Kraken'),
+      buy('2026-02-01', '0.3'),
+      buy('2026-03-01', '0.2', 'Ledger'),
+      sell('2026-04-01', '0.6', 'Kraken'),
+      buy('2026-05-01', '0.4', 'Bitvavo'),
+    ];
+    expect(lots(kraken, BTC, 'per-venue', 'lifo').map((lot) => [lot.venue, lot.remainingUnits])).toEqual([
+      ['Kraken', '0'],
+      [null, '0.3'],
+      ['Ledger', '0.1'],
+      ['Bitvavo', '0.4'],
+    ]);
   });
 
   it('takes list each lot and its units; with unmatched they sum to the sale’s units', () => {
@@ -319,13 +333,27 @@ describe('venueUnits (docs/DOMAIN.md §3.7)', () => {
       { venue: null, units: '0.3' },
       { venue: 'Ledger', units: '0.2' },
     ]);
-    // Under LIFO the shortfall comes off the latest other lot held then, Ledger's.
-    expect(venueUnits(entries, BTC, date('2026-05-01'), 'lifo')).toEqual([
-      { venue: null, units: '0.3' },
-      { venue: 'Ledger', units: '0.1' },
-      { venue: 'Bitvavo', units: '0.4' },
-    ]);
     expect(venueUnits(entries, BTC, date('2025-12-31'))).toEqual([]);
+  });
+
+  it('matches first in, first out per venue whatever the country’s rule: it takes no lot rule', () => {
+    const entries = [
+      buy('2026-01-01', '0.5', 'Kraken'),
+      buy('2026-02-01', '0.3'),
+      buy('2026-03-01', '0.2', 'Ledger'),
+      sell('2026-04-01', '0.6', 'Kraken'),
+    ];
+    // Under LIFO the 0.1 Kraken lacks would come off Ledger's lot; FIFO takes it off the oldest, the one with no venue.
+    // @ts-expect-error: no lot rule (docs/DOMAIN.md §3.7).
+    expect(venueUnits(entries, BTC, date('2026-05-01'), 'lifo')).toEqual([
+      { venue: null, units: '0.2' },
+      { venue: 'Ledger', units: '0.2' },
+    ]);
+    // @ts-expect-error: no lot rule, as venueUnits.
+    expect(venueUnitsAtMove(entries, BTC, date('2026-05-01'), null, 'lifo')).toEqual([
+      { venue: null, units: '0.2' },
+      { venue: 'Ledger', units: '0.2' },
+    ]);
   });
 
   it('sums to the units held on the date, a sale no lot covered then taken off the oldest lots', () => {
@@ -370,13 +398,11 @@ describe('venueUnitsAtMove (docs/DOMAIN.md §3.7)', () => {
       { venue: 'Ledger', units: '0.1' },
       { venue: 'Coinbase', units: '0.2' },
     ]);
-    // A move stamped 10:00 sits between them, under LIFO as under FIFO.
-    expect(venueUnitsAtMove(entries, BTC, date('2026-02-01'), { createdAt: at('10:00'), id: late.id }, 'lifo')).toEqual(
-      [
-        { venue: 'Kraken', units: '0.5' },
-        { venue: 'Ledger', units: '0.1' },
-      ],
-    );
+    // A move stamped 10:00 sits between them.
+    expect(venueUnitsAtMove(entries, BTC, date('2026-02-01'), { createdAt: at('10:00'), id: late.id })).toEqual([
+      { venue: 'Kraken', units: '0.5' },
+      { venue: 'Ledger', units: '0.1' },
+    ]);
     // Unlike venueUnits, a sale that no lot covered is not taken off the lots bought after it.
     const short = [sell('2025-12-01', '0.2', 'Kraken'), buy('2026-01-01', '0.5', 'Kraken')];
     expect(venueUnitsAtMove(short, BTC, date('2026-02-01'), null)).toEqual([{ venue: 'Kraken', units: '0.5' }]);
