@@ -90,7 +90,8 @@ describe('moveErrorField', () => {
     expect(moveErrorField({ code: 'units-precision', coin })).toBe('sent');
     expect(moveErrorField({ code: 'amount-and-units', coin })).toBe('sent');
     expect(moveErrorField({ code: 'received-exceeds-sent' })).toBe('received');
-    expect(moveErrorField({ code: 'sell-exceeds-held', coin, held: units('0'), sold: units('1') })).toBe('received');
+    const sale = { coin, held: units('0'), sold: units('1'), date: date('2026-03-01'), written: false };
+    expect(moveErrorField({ code: 'sell-exceeds-held', ...sale })).toBe('received');
     expect(moveErrorField({ code: 'same-venue' })).toBe('to');
     expect(moveErrorField({ code: 'venue-too-long', max: 40 })).toBe('to');
     expect(moveErrorField({ code: 'note-too-long', max: 500 })).toBe('note');
@@ -105,11 +106,14 @@ describe('moveErrorField', () => {
 });
 
 describe('moveMessage', () => {
-  it("moveMessage words a later sale left short as the move's fee, not as a sale", () => {
+  it("moveMessage words sell-exceeds-held with that sale's date", () => {
     const error = { code: 'sell-exceeds-held', coin: BTC.id, held: units('0.01'), sold: units('0.02') } as const;
-    expect(moveMessage(error, plan, format, date('2026-03-01'))).toEqual({
+    // The sale's own date, not the date of the move being saved: a move's fee is its doing, not a sale's.
+    expect(
+      moveMessage({ ...error, date: date('2026-05-01'), written: false }, plan, format, date('2026-03-01')),
+    ).toEqual({
       key: 'log.move.saleShort',
-      values: { coin: 'BTC' },
+      values: { coin: 'BTC', date: '1 May 2026' },
     });
   });
 

@@ -420,7 +420,7 @@ describe('LogScreen', () => {
     return { snapshot: { ...snapshot, entries: [...snapshot.entries, sale] }, sale };
   };
 
-  it('keeps a purchase that covers a later sale and says why', async () => {
+  it('keeps a purchase whose delete would leave a sale without its units and names that sale by its date', async () => {
     const { snapshot } = withSaleOfAll();
     const services = await mount(snapshot);
     // The newest row is the sale; the next one is the purchase of 12 October that covers it.
@@ -428,7 +428,8 @@ describe('LogScreen', () => {
     fireEvent.click(purchase);
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Delete entry' })));
     expect(screen.getByRole('status').textContent).toContain(
-      'This purchase covers a later BTC sale, so it stays. Change or delete the sale first.',
+      'Deleting this purchase would leave your BTC sale on 14 Oct 2026 without the units it sells, so the ' +
+        'purchase stays. Check that sale in the Log.',
     );
     expect(services.domain.store.getState().snapshot.entries.every((entry) => entry.deletedAt === null)).toBe(true);
   });
@@ -473,7 +474,9 @@ describe('LogScreen', () => {
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Undo' })));
     await vi.waitFor(() =>
       expect(screen.getByRole('status').textContent).toContain(
-        'Your BTC entries changed after you deleted this sale, so it stays deleted.',
+        // The sale recorded since sorts after the one restored, so it is the sale left short.
+        'Restoring this entry would leave your BTC sale on 14 Oct 2026 without the units it sells, so it ' +
+          'stays deleted.',
       ),
     );
     const stored = services.domain.store.getState().snapshot.entries.find((entry) => entry.id === sale.id);

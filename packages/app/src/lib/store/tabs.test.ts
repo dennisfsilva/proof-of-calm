@@ -320,7 +320,15 @@ describe('two tabs: a write builds on the rows as stored (ADR-0019, Readings)', 
     const undone = await undo(a.domain, [sold.id], deletedByA);
     expect(undone).toStrictEqual({
       ok: false,
-      error: { code: 'sell-exceeds-held', coin: sold.coin, held: '0', sold: sold.units },
+      // The restored sale takes the units first, so the one tab B recorded on 1 March is the sale left short.
+      error: {
+        code: 'sell-exceeds-held',
+        coin: sold.coin,
+        held: '0',
+        sold: sold.units,
+        date: '2026-03-01',
+        written: false,
+      },
     });
     expect(stored(shared, sold.id)?.deletedAt).toBe(deletedByA.at);
   });

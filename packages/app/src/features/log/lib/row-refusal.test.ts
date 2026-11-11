@@ -19,9 +19,9 @@ import log from '../messages/en.json';
 import { deleteRefusalTitle, undoRefusalTitle } from './row-refusal';
 
 // The toasts of a Log row's refused delete and Undo (docs/CONTENT-STYLE.md §3, Delete an entry), each from a refusal
-// the core gives for the write (DOMAIN §6). A fee refusal names one move, so each sentence is checked in the four
-// cases of a refusal that names one entry: the write worsens only that move; the data was short before the write (an
-// import); only the units in total run short, not the ones by date; the move named is the one the write stores.
+// the core gives for the write (DOMAIN §6). A fee or a sale refusal names one entry, so each sentence is checked in the
+// four cases of a refusal that names one entry: the write worsens only that entry; the data was short before the write
+// (an import); only the units in total run short, not the ones by date; the entry named is the one the write stores.
 
 const f = createFormatters('en-GB', 'en-GB');
 const t = createTranslator({ locale: 'en', messages: { log }, namespace: 'log' });
@@ -29,9 +29,13 @@ const plan = aPlan();
 const AT = instant('2026-10-20T10:00:00.000Z');
 const LATER = instant('2026-10-20T10:00:05.000Z');
 // Formatted dates join their parts with no-break spaces (CONTENT-STYLE §4).
-const [FEBRUARY, APRIL, MARCH] = ['1 Feb 2026', '1 Apr 2026', 'March 2026'].map((text) =>
-  text.replaceAll(' ', '\u00a0'),
-);
+const [JANUARY, FEBRUARY, MARCH_1, APRIL, MARCH] = [
+  '1 Jan 2026',
+  '1 Feb 2026',
+  '1 Mar 2026',
+  '1 Apr 2026',
+  'March 2026',
+].map((text) => text.replaceAll(' ', '\u00a0'));
 
 const bought = (on: string, held: string, overrides: Partial<Entry> = {}) =>
   anEntry({ kind: 'extra', slot: null, date: date(on), units: units(held), ...overrides });
@@ -120,11 +124,32 @@ describe('deleteRefusalTitle', () => {
     );
   });
 
-  it('keeps the sale sentence for a purchase that covers a later sale', () => {
-    const buy = bought('2026-01-01', '0.01');
-    const error = refusedDelete([buy, sold('2026-02-01', '0.01')], [buy]);
-    expect(deleteRefusalTitle(error, purchase(1), f, t)).toBe(
-      'This purchase covers a later BTC sale, so it stays. Change or delete the sale first.',
+  it('a delete refused for a sale dated before the purchase names it by its date, never as a later sale', () => {
+    // Only the units in total run short: the sale of 1 March finds 0.01 by date, and nothing once 1 April's purchase goes.
+    const buy = bought('2026-04-01', '0.01');
+    const entries = [sold('2026-01-01', '0.01'), bought('2026-02-01', '0.01'), sold('2026-03-01', '0.01'), buy];
+    const error = refusedDelete(entries, [buy]);
+    expect(error).toMatchObject({ code: 'sell-exceeds-held', date: '2026-03-01', written: false });
+    const title = deleteRefusalTitle(error, purchase(1), f, t);
+    expect(title).toBe(
+      `Deleting this purchase would leave your BTC sale on ${MARCH_1} ` +
+        'without the units it sells, so the purchase stays. Check that sale in the Log.',
+    );
+    expect(title).not.toMatch(/later/u);
+  });
+
+  it("a Coins added row's sale refusal says Coins added entry, never purchase", () => {
+    const btc = bought('2026-01-01', '0.01', { kind: 'held', amount: null });
+    const eth = bought('2026-01-01', '0.1', { kind: 'held', amount: null, coin: ETH.id });
+    const entries = [btc, eth, sold('2026-02-01', '0.01')];
+    const held = (count: number) => ({ kind: 'held' as EntryKind, count });
+    expect(deleteRefusalTitle(refusedDelete(entries, [btc]), held(1), f, t)).toBe(
+      `Deleting this Coins added entry would leave your BTC sale on ${FEBRUARY} ` +
+        'without the units it sells, so the entry stays. Check that sale in the Log.',
+    );
+    expect(deleteRefusalTitle(refusedDelete(entries, [btc, eth]), held(2), f, t)).toBe(
+      `Deleting these 2 Coins added entries would leave your BTC sale on ${FEBRUARY} ` +
+        'without the units it sells, so the entries stay. Check that sale in the Log.',
     );
   });
 });
@@ -155,16 +180,37 @@ describe('undoRefusalTitle', () => {
     expect(undoRefusalTitle(error, 1, f, t)).toContain(`BTC move on ${APRIL}`);
   });
 
+  it('an Undo of a sale refused over data imported short says restoring it would leave it without the units it sells', () => {
+    // Imported dated before its purchase, deleted, then undone with nothing changed since: no entries changed.
+    const sale = sold('2026-01-01', '0.01');
+    const error = refusedUndo([sale, bought('2026-02-01', '0.01')], [sale]);
+    expect(error).toMatchObject({ code: 'sell-exceeds-held', date: '2026-01-01', written: true });
+    expect(undoRefusalTitle(error, 1, f, t)).toBe(
+      'Restoring this sale would leave it without the units it sells, so it stays deleted.',
+    );
+    expect(undoRefusalTitle(error, 2, f, t)).toBe(
+      `Restoring these 2 entries would leave your BTC sale on ${JANUARY} without the units it sells, so they stay deleted.`,
+    );
+  });
+
   it('when only the units in total run short, names the restored sale, so no fee sentence says later', () => {
     // A restore adds units taken; a step before the restored one keeps its units in total, so a move short only in
     // total is never named: the sale restored after it is.
     const sale = sold('2026-04-01', '0.0001');
-    const entries = [moved('2026-01-01'), bought('2026-03-01', '0.0001'), sale];
-    const error = refusedUndo(entries, [sale]);
-    expect(error).toMatchObject({ code: 'sell-exceeds-held', coin: 'BTC' });
-    expect(undoRefusalTitle(error, 1, f, t)).toBe(
-      'Your BTC entries changed after you deleted this sale, so it stays deleted.',
+    const error = refusedUndo([moved('2026-01-01'), bought('2026-03-01', '0.0001'), sale], [sale]);
+    expect(error).toMatchObject({ code: 'sell-exceeds-held', date: '2026-04-01', written: true });
+    expect(undoRefusalTitle(error, 1, f, t)).not.toMatch(/later/u);
+  });
+
+  it('an Undo of a move refused for a sale names the sale by its date, never "this sale"', () => {
+    const move = moved('2026-02-01');
+    const error = refusedUndo([bought('2026-01-01', '0.01'), move, sold('2026-03-01', '0.00995')], [move]);
+    expect(error).toMatchObject({ code: 'sell-exceeds-held', date: '2026-03-01', written: false });
+    const title = undoRefusalTitle(error, 1, f, t);
+    expect(title).toBe(
+      `Restoring this entry would leave your BTC sale on ${MARCH_1} without the units it sells, so it stays deleted.`,
     );
+    expect(title).not.toContain('this sale');
   });
 
   it('says a move restored short of its own fee stays deleted, naming no other move', () => {
