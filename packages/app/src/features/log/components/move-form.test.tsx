@@ -368,6 +368,20 @@ describe('MoveForm', () => {
       expect(document.activeElement).toBe(field('Units sent'));
     });
 
+    it("another tab's delete of the offered sources before Save shows the core's refusal at Units sent with the stored sources, no stale card", async () => {
+      const { onDone, planStore } = await open(lots);
+      unchosen('2026-02-20');
+      expect(screen.getAllByRole('radio')).toHaveLength(2);
+      // Stored by another tab; the reload its channel message asks for has not run here.
+      await act(() => planStore.write({ entries: deleted }));
+      await save();
+      expect(onDone).not.toHaveBeenCalled();
+      expect(planStore.current().entries.filter((entry) => entry.kind === 'move')).toEqual([]);
+      expect(screen.getByText(/more than you hold \(0 BTC on 20 Feb 2026\)/)).toBeTruthy();
+      expect(screen.queryAllByRole('radio')).toHaveLength(0);
+      expect(document.activeElement).toBe(field('Units sent'));
+    });
+
     it('a chosen source the write empties takes the save refusal at its field', async () => {
       const { onDone, services } = await open(lots);
       fill('0.01');
