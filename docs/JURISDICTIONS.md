@@ -524,6 +524,16 @@ is why entries carry an optional venue label.
 
 Open items the first review run must close: the text of Belgian circular 2026/C/74; the outcome of the US House markup; the official UK Autumn Budget 2025 overview document; the Gazzetta Ufficiale article text for L. 207/2024 c. 28 and 29.
 
+Queue from the dry rehearsal of the review skill (#125), carried over in #136, for the owner's first
+real run of Ireland:
+
+1. Ireland, the allowance (EUR 1,270 of chargeable gains a year per person): its source, Tax and Duty
+   Manual Part 19-07-01 §1.2, is not in the profile's `sources`. The owner adds it with the day it was
+   read.
+2. Ireland, the lines that rest only on Tax and Duty Manual Part 02-01-03 (the classification and the
+   holding-rule text) and the 33 % row's start date, 2012-12-06 (Finance Act 2013 s. 43): the rehearsal
+   did not read them again. The owner's run reads both sources.
+
 ### 7.12 Facts the owner's review watches first (PT, DE, NL, ES, FR)
 
 1. Germany: the end of the one-year holding period for new purchases (BMF draft of 2026-09-30; cabinet decision, Bundestag and Bundesrat readings, the final cut-off date, whether grandfathering survives). If enacted, the profile gets a holding-rule override by acquisition date.
