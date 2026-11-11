@@ -11,6 +11,11 @@ lint (`lint/styles.ts`), message merging (`messages/merge.ts`), the secret scan 
 (`serve/`). Content validation is `packages/content/scripts/validate.ts`; the reference-close data
 pipeline (`tools/data/`, ADR-0036) arrives in M2.
 
+`content-review/reminder.ts` is the content review's reminder (`docs/CONTENT-OPS.md` §2): `issue`
+opens or comments on the `content-review` issue for the content-review-reminder.yml workflow
+(`--dry-run` prints it, `--today YYYY-MM-DD` picks the day), and `session` is the `SessionStart` hook
+that shows the owner one line while a review is due.
+
 `check.ts` (`pnpm check`) runs the gate's fast half with colour off and vitest's dot reporter, prints
 one line per step and only a failing step's last 40 lines. `lint/docs.ts` (`pnpm lint:docs`) checks
 that the documents name only paths, commands and ADRs that exist, mark planned items, keep each owned

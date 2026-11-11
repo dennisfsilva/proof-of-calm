@@ -26,15 +26,25 @@ tax statements. Decision: ADR-0015 (principle), ADR-0037 (scheduling); mechanics
 
 | When | What |
 |---|---|
-| 1 January, 1 April, 1 July, 1 October (06:23 UTC) | full review of every jurisdiction and every module's facts |
-| 15 January | second pass on jurisdictions, because budget laws land late December and tax authorities update pages in the first fortnight |
-| `workflow_dispatch` with a country filter | on demand (a reader reports a change; a `pendingChanges[].effectiveFrom` date has passed) |
+| 1 January, 1 April, 1 July, 1 October (06:23 UTC) | full review of every jurisdiction and every module's facts: a reminder issue opens, and the owner runs `/review-content` in a Claude Code session |
+| 15 January | second pass on jurisdictions, because budget laws land late December and tax authorities update pages in the first fortnight: a reminder issue opens, and the owner runs `/review-content` with the country codes only |
+| any time | `/review-content <codes>` on demand (a reader reports a change; a `pendingChanges[].effectiveFrom` date has passed) |
 | continuous | CI fails the build when any profile's `nextReviewDue` is more than twelve months past, so a stale card cannot ship silently |
+
+The reminder is `.github/workflows/content-review-reminder.yml` (`tools/content-review/reminder.ts`):
+on each date above it opens one issue labelled `content-review`, assigned to the owner, or comments
+`Still due` on the one still open. While a review is due, Claude Code shows the owner one line at
+session start (the `SessionStart` hook in `.claude/settings.json`), also when no issue opened because
+GitHub paused the schedule after 60 days without activity.
 
 The app shows a card as under review when `nextReviewDue` is more than twelve months past
 (`docs/JURISDICTIONS.md` §1), and shows the dated `changeNotice` once when `status.version` increases (`docs/JURISDICTIONS.md` §6).
 
 ## 3. Mechanics
+
+Since 2026-11-11 the owner runs the review by hand, in a Claude Code session, and no scheduled model
+job runs in CI (ADR-0037, Deviations): the reminder of §2 replaces the schedule. What follows
+describes the scheduled job and is rewritten for the manual run by the session of #125.
 
 Workflow, `.github/workflows/content-review.yml` (planned: M2):
 
