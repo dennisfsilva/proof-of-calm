@@ -514,7 +514,7 @@ is why entries carry an optional venue label.
 | Product note | the French tax-year export (built 2026-11-08 on `taxYearCessions`, `docs/DOMAIN.md` §3.13) lists each sale in the log as a block: a holding row per coin held just before it, then the sale row with the date, the proceeds and the fee as logged and the sums of the purchases and costed `held` entries logged before it, never reduced by earlier sales. The estimated global portfolio value form 2086 asks for fills only when the coin sold was the only coin held: the file holds no market price but the sale's own, since no downloaded file holds values derived from CoinGecko data (ADR-0036 Readings, 2026-11-08), until the reference closes of `packages/data` exist (planned: M2). It computes nothing from line 221 on (no fraction, net cost, gain or EUR 305 test, §1) and names no form line |
 | Decisive sources | impots.gouv.fr, "Comment déclarer les plus ou moins-values sur cessions d'actifs numériques ?", modified 2026-07-17, https://www.impots.gouv.fr/particulier/questions/comment-declarer-les-plus-ou-moins-values-sur-cessions-dactifs-numeriques · BOFiP BOI-RPPM-PVBMC-30-10, -20, -30 (2019-09-02; -30 also 2024-04-23), https://bofip.impots.gouv.fr/doctrine/pgp/11967-PGP · DGFiP formulaire 2086 for gains made in 2025, https://www.impots.gouv.fr/sites/default/files/formulaires/2086/2026/2086_5515.pdf · Assemblée nationale, PLF 2027 dossier, read 2026-11-05, https://www.assemblee-nationale.fr/dyn/17/dossiers/PLF_2027 · CMS Francis Lefebvre on loi 2026-534, 2026-06-10, https://cms.law/fr/fra/legal-updates/loi-fraudes-plusieurs-mesures-concernent-les-crypto-actifs · ORWL Avocats on the PLF 2027 amendments, 2026-10-16, https://www.orwl.fr/plf-2027-et-cryptos-ce-que-le-budget-pourrait-changer-pour-vos-impots/ · Légifrance, LOI n° 2025-1403 du 30 décembre 2025 de financement de la sécurité sociale pour 2026, art. 12, read 2026-11-05, https://www.legifrance.gouv.fr/jorf/article_jo/JORFARTI000053226452 · DLA Piper on the LFSS 2026 CSG rise, 2026-01 (medium, the secondary that reported the rise) · Légifrance, loi n° 2026-103 du 19 février 2026 de finances pour 2026 (identity only) |
 
-### 7.11 Facts the review job watches first (IT, BE, IE, GB, US)
+### 7.11 Facts the owner's review watches first (IT, BE, IE, GB, US)
 
 1. Italy: the 33 % rate and the crypto-only loss ring-fence (intergroup draft of 2026-09-24; DDL Bilancio 2027 by 2026-12-31).
 2. Ireland: enactment of 31 % (Finance (No. 2) Act 2026, December 2026); Budget 2028 (October 2027).
@@ -524,7 +524,7 @@ is why entries carry an optional venue label.
 
 Open items the first review run must close: the text of Belgian circular 2026/C/74; the outcome of the US House markup; the official UK Autumn Budget 2025 overview document; the Gazzetta Ufficiale article text for L. 207/2024 c. 28 and 29.
 
-### 7.12 Facts the review job watches first (PT, DE, NL, ES, FR)
+### 7.12 Facts the owner's review watches first (PT, DE, NL, ES, FR)
 
 1. Germany: the end of the one-year holding period for new purchases (BMF draft of 2026-09-30; cabinet decision, Bundestag and Bundesrat readings, the final cut-off date, whether grandfathering survives). If enacted, the profile gets a holding-rule override by acquisition date.
 2. France: PLF 2027 rejected by the Assemblée nationale on 2026-11-04 (T.A. n° 362); the Senate's reading and any new budget text.
