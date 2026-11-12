@@ -55,8 +55,13 @@ session, on a reminder's date (§2) or on demand, with country codes, `canary=<p
 arguments. The skill `.claude/skills/review-content/SKILL.md` owns the agent's steps; this section
 owns the pipeline around them and its security model.
 
-1. **Start.** `node tools/content-review/propose.ts start` fetches origin/main and refuses a dirty
-   tree or a HEAD other than origin/main.
+1. **Start.** `node tools/content-review/propose.ts start` fetches origin/main and the agent/
+   branches with `--prune`, prints the pull requests gh lists for the review's branch (HEAD's
+   `agent/content-review-<date>` branch, else today's; a fork's pull request from a branch of the
+   same name is left out), and refuses a dirty tree or a HEAD other than origin/main. On a HEAD that
+   holds commits origin/main lacks it says to save them before switching back, never to detach.
+   It refuses first, changing nothing, when the fetch fails or gh is missing, logged out or offline,
+   and names the fix: reconnect, install GitHub CLI, or `gh auth login`.
 2. **Edits.** The agent edits only content data, marks every change `agent-draft` and deletes
    nothing. The rules files change only as the output of `pnpm --filter @proofofcalm/content rules`.
 3. **The expected failure.** The agent runs the content checks, and the skill tells it: "The one
@@ -84,7 +89,9 @@ owns the pipeline around them and its security model.
    change, a changed module with no row, a changed file (a module too) with no `reviewed` row,
    and any change to `lastReviewed` or `nextReviewDue` (in a module, any changed line naming either)
    are refused; the generated `rules/*.json` are skipped. A refusal leaves the index as it found
-   it. Without `--dry` it first refuses a HEAD other than origin/main. When nothing is refused, it
+   it. Without `--dry` it first refuses, changing nothing, a HEAD other than origin/main, then a
+   failed fetch of the agent/ branches or a gh that is missing, logged out or offline (it reads
+   today's pull-request record, as start does). When nothing is refused, it
    renders the body, commits on `agent/content-review-<date>`, pushes, and opens the PR labelled
    `needs-owner` and `content-review`. It never merges.
 6. **Dry mode.** On `dry`, `node tools/content-review/propose.ts finish --dry` writes the body to
@@ -99,8 +106,8 @@ still asks the owner. WebFetch
 keeps the session's own permission settings, so each new domain's first WebFetch shows the owner
 what the agent reads.
 
-Until the owner's first run, only the tests, which check its git and gh argv, cover the finish's
-non-dry path. The `finish-dry` job of `.github/workflows/content-review.yml` runs the dry path on fixtures. A second
+Until the owner's first run, only the tests, which run it against a local origin and a fake gh,
+cover the finish's non-dry path. The `finish-dry` job of `.github/workflows/content-review.yml` runs the dry path on fixtures. A second
 run on the same day fails, at the branch switch or at the push, because today's branch,
 `agent/content-review-<date>`, exists. Delete today's branch, local and remote, only once its PR
 exists or when it holds nothing you need: after a pushed finish whose PR did not open, it holds the
