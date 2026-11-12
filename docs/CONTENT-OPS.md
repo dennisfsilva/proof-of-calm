@@ -76,7 +76,7 @@ owns the pipeline around them and its security model.
    `accessed`, `reviewedBy` and `status.confidence`. The agent never sets `lastReviewed` or
    `nextReviewDue`; the owner sets `lastReviewed` in the flip (§8), once every source was read.
    A `reviewed` row's `of` counts the sources on the item's list (the country's list plus `EU`, or
-   `facts`), each `pendingChanges[].source` included. The agent fetches no off-list `secondary`
+   `facts`), each on-list `pendingChanges[].source` included, and each distinct URL once. The agent fetches no off-list `secondary`
    source, which `packages/content/src/validate.ts` lets a profile cite: it names it in the notes as
    `secondary, off the list, not fetched: <url>` with the lines that cite only it, and leaves those
    lines unchanged; the owner opens it (§8, step 1). The agent reads a PDF through
