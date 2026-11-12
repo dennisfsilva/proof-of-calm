@@ -87,7 +87,13 @@ to high would give the reader the sum for a date.
 ## 4. Taxes where you live
 
 **Idea**: the rule where you live decides what "hold" means; rules change yearly.
-**Says**: the user's country card first, then the library of the other countries. The card opens with
+**Says**: the user's country card first, then the library of the other countries. The lead is the card
+of the rules the plan's country runs on, at level 2 with the id `your-country`, above the module's text,
+on the route and in the sheet; a plan on `XX`, or in a country with no profile, gets the generic card, and
+with no plan there is no card. On the route, below the text, `Other countries` lists the library without
+the plan's country; with no plan, on `XX` or in a country with no profile, `Countries` lists every row.
+The sheet shows the card and no list. A profile that fails to load fails the route to its screen boundary
+and the sheet to the "Why?" link's toast: the text never shows without its card. The card opens with
 the summary, the classification, the taxable events, the rates, and the allowances. Then the holding rule,
 with every one of the profile's conditions under it: the card never states an exemption without its
 condition. Then the lot rule, losses, reporting, and the questions for an accountant. Each rule carries its
@@ -297,7 +303,8 @@ test refuses those words anywhere in a module's own text. `<Chart />`, on a line
 chart the front matter names where it stands, followed by its source's publishers as unlinked text, the
 span of its data and the past-performance line, all inside the element (for `drawdowns-bar`, the intraday form
 of `docs/LEGAL.md` §4's line, which also says the falls are Proof of Calm's own computation); a module holds it exactly once when
-`chart` is not `none`, and never otherwise (`pnpm validate:content`). A module with a chart writes its
-`N %` with an ordinary space, and the page sets it with the joiner of the chart's figures in each locale
-(`docs/CONTENT-STYLE.md` §4); a module with `chart: none` renders as written. Only `drawdowns-bar` has a
+`chart` is not `none`, and never otherwise (`pnpm validate:content`). A module writes its `N %` with a
+no-break space, or an ordinary one, and the page sets it with its joiner where the module shows figures
+the app formats: a chart, or the tax module's country card (`docs/CONTENT-STYLE.md` §4); any other module
+renders as written. Only `drawdowns-bar` has a
 renderer; another chart draws nothing until its own branch lands.
