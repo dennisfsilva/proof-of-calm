@@ -15,7 +15,7 @@ in the card's date line; `docs/LEGAL.md` §4, ADR-0047). Decision record: ADR-00
   user's own entries and the rule, with no rate and no amount) and offers a tax-year export. The
   German line's wording is pending the StBerG check (`docs/BENCHMARK.md` §4); until answered it stays
   as §7.7 and `docs/CONTENT-STYLE.md` §3 write it. Counsel's question 14 (`docs/LEGAL.md` §6) checks
-  every copy change against this rule, and a finding on it blocks the merge.
+  every change to copy and exports against this rule.
 - Every card shows its `lastReviewed` date and links to its sources. A card more than twelve months
   past `nextReviewDue` is under review: it keeps its title, shows neither its rule's words nor its
   Sources, and its date line takes the under-review form (`docs/LEGAL.md` §4 owns the words). On
