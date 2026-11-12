@@ -63,10 +63,12 @@ Arguments: $ARGUMENTS
 
 ## 2. Read first
 
-0. Run `node tools/content-review/propose.ts start`. At a clean origin/main it prints
-   `start: clean at origin/main; this review takes <name>`, the branch the finish creates: go on.
+0. Run `node tools/content-review/propose.ts start`. At a clean origin/main with a name free, it
+   prints `start: clean at origin/main; this review takes <name>`, the branch the finish creates:
+   go on.
    Otherwise it prints its reasons, then `start: refused`; show the owner every line word for word.
-   On a review branch those lines are the branch's pull requests and what the finish would decide.
+   On a review branch, after a good fetch and gh read, those lines are the branch's pull requests
+   and what the finish would decide.
    When a line ends `run finish again` (an earlier run's edits wait beside
    .content-review/draft.json) or says `finish goes on: <steps>`, ask the owner whether to finish
    that review. On a yes, run §7 step 5's command on the edits and the draft as they stand and
@@ -217,10 +219,13 @@ rules files as the generator writes them. The finish refuses a changed entry at 
    A failed step prints `<step>: <git's or gh's first line>: run finish again`: show the owner that
    line, and on a yes run the same command again. Never change data only to have something staged.
    Run no git or gh command; `git switch --detach origin/main` in its output is the owner's to run.
-   On a review branch the finish reads the branch's pull-request record first: an open PR prints its
-   URL and commits and pushes nothing, only merged or closed ones are refused, and with no PR it
-   resumes only a part-way failure. Report the PR URL it prints (on `dry`, the body's path). Never
-   merge. Then stop.
+   On a review branch the finish reads the branch's pull-request record first. With an open PR it
+   commits and pushes nothing. On a clean tree with HEAD at origin's copy of the branch or behind
+   it, it prints the URL, adds a missing `needs-owner` label and exits 0. Otherwise it prints the
+   URL and why (a dirty tree, HEAD past that copy, or no copy) and refuses. A merged or closed PR
+   is refused. With no PR it resumes only a part-way failure: commit, push and PR; push and PR; or
+   PR alone. It refuses any other state. Report the PR URL it prints (on `dry`, the body's path).
+   Never merge. Then stop.
 
 ## 8. Canary
 
