@@ -8,7 +8,7 @@ import { type ComponentProps, useRef } from 'react';
 import { useTranslations } from 'use-intl';
 import { useFormatters } from '../../../lib/services';
 import { moduleBody } from '../lib/bodies';
-import { pageJoiner, withJoiner } from '../lib/body-elements';
+import { moduleJoiner, withJoiner } from '../lib/body-elements';
 import { ModuleView } from './module-view';
 
 export type ModuleSheetProps = {
@@ -23,7 +23,7 @@ export type ModuleSheetProps = {
 
 /**
  * One Learn module in a sheet (docs/CONTENT-STYLE.md §3): the same view as the route's, its title the module's
- * idea, so the dialog is named by what it says; a module with a chart joins its `N %` there as the view does its
+ * idea, so the dialog is named by what it says; it joins its `N %` there with `moduleJoiner`, as the view does its
  * title, caveat and body (docs/CONTENT-STYLE.md §4). With a section, the focus moves to that heading inside the
  * popup: the browser scrolls it into view, and the keyboard and a screen reader land on it, with no scroll code.
  * Without one, or for a section the module does not have, Base UI's default stands: the first tab stop, which is
@@ -51,7 +51,7 @@ export function ModuleSheet({ slug, section, open, onOpenChange, finalFocus }: M
   const module = LEARN_MODULES.find((known) => known.slug === slug);
   const Body = moduleBody(slug);
   if (module === undefined || Body === undefined) return null;
-  const joiner = module.chart === 'none' ? undefined : pageJoiner(f);
+  const joiner = moduleJoiner(module, f);
   const heading = () =>
     (section !== undefined && popup.current?.querySelector<HTMLElement>(`[id="${section}"]`)) || true;
   return (
