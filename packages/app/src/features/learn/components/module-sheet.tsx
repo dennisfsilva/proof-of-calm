@@ -9,6 +9,8 @@ import { useTranslations } from 'use-intl';
 import { useFormatters } from '../../../lib/services';
 import { moduleBody } from '../lib/bodies';
 import { moduleJoiner, withJoiner } from '../lib/body-elements';
+import { TAXES_MODULE } from '../lib/taxes';
+import { PlanCountryCard } from './country-library';
 import { ModuleView } from './module-view';
 
 export type ModuleSheetProps = {
@@ -28,7 +30,8 @@ export type ModuleSheetProps = {
  * popup: the browser scrolls it into view, and the keyboard and a screen reader land on it, with no scroll code.
  * Without one, or for a section the module does not have, Base UI's default stands: the first tab stop, which is
  * `Close` (docs/DESIGN.md §6 and §8). The closing focus goes to the host's `finalFocus`. The body suspends under
- * the host's boundary, so the popup commits with the heading in it.
+ * the host's boundary, so the popup commits with the heading in it; the tax module's lead, the card of the plan's
+ * country (`your-country`, its h2), suspends there too, and the sheet shows it without the route's list of countries.
  *
  * A module has no foot to hold a Save or a Cancel, so `Close` stays in view as it scrolls, and the title does not
  * (docs/DESIGN.md §8). It must be the popup's first child, since a last child cannot stick to the top of its
@@ -69,7 +72,12 @@ export function ModuleSheet({ slug, section, open, onOpenChange, finalFocus }: M
             </SheetClose>
           </div>
         </div>
-        <ModuleView module={module} Body={Body} heading={<SheetTitle>{withJoiner(module.idea, joiner)}</SheetTitle>} />
+        <ModuleView
+          module={module}
+          Body={Body}
+          heading={<SheetTitle>{withJoiner(module.idea, joiner)}</SheetTitle>}
+          lead={slug === TAXES_MODULE ? <PlanCountryCard /> : undefined}
+        />
       </SheetContent>
     </Sheet>
   );
