@@ -45,10 +45,12 @@ merge, as all four designs and counsel hold. Three reasons:
 
 The refused kinds are the closed list, so a reviewer checks a figure against six kinds. The list of
 what stands settles the edge cases without binding every other figure of the app (the Red day, the
-plan totals, the simulator) to a list written for tax. Computing a refused kind would also need a
-rate, allowance or threshold in the core's `CountryRulesSchema`, which holds none
-(`packages/core/src/schema/country.ts` lines 28 to 52), so a tier-2 review of the core sees it too.
-Not changed: `.claude/agents/counsel.md` reads §6 by number; the StBerG row of BENCHMARK §4 stays
+plan totals, the simulator) to a list written for tax. Applying a rate, testing an allowance or
+threshold, or computing a deemed return would also need a figure in the core's `CountryRulesSchema`.
+The schema holds none (`packages/core/src/schema/country.ts` lines 28 to 52), so a tier-2 review of
+the core sees those too. A gain or loss needs no rate: it is the proceeds less the cost share, and the
+per-lot file holds both (`docs/DOMAIN.md` §3.13). A pool's cost needs only the lot rule `pooled` and
+the entries. So question 14 is asked of exports as well as copy (`docs/LEGAL.md` §6). Not changed: `.claude/agents/counsel.md` reads §6 by number; the StBerG row of BENCHMARK §4 stays
 open; no ADR is written, since LEGAL owns the question.
 
 ## 4. Where the wording comes from
