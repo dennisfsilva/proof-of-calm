@@ -38,8 +38,8 @@ than origin/main and names the day's first free review name; on a review branch 
 branch's pull requests and what finish would decide, and refuses;
 `node tools/content-review/propose.ts finish` (`--dry`, `--draft <path>`) stages
 everything and refuses a path outside content data, a mode, a binary, a deletion, an entry not at
-agent-draft, a draft problem or a draft row that does not match the staged diff (`rows.ts`), leaving the index as it found it, before any commit. Without `--dry`
-it first refuses a HEAD other than the commit the local origin/main names, the check start makes,
+agent-draft, a draft problem or a draft row that does not match the staged diff (`rows.ts`), leaving the index as it found it, before any commit. Without `--dry`,
+off a review branch, it first refuses a HEAD other than the commit the local origin/main names, the check start makes,
 and a failed fetch or gh, before it stages, switches, commits or pushes anything. `resume.ts` holds
 the pure half both commands share: where HEAD stands (`HeadAt`) and its refusals, the day's nine
 review names (`reviewNames`) and a name's date, gh's pull-request record parsed with forks' pull
