@@ -14,7 +14,8 @@ import { tmpdir } from 'node:os';
 import { delimiter, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { branchName, finishProblems, parseRaw, prArgs } from './propose.ts';
+import { finishProblems, parseRaw, prArgs } from './propose.ts';
+import { reviewNames } from './resume.ts';
 
 const FACTS = 'packages/content/facts/education.json';
 const CYCLES = 'packages/content/cycles/drawdowns.json';
@@ -75,7 +76,8 @@ function originRepo() {
 
 /**
  * The fake gh: `pr list --head <branch>` prints the PRs of that head from the JSON file FAKE_GH_STATE names,
- * `pr create` adds an open PR and prints its URL, and `mode` makes every call fail as a logged-out (exit 4), an
+ * `pr create` adds an open PR with its labels and prints its URL (with `unlabelled`, without them and then exits 1,
+ * as gh does when its second call fails), `pr edit <n> --add-label` adds one, and `mode` makes every call fail as a logged-out (exit 4), an
  * expired or revoked token's (exit 1, HTTP 401, as gh 2.102.0 prints it) or an offline (exit 1) gh. On POSIX it is the script `gh`; on Windows, which runs no script without a shell, it is
  * a copy of node named gh.exe that NODE_OPTIONS makes load this file first (any other node skips it).
  */
@@ -94,13 +96,22 @@ if (require.main === module || /^gh(\\.exe)?$/i.test(basename(process.execPath))
   }
   if (state.mode === 'offline') fail(1, 'error connecting to api.github.com');
   if (args[0] === 'pr' && args[1] === 'list') {
-    console.log(JSON.stringify(state.prs.filter((pr) => pr.head === head).map(({ head, ...pr }) => pr)));
+    const listed = state.prs.filter((pr) => pr.head === head);
+    console.log(JSON.stringify(listed.map(({ head, labels = [], ...pr }) => ({ ...pr, labels: labels.map((name) => ({ name })) }))));
   } else if (args[0] === 'pr' && args[1] === 'create') {
     const number = state.prs.length + 1;
     const url = 'https://github.com/o/r/pull/' + number;
-    state.prs.push({ number, state: 'OPEN', url, isCrossRepository: false, head });
+    const labels = state.unlabelled ? [] : args.filter((_, i) => args[i - 1] === '--label');
+    state.prs.push({ number, state: 'OPEN', url, isCrossRepository: false, head, labels });
     fs.writeFileSync(file, JSON.stringify(state));
-    console.log(url);
+    fs.writeSync(1, url + '\\n');
+    // gh adds labels in a second call after it creates the PR, and prints the URL before that call fails.
+    if (state.unlabelled) fail(1, 'pull request update failed: GraphQL: the fake gh adds no label');
+  } else if (args[0] === 'pr' && args[1] === 'edit' && args[3] === '--add-label') {
+    const pr = state.prs.find((each) => each.number === Number(args[2]));
+    if (!pr) fail(1, 'GraphQL: no pull request ' + args[2]);
+    pr.labels = [...new Set([...(pr.labels || []), args[4]])];
+    fs.writeFileSync(file, JSON.stringify(state));
   } else fail(1, 'GraphQL: the fake gh refuses ' + args.slice(0, 2).join(' '));
   process.exit(0);
 }
@@ -146,8 +157,9 @@ afterAll(() => {
 });
 
 type FakeGh = {
-  prs: { number: number; state: string; url: string; isCrossRepository: boolean; head: string }[];
+  prs: { number: number; state: string; url: string; isCrossRepository: boolean; head: string; labels?: string[] }[];
   mode?: 'logged-out' | 'expired' | 'offline';
+  unlabelled?: boolean;
 };
 const ghState = (root: string) => join(root, 'gh.json');
 const readGh = (root: string): FakeGh => JSON.parse(readFileSync(ghState(root), 'utf8'));
@@ -178,6 +190,11 @@ function localToday(): string {
     .map((part) => String(part).padStart(2, '0'))
     .join('-');
 }
+
+const TODAYS = reviewNames(localToday())[0] ?? '';
+const PR1 = 'https://github.com/o/r/pull/1';
+const LEAVE = 'to start another review, run git switch --detach origin/main';
+const REFUSED = 'finish: refused; nothing committed or pushed';
 
 describe('propose', () => {
   it('parseRaw lists modes, deletions and binaries', () => {
@@ -227,20 +244,15 @@ describe('propose', () => {
     expect(statSync(join(EXE_DIR, 'gh.exe')).size).toBe(statSync(process.execPath).size);
   });
 
-  it('branchName is 31 characters', () => {
-    expect(branchName('2027-01-01')).toBe('agent/content-review-2027-01-01');
-    expect(branchName('2027-01-01')).toHaveLength(31);
-  });
-
-  it('prArgs labels needs-owner and content-review and never merges', () => {
-    const args = prArgs('2027-01-01', ['PT', 'IE'], '.content-review/body.md');
+  it("prArgs opens the review's branch labelled needs-owner and content-review and never merges", () => {
+    const args = prArgs('agent/content-review-2027-01-01-2', '2027-01-01', ['PT', 'IE'], '.content-review/body.md');
     expect(args).toEqual([
       'pr',
       'create',
       '--base',
       'main',
       '--head',
-      'agent/content-review-2027-01-01',
+      'agent/content-review-2027-01-01-2',
       '--title',
       'Content review of 2027-01-01: PT, IE',
       '--body-file',
@@ -250,7 +262,9 @@ describe('propose', () => {
       '--label',
       'content-review',
     ]);
-    expect(prArgs('2027-01-01', [], 'b.md')).toContain('Content review of 2027-01-01: all');
+    expect(prArgs('agent/content-review-2027-01-01', '2027-01-01', [], 'b.md')).toContain(
+      'Content review of 2027-01-01: all',
+    );
     for (const word of ['merge', '--admin', '--auto', '--squash', '--rebase'])
       expect(args.some((arg) => arg.includes(word))).toBe(false);
   });
@@ -365,34 +379,157 @@ describe('propose', () => {
 
   it("finish proposes today's branch; start prints its record without forks and refuses on it", () => {
     const { root, repo, git, write, clean } = originRepo();
-    const todays = branchName(localToday());
-    const pr = `${todays}: #1 open, https://github.com/o/r/pull/1`;
+    const pr = `${TODAYS}: #1 open, ${PR1}`;
+    try {
+      writeGh(root, { prs: [] });
+      const start0 = cli(root, repo, ['start']);
+      write(FIXTURE, ENTRY);
+      expect([lines(start0), start0.status]).toEqual([[`start: clean at origin/main; this review takes ${TODAYS}`], 0]);
+      const finish = cli(root, repo, ['finish']);
+      expect([lines(finish).at(-1), finish.status]).toEqual([PR1, 0]);
+      const head = git('rev-parse', 'HEAD');
+      expect(git('ls-remote', 'origin', TODAYS)).toBe(`${head}\trefs/heads/${TODAYS}`);
+      expect(readGh(root).prs[0]?.labels).toEqual(['needs-owner', 'content-review']);
+      const fork = { number: 2, state: 'OPEN', url: 'https://github.com/f/r/pull/2', isCrossRepository: true };
+      writeGh(root, { prs: [...readGh(root).prs, { ...fork, head: TODAYS }] });
+      const start = cli(root, repo, ['start']);
+      expect([lines(start), start.status]).toEqual([[pr, LEAVE, 'start: refused'], 1]);
+      expect([git('rev-parse', 'HEAD'), git('branch', '--show-current'), git('status', '--porcelain')]).toEqual([
+        head,
+        TODAYS,
+        '',
+      ]);
+      // Off the review's branch, start names the day's next free name.
+      git('switch', '--quiet', '--detach', 'origin/main');
+      expect(lines(cli(root, repo, ['start']))).toEqual([`start: clean at origin/main; this review takes ${TODAYS}-2`]);
+    } finally {
+      clean();
+    }
+  }, 30_000);
+
+  it('(a) a second review of the day takes -2 while the first PR is open, and origin/R stays as it was', () => {
+    const { root, repo, git, write, clean } = originRepo();
     try {
       writeGh(root, { prs: [] });
       write(FIXTURE, ENTRY);
-      const finish = cli(root, repo, ['finish']);
-      expect([lines(finish).at(-1), finish.status]).toEqual(['https://github.com/o/r/pull/1', 0]);
-      const head = git('rev-parse', 'HEAD');
-      expect(git('ls-remote', 'origin', todays)).toBe(`${head}\trefs/heads/${todays}`);
-      const fork = { number: 2, state: 'OPEN', url: 'https://github.com/f/r/pull/2', isCrossRepository: true };
-      writeGh(root, { prs: [...readGh(root).prs, { ...fork, head: todays }] });
-      const main = git('rev-parse', 'origin/main').slice(0, 8);
-      const start = cli(root, repo, ['start']);
-      expect(lines(start)).toEqual([
-        pr,
-        `HEAD ${head.slice(0, 8)} on branch ${todays} holds 1 commits that origin/main ${main} lacks: ` +
-          'save its edits, and only then switch back to origin/main',
-        'start: refused',
-      ]);
-      expect(start.status).toBe(1);
-      expect([git('rev-parse', 'HEAD'), git('branch', '--show-current'), git('status', '--porcelain')]).toEqual([
-        head,
-        todays,
-        '',
-      ]);
-      // Off the review's branch, start reads today's record.
+      expect(cli(root, repo, ['finish']).status).toBe(0);
+      const first = git('rev-parse', 'HEAD');
       git('switch', '--quiet', '--detach', 'origin/main');
-      expect(lines(cli(root, repo, ['start']))).toEqual([pr, 'start: clean at origin/main']);
+      write(FIXTURE, ENTRY);
+      const second = cli(root, repo, ['finish']);
+      expect([lines(second).at(-1), second.status]).toEqual(['https://github.com/o/r/pull/2', 0]);
+      expect(git('branch', '--show-current')).toBe(`${TODAYS}-2`);
+      expect(git('ls-remote', 'origin', TODAYS)).toBe(`${first}\trefs/heads/${TODAYS}`);
+      expect(readGh(root).prs.map((pr) => [pr.number, pr.head, pr.state])).toEqual([
+        [1, TODAYS, 'OPEN'],
+        [2, `${TODAYS}-2`, 'OPEN'],
+      ]);
+    } finally {
+      clean();
+    }
+  }, 30_000);
+
+  it("(b) finish on R at origin/R with the owner's two commits prints the URL, exits 0 and pushes nothing", () => {
+    const { root, repo, git, write, clean } = originRepo();
+    try {
+      writeGh(root, { prs: [] });
+      write(FIXTURE, ENTRY);
+      expect(cli(root, repo, ['finish']).status).toBe(0);
+      for (const [n, text] of [
+        ['1', ENTRY.replace('agent-draft', 'owner')],
+        ['2', '{"a":1}\n'],
+      ] as const) {
+        write(n === '1' ? FIXTURE : FACTS, text);
+        git('commit', '--quiet', '--all', '--message', `the owner's flip ${n}`);
+      }
+      git('push', '--quiet', 'origin', TODAYS);
+      const tip = git('rev-parse', 'HEAD');
+      const finish = cli(root, repo, ['finish']);
+      expect([lines(finish), finish.status]).toEqual([[`${TODAYS}: #1 open, ${PR1}`, LEAVE], 0]);
+      expect([git('ls-remote', 'origin', TODAYS), readGh(root).prs.length]).toEqual([
+        `${tip}\trefs/heads/${TODAYS}`,
+        1,
+      ]);
+    } finally {
+      clean();
+    }
+  }, 30_000);
+
+  it('(c) a PR created without its labels gets needs-owner on the next finish', () => {
+    const { root, repo, write, clean } = originRepo();
+    try {
+      writeGh(root, { prs: [], unlabelled: true });
+      write(FIXTURE, ENTRY);
+      const finish = cli(root, repo, ['finish']);
+      expect([lines(finish).at(-1), finish.status]).toEqual([
+        'pr: pull request update failed: GraphQL: the fake gh adds no label: run finish again',
+        1,
+      ]);
+      writeGh(root, { prs: readGh(root).prs });
+      const again = cli(root, repo, ['finish']);
+      expect([lines(again), again.status]).toEqual([
+        [`${TODAYS}: #1 open, ${PR1}`, LEAVE, 'needs-owner: added to #1'],
+        0,
+      ]);
+      expect(readGh(root).prs.map((pr) => pr.labels)).toEqual([['needs-owner']]);
+    } finally {
+      clean();
+    }
+  }, 30_000);
+
+  it('(d) a failed push says run finish again, and the next finish pushes and opens the PR', () => {
+    const { root, repo, git, write, clean } = originRepo();
+    const hook = join(root, 'origin.git', 'hooks', 'pre-receive');
+    try {
+      writeGh(root, { prs: [] });
+      writeFileSync(hook, '#!/bin/sh\necho refused by the test >&2\nexit 1\n', { mode: 0o755 });
+      write(FIXTURE, ENTRY);
+      const finish = cli(root, repo, ['finish']);
+      expect([lines(finish).at(-1), finish.status]).toEqual(['push: remote: refused by the test: run finish again', 1]);
+      expect([git('branch', '--show-current'), git('ls-remote', '--heads', 'origin', TODAYS)]).toEqual([TODAYS, '']);
+      rmSync(hook);
+      const again = cli(root, repo, ['finish']);
+      expect([lines(again), again.status]).toEqual([
+        [`${TODAYS}: no pull request yet; finish goes on: push, pr`, PR1],
+        0,
+      ]);
+      expect(git('ls-remote', 'origin', TODAYS)).toBe(`${git('rev-parse', 'HEAD')}\trefs/heads/${TODAYS}`);
+    } finally {
+      clean();
+    }
+  }, 30_000);
+
+  it('(e) finish on R refuses a merged PR and pushes nothing', () => {
+    const { root, repo, git, write, clean } = originRepo();
+    try {
+      writeGh(root, { prs: [] });
+      write(FIXTURE, ENTRY);
+      expect(cli(root, repo, ['finish']).status).toBe(0);
+      writeGh(root, { prs: readGh(root).prs.map((pr) => ({ ...pr, state: 'MERGED' })) });
+      git('push', '--quiet', 'origin', `:${TODAYS}`); // GitHub drops a merged PR's branch
+      const finish = cli(root, repo, ['finish']);
+      expect([lines(finish), finish.status]).toEqual([
+        [
+          `${TODAYS}: #1 merged, ${PR1}`,
+          `${TODAYS}: its pull request is not open; finish never pushes this branch again`,
+        ].concat([LEAVE, REFUSED]),
+        1,
+      ]);
+      expect([git('ls-remote', '--heads', 'origin', TODAYS), readGh(root).prs.length]).toEqual(['', 1]);
+    } finally {
+      clean();
+    }
+  }, 30_000);
+
+  it("(f) start on a dirty tree beside a draft says a review's edits wait", () => {
+    const { root, repo, write, clean } = originRepo();
+    try {
+      writeGh(root, { prs: [] });
+      write(FIXTURE, ENTRY);
+      const start = cli(root, repo, ['start']);
+      const waits =
+        "the working tree is not clean: 1 paths changed or untracked: a review's edits wait: run finish again";
+      expect([lines(start), start.status]).toEqual([[waits, 'start: refused'], 1]);
     } finally {
       clean();
     }
