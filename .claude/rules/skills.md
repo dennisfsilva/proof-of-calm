@@ -38,6 +38,8 @@ Empirical gate (named in the PR's Proof section): a dry rehearsal on the branch,
 follows the changed skill's text in dry mode, with its evidence recorded in the session issue. For
 review-content: the verdict line of `node tools/content-review/propose.ts finish --dry`, and the
 verdict of `node tools/content-review/render-check.ts <draft.json>` on the draft the rehearsal wrote.
+In a rehearsal clone whose origin is a local folder, run `propose.ts` with `GH_REPO` set to the GitHub
+repository (`<owner>/<repo>`), so start's read-only pull-request record call reaches GitHub.
 
 Escape hatch: none for a change to `allowed-tools` without its rehearsal.
 
