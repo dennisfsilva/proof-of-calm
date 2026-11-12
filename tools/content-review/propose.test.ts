@@ -1,15 +1,23 @@
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { delimiter, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { describe, expect, it } from 'vitest';
-import { branchName, finishProblems, parseRaw, prArgs, startProblems } from './propose.ts';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { branchName, finishProblems, parseRaw, prArgs } from './propose.ts';
 
 const FACTS = 'packages/content/facts/education.json';
 const CYCLES = 'packages/content/cycles/drawdowns.json';
 const MODULE = 'packages/content/learn/what-dca-is.mdx';
+const FIXTURE = 'packages/content/facts/finish-fixture.json';
+const TEMPLATE = '.github/PULL_REQUEST_TEMPLATE/content-review.md';
+const ALLOW = 'packages/content/sources.allow.json';
 const SCRIPT = fileURLToPath(new URL('./propose.ts', import.meta.url));
+const here = (path: string) => readFileSync(new URL(path, import.meta.url), 'utf8');
+/** finish-good.patch's new fact, which fixtures/draft-good.json's change and reviewed rows name. */
+const ENTRY = '[\n  { "key": "finish-fixture", "reviewedBy": "agent-draft" }\n]\n';
+const UNTOUCHED = 'finish: refused, 1 problems; nothing committed, the index as found';
+const lines = (result: { stdout: string }) => result.stdout.trim().split('\n');
 
 /** A temporary repository with one committed file per entry, and git and write helpers bound to it. */
 function tempRepo(files: Record<string, string>) {
@@ -31,6 +39,108 @@ function tempRepo(files: Record<string, string>) {
   git('add', '-A');
   git('commit', '--quiet', '--message', 'base');
   return { repo, git, write };
+}
+
+/** A temporary repository at a bare origin's main, with the template, the allow-list and a good draft. */
+function originRepo() {
+  const root = mkdtempSync(join(tmpdir(), 'propose-'));
+  const { repo, git, write } = tempRepo({
+    '.gitignore': '/.content-review/\n',
+    [FACTS]: '{}\n',
+    [TEMPLATE]: here(`../../${TEMPLATE}`),
+    [ALLOW]: here(`../../${ALLOW}`),
+  });
+  const origin = join(root, 'origin.git').replace(/\\/g, '/');
+  execFileSync('git', ['init', '--quiet', '--bare', origin], { encoding: 'utf8' });
+  git('remote', 'add', 'origin', origin);
+  git('push', '--quiet', 'origin', 'main');
+  git('fetch', '--quiet', 'origin');
+  write('.content-review/draft.json', here('./fixtures/draft-good.json'));
+  const clean = () => {
+    rmSync(repo, { recursive: true, force: true });
+    rmSync(root, { recursive: true, force: true });
+  };
+  return { root, repo, git, write, clean };
+}
+
+/**
+ * The fake gh: `pr list --head <branch>` prints the PRs of that head from the JSON file FAKE_GH_STATE names,
+ * `pr create` adds an open PR and prints its URL, and `mode` makes every call fail as a logged-out (exit 4) or
+ * offline (exit 1) gh. On POSIX it is the script `gh`; on Windows, which runs no script without a shell, it is
+ * a copy of node named gh.exe that NODE_OPTIONS makes load this file first (any other node skips it).
+ */
+const FAKE_GH = `#!/usr/bin/env node
+const { basename } = require('node:path');
+if (require.main === module || /^gh(\\.exe)?$/i.test(basename(process.execPath))) {
+  const fs = require('node:fs');
+  const args = require.main === module ? process.argv.slice(2) : [basename(process.argv[1]), ...process.argv.slice(2)];
+  const file = process.env.FAKE_GH_STATE;
+  const state = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : { prs: [] };
+  const head = args[args.indexOf('--head') + 1];
+  const fail = (code, line) => { process.stderr.write(line + '\\n'); process.exit(code); };
+  if (state.mode === 'logged-out') fail(4, 'You are not logged into any GitHub hosts. To log in, run: gh auth login');
+  if (state.mode === 'offline') fail(1, 'error connecting to api.github.com');
+  if (args[0] === 'pr' && args[1] === 'list') {
+    console.log(JSON.stringify(state.prs.filter((pr) => pr.head === head).map(({ head, ...pr }) => pr)));
+  } else if (args[0] === 'pr' && args[1] === 'create') {
+    const number = state.prs.length + 1;
+    const url = 'https://github.com/o/r/pull/' + number;
+    state.prs.push({ number, state: 'OPEN', url, isCrossRepository: false, head });
+    fs.writeFileSync(file, JSON.stringify(state));
+    console.log(url);
+  } else fail(1, 'GraphQL: the fake gh refuses ' + args.slice(0, 2).join(' '));
+  process.exit(0);
+}
+`;
+
+/** One folder per run holding the fake gh (a copy of node on Windows is about 80 MB, so it is made once). */
+let fakeBin = '';
+function fakeGh(): { dir: string; env: Record<string, string> } {
+  if (fakeBin === '') {
+    fakeBin = mkdtempSync(join(tmpdir(), 'propose-gh-'));
+    writeFileSync(join(fakeBin, process.platform === 'win32' ? 'gh.cjs' : 'gh'), FAKE_GH, { mode: 0o755 });
+    if (process.platform === 'win32') copyFileSync(process.execPath, join(fakeBin, 'gh.exe'));
+  }
+  const preload = join(fakeBin, 'gh.cjs').replace(/\\/g, '/');
+  return { dir: fakeBin, env: process.platform === 'win32' ? { NODE_OPTIONS: `--require ${preload}` } : {} };
+}
+beforeAll(() => void fakeGh(), 30_000);
+afterAll(() => {
+  if (fakeBin !== '') rmSync(fakeBin, { recursive: true, force: true });
+});
+
+type FakeGh = {
+  prs: { number: number; state: string; url: string; isCrossRepository: boolean; head: string }[];
+  mode?: 'logged-out' | 'offline';
+};
+const ghState = (root: string) => join(root, 'gh.json');
+const readGh = (root: string): FakeGh => JSON.parse(readFileSync(ghState(root), 'utf8'));
+const writeGh = (root: string, state: FakeGh) => writeFileSync(ghState(root), JSON.stringify(state));
+
+/**
+ * Runs propose.ts in the repository with only node, git and (unless `gh` is false) the fake gh on PATH, so the
+ * real gh is never reached. Git for Windows' local push needs its own sh and DLLs (mingw64/bin and usr/bin
+ * beside libexec/git-core).
+ */
+function cli(root: string, repo: string, args: string[], gh = true) {
+  const exec = execFileSync('git', ['--exec-path'], { encoding: 'utf8' }).trim();
+  const gitDirs =
+    process.platform === 'win32' ? ['mingw64/bin', 'usr/bin'].map((dir) => resolve(exec, '../../..', dir)) : [exec];
+  const env = Object.fromEntries(
+    Object.entries(process.env).filter(([key]) => !['PATH', 'NODE_OPTIONS'].includes(key.toUpperCase())),
+  );
+  const fake = gh ? fakeGh() : { dir: '', env: {} };
+  env.PATH = [...(gh ? [fake.dir] : []), dirname(process.execPath), ...gitDirs].join(delimiter);
+  Object.assign(env, fake.env, { FAKE_GH_STATE: ghState(root) });
+  return spawnSync(process.execPath, [SCRIPT, ...args], { cwd: repo, encoding: 'utf8', env });
+}
+
+/** The local date finish names today's branch after. */
+function localToday(): string {
+  const date = new Date();
+  return [date.getFullYear(), date.getMonth() + 1, date.getDate()]
+    .map((part) => String(part).padStart(2, '0'))
+    .join('-');
 }
 
 describe('propose', () => {
@@ -103,19 +213,7 @@ describe('propose', () => {
       expect(args.some((arg) => arg.includes(word))).toBe(false);
   });
 
-  it('startProblems refuses a dirty tree and a HEAD that is not origin/main', () => {
-    const sha = 'a'.repeat(40);
-    expect(startProblems('', sha, sha)).toEqual([]);
-    expect(startProblems(` M ${FACTS}\n?? notes.txt\n`, sha, sha)).toEqual([
-      'the working tree is not clean: 2 paths changed or untracked',
-    ]);
-    expect(startProblems('', sha, 'b'.repeat(40))).toEqual([
-      'HEAD aaaaaaaa is not origin/main bbbbbbbb: run git switch --detach origin/main',
-    ]);
-    expect(startProblems('', sha, '')).toEqual(['origin/main is missing: fetch it']);
-  });
-
-  it('finish refuses without --dry when HEAD is not origin/main', () => {
+  it('finish refuses without --dry, advising no detach, when HEAD holds a commit origin/main lacks', () => {
     const { repo, git, write } = tempRepo({ [FACTS]: '{}\n' });
     try {
       git('update-ref', 'refs/remotes/origin/main', 'HEAD');
@@ -129,10 +227,12 @@ describe('propose', () => {
       const tree = git('write-tree');
       const result = spawnSync(process.execPath, [SCRIPT, 'finish'], { cwd: repo, encoding: 'utf8' });
       const originMain = git('rev-parse', 'origin/main');
-      expect(result.stdout.trim().split('\n')).toEqual([
-        `HEAD ${head.slice(0, 8)} is not origin/main ${originMain.slice(0, 8)}: run git switch --detach origin/main`,
-        'finish: refused, 1 problems; nothing committed, the index as found',
+      expect(lines(result)).toEqual([
+        `HEAD ${head.slice(0, 8)} on branch ahead holds 1 commits that origin/main ${originMain.slice(0, 8)} lacks: ` +
+          'save its edits, and only then switch back to origin/main',
+        UNTOUCHED,
       ]);
+      expect(result.stdout).not.toContain('--detach');
       expect(result.status).toBe(1);
       expect([git('rev-parse', 'HEAD'), git('branch', '--show-current')]).toEqual([head, 'ahead']);
       expect([git('status', '--porcelain'), git('write-tree')]).toEqual([status, tree]);
@@ -180,6 +280,75 @@ describe('propose', () => {
     } finally {
       rmSync(repo, { recursive: true, force: true });
       rmSync(outside, { recursive: true, force: true });
+    }
+  }, 30_000);
+
+  it('start and finish refuse, changing nothing, when gh is missing, logged out or offline, and when the fetch fails', () => {
+    const { root, repo, git, write, clean } = originRepo();
+    const loggedOut = /^gh pr list: You are not logged into any GitHub hosts\..*: run gh auth login, then run it again$/;
+    const cases: [FakeGh | undefined, string | RegExp][] = [
+      [undefined, 'gh pr list: gh is missing: install GitHub CLI and run gh auth login, then run it again'],
+      [{ prs: [], mode: 'logged-out' }, loggedOut],
+      [{ prs: [], mode: 'offline' }, 'gh pr list: error connecting to api.github.com: reconnect, then run it again'],
+      [{ prs: [] }, /^git fetch: .+: reconnect, then run it again$/],
+    ];
+    try {
+      const [head, url] = [git('rev-parse', 'HEAD'), git('remote', 'get-url', 'origin')];
+      for (const [gh, first] of cases) {
+        if (gh) writeGh(root, gh);
+        if (gh && !gh.mode) git('remote', 'set-url', 'origin', join(root, 'gone.git').replace(/\\/g, '/'));
+        // start at a clean origin/main refuses only for the failed read (its wiring: without it, start passes).
+        const start = cli(root, repo, ['start'], gh !== undefined);
+        expect(lines(start)[0]).toMatch(first);
+        expect([lines(start).slice(1), start.status]).toEqual([['start: refused'], 1]);
+        write(FIXTURE, ENTRY);
+        const finish = cli(root, repo, ['finish'], gh !== undefined);
+        expect(lines(finish)[0]).toMatch(first);
+        expect([lines(finish).slice(1), finish.status]).toEqual([[UNTOUCHED], 1]);
+        expect([git('rev-parse', 'HEAD'), git('branch', '--show-current')]).toEqual([head, 'main']);
+        expect([git('status', '--porcelain'), git('branch', '--list', 'agent/*')]).toEqual([`?? ${FIXTURE}`, '']);
+        rmSync(join(repo, FIXTURE));
+      }
+      git('remote', 'set-url', 'origin', url);
+      expect(git('ls-remote', '--heads', 'origin')).not.toContain('refs/heads/agent/');
+      expect(readGh(root).prs).toEqual([]);
+    } finally {
+      clean();
+    }
+  }, 30_000);
+
+  it("finish proposes today's branch; start prints its record without forks and refuses on it", () => {
+    const { root, repo, git, write, clean } = originRepo();
+    const todays = branchName(localToday());
+    const pr = `${todays}: #1 open, https://github.com/o/r/pull/1`;
+    try {
+      writeGh(root, { prs: [] });
+      write(FIXTURE, ENTRY);
+      const finish = cli(root, repo, ['finish']);
+      expect([lines(finish).at(-1), finish.status]).toEqual(['https://github.com/o/r/pull/1', 0]);
+      const head = git('rev-parse', 'HEAD');
+      expect(git('ls-remote', 'origin', todays)).toBe(`${head}\trefs/heads/${todays}`);
+      const fork = { number: 2, state: 'OPEN', url: 'https://github.com/f/r/pull/2', isCrossRepository: true };
+      writeGh(root, { prs: [...readGh(root).prs, { ...fork, head: todays }] });
+      const main = git('rev-parse', 'origin/main').slice(0, 8);
+      const start = cli(root, repo, ['start']);
+      expect(lines(start)).toEqual([
+        pr,
+        `HEAD ${head.slice(0, 8)} on branch ${todays} holds 1 commits that origin/main ${main} lacks: ` +
+          'save its edits, and only then switch back to origin/main',
+        'start: refused',
+      ]);
+      expect(start.status).toBe(1);
+      expect([git('rev-parse', 'HEAD'), git('branch', '--show-current'), git('status', '--porcelain')]).toEqual([
+        head,
+        todays,
+        '',
+      ]);
+      // Off the review's branch, start reads today's record.
+      git('switch', '--quiet', '--detach', 'origin/main');
+      expect(lines(cli(root, repo, ['start']))).toEqual([pr, 'start: clean at origin/main']);
+    } finally {
+      clean();
     }
   }, 30_000);
 
