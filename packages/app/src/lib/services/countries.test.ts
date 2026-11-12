@@ -151,7 +151,10 @@ describe('planCard', () => {
     one: async (code) => PROFILES.find((candidate) => candidate.code === code) ?? null,
   };
   const countriesOver = (load: ProfileLoaders) =>
-    createCountries(load, systemClock('Europe/Lisbon', () => Date.UTC(2026, 9, 20, 10)));
+    createCountries(
+      load,
+      systemClock('Europe/Lisbon', () => Date.UTC(2026, 9, 20, 10)),
+    );
 
   it("answers the plan's country's card", async () => {
     expect(await countriesOver(shipped).planCard('PT')).toEqual(countryCardModel(PORTUGAL, TODAY));
