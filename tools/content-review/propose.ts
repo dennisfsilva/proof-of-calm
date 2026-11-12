@@ -1,35 +1,31 @@
 // The content review's git work, so the agent needs no git and no gh (docs/CONTENT-OPS.md §3; the skill's
 // allowed-tools pre-approve this script and no git, gh or web rule; pdf.ts, the fetching tool, asks the owner
-// on each run). `start` checks for a clean tree at origin/main. `finish` refuses a HEAD that is not origin/main (without --dry) before it touches anything,
-// then stages everything, refuses a path outside content data, a mode, a binary, a deletion, an entry not
+// on each run). `start` fetches, prints the review branch's PR record and checks for a clean tree at origin/main.
+// `finish` refuses a HEAD that is not origin/main, a failed fetch and a failed gh (without --dry) before it touches
+// anything, then stages everything, refuses a path outside content data, a mode, a binary, a deletion, an entry not
 // at agent-draft, a draft problem and a draft row that does not match the staged diff (rows.ts), and on a refusal puts the index back as it found it before any
 // commit or push. Otherwise
 // it renders the body from the draft through body.ts, commits on agent/content-review-<date>, pushes and
 // opens the pull request with needs-owner and content-review; it never merges. `--dry` stops after the
 // body. git and gh run through execFileSync's argv arrays only, never a shell.
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseDraft, renderBody } from './body.ts';
 import { type ChangedPath, DATA_PATHS, outsideData, reviewers } from './check.ts';
+import {
+  type HeadAt,
+  headProblems,
+  type PullRequest,
+  parseRecord,
+  recordState,
+  reviewDate,
+  startProblems,
+} from './resume.ts';
 import { leafChanges, rowProblems } from './rows.ts';
 
 export const branchName = (today: string): string => `agent/content-review-${today}`;
-
-/** The two commits; start and finish (without --dry) both refuse a HEAD that is not the local origin/main. */
-function headProblems(head: string, originMain: string): string[] {
-  if (originMain === '') return ['origin/main is missing: fetch it'];
-  if (head === originMain) return [];
-  return [`HEAD ${head.slice(0, 8)} is not origin/main ${originMain.slice(0, 8)}: run git switch --detach origin/main`];
-}
-
-/** `git status --porcelain` output and the two commits; any line is a change, so empty means clean. */
-export function startProblems(status: string, head: string, originMain: string): string[] {
-  const changed = status.split('\n').filter((line) => line.trim() !== '').length;
-  const dirty = changed > 0 ? [`the working tree is not clean: ${changed} paths changed or untracked`] : [];
-  return [...dirty, ...headProblems(head, originMain)];
-}
 
 /**
  * The staged change from `git diff --cached --raw -z --no-renames HEAD` and `--numstat -z`: each raw record
@@ -114,6 +110,74 @@ const changedLeaves = (kept: readonly string[]) =>
         : { file, leaves: leafChanges(staged(`HEAD:${file}`), staged(`:${file}`)) },
     );
 
+/** The local date today's branch is named after. */
+function localToday(): string {
+  const date = new Date();
+  return [date.getFullYear(), date.getMonth() + 1, date.getDate()]
+    .map((part) => String(part).padStart(2, '0'))
+    .join('-');
+}
+
+function headAt(originMain: string): HeadAt {
+  const ahead = originMain === '' ? '0' : run('git', ['rev-list', '--count', 'origin/main..HEAD']);
+  return {
+    sha: rev('HEAD'),
+    branch: run('git', ['branch', '--show-current']).trim(),
+    ahead: Number(ahead.trim()),
+    status: run('git', ['status', '--porcelain']),
+  };
+}
+
+/** A command's output, or its exit code and the first line it wrote to stderr (`missing`: not installed). */
+type Ran = { ok: true; out: string } | { ok: false; code: number | null; line: string; missing: boolean };
+function attempt(command: 'git' | 'gh', args: string[]): Ran {
+  const result = spawnSync(command, args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  if (result.status === 0) return { ok: true, out: result.stdout };
+  const line = result.stderr?.split('\n').find((text) => text.trim() !== '');
+  const missing = (result.error as NodeJS.ErrnoException | undefined)?.code === 'ENOENT';
+  return { ok: false, code: result.status, line: line?.trim() ?? String(result.error ?? result.status), missing };
+}
+
+const MAIN = '+refs/heads/main:refs/remotes/origin/main';
+const AGENTS = '+refs/heads/agent/*:refs/remotes/origin/agent/*';
+
+/** A pruned fetch of `refspecs`; a failure is git's first line. */
+function fetched(refspecs: string[]): string[] {
+  const fetch = attempt('git', ['fetch', '--prune', '--quiet', 'origin', ...refspecs]);
+  return fetch.ok ? [] : [`git fetch: ${fetch.line}: reconnect, then run it again`];
+}
+
+/** A fresh fetch, then the review branch's PR record; a failure is git's or gh's first line and the fix. */
+function fresh(review: string, refspecs: string[]): { record: PullRequest[]; problems: string[] } {
+  const problems = fetched(refspecs);
+  if (problems.length > 0) return { record: [], problems };
+  const fields = 'number,state,url,isCrossRepository';
+  const list = attempt('gh', ['pr', 'list', '--head', review, '--state', 'all', '--json', fields]);
+  const record = list.ok ? parseRecord(list.out) : undefined;
+  if (record) return { record, problems: [] };
+  if (list.ok) return { record: [], problems: ['gh pr list: printed no PR record: update GitHub CLI'] };
+  const [line, fix] = list.missing
+    ? ['gh is missing', 'install GitHub CLI and run gh auth login']
+    : [list.line, list.code === 4 ? 'run gh auth login' : 'reconnect'];
+  return { record: [], problems: [`gh pr list: ${line}: ${fix}, then run it again`] };
+}
+
+/**
+ * Fetches origin/main and the agent/ branches, reads the PR record of HEAD's review branch (else today's) and
+ * prints it, then refuses a dirty tree or a HEAD that is not origin/main; a failed fetch or gh refuses first.
+ */
+function start(): number {
+  const branch = run('git', ['branch', '--show-current']).trim();
+  const review = reviewDate(branch) ? branch : branchName(localToday());
+  const read = fresh(review, [MAIN, AGENTS]);
+  const originMain = rev('origin/main');
+  for (const line of recordState(review, read.record)) console.log(line);
+  const problems = read.problems.length > 0 ? read.problems : startProblems(headAt(originMain), originMain);
+  for (const problem of problems) console.log(problem);
+  console.log(problems.length > 0 ? 'start: refused' : 'start: clean at origin/main');
+  return problems.length > 0 ? 1 : 0;
+}
+
 /** The draft rendered into the body; the countries are the only draft text outside it (the PR title). */
 function draftBody(
   draftPath: string,
@@ -145,11 +209,15 @@ function draftBody(
 /**
  * Stages everything and judges it; the index is put back as found on a refusal, a dry run or an error.
  * Without --dry it first refuses, touching nothing, a HEAD that is not the local origin/main (start's
- * check; no fetch, so the PR's base is never ahead of what start checked). --dry also runs in CI's
- * merge checkout, where origin/main is missing, and pushes nothing, so it judges the staged data only.
+ * check; origin/main is not fetched, so the PR's base is never ahead of what start checked), then a failed
+ * fetch of the agent/ branches or a gh that cannot read today's PR record, before any commit it could not
+ * propose. --dry also runs in CI's merge checkout, where origin/main is missing, and pushes nothing, so it
+ * judges the staged data only.
  */
 function finish(dry: boolean, draftPath: string): number {
-  const base = dry ? [] : headProblems(rev('HEAD'), rev('origin/main'));
+  const today = localToday();
+  const head = dry ? [] : headProblems(headAt(rev('origin/main')), rev('origin/main'));
+  const base = dry || head.length > 0 ? head : fresh(branchName(today), [AGENTS]).problems;
   for (const problem of base) console.log(problem);
   if (base.length > 0) {
     console.log(`finish: refused, ${base.length} problems; nothing committed, the index as found`);
@@ -184,10 +252,6 @@ function finish(dry: boolean, draftPath: string): number {
     console.log(`finish --dry: accepted, ${paths.length} paths; the body is in .content-review/body.md`);
     return 0;
   }
-  const date = new Date();
-  const today = [date.getFullYear(), date.getMonth() + 1, date.getDate()]
-    .map((part) => String(part).padStart(2, '0'))
-    .join('-');
   try {
     run('git', ['switch', '--quiet', '--create', branchName(today)]); // fails when today's branch exists
   } catch (error) {
@@ -209,11 +273,7 @@ if (isMain) {
   const root = run('git', ['rev-parse', '--show-toplevel']).trim();
   if (command === 'start' && flags.length === 0) {
     process.chdir(root);
-    run('git', ['fetch', '--quiet', 'origin', 'main']);
-    const problems = startProblems(run('git', ['status', '--porcelain']), rev('HEAD'), rev('origin/main'));
-    for (const problem of problems) console.log(problem);
-    console.log(problems.length > 0 ? 'start: refused' : 'start: clean at origin/main');
-    process.exit(problems.length > 0 ? 1 : 0);
+    process.exit(start());
   }
   if (command === 'finish' && known && draft !== '' && !draft.startsWith('-')) {
     const path = resolve(draft); // against the caller's folder, before the move to the root
