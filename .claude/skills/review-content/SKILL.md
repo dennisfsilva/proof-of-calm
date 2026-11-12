@@ -63,16 +63,27 @@ Arguments: $ARGUMENTS
 
 ## 2. Read first
 
-0. Run `node tools/content-review/propose.ts start`. When it refuses, stop and show the owner what
-   it printed; the owner follows its advice, then runs you again.
+0. Run `node tools/content-review/propose.ts start`. At a clean origin/main it prints
+   `start: clean at origin/main; this review takes <name>`, the branch the finish creates: go on.
+   Otherwise it prints its reasons, then `start: refused`; show the owner every line word for word.
+   On a review branch those lines are the branch's pull requests and what the finish would decide.
+   When a line ends `run finish again` (an earlier run's edits wait beside
+   .content-review/draft.json) or says `finish goes on: <steps>`, ask the owner whether to finish
+   that review. On a yes, run §7 step 5's command on the edits and the draft as they stand and
+   follow that step; on a no, stop. On any other refusal stop: the owner follows its advice, such as
+   `git switch --detach origin/main`, which is the owner's to run, then runs you again.
 1. `docs/content-review-log.md`, whole: what the owner's reviews found wrong in earlier drafts. Its
    "Kind" column is your checklist in step 5.
 2. `docs/JURISDICTIONS.md` §1 (the honesty rule), §2 (the schema), §6 (versions and review dates),
    §7.11 and §7.12 (the watch lists and the queues). The draft's `queue` holds each
    verification-queue item and each §7.11 or §7.12 watch item of the reviewed countries, closed or
-   carried over. Fetch a queue item's source only when its host is on the list. Leave it out of `of`
-   and add no `sources` entry: name the passage and the entry in the `queue` row, for the owner to
-   add. Never fetch an off-list queue source; mark its item `carried over`.
+   carried over. An item that names no country, such as DAC8's, is EU-wide: its row's `item` is
+   `EU`. Fetch a queue item's source only when its host is on the list. Leave it out of `of` and add
+   no `sources` entry: name the passage and the entry in the `queue` row, for the owner to add. Never
+   fetch an off-list queue source; mark its item `carried over`. When an on-list queue source is
+   unreachable, has moved or `pdf.ts` cannot read it, file an `unreachable` row (its `url`, and in
+   `expected` what the item asks of it), mark the item `carried over` and name that row in the item's
+   `note`. No line rests on a queue source, so it needs no `PDF not read` note.
 3. `docs/CONTENT-OPS.md` §5 and §7, `docs/CONTENT-STYLE.md` §1, §2 and §4, and `docs/LEGAL.md` §3,
    §4 and §6.
 4. Before you edit a module, `docs/CONTENT-STYLE.md` §5; before you edit a template, its §6.
@@ -87,28 +98,35 @@ For each profile in `packages/content/jurisdictions/`:
    single quotes, because `?` and `&` split the command. Read the `.txt` it names; the command asks
    the owner on each run and shows its URL. Its quotes are verbatim. Copy a passage as the `.txt`
    holds it: join its lines with single spaces and drop the indentation. A hyphen at a line's end
-   stays and joins the next line with no space. Change no other character. Compare every field with
-   what the source says today.
+   stays and joins the next line with no space. A page footer or header inside the passage (`Seite 20
+   von 34`) is left out, and the lines on either side join as one. A margin number (`Rz. 60`) is left
+   out of the quote and named in the change's `reason`. Change no other character. Compare every
+   field with what the source says today.
    - `of` counts the sources on the item's list: the country's key in
      `packages/content/sources.allow.json` plus `EU`, or `facts`. Count each distinct URL once,
      however many entries cite it.
    - Never fetch a `secondary` source off the list. Name it in `notes` as
-     `secondary, off the list, not fetched: <url>`, with the lines that cite only it, and leave those
-     lines unchanged. The owner opens it on its site (`docs/CONTENT-OPS.md` §8, step 1). An off-list
-     secondary `pendingChanges[].source` follows this rule too and is not counted in `of`.
+     `secondary, off the list, not fetched: <url>`, with the lines that cite only it, a line that
+     links it only through `ruleSources` included, and leave those lines unchanged. The owner opens
+     it on its site (`docs/CONTENT-OPS.md` §8, step 1). An off-list secondary
+     `pendingChanges[].source` follows this rule too and is not counted in `of`.
    - Outside the queue (step 2), fetch no on-list page the profile does not cite. Note the lines it
      would check as `no listed source holds: <field>`, and leave them unchanged.
 2. Change a field only with a quoted passage from an allow-listed source and the date of the event:
    the day a law was published, a rate applies or a deadline falls, not the day the page changed.
    Give both in the draft, since a source entry has no field for the quote. A correction of our own
    wording takes the date the quoted rule took effect, else the source's publication date; its
-   `reason` starts "Correction of our wording". When neither date shows (`published: null`), change
+   `reason` starts "Correction of our wording". A start date the passage itself gives (§ 32a's "ab
+   dem Veranlagungszeitraum 2026") is the date the rule took effect and comes before the entry's
+   `published`. When neither shows (no start date in the passage, and `published: null`), change
    nothing. Add the note `correction, no date on the source: <item> <field>: <wording>; "<quote>"`
    and leave the line as it is. An HTML quote is WebFetch's rendering, so the owner's read on the
    source's site (`docs/CONTENT-OPS.md` §8, step 1) stays the check. WebFetch summarises a verbatim
-   passage over about 125 characters: ask again for consecutive pieces under 125 characters and join
-   them. Each fetch and each `pdf.ts` run is one owner prompt (DE on 2026-11-11: 9 fetches, 3 runs).
-   Prefer `pdf.ts`'s `.txt` for a PDF.
+   passage over about 125 characters: in the first prompt for a page, ask for each passage in
+   consecutive verbatim pieces under 125 characters, and join them. WebFetch renders a sentence
+   number inline ("2Solche"): drop it from the quote, since on the page it marks the sentence and is
+   not part of it. Each fetch and each `pdf.ts` run is one owner prompt (DE on 2026-11-11: 9
+   fetches, 3 runs). Prefer `pdf.ts`'s `.txt` for a PDF.
 3. Set the entry's `accessed` to the day you read the source. Set `status.confidence` and give its
    one-line reason in the draft's `reviewed[].reason` for that file.
 4. Never set `lastReviewed` or `nextReviewDue`; the finish refuses a change to either. Set
@@ -118,8 +136,11 @@ For each profile in `packages/content/jurisdictions/`:
 5. Never present a proposal as law: `pendingChanges[].status` uses the source's own stage. A bill, a
    case or a draft appears only beside the source that reported it, with that source's date. The
    draft's `pending` holds every `pendingChanges` entry of a reviewed country that is new or changed
-   stage; an unchanged one goes to `verified`. Copy its `effectiveFrom`, `null` included. A pending
-   change whose only source is off-list secondary goes to neither. Keep it in that source's
+   stage, with its `effectiveFrom` copied, `null` included. An unchanged one goes to `verified`: its
+   `item` names the file and the entry (`jurisdictions/de.json pendingChanges[0]`), and its stage and
+   `effectiveFrom` stay in the profile. When the source names no stage, change nothing in the entry,
+   put it in neither, and add the note `pending change, no stage on the source: <item> <entry>`. A
+   pending change whose only source is off-list secondary goes to neither. Keep it in that source's
    `secondary, off the list, not fetched` note, and name the pending entry there.
 6. Say in the draft whether a change is substantive (a rate, an allowance, a holding rule, a taxable
    event, a reporting duty). The owner raises `status.version` and writes the `changeNotice`
@@ -129,6 +150,8 @@ For each profile in `packages/content/jurisdictions/`:
    it prints the filing rule: also add a note `PDF not read: <url>` naming the lines that rest only
    on it, and leave those lines unchanged.
 8. After a profile changes, regenerate the rules files with `pnpm --filter @proofofcalm/content rules`.
+   It reports every file it writes, changed or not (`10 rules files written`), so its count says
+   nothing about which rules changed.
 
 ## 4. Per fact, template and cycle row
 
@@ -171,7 +194,9 @@ rules files as the generator writes them. The finish refuses a changed entry at 
 ## 7. Finish
 
 1. Run `pnpm run validate:content` and `pnpm --filter @proofofcalm/content test`. The one failure you
-   expect is `agent-draft` on the entries you marked; fix or revert anything else.
+   expect is `agent-draft` on the entries you marked; fix or revert anything else. `rules` reports
+   the files it wrote, changed or not; the test, which fails on a stale rules file, is the check that
+   they match the profiles.
 2. Write the draft to .content-review/draft.json in the shape of `ReviewDraft` in
    `tools/content-review/body.ts`; `.claude/skills/review-content/draft-example.json` is an example.
    Set `model`, `countries` and `date` to the run's own. Give one `changes` row per changed leaf,
@@ -189,8 +214,13 @@ rules files as the generator writes them. The finish refuses a changed entry at 
    `node tools/content-review/propose.ts finish --dry`. When a refusal names your draft or data edit
    (a field, a path, a row, a link), fix that and run it again. Stop at any other refusal or error,
    such as `nothing staged` or a template heading, and show the owner its output word for word.
-   Never change data only to have something staged. Run no git or gh command. Report the PR URL it
-   prints (on `dry`, the body's path). Never merge. Then stop.
+   A failed step prints `<step>: <git's or gh's first line>: run finish again`: show the owner that
+   line, and on a yes run the same command again. Never change data only to have something staged.
+   Run no git or gh command; `git switch --detach origin/main` in its output is the owner's to run.
+   On a review branch the finish reads the branch's pull-request record first: an open PR prints its
+   URL and commits and pushes nothing, only merged or closed ones are refused, and with no PR it
+   resumes only a part-way failure. Report the PR URL it prints (on `dry`, the body's path). Never
+   merge. Then stop.
 
 ## 8. Canary
 
