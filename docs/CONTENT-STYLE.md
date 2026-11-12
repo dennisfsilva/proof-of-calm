@@ -219,8 +219,9 @@ Portugal, `40 %` with a no-break space in Germany. Research figures in messages 
 which `pnpm validate:content` checks, so the sign never wraps away from its number. Facts, templates
 and modules write `N %` with an ordinary space, or with a no-break space where the sign must not
 wrap away. When a page shows a fact's, template's or module's percentage beside a formatted figure,
-that percentage takes the page's joiner. A module without a chart keeps its spacing as written. A
-sheet is the module's surface, not the page's, so a module opened in a sheet keeps its own spacing
+that percentage takes the page's joiner. A module without a chart keeps its spacing as written. The
+tax module is the exception: its country card shows the profile's percentages, so its text takes
+the page's joiner, on the route and in the sheet. A sheet is the module's surface, not the page's, so a module opened in a sheet keeps its own spacing
 beside the page's figures, as the Cycles sheet over Plan does. A page with formatted figures shows
 no `N %` with an ordinary space: a template's `oneLine` holds no percentage, the card builds its
 split line from `split`, and the app formats a research figure such as an explanation's; the
@@ -241,10 +242,13 @@ shortened by hand.
 One idea per module, under 400 words of body text (the content test fails above), one chart only
 where it earns its place, one caveat in its own box, a reading time (`ceil(words ÷ 230 + charts ÷ 6)`
 whole minutes: 10 seconds per chart added before rounding up, counted on body text; Brysbaert 2019
-puts adult non-fiction reading at about 238 wpm, so the estimate errs long for second-language readers), and `Last reviewed <date>` under the
-title (`Next review due <date>` for the tax module; past due, the line reads `review overdue` in ink,
-and the tax module adds `Rules may have changed since this date. Check your tax authority before
-filing.`; the build fails when a module is more than 18 months old). Every statistic cites a fact
+puts adult non-fiction reading at about 238 wpm, so the estimate errs long for second-language readers;
+the reading time counts the module's own text, not the country card that leads the tax module), and
+`Last reviewed <date>` under the title, which the tax module extends to `Last reviewed <date> · Next
+review due <date>`. From the day after `nextReviewDue` a module is past due: its line reads `Last
+reviewed <date> · review overdue`, with `review overdue` in ink, on the route and in the sheet, and
+the tax module adds `Rules may have changed since this date. Check your tax authority before
+filing.` on its own line (the build fails when a module is more than 18 months old). Every statistic cites a fact
 key from `packages/content/facts` with a date. The structure and the seven modules: `docs/EDUCATION.md`.
 
 Phrasing of history: always a window with its dates and source ("every four-year monthly plan in
