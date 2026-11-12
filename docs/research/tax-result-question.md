@@ -11,15 +11,19 @@ transactions.ts is `packages/core/src/log/transactions.ts`, country-card.tsx is
 
 ## 1. The gap
 
-Counsel's perimeter read of the French and Dutch tax-year files (2026-11-08, issue #8, "Counsel's
-perimeter read") ruled France's line 221 on outside `docs/JURISDICTIONS.md` §1: no fraction of
-capital, no net cost, no gain, no total for the year, no EUR 305 test. It also recorded an open
-point for the owner: `docs/LEGAL.md` §6 had no checklist question for "computes a tax result". The
-checklist is the only list counsel asks of every string (`.claude/agents/counsel.md`), and none of
-its 13 questions caught a gain, a fraction, a threshold or tax due. The rule lived only in documents
-counsel does not ask about: JURISDICTIONS.md:14-15 ("never computes a tax bill"), DOMAIN.md:1319-1322
-(§11, "no tax computation"), DOMAIN.md:916 (France's file), DOMAIN.md:992-994 (no header line names
-a gain, a loss, tax due, a rate or an allowance) and JURISDICTIONS.md:520 (nothing from line 221 on).
+Counsel read the French and Dutch tax-year files on 2026-11-08 (issue #8, "Counsel's perimeter
+read"). It ruled France's line 221 on outside `docs/JURISDICTIONS.md` §1: no fraction of capital, no
+net cost, no gain, no total for the year and no EUR 305 test. The EUR 305 threshold has not been
+indexed since 2019 (`docs/JURISDICTIONS.md` §7.10). Counsel also recorded an open point for the owner: `docs/LEGAL.md`
+§6 had no checklist question for "computes a tax result". The checklist is the only list counsel asks
+of every string (`.claude/agents/counsel.md`). None of its 13 questions caught a gain, a fraction, a
+threshold or tax due. The rule lived only in documents counsel does not ask about:
+
+- JURISDICTIONS.md:14-15 ("never computes a tax bill");
+- DOMAIN.md:1319-1322 (§11, "no tax computation");
+- DOMAIN.md:916 (France's file);
+- DOMAIN.md:992-994 (no header line names a gain, a loss, tax due, a rate or an allowance);
+- JURISDICTIONS.md:520 (nothing from line 221 on).
 
 ## 2. Options
 
@@ -83,11 +87,17 @@ Every item passes.
 
 ## 6. What question 14 refuses
 
-Refused if anyone builds them: France's line 221 on (the fraction of capital, the net cost, the
-plus-value, the EUR 305 test), Germany's €1,000 Freigrenze test, a UK section 104 pool's cost or the
-£3,000 exempt amount applied, a Dutch deemed return or allowance test, Irish or any other tax due, an
-"estimated tax" line, a gain or loss column, and a country's allowance printed beside the person's
-total.
+Refused if anyone builds them:
+
+- France's line 221 on: the fraction of capital, the net cost, the plus-value, and the EUR 305 test
+  (not indexed since 2019, `docs/JURISDICTIONS.md` §7.10);
+- Germany's EUR 1,000 Freigrenze test (in force since assessment year 2024, §7.7);
+- a UK section 104 pool's cost, or the £3,000 annual exempt amount applied (2024/25, 2025/26 and
+  2026/27, §7.4);
+- a Dutch deemed return or allowance test;
+- Irish or any other tax due, and an "estimated tax" line;
+- a gain or loss column;
+- a country's allowance printed beside the person's total.
 
 ## 7. The design check (2026-11-12)
 
