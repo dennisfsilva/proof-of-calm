@@ -221,8 +221,8 @@ and modules write `N %` with an ordinary space, or with a no-break space where t
 wrap away. When a page shows a fact's, template's or module's percentage beside a formatted figure,
 that percentage takes the page's joiner. A module without a chart keeps its spacing as written. The
 tax module is the exception: its country card shows the profile's percentages, so its text takes
-the page's joiner, on the route and in the sheet. A sheet is the module's surface, not the page's, so a module opened in a sheet keeps its own spacing
-beside the page's figures, as the Cycles sheet over Plan does. A page with formatted figures shows
+the page's joiner, on the route and in the sheet. A sheet is the module's surface, not the page's,
+so a module opened in a sheet keeps its own spacing beside the page's figures, as the Cycles sheet over Plan does. A page with formatted figures shows
 no `N %` with an ordinary space: a template's `oneLine` holds no percentage, the card builds its
 split line from `split`, and the app formats a research figure such as an explanation's; the
 acknowledged plan-creation text is quoted as versioned (`docs/LEGAL.md` §4). Signed values carry
