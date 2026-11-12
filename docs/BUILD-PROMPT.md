@@ -156,7 +156,17 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   forbids, and an example draft whose field does not exist (#136). Skills have their own rules file
   above tier 0 since (`.claude/rules/skills.md`), because a skill steers an agent with pre-approved
   tools under the owner's identity, and this one's text merged at tier 0 with no review agent before
-  its rehearsal found those ten gaps.
+  its rehearsal found those ten gaps. Each later rehearsal found new edge cases in the wording (ten
+  in #141's, nine in #144's, none of them in the security model), so a rehearsal proves the wiring and the
+  security model, and the owner's first real run is the gate for the remaining wording.
+- When review rounds keep finding one more state of the same mechanism, stop and run an unanchored
+  design check before the next round. Six review rounds of the content review's resume each found
+  one more state; two blind designers found the root cause in #144: every review of a day shares
+  one branch name, so finish guessed which pull request belonged to which review.
+- A test harness that copies an executable on Windows pays the antivirus scan of the copy on its
+  first run. #147's fake gh, a copy of node.exe, took 27.6 s of a 30 s timeout cold in a fresh
+  worktree and 1.7 to 7.9 s warm, while Linux CI never saw it: keep such a test's first run well
+  under its timeout and run it once cold before reporting.
 - A guard that limits what an agent's branch may change is checked against every required check that
   branch must pass. Session 18b's content review guard refused the baseline deletion that the
   required e2e-visual check needs after any change to text a screen shows; the integration read found
@@ -168,7 +178,8 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   fix/review-finish-resume, which waits for a check by `git merge-tree` or by the PR's state.
 - A fix for a wiring bug is proven by a test that goes through the wiring: reverting the fixed line
   must fail a test. In #136, the rows branch's fix for a Learn module's review dates was tested only
-  on the pure function it calls. Reverting the wiring line (`propose.ts:113`) left all 57
+  on the pure function it calls. Reverting the wiring line (the module branch of `changedLeaves` in
+  `tools/content-review/propose.ts`) left all 57
   content-review tests green; a `finish --dry` test in `tools/content-review/propose.test.ts` now
   fails on that revert.
 - A rule added to a skill's allowed-tools is the owner's own line: the auto-mode classifier refuses
