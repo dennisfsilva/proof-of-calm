@@ -49,7 +49,9 @@ Arguments: $ARGUMENTS
 - In a template, change only a dated figure and its source; never its name, risk label, `oneLine`
   or explanation.
 - Fetch only the domains in `packages/content/sources.allow.json`. Nothing refuses an off-list
-  fetch: WebFetch asks the owner's permission. The finish refuses an off-list link in the draft.
+  fetch: WebFetch asks the owner's permission. The finish refuses an off-list URL in the draft's link
+  fields: `changes[].url` and `pending[].url` off their item's list, `verified[].urls` and
+  `unreachable[].url` off every list. A URL in `notes` or `canary` prints as plain text and may stay.
   `pnpm run validate:content` refuses an off-list source in the data unless its `kind` is
   `secondary`, and a profile whose every source is secondary (`packages/content/src/validate.ts`).
   A secondary source can show you a change; it is never the only evidence for one
@@ -68,7 +70,9 @@ Arguments: $ARGUMENTS
 2. `docs/JURISDICTIONS.md` §1 (the honesty rule), §2 (the schema), §6 (versions and review dates),
    §7.11 and §7.12 (the watch lists and the queues). The draft's `queue` holds each
    verification-queue item and each §7.11 or §7.12 watch item of the reviewed countries, closed or
-   carried over.
+   carried over. Fetch a queue item's source only when its host is on the list. Leave it out of `of`
+   and add no `sources` entry: name the passage and the entry in the `queue` row, for the owner to
+   add. Never fetch an off-list queue source; mark its item `carried over`.
 3. `docs/CONTENT-OPS.md` §5 and §7, `docs/CONTENT-STYLE.md` §1, §2 and §4, and `docs/LEGAL.md` §3,
    §4 and §6.
 4. Before you edit a module, `docs/CONTENT-STYLE.md` §5; before you edit a template, its §6.
@@ -77,30 +81,46 @@ Arguments: $ARGUMENTS
 
 For each profile in `packages/content/jurisdictions/`:
 
-1. Fetch every source the profile lists, each `pendingChanges[].source` included: the validator
-   checks those as profile sources (`packages/content/src/validate.ts`), so each is fetched and
-   counted in `of`. Fetch a PDF with `node tools/content-review/pdf.ts <url>` and Read the `.txt` it
-   names; the command asks the owner on each run and shows its URL. Its quotes are verbatim: copy a passage as the `.txt` holds it. Compare every field with
+1. Fetch every source the profile lists, each on-list `pendingChanges[].source` included: the
+   validator checks those as profile sources (`packages/content/src/validate.ts`), so each is fetched
+   and counted in `of`. Fetch a PDF with `node tools/content-review/pdf.ts '<url>'`, the URL in
+   single quotes, because `?` and `&` split the command. Read the `.txt` it names; the command asks
+   the owner on each run and shows its URL. Its quotes are verbatim. Copy a passage as the `.txt`
+   holds it: join its lines with single spaces and drop the indentation. A hyphen at a line's end
+   stays and joins the next line with no space. Change no other character. Compare every field with
    what the source says today.
-   - `of` counts the sources on the item's list: the country's list plus `EU`, or `facts`.
+   - `of` counts the sources on the item's list: the country's key in
+     `packages/content/sources.allow.json` plus `EU`, or `facts`. Count each distinct URL once,
+     however many entries cite it.
    - Never fetch a `secondary` source off the list. Name it in `notes` as
      `secondary, off the list, not fetched: <url>`, with the lines that cite only it, and leave those
-     lines unchanged. The owner opens it on its site (`docs/CONTENT-OPS.md` §8, step 1).
+     lines unchanged. The owner opens it on its site (`docs/CONTENT-OPS.md` §8, step 1). An off-list
+     secondary `pendingChanges[].source` follows this rule too and is not counted in `of`.
+   - Outside the queue (step 2), fetch no on-list page the profile does not cite. Note the lines it
+     would check as `no listed source holds: <field>`, and leave them unchanged.
 2. Change a field only with a quoted passage from an allow-listed source and the date of the event:
    the day a law was published, a rate applies or a deadline falls, not the day the page changed.
    Give both in the draft, since a source entry has no field for the quote. A correction of our own
    wording takes the date the quoted rule took effect, else the source's publication date; its
-   `reason` starts "Correction of our wording". An HTML quote is WebFetch's rendering, so the owner's
-   read on the source's site (`docs/CONTENT-OPS.md` §8, step 1) stays the check.
+   `reason` starts "Correction of our wording". When neither date shows (`published: null`), change
+   nothing. Add the note `correction, no date on the source: <item> <field>: <wording>; "<quote>"`
+   and leave the line as it is. An HTML quote is WebFetch's rendering, so the owner's read on the
+   source's site (`docs/CONTENT-OPS.md` §8, step 1) stays the check. WebFetch summarises a verbatim
+   passage over about 125 characters: ask again for consecutive pieces under 125 characters and join
+   them. Each fetch and each `pdf.ts` run is one owner prompt (DE on 2026-11-11: 9 fetches, 3 runs).
+   Prefer `pdf.ts`'s `.txt` for a PDF.
 3. Set the entry's `accessed` to the day you read the source. Set `status.confidence` and give its
-   one-line reason in the file's `reviewed[].reason`.
+   one-line reason in the draft's `reviewed[].reason` for that file.
 4. Never set `lastReviewed` or `nextReviewDue`; the finish refuses a change to either. Set
-   `accessed` and record in the file's `reviewed` row how many of its `of` sources you `read`. The
-   owner sets `lastReviewed` in the flip, only when every source was read (`docs/CONTENT-OPS.md` §8).
+   `accessed` and record in the draft's `reviewed` row for that file how many of its `of` sources
+   you `read`. The owner sets `lastReviewed` in the flip, only when every source was read
+   (`docs/CONTENT-OPS.md` §8).
 5. Never present a proposal as law: `pendingChanges[].status` uses the source's own stage. A bill, a
    case or a draft appears only beside the source that reported it, with that source's date. The
    draft's `pending` holds every `pendingChanges` entry of a reviewed country that is new or changed
-   stage; an unchanged one goes to `verified`.
+   stage; an unchanged one goes to `verified`. Copy its `effectiveFrom`, `null` included. A pending
+   change whose only source is off-list secondary goes to neither. Keep it in that source's
+   `secondary, off the list, not fetched` note, and name the pending entry there.
 6. Say in the draft whether a change is substantive (a rate, an allowance, a holding rule, a taxable
    event, a reporting duty). The owner raises `status.version` and writes the `changeNotice`
    (`docs/CONTENT-OPS.md` §8); a typographic change raises nothing (`docs/JURISDICTIONS.md` §6).
