@@ -180,8 +180,9 @@ with a reason per phrase: proper names of taxes, "API key", the Risk page's regi
 also flags any sentence with an asset name and an imperative verb and any percentage next to
 return, gain, profit or yield. Template names need a human sign-off.
 
-The counsel checklist, answered for every change to messages, content, Learn, emails or site pages
-(the role: `.claude/agents/counsel.md`; the evidence: `docs/BENCHMARK.md`):
+The counsel checklist, answered for every change to messages, content, Learn, emails, site pages or
+exports (their headers, columns and cells) (the role: `.claude/agents/counsel.md`; the evidence:
+`docs/BENCHMARK.md`):
 
 1. Does any sentence name a specific asset together with an imperative or a "should"?
 2. Is anything presented as suitable for this user, or chosen from data about the user's
