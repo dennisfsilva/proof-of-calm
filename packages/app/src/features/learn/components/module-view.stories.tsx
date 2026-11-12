@@ -40,7 +40,7 @@ export const StartHere: Story = {
 const TAXES = LEARN_MODULES.find((module) => module.slug === TAXES_MODULE) as LearnModuleMeta;
 
 // The tax module the day after its next review was due: the line says so with `review overdue` in ink, and the
-// sentence stands on its own line at the line's size (docs/CONTENT-STYLE.md §5).
+// sentence stands on its own line at the line's size and names the same date (docs/CONTENT-STYLE.md §5).
 export const TaxesOverdue: Story = {
   args: { module: TAXES, Body: TaxesBody },
   parameters: { path: `/learn/${TAXES_MODULE}`, nowMs: Date.parse('2027-01-02T10:00:00Z') },
@@ -49,7 +49,7 @@ export const TaxesOverdue: Story = {
     await expect(line?.textContent).toMatch(/^Last reviewed 9\sNov\s2026 · review overdue$/u);
     await expect(canvas.getByText('review overdue')).toBeVisible();
     await expect(
-      canvas.getByText('Rules may have changed since this date. Check your tax authority before filing.'),
+      canvas.getByText(/^Rules may have changed since 9\sNov\s2026\. Check your tax authority before filing\.$/u),
     ).toBeVisible();
   },
 };

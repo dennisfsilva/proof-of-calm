@@ -112,11 +112,13 @@ describe('ModuleView', () => {
 });
 
 // The line under the title (docs/CONTENT-STYLE.md §5): a module is overdue from the day after its nextReviewDue, and
-// only `review overdue` is in ink; the tax module names its next review until then, and overdue adds the sentence.
+// only `review overdue` is in ink; the tax module names its next review until then, and overdue adds the sentence,
+// which names the module's last-reviewed date as the line does, since the country card below carries a date of its own.
 describe('ModuleView: the review line', () => {
   const taxes = LEARN_MODULES.find((known) => known.slug === TAXES_MODULE) as LearnModuleMeta;
   const at = (date: string) => Date.parse(`${date}T10:00:00Z`);
-  const SENTENCE = 'Rules may have changed since this date. Check your tax authority before filing.';
+  const SENTENCE = 'Rules may have changed since 9 Nov 2026. Check your tax authority before filing.';
+  const SENTENCE_START = /^Rules may have changed since/;
   const plain = (text: string | null | undefined) => text?.replace(/ /g, ' ');
 
   const lineOf = async (shown: LearnModuleMeta, nowMs: number) => {
@@ -141,7 +143,9 @@ describe('ModuleView: the review line', () => {
     const line = await lineOf(taxes, at('2027-01-02'));
     const sentence = line.nextElementSibling as HTMLElement;
     expect(sentence.tagName).toBe('P');
-    expect(sentence.textContent).toBe(SENTENCE);
+    expect(plain(sentence.textContent)).toBe(SENTENCE);
+    const reviewed = /^Last reviewed (.+) · review overdue$/u.exec(line.textContent ?? '')?.[1];
+    expect(sentence.textContent).toContain(`since ${reviewed}.`);
     expect(sentence.className).toBe('text-13 text-ink');
     expect(sentence.nextElementSibling?.textContent).toMatch(/min read$/);
   });
@@ -151,7 +155,7 @@ describe('ModuleView: the review line', () => {
     ['start-here', '2027-10-31'],
   ])('%s on %s shows no sentence', async (slug, date) => {
     await lineOf(slug === TAXES_MODULE ? taxes : module, at(date));
-    expect(screen.queryByText(SENTENCE)).toBeNull();
+    expect(screen.queryByText(SENTENCE_START)).toBeNull();
   });
 });
 
