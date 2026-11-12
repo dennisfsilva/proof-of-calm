@@ -33,19 +33,22 @@ changes only content data, deletes none of it (but the owner may remove a visual
 from the agent's JSON draft, every text cell defused and every URL checked against
 `packages/content/sources.allow.json`; `render-check.ts` proves that through GitHub's renderer in the
 `render` job of content-review.yml. `propose.ts` does the review's git work, so the agent has no git
-or gh: `node tools/content-review/propose.ts start` fetches, prints the review branch's pull
-requests and refuses a dirty tree or a HEAD other than origin/main;
+or gh: `node tools/content-review/propose.ts start` fetches, refuses a dirty tree or a HEAD other
+than origin/main and names the day's first free review name; on a review branch it prints that
+branch's pull requests and what finish would decide, and refuses;
 `node tools/content-review/propose.ts finish` (`--dry`, `--draft <path>`) stages
 everything and refuses a path outside content data, a mode, a binary, a deletion, an entry not at
 agent-draft, a draft problem or a draft row that does not match the staged diff (`rows.ts`), leaving the index as it found it, before any commit. Without `--dry`
 it first refuses a HEAD other than the commit the local origin/main names, the check start makes,
 and a failed fetch or gh, before it stages, switches, commits or pushes anything. `resume.ts` holds
-the pure half both commands share: where HEAD stands (`HeadAt`) and its refusals, the review
-branch's date, and gh's pull-request record parsed with forks' pull requests dropped. When nothing
-is refused it
-writes the body to `.content-review/` (gitignored) and, without `--dry`, commits on
-agent/content-review-<date>, pushes and opens the PR labelled needs-owner and content-review; it
-never merges. The `finish-dry` job runs it on the fixtures: one change accepted, five refused.
+the pure half both commands share: where HEAD stands (`HeadAt`) and its refusals, the day's nine
+review names (`reviewNames`) and a name's date, gh's pull-request record parsed with forks' pull
+requests and their labels, and `decide`, which on a review branch reads that record first and
+resumes only a part-way failure (`docs/research/review-resume.md`). When nothing is refused it
+writes the body to `.content-review/` (gitignored) and, without `--dry`, commits on the day's first
+free name, pushes it with a plain push and opens the PR labelled needs-owner and content-review; it
+never merges and never forces a push. The `finish-dry` job runs it on the fixtures: one change
+accepted, five refused.
 
 `check.ts` (`pnpm check`) runs the gate's fast half with colour off and vitest's dot reporter, prints
 one line per step and only a failing step's last 40 lines. `lint/docs.ts` (`pnpm lint:docs`) checks
