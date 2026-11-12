@@ -17,6 +17,7 @@ on:
       - tools/content-review/render-check.ts
       - tools/content-review/check.ts
       - tools/content-review/propose.ts
+      - tools/content-review/resume.ts
       - tools/content-review/rows.ts
       - tools/content-review/fixtures/**
       - packages/content/sources.allow.json
