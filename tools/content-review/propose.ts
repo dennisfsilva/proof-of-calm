@@ -128,15 +128,25 @@ function headAt(originMain: string): HeadAt {
   };
 }
 
-/** A command's output, or its exit code and the first line it wrote to stderr (`missing`: not installed). */
-type Ran = { ok: true; out: string } | { ok: false; code: number | null; line: string; missing: boolean };
+/**
+ * A command's output, or its exit code, the first line it wrote to stderr and all of stderr (`missing`: not
+ * installed).
+ */
+type Ran = { ok: true; out: string } | { ok: false; code: number | null; line: string; err: string; missing: boolean };
 function attempt(command: 'git' | 'gh', args: string[]): Ran {
   const result = spawnSync(command, args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
   if (result.status === 0) return { ok: true, out: result.stdout };
-  const line = result.stderr?.split('\n').find((text) => text.trim() !== '');
+  const err = result.stderr ?? '';
+  const line = err.split('\n').find((text) => text.trim() !== '');
   const missing = (result.error as NodeJS.ErrnoException | undefined)?.code === 'ENOENT';
-  return { ok: false, code: result.status, line: line?.trim() ?? String(result.error ?? result.status), missing };
+  return { ok: false, code: result.status, line: line?.trim() ?? String(result.error ?? result.status), err, missing };
 }
+
+/**
+ * gh cannot authenticate: exit 4 when it holds no token, or GitHub's HTTP 401 in its stderr (exit 1) when the
+ * stored token has expired or been revoked. Both are fixed by gh auth login; anything else is a reconnect.
+ */
+const loggedOut = (ran: { code: number | null; err: string }) => ran.code === 4 || /\bHTTP 401\b/.test(ran.err);
 
 const MAIN = '+refs/heads/main:refs/remotes/origin/main';
 const AGENTS = '+refs/heads/agent/*:refs/remotes/origin/agent/*';
@@ -158,7 +168,7 @@ function fresh(review: string, refspecs: string[]): { record: PullRequest[]; pro
   if (list.ok) return { record: [], problems: ['gh pr list: printed no PR record: update GitHub CLI'] };
   const [line, fix] = list.missing
     ? ['gh is missing', 'install GitHub CLI and run gh auth login']
-    : [list.line, list.code === 4 ? 'run gh auth login' : 'reconnect'];
+    : [list.line, loggedOut(list) ? 'run gh auth login' : 'reconnect'];
   return { record: [], problems: [`gh pr list: ${line}: ${fix}, then run it again`] };
 }
 

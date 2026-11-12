@@ -65,8 +65,8 @@ function originRepo() {
 
 /**
  * The fake gh: `pr list --head <branch>` prints the PRs of that head from the JSON file FAKE_GH_STATE names,
- * `pr create` adds an open PR and prints its URL, and `mode` makes every call fail as a logged-out (exit 4) or
- * offline (exit 1) gh. On POSIX it is the script `gh`; on Windows, which runs no script without a shell, it is
+ * `pr create` adds an open PR and prints its URL, and `mode` makes every call fail as a logged-out (exit 4), an
+ * expired or revoked token's (exit 1, HTTP 401, as gh 2.102.0 prints it) or an offline (exit 1) gh. On POSIX it is the script `gh`; on Windows, which runs no script without a shell, it is
  * a copy of node named gh.exe that NODE_OPTIONS makes load this file first (any other node skips it).
  */
 const FAKE_GH = `#!/usr/bin/env node
@@ -79,6 +79,9 @@ if (require.main === module || /^gh(\\.exe)?$/i.test(basename(process.execPath))
   const head = args[args.indexOf('--head') + 1];
   const fail = (code, line) => { process.stderr.write(line + '\\n'); process.exit(code); };
   if (state.mode === 'logged-out') fail(4, 'You are not logged into any GitHub hosts. To log in, run: gh auth login');
+  if (state.mode === 'expired') {
+    fail(1, 'HTTP 401: Bad credentials (https://api.github.com/graphql)\\nTry authenticating with:  gh auth login -h github.com');
+  }
   if (state.mode === 'offline') fail(1, 'error connecting to api.github.com');
   if (args[0] === 'pr' && args[1] === 'list') {
     console.log(JSON.stringify(state.prs.filter((pr) => pr.head === head).map(({ head, ...pr }) => pr)));
@@ -111,7 +114,7 @@ afterAll(() => {
 
 type FakeGh = {
   prs: { number: number; state: string; url: string; isCrossRepository: boolean; head: string }[];
-  mode?: 'logged-out' | 'offline';
+  mode?: 'logged-out' | 'expired' | 'offline';
 };
 const ghState = (root: string) => join(root, 'gh.json');
 const readGh = (root: string): FakeGh => JSON.parse(readFileSync(ghState(root), 'utf8'));
@@ -283,13 +286,16 @@ describe('propose', () => {
     }
   }, 30_000);
 
-  it('start and finish refuse, changing nothing, when gh is missing, logged out or offline, and when the fetch fails', () => {
+  it('start and finish refuse, changing nothing, when gh is missing, logged out, its token expired or offline, and when the fetch fails', () => {
     const { root, repo, git, write, clean } = originRepo();
     const loggedOut =
       /^gh pr list: You are not logged into any GitHub hosts\..*: run gh auth login, then run it again$/;
+    const expired =
+      'gh pr list: HTTP 401: Bad credentials (https://api.github.com/graphql): run gh auth login, then run it again';
     const cases: [FakeGh | undefined, string | RegExp][] = [
       [undefined, 'gh pr list: gh is missing: install GitHub CLI and run gh auth login, then run it again'],
       [{ prs: [], mode: 'logged-out' }, loggedOut],
+      [{ prs: [], mode: 'expired' }, expired],
       [{ prs: [], mode: 'offline' }, 'gh pr list: error connecting to api.github.com: reconnect, then run it again'],
       [{ prs: [] }, /^git fetch: .+: reconnect, then run it again$/],
     ];
