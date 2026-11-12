@@ -293,8 +293,8 @@ shows the country's rule.
 - A typographic change, such as the percent sign's joiner (`docs/CONTENT-STYLE.md` §4), keeps a
   profile's `version`, `lastReviewed` and `reviewedBy`, since a raised version fires the rule-change
   notice.
-- When the owner flips `reviewedBy` to `owner`, they set `lastReviewed` only when every source was
-  read, even if nothing changed: the file's `reviewed` row shows `read` equal to `of`. A partial
+- When the owner flips `reviewedBy` to `owner`, they set `lastReviewed` only once the review draft's
+  `reviewed` row for the profile shows `read` equal to `of`, even if nothing changed. A partial
   review leaves `lastReviewed` and `nextReviewDue` unchanged. The review agent sets neither date. It
   does not fetch an off-list `secondary` source; the owner reads that source on its site before
   setting `lastReviewed` (`docs/CONTENT-OPS.md` §3, step 4, and §8).
