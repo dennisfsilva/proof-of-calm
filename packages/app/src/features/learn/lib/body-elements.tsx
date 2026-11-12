@@ -3,6 +3,7 @@ import type { Decimal } from '@proofofcalm/core';
 import { Children, type ComponentProps, type ReactNode } from 'react';
 import { useTranslations } from 'use-intl';
 import type { Formatters } from '../../../lib/format';
+import { TAXES_MODULE } from './taxes';
 
 /** A section's id: the heading's words, lower case, joined by hyphens (`Why some people hold` to `why-some-people-hold`). */
 export function headingId(text: string): string {
@@ -67,8 +68,19 @@ export function pageJoiner(format: Pick<Formatters, 'percent'>): string {
 }
 
 /**
+ * The joiner a module's text takes, decided here for the route and the sheet alike (docs/CONTENT-STYLE.md §4): the
+ * page's where the module shows figures the app formats, a chart or the tax module's country card; else none.
+ */
+export function moduleJoiner(
+  module: Pick<LearnModuleMeta, 'slug' | 'chart'>,
+  format: Pick<Formatters, 'percent'>,
+): string | undefined {
+  return module.chart !== 'none' || module.slug === TAXES_MODULE ? pageJoiner(format) : undefined;
+}
+
+/**
  * A module's `N %`, written with an ordinary or a no-break space (docs/CONTENT-STYLE.md §4), with the page's joiner in
- * its place. A module without a chart has no page joiner (`undefined`): its text stays as written, no-break spaces too.
+ * its place. A module with no joiner (`undefined`, `moduleJoiner`) keeps its text as written, no-break spaces too.
  */
 export const withJoiner = (text: string, joiner: string | undefined) =>
   joiner === undefined ? text : text.replace(/(\d)[ \u00a0]%/g, `$1${joiner}%`);
@@ -79,11 +91,11 @@ const joined = (children: ReactNode, joiner: string | undefined): ReactNode =>
     : Children.map(children, (child) => (typeof child === 'string' ? withJoiner(child, joiner) : child));
 
 /**
- * The elements of one module: with a chart, its formatted figures set the page's percent spacing, so the text's
- * strings take the joiner (docs/CONTENT-STYLE.md §4); without one, the text renders as written.
+ * The elements of one module: given the page's joiner (`moduleJoiner`), the text's strings take it, since the page's
+ * formatted figures set the percent spacing (docs/CONTENT-STYLE.md §4); without one, the text renders as written.
  */
-export function moduleElements(chart: LearnModuleMeta['chart'], joiner: string | undefined): BodyElements {
-  if (chart === 'none') return MODULE_ELEMENTS;
+export function moduleElements(joiner: string | undefined): BodyElements {
+  if (joiner === undefined) return MODULE_ELEMENTS;
   const E = MODULE_ELEMENTS;
   return {
     ...E,

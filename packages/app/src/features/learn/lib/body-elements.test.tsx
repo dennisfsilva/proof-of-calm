@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { createFormatters } from '../../../lib/format';
 import { I18nProvider } from '../../../lib/i18n';
 import learn from '../../../messages/en/learn.json';
-import { headingId, MODULE_ELEMENTS, moduleElements, pageJoiner, withJoiner } from './body-elements';
+import { headingId, MODULE_ELEMENTS, moduleElements, moduleJoiner, pageJoiner, withJoiner } from './body-elements';
 
 // A section's id comes from its heading's text, so the compiled module carries no id and a link names the
 // section by the words on the page (ADR-0048 Deviations).
@@ -60,7 +60,7 @@ describe('moduleElements', () => {
     const formatted = pageJoiner(createFormatters(locale, 'en-GB'));
     expect(formatted).toBe(joiner);
     expect(formatted).toBe(percentJoiner(locale));
-    expect(text(moduleElements('drawdowns-bar', formatted))).toBe(
+    expect(text(moduleElements(formatted))).toBe(
       `Bitcoin fell 77${joiner}% and Ether 94${joiner}%.A share of 5${joiner}%`,
     );
   });
@@ -70,20 +70,43 @@ describe('moduleElements', () => {
     ['en', ''],
     ['de', NBSP],
   ])('%s: a no-break space before the sign takes the joiner too', (locale, joiner) => {
-    const elements = moduleElements('drawdowns-bar', pageJoiner(createFormatters(locale, 'en-GB')));
+    const elements = moduleElements(pageJoiner(createFormatters(locale, 'en-GB')));
     const { container } = render(<elements.p>{`Falls of 94${NBSP}% and 78 %`}</elements.p>);
     expect(container.textContent).toBe(`Falls of 94${joiner}% and 78${joiner}%`);
   });
 
-  it('a module without a chart keeps its text as written', () => {
-    expect(moduleElements('none', undefined)).toBe(MODULE_ELEMENTS);
-    expect(text(moduleElements('none', undefined))).toBe('Bitcoin fell 77 % and Ether 94 %.A share of 5 %');
+  // The tax module has no chart, and its lead card shows the profile's percentages, so the joiner alone decides.
+  it("a `chart: none` body given a joiner takes it: Taxes' `28 %` reads `28%` in Portugal", () => {
+    const elements = moduleElements(pageJoiner(createFormatters('pt-PT', 'en-GB')));
+    const { container } = render(<elements.p>{`A rate of 28${NBSP}%`}</elements.p>);
+    expect(container.textContent).toBe('A rate of 28%');
+  });
+
+  it('with no joiner the text stays as written', () => {
+    expect(moduleElements(undefined)).toBe(MODULE_ELEMENTS);
+    expect(text(moduleElements(undefined))).toBe('Bitcoin fell 77 % and Ether 94 %.A share of 5 %');
   });
 
   it('an h2 keeps the id of its text', () => {
-    const elements = moduleElements('drawdowns-bar', '');
+    const elements = moduleElements('');
     render(<elements.h2>Falls of 80 %</elements.h2>);
     expect(screen.getByRole('heading', { level: 2, name: 'Falls of 80%' }).id).toBe('falls-of-80');
+  });
+});
+
+// The one place that decides whether a module takes the page's joiner (docs/CONTENT-STYLE.md §4): a chart, or the tax
+// module's country card, shows figures the app formats.
+describe('moduleJoiner', () => {
+  const pt = createFormatters('pt-PT', 'en-GB');
+  const de = createFormatters('de', 'en-GB');
+
+  it.each([
+    ['taxes-where-you-live', 'none', pt, ''],
+    ['taxes-where-you-live', 'none', de, ' '],
+    ['risk-honestly', 'drawdowns-bar', de, ' '],
+    ['start-here', 'none', de, undefined],
+  ] as const)('%s with chart %s', (slug, chart, format, joiner) => {
+    expect(moduleJoiner({ slug, chart }, format)).toBe(joiner);
   });
 });
 
