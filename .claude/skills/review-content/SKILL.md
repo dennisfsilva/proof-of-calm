@@ -186,8 +186,10 @@ rules files as the generator writes them. The finish refuses a changed entry at 
 4. Write every text as plain words: the finish escapes all Markdown, and refuses a link that is not
    https on an allow-listed host. Write no `@` mention, no closing keyword and no HTML.
 5. Run `node tools/content-review/propose.ts finish`, or on `dry`
-   `node tools/content-review/propose.ts finish --dry`. When it refuses, fix what it names and run it
-   again. Report the PR URL it prints (on `dry`, the body's path). Never merge. Then stop.
+   `node tools/content-review/propose.ts finish --dry`. When it refuses on the draft (a field, a
+   path, a row, a link), fix what it names and run it again. When it refuses on the git branch,
+   origin, a pull request, gh or the fetch, stop and show the owner its output word for word. Run no
+   git or gh command. Report the PR URL it prints (on `dry`, the body's path). Never merge. Then stop.
 
 ## 8. Canary
 
