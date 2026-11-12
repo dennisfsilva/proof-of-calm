@@ -1,6 +1,8 @@
 import type { Decorator, Meta, StoryObj } from '@storybook/react-vite';
 import { Suspense, useState } from 'react';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
+import { fixtureSnapshot } from '../../../lib/services/fixtures';
+import { TAXES_MODULE, YOUR_COUNTRY } from '../lib/taxes';
 import { ModuleSheet } from './module-sheet';
 
 // One module in its sheet, the fixture through the real pipeline; the test projects of vitest.config.ts render
@@ -62,6 +64,21 @@ export const OnASection: Story = {
     await waitFor(() => expect(canvasElement.ownerDocument.activeElement).toBe(heading));
     await waitFor(() => expect(insideScrollArea(heading)).toBe(true));
     await expect(heading.closest('[role="dialog"]')?.scrollTop).toBeGreaterThan(0);
+  },
+};
+
+// The tax module opened on `your-country` under a plan in Portugal: the sheet leads with Portugal's card, its heading
+// takes the focus below Close, and the sheet shows no list of countries (docs/EDUCATION.md §4).
+export const TaxesOnYourCountry: Story = {
+  args: { slug: TAXES_MODULE, section: YOUR_COUNTRY },
+  parameters: { snapshot: fixtureSnapshot() },
+  play: async ({ canvasElement }) => {
+    const page = within(canvasElement.ownerDocument.body);
+    const heading = await page.findByRole('heading', { level: 2, name: 'Portugal' }, { timeout: 5000 });
+    await expect(heading.id).toBe(YOUR_COUNTRY);
+    await waitFor(() => expect(canvasElement.ownerDocument.activeElement).toBe(heading));
+    await waitFor(() => expect(insideScrollArea(heading)).toBe(true));
+    await expect(page.queryByText('Other countries')).toBeNull();
   },
 };
 
