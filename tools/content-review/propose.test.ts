@@ -1,5 +1,15 @@
 import { execFileSync, spawnSync } from 'node:child_process';
-import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  copyFileSync,
+  existsSync,
+  linkSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { delimiter, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -96,18 +106,41 @@ if (require.main === module || /^gh(\\.exe)?$/i.test(basename(process.execPath))
 }
 `;
 
-/** One folder per run holding the fake gh (a copy of node on Windows is about 80 MB, so it is made once). */
+/**
+ * Windows' gh.exe: node under gh's name, kept across runs in one folder per node version, because a fresh copy
+ * of node (about 80 MB) pays the antivirus scan on its first run (docs/BUILD-PROMPT.md, Brief lessons). A hard
+ * link first (the same file, already scanned); a copy when the folder is on another volume or links are refused.
+ */
+const EXE_DIR = join(tmpdir(), `propose-gh-${process.version}`);
+function placeExe(): 'linked' | 'copied' | 'reused' {
+  const exe = join(EXE_DIR, 'gh.exe');
+  if (existsSync(exe) && statSync(exe).size === statSync(process.execPath).size) return 'reused';
+  mkdirSync(EXE_DIR, { recursive: true });
+  rmSync(exe, { force: true });
+  try {
+    linkSync(process.execPath, exe);
+    return 'linked';
+  } catch (error) {
+    if (!['EXDEV', 'EPERM'].includes((error as NodeJS.ErrnoException).code ?? '')) throw error;
+    copyFileSync(process.execPath, exe);
+    return 'copied';
+  }
+}
+
+/** One folder per run holding the fake gh's script; on Windows the shared gh.exe loads it. */
 let fakeBin = '';
 function fakeGh(): { dir: string; env: Record<string, string> } {
   if (fakeBin === '') {
     fakeBin = mkdtempSync(join(tmpdir(), 'propose-gh-'));
     writeFileSync(join(fakeBin, process.platform === 'win32' ? 'gh.cjs' : 'gh'), FAKE_GH, { mode: 0o755 });
-    if (process.platform === 'win32') copyFileSync(process.execPath, join(fakeBin, 'gh.exe'));
+    // A new copy runs once here, so its first-run scan falls in beforeAll's minute, not in a test.
+    if (process.platform === 'win32' && placeExe() !== 'reused') execFileSync(join(EXE_DIR, 'gh.exe'), ['-e', '0']);
   }
   const preload = join(fakeBin, 'gh.cjs').replace(/\\/g, '/');
-  return { dir: fakeBin, env: process.platform === 'win32' ? { NODE_OPTIONS: `--require ${preload}` } : {} };
+  if (process.platform !== 'win32') return { dir: fakeBin, env: {} };
+  return { dir: EXE_DIR, env: { NODE_OPTIONS: `--require ${preload}` } };
 }
-beforeAll(() => void fakeGh(), 30_000);
+beforeAll(() => void fakeGh(), 120_000);
 afterAll(() => {
   if (fakeBin !== '') rmSync(fakeBin, { recursive: true, force: true });
 });
@@ -186,6 +219,12 @@ describe('propose', () => {
     ]);
     expect(finishProblems([{ path: FACTS, mode: '100644' }], [], [])).toEqual([]);
     expect(finishProblems([], [], [])).toEqual(['nothing staged: the review changed no content data']);
+  });
+
+  it("the fake gh's gh.exe is placed once per node version and reused after", () => {
+    placeExe();
+    expect(placeExe()).toBe('reused');
+    expect(statSync(join(EXE_DIR, 'gh.exe')).size).toBe(statSync(process.execPath).size);
   });
 
   it('branchName is 31 characters', () => {
