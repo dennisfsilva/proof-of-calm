@@ -211,9 +211,24 @@ The counsel checklist, answered for every change to messages, content, Learn, em
 12. Would a UK visitor reach this screen (ADR-0029)?
 13. Does every holding date shown come from the user's own entries and the rule, and does every
     country rule shown carry its source and last-reviewed date (`docs/JURISDICTIONS.md` §1)?
+14. Does any sentence, line, cell or figure compute a tax result from the person's own figures, or
+    say that Proof of Calm computes one (`docs/JURISDICTIONS.md` §1)? A tax result is a taxable gain
+    or loss; a cost a tax method sets (a fraction of total cost, a net cost, a pool's or an average
+    cost under a lot rule); a test against an allowance or a money threshold; a tax rate applied to
+    the person's figures; a deemed return; or tax due, saved or refunded. These are not tax results
+    and may stand:
+    - a holding-status date, whether it has passed, and the units past it (question 13);
+    - amounts, fees and units as logged, their sums and counts, and a logged amount shared over the
+      units a sale took under the Log's matching (`docs/DOMAIN.md` §3.7);
+    - a price or a value at a dated close or at the sale's own price, with its source, named as an
+      estimate where it is one;
+    - Portfolio's value, invested, average cost and P/L (`docs/DOMAIN.md` §3.6), one formula in every
+      country, beside no word that calls them taxable;
+    - a country's rate, allowance or threshold as its card or a dated fact states it, never applied to
+      a figure of the person's or set beside one.
 
-A finding on 1 to 5 or 12 is a perimeter breach and blocks the merge (reported as judgment with the
-rule); the others are findings the PR fixes.
+A finding on 1 to 5, 12 or 14 is a perimeter breach and blocks the merge (reported as judgment with
+the rule); the others are findings the PR fixes.
 
 ## 7. Before charging money (M5)
 
