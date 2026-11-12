@@ -4,7 +4,8 @@ import type { ReactNode } from 'react';
 import { useTranslations } from 'use-intl';
 import { Link, Redirect, Route, Switch } from '../../../lib/navigation';
 import { moduleBody } from '../lib/bodies';
-import { BACK_LINK, CountryList, CountryRoute } from './country-library';
+import { TAXES_MODULE } from '../lib/taxes';
+import { BACK_LINK, CountryList, CountryRoute, CountryRows, PlanCountryCard } from './country-library';
 import { ModuleIndex } from './module-index';
 import { ModuleView } from './module-view';
 import { FALL_MODULE, ThisFallPage, useFallModel } from './this-fall-page';
@@ -27,6 +28,13 @@ function FallUnderWayLine() {
   return <p className="text-16">{t.rich('fallUnderWay', { page: fallLink })}</p>;
 }
 
+// What stands above a module's text on its route: the fall line, and the card of the plan's country for the tax module,
+// which also ends with the library's rows (docs/EDUCATION.md §4).
+const LEADS: Partial<Record<string, () => ReactNode>> = {
+  [FALL_MODULE]: () => <FallUnderWayLine />,
+  [TAXES_MODULE]: () => <PlanCountryCard />,
+};
+
 function ModuleRoute({ slug }: { slug: string }) {
   const t = useTranslations('learn');
   const module = LEARN_MODULES.find((known) => known.slug === slug);
@@ -37,7 +45,8 @@ function ModuleRoute({ slug }: { slug: string }) {
       <Link href={INDEX} className={BACK_LINK}>
         {t('module.back')}
       </Link>
-      <ModuleView module={module} Body={Body} lead={slug === FALL_MODULE ? <FallUnderWayLine /> : undefined} />
+      <ModuleView module={module} Body={Body} lead={LEADS[slug]?.()} />
+      {slug === TAXES_MODULE && <CountryRows />}
     </div>
   );
 }

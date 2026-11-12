@@ -1,11 +1,16 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
-import { type ComponentProps, Suspense } from 'react';
+
+import type { Plan } from '@proofofcalm/core';
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react';
+import { Component, type ComponentProps, type ReactNode, Suspense } from 'react';
 import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 import { I18nProvider } from '../../../lib/i18n';
 import { ServicesProvider } from '../../../lib/services';
+import { fixtureSnapshot } from '../../../lib/services/fixtures';
 import { createTestServices, preloadLazyModules } from '../../../lib/services/testing';
 import learn from '../../../messages/en/learn.json';
+import shell from '../../../messages/en/shell.json';
+import { TAXES_MODULE, YOUR_COUNTRY } from '../lib/taxes';
 import { ModuleSheet } from './module-sheet';
 
 // The second fixture as a module with a chart whose idea and caveat write `N %` with an ordinary space and with a
@@ -28,7 +33,7 @@ vi.mock('virtual:learn-modules', async (original) => {
 await preloadLazyModules([
   () =>
     import('virtual:learn-modules').then((modules) =>
-      Promise.all([modules.LEARN_BODIES['start-here']?.(), modules.LEARN_BODIES['when-the-market-drops']?.()]),
+      Promise.all(['start-here', 'when-the-market-drops', TAXES_MODULE].map((slug) => modules.LEARN_BODIES[slug]?.())),
     ),
 ]);
 
@@ -104,5 +109,105 @@ describe('ModuleSheet', () => {
     mount({ slug: 'not-a-module' as ComponentProps<typeof ModuleSheet>['slug'] });
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     expect(document.body.textContent).toBe('');
+  });
+});
+
+/** Stands for WhyLink's boundary, which shows its toast in place of the sheet. */
+class Boundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  override state = { failed: false };
+  static getDerivedStateFromError = () => ({ failed: true });
+  override render = () => (this.state.failed ? <p>The boundary</p> : this.props.children);
+}
+
+// The tax module leads with the card of the rules the plan's country runs on (docs/EDUCATION.md §4); the sheet shows
+// the card and no list of countries.
+describe('ModuleSheet: the tax module', () => {
+  type Options = Parameters<typeof createTestServices>[0];
+  const sheetAt = async (
+    country: string | null,
+    props: Partial<ComponentProps<typeof ModuleSheet>> = {},
+    options: Options = {},
+  ) => {
+    const snapshot = fixtureSnapshot();
+    const services = createTestServices({
+      snapshot:
+        country === null
+          ? { ...snapshot, plan: null, entries: [] }
+          : { ...snapshot, plan: { ...(snapshot.plan as Plan), country: country as Plan['country'] } },
+      ...options,
+    });
+    await services.start();
+    // In an awaited act, so React retries the sheet that suspended on the profile once it is in.
+    await act(async () => {
+      render(
+        <ServicesProvider services={services}>
+          <I18nProvider messages={{ learn, shell }}>
+            <Boundary>
+              <Suspense fallback={null}>
+                <ModuleSheet slug={TAXES_MODULE} open onOpenChange={vi.fn()} {...props} />
+              </Suspense>
+            </Boundary>
+          </I18nProvider>
+        </ServicesProvider>,
+      );
+    });
+  };
+
+  it("a plan in Portugal leads with Portugal's card at level 2, and no list", async () => {
+    await sheetAt('PT');
+    const dialog = await screen.findByRole('dialog');
+    const card = within(dialog).getByRole('heading', { level: 2, name: 'Portugal' });
+    expect(card.id).toBe(YOUR_COUNTRY);
+    // Above the text: the card comes before the body's first paragraph.
+    const body = within(dialog).getByText(/^A rate of 28/);
+    expect(card.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(within(dialog).queryByText('Other countries')).toBeNull();
+    expect(within(dialog).queryByText('Countries')).toBeNull();
+  });
+
+  it("with the section your-country the focus lands on the card's heading", async () => {
+    await sheetAt('PT', { section: YOUR_COUNTRY });
+    const card = await screen.findByRole('heading', { level: 2, name: 'Portugal' });
+    await waitFor(() => expect(document.activeElement).toBe(card));
+  });
+
+  it.each(['XX', 'BR'])('a plan on %s leads with the generic card, its date line the general profile', async (code) => {
+    await sheetAt(code);
+    const card = await screen.findByRole('heading', { level: 2, name: 'Other country' });
+    expect(card.id).toBe(YOUR_COUNTRY);
+    expect(card.closest('article')?.lastElementChild?.textContent).toMatch(/^Reviewed on .+: the general profile/);
+  });
+
+  it('with no plan there is no card, and the focus stays on Close', async () => {
+    await sheetAt(null, { section: YOUR_COUNTRY });
+    const dialog = await screen.findByRole('dialog');
+    await within(dialog).findByText(/^A rate of 28/);
+    expect(dialog.querySelector(`[id="${YOUR_COUNTRY}"]`)).toBeNull();
+    await waitFor(() => expect(document.activeElement).toBe(within(dialog).getByRole('button', { name: 'Close' })));
+  });
+
+  it('another module shows no card under a plan', async () => {
+    await sheetAt('PT', { slug: 'start-here' });
+    await screen.findByRole('dialog', { name: IDEA });
+    expect(screen.queryByRole('heading', { name: 'Portugal' })).toBeNull();
+  });
+
+  it("a profile that fails to load fails the sheet to the host's boundary; the text never shows alone", async () => {
+    const countries = createTestServices().countries;
+    // React reports the error the boundary caught; the test reads the boundary instead.
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    onTestFinished(() => {
+      vi.restoreAllMocks();
+    });
+    await sheetAt(
+      'PT',
+      {},
+      {
+        nowMs: Date.parse('2026-12-03T10:00:00Z'),
+        countries: { ...countries, planCard: () => Promise.reject(new Error('offline')) },
+      },
+    );
+    await screen.findByText('The boundary');
+    expect(screen.queryByText(/^A rate of 28/)).toBeNull();
   });
 });
