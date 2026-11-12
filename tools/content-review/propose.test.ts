@@ -285,7 +285,8 @@ describe('propose', () => {
 
   it('start and finish refuse, changing nothing, when gh is missing, logged out or offline, and when the fetch fails', () => {
     const { root, repo, git, write, clean } = originRepo();
-    const loggedOut = /^gh pr list: You are not logged into any GitHub hosts\..*: run gh auth login, then run it again$/;
+    const loggedOut =
+      /^gh pr list: You are not logged into any GitHub hosts\..*: run gh auth login, then run it again$/;
     const cases: [FakeGh | undefined, string | RegExp][] = [
       [undefined, 'gh pr list: gh is missing: install GitHub CLI and run gh auth login, then run it again'],
       [{ prs: [], mode: 'logged-out' }, loggedOut],
