@@ -249,6 +249,15 @@ describe('renderBody', () => {
     );
   });
 
+  it('renderBody prints a null effectiveFrom as no effective date yet', () => {
+    const draft = good();
+    const pending = draft.pending.map((p) => ({ ...p, effectiveFrom: null }));
+    const { body, problems } = renderBody({ ...draft, pending }, TEMPLATE, ALLOW);
+    expect(problems).toEqual([]);
+    expect(body).toMatch(/^- .*: .*; proposed, no effective date yet; \[/m);
+    expect(renderBody(draft, TEMPLATE, ALLOW).body).toContain(`; proposed, effective ${defuseCell('2028-01-01')}; [`);
+  });
+
   it('a change row’s link off its country’s list is refused', () => {
     const draft = good();
     const change = draft.changes[0] as Change;
@@ -315,6 +324,18 @@ describe('parseDraft', () => {
       'reviewed[0].of: expected a whole number, 0 or more',
       'pending[0].status: expected one of proposed, enacted, in-force',
     ]);
+  });
+
+  it('parseDraft accepts a null effectiveFrom and still refuses a missing one or 2027-13-01', () => {
+    const draft = JSON.parse(fixture('draft-good.json'));
+    draft.pending[0].effectiveFrom = null;
+    expect(parseDraft(JSON.stringify(draft)).problems).toEqual([]);
+    draft.pending[0].effectiveFrom = '2027-13-01';
+    expect(parseDraft(JSON.stringify(draft)).problems).toEqual([
+      'pending[0].effectiveFrom: expected a date YYYY-MM-DD',
+    ]);
+    delete draft.pending[0].effectiveFrom;
+    expect(parseDraft(JSON.stringify(draft)).problems).toEqual(['pending[0].effectiveFrom: missing']);
   });
 });
 
