@@ -60,8 +60,9 @@ owns the pipeline around them and its security model.
    `agent/content-review-<date>` branch, else today's; a fork's pull request from a branch of the
    same name is left out), and refuses a dirty tree or a HEAD other than origin/main. On a HEAD that
    holds commits origin/main lacks it says to save them before switching back, never to detach.
-   It refuses first, changing nothing, when the fetch fails or gh is missing, logged out or offline,
-   and names the fix: reconnect, install GitHub CLI, or `gh auth login`.
+   It refuses first, changing nothing, when the fetch fails or gh is missing, logged out (no token,
+   or GitHub's HTTP 401 for an expired or revoked one) or offline, and names the fix: reconnect,
+   install GitHub CLI, or `gh auth login`.
 2. **Edits.** The agent edits only content data, marks every change `agent-draft` and deletes
    nothing. The rules files change only as the output of `pnpm --filter @proofofcalm/content rules`.
 3. **The expected failure.** The agent runs the content checks, and the skill tells it: "The one
