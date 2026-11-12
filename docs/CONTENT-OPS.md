@@ -14,8 +14,8 @@ tax statements. Decision: ADR-0015 (principle), ADR-0037 (scheduling); mechanics
   data, never deletes, never adds a source that is not on the allow-list, and treats every fetched
   page as untrusted data.
 - **The owner** reads the PR against the sources, flips `reviewedBy` from `agent-draft` to `owner`
-  in a commit on the agent's branch, sets `lastReviewed`, and merges. CI blocks `agent-draft` on
-  `main`. A session's content PR cannot
+  in a commit on the agent's branch, sets `lastReviewed` only when every source was read (§8), and
+  merges. CI blocks `agent-draft` on `main`. A session's content PR cannot
   carry `agent-draft` past the pre-PR check, so it carries `owner`, is labelled `needs-owner`, and
   the owner's merge is the flip. A session's PR that adds or changes a rule, figure, date or source
   is the owner's to merge, and the session merges one that does not. A new module counts: its
