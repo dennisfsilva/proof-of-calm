@@ -1,7 +1,8 @@
 # The tax-result question: counsel's question 14
 
-Research date: **2026-11-12**. Scope: whether counsel's checklist asks of every copy change if it
-computes a tax result, and the design check of the Taxes module that decided it (issue #24). The
+Research date: **2026-11-12**. Scope: whether counsel's checklist asks of every change to copy and
+exports if it computes a tax result. The note also records the design check of the Taxes module that
+decided it (issue #24). The
 question and its breach rule live in `docs/LEGAL.md` §6, and `docs/JURISDICTIONS.md` §1 points to it;
 this file holds the evidence. Line references (`file:line`) are to main at commit fd98de32
 (2026-11-12). Short names: log-row.tsx is `packages/app/src/features/log/components/log-row.tsx`,
@@ -12,12 +13,13 @@ transactions.ts is `packages/core/src/log/transactions.ts`, country-card.tsx is
 ## 1. The gap
 
 Counsel read the French and Dutch tax-year files on 2026-11-08 (issue #8, "Counsel's perimeter
-read"). It ruled France's line 221 on outside `docs/JURISDICTIONS.md` §1: no fraction of capital, no
-net cost, no gain, no total for the year and no EUR 305 test. The EUR 305 threshold has not been
-indexed since 2019 (`docs/JURISDICTIONS.md` §7.10). Counsel also recorded an open point for the owner: `docs/LEGAL.md`
-§6 had no checklist question for "computes a tax result". The checklist is the only list counsel asks
-of every string (`.claude/agents/counsel.md`). None of its 13 questions caught a gain, a fraction, a
-threshold or tax due. The rule lived only in documents counsel does not ask about:
+read"). It ruled France's line 221 on outside `docs/JURISDICTIONS.md` §1. So the file holds no
+fraction of capital, net cost, gain, total for the year or EUR 305 test. The EUR 305 threshold has
+not been indexed since 2019 (`docs/JURISDICTIONS.md` §7.10). Counsel also recorded an open point for
+the owner: `docs/LEGAL.md` §6 had no checklist question for "computes a tax result". The checklist
+is the only list counsel asks of every string (`.claude/agents/counsel.md`). None of its 13
+questions caught a gain, a fraction, a threshold or tax due. The rule lived only in documents
+counsel does not ask about:
 
 - JURISDICTIONS.md:14-15 ("never computes a tax bill");
 - DOMAIN.md:1319-1322 (§11, "no tax computation");
@@ -43,25 +45,27 @@ merge, as all four designs and counsel hold. Three reasons:
    halves: JURISDICTIONS §1 ("never computes a tax bill"), DOMAIN §11 ("no tax computation") and the
    acknowledged "no financial or tax advice" of `docs/LEGAL.md` §4.
 2. A figure that is filed cannot be recalled by a later PR.
-3. A test or a formula run on one person's figures goes further than the holding date, which is
-   already the open StBerG § 2(2) question (`docs/BENCHMARK.md` §4: "rechtliche Prüfung des
+3. A test or a formula run on one person's figures goes further than the holding date. The holding
+   date is already the open StBerG § 2(2) question (`docs/BENCHMARK.md` §4: "rechtliche Prüfung des
    Einzelfalls").
 
 The refused kinds are the closed list, so a reviewer checks a figure against six kinds. The list of
-what stands settles the edge cases without binding every other figure of the app (the Red day, the
-plan totals, the simulator) to a list written for tax. Applying a rate, testing an allowance or
+what stands settles the edge cases. It does not bind every other figure of the app to a list written
+for tax (the Red day, the plan totals, the simulator). Applying a rate, testing an allowance or
 threshold, or computing a deemed return would also need a figure in the core's `CountryRulesSchema`.
 The schema holds none (`packages/core/src/schema/country.ts` lines 28 to 52), so a tier-2 review of
-the core sees those too. A gain or loss needs no rate: it is the proceeds less the cost share, and the
-per-lot file holds both (`docs/DOMAIN.md` §3.13). A pool's cost needs only the lot rule `pooled` and
-the entries. So question 14 is asked of exports as well as copy (`docs/LEGAL.md` §6). Not changed: `.claude/agents/counsel.md` reads §6 by number; the StBerG row of BENCHMARK §4 stays
+the core sees those too. A gain or loss needs no rate: it is the proceeds less the cost share, and
+the per-lot file holds both (`docs/DOMAIN.md` §3.13). A pool's cost needs only the lot rule `pooled`
+and the entries. So question 14 is asked of exports as well as copy (`docs/LEGAL.md` §6).
+
+Not changed: `.claude/agents/counsel.md` reads §6 by number; the StBerG row of BENCHMARK §4 stays
 open; no ADR is written, since LEGAL owns the question.
 
 ## 4. Where the wording comes from
 
 The planner's wording was replaced. Its closed "Only these may stand" list refused Portfolio's P/L
-(netted), invested, average cost and live value, and the generic profile's FIFO cost shares, all of
-which its own coverage table passed (the audit's row 6). It had no clause for a sentence that only
+(netted), invested, average cost and live value. It also refused the generic profile's FIFO cost
+shares. Its own coverage table passed all of these (the audit's row 6). It had no clause for a sentence that only
 claims a computation (counsel). The final text takes:
 
 - blind 2's definition of a tax result (the six kinds) and its claim clause ("or say that Proof of
@@ -101,10 +105,10 @@ Refused if anyone builds them:
 
 ## 7. The design check (2026-11-12)
 
-Method: the planner's plan, three blind designers who had not seen it, a judge who walked people
-along the app's defaults, a judge who audited every stated reason in the code and the documents, and
-counsel; a reconciler checked every disputed claim at the line cited. The reports, posted on #24 the
-same day:
+Method: the planner's plan, three blind designers who had not seen it, two judges and counsel. One
+judge walked people along the app's defaults. The other audited every stated reason in the code and
+the documents. A reconciler checked every disputed claim at the line cited. The reports, posted on
+#24 the same day:
 
 - the planner's plan: https://github.com/dennisfsilva/proof-of-calm/issues/24#issuecomment-6837057923
 - the blind designs: https://github.com/dennisfsilva/proof-of-calm/issues/24#issuecomment-6838994490
@@ -113,15 +117,15 @@ same day:
 
 | Decision | Verdict | The deciding reason |
 |---|---|---|
-| D1 · question 14 in LEGAL §6, a perimeter breach | changed (the wording; the decision stands) | The planner's closed list of what may stand refused Portfolio's figures and the generic profile's FIFO shares, which its own table passed, and had no clause for a claim; the refused kinds became the closed list (§3, §4). |
-| D2 · what the Taxes module says the app computes | changed | Five of the planner's sentences claimed more than the code does: the module now says the app cannot check the rule's other conditions, calls the tax-year file "figures from your entries for one tax year", says the cards and the file keep the country's rule under a period of the person's own, lists what is not computed in one sentence with a corrected P/L sentence, and says a plan "follows the general profile's rule". |
-| D3 · the no-break hyphen between a numeral and its unit | changed (the scope) | The rule and the `number-unit-hyphen` check of `pnpm validate:content` cover the profile text a screen shows now: a typographic profile change keeps the version and the review dates, CONTENT-OPS §1 reserves to the owner only a rule, figure, date or source, and deferring would put an ordinary hyphen on the module's own lead card (pt.json:81). |
-| D4 · the review line | kept | A module is overdue from the day after its `nextReviewDue`, as `underReview` counts (`packages/core/src/reminders/reminders.ts` lines 58 to 63); all four designs agree. |
-| D5 · the lead card and the list | kept, contract made exact | The plan's country card leads (the generic card on the generic profile or a country with no profile, none without a plan), because a body without its card reads as "no rules here"; the planner's matrix entry had no phase, so it seeded no plan. |
-| D6 · the module's percentages | kept, mechanism corrected | The card prints the profile's percentages with the locale's joiner, so the body takes the page's joiner too; the planner's mechanism failed, since `moduleElements` returns the plain elements for every module without a chart. |
-| D7 · the facts, the front matter and the delegated read | changed | Five facts, `k.ie-2026` out (its rate rests on a second source and lapses with the bill), each value trimmed to what the module quotes; `nextReviewDue` is 2027-01-01, the next quarterly full review, since a later date would show the page as fresher than the cards it leads. |
-| D8 · the Log's Why? | changed (the placement) | The Why? stands right after the date as a standalone link with the 44 px target: DESIGN §6 exempts it from the target only inside a sentence, and the holding line is a status line, not the sentence of the planner's precedent. |
-| D9 · the reading time | kept | It counts the module's own text (ADR-0048, CONTENT-STYLE §5); counting the card needs per-profile counts from `packages/content`, the screens reading the plan and an ADR-0048 deviation, so it goes to the owner as a carry-over (a 385-word body reads 2 min; Portugal's card adds about 1,070 words). |
+| D1 · question 14 in LEGAL §6, a perimeter breach | changed (the wording; the decision stands) | The planner's closed list of what may stand refused Portfolio's figures and the generic profile's FIFO shares. Its own table passed them. It had no clause for a claim. The refused kinds became the closed list (§3, §4). |
+| D2 · what the Taxes module says the app computes | changed | Five of the planner's sentences claimed more than the code does. The module now says the app cannot check the rule's other conditions. It calls the tax-year file "figures from your entries for one tax year". It says the cards and the file keep the country's rule under a period of the person's own. It lists what is not computed in one sentence, with a corrected P/L sentence. It says a plan "follows the general profile's rule". |
+| D3 · the no-break hyphen between a numeral and its unit | changed (the scope) | The rule and the `number-unit-hyphen` check of `pnpm validate:content` cover the profile text a screen shows now. A typographic profile change keeps the version and the review dates. CONTENT-OPS §1 reserves to the owner only a rule, figure, date or source. Deferring would put an ordinary hyphen on the module's own lead card (pt.json:81). |
+| D4 · the review line | kept | A module is overdue from the day after its `nextReviewDue`, as `underReview` counts (`packages/core/src/reminders/reminders.ts` lines 58 to 63). All four designs agree. |
+| D5 · the lead card and the list | kept, contract made exact | The plan's country card leads, because a body without its card reads as "no rules here". The generic profile and a country with no profile get the generic card; no plan gets none. The planner's matrix entry had no phase, so it seeded no plan. |
+| D6 · the module's percentages | kept, mechanism corrected | The card prints the profile's percentages with the locale's joiner, so the body takes the page's joiner too. The planner's mechanism failed: `moduleElements` returns the plain elements for every module without a chart. |
+| D7 · the facts, the front matter and the delegated read | changed | Five facts, each value trimmed to what the module quotes. `k.ie-2026` is out: its rate rests on a second source and lapses with the bill. `nextReviewDue` is 2027-01-01, the next quarterly full review. A later date would show the page as fresher than the cards it leads. |
+| D8 · the Log's Why? | changed (the placement) | The Why? stands right after the date as a standalone link with the 44 px target. DESIGN §6 exempts it from the target only inside a sentence. The holding line is a status line, not the sentence of the planner's precedent. |
+| D9 · the reading time | kept | It counts the module's own text (ADR-0048, CONTENT-STYLE §5). Counting the card needs per-profile counts from `packages/content`, the screens reading the plan and an ADR-0048 deviation. So it goes to the owner as a carry-over. A 385-word body reads 2 min; Portugal's card adds about 1,070 words. |
 
 ## 8. False reasons
 
@@ -129,40 +133,41 @@ The reasons the check found false or partly false, with the line that shows it:
 
 1. Passing the page's joiner to the Taxes view joins its body (false): `moduleElements` returns the
    plain elements for any module without a chart (body-elements.tsx:85-86).
-2. The body writes `N %` with an ordinary space, as Cycles does (false): every shipped module writes
+2. The body writes `N %` with an ordinary space, as Cycles does (false). Every shipped module writes
    a no-break space (Cycles 5, Noise 9, Risk honestly 6, When the market drops 10).
-3. The module branch's matrix entry, a PT plan with no phase and a pattern of `Portugal` (false): an
-   entry without a phase seeds no plan (matrix.spec.ts:189-193, :236), and the pattern matches
-   several elements in strict mode.
+3. The module branch's matrix entry, a PT plan with no phase and a pattern of `Portugal` (false). An
+   entry without a phase seeds no plan (matrix.spec.ts:189-193, :236). The pattern matches several
+   elements in strict mode.
 4. "The £12,300 figure is suspect" (false): HMRC's page (updated 13 Apr 2026) lists £12,300 for 2022
    to 2023.
 5. "#124 fixed one place and three were left" (false): #124 fixed two messages; four places were
    left, plus `pooledListed` and five profile strings.
-6. Plan's inline parts line as the precedent for the Log's Why? (false): that Why? follows a
-   sentence; the Log's date is a status line, which DESIGN §6 gives the 44 px target.
-7. The closed "Only these may stand" list lets every shipped item pass (partly false): it refuses
-   Portfolio's P/L, invested, average cost and live value, and the generic profile's FIFO shares.
+6. Plan's inline parts line as the precedent for the Log's Why? (false). That Why? follows a
+   sentence. The Log's date is a status line, which DESIGN §6 gives the 44 px target.
+7. The closed "Only these may stand" list lets every shipped item pass (partly false). It refuses
+   Portfolio's P/L, invested, average cost and live value. It refuses the generic profile's FIFO
+   shares.
 8. Profile hyphens wait because profile text is the owner's review and fields are copied into files
-   (partly false): CONTENT-OPS §1 reserves a rule, figure, date or source; only `lotRuleNote`
-   reaches a file; pt.json:81 is on the module's lead card.
-9. `nextReviewDue` is the read day plus 12 months (partly false): no reason was given; the research
+   (partly false). CONTENT-OPS §1 reserves a rule, figure, date or source. Only `lotRuleNote`
+   reaches a file. pt.json:81 is on the module's lead card.
+9. `nextReviewDue` is the read day plus 12 months (partly false). No reason was given. The research
    sets 3 months for this module, and the next full review is 2027-01-01.
-10. "Both k.de and k.ie cite PDFs" (partly false): k.ie is not among the five; k.de is the only PDF,
+10. "Both k.de and k.ie cite PDFs" (partly false). k.ie is not among the five. k.de is the only PDF,
     and its "from tax year 2024" is rated medium.
-11. "No fact supports 'rules change yearly'" (partly false): the facts hold a change in each year
-    from 2023 to 2026, 2025 only by k.it's threshold clause; the line still reads as a forecast.
+11. "No fact supports 'rules change yearly'" (partly false). The facts hold a change in each year
+    from 2023 to 2026, 2025 only by k.it's threshold clause. The line still reads as a forecast.
 12. The tax-year file is "one tax year of your entries, in the layout your plan's country profile
-    sets" (partly false): the files list earlier entries, France's has no purchase rows, and no file
+    sets" (partly false). The files list earlier entries, and France's has no purchase rows. No file
     has a form's layout.
 13. The module test's "every figure is in its fact's value" beside a no-break `365-day` (partly
-    false): k.pt-2023 writes an ordinary hyphen, so the test must read both hyphens as one character.
+    false). k.pt-2023 writes an ordinary hyphen, so the test must read both hyphens as one character.
 14. The hyphen branch's file list and its exemption key (partly false): it misses
     red-day-banner.spec.ts:75, and the key is `data.taxYear.file.*` in the settings feature's
     messages.
-15. The planner's citations (partly false): the timeline label is CONTENT-STYLE.md:120, not :117;
-    the P/L formula is DOMAIN.md:381-383, not CONTENT-STYLE:147; "#290" is archive#290.
-16. Counting the card costs a change to learn-plugin.ts (partly false): the plugin stays below
-    `packages/content` (its line 12) and cannot read the profiles; the count needs
+15. The planner's citations (partly false). The timeline label is CONTENT-STYLE.md:120, not :117.
+    The P/L formula is DOMAIN.md:381-383, not CONTENT-STYLE:147. "#290" is archive#290.
+16. Counting the card costs a change to learn-plugin.ts (partly false). The plugin stays below
+    `packages/content` (its line 12) and cannot read the profiles. The count needs
     `packages/content`, the screens reading the plan and an ADR-0048 deviation.
 17. `filingNote` is text a downloaded file copies (false): no app code reads it; only the schema and
     validate.ts:118 name it.
