@@ -157,16 +157,19 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   above tier 0 since (`.claude/rules/skills.md`), because a skill steers an agent with pre-approved
   tools under the owner's identity, and this one's text merged at tier 0 with no review agent before
   its rehearsal found those ten gaps. Each later rehearsal found new edge cases in the wording (ten
-  in #141's, nine in #144's, none of them in the security model), so a rehearsal proves the wiring and the
+  in #141's, nine in #144's, eight in #150's (#152), none of them in the security model), so a rehearsal proves the wiring and the
   security model, and the owner's first real run is the gate for the remaining wording.
 - When review rounds keep finding one more state of the same mechanism, stop and run an unanchored
   design check before the next round. Six review rounds of the content review's resume each found
-  one more state; two blind designers found the root cause in #144: every review of a day shares
-  one branch name, so finish guessed which pull request belonged to which review.
+  one more state; two blind designers found the root cause in #144: every review of a day shared
+  one branch name, so finish guessed which pull request belonged to which review. Since #151
+  (2026-11-12), each review takes its own name.
 - A test harness that copies an executable on Windows pays the antivirus scan of the copy on its
   first run. #147's fake gh, a copy of node.exe, took 27.6 s of a 30 s timeout cold in a fresh
   worktree and 1.7 to 7.9 s warm, while Linux CI never saw it: keep such a test's first run well
-  under its timeout and run it once cold before reporting.
+  under its timeout and run it once cold before reporting. #151 keeps one copy per node version in
+  the temp folder and warms it in `beforeAll`, since a link to node.exe in Program Files fails with
+  EPERM: 6.7 s cold and 6.1 s warm.
 - A guard that limits what an agent's branch may change is checked against every required check that
   branch must pass. Session 18b's content review guard refused the baseline deletion that the
   required e2e-visual check needs after any change to text a screen shows; the integration read found
@@ -175,7 +178,8 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   merge, never the patch. In #136, `git cherry` called a rebase-merged review unmerged whenever main
   had changed a line within 3 lines of the review's edit before the merge, because a patch-id
   includes its context lines. That was the fourth review round of the branch
-  fix/review-finish-resume, which waits for a check by `git merge-tree` or by the PR's state.
+  fix/review-finish-resume. #151 (2026-11-12) replaced that branch: finish now reads the PR's record
+  first (`decide` in `tools/content-review/resume.ts`).
 - A fix for a wiring bug is proven by a test that goes through the wiring: reverting the fixed line
   must fail a test. In #136, the rows branch's fix for a Learn module's review dates was tested only
   on the pure function it calls. Reverting the wiring line (the module branch of `changedLeaves` in
@@ -187,6 +191,9 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   18e's `Bash(node tools/content-review/pdf.ts *)` was refused, so pdf.ts asks the owner on each
   run. Design a skill to work without a new pre-approval, and list any rule still wanted for the
   owner.
+- A design check's reports go into the session issue or a dated research note on the day they are
+  written. Session 18f's two blind designers' tables lived only in that session's transcripts, and
+  18g recovered them from there for `docs/research/review-resume.md` (#150).
 
 ## Known gaps
 
