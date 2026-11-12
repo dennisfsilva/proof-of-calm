@@ -21,7 +21,8 @@ export type ModuleViewProps = {
  * One Learn module (ADR-0048, docs/CONTENT-STYLE.md §5): the title, the review line under it, the reading time,
  * the caveat in its box and the body. No page chrome: the route around it holds that, and so does the "Why?" sheet.
  * The review dates passed the front matter's schema at build, so they are calendar dates. From the day after
- * `nextReviewDue` the line says the review is overdue, and the tax module adds why that matters on a line of its own.
+ * `nextReviewDue` the line says the review is overdue, and the tax module adds why that matters on a line of its own,
+ * naming the same last-reviewed date, since the country card below it carries a date of its own.
  * A module that shows figures the app formats writes its `N %` with the page's joiner (`moduleJoiner`,
  * docs/CONTENT-STYLE.md §4), and a module's `<Chart />` draws its chart.
  */
@@ -31,6 +32,7 @@ export function ModuleView({ module, Body, heading, lead }: ModuleViewProps) {
   const { chart } = module;
   const joiner = moduleJoiner(module, f);
   const state = reviewLine(module, useToday());
+  const reviewed = f.date(module.lastReviewed as CalendarDate);
   const components = useMemo(
     () => ({ ...moduleElements(joiner), Chart: () => <ModuleChart chart={chart} /> }),
     [chart, joiner],
@@ -41,14 +43,14 @@ export function ModuleView({ module, Body, heading, lead }: ModuleViewProps) {
         {heading ?? <h1 className="text-28">{withJoiner(module.title, joiner)}</h1>}
         <p className="text-13 text-ink-2">
           {t.rich('module.lastReviewed', {
-            date: f.date(module.lastReviewed as CalendarDate),
+            date: reviewed,
             due: f.date(module.nextReviewDue as CalendarDate),
             state,
             ink: (text) => <span className="text-ink">{text}</span>,
           })}
         </p>
         {state === 'overdue' && module.slug === TAXES_MODULE && (
-          <p className="text-13 text-ink">{t('module.taxOverdue')}</p>
+          <p className="text-13 text-ink">{t('module.taxOverdue', { date: reviewed })}</p>
         )}
         <p className="text-13 text-ink-2">{t('index.readingTime', { minutes: module.readingMinutes })}</p>
       </header>

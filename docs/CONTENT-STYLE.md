@@ -247,9 +247,10 @@ the reading time counts the module's own text, not the country card that leads t
 `Last reviewed <date>` under the title, which the tax module extends to `Last reviewed <date> · Next
 review due <date>`. From the day after `nextReviewDue` a module is past due: its line reads `Last
 reviewed <date> · review overdue`, with `review overdue` in ink, on the route and in the sheet, and
-the tax module adds `Rules may have changed since this date. Check your tax authority before
-filing.` on its own line (the build fails when a module is more than 18 months old). Every statistic cites a fact
-key from `packages/content/facts` with a date. The structure and the seven modules: `docs/EDUCATION.md`.
+the tax module adds `Rules may have changed since <date>. Check your tax authority before
+filing.` on its own line, `<date>` the module's last-reviewed date as the line above formats it,
+since the country card below carries a date of its own (the build fails when a module is more than
+18 months old). Every statistic cites a fact key from `packages/content/facts` with a date. The structure and the seven modules: `docs/EDUCATION.md`.
 
 Phrasing of history: always a window with its dates and source ("every four-year monthly plan in
 our data, 118 start months from January 2013 to October 2022, Bitstamp prices, no fees, ended above
