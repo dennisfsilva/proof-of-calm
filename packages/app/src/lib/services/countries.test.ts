@@ -142,3 +142,31 @@ describe('createCountries', () => {
     expect(load.calls).toEqual(['ZZ', 'aa']);
   });
 });
+
+// The card that leads Taxes where you live: the rules the plan runs on, so the generic profile's for a plan on XX
+// and for a country with no profile file, which runs on XX (`browser.ts`); the library's `card` keeps refusing XX.
+describe('planCard', () => {
+  const shipped: ProfileLoaders = {
+    all: async () => PROFILES,
+    one: async (code) => PROFILES.find((candidate) => candidate.code === code) ?? null,
+  };
+  const countriesOver = (load: ProfileLoaders) =>
+    createCountries(load, systemClock('Europe/Lisbon', () => Date.UTC(2026, 9, 20, 10)));
+
+  it("answers the plan's country's card", async () => {
+    expect(await countriesOver(shipped).planCard('PT')).toEqual(countryCardModel(PORTUGAL, TODAY));
+  });
+
+  it.each([GENERIC_COUNTRY, 'BR'])('%s: the generic profile, with no source linked', async (code) => {
+    const model = await countriesOver(shipped).planCard(code);
+    expect(model).toEqual(countryCardModel(GENERIC, TODAY));
+    expect(model.generic).toBe(true);
+    expect(Object.values(model.ruleSources)).toEqual(RULES.map(() => null));
+  });
+
+  it('rejects when a load fails, and the library still answers null for XX', async () => {
+    const failing: ProfileLoaders = { ...shipped, one: () => Promise.reject(new Error('offline')) };
+    await expect(countriesOver(failing).planCard('PT')).rejects.toThrow('offline');
+    expect(await countriesOver(shipped).card(GENERIC_COUNTRY)).toBeNull();
+  });
+});
