@@ -18,6 +18,8 @@
       "**/apps/web/messages/**",
       "**/packages/content/**",
       "**/apps/web/src/site/**",
+      "**/packages/core/src/export/**",
+      "**/packages/app/src/features/settings/tax-year*",
       "docs/LEGAL.md",
       "docs/CONTENT-STYLE.md",
       "docs/JURISDICTIONS.md",
