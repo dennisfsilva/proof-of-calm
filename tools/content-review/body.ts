@@ -37,7 +37,8 @@ export type ReviewDraft = {
   pending: {
     item: string;
     what: string;
-    effectiveFrom: string;
+    /** null when the source gives no effective date yet, as `pendingChanges[].effectiveFrom` allows. */
+    effectiveFrom: string | null;
     status: 'proposed' | 'enacted' | 'in-force';
     url: string;
   }[];
@@ -47,7 +48,15 @@ export type ReviewDraft = {
 };
 
 /** A field's shape: a kind, an enum, a list of a shape, or an object of shapes (`?` marks optional). */
-type Shape = 'string' | 'date' | 'boolean' | 'count' | readonly string[] | { list: Shape } | { [field: string]: Shape };
+type Shape =
+  | 'string'
+  | 'date'
+  | 'date|null'
+  | 'boolean'
+  | 'count'
+  | readonly string[]
+  | { list: Shape }
+  | { [field: string]: Shape };
 const LIST = (of: Shape) => ({ list: of });
 const CHANGE: Shape = {
   item: 'string',
@@ -79,7 +88,7 @@ const DRAFT: Shape = {
   pending: LIST({
     item: 'string',
     what: 'string',
-    effectiveFrom: 'date',
+    effectiveFrom: 'date|null',
     status: ['proposed', 'enacted', 'in-force'],
     url: 'string',
   }),
@@ -97,7 +106,9 @@ const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'obj
 
 function check(value: unknown, shape: Shape, path: string, problems: string[]): void {
   const at = path || '(root)';
-  if (shape === 'string' || shape === 'date') {
+  if (shape === 'date|null') {
+    if (value !== null) check(value, 'date', path, problems);
+  } else if (shape === 'string' || shape === 'date') {
     if (typeof value !== 'string')
       problems.push(`${at}: expected a ${shape === 'date' ? 'date YYYY-MM-DD' : 'string'}`);
     else if (shape === 'date' && !isDate(value)) problems.push(`${at}: expected a date YYYY-MM-DD`);
@@ -247,7 +258,7 @@ const FILLS: Record<string, Fill | null> = {
     list(
       d.pending.map(
         (p, i) =>
-          `${defuseCell(p.item)}: ${defuseCell(p.what)}; ${p.status}, effective ${defuseCell(p.effectiveFrom)}; ${link(p.url, `pending[${i}].url`, p.item)}`,
+          `${defuseCell(p.item)}: ${defuseCell(p.what)}; ${p.status}, ${p.effectiveFrom === null ? 'no effective date yet' : `effective ${defuseCell(p.effectiveFrom)}`}; ${link(p.url, `pending[${i}].url`, p.item)}`,
       ),
     ),
   'Review queue': (d) => list(d.queue.map((q) => `${defuseCell(q.item)}: ${q.outcome}. ${defuseCell(q.note)}`)),
