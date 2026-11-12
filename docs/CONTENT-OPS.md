@@ -110,10 +110,12 @@ what the agent reads.
 Until the owner's first run, only the tests, which run it against a local origin and a fake gh,
 cover the finish's non-dry path. The `finish-dry` job of `.github/workflows/content-review.yml` runs the dry path on fixtures. A second
 run on the same day fails, at the branch switch or at the push, because today's branch,
-`agent/content-review-<date>`, exists. Delete today's branch, local and remote, only once its PR
-exists or when it holds nothing you need: after a pushed finish whose PR did not open, it holds the
-only copy of the review's edits. Then open the PR by hand from the pushed branch, labelled
-`needs-owner` and `content-review`, with the body the finish wrote to .content-review/body.md.
+`agent/content-review-<date>`, exists. Deleting the head branch of an open pull request closes that
+pull request, so a second review on the same day waits until the first one's PR, which start
+prints, is merged, or closed with nothing in it you need; only then delete today's branch, local and
+remote. A finish whose PR did not open leaves the branch holding the only copy of the review's
+edits: push it if the push failed, then open the PR by hand from it, labelled `needs-owner` and
+`content-review`, with the body the finish wrote to .content-review/body.md.
 
 Trust layers. The agent runs under the owner's identity, so the layers make an injected instruction
 visible rather than impossible:
