@@ -549,7 +549,7 @@ owner's review run of Ireland:
 
 Also watched: Germany's 2027 tariff values and Soli thresholds; the Dutch 2027 bank-deposit and debt percentages; the EU's first DAC8 exchange by 2027-09-30.
 
-Verification queue for the owner's review run (gaps left by the research budget): read the BMF Referentenentwurf PDF directly (the BMF site returned an error on 2026-10-16 and 2026-10-17) when its host is on the sources allow-list, outside the draft's `of`; the draft's `queue` row names the passage and the `packages/content/jurisdictions/de.json` sources entry, with the day it was read, for the owner to add (until then the profile cites the secondary sources that carry its content; the BMF-Schreiben of 2025-03-06 is in those sources since #325, read on 2026-11-04 for Rz. 62 and 63); read Lei n.º 73-A/2025 (OE2026) and cite it in place of the press report; confirm the Dutch verzuimboete amount for 2026; confirm the Portuguese RGIT fine ranges; confirm the Renta 2026 campaign dates when the AEAT publishes them; cite Council Directive (EU) 2023/2226 (DAC8) from EUR-Lex.
+Verification queue for the owner's review run (gaps left by the research budget): read the BMF Referentenentwurf PDF directly (the BMF site returned an error on 2026-10-16 and 2026-10-17) when its host is on the sources allow-list, outside the draft's `of`; the draft's `queue` row names the passage and the `packages/content/jurisdictions/de.json` sources entry, with the day it was read, for the owner to add (until then the profile cites the secondary sources that carry its content; the BMF-Schreiben of 2025-03-06 is in those sources since #325, read on 2026-11-04 for Rz. 62 and 63); read Lei n.º 73-A/2025 (OE2026); the draft's `queue` row names the passage and the `packages/content/jurisdictions/pt.json` sources entry that replaces the press report, with the day it was read, for the owner to add; confirm the Dutch verzuimboete amount for 2026; confirm the Portuguese RGIT fine ranges; confirm the Renta 2026 campaign dates when the AEAT publishes them; read Council Directive (EU) 2023/2226 (DAC8) on EUR-Lex; the draft's `queue` row names the passage and each profile's sources entry, with the day it was read, for the owner to add.
 
 Queue from the owner's delegated reads of France's and the Netherlands' profiles (2026-11-05,
 `docs/content-review-log.md`), carried over in dennisfsilva/proof-of-calm-archive#269; each item names
@@ -560,9 +560,11 @@ the source that reported it:
    the row drops them.
 2. France, the filing note's "opens in April": the profile cites no page for the month. The impots.gouv.fr
    calendrier fiscal (https://www.impots.gouv.fr/particulier/calendrier-fiscal) holds one year's opening
-   (14 April 2026, §7.10 Identity); cite it when the spring calendar is up.
-3. Netherlands, the Belastingplan 2027 figures: they rest on Deloitte (2026-09-17, medium). A primary
-   Kamerstuk on officielebekendmakingen.nl replaces it.
+   (14 April 2026, §7.10 Identity). When the spring calendar is up, the draft's `queue` row names the
+   page and the `packages/content/jurisdictions/fr.json` sources entry, for the owner to add.
+3. Netherlands, the Belastingplan 2027 figures: they rest on Deloitte (2026-09-17, medium). The
+   draft's `queue` row names a primary Kamerstuk on officielebekendmakingen.nl and the
+   `packages/content/jurisdictions/nl.json` sources entry that replaces Deloitte, for the owner to add.
 4. Netherlands, gifts and inheritance: the note gives no exemption figure. The Belastingdienst's 2026
    schenk- and erfbelasting pages hold them, for the owner to add or leave out.
 5. Portugal, the citation forms (named in the review plan of 2026-11-11): the profile writes "Anexo G
