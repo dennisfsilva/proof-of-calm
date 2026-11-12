@@ -40,6 +40,11 @@ export type Countries = {
   list(): Promise<CountryEntry[]>;
   /** One library country's card by its upper-case code; null for any other code, the generic one's too. */
   card(code: string): Promise<CountryCardModel | null>;
+  /**
+   * The card of the rules a plan in `code` runs on, which leads Taxes where you live (docs/EDUCATION.md §4): the
+   * country's, or the generic profile's for `XX` and for a code with no profile file; it rejects when a load fails.
+   */
+  planCard(code: string): Promise<CountryCardModel>;
 };
 
 /** The profile loaders of packages/content, or the profiles in memory: `one` answers null for a code with no file. */
@@ -94,6 +99,11 @@ export function createCountries(load: ProfileLoaders, clock: Clock): Countries {
     card: async (code) => {
       const profile = code === GENERIC_COUNTRY ? null : await load.one(code);
       return profile === null ? null : countryCardModel(profile, clock.today());
+    },
+    planCard: async (code) => {
+      const profile = (await load.one(code)) ?? (await load.one(GENERIC_COUNTRY));
+      if (profile === null) throw new Error('The generic profile has no file.');
+      return countryCardModel(profile, clock.today());
     },
   };
 }
