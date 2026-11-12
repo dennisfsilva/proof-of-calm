@@ -56,13 +56,15 @@ arguments. The skill `.claude/skills/review-content/SKILL.md` owns the agent's s
 owns the pipeline around them and its security model.
 
 1. **Start.** `node tools/content-review/propose.ts start` fetches origin/main and the agent/
-   branches with `--prune`, prints the pull requests gh lists for the review's branch (HEAD's
-   `agent/content-review-<date>` branch, else today's; a fork's pull request from a branch of the
-   same name is left out), and refuses a dirty tree or a HEAD other than origin/main. On a HEAD that
-   holds commits origin/main lacks it says to save them before switching back, never to detach.
-   It refuses first, changing nothing, when the fetch fails or gh is missing, logged out (no token,
-   or GitHub's HTTP 401 for an expired or revoked one) or offline, and names the fix: reconnect,
-   install GitHub CLI, or `gh auth login`.
+   branches with `--prune` and refuses a dirty tree or a HEAD other than origin/main; a dirty tree
+   beside a draft (.content-review/draft.json) is a review whose finish has not gone through, and it
+   says to run finish again. At a clean origin/main it names the review's branch: the day's first
+   free name of nine (below). On a review branch it prints that branch's pull requests (a fork's pull
+   request from a branch of the same name is left out) and what finish would decide there, and
+   refuses. On a HEAD that holds commits origin/main lacks it says to save them before switching
+   back, never to detach. It refuses first, changing nothing, when the fetch fails or gh is missing,
+   logged out (no token, or GitHub's HTTP 401 for an expired or revoked one) or offline, and names
+   the fix: reconnect, install GitHub CLI, or `gh auth login`.
 2. **Edits.** The agent edits only content data, marks every change `agent-draft` and deletes
    nothing. The rules files change only as the output of `pnpm --filter @proofofcalm/content rules`.
 3. **The expected failure.** The agent runs the content checks, and the skill tells it: "The one
@@ -90,11 +92,14 @@ owns the pipeline around them and its security model.
    change, a changed module with no row, a changed file (a module too) with no `reviewed` row,
    and any change to `lastReviewed` or `nextReviewDue` (in a module, any changed line naming either)
    are refused; the generated `rules/*.json` are skipped. A refusal leaves the index as it found
-   it. Without `--dry` it first refuses, changing nothing, a HEAD other than origin/main, then a
-   failed fetch of the agent/ branches or a gh that is missing, logged out or offline (it reads
-   today's pull-request record, as start does). When nothing is refused, it
-   renders the body, commits on `agent/content-review-<date>`, pushes, and opens the PR labelled
-   `needs-owner` and `content-review`. It never merges.
+   it. Without `--dry` at origin/main it first refuses, changing nothing, a HEAD other than
+   origin/main, then a failed fetch of the agent/ branches or a gh that is missing, logged out or
+   offline, and takes the day's first free name. When nothing is refused, it renders the body,
+   commits on that name, pushes it with a plain push that only creates the branch, and opens the PR
+   labelled `needs-owner` and `content-review`. On a review branch it reads the branch's
+   pull-request record first and resumes only a part-way failure (below). A failed step prints
+   `<step>: <git's or gh's first line>: run finish again` and exits 1. It never merges and never
+   forces a push.
 6. **Dry mode.** On `dry`, `node tools/content-review/propose.ts finish --dry` writes the body to
    .content-review/body.md and commits, pushes and opens nothing.
 
@@ -108,14 +113,28 @@ keeps the session's own permission settings, so each new domain's first WebFetch
 what the agent reads.
 
 Until the owner's first run, only the tests, which run it against a local origin and a fake gh,
-cover the finish's non-dry path. The `finish-dry` job of `.github/workflows/content-review.yml` runs the dry path on fixtures. A second
-run on the same day fails, at the branch switch or at the push, because today's branch,
-`agent/content-review-<date>`, exists. Deleting the head branch of an open pull request closes that
-pull request, so a second review on the same day waits until the first one's PR, which start
-prints, is merged, or closed with nothing in it you need; only then delete today's branch, local and
-remote. A finish whose PR did not open leaves the branch holding the only copy of the review's
-edits: push it if the push failed, then open the PR by hand from it, labelled `needs-owner` and
-`content-review`, with the body the finish wrote to .content-review/body.md.
+cover the finish's non-dry path. The `finish-dry` job of `.github/workflows/content-review.yml` runs the dry path on fixtures.
+
+A day has nine names: `agent/content-review-<date>`, then the same with `-2` to `-9`. A review
+takes the first with no local branch, no origin branch and no pull request, so a second review on
+the same day takes `-2` and never touches the first one's branch or PR; with all nine taken, start
+and finish refuse. On a review branch the pull-request record decides before anything else
+(`decide` in `tools/content-review/resume.ts`; the states and the evidence:
+`docs/research/review-resume.md`):
+
+- An open PR is the review's proposal. With a clean tree and HEAD at or behind its remote branch
+  (the owner's flip commits included), finish prints its URL, adds `needs-owner` if it is missing,
+  and exits 0; otherwise it prints the URL and the facts and exits 1. It commits and pushes nothing.
+- A merged or closed PR is done: finish refuses and never pushes that branch again.
+- With no PR, finish resumes only a part-way failure: edits not committed (commit, push, PR), one
+  commit not pushed (push, PR), or one commit pushed (the PR). Every other state is refused with
+  the facts.
+
+The only advice it gives is `git switch --detach origin/main` (to start another review, on a clean
+tree) and `run finish again`; no line names a reset, a deletion, a force push or a close. A force
+push is never the answer: when today's PR is open and the local branch is gone, a push from a new
+branch of the same name is rejected as non-fast-forward, and forcing it would replace the live
+PR's head and the owner's flip commits.
 
 Trust layers. The agent runs under the owner's identity, so the layers make an injected instruction
 visible rather than impossible:
