@@ -55,7 +55,7 @@ describe('readExchangeFile on a Kraken ledger (golden)', () => {
 
   // "A row with an unreadable required cell leaves its refid's rows out whole, named by line and column."
   it.each([
-    ['txid', '"","RSYN1","2025-12-01 09:00:00","trade","BTC","1","0"', 'txid'],
+    ['txid', '"LSYNé","RSYN1","2025-12-01 09:00:00","trade","BTC","1","0"', 'txid'],
     ['time', '"LSYN1","RSYN1","yesterday","trade","BTC","1","0"', 'time'],
     ['type', '"LSYN1","RSYN1","2025-12-01 09:00:00","","BTC","1","0"', 'type'],
     ['asset', '"LSYN1","RSYN1","2025-12-01 09:00:00","trade","btc","1","0"', 'asset'],
@@ -79,6 +79,46 @@ describe('readExchangeFile on a Kraken ledger (golden)', () => {
     expect(result.ok && result.value.leftOut).toEqual([
       { reason: 'unreadable', lines: [2], at: null, coin: null, units: null, column: 'refid' },
     ]);
+  });
+
+  // "A row with an empty txid is a transaction Kraken did not complete (K8): it is dropped, counts in rows and in
+  // first and last like an identical repeat, and leaves the other rows of its refid as they are."
+  describe('a row with an empty txid', () => {
+    const header = '"txid","refid","time","type","subtype","asset","amount","fee"';
+    const failed = (refid: string, type: string, asset: string, amount: string) =>
+      `"","${refid}","2025-12-01 09:00:00","${type}","","${asset}","${amount}","0"`;
+    const done = (txid: string, refid: string, type: string, asset: string, amount: string) =>
+      `"${txid}","${refid}","2025-12-01 09:01:00","${type}","","${asset}","${amount}","0"`;
+
+    it.each([
+      ['deposit', 'ZEUR', '100.00', 'cash', 'EUR', '100'],
+      ['withdrawal', 'XXBT', '-0.0010', 'coin-withdrawal', 'BTC', '0.001'],
+    ])('drops the failed %s and leaves the completed row of its refid', (type, asset, amount, reason, coin, units) => {
+      const text = [header, failed('DSYN1', type, asset, amount), done('LSYN1', 'DSYN1', type, asset, amount)];
+      const result = readExchangeFile(text.join('\n'));
+      expect(result.ok && result.value).toEqual({
+        exchange: 'kraken',
+        rows: 2,
+        first: '2025-12-01T09:00:00Z',
+        last: '2025-12-01T09:01:00Z',
+        movements: [],
+        leftOut: [{ reason, lines: [3], at: '2025-12-01T09:01:00Z', coin, units, column: null }],
+      });
+    });
+
+    it('still pairs the trade of its refid into a purchase', () => {
+      const text = [
+        header,
+        failed('TSYN1', 'trade', 'ZEUR', '-10.00'),
+        done('LSYN2', 'TSYN1', 'trade', 'ZEUR', '-10.00'),
+        done('LSYN3', 'TSYN1', 'trade', 'XXBT', '0.0001'),
+      ];
+      const result = readExchangeFile(text.join('\n'));
+      expect(result.ok && [result.value.leftOut, result.value.movements.map((m) => [m.key, m.lines, m.role])]).toEqual([
+        [],
+        [['poc-csv-1|kraken|TSYN1|BTC|in', [3, 4], 'purchase']],
+      ]);
+    });
   });
 
   it('has no first or last time when no time reads', () => {
