@@ -801,7 +801,7 @@
           "cessions": "Each block is one sale from your log: a holding row for each coin held just before it, then the sale row. Purchases have no rows here: the CSV log lists every entry. The calculation from these figures is left to you or your accountant.",
           "cessionPrices": "On holding rows, the coin sold is valued at its own sale price. The other coins carry no market price in this file. estimated_portfolio_value is filled only when the coin sold was the only coin held and your log holds the units sold.",
           "cessionCosts": "purchase_costs_to_date sums the amounts of the purchases and the recorded costs of the Coins added entries logged before each sale, and purchase_fees_to_date their fees. Neither is reduced by earlier sales. Amounts are as you logged them, whether or not they include a fee.",
-          "salePrice": "sale_price is each sale's amount as you logged it, whether or not a fee was deducted from it.",
+          "salePrice": "sale_price is each sale's amount as you logged it, whether or not a fee was deducted from it, and sale_fee its fee.",
           "heldWithoutCost": "held_without_cost_to_date: how many Coins added entries before the sale have no recorded cost. purchase_costs_to_date leaves them out.",
           "snapshotReference": "units_on_{opening} is your log at the start of {reference}, which is the end of {eve}. {ongoing, select, yes {units_on_{closing} stays empty until the year has ended.} other {units_on_{closing} is your log at the end of {to}.}}",
           "snapshotValues": "This file holds units and logged amounts but no market prices, so the value_on_{opening} and value_on_{closing} cells are empty, except 0.00 where you held none.",
