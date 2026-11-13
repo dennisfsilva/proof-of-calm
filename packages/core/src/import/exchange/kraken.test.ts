@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { KRAKEN_SYNTHETIC } from '../../../test/exchange/kraken-synthetic.expected';
 import december2025 from '../../../test/exchange/kraken-synthetic-2025-12.csv?raw';
-import foldDecember2025 from '../../../test/exchange/kraken-synthetic-fold-2025-12.csv?raw';
 import { KRAKEN_SYNTHETIC_FOLD } from '../../../test/exchange/kraken-synthetic-fold.expected';
+import foldDecember2025 from '../../../test/exchange/kraken-synthetic-fold-2025-12.csv?raw';
 import foldLegacy from '../../../test/exchange/kraken-synthetic-fold-legacy.csv?raw';
 import legacy from '../../../test/exchange/kraken-synthetic-legacy.csv?raw';
 import { readExchangeFile } from './read';
