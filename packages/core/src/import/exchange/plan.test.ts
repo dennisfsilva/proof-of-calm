@@ -54,7 +54,7 @@ describe('planExchangeImport', () => {
     expect(idsOf(golden.entries)).not.toContain(testId(M.M02.key));
   });
 
-  it('step 2, the starting amount: the purchases within 15 days of the first buy are left out and named', () => {
+  it('step 3, the starting amount: the purchases within 15 days of the first buy are left out and named', () => {
     const lump = anEntry({ kind: 'lump', slot: null, date: date('2026-03-01'), source: 'one-tap' });
     const plan = planExchangeImport(FILE, { plan: STARTING_PLAN, entries: [...STORED.entries, lump] }, CHOICES, LISBON);
     expect(plan.startingAmount).toEqual({ purchases: 2, firstBuy: '2026-03-01' });
@@ -64,10 +64,10 @@ describe('planExchangeImport', () => {
     expect(golden.startingAmount).toBeNull();
   });
 
-  it("step 4, the late tap: October's estimate dated 3 Nov takes 2 Nov's purchase, and November stays open", () => {
+  it("step 5, the late tap: October's estimate dated 3 Nov takes 2 Nov's purchase, and November stays open", () => {
     expect(golden.entries.find((entry) => entry.id === testId(M.M19.key))?.slot).toBe('2026-10');
     expect(golden.entries.find((entry) => entry.id === testId(M.M21.key))?.slot).toBe('2026-11');
-    // Tapped on time, the estimate reaches 16 Oct only: it stays, and 2 Nov fills November.
+    // Tapped on time, October's due date and estimate reach 16 Oct only: the estimate stays, and 2 Nov fills November.
     const onTime = { ...S.S3, date: date('2026-10-01') };
     const entries = STORED.entries.map((entry) => (entry === S.S3 ? onTime : entry));
     const plan = planExchangeImport(FILE, { plan: PLAN, entries }, CHOICES, LISBON);
@@ -76,12 +76,12 @@ describe('planExchangeImport', () => {
     expect(plan.entries.find((entry) => entry.id === testId(M.M21.key))?.kind).toBe('extra');
   });
 
-  it("step 4, Carla's venue: the replacement takes the import's venue and the estimate's note", () => {
+  it("step 5, Carla's venue: the replacement takes the import's venue and the estimate's note", () => {
     const replacement = golden.entries.find((entry) => entry.id === testId(M.M16.key));
     expect([S.S1.venue, replacement?.venue, replacement?.note]).toEqual(['Bitvavo', 'Kraken', 'card']);
   });
 
-  it("step 3, Ana's July: a hand monthly buy typed in November claims July's purchase, which looks recorded", () => {
+  it("step 2, Ana's July: a hand monthly buy typed in November claims July's purchase, which looks recorded", () => {
     expect(golden.recorded).toEqual([
       { date: '2026-08-22', coin: 'BTC', units: '0.0008', amount: '50', count: 1, entry: S.S6 },
       { date: '2026-07-01', coin: 'BTC', units: '0.00161', amount: '99', count: 1, entry: S.S5 },
@@ -90,9 +90,9 @@ describe('planExchangeImport', () => {
     expect(idsOf(golden.entries)).not.toContain(testId(M.M15.key));
   });
 
-  describe('step 3 before step 4: a purchase a hand entry records is never imported again', () => {
+  describe('step 2 before step 5: a purchase a hand entry records is never imported again', () => {
     // October's one tap for BTC (E) and a hand extra buy of 0.0008 BTC on 21 Sept (H); the file buys on 20 Sept (P1)
-    // and on 2 Oct (P2). P1 is inside E's window (16 Sept to 16 Oct) and 1 day from H's date.
+    // and on 2 Oct (P2). P1 is within October's due date's reach (16 Sept to 16 Oct) and 1 day from H's date.
     const tapped = anEntry({ slot: month('2026-10'), date: date('2026-10-01'), source: 'one-tap', venue: 'Bitvavo' });
     const typed = anEntry({ kind: 'extra', slot: null, date: date('2026-09-21'), units: units('0.0008') });
     const P1 = trade('TFIX-P1', 'purchase', 'BTC', '2026-09-20', { units: '0.0008', amount: '50', fee: '0.50' }, 2);
@@ -119,7 +119,7 @@ describe('planExchangeImport', () => {
     });
   });
 
-  it('step 5, Greta not ticked: the purchases and receipts on or before her coins added are left out', () => {
+  it('step 4, Greta not ticked: the purchases and receipts on or before her coins added are left out', () => {
     expect(golden.held).toEqual({
       added: false,
       coins: [
@@ -139,7 +139,7 @@ describe('planExchangeImport', () => {
     }
   });
 
-  it('step 5, Greta ticked: the same purchases are added, months filled, and the receipt at no cost', () => {
+  it('step 4, Greta ticked: the same purchases are added, months filled, and the receipt at no cost', () => {
     const plan = planExchangeImport(FILE, STORED, { ...CHOICES, addHeld: true }, LISBON);
     expect(plan.held?.added).toBe(true);
     expect(plan.entries).toEqual(
