@@ -88,6 +88,8 @@ const order = (
   a: { readonly at: Instant; readonly line: number },
   b: { readonly at: Instant; readonly line: number },
 ) => compareInstants(a.at, b.at) || a.line - b.line;
+/** By the moment named, then by the text, so one moment written two ways sorts the same in any file order. */
+const byMoment = (a: Instant, b: Instant) => compareInstants(a, b) || Number(a > b) - Number(a < b);
 
 /** One row's item, or the first of its read columns, in `TR_READ` order, that it cannot read. */
 function itemOf(cell: (column: Column) => string, line: number, at: Instant | null, id: string | null): Item | Column {
@@ -156,20 +158,34 @@ function cancel(trades: readonly Trade[], cancels: readonly Cancel[]) {
 }
 
 /**
- * Rule 7: "rows of one symbol at one instant whose shares sum to 0 are `within`; rows of two symbols at one instant
- * are a `conversion`; any other MIGRATION row is `unreadable`, column `type`."
+ * Rule 7: "MIGRATION rows group by the instant their datetime names and by coin. Each coin whose rows at an instant
+ * sum to 0 is `within`; when exactly two coins are left at that instant, one summing below 0 and one above, their rows
+ * are one `conversion`; any other MIGRATION row is `unreadable`, column `type`." A group's time is the text that
+ * sorts first among its rows', so the file's order changes nothing.
  */
 function migrations(rows: readonly Base[]): LeftOutRow[] {
-  const instants = new Map<string, Base[]>();
-  for (const row of rows) instants.set(row.at, [...(instants.get(row.at) ?? []), row]);
-  return [...instants.values()].map((same) => {
-    const [lines, at, coins] = [
-      same.map((row) => row.line),
-      (same[0] as Base).at,
-      new Set(same.map((row) => row.coin)),
-    ];
-    if (coins.size === 1 && isZero(sum(same.map((row) => row.shares)))) return left('within', lines, at);
-    return coins.size === 2 ? left('conversion', lines, at) : left('unreadable', lines, null, 'type');
+  const instants: Base[][] = [];
+  for (const row of rows.toSorted((a, b) => byMoment(a.at, b.at) || a.line - b.line)) {
+    const last = instants.at(-1);
+    if (last !== undefined && compareInstants((last[0] as Base).at, row.at) === 0) last.push(row);
+    else instants.push([row]);
+  }
+  return instants.flatMap((same) => {
+    const at = (same[0] as Base).at;
+    const coins = new Map<string, Base[]>();
+    for (const row of same) coins.set(row.coin, [...(coins.get(row.coin) ?? []), row]);
+    const total = (group: readonly Base[]) => signOf(sum(group.map((row) => row.shares)));
+    const lines = (groups: readonly Base[][]) =>
+      groups
+        .flat()
+        .map((row) => row.line)
+        .toSorted((a, b) => a - b);
+    const groups = [...coins.values()];
+    const [within, rest] = [groups.filter((group) => total(group) === 0), groups.filter((group) => total(group) !== 0)];
+    const out = within.map((group) => left('within', lines([group]), at));
+    if (rest.length === 0) return out;
+    const swap = rest.length === 2 && total(rest[0] as Base[]) !== total(rest[1] as Base[]);
+    return [...out, swap ? left('conversion', lines(rest), at) : left('unreadable', lines(rest), null, 'type')];
   });
 }
 
@@ -221,7 +237,7 @@ export function readTradeRepublic(header: readonly string[], data: readonly (rea
   }
   const cancelled = cancel(trades, cancels);
   out.push(...cancelled.out, ...migrations(moved), ...cancelled.kept.map(movementOf));
-  const times = rows.flatMap((row) => (row.at === null ? [] : [row.at])).toSorted(compareInstants);
+  const times = rows.flatMap((row) => (row.at === null ? [] : [row.at])).toSorted(byMoment);
   const sorted = out.toSorted((a, b) => Math.min(...a.lines) - Math.min(...b.lines));
   return {
     exchange: 'trade-republic',

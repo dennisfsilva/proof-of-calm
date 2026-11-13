@@ -4,8 +4,8 @@ import type { ExchangeFile } from './kraken';
 import { readTradeRepublic, TR_COLUMNS } from './trade-republic';
 
 // The Trade Republic reader (docs/DOMAIN.md §3.13, the exchange import) over generated exports. Trades take their own
-// minute, so no cancellation pairs by line; migrations share two instants, so they group; some ids repeat a whole
-// row, which is read once.
+// minute, so no cancellation pairs by line; migrations share two instants, one written two ways, so they group by
+// instant and coin; some ids repeat a whole row, which is read once.
 
 // The worst of three seeds under the whole core suite with coverage on was 79 ms (2026-11-13); six times it, 474 ms,
 // stays under a third of Vitest's 5 s timeout, the core's default.
@@ -34,7 +34,7 @@ const row = fc.record({
   shares: fc.constantFrom('0.001', '0.002', '0.00012345678912', '0', ''),
   amount: fc.constantFrom('50.00', '25.00', '0.10'),
   fee: fc.constantFrom('-1.00', ''),
-  instant: fc.constantFrom('2026-06-01T09:00:00.000Z', '2026-06-01T09:30:00.000Z'),
+  instant: fc.constantFrom('2026-06-01T09:00:00.000Z', '2026-06-01T09:00:00Z', '2026-06-01T09:30:00.000Z'),
 });
 type Row = typeof row extends fc.Arbitrary<infer T> ? T : never;
 const exportOf = fc.tuple(fc.array(row, { maxLength: 16 }), fc.array(fc.nat({ max: 15 }), { maxLength: 3 }));
