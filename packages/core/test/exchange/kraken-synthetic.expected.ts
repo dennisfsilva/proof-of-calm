@@ -162,13 +162,14 @@ const movements: Movement[] = [
   },
 ];
 
-const one = (
-  reason: LeftOutRow['reason'],
-  line: number,
-  at: string,
-  coin: string,
-  amount: string,
-): LeftOutRow => ({ reason, lines: [line], at: instant(at), coin, units: units(amount), column: null });
+const one = (reason: LeftOutRow['reason'], line: number, at: string, coin: string, amount: string): LeftOutRow => ({
+  reason,
+  lines: [line],
+  at: instant(at),
+  coin,
+  units: units(amount),
+  column: null,
+});
 const group = (reason: LeftOutRow['reason'], lines: number[], at: string | null, column: string | null = null) => ({
   reason,
   lines,
