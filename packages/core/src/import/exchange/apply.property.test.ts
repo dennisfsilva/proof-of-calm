@@ -1,6 +1,6 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { instant } from '../../../test/builders';
+import { anEntry, instant } from '../../../test/builders';
 import { type World, worldOf } from '../../../test/exchange/plan-arbitraries';
 import { LISBON, NOW } from '../../../test/exchange/plan-fixture';
 import { type CalendarDate, compareInstants, stampAfter } from '../../dates/calendar';
@@ -182,19 +182,21 @@ describe('applyExchangeImport', () => {
   );
 
   it(
-    'a refused apply leaves the stored entries as they were and counts nothing',
+    'a refused apply, of an entry the schema refuses or of one id twice, leaves the stored entries as they were and counts nothing',
     () => {
       fc.assert(
-        fc.property(world, (drawn) => {
+        fc.property(world, fc.boolean(), (drawn, repeat) => {
           const before = structuredClone(drawn.entries);
           const plan = run(drawn, drawn.entries, drawn.file);
           const bad = { ...drawn.entries[0], id: importId('bad'), kind: 'gift' } as unknown as Entry;
-          const result = applyExchangeImport(drawn.entries, { ...plan, entries: [...plan.entries, bad] }, NOW);
+          const twice = anEntry({ id: importId('twice'), source: 'import-csv' });
+          const added = repeat ? [twice, { ...twice }] : [bad];
+          const result = applyExchangeImport(drawn.entries, { ...plan, entries: [...plan.entries, ...added] }, NOW);
           expect(result).toEqual({
             entries: drawn.entries,
             added: 0,
             replaced: 0,
-            refused: { code: 'invalid-entries', ids: [bad.id] },
+            refused: { code: 'invalid-entries', ids: [repeat ? twice.id : bad.id] },
           });
           expect(result.entries).toBe(drawn.entries);
           expect(drawn.entries).toEqual(before);
