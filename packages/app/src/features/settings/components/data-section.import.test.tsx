@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import twoCoins from '../../../../../core/test/golden/two-coins.json';
 import { EMPTY_SNAPSHOT } from '../../../lib/adapters/memory-store';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
+import { KRAKEN_OCTOBER } from '../../../lib/services/kraken.testing';
 import errors from '../../../messages/en/errors.json';
 import settings from '../../../messages/en/settings.json';
 import { choose, type Mounted, mount, NOW, paste } from './data-section.testing';
@@ -390,7 +391,8 @@ describe('DataSection, a pasted export (docs/DOMAIN.md §7)', () => {
     );
     await choose('not an export');
     expect(screen.getByRole('alert').textContent).toBe(
-      'This file is not in a format Proof of Calm can read. Export a backup from Proof of Calm, then import that file.',
+      'This file is not in a format Proof of Calm can read. Choose a Proof of Calm backup, an export from the DCA ' +
+        "plan page, or Kraken's Ledgers export.",
     );
   });
 
@@ -627,5 +629,86 @@ describe('DataSection, the counts of an import in the country’s number locale'
     expect(notes.map((item) => item.textContent)).toEqual([
       '1.234 purchases were rounded: amounts to the cent, units to 10 decimal places.',
     ]);
+  });
+});
+
+describe('DataSection, the alerts of an exchange’s file (docs/DOMAIN.md §3.13)', () => {
+  const header = KRAKEN_OCTOBER.split('\n')[0] ?? '';
+  const pick = async (text: string) => {
+    const file = new File([text], 'kraken-ledgers.csv', { type: 'text/csv' });
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('Choose a file'), { target: { files: [file] } });
+    });
+  };
+  const alerted = async (words: string) => {
+    const alert = screen.getByRole('alert');
+    expect(alert.textContent).toBe(words);
+    await waitFor(() => expect(document.activeElement).toBe(alert));
+  };
+  const trades =
+    '"txid","ordertxid","pair","time","type","ordertype","price","cost","fee","vol"\n' +
+    '"T","O","XXBTZEUR","2026-10-05 09:00:00","buy","market","1","1","0","1"';
+
+  it('names the exchange exports it reads under Choose a file with a plan only, and takes CSV and ZIP files', async () => {
+    await mount(fixtureSnapshot());
+    const chooser = screen.getByRole('button', { name: 'Choose a file' });
+    const formats = screen.getByText('Exchange exports Proof of Calm reads, as CSV: Kraken (Ledgers).');
+    expect(chooser.compareDocumentPosition(formats) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByLabelText('Choose a file').getAttribute('accept')).toBe('.json,application/json,.csv,.zip');
+    cleanup();
+    await mount(EMPTY_SNAPSHOT);
+    expect(screen.queryByText(/^Exchange exports/)).toBeNull();
+  });
+
+  it.each([
+    ['a ZIP file', 'PK\u0003\u0004rest', 'This is a ZIP file. Open it, then choose the CSV file inside.'],
+    [
+      "Kraken's Trades export",
+      trades,
+      "This is Kraken's Trades export. Export the Ledgers from Kraken instead, then import that file.",
+    ],
+    [
+      'a ledger with no refid column',
+      header.replace('"refid",', ''),
+      'This Kraken ledger has no refid column, so it was not read. Export the Ledgers again with every field.',
+    ],
+    [
+      'a ledger with no refid and fee columns',
+      header.replace('"refid",', '').replace('"fee",', ''),
+      'This Kraken ledger has no refid and fee columns, so it was not read. Export the Ledgers again with every field.',
+    ],
+    [
+      'a ledger with no rows',
+      `${header}\n\n`,
+      'This Kraken ledger has no rows, so nothing was imported. Export the Ledgers again for a period with ' +
+        'transactions.',
+    ],
+  ])('%s: the alert names it and takes the focus, with a plan or none', async (_, text, words) => {
+    await mount(fixtureSnapshot());
+    await pick(text);
+    await alerted(words);
+    cleanup();
+    await mount(EMPTY_SNAPSHOT);
+    await pick(text);
+    await alerted(words);
+  });
+
+  it('a Kraken ledger with no plan asks for a plan first, and offers no import', async () => {
+    await mount(EMPTY_SNAPSHOT);
+    await pick(KRAKEN_OCTOBER);
+    await alerted(
+      "This is a Kraken ledger. The import needs a plan's coins, currency, and months: set up a plan, then import " +
+        'it again.',
+    );
+    expect(screen.queryByRole('button', { name: /^Import/ })).toBeNull();
+  });
+
+  it('a Kraken ledger with a plan reads as not recognised until its preview is built', async () => {
+    await mount(fixtureSnapshot());
+    await pick(KRAKEN_OCTOBER);
+    await alerted(
+      'This file is not in a format Proof of Calm can read. Choose a Proof of Calm backup, an export from the DCA ' +
+        "plan page, or Kraken's Ledgers export.",
+    );
   });
 });
