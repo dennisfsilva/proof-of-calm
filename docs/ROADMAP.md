@@ -360,7 +360,9 @@ entry's source: `docs/DOMAIN.md` §2.2), so no export tells an estimated cost by
 
 Exports from the exchanges not covered in M2 (Coinbase, Bitvavo and a history-only Binance reader
 are the first candidates) mapped to entries with a preview, de-duplication by exchange id, fee
-handling, and synthetic fixtures (ADR-0056). Conversions between coins join the import here. Proven
+handling, and synthetic fixtures (ADR-0056). Conversions between coins join the import here, and so
+do rewards (staking and earn), coin deposits as entries and coin withdrawals as moves (ADR-0056,
+Corrections, 2026-11-13). Proven
 by unit tests per parser and a Playwright flow per exchange.
 
 Free in the core (ADR-0039). After the preview, an import replaces the matching one-tap estimates

@@ -934,12 +934,16 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   fiat amount less v, a sale's the fiat amount plus v, and the fee is the fiat fee plus v, where v is the coin
   fee × fiat amount ÷ coin amount, half-even at the currency's minor unit (`MINOR_UNITS`); a currency outside
   `MINOR_UNITS` keeps its raw figures, since the plan leaves it out." So a movement's amount and fee follow
-  §2.2's rule. A movement carries its key (`poc-csv-1|kraken|<refid>|<COIN>|<in|out>`), its lines (the
-  header is line 1), `at`, its role (`purchase`, `sale` or `receipt`, the bonus's units at no cost), the coin,
-  the units with `unitsCut`, the currency, amount and fee (null for a receipt) and `feeInCoin`; a left-out row
-  carries its reason (`reward`, `coin-deposit`, `coin-withdrawal`, `cash`, `within`, `conversion`,
-  `unpaired`, `unreadable` or `other`), its lines, and for a single row its time, coin and units (|amount −
-  fee|), for an unreadable refid the column. "No refusal, left-out row or thrown error holds a cell's text."
+  §2.2's rule. A movement carries its key (`poc-csv-1|kraken|<refid>|<COIN>|<in|out>`, COIN the normalised
+  code, so XXBT and BTC give one key), its lines (the header is line 1), `at`, its role (`purchase`, `sale`
+  or `receipt`, the bonus's units at no cost), the coin, the units with `unitsCut`, the currency, amount and
+  fee (null for a receipt) and `feeInCoin`. Decided 2026-11-13 (ADR-0056, Corrections): the receipts of one
+  refid and coin fold into one movement, every line kept and sorted, `at` the earliest row's, its units the
+  sum of |amount − fee|, cut and flagged after the sum; a receipt of the coin its refid's purchase bought is
+  `unpaired`, named by its line, and the purchase keeps the key. A left-out row carries its reason (`reward`,
+  `coin-deposit`, `coin-withdrawal`, `cash`, `within`, `conversion`, `unpaired`, `unreadable` or `other`),
+  its lines, its time (the earliest of its rows'), and for a row left out for its type its coin and units
+  (|amount − fee|), for an unreadable refid the column and no time. "No refusal, left-out row or thrown error holds a cell's text."
   No raw row, txid, refid or balance is stored. The import's preview shows in Settings (`docs/CONTENT-STYLE.md` §3
   row `Import an exchange's file`); the Log's review and the second exchange's import are planned (M2).
 - Meeting the Log (decided 2026-11-13, ADR-0056): `planExchangeImport(file, stored, choices, context)` turns
