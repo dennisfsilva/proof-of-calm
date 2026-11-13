@@ -65,3 +65,14 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   the Log's order reads ids already stored, the first buy's 15 days, hand-recorded entries, one-tap
   monthly estimates, then `held` entries (the plan's review on #15 found a hand entry's purchase
   imported twice). The order in Decision above is replaced by this one; the rest stands.
+- 2026-11-13, after the design check of the order (#175): every step that leaves a purchase out runs
+  before any step that stores one, so the Log's order reads ids already stored, hand-recorded entries,
+  the first buy's 15 days, `held` entries, one-tap monthly estimates, then the months; this replaces
+  the order of the line above. A month's one-tap estimates of a coin are replaced together and only by
+  a date of that month, and a purchase date's month is the plan's month with the nearest anchor: its
+  due date, 15 days either side, or one of its coin's one-tap estimates for it, live or tombstoned,
+  from 3 days before its date to the day after. This replaces the late reach and Decision's months
+  line, so a shorter export imported first leaves the Log as one import of the whole file. (The plan's
+  second review found a purchase dated before a `held` entry stored without the person's answer when
+  the file came in two parts.) Sync's purge of a tombstone (M3) also ends its estimate's reach. The
+  rest stands.
