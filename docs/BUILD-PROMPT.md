@@ -194,6 +194,14 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - A design check's reports go into the session issue or a dated research note on the day they are
   written. Session 18f's two blind designers' tables lived only in that session's transcripts, and
   18g recovered them from there for `docs/research/review-resume.md` (#150).
+- A judge of a design check audits every stated reason at the line it cites, the planner's and the
+  designers' alike. The Taxes module's check (#24, 2026-11-12) found 19 reasons false or partly
+  false (`docs/research/tax-result-question.md` §8), among them the joiner mechanism the plan rested
+  on, which no review of a branch would have reached before the code existed.
+- A content-role path list is derived from every file that writes the copy, its fixtures and
+  expected files included, never from where the copy is first seen. The two globs proposed for the
+  tax-year export missed its fixtures, the core's expected files and its component, so its own
+  review took them out again for a branch of their own (#24, 2026-11-13).
 
 ## Known gaps
 
