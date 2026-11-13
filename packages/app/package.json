@@ -8,6 +8,7 @@
   "exports": {
     "./features/*": "./src/features/*/index.ts",
     "./lib/adapters/idb/rows": "./src/lib/adapters/idb/rows.ts",
+    "./lib/adapters/zip.testing": "./src/lib/adapters/zip.testing.ts",
     "./lib/navigation/routes": "./src/lib/navigation/routes.ts",
     "./lib/services/fixtures": "./src/lib/services/fixtures.ts",
     "./lib/*": "./src/lib/*/index.ts",

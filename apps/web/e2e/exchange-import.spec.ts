@@ -1,7 +1,8 @@
-import { truncate, writeFile } from 'node:fs/promises';
+import { readFile, truncate, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { expect, type Page } from '@playwright/test';
 import { DATABASE_NAME } from '@proofofcalm/app/lib/adapters';
+import { zipOf } from '@proofofcalm/app/lib/adapters/zip.testing';
 import { fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
 import { type CalendarDate, IMPORT_MAX_BYTES, type Instant, type Plan } from '@proofofcalm/core';
 import { seedPlan } from './seed';
@@ -12,8 +13,8 @@ import { cspViolations, recordCspViolations, routeFixturePrices, test } from './
 // synthetic Kraken ledger (packages/core/test/exchange/kraken-synthetic.expected.ts reads its rows): its preview's
 // heading takes the focus and counts December's BTC and ETH, January's BTC and ETH bought on 18 and 19 Dec, the extra
 // buy of 16 Dec, the sale and the invite bonus; Import writes them at Kraken and its result line takes the focus;
-// the same file again adds nothing. No CSP violation on the way. On desktop, the alerts of a file the import does not
-// take: a ZIP, Kraken's Trades export, a CSV of another format, a ledger's header alone, a ledger with no plan, and a
+// the same file again adds nothing. No CSP violation on the way. A ZIP of the ledger previews as the ledger does. On
+// desktop, the alerts of a file the import does not take: a ZIP of two CSVs, Kraken's Trades export, a CSV of another format, a ledger's header alone, a ledger with no plan, and a
 // file past the size limit.
 
 test.use({ serviceWorkers: 'block' });
@@ -108,6 +109,19 @@ test('a Kraken ledger previews, imports at Kraken, and adds nothing the second t
   expect(await page.evaluate(cspViolations)).toEqual([]);
 });
 
+test('a ZIP of the ledger previews', async ({ page }) => {
+  await openData(page);
+  const archive = zipOf([{ name: 'kraken/ledgers.csv', data: await readFile(LEDGER) }]);
+  await fileInput(page).setInputFiles({
+    name: 'kraken.zip',
+    mimeType: 'application/zip',
+    buffer: Buffer.from(archive),
+  });
+  await expect(page.getByRole('heading', { name: 'What this file adds' })).toBeFocused();
+  await expect(preview(page)).toContainText('kraken.zip: a Kraken ledger of 47 rows, from 1 Dec 2025 to 28 Dec 2025.');
+  await expect(preview(page).getByRole('button', { name: 'Import 7 entries' })).toBeVisible();
+});
+
 test('a month recorded in another tab after the preview showed refuses Import and shows the new preview', async ({
   page,
   context,
@@ -174,10 +188,21 @@ test.describe('a file the exchange import does not take', () => {
     return alert;
   }
 
-  test('a ZIP, the Trades export, another CSV and a header alone each have their alert', async ({ page }) => {
+  test('a ZIP of two CSVs has its alert', async ({ page }) => {
     await openData(page);
-    const zip = await choose(page, 'ledgers.zip', Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x14, 0x00, 0x00, 0x00]));
-    await expect(zip).toHaveText('This is a ZIP file. Open it, then choose the CSV file inside.');
+    const ledger = await readFile(LEDGER);
+    const archive = zipOf([
+      { name: 'ledgers.csv', data: ledger },
+      { name: 'trades.csv', data: 'txid,ordertxid,pair,time,type,ordertype,price,cost,fee,vol\n' },
+    ]);
+    const zip = await choose(page, 'kraken.zip', Buffer.from(archive));
+    await expect(zip).toHaveText(
+      'This ZIP file holds more than one CSV file, so it was not read. Open it, then choose the CSV file of the Ledgers.',
+    );
+  });
+
+  test('the Trades export, another CSV and a header alone each have their alert', async ({ page }) => {
+    await openData(page);
     const trades = await choose(page, 'trades.csv', 'txid,ordertxid,pair,time,type,ordertype,price,cost,fee,vol\n');
     await expect(trades).toHaveText(
       "This is Kraken's Trades export. Export the Ledgers from Kraken instead, then import that file.",
