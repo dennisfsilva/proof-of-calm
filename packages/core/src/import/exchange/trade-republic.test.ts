@@ -248,15 +248,15 @@ describe('readTradeRepublic, rule by rule', () => {
     expect(reasons({ ...delivery, type: 'FREE_DELIVERY', shares: '0.0002' })).toEqual([['unreadable', [2], 'shares']]);
   });
 
+  const move = (transaction_id: string, symbol: string, shares: string, datetime = BUY.datetime) => ({
+    category: 'DELIVERY',
+    type: 'MIGRATION',
+    transaction_id,
+    symbol,
+    shares,
+    datetime,
+  });
   it('rule 7: migration rows of one coin summing to 0 are within; two coins a conversion; anything else unreadable', () => {
-    const move = (transaction_id: string, symbol: string, shares: string, datetime = BUY.datetime) => ({
-      category: 'DELIVERY',
-      type: 'MIGRATION',
-      transaction_id,
-      symbol,
-      shares,
-      datetime,
-    });
     expect(reasons(move('A', 'SOL', '-1.5'), move('B', 'SOL', '1.50'))).toEqual([['within', [2, 3], null]]);
     expect(reasons(move('A', 'SOL', '-1.5'), move('B', 'ETH', '0.2'))).toEqual([['conversion', [2, 3], null]]);
     expect(reasons(move('A', 'SOL', '-1.5'))).toEqual([['unreadable', [2], 'type']]);
@@ -269,6 +269,45 @@ describe('readTradeRepublic, rule by rule', () => {
       ['unreadable', [3], 'type'],
     ]);
     expect(reasons(move('A', 'SOL', ''))).toEqual([['unreadable', [2], 'shares']]);
+  });
+
+  it('rule 7: migration rows group by the moment their datetime names, however many fraction digits it has', () => {
+    const rows = [
+      move('A', 'BTC', '0.5', '2025-01-01T00:00:00Z'),
+      move('B', 'BTC', '-0.5', '2025-01-01T00:00:00.000Z'),
+    ];
+    expect(reasons(...rows)).toEqual([['within', [2, 3], null]]);
+    expect(reasons(...rows.toReversed())).toEqual([['within', [2, 3], null]]);
+    expect([read(...rows).leftOut[0]?.at, read(...rows.toReversed()).leftOut[0]?.at]).toEqual([
+      '2025-01-01T00:00:00.000Z',
+      '2025-01-01T00:00:00.000Z',
+    ]);
+  });
+
+  it('rule 7: at one instant each coin summing to 0 is within, then one coin out and one in are a conversion', () => {
+    const [sol, eth, btc] = [
+      ['SOL', '3'],
+      ['ETH', '2'],
+      ['BTC', '0.5'],
+    ].map(([coin = '', units = ''], index) => [
+      move(`${coin}-out`, coin, `-${units}`, `2026-05-04T08:15:30.123${'0'.repeat(index)}Z`),
+      move(`${coin}-in`, coin, units),
+    ]) as [Cells[], Cells[], Cells[]];
+    expect(reasons(...sol, ...eth, ...btc)).toEqual([
+      ['within', [2, 3], null],
+      ['within', [4, 5], null],
+      ['within', [6, 7], null],
+    ]);
+    const swap = [move('X', 'MATIC', '-10'), move('Y', 'POL', '10')];
+    expect(reasons(...btc, ...swap)).toEqual([
+      ['within', [2, 3], null],
+      ['conversion', [4, 5], null],
+    ]);
+    expect(reasons(...swap, move('Z', 'POL', '5'))).toEqual([['conversion', [2, 3, 4], null]]);
+    expect(reasons(...btc, move('X', 'MATIC', '10'), move('Y', 'POL', '10'))).toEqual([
+      ['within', [2, 3], null],
+      ['unreadable', [4, 5], 'type'],
+    ]);
   });
 
   it('rule 7: any other crypto row is other', () => {
