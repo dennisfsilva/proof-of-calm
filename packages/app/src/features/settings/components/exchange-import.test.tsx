@@ -153,7 +153,9 @@ describe('ExchangeImport', () => {
     await waitFor(() => expect(document.activeElement).toBe(alert));
     expect(texts()).toContain('Replaces 1 estimate from Bought as planned.');
     expect((screen.getByLabelText('Venue for these entries') as HTMLInputElement).value).toBe('Kraken Pro');
-    expect(screen.getByRole('checkbox', { name: 'Add these transactions too' }).getAttribute('aria-checked')).toBe('true');
+    expect(screen.getByRole('checkbox', { name: 'Add these transactions too' }).getAttribute('aria-checked')).toBe(
+      'true',
+    );
     expect(onDone).not.toHaveBeenCalled();
   });
 
@@ -178,7 +180,9 @@ describe('ExchangeImport', () => {
     await waitFor(() => expect(document.activeElement).toBe(alert));
     expect(texts()).toContain('Replaces 1 estimate from Bought as planned.');
     expect((screen.getByLabelText('Venue for these entries') as HTMLInputElement).value).toBe('Kraken Pro');
-    expect(screen.getByRole('checkbox', { name: 'Add these transactions too' }).getAttribute('aria-checked')).toBe('true');
+    expect(screen.getByRole('checkbox', { name: 'Add these transactions too' }).getAttribute('aria-checked')).toBe(
+      'true',
+    );
     expect(await importedRows(planStore)).toEqual([]);
     expect(onDone).not.toHaveBeenCalled();
     other.dispose();
