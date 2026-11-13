@@ -232,6 +232,28 @@ describe('DataSection, the dialog while its replace writes (docs/DESIGN.md §6)'
   });
 });
 
+describe('DataSection, the same file chosen twice', () => {
+  // A browser fires no change event when Choose a file still holds the file chosen, so the input is emptied once
+  // the file is taken; jsdom keeps no value for a file input, so the browser's value is modelled here.
+  it('empties Choose a file once a file is taken, so choosing the same file again reads it again', async () => {
+    const snapshot = fixtureSnapshot();
+    if (snapshot.plan === null) throw new Error('the fixture has a plan');
+    await mount(snapshot);
+    const input = screen.getByLabelText<HTMLInputElement>('Choose a file');
+    let value = 'C:\\fakepath\\backup.json';
+    Object.defineProperty(input, 'value', {
+      configurable: true,
+      get: () => value,
+      set: (next: string) => {
+        value = next;
+      },
+    });
+    await choose(JSON.stringify(exportBackup(snapshot.plan, snapshot.entries, NOW)));
+    expect(screen.getByText(/backup\.json/)).toBeTruthy();
+    expect(input.value).toBe('');
+  });
+});
+
 describe('DataSection, a file from the DCA plan page (docs/DOMAIN.md §7)', () => {
   const rules = async (code: string) => FIXTURE_RULES[code as FixtureCountry] ?? null;
   // A purchase without a coin is dropped and the tax note is not imported: two notes in the report.
