@@ -1,7 +1,7 @@
 // The Trade Republic reader (docs/DOMAIN.md §3.13, the exchange import; ADR-0056, Corrections, 2026-11-13). It turns
 // the rows of a transaction export into the movements and left-out rows Kraken's reader gives, and reads only
 // `TR_READ`: never a name, a description, an IBAN or any other personal column. A movement's key is the one place a
-// transaction_id goes. Not yet recognised by `readExchangeFile`, so no screen names a format it cannot word.
+// transaction_id goes. `readExchangeFile` recognises the export by its header and calls it.
 import { compareInstants, type Instant, InstantSchema } from '../../dates/calendar';
 import {
   abs,
