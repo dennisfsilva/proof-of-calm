@@ -39,9 +39,9 @@ const LEGACY = new Map<string, string>([
     .map((code): [string, string] => [`Z${code}`, code]),
 ]);
 
-// "Fiat is every code K6 lists as fiat (EUR, USD, GBP, CHF, CAD, JPY and AUD among them), after
-// normalisation." K6 prints no list of its own, so the list is K8's: the plain codes of its Z-prefixed
-// fiat codes, and CHF from its quote assets.
+// "Fiat is every code K8 lists as fiat (EUR, USD, GBP, CHF, CAD, JPY and AUD among them), after
+// normalisation."
+// K8: the plain codes of its Z-prefixed fiat codes, and CHF from its quote assets.
 const FIAT = new Set<string>([
   ...[...LEGACY.entries()].filter(([from]) => from.startsWith('Z')).map(([, to]) => to),
   'CHF',

@@ -20,7 +20,7 @@ describe('readExchangeFile on a Kraken ledger (golden)', () => {
     expect(readExchangeFile(reversed)).toEqual({ ok: true, value: KRAKEN_SYNTHETIC });
   });
 
-  it('normalises the legacy codes and reads every K6 fiat code as money', () => {
+  it('normalises the legacy codes and reads every K8 fiat code as money', () => {
     const header = '"txid","refid","time","type","subtype","asset","amount","fee"';
     const bonus = (n: number, asset: string) =>
       `"LSYN0${n}-AAAAA-AAAAAA","BSYN0${n}-AAAAA-AAAAAA","2025-12-01 09:00:00","invite bonus","","${asset}","1","0"`;
