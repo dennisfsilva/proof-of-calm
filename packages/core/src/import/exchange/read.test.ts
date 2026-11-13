@@ -40,6 +40,34 @@ describe('readExchangeFile', () => {
     expect(refusal(`${LEDGER}\n`)).toEqual({ ok: false, error: { code: 'no-rows' } });
   });
 
+  // "A blank line (one empty cell, or every cell empty) is not a row: the reader skips it, it counts nowhere, and
+  // a ledger with only blank lines after its header is `no-rows`."
+  describe('a blank line', () => {
+    const bonus = (n: number) =>
+      `"LSYN0${n}-AAAAA-AAAAAA","QSYN0${n}-AAAAA-AAAAAA","2025-12-01 09:00:00","invite bonus","","currency","crypto","XXBT","spot / main","0.0001","0","0.0001"`;
+
+    it.each([
+      ['LF', `${LEDGER}\n\n`],
+      ['CRLF', `${LEDGER}\r\n\r\n`],
+      ['empty cells', `${LEDGER}\n,,,\n\n`],
+    ])('after the header alone is no-rows (%s)', (_, text) => {
+      expect(refusal(text)).toEqual({ ok: false, error: { code: 'no-rows' } });
+    });
+
+    it('after the last row counts nowhere', () => {
+      const result = refusal(`${LEDGER}\n${bonus(1)}\n\n`);
+      expect(result.ok && [result.value.rows, result.value.movements.length, result.value.leftOut]).toEqual([1, 1, []]);
+    });
+
+    it("between two rows keeps the second row's line in the file", () => {
+      const result = refusal(`${LEDGER}\n${bonus(1)}\n\n${bonus(2)}\n`);
+      expect(result.ok && [result.value.rows, result.value.movements.map((movement) => movement.lines)]).toEqual([
+        2,
+        [[2], [4]],
+      ]);
+    });
+  });
+
   it('names each required column a ledger lacks, before counting its rows', () => {
     expect(refusal('"txid","time","type","subtype","aclass","asset","amount","balance"\n')).toEqual({
       ok: false,
