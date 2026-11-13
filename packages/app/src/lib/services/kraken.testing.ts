@@ -32,6 +32,30 @@ export const KRAKEN_OCTOBER = krakenLedger([
   ['BQ9ZZZ-SYNTH-000005', '2026-10-16 00:00:00', 'invite bonus', 'BTC', '0.0000500000', '0.0000000000'],
 ]);
 
+/**
+ * A ledger of rows the import leaves out, one of each reason, and a BTC purchase 5 days after the fixture plan's
+ * first buy day, which its starting amount leaves out over a Log with no April entry.
+ */
+export const KRAKEN_LEFT_OUT = krakenLedger([
+  ['DQ9ZZZ-SYNTH-000101', '2026-04-01 08:00:00', 'deposit', 'EUR', '500.0000', '0.0000'],
+  ['TQ9ZZZ-SYNTH-000102', '2026-04-10 09:00:00', 'trade', 'EUR', '-40.0000', '0.1000'],
+  ['TQ9ZZZ-SYNTH-000102', '2026-04-10 09:00:00', 'trade', 'BTC', '0.0006000000', '0.0000000000'],
+  ['TQ9ZZZ-SYNTH-000103', '2026-10-02 09:00:00', 'trade', 'USD', '-40.0000', '0.1000'],
+  ['TQ9ZZZ-SYNTH-000103', '2026-10-02 09:00:00', 'trade', 'BTC', '0.0006000000', '0.0000000000'],
+  ['TQ9ZZZ-SYNTH-000104', '2026-10-03 09:00:00', 'trade', 'EUR', '-20.0000', '0.0500'],
+  ['TQ9ZZZ-SYNTH-000104', '2026-10-03 09:00:00', 'trade', 'XRP', '30.0000000000', '0.0000000000'],
+  ['RQ9ZZZ-SYNTH-000105', '2026-10-04 00:00:00', 'staking', 'ETH', '0.0001000000', '0.0000000000'],
+  ['DQ9ZZZ-SYNTH-000106', '2026-10-06 08:00:00', 'deposit', 'BTC', '0.0100000000', '0.0000000000'],
+  ['WQ9ZZZ-SYNTH-000107', '2026-10-07 08:00:00', 'withdrawal', 'BTC', '-0.0050000000', '0.0000200000'],
+  ['TQ9ZZZ-SYNTH-000108', '2026-10-08 08:00:00', 'transfer', 'ETH', '0.0100000000', '0.0000000000'],
+  ['TQ9ZZZ-SYNTH-000109', '2026-10-09 09:00:00', 'trade', 'BTC', '-0.0001000000', '0.0000000000'],
+  ['TQ9ZZZ-SYNTH-000109', '2026-10-09 09:00:00', 'trade', 'ETH', '0.0030000000', '0.0000000000'],
+  ['TQ9ZZZ-SYNTH-000110', '2026-10-10 09:00:00', 'trade', 'EUR', '-10.0000', '0.0300'],
+  ['TQ9ZZZ-SYNTH-000110', '2026-10-10 09:00:00', 'trade', 'BTC', '0.0001000000', '0.0000000000'],
+  ['TQ9ZZZ-SYNTH-000110', '2026-10-10 09:00:00', 'trade', 'ETH', '0.0010000000', '0.0000000000'],
+  ['MQ9ZZZ-SYNTH-000111', '2026-10-11 09:00:00', 'margin', 'BTC', '0.0001000000', '0.0000000000'],
+]);
+
 /** A one tap of October's BTC buy, dated the day after its due date, at another venue. */
 export const ONE_TAP_OCTOBER: Entry = {
   ...(fixtureSnapshot().entries.find((entry) => entry.kind === 'dca' && entry.coin === 'BTC') as Entry),
