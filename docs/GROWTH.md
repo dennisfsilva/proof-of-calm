@@ -388,7 +388,8 @@ Decided on 2026-10-17: yes (§0, item 6). The provider and its consent text are 
   countries a subscriber picks; at most twice a year, what changed in the app. Never market news,
   prices or tips. At most one email a month.
 - **At sign-up**, two optional questions: the country, and which exchanges or wallets the person uses.
-  The answers choose the first CSV importers and the next country pages.
+  The answers choose the CSV importers after the first two (ADR-0056 chose those from research) and
+  the next country pages.
 - **Consent:** double opt-in, consent records, one-click unsubscribe; product news needs consent
   (`docs/research/legal-regime.md` §3.1); the list is named in the privacy notice.
 - **Provider:** an EU-based list provider, such as Brevo (France) or MailerLite (Lithuania), separate
