@@ -1014,7 +1014,10 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   at `stampAfter(now, its updatedAt)`", and the tombstone keeps every other field of the estimate, so a
   later import dates purchases by its date and month (step 6). "`applyExchangeImport` refuses
   `too-many-entries` past `MAX_ENTRIES` live entries and `invalid-entries` for any entry `EntrySchema`
-  refuses, and returns the stored entries unchanged." "An import that adds nothing writes nothing";
+  refuses, and returns the stored entries unchanged." One write never stores two rows under one id: the store
+  puts rows by id, so the second would replace the first while the count named both. A plan whose entries
+  repeat an id is refused `invalid-entries` with the repeated ids, and the stored entries are returned
+  unchanged, as the backup refuses a file with a repeated id (`duplicate-id`; decided 2026-11-13). "An import that adds nothing writes nothing";
   otherwise only the tombstones and the entries added are written. A replaced estimate takes the file's
   amount before the fee, so when the planned amount also paid the fee, Invested, the percent in and the
   average cost drop by it (accepted 2026-11-13).
@@ -1449,7 +1452,8 @@ Core functions never throw for user-caused conditions. They return `Result<T, E>
 needs to phrase the message: `ActionError` for the actions of §6 (`sell-exceeds-held` and `fee-exceeds-held`, each
 with the date of the sale or move it names and `written`, §3.7,
 `move-exceeds-held`, `unknown-coin`, `slot-done`, …), `TemplateError`, `BackupError`, `PrototypeImportError`, `ExchangeFileError` and `ExchangeImportRefusal` (`too-many-entries` with
-`entries` and `max`, `invalid-entries` with `ids`; §3.13) and the simulator's
+`entries` and `max`, `invalid-entries` with `ids`, the entries the schema refuses and an id more than one
+entry holds; §3.13) and the simulator's
 `SimulationError` (`invalid-split`, …). The shell maps codes to localised copy. Programmer errors
 (violated invariants) throw. The invariants of the stored entities are coded issues
 (`PLAN_ISSUE_CODES`, `ENTRY_ISSUE_CODES`), such as `split-sum`, `sell-window-before-eligibility` and a move's
