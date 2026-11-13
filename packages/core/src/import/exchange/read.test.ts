@@ -27,7 +27,9 @@ describe('readExchangeFile', () => {
       'date,coin,amount\n2025-12-01,BTC,10\n',
       '{"format":"proof-of-calm","schemaVersion":5,"plan":null,"entries":[]}',
       '',
-      `${LEDGER.replace('"balance"', '"balance","amountusd"')}\n`,
+      `${LEDGER.replace('"balance"', '"balance","price"')}\n`,
+      `${LEDGER.replace('"balance"', '"","balance"')}\n`,
+      '""\n',
     ]) {
       expect(refusal(text)).toEqual({ ok: false, error: { code: 'not-recognised' } });
     }
@@ -42,6 +44,27 @@ describe('readExchangeFile', () => {
       ok: false,
       error: { code: 'missing-columns', columns: ['refid', 'fee'] },
     });
+  });
+
+  // K8's ledger headers: one ends in an empty name (a trailing comma), two add amountusd, which the reader
+  // never reads.
+  it.each([
+    [
+      'a header whose last name is empty',
+      '"txid","refid","time","type","subtype","aclass","asset","amount","fee","balance",""',
+      '"0.0001","0","0.0001",""',
+    ],
+    [
+      'a header that adds amountusd',
+      '"txid","refid","time","type","subtype","aclass","asset","amount","fee","balance","amountusd"',
+      '"0.0001","0","0.0001","not a number"',
+    ],
+  ])('reads %s as a Kraken ledger', (_, header, figures) => {
+    const row = `"LSYN01-AAAAA-AAAAAA","QSYN01-AAAAA-AAAAAA","2025-12-01 09:00:00","invite bonus","","currency","XXBT",${figures}`;
+    const result = refusal(`${header}\n${row}\n`);
+    expect(result.ok && result.value.movements.map((movement) => [movement.role, movement.coin])).toEqual([
+      ['receipt', 'BTC'],
+    ]);
   });
 
   it('reads a ledger without the optional subtype column', () => {
