@@ -39,7 +39,14 @@ export const WithEntries: Story = {
     await userEvent.click(purchase as HTMLElement);
     const detail = within(document.getElementById(purchase?.getAttribute('aria-controls') ?? '') as HTMLElement);
     // The holding date shows once the rules have loaded (ADR-0020 readings, "The first-boot gate").
-    await expect(await detail.findByText(/^Tax-free from /)).toBeVisible();
+    const date = await detail.findByText(/^Tax-free from /);
+    await expect(date).toBeVisible();
+    // Its Why? stands right after the date with the 44 px target (#24 D8, docs/DESIGN.md §6).
+    const why = detail.getByRole('button', { name: 'Why? The tax-free date' });
+    await expect(date.nextElementSibling).toBe(why);
+    await expect(why).toBeVisible();
+    const target = why.getBoundingClientRect();
+    await expect(Math.min(target.width, target.height)).toBeGreaterThanOrEqual(44);
     await expect(detail.getByText('Computed from your dates, not tax advice')).toBeVisible();
     await expect(detail.getByRole('button', { name: 'Edit entry' })).toBeVisible();
     await expect(detail.getByRole('button', { name: 'Delete entry' })).toBeVisible();
