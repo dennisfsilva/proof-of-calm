@@ -1,4 +1,4 @@
-import type { Entry, EntityId, Instant } from '@proofofcalm/core';
+import type { EntityId, Entry, Instant } from '@proofofcalm/core';
 import { fixtureSnapshot } from './fixtures';
 
 // A synthetic Kraken ledger (ADR-0056: every id and figure invented) for fixtureSnapshot's plan seen at

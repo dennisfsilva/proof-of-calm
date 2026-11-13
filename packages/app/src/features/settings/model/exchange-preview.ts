@@ -4,7 +4,8 @@ import { compareEntries, type Entry, type ExchangeImportPlan, liveEntries } from
 
 export type ExchangePreviewModel = ReturnType<typeof previewModel>;
 
-const estimatesOf = (plan: ExchangeImportPlan) => plan.replaced.reduce((count, item) => count + item.estimates.length, 0);
+const estimatesOf = (plan: ExchangeImportPlan) =>
+  plan.replaced.reduce((count, item) => count + item.estimates.length, 0);
 
 /**
  * The preview of `plan`; `ticked` is the plan the same file and Log give with `addHeld: true`, passed whenever the

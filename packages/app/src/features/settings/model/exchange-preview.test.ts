@@ -1,4 +1,4 @@
-import { type Entry, type EntityId, type Instant, planExchangeImport, readExchangeFile } from '@proofofcalm/core';
+import { type EntityId, type Entry, type Instant, planExchangeImport, readExchangeFile } from '@proofofcalm/core';
 import { anEntry, date, instant, units } from '@proofofcalm/core/testing';
 import { describe, expect, it } from 'vitest';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
