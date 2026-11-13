@@ -201,8 +201,8 @@ external links and the Risk link in the mobile export (M3).
   is held, the open action preselected, so the monthly loop keeps its taps and an extra buy is
   reachable on any day (#355). Units typed beside a price fill the amount, as the form's hint says
   (#356). The price the form fills belongs to the day the form opened: an earlier date empties it
-  and the figure derived from it, and a line asks for the units and what was paid, from the
-  exchange's confirmation (#356). The Plan's totals count extra buys dated on or after the first
+  and the figure derived from it, and a line asks for the units and the cost before fees, from the
+  exchange's confirmation (#356; the amounts labelled before fees on 2026-11-13, #177). The Plan's totals count extra buys dated on or after the first
   buy day (#354), and a line under them says so while an earlier one exists (#359), since the
   Portfolio and Today count every purchase as `Invested`. Where lots match per venue (Portugal,
   Germany, the United States), the sale warning counts only the lots of the sale's venue (#358).
@@ -229,7 +229,9 @@ external links and the Risk link in the mobile export (M3).
 - Launch scope (ADR-0041, `docs/GROWTH.md` §3.3): pt-PT and de locales complete, reviewed by native
   readers (`docs/CONTENT-STYLE.md` §8); CSV import, free (ADR-0039), for the main exchanges of
   Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
-  Republic), and a receipt at no cost in an
+  Republic; Kraken's ledger reader built on 2026-11-13 (#168) and the core's import plan against the
+  Log the same day (#178, `docs/DOMAIN.md` §3.13, "Meeting the Log"), the write and the Settings step
+  still to come), and a receipt at no cost in an
   export (a welcome bonus, an airdrop) recorded as coins held (`held`) with the amount 0, the one kind
   that allows it (decided 2026-11-05, the kind 2026-11-06: the invested total adds nothing, the
   average cost and the P/L count the units, the tax-year export carries the lot at cost 0, and the
