@@ -1,7 +1,16 @@
-import { applyImport, exportBackup, type Instant, type Plan } from '@proofofcalm/core';
+import {
+  applyImport,
+  type CalendarDate,
+  exportBackup,
+  importId,
+  type Instant,
+  type Plan,
+  readExchangeFile,
+} from '@proofofcalm/core';
 import { describe, expect, it } from 'vitest';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
-import { importedPrefs, readImport } from './import';
+import { KRAKEN_OCTOBER, krakenLedger } from '../../../lib/services/kraken.testing';
+import { exchangeContext, importedPrefs, readImport } from './import';
 
 const NOW = '2026-10-20T10:00:00.000Z' as Instant;
 
@@ -29,9 +38,31 @@ describe('readImport', () => {
     }
   });
 
+  it('reads a Kraken ledger as an exchange file, and names a ZIP, Kraken’s trades file and a header alone', () => {
+    const file = readExchangeFile(KRAKEN_OCTOBER);
+    expect(file.ok).toBe(true);
+    if (!file.ok) return;
+    expect(readImport(KRAKEN_OCTOBER)).toEqual({ ok: true, value: { kind: 'exchange', file: file.value } });
+    expect(file.value.movements).toHaveLength(5);
+    expect(readImport('PK\u0003\u0004\u0014\u0000ledgers.csv')).toEqual({ ok: false, error: { code: 'zip' } });
+    const trades = '"txid","ordertxid","pair","time","type","ordertype","price","cost","fee","vol"\n"T1","O1","XBTEUR"';
+    expect(readImport(trades)).toEqual({ ok: false, error: { code: 'kraken-trades' } });
+    expect(readImport(krakenLedger([]))).toEqual({ ok: false, error: { code: 'no-rows' } });
+  });
+
   it('refuses a backup from a newer schema version, whatever else it holds', () => {
     const newer = JSON.stringify({ format: 'proof-of-calm', schemaVersion: 6, plan: {}, entries: [] });
     expect(readImport(newer)).toEqual({ ok: false, error: { code: 'newer-version', schemaVersion: 6 } });
+  });
+});
+
+describe('exchangeContext', () => {
+  it('dates an instant in the device zone and derives ids with importId', () => {
+    const at = '2026-11-04T23:30:00Z' as Instant;
+    const lisbon = exchangeContext('2026-11-13' as CalendarDate, NOW, 'Europe/Lisbon');
+    expect([lisbon.today, lisbon.now, lisbon.dateOf(at)]).toEqual(['2026-11-13', NOW, '2026-11-04']);
+    expect(exchangeContext('2026-11-13' as CalendarDate, NOW, 'Europe/Berlin').dateOf(at)).toBe('2026-11-05');
+    expect(lisbon.idOf('abc')).toBe(importId('abc'));
   });
 });
 
