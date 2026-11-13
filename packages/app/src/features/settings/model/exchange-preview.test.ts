@@ -21,7 +21,7 @@ const HELD = anEntry({
   id: 'aaaaaaaa-0000-4000-8000-000000000020' as EntityId,
   kind: 'held',
   coin: 'BTC' as Entry['coin'],
-  date: date('2026-10-10'),
+  date: date('2026-10-13'),
   amount: null,
   units: units('0.002'),
   slot: null,
@@ -33,11 +33,14 @@ describe('previewModel', () => {
   it('counts each kind, the estimates replaced, and gives each section its entries', () => {
     const shown = planOn([...fixtureSnapshot().entries, ONE_TAP_OCTOBER], false);
     const model = previewModel(shown);
-    expect(model.summary).toEqual({ entries: 5, monthly: 2, extra: 1, sales: 1, added: 1, replaced: 1 });
-    const [btc, eth] = ['BTC', 'ETH'].map((coin) => shown.entries.find((e) => e.kind === 'dca' && e.coin === coin));
-    expect(model.fills).toEqual([eth]);
+    expect(model.summary).toEqual({ entries: 5, monthly: 1, extra: 2, sales: 1, added: 1, replaced: 1 });
+    const btc = shown.entries.find((entry) => entry.kind === 'dca');
+    expect(model.fills).toEqual([]);
     expect(model.replaces).toEqual([{ estimate: ONE_TAP_OCTOBER, by: [btc], otherVenue: true }]);
-    expect(model.extra.map((entry) => [entry.coin, entry.date])).toEqual([['BTC', '2026-10-12']]);
+    expect(model.extra.map((entry) => [entry.coin, entry.date])).toEqual([
+      ['ETH', '2026-10-05'],
+      ['BTC', '2026-10-12'],
+    ]);
     expect(model.sales.map((entry) => [entry.coin, entry.units])).toEqual([['ETH', '0.01']]);
     expect(model.added.map((entry) => [entry.coin, entry.amount])).toEqual([['BTC', '0']]);
     expect([model.held, model.noneInCurrency, model.recorded, model.startingAmount]).toEqual([null, null, [], null]);
@@ -52,7 +55,7 @@ describe('previewModel', () => {
     const model = previewModel(shown, planOn(entries, true));
     expect(model.held).toMatchObject({ added: false, replaces: 1 });
     expect(model.held?.coins.map(({ coin, purchases, through }) => [coin, purchases, through])).toEqual([
-      ['BTC', 1, '2026-10-10'],
+      ['BTC', 2, '2026-10-13'],
     ]);
     expect([model.summary.replaced, model.replaces]).toEqual([0, []]);
     expect(previewModel(planOn(entries, true)).held).toMatchObject({ added: true, replaces: 0 });
