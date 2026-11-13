@@ -77,7 +77,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
       'Coins added at no cost (1)',
     ]);
     expect(lines('Estimates it replaces (1)')).toEqual([
-      'Monthly buy for October 2026: 0.00119 BTC (estimated) at Bitvavo for €70.00, becomes 0.00120 BTC at Kraken ' +
+      'Monthly buy for October 2026: 0.00119 BTC (estimated) at Bitvavo for €70.00 becomes 0.00120 BTC at Kraken ' +
         'for €70.00, fee €0.18, on 5 Oct 2026.',
     ]);
     expect(texts()).toContain(
@@ -101,9 +101,9 @@ describe('ExchangeSummary and ExchangeSections', () => {
     await mount(planOf(KRAKEN_OCTOBER, [...fixture.entries, ONE_TAP_OCTOBER, second]));
     expect(texts()).toContain('Replaces 2 estimates from Bought as planned.');
     expect(lines('Estimates it replaces (2)')).toEqual([
-      'Monthly buy for October 2026: 0.00119 BTC (estimated) at Bitvavo for €70.00, becomes 0.00120 BTC at Kraken ' +
+      'Monthly buy for October 2026: 0.00119 BTC (estimated) at Bitvavo for €70.00 becomes 0.00120 BTC at Kraken ' +
         'for €70.00, fee €0.18, on 5 Oct 2026.',
-      'Monthly buy for October 2026: 0.0011 BTC (estimated) at Bitvavo for €70.00, becomes 0.0012 BTC at Kraken ' +
+      'Monthly buy for October 2026: 0.0011 BTC (estimated) at Bitvavo for €70.00 becomes 0.0012 BTC at Kraken ' +
         'for €70.00, fee €0.18, on 5 Oct 2026.',
     ]);
   });
@@ -130,9 +130,9 @@ describe('ExchangeSummary and ExchangeSections', () => {
       source: 'manual',
     });
     await mount(planOf(KRAKEN_OCTOBER, [...fixture.entries, typed]));
-    expect(lines('Looks recorded already, not added (1)')).toEqual([
-      '5 Oct 2026, 0.00120 BTC for €70.00, looks like your monthly buy for October 2026: 0.00121 BTC at Bitvavo for ' +
-        '€70.00.',
+    expect(lines('Matching entries in the Log, not added (1)')).toEqual([
+      "The file's 0.00120 BTC for €70.00 on 5 Oct 2026 looks like your monthly buy for October 2026: 0.00121 BTC " +
+        'at Bitvavo for €70.00.',
     ]);
     expect(texts()).toContain(
       'To import one of these instead, delete the entry it matches in the Log, then choose the file again.',
@@ -152,8 +152,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
     expect(sections()).toEqual(['Left out (11)']);
     expect(lines('Left out (11)')).toEqual([
       '1 purchase or sale in USD, not imported: amounts are never converted.',
-      'This plan does not list XRP, so its 1 transaction was left out. To import it, add XRP in Coins & split, then ' +
-        'choose the file again.',
+      'This plan does not list XRP, so 1 XRP transaction was left out. If you want it in this plan, you can add XRP ' +
+        'in Coins & split, then choose the file again.',
       '1 purchase dated within 15 days of the first buy day, 5 Apr 2026: the file cannot tell the starting amount ' +
         'from the first monthly buy. Record it in the Log.',
       'Rewards paid in coins, not imported: 0.0001 ETH.',
@@ -163,7 +163,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
       '1 exchange of one coin for another, not imported: the file gives no amount in EUR for it.',
       '1 row of money with no coin, such as a deposit or withdrawal, not imported.',
       '1 row within Kraken, such as a move between its wallets: it changes no entry.',
-      'Lines 15, 16, and 17 could not be read or paired, so they were left out.',
+      'Lines 15, 16, and 17 could not be read or matched to the other rows of their trades, so they were left out.',
       '1 row of another type, not imported.',
     ]);
   });
@@ -189,7 +189,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
     await mount(planOf(csv, [move]));
     expect(lines('Left out (2)')).toEqual([
       'Coins sent out of Kraken that match a move in the Log: 0.00502 BTC.',
-      'Lines 2, 3, 4, 5, 6, and 4 more could not be read or paired, so they were left out.',
+      'Lines 2, 3, 4, 5, 6, and 4 more could not be read or matched to the other rows of their trades, so they were left out.',
     ]);
   });
 

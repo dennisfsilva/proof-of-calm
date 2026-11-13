@@ -77,8 +77,8 @@ export const FillsTheMonths: Story = {
 export const RecordedAlready: Story = {
   args: { shown: planOf(KRAKEN_OCTOBER, [...fixture.entries, typed]) },
   play: async ({ canvas }) => {
-    await userEvent.click(canvas.getByRole('button', { name: 'Looks recorded already, not added (1)' }));
-    await expect(canvas.getByRole('list', { name: 'Looks recorded already, not added (1)' })).toBeVisible();
+    await userEvent.click(canvas.getByRole('button', { name: 'Matching entries in the Log, not added (1)' }));
+    await expect(canvas.getByRole('list', { name: 'Matching entries in the Log, not added (1)' })).toBeVisible();
   },
 };
 
