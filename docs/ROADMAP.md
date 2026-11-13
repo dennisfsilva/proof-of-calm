@@ -228,7 +228,8 @@ external links and the Risk link in the mobile export (M3).
   decided then with counsel, and never fills the cost of these coins, whose date is a bound.
 - Launch scope (ADR-0041, `docs/GROWTH.md` §3.3): pt-PT and de locales complete, reviewed by native
   readers (`docs/CONTENT-STYLE.md` §8); CSV import, free (ADR-0039), for the main exchanges of
-  Portugal and Germany, chosen from research and recorded in an ADR, and a receipt at no cost in an
+  Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
+  Republic), and a receipt at no cost in an
   export (a welcome bonus, an airdrop) recorded as coins held (`held`) with the amount 0, the one kind
   that allows it (decided 2026-11-05, the kind 2026-11-06: the invested total adds nothing, the
   average cost and the P/L count the units, the tax-year export carries the lot at cost 0, and the
@@ -355,10 +356,10 @@ entry's source: `docs/DOMAIN.md` §2.2), so no export tells an estimated cost by
 
 ## M4 — CSV import
 
-Exports from the exchanges not covered in M2 (Kraken, Coinbase, Binance and Bitvavo are the first
-candidates) mapped to entries with a preview, de-duplication by
-exchange id, fee handling, and fixtures from real anonymised files. Proven by unit tests per parser
-and a Playwright flow per exchange.
+Exports from the exchanges not covered in M2 (Coinbase, Bitvavo and a history-only Binance reader
+are the first candidates) mapped to entries with a preview, de-duplication by exchange id, fee
+handling, and synthetic fixtures (ADR-0056). Conversions between coins join the import here. Proven
+by unit tests per parser and a Playwright flow per exchange.
 
 Free in the core (ADR-0039). After the preview, an import replaces the matching one-tap estimates
 with the units, price and fee from the exchange export, and never deletes or overwrites an entry the
