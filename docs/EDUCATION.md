@@ -18,7 +18,7 @@ leaving the screen:
 
 | Where the link sits | Opens |
 |---|---|
-| "Tax-free from <date>" on a log row or lot | Taxes where you live (the country section) |
+| "Tax-free from <date>" on an opened Log row (#162); a lot's, once a screen lists lots | Taxes where you live (the country section) |
 | The sell window on Plan and the strip | Cycles → "the window is a discipline device" |
 | The hold phase on Today | Start here → "why some people hold" |
 | The three sell parts | Cycles → "three parts" |

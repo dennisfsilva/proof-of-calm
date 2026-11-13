@@ -31,7 +31,9 @@ schema and the rules of `docs/JURISDICTIONS.md` §2: owner review, review dates,
 allow-list, the 60-word card, and the banned words in everything the app shows (the card, the
 taxable-event notes, the rates, the holding-rule override notes, the pending changes; source titles
 are quoted as published), each literal percentage with the number locale's joiner (`percent-joiner`)
-and each locale tag well formed (`locale-tag`), as `docs/JURISDICTIONS.md` §2 says. Templates must split exactly 100 over their own coins, each coin as the
+and each locale tag well formed (`locale-tag`), as `docs/JURISDICTIONS.md` §2 says. On the profiles, the
+message files and the modules it refuses an ordinary hyphen between a numeral and its unit in text a screen
+shows (`number-unit-hyphen`; which text: `docs/CONTENT-STYLE.md` §4). Templates must split exactly 100 over their own coins, each coin as the
 catalogue lists it, and keep each paragraph of the explanation (paragraphs separated by a blank line)
 to five sentences (`docs/CONTENT-STYLE.md` §1 rule 4). Each template carries at least one drawdown,
 its sources and any `lowSource` on the facts allow-list and `accessed` no later than `lastReviewed`;
