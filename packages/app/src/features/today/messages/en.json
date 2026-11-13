@@ -90,7 +90,7 @@
   },
   "redDay": {
     "week": "{names}{coins, select, one {} other {, in the amounts you hold,}} fell {fall} in the seven days to {date}.",
-    "high": "On {date} {names}{coins, select, one { was} other {, in the amounts you hold, were}} {fall} below {coins, select, one {its} other {their combined}} 90-day high.",
+    "high": "On {date} {names}{coins, select, one { was} other {, in the amounts you hold, were}} {fall} below {coins, select, one {its} other {their combined}} 90\u2011day high.",
     "open": "See the fall under way",
     "dismiss": "Dismiss",
     "failed": "The notice could not be dismissed on this device, so it may show again."

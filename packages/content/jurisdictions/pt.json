@@ -78,7 +78,7 @@
       }
     ],
     "allowances": [
-      "No allowance: the only relief is the 365-day exclusion.",
+      "No allowance: the only relief is the 365\u2011day exclusion.",
       "Fees that were necessary and actually paid (“necessárias e efetivamente suportadas”) are deductible.",
       "Purchases made before 2023 count toward the 365 days (art. 220 Lei 24-D/2022)."
     ],
@@ -356,7 +356,7 @@
     "confidence": "high",
     "version": 2,
     "changedOn": "2026-11-05",
-    "changeNotice": "Portugal lowered six IRS bracket rates for 2026 income. The 28% rate and the 365-day rule are unchanged.",
+    "changeNotice": "Portugal lowered six IRS bracket rates for 2026 income. The 28% rate and the 365\u2011day rule are unchanged.",
     "lastReviewed": "2026-11-05",
     "nextReviewDue": "2027-11-02",
     "reviewedBy": "owner"
