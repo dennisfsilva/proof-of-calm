@@ -156,7 +156,7 @@ type Entry = {
   kind: 'dca' | 'lump' | 'extra' | 'sell' | 'held' | 'move';
   date: CalendarDate;
   coin: CoinId;
-  amount: Money | null;   // pay currency; > 0; for sells: the proceeds received; for held: null (cost unknown) or >= 0 ('0': nothing paid); for move: null
+  amount: Money | null;   // pay currency; > 0; for sells: what the units sold for, before the fee; for held: null (cost unknown) or >= 0 ('0': nothing paid); for move: null
   units: Units;           // > 0; for sells: units sold; for move: units sent
   fee: Money | null;      // pay currency; share of the transaction's fee attributed to this entry; null for held and move
   note: string;
@@ -174,6 +174,14 @@ type Entry = {
 An entry is one coin. A "transaction" (what the Log shows as one row) is the group of entries with the
 same `kind`, `date` and (for `dca`) `slot`; see §3.9. `amount` and `units` are stored exactly as the
 user typed them; the implied price `amount / units` is derived, never stored.
+
+An `amount` never includes `fee` (decided 2026-11-13, ADR-0056): a purchase's amount is what its units cost
+before any fee, a sale's is what its units sold for before any fee, and `fee` is the transaction's fee on its
+own, so a purchase paid out `amount + fee` and a sale brought in `amount − fee`. The one tap (§3.4) and the
+form's fill (§6) store amounts so, and every figure reads them so: Invested, the average cost and the plan's
+totals leave fees out, P/L leaves them out (§3.6), and the tax-year files keep the fee in its own column
+(§3.13). Entries stored before this rule stay as typed, since nothing stored tells how each was typed. A fee an
+exchange took in the coin is valued at the trade's own price (§3.13, the exchange import).
 
 `source` says where an entry came from. A `one-tap` entry is an estimate (`isEstimate`): its units come
 from the day's price (§3.4), and the Log labels them as estimated until the person edits them (ADR-0003),
@@ -880,6 +888,43 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   the same way and returns `refused: { code: 'invalid-entries', ids }` (the failing entries' ids), and the
   import alert counts them. A DCA plan page file is read the same way in `importPrototype` (§7), whose
   `invalid-entries` error stores nothing and shows the prototype file's alert.
+- Import of an exchange's export (decided 2026-11-13, ADR-0056): `readExchangeFile(text)` recognises the
+  file and reads it into `{ exchange, rows, first, last, movements, leftOut }`, or refuses it with an
+  `ExchangeFileError`. Kraken's ledger is the one export it reads. "Text starting with `PK\^C\^D` is `zip`; a
+  header with ordertxid and pair is `kraken-trades`; a header whose names are all among the ledger's (txid,
+  refid, time, type, subtype, aclass, subclass, asset, wallet, amount, fee, balance) is a Kraken ledger, which
+  is `missing-columns`, naming each, when it lacks txid, refid, time, type, asset, amount or fee; a ledger with
+  no data row is `no-rows`; anything else is `not-recognised`." The text is split by `csvRows` as RFC 4180
+  reads it (LF, CRLF or CR line ends; a leading byte-order mark dropped). "The reader reads txid, refid, time,
+  type, subtype, asset, amount and fee by header name, in any order, and never reads aclass, subclass, wallet
+  or balance." "A time `YYYY-MM-DD HH:MM:SS(.f)` reads as that UTC instant with `Z`; a movement's `at` is its
+  coin row's." "Numbers are normalised with `parseDecimal`; a negative zero reads as 0; a fee is its absolute
+  value." A txid, refid or type that is empty or outside printable ASCII is unreadable. "A row with an
+  unreadable required cell leaves its refid's rows out whole, named by line and column." "A txid twice with
+  the same cells keeps one; with different cells, both refids are left out." "Legacy codes normalise as K1,
+  K6 or K8 list them (XXBT and XBT to BTC, XETH to ETH, XXDG and XDG to DOGE, ZEUR to EUR, …), each cited
+  beside its line." "Fiat is every code K6 lists as fiat (EUR, USD, GBP, CHF, CAD, JPY and AUD among them),
+  after normalisation." "A code with a dot suffix (.S, .M, .P, .F, .B) is a balance within Kraken of the code
+  before the dot." "The bonus rows K1 documents are receipts; staking, and earn with the reward subtype, are
+  rewards; other earn subtypes, transfer, suffixed and KFEE rows are within Kraken; a deposit or withdrawal
+  is cash for fiat and a coin deposit or withdrawal for a coin; every other type is other." "Each type and
+  subtype word comes from K1 or K6, cited beside it." (The K keys name the sources
+  ADR-0056 cites: Kraken's help pages and API, and a third-party parser.) "Rows pair by refid. A trade, or a spend with a
+  receive, of one fiat leg and one coin leg is a purchase when the coin leg is positive and a sale when it is
+  negative; two coin legs are a conversion; two fiat legs are cash; any other number of legs is unpaired." A
+  coin leg of 0 is unpaired. "A purchase's units are the coin amount less a fee in the coin, a sale's the
+  coin amount plus it; units over 10 decimals are cut toward zero and flagged." "A purchase's amount is the
+  fiat amount less v, a sale's the fiat amount plus v, and the fee is the fiat fee plus v, where v is the coin
+  fee × fiat amount ÷ coin amount, half-even at the currency's minor unit (`MINOR_UNITS`); a currency outside
+  `MINOR_UNITS` keeps its raw figures, since the plan leaves it out." So a movement's amount and fee follow
+  §2.2's rule. A movement carries its key (`poc-csv-1|kraken|<refid>|<COIN>|<in|out>`), its lines (the
+  header is line 1), `at`, its role (`purchase`, `sale` or `receipt`, the bonus's units at no cost), the coin,
+  the units with `unitsCut`, the currency, amount and fee (null for a receipt) and `feeInCoin`; a left-out row
+  carries its reason (`reward`, `coin-deposit`, `coin-withdrawal`, `cash`, `within`, `conversion`,
+  `unpaired`, `unreadable` or `other`), its lines, and for a single row its time, coin and units (|amount −
+  fee|), for an unreadable refid the column. "No refusal, left-out row or thrown error holds a cell's text."
+  No raw row, txid, refid or balance is stored. Turning movements into entries, the Log's review and the
+  second exchange's import are planned (M2).
 - Rows from a newer version on this device (ADR-0019 Readings, "Row shape"; decided 2026-10-30): while any
   such row exists, a tombstone included (`newer.plans + newer.entries + newerTombstones > 0`), both imports,
   a backup in either mode and a DCA plan page file (§7), are refused, and Settings' action checks this
@@ -1308,7 +1353,7 @@ Core functions never throw for user-caused conditions. They return `Result<T, E>
 (`packages/core/src/result.ts`) with a closed union of error codes per family and the data the UI
 needs to phrase the message: `ActionError` for the actions of §6 (`sell-exceeds-held` and `fee-exceeds-held`, each
 with the date of the sale or move it names and `written`, §3.7,
-`move-exceeds-held`, `unknown-coin`, `slot-done`, …), `TemplateError`, `BackupError`, `PrototypeImportError` and the simulator's
+`move-exceeds-held`, `unknown-coin`, `slot-done`, …), `TemplateError`, `BackupError`, `PrototypeImportError`, `ExchangeFileError` (§3.13) and the simulator's
 `SimulationError` (`invalid-split`, …). The shell maps codes to localised copy. Programmer errors
 (violated invariants) throw. The invariants of the stored entities are coded issues
 (`PLAN_ISSUE_CODES`, `ENTRY_ISSUE_CODES`), such as `split-sum`, `sell-window-before-eligibility` and a move's
