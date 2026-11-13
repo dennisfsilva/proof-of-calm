@@ -16,7 +16,8 @@ const MONTH = 'Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sept?|Oct|Nov|Dec';
 
 const P1 =
   'If your plan has a holding rule, each purchase and each entry of coins added in the Log shows, when you open it, the day it passes that rule, counted from the date you recorded: “Tax-free from”, or “Long-term rate from” where the rule lowers the rate.';
-const P2 = "Proof of Calm cannot check the rule's other conditions, so the date alone does not settle how a sale is taxed.";
+const P2 =
+  "Proof of Calm cannot check the rule's other conditions, so the date alone does not settle how a sale is taxed.";
 const P3 =
   'With entries in the Log, you can export a tax-year file in Settings, under Currency & data: figures from your entries for one tax year, for you or an accountant to work from.';
 const P4 = 'The file says it is data from your log, not a tax computation.';
@@ -184,7 +185,10 @@ describe('the Taxes where you live module', () => {
       const value = plain(facts.find((fact) => fact.key === key)?.value ?? '');
       const text = plain(example);
       const quoted = [...(text.match(DATE) ?? []), ...(text.match(FIGURE) ?? []), ...names];
-      expect(quoted.filter((item) => !value.includes(item)), key).toEqual([]);
+      expect(
+        quoted.filter((item) => !value.includes(item)),
+        key,
+      ).toEqual([]);
     }
   });
 
@@ -193,7 +197,11 @@ describe('the Taxes where you live module', () => {
       const fact = facts.find((item) => item.key === key);
       const [value, unit, date] = TRIMMED[key];
       expect([fact?.value, fact?.unit, fact?.date], key).toEqual([value, unit, date]);
-      expect([fact?.accessed, fact?.lastReviewed, fact?.reviewedBy], key).toEqual(['2026-11-12', '2026-11-12', 'owner']);
+      expect([fact?.accessed, fact?.lastReviewed, fact?.reviewedBy], key).toEqual([
+        '2026-11-12',
+        '2026-11-12',
+        'owner',
+      ]);
     }
     expect(facts.find((item) => item.key === 'k.de-2024')?.source).toBe(
       'https://www.recht.bund.de/bgbl/1/2024/108/regelungstext.pdf?__blob=publicationFile&v=1',
