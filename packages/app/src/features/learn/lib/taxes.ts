@@ -10,8 +10,9 @@ export const YOUR_COUNTRY = 'your-country';
 
 /**
  * Which line stands under a module's title (docs/CONTENT-STYLE.md §5): `overdue` from the day after `nextReviewDue`,
- * as the core's `underReview` counts (ISO dates compare as strings, so this chunk imports no value of the core);
- * until then `next` for the tax module, which names its next review, and `reviewed` for every other module.
+ * not on the due day itself (ISO dates compare as strings, so this chunk imports no value of the core); until then
+ * `next` for the tax module, which names its next review, and `reviewed` for every other module. The core's
+ * `underReview` is a different rule: a country card twelve months past its `nextReviewDue` (docs/JURISDICTIONS.md §1).
  */
 export function reviewLine(
   module: Pick<LearnModuleMeta, 'slug' | 'nextReviewDue'>,
