@@ -17,7 +17,7 @@ import { EntryForm } from './entry-form';
 
 afterEach(cleanup);
 
-const PAID = 'BTC paid (EUR)';
+const PAID = 'BTC cost before fees (EUR)';
 const RECEIVED = 'BTC received (units)';
 const value = (label: string) => screen.getByLabelText<HTMLInputElement>(label).value;
 const type = (label: string, text: string) =>

@@ -44,7 +44,7 @@ type Story = StoryObj<typeof meta>;
 
 export const NewBuy: Story = {
   play: async ({ canvas }) => {
-    await expect(await canvas.findByLabelText('BTC paid (EUR)')).toHaveValue('70.00');
+    await expect(await canvas.findByLabelText('BTC cost before fees (EUR)')).toHaveValue('70.00');
     await expect(canvas.getByLabelText('BTC received (units)')).toHaveValue('0.00116666');
   },
 };
@@ -53,7 +53,7 @@ export const Edit: Story = {
   args: { editing: [october] },
   parameters: { services: services([older, october]) },
   play: async ({ canvas }) => {
-    await expect(await canvas.findByLabelText('BTC paid (EUR)')).toHaveValue('70.00');
+    await expect(await canvas.findByLabelText('BTC cost before fees (EUR)')).toHaveValue('70.00');
     await expect(canvas.getByLabelText('BTC received (units)')).toHaveValue('0.002');
   },
 };
@@ -108,7 +108,7 @@ export const SaleWithHoldingWarning: Story = {
   parameters: { services: services([older, october]) },
   play: async ({ canvas }) => {
     await userEvent.type(await canvas.findByLabelText('BTC sold (units)'), '0.004');
-    await userEvent.type(canvas.getByLabelText('Received for BTC (EUR)'), '240');
+    await userEvent.type(canvas.getByLabelText('BTC sold for, before fees (EUR)'), '240');
     await expect(await canvas.findByRole('status')).toHaveTextContent(
       /^Only 0\.003 of the 0\.004\sBTC sold are past the holding rule on 20 Oct 2026\. The rest may be taxed\.$/,
     );

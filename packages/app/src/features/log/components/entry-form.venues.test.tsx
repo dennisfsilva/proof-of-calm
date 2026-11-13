@@ -86,7 +86,7 @@ const fill = (label: string, at: number, value: string) =>
   fireEvent.change(screen.getAllByLabelText(label)[at]!, { target: { value } });
 const clearRow = (at: number) => {
   fill('BTC sold (units)', at, '');
-  fill('Received for BTC (EUR)', at, '');
+  fill('BTC sold for, before fees (EUR)', at, '');
 };
 const setVenue = (value: string) => fireEvent.change(screen.getByLabelText('Venue (optional)'), { target: { value } });
 /** A kept row: the entry it takes, and the venue and units it stores. */

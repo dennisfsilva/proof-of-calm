@@ -93,7 +93,7 @@ const fieldError = (label: string) => {
 describe('EntryForm', () => {
   it('fills the units as an amount is typed', async () => {
     await renderForm();
-    type('BTC paid (EUR)', '120.00');
+    type('BTC cost before fees (EUR)', '120.00');
     expect(screen.getByLabelText<HTMLInputElement>('BTC received (units)').value).toBe('0.00199999');
   });
 
@@ -102,7 +102,7 @@ describe('EntryForm', () => {
     await renderForm();
     type('BTC price (EUR)', '');
     type('BTC received (units)', '0.002');
-    for (const typed of ['1', '', '0', '0.', '120']) type('BTC paid (EUR)', typed);
+    for (const typed of ['1', '', '0', '0.', '120']) type('BTC cost before fees (EUR)', typed);
     expect(screen.getByLabelText<HTMLInputElement>('BTC received (units)').value).toBe('0.002');
     expect(screen.getByLabelText<HTMLInputElement>('BTC price (EUR)').value).toBe('60,000.00');
   });
@@ -110,12 +110,12 @@ describe('EntryForm', () => {
   // Session 12a (#350): the price filled as the form opened stayed beside an earlier date and derived its units.
   it('empties the filled price and the units from it on an earlier date, says what to type, and fills it again', async () => {
     await renderForm();
-    type('BTC paid (EUR)', '120.00');
+    type('BTC cost before fees (EUR)', '120.00');
     type('Date', '2026-10-18');
     const value = (label: string) => screen.getByLabelText<HTMLInputElement>(label).value;
     expect([value('BTC received (units)'), value('BTC price (EUR)')]).toEqual(['', '']);
     expect(screen.getByRole('status').textContent).toBe(
-      "The price the form filled in does not apply to an earlier date. Type what you paid and the units received, as your exchange's confirmation shows them.",
+      "The price the form filled in does not apply to an earlier date. Type the amount before fees and the units received, as your exchange's confirmation shows them.",
     );
     type('Date', '2026-10-20');
     expect([value('BTC received (units)'), value('BTC price (EUR)')]).toEqual(['0.00199999', '60,000.12']);
@@ -126,7 +126,7 @@ describe('EntryForm', () => {
   it('fills the amount from units typed beside the live price, and saves both', async () => {
     const { services, onDone } = await renderForm();
     type('BTC received (units)', '0.002');
-    expect(screen.getByLabelText<HTMLInputElement>('BTC paid (EUR)').value).toBe('120.00');
+    expect(screen.getByLabelText<HTMLInputElement>('BTC cost before fees (EUR)').value).toBe('120.00');
     await save();
     expect(onDone).toHaveBeenCalledTimes(1);
     expect(stored(services).filter((entry) => entry.date === '2026-10-20')).toMatchObject([
@@ -137,14 +137,14 @@ describe('EntryForm', () => {
   it('keeps typed units and fills the price from an amount typed after them', async () => {
     await renderForm();
     type('BTC received (units)', '0.002');
-    type('BTC paid (EUR)', '130');
+    type('BTC cost before fees (EUR)', '130');
     expect(screen.getByLabelText<HTMLInputElement>('BTC received (units)').value).toBe('0.002');
     expect(screen.getByLabelText<HTMLInputElement>('BTC price (EUR)').value).toBe('65,000.00');
   });
 
   it('records a new buy with the prefilled fee and venue', async () => {
     const { services, onDone } = await renderForm();
-    type('BTC paid (EUR)', '120.00');
+    type('BTC cost before fees (EUR)', '120.00');
     await save();
     expect(onDone).toHaveBeenCalledTimes(1);
     expect(stored(services).filter((entry) => entry.date === '2026-10-20')).toMatchObject([
@@ -178,7 +178,7 @@ describe('EntryForm', () => {
       other.domain.write((snapshot) => ({ entries: deleteEntries(snapshot.entries, [october.id], other.clock.now()) })),
     );
     await vi.waitFor(() => expect(stored(services).find((entry) => entry.id === october.id)?.deletedAt).not.toBeNull());
-    type('BTC paid (EUR)', '80');
+    type('BTC cost before fees (EUR)', '80');
     await save();
     expect(services.toasts.getSnapshot()?.title).toBe(
       'This entry was deleted in another browser tab, so the change was not saved.',
@@ -207,7 +207,7 @@ describe('EntryForm', () => {
 
     it('saves no new buy and says so, so that tab can still undo', async () => {
       const { planStore, onDone, rows } = await wiped({});
-      type('BTC paid (EUR)', '120.00');
+      type('BTC cost before fees (EUR)', '120.00');
       await save();
       expect(planStore.current().entries).toHaveLength(0);
       expect(onDone).not.toHaveBeenCalled();
@@ -220,7 +220,7 @@ describe('EntryForm', () => {
     it('saves no new sale and says so', async () => {
       const { planStore, onDone } = await wiped({ kind: 'sell' });
       type('BTC sold (units)', '0.001');
-      type('Received for BTC (EUR)', '60.00');
+      type('BTC sold for, before fees (EUR)', '60.00');
       await save();
       expect(planStore.current().entries).toHaveLength(0);
       expect(onDone).not.toHaveBeenCalled();
@@ -229,7 +229,7 @@ describe('EntryForm', () => {
 
     it('saves no edit and closes with the deleted-entry toast, as for an entry deleted alone', async () => {
       const { planStore, services, onDone } = await wiped({ kind: 'dca', editing: [october] });
-      type('BTC paid (EUR)', '80');
+      type('BTC cost before fees (EUR)', '80');
       await save();
       expect(planStore.current().entries).toHaveLength(0);
       expect(services.toasts.getSnapshot()?.title).toBe(
@@ -267,8 +267,8 @@ describe('EntryForm', () => {
 
   it('keeps the entry ids on an edit', async () => {
     const { services, onDone } = await renderForm({ kind: 'dca', editing: [october] });
-    expect(screen.getByLabelText<HTMLInputElement>('BTC paid (EUR)').value).toBe('70.00');
-    type('BTC paid (EUR)', '80');
+    expect(screen.getByLabelText<HTMLInputElement>('BTC cost before fees (EUR)').value).toBe('70.00');
+    type('BTC cost before fees (EUR)', '80');
     await save();
     expect(onDone).toHaveBeenCalledTimes(1);
     const saved: readonly Entry[] = onDone.mock.lastCall?.[0] ?? [];
@@ -282,7 +282,7 @@ describe('EntryForm', () => {
     setErrorReporter(reported);
     const { services, onDone } = await renderForm();
     type('Date', '');
-    type('BTC paid (EUR)', '120.00');
+    type('BTC cost before fees (EUR)', '120.00');
     await save();
     expect(screen.getByText('Choose a full date: day, month, and year.')).toBeTruthy();
     expect(screen.getByLabelText('Date').getAttribute('aria-invalid')).toBe('true');
@@ -302,7 +302,7 @@ describe('EntryForm', () => {
     const venue = screen.getByLabelText('Venue (optional)');
     expect(venue.getAttribute('maxlength')).toBe(String(VENUE_MAX_LENGTH));
     expect(screen.getByLabelText('Note (optional)').getAttribute('maxlength')).toBe(String(ENTRY_NOTE_MAX_LENGTH));
-    type('BTC paid (EUR)', '120.00');
+    type('BTC cost before fees (EUR)', '120.00');
     type('Venue (optional)', 'x'.repeat(VENUE_MAX_LENGTH + 1));
     await save();
     expect(fieldError('Venue (optional)')).toEqual({
@@ -321,7 +321,7 @@ describe('EntryForm', () => {
     const drafts = createTestServices().drafts;
     const { services } = await renderForm({}, undefined, servicesWith([older, october], { drafts }));
     fireEvent.click(screen.getByRole('button', { name: 'Venue and note' }));
-    type('BTC paid (EUR)', '120.00');
+    type('BTC cost before fees (EUR)', '120.00');
     type('Note (optional)', 'x'.repeat(ENTRY_NOTE_MAX_LENGTH + 1));
     const { onDone } = await reopen(services);
     expect(screen.queryByLabelText('Note (optional)')).toBeNull();
@@ -338,7 +338,7 @@ describe('EntryForm', () => {
     const drafts = createTestServices().drafts;
     const { services } = await renderForm({}, undefined, servicesWith([older, october], { drafts }));
     fireEvent.click(screen.getByRole('button', { name: 'Venue and note' }));
-    type('BTC paid (EUR)', '120.00');
+    type('BTC cost before fees (EUR)', '120.00');
     type('Note (optional)', 'x'.repeat(ENTRY_NOTE_MAX_LENGTH + 1));
     await reopen(services);
     await save();
@@ -351,37 +351,37 @@ describe('EntryForm', () => {
 
     it('restores what was typed when the form opens again, and starts afresh after a save', async () => {
       const { services } = await renderForm();
-      type('BTC paid (EUR)', '120.00');
+      type('BTC cost before fees (EUR)', '120.00');
       type('Date', '2026-10-18');
       await reopen(services);
-      expect(value('BTC paid (EUR)')).toBe('120.00');
+      expect(value('BTC cost before fees (EUR)')).toBe('120.00');
       // An earlier date takes the filled price and the units derived from it (DOMAIN §6, "Fill a form row").
       expect(value('BTC received (units)')).toBe('');
       expect(value('Date')).toBe('2026-10-18');
       type('BTC received (units)', '0.002');
       await save();
       await reopen(services);
-      expect(value('BTC paid (EUR)')).toBe('');
+      expect(value('BTC cost before fees (EUR)')).toBe('');
       expect(value('Date')).toBe('2026-10-20');
     });
 
     it('keeps the draft of an edit apart from the draft of a new entry', async () => {
       const { services } = await renderForm({ kind: 'dca', editing: [october] });
-      type('BTC paid (EUR)', '80');
+      type('BTC cost before fees (EUR)', '80');
       await reopen(services, { kind: 'dca' });
-      expect(value('BTC paid (EUR)')).not.toBe('80');
+      expect(value('BTC cost before fees (EUR)')).not.toBe('80');
       await reopen(services, { kind: 'dca', editing: [october] });
-      expect(value('BTC paid (EUR)')).toBe('80');
+      expect(value('BTC cost before fees (EUR)')).toBe('80');
     });
 
     it('drops a draft typed in another number locale', async () => {
       const drafts = createTestServices().drafts;
       const { services } = await renderForm({}, undefined, servicesWith([older, october], { drafts }));
-      type('BTC paid (EUR)', '120.00');
+      type('BTC cost before fees (EUR)', '120.00');
       services.dispose();
       const german = servicesWith([older, october], { drafts, language: 'de' });
       await reopen(german);
-      expect(value('BTC paid (EUR)')).toBe('');
+      expect(value('BTC cost before fees (EUR)')).toBe('');
       expect(drafts.read('entry', 'new:extra:none', anything)).toBeNull();
       german.dispose();
     });
@@ -390,7 +390,7 @@ describe('EntryForm', () => {
     it('keeps no draft of a form left as it opened, so its date follows the clock', async () => {
       const drafts = createTestServices().drafts;
       const { services } = await renderForm({}, undefined, servicesWith([older, october], { drafts }));
-      fireEvent.blur(screen.getByLabelText('BTC paid (EUR)'));
+      fireEvent.blur(screen.getByLabelText('BTC cost before fees (EUR)'));
       expect(drafts.read('entry', 'new:extra:none', anything)).toBeNull();
       services.dispose();
       const later = servicesWith([older, october], { drafts, nowMs: TEST_NOW_MS + 2 * 86_400_000 });
@@ -403,7 +403,7 @@ describe('EntryForm', () => {
     it('drops the draft of an edit whose entry was written elsewhere since, keeping the newer note', async () => {
       const first = { ...october, note: 'first' };
       const { services } = await renderForm({ kind: 'dca', editing: [first] }, [older, first]);
-      type('BTC paid (EUR)', '80');
+      type('BTC cost before fees (EUR)', '80');
       cleanup();
       const fresh = { ...first, note: 'changed elsewhere', updatedAt: instant('2026-10-20T11:00:00+01:00') };
       await act(() =>
@@ -412,7 +412,7 @@ describe('EntryForm', () => {
         })),
       );
       await reopen(services, { kind: 'dca', editing: [fresh] });
-      expect(value('BTC paid (EUR)')).toBe('70.00');
+      expect(value('BTC cost before fees (EUR)')).toBe('70.00');
       await save();
       expect(stored(services).find((entry) => entry.id === fresh.id)?.note).toBe('changed elsewhere');
     });
@@ -421,7 +421,7 @@ describe('EntryForm', () => {
     it("drops a new entry's draft whose coins are no longer the plan's", async () => {
       const drafts = createTestServices().drafts;
       const { services } = await renderForm({}, undefined, servicesWith([older, october], { drafts }));
-      type('BTC paid (EUR)', '100');
+      type('BTC cost before fees (EUR)', '100');
       services.dispose();
       const btcOnly = aPlan({ coins: [BTC], split: split({ BTC: '100' }) });
       const changed = createTestServices({
@@ -435,8 +435,8 @@ describe('EntryForm', () => {
         drafts,
       });
       await reopen(changed);
-      expect(screen.queryByLabelText('ETH paid (EUR)')).toBeNull();
-      expect(value('BTC paid (EUR)')).toBe('');
+      expect(screen.queryByLabelText('ETH cost before fees (EUR)')).toBeNull();
+      expect(value('BTC cost before fees (EUR)')).toBe('');
       expect(drafts.read('entry', 'new:extra:none', anything)).toBeNull();
       changed.dispose();
     });
@@ -459,7 +459,7 @@ describe('EntryForm', () => {
         drafts,
       });
       await reopen(raised, { kind: 'dca' });
-      expect(value('BTC paid (EUR)')).toBe('140.00');
+      expect(value('BTC cost before fees (EUR)')).toBe('140.00');
       fireEvent.click(screen.getByRole('button', { name: 'Venue and note' }));
       expect(screen.getByLabelText<HTMLTextAreaElement>('Note (optional)').value).toBe('typed');
       raised.dispose();
@@ -485,7 +485,7 @@ describe('EntryForm', () => {
       };
       const first = await reload();
       await renderForm({ kind: 'dca' }, [], first);
-      expect(value('BTC paid (EUR)')).toBe('70,00');
+      expect(value('BTC cost before fees (EUR)')).toBe('70,00');
       type('BTC received (units)', '0.0012');
       fireEvent.blur(screen.getByLabelText('BTC received (units)'));
       type('ETH received (units)', '0.012');
@@ -501,11 +501,11 @@ describe('EntryForm', () => {
     it('drops a stored draft that does not keep the form as it opened', async () => {
       const drafts = createTestServices().drafts;
       const { services } = await renderForm({}, undefined, servicesWith([older, october], { drafts }));
-      type('BTC paid (EUR)', '120.00');
+      type('BTC cost before fees (EUR)', '120.00');
       const { opened: _, ...legacy } = drafts.read('entry', 'new:extra:none', anything) as { opened: unknown };
       drafts.write('entry', 'new:extra:none', legacy);
       await reopen(services);
-      expect(value('BTC paid (EUR)')).toBe('');
+      expect(value('BTC cost before fees (EUR)')).toBe('');
       expect(drafts.read('entry', 'new:extra:none', anything)).toBeNull();
     });
 
@@ -516,10 +516,10 @@ describe('EntryForm', () => {
         throw new DOMException('The operation is insecure.', 'SecurityError');
       });
       const { services } = await renderForm({}, undefined, servicesWith([older, october], { drafts: blocked }));
-      type('BTC paid (EUR)', '120.00');
+      type('BTC cost before fees (EUR)', '120.00');
       const { onDone } = await reopen(services);
-      expect(value('BTC paid (EUR)')).toBe('');
-      type('BTC paid (EUR)', '120.00');
+      expect(value('BTC cost before fees (EUR)')).toBe('');
+      type('BTC cost before fees (EUR)', '120.00');
       await save();
       expect(onDone).toHaveBeenCalledTimes(1);
       expect(reported).not.toHaveBeenCalled();
@@ -533,9 +533,9 @@ describe('EntryForm', () => {
 
     it('names the excess and the units held when the sale is more than the holdings, and saves nothing', async () => {
       const { services, onDone } = await renderForm({ kind: 'sell' });
-      expect(screen.queryByLabelText('BTC paid (EUR)')).toBeNull();
+      expect(screen.queryByLabelText('BTC cost before fees (EUR)')).toBeNull();
       type('BTC sold (units)', '0.006');
-      type('Received for BTC (EUR)', '360.00');
+      type('BTC sold for, before fees (EUR)', '360.00');
       await save();
       expect(text(screen.getByRole('alert'))).toBe(
         'This sale is 0.001 BTC more than you hold (0.005 BTC on 20 Oct 2026). Check the amount and the date, or log the missing purchases first.',
@@ -550,7 +550,7 @@ describe('EntryForm', () => {
       const { services, onDone } = await renderForm({ kind: 'sell' }, [past, recent]);
       expect(screen.queryByRole('status')).toBeNull();
       type('BTC sold (units)', '0.15');
-      type('Received for BTC (EUR)', '9000.00');
+      type('BTC sold for, before fees (EUR)', '9000.00');
       // CONTENT-STYLE §3 "Holding warning on a sale": prose figures, the sale's date, the effect's second sentence.
       expect(text(screen.getByRole('status'))).toBe(
         'Only 0.10 of the 0.15 BTC sold are past the holding rule on 20 Oct 2026. The rest may be taxed.',
@@ -572,7 +572,7 @@ describe('EntryForm', () => {
     it('says none of the sale is past the holding rule when nothing sold is', async () => {
       await renderForm({ kind: 'sell' }, [october]);
       type('BTC sold (units)', '0.001');
-      type('Received for BTC (EUR)', '60.00');
+      type('BTC sold for, before fees (EUR)', '60.00');
       expect(text(screen.getByRole('status'))).toBe(
         'None of the 0.001 BTC sold is past the holding rule on 20 Oct 2026. It may be taxed.',
       );
@@ -591,7 +591,7 @@ describe('EntryForm', () => {
       await renderForm({ kind: 'sell' }, entries, servicesWith(entries, { rules }));
       type('Venue (optional)', 'Bitvavo');
       type('BTC sold (units)', '0,002');
-      type('Received for BTC (EUR)', '120,00');
+      type('BTC sold for, before fees (EUR)', '120,00');
       expect(text(screen.getByRole('status'))).toBe(
         'None of the 0,002 BTC sold is past the holding rule on 20 Oct 2026. It may be taxed.',
       );
@@ -639,7 +639,7 @@ describe('EntryForm', () => {
         const all = [owned, ...editing];
         const { services } = await renderForm({ kind: 'sell', editing }, all);
         fireEvent.change(screen.getAllByLabelText('BTC sold (units)')[at]!, { target: { value: '' } });
-        fireEvent.change(screen.getAllByLabelText('Received for BTC (EUR)')[at]!, { target: { value: '' } });
+        fireEvent.change(screen.getAllByLabelText('BTC sold for, before fees (EUR)')[at]!, { target: { value: '' } });
         await save();
         const sales = stored(services).filter((entry) => entry.kind === 'sell');
         return { live: sales.filter((entry) => entry.deletedAt === null), sales };
@@ -718,7 +718,7 @@ describe('EntryForm', () => {
         const all = [...lots, ...editing];
         const { services } = await renderForm({ kind: 'sell', editing }, all, servicesWith(all, { rules }));
         fireEvent.change(screen.getAllByLabelText('BTC sold (units)')[at]!, { target: { value: '' } });
-        fireEvent.change(screen.getAllByLabelText('Received for BTC (EUR)')[at]!, { target: { value: '' } });
+        fireEvent.change(screen.getAllByLabelText('BTC sold for, before fees (EUR)')[at]!, { target: { value: '' } });
         const warnings = screen.getAllByRole('status').map(text);
         await save();
         const live = stored(services).filter((entry) => entry.deletedAt === null);
@@ -849,7 +849,7 @@ describe('EntryForm', () => {
           const all = [owned, recent, ...editing];
           const { services } = await renderForm({ kind: 'sell', editing }, all, servicesWith(all, { rules }));
           fireEvent.change(screen.getAllByLabelText('BTC sold (units)')[at]!, { target: { value: '' } });
-          fireEvent.change(screen.getAllByLabelText('Received for BTC (EUR)')[at]!, { target: { value: '' } });
+          fireEvent.change(screen.getAllByLabelText('BTC sold for, before fees (EUR)')[at]!, { target: { value: '' } });
           const warning = text(screen.getByRole('status'));
           await save();
           const sales = stored(services).filter((entry) => entry.kind === 'sell');
@@ -934,7 +934,7 @@ describe('EntryForm', () => {
         const all = [lot('Kraken'), lot('Ledger'), ...editing, moved];
         const { services, onDone } = await renderForm({ kind: 'sell', editing }, all, servicesWith(all, { rules }));
         fireEvent.change(screen.getAllByLabelText('BTC sold (units)')[at]!, { target: { value: '' } });
-        fireEvent.change(screen.getAllByLabelText('Received for BTC (EUR)')[at]!, { target: { value: '' } });
+        fireEvent.change(screen.getAllByLabelText('BTC sold for, before fees (EUR)')[at]!, { target: { value: '' } });
         fireEvent.change(screen.getAllByLabelText('BTC sold (units)')[raised]!, { target: { value: typed } });
         const lines = screen.getAllByRole('status').map(text);
         await save();
@@ -970,7 +970,7 @@ describe('EntryForm', () => {
       const { services } = await renderForm({ kind: 'sell' }, [october]);
       type('Date', '2026-09-20');
       type('BTC sold (units)', '0.001');
-      type('Received for BTC (EUR)', '60.00');
+      type('BTC sold for, before fees (EUR)', '60.00');
       await save();
       expect(text(screen.getByRole('alert'))).toBe(
         'This sale is 0.001 BTC more than you hold (0 BTC on 20 Sept 2026). Check the amount and the date, or log the missing purchases first.',
@@ -1027,7 +1027,7 @@ describe('EntryForm', () => {
       ];
       await renderForm({ kind: 'sell' }, entries, servicesWith(entries, {}, lowerRate));
       type('BTC sold (units)', '0.75');
-      type('Received for BTC (EUR)', '45000.00');
+      type('BTC sold for, before fees (EUR)', '45000.00');
       expect(text(screen.getByRole('status'))).toBe(
         'Only 0.50 of the 0.75 BTC sold are past the holding rule on 20 Oct 2026. The rest may be taxed at the short-term rate.',
       );

@@ -774,7 +774,7 @@ describe('LogScreen', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Sale' }));
     await screen.findByRole('dialog', { name: 'Log a sale' });
     fireEvent.change(screen.getByLabelText('BTC sold (units)'), { target: { value: '0,001' } });
-    fireEvent.change(screen.getByLabelText('Received for BTC (EUR)'), { target: { value: '60,00' } });
+    fireEvent.change(screen.getByLabelText('BTC sold for, before fees (EUR)'), { target: { value: '60,00' } });
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Save' })));
     await vi.waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     expect(screen.getByRole('status').textContent).toMatch(/^Recorded: sold 60,00\s€ of BTC on 20\sOct\s2026\.$/);
@@ -792,7 +792,7 @@ describe('LogScreen', () => {
     expect(monthly.getAttribute('aria-pressed')).toBe('true');
     fireEvent.click(screen.getByRole('button', { name: 'Extra buy' }));
     await screen.findByRole('dialog', { name: 'Log an extra buy' });
-    fireEvent.change(screen.getByLabelText('BTC paid (EUR)'), { target: { value: '50' } });
+    fireEvent.change(screen.getByLabelText('BTC cost before fees (EUR)'), { target: { value: '50' } });
     fireEvent.change(screen.getByLabelText('BTC received (units)'), { target: { value: '0.0008' } });
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Save' })));
     await vi.waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
@@ -827,7 +827,7 @@ describe('LogScreen', () => {
     fireEvent.click(within(group).getByRole('button', { name: 'Extra buy' }));
     await screen.findByRole('dialog', { name: 'Log an extra buy' });
     fireEvent.change(screen.getByLabelText('Date'), { target: { value: '2025-06-01' } });
-    fireEvent.change(screen.getByLabelText('BTC paid (EUR)'), { target: { value: '1000' } });
+    fireEvent.change(screen.getByLabelText('BTC cost before fees (EUR)'), { target: { value: '1000' } });
     fireEvent.change(screen.getByLabelText('BTC received (units)'), { target: { value: '0.02' } });
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Save' })));
     await vi.waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
@@ -856,7 +856,7 @@ describe('LogScreen', () => {
     fireEvent.click(screen.getByRole('button', { expanded: false }));
     fireEvent.click(screen.getByRole('button', { name: 'Edit entry' }));
     expect(await screen.findByText('Edit the entry')).toBeTruthy();
-    fireEvent.change(screen.getByLabelText('BTC paid (EUR)'), { target: { value: '800' } });
+    fireEvent.change(screen.getByLabelText('BTC cost before fees (EUR)'), { target: { value: '800' } });
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Save' })));
     await vi.waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     expect(screen.getByRole('status').textContent).toContain('Entry saved.');

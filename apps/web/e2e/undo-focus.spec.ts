@@ -221,7 +221,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await openLog(page, fixtureSnapshot());
       const edit = await openEdit(page, rows(page).filter({ hasText: /^5\sSept?\s2026/u }));
       const sheet = page.getByRole('dialog', { name: 'Edit the entry' });
-      await sheet.getByLabel('BTC paid (EUR)').fill('75');
+      await sheet.getByLabel('BTC cost before fees (EUR)').fill('75');
       await saveAndLandOnEdit(page, sheet, edit);
     });
 
