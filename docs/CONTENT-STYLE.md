@@ -130,7 +130,7 @@ Sentence case, no exclamation marks, numbers with a unit and a date, verbs on bu
 | Empty: no plan (Today, Plan, Portfolio, Settings' Plan, Coins & split and Hold & sell tabs) | Title `No plan yet`; `Set up a plan or import a file.` with both phrases as links (onboarding, Settings); on Settings' tabs, `import a file` opens `Currency & data` |
 | Empty: no plan (Log) | `No entries yet. Set up a plan or import a file.` |
 | Empty: nothing to export (Settings, no plan) | `Nothing to export yet. Set up a plan or import a file.` in place of the export buttons |
-| Empty: no sales (M2) | `No sales yet. When you sell, record it here so Portfolio and the tax-year export stay right.` |
+| Empty: no sales (M2) | `No sales yet. When you sell, record the sale here so Portfolio and the tax-year export include it.` |
 | Import not recognised | `This file is not in a format Proof of Calm can read. Export a backup from Proof of Calm, then import that file.`; for a pasted text, `This text is not in a format Proof of Calm can read. Copy the whole export again, then paste it.` (M1 imports JSON backups and the DCA plan page's export; the CSV import is M2's.) |
 | Export date not stored | `The backup file was saved, but this device could not record the export date. Export again to record it.` as an alert under the export buttons |
 | Export not saved | `The file was not saved. Export again to keep a copy.` as an alert under the export buttons and inside the replace dialog, until a later export saves the file |
