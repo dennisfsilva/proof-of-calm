@@ -46,7 +46,8 @@ export function ModuleView({ module, Body, heading, lead }: ModuleViewProps) {
             date: reviewed,
             due: f.date(module.nextReviewDue as CalendarDate),
             state,
-            ink: (text) => <span className="text-ink">{text}</span>,
+            ink: (text) => <span className="text-ink whitespace-nowrap">{text}</span>,
+            keep: (text) => <span className="whitespace-nowrap">{text}</span>,
           })}
         </p>
         {state === 'overdue' && module.slug === TAXES_MODULE && (

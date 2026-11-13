@@ -50,7 +50,7 @@
     },
     "module": {
       "back": "Back to Learn",
-      "lastReviewed": "Last reviewed {date}{state, select, overdue { · <ink>review overdue</ink>} next { · Next review due {due}} other {}}",
+      "lastReviewed": "Last reviewed {date}{state, select, overdue { · <ink>review overdue</ink>} next { · <keep>Next review due {due}</keep>} other {}}",
       "taxOverdue": "Rules may have changed since {date}. Check your tax authority before filing.",
       "pastPerformance": "Past performance is not a reliable indicator of future results.",
       "riskLink": "Risk disclosure",
