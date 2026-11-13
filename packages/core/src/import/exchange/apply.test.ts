@@ -7,6 +7,7 @@ import type { Entry } from '../../schema/entry';
 import { applyExchangeImport, sameImport } from './apply';
 import { importId } from './import-id';
 import { type ExchangeImportPlan, planExchangeImport } from './plan';
+import { readExchangeFile } from './read';
 
 // The write's cap (docs/DOMAIN.md §3.13, D8's write tier): live entries after the write, tombstones not counted.
 
@@ -63,6 +64,30 @@ describe('applyExchangeImport', () => {
       replaced: 0,
       refused: { code: 'invalid-entries', ids: [first.id] },
     });
+  });
+
+  // The file behind the first case, two invite-bonus rows of one coin under one refid, now reads as one receipt
+  // (ADR-0056, Corrections, 2026-11-13), so its plan writes one `held` entry instead of refusing.
+  it('writes a file of two invite-bonus rows of one coin under one refid as one held entry', () => {
+    const text = [
+      '"txid","refid","time","type","subtype","asset","amount","fee"',
+      '"LSYN1","BSYN1","2026-04-10 09:00:00","invite bonus","","BTC","0.00005","0"',
+      '"LSYN2","BSYN1","2026-04-10 10:00:00","invite bonus","","XXBT","0.00003","0"',
+    ].join('\n');
+    const read = readExchangeFile(text);
+    const file = read.ok ? read.value : fileOf([]);
+    const plan = planExchangeImport(
+      file,
+      { plan: PLAN, entries: [] },
+      { addHeld: false, venue: null },
+      { ...LISBON, idOf: importId },
+    );
+    const write = applyExchangeImport([], plan, NOW);
+    expect([write.refused, write.added, write.entries.map((entry) => [entry.kind, entry.units, entry.amount])]).toEqual([
+      null,
+      1,
+      [['held', '0.00008', '0']],
+    ]);
   });
 });
 

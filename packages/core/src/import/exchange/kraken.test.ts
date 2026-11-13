@@ -180,3 +180,96 @@ describe('readExchangeFile on a Kraken ledger (golden)', () => {
     expect(JSON.stringify(left)).not.toMatch(/SYNTH|spot|earn \/|allocation|adjustment|2025-12-32/u);
   });
 });
+
+// "Fills: one entry per refid, coin and direction" (ADR-0056) holds for receipts too: the receipts of one refid and
+// coin fold into one movement, and a receipt of the coin its refid's purchase bought is left out, since its key is
+// the purchase's (ADR-0056, Corrections, 2026-11-13).
+describe('readExchangeFile folds the receipts of one refid and coin', () => {
+  const header = '"txid","refid","time","type","subtype","asset","amount","fee"';
+  const row = (txid: string, refid: string, time: string, type: string, asset: string, amount: string, fee = '0') =>
+    `"${txid}","${refid}","2025-12-0${time}","${type}","","${asset}","${amount}","${fee}"`;
+  const read = (...rows: string[]) => {
+    const result = readExchangeFile([header, ...rows].join('\n'));
+    return result.ok ? result.value : null;
+  };
+
+  it('reads two invite-bonus rows under one refid as one receipt with the summed units and both lines', () => {
+    const file = read(
+      row('LSYN1', 'BSYN1', '2 09:00:00', 'invite bonus', 'BTC', '0.00003'),
+      row('LSYN2', 'BSYN1', '1 09:00:00', 'invite bonus', 'XXBT', '0.00005', '0.000001'),
+    );
+    expect([file?.movements, file?.leftOut]).toEqual([
+      [
+        {
+          key: 'poc-csv-1|kraken|BSYN1|BTC|in',
+          lines: [2, 3],
+          at: '2025-12-01T09:00:00Z',
+          role: 'receipt',
+          coin: 'BTC',
+          units: '0.000079',
+          unitsCut: false,
+          currency: null,
+          amount: null,
+          fee: null,
+          feeInCoin: false,
+        },
+      ],
+      [],
+    ]);
+  });
+
+  // "units over 10 decimals are cut toward zero and flagged", after the sum: two rows of 5 × 10⁻¹¹ make 10⁻¹⁰.
+  it('cuts the summed units, not each row', () => {
+    const file = read(
+      row('LSYN1', 'BSYN1', '1 09:00:00', 'invite bonus', 'BTC', '0.00000000005'),
+      row('LSYN2', 'BSYN1', '1 09:00:00', 'invite bonus', 'BTC', '0.00000000005'),
+      row('LSYN3', 'BSYN2', '1 09:00:00', 'invite bonus', 'BTC', '0.00000000015'),
+      row('LSYN4', 'BSYN2', '1 09:00:00', 'invite bonus', 'BTC', '0.00000000001'),
+    );
+    expect(file?.movements.map((movement) => [movement.lines, movement.units, movement.unitsCut])).toEqual([
+      [[2, 3], '0.0000000001', false],
+      [[4, 5], '0.0000000001', true],
+    ]);
+  });
+
+  it('leaves a bonus under a trade’s refid for the coin it bought out as unpaired, named by its line', () => {
+    const file = read(
+      row('LSYN1', 'TSYN1', '1 09:00:00', 'trade', 'ZEUR', '-10.00'),
+      row('LSYN2', 'TSYN1', '1 09:00:00', 'trade', 'XXBT', '0.0001'),
+      row('LSYN3', 'TSYN1', '1 09:00:01', 'invite bonus', 'BTC', '0.00001'),
+      row('LSYN4', 'TSYN1', '1 09:00:02', 'invite bonus', 'ETH', '0.001'),
+    );
+    expect([file?.movements.map((m) => [m.key, m.lines, m.role, m.units, m.amount]), file?.leftOut]).toEqual([
+      [
+        ['poc-csv-1|kraken|TSYN1|BTC|in', [2, 3], 'purchase', '0.0001', '10'],
+        ['poc-csv-1|kraken|TSYN1|ETH|in', [5], 'receipt', '0.001', null],
+      ],
+      [{ reason: 'unpaired', lines: [4], at: '2025-12-01T09:00:01Z', coin: null, units: null, column: null }],
+    ]);
+  });
+
+  it('keeps a bonus under a sale’s refid for the coin it sold, since the sale’s key is out', () => {
+    const file = read(
+      row('LSYN1', 'TSYN1', '1 09:00:00', 'trade', 'EUR', '10.00'),
+      row('LSYN2', 'TSYN1', '1 09:00:00', 'trade', 'BTC', '-0.0001'),
+      row('LSYN3', 'TSYN1', '1 09:00:01', 'invite bonus', 'BTC', '0.00001'),
+    );
+    expect([file?.movements.map((m) => m.key), file?.leftOut]).toEqual([
+      ['poc-csv-1|kraken|TSYN1|BTC|out', 'poc-csv-1|kraken|TSYN1|BTC|in'],
+      [],
+    ]);
+  });
+
+  it('gives the same keys for the same rows in a legacy and a December 2025 file', () => {
+    const keys = (text: string) => {
+      const result = readExchangeFile(text);
+      return result.ok ? result.value.movements.map((movement) => movement.key) : [];
+    };
+    // Lines 49 to 54 of the legacy file name XXBT and ZEUR where the December 2025 file names BTC and EUR.
+    const [old, current] = [legacy, december2025].map((text) => text.split('\n').slice(48, 54).join('\n'));
+    expect([old?.match(/"XXBT"/gu)?.length, current?.match(/"XXBT"/gu)?.length]).toEqual([3, undefined]);
+    expect(keys(legacy)).toEqual(keys(december2025));
+    expect(keys(legacy)).toContain('poc-csv-1|kraken|BQ1AAA-SYNTH-000030|BTC|in');
+    expect(new Set(keys(legacy)).size).toBe(keys(legacy).length);
+  });
+});
