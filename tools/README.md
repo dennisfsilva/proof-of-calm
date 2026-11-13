@@ -81,3 +81,5 @@ them alone replays the cached pass. That holds for another package's `turbo.json
 with that package's own tasks, not globally. `turbo/inputs.test.ts` checks those inputs, and content
 validation's (`packages/content/turbo.json`), against Turbo's dry run; since that run reads
 `packages/content/turbo.json` and the check lists `apps/web/messages`, both are among `test.inputs`.
+It also probes every root, name and folder of `copyPathScan` (`lint/copy-paths-scan.ts`), the scan
+`lint/copy-paths.test.ts` reads, against the globs `turbo.json` declares.
