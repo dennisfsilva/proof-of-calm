@@ -111,7 +111,7 @@ async function current(services: Services): Promise<{ snapshot: Snapshot; now: I
 const leavesRowsOut = ({ newer }: Snapshot) => newer.plans + newer.entries > 0;
 
 /** Whether any row a newer version wrote is on this device, a tombstone included: an import is refused. */
-const holdsNewerRows = (snapshot: Snapshot) => leavesRowsOut(snapshot) || snapshot.newerTombstones > 0;
+export const holdsNewerRows = (snapshot: Snapshot) => leavesRowsOut(snapshot) || snapshot.newerTombstones > 0;
 
 export function dataActions(services: Services): DataActions {
   const { domain, platform, clock, analytics, ui } = services;
