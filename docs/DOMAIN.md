@@ -891,13 +891,14 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
 - Import of an exchange's export (decided 2026-11-13, ADR-0056): `readExchangeFile(text)` recognises the
   file and reads it into `{ exchange, rows, first, last, movements, leftOut }`, or refuses it with an
   `ExchangeFileError`. Kraken's ledger is the one export it reads. "Text starting with `PK\^C\^D` is `zip`; a
-  header with ordertxid and pair is `kraken-trades`; a header whose names are all among the ledger's (txid,
-  refid, time, type, subtype, aclass, subclass, asset, wallet, amount, fee, balance) is a Kraken ledger, which
-  is `missing-columns`, naming each, when it lacks txid, refid, time, type, asset, amount or fee; a ledger with
-  no data row is `no-rows`; anything else is `not-recognised`." The text is split by `csvRows` as RFC 4180
-  reads it (LF, CRLF or CR line ends; a leading byte-order mark dropped). "The reader reads txid, refid, time,
-  type, subtype, asset, amount and fee by header name, in any order, and never reads aclass, subclass, wallet
-  or balance." "A time `YYYY-MM-DD HH:MM:SS(.f)` reads as that UTC instant with `Z`; a movement's `at` is its
+  header with ordertxid and pair is `kraken-trades`; a header whose names, a last empty one dropped, are all
+  among the ledger's (txid, refid, time, type, subtype, aclass, subclass, asset, wallet, amount, fee, balance,
+  amountusd) is a Kraken ledger, which is `missing-columns`, naming each, when it lacks txid, refid, time,
+  type, asset, amount or fee; a ledger with no data row is `no-rows`; anything else is `not-recognised`." K8
+  holds the headers that end in an empty name (a trailing comma) and that add amountusd. The text is split
+  by `csvRows` as RFC 4180 reads it (LF, CRLF or CR line ends; a leading byte-order mark dropped). "The
+  reader reads txid, refid, time, type, subtype, asset, amount and fee by header name, in any order, and never
+  reads aclass, subclass, wallet, balance or amountusd." "A time `YYYY-MM-DD HH:MM:SS(.f)` reads as that UTC instant with `Z`; a movement's `at` is its
   coin row's." "Numbers are normalised with `parseDecimal`; a negative zero reads as 0; a fee is its absolute
   value." A txid, refid or type that is empty or outside printable ASCII is unreadable. "A row with an
   unreadable required cell leaves its refid's rows out whole, named by line and column." "A txid twice with

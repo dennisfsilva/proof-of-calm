@@ -2,9 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { readExchangeFile } from './read';
 
 // "Text starting with `PK\^C\^D` is `zip`; a header with ordertxid and pair is `kraken-trades`; a header whose
-// names are all among the ledger's (txid, refid, time, type, subtype, aclass, subclass, asset, wallet, amount,
-// fee, balance) is a Kraken ledger, which is `missing-columns`, naming each, when it lacks txid, refid, time,
-// type, asset, amount or fee; a ledger with no data row is `no-rows`; anything else is `not-recognised`."
+// names, a last empty one dropped, are all among the ledger's (txid, refid, time, type, subtype, aclass,
+// subclass, asset, wallet, amount, fee, balance, amountusd) is a Kraken ledger, which is `missing-columns`,
+// naming each, when it lacks txid, refid, time, type, asset, amount or fee; a ledger with no data row is
+// `no-rows`; anything else is `not-recognised`."
 // "No refusal, left-out row or thrown error holds a cell's text." (docs/DOMAIN.md §3.13)
 const LEDGER = '"txid","refid","time","type","subtype","aclass","subclass","asset","wallet","amount","fee","balance"';
 const refusal = (text: string) => readExchangeFile(text);
