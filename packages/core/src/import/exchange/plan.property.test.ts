@@ -308,11 +308,12 @@ function twoWays(drawn: World, cut: number) {
 /**
  * The two-import properties run 1,500 times with a 60 s timeout each (the core's default is Vitest's 5 s). Measured
  * on 2026-11-13 under the full core suite with coverage, seeds 1 to 8: 1.7 to 2.8 s locally per property (the first
- * one is the slowest every time; the generators' sizes are bounded and no seed stands out), and CI's runner is at
- * least 6 times slower, so 2.8 s × 6 = 17 s stays under a third of 60 s. At 2,000 runs the worst was 3.6 s, and
- * 3.6 s × 6 = 22 s overran the old 20 s. On the old order (a9664cfd), seeds 1 to 8 at 1,500 runs catch it 7 times
- * in the prefix-adds property (seed 2 first fails at run 2,026), 8 in the live-Log one and 8 in the `held` one (each
- * by run 54).
+ * one is the slowest every time; the generators' sizes are bounded and no seed stands out). At 2,000 runs the worst
+ * was 3.6 s, and main's CI run 43454846094 timed out at the old 20 s on that property, so CI's runner was at least
+ * 5.6 times slower there; how much slower it can be is not measured. At 1,500 runs, 60 s holds while CI is under 21
+ * times slower than 2.8 s, and stays over three times CI's time while CI is under 7 times slower, the margin budgeted
+ * for (×6). On the old order (a9664cfd), seeds 1 to 8 at 1,500 runs catch it 7 times in the prefix-adds property
+ * (seed 2 first fails at run 2,026), 8 in the live-Log one and 8 in the `held` one (each by run 54).
  */
 const TWICE = { numRuns: 1500 };
 const TIMEOUT = 60_000;
