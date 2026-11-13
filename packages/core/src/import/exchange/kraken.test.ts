@@ -42,6 +42,17 @@ describe('readExchangeFile on a Kraken ledger (golden)', () => {
     ]);
   });
 
+  // "The bonus rows K1 documents are receipts for a coin": an entry's coin is never a currency, so a bonus in
+  // fiat is cash, counted with the money deposits and withdrawals.
+  it('leaves a bonus in fiat out as cash, never a receipt', () => {
+    const text = `"txid","refid","time","type","subtype","asset","amount","fee"\n"LSYN1","BSYN1","2025-12-01 09:00:00","invite bonus","","ZEUR","10.00","0"\n`;
+    const result = readExchangeFile(text);
+    expect(result.ok && [result.value.movements, result.value.leftOut]).toEqual([
+      [],
+      [{ reason: 'cash', lines: [2], at: '2025-12-01T09:00:00Z', coin: 'EUR', units: '10', column: null }],
+    ]);
+  });
+
   // "A row with an unreadable required cell leaves its refid's rows out whole, named by line and column."
   it.each([
     ['txid', '"","RSYN1","2025-12-01 09:00:00","trade","BTC","1","0"', 'txid'],
