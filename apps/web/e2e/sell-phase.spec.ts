@@ -92,7 +92,7 @@ test("a sale recorded in the Log lowers Plan's sellable line and Portfolio's hol
   await sheet.getByRole('button', { name: 'Sale' }).click();
   await expect(sheet).toContainText('Log a sale');
   await sheet.getByLabel('BTC sold (units)').fill('0.01');
-  await sheet.getByLabel('Received for BTC (EUR)').fill('600');
+  await sheet.getByLabel('BTC sold for, before fees (EUR)').fill('600');
   await sheet.getByRole('button', { name: 'Save' }).click();
   await expect(sheet).toBeHidden();
   await expect(page.locator('[data-slot="toast"]:not([hidden])')).toContainText('Recorded: sold');

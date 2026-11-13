@@ -66,8 +66,8 @@ for (const colorScheme of ['light', 'dark'] as const) {
 
       await page.getByRole('button', { name: 'Edit', exact: true }).click();
       const sheet = page.getByRole('dialog', { name: 'Edit the entry' });
-      await expect(sheet.getByRole('textbox', { name: 'BTC paid (EUR)' })).toHaveValue('70,00');
-      await expect(sheet.getByRole('textbox', { name: 'ETH paid (EUR)' })).toHaveValue('30,00');
+      await expect(sheet.getByRole('textbox', { name: 'BTC cost before fees (EUR)' })).toHaveValue('70,00');
+      await expect(sheet.getByRole('textbox', { name: 'ETH cost before fees (EUR)' })).toHaveValue('30,00');
       await page.keyboard.press('Escape');
       await expect(sheet).toBeHidden();
     });
@@ -96,7 +96,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await page.getByRole('button', { name: 'Bought as planned' }).click();
       const sheet = page.getByRole('dialog');
       await expect(sheet).toContainText('Log the monthly buy');
-      await expect(sheet.getByRole('textbox', { name: 'BTC paid (EUR)' })).toHaveValue('70,00');
+      await expect(sheet.getByRole('textbox', { name: 'BTC cost before fees (EUR)' })).toHaveValue('70,00');
       await expect(sheet.getByRole('textbox', { name: 'BTC received (units)' })).toHaveValue('');
       await expect(sheet.getByRole('textbox', { name: 'ETH received (units)' })).toHaveValue('');
       await page.keyboard.press('Escape');

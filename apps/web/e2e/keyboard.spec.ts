@@ -189,7 +189,11 @@ test.describe('with the keyboard open, the focused field and Save stay visible a
     await page.getByRole('button', { name: 'Edit entry' }).click();
     const sheet = page.getByRole('dialog');
     await expect(sheet).toContainText('Edit the entry');
-    await withKeyboard(page, sheet.getByLabel('BTC paid (EUR)'), sheet.getByRole('button', { name: 'Save' }));
+    await withKeyboard(
+      page,
+      sheet.getByLabel('BTC cost before fees (EUR)'),
+      sheet.getByRole('button', { name: 'Save' }),
+    );
   });
 
   // A toast's own Edit closes it, so the toast that stays up is the one of the purchase just recorded on
@@ -212,9 +216,14 @@ test.describe('with the keyboard open, the focused field and Save stay visible a
       .click();
     await page.getByRole('button', { name: 'Edit entry' }).click();
     const sheet = page.getByRole('dialog', { name: 'Edit the entry' });
-    await withKeyboard(page, sheet.getByLabel('BTC paid (EUR)'), sheet.getByRole('button', { name: 'Save' }), {
-      toast: true,
-    });
+    await withKeyboard(
+      page,
+      sheet.getByLabel('BTC cost before fees (EUR)'),
+      sheet.getByRole('button', { name: 'Save' }),
+      {
+        toast: true,
+      },
+    );
   });
 
   test("onboarding's numbers step", async ({ page }) => {

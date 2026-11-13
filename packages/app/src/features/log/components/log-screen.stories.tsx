@@ -65,7 +65,7 @@ export const RecordSheet: Story = {
     await expect(kinds.map((option) => option.textContent)).toEqual(['Monthly buy', 'Extra buy', 'Sale']);
     await expect(sheet.getByRole('button', { name: 'Monthly buy' })).toHaveAttribute('aria-pressed', 'true');
     // Portugal's number format, fixed as the form opened.
-    await expect(sheet.getByLabelText('BTC paid (EUR)')).toHaveValue('70,00');
+    await expect(sheet.getByLabelText('BTC cost before fees (EUR)')).toHaveValue('70,00');
   },
 };
 

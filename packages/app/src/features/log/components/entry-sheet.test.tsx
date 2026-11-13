@@ -151,23 +151,23 @@ describe('EntrySheet', () => {
   it('switches the title and the fields with the kind, and keeps what was typed for each kind', async () => {
     await mount();
     const value = (label: string) => screen.getByLabelText<HTMLInputElement>(label).value;
-    fireEvent.change(screen.getByLabelText('BTC paid (EUR)'), { target: { value: '12.00' } });
+    fireEvent.change(screen.getByLabelText('BTC cost before fees (EUR)'), { target: { value: '12.00' } });
     fireEvent.click(screen.getByRole('button', { name: 'Extra buy' }));
     expect(await screen.findByRole('dialog', { name: 'Log an extra buy' })).toBeTruthy();
     expect(kinds()).toEqual(['Monthly buy', 'Extra buy (pressed)', 'Sale']);
-    expect(value('BTC paid (EUR)')).toBe('');
+    expect(value('BTC cost before fees (EUR)')).toBe('');
     expect(screen.queryByRole('button', { name: 'Skip October 2026' })).toBeNull();
-    fireEvent.change(screen.getByLabelText('BTC paid (EUR)'), { target: { value: '30.00' } });
+    fireEvent.change(screen.getByLabelText('BTC cost before fees (EUR)'), { target: { value: '30.00' } });
     fireEvent.click(screen.getByRole('button', { name: 'Sale' }));
     expect(await screen.findByRole('dialog', { name: 'Log a sale' })).toBeTruthy();
-    expect(screen.queryByLabelText('BTC paid (EUR)')).toBeNull();
+    expect(screen.queryByLabelText('BTC cost before fees (EUR)')).toBeNull();
     fireEvent.change(screen.getByLabelText('BTC sold (units)'), { target: { value: '0.001' } });
     fireEvent.click(screen.getByRole('button', { name: 'Monthly buy' }));
     expect(await screen.findByRole('dialog', { name: 'Log the monthly buy' })).toBeTruthy();
-    expect(value('BTC paid (EUR)')).toBe('12.00');
+    expect(value('BTC cost before fees (EUR)')).toBe('12.00');
     expect(screen.getByRole('button', { name: 'Skip October 2026' })).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Extra buy' }));
-    expect(value('BTC paid (EUR)')).toBe('30.00');
+    expect(value('BTC cost before fees (EUR)')).toBe('30.00');
     fireEvent.click(screen.getByRole('button', { name: 'Sale' }));
     expect(value('BTC sold (units)')).toBe('0.001');
   });
@@ -175,7 +175,7 @@ describe('EntrySheet', () => {
   it('starts each opening on the kind it opened on, and keeps what was typed in another kind', async () => {
     await mount();
     fireEvent.click(screen.getByRole('button', { name: 'Extra buy' }));
-    fireEvent.change(await screen.findByLabelText('BTC paid (EUR)'), { target: { value: '30.00' } });
+    fireEvent.change(await screen.findByLabelText('BTC cost before fees (EUR)'), { target: { value: '30.00' } });
     fireEvent.click(screen.getByRole('button', { name: 'Close' }));
     await vi.waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     fireEvent.click(screen.getByRole('button', { name: 'Record a purchase' }));
@@ -183,7 +183,7 @@ describe('EntrySheet', () => {
     expect(kinds()).toEqual(['Monthly buy (pressed)', 'Extra buy', 'Sale']);
     fireEvent.click(screen.getByRole('button', { name: 'Extra buy' }));
     expect(await screen.findByRole('dialog', { name: 'Log an extra buy' })).toBeTruthy();
-    expect(screen.getByLabelText<HTMLInputElement>('BTC paid (EUR)').value).toBe('30.00');
+    expect(screen.getByLabelText<HTMLInputElement>('BTC cost before fees (EUR)').value).toBe('30.00');
   });
 
   // #136: the kind is chosen once per opening, so a sale being typed is never swapped for the buy form.

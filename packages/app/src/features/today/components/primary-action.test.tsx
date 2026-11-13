@@ -87,7 +87,8 @@ const late = { action: october('late'), handled: null, phase: phase('buy') };
 const priced = (): Snapshot => ({ ...fixtureSnapshot(), prices: FIXTURE_PRICES });
 const oneTaps = (services: { domain: { store: { getState(): { snapshot: Snapshot } } } }) =>
   services.domain.store.getState().snapshot.entries.filter((entry) => entry.source === 'one-tap');
-const paid = (coin: string) => (screen.getByRole('textbox', { name: `${coin} paid (EUR)` }) as HTMLInputElement).value;
+const paid = (coin: string) =>
+  (screen.getByRole('textbox', { name: `${coin} cost before fees (EUR)` }) as HTMLInputElement).value;
 
 describe('PrimaryAction', () => {
   it('the starting amount, late: the heading of the pending row and how long ago it was due', async () => {

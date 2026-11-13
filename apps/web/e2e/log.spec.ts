@@ -125,7 +125,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await october.click();
       await page.getByRole('button', { name: 'Edit entry' }).click();
       await expect(sheet).toContainText('Edit the entry');
-      await sheet.getByLabel('BTC paid (EUR)').fill('80');
+      await sheet.getByLabel('BTC cost before fees (EUR)').fill('80');
       await sheet.getByRole('button', { name: 'Save' }).click();
       await expect(sheet).toBeHidden();
       await expect(toast).toContainText('Entry saved.');
@@ -186,7 +186,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
 
       await portugal();
       await record.click();
-      await expect(sheet.getByLabel('BTC paid (EUR)')).toHaveValue('70,00');
+      await expect(sheet.getByLabel('BTC cost before fees (EUR)')).toHaveValue('70,00');
       await btc.fill('0.0012');
       await eth.fill('0.012');
       const shown = [await btc.inputValue(), await eth.inputValue()];
@@ -194,7 +194,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await expect(page.locator('main#main')).not.toHaveAttribute('aria-busy', 'true');
       await portugal();
       await record.click();
-      await expect(sheet.getByLabel('BTC paid (EUR)')).toHaveValue('70,00');
+      await expect(sheet.getByLabel('BTC cost before fees (EUR)')).toHaveValue('70,00');
       await expect(btc).toHaveValue(shown[0] ?? '');
       await expect(eth).toHaveValue(shown[1] ?? '');
 
@@ -220,10 +220,10 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await expect(sheet).toContainText('Log the monthly buy');
       await sheet.getByRole('button', { name: 'Sale' }).click();
       await expect(sheet).toContainText('Log a sale');
-      await expect(sheet.getByLabel('BTC paid (EUR)')).toHaveCount(0);
+      await expect(sheet.getByLabel('BTC cost before fees (EUR)')).toHaveCount(0);
       // Every BTC in the fixture was bought within the last 365 days, so none of the sale is past the holding rule.
       await sheet.getByLabel('BTC sold (units)').fill('0.001');
-      await sheet.getByLabel('Received for BTC (EUR)').fill('60');
+      await sheet.getByLabel('BTC sold for, before fees (EUR)').fill('60');
       await expect(sheet.getByRole('status')).toContainText(
         'None of the 0,001 BTC sold is past the holding rule on 20 Oct 2026. It may be taxed.',
       );
@@ -297,10 +297,10 @@ for (const colorScheme of ['light', 'dark'] as const) {
         await expect(
           sheet.getByRole('status').filter({
             hasText:
-              /^The price the form filled in does not apply to an earlier date\. Type what you paid and the units received, as your exchange's confirmation shows them\.$/u,
+              /^The price the form filled in does not apply to an earlier date\. Type the amount before fees and the units received, as your exchange's confirmation shows them\.$/u,
           }),
         ).toBeVisible();
-        await sheet.getByLabel('BTC paid (EUR)').fill('100');
+        await sheet.getByLabel('BTC cost before fees (EUR)').fill('100');
         await sheet.getByLabel('BTC received (units)').fill('0.002');
         await sheet.getByRole('button', { name: 'Save' }).click();
         await expect(sheet).toBeHidden();
