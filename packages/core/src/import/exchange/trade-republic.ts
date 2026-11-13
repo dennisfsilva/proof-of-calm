@@ -98,13 +98,15 @@ function itemOf(cell: (column: Column) => string, line: number, at: Instant | nu
   const shares = numberOf(cell('shares'));
   const amount = numberOf(cell('amount'));
   const [fee, tax] = [numberOf(cell('fee') || '0'), numberOf(cell('tax') || '0')];
-  // Rule 5: a purchase's shares are above 0 and its amount below; a sale's the other way round.
+  // Rule 5: a purchase's shares are above 0 and its amount below; a sale's the other way round. Shares that cut to 0
+  // units (below 1e-10) would make an entry of 0 units, which the write refuses with the whole file.
   const side = kind.kind === 'trade' ? (kind.side === 'BUY' ? 1 : -1) : null;
   const want = kind.kind === 'receipt' ? 1 : kind.kind === 'delivery' ? -1 : side;
+  const cut = shares === null ? null : cutUnits(shares).units;
   const checks: [Column, boolean][] = [
     ['datetime', at !== null],
     ['symbol', kind.kind === 'left' || coin !== null],
-    ['shares', kind.kind === 'left' || (shares !== null && (want === null || signOf(shares) === want))],
+    ['shares', kind.kind === 'left' || (shares !== null && (want === null || signOf(cut) === want))],
     ['amount', side === null ? kind.kind !== 'cancel' || amount !== null : signOf(amount) === -side],
     ['fee', side === null || fee !== null],
     ['tax', side === null || (tax !== null && isZero(tax))],

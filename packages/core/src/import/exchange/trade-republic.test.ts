@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
+import { LISBON, NOW, PLAN } from '../../../test/exchange/plan-fixture';
 import synthetic from '../../../test/exchange/trade-republic-synthetic.csv?raw';
 import { TRADE_REPUBLIC_SYNTHETIC } from '../../../test/exchange/trade-republic-synthetic.expected';
+import { applyExchangeImport } from './apply';
+import { importId } from './import-id';
+import { planExchangeImport } from './plan';
 import { csvRows } from './table';
 import { readTradeRepublic, TR_COLUMNS, TR_READ } from './trade-republic';
 
@@ -167,6 +171,8 @@ describe('readTradeRepublic, rule by rule', () => {
     ['a sale with zero shares', { ...SELL, shares: '0' }, 'shares'],
     ['a sale with negative amount', { ...SELL, amount: '-50.00' }, 'amount'],
     ['a sale with empty amount', { ...SELL, amount: '' }, 'amount'],
+    ['shares that cut to 0 units', { shares: '0.00000000004' }, 'shares'],
+    ['a sale whose shares cut to 0 units', { ...SELL, shares: '-0.00000000009' }, 'shares'],
   ])('rule 5: a trade with %s is unreadable in that column', (_, row, column) => {
     expect(reasons(row)).toEqual([['unreadable', [2], column]]);
   });
@@ -174,6 +180,18 @@ describe('readTradeRepublic, rule by rule', () => {
   it('rule 5: units over 10 decimals are cut toward zero and flagged', () => {
     const [movement] = read({ shares: '0.00012345678919' }).movements;
     expect([movement?.units, movement?.unitsCut]).toEqual(['0.0001234567', true]);
+  });
+
+  it('rule 5: a buy whose units cut to 0 is left out, and the rest of the file still writes', () => {
+    const file = read({ shares: '0.00000000004', amount: '-0.01' }, { transaction_id: 'T2' });
+    const plan = planExchangeImport(
+      file,
+      { plan: PLAN, entries: [] },
+      { addHeld: false, venue: null },
+      { ...LISBON, idOf: importId },
+    );
+    const write = applyExchangeImport([], plan, NOW);
+    expect([write.refused, write.added, write.entries.map((entry) => entry.units)]).toEqual([null, 1, ['0.001']]);
   });
 
   it('rule 6: of two equal earlier buys, only the latest pairs with the cancellation', () => {
@@ -246,6 +264,12 @@ describe('readTradeRepublic, rule by rule', () => {
     ]);
     expect(reasons({ ...delivery, type: 'FREE_RECEIPT', shares: '-0.0002' })).toEqual([['unreadable', [2], 'shares']]);
     expect(reasons({ ...delivery, type: 'FREE_DELIVERY', shares: '0.0002' })).toEqual([['unreadable', [2], 'shares']]);
+    for (const [type, shares] of [
+      ['FREE_RECEIPT', '0.00000000004'],
+      ['FREE_DELIVERY', '-0.00000000004'],
+    ]) {
+      expect(reasons({ ...delivery, type, shares })).toEqual([['unreadable', [2], 'shares']]);
+    }
   });
 
   const move = (transaction_id: string, symbol: string, shares: string, datetime = BUY.datetime) => ({

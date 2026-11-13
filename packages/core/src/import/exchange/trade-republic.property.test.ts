@@ -31,7 +31,7 @@ const NEVER_READ = TR_COLUMNS.filter(
 const row = fc.record({
   kind: fc.constantFrom(...Object.keys(ROWS)),
   symbol: fc.constantFrom('BTC', 'XBT', 'ETH', 'SOL', 'XF0RENDER015'),
-  shares: fc.constantFrom('0.001', '0.002', '0.00012345678912', '0', ''),
+  shares: fc.constantFrom('0.001', '0.002', '0.00012345678912', '0.00000000004', '0', ''),
   amount: fc.constantFrom('50.00', '25.00', '0.10'),
   fee: fc.constantFrom('-1.00', ''),
   instant: fc.constantFrom('2026-06-01T09:00:00.000Z', '2026-06-01T09:00:00Z', '2026-06-01T09:30:00.000Z'),
@@ -100,12 +100,13 @@ describe('readTradeRepublic (property)', () => {
     );
   });
 
-  it('gives each movement its own key, and no left-out row a cell of its row', () => {
+  it('gives each movement its own key and units above 0, and no left-out row a cell of its row', () => {
     fc.assert(
       fc.property(exportOf, (file) => {
         const { movements, leftOut } = read(dataOf(file, blank));
         const keys = movements.map((movement) => movement.key);
         expect(new Set(keys).size).toBe(keys.length);
+        expect(movements.filter((movement) => !/[1-9]/u.test(movement.units))).toEqual([]);
         expect(JSON.stringify(leftOut)).not.toMatch(/TXN-|CRYPTO|TRADING|DELIVERY|CASH|EUR|BUY|SELL|FREE_|XF0/u);
       }),
       RUNS,
