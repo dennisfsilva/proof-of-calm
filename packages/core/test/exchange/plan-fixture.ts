@@ -152,7 +152,13 @@ export const M = {
   M25: bought('TFIX-M25', 'ETH', '2026-02-01', { units: '0.01', amount: '25.00', fee: '0.25' }, 49),
 } as const;
 
-const left = (reason: LeftOutRow['reason'], lines: number[], day: string | null, coin: string | null, amount: string | null) =>
+const left = (
+  reason: LeftOutRow['reason'],
+  lines: number[],
+  day: string | null,
+  coin: string | null,
+  amount: string | null,
+) =>
   ({
     reason,
     lines,
