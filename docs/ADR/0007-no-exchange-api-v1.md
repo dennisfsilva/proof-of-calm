@@ -1,6 +1,6 @@
 # ADR-0007: No exchange API connections in v1; CSV import in v1.1
 
-Status: Accepted · Date: 2026-10-16 · Deciders: owner (before the session); recorded by the planning session · Amended by ADR-0039, and by ADR-0041 (CSV import for the main exchanges of Portugal and Germany at the launch, M2)
+Status: Accepted · Date: 2026-10-16 · Deciders: owner (before the session); recorded by the planning session · Amended by ADR-0039, and by ADR-0041 (CSV import for the main exchanges of Portugal and Germany at the launch, M2) and ADR-0056 (Kraken, then Trade Republic; synthetic fixtures)
 
 ## Context
 
