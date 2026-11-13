@@ -1006,9 +1006,9 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   runs it in the domain store's queue on the entries as stored. Rows from a newer version (below) refuse it
   (`newer-rows`), and so does no plan (`no-plan`). "The preview is computed again on the stored rows with
   the same choices. Any difference in ids, kinds, months or figures writes nothing and shows the new
-  preview" (`changed`, with the new plan): `sameImport` compares every field of the entries added but
-  `updatedAt`, and the set of estimates tombstoned, so another tab's one tap, its delete of an estimate or
-  the same import refuses it. Step 5's write: "The write tombstones them all and adds that date's purchases
+  preview" (`changed`, with the new plan): `sameImport` compares every field but `updatedAt` of the
+  entries added and of the estimates tombstoned (the set across all items), so another tab's one tap, its
+  delete or edit of an estimate (amount, units, venue, date or note) or the same import refuses it. Step 5's write: "The write tombstones them all and adds that date's purchases
   as monthly buys for S, with the note of the first of them in `compareEntries` order and the import's
   venue, whatever venue they carried." "A replaced estimate is tombstoned with `deletedAt` and `updatedAt`
   at `stampAfter(now, its updatedAt)`", and the tombstone keeps every other field of the estimate, so a
