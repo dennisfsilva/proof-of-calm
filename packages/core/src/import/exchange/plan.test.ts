@@ -63,7 +63,7 @@ describe('planExchangeImport', () => {
     expect(golden.startingAmount).toBeNull();
   });
 
-  it("step 3, the late tap: October's estimate dated 3 Nov takes 2 Nov's purchase, and November stays open", () => {
+  it("step 4, the late tap: October's estimate dated 3 Nov takes 2 Nov's purchase, and November stays open", () => {
     expect(golden.entries.find((entry) => entry.id === testId(M.M19.key))?.slot).toBe('2026-10');
     expect(golden.entries.find((entry) => entry.id === testId(M.M21.key))?.slot).toBe('2026-11');
     // Tapped on time, the estimate reaches 16 Oct only: it stays, and 2 Nov fills November.
@@ -75,12 +75,12 @@ describe('planExchangeImport', () => {
     expect(plan.entries.find((entry) => entry.id === testId(M.M21.key))?.kind).toBe('extra');
   });
 
-  it("step 3, Carla's venue: the replacement takes the import's venue and the estimate's note", () => {
+  it("step 4, Carla's venue: the replacement takes the import's venue and the estimate's note", () => {
     const replacement = golden.entries.find((entry) => entry.id === testId(M.M16.key));
     expect([S.S1.venue, replacement?.venue, replacement?.note]).toEqual(['Bitvavo', 'Kraken', 'card']);
   });
 
-  it("step 4, Ana's July: a hand monthly buy typed in November claims July's purchase, which looks recorded", () => {
+  it("step 3, Ana's July: a hand monthly buy typed in November claims July's purchase, which looks recorded", () => {
     expect(golden.recorded).toEqual([
       { date: '2026-08-22', coin: 'BTC', units: '0.0008', amount: '50', count: 1, entry: S.S6 },
       { date: '2026-07-01', coin: 'BTC', units: '0.00161', amount: '99', count: 1, entry: S.S5 },
@@ -89,7 +89,7 @@ describe('planExchangeImport', () => {
     expect(idsOf(golden.entries)).not.toContain(testId(M.M15.key));
   });
 
-  describe('step 4 before step 3: a purchase a hand entry records is never imported again', () => {
+  describe('step 3 before step 4: a purchase a hand entry records is never imported again', () => {
     // October's one tap for BTC (E) and a hand extra buy of 0.0008 BTC on 21 Sept (H); the file buys on 20 Sept (P1)
     // and on 2 Oct (P2). P1 is inside E's window (16 Sept to 16 Oct) and 1 day from H's date.
     const tapped = anEntry({ slot: month('2026-10'), date: date('2026-10-01'), source: 'one-tap', venue: 'Bitvavo' });

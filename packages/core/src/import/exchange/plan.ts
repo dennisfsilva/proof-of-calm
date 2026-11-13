@@ -221,7 +221,25 @@ export function planExchangeImport(
 
   const startingAmount = startingGuard(plan, days);
 
-  // Step 3: "Each live one-tap monthly estimate of coin C for month S, in month order, takes C's unclaimed purchase
+  // Step 3: "a live monthly buy of C for S claims C's purchase date nearest S's due within 15 days; every other
+  // hand-recorded purchase or sale, and a monthly buy that claimed nothing, claims C's nearest date of the same role
+  // within 3 days of its own date". Before the estimates, so a purchase a hand entry records is never imported again.
+  const recorded: Recorded[] = [];
+  for (const entry of live
+    .filter((each) => HAND.has(each.source) && each.kind !== 'held' && each.kind !== 'move')
+    .sort(compareEntries)) {
+    const purchases = free(entry.coin, 'purchase');
+    const monthly = entry.slot === null ? null : closest(purchases, dueOf(plan, entry.slot), IMPORT_MATCH_DAYS);
+    const typed = free(entry.coin, entry.kind === 'sell' ? 'sale' : 'purchase');
+    const day = monthly ?? closest(typed, entry.date, IMPORT_TYPED_DAYS);
+    if (day === null) continue;
+    day.claimed = true;
+    const units = sum(day.items.map((item) => item.movement.units));
+    const amount = sum(day.items.map((item) => item.movement.amount as Money));
+    recorded.push({ date: day.date, coin: day.coin, units, amount, count: day.items.length, entry });
+  }
+
+  // Step 4: "Each live one-tap monthly estimate of coin C for month S, in month order, takes C's unclaimed purchase
   // date nearest S's due date, the earlier on a tie, dated from 15 days before that due date to 15 days after it, or
   // to the day after the estimate's own date when that is later."
   const replaced: { estimates: Entry[]; by: EntityId[] }[] = [];
@@ -237,24 +255,6 @@ export function planExchangeImport(
     ];
     const day = nearest(free(estimate.coin, 'purchase'), due, (each) => within(each, from, to));
     if (day !== null) replaced.push({ estimates: [estimate], by: add(day, 'dca', slot, estimate.note) });
-  }
-
-  // Step 4: "a live monthly buy of C for S claims C's purchase date nearest S's due within 15 days; every other
-  // hand-recorded purchase or sale, and a monthly buy that claimed nothing, claims C's nearest date of the same role
-  // within 3 days of its own date".
-  const recorded: Recorded[] = [];
-  for (const entry of live
-    .filter((each) => HAND.has(each.source) && each.kind !== 'held' && each.kind !== 'move')
-    .sort(compareEntries)) {
-    const purchases = free(entry.coin, 'purchase');
-    const monthly = entry.slot === null ? null : closest(purchases, dueOf(plan, entry.slot), IMPORT_MATCH_DAYS);
-    const typed = free(entry.coin, entry.kind === 'sell' ? 'sale' : 'purchase');
-    const day = monthly ?? closest(typed, entry.date, IMPORT_TYPED_DAYS);
-    if (day === null) continue;
-    day.claimed = true;
-    const units = sum(day.items.map((item) => item.movement.units));
-    const amount = sum(day.items.map((item) => item.movement.amount as Money));
-    recorded.push({ date: day.date, coin: day.coin, units, amount, count: day.items.length, entry });
   }
 
   const held = heldGuard(plan, live, days, choices.addHeld);
