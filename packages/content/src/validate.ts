@@ -3,9 +3,11 @@
 // rule's source names, no holding-rule override the core would not apply, split sums, template coins
 // that match the coin catalogue, template drawdowns from dated, allow-listed sources, the cycles file's completed
 // falls in catalogue order, unique fact keys, the Learn modules (modules-validate.ts), a profile's locale tags and
-// percent joiner (percent-validate.ts), and the banned-words lint on what users read. Pure: the
+// percent joiner (percent-validate.ts), the banned-words lint and the no-break hyphen between a number and its unit
+// (hyphen-validate.ts) on what users read. Pure: the
 // CLI in scripts/validate.ts reads the files. Relative imports name their .ts files, so that Node runs the
 // CLI without a build step, as tools/ does.
+import { hyphenProblems } from './hyphen-validate.ts';
 import { moduleProblems } from './modules-validate.ts';
 import { monthsBefore } from './months.ts';
 import { localeProblems } from './percent-validate.ts';
@@ -38,6 +40,12 @@ const STALE_MONTHS = 12;
 const COIN_CATALOGUE = /(^|\/)packages\/content\/coins\.json$/;
 const CYCLES_FILE = /(^|\/)packages\/content\/cycles\/[^/]+\.json$/;
 const FACTS_FILE = /(^|\/)packages\/content\/facts\/[^/]+\.json$/;
+const MESSAGES_FILE = /(^|\/)messages\/[^/]+\.json$/;
+// The tax-year file's lines, which only a downloaded file carries, keep U+002D (docs/CONTENT-STYLE.md §4).
+const SETTINGS_MESSAGES = /(^|\/)features\/settings\/messages\/[^/]+\.json$/;
+const TAX_YEAR_FILE = 'data.taxYear.file.';
+// The one profile text only the tax-year file copies (docs/CONTENT-STYLE.md §4).
+const FILE_ONLY_PROFILE_TEXT = 'lotRuleNote';
 const UNAPPLIED = 'holdingRuleOverrides: the early-window check does not apply them yet (docs/JURISDICTIONS.md §2)';
 
 function hostAllowed(url: string, domains: readonly string[]): boolean {
@@ -86,7 +94,10 @@ function jurisdiction(file: ContentFile, options: ValidationOptions): Problem[] 
     // A tripwire until the early-window check applies overrides (docs/JURISDICTIONS.md §2, docs/ROADMAP.md M2).
     problems.push({ path, code: 'overrides-unapplied', detail: UNAPPLIED });
   }
-  for (const [field, text] of profileTexts(profile)) problems.push(...bannedProblems(path, field, text));
+  for (const [field, text] of profileTexts(profile)) {
+    problems.push(...bannedProblems(path, field, text));
+    if (field !== FILE_ONLY_PROFILE_TEXT) problems.push(...hyphenProblems(path, field, text));
+  }
   problems.push(...localeProblems(path, profile, profileTexts(profile)));
   return problems;
 }
@@ -327,6 +338,14 @@ function strings(value: unknown, prefix: string): [string, string][] {
   return Object.entries(value).flatMap(([key, child]) => strings(child, prefix === '' ? key : `${prefix}.${key}`));
 }
 
+function messages(file: ContentFile): Problem[] {
+  const fileOnly = (field: string) => SETTINGS_MESSAGES.test(file.path) && field.startsWith(TAX_YEAR_FILE);
+  return strings(file.json, '').flatMap(([field, text]) => [
+    ...bannedProblems(file.path, field, text),
+    ...(fileOnly(field) ? [] : hyphenProblems(file.path, field, text)),
+  ]);
+}
+
 /** Each fact's `lastReviewed` by key, from all the files first, so that file order does not matter. */
 function factDates(files: readonly ContentFile[]): ReadonlyMap<string, string> {
   const items = files.flatMap((file) => (FACTS_FILE.test(file.path) && Array.isArray(file.json) ? file.json : []));
@@ -348,9 +367,7 @@ export function validateContent(files: readonly ContentFile[], options: Validati
     if (COIN_CATALOGUE.test(file.path)) return coinCatalogue(file);
     if (CYCLES_FILE.test(file.path)) return cycles(file, catalogue, options);
     if (FACTS_FILE.test(file.path)) return facts(file, options, seen);
-    if (/(^|\/)messages\/[^/]+\.json$/.test(file.path)) {
-      return strings(file.json, '').flatMap(([field, text]) => bannedProblems(file.path, field, text));
-    }
+    if (MESSAGES_FILE.test(file.path)) return messages(file);
     return [{ path: file.path, code: 'unknown-file', detail: 'not a content or message file' }];
   });
   return [...problems, ...(options.modules ?? []).flatMap((module) => moduleProblems(module, context))];
