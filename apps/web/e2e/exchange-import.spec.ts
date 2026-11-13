@@ -58,7 +58,7 @@ const preview = (page: Page) => page.getByRole('region', { name: 'What this file
 test('a Kraken ledger previews, imports at Kraken, and adds nothing the second time', async ({ page }) => {
   await page.addInitScript(recordCspViolations);
   await openData(page);
-  await expect(page.getByText('Exchange exports Proof of Calm reads, as CSV: Kraken (Ledgers).')).toBeVisible();
+  await expect(page.getByText('Exchange exports Proof of Calm reads, as CSV or ZIP: Kraken (Ledgers).')).toBeVisible();
 
   await fileInput(page).setInputFiles(LEDGER);
   const heading = page.getByRole('heading', { name: 'What this file adds' });
@@ -197,7 +197,8 @@ test.describe('a file the exchange import does not take', () => {
     ]);
     const zip = await choose(page, 'kraken.zip', Buffer.from(archive));
     await expect(zip).toHaveText(
-      'This ZIP file holds more than one CSV file, so it was not read. Open it, then choose the CSV file of the Ledgers.',
+      'This ZIP file holds more than one CSV file, so it was not read. Open it, then choose the CSV file of ' +
+        "Kraken's Ledgers export.",
     );
   });
 
