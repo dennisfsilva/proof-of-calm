@@ -903,7 +903,7 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   unreadable required cell leaves its refid's rows out whole, named by line and column." "A txid twice with
   the same cells keeps one; with different cells, both refids are left out." "Legacy codes normalise as K1,
   K6 or K8 list them (XXBT and XBT to BTC, XETH to ETH, XXDG and XDG to DOGE, ZEUR to EUR, …), each cited
-  beside its line." "Fiat is every code K6 lists as fiat (EUR, USD, GBP, CHF, CAD, JPY and AUD among them),
+  beside its line." "Fiat is every code K8 lists as fiat (EUR, USD, GBP, CHF, CAD, JPY and AUD among them),
   after normalisation." "A code with a dot suffix (.S, .M, .P, .F, .B) is a balance within Kraken of the code
   before the dot." "The bonus rows K1 documents are receipts for a coin; staking, and earn with the reward
   subtype, are rewards; other earn subtypes, transfer, suffixed and KFEE rows are within Kraken; a deposit or withdrawal
