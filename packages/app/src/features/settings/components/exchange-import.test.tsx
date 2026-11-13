@@ -77,7 +77,7 @@ describe('ExchangeImport', () => {
     ]);
     expect((screen.getByLabelText('Venue for these entries') as HTMLInputElement).value).toBe('Kraken');
     const summary = shown.findIndex((line) => line.startsWith('Adds '));
-    const held = shown.indexOf(`${HELD_LINE} Added, they also replace 1 estimate from Bought as planned.`);
+    const held = shown.indexOf(`${HELD_LINE} If you add them, they also replace 1 estimate from Bought as planned.`);
     expect(summary).toBeGreaterThan(1);
     expect(held).toBeGreaterThan(summary);
     const checkbox = screen.getByRole('checkbox', { name: 'Add these purchases too' });
