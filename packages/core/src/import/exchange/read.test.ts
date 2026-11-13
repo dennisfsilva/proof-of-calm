@@ -1,0 +1,55 @@
+import { describe, expect, it } from 'vitest';
+import { readExchangeFile } from './read';
+
+// "Text starting with `PK\^C\^D` is `zip`; a header with ordertxid and pair is `kraken-trades`; a header whose
+// names are all among the ledger's (txid, refid, time, type, subtype, aclass, subclass, asset, wallet, amount,
+// fee, balance) is a Kraken ledger, which is `missing-columns`, naming each, when it lacks txid, refid, time,
+// type, asset, amount or fee; a ledger with no data row is `no-rows`; anything else is `not-recognised`."
+// "No refusal, left-out row or thrown error holds a cell's text." (docs/DOMAIN.md §3.13)
+const LEDGER = '"txid","refid","time","type","subtype","aclass","subclass","asset","wallet","amount","fee","balance"';
+const refusal = (text: string) => readExchangeFile(text);
+
+describe('readExchangeFile', () => {
+  it('refuses a ZIP by its first bytes', () => {
+    expect(refusal('PK\u0003\u0004\u0014\u0000\u0008\u0000ledgers.csv')).toEqual({ ok: false, error: { code: 'zip' } });
+  });
+
+  it("refuses Kraken's trades file by its ordertxid and pair columns", () => {
+    const trades = 'txid,ordertxid,pair,time,type,ordertype,price,cost,fee,vol,margin,misc,ledgers\n';
+    expect(refusal(`${trades}TSYN01-AAAAA-AAAAAA,OSYN01-AAAAA-AAAAAA,XXBTZEUR,2025-12-01 09:00:00.0000,buy`)).toEqual({
+      ok: false,
+      error: { code: 'kraken-trades' },
+    });
+  });
+
+  it('does not recognise a random CSV, a backup, an empty text or a header with a column the ledger lacks', () => {
+    for (const text of [
+      'date,coin,amount\n2025-12-01,BTC,10\n',
+      '{"format":"proof-of-calm","schemaVersion":5,"plan":null,"entries":[]}',
+      '',
+      `${LEDGER.replace('"balance"', '"balance","amountusd"')}\n`,
+    ]) {
+      expect(refusal(text)).toEqual({ ok: false, error: { code: 'not-recognised' } });
+    }
+  });
+
+  it('refuses a ledger with a header alone as no-rows', () => {
+    expect(refusal(`${LEDGER}\n`)).toEqual({ ok: false, error: { code: 'no-rows' } });
+  });
+
+  it('names each required column a ledger lacks, before counting its rows', () => {
+    expect(refusal('"txid","time","type","subtype","aclass","asset","amount","balance"\n')).toEqual({
+      ok: false,
+      error: { code: 'missing-columns', columns: ['refid', 'fee'] },
+    });
+  });
+
+  it('reads a ledger without the optional subtype column', () => {
+    const result = refusal(
+      '"txid","refid","time","type","asset","amount","fee"\n"LSYN01-AAAAA-AAAAAA","QSYN01-AAAAA-AAAAAA","2025-12-01 09:00:00","invite bonus","XXBT","0.0001","0"\n',
+    );
+    expect(result.ok && result.value.movements.map((movement) => [movement.role, movement.coin])).toEqual([
+      ['receipt', 'BTC'],
+    ]);
+  });
+});
