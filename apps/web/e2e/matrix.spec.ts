@@ -54,6 +54,13 @@ const PAGES: readonly Entry[] = [
     holds: /intraday highs and lows in US dollars/,
   },
   { name: 'learn-cycles', path: '/learn/cycles', heading: 'Cycles' },
+  {
+    name: 'learn-taxes-where-you-live',
+    path: '/learn/taxes-where-you-live',
+    heading: 'Taxes where you live',
+    phase: 'buy',
+    holds: /^Portugal$/,
+  },
   { name: 'learn-noise', path: '/learn/noise', heading: 'Noise' },
   { name: 'learn-when-the-market-drops', path: '/learn/when-the-market-drops', heading: 'When the market drops' },
   {
