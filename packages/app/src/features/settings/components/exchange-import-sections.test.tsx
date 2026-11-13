@@ -104,7 +104,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
     expect(lines('Estimates it replaces (2)')).toEqual([
       'Monthly buy for October 2026: 0.00119 BTC (estimated) at Bitvavo for €70.00, becomes 0.00120 BTC at Kraken ' +
         'for €70.00, fee €0.18, on 5 Oct 2026.',
-      'Monthly buy for October 2026: 0.00110 BTC (estimated) at Bitvavo for €70.00, becomes 0.00120 BTC at Kraken ' +
+      'Monthly buy for October 2026: 0.0011 BTC (estimated) at Bitvavo for €70.00, becomes 0.0012 BTC at Kraken ' +
         'for €70.00, fee €0.18, on 5 Oct 2026.',
     ]);
   });
@@ -207,11 +207,11 @@ describe('ExchangeSummary and ExchangeSections', () => {
     expect(sections()).toEqual([]);
   });
 
-  it("names the file's currencies when none is the plan's", async () => {
+  it("names the file's currencies when none is the plan's, and still adds the coins received at no cost", async () => {
     const usd = KRAKEN_OCTOBER.replaceAll('"EUR"', '"USD"');
     await mount(planOf(usd, fixture.entries));
     expect(texts().slice(0, 2)).toEqual([
-      'Nothing to add from this file.',
+      'Adds 1 entry: 1 Coins added entry at no cost.',
       "No purchase or sale in this file is in EUR, this plan's currency: they are in USD. Amounts are never converted.",
     ]);
     expect(lines('Left out (1)')).toEqual(['4 purchases and sales in USD, not imported: amounts are never converted.']);
