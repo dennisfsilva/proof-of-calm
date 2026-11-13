@@ -166,16 +166,15 @@ const unitsPerCoin = (entries: readonly Entry[]) =>
   );
 
 /**
- * A one-tap estimate's choice is stored with the prefix, while at once a nearer date in the rest of the file takes it
- * and the date it took in the prefix is claimed by a hand-recorded entry (step 4) or guarded by a `held` one (step 5):
- * the order of D2's steps, not a fault. The prefix property draws hand-recorded and `held` entries only of coins with
- * no estimate in the Log.
+ * The held guard (step 5) runs after the estimates (step 4), and an estimate is replaced one for one: a `held` entry of
+ * the coin changes which purchase replaces an estimate between a prefix and the whole file, never how many are stored.
+ * A prefix stores the estimate's choice, while at once a nearer date in the rest of the file takes it and the held
+ * guard leaves out the prefix's date, so the ids differ. The prefix property draws `held` entries only of coins with no
+ * estimate in the Log; hand-recorded entries claim before the estimates (step 3) and are drawn for every coin.
  */
 const apart = (entries: readonly Entry[]) => {
   const estimated = new Set(entries.filter((entry) => entry.source === 'one-tap').map((entry) => entry.coin));
-  return entries.filter(
-    (entry) => (entry.source !== 'manual' && entry.source !== 'import-json') || !estimated.has(entry.coin),
-  );
+  return entries.filter((entry) => entry.kind !== 'held' || !estimated.has(entry.coin));
 };
 
 const run = (
