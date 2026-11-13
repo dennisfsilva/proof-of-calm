@@ -19,20 +19,20 @@
 // Each row of FILE, with the step of D2 that decides it (addHeld false):
 // - M01 BTC 1 Mar: step 1, imported earlier (S10).
 // - M02 ETH 1 Mar: step 1, deleted on this device (S8).
-// - M03 BTC 10 Mar, M05 BTC 1 Apr, M08 BTC receipt 20 Apr, M09 BTC 1 May: step 5, on or before S7's 1 May:
+// - M03 BTC 10 Mar, M05 BTC 1 Apr, M08 BTC receipt 20 Apr, M09 BTC 1 May: step 4, on or before S7's 1 May:
 //   4 rows, 0.0002 + 0.0012 + 0.00001 + 0.0011 = 0.00251 BTC, left out.
 // - M04 ETH 12 Mar: step 6, March (11 days from 1 Mar) is done by S10: an extra buy.
 // - M06 ETH 1 Apr: step 6, April's ETH. M07 ETH 14 Apr: April (13 days), filled by M06: an extra buy.
 // - M10 ETH 2 May: step 6, May's ETH. M11 ETH 2 Jun: June is skipped: an extra buy.
-// - M12 BTC 1 Jul: step 3, S5's month (nearest 1 Jul): looks recorded already.
+// - M12 BTC 1 Jul: step 2, S5's month (nearest 1 Jul): looks recorded already.
 // - M13 ETH 1 Jul: step 6, July is done by S5's BTC: an extra buy.
 // - M14 BTC 1 Aug: step 6, August is paused: an extra buy.
-// - M15 BTC 22 Aug: step 3, S6 claims it (2 days from 20 Aug): looks recorded already. It is inside S1's window
-//   (17 Aug to 16 Sept) too, but step 3 runs first, and S1 would take 1 Sept's M16, nearer its due, either way.
-// - M16 BTC, M17 ETH 1 Sept: step 4, replace S1 (note `card`) and S2, at Kraken.
+// - M15 BTC 22 Aug: step 2, S6 claims it (2 days from 20 Aug): looks recorded already. Its month is September
+//   too, but step 2 claims it first.
+// - M16 BTC, M17 ETH 1 Sept: step 5, replace S1 (note `card`) and S2, at Kraken.
 // - M18 BTC sale 20 Oct: a sale.
-// - M19 BTC, M20 ETH 2 Nov: step 4, replace S3 and S4: the late tap reaches to 4 Nov, the day after 3 Nov.
-//   M20's units were cut to 10 decimals.
+// - M19 BTC, M20 ETH 2 Nov: step 5, replace S3 and S4: 2 Nov is October's: S3's and S4's date, 3 Nov, is as
+//   near as November's due, and the earlier month wins. M20's units were cut to 10 decimals.
 // - M21 BTC 5 Nov: step 6, November's BTC (4 days); its fee was taken in the coin.
 // - M22 SOL 1 Nov: SOL is at 0 %: an extra buy.
 // - M23 XRP: not in the plan. M24 BTC in USD: another currency.
@@ -303,12 +303,12 @@ export const EXPECTED_ENTRIES: readonly Entry[] = [
   added(M.M11, 'extra', null), // step 6: June skipped
   added(M.M13, 'extra', null), // step 6: July done by S5
   added(M.M14, 'extra', null), // step 6: August paused
-  added(M.M16, 'dca', '2026-09', 'card'), // step 4: replaces S1
-  added(M.M17, 'dca', '2026-09'), // step 4: replaces S2
+  added(M.M16, 'dca', '2026-09', 'card'), // step 5: replaces S1
+  added(M.M17, 'dca', '2026-09'), // step 5: replaces S2
   added(M.M18, 'sell', null), // a sale
   added(M.M22, 'extra', null), // SOL at 0 %
-  added(M.M19, 'dca', '2026-10'), // step 4: replaces S3, the late tap
-  added(M.M20, 'dca', '2026-10'), // step 4: replaces S4
+  added(M.M19, 'dca', '2026-10'), // step 5: replaces S3, October on the tie
+  added(M.M20, 'dca', '2026-10'), // step 5: replaces S4
   added(M.M21, 'dca', '2026-11'), // step 6: November's BTC
 ];
 

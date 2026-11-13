@@ -26,12 +26,17 @@ export const MAX_ENTRIES = 10_000;
 export const IMPORT_MAX_BYTES = 50_000_000;
 
 /**
- * "A purchase date's month is the plan's month whose due date is nearest it, within 15 days (`IMPORT_MATCH_DAYS`)"
- * (docs/DOMAIN.md §3.13, the exchange import).
+ * "A purchase date's month is the plan's month with the anchor nearest it, the earlier month on a tie: a month's due
+ * date reaches 15 days either side (`IMPORT_MATCH_DAYS`), and each one-tap monthly estimate of the coin for that month,
+ * live or tombstoned, reaches from 3 days before its date (`IMPORT_TYPED_DAYS`) to the day after" (docs/DOMAIN.md
+ * §3.13, the exchange import).
  */
 export const IMPORT_MATCH_DAYS = 15;
 
-/** A hand-recorded entry claims an imported date of its coin and role within this many days of its own (§3.13). */
+/**
+ * A hand-recorded entry claims an imported date of its coin and role within this many days of its own, and a one-tap
+ * monthly estimate reaches this many days before its date (docs/DOMAIN.md §3.13).
+ */
 export const IMPORT_TYPED_DAYS = 3;
 
 /** The Log shows this many transactions before "Show all". */
