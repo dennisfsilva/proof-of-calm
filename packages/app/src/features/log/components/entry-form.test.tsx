@@ -115,7 +115,7 @@ describe('EntryForm', () => {
     const value = (label: string) => screen.getByLabelText<HTMLInputElement>(label).value;
     expect([value('BTC received (units)'), value('BTC price (EUR)')]).toEqual(['', '']);
     expect(screen.getByRole('status').textContent).toBe(
-      "The price the form filled in does not apply to an earlier date. Type the amount before fees and the units received, as your exchange's confirmation shows them.",
+      "The price the form filled in does not apply to an earlier date. Type the cost before fees and the units received, as your exchange's confirmation shows them.",
     );
     type('Date', '2026-10-20');
     expect([value('BTC received (units)'), value('BTC price (EUR)')]).toEqual(['0.00199999', '60,000.12']);

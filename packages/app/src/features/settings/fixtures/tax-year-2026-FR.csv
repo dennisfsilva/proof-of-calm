@@ -5,7 +5,7 @@ Amounts are as you logged them and are not converted. Your pay currency is EUR.
 "Each block is one sale from your log: a holding row for each coin held just before it, then the sale row. Purchases have no rows here: the CSV log lists every entry. The calculation from these figures is left to you or your accountant."
 "On holding rows, the coin sold is valued at its own sale price. The other coins carry no market price in this file. estimated_portfolio_value is filled only when the coin sold was the only coin held and your log holds the units sold."
 "purchase_costs_to_date sums the amounts of the purchases and the recorded costs of the Coins added entries logged before each sale, and purchase_fees_to_date their fees. Neither is reduced by earlier sales. Amounts are as you logged them, whether or not they include a fee."
-"sale_price is each sale's amount as you logged it, whether or not a fee was deducted from it."
+"sale_price is each sale's amount as you logged it, whether or not a fee was deducted from it, and sale_fee its fee."
 Dates are YYYY-MM-DD. Amounts and units use a decimal point.
 The tax year ends on 2026-12-31. This file shows your log as of 2026-10-20.
 
