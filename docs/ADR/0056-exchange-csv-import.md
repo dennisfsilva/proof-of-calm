@@ -58,3 +58,10 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
 - The French file writes one block per sold fill.
 - The derived ids are named in the Privacy notice before sync ships (M3).
 - There is no request line for missing exchanges.
+
+## Corrections recorded on 2026-11-13
+
+- 2026-11-13: hand-recorded entries claim their purchases before one-tap estimates take theirs, so
+  the Log's order reads ids already stored, the first buy's 15 days, hand-recorded entries, one-tap
+  monthly estimates, then `held` entries (the plan's review on #15 found a hand entry's purchase
+  imported twice). The order in Decision above is replaced by this one; the rest stands.
