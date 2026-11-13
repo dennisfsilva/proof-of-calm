@@ -1,6 +1,6 @@
 # ADR-0051: The repository is public, from fresh history
 
-Status: Accepted · Date: 2026-11-08 · Deciders: the owner
+Status: Accepted; its fixture sentence amended by ADR-0056 (fixtures are synthetic, and no real export enters the repository) · Date: 2026-11-08 · Deciders: the owner
 
 ## Context
 
