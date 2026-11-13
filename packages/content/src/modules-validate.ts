@@ -1,6 +1,7 @@
 // The gate on one Learn module (docs/EDUCATION.md §10, ADR-0048): what the parser refuses, the file name, the
-// 400 words, its facts, its age, the owner's review, the syntax, its chart element, and the banned words. Pure, like
-// validate.ts.
+// 400 words, its facts, its age, the owner's review, the syntax, its chart element, the banned words, and the no-break
+// hyphen between a number and its unit. Pure, like validate.ts.
+import { hyphenProblems } from './hyphen-validate.ts';
 import { type LearnModule, parseModule, plainText } from './loaders/modules.ts';
 import { monthsBefore } from './months.ts';
 import { bannedProblems, findingProblems, type Problem } from './problem.ts';
@@ -152,5 +153,7 @@ export function moduleProblems(file: ModuleFile, context: ModuleContext): Proble
     ...chartProblems(path, module),
     ...(['title', 'idea', 'caveat'] as const).flatMap((field) => bannedProblems(path, field, module[field])),
     ...findingProblems(path, 'body', bodyFindings(module.body)),
+    ...(['title', 'idea', 'caveat'] as const).flatMap((field) => hyphenProblems(path, field, module[field])),
+    ...hyphenProblems(path, 'body', plainText(module.body)),
   ];
 }
