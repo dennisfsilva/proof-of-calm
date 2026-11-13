@@ -130,7 +130,9 @@ describe('applyExchangeImport over planExchangeImport, with importId', () => {
             if (entry.kind === 'held' && entry.source !== 'import-csv' && (latest === undefined || latest < entry.date))
               through.set(entry.coin, entry.date);
           }
-          const leaked = added.filter((entry) => entry.kind !== 'sell' && entry.date <= (through.get(entry.coin) ?? ''));
+          const leaked = added.filter(
+            (entry) => entry.kind !== 'sell' && entry.date <= (through.get(entry.coin) ?? ''),
+          );
           expect(addHeld ? [] : leaked).toEqual([]);
         }),
         TWICE,
