@@ -43,10 +43,11 @@ const LEGACY = new Map<string, string>([
 
 // "Fiat is every code K8 lists as fiat (EUR, USD, GBP, CHF, CAD, JPY and AUD among them), after
 // normalisation."
-// K8: the plain codes of its Z-prefixed fiat codes, and CHF from its quote assets.
+// K8: the plain codes of its Z-prefixed fiat codes, and each government currency (ISO 4217) of its
+// QUOTE_ASSETS; the stablecoins and coins there (USDT, USDC, DAI, PYUSD, EURC, …) stay coins.
 const FIAT = new Set<string>([
   ...[...LEGACY.entries()].filter(([from]) => from.startsWith('Z')).map(([, to]) => to),
-  'CHF',
+  ...['AED', 'AUD', 'CAD', 'CHF', 'EUR', 'GBP', 'JPY', 'USD'], // K8: QUOTE_ASSETS
 ]);
 
 /** Whether a normalised code is fiat. */
