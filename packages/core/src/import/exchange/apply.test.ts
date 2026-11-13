@@ -45,6 +45,25 @@ describe('applyExchangeImport', () => {
       refused: { code: 'too-many-entries', entries: MAX_ENTRIES + 1, max: MAX_ENTRIES },
     });
   });
+
+  // One write never stores two rows under one id: the store puts rows by id, so the second would replace the first.
+  const held = (overrides: Partial<Entry>) =>
+    anEntry({ kind: 'held', amount: null, slot: null, source: 'import-csv', ...overrides });
+  it.each([
+    ['two held entries', () => [held({ units: units('0.00005') }), held({ units: units('0.00003') })]],
+    ['a monthly buy and a held entry', () => [anEntry({ source: 'import-csv' }), held({ units: units('0.00005') })]],
+  ] as const)('refuses `invalid-entries` when %s share an id, and writes nothing', (_, pair) => {
+    const stored = many(2);
+    const [first, second] = pair() as [Entry, Entry];
+    const other = anEntry({ source: 'import-csv' });
+    const write = applyExchangeImport(stored, adding([first, { ...second, id: first.id }, other]), NOW);
+    expect(write).toEqual({
+      entries: stored,
+      added: 0,
+      replaced: 0,
+      refused: { code: 'invalid-entries', ids: [first.id] },
+    });
+  });
 });
 
 describe('sameImport over the estimates it tombstones', () => {
