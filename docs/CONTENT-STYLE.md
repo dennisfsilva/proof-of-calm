@@ -130,7 +130,7 @@ Sentence case, no exclamation marks, numbers with a unit and a date, verbs on bu
 | Empty: no plan (Today, Plan, Portfolio, Settings' Plan, Coins & split and Hold & sell tabs) | Title `No plan yet`; `Set up a plan or import a file.` with both phrases as links (onboarding, Settings); on Settings' tabs, `import a file` opens `Currency & data` |
 | Empty: no plan (Log) | `No entries yet. Set up a plan or import a file.` |
 | Empty: nothing to export (Settings, no plan) | `Nothing to export yet. Set up a plan or import a file.` in place of the export buttons |
-| Empty: no sales (M2) | `No sales yet. When you sell, record it here so your cost basis and the tax-year export stay right.` |
+| Empty: no sales (M2) | `No sales yet. When you sell, record it here so Portfolio and the tax-year export stay right.` |
 | Import not recognised | `This file is not in a format Proof of Calm can read. Export a backup from Proof of Calm, then import that file.`; for a pasted text, `This text is not in a format Proof of Calm can read. Copy the whole export again, then paste it.` (M1 imports JSON backups and the DCA plan page's export; the CSV import is M2's.) |
 | Export date not stored | `The backup file was saved, but this device could not record the export date. Export again to record it.` as an alert under the export buttons |
 | Export not saved | `The file was not saved. Export again to keep a copy.` as an alert under the export buttons and inside the replace dialog, until a later export saves the file |
@@ -236,6 +236,13 @@ A formatted date never breaks across lines: `lib/format` joins its parts with no
 and the onboarding summary and a template card's split line join each coin to its share the same way (`BTC 70%`). Short months are the
 locale's own, so en-GB writes `1 Sept 2029` beside `31 Aug 2030`; copy quotes them as formatted, never
 shortened by hand.
+A numeral joined to its unit by a hyphen (`90‑day`, `365‑day`) never breaks there. Text a screen shows writes the
+no-break hyphen U+2011 between them (`\u2011` in a JSON string, the character itself in a module): messages, modules
+(title, idea, caveat and body) and every profile text the app shows; `pnpm validate:content` refuses an ordinary
+hyphen there (`number-unit-hyphen`). Text only a downloaded file carries keeps U+002D, since a file does not wrap and
+its reader searches it as typed: the tax-year file's lines (the `settings` messages under `data.taxYear.file`) and a
+profile's `lotRuleNote`. A holding condition shows on screens and the file copies it as written, so it takes U+2011.
+Facts and documents keep U+002D, and a document quotes copy with it.
 
 ## 5. Education modules
 
@@ -245,7 +252,7 @@ whole minutes: 10 seconds per chart added before rounding up, counted on body te
 puts adult non-fiction reading at about 238 wpm, so the estimate errs long for second-language readers;
 the reading time counts the module's own text, not the country card that leads the tax module), and
 `Last reviewed <date>` under the title, which the tax module extends to `Last reviewed <date> · Next
-review due <date>`. From the day after `nextReviewDue` a module is past due: its line reads `Last
+review due <date>`, each phrase after the `·` kept on one line. From the day after `nextReviewDue` a module is past due: its line reads `Last
 reviewed <date> · review overdue`, with `review overdue` in ink, on the route and in the sheet, and
 the tax module adds `Rules may have changed since <date>. Check your tax authority before
 filing.` on its own line, `<date>` the module's last-reviewed date as the line above formats it,
