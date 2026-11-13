@@ -97,6 +97,7 @@ describe('turbo inputs', () => {
       'packages/content/sources.allow.json', // content-review/example.test.ts: the example's links
       '.claude/crew.json', // lint/copy-paths.test.ts: the copy paths, and the tax-year files it lists
       ...filesUnder('packages/app/src/features/settings/fixtures'),
+      ...filesUnder('packages/core/src/export'),
       ...filesUnder('packages/core/test/tax-year'),
     ];
     expect(read).toContain('packages/app/src/features/today/messages/en.json');

@@ -24,6 +24,8 @@
         "$TURBO_ROOT$/packages/content/jurisdictions/ie.json",
         "$TURBO_ROOT$/packages/content/sources.allow.json",
         "$TURBO_ROOT$/.claude/crew.json",
+        "$TURBO_ROOT$/packages/app/src/features/settings/fixtures/**",
+        "$TURBO_ROOT$/packages/core/src/export/**",
         "$TURBO_ROOT$/packages/*/{src,test}/**/*tax-year*",
         "$TURBO_ROOT$/packages/*/{src,test}/**/*tax-year*/**"
       ]
