@@ -6,7 +6,8 @@ import { moduleProblems } from './modules-validate.ts';
 import { findBanned } from './style/banned.ts';
 
 // docs/EDUCATION.md §4: Taxes where you live. Its body is #24's D2 sentences P1 to P11, word for word, with #159's
-// two replacements (the sentence on rules not loaded, and P10's button), under D2's six headings; its five dated
+// two replacements (the sentence on rules not loaded, and P10's button) and review round 1's P1 and P6, under D2's
+// six headings; its five dated
 // examples quote only what their trimmed facts hold (D7, the delegated read of 2026-11-12).
 const path = 'packages/content/learn/taxes-where-you-live.mdx';
 const source = readFileSync(new URL('../learn/taxes-where-you-live.mdx', import.meta.url), 'utf8');
@@ -14,8 +15,10 @@ const context = { facts: new Map(facts.map((fact) => [fact.key, fact.lastReviewe
 const KEYS = ['k.pt-2023', 'k.de-2024', 'k.it-2026', 'k.be-2026', 'k.gb-2024'] as const;
 const MONTH = 'Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sept?|Oct|Nov|Dec';
 
+// Review round 1 (CONTENT-STYLE §1 rule 4): D2's one 45-word sentence split in two, the same 45 words. The line
+// shows when a row is opened (log-row.tsx's details; log-row.test.tsx's holding line after the expand click).
 const P1 =
-  'If your plan has a holding rule, each purchase and each entry of coins added in the Log shows, when you open it, the day it passes that rule, counted from the date you recorded: “Tax-free from”, or “Long-term rate from” where the rule lowers the rate.';
+  'If your plan has a holding rule, each purchase and each entry of coins added in the Log shows, when opened, the day it passes that rule, counted from the date you recorded. It reads “Tax-free from”, or “Long-term rate from” where the rule lowers the rate.';
 const P2 =
   "Proof of Calm cannot check the rule's other conditions, so the date alone does not settle how a sale is taxed.";
 const P3 =
@@ -23,8 +26,10 @@ const P3 =
 const P4 = 'The file says it is data from your log, not a tax computation.';
 const P5 =
   'Proof of Calm works out no taxable gain or loss, applies no tax rate to your figures, tests nothing against an allowance or a money threshold, and shows no tax due.';
-const P6 =
-  "Portfolio's P/L is not a taxable gain either: it covers the whole plan, not one tax year, and does not take off the fees you log.";
+// Review round 1 (LEGAL §6 question 14): naming the P/L's differences from a taxable gain reads as a recipe, so
+// the sentence names none. Not "one formula in every country": the profile's lot rule and scope enter the P/L
+// through holdingContext (DOMAIN §3.6, unrecordedUnits), so the claim stays the one that holds everywhere.
+const P6 = "Portfolio's P/L is not a taxable gain either: it is not worked out as one.";
 const P7 = "Where your plan follows a country's rule with no holding period, no date appears.";
 const P8 =
   "Where your plan follows the general profile's rule, no date appears either, but your country may still have a holding period.";
@@ -60,7 +65,7 @@ const EXAMPLES = [
   ],
   [
     'k.it-2026',
-    'Italy, from 1 Jan 2026: the substitute tax on crypto gains rose from 26 % to 33 % (L. 207/2024).',
+    'Italy, from 1 Jan 2026: the substitute tax rate on crypto rose from 26 % to 33 % (L. 207/2024).',
     ['L. 207/2024', 'substitute tax'],
   ],
   [
@@ -70,7 +75,7 @@ const EXAMPLES = [
   ],
   [
     'k.gb-2024',
-    "The UK's annual exempt amount fell from £12,300 to £6,000 for 2023 to 2024, then £3,000 for 2024 to 2025.",
+    'The UK, 2023 to 2024: the annual exempt amount fell from £12,300 to £6,000; 2024 to 2025: £3,000 (HMRC).',
     ['annual exempt amount', '2023 to 2024', '2024 to 2025'],
   ],
 ] as const;
@@ -176,6 +181,8 @@ describe('the Taxes where you live module', () => {
     const lines = exampleLines(read().body);
     expect(lines).toEqual(EXAMPLES.map(([, example]) => example));
     for (const line of lines) expect(words(`- ${line}`), line).toBeLessThanOrEqual(20);
+    // CONTENT-STYLE §1 rule 10 and §5: each opens with "<country>, <when>:" and closes with its source.
+    for (const line of lines) expect(line).toMatch(/^[^,:]+, [^:]+: .+ \([^()]+\)\.$/u);
   });
 
   it("quotes every figure, date and law name of an example from its own fact's value", () => {
