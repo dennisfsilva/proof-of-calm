@@ -1,6 +1,6 @@
 # ADR-0039: Automation limits: no orders, no exchange keys, no address watching; CSV import in the free core
 
-Status: Accepted · Date: 2026-10-17 · Deciders: owner (2026-10-17); recorded by the growth session · Amends ADR-0007 and ADR-0010
+Status: Accepted; its "same buy day" read by ADR-0056 as the same month's buy · Date: 2026-10-17 · Deciders: owner (2026-10-17); recorded by the growth session · Amends ADR-0007 and ADR-0010
 
 ## Context
 

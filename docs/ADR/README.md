@@ -28,7 +28,7 @@ in `.claude/rules/` list them per path.
 | 0004 | Account by default, local allowed | Accepted | `packages/app` features: onboarding, account (M3); `packages/app/src/lib/store` |
 | 0005 | Stack: Next.js App Router, TypeScript strict, Tailwind, shadcn/ui, Supabase EU, Vercel, pnpm, Turborepo | Accepted; the runtime merging in `cn` superseded by 0043; superseded in part by 0045 (router and host: Vite with wouter, plan B; and the Base UI toast) | the repository; `pnpm-workspace.yaml` |
 | 0006 | Prices through a server-side cache; historical closes bundled as static data | Accepted | `apps/web/server`, `apps/web/lib`; `packages/data` |
-| 0007 | No exchange API connections in v1; CSV import in v1.1 | Accepted; amended by 0039, and by 0041 (CSV import for the launch exchanges in M2) | `packages/app/src/lib/adapters` (imports); `packages/core` import formats |
+| 0007 | No exchange API connections in v1; CSV import in v1.1 | Accepted; amended by 0039, and by 0041 (CSV import for the launch exchanges in M2) and 0056 (Kraken, then Trade Republic; synthetic fixtures) | `packages/app/src/lib/adapters` (imports); `packages/core` import formats |
 | 0008 | EU-first, worldwide-ready; i18n wired from day one | Accepted; amended by 0041 (pt-PT and German at the launch, M2) | `packages/app/src/lib/i18n`, `packages/app/src/messages`; `packages/content` |
 | 0009 | Templates, not recommendations | Accepted | `packages/content/templates`; onboarding and Plan copy |
 | 0010 | Free core forever; Plus tier later through a merchant of record | Accepted; amended by 0039 | the product's scope; `packages/app` features: account, settings (M5) |
@@ -60,7 +60,7 @@ in `.claude/rules/` list them per path.
 | 0036 | Market data providers and licensing | Accepted; Next's Data Cache superseded by 0045; the credit's link superseded by 0050; the four coins of the reference closes and the hand-picked allow-list superseded by 0052 | `apps/web/server` (prices); `packages/data`; `tools` (the data pipeline, M2) |
 | 0037 | Scheduled jobs | Accepted | `.github/workflows` (scheduled jobs); `apps/web/server` (the cron route, M3) |
 | 0038 | Payments: merchant of record (deferred to M5, constraints recorded) | Accepted; its CSV-import finding settled by 0039 (all CSV import in the free core) | `packages/app` features: account, settings (M5) |
-| 0039 | Automation limits: no orders, no exchange keys, no address watching; CSV import in the free core | Accepted | the product's scope; `packages/app/src/lib/adapters` (imports); `apps/web/server` |
+| 0039 | Automation limits: no orders, no exchange keys, no address watching; CSV import in the free core | Accepted; its "same buy day" read by 0056 as the same month's buy | the product's scope; `packages/app/src/lib/adapters` (imports); `apps/web/server` |
 | 0040 | The name is Proof of Calm | Accepted | `packages/app/src/lib/brand`; the site pages; `apps/web/lib/pwa` |
 | 0041 | Position and launch plan | Accepted | `docs/GROWTH.md`; the site pages |
 | 0042 | `todayIn` lives in the shell's Clock adapter | Accepted | `packages/app/src/lib/adapters` (clock); `packages/core` (dates) |
@@ -77,6 +77,7 @@ in `.claude/rules/` list them per path.
 | 0053 | One currency per plan: a change of country asks before it relabels | Accepted | `packages/core` (`actions/plan.ts`); `packages/app` features: settings (the country change) |
 | 0054 | A move between venues is one entry of kind `move`; its coin fee is the units sent less the units received | Accepted; "never from `to`" superseded in part by 0055 for the fee | `packages/core` (schema, lots, exports, backup); `packages/app` (storage rows, the Log, the tax-year header); `docs/research` (the move step) |
 | 0055 | A move's fee that nothing outside its destination covers comes from the destination | Accepted | `packages/core` (lots, the cover refusal, the per-lot file); `packages/app` (Portfolio's notice, the Log's refusals, the tax-year header) |
+| 0056 | Exchange CSV import: Kraken's ledger first, then Trade Republic, on synthetic fixtures | Accepted | `packages/core` (the exchange readers, the import plan, the ids); `packages/app` features: settings (the import); `docs/research/csv-import-exchanges.md` |
 
 Template:
 
