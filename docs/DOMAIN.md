@@ -940,8 +940,8 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   carries its reason (`reward`, `coin-deposit`, `coin-withdrawal`, `cash`, `within`, `conversion`,
   `unpaired`, `unreadable` or `other`), its lines, and for a single row its time, coin and units (|amount −
   fee|), for an unreadable refid the column. "No refusal, left-out row or thrown error holds a cell's text."
-  No raw row, txid, refid or balance is stored. The import's preview in Settings, the Log's review and the
-  second exchange's import are planned (M2).
+  No raw row, txid, refid or balance is stored. The import's preview shows in Settings (`docs/CONTENT-STYLE.md` §3
+  row `Import an exchange's file`); the Log's review and the second exchange's import are planned (M2).
 - Meeting the Log (decided 2026-11-13, ADR-0056): `planExchangeImport(file, stored, choices, context)` turns
   the reader's movements into the entries an import would add and names everything it leaves out; it writes
   nothing. The shell passes `today`, `now`, `idOf` (the id of a key, below) and `dateOf`: "The shell dates
