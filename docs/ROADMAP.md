@@ -230,8 +230,8 @@ external links and the Risk link in the mobile export (M3).
   readers (`docs/CONTENT-STYLE.md` §8); CSV import, free (ADR-0039), for the main exchanges of
   Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
   Republic; Kraken's ledger reader built on 2026-11-13 (#168) and the core's import plan against the
-  Log the same day (#178, `docs/DOMAIN.md` §3.13, "Meeting the Log"), the write and the Settings step
-  still to come), and a receipt at no cost in an
+  Log the same day (#178, `docs/DOMAIN.md` §3.13, "Meeting the Log"), then its write (#183) and the
+  Settings step that previews and imports the ledger (#184, #185)), and a receipt at no cost in an
   export (a welcome bonus, an airdrop) recorded as coins held (`held`) with the amount 0, the one kind
   that allows it (decided 2026-11-05, the kind 2026-11-06: the invested total adds nothing, the
   average cost and the P/L count the units, the tax-year export carries the lot at cost 0, and the
