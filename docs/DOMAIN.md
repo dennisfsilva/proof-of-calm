@@ -1008,7 +1008,12 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   the same choices. Any difference in ids, kinds, months or figures writes nothing and shows the new
   preview" (`changed`, with the new plan): `sameImport` compares every field but `updatedAt` of the
   entries added and of the estimates tombstoned (the set across all items), so another tab's one tap, its
-  delete or edit of an estimate (amount, units, venue, date or note) or the same import refuses it. Step 5's write: "The write tombstones them all and adds that date's purchases
+  delete or edit of an estimate (amount, units, venue, date or note) or the same import refuses it. The
+  preview Settings shows is pinned: it is computed from the plan, the Log and today's date when the file
+  is read and when a choice (the venue, the held answer) changes, not when another tab writes or the day
+  turns, and Import passes it as the shown plan, so the write refuses `changed` when the plan, the Log or
+  the day moved since in a way that changes what the file adds (a new day alone changes none, since late,
+  due and upcoming months are all filled); the refusal pins the new preview with the choices kept. Step 5's write: "The write tombstones them all and adds that date's purchases
   as monthly buys for S, with the note of the first of them in `compareEntries` order and the import's
   venue, whatever venue they carried." "A replaced estimate is tombstoned with `deletedAt` and `updatedAt`
   at `stampAfter(now, its updatedAt)`", and the tombstone keeps every other field of the estimate, so a
