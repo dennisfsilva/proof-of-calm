@@ -38,7 +38,7 @@ const EntryFieldsSchema = z.strictObject({
   kind: EntryKindSchema,
   date: CalendarDateSchema,
   coin: CoinIdSchema,
-  /** Pay currency, before the fee (DOMAIN §2.2): for buys what the units cost, for sells what they sold for. Null (cost unknown) and 0 (nothing paid) on `held` only. */
+  /** Pay currency, before the fee (DOMAIN §2.2): for buys what the units cost, for sells what they sold for; a `held` cost includes any fee paid in money, since `held` carries no fee. Null (cost unknown) and 0 (nothing paid) on `held` only. */
   amount: z.nullable(MoneySchema),
   /** For sells, the units sold. */
   units: UnitsSchema,
