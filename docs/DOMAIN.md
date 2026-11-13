@@ -182,8 +182,9 @@ form's fill (§6) store amounts so, and every figure reads them so: Invested, th
 totals leave fees out, P/L leaves them out (§3.6), and the tax-year files keep the fee in its own column
 (§3.13). Entries stored before this rule stay as typed, since nothing stored tells how each was typed. A fee an
 exchange took in the coin is valued at the trade's own price (§3.13, the exchange import). `held` is the
-exception: it carries no fee (`fee-not-allowed`), so a fee paid for its coins is in its cost, and Invested and
-the average cost count it.
+exception: it carries no fee (`fee-not-allowed`). A fee paid in money for its coins is in its cost when the
+cost is recorded, so Invested and the average cost count it; a fee taken in the coin is off its units, as in
+an exchange import's receipts at amount `'0'` (§3.13).
 
 `source` says where an entry came from. A `one-tap` entry is an estimate (`isEstimate`): its units come
 from the day's price (§3.4), and the Log labels them as estimated until the person edits them (ADR-0003),
