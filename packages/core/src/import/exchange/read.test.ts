@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
+import synthetic from '../../../test/exchange/trade-republic-synthetic.csv?raw';
+import { TRADE_REPUBLIC_SYNTHETIC } from '../../../test/exchange/trade-republic-synthetic.expected';
 import { readExchangeFile } from './read';
+import { TR_COLUMNS } from './trade-republic';
 
 // "Text starting with `PK\^C\^D` is `zip`; a header with ordertxid and pair is `kraken-trades`; a header whose
 // names, a last empty one dropped, are all among the ledger's (txid, refid, time, type, subtype, aclass,
@@ -37,7 +40,7 @@ describe('readExchangeFile', () => {
   });
 
   it('refuses a ledger with a header alone as no-rows', () => {
-    expect(refusal(`${LEDGER}\n`)).toEqual({ ok: false, error: { code: 'no-rows' } });
+    expect(refusal(`${LEDGER}\n`)).toEqual({ ok: false, error: { code: 'no-rows', exchange: 'kraken' } });
   });
 
   // "A blank line (one empty cell, or every cell empty) is not a row: the reader skips it, it counts nowhere, and
@@ -51,7 +54,7 @@ describe('readExchangeFile', () => {
       ['CRLF', `${LEDGER}\r\n\r\n`],
       ['empty cells', `${LEDGER}\n,,,\n\n`],
     ])('after the header alone is no-rows (%s)', (_, text) => {
-      expect(refusal(text)).toEqual({ ok: false, error: { code: 'no-rows' } });
+      expect(refusal(text)).toEqual({ ok: false, error: { code: 'no-rows', exchange: 'kraken' } });
     });
 
     it('after the last row counts nowhere', () => {
@@ -71,7 +74,74 @@ describe('readExchangeFile', () => {
   it('names each required column a ledger lacks, before counting its rows', () => {
     expect(refusal('"txid","time","type","subtype","aclass","asset","amount","balance"\n')).toEqual({
       ok: false,
-      error: { code: 'missing-columns', columns: ['refid', 'fee'] },
+      error: { code: 'missing-columns', exchange: 'kraken', columns: ['refid', 'fee'] },
+    });
+  });
+
+  // "A header holding transaction_id, asset_class and category, all of whose names are in TR_COLUMNS (a last empty
+  // name dropped), is Trade Republic; with a name outside TR_COLUMNS it is `unknown-columns`, naming a column only
+  // when it matches ^[a-z_]{1,40}$ and counting the others; without a TR_READ column it is `missing-columns`."
+  describe('a Trade Republic export', () => {
+    const header = TR_COLUMNS.map((name) => `"${name}"`).join(',');
+    const row = (cells: Record<string, string>) => TR_COLUMNS.map((name) => `"${cells[name] ?? ''}"`).join(',');
+    const buy = row({
+      datetime: '2026-05-04T08:15:30.123Z',
+      category: 'TRADING',
+      type: 'BUY',
+      asset_class: 'CRYPTO',
+      symbol: 'BTC',
+      shares: '0.00052',
+      amount: '-49.92',
+      currency: 'EUR',
+      transaction_id: '00000000-0000-4000-8000-000000000001',
+    });
+
+    it.each([
+      ['its header', header, buy],
+      ['a header whose last name is empty', `${header},""`, `${buy},""`],
+    ])('is read from %s', (_, names, data) => {
+      const result = refusal(`${names}\n${data}\n`);
+      expect(result.ok && [result.value.exchange, result.value.rows, result.value.movements.map((m) => m.key)]).toEqual(
+        ['trade-republic', 1, ['poc-csv-1|trade-republic|00000000-0000-4000-8000-000000000001|BTC|in']],
+      );
+    });
+
+    it('reads the synthetic export as its expected file', () => {
+      expect(refusal(synthetic)).toEqual({ ok: true, value: TRADE_REPUBLIC_SYNTHETIC });
+    });
+
+    it('names each column outside the export that reads as a column name, and counts the others', () => {
+      const names = `${header},"iban_hash","Max Mustermann","","${'a'.repeat(41)}","note"`;
+      expect(refusal(`${names}\n${buy}\n`)).toEqual({
+        ok: false,
+        error: { code: 'unknown-columns', exchange: 'trade-republic', columns: ['iban_hash', 'note'], others: 3 },
+      });
+    });
+
+    it('names each column the reader reads that the header lacks, before counting its rows', () => {
+      const names = TR_COLUMNS.filter((name) => name !== 'shares' && name !== 'fee').join(',');
+      expect(refusal(`${names}\n`)).toEqual({
+        ok: false,
+        error: { code: 'missing-columns', exchange: 'trade-republic', columns: ['shares', 'fee'] },
+      });
+    });
+
+    it('refuses a header with no data row as no-rows', () => {
+      expect(refusal(`${header}\n\n`)).toEqual({ ok: false, error: { code: 'no-rows', exchange: 'trade-republic' } });
+    });
+
+    it('is not recognised without one of transaction_id, asset_class and category', () => {
+      for (const name of ['transaction_id', 'asset_class', 'category'])
+        expect(refusal(`${TR_COLUMNS.filter((each) => each !== name).join(',')}\n`)).toEqual({
+          ok: false,
+          error: { code: 'not-recognised' },
+        });
+    });
+
+    it('leaves a Kraken ledger read as Kraken', () => {
+      const bonus = `"LSYN01-AAAAA-AAAAAA","QSYN01-AAAAA-AAAAAA","2025-12-01 09:00:00","invite bonus","","currency","crypto","XXBT","spot / main","0.0001","0","0.0001"`;
+      const result = refusal(`${LEDGER}\n${bonus}\n`);
+      expect(result.ok && result.value.exchange).toBe('kraken');
     });
   });
 

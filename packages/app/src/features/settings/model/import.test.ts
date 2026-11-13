@@ -47,7 +47,7 @@ describe('readImport', () => {
     expect(readImport('PK\u0003\u0004\u0014\u0000ledgers.csv')).toEqual({ ok: false, error: { code: 'zip' } });
     const trades = '"txid","ordertxid","pair","time","type","ordertype","price","cost","fee","vol"\n"T1","O1","XBTEUR"';
     expect(readImport(trades)).toEqual({ ok: false, error: { code: 'kraken-trades' } });
-    expect(readImport(krakenLedger([]))).toEqual({ ok: false, error: { code: 'no-rows' } });
+    expect(readImport(krakenLedger([]))).toEqual({ ok: false, error: { code: 'no-rows', exchange: 'kraken' } });
   });
 
   it('refuses a backup from a newer schema version, whatever else it holds', () => {

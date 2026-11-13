@@ -56,7 +56,7 @@ export function startingGuard(plan: Plan, days: readonly Day[]) {
 
 /**
  * Step 4: "C's purchases and receipts dated on or before the latest live `held` entry of C, at any venue, are `may be
- * the coins you added`: left out unless the person ticks `Add these purchases too`, one answer for all of them." A
+ * the coins you added`: left out unless the person ticks `Add these transactions too`, one answer for all of them." A
  * `held` entry an exchange import added (a receipt) is not one the person added, so it guards nothing.
  */
 export function heldGuard(plan: Plan, live: readonly Entry[], days: readonly Day[], addHeld: boolean) {
