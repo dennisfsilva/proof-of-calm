@@ -22,6 +22,8 @@ export * from './export/tax-year-cessions';
 export * from './export/tax-year-pool';
 export * from './export/tax-year-snapshot';
 export * from './holding/eligible-from';
+export * from './import/exchange/apply';
+export * from './import/exchange/import-id';
 export * from './import/exchange/kraken';
 export * from './import/exchange/plan';
 export * from './import/exchange/read';
