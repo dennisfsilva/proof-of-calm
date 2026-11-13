@@ -19,7 +19,7 @@ const LAST_CLOSE = new Date(NOW_MS - 86_400_000).toISOString().slice(0, 10) as C
 const DATE = createFormatters('pt-PT', 'en-GB').date(LAST_CLOSE);
 const COINS = 'Bitcoin and Ethereum, in the amounts you hold,';
 const WEEK = new RegExp(`^${COINS} fell \\d+% in the seven days to ${DATE}\\.$`, 'u');
-const HIGH = new RegExp(`^On ${DATE} ${COINS} were \\d+% below their combined 90-day high\\.$`, 'u');
+const HIGH = new RegExp(`^On ${DATE} ${COINS} were \\d+% below their combined 90\u2011day high\\.$`, 'u');
 /** The foot settled on something other than the red-day banner: the backup banner or the durability line. */
 const NEXT = /^Your data lives only/u;
 
@@ -72,7 +72,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
     test('a rise: no banner, the foot settles on the next one', async ({ page }) => {
       await onToday(page, 'rise');
       await expect(page.getByText(NEXT)).toBeVisible();
-      await expect(page.getByText(/in the seven days to|below (its|their combined) 90-day high/u)).toHaveCount(0);
+      await expect(page.getByText(/in the seven days to|below (its|their combined) 90\u2011day high/u)).toHaveCount(0);
     });
   });
 }

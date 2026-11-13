@@ -49,7 +49,7 @@ export const SevenDays: Story = {
 export const FromTheHigh: Story = {
   args: { lastRed: { ...lastRed, sevenDay: null, fromHigh90: '-33.2' as Percent } },
   play: async ({ canvas }) => {
-    await expect(canvas.getByText(/Bitcoin was 33% below its 90-day high\.$/u)).toBeVisible();
+    await expect(canvas.getByText(/Bitcoin was 33% below its 90\u2011day high\.$/u)).toBeVisible();
   },
 };
 

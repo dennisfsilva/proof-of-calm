@@ -1084,7 +1084,7 @@ describe('validateContent: messages and other files', () => {
 // (docs/CONTENT-STYLE.md §4).
 describe('validateContent: the no-break hyphen between a number and its unit (docs/CONTENT-STYLE.md §4)', () => {
   const hyphen = (field: string, match: string) =>
-    `number-unit-hyphen: ${field}: "${match}"; write U+2011 between the number and its unit (90‑day)`;
+    `number-unit-hyphen: ${field}: "${match}"; write U+2011 between the number and its unit (90\u2011day)`;
   const FACTS = file('packages/content/facts/drawdowns.json', [fact({ key: 'a.btc-drawdowns' })]);
   const front = {
     slug: 'noise',
@@ -1109,7 +1109,7 @@ describe('validateContent: the no-break hyphen between a number and its unit (do
   const pt = 'packages/content/jurisdictions/pt.json';
 
   it('finds each numeral joined to a unit by an ordinary hyphen, the whole numeral, and nothing else', () => {
-    const text = 'A 90-day high, 2-weeks, 365‑day, 30-daylong, 24-D/2022, 2026-11-12, 2026-27 and 12-month.';
+    const text = 'A 90-day high, 2-weeks, 365\u2011day, 30-daylong, 24-D/2022, 2026-11-12, 2026-27 and 12-month.';
     expect(numberUnitHyphens(text)).toEqual(['90-day', '2-weeks', '12-month']);
   });
 
@@ -1120,7 +1120,7 @@ describe('validateContent: the no-break hyphen between a number and its unit (do
       hyphen('title', '30-day'),
       hyphen('caveat', '2-year'),
     ]);
-    expect(learn({}, 'A close 30 % below the 90‑day high.')).toEqual([]);
+    expect(learn({}, 'A close 30 % below the 90\u2011day high.')).toEqual([]);
   });
 
   it('refuses one in any message, a site message and a settings message outside the tax-year file too', () => {
@@ -1133,7 +1133,7 @@ describe('validateContent: the no-break hyphen between a number and its unit (do
     expect(messages(SETTINGS, { data: { taxYear: { title: 'A 90-day window.' } } })).toEqual([
       hyphen('data.taxYear.title', '90-day'),
     ]);
-    expect(messages(TODAY, { redDay: { high: 'Below its 90‑day high.' } })).toEqual([]);
+    expect(messages(TODAY, { redDay: { high: 'Below its 90\u2011day high.' } })).toEqual([]);
   });
 
   it('keeps U+002D in the tax-year file’s lines, which only the settings file holds', () => {

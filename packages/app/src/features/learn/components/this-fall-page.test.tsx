@@ -375,7 +375,7 @@ describe("Learn's row for the page", () => {
     expect(row.getAttribute('href')).toBe('/learn/fall-under-way');
     // No next buy day: the page leaves it out in the hold phase, with none ahead.
     expect(row.textContent).toBe(
-      "The fall under way and your planThe coins you hold against their 90-day high, and each coin's earlier falls.",
+      "The fall under way and your planThe coins you hold against their 90\u2011day high, and each coin's earlier falls.",
     );
     for (const state of ['clear', 'failed', 'nothing-held', 'no-history'] as const) {
       cleanup();

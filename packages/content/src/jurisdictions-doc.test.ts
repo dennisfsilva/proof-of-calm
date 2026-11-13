@@ -21,6 +21,9 @@ function section(heading: string): string {
   return doc.slice(start).replace(/[ \t\r\n]+/g, ' ');
 }
 
+/** A document quotes copy with U+002D where the card writes the no-break hyphen U+2011 (docs/CONTENT-STYLE.md §4). */
+const quoted = (text: string) => text.replaceAll('\u2011', '-');
+
 const profiles = readdirSync(new URL('jurisdictions/', root))
   .filter((name) => name.endsWith('.json'))
   .map((name) => ({
@@ -33,7 +36,7 @@ describe('docs/JURISDICTIONS.md quotes every card as it ships', () => {
     const countryFacts = section('## 7. Country facts');
     const drifted = profiles
       .filter(({ profile }) => profile.code !== 'XX')
-      .filter(({ profile }) => !countryFacts.includes(`| summary60 | "${profile.card.summary60}" |`))
+      .filter(({ profile }) => !countryFacts.includes(`| summary60 | "${quoted(profile.card.summary60)}" |`))
       .map(({ name }) => name);
     expect(drifted).toEqual([]);
   });
@@ -41,6 +44,6 @@ describe('docs/JURISDICTIONS.md quotes every card as it ships', () => {
   it(`§2 "Generic profile XX" holds xx.json's card.summary60 verbatim`, () => {
     const generic = profiles.find(({ profile }) => profile.code === 'XX');
     if (generic === undefined) throw new Error('no generic profile XX');
-    expect(section('### Generic profile `XX`')).toContain(`card: "${generic.profile.card.summary60}"`);
+    expect(section('### Generic profile `XX`')).toContain(`card: "${quoted(generic.profile.card.summary60)}"`);
   });
 });
