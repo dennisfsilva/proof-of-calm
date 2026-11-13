@@ -207,7 +207,8 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   `tax-year` path outside `apps/web/e2e/` and `docs/`, while `tools/turbo.json` hashed only such
   paths under `packages/`. Each review round found one more place where a local run would replay a
   cached pass: the app fixtures folder in round 1, `apps/` in round 2. The branch waits with that
-  finding (#159, 2026-11-13).
+  finding (#159, 2026-11-13). It merged once the scan read only `packages/` from one list
+  (`tools/lint/copy-paths-scan.ts`) that `tools/turbo/inputs.test.ts` probes (#166, 2026-11-13).
 - A doc line that cites the pull request that builds it takes that PR's number at PR time: the next
   number from `gh api "repos/<owner>/<repo>/issues?state=all&per_page=1"`, checked after `gh pr
   create`. It never takes the session issue's number. #161's second review round found a ROADMAP
