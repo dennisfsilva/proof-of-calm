@@ -55,17 +55,16 @@ export function applyExchangeImport(
 
 /** Every field but `updatedAt`, so a plan recomputed at another instant reads the same. */
 const shape = ({ updatedAt: _, ...rest }: Entry) => JSON.stringify(rest);
-const shapes = (plan: ExchangeImportPlan) => plan.entries.map(shape).sort();
+/** The entries added and the estimates tombstoned (the set across all items), each sorted. */
+const shapes = (plan: ExchangeImportPlan) => [
+  plan.entries.map(shape).sort(),
+  [...new Set(plan.replaced.flatMap((item) => item.estimates.map(shape)))].sort(),
+];
 
 /**
- * D7: the plan recomputed inside the write matches the plan shown when it adds the same entries, every field but
- * `updatedAt`, and tombstones the same estimates.
+ * D7: the plan recomputed inside the write matches the plan shown when it adds the same entries and tombstones the
+ * same estimates, every field but `updatedAt`.
  */
 export function sameImport(a: ExchangeImportPlan, b: ExchangeImportPlan): boolean {
-  const [estimatesA, estimatesB] = [estimateIds(a), estimateIds(b)];
-  return (
-    JSON.stringify(shapes(a)) === JSON.stringify(shapes(b)) &&
-    estimatesA.size === estimatesB.size &&
-    [...estimatesA].every((id) => estimatesB.has(id))
-  );
+  return JSON.stringify(shapes(a)) === JSON.stringify(shapes(b));
 }
