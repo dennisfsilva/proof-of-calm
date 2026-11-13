@@ -12,7 +12,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { memoryPlanStore } from '../../lib/adapters/memory-store';
 import type { Snapshot } from '../../lib/ports';
 import { fixtureSnapshot } from '../../lib/services/fixtures';
-import { KRAKEN_OCTOBER, ONE_TAP_OCTOBER } from '../../lib/services/kraken.testing';
+import { KRAKEN_OCTOBER, krakenLedger, ONE_TAP_OCTOBER } from '../../lib/services/kraken.testing';
 import { createTestServices, TEST_TODAY } from '../../lib/services/testing';
 import { exchangeImportActions } from './exchange-actions';
 import { exchangeContext } from './model/import';
@@ -33,8 +33,8 @@ afterEach(() => {
   dispose = null;
 });
 
-/** One tab over a memory store holding the fixture's plan and `extra`, with the preview it shows. */
-async function opened(extra: readonly Entry[] = [], snapshot: Partial<Snapshot> = {}) {
+/** One tab over a memory store holding the fixture's plan and `extra`, with the preview of `file` it shows. */
+async function opened(extra: readonly Entry[] = [], snapshot: Partial<Snapshot> = {}, file = FILE) {
   const base = fixtureSnapshot();
   const planStore = memoryPlanStore({ ...base, entries: [...base.entries, ...extra], ...snapshot });
   const services = createTestServices({ planStore });
@@ -43,11 +43,11 @@ async function opened(extra: readonly Entry[] = [], snapshot: Partial<Snapshot> 
   const planOn = (stored: Snapshot) => {
     if (stored.plan === null) throw new Error('a plan is stored');
     const context = exchangeContext(TEST_TODAY, services.clock.now(), services.clock.timeZone);
-    return planExchangeImport(FILE, { plan: stored.plan, entries: stored.entries }, CHOICES, context);
+    return planExchangeImport(file, { plan: stored.plan, entries: stored.entries }, CHOICES, context);
   };
   const shown = planOn(planStore.current());
   const importFile = (plan: ExchangeImportPlan = shown) =>
-    exchangeImportActions(services).importFile(FILE, plan, CHOICES);
+    exchangeImportActions(services).importFile(file, plan, CHOICES);
   return { planStore, shown, planOn, importFile };
 }
 
@@ -130,6 +130,38 @@ describe('exchangeImportActions.importFile', () => {
     const { planStore, importFile } = await opened([], { newerTombstones: 1 });
     const before = planStore.current();
     expect(await importFile()).toEqual({ kind: 'refused', refusal: { code: 'newer-rows' } });
+    expect(planStore.current()).toStrictEqual(before);
+  });
+
+  // The reader keys a movement by refid, coin and direction, so these ledgers give two entries one id; the store puts
+  // rows by id, so writing both would keep one and count two.
+  it.each([
+    [
+      'two invite bonus rows of one coin under one refid',
+      [
+        ['BQ9ZZZ-SYNTH-000005', '2026-10-16 00:00:00', 'invite bonus', 'BTC', '0.0000500000', '0.0000000000'],
+        ['BQ9ZZZ-SYNTH-000005', '2026-10-17 00:00:00', 'invite bonus', 'BTC', '0.0000300000', '0.0000000000'],
+      ],
+    ],
+    [
+      'an invite bonus row under the refid of a trade that bought its coin',
+      [
+        ['TQ9ZZZ-SYNTH-000003', '2026-10-12 12:00:00', 'trade', 'EUR', '-50.0000', '0.1300'],
+        ['TQ9ZZZ-SYNTH-000003', '2026-10-12 12:00:00', 'trade', 'BTC', '0.0008000000', '0.0000000000'],
+        ['TQ9ZZZ-SYNTH-000003', '2026-10-12 12:00:00', 'invite bonus', 'BTC', '0.0000500000', '0.0000000000'],
+      ],
+    ],
+  ] as const)('refuses `invalid-entries` for %s, and writes nothing', async (_, rows) => {
+    const file = readExchangeFile(krakenLedger(rows));
+    if (!file.ok) throw new Error('the synthetic ledger reads');
+    const { planStore, shown, importFile } = await opened([], {}, file.value);
+    const [first] = shown.entries;
+    expect(shown.entries.map((entry) => entry.id)).toEqual([first?.id, first?.id]);
+    const before = planStore.current();
+    expect(await importFile()).toEqual({
+      kind: 'refused',
+      refusal: { code: 'invalid-entries', ids: [first?.id] },
+    });
     expect(planStore.current()).toStrictEqual(before);
   });
 
