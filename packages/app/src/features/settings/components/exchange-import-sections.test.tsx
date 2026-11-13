@@ -14,16 +14,11 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { I18nProvider } from '../../../lib/i18n';
 import { ServicesProvider } from '../../../lib/services';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
-import {
-  KRAKEN_LEFT_OUT,
-  KRAKEN_OCTOBER,
-  krakenLedger,
-  ONE_TAP_OCTOBER,
-} from '../../../lib/services/kraken.testing';
+import { KRAKEN_LEFT_OUT, KRAKEN_OCTOBER, krakenLedger, ONE_TAP_OCTOBER } from '../../../lib/services/kraken.testing';
 import { createTestServices } from '../../../lib/services/testing';
 import settings from '../../../messages/en/settings.json';
-import { exchangeContext } from '../model/import';
 import { previewModel } from '../model/exchange-preview';
+import { exchangeContext } from '../model/import';
 import { ExchangeSections, ExchangeSummary } from './exchange-import-sections';
 
 // The exchange import's preview, worded (CONTENT-STYLE §3 "Import an exchange's file"): the summary, then one
@@ -98,7 +93,11 @@ describe('ExchangeSummary and ExchangeSections', () => {
   });
 
   it('count the estimates replaced, not the months, with one sentence for each estimate', async () => {
-    const second = { ...ONE_TAP_OCTOBER, id: 'aaaaaaaa-0000-4000-8000-000000000011' as EntityId, units: units('0.0011') };
+    const second = {
+      ...ONE_TAP_OCTOBER,
+      id: 'aaaaaaaa-0000-4000-8000-000000000011' as EntityId,
+      units: units('0.0011'),
+    };
     await mount(planOf(KRAKEN_OCTOBER, [...fixture.entries, ONE_TAP_OCTOBER, second]));
     expect(texts()).toContain('Replaces 2 estimates from Bought as planned.');
     expect(lines('Estimates it replaces (2)')).toEqual([

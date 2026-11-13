@@ -185,7 +185,10 @@ function useLeftOut(model: Model, plan: Plan, w: ReturnType<typeof useWords>): I
   add('logged', logged.length > 0 && t('logged', { units: moved(logged) }));
   add('notLogged', notLogged.length > 0 && t('notLogged', { units: moved(notLogged) }));
   const conversion = group('conversion');
-  add('conversion', conversion ? t('conversion', { ...w.counted(conversion.count), currency: plan.payCurrency }) : null);
+  add(
+    'conversion',
+    conversion ? t('conversion', { ...w.counted(conversion.count), currency: plan.payCurrency }) : null,
+  );
   // Cash, rows within the exchange and rows of other types are worded as rows: a two-leg cash trade is two.
   for (const reason of ['cash', 'within'] as const) {
     const found = group(reason);
