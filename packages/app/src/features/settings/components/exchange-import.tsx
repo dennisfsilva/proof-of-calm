@@ -23,9 +23,9 @@ import type { ExchangeRefusal } from './exchange-problem';
 // Settings → Import an exchange's file (docs/DOMAIN.md §3.13, CONTENT-STYLE §3): the preview of what the file adds,
 // computed from the plan, the Log and today's date as this tab held them when the file was read or a choice (the venue,
 // the held answer) last changed, then one write. Its heading takes the focus when it shows. A write refused because
-// the plan, the Log or today's date changed since keeps the preview open, pinned anew on them as stored (the write
-// shows the stored snapshot), with the alert focused and the venue and the answer kept; every other end goes to
-// `onDone`, whose section words it.
+// the plan or the Log changed since (a new day alone changes nothing the file adds) keeps the preview open, pinned
+// anew on them as stored (the write shows the stored snapshot), with the alert focused and the venue and the answer
+// kept; every other end goes to `onDone`, whose section words it.
 
 /** How the import ended: null is Cancel, `failed` an error it did not expect. */
 export type ExchangeDone =

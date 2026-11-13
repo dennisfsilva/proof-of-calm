@@ -194,7 +194,7 @@
         "missing-columns": "This Kraken ledger is missing the {columns} {count, plural, one {column} other {columns}}, so it was not read. Export the Ledgers again with every field.",
         "no-rows": "This Kraken ledger has no rows, so nothing was imported. Export the Ledgers again for a period with transactions.",
         "needs-plan": "This Kraken ledger needs a plan for its coins, currency, and months. Set up a plan, then choose the file again.",
-        "changed": "The plan, the Log, or today's date changed after this preview was made, so nothing was imported. The preview now shows what the file adds: check it, then import.",
+        "changed": "The plan or the Log changed after this preview was made, so nothing was imported. The preview now shows what the file adds: check it, then import.",
         "no-plan": "This device has no plan now, so nothing was imported. Set up a plan, then choose the file again.",
         "too-many-entries": "Importing this file would leave {entries} entries in this plan, more than the {max} a plan holds, so nothing was imported. Delete entries in the Log, then choose the file again.",
         "invalid-entries": "{count, plural, one {{figure} entry} other {{figure} entries}} from this file cannot be stored, so nothing was imported."
