@@ -6,7 +6,7 @@
 // export file named `tax-year-*` outside the globs fails it.
 //
 // Left out on purpose: `apps/web/e2e/tax-year.spec.ts` asserts the export's copy and writes none, and
-// `docs/` has its own copy paths. The scan's constant leaves both out.
+// `docs/` has its own copy paths. The scan reads only `packages/`, so it leaves both out.
 import { readFileSync } from 'node:fs';
 import { posix } from 'node:path';
 import { describe, expect, it } from 'vitest';
