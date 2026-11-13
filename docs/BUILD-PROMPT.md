@@ -213,6 +213,12 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   number from `gh api "repos/<owner>/<repo>/issues?state=all&per_page=1"`, checked after `gh pr
   create`. It never takes the session issue's number. #161's second review round found a ROADMAP
   line that cited #159 (2026-11-13).
+- A design check of a matching walks each person through two imports as well as one: a shorter
+  export first, then the whole file. The exchange import's check (#15) walked twelve people through
+  one import each and settled the order of the plan's steps; the plan's first review round then
+  found a hand-recorded purchase imported again, and its second a purchase dated before a `held`
+  entry stored without the person's answer when the file came in two parts. The branch waits for
+  an unanchored check of the order (#175, 2026-11-13).
 
 ## Known gaps
 
