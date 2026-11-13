@@ -683,7 +683,7 @@ describe('DataSection, the alerts of an exchange’s file (docs/DOMAIN.md §3.13
   it('names the exchange exports it reads under Choose a file with a plan only, and takes CSV and ZIP files', async () => {
     await mount(fixtureSnapshot());
     const chooser = screen.getByRole('button', { name: 'Choose a file' });
-    const formats = screen.getByText('Exchange exports Proof of Calm reads, as CSV: Kraken (Ledgers).');
+    const formats = screen.getByText('Exchange exports Proof of Calm reads, as CSV or ZIP: Kraken (Ledgers).');
     expect(chooser.compareDocumentPosition(formats) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByLabelText('Choose a file').getAttribute('accept')).toBe('.json,application/json,.csv,.zip');
     cleanup();
@@ -692,7 +692,12 @@ describe('DataSection, the alerts of an exchange’s file (docs/DOMAIN.md §3.13
   });
 
   it.each([
-    ['a ZIP file', 'PK\u0003\u0004rest', 'This is a ZIP file. Open it, then choose the CSV file inside.'],
+    [
+      'a ZIP file the import cannot open',
+      'PK\u0003\u0004rest',
+      'Proof of Calm cannot open this ZIP file, so it was not read. Open it on your device, then choose a CSV file ' +
+        'inside it, or export it again from the exchange.',
+    ],
     [
       "Kraken's Trades export",
       trades,
@@ -768,17 +773,32 @@ describe('DataSection, the alerts of an exchange’s file (docs/DOMAIN.md §3.13
       'zip-several-csv',
     ],
     ['no CSV file', [{ name: 'ledgers.txt', data: KRAKEN_OCTOBER }], 'zip-no-csv'],
-    ['an encrypted CSV file', [{ name: 'ledgers.csv', data: KRAKEN_OCTOBER, flags: 1 }], 'zip'],
   ] as const)('a ZIP of %s has its alert, which names no file in it', async (_, entries, key) => {
     await mount(fixtureSnapshot());
     await pick(zipOf(entries));
     await alerted(settings.data.exchange.problem[key]);
   });
 
-  it('a ZIP whose CSV file is over the limit has its alert', async () => {
+  it('a chosen ZIP it cannot open says so and gives a step; a pasted ZIP keeps the line to open it', async () => {
+    await mount(fixtureSnapshot());
+    await pick(zipOf([{ name: 'ledgers.csv', data: KRAKEN_OCTOBER, flags: 1 }]));
+    await alerted(
+      'Proof of Calm cannot open this ZIP file, so it was not read. Open it on your device, then choose a CSV file ' +
+        'inside it, or export it again from the exchange.',
+    );
+    cleanup();
+    await mount(fixtureSnapshot());
+    await paste('PK\u0003\u0004rest');
+    await alerted('This is a ZIP file. Open it, then choose the CSV file inside.');
+  });
+
+  it('a ZIP whose CSV file is over the limit has its alert, the figure kept with its unit', async () => {
     await mount(fixtureSnapshot());
     await pick(zipOf([{ name: 'ledgers.csv', data: KRAKEN_OCTOBER, size: IMPORT_MAX_BYTES + 1 }]));
-    await alerted(settings.data.exchange.problem['zip-too-large'].replace('{max}', '50'));
+    await alerted(
+      'The CSV file in this ZIP is larger than 50 MB, so it was not read. Export a shorter period from the ' +
+        'exchange, then choose the new file.',
+    );
   });
 
   it('Cancel closes the preview, writes nothing and gives the focus back to Choose a file', async () => {
