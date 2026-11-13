@@ -10,6 +10,9 @@ import { type ExchangeFile, type LeftOutRow, type Movement, readKrakenLedger } f
 
 const HEADER = ['txid', 'refid', 'time', 'type', 'subtype', 'asset', 'amount', 'fee'];
 const MAX_UNIT_DECIMALS = 10;
+// The worst of five seeds under the whole core suite with coverage on took 112 ms at 100 runs (2026-11-13); six
+// times that, 672 ms, stays under a third of Vitest's 5 s timeout, the core's default.
+const RUNS = { numRuns: 100 };
 
 /** A decimal cell of up to 12 places, so some sums need cutting to 10. */
 const cellOf = ([n, places]: [number, number]) => {
@@ -52,6 +55,7 @@ describe('readKrakenLedger (property)', () => {
         const lines = [...file.movements, ...file.leftOut].flatMap((item) => item.lines).toSorted((a, b) => a - b);
         expect(lines).toEqual(rows.map((_, index) => index + 2));
       }),
+      RUNS,
     );
   });
 
@@ -71,6 +75,7 @@ describe('readKrakenLedger (property)', () => {
         const back = (line: number) => (order[line - 2] as number) + 2;
         expect(normalised(moved, back)).toEqual(normalised(read(rows), (line) => line));
       }),
+      RUNS,
     );
   });
 
@@ -90,6 +95,7 @@ describe('readKrakenLedger (property)', () => {
           ]);
         }
       }),
+      RUNS,
     );
   });
 });
