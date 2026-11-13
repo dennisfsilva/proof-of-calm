@@ -24,10 +24,18 @@ export type ExchangeImportWrite = {
 const estimateIds = (plan: ExchangeImportPlan) =>
   new Set(plan.replaced.flatMap((item) => item.estimates.map((estimate) => estimate.id)));
 
+/** The ids that more than one of `entries` holds, each once: the store puts rows by id, so one would replace another. */
+function repeatedIds(entries: readonly Entry[]): EntityId[] {
+  const seen = new Set<EntityId>();
+  const repeated = new Set<EntityId>();
+  for (const { id } of entries) (seen.has(id) ? repeated : seen).add(id);
+  return [...repeated];
+}
+
 /**
  * Tombstones every estimate of every `replaced` item and adds the plan's entries; refuses `too-many-entries` past
- * `MAX_ENTRIES` live entries and `invalid-entries` for any row it writes that `EntrySchema` refuses, with the stored
- * entries returned unchanged.
+ * `MAX_ENTRIES` live entries and `invalid-entries` for any row it writes that `EntrySchema` refuses or for an id that
+ * more than one of the plan's entries holds, with the stored entries returned unchanged.
  */
 export function applyExchangeImport(
   stored: readonly Entry[],
@@ -48,7 +56,7 @@ export function applyExchangeImport(
   const entries = [...kept, ...plan.entries];
   const live = liveEntries(entries).length;
   if (live > MAX_ENTRIES) return unchanged({ code: 'too-many-entries', entries: live, max: MAX_ENTRIES });
-  const ids = invalidEntryIds([...tombstones, ...plan.entries]);
+  const ids = [...new Set([...invalidEntryIds([...tombstones, ...plan.entries]), ...repeatedIds(plan.entries)])];
   if (ids.length > 0) return unchanged({ code: 'invalid-entries', ids });
   return { entries, added: plan.entries.length, replaced: tombstones.length, refused: null };
 }
