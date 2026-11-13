@@ -30,6 +30,12 @@ P1 to P11 against main's code. The full read, with every quoted passage, is #24'
 | A source URL the review tool cannot read | `k.de-2024` pointed at a landing page | The PDF's own URL |
 | A product sentence false in one state | P1 and P9 while the rules are not loaded; P10's "asks you" | One sentence added; P10 reworded |
 
+The delegated re-read of 2026-11-13, after review round 1 reworded the Italy and UK examples: all five
+facts and all five examples hold against their sources. It notes that L. 207/2024 c. 24 is repealed
+with effect from 1 Jan 2027 by D.Lgs. 19 giugno 2026, n. 117 (the consolidated income tax code, GU
+n. 152 of 3 Jul 2026), so the review due 2027-01-01 checks where the 33 % sits from 2027 and whether
+Italy's profile needs a new citation; the module's example stays true as history.
+
 ## 2026-11-09: #68 and #69, the falls as our computation and the Risk honestly module
 
 The owner delegated these reads and the merges to a session, by message (the session's question that day), with
