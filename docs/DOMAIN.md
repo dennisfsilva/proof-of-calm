@@ -930,7 +930,9 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   receive, of one fiat leg and one coin leg is a purchase when the coin leg is positive and a sale when it is
   negative; two coin legs are a conversion; two fiat legs are cash; any other number of legs is unpaired." A
   coin leg of 0 is unpaired. "A purchase's units are the coin amount less a fee in the coin, a sale's the
-  coin amount plus it; units over 10 decimals are cut toward zero and flagged." "A purchase's amount is the
+  coin amount plus it; units over 10 decimals are cut toward zero and flagged." A trade or folded receipt whose
+  units are not above 0 after the cut is `unreadable`, column amount, since an entry of 0 units would make the
+  write refuse the whole file. "A purchase's amount is the
   fiat amount less v, a sale's the fiat amount plus v, and the fee is the fiat fee plus v, where v is the coin
   fee × fiat amount ÷ coin amount, half-even at the currency's minor unit (`MINOR_UNITS`); a currency outside
   `MINOR_UNITS` keeps its raw figures, since the plan leaves it out." So a movement's amount and fee follow
@@ -956,8 +958,11 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   the fee outside the amount; Saveback and round-up executions are such buys. A BUY_CANCELLED (SELL_CANCELLED)
   pairs one-to-one with the latest earlier unpaired BUY (SELL) of its coin with equal |shares| and |amount|, and
   both go out `unpaired`; with no such row the cancellation alone does. FREE_RECEIPT is a `coin-deposit` (staking
-  and coins sent in alike), FREE_DELIVERY a `coin-withdrawal`; MIGRATION rows at one instant are `within` for one
-  coin summing to 0 and a `conversion` for two coins, else `unreadable`. CASH BENEFITS_SAVEBACK is `benefit`, any
+  and coins sent in alike), FREE_DELIVERY a `coin-withdrawal`; a trade, receipt or delivery whose shares cut to 0
+  units is `unreadable` in shares. MIGRATION rows group by the instant `datetime` names (however many fraction
+  digits) and by coin: each coin whose rows there sum to 0 is `within`; when exactly two coins are left at that
+  instant, one summing below 0 and one above, their rows are one `conversion` (a token swap); any other MIGRATION
+  row is `unreadable`, column type. CASH BENEFITS_SAVEBACK is `benefit`, any
   other CASH row `cash`, any other row `other`. A symbol is a ticker of 2 to 10 capital letters or digits (XBT is
   BTC). A repeated transaction_id keeps one row when its read cells match and leaves both `unreadable` when they
   differ; no rule reads row order. The key is `poc-csv-1|trade-republic|<transaction_id>|<COIN>|<in|out>`. A
