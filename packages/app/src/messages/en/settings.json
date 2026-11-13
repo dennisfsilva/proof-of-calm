@@ -136,6 +136,58 @@
       "invalidEntries": "{count, plural, one {{figure} entry} other {{figure} entries}} in this import cannot be stored, so nothing was imported. Export a new backup from {product} on the device that made it, then import the new file.",
       "invalidEntriesPasted": "{count, plural, one {{figure} entry} other {{figure} entries}} in the pasted text cannot be stored, so nothing was imported. Export a new backup from {product} on the device that made it, then paste the new text."
     },
+    "exchange": {
+      "summary": "Adds {count, plural, one {{figure} entry} other {{figure} entries}}: {kinds}.",
+      "kinds": {
+        "monthly": "{count, plural, one {{figure} monthly buy} other {{figure} monthly buys}}",
+        "extra": "{count, plural, one {{figure} extra buy} other {{figure} extra buys}}",
+        "sales": "{count, plural, one {{figure} sale} other {{figure} sales}}",
+        "added": "{count, plural, one {{figure} Coins added entry at no cost} other {{figure} Coins added entries at no cost}}"
+      },
+      "nothing": "Nothing to add from this file.",
+      "replaces": "Replaces {count, plural, one {{figure} estimate} other {{figure} estimates}} from Bought as planned.",
+      "noneInCurrency": "No purchase or sale in this file is in {plan}, this plan's currency: they are in {file}. Amounts are never converted.",
+      "section": {
+        "fills": "Monthly buys ({count})",
+        "replaces": "Estimates it replaces ({count})",
+        "extra": "Extra buys ({count})",
+        "sales": "Sales ({count})",
+        "added": "Coins added at no cost ({count})",
+        "recorded": "Looks recorded already, not added ({count})",
+        "leftOut": "Left out ({count})"
+      },
+      "piece": "{units}{estimated, select, yes { (estimated)} other {}}{hasVenue, select, yes { at {venue}} other {}} for {amount}{hasFee, select, yes {, fee {fee}} other {}}",
+      "fill": "Monthly buy for {month}: {piece}, on {date}.",
+      "replace": "Monthly buy for {month}: {estimate}, becomes {by}, on {date}.",
+      "replacesHint": "To keep an estimate instead, type its units from your exchange's confirmation in the Log, then choose the file again.",
+      "extra": "Extra buy: {piece}, on {date}.",
+      "sale": "Sale: {piece}, on {date}.",
+      "added": "Coins added: {units} at no cost, on {date}.",
+      "label": "{kind, select, dca {monthly buy for {month}} lump {starting amount of {date}} extra {extra buy of {date}} other {sale of {date}}}",
+      "recorded": "{date}, {units} for {amount}, looks like your {label}: {entry}.",
+      "recordedHint": "To import one of these instead, delete the entry it matches in the Log, then choose the file again.",
+      "leftOut": {
+        "currency": "{count, plural, one {{figure} purchase or sale in {currencies}} other {{figure} purchases and sales in {currencies}}}, not imported: amounts are never converted.",
+        "not-in-plan": "This plan does not list {coin}, so its {count, plural, one {{figure} transaction was left out. To import it} other {{figure} transactions were left out. To import them}}, add {coin} in Coins & split, then choose the file again.",
+        "starting": "{count, plural, one {{figure} purchase} other {{figure} purchases}} dated within {days} days of the first buy day, {date}: the file cannot tell the starting amount from the first monthly buy. Record {count, plural, one {it} other {them}} in the Log.",
+        "reward": "Rewards paid in coins, not imported: {units}.",
+        "coin-deposit": "Coins sent to Kraken from elsewhere, not imported: {units}. Record a gift with Add coins you already have, and your own coins coming back with Log coins you moved.",
+        "logged": "Coins sent out of Kraken that match a move in the Log: {units}.",
+        "notLogged": "Coins sent out of Kraken with no matching move in the Log: {units}. Record each with Log coins you moved.",
+        "conversion": "{count, plural, one {{figure} exchange of one coin for another, not imported: the file gives no amount in {currency} for it} other {{figure} exchanges of one coin for another, not imported: the file gives no amount in {currency} for them}}.",
+        "cash": "{count, plural, one {{figure} row of money with no coin, such as a deposit or withdrawal} other {{figure} rows of money with no coin, such as deposits and withdrawals}}, not imported.",
+        "within": "{count, plural, one {{figure} row within Kraken, such as a move between its wallets: it changes no entry} other {{figure} rows within Kraken, such as moves between its wallets: they change no entry}}.",
+        "lines": "{count, plural, one {Line {lines} could not be read or paired, so it was} other {Lines {lines} could not be read or paired, so they were}} left out.",
+        "more": "{count} more",
+        "other": "{count, plural, one {{figure} row of another type} other {{figure} rows of other types}}, not imported."
+      },
+      "counted": {
+        "imported": "Imported earlier, not added: {count}.",
+        "deleted": "Deleted earlier on this device, not added: {count}.",
+        "unitsCut": "Units cut to {places} decimal places: {count, plural, one {{figure} entry} other {{figure} entries}}.",
+        "feesInCoin": "Fees taken in the coin, valued at the trade's own price: {count, plural, one {{figure} entry} other {{figure} entries}}."
+      }
+    },
     "paste": {
       "label": "Paste a backup or an export from the DCA plan page",
       "read": "Read the pasted text"
