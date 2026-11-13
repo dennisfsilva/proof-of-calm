@@ -158,7 +158,8 @@ appears in what users read (`docs/CONTENT-STYLE.md`); two sources share a key (`
 a `ruleSources` key names no source (`source-key-unknown`); `holdingRuleOverrides` is not empty
 (`overrides-unapplied`); a literal percentage in the profile's text, or a `locales` entry, does not use
 the joiner of `numberFormatLocale` between number and sign (`percent-joiner`, `docs/CONTENT-STYLE.md`
-§4); a locale tag is malformed, which is reported rather than thrown (`locale-tag`). The gate is `pnpm validate:content`
+§4); a profile text the app shows joins a numeral to its unit with an ordinary hyphen
+(`number-unit-hyphen`, `docs/CONTENT-STYLE.md` §4); a locale tag is malformed, which is reported rather than thrown (`locale-tag`). The gate is `pnpm validate:content`
 (`packages/content/scripts/validate.ts`), which also lints every UI message file.
 
 The holding card links the source `ruleSources.holdingRule` names; each other rule links to the source its
