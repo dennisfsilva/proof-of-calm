@@ -225,6 +225,16 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   found a hand-recorded purchase imported again, and its second a purchase dated before a `held`
   entry stored without the person's answer when the file came in two parts. The branch waits for
   an unanchored check of the order (#175, 2026-11-13).
+- A design note that sizes a screen counts its sections, its alerts and its refusals apart from its
+  copy, and a split it plans keeps each part true on main by itself. The exchange import's Settings
+  branch was noted at about 245 lines and built at about 700, and it was split in three after the
+  build. Its alerts could not merge alone. Until the preview rendered, they named a format the app
+  could not yet import, a false statement about the software (LEGAL §3.9). So they shipped with the
+  container, at 362 lines (#184, #185, 2026-11-13).
+- A builder counts each commit subject before committing (`printf '%s' "<subject>" | wc -c`, where
+  `§` counts as two bytes and `pnpm lint:commits` counts it as one character). Four builders of
+  the exchange import pushed a 101-character subject. Each pushed branch then needed a re-cut by
+  cherry-pick and a lease push that only the session may run (#183, #185, 2026-11-13).
 
 ## Known gaps
 

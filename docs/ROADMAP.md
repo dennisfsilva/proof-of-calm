@@ -364,8 +364,7 @@ handling, and synthetic fixtures (ADR-0056). Conversions between coins join the 
 by unit tests per parser and a Playwright flow per exchange.
 
 Free in the core (ADR-0039). After the preview, an import replaces the matching one-tap estimates
-with the units, price and fee from the exchange export, and never deletes or overwrites an entry the
-user typed or edited.
+by the rules `docs/DOMAIN.md` §3.13 owns (ADR-0056), as Kraken's import does.
 
 ---
 
