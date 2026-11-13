@@ -17,6 +17,7 @@ import {
   product,
   quotient,
   round,
+  sum,
   type Units,
 } from '../../money/decimal';
 import { MAX_UNIT_DECIMALS } from '../../schema/entry';
@@ -161,36 +162,83 @@ function trade(refid: string, coin: Leg & Figures, cash: Leg & Figures): Movemen
   };
 }
 
+// A group's time is its earliest row's, so the order of a refid's rows in the file changes nothing.
+const earliest = (legs: readonly Leg[]) => legs.map((leg) => leg.at).toSorted(compareInstants)[0] as Instant;
+// "a left-out row's units are |amount − fee|", and a receipt's.
+const worth = (leg: Figures) => abs(minus(leg.amount, leg.fee));
+
 /**
  * "Rows pair by refid. A trade, or a spend with a receive, of one fiat leg and one coin leg is a purchase when the
  * coin leg is positive and a sale when it is negative; two coin legs are a conversion; two fiat legs are cash; any
  * other number of legs is unpaired."
  */
 function pair(refid: string, legs: readonly (Leg & Figures)[]): Movement | LeftOutRow | null {
-  const [first] = legs;
-  if (first === undefined) return null;
-  const lines = legs.map((leg) => leg.line);
+  if (legs.length === 0) return null;
+  const [lines, at] = [legs.map((leg) => leg.line), earliest(legs)];
   const [coin] = legs.filter((leg) => !isFiat(leg.code));
   const [cash] = legs.filter((leg) => isFiat(leg.code));
-  if (legs.length === 2 && coin === undefined) return group('cash', lines, first.at);
-  if (legs.length === 2 && cash === undefined) return group('conversion', lines, first.at);
+  if (legs.length === 2 && coin === undefined) return group('cash', lines, at);
+  if (legs.length === 2 && cash === undefined) return group('conversion', lines, at);
   if (legs.length !== 2 || coin === undefined || cash === undefined || isZero(coin.amount))
-    return group('unpaired', lines, first.at);
+    return group('unpaired', lines, at);
   return trade(refid, coin, cash);
 }
 
-/** A row that pairs with no other: a receipt, or a row left out for its reason. */
-function single(refid: string, leg: Leg & Figures): Movement | LeftOutRow {
-  const value = abs(minus(leg.amount, leg.fee));
-  if (leg.kind !== 'receipt' && leg.kind !== 'leg') {
-    return { reason: leg.kind, lines: [leg.line], at: leg.at, coin: leg.code, units: value as Units, column: null };
+/** A row that pairs with no other and is no receipt, left out for its reason. */
+const alone = (leg: Leg & Figures): LeftOutRow[] =>
+  leg.kind === 'leg' || leg.kind === 'receipt'
+    ? []
+    : [{ reason: leg.kind, lines: [leg.line], at: leg.at, coin: leg.code, units: worth(leg) as Units, column: null }];
+
+/**
+ * "Fills: one entry per refid, coin and direction" (ADR-0056, Corrections, 2026-11-13): a refid's receipts of one
+ * coin fold into one receipt under the key `poc-csv-1|kraken|<refid>|<COIN>|in`, every line kept and sorted, at the
+ * earliest row's time, its units the sum of |amount − fee|, cut and flagged after the sum. A receipt of the coin
+ * the refid's purchase bought would take the purchase's key, so it is left out as unpaired, named by its line.
+ */
+function receipts(refid: string, legs: readonly (Leg & Figures)[], bought: string | null) {
+  const out: (Movement | LeftOutRow)[] = [];
+  const coins = new Map<string, (Leg & Figures)[]>();
+  for (const leg of legs) {
+    if (leg.code === bought) out.push(group('unpaired', [leg.line], leg.at));
+    else coins.set(leg.code, [...(coins.get(leg.code) ?? []), leg]);
   }
-  const [key, lines, nothing] = [
-    `${KEY}|${refid}|${leg.code}|in`,
-    [leg.line],
-    { currency: null, amount: null, fee: null },
+  for (const [coin, same] of coins) {
+    out.push({
+      key: `${KEY}|${refid}|${coin}|in`,
+      lines: same.map((leg) => leg.line).toSorted((a, b) => a - b),
+      at: earliest(same),
+      role: 'receipt',
+      coin,
+      ...units(sum(same.map(worth))),
+      currency: null,
+      amount: null,
+      fee: null,
+      feeInCoin: false,
+    });
+  }
+  return out;
+}
+
+/** One refid's rows: left out whole for an unreadable cell or a conflicting txid, else read leg by leg. */
+function readRefid(refid: string, members: readonly Row[], fault: Column | null): (Movement | LeftOutRow)[] {
+  const [lines, legs] = [members.map((row) => row.line), members.flatMap((row) => (row.leg === null ? [] : [row.leg]))];
+  // "A row with an unreadable required cell leaves its refid's rows out whole, named by line and column."
+  if (fault !== null) return [group('unreadable', lines, null, fault)];
+  const paired = pair(
+    refid,
+    legs.filter((leg) => leg.kind === 'leg'),
+  );
+  const bought = paired !== null && 'role' in paired && paired.role === 'purchase' ? paired.coin : null;
+  const items = [
+    ...legs.flatMap(alone),
+    ...receipts(
+      refid,
+      legs.filter((leg) => leg.kind === 'receipt'),
+      bought,
+    ),
   ];
-  return { key, lines, at: leg.at, role: 'receipt', coin: leg.code, ...units(value), ...nothing, feeInCoin: false };
+  return paired === null ? items : [...items, paired];
 }
 
 /**
@@ -220,27 +268,8 @@ export function readKrakenLedger(header: readonly string[], data: readonly (read
     else groups.set(row.refid, [...(groups.get(row.refid) ?? []), row]);
   }
   for (const [refid, members] of groups) {
-    // "A row with an unreadable required cell leaves its refid's rows out whole, named by line and column."
     const fault = members.find((row) => row.fault !== null)?.fault ?? (conflicted.has(refid) ? 'txid' : null);
-    const legs = members.flatMap((row) => (row.leg === null ? [] : [row.leg]));
-    if (fault !== null)
-      out.push(
-        group(
-          'unreadable',
-          members.map((row) => row.line),
-          null,
-          fault,
-        ),
-      );
-    else out.push(...legs.filter((leg) => leg.kind !== 'leg').map((leg) => single(refid, leg)));
-    const paired =
-      fault === null
-        ? pair(
-            refid,
-            legs.filter((leg) => leg.kind === 'leg'),
-          )
-        : null;
-    if (paired !== null) out.push(paired);
+    out.push(...readRefid(refid, members, fault));
   }
   const times = rows.flatMap((row) => (row.at === null ? [] : [row.at])).toSorted(compareInstants);
   const sorted = out.toSorted(lineOrder);
