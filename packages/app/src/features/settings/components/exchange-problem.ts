@@ -11,7 +11,7 @@ import { useFigure } from './exchange-import-sections';
 // the exchange reader that names the file gets its own line, a ledger with no plan to import into asks for one, and
 // each refusal of the write that ends the preview has its line. The reader's `not-recognised` keeps the backup
 // import's line, which names every format the import reads; the write's `changed` stays in the preview. A chosen
-// ZIP the reader cannot open (lib/adapters/zip.ts) has its code's line, an unsupported one the pasted ZIP's line.
+// ZIP the reader cannot open (lib/adapters/zip.ts) has its code's line; a pasted ZIP keeps the core's `zip` line.
 
 type Refusal = Extract<ExchangeImportOutcome, { readonly kind: 'refused' }>['refusal'];
 /** A refusal of the write that ends the preview: every one but `changed`, which shows the new preview. */
@@ -59,7 +59,7 @@ export function useExchangeProblemText(): (problem: ExchangeProblem) => string {
           count: problem.columns.length,
         });
       case 'zip-unsupported':
-        return t('exchange.problem.zip');
+        return t('exchange.problem.zip-unsupported', { product: BRAND.name });
       case 'zip-too-large':
         return t('exchange.problem.zip-too-large', { max: figure(IMPORT_MAX_BYTES / 1_000_000) });
       case 'newer-rows':
