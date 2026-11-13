@@ -940,8 +940,8 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   carries its reason (`reward`, `coin-deposit`, `coin-withdrawal`, `cash`, `within`, `conversion`,
   `unpaired`, `unreadable` or `other`), its lines, and for a single row its time, coin and units (|amount −
   fee|), for an unreadable refid the column. "No refusal, left-out row or thrown error holds a cell's text."
-  No raw row, txid, refid or balance is stored. Writing the plan below, the Log's review and the second
-  exchange's import are planned (M2).
+  No raw row, txid, refid or balance is stored. The import's preview in Settings, the Log's review and the
+  second exchange's import are planned (M2).
 - Meeting the Log (decided 2026-11-13, ADR-0056): `planExchangeImport(file, stored, choices, context)` turns
   the reader's movements into the entries an import would add and names everything it leaves out; it writes
   nothing. The shell passes `today`, `now`, `idOf` (the id of a key, below) and `dateOf`: "The shell dates
@@ -1001,6 +1001,23 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   import's venue, is dated within 1 day of it and sends exactly its units (amount plus fee)", each move
   answering one withdrawal. The plan counts the entries it adds whose units were cut to 10 decimals and
   whose fee was in the coin, "valued at the trade's own price", for the preview.
+- The write (decided 2026-11-13, ADR-0056): `applyExchangeImport(stored, plan, now)` writes a plan in one
+  write, all or nothing, and Settings' `exchangeImportActions` (`packages/app/src/features/settings/exchange-actions.ts`)
+  runs it in the domain store's queue on the entries as stored. Rows from a newer version (below) refuse it
+  (`newer-rows`), and so does no plan (`no-plan`). "The preview is computed again on the stored rows with
+  the same choices. Any difference in ids, kinds, months or figures writes nothing and shows the new
+  preview" (`changed`, with the new plan): `sameImport` compares every field of the entries added but
+  `updatedAt`, and the set of estimates tombstoned, so another tab's one tap, its delete of an estimate or
+  the same import refuses it. Step 5's write: "The write tombstones them all and adds that date's purchases
+  as monthly buys for S, with the note of the first of them in `compareEntries` order and the import's
+  venue, whatever venue they carried." "A replaced estimate is tombstoned with `deletedAt` and `updatedAt`
+  at `stampAfter(now, its updatedAt)`", and the tombstone keeps every other field of the estimate, so a
+  later import dates purchases by its date and month (step 6). "`applyExchangeImport` refuses
+  `too-many-entries` past `MAX_ENTRIES` live entries and `invalid-entries` for any entry `EntrySchema`
+  refuses, and returns the stored entries unchanged." "An import that adds nothing writes nothing";
+  otherwise only the tombstones and the entries added are written. A replaced estimate takes the file's
+  amount before the fee, so when the planned amount also paid the fee, Invested, the percent in and the
+  average cost drop by it (accepted 2026-11-13).
 - Rows from a newer version on this device (ADR-0019 Readings, "Row shape"; decided 2026-10-30): while any
   such row exists, a tombstone included (`newer.plans + newer.entries + newerTombstones > 0`), both imports,
   a backup in either mode and a DCA plan page file (§7), are refused, and Settings' action checks this
@@ -1431,7 +1448,8 @@ Core functions never throw for user-caused conditions. They return `Result<T, E>
 (`packages/core/src/result.ts`) with a closed union of error codes per family and the data the UI
 needs to phrase the message: `ActionError` for the actions of §6 (`sell-exceeds-held` and `fee-exceeds-held`, each
 with the date of the sale or move it names and `written`, §3.7,
-`move-exceeds-held`, `unknown-coin`, `slot-done`, …), `TemplateError`, `BackupError`, `PrototypeImportError`, `ExchangeFileError` (§3.13) and the simulator's
+`move-exceeds-held`, `unknown-coin`, `slot-done`, …), `TemplateError`, `BackupError`, `PrototypeImportError`, `ExchangeFileError` and `ExchangeImportRefusal` (`too-many-entries` with
+`entries` and `max`, `invalid-entries` with `ids`; §3.13) and the simulator's
 `SimulationError` (`invalid-split`, …). The shell maps codes to localised copy. Programmer errors
 (violated invariants) throw. The invariants of the stored entities are coded issues
 (`PLAN_ISSUE_CODES`, `ENTRY_ISSUE_CODES`), such as `split-sum`, `sell-window-before-eligibility` and a move's
