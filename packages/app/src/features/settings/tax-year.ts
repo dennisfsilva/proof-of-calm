@@ -171,6 +171,7 @@ function cessionsHeader(input: HeaderInput, file: TaxYearCessions, t: TaxYearWor
     t('cessions'),
     t('cessionPrices'),
     t('cessionCosts'),
+    t('salePrice'),
     t('format'),
     ...(file.uncosted ? [t('heldWithoutCost')] : []),
     ...(file.estimated ? [t('estimatedBlock', { product: BRAND.name })] : []),
