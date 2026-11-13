@@ -45,7 +45,7 @@ type Problem =
   | { readonly code: keyof Messages['errors']['backup'] }
   | { readonly code: 'unknown' | 'too-large' }
   | (DataRefusal & { readonly pasted: boolean });
-type Chosen = { readonly name: string | null; readonly read: ReadImport };
+type Chosen = { readonly name: string | null; readonly read: Exclude<ReadImport, { readonly kind: 'exchange' }> };
 /** An unreadable paste is named as text, with a step a paste can take; a file keeps its line. */
 const unreadable = (code: keyof Messages['errors']['backup'], name: string | null) =>
   code === 'not-recognised' && name === null ? 'not-recognised-pasted' : code;
@@ -113,9 +113,12 @@ export function DataSection() {
     }
     try {
       const read = readImport(await text());
-      setChosen(read.ok ? { name, read: read.value } : null);
-      setProblem(read.ok ? null : { code: unreadable(read.error.code, name) });
-      settled.current = !read.ok;
+      // Until the exchange import's preview is built (planned: M2), a ledger and its codes read as text that is no backup.
+      const kept = read.ok && read.value.kind !== 'exchange' ? read.value : null;
+      const code = !read.ok && (read.error.code === 'newer-version' || read.error.code === 'invalid-backup');
+      setChosen(kept === null ? null : { name, read: kept });
+      setProblem(kept !== null ? null : { code: unreadable(code ? read.error.code : 'not-recognised', name) });
+      settled.current = kept === null;
     } catch (error) {
       reportError(error);
       setProblem({ code: 'unknown' });
