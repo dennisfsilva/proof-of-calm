@@ -83,7 +83,9 @@ describe('ExchangeImport', () => {
     const checkbox = screen.getByRole('checkbox', { name: 'Add these purchases too' });
     const firstSection = screen.getAllByRole('button').find((each) => /\(\d+\)$/.test(plain(each.textContent)));
     expect(firstSection).toBeDefined();
-    expect(checkbox.compareDocumentPosition(firstSection as HTMLElement) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(
+      checkbox.compareDocumentPosition(firstSection as HTMLElement) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
     expect(button('Cancel')).not.toBeNull();
   });
 
@@ -118,7 +120,9 @@ describe('ExchangeImport', () => {
     const imported = (await first.planStore.load()).entries.filter((entry) => entry.source === 'import-csv');
     cleanup();
     await mount(imported);
-    expect(texts()).toEqual(expect.arrayContaining(['Nothing to add from this file.', 'Imported earlier, not added: 5.']));
+    expect(texts()).toEqual(
+      expect.arrayContaining(['Nothing to add from this file.', 'Imported earlier, not added: 5.']),
+    );
     expect(button(/^Import/)).toBeNull();
   });
 
