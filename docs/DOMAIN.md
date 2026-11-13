@@ -196,9 +196,10 @@ delete removes the entry and its mark. The cautious error: an estimate that equa
 figure stays labelled. Entries edited before 2026-11-07 (#375) kept `one-tap` whatever their units: a row
 whose units were corrected then stays labelled, and its edit form's line still says the tap filled them, until a
 save changes the units; only data from before launch holds such rows. An entry still labelled may carry an edited note, fee or venue. An exchange's import
-replaces the entries still labelled as estimates (ADR-0039, ADR-0056; §3.13, "Meeting the Log"): "The write
-tombstones the estimate and adds that date's purchases as monthly buys for S, with the estimate's note and the
-import's venue, whatever venue the estimate carried." The one tap copies the last venue, so its venue is a
+replaces the entries still labelled as estimates, a month's estimates of a coin together (ADR-0039, ADR-0056;
+§3.13, "Meeting the Log"): "The write tombstones them all and adds that date's purchases as monthly buys for S,
+with the note of the first of them in `compareEntries` order and the import's venue, whatever venue they
+carried." The one tap copies the last venue, so its venue is a
 default; the write is planned (M2).
 
 `held` is coins the plan did not buy: held before it, or received as a gift. Its cost may be unknown
@@ -953,30 +954,38 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   1. "An imported row's id is derived from its key (D11): a live id is `imported earlier` and a tombstoned
      one `deleted on this device`; neither is added." (D11 is ADR-0056's id rule: a hash of the movement's key, which the shell's `idOf` gives, so
      the same row has the same id on every device and in every later export.)
-  2. "In a plan with a starting amount above 0, the purchases dated within 15 days of `firstBuy` are left
+  2. "Hand-recorded entries (source `manual`, `import-prototype` or `import-json`; `held` entries and moves
+     claim nothing), in `compareEntries` order, claim unclaimed dates: a live monthly buy of C for S claims
+     C's purchase date nearest S's due within 15 days; every other hand-recorded purchase or sale, and a
+     monthly buy that claimed nothing, claims C's nearest date of the same role within 3 days of its own
+     date; the earlier date wins a tie; each entry claims one date and each date is claimed once. A claimed
+     date is `looks recorded already`: left out and named with both figures and the entry's venue." The 3
+     days are `IMPORT_TYPED_DAYS` (§9). Decided 2026-11-13 (ADR-0056, Corrections): "Every step that leaves
+     a purchase out runs before any step that stores one: no purchase a hand entry records is stored, and
+     none dated on or before a `held` entry of its coin is stored without the person's answer, whether the
+     file comes at once or a shorter export comes first." (D2 is the order of this list.)
+  3. "In a plan with a starting amount above 0, the purchases dated within 15 days of `firstBuy` are left
      out and named, since the file cannot tell the starting amount from the first monthly buy; a one-tap
-     `lump` estimate is never replaced."
-  3. "Hand-recorded entries (source `manual`, `import-prototype` or `import-json`), in `compareEntries`
-     order, claim unclaimed dates: a live monthly buy of C for S claims C's purchase date nearest S's due
-     within 15 days; every other hand-recorded purchase or sale, and a monthly buy that claimed nothing,
-     claims C's nearest date of the same role within 3 days of its own date; each entry claims one date and
-     each date is claimed once. A claimed date is `looks recorded already`: left out and named with both
-     figures and the entry's venue." The 3 days are `IMPORT_TYPED_DAYS` (§9). Decided 2026-11-13:
-     "Hand-recorded entries claim their purchases before one-tap estimates take theirs: D2's steps 3 and 4
-     swap, so a purchase a hand entry records is never imported again; an estimate whose only purchase a
-     hand entry claimed stays an estimate." (D2 is the order of this list.)
-  4. "Each live one-tap monthly estimate of coin C for month S, in month order, takes C's unclaimed purchase
-     date nearest S's due date, the earlier on a tie, dated from 15 days before that due date to 15 days
-     after it, or to the day after the estimate's own date when that is later." "The write tombstones the
-     estimate and adds that date's purchases as monthly buys for S, with the estimate's note and the
-     import's venue, whatever venue the estimate carried." The late reach serves a person who taps late:
-     the one tap is dated the tap day.
-  5. "C's purchases and receipts dated on or before the latest live `held` entry of C, at any venue, are
+     `lump` estimate is never replaced." A date step 2 claimed is `looks recorded already` and is not
+     counted here.
+  4. "C's purchases and receipts dated on or before the latest live `held` entry of C, at any venue, are
      `may be the coins you added`: left out unless the person ticks `Add these purchases too`, one answer
-     for all of them." A `held` entry an exchange import added (a receipt) guards nothing.
-  6. The months: "A purchase date's month is the plan's month whose due date is nearest it, within 15 days
-     (`IMPORT_MATCH_DAYS`), the earlier on a tie; none within 15 days makes it an extra buy." Then "for each
-     plan coin with a share above 0 and each month that was late, due or upcoming before the import, the
+     for all of them." A `held` entry an exchange import added (a receipt) guards nothing. Ticked, they go
+     on to steps 5 and 6, so an estimate whose month has no other purchase stays an estimate until the
+     person ticks.
+  5. "The live one-tap monthly estimates of coin C for month S take C's purchase date left whose month
+     (step 6) is S, nearest S's due date, the earlier on a tie." "The write tombstones them all and adds
+     that date's purchases as monthly buys for S, with the note of the first of them in `compareEntries`
+     order and the import's venue, whatever venue they carried." Two devices can tap one month, so a
+     month's estimates of a coin go together. No estimate takes a date of another month, so a shorter
+     export imported first replaces the estimates the whole file replaces.
+  6. The months: "A purchase date's month is the plan's month with the anchor nearest it, the earlier month
+     on a tie: a month's due date reaches 15 days either side (`IMPORT_MATCH_DAYS`), and each one-tap
+     monthly estimate of the coin for that month, live or tombstoned, reaches from 3 days before its date
+     (`IMPORT_TYPED_DAYS`) to the day after; a date no anchor reaches makes an extra buy." The one tap is
+     dated the tap day, so a late buy tapped within 3 days keeps its month. A tombstoned estimate keeps its
+     date (`deleteEntries`), so a later import dates the same purchases alike until sync purges the
+     tombstone (M3). Then "for each plan coin with a share above 0 and each month that was late, due or upcoming before the import, the
      coin's unclaimed purchase date nearest the due date, among the dates whose month it is, fills the month
      with all its purchases; the coin's other purchases are extra buys." Done, skipped and paused months
      take extra buys, and a coin at 0 % takes only extra buys. A sale is a `sell` and a receipt `held` at
@@ -1395,8 +1404,8 @@ recorded cost and a one-tap purchase; `gb-2026-27.csv` is its raw listing, compa
 | `VENUE_MAX_LENGTH` | 40 characters | an entry's venue and a move's `to`: the entry schema, `saveTransaction`, `saveMove` and the entry form's field |
 | `MAX_ENTRIES` | 10,000 live entries | a plan's entries: the backup schema and `applyImport` (§3.13), `saveTransaction`, `saveMove`, `restoreEntries` and the one tap (§6) |
 | `IMPORT_MAX_BYTES` | 50,000,000 bytes (50 MB) | the import file Settings reads: above the 36.8 MB a full plan's backup weighs at the most (every note at 500 characters, each escaped to six bytes), about 4 MB without notes |
-| `IMPORT_MATCH_DAYS` | 15 days | an exchange import's months: a purchase's month, an estimate's reach and a typed monthly buy's claim (§3.13) |
-| `IMPORT_TYPED_DAYS` | 3 days | an exchange import's hand-recorded entries: the reach of a claim from the entry's own date (§3.13) |
+| `IMPORT_MATCH_DAYS` | 15 days | an exchange import's months: a due date's reach either side, a typed monthly buy's claim and the first buy's 15 days (§3.13) |
+| `IMPORT_TYPED_DAYS` | 3 days | an exchange import's typed and tapped dates: a hand-recorded entry's claim either side of its date, and a one-tap estimate's reach before its date (§3.13) |
 | `LOG_PAGE` | 12 | Log "show all" threshold |
 | `UNDO_WINDOW_MS` | 8000 | every toast but the update prompt, which has none: the Undos (a delete, a skip, End buying, Delete everything), the one tap's Edit, and the save and failure toasts |
 | `TOMBSTONE_TTL_DAYS` | 90 | sync purge |
