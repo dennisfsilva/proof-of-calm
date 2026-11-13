@@ -33,7 +33,7 @@
       "received-exceeds-sent": "Enter no more units received than units sent."
     },
     "backup": {
-      "not-recognised": "This file is not in a format {product} can read. Export a backup from {product}, then import that file.",
+      "not-recognised": "This file is not in a format {product} can read. Choose a {product} backup, an export from the DCA plan page, or Kraken's Ledgers export.",
       "not-recognised-pasted": "This text is not in a format {product} can read. Copy the whole export again, then paste it.",
       "prototype-invalid": "The plan in this file from the DCA plan page is not complete, so nothing was imported. Check its amounts and dates there, export it again, then import the new file.",
       "newer-version": "This backup comes from a newer version of {product}. Update the app, then import it again.",
@@ -828,7 +828,7 @@
         "currencyMismatchPasted": "The purchases in the pasted text are in {file}, and this plan's are in {plan}, so nothing was added. Amounts are never converted. If you want the pasted plan and its currency in place of this one, paste the text again, then Replace everything.",
         "tooManyEntries": "Adding these entries would leave {entries} entries in this plan, more than the {max} a plan holds, so nothing was added. Delete entries in the Log, then import again. To keep only the file's entries, import again with Replace everything.",
         "tooManyInFile": "This export from the DCA plan page holds {file} purchases, more than the {max} entries a plan holds, so nothing was imported. Delete purchases there, export again, then import the new file.",
-        "tooLarge": "This file is larger than {max} MB, larger than any backup of a plan, so it was not read. Choose a backup from {product} or an export from the DCA plan page.",
+        "tooLarge": "This file is larger than {max} MB, so it was not read. No backup from {product} is this large; for an exchange's export, choose a shorter period.",
         "newerRows": "A newer version of {product} saved or deleted entries on this device, so nothing was imported. Reload the page, then import again.",
         "invalidEntries": "{count, plural, one {{figure} entry} other {{figure} entries}} in this import cannot be stored, so nothing was imported. Export a new backup from {product} on the device that made it, then import the new file.",
         "invalidEntriesPasted": "{count, plural, one {{figure} entry} other {{figure} entries}} in the pasted text cannot be stored, so nothing was imported. Export a new backup from {product} on the device that made it, then paste the new text."
@@ -883,6 +883,14 @@
           "deleted": "Deleted earlier on this device, not added: {count}.",
           "unitsCut": "Units cut to {places} decimal places: {count, plural, one {{figure} entry} other {{figure} entries}}.",
           "feesInCoin": "Fees taken in the coin, valued at the trade's own price: {count, plural, one {{figure} entry} other {{figure} entries}}."
+        },
+        "formats": "Exchange exports {product} reads, as CSV: Kraken (Ledgers).",
+        "problem": {
+          "zip": "This is a ZIP file. Open it, then choose the CSV file inside.",
+          "kraken-trades": "This is Kraken's Trades export. Export the Ledgers from Kraken instead, then import that file.",
+          "missing-columns": "This Kraken ledger has no {columns} {count, plural, one {column} other {columns}}, so it was not read. Export the Ledgers again with every field.",
+          "no-rows": "This Kraken ledger has no rows, so nothing was imported. Export the Ledgers again for a period with transactions.",
+          "needs-plan": "This is a Kraken ledger. The import needs a plan's coins, currency, and months: set up a plan, then import it again."
         }
       },
       "paste": {
