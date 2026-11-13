@@ -83,11 +83,9 @@ describe('applyExchangeImport', () => {
       { ...LISBON, idOf: importId },
     );
     const write = applyExchangeImport([], plan, NOW);
-    expect([write.refused, write.added, write.entries.map((entry) => [entry.kind, entry.units, entry.amount])]).toEqual([
-      null,
-      1,
-      [['held', '0.00008', '0']],
-    ]);
+    expect([write.refused, write.added, write.entries.map((entry) => [entry.kind, entry.units, entry.amount])]).toEqual(
+      [null, 1, [['held', '0.00008', '0']]],
+    );
   });
 });
 

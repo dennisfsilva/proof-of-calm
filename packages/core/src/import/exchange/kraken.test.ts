@@ -265,9 +265,9 @@ describe('readExchangeFile folds the receipts of one refid and coin', () => {
       const result = readExchangeFile(text);
       return result.ok ? result.value.movements.map((movement) => movement.key) : [];
     };
-    // Lines 49 to 54 of the legacy file name XXBT and ZEUR where the December 2025 file names BTC and EUR.
+    // Lines 49 to 53 of the legacy file name XXBT and ZEUR where the December 2025 file names BTC and EUR.
     const [old, current] = [legacy, december2025].map((text) => text.split('\n').slice(48, 54).join('\n'));
-    expect([old?.match(/"XXBT"/gu)?.length, current?.match(/"XXBT"/gu)?.length]).toEqual([3, undefined]);
+    expect([old?.match(/"XXBT"/gu)?.length, current?.match(/"XXBT"/gu)?.length]).toEqual([4, undefined]);
     expect(keys(legacy)).toEqual(keys(december2025));
     expect(keys(legacy)).toContain('poc-csv-1|kraken|BQ1AAA-SYNTH-000030|BTC|in');
     expect(new Set(keys(legacy)).size).toBe(keys(legacy).length);
