@@ -145,7 +145,7 @@ test('a month recorded in another tab after the preview showed refuses Import an
   await preview(page).getByRole('button', { name: 'Import 7 entries' }).click();
   const alert = page.getByRole('alert');
   await expect(alert).toHaveText(
-    "The plan, the Log, or today's date changed after this preview was made, so nothing was imported. The preview " +
+    'The plan or the Log changed after this preview was made, so nothing was imported. The preview ' +
       'now shows what the file adds: check it, then import.',
   );
   await expect(alert).toBeFocused();
