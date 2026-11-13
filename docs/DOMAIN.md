@@ -907,7 +907,9 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   the same cells keeps one; with different cells, both refids are left out." "Legacy codes normalise as K1,
   K6 or K8 list them (XXBT and XBT to BTC, XETH to ETH, XXDG and XDG to DOGE, ZEUR to EUR, …), each cited
   beside its line." "Fiat is every code K8 lists as fiat (EUR, USD, GBP, CHF, CAD, JPY and AUD among them),
-  after normalisation." "A code with a dot suffix is a balance within Kraken of the code before the dot." .S,
+  after normalisation." These are the plain codes of K8's Z-prefixed fiat codes and each government currency
+  (ISO 4217) in K8's quote assets, AED first among them; the stablecoins there (USDT, USDC, DAI, PYUSD, …)
+  stay coins. "A code with a dot suffix is a balance within Kraken of the code before the dot." .S,
   .M and .P (K8) and .F (K6) are the cited suffixes; any other suffix is read the same way, which changes no
   entry. "The bonus rows K1 documents are receipts for a coin; staking, and earn with the reward
   subtype, are rewards; other earn subtypes, transfer, suffixed and KFEE rows are within Kraken; a deposit or withdrawal
