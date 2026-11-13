@@ -15,12 +15,12 @@ import { TableCell, TableExpandableRow, TableRow } from '@proofofcalm/ui/compone
 import { coinColour } from '@proofofcalm/ui/lib/series';
 import { useTranslations } from 'use-intl';
 import { useFormatters } from '../../../lib/services';
-import { HoldingConditions } from '../../learn';
+import { HoldingConditions, WhyLink } from '../../learn';
 import { proseDigits } from '../lib/form';
 
 // One row of the Log (docs/DOMAIN.md §3.9, docs/DESIGN.md §7): a transaction shows its date, kind,
 // coins and total, and opens to its items (a one-tap item's units marked as estimated until an edit changes
-// them, ADR-0003), its fee, its one holding line ("Tax-free from …", nothing
+// them, ADR-0003), its fee, its one holding line ("Tax-free from …" and its Why?, nothing
 // under a rule of none), the edit button and the delete button; a skipped month is one line where the buy would have
 // been, under its month header (docs/CONTENT-STYLE.md §3). A move opens to its units and route, its network fee in the
 // coin when units were lost on the way, and the edit and delete buttons; its amount cell shows its units sent. The
@@ -131,7 +131,21 @@ export function LogRow({ row, plan, note, open, onOpenChange, onDelete, onEdit }
       {holding !== null && (
         <>
           <p>
-            {t(holding.effect === 'exempt' ? 'holding.exempt' : 'holding.lowerRate', { date: f.date(holding.from) })}
+            {/* A status line beside a date, so its Why? stands right after the date with the 44 px target (#24 D8,
+                docs/DESIGN.md §6); the tax module opens on the plan's country's card. Never beside a money figure. */}
+            <span className="flex flex-wrap items-center gap-x-stack-xs">
+              <span>
+                {t(holding.effect === 'exempt' ? 'holding.exempt' : 'holding.lowerRate', {
+                  date: f.date(holding.from),
+                })}
+              </span>
+              <WhyLink
+                module="taxes-where-you-live"
+                section="your-country"
+                name={t('holding.why', { effect: holding.effect })}
+                standalone
+              />
+            </span>
             {note && <span className="block text-13 text-ink-2">{t('holding.note')}</span>}
           </p>
           {note && <HoldingConditions />}

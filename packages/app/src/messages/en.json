@@ -189,6 +189,7 @@
     "holding": {
       "exempt": "Tax-free from {date}",
       "lowerRate": "Long-term rate from {date}",
+      "why": "{effect, select, exempt {Why? The tax-free date} other {Why? The long-term rate date}}",
       "note": "Computed from your dates, not tax advice"
     },
     "showAll": "Show all {count} entries",
