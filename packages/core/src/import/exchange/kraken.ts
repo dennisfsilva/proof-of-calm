@@ -75,6 +75,7 @@ type Leg = { readonly line: number; readonly at: Instant; readonly kind: RowKind
 type Figures = { readonly amount: Decimal; readonly fee: Decimal };
 type Row = {
   readonly line: number;
+  readonly failed: boolean;
   readonly signature: string;
   readonly txid: string | null;
   readonly refid: string | null;
@@ -83,7 +84,10 @@ type Row = {
   readonly leg: (Leg & Figures) | null;
 };
 
-// D11: a txid, refid or type that is empty or holds anything outside printable ASCII is unreadable.
+// D11: a txid, refid or type that is empty or holds anything outside printable ASCII is unreadable; a row whose
+// txid is empty never gets that far, since "A row with an empty txid is a transaction Kraken did not complete
+// (K8): it is dropped, counts in rows and in first and last like an identical repeat, and leaves the other rows
+// of its refid as they are."
 const text = (cell: string) => (/^[\x20-\x7E]+$/u.test(cell) ? cell : null);
 
 // "A time `YYYY-MM-DD HH:MM:SS(.f)` reads as that UTC instant with `Z`"
@@ -106,7 +110,7 @@ function readRow(cells: readonly string[], columns: ReadonlyMap<string, number>,
   const read = { txid, refid, time: at, type, asset, amount, fee };
   const fault = REQUIRED_COLUMNS.find((column) => read[column] === null) ?? null;
   const signature = JSON.stringify(['txid', 'refid', 'time', 'type', 'subtype', 'asset', 'amount', 'fee'].map(cell));
-  const base = { line, signature, txid, refid, at, fault };
+  const base = { line, failed: cell('txid') === '', signature, txid, refid, at, fault };
   if (at === null || type === null || asset === null || amount === null || fee === null) return { ...base, leg: null };
   const kind = rowKind(type, cell('subtype'), asset.code, asset.suffixed);
   return { ...base, leg: { line, at, kind, code: asset.code, amount, fee: abs(fee) } };
@@ -197,6 +201,7 @@ export function readKrakenLedger(header: readonly string[], data: readonly (read
   const seen = new Map<string, Row>();
   const conflicted = new Set<string | null>();
   const kept = rows.filter((row) => {
+    if (row.failed) return false;
     const earlier = row.txid === null ? undefined : seen.get(row.txid);
     if (row.txid !== null && earlier === undefined) seen.set(row.txid, row);
     if (earlier !== undefined && earlier.signature !== row.signature) conflicted.add(earlier.refid).add(row.refid);
