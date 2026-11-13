@@ -20,6 +20,7 @@ import { useClock, useFormatters, useServices, useSnapshot } from '../../../lib/
 import { type DataRefusal, dataActions, type ImportOutcome, type PrototypeOutcome, type ReportNote } from '../actions';
 import { type ReadImport, readImport } from '../model/import';
 import { DeletePlanDialog } from './delete-plan-dialog';
+import { type ExchangeProblem, exchangeProblem, useExchangeProblemText } from './exchange-problem';
 import { PrototypeImport, PrototypePaste, PrototypeReport } from './prototype-import';
 import { TaxYearExport } from './tax-year-export';
 
@@ -38,12 +39,14 @@ import { TaxYearExport } from './tax-year-export';
 // A file from the DCA plan page imports through the same buttons and dialog (prototype-import.tsx), and a text
 // pasted into the paste box is read as a chosen file is. One import runs at a time: while it writes, every import
 // button, "Choose a file" and the paste's button stay focusable and a press does nothing, a file chosen meanwhile
-// is refused, and the replace dialog stays open with its "Keep this plan".
+// is refused, and the replace dialog stays open with its "Keep this plan". With a plan, a line under "Choose a file"
+// names the exchange exports the import reads; an exchange's file it cannot take has its own alert (exchange-problem.tsx).
 
 /** Why a chosen file was not imported: a backup error, the generic line, a file over the byte cap, or a refusal. */
 type Problem =
   | { readonly code: keyof Messages['errors']['backup'] }
   | { readonly code: 'unknown' | 'too-large' }
+  | { readonly code: 'exchange'; readonly problem: ExchangeProblem }
   | (DataRefusal & { readonly pasted: boolean });
 type Chosen = { readonly name: string | null; readonly read: Exclude<ReadImport, { readonly kind: 'exchange' }> };
 /** An unreadable paste is named as text, with a step a paste can take; a file keeps its line. */
@@ -53,6 +56,7 @@ const unreadable = (code: keyof Messages['errors']['backup'], name: string | nul
 export function DataSection() {
   const t = useTranslations('settings.data');
   const tErrors = useTranslations('errors');
+  const exchangeText = useExchangeProblemText();
   const services = useServices();
   const actions = useMemo(() => dataActions(services), [services]);
   const hasPlan = useSnapshot((snapshot) => snapshot.plan !== null);
@@ -113,11 +117,13 @@ export function DataSection() {
     }
     try {
       const read = readImport(await text());
-      // Until the exchange import's preview is built (planned: M2), a ledger and its codes read as text that is no backup.
+      // Until the exchange import's preview is built (planned: M2), a ledger with a plan reads as text that is no backup.
       const kept = read.ok && read.value.kind !== 'exchange' ? read.value : null;
+      const exchange = exchangeProblem(read, hasPlan);
       const code = !read.ok && (read.error.code === 'newer-version' || read.error.code === 'invalid-backup');
+      const unread = { code: unreadable(code ? read.error.code : 'not-recognised', name) };
       setChosen(kept === null ? null : { name, read: kept });
-      setProblem(kept !== null ? null : { code: unreadable(code ? read.error.code : 'not-recognised', name) });
+      setProblem(kept !== null ? null : exchange !== null ? { code: 'exchange', problem: exchange } : unread);
       settled.current = kept === null;
     } catch (error) {
       reportError(error);
@@ -241,7 +247,7 @@ export function DataSection() {
       <input
         ref={input}
         type="file"
-        accept=".json,application/json"
+        accept=".json,application/json,.csv,.zip"
         aria-label={t('import.choose')}
         hidden
         onChange={(event) => void onFile(event)}
@@ -251,6 +257,7 @@ export function DataSection() {
           {t('import.choose')}
         </Button>
       </div>
+      {hasPlan && <p className="text-ink-2">{t('exchange.formats', { product })}</p>}
       <PrototypePaste pending={importing} onRead={onPaste} />
       {problem !== null && (
         <p ref={problemLine} role="alert" tabIndex={-1} className="scroll-mt-result text-ink">
@@ -278,7 +285,9 @@ export function DataSection() {
                           figure: figure(problem.ids.length),
                           product,
                         })
-                      : tErrors(`backup.${problem.code}`, { product })}
+                      : problem.code === 'exchange'
+                        ? exchangeText(problem.problem)
+                        : tErrors(`backup.${problem.code}`, { product })}
         </p>
       )}
       {chosen?.read.kind === 'prototype' && (
