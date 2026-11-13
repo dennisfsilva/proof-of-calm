@@ -144,7 +144,7 @@ external links and the Risk link in the mobile export (M3).
   clear of its `Close` (`docs/DESIGN.md` §8); Taxes where you live's frame built on 2026-11-13 (#156):
   the plan's country card leading it, the `Other countries` rows, the review line with its next
   review and overdue forms, its text with its own branch; Taxes where you live's text built on
-  <merge date> (#<this PR>), its five sources read under the owner's delegation.
+  2026-11-13 (#159), its five sources read under the owner's delegation.
 - Templates: the four starting points with risk labels and explanations; the template picker copy
   passes the copy-review checklist (`docs/CONTENT-STYLE.md`).
 - Jurisdictions: PT, DE, NL, ES, FR, IT, BE, IE, GB, US, XX as validated data with sources and dates;

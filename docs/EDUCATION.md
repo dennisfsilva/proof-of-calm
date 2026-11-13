@@ -103,13 +103,14 @@ what Proof of Calm shows (an opened purchase or entry of coins added in the Log 
 the plan's holding rule, "Tax-free from" or "Long-term rate from"; the app cannot check the rule's other
 conditions); the tax-year file (exported in Settings for one tax year, data from the log, not a tax
 computation); what it does not compute (no taxable gain or loss, no rate, no allowance or threshold
-test, no tax due; Portfolio's P/L is no taxable gain); when no date appears (a country rule with no
+test, no tax due; Portfolio's P/L is no taxable gain, with no difference between the two named, since
+a list of them reads as a recipe); when no date appears (a country rule with no
 holding period, the general profile's rule, the rules not loaded on the device; a holding period of
 the person's own dates the Log while the cards and the file keep the country's rule); when a rule
 changes (Today's dated notice with a button to review the plan; the plan keeps its holding rule until
 the person changes it); how fast rules change: five dated examples, one per §9 row k fact but
-`k.ie-2026`, each at most 20 words by the loader's count (`%` is no word) and worded only from its
-fact, with no sentence that counts or sums them. Portugal's example names no rate, since Lei
+`k.ie-2026`, each at most 20 words by the loader's count (`%` is no word), opening with its country and
+when and closing with its source, and worded only from its fact, with no sentence that counts or sums them. Portugal's example names no rate, since Lei
 24-D/2022 does not print it; Portugal's card keeps its own.
 **Chart**: none. The card is the content.
 **Caveat**: "This is general information with a date on it, not advice; a local accountant knows your
@@ -241,8 +242,9 @@ per law (its closing sentence rests on the 6 k facts and has none of its own). E
 source among those its row names, on the facts allow-list (`docs/CONTENT-OPS.md` §5), with its URL
 from the research report, where the others stay beside those `docs/content-review-log.md` lists
 (`k.pt-2023` cites Lei 24-D/2022 itself in the
-Diário da República, `k.ie-2026` the Finance (No. 2) Bill 2026 in the Oireachtas); its `date` is that document's date, or 2026-10-16 for live data and undated
-pages. Rows a and b (the falls), h, i and o to q are Proof of Calm's own computation: the value opens with "Proof of Calm's
+Diário da República, `k.ie-2026` the Finance (No. 2) Bill 2026 in the Oireachtas); its `date` is that document's date; for a page updated over time, the date of the update that
+published what the value quotes (`k.gb-2024`: HMRC's update of 6 Apr 2024 for the 2024 to 2025 tax
+year, on a page last updated later); or 2026-10-16 for live data and undated pages. Rows a and b (the falls), h, i and o to q are Proof of Calm's own computation: the value opens with "Proof of Calm's
 own computation" and its series, so a module quoting it says who computed it, and the publisher is
 the exchange whose daily candles it used, so the first-view line opens with the publisher
 ("Bitstamp closes, …"; for the falls, Cycles' own line and Risk honestly's chart line "{publishers} intraday highs and lows in US dollars, {first} to {last}; the falls are Proof of Calm's own computation.") (`docs/LEGAL.md` §4). An ETH figure is a fact of its own, sourced to the ETH candles it came from.
