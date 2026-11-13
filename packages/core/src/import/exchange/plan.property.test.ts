@@ -305,9 +305,17 @@ function twoWays(drawn: World, cut: number) {
   return { once, first, then, oneLog: store(drawn.entries, once), twoLog: store(after, then) };
 }
 
-/** The two-import properties run 2,000 times; each stays under a third of its timeout under the full suite. */
-const TWICE = { numRuns: 2000 };
-const TIMEOUT = 20_000;
+/**
+ * The two-import properties run 1,500 times with a 60 s timeout each (the core's default is Vitest's 5 s). Measured
+ * on 2026-11-13 under the full core suite with coverage, seeds 1 to 8: 1.7 to 2.8 s locally per property (the first
+ * one is the slowest every time; the generators' sizes are bounded and no seed stands out), and CI's runner is at
+ * least 6 times slower, so 2.8 s × 6 = 17 s stays under a third of 60 s. At 2,000 runs the worst was 3.6 s, and
+ * 3.6 s × 6 = 22 s overran the old 20 s. On the old order (a9664cfd), seeds 1 to 8 at 1,500 runs catch it 7 times
+ * in the prefix-adds property (seed 2 first fails at run 2,026), 8 in the live-Log one and 8 in the `held` one (each
+ * by run 54).
+ */
+const TWICE = { numRuns: 1500 };
+const TIMEOUT = 60_000;
 
 describe('planExchangeImport', () => {
   it('a second plan after its entries are stored adds nothing and replaces nothing', () => {
