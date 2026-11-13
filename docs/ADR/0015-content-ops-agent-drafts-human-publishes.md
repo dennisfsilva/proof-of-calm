@@ -96,3 +96,8 @@ corrected here instead of rewritten (`docs/ADR/README.md`).
   `node tools/content-review/propose.ts finish` refuses anything but agent-drafted content data, then
   commits, pushes and opens the PR, and never merges. A run costs the owner's subscription, not a few
   euros. The decision stands: the agent drafts, and only the owner publishes (`docs/CONTENT-OPS.md` §3).
+- 2026-11-12: the owner delegated, for the unattended M2 run (#23, answer 2), the read of Taxes where you
+  live's five sources and the merge of `test/learn-baselines`. An agent opened every source and read the
+  module's product sentences against the code (#24's comment 6839452863), so on the module and its five
+  facts `reviewedBy: owner` records the 2026-11-12 delegation, not a person's read. What it found:
+  `docs/content-review-log.md`. The rule stands for every other content PR.

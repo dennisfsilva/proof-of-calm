@@ -86,7 +86,7 @@ to high would give the reader the sum for a date.
 
 ## 4. Taxes where you live
 
-**Idea**: the rule where you live decides what "hold" means; rules change yearly.
+**Idea**: where you live decides what holding means for tax, and the rules keep changing.
 **Says**: the user's country card first, then the library of the other countries. The lead is the card
 of the rules the plan's country runs on, at level 2 with the id `your-country`, above the module's text,
 on the route and in the sheet; a plan on `XX`, or in a country with no profile, gets the generic card, and
@@ -97,14 +97,26 @@ and the sheet to the "Why?" link's toast: the text never shows without its card.
 the summary, the classification, the taxable events, the rates, and the allowances. Then the holding rule,
 with every one of the profile's conditions under it: the card never states an exemption without its
 condition. Then the lot rule, losses, reporting, and the questions for an accountant. Each rule carries its
-Sources link; the date line and the profile's sources close the card. What the app does
-(flags holding status per purchase, exports a tax-year file for your accountant) and does not do
-(compute tax). Why "tax-free from" disappears in some countries. Why the dated notice appears when a
-rule changes. Examples of how fast rules change (five dated examples from §9).
+Sources link; the date line and the profile's sources close the card. The text, under six headings
+in this order, words #24's D2 sentences P1 to P11 (`packages/content/src/taxes.test.ts` pins them):
+what Proof of Calm shows (an opened purchase or entry of coins added in the Log shows the day it passes
+the plan's holding rule, "Tax-free from" or "Long-term rate from"; the app cannot check the rule's other
+conditions); the tax-year file (exported in Settings for one tax year, data from the log, not a tax
+computation); what it does not compute (no taxable gain or loss, no rate, no allowance or threshold
+test, no tax due; Portfolio's P/L is no taxable gain); when no date appears (a country rule with no
+holding period, the general profile's rule, the rules not loaded on the device; a holding period of
+the person's own dates the Log while the cards and the file keep the country's rule); when a rule
+changes (Today's dated notice with a button to review the plan; the plan keeps its holding rule until
+the person changes it); how fast rules change: five dated examples, one per §9 row k fact but
+`k.ie-2026`, each at most 20 words by the loader's count (`%` is no word) and worded only from its
+fact, with no sentence that counts or sums them. Portugal's example names no rate, since Lei
+24-D/2022 does not print it; Portugal's card keeps its own.
 **Chart**: none. The card is the content.
 **Caveat**: "This is general information with a date on it, not advice; a local accountant knows your
 situation."
-**Facts needed**: `docs/JURISDICTIONS.md` §7; §9 k.
+**Review**: Reviewed at each quarterly full review (`docs/CONTENT-OPS.md` §2); `nextReviewDue` is the
+next one's date.
+**Facts needed**: `docs/JURISDICTIONS.md` §7; §9 k but `k.ie-2026`.
 
 ## 5. Noise
 
