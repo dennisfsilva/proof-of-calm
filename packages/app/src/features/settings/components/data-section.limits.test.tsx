@@ -113,8 +113,8 @@ describe('DataSection, a file over the byte cap', () => {
     expect(text).not.toHaveBeenCalled();
     const alert = screen.getByRole('alert');
     expect(alert.textContent).toBe(
-      "This file is larger than 50\u00a0MB, so it was not read. For an exchange's export, export a shorter period " +
-        'there, then import that file.',
+      "This file is larger than 50\u00a0MB, so it was not read. If it is an exchange's export, export a shorter " +
+        'period there, then choose the new file.',
     );
     await waitFor(() => expect(document.activeElement).toBe(alert));
     expect(screen.queryByRole('button', { name: 'Add missing entries only' })).toBeNull();
