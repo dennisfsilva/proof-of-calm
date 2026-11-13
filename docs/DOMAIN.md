@@ -973,7 +973,7 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      `lump` estimate is never replaced." A date step 2 claimed is `looks recorded already` and is not
      counted here.
   4. "C's purchases and receipts dated on or before the latest live `held` entry of C, at any venue, are
-     `may be the coins you added`: left out unless the person ticks `Add these purchases too`, one answer
+     `may be the coins you added`: left out unless the person ticks `Add these transactions too`, one answer
      for all of them." A `held` entry an exchange import added (a receipt) guards nothing. Ticked, they go
      on to steps 5 and 6, so an estimate whose month has no other purchase stays an estimate until the
      person ticks.
