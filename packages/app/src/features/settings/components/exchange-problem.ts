@@ -1,4 +1,10 @@
-import { type BackupError, type ExchangeFileError, IMPORT_MAX_BYTES, type Result } from '@proofofcalm/core';
+import {
+  type BackupError,
+  type ExchangeFileError,
+  type ExchangeId,
+  IMPORT_MAX_BYTES,
+  type Result,
+} from '@proofofcalm/core';
 import { useTranslations } from 'use-intl';
 import type { ZipError } from '../../../lib/adapters';
 import { BRAND } from '../../../lib/brand';
@@ -20,16 +26,19 @@ export type ExchangeRefusal = Exclude<Refusal, { readonly code: 'changed' }>;
 /** Why a chosen file does not open as an exchange's file, or why its import wrote nothing. */
 export type ExchangeProblem =
   | Exclude<ExchangeFileError, { readonly code: 'not-recognised' }>
-  | { readonly code: 'needs-plan' }
+  | { readonly code: 'needs-plan'; readonly exchange: ExchangeId }
   | ZipError
   | ExchangeRefusal;
 
-/** The reader's codes that name the file, a ZIP's, or a ledger read with no plan; null for any other read. */
+/** The reader's codes that name the file, a ZIP's, or an export read with no plan; null for any other read. */
 export function exchangeProblem(
   read: ReturnType<typeof readImport> | Result<never, ZipError>,
   hasPlan: boolean,
 ): ExchangeProblem | null {
-  if (read.ok) return read.value.kind === 'exchange' && !hasPlan ? { code: 'needs-plan' } : null;
+  if (read.ok) {
+    const { value } = read;
+    return value.kind === 'exchange' && !hasPlan ? { code: 'needs-plan', exchange: value.file.exchange } : null;
+  }
   const error: BackupError | ExchangeFileError | ZipError = read.error;
   switch (error.code) {
     case 'zip-no-csv':
@@ -39,6 +48,7 @@ export function exchangeProblem(
     case 'zip':
     case 'kraken-trades':
     case 'missing-columns':
+    case 'unknown-columns':
     case 'no-rows':
       return error;
     default:
@@ -55,9 +65,24 @@ export function useExchangeProblemText(): (problem: ExchangeProblem) => string {
     switch (problem.code) {
       case 'missing-columns':
         return t('exchange.problem.missing-columns', {
+          exchange: problem.exchange,
           columns: format.list(problem.columns),
           count: problem.columns.length,
         });
+      case 'unknown-columns': {
+        const { columns, others } = problem;
+        const more = others > 0 && columns.length > 0 ? [t('exchange.leftOut.more', { count: figure(others) })] : [];
+        return t('exchange.problem.unknown-columns', {
+          product: BRAND.name,
+          named: columns.length > 0 ? 'yes' : 'no',
+          columns: format.list([...columns, ...more]),
+          count: columns.length + others,
+          figure: figure(columns.length + others),
+        });
+      }
+      case 'no-rows':
+      case 'needs-plan':
+        return t(`exchange.problem.${problem.code}`, { exchange: problem.exchange });
       case 'zip-unsupported':
         return t('exchange.problem.zip-unsupported', { product: BRAND.name });
       case 'zip-too-large':

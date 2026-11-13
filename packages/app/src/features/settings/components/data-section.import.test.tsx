@@ -683,7 +683,9 @@ describe('DataSection, the alerts of an exchange’s file (docs/DOMAIN.md §3.13
   it('names the exchange exports it reads under Choose a file with a plan only, and takes CSV and ZIP files', async () => {
     await mount(fixtureSnapshot());
     const chooser = screen.getByRole('button', { name: 'Choose a file' });
-    const formats = screen.getByText('Exchange exports Proof of Calm reads, as CSV or ZIP: Kraken (Ledgers).');
+    const formats = screen.getByText(
+      'Exchange exports Proof of Calm reads, as CSV or ZIP: Kraken (Ledgers), Trade Republic (Transaction export).',
+    );
     expect(chooser.compareDocumentPosition(formats) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByLabelText('Choose a file').getAttribute('accept')).toBe('.json,application/json,.csv,.zip');
     cleanup();

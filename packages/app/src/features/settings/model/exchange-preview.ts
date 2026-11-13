@@ -1,6 +1,12 @@
 // The exchange import's preview as data (docs/DOMAIN.md §3.13): the summary's counts, the held line, one item per
 // entry of each section and the counted lines. The component words them; nothing here decides what is imported.
-import { compareEntries, type Entry, type ExchangeImportPlan, liveEntries } from '@proofofcalm/core';
+import { compareEntries, type Entry, type ExchangeId, type ExchangeImportPlan, liveEntries } from '@proofofcalm/core';
+
+/** Each exchange's name, the venue field's default (D7); a proper name, the same in every language. */
+export const EXCHANGE_NAMES: Readonly<Record<ExchangeId, string>> = {
+  kraken: 'Kraken',
+  'trade-republic': 'Trade Republic',
+};
 
 const estimatesOf = (plan: ExchangeImportPlan) =>
   plan.replaced.reduce((count, item) => count + item.estimates.length, 0);

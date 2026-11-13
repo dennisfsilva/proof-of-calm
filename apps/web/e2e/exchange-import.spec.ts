@@ -58,7 +58,11 @@ const preview = (page: Page) => page.getByRole('region', { name: 'What this file
 test('a Kraken ledger previews, imports at Kraken, and adds nothing the second time', async ({ page }) => {
   await page.addInitScript(recordCspViolations);
   await openData(page);
-  await expect(page.getByText('Exchange exports Proof of Calm reads, as CSV or ZIP: Kraken (Ledgers).')).toBeVisible();
+  await expect(
+    page.getByText(
+      'Exchange exports Proof of Calm reads, as CSV or ZIP: Kraken (Ledgers), Trade Republic (Transaction export).',
+    ),
+  ).toBeVisible();
 
   await fileInput(page).setInputFiles(LEDGER);
   const heading = page.getByRole('heading', { name: 'What this file adds' });

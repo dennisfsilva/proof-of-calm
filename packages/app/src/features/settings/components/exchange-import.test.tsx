@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { type EntityId, type Entry, MAX_ENTRIES, readExchangeFile } from '@proofofcalm/core';
+import { type EntityId, type Entry, type ExchangeFile, MAX_ENTRIES, readExchangeFile } from '@proofofcalm/core';
 import { anEntry, date, units } from '@proofofcalm/core/testing';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -11,6 +11,7 @@ import { ServicesProvider } from '../../../lib/services';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
 import { KRAKEN_OCTOBER, ONE_TAP_OCTOBER } from '../../../lib/services/kraken.testing';
 import { createTestServices, TEST_NOW_MS, type TestServicesOptions } from '../../../lib/services/testing';
+import { TRADE_REPUBLIC_OCTOBER } from '../../../lib/services/trade-republic.testing';
 import { crossTabChannel } from '../../../lib/store/channel';
 import errors from '../../../messages/en/errors.json';
 import settings from '../../../messages/en/settings.json';
@@ -25,6 +26,9 @@ import { useExchangeProblemText } from './exchange-problem';
 const read = readExchangeFile(KRAKEN_OCTOBER);
 if (!read.ok) throw new Error('the synthetic ledger reads');
 const FILE = read.value;
+const trRead = readExchangeFile(TRADE_REPUBLIC_OCTOBER);
+if (!trRead.ok) throw new Error('the synthetic Trade Republic export reads');
+const TR = { file: trRead.value, name: 'trade-republic.csv' };
 /** Coins added at Ledger on 13 Oct, after both of the ledger's BTC purchases (ADR-0056: invented). */
 const HELD = anEntry({
   id: 'aaaaaaaa-0000-4000-8000-000000000020' as EntityId,
@@ -44,6 +48,7 @@ async function mount(
   extra: readonly Entry[] = [],
   store?: (snapshot: Snapshot) => PlanStore,
   options: Omit<TestServicesOptions, 'planStore'> = {},
+  source: { readonly file: ExchangeFile; readonly name: string } = { file: FILE, name: 'kraken-ledgers.csv' },
 ) {
   Element.prototype.scrollIntoView = vi.fn();
   const base = fixtureSnapshot();
@@ -54,7 +59,7 @@ async function mount(
   render(
     <ServicesProvider services={services}>
       <I18nProvider messages={{ settings, errors }}>
-        <ExchangeImport file={FILE} name="kraken-ledgers.csv" onDone={onDone} />
+        <ExchangeImport file={source.file} name={source.name} onDone={onDone} />
       </I18nProvider>
     </ServicesProvider>,
   );
@@ -249,25 +254,84 @@ describe('ExchangeImport', () => {
   });
 });
 
-describe('useExchangeProblemText, the write’s refusals', () => {
-  function Line({ problem }: { problem: Parameters<ReturnType<typeof useExchangeProblemText>>[0] }) {
-    return <p>{useExchangeProblemText()(problem)}</p>;
-  }
-  const words = async (problem: Parameters<ReturnType<typeof useExchangeProblemText>>[0]) => {
-    const services = createTestServices({ snapshot: fixtureSnapshot() });
-    await act(() => services.start());
-    render(
-      <ServicesProvider services={services}>
-        <I18nProvider messages={{ settings, errors }}>
-          <Line problem={problem} />
-        </I18nProvider>
-      </ServicesProvider>,
+// "The file line names the export, and the venue field starts as the exchange's name: Trade Republic for its export."
+describe('ExchangeImport of a Trade Republic export', () => {
+  it('names the file as a Trade Republic transaction export and imports at Trade Republic unless changed', async () => {
+    const { planStore } = await mount([], undefined, {}, TR);
+    expect(texts()[0]).toBe(
+      'trade-republic.csv: a Trade Republic transaction export of 15 rows, from 5 Oct 2026 to 14 Oct 2026.',
     );
-    const text = plain(document.querySelector('p')?.textContent);
-    cleanup();
-    return text;
-  };
+    expect((screen.getByLabelText('Venue for these entries') as HTMLInputElement).value).toBe('Trade Republic');
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: /^Import \d+ entr/ })));
+    const venues = new Set((await importedRows(planStore)).map((entry) => entry.venue));
+    expect(venues).toEqual(new Set(['Trade Republic']));
+  });
+});
 
+// "Each alert names the exchange whose file it is: Kraken's ledger or Trade Republic's transaction export."
+type Problem = Parameters<ReturnType<typeof useExchangeProblemText>>[0];
+function Line({ problem }: { problem: Problem }) {
+  return <p>{useExchangeProblemText()(problem)}</p>;
+}
+/** The alert's words for a problem, read from a mounted line. */
+const words = async (problem: Problem) => {
+  const services = createTestServices({ snapshot: fixtureSnapshot() });
+  await act(() => services.start());
+  render(
+    <ServicesProvider services={services}>
+      <I18nProvider messages={{ settings, errors }}>
+        <Line problem={problem} />
+      </I18nProvider>
+    </ServicesProvider>,
+  );
+  const text = plain(document.querySelector('p')?.textContent);
+  cleanup();
+  return text;
+};
+
+describe('useExchangeProblemText, the reader’s alerts per exchange', () => {
+  it('names the columns of a Trade Republic export it does not know, counting those it does not name', async () => {
+    expect(
+      await words({ code: 'unknown-columns', exchange: 'trade-republic', columns: ['iban_hash', 'note'], others: 3 }),
+    ).toBe(
+      'This looks like a Trade Republic transaction export, but it has 5 columns Proof of Calm does not know: ' +
+        'iban_hash, note, and 3 more. It was not read. Export the transactions again from Trade Republic, then ' +
+        'choose that file as it is.',
+    );
+    expect(await words({ code: 'unknown-columns', exchange: 'trade-republic', columns: [], others: 1 })).toBe(
+      'This looks like a Trade Republic transaction export, but it has 1 column Proof of Calm does not know. It ' +
+        'was not read. Export the transactions again from Trade Republic, then choose that file as it is.',
+    );
+  });
+
+  it('words missing columns, no rows and no plan for each exchange', async () => {
+    expect(await words({ code: 'missing-columns', exchange: 'trade-republic', columns: ['shares', 'fee'] })).toBe(
+      'This Trade Republic transaction export is missing the shares and fee columns, so it was not read. Export ' +
+        'the transactions again from Trade Republic.',
+    );
+    expect(await words({ code: 'missing-columns', exchange: 'kraken', columns: ['fee'] })).toBe(
+      'This Kraken ledger is missing the fee column, so it was not read. Export the Ledgers again with every field.',
+    );
+    expect(await words({ code: 'no-rows', exchange: 'trade-republic' })).toBe(
+      'This Trade Republic transaction export has no rows, so nothing was imported. Export the transactions again ' +
+        'for a period with transactions.',
+    );
+    expect(await words({ code: 'no-rows', exchange: 'kraken' })).toBe(
+      'This Kraken ledger has no rows, so nothing was imported. Export the Ledgers again for a period with ' +
+        'transactions.',
+    );
+    expect(await words({ code: 'needs-plan', exchange: 'trade-republic' })).toBe(
+      'This Trade Republic transaction export needs a plan for its coins, currency, and months. Set up a plan, ' +
+        'then choose the file again.',
+    );
+    expect(await words({ code: 'needs-plan', exchange: 'kraken' })).toBe(
+      'This Kraken ledger needs a plan for its coins, currency, and months. Set up a plan, then choose the file ' +
+        'again.',
+    );
+  });
+});
+
+describe('useExchangeProblemText, the write’s refusals', () => {
   it('words newer rows, no plan, too many entries and entries that cannot be stored', async () => {
     expect(await words({ code: 'newer-rows' })).toBe(
       'A newer version of Proof of Calm saved or deleted entries on this device, so nothing was imported. Reload ' +
