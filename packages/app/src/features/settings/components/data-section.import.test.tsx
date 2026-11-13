@@ -4,7 +4,7 @@ import { FIXTURE_RULES, type FixtureCountry } from '@proofofcalm/core/testing/co
 import { act, cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import twoCoins from '../../../../../core/test/golden/two-coins.json';
-import { EMPTY_SNAPSHOT } from '../../../lib/adapters/memory-store';
+import { EMPTY_SNAPSHOT, memoryPlanStore } from '../../../lib/adapters/memory-store';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
 import { KRAKEN_OCTOBER } from '../../../lib/services/kraken.testing';
 import errors from '../../../messages/en/errors.json';
@@ -670,12 +670,13 @@ describe('DataSection, the alerts of an exchange’s file (docs/DOMAIN.md §3.13
     [
       'a ledger with no refid column',
       header.replace('"refid",', ''),
-      'This Kraken ledger has no refid column, so it was not read. Export the Ledgers again with every field.',
+      'This Kraken ledger is missing the refid column, so it was not read. Export the Ledgers again with every field.',
     ],
     [
       'a ledger with no refid and fee columns',
       header.replace('"refid",', '').replace('"fee",', ''),
-      'This Kraken ledger has no refid and fee columns, so it was not read. Export the Ledgers again with every field.',
+      'This Kraken ledger is missing the refid and fee columns, so it was not read. Export the Ledgers again with ' +
+        'every field.',
     ],
     [
       'a ledger with no rows',
@@ -697,18 +698,34 @@ describe('DataSection, the alerts of an exchange’s file (docs/DOMAIN.md §3.13
     await mount(EMPTY_SNAPSHOT);
     await pick(KRAKEN_OCTOBER);
     await alerted(
-      "This is a Kraken ledger. The import needs a plan's coins, currency, and months: set up a plan, then import " +
-        'it again.',
+      'This Kraken ledger needs a plan for its coins, currency, and months. Set up a plan, then choose the file again.',
     );
     expect(screen.queryByRole('button', { name: /^Import/ })).toBeNull();
   });
 
-  it('a Kraken ledger with a plan reads as not recognised until its preview is built', async () => {
-    await mount(fixtureSnapshot());
+  it('a Kraken ledger with a plan opens its preview, whose heading takes the focus, and imports it', async () => {
+    const planStore = memoryPlanStore(fixtureSnapshot());
+    await mount(fixtureSnapshot(), planStore);
     await pick(KRAKEN_OCTOBER);
-    await alerted(
-      'This file is not in a format Proof of Calm can read. Choose a Proof of Calm backup, an export from the DCA ' +
-        "plan page, or Kraken's Ledgers export.",
-    );
+    const heading = screen.getByRole('heading', { name: 'What this file adds' });
+    await waitFor(() => expect(document.activeElement).toBe(heading));
+    expect(screen.queryByRole('alert')).toBeNull();
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Import 5 entries' })));
+    const result = screen.getByRole('status');
+    await waitFor(() => expect(result.textContent).toBe('Entries added: 5.'));
+    await waitFor(() => expect(document.activeElement).toBe(result));
+    expect(screen.queryByRole('heading', { name: 'What this file adds' })).toBeNull();
+    expect(liveEntries(planStore.current().entries).filter((e) => e.source === 'import-csv')).toHaveLength(5);
+  });
+
+  it('Cancel closes the preview, writes nothing and gives the focus back to Choose a file', async () => {
+    const planStore = memoryPlanStore(fixtureSnapshot());
+    await mount(fixtureSnapshot(), planStore);
+    const before = planStore.current();
+    await pick(KRAKEN_OCTOBER);
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(screen.queryByRole('heading', { name: 'What this file adds' })).toBeNull();
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Choose a file' }));
+    expect(planStore.current()).toStrictEqual(before);
   });
 });
