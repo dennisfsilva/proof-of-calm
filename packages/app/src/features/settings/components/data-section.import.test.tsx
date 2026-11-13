@@ -1,10 +1,19 @@
 // @vitest-environment jsdom
-import { backupNeeded, type EntityId, type Entry, exportBackup, liveEntries, type Plan } from '@proofofcalm/core';
+import {
+  backupNeeded,
+  type EntityId,
+  type Entry,
+  exportBackup,
+  IMPORT_MAX_BYTES,
+  liveEntries,
+  type Plan,
+} from '@proofofcalm/core';
 import { FIXTURE_RULES, type FixtureCountry } from '@proofofcalm/core/testing/country-change';
 import { act, cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import twoCoins from '../../../../../core/test/golden/two-coins.json';
 import { EMPTY_SNAPSHOT, memoryPlanStore } from '../../../lib/adapters/memory-store';
+import { zipOf } from '../../../lib/adapters/zip.testing';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
 import { KRAKEN_OCTOBER } from '../../../lib/services/kraken.testing';
 import errors from '../../../messages/en/errors.json';
@@ -656,7 +665,7 @@ describe('DataSection, the counts of an import in the country’s number locale'
 
 describe('DataSection, the alerts of an exchange’s file (docs/DOMAIN.md §3.13)', () => {
   const header = KRAKEN_OCTOBER.split('\n')[0] ?? '';
-  const pick = async (text: string) => {
+  const pick = async (text: string | Uint8Array<ArrayBuffer>) => {
     const file = new File([text], 'kraken-ledgers.csv', { type: 'text/csv' });
     await act(async () => {
       fireEvent.change(screen.getByLabelText('Choose a file'), { target: { files: [file] } });
@@ -738,6 +747,38 @@ describe('DataSection, the alerts of an exchange’s file (docs/DOMAIN.md §3.13
     await waitFor(() => expect(document.activeElement).toBe(result));
     expect(screen.queryByRole('heading', { name: 'What this file adds' })).toBeNull();
     expect(liveEntries((await planStore.load()).entries).filter((e) => e.source === 'import-csv')).toHaveLength(5);
+  });
+
+  it('a chosen ZIP of a Kraken ledger opens the preview of its CSV file', async () => {
+    await mount(fixtureSnapshot());
+    await pick(zipOf([{ name: 'kraken/ledgers.csv', data: KRAKEN_OCTOBER }]));
+    const heading = await screen.findByRole('heading', { name: 'What this file adds' });
+    await waitFor(() => expect(document.activeElement).toBe(heading));
+    expect(screen.getByText(/^kraken-ledgers\.csv: a Kraken ledger of 9 rows/)).toBeTruthy();
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  it.each([
+    [
+      'two CSV files',
+      [
+        { name: 'a.csv', data: KRAKEN_OCTOBER },
+        { name: 'b.csv', data: KRAKEN_OCTOBER },
+      ],
+      'zip-several-csv',
+    ],
+    ['no CSV file', [{ name: 'ledgers.txt', data: KRAKEN_OCTOBER }], 'zip-no-csv'],
+    ['an encrypted CSV file', [{ name: 'ledgers.csv', data: KRAKEN_OCTOBER, flags: 1 }], 'zip'],
+  ] as const)('a ZIP of %s has its alert, which names no file in it', async (_, entries, key) => {
+    await mount(fixtureSnapshot());
+    await pick(zipOf(entries));
+    await alerted(settings.data.exchange.problem[key]);
+  });
+
+  it('a ZIP whose CSV file is over the limit has its alert', async () => {
+    await mount(fixtureSnapshot());
+    await pick(zipOf([{ name: 'ledgers.csv', data: KRAKEN_OCTOBER, size: IMPORT_MAX_BYTES + 1 }]));
+    await alerted(settings.data.exchange.problem['zip-too-large'].replace('{max}', '50'));
   });
 
   it('Cancel closes the preview, writes nothing and gives the focus back to Choose a file', async () => {
