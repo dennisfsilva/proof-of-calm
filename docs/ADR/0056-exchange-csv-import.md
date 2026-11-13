@@ -76,3 +76,12 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   second review found a purchase dated before a `held` entry stored without the person's answer when
   the file came in two parts.) Sync's purge of a tombstone (M3) also ends its estimate's reach. The
   rest stands.
+- 2026-11-13, after the integration read of the reader found two receipts of one refid and coin keyed
+  alike: "Fills: one entry per refid, coin and direction" now holds for receipts too. A refid's
+  receipts of one coin fold into one, every line kept, at the earliest row's time, their units summed
+  and then cut; the key stays `poc-csv-1|kraken|<refid>|<COIN>|in`, COIN the normalised code. A bonus
+  under a trade's refid for the coin that trade bought is left out as unpaired, named by its line, and
+  the purchase keeps the key. Neither shape is documented in the research note, K1 or K6; the import
+  refused such a file as `invalid-entries`, and now writes it. Rewards (staking and earn), coin
+  deposits as entries and coin withdrawals as moves move to M4, replacing Consequences' "(planned:
+  M2)" for those three; the starting amount's choice stays as Consequences say. The rest stands.
