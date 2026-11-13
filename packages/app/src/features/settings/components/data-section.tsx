@@ -20,6 +20,7 @@ import { useClock, useFormatters, useServices, useSnapshot } from '../../../lib/
 import { type DataRefusal, dataActions, type ImportOutcome, type PrototypeOutcome, type ReportNote } from '../actions';
 import { type ReadImport, readImport } from '../model/import';
 import { DeletePlanDialog } from './delete-plan-dialog';
+import { type ExchangeDone, ExchangeImport, useExchangeResult } from './exchange-import';
 import { type ExchangeProblem, exchangeProblem, useExchangeProblemText } from './exchange-problem';
 import { PrototypeImport, PrototypePaste, PrototypeReport } from './prototype-import';
 import { TaxYearExport } from './tax-year-export';
@@ -40,7 +41,8 @@ import { TaxYearExport } from './tax-year-export';
 // pasted into the paste box is read as a chosen file is. One import runs at a time: while it writes, every import
 // button, "Choose a file" and the paste's button stay focusable and a press does nothing, a file chosen meanwhile
 // is refused, and the replace dialog stays open with its "Keep this plan". With a plan, a line under "Choose a file"
-// names the exchange exports the import reads; an exchange's file it cannot take has its own alert (exchange-problem.tsx).
+// names the exchange exports the import reads; an exchange's file it cannot take has its own alert (exchange-problem.ts),
+// and one it reads opens its preview (exchange-import.tsx), whose Cancel gives the focus back to "Choose a file".
 
 /** Why a chosen file was not imported: a backup error, the generic line, a file over the byte cap, or a refusal. */
 type Problem =
@@ -48,7 +50,7 @@ type Problem =
   | { readonly code: 'unknown' | 'too-large' }
   | { readonly code: 'exchange'; readonly problem: ExchangeProblem }
   | (DataRefusal & { readonly pasted: boolean });
-type Chosen = { readonly name: string | null; readonly read: Exclude<ReadImport, { readonly kind: 'exchange' }> };
+type Chosen = { readonly name: string | null; readonly read: ReadImport };
 /** An unreadable paste is named as text, with a step a paste can take; a file keeps its line. */
 const unreadable = (code: keyof Messages['errors']['backup'], name: string | null) =>
   code === 'not-recognised' && name === null ? 'not-recognised-pasted' : code;
@@ -57,6 +59,7 @@ export function DataSection() {
   const t = useTranslations('settings.data');
   const tErrors = useTranslations('errors');
   const exchangeText = useExchangeProblemText();
+  const exchangeResult = useExchangeResult();
   const services = useServices();
   const actions = useMemo(() => dataActions(services), [services]);
   const hasPlan = useSnapshot((snapshot) => snapshot.plan !== null);
@@ -68,6 +71,7 @@ export function DataSection() {
   const figures = useMemo(() => createNumberInput(format.locales.numbers), [format.locales.numbers]);
   const figure = (value: number) => figures.format(decimal(String(value)));
   const input = useRef<HTMLInputElement>(null);
+  const chooseButton = useRef<HTMLButtonElement>(null);
   const resultLine = useRef<HTMLParagraphElement>(null);
   const problemLine = useRef<HTMLParagraphElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -82,6 +86,7 @@ export function DataSection() {
   const [problem, setProblem] = useState<Problem | null>(null);
   const [outcome, setOutcome] = useState<Exclude<ImportOutcome, { readonly kind: 'refused' }> | null>(null);
   const [report, setReport] = useState<readonly ReportNote[]>([]);
+  const [exchanged, setExchanged] = useState<Extract<ExchangeDone, { readonly kind: 'imported' }> | null>(null);
   /** Set while an import writes; the ref answers a second press before the busy buttons have rendered. */
   const busy = useRef(false);
   const [importing, setImporting] = useState(false);
@@ -106,6 +111,7 @@ export function DataSection() {
   /** A file and a pasted text take one reading path, so a pasted backup is read as a backup; null names a paste. */
   const choose = async (name: string | null, text: () => Promise<string> | string, bytes = 0) => {
     setOutcome(null);
+    setExchanged(null);
     setReport([]);
     setChosen(null);
     setProblem(null);
@@ -117,9 +123,8 @@ export function DataSection() {
     }
     try {
       const read = readImport(await text());
-      // Until the exchange import's preview is built (planned: M2), a ledger with a plan reads as text that is no backup.
-      const kept = read.ok && read.value.kind !== 'exchange' ? read.value : null;
       const exchange = exchangeProblem(read, hasPlan);
+      const kept = read.ok && exchange === null ? read.value : null;
       const code = !read.ok && (read.error.code === 'newer-version' || read.error.code === 'invalid-backup');
       const unread = { code: unreadable(code ? read.error.code : 'not-recognised', name) };
       setChosen(kept === null ? null : { name, read: kept });
@@ -156,11 +161,11 @@ export function DataSection() {
 
   // The dialog stays open until the replace is written, so that its closing knows where the focus goes.
   const run = async (mode: ImportMode, country: ProfileCode | null = null) => {
-    if (chosen === null || busy.current) return;
+    if (chosen === null || chosen.read.kind === 'exchange' || busy.current) return;
     busy.current = true;
     setImporting(true);
     try {
-      const { read } = chosen;
+      const read = chosen.read;
       const done: PrototypeOutcome =
         read.kind === 'backup'
           ? { ...(await actions.importBackup(read.file, mode)), report: [] }
@@ -187,6 +192,15 @@ export function DataSection() {
     busy.current = false;
     setImporting(false);
     setConfirming(false);
+  };
+  /** The exchange preview's end: Cancel gives the focus back to "Choose a file", any other end to what reports it. */
+  const endExchange = (done: ExchangeDone | null) => {
+    setChosen(null);
+    if (done?.kind === 'refused') setProblem({ code: 'exchange', problem: done.refusal });
+    if (done?.kind === 'failed') setProblem({ code: 'unknown' });
+    setExchanged(done?.kind === 'imported' ? done : null);
+    settled.current = done !== null;
+    if (done === null) chooseButton.current?.focus();
   };
   /** What reports an import's end once it has rendered: the alert when it ended in a problem, else the result line. */
   const reportLine = () => problemLine.current ?? resultLine.current;
@@ -253,7 +267,7 @@ export function DataSection() {
         onChange={(event) => void onFile(event)}
       />
       <div>
-        <Button variant="secondary" {...pending} onClick={() => input.current?.click()}>
+        <Button ref={chooseButton} variant="secondary" {...pending} onClick={() => input.current?.click()}>
           {t('import.choose')}
         </Button>
       </div>
@@ -300,6 +314,17 @@ export function DataSection() {
           onImport={(mode, country) => void run(mode, country)}
         />
       )}
+      {chosen?.read.kind === 'exchange' && (
+        <ExchangeImport
+          file={chosen.read.file}
+          name={chosen.name}
+          onDone={endExchange}
+          onBusy={(on) => {
+            busy.current = on;
+            setImporting(on);
+          }}
+        />
+      )}
       {chosen?.read.kind === 'backup' && (
         <>
           <p>
@@ -328,6 +353,7 @@ export function DataSection() {
         </>
       )}
       <p ref={resultLine} tabIndex={-1} role="status" className="scroll-mt-result text-ink-2">
+        {exchanged !== null && exchangeResult(exchanged)}
         {outcome !== null &&
           (outcome.kind === 'added'
             ? [
