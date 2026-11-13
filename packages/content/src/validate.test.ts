@@ -1100,8 +1100,10 @@ describe('validateContent: the no-break hyphen between a number and its unit (do
   const learn = (fields: Record<string, string>, body: string) => {
     const lines = Object.entries({ ...front, ...fields }).map(([key, value]) => `${key}: ${value}`);
     const source = ['---', ...lines, '---', '', body, ''].join('\n');
-    return validateContent([FACTS], { ...options, modules: [{ path: 'packages/content/learn/noise.mdx', source }] })
-      .map((problem) => `${problem.code}: ${problem.detail}`);
+    return validateContent([FACTS], {
+      ...options,
+      modules: [{ path: 'packages/content/learn/noise.mdx', source }],
+    }).map((problem) => `${problem.code}: ${problem.detail}`);
   };
   const messages = (path: string, json: unknown) => codes([file(path, json)]);
   const TODAY = 'packages/app/src/features/today/messages/en.json';
@@ -1124,9 +1126,7 @@ describe('validateContent: the no-break hyphen between a number and its unit (do
   });
 
   it('refuses one in any message, a site message and a settings message outside the tax-year file too', () => {
-    expect(messages(TODAY, { redDay: { high: 'Below its 90-day high.' } })).toEqual([
-      hyphen('redDay.high', '90-day'),
-    ]);
+    expect(messages(TODAY, { redDay: { high: 'Below its 90-day high.' } })).toEqual([hyphen('redDay.high', '90-day')]);
     expect(messages('apps/web/messages/en.json', { home: { lead: 'A 30-day view.' } })).toEqual([
       hyphen('home.lead', '30-day'),
     ]);
