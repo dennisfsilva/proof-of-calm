@@ -27,15 +27,54 @@ const rows = fc.array(fc.array(cell, { minLength: 2, maxLength: 4 }), { minLengt
 const lineBreak = fc.constantFrom('\n', '\r\n');
 /** The edge positions, tried on every run: each at index 0, after a separator, in runs, and a quote that closes a cell. */
 const EDGES: [string[][], '\n' | '\r\n', boolean][] = [
-  [[['"', ','], ['\r', '\n'], ['\r\n', '']], '\n', true],
-  [[['a"', '"b'], ['a,', ',b'], ['a\r', '\rb'], ['a\n', '\nb']], '\r\n', false],
-  [[['""', ',,'], ['\r\r', '\n\n'], ['\r\n\r\n', '"",""']], '\n', false],
-  [[['"a"', '"a""'], ['a"', '","'], ['"\r\n"', '"\n']], '\r\n', true],
-  [[['=1', '\r=1'], ['a\n=1', '']], '\n', true],
+  [
+    [
+      ['"', ','],
+      ['\r', '\n'],
+      ['\r\n', ''],
+    ],
+    '\n',
+    true,
+  ],
+  [
+    [
+      ['a"', '"b'],
+      ['a,', ',b'],
+      ['a\r', '\rb'],
+      ['a\n', '\nb'],
+    ],
+    '\r\n',
+    false,
+  ],
+  [
+    [
+      ['""', ',,'],
+      ['\r\r', '\n\n'],
+      ['\r\n\r\n', '"",""'],
+    ],
+    '\n',
+    false,
+  ],
+  [
+    [
+      ['"a"', '"a""'],
+      ['a"', '","'],
+      ['"\r\n"', '"\n'],
+    ],
+    '\r\n',
+    true,
+  ],
+  [
+    [
+      ['=1', '\r=1'],
+      ['a\n=1', ''],
+    ],
+    '\n',
+    true,
+  ],
 ];
 /** RFC 4180's reading of one written cell: a quoted cell loses its outer quotes and has each "" read as ". */
-const unquote = (written: string) =>
-  written.startsWith('"') ? written.slice(1, -1).replaceAll('""', '"') : written;
+const unquote = (written: string) => (written.startsWith('"') ? written.slice(1, -1).replaceAll('""', '"') : written);
 
 describe('csvRows (property)', () => {
   it('reads rows written with textCell back as written', () => {
