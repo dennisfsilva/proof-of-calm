@@ -193,10 +193,16 @@ function single(refid: string, leg: Leg & Figures): Movement | LeftOutRow {
   return { key, lines, at: leg.at, role: 'receipt', coin: leg.code, ...units(value), ...nothing, feeInCoin: false };
 }
 
+/**
+ * "A blank line (one empty cell, or every cell empty) is not a row: the reader skips it, it counts nowhere, and a
+ * ledger with only blank lines after its header is `no-rows`." A later row keeps its line in the file.
+ */
+export const isBlankRow = (cells: readonly string[]) => cells.every((cell) => cell === '');
+
 /** Reads a Kraken ledger's data rows under its header, whose columns `readExchangeFile` has checked. */
 export function readKrakenLedger(header: readonly string[], data: readonly (readonly string[])[]): ExchangeFile {
   const columns = new Map(header.map((name, index) => [name, index]));
-  const rows = data.map((cells, index) => readRow(cells, columns, index + 2));
+  const rows = data.flatMap((cells, index) => (isBlankRow(cells) ? [] : [readRow(cells, columns, index + 2)]));
   // "A txid twice with the same cells keeps one; with different cells, both refids are left out."
   const seen = new Map<string, Row>();
   const conflicted = new Set<string | null>();
@@ -240,7 +246,7 @@ export function readKrakenLedger(header: readonly string[], data: readonly (read
   const sorted = out.toSorted(lineOrder);
   return {
     exchange: 'kraken',
-    rows: data.length,
+    rows: rows.length,
     first: times.at(0) ?? null,
     last: times.at(-1) ?? null,
     movements: sorted.filter((item): item is Movement => 'key' in item),
