@@ -97,12 +97,11 @@ export function DataSection() {
   const pending = { disabled: importing, focusableWhenDisabled: true };
 
   const onFile = async (event: ChangeEvent<HTMLInputElement>) => {
-    // One import at a time: a file chosen while one writes is refused, not kept for after it.
-    if (busy.current) {
-      event.target.value = '';
-      return;
-    }
+    // The input is emptied once its file is taken: a browser fires no change for the same file chosen again.
     const file = event.target.files?.[0];
+    event.target.value = '';
+    // One import at a time: a file chosen while one writes is refused, not kept for after it.
+    if (busy.current) return;
     if (file !== undefined) await choose(file.name, () => file.text(), file.size);
   };
   const onPaste = (text: string) => {
