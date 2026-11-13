@@ -77,15 +77,16 @@ const WITHDRAWAL = 'withdrawal'; // K1, K6
 const KFEE = 'KFEE'; // K1: fee credits, shown as a deposit
 
 /**
- * "The bonus rows K1 documents are receipts; staking, and earn with the reward subtype, are rewards; other
- * earn subtypes, transfer, suffixed and KFEE rows are within Kraken; a deposit or withdrawal is cash for fiat
- * and a coin deposit or withdrawal for a coin; every other type is other."
+ * "The bonus rows K1 documents are receipts for a coin; staking, and earn with the reward subtype, are rewards;
+ * other earn subtypes, transfer, suffixed and KFEE rows are within Kraken; a deposit or withdrawal is cash for
+ * fiat and a coin deposit or withdrawal for a coin; every other type is other." A bonus in fiat is cash, since
+ * an entry's coin is never a currency.
  */
 export function rowKind(type: string, subtype: string, code: string, suffixed: boolean): RowKind {
   if (type === STAKING || (type === EARN && subtype === REWARD)) return 'reward';
   if (suffixed || code === KFEE) return 'within';
   if (TRADE_TYPES.has(type)) return 'leg';
-  if (type === BONUS) return 'receipt';
+  if (type === BONUS) return isFiat(code) ? 'cash' : 'receipt';
   if (type === EARN || type === TRANSFER) return 'within';
   if (type === DEPOSIT) return isFiat(code) ? 'cash' : 'coin-deposit';
   if (type === WITHDRAWAL) return isFiat(code) ? 'cash' : 'coin-withdrawal';
