@@ -1153,4 +1153,21 @@ describe('validateContent: the no-break hyphen between a number and its unit (do
     const status = { ...profile().status, changeNotice: 'The 365-day rule is unchanged.' };
     expect(codes([file(pt, profile({ status }))])).toEqual([hyphen('status.changeNotice', '365-day')]);
   });
+
+  it.each([
+    ['name', 'A 4-year cycle'],
+    ['oneLine', 'Bitcoin, bought each month over a 4-year cycle.'],
+    ['riskLabel', 'High risk over a 4-year cycle.'],
+    ['explanation', 'Bought each month over a 4-year cycle and held.'],
+  ])('refuses one in a template’s %s, which onboarding shows', (field, text) => {
+    const path = 'packages/content/templates/two-coins.json';
+    expect(codes([file(path, template({ [field]: text }))])).toEqual([hyphen(field, '4-year')]);
+    expect(codes([file(path, template({ [field]: text.replace('4-year', '4‑year') }))])).toEqual([]);
+  });
+
+  it('refuses one in a coin’s name in the catalogue, which the plan’s coin list shows', () => {
+    const coins = (name: string) => [{ id: 'BTC', name, geckoId: 'bitcoin', decimals: 8 }];
+    expect(codes([file('packages/content/coins.json', coins('Bitcoin 4-year'))])).toEqual([hyphen('0.name', '4-year')]);
+    expect(codes([file('packages/content/coins.json', coins('Bitcoin 4‑year'))])).toEqual([]);
+  });
 });
