@@ -2,8 +2,6 @@
 // entry of each section and the counted lines. The component words them; nothing here decides what is imported.
 import { compareEntries, type Entry, type ExchangeImportPlan, liveEntries } from '@proofofcalm/core';
 
-export type ExchangePreviewModel = ReturnType<typeof previewModel>;
-
 const estimatesOf = (plan: ExchangeImportPlan) =>
   plan.replaced.reduce((count, item) => count + item.estimates.length, 0);
 
