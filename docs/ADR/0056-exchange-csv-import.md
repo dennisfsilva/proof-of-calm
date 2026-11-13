@@ -1,6 +1,6 @@
 # ADR-0056: Exchange CSV import: Kraken's ledger first, then Trade Republic, on synthetic fixtures
 
-Status: Accepted · Date: 2026-11-13 · Deciders: the owner, from the design check of the exchange import (a planner, three blind designers and counsel; #15, 2026-11-13) · Amends ADR-0007 (the fixtures, the candidates) and reads ADR-0039's "same buy day"
+Status: Accepted · Date: 2026-11-13 · Deciders: taken without the owner under the owner's rule for the unattended M2 run (decide and record; the owner confirms it at the end of M2), from the design check of the exchange import (a planner, three blind designers, a walk of twelve people, an audit of every reason, counsel and a reconciler; #15, 2026-11-13) · Amends ADR-0007 (the fixtures, the candidates) and reads ADR-0039's "same buy day"
 
 ## Context
 
