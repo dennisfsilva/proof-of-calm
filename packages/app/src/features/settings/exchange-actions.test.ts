@@ -133,8 +133,10 @@ describe('exchangeImportActions.importFile', () => {
     expect(planStore.current()).toStrictEqual(before);
   });
 
-  // The reader keys a movement by refid, coin and direction, so these ledgers give two entries one id; the store puts
-  // rows by id, so writing both would keep one and count two.
+  // The reader keys a movement by refid, coin and direction. These ledgers gave two entries one id, which the write
+  // refused as `invalid-entries`; since a refid's receipts of one coin fold into one (ADR-0056, Corrections,
+  // 2026-11-13), each gives one entry, and the write stores it: the two bonus rows as one `held` entry with their
+  // units summed, and the bonus under the trade's refid for the coin it bought left out as unpaired, by its line.
   it.each([
     [
       'two invite bonus rows of one coin under one refid',
@@ -142,6 +144,8 @@ describe('exchangeImportActions.importFile', () => {
         ['BQ9ZZZ-SYNTH-000005', '2026-10-16 00:00:00', 'invite bonus', 'BTC', '0.0000500000', '0.0000000000'],
         ['BQ9ZZZ-SYNTH-000005', '2026-10-17 00:00:00', 'invite bonus', 'BTC', '0.0000300000', '0.0000000000'],
       ],
+      [['held', '0.00008']],
+      [],
     ],
     [
       'an invite bonus row under the refid of a trade that bought its coin',
@@ -150,19 +154,18 @@ describe('exchangeImportActions.importFile', () => {
         ['TQ9ZZZ-SYNTH-000003', '2026-10-12 12:00:00', 'trade', 'BTC', '0.0008000000', '0.0000000000'],
         ['TQ9ZZZ-SYNTH-000003', '2026-10-12 12:00:00', 'invite bonus', 'BTC', '0.0000500000', '0.0000000000'],
       ],
+      [['dca', '0.0008']],
+      [[4]],
     ],
-  ] as const)('refuses `invalid-entries` for %s, and writes nothing', async (_, rows) => {
+  ] as const)('writes one entry for %s', async (_, rows, entries, unpaired) => {
     const file = readExchangeFile(krakenLedger(rows));
     if (!file.ok) throw new Error('the synthetic ledger reads');
     const { planStore, shown, importFile } = await opened([], {}, file.value);
-    const [first] = shown.entries;
-    expect(shown.entries.map((entry) => entry.id)).toEqual([first?.id, first?.id]);
-    const before = planStore.current();
-    expect(await importFile()).toEqual({
-      kind: 'refused',
-      refusal: { code: 'invalid-entries', ids: [first?.id] },
-    });
-    expect(planStore.current()).toStrictEqual(before);
+    expect(file.value.leftOut.filter((row) => row.reason === 'unpaired').map((row) => row.lines)).toEqual(unpaired);
+    expect(shown.entries.map((entry) => [entry.kind, entry.units])).toEqual(entries);
+    expect(await importFile()).toEqual({ kind: 'imported', added: 1, replaced: 0, imported: 0, deleted: 0 });
+    const stored = new Set(planStore.current().entries.map((entry) => entry.id));
+    expect(shown.entries.every((entry) => stored.has(entry.id))).toBe(true);
   });
 
   it('refuses `no-plan` when another tab deleted the plan, and writes nothing', async () => {
