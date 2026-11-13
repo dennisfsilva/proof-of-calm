@@ -177,7 +177,10 @@ test("the Log's holding date's Why? opens the tax module on Portugal's card", as
   await seedInHold(page);
   await page.goto('/log');
   await expect(page.locator('main#main')).not.toHaveAttribute('aria-busy', 'true');
-  await page.getByRole('button', { name: /Monthly buy/u }).first().click();
+  await page
+    .getByRole('button', { name: /Monthly buy/u })
+    .first()
+    .click();
   const link = page.getByRole('button', { name: 'Why? The tax-free date', exact: true });
   await expect(link).toHaveCount(1);
   await link.press('Enter');
