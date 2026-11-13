@@ -194,6 +194,11 @@ exports (their headers, columns and cells) (the role: `.claude/agents/counsel.md
    `docs/EDUCATION.md` §9). Naming a provider as the subject of a dated, sourced event its customers
    suffered (a halt, an insolvency, a theft), unlinked, with no word on what it offers now and no
    comparison, is not naming a provider (`docs/EDUCATION.md` §9 rows `d.mt-gox` and `d.ftx`).
+   Naming an exchange as the format of a file the import reads (decided 2026-11-13, ADR-0056), listed
+   alphabetically, unlinked, with no logo, status word, comparison or reason to use it, beside
+   `Choose a file`, in the not-recognised alert and in the import's own lines, nowhere else, is not
+   naming a provider (`docs/CONTENT-STYLE.md` §3 rows `Import a file`, `Import not recognised` and
+   `Import an exchange's file`).
 5. Does it state or imply regulatory status, protection or compliance (regulated, licensed,
    authorised, MiCA-compliant, approved by)?
 6. Is every historic figure dated, sourced and carrying the past-performance line (§3), with no
