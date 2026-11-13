@@ -63,3 +63,18 @@ export const TaxesDue: Story = {
     await expect(line?.textContent).toMatch(/^Last reviewed 9\sNov\s2026 · Next review due 1\sJan\s2027$/u);
   },
 };
+
+// At the larger text size on the narrowest phone, the phrase after the `·` keeps to one line inside the column, so
+// the line breaks only between its parts (docs/CONTENT-STYLE.md §5).
+export const TaxesDueLargeText: Story = {
+  ...TaxesDue,
+  globals: { textZoom: '125', viewport: { value: 'android-small', isRotated: false } },
+  play: async ({ canvas }) => {
+    const line = canvas.getByRole('heading', { level: 1, name: 'Taxes where you live' }).nextElementSibling;
+    const phrase = canvas.getByText(/^Next review due 1\sJan\s2027$/u);
+    await expect(getComputedStyle(phrase).whiteSpace).toBe('nowrap');
+    await expect(phrase.getClientRects()).toHaveLength(1);
+    const column = line?.getBoundingClientRect().right ?? 0;
+    await expect(phrase.getBoundingClientRect().right).toBeLessThanOrEqual(column);
+  },
+};

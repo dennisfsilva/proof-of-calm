@@ -112,7 +112,7 @@ describe('countryRules (docs/DOMAIN.md §4)', () => {
         version: 2,
         changedOn: '2026-11-05',
         changeNotice:
-          'Portugal lowered six IRS bracket rates for 2026 income. The 28% rate and the 365-day rule are unchanged.',
+          'Portugal lowered six IRS bracket rates for 2026 income. The 28% rate and the 365\u2011day rule are unchanged.',
         nextReviewDue: '2027-11-02',
       },
     });

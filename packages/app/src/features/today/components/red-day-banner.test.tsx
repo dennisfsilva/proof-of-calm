@@ -76,10 +76,10 @@ describe('RedDayBanner', () => {
 
   it('the fall from the 90-day high when only that one fired, or the week has no figure', async () => {
     await banner({ lastRed: lastRed('-9.9999', '-33.2') });
-    expect(sentence()).toBe('On 19 Oct 2026 Bitcoin was 33% below its 90-day high.');
+    expect(sentence()).toBe('On 19 Oct 2026 Bitcoin was 33% below its 90\u2011day high.');
     cleanup();
     await banner({ lastRed: lastRed(null, '-30') });
-    expect(sentence()).toBe('On 19 Oct 2026 Bitcoin was 30% below its 90-day high.');
+    expect(sentence()).toBe('On 19 Oct 2026 Bitcoin was 30% below its 90\u2011day high.');
   });
 
   it('one coin is named as the model names it, never by a lowercase id', async () => {
@@ -95,7 +95,7 @@ describe('RedDayBanner', () => {
     cleanup();
     await banner({ coins: [BTC, ETH], lastRed: lastRed('-2', '-31') });
     expect(sentence()).toBe(
-      'On 19 Oct 2026 Bitcoin and Ethereum, in the amounts you hold, were 31% below their combined 90-day high.',
+      'On 19 Oct 2026 Bitcoin and Ethereum, in the amounts you hold, were 31% below their combined 90\u2011day high.',
     );
     cleanup();
     await banner({ coins: [ETH, SOL, BTC] });

@@ -64,7 +64,7 @@ describe('the Noise and When the market drops modules', () => {
       'Surveys are marked "currently paused", and alternative.me does not say where their 15\u00a0% goes.',
     );
     expect(body).toContain(
-      'never from headlines. It counts a fall when the coins you hold lose 10\u00a0% or more in seven days or close 30\u00a0% or more below their 90-day high.',
+      'never from headlines. It counts a fall when the coins you hold lose 10\u00a0% or more in seven days or close 30\u00a0% or more below their 90\u2011day high.',
     );
     // The fall page leaves the next buy day out in the hold phase, so the page is named by what it always holds.
     expect(body).toContain("links to a page with the figure and each coin's earlier falls.");
@@ -109,7 +109,7 @@ describe('the Noise and When the market drops modules', () => {
       'It counts one when the coins you hold, in the amounts you hold, fall 10\u00a0% or more in seven days. It also counts one when they close 30\u00a0% or more below their highest close of the last 90\u00a0days.',
     );
     expect(body).toContain(
-      'about 6 episodes a year. A close 30\u00a0% or more below the 90-day high came on 11.8\u00a0% of days. Either one came on 15.1\u00a0% of days.',
+      'about 6 episodes a year. A close 30\u00a0% or more below the 90\u2011day high came on 11.8\u00a0% of days. Either one came on 15.1\u00a0% of days.',
     );
     expect(body).toContain("Learn's first row opens a page with the figure and each coin's earlier falls.");
     expect(body).not.toMatch(/next buy day/u);
