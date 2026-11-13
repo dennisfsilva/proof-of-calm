@@ -3,11 +3,6 @@
 # with a fixed release in the same major are fixed with pnpm `overrides` instead (pnpm-workspace.yaml).
 
 [[IgnoredVulns]]
-id = "GHSA-vfj7-8cjw-p6xm"
-ignoreUntil = 2027-01-31
-reason = "braces 3.0.3 (no fixed release on 2026-10-17), stack exhaustion on deeply nested brace patterns. Reached only through the shadcn CLI (a dev dependency of packages/ui, run by hand to copy component sources) via shadcn, @shadcn/registry and @ts-morph/common -> fast-glob -> micromatch, which expand the CLI's own registry patterns at development time; no untrusted pattern is ever expanded and nothing ships in a bundle."
-
-[[IgnoredVulns]]
 id = "GHSA-7pqw-9j4j-h8q3"
 ignoreUntil = 2027-01-31
 reason = "extract-zip 2.0.1 (no fixed release), symlink entries in untrusted archives. Reached only through @lhci/cli's puppeteer browser downloader, which CI never uses: Lighthouse runs the runner's installed Chrome and nothing is extracted."
@@ -18,14 +13,19 @@ ignoreUntil = 2027-01-31
 reason = "extract-zip 2.0.1 (no fixed release), symlink path traversal in untrusted archives. Same path as GHSA-7pqw-9j4j-h8q3: never invoked."
 
 [[IgnoredVulns]]
-id = "GHSA-hp3w-g68c-fv3c"
-ignoreUntil = 2027-01-31
-reason = "sprintf-js 1.0.3 (no fixed 1.0.x release), denial of service through unbounded precision specifiers. Reached only through @lhci/cli -> js-yaml 3 -> argparse 1, which formats the repository's own help and config messages."
-
-[[IgnoredVulns]]
 id = "GHSA-c475-qrg2-pj4r"
 ignoreUntil = 2027-01-31
 reason = "basic-ftp 5.3.1 (fixed only in the 6.x major), quadratic parsing of an FTP server's directory listing. Reached only if @lhci/cli's proxy agent fetches an ftp:// URL, which this configuration never does."
+
+[[IgnoredVulns]]
+id = "GHSA-r4jh-29pc-gfqr"
+ignoreUntil = 2027-01-31
+reason = "basic-ftp 5.3.1 (fixed only in the 6.x major, 6.2.3), a password or resumed-download path holding a carriage return, line feed or NUL throws outside the promise and ends the process. Same path as GHSA-c475-qrg2-pj4r: @lhci/cli and lighthouse -> puppeteer-core -> @puppeteer/browsers -> proxy-agent -> pac-proxy-agent -> get-uri, which opens an FTP session only for a pac+ftp:// proxy setting that neither CI nor a developer sets, and never resumes a download."
+
+[[IgnoredVulns]]
+id = "GHSA-5pm8-86m8-9m6r"
+ignoreUntil = 2027-01-31
+reason = "basic-ftp 5.3.1 (fixed only in the 6.x major, 6.2.4), a __proto__ fact in an FTP server's MLSD directory listing throws a TypeError that list() does not catch and ends the process. Same path as GHSA-c475-qrg2-pj4r: get-uri lists a directory only for a pac+ftp:// proxy setting that neither CI nor a developer sets."
 
 [[IgnoredVulns]]
 id = "GHSA-w5hq-g745-h8pq"
