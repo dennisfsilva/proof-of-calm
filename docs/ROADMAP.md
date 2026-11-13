@@ -145,8 +145,8 @@ external links and the Risk link in the mobile export (M3).
   the plan's country card leading it, the `Other countries` rows, the review line with its next
   review and overdue forms, its text with its own branch; Taxes where you live's text built on
   2026-11-13 (#161), its five sources read under the owner's delegation; the tax-free date's link
-  built on 2026-11-13, a standalone `Why?` right after the holding date of every opened Log row
-  that has one, opening the module on the plan's country's card.
+  built on 2026-11-13 (#162), a standalone `Why?` right after the holding date of every opened Log
+  row that has one, opening the module on the plan's country's card.
 - Templates: the four starting points with risk labels and explanations; the template picker copy
   passes the copy-review checklist (`docs/CONTENT-STYLE.md`).
 - Jurisdictions: PT, DE, NL, ES, FR, IT, BE, IE, GB, US, XX as validated data with sources and dates;
