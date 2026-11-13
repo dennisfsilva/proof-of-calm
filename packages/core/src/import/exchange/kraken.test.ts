@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { KRAKEN_SYNTHETIC } from '../../../test/exchange/kraken-synthetic.expected';
 import december2025 from '../../../test/exchange/kraken-synthetic-2025-12.csv?raw';
+import foldDecember2025 from '../../../test/exchange/kraken-synthetic-fold-2025-12.csv?raw';
+import { KRAKEN_SYNTHETIC_FOLD } from '../../../test/exchange/kraken-synthetic-fold.expected';
+import foldLegacy from '../../../test/exchange/kraken-synthetic-fold-legacy.csv?raw';
 import legacy from '../../../test/exchange/kraken-synthetic-legacy.csv?raw';
 import { readExchangeFile } from './read';
 
@@ -260,16 +263,23 @@ describe('readExchangeFile folds the receipts of one refid and coin', () => {
     ]);
   });
 
+  it.each([
+    ['the December 2025 header', foldDecember2025],
+    ['the legacy header without subclass and wallet', foldLegacy],
+  ])('reads the fold file under %s exactly as worked out by hand', (_, text) => {
+    expect(readExchangeFile(text)).toEqual({ ok: true, value: KRAKEN_SYNTHETIC_FOLD });
+  });
+
   it('gives the same keys for the same rows in a legacy and a December 2025 file', () => {
     const keys = (text: string) => {
       const result = readExchangeFile(text);
       return result.ok ? result.value.movements.map((movement) => movement.key) : [];
     };
-    // Lines 49 to 53 of the legacy file name XXBT and ZEUR where the December 2025 file names BTC and EUR.
-    const [old, current] = [legacy, december2025].map((text) => text.split('\n').slice(48, 54).join('\n'));
-    expect([old?.match(/"XXBT"/gu)?.length, current?.match(/"XXBT"/gu)?.length]).toEqual([4, undefined]);
-    expect(keys(legacy)).toEqual(keys(december2025));
-    expect(keys(legacy)).toContain('poc-csv-1|kraken|BQ1AAA-SYNTH-000030|BTC|in');
-    expect(new Set(keys(legacy)).size).toBe(keys(legacy).length);
+    // The legacy fold file names XXBT and ZEUR where the December 2025 one names BTC and EUR.
+    const xxbt = [foldLegacy, foldDecember2025].map((text) => text.match(/"XXBT"/gu)?.length);
+    expect(xxbt).toEqual([4, undefined]);
+    expect(keys(foldLegacy)).toEqual(keys(foldDecember2025));
+    expect(keys(foldLegacy)).toContain('poc-csv-1|kraken|BQ1AAA-SYNTH-000030|BTC|in');
+    expect(new Set(keys(foldLegacy)).size).toBe(keys(foldLegacy).length);
   });
 });
