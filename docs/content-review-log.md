@@ -5,6 +5,31 @@ What each owner's review found wrong in the drafts, so the review skill improves
 its PR, the model and what the owner corrected. Each row names the kind of mistake, which is what the
 next draft can check for.
 
+## 2026-11-12: Taxes where you live, the delegated read
+
+The owner delegated this read and the merge to the session, for the unattended M2 run (#23, answer 2;
+ADR-0015 Deviations). `reviewedBy: owner` on the module and its five facts records that delegation; no
+person opened the sources. An agent opened each source on 2026-11-12 between 23:31 and 23:41 WET and read
+P1 to P11 against main's code. The full read, with every quoted passage, is #24's comment 6839452863.
+
+| Item | Source or code | What the source holds | Verdict |
+|---|---|---|---|
+| `k.pt-2023` | Lei 24-D/2022 in the Diário da República (rendered page and its PDF) | In force 1 Jan 2023 (art. 284.º); gains on crypto held 365 days or more excluded (art. 10.º n.º 19), not when the other party is outside the EU, the EEA or a treaty state (n.º 21) | Date, 365 days, "under conditions" and the law hold; 28 % is not printed, so it leaves the value and the example |
+| `k.de-2024` | BGBl. 2024 I Nr. 108, the PDF behind `?__blob=publicationFile&v=1` | Art. 2 Nr. 5: "600 Euro" becomes "1 000 Euro" in EStG § 23(3); Art. 35(4): "mit Wirkung vom 1. Januar 2024" | €600, €1,000, the BGBl and 1 Jan 2024 hold; "from tax year 2024" does not; the old URL is a landing page, so the source moves to the PDF |
+| `k.it-2026` | L. 207/2024 on Normattiva | C. 24: crypto gains realised from 1 Jan 2026 at 33 % instead of 26 % | Holds; the €2,000 and L. 199/2025 clauses leave the value |
+| `k.be-2026` | The law of 6 Apr 2026 on Justel | Crypto counts as a financial asset (art. 4); 10 % (art. 27); effect from 1 Jan 2026 (art. 35) | Holds; the fact's date becomes the law's, 2026-04-06 |
+| `k.gb-2024` | HMRC's "Capital Gains Tax rates and allowances" | £12,300 (2022 to 2023), £6,000 (2023 to 2024), £3,000 (2024 to 2025); the 2024 to 2025 update dated 6 April 2024; no word on crypto | Holds; the rates sentence leaves the value, and the date becomes 2024-04-06 |
+| P1 and P9 | `transactions.ts:99`, `log-screen.tsx:104-110` | The Log strips every date while the country's rules are not loaded | False in that state only: the body adds "No date appears either while your country's rules are not loaded on this device." |
+| P10 | `rule-change-banner.tsx:44-56` | The notice is dated and asks through its `Review` button | Reworded: "a dated notice with a button to review your plan" |
+| P2 to P8, P11 | The profiles, Settings' tax-year export, DOMAIN §3.6 and §3.12 | As D2 lists them | True, with the notes the comment gives |
+
+| Kind | What was wrong | What it became |
+|---|---|---|
+| A figure the cited source does not print | Portugal's 28 % rests on art. 72.º, which Lei 24-D/2022 reprints without its rate | Dropped from the fact and the example; Portugal's card keeps its own rate |
+| A date phrase the source does not use | Germany's "from tax year 2024" | "with effect from 1 Jan 2024", Art. 35(4)'s words |
+| A source URL the review tool cannot read | `k.de-2024` pointed at a landing page | The PDF's own URL |
+| A product sentence false in one state | P1 and P9 while the rules are not loaded; P10's "asks you" | One sentence added; P10 reworded |
+
 ## 2026-11-09: #68 and #69, the falls as our computation and the Risk honestly module
 
 The owner delegated these reads and the merges to a session, by message (the session's question that day), with
