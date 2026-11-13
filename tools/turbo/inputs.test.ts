@@ -10,6 +10,7 @@ import { createRequire } from 'node:module';
 import { join, posix, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { isScanned, trackedFiles } from '../lint/copy-paths-scan.ts';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const turbo = fileURLToPath(new URL('../../node_modules/turbo/bin/turbo', import.meta.url));
@@ -96,9 +97,7 @@ describe('turbo inputs', () => {
       'packages/content/jurisdictions/ie.json', // content-review/example.test.ts: the example's leaves
       'packages/content/sources.allow.json', // content-review/example.test.ts: the example's links
       '.claude/crew.json', // lint/copy-paths.test.ts: the copy paths, and the tax-year files it lists
-      ...filesUnder('packages/app/src/features/settings/fixtures'),
-      ...filesUnder('packages/core/src/export'),
-      ...filesUnder('packages/core/test/tax-year'),
+      ...trackedFiles().filter(isScanned),
     ];
     expect(read).toContain('packages/app/src/features/today/messages/en.json');
     expect(read).toContain('apps/web/src/main.tsx');
