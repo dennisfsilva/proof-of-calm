@@ -1,5 +1,5 @@
 // The two steps of the exchange import's plan that leave purchases out before any month is filled (docs/DOMAIN.md
-// §3.13): the starting amount (step 2) and the coins the person added (step 5).
+// §3.13): the starting amount (step 3) and the coins the person added (step 4).
 import { IMPORT_MATCH_DAYS } from '../../constants';
 import { addDays, type CalendarDate } from '../../dates/calendar';
 import { isPositive, sum, type Units } from '../../money/decimal';
@@ -35,25 +35,27 @@ export type HeldCoin = {
   readonly heldVenue: string | null;
 };
 
-export const within = (day: Day, from: CalendarDate, to: CalendarDate) => from <= day.date && day.date <= to;
+const within = (day: Day, from: CalendarDate, to: CalendarDate) => from <= day.date && day.date <= to;
 export const near = (day: Day, date: CalendarDate, days: number) =>
   within(day, addDays(date, -days), addDays(date, days));
 
 /**
- * Step 2: "In a plan with a starting amount above 0, the purchases dated within 15 days of `firstBuy` are left out and
+ * Step 3: "In a plan with a starting amount above 0, the purchases dated within 15 days of `firstBuy` are left out and
  * named, since the file cannot tell the starting amount from the first monthly buy; a one-tap `lump` estimate is never
- * replaced."
+ * replaced." A date step 2 claimed is `looks recorded already` and is not counted here.
  */
 export function startingGuard(plan: Plan, days: readonly Day[]) {
   if (!isPositive(plan.startingAmount)) return null;
-  const guarded = days.filter((day) => day.role === 'purchase' && near(day, plan.firstBuy, IMPORT_MATCH_DAYS));
+  const guarded = days.filter(
+    (day) => !day.claimed && day.role === 'purchase' && near(day, plan.firstBuy, IMPORT_MATCH_DAYS),
+  );
   for (const day of guarded) day.claimed = true;
   const purchases = guarded.flatMap((day) => day.items).length;
   return purchases === 0 ? null : { purchases, firstBuy: plan.firstBuy };
 }
 
 /**
- * Step 5: "C's purchases and receipts dated on or before the latest live `held` entry of C, at any venue, are `may be
+ * Step 4: "C's purchases and receipts dated on or before the latest live `held` entry of C, at any venue, are `may be
  * the coins you added`: left out unless the person ticks `Add these purchases too`, one answer for all of them." A
  * `held` entry an exchange import added (a receipt) is not one the person added, so it guards nothing.
  */
