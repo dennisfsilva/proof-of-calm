@@ -17,8 +17,9 @@ const MONTH = 'Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sept?|Oct|Nov|Dec';
 
 // Review round 1 (CONTENT-STYLE §1 rule 4): D2's one 45-word sentence split in two, the same 45 words. The line
 // shows when a row is opened (log-row.tsx's details; log-row.test.tsx's holding line after the expand click).
+// Review round 2 (rule 10): "It" could be read as the rule or the purchase, so the second sentence names the date.
 const P1 =
-  'If your plan has a holding rule, each purchase and each entry of coins added in the Log shows, when opened, the day it passes that rule, counted from the date you recorded. It reads “Tax-free from”, or “Long-term rate from” where the rule lowers the rate.';
+  'If your plan has a holding rule, each purchase and each entry of coins added in the Log shows, when opened, the day it passes that rule, counted from the date you recorded. The date reads “Tax-free from”, or “Long-term rate from” where the rule lowers the rate.';
 const P2 =
   "Proof of Calm cannot check the rule's other conditions, so the date alone does not settle how a sale is taxed.";
 const P3 =
@@ -29,7 +30,8 @@ const P5 =
 // Review round 1 (LEGAL §6 question 14): naming the P/L's differences from a taxable gain reads as a recipe, so
 // the sentence names none. Not "one formula in every country": the profile's lot rule and scope enter the P/L
 // through holdingContext (DOMAIN §3.6, unrecordedUnits), so the claim stays the one that holds everywhere.
-const P6 = "Portfolio's P/L is not a taxable gain either: it is not worked out as one.";
+// Review round 2 (rule 4): the active voice, since the passive is only for avoiding blame in an error.
+const P6 = "Portfolio's P/L is not a taxable gain either: Proof of Calm does not work it out as one.";
 const P7 = "Where your plan follows a country's rule with no holding period, no date appears.";
 const P8 =
   "Where your plan follows the general profile's rule, no date appears either, but your country may still have a holding period.";
