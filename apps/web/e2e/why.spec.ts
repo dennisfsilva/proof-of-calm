@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, type Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 import { fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
 import type { CalendarDate } from '@proofofcalm/core';
 import { seedPlan } from './seed';
@@ -24,6 +24,7 @@ const CYCLES =
   "Since 2013, bitcoin's highs have come about 4 years apart so far; 4 completed cycles are 4 data points, not a law.";
 const WINDOW = 'The window is a discipline device';
 const RISK = 'You can lose everything, and the order of operations matters.';
+const TAXES = 'Where you live decides what holding means for tax, and the rules keep changing.';
 
 const LINKS = [
   { path: '/today', name: 'Why? The hold phase', idea: IDEA, section: 'Why some people hold' },
@@ -43,6 +44,20 @@ async function seedInHold(page: Page) {
     }),
   );
   await seedPlan(page, snapshot);
+}
+
+/** Walks the focus back to the sheet's `Close` in bounded presses; only the press that lands on it is under test. */
+async function shiftTabToClose(page: Page, sheet: Locator, close: Locator) {
+  const presses = 6;
+  let reached = false;
+  for (let press = 0; press < presses && !reached; press += 1) {
+    const place = await sheet.evaluate((popup) => popup.scrollTop);
+    await page.keyboard.press('Shift+Tab');
+    reached = await close.evaluate((button) => button === document.activeElement);
+    if (reached) expect(await sheet.evaluate((popup) => popup.scrollTop)).toBe(place);
+  }
+  if (!reached) throw new Error(`Shift+Tab does not reach Close within ${presses} presses`);
+  await expect(close).toBeFocused();
 }
 
 for (const { path, name, idea, section } of LINKS) {
@@ -76,16 +91,7 @@ for (const { path, name, idea, section } of LINKS) {
     // them on Linux, as the other engines do. Where it reaches them, a link standing before the section (the cycles
     // module's Risk link) is a stop on the way, and its reveal may scroll; only the press that lands on `Close` is
     // under test, and it must leave the place where it was.
-    const presses = 6;
-    let reached = false;
-    for (let press = 0; press < presses && !reached; press += 1) {
-      const place = await sheet.evaluate((popup) => popup.scrollTop);
-      await page.keyboard.press('Shift+Tab');
-      reached = await close.evaluate((button) => button === document.activeElement);
-      if (reached) expect(await sheet.evaluate((popup) => popup.scrollTop)).toBe(place);
-    }
-    if (!reached) throw new Error(`Shift+Tab does not reach Close within ${presses} presses`);
-    await expect(close).toBeFocused();
+    await shiftTabToClose(page, sheet, close);
 
     await close.click();
     await expect(sheet).toBeHidden();
@@ -159,6 +165,43 @@ test("the P/L line's Why? on /portfolio opens Risk honestly, and closing gives t
   await expect(sheet.getByRole('heading', { level: 2, name: 'The order that matters' })).toBeAttached();
   expect(new URL(page.url()).pathname).toBe('/portfolio');
 
+  await page.keyboard.press('Escape');
+  await expect(sheet).toBeHidden();
+  await expect(link).toBeFocused();
+});
+
+// #24 D8: an opened purchase row's holding line carries the Why? right after its date, which opens the tax module on
+// the plan's country's card (docs/EDUCATION.md §4): Portugal's heading takes the focus below Close, and the sheet lists
+// no other countries. Escape gives the focus back to the link.
+test("the Log's holding date's Why? opens the tax module on Portugal's card", async ({ page }) => {
+  await seedInHold(page);
+  await page.goto('/log');
+  await expect(page.locator('main#main')).not.toHaveAttribute('aria-busy', 'true');
+  await page.getByRole('button', { name: /Monthly buy/u }).first().click();
+  const link = page.getByRole('button', { name: 'Why? The tax-free date', exact: true });
+  await expect(link).toHaveCount(1);
+  await link.press('Enter');
+
+  const sheet = page.getByRole('dialog', { name: TAXES });
+  await expect(sheet).toBeVisible();
+  const heading = sheet.getByRole('heading', { level: 2, name: 'Portugal', exact: true });
+  await expect(heading).toBeFocused();
+  await expect(heading).toBeInViewport();
+  await expect(sheet.getByRole('heading', { name: 'Other countries' })).toHaveCount(0);
+  expect(new URL(page.url()).pathname).toBe('/log');
+
+  const close = sheet.getByRole('button', { name: 'Close' });
+  await expect(close).toBeInViewport({ ratio: 1 });
+  const [closeBox, headingBox] = await Promise.all([close.boundingBox(), heading.boundingBox()]);
+  if (closeBox === null || headingBox === null) throw new Error('both stand on the page');
+  expect(closeBox.y + closeBox.height).toBeLessThanOrEqual(headingBox.y);
+
+  const axe = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+    .analyze();
+  expect(axe.violations.map((violation) => `${violation.id}: ${violation.help}`)).toEqual([]);
+
+  await shiftTabToClose(page, sheet, close);
   await page.keyboard.press('Escape');
   await expect(sheet).toBeHidden();
   await expect(link).toBeFocused();
