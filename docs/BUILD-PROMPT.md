@@ -170,6 +170,12 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   under its timeout and run it once cold before reporting. #151 keeps one copy per node version in
   the temp folder and warms it in `beforeAll`, since a link to node.exe in Program Files fails with
   EPERM: 6.7 s cold and 6.1 s warm.
+- A property test's local time is not CI's. CI runs the core's tests with coverage on a smaller
+  runner, and fast-check draws a new seed each run. #178's import-plan properties took 3.6 s
+  locally at 2,000 runs, passed on the pull request, then timed out at 20 s on main, at least 5.6
+  times slower (#181). A brief asks for the worst time over several seeds under the full suite with
+  coverage. It sets the run count and the timeout so that six times that worst stays under a third
+  of the timeout. The core's default timeout is Vitest's 5 s.
 - A guard that limits what an agent's branch may change is checked against every required check that
   branch must pass. Session 18b's content review guard refused the baseline deletion that the
   required e2e-visual check needs after any change to text a screen shows; the integration read found
