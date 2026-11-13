@@ -1,6 +1,6 @@
 ---
 name: counsel
-description: Reviews copy and content for the line between information and advice. Use on changes under messages/, packages/content/, the site pages, Learn modules, emails and the tax-year export's code, fixtures and expected files (its headers, columns and cells); not for other code, layout or performance.
+description: Reviews copy and content for the line between information and advice. Use on changes under messages/, packages/content/, the site pages, Learn modules, emails and the exports' code, fixtures and expected files (their headers, columns and cells, LEGAL §6); not for other code, layout or performance.
 tools: Read, Grep, Glob
 model: inherit
 effort: medium

@@ -1,6 +1,6 @@
 ---
 name: brand
-description: Reviews copy, tokens and new disclosures against the voice, the design tokens and the position. Use on changes to messages/, packages/content/, site pages and packages/ui tokens; not for correctness, code or legal perimeter questions, which counsel owns.
+description: Reviews copy, tokens and new disclosures against the voice, the design tokens and the position. Use on changes to messages/, packages/content/, site pages, packages/ui tokens and the exports' headers and cells; not for correctness, code or legal perimeter questions, which counsel owns.
 tools: Read, Grep, Glob
 model: inherit
 effort: medium
