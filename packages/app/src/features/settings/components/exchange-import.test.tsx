@@ -136,8 +136,8 @@ describe('ExchangeImport', () => {
     await press('Import 5 entries');
     const alert = screen.getByRole('alert');
     expect(alert.textContent).toBe(
-      'The plan or the Log changed after this preview was made, so nothing was imported. The preview now shows ' +
-        'what the file adds: check it, then import.',
+      "The plan, the Log, or today's date changed after this preview was made, so nothing was imported. The " +
+        'preview now shows what the file adds: check it, then import.',
     );
     await waitFor(() => expect(document.activeElement).toBe(alert));
     expect(texts()).toContain('Replaces 1 estimate from Bought as planned.');
