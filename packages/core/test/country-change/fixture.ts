@@ -44,7 +44,7 @@ export const FIXTURE_RULES = {
       version: 2,
       changedOn: date('2026-11-05'),
       changeNotice:
-        'Portugal lowered six IRS bracket rates for 2026 income. The 28% rate and the 365-day rule are unchanged.',
+        'Portugal lowered six IRS bracket rates for 2026 income. The 28% rate and the 365‑day rule are unchanged.',
     },
   },
   DE: {
