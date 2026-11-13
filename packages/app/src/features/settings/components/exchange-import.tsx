@@ -1,4 +1,11 @@
-import { type ExchangeFile, type Plan, planExchangeImport, VENUE_MAX_LENGTH } from '@proofofcalm/core';
+import {
+  type CalendarDate,
+  type Entry,
+  type ExchangeFile,
+  type Plan,
+  planExchangeImport,
+  VENUE_MAX_LENGTH,
+} from '@proofofcalm/core';
 import { Button } from '@proofofcalm/ui/components/button';
 import { Checkbox } from '@proofofcalm/ui/components/checkbox';
 import { Field, FieldError, FieldLabel } from '@proofofcalm/ui/components/field';
@@ -6,7 +13,7 @@ import { Input } from '@proofofcalm/ui/components/input';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'use-intl';
 import { reportError } from '../../../lib/errors';
-import { useClock, useServices, useSnapshot, useToday } from '../../../lib/services';
+import { useClock, useServices, useSnapshot } from '../../../lib/services';
 import { type ExchangeImportOutcome, exchangeImportActions } from '../exchange-actions';
 import { defaultVenue, previewModel } from '../model/exchange-preview';
 import { exchangeContext } from '../model/import';
@@ -14,10 +21,11 @@ import { ExchangeSections, ExchangeSummary, useFigure, useWords } from './exchan
 import type { ExchangeRefusal } from './exchange-problem';
 
 // Settings → Import an exchange's file (docs/DOMAIN.md §3.13, CONTENT-STYLE §3): the preview of what the file adds,
-// computed from the Log as this tab shows it with the venue and the held answer chosen here, then one write. Its
-// heading takes the focus when it shows. A write refused because the plan, the Log or today's date changed keeps the
-// preview open on them as stored (the write shows the stored snapshot), with the alert focused and the venue and the
-// answer kept; every other end goes to `onDone`, whose section words it.
+// computed from the plan, the Log and today's date as this tab held them when the file was read or a choice (the venue,
+// the held answer) last changed, then one write. Its heading takes the focus when it shows. A write refused because
+// the plan, the Log or today's date changed since keeps the preview open, pinned anew on them as stored (the write
+// shows the stored snapshot), with the alert focused and the venue and the answer kept; every other end goes to
+// `onDone`, whose section words it.
 
 /** How the import ended: null is Cancel, `failed` an error it did not expect. */
 export type ExchangeDone =
@@ -55,14 +63,24 @@ export function ExchangeImport(props: Props) {
   return plan === null ? null : <Preview {...props} plan={plan} />;
 }
 
-function Preview({ file, name, onDone, onBusy, plan }: Props & { readonly plan: Plan }) {
+/** What the preview is computed from: the plan, the Log and today's date, as this tab held them when it was pinned. */
+type Basis = { readonly plan: Plan; readonly entries: readonly Entry[]; readonly today: CalendarDate };
+
+function Preview({ file, name, onDone, onBusy, plan: livePlan }: Props & { readonly plan: Plan }) {
   const t = useTranslations('settings.data.exchange');
   const tErrors = useTranslations('errors.action');
   const services = useServices();
   const clock = useClock();
-  const today = useToday();
+  // Pinned when the file is read, when a choice changes and after a `changed` refusal; another tab's write and a new
+  // day reach the snapshot, not what the person reviews, so Import passes what was shown and the write compares.
+  const current = (): Basis => {
+    const { plan, entries } = services.domain.store.getState().snapshot;
+    return { plan: plan ?? livePlan, entries, today: services.ui.getState().today };
+  };
+  const [basis, setBasis] = useState(current);
+  const { plan, entries, today } = basis;
+  const pin = () => setBasis(current());
   const w = useWords(plan);
-  const entries = useSnapshot((snapshot) => snapshot.entries);
   const [venue, setVenue] = useState(() => defaultVenue(entries, 'Kraken'));
   const [addHeld, setAddHeld] = useState(false);
   const [changed, setChanged] = useState(false);
@@ -101,8 +119,11 @@ function Preview({ file, name, onDone, onBusy, plan }: Props & { readonly plan: 
     try {
       const outcome = await exchangeImportActions(services).importFile(file, shown, { venue: trimmed, addHeld });
       if (outcome.kind === 'imported') done = outcome;
-      else if (outcome.refusal.code === 'changed') setChanged(true);
-      else done = { kind: 'refused', refusal: outcome.refusal };
+      else if (outcome.refusal.code === 'changed') {
+        // The write reloaded the snapshot as stored: the new preview is pinned on it, with the choices kept.
+        pin();
+        setChanged(true);
+      } else done = { kind: 'refused', refusal: outcome.refusal };
     } catch (error) {
       reportError(error);
       done = { kind: 'failed' };
@@ -163,6 +184,7 @@ function Preview({ file, name, onDone, onBusy, plan }: Props & { readonly plan: 
           value={venue}
           onChange={(event) => {
             setVenue(event.target.value);
+            pin();
             setTooLong(false);
           }}
         />
@@ -173,7 +195,13 @@ function Preview({ file, name, onDone, onBusy, plan }: Props & { readonly plan: 
         <div className="flex flex-col gap-stack-xs">
           <p>{heldLine}</p>
           <label className="flex items-start gap-1 text-16 text-ink">
-            <Checkbox checked={addHeld} onCheckedChange={(checked) => setAddHeld(checked)} />
+            <Checkbox
+              checked={addHeld}
+              onCheckedChange={(checked) => {
+                setAddHeld(checked);
+                pin();
+              }}
+            />
             <span className="py-3">{t('addHeld')}</span>
           </label>
           <p className="text-ink-2">{t('addHeldHint')}</p>
