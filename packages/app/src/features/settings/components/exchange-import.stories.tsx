@@ -57,15 +57,15 @@ export const HeldNotAdded: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByRole('heading', { name: 'What this file adds' })).toBeVisible();
-    await expect(canvas.getByText(/They are not added unless you choose so\./)).toBeVisible();
-    await expect(canvas.getByRole('checkbox', { name: 'Add these purchases too' })).not.toBeChecked();
+    await expect(canvas.getByText(/They are not added unless you choose to\./)).toBeVisible();
+    await expect(canvas.getByRole('checkbox', { name: 'Add these transactions too' })).not.toBeChecked();
   },
 };
 
 export const HeldAdded: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole('checkbox', { name: 'Add these purchases too' }));
+    await userEvent.click(canvas.getByRole('checkbox', { name: 'Add these transactions too' }));
     await userEvent.click(canvas.getByRole('button', { name: 'Estimates it replaces (1)' }));
     await expect(canvas.getByText('Replaces 1 estimate from Bought as planned.')).toBeVisible();
   },

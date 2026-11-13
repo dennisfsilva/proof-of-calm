@@ -74,7 +74,7 @@ const button = (name: string | RegExp) => screen.queryByRole('button', { name })
 const press = (name: string) => act(async () => fireEvent.click(screen.getByRole('button', { name })));
 const HELD_LINE =
   'Your Log has 0.002 BTC as a Coins added entry at Ledger, dated 13 Oct 2026. 2 BTC transactions in this file, ' +
-  '0.002 BTC in all, are dated on or before it and may be those coins. They are not added unless you choose so.';
+  '0.002 BTC in all, are dated on or before it and may be those coins. They are not added unless you choose to.';
 
 describe('ExchangeImport', () => {
   it('names the file, the zone and the venue, then the summary, the held line and the sections, and focuses its heading', async () => {
@@ -91,7 +91,7 @@ describe('ExchangeImport', () => {
     const held = shown.indexOf(`${HELD_LINE} If you add them, they also replace 1 estimate from Bought as planned.`);
     expect(summary).toBeGreaterThan(1);
     expect(held).toBeGreaterThan(summary);
-    const checkbox = screen.getByRole('checkbox', { name: 'Add these purchases too' });
+    const checkbox = screen.getByRole('checkbox', { name: 'Add these transactions too' });
     const firstSection = screen.getAllByRole('button').find((each) => /\(\d+\)$/.test(plain(each.textContent)));
     expect(firstSection).toBeDefined();
     expect(
@@ -100,14 +100,14 @@ describe('ExchangeImport', () => {
     expect(button('Cancel')).not.toBeNull();
   });
 
-  it('ticking `Add these purchases too` moves the estimates of the held months into `Estimates it replaces` and changes the summary and the button’s count', async () => {
+  it('ticking `Add these transactions too` moves the estimates of the held months into `Estimates it replaces` and changes the summary and the button’s count', async () => {
     await mount([ONE_TAP_OCTOBER, HELD]);
     expect(texts()).not.toContain('Replaces 1 estimate from Bought as planned.');
     expect(button(/^Estimates it replaces/)).toBeNull();
     const before = screen.getByRole('button', { name: /^Import \d+ entr/ }).textContent ?? '';
     const summaryBefore = texts().find((line) => line.startsWith('Adds '));
 
-    fireEvent.click(screen.getByRole('checkbox', { name: 'Add these purchases too' }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Add these transactions too' }));
     expect(texts()).toContain('Replaces 1 estimate from Bought as planned.');
     expect(button('Estimates it replaces (1)')).not.toBeNull();
     expect(texts()).toContain(HELD_LINE);
@@ -139,7 +139,7 @@ describe('ExchangeImport', () => {
 
   it('a changed refusal shows the alert, focused, and the new preview, with the venue and the answer kept', async () => {
     const { planStore, onDone } = await mount([HELD]);
-    fireEvent.click(screen.getByRole('checkbox', { name: 'Add these purchases too' }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Add these transactions too' }));
     fireEvent.change(screen.getByLabelText('Venue for these entries'), { target: { value: 'Kraken Pro' } });
     expect(texts()).not.toContain('Replaces 1 estimate from Bought as planned.');
     // Another tab taps October's BTC buy: this tab's snapshot does not see it before the write reads the store.
@@ -153,7 +153,7 @@ describe('ExchangeImport', () => {
     await waitFor(() => expect(document.activeElement).toBe(alert));
     expect(texts()).toContain('Replaces 1 estimate from Bought as planned.');
     expect((screen.getByLabelText('Venue for these entries') as HTMLInputElement).value).toBe('Kraken Pro');
-    expect(screen.getByRole('checkbox', { name: 'Add these purchases too' }).getAttribute('aria-checked')).toBe('true');
+    expect(screen.getByRole('checkbox', { name: 'Add these transactions too' }).getAttribute('aria-checked')).toBe('true');
     expect(onDone).not.toHaveBeenCalled();
   });
 
@@ -162,7 +162,7 @@ describe('ExchangeImport', () => {
     const { planStore, onDone, services } = await mount([HELD], undefined, options);
     const other = createTestServices({ planStore, ...tabOptions('exchange-import-test') });
     await other.start();
-    fireEvent.click(screen.getByRole('checkbox', { name: 'Add these purchases too' }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Add these transactions too' }));
     fireEvent.change(screen.getByLabelText('Venue for these entries'), { target: { value: 'Kraken Pro' } });
     const reviewed = texts();
     expect(reviewed).not.toContain('Replaces 1 estimate from Bought as planned.');
@@ -178,7 +178,7 @@ describe('ExchangeImport', () => {
     await waitFor(() => expect(document.activeElement).toBe(alert));
     expect(texts()).toContain('Replaces 1 estimate from Bought as planned.');
     expect((screen.getByLabelText('Venue for these entries') as HTMLInputElement).value).toBe('Kraken Pro');
-    expect(screen.getByRole('checkbox', { name: 'Add these purchases too' }).getAttribute('aria-checked')).toBe('true');
+    expect(screen.getByRole('checkbox', { name: 'Add these transactions too' }).getAttribute('aria-checked')).toBe('true');
     expect(await importedRows(planStore)).toEqual([]);
     expect(onDone).not.toHaveBeenCalled();
     other.dispose();
