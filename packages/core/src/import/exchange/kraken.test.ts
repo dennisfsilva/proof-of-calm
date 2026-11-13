@@ -42,6 +42,37 @@ describe('readExchangeFile on a Kraken ledger (golden)', () => {
     ]);
   });
 
+  // "Fiat is every code K8 lists as fiat": AED is the first fiat code of K8's QUOTE_ASSETS. AED is outside
+  // MINOR_UNITS, so the purchase keeps its raw figures.
+  it('reads AED, a fiat code of K8 quote assets, as money', () => {
+    const header = '"txid","refid","time","type","subtype","asset","amount","fee"';
+    const text = [
+      header,
+      '"LSYN1","DSYN1","2025-12-01 09:00:00","deposit","","AED","500.00","0"',
+      '"LSYN2","TSYN1","2025-12-01 09:01:00","trade","","AED","-100.00","0"',
+      '"LSYN3","TSYN1","2025-12-01 09:01:00","trade","","XXBT","0.0003","0"',
+    ].join('\n');
+    const result = readExchangeFile(text);
+    expect(result.ok && [result.value.leftOut.map((row) => [row.reason, row.coin]), result.value.movements]).toEqual([
+      [['cash', 'AED']],
+      [
+        {
+          key: 'poc-csv-1|kraken|TSYN1|BTC|in',
+          lines: [3, 4],
+          at: '2025-12-01T09:01:00Z',
+          role: 'purchase',
+          coin: 'BTC',
+          units: '0.0003',
+          unitsCut: false,
+          currency: 'AED',
+          amount: '100',
+          fee: '0',
+          feeInCoin: false,
+        },
+      ],
+    ]);
+  });
+
   // "The bonus rows K1 documents are receipts for a coin": an entry's coin is never a currency, so a bonus in
   // fiat is cash, counted with the money deposits and withdrawals.
   it('leaves a bonus in fiat out as cash, never a receipt', () => {
