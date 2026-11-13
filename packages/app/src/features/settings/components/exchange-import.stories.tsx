@@ -15,13 +15,15 @@ import type { PlanStore, Snapshot } from '../../../lib/ports';
 import { fixtureNowMs, fixtureSnapshot } from '../../../lib/services/fixtures';
 import { KRAKEN_OCTOBER, ONE_TAP_OCTOBER } from '../../../lib/services/kraken.testing';
 import { createTestServices } from '../../../lib/services/testing';
+import { TRADE_REPUBLIC_OCTOBER } from '../../../lib/services/trade-republic.testing';
 import { exchangeContext } from '../model/import';
 import { ExchangeImport } from './exchange-import';
 import { type ExchangeProblem, useExchangeProblemText } from './exchange-problem';
 
 // The exchange import's container over the fixture plan, from a synthetic Kraken ledger (ADR-0056): the preview with
 // the held line unticked and ticked, a file imported before with nothing to add, a write refused because the Log
-// changed, and the lines of the refusals that end the preview. The test projects of vitest.config.ts check each at
+// changed, the lines of the refusals that end the preview, and a synthetic Trade Republic export with its alerts.
+// The test projects of vitest.config.ts check each at
 // 360 and 1280 px, light and dark, with axe.
 
 const read = readExchangeFile(KRAKEN_OCTOBER);
@@ -118,6 +120,38 @@ function RefusalLines({ problems }: { readonly problems: readonly ExchangeProble
     </div>
   );
 }
+
+const trRead = readExchangeFile(TRADE_REPUBLIC_OCTOBER);
+if (!trRead.ok) throw new Error('the synthetic Trade Republic export reads');
+
+/** A Trade Republic export over the fixture's Log: its file line, the venue at Trade Republic and its rows left out. */
+export const TradeRepublic: Story = {
+  args: { file: trRead.value, name: 'trade-republic.csv' },
+  parameters: { snapshot: fixture },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/a Trade Republic transaction export of 15/)).toBeVisible();
+    await expect(canvas.getByLabelText('Venue for these entries')).toHaveValue('Trade Republic');
+    await userEvent.click(canvas.getByRole('button', { name: /^Left out/ }));
+  },
+};
+
+/** The reader's alerts for a Trade Republic export. */
+export const TradeRepublicAlerts: Story = {
+  render: () => (
+    <RefusalLines
+      problems={[
+        { code: 'unknown-columns', exchange: 'trade-republic', columns: ['iban_hash', 'note'], others: 3 },
+        { code: 'missing-columns', exchange: 'trade-republic', columns: ['shares', 'fee'] },
+        { code: 'no-rows', exchange: 'trade-republic' },
+        { code: 'needs-plan', exchange: 'trade-republic' },
+      ]}
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByText(/columns Proof of Calm does not know: iban_hash/)).toBeVisible();
+  },
+};
 
 export const Refusals: Story = {
   render: () => (

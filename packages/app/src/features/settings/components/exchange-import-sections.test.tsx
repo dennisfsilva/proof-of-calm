@@ -2,6 +2,7 @@
 import {
   type EntityId,
   type Entry,
+  type ExchangeId,
   type ExchangeImportPlan,
   type Instant,
   type Plan,
@@ -16,6 +17,7 @@ import { ServicesProvider } from '../../../lib/services';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
 import { KRAKEN_LEFT_OUT, KRAKEN_OCTOBER, krakenLedger, ONE_TAP_OCTOBER } from '../../../lib/services/kraken.testing';
 import { createTestServices } from '../../../lib/services/testing';
+import { TRADE_REPUBLIC_OCTOBER } from '../../../lib/services/trade-republic.testing';
 import settings from '../../../messages/en/settings.json';
 import { previewModel } from '../model/exchange-preview';
 import { exchangeContext } from '../model/import';
@@ -30,14 +32,14 @@ afterEach(cleanup);
 const CONTEXT = exchangeContext(date('2026-10-20'), '2026-10-20T10:00:00.000Z' as Instant, 'Europe/Lisbon');
 const fixture = fixtureSnapshot();
 const PLAN = fixture.plan as Plan;
-const planOf = (csv: string, entries: readonly Entry[], plan = PLAN) => {
+const planOf = (csv: string, entries: readonly Entry[], plan = PLAN, venue = 'Kraken') => {
   const read = readExchangeFile(csv);
   if (!read.ok) throw new Error('the synthetic ledger reads');
-  return planExchangeImport(read.value, { plan, entries }, { venue: 'Kraken', addHeld: false }, CONTEXT);
+  return planExchangeImport(read.value, { plan, entries }, { venue, addHeld: false }, CONTEXT);
 };
 const BTC = 'BTC' as Entry['coin'];
 
-async function mount(shown: ExchangeImportPlan, plan = PLAN) {
+async function mount(shown: ExchangeImportPlan, plan = PLAN, exchange: ExchangeId = 'kraken') {
   const services = createTestServices({ snapshot: { ...fixture, plan } });
   await act(() => services.start());
   const model = previewModel(shown);
@@ -45,7 +47,7 @@ async function mount(shown: ExchangeImportPlan, plan = PLAN) {
     <ServicesProvider services={services}>
       <I18nProvider messages={{ settings }}>
         <ExchangeSummary model={model} plan={plan} />
-        <ExchangeSections model={model} plan={plan} />
+        <ExchangeSections model={model} plan={plan} exchange={exchange} />
       </I18nProvider>
     </ServicesProvider>,
   );
@@ -165,6 +167,26 @@ describe('ExchangeSummary and ExchangeSections', () => {
       '1 row within Kraken, such as a move between its wallets: it changes no entry.',
       'Lines 15, 16, and 17 could not be read or matched to the other rows of their trades, so they were left out.',
       '1 row of another type, not imported.',
+    ]);
+  });
+
+  // "Each line left out names Trade Republic for its export: coins received without a purchase with their count,
+  // coins sent out, rows within it, the benefit credits apart from other money, and a cancelled trade by line."
+  it("names each row of a Trade Republic export left out in Trade Republic's words", async () => {
+    await mount(planOf(TRADE_REPUBLIC_OCTOBER, [], PLAN, 'Trade Republic'), PLAN, 'trade-republic');
+    expect(lines('Left out (8)')).toEqual([
+      'Coins that arrived at Trade Republic without a purchase, such as staking rewards or coins sent in from ' +
+        'elsewhere, not imported: 0.00012 ETH in 1 row. Record rewards with Add coins you already have, and your ' +
+        'own coins coming back with Log coins you moved.',
+      'Coins sent out of Trade Republic that match no move of the same units in the Log: 0.0001 BTC. If you have ' +
+        'not recorded them, record each with Log coins you moved.',
+      '1 exchange of one coin for another, not imported: the file gives no amount in EUR for it.',
+      '1 row of money with no coin, such as a card payment, interest, or a transfer, not imported.',
+      '1 Trade Republic benefit credit, such as Saveback, money paid to you, not imported. Coins bought with it ' +
+        'are imported as purchases at what they cost.',
+      '2 rows within Trade Republic, such as a migration between its accounts: they change no entry.',
+      'Lines 12, 13, and 16 could not be read, or are cancelled trades or their cancellations, so they were left out.',
+      '1 row for a share, a fund, or another asset, or of another type, not imported.',
     ]);
   });
 

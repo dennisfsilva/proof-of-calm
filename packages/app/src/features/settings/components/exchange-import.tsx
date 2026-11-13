@@ -15,7 +15,7 @@ import { useTranslations } from 'use-intl';
 import { reportError } from '../../../lib/errors';
 import { useClock, useServices, useSnapshot } from '../../../lib/services';
 import { type ExchangeImportOutcome, exchangeImportActions } from '../exchange-actions';
-import { defaultVenue, previewModel } from '../model/exchange-preview';
+import { defaultVenue, EXCHANGE_NAMES, previewModel } from '../model/exchange-preview';
 import { exchangeContext } from '../model/import';
 import { ExchangeSections, ExchangeSummary, useFigure, useWords } from './exchange-import-sections';
 import type { ExchangeRefusal } from './exchange-problem';
@@ -81,7 +81,7 @@ function Preview({ file, name, onDone, onBusy, plan: livePlan }: Props & { reado
   const { plan, entries, today } = basis;
   const pin = () => setBasis(current());
   const w = useWords(plan);
-  const [venue, setVenue] = useState(() => defaultVenue(entries, 'Kraken'));
+  const [venue, setVenue] = useState(() => defaultVenue(entries, EXCHANGE_NAMES[file.exchange]));
   const [addHeld, setAddHeld] = useState(false);
   const [changed, setChanged] = useState(false);
   const [tooLong, setTooLong] = useState(false);
@@ -169,6 +169,7 @@ function Preview({ file, name, onDone, onBusy, plan: livePlan }: Props & { reado
       )}
       <p>
         {t('file', {
+          exchange: file.exchange,
           pasted: name === null ? 'yes' : 'no',
           name: name ?? '',
           ...w.counted(file.rows),
@@ -207,7 +208,7 @@ function Preview({ file, name, onDone, onBusy, plan: livePlan }: Props & { reado
           <p className="text-ink-2">{t('addHeldHint')}</p>
         </div>
       )}
-      <ExchangeSections model={model} plan={plan} />
+      <ExchangeSections model={model} plan={plan} exchange={file.exchange} />
       <div className="flex flex-wrap gap-target-gap">
         {summary.entries > 0 && (
           <Button {...pending} onClick={() => void run()}>

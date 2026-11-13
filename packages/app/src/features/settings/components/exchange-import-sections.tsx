@@ -3,6 +3,7 @@ import {
   decimal,
   decimalPlaces,
   type Entry,
+  type ExchangeId,
   IMPORT_MATCH_DAYS,
   MAX_UNIT_DECIMALS,
   type MonthKey,
@@ -22,6 +23,8 @@ import type { previewModel } from '../model/exchange-preview';
 
 type Model = ReturnType<typeof previewModel>;
 type Props = { readonly model: Model; readonly plan: Plan };
+/** The sections also take the file's exchange, which the lines left out name. */
+type SectionsProps = Props & { readonly exchange: ExchangeId };
 type Item = { readonly key: string; readonly text: string };
 /** Past this many, the lines that could not be read or paired end in "and N more". */
 const LINES_SHOWN = 5;
@@ -81,7 +84,7 @@ function Section({ title, items, children }: { title: string; items: readonly It
 }
 
 /** One collapsed section per kind of entry, the rows left out and the counted lines. */
-export function ExchangeSections({ model, plan }: Props) {
+export function ExchangeSections({ model, plan, exchange }: SectionsProps) {
   const t = useTranslations('settings.data.exchange');
   const w = useWords(plan);
   const on = (entry: Pick<Entry, 'date'>) => w.format.date(entry.date);
@@ -100,7 +103,7 @@ export function ExchangeSections({ model, plan }: Props) {
     entries.map((entry) => ({ key: entry.id, text: text(entry) }));
   const title = (key: 'fills' | 'replaces' | 'extra' | 'sales' | 'added' | 'recorded' | 'leftOut', items: unknown[]) =>
     t(`section.${key}`, { count: w.figure(items.length) });
-  const leftOut = useLeftOut(model, plan, w);
+  const leftOut = useLeftOut({ model, plan, exchange }, w);
   const replaces = model.replaces.map(({ estimate, by, otherVenue }) => {
     const all = [estimate.units, ...by.map((entry) => entry.units)];
     const becomes = w.format.list(by.map((entry) => piece(entry, all, otherVenue)));
@@ -158,7 +161,7 @@ export function ExchangeSections({ model, plan }: Props) {
 }
 
 /** The left-out lines in the copy's order, each only when it applies. */
-function useLeftOut(model: Model, plan: Plan, w: ReturnType<typeof useWords>): Item[] {
+function useLeftOut({ model, plan, exchange }: SectionsProps, w: ReturnType<typeof useWords>): Item[] {
   const t = useTranslations('settings.data.exchange.leftOut');
   const group = (reason: Model['leftOut'][number]['reason']) => model.leftOut.find((each) => each.reason === reason);
   const coins = (named: readonly { key: string; units: Decimal | null }[]) =>
@@ -183,27 +186,29 @@ function useLeftOut(model: Model, plan: Plan, w: ReturnType<typeof useWords>): I
   );
   for (const reason of ['reward', 'coin-deposit'] as const) {
     const found = group(reason);
-    add(reason, found ? t(reason, { units: coins(found.by) }) : null);
+    add(reason, found ? t(reason, { units: coins(found.by), exchange, ...w.counted(found.count) }) : null);
   }
   const { logged, notLogged } = model.withdrawals;
   const moved = (list: typeof logged) => coins(list.map(({ coin, units }) => ({ key: coin, units })));
-  add('logged', logged.length > 0 && t('logged', { units: moved(logged) }));
-  add('notLogged', notLogged.length > 0 && t('notLogged', { units: moved(notLogged) }));
+  add('logged', logged.length > 0 && t('logged', { units: moved(logged), exchange }));
+  add('notLogged', notLogged.length > 0 && t('notLogged', { units: moved(notLogged), exchange }));
   const conversion = group('conversion');
   add(
     'conversion',
     conversion ? t('conversion', { ...w.counted(conversion.count), currency: plan.payCurrency }) : null,
   );
-  // Cash, rows within the exchange and rows of other types are worded as rows: a two-leg cash trade is two.
-  for (const reason of ['cash', 'within'] as const) {
+  // Cash, benefit credits, rows within the exchange and rows of other types are worded as rows: a two-leg cash
+  // trade is two. Only Trade Republic's reader leaves out benefit credits.
+  for (const reason of ['cash', 'benefit', 'within'] as const) {
     const found = group(reason);
-    add(reason, found ? t(reason, w.counted(found.lines.length)) : null);
+    add(reason, found ? t(reason, { ...w.counted(found.lines.length), exchange }) : null);
   }
   const lines = [...(group('unpaired')?.lines ?? []), ...(group('unreadable')?.lines ?? [])].sort((a, b) => a - b);
   const shown = lines.slice(0, LINES_SHOWN).map(w.figure);
   const more = lines.length > LINES_SHOWN ? [t('more', { count: w.figure(lines.length - LINES_SHOWN) })] : [];
-  add('lines', lines.length > 0 && t('lines', { count: lines.length, lines: w.format.list([...shown, ...more]) }));
+  const list = w.format.list([...shown, ...more]);
+  add('lines', lines.length > 0 && t('lines', { count: lines.length, lines: list, exchange }));
   const other = group('other');
-  add('other', other ? t('other', w.counted(other.lines.length)) : null);
+  add('other', other ? t('other', { ...w.counted(other.lines.length), exchange }) : null);
   return items;
 }
