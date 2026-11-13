@@ -208,7 +208,7 @@ describe('applyExchangeImport', () => {
 
 describe('sameImport', () => {
   it(
-    'ignores the entries’ updatedAt and nothing else: any other field, an entry or an estimate to tombstone differs',
+    'ignores updatedAt and nothing else: any other field of an entry or an estimate, or one fewer of either, differs',
     () => {
       fc.assert(
         fc.property(world, fc.nat(), fc.nat(), (drawn, pick, field) => {
@@ -228,6 +228,14 @@ describe('sameImport', () => {
           if (first === undefined) return;
           const fewer = [{ ...first, estimates: first.estimates.slice(1) }, ...rest];
           expect(sameImport(plan, { ...plan, replaced: fewer })).toBe(false);
+          const estimate = first.estimates[pick % first.estimates.length] as Entry;
+          const fields = Object.keys(estimate).filter((each) => each !== 'updatedAt');
+          const edited = fields[field % fields.length] as string;
+          const restampedEstimate = { ...estimate, updatedAt: LATE };
+          const editedEstimate = { ...estimate, [edited]: 'changed' };
+          const swap = (by: Entry) => [{ ...first, estimates: first.estimates.map((e) => (e === estimate ? by : e)) }];
+          expect(sameImport(plan, { ...plan, replaced: [...swap(restampedEstimate), ...rest] })).toBe(true);
+          expect(sameImport(plan, { ...plan, replaced: [...swap(editedEstimate), ...rest] })).toBe(false);
         }),
         ONCE,
       );
