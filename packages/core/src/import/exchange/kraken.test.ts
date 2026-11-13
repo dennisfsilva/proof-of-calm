@@ -235,6 +235,29 @@ describe('readExchangeFile folds the receipts of one refid and coin', () => {
     ]);
   });
 
+  // An entry of 0 units fails EntrySchema, and the write then refuses the whole file: such a row is unreadable.
+  it('leaves a purchase, a sale or a folded receipt whose units are 0 after the cut out as unreadable in amount', () => {
+    const file = read(
+      row('LSYN1', 'TSYN1', '1 09:00:00', 'trade', 'EUR', '-0.01'),
+      row('LSYN2', 'TSYN1', '1 09:00:00', 'trade', 'BTC', '0.00000000004'),
+      row('LSYN3', 'TSYN2', '1 09:00:00', 'trade', 'EUR', '0.01'),
+      row('LSYN4', 'TSYN2', '1 09:00:00', 'trade', 'BTC', '-0.00000000009'),
+      row('LSYN5', 'TSYN3', '1 09:00:00', 'trade', 'EUR', '-10.00'),
+      row('LSYN6', 'TSYN3', '1 09:00:00', 'trade', 'BTC', '0.0001', '0.0001'),
+      row('LSYN7', 'BSYN1', '1 09:00:00', 'invite bonus', 'BTC', '0.00000000004'),
+      row('LSYN8', 'BSYN2', '1 09:00:00', 'invite bonus', 'BTC', '0.00001'),
+    );
+    expect([file?.movements.map((m) => m.lines), file?.leftOut.map((r) => [r.reason, r.lines, r.column])]).toEqual([
+      [[9]],
+      [
+        ['unreadable', [2, 3], 'amount'],
+        ['unreadable', [4, 5], 'amount'],
+        ['unreadable', [6, 7], 'amount'],
+        ['unreadable', [8], 'amount'],
+      ],
+    ]);
+  });
+
   it('leaves a bonus under a trade’s refid for the coin it bought out as unpaired, named by its line', () => {
     const file = read(
       row('LSYN1', 'TSYN1', '1 09:00:00', 'trade', 'ZEUR', '-10.00'),

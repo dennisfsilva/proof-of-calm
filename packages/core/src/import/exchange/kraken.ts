@@ -141,9 +141,18 @@ export const cutUnits = (value: Decimal) => {
  * half-even at the currency's minor unit (`MINOR_UNITS`); a currency outside `MINOR_UNITS` keeps its raw
  * figures, since the plan leaves it out." A movement's `at` is its coin row's.
  */
-function trade(refid: string, coin: Leg & Figures, cash: Leg & Figures): Movement {
+function trade(refid: string, coin: Leg & Figures, cash: Leg & Figures): Movement | LeftOutRow {
   const purchase = isPositive(coin.amount);
   const [coinAmount, cashAmount] = [abs(coin.amount), abs(cash.amount)];
+  const units = cutUnits(purchase ? minus(coinAmount, coin.fee) : plus(coinAmount, coin.fee));
+  // Units not above 0 after the cut would make an entry `EntrySchema` refuses, and the write would refuse the file.
+  if (!isPositive(units.units))
+    return group(
+      'unreadable',
+      [coin.line, cash.line].toSorted((a, b) => a - b),
+      null,
+      'amount',
+    );
   const currency = CurrencyCodeSchema.safeParse(cash.code);
   const v = currency.success
     ? quotient<Money>(product(coin.fee, cashAmount), coinAmount, MINOR_UNITS[currency.data], 'half-even')
@@ -154,7 +163,7 @@ function trade(refid: string, coin: Leg & Figures, cash: Leg & Figures): Movemen
     at: coin.at,
     role: purchase ? 'purchase' : 'sale',
     coin: coin.code,
-    ...cutUnits(purchase ? minus(coinAmount, coin.fee) : plus(coinAmount, coin.fee)),
+    ...units,
     currency: cash.code,
     amount: (purchase ? minus(cashAmount, v) : plus(cashAmount, v)) as Money,
     fee: plus(cash.fee, v) as Money,
@@ -204,13 +213,18 @@ function receipts(refid: string, legs: readonly (Leg & Figures)[], bought: strin
     else coins.set(leg.code, [...(coins.get(leg.code) ?? []), leg]);
   }
   for (const [coin, same] of coins) {
+    const [lines, units] = [same.map((leg) => leg.line).toSorted((a, b) => a - b), cutUnits(sum(same.map(worth)))];
+    if (!isPositive(units.units)) {
+      out.push(group('unreadable', lines, null, 'amount'));
+      continue;
+    }
     out.push({
       key: `${KEY}|${refid}|${coin}|in`,
-      lines: same.map((leg) => leg.line).toSorted((a, b) => a - b),
+      lines,
       at: earliest(same),
       role: 'receipt',
       coin,
-      ...cutUnits(sum(same.map(worth))),
+      ...units,
       currency: null,
       amount: null,
       fee: null,
