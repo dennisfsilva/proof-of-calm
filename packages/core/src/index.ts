@@ -28,6 +28,7 @@ export * from './import/exchange/kraken';
 export * from './import/exchange/plan';
 export * from './import/exchange/read';
 export * from './import/exchange/table';
+export * from './import/exchange/trade-republic';
 export * from './import/prototype';
 export * from './json';
 export * from './log/group';

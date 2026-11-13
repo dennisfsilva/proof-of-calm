@@ -23,10 +23,10 @@ import {
 import { MAX_UNIT_DECIMALS } from '../../schema/entry';
 import { isFiat, type LeftOutReason, type RowKind, readAsset, rowKind } from './kraken-types';
 
-export type ExchangeId = 'kraken';
+export type ExchangeId = 'kraken' | 'trade-republic';
 
 export type Movement = {
-  /** poc-csv-1|kraken|<refid>|<COIN>|<in|out> */
+  /** poc-csv-1|kraken|<refid>|<COIN>|<in|out>, or poc-csv-1|trade-republic|<transaction_id>|<COIN>|<in|out> */
   readonly key: string;
   /** The file's lines, the header being line 1. */
   readonly lines: readonly number[];
@@ -129,7 +129,7 @@ const group = (reason: LeftOutReason, lines: number[], at: Instant | null, colum
   column,
 });
 // "units over 10 decimals are cut toward zero and flagged"
-const units = (value: Decimal) => {
+export const cutUnits = (value: Decimal) => {
   const unitsCut = decimalPlaces(value) > MAX_UNIT_DECIMALS;
   return { units: unitsCut ? round(value as Units, MAX_UNIT_DECIMALS, 'down') : (value as Units), unitsCut };
 };
@@ -154,7 +154,7 @@ function trade(refid: string, coin: Leg & Figures, cash: Leg & Figures): Movemen
     at: coin.at,
     role: purchase ? 'purchase' : 'sale',
     coin: coin.code,
-    ...units(purchase ? minus(coinAmount, coin.fee) : plus(coinAmount, coin.fee)),
+    ...cutUnits(purchase ? minus(coinAmount, coin.fee) : plus(coinAmount, coin.fee)),
     currency: cash.code,
     amount: (purchase ? minus(cashAmount, v) : plus(cashAmount, v)) as Money,
     fee: plus(cash.fee, v) as Money,
@@ -210,7 +210,7 @@ function receipts(refid: string, legs: readonly (Leg & Figures)[], bought: strin
       at: earliest(same),
       role: 'receipt',
       coin,
-      ...units(sum(same.map(worth))),
+      ...cutUnits(sum(same.map(worth))),
       currency: null,
       amount: null,
       fee: null,

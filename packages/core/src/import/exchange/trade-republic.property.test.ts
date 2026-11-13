@@ -90,10 +90,7 @@ describe('readTradeRepublic (property)', () => {
   it('reads any order of the same rows as the same movements and left-out rows', () => {
     const shuffled = exportOf.chain((file) => {
       const data = dataOf(file, blank);
-      return fc.tuple(
-        fc.constant(data),
-        fc.shuffledSubarray(data, { minLength: data.length, maxLength: data.length }),
-      );
+      return fc.tuple(fc.constant(data), fc.shuffledSubarray(data, { minLength: data.length, maxLength: data.length }));
     });
     fc.assert(
       fc.property(shuffled, ([data, moved]) => {

@@ -8,6 +8,7 @@ export type LeftOutReason =
   | 'coin-deposit'
   | 'coin-withdrawal'
   | 'cash'
+  | 'benefit'
   | 'within'
   | 'conversion'
   | 'unpaired'
@@ -74,8 +75,11 @@ const ASSET = new RegExp(
 export function readAsset(cell: string): { readonly code: string; readonly suffixed: boolean } | null {
   const match = ASSET.exec(cell);
   if (match?.[1] === undefined) return null;
-  return { code: LEGACY.get(match[1]) ?? match[1], suffixed: match[2] !== undefined };
+  return { code: coinCode(match[1]), suffixed: match[2] !== undefined };
 }
+
+/** A code without its suffix through the legacy map: XBT is BTC; any other code is itself. */
+export const coinCode = (code: string) => LEGACY.get(code) ?? code;
 
 // "Each type and subtype word comes from K1 or K6, cited beside it."
 const TRADE_TYPES = new Set(['trade', 'spend', 'receive']); // K1, K6

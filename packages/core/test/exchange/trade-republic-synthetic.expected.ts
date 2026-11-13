@@ -7,7 +7,8 @@ import type { ExchangeFile, LeftOutRow, Movement } from '../../src/import/exchan
 import { instant, money, units } from '../builders';
 
 const id = (n: number) => `00000000-0000-4000-8000-0000000000${String(n).padStart(2, '0')}`;
-const key = (n: number, coin: string, direction: 'in' | 'out') => `poc-csv-1|trade-republic|${id(n)}|${coin}|${direction}`;
+const key = (n: number, coin: string, direction: 'in' | 'out') =>
+  `poc-csv-1|trade-republic|${id(n)}|${coin}|${direction}`;
 const trade = (n: number, line: number, at: string, coin: string, figures: [string, string, string]) => ({
   lines: [line],
   at: instant(at),
