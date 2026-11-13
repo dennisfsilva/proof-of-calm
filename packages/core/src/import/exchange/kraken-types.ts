@@ -57,9 +57,9 @@ export function isFiat(code: string): boolean {
 const ASSET = /^([A-Z0-9]{1,16})(\.[A-Z0-9]{1,8})?$/u;
 
 /**
- * A ledger asset code, normalised: "A code with a dot suffix (.S, .M, .P, .F, .B) is a balance within Kraken
- * of the code before the dot." (.S, .M and .P from K8, .F from K6; any other suffix reads the same.) Null for a
- * cell that is no code.
+ * A ledger asset code, normalised: "A code with a dot suffix is a balance within Kraken of the code before the
+ * dot." .S, .M and .P (K8) and .F (K6) are the cited suffixes; any other suffix is read the same way, which
+ * changes no entry. Null for a cell that is no code.
  */
 export function readAsset(cell: string): { readonly code: string; readonly suffixed: boolean } | null {
   const match = ASSET.exec(cell);
