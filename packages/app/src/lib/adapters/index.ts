@@ -18,3 +18,4 @@ export {
 } from './price-source';
 export type { Schema } from './schema';
 export { noAnalytics, webPlatform } from './web-platform';
+export { readFileText, readZipCsv, type ZipError } from './zip';
