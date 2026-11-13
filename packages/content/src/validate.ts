@@ -276,8 +276,9 @@ function template(file: ContentFile, catalogue: Catalogue | null, options: Valid
   if (catalogue !== null) problems.push(...catalogueProblems(path, value.coins, catalogue));
   problems.push(...drawdownProblems(path, value.drawdowns, coins, options.allow.facts ?? [], value.lastReviewed));
   problems.push(...paragraphProblems(path, 'explanation', value.explanation));
+  // Onboarding shows all four, so each takes U+2011 between a number and its unit (docs/CONTENT-STYLE.md §4).
   for (const field of ['name', 'oneLine', 'riskLabel', 'explanation'] as const) {
-    problems.push(...bannedProblems(path, field, value[field]));
+    problems.push(...bannedProblems(path, field, value[field]), ...hyphenProblems(path, field, value[field]));
   }
   return problems;
 }
@@ -299,7 +300,11 @@ function coinCatalogue(file: ContentFile): Problem[] {
     if (geckoIds.has(coin.geckoId)) problems.push({ path, code: 'duplicate-gecko-id', detail: coin.geckoId });
     ids.add(coin.id);
     geckoIds.add(coin.geckoId);
-    problems.push(...bannedProblems(path, `${index}.name`, coin.name));
+    // The plan's coin list shows the name, and a template's coins must match it (docs/CONTENT-STYLE.md §4).
+    problems.push(
+      ...bannedProblems(path, `${index}.name`, coin.name),
+      ...hyphenProblems(path, `${index}.name`, coin.name),
+    );
   });
   return problems;
 }
