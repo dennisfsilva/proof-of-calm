@@ -282,3 +282,83 @@ describe('LogRow', () => {
     expect(screen.getByRole('cell').textContent).toBe('Skipped · car repair');
   });
 });
+
+// #24 D8: every opened row whose holding is dated (purchases and coins added) shows the standalone Why? right after
+// its date, under both effects and under a period of the person's own; sales, moves, skips and rules of none show
+// none. It stands beside the date only, never beside a money figure.
+describe('LogRow, the holding line\'s "Why?"', () => {
+  const coin = plan.coins[0]?.id as CoinId;
+  const anyWhy = () => screen.queryByRole('button', { name: /^Why\?/u });
+  const open = async (row: Row, rowPlan: Plan) => {
+    await mount(row, rowPlan);
+    fireEvent.click(screen.getByRole('button', { expanded: false }));
+  };
+  const expectWhyAfterDate = (line: RegExp, name: string) => {
+    const text = screen.getByText(line);
+    const link = screen.getByRole('button', { name });
+    expect(text.nextElementSibling).toBe(link);
+    expect(link.textContent).toBe('Why?');
+    expect(link.className).toContain('min-h-target');
+    // The date line and the link share their row, and nothing else does: no money figure stands beside it.
+    expect(link.parentElement?.textContent).toBe(`${text.textContent}Why?`);
+  };
+
+  it('stands right after the date of an opened purchase, and not while the row is closed', async () => {
+    await mount(find(await fixtureRows(), 'dca'), plan);
+    expect(anyWhy()).toBeNull();
+    fireEvent.click(screen.getByRole('button', { expanded: false }));
+    expectWhyAfterDate(/^Tax-free from /u, 'Why? The tax-free date');
+  });
+
+  it('stands after the date of coins added, with or without a recorded cost', async () => {
+    for (const amount of [null, '0' as Entry['amount']]) {
+      const held = anEntry({ kind: 'held', slot: null, fee: null, amount, coin, units: units('0.5') });
+      await open(find(transactions(plan, [held]).rows, 'held'), plan);
+      expectWhyAfterDate(/^Tax-free from /u, 'Why? The tax-free date');
+      cleanup();
+    }
+  });
+
+  it('names the long-term rate date under a lower-rate rule', async () => {
+    const us: Plan = {
+      ...plan,
+      country: 'US' as Plan['country'],
+      holdingRule: { kind: 'years', years: 1, effect: 'lower-rate' },
+    };
+    await open(find(transactions(us, [anEntry({ coin, units: units('0.001') })]).rows, 'dca'), us);
+    expectWhyAfterDate(/^Long-term rate from /u, 'Why? The long-term rate date');
+  });
+
+  it("names the tax-free date under a period of the person's own in a country of none", async () => {
+    const es: Plan = {
+      ...plan,
+      country: 'ES' as Plan['country'],
+      holdingRule: { kind: 'days', days: 730, effect: 'exempt' },
+    };
+    await open(find(transactions(es, [anEntry({ coin, units: units('0.001') })]).rows, 'dca'), es);
+    expectWhyAfterDate(/^Tax-free from /u, 'Why? The tax-free date');
+  });
+
+  it('stands beside the date on the row that carries the note and the conditions too', async () => {
+    await mount(find(await fixtureRows(), 'lump'), plan, { note: true });
+    fireEvent.click(screen.getByRole('button', { expanded: false }));
+    expectWhyAfterDate(/^Tax-free from /u, 'Why? The tax-free date');
+  });
+
+  it('shows none on a sale, a move, a skipped month or under a rule of none', async () => {
+    await open(find(await fixtureRows(), 'sell'), plan);
+    expect(anyWhy()).toBeNull();
+    cleanup();
+    const { entries } = fixtureSnapshot();
+    const move = aMove({ coin, date: '2026-10-20' as Entry['date'] });
+    await open(find(transactions(plan, [...entries, move], holdingContext(plan, await portugal())).rows, 'move'), plan);
+    expect(anyWhy()).toBeNull();
+    cleanup();
+    await mount((await fixtureRows()).find((row) => row.type === 'skip') as Row, plan);
+    expect(anyWhy()).toBeNull();
+    cleanup();
+    const noRule: Plan = { ...plan, holdingRule: { kind: 'none' } };
+    await open(find(await fixtureRows(noRule), 'dca'), noRule);
+    expect(anyWhy()).toBeNull();
+  });
+});
