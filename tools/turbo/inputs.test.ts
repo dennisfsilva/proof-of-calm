@@ -95,6 +95,9 @@ describe('turbo inputs', () => {
       '.claude/skills/review-content/draft-example.json', // content-review/example.test.ts
       'packages/content/jurisdictions/ie.json', // content-review/example.test.ts: the example's leaves
       'packages/content/sources.allow.json', // content-review/example.test.ts: the example's links
+      '.claude/crew.json', // lint/copy-paths.test.ts: the copy paths, and the tax-year files it lists
+      ...filesUnder('packages/app/src/features/settings/fixtures'),
+      ...filesUnder('packages/core/test/tax-year'),
     ];
     expect(read).toContain('packages/app/src/features/today/messages/en.json');
     expect(read).toContain('apps/web/src/main.tsx');

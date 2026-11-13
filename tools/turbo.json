@@ -22,7 +22,10 @@
         "$TURBO_ROOT$/.claude/skills/review-content/SKILL.md",
         "$TURBO_ROOT$/.claude/skills/review-content/draft-example.json",
         "$TURBO_ROOT$/packages/content/jurisdictions/ie.json",
-        "$TURBO_ROOT$/packages/content/sources.allow.json"
+        "$TURBO_ROOT$/packages/content/sources.allow.json",
+        "$TURBO_ROOT$/.claude/crew.json",
+        "$TURBO_ROOT$/packages/*/{src,test}/**/*tax-year*",
+        "$TURBO_ROOT$/packages/*/{src,test}/**/*tax-year*/**"
       ]
     }
   }
