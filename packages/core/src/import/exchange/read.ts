@@ -1,7 +1,7 @@
 // Recognises an exchange's export and reads it (docs/DOMAIN.md §3.13, the exchange import; ADR-0056). Kraken's
 // ledger is the one export it reads; the second exchange's import is planned (M2).
 import { err, ok, type Result } from '../../result';
-import { type ExchangeFile, LEDGER_COLUMNS, REQUIRED_COLUMNS, readKrakenLedger } from './kraken';
+import { type ExchangeFile, isBlankRow, LEDGER_COLUMNS, REQUIRED_COLUMNS, readKrakenLedger } from './kraken';
 import { csvRows } from './table';
 
 /** Why a text is not read; "No refusal, left-out row or thrown error holds a cell's text." */
@@ -18,7 +18,7 @@ export type ExchangeFileError =
  * subclass, asset, wallet, amount, fee, balance, amountusd) is a Kraken ledger, which is `missing-columns`,
  * naming each, when it lacks txid, refid, time, type, asset, amount or fee; a ledger with no data row is
  * `no-rows`; anything else is `not-recognised`." K8 holds the headers that end in an empty name (a trailing
- * comma) and that add amountusd.
+ * comma) and that add amountusd. A blank line is no data row (`isBlankRow`).
  */
 export function readExchangeFile(text: string): Result<ExchangeFile, ExchangeFileError> {
   // D14: a ZIP archive's first four bytes.
@@ -31,6 +31,6 @@ export function readExchangeFile(text: string): Result<ExchangeFile, ExchangeFil
   }
   const missing = REQUIRED_COLUMNS.filter((name) => !header.includes(name));
   if (missing.length > 0) return err({ code: 'missing-columns', columns: missing });
-  if (data.length === 0) return err({ code: 'no-rows' });
+  if (data.every(isBlankRow)) return err({ code: 'no-rows' });
   return ok(readKrakenLedger(header, data));
 }
