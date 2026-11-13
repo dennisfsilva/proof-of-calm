@@ -73,6 +73,21 @@ describe('readExchangeFile on a Kraken ledger (golden)', () => {
     ]);
   });
 
+  // "A code ending in one of K8's staked suffixes loses the longest one it ends in, then any other dot suffix is
+  // cut at the dot, then the legacy map applies; every such code is a balance within Kraken, whose rewards are
+  // named under the coin before the suffix." K8's _normalise_asset strips .S from ETH2.S and maps ETH2 to
+  // nothing, so ETH2.S stays ETH2.
+  it.each([
+    ['a staking row on DOT28.S', 'staking', 'DOT28.S', 'reward', 'DOT'],
+    ['a transfer on SOL03.S', 'transfer', 'SOL03.S', 'within', 'SOL'],
+    ['a staking row on ETH2.S', 'staking', 'ETH2.S', 'reward', 'ETH2'],
+    ['a transfer on XXBT.M', 'transfer', 'XXBT.M', 'within', 'BTC'],
+  ])('reads %s under the coin before the staked suffix', (_, type, asset, reason, coin) => {
+    const text = `"txid","refid","time","type","subtype","asset","amount","fee"\n"LSYN1","SSYN1","2025-12-01 09:00:00","${type}","","${asset}","1","0"\n`;
+    const result = readExchangeFile(text);
+    expect(result.ok && result.value.leftOut.map((row) => [row.reason, row.coin])).toEqual([[reason, coin]]);
+  });
+
   // "The bonus rows K1 documents are receipts for a coin": an entry's coin is never a currency, so a bonus in
   // fiat is cash, counted with the money deposits and withdrawals.
   it('leaves a bonus in fiat out as cash, never a receipt', () => {
