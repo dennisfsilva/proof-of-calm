@@ -123,7 +123,7 @@ packages/content/
 ├── jurisdictions/   pt.json, de.json, …, xx.json (schema: docs/JURISDICTIONS.md §2)
 ├── rules/           <code>.json, generated from each profile by `pnpm --filter @proofofcalm/content rules`: the core's rules the shell boots on (ADR-0049)
 ├── templates/       four starting points (docs/DOMAIN.md §5)
-├── learn/           MDX modules with front matter (docs/EDUCATION.md §10): start-here, risk-honestly, cycles, taxes-where-you-live, noise and when-the-market-drops; the simulator's (planned: M2)
+├── learn/           MDX modules with front matter (docs/EDUCATION.md §10): start-here, risk-honestly, cycles, taxes-where-you-live, noise and when-the-market-drops; the simulator's module (planned: M2)
 ├── facts/           every cited number with source, date, lastReviewed (docs/CONTENT-OPS.md §7)
 ├── cycles/          completed cycles' maximum drawdowns per coin; the current cycle is computed, never stored (docs/EDUCATION.md §2 and §6)
 ├── style/           banned.json: the banned words in en, de and pt, the filler words, and the allow-list with a reason per phrase (docs/CONTENT-STYLE.md)
