@@ -3,13 +3,15 @@ import { type EntityId, type Entry, MAX_ENTRIES, readExchangeFile } from '@proof
 import { anEntry, date, units } from '@proofofcalm/core/testing';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { systemClock } from '../../../lib/adapters/clock';
 import { memoryPlanStore } from '../../../lib/adapters/memory-store';
 import { I18nProvider } from '../../../lib/i18n';
 import type { PlanStore, Snapshot } from '../../../lib/ports';
 import { ServicesProvider } from '../../../lib/services';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
 import { KRAKEN_OCTOBER, ONE_TAP_OCTOBER } from '../../../lib/services/kraken.testing';
-import { createTestServices } from '../../../lib/services/testing';
+import { createTestServices, TEST_NOW_MS, type TestServicesOptions } from '../../../lib/services/testing';
+import { crossTabChannel } from '../../../lib/store/channel';
 import errors from '../../../messages/en/errors.json';
 import settings from '../../../messages/en/settings.json';
 import { ExchangeImport } from './exchange-import';
@@ -38,12 +40,16 @@ const HELD = anEntry({
 
 afterEach(cleanup);
 
-async function mount(extra: readonly Entry[] = [], store?: (snapshot: Snapshot) => PlanStore) {
+async function mount(
+  extra: readonly Entry[] = [],
+  store?: (snapshot: Snapshot) => PlanStore,
+  options: Omit<TestServicesOptions, 'planStore'> = {},
+) {
   Element.prototype.scrollIntoView = vi.fn();
   const base = fixtureSnapshot();
   const snapshot: Snapshot = { ...base, entries: [...base.entries, ...extra] };
   const planStore = store?.(snapshot) ?? memoryPlanStore(snapshot);
-  const services = createTestServices({ planStore });
+  const services = createTestServices({ planStore, ...options });
   const onDone = vi.fn();
   render(
     <ServicesProvider services={services}>
@@ -53,8 +59,13 @@ async function mount(extra: readonly Entry[] = [], store?: (snapshot: Snapshot) 
     </ServicesProvider>,
   );
   await act(() => services.start());
-  return { planStore, onDone };
+  return { planStore, onDone, services };
 }
+
+/** Another tab of the same browser over `planStore`: its writes reach the mounted tab on the cross-tab channel. */
+const tabOptions = (name: string) => ({ channel: crossTabChannel({ name, tabId: crypto.randomUUID() }) });
+const importedRows = async (store: PlanStore) =>
+  (await store.load()).entries.filter((entry) => entry.source === 'import-csv');
 
 /** The text a person reads, with the formatters' no-break spaces as plain ones. */
 const plain = (text: string | null | undefined) => (text ?? '').replace(/[  ]/g, ' ');
@@ -144,6 +155,66 @@ describe('ExchangeImport', () => {
     expect((screen.getByLabelText('Venue for these entries') as HTMLInputElement).value).toBe('Kraken Pro');
     expect(screen.getByRole('checkbox', { name: 'Add these purchases too' }).getAttribute('aria-checked')).toBe('true');
     expect(onDone).not.toHaveBeenCalled();
+  });
+
+  it('a month another tab records keeps the preview as reviewed; Import refuses it and shows the new preview, with the venue and the answer kept', async () => {
+    const options = tabOptions('exchange-import-test');
+    const { planStore, onDone, services } = await mount([HELD], undefined, options);
+    const other = createTestServices({ planStore, ...tabOptions('exchange-import-test') });
+    await other.start();
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Add these purchases too' }));
+    fireEvent.change(screen.getByLabelText('Venue for these entries'), { target: { value: 'Kraken Pro' } });
+    const reviewed = texts();
+    expect(reviewed).not.toContain('Replaces 1 estimate from Bought as planned.');
+    // Another tab taps October's BTC buy: this tab hears it and reloads its snapshot.
+    await act(() => other.domain.write({ entries: [ONE_TAP_OCTOBER] }));
+    await waitFor(() =>
+      expect(services.domain.store.getState().snapshot.entries.map((entry) => entry.id)).toContain(ONE_TAP_OCTOBER.id),
+    );
+    expect(texts()).toEqual(reviewed);
+    await press('Import 5 entries');
+    const alert = screen.getByRole('alert');
+    expect(plain(alert.textContent)).toMatch(/^The plan, the Log, or today's date changed after this preview was made/);
+    await waitFor(() => expect(document.activeElement).toBe(alert));
+    expect(texts()).toContain('Replaces 1 estimate from Bought as planned.');
+    expect((screen.getByLabelText('Venue for these entries') as HTMLInputElement).value).toBe('Kraken Pro');
+    expect(screen.getByRole('checkbox', { name: 'Add these purchases too' }).getAttribute('aria-checked')).toBe('true');
+    expect(await importedRows(planStore)).toEqual([]);
+    expect(onDone).not.toHaveBeenCalled();
+    other.dispose();
+    services.dispose();
+  });
+
+  it('a choice changed after another tab wrote shows the preview of the Log as it is then, and Import writes it', async () => {
+    const options = tabOptions('exchange-import-choice-test');
+    const { planStore, onDone, services } = await mount([], undefined, options);
+    const other = createTestServices({ planStore, ...tabOptions('exchange-import-choice-test') });
+    await other.start();
+    await act(() => other.domain.write({ entries: [ONE_TAP_OCTOBER] }));
+    await waitFor(() =>
+      expect(services.domain.store.getState().snapshot.entries.map((entry) => entry.id)).toContain(ONE_TAP_OCTOBER.id),
+    );
+    expect(texts()).not.toContain('Replaces 1 estimate from Bought as planned.');
+    fireEvent.change(screen.getByLabelText('Venue for these entries'), { target: { value: 'Kraken Pro' } });
+    expect(texts()).toContain('Replaces 1 estimate from Bought as planned.');
+    await press('Import 5 entries');
+    expect(onDone).toHaveBeenCalledWith({ kind: 'imported', added: 5, replaced: 1, imported: 0, deleted: 0 });
+    other.dispose();
+    services.dispose();
+  });
+
+  it('the day turning over keeps the preview as reviewed, and Import writes it: a day alone changes nothing it adds', async () => {
+    let nowMs = TEST_NOW_MS;
+    const clock = systemClock('Europe/Lisbon', () => nowMs);
+    const { planStore, onDone, services } = await mount([ONE_TAP_OCTOBER], undefined, { clock });
+    const reviewed = texts();
+    nowMs += 24 * 60 * 60 * 1000;
+    act(() => services.tick());
+    expect(services.ui.getState().today).toBe('2026-10-21');
+    expect(texts()).toEqual(reviewed);
+    await press('Import 5 entries');
+    expect(onDone).toHaveBeenCalledWith({ kind: 'imported', added: 5, replaced: 1, imported: 0, deleted: 0 });
+    expect(await importedRows(planStore)).toHaveLength(5);
   });
 
   it('a refusal of the write ends the import with it: newer rows, no plan', async () => {
