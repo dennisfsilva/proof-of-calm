@@ -96,7 +96,7 @@ The decision stands; these are the choices its text left open, made while implem
 - **A dated entry** (2026-11-06). The price the entry form fills is the live price read as it
   opened, so it belongs to the opening day: a new purchase dated earlier empties each filled price
   and the field derived from it (`packages/app/src/features/log/lib/dated.ts`), and one line under
-  the rows asks for the amount paid and the units received; the opening day or a later one fills
+  the rows asks for the amount paid (the cost before fees since 2026-11-13, #177) and the units received; the opening day or a later one fills
   the opened price again. Typed and derived prices, sales and edits keep theirs, and a restored
   draft follows the same rule (ADR-0020 Readings). The rule is in `docs/DOMAIN.md` §6.
 

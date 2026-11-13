@@ -59,7 +59,7 @@ Zustand 5.0.15 (0.7 kB gzip), Jotai 3.0.1 (3.1 kB), TanStack Store 0.11.2 (2.9 k
   shows (2026-11-05). The replayed form then follows its date, so a new purchase restored on a date
   before its opening day shows no filled price (`docs/DOMAIN.md` §6, 2026-11-06). A field left alone takes its
   value now, so the defaults (the date, the plan's amounts, the live price) are never frozen: a plan
-  amount raised from 100 to 200 opens BTC paid at 140.00 beside a typed note. It is dropped on opening
+  amount raised from 100 to 200 opens BTC paid (`BTC cost before fees` since 2026-11-13, #177) at 140.00 beside a typed note. It is dropped on opening
   when it has no form as opened (a draft from before 2026-10-20's fix), when it reads as it opened,
   when its locale differs, when an edited entry was written since (its base differs; a field the
   person left alone never brings back a value written over in another tab, so the typed change is
