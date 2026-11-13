@@ -26,11 +26,16 @@ type Item = { readonly key: string; readonly text: string };
 /** Past this many, the lines that could not be read or paired end in "and N more". */
 const LINES_SHOWN = 5;
 
-function useWords(plan: Plan) {
+/** A count as a figure, grouped as the numbers' locale groups it (CONTENT-STYLE §4). */
+export function useFigure() {
   const format = useFormatters();
   const figures = useMemo(() => createNumberInput(format.locales.numbers), [format.locales.numbers]);
-  /** A count as a figure, grouped as the numbers' locale groups it (CONTENT-STYLE §4). */
-  const figure = (value: number) => figures.format(decimal(String(value)));
+  return (value: number) => figures.format(decimal(String(value)));
+}
+
+export function useWords(plan: Plan) {
+  const format = useFormatters();
+  const figure = useFigure();
   const places = (coin: string) => plan.coins.find((each) => each.id === coin)?.decimals ?? 8;
   const units = (coin: string, value: Decimal, others: readonly Decimal[] = []) =>
     format.units(value, coin, Math.min(places(coin), Math.max(0, ...[value, ...others].map(decimalPlaces))));
