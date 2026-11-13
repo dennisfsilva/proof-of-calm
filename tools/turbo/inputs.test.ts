@@ -5,7 +5,7 @@
 // package's turbo.json goes into its own tasks' hashes, not the global hash, so this test, whose dry run
 // reads packages/content/turbo.json, counts it among the files the tools tests read.
 import { execFileSync } from 'node:child_process';
-import { readdirSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join, posix, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -105,6 +105,24 @@ describe('turbo inputs', () => {
     expect(read).toContain('apps/web/public/.well-known/security.txt');
     expect(hashedFiles('@proofofcalm/tools', 'test')).toEqual(expect.arrayContaining(read));
   }, 60_000);
+
+  // lint/copy-paths.test.ts checks every file of these folders whatever its name, so a file added there
+  // later must change the hash too: the dry run above lists only the files that exist today. The probes are
+  // matched against the declared globs rather than created on disk, where another package's tests could
+  // read them mid-run.
+  it.each([
+    'packages/app/src/features/settings/fixtures/es-2026.csv',
+    'packages/core/src/export/columns.json',
+    'packages/core/test/tax-year/es-2026.csv',
+  ])('hash %s, a file of a folder lint/copy-paths.test.ts reads, whatever its name', (probe) => {
+    const config = JSON.parse(readFileSync(join(root, 'tools/turbo.json'), 'utf8')) as {
+      tasks: { test: { inputs: string[] } };
+    };
+    const globs = config.tasks.test.inputs
+      .filter((input) => input.startsWith('$TURBO_ROOT$/'))
+      .map((input) => input.slice('$TURBO_ROOT$/'.length));
+    expect(globs.some((glob) => posix.matchesGlob(probe, glob))).toBe(true);
+  });
 
   it('hash every UI message file that content validation reads', () => {
     const read = [...messageSources(), ...filesUnder('apps/web/messages')];
