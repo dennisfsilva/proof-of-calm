@@ -5,10 +5,12 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 export const copyPathScan = {
-  /** The prefixes the scan reads under. */
-  roots: [''],
-  /** Prefixes under a root the scan skips. */
-  except: ['apps/web/e2e/', 'docs/'],
+  /**
+   * The prefixes the scan reads under: what the copy roles own and tools/turbo.json hashes. Outside
+   * them on purpose: `apps/web/e2e/tax-year.spec.ts` asserts the export's copy and writes none, and
+   * `docs/` has its own copy paths.
+   */
+  roots: ['packages/'],
   /** A path under a root that holds one of these names belongs to the export. */
   names: ['tax-year'],
   /** Folders under a root whose every file the scan reads, whatever its name. */
@@ -21,10 +23,9 @@ export const copyPathScan = {
 
 /** Whether lint/copy-paths.test.ts reads a path, relative to the repository root. */
 export function isScanned(file: string): boolean {
-  const { roots, except, names, folders } = copyPathScan;
+  const { roots, names, folders } = copyPathScan;
   return (
     roots.some((root) => file.startsWith(root)) &&
-    !except.some((prefix) => file.startsWith(prefix)) &&
     (names.some((name) => file.includes(name)) || folders.some((folder) => file.startsWith(folder)))
   );
 }
