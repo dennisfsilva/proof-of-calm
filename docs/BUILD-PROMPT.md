@@ -235,6 +235,12 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   `§` counts as two bytes and `pnpm lint:commits` counts it as one character). Four builders of
   the exchange import pushed a 101-character subject. Each pushed branch then needed a re-cut by
   cherry-pick and a lease push that only the session may run (#183, #185, 2026-11-13).
+- A screen that shows a choice the write reads again is also tested through the path by which
+  another tab's write reaches this tab. `planStore.write` alone, as the lesson on a choice read
+  again inside the write asks, leaves this tab's snapshot as it was. So the exchange import's tests passed, while a real second tab
+  refreshed the preview silently and Import wrote it without the changed alert. The evaluator's
+  two-tab run found it. The fix's tests drive a real `crossTabChannel` between two services over
+  one `memoryPlanStore` (#188, 2026-11-13).
 
 ## Known gaps
 
