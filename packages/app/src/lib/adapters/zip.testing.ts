@@ -23,7 +23,7 @@ export type ZipEntry = {
 const bytes = (data: Uint8Array | string) => (typeof data === 'string' ? new TextEncoder().encode(data) : data);
 
 /** A ZIP archive of the entries, in order. */
-export function zipOf(entries: readonly ZipEntry[]): Uint8Array {
+export function zipOf(entries: readonly ZipEntry[]): Uint8Array<ArrayBuffer> {
   const locals: Uint8Array[] = [];
   const centrals: Uint8Array[] = [];
   let offset = 0;
