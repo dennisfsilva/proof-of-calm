@@ -956,18 +956,21 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   2. "In a plan with a starting amount above 0, the purchases dated within 15 days of `firstBuy` are left
      out and named, since the file cannot tell the starting amount from the first monthly buy; a one-tap
      `lump` estimate is never replaced."
-  3. "Each live one-tap monthly estimate of coin C for month S, in month order, takes C's unclaimed purchase
+  3. "Hand-recorded entries (source `manual`, `import-prototype` or `import-json`), in `compareEntries`
+     order, claim unclaimed dates: a live monthly buy of C for S claims C's purchase date nearest S's due
+     within 15 days; every other hand-recorded purchase or sale, and a monthly buy that claimed nothing,
+     claims C's nearest date of the same role within 3 days of its own date; each entry claims one date and
+     each date is claimed once. A claimed date is `looks recorded already`: left out and named with both
+     figures and the entry's venue." The 3 days are `IMPORT_TYPED_DAYS` (§9). Decided 2026-11-13:
+     "Hand-recorded entries claim their purchases before one-tap estimates take theirs: D2's steps 3 and 4
+     swap, so a purchase a hand entry records is never imported again; an estimate whose only purchase a
+     hand entry claimed stays an estimate." (D2 is the order of this list.)
+  4. "Each live one-tap monthly estimate of coin C for month S, in month order, takes C's unclaimed purchase
      date nearest S's due date, the earlier on a tie, dated from 15 days before that due date to 15 days
      after it, or to the day after the estimate's own date when that is later." "The write tombstones the
      estimate and adds that date's purchases as monthly buys for S, with the estimate's note and the
      import's venue, whatever venue the estimate carried." The late reach serves a person who taps late:
      the one tap is dated the tap day.
-  4. "Hand-recorded entries (source `manual`, `import-prototype` or `import-json`), in `compareEntries`
-     order, claim unclaimed dates: a live monthly buy of C for S claims C's purchase date nearest S's due
-     within 15 days; every other hand-recorded purchase or sale, and a monthly buy that claimed nothing,
-     claims C's nearest date of the same role within 3 days of its own date; each entry claims one date and
-     each date is claimed once. A claimed date is `looks recorded already`: left out and named with both
-     figures and the entry's venue." The 3 days are `IMPORT_TYPED_DAYS` (§9).
   5. "C's purchases and receipts dated on or before the latest live `held` entry of C, at any venue, are
      `may be the coins you added`: left out unless the person ticks `Add these purchases too`, one answer
      for all of them." A `held` entry an exchange import added (a receipt) guards nothing.
