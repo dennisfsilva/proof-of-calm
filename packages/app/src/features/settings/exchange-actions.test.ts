@@ -103,6 +103,20 @@ describe('exchangeImportActions.importFile', () => {
       await refusesChanged(tab);
     });
 
+    it('refuses `changed` after an edit of the amount of an estimate the plan replaces', async () => {
+      const tab = await opened([ONE_TAP_OCTOBER]);
+      expect(tab.shown.replaced.flatMap((item) => item.estimates.map((each) => each.amount))).toEqual([
+        ONE_TAP_OCTOBER.amount,
+      ]);
+      const edited = { ...ONE_TAP_OCTOBER, amount: '80' as Entry['amount'], updatedAt: LATER };
+      await tab.planStore.write({ entries: [edited] });
+      await refusesChanged(tab);
+      const outcome = await tab.importFile();
+      if (outcome.kind !== 'refused' || outcome.refusal.code !== 'changed') throw new Error('not refused');
+      const replaced = outcome.refusal.plan.replaced.flatMap((item) => item.estimates);
+      expect(replaced.map(({ id, amount }) => ({ id, amount }))).toEqual([{ id: ONE_TAP_OCTOBER.id, amount: '80' }]);
+    });
+
     it('refuses `changed` after the same import, so nothing is added twice', async () => {
       const tab = await opened([ONE_TAP_OCTOBER]);
       const other = applyExchangeImport(tab.planStore.current().entries, tab.shown, LATER);
