@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { anEntry, date, instant, month } from '../../../test/builders';
+import { anEntry, date, instant, month, units } from '../../../test/builders';
 import {
   added,
   BERLIN,
@@ -9,6 +9,7 @@ import {
   HUGO,
   LISBON,
   M,
+  NOW,
   PLAN,
   R,
   S,
@@ -18,6 +19,8 @@ import {
   trade,
   zoneDate,
 } from '../../../test/exchange/plan-fixture';
+import type { Entry } from '../../schema/entry';
+import type { Movement } from './kraken';
 import { planExchangeImport } from './plan';
 
 // The exchange import's plan (docs/DOMAIN.md §3.13), worked out by hand in plan-fixture.ts: one test per step of
@@ -84,6 +87,35 @@ describe('planExchangeImport', () => {
     ]);
     expect(idsOf(golden.entries)).not.toContain(testId(M.M12.key));
     expect(idsOf(golden.entries)).not.toContain(testId(M.M15.key));
+  });
+
+  describe('step 4 before step 3: a purchase a hand entry records is never imported again', () => {
+    // October's one tap for BTC (E) and a hand extra buy of 0.0008 BTC on 21 Sept (H); the file buys on 20 Sept (P1)
+    // and on 2 Oct (P2). P1 is inside E's window (16 Sept to 16 Oct) and 1 day from H's date.
+    const tapped = anEntry({ slot: month('2026-10'), date: date('2026-10-01'), source: 'one-tap', venue: 'Bitvavo' });
+    const typed = anEntry({ kind: 'extra', slot: null, date: date('2026-09-21'), units: units('0.0008') });
+    const P1 = trade('TFIX-P1', 'purchase', 'BTC', '2026-09-20', { units: '0.0008', amount: '50', fee: '0.50' }, 2);
+    const P2 = trade('TFIX-P2', 'purchase', 'BTC', '2026-10-02', { units: '0.0011', amount: '70', fee: '0.70' }, 4);
+    const log = [tapped, typed];
+    const fileOf = (movements: readonly Movement[]) => ({ ...FILE, movements, leftOut: [] });
+    const run = (entries: readonly Entry[], movements: readonly Movement[]) =>
+      planExchangeImport(fileOf(movements), { plan: PLAN, entries }, CHOICES, LISBON);
+
+    it('the hand entry claims its purchase: the estimate stays and nothing is added', () => {
+      const plan = run(log, [P1]);
+      expect(plan.recorded.map((each) => each.entry.id)).toEqual([typed.id]);
+      expect([plan.replaced, plan.entries]).toEqual([[], []]);
+    });
+
+    it('a prefix stored, then the whole file, adds what the whole file adds at once: P2 only', () => {
+      const once = run(log, [P1, P2]);
+      expect(idsOf(once.entries)).toEqual([testId(P2.key)]);
+      const first = run(log, [P1]);
+      const tombstoned = new Set(first.replaced.flatMap((each) => idsOf(each.estimates)));
+      const stored = log.map((entry) => (tombstoned.has(entry.id) ? { ...entry, deletedAt: NOW } : entry));
+      const then = run([...stored, ...first.entries], [P1, P2]);
+      expect([...idsOf(first.entries), ...idsOf(then.entries)]).toEqual([testId(P2.key)]);
+    });
   });
 
   it('step 5, Greta not ticked: the purchases and receipts on or before her coins added are left out', () => {
