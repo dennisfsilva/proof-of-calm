@@ -23,6 +23,7 @@ import type { Entry } from '../../schema/entry';
 import type { Plan } from '../../schema/plan';
 import type { Movement } from './kraken';
 import { type ExchangeImportPlan, planExchangeImport } from './plan';
+import { readTradeRepublic, TR_READ } from './trade-republic';
 
 // The exchange import's plan (docs/DOMAIN.md §3.13), worked out by hand in plan-fixture.ts: one test per step of
 // D2 and per case of D6, each named after the person it serves.
@@ -397,6 +398,16 @@ describe('planExchangeImport, in one import or two', () => {
       [id(T17)],
       null,
     ]);
+  });
+
+  it("a Kraken import fills May with 2 May; Trade Republic's 4 May buy, imported after it, is an extra buy", () => {
+    const kraken = buy('K0502', '2026-05-02T09:00:00Z', 2);
+    const cells = ['2026-05-04T08:00:00.000Z', 'TRADING', 'BUY', 'CRYPTO', 'BTC', '0.0010', '-70.00', '-1.00', ''];
+    const file = readTradeRepublic(TR_READ, [[...cells, 'EUR', '00000000-0000-4000-8000-000000000001']]);
+    const { first } = paths(PLAIN, [], [kraken], [kraken]);
+    const then = planExchangeImport(file, { plan: PLAIN, entries: store([], first) }, CHOICES, LISBON);
+    const tr = file.movements[0] as Movement;
+    expect([kinds(first), kinds(then)]).toEqual([[`${id(kraken)}:dca:2026-05`], [`${id(tr)}:extra:null`]]);
   });
 
   it('a hand monthly buy for March, typed on 10 Nov, claims 2 Mar, and 9 Nov fills November', () => {
