@@ -20,7 +20,7 @@
     "notReviewedSince": "Not reviewed since {date}"
   },
   "thisFall": {
-    "row": "The coins you hold against their 90-day high, and each coin's earlier falls.",
+    "row": "The coins you hold against their 90‑day high, and each coin's earlier falls.",
     "back": "Back to Today",
     "title": "The fall under way and your plan",
     "one": "{coin} is {high} below {window, select, short {its highest close since {since}} other {its 90‑day high}}{change, select, fell { and fell {seven} in the seven days to {date}.} rose { and rose {seven} in the seven days to {date}.} other { ({date}).}}",

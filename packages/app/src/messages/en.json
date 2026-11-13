@@ -65,7 +65,7 @@
       "notReviewedSince": "Not reviewed since {date}"
     },
     "thisFall": {
-      "row": "The coins you hold against their 90-day high, and each coin's earlier falls.",
+      "row": "The coins you hold against their 90‑day high, and each coin's earlier falls.",
       "back": "Back to Today",
       "title": "The fall under way and your plan",
       "one": "{coin} is {high} below {window, select, short {its highest close since {since}} other {its 90‑day high}}{change, select, fell { and fell {seven} in the seven days to {date}.} rose { and rose {seven} in the seven days to {date}.} other { ({date}).}}",
@@ -1044,7 +1044,7 @@
     },
     "redDay": {
       "week": "{names}{coins, select, one {} other {, in the amounts you hold,}} fell {fall} in the seven days to {date}.",
-      "high": "On {date} {names}{coins, select, one { was} other {, in the amounts you hold, were}} {fall} below {coins, select, one {its} other {their combined}} 90-day high.",
+      "high": "On {date} {names}{coins, select, one { was} other {, in the amounts you hold, were}} {fall} below {coins, select, one {its} other {their combined}} 90‑day high.",
       "open": "See the fall under way",
       "dismiss": "Dismiss",
       "failed": "The notice could not be dismissed on this device, so it may show again."
