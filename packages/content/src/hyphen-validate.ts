@@ -6,7 +6,7 @@ import type { Problem } from './problem.ts';
 // A reference such as `24-D/2022`, an ISO date and a tax year such as `2026-27` name no unit, so they pass.
 const NUMBER_UNIT = /\d-(?:day|week|month|year|hour|minute)s?(?![\p{L}\p{N}])/gu;
 const DIGITS_BEFORE = /\d*$/;
-const DETAIL = 'write U+2011 between the number and its unit (90‑day)';
+const DETAIL = 'write U+2011 between the number and its unit (90\u2011day)';
 
 /** Each numeral joined to its unit by an ordinary hyphen, the whole numeral with it (`90-day`). */
 export function numberUnitHyphens(text: string): string[] {
