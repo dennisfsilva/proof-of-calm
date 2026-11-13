@@ -10,8 +10,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, userEvent } from 'storybook/test';
 import { fixtureNowMs, fixtureSnapshot } from '../../../lib/services/fixtures';
 import { KRAKEN_LEFT_OUT, KRAKEN_OCTOBER, ONE_TAP_OCTOBER } from '../../../lib/services/kraken.testing';
-import { exchangeContext } from '../model/import';
 import { previewModel } from '../model/exchange-preview';
+import { exchangeContext } from '../model/import';
 import { ExchangeSections, ExchangeSummary } from './exchange-import-sections';
 
 // The exchange import's preview sections over the fixture plan, from synthetic Kraken ledgers (ADR-0056): an import
@@ -21,11 +21,7 @@ import { ExchangeSections, ExchangeSummary } from './exchange-import-sections';
 
 const fixture = fixtureSnapshot();
 const PLAN = fixture.plan as Plan;
-const CONTEXT = exchangeContext(
-  '2026-10-20' as Entry['date'],
-  '2026-10-20T10:00:00.000Z' as Instant,
-  'Europe/Lisbon',
-);
+const CONTEXT = exchangeContext('2026-10-20' as Entry['date'], '2026-10-20T10:00:00.000Z' as Instant, 'Europe/Lisbon');
 const planOf = (csv: string, entries: readonly Entry[]): ExchangeImportPlan => {
   const read = readExchangeFile(csv);
   if (!read.ok) throw new Error('the synthetic ledger reads');
