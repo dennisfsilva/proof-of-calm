@@ -14,15 +14,18 @@ export type ExchangeFileError =
 
 /**
  * "Text starting with `PK\^C\^D` is `zip`; a header with ordertxid and pair is `kraken-trades`; a header whose
- * names are all among the ledger's (txid, refid, time, type, subtype, aclass, subclass, asset, wallet, amount,
- * fee, balance) is a Kraken ledger, which is `missing-columns`, naming each, when it lacks txid, refid, time,
- * type, asset, amount or fee; a ledger with no data row is `no-rows`; anything else is `not-recognised`."
+ * names, a last empty one dropped, are all among the ledger's (txid, refid, time, type, subtype, aclass,
+ * subclass, asset, wallet, amount, fee, balance, amountusd) is a Kraken ledger, which is `missing-columns`,
+ * naming each, when it lacks txid, refid, time, type, asset, amount or fee; a ledger with no data row is
+ * `no-rows`; anything else is `not-recognised`." K8 holds the headers that end in an empty name (a trailing
+ * comma) and that add amountusd.
  */
 export function readExchangeFile(text: string): Result<ExchangeFile, ExchangeFileError> {
   // D14: a ZIP archive's first four bytes.
   if (text.startsWith('PK\u0003\u0004')) return err({ code: 'zip' });
-  const [header = [], ...data] = csvRows(text);
-  if (header.includes('ordertxid') && header.includes('pair')) return err({ code: 'kraken-trades' });
+  const [names = [], ...data] = csvRows(text);
+  if (names.includes('ordertxid') && names.includes('pair')) return err({ code: 'kraken-trades' });
+  const header = names.at(-1) === '' ? names.slice(0, -1) : names;
   if (header.length === 0 || !header.every((name) => LEDGER_COLUMNS.includes(name))) {
     return err({ code: 'not-recognised' });
   }

@@ -59,12 +59,14 @@ export type ExchangeFile = {
 };
 
 // "The reader reads txid, refid, time, type, subtype, asset, amount and fee by header name, in any order, and
-// never reads aclass, subclass, wallet or balance." Subtype is the one it reads that a file may lack.
+// never reads aclass, subclass, wallet, balance or amountusd." Subtype is the one it reads that a file may
+// lack; amountusd is in two of K8's ledger headers.
 export const LEDGER_COLUMNS = ['txid', 'refid', 'time', 'type', 'subtype', 'aclass', 'subclass', 'asset'].concat([
   'wallet',
   'amount',
   'fee',
   'balance',
+  'amountusd',
 ]);
 export const REQUIRED_COLUMNS = ['txid', 'refid', 'time', 'type', 'asset', 'amount', 'fee'] as const;
 type Column = (typeof REQUIRED_COLUMNS)[number];
