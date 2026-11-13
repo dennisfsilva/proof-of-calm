@@ -31,6 +31,8 @@ overrides:
   undici@8.12.1: 8.12.2            # GHSA-4qv8-2p9j-2685, GHSA-f72v-6w45-q472, GHSA-xjj6-f33q-929c
   systeminformation@5.33.15: 5.33.16 # GHSA-3f7j-7jwc-fxfj
   "@serwist/build>zod@4.6.5": 4.6.7 # GHSA-mrhx-c7xc-m3w5; the catalog's version (a bare zod key also rewrites zod peer ranges)
+  hono@4.13.13: 4.13.16            # GHSA-3gg2-335m-rxc6, GHSA-46wx-v44x-9hh2, GHSA-4h7h-rv7c-7m2v, GHSA-4m76-xfj5-7975, GHSA-h7mg-cq63-vhpq
+  "@hono/node-server@2.1.5": 2.1.6 # GHSA-jpvv-r467-5p4w, GHSA-qv5m-9pm6-hqp3
 strictDepBuilds: true
 allowBuilds:                       # a map since pnpm 11 (https://pnpm.io/settings/build)
   esbuild: true
