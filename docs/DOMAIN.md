@@ -941,11 +941,27 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   refid and coin fold into one movement, every line kept and sorted, `at` the earliest row's, its units the
   sum of |amount − fee|, cut and flagged after the sum; a receipt of the coin its refid's purchase bought is
   `unpaired`, named by its line, and the purchase keeps the key. A left-out row carries its reason (`reward`,
-  `coin-deposit`, `coin-withdrawal`, `cash`, `within`, `conversion`, `unpaired`, `unreadable` or `other`),
+  `coin-deposit`, `coin-withdrawal`, `cash`, `benefit`, `within`, `conversion`, `unpaired`, `unreadable` or `other`),
   its lines, its time (the earliest of its rows'), and for a row left out for its type its coin and units
   (|amount − fee|), for an unreadable refid the column and no time. "No refusal, left-out row or thrown error holds a cell's text."
   No raw row, txid, refid or balance is stored. The import's preview shows in Settings (`docs/CONTENT-STYLE.md` §3
-  row `Import an exchange's file`); the Log's review and the second exchange's import are planned (M2).
+  row `Import an exchange's file`); the Log's review, and recognising and showing the second exchange's file, are planned (M2).
+- Trade Republic's reader (decided 2026-11-13, ADR-0056, Corrections; the evidence in
+  `docs/research/csv-import-exchanges.md` §5): `readTradeRepublic(header, data)` gives the same file as Kraken's,
+  `exchange` `trade-republic`. It indexes only `TR_READ` (datetime, category, type, asset_class, symbol, shares,
+  amount, fee, tax, currency, transaction_id), never a name, description, IBAN, counterparty, price or `date`.
+  `datetime` is ISO UTC with `Z` and 0 to 6 fraction digits; numbers are an optional `-`, digits and an optional
+  `.digits`, an empty fee or tax 0. A crypto TRADING BUY (shares above 0, amount below) is a purchase and a SELL
+  (shares below 0, amount above) a sale: units |shares| cut to 10 decimals and flagged, amount |amount|, fee |fee|,
+  the fee outside the amount; Saveback and round-up executions are such buys. A BUY_CANCELLED (SELL_CANCELLED)
+  pairs one-to-one with the latest earlier unpaired BUY (SELL) of its coin with equal |shares| and |amount|, and
+  both go out `unpaired`; with no such row the cancellation alone does. FREE_RECEIPT is a `coin-deposit` (staking
+  and coins sent in alike), FREE_DELIVERY a `coin-withdrawal`; MIGRATION rows at one instant are `within` for one
+  coin summing to 0 and a `conversion` for two coins, else `unreadable`. CASH BENEFITS_SAVEBACK is `benefit`, any
+  other CASH row `cash`, any other row `other`. A symbol is a ticker of 2 to 10 capital letters or digits (XBT is
+  BTC). A repeated transaction_id keeps one row when its read cells match and leaves both `unreadable` when they
+  differ; no rule reads row order. The key is `poc-csv-1|trade-republic|<transaction_id>|<COIN>|<in|out>`. A
+  cancelled buy an earlier import stored is not reached (planned: M2).
 - Meeting the Log (decided 2026-11-13, ADR-0056): `planExchangeImport(file, stored, choices, context)` turns
   the reader's movements into the entries an import would add and names everything it leaves out; it writes
   nothing. The shell passes `today`, `now`, `idOf` (the id of a key, below) and `dateOf`: "The shell dates

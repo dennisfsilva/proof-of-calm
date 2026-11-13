@@ -85,3 +85,15 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   refused such a file as `invalid-entries`, and now writes it. Rewards (staking and earn), coin
   deposits as entries and coin withdrawals as moves move to M4, replacing Consequences' "(planned:
   M2)" for those three; the starting amount's choice stays as Consequences say. The rest stands.
+- 2026-11-13, Trade Republic's reader, on the evidence of #16 (`docs/research/csv-import-exchanges.md`
+  §5 and §7): the reader indexes only the 11 columns of `TR_READ` and never reads the personal ones
+  (name, description, counterparty, IBAN, payment reference, card code). Saveback and round-up
+  executions are purchases at their amount, since the export marks them only in the description; the
+  Saveback credits on the cash account are left out as `benefit`, a new reason. A BUY_CANCELLED or
+  SELL_CANCELLED pairs one-to-one with the latest earlier unpaired trade of its side, coin, |shares|
+  and |amount|, and both rows are left out as unpaired. MIGRATION rows at one instant are within for
+  one coin summing to 0 and a conversion for two coins, else unreadable. FREE_RECEIPT (staking and
+  coins sent in, which the export does not tell apart) is one coin-deposit line and FREE_DELIVERY one
+  coin-withdrawal line. The key is `poc-csv-1|trade-republic|<transaction_id>|<COIN>|<in|out>`. Not
+  yet recognised by the file reader, and a cancelled buy an earlier import stored is not reached
+  (planned: M2). The rest stands.

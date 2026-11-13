@@ -63,19 +63,19 @@ Binance (no new buys) and BISON (no Portuguese presence) are left out.
 | | Kraken ledger [K1–K9] | Trade Republic [TR1–TR6, T1] | Coinbase [CB1–CB6] | Bitpanda [BP1–BP4] | Bitvavo [BV2–BV4] | Revolut [RV1–RV4] |
 |---|---|---|---|---|---|---|
 | Full history | web: Documents → Create export → Ledgers, CSV; minutes to a week (D); a ZIP (R) | app: Statements → Transaction export (R) | web: Statements → Generate custom statement (R) | web: History → Export → Generate CSV, e-mailed (R) | Transaction history → Export → Full history; at most 30,000 lines (R) | app: Crypto → Documents → Account statement, Excel (R) |
-| Buy, sell | two "trade" rows per refid; app: spend and receive (D) | TRADING, BUY or SELL (R) | Buy, Sell, Advanced Trade Buy and Sell (R) | buy outgoing, sell incoming (R) | buy (U), sell (D) | Buy, Sell (R) |
-| Fee; in the paid amount? | own column, in the row's asset; no (D) | own column, negative (R); U | Fees and/or Spread; in Total, not in Subtotal (R) | none shown for crypto; premium in the price (R) | Fee amount; U | Fees; U |
-| Cash in, out | deposit, withdrawal (D) | CASH rows, card payments too (R) | Deposit, Withdrawal (R) | deposit, withdrawal, class Fiat (R) | U | absent (R) |
-| Coins out, in | withdrawal, deposit; fee in the coin (D) | U | Send, Receive (R) | withdrawal, fee in the coin (R); in U | withdrawal, deposit (D) | Send, Receive (R) |
-| Staking, earn | earn with subtypes, staking (D) | DELIVERY, FREE_RECEIPT (R) | Staking Income, Rewards Income (R) | U | staking, fixed_staking (D) | Stake, Unstake, Staking reward (R) |
+| Buy, sell | two "trade" rows per refid; app: spend and receive (D) | TRADING, BUY or SELL, class CRYPTO; savings-plan, Saveback and round-up buys alike (R [TR-E7, TR-E8b]) | Buy, Sell, Advanced Trade Buy and Sell (R) | buy outgoing, sell incoming (R) | buy (U), sell (D) | Buy, Sell (R) |
+| Fee; in the paid amount? | own column, in the row's asset; no (D) | own column, negative; no: amount is shares × price; −1.00 on a one-off crypto trade, empty on a plan's (R [TR-E5]) | Fees and/or Spread; in Total, not in Subtotal (R) | none shown for crypto; premium in the price (R) | Fee amount; U | Fees; U |
+| Cash in, out | deposit, withdrawal (D) | CASH rows, card payments too; Saveback credits as BENEFITS_SAVEBACK (R [TR-E8c]) | Deposit, Withdrawal (R) | deposit, withdrawal, class Fiat (R) | U | absent (R) |
+| Coins out, in | withdrawal, deposit; fee in the coin (D) | DELIVERY: FREE_DELIVERY out, FREE_RECEIPT in (R [TR-E8f]) | Send, Receive (R) | withdrawal, fee in the coin (R); in U | withdrawal, deposit (D) | Send, Receive (R) |
+| Staking, earn | earn with subtypes, staking (D) | DELIVERY, FREE_RECEIPT, not told apart from coins sent in (R [TR-E8f]) | Staking Income, Rewards Income (R) | U | staking, fixed_staking (D) | Stake, Unstake, Staking reward (R) |
 | Bonus | invite bonus; KFEE credits as deposit (D) | U | Learning Reward, Coinbase Earn (R) | transfer incoming at 0.00 (R) | affiliate, rebate (D); others U | Learn reward (R) |
 | One row per | fill; the order id only in the trades file (D) | U | transaction (R); Advanced Trade U | order (R) | U | transaction (R) |
-| Unique id | txid (D) | transaction_id (R) | ID, since 2024-05 (R) | Transaction ID (R) | U | none (R) |
-| Time | UTC; text form U (D) | ISO 8601 UTC and a date (R) | "UTC" suffix in 2021 (R); now U | ISO 8601 with offset (R) | U | local, no offset (R) |
-| Numbers | point; no decimal comma (D) | point (R) | currency symbol, thousands commas, brackets (R) | point; "-" for none (R) | U | "€1,000.00" (R) |
+| Unique id | txid (D) | transaction_id, a UUID, unique per file and stable across exports (R [TR-E11]) | ID, since 2024-05 (R) | Transaction ID (R) | U | none (R) |
+| Time | UTC; text form U (D) | ISO 8601 UTC with Z, 3 or 6 fraction digits; date the Berlin day (R [TR-E3]) | "UTC" suffix in 2021 (R); now U | ISO 8601 with offset (R) | U | local, no offset (R) |
+| Numbers | point; no decimal comma (D) | point, no thousands separator; signs by side (R [TR-E4]) | currency symbol, thousands commas, brackets (R) | point; "-" for none (R) | U | "€1,000.00" (R) |
 | Currency | asset code per row, legacy (ZGBP) or plain (D, R) | currency, original_currency (R) | Price Currency (R) | Fiat, Fee asset (R) | U | symbol in the value (R) |
 | Personal data | none (D) | counterparty name and IBAN (R) | name and user id; destinations in Notes (R) | name, birth date, e-mail (R) | U | name, address (R) |
-| Changed | formats of 2024-04, 2024-07, 2025-12 (R) | new 2026-04 (R) | 2024-05, 2024-07, 2025-10, 2025-11, 2026-02 (R) | Tax Fiat 2024-03 (R) | U | U |
+| Changed | formats of 2024-04, 2024-07, 2025-12 (R) | new 2026-04; unchanged to 2026-09 (R [TR-E1]) | 2024-05, 2024-07, 2025-10, 2025-11, 2026-02 (R) | Tax Fiat 2024-03 (R) | U | U |
 
 ## 4. Kraken's two files (question 3)
 
@@ -103,15 +103,25 @@ balances (R); which row of an app buy carries the fee is not documented (U); ear
 coins inside Kraken; fields can be left out at export (D [K4]), so refuse a file without txid,
 refid, time, type, asset, amount and fee.
 
-**Trade Republic.** Header from a third-party schema of 2026-06-08 (R [TR2]); the first nine columns
-and original_amount, original_currency also appear in forum rows (R [TR1]):
+**Trade Republic.** Header from a third-party schema of 2026-06-08 (R [TR2]), and in every export #16 read
+(R [TR-E1], 9 sources: unchanged April to September 2026, English whatever the app's language; comma-separated,
+every field quoted, UTF-8 without BOM [TR-E2]):
 
 datetime, date, account_type, category, type, asset_class, name, symbol, shares, price, amount, fee, tax, currency, original_amount, original_currency, fx_rate, description, transaction_id, counterparty_name, counterparty_iban, payment_reference, mcc_code
 
-Traps: keep only asset_class CRYPTO and never store the counterparty columns; savings-plan buys show
-only in the description (R [TR6], ETF plans); BUY_CANCELLED cancels a buy; FX columns are empty on
-TRADING rows (R); accounts older than April 2026 should check that their earliest rows are present
-(R [TR4]).
+Traps, as #16's evidence (read 2026-11-13) confirms or corrects them: keep only asset_class CRYPTO and never
+read the personal columns (confirmed: name, description and the counterparty columns hold names and IBANs);
+savings-plan buys show only in the description (R [TR6], [TR-E8b]), and Saveback executions follow a CASH
+BENEFITS_SAVEBACK credit as a plain plan buy (ETFs in 3 sources, crypto in none; TR-D1 says crypto Saveback is
+reinvested into a running plan [TR-E8c]); the amount excludes the fee, −1.00 on a one-off crypto trade and
+empty on a plan's (R [TR-E5]); BUY_CANCELLED cancels a buy, but no crypto cancellation row was seen, and other
+cancellations reverse the signs under a new id with no link (R [TR-E8e]); FREE_RECEIPT holds staking and coins
+sent in alike, FREE_DELIVERY coins sent out (R [TR-E8f]); MIGRATION rows come in pairs at one instant that cancel
+out (R [TR-E9]); Render showed as XF0RENDER015 in one source (R [TR-E7]); `date` is the Berlin day on trades and a
+booking date on cash rows, so only datetime is read (R); FX columns are empty on TRADING rows (R); accounts older
+than April 2026 should check that their earliest rows are present (R [TR4]). Not confirmed: a crypto Saveback or
+round-up row, a crypto cancellation's shape, CORRECTION, a crypto bonus, paying with crypto, non-EUR crypto rows,
+and the zone of `date` outside Germany.
 
 **Coinbase.** A "Transactions" line and a "User" line with the name and user id precede the header
 (R [CB2]). Header since 2024-05 (R [CB1, CB3]); before, no ID and "Spot Price" in two names (R):
@@ -225,3 +235,20 @@ Questions 2 and 3:
 | RV2 | Blockpit, Revolut import | https://intercom.help/blockpit/en/articles/12136994-how-to-import-data-via-revolut-csv-file | 2026-11-13 |
 | RV3 | CoinTracking, Revolut, June 2026 | https://cointracking.info/import/revolut/ | 2026-11-13 |
 | RV4 | Revolut help, crypto statement (HTTP 403; text from a search result) | https://help.revolut.com/en-AU/help/profile-and-plan/managing-my-account/cryptocurrency-statement | 2026-11-13 |
+
+Trade Republic's export (#16's evidence, for the reader of 2026-11-13). The keys carry TR- so they do not collide
+with question 1's P1 and D1; TR-E1 to TR-E11 in §3 and §5 are the rows of #16's evidence table, its E keys
+prefixed, and its MIGRATION row, which has no key there, is TR-E9.
+
+| Key | Source | URL | Read |
+|---|---|---|---|
+| TR-R1–TR-R6 | Real exports of six people in public GitHub repositories, committed 2026-05-01 to 2026-09-23, URLs withheld because the files hold their owners' names and IBANs, only their shape read on 2026-11-13 | withheld | 2026-11-13 |
+| TR-R7 | Portfolio Performance forum, the CSV transaction export, 2026-04-16 to 2026-06-18 | https://forum.portfolio-performance.info/t/import-trade-republic-csv-transaktionsexport/39126 | 2026-11-13 |
+| TR-R8 | Portfolio Performance issue 5655, 2026-05-04 | https://github.com/portfolio-performance/portfolio/issues/5655 | 2026-11-13 |
+| TR-P1 | Portfolio Performance, TradeRepublicCSVExtractor, 2026-04-11 to 2026-10-10 | https://github.com/portfolio-performance/portfolio/blob/master/name.abuchen.portfolio/src/name/abuchen/portfolio/datatransfer/traderepublic/TradeRepublicCSVExtractor.java | 2026-11-13 |
+| TR-P2 | Portfolio Performance, anonymised fixtures, 2026-04-11 | https://github.com/portfolio-performance/portfolio/tree/master/name.abuchen.portfolio.tests/src/name/abuchen/portfolio/datatransfer/traderepublic | 2026-11-13 |
+| TR-P3 | Pastory, export-officiel.md, 2026-10-01 to 2026-10-13 (only its claims checked on its own exports count) | https://github.com/TheoDuc/Pastory/blob/main/docs/export-officiel.md | 2026-11-13 |
+| TR-P4 | GhostfolioSidekick, Trade Republic parser, 2026-04-17 to 2026-11-08 | https://github.com/VibeNL/GhostfolioSidekick/blob/master/Parsers/TradeRepublic/TradeRepublicCsvParser.cs | 2026-11-13 |
+| TR-P5 | buddy-budget, Trade Republic import, 2026-10-08 | https://github.com/YonderUrik/buddy-budget/blob/main/docs/trade-republic-import.md | 2026-11-13 |
+| TR-P6 | Third-party schema, 2026-06-08 (TR2) | https://gitea.com/Jan-M/demo-evidence-traderepublic/src/ | 2026-11-13 |
+| TR-D1 | Trade Republic, press release on the crypto wallet, 2025-11-14 | https://www.gettex.de/en/news-overview/newsdetail/eqs-news-trade-republic-expands-its-crypto-offering-with-a-new-wallet-enabling-customers-to-transfer-pay-and-stake-crypto-with-a-regulated-bank/ | 2026-11-13 |
