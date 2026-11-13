@@ -23,6 +23,7 @@ export * from './export/tax-year-pool';
 export * from './export/tax-year-snapshot';
 export * from './holding/eligible-from';
 export * from './import/exchange/kraken';
+export * from './import/exchange/plan';
 export * from './import/exchange/read';
 export * from './import/exchange/table';
 export * from './import/prototype';
