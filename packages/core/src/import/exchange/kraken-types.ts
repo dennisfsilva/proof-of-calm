@@ -55,12 +55,21 @@ export function isFiat(code: string): boolean {
   return FIAT.has(code);
 }
 
-const ASSET = /^([A-Z0-9]{1,16})(\.[A-Z0-9]{1,8})?$/u;
+// K8: STAKED_SUFFIX, which its _normalise_asset strips from a code (.F, which K6 cites, is cut at the dot as
+// any other dot suffix is).
+const STAKED_SUFFIX = ['.CORE', '.HOLD', '.INK', '.M', '.P', '.S', '03.S', '04.S', '07.S', '14.S', '21.S', '28.S'];
+// The shortest code before a staked suffix or a dot suffix, so the longest suffix it ends in goes.
+const ASSET = new RegExp(
+  `^([A-Z0-9]{1,16}?)(${STAKED_SUFFIX.map((suffix) => suffix.replace('.', '\\.')).join('|')}|\\.[A-Z0-9]{1,8})?$`,
+  'u',
+);
 
 /**
- * A ledger asset code, normalised: "A code with a dot suffix is a balance within Kraken of the code before the
- * dot." .S, .M and .P (K8) and .F (K6) are the cited suffixes; any other suffix is read the same way, which
- * changes no entry. Null for a cell that is no code.
+ * A ledger asset code, normalised: "A code ending in one of K8's staked suffixes loses the longest one it ends
+ * in, then any other dot suffix is cut at the dot, then the legacy map applies; every such code is a balance
+ * within Kraken, whose rewards are named under the coin before the suffix." K8 strips .S from ETH2.S and maps
+ * ETH2 to nothing (its _normalise_asset, kraken.py lines 699 to 709 as read on 2026-11-13), so ETH2.S is ETH2.
+ * Null for a cell that is no code.
  */
 export function readAsset(cell: string): { readonly code: string; readonly suffixed: boolean } | null {
   const match = ASSET.exec(cell);
