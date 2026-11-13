@@ -1,5 +1,5 @@
 import type { ProfileCode } from '@proofofcalm/content';
-import { decimal, IMPORT_MAX_BYTES, type ImportMode, liveEntries } from '@proofofcalm/core';
+import { decimal, IMPORT_MAX_BYTES, type ImportMode, liveEntries, type Ok, ok } from '@proofofcalm/core';
 import { Button } from '@proofofcalm/ui/components/button';
 import {
   Dialog,
@@ -12,6 +12,7 @@ import {
 } from '@proofofcalm/ui/components/dialog';
 import { type ChangeEvent, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'use-intl';
+import { readFileText } from '../../../lib/adapters';
 import { BRAND } from '../../../lib/brand';
 import { reportError } from '../../../lib/errors';
 import { createNumberInput } from '../../../lib/format';
@@ -28,15 +29,14 @@ import { TaxYearExport } from './tax-year-export';
 // Settings → data (docs/DOMAIN.md §3.13): the export line and the Risk page link beside the two exports
 // (docs/LEGAL.md §4), the tax-year export under them (tax-year-export.tsx) and "Delete everything" below them
 // (delete-plan-dialog.tsx), then the import of a JSON backup as "Replace everything" or "Add missing entries only", or as the one "Import this backup" with no
-// plan, where both modes take the file's plan. Replacing a
-// plan first asks, with the count and an export, as "Delete the plan" does (docs/CONTENT-STYLE.md §3), and
+// plan, where both modes take the file's plan. Replacing a plan first asks, with the count and an export, as "Delete the plan" does (docs/CONTENT-STYLE.md §3), and
 // the confirming button is the destructive one (docs/DESIGN.md §8); the safe one takes the focus when it opens.
 // Every handler awaits its action and words a failure in an alert. An import's end takes the focus to what reports
 // it, its alert or else its result line (docs/DESIGN.md §6); a cancelled replace gives it back to the button that asked.
 // Add missing from a file in another pay currency adds nothing, and the alert names both (docs/DOMAIN.md §3.13)
 // and, for a paste, the paste's own step. An import that would leave more entries than a plan holds writes nothing.
 // Rows from a newer version refuse both modes, and the alert names the fix; under the exports one line names the entries left out.
-// An import whose entries to store do not all read as entries writes nothing, and the alert counts them.
+// An import whose entries to store do not all read as entries writes nothing, and the alert counts them. A chosen ZIP is read as its one CSV file (lib/adapters/zip.ts).
 // A file from the DCA plan page imports through the same buttons and dialog (prototype-import.tsx), and a text
 // pasted into the paste box is read as a chosen file is. One import runs at a time: while it writes, every import
 // button, "Choose a file" and the paste's button stay focusable and a press does nothing, a file chosen meanwhile
@@ -102,13 +102,13 @@ export function DataSection() {
     event.target.value = '';
     // One import at a time: a file chosen while one writes is refused, not kept for after it.
     if (busy.current) return;
-    if (file !== undefined) await choose(file.name, () => file.text(), file.size);
+    if (file !== undefined) await choose(file.name, () => readFileText(file, IMPORT_MAX_BYTES), file.size);
   };
   const onPaste = (text: string) => {
-    if (!busy.current) void choose(null, () => text);
+    if (!busy.current) void choose(null, () => ok(text));
   };
   /** A file and a pasted text take one reading path, so a pasted backup is read as a backup; null names a paste. */
-  const choose = async (name: string | null, text: () => Promise<string> | string, bytes = 0) => {
+  const choose = async (name: string | null, text: () => ReturnType<typeof readFileText> | Ok<string>, bytes = 0) => {
     setOutcome(null);
     setExchanged(null);
     setReport([]);
@@ -121,7 +121,8 @@ export function DataSection() {
       return;
     }
     try {
-      const read = readImport(await text());
+      const content = await text();
+      const read = content.ok ? readImport(content.value) : content;
       const exchange = exchangeProblem(read, hasPlan);
       const kept = read.ok && exchange === null ? read.value : null;
       const code = !read.ok && (read.error.code === 'newer-version' || read.error.code === 'invalid-backup');
