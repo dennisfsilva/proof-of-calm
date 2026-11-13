@@ -267,7 +267,7 @@ describe('readTradeRepublic, rule by rule', () => {
     for (const [type, shares] of [
       ['FREE_RECEIPT', '0.00000000004'],
       ['FREE_DELIVERY', '-0.00000000004'],
-    ]) {
+    ] as const) {
       expect(reasons({ ...delivery, type, shares })).toEqual([['unreadable', [2], 'shares']]);
     }
   });
