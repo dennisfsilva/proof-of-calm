@@ -297,7 +297,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
         await expect(
           sheet.getByRole('status').filter({
             hasText:
-              /^The price the form filled in does not apply to an earlier date\. Type the amount before fees and the units received, as your exchange's confirmation shows them\.$/u,
+              /^The price the form filled in does not apply to an earlier date\. Type the cost before fees and the units received, as your exchange's confirmation shows them\.$/u,
           }),
         ).toBeVisible();
         await sheet.getByLabel('BTC cost before fees (EUR)').fill('100');
