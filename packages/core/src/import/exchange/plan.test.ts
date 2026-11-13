@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { anEntry, date, instant, month } from '../../../test/builders';
 import {
   added,
   BERLIN,
@@ -17,7 +18,6 @@ import {
   trade,
   zoneDate,
 } from '../../../test/exchange/plan-fixture';
-import { anEntry, date, instant, month, units } from '../../../test/builders';
 import { planExchangeImport } from './plan';
 
 // The exchange import's plan (docs/DOMAIN.md §3.13), worked out by hand in plan-fixture.ts: one test per step of
@@ -138,7 +138,7 @@ describe('planExchangeImport', () => {
       reason: 'not-in-plan',
       count: 1,
       lines: [45, 46],
-      by: [{ key: 'XRP', count: 1, units: null }],
+      by: [{ key: 'XRP', count: 1, units: '20' }],
     });
   });
 
@@ -153,10 +153,10 @@ describe('planExchangeImport', () => {
   });
 
   it("no row in EUR: the plan names the file's currencies", () => {
-    const usd = [M.M24, trade('TFIX-U2', 'sale', 'ETH', '2026-07-01', M.M13, 3, { currency: 'USD' })].map((each) => ({
-      ...each,
-      units: units('0.001'),
-    }));
+    const sale = trade('TFIX-U2', 'sale', 'ETH', '2026-07-01', { units: '0.001', amount: '30', fee: '0.30' }, 3, {
+      currency: 'USD',
+    });
+    const usd = [M.M24, sale];
     const plan = planExchangeImport({ ...FILE, movements: [...usd, M.M08], leftOut: [] }, STORED, CHOICES, LISBON);
     expect(plan.noneInCurrency).toEqual(['USD']);
     expect(plan.leftOut).toEqual([
