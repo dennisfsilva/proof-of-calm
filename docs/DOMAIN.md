@@ -896,7 +896,9 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   amountusd) is a Kraken ledger, which is `missing-columns`, naming each, when it lacks txid, refid, time,
   type, asset, amount or fee; a ledger with no data row is `no-rows`; anything else is `not-recognised`." K8
   holds the headers that end in an empty name (a trailing comma) and that add amountusd. The text is split
-  by `csvRows` as RFC 4180 reads it (LF, CRLF or CR line ends; a leading byte-order mark dropped). "The
+  by `csvRows` as RFC 4180 reads it (LF, CRLF or CR line ends; a leading byte-order mark dropped). "A blank
+  line (one empty cell, or every cell empty) is not a row: the reader skips it, it counts nowhere, and a
+  ledger with only blank lines after its header is `no-rows`." A later row keeps its line in the file. "The
   reader reads txid, refid, time, type, subtype, asset, amount and fee by header name, in any order, and never
   reads aclass, subclass, wallet, balance or amountusd." "A time `YYYY-MM-DD HH:MM:SS(.f)` reads as that UTC instant with `Z`; a movement's `at` is its
   coin row's." "Numbers are normalised with `parseDecimal`; a negative zero reads as 0; a fee is its absolute
