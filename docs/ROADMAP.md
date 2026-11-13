@@ -141,7 +141,9 @@ external links and the Risk link in the mobile export (M3).
   with Portfolio's P/L link built on 2026-11-09 (#69), the chart's falls named as Proof of Calm's own
   computation the same day (#68); a reading pass's fixes on 2026-11-11 (#124): Cycles' source line in
   `docs/LEGAL.md` §4's intraday form, the fall page's "90-day" kept whole, a module sheet's text kept
-  clear of its `Close` (`docs/DESIGN.md` §8).
+  clear of its `Close` (`docs/DESIGN.md` §8); Taxes where you live's frame built on 2026-11-13 (#156):
+  the plan's country card leading it, the `Other countries` rows, the review line with its next
+  review and overdue forms, its text with its own branch.
 - Templates: the four starting points with risk labels and explanations; the template picker copy
   passes the copy-review checklist (`docs/CONTENT-STYLE.md`).
 - Jurisdictions: PT, DE, NL, ES, FR, IT, BE, IE, GB, US, XX as validated data with sources and dates;
