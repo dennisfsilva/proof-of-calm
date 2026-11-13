@@ -179,7 +179,7 @@ describe('the Taxes where you live module', () => {
 
   it("quotes every figure, date and law name of an example from its own fact's value", () => {
     const DATE = new RegExp(`\\d{1,2} (?:${MONTH}) \\d{4}`, 'gu');
-    const FIGURE = /[£€]?\d[\d,]*(?:\.\d+)?(?: %)?/gu;
+    const FIGURE = /[£€]?\d+(?:,\d{3})*(?:\.\d+)?(?: %)?/gu;
     for (const [key, example, names] of EXAMPLES) {
       const value = plain(facts.find((fact) => fact.key === key)?.value ?? '');
       const text = plain(example);
