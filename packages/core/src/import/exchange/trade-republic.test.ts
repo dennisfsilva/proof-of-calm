@@ -48,26 +48,32 @@ describe('readTradeRepublic (golden)', () => {
   it('holds no text of a column it never reads', () => {
     expect(JSON.stringify(fromText(synthetic))).not.toContain('SENTINEL');
     const never = TR_COLUMNS.filter((column) => !(TR_READ as readonly string[]).includes(column));
-    expect(never).toEqual(['date', 'account_type', 'name', 'price', 'original_amount', 'original_currency'].concat([
-      'fx_rate',
-      'description',
-      'counterparty_name',
-      'counterparty_iban',
-      'payment_reference',
-      'mcc_code',
-    ]));
+    expect(never).toEqual(
+      ['date', 'account_type', 'name', 'price', 'original_amount', 'original_currency'].concat([
+        'fx_rate',
+        'description',
+        'counterparty_name',
+        'counterparty_iban',
+        'payment_reference',
+        'mcc_code',
+      ]),
+    );
   });
 
   it('skips a blank line, and a later row keeps its line', () => {
-    const file = readTradeRepublic(TR_READ, [
-      TR_READ.map(() => ''),
-      TR_READ.map((column) => BUY[column]),
-    ]);
+    const file = readTradeRepublic(TR_READ, [TR_READ.map(() => ''), TR_READ.map((column) => BUY[column])]);
     expect([file.rows, file.movements.map((movement) => movement.lines)]).toEqual([1, [[3]]]);
   });
 
   it('reads an empty file as no rows, no first and no last', () => {
-    expect(read()).toEqual({ exchange: 'trade-republic', rows: 0, first: null, last: null, movements: [], leftOut: [] });
+    expect(read()).toEqual({
+      exchange: 'trade-republic',
+      rows: 0,
+      first: null,
+      last: null,
+      movements: [],
+      leftOut: [],
+    });
   });
 });
 
@@ -131,7 +137,13 @@ describe('readTradeRepublic, rule by rule', () => {
 
   it('rule 5: a buy is a purchase and a sell a sale, the amount without the fee', () => {
     const [buy, sell] = read({}, { ...SELL, transaction_id: 'T2' }).movements;
-    expect([buy?.role, buy?.units, buy?.amount, buy?.fee, buy?.currency]).toEqual(['purchase', '0.001', '50', '1', 'EUR']);
+    expect([buy?.role, buy?.units, buy?.amount, buy?.fee, buy?.currency]).toEqual([
+      'purchase',
+      '0.001',
+      '50',
+      '1',
+      'EUR',
+    ]);
     expect([sell?.role, sell?.units, sell?.amount, sell?.key]).toEqual([
       'sale',
       '0.001',
@@ -204,8 +216,14 @@ describe('readTradeRepublic, rule by rule', () => {
     ['a sale cancelled', { type: 'SELL_CANCELLED' }],
     ['an earlier time', { datetime: '2026-05-01T00:00:00.000Z' }],
   ])('rule 6: a cancellation with %s pairs with nothing and goes out alone', (_, row) => {
-    const rows: Cells[] = [{}, { type: 'BUY_CANCELLED', datetime: '2026-05-05T00:00:00.000Z', transaction_id: 'C', ...row }];
-    expect([keys(...rows), reasons(...rows)]).toEqual([['poc-csv-1|trade-republic|T1|BTC|in'], [['unpaired', [3], null]]]);
+    const rows: Cells[] = [
+      {},
+      { type: 'BUY_CANCELLED', datetime: '2026-05-05T00:00:00.000Z', transaction_id: 'C', ...row },
+    ];
+    expect([keys(...rows), reasons(...rows)]).toEqual([
+      ['poc-csv-1|trade-republic|T1|BTC|in'],
+      [['unpaired', [3], null]],
+    ]);
   });
 
   it('rule 6: SELL_CANCELLED pairs with a sale; a cancellation with unreadable shares is unreadable', () => {

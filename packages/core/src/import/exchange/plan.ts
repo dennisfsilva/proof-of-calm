@@ -39,6 +39,7 @@ const REASONS = [
   'coin-deposit',
   'conversion',
   'cash',
+  'benefit',
   'within',
   'unpaired',
   'unreadable',
