@@ -46,12 +46,13 @@ function normalised(file: ExchangeFile, original: (line: number) => number) {
 }
 
 describe('readKrakenLedger (property)', () => {
-  it('gives each movement its own key and each row one place, for any ledger', () => {
+  it('gives each movement its own key and units above 0, and each row one place, for any ledger', () => {
     fc.assert(
       fc.property(ledger, (rows) => {
         const file = read(rows);
         const keys = file.movements.map((movement) => movement.key);
         expect(new Set(keys).size).toBe(keys.length);
+        expect(file.movements.filter((movement) => !/[1-9]/u.test(movement.units))).toEqual([]);
         const lines = [...file.movements, ...file.leftOut].flatMap((item) => item.lines).toSorted((a, b) => a - b);
         expect(lines).toEqual(rows.map((_, index) => index + 2));
       }),
