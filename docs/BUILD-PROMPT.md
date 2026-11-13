@@ -203,7 +203,7 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   tax-year export missed its fixtures, the core's expected files and its component, so its own
   review took them out again for a branch of their own (#24, 2026-11-13).
 - A test that scans tracked files by a name pattern gets turbo inputs that hash its whole scan,
-  derived from the same list. In session 18h, the export-copy-paths branch's test scanned every
+  derived from the same list. The export-copy-paths branch's test scanned every
   `tax-year` path outside `apps/web/e2e/` and `docs/`, while `tools/turbo.json` hashed only such
   paths under `packages/`. Each review round found one more place where a local run would replay a
   cached pass: the app fixtures folder in round 1, `apps/` in round 2. The branch waits with that
