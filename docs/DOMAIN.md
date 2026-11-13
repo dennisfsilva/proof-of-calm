@@ -900,7 +900,9 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   reader reads txid, refid, time, type, subtype, asset, amount and fee by header name, in any order, and never
   reads aclass, subclass, wallet, balance or amountusd." "A time `YYYY-MM-DD HH:MM:SS(.f)` reads as that UTC instant with `Z`; a movement's `at` is its
   coin row's." "Numbers are normalised with `parseDecimal`; a negative zero reads as 0; a fee is its absolute
-  value." A txid, refid or type that is empty or outside printable ASCII is unreadable. "A row with an
+  value." "A row with an empty txid is a transaction Kraken did not complete (K8): it is dropped, counts in
+  rows and in first and last like an identical repeat, and leaves the other rows of its refid as they are."
+  Any other txid, and a refid or type, that is empty or outside printable ASCII is unreadable. "A row with an
   unreadable required cell leaves its refid's rows out whole, named by line and column." "A txid twice with
   the same cells keeps one; with different cells, both refids are left out." "Legacy codes normalise as K1,
   K6 or K8 list them (XXBT and XBT to BTC, XETH to ETH, XXDG and XDG to DOGE, ZEUR to EUR, …), each cited
