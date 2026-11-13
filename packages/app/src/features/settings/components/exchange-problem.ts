@@ -1,5 +1,6 @@
-import type { BackupError, ExchangeFileError } from '@proofofcalm/core';
+import { type BackupError, type ExchangeFileError, IMPORT_MAX_BYTES, type Result } from '@proofofcalm/core';
 import { useTranslations } from 'use-intl';
+import type { ZipError } from '../../../lib/adapters';
 import { BRAND } from '../../../lib/brand';
 import { useFormatters } from '../../../lib/services';
 import type { ExchangeImportOutcome } from '../exchange-actions';
@@ -9,7 +10,8 @@ import { useFigure } from './exchange-import-sections';
 // The alerts of an exchange's file in Settings → data (docs/DOMAIN.md §3.13, docs/CONTENT-STYLE.md §3): each code of
 // the exchange reader that names the file gets its own line, a ledger with no plan to import into asks for one, and
 // each refusal of the write that ends the preview has its line. The reader's `not-recognised` keeps the backup
-// import's line, which names every format the import reads; the write's `changed` stays in the preview.
+// import's line, which names every format the import reads; the write's `changed` stays in the preview. A chosen
+// ZIP the reader cannot open (lib/adapters/zip.ts) has its code's line, an unsupported one the pasted ZIP's line.
 
 type Refusal = Extract<ExchangeImportOutcome, { readonly kind: 'refused' }>['refusal'];
 /** A refusal of the write that ends the preview: every one but `changed`, which shows the new preview. */
@@ -19,13 +21,21 @@ export type ExchangeRefusal = Exclude<Refusal, { readonly code: 'changed' }>;
 export type ExchangeProblem =
   | Exclude<ExchangeFileError, { readonly code: 'not-recognised' }>
   | { readonly code: 'needs-plan' }
+  | ZipError
   | ExchangeRefusal;
 
-/** The exchange reader's codes that name the file, or a ledger read with no plan; null for any other read. */
-export function exchangeProblem(read: ReturnType<typeof readImport>, hasPlan: boolean): ExchangeProblem | null {
+/** The reader's codes that name the file, a ZIP's, or a ledger read with no plan; null for any other read. */
+export function exchangeProblem(
+  read: ReturnType<typeof readImport> | Result<never, ZipError>,
+  hasPlan: boolean,
+): ExchangeProblem | null {
   if (read.ok) return read.value.kind === 'exchange' && !hasPlan ? { code: 'needs-plan' } : null;
-  const error: BackupError | ExchangeFileError = read.error;
+  const error: BackupError | ExchangeFileError | ZipError = read.error;
   switch (error.code) {
+    case 'zip-no-csv':
+    case 'zip-several-csv':
+    case 'zip-unsupported':
+    case 'zip-too-large':
     case 'zip':
     case 'kraken-trades':
     case 'missing-columns':
@@ -48,6 +58,10 @@ export function useExchangeProblemText(): (problem: ExchangeProblem) => string {
           columns: format.list(problem.columns),
           count: problem.columns.length,
         });
+      case 'zip-unsupported':
+        return t('exchange.problem.zip');
+      case 'zip-too-large':
+        return t('exchange.problem.zip-too-large', { max: figure(IMPORT_MAX_BYTES / 1_000_000) });
       case 'newer-rows':
         return t('import.newerRows', { product: BRAND.name });
       case 'too-many-entries':

@@ -132,7 +132,7 @@ async function inflate(packed: Uint8Array, maxBytes: number): Promise<Uint8Array
     return 'unreadable';
   }
   let fed = 0;
-  const source = new ReadableStream<Uint8Array>(
+  const source = new ReadableStream<BufferSource>(
     {
       pull(controller) {
         if (fed >= packed.length) controller.close();

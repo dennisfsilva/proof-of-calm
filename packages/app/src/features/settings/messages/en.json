@@ -190,6 +190,9 @@
       "formats": "Exchange exports {product} reads, as CSV: Kraken (Ledgers).",
       "problem": {
         "zip": "This is a ZIP file. Open it, then choose the CSV file inside.",
+        "zip-no-csv": "This ZIP file holds no CSV file, so it was not read. Choose the ZIP of Kraken's Ledgers export, or the CSV file inside it.",
+        "zip-several-csv": "This ZIP file holds more than one CSV file, so it was not read. Open it, then choose the CSV file of the Ledgers.",
+        "zip-too-large": "The CSV file in this ZIP is larger than {max} MB, so it was not read. Export a shorter period from the exchange, then choose the new file.",
         "kraken-trades": "This is Kraken's Trades export. Export the Ledgers from Kraken instead, then import that file.",
         "missing-columns": "This Kraken ledger is missing the {columns} {count, plural, one {column} other {columns}}, so it was not read. Export the Ledgers again with every field.",
         "no-rows": "This Kraken ledger has no rows, so nothing was imported. Export the Ledgers again for a period with transactions.",
