@@ -37,7 +37,7 @@ const fixtures = tracked.filter((file) => file.endsWith('.csv') && fixtureFolder
 describe('.claude/crew.json roles.copyPaths', () => {
   it('finds the export files and their fixtures among the tracked files', () => {
     expect(exportFiles.length).toBeGreaterThan(0);
-    expect(fixtures.map((file) => posix.dirname(file) + '/')).toEqual(expect.arrayContaining(fixtureFolders));
+    expect(fixtures.map((file) => `${posix.dirname(file)}/`)).toEqual(expect.arrayContaining(fixtureFolders));
   });
 
   it.each(exportFiles)('%s is a copy path', (file) => {
