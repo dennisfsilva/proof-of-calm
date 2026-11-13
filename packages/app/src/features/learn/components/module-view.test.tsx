@@ -146,7 +146,9 @@ describe('ModuleView: the review line', () => {
     ['start-here', '2027-10-31', 'review overdue'],
   ])('%s on %s keeps "%s" on one line', async (slug, date, phrase) => {
     const line = await lineOf(slug === TAXES_MODULE ? taxes : module, at(date));
-    const kept = [...line.querySelectorAll('[class~="whitespace-nowrap"]')].map((element) => plain(element.textContent));
+    const kept = [...line.querySelectorAll('[class~="whitespace-nowrap"]')].map((element) =>
+      plain(element.textContent),
+    );
     expect(kept).toEqual([phrase]);
   });
 
