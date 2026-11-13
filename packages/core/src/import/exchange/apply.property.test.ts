@@ -45,11 +45,19 @@ function twoWays(drawn: World, cut: number) {
 }
 
 /**
- * The two-import properties run 1,500 times with a 60 s timeout each, as plan.property.test.ts's do (CI's runner was
- * at least 5.6 times slower than this machine on them). TIMING is the measurement of this file's worst seed.
+ * The two-import properties run 1,500 times, as plan.property.test.ts's do, with a 90 s timeout each (the core's
+ * default is Vitest's 5 s). Measured on 2026-11-13 under the full core suite with coverage, seeds 1 to 4: 3.0 to
+ * 4.0 s locally per property, the worst 4.0 s (the unticked-then-ticked one, seed 1). CI's runner was at least 5.6
+ * times slower on the plan's properties (#181), so six times the worst, 24 s, stays under a third of 90 s (30 s).
  */
 const TWICE = { numRuns: 1500 };
-const TIMEOUT = 60_000;
+const TIMEOUT = 90_000;
+/**
+ * The write's own properties run 300 times with a 15 s timeout: their worst, same runs, was 0.46 s (the refused
+ * apply, seed 3), and six times it, 2.8 s, stays under a third of 15 s (5 s).
+ */
+const ONCE = { numRuns: 300 };
+const SHORT = 15_000;
 
 describe('applyExchangeImport over planExchangeImport, with importId', () => {
   it(
@@ -167,10 +175,10 @@ describe('applyExchangeImport', () => {
           expect(result.entries.slice(drawn.entries.length)).toEqual(plan.entries);
           expect([result.added, result.replaced]).toEqual([plan.entries.length, replaced.size]);
         }),
-        { numRuns: 300 },
+        ONCE,
       );
     },
-    TIMEOUT,
+    SHORT,
   );
 
   it(
@@ -191,10 +199,10 @@ describe('applyExchangeImport', () => {
           expect(result.entries).toBe(drawn.entries);
           expect(drawn.entries).toEqual(before);
         }),
-        { numRuns: 300 },
+        ONCE,
       );
     },
-    TIMEOUT,
+    SHORT,
   );
 });
 
@@ -221,9 +229,9 @@ describe('sameImport', () => {
           const fewer = [{ ...first, estimates: first.estimates.slice(1) }, ...rest];
           expect(sameImport(plan, { ...plan, replaced: fewer })).toBe(false);
         }),
-        { numRuns: 300 },
+        ONCE,
       );
     },
-    TIMEOUT,
+    SHORT,
   );
 });
