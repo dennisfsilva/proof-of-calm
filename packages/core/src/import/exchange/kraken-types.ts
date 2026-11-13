@@ -27,8 +27,10 @@ const LEGACY = new Map<string, string>([
   ['XLTC', 'LTC'], // K8
   ['XMLN', 'MLN'], // K8
   ['XREP', 'REP'], // K8
-  ['XXDG', 'DOGE'], // K8: XXDG to XDG, then XDG as below
-  ['XDG', 'DOGE'], // K8 names XDG; DOGE is the code the catalogue holds
+  // XXDG to XDG (K8), and XDG to DOGE: Kraken's "Bitcoin Currency Code: XBT vs BTC", updated 2026-11-02,
+  // https://support.kraken.com/articles/360001206766-bitcoin-currency-code-xbt-vs-btc
+  ['XXDG', 'DOGE'],
+  ['XDG', 'DOGE'],
   ['XXLM', 'XLM'], // K8
   ['XXMR', 'XMR'], // K8
   ['XXRP', 'XRP'], // K8
