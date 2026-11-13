@@ -77,7 +77,7 @@ in `.claude/rules/` list them per path.
 | 0053 | One currency per plan: a change of country asks before it relabels | Accepted | `packages/core` (`actions/plan.ts`); `packages/app` features: settings (the country change) |
 | 0054 | A move between venues is one entry of kind `move`; its coin fee is the units sent less the units received | Accepted; "never from `to`" superseded in part by 0055 for the fee | `packages/core` (schema, lots, exports, backup); `packages/app` (storage rows, the Log, the tax-year header); `docs/research` (the move step) |
 | 0055 | A move's fee that nothing outside its destination covers comes from the destination | Accepted | `packages/core` (lots, the cover refusal, the per-lot file); `packages/app` (Portfolio's notice, the Log's refusals, the tax-year header) |
-| 0056 | Exchange CSV import: Kraken's ledger first, then Trade Republic, on synthetic fixtures | Accepted | `packages/core` (the exchange readers, the import plan, the ids); `packages/app` features: settings (the import); `docs/research/csv-import-exchanges.md` |
+| 0056 | Exchange CSV import: Kraken's ledger first, then Trade Republic, on synthetic fixtures | Accepted | `packages/core` (the exchange readers, the import plan, the ids, the write); `packages/app` features: settings (the preview and the import); `docs/research/csv-import-exchanges.md` |
 
 Template:
 
