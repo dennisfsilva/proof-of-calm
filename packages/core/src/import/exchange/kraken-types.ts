@@ -1,5 +1,5 @@
 // The words a Kraken ledger row is sorted by: its type and subtype, and its asset code (docs/DOMAIN.md
-// §3.13, the exchange import). The K keys are the sources of docs/research/csv-import-exchanges.md §7;
+// §3.13, the exchange import). The K keys are the sources ADR-0056 cites;
 // each word and code is trimmed to what the source cited beside it holds.
 
 /** The reason a row is left out of the import (docs/DOMAIN.md §3.13). */
