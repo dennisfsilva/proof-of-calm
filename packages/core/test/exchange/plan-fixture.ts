@@ -47,7 +47,7 @@ import type { CoinId, EntityId } from '../../src/schema/ids';
 import type { Plan } from '../../src/schema/plan';
 import { aMove, anEntry, aPlan, BTC, date, ETH, instant, money, month, split, units } from '../builders';
 
-export const SOL: Coin = { id: 'SOL' as CoinId, name: 'Solana', geckoId: 'solana', decimals: 4 };
+const SOL: Coin = { id: 'SOL' as CoinId, name: 'Solana', geckoId: 'solana', decimals: 4 };
 
 /** A test map from a movement's key to an id, the same for the same key (the write passes `importId`). */
 export function testId(key: string): EntityId {

@@ -9,7 +9,7 @@ import type { CoinId, EntityId } from '../../schema/ids';
 import type { Plan } from '../../schema/plan';
 import type { Movement } from './kraken';
 
-export type Item = {
+type Item = {
   readonly movement: Movement;
   readonly id: EntityId;
   readonly date: CalendarDate;
