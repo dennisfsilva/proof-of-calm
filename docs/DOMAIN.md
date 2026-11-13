@@ -195,9 +195,11 @@ or slot, a save with no change, units retyped equal in value, a JSON import and 
 delete removes the entry and its mark. The cautious error: an estimate that equals the exchange's
 figure stays labelled. Entries edited before 2026-11-07 (#375) kept `one-tap` whatever their units: a row
 whose units were corrected then stays labelled, and its edit form's line still says the tap filled them, until a
-save changes the units; only data from before launch holds such rows. An entry still labelled may carry an edited note, fee or venue; the CSV import
-(planned: M4), which replaces the entries still labelled as estimates (ADR-0039), then replaces their
-units, price and fee and keeps the person's note and venue.
+save changes the units; only data from before launch holds such rows. An entry still labelled may carry an edited note, fee or venue. An exchange's import
+replaces the entries still labelled as estimates (ADR-0039, ADR-0056; §3.13, "Meeting the Log"): "The write
+tombstones the estimate and adds that date's purchases as monthly buys for S, with the estimate's note and the
+import's venue, whatever venue the estimate carried." The one tap copies the last venue, so its venue is a
+default; the write is planned (M2).
 
 `held` is coins the plan did not buy: held before it, or received as a gift. Its cost may be unknown
 (`amount: null`) or nothing (`'0'`), and it carries no fee; only `held` may have either among the kinds
@@ -937,8 +939,56 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   carries its reason (`reward`, `coin-deposit`, `coin-withdrawal`, `cash`, `within`, `conversion`,
   `unpaired`, `unreadable` or `other`), its lines, and for a single row its time, coin and units (|amount −
   fee|), for an unreadable refid the column. "No refusal, left-out row or thrown error holds a cell's text."
-  No raw row, txid, refid or balance is stored. Turning movements into entries, the Log's review and the
-  second exchange's import are planned (M2).
+  No raw row, txid, refid or balance is stored. Writing the plan below, the Log's review and the second
+  exchange's import are planned (M2).
+- Meeting the Log (decided 2026-11-13, ADR-0056): `planExchangeImport(file, stored, choices, context)` turns
+  the reader's movements into the entries an import would add and names everything it leaves out; it writes
+  nothing. The shell passes `today`, `now`, `idOf` (the id of a key, below) and `dateOf`: "The shell dates
+  each instant in the device's zone, `dateOf = (at) => todayIn(epochMs(at), clock.timeZone)`; the core never
+  dates an instant." "A purchase or sale paid in another currency than the plan's is left out, counted per
+  currency, and never converted (ADR-0053)." A receipt at 0 imports whatever the file's currency; when no
+  purchase or sale is in the plan's currency, the plan names the file's currencies. "A coin outside the plan
+  is left out and named with the fix", with its units. A date group is all of a coin's purchases (or sales,
+  or receipts) on one local date. "Each step works on the rows the earlier steps left":
+  1. "An imported row's id is derived from its key (D11): a live id is `imported earlier` and a tombstoned
+     one `deleted on this device`; neither is added." (D11 is ADR-0056's id rule: a hash of the movement's key, which the shell's `idOf` gives, so
+     the same row has the same id on every device and in every later export.)
+  2. "In a plan with a starting amount above 0, the purchases dated within 15 days of `firstBuy` are left
+     out and named, since the file cannot tell the starting amount from the first monthly buy; a one-tap
+     `lump` estimate is never replaced."
+  3. "Each live one-tap monthly estimate of coin C for month S, in month order, takes C's unclaimed purchase
+     date nearest S's due date, the earlier on a tie, dated from 15 days before that due date to 15 days
+     after it, or to the day after the estimate's own date when that is later." "The write tombstones the
+     estimate and adds that date's purchases as monthly buys for S, with the estimate's note and the
+     import's venue, whatever venue the estimate carried." The late reach serves a person who taps late:
+     the one tap is dated the tap day.
+  4. "Hand-recorded entries (source `manual`, `import-prototype` or `import-json`), in `compareEntries`
+     order, claim unclaimed dates: a live monthly buy of C for S claims C's purchase date nearest S's due
+     within 15 days; every other hand-recorded purchase or sale, and a monthly buy that claimed nothing,
+     claims C's nearest date of the same role within 3 days of its own date; each entry claims one date and
+     each date is claimed once. A claimed date is `looks recorded already`: left out and named with both
+     figures and the entry's venue." The 3 days are `IMPORT_TYPED_DAYS` (§9).
+  5. "C's purchases and receipts dated on or before the latest live `held` entry of C, at any venue, are
+     `may be the coins you added`: left out unless the person ticks `Add these purchases too`, one answer
+     for all of them." A `held` entry an exchange import added (a receipt) guards nothing.
+  6. The months: "A purchase date's month is the plan's month whose due date is nearest it, within 15 days
+     (`IMPORT_MATCH_DAYS`), the earlier on a tie; none within 15 days makes it an extra buy." Then "for each
+     plan coin with a share above 0 and each month that was late, due or upcoming before the import, the
+     coin's unclaimed purchase date nearest the due date, among the dates whose month it is, fills the month
+     with all its purchases; the coin's other purchases are extra buys." Done, skipped and paused months
+     take extra buys, and a coin at 0 % takes only extra buys. A sale is a `sell` and a receipt `held` at
+     amount `'0'` with no fee.
+
+  "The import never changes or tombstones a hand-recorded entry, a `held` entry, a move, a skip, a pause, the
+  plan, a tombstone, an entry imported earlier (edited or not) or another exchange's entry; only one-tap
+  monthly estimates are tombstoned. No step reads an amount or a venue to decide." Every entry the plan adds
+  has source `import-csv`, the venue the person chose (or none), `createdAt` the trade's instant and
+  `updatedAt` now. The reader's left-out rows are named by reason with their lines, rewards with their units
+  per coin; transfers within the exchange, cash and other kinds are only counted. A coin withdrawal is named
+  as having a move or not: "A withdrawal has a move in the Log when a live move of its coin, sent from the
+  import's venue, is dated within 1 day of it and sends exactly its units (amount plus fee)", each move
+  answering one withdrawal. The plan counts the entries it adds whose units were cut to 10 decimals and
+  whose fee was in the coin, "valued at the trade's own price", for the preview.
 - Rows from a newer version on this device (ADR-0019 Readings, "Row shape"; decided 2026-10-30): while any
   such row exists, a tombstone included (`newer.plans + newer.entries + newerTombstones > 0`), both imports,
   a backup in either mode and a DCA plan page file (§7), are refused, and Settings' action checks this
@@ -1255,7 +1305,7 @@ doubles as the golden-test fixture source.
 | `settings.expect { bear, base, bull }` | `expectations` |
 | `settings.taxNote` | dropped (free text; the import report mentions it) |
 | `settings.strategy` | `templateId: 'cycle-plan'` when the prototype's `isRecommended` test holds, else `null` |
-| `purchases[] { id, kind, date, coin, eur, units, fee, note, slot }` | `entries[]` with `amount = eur` (the prototype's field is named `eur` whatever the currency), money to 2 dp, units to 10 dp (half-even, from the number as written), `fee: null` when null/empty (or negative, or unreadable), `source: 'import-prototype'`; ids are kept when they match `^p[a-z0-9]+$` (the first of duplicates), otherwise taken from fresh ids the shell passes; an entry without a coin, a finite amount and units above zero after rounding, or a date is dropped; only the prototype's own kinds map (`dca`, `lump`, `extra`, `sell`): any other, `held` included, becomes `extra` with its fee, since coins added (`held`, §2.2) come only from this app's form, its backups and the CSV import (planned: M2); a `dca` entry without its month becomes `extra`; a note is cut at 500 characters |
+| `purchases[] { id, kind, date, coin, eur, units, fee, note, slot }` | `entries[]` with `amount = eur` (the prototype's field is named `eur` whatever the currency), money to 2 dp, units to 10 dp (half-even, from the number as written), `fee: null` when null/empty (or negative, or unreadable), `source: 'import-prototype'`; ids are kept when they match `^p[a-z0-9]+$` (the first of duplicates), otherwise taken from fresh ids the shell passes; an entry without a coin, a finite amount and units above zero after rounding, or a date is dropped; only the prototype's own kinds map (`dca`, `lump`, `extra`, `sell`): any other, `held` included, becomes `extra` with its fee, since coins added (`held`, §2.2) come only from this app's form, its backups and an exchange's import (§3.13); a `dca` entry without its month becomes `extra`; a note is cut at 500 characters |
 | `checks { sell1, sell2, sell3 }` | `sellChecks { part1, part2, part3 }` |
 | `meta.theme`, `meta.range`, `meta.lastBackupAt` | device preferences (`range` 7, 30, 90, 365 to `7d` … `1y`; `lastBackupAt` from milliseconds to a UTC instant) |
 | older shapes handled by the prototype's `normalize()` (`lumpSteps`, `dcaSplit`, missing `firstBuy`) | port the same tolerance: `initial = Σ lumpSteps.eur`; `split = dcaSplit`; `firstBuy = earliest purchase date` |
@@ -1342,6 +1392,8 @@ recorded cost and a one-tap purchase; `gb-2026-27.csv` is its raw listing, compa
 | `VENUE_MAX_LENGTH` | 40 characters | an entry's venue and a move's `to`: the entry schema, `saveTransaction`, `saveMove` and the entry form's field |
 | `MAX_ENTRIES` | 10,000 live entries | a plan's entries: the backup schema and `applyImport` (§3.13), `saveTransaction`, `saveMove`, `restoreEntries` and the one tap (§6) |
 | `IMPORT_MAX_BYTES` | 50,000,000 bytes (50 MB) | the import file Settings reads: above the 36.8 MB a full plan's backup weighs at the most (every note at 500 characters, each escaped to six bytes), about 4 MB without notes |
+| `IMPORT_MATCH_DAYS` | 15 days | an exchange import's months: a purchase's month, an estimate's reach and a typed monthly buy's claim (§3.13) |
+| `IMPORT_TYPED_DAYS` | 3 days | an exchange import's hand-recorded entries: the reach of a claim from the entry's own date (§3.13) |
 | `LOG_PAGE` | 12 | Log "show all" threshold |
 | `UNDO_WINDOW_MS` | 8000 | every toast but the update prompt, which has none: the Undos (a delete, a skip, End buying, Delete everything), the one tap's Edit, and the save and failure toasts |
 | `TOMBSTONE_TTL_DAYS` | 90 | sync purge |
