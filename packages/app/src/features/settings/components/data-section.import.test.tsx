@@ -715,17 +715,17 @@ describe('DataSection, the alerts of an exchange’s file (docs/DOMAIN.md §3.13
     await waitFor(() => expect(result.textContent).toBe('Entries added: 5.'));
     await waitFor(() => expect(document.activeElement).toBe(result));
     expect(screen.queryByRole('heading', { name: 'What this file adds' })).toBeNull();
-    expect(liveEntries(planStore.current().entries).filter((e) => e.source === 'import-csv')).toHaveLength(5);
+    expect(liveEntries((await planStore.load()).entries).filter((e) => e.source === 'import-csv')).toHaveLength(5);
   });
 
   it('Cancel closes the preview, writes nothing and gives the focus back to Choose a file', async () => {
     const planStore = memoryPlanStore(fixtureSnapshot());
     await mount(fixtureSnapshot(), planStore);
-    const before = planStore.current();
+    const before = await planStore.load();
     await pick(KRAKEN_OCTOBER);
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(screen.queryByRole('heading', { name: 'What this file adds' })).toBeNull();
     expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Choose a file' }));
-    expect(planStore.current()).toStrictEqual(before);
+    expect(await planStore.load()).toStrictEqual(before);
   });
 });

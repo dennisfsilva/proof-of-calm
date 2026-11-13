@@ -108,14 +108,14 @@ describe('ExchangeImport', () => {
     fireEvent.change(screen.getByLabelText('Venue for these entries'), { target: { value: ' My Kraken ' } });
     await press('Import 5 entries');
     expect(onDone).toHaveBeenCalledWith({ kind: 'imported', added: 5, replaced: 1, imported: 0, deleted: 0 });
-    const added = planStore.current().entries.filter((entry) => entry.source === 'import-csv');
+    const added = (await planStore.load()).entries.filter((entry) => entry.source === 'import-csv');
     expect(new Set(added.map((entry) => entry.venue))).toEqual(new Set(['My Kraken']));
   });
 
   it('with nothing to add, says so and offers no import', async () => {
     const first = await mount();
     await press('Import 5 entries');
-    const imported = first.planStore.current().entries.filter((entry) => entry.source === 'import-csv');
+    const imported = (await first.planStore.load()).entries.filter((entry) => entry.source === 'import-csv');
     cleanup();
     await mount(imported);
     expect(texts()).toEqual(expect.arrayContaining(['Nothing to add from this file.', 'Imported earlier, not added: 5.']));
@@ -157,16 +157,16 @@ describe('ExchangeImport', () => {
     const { onDone } = await mount();
     fireEvent.change(screen.getByLabelText('Venue for these entries'), { target: { value: 'x'.repeat(41) } });
     await press('Import 5 entries');
-    expect(texts()).toContain('Use at most 40 characters in the venue.');
+    expect(screen.getByText('Use at most 40 characters in the venue.')).toBeDefined();
     expect(onDone).not.toHaveBeenCalled();
   });
 
   it('Cancel ends the import with nothing written', async () => {
     const { planStore, onDone } = await mount();
-    const before = planStore.current();
+    const before = await planStore.load();
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(onDone).toHaveBeenCalledWith(null);
-    expect(planStore.current()).toStrictEqual(before);
+    expect(await planStore.load()).toStrictEqual(before);
   });
 });
 

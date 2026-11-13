@@ -131,7 +131,7 @@
       "currencyMismatchPasted": "The purchases in the pasted text are in {file}, and this plan's are in {plan}, so nothing was added. Amounts are never converted. If you want the pasted plan and its currency in place of this one, paste the text again, then Replace everything.",
       "tooManyEntries": "Adding these entries would leave {entries} entries in this plan, more than the {max} a plan holds, so nothing was added. Delete entries in the Log, then import again. To keep only the file's entries, import again with Replace everything.",
       "tooManyInFile": "This export from the DCA plan page holds {file} purchases, more than the {max} entries a plan holds, so nothing was imported. Delete purchases there, export again, then import the new file.",
-      "tooLarge": "This file is larger than {max}\u00a0MB, so it was not read. No backup from {product} is this large; for an exchange's export, choose a shorter period.",
+      "tooLarge": "This file is larger than {max}\u00a0MB, so it was not read. For an exchange's export, export a shorter period there, then import that file.",
       "newerRows": "A newer version of {product} saved or deleted entries on this device, so nothing was imported. Reload the page, then import again.",
       "invalidEntries": "{count, plural, one {{figure} entry} other {{figure} entries}} in this import cannot be stored, so nothing was imported. Export a new backup from {product} on the device that made it, then import the new file.",
       "invalidEntriesPasted": "{count, plural, one {{figure} entry} other {{figure} entries}} in the pasted text cannot be stored, so nothing was imported. Export a new backup from {product} on the device that made it, then paste the new text."
@@ -191,10 +191,27 @@
       "problem": {
         "zip": "This is a ZIP file. Open it, then choose the CSV file inside.",
         "kraken-trades": "This is Kraken's Trades export. Export the Ledgers from Kraken instead, then import that file.",
-        "missing-columns": "This Kraken ledger has no {columns} {count, plural, one {column} other {columns}}, so it was not read. Export the Ledgers again with every field.",
+        "missing-columns": "This Kraken ledger is missing the {columns} {count, plural, one {column} other {columns}}, so it was not read. Export the Ledgers again with every field.",
         "no-rows": "This Kraken ledger has no rows, so nothing was imported. Export the Ledgers again for a period with transactions.",
-        "needs-plan": "This is a Kraken ledger. The import needs a plan's coins, currency, and months: set up a plan, then import it again."
-      }
+        "needs-plan": "This Kraken ledger needs a plan for its coins, currency, and months. Set up a plan, then choose the file again.",
+        "changed": "The plan or the Log changed after this preview was made, so nothing was imported. The preview now shows what the file adds: check it, then import.",
+        "no-plan": "This device has no plan now, so nothing was imported. Set up a plan, then choose the file again.",
+        "too-many-entries": "Importing this file would leave {entries} entries in this plan, more than the {max} a plan holds, so nothing was imported. Delete entries in the Log, then choose the file again.",
+        "invalid-entries": "{count, plural, one {{figure} entry} other {{figure} entries}} from this file cannot be stored, so nothing was imported."
+      },
+      "heading": "What this file adds",
+      "file": "{pasted, select, yes {Pasted text} other {{name}}}: a Kraken ledger of {count, plural, one {{figure} row} other {{figure} rows}}{dated, select, yes {, from {first} to {last}} other {}}.",
+      "zone": "Each date is the day in this device's time zone, {zone}.",
+      "venue": "Venue for these entries",
+      "held": "Your Log has {heldUnits} as a Coins added entry{hasVenue, select, yes { at {venue}} other {}}, dated {heldDate}. {count, plural, one {{figure} {coin} transaction in this file, {units}, is dated on or before it and may be those coins} other {{figure} {coin} transactions in this file, {units} in all, are dated on or before it and may be those coins}}.",
+      "heldAnswer": "They are not added unless you choose so.",
+      "heldReplaces": "Added, they also replace {count, plural, one {{figure} estimate} other {{figure} estimates}} from Bought as planned.",
+      "addHeld": "Add these purchases too",
+      "addHeldHint": "If you add them and they are the same coins, delete the Coins added entry in the Log after the import.",
+      "import": "Import {count, plural, one {{figure} entry} other {{figure} entries}}",
+      "cancel": "Cancel",
+      "result": "Entries added: {added}.",
+      "resultReplaced": "Estimates replaced: {replaced}."
     },
     "paste": {
       "label": "Paste a backup or an export from the DCA plan page",
