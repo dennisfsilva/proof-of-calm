@@ -1,6 +1,7 @@
 import { truncate, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { expect, type Page } from '@playwright/test';
+import { DATABASE_NAME } from '@proofofcalm/app/lib/adapters';
 import { fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
 import { type CalendarDate, IMPORT_MAX_BYTES, type Instant, type Plan } from '@proofofcalm/core';
 import { seedPlan } from './seed';
@@ -105,6 +106,57 @@ test('a Kraken ledger previews, imports at Kraken, and adds nothing the second t
   const sheet = page.getByRole('dialog');
   await expect(sheet.getByRole('textbox', { name: /^Venue/u })).toHaveValue('Kraken');
   expect(await page.evaluate(cspViolations)).toEqual([]);
+});
+
+test('a month recorded in another tab after the preview showed refuses Import and shows the new preview', async ({
+  page,
+  context,
+}, testInfo) => {
+  // biome-ignore lint/suspicious/noSkippedTests: a runtime skip on every project but desktop, not a disabled test
+  test.skip(testInfo.project.name !== 'desktop', 'the race does not depend on the viewport');
+  await openData(page);
+  await fileInput(page).setInputFiles(LEDGER);
+  await expect(page.getByRole('heading', { name: 'What this file adds' })).toBeFocused();
+  await page.getByRole('textbox', { name: 'Venue for these entries' }).fill('Kraken Pro');
+  await expect(preview(page)).not.toContainText('Replaces');
+  // This tab hears the other tab's write on the cross-tab channel, as its snapshot does.
+  const heard = page.evaluate(
+    (name) =>
+      new Promise<void>((resolve) => {
+        const channel = new BroadcastChannel(name);
+        channel.onmessage = () => resolve();
+      }),
+    DATABASE_NAME,
+  );
+
+  const other = await context.newPage();
+  await other.clock.setFixedTime(new Date(NOW));
+  await routeFixturePrices(other, NOW);
+  await other.goto('/today');
+  await expect(other.locator('main#main')).not.toHaveAttribute('aria-busy', 'true');
+  await other.getByRole('button', { name: 'Bought as planned' }).click();
+  await expect(other.getByRole('status').filter({ hasText: /^Recorded: /u })).toBeVisible();
+  await other.close();
+  await heard;
+  // The snapshot reloads after the message: the preview shown stays the one the person reviewed.
+  await page.evaluate(() => new Promise((resolve) => setTimeout(resolve, 500)));
+  await expect(preview(page)).not.toContainText('Replaces');
+
+  await preview(page).getByRole('button', { name: 'Import 7 entries' }).click();
+  const alert = page.getByRole('alert');
+  await expect(alert).toHaveText(
+    "The plan, the Log, or today's date changed after this preview was made, so nothing was imported. The preview " +
+      'now shows what the file adds: check it, then import.',
+  );
+  await expect(alert).toBeFocused();
+  await expect(preview(page)).toContainText(/Replaces \d+ estimates? from Bought as planned\./u);
+  await expect(page.getByRole('textbox', { name: 'Venue for these entries' })).toHaveValue('Kraken Pro');
+  await expect(page.getByRole('status').filter({ hasText: 'Entries added' })).toHaveCount(0);
+
+  // The Log holds the month recorded in the other tab and nothing from the file.
+  await page.goto('/log');
+  await expect(page.locator('main#main')).not.toHaveAttribute('aria-busy', 'true');
+  await expect(page.getByRole('row').getByRole('button', { name: /Dec 2025/u })).toHaveCount(0);
 });
 
 test.describe('a file the exchange import does not take', () => {
