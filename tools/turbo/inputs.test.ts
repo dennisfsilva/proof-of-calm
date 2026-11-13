@@ -10,7 +10,7 @@ import { createRequire } from 'node:module';
 import { join, posix, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { isScanned, trackedFiles } from '../lint/copy-paths-scan.ts';
+import { copyPathScan, isScanned, trackedFiles } from '../lint/copy-paths-scan.ts';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const turbo = fileURLToPath(new URL('../../node_modules/turbo/bin/turbo', import.meta.url));
@@ -106,22 +106,50 @@ describe('turbo inputs', () => {
     expect(hashedFiles('@proofofcalm/tools', 'test')).toEqual(expect.arrayContaining(read));
   }, 60_000);
 
-  // lint/copy-paths.test.ts checks every file of these folders whatever its name, so a file added there
-  // later must change the hash too: the dry run above lists only the files that exist today. The probes are
-  // matched against the declared globs rather than created on disk, where another package's tests could
-  // read them mid-run.
-  it.each([
-    'packages/app/src/features/settings/fixtures/es-2026.csv',
-    'packages/core/src/export/columns.json',
-    'packages/core/test/tax-year/es-2026.csv',
-  ])('hash %s, a file of a folder lint/copy-paths.test.ts reads, whatever its name', (probe) => {
+  // lint/copy-paths.test.ts reads every tracked file that lint/copy-paths-scan.ts names, so a file added
+  // there later, in a folder that does not exist today, must change the hash too: the dry run above lists
+  // only the files that exist now. The probes come from the scan's own constant and are matched against
+  // the declared globs rather than created on disk, where another package's tests could read them mid-run.
+  // A scan widened without the inputs reads a probe that no glob hashes. The outside probes lie in folders
+  // no input hashes by name, `apps/` among them (docs/BUILD-PROMPT.md, 2026-11-13); tools/ is left out,
+  // since `$TURBO_DEFAULT$` hashes the tools package's own files whatever their name.
+  const declaredGlobs = () => {
     const config = JSON.parse(readFileSync(join(root, 'tools/turbo.json'), 'utf8')) as {
       tasks: { test: { inputs: string[] } };
     };
-    const globs = config.tasks.test.inputs
+    return config.tasks.test.inputs
       .filter((input) => input.startsWith('$TURBO_ROOT$/'))
       .map((input) => input.slice('$TURBO_ROOT$/'.length));
-    expect(globs.some((glob) => posix.matchesGlob(probe, glob))).toBe(true);
+  };
+  const insideProbes = [
+    ...copyPathScan.roots.flatMap((scanRoot) =>
+      copyPathScan.names.flatMap((name) => [
+        `${scanRoot}${name}.md`,
+        `${scanRoot}probe-new/${name}`,
+        `${scanRoot}probe-new/deep/er/${name}.spec.ts`,
+        `${scanRoot}probe-new/es-${name}-2027.csv`,
+        `${scanRoot}probe-new/x-${name}-y/data.json`,
+      ]),
+    ),
+    ...copyPathScan.folders.flatMap((folder) => [`${folder}columns.json`, `${folder}probe-new/es-2027.bin`]),
+  ];
+  const outsideProbes = [
+    'apps/mobile/e2e/tax-year.spec.ts',
+    'apps/web/e2e/tax-year.spec.ts',
+    'apps/probe-new/tax-year.ts',
+    'docs/tax-year.md',
+    '.github/workflows/tax-year.yml',
+    'tax-year.md',
+  ];
+
+  it.each(insideProbes)('hash %s, a path lint/copy-paths.test.ts reads', (probe) => {
+    expect(isScanned(probe), `${probe} is not a path the scan reads`).toBe(true);
+    expect(declaredGlobs().some((glob) => posix.matchesGlob(probe, glob))).toBe(true);
+  });
+
+  it.each(outsideProbes)('leave %s, outside every hashed folder, out of lint/copy-paths.test.ts', (probe) => {
+    expect(declaredGlobs().some((glob) => posix.matchesGlob(probe, glob))).toBe(false);
+    expect(isScanned(probe)).toBe(false);
   });
 
   it('hash every UI message file that content validation reads', () => {
