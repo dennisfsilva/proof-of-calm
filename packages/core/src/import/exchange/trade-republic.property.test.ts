@@ -7,8 +7,8 @@ import { readTradeRepublic, TR_COLUMNS } from './trade-republic';
 // minute, so no cancellation pairs by line; migrations share two instants, so they group; some ids repeat a whole
 // row, which is read once.
 
-// The worst of several seeds under the whole core suite with coverage on is in the branch's checks; RUNS keeps six
-// times it under a third of Vitest's 5 s timeout, the core's default.
+// The worst of three seeds under the whole core suite with coverage on was 79 ms (2026-11-13); six times it, 474 ms,
+// stays under a third of Vitest's 5 s timeout, the core's default.
 const RUNS = { numRuns: 100 };
 
 const ROWS: Record<string, readonly [string, string, string, '+' | '-' | '', '+' | '-' | '']> = {
