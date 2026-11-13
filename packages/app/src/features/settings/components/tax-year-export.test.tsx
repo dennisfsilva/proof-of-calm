@@ -629,6 +629,18 @@ describe('TaxYearExport', () => {
     );
   });
 
+  // core's cession takes sale_price from the sale's amount as stored: a sale logged before the before-fees labels
+  // (ADR-0056) may hold the amount after its fee, one logged since holds it before.
+  it('the French sale_price line says the amount is as logged, whether or not a fee was deducted', async () => {
+    const platform = await mount(withPlan({ country: 'FR' as Plan['country'] }));
+    const { content } = await exportYear(platform, '2026 (still running)');
+    const cells = headerOf(content).split('\n');
+    const costs = cells.findIndex((cell) => cell.includes('purchase_costs_to_date sums'));
+    expect(cells[costs + 1]).toBe(
+      textCell("sale_price is each sale's amount as you logged it, whether or not a fee was deducted from it."),
+    );
+  });
+
   it('the Dutch file of an ended year names the year-end column and leaves every held value empty', async () => {
     const platform = await mount(withPlan({ country: 'NL' as Plan['country'] }, yearEarlier));
     const { content } = await exportYear(platform, '2025');
