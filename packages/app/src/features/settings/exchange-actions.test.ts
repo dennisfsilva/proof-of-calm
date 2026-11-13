@@ -6,6 +6,7 @@ import {
   type Instant,
   planExchangeImport,
   readExchangeFile,
+  sameImport,
 } from '@proofofcalm/core';
 import { afterEach, describe, expect, it } from 'vitest';
 import { memoryPlanStore } from '../../lib/adapters/memory-store';
@@ -56,8 +57,10 @@ describe('exchangeImportActions.importFile', () => {
     expect(await importFile()).toEqual({ kind: 'imported', added: 5, replaced: 1, imported: 0, deleted: 0 });
     const stored = planStore.current().entries;
     const tombstone = stored.find((entry) => entry.id === ONE_TAP_OCTOBER.id);
-    expect(tombstone).toMatchObject({ ...ONE_TAP_OCTOBER, deletedAt: expect.any(String) });
+    const { updatedAt: _, ...fields } = ONE_TAP_OCTOBER;
+    expect(tombstone).toMatchObject({ ...fields, deletedAt: expect.any(String) });
     expect(tombstone?.updatedAt).toBe(tombstone?.deletedAt);
+    expect((tombstone?.updatedAt ?? '') > ONE_TAP_OCTOBER.updatedAt).toBe(true);
     const ids = new Set(stored.map((entry) => entry.id));
     expect(shown.entries.every((entry) => ids.has(entry.id))).toBe(true);
   });
@@ -68,16 +71,22 @@ describe('exchangeImportActions.importFile', () => {
     const before = planStore.current();
     const again = planOn(before);
     expect(await importFile(again)).toEqual({ kind: 'imported', added: 0, replaced: 0, imported: 5, deleted: 0 });
-    expect(planStore.current()).toBe(before);
+    expect(planStore.current()).toStrictEqual(before);
   });
 
   describe('after another tab changed the Log since the preview', () => {
-    /** Refuses `changed` with the plan the stored entries give now, and writes nothing. */
+    /**
+     * Refuses `changed` with the plan the stored entries give now (stamped at the write's instant, so compared with
+     * `sameImport`, which ignores only `updatedAt`), and writes nothing.
+     */
     async function refusesChanged(tab: Awaited<ReturnType<typeof opened>>) {
       const before = tab.planStore.current();
       const outcome = await tab.importFile();
-      expect(outcome).toEqual({ kind: 'refused', refusal: { code: 'changed', plan: tab.planOn(before) } });
-      expect(tab.planStore.current()).toBe(before);
+      if (outcome.kind !== 'refused' || outcome.refusal.code !== 'changed')
+        throw new Error(`not refused: ${JSON.stringify(outcome)}`);
+      expect(sameImport(outcome.refusal.plan, tab.planOn(before))).toBe(true);
+      expect(sameImport(outcome.refusal.plan, tab.shown)).toBe(false);
+      expect(tab.planStore.current()).toStrictEqual(before);
     }
 
     it('refuses `changed` after a one tap of a month the plan fills', async () => {
@@ -107,7 +116,7 @@ describe('exchangeImportActions.importFile', () => {
     const { planStore, importFile } = await opened([], { newerTombstones: 1 });
     const before = planStore.current();
     expect(await importFile()).toEqual({ kind: 'refused', refusal: { code: 'newer-rows' } });
-    expect(planStore.current()).toBe(before);
+    expect(planStore.current()).toStrictEqual(before);
   });
 
   it('refuses `no-plan` when another tab deleted the plan, and writes nothing', async () => {
@@ -115,6 +124,6 @@ describe('exchangeImportActions.importFile', () => {
     await planStore.write({ plan: null });
     const before = planStore.current();
     expect(await importFile()).toEqual({ kind: 'refused', refusal: { code: 'no-plan' } });
-    expect(planStore.current()).toBe(before);
+    expect(planStore.current()).toStrictEqual(before);
   });
 });
