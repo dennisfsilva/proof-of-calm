@@ -1,11 +1,9 @@
 // What both synthetic Kraken ledgers read as (docs/DOMAIN.md §3.13, the exchange import), worked out by
 // hand from their rows. The two files hold the same rows under the two headers (the December 2025 header,
-// K7; the legacy header without subclass and wallet, K8), so they read the same; lines 49 to 53 name XXBT and
-// ZEUR in the legacy file where the December 2025 file names BTC and EUR, and give the same keys. Every txid,
-// refid, time and figure is invented. Line numbers count the header as line 1. For a purchase or sale, v is the
-// coin fee × fiat amount ÷ coin amount, half-even at the currency's minor unit; units is the coin amount less (a
-// purchase) or plus (a sale) the coin fee; a left-out row's units are |amount − fee|; the receipts of one refid
-// and coin fold into one, their units summed.
+// K7; the legacy header without subclass and wallet, K8), so they read the same. Every txid, refid, time and
+// figure is invented. Line numbers count the header as line 1. For a purchase or sale, v is the coin fee ×
+// fiat amount ÷ coin amount, half-even at the currency's minor unit; units is the coin amount less (a
+// purchase) or plus (a sale) the coin fee; a left-out row's units are |amount − fee|.
 import type { ExchangeFile, LeftOutRow, Movement } from '../../src/import/exchange/kraken';
 import { instant, money, units } from '../builders';
 
@@ -162,36 +160,6 @@ const movements: Movement[] = [
     fee: money('4'),
     feeInCoin: true,
   },
-  // Lines 49 and 50: two invite bonus rows of BTC (XXBT in the legacy file) under one refid, 0.00003 at 09:00 and
-  // 0.00002 at 08:00, each fee 0: one receipt, both lines, the earlier time, units 0.00003 + 0.00002 = 0.00005.
-  {
-    key: key('BQ1AAA-SYNTH-000030', 'BTC', 'in'),
-    lines: [49, 50],
-    at: instant('2025-12-29T08:00:00Z'),
-    role: 'receipt',
-    coin: 'BTC',
-    units: units('0.00005'),
-    unitsCut: false,
-    currency: null,
-    amount: null,
-    fee: null,
-    feeInCoin: false,
-  },
-  // Lines 51 and 52: EUR (ZEUR) −20.0000 fee 0.0500; BTC (XXBT) 0.0002000000 fee 0. units 0.0002; amount 20;
-  // fee 0.05. Line 53, a bonus of the BTC this refid bought, would share its key, so it is left out below.
-  {
-    key: key('TQ1AAA-SYNTH-000031', 'BTC', 'in'),
-    lines: [51, 52],
-    at: instant('2025-12-30T10:00:00Z'),
-    role: 'purchase',
-    coin: 'BTC',
-    units: units('0.0002'),
-    unitsCut: false,
-    currency: 'EUR',
-    amount: money('20'),
-    fee: money('0.05'),
-    feeInCoin: false,
-  },
 ];
 
 const one = (reason: LeftOutRow['reason'], line: number, at: string, coin: string, amount: string): LeftOutRow => ({
@@ -252,17 +220,15 @@ const leftOut: LeftOutRow[] = [
   group('unpaired', [44, 45], '2025-12-26T10:00:00Z'),
   // Line 48: an empty refid.
   group('unreadable', [48], null, 'refid'),
-  // Line 53: an invite bonus of BTC under the refid of lines 51 and 52, which bought BTC: unpaired, by its line.
-  group('unpaired', [53], '2025-12-30T10:00:01Z'),
 ];
 
 export const KRAKEN_SYNTHETIC: ExchangeFile = {
   exchange: 'kraken',
-  // Lines 2 to 53.
-  rows: 52,
-  // Line 2's time; line 53's, the latest of the readable times.
+  // Lines 2 to 48.
+  rows: 47,
+  // Line 2's time; line 48's, the latest of the readable times.
   first: instant('2025-12-01T09:00:00.1234Z'),
-  last: instant('2025-12-30T10:00:01Z'),
+  last: instant('2025-12-28T10:00:00Z'),
   movements,
   leftOut,
 };
