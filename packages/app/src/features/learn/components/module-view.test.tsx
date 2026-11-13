@@ -139,6 +139,17 @@ describe('ModuleView: the review line', () => {
     expect(ink).toEqual(text.endsWith('review overdue') ? ['review overdue'] : []);
   });
 
+  // Each phrase after the `·` keeps to one line, so a narrow column breaks the line only between its parts.
+  it.each([
+    [TAXES_MODULE, '2027-01-01', 'Next review due 1 Jan 2027'],
+    [TAXES_MODULE, '2027-01-02', 'review overdue'],
+    ['start-here', '2027-10-31', 'review overdue'],
+  ])('%s on %s keeps "%s" on one line', async (slug, date, phrase) => {
+    const line = await lineOf(slug === TAXES_MODULE ? taxes : module, at(date));
+    const kept = [...line.querySelectorAll('[class~="whitespace-nowrap"]')].map((element) => plain(element.textContent));
+    expect(kept).toEqual([phrase]);
+  });
+
   it('the tax module overdue adds the sentence on its own line, at the line size, in ink', async () => {
     const line = await lineOf(taxes, at('2027-01-02'));
     const sentence = line.nextElementSibling as HTMLElement;

@@ -7,6 +7,7 @@ import {
 } from '@proofofcalm/core';
 import { describe, expect, it } from 'vitest';
 import allowList from '../sources.allow.json' with { type: 'json' };
+import { numberUnitHyphens } from './hyphen-validate.ts';
 import { CountryProfileSchema } from './schema/jurisdiction.ts';
 import { TemplateSchema } from './schema/template.ts';
 import { type ContentFile, percentJoiner, validateContent } from './validate.ts';
@@ -1076,5 +1077,80 @@ describe('validateContent: messages and other files', () => {
 
   it('refuses a file it does not know', () => {
     expect(codes([file('packages/content/notes.json', {})])).toEqual(['unknown-file: not a content or message file']);
+  });
+});
+
+// A numeral and its unit never break apart on a screen; text only a downloaded file carries keeps U+002D
+// (docs/CONTENT-STYLE.md §4).
+describe('validateContent: the no-break hyphen between a number and its unit (docs/CONTENT-STYLE.md §4)', () => {
+  const hyphen = (field: string, match: string) =>
+    `number-unit-hyphen: ${field}: "${match}"; write U+2011 between the number and its unit (90‑day)`;
+  const FACTS = file('packages/content/facts/drawdowns.json', [fact({ key: 'a.btc-drawdowns' })]);
+  const front = {
+    slug: 'noise',
+    title: 'Noise',
+    idea: 'A number on a screen is not news about your plan.',
+    caveat: 'A calm plan can still lose money.',
+    chart: 'none',
+    facts: 'a.btc-drawdowns',
+    lastReviewed: '2026-10-16',
+    nextReviewDue: '2027-10-16',
+    reviewedBy: 'owner',
+  };
+  const learn = (fields: Record<string, string>, body: string) => {
+    const lines = Object.entries({ ...front, ...fields }).map(([key, value]) => `${key}: ${value}`);
+    const source = ['---', ...lines, '---', '', body, ''].join('\n');
+    return validateContent([FACTS], { ...options, modules: [{ path: 'packages/content/learn/noise.mdx', source }] })
+      .map((problem) => `${problem.code}: ${problem.detail}`);
+  };
+  const messages = (path: string, json: unknown) => codes([file(path, json)]);
+  const TODAY = 'packages/app/src/features/today/messages/en.json';
+  const SETTINGS = 'packages/app/src/features/settings/messages/en.json';
+  const pt = 'packages/content/jurisdictions/pt.json';
+
+  it('finds each numeral joined to a unit by an ordinary hyphen, the whole numeral, and nothing else', () => {
+    const text = 'A 90-day high, 2-weeks, 365‑day, 30-daylong, 24-D/2022, 2026-11-12, 2026-27 and 12-month.';
+    expect(numberUnitHyphens(text)).toEqual(['90-day', '2-weeks', '12-month']);
+  });
+
+  it('refuses one in a module body and in its title, idea and caveat', () => {
+    expect(learn({}, 'A close 30 % below the 90-day high.')).toEqual([hyphen('body', '90-day')]);
+    expect(learn({ idea: 'A 90-day high is a number.' }, 'Text.')).toEqual([hyphen('idea', '90-day')]);
+    expect(learn({ title: 'The 30-day rule', caveat: 'A 2-year view.' }, 'Text.')).toEqual([
+      hyphen('title', '30-day'),
+      hyphen('caveat', '2-year'),
+    ]);
+    expect(learn({}, 'A close 30 % below the 90‑day high.')).toEqual([]);
+  });
+
+  it('refuses one in any message, a site message and a settings message outside the tax-year file too', () => {
+    expect(messages(TODAY, { redDay: { high: 'Below its 90-day high.' } })).toEqual([
+      hyphen('redDay.high', '90-day'),
+    ]);
+    expect(messages('apps/web/messages/en.json', { home: { lead: 'A 30-day view.' } })).toEqual([
+      hyphen('home.lead', '30-day'),
+    ]);
+    expect(messages(SETTINGS, { data: { taxYear: { title: 'A 90-day window.' } } })).toEqual([
+      hyphen('data.taxYear.title', '90-day'),
+    ]);
+    expect(messages(TODAY, { redDay: { high: 'Below its 90‑day high.' } })).toEqual([]);
+  });
+
+  it('keeps U+002D in the tax-year file’s lines, which only the settings file holds', () => {
+    const pooled = { data: { taxYear: { file: { pooledListed: 'Its purchases are listed for the 30-day rule.' } } } };
+    expect(messages(SETTINGS, pooled)).toEqual([]);
+    expect(messages(TODAY, pooled)).toEqual([hyphen('data.taxYear.file.pooledListed', '30-day')]);
+  });
+
+  it('passes a reference number, an ISO date and a tax year', () => {
+    expect(messages(TODAY, { a: 'Under 24-D/2022.', b: 'From 2026-11-12.', c: 'The 2026-27 tax year.' })).toEqual([]);
+  });
+
+  it('refuses one in a profile text the app shows, and keeps U+002D in lotRuleNote, which only the file copies', () => {
+    const card = { ...profile().card, caveats: ['The 90-day rule around any sale.'] };
+    expect(codes([file(pt, profile({ card }))])).toEqual([hyphen('card.caveats.0', '90-day')]);
+    expect(codes([file(pt, profile({ lotRuleNote: 'After the 30-day rule.' }))])).toEqual([]);
+    const status = { ...profile().status, changeNotice: 'The 365-day rule is unchanged.' };
+    expect(codes([file(pt, profile({ status }))])).toEqual([hyphen('status.changeNotice', '365-day')]);
   });
 });
