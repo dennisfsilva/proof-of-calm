@@ -114,17 +114,20 @@ describe('readKrakenLedger (property)', () => {
   });
 
   it(
-    'a whole file names exactly the receipts an import of its earlier rows stored whose units grew',
+    'a whole file names exactly the receipts an import of a window of its rows stored whose units grew; the named edit leaves one import’s Log',
     () => {
       fc.assert(
-        fc.property(bonuses, fc.nat(), (rows, cut) => {
+        fc.property(bonuses, fc.nat(), fc.nat(), (rows, start, cut) => {
+          // A prefix, a suffix or a middle window of the file's times: [from, to).
           const times = [...new Set(rows.map((each) => each.time))].sort();
-          const at = times[cut % (times.length + 1)] ?? '~';
-          const log = planned(read(rows.filter((each) => each.time < at)), []).entries;
+          const from = times[start % (times.length + 1)] ?? '~';
+          const to = times[cut % (times.length + 1)] ?? '~';
+          const inside = (each: Cells) => from <= each.time && each.time < to;
+          const log = planned(read(rows.filter(inside)), []).entries;
           const then = planned(read(rows), log);
           const keyOf = (each: Cells) => `poc-csv-1|kraken|${each.refid}|${each.asset}|in`;
           const split = (each: Cells) =>
-            rows.some((other) => keyOf(other) === keyOf(each) && other.time < at !== each.time < at);
+            rows.some((other) => keyOf(other) === keyOf(each) && inside(other) !== inside(each));
           const grew = new Set(rows.filter(split).map((each) => testId(keyOf(each))));
           const named = then.short.map(({ entry }) => entry.id).sort();
           expect(named).toEqual(
@@ -134,6 +137,14 @@ describe('readKrakenLedger (property)', () => {
               .sort(),
           );
           for (const { entry, units } of then.short) expect(compare(entry.units, units)).toBe(-1);
+          // The person changes the units, and the date when the line names one; the live Log is then one import's.
+          const edited = log.map((entry) => {
+            const line = then.short.find((each) => each.entry.id === entry.id);
+            return line === undefined ? entry : { ...entry, units: line.units, date: line.date };
+          });
+          const liveOf = (entries: readonly Entry[]) =>
+            entries.map((entry) => `${entry.id}:${entry.kind}:${entry.coin}:${entry.units}:${entry.date}`).sort();
+          expect(liveOf([...edited, ...then.entries])).toEqual(liveOf(planned(read(rows), []).entries));
         }),
         TWICE,
       );

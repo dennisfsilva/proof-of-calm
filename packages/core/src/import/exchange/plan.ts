@@ -58,8 +58,9 @@ export type ExchangeImportPlan = {
    * tombstoned one-tap estimates for its month when deleting the named entries leaves that month no monthly buy.
    */
   readonly cancelled: readonly { readonly entry: Entry; readonly estimates: readonly Entry[] }[];
-  /** Receipts an earlier import stored whose live entry holds fewer units than the file now gives (`units`). */
-  readonly short: readonly { readonly entry: Entry; readonly units: Units }[];
+  /** Receipts an earlier import stored whose live entry holds fewer units than the file now gives (`units`), with the date
+   * the file now gives them (`date`), which the line names when the entry holds another. */
+  readonly short: readonly { readonly entry: Entry; readonly units: Units; readonly date: CalendarDate }[];
   readonly withdrawals: { readonly logged: readonly CoinUnits[]; readonly notLogged: readonly CoinUnits[] };
   readonly leftOut: readonly ImportLeftOut[];
   readonly noneInCurrency: readonly string[] | null;
@@ -174,7 +175,7 @@ export function planExchangeImport(
   // The file's purchase dates an earlier import stored, live or tombstoned: step 2 counts them, never claims them.
   const earlier: Day[] = [];
   const counts = { imported: 0, deleted: 0, unitsCut: 0, feesInCoin: 0 };
-  const short: { entry: Entry; units: Units }[] = [];
+  const short: { entry: Entry; units: Units; date: CalendarDate }[] = [];
   // "A trade a cancellation in the file pairs, whose id is a live entry, is named: delete it in the Log."
   const paired = file.cancelled.flatMap((movement) => {
     const entry = known.get(context.idOf(movement.key));
@@ -198,7 +199,7 @@ export function planExchangeImport(
       // figure the line names ends it once typed.
       const [was, now] = [shown(plan, movement.coin, entry.units), shown(plan, movement.coin, movement.units)];
       if (entry.deletedAt === null && movement.role === 'receipt' && compare(was, now) < 0)
-        short.push({ entry, units: movement.units });
+        short.push({ entry, units: movement.units, date: item.date });
     } else if (movement.role !== 'receipt' && movement.currency !== plan.payCurrency)
       leave('currency', movement.lines, String(movement.currency), null);
     else if (coin === undefined) leave('not-in-plan', movement.lines, movement.coin, movement.units);

@@ -93,12 +93,14 @@ export function ExchangeSummary({ model, plan }: Props) {
         <p>{t('noneInCurrency', { plan: plan.payCurrency, file: w.format.list(model.noneInCurrency) })}</p>
       )}
       {cancelled && <p>{cancelled.filter(Boolean).join(' ')}</p>}
-      {model.short.map(({ entry, units }) => (
+      {model.short.map(({ entry, units, date }) => (
         <p key={entry.id}>
           {t('short', {
             date: w.format.date(entry.date),
             log: w.units(entry.coin, entry.units, [units]),
             file: w.units(entry.coin, units, [entry.units]),
+            moved: date === entry.date ? 'no' : 'yes',
+            fileDate: w.format.date(date),
           })}
         </p>
       ))}
