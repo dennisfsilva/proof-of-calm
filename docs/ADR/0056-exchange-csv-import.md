@@ -142,7 +142,7 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   names the side it found no trade of (`docs/DOMAIN.md` §3.13), replacing the 2026-11-13
   entry's "both rows are left out as unpaired", so the preview names each cause in its own sentence.
   The rest stands.
-- 2026-11-14, the starting-amount line again (#210): it asks for one change, `startingChange` or
+- 2026-11-14, the starting-amount line again (#212): it asks for one change, `startingChange` or
   `startingRecord`, only when that change kept in the Log and the file chosen again count the starting
   amount once in both orders (`docs/DOMAIN.md` §3.13 step 3), replacing #204's "asks for no change".
   The rest stands.
