@@ -247,8 +247,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
       '1 purchase or sale in USD, not imported: amounts are never converted.',
       'This plan does not list XRP, so 1 XRP transaction was left out. If you want it in this plan, you can add XRP ' +
         'in Coins & split, then choose the file again.',
-      '1 purchase dated within 15 days of the first buy day, 5 Apr 2026: the file cannot tell the starting amount ' +
-        'from the first monthly buy. Record it in the Log.',
+      '1 purchase dated on or before 20 Apr 2026, 15 days after the first buy day: the file cannot tell your ' +
+        'starting amount from it. Record it in the Log with the day you bought it, then choose the file again.',
       'Rewards paid in coins, not imported: 0.0001 ETH.',
       'Coins sent to Kraken from elsewhere, not imported: 0.01 BTC. Record a gift with Add coins you already have, ' +
         'and your own coins coming back with Log coins you moved.',
@@ -259,6 +259,77 @@ describe('ExchangeSummary and ExchangeSections', () => {
       'Lines 15, 16, and 17 could not be read or matched to the other rows of their trades, so they were left out.',
       '1 row of another type, not imported.',
     ]);
+  });
+
+  it('names the purchases left out for the starting amount, however long before the first buy, with the date they reach', async () => {
+    const csv = btcBuys([
+      ['T1', '2026-01-10 09:00:00', '40.0000', '0.0006000000', '0.1000'],
+      ['T2', '2026-04-20 09:00:00', '40.0000', '0.0006000000', '0.1000'],
+      ['T3', '2026-04-21 09:00:00', '40.0000', '0.0006000000', '0.1000'],
+    ]);
+    await mount(planOf(csv, []));
+    expect(lines('Left out (1)')).toEqual([
+      '2 purchases dated on or before 20 Apr 2026, 15 days after the first buy day: the file cannot tell your ' +
+        'starting amount from them. Record each in the Log with the day you bought it, then choose the file again.',
+    ]);
+  });
+
+  it('word a purchase with a fee of 0 without a fee, and one with a fee with it', async () => {
+    await mount(planOf(TRADE_REPUBLIC_OCTOBER, fixture.entries, PLAN, 'Trade Republic'), PLAN, 'trade-republic');
+    expect(lines('Monthly buys (3)')).toEqual([
+      'Monthly buy for October 2026: 0.0012 BTC for €70.00, fee €1.00, on 5 Oct 2026.',
+      'Monthly buy for October 2026: 0.012 ETH for €30.00, fee €1.00, on 5 Oct 2026.',
+      'Monthly buy for October 2026: 0.00005 BTC for €4.50, on 7 Oct 2026.',
+    ]);
+  });
+
+  it('word one purchase with a fee of 0 that replaces an estimate without a fee', async () => {
+    const csv = btcBuys([['T1', '2026-10-05 09:00:00', '70.0000', '0.0012000000', '0.0000']]);
+    await mount(planOf(csv, [...fixture.entries, ONE_TAP_OCTOBER]));
+    expect(lines('Estimates it replaces (1)')).toEqual([
+      'Monthly buy for October 2026: 0.00119 BTC (estimated) at Bitvavo for €70.00 becomes 0.00120 BTC at Kraken ' +
+        'for €70.00, on 5 Oct 2026.',
+    ]);
+  });
+
+  it('names a buy imported earlier that the file now shows as cancelled, and says to delete it', async () => {
+    const rows = TRADE_REPUBLIC_OCTOBER.split('\n');
+    const before = rows.filter((row) => !row.includes('BUY_CANCELLED')).join('\n');
+    const first = planOf(before, fixture.entries, PLAN, 'Trade Republic');
+    await mount(planOf(TRADE_REPUBLIC_OCTOBER, [...fixture.entries, ...first.entries], PLAN, 'Trade Republic'));
+    expect(texts()).toContain(
+      'Your Log has 1 transaction imported earlier that this file shows as cancelled: 0.005 ETH for €15.00 on ' +
+        '13 Oct 2026. Delete it in the Log.',
+    );
+  });
+
+  it('names two buys imported earlier that the file now shows as cancelled, and says to delete them', async () => {
+    const rows = TRADE_REPUBLIC_OCTOBER.split('\n');
+    const cancel = rows.find((row) => row.includes('BUY_CANCELLED')) as string;
+    const second = cancel
+      .replace('2026-10-13T10:05', '2026-10-07T06:05')
+      .replace('"ETH"', '"BTC"')
+      .replace('"-0.005"', '"-0.00005"')
+      .replace('"15.00"', '"4.50"')
+      .replace(/000000000012"/, '000000000099"');
+    const before = rows.filter((row) => !row.includes('BUY_CANCELLED')).join('\n');
+    const first = planOf(before, fixture.entries, PLAN, 'Trade Republic');
+    const whole = [...rows, second].join('\n');
+    await mount(planOf(whole, [...fixture.entries, ...first.entries], PLAN, 'Trade Republic'));
+    expect(texts()).toContain(
+      'Your Log has 2 transactions imported earlier that this file shows as cancelled: 0.00005 BTC for €4.50 on ' +
+        '7 Oct 2026 and 0.005 ETH for €15.00 on 13 Oct 2026. Delete them in the Log.',
+    );
+  });
+
+  it('names a receipt imported earlier with fewer units in the Log than in the file, with both figures', async () => {
+    const first = planOf(KRAKEN_OCTOBER, fixture.entries);
+    const log = first.entries.map((entry) => (entry.kind === 'held' ? { ...entry, units: units('0.00003') } : entry));
+    await mount(planOf(KRAKEN_OCTOBER, [...fixture.entries, ...log]));
+    expect(texts()).toContain(
+      'An entry imported earlier has fewer units in the Log than in this file: Coins added on 16 Oct 2026, ' +
+        '0.00003 BTC in the Log, 0.00005 BTC in the file. Change its units in the Log to 0.00005 BTC.',
+    );
   });
 
   // "Each line left out names Trade Republic for its export: coins received without a purchase with their count,

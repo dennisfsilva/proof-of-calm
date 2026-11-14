@@ -46,6 +46,8 @@ export function previewModel(plan: ExchangeImportPlan, ticked: ExchangeImportPla
     added: of('held'),
     recorded: plan.recorded,
     startingAmount: plan.startingAmount,
+    cancelled: plan.cancelled,
+    short: plan.short,
     withdrawals: plan.withdrawals,
     leftOut: plan.leftOut,
     counted: { imported: plan.imported, deleted: plan.deleted, unitsCut: plan.unitsCut, feesInCoin: plan.feesInCoin },
