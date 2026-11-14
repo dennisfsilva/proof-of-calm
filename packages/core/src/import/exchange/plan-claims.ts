@@ -12,6 +12,7 @@ import {
   monthStart,
 } from '../../dates/calendar';
 import { abs, compare, type Money, minus, plus, sum, type Units } from '../../money/decimal';
+import { plannedParts } from '../../plan/parts';
 import { compareEntries } from '../../portfolio/lots';
 import type { Entry } from '../../schema/entry';
 import type { CoinId } from '../../schema/ids';
@@ -74,10 +75,19 @@ function walk(candidates: readonly Candidate[], target: CalendarDate, amount: Mo
 const paid = (day: Day) => sum(day.items.map((item) => item.movement.amount as Money));
 
 /**
+ * True when `amount` is at least as near `target` as the coin's monthly `part` (a tie counts): d*'s test and a `lump`'s
+ * claim in step 2 (docs/DOMAIN.md §3.13).
+ */
+export const nearTarget = (amount: Money, target: Money, part: Money) =>
+  compare(abs(minus(amount, target)), abs(minus(amount, part))) <= 0;
+
+/**
  * "Hand monthly buys claim first: a live monthly buy of C for S claims C's purchase dates whose month is S, nearest
  * its target first, while each brings the sum nearer its amount; a monthly buy whose month has no date, and every other
- * hand-recorded purchase or sale, claims C's nearest date of the same role within 3 days of its own date." `known`
- * holds the file's purchase dates an earlier import stored, live or tombstoned. Sets `claimed` on the days it takes.
+ * hand-recorded purchase or sale, claims C's nearest date of the same role within 3 days of its own date." A `lump`,
+ * hand or one-tap, claims only a date whose amount, stored purchases included, is at least as near its own as C's
+ * monthly part (`nearTarget`). `known` holds the file's purchase dates an earlier import stored, live or tombstoned.
+ * Sets `claimed` on the days it takes.
  */
 export function claimRecorded(
   plan: Plan,
@@ -109,7 +119,8 @@ export function claimRecorded(
     }
     return [...byDate.values()];
   };
-  // Rule R: a live one-tap `lump` claims here too, within 3 days of its date, and no later step replaces it.
+  // Rule R: a live one-tap `lump` claims here too, within 3 days of its date and by its amount, and no later step
+  // replaces it.
   const hand = live
     .filter(
       (each) =>
@@ -133,9 +144,22 @@ export function claimRecorded(
     const taken = walk(month, target, entry.amount as Money);
     if (taken.length > 0) record(entry, taken);
   }
+  const parts = plannedParts(plan, plan.monthlyAmount);
+  const total = (day: Day) => {
+    const stored = known.find((each) => each.coin === day.coin && each.role === day.role && each.date === day.date);
+    return stored === undefined ? paid(day) : plus(paid(day), paid(stored));
+  };
   for (const entry of rest) {
     const role = entry.kind === 'sell' ? 'sale' : 'purchase';
-    const free = days.filter((each) => !each.claimed && each.coin === entry.coin && each.role === role);
+    const part = parts.find((each) => each.coin === entry.coin)?.amount ?? ('0' as Money);
+    const free = days.filter(
+      (each) =>
+        !each.claimed &&
+        each.coin === entry.coin &&
+        each.role === role &&
+        // A `lump` claims only a date whose amount, stored purchases included, is as near its own as the monthly part.
+        (entry.kind !== 'lump' || nearTarget(total(each), entry.amount as Money, part)),
+    );
     const day = closest(free, entry.date, IMPORT_TYPED_DAYS);
     if (day !== null) record(entry, [day]);
   }
