@@ -948,7 +948,8 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   refid and coin fold into one movement, every line kept and sorted, `at` the earliest row's, its units the
   sum of |amount − fee|, cut and flagged after the sum; a receipt of the coin its refid's purchase bought is
   `unpaired`, named by its line, and the purchase keeps the key. A left-out row carries its reason (`reward`,
-  `coin-deposit`, `coin-withdrawal`, `cash`, `benefit`, `within`, `conversion`, `unpaired`, `unreadable` or `other`),
+  `coin-deposit`, `coin-withdrawal`, `cash`, `benefit`, `within`, `conversion`, `cancelled` (Trade Republic's
+  trade and its cancellation, one row with both lines), `unpaired`, `unreadable` or `other`),
   its lines, its time (the earliest of its rows'), and for a row left out for its type its coin and units
   (|amount − fee|), for an unreadable refid the column and no time. "No refusal, left-out row or thrown error holds a cell's text."
   No raw row, txid, refid or balance is stored. The import's preview shows in Settings (`docs/CONTENT-STYLE.md` §3
@@ -962,7 +963,8 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   (shares below 0, amount above) a sale: units |shares| cut to 10 decimals and flagged, amount |amount|, fee |fee|,
   the fee outside the amount; Saveback and round-up executions are such buys. A BUY_CANCELLED (SELL_CANCELLED)
   pairs one-to-one with the latest earlier unpaired BUY (SELL) of its coin with equal |shares| and |amount|, and
-  both go out `unpaired`; with no such row the cancellation alone does. FREE_RECEIPT is a `coin-deposit` (staking
+  both go out together as `cancelled`; with no such row the cancellation alone goes out `unpaired` (decided
+  2026-11-14, so the preview names each cause apart). FREE_RECEIPT is a `coin-deposit` (staking
   and coins sent in alike), FREE_DELIVERY a `coin-withdrawal`; a trade, receipt or delivery whose shares cut to 0
   units is `unreadable` in shares. MIGRATION rows group by the instant `datetime` names (however many fraction
   digits) and by coin: each coin whose rows there sum to 0 is `within`; when exactly two coins are left at that
