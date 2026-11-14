@@ -3,6 +3,7 @@ import {
   type ExchangeId,
   type ExchangeImportPlan,
   type Instant,
+  type MonthKey,
   type Plan,
   planExchangeImport,
   readExchangeFile,
@@ -19,7 +20,7 @@ import { ExchangeSections, ExchangeSummary } from './exchange-import-sections';
 // The exchange import's preview sections over the fixture plan, from synthetic Kraken ledgers and a synthetic Trade
 // Republic export (ADR-0056): an import that replaces an estimate, one that fills October's months, one the Log
 // records already, one whose rows are all left out, Trade Republic's rows left out in its words, and a file imported
-// before, with nothing to add. Each play opens its sections, so the test projects of
+// before, with nothing to add, and the named months' two lines. Each play opens its sections, so the test projects of
 // vitest.config.ts check the open lists at 360 and 1280 px, light and dark, with axe.
 
 const fixture = fixtureSnapshot();
@@ -108,5 +109,22 @@ export const NothingToAdd: Story = {
     await expect(canvas.getByText('Nothing to add from this file.')).toBeVisible();
     await expect(canvas.getByText('Imported earlier, not added: 5.')).toBeVisible();
     await expect(canvas.queryByRole('button')).toBeNull();
+  },
+};
+
+/** The named months' two lines (DOMAIN §3.13), set on the plan October's file gives: a month still late and an estimate left. */
+export const NamedMonths: Story = {
+  args: {
+    shown: {
+      ...planOf(KRAKEN_OCTOBER, fixture.entries),
+      stillLate: ['2026-06' as MonthKey],
+      estimatesLeft: [
+        { estimate: ONE_TAP_OCTOBER, date: '2026-10-19' as Entry['date'], countsFor: '2026-11' as MonthKey },
+      ],
+    },
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText(/^June 2026 is still late after this import/)).toBeVisible();
+    await expect(canvas.getByText(/^Your BTC estimate for October 2026 stays in the Log/)).toBeVisible();
   },
 };

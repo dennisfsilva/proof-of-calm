@@ -5,6 +5,7 @@ import {
   type ExchangeId,
   type ExchangeImportPlan,
   type Instant,
+  type MonthKey,
   type Plan,
   planExchangeImport,
   readExchangeFile,
@@ -480,5 +481,53 @@ describe('ExchangeSummary and ExchangeSections', () => {
       'Units cut to 10 decimal places: 1 entry.',
       "Fees taken in the coin, valued at the trade's own price: 1 entry.",
     ]);
+  });
+
+  describe('the named months (DOMAIN §3.13)', () => {
+    const named = (more: Partial<ExchangeImportPlan>) => ({ ...planOf(KRAKEN_OCTOBER, fixture.entries), ...more });
+    const late = () => texts().filter((text) => text.includes('still late'));
+
+    it('name one month still late, singular, after the summary', async () => {
+      await mount(named({ stillLate: ['2026-06' as MonthKey] }));
+      expect(late()).toEqual([
+        'June 2026 is still late after this import: no purchase in this file counts for it. A purchase counts for ' +
+          'the month whose buy day is nearest, up to 15 days away. If you bought it on another day, record it in the ' +
+          'Log with that day, then choose the file again.',
+      ]);
+    });
+
+    it('name two months still late in one plural sentence', async () => {
+      await mount(named({ stillLate: ['2026-04', '2026-06'] as MonthKey[] }));
+      expect(late()).toEqual([
+        'April 2026 and June 2026 are still late after this import: no purchase in this file counts for them. A ' +
+          'purchase counts for the month whose buy day is nearest, up to 15 days away. If you bought them on other ' +
+          'days, record each in the Log with its day, then choose the file again.',
+      ]);
+    });
+
+    it('name each estimate left with the purchase that counts for another month, one sentence each', async () => {
+      const ethTap = { ...ONE_TAP_OCTOBER, id: 'aaaaaaaa-0000-4000-8000-000000000012' as EntityId, coin: 'ETH' };
+      const estimatesLeft = [
+        { estimate: ONE_TAP_OCTOBER, date: date('2026-10-19'), countsFor: '2026-11' as MonthKey },
+        { estimate: ethTap as Entry, date: date('2026-10-20'), countsFor: '2026-11' as MonthKey },
+      ];
+      await mount(named({ estimatesLeft }));
+      expect(texts().filter((text) => text.startsWith('Your '))).toEqual(
+        [
+          ['BTC', '19'],
+          ['ETH', '20'],
+        ].map(
+          ([coin, day]) =>
+            `Your ${coin} estimate for October 2026 stays in the Log: this file's purchase of ${day} Oct 2026 counts ` +
+            `for November 2026, whose buy day is nearer. If that purchase was your buy for October 2026, change the ` +
+            `estimate's date to ${day} Oct 2026 in the Log, then choose the file again.`,
+        ),
+      );
+    });
+
+    it('show neither line when the plan names no month', async () => {
+      await mount(named({ stillLate: [], estimatesLeft: [] }));
+      expect(texts().filter((text) => text.includes('still late') || text.startsWith('Your '))).toEqual([]);
+    });
   });
 });
