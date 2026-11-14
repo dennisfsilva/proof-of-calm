@@ -21,6 +21,7 @@ import { openDB } from 'idb';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { fixtureSnapshot } from '../services/fixtures';
 import { KRAKEN_OCTOBER, ONE_TAP_OCTOBER } from '../services/kraken.testing';
+import { TRADE_REPUBLIC_OCTOBER } from '../services/trade-republic.testing';
 import { epochMs, todayIn } from './clock';
 import { DATABASE_NAME, STORE_NAMES } from './idb/database';
 import { type IdbPlanStore, type IdbPlanStoreOptions, idbPlanStore } from './idb-store';
@@ -60,15 +61,16 @@ afterEach(async () => {
 
 /**
  * The fixture's plan and Log with October's one tap, stored by this build, then the synthetic Kraken ledger imported
- * over it as the action writes it: the plan computed on the stored Log, applied, and the changed rows written.
+ * over it as the action writes it: the plan computed on the stored Log, applied, and the changed rows written. With
+ * `csv` and `venue`, that export is imported at that venue instead, over the fixture's Log alone.
  */
-async function imported() {
+async function imported(csv = KRAKEN_OCTOBER, venue = 'Kraken') {
   const { plan, entries: logged, prefs } = fixtureSnapshot();
   if (plan === null) throw new Error('the fixture has a plan');
-  const stored = [...logged, ONE_TAP_OCTOBER];
+  const stored = csv === KRAKEN_OCTOBER ? [...logged, ONE_TAP_OCTOBER] : logged;
   await open().write({ plan, entries: stored, prefs });
-  const read = readExchangeFile(KRAKEN_OCTOBER);
-  if (!read.ok) throw new Error('the synthetic ledger reads');
+  const read = readExchangeFile(csv);
+  if (!read.ok) throw new Error('the synthetic export reads');
   const context = {
     today: todayIn(epochMs(NOW), 'Europe/Lisbon'),
     now: NOW,
@@ -78,7 +80,7 @@ async function imported() {
   const importPlan = planExchangeImport(
     read.value,
     { plan, entries: stored },
-    { venue: 'Kraken', addHeld: false },
+    { venue, addHeld: false },
     context,
   );
   const write = applyExchangeImport(stored, importPlan, NOW);
@@ -111,6 +113,42 @@ describe('idb plan store: the rows a Kraken import writes (docs/DOMAIN.md §3.13
 
   it('the previous build (entries v3) reads every row a Kraken import writes, with nothing set aside or counted as newer, and a backup of them passes previousBuildBackupGate', async () => {
     const { plan, entries } = await imported();
+    const before = await dump();
+
+    const loaded = await open({ rowVersions: PREVIOUS_BUILD }).load();
+
+    expect(loaded.plan).toStrictEqual(plan);
+    expect(loaded.entries).toHaveLength(entries.length);
+    expect(loaded.entries).toEqual(expect.arrayContaining([...entries]));
+    expect(loaded).toMatchObject({ newer: { plans: 0, entries: 0 }, newerTombstones: 0, quarantined: 0 });
+    expect(await dump()).toStrictEqual(before);
+    const backup = writtenBackup(exportBackup(loaded.plan ?? plan, loaded.entries, NOW));
+    expect(previousBuildBackupGate(backup)).toBeNull();
+  });
+});
+
+// The same rows from a Trade Republic export: its purchases at the venue Trade Republic, nothing of a new shape.
+describe('idb plan store: the rows a Trade Republic import writes (docs/DOMAIN.md §3.13)', () => {
+  const trImported = () => imported(TRADE_REPUBLIC_OCTOBER, 'Trade Republic');
+
+  it('this build reads back exactly the rows a Trade Republic import writes', async () => {
+    const { plan, entries, added } = await trImported();
+    expect(added.length).toBeGreaterThan(0);
+    expect(added.every((entry) => entry.source === 'import-csv' && VERSION_8.test(entry.id))).toBe(true);
+    expect(new Set(added.map((entry) => entry.venue))).toEqual(new Set(['Trade Republic']));
+    const before = await dump();
+
+    const loaded = await open().load();
+
+    expect(loaded.plan).toStrictEqual(plan);
+    expect(loaded.entries).toHaveLength(entries.length);
+    expect(loaded.entries).toEqual(expect.arrayContaining([...entries]));
+    expect(loaded).toMatchObject({ newer: { plans: 0, entries: 0 }, newerTombstones: 0, quarantined: 0 });
+    expect(await dump()).toStrictEqual(before);
+  });
+
+  it('the previous build (entries v3) reads every row a Trade Republic import writes', async () => {
+    const { plan, entries } = await trImported();
     const before = await dump();
 
     const loaded = await open({ rowVersions: PREVIOUS_BUILD }).load();
