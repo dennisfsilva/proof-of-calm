@@ -110,3 +110,12 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   (transaction_id, asset_class and category, every name in `TR_COLUMNS`), replacing the 2026-11-13
   entry's "Not yet recognised by the file reader" for recognition. A cancelled buy an earlier
   import stored is still not reached; it is carried to #192 (planned: M2). The rest stands.
+- 2026-11-14, after the design check of the months: every purchase date of a coin whose month is S,
+  left by the earlier steps, is a monthly buy for S when the coin's share is above 0 and S is neither
+  skipped nor paused, or when the Log holds a one-tap estimate of the coin for S, live or tombstoned;
+  no other stored entry decides a kind, so a month another coin, exchange or hand entry recorded
+  takes the file's dates too. A date's month is still the 2026-11-13 entry's nearest anchor, and a
+  date no month reaches stays an extra buy. A hand monthly buy claims its month's dates, nearest its
+  own date first, while their sum comes nearer its amount, so `docs/DOMAIN.md` §3.13 reads an amount
+  in step 2 alone. A purchase within the first month's reach before the first buy is that month's
+  monthly buy and counts in Invested. The rest stands.
