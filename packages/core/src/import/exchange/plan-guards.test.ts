@@ -180,19 +180,23 @@ describe('step 3: the starting amount', () => {
     expect([without.startingAmount, kinds(without)]).toEqual([null, ['2025-12-01:extra:null']]);
   });
 
-  it("Kai: tapped lump and the first monthly buy on 1 Mar both left out, March's estimate kept", () => {
+  it("Kai: the tapped lump records 1 Mar's date group, March's estimate kept, no starting line", () => {
     const estimate = anEntry({ slot: month('2026-03'), date: date('2026-03-01'), source: 'one-tap' });
     const file = [buy('K-0301A', 'BTC', '2026-03-01', '0.008', '500'), buy('K-0301B', 'BTC', '2026-03-01', '0.001')];
     const tapped = lump('2026-03-01', 'one-tap');
     const plan = run(STARTING, [tapped, estimate], file);
-    expect(plan.startingAmount).toEqual({
-      purchases: 2,
-      firstBuy: '2026-03-01',
-      through: '2026-03-16',
-      items: [item('BTC', '2026-03-01', '0.008', '500'), item('BTC', '2026-03-01', '0.001')],
-      lumps: [tapped],
-    });
+    expect(plan.recorded.map((each) => [each.entry, each.dates, each.amount, each.count])).toEqual([
+      [tapped, ['2026-03-01'], '570', 2],
+    ]);
+    expect(plan.startingAmount).toBeNull();
     expect([plan.entries, plan.replaced]).toEqual([[], []]);
+  });
+
+  it('a one-tap lump never claims a date more than 3 days from its own, and is never replaced', () => {
+    const tapped = lump('2026-03-20', 'one-tap');
+    const plan = run(STARTING, [tapped], [buy('T-0324', 'BTC', '2026-03-24', '0.008', '500')]);
+    expect(plan.recorded).toEqual([]);
+    expect(plan.replaced).toEqual([]);
   });
 });
 
