@@ -11,8 +11,9 @@ import { cspViolations, recordCspViolations, routeFixturePrices, test } from './
 // Settings → Currency & data → Import an exchange's file (docs/DOMAIN.md §3.13, docs/CONTENT-STYLE.md §3). On the
 // viewport matrix: a EUR plan of BTC 70 % and ETH 30 % from 1 Dec 2025, with nothing logged, takes the core's
 // synthetic Kraken ledger (packages/core/test/exchange/kraken-synthetic.expected.ts reads its rows): its preview's
-// heading takes the focus and counts December's BTC and ETH, January's BTC and ETH bought on 18 and 19 Dec, the extra
-// buy of 16 Dec, the sale and the invite bonus; Import writes them at Kraken and its result line takes the focus;
+// heading takes the focus and counts December's BTC and ETH, January's BTC and ETH bought on 18 and 19 Dec, BTC's
+// second December date of 16 Dec as a monthly buy as well, the sale and the invite bonus (the core's
+// plan-ledger.test.ts derives these over the same file); Import writes them at Kraken and its result line takes the focus;
 // the same file again adds nothing. No CSP violation on the way. The core's synthetic Trade Republic export, over the
 // same plan moved to May 2026, previews in Trade Republic's words, imports at Trade Republic and adds nothing the
 // second time. A ZIP of the ledger previews as the ledger does. On
@@ -73,9 +74,9 @@ test('a Kraken ledger previews, imports at Kraken, and adds nothing the second t
     'kraken-synthetic-2025-12.csv: a Kraken ledger of 47 rows, from 1 Dec 2025 to 28 Dec 2025.',
   );
   await expect(preview(page)).toContainText(
-    'Adds 7 entries: 4 monthly buys, 1 extra buy, 1 sale, and 1 Coins added entry at no cost.',
+    'Adds 7 entries: 5 monthly buys, 1 sale, and 1 Coins added entry at no cost.',
   );
-  for (const section of ['Monthly buys (4)', 'Extra buys (1)', 'Sales (1)', 'Coins added at no cost (1)'])
+  for (const section of ['Monthly buys (5)', 'Sales (1)', 'Coins added at no cost (1)'])
     await expect(preview(page).getByRole('button', { name: section })).toBeVisible();
   await expect(page.getByRole('textbox', { name: 'Venue for these entries' })).toHaveValue('Kraken');
 
@@ -100,7 +101,7 @@ test('a Kraken ledger previews, imports at Kraken, and adds nothing the second t
   const names = [
     '19 Dec 2025 Monthly buy ETH',
     '18 Dec 2025 Monthly buy BTC',
-    '16 Dec 2025 Extra buy BTC',
+    '16 Dec 2025 Monthly buy BTC',
     '7 Dec 2025 Coins added BTC',
     '4 Dec 2025 Sale BTC',
     '2 Dec 2025 Monthly buy ETH',
