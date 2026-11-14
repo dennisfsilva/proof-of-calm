@@ -899,7 +899,7 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   import alert counts them. A DCA plan page file is read the same way in `importPrototype` (§7), whose
   `invalid-entries` error stores nothing and shows the prototype file's alert.
 - Import of an exchange's export (decided 2026-11-13, ADR-0056): `readExchangeFile(text)` recognises the
-  file and reads it into `{ exchange, rows, first, last, movements, leftOut }`, or refuses it with an
+  file and reads it into `{ exchange, rows, first, last, movements, leftOut, cancelled }`, or refuses it with an
   `ExchangeFileError`. It reads Kraken's ledger and Trade Republic's transaction export (the next item names how
   it recognises the second). "Text starting with `PK\^C\^D` is `zip`; a
   header with ordertxid and pair is `kraken-trades`; a header whose names, a last empty one dropped, are all
@@ -1517,8 +1517,8 @@ recorded cost and a one-tap purchase; `gb-2026-27.csv` is its raw listing, compa
 | `VENUE_MAX_LENGTH` | 40 characters | an entry's venue and a move's `to`: the entry schema, `saveTransaction`, `saveMove` and the entry form's field |
 | `MAX_ENTRIES` | 10,000 live entries | a plan's entries: the backup schema and `applyImport` (§3.13), `saveTransaction`, `saveMove`, `restoreEntries` and the one tap (§6) |
 | `IMPORT_MAX_BYTES` | 50,000,000 bytes (50 MB) | the import file Settings reads, and the text of the CSV file inside a chosen ZIP (the ZIP reader, `docs/ARCHITECTURE.md`): above the 36.8 MB a full plan's backup weighs at the most (every note at 500 characters, each escaped to six bytes), about 4 MB without notes |
-| `IMPORT_MATCH_DAYS` | 15 days | an exchange import's months: a due date's reach either side, which also bounds the dates a typed monthly buy claims by its amount (step 2 reads the months), and the first buy's 15 days (§3.13) |
-| `IMPORT_TYPED_DAYS` | 3 days | an exchange import's typed and tapped dates: a hand-recorded entry's claim either side of its date (a monthly buy's only when its month's dates give it none), and a one-tap estimate's reach before its date (§3.13) |
+| `IMPORT_MATCH_DAYS` | 15 days | an exchange import's months: a due date's reach either side, which also bounds the dates a typed monthly buy claims by its amount (step 2 reads the months), and the starting amount's reach, up to `firstBuy` + 15 days (§3.13) |
+| `IMPORT_TYPED_DAYS` | 3 days | an exchange import's typed and tapped dates: a hand-recorded entry's claim either side of its date (a monthly buy's only when its month has no purchase date of its coin in the file), and a one-tap estimate's reach before its date (§3.13) |
 | `LOG_PAGE` | 12 | Log "show all" threshold |
 | `UNDO_WINDOW_MS` | 8000 | every toast but the update prompt, which has none: the Undos (a delete, a skip, End buying, Delete everything), the one tap's Edit, and the save and failure toasts |
 | `TOMBSTONE_TTL_DAYS` | 90 | sync purge |
