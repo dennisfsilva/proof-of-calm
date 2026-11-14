@@ -241,6 +241,14 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   refreshed the preview silently and Import wrote it without the changed alert. The evaluator's
   two-tab run found it. The fix's tests drive a real `crossTabChannel` between two services over
   one `memoryPlanStore` (#188, 2026-11-13).
+- A fixture whose counts a test pins is never extended for another branch's case; the new case
+  gets its own synthetic file. The Kraken fold added five rows to the shared synthetic ledger, and
+  the e2e spec's pinned "47 rows" and "7 entries" failed on every project until the rows moved to
+  their own files (#189, 2026-11-13).
+- A design note that puts a provider's name into the product's copy lists LEGAL §6 Q4's carve-out
+  and the ADR that rules the naming among the files it changes. Counsel's first read of the Trade
+  Republic screen marked every line that named Trade Republic a perimeter breach, because the
+  carve-out named Kraken alone (#193, 2026-11-14).
 
 ## Known gaps
 
