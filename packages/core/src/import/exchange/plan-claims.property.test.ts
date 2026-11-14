@@ -1,16 +1,17 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { anEntry, aPlan, date, money, month } from '../../../test/builders';
-import { fileOf, type World, world } from '../../../test/exchange/plan-arbitraries';
+import { fileOf, heldGuards, startingGuards, type World, world } from '../../../test/exchange/plan-arbitraries';
 import { LISBON, NOW, testId, trade } from '../../../test/exchange/plan-fixture';
 import { addDays, clampDay } from '../../dates/calendar';
 import type { Entry } from '../../schema/entry';
 import type { ExchangeFile, Movement } from './kraken';
 import { type ExchangeImportPlan, planExchangeImport } from './plan';
 
-// Steps 2, 5 and 6 of the exchange import's plan (docs/DOMAIN.md §3.13) over generated files and Logs: any window
-// of a file's rows, stored before the whole file, leaves the Log one import leaves, field by field; two exchanges'
-// files leave one Log in either order; and no purchase a hand monthly buy claims in one import is stored in two.
+// Steps 2 to 6 of the exchange import's plan (docs/DOMAIN.md §3.13) over generated files and Logs: any window
+// of a file's rows, stored before the whole file, leaves the Log one import leaves, field by field; no purchase step 3
+// or step 4 leaves out is stored, in one import or two; two exchanges' files leave one Log in either order; and no
+// purchase a hand monthly buy claims in one import is stored in two.
 
 /** What the write does with a plan: tombstones the estimates it replaces and adds its entries. */
 function store(entries: readonly Entry[], plan: ExchangeImportPlan): Entry[] {
@@ -71,6 +72,42 @@ describe('planExchangeImport, by windows and by exchanges', () => {
           expect(seen(twice)).toEqual(seen(once));
           const third = run(drawn, twice, drawn.file);
           expect([third.entries, third.replaced]).toEqual([[], []]);
+        }),
+        RUNS,
+      );
+    },
+    TIMEOUT,
+  );
+
+  /** What one import, and a window of the file stored before the whole file, add with `held` left unticked. */
+  const added = (drawn: World, window: Drawn<typeof windowOf>) => {
+    const unticked = { ...drawn, addHeld: false };
+    const once = run(unticked, drawn.entries, drawn.file);
+    const first = run(unticked, drawn.entries, cut(drawn.file, window));
+    const then = run(unticked, store(drawn.entries, first), drawn.file);
+    return [...once.entries, ...first.entries, ...then.entries];
+  };
+
+  it(
+    'no purchase on or before a live hand `held` entry of its coin with at least its units, that cost not 0, is stored unticked, in one import or two',
+    () => {
+      fc.assert(
+        fc.property(world, windowOf, (drawn, window) => {
+          expect(added(drawn, window).filter((entry) => heldGuards(drawn.entries, entry))).toEqual([]);
+        }),
+        RUNS,
+      );
+    },
+    TIMEOUT,
+  );
+
+  it(
+    'no purchase on or before `firstBuy` + 15 days is stored in a plan with a starting amount, in one import or two',
+    () => {
+      fc.assert(
+        fc.property(world, windowOf, (drawn, window) => {
+          const leaked = added(drawn, window).filter((entry) => startingGuards(drawn.plan, drawn.entries, entry));
+          expect(leaked).toEqual([]);
         }),
         RUNS,
       );

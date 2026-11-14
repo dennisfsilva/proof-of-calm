@@ -1,6 +1,6 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { fileOf, type World, world } from '../../../test/exchange/plan-arbitraries';
+import { fileOf, heldGuards, type World, world } from '../../../test/exchange/plan-arbitraries';
 import { BERLIN, LISBON, NOW, testId } from '../../../test/exchange/plan-fixture';
 import { addDays, type CalendarDate } from '../../dates/calendar';
 import { sum } from '../../money/decimal';
@@ -152,19 +152,13 @@ describe('planExchangeImport', () => {
   );
 
   it(
-    'a purchase dated on or before a hand-recorded `held` entry of its coin is never stored unticked, in one import or two',
+    'no purchase on or before a hand-recorded `held` entry of its coin with at least its units, that cost not 0, is stored unticked, in one import or two',
     () => {
       fc.assert(
         fc.property(world, fc.nat(), (drawn, cut) => {
-          const through = new Map<string, CalendarDate>();
-          for (const entry of live(drawn.entries)) {
-            const latest = through.get(entry.coin);
-            if (entry.kind === 'held' && entry.source !== 'import-csv' && (latest === undefined || latest < entry.date))
-              through.set(entry.coin, entry.date);
-          }
           const { once, first, then } = twoWays({ ...drawn, addHeld: false }, cut);
-          const leaked = [...once.entries, ...first.entries, ...then.entries].filter(
-            (entry) => entry.kind !== 'sell' && entry.date <= (through.get(entry.coin) ?? ''),
+          const leaked = [...once.entries, ...first.entries, ...then.entries].filter((entry) =>
+            heldGuards(drawn.entries, entry),
           );
           expect(leaked).toEqual([]);
         }),

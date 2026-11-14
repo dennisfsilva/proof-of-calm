@@ -56,10 +56,10 @@ describe('planExchangeImport', () => {
     expect(idsOf(golden.entries)).not.toContain(testId(M.M02.key));
   });
 
-  it('step 3, the starting amount: the purchases within 15 days of the first buy are left out and named', () => {
+  it('step 3, the starting amount: the purchases on or before 15 days after the first buy are left out and named', () => {
     const lump = anEntry({ kind: 'lump', slot: null, date: date('2026-03-01'), source: 'one-tap' });
     const plan = planExchangeImport(FILE, { plan: STARTING_PLAN, entries: [...STORED.entries, lump] }, CHOICES, LISBON);
-    expect(plan.startingAmount).toEqual({ purchases: 2, firstBuy: '2026-03-01' });
+    expect(plan.startingAmount).toEqual({ purchases: 3, firstBuy: '2026-03-01', through: '2026-03-16' });
     expect(idsOf(plan.entries)).not.toContain(testId(M.M04.key));
     expect(plan.replaced.flatMap((replacement) => replacement.estimates)).not.toContainEqual(lump);
     expect(plan.held?.coins[0]?.purchases).toBe(3);

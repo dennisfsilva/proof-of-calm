@@ -2,7 +2,7 @@
 // §3.13): the starting amount (step 3) and the coins the person added (step 4).
 import { IMPORT_MATCH_DAYS } from '../../constants';
 import { addDays, type CalendarDate } from '../../dates/calendar';
-import { isPositive, sum, type Units } from '../../money/decimal';
+import { compare, isPositive, isZero, sum, type Units } from '../../money/decimal';
 import { compareEntries } from '../../portfolio/lots';
 import type { Entry } from '../../schema/entry';
 import type { CoinId, EntityId } from '../../schema/ids';
@@ -40,37 +40,56 @@ export const near = (day: Day, date: CalendarDate, days: number) =>
   within(day, addDays(date, -days), addDays(date, days));
 
 /**
- * Step 3: "In a plan with a starting amount above 0, the purchases dated within 15 days of `firstBuy` are left out and
- * named, since the file cannot tell the starting amount from the first monthly buy; a one-tap `lump` estimate is never
- * replaced." A date step 2 claimed is `looks recorded already` and is not counted here.
+ * Step 3: "In a plan with a starting amount above 0, or for a coin with a live `lump`, C's purchases dated on or before
+ * `firstBuy` + 15 days that step 2 left are left out and named, however long before `firstBuy` they are: the file
+ * cannot tell the starting amount from them. A one-tap `lump` is never replaced."
  */
-export function startingGuard(plan: Plan, days: readonly Day[]) {
-  if (!isPositive(plan.startingAmount)) return null;
+export function startingGuard(plan: Plan, live: readonly Entry[], days: readonly Day[]) {
+  const through = addDays(plan.firstBuy, IMPORT_MATCH_DAYS);
+  const lumps = new Set(live.filter((entry) => entry.kind === 'lump').map((entry) => entry.coin));
   const guarded = days.filter(
-    (day) => !day.claimed && day.role === 'purchase' && near(day, plan.firstBuy, IMPORT_MATCH_DAYS),
+    (day) =>
+      !day.claimed &&
+      day.role === 'purchase' &&
+      day.date <= through &&
+      (isPositive(plan.startingAmount) || lumps.has(day.coin)),
   );
   for (const day of guarded) day.claimed = true;
   const purchases = guarded.flatMap((day) => day.items).length;
-  return purchases === 0 ? null : { purchases, firstBuy: plan.firstBuy };
+  return purchases === 0 ? null : { purchases, firstBuy: plan.firstBuy, through };
 }
 
 /**
- * Step 4: "C's purchases and receipts dated on or before the latest live `held` entry of C, at any venue, are `may be
- * the coins you added`: left out unless the person ticks `Add these transactions too`, one answer for all of them." A
- * `held` entry an exchange import added (a receipt) is not one the person added, so it guards nothing.
+ * Step 4: "Each live hand `held` entry of C guards C's purchase dates on or before its date that hold a purchase of at
+ * most its units, unless its cost is 0, and C's receipt dates on or before its date that hold a receipt of at most its
+ * units, whatever its cost. The dates any such entry guards are `may be the coins you added`, one answer for all. A
+ * `held` entry an exchange import added guards nothing." The line names the latest entry that guards a date: every
+ * date guarded is on or before it.
  */
 export function heldGuard(plan: Plan, live: readonly Entry[], days: readonly Day[], addHeld: boolean) {
   const coins: HeldCoin[] = [];
   for (const { id: coin } of plan.coins) {
     const own = live.filter((entry) => entry.kind === 'held' && entry.coin === coin && entry.source !== 'import-csv');
-    const latest = own.sort(compareEntries).at(-1);
+    const guards = (entry: Entry, day: Day, item: Item) =>
+      day.date <= entry.date &&
+      (day.role === 'receipt' || (day.role === 'purchase' && !(entry.amount !== null && isZero(entry.amount)))) &&
+      compare(item.movement.units, entry.units) <= 0;
+    const items: Item[] = [];
+    const guarding = new Set<Entry>();
+    for (const day of days.filter((each) => !each.claimed && each.coin === coin)) {
+      const held = day.items.filter((item) => {
+        const by = own.filter((entry) => guards(entry, day, item));
+        for (const entry of by) guarding.add(entry);
+        return by.length > 0;
+      });
+      items.push(...held);
+      if (addHeld || held.length === 0) continue;
+      // Left out, a guarded movement leaves its date's other movements to the later steps.
+      day.items.splice(0, day.items.length, ...day.items.filter((item) => !held.includes(item)));
+      day.claimed = day.items.length === 0;
+    }
+    const latest = [...guarding].sort(compareEntries).at(-1);
     if (latest === undefined) continue;
-    const guarded = days.filter(
-      (day) => !day.claimed && day.coin === coin && day.role !== 'sale' && day.date <= latest.date,
-    );
-    const items = guarded.flatMap((day) => day.items);
-    if (items.length === 0) continue;
-    for (const day of guarded) day.claimed = !addHeld;
     const units = sum(items.map((item) => item.movement.units));
     const [heldUnits, heldDate, heldVenue] = [latest.units, latest.date, latest.venue];
     coins.push({ coin, purchases: items.length, units, through: latest.date, heldUnits, heldDate, heldVenue });

@@ -189,6 +189,7 @@ export const FILE: ExchangeFile = {
   last: instant('2026-11-05T10:00:00Z'),
   movements: Object.values(M),
   leftOut: Object.values(R),
+  cancelled: [],
 };
 
 export const PLAN: Plan = aPlan({

@@ -3,7 +3,7 @@
 // in the device's zone, `dateOf = (at) => todayIn(epochMs(at), clock.timeZone)`; the core never dates an instant."
 import { IMPORT_MATCH_DAYS, IMPORT_TYPED_DAYS } from '../../constants';
 import { type CalendarDate, compareDates, daysBetween, type Instant, type MonthKey } from '../../dates/calendar';
-import { compare, type Money, plus, type Units } from '../../money/decimal';
+import { compare, type Money, plus, round, type Units } from '../../money/decimal';
 import { plannedParts } from '../../plan/parts';
 import { liveEntries, type SlotStatus, slotStatuses } from '../../plan/statuses';
 import { compareEntries } from '../../portfolio/lots';
@@ -48,7 +48,15 @@ export type ExchangeImportPlan = {
   readonly replaced: readonly { readonly estimates: readonly Entry[]; readonly by: readonly EntityId[] }[];
   readonly recorded: readonly Recorded[];
   readonly held: { readonly added: boolean; readonly coins: readonly HeldCoin[] } | null;
-  readonly startingAmount: { readonly purchases: number; readonly firstBuy: CalendarDate } | null;
+  readonly startingAmount: {
+    readonly purchases: number;
+    readonly firstBuy: CalendarDate;
+    readonly through: CalendarDate;
+  } | null;
+  /** Live entries an earlier import stored that this file pairs with a cancellation. */
+  readonly cancelled: readonly Entry[];
+  /** Receipts an earlier import stored whose live entry holds fewer units than the file now gives (`units`). */
+  readonly short: readonly { readonly entry: Entry; readonly units: Units }[];
   readonly withdrawals: { readonly logged: readonly CoinUnits[]; readonly notLogged: readonly CoinUnits[] };
   readonly leftOut: readonly ImportLeftOut[];
   readonly noneInCurrency: readonly string[] | null;
@@ -116,13 +124,18 @@ function leftOutGroups() {
   return { leave, list };
 }
 
+/** The places the preview shows a coin's units at: its decimals in the plan, 8 for a coin it does not list. */
+export const shownPlaces = (plan: Plan, coin: string) => plan.coins.find((each) => each.id === coin)?.decimals ?? 8;
+
 /**
  * "A withdrawal has a move in the Log when a live move of its coin, sent from the import's venue, is dated within 1
- * day of it and sends exactly its units (amount plus fee)". Each move answers one withdrawal.
+ * day of it and sends its units (amount plus fee), both rounded half-even at the places the preview shows". Each move
+ * answers one withdrawal.
  */
 function withdrawals(
   rows: readonly LeftOutRow[],
   live: readonly Entry[],
+  plan: Plan,
   venue: string | null,
   context: ImportContext,
 ) {
@@ -130,8 +143,12 @@ function withdrawals(
   const [logged, notLogged] = [new Map<string, CoinUnits>(), new Map<string, CoinUnits>()];
   for (const row of rows.filter((each) => each.reason === 'coin-withdrawal')) {
     const [coin, units, date] = [row.coin as string, row.units as Units, context.dateOf(row.at as Instant)];
+    const shown = (value: Units) => round(value, shownPlaces(plan, coin), 'half-even');
     const index = moves.findIndex(
-      (move) => move.coin === coin && Math.abs(daysBetween(move.date, date)) <= 1 && compare(move.units, units) === 0,
+      (move) =>
+        move.coin === coin &&
+        Math.abs(daysBetween(move.date, date)) <= 1 &&
+        compare(shown(move.units), shown(units)) === 0,
     );
     moves.splice(index, index < 0 ? 0 : 1);
     tally(index < 0 ? notLogged : logged, coin, units);
@@ -153,6 +170,12 @@ export function planExchangeImport(
   // The file's purchase dates an earlier import stored, live or tombstoned: step 2 counts them, never claims them.
   const earlier: Day[] = [];
   const counts = { imported: 0, deleted: 0, unitsCut: 0, feesInCoin: 0 };
+  const short: { entry: Entry; units: Units }[] = [];
+  // "A trade a cancellation in the file pairs, whose id is a live entry, is named: delete it in the Log."
+  const cancelled = file.cancelled.flatMap((movement) => {
+    const entry = known.get(context.idOf(movement.key));
+    return entry === undefined || entry.deletedAt !== null ? [] : [entry];
+  });
   const put = (list: Day[], item: Day['items'][number], role: Movement['role']) => {
     const day = list.find((each) => each.coin === item.coin && each.role === role && each.date === item.date);
     if (day === undefined) list.push({ coin: item.coin, role, date: item.date, items: [item], claimed: list !== days });
@@ -166,6 +189,10 @@ export function planExchangeImport(
     if (entry !== undefined) {
       counts[entry.deletedAt === null ? 'imported' : 'deleted'] += 1;
       if (coin !== undefined && movement.role === 'purchase') put(earlier, item, movement.role);
+      // "A receipt imported earlier whose live entry holds fewer units than the file now gives its key is named with
+      // both figures: change its units in the Log." Step 1 only compares.
+      if (entry.deletedAt === null && movement.role === 'receipt' && compare(entry.units, movement.units) < 0)
+        short.push({ entry, units: movement.units });
     } else if (movement.role !== 'receipt' && movement.currency !== plan.payCurrency)
       leave('currency', movement.lines, String(movement.currency), null);
     else if (coin === undefined) leave('not-in-plan', movement.lines, movement.coin, movement.units);
@@ -208,9 +235,9 @@ export function planExchangeImport(
   const monthOf = monthsOf(months, stored.entries);
   const recorded = claimRecorded(plan, live, days, earlier, monthOf);
 
-  // Steps 3 and 4 leave purchases out before any is stored: the starting amount's 15 days (only dates step 2 left),
-  // then the purchases dated on or before a `held` entry the person added.
-  const startingAmount = startingGuard(plan, days);
+  // Steps 3 and 4 leave purchases out before any is stored: every purchase up to the first buy's 15 days in a plan
+  // with a starting amount or of a coin with a live `lump` (only dates step 2 left), then those a `held` entry fits.
+  const startingAmount = startingGuard(plan, live, days);
   const held = heldGuard(plan, live, days, choices.addHeld);
 
   // Steps 5 and 6: "every unclaimed purchase date of C whose month is S is a monthly buy for S when C's share is above
@@ -251,7 +278,9 @@ export function planExchangeImport(
     recorded,
     held,
     startingAmount,
-    withdrawals: withdrawals(file.leftOut, live, choices.venue, context),
+    cancelled,
+    short,
+    withdrawals: withdrawals(file.leftOut, live, plan, choices.venue, context),
     leftOut: list(),
     noneInCurrency: currencies.size === 0 || currencies.has(plan.payCurrency) ? null : [...currencies].sort(),
     ...counts,

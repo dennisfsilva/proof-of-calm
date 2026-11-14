@@ -1,6 +1,8 @@
 import fc from 'fast-check';
+import { IMPORT_MATCH_DAYS } from '../../src/constants';
 import { addDays, type CalendarDate } from '../../src/dates/calendar';
 import type { ExchangeFile, LeftOutRow, Movement } from '../../src/import/exchange/kraken';
+import { compare, isPositive, isZero } from '../../src/money/decimal';
 import { slots } from '../../src/plan/slots';
 import type { Entry } from '../../src/schema/entry';
 import type { CoinId, EntityId } from '../../src/schema/ids';
@@ -21,7 +23,9 @@ const nearDue = fc
     offset: fc.integer({ min: -16, max: 20 }),
   })
   .map(({ month, anchor, offset }) => addDays(date(`2026-${pad(month)}-${pad(anchor)}`), offset));
-const day = fc.oneof(uniformDay, nearDue, nearDue);
+/** A date up to 90 days before the plans' earliest first buy, for step 3's reach back. */
+const early = fc.integer({ min: -90, max: 0 }).map((offset) => addDays(date('2026-03-01'), offset));
+const day = fc.oneof(uniformDay, nearDue, nearDue, early);
 const planCoin = fc.constantFrom('BTC', 'ETH') as fc.Arbitrary<CoinId>;
 const unitsOf = fc.integer({ min: 1, max: 99_999 }).map((n) => units(`0.${String(n).padStart(5, '0')}`));
 const amountOf = fc.integer({ min: 1, max: 999 }).map((n) => money(`${n}.50`));
@@ -108,6 +112,7 @@ export const fileOf = (movements: readonly Movement[], leftOut: readonly LeftOut
   last: null,
   movements,
   leftOut,
+  cancelled: [],
 });
 const file = fc
   .record({
@@ -185,13 +190,15 @@ function log(
       day: fc.oneof(uniformDay, nearDue, around(dates, 6), nearBase(3)),
       source: fc.constantFrom<Entry['source']>('manual', 'manual', 'import-json', 'import-csv'),
       cost: fc.constantFrom(null, '0', '120'),
+      held: unitsOf,
     })
-    .map(({ coin, day, source, cost }) =>
+    .map(({ coin, day, source, cost, held: drawnUnits }) =>
       anEntry({
         kind: 'held',
         coin,
         slot: null,
         date: day,
+        units: drawnUnits,
         amount: cost === null ? null : money(cost),
         venue: 'Ledger',
         source,
@@ -270,4 +277,28 @@ export const worldOf = (idOf: (key: string) => EntityId) =>
       })),
     );
 export const world = worldOf(testId);
+
+/**
+ * Step 4 over an added entry (docs/DOMAIN.md §3.13): a live hand `held` entry of its coin dated on or after it holds at
+ * least its units, and the added entry is a receipt (a `held` entry) or a purchase while that entry's cost is not 0.
+ */
+export const heldGuards = (log: readonly Entry[], added: Entry) =>
+  added.kind !== 'sell' &&
+  log.some(
+    (entry) =>
+      entry.deletedAt === null &&
+      entry.kind === 'held' &&
+      entry.source !== 'import-csv' &&
+      entry.coin === added.coin &&
+      added.date <= entry.date &&
+      compare(added.units, entry.units) <= 0 &&
+      (added.kind === 'held' || entry.amount === null || !isZero(entry.amount)),
+  );
+
+/** Step 3 over an added purchase: dated on or before `firstBuy` + 15 days, in a plan with a starting amount or for a coin with a live `lump`. */
+export const startingGuards = (plan: Plan, log: readonly Entry[], added: Entry) =>
+  (added.kind === 'dca' || added.kind === 'extra') &&
+  added.date <= addDays(plan.firstBuy, IMPORT_MATCH_DAYS) &&
+  (isPositive(plan.startingAmount) ||
+    log.some((entry) => entry.deletedAt === null && entry.kind === 'lump' && entry.coin === added.coin));
 export type World = { file: ExchangeFile; plan: Plan; addHeld: boolean; venue: string | null; entries: Entry[] };

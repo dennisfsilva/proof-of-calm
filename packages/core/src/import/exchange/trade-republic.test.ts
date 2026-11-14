@@ -77,6 +77,7 @@ describe('readTradeRepublic (golden)', () => {
       last: null,
       movements: [],
       leftOut: [],
+      cancelled: [],
     });
   });
 });
@@ -205,6 +206,20 @@ describe('readTradeRepublic, rule by rule', () => {
       [['unpaired', [3, 4], null]],
     ]);
     expect(read(...rows).leftOut[0]?.at).toBe('2026-05-02T08:00:00.000Z');
+  });
+
+  it('a paired BUY_CANCELLED returns its buy in `cancelled` under its key', () => {
+    const rows: Cells[] = [
+      { transaction_id: 'A', datetime: '2026-05-01T08:00:00.000Z' },
+      { transaction_id: 'B', datetime: '2026-05-02T08:00:00.000Z' },
+      { transaction_id: 'C', datetime: '2026-05-03T08:00:00.000Z', type: 'BUY_CANCELLED', shares: '-0.001' },
+      { transaction_id: 'D', datetime: '2026-05-04T08:00:00.000Z', type: 'BUY_CANCELLED', symbol: 'ETH' },
+    ];
+    const file = read(...rows);
+    expect(file.cancelled).toEqual([
+      expect.objectContaining({ key: 'poc-csv-1|trade-republic|B|BTC|in', lines: [3], role: 'purchase' }),
+    ]);
+    expect(read(...rows.slice(0, 2)).cancelled).toEqual([]);
   });
 
   it('rule 6: equal times pair by line, and each buy pairs once', () => {

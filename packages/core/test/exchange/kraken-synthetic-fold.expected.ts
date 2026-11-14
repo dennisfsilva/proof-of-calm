@@ -51,4 +51,5 @@ export const KRAKEN_SYNTHETIC_FOLD: ExchangeFile = {
   leftOut: [
     { reason: 'unpaired', lines: [6], at: instant('2025-12-30T10:00:01Z'), coin: null, units: null, column: null },
   ],
+  cancelled: [],
 };
