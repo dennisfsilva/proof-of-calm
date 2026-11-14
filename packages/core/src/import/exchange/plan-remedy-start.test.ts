@@ -370,7 +370,8 @@ describe('the starting line, its instruction', () => {
     expect(starting(c, c.entries)).toEqual({ kind: 'change', date: '2026-06-10' });
     const changed = edit(c, c.entries, '2026-06-10', TEN_JUNE) as Entry[];
     expect(recordedBy(c, changed, lumpsOf(changed)[0] as Entry)).toEqual(['2026-06-10']);
-  });
+    // worst 1.4 s locally with coverage, three full-suite runs (2026-11-14); CI up to 6× slower
+  }, 30_000);
 
   // A trade in another currency is left out under 'currency' (plan.ts), and a coin outside the plan under 'not-in-plan',
   // so neither joins a date group: d* and the figures are the plan currency's purchases of the coin alone.
