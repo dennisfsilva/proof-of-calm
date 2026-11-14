@@ -41,9 +41,9 @@ export const IMPORT_TYPED_DAYS = 3;
 
 /**
  * The exchange import's preview checks at most this many Log rows of `Matching entries` for the sentence that says to
- * delete one, each by planning the file again without it (docs/DOMAIN.md §3.13).
+ * delete one, each by planning the file again without it, before and after importing first (docs/DOMAIN.md §3.13).
  */
-export const IMPORT_RECORDED_CHECKS = 24;
+export const IMPORT_RECORDED_CHECKS = 12;
 
 /** The Log shows this many transactions before "Show all". */
 export const LOG_PAGE = 12;
