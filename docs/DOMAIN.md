@@ -1000,8 +1000,14 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      live entry, is named: delete it in the Log." "A receipt imported earlier whose live entry holds fewer
      units than the file now gives its key is named with both figures: change its units in the Log." Both
      units are compared rounded half-even at the places the preview shows (below), the places the Log's form
-     takes, so typing the figure named ends the line. Step 1 only compares and names: it tombstones and
-     changes nothing.
+     takes, so typing the figure named ends the line. The line also names the date the file now gives the
+     receipt when the entry holds another (an earlier export cut through its rows): change both. A named
+     monthly buy carries its coin's tombstoned one-tap estimates for its month when deleting the named
+     entries leaves that month no monthly buy, and the line says deleting it leaves the month without its
+     estimate, to record again if bought: the import never un-tombstones, and an import's tombstone is not
+     told from a hand delete. Once the person makes the named changes, the live Log equals one import's of
+     the whole file, except that each named estimate is live in one import and tombstoned in two. Step 1
+     only compares and names: it tombstones and changes nothing.
   2. "Hand-recorded entries (source `manual`, `import-prototype` or `import-json`; `held` entries and moves
      claim nothing), in `compareEntries` order, claim unclaimed dates", monthly buys first (decided
      2026-11-14, ADR-0056, Corrections): "A live hand monthly buy of C for S orders C's purchase dates whose
@@ -1034,7 +1040,9 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      date, a purchase of more units than every entry goes on to steps 5 and 6, as in a file without the
      other, so the answer never depends on the rows beside it. Left out unless the person ticks `Add these
      transactions too`; ticked, they go on to steps 5 and 6, so an estimate whose month has no other
-     purchase stays an estimate until the person ticks. The line names the latest entry that guards one.
+     purchase stays an estimate until the person ticks. The line names the entry that guards one, or, when
+     more than one does, every such entry in `compareEntries` order (units, date, venue), each transaction
+     dated on or before one of them.
      This narrows step 2's holding to the purchases and receipts an entry guards.
   5. The monthly buys (decided 2026-11-14, ADR-0056, Corrections): "Every purchase date of C whose month
      is S, left by steps 2 to 4, is a monthly buy for S when C's share is above 0 and S is neither skipped
