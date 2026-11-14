@@ -570,20 +570,23 @@ describe('ExchangeSummary and ExchangeSections', () => {
   });
 
   // "One cause per sentence, each naming its lines: a trade and the cancellation that pairs with it, a cancellation
-  // with no earlier trade of the same coin, units and amount left to pair, and a row that could not be read." The pairs
-  // are counted as a figure and shown whole: past the cap of 5 lines the list shows 6, so the rest are whole pairs too.
-  // The reader's groups, set by hand.
+  // with no earlier buy, or sale, of the same coin, units and amount left to pair, and a row that could not be read."
+  // The pairs are counted as a figure; past the cap the list shows its first 6 lines and "N more". The reader's groups,
+  // set by hand.
   it.each<[string, ExchangeImportPlan['leftOut'], string[]]>([
     [
       'one of each cause',
       [
         { reason: 'cancelled', count: 1, lines: [6, 7], by: [] },
         { reason: 'unpaired', count: 1, lines: [9], by: [] },
+        { reason: 'unpaired-sale', count: 1, lines: [3], by: [] },
         { reason: 'unreadable', count: 1, lines: [11], by: [] },
       ],
       [
         'Lines 6 and 7 are a trade and its cancellation, so they were left out.',
-        'Line 9 is a cancellation, so it was left out. This file has no earlier trade of the same coin, units, and ' +
+        'Line 9 is a cancellation, so it was left out. This file has no earlier buy of the same coin, units, and ' +
+          'amount left to pair with it.',
+        'Line 3 is a cancellation, so it was left out. This file has no earlier sale of the same coin, units, and ' +
           'amount left to pair with it.',
         'Line 11 could not be read, so it was left out.',
       ],
@@ -593,11 +596,14 @@ describe('ExchangeSummary and ExchangeSections', () => {
       [
         { reason: 'cancelled', count: 3, lines: [2, 3, 4, 5, 6, 7], by: [] },
         { reason: 'unpaired', count: 2, lines: [9, 10], by: [] },
+        { reason: 'unpaired-sale', count: 2, lines: [14, 15], by: [] },
         { reason: 'unreadable', count: 2, lines: [11, 12], by: [] },
       ],
       [
         'Lines 2, 3, 4, 5, 6, and 7 are 3 trades and their cancellations, so they were left out.',
-        'Lines 9 and 10 are cancellations, so they were left out. This file has no earlier trades of the same coin, ' +
+        'Lines 9 and 10 are cancellations, so they were left out. This file has no earlier buys of the same coin, ' +
+          'units, and amount left to pair with them.',
+        'Lines 14 and 15 are cancellations, so they were left out. This file has no earlier sales of the same coin, ' +
           'units, and amount left to pair with them.',
         'Lines 11 and 12 could not be read, so they were left out.',
       ],
@@ -611,7 +617,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
       [
         'Lines 2, 3, 4, 5, 6, 7, and 2 more are 4 trades and their cancellations, so they were left out.',
         'Lines 20, 21, 22, 23, 24, and 2 more are cancellations, so they were left out. This file has no earlier ' +
-          'trades of the same coin, units, and amount left to pair with them.',
+          'buys of the same coin, units, and amount left to pair with them.',
       ],
     ],
   ])('names the lines of a Trade Republic export left out by cause: %s', async (_, leftOut, expected) => {
