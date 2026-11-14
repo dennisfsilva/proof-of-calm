@@ -703,6 +703,70 @@ describe("a lump's claim reads its amount", () => {
     expect(invested(c, prefix)).toBe('1030');
   });
 
+  // Above the monthly part, a cut changes the claim only when the whole file's lump claims the cut date (W2).
+  it("above the part, a cut inside a date the whole file's lump passes over: 2,400 either way", () => {
+    const fills = [
+      buy('BTC', '2026-09-03', '1000', '0.0125'),
+      buy('BTC', '2026-09-04T09:00:00Z', '300', '0.00375'),
+      buy('BTC', '2026-09-04T15:00:00Z', '700', '0.00875'),
+    ];
+    const c = of([...M, ...fills], tap(P6, [], '2026-09-03'));
+    expect(invested(c, c.entries)).toBe('2400');
+    const cut = imported(c, c.entries, fileOf(c.file.filter((m) => m.at < '2026-09-04T12:00:00Z')));
+    expect(invested(c, cut)).toBe('2400');
+  });
+
+  // Below the monthly part (a lump of 100, a part of 500), a date passes when its amount is at most 300, so a part of
+  // a date can pass while the whole date fails: a shorter export's lump claims that part, and the whole file's lump
+  // claims another date, which counts twice when the shorter export stored it.
+  const below = (fills: readonly Movement[]) => {
+    const plan = { ...P6, startingAmount: money('100'), monthlyAmount: money('500') };
+    const file = [...MONTHS.map((slot) => buy('BTC', `${slot}-02`, '500', '0.00625')), ...fills];
+    const typedIn = record(of(file, [], plan), [], 'lump', '2026-09-03', { BTC: { amount: '100', units: '0.00125' } });
+    return of(file, typedIn as Entry[], plan);
+  };
+  const ROUND_2 = below([
+    buy('BTC', '2026-09-01T10:00:00Z', '100', '0.00125'),
+    buy('BTC', '2026-09-04T09:00:00Z', '50', '0.000625'),
+    buy('BTC', '2026-09-04T15:00:00Z', '300', '0.00375'),
+  ]);
+
+  it('below the part, an export ending inside 4 Sep: one import 2,450, the cut first then the file 2,550', () => {
+    expect(recordedBy(ROUND_2, ROUND_2.entries, ROUND_2.entries[0] as Entry)).toEqual(['2026-09-01']);
+    expect(invested(ROUND_2, ROUND_2.entries)).toBe('2450');
+    const cut = imported(ROUND_2, ROUND_2.entries, fileOf(ROUND_2.file.filter((m) => m.at < '2026-09-04T12:00:00Z')));
+    expect(invested(ROUND_2, cut)).toBe('2550');
+  });
+
+  it('below the part, an export beginning inside 4 Sep, the claimed 1 Sep before it: 2,450 either way', () => {
+    const cut = imported(ROUND_2, ROUND_2.entries, fileOf(ROUND_2.file.filter((m) => m.at > '2026-09-04T12:00:00Z')));
+    expect(invested(ROUND_2, cut)).toBe('2450');
+  });
+
+  it('below the part, an export beginning inside 4 Sep, the claimed 6 Sep after it: 2,450, the cut first 2,550', () => {
+    const c = below([
+      buy('BTC', '2026-09-04T09:00:00Z', '300', '0.00375'),
+      buy('BTC', '2026-09-04T15:00:00Z', '50', '0.000625'),
+      buy('BTC', '2026-09-06T10:00:00Z', '100', '0.00125'),
+    ]);
+    expect(recordedBy(c, c.entries, c.entries[0] as Entry)).toEqual(['2026-09-06']);
+    expect(invested(c, c.entries)).toBe('2450');
+    const cut = imported(c, c.entries, fileOf(c.file.filter((m) => m.at > '2026-09-04T12:00:00Z')));
+    expect(invested(c, cut)).toBe('2550');
+  });
+
+  it('below the part, an export inside 4 Sep alone: 2,450 either way', () => {
+    const c = below([
+      buy('BTC', '2026-09-01T10:00:00Z', '100', '0.00125'),
+      buy('BTC', '2026-09-04T08:00:00Z', '50', '0.000625'),
+      buy('BTC', '2026-09-04T12:00:00Z', '50', '0.000625'),
+      buy('BTC', '2026-09-04T16:00:00Z', '250', '0.003125'),
+    ]);
+    expect(invested(c, c.entries)).toBe('2450');
+    const inside = (m: Movement) => m.at > '2026-09-04T10:00:00Z' && m.at < '2026-09-04T14:00:00Z';
+    expect(invested(c, imported(c, c.entries, fileOf(c.file.filter(inside))))).toBe('2450');
+  });
+
   const BELOW = (() => {
     const plan = { ...P6, startingAmount: money('100'), monthlyAmount: money('500') };
     const file = [
