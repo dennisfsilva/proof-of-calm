@@ -128,4 +128,7 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   replaced when that leaves its month none; a receipt stored with fewer units is named with both
   figures, and the file's date when it differs. The move check and that comparison round half-even at
   the shown places. A hand monthly buy takes its 3 days only when its month has no date of its coin.
-  Nothing is tombstoned or edited: after the named changes the Log is one import's but for those estimates.
+  Nothing is tombstoned or edited: after the named changes the Log is one import's but for those estimates
+  and for a receipt whose units grew only below the coin's shown places, which is not named (a line
+  showing two equal figures would read as no change), so the Log keeps the earlier import's date and
+  units for it.

@@ -1002,13 +1002,16 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      units are compared rounded half-even at the places the preview shows (below), the places the Log's form
      takes, so typing the figure named ends the line. The line also names the date the file now gives the
      receipt when the entry holds another (an earlier export cut through its rows): change both. A receipt
-     whose units the whole file leaves unchanged at the shown places but whose date it moves earlier is not
-     named. A named
-     monthly buy carries its coin's tombstoned one-tap estimates for its month when deleting the named
+     whose units in the Log equal the file's at the coin's shown places is not named, whatever date the file
+     gives it, so one that grows only below those places is not named either (a Kraken bonus of
+     0.0000000040 BTC on 1 Dec and 0.00005 BTC on 3 Dec, the 3 Dec row exported first): a line naming two
+     equal figures would read as no change, so the Log keeps the earlier import's date and units for it. A
+     named monthly buy carries its coin's tombstoned one-tap estimates for its month when deleting the named
      entries leaves that month no monthly buy, and the line says deleting it leaves the month without its
      estimate, to record again if bought: the import never un-tombstones, and an import's tombstone is not
      told from a hand delete. Once the person makes the named changes, the live Log equals one import's of
-     the whole file, except that each named estimate is live in one import and tombstoned in two. Step 1
+     the whole file, except that each named estimate is live in one import and tombstoned in two, and each
+     receipt left unnamed that way keeps the earlier import's date and units. Step 1
      only compares and names: it tombstones and changes nothing.
   2. "Hand-recorded entries (source `manual`, `import-prototype` or `import-json`; `held` entries and moves
      claim nothing), in `compareEntries` order, claim unclaimed dates", monthly buys first (decided
