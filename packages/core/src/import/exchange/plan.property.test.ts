@@ -120,7 +120,8 @@ describe('planExchangeImport', () => {
         }),
         TWICE,
       );
-      // The cuts inside a date near a lump not of the monthly part are skipped (DOMAIN §3.13 step 2), a few a run.
+      // A cut at splitsLumpDay's width can count the whole file's claimed date twice (DOMAIN §3.13 step 2), so it is
+      // skipped, a few a run; plan-lump-cut.property.test.ts covers it.
       expect(skipped.cuts).toBeLessThan(TWICE.numRuns / 10);
     },
     TIMEOUT,

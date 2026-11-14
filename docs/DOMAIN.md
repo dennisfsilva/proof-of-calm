@@ -1041,17 +1041,16 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      Amounts are positive and part of an export keeps the whole file's order, so an import of part of it
      stores no date that the whole file's import claims, but one exception: an export that cuts inside a
      purchase date of C within 3 days of a live `lump` of C whose amount is not C's monthly part, whichever
-     side (it ends inside the date, begins inside it, or both), can change which date the lump claims. Above
-     the part, the date's purchases the export holds are stored when, alone, they are nearer C's monthly part
-     than the lump's amount, and the whole file's `lump` then claims the whole date, so they count twice
-     (W2): an export ending inside it gives 1,700 against 1,400, and so does one beginning inside it; a cut
-     date that the whole file's `lump` passes over equals one import. Below the part, the purchases the
-     export holds can be at least as near the lump's amount while the whole date is not: the shorter
-     export's `lump` claims them, the whole file's `lump` claims another date, and that date counts twice
-     when the shorter export stored it. An export ending inside the date gives 2,550 against 2,450, and so
-     does one beginning inside it when the claimed date lies after it; one beginning inside it with the
-     claimed date before it, or a slice inside the date alone, equals one import. The properties skip any
-     such cut and unit tests pin each side (`plan-remedy-start.test.ts`). The 3
+     side (it ends inside the date, begins inside it, or both), can change which dates hand entries claim
+     (W2). The shorter export, then the whole file, leaves the Log one import leaves, plus the purchases
+     the shorter export stored of the dates hand entries claim in one import, less the purchases of the
+     dates they claim in the second import instead. Above the part, the shorter export stores the date's
+     part when the lump passes over it and the whole file's `lump` claims the whole date: 1,700 against
+     1,400. Below it, the shorter export's `lump` claims the date's part and stores the date the whole
+     file's `lump` claims when it holds that date: 2,550 against 2,450, and 2,450 either way when that
+     date lies after the export's end. The property
+     `packages/core/src/import/exchange/plan-lump-cut.property.test.ts` checks this condition on every
+     such cut, and `plan-remedy-start.test.ts` pins each case. The 3
      days are `IMPORT_TYPED_DAYS` (§9). Decided 2026-11-13 (ADR-0056, Corrections): "Every step that leaves
      a purchase out runs before any step that stores one: no purchase a hand entry records is stored, and
      none dated on or before a `held` entry of its coin is stored without the person's answer, whether the
