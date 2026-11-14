@@ -132,3 +132,7 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   and for a receipt whose units grew only below the coin's shown places, which is not named (a line
   showing two equal figures would read as no change), so the Log keeps the earlier import's date and
   units for it.
+- 2026-11-14, the starting-amount line: it names each purchase it leaves out and what the Log holds of
+  the starting amount, per coin, and asks for no change, replacing "to record by hand"; an instruction
+  shown only when the file planned again on the changed Log proves it follows (#204, #205). The rest
+  stands.
