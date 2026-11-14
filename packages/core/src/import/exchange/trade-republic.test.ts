@@ -242,21 +242,19 @@ describe('readTradeRepublic, rule by rule', () => {
     ]);
   });
 
-  it.each<[string, Cells]>([
-    ['another coin', { symbol: 'ETH' }],
-    ['other shares', { shares: '0.002' }],
-    ['another amount', { amount: '49.99' }],
-    ['a sale cancelled', { type: 'SELL_CANCELLED' }],
-    ['an earlier time', { datetime: '2026-05-01T00:00:00.000Z' }],
-  ])('rule 6: a cancellation with %s pairs with nothing and goes out alone', (_, row) => {
+  it.each<[string, Cells, string]>([
+    ['another coin', { symbol: 'ETH' }, 'unpaired'],
+    ['other shares', { shares: '0.002' }, 'unpaired'],
+    ['another amount', { amount: '49.99' }, 'unpaired'],
+    // The file holds a buy of these figures, so the sentence names the side: no earlier sale.
+    ['a sale cancelled', { type: 'SELL_CANCELLED' }, 'unpaired-sale'],
+    ['an earlier time', { datetime: '2026-05-01T00:00:00.000Z' }, 'unpaired'],
+  ])('rule 6: a cancellation with %s pairs with nothing and goes out alone', (_, row, reason) => {
     const rows: Cells[] = [
       {},
       { type: 'BUY_CANCELLED', datetime: '2026-05-05T00:00:00.000Z', transaction_id: 'C', ...row },
     ];
-    expect([keys(...rows), reasons(...rows)]).toEqual([
-      ['poc-csv-1|trade-republic|T1|BTC|in'],
-      [['unpaired', [3], null]],
-    ]);
+    expect([keys(...rows), reasons(...rows)]).toEqual([['poc-csv-1|trade-republic|T1|BTC|in'], [[reason, [3], null]]]);
   });
 
   it('rule 6: SELL_CANCELLED pairs with a sale; a cancellation with unreadable shares is unreadable', () => {

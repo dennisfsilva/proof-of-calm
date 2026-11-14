@@ -101,6 +101,7 @@ const REASONS = [
   'conversion',
   'cancelled',
   'unpaired',
+  'unpaired-sale',
   'other',
 ];
 const leftOutRow = fc
