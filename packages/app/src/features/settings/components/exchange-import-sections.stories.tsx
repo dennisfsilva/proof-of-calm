@@ -119,8 +119,11 @@ export const RecordedWithAndWithoutTheSentence: Story = {
     const name = 'Matching entries in the Log, not added (2)';
     await userEvent.click(canvas.getByRole('button', { name }));
     const items = canvas.getAllByRole('listitem').map((item) => item.textContent ?? '');
-    const sentence = "To import the file's instead, delete that entry in the Log, then choose the file again.";
+    const sentence =
+      "To import the file's transaction instead, delete that entry in the Log, then choose the file again.";
     await expect(items.map((text) => text.endsWith(sentence))).toEqual([true, false]);
+    // Its own line at the end of the item, in the secondary ink.
+    await expect(canvas.getByText(sentence)).toHaveClass('block', 'text-ink-2');
   },
 };
 

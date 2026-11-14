@@ -27,7 +27,8 @@ type Model = ReturnType<typeof previewModel>;
 type Props = { readonly model: Model; readonly plan: Plan };
 /** The sections also take the file's exchange, which the lines left out name. */
 type SectionsProps = Props & { readonly exchange: ExchangeId };
-type Item = { readonly key: string; readonly text: string };
+// `hint` is a second line inside the item, for a sentence that asks the person to do something about it.
+type Item = { readonly key: string; readonly text: string; readonly hint?: string };
 /** Past this many, the lines that could not be read or paired end in "and N more". */
 const LINES_SHOWN = 5;
 
@@ -117,7 +118,10 @@ function Section({ title, items }: { title: string; items: readonly Item[] }) {
       <CollapsibleContent className="flex flex-col gap-stack-sm">
         <ul aria-label={title} className="flex list-disc flex-col gap-stack-xs pl-5">
           {items.map((item) => (
-            <li key={item.key}>{item.text}</li>
+            <li key={item.key}>
+              {item.text}
+              {item.hint !== undefined && <span className="block text-ink-2">{item.hint}</span>}
+            </li>
           ))}
         </ul>
       </CollapsibleContent>
@@ -181,7 +185,8 @@ export function ExchangeSections({ model, plan, exchange }: SectionsProps) {
       entry: piece(row.entry, [row.units], true),
     });
     // Only where deleting the entry imports what the item says (importRemedies, docs/DOMAIN.md §3.13).
-    return { key: row.entry.id, text: row.remedy ? `${text} ${t('recordedHint')}` : text };
+    const hint = row.remedy ? t('recordedHint', { count: row.dates.length }) : undefined;
+    return { key: row.entry.id, text, ...(hint === undefined ? {} : { hint }) };
   });
   const { imported, deleted, unitsCut, feesInCoin } = model.counted;
 
