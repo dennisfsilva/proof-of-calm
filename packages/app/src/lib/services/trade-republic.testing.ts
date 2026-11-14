@@ -17,7 +17,7 @@ type Row = readonly [
 ];
 
 /** An export of the given rows, numbered by transaction_id, with the columns the reader never reads filled in. */
-export function tradeRepublicExport(rows: readonly Row[]): string {
+function tradeRepublicExport(rows: readonly Row[]): string {
   const lines = rows.map(([datetime, category, type, asset_class, symbol, shares, amount, fee], index) => {
     const transaction_id = `00000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`;
     const cells: Record<string, string> = { datetime, category, type, asset_class, symbol, shares, amount, fee };

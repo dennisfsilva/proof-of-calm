@@ -77,12 +77,7 @@ async function imported(csv = KRAKEN_OCTOBER, venue = 'Kraken') {
     dateOf: (at: typeof NOW) => todayIn(epochMs(at), 'Europe/Lisbon'),
     idOf: importId,
   };
-  const importPlan = planExchangeImport(
-    read.value,
-    { plan, entries: stored },
-    { venue, addHeld: false },
-    context,
-  );
+  const importPlan = planExchangeImport(read.value, { plan, entries: stored }, { venue, addHeld: false }, context);
   const write = applyExchangeImport(stored, importPlan, NOW);
   expect(write.refused).toBeNull();
   await open().write({ entries: write.entries.filter((entry, index) => entry !== stored[index]) });
