@@ -40,14 +40,16 @@ export const IMPORT_MATCH_DAYS = 15;
 export const IMPORT_TYPED_DAYS = 3;
 
 /**
- * The exchange import's preview checks at most this many Log rows of `Matching entries` for the sentence that says to
- * delete one, each by planning the file again without it, before and after importing first (docs/DOMAIN.md §3.13).
+ * The exchange import's preview checks at most this many Log rows for each line that asks for a change: the rows of
+ * `Matching entries` for the sentence that says to delete one, and the rows of lumps for the starting line's sentence
+ * that says to change one, each by planning the file again after the change, before and after importing first
+ * (docs/DOMAIN.md §3.13).
  */
 export const IMPORT_RECORDED_CHECKS = 12;
 
 /**
- * The exchange import's preview checks no row for that sentence in a file of more than this many movements, so the
- * checks' cost stays bounded by the file's size (docs/DOMAIN.md §9).
+ * The exchange import's preview checks no row for any line that asks for a change in a file of more than this many
+ * movements, so the checks' cost stays bounded by the file's size (docs/DOMAIN.md §9).
  */
 export const IMPORT_REMEDY_MAX_MOVEMENTS = 520;
 
