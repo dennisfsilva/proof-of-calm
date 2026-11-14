@@ -138,6 +138,7 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   stands.
 - 2026-11-14, the left-out lines of a Trade Republic export: a trade and the cancellation that pairs
   with it go out together as `cancelled`, one left-out row holding both lines, and a cancellation with
-  no trade to pair goes out alone as `unpaired` (`docs/DOMAIN.md` §3.13), replacing the 2026-11-13
+  no trade to pair goes out alone as `unpaired`, or `unpaired-sale` for a sale's cancellation, so its line
+  names the side it found no trade of (`docs/DOMAIN.md` §3.13), replacing the 2026-11-13
   entry's "both rows are left out as unpaired", so the preview names each cause in its own sentence.
   The rest stands.
