@@ -18,10 +18,14 @@ import { changedLog, importRemedies, type Stored } from './plan-remedy';
 // The Matching entries' sentence over generated files and Logs (docs/DOMAIN.md §3.13, "Lines that ask for a change"),
 // before importing, after importing the shown plan and after a shorter export was stored first: whoever follows it
 // ends with the Log one import leaves, less the row, plus the dates the row recorded, at the same Invested, and a third
-// import adds nothing.
+// import adds nothing. Whoever imports the shown plan first and then follows the sentence shown before the import is
+// allowed the delete and ends with the same Log and Invested.
 
 const run = (drawn: World, entries: readonly Entry[], file: ExchangeFile) =>
   planExchangeImport(file, { plan: drawn.plan, entries }, { addHeld: drawn.addHeld, venue: drawn.venue }, LISBON);
+/** Choosing the file again opens a new preview, its box unticked. */
+const anew = (drawn: World, entries: readonly Entry[]) =>
+  planExchangeImport(drawn.file, { plan: drawn.plan, entries }, { addHeld: false, venue: drawn.venue }, LISBON);
 const imported = (drawn: World, entries: readonly Entry[], file: ExchangeFile) =>
   applyExchangeImport(entries, run(drawn, entries, file), NOW).entries;
 const seen = (entries: readonly Entry[]) =>
@@ -50,7 +54,7 @@ function follow(drawn: World, stored: Stored, entry: Entry) {
   const ids = new Set(row.map((each) => each.id));
   const changed = changedLog(stored, { kind: 'delete', ids: [...ids] }, LISBON);
   expect(changed).not.toBeNull();
-  const again = run(drawn, changed as Entry[], drawn.file);
+  const again = anew(drawn, changed as Entry[]);
   const final = applyExchangeImport(changed as Entry[], again, NOW).entries;
   const recorded = new Set(
     shown.recorded
@@ -76,6 +80,24 @@ function follow(drawn: World, stored: Stored, entry: Entry) {
 }
 
 /**
+ * Imports the shown plan first, then follows the sentence shown before the import: the Log allows the delete, and the
+ * Log and Invested end as following it first leaves them.
+ */
+function importFirst(drawn: World, stored: Stored, entry: Entry) {
+  const key = transactionKey(entry);
+  const deleteRow = (entries: readonly Entry[]) => {
+    const ids = liveEntries(entries).filter((each) => transactionKey(each) === key);
+    return changedLog({ plan: drawn.plan, entries }, { kind: 'delete', ids: ids.map((each) => each.id) }, LISBON);
+  };
+  const later = deleteRow(imported(drawn, stored.entries, drawn.file));
+  expect(later).not.toBeNull();
+  const finish = (entries: readonly Entry[]) => applyExchangeImport(entries, anew(drawn, entries), NOW).entries;
+  const [first, then] = [finish(deleteRow(stored.entries) as Entry[]), finish(later as Entry[])];
+  expect(seen(then)).toEqual(seen(first));
+  expect(portfolio(drawn.plan, then).invested).toBe(portfolio(drawn.plan, first).invested);
+}
+
+/**
  * The property runs 300 times and the five-year file once, each with a 60 s timeout (the core's default is Vitest's
  * 5 s). Measured on 2026-11-14 under the full core suite with coverage, seeds 1 to 8 (fast-check's global seed): the
  * worst was 1.66 s for the property (seed 7) and 1.85 s for the five-year file (520 purchases, 120 entries typed by
@@ -88,7 +110,7 @@ const TIMEOUT = 60_000;
 
 describe('importRemedies, over generated files and Logs', () => {
   it(
-    'following the sentence leaves the Log one import leaves, less the row, plus the dates it recorded',
+    'following the sentence, before or after importing, leaves the Log one import leaves, less the row, plus its dates',
     () => {
       const reached = { before: 0, after: 0, shorter: 0 };
       fc.assert(
@@ -96,8 +118,10 @@ describe('importRemedies, over generated files and Logs', () => {
           for (const [order, stored] of orders(drawn, cut)) {
             const { recorded } = importRemedies(drawn.file, stored, drawn.addHeld, LISBON);
             if (recorded.size > 0) reached[order as keyof typeof reached] += 1;
-            for (const entry of liveEntries(stored.entries).filter((each) => recorded.has(each.id)))
+            for (const entry of liveEntries(stored.entries).filter((each) => recorded.has(each.id))) {
               follow(drawn, stored, entry);
+              importFirst(drawn, stored, entry);
+            }
           }
         }),
         RUNS,
