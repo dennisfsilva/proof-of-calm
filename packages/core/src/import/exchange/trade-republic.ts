@@ -154,7 +154,9 @@ function cancel(trades: readonly Trade[], cancels: readonly Cancel[]) {
     const match = trades.filter(same).toSorted(order).at(-1);
     if (match !== undefined) paired.add(match);
     const alone = row.side === 'BUY' ? 'unpaired' : 'unpaired-sale';
-    out.push(match === undefined ? left(alone, [row.line], row.at) : left('cancelled', [match.line, row.line], match.at));
+    out.push(
+      match === undefined ? left(alone, [row.line], row.at) : left('cancelled', [match.line, row.line], match.at),
+    );
   }
   // "Trade Republic's reader returns each paired trade in `cancelled` under the key it would have had", so the plan
   // can name one an earlier import stored.
