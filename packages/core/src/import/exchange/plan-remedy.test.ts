@@ -228,6 +228,55 @@ describe('importRemedies', () => {
     expect(changedLog(stored, { kind: 'delete', ids: [(REFUSED.entries[0] as Entry).id] }, LISBON)).toBeNull();
   });
 
+  // Importing first, then following the sentence shown before the import: the import's ETH entry joins the hand BTC
+  // entry's Log row (`transactionKey` names no coin), so Delete entry takes it too and the file counts it as deleted.
+  const JOINED: Case = (() => {
+    const eth = bought('ETH', '2026-07-02', '30');
+    return { plan: PLAN, file: [bought('BTC', '2026-07-02', '70'), eth], shorter: [eth], entries: [] };
+  })();
+  const JOINED_LOG = [monthly('2026-07-02', '2026-07', '70')];
+  const joined = { ...JOINED, entries: JOINED_LOG };
+
+  it.each(orders(joined))('an import that joins the row another coin, %s: no sentence', (_, stored) => {
+    expect(remedies(joined, stored).size).toBe(0);
+  });
+
+  it('an import that joins the row another coin: importing first, then deleting the row, gives 70 against 100', () => {
+    const stored = orders(joined)[1]?.[1] as Stored;
+    expect(invested(joined, follow(joined, stored, JOINED_LOG[0] as Entry).log)).toBe('70');
+  });
+
+  // Importing first stores the file's sale, which only the hand purchase then covers: the Log refuses the delete.
+  const COVERING: Case = (() => {
+    const file = [bought('BTC', '2026-07-02', '70', '0.001'), sold('BTC', '2026-07-20', '80', '0.001')];
+    const entries = [monthly('2026-07-02', '2026-07', '70', { units: units('0.001') })];
+    return { plan: PLAN, file, shorter: file.slice(1), entries };
+  })();
+
+  it.each(orders(COVERING))('a hand purchase that would cover the file sale, %s: no sentence', (_, stored) => {
+    expect(remedies(COVERING, stored).size).toBe(0);
+  });
+
+  it('a hand purchase that would cover the file sale: after importing, the Log refuses its delete', () => {
+    const stored = orders(COVERING)[1]?.[1] as Stored;
+    const ids = [(COVERING.entries[0] as Entry).id];
+    expect(changedLog(orders(COVERING)[0]?.[1] as Stored, { kind: 'delete', ids }, LISBON)).not.toBeNull();
+    expect(changedLog(stored, { kind: 'delete', ids }, LISBON)).toBeNull();
+  });
+
+  // Choosing the file again opens a new preview, its box unticked: a date a Coins added entry would guard once the row
+  // is deleted is then left out, ticked or not now.
+  const GUARDED: Case = (() => {
+    const file = [bought('BTC', '2026-09-02', '70')];
+    const coins = hand({ kind: 'held', slot: null, date: date('2026-10-20'), amount: null, units: units('0.01') });
+    return { plan: PLAN, file, shorter: [], entries: [monthly('2026-09-02', '2026-09', '70'), coins] };
+  })();
+
+  it.each(orders(GUARDED))('a monthly buy whose date a Coins added entry would guard, %s: none', (_, stored) => {
+    for (const ticked of [false, true])
+      expect(importRemedies(fileOf(GUARDED.file), stored, ticked, LISBON).recorded.size).toBe(0);
+  });
+
   const MANY: Case = (() => {
     const days = Array.from({ length: IMPORT_RECORDED_CHECKS + 1 }, (_, index) =>
       addDays(date('2026-01-01'), index * 5),

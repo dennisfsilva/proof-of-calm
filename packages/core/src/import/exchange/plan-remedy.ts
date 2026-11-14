@@ -1,6 +1,7 @@
 // The exchange import's lines that ask for a change in the Log (docs/DOMAIN.md §3.13, "Lines that ask for a change"):
 // each shows only when the change, made as the Log makes it, and the file planned again end as the line says and keep
-// every other date group. This branch checks Delete entry, for the sentence under `Matching entries`.
+// every other date group, on the Log as shown and on the Log after importing the shown plan first. This branch checks
+// Delete entry, for the sentence under `Matching entries`.
 import { deleteEntries, slotsAtDelete, storedOver, uncoveredSale } from '../../actions/entries';
 import { IMPORT_RECORDED_CHECKS } from '../../constants';
 import type { CalendarDate, MonthKey } from '../../dates/calendar';
@@ -9,6 +10,7 @@ import { liveEntries } from '../../plan/statuses';
 import type { Entry } from '../../schema/entry';
 import type { CoinId, EntityId } from '../../schema/ids';
 import type { Plan } from '../../schema/plan';
+import { applyExchangeImport } from './apply';
 import type { ExchangeFile } from './kraken';
 import { type ExchangeImportPlan, type ImportContext, planExchangeImport } from './plan';
 import { HAND } from './plan-claims';
@@ -78,10 +80,13 @@ export function keepsPromise(
 export type ImportRemedies = { readonly recorded: ReadonlySet<EntityId> };
 
 /**
- * The entries of `Matching entries` whose Log row may be deleted to import the file's instead: the row holds no `lump`,
- * every entry of it is a hand entry that records a date of the file, the Log deletes it, and the file planned again adds
- * every date the row records (a monthly buy's as monthly buys for its month) and keeps every other date group. At most
- * `IMPORT_RECORDED_CHECKS` rows are checked, in the section's order. Planned with no venue, since no step reads one.
+ * The entries of `Matching entries` whose Log row may be deleted to import the file's instead, checked in both orders the
+ * person may follow the sentence: on the Log as shown, and on the Log after importing the shown plan first. In each, the
+ * row (the live entries with the item's `transactionKey`) holds no `lump`, every entry of it is a hand entry that records
+ * a date of the file, the Log deletes it, and the file planned again with the box unticked, as choosing it again opens
+ * the preview, adds every date the row records (a monthly buy's as monthly buys for its month) and keeps every other
+ * date group. At most `IMPORT_RECORDED_CHECKS` rows are checked, in the section's order. Planned with no venue, since no
+ * step reads one.
  */
 export function importRemedies(
   file: ExchangeFile,
@@ -89,9 +94,14 @@ export function importRemedies(
   addHeld: boolean,
   context: ImportContext,
 ): ImportRemedies {
-  const choices = { venue: null, addHeld };
-  const shown = planExchangeImport(file, stored, choices, context);
-  const live = liveEntries(stored.entries);
+  const shown = planExchangeImport(file, stored, { venue: null, addHeld }, context);
+  const anew = (entries: readonly Entry[]) =>
+    planExchangeImport(file, { plan: stored.plan, entries }, { venue: null, addHeld: false }, context);
+  const imported = applyExchangeImport(stored.entries, shown, context.now).entries;
+  const orders = [
+    { entries: stored.entries, shown },
+    { entries: imported, shown: anew(imported) },
+  ];
   const known = new Set(stored.entries.map((entry) => entry.id));
   const records = new Set(shown.recorded.map((item) => item.entry.id));
   const idsOn = (item: ExchangeImportPlan['recorded'][number], date: CalendarDate) =>
@@ -100,12 +110,15 @@ export function importRemedies(
       .filter((movement) => movement.role === (item.entry.kind === 'sell' ? 'sale' : 'purchase'))
       .map((movement) => context.idOf(movement.key))
       .filter((id) => !known.has(id));
-  const deletable = (key: string) => {
-    const row = live.filter((entry) => transactionKey(entry) === key);
+  const holds = (log: (typeof orders)[number], key: string, touched: readonly Touched[]) => {
+    const row = liveEntries(log.entries).filter((entry) => transactionKey(entry) === key);
     if (row.some((entry) => entry.kind === 'lump' || !HAND.has(entry.source) || !records.has(entry.id))) return false;
-    const entries = changedLog(stored, { kind: 'delete', ids: row.map((entry) => entry.id) }, context);
-    if (entries === null) return false;
-    const again = planExchangeImport(file, { plan: stored.plan, entries }, choices, context);
+    const ids = row.map((entry) => entry.id);
+    const entries = changedLog({ plan: stored.plan, entries: log.entries }, { kind: 'delete', ids }, context);
+    return entries !== null && keepsPromise(log.shown, anew(entries), touched);
+  };
+  const deletable = (key: string) => {
+    const row = liveEntries(stored.entries).filter((entry) => transactionKey(entry) === key);
     const touched = shown.recorded
       .filter((item) => row.includes(item.entry))
       .flatMap((item) =>
@@ -116,7 +129,7 @@ export function importRemedies(
           end: { added: item.entry.kind === 'dca' ? item.entry.slot : null },
         })),
       );
-    return keepsPromise(shown, again, touched);
+    return orders.every((log) => holds(log, key, touched));
   };
   const checked = new Map<string, boolean>();
   const recorded = new Set<EntityId>();
