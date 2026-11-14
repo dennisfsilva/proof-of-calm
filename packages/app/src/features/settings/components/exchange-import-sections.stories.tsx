@@ -151,7 +151,7 @@ export const StartingAmountInTheLog: Story = {
     await expect(canvas.getByText(/0\.0125 BTC for €700\.00 on 20 Mar 2026/)).toBeVisible();
     // Only the BTC lump, its coin named: the file names no ETH purchase.
     await expect(
-      canvas.getByText(/holds your starting amount of BTC as 0\.0125 BTC for €700\.00 on 5 Apr 2026\.$/),
+      canvas.getByText(/holds the BTC part of your starting amount: 0\.0125 BTC for €700\.00 on 5 Apr 2026\.$/),
     ).toBeVisible();
   },
 };
@@ -169,7 +169,7 @@ export const StartingAmountToChange: Story = {
   play: async ({ canvas }) => {
     await userEvent.click(canvas.getByRole('button', { name: 'Left out (1)' }));
     const sentence =
-      "If you bought your whole starting amount on 20 Mar 2026, change its date, cost and units in the Log to the file's. " +
+      "If you bought your whole starting amount on 20 Mar 2026, change its date, cost, and units in the Log to the file's. " +
       'Then choose the file again.';
     // Its own line at the end of the item, in the secondary ink.
     await expect(canvas.getByText(sentence)).toHaveClass('block', 'text-ink-2');
