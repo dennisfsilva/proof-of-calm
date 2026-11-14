@@ -238,7 +238,10 @@ dark mode uses the dark steps above, not an inversion; the validator runs whenev
   an element that may sit under the tab bar (a row after "Show all", the row in a deleted row's
   place, the row an Undo restores) focuses with `preventScroll` and then calls `scrollIntoView({ block: 'nearest' })`:
   Chromium's own focus scroll ignores the padding and leaves the element partly under the bar.
-  Every element this move lands on carries a top scroll margin of `stack-md` (`scroll-mt-result`;
+  The row an edit moved to another date, or the Log's heading when that row is not shown, takes the
+  focus from the closing Sheet, which focuses without scrolling; a frame later, once the Sheet's
+  scroll lock has let go of the page, the same least scroll brings it into view (the row stayed
+  below the fold, zoom-125, 2026-11-14). Every element this move lands on carries a top scroll margin of `stack-md` (`scroll-mt-result`;
   the header is not sticky, §7): the Log rows' toggles, the country change's result line, the
   review's result line and heading, an import's result and problem lines, the buttons an Undo returns focus to and Today's headings. An
   import's preview heading scrolls to the top of the view instead (`block: 'start'`), its margin above it: the
