@@ -100,10 +100,11 @@ describe('planExchangeImport', () => {
     );
   });
 
-  // 300 runs with a 10 s timeout. Measured on 2026-11-14 under the full core suite with coverage, seeds 1 to 8: 392 to
-  // 506 ms (seed 2); six times the worst, 3.0 s, stays under a third of the timeout (3.3 s). At seed 1, 8 of the 300
-  // worlds name an estimate left.
-  it('every `estimatesLeft` estimate is live after the plan is stored', () => {
+  // 300 runs with a 10 s timeout. Measured on 2026-11-14 under the full core suite with coverage, seeds 1 to 8: 274 to
+  // 431 ms (seed 7); six times the worst, 2.6 s, stays under a third of the timeout (3.3 s). Without the hand-buy rule
+  // the second half fails at seeds 1, 2, 3, 5 and 7, each by run 171.
+  it('every `estimatesLeft` estimate is live after the plan is stored, and its month holds no live hand monthly buy of its coin', () => {
+    const hand: readonly Entry['source'][] = ['manual', 'import-prototype', 'import-json'];
     fc.assert(
       fc.property(world, (drawn) => {
         const plan = run(drawn, drawn.entries, drawn.file);
@@ -111,6 +112,9 @@ describe('planExchangeImport', () => {
         expect(plan.estimatesLeft.map(({ estimate }) => estimate)).toEqual(
           plan.estimatesLeft.flatMap(({ estimate }) => after.filter((entry) => entry.id === estimate.id)),
         );
+        const typed = live(drawn.entries).filter((entry) => entry.kind === 'dca' && hand.includes(entry.source));
+        const named = plan.estimatesLeft.map(({ estimate }) => estimate);
+        expect(named.filter((each) => typed.some((e) => e.coin === each.coin && e.slot === each.slot))).toEqual([]);
       }),
       { numRuns: 300 },
     );

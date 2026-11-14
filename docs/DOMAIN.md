@@ -1094,7 +1094,9 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   the earliest added monthly buy of C dated in S's calendar month that counts for another month T by T's buy
   day: nearer than S's, and nearer than any one-tap estimate of C for T." A buy that counts for T through T's
   own estimate is not named, since the line gives the buy day as the reason, nor is an estimate for a month the
-  plan no longer lists. Changing the estimate's date to the purchase's keeps it an estimate for S (`savedSource`;
+  plan no longer lists, nor one whose month holds a live hand monthly buy of C: once the estimate's date is the
+  purchase's, the purchase's month is S, and step 2's hand claim takes it before step 5 could replace the
+  estimate. Changing the estimate's date to the purchase's keeps it an estimate for S (`savedSource`;
   the Log's edit keeps the slot), so its anchor reaches the date at 0 days and the file replaces it when chosen
   again.
 - The write (decided 2026-11-13, ADR-0056): `applyExchangeImport(stored, plan, now)` writes a plan in one

@@ -33,6 +33,9 @@ export type MonthOf = (coin: CoinId, date: CalendarDate) => MonthKey | undefined
 
 const HAND = new Set<Entry['source']>(['manual', 'import-prototype', 'import-json']);
 
+/** Whether the person recorded an entry by hand, so step 2 lets it claim the file's dates. */
+export const byHand = (entry: Entry) => HAND.has(entry.source);
+
 /** The due date of a plan month, as `slots` gives it, for any month key. */
 function dueOf(plan: Plan, key: MonthKey): CalendarDate {
   const { year, month } = dateParts(monthStart(key));
@@ -109,9 +112,7 @@ export function claimRecorded(
     }
     return [...byDate.values()];
   };
-  const hand = live
-    .filter((each) => HAND.has(each.source) && each.kind !== 'held' && each.kind !== 'move')
-    .sort(compareEntries);
+  const hand = live.filter((each) => byHand(each) && each.kind !== 'held' && each.kind !== 'move').sort(compareEntries);
   const rest: Entry[] = [];
   for (const entry of hand) {
     const slot = entry.slot;

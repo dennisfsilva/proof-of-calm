@@ -6,6 +6,7 @@ import type { SlotStatus } from '../../plan/statuses';
 import { compareEntries } from '../../portfolio/lots';
 import type { Entry } from '../../schema/entry';
 import type { EntityId } from '../../schema/ids';
+import { byHand } from './plan-claims';
 
 export type EstimateLeft = { readonly estimate: Entry; readonly date: CalendarDate; readonly countsFor: MonthKey };
 
@@ -13,20 +14,24 @@ export type EstimateLeft = { readonly estimate: Entry; readonly date: CalendarDa
  * "A live one-tap estimate of C for S that the file does not replace is named with the earliest added monthly buy of C
  * dated in S's calendar month that counts for another month T by T's buy day: nearer than S's, and nearer than any
  * one-tap estimate of C for T." A buy that counts for T through T's own estimate is not named, since the line gives
- * the buy day as the reason; nor is an estimate for a month the plan no longer lists.
+ * the buy day as the reason; nor is an estimate for a month the plan no longer lists, nor one whose month holds a live
+ * hand monthly buy of C, since step 2's claim would take the date the line names before the estimate could. `live` is
+ * the Log as it is now.
  */
 export function estimatesLeft(
   groups: Iterable<{ readonly estimates: readonly Entry[]; readonly by: readonly EntityId[] }>,
   months: readonly SlotStatus[],
   added: readonly Entry[],
   taps: readonly Entry[],
+  live: readonly Entry[],
 ): EstimateLeft[] {
   const dueOf = new Map(months.map((each) => [each.key, each.due]));
+  const hand = new Set(live.filter((each) => each.kind === 'dca' && byHand(each)).map((e) => `${e.coin}|${e.slot}`));
   const left: EstimateLeft[] = [];
   for (const { estimates, by } of groups) {
     const estimate = estimates[0] as Entry;
     const own = dueOf.get(estimate.slot as MonthKey);
-    if (by.length > 0 || own === undefined) continue;
+    if (by.length > 0 || own === undefined || hand.has(`${estimate.coin}|${estimate.slot}`)) continue;
     const nearer = (entry: Entry) => {
       const away = Math.abs(daysBetween(dueOf.get(entry.slot as MonthKey) as CalendarDate, entry.date));
       const typed = taps.some((tap) => {

@@ -605,6 +605,18 @@ describe('planExchangeImport, in one import or two', () => {
       ]);
     });
 
+    it("an estimate whose month holds a hand monthly buy is not named: changing its date would move 19 Oct to that buy's claim", () => {
+      const H = anEntry({ slot: month('2026-10'), date: date('2026-10-05'), amount: money('70'), note: 'H' });
+      const first = preview(PLAIN, [tap('2026-10', '2026-11-10', 'E'), H], [O19, N01]);
+      expect(first.estimatesLeft).toEqual([]);
+      const second = preview(PLAIN, [tap('2026-10', '2026-10-19', 'E'), H], [O19, N01]);
+      expect([second.recorded.map((each) => each.dates), gone(second), second.estimatesLeft]).toEqual([
+        [['2026-10-19']],
+        [],
+        [],
+      ]);
+    });
+
     it('a replaced estimate is never named', () => {
       const once = preview(PLAIN, [tap('2026-10', '2026-10-01', 'E')], [O02, O19, N01]);
       expect([kinds(once)[1], gone(once).length, once.estimatesLeft]).toEqual([`${id(O19)}:dca:2026-11`, 1, []]);

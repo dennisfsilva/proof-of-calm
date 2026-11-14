@@ -310,6 +310,6 @@ export function planExchangeImport(
     leftOut: list(),
     noneInCurrency: currencies.size === 0 || currencies.has(plan.payCurrency) ? null : [...currencies].sort(),
     ...counts,
-    estimatesLeft: estimatesLeft(groups.values(), months, entries, taps),
+    estimatesLeft: estimatesLeft(groups.values(), months, entries, taps, live),
   };
 }
