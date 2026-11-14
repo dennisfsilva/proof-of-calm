@@ -1,6 +1,9 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
+import { CHOICES, LISBON, NOW, PLAN, testId } from '../../../test/exchange/plan-fixture';
+import type { Entry } from '../../schema/entry';
 import type { ExchangeFile } from './kraken';
+import { type ExchangeImportPlan, planExchangeImport } from './plan';
 import { readTradeRepublic, TR_COLUMNS } from './trade-republic';
 
 // The Trade Republic reader (docs/DOMAIN.md §3.13, the exchange import) over generated exports. Trades take their own
@@ -10,6 +13,11 @@ import { readTradeRepublic, TR_COLUMNS } from './trade-republic';
 // The worst of three seeds under the whole core suite with coverage on was 79 ms (2026-11-13); six times it, 474 ms,
 // stays under a third of Vitest's 5 s timeout, the core's default.
 const RUNS = { numRuns: 100 };
+// The cancellation property plans two imports over the reader, so it runs 300 times with a 60 s timeout. Measured on
+// 2026-11-14 under the whole core suite with coverage, seeds 1 to 8: the worst was 0.49 s (seed 4); six times it,
+// 2.9 s, stays under a third of the timeout (20 s). The reader's own properties took at most 0.15 s there.
+const TWICE = { numRuns: 300 };
+const TIMEOUT = 60_000;
 
 const ROWS: Record<string, readonly [string, string, string, '+' | '-' | '', '+' | '-' | '']> = {
   buy: ['TRADING', 'BUY', 'CRYPTO', '+', '-'],
@@ -64,6 +72,40 @@ function dataOf([rows, repeats]: [readonly Row[], readonly number[]], fill: (col
 const blank = () => '';
 const read = (data: readonly (readonly string[])[]) => readTradeRepublic(TR_COLUMNS, data);
 
+/** Buys at their own even minute, and cancellations copying an earlier buy's |shares| and |amount| a minute or more later. */
+const trade = fc.record({ coin: fc.constantFrom('BTC', 'ETH'), shares: fc.constantFrom('0.001', '0.002') });
+type Trade = typeof trade extends fc.Arbitrary<infer T> ? T : never;
+const cancelling = fc.record({
+  buys: fc.array(trade, { minLength: 1, maxLength: 8 }),
+  cancels: fc.array(fc.record({ of: fc.nat(), late: fc.nat({ max: 20 }) }), { maxLength: 4 }),
+  cut: fc.nat(),
+});
+/** One trade row's cells, its `datetime` first and again in its column, so a cut reads it without the header. */
+function tradeRow(kind: 'buy' | 'buyCancelled', { coin, shares }: Trade, minute: number, id: string) {
+  const [category, type, assetClass, sharesSign, amountSign] = ROWS[kind] as (typeof ROWS)[string];
+  const datetime = `2026-05-01T08:${String(minute).padStart(2, '0')}:00.000Z`;
+  const cells: Record<string, string> = {
+    datetime,
+    category,
+    type,
+    asset_class: assetClass,
+    symbol: coin,
+    shares: sign(sharesSign, shares),
+    amount: sign(amountSign, shares === '0.001' ? '50.00' : '100.00'),
+    fee: '-1.00',
+    currency: 'EUR',
+    transaction_id: id,
+  };
+  return [datetime, ...TR_COLUMNS.map((column) => cells[column] ?? '')];
+}
+/** What the write does with a plan: tombstones the estimates it replaces and adds its entries. */
+function store(entries: readonly Entry[], plan: ExchangeImportPlan): Entry[] {
+  const replaced = new Set(plan.replaced.flatMap((replacement) => replacement.estimates.map((entry) => entry.id)));
+  return [...entries.map((entry) => (replaced.has(entry.id) ? { ...entry, deletedAt: NOW } : entry)), ...plan.entries];
+}
+const planned = (file: ExchangeFile, entries: readonly Entry[]) =>
+  planExchangeImport(file, { plan: PLAN, entries }, CHOICES, LISBON);
+
 /** The file's items without their lines, in an order that ignores the file's. */
 function unlined(file: ExchangeFile) {
   const each = <T extends { readonly lines: readonly number[] }>(items: readonly T[]) =>
@@ -71,7 +113,7 @@ function unlined(file: ExchangeFile) {
       .map(({ lines: _, ...item }) => JSON.stringify(item))
       .toSorted()
       .map((item) => JSON.parse(item) as unknown);
-  return { ...file, movements: each(file.movements), leftOut: each(file.leftOut) };
+  return { ...file, movements: each(file.movements), leftOut: each(file.leftOut), cancelled: each(file.cancelled) };
 }
 
 describe('readTradeRepublic (property)', () => {
@@ -99,6 +141,41 @@ describe('readTradeRepublic (property)', () => {
       RUNS,
     );
   });
+
+  it(
+    'a whole file names exactly the stored live buys its cancellations pair, and deleting them leaves one import’s live Log',
+    () => {
+      fc.assert(
+        fc.property(cancelling, ({ buys, cancels, cut }) => {
+          const rows = [
+            ...buys.map((buy, index) => tradeRow('buy', buy, index * 2, `B${index}`)),
+            ...cancels.map(({ of, late }, index) => {
+              const at = (of % buys.length) * 2 + 1 + late;
+              return tradeRow('buyCancelled', buys[of % buys.length] as Trade, at, `C${index}`);
+            }),
+          ];
+          const instants = [...new Set(rows.map((cells) => cells[0] as string))].sort();
+          const at = instants[cut % (instants.length + 1)] ?? '~';
+          const whole = read(rows.map((cells) => cells.slice(1)));
+          const part = read(rows.filter((cells) => (cells[0] as string) < at).map((cells) => cells.slice(1)));
+          const log = store([], planned(part, []));
+          const then = planned(whole, log);
+          const paired = new Set(whole.cancelled.map((movement) => testId(movement.key)));
+          const named = then.cancelled.map((entry) => entry.id).sort();
+          expect(named).toEqual(log.filter((entry) => paired.has(entry.id)).map((entry) => entry.id).sort());
+          const deleted = log.map((entry) => (named.includes(entry.id) ? { ...entry, deletedAt: NOW } : entry));
+          const liveOf = (entries: readonly Entry[]) =>
+            entries
+              .filter((entry) => entry.deletedAt === null)
+              .map((entry) => `${entry.id}:${entry.coin}:${entry.units}`)
+              .sort();
+          expect(liveOf(store(deleted, then))).toEqual(liveOf(store([], planned(whole, []))));
+        }),
+        TWICE,
+      );
+    },
+    TIMEOUT,
+  );
 
   it('gives each movement its own key and units above 0, and no left-out row a cell of its row', () => {
     fc.assert(

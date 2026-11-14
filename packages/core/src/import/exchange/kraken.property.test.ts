@@ -1,7 +1,10 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { abs, type Decimal, decimal, decimalPlaces, minus, round, sum } from '../../money/decimal';
+import { CHOICES, LISBON, PLAN, testId } from '../../../test/exchange/plan-fixture';
+import { abs, compare, type Decimal, decimal, decimalPlaces, minus, round, sum } from '../../money/decimal';
+import type { Entry } from '../../schema/entry';
 import { type ExchangeFile, type LeftOutRow, type Movement, readKrakenLedger } from './kraken';
+import { planExchangeImport } from './plan';
 
 // The Kraken ledger reader (docs/DOMAIN.md §3.13, the exchange import) over generated ledgers: "Fills: one entry
 // per refid, coin and direction" (ADR-0056), receipts folded by refid and coin (ADR-0056, Corrections,
@@ -32,9 +35,39 @@ const row = fc.record({
 });
 type Row = typeof row extends fc.Arbitrary<infer T> ? T : never;
 const ledger = fc.array(row, { maxLength: 16 });
-const dataOf = (rows: readonly Row[]) =>
+type Cells = { readonly [column in keyof Row]: string };
+const dataOf = (rows: readonly Cells[]) =>
   rows.map((each, index) => [`L${index}`, each.refid, each.time, each.type, '', each.asset, each.amount, each.fee]);
-const read = (rows: readonly Row[]) => readKrakenLedger(HEADER, dataOf(rows));
+const read = (rows: readonly Cells[]) => readKrakenLedger(HEADER, dataOf(rows));
+
+/** One to three invite bonus rows per refid and coin, up to 2 days apart, each above 0 with no fee. */
+const bonus = fc
+  .record({
+    refid: fc.constantFrom('B1', 'B2', 'B3'),
+    asset: fc.constantFrom('BTC', 'ETH'),
+    hours: fc.array(fc.integer({ min: 0, max: 48 }), { minLength: 1, maxLength: 3 }),
+    amount: fc.integer({ min: 1, max: 99_999 }),
+  })
+  .map(({ refid, asset, hours, amount }) =>
+    hours.map((hour, index) => ({
+      refid,
+      time: `2025-12-0${1 + Math.floor(hour / 24)} ${String(hour % 24).padStart(2, '0')}:00:00`,
+      type: 'invite bonus',
+      asset,
+      amount: `0.${String(amount + index).padStart(5, '0')}`,
+      fee: '0',
+    })),
+  );
+const bonuses = fc
+  .uniqueArray(bonus, { maxLength: 4, selector: (rows) => `${rows[0]?.refid}|${rows[0]?.asset}` })
+  .map((groups) => groups.flat());
+const planned = (file: ExchangeFile, entries: readonly Entry[]) =>
+  planExchangeImport(file, { plan: PLAN, entries }, CHOICES, LISBON);
+// The short-receipt property plans two imports over the reader, so it runs 300 times with a 60 s timeout. Measured on
+// 2026-11-14 under the whole core suite with coverage, seeds 1 to 8: the worst was 0.30 s (seed 7); six times it,
+// 1.8 s, stays under a third of the timeout (20 s).
+const TWICE = { numRuns: 300 };
+const TIMEOUT = 60_000;
 
 /** The file's items with each line mapped back through `original` and sorted, in an order that ignores the file's. */
 function normalised(file: ExchangeFile, original: (line: number) => number) {
@@ -79,6 +112,29 @@ describe('readKrakenLedger (property)', () => {
       RUNS,
     );
   });
+
+  it(
+    'a whole file names exactly the receipts an import of its earlier rows stored whose units grew',
+    () => {
+      fc.assert(
+        fc.property(bonuses, fc.nat(), (rows, cut) => {
+          const times = [...new Set(rows.map((each) => each.time))].sort();
+          const at = times[cut % (times.length + 1)] ?? '~';
+          const log = planned(read(rows.filter((each) => each.time < at)), []).entries;
+          const then = planned(read(rows), log);
+          const keyOf = (each: Cells) => `poc-csv-1|kraken|${each.refid}|${each.asset}|in`;
+          const split = (each: Cells) =>
+            rows.some((other) => keyOf(other) === keyOf(each) && other.time < at !== each.time < at);
+          const grew = new Set(rows.filter(split).map((each) => testId(keyOf(each))));
+          const named = then.short.map(({ entry }) => entry.id).sort();
+          expect(named).toEqual(log.filter((entry) => grew.has(entry.id)).map((entry) => entry.id).sort());
+          for (const { entry, units } of then.short) expect(compare(entry.units, units)).toBe(-1);
+        }),
+        TWICE,
+      );
+    },
+    TIMEOUT,
+  );
 
   it('gives a folded receipt the units of its rows summed, then cut to 10 decimals', () => {
     fc.assert(

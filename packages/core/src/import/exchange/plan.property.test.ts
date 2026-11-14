@@ -61,7 +61,9 @@ function twoWays(drawn: World, cut: number) {
  * 5.6 times slower there; how much slower it can be is not measured. At 1,500 runs, 60 s holds while CI is under 21
  * times slower than 2.8 s, and stays over three times CI's time while CI is under 7 times slower, the margin budgeted
  * for (×6). On the old order (a9664cfd), seeds 1 to 8 at 1,500 runs catch it 7 times in the prefix-adds property
- * (seed 2 first fails at run 2,026), 8 in the live-Log one and 8 in the `held` one (each by run 54).
+ * (seed 2 first fails at run 2,026), 8 in the live-Log one and 8 in the `held` one (each by run 54). Measured again
+ * on 2026-11-14, after the `held` guard reads units, seeds 1 to 8: the worst was 3.27 s (the prefix-adds one, seed
+ * 2); six times it, 19.6 s, stays under a third of the timeout (20 s).
  */
 const TWICE = { numRuns: 1500 };
 const TIMEOUT = 60_000;
