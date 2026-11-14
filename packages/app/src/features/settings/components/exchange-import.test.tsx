@@ -77,6 +77,11 @@ const plain = (text: string | null | undefined) => (text ?? '').replace(/[  ]
 const texts = () => [...document.querySelectorAll('p')].map((line) => plain(line.textContent));
 const button = (name: string | RegExp) => screen.queryByRole('button', { name });
 const press = (name: string) => act(async () => fireEvent.click(screen.getByRole('button', { name })));
+/** The options of the last `scrollIntoView` call on `element`, from the mock `mount` installs. */
+const scrolledWith = (element: Element) => {
+  const { calls, contexts } = vi.mocked(Element.prototype.scrollIntoView).mock;
+  return calls.filter((_, index) => contexts[index] === element).at(-1)?.[0];
+};
 const HELD_LINE =
   'Your Log has 0.002 BTC as a Coins added entry at Ledger, dated 13 Oct 2026. 2 BTC transactions in this file, ' +
   '0.002 BTC in all, are dated on or before it and may be those coins. They are not added unless you choose to.';
@@ -86,6 +91,8 @@ describe('ExchangeImport', () => {
     await mount([ONE_TAP_OCTOBER, HELD]);
     const heading = screen.getByRole('heading', { name: 'What this file adds' });
     await waitFor(() => expect(document.activeElement).toBe(heading));
+    // The preview is read top to bottom: its heading scrolls to the top of the view, not to the nearest edge.
+    expect(scrolledWith(heading)).toEqual({ block: 'start' });
     const shown = texts();
     expect(shown.slice(0, 2)).toEqual([
       'kraken-ledgers.csv: a Kraken ledger of 9 rows, from 5 Oct 2026 to 16 Oct 2026.',
@@ -215,6 +222,7 @@ describe('ExchangeImport', () => {
         'preview now shows what the file adds: check it, then import.',
     );
     await waitFor(() => expect(document.activeElement).toBe(alert));
+    expect(scrolledWith(alert)).toEqual({ block: 'nearest' });
     expect(texts()).toContain('Replaces 1 estimate from Bought as planned.');
     expect((screen.getByLabelText('Venue for these entries') as HTMLInputElement).value).toBe('Kraken Pro');
     expect(screen.getByRole('checkbox', { name: 'Add these transactions too' }).getAttribute('aria-checked')).toBe(
