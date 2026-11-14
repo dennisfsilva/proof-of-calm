@@ -21,11 +21,11 @@
 // - M02 ETH 1 Mar: step 1, deleted on this device (S8).
 // - M03 BTC 10 Mar, M05 BTC 1 Apr, M08 BTC receipt 20 Apr, M09 BTC 1 May: step 4, on or before S7's 1 May:
 //   4 rows, 0.0002 + 0.0012 + 0.00001 + 0.0011 = 0.00251 BTC, left out.
-// - M04 ETH 12 Mar: step 6, March (11 days from 1 Mar) is done by S10: an extra buy.
-// - M06 ETH 1 Apr: step 6, April's ETH. M07 ETH 14 Apr: April (13 days), filled by M06: an extra buy.
+// - M04 ETH 12 Mar: step 6, March's (11 days from 1 Mar): a monthly buy, though S10 records March's BTC.
+// - M06 ETH 1 Apr and M07 ETH 14 Apr (13 days): step 6, both April's monthly buys.
 // - M10 ETH 2 May: step 6, May's ETH. M11 ETH 2 Jun: June is skipped: an extra buy.
-// - M12 BTC 1 Jul: step 2, S5's month (nearest 1 Jul): looks recorded already.
-// - M13 ETH 1 Jul: step 6, July is done by S5's BTC: an extra buy.
+// - M12 BTC 1 Jul: step 2, S5's July date (nearest 1 Jul, 99 of its 100): looks recorded already.
+// - M13 ETH 1 Jul: step 6, July's ETH: a monthly buy, though S5 records July's BTC.
 // - M14 BTC 1 Aug: step 6, August is paused: an extra buy.
 // - M15 BTC 22 Aug: step 2, S6 claims it (2 days from 20 Aug): looks recorded already. Its month is September
 //   too, but step 2 claims it first.
@@ -296,12 +296,12 @@ export function added(movement: Movement, kind: Entry['kind'], slot: string | nu
 /** The entries FILE adds over STORED with addHeld false, each with its step, in `compareEntries` order. */
 export const EXPECTED_ENTRIES: readonly Entry[] = [
   added(M.M25, 'extra', null), // step 6: no month within 15 days
-  added(M.M04, 'extra', null), // step 6: March done by S10
+  added(M.M04, 'dca', '2026-03'), // step 6: March's ETH, whatever S10 records
   added(M.M06, 'dca', '2026-04'), // step 6: April's ETH
-  added(M.M07, 'extra', null), // step 6: April filled by M06
+  added(M.M07, 'dca', '2026-04'), // step 6: April's ETH too, beside M06
   added(M.M10, 'dca', '2026-05'), // step 6: May's ETH
   added(M.M11, 'extra', null), // step 6: June skipped
-  added(M.M13, 'extra', null), // step 6: July done by S5
+  added(M.M13, 'dca', '2026-07'), // step 6: July's ETH, whatever S5 records
   added(M.M14, 'extra', null), // step 6: August paused
   added(M.M16, 'dca', '2026-09', 'card'), // step 5: replaces S1
   added(M.M17, 'dca', '2026-09'), // step 5: replaces S2

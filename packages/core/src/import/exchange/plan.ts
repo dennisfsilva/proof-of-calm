@@ -2,26 +2,19 @@
 // one-tap estimate, which look recorded already and which are left out, and why. Pure: "The shell dates each instant
 // in the device's zone, `dateOf = (at) => todayIn(epochMs(at), clock.timeZone)`; the core never dates an instant."
 import { IMPORT_MATCH_DAYS, IMPORT_TYPED_DAYS } from '../../constants';
-import {
-  type CalendarDate,
-  clampDay,
-  compareDates,
-  dateParts,
-  daysBetween,
-  type Instant,
-  type MonthKey,
-  monthKey,
-  monthStart,
-} from '../../dates/calendar';
-import { compare, type Money, plus, sum, type Units } from '../../money/decimal';
+import { type CalendarDate, compareDates, daysBetween, type Instant, type MonthKey } from '../../dates/calendar';
+import { compare, type Money, plus, type Units } from '../../money/decimal';
 import { plannedParts } from '../../plan/parts';
-import { isOpen, liveEntries, type SlotStatus, slotStatuses } from '../../plan/statuses';
+import { liveEntries, type SlotStatus, slotStatuses } from '../../plan/statuses';
 import { compareEntries } from '../../portfolio/lots';
 import { type Entry, isEstimate } from '../../schema/entry';
 import type { CoinId, EntityId } from '../../schema/ids';
 import type { Plan } from '../../schema/plan';
 import type { ExchangeFile, LeftOutRow, Movement } from './kraken';
-import { type Day, type HeldCoin, heldGuard, near, startingGuard } from './plan-guards';
+import { claimRecorded, type Recorded } from './plan-claims';
+import { type Day, type HeldCoin, heldGuard, startingGuard } from './plan-guards';
+
+export type { Recorded } from './plan-claims';
 
 export type ImportChoices = { readonly venue: string | null; readonly addHeld: boolean };
 
@@ -49,14 +42,6 @@ export type ImportLeftOutReason = (typeof REASONS)[number];
 type Named = { readonly key: string; count: number; units: Units | null };
 export type ImportLeftOut = { readonly reason: ImportLeftOutReason; count: number; lines: number[]; by: Named[] };
 export type CoinUnits = { readonly coin: string; units: Units; count: number };
-export type Recorded = {
-  readonly date: CalendarDate;
-  readonly coin: CoinId;
-  readonly units: Units;
-  readonly amount: Money | null;
-  readonly count: number;
-  readonly entry: Entry;
-};
 
 export type ExchangeImportPlan = {
   readonly entries: readonly Entry[];
@@ -73,32 +58,7 @@ export type ExchangeImportPlan = {
   readonly feesInCoin: number;
 };
 
-const HAND = new Set<Entry['source']>(['manual', 'import-prototype', 'import-json']);
 const KIND = { purchase: 'extra', sale: 'sell', receipt: 'held' } as const;
-
-/** The due date of a plan month, as `slots` gives it, for any month key. */
-function dueOf(plan: Plan, key: MonthKey): CalendarDate {
-  const { year, month } = dateParts(monthStart(key));
-  return key === monthKey(plan.firstBuy) ? plan.firstBuy : clampDay(year, month, plan.buyDay);
-}
-
-/** The unclaimed day nearest `target` among those `accept` takes, the earlier on a tie (days are in date order). */
-function nearest<T extends { readonly date: CalendarDate }>(
-  days: readonly T[],
-  target: CalendarDate,
-  accept: (day: T) => boolean,
-) {
-  let best: T | null = null;
-  for (const day of days) {
-    if (!accept(day)) continue;
-    if (best === null || Math.abs(daysBetween(target, day.date)) < Math.abs(daysBetween(target, best.date))) best = day;
-  }
-  return best;
-}
-
-/** The day nearest `date` within `span` days of it. */
-const closest = (days: readonly Day[], date: CalendarDate, span: number) =>
-  nearest(days, date, (day) => near(day, date, span));
 
 /**
  * "A purchase date's month is the plan's month with the anchor nearest it, the earlier month on a tie: a month's due
@@ -190,25 +150,28 @@ export function planExchangeImport(
   const live = liveEntries(stored.entries);
   const { leave, list } = leftOutGroups();
   const days: Day[] = [];
+  // The file's purchase dates an earlier import stored, live or tombstoned: step 2 counts them, never claims them.
+  const earlier: Day[] = [];
   const counts = { imported: 0, deleted: 0, unitsCut: 0, feesInCoin: 0 };
+  const put = (list: Day[], item: Day['items'][number], role: Movement['role']) => {
+    const day = list.find((each) => each.coin === item.coin && each.role === role && each.date === item.date);
+    if (day === undefined) list.push({ coin: item.coin, role, date: item.date, items: [item], claimed: list !== days });
+    else day.items.push(item);
+  };
   for (const movement of file.movements) {
     const id = context.idOf(movement.key);
     const entry = known.get(id);
     const coin = plan.coins.find((each) => each.id === movement.coin)?.id;
-    if (entry !== undefined) counts[entry.deletedAt === null ? 'imported' : 'deleted'] += 1;
-    else if (movement.role !== 'receipt' && movement.currency !== plan.payCurrency)
+    const item = { movement, id, date: context.dateOf(movement.at), coin: coin as CoinId };
+    if (entry !== undefined) {
+      counts[entry.deletedAt === null ? 'imported' : 'deleted'] += 1;
+      if (coin !== undefined && movement.role === 'purchase') put(earlier, item, movement.role);
+    } else if (movement.role !== 'receipt' && movement.currency !== plan.payCurrency)
       leave('currency', movement.lines, String(movement.currency), null);
     else if (coin === undefined) leave('not-in-plan', movement.lines, movement.coin, movement.units);
-    else {
-      const item = { movement, id, date: context.dateOf(movement.at), coin };
-      const day = days.find((each) => each.coin === coin && each.role === movement.role && each.date === item.date);
-      if (day === undefined) days.push({ coin, role: movement.role, date: item.date, items: [item], claimed: false });
-      else day.items.push(item);
-    }
+    else put(days, item, movement.role);
   }
   days.sort((a, b) => compareDates(a.date, b.date));
-  const free = (coin: CoinId, role: Movement['role']) =>
-    days.filter((d) => !d.claimed && d.coin === coin && d.role === role);
   const entries: Entry[] = [];
   const add = (day: Day, kind: Entry['kind'], slot: MonthKey | null, note: string) => {
     day.claimed = true;
@@ -239,58 +202,42 @@ export function planExchangeImport(
     return day.items.map((item) => item.id);
   };
 
-  // Step 2: "a live monthly buy of C for S claims C's purchase date nearest S's due within 15 days; every other
-  // hand-recorded purchase or sale, and a monthly buy that claimed nothing, claims C's nearest date of the same role
-  // within 3 days of its own date; the earlier date wins a tie". First, so no later step stores what one records.
-  const recorded: Recorded[] = [];
-  for (const entry of live
-    .filter((each) => HAND.has(each.source) && each.kind !== 'held' && each.kind !== 'move')
-    .sort(compareEntries)) {
-    const purchases = free(entry.coin, 'purchase');
-    const monthly = entry.slot === null ? null : closest(purchases, dueOf(plan, entry.slot), IMPORT_MATCH_DAYS);
-    const typed = free(entry.coin, entry.kind === 'sell' ? 'sale' : 'purchase');
-    const day = monthly ?? closest(typed, entry.date, IMPORT_TYPED_DAYS);
-    if (day === null) continue;
-    day.claimed = true;
-    const units = sum(day.items.map((item) => item.movement.units));
-    const amount = sum(day.items.map((item) => item.movement.amount as Money));
-    recorded.push({ date: day.date, coin: day.coin, units, amount, count: day.items.length, entry });
-  }
+  // Step 2 (plan-claims.ts): what the person recorded by hand claims first, so no later step stores it. The months'
+  // skips and pauses come from the plan alone, so what the Log holds never changes a date's month.
+  const months = slotStatuses(plan, [], context.today);
+  const monthOf = monthsOf(months, stored.entries);
+  const recorded = claimRecorded(plan, live, days, earlier, monthOf);
 
   // Steps 3 and 4 leave purchases out before any is stored: the starting amount's 15 days (only dates step 2 left),
   // then the purchases dated on or before a `held` entry the person added.
   const startingAmount = startingGuard(plan, days);
   const held = heldGuard(plan, live, days, choices.addHeld);
 
-  // Step 5: "The live one-tap monthly estimates of coin C for month S take C's purchase date left whose month (step 6)
-  // is S, nearest S's due date, the earlier on a tie." "The write tombstones them all and adds that date's purchases
-  // as monthly buys for S, with the note of the first of them in `compareEntries` order".
-  const months = slotStatuses(plan, stored.entries, context.today);
-  const monthOf = monthsOf(months, stored.entries);
-  const groups = new Map<string, Entry[]>();
+  // Steps 5 and 6: "every unclaimed purchase date of C whose month is S is a monthly buy for S when C's share is above
+  // 0 and S is neither skipped nor paused, or when the Log holds a one-tap estimate of C for S, live or tombstoned";
+  // each takes the note of C's first estimate for S in `compareEntries` order, and C's live estimates for S are
+  // tombstoned once a date is added for them. Every other purchase is an extra buy.
+  const shares = new Set(plannedParts(plan, plan.monthlyAmount).map((part) => part.coin));
+  const open = new Set(months.filter((each) => each.status !== 'skipped' && each.status !== 'paused').map((m) => m.key));
+  const taps = stored.entries.filter((entry) => isEstimate(entry) && entry.kind === 'dca').sort(compareEntries);
+  const groups = new Map<string, { estimates: Entry[]; by: EntityId[] }>();
   for (const estimate of live
     .filter((entry) => isEstimate(entry) && entry.kind === 'dca')
     .sort((a, b) => compareDates(a.slot as MonthKey, b.slot as MonthKey) || compareEntries(a, b))) {
     const key = `${estimate.coin}|${estimate.slot}`;
-    groups.set(key, [...(groups.get(key) ?? []), estimate]);
+    const group = groups.get(key) ?? { estimates: [], by: [] };
+    groups.set(key, group);
+    group.estimates.push(estimate);
   }
-  const replaced: { estimates: Entry[]; by: EntityId[] }[] = [];
-  for (const estimates of groups.values()) {
-    const [{ coin, slot, note }] = estimates as [Entry, ...Entry[]];
-    const accept = (each: Day) => monthOf(coin, each.date) === slot;
-    const day = nearest(free(coin, 'purchase'), dueOf(plan, slot as MonthKey), accept);
-    if (day !== null) replaced.push({ estimates, by: add(day, 'dca', slot, note) });
+  for (const day of days.filter((each) => !each.claimed && each.role === 'purchase')) {
+    const slot = monthOf(day.coin, day.date);
+    if (slot === undefined) continue;
+    const tapped = taps.filter((tap) => tap.coin === day.coin && tap.slot === slot);
+    if (tapped.length === 0 && !(shares.has(day.coin) && open.has(slot))) continue;
+    const by = add(day, 'dca', slot, tapped[0]?.note ?? '');
+    groups.get(`${day.coin}|${slot}`)?.by.push(...by);
   }
-
-  // Step 6: "for each plan coin with a share above 0 and each month that was late, due or upcoming before the import,
-  // the coin's unclaimed purchase date nearest the due date, among the dates whose month it is, fills the month with
-  // all its purchases; the coin's other purchases are extra buys."
-  for (const { coin } of plannedParts(plan, plan.monthlyAmount)) {
-    for (const slot of months.filter((each) => isOpen(each.status))) {
-      const day = nearest(free(coin, 'purchase'), slot.due, (each) => monthOf(coin, each.date) === slot.key);
-      if (day !== null) add(day, 'dca', slot.key, '');
-    }
-  }
+  const replaced = [...groups.values()].filter((group) => group.by.length > 0);
   for (const day of days.filter((each) => !each.claimed)) add(day, KIND[day.role], null, '');
 
   for (const row of file.leftOut)

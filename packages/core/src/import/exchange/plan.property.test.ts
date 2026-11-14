@@ -4,8 +4,9 @@ import { fileOf, type World, world } from '../../../test/exchange/plan-arbitrari
 import { BERLIN, LISBON, NOW, testId } from '../../../test/exchange/plan-fixture';
 import { addDays, type CalendarDate } from '../../dates/calendar';
 import { sum } from '../../money/decimal';
+import { plannedParts } from '../../plan/parts';
 import { slotStatuses } from '../../plan/statuses';
-import { type Entry, EntrySchema, writtenEntryVersion } from '../../schema/entry';
+import { type Entry, EntrySchema, isEstimate, writtenEntryVersion } from '../../schema/entry';
 import type { ExchangeFile } from './kraken';
 import { type ExchangeImportPlan, type ImportChoices, type ImportContext, planExchangeImport } from './plan';
 
@@ -130,12 +131,12 @@ describe('planExchangeImport', () => {
         fc.property(world, fc.nat(), (drawn, cut) => {
           const { once, first, then } = twoWays(drawn, cut);
           const known = new Set(drawn.entries.map((entry) => entry.id));
-          const recorded = once.recorded.flatMap(({ coin, date: recordedOn, entry }) =>
+          const recorded = once.recorded.flatMap(({ coin, dates, entry }) =>
             drawn.file.movements
               .filter(
                 (movement) =>
                   movement.coin === coin &&
-                  LISBON.dateOf(movement.at) === recordedOn &&
+                  dates.includes(LISBON.dateOf(movement.at)) &&
                   movement.role === (entry.kind === 'sell' ? 'sale' : 'purchase') &&
                   !known.has(testId(movement.key)),
               )
@@ -193,16 +194,18 @@ describe('planExchangeImport', () => {
     );
   });
 
-  it("no month that was done, skipped or paused before the plan gets a monthly buy from it, and no month gets two coins' estimates replaced by one coin", () => {
+  it("a monthly buy goes to a month of a coin with a share that the plan neither skips nor pauses, or one the Log holds an estimate of the coin for, and no month gets two coins' estimates replaced by one coin", () => {
     fc.assert(
       fc.property(world, (drawn) => {
         const plan = run(drawn, drawn.entries, drawn.file);
-        const before = new Map(
-          slotStatuses(drawn.plan, drawn.entries, LISBON.today).map((each) => [each.key, each.status]),
+        const statuses = new Map(slotStatuses(drawn.plan, [], LISBON.today).map((each) => [each.key, each.status]));
+        const shares = new Set(plannedParts(drawn.plan, drawn.plan.monthlyAmount).map((part) => part.coin));
+        const tapped = new Set(
+          drawn.entries.filter((each) => isEstimate(each) && each.kind === 'dca').map((e) => `${e.coin}|${e.slot}`),
         );
-        const replacing = new Set(plan.replaced.flatMap((replacement) => replacement.by));
-        for (const entry of plan.entries.filter((each) => each.kind === 'dca' && !replacing.has(each.id))) {
-          expect(['late', 'due', 'upcoming']).toContain(before.get(entry.slot as never));
+        for (const entry of plan.entries.filter((each) => each.kind === 'dca')) {
+          const open = !['skipped', 'paused'].includes(statuses.get(entry.slot as never) as string);
+          expect((shares.has(entry.coin) && open) || tapped.has(`${entry.coin}|${entry.slot}`)).toBe(true);
         }
         for (const { estimates, by } of plan.replaced) {
           for (const estimate of estimates) {
