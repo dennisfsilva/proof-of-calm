@@ -26,6 +26,7 @@ export * from './import/exchange/apply';
 export * from './import/exchange/import-id';
 export * from './import/exchange/kraken';
 export * from './import/exchange/plan';
+export * from './import/exchange/plan-remedy';
 export * from './import/exchange/read';
 export * from './import/exchange/table';
 export * from './import/exchange/trade-republic';

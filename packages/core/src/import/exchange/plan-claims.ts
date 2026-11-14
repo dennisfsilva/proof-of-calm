@@ -31,7 +31,7 @@ export type Recorded = {
 /** The plan month a purchase date of a coin belongs to (step 6's rule), or none. */
 export type MonthOf = (coin: CoinId, date: CalendarDate) => MonthKey | undefined;
 
-const HAND = new Set<Entry['source']>(['manual', 'import-prototype', 'import-json']);
+export const HAND = new Set<Entry['source']>(['manual', 'import-prototype', 'import-json']);
 
 /** The due date of a plan month, as `slots` gives it, for any month key. */
 function dueOf(plan: Plan, key: MonthKey): CalendarDate {

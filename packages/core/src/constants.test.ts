@@ -5,6 +5,7 @@ import {
   ENTRY_NOTE_MAX_LENGTH,
   IMPORT_MATCH_DAYS,
   IMPORT_MAX_BYTES,
+  IMPORT_RECORDED_CHECKS,
   IMPORT_TYPED_DAYS,
   LOG_PAGE,
   MAX_ENTRIES,
@@ -42,5 +43,6 @@ describe('constants', () => {
     expect(IMPORT_MAX_BYTES).toBe(50_000_000);
     expect(IMPORT_MATCH_DAYS).toBe(15);
     expect(IMPORT_TYPED_DAYS).toBe(3);
+    expect(IMPORT_RECORDED_CHECKS).toBe(24);
   });
 });
