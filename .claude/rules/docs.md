@@ -25,10 +25,12 @@ Rules and the tool that checks each:
   marker on its line, `(planned: M<n>)`, with a milestone the roadmap has not finished; a session
   number is a finding, since sessions are renumbered when one is inserted (`pnpm lint:docs`).
 - `will`, `soon`, `planned` and `TODO` next to a path or command need the same marker.
-- ADRs are decisions under 150 lines: context, options, decision, consequences. Design and evidence
-  go to `docs/research/<topic>.md`, dated. An accepted ADR changes only below its `## Corrections`,
-  `## Deviations` or `## Readings` heading; to change the decision, write a new ADR that supersedes
-  it and link both ways (`pnpm lint:docs` compares the part above the heading with `origin/main`).
+- An ADR's decision, the part above its `## Corrections`, `## Deviations` or `## Readings` heading
+  (context, options, decision, consequences), stays under 150 lines; the dated entries below that
+  heading may take it past 150, as ADR-0019's, ADR-0045's and ADR-0056's do. Design and evidence go
+  to `docs/research/<topic>.md`, dated. An accepted ADR changes only below that heading; to change
+  the decision, write a new ADR that supersedes it and link both ways (`pnpm lint:docs` compares the
+  part above the heading with `origin/main`).
 - `docs/ADR/README.md` lists every ADR with the first word of its `Status:` line (`pnpm lint:docs`).
 - Voice: plain words, no filler, no emoji, no exclamation marks, numbers with a unit and a date,
   imperative instructions for Claude (`docs/CONTENT-STYLE.md` §1 for the product's copy).
