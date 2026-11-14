@@ -137,6 +137,8 @@ function Preview({ file, name, onDone, onBusy, plan: livePlan }: Props & { reado
   const { summary, held } = model;
   const dated = file.first !== null && file.last !== null;
   const pending = { disabled: importing, focusableWhenDisabled: true };
+  // The sentences after the held line speak of the transactions it names: "it" for one, "they" for several.
+  const transactions = held ? held.coins.reduce((count, coin) => count + coin.purchases, 0) : 0;
   const heldLine =
     held &&
     [
@@ -154,8 +156,8 @@ function Preview({ file, name, onDone, onBusy, plan: livePlan }: Props & { reado
         const items = w.format.list(entries.map((entry) => t('heldItem', entry)));
         return t('heldMany', { ...counted, entries: w.figure(entries.length), items });
       }),
-      t('heldAnswer'),
-      held.replaces > 0 ? t('heldReplaces', w.counted(held.replaces)) : '',
+      t('heldAnswer', { transactions }),
+      held.replaces > 0 ? t('heldReplaces', { ...w.counted(held.replaces), transactions }) : '',
     ]
       .filter((line) => line !== '')
       .join(' ');
@@ -210,7 +212,7 @@ function Preview({ file, name, onDone, onBusy, plan: livePlan }: Props & { reado
             />
             <span className="py-3">{t('addHeld')}</span>
           </label>
-          <p className="text-ink-2">{t('addHeldHint', { count: heldEntries })}</p>
+          <p className="text-ink-2">{t('addHeldHint', { count: heldEntries, transactions })}</p>
         </div>
       )}
       <ExchangeSections model={model} plan={plan} exchange={file.exchange} />
