@@ -13,7 +13,9 @@ import { cspViolations, recordCspViolations, routeFixturePrices, test } from './
 // synthetic Kraken ledger (packages/core/test/exchange/kraken-synthetic.expected.ts reads its rows): its preview's
 // heading takes the focus and counts December's BTC and ETH, January's BTC and ETH bought on 18 and 19 Dec, the extra
 // buy of 16 Dec, the sale and the invite bonus; Import writes them at Kraken and its result line takes the focus;
-// the same file again adds nothing. No CSP violation on the way. A ZIP of the ledger previews as the ledger does. On
+// the same file again adds nothing. No CSP violation on the way. The core's synthetic Trade Republic export, over the
+// same plan moved to May 2026, previews in Trade Republic's words, imports at Trade Republic and adds nothing the
+// second time. A ZIP of the ledger previews as the ledger does. On
 // desktop, the alerts of a file the import does not take: a ZIP of two CSVs, Kraken's Trades export, a CSV of another format, a ledger's header alone, a ledger with no plan, and a
 // file past the size limit.
 
@@ -41,11 +43,11 @@ function ledgerPlan(): Plan {
   };
 }
 
-/** Opens Currency & data at NOW, with the ledger's plan seeded unless `plan` is false. */
-async function openData(page: Page, plan = true) {
-  await page.clock.setFixedTime(new Date(NOW));
-  await routeFixturePrices(page, NOW);
-  if (plan) await seedPlan(page, { ...fixtureSnapshot(), plan: ledgerPlan(), entries: [] });
+/** Opens Currency & data at `now`, with the ledger's plan (or `plan`) seeded unless `plan` is false. */
+async function openData(page: Page, plan: Plan | false = ledgerPlan(), now = NOW) {
+  await page.clock.setFixedTime(new Date(now));
+  await routeFixturePrices(page, now);
+  if (plan) await seedPlan(page, { ...fixtureSnapshot(), plan, entries: [] });
   await page.goto('/settings');
   await expect(page.locator('main#main')).not.toHaveAttribute('aria-busy', 'true');
   await page.getByRole('tab', { name: 'Currency & data' }).click();
@@ -111,6 +113,59 @@ test('a Kraken ledger previews, imports at Kraken, and adds nothing the second t
   const sheet = page.getByRole('dialog');
   await expect(sheet.getByRole('textbox', { name: /^Venue/u })).toHaveValue('Kraken');
   expect(await page.evaluate(cspViolations)).toEqual([]);
+});
+
+const TR_EXPORT = fileURLToPath(
+  new URL('../../../packages/core/test/exchange/trade-republic-synthetic.csv', import.meta.url),
+);
+const TR_NOW = Date.parse('2026-07-20T10:00:00Z');
+
+test('a Trade Republic export previews, imports at Trade Republic, and adds nothing the second time', async ({
+  page,
+}) => {
+  await page.addInitScript(recordCspViolations);
+  // The ledger's plan moved to the export's months: buy day 1 from May 2026.
+  const plan = { ...ledgerPlan(), firstBuy: '2026-05-01' as CalendarDate, lastBuy: '2027-04-01' as CalendarDate };
+  await openData(page, plan, TR_NOW);
+
+  await fileInput(page).setInputFiles(TR_EXPORT);
+  const heading = page.getByRole('heading', { name: 'What this file adds' });
+  await expect(heading).toBeFocused();
+  await expect(preview(page)).toContainText(
+    'trade-republic-synthetic.csv: a Trade Republic transaction export of 16 rows, from 2 May 2026 to 4 Jul 2026.',
+  );
+  await expect(page.getByRole('textbox', { name: 'Venue for these entries' })).toHaveValue('Trade Republic');
+  await preview(page)
+    .getByRole('button', { name: /^Left out/u })
+    .click();
+  await expect(preview(page)).toContainText('Trade Republic benefit credit, such as Saveback, money paid to you');
+  await expect(preview(page)).not.toContainText('Kraken');
+
+  const button = preview(page).getByRole('button', { name: /^Import \d+ entr/u });
+  const added = ((await button.textContent()) ?? '').replace(/\D/gu, '');
+  await button.click();
+  const result = page.getByRole('status').filter({ hasText: `Entries added: ${added}.` });
+  await expect(result).toBeFocused();
+
+  await fileInput(page).setInputFiles(TR_EXPORT);
+  await expect(heading).toBeFocused();
+  await expect(preview(page)).toContainText('Nothing to add from this file.');
+  await expect(preview(page)).toContainText(`Imported earlier, not added: ${added}.`);
+  await expect(preview(page).getByRole('button', { name: /^Import/u })).toHaveCount(0);
+  expect(await page.evaluate(cspViolations)).toEqual([]);
+
+  // A purchase in the Log names Trade Republic as its venue.
+  await page.goto('/log');
+  await expect(page.locator('main#main')).not.toHaveAttribute('aria-busy', 'true');
+  await page
+    .getByRole('row')
+    .getByRole('button', { name: /2026 (Monthly|Extra) buy BTC/u })
+    .first()
+    .click();
+  await page.getByRole('button', { name: 'Edit entry' }).click();
+  const sheet = page.getByRole('dialog');
+  await sheet.getByRole('button', { name: 'Venue and note' }).click();
+  await expect(sheet.getByRole('textbox', { name: /^Venue/u })).toHaveValue('Trade Republic');
 });
 
 test('a ZIP of the ledger previews', async ({ page }) => {
