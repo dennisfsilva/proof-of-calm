@@ -70,6 +70,42 @@ describe('changedLog, Edit entry and Record a purchase', () => {
     expect(changedLog(stored, { ...edit, figures: negative }, LISBON)).toBeNull();
   });
 
+  // The Log stores an edit through `keepSources` (as `saveOn` does): what the person left alone stays each entry's own.
+  const ETH = 'ETH' as CoinId;
+  const kept = (entries: readonly Entry[]) => entries.map((each) => [each.coin, each.fee, each.venue, each.note]);
+
+  it("a date-only edit of a row grouping two saves keeps each entry's fee, venue and note", () => {
+    const btc = lump({ amount: money('100'), fee: money('1'), venue: 'Kraken', note: 'first' });
+    const eth = lump({ coin: ETH, amount: money('100'), fee: money('3'), venue: 'Bitvavo', note: 'second' });
+    const change: LogChange = { kind: 'edit', row: [btc, eth], date: date('2026-06-10'), figures: new Map() };
+    const changed = changedLog({ plan: P6, entries: [btc, eth] }, change, LISBON) as Entry[];
+    expect(changed.map((each) => each.date)).toEqual(['2026-06-10', '2026-06-10']);
+    expect(kept(changed)).toEqual([
+      [BTC, '1', 'Kraken', 'first'],
+      [ETH, '3', 'Bitvavo', 'second'],
+    ]);
+  });
+
+  it("an edit of one coin's figures keeps the fee split as stored, since the fee was not changed", () => {
+    const btc = lump({ amount: money('100'), fee: money('1') });
+    const eth = lump({ coin: ETH, amount: money('200'), fee: money('2') });
+    const figures = new Map([[btc.id, { amount: money('200'), units: units('0.0025') }]]);
+    const change: LogChange = { kind: 'edit', row: [btc, eth], date: btc.date, figures };
+    const changed = changedLog({ plan: P6, entries: [btc, eth] }, change, LISBON) as Entry[];
+    expect(changed.map((each) => [each.coin, each.amount, each.fee])).toEqual([
+      [BTC, '200', '1'],
+      [ETH, '200', '2'],
+    ]);
+  });
+
+  it('an amount or units equal in value to the stored ones keep the text stored', () => {
+    const stored = lump({ amount: money('1000.50'), units: units('0.01250') });
+    const figures = new Map([[stored.id, { amount: money('1000.5'), units: units('0.0125') }]]);
+    const change: LogChange = { kind: 'edit', row: [stored], date: date('2026-06-10'), figures };
+    const [saved] = changedLog({ plan: P6, entries: [stored] }, change, LISBON) as [Entry];
+    expect([saved.amount, saved.units]).toEqual(['1000.50', '0.01250']);
+  });
+
   it('throws on a change of no known kind', () => {
     expect(() => changedLog(stored, { kind: 'move' } as unknown as LogChange, LISBON)).toThrow();
   });
