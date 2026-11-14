@@ -3,7 +3,7 @@
 // every other date group, on the Log as shown and on the Log after importing the shown plan first. This branch checks
 // Delete entry, for the sentence under `Matching entries`.
 import { deleteEntries, slotsAtDelete, storedOver, uncoveredSale } from '../../actions/entries';
-import { IMPORT_RECORDED_CHECKS } from '../../constants';
+import { IMPORT_RECORDED_CHECKS, IMPORT_REMEDY_MAX_MOVEMENTS } from '../../constants';
 import type { CalendarDate, MonthKey } from '../../dates/calendar';
 import { transactionKey } from '../../log/group';
 import { liveEntries } from '../../plan/statuses';
@@ -82,12 +82,12 @@ export type ImportRemedies = { readonly recorded: ReadonlySet<EntityId> };
 /**
  * The entries of `Matching entries` whose Log row may be deleted to import the file's instead, checked in both orders the
  * person may follow the sentence: on the Log as shown (planned unticked), and on the Log after importing the shown plan
- * (planned with the box as set) first. In each, the
- * row (the live entries with the item's `transactionKey`) holds no `lump`, every entry of it is a hand entry that records
- * a date of the file, the Log deletes it, and the file planned again with the box unticked, as choosing it again opens
- * the preview, adds every date the row records (a monthly buy's as monthly buys for its month) and keeps every other
- * date group. At most `IMPORT_RECORDED_CHECKS` rows are checked, in the section's order. Planned with no venue, since no
- * step reads one.
+ * (planned with the box as set) first. In each, the row (the live entries with the item's `transactionKey`) holds no
+ * `lump`, every entry of it is a hand entry that records a date of the file, the Log deletes it, and the file planned
+ * again with the box unticked, as choosing it again opens the preview, adds every date the row records (a monthly buy's
+ * as monthly buys for its month) and keeps every other date group. At most `IMPORT_RECORDED_CHECKS` rows are checked, in
+ * the section's order, and none for a file of more than `IMPORT_REMEDY_MAX_MOVEMENTS` movements; nothing is planned
+ * again when no row can pass. Planned with no venue, since no step reads one.
  */
 export function importRemedies(
   file: ExchangeFile,
@@ -95,7 +95,17 @@ export function importRemedies(
   addHeld: boolean,
   context: ImportContext,
 ): ImportRemedies {
+  if (file.movements.length > IMPORT_REMEDY_MAX_MOVEMENTS) return { recorded: new Set() };
   const shown = planExchangeImport(file, stored, { venue: null, addHeld }, context);
+  const records = new Set(shown.recorded.map((item) => item.entry.id));
+  const rowOf = (entries: readonly Entry[], key: string) =>
+    liveEntries(entries).filter((entry) => transactionKey(entry) === key);
+  const candidate = (row: readonly Entry[]) =>
+    !row.some((entry) => entry.kind === 'lump' || !HAND.has(entry.source) || !records.has(entry.id));
+  const keys = [...new Set(shown.recorded.map((item) => transactionKey(item.entry)))].slice(0, IMPORT_RECORDED_CHECKS);
+  const candidates = keys.filter((key) => candidate(rowOf(stored.entries, key)));
+  if (candidates.length === 0) return { recorded: new Set() };
+
   const anew = (entries: readonly Entry[]) =>
     planExchangeImport(file, { plan: stored.plan, entries }, { venue: null, addHeld: false }, context);
   const imported = applyExchangeImport(stored.entries, shown, context.now).entries;
@@ -105,7 +115,6 @@ export function importRemedies(
     { entries: imported, shown: anew(imported) },
   ];
   const known = new Set(stored.entries.map((entry) => entry.id));
-  const records = new Set(shown.recorded.map((item) => item.entry.id));
   const idsOn = (item: ExchangeImportPlan['recorded'][number], date: CalendarDate) =>
     file.movements
       .filter((movement) => movement.coin === item.coin && context.dateOf(movement.at) === date)
@@ -113,14 +122,14 @@ export function importRemedies(
       .map((movement) => context.idOf(movement.key))
       .filter((id) => !known.has(id));
   const holds = (log: (typeof orders)[number], key: string, touched: readonly Touched[]) => {
-    const row = liveEntries(log.entries).filter((entry) => transactionKey(entry) === key);
-    if (row.some((entry) => entry.kind === 'lump' || !HAND.has(entry.source) || !records.has(entry.id))) return false;
+    const row = rowOf(log.entries, key);
+    if (!candidate(row)) return false;
     const ids = row.map((entry) => entry.id);
     const entries = changedLog({ plan: stored.plan, entries: log.entries }, { kind: 'delete', ids }, context);
     return entries !== null && keepsPromise(log.shown, anew(entries), touched);
   };
   const deletable = (key: string) => {
-    const row = liveEntries(stored.entries).filter((entry) => transactionKey(entry) === key);
+    const row = rowOf(stored.entries, key);
     const touched = shown.recorded
       .filter((item) => row.includes(item.entry))
       .flatMap((item) =>
@@ -133,12 +142,10 @@ export function importRemedies(
       );
     return orders.every((log) => holds(log, key, touched));
   };
-  const checked = new Map<string, boolean>();
-  const recorded = new Set<EntityId>();
-  for (const item of shown.recorded) {
-    const key = transactionKey(item.entry);
-    if (!checked.has(key) && checked.size < IMPORT_RECORDED_CHECKS) checked.set(key, deletable(key));
-    if (checked.get(key) === true) recorded.add(item.entry.id);
-  }
-  return { recorded };
+  const passed = new Set(candidates.filter(deletable));
+  return {
+    recorded: new Set(
+      shown.recorded.filter((item) => passed.has(transactionKey(item.entry))).map((item) => item.entry.id),
+    ),
+  };
 }

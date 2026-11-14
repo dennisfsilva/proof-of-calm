@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { anEntry, aPlan, date, money, month, units } from '../../../test/builders';
 import { fileOf, type World, world } from '../../../test/exchange/plan-arbitraries';
 import { LISBON, NOW, trade } from '../../../test/exchange/plan-fixture';
-import { IMPORT_RECORDED_CHECKS } from '../../constants';
+import { IMPORT_RECORDED_CHECKS, IMPORT_REMEDY_MAX_MOVEMENTS } from '../../constants';
 import { addDays } from '../../dates/calendar';
 import { transactionKey } from '../../log/group';
 import { liveEntries } from '../../plan/statuses';
@@ -104,12 +104,17 @@ function importFirst(drawn: World, stored: Stored, entry: Entry) {
 
 /**
  * The property runs 300 times and the five-year file once, each with a 60 s timeout (the core's default is Vitest's
- * 5 s). Measured on 2026-11-14, with each row checked before and after importing first, under the full core suite with
- * coverage, seeds 1 to 8 (fast-check's global seed): the worst was 3.12 s for the property and 2.12 s for the five-year
- * file (520 purchases, 120 entries typed by hand, 12 rows planned again in two orders; both seed 5), so six times the
- * worst, the margin budgeted for CI's slower runner, is 18.7 s, under a third of the timeout (20 s). The plan's own
- * properties took at most 3.19 s (seed 5). Of the 300 worlds, 23 to 30 reach a sentence before importing, 24 to 31
- * after it and 22 to 29 after a shorter export.
+ * 5 s). Measured on 2026-11-14, with each row checked before and after importing first, the Log as shown compared
+ * unticked, under the full core suite with coverage, seeds 1 to 8 (fast-check's global seed): the worst was 2.35 s for
+ * the property (seed 3) and 2.15 s for the five-year file (520 purchases, `IMPORT_REMEDY_MAX_MOVEMENTS`, 120 entries
+ * typed by hand, 12 rows planned again in two orders; seed 1), so six times the worst, the margin budgeted for CI's
+ * slower runner, is 14.1 s, under a third of the timeout (20 s). Of the 300 worlds, 23 to 31 reach a sentence before
+ * importing, 24 to 31 after it and 22 to 30 after a shorter export.
+ *
+ * The bound, measured the same day on this desktop without coverage, two coins, a Log typed by hand every month, three
+ * runs each: at 520 movements the checks took 505 to 557 ms weekly over five years and 504 to 517 ms daily (one plan 24
+ * to 30 ms); past it they took 659 to 666 ms at 600 movements, 976 to 981 ms at 730 and 2,364 to 2,370 ms at 1,460, and
+ * a five-year daily file (3,652) took 7 to 9 s before. So 520 keeps the whole check under about 600 ms on this desktop.
  */
 const RUNS = { numRuns: 300 };
 const TIMEOUT = 60_000;
@@ -156,9 +161,15 @@ describe('importRemedies, over generated files and Logs', () => {
           anEntry({ coin: coin as CoinId, date: day, slot: month(slot), amount: money('25'), units: units('0.0005') }),
         ),
       );
-      expect([file.movements.length, entries.length]).toEqual([520, 120]);
+      expect([file.movements.length, entries.length]).toEqual([IMPORT_REMEDY_MAX_MOVEMENTS, 120]);
       const { recorded } = importRemedies(file, { plan, entries }, false, LISBON);
       expect(recorded.size).toBe(2 * IMPORT_RECORDED_CHECKS);
+      // One movement more and no row is checked.
+      const longer = fileOf([
+        ...file.movements,
+        trade('W260', 'purchase', 'BTC', date('2026-11-01'), { units: '0.0005', amount: '25', fee: '0' }, 2000),
+      ]);
+      expect(importRemedies(longer, { plan, entries }, false, LISBON).recorded.size).toBe(0);
     },
     TIMEOUT,
   );
