@@ -45,6 +45,12 @@ export const IMPORT_TYPED_DAYS = 3;
  */
 export const IMPORT_RECORDED_CHECKS = 12;
 
+/**
+ * The exchange import's preview checks no row for that sentence in a file of more than this many movements, so the
+ * checks' cost stays bounded by the file's size (docs/DOMAIN.md §9).
+ */
+export const IMPORT_REMEDY_MAX_MOVEMENTS = 520;
+
 /** The Log shows this many transactions before "Show all". */
 export const LOG_PAGE = 12;
 

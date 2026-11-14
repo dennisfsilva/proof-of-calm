@@ -6,6 +6,7 @@ import {
   IMPORT_MATCH_DAYS,
   IMPORT_MAX_BYTES,
   IMPORT_RECORDED_CHECKS,
+  IMPORT_REMEDY_MAX_MOVEMENTS,
   IMPORT_TYPED_DAYS,
   LOG_PAGE,
   MAX_ENTRIES,
@@ -44,5 +45,6 @@ describe('constants', () => {
     expect(IMPORT_MATCH_DAYS).toBe(15);
     expect(IMPORT_TYPED_DAYS).toBe(3);
     expect(IMPORT_RECORDED_CHECKS).toBe(12);
+    expect(IMPORT_REMEDY_MAX_MOVEMENTS).toBe(520);
   });
 });
