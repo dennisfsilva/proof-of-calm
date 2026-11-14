@@ -63,9 +63,9 @@ const bonuses = fc
   .map((groups) => groups.flat());
 const planned = (file: ExchangeFile, entries: readonly Entry[]) =>
   planExchangeImport(file, { plan: PLAN, entries }, CHOICES, LISBON);
-// The short-receipt property plans two imports over the reader, so it runs 300 times with a 60 s timeout. Measured on
-// 2026-11-14 under the whole core suite with coverage, seeds 1 to 8: the worst was 0.30 s (seed 7); six times it,
-// 1.8 s, stays under a third of the timeout (20 s).
+// The short-receipt property plans two imports over the reader, over prefix, suffix and middle windows, so it runs 300
+// times with a 60 s timeout. Measured again on 2026-11-14 under the whole core suite with coverage, seeds 1 to 8: the
+// worst was 0.37 s (seed 4); six times it, 2.2 s, stays under a third of the timeout (20 s).
 const TWICE = { numRuns: 300 };
 const TIMEOUT = 60_000;
 
