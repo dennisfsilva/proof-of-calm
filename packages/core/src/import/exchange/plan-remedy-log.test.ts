@@ -106,6 +106,22 @@ describe('changedLog, Edit entry and Record a purchase', () => {
     expect([saved.amount, saved.units]).toEqual(['1000.50', '0.01250']);
   });
 
+  // A record edits nothing, so it stays as saved, as the Log's `keepUnchanged` gives a new transaction back.
+  it("a record keeps the draft's fee, venue and note", () => {
+    const rows = [{ coin: BTC, amount: money('1000'), units: units('0.0125') }];
+    const draft = {
+      kind: 'lump',
+      date: date('2026-06-10'),
+      slot: null,
+      fee: money('2'),
+      note: 'n',
+      venue: 'Kraken',
+      rows,
+    } as const;
+    const changed = changedLog({ plan: P6, entries: [] }, { kind: 'record', draft }, LISBON) as Entry[];
+    expect(kept(changed)).toEqual([[BTC, '2', 'Kraken', 'n']]);
+  });
+
   it('throws on a change of no known kind', () => {
     expect(() => changedLog(stored, { kind: 'move' } as unknown as LogChange, LISBON)).toThrow();
   });

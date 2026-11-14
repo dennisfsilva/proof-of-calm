@@ -58,7 +58,8 @@ function saved(
   });
   if (!result.ok) return null;
   // Each filled row's source is its own entry, and only the date and the figures change (`keepSources`, as `saveOn`
-  // stores an edit); a record edits nothing, so it stays as saved.
+  // stores an edit); a record edits nothing, so it stays as saved (the Log's `keepUnchanged` guard).
+  if (editing.length === 0) return over(stored, result.value);
   const live = result.value.filter((entry) => entry.deletedAt === null);
   const sources = live.map((entry) => editing.find((each) => each.id === entry.id));
   return over(stored, keepSources(result.value, sources, { fee: false, venue: false, note: false }));
@@ -68,8 +69,8 @@ function saved(
  * The stored entries after `change`, as the Log writes it, or null when the Log refuses it (a form error, or a sale left
  * uncovered). An edit keeps the row's kind and month and each entry's own fee, note and venue (the form opens on the
  * row's fees summed, its first note and venue, and `keepSources` gives each entry its own back, DOMAIN §6), and takes
- * the figures given, an amount or units equal in value keeping the stored text; a record has no fee and takes ids no
- * movement key holds, one per coin.
+ * the figures given, an amount or units equal in value keeping the stored text; a record is stored as saved, its fee,
+ * venue and note included, and takes ids no movement key holds, one per coin.
  */
 export function changedLog(stored: Stored, change: LogChange, context: ImportContext): readonly Entry[] | null {
   switch (change.kind) {
