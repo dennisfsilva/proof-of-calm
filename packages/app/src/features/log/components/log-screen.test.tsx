@@ -912,6 +912,51 @@ describe('LogScreen', () => {
     expect(june).toHaveLength(2);
   });
 
+  // Session 22h's review: the row moved below the last 12 has no toggle on screen, so the heading takes the focus, and
+  // a frame later the same least scroll brings it into view.
+  it('moves focus to the heading and scrolls it into view when an edit moves the row below the rows shown', async () => {
+    const services = await mount(withMoreBuys('2026-07-20'));
+    expect(screen.getByRole('button', { name: 'Show all 13 entries' })).toBeTruthy();
+    await editDate(/^20\sApr\s2026Extra buy/, '2026-04-01');
+    const dates = services.domain.store.getState().snapshot.entries.map((entry) => entry.date);
+    expect(dates).toContain('2026-04-01');
+    expect(dates).not.toContain('2026-04-20');
+    const heading = screen.getByRole('heading', { level: 1, name: 'Log' });
+    await vi.waitFor(() => expect(scrolled.mock.contexts.at(-1)).toBe(heading));
+    expect(document.activeElement).toBe(heading);
+    expect(scrolled).toHaveBeenLastCalledWith({ block: 'nearest' });
+  });
+
+  it("moves focus to a move's toggle under its new date and scrolls it into view when its date is edited", async () => {
+    const [first] = fixtureSnapshot().entries as [Entry];
+    const move: Entry = {
+      ...first,
+      id: '00000000-0000-4000-8000-000000000300' as Entry['id'],
+      kind: 'move',
+      slot: null,
+      amount: null,
+      date: '2026-10-14' as CalendarDate,
+      units: '0.01' as Entry['units'],
+      venue: 'Kraken',
+      to: 'Ledger',
+      received: '0.0098' as Entry['units'],
+    };
+    await mount(atKraken(move));
+    const [newest] = screen.getAllByRole('button', { expanded: false }) as [HTMLElement];
+    fireEvent.click(newest);
+    const edit = screen.getByRole('button', { name: 'Edit entry' });
+    edit.focus();
+    fireEvent.click(edit);
+    const dialog = await screen.findByRole('dialog', { name: 'Edit the move' });
+    fireEvent.change(within(dialog).getByLabelText('Date'), { target: { value: '2026-09-20' } });
+    await act(async () => fireEvent.click(within(dialog).getByRole('button', { name: 'Save' })));
+    await vi.waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    await vi.waitFor(() => expect(scrolled.mock.contexts.at(-1)).toBe(document.activeElement));
+    expect(document.activeElement?.textContent).toMatch(/^20\sSept?\s2026Coins moved/);
+    expect(document.activeElement?.getAttribute('aria-expanded')).toBe('false');
+    expect(scrolled).toHaveBeenLastCalledWith({ block: 'nearest' });
+  });
+
   it('says what to do when there is no plan, and when the plan has no entries yet', async () => {
     await mount(EMPTY_SNAPSHOT);
     expect(screen.getByText('No entries yet. Set up a plan or import a file.')).toBeTruthy();
