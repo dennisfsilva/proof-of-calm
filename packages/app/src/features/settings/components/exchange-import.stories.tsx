@@ -92,6 +92,18 @@ export const NothingToAdd: Story = {
 
 /** The store the Changed story's services read, so its play can write as another tab would. */
 let changedStore: PlanStore | null = null;
+/**
+ * A one tap of October's ETH buy, which another tab saves after the preview: the file's ETH purchase of 5 Oct then
+ * replaces it and takes its note (DOMAIN §3.13 step 5). BTC's estimate would change nothing here, since the held line
+ * leaves the file's BTC purchases out unticked and no other coin's estimate decides a kind.
+ */
+const ONE_TAP_ETH_OCTOBER: Entry = {
+  ...ONE_TAP_OCTOBER,
+  id: 'aaaaaaaa-0000-4000-8000-000000000021' as EntityId,
+  coin: 'ETH' as Entry['coin'],
+  amount: '30' as Entry['amount'],
+  units: units('0.0118'),
+};
 
 export const LogChanged: Story = {
   parameters: {
@@ -103,7 +115,7 @@ export const LogChanged: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await canvas.findByRole('heading', { name: 'What this file adds' });
-    await changedStore?.write({ entries: [ONE_TAP_OCTOBER] });
+    await changedStore?.write({ entries: [ONE_TAP_ETH_OCTOBER] });
     await userEvent.click(canvas.getByRole('button', { name: /^Import \d+ entr/ }));
     await expect(await canvas.findByRole('alert')).toHaveFocus();
   },
