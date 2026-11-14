@@ -277,6 +277,23 @@ describe('importRemedies', () => {
       expect(importRemedies(fileOf(GUARDED.file), stored, ticked, LISBON).recorded.size).toBe(0);
   });
 
+  // The box guards the file's February purchase while the line for coins held shows; the Log as shown is compared
+  // unticked with the file chosen again, which opens unticked, so ticking it keeps the July row's sentence.
+  const BOXED: Case = (() => {
+    const plan = aPlan({ firstBuy: date('2026-03-01'), lastBuy: date('2026-12-01') });
+    const file = [bought('BTC', '2026-02-10', '25'), bought('BTC', '2026-07-01', '100', '0.0016')];
+    const coins = hand({ kind: 'held', slot: null, date: date('2026-02-20'), amount: null, units: units('0.01') });
+    const typed = monthly('2026-07-02', '2026-07', '100', { units: units('0.0016') });
+    return { plan, file, shorter: [], entries: [coins, typed] };
+  })();
+
+  it.each([false, true])('a typed July buy beside a Coins added entry, the box ticked %s: the sentence', (ticked) => {
+    const typed = BOXED.entries[1] as Entry;
+    const shown = planExchangeImport(fileOf(BOXED.file), BOXED, { venue: null, addHeld: ticked }, LISBON);
+    expect(shown.held === null).toBe(false);
+    expect(importRemedies(fileOf(BOXED.file), BOXED, ticked, LISBON).recorded).toEqual(new Set([typed.id]));
+  });
+
   const MANY: Case = (() => {
     const days = Array.from({ length: IMPORT_RECORDED_CHECKS + 1 }, (_, index) =>
       addDays(date('2026-01-01'), index * 5),

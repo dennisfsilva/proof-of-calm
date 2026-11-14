@@ -81,7 +81,8 @@ export type ImportRemedies = { readonly recorded: ReadonlySet<EntityId> };
 
 /**
  * The entries of `Matching entries` whose Log row may be deleted to import the file's instead, checked in both orders the
- * person may follow the sentence: on the Log as shown, and on the Log after importing the shown plan first. In each, the
+ * person may follow the sentence: on the Log as shown (planned unticked), and on the Log after importing the shown plan
+ * (planned with the box as set) first. In each, the
  * row (the live entries with the item's `transactionKey`) holds no `lump`, every entry of it is a hand entry that records
  * a date of the file, the Log deletes it, and the file planned again with the box unticked, as choosing it again opens
  * the preview, adds every date the row records (a monthly buy's as monthly buys for its month) and keeps every other
@@ -98,8 +99,9 @@ export function importRemedies(
   const anew = (entries: readonly Entry[]) =>
     planExchangeImport(file, { plan: stored.plan, entries }, { venue: null, addHeld: false }, context);
   const imported = applyExchangeImport(stored.entries, shown, context.now).entries;
+  // Choosing the file again opens it unticked, so the Log as shown is compared unticked too.
   const orders = [
-    { entries: stored.entries, shown },
+    { entries: stored.entries, shown: addHeld ? anew(stored.entries) : shown },
     { entries: imported, shown: anew(imported) },
   ];
   const known = new Set(stored.entries.map((entry) => entry.id));
