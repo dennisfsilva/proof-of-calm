@@ -298,6 +298,11 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   that begins inside it. The second found a starting amount below the monthly part, where part of a
   date passes the test the whole date fails, so a cut moves the claim to another date (#216,
   2026-11-14).
+- A condition a document states for when two imports differ from one is derived by a property that
+  runs both over the generator, not by walks. Three review rounds each found one more state of an
+  export cut near a lump's date; the condition the next fix round was given, derived by hand, the
+  property then refuted: a cut also moves another hand entry's claim and can leave out a purchase
+  one import stores (#218, 2026-11-14).
 
 ## Known gaps
 
