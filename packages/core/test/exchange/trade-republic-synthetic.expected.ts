@@ -57,7 +57,7 @@ const leftOut: LeftOutRow[] = [
   out('coin-deposit', [9], '2026-06-01T03:00:00.321Z', 'ETH', '0.00012'), // FREE_RECEIPT
   out('coin-withdrawal', [10], '2026-06-15T09:00:00.100Z', 'BTC', '0.0001'), // FREE_DELIVERY
   out('within', [11, 12], '2026-07-01T00:00:00.000Z'), // MIGRATION −1.5 and +1.5 SOL at one instant
-  out('unpaired', [13, 14], '2026-07-02T10:00:00.200Z'), // a SOL buy and its BUY_CANCELLED
+  out('cancelled', [13, 14], '2026-07-02T10:00:00.200Z'), // a SOL buy and its BUY_CANCELLED
   out('other', [16], '2026-07-03T08:00:00.400Z'), // a crypto row of another type
   out('cash', [17], '2026-07-04T08:00:00Z'), // CASH, its datetime without a fraction
 ];
