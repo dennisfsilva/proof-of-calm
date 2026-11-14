@@ -142,6 +142,11 @@ function importFirst(drawn: World, stored: Stored, entry: Entry) {
  * five-year file with its three states (seed 7), so six times the worst is 18.3 s, under a third of the timeout. Of the
  * 300 worlds, 68 to 88 reach the estimate line before importing and 51 to 72 after a shorter export; after importing the
  * file none does, since its purchase is then stored.
+ *
+ * With the bound at 400 and the worst state added, measured again on 2026-11-14 the same way, seeds 1 to 8: the worst
+ * was 3.15 s for the sentence's property (seed 3), 2.81 s for the starting line's (seed 6), 1.04 s for the estimate
+ * line's (seed 3) and 2.22 s for the file at the bound with its four states (seed 5), so six times the worst is 18.9 s,
+ * under a third of the timeout.
  */
 const RUNS = { numRuns: 300 };
 const TIMEOUT = 60_000;
