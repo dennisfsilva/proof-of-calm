@@ -1039,10 +1039,11 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      excluded (§2.2). A claimed date is `looks recorded already`: left out and named with every date the
      entry claimed, both figures and the entry's venue. The amount is the entry's own, never the plan's.
      Amounts are positive and part of an export keeps the whole file's order, so an import of part of it
-     stores no date that the whole file's import claims, but one: an export that ends inside a date a `lump`
-     claims by its amount stores the part before its end, which alone is not as near the lump's amount, and
-     the whole file then claims the date for the lump, so that stored part counts twice (W2). The properties skip such a cut and a
-     unit test pins it (`plan-remedy-start.test.ts`). The 3
+     stores no date that the whole file's import claims, but one (W2): an export that cuts inside a date a
+     `lump` claims by its amount, whichever side, stores that date's purchases it holds when, alone, they are
+     nearer C's monthly part than the lump's amount, and the whole file's `lump` then claims the date, so they
+     count twice. An export ending inside it gives 1,700 against 1,400, and so does one beginning inside it.
+     The properties skip any such cut and unit tests pin both sides (`plan-remedy-start.test.ts`). The 3
      days are `IMPORT_TYPED_DAYS` (§9). Decided 2026-11-13 (ADR-0056, Corrections): "Every step that leaves
      a purchase out runs before any step that stores one: no purchase a hand entry records is stored, and
      none dated on or before a `held` entry of its coin is stored without the person's answer, whether the
