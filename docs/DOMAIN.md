@@ -1026,14 +1026,23 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      its own amount. Dates of this file whose movements are stored already (live or tombstoned) take their
      place in that order and sum, but are never claimed. A monthly buy whose month has no purchase date of C
      in the file, stored or not, and every other hand purchase or sale, claims the nearest date of its role
-     within 3 days of its own date", the earlier date on a tie; each date is claimed once. A monthly buy whose
+     within 3 days of its own date", the earlier date on a tie; each date is claimed once. A `lump`, hand or
+     one-tap, claims only a date whose amount, stored purchases included, is at least as near its own amount
+     as C's monthly part, a tie counting (decided 2026-11-14, ADR-0056, Corrections): a starting amount
+     tapped on a later buy day no longer takes that day's monthly buy. Two prices stand: a late starting
+     purchase in pieces on separate days, each nearer the monthly part, is imported beside the lump (W1);
+     and a starting amount below the monthly part, bought on a buy day, is imported with that day's buy. A
+     monthly buy whose
      walk takes only stored dates claims nothing (decided 2026-11-14): part of a file can claim a date that
      the whole file walks past, so a fallback on claiming nothing stored in two imports a date that one import
      leaves out. A date's amount is all the file's purchases of C on it, fees
      excluded (§2.2). A claimed date is `looks recorded already`: left out and named with every date the
      entry claimed, both figures and the entry's venue. The amount is the entry's own, never the plan's.
      Amounts are positive and part of an export keeps the whole file's order, so an import of part of it
-     stores no date that the whole file's import claims. The 3
+     stores no date that the whole file's import claims, but one: an export that ends inside a date a `lump`
+     claims by its amount stores the part before its end, which alone is not as near the lump's amount, and
+     the whole file then claims the date for the lump, so that stored part counts twice (W2). The properties skip such a cut and a
+     unit test pins it (`plan-remedy-start.test.ts`). The 3
      days are `IMPORT_TYPED_DAYS` (§9). Decided 2026-11-13 (ADR-0056, Corrections): "Every step that leaves
      a purchase out runs before any step that stores one: no purchase a hand entry records is stored, and
      none dated on or before a `held` entry of its coin is stored without the person's answer, whether the
@@ -1041,9 +1050,10 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   3. The starting amount (decided 2026-11-14, ADR-0056, Corrections): "In a plan with a starting amount
      above 0, or for a coin with a live `lump`, C's purchases dated on or before `firstBuy` + 15 days that
      step 2 left are left out and named, however long before `firstBuy` they are: the file cannot tell the
-     starting amount from them." A `lump`, hand or one-tap, claims in step 2 within 3 days of its date; a
-     one-tap `lump` is never replaced (rule R, decided 2026-11-14, ADR-0056, Corrections). The line names the last date reached and that it is `IMPORT_MATCH_DAYS` (§9) days
-     after the first buy day, each purchase left out with its units,
+     starting amount from them." A `lump`, hand or one-tap, claims in step 2 within 3 days of its date, only a
+     date at least as near its amount as the coin's monthly part; a one-tap `lump` is never replaced (rule R,
+     decided 2026-11-14, ADR-0056, Corrections). The line names the last date reached and that it is
+     `IMPORT_MATCH_DAYS` (§9) days after the first buy day, each purchase left out with its units,
      amount and date in date order (the latest five past five, then how many came earlier), and what the Log
      holds per coin of those purchases: each live `lump` of those coins with its units, amount and date in
      `compareEntries` order, a one-tap one marked estimated, their date said once when they share it, then,
@@ -1098,7 +1108,7 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   "The import never changes or tombstones a hand-recorded entry, a `held` entry, a move, a skip, a pause, the
   plan, a tombstone, an entry imported earlier (edited or not) or another exchange's entry; only one-tap
   monthly estimates are tombstoned. A step reads an amount or units only where it says so (step 2's monthly
-  claim; step 4's units and cost of 0); no step reads a venue to decide." Every entry the plan adds
+  and `lump` claims; step 4's units and cost of 0); no step reads a venue to decide." Every entry the plan adds
   has source `import-csv`, the venue the person chose (or none), `createdAt` the trade's instant and
   `updatedAt` now. The reader's left-out rows are named by reason with their lines, rewards with their units
   per coin; transfers within the exchange, cash and other kinds are only counted. A coin withdrawal is named
@@ -1133,7 +1143,8 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   (`leftOutBefore`), has the summed amount nearest the target (the coin's live
   `lump`'s amount, or its part of the starting amount when no `lump` is live), the earlier on a tie,
   among the dates the line names and those its `lump` records in step 2; it counts only when the line
-  names it and its amount is no nearer the coin's monthly part than the target. While no `lump` is live,
+  names it and its amount is at least as near the target as the coin's monthly part (`nearTarget`, the
+  test of step 2's `lump` claim). While no `lump` is live,
   "record it" is the candidate when every coin with a starting part has d* on one date that no hand
   `held` entry guards (step 4 would leave it out once recorded): one `lump` per coin on that date with the
   file's cost and units, which the file planned again then records. Else each Log row of lumps
@@ -1592,7 +1603,7 @@ recorded cost and a one-tap purchase; `gb-2026-27.csv` is its raw listing, compa
 | `MAX_ENTRIES` | 10,000 live entries | a plan's entries: the backup schema and `applyImport` (§3.13), `saveTransaction`, `saveMove`, `restoreEntries` and the one tap (§6) |
 | `IMPORT_MAX_BYTES` | 50,000,000 bytes (50 MB) | the import file Settings reads, and the text of the CSV file inside a chosen ZIP (the ZIP reader, `docs/ARCHITECTURE.md`): above the 36.8 MB a full plan's backup weighs at the most (every note at 500 characters, each escaped to six bytes), about 4 MB without notes |
 | `IMPORT_MATCH_DAYS` | 15 days | an exchange import's months: a due date's reach either side, which also bounds the dates a typed monthly buy claims by its amount (step 2 reads the months), and the starting amount's reach, up to `firstBuy` + 15 days (§3.13) |
-| `IMPORT_TYPED_DAYS` | 3 days | an exchange import's typed and tapped dates: a hand-recorded entry's claim either side of its date (a monthly buy's only when its month has no purchase date of its coin in the file), a tapped starting amount's (a live one-tap `lump`) claim either side of its date, and a one-tap estimate's reach before its date (§3.13) |
+| `IMPORT_TYPED_DAYS` | 3 days | an exchange import's typed and tapped dates: a hand-recorded entry's claim either side of its date (a monthly buy's only when its month has no purchase date of its coin in the file), a starting amount's claim (a live `lump`, hand or one-tap) either side of its date, of a date at least as near its amount as the coin's monthly part, and a one-tap estimate's reach before its date (§3.13) |
 | `IMPORT_RECORDED_CHECKS` | 12 Log rows | an exchange import's preview, for each line that asks for a change: the rows of `looks recorded already` whose delete it plans again to say so, and the starting line's rows of lumps whose change it plans again (§3.13, "Lines that ask for a change"); each costs two plans, before and after importing first, so the cap went from 24 to 12 to keep the preview's work where it was: on a five-year weekly file of two coins, 520 purchases over 120 hand monthly buys, the checks took about 540 ms at 24 rows in one order, 990 ms at 24 in two and 520 ms at 12 in two (one plan about 19 ms, no coverage), and the test took at most 2.15 s across seeds 1 to 8 under the full suite with coverage (measured 2026-11-14) |
 | `IMPORT_ESTIMATE_CHECKS` | 6 Log rows | an exchange import's preview, the estimate line's rows of one-tap estimates whose change it plans again, once each, before importing (§3.13, "Lines that ask for a change"); at 520 movements the worst state of the `IMPORT_REMEDY_MAX_MOVEMENTS` row, which describes it and owns its figures, took 939 to 942 ms with 12 estimate rows and 781 to 783 ms with 6, so the cap is 6 and that bound was lowered to 400 |
 | `IMPORT_REMEDY_MAX_MOVEMENTS` | 400 movements | an exchange import's preview checks no line that asks for a change in a larger file, neither a row of `looks recorded already`, the starting line nor the estimate line (§3.13, "Lines that ask for a change"), since the preview runs the checks on every render, about 27 plans at 12 rows and 6 more for the estimate rows. Before the estimate line, on a desktop without coverage, two coins and a Log typed by hand every month, the checks took 505 to 557 ms at 520 movements (five years weekly, or 260 days daily; one plan 24 to 30 ms), 659 to 666 ms at 600, 976 to 981 ms at 730, 2,364 to 2,370 ms at 1,460 and 7 to 9 s at 3,652 (five years daily), and the starting line's check added about 35 ms. With the estimate line, on the same desktop without coverage, three runs of three calls (measured 2026-11-14), four states, each built at exactly the movement count named, two coins: (1) the hand-only Log: a weekly file from 1 Nov 2021 and a hand monthly buy of each coin on each month's first purchase date (92 entries at 400), `looks recorded already` at its cap of 12 rows in two orders, no estimate or starting check: 359 to 365 ms at 400 movements, 394 to 398 ms at 420, 423 to 424 ms at 440 and 515 to 518 ms at 520; (2) the lump state: (1) with a starting amount of 1,000 bought in the first week and a hand row of lumps dated 12 Nov 2021 in place of November's buys, 11 rows of `looks recorded already` and the starting line's one lump row in two orders: 359 to 365 ms at 400, 396 to 397 ms at 420, 423 to 424 ms at 440 and 509 to 513 ms at 520; (3) the late state: the plan's first months (40 at 400), five fills of each coin a month, every other month tapped and bought on its 19th, the months between typed by hand on their 1st, 12 rows of `looks recorded already` and the estimate rows at `IMPORT_ESTIMATE_CHECKS` (6): 169 to 170 ms at 400, 179 to 183 ms at 420, 189 to 190 ms at 440 and 227 to 232 ms at 520; (4) the worst state: a starting amount bought on 1 Nov 2021 and the plan's last 24 months with up to 11 dates each of both coins, taken date by date across the months up to the bound (8 or 9 dates a month at 400 and 420, 9 or 10 at 440, 10 or 11 at 520), every other month tapped on its 10th and bought from its 17th, the months between and every earlier month but the first typed by hand on their 1st, and a hand row of lumps (120 entries): `looks recorded already` at its cap of 12 rows in two orders, the estimate rows at their cap of 6 once, and the starting line's one lump row in two orders: 599 to 600 ms at 400, 632 to 633 ms at 420, 655 to 660 ms at 440, 781 to 783 ms at 520, and 939 to 942 ms at 520 with 12 estimate rows checked. So 400 is the largest round figure that keeps every measured state at about 600 ms or under on the desktop that measured it; a phone is several times slower, about 1.5 to 3 s by that factor. The starting line checks up to `IMPORT_RECORDED_CHECKS` rows of lumps, but every measured state holds one, so a Log of more lump rows that fail is not measured |
