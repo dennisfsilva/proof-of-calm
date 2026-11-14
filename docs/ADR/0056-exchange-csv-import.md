@@ -146,7 +146,7 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   `startingRecord`, only when that change kept in the Log and the file chosen again count the starting
   amount once in both orders (`docs/DOMAIN.md` §3.13 step 3), replacing #204's "asks for no change".
   The rest stands.
-- 2026-11-14, rule R (#213): a live one-tap `lump` claims in step 2, within 3 days of its date, as a
+- 2026-11-14, rule R (#214): a live one-tap `lump` claims in step 2, within 3 days of its date, as a
   hand one does, and is never replaced, so a starting amount tapped on the day it was bought, after
   `firstBuy` + 15 days, is no longer imported again as a monthly buy (2,200 against 1,200), and a tapped
   lump whose units equal the file's records its date. The rest stands.
