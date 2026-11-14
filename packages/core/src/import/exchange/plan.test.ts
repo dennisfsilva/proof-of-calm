@@ -131,9 +131,7 @@ describe('planExchangeImport', () => {
           purchases: 4,
           units: '0.00251',
           through: '2026-05-01',
-          heldUnits: '0.05',
-          heldDate: '2026-05-01',
-          heldVenue: 'Ledger',
+          entries: [{ units: '0.05', date: '2026-05-01', venue: 'Ledger' }],
         },
       ],
     });

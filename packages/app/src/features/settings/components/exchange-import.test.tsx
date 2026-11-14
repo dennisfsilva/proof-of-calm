@@ -105,6 +105,32 @@ describe('ExchangeImport', () => {
     expect(button('Cancel')).not.toBeNull();
   });
 
+  // Review: "two hand Coins added BTC entries (0.01 on 1 Mar 2026 and 0.0001 on 1 May 2026, cost 120 each) and
+  // purchases of 0.005 BTC on 15 Feb and 0.00005 BTC on 15 Apr. Today the line names only the latest entry."
+  it('names every Coins added entry that guards a purchase when more than one does', async () => {
+    const early = { ...HELD, id: 'aaaaaaaa-0000-4000-8000-000000000021' as EntityId, date: date('2026-10-06') };
+    await mount([{ ...early, units: units('0.0015'), venue: null }, HELD]);
+    expect(texts()).toContain(
+      'Your Log has 2 Coins added entries of BTC: 0.0015 BTC on 6 Oct 2026 and 0.0020 BTC at Ledger on 13 Oct 2026. ' +
+        '2 BTC transactions in this file, 0.0020 BTC in all, are each dated on or before one of them and may be ' +
+        'those coins. They are not added unless you choose to.',
+    );
+  });
+
+  it('names three Coins added entries with a serial comma, and one transaction they may be', async () => {
+    const at = (n: number, day: string) => ({
+      ...HELD,
+      id: `aaaaaaaa-0000-4000-8000-00000000003${n}` as EntityId,
+      date: date(day),
+    });
+    await mount([at(1, '2026-10-05'), at(2, '2026-10-05'), { ...at(3, '2026-10-06'), venue: null }]);
+    expect(texts().find((line) => line.startsWith('Your Log has 3'))).toBe(
+      'Your Log has 3 Coins added entries of BTC: 0.0020 BTC at Ledger on 5 Oct 2026, 0.0020 BTC at Ledger on ' +
+        '5 Oct 2026, and 0.0020 BTC on 6 Oct 2026. 1 BTC transaction in this file, 0.0012 BTC, is dated on or before ' +
+        'one of them and may be those coins. They are not added unless you choose to.',
+    );
+  });
+
   it('ticking `Add these transactions too` moves the estimates of the held months into `Estimates it replaces` and changes the summary and the button’s count', async () => {
     await mount([ONE_TAP_OCTOBER, HELD]);
     expect(texts()).not.toContain('Replaces 1 estimate from Bought as planned.');

@@ -117,8 +117,9 @@ describe('step 4: the coins the person added', () => {
     const file = [3, 4, 5, 6, 7, 8].map((n) => buy(`G-${n}`, 'BTC', `2026-0${n}-01`, '0.0008'));
     const plan = run(PLAIN, [held('2026-07-15', '0.0039', '350')], file);
     expect(plan.held?.coins).toEqual([
-      expect.objectContaining({ purchases: 5, units: '0.004', through: '2026-07-15', heldUnits: '0.0039' }),
+      expect.objectContaining({ purchases: 5, units: '0.004', through: '2026-07-15' }),
     ]);
+    expect(plan.held?.coins[0]?.entries).toEqual([{ units: '0.0039', date: '2026-07-15', venue: 'Ledger' }]);
     expect(kinds(plan)).toEqual(['2026-08-01:dca:2026-08']);
   });
 
@@ -150,13 +151,37 @@ describe('step 4: the coins the person added', () => {
     expect(ticked.entries.map((entry) => entry.units)).toEqual(['0.0008', '0.0015']);
   });
 
-  it('each Coins added entry guards the dates on or before its own date, and the line names the latest that guards', () => {
+  it('each Coins added entry guards the dates on or before its own date, and only one that guards is named', () => {
     const file = [buy('T-0301', 'BTC', '2026-03-01', '0.001'), buy('T-0501', 'BTC', '2026-05-01', '0.001')];
     const plan = run(PLAIN, [held('2026-04-01', '0.05', null), held('2026-06-01', '0.0001', null)], file);
     expect(plan.held?.coins).toEqual([
-      expect.objectContaining({ purchases: 1, through: '2026-04-01', heldDate: '2026-04-01', heldUnits: '0.05' }),
+      expect.objectContaining({
+        purchases: 1,
+        through: '2026-04-01',
+        entries: [{ units: '0.05', date: '2026-04-01', venue: 'Ledger' }],
+      }),
     ]);
     expect(kinds(plan)).toEqual(['2026-05-01:dca:2026-05']);
+  });
+
+  // Review: two hand Coins added BTC entries (0.01 on 1 Mar 2026 and 0.0001 on 1 May 2026, cost 120 each) and
+  // purchases of 0.005 BTC on 15 Feb and 0.00005 BTC on 15 Apr. Today the line names only the latest entry (heldUnits
+  // 0.0001).
+  it('names every Coins added entry that guards a purchase, oldest first, when more than one does', () => {
+    const file = [buy('H-0215', 'BTC', '2026-02-15', '0.005'), buy('H-0415', 'BTC', '2026-04-15', '0.00005')];
+    const plan = run(PLAIN, [held('2026-05-01', '0.0001', '120'), held('2026-03-01', '0.01', '120')], file);
+    expect(plan.held?.coins).toEqual([
+      {
+        coin: 'BTC',
+        purchases: 2,
+        units: '0.00505',
+        through: '2026-05-01',
+        entries: [
+          { units: '0.01', date: '2026-03-01', venue: 'Ledger' },
+          { units: '0.0001', date: '2026-05-01', venue: 'Ledger' },
+        ],
+      },
+    ]);
   });
 });
 
