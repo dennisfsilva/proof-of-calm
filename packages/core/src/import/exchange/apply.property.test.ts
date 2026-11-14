@@ -118,12 +118,12 @@ describe('applyExchangeImport over planExchangeImport, with importId', () => {
         fc.property(world, fc.nat(), fc.boolean(), (drawn, cut, addHeld) => {
           const { once, first, then } = twoWays({ ...drawn, addHeld }, cut);
           const known = new Set(drawn.entries.map((entry) => entry.id));
-          const recorded = once.recorded.flatMap(({ coin, date: recordedOn, entry }) =>
+          const recorded = once.recorded.flatMap(({ coin, dates, entry }) =>
             drawn.file.movements
               .filter(
                 (movement) =>
                   movement.coin === coin &&
-                  WRITE.dateOf(movement.at) === recordedOn &&
+                  dates.includes(WRITE.dateOf(movement.at)) &&
                   movement.role === (entry.kind === 'sell' ? 'sale' : 'purchase') &&
                   !known.has(importId(movement.key)),
               )

@@ -20,6 +20,7 @@ import {
   zoneDate,
 } from '../../../test/exchange/plan-fixture';
 import type { Entry } from '../../schema/entry';
+import type { CoinId } from '../../schema/ids';
 import type { Plan } from '../../schema/plan';
 import type { Movement } from './kraken';
 import { type ExchangeImportPlan, planExchangeImport } from './plan';
@@ -68,13 +69,14 @@ describe('planExchangeImport', () => {
   it("step 5, the late tap: October's estimate dated 3 Nov takes 2 Nov's purchase, and November stays open", () => {
     expect(golden.entries.find((entry) => entry.id === testId(M.M19.key))?.slot).toBe('2026-10');
     expect(golden.entries.find((entry) => entry.id === testId(M.M21.key))?.slot).toBe('2026-11');
-    // Tapped on time, October's due date and estimate reach 16 Oct only: the estimate stays, and 2 Nov fills November.
+    // Tapped on time, October's due date and estimate reach 16 Oct only: the estimate stays, and 2 Nov and 5 Nov are
+    // both November's monthly buys.
     const onTime = { ...S.S3, date: date('2026-10-01') };
     const entries = STORED.entries.map((entry) => (entry === S.S3 ? onTime : entry));
     const plan = planExchangeImport(FILE, { plan: PLAN, entries }, CHOICES, LISBON);
     expect(plan.replaced.flatMap((replacement) => replacement.estimates)).not.toContainEqual(onTime);
     expect(plan.entries.find((entry) => entry.id === testId(M.M19.key))?.slot).toBe('2026-11');
-    expect(plan.entries.find((entry) => entry.id === testId(M.M21.key))?.kind).toBe('extra');
+    expect(plan.entries.find((entry) => entry.id === testId(M.M21.key))?.slot).toBe('2026-11');
   });
 
   it("step 5, Carla's venue: the replacement takes the import's venue and the estimate's note", () => {
@@ -84,8 +86,8 @@ describe('planExchangeImport', () => {
 
   it("step 2, Ana's July: a hand monthly buy typed in November claims July's purchase, which looks recorded", () => {
     expect(golden.recorded).toEqual([
-      { date: '2026-08-22', coin: 'BTC', units: '0.0008', amount: '50', count: 1, entry: S.S6 },
-      { date: '2026-07-01', coin: 'BTC', units: '0.00161', amount: '99', count: 1, entry: S.S5 },
+      { dates: ['2026-08-22'], coin: 'BTC', units: '0.0008', amount: '50', count: 1, entry: S.S6 },
+      { dates: ['2026-07-01'], coin: 'BTC', units: '0.00161', amount: '99', count: 1, entry: S.S5 },
     ]);
     expect(idsOf(golden.entries)).not.toContain(testId(M.M12.key));
     expect(idsOf(golden.entries)).not.toContain(testId(M.M15.key));
@@ -145,7 +147,7 @@ describe('planExchangeImport', () => {
     expect(plan.held?.added).toBe(true);
     expect(plan.entries).toEqual(
       expect.arrayContaining([
-        added(M.M03, 'extra', null),
+        added(M.M03, 'dca', '2026-03'),
         added(M.M05, 'dca', '2026-04'),
         added(M.M08, 'held', null),
         added(M.M09, 'dca', '2026-05'),
@@ -325,20 +327,21 @@ describe('planExchangeImport, in one import or two', () => {
   });
 
   describe('the live Log: a month is replaced only by a date of that month, the same in one import or two', () => {
-    it("June's tap dated 2 Jul and July's dated 1 Jul, two fills on 3 Jul: both are June's, and July's tap stays", () => {
+    it("the second fill of 3 Jul is June's monthly buy in two imports as in one, and July's tap stays", () => {
       const fills = [buy('Q1', '2026-07-03T10:00:00Z', 2), buy('Q2', '2026-07-03T10:05:00Z', 4)];
       const [june, july] = [tap('2026-06', '2026-07-02', 'EJun'), tap('2026-07', '2026-07-01', 'EJul')];
       const { once, then, oneLog, twoLog } = paths(PLAIN, [june, july], fills, fills.slice(0, 1));
       expect([gone(once), kinds(once)]).toEqual([[june.id], fills.map((fill) => `${id(fill)}:dca:2026-06`)]);
-      expect([kinds(then), gone(then)]).toEqual([[`${id(fills[1] as Movement)}:extra:null`], []]);
-      expect([oneLog, twoLog].map((ids) => ids.includes(july.id))).toEqual([true, true]);
+      expect([kinds(then), gone(then)]).toEqual([[`${id(fills[1] as Movement)}:dca:2026-06`], []]);
+      expect(then.entries.map((entry) => entry.note)).toEqual(['EJun']);
+      expect([twoLog, oneLog.includes(july.id)]).toEqual([oneLog, true]);
     });
 
-    it("April's tap dated 19 Apr and May's dated 1 May, purchases on 5 and 20 Apr: 20 Apr is an extra buy", () => {
+    it("April's tap dated 19 Apr and May's dated 1 May, purchases on 5 and 20 Apr: both are April's", () => {
       const [A05, A20] = [buy('A05', '2026-04-05', 2), buy('A20', '2026-04-20', 4)];
       const [april, may] = [tap('2026-04', '2026-04-19', 'EApr'), tap('2026-05', '2026-05-01', 'EMay')];
       const { once, oneLog, twoLog } = paths(PLAIN, [april, may], [A05, A20], [A20]);
-      expect([gone(once), kinds(once)]).toEqual([[april.id], [`${id(A05)}:dca:2026-04`, `${id(A20)}:extra:null`]]);
+      expect([gone(once), kinds(once)]).toEqual([[april.id], [`${id(A05)}:dca:2026-04`, `${id(A20)}:dca:2026-04`]]);
       expect(twoLog).toEqual(oneLog);
     });
 
@@ -346,8 +349,8 @@ describe('planExchangeImport, in one import or two', () => {
       const [S05, S22] = [buy('S05', '2026-09-05', 2), buy('S22', '2026-09-22', 4)];
       const [sept, oct] = [tap('2026-09', '2026-09-24', 'ESep'), tap('2026-10', '2026-10-01', 'EOct')];
       const { once, then, oneLog, twoLog } = paths(PLAIN, [sept, oct], [S05, S22], [S05]);
-      expect([gone(once), kinds(once)]).toEqual([[sept.id], [`${id(S05)}:dca:2026-09`, `${id(S22)}:extra:null`]]);
-      expect([kinds(then), twoLog]).toEqual([[`${id(S22)}:extra:null`], oneLog]);
+      expect([gone(once), kinds(once)]).toEqual([[sept.id], [`${id(S05)}:dca:2026-09`, `${id(S22)}:dca:2026-09`]]);
+      expect([kinds(then), twoLog]).toEqual([[`${id(S22)}:dca:2026-09`], oneLog]);
     });
 
     it("February's and March's taps of 2027, purchases on 17 Jan and 14 Feb: only February's tap is tombstoned", () => {
@@ -377,47 +380,179 @@ describe('planExchangeImport, in one import or two', () => {
     expect([kinds(no), gone(no), no.held?.coins[0]?.purchases]).toEqual([[`${id(T18)}:dca:2026-06`], [june.id], 1]);
     const yes = run(store(log, no), [T13, T18], true);
     const ticked = run(log, [T13, T18], true);
-    expect([gone(ticked), kinds(ticked)]).toEqual([[june.id], [`${id(T13)}:dca:2026-06`, `${id(T18)}:extra:null`]]);
+    expect([gone(ticked), kinds(ticked)]).toEqual([[june.id], [`${id(T13)}:dca:2026-06`, `${id(T18)}:dca:2026-06`]]);
     expect(liveIds(store(store(log, no), yes))).toEqual(liveIds(store(log, ticked)));
     expect(liveIds(store(log, ticked))).toContain(july.id);
   });
 
-  it("Carla's October tap dated 20 Oct and November's of 2 Nov: 1 Oct replaces October's, 18 Oct is an extra buy", () => {
+  it("Carla's October tap dated 20 Oct and November's of 2 Nov: 1 Oct and 18 Oct both replace October's", () => {
     const [C01, C18] = [buy('C1001', '2026-10-01', 2), buy('C1018', '2026-10-18', 4)];
     const [october, november] = [tap('2026-10', '2026-10-20', 'EOct'), tap('2026-11', '2026-11-02', 'ENov')];
     const { once } = paths(PLAIN, [october, november], [C01, C18], []);
-    expect([gone(once), kinds(once)]).toEqual([[october.id], [`${id(C01)}:dca:2026-10`, `${id(C18)}:extra:null`]]);
+    expect(once.replaced).toEqual([{ estimates: [october], by: [id(C01), id(C18)] }]);
+    expect(kinds(once)).toEqual([`${id(C01)}:dca:2026-10`, `${id(C18)}:dca:2026-10`]);
   });
 
   it("Kai's extra typed on 15 Mar claims 14 Mar before the first buy's 15 days, and 17 Mar is added", () => {
     const typed = anEntry({ kind: 'extra', slot: null, date: date('2026-03-15'), note: 'X15' });
     const [T14, T17] = [buy('T0314', '2026-03-14', 2), buy('T0317', '2026-03-17', 4)];
     const { once } = paths(STARTING, [typed], [T14, T17], []);
-    expect([once.recorded.map((each) => each.date), idsOf(once.entries), once.startingAmount]).toEqual([
-      ['2026-03-14'],
+    expect([once.recorded.map((each) => each.dates), idsOf(once.entries), once.startingAmount]).toEqual([
+      [['2026-03-14']],
       [id(T17)],
       null,
     ]);
   });
 
-  it("a Kraken import fills May with 2 May; Trade Republic's 4 May buy, imported after it, is an extra buy", () => {
-    const kraken = buy('K0502', '2026-05-02T09:00:00Z', 2);
+  it("Kraken's 2 May then Trade Republic's 4 May, and the reverse, give two monthly buys for May", () => {
+    const kraken = { ...FILE, movements: [buy('K0502', '2026-05-02T09:00:00Z', 2)], leftOut: [] };
     const cells = ['2026-05-04T08:00:00.000Z', 'TRADING', 'BUY', 'CRYPTO', 'BTC', '0.0010', '-70.00', '-1.00', ''];
-    const file = readTradeRepublic(TR_READ, [[...cells, 'EUR', '00000000-0000-4000-8000-000000000001']]);
-    const { first } = paths(PLAIN, [], [kraken], [kraken]);
-    const then = planExchangeImport(file, { plan: PLAIN, entries: store([], first) }, CHOICES, LISBON);
-    const tr = file.movements[0] as Movement;
-    expect([kinds(first), kinds(then)]).toEqual([[`${id(kraken)}:dca:2026-05`], [`${id(tr)}:extra:null`]]);
+    const tr = readTradeRepublic(TR_READ, [[...cells, 'EUR', '00000000-0000-4000-8000-000000000001']]);
+    const run = (file: typeof FILE, entries: readonly Entry[]) =>
+      planExchangeImport(file, { plan: PLAIN, entries }, CHOICES, LISBON);
+    const [k, t] = [kraken.movements[0], tr.movements[0]].map((each) => `${id(each as Movement)}:dca:2026-05`);
+    const krakenFirst = run(kraken, []);
+    const trFirst = run(tr, []);
+    expect([kinds(krakenFirst), kinds(run(tr, store([], krakenFirst)))]).toEqual([[k], [t]]);
+    expect([kinds(trFirst), kinds(run(kraken, store([], trFirst)))]).toEqual([[t], [k]]);
   });
 
   it('a hand monthly buy for March, typed on 10 Nov, claims 2 Mar, and 9 Nov fills November', () => {
     const typed = anEntry({ slot: month('2026-03'), date: date('2026-11-10'), note: 'HMar' });
     const [J02, J09] = [buy('J0302', '2026-03-02', 2), buy('J1109', '2026-11-09', 4)];
     const { once } = paths(STARTING, [typed], [J02, J09], []);
-    expect([once.recorded.map((each) => each.date), kinds(once), once.startingAmount]).toEqual([
-      ['2026-03-02'],
+    expect([once.recorded.map((each) => each.dates), kinds(once), once.startingAmount]).toEqual([
+      [['2026-03-02']],
       [`${id(J09)}:dca:2026-11`],
       null,
     ]);
+  });
+
+  // Q1 and Q2 of the month-claims design (2026-11-14): every purchase date of a month is its monthly buy, and a hand
+  // monthly buy claims its month's dates by its own amount. P1, P2 and P3 are the design walk's people.
+  describe('every date of a month is its monthly buy; a hand monthly buy claims by its amount', () => {
+    const P2_PLAN = { ...PLAIN, buyDay: 15, firstBuy: date('2026-02-15') };
+    const paid = (ref: string, at: string, amount: string, line: number) =>
+      trade(ref, 'purchase', 'BTC', at, { units: '0.0008', amount, fee: '0.50' }, line);
+    const typedFor = (slot: string, day: string, amount: string, note = 'H') =>
+      anEntry({ slot: month(slot), date: date(day), amount: money(amount), note });
+    const claims = (plan: ExchangeImportPlan) => plan.recorded.map((each) => [each.entry.note, each.dates]);
+
+    it('P2: executions on 2 Mar and 16 Mar, due day 15, are both March monthly buys', () => {
+      const [D02, D16] = [paid('P2-0302', '2026-03-02', '49.93', 2), paid('P2-0316', '2026-03-16', '49.93', 4)];
+      const { once } = paths(P2_PLAN, [], [D02, D16], []);
+      expect(kinds(once)).toEqual([`${id(D02)}:dca:2026-03`, `${id(D16)}:dca:2026-03`]);
+    });
+
+    it('P1: the 31 Mar Saveback and the 2 Apr execution both fill April, in one import and after an export from 1 Apr', () => {
+      const [M31, A02] = [paid('P1-0331', '2026-03-31', '5.47', 2), paid('P1-0402', '2026-04-02', '49.93', 4)];
+      const { once, then, oneLog, twoLog } = paths(PLAIN, [], [M31, A02], [A02]);
+      expect(kinds(once)).toEqual([`${id(M31)}:dca:2026-04`, `${id(A02)}:dca:2026-04`]);
+      expect([kinds(then), twoLog]).toEqual([[`${id(M31)}:dca:2026-04`], oneLog]);
+    });
+
+    it("20 May and 1 Jun are both June's monthly buys beside 10 May's May", () => {
+      const fills = [buy('Y0510', '2026-05-10', 2), buy('Y0520', '2026-05-20', 4), buy('Y0601', '2026-06-01', 6)];
+      const { once } = paths(PLAIN, [], fills, []);
+      expect(kinds(once)).toEqual(fills.map((fill, n) => `${id(fill)}:dca:2026-0${n === 0 ? 5 : 6}`));
+    });
+
+    it('a skipped month takes extra buys unless the Log holds a tombstoned estimate of the coin for it', () => {
+      const skips = [{ id: testId('skip'), slot: month('2026-06'), note: '', createdAt: NOW }];
+      const plan = { ...PLAIN, skips };
+      const J02 = buy('J0602', '2026-06-02', 2);
+      const tombstoned = { ...tap('2026-06', '2026-06-01', 'EJun'), deletedAt: NOW };
+      expect(kinds(paths(plan, [], [J02], []).once)).toEqual([`${id(J02)}:extra:null`]);
+      const { once } = paths(plan, [tombstoned], [J02], []);
+      expect([kinds(once), once.entries[0]?.note, once.replaced]).toEqual([[`${id(J02)}:dca:2026-06`], 'EJun', []]);
+    });
+
+    it("every monthly buy of a month takes its first estimate's note, live or tombstoned, after a prefix import", () => {
+      const [O01, O03] = [buy('N1001', '2026-10-01', 2), buy('N1003', '2026-10-03', 4)];
+      const taps = [tap('2026-10', '2026-10-01', 'card'), tap('2026-10', '2026-10-02', 'second')];
+      const { once, first, then, oneLog, twoLog } = paths(PLAIN, taps, [O01, O03], [O01]);
+      expect([gone(first), kinds(then), gone(then)]).toEqual([idsOf(taps), [`${id(O03)}:dca:2026-10`], []]);
+      expect([...once.entries, ...then.entries].map((entry) => entry.note)).toEqual(['card', 'card', 'card']);
+      expect(twoLog).toEqual(oneLog);
+    });
+
+    it('a coin at 0 % takes only extra buys, but every date of a month its estimate names is a monthly buy', () => {
+      const sol = (ref: string, day: string, line: number) =>
+        trade(ref, 'purchase', 'SOL', day, { units: '0.5', amount: '50', fee: '0.50' }, line);
+      const fills = [sol('L1101', '2026-11-01', 2), sol('L1104', '2026-11-04', 4)];
+      expect(kinds(paths(PLAN, [], fills, []).once)).toEqual(fills.map((fill) => `${id(fill)}:extra:null`));
+      const estimate = { ...tap('2026-11', '2026-11-01', 'ESol'), coin: 'SOL' as CoinId };
+      const { once } = paths(PLAN, [estimate], fills, []);
+      expect([kinds(once), gone(once)]).toEqual([fills.map((fill) => `${id(fill)}:dca:2026-11`), [estimate.id]]);
+    });
+
+    it('P2 typed €100 claims both executions (€99.86)', () => {
+      const [D02, D16] = [paid('P2-0302', '2026-03-02', '49.93', 2), paid('P2-0316', '2026-03-16', '49.93', 4)];
+      const { once } = paths(P2_PLAN, [typedFor('2026-03', '2026-03-15', '100')], [D02, D16], []);
+      expect([once.entries, once.recorded.map(({ dates, amount, count }) => [dates, amount, count])]).toEqual([
+        [],
+        [[['2026-03-02', '2026-03-16'], '99.86', 2]],
+      ]);
+    });
+
+    it('P1 typed €50 claims €49.93 and leaves the €5.47 Saveback to April', () => {
+      const [M31, A02] = [paid('P1-0331', '2026-03-31', '5.47', 2), paid('P1-0402', '2026-04-02', '49.93', 4)];
+      const { once } = paths(PLAIN, [typedFor('2026-04', '2026-04-02', '50')], [M31, A02], []);
+      expect([once.recorded.map((each) => [each.dates, each.amount]), kinds(once)]).toEqual([
+        [[['2026-04-02'], '49.93']],
+        [`${id(M31)}:dca:2026-04`],
+      ]);
+    });
+
+    it("the audit's €100 / €60, €90, €30 case: an export ending on the 12th, then the whole file, stores the 12th and 13th as one import does", () => {
+      const fills = [
+        paid('A1011', '2026-10-11', '60', 2),
+        paid('A1012', '2026-10-12', '90', 4),
+        paid('A1013', '2026-10-13', '30', 6),
+      ];
+      const [O11, O12, O13] = fills as [Movement, Movement, Movement];
+      const { once, first, then, oneLog, twoLog } = paths(
+        PLAIN,
+        [typedFor('2026-10', '2026-10-11', '100')],
+        fills,
+        [O11, O12],
+      );
+      expect([claims(once), kinds(once)]).toEqual([
+        [['H', ['2026-10-11']]],
+        [`${id(O12)}:dca:2026-10`, `${id(O13)}:dca:2026-10`],
+      ]);
+      expect([claims(first), kinds(first), claims(then), kinds(then)]).toEqual([
+        [['H', ['2026-10-11']]],
+        [`${id(O12)}:dca:2026-10`],
+        [['H', ['2026-10-11']]],
+        [`${id(O13)}:dca:2026-10`],
+      ]);
+      expect(twoLog).toEqual(oneLog);
+    });
+
+    it('P3 June typed on 26 Jun claims 26 Jun by its 3 days', () => {
+      const J26 = paid('P3-0626', '2026-06-26', '50', 2);
+      const { once } = paths(PLAIN, [typedFor('2026-06', '2026-06-26', '50')], [J26], []);
+      expect([claims(once), once.entries]).toEqual([[['H', ['2026-06-26']]], []]);
+    });
+
+    it('monthly buys claim before other hand entries', () => {
+      const extra = anEntry({ kind: 'extra', slot: null, date: date('2026-09-30'), note: 'X' });
+      const fills = [paid('B0928', '2026-09-28', '20', 2), paid('B1001', '2026-10-01', '70', 4)];
+      const { once } = paths(PLAIN, [typedFor('2026-10', '2026-10-03', '70'), extra], fills, []);
+      expect([claims(once), once.entries]).toEqual([
+        [
+          ['X', ['2026-09-28']],
+          ['H', ['2026-10-01']],
+        ],
+        [],
+      ]);
+    });
+
+    it('a pre-plan execution within the first month’s reach is its monthly buy', () => {
+      const fills = [buy('V0301', '2026-03-01', 2), buy('V0310', '2026-03-10', 4)];
+      const { once } = paths({ ...PLAIN, buyDay: 10, firstBuy: date('2026-03-10') }, [], fills, []);
+      expect(kinds(once)).toEqual(fills.map((fill) => `${id(fill)}:dca:2026-03`));
+    });
   });
 });
