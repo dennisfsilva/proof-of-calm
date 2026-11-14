@@ -33,7 +33,7 @@ type SectionsProps = Props & { readonly exchange: ExchangeId };
 type Item = { readonly key: string; readonly text: string; readonly hint?: string };
 /** Past this many, the lines that could not be read or paired end in "and N more". */
 const LINES_SHOWN = 5;
-/** A trade and its cancellation are two lines: the cap rounded up to whole pairs, so no pair is cut in half. */
+/** A trade and its cancellation are two lines: the cap rounded up to an even number of lines. */
 const PAIR_LINES_SHOWN = Math.ceil(LINES_SHOWN / 2) * 2;
 
 /** A count as a figure, grouped as the numbers' locale groups it (CONTENT-STYLE §4). */
@@ -305,9 +305,10 @@ function useLeftOut({ model, plan, exchange }: SectionsProps, w: ReturnType<type
   }
   // One sentence per cause, each naming its lines (at most `LINES_SHOWN`, then a count). Kraken's reader joins the rows
   // it cannot pair and those it cannot read; Trade Republic's tells a trade with its cancellation (`cancelled`, counted
-  // in pairs as a figure, its list rounded up to whole pairs so the count past it is whole pairs too) from a
-  // cancellation with no earlier trade left to pair (`unpaired`) and from a row it cannot read.
-  const named = (key: 'cancelled' | 'unpaired' | 'lines', reasons: readonly LeftOut['reason'][], count?: number) => {
+  // in pairs as a figure, its list capped at an even number of lines) from a cancellation with no earlier buy
+  // (`unpaired`) or sale (`unpaired-sale`) left to pair and from a row it cannot read.
+  type Key = 'cancelled' | 'unpaired' | 'unpairedSale' | 'lines';
+  const named = (key: Key, reasons: readonly LeftOut['reason'][], count?: number) => {
     const lines = reasons.flatMap((reason) => group(reason)?.lines ?? []).sort((a, b) => a - b);
     const cap = key === 'cancelled' ? PAIR_LINES_SHOWN : LINES_SHOWN;
     const shown = lines.slice(0, cap).map(w.figure);
@@ -319,6 +320,7 @@ function useLeftOut({ model, plan, exchange }: SectionsProps, w: ReturnType<type
   else {
     named('cancelled', ['cancelled'], group('cancelled')?.count);
     named('unpaired', ['unpaired']);
+    named('unpairedSale', ['unpaired-sale']);
     named('lines', ['unreadable']);
   }
   const other = group('other');

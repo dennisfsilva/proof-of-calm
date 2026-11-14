@@ -265,7 +265,7 @@ describe('readTradeRepublic, rule by rule', () => {
     expect(reasons({ type: 'BUY_CANCELLED', amount: '' })).toEqual([['unreadable', [2], 'amount']]);
   });
 
-  it('rule 6: a trade with its cancellation, a lone cancellation and an unreadable row go out with three reasons', () => {
+  it('rule 6: a trade with its cancellation, a lone cancellation of each side and an unreadable row go out apart', () => {
     const later = { datetime: '2026-05-05T00:00:00.000Z', type: 'BUY_CANCELLED' };
     expect(
       reasons(
@@ -273,11 +273,13 @@ describe('readTradeRepublic, rule by rule', () => {
         { ...later, transaction_id: 'C' },
         { ...later, transaction_id: 'D', symbol: 'ETH' },
         { transaction_id: 'E', shares: 'x' },
+        { ...later, transaction_id: 'F', type: 'SELL_CANCELLED' },
       ),
     ).toEqual([
       ['cancelled', [2, 3], null],
       ['unpaired', [4], null],
       ['unreadable', [5], 'shares'],
+      ['unpaired-sale', [6], null],
     ]);
   });
 
