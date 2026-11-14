@@ -192,6 +192,20 @@ describe('step 1: what an earlier import stored and this file changes', () => {
     const tombstoned = { ...(log[0] as Entry), deletedAt: instant('2026-11-01T09:00:00Z') };
     expect(run(PLAIN, [tombstoned], [grew]).short).toEqual([]);
   });
+
+  it('a receipt compares at the places the preview shows, so typing the figure it names ends the line', () => {
+    const below = receipt('F4', '2026-10-31', '0.0000500040');
+    const above = receipt('F5', '2026-10-31', '0.0000500060');
+    const stored = (movement: Movement, units_: string): Entry => ({
+      ...held('2026-10-31', units_, '0'),
+      id: testId(movement.key),
+      source: 'import-csv',
+    });
+    expect(run(PLAIN, [stored(below, '0.00005')], [below]).short).toEqual([]);
+    const log = [stored(above, '0.00005')];
+    expect(run(PLAIN, log, [above]).short).toEqual([{ entry: log[0], units: '0.0000500060' }]);
+    expect(run(PLAIN, [stored(above, '0.00005001')], [above]).short).toEqual([]);
+  });
 });
 
 describe('the move check, at the places the preview shows', () => {

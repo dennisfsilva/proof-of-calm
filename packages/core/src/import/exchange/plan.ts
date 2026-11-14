@@ -126,6 +126,8 @@ function leftOutGroups() {
 
 /** The places the preview shows a coin's units at: its decimals in the plan, 8 for a coin it does not list. */
 export const shownPlaces = (plan: Plan, coin: string) => plan.coins.find((each) => each.id === coin)?.decimals ?? 8;
+/** Units as the preview shows them, rounded half-even at `shownPlaces`: the figure a person reads and types. */
+const shown = (plan: Plan, coin: string, value: Units) => round(value, shownPlaces(plan, coin), 'half-even');
 
 /**
  * "A withdrawal has a move in the Log when a live move of its coin, sent from the import's venue, is dated within 1
@@ -143,12 +145,11 @@ function withdrawals(
   const [logged, notLogged] = [new Map<string, CoinUnits>(), new Map<string, CoinUnits>()];
   for (const row of rows.filter((each) => each.reason === 'coin-withdrawal')) {
     const [coin, units, date] = [row.coin as string, row.units as Units, context.dateOf(row.at as Instant)];
-    const shown = (value: Units) => round(value, shownPlaces(plan, coin), 'half-even');
     const index = moves.findIndex(
       (move) =>
         move.coin === coin &&
         Math.abs(daysBetween(move.date, date)) <= 1 &&
-        compare(shown(move.units), shown(units)) === 0,
+        compare(shown(plan, coin, move.units), shown(plan, coin, units)) === 0,
     );
     moves.splice(index, index < 0 ? 0 : 1);
     tally(index < 0 ? notLogged : logged, coin, units);
@@ -190,8 +191,10 @@ export function planExchangeImport(
       counts[entry.deletedAt === null ? 'imported' : 'deleted'] += 1;
       if (coin !== undefined && movement.role === 'purchase') put(earlier, item, movement.role);
       // "A receipt imported earlier whose live entry holds fewer units than the file now gives its key is named with
-      // both figures: change its units in the Log." Step 1 only compares.
-      if (entry.deletedAt === null && movement.role === 'receipt' && compare(entry.units, movement.units) < 0)
+      // both figures: change its units in the Log." Step 1 only compares, at the places the preview shows, so the
+      // figure the line names ends it once typed.
+      const [was, now] = [shown(plan, movement.coin, entry.units), shown(plan, movement.coin, movement.units)];
+      if (entry.deletedAt === null && movement.role === 'receipt' && compare(was, now) < 0)
         short.push({ entry, units: movement.units });
     } else if (movement.role !== 'receipt' && movement.currency !== plan.payCurrency)
       leave('currency', movement.lines, String(movement.currency), null);
