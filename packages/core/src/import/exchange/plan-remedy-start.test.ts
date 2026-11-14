@@ -3,7 +3,7 @@ import { anEntry, aPlan, date, money, month, split, units } from '../../../test/
 import { fileOf } from '../../../test/exchange/plan-arbitraries';
 import { LISBON, NOW, testId, trade } from '../../../test/exchange/plan-fixture';
 import { saveTransaction, storedOver, type TransactionDraft } from '../../actions/entries';
-import { MAX_ENTRIES } from '../../constants';
+import { IMPORT_REMEDY_MAX_MOVEMENTS, MAX_ENTRIES } from '../../constants';
 import { actionsNow, liveEntries, primaryAction } from '../../plan/statuses';
 import { portfolio } from '../../portfolio/portfolio';
 import type { Entry } from '../../schema/entry';
@@ -472,7 +472,9 @@ describe('the starting line, its instruction', () => {
   });
 
   it('a file past IMPORT_REMEDY_MAX_MOVEMENTS plans no instruction', () => {
-    const long = Array.from({ length: 515 }, () => buy('BTC', '2026-09-15', '1', '0.00001'));
+    const long = Array.from({ length: IMPORT_REMEDY_MAX_MOVEMENTS + 1 - FILE.length }, () =>
+      buy('BTC', '2026-09-15', '1', '0.00001'),
+    );
     expect(starting({ ...NOTHING, file: [...FILE, ...long.slice(1)] }, [])).toEqual({
       kind: 'record',
       date: '2026-06-10',

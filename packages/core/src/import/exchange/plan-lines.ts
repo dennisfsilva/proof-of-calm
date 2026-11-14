@@ -2,7 +2,7 @@
 // that the file leaves while a purchase made after the month's reach counts for another month or as an extra buy. This
 // module finds the rows that pass the cheap tests; `importRemedies` keeps those whose change, made as the Log makes it,
 // records the purchases by the row's estimates and keeps every other date group.
-import { IMPORT_MATCH_DAYS, IMPORT_RECORDED_CHECKS } from '../../constants';
+import { IMPORT_ESTIMATE_CHECKS, IMPORT_MATCH_DAYS } from '../../constants';
 import {
   addDays,
   addMonthsToKey,
@@ -41,7 +41,7 @@ function nextDue(plan: Plan, key: MonthKey): CalendarDate {
  * The Log's rows of live one-tap monthly estimates for a month S of the plan, newest first, that hold estimates the file
  * leaves, each its coin's only live estimate for S, when every such coin's earliest purchase this import adds after S's
  * reach (its due date + `IMPORT_MATCH_DAYS`) and before the next month's due date falls on one date D, and the coins'
- * purchases on D are all monthly buys for one month or all extra buys. At most `IMPORT_RECORDED_CHECKS` rows.
+ * purchases on D are all monthly buys for one month or all extra buys. At most `IMPORT_ESTIMATE_CHECKS` rows.
  */
 export function estimateLines(
   stored: { readonly plan: Plan; readonly entries: readonly Entry[] },
@@ -82,5 +82,5 @@ export function estimateLines(
     if (added.some((entry) => (entry.kind === 'dca' ? entry.slot : null) !== other)) continue;
     lines.push({ estimates: staying, month: first.slot as MonthKey, date, added, other });
   }
-  return lines.slice(0, IMPORT_RECORDED_CHECKS);
+  return lines.slice(0, IMPORT_ESTIMATE_CHECKS);
 }
