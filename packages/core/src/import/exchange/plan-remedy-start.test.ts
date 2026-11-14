@@ -662,9 +662,9 @@ describe("a lump's claim reads its amount", () => {
     expect(invested(W2, cut)).toBe('1700');
   });
 
-  // DOMAIN §3.13 step 2's one exception covers a cut on either side of the lump's date: an export that begins inside
-  // it, or begins and ends inside it, stores the part it holds when that part alone is nearer the monthly part, and
-  // the whole file's lump then claims the date, so that part counts twice.
+  // Above the part, DOMAIN §3.13 step 2's exception (W2) covers either side of the lump's date: an export that begins
+  // inside it, or begins and ends inside it, stores the part it holds when that part alone is nearer the monthly part,
+  // and the whole file's lump then claims the date, so that part counts twice.
   it("W2, an export that begins inside the lump's date: one import gives 1,400, the cut first then the file 1,700", () => {
     const fills = [
       buy('BTC', '2026-09-03T09:00:00Z', '700', '0.00875'),
