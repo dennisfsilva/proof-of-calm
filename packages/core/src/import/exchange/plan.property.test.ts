@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { anEntry, aPlan, date, money, month } from '../../../test/builders';
 import { fileOf, heldGuards, type World, world } from '../../../test/exchange/plan-arbitraries';
 import { added, BERLIN, LISBON, NOW, testId, trade } from '../../../test/exchange/plan-fixture';
+import { preCut, skipped } from '../../../test/exchange/plan-late';
 import { addDays, type CalendarDate } from '../../dates/calendar';
 import { sum } from '../../money/decimal';
 import { plannedParts } from '../../plan/parts';
@@ -47,6 +48,7 @@ const run = (
 /** One import of the whole file, and a prefix of its rows stored before the whole file. */
 function twoWays(drawn: World, cut: number) {
   const prefix = fileOf(drawn.file.movements.slice(0, cut % (drawn.file.movements.length + 1)));
+  preCut(drawn, prefix.movements);
   const once = run(drawn, drawn.entries, drawn.file);
   const first = run(drawn, drawn.entries, prefix);
   const after = store(drawn.entries, first);
@@ -105,6 +107,7 @@ describe('planExchangeImport', () => {
   it(
     "a prefix of a file's rows, stored, then the whole file adds the ids and units per coin the whole file adds at once",
     () => {
+      skipped.cuts = 0;
       fc.assert(
         fc.property(world, fc.nat(), (drawn, cut) => {
           const { once, first, then } = twoWays(drawn, cut);
@@ -114,6 +117,8 @@ describe('planExchangeImport', () => {
         }),
         TWICE,
       );
+      // The cuts that split a date a lump claims by its amount are skipped (docs/DOMAIN.md §3.13 step 2), a few a run.
+      expect(skipped.cuts).toBeLessThan(TWICE.numRuns / 10);
     },
     TIMEOUT,
   );

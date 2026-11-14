@@ -3,10 +3,12 @@ import { describe, expect, it } from 'vitest';
 import { anEntry, aPlan, date, money, month } from '../../../test/builders';
 import { fileOf, heldGuards, startingGuards, type World, world } from '../../../test/exchange/plan-arbitraries';
 import { LISBON, NOW, testId, trade } from '../../../test/exchange/plan-fixture';
-import { addDays, clampDay } from '../../dates/calendar';
+import { partOf, preCut } from '../../../test/exchange/plan-late';
+import { addDays, type CalendarDate, clampDay, daysBetween } from '../../dates/calendar';
+import { abs, compare, type Money, minus, sum } from '../../money/decimal';
 import type { Entry } from '../../schema/entry';
 import type { ExchangeFile, Movement } from './kraken';
-import { type ExchangeImportPlan, planExchangeImport } from './plan';
+import { type ExchangeImportPlan, leftOutBefore, planExchangeImport } from './plan';
 
 // Steps 2 to 6 of the exchange import's plan (docs/DOMAIN.md §3.13) over generated files and Logs: any window
 // of a file's rows, stored before the whole file, leaves the Log one import leaves, field by field; no purchase step 3
@@ -69,6 +71,7 @@ describe('planExchangeImport, by windows and by exchanges', () => {
     () => {
       fc.assert(
         fc.property(world, windowOf, (drawn, window) => {
+          preCut(drawn, cut(drawn.file, window).movements);
           const once = store(drawn.entries, run(drawn, drawn.entries, drawn.file));
           const first = store(drawn.entries, run(drawn, drawn.entries, cut(drawn.file, window)));
           const twice = store(first, run(drawn, first, drawn.file));
@@ -84,6 +87,7 @@ describe('planExchangeImport, by windows and by exchanges', () => {
 
   /** What one import, and a window of the file stored before the whole file, add with `held` left unticked. */
   const added = (drawn: World, window: Drawn<typeof windowOf>) => {
+    preCut(drawn, cut(drawn.file, window).movements);
     const unticked = { ...drawn, addHeld: false };
     const once = run(unticked, drawn.entries, drawn.file);
     const first = run(unticked, drawn.entries, cut(drawn.file, window));
@@ -114,6 +118,51 @@ describe('planExchangeImport, by windows and by exchanges', () => {
         }),
         RUNS,
       );
+    },
+    TIMEOUT,
+  );
+
+  it(
+    "a `lump` records only dates as near its amount as its coin's monthly part, and leaves no free one within 3 days",
+    () => {
+      let reached = 0;
+      fc.assert(
+        fc.property(world, (drawn) => {
+          const plan = run(drawn, drawn.entries, drawn.file);
+          const stored = new Set(drawn.entries.map((entry) => entry.id));
+          // A date's amount, stored purchases included: the file's purchases of the coin that the steps consider.
+          const totalOn = (coin: string, day: CalendarDate) =>
+            sum(
+              drawn.file.movements
+                .filter((movement) => movement.role === 'purchase' && movement.coin === coin)
+                .filter((movement) => LISBON.dateOf(movement.at) === day)
+                .filter((movement) => stored.has(testId(movement.key)) || leftOutBefore(drawn.plan, movement) === null)
+                .map((movement) => movement.amount as Money),
+            );
+          const passes = (lump: Entry, day: CalendarDate) => {
+            const total = totalOn(lump.coin, day);
+            const part = partOf(drawn.plan, drawn.plan.monthlyAmount, lump.coin);
+            return compare(abs(minus(total, lump.amount as Money)), abs(minus(total, part))) <= 0;
+          };
+          const lumps = drawn.entries.filter((entry) => entry.deletedAt === null && entry.kind === 'lump');
+          for (const lump of lumps) {
+            const dates = plan.recorded.find((each) => each.entry.id === lump.id)?.dates ?? [];
+            expect(dates.filter((day) => !passes(lump, day))).toEqual([]);
+            if (dates.length > 0) continue;
+            const near = plan.entries.filter(
+              (entry) =>
+                (entry.kind === 'dca' || entry.kind === 'extra') &&
+                entry.coin === lump.coin &&
+                Math.abs(daysBetween(lump.date, entry.date)) <= 3,
+            );
+            if (near.length > 0) reached += 1;
+            expect(near.filter((entry) => passes(lump, entry.date))).toEqual([]);
+          }
+        }),
+        RUNS,
+      );
+      // The rule bites: a lump records none while the plan adds a purchase of its coin within 3 days of it.
+      expect(reached).toBeGreaterThan(0);
     },
     TIMEOUT,
   );

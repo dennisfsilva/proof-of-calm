@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { anEntry, instant } from '../../../test/builders';
 import { heldGuards, type World, worldOf } from '../../../test/exchange/plan-arbitraries';
 import { LISBON, NOW } from '../../../test/exchange/plan-fixture';
+import { preCut } from '../../../test/exchange/plan-late';
 import { compareInstants, stampAfter } from '../../dates/calendar';
 import { sum } from '../../money/decimal';
 import type { Entry } from '../../schema/entry';
@@ -37,6 +38,7 @@ const unitsPerCoin = (entries: readonly Entry[]) =>
 /** One import of the whole file, and a prefix of its rows written before the whole file. */
 function twoWays(drawn: World, cut: number) {
   const prefix = { ...drawn.file, movements: drawn.file.movements.slice(0, cut % (drawn.file.movements.length + 1)) };
+  preCut(drawn, prefix.movements);
   const once = run(drawn, drawn.entries, drawn.file);
   const first = run(drawn, drawn.entries, prefix);
   const after = write(drawn.entries, first);

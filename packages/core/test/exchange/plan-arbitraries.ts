@@ -9,6 +9,7 @@ import type { CoinId, EntityId } from '../../src/schema/ids';
 import type { Plan } from '../../src/schema/plan';
 import { aMove, anEntry, date, instant, money, units } from '../builders';
 import { LISBON, NOW, PLAN, STARTING_PLAN, testId } from './plan-fixture';
+import { lateOf, laterDues, lateStart, lumpAmount, lumpPick } from './plan-late';
 
 // The generated files and Logs of the exchange import's properties (plan.property.test.ts, apply.property.test.ts).
 
@@ -147,9 +148,9 @@ const PLANS: readonly Plan[] = [
 
 /**
  * A Log: one-tap estimates (3 days early to 35 days late, some tombstoned, two for one month), hand entries of every
- * hand source and `held` entries of every source near the file's dates, moves, a one-tap `lump` on the first buy or
- * near the file's dates, another exchange's
- * monthly buy, tombstoned hand and `held` entries, and rows of the file imported or deleted earlier.
+ * hand source and `held` entries of every source near the file's dates, lumps of the coin's monthly part, its starting
+ * part, 1,000 or any amount, moves, a one-tap `lump` on the first buy, near the file's dates or on a later due date,
+ * another exchange's monthly buy, tombstoned hand and `held` entries, and rows of the file imported or deleted earlier.
  */
 function log(
   plan: Plan,
@@ -192,9 +193,17 @@ function log(
       slot,
       day: fc.oneof(uniformDay, around(dates, 3), nearBase(1), nearBase(1)),
       source: fc.constantFrom<Entry['source']>('manual', 'manual', 'import-json', 'import-prototype'),
+      lumped: lumpPick,
     })
-    .map(({ kind, coin, slot: { key }, day, source }) =>
-      anEntry({ kind, coin, slot: kind === 'dca' ? key : null, date: day, source }),
+    .map(({ kind, coin, slot: { key }, day, source, lumped }) =>
+      anEntry({
+        kind,
+        coin,
+        slot: kind === 'dca' ? key : null,
+        date: day,
+        source,
+        ...(kind === 'lump' ? { amount: lumpAmount(plan, coin, lumped) } : {}),
+      }),
     );
   const held = fc
     .record({
@@ -230,11 +239,24 @@ function log(
       .map(({ coin, day }) =>
         anEntry({ kind: 'held', coin, slot: null, date: day, amount: null, venue: 'Ledger', deletedAt: NOW }),
       ),
-    // A one-tap lump on the first buy, or near the file's dates as hand entries are, so rule R's claim is reached.
+    // A one-tap lump on the first buy, near the file's dates as hand entries are, or on a later due date, so step 2's
+    // claim by its amount is reached.
     fc
-      .record({ coin: planCoin, day: fc.oneof(fc.constant(plan.firstBuy), around(dates, 3), nearBase(1)) })
-      .map(({ coin, day }) =>
-        anEntry({ kind: 'lump', coin, slot: null, date: day, source: 'one-tap', venue: 'Bitvavo' }),
+      .record({
+        coin: planCoin,
+        day: fc.oneof(fc.constant(plan.firstBuy), around(dates, 3), nearBase(1), around(laterDues(plan), 5)),
+        lumped: lumpPick,
+      })
+      .map(({ coin, day, lumped }) =>
+        anEntry({
+          kind: 'lump',
+          coin,
+          slot: null,
+          date: day,
+          source: 'one-tap',
+          venue: 'Bitvavo',
+          amount: lumpAmount(plan, coin, lumped),
+        }),
       ),
     fc
       .record({ coin: planCoin, slot, late: fc.integer({ min: -3, max: 10 }) })
@@ -283,14 +305,18 @@ export const worldOf = (idOf: (key: string) => EntityId) =>
       plan: fc.constantFrom(...PLANS),
       addHeld: fc.boolean(),
       venue: fc.constantFrom('Kraken', null),
+      late: fc.option(lateStart, { freq: 2 }),
     })
-    .chain(({ drawn, ...rest }) =>
-      log(rest.plan, drawn.file.movements, drawn.bases, idOf).map((entries) => ({
+    .chain(({ drawn, late, ...rest }) => {
+      // Half the worlds add a starting amount bought late beside a monthly buy, and its lump (plan-late.ts).
+      const extra = late === null ? { movements: [], lumps: [] } : lateOf(rest.plan, late, idOf);
+      const movements = [...drawn.file.movements, ...extra.movements];
+      return log(rest.plan, movements, drawn.bases, idOf).map((entries) => ({
         ...rest,
-        file: drawn.file,
-        entries,
-      })),
-    );
+        file: extra.movements.length === 0 ? drawn.file : fileOf(movements, drawn.file.leftOut),
+        entries: [...entries, ...extra.lumps],
+      }));
+    });
 export const world = worldOf(testId);
 
 /**

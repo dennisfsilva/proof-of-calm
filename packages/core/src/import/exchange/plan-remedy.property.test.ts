@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { anEntry, aPlan, date, money, month, units } from '../../../test/builders';
 import { fileOf, type World, world } from '../../../test/exchange/plan-arbitraries';
 import { LISBON, NOW, trade } from '../../../test/exchange/plan-fixture';
+import { preCut } from '../../../test/exchange/plan-late';
 import { IMPORT_ESTIMATE_CHECKS, IMPORT_RECORDED_CHECKS, IMPORT_REMEDY_MAX_MOVEMENTS } from '../../constants';
 import { addDays, type CalendarDate } from '../../dates/calendar';
 import { transactionKey } from '../../log/group';
@@ -15,7 +16,7 @@ import type { Entry } from '../../schema/entry';
 import type { CoinId } from '../../schema/ids';
 import { applyExchangeImport } from './apply';
 import type { ExchangeFile } from './kraken';
-import { type ExchangeImportPlan, planExchangeImport } from './plan';
+import { type ExchangeImportPlan, leftOutBefore, planExchangeImport } from './plan';
 import type { EstimateLine } from './plan-lines';
 import { changedLog, importRemedies, type LogChange, type StartingRemedy, type Stored } from './plan-remedy';
 
@@ -45,11 +46,14 @@ function prefix(file: ExchangeFile, cut: number) {
   return fileOf(file.movements.filter((movement) => movement.at < last));
 }
 
-const orders = (drawn: World, cut: number): [string, Stored][] => [
-  ['before', { plan: drawn.plan, entries: drawn.entries }],
-  ['after', { plan: drawn.plan, entries: imported(drawn, drawn.entries, drawn.file) }],
-  ['shorter', { plan: drawn.plan, entries: imported(drawn, drawn.entries, prefix(drawn.file, cut)) }],
-];
+const orders = (drawn: World, cut: number): [string, Stored][] => {
+  preCut(drawn, prefix(drawn.file, cut).movements);
+  return [
+    ['before', { plan: drawn.plan, entries: drawn.entries }],
+    ['after', { plan: drawn.plan, entries: imported(drawn, drawn.entries, drawn.file) }],
+    ['shorter', { plan: drawn.plan, entries: imported(drawn, drawn.entries, prefix(drawn.file, cut)) }],
+  ];
+};
 
 /**
  * Follows the sentence on one row and checks the Log it leaves against the one an import leaves, both unticked: the
@@ -276,6 +280,8 @@ function figuresOn(drawn: World, entries: readonly Entry[], coin: CoinId, day: C
       movement.coin === coin &&
       movement.role === 'purchase' &&
       LISBON.dateOf(movement.at) === day &&
+      // A movement in another currency is left out before the steps, as the remedies' date groups leave it.
+      leftOutBefore(drawn.plan, movement) === null &&
       !known.has(LISBON.idOf(movement.key)),
   );
   return {
