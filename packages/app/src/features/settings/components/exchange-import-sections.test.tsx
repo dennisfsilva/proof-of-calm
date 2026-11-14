@@ -424,6 +424,25 @@ describe('ExchangeSummary and ExchangeSections', () => {
       );
     });
 
+    it('purchases of two coins of three, each named coin’s lump in the Log and the third’s too: their parts, named', async () => {
+      const SOL = 'SOL' as Entry['coin'];
+      const solana = { id: SOL, name: 'Solana', geckoId: 'solana', decimals: 6 } as Plan['coins'][number];
+      const three = {
+        ...PLAN,
+        coins: [...PLAN.coins, solana],
+        split: { BTC: '60', ETH: '30', SOL: '10' } as Plan['split'],
+      };
+      const sol = { ...lump('manual', '100', '0.5', SOL), id: 'aaaaaaaa-0000-4000-8000-000000000043' as EntityId };
+      const entries = [lump('manual', '600', '0.0075'), lump('manual', '300', '0.12', ETH), sol];
+      const csv = bothCoins(['600.0000', '0.0075000000'], ['300.0000', '0.1000000000']);
+      await mount(planOf(csv, entries, three), three);
+      expect(startingLine()).toBe(
+        '2 purchases dated on or before 20 Apr 2026, 15 days after your first buy day, not imported: 0.0075 BTC for €600.00 on 20 Mar 2026 and 0.10 ETH ' +
+          'for €300.00 on 21 Mar 2026. The file cannot show whether they are part of your starting amount. The Log holds the ' +
+          'BTC and ETH parts of your starting amount: 0.0075 BTC for €600.00 and 0.12 ETH for €300.00, both on 5 Apr 2026.',
+      );
+    });
+
     it('a purchase of one coin, a lump of the other coin only: the Log holds no starting amount of the first', async () => {
       const csv = btcBuys([['S1', '2026-03-10 09:00:00', '700.0000', '0.0087500000', '0.0000']]);
       await mount(planOf(csv, [lump('manual', '300', '0.12', ETH)]));
