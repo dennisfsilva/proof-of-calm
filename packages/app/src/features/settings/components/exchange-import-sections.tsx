@@ -56,11 +56,13 @@ export function ExchangeSummary({ model, plan }: Props) {
   const named = (['monthly', 'extra', 'sales', 'added'] as const).flatMap((kind) =>
     kinds[kind] === 0 ? [] : [t(`kinds.${kind}`, w.counted(kinds[kind]))],
   );
-  // The trades an earlier import stored that this file shows as cancelled, in the Log's figures.
+  // The trades an earlier import stored that this file shows as cancelled, in the Log's figures. One sentence, so a
+  // coin's units share their places (DESIGN §5 rule 7).
+  const peers = (coin: string) => model.cancelled.flatMap(({ entry }) => (entry.coin === coin ? [entry.units] : []));
   const items = w.format.list(
     model.cancelled.map(({ entry }) =>
       t('cancelledItem', {
-        units: w.units(entry.coin, entry.units),
+        units: w.units(entry.coin, entry.units, peers(entry.coin)),
         hasAmount: entry.amount === null ? 'no' : 'yes',
         amount: entry.amount === null ? '' : w.money(entry.amount),
         date: w.format.date(entry.date),

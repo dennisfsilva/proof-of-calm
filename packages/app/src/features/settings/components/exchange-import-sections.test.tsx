@@ -367,6 +367,18 @@ describe('ExchangeSummary and ExchangeSections', () => {
     );
   });
 
+  // Brand: "formats each cancelled item's units alone, so one sentence shows one coin at different places".
+  it('shows two cancelled entries of one coin at the places the most precise of them needs', async () => {
+    const shown = twoCancelled();
+    const [one] = shown.cancelled as [ExchangeImportPlan['cancelled'][number]];
+    const wider = { ...one.entry, id: 'aaaaaaaa-0000-4000-8000-000000000042' as EntityId, units: units('0.001') };
+    await mount({ ...shown, cancelled: [one, { entry: wider, estimates: [] }] });
+    expect(texts()).toContain(
+      'Your Log has 2 entries imported earlier that this file shows as cancelled: 0.00005 BTC for €4.50 on ' +
+        '7 Oct 2026 and 0.00100 BTC for €4.50 on 7 Oct 2026. Delete them in the Log.',
+    );
+  });
+
   it('names a receipt imported earlier with fewer units in the Log than in the file, with both figures', async () => {
     const first = planOf(KRAKEN_OCTOBER, fixture.entries);
     const log = first.entries.map((entry) => (entry.kind === 'held' ? { ...entry, units: units('0.00003') } : entry));
