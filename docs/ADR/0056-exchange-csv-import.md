@@ -102,3 +102,11 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   entries' default venue under the same rule as `Kraken`: listed alphabetically, unlinked, with no
   logo, status word, comparison or reason to use it; it shows beside `Choose a file`, in the
   not-recognised alert and in the import's own lines, nowhere else.
+- 2026-11-14, the ZIP reader shipped (#190), replacing Decision's "a ZIP is refused and the alert
+  asks for the CSV inside": a chosen ZIP opens its one CSV file under the limits
+  `docs/ARCHITECTURE.md` states for the ZIP reader; only a pasted ZIP keeps the `zip` refusal. The
+  rest stands.
+- 2026-11-14: since #193 `readExchangeFile` recognises Trade Republic's export by its header
+  (transaction_id, asset_class and category, every name in `TR_COLUMNS`), replacing the 2026-11-13
+  entry's "Not yet recognised by the file reader" for recognition. A cancelled buy an earlier
+  import stored is still not reached; it is carried to #192 (planned: M2). The rest stands.
