@@ -294,6 +294,30 @@ describe('importRemedies', () => {
     expect(importRemedies(fileOf(BOXED.file), BOXED, ticked, LISBON).recorded).toEqual(new Set([typed.id]));
   });
 
+  // Each row is checked alone: two items carry the sentence, and the Log refuses the second delete when both are made
+  // before the file is chosen again, since the hand sale of 10 Jul needs one of them. Choosing the file again after
+  // the first delete, as the sentence says, shows no sentence on the other.
+  const SHARED: Case = (() => {
+    const eth = { coin: 'ETH' as Entry['coin'], units: units('0.001') };
+    const file = [bought('ETH', '2026-07-16', '200', '0.4'), bought('ETH', '2026-07-20', '200', '0.4')];
+    const sale = hand({ ...eth, kind: 'sell', slot: null, date: date('2026-07-10'), amount: money('70') });
+    return {
+      plan: PLAN,
+      file,
+      shorter: [],
+      entries: [extra('2026-07-15', '70', eth), extra('2026-07-19', '70', eth), sale],
+    };
+  })();
+
+  it('two rows the same sale needs: both carry the sentence, and after one delete the other carries none', () => {
+    const [first, second] = SHARED.entries as [Entry, Entry];
+    const stored = { plan: PLAN, entries: SHARED.entries };
+    expect(remedies(SHARED, stored)).toEqual(new Set([first.id, second.id]));
+    const changed = changedLog(stored, { kind: 'delete', ids: [first.id] }, LISBON) as Entry[];
+    expect(changedLog({ plan: PLAN, entries: changed }, { kind: 'delete', ids: [second.id] }, LISBON)).toBeNull();
+    expect(remedies(SHARED, { plan: PLAN, entries: changed }).has(second.id)).toBe(false);
+  });
+
   const MANY: Case = (() => {
     const days = Array.from({ length: IMPORT_RECORDED_CHECKS + 1 }, (_, index) =>
       addDays(date('2026-01-01'), index * 5),
