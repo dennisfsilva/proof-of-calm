@@ -1098,7 +1098,10 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   purchase's, the purchase's month is S, and step 2's hand claim takes it before step 5 could replace the
   estimate. Changing the estimate's date to the purchase's keeps it an estimate for S (`savedSource`;
   the Log's edit keeps the slot), so its anchor reaches the date at 0 days and the file replaces it when chosen
-  again.
+  again. That works only before this file is imported: after an import the purchase is stored as T's monthly buy,
+  and an import never changes an entry imported earlier. So the line says "If that purchase was your monthly buy
+  for October 2026, change the estimate's date to 19 Oct 2026 in the Log. Do it before you import, then choose
+  the file again." (the whole line: `docs/CONTENT-STYLE.md` §3).
 - The write (decided 2026-11-13, ADR-0056): `applyExchangeImport(stored, plan, now)` writes a plan in one
   write, all or nothing, and Settings' `exchangeImportActions` (`packages/app/src/features/settings/exchange-actions.ts`)
   runs it in the domain store's queue on the entries as stored. Rows from a newer version (below) refuse it

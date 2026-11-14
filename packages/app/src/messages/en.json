@@ -849,7 +849,7 @@
         "cancelledEstimates": "Deleting {count, plural, one {it} other {them}} leaves {months} without {monthCount, plural, one {its estimate} other {their estimates}}, which this import cannot bring back. Record {monthCount, plural, one {that month} other {those months}} again in the Log if you bought in {monthCount, plural, one {it} other {them}}.",
         "cancelledMonth": "{coin} for {month}",
         "short": "A Coins added entry of {date} imported earlier holds {log} in the Log and {file} in this file. {moved, select, yes {The file dates it {fileDate}. Change its units, and its date, in the Log to the file's.} other {Change its units in the Log to the file's.}}",
-        "estimateLeft": "Your {coin} estimate for {month} stays in the Log: this file's purchase of {date} counts for {other}, whose buy day is nearer. If that purchase was your buy for {month}, change the estimate's date to {date} in the Log, then choose the file again.",
+        "estimateLeft": "Your {coin} estimate for {month} stays in the Log. This file's purchase of {date} counts for {other}, whose buy day is nearer. If that purchase was your monthly buy for {month}, change the estimate's date to {date} in the Log. Do it before you import, then choose the file again.",
         "section": {
           "fills": "Monthly buys ({count})",
           "replaces": "Estimates it replaces ({count})",

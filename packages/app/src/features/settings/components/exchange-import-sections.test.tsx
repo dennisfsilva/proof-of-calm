@@ -486,7 +486,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
   describe('the estimates left (DOMAIN §3.13)', () => {
     const named = (more: Partial<ExchangeImportPlan>) => ({ ...planOf(KRAKEN_OCTOBER, fixture.entries), ...more });
 
-    it('name each estimate left with the purchase that counts for another month, one sentence each', async () => {
+    it('name each estimate left with the purchase that counts for another month, one line each', async () => {
       const ethTap = { ...ONE_TAP_OCTOBER, id: 'aaaaaaaa-0000-4000-8000-000000000012' as EntityId, coin: 'ETH' };
       const estimatesLeft = [
         { estimate: ONE_TAP_OCTOBER, date: date('2026-10-19'), countsFor: '2026-11' as MonthKey },
@@ -499,9 +499,9 @@ describe('ExchangeSummary and ExchangeSections', () => {
           ['ETH', '20'],
         ].map(
           ([coin, day]) =>
-            `Your ${coin} estimate for October 2026 stays in the Log: this file's purchase of ${day} Oct 2026 counts ` +
-            `for November 2026, whose buy day is nearer. If that purchase was your buy for October 2026, change the ` +
-            `estimate's date to ${day} Oct 2026 in the Log, then choose the file again.`,
+            `Your ${coin} estimate for October 2026 stays in the Log. This file's purchase of ${day} Oct 2026 counts ` +
+            `for November 2026, whose buy day is nearer. If that purchase was your monthly buy for October 2026, ` +
+            `change the estimate's date to ${day} Oct 2026 in the Log. Do it before you import, then choose the file again.`,
         ),
       );
     });
