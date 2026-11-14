@@ -755,6 +755,22 @@ describe("a lump's claim reads its amount", () => {
     expect(invested(c, cut)).toBe('2550');
   });
 
+  // The shorter export ends before 6 Sep, the date the whole file's lump claims, so it stored none of its purchases.
+  it('below the part, an export ending inside 4 Sep, the claimed 6 Sep after it: 2,450 either way', () => {
+    const c = below([
+      buy('BTC', '2026-09-04T09:00:00Z', '50', '0.000625'),
+      buy('BTC', '2026-09-04T15:00:00Z', '300', '0.00375'),
+      buy('BTC', '2026-09-06T10:00:00Z', '100', '0.00125'),
+    ]);
+    expect(recordedBy(c, c.entries, c.entries[0] as Entry)).toEqual(['2026-09-06']);
+    expect(invested(c, c.entries)).toBe('2450');
+    const shorter = fileOf(c.file.filter((m) => m.at < '2026-09-04T12:00:00Z'));
+    expect(planOf(c, c.entries, shorter).recorded.map((item) => item.dates)).toEqual([['2026-09-04']]);
+    const cut = imported(c, c.entries, shorter);
+    expect(recordedBy(c, cut, c.entries[0] as Entry)).toEqual(['2026-09-06']);
+    expect(invested(c, cut)).toBe('2450');
+  });
+
   it('below the part, an export inside 4 Sep alone: 2,450 either way', () => {
     const c = below([
       buy('BTC', '2026-09-01T10:00:00Z', '100', '0.00125'),
