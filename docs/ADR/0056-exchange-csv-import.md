@@ -155,9 +155,8 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   so a starting amount tapped on a later buy day no longer takes that day's monthly buy (1,300 against
   1,400) and a late starting purchase near it is recorded once (2,300 against 1,400). One exception
   stands: an export that cuts inside a purchase date within 3 days of a live `lump` whose amount is not
-  its coin's monthly part can change which date the lump claims. Above the part, the date's first part is
-  stored and the whole date is then claimed (W2: 1,700 against 1,400); below it, the part is claimed and
-  the whole date is not, so a date the whole file's `lump` claims was stored by the shorter export and
-  counts twice (2,550 against 2,450; `docs/DOMAIN.md` §3.13 step 2). Only a date at the file's edge
+  its coin's monthly part can count a date the whole file claims twice, when the shorter export stored
+  its part or the date itself (W2; the condition is `docs/DOMAIN.md` §3.13 step 2's, checked by
+  `packages/core/src/import/exchange/plan-lump-cut.property.test.ts`). Only a date at the file's edge
   shows a cut, and keeping a `lump` off such a date would undo #214's tap on the day of purchase, often
   an export's last date. This narrows rule R's entry. The rest stands.
