@@ -1100,8 +1100,9 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   "To import the file's transaction instead, delete that entry in the Log, then choose the file again."
   (`transactions` when the item names more than one date). It plans the file once, with no venue (no step
   reads one), and checks each Log row (`transactionKey`: kind, date and slot, no coin) that an item names,
-  in the section's order, in two orders: on the Log as shown, and on the Log after importing the shown plan
-  first (`applyExchangeImport`), where the row is taken again by its key, so an entry the import adds on
+  in the section's order, in two orders: on the Log as shown, planned with the box for coins held unticked
+  as the file chosen again opens (so ticking the box keeps the line), and on the Log after importing the
+  shown plan, box as set, first (`applyExchangeImport`), where the row is taken again by its key, so an entry the import adds on
   the same kind, date and slot joins it. A row passes when, in both orders, it holds no `lump` (deleting a
   starting amount moves step 3 and Invested's base), holds only hand entries (step 2) that the plan names
   as recording dates, the Log's own delete of it is allowed (`deleteEntries`, and `uncoveredSale` finds no
@@ -1111,10 +1112,15 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   monthly buy's as monthly buys for its month, while keeping every other entry the import adds (every field
   but `updatedAt`) and every estimate it replaces, except those of a month the delete frees, which step 5
   replaces (`keepsPromise`). The promise: a person who follows the line, before importing or after, gets
-  the file's transactions for those dates and no other line of the preview changes. Each check is two more
+  the file's transactions for those dates and no other line of the preview changes. Each row is checked
+  alone, so two items can both end with the line while the Log refuses the second delete when both are
+  made before the file is chosen again (a hand sale that needs one of the two rows); choosing the file
+  again after the first delete, as the line says, shows the other its plain line. Each check is two more
   plans, so
-  `planExchangeImport` works out each coin and date's month (step 6) once per plan, and at most
-  `IMPORT_RECORDED_CHECKS` rows (§9) are checked; an item past them, after a starting amount or naming an
+  `planExchangeImport` works out each coin and date's month (step 6) once per plan, at most
+  `IMPORT_RECORDED_CHECKS` rows (§9) are checked, none in a file of more than
+  `IMPORT_REMEDY_MAX_MOVEMENTS` movements (§9), and nothing is planned again when no row named passes the
+  first test (no `lump`, only hand entries the plan names); an item past them, after a starting amount or naming an
   imported entry keeps its plain line (`docs/CONTENT-STYLE.md` §3 row `Import an exchange's file`).
 - The write (decided 2026-11-13, ADR-0056): `applyExchangeImport(stored, plan, now)` writes a plan in one
   write, all or nothing, and Settings' `exchangeImportActions` (`packages/app/src/features/settings/exchange-actions.ts`)
@@ -1547,7 +1553,8 @@ recorded cost and a one-tap purchase; `gb-2026-27.csv` is its raw listing, compa
 | `IMPORT_MAX_BYTES` | 50,000,000 bytes (50 MB) | the import file Settings reads, and the text of the CSV file inside a chosen ZIP (the ZIP reader, `docs/ARCHITECTURE.md`): above the 36.8 MB a full plan's backup weighs at the most (every note at 500 characters, each escaped to six bytes), about 4 MB without notes |
 | `IMPORT_MATCH_DAYS` | 15 days | an exchange import's months: a due date's reach either side, which also bounds the dates a typed monthly buy claims by its amount (step 2 reads the months), and the starting amount's reach, up to `firstBuy` + 15 days (§3.13) |
 | `IMPORT_TYPED_DAYS` | 3 days | an exchange import's typed and tapped dates: a hand-recorded entry's claim either side of its date (a monthly buy's only when its month has no purchase date of its coin in the file), and a one-tap estimate's reach before its date (§3.13) |
-| `IMPORT_RECORDED_CHECKS` | 12 Log rows | an exchange import's preview: the rows of `looks recorded already` whose delete it plans again to say so (§3.13, "Lines that ask for a change"); each costs two plans, before and after importing first, so the cap went from 24 to 12 to keep the preview's work where it was: on a five-year weekly file of two coins, 520 purchases over 120 hand monthly buys, the checks took about 540 ms at 24 rows in one order, 990 ms at 24 in two and 520 ms at 12 in two (one plan about 19 ms, no coverage), and the test took at most 2.12 s across seeds 1 to 8 under the full suite with coverage (measured 2026-11-14) |
+| `IMPORT_RECORDED_CHECKS` | 12 Log rows | an exchange import's preview: the rows of `looks recorded already` whose delete it plans again to say so (§3.13, "Lines that ask for a change"); each costs two plans, before and after importing first, so the cap went from 24 to 12 to keep the preview's work where it was: on a five-year weekly file of two coins, 520 purchases over 120 hand monthly buys, the checks took about 540 ms at 24 rows in one order, 990 ms at 24 in two and 520 ms at 12 in two (one plan about 19 ms, no coverage), and the test took at most 2.15 s across seeds 1 to 8 under the full suite with coverage (measured 2026-11-14) |
+| `IMPORT_REMEDY_MAX_MOVEMENTS` | 520 movements | an exchange import's preview checks no row of `looks recorded already` for its delete line in a larger file (§3.13, "Lines that ask for a change"), since the preview runs the checks on every render, about 27 plans at 12 rows: on a desktop without coverage, two coins and a Log typed by hand every month, the checks took 505 to 557 ms at 520 movements (five years weekly, or 260 days daily; one plan 24 to 30 ms), 659 to 666 ms at 600, 976 to 981 ms at 730, 2,364 to 2,370 ms at 1,460 and 7 to 9 s at 3,652 (five years daily), and a phone is several times slower; 520 keeps them under about 600 ms there (measured 2026-11-14) |
 | `LOG_PAGE` | 12 | Log "show all" threshold |
 | `UNDO_WINDOW_MS` | 8000 | every toast but the update prompt, which has none: the Undos (a delete, a skip, End buying, Delete everything), the one tap's Edit, and the save and failure toasts |
 | `TOMBSTONE_TTL_DAYS` | 90 | sync purge |
