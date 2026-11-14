@@ -4,6 +4,7 @@ import {
   decimalPlaces,
   type Entry,
   type ExchangeId,
+  IMPORT_MATCH_DAYS,
   isEstimate,
   isZero,
   MAX_UNIT_DECIMALS,
@@ -275,10 +276,13 @@ function useStartingLine({ startingAmount: starting }: Model, w: ReturnType<type
   const text = t('starting', {
     ...w.counted(starting.purchases),
     date: w.format.date(starting.through),
+    // The cut-off is the first buy day plus the import's match window (DOMAIN §3.13 step 3).
+    days: w.figure(IMPORT_MATCH_DAYS),
     items: w.format.list(unnamed > 0 ? [...items, t(tail, { count: w.figure(unnamed) })] : items),
     logged: starting.lumps.length === 0 ? 'no' : lumps.length === 0 ? 'none' : unheld.length === 0 ? 'all' : 'some',
     named: starting.lumps.some((entry) => !named.includes(entry.coin)) ? 'yes' : 'no',
     held: w.format.list(held),
+    parts: held.length,
     lumps: shared
       ? t('startingLumps', {
           lumps: pieces,
