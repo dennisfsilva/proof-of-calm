@@ -127,7 +127,12 @@ describe('readKrakenLedger (property)', () => {
             rows.some((other) => keyOf(other) === keyOf(each) && other.time < at !== each.time < at);
           const grew = new Set(rows.filter(split).map((each) => testId(keyOf(each))));
           const named = then.short.map(({ entry }) => entry.id).sort();
-          expect(named).toEqual(log.filter((entry) => grew.has(entry.id)).map((entry) => entry.id).sort());
+          expect(named).toEqual(
+            log
+              .filter((entry) => grew.has(entry.id))
+              .map((entry) => entry.id)
+              .sort(),
+          );
           for (const { entry, units } of then.short) expect(compare(entry.units, units)).toBe(-1);
         }),
         TWICE,

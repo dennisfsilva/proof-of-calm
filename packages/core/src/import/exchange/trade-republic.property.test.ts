@@ -162,7 +162,12 @@ describe('readTradeRepublic (property)', () => {
           const then = planned(whole, log);
           const paired = new Set(whole.cancelled.map((movement) => testId(movement.key)));
           const named = then.cancelled.map((entry) => entry.id).sort();
-          expect(named).toEqual(log.filter((entry) => paired.has(entry.id)).map((entry) => entry.id).sort());
+          expect(named).toEqual(
+            log
+              .filter((entry) => paired.has(entry.id))
+              .map((entry) => entry.id)
+              .sort(),
+          );
           const deleted = log.map((entry) => (named.includes(entry.id) ? { ...entry, deletedAt: NOW } : entry));
           const liveOf = (entries: readonly Entry[]) =>
             entries
