@@ -278,6 +278,19 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   `keepUnchanged` gives a new transaction back as saved before its rule runs. The check's record path
   called the shared rule without that guard, and the second review round found a recorded fee
   dropped (2026-11-14).
+- A cost bound is measured on the worst state the code allows at the bound, every capped list at
+  its cap, and each figure names its state and its movement count in DOMAIN §9, which the test's
+  comment points to. The estimate line's builder measured a state where no capped list was full,
+  267 to 278 ms at 520 movements. Its review built 12 estimate rows over 12 sentence rows at the
+  same 520 movements and measured 892 to 902 ms against §9's 600, which moved the bound to 400. The
+  next round found the comment crediting 520 and 440 movements to a state that holds 432 (#210,
+  2026-11-14).
+- A rule about an entry the person taps is walked through every day the app offers the tap, and an
+  instruction to type figures through every way the person can type them. Rule R was checked for a
+  starting amount tapped on its purchase's day; the integration read found it tapped on a later buy
+  day, where Today keeps offering it, claiming that day's monthly purchase. The starting line's
+  change was checked with the date's summed figures, while the line lists each fill, so typing one
+  fill's figures leaves the others out (#210, 2026-11-14).
 
 ## Known gaps
 
