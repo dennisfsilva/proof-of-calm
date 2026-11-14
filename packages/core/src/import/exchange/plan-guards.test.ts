@@ -217,7 +217,7 @@ describe('step 1: what an earlier import stored and this file changes', () => {
     });
     const log = [stored(grew, '0.00005'), stored(same, '0.00003'), stored(fewer, '0.00002')];
     const plan = run(PLAIN, log, [grew, same, fewer]);
-    expect(plan.short).toEqual([{ entry: log[0], units: '0.00008' }]);
+    expect(plan.short).toEqual([{ entry: log[0], units: '0.00008', date: '2026-10-31' }]);
     expect(plan.imported).toBe(3);
     const tombstoned = { ...(log[0] as Entry), deletedAt: instant('2026-11-01T09:00:00Z') };
     expect(run(PLAIN, [tombstoned], [grew]).short).toEqual([]);
@@ -233,8 +233,21 @@ describe('step 1: what an earlier import stored and this file changes', () => {
     });
     expect(run(PLAIN, [stored(below, '0.00005')], [below]).short).toEqual([]);
     const log = [stored(above, '0.00005')];
-    expect(run(PLAIN, log, [above]).short).toEqual([{ entry: log[0], units: '0.0000500060' }]);
+    expect(run(PLAIN, log, [above]).short).toEqual([{ entry: log[0], units: '0.0000500060', date: '2026-10-31' }]);
     expect(run(PLAIN, [stored(above, '0.00005001')], [above]).short).toEqual([]);
+  });
+
+  // Review: Kraken invite bonus B1 has rows on 1 Dec 2025 (0.00003) and 3 Dec 2025 (0.00005). A suffix export holding
+  // only the 3 Dec row is imported first; the whole file folds both rows at 1 Dec, and the short line names only the
+  // units.
+  it('a stored receipt the whole file folds at an earlier date is named with the file’s date', () => {
+    const suffix = receipt('B1', '2025-12-03', '0.00005');
+    const first = run(PLAIN, [], [suffix]);
+    expect(first.entries.map((entry) => entry.date)).toEqual(['2025-12-03']);
+    const whole = { ...suffix, at: receipt('B1', '2025-12-01', '0.00008').at, units: units('0.00008') };
+    expect(run(PLAIN, first.entries, [whole]).short).toEqual([
+      { entry: first.entries[0], units: '0.00008', date: '2025-12-01' },
+    ]);
   });
 });
 

@@ -372,8 +372,22 @@ describe('ExchangeSummary and ExchangeSections', () => {
     const log = first.entries.map((entry) => (entry.kind === 'held' ? { ...entry, units: units('0.00003') } : entry));
     await mount(planOf(KRAKEN_OCTOBER, [...fixture.entries, ...log]));
     expect(texts()).toContain(
-      'An entry imported earlier has fewer units in the Log than in this file: Coins added on 16 Oct 2026, ' +
-        '0.00003 BTC in the Log, 0.00005 BTC in the file. Change its units in the Log to 0.00005 BTC.',
+      'A Coins added entry of 16 Oct 2026 imported earlier holds 0.00003 BTC in the Log and 0.00005 BTC in this ' +
+        "file. Change its units in the Log to the file's.",
+    );
+  });
+
+  // Review: "A suffix export holding only the 3 Dec row is imported first; the whole file folds both rows at 1 Dec,
+  // and the short line names only the units."
+  it('names the date the file gives a receipt imported earlier when the Log holds another', async () => {
+    const first = planOf(KRAKEN_OCTOBER, fixture.entries);
+    const log = first.entries.map((entry) =>
+      entry.kind === 'held' ? { ...entry, units: units('0.00003'), date: date('2026-10-18') } : entry,
+    );
+    await mount(planOf(KRAKEN_OCTOBER, [...fixture.entries, ...log]));
+    expect(texts()).toContain(
+      'A Coins added entry of 18 Oct 2026 imported earlier holds 0.00003 BTC in the Log and 0.00005 BTC in this ' +
+        "file. The file dates it 16 Oct 2026. Change its units, and its date, in the Log to the file's.",
     );
   });
 
