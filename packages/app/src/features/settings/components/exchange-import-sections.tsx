@@ -221,9 +221,9 @@ export function ExchangeSections({ model, plan, exchange }: SectionsProps) {
 }
 
 /**
- * The starting-amount line (DOMAIN §3.13 step 3): each purchase left out, the latest ones past `LINES_SHOWN`, and each
- * live lump the Log holds, else the starting amount's date as not in the Log. It asks for no change. Each sentence's
- * units of a coin share their places (DESIGN §5 rule 7).
+ * The starting-amount line (DOMAIN §3.13 step 3): each purchase left out, the latest ones past `LINES_SHOWN`, then per
+ * coin of those purchases the live lump the Log holds or that it holds none, else the starting amount's date as not in
+ * the Log. It asks for no change. Each sentence's units of a coin share their places (DESIGN §5 rule 7).
  */
 function useStartingLine({ startingAmount: starting }: Model, w: ReturnType<typeof useWords>) {
   const t = useTranslations('settings.data.exchange.leftOut');
@@ -239,7 +239,11 @@ function useStartingLine({ startingAmount: starting }: Model, w: ReturnType<type
       date: w.format.date(item.date),
     }),
   );
-  const { lumps } = starting;
+  // What the line says of the Log holds per coin: the lumps of the named purchases' coins, and each of those coins
+  // with none, while a lump of any coin is live (a lump of another coin says nothing of these).
+  const named = [...new Set(starting.items.map((item) => item.coin))];
+  const lumps = starting.lumps.filter((entry) => named.includes(entry.coin));
+  const unheld = named.filter((coin) => !lumps.some((entry) => entry.coin === coin));
   const held = lumps.map((entry) =>
     t('startingLump', {
       units: w.units(entry.coin, entry.units, peers(lumps, entry.coin)),
@@ -253,8 +257,10 @@ function useStartingLine({ startingAmount: starting }: Model, w: ReturnType<type
     ...w.counted(starting.purchases),
     date: w.format.date(starting.through),
     items: w.format.list(more > 0 ? [...items, t('more', { count: w.figure(more) })] : items),
-    logged: lumps.length > 0 ? 'yes' : 'no',
+    logged:
+      starting.lumps.length === 0 ? 'no' : lumps.length === 0 ? 'none' : unheld.length === 0 ? 'all' : 'some',
     lumps: w.format.list(held),
+    coins: w.format.list(unheld),
     firstBuy: w.format.date(starting.firstBuy),
   });
 }

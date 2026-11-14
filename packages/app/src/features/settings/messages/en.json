@@ -173,7 +173,7 @@
       "leftOut": {
         "currency": "{count, plural, one {{figure} purchase or sale in {currencies}} other {{figure} purchases and sales in {currencies}}}, not imported: amounts are never converted.",
         "not-in-plan": "This plan does not list {coin}, so {count, plural, one {{figure} {coin} transaction was left out. If you want it} other {{figure} {coin} transactions were left out. If you want them}} in this plan, you can add {coin} in Coins & split, then choose the file again.",
-        "starting": "{count, plural, one {{figure} purchase} other {{figure} purchases}} dated on or before {date}, not imported: {items}. The file cannot tell {count, plural, one {it} other {them}} from your starting amount{logged, select, yes {, which the Log holds as {lumps}} other { of {firstBuy}, which is not in the Log}}.",
+        "starting": "{count, plural, one {{figure} purchase} other {{figure} purchases}} dated on or before {date}, not imported: {items}. The file cannot tell {count, plural, one {it} other {them}} from your starting amount. {logged, select, all {The Log holds your starting amount as {lumps}.} some {The Log holds part of your starting amount as {lumps}. It holds no starting amount of {coins}.} none {The Log holds no starting amount of {coins}.} other {Your starting amount of {firstBuy} is not in the Log.}}",
         "startingItem": "{units} for {amount} on {date}",
         "startingLump": "{units}{estimated, select, yes { (estimated)} other {}} for {amount} on {date}",
         "reward": "Rewards paid in coins, not imported: {units}.",
