@@ -58,8 +58,13 @@ describe('planExchangeImport', () => {
 
   it('step 3, the starting amount: the purchases on or before 15 days after the first buy are left out and named', () => {
     const lump = anEntry({ kind: 'lump', slot: null, date: date('2026-03-01'), source: 'one-tap' });
-    const plan = planExchangeImport(FILE, { plan: STARTING_PLAN, entries: [...STORED.entries, lump] }, CHOICES, LISBON);
-    expect(plan.startingAmount).toEqual({ purchases: 3, firstBuy: '2026-03-01', through: '2026-03-16' });
+    const gone = { ...lump, id: testId('a deleted lump'), deletedAt: NOW };
+    const entries = [...STORED.entries, lump, gone];
+    const plan = planExchangeImport(FILE, { plan: STARTING_PLAN, entries }, CHOICES, LISBON);
+    expect(plan.startingAmount).toMatchObject({ purchases: 3, firstBuy: '2026-03-01', through: '2026-03-16' });
+    // The line names the live lumps only: a deleted one is not in the Log.
+    expect(plan.startingAmount?.lumps).toEqual([lump]);
+    expect(plan.startingAmount?.items).toHaveLength(3);
     expect(idsOf(plan.entries)).not.toContain(testId(M.M04.key));
     expect(plan.replaced.flatMap((replacement) => replacement.estimates)).not.toContainEqual(lump);
     expect(plan.held?.coins[0]?.purchases).toBe(3);

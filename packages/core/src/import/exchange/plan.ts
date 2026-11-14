@@ -52,6 +52,15 @@ export type ExchangeImportPlan = {
     readonly purchases: number;
     readonly firstBuy: CalendarDate;
     readonly through: CalendarDate;
+    /** Each purchase left out, in date order. */
+    readonly items: readonly {
+      readonly coin: CoinId;
+      readonly date: CalendarDate;
+      readonly units: Units;
+      readonly amount: Money;
+    }[];
+    /** The live lumps, in `compareEntries` order. */
+    readonly lumps: readonly Entry[];
   } | null;
   /**
    * Live entries an earlier import stored that this file pairs with a cancellation, each a monthly buy with its coin's
