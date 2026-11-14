@@ -112,7 +112,7 @@ describe('ExchangeImport', () => {
     await mount([{ ...early, units: units('0.0015'), venue: null }, HELD]);
     expect(texts()).toContain(
       'Your Log has 2 Coins added entries of BTC: 0.0015 BTC on 6 Oct 2026 and 0.0020 BTC at Ledger on 13 Oct 2026. ' +
-        '2 BTC transactions in this file, 0.0020 BTC in all, are each dated on or before one of them and may be ' +
+        '2 BTC transactions in this file, 0.0020 BTC in all, are dated on or before them and may be ' +
         'those coins. They are not added unless you choose to.',
     );
   });
@@ -129,7 +129,7 @@ describe('ExchangeImport', () => {
     expect(texts()).not.toContain(hint('the Coins added entry'));
   });
 
-  it('names three Coins added entries with a serial comma, and one transaction they may be', async () => {
+  it('names three Coins added entries with a serial comma, and one transaction they may be, in the singular', async () => {
     const at = (n: number, day: string) => ({
       ...HELD,
       id: `aaaaaaaa-0000-4000-8000-00000000003${n}` as EntityId,
@@ -139,7 +139,26 @@ describe('ExchangeImport', () => {
     expect(texts().find((line) => line.startsWith('Your Log has 3'))).toBe(
       'Your Log has 3 Coins added entries of BTC: 0.0020 BTC at Ledger on 5 Oct 2026, 0.0020 BTC at Ledger on ' +
         '5 Oct 2026, and 0.0020 BTC on 6 Oct 2026. 1 BTC transaction in this file, 0.0012 BTC, is dated on or before ' +
-        'one of them and may be those coins. They are not added unless you choose to.',
+        'them and may be those coins. It is not added unless you choose to.',
+    );
+    expect(texts()).toContain(
+      'If you add it and it is the same coins, delete the Coins added entries in the Log after the import.',
+    );
+  });
+
+  it('after a held line naming one transaction, the estimate it would replace is worded in the singular', async () => {
+    // The ledger's one BTC purchase of 0.0012 alone, so October has no other purchase to replace its estimate.
+    const one = FILE.movements.filter(
+      (each) => each.coin !== 'BTC' || each.role !== 'purchase' || String(each.units) === '0.0012',
+    );
+    await mount([ONE_TAP_OCTOBER, HELD], undefined, {}, { file: { ...FILE, movements: one }, name: 'one.csv' });
+    expect(texts()).toContain(
+      'Your Log has 0.0020 BTC as a Coins added entry at Ledger, dated 13 Oct 2026. 1 BTC transaction in this ' +
+        'file, 0.0012 BTC, is dated on or before it and may be those coins. It is not added unless you choose to. ' +
+        'If you add it, it also replaces 1 estimate from Bought as planned.',
+    );
+    expect(texts()).toContain(
+      'If you add it and it is the same coins, delete the Coins added entry in the Log after the import.',
     );
   });
 
