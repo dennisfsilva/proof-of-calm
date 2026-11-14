@@ -36,6 +36,7 @@ const REASONS = [
   'within',
   'cancelled',
   'unpaired',
+  'unpaired-sale',
   'unreadable',
   'other',
 ] as const;

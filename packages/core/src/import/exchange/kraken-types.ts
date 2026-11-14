@@ -13,6 +13,7 @@ export type LeftOutReason =
   | 'conversion'
   | 'cancelled'
   | 'unpaired'
+  | 'unpaired-sale'
   | 'unreadable'
   | 'other';
 
