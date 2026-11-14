@@ -24,6 +24,7 @@ import type { previewModel } from '../model/exchange-preview';
 // most the coin's own (DESIGN §5 rule 7); a coin the plan does not list takes 8.
 
 type Model = ReturnType<typeof previewModel>;
+type LeftOut = Model['leftOut'][number];
 type Props = { readonly model: Model; readonly plan: Plan };
 /** The sections also take the file's exchange, which the lines left out name. */
 type SectionsProps = Props & { readonly exchange: ExchangeId };
@@ -221,7 +222,7 @@ export function ExchangeSections({ model, plan, exchange }: SectionsProps) {
 /** The left-out lines in the copy's order, each only when it applies. */
 function useLeftOut({ model, plan, exchange }: SectionsProps, w: ReturnType<typeof useWords>): Item[] {
   const t = useTranslations('settings.data.exchange.leftOut');
-  const group = (reason: Model['leftOut'][number]['reason']) => model.leftOut.find((each) => each.reason === reason);
+  const group = (reason: LeftOut['reason']) => model.leftOut.find((each) => each.reason === reason);
   const coins = (named: readonly { key: string; units: Decimal | null }[]) =>
     w.format.list(named.map((each) => (each.units === null ? each.key : w.units(each.key, each.units))));
   const items: Item[] = [];
@@ -261,11 +262,22 @@ function useLeftOut({ model, plan, exchange }: SectionsProps, w: ReturnType<type
     const found = group(reason);
     add(reason, found ? t(reason, { ...w.counted(found.lines.length), exchange }) : null);
   }
-  const lines = [...(group('unpaired')?.lines ?? []), ...(group('unreadable')?.lines ?? [])].sort((a, b) => a - b);
-  const shown = lines.slice(0, LINES_SHOWN).map(w.figure);
-  const more = lines.length > LINES_SHOWN ? [t('more', { count: w.figure(lines.length - LINES_SHOWN) })] : [];
-  const list = w.format.list([...shown, ...more]);
-  add('lines', lines.length > 0 && t('lines', { count: lines.length, lines: list, exchange }));
+  // One sentence per cause, each naming its lines (at most `LINES_SHOWN`, then a count). Kraken's reader joins the rows
+  // it cannot pair and those it cannot read; Trade Republic's tells a trade with its cancellation (`cancelled`, counted
+  // in pairs) from a cancellation with no trade to pair (`unpaired`) and from a row it cannot read.
+  const named = (key: 'cancelled' | 'unpaired' | 'lines', reasons: readonly LeftOut['reason'][], count?: number) => {
+    const lines = reasons.flatMap((reason) => group(reason)?.lines ?? []).sort((a, b) => a - b);
+    const shown = lines.slice(0, LINES_SHOWN).map(w.figure);
+    const more = lines.length > LINES_SHOWN ? [t('more', { count: w.figure(lines.length - LINES_SHOWN) })] : [];
+    const list = w.format.list([...shown, ...more]);
+    add(key, lines.length > 0 && t(key, { count: count ?? lines.length, lines: list, exchange }));
+  };
+  if (exchange === 'kraken') named('lines', ['unpaired', 'unreadable']);
+  else {
+    named('cancelled', ['cancelled'], group('cancelled')?.count);
+    named('unpaired', ['unpaired']);
+    named('lines', ['unreadable']);
+  }
   const other = group('other');
   add('other', other ? t('other', { ...w.counted(other.lines.length), exchange }) : null);
   return items;

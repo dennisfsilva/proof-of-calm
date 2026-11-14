@@ -407,7 +407,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
   // coins sent out, rows within it, the benefit credits apart from other money, and a cancelled trade by line."
   it("names each row of a Trade Republic export left out in Trade Republic's words", async () => {
     await mount(planOf(TRADE_REPUBLIC_OCTOBER, [], PLAN, 'Trade Republic'), PLAN, 'trade-republic');
-    expect(lines('Left out (8)')).toEqual([
+    expect(lines('Left out (9)')).toEqual([
       'Staking rewards and coins sent in to Trade Republic, not imported: 0.00012 ETH in 1 row. Record rewards ' +
         'with Add coins you already have, and your own coins coming back with Log coins you moved.',
       'Coins sent out of Trade Republic that match no move of the same units in the Log: 0.0001 BTC. If you have ' +
@@ -416,9 +416,46 @@ describe('ExchangeSummary and ExchangeSections', () => {
       '1 row of money with no coin, such as a card payment, interest, or a transfer, not imported.',
       '1 Saveback cash credit, not imported; any purchase made with it is read like your other purchases.',
       '2 rows within Trade Republic, part of migrations that cancel out at one moment: they change no entry.',
-      'Lines 12, 13, and 16 could not be read, or are cancelled trades or their cancellations, so they were left out.',
+      'Lines 12 and 13 are a trade and its cancellation, so they were left out.',
+      'Line 16 could not be read, so it was left out.',
       '1 row of another type, such as a share or a fund, not imported.',
     ]);
+  });
+
+  // "One cause per sentence, each naming its lines: a trade and the cancellation that pairs with it, a cancellation
+  // with no matching trade before it, and a row that could not be read." The reader's groups, set by hand.
+  it.each<[string, ExchangeImportPlan['leftOut'], string[]]>([
+    [
+      'one of each cause',
+      [
+        { reason: 'cancelled', count: 1, lines: [6, 7], by: [] },
+        { reason: 'unpaired', count: 1, lines: [9], by: [] },
+        { reason: 'unreadable', count: 1, lines: [11], by: [] },
+      ],
+      [
+        'Lines 6 and 7 are a trade and its cancellation, so they were left out.',
+        'Line 9 is a cancellation with no matching trade before it in this file, so it was left out.',
+        'Line 11 could not be read, so it was left out.',
+      ],
+    ],
+    [
+      'several of each cause',
+      [
+        { reason: 'cancelled', count: 3, lines: [2, 3, 4, 5, 6, 7], by: [] },
+        { reason: 'unpaired', count: 2, lines: [9, 10], by: [] },
+        { reason: 'unreadable', count: 2, lines: [11, 12], by: [] },
+      ],
+      [
+        'Lines 2, 3, 4, 5, 6, and 1 more are trades and their cancellations, so they were left out.',
+        'Lines 9 and 10 are cancellations with no matching trade before them in this file, so they were left out.',
+        'Lines 11 and 12 could not be read, so they were left out.',
+      ],
+    ],
+  ])('names the lines of a Trade Republic export left out by cause: %s', async (_, leftOut, expected) => {
+    const read = planOf(TRADE_REPUBLIC_OCTOBER, [], PLAN, 'Trade Republic');
+    const shown = { ...read, leftOut, withdrawals: { logged: [], notLogged: [] } };
+    await mount(shown, PLAN, 'trade-republic');
+    expect(lines(`Left out (${expected.length})`)).toEqual(expected);
   });
 
   it('names a withdrawal the Log has as a move, and cuts a long list of lines short', async () => {

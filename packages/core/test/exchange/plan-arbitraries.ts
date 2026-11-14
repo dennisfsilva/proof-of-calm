@@ -92,7 +92,17 @@ function movementsOf(orders: readonly Order[]): Movement[] {
     }),
   );
 }
-const REASONS = ['reward', 'coin-deposit', 'coin-withdrawal', 'cash', 'within', 'conversion', 'unpaired', 'other'];
+const REASONS = [
+  'reward',
+  'coin-deposit',
+  'coin-withdrawal',
+  'cash',
+  'within',
+  'conversion',
+  'cancelled',
+  'unpaired',
+  'other',
+];
 const leftOutRow = fc
   .record({ reason: fc.constantFrom(...REASONS), coin: fc.option(planCoin), day, units: unitsOf, line: fc.nat(500) })
   .map(

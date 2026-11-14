@@ -11,6 +11,7 @@ export type LeftOutReason =
   | 'benefit'
   | 'within'
   | 'conversion'
+  | 'cancelled'
   | 'unpaired'
   | 'unreadable'
   | 'other';
