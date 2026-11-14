@@ -15,6 +15,7 @@ docs:
   - path: docs/ADR/0045-host-vite-spa.md
     sections: §8 (i18n and per-route messages) and §9 (routes, lazy screens, the navigation adapter)
   - path: docs/ADR/0048-learn-modules-mdx.md
+  - path: docs/ADR/0056-exchange-csv-import.md
 ---
 
 # packages/app
