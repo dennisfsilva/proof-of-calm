@@ -2,7 +2,7 @@
 // §3.13): the starting amount (step 3) and the coins the person added (step 4).
 import { IMPORT_MATCH_DAYS } from '../../constants';
 import { addDays, type CalendarDate } from '../../dates/calendar';
-import { compare, isPositive, isZero, sum, type Units } from '../../money/decimal';
+import { compare, isPositive, isZero, type Money, sum, type Units } from '../../money/decimal';
 import { compareEntries } from '../../portfolio/lots';
 import type { Entry } from '../../schema/entry';
 import type { CoinId, EntityId } from '../../schema/ids';
@@ -41,21 +41,31 @@ export const near = (day: Day, date: CalendarDate, days: number) =>
 /**
  * Step 3: "In a plan with a starting amount above 0, or for a coin with a live `lump`, C's purchases dated on or before
  * `firstBuy` + 15 days that step 2 left are left out and named, however long before `firstBuy` they are: the file
- * cannot tell the starting amount from them. A one-tap `lump` is never replaced."
+ * cannot tell the starting amount from them. A one-tap `lump` is never replaced." The line names each purchase, in
+ * date order, and every live `lump`, in `compareEntries` order.
  */
 export function startingGuard(plan: Plan, live: readonly Entry[], days: readonly Day[]) {
   const through = addDays(plan.firstBuy, IMPORT_MATCH_DAYS);
-  const lumps = new Set(live.filter((entry) => entry.kind === 'lump').map((entry) => entry.coin));
+  const lumps = live.filter((entry) => entry.kind === 'lump').sort(compareEntries);
+  const coins = new Set(lumps.map((entry) => entry.coin));
   const guarded = days.filter(
     (day) =>
       !day.claimed &&
       day.role === 'purchase' &&
       day.date <= through &&
-      (isPositive(plan.startingAmount) || lumps.has(day.coin)),
+      (isPositive(plan.startingAmount) || coins.has(day.coin)),
   );
   for (const day of guarded) day.claimed = true;
-  const purchases = guarded.flatMap((day) => day.items).length;
-  return purchases === 0 ? null : { purchases, firstBuy: plan.firstBuy, through };
+  // Only purchases reach step 3, and every purchase has an amount (kraken.ts, trade-republic.ts).
+  const items = guarded.flatMap((day) =>
+    day.items.map(({ coin, date, movement }) => ({
+      coin,
+      date,
+      units: movement.units,
+      amount: movement.amount as Money,
+    })),
+  );
+  return items.length === 0 ? null : { purchases: items.length, firstBuy: plan.firstBuy, through, items, lumps };
 }
 
 /**

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { aMove, anEntry, aPlan, date, instant, money, month, units } from '../../../test/builders';
 import { CHOICES, FILE, LISBON, NOW, testId, trade } from '../../../test/exchange/plan-fixture';
+import { compareEntries } from '../../portfolio/lots';
 import type { Entry } from '../../schema/entry';
 import type { CoinId } from '../../schema/ids';
 import type { Plan } from '../../schema/plan';
@@ -31,8 +32,23 @@ const held = (day: string, units_: string, amount: string | null, coin = 'BTC') 
     units: units(units_),
     venue: 'Ledger',
   });
-const lump = (day: string, source: Entry['source']) =>
-  anEntry({ kind: 'lump', slot: null, date: date(day), amount: money('500'), units: units('0.008'), source });
+const lump = (day: string, source: Entry['source'], amount = '500', units_ = '0.008', coin = 'BTC') =>
+  anEntry({
+    kind: 'lump',
+    coin: coin as CoinId,
+    slot: null,
+    date: date(day),
+    amount: money(amount),
+    units: units(units_),
+    source,
+  });
+/** A purchase step 3 names: its coin, date, units and amount. */
+const item = (coin: string, day: string, units_: string, amount = '70') => ({
+  coin,
+  date: day,
+  units: units_,
+  amount,
+});
 const withdrawal = (coin: string, at: string, units_: string): LeftOutRow => ({
   reason: 'coin-withdrawal',
   lines: [9],
@@ -57,18 +73,84 @@ function run(
 const kinds = (plan: ExchangeImportPlan) => plan.entries.map((entry) => `${entry.date}:${entry.kind}:${entry.slot}`);
 
 describe('step 3: the starting amount', () => {
-  it('P6 defaults: lump saved 2 Jul, bought 10 Jun: 10 Jun left out and named', () => {
-    const p6 = { ...PLAIN, startingAmount: money('1000'), firstBuy: date('2026-07-02'), buyDay: 2 };
-    const file = [buy('P6-0610', 'BTC', '2026-06-10', '0.0125', '1000'), buy('P6-0802', 'BTC', '2026-08-02', '0.001')];
-    const plan = run(p6, [lump('2026-07-02', 'one-tap')], file);
-    expect(plan.startingAmount).toEqual({ purchases: 1, firstBuy: '2026-07-02', through: '2026-07-17' });
+  const p6 = { ...PLAIN, startingAmount: money('1000'), firstBuy: date('2026-07-02'), buyDay: 2 };
+  const june10 = buy('P6-0610', 'BTC', '2026-06-10', '0.0125', '1000');
+  const named = item('BTC', '2026-06-10', '0.0125', '1000');
+
+  it('P6 defaults: hand lump saved 2 Jul, bought 10 Jun: 10 Jun left out and named beside the lump', () => {
+    const typed = lump('2026-07-02', 'manual', '1000', '0.0125');
+    const plan = run(p6, [typed], [june10, buy('P6-0802', 'BTC', '2026-08-02', '0.001')]);
+    expect(plan.startingAmount).toEqual({
+      purchases: 1,
+      firstBuy: '2026-07-02',
+      through: '2026-07-17',
+      items: [named],
+      lumps: [typed],
+    });
     expect(kinds(plan)).toEqual(['2026-08-02:dca:2026-08']);
     expect(plan.replaced).toEqual([]);
   });
 
+  it('P6 tapped: the one-tap lump of other units is named as it is, beside 10 Jun', () => {
+    const tapped = lump('2026-07-02', 'one-tap', '1000', '0.01219512');
+    const plan = run(p6, [tapped], [june10]);
+    expect(plan.startingAmount).toMatchObject({ purchases: 1, items: [named], lumps: [tapped] });
+  });
+
+  it('a starting amount not in the Log names 10 Jun and no lump', () => {
+    const plan = run(p6, [], [june10]);
+    expect(plan.startingAmount).toMatchObject({ purchases: 1, items: [named], lumps: [] });
+  });
+
+  it('two coins: each purchase named in date order, and both lumps in the Log order', () => {
+    const btc = lump('2026-07-02', 'manual', '700', '0.00875');
+    const eth = lump('2026-07-02', 'manual', '300', '0.12', 'ETH');
+    const file = [
+      buy('C-0612E', 'ETH', '2026-06-12', '0.12', '300'),
+      buy('C-0610B', 'BTC', '2026-06-10', '0.00875', '700'),
+    ];
+    const plan = run(p6, [eth, btc], file);
+    expect(plan.startingAmount?.items).toEqual([
+      item('BTC', '2026-06-10', '0.00875', '700'),
+      item('ETH', '2026-06-12', '0.12', '300'),
+    ]);
+    expect(plan.startingAmount?.lumps).toEqual([eth, btc].sort(compareEntries));
+  });
+
+  it('pieces: €600 on 10 Jun and €400 on 20 Jun are both named beside the €1,000 lump', () => {
+    const typed = lump('2026-07-02', 'manual', '1000', '0.0125');
+    const file = [
+      buy('Q-0620', 'BTC', '2026-06-20', '0.005', '400'),
+      buy('Q-0610', 'BTC', '2026-06-10', '0.0075', '600'),
+    ];
+    const plan = run(p6, [typed], file);
+    expect(plan.startingAmount).toMatchObject({
+      purchases: 2,
+      items: [item('BTC', '2026-06-10', '0.0075', '600'), item('BTC', '2026-06-20', '0.005', '400')],
+      lumps: [typed],
+    });
+  });
+
+  it('seven purchases: every one named, in date order', () => {
+    const days = ['2026-06-07', '2026-06-01', '2026-06-03', '2026-06-02', '2026-06-06', '2026-06-04', '2026-06-05'];
+    const plan = run(
+      p6,
+      [],
+      days.map((day) => buy(`S7-${day}`, 'BTC', day, '0.001')),
+    );
+    expect(plan.startingAmount?.purchases).toBe(7);
+    expect(plan.startingAmount?.items.map((each) => each.date)).toEqual([...days].sort());
+  });
+
   it('a purchase 90 days before the first buy in a plan with a starting amount is left out', () => {
     const plan = run(STARTING, [], [buy('S-1201', 'ETH', '2025-12-01', '0.02')]);
-    expect(plan.startingAmount).toEqual({ purchases: 1, firstBuy: '2026-03-01', through: '2026-03-16' });
+    expect(plan.startingAmount).toEqual({
+      purchases: 1,
+      firstBuy: '2026-03-01',
+      through: '2026-03-16',
+      items: [item('ETH', '2025-12-01', '0.02')],
+      lumps: [],
+    });
     expect(plan.entries).toEqual([]);
   });
 
@@ -82,7 +164,11 @@ describe('step 3: the starting amount', () => {
     ];
     const plan = run(PLAIN, [lump('2026-02-01', 'manual')], file);
     expect(plan.recorded.map((each) => each.dates)).toEqual([['2026-02-01']]);
-    expect(plan.startingAmount).toEqual({ purchases: 2, firstBuy: '2026-03-01', through: '2026-03-16' });
+    expect(plan.startingAmount).toMatchObject({ purchases: 2, firstBuy: '2026-03-01', through: '2026-03-16' });
+    expect(plan.startingAmount?.items).toEqual([
+      item('BTC', '2026-01-10', '0.001'),
+      item('BTC', '2026-03-01', '0.001'),
+    ]);
     expect(kinds(plan)).toEqual(['2026-01-10:extra:null', '2026-04-01:dca:2026-04']);
   });
 
@@ -97,8 +183,15 @@ describe('step 3: the starting amount', () => {
   it("Kai: tapped lump and the first monthly buy on 1 Mar both left out, March's estimate kept", () => {
     const estimate = anEntry({ slot: month('2026-03'), date: date('2026-03-01'), source: 'one-tap' });
     const file = [buy('K-0301A', 'BTC', '2026-03-01', '0.008', '500'), buy('K-0301B', 'BTC', '2026-03-01', '0.001')];
-    const plan = run(STARTING, [lump('2026-03-01', 'one-tap'), estimate], file);
-    expect(plan.startingAmount).toEqual({ purchases: 2, firstBuy: '2026-03-01', through: '2026-03-16' });
+    const tapped = lump('2026-03-01', 'one-tap');
+    const plan = run(STARTING, [tapped, estimate], file);
+    expect(plan.startingAmount).toEqual({
+      purchases: 2,
+      firstBuy: '2026-03-01',
+      through: '2026-03-16',
+      items: [item('BTC', '2026-03-01', '0.008', '500'), item('BTC', '2026-03-01', '0.001')],
+      lumps: [tapped],
+    });
     expect([plan.entries, plan.replaced]).toEqual([[], []]);
   });
 });
