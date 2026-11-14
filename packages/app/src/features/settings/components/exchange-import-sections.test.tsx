@@ -38,6 +38,27 @@ const planOf = (csv: string, entries: readonly Entry[], plan = PLAN, venue = 'Kr
   return planExchangeImport(read.value, { plan, entries }, { venue, addHeld: false }, CONTEXT);
 };
 const BTC = 'BTC' as Entry['coin'];
+/** October's monthly BTC buy typed by hand for €120.00 and 0.002 BTC, dated `on`. */
+const typed120 = (on: string) =>
+  anEntry({
+    id: 'aaaaaaaa-0000-4000-8000-000000000031' as EntityId,
+    kind: 'dca',
+    coin: BTC,
+    date: date(on),
+    slot: '2026-10' as Entry['slot'],
+    amount: '120' as Entry['amount'],
+    units: units('0.002'),
+    venue: 'Bitvavo',
+    source: 'manual',
+  });
+/** A Kraken ledger of BTC purchases, each `[refid, time, euros, units, fee]`. */
+const btcBuys = (buys: readonly (readonly [string, string, string, string, string])[]) =>
+  krakenLedger(
+    buys.flatMap(([refid, time, euros, bought, fee]) => [
+      [refid, time, 'trade', 'EUR', `-${euros}`, fee] as const,
+      [refid, time, 'trade', 'BTC', bought, '0.0000000000'] as const,
+    ]),
+  );
 
 async function mount(shown: ExchangeImportPlan, plan = PLAN, exchange: ExchangeId = 'kraken') {
   const services = createTestServices({ snapshot: { ...fixture, plan } });
@@ -79,8 +100,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
       'Coins added at no cost (1)',
     ]);
     expect(lines('Estimates it replaces (1)')).toEqual([
-      'Monthly buy for October 2026: 0.00119 BTC (estimated) at Bitvavo for €70.00 becomes 0.00120 BTC at Kraken ' +
-        'for €70.00, fee €0.18 and 0.00080 BTC at Kraken for €50.00, fee €0.13, on 5 Oct 2026 and 12 Oct 2026.',
+      'Monthly buy for October 2026: 0.00119 BTC (estimated) at Bitvavo for €70.00 becomes 2 purchases at Kraken, ' +
+        '0.00200 BTC for €120.00 in all, fees €0.31, on 5 Oct 2026 and 12 Oct 2026.',
     ]);
     expect(texts()).toContain(
       "To keep an estimate instead, type its units from your exchange's confirmation in the Log, then choose the " +
@@ -102,10 +123,44 @@ describe('ExchangeSummary and ExchangeSections', () => {
     await mount(planOf(KRAKEN_OCTOBER, [...fixture.entries, ONE_TAP_OCTOBER, second]));
     expect(texts()).toContain('Replaces 2 estimates from Bought as planned.');
     expect(lines('Estimates it replaces (2)')).toEqual([
+      'Monthly buy for October 2026: 0.00119 BTC (estimated) at Bitvavo for €70.00 becomes 2 purchases at Kraken, ' +
+        '0.00200 BTC for €120.00 in all, fees €0.31, on 5 Oct 2026 and 12 Oct 2026.',
+      'Monthly buy for October 2026: 0.0011 BTC (estimated) at Bitvavo for €70.00 becomes 2 purchases at Kraken, ' +
+        '0.0020 BTC for €120.00 in all, fees €0.31, on 5 Oct 2026 and 12 Oct 2026.',
+    ]);
+  });
+
+  it('word one purchase that replaces an estimate as the piece it adds', async () => {
+    const csv = btcBuys([['T1', '2026-10-05 09:00:00', '70.0000', '0.0012000000', '0.1800']]);
+    await mount(planOf(csv, [...fixture.entries, ONE_TAP_OCTOBER]));
+    expect(lines('Estimates it replaces (1)')).toEqual([
       'Monthly buy for October 2026: 0.00119 BTC (estimated) at Bitvavo for €70.00 becomes 0.00120 BTC at Kraken ' +
-        'for €70.00, fee €0.18 and 0.00080 BTC at Kraken for €50.00, fee €0.13, on 5 Oct 2026 and 12 Oct 2026.',
-      'Monthly buy for October 2026: 0.0011 BTC (estimated) at Bitvavo for €70.00 becomes 0.0012 BTC at Kraken ' +
-        'for €70.00, fee €0.18 and 0.0008 BTC at Kraken for €50.00, fee €0.13, on 5 Oct 2026 and 12 Oct 2026.',
+        'for €70.00, fee €0.18, on 5 Oct 2026.',
+    ]);
+  });
+
+  it('sum three purchases that replace an estimate, one fee as "fee", the dates with the serial comma', async () => {
+    const csv = btcBuys([
+      ['T1', '2026-10-05 09:00:00', '40.0000', '0.0007000000', '0.1000'],
+      ['T2', '2026-10-12 09:00:00', '40.0000', '0.0006000000', '0.0000'],
+      ['T3', '2026-10-19 09:00:00', '40.0000', '0.0007000000', '0.0000'],
+    ]);
+    await mount(planOf(csv, [...fixture.entries, ONE_TAP_OCTOBER]));
+    expect(lines('Estimates it replaces (1)')).toEqual([
+      'Monthly buy for October 2026: 0.00119 BTC (estimated) at Bitvavo for €70.00 becomes 3 purchases at Kraken, ' +
+        '0.00200 BTC for €120.00 in all, fee €0.10, on 5 Oct 2026, 12 Oct 2026, and 19 Oct 2026.',
+    ]);
+  });
+
+  it('leave the fees out of the sum when no purchase that replaces an estimate has one', async () => {
+    const csv = btcBuys([
+      ['T1', '2026-10-05 09:00:00', '70.0000', '0.0012000000', '0.0000'],
+      ['T2', '2026-10-12 12:00:00', '50.0000', '0.0008000000', '0.0000'],
+    ]);
+    await mount(planOf(csv, [...fixture.entries, ONE_TAP_OCTOBER]));
+    expect(lines('Estimates it replaces (1)')).toEqual([
+      'Monthly buy for October 2026: 0.00119 BTC (estimated) at Bitvavo for €70.00 becomes 2 purchases at Kraken, ' +
+        '0.00200 BTC for €120.00 in all, on 5 Oct 2026 and 12 Oct 2026.',
     ]);
   });
 
@@ -142,21 +197,38 @@ describe('ExchangeSummary and ExchangeSections', () => {
   });
 
   it('word a monthly buy typed by hand that records two of the file’s dates, with what they add up to', async () => {
-    const typed = anEntry({
-      id: 'aaaaaaaa-0000-4000-8000-000000000031' as EntityId,
-      kind: 'dca',
-      coin: BTC,
-      date: date('2026-10-06'),
-      slot: '2026-10' as Entry['slot'],
-      amount: '120' as Entry['amount'],
-      units: units('0.002'),
-      venue: 'Bitvavo',
-      source: 'manual',
-    });
-    await mount(planOf(KRAKEN_OCTOBER, [...fixture.entries, typed]));
+    await mount(planOf(KRAKEN_OCTOBER, [...fixture.entries, typed120('2026-10-06')]));
     expect(lines('Matching entries in the Log, not added (1)')).toEqual([
-      "The file's 2 purchases on 5 Oct 2026 and 12 Oct 2026, 0.002 BTC for €120.00 in all, look like your monthly " +
+      "The file's purchases of 0.002 BTC for €120.00 in all, on 5 Oct 2026 and 12 Oct 2026, look like your monthly " +
         'buy for October 2026: 0.002 BTC at Bitvavo for €120.00.',
+    ]);
+  });
+
+  // DOMAIN §3.13 step 2: a date's amount is all the file's purchases of the coin on it, so the dates claimed are not
+  // the purchases: three purchases on two dates are never "2 purchases".
+  it('word three purchases on two dates claimed by one hand monthly buy without counting the dates as purchases', async () => {
+    const csv = btcBuys([
+      ['T1', '2026-10-05 09:00:00', '40.0000', '0.0007000000', '0.1000'],
+      ['T2', '2026-10-05 10:00:00', '30.0000', '0.0005000000', '0.0800'],
+      ['T3', '2026-10-12 12:00:00', '50.0000', '0.0008000000', '0.1300'],
+    ]);
+    await mount(planOf(csv, [...fixture.entries, typed120('2026-10-06')]));
+    expect(lines('Matching entries in the Log, not added (1)')).toEqual([
+      "The file's purchases of 0.002 BTC for €120.00 in all, on 5 Oct 2026 and 12 Oct 2026, look like your monthly " +
+        'buy for October 2026: 0.002 BTC at Bitvavo for €120.00.',
+    ]);
+  });
+
+  it('word three dates claimed by one hand monthly buy with the serial comma inside the date list', async () => {
+    const csv = btcBuys([
+      ['T1', '2026-10-05 09:00:00', '40.0000', '0.0007000000', '0.0000'],
+      ['T2', '2026-10-12 09:00:00', '40.0000', '0.0006000000', '0.0000'],
+      ['T3', '2026-10-19 09:00:00', '40.0000', '0.0007000000', '0.0000'],
+    ]);
+    await mount(planOf(csv, [...fixture.entries, typed120('2026-10-12')]));
+    expect(lines('Matching entries in the Log, not added (1)')).toEqual([
+      "The file's purchases of 0.002 BTC for €120.00 in all, on 5 Oct 2026, 12 Oct 2026, and 19 Oct 2026, look like " +
+        'your monthly buy for October 2026: 0.002 BTC at Bitvavo for €120.00.',
     ]);
   });
 

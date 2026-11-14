@@ -5,9 +5,11 @@ import {
   type Entry,
   type ExchangeId,
   IMPORT_MATCH_DAYS,
+  isZero,
   MAX_UNIT_DECIMALS,
   type MonthKey,
   type Plan,
+  sum,
 } from '@proofofcalm/core';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@proofofcalm/ui/components/collapsible';
 import { type ReactNode, useMemo } from 'react';
@@ -105,13 +107,25 @@ export function ExchangeSections({ model, plan, exchange }: SectionsProps) {
     t(`section.${key}`, { count: w.figure(items.length) });
   const leftOut = useLeftOut({ model, plan, exchange }, w);
   const replaces = model.replaces.map(({ estimate, by, otherVenue }) => {
-    const all = [estimate.units, ...by.map((entry) => entry.units)];
-    const becomes = w.format.list(by.map((entry) => piece(entry, all, otherVenue)));
+    // Several purchases are summed as the recorded line sums a hand entry's dates: their count, units, amount and fees
+    // (the app sums the entries the core adds; the core gives no total).
+    const total = sum(by.map((entry) => entry.units));
+    const all = [estimate.units, ...by.map((entry) => entry.units), total];
+    // A purchase has a fee when its fee is more than nothing; a zero fee is no fee in the sum.
+    const fees = by.flatMap((entry) => (entry.fee === null || isZero(entry.fee) ? [] : [entry.fee]));
+    const venue = by.find((entry) => entry.venue !== null)?.venue ?? null;
     const dates = [...new Set((by.length === 0 ? [estimate] : by).map((entry) => entry.date))].sort();
     const text = t('replace', {
+      ...w.counted(by.length),
       month: month(estimate),
       estimate: piece(estimate, all, otherVenue, true),
-      by: becomes,
+      by: by.length === 1 ? piece(by[0] as Entry, all, otherVenue) : '',
+      hasVenue: otherVenue && venue !== null ? 'yes' : 'no',
+      venue: venue ?? '',
+      units: w.units(estimate.coin, total, all),
+      amount: w.money(sum(by.flatMap((entry) => (entry.amount === null ? [] : [entry.amount])))),
+      fees: fees.length === 0 ? 'none' : fees.length === 1 ? 'one' : 'other',
+      fee: w.money(sum(fees)),
       dates: w.format.list(dates.map((date) => w.format.date(date))),
     });
     return { key: estimate.id, text };
@@ -120,7 +134,6 @@ export function ExchangeSections({ model, plan, exchange }: SectionsProps) {
     key: row.entry.id,
     text: t('recorded', {
       count: row.dates.length,
-      figure: w.figure(row.dates.length),
       dates: w.format.list(row.dates.map((date) => w.format.date(date))),
       units: w.units(row.coin, row.units, [row.entry.units]),
       amount: row.amount === null ? '' : w.money(row.amount),
