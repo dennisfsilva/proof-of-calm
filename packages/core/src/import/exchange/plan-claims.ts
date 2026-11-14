@@ -95,10 +95,11 @@ export function claimRecorded(
     const amount = sum(items.map((item) => item.movement.amount as Money));
     recorded.push({ dates, coin: entry.coin, units, amount, count: items.length, entry });
   };
+  const inMonth = (coin: CoinId, slot: MonthKey) => (each: Day) =>
+    each.coin === coin && each.role === 'purchase' && monthOf(coin, each.date) === slot;
   const candidates = (coin: CoinId, slot: MonthKey) => {
     const byDate = new Map<CalendarDate, Candidate>();
-    const purchases = (each: Day) =>
-      each.coin === coin && each.role === 'purchase' && monthOf(coin, each.date) === slot;
+    const purchases = inMonth(coin, slot);
     // The stored part of a date comes first, so a free part on the same date always joins it.
     for (const day of [...known, ...days.filter((each) => !each.claimed)].filter(purchases)) {
       const candidate = byDate.get(day.date);
@@ -114,13 +115,14 @@ export function claimRecorded(
   const rest: Entry[] = [];
   for (const entry of hand) {
     const slot = entry.slot;
-    const month = slot === null ? [] : candidates(entry.coin, slot);
-    // Only a monthly buy whose month has no date at all falls back: one that walks through stored dates alone claims
-    // nothing, since part of the file can claim a date the whole file walks past, and the fallback must not depend on it.
-    if (slot === null || month.length === 0) {
+    // Only a monthly buy whose month has no purchase date of its coin in the file, stored, claimed or free, falls back:
+    // one that walks through stored dates alone claims nothing, since part of the file can claim a date the whole file
+    // walks past, and one whose dates an earlier entry claimed claims nothing either, so neither depends on the other.
+    if (slot === null || ![...known, ...days].some(inMonth(entry.coin, slot))) {
       rest.push(entry);
       continue;
     }
+    const month = candidates(entry.coin, slot);
     const target = monthOf(entry.coin, entry.date) === slot ? entry.date : dueOf(plan, slot);
     const taken = walk(month, target, entry.amount as Money);
     if (taken.length > 0) record(entry, taken);

@@ -547,6 +547,16 @@ describe('planExchangeImport, in one import or two', () => {
       expect([claims(once), once.entries]).toEqual([[['H', ['2026-06-26']]], []]);
     });
 
+    it('two typed May buys, 1 May and 30 May: A claims 1 May, B no 3-day date, and 1 Jun is June’s monthly buy', () => {
+      // May has a purchase date of BTC in the file (A's), so B does not fall back, in one import or two.
+      const [M01, J01] = [paid('T0501', '2026-05-01', '70', 2), paid('T0601', '2026-06-01', '70', 4)];
+      const log = [typedFor('2026-05', '2026-05-01', '70', 'A'), typedFor('2026-05', '2026-05-30', '70', 'B')];
+      const { once, first, then, oneLog, twoLog } = paths(PLAIN, log, [M01, J01], [M01]);
+      expect([claims(once), kinds(once)]).toEqual([[['A', ['2026-05-01']]], [`${id(J01)}:dca:2026-06`]]);
+      expect([claims(first), kinds(first), kinds(then)]).toEqual([[['A', ['2026-05-01']]], [], kinds(once)]);
+      expect(twoLog).toEqual(oneLog);
+    });
+
     it('monthly buys claim before other hand entries', () => {
       const extra = anEntry({ kind: 'extra', slot: null, date: date('2026-09-30'), note: 'X' });
       const fills = [paid('B0928', '2026-09-28', '20', 2), paid('B1001', '2026-10-01', '70', 4)];
