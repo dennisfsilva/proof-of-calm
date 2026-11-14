@@ -33,14 +33,12 @@ describe('previewModel', () => {
   it('counts each kind, the estimates replaced, and gives each section its entries', () => {
     const shown = planOn([...fixtureSnapshot().entries, ONE_TAP_OCTOBER], false);
     const model = previewModel(shown);
-    expect(model.summary).toEqual({ entries: 5, monthly: 1, extra: 2, sales: 1, added: 1, replaced: 1 });
-    const btc = shown.entries.find((entry) => entry.kind === 'dca');
-    expect(model.fills).toEqual([]);
-    expect(model.replaces).toEqual([{ estimate: ONE_TAP_OCTOBER, by: [btc], otherVenue: true }]);
-    expect(model.extra.map((entry) => [entry.coin, entry.date])).toEqual([
-      ['ETH', '2026-10-05'],
-      ['BTC', '2026-10-12'],
-    ]);
+    expect(model.summary).toEqual({ entries: 5, monthly: 3, extra: 0, sales: 1, added: 1, replaced: 1 });
+    const btc = shown.entries.filter((entry) => entry.kind === 'dca' && entry.coin === 'BTC');
+    expect(btc.map((entry) => entry.date)).toEqual(['2026-10-05', '2026-10-12']);
+    expect(model.fills.map((entry) => [entry.coin, entry.date])).toEqual([['ETH', '2026-10-05']]);
+    expect(model.replaces).toEqual([{ estimate: ONE_TAP_OCTOBER, by: btc, otherVenue: true }]);
+    expect(model.extra).toEqual([]);
     expect(model.sales.map((entry) => [entry.coin, entry.units])).toEqual([['ETH', '0.01']]);
     expect(model.added.map((entry) => [entry.coin, entry.amount])).toEqual([['BTC', '0']]);
     expect([model.held, model.noneInCurrency, model.recorded, model.startingAmount]).toEqual([null, null, [], null]);
