@@ -112,7 +112,7 @@ describe('ExchangeImport', () => {
     await mount([{ ...early, units: units('0.0015'), venue: null }, HELD]);
     expect(texts()).toContain(
       'Your Log has 2 Coins added entries of BTC: 0.0015 BTC on 6 Oct 2026 and 0.0020 BTC at Ledger on 13 Oct 2026. ' +
-        '2 BTC transactions in this file, 0.0020 BTC in all, are dated on or before them and may be ' +
+        '2 BTC transactions in this file, 0.0020 BTC in all, are dated on or before the latest of them and may be ' +
         'those coins. They are not added unless you choose to.',
     );
   });
@@ -138,11 +138,11 @@ describe('ExchangeImport', () => {
     await mount([at(1, '2026-10-05'), at(2, '2026-10-05'), { ...at(3, '2026-10-06'), venue: null }]);
     expect(texts().find((line) => line.startsWith('Your Log has 3'))).toBe(
       'Your Log has 3 Coins added entries of BTC: 0.0020 BTC at Ledger on 5 Oct 2026, 0.0020 BTC at Ledger on ' +
-        '5 Oct 2026, and 0.0020 BTC on 6 Oct 2026. 1 BTC transaction in this file, 0.0012 BTC, is dated on or before ' +
-        'them and may be those coins. It is not added unless you choose to.',
+        '5 Oct 2026, and 0.0020 BTC on 6 Oct 2026. 1 BTC transaction in this file, 0.0012 BTC, is dated on or before the latest ' +
+        'of them and may be those coins. It is not added unless you choose to.',
     );
     expect(texts()).toContain(
-      'If you add it and it is the same coins, delete the Coins added entries in the Log after the import.',
+      'If you add it and its coins are the same ones, delete the Coins added entries in the Log after the import.',
     );
   });
 
@@ -158,8 +158,10 @@ describe('ExchangeImport', () => {
         'If you add it, it also replaces 1 estimate from Bought as planned.',
     );
     expect(texts()).toContain(
-      'If you add it and it is the same coins, delete the Coins added entry in the Log after the import.',
+      'If you add it and its coins are the same ones, delete the Coins added entry in the Log after the import.',
     );
+    expect(screen.getByRole('checkbox', { name: 'Add this transaction too' })).not.toBeNull();
+    expect(screen.queryByRole('checkbox', { name: 'Add these transactions too' })).toBeNull();
   });
 
   it('ticking `Add these transactions too` moves the estimates of the held months into `Estimates it replaces` and changes the summary and the button’s count', async () => {
