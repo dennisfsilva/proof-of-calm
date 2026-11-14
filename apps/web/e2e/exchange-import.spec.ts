@@ -270,7 +270,10 @@ test.describe('a file the exchange import does not take', () => {
       "This is Kraken's Trades export. Export the Ledgers from Kraken instead, then import that file.",
     );
     const other = await choose(page, 'other.csv', 'date,description,amount\n2025-12-01,coffee,3.20\n');
-    await expect(other).toContainText("Choose a Proof of Calm backup, an export from the DCA plan page, or Kraken's");
+    await expect(other).toContainText(
+      "Choose a Proof of Calm backup, an export from the DCA plan page, Kraken's Ledgers export or Trade Republic's " +
+        'transaction export.',
+    );
     const header = await choose(page, 'ledgers.csv', `${LEDGER_HEADER}\n`);
     await expect(header).toHaveText(
       'This Kraken ledger has no rows, so nothing was imported. Export the Ledgers again for a period with transactions.',

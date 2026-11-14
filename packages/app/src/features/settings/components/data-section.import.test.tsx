@@ -423,7 +423,7 @@ describe('DataSection, a pasted export (docs/DOMAIN.md §7)', () => {
     await choose('not an export');
     expect(screen.getByRole('alert').textContent).toBe(
       'This file is not in a format Proof of Calm can read. Choose a Proof of Calm backup, an export from the DCA ' +
-        "plan page, or Kraken's Ledgers export.",
+        "plan page, Kraken's Ledgers export or Trade Republic's transaction export.",
     );
   });
 

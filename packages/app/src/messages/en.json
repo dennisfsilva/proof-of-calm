@@ -33,7 +33,7 @@
       "received-exceeds-sent": "Enter no more units received than units sent."
     },
     "backup": {
-      "not-recognised": "This file is not in a format {product} can read. Choose a {product} backup, an export from the DCA plan page, or Kraken's Ledgers export.",
+      "not-recognised": "This file is not in a format {product} can read. Choose a {product} backup, an export from the DCA plan page, Kraken's Ledgers export or Trade Republic's transaction export.",
       "not-recognised-pasted": "This text is not in a format {product} can read. Copy the whole export again, then paste it.",
       "prototype-invalid": "The plan in this file from the DCA plan page is not complete, so nothing was imported. Check its amounts and dates there, export it again, then import the new file.",
       "newer-version": "This backup comes from a newer version of {product}. Update the app, then import it again.",

@@ -54,8 +54,11 @@ describe('errorMessage', () => {
     for (const code of ['not-recognised', 'newer-version', 'invalid-backup', 'prototype-invalid']) {
       expect(errorMessage({ code }).key).toBe(`errors.backup.${code}`);
     }
-    // The line names every format the import reads: backups, the DCA plan page's files and Kraken's Ledgers export.
-    expect(errors.backup['not-recognised']).toMatch(/backup, an export from the DCA plan page, or Kraken's Ledgers/);
+    // The line names every format the import reads: backups, the DCA plan page's files, Kraken's Ledgers export and
+    // Trade Republic's transaction export.
+    expect(errors.backup['not-recognised']).toMatch(
+      /backup, an export from the DCA plan page, Kraken's Ledgers export or Trade Republic's transaction export\.$/,
+    );
     // The file is imported now, so no line sends its purchases to the Log by hand (CONTENT-STYLE §1 rule 8).
     expect(errors.backup).not.toHaveProperty('prototype-file');
     expect(errors.backup['prototype-invalid']).toMatch(/nothing was imported/);
