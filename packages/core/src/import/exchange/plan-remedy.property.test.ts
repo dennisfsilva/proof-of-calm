@@ -143,10 +143,13 @@ function importFirst(drawn: World, stored: Stored, entry: Entry) {
  * under a third of the timeout. Measured again after rule R's widened generator and with the worst state at the bound
  * holding the starting line too, the same way, seeds 1 to 8: the worst was 2.96 s for the sentence's property (seed
  * 3), 2.72 s for the starting line's (seed 6), 1.03 s for the estimate line's (seed 3) and 2.27 s for the file at the
- * bound (seed 4), so six times the worst is 17.8 s, under a third of the timeout.
+ * bound (seed 4), so six times the worst is 17.8 s, under a third of the timeout. Measured again after a `lump` claims
+ * only a date as near its amount as the monthly part, with the generator's lumps of every amount and late starting
+ * purchases, the same way, seeds 1 to 8: the worst was 3.70 s (the file at the bound, seed 2; the sentence's property
+ * 3.37 s, seed 5); six times it, 22.2 s, passed a third of 60 s, so the timeout is 90 s (a third of it 30 s).
  */
 const RUNS = { numRuns: 300 };
-const TIMEOUT = 60_000;
+const TIMEOUT = 90_000;
 
 /**
  * A world of a plan with a starting amount whose file also holds a purchase of each coin's part on one date, 40 days

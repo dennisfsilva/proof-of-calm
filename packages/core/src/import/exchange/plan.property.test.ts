@@ -70,10 +70,13 @@ function twoWays(drawn: World, cut: number) {
  * buy takes its 3 days only when its month has no date, seeds 1 to 8: the worst was 2.89 s (the prefix-adds one, seed
  * 3); six times it, 17.3 s. Three runs of the whole core suite at random seeds passed. Measured again after a one-tap
  * `lump` claims in step 2 and the generator dates it near the file's dates (90 to 102 of 2,000 worlds reach its claim,
- * 12 to 21 before), seeds 1 to 8: the worst was 2.73 s (the prefix-adds one, seed 4); six times it, 16.4 s.
+ * 12 to 21 before), seeds 1 to 8: the worst was 2.73 s (the prefix-adds one, seed 4); six times it, 16.4 s. Measured
+ * again after a `lump` claims only a date as near its amount as the monthly part, with the generator's lumps of every
+ * amount and late starting purchases, seeds 1 to 8: the worst was 3.47 s (the prefix-adds one, seed 7); six times it,
+ * 20.8 s, passed a third of 60 s, so the timeout is 90 s (a third of it 30 s).
  */
 const TWICE = { numRuns: 1500 };
-const TIMEOUT = 60_000;
+const TIMEOUT = 90_000;
 
 /**
  * Seed -343831661's world, shrunk (path 1109:414:1:7:2:3:3:3:4:2:2:2:3:2:2:6:5:5:5:5:6:11:11:12:7:12:12): July's buy
