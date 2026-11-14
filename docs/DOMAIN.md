@@ -1001,7 +1001,9 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      units than the file now gives its key is named with both figures: change its units in the Log." Both
      units are compared rounded half-even at the places the preview shows (below), the places the Log's form
      takes, so typing the figure named ends the line. The line also names the date the file now gives the
-     receipt when the entry holds another (an earlier export cut through its rows): change both. A named
+     receipt when the entry holds another (an earlier export cut through its rows): change both. A receipt
+     whose units the whole file leaves unchanged at the shown places but whose date it moves earlier is not
+     named. A named
      monthly buy carries its coin's tombstoned one-tap estimates for its month when deleting the named
      entries leaves that month no monthly buy, and the line says deleting it leaves the month without its
      estimate, to record again if bought: the import never un-tombstones, and an import's tombstone is not
@@ -1014,9 +1016,12 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      month (step 6) is S by nearness to its own date when that date's month is S, else to S's due date, the
      earlier on a tie. It takes the nearest, then each next date while that brings the summed amount nearer
      its own amount. Dates of this file whose movements are stored already (live or tombstoned) take their
-     place in that order and sum, but are never claimed. A monthly buy that claims nothing, and every other
-     hand purchase or sale, claims the nearest date of its role within 3 days of its own date", the earlier
-     date on a tie; each date is claimed once. A date's amount is all the file's purchases of C on it, fees
+     place in that order and sum, but are never claimed. A monthly buy whose month has no purchase date of C
+     in the file, stored or not, and every other hand purchase or sale, claims the nearest date of its role
+     within 3 days of its own date", the earlier date on a tie; each date is claimed once. A monthly buy whose
+     walk takes only stored dates claims nothing (decided 2026-11-14): part of a file can claim a date that
+     the whole file walks past, so a fallback on claiming nothing stored in two imports a date that one import
+     leaves out. A date's amount is all the file's purchases of C on it, fees
      excluded (§2.2). A claimed date is `looks recorded already`: left out and named with every date the
      entry claimed, both figures and the entry's venue. The amount is the entry's own, never the plan's.
      Amounts are positive and part of an export keeps the whole file's order, so an import of part of it
