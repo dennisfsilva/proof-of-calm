@@ -48,10 +48,16 @@ export const IMPORT_TYPED_DAYS = 3;
 export const IMPORT_RECORDED_CHECKS = 12;
 
 /**
+ * The exchange import's preview checks at most this many Log rows of one-tap estimates for the estimate line, each by
+ * planning the file again after the row's change, before importing (docs/DOMAIN.md §3.13 and §9).
+ */
+export const IMPORT_ESTIMATE_CHECKS = 6;
+
+/**
  * The exchange import's preview checks no row for any line that asks for a change in a file of more than this many
  * movements, so the checks' cost stays bounded by the file's size (docs/DOMAIN.md §9).
  */
-export const IMPORT_REMEDY_MAX_MOVEMENTS = 520;
+export const IMPORT_REMEDY_MAX_MOVEMENTS = 400;
 
 /** The Log shows this many transactions before "Show all". */
 export const LOG_PAGE = 12;

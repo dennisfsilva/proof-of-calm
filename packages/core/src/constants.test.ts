@@ -3,6 +3,7 @@ import {
   BACKUP_SNOOZE_DAYS,
   CHART_RANGES,
   ENTRY_NOTE_MAX_LENGTH,
+  IMPORT_ESTIMATE_CHECKS,
   IMPORT_MATCH_DAYS,
   IMPORT_MAX_BYTES,
   IMPORT_RECORDED_CHECKS,
@@ -45,6 +46,7 @@ describe('constants', () => {
     expect(IMPORT_MATCH_DAYS).toBe(15);
     expect(IMPORT_TYPED_DAYS).toBe(3);
     expect(IMPORT_RECORDED_CHECKS).toBe(12);
-    expect(IMPORT_REMEDY_MAX_MOVEMENTS).toBe(520);
+    expect(IMPORT_ESTIMATE_CHECKS).toBe(6);
+    expect(IMPORT_REMEDY_MAX_MOVEMENTS).toBe(400);
   });
 });

@@ -301,9 +301,9 @@ export function startingRemedies(
  * it, and the file planned again with the box unticked, as choosing it again opens the preview, adds every date the row
  * records (a monthly buy's as monthly buys for its month) and keeps every other date group. `starting` is the first of
  * `startingRemedies` that, made in both orders, records d* by the lump and keeps every other date group. At most
- * `IMPORT_RECORDED_CHECKS` rows are checked for each line, in the Log's order, and none for a file of more than
- * `IMPORT_REMEDY_MAX_MOVEMENTS` movements; nothing is planned again when no row can pass. Planned with no venue, since
- * no step reads one.
+ * `IMPORT_RECORDED_CHECKS` rows are checked for each line, in the Log's order (`IMPORT_ESTIMATE_CHECKS` for the estimate
+ * line), and none for a file of more than `IMPORT_REMEDY_MAX_MOVEMENTS` movements; nothing is planned again when no row
+ * can pass. Planned with no venue, since no step reads one.
  */
 export function importRemedies(
   file: ExchangeFile,
