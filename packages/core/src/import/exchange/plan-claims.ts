@@ -75,7 +75,7 @@ const paid = (day: Day) => sum(day.items.map((item) => item.movement.amount as M
 
 /**
  * "Hand monthly buys claim first: a live monthly buy of C for S claims C's purchase dates whose month is S, nearest
- * its target first, while each brings the sum nearer its amount; a monthly buy that claims nothing, and every other
+ * its target first, while each brings the sum nearer its amount; a monthly buy whose month has no date, and every other
  * hand-recorded purchase or sale, claims C's nearest date of the same role within 3 days of its own date." `known`
  * holds the file's purchase dates an earlier import stored, live or tombstoned. Sets `claimed` on the days it takes.
  */
@@ -114,11 +114,16 @@ export function claimRecorded(
   const rest: Entry[] = [];
   for (const entry of hand) {
     const slot = entry.slot;
-    const target = slot !== null && monthOf(entry.coin, entry.date) === slot ? entry.date : null;
-    const taken =
-      slot === null ? [] : walk(candidates(entry.coin, slot), target ?? dueOf(plan, slot), entry.amount as Money);
-    if (taken.length === 0) rest.push(entry);
-    else record(entry, taken);
+    const month = slot === null ? [] : candidates(entry.coin, slot);
+    // Only a monthly buy whose month has no date at all falls back: one that walks through stored dates alone claims
+    // nothing, since part of the file can claim a date the whole file walks past, and the fallback must not depend on it.
+    if (slot === null || month.length === 0) {
+      rest.push(entry);
+      continue;
+    }
+    const target = monthOf(entry.coin, entry.date) === slot ? entry.date : dueOf(plan, slot);
+    const taken = walk(month, target, entry.amount as Money);
+    if (taken.length > 0) record(entry, taken);
   }
   for (const entry of rest) {
     const role = entry.kind === 'sell' ? 'sale' : 'purchase';

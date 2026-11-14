@@ -1,7 +1,8 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
+import { anEntry, aPlan, date, money, month } from '../../../test/builders';
 import { fileOf, heldGuards, type World, world } from '../../../test/exchange/plan-arbitraries';
-import { BERLIN, LISBON, NOW, testId } from '../../../test/exchange/plan-fixture';
+import { added, BERLIN, LISBON, NOW, testId, trade } from '../../../test/exchange/plan-fixture';
 import { addDays, type CalendarDate } from '../../dates/calendar';
 import { sum } from '../../money/decimal';
 import { plannedParts } from '../../plan/parts';
@@ -68,6 +69,24 @@ function twoWays(drawn: World, cut: number) {
 const TWICE = { numRuns: 1500 };
 const TIMEOUT = 60_000;
 
+/**
+ * Seed -343831661's world, shrunk (path 1109:414:1:7:2:3:3:3:4:2:2:2:3:2:2:6:5:5:5:5:6:11:11:12:7:12:12): July's buy
+ * typed on 27 Apr for €70, 20 Jun stored already; the whole file's walk takes only 20 Jun, and the rows to 18 Jun claim
+ * 18 Jun. Main's step 2 (693d6a9e) fell back to 26 Apr only in the whole file, so two imports stored it.
+ */
+const STORED_WALK: [World, number] = (() => {
+  const paid = (ref: string, day: string, amount: string, line: number) =>
+    trade(ref, 'purchase', 'BTC', day, { units: '0.0008', amount, fee: '0.50' }, line);
+  const J20 = paid('W0620', '2026-06-20', '1121', 6);
+  const movements = [paid('W0426', '2026-04-26', '70', 2), paid('W0618', '2026-06-18', '117.50', 4), J20];
+  const typed = anEntry({ slot: month('2026-07'), date: date('2026-04-27'), amount: money('70') });
+  const plan = aPlan({ firstBuy: date('2026-03-01'), lastBuy: date('2026-12-01') });
+  return [
+    { plan, file: fileOf(movements), addHeld: false, venue: null, entries: [typed, added(J20, 'extra', null)] },
+    2,
+  ];
+})();
+
 describe('planExchangeImport', () => {
   it('a second plan after its entries are stored adds nothing and replaces nothing', () => {
     fc.assert(
@@ -104,7 +123,7 @@ describe('planExchangeImport', () => {
           expect(ids(live(twoLog))).toEqual(ids(live(oneLog)));
           expect(unitsPerCoin(live(twoLog))).toEqual(unitsPerCoin(live(oneLog)));
         }),
-        TWICE,
+        { ...TWICE, examples: [STORED_WALK] },
       );
     },
     TIMEOUT,

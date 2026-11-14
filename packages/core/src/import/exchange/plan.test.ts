@@ -526,6 +526,21 @@ describe('planExchangeImport, in one import or two', () => {
       expect(twoLog).toEqual(oneLog);
     });
 
+    it('July typed on 27 Apr, whose walk takes only the stored 20 Jun, takes no 3-day date: one import or two', () => {
+      // The live-Log property's seed -343831661, shrunk: the whole file's walk takes 20 Jun, stored, and claims nothing;
+      // an export ending on 18 Jun claims 18 Jun. Falling back to 26 Apr only in the first left it stored in two imports.
+      const [A26, J18, J20] = [
+        paid('W0426', '2026-04-26', '70', 2),
+        paid('W0618', '2026-06-18', '117.50', 4),
+        paid('W0620', '2026-06-20', '1121', 6),
+      ];
+      const log = [typedFor('2026-07', '2026-04-27', '70'), added(J20, 'extra', null)];
+      const { once, first, then, oneLog, twoLog } = paths(PLAIN, log, [A26, J18, J20], [A26, J18]);
+      expect([claims(once), kinds(once)]).toEqual([[], [`${id(A26)}:dca:2026-05`, `${id(J18)}:dca:2026-07`]]);
+      expect([claims(first), claims(then)]).toEqual([[['H', ['2026-06-18']]], []]);
+      expect(twoLog).toEqual(oneLog);
+    });
+
     it('P3 June typed on 26 Jun claims 26 Jun by its 3 days', () => {
       const J26 = paid('P3-0626', '2026-06-26', '50', 2);
       const { once } = paths(PLAIN, [typedFor('2026-06', '2026-06-26', '50')], [J26], []);
