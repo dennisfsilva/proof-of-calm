@@ -136,8 +136,8 @@ function itemOf(cell: (column: Column) => string, line: number, at: Instant | nu
 
 /**
  * Rule 6: "each pairs one-to-one with the latest earlier (by `datetime`, then line), not yet paired BUY (or SELL) of
- * the same coin with equal |shares| and equal |amount|; both rows go out as `unpaired`, named by line. With no such
- * row, the cancellation alone goes out as `unpaired`."
+ * the same coin with equal |shares| and equal |amount|; both rows go out together as `cancelled`, named by line. With
+ * no such row, the cancellation alone goes out as `unpaired`."
  */
 function cancel(trades: readonly Trade[], cancels: readonly Cancel[]) {
   const paired = new Set<Trade>();
@@ -153,7 +153,7 @@ function cancel(trades: readonly Trade[], cancels: readonly Cancel[]) {
     const match = trades.filter(same).toSorted(order).at(-1);
     if (match !== undefined) paired.add(match);
     out.push(
-      match === undefined ? left('unpaired', [row.line], row.at) : left('unpaired', [match.line, row.line], match.at),
+      match === undefined ? left('unpaired', [row.line], row.at) : left('cancelled', [match.line, row.line], match.at),
     );
   }
   // "Trade Republic's reader returns each paired trade in `cancelled` under the key it would have had", so the plan

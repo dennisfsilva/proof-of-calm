@@ -203,7 +203,7 @@ describe('readTradeRepublic, rule by rule', () => {
     ];
     expect([keys(...rows), reasons(...rows)]).toEqual([
       ['poc-csv-1|trade-republic|A|BTC|in'],
-      [['unpaired', [3, 4], null]],
+      [['cancelled', [3, 4], null]],
     ]);
     expect(read(...rows).leftOut[0]?.at).toBe('2026-05-02T08:00:00.000Z');
   });
@@ -235,8 +235,8 @@ describe('readTradeRepublic, rule by rule', () => {
     expect([keys(...rows), reasons(...rows)]).toEqual([
       [],
       [
-        ['unpaired', [2, 5], null],
-        ['unpaired', [3, 4], null],
+        ['cancelled', [2, 5], null],
+        ['cancelled', [3, 4], null],
         ['unpaired', [6], null],
       ],
     ]);
@@ -262,9 +262,25 @@ describe('readTradeRepublic, rule by rule', () => {
   it('rule 6: SELL_CANCELLED pairs with a sale; a cancellation with unreadable shares is unreadable', () => {
     const later = { datetime: '2026-05-05T00:00:00.000Z', transaction_id: 'C' };
     expect(reasons({ ...SELL }, { ...later, type: 'SELL_CANCELLED', shares: '0.001', amount: '-50' })).toEqual([
-      ['unpaired', [2, 3], null],
+      ['cancelled', [2, 3], null],
     ]);
     expect(reasons({ type: 'BUY_CANCELLED', amount: '' })).toEqual([['unreadable', [2], 'amount']]);
+  });
+
+  it('rule 6: a trade with its cancellation, a lone cancellation and an unreadable row go out with three reasons', () => {
+    const later = { datetime: '2026-05-05T00:00:00.000Z', type: 'BUY_CANCELLED' };
+    expect(
+      reasons(
+        {},
+        { ...later, transaction_id: 'C' },
+        { ...later, transaction_id: 'D', symbol: 'ETH' },
+        { transaction_id: 'E', shares: 'x' },
+      ),
+    ).toEqual([
+      ['cancelled', [2, 3], null],
+      ['unpaired', [4], null],
+      ['unreadable', [5], 'shares'],
+    ]);
   });
 
   it('rule 7: a free receipt is a coin deposit and a free delivery a coin withdrawal, each with its units', () => {

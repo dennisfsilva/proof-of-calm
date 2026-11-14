@@ -34,6 +34,7 @@ const REASONS = [
   'cash',
   'benefit',
   'within',
+  'cancelled',
   'unpaired',
   'unreadable',
   'other',
