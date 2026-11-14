@@ -771,6 +771,43 @@ describe("a lump's claim reads its amount", () => {
     expect(invested(c, cut)).toBe('2450');
   });
 
+  // The shorter export stored 1 Sep, the date the whole file's lump claims, so the second import's lump claims 5 Sep
+  // instead: 1 Sep's 100 counts and 5 Sep's 120 does not (plan-lump-cut.property.test.ts).
+  it('below the part, an export ending inside 4 Sep: one import 2,570, the cut first claims 5 Sep and gives 2,550', () => {
+    const c = below([...ROUND_2.file.slice(MONTHS.length), buy('BTC', '2026-09-05T10:00:00Z', '120', '0.0015')]);
+    expect(recordedBy(c, c.entries, c.entries[0] as Entry)).toEqual(['2026-09-01']);
+    expect(invested(c, c.entries)).toBe('2570');
+    const cut = imported(c, c.entries, fileOf(c.file.filter((m) => m.at < '2026-09-04T12:00:00Z')));
+    expect(recordedBy(c, cut, c.entries[0] as Entry)).toEqual(['2026-09-05']);
+    expect(invested(c, cut)).toBe('2550');
+  });
+
+  // Another hand entry's claim moves the same way: a shorter export beginning inside 4 Sep holds a part the lump of
+  // 1,000 passes over, so the extra buy of 4 Sep claims it and 5 Sep, the extra's date in one import, is stored; the
+  // whole file's extra then claims 2 Sep, whose 500 goes out while 5 Sep's 100 counts.
+  it('above the part, an extra buy beside the lump: the cut first stores 5 Sep and leaves out 2 Sep, 400 less', () => {
+    const plan = { ...P6, startingAmount: money('100'), monthlyAmount: money('500') };
+    const file = [
+      ...MONTHS.map((slot) => buy('BTC', `${slot}-02`, '500', '0.00625')),
+      buy('BTC', '2026-09-04T09:00:00Z', '700', '0.00875'),
+      buy('BTC', '2026-09-04T15:00:00Z', '100', '0.00125'),
+      buy('BTC', '2026-09-05T10:00:00Z', '100', '0.00125'),
+    ];
+    const lumpIn = record(of(file, [], plan), [], 'lump', '2026-09-03', { BTC: { amount: '1000', units: '0.0125' } });
+    const extraIn = record(of(file, [], plan), [], 'extra', '2026-09-04', { BTC: { amount: '100', units: '0.00125' } });
+    const ownId = (extraIn as Entry[]).map((entry) => ({ ...entry, id: testId('typed|extra') }));
+    const c = of(file, [...(lumpIn as Entry[]), ...ownId], plan);
+    const extra = c.entries.find((entry) => entry.kind === 'extra') as Entry;
+    expect(recordedBy(c, c.entries, extra)).toEqual(['2026-09-05']);
+    const shorter = fileOf(c.file.filter((m) => m.at > '2026-09-04T12:00:00Z'));
+    expect(planOf(c, c.entries, shorter).recorded.map((item) => [item.entry.kind, item.dates])).toEqual([
+      ['extra', ['2026-09-04']],
+    ]);
+    const cut = imported(c, c.entries, shorter);
+    expect(recordedBy(c, cut, extra)).toEqual(['2026-09-02']);
+    expect(Number(invested(c, c.entries)) - Number(invested(c, cut))).toBe(400);
+  });
+
   it('below the part, an export inside 4 Sep alone: 2,450 either way', () => {
     const c = below([
       buy('BTC', '2026-09-01T10:00:00Z', '100', '0.00125'),
