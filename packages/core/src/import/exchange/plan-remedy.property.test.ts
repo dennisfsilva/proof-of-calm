@@ -136,7 +136,10 @@ function importFirst(drawn: World, stored: Stored, entry: Entry) {
  * With the bound at 400 and the worst state added, measured again on 2026-11-14 the same way, seeds 1 to 8: the worst
  * was 3.15 s for the sentence's property (seed 3), 2.81 s for the starting line's (seed 6), 1.04 s for the estimate
  * line's (seed 3) and 2.22 s for the file at the bound with its four states (seed 5), so six times the worst is 18.9 s,
- * under a third of the timeout.
+ * under a third of the timeout. Measured again after rule R's widened generator and with the worst state at the bound
+ * holding the starting line too, the same way, seeds 1 to 8: the worst was 2.96 s for the sentence's property (seed
+ * 3), 2.72 s for the starting line's (seed 6), 1.03 s for the estimate line's (seed 3) and 2.27 s for the file at the
+ * bound (seed 4), so six times the worst is 17.8 s, under a third of the timeout.
  */
 const RUNS = { numRuns: 300 };
 const TIMEOUT = 60_000;
