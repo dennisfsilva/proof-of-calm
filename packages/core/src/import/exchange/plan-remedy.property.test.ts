@@ -99,11 +99,12 @@ function importFirst(drawn: World, stored: Stored, entry: Entry) {
 
 /**
  * The property runs 300 times and the five-year file once, each with a 60 s timeout (the core's default is Vitest's
- * 5 s). Measured on 2026-11-14 under the full core suite with coverage, seeds 1 to 8 (fast-check's global seed): the
- * worst was 1.66 s for the property (seed 7) and 1.85 s for the five-year file (520 purchases, 120 entries typed by
- * hand, 24 rows planned again; seed 4), so six times the worst, the margin budgeted for CI's slower runner, is 11.1 s,
- * under a third of the timeout (20 s). The plan's own properties kept their times (the worst 2.60 s, seed 6). Of the
- * 300 worlds, 27 to 34 reach a sentence before importing, 26 to 33 after it and 27 to 32 after a shorter export.
+ * 5 s). Measured on 2026-11-14, with each row checked before and after importing first, under the full core suite with
+ * coverage, seeds 1 to 8 (fast-check's global seed): the worst was 3.12 s for the property and 2.12 s for the five-year
+ * file (520 purchases, 120 entries typed by hand, 12 rows planned again in two orders; both seed 5), so six times the
+ * worst, the margin budgeted for CI's slower runner, is 18.7 s, under a third of the timeout (20 s). The plan's own
+ * properties took at most 3.19 s (seed 5). Of the 300 worlds, 23 to 30 reach a sentence before importing, 24 to 31
+ * after it and 22 to 29 after a shorter export.
  */
 const RUNS = { numRuns: 300 };
 const TIMEOUT = 60_000;
