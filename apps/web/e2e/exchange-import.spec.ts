@@ -271,7 +271,7 @@ test.describe('a file the exchange import does not take', () => {
     );
     const other = await choose(page, 'other.csv', 'date,description,amount\n2025-12-01,coffee,3.20\n');
     await expect(other).toContainText(
-      "Choose a Proof of Calm backup, an export from the DCA plan page, Kraken's Ledgers export or Trade Republic's " +
+      "Choose a Proof of Calm backup, an export from the DCA plan page, Kraken's Ledgers export, or Trade Republic's " +
         'transaction export.',
     );
     const header = await choose(page, 'ledgers.csv', `${LEDGER_HEADER}\n`);
