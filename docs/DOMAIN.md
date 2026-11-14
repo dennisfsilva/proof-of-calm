@@ -1038,9 +1038,12 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      step 2 left are left out and named, however long before `firstBuy` they are: the file cannot tell the
      starting amount from them. A one-tap `lump` is never replaced." A hand `lump` claims in step 2, within
      3 days of its date. The line names the last date reached, each purchase left out with its units,
-     amount and date in date order (the latest five past five, then how many more), and what the Log holds:
-     every live `lump` with its units, amount and date in `compareEntries` order, a one-tap one marked
-     estimated, or, while none is live, the starting amount's date as not in the Log. It asks for no change:
+     amount and date in date order (the latest five past five, then how many came earlier), and what the Log
+     holds per coin of those purchases: each live `lump` of those coins with its units, amount and date in
+     `compareEntries` order, a one-tap one marked estimated, and each of those coins with no live `lump` as
+     holding no starting amount; while no `lump` of any coin is live, the starting amount's date as not in
+     the Log. A coin's units share their places across the line, purchases and lumps together. A `lump` of
+     another coin is not named: it says nothing of the named coins' starting amount. It asks for no change:
      recording a purchase the Log already holds as the starting amount would count it twice. Choosing per
      purchase is planned (M4).
   4. The coins the person added (decided 2026-11-14, ADR-0056, Corrections): "Each live hand `held` entry of
