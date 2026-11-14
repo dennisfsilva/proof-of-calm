@@ -8,6 +8,7 @@ import { addDays, type CalendarDate } from '../../dates/calendar';
 import { transactionKey } from '../../log/group';
 import { isPositive, type Money, plus, sum, type Units } from '../../money/decimal';
 import { plannedParts } from '../../plan/parts';
+import { slots } from '../../plan/slots';
 import { liveEntries } from '../../plan/statuses';
 import { portfolio } from '../../portfolio/portfolio';
 import type { Entry } from '../../schema/entry';
@@ -15,6 +16,7 @@ import type { CoinId } from '../../schema/ids';
 import { applyExchangeImport } from './apply';
 import type { ExchangeFile } from './kraken';
 import { type ExchangeImportPlan, planExchangeImport } from './plan';
+import type { EstimateLine } from './plan-lines';
 import { changedLog, importRemedies, type LogChange, type StartingRemedy, type Stored } from './plan-remedy';
 
 // The Matching entries' sentence over generated files and Logs (docs/DOMAIN.md §3.13, "Lines that ask for a change"),
@@ -129,6 +131,20 @@ function importFirst(drawn: World, stored: Stored, entry: Entry) {
  * whose first week's purchases are its parts and a hand row of lumps (the second state below, a change offered in both
  * orders), three runs of three calls: 509 to 520 ms with it and 473 to 486 ms without it on the same Log, an increment
  * of about 35 ms; the hand-only Log took 511 to 529 ms. So the bound stays 520.
+ *
+ * The estimate line's check, measured on 2026-11-14 the same way, three runs of three calls: the third state below (520
+ * movements on 104 dates, every other month tapped with its purchase made late and the months between typed by hand,
+ * so 12 rows of the sentence checked in two orders and 12 estimate rows checked once) took 267 to 278 ms; on the same
+ * build the hand-only Log took 521 to 538 ms and the lump state 521 to 551 ms. On the weekly file a tap row for every
+ * month dated its 20th left no line (a purchase in each month's reach replaces its estimate). So the estimate rows stay
+ * capped at `IMPORT_RECORDED_CHECKS` and the bound stays 520.
+ *
+ * With the estimate line's property (300 worlds, half of them drawn with a late purchase and a one-tap row), measured on
+ * 2026-11-14 under the full core suite with coverage, seeds 1 to 8: the worst was 3.04 s for the sentence's property
+ * (seed 3), 2.66 s for the starting line's (seed 4), 1.03 s for the estimate line's (seed 3) and 2.54 s for the
+ * five-year file with its three states (seed 7), so six times the worst is 18.3 s, under a third of the timeout. Of the
+ * 300 worlds, 68 to 88 reach the estimate line before importing and 51 to 72 after a shorter export; after importing the
+ * file none does, since its purchase is then stored.
  */
 const RUNS = { numRuns: 300 };
 const TIMEOUT = 60_000;
@@ -172,6 +188,89 @@ const startWorld = fc
       entries: lumps === 'hand' ? [...others, ...rows] : others,
     };
   });
+
+/**
+ * A world whose file also holds a purchase of each coin's monthly part 16 to 27 days after a month's due date, past its
+ * reach, and whose Log holds a one-tap row for that month dated 3 days before its due date to 40 after, so the estimate
+ * line is reached.
+ */
+const estimateWorld = fc
+  .record({
+    drawn: world,
+    which: fc.nat(),
+    late: fc.integer({ min: 16, max: 27 }),
+    tapped: fc.integer({ min: -3, max: 40 }),
+  })
+  .map(({ drawn, which, late, tapped }): World => {
+    const months = slots(drawn.plan);
+    const slot = months[which % months.length] as (typeof months)[number];
+    const parts = plannedParts(drawn.plan, drawn.plan.monthlyAmount);
+    const buys = parts.map((part, index) =>
+      trade(
+        `LATE-${index}`,
+        'purchase',
+        part.coin,
+        addDays(slot.due, late),
+        { units: '0.0021', amount: part.amount, fee: '0' },
+        950 + 2 * index,
+      ),
+    );
+    const row = parts.map((part) =>
+      anEntry({
+        coin: part.coin,
+        slot: slot.key,
+        date: addDays(slot.due, tapped),
+        amount: part.amount,
+        source: 'one-tap',
+      }),
+    );
+    return {
+      ...drawn,
+      file: fileOf([...drawn.file.movements, ...buys], drawn.file.leftOut),
+      entries: [...drawn.entries, ...row],
+    };
+  });
+
+/**
+ * Follows the estimate line as the Log makes it (`changedLog`, Edit entry on the row: its date and each staying coin's
+ * cost and units set to the file's). Returns what goes wrong, none when the file chosen again records the date by each
+ * coin's estimate, adds every other date group as the preview shown, and leaves nothing for a third import.
+ */
+function followEstimate(drawn: World, stored: Stored, line: EstimateLine) {
+  const ofCoin = (coin: CoinId) => line.added.filter((entry) => entry.coin === coin);
+  const row = liveEntries(stored.entries).filter(
+    (entry) => transactionKey(entry) === transactionKey(line.estimates[0] as Entry),
+  );
+  const figures = new Map(
+    line.estimates.map((each) => [
+      each.id,
+      {
+        amount: sum(ofCoin(each.coin).map((entry) => entry.amount as Money)),
+        units: sum(ofCoin(each.coin).map((entry) => entry.units)),
+      },
+    ]),
+  );
+  const changed = changedLog(stored, { kind: 'edit', row, date: line.date, figures }, LISBON);
+  if (changed === null) return ['refused'];
+  const shown = anew(drawn, stored.entries);
+  const again = anew(drawn, changed);
+  const touched = new Set(line.estimates.map((each) => `${each.coin}|${line.date}|purchase`));
+  const rest = (plan: ExchangeImportPlan) =>
+    plan.entries
+      .filter((entry) => !touched.has(groupOf(entry)))
+      .map(({ updatedAt: _, ...each }) => JSON.stringify(each))
+      .sort();
+  const final = applyExchangeImport(changed, again, NOW).entries;
+  return [
+    ...line.estimates.flatMap((each) =>
+      again.recorded.some((item) => item.entry.id === each.id && item.dates.includes(line.date))
+        ? []
+        : [`${each.coin} not recorded by its estimate`],
+    ),
+    ...(JSON.stringify(rest(again)) === JSON.stringify(rest(shown)) ? [] : ['another group changed']),
+    ...(anew(drawn, final).entries.length === 0 ? [] : ['a third import adds']),
+  ];
+}
 
 type Figure = { readonly amount: Money; readonly units: Units };
 /** The file's purchases of a coin on a date that no stored entry holds, summed: the figures the starting line names. */
@@ -320,6 +419,27 @@ describe('importRemedies, over generated files and Logs', () => {
   );
 
   it(
+    'following the estimate line, before importing or after a shorter export, records its date by the estimates',
+    () => {
+      const reached = { before: 0, after: 0, shorter: 0 };
+      fc.assert(
+        fc.property(fc.oneof(world, estimateWorld), fc.nat(), (drawn, cut) => {
+          for (const [order, stored] of orders(drawn, cut)) {
+            const { estimates } = importRemedies(drawn.file, stored, drawn.addHeld, LISBON);
+            if (estimates.length > 0) reached[order as keyof typeof reached] += 1;
+            expect(estimates.map((line) => followEstimate(drawn, stored, line))).toEqual(estimates.map(() => []));
+          }
+        }),
+        RUNS,
+      );
+      // Before importing and after a shorter export the line is reached (the note above), so the property is not
+      // vacuous; after importing the file the purchase is stored and no line shows (it is checked before the import).
+      expect([reached.before > 0, reached.after, reached.shorter > 0]).toEqual([true, 0, true]);
+    },
+    TIMEOUT,
+  );
+
+  it(
     'checks a five-year weekly file against a Log typed by hand every month, at most the capped rows',
     () => {
       const plan = aPlan({ firstBuy: date('2021-11-01'), lastBuy: date('2026-12-01') });
@@ -368,6 +488,39 @@ describe('importRemedies, over generated files and Logs', () => {
       const log = [...entries.filter((entry) => entry.slot !== month('2021-11')), ...lumps];
       const remedies = importRemedies(first, { plan: starting, entries: log }, false, LISBON);
       expect(remedies.starting).toEqual({ kind: 'change', date: '2021-11-01' });
+      // Every other month tapped and its purchase made late, on its 19th, and the months between typed by hand on their
+      // 1st, each date in five fills of each coin (every day is in some month's reach, so a weekly file leaves no
+      // estimate): the estimate line's change is checked on the capped rows too (the bound's measured state, the note).
+      const months = firsts
+        .map(([slot]) => slot)
+        .reverse()
+        .slice(0, 52);
+      const late = fileOf(
+        months.flatMap((slot, index) =>
+          (['BTC', 'ETH'] as const).flatMap((coin, which) =>
+            Array.from({ length: 5 }, (_, fill) =>
+              trade(
+                `T${index}-${which}-${fill}`,
+                'purchase',
+                coin,
+                date(`${slot}-${index % 2 === 0 ? '19' : '01'}`),
+                { units: '0.0001', amount: '5', fee: '0' },
+                index * 20 + which * 10 + fill * 2,
+              ),
+            ),
+          ),
+        ),
+      );
+      const rows = months.flatMap((slot, index) =>
+        (['BTC', 'ETH'] as const).map((coin) =>
+          index % 2 === 0
+            ? anEntry({ coin: coin as CoinId, date: date(`${slot}-10`), slot: month(slot), source: 'one-tap' })
+            : anEntry({ coin: coin as CoinId, date: date(`${slot}-01`), slot: month(slot), amount: money('25') }),
+        ),
+      );
+      expect([late.movements.length, rows.length]).toEqual([IMPORT_REMEDY_MAX_MOVEMENTS, 104]);
+      const both = importRemedies(late, { plan, entries: rows }, false, LISBON);
+      expect([both.recorded.size, both.estimates.length]).toEqual([2 * IMPORT_RECORDED_CHECKS, IMPORT_RECORDED_CHECKS]);
     },
     TIMEOUT,
   );
