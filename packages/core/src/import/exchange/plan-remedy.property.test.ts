@@ -46,9 +46,12 @@ const orders = (drawn: World, cut: number): [string, Stored][] => [
   ['shorter', { plan: drawn.plan, entries: imported(drawn, drawn.entries, prefix(drawn.file, cut)) }],
 ];
 
-/** Follows the sentence on one row and checks the Log it leaves against the one an import leaves. */
+/**
+ * Follows the sentence on one row and checks the Log it leaves against the one an import leaves, both unticked: the
+ * file chosen again opens unticked, so the box's own purchases are no line the sentence promises to keep.
+ */
 function follow(drawn: World, stored: Stored, entry: Entry) {
-  const shown = run(drawn, stored.entries, drawn.file);
+  const shown = anew(drawn, stored.entries);
   const once = applyExchangeImport(stored.entries, shown, NOW).entries;
   const row = liveEntries(stored.entries).filter((each) => transactionKey(each) === transactionKey(entry));
   const ids = new Set(row.map((each) => each.id));
@@ -76,12 +79,13 @@ function follow(drawn: World, stored: Stored, entry: Entry) {
   const expected = [...kept, ...added];
   expect(seen(final)).toEqual(seen(expected));
   expect(portfolio(drawn.plan, final).invested).toBe(portfolio(drawn.plan, expected).invested);
-  expect(run(drawn, final, drawn.file).entries).toEqual([]);
+  expect(anew(drawn, final).entries).toEqual([]);
 }
 
 /**
  * Imports the shown plan first, then follows the sentence shown before the import: the Log allows the delete, and the
- * Log and Invested end as following it first leaves them.
+ * Log and Invested end as following it first leaves them, with the box set again as it was in the new preview, since
+ * the import made first took the box's own purchases.
  */
 function importFirst(drawn: World, stored: Stored, entry: Entry) {
   const key = transactionKey(entry);
@@ -92,7 +96,8 @@ function importFirst(drawn: World, stored: Stored, entry: Entry) {
   const later = deleteRow(imported(drawn, stored.entries, drawn.file));
   expect(later).not.toBeNull();
   const finish = (entries: readonly Entry[]) => applyExchangeImport(entries, anew(drawn, entries), NOW).entries;
-  const [first, then] = [finish(deleteRow(stored.entries) as Entry[]), finish(later as Entry[])];
+  const first = imported(drawn, deleteRow(stored.entries) as Entry[], drawn.file);
+  const then = finish(later as Entry[]);
   expect(seen(then)).toEqual(seen(first));
   expect(portfolio(drawn.plan, then).invested).toBe(portfolio(drawn.plan, first).invested);
 }
