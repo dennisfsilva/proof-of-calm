@@ -123,7 +123,7 @@ describe('importRemedies', () => {
     expect(invested(AS_BOUGHT, log)).toBe('70');
   });
 
-  it.each(orders(LATE_LUMP))('a lump dated 4 Aug that records 2 Aug, %s: no sentence', (_, stored) => {
+  it.each(orders(LATE_LUMP))("a lump dated 4 Aug beside 2 Aug's monthly buy, %s: no sentence", (_, stored) => {
     expect(remedies(LATE_LUMP, stored).size).toBe(0);
   });
 

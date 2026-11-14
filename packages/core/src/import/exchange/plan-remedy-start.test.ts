@@ -1,14 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { anEntry, aPlan, date, money, month, split, units } from '../../../test/builders';
 import { fileOf } from '../../../test/exchange/plan-arbitraries';
-import { LISBON, NOW, testId, trade } from '../../../test/exchange/plan-fixture';
+import { LISBON, NOW, PLAN as PLAN_70_30, testId, trade } from '../../../test/exchange/plan-fixture';
 import { saveTransaction, storedOver, type TransactionDraft } from '../../actions/entries';
 import { IMPORT_REMEDY_MAX_MOVEMENTS, MAX_ENTRIES } from '../../constants';
+import type { Units } from '../../money/decimal';
+import { defaultFee, lastVenue, oneTapEntries } from '../../plan/parts';
 import { actionsNow, liveEntries, primaryAction } from '../../plan/statuses';
 import { portfolio } from '../../portfolio/portfolio';
 import type { Entry } from '../../schema/entry';
 import type { CoinId } from '../../schema/ids';
 import type { Plan } from '../../schema/plan';
+import type { PriceSnapshot } from '../../schema/prices';
 import { applyExchangeImport } from './apply';
 import type { ExchangeFile, Movement } from './kraken';
 import { planExchangeImport } from './plan';
@@ -212,11 +215,11 @@ describe('the starting line, its instruction', () => {
 
   const LATE: Case = { plan: P6, file: FILE, entries: [lump('2026-08-04'), typed('2026-07')] };
 
-  it.each(orders(LATE))('a hand lump dated 4 Aug, %s: change to 10 Jun, then 2 Aug is August buy', (_, entries) => {
+  it.each(orders(LATE))('a hand lump dated 4 Aug, %s: 2 Aug is August buy, 1,500; change to 10 Jun keeps it', (_, entries) => {
     expect(starting(LATE, entries)).toEqual({ kind: 'change', date: '2026-06-10' });
-    expect(invested(LATE, entries)).toBe('1400');
+    expect(invested(LATE, entries)).toBe('1500');
     const changed = edit(LATE, entries, '2026-06-10', TEN_JUNE) as Entry[];
-    const august = planOf(LATE, changed).entries.filter((entry) => entry.date === '2026-08-02');
+    const august = liveEntries(imported(LATE, changed)).filter((entry) => entry.date === '2026-08-02');
     expect(august.map((entry) => [entry.kind, entry.slot])).toEqual([['dca', '2026-08']]);
     expect(invested(LATE, changed)).toBe('1500');
   });
@@ -274,10 +277,12 @@ describe('the starting line, its instruction', () => {
   };
 
   it.each(orders(BOTH_TAPPED))(
-    'lump and July tapped on 2 Jul, %s: the lump records 2 Jul; after the change 10 Jun, 2 Jul named',
+    'lump and July tapped on 2 Jul, %s: the lump records nothing, 2 Jul named beside 10 Jun; after the change, 2 Jul',
     (_, entries) => {
       const [tap] = lumpsOf(entries) as [Entry];
-      expect(recordedBy(BOTH_TAPPED, entries, tap)).toEqual(['2026-07-02']);
+      expect(recordedBy(BOTH_TAPPED, entries, tap)).toEqual([]);
+      const named = planOf(BOTH_TAPPED, entries).startingAmount?.items.map((item) => item.date);
+      expect(named).toEqual(['2026-06-10', '2026-07-02']);
       expect(starting(BOTH_TAPPED, entries)).toEqual({ kind: 'change', date: '2026-06-10' });
       expect(invested(BOTH_TAPPED, entries)).toBe('1500');
       const changed = edit(BOTH_TAPPED, entries, '2026-06-10', TEN_JUNE) as Entry[];
@@ -293,12 +298,12 @@ describe('the starting line, its instruction', () => {
   const TAPPED_LATE: Case = { ...LATE, entries: [lump('2026-08-04', { source: 'one-tap' }), typed('2026-07')] };
 
   it.each(orders(TAPPED_LATE))(
-    'a one-tap lump tapped 4 Aug, %s: it records 2 Aug, 1,400; the change to 10 Jun gives 1,500',
+    'a one-tap lump tapped 4 Aug, %s: 2 Aug is August buy, 1,500; the change to 10 Jun keeps it',
     (_, entries) => {
       expect(starting(TAPPED_LATE, entries)).toEqual({ kind: 'change', date: '2026-06-10' });
-      expect(invested(TAPPED_LATE, entries)).toBe('1400');
+      expect(invested(TAPPED_LATE, entries)).toBe('1500');
       const changed = edit(TAPPED_LATE, entries, '2026-06-10', TEN_JUNE) as Entry[];
-      const august = planOf(TAPPED_LATE, changed).entries.filter((entry) => entry.date === '2026-08-02');
+      const august = liveEntries(imported(TAPPED_LATE, changed)).filter((entry) => entry.date === '2026-08-02');
       expect(august.map((entry) => [entry.kind, entry.slot])).toEqual([['dca', '2026-08']]);
       expect(invested(TAPPED_LATE, changed)).toBe('1500');
     },
@@ -480,5 +485,222 @@ describe('the starting line, its instruction', () => {
       date: '2026-06-10',
     });
     expect(starting({ ...NOTHING, file: [...FILE, ...long] }, [])).toBeNull();
+  });
+});
+
+// A `lump`'s claim in step 2 (docs/DOMAIN.md §3.13): only a date whose amount, stored purchases included, is at least as
+// near the lump's amount as the coin's monthly part. Taps are made as Today makes them, typed lumps as the Log saves them.
+describe("a lump's claim reads its amount", () => {
+  const PRICES = { at: NOW, prices: { BTC: { EUR: '82000' }, ETH: { EUR: '2500' } } } as unknown as PriceSnapshot;
+  /** Today's tap on `day`, as today/actions.ts records it: the action Today leads with, which must be `kind`. */
+  const tap = (plan: Plan, entries: readonly Entry[], day: string, kind: Entry['kind'] = 'lump') => {
+    const action = primaryAction(actionsNow(plan, entries, date(day)));
+    if (action?.kind !== kind) throw new Error(`Today leads with ${action?.kind} on ${day}, not ${kind}`);
+    const live = liveEntries(entries);
+    const ids = plan.coins.map((coin) => testId(`tap|${day}|${entries.length}|${coin.id}`));
+    const drafts = oneTapEntries({
+      plan,
+      action,
+      prices: PRICES,
+      today: date(day),
+      fee: defaultFee(live),
+      ids,
+      now: NOW,
+      venue: lastVenue(live),
+    });
+    return [...entries, ...drafts.map((draft): Entry => ({ ...draft, units: draft.units as Units }))];
+  };
+  const LATE_PRICE = { BTC: { amount: '1000', units: '0.01219512' } };
+  const M = FILE.slice(1);
+  const L = [...M, buy('BTC', '2026-09-03', '1000', '0.0125')];
+  const of = (file: readonly Movement[], entries: readonly Entry[], plan = P6): Case => ({ plan, file, entries });
+  /** A starting amount typed on `day` with the day's price, as the Log saves it. */
+  const typedLump = (file: readonly Movement[], day: string) =>
+    record(of(file, []), [], 'lump', day, LATE_PRICE) as Entry[];
+  const lateOrders = (c: Case): [string, readonly Entry[]][] => [
+    ...orders(c),
+    ['after the last 3 months, from 13 Aug', imported(c, c.entries, fileOf(c.file.filter((m) => on(m) >= '2026-08-13')))],
+  ];
+  /** The file's purchases of `day` in the Log once the file is imported on `entries`, as [kind, slot]. */
+  const fromFile = (c: Case, entries: readonly Entry[], day: string) =>
+    liveEntries(imported(c, entries))
+      .filter((entry) => entry.date === day && entry.source === 'import-csv')
+      .map((entry) => [entry.kind, entry.slot]);
+  const named = (c: Case, entries: readonly Entry[]) =>
+    planOf(c, entries).startingAmount?.items.map((item) => item.date) ?? [];
+
+  for (const day of ['2026-09-02', '2026-09-05']) {
+    const c = of(M, tap(P6, [], day));
+    it.each(lateOrders(c))(`tapped ${day}, file M, %s: 2 Sep is September's buy, 2 Jul named, 1,400`, (_, entries) => {
+      expect(recordedBy(c, entries, lumpsOf(entries)[0] as Entry)).toEqual([]);
+      expect(fromFile(c, entries, '2026-09-02')).toEqual([['dca', '2026-09']]);
+      expect(named(c, entries)).toEqual(['2026-07-02']);
+      expect(starting(c, entries)).toBeNull();
+      expect(invested(c, entries)).toBe('1400');
+    });
+  }
+
+  const CATCH_UP = of(M, tap(P6, tap(P6, [typed('2026-07'), typed('2026-08')], '2026-09-02'), '2026-09-02', 'dca'));
+
+  it.each(lateOrders(CATCH_UP))(
+    'July and August typed, the lump and September tapped 2 Sep, %s: 2 Sep replaces the estimate, 1,500',
+    (_, entries) => {
+      const september = liveEntries(imported(CATCH_UP, entries)).filter((entry) => entry.slot === '2026-09');
+      expect(september.map((entry) => entry.source)).toEqual(['import-csv']);
+      expect(invested(CATCH_UP, entries)).toBe('1500');
+    },
+  );
+
+  it("July and August typed, the lump and September tapped 2 Sep: `replaced` holds September's estimate", () => {
+    const estimate = CATCH_UP.entries.find((entry) => entry.source === 'one-tap' && entry.kind === 'dca');
+    expect(planOf(CATCH_UP, CATCH_UP.entries).replaced.flatMap((each) => each.estimates)).toEqual([estimate]);
+  });
+
+  const TYPED_2_SEP = of(M, typedLump(M, '2026-09-02'));
+
+  it.each(lateOrders(TYPED_2_SEP))('a hand lump typed 2 Sep, file M, %s: 2 Sep is September buy, 1,400', (_, entries) => {
+    expect(fromFile(TYPED_2_SEP, entries, '2026-09-02')).toEqual([['dca', '2026-09']]);
+    expect(invested(TYPED_2_SEP, entries)).toBe('1400');
+  });
+
+  const S_TAPPED = of(FILE, tap(P6, [], '2026-09-02'));
+
+  it.each(lateOrders(S_TAPPED))('tapped 2 Sep, file S, %s: 1,400, and the change to 10 Jun keeps 1,400', (_, entries) => {
+    expect(starting(S_TAPPED, entries)).toEqual({ kind: 'change', date: '2026-06-10' });
+    expect(invested(S_TAPPED, entries)).toBe('1400');
+    const changed = edit(S_TAPPED, entries, '2026-06-10', TEN_JUNE) as Entry[];
+    expect(starting(S_TAPPED, changed)).toBeNull();
+    expect(invested(S_TAPPED, changed)).toBe('1400');
+  });
+
+  for (const day of ['2026-09-02', '2026-09-05']) {
+    const c = of(L, tap(P6, [], day));
+    it.each(lateOrders(c))(`tapped ${day}, file L, %s: the lump records 3 Sep, 2 Sep is September's, 1,400`, (_, entries) => {
+      expect(recordedBy(c, entries, lumpsOf(entries)[0] as Entry)).toEqual(['2026-09-03']);
+      expect(fromFile(c, entries, '2026-09-02')).toEqual([['dca', '2026-09']]);
+      expect(invested(c, entries)).toBe('1400');
+    });
+  }
+
+  const TWO_COINS = (() => {
+    const plan = { ...P6, split: split({ BTC: '70', ETH: '30' }) };
+    const file = MONTHS.flatMap((slot) => [
+      buy('BTC', `${slot}-02`, '70', '0.000875'),
+      buy('ETH', `${slot}-02`, '30', '0.012'),
+    ]);
+    return of(file, tap(plan, [], '2026-09-02'), plan);
+  })();
+
+  it.each(lateOrders(TWO_COINS))('two coins in one row tapped 2 Sep, %s: both 2 Sep buys added, 1,400', (_, entries) => {
+    expect(fromFile(TWO_COINS, entries, '2026-09-02')).toEqual([
+      ['dca', '2026-09'],
+      ['dca', '2026-09'],
+    ]);
+    expect(invested(TWO_COINS, entries)).toBe('1400');
+  });
+
+  for (const [title, file, total] of [
+    ['M', M, '1400'],
+    ['L, the 3-day reach', L, '2400'],
+  ] as const) {
+    const c = of(file, typedLump(file, '2026-11-14'));
+    it.each(orders(c))(`a hand lump typed 14 Nov, file ${title}, %s: ${total}`, (_, entries) => {
+      expect(invested(c, entries)).toBe(total);
+    });
+  }
+
+  const S_14_NOV = of(FILE, typedLump(FILE, '2026-11-14'));
+
+  it.each(orders(S_14_NOV))('a hand lump typed 14 Nov, file S, %s: change to 10 Jun, then 1,400', (_, entries) => {
+    expect(starting(S_14_NOV, entries)).toEqual({ kind: 'change', date: '2026-06-10' });
+    expect(invested(S_14_NOV, edit(S_14_NOV, entries, '2026-06-10', TEN_JUNE) as Entry[])).toBe('1400');
+  });
+
+  // The prices of the rule, stated in step 2.
+  const W1 = (() => {
+    const file = [...M, buy('BTC', '2026-09-03', '500', '0.00625'), buy('BTC', '2026-09-04', '500', '0.00625')];
+    return of(file, typedLump(file, '2026-09-03'));
+  })();
+
+  it.each(orders(W1))('W1, a late starting purchase in two pieces, %s: both imported beside the lump, 2,400', (_, entries) => {
+    expect(recordedBy(W1, entries, lumpsOf(entries)[0] as Entry)).toEqual([]);
+    expect(invested(W1, entries)).toBe('2400');
+  });
+
+  const W2 = (() => {
+    const fills = [buy('BTC', '2026-09-03T09:00:00Z', '300', '0.00375'), buy('BTC', '2026-09-03T15:00:00Z', '700', '0.00875')];
+    return of([...M, ...fills], tap(P6, [], '2026-09-03'));
+  })();
+
+  it('W2, an export cut inside the lump\'s date: one import gives 1,400, the cut first then the file 1,700', () => {
+    expect(invested(W2, W2.entries)).toBe('1400');
+    const cut = imported(W2, W2.entries, fileOf(W2.file.filter((m) => m.at < '2026-09-03T12:00:00Z')));
+    expect(invested(W2, cut)).toBe('1700');
+  });
+
+  it("W2, the audit's shrunk world: a prefix stores 1 Apr's €30, then the lump claims the rest and €30 counts twice", () => {
+    const eth = (at: string, amount: string) => buy('ETH', at, amount, '0.01');
+    const file = [eth('2026-04-01T10:00:00Z', '30'), eth('2026-04-01T08:00:00Z', '100'), eth('2026-04-01T16:00:00Z', '900')];
+    const c = of(file, [lump('2026-04-01', { coin: ETH, source: 'one-tap', units: units('0.4') })], PLAN_70_30);
+    expect(invested(c, c.entries)).toBe('1000');
+    const prefix = imported(c, c.entries, fileOf(file.slice(0, 1)));
+    expect(recordedBy(c, prefix, c.entries[0] as Entry)).toEqual(['2026-04-01']);
+    expect(invested(c, prefix)).toBe('1030');
+  });
+
+  const BELOW = (() => {
+    const plan = { ...P6, startingAmount: money('100'), monthlyAmount: money('500') };
+    const file = [...MONTHS.map((slot) => buy('BTC', `${slot}-02`, '500', '0.00625')), buy('BTC', '2026-09-02', '100', '0.00125')];
+    const typedIn = record(of(file, [], plan), [], 'lump', '2026-09-02', { BTC: { amount: '100', units: '0.00121951' } });
+    return of(file, typedIn as Entry[], plan);
+  })();
+
+  it.each(orders(BELOW))('a starting amount below the monthly part on a buy day, %s: both imported, 2,200', (_, entries) => {
+    expect(recordedBy(BELOW, entries, lumpsOf(entries)[0] as Entry)).toEqual([]);
+    expect(invested(BELOW, entries)).toBe('2200');
+  });
+
+  const MIXED = (() => {
+    const file = [...M, buy('BTC', '2026-09-02', '600', '0.0075')];
+    return of(file, record(of(file, []), [], 'lump', '2026-09-02', { BTC: { amount: '600', units: '0.0075' } }) as Entry[]);
+  })();
+
+  it.each(orders(MIXED))('the mixed date, a lump of 600 beside 2 Sep\'s buy, %s: claimed, 900 as on main', (_, entries) => {
+    expect(recordedBy(MIXED, entries, lumpsOf(entries)[0] as Entry)).toEqual(['2026-09-02']);
+    expect(invested(MIXED, entries)).toBe('900');
+  });
+
+  const CATCH_UP_ALL = (() => {
+    let entries = tap(P6, [], '2026-09-02');
+    for (const _ of ['2026-07', '2026-08', '2026-09']) entries = tap(P6, entries, '2026-09-02', 'dca');
+    return of(M, entries);
+  })();
+
+  it.each(lateOrders(CATCH_UP_ALL))(
+    'catch-up on 2 Sep, the lump then three months, %s: 2 Sep is July buy, 1,500',
+    (_, entries) => {
+      expect(fromFile(CATCH_UP_ALL, entries, '2026-09-02')).toEqual([['dca', '2026-07']]);
+      const september = liveEntries(imported(CATCH_UP_ALL, entries)).filter((entry) => entry.slot === '2026-09');
+      expect(september.map((entry) => entry.source)).toEqual(['one-tap']);
+      expect(invested(CATCH_UP_ALL, entries)).toBe('1500');
+    },
+  );
+
+  const KAI_ALONE = (() => {
+    const plan = { ...P6, firstBuy: date('2026-03-01'), startingAmount: money('500'), monthlyAmount: money('70') };
+    const later = ['04', '05', '06', '07', '08', '09', '10', '11'].map((m) => buy('BTC', `2026-${m}-01`, '70', '0.000875'));
+    const file = [buy('BTC', '2026-03-01', '500', '0.00609756'), buy('BTC', '2026-03-01', '70', '0.000875'), ...later];
+    return of(file, tap(plan, [], '2026-03-01'), plan);
+  })();
+
+  it.each(orders(KAI_ALONE))('Kai alone, tapped 1 Mar, %s: the lump records both 1 Mar purchases, 1,060', (_, entries) => {
+    expect(recordedBy(KAI_ALONE, entries, lumpsOf(entries)[0] as Entry)).toEqual(['2026-03-01']);
+    expect(invested(KAI_ALONE, entries)).toBe('1060');
+  });
+
+  const L_20_SEP = of(L, tap(P6, [], '2026-09-20'));
+
+  it.each(lateOrders(L_20_SEP))('file L, a lump tapped 20 Sep, %s: 2,400, the 3-day reach', (_, entries) => {
+    expect(invested(L_20_SEP, entries)).toBe('2400');
   });
 });
