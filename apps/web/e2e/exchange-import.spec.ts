@@ -1,6 +1,6 @@
 import { readFile, truncate, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { expect, type Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 import { DATABASE_NAME } from '@proofofcalm/app/lib/adapters';
 import { zipOf } from '@proofofcalm/app/lib/adapters/zip.testing';
 import { fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
@@ -11,7 +11,7 @@ import { cspViolations, recordCspViolations, routeFixturePrices, test } from './
 // Settings → Currency & data → Import an exchange's file (docs/DOMAIN.md §3.13, docs/CONTENT-STYLE.md §3). On the
 // viewport matrix: a EUR plan of BTC 70 % and ETH 30 % from 1 Dec 2025, with nothing logged, takes the core's
 // synthetic Kraken ledger (packages/core/test/exchange/kraken-synthetic.expected.ts reads its rows): its preview's
-// heading takes the focus and counts December's BTC and ETH, January's BTC and ETH bought on 18 and 19 Dec, BTC's
+// heading takes the focus, scrolled to the top of the view, and counts December's BTC and ETH, January's BTC and ETH bought on 18 and 19 Dec, BTC's
 // second December date of 16 Dec as a monthly buy as well, the sale and the invite bonus (the core's
 // plan-ledger.test.ts derives these over the same file); Import writes them at Kraken and its result line takes the focus;
 // the same file again adds nothing. No CSP violation on the way. The core's synthetic Trade Republic export, over the
@@ -58,6 +58,42 @@ async function openData(page: Page, plan: Plan | false = ledgerPlan(), now = NOW
 const fileInput = (page: Page) => page.locator('input[type="file"]');
 const preview = (page: Page) => page.getByRole('region', { name: 'What this file adds' });
 
+/**
+ * Where the preview's focused heading lands (docs/DESIGN.md §6): the preview is read top to bottom, so its heading
+ * scrolls to the top of the view, its scroll margin's room above it, never to the last line above the tab bar, which
+ * left the whole preview below the fold (android-small, 2026-11-14). A page that cannot scroll that far (a tall
+ * viewport) ends scrolled to its end with the heading in view; the upper 40 % of the view takes the heading on every
+ * page that can, and the least scroll, which leaves it at the bottom edge, fails it.
+ */
+async function expectHeadingAtTop(heading: Locator) {
+  const place = () =>
+    heading.evaluate((element) => {
+      const box = element.getBoundingClientRect();
+      const bars = [...document.querySelectorAll('[data-slot="tab-bar"] nav')]
+        .map((bar) => bar.getBoundingClientRect())
+        .filter((bar) => bar.height > 0);
+      const root = document.scrollingElement ?? document.documentElement;
+      return {
+        top: box.top,
+        bottom: box.bottom,
+        floor: Math.min(window.innerHeight, ...bars.map((bar) => bar.top)),
+        upper: window.innerHeight * 0.4,
+        room: Number(getComputedStyle(element).scrollMarginTop.replace(/px$/u, '')),
+        atEnd: root.scrollTop >= root.scrollHeight - root.clientHeight - 1,
+      };
+    });
+  await expect
+    .poll(async () => {
+      const at = await place();
+      return at.top <= at.upper || at.atEnd;
+    }, 'the heading in the upper 40 % of the view, or the page at its end')
+    .toBe(true);
+  const at = await place();
+  expect(at.room, 'the heading keeps its scroll margin').toBeGreaterThan(0);
+  expect(at.top, 'room above the heading').toBeGreaterThanOrEqual(at.room - 1);
+  expect(at.bottom, 'the heading above the tab bar and the window’s bottom edge').toBeLessThanOrEqual(at.floor);
+}
+
 test('a Kraken ledger previews, imports at Kraken, and adds nothing the second time', async ({ page }) => {
   await page.addInitScript(recordCspViolations);
   await openData(page);
@@ -70,6 +106,7 @@ test('a Kraken ledger previews, imports at Kraken, and adds nothing the second t
   await fileInput(page).setInputFiles(LEDGER);
   const heading = page.getByRole('heading', { name: 'What this file adds' });
   await expect(heading).toBeFocused();
+  await expectHeadingAtTop(heading);
   await expect(preview(page)).toContainText(
     'kraken-synthetic-2025-12.csv: a Kraken ledger of 47 rows, from 1 Dec 2025 to 28 Dec 2025.',
   );
