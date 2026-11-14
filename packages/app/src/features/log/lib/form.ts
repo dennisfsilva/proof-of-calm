@@ -5,10 +5,10 @@ import {
   type CoinId,
   type CurrencyCode,
   coinsWithEntries,
-  compare,
   type Decimal,
   decimalPlaces,
   defaultFee,
+  type EditedFields,
   type Entry,
   err,
   type FillField,
@@ -17,6 +17,7 @@ import {
   heldUnits,
   isNegative,
   isPositive,
+  keepSources,
   lastVenue,
   liveEntries,
   MAX_UNIT_DECIMALS,
@@ -254,12 +255,6 @@ export function toDraft(state: FormState, numberInput: NumberInput): Result<Tran
   return ok({ kind, date: date.data, slot, fee, note: state.note.trim(), venue: venue === '' ? null : venue, rows });
 }
 
-/**
- * The transaction-wide fields an edit changed: the form shows a grouped row's first note, its fees summed, and its venue
- * when all its entries share one (else none).
- */
-export type EditedFields = { readonly fee: boolean; readonly venue: boolean; readonly note: boolean };
-
 /** Which of the fee, venue and note the person changed since the form opened, read as `toDraft` reads them. */
 export function changedFields(initial: FormState, current: FormState): EditedFields {
   const changed = (field: 'fee' | 'venue' | 'note') => initial[field].trim() !== current[field].trim();
@@ -282,34 +277,19 @@ const filled = (kind: TransactionDraft['kind'], { amount, units }: TransactionDr
 
 /**
  * The entries `saveTransaction` returned for `draft` with every field the person left unchanged taken from the
- * entry each row was loaded from (its source), so an edit of a row that groups several saves keeps each one's venue,
- * note and fee (DOMAIN §6). The save keeps a row's own entry, and gives a row without one (its coin changed) an
- * unused entry of its coin or a fresh one (`rowEntries`), so the source follows the row, never the saved id: the
- * save returns one entry per filled row in the draft's order, then the soft-deleted entries no row took, which stay as
- * it returned them. A row added in the edit has no source and gets no fee while the fee is unchanged; a changed field
- * stays as `saveTransaction` set it on every entry, the fee split by amount. An amount or units equal in value to the source's keep the text it stored
- * (DOMAIN §2.2), which the number input reads back without its trailing zeros. A new transaction (nothing being
- * edited) is given back as saved, its prefilled fee kept.
+ * entry each row was loaded from (its source; the rule is the core's `keepSources`, DOMAIN §6). The save keeps a
+ * row's own entry, and gives a row without one (its coin changed) an unused entry of its coin or a fresh one
+ * (`rowEntries`), so the source follows the row, never the saved id: one source per filled row in the draft's order,
+ * none for a row added in the edit. An amount or units equal in value keep the stored text, which the number input
+ * reads back without its trailing zeros. A new transaction (nothing being edited) is given back as saved, its
+ * prefilled fee kept.
  */
 export function keepUnchanged(saved: readonly Entry[], { current, draft, editing, changed }: SavedEdit): Entry[] {
   if (editing.length === 0) return [...saved];
   const sources = draft.rows.flatMap((row, at) =>
     filled(draft.kind, row) ? [rowSource(editing, current.rows[at])] : [],
   );
-  const stored = <T extends Money | Units | null>(value: T, before: T | undefined): T =>
-    value !== null && before !== undefined && before !== null && compare(value, before) === 0 ? before : value;
-  return saved.map((entry, at) => {
-    if (at >= sources.length) return entry;
-    const source = sources[at];
-    return {
-      ...entry,
-      amount: stored(entry.amount, source?.amount),
-      units: stored(entry.units, source?.units),
-      ...(changed.fee ? {} : { fee: source?.fee ?? null }),
-      ...(changed.venue || source === undefined ? {} : { venue: source.venue }),
-      ...(changed.note || source === undefined ? {} : { note: source.note }),
-    };
-  });
+  return keepSources(saved, sources, changed);
 }
 
 /** What a save reads beside the stored entries and the draft: the save's context and the form as opened and as saved. */
