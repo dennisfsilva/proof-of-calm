@@ -138,7 +138,9 @@ test('a Trade Republic export previews, imports at Trade Republic, and adds noth
   await preview(page)
     .getByRole('button', { name: /^Left out/u })
     .click();
-  await expect(preview(page)).toContainText('Saveback cash credit, not imported; any purchase made with it is read like your');
+  await expect(preview(page)).toContainText(
+    'Saveback cash credit, not imported; any purchase made with it is read like your other purchases.',
+  );
   await expect(preview(page)).not.toContainText('Kraken');
 
   const button = preview(page).getByRole('button', { name: /^Import \d+ entr/u });
