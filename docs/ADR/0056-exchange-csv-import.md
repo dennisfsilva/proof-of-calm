@@ -153,6 +153,6 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
 - 2026-11-14, a `lump`'s claim reads its amount (#218): a `lump`, hand or one-tap, claims in step 2 only a
   date whose amount, stored purchases included, is at least as near its own as its coin's monthly part,
   so a starting amount tapped on a later buy day no longer takes that day's monthly buy (1,300 against
-  1,400) and a late starting purchase near it is recorded once (2,300 against 1,400); an export that ends
-  inside a date such a `lump` claims stores the part before its end (`docs/DOMAIN.md` §3.13 step 2). This
+  1,400) and a late starting purchase near it is recorded once (2,300 against 1,400); an export that cuts
+  inside a date such a `lump` claims stores the part it holds (`docs/DOMAIN.md` §3.13 step 2). This
   narrows rule R's entry. The rest stands.
