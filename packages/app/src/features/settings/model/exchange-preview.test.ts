@@ -67,7 +67,7 @@ describe('previewModel', () => {
       typed('aaaaaaaa-0000-4000-8000-000000000042', 'ETH'),
     ];
     const shown = planOn([...fixtureSnapshot().entries, btc, eth], false);
-    const marked = previewModel(shown, shown, { recorded: new Set([btc.id]), starting: null }).recorded;
+    const marked = previewModel(shown, shown, { recorded: new Set([btc.id]), starting: null, estimates: [] }).recorded;
     expect(marked.map((item) => [item.entry.id, item.remedy])).toEqual([
       [btc.id, true],
       [eth.id, false],
@@ -85,7 +85,9 @@ describe('previewModel', () => {
     if (!march.ok) throw new Error('the synthetic ledger reads');
     const shown = planExchangeImport(march.value, { plan, entries: [] }, { venue: 'Kraken', addHeld: false }, CONTEXT);
     const starting = { kind: 'record', date: date('2026-03-20') } as const;
-    expect(previewModel(shown, shown, { recorded: new Set(), starting }).startingAmount?.remedy).toEqual(starting);
+    expect(previewModel(shown, shown, { recorded: new Set(), starting, estimates: [] }).startingAmount?.remedy).toEqual(
+      starting,
+    );
     expect(previewModel(shown).startingAmount).toMatchObject({ purchases: 1, remedy: null });
   });
 

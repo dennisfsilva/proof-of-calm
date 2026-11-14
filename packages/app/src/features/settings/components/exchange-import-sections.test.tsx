@@ -2,6 +2,7 @@
 import {
   type EntityId,
   type Entry,
+  type EstimateLine,
   type ExchangeId,
   type ExchangeImportPlan,
   type ImportRemedies,
@@ -326,6 +327,82 @@ describe('ExchangeSummary and ExchangeSections', () => {
         'for €40.00 on 20 Apr 2026. The file cannot show whether they are part of your starting amount. The Log holds no ' +
         'starting amount.',
     ]);
+  });
+
+  describe('the estimate line: the coins whose estimate stays, the file’s pieces and the change', () => {
+    const ETH = 'ETH' as Entry['coin'];
+    const tapped = (coin: Entry['coin'], n: number) =>
+      anEntry({
+        id: `aaaaaaaa-0000-4000-8000-00000000005${n}` as EntityId,
+        coin,
+        slot: '2026-10' as Entry['slot'],
+        date: date('2026-10-10'),
+        source: 'one-tap',
+      });
+    const bought = (coin: Entry['coin'], held: string, amount: string, slot: string | null) =>
+      anEntry({
+        coin,
+        kind: slot === null ? 'extra' : 'dca',
+        slot: slot as Entry['slot'],
+        date: date('2026-10-19'),
+        units: units(held),
+        amount: amount as Entry['amount'],
+      });
+    const line = (estimates: readonly Entry[], added: readonly Entry[], other: string | null) => ({
+      estimates,
+      month: '2026-10' as EstimateLine['month'],
+      date: date('2026-10-19'),
+      added,
+      other: other as EstimateLine['other'],
+    });
+    const show = (lines: readonly EstimateLine[]) =>
+      mount(
+        planOf(btcBuys([['T1', '2026-10-05 09:00:00', '70.0000', '0.0012000000', '0.1800']]), fixture.entries),
+        PLAN,
+        'kraken',
+        { recorded: new Set(), starting: null, estimates: lines },
+      );
+
+    it('one coin bought as a monthly buy, two coins bought as extra buys', async () => {
+      await show([
+        line([tapped(BTC, 1)], [bought(BTC, '0.0012', '100', '2026-11')], '2026-11'),
+        line(
+          [tapped(BTC, 2), tapped(ETH, 3)],
+          [bought(BTC, '0.0011', '70', null), bought(ETH, '0.012', '20', null), bought(ETH, '0.002', '10', null)],
+          null,
+        ),
+      ]);
+      expect(texts()).toContain(
+        "Your BTC estimate for October 2026 stays in the Log. This import adds the file's 0.0012 BTC for €100.00 on " +
+          '19 Oct 2026 as a monthly buy for November 2026. If it was your monthly buy for October 2026, change the ' +
+          "estimate's date, cost, and units in the Log to the file's before you import. Then choose the file again.",
+      );
+      expect(texts()).toContain(
+        "Your BTC and ETH estimates for October 2026 stay in the Log. This import adds the file's 0.0011 BTC for " +
+          '€70.00 and 0.014 ETH for €30.00 on 19 Oct 2026 as extra buys. If they were your monthly buy for October ' +
+          "2026, change the estimates' date, costs, and units in the Log to the file's before you import. Then " +
+          'choose the file again.',
+      );
+    });
+
+    it('one coin bought as an extra buy, two coins bought as monthly buys', async () => {
+      await show([
+        line([tapped(BTC, 1)], [bought(BTC, '0.0012', '100', null)], null),
+        line(
+          [tapped(BTC, 2), tapped(ETH, 3)],
+          [bought(BTC, '0.0011', '70', '2026-11'), bought(ETH, '0.012', '30', '2026-11')],
+          '2026-11',
+        ),
+      ]);
+      // The two sentences up to the change, which the first test words for one coin and for two.
+      const lines = texts().flatMap((text) => (text.startsWith('Your ') ? [text.split(' If ')[0]] : []));
+      expect(lines).toEqual([
+        "Your BTC estimate for October 2026 stays in the Log. This import adds the file's 0.0012 BTC for €100.00 on " +
+          '19 Oct 2026 as an extra buy.',
+        "Your BTC and ETH estimates for October 2026 stay in the Log. This import adds the file's 0.0011 BTC for " +
+          '€70.00 and 0.012 ETH for €30.00 on 19 Oct 2026 as monthly buys for November 2026.',
+      ]);
+    });
   });
 
   describe('the starting-amount line: every purchase, what the Log holds, and the change that imports the file’s', () => {
