@@ -896,7 +896,8 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   `invalid-entries` error stores nothing and shows the prototype file's alert.
 - Import of an exchange's export (decided 2026-11-13, ADR-0056): `readExchangeFile(text)` recognises the
   file and reads it into `{ exchange, rows, first, last, movements, leftOut }`, or refuses it with an
-  `ExchangeFileError`. Kraken's ledger is the one export it reads. "Text starting with `PK\^C\^D` is `zip`; a
+  `ExchangeFileError`. It reads Kraken's ledger and Trade Republic's transaction export (the next item names how
+  it recognises the second). "Text starting with `PK\^C\^D` is `zip`; a
   header with ordertxid and pair is `kraken-trades`; a header whose names, a last empty one dropped, are all
   among the ledger's (txid, refid, time, type, subtype, aclass, subclass, asset, wallet, amount, fee, balance,
   amountusd) is a Kraken ledger, which is `missing-columns`, naming each, when it lacks txid, refid, time,
@@ -947,7 +948,7 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   its lines, its time (the earliest of its rows'), and for a row left out for its type its coin and units
   (|amount − fee|), for an unreadable refid the column and no time. "No refusal, left-out row or thrown error holds a cell's text."
   No raw row, txid, refid or balance is stored. The import's preview shows in Settings (`docs/CONTENT-STYLE.md` §3
-  row `Import an exchange's file`); the Log's review, and recognising and showing the second exchange's file, are planned (M2).
+  row `Import an exchange's file`); the Log's review is planned (M2).
 - Trade Republic's reader (decided 2026-11-13, ADR-0056, Corrections; the evidence in
   `docs/research/csv-import-exchanges.md` §5): `readTradeRepublic(header, data)` gives the same file as Kraken's,
   `exchange` `trade-republic`. It indexes only `TR_READ` (datetime, category, type, asset_class, symbol, shares,
@@ -966,7 +967,16 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   other CASH row `cash`, any other row `other`. A symbol is a ticker of 2 to 10 capital letters or digits (XBT is
   BTC). A repeated transaction_id keeps one row when its read cells match and leaves both `unreadable` when they
   differ; no rule reads row order. The key is `poc-csv-1|trade-republic|<transaction_id>|<COIN>|<in|out>`. A
-  cancelled buy an earlier import stored is not reached (planned: M2).
+  cancelled buy an earlier import stored is not reached (planned: M2). Recognition (decided 2026-11-13): after
+  the `zip` and `kraken-trades` checks, a header holding transaction_id, asset_class and category (a last empty
+  name dropped) is Trade Republic's, before any Kraken test. A name outside `TR_COLUMNS` refuses it as
+  `unknown-columns` with `exchange` `trade-republic`: the names matching `^[a-z_]{1,40}$` are listed, every other
+  name only counted (`others`), so no free text in a header reaches the screen; else a missing `TR_READ` column
+  is `missing-columns`, no data row `no-rows`, both with `exchange` `trade-republic` (Kraken's carry `kraken`).
+  The screen names the file's exchange from `exchange`: the file line, the venue field's default (`Trade
+  Republic`, or the latest entry's spelling of it), the left-out lines that name the exchange, and the refusals
+  (`docs/CONTENT-STYLE.md` §3 row `Import an exchange's file`). `benefit` rows are listed as left out; the coins
+  bought with a benefit are plain purchases.
 - Meeting the Log (decided 2026-11-13, ADR-0056): `planExchangeImport(file, stored, choices, context)` turns
   the reader's movements into the entries an import would add and names everything it leaves out; it writes
   nothing. The shell passes `today`, `now`, `idOf` (the id of a key, below) and `dateOf`: "The shell dates
