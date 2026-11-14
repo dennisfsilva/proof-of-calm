@@ -885,6 +885,16 @@ describe('LogScreen', () => {
     expect(document.activeElement?.getAttribute('aria-expanded')).toBe('false');
   });
 
+  // Session 22g's evaluator (#216): the sheet focuses the moved row's toggle without scrolling, which left it under the
+  // tab bar; a frame later the least scroll brings it into view (docs/DESIGN.md §6).
+  it("scrolls the moved row's toggle into view by the least scroll once the sheet has focused it", async () => {
+    await mount(fixtureSnapshot());
+    await editDate(/^5\sApr\s2026Starting amount/, '2026-09-03');
+    await vi.waitFor(() => expect(scrolled.mock.contexts.at(-1)).toBe(document.activeElement));
+    expect(document.activeElement?.textContent).toMatch(/^3\sSept?\s2026Starting amount/);
+    expect(scrolled).toHaveBeenLastCalledWith({ block: 'nearest' });
+  });
+
   it("moves focus to the moved row's toggle with the conditions' control open above it", async () => {
     await mount(fixtureSnapshot());
     const [, september] = screen.getAllByRole('button', { expanded: false }) as [HTMLElement, HTMLElement];

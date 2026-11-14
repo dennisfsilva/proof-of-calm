@@ -49,7 +49,8 @@ import { MoveSheet } from './move-sheet';
 // and the move form on a move; a save closes the sheet with "Recorded: …" or
 // "Entry saved." (docs/CONTENT-STYLE.md §3), and the sheet gives the focus back to the button that opened it;
 // an edit that gave the row a new date (a new key) took that button away, so focus moves to the row's
-// toggle under its new key, or to the heading when that row is not shown (docs/ENGINEERING.md §5).
+// toggle under its new key, or to the heading when that row is not shown (docs/ENGINEERING.md §5), and the least
+// scroll brings it into view (docs/DESIGN.md §6).
 
 type Target = Pick<EntrySheetProps, 'kind' | 'editing' | 'slot' | 'offerKinds'>;
 
@@ -251,7 +252,13 @@ export function LogScreen() {
     edited.current = { from: '', to: null };
     if (to === null || to === from) return true;
     const index = visible.filter((row) => row.type === 'transaction').findIndex((row) => row.key === to);
-    return rowToggle(screenRef.current, index) ?? heading.current;
+    const target = rowToggle(screenRef.current, index) ?? heading.current;
+    // The sheet focuses it as it unmounts, without scrolling (Base UI's return focus), and its scroll lock lets go
+    // of the page in a timer: a frame later the least scroll brings the focus into view, as focusInView does.
+    requestAnimationFrame(() => {
+      if (target !== null && document.activeElement === target) target.scrollIntoView({ block: 'nearest' });
+    });
+    return target;
   };
   let content: ReactNode = null;
   if (plan !== null && log !== null && log.rows.length > 0) {
