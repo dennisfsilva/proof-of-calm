@@ -662,6 +662,33 @@ describe("a lump's claim reads its amount", () => {
     expect(invested(W2, cut)).toBe('1700');
   });
 
+  // DOMAIN §3.13 step 2's one exception covers a cut on either side of the lump's date: an export that begins inside
+  // it, or begins and ends inside it, stores the part it holds when that part alone is nearer the monthly part, and
+  // the whole file's lump then claims the date, so that part counts twice.
+  it("W2, an export that begins inside the lump's date: one import gives 1,400, the cut first then the file 1,700", () => {
+    const fills = [
+      buy('BTC', '2026-09-03T09:00:00Z', '700', '0.00875'),
+      buy('BTC', '2026-09-03T15:00:00Z', '300', '0.00375'),
+    ];
+    const c = of([...M, ...fills], tap(P6, [], '2026-09-03'));
+    expect(invested(c, c.entries)).toBe('1400');
+    const cut = imported(c, c.entries, fileOf(c.file.filter((m) => m.at > '2026-09-03T12:00:00Z')));
+    expect(invested(c, cut)).toBe('1700');
+  });
+
+  it("W2, an export that begins and ends inside the lump's date: one import gives 1,400, the slice first 1,700", () => {
+    const fills = [
+      buy('BTC', '2026-09-03T08:00:00Z', '600', '0.0075'),
+      buy('BTC', '2026-09-03T12:00:00Z', '300', '0.00375'),
+      buy('BTC', '2026-09-03T16:00:00Z', '100', '0.00125'),
+    ];
+    const c = of([...M, ...fills], tap(P6, [], '2026-09-03'));
+    expect(invested(c, c.entries)).toBe('1400');
+    const inside = (m: Movement) => m.at > '2026-09-03T10:00:00Z' && m.at < '2026-09-03T14:00:00Z';
+    const cut = imported(c, c.entries, fileOf(c.file.filter(inside)));
+    expect(invested(c, cut)).toBe('1700');
+  });
+
   it("W2, the audit's shrunk world: a prefix stores 1 Apr's €30, then the lump claims the rest and €30 counts twice", () => {
     const eth = (at: string, amount: string) => buy('ETH', at, amount, '0.01');
     const file = [
