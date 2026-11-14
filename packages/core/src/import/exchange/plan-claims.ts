@@ -109,8 +109,14 @@ export function claimRecorded(
     }
     return [...byDate.values()];
   };
+  // Rule R: a live one-tap `lump` claims here too, within 3 days of its date, and no later step replaces it.
   const hand = live
-    .filter((each) => HAND.has(each.source) && each.kind !== 'held' && each.kind !== 'move')
+    .filter(
+      (each) =>
+        (HAND.has(each.source) || (each.kind === 'lump' && each.source === 'one-tap')) &&
+        each.kind !== 'held' &&
+        each.kind !== 'move',
+    )
     .sort(compareEntries);
   const rest: Entry[] = [];
   for (const entry of hand) {

@@ -167,11 +167,17 @@ describe('the starting line, its instruction', () => {
   );
 
   it.each(orders(TAPPED))(
-    'P6 tapped, %s: a date-only save keeps the lump one-tap and the line, until R',
+    'P6 tapped, %s: a date-only save keeps the units estimated, and the one-tap lump records 10 Jun',
     (_, entries) => {
       const changed = edit(TAPPED, entries, '2026-06-10', {}) as Entry[];
-      expect(lumpsOf(changed)[0]?.source).toBe('one-tap');
-      expect(starting(TAPPED, changed)).toEqual({ kind: 'change', date: '2026-06-10' });
+      const [saved] = lumpsOf(changed) as [Entry];
+      expect([saved.source, saved.units, recordedBy(TAPPED, changed, saved)]).toEqual([
+        'one-tap',
+        '0.01219512',
+        ['2026-06-10'],
+      ]);
+      expect(planOf(TAPPED, changed).startingAmount).toBeNull();
+      expect(starting(TAPPED, changed)).toBeNull();
       expect(invested(TAPPED, changed)).toBe('1500');
     },
   );
@@ -228,12 +234,73 @@ describe('the starting line, its instruction', () => {
     entries: [lump('2026-03-01', { source: 'one-tap' })],
   };
 
-  it.each(orders(KAI).slice(0, 2))(
-    'Kai, units equal, %s: both 1 Mar purchases named, no instruction until R',
+  it.each(orders(KAI))(
+    'Kai, units equal, %s: the one-tap lump records both 1 Mar purchases, no starting line',
     (_, entries) => {
-      expect(planOf(KAI, entries).startingAmount?.items.map((item) => item.amount)).toEqual(['600', '400']);
+      const [tap] = lumpsOf(entries) as [Entry];
+      expect(recordedBy(KAI, entries, tap)).toEqual(['2026-03-01']);
+      expect(planOf(KAI, entries).startingAmount).toBeNull();
       expect(starting(KAI, entries)).toBeNull();
       expect(invested(KAI, entries)).toBe('1000');
+    },
+  );
+
+  // Rule R (docs/DOMAIN.md §3.13 step 2): a live one-tap lump claims within 3 days of its date and is never replaced.
+  const JULY_20: Case = {
+    plan: P6,
+    file: [
+      buy('BTC', '2026-07-02', '100', '0.00125'),
+      buy('BTC', '2026-07-20', '1000', '0.0125'),
+      buy('BTC', '2026-08-02', '100', '0.00125'),
+    ],
+    entries: [lump('2026-07-20', { source: 'one-tap' }), typed('2026-07'), typed('2026-08')],
+  };
+
+  it.each(orders(JULY_20))(
+    'tapped on the day bought, 20 Jul, %s: the lump records it, nothing added for it, 1,200 not 2,200',
+    (_, entries) => {
+      const [tap] = lumpsOf(entries) as [Entry];
+      expect(recordedBy(JULY_20, entries, tap)).toEqual(['2026-07-20']);
+      expect(planOf(JULY_20, entries).entries.filter((entry) => entry.date === '2026-07-20')).toEqual([]);
+      expect(starting(JULY_20, entries)).toBeNull();
+      expect(invested(JULY_20, entries)).toBe('1200');
+    },
+  );
+
+  const BOTH_TAPPED: Case = {
+    plan: P6,
+    file: FILE,
+    entries: [lump('2026-07-02', { source: 'one-tap', units: units('0.01219512') }), tapped('2026-07')],
+  };
+
+  it.each(orders(BOTH_TAPPED))(
+    'lump and July tapped on 2 Jul, %s: the lump records 2 Jul; after the change 10 Jun, 2 Jul named',
+    (_, entries) => {
+      const [tap] = lumpsOf(entries) as [Entry];
+      expect(recordedBy(BOTH_TAPPED, entries, tap)).toEqual(['2026-07-02']);
+      expect(starting(BOTH_TAPPED, entries)).toEqual({ kind: 'change', date: '2026-06-10' });
+      expect(invested(BOTH_TAPPED, entries)).toBe('1500');
+      const changed = edit(BOTH_TAPPED, entries, '2026-06-10', TEN_JUNE) as Entry[];
+      expect(recordedBy(BOTH_TAPPED, changed, lumpsOf(changed)[0] as Entry)).toEqual(['2026-06-10']);
+      expect(planOf(BOTH_TAPPED, changed).startingAmount?.items.map((item) => item.date)).toEqual(['2026-07-02']);
+      const july = liveEntries(imported(BOTH_TAPPED, changed)).filter((entry) => entry.slot === '2026-07');
+      expect(july.map((entry) => entry.source)).toEqual(['one-tap']);
+      expect(starting(BOTH_TAPPED, changed)).toBeNull();
+      expect(invested(BOTH_TAPPED, changed)).toBe('1500');
+    },
+  );
+
+  const TAPPED_LATE: Case = { ...LATE, entries: [lump('2026-08-04', { source: 'one-tap' }), typed('2026-07')] };
+
+  it.each(orders(TAPPED_LATE))(
+    'a one-tap lump tapped 4 Aug, %s: it records 2 Aug, 1,400; the change to 10 Jun gives 1,500',
+    (_, entries) => {
+      expect(starting(TAPPED_LATE, entries)).toEqual({ kind: 'change', date: '2026-06-10' });
+      expect(invested(TAPPED_LATE, entries)).toBe('1400');
+      const changed = edit(TAPPED_LATE, entries, '2026-06-10', TEN_JUNE) as Entry[];
+      const august = planOf(TAPPED_LATE, changed).entries.filter((entry) => entry.date === '2026-08-02');
+      expect(august.map((entry) => [entry.kind, entry.slot])).toEqual([['dca', '2026-08']]);
+      expect(invested(TAPPED_LATE, changed)).toBe('1500');
     },
   );
 
