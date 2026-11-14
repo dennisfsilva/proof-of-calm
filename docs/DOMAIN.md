@@ -197,10 +197,8 @@ figure stays labelled. Entries edited before 2026-11-07 (#375) kept `one-tap` wh
 whose units were corrected then stays labelled, and its edit form's line still says the tap filled them, until a
 save changes the units; only data from before launch holds such rows. An entry still labelled may carry an edited note, fee or venue. An exchange's import
 replaces the entries still labelled as estimates, a month's estimates of a coin together (ADR-0039, ADR-0056;
-§3.13, "Meeting the Log"): "The write tombstones them all and adds that date's purchases as monthly buys for S,
-with the note of the first of them in `compareEntries` order and the import's venue, whatever venue they
-carried." The one tap copies the last venue, so its venue is a
-default; the write is planned (M2).
+§3.13, "Meeting the Log", step 5 names what each entry added takes). The one tap copies the last venue, so
+its venue is a default; the write shipped on 2026-11-13 (§3.13, "The write").
 
 `held` is coins the plan did not buy: held before it, or received as a gift. Its cost may be unknown
 (`amount: null`) or nothing (`'0'`), and it carries no fee; only `held` may have either among the kinds
@@ -1070,9 +1068,8 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   turns, and Import passes it as the shown plan, so the write refuses `changed` when the plan or the Log
   moved since in a way that changes what the file adds. A new day alone changes nothing the file adds:
   today reaches the plan only through the months' statuses, and late, due and upcoming months are all
-  filled. The refusal pins the new preview with the choices kept. Step 5's write: "The write tombstones them all and adds that date's purchases
-  as monthly buys for S, with the note of the first of them in `compareEntries` order and the import's
-  venue, whatever venue they carried." "A replaced estimate is tombstoned with `deletedAt` and `updatedAt`
+  filled. The refusal pins the new preview with the choices kept. Step 5 names the estimates the write
+  tombstones and the note and venue each entry added takes. "A replaced estimate is tombstoned with `deletedAt` and `updatedAt`
   at `stampAfter(now, its updatedAt)`", and the tombstone keeps every other field of the estimate, so a
   later import dates purchases by its date and month (step 6). "`applyExchangeImport` refuses
   `too-many-entries` past `MAX_ENTRIES` live entries and `invalid-entries` for any entry `EntrySchema`
