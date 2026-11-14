@@ -21,8 +21,8 @@ import { ExchangeSections, ExchangeSummary } from './exchange-import-sections';
 // The exchange import's preview sections over the fixture plan, from synthetic Kraken ledgers and a synthetic Trade
 // Republic export (ADR-0056): an import that replaces an estimate, one that fills October's months, one the Log
 // records already, one with an item that says to delete its entry and one that does not, one whose rows are all left
-// out, a purchase the file cannot tell from the starting amount the Log holds, Trade Republic's rows left out in its
-// words, and a file imported
+// out, a purchase the file cannot show to be part of the starting amount the Log holds, Trade Republic's rows left
+// out in its words, and a file imported
 // before, with nothing to add. Each play opens its sections, so the test projects of
 // vitest.config.ts check the open lists at 360 and 1280 px, light and dark, with axe.
 
@@ -138,7 +138,7 @@ export const LeftOut: Story = {
   },
 };
 
-/** The starting amount the fixture's Log holds in two lumps, and a purchase of 20 Mar the file cannot tell from it. */
+/** The starting amount the fixture's Log holds in two lumps, and a purchase of 20 Mar the file cannot place. */
 const march20 = krakenLedger([
   ['S1', '2026-03-20 09:00:00', 'trade', 'EUR', '-700.0000', '0.0000'],
   ['S1', '2026-03-20 09:00:00', 'trade', 'BTC', '0.0125000000', '0.0000000000'],

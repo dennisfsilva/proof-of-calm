@@ -223,30 +223,31 @@ export function ExchangeSections({ model, plan, exchange }: SectionsProps) {
 /**
  * The starting-amount line (DOMAIN §3.13 step 3): each purchase left out, the latest ones past `LINES_SHOWN`, then per
  * coin of those purchases the live lump the Log holds or that it holds none, else the starting amount's date as not in
- * the Log. It asks for no change. Each sentence's units of a coin share their places (DESIGN §5 rule 7).
+ * the Log. It asks for no change. A coin's units share their places across the line (DESIGN §5 rule 7).
  */
 function useStartingLine({ startingAmount: starting }: Model, w: ReturnType<typeof useWords>) {
   const t = useTranslations('settings.data.exchange.leftOut');
   if (starting === null) return null;
-  const peers = (list: readonly { coin: string; units: Decimal }[], coin: string) =>
-    list.flatMap((each) => (each.coin === coin ? [each.units] : []));
   const shown = starting.items.slice(-LINES_SHOWN);
-  const more = starting.purchases - shown.length;
-  const items = shown.map((item) =>
-    t('startingItem', {
-      units: w.units(item.coin, item.units, peers(shown, item.coin)),
-      amount: w.money(item.amount),
-      date: w.format.date(item.date),
-    }),
-  );
+  const earlier = starting.purchases - shown.length;
   // What the line says of the Log holds per coin: the lumps of the named purchases' coins, and each of those coins
   // with none, while a lump of any coin is live (a lump of another coin says nothing of these).
   const named = [...new Set(starting.items.map((item) => item.coin))];
   const lumps = starting.lumps.filter((entry) => named.includes(entry.coin));
   const unheld = named.filter((coin) => !lumps.some((entry) => entry.coin === coin));
+  // A coin's units share their places across the whole line, the purchases and the lumps together.
+  const figures = [...shown, ...lumps];
+  const peers = (coin: string) => figures.flatMap((each) => (each.coin === coin ? [each.units] : []));
+  const items = shown.map((item) =>
+    t('startingItem', {
+      units: w.units(item.coin, item.units, peers(item.coin)),
+      amount: w.money(item.amount),
+      date: w.format.date(item.date),
+    }),
+  );
   const held = lumps.map((entry) =>
     t('startingLump', {
-      units: w.units(entry.coin, entry.units, peers(lumps, entry.coin)),
+      units: w.units(entry.coin, entry.units, peers(entry.coin)),
       estimated: isEstimate(entry) ? 'yes' : 'no',
       // A lump always has a cost: only a `held` entry may have none (DOMAIN §2.2).
       amount: w.money(entry.amount as Decimal),
@@ -256,7 +257,8 @@ function useStartingLine({ startingAmount: starting }: Model, w: ReturnType<type
   return t('starting', {
     ...w.counted(starting.purchases),
     date: w.format.date(starting.through),
-    items: w.format.list(more > 0 ? [...items, t('more', { count: w.figure(more) })] : items),
+    // Past `LINES_SHOWN` the purchases left unnamed are the oldest, so the list ends with how many came earlier.
+    items: w.format.list(earlier > 0 ? [...items, t('startingEarlier', { count: w.figure(earlier) })] : items),
     logged:
       starting.lumps.length === 0 ? 'no' : lumps.length === 0 ? 'none' : unheld.length === 0 ? 'all' : 'some',
     lumps: w.format.list(held),
