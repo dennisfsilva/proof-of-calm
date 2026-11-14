@@ -66,7 +66,9 @@ function twoWays(drawn: World, cut: number) {
  * on 2026-11-14, after the `held` guard reads units, seeds 1 to 8: the worst was 3.27 s (the prefix-adds one, seed
  * 2); six times it, 19.6 s, stays under a third of the timeout (20 s). Measured again the same day, after a monthly
  * buy takes its 3 days only when its month has no date, seeds 1 to 8: the worst was 2.89 s (the prefix-adds one, seed
- * 3); six times it, 17.3 s. Three runs of the whole core suite at random seeds passed.
+ * 3); six times it, 17.3 s. Three runs of the whole core suite at random seeds passed. Measured again after a one-tap
+ * `lump` claims in step 2 and the generator dates it near the file's dates (90 to 102 of 2,000 worlds reach its claim,
+ * 12 to 21 before), seeds 1 to 8: the worst was 2.73 s (the prefix-adds one, seed 4); six times it, 16.4 s.
  */
 const TWICE = { numRuns: 1500 };
 const TIMEOUT = 60_000;

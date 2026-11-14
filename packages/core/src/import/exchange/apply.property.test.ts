@@ -53,7 +53,8 @@ function twoWays(drawn: World, cut: number) {
  * hand-records one, seed 8), and six times it, 29.3 s, still stays under 30 s. Measured again the same day, after the
  * `held` guard reads units, seeds 1 to 8: the worst was 4.09 s (the second plan, seed 4); six times it, 24.5 s.
  * Measured again after a monthly buy takes its 3 days only when its month has no date, seeds 1 to 8: the worst was
- * 4.21 s (the second plan, seed 6); six times it, 25.3 s.
+ * 4.21 s (the second plan, seed 6); six times it, 25.3 s. Measured again after a one-tap `lump` claims in step 2, its
+ * date near the file's, seeds 1 to 8: the worst was 3.80 s (the second plan, seed 4); six times it, 22.8 s.
  */
 const TWICE = { numRuns: 1500 };
 const TIMEOUT = 90_000;

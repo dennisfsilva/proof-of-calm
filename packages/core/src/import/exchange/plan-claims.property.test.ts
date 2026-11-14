@@ -57,7 +57,8 @@ function cut(file: ExchangeFile, { shape, byDay, from, to }: Drawn<typeof window
  * window property, seed 5; the two exchanges 0.72 s, the hand claims 0.31 s), so six times the worst, the margin
  * budgeted for CI's slower runner, is 6.1 s, under a third of the timeout (20 s). Measured again the same day with
  * the `held` and starting-amount properties, seeds 1 to 8: the worst was 0.99 s (the window property, seed 2; the
- * `held` one 0.68 s, the starting amount 0.55 s), six times it 5.9 s.
+ * `held` one 0.68 s, the starting amount 0.55 s), six times it 5.9 s. Measured again after a one-tap `lump` claims in
+ * step 2, its date near the file's, seeds 1 to 8: the worst was 0.96 s (the window property, seed 2); six times it 5.8 s.
  */
 const RUNS = { numRuns: 300 };
 const TIMEOUT = 60_000;

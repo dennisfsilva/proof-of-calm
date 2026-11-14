@@ -118,7 +118,8 @@ function importFirst(drawn: World, stored: Stored, entry: Entry) {
  * 2026-11-14 the same way, seeds 1 to 8: the worst was 2.87 s for the sentence's property (seed 2), 2.57 s for the
  * starting line's (seed 6) and 1.50 s for the five-year file with its lump state (no seed), so six times the worst is
  * 17.2 s, under a third of the timeout. Of the 300 worlds, 124 to 146 reach the starting line in each order, 135 to 171 times as a record and
- * 219 to 288 as a change across the three orders.
+ * 219 to 288 as a change across the three orders. Measured again after a one-tap `lump` claims in step 2, its date
+ * near the file's, seeds 1 to 8: the worst was 2.77 s (the sentence's property, seed 3); six times it, 16.6 s.
  *
  * The bound, measured the same day on this desktop without coverage, two coins, a Log typed by hand every month, three
  * runs each: at 520 movements the checks took 505 to 557 ms weekly over five years and 504 to 517 ms daily (one plan 24
