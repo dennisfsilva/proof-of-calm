@@ -1464,7 +1464,7 @@ recorded cost and a one-tap purchase; `gb-2026-27.csv` is its raw listing, compa
 | `ENTRY_NOTE_MAX_LENGTH` | 500 characters | an entry's note: the entry schema, `saveTransaction`, `saveMove` and the entry form's field |
 | `VENUE_MAX_LENGTH` | 40 characters | an entry's venue and a move's `to`: the entry schema, `saveTransaction`, `saveMove` and the entry form's field |
 | `MAX_ENTRIES` | 10,000 live entries | a plan's entries: the backup schema and `applyImport` (§3.13), `saveTransaction`, `saveMove`, `restoreEntries` and the one tap (§6) |
-| `IMPORT_MAX_BYTES` | 50,000,000 bytes (50 MB) | the import file Settings reads: above the 36.8 MB a full plan's backup weighs at the most (every note at 500 characters, each escaped to six bytes), about 4 MB without notes |
+| `IMPORT_MAX_BYTES` | 50,000,000 bytes (50 MB) | the import file Settings reads, and the text of the CSV file inside a chosen ZIP (the ZIP reader, `docs/ARCHITECTURE.md`): above the 36.8 MB a full plan's backup weighs at the most (every note at 500 characters, each escaped to six bytes), about 4 MB without notes |
 | `IMPORT_MATCH_DAYS` | 15 days | an exchange import's months: a due date's reach either side, a typed monthly buy's claim and the first buy's 15 days (§3.13) |
 | `IMPORT_TYPED_DAYS` | 3 days | an exchange import's typed and tapped dates: a hand-recorded entry's claim either side of its date, and a one-tap estimate's reach before its date (§3.13) |
 | `LOG_PAGE` | 12 | Log "show all" threshold |
