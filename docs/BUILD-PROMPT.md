@@ -272,6 +272,12 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   review round found it false: imported entries join a hand row by `transactionKey`, which holds no
   coin, and an imported sale changes which deletes the Log refuses. A design check's reason that
   drops one of these states is tested like the line itself.
+- A fix that moves a rule into one shared function keeps each caller's guards, with a test for each.
+  The first part of #205's starting-line instructions moved what an edit keeps from the Log's
+  `keepUnchanged` into one core function, so the import's check would store an edit as the Log does.
+  `keepUnchanged` gives a new transaction back as saved before its rule runs. The check's record path
+  called the shared rule without that guard, and the second review round found a recorded fee
+  dropped (2026-11-14).
 
 ## Known gaps
 
