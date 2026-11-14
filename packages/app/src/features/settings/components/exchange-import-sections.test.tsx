@@ -4,7 +4,9 @@ import {
   type Entry,
   type ExchangeId,
   type ExchangeImportPlan,
+  type ImportRemedies,
   type Instant,
+  importRemedies,
   type Plan,
   planExchangeImport,
   readExchangeFile,
@@ -37,6 +39,11 @@ const planOf = (csv: string, entries: readonly Entry[], plan = PLAN, venue = 'Kr
   if (!read.ok) throw new Error('the synthetic ledger reads');
   return planExchangeImport(read.value, { plan, entries }, { venue, addHeld: false }, CONTEXT);
 };
+const remediesOf = (csv: string, entries: readonly Entry[], plan = PLAN) => {
+  const read = readExchangeFile(csv);
+  if (!read.ok) throw new Error('the synthetic ledger reads');
+  return importRemedies(read.value, { plan, entries }, false, CONTEXT);
+};
 const BTC = 'BTC' as Entry['coin'];
 /** October's monthly BTC buy typed by hand for €120.00 and 0.002 BTC, dated `on`. */
 const typed120 = (on: string) =>
@@ -60,10 +67,15 @@ const btcBuys = (buys: readonly (readonly [string, string, string, string, strin
     ]),
   );
 
-async function mount(shown: ExchangeImportPlan, plan = PLAN, exchange: ExchangeId = 'kraken') {
+async function mount(
+  shown: ExchangeImportPlan,
+  plan = PLAN,
+  exchange: ExchangeId = 'kraken',
+  remedies?: ImportRemedies,
+) {
   const services = createTestServices({ snapshot: { ...fixture, plan } });
   await act(() => services.start());
-  const model = previewModel(shown);
+  const model = previewModel(shown, shown, remedies);
   render(
     <ServicesProvider services={services}>
       <I18nProvider messages={{ settings }}>
@@ -103,10 +115,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
       'Monthly buy for October 2026: 0.00119 BTC (estimated) at Bitvavo for €70.00 becomes 2 purchases at Kraken, ' +
         '0.00200 BTC for €120.00 in all, fees €0.31, on 5 Oct 2026 and 12 Oct 2026.',
     ]);
-    expect(texts()).toContain(
-      "To keep an estimate instead, type its units from your exchange's confirmation in the Log, then choose the " +
-        'file again.',
-    );
+    // The way to keep an estimate is cut: typing its units in the Log turns it into a hand entry (docs/DOMAIN.md §3.13).
+    expect(texts().some((text) => text.includes('To keep an estimate instead'))).toBe(false);
     expect(lines('Monthly buys (1)')).toEqual([
       'Monthly buy for October 2026: 0.012 ETH for €30.00, fee €0.08, on 5 Oct 2026.',
     ]);
@@ -174,7 +184,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
     ]);
   });
 
-  it('word the purchases the Log records already, and how to import one instead', async () => {
+  it('word the purchases the Log records already, and how to import one instead only where deleting it does', async () => {
     const typed = anEntry({
       id: 'aaaaaaaa-0000-4000-8000-000000000030' as EntityId,
       kind: 'dca',
@@ -186,14 +196,25 @@ describe('ExchangeSummary and ExchangeSections', () => {
       venue: 'Bitvavo',
       source: 'manual',
     });
-    await mount(planOf(KRAKEN_OCTOBER, [...fixture.entries, typed]));
-    expect(lines('Matching entries in the Log, not added (1)')).toEqual([
+    // A starting amount's row never takes the sentence (docs/DOMAIN.md §3.13, "Lines that ask for a change").
+    const lump = anEntry({
+      id: 'aaaaaaaa-0000-4000-8000-000000000032' as EntityId,
+      kind: 'lump',
+      coin: 'ETH' as Entry['coin'],
+      date: date('2026-10-06'),
+      slot: null,
+      amount: '30' as Entry['amount'],
+      units: units('0.0121'),
+      source: 'manual',
+    });
+    const entries = [...fixture.entries, typed, lump];
+    await mount(planOf(KRAKEN_OCTOBER, entries), PLAN, 'kraken', remediesOf(KRAKEN_OCTOBER, entries));
+    expect(lines('Matching entries in the Log, not added (2)')).toEqual([
       "The file's 0.00120 BTC for €70.00 on 5 Oct 2026 looks like your monthly buy for October 2026: 0.00121 BTC " +
-        'at Bitvavo for €70.00.',
+        "at Bitvavo for €70.00. To import the file's instead, delete that entry in the Log, then choose the file again.",
+      "The file's 0.0120 ETH for €30.00 on 5 Oct 2026 looks like your starting amount of 6 Oct 2026: 0.0121 ETH for " +
+        '€30.00.',
     ]);
-    expect(texts()).toContain(
-      'To import one of these instead, delete the entry it matches in the Log, then choose the file again.',
-    );
   });
 
   it('word a monthly buy typed by hand that records two of the file’s dates, with what they add up to', async () => {

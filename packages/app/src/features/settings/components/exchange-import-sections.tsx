@@ -12,7 +12,7 @@ import {
   sum,
 } from '@proofofcalm/core';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@proofofcalm/ui/components/collapsible';
-import { type ReactNode, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useTranslations } from 'use-intl';
 import { createNumberInput } from '../../../lib/format';
 import { useFormatters } from '../../../lib/services';
@@ -109,7 +109,7 @@ export function ExchangeSummary({ model, plan }: Props) {
   );
 }
 
-function Section({ title, items, children }: { title: string; items: readonly Item[]; children?: ReactNode }) {
+function Section({ title, items }: { title: string; items: readonly Item[] }) {
   if (items.length === 0) return null;
   return (
     <Collapsible className="flex flex-col gap-stack-sm">
@@ -120,7 +120,6 @@ function Section({ title, items, children }: { title: string; items: readonly It
             <li key={item.key}>{item.text}</li>
           ))}
         </ul>
-        {children}
       </CollapsibleContent>
     </Collapsible>
   );
@@ -172,17 +171,18 @@ export function ExchangeSections({ model, plan, exchange }: SectionsProps) {
     });
     return { key: estimate.id, text };
   });
-  const recorded = model.recorded.map((row) => ({
-    key: row.entry.id,
-    text: t('recorded', {
+  const recorded = model.recorded.map((row) => {
+    const text = t('recorded', {
       count: row.dates.length,
       dates: w.format.list(row.dates.map((date) => w.format.date(date))),
       units: w.units(row.coin, row.units, [row.entry.units]),
       amount: row.amount === null ? '' : w.money(row.amount),
       label: t('label', { kind: row.entry.kind, month: month(row.entry), date: on(row.entry) }),
       entry: piece(row.entry, [row.units], true),
-    }),
-  }));
+    });
+    // Only where deleting the entry imports what the item says (importRemedies, docs/DOMAIN.md §3.13).
+    return { key: row.entry.id, text: row.remedy ? `${text} ${t('recordedHint')}` : text };
+  });
   const { imported, deleted, unitsCut, feesInCoin } = model.counted;
 
   return (
@@ -191,9 +191,7 @@ export function ExchangeSections({ model, plan, exchange }: SectionsProps) {
         title={title('fills', model.fills)}
         items={each(model.fills, (entry) => t('fill', { month: month(entry), piece: piece(entry), date: on(entry) }))}
       />
-      <Section title={title('replaces', replaces)} items={replaces}>
-        <p className="text-ink-2">{t('replacesHint')}</p>
-      </Section>
+      <Section title={title('replaces', replaces)} items={replaces} />
       <Section
         title={title('extra', model.extra)}
         items={each(model.extra, (entry) => t('extra', { piece: piece(entry), date: on(entry) }))}
@@ -206,9 +204,7 @@ export function ExchangeSections({ model, plan, exchange }: SectionsProps) {
         title={title('added', model.added)}
         items={each(model.added, (entry) => t('added', { units: w.units(entry.coin, entry.units), date: on(entry) }))}
       />
-      <Section title={title('recorded', recorded)} items={recorded}>
-        <p className="text-ink-2">{t('recordedHint')}</p>
-      </Section>
+      <Section title={title('recorded', recorded)} items={recorded} />
       <Section title={title('leftOut', leftOut)} items={leftOut} />
       {imported > 0 && <p>{t('counted.imported', { count: w.figure(imported) })}</p>}
       {deleted > 0 && <p>{t('counted.deleted', { count: w.figure(deleted) })}</p>}

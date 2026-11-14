@@ -2,6 +2,7 @@ import {
   type CalendarDate,
   type Entry,
   type ExchangeFile,
+  importRemedies,
   type Plan,
   planExchangeImport,
   VENUE_MAX_LENGTH,
@@ -92,14 +93,21 @@ function Preview({ file, name, onDone, onBusy, plan: livePlan }: Props & { reado
   const headingId = useId();
   const trimmed = venue.trim() === '' ? null : venue.trim();
 
+  // Which Matching entries may be deleted to import the file's instead: planned without the venue, which no step
+  // reads, so typing one plans the file once, not once per row (docs/DOMAIN.md §3.13).
+  const remedies = useMemo(
+    () => importRemedies(file, { plan, entries }, addHeld, exchangeContext(today, clock.now(), clock.timeZone)),
+    [file, plan, entries, addHeld, today, clock],
+  );
   const { shown, model } = useMemo(() => {
     const context = exchangeContext(today, clock.now(), clock.timeZone);
     const planOn = (held: boolean) =>
       planExchangeImport(file, { plan, entries }, { venue: trimmed, addHeld: held }, context);
     const shown = planOn(addHeld);
     // The held line counts the estimates ticking would replace, from the plan the same snapshot gives ticked.
-    return { shown, model: previewModel(shown, shown.held === null || addHeld ? shown : planOn(true)) };
-  }, [file, plan, entries, trimmed, addHeld, today, clock]);
+    const ticked = shown.held === null || addHeld ? shown : planOn(true);
+    return { shown, model: previewModel(shown, ticked, remedies) };
+  }, [file, plan, entries, trimmed, addHeld, today, clock, remedies]);
 
   // The heading takes the focus when the preview shows, and the alert when the write was refused (docs/DESIGN.md §6).
   // The preview is read top to bottom, so its heading scrolls to the top of the view; the alert, one line, the least.
