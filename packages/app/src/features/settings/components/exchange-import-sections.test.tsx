@@ -209,12 +209,29 @@ describe('ExchangeSummary and ExchangeSections', () => {
     });
     const entries = [...fixture.entries, typed, lump];
     await mount(planOf(KRAKEN_OCTOBER, entries), PLAN, 'kraken', remediesOf(KRAKEN_OCTOBER, entries));
+    const sentence =
+      "To import the file's transaction instead, delete that entry in the Log, then choose the file again.";
     expect(lines('Matching entries in the Log, not added (2)')).toEqual([
       "The file's 0.00120 BTC for €70.00 on 5 Oct 2026 looks like your monthly buy for October 2026: 0.00121 BTC " +
-        "at Bitvavo for €70.00. To import the file's instead, delete that entry in the Log, then choose the file again.",
+        `at Bitvavo for €70.00.${sentence}`,
       "The file's 0.0120 ETH for €30.00 on 5 Oct 2026 looks like your starting amount of 6 Oct 2026: 0.0121 ETH for " +
         '€30.00.',
     ]);
+    // Its own line at the end of the item, in the secondary ink (CONTENT-STYLE §3).
+    const hint = screen.getByText(sentence);
+    expect([hint.tagName, hint.className, hint.parentElement?.tagName]).toEqual(['SPAN', 'block text-ink-2', 'LI']);
+  });
+
+  it('count the transactions of an item of several dates in the sentence', async () => {
+    const typed = typed120('2026-10-06');
+    const entries = [...fixture.entries, typed];
+    await mount(planOf(KRAKEN_OCTOBER, entries), PLAN, 'kraken', remediesOf(KRAKEN_OCTOBER, entries));
+    fireEvent.click(screen.getByRole('button', { name: 'Matching entries in the Log, not added (1)' }));
+    expect(
+      screen.getByText(
+        "To import the file's transactions instead, delete that entry in the Log, then choose the file again.",
+      ),
+    ).toBeTruthy();
   });
 
   it('word a monthly buy typed by hand that records two of the file’s dates, with what they add up to', async () => {

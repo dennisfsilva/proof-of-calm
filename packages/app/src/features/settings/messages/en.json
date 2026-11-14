@@ -169,7 +169,7 @@
       "added": "Coins added: {units} at no cost, on {date}.",
       "label": "{kind, select, dca {monthly buy for {month}} lump {starting amount of {date}} extra {extra buy of {date}} other {sale of {date}}}",
       "recorded": "{count, plural, one {The file's {units} for {amount} on {dates} looks like your {label}: {entry}.} other {The file's purchases of {units} for {amount} in all, on {dates}, look like your {label}: {entry}.}}",
-      "recordedHint": "To import the file's instead, delete that entry in the Log, then choose the file again.",
+      "recordedHint": "To import the file's {count, plural, one {transaction} other {transactions}} instead, delete that entry in the Log, then choose the file again.",
       "leftOut": {
         "currency": "{count, plural, one {{figure} purchase or sale in {currencies}} other {{figure} purchases and sales in {currencies}}}, not imported: amounts are never converted.",
         "not-in-plan": "This plan does not list {coin}, so {count, plural, one {{figure} {coin} transaction was left out. If you want it} other {{figure} {coin} transactions were left out. If you want them}} in this plan, you can add {coin} in Coins & split, then choose the file again.",
