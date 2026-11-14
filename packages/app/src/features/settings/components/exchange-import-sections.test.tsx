@@ -298,12 +298,13 @@ describe('ExchangeSummary and ExchangeSections', () => {
     const first = planOf(before, fixture.entries, PLAN, 'Trade Republic');
     await mount(planOf(TRADE_REPUBLIC_OCTOBER, [...fixture.entries, ...first.entries], PLAN, 'Trade Republic'));
     expect(texts()).toContain(
-      'Your Log has 1 transaction imported earlier that this file shows as cancelled: 0.005 ETH for €15.00 on ' +
+      'Your Log has 1 entry imported earlier that this file shows as cancelled: 0.005 ETH for €15.00 on ' +
         '13 Oct 2026. Delete it in the Log.',
     );
   });
 
-  it('names two buys imported earlier that the file now shows as cancelled, and says to delete them', async () => {
+  /** The plan of the whole October file over a Log that imported it before its two cancellations. */
+  const twoCancelled = () => {
     const rows = TRADE_REPUBLIC_OCTOBER.split('\n');
     const cancel = rows.find((row) => row.includes('BUY_CANCELLED')) as string;
     const second = cancel
@@ -315,10 +316,54 @@ describe('ExchangeSummary and ExchangeSections', () => {
     const before = rows.filter((row) => !row.includes('BUY_CANCELLED')).join('\n');
     const first = planOf(before, fixture.entries, PLAN, 'Trade Republic');
     const whole = [...rows, second].join('\n');
-    await mount(planOf(whole, [...fixture.entries, ...first.entries], PLAN, 'Trade Republic'));
+    return planOf(whole, [...fixture.entries, ...first.entries], PLAN, 'Trade Republic');
+  };
+
+  it('names two buys imported earlier that the file now shows as cancelled, and says to delete them', async () => {
+    await mount(twoCancelled());
     expect(texts()).toContain(
-      'Your Log has 2 transactions imported earlier that this file shows as cancelled: 0.00005 BTC for €4.50 on ' +
+      'Your Log has 2 entries imported earlier that this file shows as cancelled: 0.00005 BTC for €4.50 on ' +
         '7 Oct 2026 and 0.005 ETH for €15.00 on 13 Oct 2026. Delete them in the Log.',
+    );
+  });
+
+  // Review: "A Trade Republic export that ends before the cancellation is imported first: it stores buy B1 as May's
+  // monthly buy and tombstones the estimate. ... Result: May has no live entry at all."
+  it('says deleting a named monthly buy leaves its month without the estimate it replaced', async () => {
+    const shown = twoCancelled();
+    const tap = { ...ONE_TAP_OCTOBER, deletedAt: CONTEXT.now };
+    const [one, two] = shown.cancelled as [
+      ExchangeImportPlan['cancelled'][number],
+      ExchangeImportPlan['cancelled'][number],
+    ];
+    await mount({ ...shown, cancelled: [{ ...one, estimates: [tap] }, two] });
+    expect(texts()).toContain(
+      'Your Log has 2 entries imported earlier that this file shows as cancelled: 0.00005 BTC for €4.50 on ' +
+        '7 Oct 2026 and 0.005 ETH for €15.00 on 13 Oct 2026. Delete them in the Log. Deleting them leaves BTC for ' +
+        'October 2026 without its estimate, which this import cannot bring back. Record that month again in the Log ' +
+        'if you bought in it.',
+    );
+  });
+
+  it('names each coin and month left without an estimate, and an entry with no amount by its units', async () => {
+    const shown = twoCancelled();
+    const [one] = shown.cancelled as [ExchangeImportPlan['cancelled'][number]];
+    const tap = (coin: string, slot: string) =>
+      anEntry({ coin: coin as Entry['coin'], slot: slot as Entry['slot'], source: 'one-tap', deletedAt: CONTEXT.now });
+    const bare = { ...one.entry, id: 'aaaaaaaa-0000-4000-8000-000000000041' as EntityId, amount: null };
+    const estimates = [tap('ETH', '2026-10'), tap('BTC', '2026-10'), tap('BTC', '2026-09')];
+    await mount({
+      ...shown,
+      cancelled: [
+        { entry: one.entry, estimates },
+        { entry: bare, estimates: [] },
+      ],
+    });
+    expect(texts()).toContain(
+      'Your Log has 2 entries imported earlier that this file shows as cancelled: 0.00005 BTC for €4.50 on ' +
+        '7 Oct 2026 and 0.00005 BTC on 7 Oct 2026. Delete them in the Log. Deleting them leaves BTC for ' +
+        'September 2026, BTC for October 2026, and ETH for October 2026 without their estimates, which this import ' +
+        'cannot bring back. Record those months again in the Log if you bought in them.',
     );
   });
 

@@ -53,8 +53,11 @@ export type ExchangeImportPlan = {
     readonly firstBuy: CalendarDate;
     readonly through: CalendarDate;
   } | null;
-  /** Live entries an earlier import stored that this file pairs with a cancellation. */
-  readonly cancelled: readonly Entry[];
+  /**
+   * Live entries an earlier import stored that this file pairs with a cancellation, each a monthly buy with its coin's
+   * tombstoned one-tap estimates for its month when deleting the named entries leaves that month no monthly buy.
+   */
+  readonly cancelled: readonly { readonly entry: Entry; readonly estimates: readonly Entry[] }[];
   /** Receipts an earlier import stored whose live entry holds fewer units than the file now gives (`units`). */
   readonly short: readonly { readonly entry: Entry; readonly units: Units }[];
   readonly withdrawals: { readonly logged: readonly CoinUnits[]; readonly notLogged: readonly CoinUnits[] };
@@ -173,7 +176,7 @@ export function planExchangeImport(
   const counts = { imported: 0, deleted: 0, unitsCut: 0, feesInCoin: 0 };
   const short: { entry: Entry; units: Units }[] = [];
   // "A trade a cancellation in the file pairs, whose id is a live entry, is named: delete it in the Log."
-  const cancelled = file.cancelled.flatMap((movement) => {
+  const paired = file.cancelled.flatMap((movement) => {
     const entry = known.get(context.idOf(movement.key));
     return entry === undefined || entry.deletedAt !== null ? [] : [entry];
   });
@@ -271,6 +274,21 @@ export function planExchangeImport(
   }
   const replaced = [...groups.values()].filter((group) => group.by.length > 0);
   for (const day of days.filter((each) => !each.claimed)) add(day, KIND[day.role], null, '');
+
+  // The import never brings a tombstone back: a named monthly buy carries C's tombstoned estimates for its month when,
+  // once this import adds its entries and the person deletes the named ones, no live monthly buy of C for it is left.
+  const gone = new Set(paired.map((entry) => entry.id));
+  const kept = (entry: Entry) =>
+    [...live, ...entries].some(
+      (other) => other.kind === 'dca' && other.coin === entry.coin && other.slot === entry.slot && !gone.has(other.id),
+    );
+  const cancelled = paired.map((entry) => ({
+    entry,
+    estimates:
+      entry.kind !== 'dca' || kept(entry)
+        ? []
+        : taps.filter((tap) => tap.deletedAt !== null && tap.coin === entry.coin && tap.slot === entry.slot),
+  }));
 
   for (const row of file.leftOut)
     if (row.reason !== 'coin-withdrawal') leave(row.reason, row.lines, row.coin, row.units);

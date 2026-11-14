@@ -59,14 +59,32 @@ export function ExchangeSummary({ model, plan }: Props) {
   );
   // The trades an earlier import stored that this file shows as cancelled, in the Log's figures.
   const items = w.format.list(
-    model.cancelled.map((entry) =>
+    model.cancelled.map(({ entry }) =>
       t('cancelledItem', {
         units: w.units(entry.coin, entry.units),
+        hasAmount: entry.amount === null ? 'no' : 'yes',
         amount: entry.amount === null ? '' : w.money(entry.amount),
         date: w.format.date(entry.date),
       }),
     ),
   );
+  // The coins and months whose estimate a named monthly buy replaced: deleting the buy leaves them without one.
+  const tapped = model.cancelled.flatMap(({ estimates }) =>
+    estimates.flatMap((entry) => (entry.slot === null ? [] : [`${entry.coin} ${entry.slot}`])),
+  );
+  const months = [...new Set(tapped)].sort().map((key) => {
+    const [coin = '', slot = ''] = key.split(' ');
+    return t('cancelledMonth', { coin, month: w.format.month(slot as MonthKey) });
+  });
+  const cancelled = model.cancelled.length > 0 && [
+    t('cancelled', { ...w.counted(model.cancelled.length), items }),
+    months.length > 0 &&
+      t('cancelledEstimates', {
+        count: model.cancelled.length,
+        months: w.format.list(months),
+        monthCount: months.length,
+      }),
+  ];
   return (
     <>
       <p>{entries === 0 ? t('nothing') : t('summary', { ...w.counted(entries), kinds: w.format.list(named) })}</p>
@@ -74,7 +92,7 @@ export function ExchangeSummary({ model, plan }: Props) {
       {model.noneInCurrency !== null && (
         <p>{t('noneInCurrency', { plan: plan.payCurrency, file: w.format.list(model.noneInCurrency) })}</p>
       )}
-      {model.cancelled.length > 0 && <p>{t('cancelled', { ...w.counted(model.cancelled.length), items })}</p>}
+      {cancelled && <p>{cancelled.filter(Boolean).join(' ')}</p>}
       {model.short.map(({ entry, units }) => (
         <p key={entry.id}>
           {t('short', {
