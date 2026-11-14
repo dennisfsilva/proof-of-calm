@@ -14,7 +14,7 @@ type Words = {
   readonly money: (amount: Decimal) => string;
 };
 
-/** One sentence per estimate line, each naming every staying coin's purchases on the date, summed. */
+/** Per estimate line, the fact naming every staying coin's purchases on the date, summed, and the change (`hint`). */
 export function useEstimateLines(lines: readonly EstimateLine[], w: Words) {
   const t = useTranslations('settings.data.exchange');
   return lines.map((line) => {
@@ -25,15 +25,18 @@ export function useEstimateLines(lines: readonly EstimateLine[], w: Words) {
         amount: w.money(sum(added.map((entry) => entry.amount as Money))),
       });
     });
+    const count = line.estimates.length;
+    const month = w.format.month(line.month);
     const text = t('estimateLeft', {
       coins: w.format.list(line.estimates.map((entry) => entry.coin)),
-      count: line.estimates.length,
-      month: w.format.month(line.month),
+      count,
+      month,
       pieces: w.format.list(pieces),
       date: w.format.date(line.date),
       kind: line.other === null ? 'extra' : 'dca',
       other: line.other === null ? '' : w.format.month(line.other),
     });
-    return { key: line.estimates.map((entry) => entry.id).join(), text };
+    const hint = t('estimateChange', { count, month });
+    return { key: line.estimates.map((entry) => entry.id).join(), text, hint };
   });
 }

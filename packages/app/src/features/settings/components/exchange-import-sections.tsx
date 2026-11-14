@@ -113,8 +113,11 @@ export function ExchangeSummary({ model, plan }: Props) {
           })}
         </p>
       ))}
-      {estimates.map(({ key, text }) => (
-        <p key={key}>{text}</p>
+      {estimates.map(({ key, text, hint }) => (
+        <p key={key}>
+          {text}
+          <span className="block text-ink-2">{hint}</span>
+        </p>
       ))}
     </>
   );
