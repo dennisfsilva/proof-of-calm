@@ -1,6 +1,8 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
+import { anEntry, date, month } from '../../../test/builders';
 import { CHOICES, LISBON, NOW, PLAN, testId } from '../../../test/exchange/plan-fixture';
+import { addDays } from '../../dates/calendar';
 import type { Entry } from '../../schema/entry';
 import type { ExchangeFile } from './kraken';
 import { type ExchangeImportPlan, planExchangeImport } from './plan';
@@ -79,7 +81,26 @@ const cancelling = fc.record({
   buys: fc.array(trade, { minLength: 1, maxLength: 8 }),
   cancels: fc.array(fc.record({ of: fc.nat(), late: fc.nat({ max: 20 }) }), { maxLength: 4 }),
   cut: fc.nat(),
+  taps: fc.array(
+    fc.record({
+      coin: fc.constantFrom('BTC', 'ETH'),
+      month: fc.constantFrom(4, 5, 6),
+      late: fc.integer({ min: -3, max: 20 }),
+    }),
+    { maxLength: 3 },
+  ),
 });
+/** One-tap estimates as the person taps them, live, near their month's due date. */
+const tapsOf = (taps: readonly { coin: string; month: number; late: number }[]) =>
+  taps.map(({ coin, month: m, late }) =>
+    anEntry({
+      coin: coin as Entry['coin'],
+      slot: month(`2026-0${m}`),
+      date: addDays(date(`2026-0${m}-01`), late),
+      source: 'one-tap',
+      venue: 'Bitvavo',
+    }),
+  );
 /** One trade row's cells, its `datetime` first and again in its column, so a cut reads it without the header. */
 function tradeRow(kind: 'buy' | 'buyCancelled', { coin, shares }: Trade, minute: number, id: string) {
   const [category, type, assetClass, sharesSign, amountSign] = ROWS[kind] as (typeof ROWS)[string];
@@ -143,10 +164,10 @@ describe('readTradeRepublic (property)', () => {
   });
 
   it(
-    'a whole file names exactly the stored live buys its cancellations pair, and deleting them leaves one import’s live Log',
+    'a whole file names exactly the stored live buys its cancellations pair; deleting them leaves one import’s live Log, but for the estimates it names',
     () => {
       fc.assert(
-        fc.property(cancelling, ({ buys, cancels, cut }) => {
+        fc.property(cancelling, ({ buys, cancels, cut, taps }) => {
           const rows = [
             ...buys.map((buy, index) => tradeRow('buy', buy, index * 2, `B${index}`)),
             ...cancels.map(({ of, late }, index) => {
@@ -158,23 +179,29 @@ describe('readTradeRepublic (property)', () => {
           const at = instants[cut % (instants.length + 1)] ?? '~';
           const whole = read(rows.map((cells) => cells.slice(1)));
           const part = read(rows.filter((cells) => (cells[0] as string) < at).map((cells) => cells.slice(1)));
-          const log = store([], planned(part, []));
+          const tapped = tapsOf(taps);
+          const log = store(tapped, planned(part, tapped));
           const then = planned(whole, log);
           const paired = new Set(whole.cancelled.map((movement) => testId(movement.key)));
-          const named = then.cancelled.map((entry) => entry.id).sort();
+          const named = then.cancelled.map(({ entry }) => entry.id).sort();
           expect(named).toEqual(
             log
-              .filter((entry) => paired.has(entry.id))
+              .filter((entry) => paired.has(entry.id) && entry.deletedAt === null)
               .map((entry) => entry.id)
               .sort(),
           );
+          // The exception, exactly: each estimate a named entry carries is live in one import and tombstoned in two.
+          const carried = new Set(then.cancelled.flatMap(({ estimates }) => estimates.map((entry) => entry.id)));
           const deleted = log.map((entry) => (named.includes(entry.id) ? { ...entry, deletedAt: NOW } : entry));
+          const [two, one] = [store(deleted, then), store(tapped, planned(whole, tapped))];
           const liveOf = (entries: readonly Entry[]) =>
             entries
               .filter((entry) => entry.deletedAt === null)
-              .map((entry) => `${entry.id}:${entry.coin}:${entry.units}`)
+              .map((entry) => `${entry.id}:${entry.kind}:${entry.slot}:${entry.coin}:${entry.units}`)
               .sort();
-          expect(liveOf(store(deleted, then))).toEqual(liveOf(store([], planned(whole, []))));
+          expect(two.filter((entry) => carried.has(entry.id) && entry.deletedAt === null)).toEqual([]);
+          expect(one.filter((entry) => carried.has(entry.id) && entry.deletedAt === null)).toHaveLength(carried.size);
+          expect(liveOf(two)).toEqual(liveOf(one.filter((entry) => !carried.has(entry.id))));
         }),
         TWICE,
       );

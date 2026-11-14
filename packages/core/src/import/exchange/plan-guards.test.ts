@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { aMove, anEntry, aPlan, date, instant, money, month, units } from '../../../test/builders';
-import { CHOICES, FILE, LISBON, testId, trade } from '../../../test/exchange/plan-fixture';
+import { CHOICES, FILE, LISBON, NOW, testId, trade } from '../../../test/exchange/plan-fixture';
 import type { Entry } from '../../schema/entry';
 import type { CoinId } from '../../schema/ids';
 import type { Plan } from '../../schema/plan';
@@ -170,8 +170,38 @@ describe('step 1: what an earlier import stored and this file changes', () => {
     const stored = anEntry({ id: testId(live.key), date: date('2026-05-04'), source: 'import-csv' });
     const deleted = { ...stored, id: testId(gone.key), deletedAt: instant('2026-05-05T09:00:00Z') };
     const plan = run(PLAIN, [stored, deleted], [], { cancelled: [live, gone, unknown] });
-    expect(plan.cancelled).toEqual([stored]);
+    expect(plan.cancelled).toEqual([{ entry: stored, estimates: [] }]);
     expect(run(PLAIN, [], [], { cancelled: [live] }).cancelled).toEqual([]);
+  });
+
+  // Review: "Log holds a one-tap BTC estimate for May 2026 (dated 1 May). A Trade Republic export that ends before the
+  // cancellation is imported first: it stores buy B1 (4 May, 0.001 BTC) as May's monthly buy and tombstones the
+  // estimate. The whole file then names B1 under `cancelled`, and the person deletes it as the line says. Result: May
+  // has no live entry at all. One import of the whole file keeps the estimate live."
+  it('a cancelled monthly buy that replaced an estimate carries it, so the line can say deleting it leaves May without it', () => {
+    const tap = anEntry({ slot: month('2026-05'), date: date('2026-05-01'), source: 'one-tap', venue: 'Bitvavo' });
+    const b1 = buy('B1', 'BTC', '2026-05-04', '0.001');
+    const part = run(PLAIN, [tap], [b1]);
+    expect(part.replaced.flatMap((each) => each.estimates)).toEqual([tap]);
+    const log = [{ ...tap, deletedAt: NOW }, ...part.entries];
+    const whole = run(PLAIN, log, [], { cancelled: [b1] });
+    expect(whole.cancelled).toEqual([{ entry: part.entries[0], estimates: [log[0]] }]);
+    expect(run(PLAIN, [tap], [], { cancelled: [b1] }).replaced).toEqual([]);
+    // A later purchase of May is an extra beside the live B1, so deleting B1 still leaves May without a monthly buy.
+    const b2 = buy('B2', 'BTC', '2026-05-20', '0.001');
+    expect(run(PLAIN, log, [b2], { cancelled: [b1] }).cancelled).toEqual([
+      { entry: part.entries[0], estimates: [log[0]] },
+    ]);
+    // A monthly buy of May the person recorded keeps the month, so nothing is carried.
+    const hand = anEntry({ slot: month('2026-05'), date: date('2026-05-02'), source: 'manual', venue: 'Kraken' });
+    expect(run(PLAIN, [...log, hand], [], { cancelled: [b1] }).cancelled).toEqual([
+      { entry: part.entries[0], estimates: [] },
+    ]);
+    // An extra buy carries none, whatever the Log holds for its month.
+    const extra = { ...(part.entries[0] as Entry), kind: 'extra' as const, slot: null };
+    expect(run(PLAIN, [log[0] as Entry, extra], [], { cancelled: [b1] }).cancelled).toEqual([
+      { entry: extra, estimates: [] },
+    ]);
   });
 
   it('a stored folded receipt with fewer units is named with both figures', () => {
