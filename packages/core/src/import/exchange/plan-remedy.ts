@@ -25,6 +25,7 @@ import { applyExchangeImport } from './apply';
 import type { ExchangeFile, Movement } from './kraken';
 import { type ExchangeImportPlan, type ImportContext, leftOutBefore, planExchangeImport } from './plan';
 import { HAND } from './plan-claims';
+import { type EstimateLine, estimateLines } from './plan-lines';
 
 export type Stored = { readonly plan: Plan; readonly entries: readonly Entry[] };
 /** A change made with the Log's own controls: Delete entry (the whole row), Edit entry (a row) or Record a purchase. */
@@ -158,6 +159,7 @@ export type StartingRemedy = { readonly kind: 'change' | 'record'; readonly date
 export type ImportRemedies = {
   readonly recorded: ReadonlySet<EntityId>;
   readonly starting: StartingRemedy | null;
+  readonly estimates: readonly EstimateLine[];
 };
 
 /**
@@ -309,7 +311,8 @@ export function importRemedies(
   addHeld: boolean,
   context: ImportContext,
 ): ImportRemedies {
-  if (file.movements.length > IMPORT_REMEDY_MAX_MOVEMENTS) return { recorded: new Set(), starting: null };
+  const none = { recorded: new Set<EntityId>(), starting: null, estimates: [] };
+  if (file.movements.length > IMPORT_REMEDY_MAX_MOVEMENTS) return none;
   const shown = planExchangeImport(file, stored, { venue: null, addHeld }, context);
   const records = new Set(shown.recorded.map((item) => item.entry.id));
   const candidate = (row: readonly Entry[]) =>
@@ -317,7 +320,8 @@ export function importRemedies(
   const keys = [...new Set(shown.recorded.map((item) => transactionKey(item.entry)))].slice(0, IMPORT_RECORDED_CHECKS);
   const candidates = keys.filter((key) => candidate(rowOf(stored.entries, key)));
   const starts = startingRemedies(file, stored, shown, context);
-  if (candidates.length === 0 && starts.length === 0) return { recorded: new Set(), starting: null };
+  const lines = estimateLines(stored, shown);
+  if (candidates.length === 0 && starts.length === 0 && lines.length === 0) return none;
 
   const anew = (entries: readonly Entry[]) =>
     planExchangeImport(file, { plan: stored.plan, entries }, { venue: null, addHeld: false }, context);
@@ -353,10 +357,30 @@ export function importRemedies(
   };
   const passed = new Set(candidates.filter(deletable));
   const starting = starts.find((each) => orders.every((log) => holds(log, each.change(log.entries), each.touched)));
+  // The estimate line's words say "before you import", so its change is checked on the Log as shown only: the row dated
+  // D, each staying estimate taking its coin's purchases on D, recorded by it once the file is chosen again.
+  const ofCoin = (line: EstimateLine, estimate: Entry) => line.added.filter((entry) => entry.coin === estimate.coin);
+  const estimates = lines.filter((line) => {
+    const figures = new Map(
+      line.estimates.map((each) => {
+        const added = ofCoin(line, each);
+        return [each.id, { amount: sum(added.map((e) => e.amount as Money)), units: sum(added.map((e) => e.units)) }];
+      }),
+    );
+    const row = rowOf(stored.entries, transactionKey(line.estimates[0] as Entry));
+    const touched = line.estimates.map((each) => ({
+      coin: each.coin,
+      date: line.date,
+      ids: ofCoin(line, each).map((entry) => entry.id),
+      end: { recordedBy: each.id },
+    }));
+    return holds(orders[0] as (typeof orders)[number], { kind: 'edit', row, date: line.date, figures }, touched);
+  });
   return {
     recorded: new Set(
       shown.recorded.filter((item) => passed.has(transactionKey(item.entry))).map((item) => item.entry.id),
     ),
     starting: starting?.line ?? null,
+    estimates,
   };
 }
