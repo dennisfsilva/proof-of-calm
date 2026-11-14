@@ -149,7 +149,8 @@ export const StartingAmountInTheLog: Story = {
   play: async ({ canvas }) => {
     await userEvent.click(canvas.getByRole('button', { name: 'Left out (1)' }));
     await expect(canvas.getByText(/0\.0125 BTC for €700\.00 on 20 Mar 2026/)).toBeVisible();
-    await expect(canvas.getByText(/which the Log holds as 0\.0125 BTC for €700\.00 on 5 Apr 2026/)).toBeVisible();
+    // Only the BTC lump: the file names no ETH purchase.
+    await expect(canvas.getByText(/holds your starting amount as 0\.0125 BTC for €700\.00 on 5 Apr 2026\.$/)).toBeVisible();
   },
 };
 

@@ -286,7 +286,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
       'This plan does not list XRP, so 1 XRP transaction was left out. If you want it in this plan, you can add XRP ' +
         'in Coins & split, then choose the file again.',
       '1 purchase dated on or before 20 Apr 2026, not imported: 0.0006 BTC for €40.00 on 10 Apr 2026. The file ' +
-        'cannot tell it from your starting amount of 5 Apr 2026, which is not in the Log.',
+        'cannot tell it from your starting amount. Your starting amount of 5 Apr 2026 is not in the Log.',
       'Rewards paid in coins, not imported: 0.0001 ETH.',
       'Coins sent to Kraken from elsewhere, not imported: 0.01 BTC. Record a gift with Add coins you already have, ' +
         'and your own coins coming back with Log coins you moved.',
@@ -308,8 +308,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
     await mount(planOf(csv, []));
     expect(lines('Left out (1)')).toEqual([
       '2 purchases dated on or before 20 Apr 2026, not imported: 0.0006 BTC for €40.00 on 10 Jan 2026 and 0.0006 BTC ' +
-        'for €40.00 on 20 Apr 2026. The file cannot tell them from your starting amount of 5 Apr 2026, which is not ' +
-        'in the Log.',
+        'for €40.00 on 20 Apr 2026. The file cannot tell them from your starting amount. Your starting amount of 5 ' +
+        'Apr 2026 is not in the Log.',
     ]);
   });
 
@@ -327,28 +327,71 @@ describe('ExchangeSummary and ExchangeSections', () => {
         source,
       });
     const march20 = btcBuys([['S1', '2026-03-20 09:00:00', '1000.0000', '0.0125000000', '0.0000']]);
+    const ETH = 'ETH' as Entry['coin'];
+    /** A Kraken ledger of a BTC purchase on 20 Mar 2026 and an ETH one on 21 Mar 2026, each `[euros, units]`. */
+    const bothCoins = ([btcEuros, btc]: readonly [string, string], [ethEuros, eth]: readonly [string, string]) =>
+      krakenLedger([
+        ['S1', '2026-03-20 09:00:00', 'trade', 'EUR', `-${btcEuros}`, '0.0000'],
+        ['S1', '2026-03-20 09:00:00', 'trade', 'BTC', btc, '0.0000000000'],
+        ['S2', '2026-03-21 09:00:00', 'trade', 'EUR', `-${ethEuros}`, '0.0000'],
+        ['S2', '2026-03-21 09:00:00', 'trade', 'ETH', eth, '0.0000000000'],
+      ]);
     const startingLine = () => lines('Left out (1)')[0] ?? '';
 
     it('one purchase, the starting amount recorded by hand', async () => {
       await mount(planOf(march20, [lump('manual', '1000', '0.0125')]));
       expect(startingLine()).toBe(
         '1 purchase dated on or before 20 Apr 2026, not imported: 0.0125 BTC for €1,000.00 on 20 Mar 2026. The file ' +
-          'cannot tell it from your starting amount, which the Log holds as 0.0125 BTC for €1,000.00 on 5 Apr 2026.',
+          'cannot tell it from your starting amount. The Log holds your starting amount as 0.0125 BTC for €1,000.00 ' +
+          'on 5 Apr 2026.',
       );
     });
 
-    it('several purchases, the starting amount an estimate, in two coins', async () => {
+    it('several purchases of one coin, the starting amount an estimate in two coins: only that coin’s lump', async () => {
       const csv = btcBuys([
         ['S1', '2026-04-01 09:00:00', '500.0000', '0.0060000000', '0.0000'],
         ['S2', '2026-04-10 09:00:00', '200.0000', '0.0024000000', '0.0000'],
       ]);
-      const eth = lump('one-tap', '300', '0.1', 'ETH' as Entry['coin']);
-      await mount(planOf(csv, [lump('one-tap', '700', '0.00875'), eth]));
+      await mount(planOf(csv, [lump('one-tap', '700', '0.00875'), lump('one-tap', '300', '0.1', ETH)]));
       expect(startingLine()).toBe(
         '2 purchases dated on or before 20 Apr 2026, not imported: 0.0060 BTC for €500.00 on 1 Apr 2026 and 0.0024 ' +
-          'BTC for €200.00 on 10 Apr 2026. The file cannot tell them from your starting amount, which the Log holds as ' +
-          '0.00875 BTC (estimated) for €700.00 on 5 Apr 2026 and 0.1 ETH (estimated) for €300.00 on 5 Apr 2026.',
+          'BTC for €200.00 on 10 Apr 2026. The file cannot tell them from your starting amount. The Log holds your ' +
+          'starting amount as 0.00875 BTC (estimated) for €700.00 on 5 Apr 2026.',
       );
+    });
+
+    it('a purchase of one coin, a lump of the other coin only: the Log holds no starting amount of the first', async () => {
+      const csv = btcBuys([['S1', '2026-03-10 09:00:00', '700.0000', '0.0087500000', '0.0000']]);
+      await mount(planOf(csv, [lump('manual', '300', '0.12', ETH)]));
+      expect(startingLine()).toBe(
+        '1 purchase dated on or before 20 Apr 2026, not imported: 0.00875 BTC for €700.00 on 10 Mar 2026. The file ' +
+          'cannot tell it from your starting amount. The Log holds no starting amount of BTC.',
+      );
+    });
+
+    it('purchases of both coins, each coin’s starting amount in the Log', async () => {
+      const csv = bothCoins(['700.0000', '0.0087500000'], ['300.0000', '0.1000000000']);
+      await mount(planOf(csv, [lump('manual', '700', '0.00875'), lump('manual', '300', '0.12', ETH)]));
+      expect(startingLine()).toBe(
+        '2 purchases dated on or before 20 Apr 2026, not imported: 0.00875 BTC for €700.00 on 20 Mar 2026 and 0.1 ETH ' +
+          'for €300.00 on 21 Mar 2026. The file cannot tell them from your starting amount. The Log holds your ' +
+          'starting amount as 0.00875 BTC for €700.00 on 5 Apr 2026 and 0.12 ETH for €300.00 on 5 Apr 2026.',
+      );
+    });
+
+    it('purchases of both coins, one coin’s starting amount in the Log: names the other as not held', async () => {
+      const csv = bothCoins(['700.0000', '0.0087500000'], ['300.0000', '0.1000000000']);
+      await mount(planOf(csv, [lump('manual', '700', '0.00875')]));
+      expect(startingLine()).toBe(
+        '2 purchases dated on or before 20 Apr 2026, not imported: 0.00875 BTC for €700.00 on 20 Mar 2026 and 0.1 ETH ' +
+          'for €300.00 on 21 Mar 2026. The file cannot tell them from your starting amount. The Log holds part of ' +
+          'your starting amount as 0.00875 BTC for €700.00 on 5 Apr 2026. It holds no starting amount of ETH.',
+      );
+    });
+
+    it('purchases of both coins and no lump: the starting amount is not in the Log', async () => {
+      await mount(planOf(bothCoins(['700.0000', '0.0087500000'], ['300.0000', '0.1000000000']), []));
+      expect(startingLine()).toMatch(/starting amount\. Your starting amount of 5 Apr 2026 is not in the Log\.$/);
     });
 
     it('past five purchases, the latest five and how many more', async () => {
@@ -365,7 +408,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
       const shown = [3, 4, 5, 6, 7].map((day) => `0.001 BTC for €40.00 on ${day} Mar 2026`).join(', ');
       expect(startingLine()).toBe(
         `7 purchases dated on or before 20 Apr 2026, not imported: ${shown}, and 2 more. The file cannot tell them ` +
-          'from your starting amount of 5 Apr 2026, which is not in the Log.',
+          'from your starting amount. Your starting amount of 5 Apr 2026 is not in the Log.',
       );
     });
 
