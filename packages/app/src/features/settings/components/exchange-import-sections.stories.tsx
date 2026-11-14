@@ -22,7 +22,7 @@ import { ExchangeSections, ExchangeSummary } from './exchange-import-sections';
 // Republic export (ADR-0056): an import that replaces an estimate, one that fills October's months, one the Log
 // records already, one with an item that says to delete its entry and one that does not, one whose rows are all left
 // out, a purchase the file cannot show to be part of the starting amount the Log holds, purchases the line asks to
-// change the starting amount to, Trade Republic's rows left out in its words, and a file imported
+// change the starting amount to, an estimate the file leaves, Trade Republic's rows left out in its words, and a file imported
 // before, with nothing to add. Each play opens its sections, so the test projects of
 // vitest.config.ts check the open lists at 360 and 1280 px, light and dark, with axe.
 
@@ -173,6 +173,30 @@ export const StartingAmountToChange: Story = {
       'Then choose the file again.';
     // Its own line at the end of the item, in the secondary ink.
     await expect(canvas.getByText(sentence)).toHaveClass('block', 'text-ink-2');
+  },
+};
+
+// October's one-tap estimate and a purchase the file adds on 19 Oct as an extra buy: the estimate line, worded from a
+// line given by hand (the core's tests reach it from files and Logs).
+const lateBuy = planOf(
+  krakenLedger([
+    ['L1', '2026-10-19 09:00:00', 'trade', 'EUR', '-70.0000', '0.0000'],
+    ['L1', '2026-10-19 09:00:00', 'trade', 'BTC', '0.0011000000', '0.0000000000'],
+  ]),
+  fixture.entries,
+);
+const lateLine = {
+  estimates: [ONE_TAP_OCTOBER],
+  month: '2026-10' as Entry['slot'] & string,
+  date: '2026-10-19' as Entry['date'],
+  added: lateBuy.entries.map((entry) => ({ ...entry, kind: 'extra' as const, slot: null })),
+  other: null,
+} as ImportRemedies['estimates'][number];
+
+export const EstimateLeftInTheLog: Story = {
+  args: { shown: lateBuy, remedies: { recorded: new Set(), starting: null, estimates: [lateLine] } },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText(/Your BTC estimate for October 2026 stays in the Log/)).toBeVisible();
   },
 };
 

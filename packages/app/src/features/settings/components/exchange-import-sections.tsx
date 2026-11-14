@@ -19,6 +19,7 @@ import { useTranslations } from 'use-intl';
 import { createNumberInput } from '../../../lib/format';
 import { useFormatters } from '../../../lib/services';
 import type { previewModel } from '../model/exchange-preview';
+import { useEstimateLines } from './exchange-estimate-line';
 
 // The exchange import's preview, worded (CONTENT-STYLE §3 "Import an exchange's file"): the summary, then one section
 // per kind of entry with one sentence each, collapsed until opened, the rows left out with their reasons and the
@@ -58,6 +59,7 @@ export function useWords(plan: Plan) {
 export function ExchangeSummary({ model, plan }: Props) {
   const t = useTranslations('settings.data.exchange');
   const w = useWords(plan);
+  const estimates = useEstimateLines(model.estimates, w);
   const { entries, replaced, ...kinds } = model.summary;
   const named = (['monthly', 'extra', 'sales', 'added'] as const).flatMap((kind) =>
     kinds[kind] === 0 ? [] : [t(`kinds.${kind}`, w.counted(kinds[kind]))],
@@ -110,6 +112,9 @@ export function ExchangeSummary({ model, plan }: Props) {
             fileDate: w.format.date(date),
           })}
         </p>
+      ))}
+      {estimates.map(({ key, text }) => (
+        <p key={key}>{text}</p>
       ))}
     </>
   );

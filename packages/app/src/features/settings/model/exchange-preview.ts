@@ -18,12 +18,13 @@ export const EXCHANGE_NAMES: Readonly<Record<ExchangeId, string>> = {
 const estimatesOf = (plan: ExchangeImportPlan) =>
   plan.replaced.reduce((count, item) => count + item.estimates.length, 0);
 
-const NONE: ImportRemedies = { recorded: new Set(), starting: null };
+const NONE: ImportRemedies = { recorded: new Set(), starting: null, estimates: [] };
 
 /**
  * The preview of `plan`; `ticked` is the plan the same file and Log give with `addHeld: true`, passed whenever the
  * held line shows unticked, so the line can count the estimates ticking would replace; `remedies` marks the Matching
- * entries whose item says to delete the entry and gives the starting line its instruction (`importRemedies`).
+ * entries whose item says to delete the entry, gives the starting line its instruction and the estimate lines
+ * (`importRemedies`).
  */
 export function previewModel(plan: ExchangeImportPlan, ticked: ExchangeImportPlan = plan, remedies = NONE) {
   const of = (kind: Entry['kind']) => plan.entries.filter((entry) => entry.kind === kind);
@@ -58,6 +59,7 @@ export function previewModel(plan: ExchangeImportPlan, ticked: ExchangeImportPla
     startingAmount: plan.startingAmount === null ? null : { ...plan.startingAmount, remedy: remedies.starting },
     cancelled: plan.cancelled,
     short: plan.short,
+    estimates: remedies.estimates,
     withdrawals: plan.withdrawals,
     leftOut: plan.leftOut,
     counted: { imported: plan.imported, deleted: plan.deleted, unitsCut: plan.unitsCut, feesInCoin: plan.feesInCoin },
