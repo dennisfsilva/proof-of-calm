@@ -41,8 +41,8 @@ export const near = (day: Day, date: CalendarDate, days: number) =>
 /**
  * Step 3: "In a plan with a starting amount above 0, or for a coin with a live `lump`, C's purchases dated on or before
  * `firstBuy` + 15 days that step 2 left are left out and named, however long before `firstBuy` they are: the file
- * cannot tell the starting amount from them. A one-tap `lump` is never replaced." The line names each purchase, in
- * date order, and every live `lump`, in `compareEntries` order.
+ * cannot tell the starting amount from them. A one-tap `lump` is never replaced." It returns each purchase, in date
+ * order, and every live `lump`, in `compareEntries` order; the line names the lumps of the purchases' coins.
  */
 export function startingGuard(plan: Plan, live: readonly Entry[], days: readonly Day[]) {
   const through = addDays(plan.firstBuy, IMPORT_MATCH_DAYS);
