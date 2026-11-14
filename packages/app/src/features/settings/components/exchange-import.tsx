@@ -159,6 +159,8 @@ function Preview({ file, name, onDone, onBusy, plan: livePlan }: Props & { reado
     ]
       .filter((line) => line !== '')
       .join(' ');
+  // The hint names as many Coins added entries as the held line does.
+  const heldEntries = held ? held.coins.reduce((count, coin) => count + coin.entries.length, 0) : 0;
 
   return (
     <section aria-labelledby={headingId} className="flex flex-col gap-stack-md">
@@ -208,7 +210,7 @@ function Preview({ file, name, onDone, onBusy, plan: livePlan }: Props & { reado
             />
             <span className="py-3">{t('addHeld')}</span>
           </label>
-          <p className="text-ink-2">{t('addHeldHint')}</p>
+          <p className="text-ink-2">{t('addHeldHint', { count: heldEntries })}</p>
         </div>
       )}
       <ExchangeSections model={model} plan={plan} exchange={file.exchange} />
