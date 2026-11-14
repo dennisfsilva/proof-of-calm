@@ -1110,8 +1110,9 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
 - Lines that ask for a change (decided 2026-11-14): `importRemedies(file, stored, addHeld, context)`
   (`packages/core/src/import/exchange/plan-remedy.ts`) says which `looks recorded already` items end with
   "To import the file's transaction instead, delete that entry in the Log, then choose the file again."
-  (`transactions` when the item names more than one transaction), and which instruction, if any, the
-  starting line ends with (step 3). It plans the file with no venue (no step reads one), and checks each Log row (`transactionKey`: kind, date and slot, no coin) that an item names,
+  (`transactions` when the item names more than one transaction), which instruction, if any, the
+  starting line ends with (step 3), and which rows of the estimate line end with their change (`estimates`,
+  below). It plans the file with no venue (no step reads one), and checks each Log row (`transactionKey`: kind, date and slot, no coin) that an item names,
   in the section's order, in two orders: on the Log as shown, planned with the box for coins held unticked
   as the file chosen again opens (so ticking the box keeps the line), and on the Log after importing the
   shown plan, box as set, first (`applyExchangeImport`), where the row is taken again by its key, so an entry the import adds on
@@ -1146,7 +1147,8 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   `planExchangeImport` works out each coin and date's month (step 6) once per plan, at most
   `IMPORT_RECORDED_CHECKS` rows (§9) are checked for each line, none in a file of more than
   `IMPORT_REMEDY_MAX_MOVEMENTS` movements (§9), and nothing is planned again when no row named passes the
-  first test (no `lump`, only hand entries the plan names) and the starting line has no candidate; an item
+  first test (no `lump`, only hand entries the plan names), the starting line has no candidate and the
+  estimate line has no row; an item
   past them, after a starting amount or naming an imported entry keeps its plain line, and a starting line
   with no candidate that passes asks for no change (`docs/CONTENT-STYLE.md` §3 row `Import an exchange's file`).
   The estimate line (decided 2026-11-14, `estimateLines`): a Log row (`transactionKey`) of live one-tap

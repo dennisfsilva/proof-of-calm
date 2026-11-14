@@ -291,6 +291,13 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   day, where Today keeps offering it, claiming that day's monthly purchase. The starting line's
   change was checked with the date's summed figures, while the line lists each fill, so typing one
   fill's figures leaves the others out (#210, 2026-11-14).
+- A rule that compares a date's summed amount with two targets is walked with the date cut on each
+  side and with the targets in each order, and a property's precondition skips exactly the
+  exception the documents state, each case pinned by a unit test. A lump's claim by its amount was
+  decided with the cost of an export that ends inside the lump's date. The first review found one
+  that begins inside it. The second found a starting amount below the monthly part, where part of a
+  date passes the test the whole date fails, so a cut moves the claim to another date (#216,
+  2026-11-14).
 
 ## Known gaps
 
