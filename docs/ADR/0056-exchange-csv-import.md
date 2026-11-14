@@ -122,10 +122,10 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
 - 2026-11-14, the guards and gaps: with a starting amount above 0, or a live `lump` of the coin, every
   purchase step 2 left dated on or before `firstBuy` + 15 days is left out and named, to record by hand;
   the starting amount's choice moves to M4, replacing Consequences' "(planned: M2)" for it. A hand
-  `held` entry guards a purchase or receipt of at most its units on or before its date, a purchase
-  only when its cost is not 0, narrowing the holding of 2026-11-13; the line names every entry that
-  guards. A trade a Trade Republic cancellation pairs whose entry is live is named for the person to
-  delete, with the estimate it replaced when that leaves its month none; a receipt stored with fewer
-  units than the file now gives is named with both figures and the file's date when it differs. The
-  move check and that comparison round half-even at the places the preview shows. Nothing is
-  tombstoned or edited, so after the named changes the Log is one import's but for those estimates.
+  `held` entry guards a purchase or receipt of at most its units on or before its date, a purchase only
+  at a cost other than 0, narrowing the holding of 2026-11-13; the line names every such entry. A trade
+  a Trade Republic cancellation pairs whose entry is live is named for deletion, with the estimate it
+  replaced when that leaves its month none; a receipt stored with fewer units is named with both
+  figures, and the file's date when it differs. The move check and that comparison round half-even at
+  the shown places. A hand monthly buy takes its 3 days only when its month has no date of its coin.
+  Nothing is tombstoned or edited: after the named changes the Log is one import's but for those estimates.
