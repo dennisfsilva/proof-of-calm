@@ -12,7 +12,7 @@ import {
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, userEvent } from 'storybook/test';
 import { fixtureNowMs, fixtureSnapshot } from '../../../lib/services/fixtures';
-import { KRAKEN_LEFT_OUT, KRAKEN_OCTOBER, ONE_TAP_OCTOBER } from '../../../lib/services/kraken.testing';
+import { KRAKEN_LEFT_OUT, KRAKEN_OCTOBER, krakenLedger, ONE_TAP_OCTOBER } from '../../../lib/services/kraken.testing';
 import { TRADE_REPUBLIC_OCTOBER } from '../../../lib/services/trade-republic.testing';
 import { previewModel } from '../model/exchange-preview';
 import { exchangeContext } from '../model/import';
@@ -20,7 +20,9 @@ import { ExchangeSections, ExchangeSummary } from './exchange-import-sections';
 
 // The exchange import's preview sections over the fixture plan, from synthetic Kraken ledgers and a synthetic Trade
 // Republic export (ADR-0056): an import that replaces an estimate, one that fills October's months, one the Log
-// records already, one with an item that says to delete its entry and one that does not, one whose rows are all left out, Trade Republic's rows left out in its words, and a file imported
+// records already, one with an item that says to delete its entry and one that does not, one whose rows are all left
+// out, a purchase the file cannot tell from the starting amount the Log holds, Trade Republic's rows left out in its
+// words, and a file imported
 // before, with nothing to add. Each play opens its sections, so the test projects of
 // vitest.config.ts check the open lists at 360 and 1280 px, light and dark, with axe.
 
@@ -133,6 +135,21 @@ export const LeftOut: Story = {
     await expect(canvas.getByText('Nothing to add from this file.')).toBeVisible();
     await userEvent.click(canvas.getByRole('button', { name: 'Left out (11)' }));
     await expect(canvas.getByRole('list', { name: 'Left out (11)' })).toBeVisible();
+  },
+};
+
+/** The starting amount the fixture's Log holds in two lumps, and a purchase of 20 Mar the file cannot tell from it. */
+const march20 = krakenLedger([
+  ['S1', '2026-03-20 09:00:00', 'trade', 'EUR', '-700.0000', '0.0000'],
+  ['S1', '2026-03-20 09:00:00', 'trade', 'BTC', '0.0125000000', '0.0000000000'],
+]);
+
+export const StartingAmountInTheLog: Story = {
+  args: { shown: planOf(march20, fixture.entries) },
+  play: async ({ canvas }) => {
+    await userEvent.click(canvas.getByRole('button', { name: 'Left out (1)' }));
+    await expect(canvas.getByText(/0\.0125 BTC for €700\.00 on 20 Mar 2026/)).toBeVisible();
+    await expect(canvas.getByText(/which the Log holds as 0\.0125 BTC for €700\.00 on 5 Apr 2026/)).toBeVisible();
   },
 };
 
