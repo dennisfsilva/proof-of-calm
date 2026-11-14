@@ -9,6 +9,7 @@ import {
   MAX_UNIT_DECIMALS,
   type MonthKey,
   type Plan,
+  shownPlaces,
   sum,
 } from '@proofofcalm/core';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@proofofcalm/ui/components/collapsible';
@@ -41,9 +42,8 @@ export function useFigure() {
 export function useWords(plan: Plan) {
   const format = useFormatters();
   const figure = useFigure();
-  const places = (coin: string) => plan.coins.find((each) => each.id === coin)?.decimals ?? 8;
   const units = (coin: string, value: Decimal, others: readonly Decimal[] = []) =>
-    format.units(value, coin, Math.min(places(coin), Math.max(0, ...[value, ...others].map(decimalPlaces))));
+    format.units(value, coin, Math.min(shownPlaces(plan, coin), Math.max(0, ...[value, ...others].map(decimalPlaces))));
   const money = (amount: Decimal) => format.money(amount, plan.payCurrency);
   const counted = (count: number) => ({ count, figure: figure(count) });
   return { format, figure, units, money, counted };
@@ -57,6 +57,16 @@ export function ExchangeSummary({ model, plan }: Props) {
   const named = (['monthly', 'extra', 'sales', 'added'] as const).flatMap((kind) =>
     kinds[kind] === 0 ? [] : [t(`kinds.${kind}`, w.counted(kinds[kind]))],
   );
+  // The trades an earlier import stored that this file shows as cancelled, in the Log's figures.
+  const items = w.format.list(
+    model.cancelled.map((entry) =>
+      t('cancelledItem', {
+        units: w.units(entry.coin, entry.units),
+        amount: entry.amount === null ? '' : w.money(entry.amount),
+        date: w.format.date(entry.date),
+      }),
+    ),
+  );
   return (
     <>
       <p>{entries === 0 ? t('nothing') : t('summary', { ...w.counted(entries), kinds: w.format.list(named) })}</p>
@@ -64,6 +74,16 @@ export function ExchangeSummary({ model, plan }: Props) {
       {model.noneInCurrency !== null && (
         <p>{t('noneInCurrency', { plan: plan.payCurrency, file: w.format.list(model.noneInCurrency) })}</p>
       )}
+      {model.cancelled.length > 0 && <p>{t('cancelled', { ...w.counted(model.cancelled.length), items })}</p>}
+      {model.short.map(({ entry, units }) => (
+        <p key={entry.id}>
+          {t('short', {
+            date: w.format.date(entry.date),
+            log: w.units(entry.coin, entry.units, [units]),
+            file: w.units(entry.coin, units, [entry.units]),
+          })}
+        </p>
+      ))}
     </>
   );
 }
@@ -98,7 +118,8 @@ export function ExchangeSections({ model, plan, exchange }: SectionsProps) {
       hasVenue: venue && entry.venue !== null ? 'yes' : 'no',
       venue: entry.venue ?? '',
       amount: entry.amount === null ? '' : w.money(entry.amount),
-      hasFee: entry.fee === null ? 'no' : 'yes',
+      // A fee of 0 reads as no fee: "fee €0.00" says nothing.
+      hasFee: entry.fee === null || isZero(entry.fee) ? 'no' : 'yes',
       fee: entry.fee === null ? '' : w.money(entry.fee),
     });
   const each = (entries: readonly Entry[], text: (entry: Entry) => string) =>
@@ -197,7 +218,7 @@ function useLeftOut({ model, plan, exchange }: SectionsProps, w: ReturnType<type
       t('starting', {
         ...w.counted(starting.purchases),
         days: IMPORT_MATCH_DAYS,
-        date: w.format.date(starting.firstBuy),
+        date: w.format.date(starting.through),
       }),
   );
   for (const reason of ['reward', 'coin-deposit'] as const) {
