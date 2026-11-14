@@ -259,6 +259,13 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   branch's early dates found, at one seed, a non-convergence in #196's step-2 fallback: a typed
   monthly buy fell back to its 3 days whenever its walk claimed nothing. Its fix then took the
   branch's second fix round (#197, 2026-11-14).
+- A line that tells a person what to change in the Log, then to choose the file again, is proven by
+  a test that makes the change to the stored entries and plans the file again, in every state the
+  line can show: before the import, after the person imports first, and after a shorter export stored
+  the purchase. Reasoning about the state missed each failure in session 22c (#197, 2026-11-14). The
+  starting-amount line said to record a purchase the Log already counted. The still-late line named a
+  month Record does not open. After the estimate line's date change, another hand entry took the
+  purchase. All three wait for #200's design check.
 
 ## Known gaps
 
