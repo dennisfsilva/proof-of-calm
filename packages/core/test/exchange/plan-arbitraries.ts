@@ -147,7 +147,8 @@ const PLANS: readonly Plan[] = [
 
 /**
  * A Log: one-tap estimates (3 days early to 35 days late, some tombstoned, two for one month), hand entries of every
- * hand source and `held` entries of every source near the file's dates, moves, a one-tap `lump`, another exchange's
+ * hand source and `held` entries of every source near the file's dates, moves, a one-tap `lump` on the first buy or
+ * near the file's dates, another exchange's
  * monthly buy, tombstoned hand and `held` entries, and rows of the file imported or deleted earlier.
  */
 function log(
@@ -229,9 +230,12 @@ function log(
       .map(({ coin, day }) =>
         anEntry({ kind: 'held', coin, slot: null, date: day, amount: null, venue: 'Ledger', deletedAt: NOW }),
       ),
-    planCoin.map((coin) =>
-      anEntry({ kind: 'lump', coin, slot: null, date: plan.firstBuy, source: 'one-tap', venue: 'Bitvavo' }),
-    ),
+    // A one-tap lump on the first buy, or near the file's dates as hand entries are, so rule R's claim is reached.
+    fc
+      .record({ coin: planCoin, day: fc.oneof(fc.constant(plan.firstBuy), around(dates, 3), nearBase(1)) })
+      .map(({ coin, day }) =>
+        anEntry({ kind: 'lump', coin, slot: null, date: day, source: 'one-tap', venue: 'Bitvavo' }),
+      ),
     fc
       .record({ coin: planCoin, slot, late: fc.integer({ min: -3, max: 10 }) })
       .map(({ coin, slot: { key, due }, late }) =>
