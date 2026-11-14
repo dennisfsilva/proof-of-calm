@@ -136,3 +136,8 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   the starting amount, per coin, and asks for no change, replacing "to record by hand"; an instruction
   shown only when the file planned again on the changed Log proves it follows (#204, #205). The rest
   stands.
+- 2026-11-14, the left-out lines of a Trade Republic export: a trade and the cancellation that pairs
+  with it go out together as `cancelled`, one left-out row holding both lines, and a cancellation with
+  no trade to pair goes out alone as `unpaired` (`docs/DOMAIN.md` §3.13), replacing the 2026-11-13
+  entry's "both rows are left out as unpaired", so the preview names each cause in its own sentence.
+  The rest stands.
