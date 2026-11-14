@@ -98,3 +98,7 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   coin-withdrawal line. The key is `poc-csv-1|trade-republic|<transaction_id>|<COIN>|<in|out>`. Not
   yet recognised by the file reader, and a cancelled buy an earlier import stored is not reached
   (planned: M2). The rest stands.
+- 2026-11-14: The naming extends to Trade Republic: `Trade Republic` names a file format and the
+  entries' default venue under the same rule as `Kraken`: listed alphabetically, unlinked, with no
+  logo, status word, comparison or reason to use it; it shows beside `Choose a file`, in the
+  not-recognised alert and in the import's own lines, nowhere else.
