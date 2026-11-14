@@ -1100,8 +1100,9 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   is read and when a choice (the venue, the held answer) changes, not when another tab writes or the day
   turns, and Import passes it as the shown plan, so the write refuses `changed` when the plan or the Log
   moved since in a way that changes what the file adds. A new day alone changes nothing the file adds:
-  today reaches the plan only through the months' statuses, and late, due and upcoming months are all
-  filled. The refusal pins the new preview with the choices kept. Step 5 names the estimates the write
+  today reaches the plan only through the months' statuses, which it reads over no entries (step 6:
+  `slotStatuses(plan, [], context.today)` in `planExchangeImport`), so no month is done, and a new day only
+  moves months between late, due and upcoming, which the import treats alike. The refusal pins the new preview with the choices kept. Step 5 names the estimates the write
   tombstones and the note and venue each entry added takes. "A replaced estimate is tombstoned with `deletedAt` and `updatedAt`
   at `stampAfter(now, its updatedAt)`", and the tombstone keeps every other field of the estimate, so a
   later import dates purchases by its date and month (step 6). "`applyExchangeImport` refuses
