@@ -1088,6 +1088,26 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   the places the preview shows: the coin's decimals in the plan, 8 for a coin it does not list" (decided
   2026-11-14; `shownPlaces`, which the preview's figures use too), each move answering one withdrawal. The plan counts the entries it adds whose units were cut to 10 decimals and
   whose fee was in the coin, "valued at the trade's own price", for the preview.
+- The plan's named months (`packages/core/src/import/exchange/plan-lines.ts`; decided 2026-11-14): two lines
+  after the summary name what the month rule (step 6) leaves for the person, each only in states where every
+  sentence it shows holds. `stillLate`: "A month is still late when it is late once the import's entries are
+  stored, its due date lies within the file's first and last dates, and no purchase of the plan's coins in the
+  file counts for it, stored or not." A purchase counts for the month step 6 gives it and for the month whose
+  due date is nearest, so a month whose purchase step 2 claimed, step 3 or 4 left out, an earlier import stored
+  or deleted, or the file pairs with a cancellation is not named, nor one whose nearest buy day a purchase has
+  while an estimate dates it to another month. The status is the month's, over every coin (§3.2), so a skipped
+  or paused month is never named. The months are named in the order the Log's Record opens them (`actionsNow`,
+  `primaryAction`), up to the first open action that is not such a month (the starting amount while it is not
+  logged, a month outside the file's dates, a month a purchase counts for), so "record it in the Log with that
+  day" opens each named month in turn, and the monthly buy typed on the purchase's date claims it by its 3 days
+  (step 2) when the file is chosen again. `estimatesLeft`: "A live one-tap estimate of C for S that the file
+  does not replace is named with the earliest added monthly buy of C dated in S's calendar month that counts
+  for another month T by T's buy day: nearer than S's, and nearer than any one-tap estimate of C for T." A buy
+  that counts for T through T's own estimate is not named, since the line gives the buy day as the reason, nor
+  is an estimate for a month the plan no longer lists. Changing the estimate's date to the purchase's keeps it an
+  estimate for S (`savedSource`; the Log's edit keeps the slot), so its anchor reaches the date at 0 days and the
+  file replaces it when chosen again. Unlike what the file adds, both lines read today and the Log's statuses,
+  so the pinned preview keeps the lines of the day the file was read.
 - The write (decided 2026-11-13, ADR-0056): `applyExchangeImport(stored, plan, now)` writes a plan in one
   write, all or nothing, and Settings' `exchangeImportActions` (`packages/app/src/features/settings/exchange-actions.ts`)
   runs it in the domain store's queue on the entries as stored. Rows from a newer version (below) refuse it
