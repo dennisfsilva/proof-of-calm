@@ -30,9 +30,8 @@ export type HeldCoin = {
   readonly purchases: number;
   readonly units: Units;
   readonly through: CalendarDate;
-  readonly heldUnits: Units;
-  readonly heldDate: CalendarDate;
-  readonly heldVenue: string | null;
+  /** Every entry that guards a date, oldest first: the latest is `through`. */
+  readonly entries: readonly { readonly units: Units; readonly date: CalendarDate; readonly venue: string | null }[];
 };
 
 const within = (day: Day, from: CalendarDate, to: CalendarDate) => from <= day.date && day.date <= to;
@@ -63,8 +62,8 @@ export function startingGuard(plan: Plan, live: readonly Entry[], days: readonly
  * Step 4: "Each live hand `held` entry of C guards C's purchase dates on or before its date that hold a purchase of at
  * most its units, unless its cost is 0, and C's receipt dates on or before its date that hold a receipt of at most its
  * units, whatever its cost. The dates any such entry guards are `may be the coins you added`, one answer for all. A
- * `held` entry an exchange import added guards nothing." The line names the latest entry that guards a date: every
- * date guarded is on or before it.
+ * `held` entry an exchange import added guards nothing." The line names every entry that guards a date, in the Log's
+ * order: every date guarded is on or before the latest.
  */
 export function heldGuard(plan: Plan, live: readonly Entry[], days: readonly Day[], addHeld: boolean) {
   const coins: HeldCoin[] = [];
@@ -88,11 +87,11 @@ export function heldGuard(plan: Plan, live: readonly Entry[], days: readonly Day
       day.items.splice(0, day.items.length, ...day.items.filter((item) => !held.includes(item)));
       day.claimed = day.items.length === 0;
     }
-    const latest = [...guarding].sort(compareEntries).at(-1);
+    const entries = [...guarding].sort(compareEntries).map(({ units, date, venue }) => ({ units, date, venue }));
+    const latest = entries.at(-1);
     if (latest === undefined) continue;
     const units = sum(items.map((item) => item.movement.units));
-    const [heldUnits, heldDate, heldVenue] = [latest.units, latest.date, latest.venue];
-    coins.push({ coin, purchases: items.length, units, through: latest.date, heldUnits, heldDate, heldVenue });
+    coins.push({ coin, purchases: items.length, units, through: latest.date, entries });
   }
   return coins.length === 0 ? null : { added: addHeld, coins };
 }

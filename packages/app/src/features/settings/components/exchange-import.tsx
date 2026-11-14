@@ -140,17 +140,20 @@ function Preview({ file, name, onDone, onBusy, plan: livePlan }: Props & { reado
   const heldLine =
     held &&
     [
-      ...held.coins.map((coin) =>
-        t('held', {
-          ...w.counted(coin.purchases),
-          coin: coin.coin,
-          units: w.units(coin.coin, coin.units, [coin.heldUnits]),
-          heldUnits: w.units(coin.coin, coin.heldUnits, [coin.units]),
-          heldDate: w.format.date(coin.heldDate),
-          hasVenue: coin.heldVenue === null ? 'no' : 'yes',
-          venue: coin.heldVenue ?? '',
-        }),
-      ),
+      ...held.coins.map((coin) => {
+        // One sentence, so the units share their places (DESIGN §5 rule 7).
+        const all = [coin.units, ...coin.entries.map((entry) => entry.units)];
+        const entries = coin.entries.map((entry) => ({
+          heldUnits: w.units(coin.coin, entry.units, all),
+          heldDate: w.format.date(entry.date),
+          hasVenue: entry.venue === null ? 'no' : 'yes',
+          venue: entry.venue ?? '',
+        }));
+        const counted = { ...w.counted(coin.purchases), coin: coin.coin, units: w.units(coin.coin, coin.units, all) };
+        if (entries.length === 1) return t('held', { ...counted, ...entries[0] });
+        const items = w.format.list(entries.map((entry) => t('heldItem', entry)));
+        return t('heldMany', { ...counted, entries: w.figure(entries.length), items });
+      }),
       t('heldAnswer'),
       held.replaces > 0 ? t('heldReplaces', w.counted(held.replaces)) : '',
     ]
