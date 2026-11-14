@@ -1,8 +1,7 @@
 // The exchange import's lines that ask for a change in the Log (docs/DOMAIN.md §3.13, "Lines that ask for a change"):
 // each shows only when the change, made as the Log makes it, and the file planned again end as the line says and keep
-// every other date group, on the Log as shown and on the Log after importing the shown plan first. This branch checks
-// Delete entry, for the sentence under `Matching entries`, and makes Edit entry and Record a purchase as the Log makes
-// them, for the starting line's sentence (planned).
+// every other date group, on the Log as shown and on the Log after importing the shown plan first. Delete entry, for the
+// sentence under `Matching entries`; Edit entry and Record a purchase, for the starting amount's line.
 import {
   deleteEntries,
   saveTransaction,
@@ -15,14 +14,15 @@ import { keepSources } from '../../actions/rows';
 import { IMPORT_RECORDED_CHECKS, IMPORT_REMEDY_MAX_MOVEMENTS } from '../../constants';
 import type { CalendarDate, MonthKey } from '../../dates/calendar';
 import { transactionKey } from '../../log/group';
-import { type Money, sum, type Units } from '../../money/decimal';
+import { abs, compare, isZero, type Money, minus, sum, type Units } from '../../money/decimal';
+import { plannedParts } from '../../plan/parts';
 import { liveEntries } from '../../plan/statuses';
 import { assertNever } from '../../result';
 import type { Entry } from '../../schema/entry';
 import type { CoinId, EntityId } from '../../schema/ids';
 import type { Plan } from '../../schema/plan';
 import { applyExchangeImport } from './apply';
-import type { ExchangeFile } from './kraken';
+import type { ExchangeFile, Movement } from './kraken';
 import { type ExchangeImportPlan, type ImportContext, planExchangeImport } from './plan';
 import { HAND } from './plan-claims';
 
@@ -153,17 +153,152 @@ export function keepsPromise(
   );
 }
 
-export type ImportRemedies = { readonly recorded: ReadonlySet<EntityId> };
+/** The starting line's instruction: change a row of lumps to `date`, or record the starting amount on it. */
+export type StartingRemedy = { readonly kind: 'change' | 'record'; readonly date: CalendarDate };
+export type ImportRemedies = {
+  readonly recorded: ReadonlySet<EntityId>;
+  readonly starting: StartingRemedy | null;
+};
+
+/** A coin's movements of one role on one date that no stored entry holds, summed, with each movement's units. */
+type Group = {
+  readonly date: CalendarDate;
+  readonly amount: Money;
+  readonly units: Units;
+  readonly each: readonly Units[];
+  readonly ids: readonly EntityId[];
+};
+type GroupOf = (coin: CoinId, date: CalendarDate, role: Movement['role']) => Group;
+function groupsOf(file: ExchangeFile, stored: Stored, context: ImportContext): GroupOf {
+  const known = new Set(stored.entries.map((entry) => entry.id));
+  return (coin, date, role) => {
+    const movements = file.movements
+      .filter((movement) => movement.coin === coin && movement.role === role && context.dateOf(movement.at) === date)
+      .filter((movement) => !known.has(context.idOf(movement.key)));
+    const each = movements.map((movement) => movement.units);
+    const amount = sum(movements.map((movement) => movement.amount as Money));
+    return { date, amount, units: sum(each), each, ids: movements.map((movement) => context.idOf(movement.key)) };
+  };
+}
+/** A change that passed the cheap tests, made on either order's Log, and the groups it touches. */
+type Remedy<T> = {
+  readonly line: T;
+  readonly change: (entries: readonly Entry[]) => LogChange;
+  readonly touched: readonly Touched[];
+};
+
+const rowOf = (entries: readonly Entry[], key: string) =>
+  liveEntries(entries).filter((entry) => transactionKey(entry) === key);
+
+/**
+ * The starting line's instructions that pass the cheap tests, record first, then the Log's rows of lumps newest first
+ * (at most `IMPORT_RECORDED_CHECKS`). d* of a coin is its named date group or a date its considered lump records, the
+ * one whose amount is nearest the target (the lump's amount, or the coin's part of the starting amount when no lump is
+ * live), the earlier on a tie; it counts only when named and its amount is no nearer the coin's monthly part than the
+ * target. Record needs every coin with a starting part to have d* on one date that no hand `held` entry guards; a
+ * change, every lump of the row.
+ */
+export function startingRemedies(
+  file: ExchangeFile,
+  stored: Stored,
+  shown: ExchangeImportPlan,
+  context: ImportContext,
+): Remedy<StartingRemedy>[] {
+  const starting = shown.startingAmount;
+  if (starting === null) return [];
+  const groupOf = groupsOf(file, stored, context);
+  const { plan } = stored;
+  const monthly = plannedParts(plan, plan.monthlyAmount);
+  const pick = (coin: CoinId, target: Money, recorded: readonly CalendarDate[]) => {
+    const named = starting.items.filter((item) => item.coin === coin).map((item) => item.date);
+    if (named.length === 0) return null;
+    const off = (amount: Money, from: Money) => abs(minus(amount, from));
+    const groups = [...new Set([...named, ...recorded])].sort().map((date) => groupOf(coin, date, 'purchase'));
+    const best = groups.reduce((a, b) => (compare(off(b.amount, target), off(a.amount, target)) < 0 ? b : a));
+    const part = monthly.find((each) => each.coin === coin)?.amount ?? ('0' as Money);
+    const counts = named.includes(best.date) && compare(off(best.amount, target), off(best.amount, part)) <= 0;
+    return counts ? best : null;
+  };
+  const shared = (picks: readonly (Group | null)[]) => {
+    const date = picks[0]?.date;
+    return date !== undefined && picks.every((each) => each?.date === date) ? date : null;
+  };
+  const remedies: Remedy<StartingRemedy>[] = [];
+  const live = liveEntries(stored.entries);
+  if (starting.lumps.length === 0) {
+    const parts = plannedParts(plan, plan.startingAmount);
+    const picks = parts.map((part) => pick(part.coin, part.amount, []));
+    const date = shared(picks);
+    const groups = picks as Group[];
+    // Step 4's test: a hand `held` entry that guards d* would leave it out once recorded.
+    const held = (coin: CoinId, group: Group) =>
+      live.some(
+        (entry) =>
+          entry.kind === 'held' &&
+          entry.coin === coin &&
+          entry.source !== 'import-csv' &&
+          group.date <= entry.date &&
+          !(entry.amount !== null && isZero(entry.amount)) &&
+          group.each.some((units) => compare(units, entry.units as Units) <= 0),
+      );
+    if (date !== null && !parts.some((part, index) => held(part.coin, groups[index] as Group))) {
+      const rows = parts.map((part, index) => {
+        const { amount, units } = groups[index] as Group;
+        return { coin: part.coin, amount, units };
+      });
+      const draft = { kind: 'lump', date, slot: null, fee: null, note: '', venue: null, rows } as const;
+      const touched = parts.map((part, index) => ({
+        coin: part.coin,
+        date,
+        ids: (groups[index] as Group).ids,
+        end: { recordedBy: context.idOf(`remedy|starting|${part.coin}`) },
+      }));
+      remedies.push({ line: { kind: 'record', date }, change: () => ({ kind: 'record', draft }), touched });
+    }
+  }
+  const keys = [...new Set(starting.lumps.map(transactionKey))].reverse().slice(0, IMPORT_RECORDED_CHECKS);
+  for (const key of keys) {
+    const row = starting.lumps.filter((entry) => transactionKey(entry) === key);
+    const dates = (entry: Entry) =>
+      shown.recorded.filter((item) => item.entry.id === entry.id).flatMap((item) => item.dates);
+    const picks = row.map((entry) => pick(entry.coin, entry.amount as Money, dates(entry)));
+    const date = shared(picks);
+    if (date === null) continue;
+    const groups = picks as Group[];
+    const figures = new Map(row.map((entry, index) => [entry.id, groups[index] as Group]));
+    const touched = row.flatMap((entry, index): Touched[] => [
+      { coin: entry.coin, date, ids: (groups[index] as Group).ids, end: { recordedBy: entry.id } },
+      ...dates(entry)
+        .filter((each) => each !== date)
+        .map((each) => ({
+          coin: entry.coin,
+          date: each,
+          ids: groupOf(entry.coin, each, 'purchase').ids,
+          end: 'any' as const,
+        })),
+    ]);
+    const change = (entries: readonly Entry[]): LogChange => ({
+      kind: 'edit',
+      row: rowOf(entries, key),
+      date,
+      figures,
+    });
+    remedies.push({ line: { kind: 'change', date }, change, touched });
+  }
+  return remedies;
+}
 
 /**
  * The entries of `Matching entries` whose Log row may be deleted to import the file's instead, checked in both orders the
  * person may follow the sentence: on the Log as shown (planned unticked), and on the Log after importing the shown plan
- * (planned with the box as set) first. In each, the row (the live entries with the item's `transactionKey`) holds no
- * `lump`, every entry of it is a hand entry that records a date of the file, the Log deletes it, and the file planned
- * again with the box unticked, as choosing it again opens the preview, adds every date the row records (a monthly buy's
- * as monthly buys for its month) and keeps every other date group. At most `IMPORT_RECORDED_CHECKS` rows are checked, in
- * the section's order, and none for a file of more than `IMPORT_REMEDY_MAX_MOVEMENTS` movements; nothing is planned
- * again when no row can pass. Planned with no venue, since no step reads one.
+ * (planned with the box as set) first, unless that import is refused. In each, the row (the live entries with the item's
+ * `transactionKey`) holds no `lump`, every entry of it is a hand entry that records a date of the file, the Log deletes
+ * it, and the file planned again with the box unticked, as choosing it again opens the preview, adds every date the row
+ * records (a monthly buy's as monthly buys for its month) and keeps every other date group. `starting` is the first of
+ * `startingRemedies` that, made in both orders, records d* by the lump and keeps every other date group. At most
+ * `IMPORT_RECORDED_CHECKS` rows are checked for each line, in the Log's order, and none for a file of more than
+ * `IMPORT_REMEDY_MAX_MOVEMENTS` movements; nothing is planned again when no row can pass. Planned with no venue, since
+ * no step reads one.
  */
 export function importRemedies(
   file: ExchangeFile,
@@ -171,37 +306,29 @@ export function importRemedies(
   addHeld: boolean,
   context: ImportContext,
 ): ImportRemedies {
-  if (file.movements.length > IMPORT_REMEDY_MAX_MOVEMENTS) return { recorded: new Set() };
+  if (file.movements.length > IMPORT_REMEDY_MAX_MOVEMENTS) return { recorded: new Set(), starting: null };
   const shown = planExchangeImport(file, stored, { venue: null, addHeld }, context);
   const records = new Set(shown.recorded.map((item) => item.entry.id));
-  const rowOf = (entries: readonly Entry[], key: string) =>
-    liveEntries(entries).filter((entry) => transactionKey(entry) === key);
   const candidate = (row: readonly Entry[]) =>
     !row.some((entry) => entry.kind === 'lump' || !HAND.has(entry.source) || !records.has(entry.id));
   const keys = [...new Set(shown.recorded.map((item) => transactionKey(item.entry)))].slice(0, IMPORT_RECORDED_CHECKS);
   const candidates = keys.filter((key) => candidate(rowOf(stored.entries, key)));
-  if (candidates.length === 0) return { recorded: new Set() };
+  const starts = startingRemedies(file, stored, shown, context);
+  if (candidates.length === 0 && starts.length === 0) return { recorded: new Set(), starting: null };
 
   const anew = (entries: readonly Entry[]) =>
     planExchangeImport(file, { plan: stored.plan, entries }, { venue: null, addHeld: false }, context);
-  const imported = applyExchangeImport(stored.entries, shown, context.now).entries;
+  const imported = applyExchangeImport(stored.entries, shown, context.now);
   // Choosing the file again opens it unticked, so the Log as shown is compared unticked too.
   const orders = [
     { entries: stored.entries, shown: addHeld ? anew(stored.entries) : shown },
-    { entries: imported, shown: anew(imported) },
+    ...(imported.refused === null ? [{ entries: imported.entries, shown: anew(imported.entries) }] : []),
   ];
-  const known = new Set(stored.entries.map((entry) => entry.id));
+  const groupOf = groupsOf(file, stored, context);
   const idsOn = (item: ExchangeImportPlan['recorded'][number], date: CalendarDate) =>
-    file.movements
-      .filter((movement) => movement.coin === item.coin && context.dateOf(movement.at) === date)
-      .filter((movement) => movement.role === (item.entry.kind === 'sell' ? 'sale' : 'purchase'))
-      .map((movement) => context.idOf(movement.key))
-      .filter((id) => !known.has(id));
-  const holds = (log: (typeof orders)[number], key: string, touched: readonly Touched[]) => {
-    const row = rowOf(log.entries, key);
-    if (!candidate(row)) return false;
-    const ids = row.map((entry) => entry.id);
-    const entries = changedLog({ plan: stored.plan, entries: log.entries }, { kind: 'delete', ids }, context);
+    groupOf(item.coin, date, item.entry.kind === 'sell' ? 'sale' : 'purchase').ids;
+  const holds = (log: (typeof orders)[number], change: LogChange, touched: readonly Touched[]) => {
+    const entries = changedLog({ plan: stored.plan, entries: log.entries }, change, context);
     return entries !== null && keepsPromise(log.shown, anew(entries), touched);
   };
   const deletable = (key: string) => {
@@ -216,12 +343,17 @@ export function importRemedies(
           end: { added: item.entry.kind === 'dca' ? item.entry.slot : null },
         })),
       );
-    return orders.every((log) => holds(log, key, touched));
+    return orders.every((log) => {
+      const own = rowOf(log.entries, key);
+      return candidate(own) && holds(log, { kind: 'delete', ids: own.map((entry) => entry.id) }, touched);
+    });
   };
   const passed = new Set(candidates.filter(deletable));
+  const starting = starts.find((each) => orders.every((log) => holds(log, each.change(log.entries), each.touched)));
   return {
     recorded: new Set(
       shown.recorded.filter((item) => passed.has(transactionKey(item.entry))).map((item) => item.entry.id),
     ),
+    starting: starting?.line ?? null,
   };
 }
