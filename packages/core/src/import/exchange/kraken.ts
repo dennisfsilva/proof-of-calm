@@ -57,6 +57,8 @@ export type ExchangeFile = {
   readonly last: Instant | null;
   readonly movements: readonly Movement[];
   readonly leftOut: readonly LeftOutRow[];
+  /** The trades a cancellation in the file pairs, each under the key it would have had (Trade Republic only). */
+  readonly cancelled: readonly Movement[];
 };
 
 // "The reader reads txid, refid, time, type, subtype, asset, amount and fee by header name, in any order, and
@@ -294,5 +296,6 @@ export function readKrakenLedger(header: readonly string[], data: readonly (read
     last: times.at(-1) ?? null,
     movements: sorted.filter((item): item is Movement => 'key' in item),
     leftOut: sorted.filter((item): item is LeftOutRow => 'reason' in item),
+    cancelled: [],
   };
 }

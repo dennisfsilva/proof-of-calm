@@ -156,7 +156,10 @@ function cancel(trades: readonly Trade[], cancels: readonly Cancel[]) {
       match === undefined ? left('unpaired', [row.line], row.at) : left('unpaired', [match.line, row.line], match.at),
     );
   }
-  return { out, kept: trades.filter((trade) => !paired.has(trade)) };
+  // "Trade Republic's reader returns each paired trade in `cancelled` under the key it would have had", so the plan
+  // can name one an earlier import stored.
+  const kept = trades.filter((trade) => !paired.has(trade));
+  return { out, kept, paired: trades.filter((trade) => paired.has(trade)).map(movementOf) };
 }
 
 /**
@@ -248,5 +251,6 @@ export function readTradeRepublic(header: readonly string[], data: readonly (rea
     last: times.at(-1) ?? null,
     movements: sorted.filter((item): item is Movement => 'key' in item),
     leftOut: sorted.filter((item): item is LeftOutRow => 'reason' in item),
+    cancelled: cancelled.paired.toSorted((a, b) => Math.min(...a.lines) - Math.min(...b.lines)),
   };
 }

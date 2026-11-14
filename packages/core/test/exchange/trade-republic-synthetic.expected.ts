@@ -70,4 +70,6 @@ export const TRADE_REPUBLIC_SYNTHETIC: ExchangeFile = {
   last: instant('2026-07-04T08:00:00Z'),
   movements,
   leftOut,
+  // Line 13: the SOL buy line 14 cancels, under the key it would have had (transaction_id 12).
+  cancelled: [{ ...trade(12, 13, '2026-07-02T10:00:00.200Z', 'SOL', ['0.25', '35', '1']), role: 'purchase' }],
 };

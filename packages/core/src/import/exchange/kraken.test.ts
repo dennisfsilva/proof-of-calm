@@ -152,6 +152,7 @@ describe('readExchangeFile on a Kraken ledger (golden)', () => {
         last: '2025-12-01T09:01:00Z',
         movements: [],
         leftOut: [{ reason, lines: [3], at: '2025-12-01T09:01:00Z', coin, units, column: null }],
+        cancelled: [],
       });
     });
 

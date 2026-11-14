@@ -231,4 +231,5 @@ export const KRAKEN_SYNTHETIC: ExchangeFile = {
   last: instant('2025-12-28T10:00:00Z'),
   movements,
   leftOut,
+  cancelled: [],
 };

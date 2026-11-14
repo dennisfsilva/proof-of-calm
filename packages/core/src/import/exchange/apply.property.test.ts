@@ -1,9 +1,9 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { anEntry, instant } from '../../../test/builders';
-import { type World, worldOf } from '../../../test/exchange/plan-arbitraries';
+import { heldGuards, type World, worldOf } from '../../../test/exchange/plan-arbitraries';
 import { LISBON, NOW } from '../../../test/exchange/plan-fixture';
-import { type CalendarDate, compareInstants, stampAfter } from '../../dates/calendar';
+import { compareInstants, stampAfter } from '../../dates/calendar';
 import { sum } from '../../money/decimal';
 import type { Entry } from '../../schema/entry';
 import { applyExchangeImport, sameImport } from './apply';
@@ -114,7 +114,7 @@ describe('applyExchangeImport over planExchangeImport, with importId', () => {
   );
 
   it(
-    'a purchase a hand entry records, or one dated on or before a hand `held` entry of its coin unticked, is never written, in one import or two',
+    'a purchase a hand entry records, or one a hand `held` entry of its coin guards unticked, is never written, in one import or two',
     () => {
       fc.assert(
         fc.property(world, fc.nat(), fc.boolean(), (drawn, cut, addHeld) => {
@@ -134,15 +134,7 @@ describe('applyExchangeImport over planExchangeImport, with importId', () => {
           const added = [...once.entries, ...first.entries, ...then.entries];
           const stored = new Set(ids(added));
           expect(recorded.filter((id) => stored.has(id))).toEqual([]);
-          const through = new Map<string, CalendarDate>();
-          for (const entry of live(drawn.entries)) {
-            const latest = through.get(entry.coin);
-            if (entry.kind === 'held' && entry.source !== 'import-csv' && (latest === undefined || latest < entry.date))
-              through.set(entry.coin, entry.date);
-          }
-          const leaked = added.filter(
-            (entry) => entry.kind !== 'sell' && entry.date <= (through.get(entry.coin) ?? ''),
-          );
+          const leaked = added.filter((entry) => heldGuards(drawn.entries, entry));
           expect(addHeld ? [] : leaked).toEqual([]);
         }),
         TWICE,
