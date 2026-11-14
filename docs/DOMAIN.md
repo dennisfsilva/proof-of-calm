@@ -1041,17 +1041,19 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      above 0, or for a coin with a live `lump`, C's purchases dated on or before `firstBuy` + 15 days that
      step 2 left are left out and named, however long before `firstBuy` they are: the file cannot tell the
      starting amount from them. A one-tap `lump` is never replaced." A hand `lump` claims in step 2, within
-     3 days of its date. The line names the last date reached, each purchase left out with its units,
+     3 days of its date. The line names the last date reached and that it is `IMPORT_MATCH_DAYS` (§9) days
+     after the first buy day, each purchase left out with its units,
      amount and date in date order (the latest five past five, then how many came earlier), and what the Log
      holds per coin of those purchases: each live `lump` of those coins with its units, amount and date in
-     `compareEntries` order, a one-tap one marked estimated, their date said once when they share it, and
-     each of those coins with no live `lump` as holding none of it, in the same sentence; while no `lump` of
-     any coin is live, that the Log holds no starting amount. A coin's units share their places across the
-     line, purchases and lumps together. A `lump` of another coin is not listed: it says nothing of the
-     named coins' starting amount, so while one is live the sentence names the coins whose starting amount
-     the listed lumps hold. The line asks for one change only, the one `importRemedies` finds (below, "Lines
-     that ask for a change"): "If you bought your whole starting amount on {date}, change its date, cost and
-     units in the Log to the file's", or "record it in the Log with that day and the file's cost and units",
+     `compareEntries` order, a one-tap one marked estimated, their date said once when they share it, then,
+     in a second sentence, each of those coins with no live `lump` as holding no starting amount; while no
+     `lump` of any coin is live, that the Log holds no starting amount. A coin's units share their places
+     across the line, purchases and lumps together. A `lump` of another coin is not listed: it says nothing
+     of the named coins' starting amount, so while one is live the sentence names the coins' part (or parts)
+     of the starting amount the listed lumps hold. The line asks for one change only, the one
+     `importRemedies` finds (below, "Lines that ask for a change"): "If you bought your whole starting amount
+     on {date}, change its date, cost, and units in the Log to the file's", or "record it in the Log with
+     the file's date, cost, and units" (the starting-amount sheet takes every coin's part in one save),
      then choose the file again; never to record a purchase as an extra buy, which would count it twice. The
      purchases of that date always show: older than the latest five, they take the earliest ones' places
      and the list ends with how many more. Choosing per purchase is planned (M4).
@@ -1117,14 +1119,16 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   as recording dates, the Log's own delete of it is allowed (`deleteEntries`, and `uncoveredSale` finds no
   sale left uncovered, the file's own sales included once imported), and planning the file again on the
   Log after that delete (`changedLog`), with the box for coins held unticked as choosing the file again
-  opens it, adds every date its items name, all the file's movements of that coin and role on each, a
+  opens it, adds every date its items name, all the file's movements of that coin and role on each that
+  the plan considers (none in another currency or of a coin the plan does not list), a
   monthly buy's as monthly buys for its month, while keeping every other entry the import adds (every field
   but `updatedAt`) and every estimate it replaces, except those of a month the delete frees, which step 5
   replaces (`keepsPromise`). The promise: a person who follows the line, before importing or after, gets
   the file's transactions for those dates, and every other entry the import adds and estimate it replaces
   stays as it was. The starting line's instruction (`startingRemedies`) is the first candidate that keeps
   the same promise in both orders, the Log changed by `changedLog` as the Log would save it. For a coin,
-  d* is the date of its purchases left out whose summed amount is nearest the target (the coin's live
+  d* is the date whose group, the file's purchases of that coin on that date that the plan considers
+  (`leftOutBefore`), has the summed amount nearest the target (the coin's live
   `lump`'s amount, or its part of the starting amount when no `lump` is live), the earlier on a tie,
   among the dates the line names and those its `lump` records in step 2; it counts only when the line
   names it and its amount is no nearer the coin's monthly part than the target. While no `lump` is live,
