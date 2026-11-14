@@ -90,6 +90,11 @@ async function mount(
 /** The text a person reads, with the formatters' no-break spaces as plain ones. */
 const plain = (text: string | null) => (text ?? '').replace(/[  ]/g, ' ');
 const texts = () => [...document.querySelectorAll('p')].map((line) => plain(line.textContent));
+/** The estimate lines' facts: each paragraph's first text, before its instruction's line. */
+const facts = () =>
+  [...document.querySelectorAll('p')]
+    .map((line) => plain(line.firstChild?.textContent ?? null))
+    .filter((text) => text.startsWith('Your '));
 const sections = () => screen.queryAllByRole('button').map((button) => plain(button.textContent));
 /** Opens the section named `heading` and reads its sentences. */
 const lines = (heading: string) => {
@@ -372,17 +377,23 @@ describe('ExchangeSummary and ExchangeSections', () => {
           null,
         ),
       ]);
-      expect(texts()).toContain(
-        "Your BTC estimate for October 2026 stays in the Log. This import adds the file's 0.0012 BTC for €100.00 on " +
-          '19 Oct 2026 as a monthly buy for November 2026. If it was your monthly buy for October 2026, change the ' +
-          "estimate's date, cost, and units in the Log to the file's before you import. Then choose the file again.",
-      );
-      expect(texts()).toContain(
-        "Your BTC and ETH estimates for October 2026 stay in the Log. This import adds the file's 0.0011 BTC for " +
-          '€70.00 and 0.014 ETH for €30.00 on 19 Oct 2026 as extra buys. If they were your monthly buy for October ' +
-          "2026, change the estimates' date, costs, and units in the Log to the file's before you import. Then " +
-          'choose the file again.',
-      );
+      expect(facts()).toEqual([
+        "Your BTC estimate from Bought as planned for October 2026 stays in the Log. This import adds the file's " +
+          '0.0012 BTC for €100.00 on 19 Oct 2026 as a monthly buy for November 2026.',
+        'Your BTC and ETH estimates from Bought as planned for October 2026 stay in the Log. This import adds the ' +
+          "file's 0.0011 BTC for €70.00 and 0.014 ETH for €30.00 on 19 Oct 2026 as extra buys.",
+      ]);
+      // The instruction is its own line in the secondary ink, as the starting line's is.
+      const hints = [
+        "If it was your monthly buy for October 2026, change the estimate's date, cost, and units in the Log to the " +
+          "file's. Do this before you import, then choose the file again.",
+        "If they were your monthly buys for October 2026, change the estimates' date, costs, and units in the Log to " +
+          "the file's. Do this before you import, then choose the file again.",
+      ];
+      for (const text of hints) {
+        const hint = screen.getByText(text);
+        expect([hint.tagName, hint.className, hint.parentElement?.tagName]).toEqual(['SPAN', 'block text-ink-2', 'P']);
+      }
     });
 
     it('one coin bought as an extra buy, two coins bought as monthly buys', async () => {
@@ -394,13 +405,12 @@ describe('ExchangeSummary and ExchangeSections', () => {
           '2026-11',
         ),
       ]);
-      // The two sentences up to the change, which the first test words for one coin and for two.
-      const lines = texts().flatMap((text) => (text.startsWith('Your ') ? [text.split(' If ')[0]] : []));
-      expect(lines).toEqual([
-        "Your BTC estimate for October 2026 stays in the Log. This import adds the file's 0.0012 BTC for €100.00 on " +
-          '19 Oct 2026 as an extra buy.',
-        "Your BTC and ETH estimates for October 2026 stay in the Log. This import adds the file's 0.0011 BTC for " +
-          '€70.00 and 0.012 ETH for €30.00 on 19 Oct 2026 as monthly buys for November 2026.',
+      // The facts; the instructions are the first test's, worded for one coin and for two.
+      expect(facts()).toEqual([
+        "Your BTC estimate from Bought as planned for October 2026 stays in the Log. This import adds the file's " +
+          '0.0012 BTC for €100.00 on 19 Oct 2026 as an extra buy.',
+        'Your BTC and ETH estimates from Bought as planned for October 2026 stay in the Log. This import adds the ' +
+          "file's 0.0011 BTC for €70.00 and 0.012 ETH for €30.00 on 19 Oct 2026 as monthly buys for November 2026.",
       ]);
     });
   });

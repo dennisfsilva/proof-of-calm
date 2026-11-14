@@ -196,7 +196,10 @@ const lateLine = {
 export const EstimateLeftInTheLog: Story = {
   args: { shown: lateBuy, remedies: { recorded: new Set(), starting: null, estimates: [lateLine] } },
   play: async ({ canvas }) => {
-    await expect(canvas.getByText(/Your BTC estimate for October 2026 stays in the Log/)).toBeVisible();
+    await expect(
+      canvas.getByText(/Your BTC estimate from Bought as planned for October 2026 stays in the Log/),
+    ).toBeVisible();
+    await expect(canvas.getByText(/^If it was your monthly buy for October 2026, change the estimate/)).toBeVisible();
   },
 };
 
