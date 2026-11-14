@@ -98,7 +98,7 @@ export const TradeRepublicLeftOut: Story = {
   args: { shown: planOf(TRADE_REPUBLIC_OCTOBER, [], 'Trade Republic'), exchange: 'trade-republic' },
   play: async ({ canvas }) => {
     await userEvent.click(canvas.getByRole('button', { name: 'Left out (8)' }));
-    await expect(canvas.getByText(/Trade Republic benefit credit, such as Saveback/)).toBeVisible();
+    await expect(canvas.getByText(/Saveback cash credit, not imported/)).toBeVisible();
   },
 };
 

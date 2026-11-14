@@ -175,18 +175,16 @@ describe('ExchangeSummary and ExchangeSections', () => {
   it("names each row of a Trade Republic export left out in Trade Republic's words", async () => {
     await mount(planOf(TRADE_REPUBLIC_OCTOBER, [], PLAN, 'Trade Republic'), PLAN, 'trade-republic');
     expect(lines('Left out (8)')).toEqual([
-      'Coins that arrived at Trade Republic without a purchase, such as staking rewards or coins sent in from ' +
-        'elsewhere, not imported: 0.00012 ETH in 1 row. Record rewards with Add coins you already have, and your ' +
-        'own coins coming back with Log coins you moved.',
+      'Staking rewards and coins sent in to Trade Republic, not imported: 0.00012 ETH in 1 row. Record rewards ' +
+        'with Add coins you already have, and your own coins coming back with Log coins you moved.',
       'Coins sent out of Trade Republic that match no move of the same units in the Log: 0.0001 BTC. If you have ' +
         'not recorded them, record each with Log coins you moved.',
       '1 exchange of one coin for another, not imported: the file gives no amount in EUR for it.',
       '1 row of money with no coin, such as a card payment, interest, or a transfer, not imported.',
-      '1 Trade Republic benefit credit, such as Saveback, money paid to you, not imported. Coins bought with it ' +
-        'are imported as purchases at what they cost.',
-      '2 rows within Trade Republic, such as a migration between its accounts: they change no entry.',
+      '1 Saveback cash credit, not imported; any purchase made with it is read like your other purchases.',
+      '2 rows within Trade Republic, part of migrations that cancel out at one moment: they change no entry.',
       'Lines 12, 13, and 16 could not be read, or are cancelled trades or their cancellations, so they were left out.',
-      '1 row for a share, a fund, or another asset, or of another type, not imported.',
+      '1 row of another type, such as a share or a fund, not imported.',
     ]);
   });
 
