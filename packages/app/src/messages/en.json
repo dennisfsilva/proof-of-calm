@@ -917,7 +917,7 @@
         "heldAnswer": "They are not added unless you choose to.",
         "heldReplaces": "If you add them, they also replace {count, plural, one {{figure} estimate} other {{figure} estimates}} from Bought as planned.",
         "addHeld": "Add these transactions too",
-        "addHeldHint": "If you add them and they are the same coins, delete the Coins added entry in the Log after the import.",
+        "addHeldHint": "If you add them and they are the same coins, delete {count, plural, one {the Coins added entry} other {the Coins added entries}} in the Log after the import.",
         "import": "Import {count, plural, one {{figure} entry} other {{figure} entries}}",
         "cancel": "Cancel",
         "result": "Entries added: {added}.",

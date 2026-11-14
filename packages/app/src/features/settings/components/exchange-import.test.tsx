@@ -117,6 +117,18 @@ describe('ExchangeImport', () => {
     );
   });
 
+  it('the hint under the held line names one Coins added entry, or several as the line does', async () => {
+    const hint = (count: string) =>
+      `If you add them and they are the same coins, delete ${count} in the Log after the import.`;
+    await mount([HELD]);
+    expect(texts()).toContain(hint('the Coins added entry'));
+    cleanup();
+    const early = { ...HELD, id: 'aaaaaaaa-0000-4000-8000-000000000021' as EntityId, date: date('2026-10-06') };
+    await mount([{ ...early, units: units('0.0015') }, HELD]);
+    expect(texts()).toContain(hint('the Coins added entries'));
+    expect(texts()).not.toContain(hint('the Coins added entry'));
+  });
+
   it('names three Coins added entries with a serial comma, and one transaction they may be', async () => {
     const at = (n: number, day: string) => ({
       ...HELD,
