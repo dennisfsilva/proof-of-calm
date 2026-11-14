@@ -22,7 +22,7 @@ import {
 import type { Entry } from '../../schema/entry';
 import type { CoinId } from '../../schema/ids';
 import type { Plan } from '../../schema/plan';
-import type { Movement } from './kraken';
+import type { ExchangeFile, Movement } from './kraken';
 import { type ExchangeImportPlan, planExchangeImport } from './plan';
 import { readTradeRepublic, TR_READ } from './trade-republic';
 
@@ -574,6 +574,141 @@ describe('planExchangeImport, in one import or two', () => {
       const fills = [buy('V0301', '2026-03-01', 2), buy('V0310', '2026-03-10', 4)];
       const { once } = paths({ ...PLAIN, buyDay: 10, firstBuy: date('2026-03-10') }, [], fills, []);
       expect(kinds(once)).toEqual(fills.map((fill) => `${id(fill)}:dca:2026-03`));
+    });
+  });
+
+  // The named months (DOMAIN §3.13): a month still late that no purchase in the file counts for, and an estimate left
+  // while a purchase of its calendar month counts for another month. Today is 13 Nov 2026.
+  describe('the named months', () => {
+    const [JUNE, MAY, APRIL] = ['2026-06-01', '2026-05-01', '2026-04-01'].map((day) => ({
+      ...PLAIN,
+      firstBuy: date(day),
+    })) as [Plan, Plan, Plan];
+    const span = (from: string, to: string): Pick<ExchangeFile, 'first' | 'last'> => ({
+      first: instant(`${from}T10:00:00Z`),
+      last: instant(`${to}T10:00:00Z`),
+    });
+    const preview = (
+      plan: Plan,
+      log: readonly Entry[],
+      movements: readonly Movement[],
+      more: Partial<ExchangeFile> = span('2026-05-20', '2026-06-26'),
+    ) =>
+      planExchangeImport(
+        { ...FILE, movements, leftOut: [], cancelled: [], ...more },
+        { plan, entries: log },
+        CHOICES,
+        LISBON,
+      );
+    const typed = (slot: string, day: string, kind: Entry['kind'] = 'dca') =>
+      anEntry({ kind, slot: kind === 'dca' ? month(slot) : null, date: date(day), amount: money('70'), note: 'H' });
+    const [J02, J10, J26] = [
+      buy('L0602', '2026-06-02', 2),
+      buy('L0610', '2026-06-10', 4),
+      buy('L0626', '2026-06-26', 6),
+    ];
+
+    it('P3: June late, 26 Jun counts for July: June is named', () => {
+      const once = preview(JUNE, [], [J26]);
+      expect([kinds(once), once.stillLate]).toEqual([[`${id(J26)}:dca:2026-07`], ['2026-06']]);
+    });
+
+    it('P3, after June is typed in the Log on 26 Jun: it claims 26 Jun and nothing is named', () => {
+      const once = preview(JUNE, [typed('2026-06', '2026-06-26')], [J26]);
+      expect([once.recorded.map((each) => each.dates), once.entries, once.stillLate]).toEqual([
+        [['2026-06-26']],
+        [],
+        [],
+      ]);
+    });
+
+    it('April and June both late, May typed: both are named', () => {
+      const once = preview(APRIL, [typed('2026-05', '2026-05-01')], [J26], span('2026-03-20', '2026-06-26'));
+      expect(once.stillLate).toEqual(['2026-04', '2026-06']);
+    });
+
+    it("a late month outside the file's dates is not named, nor a file with no dates", () => {
+      expect(preview(JUNE, [], [J26], span('2026-06-10', '2026-06-26')).stillLate).toEqual([]);
+      expect(preview(JUNE, [], [J26], { first: null, last: null }).stillLate).toEqual([]);
+    });
+
+    it("June is not named while the Log's Record opens an earlier month or the starting amount first", () => {
+      expect(preview(APRIL, [], [J26], span('2026-04-10', '2026-06-26')).stillLate).toEqual([]);
+      expect(preview({ ...JUNE, startingAmount: money('500') }, [], [J26]).stillLate).toEqual([]);
+    });
+
+    it('a late month a purchase in the file counts for is not named, whichever step left it out', () => {
+      const lump = anEntry({ kind: 'lump', slot: null, date: date('2026-06-01'), amount: money('500') });
+      const states = [
+        preview(JUNE, [typed('', '2026-06-03', 'extra')], [J02, J26]),
+        preview(JUNE, [held('2026-06-10')], [J02, J26]),
+        preview({ ...JUNE, startingAmount: money('500') }, [lump], [J10, J26]),
+        preview(JUNE, [], [J26], { ...span('2026-05-20', '2026-06-26'), cancelled: [J02] }),
+        preview(JUNE, [{ ...added(J02, 'dca', '2026-06'), deletedAt: NOW }], [J02, J26]),
+      ];
+      expect(states.map((once) => [once.entries.length, once.stillLate])).toEqual(states.map(() => [1, []]));
+      expect([
+        states[0]?.recorded.length,
+        states[1]?.held?.coins[0]?.purchases,
+        states[2]?.startingAmount?.purchases,
+      ]).toEqual([1, 1, 1]);
+    });
+
+    it("June is not named when 30 May, nearest June's buy day, counts for May by May's estimate", () => {
+      const M30 = buy('L0530', '2026-05-30', 8);
+      const once = preview(MAY, [tap('2026-05', '2026-05-31', 'EMay')], [M30, J26]);
+      expect([kinds(once)[0], once.stillLate]).toEqual([`${id(M30)}:dca:2026-05`, []]);
+    });
+
+    it("another coin's purchase fills June, and a skipped or paused June is never late: none is named", () => {
+      const eth = trade('L0602E', 'purchase', 'ETH', '2026-06-02', { units: '0.01', amount: '30', fee: '0.10' }, 10);
+      const pause = { id: testId('pause'), from: date('2026-06-01'), until: date('2026-06-30'), note: '' };
+      const skip = { id: testId('skip'), slot: month('2026-06'), note: '', createdAt: NOW };
+      expect(preview(JUNE, [], [eth, J26]).stillLate).toEqual([]);
+      expect(preview({ ...JUNE, skips: [skip] }, [], [J26]).stillLate).toEqual([]);
+      expect(preview({ ...JUNE, pauses: [pause] }, [], [J26]).stillLate).toEqual([]);
+    });
+
+    const OCTOBER = span('2026-10-10', '2026-11-05');
+    const [O02, O19, N01] = [
+      buy('A1002', '2026-10-02', 2),
+      buy('A1019', '2026-10-19', 4),
+      buy('A1101', '2026-11-01', 6),
+    ];
+
+    it("Ana*: October's estimate stays and 19 Oct counts for November: named", () => {
+      const E = tap('2026-10', '2026-11-10', 'E');
+      const once = preview(PLAIN, [E], [O19, N01], OCTOBER);
+      expect([kinds(once), gone(once), once.stillLate]).toEqual([
+        [`${id(O19)}:dca:2026-11`, `${id(N01)}:dca:2026-11`],
+        [],
+        [],
+      ]);
+      expect(once.estimatesLeft).toEqual([{ estimate: E, date: '2026-10-19', countsFor: '2026-11' }]);
+    });
+
+    it("after the estimate's date is changed to 19 Oct, it is replaced and nothing is named", () => {
+      const E = tap('2026-10', '2026-10-19', 'E');
+      const once = preview(PLAIN, [E], [O19, N01], OCTOBER);
+      expect([kinds(once), gone(once), once.estimatesLeft, once.stillLate]).toEqual([
+        [`${id(O19)}:dca:2026-10`, `${id(N01)}:dca:2026-11`],
+        [E.id],
+        [],
+        [],
+      ]);
+    });
+
+    it('a replaced estimate is never named', () => {
+      const once = preview(PLAIN, [tap('2026-10', '2026-10-01', 'E')], [O02, O19, N01], OCTOBER);
+      expect([kinds(once)[1], gone(once).length, once.estimatesLeft]).toEqual([`${id(O19)}:dca:2026-11`, 1, []]);
+    });
+
+    it("19 Oct counting for November by November's own estimate, or an estimate of a month the plan lost: not named", () => {
+      const log = [tap('2026-10', '2026-11-10', 'E'), tap('2026-11', '2026-10-20', 'ENov')];
+      const once = preview(PLAIN, log, [O19, N01], OCTOBER);
+      expect([kinds(once)[0], once.estimatesLeft]).toEqual([`${id(O19)}:dca:2026-11`, []]);
+      const lost = preview({ ...PLAIN, firstBuy: date('2026-11-01') }, [log[0] as Entry], [O19], OCTOBER);
+      expect([kinds(lost), lost.estimatesLeft]).toEqual([[`${id(O19)}:dca:2026-11`], []]);
     });
   });
 });

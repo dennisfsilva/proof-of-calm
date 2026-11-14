@@ -100,6 +100,25 @@ describe('planExchangeImport', () => {
     );
   });
 
+  // 300 runs with a 10 s timeout. Measured on 2026-11-14 under the full core suite with coverage, seeds 1 to 8: 392 to
+  // 506 ms (seed 2); six times the worst, 3.0 s, stays under a third of the timeout (3.3 s). At seed 1, 121 of the
+  // 300 worlds name a still-late month and 8 an estimate left.
+  it('every month in `stillLate` has no live monthly buy after the plan is stored, and every `estimatesLeft` estimate is live', () => {
+    fc.assert(
+      fc.property(world, (drawn) => {
+        const ats = drawn.file.movements.map((movement) => movement.at).sort();
+        const plan = run(drawn, drawn.entries, { ...drawn.file, first: ats[0] ?? null, last: ats.at(-1) ?? null });
+        const after = live(store(drawn.entries, plan));
+        const months = new Set(after.flatMap((entry) => (entry.kind === 'dca' ? [entry.slot] : [])));
+        expect(plan.stillLate.filter((slot) => months.has(slot))).toEqual([]);
+        expect(plan.estimatesLeft.map(({ estimate }) => estimate)).toEqual(
+          plan.estimatesLeft.flatMap(({ estimate }) => after.filter((entry) => entry.id === estimate.id)),
+        );
+      }),
+      { numRuns: 300 },
+    );
+  }, 10_000);
+
   it(
     "a prefix of a file's rows, stored, then the whole file adds the ids and units per coin the whole file adds at once",
     () => {
