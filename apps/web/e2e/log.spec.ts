@@ -10,7 +10,8 @@ import { routeFixturePrices, test } from './support';
 // show with the skip among them, then all of them; a row opens to its detail; a deletion leaves the toast, whose Undo brings the row back.
 // Every flow runs in light and dark, at 125 % text on the zoom-125 project (support.ts).
 // Record a purchase logs October's open monthly buy and gives the focus back; Edit entry changes it,
-// and its button stays clear of the toast that follows. Its "Skip October
+// and its button stays clear of the toast that follows; an edit that moves a row down the Log to another month leaves
+// the focus on its toggle, in view above the tab bar. Its "Skip October
 // 2026" swaps the sheet for the skip sheet, which holds the focus, and the skip's Undo puts it on the heading.
 // What was typed in the form survives a reload for the session (ADR-0020's draft) and saves as typed.
 // Its "Sale" choice records a sale with the holding warning, which does not block the save; the sale's Edit entry
@@ -137,6 +138,45 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await expect(edit).toBeFocused();
       await expect(toast).toBeVisible();
       await expect.poll(() => edit.evaluate(atOwnCentre)).toBe(true);
+    });
+
+    // Session 22g's evaluator (#216): an edit that moved the row to another month left its focused toggle below the
+    // tab bar on zoom-125, since the closing sheet focuses it without scrolling (docs/DESIGN.md §6).
+    test(`on ${FIXTURE_DATES.buy} an edit that moves a row to another month brings its focused toggle into view`, async ({
+      page,
+    }) => {
+      await page.clock.setFixedTime(new Date(fixtureNowMs('buy')));
+      await seedPlan(page, withMoreBuys());
+      await page.goto('/log');
+      await expect(page.locator('main#main')).not.toHaveAttribute('aria-busy', 'true');
+      const sheet = page.getByRole('dialog');
+
+      // The newest row, 12 Oct, moves down the Log to April, below the first view's fold.
+      await page
+        .getByRole('button', { name: /Extra buy/ })
+        .first()
+        .click();
+      await page.getByRole('button', { name: 'Edit entry' }).click();
+      await expect(sheet).toContainText('Edit the entry');
+      await sheet.getByLabel('Date').fill('2026-04-21');
+      await sheet.getByRole('button', { name: 'Save' }).click();
+      await expect(sheet).toBeHidden();
+      await expect(page.locator('[data-slot="toast"]:not([hidden])')).toContainText('Entry saved.');
+
+      const toggle = page.locator('tbody button:has([data-row])', { hasText: '21 Apr 2026' });
+      await expect(toggle).toBeFocused();
+      // Its whole box lies between the window's top (the header is not sticky, §7) and the phone tab bar, if any.
+      const place = () =>
+        toggle.evaluate((element) => {
+          const box = element.getBoundingClientRect();
+          const bars = [...document.querySelectorAll('[data-slot="tab-bar"] nav')]
+            .map((bar) => bar.getBoundingClientRect())
+            .filter((bar) => bar.height > 0);
+          const floor = Math.min(window.innerHeight, ...bars.map((bar) => bar.top));
+          return box.top >= 0 && box.bottom <= floor ? 'in view' : JSON.stringify({ ...box.toJSON(), floor });
+        });
+      // A failure prints the boxes read.
+      await expect.poll(place).toBe('in view');
     });
 
     // Session 12's evaluator (#114): the focus stayed on Record a purchase behind the skip sheet, and Tab reached the rows.
