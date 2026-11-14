@@ -123,18 +123,8 @@ function importFirst(drawn: World, stored: Stored, entry: Entry) {
  * 219 to 288 as a change across the three orders. Measured again after a one-tap `lump` claims in step 2, its date
  * near the file's, seeds 1 to 8: the worst was 2.77 s (the sentence's property, seed 3); six times it, 16.6 s.
  *
- * The bound, measured on 2026-11-14 on this desktop without coverage, two coins, three runs of three calls each. Before
- * the estimate line, a Log typed by hand every month took 505 to 557 ms at 520 movements weekly over five years and 504
- * to 517 ms daily (one plan 24 to 30 ms), 659 to 666 ms at 600, 976 to 981 ms at 730, 2,364 to 2,370 ms at 1,460 and
- * 7 to 9 s on a five-year daily file (3,652); the starting line's check, a starting amount whose first week's purchases
- * are its parts and a hand row of lumps (the second state below), added about 35 ms. The estimate line's worst state
- * (the fourth below: the plan's last 24 months with nine dates each, every other one tapped and bought late, the months
- * between and every earlier month typed by hand, so 12 rows of the sentence in two orders and the estimate rows once
- * over 120 entries) took 892 to 902 ms at 520 movements with 12 estimate rows checked and 738 to 741 ms with
- * `IMPORT_ESTIMATE_CHECKS` (6); at 6 rows it took 629 to 634 ms at 440 movements, 600 to 605 ms at 420 and 567 to 571
- * ms at 400, where the hand-only weekly Log took 366 to 373 ms and the lump state 368 to 376 ms (each state built at
- * that many movements: fewer weeks, or nine dates a month cut at the bound). So the bound is 400, the largest round
- * figure that keeps every state under about 600 ms on this desktop.
+ * The bound's measured states and their times are in docs/DOMAIN.md §9's `IMPORT_REMEDY_MAX_MOVEMENTS` row, which owns
+ * them; the last test below builds those states at the bound.
  *
  * With the estimate line's property (300 worlds, half of them drawn with a late purchase and a one-tap row), measured on
  * 2026-11-14 under the full core suite with coverage, seeds 1 to 8: the worst was 3.04 s for the sentence's property
@@ -525,32 +515,40 @@ describe('importRemedies, over generated files and Logs', () => {
       expect([late.movements.length, rows.length]).toEqual([IMPORT_REMEDY_MAX_MOVEMENTS, 80]);
       const both = importRemedies(late, { plan, entries: rows }, false, LISBON);
       expect([both.recorded.size, both.estimates.length]).toEqual([2 * IMPORT_RECORDED_CHECKS, IMPORT_ESTIMATE_CHECKS]);
-      // The worst state (the note above): the plan's last 24 months with nine dates each of both coins, cut at the
-      // bound; every other month tapped on its 10th and bought on its 17th to 25th, the months between and every earlier
-      // month typed by hand on their 1st, so 12 rows of the sentence in two orders and the capped estimate rows once.
+      // The worst state, its figures in docs/DOMAIN.md §9's IMPORT_REMEDY_MAX_MOVEMENTS row: the starting purchase and
+      // the plan's last 24 months with up to 11 dates each of both coins, taken date by date across the months up to the
+      // bound, so every month keeps its purchases; every other month tapped on its 10th and bought from its 17th, the
+      // months between and every earlier month but the first typed by hand on their 1st, and a hand row of lumps.
       const keys = Array.from({ length: 60 }, (_, index) => {
         const at = 10 + index;
         return `${2021 + Math.floor(at / 12)}-${String((at % 12) + 1).padStart(2, '0')}`;
       });
       const recent = keys.slice(36);
-      const many = fileOf(
-        recent
-          .flatMap((slot, index) =>
-            Array.from({ length: 9 }, (_, day) =>
-              (['BTC', 'ETH'] as const).map((coin, which) =>
-                trade(
-                  `M${index}-${day}-${which}`,
-                  'purchase',
-                  coin,
-                  date(`${slot}-${String((index % 2 === 0 ? 1 : 17) + day).padStart(2, '0')}`),
-                  { units: '0.0005', amount: '25', fee: '0' },
-                  index * 40 + day * 4 + which * 2,
-                ),
-              ),
-            ).flat(),
-          )
-          .slice(0, IMPORT_REMEDY_MAX_MOVEMENTS),
+      const head = (['BTC', 'ETH'] as const).map((coin, which) =>
+        trade(
+          `S${which}`,
+          'purchase',
+          coin,
+          date('2021-11-01'),
+          { units: '0.001', amount: parts[coin], fee: '0' },
+          which,
+        ),
       );
+      const cells = Array.from({ length: 11 }, (_, day) =>
+        recent.flatMap((slot, index) =>
+          (['BTC', 'ETH'] as const).map((coin, which) =>
+            trade(
+              `M${index}-${day}-${which}`,
+              'purchase',
+              coin,
+              date(`${slot}-${String((index % 2 === 0 ? 1 : 17) + day).padStart(2, '0')}`),
+              { units: '0.0005', amount: '25', fee: '0' },
+              index * 60 + day * 4 + which * 2,
+            ),
+          ),
+        ),
+      ).flat();
+      const many = fileOf([...head, ...cells.slice(0, IMPORT_REMEDY_MAX_MOVEMENTS - head.length)]);
       const mixed = keys.flatMap((slot, index) =>
         (['BTC', 'ETH'] as const).map((coin) =>
           index >= 36 && index % 2 === 1
@@ -564,11 +562,13 @@ describe('importRemedies, over generated files and Logs', () => {
               }),
         ),
       );
-      expect([many.movements.length, mixed.length]).toEqual([IMPORT_REMEDY_MAX_MOVEMENTS, 120]);
-      const worst = importRemedies(many, { plan, entries: mixed }, false, LISBON);
-      expect([worst.recorded.size, worst.estimates.length]).toEqual([
+      const withLumps = [...mixed.filter((entry) => entry.slot !== month('2021-11')), ...lumps];
+      expect([many.movements.length, withLumps.length]).toEqual([IMPORT_REMEDY_MAX_MOVEMENTS, 120]);
+      const worst = importRemedies(many, { plan: starting, entries: withLumps }, false, LISBON);
+      expect([worst.recorded.size, worst.estimates.length, worst.starting]).toEqual([
         2 * IMPORT_RECORDED_CHECKS,
         IMPORT_ESTIMATE_CHECKS,
+        { kind: 'change', date: '2021-11-01' },
       ]);
     },
     TIMEOUT,
