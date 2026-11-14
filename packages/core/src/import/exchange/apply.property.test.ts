@@ -49,6 +49,8 @@ function twoWays(drawn: World, cut: number) {
  * default is Vitest's 5 s). Measured on 2026-11-13 under the full core suite with coverage, seeds 1 to 4: 3.0 to
  * 4.0 s locally per property, the worst 4.0 s (the unticked-then-ticked one, seed 1). CI's runner was at least 5.6
  * times slower on the plan's properties (#181), so six times the worst, 24 s, stays under a third of 90 s (30 s).
+ * Measured again on 2026-11-14, after hand monthly buys claim by amount, seeds 1 to 8: the worst was 4.89 s (the
+ * hand-records one, seed 8), and six times it, 29.3 s, still stays under 30 s.
  */
 const TWICE = { numRuns: 1500 };
 const TIMEOUT = 90_000;

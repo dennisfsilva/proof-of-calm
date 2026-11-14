@@ -1,6 +1,6 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { aPlan, anEntry, date, money, month } from '../../../test/builders';
+import { anEntry, aPlan, date, money, month } from '../../../test/builders';
 import { fileOf, type World, world } from '../../../test/exchange/plan-arbitraries';
 import { LISBON, NOW, testId, trade } from '../../../test/exchange/plan-fixture';
 import { addDays, clampDay } from '../../dates/calendar';
@@ -45,15 +45,16 @@ function cut(file: ExchangeFile, { shape, byDay, from, to }: Drawn<typeof window
   const keyOf = (movement: Movement) => (byDay ? LISBON.dateOf(movement.at) : movement.at);
   const keys = [...new Set(file.movements.map(keyOf))].sort();
   const [lo, hi] = [keys[from % (keys.length + 1)] ?? '~', keys[to % (keys.length + 1)] ?? '~'].sort();
-  const inside = (key: string) => (shape === 'prefix' || key >= (lo as string)) && (shape === 'suffix' || key <= (hi as string));
+  const inside = (key: string) =>
+    (shape === 'prefix' || key >= (lo as string)) && (shape === 'suffix' || key <= (hi as string));
   return fileOf(file.movements.filter((movement) => inside(keyOf(movement))));
 }
 
 /**
  * The properties run 300 times with a 60 s timeout each (the core's default is Vitest's 5 s). Measured on 2026-11-14
- * under the full core suite with coverage, seeds 1 to 8 (fast-check's global seed): the worst was 0.98 s (the window
- * property; the two exchanges 0.69 s, the hand claims 0.31 s), so six times the worst, the margin budgeted for CI's
- * slower runner, is 5.9 s, under 20 s.
+ * under the full core suite with coverage, seeds 1 to 8 (fast-check's global seed), twice: the worst was 1.01 s (the
+ * window property, seed 5; the two exchanges 0.72 s, the hand claims 0.31 s), so six times the worst, the margin
+ * budgeted for CI's slower runner, is 6.1 s, under a third of the timeout (20 s).
  */
 const RUNS = { numRuns: 300 };
 const TIMEOUT = 60_000;
@@ -78,7 +79,7 @@ describe('planExchangeImport, by windows and by exchanges', () => {
   );
 
   it(
-    "a Kraken file and a Trade Republic file leave one Log in either order",
+    'a Kraken file and a Trade Republic file leave one Log in either order',
     () => {
       fc.assert(
         fc.property(world, fc.array(fc.boolean(), { maxLength: 30 }), (drawn, sides) => {
@@ -161,11 +162,20 @@ describe('planExchangeImport, by windows and by exchanges', () => {
           const key = month(`2026-${String(slot).padStart(2, '0')}`);
           const hand = anEntry({ slot: key, date: addDays(due, typed), amount: money(amount), note: 'H' });
           const movements = fills
-            .map((each, n) => trade(`W${n}`, 'purchase', 'BTC', addDays(due, each.offset), {
-              units: '0.0008',
-              amount: each.amount,
-              fee: '0.50',
-            }, 2 + 2 * n))
+            .map((each, n) =>
+              trade(
+                `W${n}`,
+                'purchase',
+                'BTC',
+                addDays(due, each.offset),
+                {
+                  units: '0.0008',
+                  amount: each.amount,
+                  fee: '0.50',
+                },
+                2 + 2 * n,
+              ),
+            )
             .sort((a, b) => (a.at < b.at ? -1 : a.at > b.at ? 1 : 0));
           const drawn: World = { plan, file: fileOf(movements), addHeld: false, venue: null, entries: [hand] };
           const once = run(drawn, [hand], drawn.file);

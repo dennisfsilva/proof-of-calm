@@ -218,7 +218,9 @@ export function planExchangeImport(
   // each takes the note of C's first estimate for S in `compareEntries` order, and C's live estimates for S are
   // tombstoned once a date is added for them. Every other purchase is an extra buy.
   const shares = new Set(plannedParts(plan, plan.monthlyAmount).map((part) => part.coin));
-  const open = new Set(months.filter((each) => each.status !== 'skipped' && each.status !== 'paused').map((m) => m.key));
+  const open = new Set(
+    months.filter((each) => each.status !== 'skipped' && each.status !== 'paused').map((m) => m.key),
+  );
   const taps = stored.entries.filter((entry) => isEstimate(entry) && entry.kind === 'dca').sort(compareEntries);
   const groups = new Map<string, { estimates: Entry[]; by: EntityId[] }>();
   for (const estimate of live

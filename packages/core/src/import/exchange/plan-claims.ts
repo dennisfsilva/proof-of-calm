@@ -97,7 +97,8 @@ export function claimRecorded(
   };
   const candidates = (coin: CoinId, slot: MonthKey) => {
     const byDate = new Map<CalendarDate, Candidate>();
-    const purchases = (each: Day) => each.coin === coin && each.role === 'purchase' && monthOf(coin, each.date) === slot;
+    const purchases = (each: Day) =>
+      each.coin === coin && each.role === 'purchase' && monthOf(coin, each.date) === slot;
     // The stored part of a date comes first, so a free part on the same date always joins it.
     for (const day of [...known, ...days.filter((each) => !each.claimed)].filter(purchases)) {
       const candidate = byDate.get(day.date);
