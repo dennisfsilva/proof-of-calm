@@ -12,7 +12,7 @@ import type { Plan } from '../../schema/plan';
 import { applyExchangeImport } from './apply';
 import type { ExchangeFile, Movement } from './kraken';
 import { planExchangeImport } from './plan';
-import { importRemedies } from './plan-remedy';
+import { importRemedies, startingRemedies } from './plan-remedy';
 
 // The starting line's instruction (docs/DOMAIN.md §3.13 step 3, "Lines that ask for a change"): each test makes the
 // change as the Log writes it (`saveTransaction`), plans the file again and checks that Invested counts the starting
@@ -370,6 +370,37 @@ describe('the starting line, its instruction', () => {
     expect(starting(c, c.entries)).toEqual({ kind: 'change', date: '2026-06-10' });
     const changed = edit(c, c.entries, '2026-06-10', TEN_JUNE) as Entry[];
     expect(recordedBy(c, changed, lumpsOf(changed)[0] as Entry)).toEqual(['2026-06-10']);
+  });
+
+  // A trade in another currency is left out under 'currency' (plan.ts), and a coin outside the plan under 'not-in-plan',
+  // so neither joins a date group: d* and the figures are the plan currency's purchases of the coin alone.
+  const USD = trade('S-usd', 'purchase', 'BTC', '2026-06-10', { units: '0.02', amount: '2000', fee: '0' }, 900, {
+    currency: 'USD',
+  });
+  const XRP = trade('S-xrp', 'purchase', 'XRP', '2026-06-10', { units: '50', amount: '2000', fee: '0' }, 902);
+  const EUR = [START, buy('BTC', '2026-06-20', '700', '0.00875')];
+  it.each([
+    ['the EUR purchases alone', EUR],
+    ['a USD and an XRP purchase on 10 Jun beside them', [EUR[0] as Movement, USD, XRP, EUR[1] as Movement]],
+  ])('%s: record on 10 Jun, with the EUR figures of 10 Jun', (_, file) => {
+    const c: Case = { plan: P6, file, entries: [] };
+    expect(planOf(c, []).startingAmount?.items.map((item) => [item.date, item.amount])).toEqual([
+      ['2026-06-10', '1000'],
+      ['2026-06-20', '700'],
+    ]);
+    expect(starting(c, [])).toEqual({ kind: 'record', date: '2026-06-10' });
+    const [first] = startingRemedies(fileOf(file), { plan: P6, entries: [] }, planOf(c, []), LISBON);
+    const change = first?.change([]);
+    expect(change?.kind === 'record' && change.draft.rows).toEqual([{ coin: BTC, amount: '1000', units: '0.0125' }]);
+    const lumped: Case = { ...c, entries: [lump('2026-07-02')] };
+    expect(starting(lumped, lumped.entries)).toEqual({ kind: 'change', date: '2026-06-10' });
+    const [edited] = startingRemedies(fileOf(file), lumped, planOf(lumped, lumped.entries), LISBON);
+    const figures = edited?.change(lumped.entries);
+    const [only] = lumped.entries as [Entry];
+    expect(figures?.kind === 'edit' && figures.figures.get(only.id)).toMatchObject({
+      amount: '1000',
+      units: '0.0125',
+    });
   });
 
   it('a file past IMPORT_REMEDY_MAX_MOVEMENTS plans no instruction', () => {
