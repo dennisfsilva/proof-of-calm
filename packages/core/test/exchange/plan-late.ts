@@ -100,8 +100,9 @@ export function lateOf(plan: Plan, late: LateStart, idOf: (key: string) => Entit
 
 /**
  * Whether `part`, some of the file's movements, splits one date of a coin's purchases within 3 days of a live `lump`
- * of that coin whose amount is not the coin's monthly part: the export that ends inside a date such a lump claims by
- * its amount, whose stored part counts twice (docs/DOMAIN.md §3.13 step 2). The prefix and window properties skip it.
+ * of that coin whose amount is not the coin's monthly part: an export that cuts inside a date such a lump claims by
+ * its amount, whichever side (it ends inside it, begins inside it, or both), whose stored part counts twice. That is
+ * exactly W2, docs/DOMAIN.md §3.13 step 2's one exception ("but one"); the prefix and window properties skip it.
  */
 export function splitsLumpDay(
   drawn: { readonly file: ExchangeFile; readonly plan: Plan; readonly entries: readonly Entry[] },
@@ -135,7 +136,10 @@ export function splitsLumpDay(
 /** The cuts this test file's properties skipped as `splitsLumpDay` (each file runs in its own module scope). */
 export const skipped = { cuts: 0 };
 
-/** Skips (`fc.pre`) a cut that splits a date a `lump` claims by its amount, and counts it. */
+/**
+ * Skips (`fc.pre`) exactly W2, docs/DOMAIN.md §3.13 step 2's exception: any cut inside a date a `lump` claims by its
+ * amount, on either side (a prefix, a suffix or a middle slice), and counts it.
+ */
 export function preCut(drawn: Parameters<typeof splitsLumpDay>[0], part: readonly Movement[]) {
   const splits = splitsLumpDay(drawn, part);
   if (splits) skipped.cuts += 1;
