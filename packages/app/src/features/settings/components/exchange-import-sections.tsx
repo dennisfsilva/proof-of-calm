@@ -31,6 +31,8 @@ type SectionsProps = Props & { readonly exchange: ExchangeId };
 type Item = { readonly key: string; readonly text: string };
 /** Past this many, the lines that could not be read or paired end in "and N more". */
 const LINES_SHOWN = 5;
+/** A trade and its cancellation are two lines: the cap rounded up to whole pairs, so no pair is cut in half. */
+const PAIR_LINES_SHOWN = Math.ceil(LINES_SHOWN / 2) * 2;
 
 /** A count as a figure, grouped as the numbers' locale groups it (CONTENT-STYLE §4). */
 export function useFigure() {
@@ -264,13 +266,15 @@ function useLeftOut({ model, plan, exchange }: SectionsProps, w: ReturnType<type
   }
   // One sentence per cause, each naming its lines (at most `LINES_SHOWN`, then a count). Kraken's reader joins the rows
   // it cannot pair and those it cannot read; Trade Republic's tells a trade with its cancellation (`cancelled`, counted
-  // in pairs) from a cancellation with no trade to pair (`unpaired`) and from a row it cannot read.
+  // in pairs as a figure, its list rounded up to whole pairs so the count past it is whole pairs too) from a
+  // cancellation with no earlier trade left to pair (`unpaired`) and from a row it cannot read.
   const named = (key: 'cancelled' | 'unpaired' | 'lines', reasons: readonly LeftOut['reason'][], count?: number) => {
     const lines = reasons.flatMap((reason) => group(reason)?.lines ?? []).sort((a, b) => a - b);
-    const shown = lines.slice(0, LINES_SHOWN).map(w.figure);
-    const more = lines.length > LINES_SHOWN ? [t('more', { count: w.figure(lines.length - LINES_SHOWN) })] : [];
+    const cap = key === 'cancelled' ? PAIR_LINES_SHOWN : LINES_SHOWN;
+    const shown = lines.slice(0, cap).map(w.figure);
+    const more = lines.length > cap ? [t('more', { count: w.figure(lines.length - cap) })] : [];
     const list = w.format.list([...shown, ...more]);
-    add(key, lines.length > 0 && t(key, { count: count ?? lines.length, lines: list, exchange }));
+    add(key, lines.length > 0 && t(key, { ...w.counted(count ?? lines.length), lines: list, exchange }));
   };
   if (exchange === 'kraken') named('lines', ['unpaired', 'unreadable']);
   else {

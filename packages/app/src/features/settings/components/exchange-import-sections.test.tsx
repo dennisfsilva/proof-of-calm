@@ -423,7 +423,9 @@ describe('ExchangeSummary and ExchangeSections', () => {
   });
 
   // "One cause per sentence, each naming its lines: a trade and the cancellation that pairs with it, a cancellation
-  // with no matching trade before it, and a row that could not be read." The reader's groups, set by hand.
+  // with no earlier trade of the same coin, units and amount left to pair, and a row that could not be read." The pairs
+  // are counted as a figure and shown whole: past the cap of 5 lines the list shows 6, so the rest are whole pairs too.
+  // The reader's groups, set by hand.
   it.each<[string, ExchangeImportPlan['leftOut'], string[]]>([
     [
       'one of each cause',
@@ -434,7 +436,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
       ],
       [
         'Lines 6 and 7 are a trade and its cancellation, so they were left out.',
-        'Line 9 is a cancellation with no matching trade before it in this file, so it was left out.',
+        'Line 9 is a cancellation, so it was left out. This file has no earlier trade of the same coin, units, and ' +
+          'amount left to pair with it.',
         'Line 11 could not be read, so it was left out.',
       ],
     ],
@@ -446,9 +449,22 @@ describe('ExchangeSummary and ExchangeSections', () => {
         { reason: 'unreadable', count: 2, lines: [11, 12], by: [] },
       ],
       [
-        'Lines 2, 3, 4, 5, 6, and 1 more are trades and their cancellations, so they were left out.',
-        'Lines 9 and 10 are cancellations with no matching trade before them in this file, so they were left out.',
+        'Lines 2, 3, 4, 5, 6, and 7 are 3 trades and their cancellations, so they were left out.',
+        'Lines 9 and 10 are cancellations, so they were left out. This file has no earlier trades of the same coin, ' +
+          'units, and amount left to pair with them.',
         'Lines 11 and 12 could not be read, so they were left out.',
+      ],
+    ],
+    [
+      'pairs and lone cancellations past the cap',
+      [
+        { reason: 'cancelled', count: 4, lines: [2, 3, 4, 5, 6, 7, 8, 9], by: [] },
+        { reason: 'unpaired', count: 7, lines: [20, 21, 22, 23, 24, 25, 26], by: [] },
+      ],
+      [
+        'Lines 2, 3, 4, 5, 6, 7, and 2 more are 4 trades and their cancellations, so they were left out.',
+        'Lines 20, 21, 22, 23, 24, and 2 more are cancellations, so they were left out. This file has no earlier ' +
+          'trades of the same coin, units, and amount left to pair with them.',
       ],
     ],
   ])('names the lines of a Trade Republic export left out by cause: %s', async (_, leftOut, expected) => {
