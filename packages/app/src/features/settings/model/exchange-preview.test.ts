@@ -2,7 +2,7 @@ import { type EntityId, type Entry, type Instant, planExchangeImport, readExchan
 import { anEntry, date, instant, units } from '@proofofcalm/core/testing';
 import { describe, expect, it } from 'vitest';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
-import { KRAKEN_OCTOBER, ONE_TAP_OCTOBER } from '../../../lib/services/kraken.testing';
+import { KRAKEN_OCTOBER, krakenLedger, ONE_TAP_OCTOBER } from '../../../lib/services/kraken.testing';
 import { defaultVenue, previewModel } from './exchange-preview';
 import { exchangeContext } from './import';
 
@@ -67,12 +67,26 @@ describe('previewModel', () => {
       typed('aaaaaaaa-0000-4000-8000-000000000042', 'ETH'),
     ];
     const shown = planOn([...fixtureSnapshot().entries, btc, eth], false);
-    const marked = previewModel(shown, shown, { recorded: new Set([btc.id]) }).recorded;
+    const marked = previewModel(shown, shown, { recorded: new Set([btc.id]), starting: null }).recorded;
     expect(marked.map((item) => [item.entry.id, item.remedy])).toEqual([
       [btc.id, true],
       [eth.id, false],
     ]);
     expect(previewModel(shown).recorded.map((item) => item.remedy)).toEqual([false, false]);
+  });
+
+  it('gives the starting line the instruction the remedies found, and none without them', () => {
+    const march = readExchangeFile(
+      krakenLedger([
+        ['S1', '2026-03-20 09:00:00', 'trade', 'EUR', '-700.0000', '0.0000'],
+        ['S1', '2026-03-20 09:00:00', 'trade', 'BTC', '0.0125000000', '0.0000000000'],
+      ]),
+    );
+    if (!march.ok) throw new Error('the synthetic ledger reads');
+    const shown = planExchangeImport(march.value, { plan, entries: [] }, { venue: 'Kraken', addHeld: false }, CONTEXT);
+    const starting = { kind: 'record', date: date('2026-03-20') } as const;
+    expect(previewModel(shown, shown, { recorded: new Set(), starting }).startingAmount?.remedy).toEqual(starting);
+    expect(previewModel(shown).startingAmount).toMatchObject({ purchases: 1, remedy: null });
   });
 
   it('counts the rows imported or deleted earlier', () => {
