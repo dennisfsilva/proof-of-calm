@@ -102,10 +102,11 @@ function Preview({ file, name, onDone, onBusy, plan: livePlan }: Props & { reado
   }, [file, plan, entries, trimmed, addHeld, today, clock]);
 
   // The heading takes the focus when the preview shows, and the alert when the write was refused (docs/DESIGN.md §6).
+  // The preview is read top to bottom, so its heading scrolls to the top of the view; the alert, one line, the least.
   useEffect(() => {
     const to = changed ? alert.current : heading.current;
     to?.focus({ preventScroll: true });
-    to?.scrollIntoView({ block: 'nearest' });
+    to?.scrollIntoView({ block: changed ? 'nearest' : 'start' });
   }, [changed]);
 
   const run = async () => {
