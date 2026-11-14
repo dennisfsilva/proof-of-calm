@@ -286,7 +286,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
       'This plan does not list XRP, so 1 XRP transaction was left out. If you want it in this plan, you can add XRP ' +
         'in Coins & split, then choose the file again.',
       '1 purchase dated on or before 20 Apr 2026, not imported: 0.0006 BTC for €40.00 on 10 Apr 2026. The file ' +
-        'cannot tell it from your starting amount. Your starting amount of 5 Apr 2026 is not in the Log.',
+        'cannot show whether it is part of your starting amount. Your starting amount of 5 Apr 2026 is not in the Log.',
       'Rewards paid in coins, not imported: 0.0001 ETH.',
       'Coins sent to Kraken from elsewhere, not imported: 0.01 BTC. Record a gift with Add coins you already have, ' +
         'and your own coins coming back with Log coins you moved.',
@@ -308,7 +308,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
     await mount(planOf(csv, []));
     expect(lines('Left out (1)')).toEqual([
       '2 purchases dated on or before 20 Apr 2026, not imported: 0.0006 BTC for €40.00 on 10 Jan 2026 and 0.0006 BTC ' +
-        'for €40.00 on 20 Apr 2026. The file cannot tell them from your starting amount. Your starting amount of 5 ' +
+        'for €40.00 on 20 Apr 2026. The file cannot show whether they are part of your starting amount. Your starting amount of 5 ' +
         'Apr 2026 is not in the Log.',
     ]);
   });
@@ -342,7 +342,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
       await mount(planOf(march20, [lump('manual', '1000', '0.0125')]));
       expect(startingLine()).toBe(
         '1 purchase dated on or before 20 Apr 2026, not imported: 0.0125 BTC for €1,000.00 on 20 Mar 2026. The file ' +
-          'cannot tell it from your starting amount. The Log holds your starting amount as 0.0125 BTC for €1,000.00 ' +
+          'cannot show whether it is part of your starting amount. The Log holds your starting amount as 0.0125 BTC for €1,000.00 ' +
           'on 5 Apr 2026.',
       );
     });
@@ -354,8 +354,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
       ]);
       await mount(planOf(csv, [lump('one-tap', '700', '0.00875'), lump('one-tap', '300', '0.1', ETH)]));
       expect(startingLine()).toBe(
-        '2 purchases dated on or before 20 Apr 2026, not imported: 0.0060 BTC for €500.00 on 1 Apr 2026 and 0.0024 ' +
-          'BTC for €200.00 on 10 Apr 2026. The file cannot tell them from your starting amount. The Log holds your ' +
+        '2 purchases dated on or before 20 Apr 2026, not imported: 0.00600 BTC for €500.00 on 1 Apr 2026 and 0.00240 ' +
+          'BTC for €200.00 on 10 Apr 2026. The file cannot show whether they are part of your starting amount. The Log holds your ' +
           'starting amount as 0.00875 BTC (estimated) for €700.00 on 5 Apr 2026.',
       );
     });
@@ -365,16 +365,16 @@ describe('ExchangeSummary and ExchangeSections', () => {
       await mount(planOf(csv, [lump('manual', '300', '0.12', ETH)]));
       expect(startingLine()).toBe(
         '1 purchase dated on or before 20 Apr 2026, not imported: 0.00875 BTC for €700.00 on 10 Mar 2026. The file ' +
-          'cannot tell it from your starting amount. The Log holds no starting amount of BTC.',
+          'cannot show whether it is part of your starting amount. The Log holds no starting amount of BTC.',
       );
     });
 
-    it('purchases of both coins, each coin’s starting amount in the Log', async () => {
+    it('purchases of both coins, each coin’s starting amount in the Log, a coin’s units at one number of places', async () => {
       const csv = bothCoins(['700.0000', '0.0087500000'], ['300.0000', '0.1000000000']);
       await mount(planOf(csv, [lump('manual', '700', '0.00875'), lump('manual', '300', '0.12', ETH)]));
       expect(startingLine()).toBe(
-        '2 purchases dated on or before 20 Apr 2026, not imported: 0.00875 BTC for €700.00 on 20 Mar 2026 and 0.1 ETH ' +
-          'for €300.00 on 21 Mar 2026. The file cannot tell them from your starting amount. The Log holds your ' +
+        '2 purchases dated on or before 20 Apr 2026, not imported: 0.00875 BTC for €700.00 on 20 Mar 2026 and 0.10 ETH ' +
+          'for €300.00 on 21 Mar 2026. The file cannot show whether they are part of your starting amount. The Log holds your ' +
           'starting amount as 0.00875 BTC for €700.00 on 5 Apr 2026 and 0.12 ETH for €300.00 on 5 Apr 2026.',
       );
     });
@@ -384,7 +384,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
       await mount(planOf(csv, [lump('manual', '700', '0.00875')]));
       expect(startingLine()).toBe(
         '2 purchases dated on or before 20 Apr 2026, not imported: 0.00875 BTC for €700.00 on 20 Mar 2026 and 0.1 ETH ' +
-          'for €300.00 on 21 Mar 2026. The file cannot tell them from your starting amount. The Log holds part of ' +
+          'for €300.00 on 21 Mar 2026. The file cannot show whether they are part of your starting amount. The Log holds part of ' +
           'your starting amount as 0.00875 BTC for €700.00 on 5 Apr 2026. It holds no starting amount of ETH.',
       );
     });
@@ -394,7 +394,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
       expect(startingLine()).toMatch(/starting amount\. Your starting amount of 5 Apr 2026 is not in the Log\.$/);
     });
 
-    it('past five purchases, the latest five and how many more', async () => {
+    it('past five purchases, the latest five and how many came earlier', async () => {
       const csv = btcBuys(
         [1, 2, 3, 4, 5, 6, 7].map((day) => [
           `S${day}`,
@@ -407,8 +407,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
       await mount(planOf(csv, []));
       const shown = [3, 4, 5, 6, 7].map((day) => `0.001 BTC for €40.00 on ${day} Mar 2026`).join(', ');
       expect(startingLine()).toBe(
-        `7 purchases dated on or before 20 Apr 2026, not imported: ${shown}, and 2 more. The file cannot tell them ` +
-          'from your starting amount. Your starting amount of 5 Apr 2026 is not in the Log.',
+        `7 purchases dated on or before 20 Apr 2026, not imported: ${shown}, and 2 earlier. The file cannot show ` +
+          'whether they are part of your starting amount. Your starting amount of 5 Apr 2026 is not in the Log.',
       );
     });
 
