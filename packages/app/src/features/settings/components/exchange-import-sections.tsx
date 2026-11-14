@@ -259,8 +259,7 @@ function useStartingLine({ startingAmount: starting }: Model, w: ReturnType<type
     date: w.format.date(starting.through),
     // Past `LINES_SHOWN` the purchases left unnamed are the oldest, so the list ends with how many came earlier.
     items: w.format.list(earlier > 0 ? [...items, t('startingEarlier', { count: w.figure(earlier) })] : items),
-    logged:
-      starting.lumps.length === 0 ? 'no' : lumps.length === 0 ? 'none' : unheld.length === 0 ? 'all' : 'some',
+    logged: starting.lumps.length === 0 ? 'no' : lumps.length === 0 ? 'none' : unheld.length === 0 ? 'all' : 'some',
     lumps: w.format.list(held),
     coins: w.format.list(unheld),
     firstBuy: w.format.date(starting.firstBuy),
