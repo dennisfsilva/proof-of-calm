@@ -511,12 +511,10 @@ describe('planExchangeImport, in one import or two', () => {
         paid('A1013', '2026-10-13', '30', 6),
       ];
       const [O11, O12, O13] = fills as [Movement, Movement, Movement];
-      const { once, first, then, oneLog, twoLog } = paths(
-        PLAIN,
-        [typedFor('2026-10', '2026-10-11', '100')],
-        fills,
-        [O11, O12],
-      );
+      const { once, first, then, oneLog, twoLog } = paths(PLAIN, [typedFor('2026-10', '2026-10-11', '100')], fills, [
+        O11,
+        O12,
+      ]);
       expect([claims(once), kinds(once)]).toEqual([
         [['H', ['2026-10-11']]],
         [`${id(O12)}:dca:2026-10`, `${id(O13)}:dca:2026-10`],
