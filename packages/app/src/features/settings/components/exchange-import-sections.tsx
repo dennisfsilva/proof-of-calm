@@ -4,7 +4,6 @@ import {
   decimalPlaces,
   type Entry,
   type ExchangeId,
-  IMPORT_MATCH_DAYS,
   isZero,
   MAX_UNIT_DECIMALS,
   type MonthKey,
@@ -237,8 +236,8 @@ function useLeftOut({ model, plan, exchange }: SectionsProps, w: ReturnType<type
     starting !== null &&
       t('starting', {
         ...w.counted(starting.purchases),
-        days: IMPORT_MATCH_DAYS,
         date: w.format.date(starting.through),
+        firstBuy: w.format.date(starting.firstBuy),
       }),
   );
   for (const reason of ['reward', 'coin-deposit'] as const) {
