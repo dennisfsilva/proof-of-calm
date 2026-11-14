@@ -24,7 +24,7 @@ import type { Plan } from '../../schema/plan';
 import { applyExchangeImport } from './apply';
 import type { ExchangeFile, Movement } from './kraken';
 import { type ExchangeImportPlan, type ImportContext, leftOutBefore, planExchangeImport } from './plan';
-import { HAND } from './plan-claims';
+import { HAND, nearTarget } from './plan-claims';
 import { type EstimateLine, estimateLines } from './plan-lines';
 
 export type Stored = { readonly plan: Plan; readonly entries: readonly Entry[] };
@@ -221,7 +221,7 @@ export function startingRemedies(
     const groups = [...new Set([...named, ...recorded])].sort().map((date) => groupOf(coin, date, 'purchase'));
     const best = groups.reduce((a, b) => (compare(off(b.amount, target), off(a.amount, target)) < 0 ? b : a));
     const part = monthly.find((each) => each.coin === coin)?.amount ?? ('0' as Money);
-    const counts = named.includes(best.date) && compare(off(best.amount, target), off(best.amount, part)) <= 0;
+    const counts = named.includes(best.date) && nearTarget(best.amount, target, part);
     return counts ? best : null;
   };
   const shared = (picks: readonly (Group | null)[]) => {
