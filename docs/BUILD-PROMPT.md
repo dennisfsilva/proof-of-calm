@@ -249,6 +249,16 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   and the ADR that rules the naming among the files it changes. Counsel's first read of the Trade
   Republic screen marked every line that named Trade Republic a perimeter breach, because the
   carve-out named Kraken alone (#193, 2026-11-14).
+- A change to what the core plans runs every story file of the feature it reaches, not only the
+  stories the branch changed. The month rule's builders ran their own stories, and the exchange
+  import's "Log Changed" story failed in all four story projects: under the new rule another coin's
+  one-tap estimate no longer changed what the file adds, so the story's premise had moved
+  (#196, 2026-11-14).
+- A branch that widens a property's generator runs the whole affected property suite over seeds 1
+  to 8 before review, and attributes a failure to main or to the branch before fixing it. The guards
+  branch's early dates found, at one seed, a non-convergence in #196's step-2 fallback: a typed
+  monthly buy fell back to its 3 days whenever its walk claimed nothing. Its fix then took the
+  branch's second fix round (#197, 2026-11-14).
 
 ## Known gaps
 
