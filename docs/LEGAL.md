@@ -194,7 +194,7 @@ exports (their headers, columns and cells) (the role: `.claude/agents/counsel.md
    `docs/EDUCATION.md` §9). Naming a provider as the subject of a dated, sourced event its customers
    suffered (a halt, an insolvency, a theft), unlinked, with no word on what it offers now and no
    comparison, is not naming a provider (`docs/EDUCATION.md` §9 rows `d.mt-gox` and `d.ftx`).
-   Naming Kraken as the format of a file the import reads and as the default venue of the entries
+   Naming Kraken or Trade Republic as the format of a file the import reads and as the default venue of the entries
    it brings (ADR-0056), or showing back a venue the person logged, which is their own data
    (decided 2026-11-13), listed alphabetically, unlinked, with no logo, status word, comparison or reason to use it, beside
    `Choose a file`, in the not-recognised alert and in the import's own lines, nowhere else, is not
