@@ -265,7 +265,13 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   the purchase. Reasoning about the state missed each failure in session 22c (#197, 2026-11-14). The
   starting-amount line said to record a purchase the Log already counted. The still-late line named a
   month Record does not open. After the estimate line's date change, another hand entry took the
-  purchase. All three wait for #200's design check.
+  purchase. #200's design check settled them on 2026-11-14: the starting-amount line names the
+  purchases and asks for no change (#204); its instructions and the estimate line follow behind the
+  plan-again check (#205); `replacesHint` was cut (#203); and the still-late line was cut. The same
+  check then reasoned that importing first changes no claim of the delete sentence, and #203's first
+  review round found it false: imported entries join a hand row by `transactionKey`, which holds no
+  coin, and an imported sale changes which deletes the Log refuses. A design check's reason that
+  drops one of these states is tested like the line itself.
 
 ## Known gaps
 

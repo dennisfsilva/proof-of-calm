@@ -370,6 +370,11 @@ Two import choices wait here too (ADR-0056, Corrections, 2026-11-14): choosing, 
 one dated on or before the first buy day plus 15 days is the starting amount, where the import now
 leaves them out and names them; and a lone cancellation whose trade the file no longer holds, matched
 by its figures, where the import now names only a trade the file pairs with its cancellation.
+Two cases of #200's design check (2026-11-14) wait for them or for the month rule: Ana*, who
+imports first, stays at Invested €1,050 against €950 (€100 counted twice) with no line, because the import stored a
+purchase as the next month's monthly buy; and after an
+import, Today's "Record it or skip the month" can still lead to a purchase counted twice, since no
+preview line about a month still late can be true before then (`docs/DOMAIN.md` §3.13).
 
 Free in the core (ADR-0039). After the preview, an import replaces the matching one-tap estimates
 by the rules `docs/DOMAIN.md` §3.13 owns (ADR-0056), as the Kraken and Trade Republic imports do.
