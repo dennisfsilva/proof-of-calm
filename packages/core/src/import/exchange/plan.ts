@@ -77,18 +77,22 @@ const KIND = { purchase: 'extra', sale: 'sell', receipt: 'held' } as const;
  * date reaches 15 days either side (`IMPORT_MATCH_DAYS`), and each one-tap monthly estimate of the coin for that
  * month, live or tombstoned, reaches from 3 days before its date (`IMPORT_TYPED_DAYS`) to the day after; a date no
  * anchor reaches makes an extra buy." `entries` are the stored ones, tombstones included, so a tombstoned estimate
- * keeps dating its month; the months are in date order, so a tie keeps the earlier.
+ * keeps dating its month; the months are in date order, so a tie keeps the earlier. Each coin and date's month is worked
+ * out once per plan, and the estimates are keyed by coin and month, so a long file with many typed entries stays fast.
  */
 function monthsOf(months: readonly SlotStatus[], entries: readonly Entry[]) {
-  const taps = entries.filter((entry) => isEstimate(entry) && entry.kind === 'dca');
-  return (coin: CoinId, date: CalendarDate) => {
+  const taps = new Map<string, CalendarDate[]>();
+  for (const tap of entries.filter((entry) => isEstimate(entry) && entry.kind === 'dca')) {
+    const key = `${tap.coin}|${tap.slot}`;
+    taps.set(key, [...(taps.get(key) ?? []), tap.date]);
+  }
+  const known = new Map<string, MonthKey | undefined>();
+  const find = (coin: CoinId, date: CalendarDate) => {
     let best: { readonly key: MonthKey; readonly off: number } | null = null;
     for (const { key, due } of months) {
       const anchors = [
         { at: due, before: IMPORT_MATCH_DAYS, after: IMPORT_MATCH_DAYS },
-        ...taps
-          .filter((tap) => tap.coin === coin && tap.slot === key)
-          .map((tap) => ({ at: tap.date, before: IMPORT_TYPED_DAYS, after: 1 })),
+        ...(taps.get(`${coin}|${key}`) ?? []).map((at) => ({ at, before: IMPORT_TYPED_DAYS, after: 1 })),
       ];
       for (const { at, before, after } of anchors) {
         const off = daysBetween(at, date);
@@ -97,6 +101,11 @@ function monthsOf(months: readonly SlotStatus[], entries: readonly Entry[]) {
       }
     }
     return best?.key;
+  };
+  return (coin: CoinId, date: CalendarDate) => {
+    const key = `${coin}|${date}`;
+    if (!known.has(key)) known.set(key, find(coin, date));
+    return known.get(key);
   };
 }
 
