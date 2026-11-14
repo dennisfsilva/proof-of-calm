@@ -367,7 +367,7 @@ Corrections, 2026-11-13). Proven
 by unit tests per parser and a Playwright flow per exchange.
 
 Free in the core (ADR-0039). After the preview, an import replaces the matching one-tap estimates
-by the rules `docs/DOMAIN.md` §3.13 owns (ADR-0056), as Kraken's import does.
+by the rules `docs/DOMAIN.md` §3.13 owns (ADR-0056), as the Kraken and Trade Republic imports do.
 
 ---
 
