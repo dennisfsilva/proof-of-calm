@@ -120,7 +120,7 @@ describe('planExchangeImport', () => {
         }),
         TWICE,
       );
-      // The cuts that split a date a lump claims by its amount are skipped (docs/DOMAIN.md §3.13 step 2), a few a run.
+      // The cuts inside a date near a lump not of the monthly part are skipped (DOMAIN §3.13 step 2), a few a run.
       expect(skipped.cuts).toBeLessThan(TWICE.numRuns / 10);
     },
     TIMEOUT,
