@@ -21,8 +21,8 @@ import { ExchangeSections, ExchangeSummary } from './exchange-import-sections';
 // The exchange import's preview sections over the fixture plan, from synthetic Kraken ledgers and a synthetic Trade
 // Republic export (ADR-0056): an import that replaces an estimate, one that fills October's months, one the Log
 // records already, one with an item that says to delete its entry and one that does not, one whose rows are all left
-// out, a purchase the file cannot show to be part of the starting amount the Log holds, Trade Republic's rows left
-// out in its words, and a file imported
+// out, a purchase the file cannot show to be part of the starting amount the Log holds, purchases the line asks to
+// change the starting amount to, Trade Republic's rows left out in its words, and a file imported
 // before, with nothing to add. Each play opens its sections, so the test projects of
 // vitest.config.ts check the open lists at 360 and 1280 px, light and dark, with axe.
 
@@ -149,10 +149,30 @@ export const StartingAmountInTheLog: Story = {
   play: async ({ canvas }) => {
     await userEvent.click(canvas.getByRole('button', { name: 'Left out (1)' }));
     await expect(canvas.getByText(/0\.0125 BTC for €700\.00 on 20 Mar 2026/)).toBeVisible();
-    // Only the BTC lump: the file names no ETH purchase.
+    // Only the BTC lump, its coin named: the file names no ETH purchase.
     await expect(
-      canvas.getByText(/holds your starting amount as 0\.0125 BTC for €700\.00 on 5 Apr 2026\.$/),
+      canvas.getByText(/holds your starting amount of BTC as 0\.0125 BTC for €700\.00 on 5 Apr 2026\.$/),
     ).toBeVisible();
+  },
+};
+
+/** Both coins bought on 20 Mar as the plan splits its starting amount: the line asks to change the lumps to that day. */
+const bothOnMarch20 = krakenLedger([
+  ['S1', '2026-03-20 09:00:00', 'trade', 'EUR', '-700.0000', '0.0000'],
+  ['S1', '2026-03-20 09:00:00', 'trade', 'BTC', '0.0125000000', '0.0000000000'],
+  ['S2', '2026-03-20 10:00:00', 'trade', 'EUR', '-300.0000', '0.0000'],
+  ['S2', '2026-03-20 10:00:00', 'trade', 'ETH', '0.1000000000', '0.0000000000'],
+]);
+
+export const StartingAmountToChange: Story = {
+  args: { shown: planOf(bothOnMarch20, fixture.entries), remedies: remediesOf(bothOnMarch20, fixture.entries) },
+  play: async ({ canvas }) => {
+    await userEvent.click(canvas.getByRole('button', { name: 'Left out (1)' }));
+    const sentence =
+      "If you bought your whole starting amount on 20 Mar 2026, change its date, cost and units in the Log to the file's. " +
+      'Then choose the file again.';
+    // Its own line at the end of the item, in the secondary ink.
+    await expect(canvas.getByText(sentence)).toHaveClass('block', 'text-ink-2');
   },
 };
 

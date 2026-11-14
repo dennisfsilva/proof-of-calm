@@ -189,7 +189,8 @@ export function ExchangeSections({ model, plan, exchange }: SectionsProps) {
       entry: piece(row.entry, [row.units], true),
     });
     // Only where deleting the entry imports what the item says (importRemedies, docs/DOMAIN.md §3.13).
-    const hint = row.remedy ? t('recordedHint', { count: row.dates.length }) : undefined;
+    // Counted by transaction: several on one date are several (`count`).
+    const hint = row.remedy ? t('recordedHint', { count: row.count }) : undefined;
     return { key: row.entry.id, text, ...(hint === undefined ? {} : { hint }) };
   });
   const { imported, deleted, unitsCut, feesInCoin } = model.counted;
@@ -225,19 +226,29 @@ export function ExchangeSections({ model, plan, exchange }: SectionsProps) {
 
 /**
  * The starting-amount line (DOMAIN §3.13 step 3): each purchase left out, the latest ones past `LINES_SHOWN`, then per
- * coin of those purchases the live lump the Log holds or that it holds none, else the starting amount's date as not in
- * the Log. It asks for no change. A coin's units share their places across the line (DESIGN §5 rule 7).
+ * coin of those purchases the live lump the Log holds or that it holds none, else that the Log holds no starting
+ * amount; with the instruction `importRemedies` found, to change the row of lumps to its date or to record the
+ * starting amount on it, as the item's second line. A coin's units share their places across the line (DESIGN §5
+ * rule 7).
  */
 function useStartingLine({ startingAmount: starting }: Model, w: ReturnType<typeof useWords>) {
   const t = useTranslations('settings.data.exchange.leftOut');
   if (starting === null) return null;
-  const shown = starting.items.slice(-LINES_SHOWN);
-  const earlier = starting.purchases - shown.length;
-  // What the line says of the Log holds per coin: the lumps of the named purchases' coins, and each of those coins
-  // with none, while a lump of any coin is live (a lump of another coin says nothing of these).
+  const { remedy } = starting;
+  const latest = starting.items.slice(-LINES_SHOWN);
+  // The purchases of the instruction's date always show: older than the latest, they take the earliest ones' places,
+  // and the unnamed purchases are no longer all earlier, so the list ends with how many more.
+  const missing = starting.items.filter((item) => item.date === remedy?.date && !latest.includes(item));
+  const shown = [...missing, ...latest.slice(missing.length)].slice(0, LINES_SHOWN);
+  const unnamed = starting.purchases - shown.length;
+  // What the line says of the Log holds per coin: the lumps of the purchases' coins, and each of those coins with
+  // none, while a lump of any coin is live (a lump of another coin says nothing of these, so the coins are named).
   const named = [...new Set(starting.items.map((item) => item.coin))];
   const lumps = starting.lumps.filter((entry) => named.includes(entry.coin));
   const unheld = named.filter((coin) => !lumps.some((entry) => entry.coin === coin));
+  const held = [...new Set(lumps.map((entry) => entry.coin))];
+  // Lumps of one date name it once.
+  const shared = lumps.length > 1 && lumps.every((entry) => entry.date === lumps[0]?.date);
   // A coin's units share their places across the whole line, the purchases and the lumps together.
   const figures = [...shown, ...lumps];
   const peers = (coin: string) => figures.flatMap((each) => (each.coin === coin ? [each.units] : []));
@@ -248,25 +259,38 @@ function useStartingLine({ startingAmount: starting }: Model, w: ReturnType<type
       date: w.format.date(item.date),
     }),
   );
-  const held = lumps.map((entry) =>
-    t('startingLump', {
-      units: w.units(entry.coin, entry.units, peers(entry.coin)),
-      estimated: isEstimate(entry) ? 'yes' : 'no',
-      // A lump always has a cost: only a `held` entry may have none (DOMAIN §2.2).
-      amount: w.money(entry.amount as Decimal),
-      date: w.format.date(entry.date),
-    }),
+  const pieces = w.format.list(
+    lumps.map((entry) =>
+      t('startingLump', {
+        units: w.units(entry.coin, entry.units, peers(entry.coin)),
+        estimated: isEstimate(entry) ? 'yes' : 'no',
+        // A lump always has a cost: only a `held` entry may have none (DOMAIN §2.2).
+        amount: w.money(entry.amount as Decimal),
+        dated: shared ? 'no' : 'yes',
+        date: w.format.date(entry.date),
+      }),
+    ),
   );
-  return t('starting', {
+  const tail = missing.length > 0 ? 'more' : 'startingEarlier';
+  const text = t('starting', {
     ...w.counted(starting.purchases),
     date: w.format.date(starting.through),
-    // Past `LINES_SHOWN` the purchases left unnamed are the oldest, so the list ends with how many came earlier.
-    items: w.format.list(earlier > 0 ? [...items, t('startingEarlier', { count: w.figure(earlier) })] : items),
+    items: w.format.list(unnamed > 0 ? [...items, t(tail, { count: w.figure(unnamed) })] : items),
     logged: starting.lumps.length === 0 ? 'no' : lumps.length === 0 ? 'none' : unheld.length === 0 ? 'all' : 'some',
-    lumps: w.format.list(held),
+    named: starting.lumps.some((entry) => !named.includes(entry.coin)) ? 'yes' : 'no',
+    held: w.format.list(held),
+    lumps: shared
+      ? t('startingLumps', {
+          lumps: pieces,
+          count: lumps.length,
+          date: w.format.date(lumps[0]?.date ?? starting.through),
+        })
+      : pieces,
     coins: w.format.list(unheld),
-    firstBuy: w.format.date(starting.firstBuy),
   });
+  if (remedy === null) return { text };
+  const key = remedy.kind === 'change' ? 'startingChange' : 'startingRecord';
+  return { text, hint: t(key, { date: w.format.date(remedy.date) }) };
 }
 
 /** The left-out lines in the copy's order, each only when it applies. */
@@ -276,14 +300,15 @@ function useLeftOut({ model, plan, exchange }: SectionsProps, w: ReturnType<type
   const coins = (named: readonly { key: string; units: Decimal | null }[]) =>
     w.format.list(named.map((each) => (each.units === null ? each.key : w.units(each.key, each.units))));
   const items: Item[] = [];
-  const add = (key: string, text: string | null | false) => {
-    if (text) items.push({ key, text });
+  const add = (key: string, text: string | null | false, hint?: string) => {
+    if (text) items.push({ key, text, ...(hint === undefined ? {} : { hint }) });
   };
   const currency = group('currency');
   add('currency', currency ? t('currency', { ...w.counted(currency.count), currencies: coins(currency.by) }) : null);
   for (const coin of group('not-in-plan')?.by ?? [])
     add(`not-in-plan-${coin.key}`, t('not-in-plan', { coin: coin.key, ...w.counted(coin.count) }));
-  add('starting', useStartingLine(model, w));
+  const starting = useStartingLine(model, w);
+  if (starting !== null) add('starting', starting.text, starting.hint);
   for (const reason of ['reward', 'coin-deposit'] as const) {
     const found = group(reason);
     add(reason, found ? t(reason, { units: coins(found.by), exchange, ...w.counted(found.count) }) : null);
