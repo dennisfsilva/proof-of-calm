@@ -210,7 +210,7 @@ function Preview({ file, name, onDone, onBusy, plan: livePlan }: Props & { reado
                 pin();
               }}
             />
-            <span className="py-3">{t('addHeld')}</span>
+            <span className="py-3">{t('addHeld', { transactions })}</span>
           </label>
           <p className="text-ink-2">{t('addHeldHint', { count: heldEntries, transactions })}</p>
         </div>
