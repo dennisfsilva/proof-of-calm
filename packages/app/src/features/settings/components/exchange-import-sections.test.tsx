@@ -285,8 +285,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
       '1 purchase or sale in USD, not imported: amounts are never converted.',
       'This plan does not list XRP, so 1 XRP transaction was left out. If you want it in this plan, you can add XRP ' +
         'in Coins & split, then choose the file again.',
-      '1 purchase dated on or before 20 Apr 2026, not imported: the file cannot tell it from your starting amount ' +
-        'of 5 Apr 2026. Record it in the Log with the day you bought it, then choose the file again.',
+      '1 purchase dated on or before 20 Apr 2026, not imported: 0.0006 BTC for €40.00 on 10 Apr 2026. The file ' +
+        'cannot tell it from your starting amount of 5 Apr 2026, which is not in the Log.',
       'Rewards paid in coins, not imported: 0.0001 ETH.',
       'Coins sent to Kraken from elsewhere, not imported: 0.01 BTC. Record a gift with Add coins you already have, ' +
         'and your own coins coming back with Log coins you moved.',
@@ -307,9 +307,75 @@ describe('ExchangeSummary and ExchangeSections', () => {
     ]);
     await mount(planOf(csv, []));
     expect(lines('Left out (1)')).toEqual([
-      '2 purchases dated on or before 20 Apr 2026, not imported: the file cannot tell them from your starting ' +
-        'amount of 5 Apr 2026. Record each in the Log with the day you bought it, then choose the file again.',
+      '2 purchases dated on or before 20 Apr 2026, not imported: 0.0006 BTC for €40.00 on 10 Jan 2026 and 0.0006 BTC ' +
+        'for €40.00 on 20 Apr 2026. The file cannot tell them from your starting amount of 5 Apr 2026, which is not ' +
+        'in the Log.',
     ]);
+  });
+
+  describe('the starting-amount line: every purchase and what the Log holds, and no change asked', () => {
+    /** A starting amount the person recorded (`manual`) or tapped (`one-tap`), dated the first buy, 5 Apr 2026. */
+    const lump = (source: Entry['source'], amount: string, bought: string, coin = BTC) =>
+      anEntry({
+        id: `aaaaaaaa-0000-4000-8000-0000000000${coin === BTC ? '41' : '42'}` as EntityId,
+        kind: 'lump',
+        coin,
+        date: date('2026-04-05'),
+        slot: null,
+        amount: amount as Entry['amount'],
+        units: units(bought),
+        source,
+      });
+    const march20 = btcBuys([['S1', '2026-03-20 09:00:00', '1000.0000', '0.0125000000', '0.0000']]);
+    const startingLine = () => lines('Left out (1)')[0] ?? '';
+
+    it('one purchase, the starting amount recorded by hand', async () => {
+      await mount(planOf(march20, [lump('manual', '1000', '0.0125')]));
+      expect(startingLine()).toBe(
+        '1 purchase dated on or before 20 Apr 2026, not imported: 0.0125 BTC for €1,000.00 on 20 Mar 2026. The file ' +
+          'cannot tell it from your starting amount, which the Log holds as 0.0125 BTC for €1,000.00 on 5 Apr 2026.',
+      );
+    });
+
+    it('several purchases, the starting amount an estimate, in two coins', async () => {
+      const csv = btcBuys([
+        ['S1', '2026-04-01 09:00:00', '500.0000', '0.0060000000', '0.0000'],
+        ['S2', '2026-04-10 09:00:00', '200.0000', '0.0024000000', '0.0000'],
+      ]);
+      const eth = lump('one-tap', '300', '0.1', 'ETH' as Entry['coin']);
+      await mount(planOf(csv, [lump('one-tap', '700', '0.00875'), eth]));
+      expect(startingLine()).toBe(
+        '2 purchases dated on or before 20 Apr 2026, not imported: 0.0060 BTC for €500.00 on 1 Apr 2026 and 0.0024 ' +
+          'BTC for €200.00 on 10 Apr 2026. The file cannot tell them from your starting amount, which the Log holds as ' +
+          '0.00875 BTC (estimated) for €700.00 on 5 Apr 2026 and 0.1 ETH (estimated) for €300.00 on 5 Apr 2026.',
+      );
+    });
+
+    it('past five purchases, the latest five and how many more', async () => {
+      const csv = btcBuys(
+        [1, 2, 3, 4, 5, 6, 7].map((day) => [
+          `S${day}`,
+          `2026-03-0${day} 09:00:00`,
+          '40.0000',
+          '0.0010000000',
+          '0.0000',
+        ]),
+      );
+      await mount(planOf(csv, []));
+      const shown = [3, 4, 5, 6, 7].map((day) => `0.001 BTC for €40.00 on ${day} Mar 2026`).join(', ');
+      expect(startingLine()).toBe(
+        `7 purchases dated on or before 20 Apr 2026, not imported: ${shown}, and 2 more. The file cannot tell them ` +
+          'from your starting amount of 5 Apr 2026, which is not in the Log.',
+      );
+    });
+
+    it('never asks to record a purchase, whatever the Log holds', async () => {
+      for (const entries of [[], [lump('manual', '1000', '0.0125')], [lump('one-tap', '1000', '0.01219512')]]) {
+        await mount(planOf(march20, entries));
+        expect(startingLine()).not.toMatch(/record it|record each|extra buy/i);
+        cleanup();
+      }
+    });
   });
 
   it('word a purchase with a fee of 0 without a fee, and one with a fee with it', async () => {

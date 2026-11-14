@@ -4,6 +4,7 @@ import {
   decimalPlaces,
   type Entry,
   type ExchangeId,
+  isEstimate,
   isZero,
   MAX_UNIT_DECIMALS,
   type MonthKey,
@@ -219,6 +220,45 @@ export function ExchangeSections({ model, plan, exchange }: SectionsProps) {
   );
 }
 
+/**
+ * The starting-amount line (DOMAIN §3.13 step 3): each purchase left out, the latest ones past `LINES_SHOWN`, and each
+ * live lump the Log holds, else the starting amount's date as not in the Log. It asks for no change. Each sentence's
+ * units of a coin share their places (DESIGN §5 rule 7).
+ */
+function useStartingLine({ startingAmount: starting }: Model, w: ReturnType<typeof useWords>) {
+  const t = useTranslations('settings.data.exchange.leftOut');
+  if (starting === null) return null;
+  const peers = (list: readonly { coin: string; units: Decimal }[], coin: string) =>
+    list.flatMap((each) => (each.coin === coin ? [each.units] : []));
+  const shown = starting.items.slice(-LINES_SHOWN);
+  const more = starting.purchases - shown.length;
+  const items = shown.map((item) =>
+    t('startingItem', {
+      units: w.units(item.coin, item.units, peers(shown, item.coin)),
+      amount: w.money(item.amount),
+      date: w.format.date(item.date),
+    }),
+  );
+  const { lumps } = starting;
+  const held = lumps.map((entry) =>
+    t('startingLump', {
+      units: w.units(entry.coin, entry.units, peers(lumps, entry.coin)),
+      estimated: isEstimate(entry) ? 'yes' : 'no',
+      // A lump always has a cost: only a `held` entry may have none (DOMAIN §2.2).
+      amount: w.money(entry.amount as Decimal),
+      date: w.format.date(entry.date),
+    }),
+  );
+  return t('starting', {
+    ...w.counted(starting.purchases),
+    date: w.format.date(starting.through),
+    items: w.format.list(more > 0 ? [...items, t('more', { count: w.figure(more) })] : items),
+    logged: lumps.length > 0 ? 'yes' : 'no',
+    lumps: w.format.list(held),
+    firstBuy: w.format.date(starting.firstBuy),
+  });
+}
+
 /** The left-out lines in the copy's order, each only when it applies. */
 function useLeftOut({ model, plan, exchange }: SectionsProps, w: ReturnType<typeof useWords>): Item[] {
   const t = useTranslations('settings.data.exchange.leftOut');
@@ -233,16 +273,7 @@ function useLeftOut({ model, plan, exchange }: SectionsProps, w: ReturnType<type
   add('currency', currency ? t('currency', { ...w.counted(currency.count), currencies: coins(currency.by) }) : null);
   for (const coin of group('not-in-plan')?.by ?? [])
     add(`not-in-plan-${coin.key}`, t('not-in-plan', { coin: coin.key, ...w.counted(coin.count) }));
-  const starting = model.startingAmount;
-  add(
-    'starting',
-    starting !== null &&
-      t('starting', {
-        ...w.counted(starting.purchases),
-        date: w.format.date(starting.through),
-        firstBuy: w.format.date(starting.firstBuy),
-      }),
-  );
+  add('starting', useStartingLine(model, w));
   for (const reason of ['reward', 'coin-deposit'] as const) {
     const found = group(reason);
     add(reason, found ? t(reason, { units: coins(found.by), exchange, ...w.counted(found.count) }) : null);
