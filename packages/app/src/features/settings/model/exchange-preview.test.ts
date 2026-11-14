@@ -59,6 +59,22 @@ describe('previewModel', () => {
     expect(previewModel(planOn(entries, true)).held).toMatchObject({ added: true, replaces: 0 });
   });
 
+  it('marks the Matching entries whose item says to delete the entry, and none without remedies', () => {
+    const typed = (id: string, coin: string) =>
+      anEntry({ id: id as EntityId, coin: coin as Entry['coin'], date: date('2026-10-06'), source: 'manual' });
+    const [btc, eth] = [
+      typed('aaaaaaaa-0000-4000-8000-000000000041', 'BTC'),
+      typed('aaaaaaaa-0000-4000-8000-000000000042', 'ETH'),
+    ];
+    const shown = planOn([...fixtureSnapshot().entries, btc, eth], false);
+    const marked = previewModel(shown, shown, { recorded: new Set([btc.id]) }).recorded;
+    expect(marked.map((item) => [item.entry.id, item.remedy])).toEqual([
+      [btc.id, true],
+      [eth.id, false],
+    ]);
+    expect(previewModel(shown).recorded.map((item) => item.remedy)).toEqual([false, false]);
+  });
+
   it('counts the rows imported or deleted earlier', () => {
     const first = planOn(fixtureSnapshot().entries, false);
     const [one, ...rest] = first.entries as [Entry, ...Entry[]];

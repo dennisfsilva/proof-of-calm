@@ -126,7 +126,7 @@ describe('ExchangeImport', () => {
 
   it('the hint under the held line names one Coins added entry, or several as the line does', async () => {
     const hint = (count: string) =>
-      `If you add them and they are the same coins, delete ${count} in the Log after the import.`;
+      `If you add them and their coins are the same ones, delete ${count} in the Log after the import.`;
     await mount([HELD]);
     expect(texts()).toContain(hint('the Coins added entry'));
     cleanup();

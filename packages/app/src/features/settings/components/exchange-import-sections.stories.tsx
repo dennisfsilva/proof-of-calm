@@ -2,7 +2,9 @@ import {
   type Entry,
   type ExchangeId,
   type ExchangeImportPlan,
+  type ImportRemedies,
   type Instant,
+  importRemedies,
   type Plan,
   planExchangeImport,
   readExchangeFile,
@@ -18,7 +20,7 @@ import { ExchangeSections, ExchangeSummary } from './exchange-import-sections';
 
 // The exchange import's preview sections over the fixture plan, from synthetic Kraken ledgers and a synthetic Trade
 // Republic export (ADR-0056): an import that replaces an estimate, one that fills October's months, one the Log
-// records already, one whose rows are all left out, Trade Republic's rows left out in its words, and a file imported
+// records already, one with an item that says to delete its entry and one that does not, one whose rows are all left out, Trade Republic's rows left out in its words, and a file imported
 // before, with nothing to add. Each play opens its sections, so the test projects of
 // vitest.config.ts check the open lists at 360 and 1280 px, light and dark, with axe.
 
@@ -31,8 +33,22 @@ const planOf = (csv: string, entries: readonly Entry[], venue = 'Kraken'): Excha
   return planExchangeImport(read.value, { plan: PLAN, entries }, { venue, addHeld: false }, CONTEXT);
 };
 
-function Preview({ shown, exchange = 'kraken' }: { shown: ExchangeImportPlan; exchange?: ExchangeId }) {
-  const model = previewModel(shown);
+const remediesOf = (csv: string, entries: readonly Entry[]) => {
+  const read = readExchangeFile(csv);
+  if (!read.ok) throw new Error('the synthetic ledger reads');
+  return importRemedies(read.value, { plan: PLAN, entries }, false, CONTEXT);
+};
+
+function Preview({
+  shown,
+  exchange = 'kraken',
+  remedies,
+}: {
+  shown: ExchangeImportPlan;
+  exchange?: ExchangeId;
+  remedies?: ImportRemedies;
+}) {
+  const model = previewModel(shown, shown, remedies);
   return (
     <div className="flex flex-col gap-stack-sm">
       <ExchangeSummary model={model} plan={PLAN} />
@@ -82,6 +98,29 @@ export const RecordedAlready: Story = {
   play: async ({ canvas }) => {
     await userEvent.click(canvas.getByRole('button', { name: 'Matching entries in the Log, not added (1)' }));
     await expect(canvas.getByRole('list', { name: 'Matching entries in the Log, not added (1)' })).toBeVisible();
+  },
+};
+
+// A monthly buy whose row may be deleted to import the file's, with the sentence, and a starting amount without it.
+const lump: Entry = {
+  ...typed,
+  id: 'aaaaaaaa-0000-4000-8000-000000000032' as Entry['id'],
+  kind: 'lump',
+  coin: 'ETH' as Entry['coin'],
+  slot: null,
+  amount: '30' as Entry['amount'],
+  units: '0.0121' as Entry['units'],
+};
+const both = [...fixture.entries, typed, lump];
+
+export const RecordedWithAndWithoutTheSentence: Story = {
+  args: { shown: planOf(KRAKEN_OCTOBER, both), remedies: remediesOf(KRAKEN_OCTOBER, both) },
+  play: async ({ canvas }) => {
+    const name = 'Matching entries in the Log, not added (2)';
+    await userEvent.click(canvas.getByRole('button', { name }));
+    const items = canvas.getAllByRole('listitem').map((item) => item.textContent ?? '');
+    const sentence = "To import the file's instead, delete that entry in the Log, then choose the file again.";
+    await expect(items.map((text) => text.endsWith(sentence))).toEqual([true, false]);
   },
 };
 

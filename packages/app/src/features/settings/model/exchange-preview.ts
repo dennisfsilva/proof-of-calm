@@ -1,6 +1,13 @@
 // The exchange import's preview as data (docs/DOMAIN.md §3.13): the summary's counts, the held line, one item per
 // entry of each section and the counted lines. The component words them; nothing here decides what is imported.
-import { compareEntries, type Entry, type ExchangeId, type ExchangeImportPlan, liveEntries } from '@proofofcalm/core';
+import {
+  compareEntries,
+  type Entry,
+  type ExchangeId,
+  type ExchangeImportPlan,
+  type ImportRemedies,
+  liveEntries,
+} from '@proofofcalm/core';
 
 /** Each exchange's name, the venue field's default (D7); a proper name, the same in every language. */
 export const EXCHANGE_NAMES: Readonly<Record<ExchangeId, string>> = {
@@ -11,11 +18,14 @@ export const EXCHANGE_NAMES: Readonly<Record<ExchangeId, string>> = {
 const estimatesOf = (plan: ExchangeImportPlan) =>
   plan.replaced.reduce((count, item) => count + item.estimates.length, 0);
 
+const NONE: ImportRemedies = { recorded: new Set() };
+
 /**
  * The preview of `plan`; `ticked` is the plan the same file and Log give with `addHeld: true`, passed whenever the
- * held line shows unticked, so the line can count the estimates ticking would replace.
+ * held line shows unticked, so the line can count the estimates ticking would replace; `remedies` marks the Matching
+ * entries whose item says to delete the entry (`importRemedies`).
  */
-export function previewModel(plan: ExchangeImportPlan, ticked: ExchangeImportPlan = plan) {
+export function previewModel(plan: ExchangeImportPlan, ticked: ExchangeImportPlan = plan, remedies = NONE) {
   const of = (kind: Entry['kind']) => plan.entries.filter((entry) => entry.kind === kind);
   const byId = new Map(plan.entries.map((entry) => [entry.id, entry]));
   const replacing = new Set(plan.replaced.flatMap((item) => item.by));
@@ -44,7 +54,7 @@ export function previewModel(plan: ExchangeImportPlan, ticked: ExchangeImportPla
     extra: of('extra'),
     sales: of('sell'),
     added: of('held'),
-    recorded: plan.recorded,
+    recorded: plan.recorded.map((item) => ({ ...item, remedy: remedies.recorded.has(item.entry.id) })),
     startingAmount: plan.startingAmount,
     cancelled: plan.cancelled,
     short: plan.short,
