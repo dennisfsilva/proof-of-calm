@@ -23,7 +23,7 @@ import type { CoinId, EntityId } from '../../schema/ids';
 import type { Plan } from '../../schema/plan';
 import { applyExchangeImport } from './apply';
 import type { ExchangeFile, Movement } from './kraken';
-import { type ExchangeImportPlan, type ImportContext, planExchangeImport } from './plan';
+import { type ExchangeImportPlan, type ImportContext, leftOutBefore, planExchangeImport } from './plan';
 import { HAND } from './plan-claims';
 
 export type Stored = { readonly plan: Plan; readonly entries: readonly Entry[] };
@@ -160,7 +160,10 @@ export type ImportRemedies = {
   readonly starting: StartingRemedy | null;
 };
 
-/** A coin's movements of one role on one date that no stored entry holds, summed, with each movement's units. */
+/**
+ * A coin's movements of one role on one date that no stored entry holds and the plan considers (`leftOutBefore`: none in
+ * another currency), summed, with each movement's units.
+ */
 type Group = {
   readonly date: CalendarDate;
   readonly amount: Money;
@@ -174,7 +177,7 @@ function groupsOf(file: ExchangeFile, stored: Stored, context: ImportContext): G
   return (coin, date, role) => {
     const movements = file.movements
       .filter((movement) => movement.coin === coin && movement.role === role && context.dateOf(movement.at) === date)
-      .filter((movement) => !known.has(context.idOf(movement.key)));
+      .filter((movement) => !known.has(context.idOf(movement.key)) && leftOutBefore(stored.plan, movement) === null);
     const each = movements.map((movement) => movement.units);
     const amount = sum(movements.map((movement) => movement.amount as Money));
     return { date, amount, units: sum(each), each, ids: movements.map((movement) => context.idOf(movement.key)) };

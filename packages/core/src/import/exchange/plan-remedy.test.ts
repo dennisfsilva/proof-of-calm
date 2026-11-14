@@ -214,6 +214,24 @@ describe('importRemedies', () => {
     expect(invested(SALE, log)).toBe('140');
   });
 
+  // A USD purchase on the row's date is left out under 'currency', so it is not one of the date's movements to add.
+  const USD: Case = (() => {
+    const june = bought('BTC', '2026-06-02', '50');
+    const usd = trade('R-usd', 'purchase', 'BTC', '2026-07-02', { units: '0.0007', amount: '60', fee: '0' }, next(), {
+      currency: 'USD',
+    });
+    const file = [june, bought('BTC', '2026-07-02', '50'), usd];
+    return { plan: PLAN, file, shorter: [june], entries: [monthly('2026-07-02', '2026-07', '50')] };
+  })();
+
+  it.each(orders(USD))('a USD purchase on the typed date, %s: the sentence, and deleting adds 2 Jul', (_, stored) => {
+    const typed = USD.entries[0] as Entry;
+    expect([...remedies(USD, stored)]).toEqual([typed.id]);
+    const { again } = follow(USD, stored, typed);
+    expect(addedAs(again.entries, USD.file[1] as Movement)).toEqual([['dca', '2026-07']]);
+    expect(addedAs(again.entries, USD.file[2] as Movement)).toEqual([]);
+  });
+
   const REFUSED: Case = (() => {
     const file = [bought('BTC', '2026-09-02', '70'), bought('BTC', '2026-10-10', '50', '0.002')];
     const entries = [

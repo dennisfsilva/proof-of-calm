@@ -181,6 +181,15 @@ function withdrawals(
   return { logged: [...logged.values()], notLogged: [...notLogged.values()] };
 }
 
+/**
+ * Why the plan leaves out a movement that no stored entry holds before any step reads it: a trade in another currency, or
+ * a coin the plan does not list; null for a movement the steps consider. The remedies' date groups read it too.
+ */
+export function leftOutBefore(plan: Plan, movement: Movement): 'currency' | 'not-in-plan' | null {
+  if (movement.role !== 'receipt' && movement.currency !== plan.payCurrency) return 'currency';
+  return plan.coins.some((each) => each.id === movement.coin) ? null : 'not-in-plan';
+}
+
 export function planExchangeImport(
   file: ExchangeFile,
   stored: { readonly plan: Plan; readonly entries: readonly Entry[] },
@@ -211,6 +220,7 @@ export function planExchangeImport(
     const entry = known.get(id);
     const coin = plan.coins.find((each) => each.id === movement.coin)?.id;
     const item = { movement, id, date: context.dateOf(movement.at), coin: coin as CoinId };
+    const reason = leftOutBefore(plan, movement);
     if (entry !== undefined) {
       counts[entry.deletedAt === null ? 'imported' : 'deleted'] += 1;
       if (coin !== undefined && movement.role === 'purchase') put(earlier, item, movement.role);
@@ -220,9 +230,8 @@ export function planExchangeImport(
       const [was, now] = [shown(plan, movement.coin, entry.units), shown(plan, movement.coin, movement.units)];
       if (entry.deletedAt === null && movement.role === 'receipt' && compare(was, now) < 0)
         short.push({ entry, units: movement.units, date: item.date });
-    } else if (movement.role !== 'receipt' && movement.currency !== plan.payCurrency)
-      leave('currency', movement.lines, String(movement.currency), null);
-    else if (coin === undefined) leave('not-in-plan', movement.lines, movement.coin, movement.units);
+    } else if (reason === 'currency') leave(reason, movement.lines, String(movement.currency), null);
+    else if (reason === 'not-in-plan') leave(reason, movement.lines, movement.coin, movement.units);
     else put(days, item, movement.role);
   }
   days.sort((a, b) => compareDates(a.date, b.date));
