@@ -112,19 +112,17 @@ export const NothingToAdd: Story = {
   },
 };
 
-/** The named months' two lines (DOMAIN §3.13), set on the plan October's file gives: a month still late and an estimate left. */
-export const NamedMonths: Story = {
+/** The estimate-left line (DOMAIN §3.13), set on the plan October's file gives. */
+export const EstimateLeft: Story = {
   args: {
     shown: {
       ...planOf(KRAKEN_OCTOBER, fixture.entries),
-      stillLate: ['2026-06' as MonthKey],
       estimatesLeft: [
         { estimate: ONE_TAP_OCTOBER, date: '2026-10-19' as Entry['date'], countsFor: '2026-11' as MonthKey },
       ],
     },
   },
   play: async ({ canvas }) => {
-    await expect(canvas.getByText(/^June 2026 is still late after this import/)).toBeVisible();
     await expect(canvas.getByText(/^Your BTC estimate for October 2026 stays in the Log/)).toBeVisible();
   },
 };

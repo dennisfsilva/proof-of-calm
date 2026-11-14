@@ -483,27 +483,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
     ]);
   });
 
-  describe('the named months (DOMAIN §3.13)', () => {
+  describe('the estimates left (DOMAIN §3.13)', () => {
     const named = (more: Partial<ExchangeImportPlan>) => ({ ...planOf(KRAKEN_OCTOBER, fixture.entries), ...more });
-    const late = () => texts().filter((text) => text.includes('still late'));
-
-    it('name one month still late, singular, after the summary', async () => {
-      await mount(named({ stillLate: ['2026-06' as MonthKey] }));
-      expect(late()).toEqual([
-        'June 2026 is still late after this import: no purchase in this file counts for it. A purchase counts for ' +
-          'the month whose buy day is nearest, up to 15 days away. If you bought it on another day, record it in the ' +
-          'Log with that day, then choose the file again.',
-      ]);
-    });
-
-    it('name two months still late in one plural sentence', async () => {
-      await mount(named({ stillLate: ['2026-04', '2026-06'] as MonthKey[] }));
-      expect(late()).toEqual([
-        'April 2026 and June 2026 are still late after this import: no purchase in this file counts for them. A ' +
-          'purchase counts for the month whose buy day is nearest, up to 15 days away. If you bought them on other ' +
-          'days, record each in the Log with its day, then choose the file again.',
-      ]);
-    });
 
     it('name each estimate left with the purchase that counts for another month, one sentence each', async () => {
       const ethTap = { ...ONE_TAP_OCTOBER, id: 'aaaaaaaa-0000-4000-8000-000000000012' as EntityId, coin: 'ETH' };
@@ -525,9 +506,9 @@ describe('ExchangeSummary and ExchangeSections', () => {
       );
     });
 
-    it('show neither line when the plan names no month', async () => {
-      await mount(named({ stillLate: [], estimatesLeft: [] }));
-      expect(texts().filter((text) => text.includes('still late') || text.startsWith('Your '))).toEqual([]);
+    it('show no such line when the plan names no estimate', async () => {
+      await mount(named({ estimatesLeft: [] }));
+      expect(texts().filter((text) => text.startsWith('Your '))).toEqual([]);
     });
   });
 });

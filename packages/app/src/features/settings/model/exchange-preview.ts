@@ -48,7 +48,6 @@ export function previewModel(plan: ExchangeImportPlan, ticked: ExchangeImportPla
     startingAmount: plan.startingAmount,
     cancelled: plan.cancelled,
     short: plan.short,
-    stillLate: plan.stillLate,
     estimatesLeft: plan.estimatesLeft,
     withdrawals: plan.withdrawals,
     leftOut: plan.leftOut,

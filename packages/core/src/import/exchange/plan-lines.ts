@@ -1,37 +1,13 @@
-// The import's named months (docs/DOMAIN.md §3.13): the months still late after it that no purchase in the file counts
-// for, and the one-tap estimates it leaves while a purchase of their calendar month counts for a month whose buy day is
-// nearer. Each line names a state only where every sentence it shows holds.
+// The import's estimates left (docs/DOMAIN.md §3.13): the one-tap estimates it leaves while a purchase of their calendar
+// month counts for a month whose buy day is nearer. The line names a state only where every sentence it shows holds.
 import { IMPORT_TYPED_DAYS } from '../../constants';
 import { type CalendarDate, daysBetween, type MonthKey, monthKey } from '../../dates/calendar';
-import { actionsNow, isOpen, type SlotStatus } from '../../plan/statuses';
+import type { SlotStatus } from '../../plan/statuses';
 import { compareEntries } from '../../portfolio/lots';
 import type { Entry } from '../../schema/entry';
 import type { EntityId } from '../../schema/ids';
-import type { Plan } from '../../schema/plan';
 
 export type EstimateLeft = { readonly estimate: Entry; readonly date: CalendarDate; readonly countsFor: MonthKey };
-
-/**
- * "A month is still late when it is late once the import's entries are stored, its due date lies within the file's
- * first and last dates, and no purchase of the plan's coins in the file counts for it, stored or not." The months are
- * named in the order the Log's Record opens them (`actionsNow`), up to the first open action that is not such a
- * month, so "record it in the Log" opens each named month in turn. `after` is the Log once the import is stored.
- */
-export function stillLate(
-  plan: Plan,
-  after: readonly Entry[],
-  today: CalendarDate,
-  span: readonly [CalendarDate, CalendarDate] | null,
-  counted: ReadonlySet<MonthKey>,
-): MonthKey[] {
-  if (span === null) return [];
-  const named: MonthKey[] = [];
-  for (const { slot, status, due } of actionsNow(plan, after, today).filter((action) => isOpen(action.status))) {
-    if (slot === null || status !== 'late' || due < span[0] || due > span[1] || counted.has(slot)) break;
-    named.push(slot);
-  }
-  return named;
-}
 
 /**
  * "A live one-tap estimate of C for S that the file does not replace is named with the earliest added monthly buy of C

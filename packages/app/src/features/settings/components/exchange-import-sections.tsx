@@ -105,14 +105,6 @@ export function ExchangeSummary({ model, plan }: Props) {
           })}
         </p>
       ))}
-      {model.stillLate.length > 0 && (
-        <p>
-          {t('stillLate', {
-            count: model.stillLate.length,
-            months: w.format.list(model.stillLate.map((slot) => w.format.month(slot))),
-          })}
-        </p>
-      )}
       {model.estimatesLeft.map(({ estimate, date, countsFor }) => (
         <p key={estimate.id}>
           {t('estimateLeft', {

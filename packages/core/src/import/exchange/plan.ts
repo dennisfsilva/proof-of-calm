@@ -13,7 +13,7 @@ import type { Plan } from '../../schema/plan';
 import type { ExchangeFile, LeftOutRow, Movement } from './kraken';
 import { claimRecorded, type Recorded } from './plan-claims';
 import { type Day, type HeldCoin, heldGuard, startingGuard } from './plan-guards';
-import { type EstimateLeft, estimatesLeft, stillLate } from './plan-lines';
+import { type EstimateLeft, estimatesLeft } from './plan-lines';
 
 export type { Recorded } from './plan-claims';
 export type { EstimateLeft } from './plan-lines';
@@ -70,14 +70,11 @@ export type ExchangeImportPlan = {
   readonly deleted: number;
   readonly unitsCut: number;
   readonly feesInCoin: number;
-  /** The months still late once the import is stored that no purchase in the file counts for (plan-lines.ts). */
-  readonly stillLate: readonly MonthKey[];
   /** The live estimates the file leaves while a purchase of their month counts for another (plan-lines.ts). */
   readonly estimatesLeft: readonly EstimateLeft[];
 };
 
 const KIND = { purchase: 'extra', sale: 'sell', receipt: 'held' } as const;
-type Span = [CalendarDate, CalendarDate];
 
 /**
  * "A purchase date's month is the plan's month with the anchor nearest it, the earlier month on a tie: a month's due
@@ -301,14 +298,6 @@ export function planExchangeImport(
   for (const row of file.leftOut)
     if (row.reason !== 'coin-withdrawal') leave(row.reason, row.lines, row.coin, row.units);
   const currencies = new Set(file.movements.flatMap((movement) => movement.currency ?? []));
-  // The named months: a purchase counts for the month the rule gives it and for the month whose due date is nearest.
-  const byDue = monthsOf(months, []);
-  const counted = new Set(
-    [...file.movements, ...file.cancelled]
-      .filter((movement) => movement.role === 'purchase' && plan.coins.some((each) => each.id === movement.coin))
-      .flatMap(({ coin, at }) => [monthOf, byDue].flatMap((of) => of(coin as CoinId, context.dateOf(at)) ?? [])),
-  );
-  const span = file.first === null || file.last === null ? null : ([file.first, file.last].map(context.dateOf) as Span);
   return {
     entries: entries.sort(compareEntries),
     replaced,
@@ -321,7 +310,6 @@ export function planExchangeImport(
     leftOut: list(),
     noneInCurrency: currencies.size === 0 || currencies.has(plan.payCurrency) ? null : [...currencies].sort(),
     ...counts,
-    stillLate: stillLate(plan, [...live, ...entries], context.today, span, counted),
     estimatesLeft: estimatesLeft(groups.values(), months, entries, taps),
   };
 }
