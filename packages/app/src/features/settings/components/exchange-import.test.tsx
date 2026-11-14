@@ -295,12 +295,13 @@ describe('useExchangeProblemText, the reader’s alerts per exchange', () => {
       await words({ code: 'unknown-columns', exchange: 'trade-republic', columns: ['iban_hash', 'note'], others: 3 }),
     ).toBe(
       'This looks like a Trade Republic transaction export, but it has 5 columns Proof of Calm does not know: ' +
-        'iban_hash, note, and 3 more. It was not read. Export the transactions again from Trade Republic, then ' +
-        'choose that file as it is.',
+        'iban_hash, note, and 3 more. It was not read. If you edited the file, export the transactions again from ' +
+        'Trade Republic, then choose the new file as it is.',
     );
     expect(await words({ code: 'unknown-columns', exchange: 'trade-republic', columns: [], others: 1 })).toBe(
       'This looks like a Trade Republic transaction export, but it has 1 column Proof of Calm does not know. It ' +
-        'was not read. Export the transactions again from Trade Republic, then choose that file as it is.',
+        'was not read. If you edited the file, export the transactions again from Trade Republic, then choose the ' +
+        'new file as it is.',
     );
   });
 

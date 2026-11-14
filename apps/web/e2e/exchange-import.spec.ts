@@ -138,7 +138,7 @@ test('a Trade Republic export previews, imports at Trade Republic, and adds noth
   await preview(page)
     .getByRole('button', { name: /^Left out/u })
     .click();
-  await expect(preview(page)).toContainText('Trade Republic benefit credit, such as Saveback, money paid to you');
+  await expect(preview(page)).toContainText('Saveback cash credit, not imported; any purchase made with it is read like your');
   await expect(preview(page)).not.toContainText('Kraken');
 
   const button = preview(page).getByRole('button', { name: /^Import \d+ entr/u });
@@ -257,7 +257,7 @@ test.describe('a file the exchange import does not take', () => {
     const zip = await choose(page, 'kraken.zip', Buffer.from(archive));
     await expect(zip).toHaveText(
       'This ZIP file holds more than one CSV file, so it was not read. Open it, then choose the CSV file of ' +
-        "Kraken's Ledgers export.",
+        "your exchange's export.",
     );
   });
 
