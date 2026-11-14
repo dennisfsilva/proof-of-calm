@@ -61,6 +61,8 @@ function cut(file: ExchangeFile, { shape, byDay, from, to }: Drawn<typeof window
  * the `held` and starting-amount properties, seeds 1 to 8: the worst was 0.99 s (the window property, seed 2; the
  * `held` one 0.68 s, the starting amount 0.55 s), six times it 5.9 s. Measured again after a one-tap `lump` claims in
  * step 2, its date near the file's, seeds 1 to 8: the worst was 0.96 s (the window property, seed 2); six times it 5.8 s.
+ * Measured again with the `lump` claim's property and the generator's lumps of every amount, seeds 1 to 8: the worst
+ * was 1.24 s (the window property, seed 8); six times it 7.4 s.
  */
 const RUNS = { numRuns: 300 };
 const TIMEOUT = 60_000;

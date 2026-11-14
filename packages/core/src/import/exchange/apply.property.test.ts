@@ -56,7 +56,9 @@ function twoWays(drawn: World, cut: number) {
  * `held` guard reads units, seeds 1 to 8: the worst was 4.09 s (the second plan, seed 4); six times it, 24.5 s.
  * Measured again after a monthly buy takes its 3 days only when its month has no date, seeds 1 to 8: the worst was
  * 4.21 s (the second plan, seed 6); six times it, 25.3 s. Measured again after a one-tap `lump` claims in step 2, its
- * date near the file's, seeds 1 to 8: the worst was 3.80 s (the second plan, seed 4); six times it, 22.8 s.
+ * date near the file's, seeds 1 to 8: the worst was 3.80 s (the second plan, seed 4); six times it, 22.8 s. Measured
+ * again after a `lump` claims only a date as near its amount as the monthly part, with the generator's lumps of every
+ * amount and late starting purchases, seeds 1 to 8: the worst was 4.52 s (the second plan, seed 3); six times it, 27.1 s.
  */
 const TWICE = { numRuns: 1500 };
 const TIMEOUT = 90_000;
