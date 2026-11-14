@@ -9,7 +9,7 @@ import type { Entry } from '../../src/schema/entry';
 import type { CoinId, EntityId } from '../../src/schema/ids';
 import type { Plan } from '../../src/schema/plan';
 import { anEntry, instant, money, units } from '../builders';
-import { LISBON } from './plan-fixture';
+import { LISBON, testId } from './plan-fixture';
 
 // The generated lumps of the exchange import's properties (plan-arbitraries.ts): amounts that reach a `lump`'s claim
 // by its amount in step 2, a starting amount bought late beside a monthly buy, and the cut that splits such a date.
@@ -101,10 +101,8 @@ export function lateOf(plan: Plan, late: LateStart, idOf: (key: string) => Entit
 /**
  * Whether `part`, some of the file's movements, splits one date of a coin's purchases within 3 days of a live `lump`
  * of that coin whose amount is not the coin's monthly part, whichever side (it ends inside it, begins inside it, or
- * both): such a cut can change which date the lump claims. That is docs/DOMAIN.md §3.13 step 2's one exception ("but
- * one exception"), at this width: above the part, the cut date's stored part is then claimed whole (W2, 1,700 against
- * 1,400); below it, the cut part is claimed and the date the whole file's lump claims was stored (2,550 against
- * 2,450). The prefix and window properties skip it.
+ * both). A cut at this width can count the whole file's claimed date twice, docs/DOMAIN.md §3.13 step 2's one
+ * exception (W2); the prefix and window properties skip it and plan-lump-cut.property.test.ts covers it.
  */
 export function splitsLumpDay(
   drawn: { readonly file: ExchangeFile; readonly plan: Plan; readonly entries: readonly Entry[] },
@@ -135,12 +133,99 @@ export function splitsLumpDay(
   return false;
 }
 
+const share = fc.record({ of: fc.constantFrom('lump', 'part'), tenths: fc.integer({ min: 1, max: 10 }) });
+const near = fc.record({ of: fc.constantFrom('lump', 'lump', 'part'), tenths: fc.integer({ min: 1, max: 10 }) });
+/** A `lump` near a date of its coin's purchases in two or three fills, and an export that cuts inside that date. */
+export const lumpCut = fc.record({
+  slot: fc.nat(),
+  coin: planCoin,
+  dayOff: fc.integer({ min: -3, max: 3 }),
+  tapOff: fc.oneof(fc.constant(0), fc.integer({ min: -3, max: 3 })),
+  size: fc.constantFrom('above', 'below', 'below', 'below', 'part'),
+  times: fc.integer({ min: 2, max: 10 }),
+  fills: fc.array(share, { minLength: 2, maxLength: 3 }),
+  others: fc.array(fc.record({ off: fc.integer({ min: -3, max: 3 }), share: near }), { minLength: 1, maxLength: 3 }),
+  side: fc.constantFrom('ends', 'begins', 'slice'),
+  from: fc.nat(),
+  to: fc.nat(),
+  source: fc.constantFrom<Entry['source']>('one-tap', 'manual'),
+});
+type LumpCut = typeof lumpCut extends fc.Arbitrary<infer U> ? U : never;
+
+/**
+ * `drawn` with `cut`'s lump and purchases added, the cut date, and the export `cut` keeps: the movements up to a fill
+ * of that date (`ends`), from one (`begins`), or a run of its fills alone (`slice`), never all of them. Null when the
+ * plan has no due date past the first buy's 15 days.
+ */
+export function withLumpCut<W extends { file: ExchangeFile; plan: Plan; entries: Entry[] }>(drawn: W, cut: LumpCut) {
+  const later = laterDues(drawn.plan);
+  if (later.length === 0) return null;
+  const day = addDays(later[cut.slot % later.length] as CalendarDate, cut.dayOff);
+  const part = partOf(drawn.plan, drawn.plan.monthlyAmount, cut.coin);
+  const tenth = (base: Money, tenths: number) => round(product<Money>(base, money(`${tenths / 10}`)), 2, 'half-up');
+  const below = tenth(part, 1 + (cut.times % 5));
+  const amount =
+    cut.size === 'part' ? part : cut.size === 'above' ? product<Money>(part, money(`${cut.times}`)) : below;
+  const of = (drawnShare: { of: string; tenths: number }) => {
+    const value = tenth(drawnShare.of === 'lump' ? amount : part, drawnShare.tenths);
+    return isPositive(value) ? value : money('0.01');
+  };
+  const movement = (index: number, at: string, value: Money): Movement => ({
+    key: `poc-csv-1|kraken|LC-${index}|${cut.coin}|in`,
+    lines: [4000 + 2 * index, 4001 + 2 * index],
+    at: instant(at),
+    role: 'purchase',
+    coin: cut.coin,
+    units: units(`0.00${index + 1}`),
+    unitsCut: false,
+    currency: 'EUR',
+    amount: value,
+    fee: money('0.10'),
+    feeInCoin: false,
+  });
+  const hour = (index: number) => String(8 + 4 * index).padStart(2, '0');
+  const fills = cut.fills.map((each, index) => movement(index, `${day}T${hour(index)}:00:00Z`, of(each)));
+  const others = cut.others.map((each, index) =>
+    movement(4 + index, `${addDays(day, each.off)}T10:00:00Z`, of(each.share)),
+  );
+  const lump = anEntry({
+    id: testId(`cut-lump|${cut.coin}|${cut.tapOff}`),
+    kind: 'lump',
+    coin: cut.coin,
+    slot: null,
+    date: addDays(day, cut.tapOff),
+    amount,
+    units: units('0.0122'),
+    source: cut.source,
+    venue: 'Bitvavo',
+  });
+  const movements = [...drawn.file.movements, ...fills, ...others];
+  const onDay = (each: Movement) =>
+    each.coin === cut.coin && each.role === 'purchase' && LISBON.dateOf(each.at) === day;
+  const sorted = movements
+    .filter(onDay)
+    .map((each) => each.at as string)
+    .sort();
+  const n = sorted.length;
+  const [lo, hi] = [cut.from % n, cut.to % n].sort((a, b) => a - b) as [number, number];
+  const keeps = (at: string) =>
+    cut.side === 'ends'
+      ? at <= (sorted[cut.from % (n - 1)] as string)
+      : cut.side === 'begins'
+        ? at >= (sorted[1 + (cut.from % (n - 1))] as string)
+        : at >= (sorted[lo] as string) && at <= (sorted[lo === 0 && hi === n - 1 ? n - 2 : hi] as string);
+  const kept = movements.filter((each) => keeps(each.at));
+  const file = { ...drawn.file, rows: drawn.file.rows + 2 * (fills.length + others.length), movements };
+  const shorter: ExchangeFile = { ...drawn.file, rows: 2 * kept.length, movements: kept, leftOut: [] };
+  return { drawn: { ...drawn, file, entries: [...drawn.entries, lump] }, day, lump, part, shorter };
+}
+
 /** The cuts this test file's properties skipped as `splitsLumpDay` (each file runs in its own module scope). */
 export const skipped = { cuts: 0 };
 
 /**
- * Skips (`fc.pre`) docs/DOMAIN.md §3.13 step 2's one exception, as `splitsLumpDay` states it: any cut inside a purchase
- * date near a `lump` not of the monthly part, on either side (a prefix, a suffix or a middle slice), and counts it.
+ * Skips (`fc.pre`) and counts a cut at `splitsLumpDay`'s width, which can count the whole file's claimed date twice
+ * (docs/DOMAIN.md §3.13 step 2's one exception); plan-lump-cut.property.test.ts covers that width.
  */
 export function preCut(drawn: Parameters<typeof splitsLumpDay>[0], part: readonly Movement[]) {
   const splits = splitsLumpDay(drawn, part);
