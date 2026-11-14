@@ -64,7 +64,9 @@ function twoWays(drawn: World, cut: number) {
  * for (×6). On the old order (a9664cfd), seeds 1 to 8 at 1,500 runs catch it 7 times in the prefix-adds property
  * (seed 2 first fails at run 2,026), 8 in the live-Log one and 8 in the `held` one (each by run 54). Measured again
  * on 2026-11-14, after the `held` guard reads units, seeds 1 to 8: the worst was 3.27 s (the prefix-adds one, seed
- * 2); six times it, 19.6 s, stays under a third of the timeout (20 s).
+ * 2); six times it, 19.6 s, stays under a third of the timeout (20 s). Measured again the same day, after a monthly
+ * buy takes its 3 days only when its month has no date, seeds 1 to 8: the worst was 2.89 s (the prefix-adds one, seed
+ * 3); six times it, 17.3 s. Three runs of the whole core suite at random seeds passed.
  */
 const TWICE = { numRuns: 1500 };
 const TIMEOUT = 60_000;
