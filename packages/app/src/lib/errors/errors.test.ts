@@ -57,7 +57,7 @@ describe('errorMessage', () => {
     // The line names every format the import reads: backups, the DCA plan page's files, Kraken's Ledgers export and
     // Trade Republic's transaction export.
     expect(errors.backup['not-recognised']).toMatch(
-      /backup, an export from the DCA plan page, Kraken's Ledgers export or Trade Republic's transaction export\.$/,
+      /backup, an export from the DCA plan page, Kraken's Ledgers export, or Trade Republic's transaction export\.$/,
     );
     // The file is imported now, so no line sends its purchases to the Log by hand (CONTENT-STYLE §1 rule 8).
     expect(errors.backup).not.toHaveProperty('prototype-file');
