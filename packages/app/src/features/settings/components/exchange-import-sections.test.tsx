@@ -247,8 +247,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
       '1 purchase or sale in USD, not imported: amounts are never converted.',
       'This plan does not list XRP, so 1 XRP transaction was left out. If you want it in this plan, you can add XRP ' +
         'in Coins & split, then choose the file again.',
-      '1 purchase dated on or before 20 Apr 2026, 15 days after the first buy day: the file cannot tell your ' +
-        'starting amount from it. Record it in the Log with the day you bought it, then choose the file again.',
+      '1 purchase dated on or before 20 Apr 2026, not imported: the file cannot tell it from your starting amount ' +
+        'of 5 Apr 2026. Record it in the Log with the day you bought it, then choose the file again.',
       'Rewards paid in coins, not imported: 0.0001 ETH.',
       'Coins sent to Kraken from elsewhere, not imported: 0.01 BTC. Record a gift with Add coins you already have, ' +
         'and your own coins coming back with Log coins you moved.',
@@ -269,8 +269,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
     ]);
     await mount(planOf(csv, []));
     expect(lines('Left out (1)')).toEqual([
-      '2 purchases dated on or before 20 Apr 2026, 15 days after the first buy day: the file cannot tell your ' +
-        'starting amount from them. Record each in the Log with the day you bought it, then choose the file again.',
+      '2 purchases dated on or before 20 Apr 2026, not imported: the file cannot tell them from your starting ' +
+        'amount of 5 Apr 2026. Record each in the Log with the day you bought it, then choose the file again.',
     ]);
   });
 
