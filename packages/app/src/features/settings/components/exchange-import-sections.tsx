@@ -107,18 +107,21 @@ export function ExchangeSections({ model, plan, exchange }: SectionsProps) {
   const replaces = model.replaces.map(({ estimate, by, otherVenue }) => {
     const all = [estimate.units, ...by.map((entry) => entry.units)];
     const becomes = w.format.list(by.map((entry) => piece(entry, all, otherVenue)));
+    const dates = [...new Set((by.length === 0 ? [estimate] : by).map((entry) => entry.date))].sort();
     const text = t('replace', {
       month: month(estimate),
       estimate: piece(estimate, all, otherVenue, true),
       by: becomes,
-      date: on(by[0] ?? estimate),
+      dates: w.format.list(dates.map((date) => w.format.date(date))),
     });
     return { key: estimate.id, text };
   });
   const recorded = model.recorded.map((row) => ({
     key: row.entry.id,
     text: t('recorded', {
-      date: w.format.date(row.date),
+      count: row.dates.length,
+      figure: w.figure(row.dates.length),
+      dates: w.format.list(row.dates.map((date) => w.format.date(date))),
       units: w.units(row.coin, row.units, [row.entry.units]),
       amount: row.amount === null ? '' : w.money(row.amount),
       label: t('label', { kind: row.entry.kind, month: month(row.entry), date: on(row.entry) }),

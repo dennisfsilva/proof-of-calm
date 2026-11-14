@@ -63,7 +63,7 @@ export const ReplacesAnEstimate: Story = {
   args: { shown: planOf(KRAKEN_OCTOBER, [...fixture.entries, ONE_TAP_OCTOBER]) },
   play: async ({ canvas }) => {
     await expect(canvas.getByText('Replaces 1 estimate from Bought as planned.')).toBeVisible();
-    for (const name of ['Estimates it replaces (1)', 'Extra buys (2)', 'Sales (1)', 'Coins added at no cost (1)'])
+    for (const name of ['Monthly buys (1)', 'Estimates it replaces (1)', 'Sales (1)', 'Coins added at no cost (1)'])
       await userEvent.click(canvas.getByRole('button', { name }));
     await expect(canvas.getByRole('list', { name: 'Sales (1)' })).toBeVisible();
   },
@@ -72,8 +72,8 @@ export const ReplacesAnEstimate: Story = {
 export const FillsTheMonths: Story = {
   args: { shown: planOf(KRAKEN_OCTOBER, fixture.entries) },
   play: async ({ canvas }) => {
-    await userEvent.click(canvas.getByRole('button', { name: 'Monthly buys (2)' }));
-    await expect(canvas.getByRole('list', { name: 'Monthly buys (2)' })).toBeVisible();
+    await userEvent.click(canvas.getByRole('button', { name: 'Monthly buys (3)' }));
+    await expect(canvas.getByRole('list', { name: 'Monthly buys (3)' })).toBeVisible();
   },
 };
 

@@ -87,9 +87,10 @@ async function imported(csv = KRAKEN_OCTOBER, venue = 'Kraken') {
 }
 
 describe('idb plan store: the rows a Kraken import writes (docs/DOMAIN.md §3.13)', () => {
-  it("this build reads back exactly the rows a Kraken import writes: monthly buys, extra buys, sales and coins added at 0, source import-csv, version-8 ids, and each replaced estimate's tombstone", async () => {
+  it("this build reads back exactly the rows a Kraken import writes: monthly buys, sales and coins added at 0, source import-csv, version-8 ids, and each replaced estimate's tombstone", async () => {
     const { plan, entries, added, tombstone } = await imported();
-    expect(added.map((entry) => entry.kind).sort()).toEqual(['dca', 'extra', 'extra', 'held', 'sell']);
+    // Every purchase date of a month is its monthly buy (docs/DOMAIN.md §3.13 step 5): the file's three are dca.
+    expect(added.map((entry) => entry.kind).sort()).toEqual(['dca', 'dca', 'dca', 'held', 'sell']);
     expect(added.every((entry) => entry.source === 'import-csv' && VERSION_8.test(entry.id))).toBe(true);
     expect(added.find((entry) => entry.kind === 'held')).toMatchObject({ amount: '0', fee: null });
     const { updatedAt: _, ...fields } = ONE_TAP_OCTOBER;
