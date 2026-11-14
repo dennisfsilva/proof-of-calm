@@ -240,9 +240,12 @@ dark mode uses the dark steps above, not an inversion; the validator runs whenev
   Chromium's own focus scroll ignores the padding and leaves the element partly under the bar.
   Every element this move lands on carries a top scroll margin of `stack-md` (`scroll-mt-result`;
   the header is not sticky, §7): the Log rows' toggles, the country change's result line, the
-  review's result line and heading, an import's result and problem lines, the buttons an Undo returns focus to and Today's headings. The
-  least scroll then leaves room above it: without one, the country change's result line stopped
-  flush with the window's top edge, with nothing above it to read it by (android-small and
+  review's result line and heading, an import's result and problem lines, the buttons an Undo returns focus to and Today's headings. An
+  import's preview heading scrolls to the top of the view instead (`block: 'start'`), its margin above it: the
+  preview is read top to bottom, and the least scroll left the heading on the last line above the tab bar with the
+  whole preview below the fold (android-small, 2026-11-14). Elsewhere the least scroll leaves the
+  margin's room above the element: without one, the country change's result line stopped flush
+  with the window's top edge, with nothing above it to read it by (android-small and
   zoom-125, 2026-11-05). The entry form's alert line takes none: the form scrolls a box around it
   into the Sheet, not the line into the window.
 - **Focus after an action**: when the control that ran an action unmounts, or a dialog closes after
