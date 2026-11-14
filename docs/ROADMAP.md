@@ -366,6 +366,11 @@ do rewards (staking and earn), coin deposits as entries and coin withdrawals as 
 Corrections, 2026-11-13). Proven
 by unit tests per parser and a Playwright flow per exchange.
 
+Two import choices wait here too (ADR-0056, Corrections, 2026-11-14): choosing, per purchase, whether
+one dated on or before the first buy day plus 15 days is the starting amount, where the import now
+leaves them out and names them; and a lone cancellation whose trade the file no longer holds, matched
+by its figures, where the import now names only a trade the file pairs with its cancellation.
+
 Free in the core (ADR-0039). After the preview, an import replaces the matching one-tap estimates
 by the rules `docs/DOMAIN.md` §3.13 owns (ADR-0056), as the Kraken and Trade Republic imports do.
 

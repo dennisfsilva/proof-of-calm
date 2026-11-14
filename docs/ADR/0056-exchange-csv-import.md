@@ -119,3 +119,11 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   own date first, while their sum comes nearer its amount, so `docs/DOMAIN.md` §3.13 reads an amount
   in step 2 alone. A purchase within the first month's reach before the first buy is that month's
   monthly buy and counts in Invested. The rest stands.
+- 2026-11-14, the guards and gaps: with a starting amount above 0, or a live `lump` of the coin, every
+  purchase step 2 left dated on or before `firstBuy` + 15 days is left out and named, to record by hand;
+  the starting amount's choice moves to M4, replacing Consequences' "(planned: M2)" for it. A hand
+  `held` entry guards a purchase or receipt of at most its units on or before its date, a purchase
+  only when its cost is not 0, narrowing the holding of 2026-11-13. A trade a Trade Republic
+  cancellation pairs whose entry is live is named for the person to delete, and a receipt stored with
+  fewer units than the file now gives is named with both figures; the move check and that comparison
+  round half-even at the places the preview shows. Nothing is tombstoned or edited. The rest stands.

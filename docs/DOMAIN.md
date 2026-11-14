@@ -970,8 +970,10 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   row is `unreadable`, column type. CASH BENEFITS_SAVEBACK is `benefit`, any
   other CASH row `cash`, any other row `other`. A symbol is a ticker of 2 to 10 capital letters or digits (XBT is
   BTC). A repeated transaction_id keeps one row when its read cells match and leaves both `unreadable` when they
-  differ; no rule reads row order. The key is `poc-csv-1|trade-republic|<transaction_id>|<COIN>|<in|out>`. A
-  cancelled buy an earlier import stored is not reached (planned: M2). Recognition (decided 2026-11-13): after
+  differ; no rule reads row order. The key is `poc-csv-1|trade-republic|<transaction_id>|<COIN>|<in|out>`.
+  The reader also returns each paired trade in `cancelled` under the key it would have had (a left-out row holds
+  no key), so the plan can name one an earlier import stored (step 1 below); Kraken's reader returns none
+  (decided 2026-11-14, ADR-0056, Corrections). Recognition (decided 2026-11-13): after
   the `zip` and `kraken-trades` checks, a header holding transaction_id, asset_class and category (a last empty
   name dropped) is Trade Republic's, before any Kraken test. A name outside `TR_COLUMNS` refuses it as
   `unknown-columns` with `exchange` `trade-republic`: the names matching `^[a-z_]{1,40}$` are listed, every other
@@ -994,6 +996,12 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      one `deleted on this device`; neither is added." (D11 is ADR-0056's id rule: a hash of the movement's key, which the shell's `idOf` gives, so
      the same row has the same id on every device and in every later export.) The purchases of a plan coin
      left out here stay known to step 2, by local date, so a later import sums them as the first one did.
+     Decided 2026-11-14 (ADR-0056, Corrections): "A trade a cancellation in the file pairs, whose id is a
+     live entry, is named: delete it in the Log." "A receipt imported earlier whose live entry holds fewer
+     units than the file now gives its key is named with both figures: change its units in the Log." Both
+     units are compared rounded half-even at the places the preview shows (below), the places the Log's form
+     takes, so typing the figure named ends the line. Step 1 only compares and names: it tombstones and
+     changes nothing.
   2. "Hand-recorded entries (source `manual`, `import-prototype` or `import-json`; `held` entries and moves
      claim nothing), in `compareEntries` order, claim unclaimed dates", monthly buys first (decided
      2026-11-14, ADR-0056, Corrections): "A live hand monthly buy of C for S orders C's purchase dates whose
@@ -1011,15 +1019,23 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      a purchase out runs before any step that stores one: no purchase a hand entry records is stored, and
      none dated on or before a `held` entry of its coin is stored without the person's answer, whether the
      file comes at once or a shorter export comes first." (D2 is the order of this list.)
-  3. "In a plan with a starting amount above 0, the purchases dated within 15 days of `firstBuy` are left
-     out and named, since the file cannot tell the starting amount from the first monthly buy; a one-tap
-     `lump` estimate is never replaced." A date step 2 claimed is `looks recorded already` and is not
-     counted here.
-  4. "C's purchases and receipts dated on or before the latest live `held` entry of C, at any venue, are
-     `may be the coins you added`: left out unless the person ticks `Add these transactions too`, one answer
-     for all of them." A `held` entry an exchange import added (a receipt) guards nothing. Ticked, they go
-     on to steps 5 and 6, so an estimate whose month has no other purchase stays an estimate until the
-     person ticks.
+  3. The starting amount (decided 2026-11-14, ADR-0056, Corrections): "In a plan with a starting amount
+     above 0, or for a coin with a live `lump`, C's purchases dated on or before `firstBuy` + 15 days that
+     step 2 left are left out and named, however long before `firstBuy` they are: the file cannot tell the
+     starting amount from them. A one-tap `lump` is never replaced." A hand `lump` claims in step 2, within
+     3 days of its date. The line names the last date reached and says to record each purchase in the Log
+     with its day, then choose the file again: step 2 then claims it. Choosing per purchase is planned (M4).
+  4. The coins the person added (decided 2026-11-14, ADR-0056, Corrections): "Each live hand `held` entry of
+     C guards C's purchase dates on or before its date that hold a purchase of at most its units, unless its
+     cost is 0, and C's receipt dates on or before its date that hold a receipt of at most its units,
+     whatever its cost. The dates any such entry guards are `may be the coins you added`, one answer for
+     all. A `held` entry an exchange import added guards nothing." A cost of `'0'` is a stated "paid
+     nothing", so no purchase is those coins; an unknown cost guards. The test is per movement: on a guarded
+     date, a purchase of more units than every entry goes on to steps 5 and 6, as in a file without the
+     other, so the answer never depends on the rows beside it. Left out unless the person ticks `Add these
+     transactions too`; ticked, they go on to steps 5 and 6, so an estimate whose month has no other
+     purchase stays an estimate until the person ticks. The line names the latest entry that guards one.
+     This narrows step 2's holding to the purchases and receipts an entry guards.
   5. The monthly buys (decided 2026-11-14, ADR-0056, Corrections): "Every purchase date of C whose month
      is S, left by steps 2 to 4, is a monthly buy for S when C's share is above 0 and S is neither skipped
      nor paused, or when the Log holds a one-tap estimate of C for S, live or tombstoned. C's live estimates
@@ -1047,13 +1063,14 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   "The import never changes or tombstones a hand-recorded entry, a `held` entry, a move, a skip, a pause, the
   plan, a tombstone, an entry imported earlier (edited or not) or another exchange's entry; only one-tap
   monthly estimates are tombstoned. A step reads an amount or units only where it says so (step 2's monthly
-  claim); no step reads a venue to decide." Every entry the plan adds
+  claim; step 4's units and cost of 0); no step reads a venue to decide." Every entry the plan adds
   has source `import-csv`, the venue the person chose (or none), `createdAt` the trade's instant and
   `updatedAt` now. The reader's left-out rows are named by reason with their lines, rewards with their units
   per coin; transfers within the exchange, cash and other kinds are only counted. A coin withdrawal is named
   as having a move or not: "A withdrawal has a move in the Log when a live move of its coin, sent from the
-  import's venue, is dated within 1 day of it and sends exactly its units (amount plus fee)", each move
-  answering one withdrawal. The plan counts the entries it adds whose units were cut to 10 decimals and
+  import's venue, is dated within 1 day of it and sends its units (amount plus fee), both rounded half-even at
+  the places the preview shows: the coin's decimals in the plan, 8 for a coin it does not list" (decided
+  2026-11-14; `shownPlaces`, which the preview's figures use too), each move answering one withdrawal. The plan counts the entries it adds whose units were cut to 10 decimals and
   whose fee was in the coin, "valued at the trade's own price", for the preview.
 - The write (decided 2026-11-13, ADR-0056): `applyExchangeImport(stored, plan, now)` writes a plan in one
   write, all or nothing, and Settings' `exchangeImportActions` (`packages/app/src/features/settings/exchange-actions.ts`)
