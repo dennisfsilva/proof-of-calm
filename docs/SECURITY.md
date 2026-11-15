@@ -103,7 +103,7 @@ X-Content-Type-Options: nosniff
 Cross-Origin-Opener-Policy: same-origin
 Cross-Origin-Resource-Policy: same-origin
 X-Frame-Options: DENY
-X-Robots-Tag: noindex, nofollow                # until the public launch after M2
+X-Robots-Tag: noindex, nofollow                # every path; with PUBLIC_INDEXABLE true, every path outside /en/ (ADR-0045, 2026-11-15)
 ```
 
 No `unsafe-eval` and no `unsafe-inline` anywhere: the policy is the static one in `vercel.json`,

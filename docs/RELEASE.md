@@ -33,6 +33,8 @@ gate and this checklist; every merge to `main` goes to production, tagged or not
 
 - [ ] Legal pages live and linked from the footer and onboarding: Terms, Privacy, Risk disclosure,
       Cookie-free statement, Contact/Impressum (`docs/LEGAL.md`).
+- [ ] Before the public pages under `/en/` are indexed: a daily production rebuild in place, since they
+      render at the build's UTC date (ADR-0045, Deviations of 2026-11-15).
 - [ ] UK handling implemented as decided in ADR-0029 and tested; the two checks below run once
       from a UK vantage point against the production domain, because the e2e suite only injects
       Vercel's geolocation header (ADR-0045 Risks).

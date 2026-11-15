@@ -1355,3 +1355,38 @@ The decision stands; this records the chunking choice the entries of 2026-10-20 
   shares with Today from that chunk instead of a separate shared one. `noChunkCycles()` fails a build whose chunks import each
   other statically. The measurements are in `docs/ENGINEERING.md` §4 and the rule in
   `packages/config/README.md`.
+
+## Deviations recorded on 2026-11-15
+
+The decision stands; this records the first public pages, which the entry of 2026-11-05 on the
+country library left to the public-pages checkpoint.
+
+- **2026-11-15, the public pages live under `/en/`, the app keeps `/learn`** (§6). The Learn index
+  and five modules (Taxes waits for the country pages) are prerendered by `apps/web/src/site/render.tsx`
+  into en/learn.html and en/learn/<slug>.html in the build output, which `cleanUrls` serves at `/en/learn`
+  and `/en/learn/<slug>`. They render the app's own static Learn components inside the site layout
+  with the site line and the Risk link, and no script. The app's `/learn` screens are unchanged. English
+  only, so no hreflang; the prefix leaves room for a translation. The links between them come from
+  `SITE_LINKS` in `apps/web/lib/site/pages.ts`.
+- **2026-11-15, the in-house prerender suffices** (§6, the measurement that paragraph asks for). No
+  framework or static-site generator: the measurement is the Lighthouse URL `/en/learn/risk-honestly`
+  in `apps/web/lighthouserc.json`, at error on performance 0.95, accessibility 1 and console errors.
+- **2026-11-15, the pages render at the build's UTC date.** The build passes that date to the pages
+  (a review date past due reads as overdue), so an indexed page needs a daily rebuild
+  (`docs/RELEASE.md`). `SITE_TODAY` pins it: CI's e2e build and `snapshots.yml` build at
+  2026-10-20, the matrix's buying-phase date, so the baselines hold still.
+- **2026-11-15, one flag keeps them out of search.** `PUBLIC_INDEXABLE` in
+  `apps/web/lib/site/indexing.ts` is false: every response, `/en/` included, keeps
+  `X-Robots-Tag: noindex, nofollow` (`docs/SECURITY.md` §4), the pages carry the robots meta, and
+  the build writes no sitemap or robots.txt; `apps/web/lib/vercel-config.test.ts` pins that the generated
+  file is byte-identical while it is false. The switch is one owner-approved PR: the flag to true,
+  `node apps/web/scripts/vercel-config.ts --write`, which moves the header to every path outside
+  `/en/` (`/` stays noindex), the robots meta dropped by the same flag, the sitemap and robots.txt
+  written by the build, SECURITY §4's line and the tests' pinned state. No draft of it is opened
+  now; it is opened labelled needs-owner with the launch.
+- **2026-11-15, the worker never answers `/en/` from the shell** (§5). `apps/web/src/sw.ts` keeps its
+  allowlist of product routes and adds a denylist for the prefix (`apps/web/src/shell-navigation.ts`, with
+  its test), so a public page is always its own file or the offline page.
+- **2026-11-15, GB still gets 451 on every `/en/` page** (ADR-0029). The UK route lists the
+  exceptions, not the blocked paths, so the public pages fall under it without a change;
+  `apps/web/e2e/uk-block.spec.ts` asserts it.

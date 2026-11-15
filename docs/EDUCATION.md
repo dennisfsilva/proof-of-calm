@@ -6,7 +6,9 @@ its place, one caveat, a reading time in whole minutes (the formula: `docs/CONTE
 matter validated by a schema; every statistic in them has a source and a date in §9 and is flagged by
 the owner's review run when older than a year (`docs/CONTENT-OPS.md`). A module carries no warning line at the top: the caveat box and the dated
 figures do that work, and the disclosures sit at decision points (`docs/LEGAL.md` §4). The Learn
-index is an app screen and carries no site line (`docs/LEGAL.md` §5). The index ends with the country
+index is an app screen and carries no site line (`docs/LEGAL.md` §5); its public copy under `/en/learn`, the
+index and every module but Taxes, is a prerendered site page with the site line (ADR-0045, Deviations of
+2026-11-15). The index ends with the country
 library: `/learn/countries` lists every shipped profile but the generic one, sorted by name, each with its
 last-reviewed date, and `/learn/countries/<code>` (the code in lower case) shows that country's card; any
 other code, the generic profile's included, lands on the list. Voice and the banned words:
