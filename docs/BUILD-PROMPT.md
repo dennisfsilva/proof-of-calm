@@ -321,6 +321,11 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   that purchase as doubled. The property held at 25 seeds, and main's push run after #227 failed at
   a random one, one world in 30,000. The code was right: #228 keyed the oracle by role, and W2 now
   says purchase dates (2026-11-15).
+- A branch that changes `apps/web/scripts/build.ts`, `apps/web/src/sw.ts` or `packages/config/vite`
+  runs `apps/web/e2e/pwa.spec.ts` and `apps/web/e2e/offline.spec.ts` on the desktop project before
+  it hands back, since a development build or a worker that does not install fails only there.
+  #234's first CI run failed there: Vite's `runnerImport` had set `NODE_ENV` to `development` for
+  the client build (2026-11-15).
 
 ## Known gaps
 
