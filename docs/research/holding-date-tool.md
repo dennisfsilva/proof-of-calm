@@ -3,8 +3,9 @@
 Research date: **2026-11-15**. Scope: which public form the holding-date tool takes on a site whose
 pages carry no script (a visitor's purchase date and country give the day their country's holding
 rule reaches, shared as a plain URL), and its three sub-questions: where the inputs live, how the
-country is chosen, how the date is typed. ADR-0045 owns the decision (its Deviations entry for the
-island, written by the island branch); this file holds its evidence. The source is issue #230: the
+country is chosen, how the date is typed. ADR-0045 §6 owns the decision (its Decision keeps the
+in-house prerender as the default for M2's public pages: "whether they need more is decided in M2 with
+measurements"); this file holds its evidence. The source is issue #230: the
 planner's notes in its body and the three reports posted as its comments on 2026-11-15.
 
 ## 1. Why a decision was needed
