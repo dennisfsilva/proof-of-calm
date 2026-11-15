@@ -54,7 +54,7 @@ function RiskBody({ falls }: Falls) {
   const [register, ...warnings] = RISK_LINKS;
   if (register === undefined) throw new Error('the register link is missing');
   return (
-    <LegalPage slug="risk" draft={false}>
+    <LegalPage slug="risk">
       <LegalSections
         slug="risk"
         sections={SECTIONS}
