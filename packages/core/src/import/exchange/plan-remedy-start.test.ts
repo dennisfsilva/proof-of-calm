@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { anEntry, aPlan, date, money, month, split, units } from '../../../test/builders';
 import { fileOf } from '../../../test/exchange/plan-arbitraries';
-import { LISBON, NOW, PLAN as PLAN_70_30, testId, trade } from '../../../test/exchange/plan-fixture';
+import { added, LISBON, NOW, PLAN as PLAN_70_30, testId, trade } from '../../../test/exchange/plan-fixture';
 import { saveTransaction, storedOver, type TransactionDraft } from '../../actions/entries';
 import { IMPORT_REMEDY_MAX_MOVEMENTS, MAX_ENTRIES } from '../../constants';
 import { addDays, type CalendarDate } from '../../dates/calendar';
@@ -1012,6 +1012,34 @@ describe("a lump's claim reads its amount", () => {
 
   it.each(lateOrders(L_20_SEP))('file L, a lump tapped 20 Sep, %s: 2,400, the 3-day reach', (_, entries) => {
     expect(invested(L_20_SEP, entries)).toBe('2400');
+  });
+
+  // CI's counterexample of 2026-11-15 (seed -1110155515), shrunk: a lump of 70, BTC's monthly part, on 7 Sep; a typed
+  // September buy; 7 Sep's 240 stored by an earlier import. The whole file's September buy claims 7 Sep and the lump
+  // 9 Sep. An export that ends inside 7 Sep leaves the September buy only the stored 240, so it claims nothing, and a
+  // walk from 7 Sep stopped there before 9 Sep and stored 9 Sep's 950, a purchase the lump records.
+  it('at the part, an export ending inside 7 Sep: the lump claims 9 Sep either way, and it is never stored', () => {
+    const [stored, ninth, rest] = [
+      buy('BTC', '2026-09-07T10:00:00Z', '240', '0.003'),
+      buy('BTC', '2026-09-09T10:00:00Z', '950', '0.012'),
+      buy('BTC', '2026-09-07T10:01:00Z', '890', '0.011'),
+    ];
+    const atPart = { amount: money('70'), units: units('0.001') };
+    const entries = [lump('2026-09-07', atPart), typed('2026-09', atPart), added(stored, 'extra', null)];
+    const c = of([stored, ninth, rest], entries, PLAN_70_30);
+    expect(planOf(c, entries).recorded.map((item) => [item.entry.kind, item.dates])).toEqual([
+      ['dca', ['2026-09-07']],
+      ['lump', ['2026-09-09']],
+    ]);
+    const shorter = planOf(c, entries, fileOf([stored, ninth]));
+    expect(shorter.recorded.map((item) => [item.entry.kind, item.dates])).toEqual([['lump', ['2026-09-09']]]);
+    expect(shorter.entries).toEqual([]);
+    const after = applyExchangeImport(entries, shorter, NOW).entries;
+    expect(planOf(c, after).recorded.map((item) => [item.entry.kind, item.dates])).toEqual([
+      ['dca', ['2026-09-07']],
+      ['lump', ['2026-09-09']],
+    ]);
+    expect(planOf(c, after).entries).toEqual([]);
   });
 });
 
