@@ -23,6 +23,9 @@ const SECTIONS: readonly LegalSection[] = [
 
 const LINK = 'text-ink underline underline-offset-4 hover:text-ink-2';
 const NOTE = 'text-13 text-ink-2';
+// A warning's label pads half of what one line leaves of the touch target above and below it (docs/DESIGN.md §8): one
+// line fills the target exactly, and a wrapped label keeps the same distance to its checked line.
+const WARNING = `self-start py-[calc((var(--spacing-target)-1lh)/2)] ${LINK}`;
 
 function OfficialAnchor({ link, className, children }: { link: OfficialLink; className: string; children: ReactNode }) {
   return (
@@ -77,7 +80,7 @@ function RiskBody({ falls }: Falls) {
             <ul className="flex flex-col gap-stack-sm">
               {warnings.map((link) => (
                 <li key={link.id} className="flex flex-col">
-                  <OfficialAnchor link={link} className={`inline-flex min-h-target items-center self-start ${LINK}`}>
+                  <OfficialAnchor link={link} className={WARNING}>
                     {t(`risk.links.${link.id}`)}
                   </OfficialAnchor>
                   <span className={NOTE}>{checked(link)}</span>
