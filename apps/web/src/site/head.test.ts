@@ -207,7 +207,9 @@ describe('renderSitePage (ADR-0045 §6)', () => {
     expect(pt).toContain('href="/en/countries"');
     const list = renderSitePage('en/countries', assets, data);
     expect(list).toContain('<title>Crypto tax rules by country · Proof of Calm</title>');
-    expect(list).toContain('<h1 class="text-28">Countries</h1>');
+    expect(list).toContain(
+      '<h1 class="text-28">Countries</h1><p class="text-16">Tax and holding rules by country, with their sources and the date each was last reviewed.</p>',
+    );
     const holding = renderSitePage('en/holding-date', assets, data);
     expect(holding).toContain('<title>Holding rules by country · Proof of Calm</title>');
     expect(holding).toContain('href="/en/countries/pt"');
