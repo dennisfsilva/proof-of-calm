@@ -18,7 +18,7 @@
 # posts the same status on that commit:
 #   gh workflow run lighthouse-vercel.yml -f url=<branch URL> -f sha=<the branch's head SHA>
 # Every target measures the URLs of lighthouserc.json at its origin: Today, Portfolio, Log and Plan with
-# the fixture plan that apps/web/lighthouse/seed.ts puts into the store before each URL, and `/`.
+# the fixture plan that apps/web/lighthouse/seed.ts puts into the store before each URL, `/` and `/en/learn/risk-honestly`.
 # Vercel's repository_dispatch event, the documented trigger, never reached this repository on
 # 2026-10-17; it stays wired, for production only, in case it starts. Production is measured with main's
 # copy of this file: a change to it is tried before the merge by dispatching it on its branch
