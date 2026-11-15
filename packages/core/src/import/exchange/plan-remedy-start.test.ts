@@ -731,6 +731,32 @@ describe("a lump's claim reads its amount", () => {
     },
   );
 
+  // Step 2's order: every hand monthly buy claims before a lump, one whose month has no date too. August's typed 400
+  // of 2 Sep falls back to 2 Sep, so the lump of 1 Sep walks to 4 Sep alone and 5 Sep is September's buy.
+  const AUGUST_FIRST = of(
+    [
+      buy('BTC', '2026-07-02', '100', '0.00125'),
+      buy('BTC', '2026-09-02', '400', '0.005'),
+      buy('BTC', '2026-09-04', '1000', '0.0125'),
+      ...['2026-09-05', '2026-10-02', '2026-11-02'].map((day) => buy('BTC', day, '100', '0.00125')),
+    ],
+    [lump('2026-09-01'), typed('2026-08', { date: date('2026-09-02'), amount: money('400'), units: units('0.005') })],
+  );
+
+  it('a typed August buy of 2 Sep with no August date claims before the lump of 1 Sep, in one import', () => {
+    const [theLump, august] = AUGUST_FIRST.entries as [Entry, Entry];
+    expect(recordedBy(AUGUST_FIRST, AUGUST_FIRST.entries, august)).toEqual(['2026-09-02']);
+    expect(recordedBy(AUGUST_FIRST, AUGUST_FIRST.entries, theLump)).toEqual(['2026-09-04']);
+    expect(fromFile(AUGUST_FIRST, AUGUST_FIRST.entries, '2026-09-05')).toEqual([['dca', '2026-09']]);
+  });
+
+  it.each(lateOrders(AUGUST_FIRST))(
+    'a typed August buy of 2 Sep and a lump of 1 Sep, %s: August claims first, 1,700',
+    (_, entries) => {
+      expect(invested(AUGUST_FIRST, entries)).toBe('1700');
+    },
+  );
+
   const W2 = (() => {
     const fills = [
       buy('BTC', '2026-09-03T09:00:00Z', '300', '0.00375'),
