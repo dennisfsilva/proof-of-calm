@@ -240,8 +240,9 @@ external links and the Risk link in the mobile export (M3).
   receipt, since Germany, Italy and the United States carry the giver's cost, so it goes in as coins
   held with its cost unknown);
   the Learn modules, the country pages and the holding-date page public and indexable
-  (`docs/GROWTH.md` §4.1; app screens until session 23 decides their public form, ADR-0045
-  Deviations of 2026-11-05).
+  (`docs/GROWTH.md` §4.1): the Learn index and five modules prerendered under `/en/learn` on
+  2026-11-15 and kept out of search until the launch (ADR-0045 Deviations of 2026-11-15); the
+  country pages, Taxes and the holding-date page with its tool half come with #230.
 - Launch readiness: `docs/RELEASE.md` checklist complete for what M2 ships; Vercel Pro in place
   because the free tier forbids commercial use (ADR-0005); the UK explanatory page live (ADR-0029;
   proven by the owner's check from a UK vantage point in `docs/RELEASE.md`); the legal pages' full
@@ -263,7 +264,8 @@ external links and the Risk link in the mobile export (M3).
   (#308); its tests pass a raised version, and no build reaches the screen until the text gets a
   new version.
 - The manifest's screenshots per form factor and the OG image 1200 × 630 (`docs/DESIGN.md` §9),
-  deferred from M1 by its stage audit on 2026-10-27.
+  deferred from M1 by its stage audit on 2026-10-27; the OG image shipped on 2026-11-15 (#232), the
+  screenshots moved to #21 after counsel's ruling of 2026-11-15 (`docs/GROWTH.md` §2.1).
 - With counsel, decide whether an installed worker must stop serving the precached shell to a person
   now in the UK (the precached shell never meets the 451 route, and ADR-0029 accepts VPN leakage
   only), and record the decision in ADR-0029's Readings (found by the stage audit's security lens on

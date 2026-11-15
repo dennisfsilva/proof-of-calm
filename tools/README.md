@@ -4,7 +4,7 @@ Repository scripts, tested like code: the commit-subject check (`commits/check.t
 `pnpm gate`), golden-fixture generation from the prototype (`golden/`), the app icons (`icons/`), the
 Vercel deployments' Lighthouse configuration and final-URL check (`lighthouse/vercel.ts`; `config` takes
 the deployment URL as its third argument, takes the URLs and the seed from `apps/web/lighthouserc.json`,
-sets every warn to error, and keeps `errors-in-console` on the four seeded screens at the production
+sets every warn to error, and keeps `errors-in-console` on the four seeded screens and the public Learn page at the production
 origin `https://proofofcalm.com` only, where no deployment protection is in the way), the styling
 lint (`lint/styles.ts`), message merging (`messages/merge.ts`), the secret scan of client bundles
 (`scan/secrets.ts`), Today's application code (`size/today.ts`), the `security.txt` check (`security-txt/check.ts`) and the local servers
