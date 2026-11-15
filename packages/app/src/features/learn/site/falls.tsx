@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { useTranslations } from 'use-intl';
 import { BRAND } from '../../../lib/brand';
 import type { PastFall } from '../../../lib/services/red-day-types';
@@ -17,14 +18,24 @@ export type SiteFallsProps = { falls: readonly PastFall[] };
 export function SiteFalls({ falls }: SiteFallsProps) {
   const t = useTranslations('learn');
   const f = useSiteFormatters();
+  const caption = useId();
   if (falls.length === 0) return null;
   const { publishers, first, last } = fallsSpan(falls, f);
   const coins = f.list([...new Set(falls.map(({ coin }) => coin))]);
+  // The page runs no React on the client, so unlike the UI kit's Table the wrapper cannot wait to measure that it
+  // scrolls: it is always a region named by the caption that takes a tab stop (WCAG 2.1.1, axe's
+  // scrollable-region-focusable), padded and pulled out by the focus ring's extent so its overflow never clips the ring.
+  const region = { tabIndex: 0, role: 'region', 'aria-labelledby': caption };
   return (
     <>
-      <div className="overflow-x-auto">
+      <div
+        className="relative -m-[calc(var(--focus-offset)+var(--focus-width))] overflow-x-auto p-[calc(var(--focus-offset)+var(--focus-width))]"
+        {...region}
+      >
         <table className="w-full border-collapse text-14">
-          <caption className="pb-2 text-left text-13 text-ink-2">{t('chart.label', { coins, first, last })}</caption>
+          <caption id={caption} className="pb-2 text-left text-13 text-ink-2">
+            {t('chart.label', { coins, first, last })}
+          </caption>
           <thead>
             <tr className="border-line-2 border-b">
               <th scope="col" className={`${HEAD} text-left`}>

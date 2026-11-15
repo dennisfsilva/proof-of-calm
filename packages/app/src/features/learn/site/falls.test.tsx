@@ -47,6 +47,23 @@ describe('SiteFalls', () => {
     expect(markup).not.toContain('<script');
   });
 
+  it('the table sits in a focusable region named by its caption', () => {
+    // The page runs no React on the client, so the region cannot wait for a measurement that it scrolls.
+    const markup = html(FALLS);
+    const region = markup.match(/^<div([^>]*)><table/)?.[1] ?? '';
+    const attribute = (name: string) => region.match(new RegExp(` ${name}="([^"]*)"`))?.[1];
+    expect(attribute('tabindex')).toBe('0');
+    expect(attribute('role')).toBe('region');
+    const id = attribute('aria-labelledby') ?? '';
+    expect(id).not.toBe('');
+    const named = [...markup.matchAll(/<(\w+)[^>]* id="([^"]*)"[^>]*>(.*?)<\/\1>/g)].filter((match) => match[2] === id);
+    expect(named.map((match) => match[1])).toEqual(['caption']);
+    // The formatters may space dates with a no-break space.
+    expect(named[0]?.[3]?.replace(/\s/gu, ' ')).toBe(
+      'Falls from each high to the lowest low after it for BTC, ETH, and LINK, 8 Jun 2011 to 10 Jun 2023',
+    );
+  });
+
   it('nothing for no falls', () => {
     expect(html([])).toBe('');
   });
