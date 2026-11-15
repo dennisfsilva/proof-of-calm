@@ -263,8 +263,8 @@ function useStartingLine({ startingAmount: starting }: Model, w: ReturnType<type
   const shared = lumps.length > 1 && lumps.every((entry) => entry.date === lumps[0]?.date);
   // A coin's units share their places across the whole line, the purchases and the lumps together.
   // The totals the line ends with, when a coin has several purchases on the instruction's date, count among them.
-  const summed = remedy !== null && remedy.totals.some((each) => each.count > 1);
-  const figures = [...shown, ...lumps, ...(summed ? remedy.totals : [])];
+  const summed = remedy?.totals.some((each) => each.count > 1) ?? false;
+  const figures = [...shown, ...lumps, ...(summed ? (remedy?.totals ?? []) : [])];
   const peers = (coin: string) => figures.flatMap((each) => (each.coin === coin ? [each.units] : []));
   const items = shown.map((item) =>
     t('startingItem', {

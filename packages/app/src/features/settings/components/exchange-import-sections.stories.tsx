@@ -191,7 +191,9 @@ export const StartingAmountInFills: Story = {
   play: async ({ canvas }) => {
     await userEvent.click(canvas.getByRole('button', { name: 'Left out (1)' }));
     await expect(
-      canvas.getByText(/The file's purchases on 20 Mar 2026 add up to 0\.0125 BTC for €700\.00 and 0\.10 ETH for €300\.00\./),
+      canvas.getByText(
+        /The file's purchases on 20 Mar 2026 add up to 0\.0125 BTC for €700\.00 and 0\.10 ETH for €300\.00\./,
+      ),
     ).toBeVisible();
     const sentence =
       'If you bought your whole starting amount on 20 Mar 2026, change it in the Log to that date and those totals. ' +
