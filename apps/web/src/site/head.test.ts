@@ -200,11 +200,14 @@ describe('renderSitePage (ADR-0045 §6)', () => {
       expect(rows).toContain(`href="/en/countries/${entry.code.toLowerCase()}"`);
     }
     const pt = renderSitePage('en/countries/pt', assets, data);
-    expect(pt).toContain('<title>Portugal · Proof of Calm</title>');
+    // The head names the question a search asks (docs/GROWTH.md §4.1); the h1 stays the card's name.
+    expect(pt).toContain('<title>Crypto tax in Portugal · Proof of Calm</title>');
+    expect(pt).toMatch(/<h1[^>]*>Portugal<\/h1>/);
     expect(pt).toContain('<link rel="canonical" href="https://proofofcalm.com/en/countries/pt">');
     expect(pt).toContain('href="/en/countries"');
     const list = renderSitePage('en/countries', assets, data);
-    expect(list).toContain('<title>Countries · Proof of Calm</title>');
+    expect(list).toContain('<title>Crypto tax rules by country · Proof of Calm</title>');
+    expect(list).toContain('<h1 class="text-28">Countries</h1>');
     const holding = renderSitePage('en/holding-date', assets, data);
     expect(holding).toContain('<title>Holding rules by country · Proof of Calm</title>');
     expect(holding).toContain('href="/en/countries/pt"');
