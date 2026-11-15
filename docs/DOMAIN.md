@@ -1035,7 +1035,7 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      the summed amount nearer A. Dates stored already take their place in that order and sum but are never
      claimed." A date another entry claimed before it is out of its walk. A `lump` whose amount equals p
      claims as rule R did: the nearest unclaimed purchase date of C within 3 days of its date, the earlier
-     on a tie, one date (decided 2026-11-15, ADR-0056, Corrections, #226: a walk at p passes every date,
+     on a tie, one date (decided 2026-11-15, ADR-0056, Corrections, #227: a walk at p passes every date,
      so part of a file could stop it at a stored date and store a date the whole file's lump claims). The order (decided 2026-11-15):
      the monthly buys that walk their month go first; then the hand monthly buys whose month has no purchase
      date, in `compareEntries` order; then each `lump` and every other hand purchase or sale, in

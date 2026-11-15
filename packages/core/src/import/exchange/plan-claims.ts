@@ -164,7 +164,7 @@ export function claimRecorded(
     const amount = entry.amount as Money;
     const part = parts.find((each) => each.coin === entry.coin)?.amount ?? ('0' as Money);
     // A `lump` of C's monthly part, hand or one-tap, claims as rule R did, its nearest free date: a walk from its date
-    // can stop at a date part of the file stored and leave a date the whole file's lump claims (#226).
+    // can stop at a date part of the file stored and leave a date the whole file's lump claims (#227).
     if (entry.kind === 'lump' && compare(amount, part) !== 0) {
       const nearby = candidates(
         (day) => day.coin === entry.coin && day.role === role && near(day, entry.date, IMPORT_TYPED_DAYS) && !busy(day),
