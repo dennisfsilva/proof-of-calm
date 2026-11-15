@@ -58,7 +58,8 @@ generated rules files of each language.
   in Germany's file); a profile's translation with the number locale `localesFor` picks for that
   language (the profile's locale in that language, else `numberFormatLocale`); a template's or a
   fact's with the language's own. The locale's decimal separator counts once, any other separator
-  before a group of three digits groups, and any other place splits the run: in pt-PT `31,4` is
+  before a group of three digits and before the decimal separator groups, and any other place splits
+  the run: in pt-PT `31,4` is
   31.4, `1 000` and `1.000` are 1000, `3,14` is not 31.4 and `15` is not 1.5. The check holds values,
   not which noun each belongs to, nor a sign: two numbers swapped between their nouns pass, and
   counsel's read of each translation holds the rest. The overlaid value then passes the schema, and
@@ -92,11 +93,11 @@ generated rules files of each language.
 ## Consequences
 
 - A translator edits prose only; a review of an English number or source reaches every language at
-  once, and a translation that restates a figure differently fails the gate.
+  once, and a translation that changes, drops or adds a number's value fails the gate.
 - A translation writes every number as a numeral, as the English does (`docs/CONTENT-STYLE.md` §4)
-  and as the pt-PT voice asks. A number spelled in words passes the number check only where the
-  English text has no number either; where English has one, the missing numeral fails. Counsel's
-  read of each translation stays (`roles.copy`).
+  and as the pt-PT voice asks. The check reads numerals only: a number written in words passes it
+  wherever it stands, and fails only when it replaces a numeral English has. Counsel's read of each
+  translation stays (`roles.copy`).
 - The no-break hyphen check (`packages/content/src/hyphen-validate.ts`) knows English unit words
   only: a German "365-Tage-Frist" passes it, while Portuguese writes "365 dias" with no hyphen. The
   German unit stems join that check before German overlays land.
