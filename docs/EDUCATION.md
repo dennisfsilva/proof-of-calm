@@ -23,7 +23,7 @@ leaving the screen:
 | "Tax-free from <date>" on an opened Log row (#162), and on a lot once a screen lists lots | Taxes where you live (the country section) |
 | The sell window on Plan and the strip | Cycles → "the window is a discipline device" |
 | The hold phase on Today | Start here → "why some people hold" |
-| The 3 sell parts | Cycles → "3 parts" |
+| The 3 sell parts | Cycles → "selling in 3 parts" |
 | The figure on the fall page (`/learn/fall-under-way`) | When the market drops |
 | The P/L line on Portfolio, shown whenever the P/L line shows (every state but a held coin with no price) | Risk honestly |
 | The simulator's result | Simulator → "what this does not show" |
@@ -79,7 +79,7 @@ historic figure or pattern, §6's Idea).
 and the months from halving to high; why some people build plans around it (the Cycle plan template
 does); why it may not repeat (ETFs, miner economics, macro, the sample size). What the sell window is
 for: it is a discipline device that decides *when* in advance so that nobody has to decide *now*; it
-is not a forecast, though the Cycle plan's dates rest on one. Why three parts: over 3 months or more,
+is not a forecast, though the Cycle plan's dates rest on one. Why selling in 3 parts: over 3 months or more,
 one bad week cannot decide the whole plan.
 **Chart**: none. The cycles' figures are a Markdown list: a table needs `remark-gfm` and new elements,
 and the line chart needs licensed data.
