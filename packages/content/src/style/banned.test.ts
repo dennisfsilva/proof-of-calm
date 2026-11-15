@@ -243,7 +243,7 @@ describe('findBanned in Portuguese (docs/CONTENT-STYLE.md §2 and §9)', () => {
       ['Venda registada: 0,1 BTC.', '0,1 BTC vendidos em 3 nov. 2026.'],
       ['Venda em 3 de março de 2027: 0,1 BTC', 'A venda de 3 de março de 2027: 0,1 BTC'],
       ['Venda parcial de ETH', 'Uma venda parcial de ETH'],
-    ]) {
+    ] as [string, string][]) {
       expect(rules(refused), refused).not.toEqual([]);
       expect(rules(instead), instead).toEqual([]);
     }
