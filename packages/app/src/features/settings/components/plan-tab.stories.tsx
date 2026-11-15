@@ -21,8 +21,8 @@ type Story = StoryObj<typeof meta>;
 export const WithPlan: Story = {
   parameters: withPlan,
   play: async ({ canvas }) => {
-    await waitFor(() => expect(canvas.getByLabelText('Monthly amount (EUR)')).toHaveValue('100.00'));
-    await expect(canvas.getByLabelText('Starting amount (EUR)')).toHaveValue('1,000.00');
+    await waitFor(() => expect(canvas.getByLabelText('Monthly amount (EUR)')).toHaveValue('100,00'));
+    await expect(canvas.getByLabelText('Starting amount (EUR)')).toHaveValue('1000,00');
     await expect(canvas.getByRole('button', { name: 'Save changes' })).toBeVisible();
   },
 };

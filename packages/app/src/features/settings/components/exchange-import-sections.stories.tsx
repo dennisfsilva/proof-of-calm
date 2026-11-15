@@ -148,10 +148,10 @@ export const StartingAmountInTheLog: Story = {
   args: { shown: planOf(march20, fixture.entries) },
   play: async ({ canvas }) => {
     await userEvent.click(canvas.getByRole('button', { name: 'Left out (1)' }));
-    await expect(canvas.getByText(/0\.0125 BTC for €700\.00 on 20 Mar 2026/)).toBeVisible();
+    await expect(canvas.getByText(/0,0125 BTC for 700,00 € on 20 Mar 2026/)).toBeVisible();
     // Only the BTC lump, its coin named: the file names no ETH purchase.
     await expect(
-      canvas.getByText(/holds the BTC part of your starting amount: 0\.0125 BTC for €700\.00 on 5 Apr 2026\.$/),
+      canvas.getByText(/holds the BTC part of your starting amount: 0,0125 BTC for 700,00 € on 5 Apr 2026\.$/),
     ).toBeVisible();
   },
 };
@@ -192,7 +192,7 @@ export const StartingAmountInFills: Story = {
     await userEvent.click(canvas.getByRole('button', { name: 'Left out (1)' }));
     await expect(
       canvas.getByText(
-        /The file's purchases on 20 Mar 2026 add up to 0\.0125 BTC for €700\.00 and 0\.10 ETH for €300\.00\./,
+        /The file's purchases on 20 Mar 2026 add up to 0,0125 BTC for 700,00 € and 0,10 ETH for 300,00 €\./,
       ),
     ).toBeVisible();
     const sentence =
