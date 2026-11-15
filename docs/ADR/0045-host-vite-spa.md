@@ -1455,8 +1455,10 @@ with pt-PT.
 - **2026-11-15, another language's message chunks stay out of the precache** (§5, §8). The hosts'
   `chunkFileNames` (`packages/config/vite/host-config.ts`) put a chunk of `messages/<locale>/` for any
   locale but English under `assets/messages/<locale>/`, and `apps/web/scripts/bundle-worker.ts`
-  leaves that folder out of the precache (`globIgnores`), so a hidden language's files reach no
-  install; a person who chose the language gets them from the assets route like any visited file.
+  leaves that folder out of the precache (`globIgnores`), so a hidden language's message files reach
+  no install; a person who chose the language gets them from the assets route like any visited file.
+  The rule covers message chunks only: the content chunks a language's loaders will emit (ADR-0057)
+  join it when those loaders land.
   Measured on the web build: 70 precache entries and 1,371,216 bytes before, 70 and 1,372,906 after
   (the 1,690 bytes are English's changed entry code). Today's application code
   (`node tools/size/today.ts`, whose `TODAY` pattern counts English's today chunk and no other

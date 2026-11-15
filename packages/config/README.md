@@ -17,7 +17,9 @@ configs live in their packages. See `docs/ENGINEERING.md`.
   - `createHostConfig({ host, root, parseModule })`: the Learn modules' plugins ahead of React, React
     with the compiler through Babel (its `include` covers `.mdx`), Tailwind, the five plugins below
     (and, on the web host, the chunk report), `resolve.dedupe: ['react']`, `build.assetsInlineLimit: 0`,
-    Rolldown's `output.codeSplitting` from `chunkGroups()`,
+    Rolldown's `output.codeSplitting` from `chunkGroups()` and `output.chunkFileNames`, which puts
+    another language's `messages/<locale>/` chunks under `assets/messages/<locale>/` (outside the
+    worker's precache, ADR-0045's Deviations of 2026-11-15),
     the host's `import.meta.env.VITE_API_BASE` and `VITE_SERVICE_WORKER`, and the document (`app.html` on the
     web, `index.html` in the wrapper). `parseModule` is the host's import from
     `@proofofcalm/content/modules` (ADR-0048, Deviations).

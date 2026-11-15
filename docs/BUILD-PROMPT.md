@@ -369,6 +369,28 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   question gave only research §4.4's "a free app arguably has no consumer transaction", and left out
   its course of publishing the RAL list and the complaints-book link from launch, with the footer
   link that brings; counsel's second read added both (2026-11-15).
+- A ban-list rule for a language whose imperative is spelled like its subjunctive cannot be made
+  exact by exceptions. Each pass a fix added for a needed sentence opened a hole the next review
+  found (the subjunctive after "que", a word cap on a leading infinitive, "venda" before a figure),
+  and two sentences it passed were refused by main. Such a rule refuses too much from the start, the
+  needed sentences are reworded or allow-listed, and every pass a fix adds is checked against the
+  sentences the previous head refused; the Portuguese ban list waits for its design check (#19,
+  2026-11-15).
+- A branch that adds a dynamic import emits chunks into both hosts' builds and into the worker's
+  precache (`assets/**/*.{js,css,woff2}`), so it measures the precache and Today's bytes itself and
+  keeps a hidden language's chunks out of the precache (`assets/messages/<locale>/`, #258). The
+  content loaders in a language were split off #259 for this reason (2026-11-15).
+- A size tool's file pattern is checked against every file the change adds that the pattern could
+  match: `tools/size/today.ts` counted pt-PT's today chunk (1,444 bytes) as Today's until #258's fix
+  round (2026-11-15).
+- A fallback is tested through every value the boot derives from the decision, not only the one it
+  resets. #258's first boot reset `html[lang]` and the registry but kept the provider and the
+  services in pt-PT, so English text showed Portuguese dates; brand found it from the code, and a
+  unit test and an e2e case that aborts the language's chunks now hold it (2026-11-15).
+- A language added to the formats is evaluated on the narrow projects before any translation.
+  pt-PT's dates pushed Log's entries table 2 px past the viewport at zoom-125 and cut the € off every
+  amount, which `apps/web/e2e/language.spec.ts` (desktop and iphone only) could not see; the
+  evaluator found it after #258 merged (2026-11-15).
 
 ## Known gaps
 

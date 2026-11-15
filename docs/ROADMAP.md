@@ -227,7 +227,11 @@ external links and the Risk link in the mobile export (M3).
   filled from a daily close for an earlier date waits for the reference closes of `packages/data`,
   decided then with counsel, and never fills the cost of these coins, whose date is a bound.
 - Launch scope (ADR-0041, `docs/GROWTH.md` §3.3): pt-PT and de locales complete, reviewed by native
-  readers (`docs/CONTENT-STYLE.md` §8); CSV import, free (ADR-0039), for the main exchanges of
+  readers (`docs/CONTENT-STYLE.md` §8); pt-PT's machinery shipped on 2026-11-15 (#258: per-locale
+  message files and the boot in a stored language; #259: the translated content overlays' checks),
+  with its translations, the language picker and the native read to follow, and the planner measured
+  about 23,000 words per language, so each language takes about four build sessions before its
+  native read; CSV import, free (ADR-0039), for the main exchanges of
   Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
   Republic; Kraken's ledger reader built on 2026-11-13 (#168) and the core's import plan against the
   Log the same day (#178, `docs/DOMAIN.md` §3.13, "Meeting the Log"), then its write (#183) and the
