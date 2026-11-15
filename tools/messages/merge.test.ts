@@ -1,9 +1,9 @@
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { mergeMessages, run, serialise } from './merge.ts';
+import { complete, LOCALES, mergeMessages, run, serialise } from './merge.ts';
 
 /** Folder name → locale → that folder's messages. */
 type Folders = Record<string, Record<string, Record<string, unknown>>>;
@@ -41,18 +41,58 @@ describe('mergeMessages', () => {
   });
 });
 
+describe('complete', () => {
+  it('takes every translated key and fills the missing ones from English, in English order', () => {
+    const english = { title: 'Today', sheet: { save: 'Save', close: 'Close' }, empty: 'Nothing yet' };
+    const translated = { sheet: { close: 'Fechar' }, title: 'Hoje' };
+    const done = complete(english, translated);
+    expect(done).toEqual({ title: 'Hoje', sheet: { save: 'Save', close: 'Fechar' }, empty: 'Nothing yet' });
+    expect(Object.keys(done)).toEqual(['title', 'sheet', 'empty']);
+  });
+
+  it('refuses a key English does not have, naming it', () => {
+    expect(() => complete({ sheet: { save: 'Save' } }, { sheet: { sav: 'Guardar' } })).toThrow(/sheet\.sav/);
+    expect(() => complete({ title: 'Today' }, { title: { nested: 'Hoje' } })).toThrow(/title/);
+    expect(() => complete({ sheet: { save: 'Save' } }, { sheet: 'Folha' })).toThrow(/sheet/);
+  });
+});
+
 describe('run', () => {
-  it('writes the merged file and one file per namespace for each locale, then reports nothing in check mode', () => {
-    const root = fixture({ today: { en: { title: 'Today' }, de: { title: 'Heute' } }, log: { en: { title: 'Log' } } });
+  it('lists English and pt-PT', () => {
+    expect(LOCALES).toEqual(['en', 'pt-PT']);
+  });
+
+  it('writes the merged English file and one complete file per namespace for each locale, then reports nothing in check mode', () => {
+    const root = fixture({
+      today: { en: { title: 'Today', save: 'Save' }, 'pt-PT': { title: 'Hoje' } },
+      log: { en: { title: 'Log' } },
+    });
     expect(run(root, true)).toHaveLength(5);
     expect(run(root, false)).toEqual([]);
-    expect(read(root, 'en.json')).toEqual({ log: { title: 'Log' }, today: { title: 'Today' } });
-    expect(read(root, 'de.json')).toEqual({ today: { title: 'Heute' } });
+    expect(read(root, 'en.json')).toEqual({ log: { title: 'Log' }, today: { title: 'Today', save: 'Save' } });
     expect(read(root, 'en/log.json')).toEqual({ title: 'Log' });
-    expect(read(root, 'en/today.json')).toEqual({ title: 'Today' });
-    expect(read(root, 'de/today.json')).toEqual({ title: 'Heute' });
-    expect(exists(root, 'de/log.json')).toBe(false);
+    expect(read(root, 'en/today.json')).toEqual({ title: 'Today', save: 'Save' });
+    expect(read(root, 'pt-PT/today.json')).toEqual({ title: 'Hoje', save: 'Save' });
+    expect(read(root, 'pt-PT/log.json')).toEqual({ title: 'Log' });
+    expect(exists(root, 'pt-PT.json')).toBe(false);
     expect(run(root, true)).toEqual([]);
+  });
+
+  it('refuses a translated key that English does not have, and a locale the list does not name', () => {
+    const unknownKey = fixture({ today: { en: { title: 'Today' }, 'pt-PT': { titel: 'Hoje' } } });
+    expect(() => run(unknownKey, true)).toThrow(/today\.titel/);
+    const unknownLocale = fixture({ today: { en: { title: 'Today' }, fr: { title: "Aujourd'hui" } } });
+    expect(() => run(unknownLocale, true)).toThrow(/"fr"/);
+  });
+
+  it('fails the check on a missing and on a stale per-locale file', () => {
+    const root = fixture({ today: { en: { title: 'Today' }, 'pt-PT': { title: 'Hoje' } } });
+    run(root, false);
+    rmSync(join(root, 'messages', 'pt-PT', 'today.json'));
+    expect(run(root, true)).toEqual([expect.stringMatching(/today\.json is missing/)]);
+    run(root, false);
+    writeFileSync(join(root, 'features', 'today', 'messages', 'pt-PT.json'), JSON.stringify({ title: 'Hoje!' }));
+    expect(run(root, true)).toEqual([expect.stringMatching(/today\.json is out of date/)]);
   });
 
   it('takes the namespaces of the lib modules too', () => {
@@ -73,10 +113,10 @@ describe('run', () => {
     const root = fixture({ today: { en: { title: 'Today' } } });
     run(root, false);
     mkdirSync(join(root, 'messages', 'de'));
-    const leftovers = ['de.json', 'de/today.json', 'en/log.json'];
+    const leftovers = ['de.json', 'de/today.json', 'en/log.json', 'pt-PT.json'];
     for (const path of leftovers) writeFileSync(join(root, 'messages', path), '{}\n');
     const problems = run(root, true);
-    expect(problems).toHaveLength(3);
+    expect(problems).toHaveLength(4);
     for (const problem of problems) expect(problem).toMatch(/comes from no message file/);
     expect(run(root, false)).toEqual([]);
     expect(leftovers.filter((path) => exists(root, path))).toEqual([]);
@@ -86,7 +126,7 @@ describe('run', () => {
   it('refuses two folders that would write the same namespace, in one locale or in two', () => {
     const sameLocale = fixture({ errors: { en: { a: 'A' } } }, { errors: { en: { b: 'B' } } });
     expect(() => run(sameLocale, true)).toThrow(/"errors"/);
-    const twoLocales = fixture({ errors: { en: { a: 'A' } } }, { errors: { de: { b: 'B' } } });
+    const twoLocales = fixture({ errors: { en: { a: 'A' } } }, { errors: { 'pt-PT': { b: 'B' } } });
     expect(() => run(twoLocales, true)).toThrow(/"errors"/);
   });
 });
