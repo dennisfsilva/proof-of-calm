@@ -315,6 +315,12 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   a date to a shorter export that the whole file's lump records. #223's runs and main's next two
   push runs passed; a docs-only pull request's run found it at a random seed (43674251573), and #227
   reworked it (2026-11-15).
+- An oracle that recomputes a document's condition keys each claim by the role the condition
+  names, and the condition names it. W2 said "the dates hand entries … claim", and #223's cut
+  property keyed a claim by coin and date, so a hand sale's claim on a date with a purchase counted
+  that purchase as doubled. The property held at 25 seeds, and main's push run after #227 failed at
+  a random one, one world in 30,000. The code was right: #228 keyed the oracle by role, and W2 now
+  says purchase dates (2026-11-15).
 
 ## Known gaps
 
