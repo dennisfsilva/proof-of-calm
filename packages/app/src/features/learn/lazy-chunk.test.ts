@@ -63,6 +63,10 @@ describe('the lazy Learn chunk', () => {
     expect(names).not.toContain('components/why-link.tsx');
   });
 
+  it('never reaches the static site pages, which the web host prerenders and Today never loads', () => {
+    expect(lazy.map(short).filter((name) => name.startsWith('site/'))).toEqual([]);
+  });
+
   it('imports no value of @proofofcalm/content or @proofofcalm/core', () => {
     const values = lazy.flatMap((file) =>
       importsOf(file)
