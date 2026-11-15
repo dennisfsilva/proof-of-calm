@@ -4,6 +4,7 @@ import { fileOf } from '../../../test/exchange/plan-arbitraries';
 import { LISBON, NOW, PLAN as PLAN_70_30, testId, trade } from '../../../test/exchange/plan-fixture';
 import { saveTransaction, storedOver, type TransactionDraft } from '../../actions/entries';
 import { IMPORT_REMEDY_MAX_MOVEMENTS, MAX_ENTRIES } from '../../constants';
+import { addDays, type CalendarDate } from '../../dates/calendar';
 import type { Units } from '../../money/decimal';
 import { defaultFee, lastVenue, oneTapEntries } from '../../plan/parts';
 import { actionsNow, liveEntries, primaryAction } from '../../plan/statuses';
@@ -585,7 +586,7 @@ describe("a lump's claim reads its amount", () => {
     },
   );
 
-  for (const day of ['2026-09-02', '2026-09-05']) {
+  for (const day of ['2026-09-02', '2026-09-03', '2026-09-05']) {
     const c = of(L, tap(P6, [], day));
     it.each(lateOrders(c))(
       `tapped ${day}, file L, %s: the lump records 3 Sep, 2 Sep is September's, 1,400`,
@@ -634,17 +635,87 @@ describe("a lump's claim reads its amount", () => {
     expect(invested(S_14_NOV, edit(S_14_NOV, entries, '2026-06-10', TEN_JUNE) as Entry[])).toBe('1400');
   });
 
-  // The prices of the rule, stated in step 2.
-  const W1 = (() => {
-    const file = [...M, buy('BTC', '2026-09-03', '500', '0.00625'), buy('BTC', '2026-09-04', '500', '0.00625')];
-    return of(file, typedLump(file, '2026-09-03'));
-  })();
+  // Every tap day Today offers the starting amount, 2 Jul to 13 Nov: file M's buy days hold 100, under the square root
+  // of 1,000 x 100, so the lump records none; file L's 3 Sep is recorded from 31 Aug to 6 Sep and imported beside the
+  // lump on the other 128 days (the 3-day reach, step 2's price).
+  it('P6 on each of the 135 tap days, one import: file M 1,400 on all, file L 1,400 on 31 Aug to 6 Sep, else 2,400', () => {
+    const days = Array.from({ length: 135 }, (_, index) => addDays(date('2026-07-02'), index));
+    const tappedOn = (file: readonly Movement[]) => (day: CalendarDate) => invested(of(file, []), tap(P6, [], day));
+    expect(days.filter((day) => tappedOn(M)(day) !== '1400')).toEqual([]);
+    const late = days.filter((day) => tappedOn(L)(day) !== '1400');
+    expect(late.map(tappedOn(L))).toEqual(late.map(() => '2400'));
+    expect(late).toHaveLength(128);
+    expect(days.filter((day) => !late.includes(day))).toEqual([
+      '2026-08-31',
+      '2026-09-01',
+      '2026-09-02',
+      '2026-09-03',
+      '2026-09-04',
+      '2026-09-05',
+      '2026-09-06',
+    ]);
+  });
+
+  // The prices of the rule, stated in step 2. W1: both pieces are as near the lump's 1,000 as the monthly part, as a
+  // ratio (500 x 500 is at least 1,000 x 100), so the walk records 3 Sep, then 4 Sep, which brings the sum to 1,000.
+  const W1_FILE = [...M, buy('BTC', '2026-09-03', '500', '0.00625'), buy('BTC', '2026-09-04', '500', '0.00625')];
+  const W1 = of(W1_FILE, typedLump(W1_FILE, '2026-09-03'));
 
   it.each(orders(W1))(
-    'W1, a late starting purchase in two pieces, %s: both imported beside the lump, 2,400',
+    'W1, a late starting purchase in two pieces, %s: the lump records both dates, 1,400',
     (_, entries) => {
-      expect(recordedBy(W1, entries, lumpsOf(entries)[0] as Entry)).toEqual([]);
-      expect(invested(W1, entries)).toBe('2400');
+      expect(recordedBy(W1, entries, lumpsOf(entries)[0] as Entry)).toEqual(['2026-09-03', '2026-09-04']);
+      expect(invested(W1, entries)).toBe('1400');
+    },
+  );
+
+  for (const day of ['2026-09-03', '2026-09-04', '2026-09-06']) {
+    const c = of(W1_FILE, tap(P6, [], day));
+    it.each(orders(c))(`W1 tapped ${day}, %s: the lump records 3 and 4 Sep, 1,400`, (_, entries) => {
+      expect(recordedBy(c, entries, lumpsOf(entries)[0] as Entry)).toEqual(['2026-09-03', '2026-09-04']);
+      expect(invested(c, entries)).toBe('1400');
+    });
+  }
+
+  // W1's edge days: the walk reaches one piece from 31 Aug and 7 Sep, none from 30 Aug and 8 Sep.
+  for (const [day, total] of [
+    ['2026-08-30', '2400'],
+    ['2026-08-31', '1900'],
+    ['2026-09-07', '1900'],
+    ['2026-09-08', '2400'],
+  ] as const) {
+    const c = of(W1_FILE, typedLump(W1_FILE, day));
+    it.each(orders(c))(`W1 with the lump typed ${day}, %s: ${total}`, (_, entries) => {
+      expect(invested(c, entries)).toBe(total);
+    });
+  }
+
+  // Step 2's price (a): a purchase of at least the square root of A x p (316.23 EUR for P6) and below (A + p) / 2
+  // within 3 days counts as starting money, and a date's purchases are claimed together: 2 Sep's 400 catch-up and its
+  // 100 buy are recorded with the lump, 1,300 against 1,700.
+  for (const [catchUp, total] of [
+    ['400', '1300'],
+    ['600', '1300'],
+  ] as const) {
+    const c = of([...M, buy('BTC', '2026-09-02', catchUp, '0.005')], tap(P6, [], '2026-09-02'));
+    it.each(lateOrders(c))(`a ${catchUp} EUR catch-up bought 2 Sep, tapped 2 Sep, %s: ${total}`, (_, entries) => {
+      expect(recordedBy(c, entries, lumpsOf(entries)[0] as Entry)).toEqual(['2026-09-02']);
+      expect(fromFile(c, entries, '2026-09-02')).toEqual([]);
+      expect(invested(c, entries)).toBe(total);
+    });
+  }
+
+  // Step 2's price (b): a starting amount below the part, bought on a buy day, is imported with that day's buy.
+  const FIFTY = (() => {
+    const plan = { ...P6, startingAmount: money('50') };
+    return of([...M, buy('BTC', '2026-09-02', '50', '0.000625')], tap(plan, [], '2026-09-02'), plan);
+  })();
+
+  it.each(lateOrders(FIFTY))(
+    'a starting 50 beside 2 Sep buy of 100, tapped 2 Sep, %s: both imported, 500',
+    (_, entries) => {
+      expect(recordedBy(FIFTY, entries, lumpsOf(entries)[0] as Entry)).toEqual([]);
+      expect(invested(FIFTY, entries)).toBe('500');
     },
   );
 
@@ -771,15 +842,16 @@ describe("a lump's claim reads its amount", () => {
     expect(invested(c, cut)).toBe('2450');
   });
 
-  // The shorter export stored 1 Sep, the date the whole file's lump claims, so the second import's lump claims 5 Sep
-  // instead: 1 Sep's 100 counts and 5 Sep's 120 does not (plan-lump-cut.property.test.ts).
-  it('below the part, an export ending inside 4 Sep: one import 2,570, the cut first claims 5 Sep and gives 2,550', () => {
+  // The shorter export stored 1 Sep, the date the whole file's lump walks, so 1 Sep's 100 counts twice; the second
+  // import's walk takes the stored 1 Sep in its place and sum, as in one import, and claims nothing else: 5 Sep's 120
+  // still counts once (plan-lump-cut.property.test.ts).
+  it('below the part, an export ending inside 4 Sep: one import 2,570, the cut first stores 1 Sep and gives 2,670', () => {
     const c = below([...ROUND_2.file.slice(MONTHS.length), buy('BTC', '2026-09-05T10:00:00Z', '120', '0.0015')]);
     expect(recordedBy(c, c.entries, c.entries[0] as Entry)).toEqual(['2026-09-01']);
     expect(invested(c, c.entries)).toBe('2570');
     const cut = imported(c, c.entries, fileOf(c.file.filter((m) => m.at < '2026-09-04T12:00:00Z')));
-    expect(recordedBy(c, cut, c.entries[0] as Entry)).toEqual(['2026-09-05']);
-    expect(invested(c, cut)).toBe('2550');
+    expect(recordedBy(c, cut, c.entries[0] as Entry)).toEqual([]);
+    expect(invested(c, cut)).toBe('2670');
   });
 
   // Another hand entry's claim moves the same way: a shorter export beginning inside 4 Sep holds a part the lump of
