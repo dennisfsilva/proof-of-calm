@@ -1,8 +1,11 @@
+import enErrors from '../../messages/en/errors.json';
+import enShell from '../../messages/en/shell.json';
+import enToday from '../../messages/en/today.json';
 import type { UiLanguage } from './locale';
 import type { Messages } from './messages';
 
-// Which namespaces reach a screen how (ADR-0045 §8): the hosts' entries import English's static ones from
-// `messages/en/<namespace>.json` whole, and load another language's with `loadStaticNamespaces`; every
+// Which namespaces reach a screen how (ADR-0045 §8): the hosts' entries boot with `bootLanguage`, which
+// imports English's static ones from `messages/en/<namespace>.json` whole and loads another language's; every
 // other namespace is a lazy screen's, loaded with its module by `lazyScreen`, or by `loadNamespace` for a
 // lazy part of a static screen (the log namespace on /today, for the entry sheet and the one tap's
 // toast), from the files of the registry's language. One explicit import per lazy namespace and
@@ -63,7 +66,30 @@ const STATIC_LOADERS: Record<Exclude<UiLanguage, 'en'>, () => Promise<StaticMess
   },
 };
 
-/** The static namespaces of a language other than English, which stays a static import of the entries. */
+/** The static namespaces of a language other than English, whose are a static import here. */
 export function loadStaticNamespaces(language: Exclude<UiLanguage, 'en'>): Promise<StaticMessages> {
   return STATIC_LOADERS[language]();
+}
+
+/** The language the shell boots in and its static messages. */
+export type Boot = { readonly language: UiLanguage; readonly messages: StaticMessages };
+
+const ENGLISH_STATIC: StaticMessages = { errors: enErrors, shell: enShell, today: enToday };
+
+/**
+ * The language the shell boots in, with its static messages (ADR-0023): the stored language with its files,
+ * or English with English's when the stored one is English or its files cannot load. The hosts give this
+ * language to the document, the registry, the formatters and the services alike, so a failed load renders
+ * English whole, never English copy in another language's formats.
+ */
+export async function bootLanguage(
+  stored: UiLanguage,
+  load: typeof loadStaticNamespaces = loadStaticNamespaces,
+): Promise<Boot> {
+  if (stored === 'en') return { language: 'en', messages: ENGLISH_STATIC };
+  try {
+    return { language: stored, messages: await load(stored) };
+  } catch {
+    return { language: 'en', messages: ENGLISH_STATIC };
+  }
 }

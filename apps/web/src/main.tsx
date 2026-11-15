@@ -1,19 +1,15 @@
 import { AppRoutes, AppShell } from '@proofofcalm/app/features/shell';
 import {
+  type Boot,
+  bootLanguage,
   I18nProvider,
-  loadStaticNamespaces,
   localStorageOrNull,
-  type Messages,
   messageRegistry,
   readLanguage,
-  type StaticNamespace,
 } from '@proofofcalm/app/lib/i18n';
 import { NavigationProvider } from '@proofofcalm/app/lib/navigation';
 import { registerServiceWorker, type UpdatePrompt, whenIdle } from '@proofofcalm/app/lib/pwa';
-import { createBrowserServices, ServicesProvider } from '@proofofcalm/app/lib/services';
-import errors from '@proofofcalm/app/messages/en/errors.json';
-import shell from '@proofofcalm/app/messages/en/shell.json';
-import today from '@proofofcalm/app/messages/en/today.json';
+import { createBrowserServices, type Services, ServicesProvider } from '@proofofcalm/app/lib/services';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './app.css';
@@ -22,13 +18,10 @@ import { installChunkReload } from './chunk-reload';
 // The web host's entry (ADR-0045 §9 and §12): the services over the browser's adapters with the API on
 // the same origin, the browser location, the static namespaces every screen needs (§8; a lazy route
 // loads its own), the shell around the route table. The host adds nothing a screen could own.
-// The UI language, a device preference read before the first render (ADR-0023): the document's lang, the
-// formatters, and the files the lazy screens load. English's static namespaces are imported; another
-// language's load before the first render, and English renders if they cannot.
-const language = readLanguage(localStorageOrNull());
-document.documentElement.lang = language;
-messageRegistry.setLanguage(language);
-const services = createBrowserServices({ apiBase: '', language });
+// The UI language, a device preference read before the first render (ADR-0023): `bootLanguage` loads
+// another language's static namespaces first and falls back to English whole if they cannot, and the
+// language it gives sets the document's lang, the registry the lazy screens load from, the formatters and
+// the services.
 
 // The worker, in production builds of the web host only (ADR-0033, ADR-0045 §5 and §10); the wrapper's
 // build removes this branch. The shell hands over the handler that shows the "A new version is ready"
@@ -51,7 +44,7 @@ const registerUpdates =
       }
     : undefined;
 
-function App({ messages }: { messages: Pick<Messages, StaticNamespace> }) {
+function App({ boot: { language, messages }, services }: { boot: Boot; services: Services }) {
   return (
     <ServicesProvider services={services}>
       <NavigationProvider location="browser">
@@ -67,25 +60,17 @@ function App({ messages }: { messages: Pick<Messages, StaticNamespace> }) {
 
 const root = document.getElementById('root');
 if (root === null) throw new Error('app.html has no #root element');
-const mount = root;
-
-function render(messages: Pick<Messages, StaticNamespace>) {
-  createRoot(mount).render(
+void bootLanguage(readLanguage(localStorageOrNull())).then((boot) => {
+  document.documentElement.lang = boot.language;
+  messageRegistry.setLanguage(boot.language);
+  const services = createBrowserServices({ apiBase: '', language: boot.language });
+  createRoot(root).render(
     <StrictMode>
-      <App messages={messages} />
+      <App boot={boot} services={services} />
     </StrictMode>,
   );
   void services.start();
-}
-
-const english = { errors, shell, today };
-if (language === 'en') render(english);
-else
-  void loadStaticNamespaces(language).then(render, () => {
-    document.documentElement.lang = 'en';
-    messageRegistry.setLanguage('en');
-    render(english);
-  });
+});
 
 installChunkReload({
   target: window,

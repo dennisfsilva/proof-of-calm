@@ -1,4 +1,6 @@
 import { expect, type Page } from '@playwright/test';
+import { fixtureNowMs, fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
+import { seedPlan } from './seed';
 import { test } from './support';
 
 // The UI language (ADR-0023, the entry of 2026-11-15): a device preference in localStorage, read before the
@@ -49,4 +51,36 @@ test('boots in English when the stored language is not one the app has', async (
   await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(screenArea(page)).not.toHaveText(BARE_KEY);
+});
+
+test.describe('when the stored language cannot load its static namespaces', () => {
+  test.use({ serviceWorkers: 'block' });
+
+  test("boots in English whole: the lang attribute, English's copy and English's date format", async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop', 'the boot does not depend on the viewport');
+    await bootIn(page, 'pt-PT');
+    const aborted: string[] = [];
+    await page.route('**/assets/messages/pt-PT/**', (route) => {
+      aborted.push(route.request().url());
+      return route.abort();
+    });
+    // The fixture plan on 20 October 2026, whose October buy (5 October) is late; /api/prices answered here.
+    const nowMs = fixtureNowMs('buy');
+    await page.clock.setFixedTime(new Date(nowMs));
+    await page.route('**/api/prices?*', (route) =>
+      route.fulfill({
+        json: {
+          at: new Date(nowMs - 30_000).toISOString(),
+          prices: { BTC: { EUR: '60000.12' }, ETH: { EUR: '2500.5' } },
+        },
+      }),
+    );
+    await seedPlan(page, fixtureSnapshot());
+    await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
+    expect(aborted.some((url) => /\/today-[^/]+\.js$/.test(url))).toBe(true);
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+    await expect(page.getByText('Buy day was 5 Oct 2026, 15 days ago. Record it or skip the month.')).toBeVisible();
+  });
 });
