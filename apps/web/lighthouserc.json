@@ -11,7 +11,8 @@
         "http://localhost:3000/plan",
         "http://localhost:3000/",
         "http://localhost:3000/en/learn/risk-honestly",
-        "http://localhost:3000/en/countries/pt"
+        "http://localhost:3000/en/countries/pt",
+        "http://localhost:3000/en/holding-date"
       ],
       "numberOfRuns": 5,
       "puppeteerScript": "node_modules/.cache/lighthouse/seed.cjs",
@@ -98,6 +99,16 @@
             "categories:performance": ["error", { "minScore": 0.95 }],
             "categories:accessibility": ["error", { "minScore": 1 }],
             "errors-in-console": ["error", { "maxLength": 0 }]
+          }
+        },
+        {
+          "matchingUrlPattern": "/en/holding-date$",
+          "aggregationMethod": "median",
+          "assertions": {
+            "categories:performance": ["error", { "minScore": 0.95 }],
+            "categories:accessibility": ["error", { "minScore": 1 }],
+            "errors-in-console": ["error", { "maxLength": 0 }],
+            "resource-summary:script:size": ["error", { "maxNumericValue": 12288 }]
           }
         }
       ]

@@ -200,3 +200,26 @@ test('an entry recorded offline is in the Log after an offline reload, and the l
   await goOnline(page);
   await expect(pricesLine(page)).toHaveText(LIVE_LINE);
 });
+
+// The holding-date tool's island is not precached; a visited page works offline from the `pages` cache and its
+// module from the `assets` runtime cache. The worker keys `pages` without the fragment, so the inputs a visitor
+// typed are never kept (docs/LEGAL.md §5's "pages opened" stays exact).
+test('the worker precaches no island, keeps no fragment in its pages keys, and shows a visited result offline', async ({
+  page,
+  context,
+  request,
+}) => {
+  await installed(page, context);
+  expect(await (await request.get('/sw.js')).text()).not.toContain('islands/');
+  await page.goto('/en/holding-date#country=pt&bought=2027-03-01');
+  await expect(page.locator('[data-country="pt"] [data-effect="exempt"]')).toBeVisible();
+  const keys = await page.evaluate(async () => (await (await caches.open('pages')).keys()).map((key) => key.url));
+  expect(keys.some((url) => url.endsWith('/en/holding-date'))).toBe(true);
+  expect(keys.filter((url) => url.includes('#'))).toEqual([]);
+  await goOffline(page);
+  await page.goto('/today');
+  await opened(page, 'Today');
+  await page.goto('/en/holding-date#country=de&bought=2024-02-29');
+  await expect(page.locator('[data-country="de"]').getByText(/^Tax-free from 1\sMar\s2025$/u)).toBeVisible();
+  await goOnline(page);
+});

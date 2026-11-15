@@ -30,6 +30,12 @@ declare const __APP_ROUTES__: readonly string[];
 
 const DAY = 24 * 60 * 60;
 
+function withoutFragment(href: string): string {
+  const url = new URL(href);
+  url.hash = '';
+  return url.href;
+}
+
 const serwist = new Serwist({
   // Undefined in development, where nothing is precached.
   precacheEntries: self.__SW_MANIFEST ?? [],
@@ -63,11 +69,16 @@ const serwist = new Serwist({
       handler: new NetworkFirst({
         cacheName: 'pages',
         networkTimeoutSeconds: 10,
-        plugins: [new ExpirationPlugin({ maxEntries: 32, maxAgeSeconds: 7 * DAY })],
+        plugins: [
+          // The holding-date tool's inputs live in the fragment, which the request's URL keeps: the copy is kept
+          // under the page's own URL, so no purchase date is stored and every fragment opens the same copy.
+          { cacheKeyWillBeUsed: async ({ request }) => withoutFragment(request.url) },
+          new ExpirationPlugin({ maxEntries: 32, maxAgeSeconds: 7 * DAY }),
+        ],
       }),
     },
     {
-      // Hashed assets a lazy screen loads after the precache ran (the precached ones never reach here).
+      // Hashed assets (the site pages' islands among them, which the precache leaves out) a lazy screen loads after the precache ran (the precached ones never reach here).
       matcher: ({ sameOrigin, url }) => sameOrigin && url.pathname.startsWith('/assets/'),
       handler: new CacheFirst({
         cacheName: 'assets',

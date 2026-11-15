@@ -1,4 +1,5 @@
 import { THEME_BEFORE_PAINT } from '@proofofcalm/app/lib/theme';
+import { BOOT_SCRIPT } from '@proofofcalm/config/vite';
 import type { CalendarDate } from '@proofofcalm/core';
 import { describe, expect, it } from 'vitest';
 import { notAvailableHtml } from '../../lib/geo/uk-block';
@@ -212,6 +213,9 @@ describe('renderSitePage (ADR-0045 §6)', () => {
     expect(pt).toMatch(/<h1[^>]*>Portugal<\/h1>/);
     expect(pt).toContain('<link rel="canonical" href="https://proofofcalm.com/en/countries/pt">');
     expect(pt).toContain('href="/en/countries"');
+    // A dated rule links the holding-date tool with the country chosen; a rule with no period does not.
+    expect(pt).toContain('href="/en/holding-date#country=pt"');
+    expect(renderSitePage('en/countries/fr', assets, data)).not.toContain('href="/en/holding-date');
     // The three names that take the article in English.
     for (const [code, name] of [
       ['gb', 'the United Kingdom'],
@@ -237,6 +241,24 @@ describe('renderSitePage (ADR-0045 §6)', () => {
     expect(pt).toContain('>Sources for Portugal</h2>');
     expect(holding).toContain('href="/en/countries/pt"');
     expect(() => renderSitePage('en/countries/xx', assets, data)).toThrow('no listed country XX');
+  });
+
+  // The holding-date tool's island (ADR-0045 Deviations of 2026-11-15): with the build's islands, its page alone
+  // carries the boot script, at the end of the body, its entry the island; without them it is the static half.
+  it('puts the holding-date tool and its boot script on that page only, once the build gives the island', () => {
+    const entry = '/assets/islands/holding-date-ABCDEFGH.js';
+    const built = { ...data, islands: { boot: BOOT_SCRIPT, entries: { 'holding-date': entry } } };
+    const holding = renderSitePage('en/holding-date', assets, built);
+    expect(holding.match(/<script/g)).toHaveLength(1);
+    expect(holding).toContain(`<script data-entry="${entry}">${BOOT_SCRIPT}</script>\n</body>`);
+    expect(holding).toMatch(/<form [^>]*method="dialog"/);
+    expect(holding.indexOf('<form')).toBeLessThan(holding.indexOf('href="/en/countries/de"'));
+    for (const name of sitePages(built).filter((page) => page !== 'en/holding-date' && page !== '~offline')) {
+      expect(renderSitePage(name, assets, built), name).not.toContain('<script');
+    }
+    const plain = renderSitePage('en/holding-date', assets, data);
+    expect(plain).not.toContain('<form');
+    expect(plain).not.toContain('<script');
   });
 
   it('writes the not-available page as the UK block defines it', () => {

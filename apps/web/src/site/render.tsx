@@ -1,8 +1,8 @@
 // The prerender entry (ADR-0045 §6): `scripts/build.ts` builds this file with `vite build --ssr`,
 // imports the result and writes one HTML file per site page, each with the head of `head.ts` and
-// no script but the theme script on the offline page. The manifest comes from the same build (ADR-0033).
-// The public Learn, country and holding-date pages live under /en/ and render at the build's day (ADR-0045
-// Deviations of 2026-11-15).
+// no script but the theme script on the offline page and the boot script of the holding-date tool's island. The
+// manifest comes from the same build (ADR-0033). The public Learn, country and holding-date pages live under /en/
+// and render at the build's day (ADR-0045 Deviations of 2026-11-15).
 
 import {
   type CountrySite,
@@ -13,6 +13,7 @@ import {
   SiteCountryPage,
   SiteCountryRows,
   SiteHoldingDates,
+  SiteHoldingTool,
   SiteLearnIndex,
   SiteModulePage,
   StaticLearn,
@@ -60,15 +61,21 @@ type PublicPage =
   | 'en/holding-date';
 export type SitePage = (typeof SITE_PAGES)[number] | PublicPage;
 
+/**
+ * What `scripts/bundle-islands.ts` built: the boot script's fixed text (`BOOT_SCRIPT`, hashed in the CSP) and each
+ * island's URL, which the boot script loads from its `data-entry`. Without them the holding-date page is static.
+ */
+export type SiteIslands = { boot: string; entries: { 'holding-date': string } };
+
 /** What the public pages read: every Learn module, every listed country at the build's day, and that day. */
-export type SiteData = { learn: LearnSite; countries: CountrySite; today: CalendarDate };
+export type SiteData = { learn: LearnSite; countries: CountrySite; today: CalendarDate; islands?: SiteIslands };
 
 const TAXES = 'taxes-where-you-live';
 const COUNTRY = 'en/countries/';
 
-export async function loadSiteData(today: CalendarDate): Promise<SiteData> {
+export async function loadSiteData(today: CalendarDate, islands?: SiteIslands): Promise<SiteData> {
   const [learn, countries] = await Promise.all([loadLearnSite(), loadCountrySite(today)]);
-  return { learn, countries, today };
+  return { learn, countries, today, ...(islands !== undefined && { islands }) };
 }
 
 /**
@@ -102,6 +109,8 @@ type Rendered = {
   title: string | null;
   body: ReactNode;
   themeScript?: boolean;
+  /** The island the boot script loads at the end of the body. */
+  island?: { boot: string; entry: string };
   canonical?: string;
   indexable?: boolean;
 };
@@ -109,9 +118,10 @@ type Rendered = {
 /**
  * A public page: the site layout, so the footer's disclaimer and Risk link are on it (docs/LEGAL.md §4), around the
  * page's main column. Static: no plan, so no fall line and no live figure; Taxes ends with every country's row, as
- * the app's module does with no plan, and the holding-date page is its static half alone (no tool yet).
+ * the app's module does with no plan, and the holding-date page carries the tool, its island loaded by the boot
+ * script, whenever the build gives one.
  */
-function publicPage(name: PublicPage, { learn, countries, today }: SiteData): Rendered {
+function publicPage(name: PublicPage, { learn, countries, today, islands }: SiteData): Rendered {
   const page = (content: ReactNode) => (
     <SiteLayout>
       <main id="main">
@@ -121,7 +131,7 @@ function publicPage(name: PublicPage, { learn, countries, today }: SiteData): Re
   );
   const common = { canonical: `/${name}`, indexable: PUBLIC_INDEXABLE };
   const t = createTranslator({ locale: 'en', messages: { learn: learnMessages }, namespace: 'learn' });
-  const { entries, cards } = countries;
+  const { entries, cards, rules } = countries;
   if (name === 'en/learn') {
     return { ...common, title: t('title'), body: page(<SiteLearnIndex modules={learn.modules} links={SITE_LINKS} />) };
   }
@@ -133,20 +143,29 @@ function publicPage(name: PublicPage, { learn, countries, today }: SiteData): Re
     };
   }
   if (name === 'en/holding-date') {
+    const tool = islands && (
+      <SiteHoldingTool entries={entries} cards={cards} rules={rules} links={SITE_LINKS} today={today} />
+    );
     return {
       ...common,
       title: t('holding.title'),
-      body: page(<SiteHoldingDates entries={entries} cards={cards} links={SITE_LINKS} />),
+      body: page(
+        <SiteHoldingDates entries={entries} cards={cards} links={SITE_LINKS}>
+          {tool}
+        </SiteHoldingDates>,
+      ),
+      ...(islands !== undefined && { island: { boot: islands.boot, entry: islands.entries['holding-date'] } }),
     };
   }
   if (name.startsWith(COUNTRY)) {
     const code = name.slice(COUNTRY.length).toUpperCase();
     const card = cards.get(code);
     if (card === undefined) throw new Error(`no listed country ${code}`);
+    const holding = rules.get(code);
     return {
       ...common,
       title: t('countries.countryHeadTitle', { country: card.name, code }),
-      body: page(<SiteCountryPage card={card} links={SITE_LINKS} />),
+      body: page(<SiteCountryPage card={card} holding={holding && { code, rules: holding }} links={SITE_LINKS} />),
     };
   }
   const slug = name.slice('en/learn/'.length);
@@ -237,7 +256,7 @@ export function renderSitePage(name: SitePage, assets: readonly string[], data?:
   if (!isPublic(name)) rendered = page(name);
   else if (data !== undefined) rendered = publicPage(name, data);
   else throw new Error(`${name} renders from the loaded site data`);
-  const { title, body, themeScript = false, canonical, indexable = false } = rendered;
+  const { title, body, themeScript = false, canonical, indexable = false, island } = rendered;
   return [
     '<!doctype html>',
     '<html lang="en">',
@@ -246,6 +265,8 @@ export function renderSitePage(name: SitePage, assets: readonly string[], data?:
     '</head>',
     '<body>',
     renderToStaticMarkup(body),
+    // Last in the body, so the page paints before the island loads; the entry is a hashed path the build wrote.
+    ...(island === undefined ? [] : [`<script data-entry="${island.entry}">${island.boot}</script>`]),
     '</body>',
     '</html>',
     '',

@@ -97,7 +97,13 @@ template's dates, not tax advice" on onboarding's template path, where the dates
 (`docs/JURISDICTIONS.md` §1); under that line on the Log and the Plan, under the early-opening notice (Hold & sell,
 the Plan tab, onboarding's numbers step, the country change) and under the country change's `Last buy tax-free
 from` row, while the plan keeps the profile's rule, the profile's conditions on the date, the first in full and
-the rest behind one control (`docs/CONTENT-STYLE.md` §3), then the date line. Where the country change's row
+the rest behind one control (`docs/CONTENT-STYLE.md` §3), then the date line. The public holding-date page
+shows the same lines for a purchase date a visitor types, which nothing stores or sends: under "Tax-free from
+[date]" or "Long-term rate from [date]" and "For a purchase on [date]", the line "Computed from your dates, not
+tax advice", the profile's conditions, the first in full and the rest behind one control, the rule's Sources
+once its source is known, then the date line in its plain form; a country under review shows only the
+under-review line, and a country whose rule sets no period its card's holding-rule text, Sources and the
+line. Where the country change's row
 shows the note and the conditions, the notice under it shows neither. The date line stands alone where the
 profile lists no conditions, with Sources once
 the rule's source is known and plain until then; under review the conditions stay beside the date, with the

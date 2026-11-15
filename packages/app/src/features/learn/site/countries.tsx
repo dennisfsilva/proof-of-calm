@@ -1,6 +1,7 @@
 import { useTranslations } from 'use-intl';
 import type { CountryCardModel, CountryEntry } from '../../../lib/services';
 import { CountryCardView } from '../components/country-card';
+import { effectsOf, type HoldingRules, holdingFragment } from './holding-tool.ts';
 import { BACK_LINK, PAGE } from './modules';
 import { type SiteLinks, useSiteFormatters } from './static';
 
@@ -68,17 +69,32 @@ export function SiteCountryRows({ entries, links }: SiteCountryRowsProps) {
   );
 }
 
-export type SiteCountryPageProps = { card: CountryCardModel; links: SiteLinks };
+export type SiteCountryPageProps = {
+  card: CountryCardModel;
+  /** The country's code and its holding rules, as `loadCountrySite` keys them; without them, no link to the tool. */
+  holding?: { code: string; rules: HoldingRules } | undefined;
+  links: SiteLinks;
+};
 
-/** One country's card as a page, as the app's route shows it; under review, its title and date line only. */
-export function SiteCountryPage({ card, links }: SiteCountryPageProps) {
+/**
+ * One country's card as a page, as the app's route shows it; under review, its title and date line only. Where its
+ * rule or an override sets a period and it is not under review, a link to the holding-date tool with it chosen.
+ */
+export function SiteCountryPage({ card, holding, links }: SiteCountryPageProps) {
   const t = useTranslations('learn.countries');
+  const dated =
+    holding !== undefined && !card.underReview && effectsOf(holding.rules.rule, holding.rules.overrides).length > 0;
   return (
     <div className={PAGE}>
       <a href={links.countries} className={BACK_LINK}>
         {t('back')}
       </a>
       <CountryCardView country={card} level={1} f={useSiteFormatters()} />
+      {dated && (
+        <a href={`${links.holding}#${holdingFragment({ country: holding.code.toLowerCase() })}`} className={BACK_LINK}>
+          {t('holdingTool')}
+        </a>
+      )}
     </div>
   );
 }
