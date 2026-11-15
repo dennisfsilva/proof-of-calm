@@ -6,10 +6,10 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import type { PastFall } from '../../../lib/services/red-day-types';
 import learn from '../../../messages/en/learn.json';
+import type { ModuleViewProps } from '../components/module-view';
 import StartHere from '../fixtures/start-here.mdx';
 import WhenItDrops from '../fixtures/when-the-market-drops.mdx';
-import type { ModuleViewProps } from '../components/module-view';
-import { loadLearnSite, type SiteLinks, SiteLearnIndex, SiteModulePage, StaticLearn } from './index';
+import { loadLearnSite, SiteLearnIndex, type SiteLinks, SiteModulePage, StaticLearn } from './index';
 
 // The Learn modules as script-free static pages (ADR-0048 Deviations of 2026-11-15): rendered to a string as the web
 // host's prerender renders them, in Node, with no services, no router and no clock: `today` is passed in.
