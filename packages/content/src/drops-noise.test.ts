@@ -171,6 +171,9 @@ describe('the Noise and When the market drops modules', () => {
     ])
       expect(bis?.value).toContain(quoted);
     expect(bis?.value).not.toMatch(/73 %|October/u);
+    // The paper's section 2.2 gives the 81 % with no "time of writing", which its introduction keeps for "over 75%".
+    expect(bis?.value).toContain('In its Jul 2023 revision, assuming each new user bought $100 of bitcoin');
+    expect(bis?.value).not.toMatch(/time of writing/iu);
     expect(facts.find((fact) => fact.key === 'f.leverage')?.value).not.toMatch(/BIS|1049/u);
   });
 });
