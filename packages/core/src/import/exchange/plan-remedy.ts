@@ -2,106 +2,22 @@
 // each shows only when the change, made as the Log makes it, and the file planned again end as the line says and keep
 // every other date group, on the Log as shown and on the Log after importing the shown plan first. Delete entry, for the
 // sentence under `Matching entries`; Edit entry and Record a purchase, for the starting amount's line.
-import {
-  deleteEntries,
-  saveTransaction,
-  slotsAtDelete,
-  storedOver,
-  type TransactionDraft,
-  uncoveredSale,
-} from '../../actions/entries';
-import { keepSources } from '../../actions/rows';
 import { IMPORT_RECORDED_CHECKS, IMPORT_REMEDY_MAX_MOVEMENTS } from '../../constants';
 import type { CalendarDate, MonthKey } from '../../dates/calendar';
 import { transactionKey } from '../../log/group';
 import { abs, compare, isZero, type Money, minus, sum, type Units } from '../../money/decimal';
 import { plannedParts } from '../../plan/parts';
 import { liveEntries } from '../../plan/statuses';
-import { assertNever } from '../../result';
 import type { Entry } from '../../schema/entry';
 import type { CoinId, EntityId } from '../../schema/ids';
-import type { Plan } from '../../schema/plan';
 import { applyExchangeImport } from './apply';
 import type { ExchangeFile, Movement } from './kraken';
 import { type ExchangeImportPlan, type ImportContext, leftOutBefore, planExchangeImport } from './plan';
+import { changedLog, type LogChange, type Stored } from './plan-change';
 import { HAND, nearTarget } from './plan-claims';
 import { type EstimateLine, estimateLines } from './plan-lines';
 
-export type Stored = { readonly plan: Plan; readonly entries: readonly Entry[] };
-/** A change made with the Log's own controls: Delete entry (the whole row), Edit entry (a row) or Record a purchase. */
-export type LogChange =
-  | { readonly kind: 'delete'; readonly ids: readonly EntityId[] }
-  | {
-      readonly kind: 'edit';
-      readonly row: readonly Entry[];
-      readonly date: CalendarDate;
-      readonly figures: ReadonlyMap<EntityId, { readonly amount: Money; readonly units: Units }>;
-    }
-  | { readonly kind: 'record'; readonly draft: TransactionDraft };
-
-const over = (stored: Stored, written: readonly Entry[]) =>
-  uncoveredSale(stored.entries, written) === null ? storedOver(stored.entries, written) : null;
-
-function saved(
-  stored: Stored,
-  draft: TransactionDraft,
-  editing: readonly Entry[],
-  ids: readonly EntityId[],
-  now: ImportContext['now'],
-) {
-  const result = saveTransaction(draft, {
-    plan: stored.plan,
-    entries: stored.entries,
-    editing,
-    ids,
-    now,
-    source: 'manual',
-  });
-  if (!result.ok) return null;
-  // Each filled row's source is its own entry, and only the date and the figures change (`keepSources`, as `saveOn`
-  // stores an edit); a record edits nothing, so it stays as saved (the Log's `keepUnchanged` guard).
-  if (editing.length === 0) return over(stored, result.value);
-  const live = result.value.filter((entry) => entry.deletedAt === null);
-  const sources = live.map((entry) => editing.find((each) => each.id === entry.id));
-  return over(stored, keepSources(result.value, sources, { fee: false, venue: false, note: false }));
-}
-
-/**
- * The stored entries after `change`, as the Log writes it, or null when the Log refuses it (a form error, or a sale left
- * uncovered). An edit keeps the row's kind and month and each entry's own fee, note and venue (the form opens on the
- * row's fees summed, its first note and venue, and `keepSources` gives each entry its own back, DOMAIN §6), and takes
- * the figures given, an amount or units equal in value keeping the stored text; a record is stored as saved, its fee,
- * venue and note included, and takes ids no movement key holds, one per coin.
- */
-export function changedLog(stored: Stored, change: LogChange, context: ImportContext): readonly Entry[] | null {
-  switch (change.kind) {
-    case 'delete': {
-      const before = slotsAtDelete(stored.plan, stored.entries, change.ids, context.now);
-      return over(stored, deleteEntries(stored.entries, before.ids, before.at));
-    }
-    case 'edit': {
-      const [first] = change.row as [Entry];
-      const fees = change.row.flatMap((entry) => (entry.fee === null ? [] : [entry.fee]));
-      const rows = change.row.map((entry) => ({
-        coin: entry.coin,
-        entry: entry.id,
-        amount: entry.amount,
-        units: entry.units,
-        ...change.figures.get(entry.id),
-      }));
-      const kind = first.kind as TransactionDraft['kind'];
-      const fee = fees.length === 0 ? null : sum(fees);
-      const draft = { kind, date: change.date, slot: first.slot, fee, note: first.note, venue: first.venue, rows };
-      return saved(stored, draft, change.row, [], context.now);
-    }
-    case 'record': {
-      const ids = change.draft.rows.map((row) => context.idOf(`remedy|starting|${row.coin}`));
-      return saved(stored, change.draft, [], ids, context.now);
-    }
-    default:
-      return assertNever(change);
-  }
-}
+export { changedLog, type LogChange, type Stored } from './plan-change';
 
 /**
  * A date group the change touches and how it must end: `ids` are the ids its movements take that no stored entry holds;
@@ -154,8 +70,21 @@ export function keepsPromise(
   );
 }
 
-/** The starting line's instruction: change a row of lumps to `date`, or record the starting amount on it. */
-export type StartingRemedy = { readonly kind: 'change' | 'record'; readonly date: CalendarDate };
+export type StartingTotal = {
+  readonly coin: CoinId;
+  readonly amount: Money;
+  readonly units: Units;
+  readonly count: number;
+};
+/**
+ * The starting line's instruction: change a row of lumps to `date`, or record the starting amount on it. `totals`: each
+ * covered coin's purchases on `date`, summed (the figures the check types).
+ */
+export type StartingRemedy = {
+  readonly kind: 'change' | 'record';
+  readonly date: CalendarDate;
+  readonly totals: readonly StartingTotal[];
+};
 export type ImportRemedies = {
   readonly recorded: ReadonlySet<EntityId>;
   readonly starting: StartingRemedy | null;
@@ -164,13 +93,14 @@ export type ImportRemedies = {
 
 /**
  * A coin's movements of one role on one date that no stored entry holds and the plan considers (`leftOutBefore`: none in
- * another currency), summed, with each movement's units.
+ * another currency), summed, with each movement's units and amount.
  */
 type Group = {
   readonly date: CalendarDate;
   readonly amount: Money;
   readonly units: Units;
   readonly each: readonly Units[];
+  readonly amounts: readonly Money[];
   readonly ids: readonly EntityId[];
 };
 type GroupOf = (coin: CoinId, date: CalendarDate, role: Movement['role']) => Group;
@@ -180,11 +110,17 @@ function groupsOf(file: ExchangeFile, stored: Stored, context: ImportContext): G
     const movements = file.movements
       .filter((movement) => movement.coin === coin && movement.role === role && context.dateOf(movement.at) === date)
       .filter((movement) => !known.has(context.idOf(movement.key)) && leftOutBefore(stored.plan, movement) === null);
-    const each = movements.map((movement) => movement.units);
-    const amount = sum(movements.map((movement) => movement.amount as Money));
-    return { date, amount, units: sum(each), each, ids: movements.map((movement) => context.idOf(movement.key)) };
+    const [each, amounts] = [movements.map((one) => one.units), movements.map((one) => one.amount as Money)];
+    const ids = movements.map((movement) => context.idOf(movement.key));
+    return { date, amount: sum(amounts), units: sum(each), each, amounts, ids };
   };
 }
+/** The starting line's totals: each coin's group on the instruction's date, once per coin. */
+const totalsOf = (coins: readonly CoinId[], groups: readonly Group[]): StartingTotal[] =>
+  coins.flatMap((coin, index) => {
+    const { amount, units, ids } = groups[index] as Group;
+    return coins.indexOf(coin) === index ? [{ coin, amount, units, count: ids.length }] : [];
+  });
 /** A change that passed the cheap tests, made on either order's Log, and the groups it touches. */
 type Remedy<T> = {
   readonly line: T;
@@ -199,9 +135,10 @@ const rowOf = (entries: readonly Entry[], key: string) =>
  * The starting line's instructions that pass the cheap tests, record first, then the Log's rows of lumps newest first
  * (at most `IMPORT_RECORDED_CHECKS`). d* of a coin is its named date group or a date its considered lump records, the
  * one whose amount is nearest the target (the lump's amount, or the coin's part of the starting amount when no lump is
- * live), the earlier on a tie; it counts only when named and its amount is no nearer the coin's monthly part than the
+ * live), the earlier on a tie; it counts only when named, its amount is no nearer the coin's monthly part than the
+ * target, and, when its group holds two or more purchases, leaving out any one of them takes the rest farther from the
  * target. Record needs every coin with a starting part to have d* on one date that no hand `held` entry guards; a
- * change, every lump of the row.
+ * change, every lump of the row. The line carries each coin's group on that date as its `totals`.
  */
 export function startingRemedies(
   file: ExchangeFile,
@@ -221,8 +158,10 @@ export function startingRemedies(
     const groups = [...new Set([...named, ...recorded])].sort().map((date) => groupOf(coin, date, 'purchase'));
     const best = groups.reduce((a, b) => (compare(off(b.amount, target), off(a.amount, target)) < 0 ? b : a));
     const part = monthly.find((each) => each.coin === coin)?.amount ?? ('0' as Money);
+    // A date of several purchases counts only when leaving out any one of them takes the rest farther from the target.
+    const whole = (one: Money) => compare(off(minus(best.amount, one), target), off(best.amount, target)) > 0;
     const counts = named.includes(best.date) && nearTarget(best.amount, target, part);
-    return counts ? best : null;
+    return counts && (best.amounts.length < 2 || best.amounts.every(whole)) ? best : null;
   };
   const shared = (picks: readonly (Group | null)[]) => {
     const date = picks[0]?.date;
@@ -258,7 +197,15 @@ export function startingRemedies(
         ids: (groups[index] as Group).ids,
         end: { recordedBy: context.idOf(`remedy|starting|${part.coin}`) },
       }));
-      remedies.push({ line: { kind: 'record', date }, change: () => ({ kind: 'record', draft }), touched });
+      const line = {
+        kind: 'record',
+        date,
+        totals: totalsOf(
+          parts.map((part) => part.coin),
+          groups,
+        ),
+      } as const;
+      remedies.push({ line, change: () => ({ kind: 'record', draft }), touched });
     }
   }
   const keys = [...new Set(starting.lumps.map(transactionKey))].reverse().slice(0, IMPORT_RECORDED_CHECKS);
@@ -288,7 +235,18 @@ export function startingRemedies(
       date,
       figures,
     });
-    remedies.push({ line: { kind: 'change', date }, change, touched });
+    remedies.push({
+      line: {
+        kind: 'change',
+        date,
+        totals: totalsOf(
+          row.map((each) => each.coin),
+          groups,
+        ),
+      },
+      change,
+      touched,
+    });
   }
   return remedies;
 }
