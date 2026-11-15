@@ -1,6 +1,6 @@
 // `pnpm --filter @proofofcalm/content rules`: writes rules/<code>.json, the core's `CountryRules` of each profile
 // in jurisdictions/ as `countryRules` maps it, and rules/locales.json, every profile's locales by code
-// (src/loaders/locales.ts). The shell boots on that small generated file (the measurement:
+// (src/loaders/locales.ts). The shell boots on a country's rules/<code>.json (the measurement:
 // ADR-0049); the profile's card text and sources load only where a card, a source link or the picker shows
 // them. A rules file with no profile is removed. The files are committed and never edited by hand:
 // src/loaders/rules.test.ts fails while one is stale or missing. The profiles are read from disk, as
