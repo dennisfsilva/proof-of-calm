@@ -62,6 +62,23 @@ describe('createHostConfig', () => {
     }
   });
 
+  it("puts a hidden language's message chunks under assets/messages/<locale>/, English's and the rest under assets/", () => {
+    const output = createHostConfig({ host: 'web', root: '/repo/apps/web', parseModule }).build?.rolldownOptions
+      ?.output;
+    const name = output && !Array.isArray(output) ? output.chunkFileNames : undefined;
+    if (typeof name !== 'function') throw new Error('expected a chunkFileNames function');
+    const chunk = (facadeModuleId: string | null) => ({ facadeModuleId }) as Parameters<typeof name>[0];
+    expect(name(chunk('/repo/packages/app/src/messages/pt-PT/learn.json'))).toBe(
+      'assets/messages/pt-PT/[name]-[hash].js',
+    );
+    expect(name(chunk('C:\\repo\\packages\\app\\src\\messages\\de\\log.json'))).toBe(
+      'assets/messages/de/[name]-[hash].js',
+    );
+    expect(name(chunk('/repo/packages/app/src/messages/en/learn.json'))).toBe('assets/[name]-[hash].js');
+    expect(name(chunk('/repo/packages/app/src/features/learn/index.ts'))).toBe('assets/[name]-[hash].js');
+    expect(name(chunk(null))).toBe('assets/[name]-[hash].js');
+  });
+
   it('the MDX plugins run before react (ADR-0048)', () => {
     const names = pluginNames(createHostConfig({ host: 'web', root: '/repo/apps/web', parseModule }).plugins);
     const react = names.findIndex((name) => name.includes('react'));

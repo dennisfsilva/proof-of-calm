@@ -2,7 +2,7 @@ import { resolve } from 'node:path';
 import babel from '@rolldown/plugin-babel';
 import tailwindcss from '@tailwindcss/vite';
 import react, { reactCompilerPreset } from '@vitejs/plugin-react';
-import type { PluginOption, UserConfig } from 'vite';
+import type { PluginOption, Rolldown, UserConfig } from 'vite';
 import { bootScriptPlugin } from './boot-plugin.ts';
 import { chunkGroups, noChunkCycles } from './chunk-groups.ts';
 import { chunkReport } from './chunk-report-plugin.ts';
@@ -39,6 +39,21 @@ const HOSTS = {
 /** Where the web host's chunk report goes: out of `dist`, which Vercel serves, and out of git. */
 const CHUNK_REPORT = 'node_modules/.cache/chunk-report.json';
 
+/** A message file of a language other than English: `messages/<locale>/<namespace>.json`. */
+const TRANSLATED_MESSAGES = /[\\/]messages[\\/]([A-Za-z]{2}(?:-[A-Za-z]{2})?)[\\/][^\\/]+\.json$/;
+
+/**
+ * Vite's chunk name, but a chunk of another language's messages goes under `assets/messages/<locale>/`,
+ * which the worker's precache leaves out (ADR-0045 §8, the entry of 2026-11-15): a hidden language's
+ * files would otherwise reach every install.
+ */
+function chunkFileNames(chunk: Rolldown.PreRenderedChunk): string {
+  const locale = TRANSLATED_MESSAGES.exec(chunk.facadeModuleId ?? '')?.[1];
+  return locale === undefined || locale === 'en'
+    ? 'assets/[name]-[hash].js'
+    : `assets/messages/${locale}/[name]-[hash].js`;
+}
+
 /**
  * The shared Vite configuration of both hosts (ADR-0045 §12): the Learn modules' MDX pipeline ahead of
  * React (ADR-0048; mdxjs.com's Vite section has the compiler in the `pre` phase and `.mdx` in React's
@@ -73,7 +88,7 @@ export function createHostConfig({ host, root, parseModule }: HostConfigOptions)
     build: {
       assetsInlineLimit: 0,
       // Today's static modules in its entry chunk, whatever lazy chunk shares them (`docs/ENGINEERING.md` §4).
-      rolldownOptions: { input: resolve(root, input), output: { codeSplitting: chunkGroups() } },
+      rolldownOptions: { input: resolve(root, input), output: { codeSplitting: chunkGroups(), chunkFileNames } },
     },
   };
 }
