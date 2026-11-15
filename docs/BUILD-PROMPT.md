@@ -308,6 +308,13 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   audit's scratch switch, which gave the note its figures, ordered a lump by date with the monthly
   buys that fall back to their 3 days. The fourth review round found a lump of 1 Sep claiming before
   an August buy of 400 typed 2 Sep: 1,600 against the rule's 1,700 (#223, 2026-11-15).
+- A gate a design check sets on an amount is walked and measured at each boundary value, below, at
+  and above it, before the build. Rule G's ratio gate, chosen by #221's design check and built in
+  #223, was walked with a lump above and below its coin's monthly part. At the part it passed on
+  every date, and the lump's walk began at a date an earlier import stored, stopped there, and left
+  a date to a shorter export that the whole file's lump records. #223's runs and main's next two
+  push runs passed; a docs-only pull request's run found it at a random seed (43674251573), and #227
+  reworked it (2026-11-15).
 
 ## Known gaps
 
