@@ -15,7 +15,7 @@ import { cspViolations, recordCspViolations, SECURITY_HEADERS, test } from './su
 // so the ui Select turns Base UI's style elements off (docs/SECURITY.md §4).
 
 const APP_PAGES = ['/today', '/app'];
-const SITE_PAGES = ['/', '/terms', '/privacy', '/risk', '/cookies', '/contact'];
+const SITE_PAGES = ['/', '/terms', '/privacy', '/risk', '/cookies', '/contact', '/en/learn', '/en/learn/risk-honestly'];
 const OFFLINE_PAGE = '/~offline';
 const NOT_FOUND_PAGE = '/no-such-page';
 

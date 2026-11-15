@@ -17,6 +17,27 @@ for (const path of ['/', ...legalPages]) {
   });
 }
 
+// The public Learn pages (ADR-0045, Deviations of 2026-11-15): static, no script, kept out of search by
+// the header and the meta until PUBLIC_INDEXABLE turns true, inside the site layout with the same line.
+const learnPages = [
+  '/en/learn',
+  ...['start-here', 'noise', 'cycles', 'when-the-market-drops', 'risk-honestly'].map((slug) => `/en/learn/${slug}`),
+];
+
+for (const path of learnPages) {
+  test(`${path} is a script-free page out of search with the disclaimer line`, async ({ page }) => {
+    const response = await page.goto(path);
+    expect(response?.status()).toBe(200);
+    expect(response?.headers()['x-robots-tag']).toBe('noindex, nofollow');
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow');
+    await expect(page.locator('script')).toHaveCount(0);
+    await expect(page.locator('main#main h1')).toHaveCount(1);
+    const footer = page.getByRole('contentinfo');
+    await expect(footer).toContainText('Data and tools, not advice. Crypto-assets can lose all their value.');
+    await expect(footer.getByRole('link', { name: 'Read the risk disclosure' })).toHaveAttribute('href', '/risk');
+  });
+}
+
 test('the Risk page states the warning in full', async ({ page }) => {
   await page.goto('/risk');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Risk disclosure');

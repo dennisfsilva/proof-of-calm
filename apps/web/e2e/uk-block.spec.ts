@@ -6,7 +6,7 @@ import { bypassHeaders, cspViolations, recordCspViolations, SECURITY_HEADERS, te
 // with the explanatory page for everything but the legal pages, security.txt and the static files
 // (ADR-0045 §4), the headers still set, nothing cached.
 
-const BLOCKED = [...APP_ROUTES.map((route) => `/${route}`), '/app', '/manifest.webmanifest', '/TERMS'];
+const BLOCKED = [...APP_ROUTES.map((route) => `/${route}`), '/app', '/manifest.webmanifest', '/TERMS', '/en/learn', '/en/learn/risk-honestly'];
 const LEGAL = ['/terms', '/privacy', '/risk', '/cookies', '/contact', '/.well-known/security.txt'];
 
 test.describe('a visitor from the United Kingdom', () => {
