@@ -251,7 +251,9 @@ from the research report, where the others stay beside those `docs/content-revie
 (`k.pt-2023` cites Lei 24-D/2022 itself in the
 Diário da República, `k.ie-2026` the Finance (No. 2) Bill 2026 in the Oireachtas); its `date` is that document's date; for a page updated over time, the date of the update that
 published what the value quotes (`k.gb-2024`: HMRC's update of 6 Apr 2024 for the 2024 to 2025 tax
-year, on a page last updated later); or 2026-10-16 for live data and undated pages. Rows a and b (the falls), h, i and o to q are Proof of Calm's own computation: the value opens with "Proof of Calm's
+year, on a page last updated later), but when the update names only its month, as a revised working
+paper's cover does, `date` stays the document's own and the value names the revision (`r.app-user-losses`:
+BIS's page of 14 Nov 2022, "revised Jul 2023" in the value); or 2026-10-16 for live data and undated pages. Rows a and b (the falls), h, i and o to q are Proof of Calm's own computation: the value opens with "Proof of Calm's
 own computation" and its series, so a module quoting it says who computed it, and the publisher is
 the exchange whose daily candles it used, so the first-view line opens with the publisher
 ("Bitstamp closes, …"; for the falls, Cycles' own line and Risk honestly's chart line "{publishers} intraday highs and lows in US dollars, {first} to {last}; the falls are Proof of Calm's own computation.") (`docs/LEGAL.md` §4). An ETH figure is a fact of its own, sourced to the ETH candles it came from.
