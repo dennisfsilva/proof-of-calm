@@ -45,7 +45,9 @@ test("Portugal's Sources links and listed sources are the profile's URLs, each o
 
   // The list at the card's foot (docs/JURISDICTIONS.md §2, docs/LEGAL.md §4): every source of the file, in its
   // order.
-  await expect(card.getByRole('heading', { level: 2, name: `Sources for ${portugal.name}`, exact: true })).toBeVisible();
+  await expect(
+    card.getByRole('heading', { level: 2, name: `Sources for ${portugal.name}`, exact: true }),
+  ).toBeVisible();
   expect(portugal.sources.length).toBeGreaterThan(0);
   const listed = card.locator('li > a');
   await expect(listed).toHaveCount(portugal.sources.length);
