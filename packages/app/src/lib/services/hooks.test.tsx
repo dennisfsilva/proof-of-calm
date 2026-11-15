@@ -124,7 +124,8 @@ describe('the services hooks', () => {
     expect(text('boot')).toBe('ready');
     await act(async () => answer(null));
     expect(text('rules')).toBe('none');
-    expect(text('money')).toBe('€1,234.56');
+    // Germany's rules did not load: its locales still come from the generated locales file (#261 A).
+    expect(text('money')).toBe('1.234,56 €');
   });
 
   it('useNumberInput gives none while the plan’s rules load, then reads in its country’s locale', async () => {
@@ -142,7 +143,7 @@ describe('the services hooks', () => {
     expect(text('number')).toBe('1.5');
   });
 
-  it('useNumberInput reads in the UI language’s locale with no plan, or when the rules did not load', async () => {
+  it('useNumberInput reads in the UI language’s locale with no plan, and in the country’s when its rules did not load', async () => {
     const empty = createTestServices();
     const text = mount(empty);
     await act(() => empty.start());
@@ -151,7 +152,30 @@ describe('the services hooks', () => {
     const unloaded = createTestServices({ snapshot: withPlan, rules: async () => null });
     const again = mount(unloaded);
     await act(() => unloaded.start());
-    expect(again('number')).toBe('1500');
+    expect(again('number')).toBe('1.5');
+  });
+
+  it('useNumberInput and useFormatters take the country’s number locale when its rules rejected', async () => {
+    // #261 A: the locale comes from the generated locales file (ADR-0049), so it never depends on the rules chunk.
+    const rejected = async (): Promise<CountryRules | null> => {
+      throw new Error('the rules chunk did not arrive');
+    };
+    // The dates keep the UI language's month name (ADR-0023, Corrections of 2026-10-20).
+    for (const [country, language, number, amount, day] of [
+      ['PT', 'en', '1.5', '1234,56 €', '4 Mar 2028'],
+      ['GB', 'pt-PT', '1500', '€1,234.56', '4 de março de 2028'],
+    ] as const) {
+      const services = createTestServices({
+        snapshot: { ...EMPTY_SNAPSHOT, plan: aPlan({ country }) },
+        rules: rejected,
+        language,
+      });
+      const text = mount(services);
+      await act(() => services.start());
+      expect(services.ui.getState().rules).toEqual({ country, rules: null });
+      expect([text('number'), text('money'), text('date')]).toEqual([number, amount, day]);
+      cleanup();
+    }
   });
 
   it('useToday follows the UI store', async () => {

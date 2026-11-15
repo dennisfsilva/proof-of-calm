@@ -1,7 +1,8 @@
 // Which locales format what (ADR-0023): numbers follow the country (its profile's locale in the UI
 // language where it has one, so Belgium formats as nl-BE or fr-BE); dates in copy, month and weekday
 // names follow the UI language. English copy is British (docs/CONTENT-STYLE.md), so English is en-GB.
-import type { CountryRules } from '@proofofcalm/core';
+// A plan's country gives its profile's locales even when its rules did not load (`countryLocales`, ADR-0049).
+import type { CountryLocales } from '@proofofcalm/content';
 
 export const UI_LANGUAGES = ['en', 'pt-PT', 'de'] as const;
 export type UiLanguage = (typeof UI_LANGUAGES)[number];
@@ -17,9 +18,8 @@ export type Locales = {
   readonly dates: string;
 };
 
-type Profile = Pick<CountryRules, 'locales' | 'numberFormatLocale' | 'dateFormatLocale'>;
-
-export function localesFor(language: UiLanguage, profile: Profile | null): Locales {
+/** The locales of a country's profile in the UI language; the UI language's own with no country (no plan). */
+export function localesFor(language: UiLanguage, profile: CountryLocales | null): Locales {
   const ui = UI_LOCALES[language];
   if (profile === null) return { ui, numbers: ui, dates: ui };
   const base = language.split('-')[0];

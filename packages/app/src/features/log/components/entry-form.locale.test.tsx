@@ -2,8 +2,8 @@
 import { countryRules, loadProfile } from '@proofofcalm/content';
 import type { CountryCode, CountryRules } from '@proofofcalm/core';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
-import { I18nProvider } from '../../../lib/i18n';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { I18nProvider, type UiLanguage } from '../../../lib/i18n';
 import { type Services, ServicesProvider } from '../../../lib/services';
 import { fixtureNowMs, fixtureSnapshot } from '../../../lib/services/fixtures';
 import { createTestServices } from '../../../lib/services/testing';
@@ -121,5 +121,48 @@ describe('EntryForm while the rules load', () => {
     expect(screen.queryByLabelText(RECEIVED)).toBe(before);
     expect(value(RECEIVED)).toBe('0,0012');
     services.dispose();
+  });
+});
+
+// #261 A: a plan whose country's rules chunk did not arrive reads, echoes and stores a typed amount in its
+// country's number locale (the generated locales file, ADR-0049), never the UI language's (ADR-0023).
+describe('EntryForm when the rules fail to load', () => {
+  // jsdom has no `scrollIntoView`: a refused save scrolls its alert line into view.
+  beforeEach(() => {
+    Element.prototype.scrollIntoView = vi.fn();
+  });
+  const failing = async (): Promise<CountryRules | null> => {
+    throw new Error('the rules chunk did not arrive');
+  };
+
+  async function saveTyped(country: CountryCode, language: UiLanguage, typed: string) {
+    const snapshot = fixtureSnapshot();
+    const plan = snapshot.plan === null ? null : { ...snapshot.plan, country };
+    const services = createTestServices({
+      snapshot: { ...snapshot, plan },
+      nowMs: fixtureNowMs('buy'),
+      rules: failing,
+      language,
+    });
+    await act(() => services.start());
+    mount(services);
+    type(PAID, typed);
+    fireEvent.blur(screen.getByLabelText(PAID));
+    const echo = value(PAID);
+    type(RECEIVED, '0.5');
+    type('ETH received (units)', '0.01');
+    await act(async () => void fireEvent.click(screen.getByRole('button', { name: 'Save' })));
+    const before = new Set(snapshot.entries.map((entry) => entry.id));
+    const added = services.domain.store.getState().snapshot.entries.filter((entry) => !before.has(entry.id));
+    services.dispose();
+    return { echo, stored: added.filter((entry) => entry.coin === 'BTC').map((entry) => entry.amount) };
+  }
+
+  it('stores 1234 for a typed 1,234 on a GB plan in pt-PT when the rules fail to load', async () => {
+    expect(await saveTyped('GB', 'pt-PT', '1,234')).toEqual({ echo: '1,234.00', stored: ['1234'] });
+  });
+
+  it('stores 1.5 for a typed 1,5 on a PT plan in English when the rules fail to load', async () => {
+    expect(await saveTyped('PT', 'en', '1,5')).toEqual({ echo: '1,50', stored: ['1.5'] });
   });
 });

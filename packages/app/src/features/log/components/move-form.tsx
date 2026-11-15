@@ -1,3 +1,4 @@
+import { countryLocales } from '@proofofcalm/content';
 import {
   type ActionError,
   ENTRY_NOTE_MAX_LENGTH,
@@ -91,7 +92,11 @@ function PlanMoveForm({ plan, numberInput: mounted, editing, onDone }: PlanMoveF
   // the form as it opens now, and a state that reads as it is keeps no draft.
   const [opened] = useState(() => {
     const initial = initialMoveState(editing, ctx);
-    const fit = { ...moveDraftKey(editing), numberLocale: localesFor(services.language, rules).numbers, initial };
+    const fit = {
+      ...moveDraftKey(editing),
+      numberLocale: localesFor(services.language, rules ?? countryLocales(plan.country)).numbers,
+      initial,
+    };
     const draft = services.drafts.read(DRAFT_FORM, fit.entity, MoveFormDraftSchema);
     return { ...fit, state: restoredMove(draft, fit) ?? initial };
   });
