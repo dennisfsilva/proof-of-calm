@@ -74,7 +74,10 @@ Base UI's inline style elements are off: the ui `Select` wraps its root in
 `CSPProvider disableStyleElements` (`packages/ui/src/components/select.tsx`), and the one rule they carried, for
 `.base-ui-disable-scrollbar`, is in `packages/ui/src/styles/globals.css`; a Base UI part that renders
 a `<style>` takes the same provider, never a hash.
-The prerendered site pages carry no script. The UK route of `vercel.json` sends the same headers
+The prerendered site pages carry no script, but the offline page's theme script and, on `/en/holding-date`
+alone, the boot script with the one island under `/assets/islands/` as its entry
+(`apps/web/src/site/islands/holding-date.ts`, built by `apps/web/scripts/bundle-islands.ts`): both texts are
+the two hashed above, so the policy is the same, and the worker does not precache the island. The UK route of `vercel.json` sends the same headers
 with the 451 page (ADR-0029) and `Cache-Control: no-store`; the assets under `/assets/` and the
 worker carry the eight headers without the CSP. The redirects Vercel answers before the app carry
 none of them, only Vercel's own

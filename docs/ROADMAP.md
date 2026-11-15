@@ -243,8 +243,9 @@ external links and the Risk link in the mobile export (M3).
   (`docs/GROWTH.md` §4.1): the Learn index and every module, Taxes with every country's row,
   the country list, one page per country and the holding-date page's static half prerendered under
   `/en/` on 2026-11-15 and kept out of search until the launch (ADR-0045 Deviations of
-  2026-11-15); the holding-date page's tool half is not on main yet: it comes with #230's steps
-  and island branches, which wait for the session after 23b.
+  2026-11-15); the holding-date page's tool half, a script island that reads the purchase date and
+  the country from the URL's fragment, live on 2026-11-15 with a link from each dated country page
+  (`docs/research/holding-date-tool.md`).
 - Launch readiness: `docs/RELEASE.md` checklist complete for what M2 ships; Vercel Pro in place
   because the free tier forbids commercial use (ADR-0005); the UK explanatory page live (ADR-0029;
   proven by the owner's check from a UK vantage point in `docs/RELEASE.md`); the legal pages' full
