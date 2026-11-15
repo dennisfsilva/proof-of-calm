@@ -1168,8 +1168,10 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   (`leftOutBefore`), has the summed amount nearest the target (the coin's live
   `lump`'s amount, or its part of the starting amount when no `lump` is live), the earlier on a tie,
   among the dates the line names and those its `lump` records in step 2; it counts only when the line
-  names it and its amount is at least as near the target as the coin's monthly part (`nearTarget`, the
-  test of step 2's `lump` claim). While no `lump` is live,
+  names it and its amount is at least as near the target as the coin's monthly part, by distance
+  (`nearTarget`, d*'s own test; step 2's `lump` claim compares by ratio instead, so the two can differ:
+  against a target of 100 and a part of 500, a date of 250 counts for d* and fails step 2's gate). While
+  no `lump` is live,
   "record it" is the candidate when every coin with a starting part has d* on one date that no hand
   `held` entry guards (step 4 would leave it out once recorded): one `lump` per coin on that date with the
   file's cost and units, which the file planned again then records. Else each Log row of lumps
