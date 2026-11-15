@@ -147,6 +147,15 @@ describe('the cycles file (docs/EDUCATION.md §2 and §6)', () => {
     expect(module.value.words).toBeLessThan(400);
   });
 
+  it("keeps Cycles' idea free of a historic pattern, since Learn's index rows show it with no source", () => {
+    const path = 'packages/content/learn/cycles.mdx';
+    const module = parseModule(path, readFileSync(new URL('learn/cycles.mdx', root), 'utf8'));
+    if (!module.ok) throw new Error(path);
+    // docs/LEGAL.md §3 item 6: an index row or a sheet's title carries no past-performance line.
+    expect(module.value.idea).toBe("Bitcoin's highs and halvings, dated, and why 4 cycles are not a law.");
+    expect(module.value.idea).not.toMatch(/\b(?:19|20)\d\d\b|years apart|so far/u);
+  });
+
   it("ends Cycles' source line in LEGAL §4's intraday form, from the first high in the file to fact a's date", () => {
     const path = 'packages/content/learn/cycles.mdx';
     const module = parseModule(path, readFileSync(new URL('learn/cycles.mdx', root), 'utf8'));
