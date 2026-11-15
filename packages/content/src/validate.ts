@@ -20,6 +20,7 @@ import type { ContentDrawdown } from './schema/drawdown.ts';
 import { FactSchema } from './schema/fact.ts';
 import { type CountryProfile, CountryProfileSchema } from './schema/jurisdiction.ts';
 import { type ContentTemplate, TemplateSchema } from './schema/template.ts';
+import { templateDateProblems } from './template-dates.ts';
 
 export { percentJoiner } from './percent-validate.ts';
 export type { Problem } from './problem.ts';
@@ -232,7 +233,7 @@ function template(file: ContentFile, catalogue: Catalogue | null, options: Valid
   if (total !== 1_000_000n) problems.push({ path, code: 'split-sum', detail: 'the shares must sum to exactly 100' });
   if (catalogue !== null) problems.push(...catalogueProblems(path, value.coins, catalogue));
   problems.push(...drawdownProblems(path, value.drawdowns, coins, options.allow.facts ?? [], value.lastReviewed));
-  problems.push(...templateTextProblems(path, templateTexts(value)));
+  problems.push(...templateTextProblems(path, value, templateTexts(value)));
   return problems;
 }
 
@@ -240,10 +241,11 @@ function template(file: ContentFile, catalogue: Catalogue | null, options: Valid
 const templateTexts = (value: ContentTemplate) =>
   (['name', 'oneLine', 'riskLabel', 'explanation'] as const).map((field): [string, string] => [field, value[field]]);
 
-/** The explanation's paragraphs first, then the ban list and the no-break hyphen on each text. */
-const templateTextProblems = (path: string, texts: readonly [string, string][]): Problem[] => [
+/** The explanation's paragraphs first, then the ban list and the no-break hyphen on each text, then its dates. */
+const templateTextProblems = (path: string, value: ContentTemplate, texts: readonly [string, string][]): Problem[] => [
   ...texts.flatMap(([field, text]) => (field === 'explanation' ? paragraphProblems(path, field, text) : [])),
   ...texts.flatMap(([field, text]) => [...bannedProblems(path, field, text), ...hyphenProblems(path, field, text)]),
+  ...templateDateProblems(path, value, texts),
 ];
 
 /** Unique tickers and CoinGecko ids, in ticker order: a neutral order that ranks no coin, and stable diffs. */
@@ -336,7 +338,7 @@ const TRANSLATED: TextChecks = {
     ];
   },
   template: (path, [english, translated]) =>
-    templateTextProblems(path, changedTexts(templateTexts(english), templateTexts(translated))),
+    templateTextProblems(path, translated, changedTexts(templateTexts(english), templateTexts(translated))),
   // Counsel alone reads the English facts; a translation is new prose that a Learn page quotes.
   fact: (path, texts) =>
     texts.flatMap(([field, text]) => [...bannedProblems(path, field, text), ...hyphenProblems(path, field, text)]),

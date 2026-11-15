@@ -1,15 +1,37 @@
 import { readFileSync } from 'node:fs';
-import { followsTemplate, type HoldingRule, planFromTemplate, TemplateSchema } from '@proofofcalm/core';
+import {
+  type CalendarDate,
+  followsTemplate,
+  type HoldingRule,
+  planFromTemplate,
+  TemplateSchema,
+} from '@proofofcalm/core';
 import { date, id, instant, money } from '@proofofcalm/core/testing';
 import { describe, expect, it } from 'vitest';
 import { TemplateSchema as ContentTemplateSchema } from '../schema/template.ts';
+import { fillTemplateDates } from '../template-dates.ts';
 import { COINS } from './coins.ts';
-import { TEMPLATES, templateById } from './templates.ts';
+import { type OfferedTemplate, TEMPLATES, templateById } from './templates.ts';
 
+// The texts read with each `{date:<field>}` written in full in en-GB, as the files wrote them before their dates came
+// from the fields: the rules below hold the words, and template-dates.test.ts the placeholders.
+const long = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const inFull = (day: CalendarDate) => long.format(new Date(`${day}T00:00:00Z`));
+const written = (each: OfferedTemplate): OfferedTemplate => ({
+  ...each,
+  oneLine: fillTemplateDates(each.oneLine, each.dates, inFull),
+  explanation: fillTemplateDates(each.explanation, each.dates, inFull),
+});
+const WRITTEN = TEMPLATES.map(written);
 const template = (templateId: string) => {
   const found = templateById(templateId);
   if (found === null) throw new Error(`no template ${templateId}`);
-  return found;
+  return written(found);
+};
+/** A loaded template without its `dates`, its texts with the placeholders as the file holds them. */
+const asFile = (templateId: string) => {
+  const { dates: _, ...rest } = TEMPLATES.find((each) => each.id === templateId) ?? template(templateId);
+  return rest;
 };
 
 describe('TEMPLATES (docs/DOMAIN.md §5, ADR-0009)', () => {
@@ -24,7 +46,7 @@ describe('TEMPLATES (docs/DOMAIN.md §5, ADR-0009)', () => {
   });
 
   it('are named for their structure: no imperative, no promise, no word of safety (CONTENT-STYLE §6)', () => {
-    for (const { name, oneLine, explanation } of TEMPLATES) {
+    for (const { name, oneLine, explanation } of WRITTEN) {
       expect(name).not.toMatch(/\b(never|always|accumulate|buy|hold|sell)\b(?! window)/i);
       expect(`${name} ${oneLine} ${explanation}`).not.toMatch(/conservative|balanced|safe/i);
     }
@@ -55,7 +77,7 @@ describe('TEMPLATES (docs/DOMAIN.md §5, ADR-0009)', () => {
 
   it('no template holds expectations, and the schema refuses them', () => {
     for (const each of TEMPLATES) expect(each, each.id).not.toHaveProperty('expectations');
-    const cycle = template('cycle-plan');
+    const cycle = asFile('cycle-plan');
     expect(ContentTemplateSchema.safeParse(cycle).success).toBe(true);
     expect(ContentTemplateSchema.safeParse({ ...cycle, expectations: { bear: '0.7' } }).success).toBe(false);
   });
@@ -65,7 +87,7 @@ describe('TEMPLATES (docs/DOMAIN.md §5, ADR-0009)', () => {
   });
 
   it('carry the catalogue’s coins, with the decimals of docs/DESIGN.md §5', () => {
-    for (const each of TEMPLATES) {
+    for (const each of WRITTEN) {
       for (const coin of each.coins) expect(COINS).toContainEqual(coin);
     }
     expect(template('cycle-plan').coins.map((coin) => [coin.id, coin.decimals])).toEqual([
@@ -112,7 +134,7 @@ describe('TEMPLATES (docs/DOMAIN.md §5, ADR-0009)', () => {
   it('date every drawdown figure an explanation cites by the day, month and year of its high and low', () => {
     const long = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
     const day = (calendar: string) => long.format(new Date(`${calendar}T00:00:00Z`));
-    for (const { explanation, drawdowns, lastReviewed } of TEMPLATES) {
+    for (const { explanation, drawdowns, lastReviewed } of WRITTEN) {
       for (const { coin, high, low, fall, accessed } of drawdowns) {
         expect(accessed <= lastReviewed, coin).toBe(true);
         if (!explanation.includes(`${fall} %`)) continue;
@@ -126,7 +148,7 @@ describe('TEMPLATES (docs/DOMAIN.md §5, ADR-0009)', () => {
   it('name no fall without the day, month and year of its high and low (CONTENT-STYLE §1 rule 1)', () => {
     const DAY = String.raw`\d{1,2} (January|February|March|April|May|June|July|August|September|October|November|December) \d{4}`;
     const dated = new RegExp(String.raw`from its high on ${DAY} to its low on ${DAY}`);
-    for (const { id: templateId, explanation } of TEMPLATES) {
+    for (const { id: templateId, explanation } of WRITTEN) {
       for (const sentence of explanation.split(/(?<=\.)\s+/)) {
         if (/\b(fell|fallen|dropped|lost)\b/i.test(sentence)) expect(sentence, templateId).toMatch(dated);
       }
@@ -136,7 +158,7 @@ describe('TEMPLATES (docs/DOMAIN.md §5, ADR-0009)', () => {
   it('write every date with its day, month and year, never a month alone (CONTENT-STYLE §1 rule 1)', () => {
     const monthAlone =
       /(?<!\d )\b(January|February|March|April|May|June|July|August|September|October|November|December) \d{4}/;
-    for (const { id: templateId, oneLine, explanation } of TEMPLATES) {
+    for (const { id: templateId, oneLine, explanation } of WRITTEN) {
       expect(oneLine, templateId).not.toMatch(monthAlone);
       expect(explanation, templateId).not.toMatch(monthAlone);
     }
@@ -146,7 +168,7 @@ describe('TEMPLATES (docs/DOMAIN.md §5, ADR-0009)', () => {
   });
 
   it('say what happens without a metaphor or an idiom (CONTENT-STYLE §1 rule 3)', () => {
-    for (const { id: templateId, explanation } of TEMPLATES) {
+    for (const { id: templateId, explanation } of WRITTEN) {
       expect(explanation, templateId).not.toMatch(/rhythm|rides on|whatever the market gives/);
     }
     expect(template('btc-only-hold').explanation).toContain('What can go wrong: every amount goes into 1 coin.');
@@ -159,7 +181,7 @@ describe('TEMPLATES (docs/DOMAIN.md §5, ADR-0009)', () => {
   });
 
   it('give each fall its own sentence, one idea each (CONTENT-STYLE §1 rule 4)', () => {
-    for (const { id: templateId, explanation } of TEMPLATES) {
+    for (const { id: templateId, explanation } of WRITTEN) {
       for (const sentence of explanation.split(/(?<=\.)\s+/)) {
         expect(sentence.match(/ fell /g)?.length ?? 0, `${templateId}: ${sentence}`).toBeLessThanOrEqual(1);
       }
@@ -169,7 +191,7 @@ describe('TEMPLATES (docs/DOMAIN.md §5, ADR-0009)', () => {
   it('keep each sentence to 25 words, apart from the one the forecast needs (CONTENT-STYLE §1 rule 4)', () => {
     // ADR-0009 (Disagreement) wins over the 25 words for the forecast sentence.
     const exempt = ['This template encodes a forecast about 2029 '];
-    for (const { id: templateId, explanation } of TEMPLATES) {
+    for (const { id: templateId, explanation } of WRITTEN) {
       for (const sentence of explanation.split(/(?<=\.)\s+/)) {
         if (exempt.some((start) => sentence.startsWith(start))) continue;
         expect(sentence.split(/\s+/).length, `${templateId}: ${sentence}`).toBeLessThanOrEqual(25);
@@ -187,7 +209,7 @@ describe('TEMPLATES (docs/DOMAIN.md §5, ADR-0009)', () => {
   });
 
   it('state no multiple of the money put in, a projection (LEGAL §3.6, ADR-0011)', () => {
-    for (const { id: templateId, explanation } of TEMPLATES) {
+    for (const { id: templateId, explanation } of WRITTEN) {
       expect(explanation, templateId).not.toMatch(/\d×/);
     }
     expect(template('cycle-plan').explanation.split('\n\n')[2]).toBe(
@@ -204,7 +226,7 @@ describe('TEMPLATES (docs/DOMAIN.md §5, ADR-0009)', () => {
       `${coinbase}&start=2021-10-01T00:00:00Z&end=2022-07-27T00:00:00Z`,
       `${coinbase}&start=2022-07-27T00:00:00Z&end=2023-01-31T00:00:00Z`,
     ]);
-    for (const each of TEMPLATES) {
+    for (const each of WRITTEN) {
       for (const { coin, source, lowSource } of each.drawdowns) {
         // LINK has not regained its high, so its low can still move: a 3-day response runs to today.
         if (coin === 'LINK') expect(lowSource, source).toContain('step=259200');
@@ -218,7 +240,11 @@ describe('TEMPLATES (docs/DOMAIN.md §5, ADR-0009)', () => {
   it('keep the owner’s review fields as the files hold them', () => {
     const file = JSON.parse(readFileSync(new URL('../../templates/cycle-plan.json', import.meta.url), 'utf8'));
     expect(template('cycle-plan')).toMatchObject({ lastReviewed: '2026-11-02', reviewedBy: 'owner' });
-    expect(template('cycle-plan')).toEqual(file);
+    // The thirds' dates stay with the text: a plan copies the core's references, which have no field for them.
+    const { secondThird, lastThird, ...references } = file.references;
+    expect(asFile('cycle-plan')).toEqual({ ...file, references });
+    expect(templateById('cycle-plan')?.dates.get('references.secondThird')).toBe(secondThird);
+    expect(templateById('cycle-plan')?.dates.get('references.lastThird')).toBe(lastThird);
   });
 });
 

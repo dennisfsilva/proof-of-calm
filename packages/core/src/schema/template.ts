@@ -15,7 +15,8 @@ export const TemplateSellWindowSchema = z.strictObject({
 export const TemplateSchema = z.looseObject({
   id: z.string().check(z.regex(/^[a-z0-9-]{1,40}$/)),
   name: z.string().check(z.minLength(1), z.maxLength(60)),
-  oneLine: z.string().check(z.minLength(1), z.maxLength(160)),
+  // As written, with its `{date:<field>}` placeholders, which are longer than the dates they show.
+  oneLine: z.string().check(z.minLength(1), z.maxLength(200)),
   riskLabel: z.string().check(z.minLength(1), z.maxLength(60)),
   explanation: z.string().check(z.minLength(1), z.maxLength(1200)),
   coins: z.array(CoinSchema).check(z.minLength(1)),

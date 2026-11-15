@@ -1,9 +1,9 @@
 {
   "id": "cycle-plan",
   "name": "Cycle plan",
-  "oneLine": "4 coins bought monthly until 1 June 2028, held, then sold in thirds from 1 June 2029 to 31 October 2029. The plan rests on a forecast that may not come true.",
+  "oneLine": "4 coins bought monthly until {date:lastBuy}, held, then sold in thirds from {date:sellWindow.opens} to {date:sellWindow.closes}. The plan rests on a forecast that may not come true.",
   "riskLabel": "Very high risk · time-bound bet on a cycle",
-  "explanation": "This template encodes a forecast about 2029 that may not come true: that Bitcoin’s highs keep coming about 4 years apart, the next between 1 September 2029 and 31 October 2029. It splits each monthly amount 40 % Bitcoin, 30 % Ethereum, 15 % Solana, and 15 % Chainlink. The plan’s last buy is on 1 June 2028, after the halving it places on 15 April 2028. The plan marks thirds to sell from 1 June 2029, 1 August 2029, and 1 October 2029, whatever the price. Nothing is held after 31 December 2029.\n\nPeople pick it to decide the selling in advance rather than on a day the market moves. What can go wrong: past cycles are too few data points to be a law. The high can come before the window, after it, or not at all. Solana fell 97 % from its high on 6 November 2021 to its low on 29 December 2022. Chainlink fell 91 % from its high on 10 May 2021 to its low on 10 June 2023.\n\nFrom 1 June 2028 its dates no longer fill in, and the app asks for new ones.",
+  "explanation": "This template encodes a forecast about 2029 that may not come true: that Bitcoin’s highs keep coming about 4 years apart, the next between {date:references.peakFrom} and {date:references.peakTo}. It splits each monthly amount 40 % Bitcoin, 30 % Ethereum, 15 % Solana, and 15 % Chainlink. The plan’s last buy is on {date:lastBuy}, after the halving it places on {date:references.halving}. The plan marks thirds to sell from {date:sellWindow.opens}, {date:references.secondThird}, and {date:references.lastThird}, whatever the price. Nothing is held after {date:sellWindow.exitBy}.\n\nPeople pick it to decide the selling in advance rather than on a day the market moves. What can go wrong: past cycles are too few data points to be a law. The high can come before the window, after it, or not at all. Solana fell 97 % from its high on {date:drawdowns.SOL.high} to its low on {date:drawdowns.SOL.low}. Chainlink fell 91 % from its high on {date:drawdowns.LINK.high} to its low on {date:drawdowns.LINK.low}.\n\nFrom {date:validUntil} its dates no longer fill in, and the app asks for new ones.",
   "coins": [
     { "id": "BTC", "name": "Bitcoin", "geckoId": "bitcoin", "decimals": 8 },
     { "id": "ETH", "name": "Ethereum", "geckoId": "ethereum", "decimals": 6 },
@@ -13,7 +13,13 @@
   "split": { "BTC": "40", "ETH": "30", "SOL": "15", "LINK": "15" },
   "lastBuy": "2028-06-01",
   "sellWindow": { "opens": "2029-06-01", "closes": "2029-10-31", "exitBy": "2029-12-31" },
-  "references": { "peakFrom": "2029-09-01", "peakTo": "2029-10-31", "halving": "2028-04-15" },
+  "references": {
+    "peakFrom": "2029-09-01",
+    "peakTo": "2029-10-31",
+    "halving": "2028-04-15",
+    "secondThird": "2029-08-01",
+    "lastThird": "2029-10-01"
+  },
   "validUntil": "2028-06-01",
   "drawdowns": [
     {
