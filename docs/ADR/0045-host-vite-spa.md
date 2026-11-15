@@ -1424,12 +1424,13 @@ country library left to the public-pages checkpoint.
   `/en/holding-date` adds the tool to its static half: the form, its two hints and every country's
   result block are in the prerendered markup, hidden without script (`noscript:hidden`), and the
   island `apps/web/src/site/islands/holding-date.ts` reveals one block for the country and purchase
-  date in the URL's fragment, which no request carries. The island is not a second input of the
+  date in the URL's fragment, which no network request carries. The island is not a second input of the
   client build, which would share Today's chunks: `apps/web/scripts/bundle-islands.ts` bundles it
   with esbuild between the client build and the prerender, ESM, minified, at the client build's
   target, to `assets/islands/holding-date-<hash>.js`. The page loads it through the shell's boot
   script, its text unchanged and its `data-entry` the island's URL, at the end of the body, so the
   CSP keeps its two hashes; `scripts/build.ts` fails while that page holds any other script or boots
   another entry, and while any other site page but `~offline` holds one. The worker does not
-  precache the island (`globIgnores`), and its `pages` cache keys a document without its fragment.
-  Lighthouse measures the page with the public page's budgets and a script budget of 12,288 bytes.
+  precache the island (`globIgnores`), and its `pages` cache keys a document without its fragment;
+  a navigation's FetchEvent does see the fragment, and a worker built before the page kept it in its
+  keys, so the worker deletes every `pages` key with a fragment when it activates. Lighthouse measures the page with the public page's budgets and a script budget of 12,288 bytes.
