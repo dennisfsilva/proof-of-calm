@@ -94,9 +94,10 @@ The name carries the calm; the line under it carries the category. People search
 | Promise about DCA | It takes the timing decision away. It does not make crypto less risky. | the landing page, store descriptions, Learn "Start here" |
 
 Counsel ruled on 2026-11-15 that the Category line, which names four of the catalogue's coins in the
-Cycle plan's order, reads as a pick (`docs/LEGAL.md` §3.3, ADR-0009). Until the owner rewords it, public
-copy (the manifest, link previews, store titles, listings and posts) names no coin; the manifest and
-the link previews say "A planner and log for buying crypto on a fixed monthly schedule."
+Cycle plan's order, reads as a pick (`docs/LEGAL.md` §3.3 and §6 Q3 and Q12, ADR-0009, ADR-0029). Until
+the owner rewords it, public copy (the manifest, link previews, store titles, listings and posts) names
+no coin; the manifest and the link previews read the message `manifest.description` in
+`apps/web/messages/en.json`, which owns that line.
 
 ### 2.2 What exchanges and wallets show, and what they cannot
 
