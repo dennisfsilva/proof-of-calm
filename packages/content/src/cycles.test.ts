@@ -144,6 +144,10 @@ describe('the cycles file (docs/EDUCATION.md §2 and §6)', () => {
     expect(module.value.body).toContain('9 Jul 2016');
     expect(module.value.body).toContain('−84.1 %, 17.3 months');
     expect(module.value.body).not.toMatch(/Mt\.[ \n]Gox/u);
+    // The parts in one sentence, the closing month after a semicolon (brand's proposal on #239).
+    expect(module.value.body.replace(/[ \n]+/gu, ' ')).toContain(
+      'marks thirds in its first and third months; the rest in its closing month.',
+    );
     expect(module.value.words).toBeLessThan(400);
   });
 
@@ -152,7 +156,7 @@ describe('the cycles file (docs/EDUCATION.md §2 and §6)', () => {
     const module = parseModule(path, readFileSync(new URL('learn/cycles.mdx', root), 'utf8'));
     if (!module.ok) throw new Error(path);
     // docs/LEGAL.md §3 item 6: an index row or a sheet's title carries no past-performance line.
-    expect(module.value.idea).toBe("Bitcoin's highs and halvings, dated, and why 4 cycles are not a law.");
+    expect(module.value.idea).toBe('4 cycles are 4 data points, not a law.');
     expect(module.value.idea).not.toMatch(/\b(?:19|20)\d\d\b|years apart|so far/u);
   });
 

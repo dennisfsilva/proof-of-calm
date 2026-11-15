@@ -73,7 +73,7 @@ current-cycle figure).
 
 ## 3. Cycles
 
-**Idea**: bitcoin's highs and halvings, dated, and why 4 cycles are not a law (an idea holds no
+**Idea**: 4 cycles are 4 data points, not a law (an idea holds no
 historic figure or pattern, §6's Idea).
 **Says**: halving dates and what a halving is (one sentence of mechanics); each cycle's high, trough
 and the months from halving to high; why some people build plans around it (the Cycle plan template
@@ -138,7 +138,7 @@ honestly is not built, so the caveat points to no module.)
 
 ## 6. When the market drops
 
-**Idea**: how often bitcoin fell 10 % or more in 7 days, and what a monthly plan does then. Learn's
+**Idea**: a fall of 10 % or more in 7 days leaves the plan's next purchase where it was. Learn's
 index rows and a sheet's title show the idea with no past-performance line and no source, so an idea
 holds no historic figure (`docs/LEGAL.md` §3 item 6); 10 % and 7 days are the trigger's thresholds.
 **Two surfaces.** The module, `/learn/when-the-market-drops`, is the resting text, in Learn's index
