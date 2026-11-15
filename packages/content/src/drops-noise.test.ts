@@ -134,7 +134,11 @@ describe('the Noise and When the market drops modules', () => {
       'From 16\u00a0Oct\u00a02021 to 16\u00a0Oct\u00a02026, bitcoin had a 7\u2011day fall of 10\u00a0% or more about 6 times a year (Bitstamp closes).';
     expect(module.idea).toBe(idea);
     // Each figure, window and series the idea names is one the body states (fact q); no new fact.
-    for (const quoted of ['16\u00a0Oct\u00a02021 to 16\u00a0Oct\u00a02026', '10\u00a0% or more', 'about 6 episodes a year']) {
+    for (const quoted of [
+      '16\u00a0Oct\u00a02021 to 16\u00a0Oct\u00a02026',
+      '10\u00a0% or more',
+      'about 6 episodes a year',
+    ]) {
       expect(body).toContain(quoted);
     }
     expect(body).toContain('Bitstamp BTC/USD daily closes');
