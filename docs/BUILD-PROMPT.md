@@ -353,6 +353,19 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   counsel's reason, or a fallback counsel rules on. On #250, "private key" and "deposit-guarantee"
   hit the ban list after counsel's first read, the builder fell back, and counsel's second read
   restored "private key" with an allow-list entry: one more fix round (2026-11-15).
+- A design note that adds an e2e test names the projects its spec file runs on.
+  `apps/web/playwright.config.ts` lists `site.spec.ts` in `requestOnly`, so it runs on the desktop
+  project only, and #254's layout tests for zoom-125 and android-small would never have run there;
+  its builder moved them to their own `apps/web/e2e/risk.spec.ts` (2026-11-15).
+- A privacy notice's claim about what a request carries covers the transport as well as the
+  payload. Counsel's first read of #255 found "These requests carry no plan, no entries, and no
+  identifier" false twice: the history request names a coin of the plan, and the host receives each
+  request's internet address. The notice now says the requests name at most a coin and a currency
+  and carry no identifier that Proof of Calm sets (2026-11-15).
+- A question left for the owner quotes both sides of the research it rests on. #255's first LEGAL §9
+  question gave only research §4.4's "a free app arguably has no consumer transaction", and left out
+  its course of publishing the RAL list and the complaints-book link from launch, with the footer
+  link that brings; counsel's second read added both (2026-11-15).
 
 ## Known gaps
 
