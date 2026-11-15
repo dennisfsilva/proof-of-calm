@@ -59,10 +59,11 @@ function readSources(appSrc: string): Map<string, Record<string, MessageTree>> {
  */
 export function complete(english: MessageTree, translated: MessageTree, path = ''): MessageTree {
   for (const key of Object.keys(translated))
-    if (!(key in english)) throw new Error(`${path}${key} is not an English key; translate English's keys only.`);
+    if (!Object.hasOwn(english, key))
+      throw new Error(`${path}${key} is not an English key; translate English's keys only.`);
   const done: MessageTree = {};
   for (const [key, source] of Object.entries(english)) {
-    const value = translated[key];
+    const value = Object.hasOwn(translated, key) ? translated[key] : undefined;
     if (value !== undefined && typeof value !== typeof source)
       throw new Error(`${path}${key} is a ${typeof source === 'string' ? 'message' : 'namespace'} in English.`);
     done[key] =
@@ -88,9 +89,12 @@ function collect(appSrc: string): Map<string, string> {
   for (const locale of LOCALES) {
     const translated = sources.get(locale) ?? {};
     for (const namespace of Object.keys(translated))
-      if (!(namespace in english)) throw new Error(`${namespace} has a ${locale} message file but no English one.`);
-    for (const [namespace, tree] of Object.entries(english))
-      files.set(`${locale}/${namespace}.json`, serialise(complete(tree, translated[namespace] ?? {}, `${namespace}.`)));
+      if (!Object.hasOwn(english, namespace))
+        throw new Error(`${namespace} has a ${locale} message file but no English one.`);
+    for (const [namespace, tree] of Object.entries(english)) {
+      const own = Object.hasOwn(translated, namespace) ? translated[namespace] : undefined;
+      files.set(`${locale}/${namespace}.json`, serialise(complete(tree, own ?? {}, `${namespace}.`)));
+    }
   }
   return new Map([...files].sort(([a], [b]) => a.localeCompare(b)));
 }
