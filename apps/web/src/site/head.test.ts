@@ -80,7 +80,9 @@ describe('pageHead', () => {
 
   it('titles the holding page with the name alone and escapes a title', () => {
     expect(pageTitle(null)).toBe('Proof of Calm');
-    expect(pageHead({ title: 'A & B', assets: [], indexable: false })).toContain('<title>A &amp; B · Proof of Calm</title>');
+    expect(pageHead({ title: 'A & B', assets: [], indexable: false })).toContain(
+      '<title>A &amp; B · Proof of Calm</title>',
+    );
   });
 });
 

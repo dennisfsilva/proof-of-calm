@@ -2,8 +2,7 @@
 // imports the result and writes one HTML file per site page, each with the head of `head.ts` and
 // no script but the theme script on the offline page. The manifest comes from the same build (ADR-0033).
 // The public Learn pages live under /en/ and render at the build's day (ADR-0045 Deviations of 2026-11-15).
-import { BRAND } from '@proofofcalm/app/lib/brand';
-import learnMessages from '@proofofcalm/app/messages/en/learn.json';
+
 import {
   type LearnSite,
   loadLearnSite,
@@ -11,6 +10,8 @@ import {
   SiteModulePage,
   StaticLearn,
 } from '@proofofcalm/app/features/learn/site';
+import { BRAND } from '@proofofcalm/app/lib/brand';
+import learnMessages from '@proofofcalm/app/messages/en/learn.json';
 import type { LearnModuleMeta } from '@proofofcalm/content';
 import type { CalendarDate } from '@proofofcalm/core';
 import type { ReactNode } from 'react';
@@ -62,7 +63,11 @@ export function sitePages(data: SiteData): SitePage[] {
 /** sitemap.xml and robots.txt, only once the public pages may be indexed (lib/site/indexing.ts). */
 export function siteIndexFiles(data: SiteData) {
   const paths = sitePages(data).filter((name) => name.startsWith('en/'));
-  return indexFiles(PUBLIC_INDEXABLE, BRAND.origin, paths.map((name) => `/${name}`));
+  return indexFiles(
+    PUBLIC_INDEXABLE,
+    BRAND.origin,
+    paths.map((name) => `/${name}`),
+  );
 }
 
 const isPublic = (name: SitePage): name is PublicPage => name.startsWith('en/');
