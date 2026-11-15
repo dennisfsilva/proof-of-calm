@@ -327,7 +327,7 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - `lighthouse-vercel` sends the bypass as a header to a preview; deployment protection still
   redirects the service worker's script fetch there, so at a preview `errors-in-console` is asserted
   on `/` only (`tools/lighthouse/vercel.ts` strips it from the seeded screens, Today, Portfolio, Log
-  and Plan, for every URL but the production origin). Production, measured at
+  and Plan, and the public Learn page, for every URL but the production origin). Production, measured at
   `https://proofofcalm.com` without the bypass, and the local run (`apps/web/lighthouserc.json` over
   `tools/serve/vercel-local.ts`) assert it on every page.
 
