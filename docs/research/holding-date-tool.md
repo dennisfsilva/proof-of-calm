@@ -155,7 +155,7 @@ answers a decision or an audit row above.
 
 | Test | Must prove (the judge's words) | Answers |
 |---|---|---|
-| holding-date.spec.ts, desktop and iphone (planned: M2) | "submit gives `#country=…&bought=…` and no request carries either input" | Decision 2; the fragment row |
+| `apps/web/e2e/holding-date.spec.ts`, desktop and iphone | "submit gives `#country=…&bought=…` and no request carries either input" | Decision 2; the fragment row |
 | | "the fragment URL opened fresh shows the result" | Decisions 1, 2 |
 | | "`#country=de` preselects Germany" | Decision 10 |
 | | "an invalid date shows the hint" | Decision 3 |
@@ -163,9 +163,9 @@ answers a decision or an audit row above.
 | | "with the boot script removed, a submit leaves the URL unchanged" | Decision 7 (`method="dialog"`) |
 | | "Chromium's layout-shift sum under 0.01 for the bare page and for a fragment load" | Decision 7; the CLS rows |
 | `apps/web/e2e/site.spec.ts` | "every other `/en/` page 0 scripts; this page exactly the boot script, with an entry under `/assets/islands/`" | Decisions 1, 6 |
-| `apps/web/e2e/csp.spec.ts` | "this page on desktop and iphone, filled and submitted, 0 violations" | Decisions 1, 3; the select row |
+| `apps/web/e2e/holding-date.spec.ts` (csp.spec.ts runs on desktop alone) | "this page on desktop and iphone, filled and submitted, 0 violations" | Decisions 1, 3; the select row |
 | `apps/web/e2e/offline.spec.ts` | "`pages` keys hold no `#`; `/sw.js` lists no `/assets/islands/`; offline, a visited fragment URL shows the result" | Decisions 2, 6 |
-| bundle-islands.test.ts (planned: M2) | "the metafile's inputs hold no `react`, no `features/` outside the pure module, no `adapters/clock`" | Decisions 4, 5; the own-build row |
+| `apps/web/scripts/bundle-islands.test.ts` | "the metafile's inputs hold no `react`, no `features/` outside the pure module, no `adapters/clock`" (the clock adapter: no byte of it in the output, since `lib/format`'s index imports it and tree-shaking drops it) | Decisions 4, 5; the own-build row |
 | `apps/web/lib/vercel-config.test.ts` | "unchanged" | Decision 1 (the CSP text) |
 | Lighthouse (`apps/web/lighthouserc.json`) | "on `/en/holding-date` at error: performance 0.95, accessibility 1, console errors, script ≤ 12,288 B" | Decision 1; the size rows |
 
