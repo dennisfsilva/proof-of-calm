@@ -70,7 +70,7 @@ build) reads the chunk report the web host's build writes into its `node_modules
 (`packages/config/vite/chunk-report-plugin.ts`): every chunk's brotli size at Vercel's quality 3
 (ADR-0024's deviations) and its share of code outside `node_modules` by Rolldown's rendered length.
 It counts the share of the chunks Today loads, the `app.html` entry and its static imports plus a lazy
-Today chunk, its messages and the largest generated country rules file (ADR-0045 §8, §9, ADR-0049), prints one line and exits 1 above the budget of
+Today chunk, its English messages (no other language's today chunk) and the largest generated country rules file (ADR-0045 §8, §9, ADR-0049), prints one line and exits 1 above the budget of
 `docs/ENGINEERING.md` §4 unless `--warn`; a missing report, one without the plugin's fields or without
 the `app.html` entry exits 2 with one line, also with `--warn`.
 The root `turbo.json` lists the report among the build's outputs, so a cache hit restores it with the

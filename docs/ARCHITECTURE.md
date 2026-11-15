@@ -125,6 +125,7 @@ packages/content/
 ├── templates/       four starting points (docs/DOMAIN.md §5)
 ├── learn/           MDX modules with front matter (docs/EDUCATION.md §10): start-here, risk-honestly, cycles, taxes-where-you-live, noise and when-the-market-drops; the simulator's module (planned: M2)
 ├── facts/           every cited number with source, date, lastReviewed (docs/CONTENT-OPS.md §7)
+├── i18n/            <language>/: sparse prose translations over the English files (ADR-0057; what each holds: `packages/content/README.md`)
 ├── cycles/          completed cycles' maximum drawdowns per coin; the current cycle is computed, never stored (docs/EDUCATION.md §2 and §6)
 ├── style/           banned.json: the banned words in en, de and pt, the filler words, and the allow-list with a reason per phrase (docs/CONTENT-STYLE.md)
 ├── coins.json       the coin catalogue: the picker's coins and the price route's allow-list (ADR-0036, ADR-0052)

@@ -107,3 +107,11 @@ generated rules files of each language.
 - Until the loaders take a language, an overlay is validated and shown nowhere; the app reads
   English content in every UI language.
 - The Learn modules (MDX) are out of this decision.
+
+## Corrections
+
+- **2026-11-15.** The status line's "ADR-0024 (the UI languages)" means ADR-0023, the UI languages'
+  record; ADR-0024 is the testing stack. "Why it lands second" says the service worker precaches every
+  chunk: since ADR-0045's Deviations of 2026-11-15 it leaves another language's message chunks out
+  (`assets/messages/<locale>/`), and the loaders' chunks join that rule when they land. Found by the
+  integration read of the pt-PT checkpoint (#19).
