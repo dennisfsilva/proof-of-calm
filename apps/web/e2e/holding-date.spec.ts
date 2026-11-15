@@ -113,6 +113,28 @@ test('each hint shows under its field, marks it and takes the focus, and a valid
   expect(await violations(page)).toEqual([]);
 });
 
+// A hint means the inputs on screen are not the ones an earlier result answered, so that result is hidden.
+test('a hint after a result hides the result: the date cleared', async ({ page }) => {
+  await open(page, '#country=pt&bought=2027-03-01');
+  await expect(result(page, 'pt')).toBeVisible();
+  await dateField(page).fill('');
+  await submit(page).click();
+  await expect(invalidHint(page)).toBeVisible();
+  await expect(page.locator('[aria-live="polite"] [data-country]:visible')).toHaveCount(0);
+});
+
+test('a hint after a result hides the result: no country chosen', async ({ page }) => {
+  await open(page, '#country=pt&bought=2027-03-01');
+  await expect(result(page, 'pt')).toBeVisible();
+  // A checked radio cannot be unchecked by a click; the state is set as a form reset would leave it.
+  await page.evaluate(() => {
+    for (const radio of document.querySelectorAll<HTMLInputElement>('input[name="country"]')) radio.checked = false;
+  });
+  await submit(page).click();
+  await expect(noCountryHint(page)).toBeVisible();
+  await expect(page.locator('[aria-live="polite"] [data-country]:visible')).toHaveCount(0);
+});
+
 test('with the boot script removed, a submit leaves the URL unchanged', async ({ page }) => {
   await page.route(`**${PATH}`, async (route) => {
     const response = await route.fetch();

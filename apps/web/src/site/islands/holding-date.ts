@@ -76,6 +76,8 @@ if (date && form && invalid && noCountry) {
     hint(invalid, bought === undefined);
     if (bought === undefined) date.setAttribute('aria-invalid', 'true');
     else date.removeAttribute('aria-invalid');
+    // A hint means the inputs on screen are not the ones a shown result answered, so that result goes.
+    if (country === undefined || bought === undefined) for (const block of blocks) block.hidden = true;
     if (country === undefined) return radios[0]?.focus();
     if (bought === undefined) return date.focus();
     const q = { country, bought };
