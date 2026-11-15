@@ -76,7 +76,7 @@
     "reporting": "Reporting",
     "caveats": "Questions for an accountant",
     "sources": "Sources",
-    "sourceList": "Sources for this card",
+    "sourceList": "Sources for {country}",
     "sourcePublished": "{publisher} · dated {date}",
     "sourceAccessed": "{publisher} · accessed {date}",
     "sourcesName": "Sources for {rule, select, rates {the rates} holdingRule {the holding rule} lotRule {matching sales to purchases} losses {losses} reporting {reporting} other {this rule}}"

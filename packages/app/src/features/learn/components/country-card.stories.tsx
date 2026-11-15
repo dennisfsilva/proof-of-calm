@@ -40,7 +40,7 @@ export const Portugal: Story = {
     for (const link of links) await expect(link.getBoundingClientRect().height).toBeGreaterThanOrEqual(44);
     // The card ends with every source of the profile, each its title as a link that opens outside the app
     // (docs/JURISDICTIONS.md §2, docs/LEGAL.md §4); the list is never empty, since the schema wants one source.
-    const foot = canvas.getByRole('heading', { level: 2, name: 'Sources for this card' });
+    const foot = canvas.getByRole('heading', { level: 2, name: `Sources for ${PORTUGAL.name}` });
     await expect(foot).toBeVisible();
     await expect(PORTUGAL.sources.length).toBeGreaterThan(0);
     const items = foot.parentElement?.querySelectorAll('li') ?? [];

@@ -53,7 +53,7 @@ describe('CountryCard', () => {
       'Losses',
       'Reporting',
       'Questions for an accountant',
-      'Sources for this card',
+      `Sources for ${PORTUGAL.name}`,
     ]);
     expect(card.children[1]?.textContent).toBe(PORTUGAL.card.summary60);
     const [first] = PORTUGAL.holdingRuleConditions;
@@ -92,7 +92,7 @@ describe('CountryCard', () => {
     expect(PORTUGAL.sources.length).toBeGreaterThan(0);
     const card = await mount();
     const foot = card.lastElementChild as HTMLElement;
-    expect(within(foot).getByRole('heading', { level: 2 }).textContent).toBe('Sources for this card');
+    expect(within(foot).getByRole('heading', { level: 2 }).textContent).toBe(`Sources for ${PORTUGAL.name}`);
     const items = within(foot).getAllByRole('listitem');
     expect(items).toHaveLength(PORTUGAL.sources.length);
     PORTUGAL.sources.forEach((source, index) => {
@@ -144,7 +144,7 @@ describe('CountryCard', () => {
     for (const nowMs of [undefined, Date.parse('2030-01-01T10:00:00Z')]) {
       const card = await mount({ profile: GENERIC, ...(nowMs !== undefined && { nowMs }) });
       expect(card.lastElementChild?.textContent).toMatch(/^Reviewed on .+: the general profile, not a rule/);
-      expect(within(card).queryByRole('heading', { name: 'Sources for this card' })).toBeNull();
+      expect(within(card).queryByRole('heading', { name: /^Sources for / })).toBeNull();
       expect(card.textContent).toContain(GENERIC.card.summary60);
       expect(screen.queryByRole('link')).toBeNull();
       cleanup();
