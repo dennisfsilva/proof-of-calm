@@ -139,3 +139,7 @@ None.
 - 2026-11-02: the re-ask named in the entry of 2026-10-22 is built, in Today's place
   (`docs/DOMAIN.md` §2.1). Its button reads "Accept and open Today", and its text counts under the
   plan-creation row's 40 to 50 words, not under Today's 30 or the path's 120 (`docs/LEGAL.md` §4).
+- 2026-11-15: the Risk page's status statement reads "not registered with or supervised by any
+  financial supervisor, and no investor-compensation or deposit-protection scheme covers
+  crypto-assets", since the business is registered with authorities that are not financial
+  supervisors (the commercial register, the tax authority); `docs/LEGAL.md` §5 owns the words.
