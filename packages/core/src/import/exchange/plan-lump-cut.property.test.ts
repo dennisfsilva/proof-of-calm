@@ -12,10 +12,11 @@ import { type ExchangeImportPlan, planExchangeImport } from './plan';
 
 // docs/DOMAIN.md §3.13 step 2's export cut at `splitsLumpDay`'s width, the cuts the other import properties skip: a
 // shorter export that cuts inside a purchase date of a coin within 3 days of a live `lump` of it, stored before the
-// whole file, leaves the Log one import leaves plus the purchases the shorter export stored of the dates a hand entry
-// claims in one import (with the one-tap estimates they replace), less the purchases of the dates a hand entry that
-// falls back to its nearest date (an extra buy, a monthly buy whose month has no date, a `lump` at its coin's monthly
-// part) claims in the second import instead (with those dates' estimates left live). Each
+// whole file, leaves the Log one import leaves plus the purchases the shorter export stored of the dates a hand entry,
+// or a live one-tap `lump`, claims in one import (with the one-tap estimates they replace), less the purchases of the
+// dates a hand entry, or a live one-tap `lump`, that falls back to its nearest date (an extra buy, a monthly buy whose
+// month has no date, a `lump` at its coin's monthly part, hand or one-tap) claims in the second import instead (with
+// those dates' estimates left live). Each
 // such date of a `lump` above the monthly part is the cut date; below it, it lies wholly in the shorter export while
 // that export's `lump` claimed the cut date's part or stopped its walk at that part, every date it claimed nearer its
 // date than the cut date, or as near and earlier (CI's world of 2026-11-15, seed -1110155515, pinned in
