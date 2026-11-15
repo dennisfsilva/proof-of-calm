@@ -1,4 +1,7 @@
+import { readFileSync } from 'node:fs';
+import { sha256 } from '@proofofcalm/config/vite';
 import { describe, expect, it } from 'vitest';
+import { SYSTEM_SANS } from './rules';
 import { escapeHtml, isBlockedCountry, isExemptPath, NOT_AVAILABLE_STYLE, notAvailableHtml } from './uk-block';
 
 describe('the UK block (ADR-0029)', () => {
@@ -43,8 +46,23 @@ describe('the UK block (ADR-0029)', () => {
     expect(html.match(/<style[^>]*>/g)).toEqual(['<style>']);
     expect(html).toContain(`<style>${NOT_AVAILABLE_STYLE}</style>`);
     expect(NOT_AVAILABLE_STYLE).toBe(
-      'body{background:#f7f4ef;color:#1c1a18}a{color:inherit}@media (prefers-color-scheme:dark){body{background:#151412;color:#f1f0ec}}',
+      `body{font-family:${SYSTEM_SANS};background:#f7f4ef;color:#1c1a18}a{color:inherit}@media (prefers-color-scheme:dark){body{background:#151412;color:#f1f0ec}}`,
     );
+  });
+
+  it('sets the body in the system part of the text stack, since the page loads no font (docs/DESIGN.md §5)', () => {
+    const tokens = readFileSync(new URL('../../../../packages/ui/src/styles/tokens.css', import.meta.url), 'utf8');
+    const stack = /--typeface-text:\s*([^;]+);/.exec(tokens)?.[1] ?? '';
+    const families = stack.split(',').map((family) => family.trim());
+    expect(families.slice(0, 2)).toEqual(['"Calm Sans"', '"Calm Sans Fallback"']);
+    expect(SYSTEM_SANS).toBe(families.slice(2).join(','));
+    expect(NOT_AVAILABLE_STYLE).toContain(`font-family:${SYSTEM_SANS}`);
+  });
+
+  it('has its style hash in the committed vercel.json, on the documents and on the UK route', () => {
+    const json = readFileSync(new URL('../../vercel.json', import.meta.url), 'utf8');
+    const source = `style-src 'self' '${sha256(NOT_AVAILABLE_STYLE)}'`;
+    expect(json.split(source).length - 1).toBe(2);
   });
 
   it('escapes text before it goes into the page', () => {
