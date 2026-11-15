@@ -23,8 +23,9 @@ import { type ExchangeImportPlan, planExchangeImport } from './plan';
 // plan-remedy-start.test.ts: "the lump stops at the cut date"). Measured on 2026-11-15 over seeds 1 to 8, CI's and 16
 // others, 600 runs each: 541 such dates below the part, 538 with the cut date claimed, 3 with the walk stopped there.
 // The lump's own walk claims what it claims in one import, since stored dates take their place in its order and sum;
-// no generated world reaches the fallback case, which plan-remedy-start.test.ts pins twice: an extra buy ("400 less")
-// and a lump at the part ("a second lump beside the lump of 1,000"); the oracle's `gone` holds for either.
+// no generated world reaches the fallback case, which plan-remedy-start.test.ts pins three times: an extra buy
+// ("400 less"), a lump at the part ("a second lump beside the lump of 1,000") and a one-tap lump at the part
+// ("a one-tap lump beside the lump of 1,000"); the oracle's `gone` holds for each.
 
 /** What the write does with a plan: tombstones the estimates it replaces and adds its entries. */
 function store(entries: readonly Entry[], plan: ExchangeImportPlan): Entry[] {
@@ -137,7 +138,8 @@ describe("planExchangeImport, an export cut at a lump's date", () => {
         RUNS,
       );
       // Each side of the cut, above and below the part, reaches both outcomes (a slice below the part diverges rarely);
-      // `instead`, a fallback hand claim moved, is checked when reached and pinned by hand.
+      // `instead`, a fallback claim moved, a hand entry's or a live one-tap `lump`'s, is checked when reached and
+      // pinned by hand.
       const count = (pattern: RegExp) =>
         [...reach].filter(([label]) => pattern.test(label)).reduce((total, [, n]) => total + n, 0);
       for (const size of ['above', 'below']) {
