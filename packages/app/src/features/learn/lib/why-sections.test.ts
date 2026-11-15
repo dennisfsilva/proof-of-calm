@@ -11,9 +11,11 @@ const learn = new URL('../../../../../content/learn/', import.meta.url);
 const links = readdirSync(src, { recursive: true, encoding: 'utf8' })
   .filter((path) => path.endsWith('.tsx') && !/\.(test|stories)\.tsx$/.test(path))
   .flatMap((path) =>
-    [...readFileSync(new URL(path.replaceAll('\\', '/'), src), 'utf8').matchAll(/<WhyLink\b[^>]*>/gu)].map(
-      ([tag]) => ({ path, module: /module="([^"]+)"/u.exec(tag)?.[1], section: /section="([^"]+)"/u.exec(tag)?.[1] }),
-    ),
+    [...readFileSync(new URL(path.replaceAll('\\', '/'), src), 'utf8').matchAll(/<WhyLink\b[^>]*>/gu)].map(([tag]) => ({
+      path,
+      module: /module="([^"]+)"/u.exec(tag)?.[1],
+      section: /section="([^"]+)"/u.exec(tag)?.[1],
+    })),
   );
 
 // The tax module's sheet leads with the plan's country's card, whose heading the module's text does not hold.
