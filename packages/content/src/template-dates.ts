@@ -11,6 +11,12 @@ import type { ContentTemplate } from './schema/template.ts';
 export const PLACEHOLDER = /\{date:([^{}\s]+)\}/g;
 
 /**
+ * A text's placeholders, sorted: a multiset, so a translation's can be held to its English text's whatever their order.
+ * It holds which dates a text names, not which noun each belongs to: a swap of two stays with counsel's read.
+ */
+export const datePlaceholdersIn = (text: string) => [...text.matchAll(PLACEHOLDER)].map(([whole]) => whole).sort();
+
+/**
  * Every date field of a template by its path: `lastBuy`, `validUntil`, `sellWindow.<field>`, `references.<field>` and
  * `drawdowns.<coin>.high` or `.low`; an absent field has no path.
  */

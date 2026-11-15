@@ -1,11 +1,13 @@
 // A translation file against its English file (ADR-0057), for validate.ts: every path exists in English, holds prose
-// TRANSLATABLE names, keeps the English array lengths and carries the English numbers, and the overlaid value passes
-// the schema. The checks on the overlaid text (the ban list, the hyphen, the percent joiner, the 60 words, a
-// template's `{date:<field>}` placeholders and month names) are validate.ts's, passed in. Pure.
+// TRANSLATABLE names, keeps the English array lengths and carries the English numbers and `{date:<field>}`
+// placeholders, and the overlaid value passes the schema. The checks on the overlaid text (the ban list, the hyphen,
+// the percent joiner, the 60 words, a template's placeholders against its dates and month names) are validate.ts's,
+// passed in. Pure.
 import { type Problem, schemaProblems } from '../problem.ts';
 import { FactSchema } from '../schema/fact.ts';
 import { type CountryProfile, CountryProfileSchema } from '../schema/jurisdiction.ts';
 import { type ContentTemplate, TemplateSchema } from '../schema/template.ts';
+import { datePlaceholdersIn } from '../template-dates.ts';
 import {
   applyOverlay,
   CONTENT_LANGUAGES,
@@ -107,6 +109,13 @@ export function overlayProblems(
       numbersIn(en, locales[0]).join(' ') || 'none',
     ];
     if (mine !== theirs) report('number-mismatch', at, `: ${mine}, English ${theirs}`);
+    // A placeholder holds no digits, so the number check cannot see one dropped or added; a swap of two keeps the
+    // multiset and stays with counsel's read, as a swap of two written dates does.
+    const [ourDates, theirDates] = [
+      datePlaceholdersIn(over).join(' ') || 'none',
+      datePlaceholdersIn(en).join(' ') || 'none',
+    ];
+    if (ourDates !== theirDates) report('date-mismatch', at, `: ${ourDates}, English ${theirDates}`);
   };
   walk(english, overlay, []);
   return problems;
