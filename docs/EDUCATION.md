@@ -80,7 +80,7 @@ and the months from halving to high; why some people build plans around it (the 
 does); why it may not repeat (ETFs, miner economics, macro, the sample size). What the sell window is
 for: it is a discipline device that decides *when* in advance so that nobody has to decide *now*; it
 is not a forecast, though the Cycle plan's dates rest on one. Why selling in 3 parts: over 3 months or more,
-one bad week cannot decide the whole plan.
+one bad week cannot decide every sale.
 **Chart**: none. The cycles' figures are a Markdown list: a table needs `remark-gfm` and new elements,
 and the line chart needs licensed data.
 **Caveat**: "If the next cycle looks like the last 4, that will be luck as much as structure."
