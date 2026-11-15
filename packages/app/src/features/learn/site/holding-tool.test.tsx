@@ -6,7 +6,7 @@ import learn from '../../../messages/en/learn.json';
 import { decodeHoldingRule, effectsOf } from './holding-tool.ts';
 import { type CountrySite, loadCountrySite, SiteHoldingTool, type SiteLinks, StaticLearn } from './index';
 
-// The holding-date tool's markup (session issue #230, the design check's decisions 3, 7, 8 and 9), rendered as the
+// The holding-date tool's markup (its design check of 2026-11-15), rendered as the
 // web host's prerender renders it: a form shown only with script, posting nowhere, and a hidden result block per
 // country that the page's script reveals; every word in it is from the messages or the profiles.
 
