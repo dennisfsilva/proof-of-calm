@@ -73,7 +73,8 @@ current-cycle figure).
 
 ## 3. Cycles
 
-**Idea**: Since 2013, bitcoin's highs have come about 4 years apart so far; 4 completed cycles are 4 data points, not a law.
+**Idea**: bitcoin's highs and halvings, dated, and why 4 cycles are not a law (an idea holds no
+historic figure or pattern, §6's Idea).
 **Says**: halving dates and what a halving is (one sentence of mechanics); each cycle's high, trough
 and the months from halving to high; why some people build plans around it (the Cycle plan template
 does); why it may not repeat (ETFs, miner economics, macro, the sample size). What the sell window is
