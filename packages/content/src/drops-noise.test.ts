@@ -140,7 +140,7 @@ describe('the Noise and When the market drops modules', () => {
     // Learn's index rows and a sheet's title show the idea with no past-performance line and no source, so it
     // holds no historic result (docs/LEGAL.md \u00a73 item 6): its only numbers are the trigger's thresholds.
     expect(module.idea).toBe(
-      "A fall of 10\u00a0% or more in 7\u00a0days leaves the plan's next purchase where it was.",
+      "A fall of 10\u00a0% or more in 7\u00a0days leaves the plan as it was.",
     );
     expect(body).toContain('fall 10\u00a0% or more in 7\u00a0days.');
     expect(module.idea).not.toMatch(/\b(?:19|20)\d\d\b|times a year|Bitstamp|your plan/u);

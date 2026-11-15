@@ -138,7 +138,7 @@ honestly is not built, so the caveat points to no module.)
 
 ## 6. When the market drops
 
-**Idea**: a fall of 10 % or more in 7 days leaves the plan's next purchase where it was. Learn's
+**Idea**: a fall of 10 % or more in 7 days leaves the plan as it was. Learn's
 index rows and a sheet's title show the idea with no past-performance line and no source, so an idea
 holds no historic figure (`docs/LEGAL.md` §3 item 6); 10 % and 7 days are the trigger's thresholds.
 **Two surfaces.** The module, `/learn/when-the-market-drops`, is the resting text, in Learn's index
