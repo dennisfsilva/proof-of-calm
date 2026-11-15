@@ -120,10 +120,12 @@ describe('the Noise and When the market drops modules', () => {
     expect(body).toContain('In the app, Today then shows one line on one visit, and Learn lists the fall first.');
     expect(body).toContain('## The fall page in the app');
     expect(body).toContain(
-      "In the app, while its prices show a fall of the coins you hold, Learn's first row opens a page with the figure and each coin's earlier falls.",
+      "In the app, while the prices it reads show a fall in the coins you hold, Learn's first row opens a page with the figure and each coin's earlier falls.",
     );
     expect(body).not.toMatch(/next buy day/u);
-    expect(body).toContain("When they show no fall, that page's address opens this module.");
+    // The fall page stays, with its failure line, while its price read fails or is pending (ThisFallPage), so no
+    // sentence says that page's address opens this module.
+    expect(body).not.toMatch(/that page's address|When they show no fall/u);
     expect(body).not.toMatch(/Learn opens with|## The fall under way/u);
   });
 
