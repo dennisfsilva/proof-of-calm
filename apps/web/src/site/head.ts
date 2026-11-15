@@ -33,21 +33,27 @@ type PageHead = {
   assets: readonly string[];
   /** The offline page alone: the same inline theme script as app.html, whose hash is in `script-src`. */
   themeScript?: boolean;
+  /** The page's own description; without one, the link preview reads the manifest's. */
+  description?: string;
+  /** The page's path, whose absolute URL the canonical link names (the public pages under `/en/`). */
+  canonical?: string;
+  /** False keeps the page out of search with the robots meta, as the X-Robots-Tag header does. */
+  indexable: boolean;
 };
 
 /** The link preview's image, written by `node tools/icons/generate.ts` (docs/DESIGN.md §9). */
 const OG_IMAGE = { url: `${BRAND.origin}/og.png`, width: 1200, height: 630 } as const;
 
 /**
- * The link preview: the page's title, the manifest's description (no coin named: the note under
+ * The link preview: the page's title, its description or the manifest's (no coin named: the note under
  * docs/GROWTH.md §2.1) and the image at its absolute URL, which crawlers require.
  */
-function openGraph(title: string | null): string[] {
+function openGraph(title: string | null, description: string): string[] {
   const property = (name: string, content: string | number) =>
     `<meta property="og:${name}" content="${escapeHtml(String(content))}">`;
   return [
     property('title', pageTitle(title)),
-    property('description', siteTranslator('manifest')('description')),
+    property('description', description),
     property('type', 'website'),
     property('image', OG_IMAGE.url),
     property('image:width', OG_IMAGE.width),
@@ -57,14 +63,16 @@ function openGraph(title: string | null): string[] {
 }
 
 /** The inner HTML of a site page's head (docs/DESIGN.md §9 for the icons, the OG image and the theme colours). */
-export function pageHead({ title, assets, themeScript = false }: PageHead): string {
+export function pageHead({ title, assets, themeScript = false, description, canonical, indexable }: PageHead): string {
   return [
     '<meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
     ...(themeScript ? [`<script>${THEME_BEFORE_PAINT}</script>`] : []),
-    '<meta name="robots" content="noindex, nofollow">',
+    ...(indexable ? [] : ['<meta name="robots" content="noindex, nofollow">']),
     `<title>${escapeHtml(pageTitle(title))}</title>`,
-    ...openGraph(title),
+    ...(description === undefined ? [] : [`<meta name="description" content="${escapeHtml(description)}">`]),
+    ...(canonical === undefined ? [] : [`<link rel="canonical" href="${escapeHtml(`${BRAND.origin}${canonical}`)}">`]),
+    ...openGraph(title, description ?? siteTranslator('manifest')('description')),
     '<link rel="icon" href="/favicon.svg" type="image/svg+xml">',
     '<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">',
     '<link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">',

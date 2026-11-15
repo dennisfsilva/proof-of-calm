@@ -1,6 +1,15 @@
+import { resolve } from 'node:path';
+import { learnPlugins, MODULE_BODY_ELEMENTS } from '@proofofcalm/config/vite';
+import { parseModule } from '@proofofcalm/content/modules';
 import { configDefaults, defineConfig } from 'vitest/config';
 
 export default defineConfig({
+  // The Learn modules as the prerender reads them (ADR-0048), so the site tests render the public Learn pages.
+  plugins: learnPlugins({
+    dir: resolve(import.meta.dirname, '../../packages/content/learn'),
+    parseModule,
+    elements: MODULE_BODY_ELEMENTS,
+  }),
   test: {
     environment: 'node',
     include: [

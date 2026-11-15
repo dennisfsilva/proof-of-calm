@@ -2,8 +2,8 @@
 // input app.html), the prerender (a second Vite build of src/site/render.tsx for the server, then one
 // HTML file per site page, §6), the manifest, the worker (§5) and the API bundle (§2). Plain node runs
 // this file, so it imports only modules node can load as they are.
-import { readFileSync, writeFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { THEME_BEFORE_PAINT } from '@proofofcalm/app/lib/theme';
 import { BOOT_SCRIPT } from '@proofofcalm/config/vite';
@@ -18,6 +18,14 @@ const dist = join(root, 'dist');
 const configFile = join(root, 'vite.config.ts');
 const SSR_ENTRY = 'src/site/render.tsx';
 const SSR_OUT = 'server-dist/site';
+
+/**
+ * The day the public pages are rendered at (their review lines): the build's UTC date, or `SITE_TODAY`, which the
+ * e2e and snapshot builds pin so no test or baseline changes on the day a review date passes (ADR-0045 Deviations
+ * of 2026-11-15).
+ */
+const today = process.env.SITE_TODAY ?? new Date().toISOString().slice(0, 10);
+if (!/^\d{4}-\d{2}-\d{2}$/.test(today)) throw new Error(`SITE_TODAY is ${today}, not YYYY-MM-DD`);
 
 const SCRIPT = /<script\b([^>]*)>([\s\S]*?)<\/script>/g;
 const inlineScripts = (html: string) =>
@@ -78,11 +86,16 @@ const site = await step('prerender', async () => {
   });
   const rendered: Site = await import(pathToFileURL(join(root, SSR_OUT, 'render.js')).href);
   const assets = rendered.headAssets(readFileSync(join(dist, 'app.html'), 'utf8'));
-  for (const name of rendered.SITE_PAGES) {
-    const html = rendered.renderSitePage(name, assets);
+  // The public pages nest under dist/en/, which Vercel's clean URLs serve at /en/learn and /en/learn/<slug>.
+  const data = await rendered.loadSiteData(today as Parameters<Site['loadSiteData']>[0]);
+  for (const name of rendered.sitePages(data)) {
+    const html = rendered.renderSitePage(name, assets, data);
     checkSitePage(name, html);
-    writeFileSync(join(dist, `${name}.html`), html);
+    const file = join(dist, `${name}.html`);
+    mkdirSync(dirname(file), { recursive: true });
+    writeFileSync(file, html);
   }
+  for (const { file, text } of rendered.siteIndexFiles(data)) writeFileSync(join(dist, file), text);
   return rendered;
 });
 
