@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { inflateSync } from 'node:zlib';
 import { describe, expect, it } from 'vitest';
-import { faviconSvg, icons, rgba } from './generate.ts';
+import { faviconSvg, icons, ogImage, rgba } from './generate.ts';
 import { renderMark, shapeAt } from './mark.ts';
 import { encodeIco, encodePng } from './png.ts';
 
@@ -85,6 +85,7 @@ describe('the icon set (docs/DESIGN.md §9)', () => {
       'icons/icon-maskable-512.png': 512,
       'icons/icon-monochrome-512.png': 512,
       'apple-touch-icon.png': 180,
+      'og.png': 1200,
     });
     expect((set['favicon.ico'] as Buffer).readUInt16LE(4)).toBe(3);
   });
@@ -99,6 +100,24 @@ describe('the icon set (docs/DESIGN.md §9)', () => {
       /\.ring\{fill:rgb\(28 26 24\)\}.*prefers-color-scheme:dark.*\.ring\{fill:rgb\(241 240 236\)\}/,
     );
     expect(faviconSvg()).toContain('<title>Proof of Calm</title>');
+  });
+
+  it('draws the OG image 1200 × 630: the mark centred on opaque paper, no text', () => {
+    const { width, height, pixels } = decode(set['og.png'] as Buffer);
+    expect([width, height]).toEqual([1200, 630]);
+    const at = (x: number, y: number) => [...pixels.subarray((y * width + x) * 4, (y * width + x) * 4 + 4)];
+    const paper = [0xf7, 0xf4, 0xef, 255];
+    // The corners, the edges and the open centre are paper; the ring and the dot sit in the middle.
+    for (const [x, y] of [
+      [0, 0],
+      [1199, 629],
+      [100, 315],
+      [1100, 315],
+      [600, 315],
+    ] as const)
+      expect(at(x, y)).toEqual(paper);
+    expect(at(600, 315 - 140)).toEqual([0x1c, 0x1a, 0x18, 255]);
+    expect(ogImage()).toEqual(set['og.png']);
   });
 
   it('matches the committed files', () => {

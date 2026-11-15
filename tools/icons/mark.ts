@@ -59,25 +59,47 @@ export function shapeAt(options: MarkOptions, x: number, y: number): 'ring' | 'd
   return angularDistance(Math.atan2(y - g.cy, x - g.cx), GAP_ANGLE) < g.gapHalf ? null : 'ring';
 }
 
-/** Pixels, four by four samples each, the colours blended with straight alpha. */
+/** A canvas wider than it is tall, such as the OG image's 1200 × 630, centres the mark's square. */
+export type Canvas = number | { readonly width: number; readonly height: number };
+
+/**
+ * Pixels, four by four samples each, the colours blended with straight alpha. On a canvas that is not
+ * square, the mark's 100-unit square is the shorter side's, centred; the rest is background.
+ */
 export function renderMark(
-  size: number,
+  canvas: Canvas,
   options: MarkOptions,
   colours: { readonly background: Rgba | null; readonly ring: Rgba; readonly dot: Rgba },
 ): Uint8Array {
-  const pixels = new Uint8Array(size * size * 4);
+  const { width, height } = typeof canvas === 'number' ? { width: canvas, height: canvas } : canvas;
+  const side = Math.min(width, height);
+  const left = (width - side) / 2;
+  const top = (height - side) / 2;
+  const pixels = new Uint8Array(width * height * 4);
   const samples = 4;
   const transparent: Rgba = [0, 0, 0, 0];
-  for (let py = 0; py < size; py += 1) {
-    for (let px = 0; px < size; px += 1) {
+  // Beyond the ring's outer edge plus the dot's radius, in units, there is only background: skip the samples.
+  const { outer, dotR } = geometry(options);
+  const reach = outer + dotR;
+  const outside = (pixel: number, offset: number) => {
+    const near = ((pixel - offset) / side) * 100 - 50;
+    const far = ((pixel + 1 - offset) / side) * 100 - 50;
+    return far < -reach || near > reach;
+  };
+  for (let py = 0; py < height; py += 1) {
+    for (let px = 0; px < width; px += 1) {
+      if (outside(px, left) || outside(py, top)) {
+        pixels.set(colours.background ?? transparent, (py * width + px) * 4);
+        continue;
+      }
       let r = 0;
       let g = 0;
       let b = 0;
       let a = 0;
       for (let sy = 0; sy < samples; sy += 1) {
         for (let sx = 0; sx < samples; sx += 1) {
-          const x = ((px + (sx + 0.5) / samples) / size) * 100;
-          const y = ((py + (sy + 0.5) / samples) / size) * 100;
+          const x = ((px - left + (sx + 0.5) / samples) / side) * 100;
+          const y = ((py - top + (sy + 0.5) / samples) / side) * 100;
           const shape = shapeAt(options, x, y);
           const colour =
             shape === 'ring' ? colours.ring : shape === 'dot' ? colours.dot : (colours.background ?? transparent);
@@ -88,7 +110,7 @@ export function renderMark(
           a += alpha;
         }
       }
-      const offset = (py * size + px) * 4;
+      const offset = (py * width + px) * 4;
       pixels[offset] = a === 0 ? 0 : Math.round(r / a);
       pixels[offset + 1] = a === 0 ? 0 : Math.round(g / a);
       pixels[offset + 2] = a === 0 ? 0 : Math.round(b / a);

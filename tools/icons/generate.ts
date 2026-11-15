@@ -1,5 +1,5 @@
-// Writes the app icons of docs/DESIGN.md §9 into apps/web/public from the mark (mark.ts) and the brand
-// colours (apps/web/lib/pwa/brand-colors.json, pinned to the tokens by a test). Deterministic: run it
+// Writes the app icons and the OG image of docs/DESIGN.md §9 into apps/web/public from the mark (mark.ts)
+// and the brand colours (apps/web/lib/pwa/brand-colors.json, pinned to the tokens by a test). Deterministic: run it
 // again after a change to either, and review the images.
 //   node tools/icons/generate.ts
 import { writeFileSync } from 'node:fs';
@@ -31,6 +31,14 @@ const ANY: MarkOptions = { diameter: 0.8, dot: 1.2 };
 const MASKABLE: MarkOptions = { diameter: 0.7, dot: 1.2 };
 /** Small favicons get a larger dot so that it stays visible at 16 px. */
 const FAVICON: MarkOptions = { diameter: 0.86, dot: 1.6 };
+/** The OG image's mark: half the card's height, so a square crop of the card keeps it whole. */
+const OG: MarkOptions = { diameter: 0.5, dot: 1.2 };
+const OG_SIZE = { width: 1200, height: 630 } as const;
+
+/** The link preview of every site page (apps/web/src/site/head.ts): the mark centred on paper, no text. */
+export function ogImage(): Buffer {
+  return encodePng(OG_SIZE.width, OG_SIZE.height, renderMark(OG_SIZE, OG, PAPER));
+}
 
 /** The adaptive favicon: the inks of the light and the dark theme, on no background. */
 export function faviconSvg(): string {
@@ -62,6 +70,7 @@ export function icons(): Record<string, Buffer | string> {
     'apple-touch-icon.png': png(180, MASKABLE),
     'favicon.ico': encodeIco([16, 32, 48].map((size) => ({ size, png: png(size, FAVICON) }))),
     'favicon.svg': faviconSvg(),
+    'og.png': ogImage(),
   };
 }
 
