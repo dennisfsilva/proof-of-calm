@@ -160,3 +160,9 @@ Recorded on 2026-11-15, when the site's half of the rendering points landed in `
 - A static page shows only what holds on any device: no row or line for a fall under way and no plan's country card,
   which read the device's plan and prices. A module whose front matter names `drawdowns-bar` draws it from the cycles
   file, with its source line and the past-performance line, as the app does.
+- The country library splits the same way: `CountryCardView` in `components/country-card.tsx` takes the formatters, and
+  `CountryCard` is the app's wrapper. `loadCountrySite` derives the rows and the cards from every profile at the day
+  passed in, with the countries port's own functions, so a card past its review renders under review as in the app. The
+  pages are `SiteCountryList`, `SiteCountryPage`, `SiteCountryRows` (every country under `Countries`, after the tax
+  module's text, since a public page has no plan) and `SiteHoldingDates`, each listed country's holding rule with every
+  condition, its Sources link and the card's date line; it computes no date.
