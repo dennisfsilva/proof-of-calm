@@ -93,9 +93,10 @@ function asNear(a: Money, A: Money, p: Money) {
  * its target first, while each brings the sum nearer its amount; a monthly buy whose month has no date, and every other
  * hand-recorded purchase or sale, claims C's nearest date of the same role within 3 days of its own date." A `lump`,
  * hand or one-tap, walks instead: C's purchase dates within 3 days of its date that no hand monthly buy or earlier entry
- * claimed and that pass `asNear`, nearest its date first, while each brings the sum nearer its amount. `known` holds
- * the file's purchase dates an earlier import stored, live or tombstoned: they take their place in a walk's order and
- * sum but are never claimed. Sets `claimed` on the days it takes.
+ * claimed and that pass `asNear`, nearest its date first, while each brings the sum nearer its amount. The second pass
+ * takes the monthly buys that fall back first, then each lump, extra buy and sale, each group in `compareEntries`
+ * order. `known` holds the file's purchase dates an earlier import stored, live or tombstoned: they take their place in
+ * a walk's order and sum but are never claimed. Sets `claimed` on the days it takes.
  */
 export function claimRecorded(
   plan: Plan,
@@ -155,7 +156,8 @@ export function claimRecorded(
   // A date an entry claimed is out of a lump's walk whole, its stored part too.
   const busy = (day: Day) =>
     days.some((each) => each.claimed && each.coin === day.coin && each.role === day.role && each.date === day.date);
-  for (const entry of rest) {
+  // The monthly buys that fall back claim before any `lump`; lumps keep their place among the extras and sales.
+  for (const entry of [...rest.filter((each) => each.slot !== null), ...rest.filter((each) => each.slot === null)]) {
     const role = entry.kind === 'sell' ? 'sale' : 'purchase';
     if (entry.kind === 'lump') {
       const amount = entry.amount as Money;
