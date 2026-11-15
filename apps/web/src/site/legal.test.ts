@@ -26,9 +26,12 @@ function main(name: LegalName): string {
 /** Markup as the text a person reads: tags dropped, spaces joined. */
 const text = (html: string) => html.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ');
 
+/** One section of a legal page by its id. */
+const pageSection = (name: LegalName, page: string, id: string) =>
+  page.match(new RegExp(`<section[^>]*aria-labelledby="${name}-${id}-title"[^>]*>(.*?)</section>`))?.[1] ?? '';
+
 /** One section of the Risk page by its id. */
-const section = (page: string, id: string) =>
-  page.match(new RegExp(`<section[^>]*aria-labelledby="risk-${id}-title"[^>]*>(.*?)</section>`))?.[1] ?? '';
+const section = (page: string, id: string) => pageSection('risk', page, id);
 
 describe('the Risk disclosure (docs/LEGAL.md §5)', () => {
   const risk = messages.legal.risk;
@@ -172,22 +175,28 @@ describe('the Cookie-free statement (docs/LEGAL.md §5)', () => {
     expect(page).toContain('Delete everything in Settings clears these too.');
   });
 
-  it('lists what the browser keeps in order, then how visits are counted, the banner and the references', () => {
-    const paragraphs = main('cookies').match(/<p>[^<]*<\/p>/g) ?? [];
+  it('says there is no banner after the lead, then lists what the browser keeps, how visits are counted and the references', () => {
+    const page = main('cookies');
+    const paragraphs = page.match(/<p>[^<]*<\/p>/g) ?? [];
     const starts = [
+      'Proof of Calm sets no advertising or analytics cookies',
+      'There is no cookie banner',
       'Your browser keeps your plan',
       'Your browser also keeps your display settings',
       'Your browser keeps a record of the entries you deleted',
       'It keeps a random identifier for this device',
       'Your browser keeps form drafts until the tab closes',
       'Proof of Calm does not count visits itself',
-      'There is no cookie banner',
       'The rules on storing information in your browser',
     ];
     const first = paragraphs.findIndex((p) => p.includes(starts[0] ?? ''));
     expect(paragraphs.slice(first, first + starts.length).map((p) => p.slice(3, 3 + 60))).toEqual(
       starts.map((start) => expect.stringContaining(start)),
     );
+    // The Privacy notice is linked right after how visits are counted.
+    const visits = page.indexOf('does not count visits itself');
+    expect(page.indexOf(href('/privacy'))).toBeGreaterThan(visits);
+    expect(page.indexOf(href('/privacy'))).toBeLessThan(page.indexOf('The rules on storing information'));
   });
 
   // Everything M1 keeps in the browser, each in a sentence that also says why (§5's outline).
@@ -266,6 +275,43 @@ describe('the launch drafts of Terms, Privacy and Contact (docs/LEGAL.md §5)', 
     expect(page).toContain(href('/risk'));
   });
 
+  it('Terms links Contact after who provides it and after the law, and states liability without a cap', () => {
+    const page = main('terms');
+    expect(pageSection('terms', page, 'who')).toContain(href('/contact'));
+    const law = pageSection('terms', page, 'law');
+    expect(law).toContain(href('/contact'));
+    expect(text(law)).toContain(
+      'Proof of Calm charges for nothing yet. Before it charges for anything, the Contact page will name the alternative dispute resolution entities a consumer can use.',
+    );
+    expect(text(pageSection('terms', page, 'liability'))).toContain(
+      'Proof of Calm is liable under the law that applies to these terms. Nothing in these terms limits your rights as a consumer.',
+    );
+    expect(text(page)).not.toMatch(/no further|stays that way/);
+    expect(text(pageSection('terms', page, 'changes'))).toContain(
+      'nothing that costs nothing today will later carry a charge.',
+    );
+  });
+
+  it('Privacy links Contact after the controller and names what the requests and the mail host keep', () => {
+    const page = main('privacy');
+    expect(pageSection('privacy', page, 'controller')).toContain(href('/contact'));
+    expect(text(pageSection('privacy', page, 'requests'))).toContain(
+      'These requests name at most a coin and a currency; they carry none of your entries, amounts, or dates.',
+    );
+    expect(text(pageSection('privacy', page, 'requests'))).toContain(
+      'with no page, internet address, or browser name.',
+    );
+    expect(text(pageSection('privacy', page, 'hosting'))).toContain(
+      `It keeps its request logs for ${messages.legal.owner.logPeriod}.`,
+    );
+    expect(text(pageSection('privacy', page, 'mail'))).toContain(
+      'for 24 months after the last one, to answer follow-up questions, and its mail logs for 30 days',
+    );
+    expect(text(pageSection('privacy', page, 'rights'))).toContain(
+      'Proof of Calm makes no automated decision about you and builds no profile of you.',
+    );
+  });
+
   it('Privacy names Vercel and CoinGecko and links the Cookie-free statement', () => {
     const page = main('privacy');
     expect(page.match(/<h1/g) ?? []).toHaveLength(1);
@@ -293,6 +339,7 @@ describe('the launch drafts of Terms, Privacy and Contact (docs/LEGAL.md §5)', 
         'privacyEmail',
         'dsaEmail',
         'mailHost',
+        'logPeriod',
         'date',
       ].sort(),
     );

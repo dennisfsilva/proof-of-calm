@@ -26,6 +26,7 @@ export function TermsPage() {
           who: <LegalLink slug="contact" />,
           data: <LegalLink slug="privacy" />,
           risk: <LegalLink slug="risk" />,
+          law: <LegalLink slug="contact" />,
         }}
       />
       <LegalVersion />
