@@ -4,6 +4,7 @@ import { BarChart } from '@proofofcalm/ui/charts/bar-chart';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'use-intl';
 import { BRAND } from '../../../lib/brand';
+import type { Formatters } from '../../../lib/format';
 import { useFormatters, useServices } from '../../../lib/services';
 import type { PastFall } from '../../../lib/services/red-day-types';
 import { MODULE_ELEMENTS } from '../lib/body-elements';
@@ -49,12 +50,12 @@ const publisherNames = (publishers: readonly string[]) =>
     a.localeCompare(b),
   );
 
-function DrawdownsBar() {
+export type DrawdownBarsProps = { falls: readonly PastFall[]; f: Formatters };
+
+/** The chart over the rows given, with no services: the app's chart below and the static site pages draw it. */
+export function DrawdownBars({ falls, f }: DrawdownBarsProps) {
   const t = useTranslations('learn.chart');
-  const f = useFormatters();
-  const falls = useDrawdowns();
-  if (falls === null) return null;
-  if (falls === 'failed' || falls.length === 0) return <p className="text-16">{t('failed')}</p>;
+  if (falls.length === 0) return <p className="text-16">{t('failed')}</p>;
   const first = f.date(earliest(falls.map(({ high }) => high)));
   const last = f.date(latest(falls.map(({ low }) => low)));
   const percent = (fall: PastFall['fall']) => f.percent(`-${fall}` as Decimal, { decimals: 0 });
@@ -84,6 +85,13 @@ function DrawdownsBar() {
       </p>
     </div>
   );
+}
+
+function DrawdownsBar() {
+  const f = useFormatters();
+  const falls = useDrawdowns();
+  if (falls === null) return null;
+  return <DrawdownBars falls={falls === 'failed' ? [] : falls} f={f} />;
 }
 
 /** The drawing a module's front matter names; a chart with no renderer yet draws nothing. */
