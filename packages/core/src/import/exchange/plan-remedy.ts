@@ -115,11 +115,14 @@ function groupsOf(file: ExchangeFile, stored: Stored, context: ImportContext): G
     return { date, amount: sum(amounts), units: sum(each), each, amounts, ids };
   };
 }
-/** The starting line's totals: each coin's group on the instruction's date, once per coin. */
+/**
+ * The starting line's totals: each coin's group on the instruction's date, once per coin (a row may hold two lumps of
+ * one coin, whose groups are the same).
+ */
 const totalsOf = (coins: readonly CoinId[], groups: readonly Group[]): StartingTotal[] =>
-  coins.flatMap((coin, index) => {
-    const { amount, units, ids } = groups[index] as Group;
-    return coins.indexOf(coin) === index ? [{ coin, amount, units, count: ids.length }] : [];
+  [...new Set(coins)].map((coin) => {
+    const { amount, units, ids } = groups[coins.indexOf(coin)] as Group;
+    return { coin, amount, units, count: ids.length };
   });
 /** A change that passed the cheap tests, made on either order's Log, and the groups it touches. */
 type Remedy<T> = {
