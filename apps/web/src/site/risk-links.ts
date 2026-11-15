@@ -27,7 +27,8 @@ export const RISK_LINKS: readonly OfficialLink[] = [
     url: 'https://www.bafin.de/EN/die-bafin/publikationen-daten/risiken-im-fokus/Fokusrisiken_2026/RIF_Verbraucher_2/RIF_verbraucher_sozialemedien_node_en.html',
     accessed: READ,
   },
-  { id: 'fca', url: 'https://www.fca.org.uk/consumers/cryptoassets', accessed: READ },
+  // The page's own address; its title is "Crypto: The basics".
+  { id: 'fca', url: 'https://www.fca.org.uk/investsmart/crypto-basics', accessed: READ },
   { id: 'esas-pt', url: `${FACTSHEET}_PT.pdf`, accessed: READ },
   { id: 'esas-de', url: `${FACTSHEET}_DE_DE.pdf`, accessed: READ },
   { id: 'esas-en', url: `${FACTSHEET}_EN.pdf`, accessed: READ },
