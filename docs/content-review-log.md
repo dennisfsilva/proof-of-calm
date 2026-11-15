@@ -5,6 +5,36 @@ What each owner's review found wrong in the drafts, so the review skill improves
 its PR, the model and what the owner corrected. Each row names the kind of mistake, which is what the
 next draft can check for.
 
+## 2026-11-15: When the market drops and the BIS fact, the delegated read
+
+The owner delegated this read and the merge to the session, for the unattended M2 run (#23, answer 2;
+ADR-0015 Deviations). `reviewedBy: owner` on fact `r.app-user-losses` records that delegation; no
+person opened the sources. An agent opened each source on 2026-11-15 (WET = UTC): at 10:30 the BIS
+WP 1049 page, at 10:31 the PDF it links, at 10:33 the Bitstamp BTC/USD daily candles, fact q's own
+source (1,964 candles, 2021-07-01 to 2026-11-15, no gaps), recomputed with the method of
+`docs/research/scripts/analysis/analyze2.py`. The Nov 2022 original was not readable (WebFetch refuses
+web.archive.org). The full read, with every quoted passage, is #230's comment "The delegated re-read
+of fix/learn-public-wording (2026-11-15)".
+
+| Item | Source or code | What the source holds | Verdict |
+|---|---|---|---|
+| The revision date | The PDF's cover and abstract page | "November 2022 (revised July 2023)"; "July 2023" | Holds; fact r's `date` stays the page's 14 Nov 2022, as EDUCATION §9 dates a revised working paper |
+| 81 %, $100, first download and each later month | The PDF, §2.2, p. 10 | "assuming that each new user bought $100 of Bitcoin in the month of the first app download and in each subsequent month, 81% of users would have lost money (Graph 6)." | Holds; the fact now uses the paper's own words |
+| 48 % of $900 | The PDF, §2.2, p. 10 (and §1, p. 3) | "The median investor would have lost 48% of their total $900 in funds invested." | Holds |
+| 95 countries, Aug 2015 to Jun 2022 | The PDF, §2, p. 6 | "Our final panel includes 95 countries at monthly frequency over the period August 2015 - June 2022." | Holds |
+| The idea line's frequency | Fact q; the recomputation | 105 of 1,827 days (5.747 %), 32 episodes in 5.00 years, 6.4 a year | Holds; window, threshold, count and series are in the body |
+| 11.8 % and 15.1 % | The recomputation | 215 and 276 of 1,827 days: 11.77 % and 15.11 % with §9's 90-day high | Holds under §9's reading |
+| "7 days", "4 times", "6 signs of a scam", "3 parts", "4-year" | `packages/core/src/constants.ts`; `packages/content/cycles/drawdowns.json`; Risk honestly's list and EDUCATION §9; DOMAIN §3.8; fact o | `WEEK_DAYS = 7`; bitcoin's falls of 94, 87, 84 and 78 %; 6 bullets, 6 rows; "a third in the window's first month, a third in its third month, the rest in the month it closes"; "48-month windows: 118 of 118 above cost" | Hold |
+
+| Kind | What was wrong | What it became |
+|---|---|---|
+| A qualifier the source does not give the figure | The fact said "at the time of writing" of the 81 %; the paper uses the phrase once, of "about three-quarters" | Dated by the revision: "In its Jul 2023 revision" |
+| A product sentence false in one state | A sentence about the fall page's address, false when the price read fails | Dropped |
+| A historic figure without its past-performance line | The first idea line showed fact q's figure on the Learn index rows, where no past-performance line stands beside it | Made figure-free, on counsel's read |
+
+The modules' `Last reviewed` dates stay as they were: this read covered the sources of the changed
+figures, not every source of each module (`docs/CONTENT-OPS.md` §1).
+
 ## 2026-11-12: Taxes where you live, the delegated read
 
 The owner delegated this read and the merge to the session, for the unattended M2 run (#23, answer 2;
