@@ -1,3 +1,5 @@
+import { createDateFormatter } from '@proofofcalm/app/lib/format';
+import { localesFor } from '@proofofcalm/app/lib/i18n';
 import learnMessages from '@proofofcalm/app/messages/en/learn.json';
 import type { CalendarDate } from '@proofofcalm/core';
 import { describe, expect, it } from 'vitest';
@@ -107,6 +109,11 @@ describe('the Risk disclosure (docs/LEGAL.md §5)', () => {
       expect(link.url, link.id).toMatch(/^https:\/\/[^/]+\.[^/]+\//);
       expect(link.accessed, link.id).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     }
+    // CMVM's page on crypto-assets itself, not the portal's front page; the menu's other address shows no content.
+    expect(RISK_LINKS.find((link) => link.id === 'cmvm')?.url).toBe(
+      'https://investidor.cmvm.pt/PInvestidor/Content?Input=67395E0A73EB6228177F6CF6F359650D89FBDF569843E496EFE3D18D38B626E7',
+    );
+    const date = createDateFormatter(localesFor('en', null).ui);
     const warnings = section(page, 'warnings');
     const items = [...warnings.matchAll(/<li[^>]*>(.*?)<\/li>/g)].map((match) => match[1] ?? '');
     expect(items).toHaveLength(RISK_LINKS.length - 1);
@@ -116,7 +123,7 @@ describe('the Risk disclosure (docs/LEGAL.md §5)', () => {
       expect(item, link.id).toContain('target="_blank"');
       expect(item, link.id).toContain('rel="noopener noreferrer"');
       expect(text(item), link.id).toContain(risk.links[link.id]);
-      expect(text(item), link.id).toContain('15 Nov 2026');
+      expect(text(item), link.id).toContain(text(date(link.accessed)));
     }
     expect(text(section(page, 'register'))).toContain('15 Nov 2026');
   });
