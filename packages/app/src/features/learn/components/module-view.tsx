@@ -1,12 +1,15 @@
 import type { LearnModuleMeta } from '@proofofcalm/content';
 import type { CalendarDate } from '@proofofcalm/core';
 import { Card } from '@proofofcalm/ui/components/card';
-import { type ComponentType, type ReactNode, useMemo } from 'react';
+import { type ComponentType, type ReactNode, useCallback, useMemo } from 'react';
 import { useTranslations } from 'use-intl';
+import type { Formatters } from '../../../lib/format';
 import { useFormatters, useToday } from '../../../lib/services';
 import { type BodyElements, moduleElements, moduleJoiner, withJoiner } from '../lib/body-elements';
 import { reviewLine, TAXES_MODULE } from '../lib/taxes';
 import { ModuleChart } from './module-chart';
+
+const NO_CHART: BodyElements['Chart'] = () => null;
 
 export type ModuleViewProps = {
   module: LearnModuleMeta;
@@ -26,17 +29,30 @@ export type ModuleViewProps = {
  * A module that shows figures the app formats writes its `N %` with the page's joiner (`moduleJoiner`,
  * docs/CONTENT-STYLE.md §4), and a module's `<Chart />` draws its chart.
  */
-export function ModuleView({ module, Body, heading, lead }: ModuleViewProps) {
-  const t = useTranslations('learn');
+export function ModuleView(props: ModuleViewProps) {
   const f = useFormatters();
-  const { chart } = module;
+  const today = useToday();
+  const { chart } = props.module;
+  // One component per chart, so a render of the route or the sheet keeps the chart mounted with its rows.
+  const Chart = useCallback(() => <ModuleChart chart={chart} />, [chart]);
+  return <ModuleArticle {...props} f={f} today={today} Chart={Chart} />;
+}
+
+export type ModuleArticleProps = ModuleViewProps & {
+  f: Formatters;
+  /** The day the review line is read at: the app's tick, or the static page's build date. */
+  today: CalendarDate;
+  /** What the body's `<Chart />` draws; none for a module without one. */
+  Chart?: BodyElements['Chart'];
+};
+
+/** `ModuleView` without services: the static site pages render it with their own formatters, date and chart. */
+export function ModuleArticle({ module, Body, heading, lead, f, today, Chart = NO_CHART }: ModuleArticleProps) {
+  const t = useTranslations('learn');
   const joiner = moduleJoiner(module, f);
-  const state = reviewLine(module, useToday());
+  const state = reviewLine(module, today);
   const reviewed = f.date(module.lastReviewed as CalendarDate);
-  const components = useMemo(
-    () => ({ ...moduleElements(joiner), Chart: () => <ModuleChart chart={chart} /> }),
-    [chart, joiner],
-  );
+  const components = useMemo(() => ({ ...moduleElements(joiner), Chart }), [Chart, joiner]);
   return (
     <article className="flex flex-col gap-stack-md">
       <header className="flex flex-col gap-stack-xs">
