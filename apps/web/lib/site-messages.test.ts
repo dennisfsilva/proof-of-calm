@@ -1,3 +1,4 @@
+import { COINS } from '@proofofcalm/content';
 import { describe, expect, it } from 'vitest';
 import { siteTranslator } from './site-messages';
 
@@ -24,5 +25,13 @@ describe('siteTranslator', () => {
       siteTranslator('legal')('terms.nothing');
     };
     expect(unknown).toBeTypeOf('function');
+  });
+
+  it('names no coin of the catalogue in the manifest description, every page’s og:description (LEGAL §3)', () => {
+    const description = siteTranslator('manifest')('description');
+    const named = COINS.flatMap((coin) => [coin.name, coin.id]).filter((word) =>
+      new RegExp(`\\b${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(description),
+    );
+    expect(named).toEqual([]);
   });
 });
