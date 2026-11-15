@@ -19,6 +19,10 @@
     "lastReviewed": "Last reviewed {date}",
     "notReviewedSince": "Not reviewed since {date}"
   },
+  "holding": {
+    "title": "Holding rules by country",
+    "line": "Each country's holding rule as its card states it, with every condition, its sources and the date it was last reviewed."
+  },
   "thisFall": {
     "row": "The coins you hold against their 90‑day high, and each coin's earlier falls.",
     "back": "Back to Today",
