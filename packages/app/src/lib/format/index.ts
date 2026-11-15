@@ -56,6 +56,17 @@ export type Formatters = {
   list(items: readonly string[]): string;
 } & TimeFormatters;
 
+const utc = (date: CalendarDate) => {
+  const { year, month, day } = dateParts(date);
+  return Date.UTC(year, month - 1, day);
+};
+
+/** `Formatters['date']` on its own, for a page that writes dates and nothing else (the holding-date page's script). */
+export function createDateFormatter(uiLocale: string): (date: CalendarDate) => string {
+  const dates = new Intl.DateTimeFormat(uiLocale, { ...LATIN_DIGITS, timeZone: 'UTC', ...dateOptions(uiLocale) });
+  return (date) => unbroken(dates.format(utc(date)));
+}
+
 export function createFormatters(formattingLocale: string, uiLocale: string): Formatters {
   // One Intl formatter per set of options, built on first use: a screen formats hundreds of values.
   const numbers = new Map<string, Intl.NumberFormat>();
@@ -67,11 +78,7 @@ export function createFormatters(formattingLocale: string, uiLocale: string): Fo
     numbers.set(key, made);
     return made;
   };
-  const utc = (date: CalendarDate) => {
-    const { year, month, day } = dateParts(date);
-    return Date.UTC(year, month - 1, day);
-  };
-  const dates = new Intl.DateTimeFormat(uiLocale, { ...LATIN_DIGITS, timeZone: 'UTC', ...dateOptions(uiLocale) });
+  const date = createDateFormatter(uiLocale);
   const days = new Intl.DateTimeFormat(uiLocale, { ...LATIN_DIGITS, timeZone: 'UTC', day: 'numeric', month: 'long' });
   const months = new Intl.DateTimeFormat(uiLocale, {
     ...LATIN_DIGITS,
@@ -113,7 +120,7 @@ export function createFormatters(formattingLocale: string, uiLocale: string): Fo
       ),
     multiple: (value, decimals = 2) =>
       `${render(number({ minimumFractionDigits: decimals, maximumFractionDigits: decimals, signDisplay: 'negative' }), value)}\u00d7`,
-    date: (date) => unbroken(dates.format(utc(date))),
+    date,
     dayMonth: (date) => unbroken(days.format(utc(date))),
     month: (key) => unbroken(months.format(utc(`${key}-01` as CalendarDate))),
     list: (items) => lists.format(items),

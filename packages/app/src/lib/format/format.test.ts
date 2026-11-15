@@ -1,6 +1,6 @@
 import type { CalendarDate, Decimal, Instant, MonthKey } from '@proofofcalm/core';
 import { describe, expect, it, vi } from 'vitest';
-import { createFormatters, createNumberInput } from '.';
+import { createDateFormatter, createFormatters, createNumberInput } from '.';
 
 const d = (value: string) => value as Decimal;
 const NBSP = '\u00a0';
@@ -131,6 +131,21 @@ describe('dates (ADR-0018)', () => {
     expect(en.instantDate('2029-09-01T12:00:00.000Z' as Instant, 'UTC')).toBe(`1${NBSP}Sept${NBSP}2029`);
     for (const text of [en.date('2026-10-16' as CalendarDate), en.dayMonth('2026-11-01' as CalendarDate)]) {
       expect(text).not.toContain(' ');
+    }
+  });
+
+  // The holding-date page's script writes its dates through this alone, without the rest of the layer.
+  it('writes with createDateFormatter exactly what createFormatters().date writes', () => {
+    const dates = ['2026-10-16', '2029-09-01', '2024-02-29', '2009-01-03', '2027-12-31'] as CalendarDate[];
+    for (const [numbers, ui] of [
+      ['en-IE', 'en-GB'],
+      ['pt-PT', 'pt-PT'],
+      ['de-DE', 'de'],
+      ['en-US', 'en-US'],
+    ] as const) {
+      const date = createDateFormatter(ui);
+      const all = createFormatters(numbers, ui);
+      for (const day of dates) expect(date(day)).toBe(all.date(day));
     }
   });
 });
