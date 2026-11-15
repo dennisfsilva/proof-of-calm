@@ -146,7 +146,7 @@ export function CountryCardView({ country, level, id, f }: CountryCardProps & { 
           {line}
           {!generic &&
             section(
-              t('sourceList'),
+              t('sourceList', { country: country.name }),
               <ul className="flex flex-col gap-stack-sm">
                 {country.sources.map((source) => (
                   <li key={source.key} className="flex flex-col">

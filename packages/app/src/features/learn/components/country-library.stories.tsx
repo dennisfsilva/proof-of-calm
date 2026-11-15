@@ -51,6 +51,6 @@ export const Portugal: Story = {
   play: async ({ canvas }) => {
     await expect(await canvas.findByRole('heading', { level: 1, name: PORTUGAL.name })).toBeVisible();
     await expect(canvas.getByRole('link', { name: 'Back to countries' })).toBeVisible();
-    await expect(canvas.getByRole('heading', { level: 2, name: 'Sources for this card' })).toBeVisible();
+    await expect(canvas.getByRole('heading', { level: 2, name: `Sources for ${PORTUGAL.name}` })).toBeVisible();
   },
 };
