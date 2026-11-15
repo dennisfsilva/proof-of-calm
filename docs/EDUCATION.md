@@ -244,7 +244,7 @@ Every number a module cites, verified against primary data on 2026-10-16 (two in
 exchange and explorer data agreed to the dollar; full tables with every source URL in
 `docs/research/brand-content-education.md` §6) and read again on 2026-11-02, every source opened and
 every computed figure recomputed from the raw responses (`docs/content-review-log.md`).
-`packages/content/facts/education.json` holds this table with `lastReviewed: 2026-11-02` (a and b: 2026-11-09, when they became our computation; the d, e and f rows and m: 2026-11-09, read again for Risk honestly; r: 2026-11-09, when it was added; the k rows but `k.ie-2026`: 2026-11-12): one fact per key, the Fact text as its value, row k one fact
+`packages/content/facts/education.json` holds this table with `lastReviewed: 2026-11-02` (a and b: 2026-11-09, when they became our computation; the d, e and f rows and m: 2026-11-09, read again for Risk honestly; r: 2026-11-15, when its value was rewritten from its source; the k rows but `k.ie-2026`: 2026-11-12): one fact per key, the Fact text as its value, row k one fact
 per law (its closing sentence rests on the 6 k facts and has none of its own). Each fact carries one
 source among those its row names, on the facts allow-list (`docs/CONTENT-OPS.md` §5), with its URL
 from the research report, where the others stay beside those `docs/content-review-log.md` lists
