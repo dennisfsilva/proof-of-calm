@@ -22,6 +22,7 @@ files in `.claude/rules/`; the process itself is the crew plugin (ADR-0046).
 | `BENCHMARK.md` | The competitor benchmark for disclosures, the regulatory minimum for this product, the patterns to copy and avoid, the open questions; the counsel and brand roles read it |
 | `SECURITY.md` | Security baseline, threat model for sync, RLS testing, CSP, secrets, backups and the restore drill |
 | `RELEASE.md` | The release checklist |
+| `CHANGELOG.md` (the repository root) | The user-visible changes in plain words: `Unreleased` until the release PR dates them |
 | `OWNER-SETUP.md` | Steps only the owner can take (GitHub plan and rulesets, Renovate, Vercel, DNS, keys), with the defaults until they are done |
 | `GROWTH.md` | The three-year growth plan: position, brand, release stages, channels, targets and the rules for marketing; accepted by the owner on 2026-10-17, its decisions in ADR-0039 to ADR-0041 and the open ones in §9 |
 | `ADR/` | Decision records, numbered, with an index that says which paths each one applies to |
