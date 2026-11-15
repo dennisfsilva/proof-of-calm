@@ -112,5 +112,5 @@ was wrong on 2026-10-18, with the fact and where it can be checked.
 
 - **Context and Consequences, "never asks for keys or money".** A paid plan (ADR-0010) asks for
   money for the subscription, so the Risk page states the promise as never asking for a seed
-  phrase, an exchange's API key or login, or for coins or money to buy them (`docs/LEGAL.md` §5);
+  phrase, a private key, an exchange's API key or login, or for coins or money to buy them (`docs/LEGAL.md` §5);
   the keys promise the decision counts on is unchanged.

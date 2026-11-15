@@ -191,8 +191,8 @@ landing page says so in one sentence. It loses a few sign-ups and keeps the wron
 - One line on the site, in every bio and in every store listing: "No token, no airdrop, no direct
   messages. Support only by email from proofofcalm.com." Crypto brands attract fake tokens and fake
   support accounts as soon as they are visible.
-- "Proof of Calm never offers you an investment and never asks for your seed phrase, an exchange's API
-  key or login, or for coins or money to buy them" stays true (ADR-0039, the Risk page's words) and is repeated on the security page.
+- "Proof of Calm never offers you an investment and never asks for your seed phrase, a private key, an
+  exchange's API key or login, or for coins or money to buy them" stays true (ADR-0039, the Risk page's words) and is repeated on the security page.
 - Store developer accounts in the business's name where possible (§3.2); `security.txt` as in
   `docs/LEGAL.md` §5.
 

@@ -124,8 +124,9 @@ describe('the Risk disclosure (docs/LEGAL.md §5)', () => {
   it("states ADR-0039's promise in the scams section and never says the app buys", () => {
     const scams = text(section(main('risk'), 'scams'));
     expect(scams).toContain(
-      "Proof of Calm never offers you an investment and never asks for your seed phrase, an exchange's API key or login, or for coins or money to buy them.",
+      "Proof of Calm never offers you an investment and never asks for your seed phrase, a private key, an exchange's API key or login, or for coins or money to buy them.",
     );
+    expect(scams).toContain("any request for your seed phrase, a private key, or an exchange's API key or login.");
     expect(text(section(main('risk'), 'dca'))).toContain('With a plan, you buy a set amount on a set schedule');
     expect(risk.dca.p1).not.toMatch(/A plan buys/);
   });
