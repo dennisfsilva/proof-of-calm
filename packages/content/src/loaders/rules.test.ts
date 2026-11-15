@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { CountryRulesSchema } from '@proofofcalm/core';
 import { afterAll, describe, expect, it } from 'vitest';
-import { renderRules, writeRules } from '../../scripts/rules.ts';
+import { LOCALES_FILE, renderLocales, renderRules, writeRules } from '../../scripts/rules.ts';
 import type { CountryProfile } from '../schema/jurisdiction.ts';
 import { COUNTRY_CODES, countryRules, loadProfile } from './countries.ts';
 import { loadRules } from './rules.ts';
@@ -38,8 +38,8 @@ describe('loadRules', () => {
 });
 
 describe('packages/content/rules', () => {
-  it('holds one file per profile code and no other', () => {
-    expect(readdirSync(RULES).sort()).toEqual(COUNTRY_CODES.map(fileName).sort());
+  it('holds one file per profile code and the locales file, and no other', () => {
+    expect(readdirSync(RULES).sort()).toEqual([...COUNTRY_CODES.map(fileName), LOCALES_FILE].sort());
   });
 
   it.each(COUNTRY_CODES)('%s reads as the script renders its profile', (code) => {
@@ -79,13 +79,14 @@ describe('writeRules (scripts/rules.ts)', () => {
     mkdirSync(profiles, { recursive: true });
     writeFileSync(join(profiles, 'pt.json'), readFileSync(join(PROFILES, 'pt.json')));
     expect(() => readdirSync(rules)).toThrow();
-    expect(writeRules({ profiles, rules })).toEqual({ written: ['pt.json'], removed: [] });
+    expect(writeRules({ profiles, rules })).toEqual({ written: ['pt.json', LOCALES_FILE], removed: [] });
     expect(readFileSync(join(rules, 'pt.json'), 'utf8')).toBe(renderRules(countryRules(profileFile('PT'))));
+    expect(readFileSync(join(rules, LOCALES_FILE), 'utf8')).toBe(renderLocales([profileFile('PT')]));
 
     writeFileSync(join(rules, 'zz.json'), '{}\n');
     writeFileSync(join(rules, 'notes.txt'), 'kept');
-    expect(writeRules({ profiles, rules })).toEqual({ written: ['pt.json'], removed: ['zz.json'] });
-    expect(readdirSync(rules).sort()).toEqual(['notes.txt', 'pt.json']);
+    expect(writeRules({ profiles, rules })).toEqual({ written: ['pt.json', LOCALES_FILE], removed: ['zz.json'] });
+    expect(readdirSync(rules).sort()).toEqual([LOCALES_FILE, 'notes.txt', 'pt.json']);
   });
 
   it('refuses a profile whose code is not two capitals and writes nothing outside the rules folder', () => {
