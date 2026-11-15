@@ -7,7 +7,7 @@ import { preCut } from '../../../test/exchange/plan-late';
 import { IMPORT_ESTIMATE_CHECKS, IMPORT_RECORDED_CHECKS, IMPORT_REMEDY_MAX_MOVEMENTS } from '../../constants';
 import { addDays, type CalendarDate } from '../../dates/calendar';
 import { transactionKey } from '../../log/group';
-import { isPositive, type Money, plus, sum, type Units } from '../../money/decimal';
+import { isPositive, type Money, minus, plus, product, quotient, sum, type Units } from '../../money/decimal';
 import { plannedParts } from '../../plan/parts';
 import { slots } from '../../plan/slots';
 import { liveEntries } from '../../plan/statuses';
@@ -151,10 +151,28 @@ function importFirst(drawn: World, stored: Stored, entry: Entry) {
 const RUNS = { numRuns: 300 };
 const TIMEOUT = 90_000;
 
+/** The change to 1 Nov 2021 of the files at the bound, a purchase of each coin's part with `held` units that day. */
+const novemberFirst = (held: string) => ({
+  kind: 'change',
+  date: '2021-11-01',
+  totals: [
+    { coin: 'BTC', amount: '700', units: held, count: 1 },
+    { coin: 'ETH', amount: '300', units: held, count: 1 },
+  ],
+});
+
+/** `whole` cut into `count` parts at `dp` places, the last taking the rest, so the parts sum to it. */
+function pieces<T extends Money | Units>(whole: T, count: number, dp: number): T[] {
+  const each = quotient<T>(whole, String(count) as T, dp, 'down');
+  return [...Array.from({ length: count - 1 }, () => each), minus(whole, product<T>(each, String(count - 1) as T))];
+}
+
 /**
  * A world of a plan with a starting amount whose file also holds a purchase of each coin's part on one date, 40 days
  * before the first buy to 15 after, up to 40 off the part, and whose Log holds the generator's lumps, none, or a hand
- * row of lumps of the parts on the first buy instead, so both instructions are reached.
+ * row of lumps of the parts on the first buy instead, so both instructions are reached. Half the time each starting
+ * purchase is cut into 1 to 3 fills that day, and a third of the worlds also hold a purchase of each coin's monthly part
+ * that day with a one-tap estimate of the first month, so the totals and d*'s guard are reached.
  */
 const startWorld = fc
   .record({
@@ -162,32 +180,54 @@ const startWorld = fc
     offset: fc.integer({ min: -40, max: 15 }),
     off: fc.integer({ min: -40, max: 40 }),
     lumps: fc.constantFrom('kept', 'none', 'hand'),
+    fills: fc.oneof(fc.constant(1), fc.integer({ min: 1, max: 3 })),
+    monthly: fc.nat({ max: 2 }),
   })
-  .map(({ drawn, offset, off, lumps }): World => {
+  .map(({ drawn, offset, off, lumps, fills, monthly }): World => {
     const parts = plannedParts(drawn.plan, drawn.plan.startingAmount);
     const day = addDays(drawn.plan.firstBuy, offset);
-    const starts = parts.map((part, index) =>
+    const starts = parts.flatMap((part, index) => {
+      const amounts = pieces(plus(part.amount, money(String(off))), fills, 2);
+      const held = pieces(units('0.0125'), fills, 8);
+      return amounts.map((amount, fill) =>
+        trade(
+          `START-${index}-${fill}`,
+          'purchase',
+          part.coin,
+          `${day}T0${8 + fill}:00:00Z`,
+          { units: held[fill] as Units, amount, fee: '0' },
+          900 + 10 * index + 2 * fill,
+        ),
+      );
+    });
+    const first = slots(drawn.plan)[0] as ReturnType<typeof slots>[number];
+    const month = monthly === 0 ? plannedParts(drawn.plan, drawn.plan.monthlyAmount) : [];
+    const buys = month.map((part, index) =>
       trade(
-        `START-${index}`,
+        `MONTH-${index}`,
         'purchase',
         part.coin,
         day,
-        {
-          units: '0.0125',
-          amount: plus(part.amount, money(String(off))),
-          fee: '0',
-        },
-        900 + 2 * index,
+        { units: '0.001', amount: part.amount, fee: '0' },
+        970 + 2 * index,
       ),
+    );
+    const estimates = month.map((part) =>
+      anEntry({ coin: part.coin, slot: first.key, date: day, amount: part.amount, source: 'one-tap' }),
     );
     const rows = parts.map((part) =>
       anEntry({ kind: 'lump', coin: part.coin, slot: null, date: drawn.plan.firstBuy, amount: part.amount }),
     );
-    const others = drawn.entries.filter((entry) => lumps === 'kept' || entry.kind !== 'lump');
+    // The estimate takes the first month's place in the Log, so no coin has two entries for it.
+    const others = drawn.entries.filter(
+      (entry) =>
+        (lumps === 'kept' || entry.kind !== 'lump') &&
+        !(entry.slot === first.key && month.some((part) => part.coin === entry.coin)),
+    );
     return {
       ...drawn,
-      file: fileOf([...drawn.file.movements, ...starts], drawn.file.leftOut),
-      entries: lumps === 'hand' ? [...others, ...rows] : others,
+      file: fileOf([...drawn.file.movements, ...starts, ...buys], drawn.file.leftOut),
+      entries: [...(lumps === 'hand' ? [...others, ...rows] : others), ...estimates],
     };
   });
 
@@ -274,7 +314,7 @@ function followEstimate(drawn: World, stored: Stored, line: EstimateLine) {
   ];
 }
 
-type Figure = { readonly amount: Money; readonly units: Units };
+type Figure = { readonly amount: Money; readonly units: Units; readonly count: number };
 /** The file's purchases of a coin on a date that no stored entry holds, summed: the figures the starting line names. */
 function figuresOn(drawn: World, entries: readonly Entry[], coin: CoinId, day: CalendarDate): Figure {
   const known = new Set(entries.map((entry) => entry.id));
@@ -290,6 +330,7 @@ function figuresOn(drawn: World, entries: readonly Entry[], coin: CoinId, day: C
   return {
     amount: sum(movements.map((movement) => movement.amount as Money)),
     units: sum(movements.map((movement) => movement.units)),
+    count: movements.length,
   };
 }
 const roleOf = (entry: Entry) => (entry.kind === 'sell' ? 'sale' : entry.kind === 'held' ? 'receipt' : 'purchase');
@@ -304,6 +345,12 @@ const groupOf = (entry: Entry) => `${entry.coin}|${entry.date}|${roleOf(entry)}`
  */
 function followStart(drawn: World, stored: Stored, line: StartingRemedy, lumps: readonly Entry[]) {
   const coins = line.kind === 'record' ? plannedParts(drawn.plan, drawn.plan.startingAmount).map((p) => p.coin) : [];
+  // The figures typed are the line's totals; a coin of another row the line does not name keeps the file's.
+  const typed = (coin: CoinId) => {
+    const { amount, units } =
+      line.totals.find((each) => each.coin === coin) ?? figuresOn(drawn, stored.entries, coin, line.date);
+    return { amount, units };
+  };
   const change: LogChange =
     line.kind === 'record'
       ? {
@@ -315,14 +362,14 @@ function followStart(drawn: World, stored: Stored, line: StartingRemedy, lumps: 
             fee: null,
             note: '',
             venue: null,
-            rows: coins.map((coin) => ({ coin, ...figuresOn(drawn, stored.entries, coin, line.date) })),
+            rows: coins.map((coin) => ({ coin, ...typed(coin) })),
           },
         }
       : {
           kind: 'edit',
           row: lumps,
           date: line.date,
-          figures: new Map(lumps.map((each) => [each.id, figuresOn(drawn, stored.entries, each.coin, line.date)])),
+          figures: new Map(lumps.map((each) => [each.id, typed(each.coin)])),
         };
   const changed = changedLog(stored, change, LISBON);
   if (changed === null) return ['refused'];
@@ -397,7 +444,7 @@ describe('importRemedies, over generated files and Logs', () => {
   it(
     'following the starting line, before or after importing, records its date by the lump and keeps every other group',
     () => {
-      const reached = { before: 0, after: 0, shorter: 0, record: 0, change: 0 };
+      const reached = { before: 0, after: 0, shorter: 0, record: 0, change: 0, summed: 0 };
       fc.assert(
         fc.property(fc.oneof(world, startWorld), fc.nat(), (drawn, cut) => {
           for (const [order, stored] of orders(drawn, cut)) {
@@ -405,6 +452,12 @@ describe('importRemedies, over generated files and Logs', () => {
             if (starting === null) continue;
             reached[order as keyof typeof reached] += 1;
             reached[starting.kind] += 1;
+            if (starting.totals.some((each) => each.count > 1)) reached.summed += 1;
+            // The totals are each named coin's purchases on the date that no stored entry holds, their count included.
+            for (const total of starting.totals) {
+              const { coin, ...figures } = total;
+              expect(figures).toEqual(figuresOn(drawn, stored.entries, coin, starting.date));
+            }
             const lumps = liveEntries(stored.entries).filter((entry) => entry.kind === 'lump');
             // A record is made on the Log as it is; a change on one row of lumps, the person's own row of them.
             const keys = [...new Set(lumps.map(transactionKey))];
@@ -493,7 +546,7 @@ describe('importRemedies, over generated files and Logs', () => {
       );
       const log = [...entries.filter((entry) => entry.slot !== month('2021-11')), ...lumps];
       const remedies = importRemedies(first, { plan: starting, entries: log }, false, LISBON);
-      expect(remedies.starting).toEqual({ kind: 'change', date: '2021-11-01' });
+      expect(remedies.starting).toEqual(novemberFirst('0.0005'));
       // Every other month tapped and its purchase made late, on its 19th, and the months between typed by hand on their
       // 1st, each date in five fills of each coin (every day is in some month's reach, so a weekly file leaves no
       // estimate): the estimate line's change is checked on the capped rows too.
@@ -580,7 +633,7 @@ describe('importRemedies, over generated files and Logs', () => {
       expect([worst.recorded.size, worst.estimates.length, worst.starting]).toEqual([
         2 * IMPORT_RECORDED_CHECKS,
         IMPORT_ESTIMATE_CHECKS,
-        { kind: 'change', date: '2021-11-01' },
+        novemberFirst('0.001'),
       ]);
     },
     TIMEOUT,
