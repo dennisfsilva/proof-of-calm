@@ -169,3 +169,9 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   `packages/core/src/import/exchange/plan-lump-cut.property.test.ts`). Only a date at the file's edge
   shows a cut, and keeping a `lump` off such a date would undo #214's tap on the day of purchase, often
   an export's last date. This narrows rule R's entry. The rest stands.
+- 2026-11-14, the starting line's totals (#224): when the instruction's date holds two or more
+  purchases of a coin, the line states each coin's totals and the instruction names that date and those
+  totals, since typing one purchase's figures left the rest out (1,100 against 1,500); d* counts a date of
+  several purchases only when leaving out any one takes the rest farther from the target, so a date that
+  also holds the month's buy asks for no change; and `Matching entries` marks a one-tap entry's units
+  (estimated), as the starting line does. The rest stands.

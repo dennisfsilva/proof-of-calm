@@ -1090,7 +1090,12 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      `importRemedies` finds (below, "Lines that ask for a change"): "If you bought your whole starting amount
      on {date}, change its date, cost, and units in the Log to the file's", or "record it in the Log with
      the file's date, cost, and units" (the starting-amount sheet takes every coin's part in one save),
-     then choose the file again; never to record a purchase as an extra buy, which would count it twice. The
+     then choose the file again; never to record a purchase as an extra buy, which would count it twice.
+     When a coin of the change has two or more purchases on that date, the line ends with their totals,
+     "The file's purchases on {date} add up to {totals}" (each coin of the change, units for cost), and the
+     instruction reads "change it in the Log to that date and those totals" or "record it in the Log with
+     that date and those totals": typing one purchase's figures left the others out (600 and 400 on
+     10 Jun: 1,100 against 1,500). The
      purchases of that date always show: older than the latest five, they take the earliest ones' places
      and the list ends with how many more. Choosing per purchase is planned (M4).
   4. The coins the person added (decided 2026-11-14, ADR-0056, Corrections): "Each live hand `held` entry of
@@ -1170,7 +1175,10 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   among the dates the line names and those its `lump` records in step 2; it counts only when the line
   names it and its amount is at least as near the target as the coin's monthly part, by distance
   (`nearTarget`, d*'s own test; step 2's `lump` claim compares by ratio instead, so the two can differ:
-  against a target of 100 and a part of 500, a date of 250 counts for d* and fails step 2's gate). While
+  against a target of 100 and a part of 500, a date of 250 counts for d* and fails step 2's gate), and,
+  when its group holds two or more purchases, leaving out any one of them takes the rest farther from the
+  target: a date that also holds the month's buy (€500 and €70 against a €500 `lump`) asks for no
+  change, since its totals would count that buy twice. While
   no `lump` is live,
   "record it" is the candidate when every coin with a starting part has d* on one date that no hand
   `held` entry guards (step 4 would leave it out once recorded): one `lump` per coin on that date with the
