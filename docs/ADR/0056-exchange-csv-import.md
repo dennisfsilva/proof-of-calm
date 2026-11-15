@@ -154,7 +154,9 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   buys by walking its coin's purchase dates within 3 days of its date whose amount, stored purchases
   included, is as near its own as its coin's monthly part or nearer, as a ratio, nearest date first,
   while the sum gets nearer its amount; stored dates count in the order and sum but are never claimed
-  (the rule's text is `docs/DOMAIN.md` §3.13 step 2's). A starting amount tapped on a later buy day no
+  (the rule's text is `docs/DOMAIN.md` §3.13 step 2's). Every hand monthly buy claims before any lump,
+  one whose month has no date too, and a lump keeps its place among extra buys and sales (1,700 against
+  1,600 in step 2's example). A starting amount tapped on a later buy day no
   longer takes that day's monthly buy, and one bought in pieces on days near it is recorded whole (W1:
   1,400 against 2,400). Four prices stand, each with its figures in step 2: a purchase between the
   square root of the lump's amount times the part and their mean, near the lump, counts as starting
