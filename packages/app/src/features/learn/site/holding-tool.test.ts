@@ -9,7 +9,7 @@ import {
   holdingFragment,
   holdingMax,
   parseHoldingFragment,
-} from './holding-tool';
+} from './holding-tool.ts';
 import { type CountrySite, loadCountrySite } from './load';
 
 // The holding-date tool's pure half (docs/JURISDICTIONS.md §1 and §2): what the page's script reads from the URL's

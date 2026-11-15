@@ -24,7 +24,19 @@
   },
   "holding": {
     "title": "Holding rules by country",
-    "line": "Each country's holding rule with every condition, its sources, and the date it was last reviewed."
+    "line": "Each country's holding rule with every condition, its sources, and the date it was last reviewed.",
+    "tool": {
+      "app": "Proof of Calm shows, for each purchase you log, the day it passes your plan's holding rule, where that rule sets a holding period.",
+      "country": "Country",
+      "bought": "Purchase date",
+      "submit": "Show the date",
+      "invalid": "Enter a purchase date from {min} to {max}.",
+      "exempt": "Tax-free from <date></date>",
+      "lowerRate": "Long-term rate from <date></date>",
+      "from": "For a purchase on <date></date>",
+      "note": "Computed from your dates, not tax advice",
+      "more": "Show {count} more {count, plural, one {condition} other {conditions}}"
+    }
   },
   "thisFall": {
     "row": "The coins you hold against their 90‑day high, and each coin's earlier falls.",
