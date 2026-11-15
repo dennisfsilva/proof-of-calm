@@ -1042,6 +1042,48 @@ describe("a lump's claim reads its amount", () => {
     expect(planOf(c, after).entries).toEqual([]);
   });
 
+  // A lump at the part claims one date, so W1 does not hold for it: its pieces on other days are imported beside it.
+  it.each(['before importing', 'after importing'])(
+    'at the part, a starting amount in two pieces, %s: the lump records 3 Sep alone, 105 against 70',
+    (when) => {
+      const atPart = lump('2026-09-03', { amount: money('70'), units: units('0.001') });
+      const file = [
+        buy('BTC', '2026-09-03T10:00:00Z', '35', '0.0005'),
+        buy('BTC', '2026-09-04T10:00:00Z', '35', '0.0005'),
+      ];
+      const c = of(file, [atPart], PLAN_70_30);
+      const entries = when === 'before importing' ? c.entries : imported(c, c.entries);
+      expect(recordedBy(c, entries, atPart)).toEqual(['2026-09-03']);
+      expect(invested(c, entries)).toBe('105');
+    },
+  );
+
+  // "400 less" with a hand lump of 500, the part, in place of the extra buy: the lump at the part falls back to its
+  // nearest date as the extra buy does, so the cut first stores 5 Sep and the whole file's lump then claims 2 Sep (W2).
+  it('at the part, a second lump beside the lump of 1,000: the cut first stores 5 Sep and leaves out 2 Sep, 3,100', () => {
+    const plan = { ...P6, startingAmount: money('100'), monthlyAmount: money('500') };
+    const file = [
+      ...MONTHS.map((slot) => buy('BTC', `${slot}-02`, '500', '0.00625')),
+      buy('BTC', '2026-09-04T09:00:00Z', '700', '0.00875'),
+      buy('BTC', '2026-09-04T15:00:00Z', '100', '0.00125'),
+      buy('BTC', '2026-09-05T10:00:00Z', '100', '0.00125'),
+    ];
+    const atPart = lump('2026-09-04', { amount: money('500'), units: units('0.00625') });
+    const c = of(file, [lump('2026-09-03'), atPart], plan);
+    expect(planOf(c, c.entries).recorded.map((item) => [item.entry.amount, item.dates])).toEqual([
+      ['1000', ['2026-09-04']],
+      ['500', ['2026-09-05']],
+    ]);
+    expect(invested(c, c.entries)).toBe('3500');
+    const shorter = fileOf(c.file.filter((m) => m.at > '2026-09-04T12:00:00Z'));
+    expect(planOf(c, c.entries, shorter).recorded.map((item) => [item.entry.amount, item.dates])).toEqual([
+      ['500', ['2026-09-04']],
+    ]);
+    const cut = imported(c, c.entries, shorter);
+    expect(recordedBy(c, cut, atPart)).toEqual(['2026-09-02']);
+    expect(invested(c, cut)).toBe('3100');
+  });
+
   // CI's world of 2026-11-15 (seed -1110155515, plan-lump-cut.property.test.ts), shrunk: a one-tap lump of 35, half
   // BTC's monthly part of 70, on 2 Apr. 1 Apr's 52.50 is farther from 35 than 70 is, as a ratio, so the whole file's
   // lump walks 2 Apr and 3 Apr. An export beginning inside 1 Apr holds its 49 alone, which is nearer: the shorter
