@@ -1171,3 +1171,87 @@ describe('validateContent: the no-break hyphen between a number and its unit (do
     expect(codes([file('packages/content/coins.json', coins('Bitcoin 4‑year'))])).toEqual([]);
   });
 });
+
+describe('validateContent: translated overlays (ADR-0057)', () => {
+  const pt = 'packages/content/jurisdictions/pt.json';
+  const de = 'packages/content/jurisdictions/de.json';
+  const overlayOf = (english: string, language = 'pt-PT') => english.replace('content/', `content/i18n/${language}/`);
+  // The problems of the overlay files only: the English fixtures' own problems are the English tests' business.
+  const overlaid = (files: ContentFile[]) =>
+    validateContent(files, options)
+      .filter((problem) => problem.path.includes('/i18n/'))
+      .map((problem) => `${problem.code}: ${problem.detail}`);
+  const withCaveat = (caveat: string, overrides: Record<string, unknown> = {}) =>
+    profile({ ...overrides, card: { ...profile().card, caveats: [caveat] } });
+
+  it('passes an overlay of prose that keeps the English numbers', () => {
+    const overlay = { name: 'Portugal', filingNote: 'Os ganhos entram na declaração anual, entre abril e junho.' };
+    expect(overlaid([file(pt, profile()), file(overlayOf(pt), overlay)])).toEqual([]);
+  });
+
+  it('runs the ban list, the 60 words, the hyphen and the schema on each overlaid value', () => {
+    const long = `${'sim '.repeat(61)}365 28%`;
+    const overlay = {
+      card: { caveats: ['Recomendamos que um profissional confirme.'], summary60: long },
+      lotRuleNote: 'Lotes por plataforma.',
+      holdingRuleConditions: [`A contraparte está na UE. ${'x'.repeat(240)}`],
+    };
+    expect(overlaid([file(pt, profile()), file(overlayOf(pt), overlay)])).toEqual([
+      'schema: holdingRuleConditions.0: Invalid input',
+      'summary-too-long: 63 words',
+      banned('advice', 'card.caveats.0', 'Recomendamos'),
+    ]);
+    const two = 'packages/content/templates/two-coins.json';
+    const hyphenated = { explanation: 'Duas moedas, compradas todos os meses e detidas 12-month.' };
+    expect(overlaid([file(two, template()), file(overlayOf(two), hyphenated)])).toEqual([
+      'overlay-number-mismatch: explanation: 12, English none',
+      'number-unit-hyphen: explanation: "12-month"; write U+2011 between the number and its unit (90‑day)',
+    ]);
+  });
+
+  it("holds a percentage to the joiner of the language's number locale, as localesFor picks it", () => {
+    const german = { code: 'DE', locales: ['de-DE'], numberFormatLocale: 'de-DE', dateFormatLocale: 'de-DE' };
+    const nbsp = String.fromCodePoint(0xa0);
+    const english = file(de, withCaveat(`A rate of 12.2${nbsp}% applies.`, german));
+    expect(overlaid([english, file(overlayOf(de), { card: { caveats: ['Aplica-se uma taxa de 12,2%.'] } })])).toEqual([
+      'percent-joiner: card.caveats.0: "12,2%" has none, expected U+00A0',
+    ]);
+    const portugal = file(pt, withCaveat('A rate of 12.2% applies.'));
+    expect(overlaid([portugal, file(overlayOf(pt), { card: { caveats: ['Aplica-se uma taxa de 12,2%.'] } })])).toEqual(
+      [],
+    );
+  });
+
+  it('reports the shape problems: an unknown path, a source, an array length, a changed figure', () => {
+    const overlay = {
+      nickname: 'PT',
+      sources: [{ url: 'https://example.com/' }],
+      card: { reporting: ['a', 'b'], summary60: 'Compras detidas 366 dias ou mais estão isentas; o resto paga 28%.' },
+    };
+    expect(overlaid([file(pt, profile()), file(overlayOf(pt), overlay)])).toEqual([
+      'overlay-unknown-path: nickname',
+      'overlay-not-translatable: sources.0.url',
+      'overlay-array-length: card.reporting: 2 items, English 1',
+      'overlay-number-mismatch: card.summary60: 28 366, English 28 365',
+    ]);
+  });
+
+  it('reports an orphan: no English file, a language without content, a fact key English lacks', () => {
+    const facts = 'packages/content/facts/red-day.json';
+    expect(
+      overlaid([
+        file(overlayOf('packages/content/jurisdictions/fr.json'), { name: 'França' }),
+        file(pt, profile()),
+        file(overlayOf(pt), { name: 'Portugal' }),
+        file(overlayOf(pt, 'pt-BR'), { name: 'Portugal' }),
+        file(facts, [fact()]),
+        file(overlayOf(facts), { 'q.unknown': { unit: '% dos dias' }, 'q.red-day-frequency': { source: 'x' } }),
+      ]),
+    ).toEqual([
+      'overlay-orphan: no English packages/content/jurisdictions/fr.json',
+      'overlay-orphan: pt-BR is not a content language',
+      'overlay-orphan: q.unknown',
+      'overlay-not-translatable: q.red-day-frequency.source',
+    ]);
+  });
+});

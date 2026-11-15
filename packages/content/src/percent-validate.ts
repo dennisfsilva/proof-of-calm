@@ -58,10 +58,32 @@ function percentProblems(path: string, profile: CountryProfile, texts: readonly 
       const detail = `locales: ${locale} writes ${codePoints(percentJoiner(locale))}, numberFormatLocale ${numberFormatLocale} writes ${expected}`;
       return { path, code: 'percent-joiner', detail };
     });
+  return [...problems, ...percentTextProblems(path, numberFormatLocale, texts)];
+}
+
+/**
+ * A translated profile's percentages against the number locale `localesFor` (packages/app) picks in `language`: the
+ * profile's locale in that language where it has one, else `numberFormatLocale` (ADR-0057).
+ */
+export function languagePercentProblems(
+  path: string,
+  language: string,
+  profile: CountryProfile,
+  texts: readonly [string, string][],
+): Problem[] {
+  const base = language.split('-')[0];
+  const locale = profile.locales.find((tag) => tag.split('-')[0] === base) ?? profile.numberFormatLocale;
+  return wellFormed(locale) ? percentTextProblems(path, locale, texts) : [];
+}
+
+/** Each literal percentage in `texts` without the joiner `locale` writes; the locale is well formed. */
+function percentTextProblems(path: string, locale: string, texts: readonly [string, string][]): Problem[] {
+  const joiner = percentJoiner(locale);
+  const problems: Problem[] = [];
   for (const [field, text] of texts) {
     for (const [excerpt, gap = ''] of text.replaceAll(URL_IN_TEXT, ' ').matchAll(PERCENT)) {
       if (gap === joiner) continue;
-      const detail = `${field}: ${JSON.stringify(excerpt)} has ${codePoints(gap)}, expected ${expected}`;
+      const detail = `${field}: ${JSON.stringify(excerpt)} has ${codePoints(gap)}, expected ${codePoints(joiner)}`;
       problems.push({ path, code: 'percent-joiner', detail });
     }
   }

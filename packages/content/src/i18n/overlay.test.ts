@@ -109,5 +109,6 @@ describe('overlayProblems', () => {
     expect(numbersIn('1 000 and 2 500')).toEqual(numbersIn('1.000 e 2.500'));
     expect(numbersIn('−94.0 % from $31.91')).toEqual(['3191', '940']);
     expect(numbersIn('31.4')).not.toEqual(numbersIn('31.5'));
+    expect(numbersIn('365 28%')).toEqual(['28', '365']);
   });
 });
