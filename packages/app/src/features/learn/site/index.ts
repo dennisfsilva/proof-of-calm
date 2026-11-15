@@ -8,6 +8,7 @@ export {
   SiteCountryRows,
   type SiteCountryRowsProps,
 } from './countries';
+export { SiteFalls, type SiteFallsProps } from './falls';
 export { SiteHoldingDates, type SiteHoldingDatesProps } from './holding';
 export { SiteHoldingTool, type SiteHoldingToolProps } from './holding-tool.tsx';
 export { type Body, type CountrySite, type LearnSite, loadCountrySite, loadLearnSite } from './load';

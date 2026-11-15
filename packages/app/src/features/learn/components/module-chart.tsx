@@ -50,17 +50,27 @@ const publisherNames = (publishers: readonly string[]) =>
     a.localeCompare(b),
   );
 
+/** A fall as a page writes it: with its sign, no decimals. */
+export const fallPercent = (f: Formatters, fall: PastFall['fall']) => f.percent(`-${fall}` as Decimal, { decimals: 0 });
+
+/** The source sentence's values for the rows given: each publisher once, the first high and the last low. */
+export function fallsSpan(falls: readonly PastFall[], f: Formatters) {
+  return {
+    publishers: f.list(publisherNames(falls.map(({ publisher }) => publisher))),
+    first: f.date(earliest(falls.map(({ high }) => high))),
+    last: f.date(latest(falls.map(({ low }) => low))),
+  };
+}
+
 export type DrawdownBarsProps = { falls: readonly PastFall[]; f: Formatters };
 
 /** The chart over the rows given, with no services: the app's chart below and the static site pages draw it. */
 export function DrawdownBars({ falls, f }: DrawdownBarsProps) {
   const t = useTranslations('learn.chart');
   if (falls.length === 0) return <p className="text-16">{t('failed')}</p>;
-  const first = f.date(earliest(falls.map(({ high }) => high)));
-  const last = f.date(latest(falls.map(({ low }) => low)));
-  const percent = (fall: PastFall['fall']) => f.percent(`-${fall}` as Decimal, { decimals: 0 });
+  const { publishers, first, last } = fallsSpan(falls, f);
+  const percent = (fall: PastFall['fall']) => fallPercent(f, fall);
   const coins = [...new Set(falls.map(({ coin }) => coin))];
-  const publishers = publisherNames(falls.map(({ publisher }) => publisher));
   return (
     <div className="flex flex-col gap-stack-xs">
       <BarChart
@@ -80,7 +90,7 @@ export function DrawdownBars({ falls, f }: DrawdownBarsProps) {
         }}
       />
       <p className="text-16">
-        {t('source', { publishers: f.list(publishers), first, last, product: BRAND.name })}{' '}
+        {t('source', { publishers, first, last, product: BRAND.name })}{' '}
         <MODULE_ELEMENTS.PastPerformance />
       </p>
     </div>
