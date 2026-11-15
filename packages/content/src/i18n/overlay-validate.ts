@@ -1,7 +1,7 @@
 // A translation file against its English file (ADR-0057), for validate.ts: every path exists in English, holds prose
 // TRANSLATABLE names, keeps the English array lengths and carries the English numbers, and the overlaid value passes
-// the schema. The checks on the overlaid text (the ban list, the hyphen, the percent joiner, the 60 words) are
-// validate.ts's, passed in. Pure.
+// the schema. The checks on the overlaid text (the ban list, the hyphen, the percent joiner, the 60 words, a
+// template's `{date:<field>}` placeholders and month names) are validate.ts's, passed in. Pure.
 import { type Problem, schemaProblems } from '../problem.ts';
 import { FactSchema } from '../schema/fact.ts';
 import { type CountryProfile, CountryProfileSchema } from '../schema/jurisdiction.ts';

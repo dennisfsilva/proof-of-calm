@@ -241,6 +241,13 @@ A formatted date never breaks across lines: `lib/format` joins its parts with no
 and the onboarding summary and a template card's split line join each coin to its share the same way (`BTC 70%`). Short months are the
 locale's own, so en-GB writes `1 Sept 2029` beside `31 Aug 2030`; copy quotes them as formatted, never
 shortened by hand.
+A template's `oneLine` and explanation write no date: each is a placeholder `{date:<field>}` that names one of the
+template's own date fields (`lastBuy`, `validUntil`, `sellWindow.opens`, `references.peakFrom`,
+`drawdowns.BTC.high`; the list is `docs/DOMAIN.md` §5), and the onboarding writes it with `format.date` in the plan's
+order, unbroken (`1 Jun 2028` in Portugal, `Jun 1, 2028` in the US; decided 2026-11-15). `pnpm validate:content`
+refuses a placeholder that names no date of its template or is not whole (`template-date-unresolved`), one in any
+other field (`template-date-field`), and a month name in English, Portuguese or German in any of a template's texts
+or in their translations, a short one only beside a figure (`template-date-month`).
 A numeral joined to its unit by a hyphen (`90‑day`, `365‑day`) never breaks there. Text a screen shows writes the
 no-break hyphen U+2011 between them (`\u2011` in a JSON string, the character itself in a module): messages, modules
 (title, idea, caveat and body), every profile text the app shows, a template's name, one-line summary, risk label
@@ -285,6 +292,9 @@ for a reader who never opens its control, in the Cycle plan's `oneLine`, as its 
 (2026-10-30).
 The explanation sits behind one closed control for the picked template, because shown by default
 each explanation (76 to 192 words) would break the 120-word budget of `docs/LEGAL.md` §4.
+Every date a template's text names comes from a field of that template, written `{date:<field>}` (§4), so a date in
+the text and the plan it starts never disagree and each country reads it in its own order (decided 2026-11-15). A
+date the text needs that no plan holds (the Cycle plan's second and last thirds) is a text-only field of `references`.
 
 ## 7. Emails
 
