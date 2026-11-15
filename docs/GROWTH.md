@@ -315,7 +315,7 @@ Page types:
 |---|---|---|
 | Country pages | "Crypto tax in Portugal: the 365-day rule"; "Krypto-Haltefrist in Deutschland" | the country card as a page, in the country's language and in English |
 | Question pages | "Does moving coins to my own wallet restart the 365 days?"; "Gilt die Haltefrist pro Wallet?"; "What Germany's draft law means for coins bought before 2027" | one question, one answer, the sources, the date |
-| Tools | the holding-date page; the simulator | shareable as plain URLs holding their inputs; nothing tracked |
+| Tools | the holding-date page; the simulator | shareable as plain URLs holding their inputs; nothing tracked; the holding-date page's static half, each country's holding rule, is prerendered at `/en/holding-date` since 2026-11-15, and its tool half comes with session 23b (#230) |
 | History pages | "Bitcoin, €100 a month from January 2021: the path" | one per coin and start month from `packages/data`; path and drawdowns first, result last, the past-performance line, no number in the title; each page carries its own data, because thin pages made at scale break Google's spam policies |
 | Event pages | the halving, DAC8, the German law tracker | dated updates in place |
 | Glossary | DCA, FIFO, Haltefrist, mais-valias, self-custody | one short definition per term and language |
