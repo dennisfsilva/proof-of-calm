@@ -3,6 +3,7 @@
 import type { CalendarDate } from '@proofofcalm/core';
 import type { ReactNode } from 'react';
 import { useTranslations } from 'use-intl';
+import type { Formatters } from '../../../lib/format';
 import { type CountryCardModel, useFormatters } from '../../../lib/services';
 import { CountryDateLine } from './country-date-line';
 
@@ -17,6 +18,8 @@ import { CountryDateLine } from './country-date-line';
 // are not shown: they are proposals, not rules. The profile's dates passed its schema in CI, so they are
 // calendar dates. The card renders the model the countries port derives from the profile at today
 // (`lib/services/countries.ts`), so this lazy chunk imports no value of packages/content or packages/core.
+// `CountryCardView` is the card with the formatters passed in, which the static country pages render too
+// (`../site/countries.tsx`); `CountryCard` gives it the app's.
 
 type RuleKey = keyof CountryCardModel['ruleSources'];
 
@@ -28,9 +31,12 @@ export type CountryCardProps = {
   readonly id?: string | undefined;
 };
 
-export function CountryCard({ country, level, id }: CountryCardProps) {
+export function CountryCard(props: CountryCardProps) {
+  return <CountryCardView {...props} f={useFormatters()} />;
+}
+
+export function CountryCardView({ country, level, id, f }: CountryCardProps & { readonly f: Formatters }) {
   const t = useTranslations('learn.card');
-  const f = useFormatters();
   const { card, generic, underReview: stale } = country;
   const Title = level === 1 ? 'h1' : 'h2';
   const Section = level === 1 ? 'h2' : 'h3';
