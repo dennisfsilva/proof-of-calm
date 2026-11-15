@@ -17,7 +17,11 @@ const english = {
   status: { version: 3, changeNotice: null, lastReviewed: '2026-10-16' },
 };
 const path = 'packages/content/i18n/pt-PT/jurisdictions/pt.json';
-const codes = (overlay: unknown) => overlayProblems('jurisdiction', path, english, overlay).map((p) => p.code);
+const codes = (overlay: unknown, base: unknown = english) =>
+  overlayProblems('jurisdiction', path, base, overlay, ['en', 'pt-PT']).map((p) => p.code);
+// The same values, as the number check reads each text: English with `en`, the translation with its own locale.
+const same = (en: string, translated: string, locale = 'pt-PT') =>
+  numbersIn(en, 'en').join(' ') === numbersIn(translated, locale).join(' ');
 
 describe('CONTENT_LANGUAGES and TRANSLATABLE', () => {
   it('names English first and the two launch languages', () => {
@@ -104,11 +108,34 @@ describe('overlayProblems', () => {
     expect(codes({ card: { rates: [{ value: '28 % e 5 %' }] } })).toEqual(['overlay-number-mismatch']);
   });
 
-  it('reads 31.4 and 31,4, 1,000 and 1 000 as the same number, in any order', () => {
-    expect(numbersIn('31.4 % of 1,000 in 2026')).toEqual(numbersIn('2026: 1 000, 31,4 %'));
-    expect(numbersIn('1 000 and 2 500')).toEqual(numbersIn('1.000 e 2.500'));
-    expect(numbersIn('−94.0 % from $31.91')).toEqual(['3191', '940']);
-    expect(numbersIn('31.4')).not.toEqual(numbersIn('31.5'));
-    expect(numbersIn('365 28%')).toEqual(['28', '365']);
+  it('compares values read with each text’s separators, not digit runs', () => {
+    const summary = (en: string, translated: string) =>
+      codes({ card: { summary60: translated } }, { card: { summary60: en } });
+    expect(summary('A fee of 1.5 % applies.', 'Aplica-se uma taxa de 15 %.')).toEqual(['overlay-number-mismatch']);
+    expect(summary('A fee of 1.5 % applies.', 'Aplica-se uma taxa de 1,5 %.')).toEqual([]);
+    expect(same('31.4 %', '3,14 %')).toBe(false);
+    expect(same('31.4 %', '31,4 %')).toBe(true);
+    expect(same('1.5 %', '15 %')).toBe(false);
+  });
+
+  it('reads 1,000 as 1 000 and 1.000 in pt-PT, and as one thousand only where the separator groups', () => {
+    expect(same('1,000 euros', '1 000 euros')).toBe(true);
+    expect(same('1,000 euros', `1${String.fromCodePoint(0xa0)}000 euros`)).toBe(true);
+    expect(same('1,000 euros', '1.000 euros')).toBe(true);
+    expect(same('1,000 euros', '1,000 euros')).toBe(false);
+    expect(same('5.5 % of 1,000', '5,5 % de 1.000', 'de')).toBe(true);
+    expect(same('1,000.5', '1 000,5')).toBe(true);
+  });
+
+  it('holds values, not word order, nor which noun each belongs to', () => {
+    expect(same('28 % after 365 days', 'Após 365 dias, 28 %')).toBe(true);
+    expect(same('5 % on gains, 10 % on income', '10 % sobre os ganhos, 5 % sobre o rendimento')).toBe(true);
+  });
+
+  it('reads each value once, its sign and trailing zeros aside', () => {
+    expect(numbersIn('−94.0 % from $31.91', 'en')).toEqual(['31.91', '94']);
+    expect(numbersIn('31.4', 'en')).not.toEqual(numbersIn('31.5', 'en'));
+    expect(numbersIn('365 28%', 'en')).toEqual(['28', '365']);
+    expect(numbersIn('6.00 and 06', 'en')).toEqual(['6', '6']);
   });
 });

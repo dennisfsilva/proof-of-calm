@@ -15,16 +15,67 @@ import {
   type Segment,
 } from './overlay.ts';
 
-// Digits with the decimal and group separators between them: `31.4`, `31,4`, `1,000`, `1 000`, `1 000`. A space joins
-// only a group of three digits, so `365 28` stays two numbers.
+// Digits with the separators a number can hold between them: `31.4`, `31,4`, `1,000`, `1 000`, `1 000`,
+// `1 000`. A space joins only a group of three digits, so `365 28` stays two numbers.
 const NUMBER = /\d+(?:(?:[.,]|[   ](?=\d{3}(?!\d)))\d+)*/g;
 
-/** The numbers of a text as digit strings, separators between digits removed, sorted: a multiset to compare. */
-export const numbersIn = (text: string): string[] =>
-  [...text.matchAll(NUMBER)].map(([match]) => match.replace(/\D/g, '')).sort();
+/** The decimal separator `locale` writes; a tag Intl refuses is the English file's `locale-tag` problem. */
+function decimalOf(locale: string): string {
+  try {
+    return new Intl.NumberFormat(locale).formatToParts(1.5).find((part) => part.type === 'decimal')?.value ?? '.';
+  } catch {
+    return '.';
+  }
+}
+
+/** A value as a canonical decimal string: no leading zeros before the units, no trailing zeros after the point. */
+const decimalValue = (whole: string, fraction: string) => {
+  const units = whole.replace(/^0+(?=\d)/, '');
+  const decimals = fraction.replace(/0+$/, '');
+  return decimals === '' ? units : `${units}.${decimals}`;
+};
+
+/**
+ * The values of one run of digits and separators: the locale's decimal separator once, any other separator before
+ * a group of three digits groups them, and any other place splits the run (`3,14` in English is 3 and 14).
+ */
+function valuesOf(run: string, decimal: string): string[] {
+  const [first = '', ...rest] = run.split(/(\D)/);
+  const values: string[] = [];
+  let whole = first;
+  let fraction: string | null = null;
+  for (let index = 0; index < rest.length; index += 2) {
+    const [separator, digits = ''] = [rest[index], rest[index + 1]];
+    if (fraction === null && separator === decimal) fraction = digits;
+    else if (fraction === null && /^\d{3}$/.test(digits)) whole += digits;
+    else {
+      values.push(decimalValue(whole, fraction ?? ''));
+      [whole, fraction] = [digits, null];
+    }
+  }
+  return [...values, decimalValue(whole, fraction ?? '')];
+}
+
+/**
+ * The numbers of a text as values, read with the separators of `locale`, sorted: a multiset to compare. It holds the
+ * values, not which noun each belongs to, nor their sign (ADR-0057).
+ */
+export const numbersIn = (text: string, locale: string): string[] => {
+  const decimal = decimalOf(locale);
+  return [...text.matchAll(NUMBER)].flatMap(([run]) => valuesOf(run, decimal)).sort();
+};
+
+/** The number locales of an English text and of its translation, the English first. */
+export type NumberLocales = readonly [english: string, translated: string];
 
 /** Every way the overlay departs from English; the empty list is a pass. */
-export function overlayProblems(kind: ContentKind, path: string, english: unknown, overlay: unknown): Problem[] {
+export function overlayProblems(
+  kind: ContentKind,
+  path: string,
+  english: unknown,
+  overlay: unknown,
+  locales: NumberLocales,
+): Problem[] {
   const problems: Problem[] = [];
   const report = (code: string, at: readonly Segment[], detail = '') =>
     problems.push({ path, code: `overlay-${code}`, detail: `${at.join('.') || '(root)'}${detail}` });
@@ -50,7 +101,10 @@ export function overlayProblems(kind: ContentKind, path: string, english: unknow
     if (typeof over !== 'string' || typeof en !== 'string' || !isTranslatable(kind, at)) {
       return void report('not-translatable', at);
     }
-    const [mine, theirs] = [numbersIn(over).join(' ') || 'none', numbersIn(en).join(' ') || 'none'];
+    const [mine, theirs] = [
+      numbersIn(over, locales[1]).join(' ') || 'none',
+      numbersIn(en, locales[0]).join(' ') || 'none',
+    ];
     if (mine !== theirs) report('number-mismatch', at, `: ${mine}, English ${theirs}`);
   };
   walk(english, overlay, []);
@@ -76,6 +130,13 @@ export type TextChecks = {
   readonly template: (path: string, templates: Pair<ContentTemplate>) => Problem[];
 };
 
+// The English content writes its numbers with English separators whatever the country (de.json: `1,000`, `5.5`).
+const ENGLISH_NUMBERS = 'en';
+
+/** The number locale `localesFor` (packages/app) picks in `language`, as languagePercentProblems reads it. */
+const profileNumberLocale = (language: string, profile: CountryProfile) =>
+  profile.locales.find((tag) => tag.split('-')[0] === language.split('-')[0]) ?? profile.numberFormatLocale;
+
 /**
  * A translation file (ADR-0057): its English file among `files`, its shape against English, the schema and every check
  * the English field takes on its overlaid value. An English file that fails its schema is the English file's problem.
@@ -94,14 +155,16 @@ export function overlayFileProblems(
   const english = files.find((candidate) => candidate.path === englishPath)?.json;
   if (english === undefined) return [{ path, code: 'overlay-orphan', detail: `no English ${englishPath}` }];
   const kind = KINDS[folder as keyof typeof KINDS];
-  if (kind === 'fact') return factProblems(path, english, json);
+  // A template or a fact has no country: its translation takes the language's own number locale.
+  const plain: NumberLocales = [ENGLISH_NUMBERS, language];
+  if (kind === 'fact') return factProblems(path, english, json, plain);
   if (kind === 'template') {
     const parsed = TemplateSchema.safeParse(english);
     if (!parsed.success) return [];
     const translated = applyOverlay(parsed.data, json, kind);
     const check = TemplateSchema.safeParse(translated);
     return [
-      ...overlayProblems(kind, path, parsed.data, json),
+      ...overlayProblems(kind, path, parsed.data, json, plain),
       ...(check.success ? [] : schemaProblems(path, check.error.issues)),
       ...checks.template(path, [parsed.data, translated]),
     ];
@@ -111,24 +174,25 @@ export function overlayFileProblems(
   const translated = applyOverlay(parsed.data, json, kind);
   const check = CountryProfileSchema.safeParse(translated);
   return [
-    ...overlayProblems(kind, path, parsed.data, json),
+    ...overlayProblems(kind, path, parsed.data, json, [ENGLISH_NUMBERS, profileNumberLocale(language, parsed.data)]),
     ...(check.success ? [] : schemaProblems(path, check.error.issues)),
     ...checks.jurisdiction(path, language, [parsed.data, translated]),
   ];
 }
 
 /** A facts translation: each fact's `value` and `unit` by its key, a key of the English file. */
-function factProblems(path: string, english: unknown, json: unknown): Problem[] {
+function factProblems(path: string, english: unknown, json: unknown, locales: NumberLocales): Problem[] {
   if (!isRecord(json)) return [{ path, code: 'schema', detail: 'expected the translated facts by key' }];
   const facts = Array.isArray(english) ? english.filter(isRecord) : [];
   return Object.entries(json).flatMap(([key, translation]): Problem[] => {
     const fact = facts.find((candidate) => candidate.key === key);
     if (fact === undefined) return [{ path, code: 'overlay-orphan', detail: key }];
-    const shape = overlayProblems('fact', path, fact, translation).map((problem) => ({
+    const shape = overlayProblems('fact', path, fact, translation, locales).map((problem) => ({
       ...problem,
       detail: `${key}.${problem.detail}`,
     }));
-    const check = FactSchema.safeParse(applyOverlay(fact, translation, 'fact'));
-    return check.success ? shape : [...shape, ...schemaProblems(`${path}#${key}`, check.error.issues)];
+    const translated = applyOverlay(fact, translation, 'fact');
+    const check = FactSchema.safeParse(translated);
+    return [...shape, ...(check.success ? [] : schemaProblems(`${path}#${key}`, check.error.issues))];
   });
 }
