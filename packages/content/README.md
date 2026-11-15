@@ -25,6 +25,7 @@ of it. Specifications: `docs/JURISDICTIONS.md`, `docs/EDUCATION.md`, `docs/CONTE
 | `style/banned.json` | the banned-words lint | `docs/CONTENT-STYLE.md` §2, `docs/LEGAL.md` §6 |
 | `sources.allow.json` | the domains a primary source may come from | `docs/CONTENT-OPS.md` §5 |
 | `learn/*.mdx` | the Learn modules: flat front matter and a closed body | `docs/EDUCATION.md`, `docs/CONTENT-STYLE.md` §5, ADR-0048 |
+| `i18n/pt-PT/` | the European Portuguese translations, sparse: prose only, at the English paths, under the English file name in `jurisdictions/`, `templates/` or `facts/` (none yet; validated, not loaded) | ADR-0057 |
 
 `pnpm validate:content` (`scripts/validate.ts` over `src/validate.ts`) checks every file against its
 schema and the rules of `docs/JURISDICTIONS.md` §2: owner review, review dates, sources on the
@@ -47,6 +48,9 @@ the owner sets it), and the reviewer still recomputes every fall from its source
 unique tickers and CoinGecko ids in ticker order, an order that ranks no coin. Each Learn module's body
 also goes through the build's own compiler and element list (`scripts/closed-body.ts`, ADR-0048
 Deviations): one `module-closed-body` problem, with the line, per module the build would refuse.
+A translation under `i18n/`, every `.json` file at any depth (`scripts/overlay-paths.ts`), is checked
+against its English file (`src/i18n/overlay-validate.ts`, ADR-0057): the `overlay-*` problems for its
+shape and numbers, then the schema and the English field's checks on each text it changes.
 
 ## Loaders (the public index)
 
