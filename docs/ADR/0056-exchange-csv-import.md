@@ -160,8 +160,8 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   longer takes that day's monthly buy, and one bought in pieces on days near it is recorded whole (W1:
   1,400 against 2,400). Four prices stand, each with its figures in step 2: a purchase between the
   square root of the lump's amount times the part and their mean, near the lump, counts as starting
-  money (1,300 against 1,700); a starting amount below the part bought on a buy day takes that day's
-  buy (500 against 450); a late starting purchase more than 3 days away is imported beside it (file L:
+  money (1,300 against 1,700); a starting amount below the part bought on a buy day is imported with
+  that day's buy (500 against 450); a late starting purchase more than 3 days away is imported beside it (file L:
   2,400 on 128 of 135 tap days); claims are per date (1,300 against 1,400). One exception stands: an
   export that cuts inside a purchase date within 3 days of a live `lump` whose amount is not its coin's
   monthly part can count a date twice (W2: 1,700 against 1,400 above the part, 2,550 against 2,450
