@@ -12,11 +12,11 @@ import { type ExchangeImportPlan, planExchangeImport } from './plan';
 
 // docs/DOMAIN.md §3.13 step 2's export cut at `splitsLumpDay`'s width, the cuts the other import properties skip: a
 // shorter export that cuts inside a purchase date of a coin within 3 days of a live `lump` of it, stored before the
-// whole file, leaves the Log one import leaves plus the purchases the shorter export stored of the dates a hand entry,
-// or a live one-tap `lump`, claims in one import (with the one-tap estimates they replace), less the purchases of the
-// dates a hand entry, or a live one-tap `lump`, that falls back to its nearest date (an extra buy, a monthly buy whose
-// month has no date, a `lump` at its coin's monthly part, hand or one-tap) claims in the second import instead (with
-// those dates' estimates left live). Each
+// whole file, leaves the Log one import leaves plus the purchases the shorter export stored of the purchase dates a
+// hand entry, or a live one-tap `lump`, claims in one import (with the one-tap estimates they replace), less the
+// purchases of the dates a hand entry, or a live one-tap `lump`, that falls back to its nearest date (an extra buy, a
+// monthly buy whose month has no date, a `lump` at its coin's monthly part, hand or one-tap) claims in the second
+// import instead (with those dates' estimates left live). Each
 // such date of a `lump` above the monthly part is the cut date; below it, it lies wholly in the shorter export while
 // that export's `lump` claimed the cut date's part or stopped its walk at that part, every date it claimed nearer its
 // date than the cut date, or as near and earlier (CI's world of 2026-11-15, seed -1110155515, pinned in
@@ -25,7 +25,10 @@ import { type ExchangeImportPlan, planExchangeImport } from './plan';
 // The lump's own walk claims what it claims in one import, since stored dates take their place in its order and sum;
 // no generated world reaches the fallback case, which plan-remedy-start.test.ts pins three times: an extra buy
 // ("400 less"), a lump at the part ("a second lump beside the lump of 1,000") and a one-tap lump at the part
-// ("a one-tap lump beside the lump of 1,000"); the oracle's `gone` holds for each.
+// ("a one-tap lump beside the lump of 1,000"); the oracle's `gone` holds for each. A hand sale claims its date's
+// sales alone, never a purchase of that date: until 2026-11-15 the oracle keyed a sale's claim as a purchase date's,
+// and seed -605869711 drew the one world of 30,000 that tells them apart (seeds 1 to 8, CI's two and 40 random seeds,
+// 600 runs each, measured that day); keyed by role, the oracle meets the Log in all 30,000.
 
 /** What the write does with a plan: tombstones the estimates it replaces and adds its entries. */
 function store(entries: readonly Entry[], plan: ExchangeImportPlan): Entry[] {
@@ -42,10 +45,13 @@ const held = (drawn: World, entries: readonly Entry[]) => {
   return { invested: shown.invested, units: shown.positions.map((position) => [position.coin, position.units]) };
 };
 
-/** Each coin and date a hand entry claims in `plan`, with that entry. */
+/**
+ * Each coin and purchase date a hand entry, or a live one-tap `lump`, claims in `plan`, with that entry; a hand sale's
+ * dates are its sales' (CI's world of 2026-11-15, pinned in plan-remedy-start.test.ts: "a hand sale's date").
+ */
 function claimsOf(plan: ExchangeImportPlan) {
   const claims = new Map<string, Entry>();
-  for (const item of plan.recorded) {
+  for (const item of plan.recorded.filter((each) => each.entry.kind !== 'sell')) {
     for (const day of item.dates) claims.set(`${item.coin}|${day}`, item.entry);
   }
   return claims;
