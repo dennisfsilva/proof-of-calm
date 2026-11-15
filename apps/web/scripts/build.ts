@@ -7,7 +7,7 @@ import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { THEME_BEFORE_PAINT } from '@proofofcalm/app/lib/theme';
 import { BOOT_SCRIPT } from '@proofofcalm/config/vite';
-import { build } from 'vite';
+import { build, runnerImport } from 'vite';
 import { bundleApi } from './bundle-api.ts';
 import { bundleWorker } from './bundle-worker.ts';
 
@@ -19,13 +19,13 @@ const configFile = join(root, 'vite.config.ts');
 const SSR_ENTRY = 'src/site/render.tsx';
 const SSR_OUT = 'server-dist/site';
 
-/**
- * The day the public pages are rendered at (their review lines): the build's UTC date, or `SITE_TODAY`, which the
- * e2e and snapshot builds pin so no test or baseline changes on the day a review date passes (ADR-0045 Deviations
- * of 2026-11-15).
- */
-const today = process.env.SITE_TODAY ?? new Date().toISOString().slice(0, 10);
-if (!/^\d{4}-\d{2}-\d{2}$/.test(today)) throw new Error(`SITE_TODAY is ${today}, not YYYY-MM-DD`);
+// The day the public pages are rendered at, checked before any build step: lib/site/today.ts parses `SITE_TODAY`
+// with core's calendar module, which plain node cannot load, so Vite's module runner imports it.
+const { module: todayModule } = await runnerImport<typeof import('../lib/site/today.ts')>(
+  join(root, 'lib/site/today.ts'),
+  { root, configFile: false, logLevel: 'warn' },
+);
+const today = todayModule.siteToday(process.env.SITE_TODAY, new Date());
 
 const SCRIPT = /<script\b([^>]*)>([\s\S]*?)<\/script>/g;
 const inlineScripts = (html: string) =>
@@ -87,7 +87,7 @@ const site = await step('prerender', async () => {
   const rendered: Site = await import(pathToFileURL(join(root, SSR_OUT, 'render.js')).href);
   const assets = rendered.headAssets(readFileSync(join(dist, 'app.html'), 'utf8'));
   // The public pages nest under dist/en/, which Vercel's clean URLs serve at /en/learn and /en/learn/<slug>.
-  const data = await rendered.loadSiteData(today as Parameters<Site['loadSiteData']>[0]);
+  const data = await rendered.loadSiteData(today);
   for (const name of rendered.sitePages(data)) {
     const html = rendered.renderSitePage(name, assets, data);
     checkSitePage(name, html);
