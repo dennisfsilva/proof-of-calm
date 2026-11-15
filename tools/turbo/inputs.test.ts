@@ -16,13 +16,21 @@ const root = fileURLToPath(new URL('../../', import.meta.url));
 const turbo = fileURLToPath(new URL('../../node_modules/turbo/bin/turbo', import.meta.url));
 const toRoot = (path: string) => relative(root, path).replaceAll('\\', '/');
 
-type PlannedTask = { taskId: string; directory: string; inputs: object; outputs: string[] };
+type PlannedTask = {
+  taskId: string;
+  hash: string;
+  directory: string;
+  inputs: object;
+  outputs: string[];
+  environmentVariables: { specified: { env: string[] } };
+};
 
-/** Turbo's dry-run plan of a package's task. */
-function plan(packageName: string, task: string): PlannedTask {
+/** Turbo's dry-run plan of a package's task, with `env` added to this process's environment. */
+function plan(packageName: string, task: string, env: Record<string, string> = {}): PlannedTask {
   const output = execFileSync(process.execPath, [turbo, 'run', task, `--filter=${packageName}`, '--dry=json'], {
     cwd: root,
     encoding: 'utf8',
+    env: { ...process.env, ...env },
     maxBuffer: 64 * 1024 * 1024,
   });
   const { tasks } = JSON.parse(output) as { tasks: PlannedTask[] };
@@ -165,5 +173,15 @@ describe('turbo inputs', () => {
     const { outputs } = plan('@proofofcalm/web', 'build');
     expect(outputs).toContain('dist/**');
     expect(outputs).toContain('node_modules/.cache/chunk-report.json');
+  }, 60_000);
+
+  // The web build renders the public pages at SITE_TODAY (apps/web/scripts/site-today.ts). Under strict
+  // envMode turbo hands a task only the variables its `env` lists, so without it `SITE_TODAY=… pnpm build`
+  // rendered at the real day, and a cache hit replayed a dist rendered with another value.
+  it('pass SITE_TODAY to the web build and key its cache on it', () => {
+    const first = plan('@proofofcalm/web', 'build', { SITE_TODAY: '2026-10-20' });
+    const second = plan('@proofofcalm/web', 'build', { SITE_TODAY: '2026-10-21' });
+    expect(first.environmentVariables.specified.env).toContain('SITE_TODAY');
+    expect(first.hash).not.toBe(second.hash);
   }, 60_000);
 });
