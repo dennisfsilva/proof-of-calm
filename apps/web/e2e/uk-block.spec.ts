@@ -13,6 +13,9 @@ const BLOCKED = [
   '/TERMS',
   '/en/learn',
   '/en/learn/risk-honestly',
+  '/en/countries',
+  '/en/countries/pt',
+  '/en/holding-date',
 ];
 const LEGAL = ['/terms', '/privacy', '/risk', '/cookies', '/contact', '/.well-known/security.txt'];
 
