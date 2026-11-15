@@ -25,7 +25,7 @@ type Story = StoryObj<typeof meta>;
 export const EditStartingAmount: Story = {
   play: async () => {
     const sheet = within(await within(document.body).findByRole('dialog', { name: 'Edit the entry' }));
-    await expect(await sheet.findByLabelText('ETH received (units)')).toHaveValue('0.12');
+    await expect(await sheet.findByLabelText('ETH received (units)')).toHaveValue('0,12');
   },
 };
 
