@@ -251,7 +251,8 @@ external links and the Risk link in the mobile export (M3).
   proven by the owner's check from a UK vantage point in `docs/RELEASE.md`); the legal pages' full
   text (Risk disclosure and Cookie-free statement at launch quality, with the Risk page's dated
   drawdowns; Terms, Privacy and Contact/Impressum drafted, Contact/Impressum waiting on the owner's
-  identity), live before the public launch per `docs/RELEASE.md`.
+  identity), live before the public launch per `docs/RELEASE.md`; the Risk disclosure built at
+  launch quality, with the dated falls, on 2026-11-15 (#250).
 - **The name is Proof of Calm** (ADR-0040). Before anything public ships: the TMview search in
   classes 9, 36, 41 and 42 and, if it is clean, the EUTM filed in those classes (`docs/LEGAL.md` §1).
   The WebAuthn Relying Party ID is proofofcalm.com; the sending domain is mail.proofofcalm.com.

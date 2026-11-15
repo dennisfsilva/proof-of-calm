@@ -56,6 +56,19 @@ release.
 - Import the buys and sales from an exchange's export file into the Log, after a preview; the import
   lists the formats it reads.
 
+### Risks
+
+- A Risk page on the web, linked from the footer of every site page. It says that with a plan, no
+  single day's price decides what you pay on average, and that a plan does not limit how far a
+  price can fall. It shows the coins' earlier falls from a high in a table, with their dates and
+  source.
+- It covers custody with a provider or in your own wallet, and tax. It lists the signs of a scam and
+  what the app never asks for.
+- Its one statement on status says the app "is not registered with or supervised by any financial
+  supervisor, and no investor-compensation or deposit-protection scheme covers crypto-assets".
+- It shows where to check a provider in ESMA's public register and how to find an adviser. It links
+  to official warnings, each with the date its link was checked.
+
 ### On the web and offline
 
 - Install the app on a phone's home screen. It opens offline and shows the last prices with the

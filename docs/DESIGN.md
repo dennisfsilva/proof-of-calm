@@ -514,7 +514,10 @@ the form), so it waits for a screen that does. Notes, and the values this docume
   (`lib/hydrated.ts`), and an open collapsible panel waits for the client. Without a script the
   look-alikes stay inert and the panel's content never arrives, so Collapsible, Checkbox, Switch and
   RadioCard are for client-rendered app screens only, never for the site pages prerendered with no
-  script (ADR-0045). A unit test renders every component on the server and finds no style
+  script (ADR-0045). The Table's wrapper takes its tab stop only after an effect measures that it
+  scrolls, and no effect runs there, so a scroll container on a site page is always a focusable
+  region named by its caption (`tabIndex` 0, `role="region"`, `aria-labelledby`), as the Risk page's
+  falls table is (2026-11-15). A unit test renders every component on the server and finds no style
   attribute. The M0 Select still carries Base UI's, so a screen renders it on the client only, as the
   screens do once the store has hydrated; its inline `<style>` elements: `docs/SECURITY.md` §4.
 

@@ -343,6 +343,16 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   draws the day of the run into an empty `input type=date`, so the image fails the next day. The
   holding-date page's iphone pair was left out of #246 for this and moved to session 24
   (2026-11-15).
+- A scroll container on a prerendered page, which runs no client script, is always a focusable
+  region named by its caption (`tabIndex` 0, `role="region"`, `aria-labelledby`): the UI kit's
+  `Table` makes its wrapper focusable only after an effect measures the overflow, and that effect
+  never runs there (`docs/DESIGN.md` §8). #250's falls table passed every project but zoom-125, where
+  axe's scrollable-region-focusable failed in CI (2026-11-15).
+- Counsel's wording goes through the banned-words lint (`pnpm validate:content`) before it reaches a
+  builder's brief, and the session decides each refusal in the same brief: an allow-list entry with
+  counsel's reason, or a fallback counsel rules on. On #250, "private key" and "deposit-guarantee"
+  hit the ban list after counsel's first read, the builder fell back, and counsel's second read
+  restored "private key" with an allow-list entry: one more fix round (2026-11-15).
 
 ## Known gaps
 
