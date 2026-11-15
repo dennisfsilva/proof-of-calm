@@ -57,7 +57,7 @@ export const Selling: Story = {
     await expect(canvas.getByText(/ invested \(/)).toBeVisible();
     await expect(canvas.queryByText(/Buys left/)).toBeNull();
     await expect(canvas.getByRole('button', { name: 'Why? The sell window' })).toBeVisible();
-    await expect(canvas.getByRole('button', { name: 'Why? The three parts' })).toBeVisible();
+    await expect(canvas.getByRole('button', { name: 'Why? The 3 parts' })).toBeVisible();
     await fitsTheWidth(canvasElement);
   },
 };

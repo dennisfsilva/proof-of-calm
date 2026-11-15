@@ -151,7 +151,7 @@ describe('planSummary on the fixture', () => {
   it('states the plan in its own words, and the reason only when one is set', () => {
     const summary = planSummary(thePlan, entries, today('buy'), portugal, fmt);
     expect(summary.reference).toEqual([
-      'Your plan buys until 5\u00a0Mar\u00a02027, holds, then sells in three parts between 1\u00a0Sept\u00a02029 and 31\u00a0Aug\u00a02030, out by 31\u00a0Dec\u00a02030.',
+      'Your plan buys until 5\u00a0Mar\u00a02027, holds, then sells in 3 parts between 1\u00a0Sept\u00a02029 and 31\u00a0Aug\u00a02030, out by 31\u00a0Dec\u00a02030.',
       '€1,000.00 to start, then €100.00 a month on day 5: BTC 70%, ETH 30%.',
     ]);
     expect(summary.why).toBeNull();

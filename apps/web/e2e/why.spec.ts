@@ -29,7 +29,7 @@ const LINKS = [
   { path: '/today', name: 'Why? The hold phase', idea: IDEA, section: 'Why some people hold' },
   { path: '/today', name: 'Why? The sell window', idea: CYCLES, section: WINDOW },
   { path: '/plan', name: 'Why? The sell window', idea: CYCLES, section: WINDOW },
-  { path: '/plan', name: 'Why? The three parts', idea: CYCLES, section: 'Selling in 3 parts' },
+  { path: '/plan', name: 'Why? The 3 parts', idea: CYCLES, section: 'Selling in 3 parts' },
 ] as const;
 
 async function seedInHold(page: Page) {
@@ -147,7 +147,7 @@ test('the Risk link stands beside the past-performance line, with no plan and in
 
   await seedInHold(page);
   await page.goto('/plan');
-  await page.getByRole('button', { name: 'Why? The three parts', exact: true }).press('Enter');
+  await page.getByRole('button', { name: 'Why? The 3 parts', exact: true }).press('Enter');
   const sheet = page.getByRole('dialog', { name: CYCLES });
   await expect(sheet.getByText(line).getByRole('link', { name: 'Risk disclosure' })).toHaveAttribute('href', '/risk');
 });

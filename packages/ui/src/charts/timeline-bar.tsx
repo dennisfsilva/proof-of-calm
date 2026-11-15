@@ -14,7 +14,7 @@ import { ChartDot } from './chart-mark';
 type TimelinePhase = {
   /** The core's phase kinds, so a new one fails the build here as in the strip. */
   readonly kind: StripSegment['kind'];
-  /** The phase's name ("Buy", "Sell in three parts"). */
+  /** The phase's name ("Buy", "Sell in 3 parts"). */
   readonly label: string;
   /** Its dates ("5 Jan 2026 to 5 Dec 2028"). */
   readonly detail: string;

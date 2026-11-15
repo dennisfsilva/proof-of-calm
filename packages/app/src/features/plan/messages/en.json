@@ -36,11 +36,11 @@
   },
   "why": {
     "window": "Why? The sell window",
-    "parts": "Why? The three parts",
-    "partsLine": "The sell window has three parts."
+    "parts": "Why? The 3 parts",
+    "partsLine": "The sell window has 3 parts."
   },
   "reference": {
-    "window": "Your plan buys until {lastBuy}, holds, then sells in three parts between {opens} and {closes}, out by {exitBy}.",
+    "window": "Your plan buys until {lastBuy}, holds, then sells in 3 parts between {opens} and {closes}, out by {exitBy}.",
     "openEnded": "Your plan buys until {lastBuy}, then holds with no sell window.",
     "amounts": "{starting} to start, then {monthly} a month on day {buyDay}: {split}.",
     "monthly": "{monthly} a month on day {buyDay}: {split}.",
@@ -94,7 +94,7 @@
     "none": "No sell window",
     "noneLine": "Your plan buys, then holds.",
     "dates": "A sell window",
-    "datesLine": "Your plan sells in three parts between the opening and closing dates, out by the last.",
+    "datesLine": "Your plan sells in 3 parts between the opening and closing dates, out by the last.",
     "opens": "Opens",
     "closes": "Closes",
     "exitBy": "Out by",
