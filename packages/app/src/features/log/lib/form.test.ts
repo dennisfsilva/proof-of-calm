@@ -490,7 +490,7 @@ describe('editRow', () => {
     expect(state.rows[0]).toBe(start.rows[0]);
   });
 
-  // Units typed beside the live price filled nothing, and the save refused the row: "Type two of the three" now holds.
+  // Units typed beside the live price filled nothing, and the save refused the row: "Type 2 of the 3" now holds.
   it('fills the amount from units typed beside the live price, and an amount typed after them derives the price', () => {
     const filled = editRow(initialState('extra', [], undefined, context()), 0, 'units', '0.002', en, 'EUR');
     expect(filled.rows[0]).toMatchObject({ amount: '120.00', units: '0.002', price: '60,000.12', derived: 'amount' });
