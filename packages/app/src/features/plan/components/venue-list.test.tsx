@@ -78,17 +78,17 @@ describe('VenueList', () => {
       within(lists[0] as HTMLElement)
         .getAllByRole('listitem')
         .map(flat),
-    ).toEqual(['Kraken 0.01000000 BTC', 'Ledger 0.00990000 BTC', 'With no venue 0.00100000 BTC']);
+    ).toEqual(['Kraken 0,01000000 BTC', 'Ledger 0,00990000 BTC', 'With no venue 0,00100000 BTC']);
     expect(
       within(lists[1] as HTMLElement)
         .getAllByRole('listitem')
         .map(flat),
-    ).toEqual(['kraken 2.00000000 SOL']);
+    ).toEqual(['kraken 2,00000000 SOL']);
     expect(
       within(lists[2] as HTMLElement)
         .getAllByRole('listitem')
         .map(flat),
-    ).toEqual(['Kraken 0.500000 ETH']);
+    ).toEqual(['Kraken 0,500000 ETH']);
     expect(screen.queryByText(/The Log shows no coins/)).toBeNull();
   });
 
@@ -106,7 +106,7 @@ describe('VenueList', () => {
     await mount([coin('BTC', 8, [line(null, '0.014')], 1234), coin('ETH', 6, [line(null, '0.5')], 0)]);
     expect(
       screen.getByText(
-        "Bought as planned estimated the units of 1,234 BTC entries from the day's price. Your exchange's confirmations have the exact units.",
+        "Bought as planned estimated the units of 1234 BTC entries from the day's price. Your exchange's confirmations have the exact units.",
       ),
     ).toBeDefined();
     expect(screen.getAllByText(/^Bought as planned estimated/)).toHaveLength(1);

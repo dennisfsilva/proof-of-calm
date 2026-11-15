@@ -72,8 +72,9 @@ describe('DataSection, an export beside entries from a newer version', () => {
       ),
     ).toBeTruthy();
     cleanup();
-    await mount({ ...fixtureSnapshot(), newer: { plans: 0, entries: 1234 } });
-    expect(screen.getByText(/^Exports leave out 1,234 entries saved by a newer version/)).toBeTruthy();
+    // The fixture plan is Portugal's: pt-PT groups a count from five digits on.
+    await mount({ ...fixtureSnapshot(), newer: { plans: 0, entries: 12_345 } });
+    expect(screen.getByText(/^Exports leave out 12\s345 entries saved by a newer version/)).toBeTruthy();
   });
 
   it('shows no such line without newer entries', async () => {

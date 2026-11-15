@@ -53,7 +53,7 @@ describe('CoinsTab', () => {
     await mount();
     type('Bitcoin', '70.50');
     fireEvent.blur(share('Bitcoin'));
-    expect(share('Bitcoin').value).toBe('70.5');
+    expect(share('Bitcoin').value).toBe('70,5');
   });
 
   it('adds a coin, sets the split and saves both', async () => {

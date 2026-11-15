@@ -107,7 +107,7 @@ describe('ValueChart', () => {
   it('names the drawing by its own dates when the closes start after the range, dated, credited, disclosed', async () => {
     await mount(closes);
     expect(screen.getByRole('img').getAttribute('aria-label')).toBe(
-      'Portfolio value, 18\u00a0Oct\u00a02026 to 20\u00a0Oct\u00a02026, from €100.00 to €121.00',
+      'Portfolio value, 18\u00a0Oct\u00a02026 to 20\u00a0Oct\u00a02026, from 100,00\u00a0€ to 121,00\u00a0€',
     );
     expect(range('30D, last 30 days').getAttribute('aria-pressed')).toBe('true');
     expect(
@@ -125,7 +125,7 @@ describe('ValueChart', () => {
     await mount(week, undefined, boughtOn13);
     await act(async () => fireEvent.click(range('7D, last 7 days')));
     expect(screen.getByRole('img').getAttribute('aria-label')).toBe(
-      'Portfolio value, last 7 days (13\u00a0Oct\u00a02026 to 20\u00a0Oct\u00a02026), from €100.00 to €121.00',
+      'Portfolio value, last 7 days (13\u00a0Oct\u00a02026 to 20\u00a0Oct\u00a02026), from 100,00\u00a0€ to 121,00\u00a0€',
     );
   });
 

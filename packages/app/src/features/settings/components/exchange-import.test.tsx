@@ -83,8 +83,8 @@ const scrolledWith = (element: Element) => {
   return calls.filter((_, index) => contexts[index] === element).at(-1)?.[0];
 };
 const HELD_LINE =
-  'Your Log has 0.002 BTC as a Coins added entry at Ledger, dated 13 Oct 2026. 2 BTC transactions in this file, ' +
-  '0.002 BTC in all, are dated on or before it and may be those coins. They are not added unless you choose to.';
+  'Your Log has 0,002 BTC as a Coins added entry at Ledger, dated 13 Oct 2026. 2 BTC transactions in this file, ' +
+  '0,002 BTC in all, are dated on or before it and may be those coins. They are not added unless you choose to.';
 
 describe('ExchangeImport', () => {
   it('names the file, the zone and the venue, then the summary, the held line and the sections, and focuses its heading', async () => {
@@ -118,8 +118,8 @@ describe('ExchangeImport', () => {
     const early = { ...HELD, id: 'aaaaaaaa-0000-4000-8000-000000000021' as EntityId, date: date('2026-10-06') };
     await mount([{ ...early, units: units('0.0015'), venue: null }, HELD]);
     expect(texts()).toContain(
-      'Your Log has 2 Coins added entries of BTC: 0.0015 BTC on 6 Oct 2026 and 0.0020 BTC at Ledger on 13 Oct 2026. ' +
-        '2 BTC transactions in this file, 0.0020 BTC in all, are dated on or before the latest of them and may be ' +
+      'Your Log has 2 Coins added entries of BTC: 0,0015 BTC on 6 Oct 2026 and 0,0020 BTC at Ledger on 13 Oct 2026. ' +
+        '2 BTC transactions in this file, 0,0020 BTC in all, are dated on or before the latest of them and may be ' +
         'those coins. They are not added unless you choose to.',
     );
   });
@@ -144,8 +144,8 @@ describe('ExchangeImport', () => {
     });
     await mount([at(1, '2026-10-05'), at(2, '2026-10-05'), { ...at(3, '2026-10-06'), venue: null }]);
     expect(texts().find((line) => line.startsWith('Your Log has 3'))).toBe(
-      'Your Log has 3 Coins added entries of BTC: 0.0020 BTC at Ledger on 5 Oct 2026, 0.0020 BTC at Ledger on ' +
-        '5 Oct 2026, and 0.0020 BTC on 6 Oct 2026. 1 BTC transaction in this file, 0.0012 BTC, is dated on or before the latest ' +
+      'Your Log has 3 Coins added entries of BTC: 0,0020 BTC at Ledger on 5 Oct 2026, 0,0020 BTC at Ledger on ' +
+        '5 Oct 2026, and 0,0020 BTC on 6 Oct 2026. 1 BTC transaction in this file, 0,0012 BTC, is dated on or before the latest ' +
         'of them and may be those coins. It is not added unless you choose to.',
     );
     expect(texts()).toContain(
@@ -160,8 +160,8 @@ describe('ExchangeImport', () => {
     );
     await mount([ONE_TAP_OCTOBER, HELD], undefined, {}, { file: { ...FILE, movements: one }, name: 'one.csv' });
     expect(texts()).toContain(
-      'Your Log has 0.0020 BTC as a Coins added entry at Ledger, dated 13 Oct 2026. 1 BTC transaction in this ' +
-        'file, 0.0012 BTC, is dated on or before it and may be those coins. It is not added unless you choose to. ' +
+      'Your Log has 0,0020 BTC as a Coins added entry at Ledger, dated 13 Oct 2026. 1 BTC transaction in this ' +
+        'file, 0,0012 BTC, is dated on or before it and may be those coins. It is not added unless you choose to. ' +
         'If you add it, it also replaces 1 estimate from Bought as planned.',
     );
     expect(texts()).toContain(
@@ -409,7 +409,7 @@ describe('useExchangeProblemText, the write’s refusals', () => {
       'This device has no plan now, so nothing was imported. Set up a plan, then choose the file again.',
     );
     expect(await words({ code: 'too-many-entries', entries: 10_004, max: MAX_ENTRIES })).toBe(
-      'Importing this file would leave 10,004 entries in this plan, more than the 10,000 a plan holds, so nothing ' +
+      'Importing this file would leave 10 004 entries in this plan, more than the 10 000 a plan holds, so nothing ' +
         'was imported. Delete entries in the Log, then choose the file again.',
     );
     expect(await words({ code: 'invalid-entries', ids: ['a' as EntityId, 'b' as EntityId] })).toBe(
