@@ -21,7 +21,12 @@ export const RISK_LINKS: readonly OfficialLink[] = [
     url: 'https://www.esma.europa.eu/esmas-activities/digital-finance-and-innovation/markets-crypto-assets-regulation-mica',
     accessed: READ,
   },
-  { id: 'cmvm', url: 'https://investidor.cmvm.pt/PInvestidor/', accessed: READ },
+  // The page's own address; its title is "Criptoativos: o que precisa de saber".
+  {
+    id: 'cmvm',
+    url: 'https://investidor.cmvm.pt/PInvestidor/Content?Input=67395E0A73EB6228177F6CF6F359650D89FBDF569843E496EFE3D18D38B626E7',
+    accessed: READ,
+  },
   {
     id: 'bafin',
     url: 'https://www.bafin.de/EN/die-bafin/publikationen-daten/risiken-im-fokus/Fokusrisiken_2026/RIF_Verbraucher_2/RIF_verbraucher_sozialemedien_node_en.html',
