@@ -10,8 +10,9 @@ export { lazyScreen, loadNamespace } from './lazy';
 export { type Locales, localesFor, UI_LANGUAGES, type UiLanguage } from './locale';
 export { type Messages, messages } from './messages';
 export {
+  type Boot,
+  bootLanguage,
   type LazyNamespace,
-  loadStaticNamespaces,
   NAMESPACE_LOADERS,
   type Namespace,
   type NamespaceLoaders,
