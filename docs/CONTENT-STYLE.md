@@ -230,6 +230,10 @@ acknowledged plan-creation text is quoted as versioned (`docs/LEGAL.md` §4). Si
 their sign; multiples with `×`; ranges with an en dash in tables and "to" in prose; dates with the
 year in records and in anything that can change; ISO 8601 in exports; times with the zone when they
 matter. In English prose, numerals for everything including 2 to 9; `%` always with a numeral.
+The acknowledged plan-creation text keeps "four times" at its wording version 1, quoted as versioned as
+its percent spacing is: changing a word would ask every plan to acknowledge again, so there is no
+version bump for it. The next change of substance to that text writes "4 times"; a translation keeps
+version 1 and follows its own language's number style (decided 2026-11-15).
 A count in copy (entries, purchases, the import's result lines, the replace and delete titles) is a
 figure in the country's number format, `1,234` in Portugal and `1.234` in Germany: a plural picks its
 form from the count and writes the formatted figure, never ICU's `#`, which follows the language.
