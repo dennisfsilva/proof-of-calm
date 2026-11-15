@@ -53,17 +53,21 @@ if (date && form && invalid && noCountry) {
     return block;
   };
 
+  const hint = (element: HTMLElement, shown: boolean) => {
+    element.hidden = !shown;
+  };
+
   /** The inputs as the fragment states them: the country checked, the date filled, then the answer. */
   const read = () => {
+    // Hints belong to a submit: a fragment read on the same page (the address bar, Back) starts without them.
+    hint(noCountry, false);
+    hint(invalid, false);
+    date.removeAttribute('aria-invalid');
     const q = parseHoldingFragment(location.hash, codes, bounds);
     if (q === null) return;
     for (const radio of radios) radio.checked = radio.value === q.country;
     if (q.bought !== undefined) date.value = q.bought;
     show(q)?.scrollIntoView({ block: 'nearest' });
-  };
-
-  const hint = (element: HTMLElement, shown: boolean) => {
-    element.hidden = !shown;
   };
 
   // The page's own hints replace the browser's bubbles, which name no range in the site's words.
