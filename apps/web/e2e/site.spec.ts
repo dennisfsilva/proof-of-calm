@@ -88,7 +88,7 @@ test('the country list leads to the holding rules, and that page opens with the 
 test('Taxes ends with every country row, each a working link', async ({ page }) => {
   await page.goto('/en/learn/taxes-where-you-live');
   await expect(page.locator('main#main article')).toContainText(
-    'The sections below, up to “How fast rules change”, describe what the app shows once a plan is set up.',
+    'The sections before “How fast rules change” describe what the app shows once a plan is set up.',
   );
   const rows = page.locator('main section').last();
   await expect(rows.getByRole('heading', { level: 2 })).toHaveText('Countries');

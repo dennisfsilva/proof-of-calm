@@ -196,7 +196,9 @@ describe('renderSitePage (ADR-0045 §6)', () => {
   it('ends Taxes with every country row and renders each country and the holding rules as pages', () => {
     const taxes = renderSitePage('en/learn/taxes-where-you-live', assets, data);
     // A visitor has no plan, so one line before the body says which sections describe the app with one.
-    const lead = taxes.indexOf('describe what the app shows once a plan is set up.');
+    const lead = taxes.indexOf(
+      'The sections before “How fast rules change” describe what the app shows once a plan is set up. The list at the end links to each country&#x27;s page.',
+    );
     expect(lead).toBeGreaterThan(taxes.indexOf('a local accountant knows your situation'));
     expect(lead).toBeLessThan(taxes.indexOf('What Proof of Calm shows'));
     expect(renderSitePage('en/learn/risk-honestly', assets, data)).not.toContain('once a plan is set up');
@@ -210,6 +212,20 @@ describe('renderSitePage (ADR-0045 §6)', () => {
     expect(pt).toMatch(/<h1[^>]*>Portugal<\/h1>/);
     expect(pt).toContain('<link rel="canonical" href="https://proofofcalm.com/en/countries/pt">');
     expect(pt).toContain('href="/en/countries"');
+    // A dated rule links the holding-date tool with the country chosen; a rule with no period does not.
+    expect(pt).toContain('href="/en/holding-date#country=pt"');
+    expect(renderSitePage('en/countries/fr', assets, data)).not.toContain('href="/en/holding-date');
+    // The three names that take the article in English.
+    for (const [code, name] of [
+      ['gb', 'the United Kingdom'],
+      ['us', 'the United States'],
+      ['nl', 'the Netherlands'],
+      ['de', 'Germany'],
+    ]) {
+      expect(renderSitePage(`en/countries/${code}`, assets, data)).toContain(
+        `<title>Crypto tax in ${name} · Proof of Calm</title>`,
+      );
+    }
     const list = renderSitePage('en/countries', assets, data);
     expect(list).toContain('<title>Crypto tax rules by country · Proof of Calm</title>');
     expect(list).toContain(

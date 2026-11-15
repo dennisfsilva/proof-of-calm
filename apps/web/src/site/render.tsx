@@ -121,7 +121,7 @@ function publicPage(name: PublicPage, { learn, countries, today }: SiteData): Re
   );
   const common = { canonical: `/${name}`, indexable: PUBLIC_INDEXABLE };
   const t = createTranslator({ locale: 'en', messages: { learn: learnMessages }, namespace: 'learn' });
-  const { entries, cards } = countries;
+  const { entries, cards, rules } = countries;
   if (name === 'en/learn') {
     return { ...common, title: t('title'), body: page(<SiteLearnIndex modules={learn.modules} links={SITE_LINKS} />) };
   }
@@ -143,10 +143,11 @@ function publicPage(name: PublicPage, { learn, countries, today }: SiteData): Re
     const code = name.slice(COUNTRY.length).toUpperCase();
     const card = cards.get(code);
     if (card === undefined) throw new Error(`no listed country ${code}`);
+    const holding = rules.get(code);
     return {
       ...common,
-      title: t('countries.countryHeadTitle', { country: card.name }),
-      body: page(<SiteCountryPage card={card} links={SITE_LINKS} />),
+      title: t('countries.countryHeadTitle', { country: card.name, code }),
+      body: page(<SiteCountryPage card={card} holding={holding && { code, rules: holding }} links={SITE_LINKS} />),
     };
   }
   const slug = name.slice('en/learn/'.length);
