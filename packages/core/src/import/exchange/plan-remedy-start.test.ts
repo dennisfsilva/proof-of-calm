@@ -1084,6 +1084,32 @@ describe("a lump's claim reads its amount", () => {
     expect(invested(c, cut)).toBe('3100');
   });
 
+  // The same world with the lump at the part tapped: a live one-tap lump at the part falls back to its nearest date as
+  // a hand one does, so the cut moves its claim the same way (W2).
+  it('at the part, a one-tap lump beside the lump of 1,000: the cut first stores 5 Sep and leaves out 2 Sep, 3,100', () => {
+    const plan = { ...P6, startingAmount: money('100'), monthlyAmount: money('500') };
+    const file = [
+      ...MONTHS.map((slot) => buy('BTC', `${slot}-02`, '500', '0.00625')),
+      buy('BTC', '2026-09-04T09:00:00Z', '700', '0.00875'),
+      buy('BTC', '2026-09-04T15:00:00Z', '100', '0.00125'),
+      buy('BTC', '2026-09-05T10:00:00Z', '100', '0.00125'),
+    ];
+    const atPart = lump('2026-09-04', { source: 'one-tap', amount: money('500'), units: units('0.00625') });
+    const c = of(file, [lump('2026-09-03'), atPart], plan);
+    expect(planOf(c, c.entries).recorded.map((item) => [item.entry.amount, item.dates])).toEqual([
+      ['1000', ['2026-09-04']],
+      ['500', ['2026-09-05']],
+    ]);
+    expect(invested(c, c.entries)).toBe('3500');
+    const shorter = fileOf(c.file.filter((m) => m.at > '2026-09-04T12:00:00Z'));
+    expect(planOf(c, c.entries, shorter).recorded.map((item) => [item.entry.amount, item.dates])).toEqual([
+      ['500', ['2026-09-04']],
+    ]);
+    const cut = imported(c, c.entries, shorter);
+    expect(recordedBy(c, cut, atPart)).toEqual(['2026-09-02']);
+    expect(invested(c, cut)).toBe('3100');
+  });
+
   // CI's world of 2026-11-15 (seed -1110155515, plan-lump-cut.property.test.ts), shrunk: a one-tap lump of 35, half
   // BTC's monthly part of 70, on 2 Apr. 1 Apr's 52.50 is farther from 35 than 70 is, as a ratio, so the whole file's
   // lump walks 2 Apr and 3 Apr. An export beginning inside 1 Apr holds its 49 alone, which is nearer: the shorter
