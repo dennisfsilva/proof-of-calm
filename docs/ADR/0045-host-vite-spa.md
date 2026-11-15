@@ -1395,12 +1395,15 @@ country library left to the public-pages checkpoint.
 - **2026-11-15, GB still gets 451 on every `/en/` page** (ADR-0029). The UK route lists the
   exceptions, not the blocked paths, so the public pages fall under it without a change;
   `apps/web/e2e/uk-block.spec.ts` asserts it.
-- **2026-11-15, every site page carries the sharing head** (#232, #234). `apps/web/src/site/head.ts`
-  writes `og:title`, `og:description` (the manifest's coin-free description; the public Learn pages
-  have no description of their own yet), `og:type` `website`, `og:image` at its absolute URL
-  (`/og.png`, 1200 × 630) with its width and height, and `twitter:card` `summary_large_image`. The
-  public pages add a canonical link. The robots `noindex` meta is written only while
-  `PUBLIC_INDEXABLE` is false, as the header follows the same flag through `vercelConfig`.
+- **2026-11-15, every site page but the UK page carries the sharing head** (#232, #234).
+  `apps/web/src/site/head.ts` writes `og:title`, `og:description` (the manifest's coin-free
+  description; the public Learn pages have no description of their own yet), `og:type` `website`,
+  `og:image` at its absolute URL (`/og.png`, 1200 × 630) with its width and height, and
+  `twitter:card` `summary_large_image`. The UK page `not-available` is the static 451 document of
+  `notAvailableHtml()` and has none of it. The public pages under `/en/` add a canonical link. On
+  them the robots `noindex` meta is written only while `PUBLIC_INDEXABLE` is false, as the header
+  follows the same flag through `vercelConfig`; `/`, the legal pages, the 404 page and `~offline`
+  keep the meta either way.
 - **2026-11-15, `og.png` is not a document** (#232). It sits in `NOT_DOCUMENTS` in
   `apps/web/lib/vercel-config.ts`: no document CSP and outside the UK 451 route, like the icons,
   since it is the mark with no words (ADR-0029's reading of 2026-10-20 keeps the static files outside
