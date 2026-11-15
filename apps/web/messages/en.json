@@ -21,7 +21,7 @@
       "privacyEmail": "[Owner: privacy e-mail]",
       "dsaEmail": "[Owner: DSA contact e-mail]",
       "mailHost": "[Owner: mail host, its country and its transfer safeguard]",
-      "logPeriod": "[Owner: the request-log period of Vercel's plan]",
+      "logPeriod": "[Owner: the request-log period of Vercel's plan, as a numeral with its unit, such as 1 day]",
       "date": "[Owner: date of publication]"
     },
     "version": "Version 1, {date}.",
@@ -30,11 +30,11 @@
       "lead": "{product} is software for recording and visualising a plan you design. These terms apply when you use it.",
       "who": {
         "title": "Who provides it",
-        "p1": "{name}, {legalForm}, {address}, provides {product}, and the Contact page lists every way to reach them."
+        "p1": "{name}, {legalForm}, {address}, provides {product}. The Contact page lists every way to reach them."
       },
       "what": {
         "title": "What it is and is not",
-        "p1": "{product} keeps each purchase you log with its date, amount and units, and shows where you are in the plan you set. For the countries it covers, it shows what their holding rules mean for each purchase, with their sources.",
+        "p1": "{product} keeps each purchase you log with its date, amount, and units, and shows where you are in the plan you set. For the countries it covers, it shows what their holding rules mean for each purchase, with their sources.",
         "p2": "It is not an exchange, a wallet, a broker, or an adviser. It places no orders, holds no money or coins, and gives no financial, investment, or tax advice."
       },
       "age": {
@@ -67,7 +67,7 @@
       },
       "changes": {
         "title": "Availability and changes",
-        "p1": "{product} costs nothing to use, and nothing that costs nothing today will later carry a charge. The service can be unavailable at times, and it can change.",
+        "p1": "{product} costs nothing to use, and no part of it that costs nothing today will later carry a charge. The service can be unavailable at times, and it can change.",
         "p2": "A change to these terms is published on this page, with a new version and date, before it applies."
       },
       "liability": {
@@ -89,12 +89,12 @@
       },
       "device": {
         "title": "What stays on your device",
-        "p1": "{product} has no accounts. Your plan, your entries, and your settings stay in your browser on this device, and {product} receives none of them.",
+        "p1": "{product} has no accounts. Your plan, your entries, and your settings stay in your browser on this device. {product}'s server sees only the coin and currency each price request names.",
         "p2": "{product} never offers you an investment and never asks for your seed phrase, a private key, an exchange's API key or login, or for coins or money to buy them."
       },
       "requests": {
         "title": "What reaches the server",
-        "p1": "To show prices, your browser asks {product}'s server for the latest prices in your currency and for the price history of the coins in your plan. These requests name at most a coin and a currency; they carry none of your entries, amounts, or dates.",
+        "p1": "To show prices, your browser asks {product}'s server for the latest prices in your currency and for the price history of the coins in your plan. These requests name at most a coin and a currency. They carry no identifier that {product} sets, and none of your entries, amounts, or dates.",
         "p2": "When your browser blocks something on a page under the site's security rules, it sends a report. {product} keeps only a daily count of the rule and the blocked source, with no page, internet address, or browser name."
       },
       "hosting": {
@@ -109,7 +109,7 @@
       },
       "mail": {
         "title": "E-mail",
-        "p1": "If you write to {product}, its mail host, {mailHost}, keeps your e-mail address and your messages for 24 months after the last one, to answer follow-up questions, and its mail logs for 30 days (GDPR art. 6(1)(b) and (f))."
+        "p1": "If you write to {product}, its mail host, {mailHost}, keeps your e-mail address and your messages for 24 months after the last one, to answer follow-up questions (GDPR art. 6(1)(b) and (f)). The mail host keeps its mail logs for 30 days."
       },
       "rights": {
         "title": "Your rights",
@@ -192,7 +192,7 @@
       "storesSync": "It keeps a random identifier for this device, so your changes apply in the order you made them. It does not leave this browser: no request and no backup carries it. It keeps a copy of each change to your plan and entries, for syncing between devices, which the app does not offer. It keeps any stored data that failed its check when read, set aside instead of deleted, so a failed check erases nothing. Delete everything in Settings clears these too.",
       "storesTab": "Your browser keeps form drafts until the tab closes, so what you typed comes back when you return to the form. After an update, if part of the app fails to load, the tab keeps a short note until it closes, so it reloads only once.",
       "visits": "{product} does not count visits itself: it reads only the request totals of its host, Vercel, with no script and no identifier.",
-      "banner": "There is no cookie banner, because the browser keeps nothing for tracking, advertising, or analytics, only what the service you asked for needs.",
+      "banner": "There is no cookie banner, because the browser keeps nothing for tracking, advertising, or analytics.",
       "references": "The rules on storing information in your browser are Article 5(3) of the ePrivacy Directive, Article 5 of Portugal's Lei 41/2004, Germany's § 25 TDDDG, and the UK's PECR."
     },
     "contact": {
