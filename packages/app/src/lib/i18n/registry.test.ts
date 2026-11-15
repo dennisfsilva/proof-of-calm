@@ -25,6 +25,13 @@ describe('createMessageRegistry', () => {
     expect(Object.keys(registry.getSnapshot())).toEqual(['plan', 'today']);
   });
 
+  it('holds the UI language the lazy loaders read, English until the entry sets it', () => {
+    const registry = createMessageRegistry();
+    expect(registry.language()).toBe('en');
+    registry.setLanguage('pt-PT');
+    expect(registry.language()).toBe('pt-PT');
+  });
+
   it('keeps the snapshot when the same messages are added again', () => {
     const registry = createMessageRegistry();
     const listener = vi.fn();

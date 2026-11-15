@@ -17,6 +17,8 @@ describe('namespacesInMemory', () => {
   it('answers each lazy namespace with the file the loader imports', async () => {
     const memory = await namespacesInMemory(namespaces);
     expect(Object.keys(memory.NAMESPACE_LOADERS)).toEqual(Object.keys(namespaces.NAMESPACE_LOADERS));
-    expect((await memory.NAMESPACE_LOADERS.log()).default).toEqual((await namespaces.NAMESPACE_LOADERS.log()).default);
+    expect((await memory.NAMESPACE_LOADERS.en.log()).default).toEqual(
+      (await namespaces.NAMESPACE_LOADERS.en.log()).default,
+    );
   });
 });

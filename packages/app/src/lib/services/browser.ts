@@ -4,8 +4,9 @@
 // sessionStorage, the one toast manager, the cross-tab channel, no analytics (ADR-0028), the rules
 // of the plan's country from packages/content's generated rules file (ADR-0049: the profile with its
 // card text loads only where something shows it), the generic profile's rules standing in for a
-// country without one, and the country library over the profile loaders. The hosts' main.tsx calls it
-// once and starts it after the first render.
+// country without one, and the country library over the profile loaders, all formatting in the UI
+// language the entry read (`readLanguage`, ADR-0023). The hosts' main.tsx calls it once and starts it
+// after the first render.
 import { GENERIC_COUNTRY, loadProfile, loadProfiles, loadRules } from '@proofofcalm/content';
 import { createToastManager } from '@proofofcalm/ui/components/toast';
 import {
@@ -18,15 +19,23 @@ import {
   systemClock,
   webPlatform,
 } from '../adapters';
+import type { UiLanguage } from '../i18n/locale';
 import { crossTabChannel } from '../store';
 import { createCountries } from './countries';
 import { createServices, type Services } from './create';
 
-export function createBrowserServices({ apiBase }: { readonly apiBase: string }): Services {
+export function createBrowserServices({
+  apiBase,
+  language,
+}: {
+  readonly apiBase: string;
+  readonly language: UiLanguage;
+}): Services {
   const clock = systemClock();
   const api = createApiClient({ baseUrl: apiBase, fetch: (input, init) => fetch(input, init) });
   const planStore = idbPlanStore({ clock });
   return createServices({
+    language,
     planStore,
     clock,
     priceSource: apiPriceSource(api, clock),

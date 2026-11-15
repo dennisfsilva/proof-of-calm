@@ -47,10 +47,10 @@ const formatters = _createIntlFormatters(cache);
 // One describe per namespace, so a case carries one key, or one namespace's comparison, and never the whole
 // file's work: under turbo's parallel load a case that imported and compared every namespace outran the 5 s
 // timeout. The lazy files are imported while the file is collected, before any case's clock starts.
-const lazy = Object.keys(NAMESPACE_LOADERS) as LazyNamespace[];
+const lazy = Object.keys(NAMESPACE_LOADERS.en) as LazyNamespace[];
 const loaded = new Map(
   await Promise.all(
-    lazy.map(async (namespace) => [namespace, (await NAMESPACE_LOADERS[namespace]()).default] as const),
+    lazy.map(async (namespace) => [namespace, (await NAMESPACE_LOADERS.en[namespace]()).default] as const),
   ),
 );
 const isLazy = (namespace: string): namespace is LazyNamespace => (lazy as string[]).includes(namespace);
@@ -74,7 +74,50 @@ describe.each(Object.keys(messages))('precompiled messages: %s', (namespace) => 
   }
 });
 
+// pt-PT's files, the merge's completion of its translations from English: every key through both paths in
+// its own locale, and the lazy loaders' files equal to the ones on disk.
+const portuguese = import.meta.glob<Tree>('../../messages/pt-PT/*.json', { eager: true, import: 'default' });
+const ptTranslator = createTranslator({
+  locale: 'pt-PT',
+  messages: Object.fromEntries(
+    Object.entries(portuguese).map(([path, tree]) => [path.replace(/^.*\/|\.json$/g, ''), tree]),
+  ),
+}) as unknown as Translate & { markup: Translate };
+const ptParsing: Translate = (key, values) =>
+  Object.values(values).some((value) => typeof value === 'function')
+    ? ptTranslator.markup(key, values)
+    : ptTranslator(key, values);
+const ptLoaded = new Map(
+  await Promise.all(
+    lazy.map(async (namespace) => [namespace, (await NAMESPACE_LOADERS['pt-PT'][namespace]()).default] as const),
+  ),
+);
+
+describe.each(Object.entries(portuguese))('precompiled pt-PT messages: %s', (path, tree) => {
+  const namespace = path.replace(/^.*\/|\.json$/g, '');
+  it.each(leaves(tree, namespace))('%s formats the same through format-only as through the parser', (key, message) => {
+    const values = valuesFor(message);
+    const formatted = formatOnly(key, compile(message), values, {
+      cache,
+      formatters,
+      locale: 'pt-PT',
+      timeZone: 'UTC',
+    });
+    expect(formatted).toBe(ptParsing(key, values));
+  });
+
+  if (isLazy(namespace)) {
+    it('is the file its lazy loader loads', () => {
+      expect(ptLoaded.get(namespace)).toEqual(tree);
+    });
+  }
+});
+
 describe('precompiled messages', () => {
+  it('cover every namespace in pt-PT', () => {
+    expect(Object.keys(portuguese).length).toBe(Object.keys(messages).length);
+  });
+
   it('names every lazy namespace in the merged file', () => {
     expect(lazy.filter((namespace) => !(namespace in messages))).toEqual([]);
   });
