@@ -175,6 +175,9 @@ describe('the Cookie-free statement (docs/LEGAL.md §5)', () => {
     expect(stored).toContain('the language, where the app offers a choice');
     expect(page).toContain('until the tab closes');
     expect(page).toContain('Delete everything in Settings clears this data too.');
+    expect(text(page)).toContain(
+      'There is no cookie banner, because the browser keeps nothing for tracking, advertising, or analytics.',
+    );
   });
 
   it('says there is no banner after the lead, then lists what the browser keeps, how visits are counted and the references', () => {
@@ -303,15 +306,29 @@ describe('the launch drafts of Terms, Privacy and Contact (docs/LEGAL.md §5)', 
     );
     expect(text(page)).not.toMatch(/no further|stays that way/);
     expect(text(pageSection('terms', page, 'changes'))).toContain(
-      'nothing that costs nothing today will later carry a charge.',
+      'Proof of Calm costs nothing to use, and no part of it that costs nothing today will later carry a charge.',
     );
+  });
+
+  it('Terms says who provides it in two sentences and what the app keeps and shows', () => {
+    const page = main('terms');
+    const owner = messages.legal.owner;
+    expect(text(pageSection('terms', page, 'who'))).toContain(
+      `${owner.name}, ${owner.legalForm}, ${owner.address}, provides Proof of Calm. The Contact page lists every way to reach them.`,
+    );
+    const what = text(pageSection('terms', page, 'what'));
+    expect(what).toContain('keeps each purchase you log with its date, amount, and units');
+    expect(what).toContain('it shows what their holding rules mean for each purchase, with their sources.');
   });
 
   it('Privacy links Contact after the controller and names what the requests and the mail host keep', () => {
     const page = main('privacy');
     expect(pageSection('privacy', page, 'controller')).toContain(href('/contact'));
+    expect(text(pageSection('privacy', page, 'device'))).toContain(
+      "Your plan, your entries, and your settings stay in your browser on this device. Proof of Calm's server sees only the coin and currency each price request names.",
+    );
     expect(text(pageSection('privacy', page, 'requests'))).toContain(
-      'These requests name at most a coin and a currency; they carry none of your entries, amounts, or dates.',
+      'These requests name at most a coin and a currency. They carry no identifier that Proof of Calm sets, and none of your entries, amounts, or dates.',
     );
     expect(text(pageSection('privacy', page, 'requests'))).toContain(
       'with no page, internet address, or browser name.',
@@ -319,9 +336,13 @@ describe('the launch drafts of Terms, Privacy and Contact (docs/LEGAL.md §5)', 
     expect(text(pageSection('privacy', page, 'hosting'))).toContain(
       `It keeps its request logs for ${messages.legal.owner.logPeriod}.`,
     );
-    expect(text(pageSection('privacy', page, 'mail'))).toContain(
-      'for 24 months after the last one, to answer follow-up questions, and its mail logs for 30 days',
+    expect(text(pageSection('privacy', page, 'hosting'))).toContain(
+      "The legal basis is Proof of Calm's legitimate interest in serving the site and protecting it from abuse",
     );
+    expect(text(pageSection('privacy', page, 'mail'))).toContain(
+      'for 24 months after the last one, to answer follow-up questions (GDPR art. 6(1)(b) and (f)). The mail host keeps its mail logs for 30 days.',
+    );
+    expect(text(pageSection('privacy', page, 'rights'))).toContain('You can also object to its use.');
     expect(text(pageSection('privacy', page, 'rights'))).toContain(
       'Proof of Calm makes no automated decision about you and builds no profile of you.',
     );
@@ -361,6 +382,9 @@ describe('the launch drafts of Terms, Privacy and Contact (docs/LEGAL.md §5)', 
     for (const [field, value] of Object.entries(owner)) expect(value, field).toMatch(/^\[Owner: [^\]]+\]$/);
     const pages = LEGAL.map((name) => text(main(name))).join(' ');
     for (const [field, value] of Object.entries(owner)) expect(pages, field).toContain(value);
+    expect(text(main('privacy'))).toContain(
+      "It keeps its request logs for [Owner: the request-log period of Vercel's plan, as a numeral with its unit, such as 1 day].",
+    );
     for (const name of LEGAL) {
       const shown = text(main(name));
       expect(shown, name).not.toMatch(/[\w.+-]+@[\w-]+\.[a-z]{2,}/i);
