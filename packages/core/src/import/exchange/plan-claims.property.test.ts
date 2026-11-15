@@ -169,7 +169,7 @@ describe('planExchangeImport, by windows and by exchanges', () => {
               (byDate.get(day) ?? []).some((movement) => !stored.has(testId(movement.key)));
             const side = compare(A, p);
             const square = (day: CalendarDate) => compare(product<Money>(amountOn(day), amountOn(day)), product(A, p));
-            // A lump at the part claims its nearest date with a purchase not stored, as rule R did (#226).
+            // A lump at the part claims its nearest date with a purchase not stored, as rule R did (#227).
             const order = [...byDate.keys()]
               .filter((day) => (side === 0 ? free(day) : side > 0 ? square(day) >= 0 : square(day) <= 0))
               .sort(
