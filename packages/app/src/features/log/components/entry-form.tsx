@@ -1,3 +1,4 @@
+import { countryLocales } from '@proofofcalm/content';
 import {
   EntityIdSchema,
   type Entry,
@@ -109,7 +110,7 @@ function PlanEntryForm({ plan, numberInput: mounted, kind, editing, slot, onDone
   const live = usePrices().state?.snapshot ?? null;
   // The number locale and the prices are read once, as the form opens (ADR-0020 Readings): a language or price
   // change never rewrites what is on screen.
-  const [numberLocale] = useState(() => localesFor(services.language, rules).numbers);
+  const [numberLocale] = useState(() => localesFor(services.language, rules ?? countryLocales(plan.country)).numbers);
   const [numberInput] = useState(() => mounted);
   const currency = plan.payCurrency;
   // What was typed before the form was left comes back from the session draft while it fits, replayed over the form

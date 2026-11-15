@@ -1,5 +1,6 @@
 // The hooks over the services: selectors on the two stores (ADR-0020) and the ports as values.
 // Navigation is not here: lib/navigation's `useRouter` is the one router hook (ADR-0045 §9).
+import { type CountryLocales, countryLocales } from '@proofofcalm/content';
 import type { CalendarDate, CountryRules } from '@proofofcalm/core';
 import type { ToastManager } from '@proofofcalm/ui/components/toast';
 import { useMemo } from 'react';
@@ -63,18 +64,27 @@ export function useRulesSettled(): boolean {
 }
 
 /**
+ * The locales of the rules record: its rules', or, when they did not load, its country's from the generated
+ * locales file, so a failed rules chunk never moves a number into the UI language's locale (ADR-0049, #261 A).
+ * Both are module-level values, so a selector that returns one keeps its identity between renders.
+ */
+function recordLocales(record: UiState['rules']): CountryLocales | null {
+  return record === null ? null : (record.rules ?? countryLocales(record.country));
+}
+
+/**
  * The formatters of the plan's country in the UI language (ADR-0023), remade only when the loaded rules
  * change: after a change of country they keep the previous record's locale until the new rules load.
  */
 export function useFormatters(): Formatters {
-  return useFormattersOf(useUi((state) => state.rules?.rules ?? null));
+  return useFormattersOf(useUi((state) => recordLocales(state.rules)));
 }
 
 /**
- * The formatters of a given country's rules in the UI language, as `useFormatters` derives them for the plan's:
+ * The formatters of a given country's locales in the UI language, as `useFormatters` derives them for the plan's:
  * a country change previews an amount as the new country will show it (ADR-0023, ADR-0020).
  */
-export function useFormattersOf(rules: CountryRules | null): Formatters {
+export function useFormattersOf(rules: CountryLocales | null): Formatters {
   const { language } = useServices();
   return useMemo(() => {
     const locales = localesFor(language, rules);
@@ -86,15 +96,16 @@ export function useFormattersOf(rules: CountryRules | null): Formatters {
  * The parser of what is typed in a numeric field (ADR-0034), in the plan's country's number locale and
  * the UI language: none while that country's rules load (`useRules`' condition), so a form never reads
  * a number in one locale and then in another; with no plan, the UI language's locale. A country whose
- * rules did not load reads in the UI language's locale, as the formatters do. Remade only when the
- * locale changes; a form that must keep it while open freezes the first one it gets (ADR-0020 Readings).
+ * rules did not load reads in its own locale from the generated locales file, as the formatters do. Remade
+ * only when the locale changes; a form that must keep it while open freezes the first one it gets (ADR-0020
+ * Readings).
  */
 export function useNumberInput(): NumberInput | null {
   const { language } = useServices();
   const country = useSnapshot((snapshot) => snapshot.plan?.country ?? null);
   const loaded = useUi((state) => state.rules);
   const loading = country !== null && loaded?.country !== country;
-  const locale = loading ? null : localesFor(language, country === null ? null : (loaded?.rules ?? null)).numbers;
+  const locale = loading ? null : localesFor(language, country === null ? null : recordLocales(loaded)).numbers;
   return useMemo(() => (locale === null ? null : createNumberInput(locale)), [locale]);
 }
 
