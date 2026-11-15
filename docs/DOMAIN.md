@@ -1033,7 +1033,12 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      a ratio (a x a at least A x p when A is above p, at most when A is below p, every date when A equals p),
      by nearness to its date, the earlier on a tie, and takes the nearest, then each next while that brings
      the summed amount nearer A. Dates stored already take their place in that order and sum but are never
-     claimed." A date another entry claimed before it is out of its walk. A starting amount tapped on a
+     claimed." A date another entry claimed before it is out of its walk. The order (decided 2026-11-15):
+     the monthly buys that walk their month go first; then the hand monthly buys whose month has no purchase
+     date, in `compareEntries` order; then each `lump` and every other hand purchase or sale, in
+     `compareEntries` order. So every hand monthly buy claims before any lump, and a lump keeps its place
+     among extra buys and sales (an August buy of 400 typed 2 Sep with no August date claims 2 Sep before a
+     lump of 1 Sep, which takes 4 Sep: 1,700 against 1,600). A starting amount tapped on a
      later buy day no longer takes that day's monthly buy, and one bought in pieces on days near it is
      recorded whole (W1: 500 on 3 Sep and 4 Sep, 1,400). Four prices stand in one import: (a) a purchase of C
      of at least the square root of A x p and below (A + p) / 2 within 3 days of a live lump's date counts
