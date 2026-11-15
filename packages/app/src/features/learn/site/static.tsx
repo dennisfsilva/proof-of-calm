@@ -4,10 +4,13 @@ import { IntlProvider } from 'use-intl';
 import { createFormatters, type Formatters } from '../../../lib/format';
 import { localesFor } from '../../../lib/i18n';
 import learn from '../../../messages/en/learn.json';
+import shell from '../../../messages/en/shell.json';
 
 // What the static Learn pages render in (ADR-0048 Deviations of 2026-11-15): English, as the app's `I18nProvider` sets
 // it, and the formatters of no country, since a public page belongs to no plan. No services, no router and no clock:
-// the web host's prerender passes the day the pages are read at.
+// the web host's prerender passes the day the pages are read at. Of `shell`, only the country cards' date line.
+
+const MESSAGES = { learn, shell: { countryLine: shell.countryLine } };
 
 /** The site's paths; `apps/web` owns the values, so these pages link with plain anchors and no router. */
 export type SiteLinks = {
@@ -35,7 +38,7 @@ export function StaticLearn({ today, children }: StaticLearnProps) {
     return createFormatters(locales.numbers, locales.ui);
   }, []);
   return (
-    <IntlProvider locale="en" messages={{ learn }} timeZone="UTC" now={new Date(`${today}T00:00:00Z`)}>
+    <IntlProvider locale="en" messages={MESSAGES} timeZone="UTC" now={new Date(`${today}T00:00:00Z`)}>
       <FormattersContext.Provider value={f}>{children}</FormattersContext.Provider>
     </IntlProvider>
   );

@@ -11,8 +11,8 @@ import { type SiteLinks, useSiteFormatters } from './static';
 // plain anchors, no script, and only what holds on any device. So the index has no row for a fall under way, and a
 // module page has no line to the fall page and no plan's card: those read the device's plan and prices.
 
-const PAGE = 'mx-auto flex w-full max-w-reading flex-col gap-stack-lg px-gutter py-stack-lg';
-const BACK_LINK =
+export const PAGE = 'mx-auto flex w-full max-w-reading flex-col gap-stack-lg px-gutter py-stack-lg';
+export const BACK_LINK =
   'inline-flex min-h-target items-center self-start font-semibold text-16 text-ink underline underline-offset-4';
 const ROW = 'flex min-h-target flex-col justify-center gap-stack-xs no-underline';
 const TITLE = 'font-semibold text-18 text-ink underline underline-offset-4';
