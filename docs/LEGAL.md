@@ -132,9 +132,9 @@ adapted: FCA COBS 4.12A.11R's fixed-top warning, a UK promotion rule (ADR-0029).
 | Not-available page (UK) | L | a plain sentence, the legal pages, no persuasion (ADR-0029) |
 
 The site line: "Data and tools, not advice. Crypto-assets can lose all their value." with a link to
-the Risk page, on every site page (the landing page and the legal pages) and in Settings → About.
-The app shell has no footer, so the line is not in the app's screens, the Learn index included
-(ADR-0047).
+the Risk page, on every site page (the landing page, the legal pages and the public Learn pages under
+`/en/`) and in Settings → About. The app shell has no footer, so the line is not in the app's
+screens: the app's own `/learn` index still has no line (ADR-0047).
 
 Retention: account and plan for the life of the account plus 30 days after deletion (undo), inactive
 accounts warned at 24 months and deleted at 27; auth and security logs 90 days; error events 30 days;
