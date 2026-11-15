@@ -89,9 +89,7 @@ describe('RedDayBanner', () => {
 
   it('several coins: named in their order, the figure combined over the amounts held', async () => {
     await banner({ coins: [BTC, ETH] });
-    expect(sentence()).toBe(
-      'Bitcoin and Ethereum, in the amounts you hold, fell 16% in the 7 days to 19 Oct 2026.',
-    );
+    expect(sentence()).toBe('Bitcoin and Ethereum, in the amounts you hold, fell 16% in the 7 days to 19 Oct 2026.');
     cleanup();
     await banner({ coins: [BTC, ETH], lastRed: lastRed('-2', '-31') });
     expect(sentence()).toBe(
