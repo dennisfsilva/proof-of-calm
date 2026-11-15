@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { isExemptPath, NOT_AVAILABLE_STYLE } from './geo/uk-block';
 import { buildCsp, reportingEndpoints } from './security/csp';
 import { securityHeaders } from './security/headers';
+import { PUBLIC_INDEXABLE } from './site/indexing';
 import { LEGAL_PAGES, SECURITY_TXT_PATH } from './site/pages';
 import { type VercelJson, vercelConfig } from './vercel-config';
 
@@ -17,9 +18,11 @@ const inputs = {
   appRoutes: APP_ROUTES,
   legalPaths: LEGAL_PAGES.map((page) => page.path),
   securityTxtPath: SECURITY_TXT_PATH,
+  indexable: PUBLIC_INDEXABLE,
 };
 const config = vercelConfig(inputs);
-const committed: VercelJson = JSON.parse(readFileSync(new URL('../vercel.json', import.meta.url), 'utf8'));
+const committedText = readFileSync(new URL('../vercel.json', import.meta.url), 'utf8');
+const committed: VercelJson = JSON.parse(committedText);
 const csp = buildCsp({
   development: false,
   https: true,
@@ -126,6 +129,8 @@ describe('the UK route (ADR-0045 §4)', () => {
       '/today',
       '/today/anything',
       '/learn',
+      '/en/learn',
+      '/en/learn/risk-honestly',
       '/app',
       '/404',
       '/not-available',
@@ -173,5 +178,35 @@ describe('the rewrites (ADR-0045 §1 and §2)', () => {
       { source: `/(${routes})/(.*)`, destination: '/app' },
     ]);
     expect(APP_ROUTES).toContain('today');
+  });
+});
+
+describe('indexing the public pages (ADR-0045 Deviations of 2026-11-15)', () => {
+  const robots = (headers: readonly { key: string }[]) => headers.some((header) => header.key === 'X-Robots-Tag');
+
+  it('is off: the committed file is what the code writes with indexable false, byte for byte', () => {
+    expect(PUBLIC_INDEXABLE).toBe(false);
+    expect(`${JSON.stringify(vercelConfig({ ...inputs, indexable: false }), null, 2)}
+`).toBe(committedText);
+  });
+
+  it('once on, drops X-Robots-Tag on /en/* only and changes nothing else', () => {
+    const open = vercelConfig({ ...inputs, indexable: true });
+    expect(open.headers[0]).toEqual({
+      source: '/(.*)',
+      headers: securityHeaders.filter((header) => header.key !== 'X-Robots-Tag'),
+    });
+    const noindex = open.headers.filter((rule) => robots(rule.headers));
+    expect(noindex).toEqual([
+      { source: '/((?!en/).*)', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
+    ]);
+    const source = new RegExp(`^${noindex[0]?.source}$`);
+    for (const path of ['/en/learn', '/en/learn/risk-honestly']) expect(source.test(path), path).toBe(false);
+    for (const path of ['/', '/en', '/learn', '/learn/risk-honestly', '/today', '/terms', '/app', '/not-available']) {
+      expect(source.test(path), path).toBe(true);
+    }
+    expect(open.headers.slice(1, -1)).toEqual(config.headers.slice(1));
+    expect(open.routes).toEqual(config.routes);
+    expect(open.rewrites).toEqual(config.rewrites);
   });
 });
