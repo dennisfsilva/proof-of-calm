@@ -25,8 +25,8 @@ describe('vercelConfig', () => {
     expect(kept).toMatchObject({ numberOfRuns: 5, puppeteerScript: 'node_modules/.cache/lighthouse/seed.cjs' });
   });
 
-  it('measures the four seeded screens, / and a public Learn page at every target, at the deployment it is given', () => {
-    const paths = ['/today', '/portfolio', '/log', '/plan', '/', '/en/learn/risk-honestly'];
+  it('measures the four seeded screens, /, a public Learn page and a country page at every target, at the deployment it is given', () => {
+    const paths = ['/today', '/portfolio', '/log', '/plan', '/', '/en/learn/risk-honestly', '/en/countries/pt'];
     for (const origin of [preview, production, 'https://proof-of-calm-git-main-incubating.vercel.app']) {
       expect(vercelConfig(rc, origin).ci.collect.url).toEqual(paths.map((path) => `${origin}${path}`));
     }
@@ -134,6 +134,7 @@ describe('vercelConfig', () => {
       ['/plan$', undefined],
       ['://[^/]+/$', ['error', { maxLength: 0 }]],
       ['/en/learn/risk-honestly$', undefined],
+      ['/en/countries/pt$', undefined],
     ]);
   });
 
@@ -145,6 +146,7 @@ describe('vercelConfig', () => {
       ['/plan$', ['error', { maxLength: 0 }]],
       ['://[^/]+/$', ['error', { maxLength: 0 }]],
       ['/en/learn/risk-honestly$', ['error', { maxLength: 0 }]],
+      ['/en/countries/pt$', ['error', { maxLength: 0 }]],
     ]);
     expect(errorsInConsole(`${production}/`)).toEqual(errorsInConsole(production));
   });
