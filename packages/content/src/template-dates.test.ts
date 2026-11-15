@@ -115,7 +115,9 @@ describe('templateDatePaths (docs/CONTENT-STYLE.md §6, docs/DOMAIN.md §5)', ()
     const explanation = plain(fillTemplateDates(cycle.explanation, dates, long));
     expect(explanation).toContain('the next between 1 September 2029 and 31 October 2029.');
     expect(explanation).toContain('after the halving it places on 15 April 2028.');
-    expect(explanation).toContain('thirds to sell from 1 June 2029, from 1 August 2029, and from 1 October 2029, whatever');
+    expect(explanation).toContain(
+      'thirds to sell from 1 June 2029, from 1 August 2029, and from 1 October 2029, whatever',
+    );
     expect(explanation).toContain('Nothing is held after 31 December 2029.');
     expect(explanation).toContain('Chainlink fell 91 % from its high on 10 May 2021 to its low on 10 June 2023.');
     expect(explanation).toMatch(/Its dates no longer fill in from 1 June 2028/);
