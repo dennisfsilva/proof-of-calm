@@ -131,6 +131,16 @@ describe('the Risk disclosure (docs/LEGAL.md §5)', () => {
     expect(risk.dca.p1).not.toMatch(/A plan buys/);
   });
 
+  // A card under review shows neither its rule's words nor its sources (docs/JURISDICTIONS.md §1).
+  it('states what the app shows on tax, except while a rule is under review', () => {
+    const tax = text(section(main('risk'), 'tax'));
+    expect(tax).toContain(
+      'Proof of Calm shows the holding rules of the countries it covers, with their sources and the date each was last reviewed, except while a rule is under review.',
+    );
+    expect(tax).toContain('Where your plan has a holding rule, Proof of Calm shows the date each purchase passes it.');
+    expect(tax).toContain('This is information, not tax advice.');
+  });
+
   it('throws for risk without site data', () => {
     expect(() => renderSitePage('risk', ASSETS)).toThrow('risk renders from the loaded site data');
   });

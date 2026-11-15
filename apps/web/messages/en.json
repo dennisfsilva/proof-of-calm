@@ -41,7 +41,7 @@
       },
       "tax": {
         "title": "Tax",
-        "p1": "Selling, swapping, or spending coins can mean tax to pay, and each country's rules differ and change. {product} shows each country's holding rules with their sources. Where your plan has a holding rule, it shows the date each purchase passes it. This is information, not tax advice. A tax adviser or your tax authority can tell you what applies to you."
+        "p1": "Selling, swapping, or spending coins can mean tax to pay, and each country's rules differ and change. {product} shows the holding rules of the countries it covers, with their sources and the date each was last reviewed, except while a rule is under review. Where your plan has a holding rule, {product} shows the date each purchase passes it. This is information, not tax advice. A tax adviser or your tax authority can tell you what applies to you."
       },
       "scams": {
         "title": "Scams",
