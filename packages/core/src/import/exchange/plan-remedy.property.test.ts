@@ -147,6 +147,10 @@ function importFirst(drawn: World, stored: Stored, entry: Entry) {
  * only a date as near its amount as the monthly part, with the generator's lumps of every amount and late starting
  * purchases, the same way, seeds 1 to 8: the worst was 3.70 s (the file at the bound, seed 2; the sentence's property
  * 3.37 s, seed 5); six times it, 22.2 s, passed a third of 60 s, so the timeout is 90 s (a third of it 30 s).
+ * Measured on 2026-11-15 after rule G and with the starting line's totals (a coin's part in up to three fills, the
+ * month's buy on the starting date), the same way, seeds 1 to 8: the worst was 4.36 s (the file at the bound, seed 3;
+ * the sentence's property 4.13 s, seed 5; the starting line's 3.47 s, seed 2); six times it, 26.2 s, is under a third
+ * of the timeout.
  */
 const RUNS = { numRuns: 300 };
 const TIMEOUT = 90_000;
