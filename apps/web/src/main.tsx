@@ -1,5 +1,13 @@
 import { AppRoutes, AppShell } from '@proofofcalm/app/features/shell';
-import { I18nProvider } from '@proofofcalm/app/lib/i18n';
+import {
+  I18nProvider,
+  loadStaticNamespaces,
+  localStorageOrNull,
+  type Messages,
+  messageRegistry,
+  readLanguage,
+  type StaticNamespace,
+} from '@proofofcalm/app/lib/i18n';
 import { NavigationProvider } from '@proofofcalm/app/lib/navigation';
 import { registerServiceWorker, type UpdatePrompt, whenIdle } from '@proofofcalm/app/lib/pwa';
 import { createBrowserServices, ServicesProvider } from '@proofofcalm/app/lib/services';
@@ -14,7 +22,13 @@ import { installChunkReload } from './chunk-reload';
 // The web host's entry (ADR-0045 §9 and §12): the services over the browser's adapters with the API on
 // the same origin, the browser location, the static namespaces every screen needs (§8; a lazy route
 // loads its own), the shell around the route table. The host adds nothing a screen could own.
-const services = createBrowserServices({ apiBase: '' });
+// The UI language, a device preference read before the first render (ADR-0023): the document's lang, the
+// formatters, and the files the lazy screens load. English's static namespaces are imported; another
+// language's load before the first render, and English renders if they cannot.
+const language = readLanguage(localStorageOrNull());
+document.documentElement.lang = language;
+messageRegistry.setLanguage(language);
+const services = createBrowserServices({ apiBase: '', language });
 
 // The worker, in production builds of the web host only (ADR-0033, ADR-0045 §5 and §10); the wrapper's
 // build removes this branch. The shell hands over the handler that shows the "A new version is ready"
@@ -37,11 +51,11 @@ const registerUpdates =
       }
     : undefined;
 
-function App() {
+function App({ messages }: { messages: Pick<Messages, StaticNamespace> }) {
   return (
     <ServicesProvider services={services}>
       <NavigationProvider location="browser">
-        <I18nProvider messages={{ errors, shell, today }}>
+        <I18nProvider locale={language} messages={messages}>
           <AppShell registerUpdates={registerUpdates}>
             <AppRoutes />
           </AppShell>
@@ -53,12 +67,25 @@ function App() {
 
 const root = document.getElementById('root');
 if (root === null) throw new Error('app.html has no #root element');
-createRoot(root).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
-void services.start();
+const mount = root;
+
+function render(messages: Pick<Messages, StaticNamespace>) {
+  createRoot(mount).render(
+    <StrictMode>
+      <App messages={messages} />
+    </StrictMode>,
+  );
+  void services.start();
+}
+
+const english = { errors, shell, today };
+if (language === 'en') render(english);
+else
+  void loadStaticNamespaces(language).then(render, () => {
+    document.documentElement.lang = 'en';
+    messageRegistry.setLanguage('en');
+    render(english);
+  });
 
 installChunkReload({
   target: window,
