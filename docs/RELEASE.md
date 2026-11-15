@@ -26,8 +26,9 @@ gate and this checklist; every merge to `main` goes to production, tagged or not
 - [ ] Security headers and CSP verified on the preview (`curl -I`, browser console clean of CSP reports);
       `security.txt` expiry at least 6 months away.
 - [ ] Dependencies: no known high or critical advisories (`pnpm audit`, CI scanner); lockfile committed.
-- [ ] Changelog entry written in plain words for users (`CHANGELOG.md` (planned: M2), started with the
-      first release), dated.
+- [ ] Changelog current: each session's docs sync adds the user-visible changes merged to `main`
+      under `Unreleased` in `CHANGELOG.md`, in plain words (`docs/CONTENT-STYLE.md` §1 and §2), and
+      the release PR gives that section its version and date (decided 2026-11-15).
 
 ## Additional before the public launch (after M2)
 
@@ -87,7 +88,8 @@ gate and this checklist; every merge to `main` goes to production, tagged or not
 2. Tag `vX.Y.Z` on that commit; the tag marks the release and deploys nothing.
 3. Smoke test production: open Today, log and delete an entry, export, offline check.
 4. Watch error monitoring for one hour.
-5. Note anything learned in the changelog's internal section or a new ADR.
+5. Note anything learned in the document that owns it or a new ADR; `CHANGELOG.md` holds only
+   what users see.
 
 ## Versioning
 
