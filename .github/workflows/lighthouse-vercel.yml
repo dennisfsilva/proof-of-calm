@@ -18,7 +18,8 @@
 # posts the same status on that commit:
 #   gh workflow run lighthouse-vercel.yml -f url=<branch URL> -f sha=<the branch's head SHA>
 # Every target measures the URLs of lighthouserc.json at its origin: Today, Portfolio, Log and Plan with
-# the fixture plan that apps/web/lighthouse/seed.ts puts into the store before each URL, `/` and `/en/learn/risk-honestly`.
+# the fixture plan that apps/web/lighthouse/seed.ts puts into the store before each URL, `/`, and the
+# public pages `/en/learn/risk-honestly` and `/en/countries/pt`.
 # Vercel's repository_dispatch event, the documented trigger, never reached this repository on
 # 2026-10-17; it stays wired, for production only, in case it starts. Production is measured with main's
 # copy of this file: a change to it is tried before the merge by dispatching it on its branch
@@ -204,7 +205,7 @@ jobs:
       # lighthouserc.json's URLs at the deployment's origin, its runs, seed, settings and budgets without
       # its local server, and no console error on `/` (tools/lighthouse/vercel.ts). The production origin has no deployment protection and no
       # toolbar: no header goes there, the secret is not even in that step's environment, and the tool
-      # keeps errors-in-console on the seeded screens as well. At a preview the headers are the bypass and the one
+      # keeps errors-in-console on the seeded screens and the public pages as well. At a preview the headers are the bypass and the one
       # that keeps Vercel's toolbar out of the page. The bypass header reaches every request of the page
       # except the service worker's script fetch, which deployment protection redirects (run 39070269335)
       # and the page logs, so a preview asserts errors-in-console on `/` only (docs/BUILD-PROMPT.md, Known
