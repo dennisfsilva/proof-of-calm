@@ -144,3 +144,9 @@ corrected here instead of rewritten (`docs/ADR/README.md`).
   Lighthouse budgets are asserted after it, on production's deployment and in `ci.yml`'s
   `lighthouse` job on each push to `main`. `lighthouse-vercel` and `lighthouse` left the required
   checks the same day (`docs/OWNER-SETUP.md` §1).
+
+## Corrections recorded on 2026-11-15
+
+- 2026-11-15: the Visual row's masks also cover the holding-date page's empty date field
+  (`#holding-bought`) on every project, because WebKit draws the day of the run into an empty
+  `input type=date` and the image would fail the next day (#256).
