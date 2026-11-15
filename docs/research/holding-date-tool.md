@@ -133,7 +133,7 @@ Not raised by anyone: both designers' islands format dates with their own `Intl.
 The judge's ten, verbatim:
 
 1. **The form is a script island on the prerendered page.** The CSP is unchanged and the cost is about 10 KB, against 160–209 KB for the app route. A server-rendered result is rejected: it escapes the UK route and the CSP, and logs the inputs. "No tool" fails GROWTH:307-308.
-2. **Inputs go in the fragment, not the query:** `#country=pt&bought=2026-03-01`. Opening a URL and submitting send no input anywhere. The worker strips fragments from its `pages` keys with a `cacheKeyWillBeUsed` plugin (Serwist: "both cache lookups and cache writes"), and on activation deletes any `pages` key with a fragment that a worker built before the plugin wrote (a browser it still controlled kept the navigated URL; WebKit keeps that first key on a later put of the bare page), so the cookie-free statement's "pages opened" stays exact and no LEGAL change is needed.
+2. **Inputs go in the fragment, not the query:** `#country=pt&bought=2026-03-01`. Opening a URL and submitting send no input anywhere. The worker strips fragments from its `pages` keys with a `cacheKeyWillBeUsed` plugin (Serwist: "both cache lookups and cache writes"), so the cookie-free statement's "pages opened" stays exact and no LEGAL change is needed.
 3. **Radios and one date field.** Radios, because WebKit refuses a native select. One `type="date"` field with `min="2009-01-03"` and `max` = the build's day plus one year, read from the page, so a future purchase can be planned.
 4. **The result states the date only, never "passed" or "upcoming", and the island reads no clock.** `holdingStatus` needs none. A shared link shows the same words to everyone; it avoids two "todays" on one page (the build's UTC day and the device's) and a present-tense status that reads as a cue to sell.
 5. **Build with esbuild**, as `bundle-worker.ts` does: 47 ms, a hashed name from the metafile, an inputs list a test can check. A second Vite input joins Today's chunk (tested); a second Vite build would need a config that bypasses the host factory, for no gain.
@@ -147,6 +147,11 @@ The judge's record: "A dated ADR-0045 Deviations entry, not a new ADR: the Decis
 they need more is decided in M2 with measurements' (lines 162-164), and nothing is superseded (same
 CSP, same boot text, the same esbuild pattern as the worker; the theme script on the offline page
 set the precedent, 2026-10-19). [...] An app route or a server result would have needed a new ADR."
+
+2026-11-15, on decision 2. The worker writes no `pages` key with a fragment (#245). A browser that a
+worker from before #245 still controls can store the navigated URL, fragment included. That lasts
+until the current worker activates. On activation the worker deletes every `pages` key with a
+fragment. `docs/LEGAL.md` §4 states the gap.
 
 ### What the island branch's tests must prove
 

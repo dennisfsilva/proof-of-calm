@@ -100,7 +100,9 @@ from` row, while the plan keeps the profile's rule, the profile's conditions on 
 the rest behind one control (`docs/CONTENT-STYLE.md` §3), then the date line. The public holding-date page's
 rows take the plain form as the card in Learn does: each country's holding-rule text, every condition, its
 Sources, then the plain date line, or only the under-review line for a country under review. Its tool
-shows the same lines for a purchase date a visitor types, which Proof of Calm neither stores nor sends: under "Tax-free from
+shows the same lines for a purchase date a visitor types, which Proof of Calm never sends and, from the page's
+first build on, never stores (a browser that a worker from before the page still controls can keep the date in
+its `pages` cache until the current worker activates and deletes it, ADR-0045 Deviations of 2026-11-15): under "Tax-free from
 [date]" or "Long-term rate from [date]" and "For a purchase on [date]", the line "Computed from your dates, not
 tax advice", the profile's conditions, the first in full and the rest behind one control, the rule's Sources
 once its source is known, then the date line in its plain form; a country under review shows only the
