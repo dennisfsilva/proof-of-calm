@@ -34,7 +34,9 @@ test('the shell answers 200 and a trailing slash answers 308 to the clean URL', 
   record('308 headers', Object.keys(redirect.headers()).sort().join(', '));
 });
 
-test('a public page under /en/ answers at its nested clean URL, out of search until the switch', async ({ request }) => {
+test('a public page under /en/ answers at its nested clean URL, out of search until the switch', async ({
+  request,
+}) => {
   // dist/en/learn/risk-honestly.html, served by cleanUrls (ADR-0045, Deviations of 2026-11-15).
   const response = await request.get('/en/learn/risk-honestly');
   expect(response.status()).toBe(200);
