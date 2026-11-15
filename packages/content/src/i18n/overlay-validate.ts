@@ -13,6 +13,7 @@ import {
   isRecord,
   isTranslatable,
   type Segment,
+  TRANSLATABLE,
 } from './overlay.ts';
 
 // Digits with the separators a number can hold between them: `31.4`, `31,4`, `1,000`, `1 000`, `1 000`,
@@ -128,6 +129,8 @@ type Pair<T> = readonly [english: T, translated: T];
 export type TextChecks = {
   readonly jurisdiction: (path: string, language: string, profiles: Pair<CountryProfile>) => Problem[];
   readonly template: (path: string, templates: Pair<ContentTemplate>) => Problem[];
+  /** A translated fact's changed `value` and `unit`, by `<key>.<field>`: new prose that a Learn page quotes. */
+  readonly fact: (path: string, texts: readonly [string, string][]) => Problem[];
 };
 
 // The English content writes its numbers with English separators whatever the country (de.json: `1,000`, `5.5`).
@@ -157,7 +160,7 @@ export function overlayFileProblems(
   const kind = KINDS[folder as keyof typeof KINDS];
   // A template or a fact has no country: its translation takes the language's own number locale.
   const plain: NumberLocales = [ENGLISH_NUMBERS, language];
-  if (kind === 'fact') return factProblems(path, english, json, plain);
+  if (kind === 'fact') return factProblems(path, english, json, plain, checks);
   if (kind === 'template') {
     const parsed = TemplateSchema.safeParse(english);
     if (!parsed.success) return [];
@@ -180,8 +183,21 @@ export function overlayFileProblems(
   ];
 }
 
+/** A fact's prose by `<key>.<field>`, the fields TRANSLATABLE names. */
+const factTexts = (key: string, fact: Readonly<Record<string, unknown>>) =>
+  TRANSLATABLE.fact.flatMap((field): [string, string][] => {
+    const text = fact[field];
+    return typeof text === 'string' ? [[`${key}.${field}`, text]] : [];
+  });
+
 /** A facts translation: each fact's `value` and `unit` by its key, a key of the English file. */
-function factProblems(path: string, english: unknown, json: unknown, locales: NumberLocales): Problem[] {
+function factProblems(
+  path: string,
+  english: unknown,
+  json: unknown,
+  locales: NumberLocales,
+  checks: TextChecks,
+): Problem[] {
   if (!isRecord(json)) return [{ path, code: 'schema', detail: 'expected the translated facts by key' }];
   const facts = Array.isArray(english) ? english.filter(isRecord) : [];
   return Object.entries(json).flatMap(([key, translation]): Problem[] => {
@@ -193,6 +209,10 @@ function factProblems(path: string, english: unknown, json: unknown, locales: Nu
     }));
     const translated = applyOverlay(fact, translation, 'fact');
     const check = FactSchema.safeParse(translated);
-    return [...shape, ...(check.success ? [] : schemaProblems(`${path}#${key}`, check.error.issues))];
+    return [
+      ...shape,
+      ...(check.success ? [] : schemaProblems(`${path}#${key}`, check.error.issues)),
+      ...checks.fact(path, changedTexts(factTexts(key, fact), factTexts(key, translated))),
+    ];
   });
 }
