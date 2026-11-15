@@ -162,7 +162,7 @@ at least one earlier fall is: the sentence sits under historic data or not at al
 each held coin once, by its name, and ends with a Why? that opens this module in the sheet. No chart,
 and no control but the figure's Why?; no red, no P/L or portfolio value; the words are in
 `docs/CONTENT-STYLE.md` §3.
-**Says** (the module, moved here from the page): how the trigger works (a 7‑day fall of 10 % or
+**Says** (the module, moved here from the page): how the trigger works (a 7-day fall of 10 % or
 more, or a close 30 % or more below the 90-day high, computed from prices only, never from headlines),
 with each sentence about the app's screens (Today's line, Learn's first row, the fall page) naming the
 app, since the module is also a public page;
