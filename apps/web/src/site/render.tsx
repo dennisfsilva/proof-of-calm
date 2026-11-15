@@ -200,15 +200,21 @@ const legal = (slug: LegalSlug): Rendered => ({
   ),
 });
 
-/** The Risk disclosure (docs/LEGAL.md §5): its dated falls are the cycles file's rows the Learn pages read. */
-const risk = ({ learn, today }: SiteData): Rendered => ({
-  title: legalTitle('risk'),
-  body: (
-    <SiteLayout>
-      <RiskPage falls={learn.falls} today={today} />
-    </SiteLayout>
-  ),
-});
+/**
+ * The Risk disclosure (docs/LEGAL.md §5): its dated falls are the cycles file's rows the Learn pages read. Its falls
+ * paragraph points at the table ("Each row below…"), so the page is never built without rows.
+ */
+function risk({ learn, today }: SiteData): Rendered {
+  if (learn.falls.length === 0) throw new Error('risk needs the falls of the cycles file');
+  return {
+    title: legalTitle('risk'),
+    body: (
+      <SiteLayout>
+        <RiskPage falls={learn.falls} today={today} />
+      </SiteLayout>
+    ),
+  };
+}
 
 function page(name: Exclude<(typeof SITE_PAGES)[number], 'not-available' | 'risk'>): Rendered {
   switch (name) {

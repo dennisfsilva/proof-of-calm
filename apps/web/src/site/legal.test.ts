@@ -124,6 +124,12 @@ describe('the Risk disclosure (docs/LEGAL.md §5)', () => {
   it('throws for risk without site data', () => {
     expect(() => renderSitePage('risk', ASSETS)).toThrow('risk renders from the loaded site data');
   });
+
+  // falls.p1 points at the table ("Each row below…"), so the page is never built without rows.
+  it('throws for risk when the site data has no falls', () => {
+    const empty = { ...data, learn: { ...data.learn, falls: [] } };
+    expect(() => renderSitePage('risk', ASSETS, empty)).toThrow('risk needs the falls of the cycles file');
+  });
 });
 
 describe('the Cookie-free statement (docs/LEGAL.md §5)', () => {
