@@ -176,6 +176,30 @@ export const StartingAmountToChange: Story = {
   },
 };
 
+/** The same day with BTC in two purchases: the line sums them per coin and asks for that date and those totals. */
+const fillsOnMarch20 = krakenLedger([
+  ['S1', '2026-03-20 09:00:00', 'trade', 'EUR', '-420.0000', '0.0000'],
+  ['S1', '2026-03-20 09:00:00', 'trade', 'BTC', '0.0075000000', '0.0000000000'],
+  ['S2', '2026-03-20 15:00:00', 'trade', 'EUR', '-280.0000', '0.0000'],
+  ['S2', '2026-03-20 15:00:00', 'trade', 'BTC', '0.0050000000', '0.0000000000'],
+  ['S3', '2026-03-20 10:00:00', 'trade', 'EUR', '-300.0000', '0.0000'],
+  ['S3', '2026-03-20 10:00:00', 'trade', 'ETH', '0.1000000000', '0.0000000000'],
+]);
+
+export const StartingAmountInFills: Story = {
+  args: { shown: planOf(fillsOnMarch20, fixture.entries), remedies: remediesOf(fillsOnMarch20, fixture.entries) },
+  play: async ({ canvas }) => {
+    await userEvent.click(canvas.getByRole('button', { name: 'Left out (1)' }));
+    await expect(
+      canvas.getByText(/The file's purchases on 20 Mar 2026 add up to 0\.0125 BTC for €700\.00 and 0\.1 ETH for €300\.00\./),
+    ).toBeVisible();
+    const sentence =
+      'If you bought your whole starting amount on 20 Mar 2026, change it in the Log to that date and those totals. ' +
+      'Then choose the file again.';
+    await expect(canvas.getByText(sentence)).toHaveClass('block', 'text-ink-2');
+  },
+};
+
 // October's one-tap estimate and a purchase the file adds on 19 Oct as an extra buy: the estimate line, worded from a
 // line given by hand (the core's tests reach it from files and Logs).
 const lateBuy = planOf(
