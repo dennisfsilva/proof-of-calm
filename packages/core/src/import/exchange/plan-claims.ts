@@ -11,7 +11,7 @@ import {
   monthKey,
   monthStart,
 } from '../../dates/calendar';
-import { abs, compare, type Money, minus, plus, sum, type Units } from '../../money/decimal';
+import { abs, compare, type Money, minus, plus, product, sum, type Units } from '../../money/decimal';
 import { plannedParts } from '../../plan/parts';
 import { compareEntries } from '../../portfolio/lots';
 import type { Entry } from '../../schema/entry';
@@ -74,20 +74,28 @@ function walk(candidates: readonly Candidate[], target: CalendarDate, amount: Mo
 
 const paid = (day: Day) => sum(day.items.map((item) => item.movement.amount as Money));
 
-/**
- * True when `amount` is at least as near `target` as the coin's monthly `part` (a tie counts): d*'s test and a `lump`'s
- * claim in step 2 (docs/DOMAIN.md §3.13).
- */
+/** True when `amount` is at least as near `target` as the coin's monthly `part` (a tie counts): d*'s test (§3.13 step 3). */
 export const nearTarget = (amount: Money, target: Money, part: Money) =>
   compare(abs(minus(amount, target)), abs(minus(amount, part))) <= 0;
+
+/**
+ * A `lump`'s gate in step 2: a date's amount `a` is as near the lump's `A` as the coin's monthly part `p` or nearer, as
+ * a ratio: a x a at least A x p when A is above p, at most when A is below p, every date when A equals p.
+ */
+function asNear(a: Money, A: Money, p: Money) {
+  const side = compare(A, p);
+  const square = compare(product<Money>(a, a), product<Money>(A, p));
+  return side === 0 || (side > 0 ? square >= 0 : square <= 0);
+}
 
 /**
  * "Hand monthly buys claim first: a live monthly buy of C for S claims C's purchase dates whose month is S, nearest
  * its target first, while each brings the sum nearer its amount; a monthly buy whose month has no date, and every other
  * hand-recorded purchase or sale, claims C's nearest date of the same role within 3 days of its own date." A `lump`,
- * hand or one-tap, claims only a date whose amount, stored purchases included, is at least as near its own as C's
- * monthly part (`nearTarget`). `known` holds the file's purchase dates an earlier import stored, live or tombstoned.
- * Sets `claimed` on the days it takes.
+ * hand or one-tap, walks instead: C's purchase dates within 3 days of its date that no hand monthly buy or earlier entry
+ * claimed and that pass `asNear`, nearest its date first, while each brings the sum nearer its amount. `known` holds
+ * the file's purchase dates an earlier import stored, live or tombstoned: they take their place in a walk's order and
+ * sum but are never claimed. Sets `claimed` on the days it takes.
  */
 export function claimRecorded(
   plan: Plan,
@@ -107,9 +115,8 @@ export function claimRecorded(
   };
   const inMonth = (coin: CoinId, slot: MonthKey) => (each: Day) =>
     each.coin === coin && each.role === 'purchase' && monthOf(coin, each.date) === slot;
-  const candidates = (coin: CoinId, slot: MonthKey) => {
+  const candidates = (purchases: (day: Day) => boolean) => {
     const byDate = new Map<CalendarDate, Candidate>();
-    const purchases = inMonth(coin, slot);
     // The stored part of a date comes first, so a free part on the same date always joins it.
     for (const day of [...known, ...days.filter((each) => !each.claimed)].filter(purchases)) {
       const candidate = byDate.get(day.date);
@@ -119,7 +126,7 @@ export function claimRecorded(
     }
     return [...byDate.values()];
   };
-  // Rule R: a live one-tap `lump` claims here too, within 3 days of its date and by its amount, and no later step
+  // A live one-tap `lump` claims here too, within 3 days of its date and by its amount, and no later step
   // replaces it.
   const hand = live
     .filter(
@@ -139,27 +146,32 @@ export function claimRecorded(
       rest.push(entry);
       continue;
     }
-    const month = candidates(entry.coin, slot);
+    const month = candidates(inMonth(entry.coin, slot));
     const target = monthOf(entry.coin, entry.date) === slot ? entry.date : dueOf(plan, slot);
     const taken = walk(month, target, entry.amount as Money);
     if (taken.length > 0) record(entry, taken);
   }
   const parts = plannedParts(plan, plan.monthlyAmount);
-  const total = (day: Day) => {
-    const stored = known.find((each) => each.coin === day.coin && each.role === day.role && each.date === day.date);
-    return stored === undefined ? paid(day) : plus(paid(day), paid(stored));
-  };
+  // A date an entry claimed is out of a lump's walk whole, its stored part too.
+  const busy = (day: Day) =>
+    days.some((each) => each.claimed && each.coin === day.coin && each.role === day.role && each.date === day.date);
   for (const entry of rest) {
     const role = entry.kind === 'sell' ? 'sale' : 'purchase';
-    const part = parts.find((each) => each.coin === entry.coin)?.amount ?? ('0' as Money);
-    const free = days.filter(
-      (each) =>
-        !each.claimed &&
-        each.coin === entry.coin &&
-        each.role === role &&
-        // A `lump` claims only a date whose amount, stored purchases included, is as near its own as the monthly part.
-        (entry.kind !== 'lump' || nearTarget(total(each), entry.amount as Money, part)),
-    );
+    if (entry.kind === 'lump') {
+      const amount = entry.amount as Money;
+      const part = parts.find((each) => each.coin === entry.coin)?.amount ?? ('0' as Money);
+      const nearby = candidates(
+        (day) => day.coin === entry.coin && day.role === role && near(day, entry.date, IMPORT_TYPED_DAYS) && !busy(day),
+      );
+      const taken = walk(
+        nearby.filter((each) => asNear(each.amount, amount, part)),
+        entry.date,
+        amount,
+      );
+      if (taken.length > 0) record(entry, taken);
+      continue;
+    }
+    const free = days.filter((each) => !each.claimed && each.coin === entry.coin && each.role === role);
     const day = closest(free, entry.date, IMPORT_TYPED_DAYS);
     if (day !== null) record(entry, [day]);
   }
