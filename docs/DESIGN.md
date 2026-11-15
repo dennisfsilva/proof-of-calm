@@ -517,7 +517,11 @@ the form), so it waits for a screen that does. Notes, and the values this docume
   script (ADR-0045). The Table's wrapper takes its tab stop only after an effect measures that it
   scrolls, and no effect runs there, so a scroll container on a site page is always a focusable
   region named by its caption (`tabIndex` 0, `role="region"`, `aria-labelledby`), as the Risk page's
-  falls table is (2026-11-15). A unit test renders every component on the server and finds no style
+  falls table is (2026-11-15). A site table puts its key figure right after the row header, as the
+  falls table puts the fall after the coin, so 360 px at 125 % text reads it before any scroll; a
+  link target that may wrap takes padding of half what one line leaves of the target above and below
+  instead of a minimum height, so every label sits the same distance above the line under it, as the
+  Risk page's warnings do (`apps/web/e2e/risk.spec.ts`, 2026-11-15). A unit test renders every component on the server and finds no style
   attribute. The M0 Select still carries Base UI's, so a screen renders it on the client only, as the
   screens do once the store has hydrated; its inline `<style>` elements: `docs/SECURITY.md` §4.
 
