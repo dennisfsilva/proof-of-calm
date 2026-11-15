@@ -32,7 +32,7 @@ const LINKS: SiteLinks = {
 
 const html = (node: ReactNode, today = TODAY) => renderToStaticMarkup(<StaticLearn today={today}>{node}</StaticLearn>);
 /** A text as the markup escapes it. */
-const esc = (text: string) => renderToStaticMarkup(<>{text}</>);
+const esc = (text: string) => renderToStaticMarkup(text);
 
 /** No script, and no style attribute, which the site's CSP refuses (ADR-0045 §3 and §6). */
 const expectStatic = (markup: string) => {
@@ -128,7 +128,8 @@ describe('SiteHoldingDates', () => {
       const country = card(entry.code);
       expect(markup).toContain(esc(country.card.holdingRuleText));
       for (const condition of country.holdingRuleConditions) expect(markup).toContain(esc(condition));
-      if (country.ruleSources.holdingRule !== null) expect(markup).toContain(`href="${country.ruleSources.holdingRule}"`);
+      if (country.ruleSources.holdingRule !== null)
+        expect(markup).toContain(`href="${country.ruleSources.holdingRule}"`);
     }
     expect(markup.match(/general information, not advice/g)).toHaveLength(site.entries.length);
   });

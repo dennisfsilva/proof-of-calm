@@ -13,8 +13,7 @@ import { type SiteLinks, useSiteFormatters } from './static';
 // date: the tool half that reads a visitor's purchase date sits in `children`, between the intro and the list.
 
 const LIST = 'flex list-disc flex-col gap-stack-xs ps-inset-lg';
-const SOURCES =
-  'inline-flex min-h-target items-center text-13 text-ink underline underline-offset-4 hover:text-ink-2';
+const SOURCES = 'inline-flex min-h-target items-center text-13 text-ink underline underline-offset-4 hover:text-ink-2';
 
 function HoldingRule({ code, country, links }: { code: string; country: CountryCardModel; links: SiteLinks }) {
   const t = useTranslations('learn.card');
