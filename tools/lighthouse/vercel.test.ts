@@ -25,8 +25,17 @@ describe('vercelConfig', () => {
     expect(kept).toMatchObject({ numberOfRuns: 5, puppeteerScript: 'node_modules/.cache/lighthouse/seed.cjs' });
   });
 
-  it('measures the four seeded screens, /, a public Learn page and a country page at every target, at the deployment it is given', () => {
-    const paths = ['/today', '/portfolio', '/log', '/plan', '/', '/en/learn/risk-honestly', '/en/countries/pt'];
+  it('measures the four seeded screens, /, a public Learn page, a country page and the holding-date tool at every target, at the deployment it is given', () => {
+    const paths = [
+      '/today',
+      '/portfolio',
+      '/log',
+      '/plan',
+      '/',
+      '/en/learn/risk-honestly',
+      '/en/countries/pt',
+      '/en/holding-date',
+    ];
     for (const origin of [preview, production, 'https://proof-of-calm-git-main-incubating.vercel.app']) {
       expect(vercelConfig(rc, origin).ci.collect.url).toEqual(paths.map((path) => `${origin}${path}`));
     }
@@ -60,6 +69,12 @@ describe('vercelConfig', () => {
       'resource-summary:script:size': ['error', { maxNumericValue: 163840 }],
     });
     for (const pattern of ['/portfolio$', '/log$', '/plan$']) expect(assertionsOf(pattern)).toEqual(screen);
+    // The holding-date tool's island has its own script budget, 12 KB (docs/research/holding-date-tool.md).
+    expect(assertionsOf('/en/holding-date$')).toEqual({
+      'categories:performance': ['error', { minScore: 0.95 }],
+      'categories:accessibility': ['error', { minScore: 1 }],
+      'resource-summary:script:size': ['error', { maxNumericValue: 12288 }],
+    });
     expect(matrix.map((entry) => (entry as { aggregationMethod?: string }).aggregationMethod)).toEqual(
       matrix.map(() => 'median'),
     );
@@ -135,6 +150,7 @@ describe('vercelConfig', () => {
       ['://[^/]+/$', ['error', { maxLength: 0 }]],
       ['/en/learn/risk-honestly$', undefined],
       ['/en/countries/pt$', undefined],
+      ['/en/holding-date$', undefined],
     ]);
   });
 
@@ -147,6 +163,7 @@ describe('vercelConfig', () => {
       ['://[^/]+/$', ['error', { maxLength: 0 }]],
       ['/en/learn/risk-honestly$', ['error', { maxLength: 0 }]],
       ['/en/countries/pt$', ['error', { maxLength: 0 }]],
+      ['/en/holding-date$', ['error', { maxLength: 0 }]],
     ]);
     expect(errorsInConsole(`${production}/`)).toEqual(errorsInConsole(production));
   });

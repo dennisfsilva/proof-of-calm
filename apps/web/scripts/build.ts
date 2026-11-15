@@ -1,5 +1,5 @@
 // The web host's build, Vercel's `buildCommand` (ADR-0045 §1), in order: the client build (`vite build`,
-// input app.html), the prerender (a second Vite build of src/site/render.tsx for the server, then one
+// input app.html), the site pages' islands (scripts/bundle-islands.ts), the prerender (a second Vite build of src/site/render.tsx for the server, then one
 // HTML file per site page, §6), the manifest, the worker (§5) and the API bundle (§2). Plain node runs
 // this file, so it imports only modules node can load as they are.
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -9,6 +9,7 @@ import { THEME_BEFORE_PAINT } from '@proofofcalm/app/lib/theme';
 import { BOOT_SCRIPT } from '@proofofcalm/config/vite';
 import { build } from 'vite';
 import { bundleApi } from './bundle-api.ts';
+import { bundleIslands } from './bundle-islands.ts';
 import { bundleWorker } from './bundle-worker.ts';
 import { loadSiteToday } from './site-today.ts';
 
@@ -48,21 +49,27 @@ function checkDocument(html: string): void {
 
 /**
  * A site page holds no script element (§6), except the offline page, which carries the theme script
- * alone (the deviation of 2026-10-19): the CSP hashes nothing else.
+ * alone (the deviation of 2026-10-19), and the holding-date page, which carries the boot script alone with
+ * the island's entry (the deviations of 2026-11-15): the CSP hashes nothing else.
  */
-function checkSitePage(name: string, html: string): void {
-  const expected = name === '~offline' ? [THEME_BEFORE_PAINT] : [];
+function checkSitePage(name: string, html: string, island: string): void {
+  const expected = name === '~offline' ? [THEME_BEFORE_PAINT] : name === 'en/holding-date' ? [BOOT_SCRIPT] : [];
   const scripts = [...html.matchAll(SCRIPT)].map((match) =>
     /\bsrc=/.test(match[1] ?? '') ? null : (match[2] ?? '').trim(),
   );
   if (scripts.length !== expected.length || scripts.some((text, index) => text !== expected[index]))
     throw new Error(`${name}.html holds a script element the site pages do not carry`);
+  if (name === 'en/holding-date' && !html.includes(`<script data-entry="${island}">`))
+    throw new Error(`${name}.html boots another module than its island ${island}`);
 }
 
 await step('client', async () => {
   await build({ root, configFile, logLevel: 'warn' });
   checkDocument(readFileSync(join(dist, 'app.html'), 'utf8'));
 });
+
+// Between the client build, which empties dist/, and the prerender, which writes each island's URL into its page.
+const islands = await step('islands', () => bundleIslands(root));
 
 const site = await step('prerender', async () => {
   // use-intl is bundled here so the precompiled message files meet the parser-free formatter, as in
@@ -83,10 +90,10 @@ const site = await step('prerender', async () => {
   const rendered: Site = await import(pathToFileURL(join(root, SSR_OUT, 'render.js')).href);
   const assets = rendered.headAssets(readFileSync(join(dist, 'app.html'), 'utf8'));
   // The public pages nest under dist/en/, which Vercel's clean URLs serve at /en/learn and /en/learn/<slug>.
-  const data = await rendered.loadSiteData(today);
+  const data = await rendered.loadSiteData(today, { boot: BOOT_SCRIPT, entries: islands.entries });
   for (const name of rendered.sitePages(data)) {
     const html = rendered.renderSitePage(name, assets, data);
-    checkSitePage(name, html);
+    checkSitePage(name, html, islands.entries['holding-date']);
     const file = join(dist, `${name}.html`);
     mkdirSync(dirname(file), { recursive: true });
     writeFileSync(file, html);

@@ -18,7 +18,7 @@ for (const path of ['/', ...legalPages]) {
 }
 
 // The public pages (ADR-0045, Deviations of 2026-11-15): the Learn index and modules, the country list, one
-// page per listed country and the holding-date page; static, no script, kept out of search by the header and
+// page per listed country and the holding-date page; static, no script but the tool's, kept out of search by the header and
 // the meta until PUBLIC_INDEXABLE turns true, inside the site layout with the same line.
 const COUNTRIES = ['de', 'es', 'fr', 'gb', 'ie', 'it', 'nl', 'pt', 'us'];
 const countryPages = COUNTRIES.map((code) => `/en/countries/${code}`);
@@ -32,13 +32,22 @@ const publicPages = [
   '/en/holding-date',
 ];
 
+// The holding-date page alone carries a script: the boot script, its entry the tool's island (ADR-0045 Deviations
+// of 2026-11-15), read from the served document before it runs.
+const ISLAND = /<script data-entry="\/assets\/islands\/holding-date-[A-Z0-9]{8}\.js">[^<]+<\/script>/g;
+
 for (const path of publicPages) {
-  test(`${path} is a script-free page out of search with the disclaimer line`, async ({ page }) => {
+  const island = path === '/en/holding-date';
+  test(`${path} is a ${island ? 'page with the boot script alone' : 'script-free page'} out of search with the disclaimer line`, async ({
+    page,
+  }) => {
     const response = await page.goto(path);
     expect(response?.status()).toBe(200);
     expect(response?.headers()['x-robots-tag']).toBe('noindex, nofollow');
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow');
-    await expect(page.locator('script')).toHaveCount(0);
+    const html = (await response?.text()) ?? '';
+    expect(html.match(/<script\b/g) ?? []).toHaveLength(island ? 1 : 0);
+    expect(html.match(ISLAND) ?? []).toHaveLength(island ? 1 : 0);
     await expect(page.locator('main#main h1')).toHaveCount(1);
     const footer = page.getByRole('contentinfo');
     await expect(footer).toContainText('Data and tools, not advice. Crypto-assets can lose all their value.');
