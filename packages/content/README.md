@@ -37,7 +37,11 @@ and each locale tag well formed (`locale-tag`), as `docs/JURISDICTIONS.md` §2 s
 hyphen between a numeral and its unit in text a screen shows (`number-unit-hyphen`; which text:
 `docs/CONTENT-STYLE.md` §4). Templates must split exactly 100 over their own coins, each coin as the
 catalogue lists it, and keep each paragraph of the explanation (paragraphs separated by a blank line)
-to five sentences (`docs/CONTENT-STYLE.md` §1 rule 4). Each template carries at least one drawdown,
+to five sentences (`docs/CONTENT-STYLE.md` §1 rule 4). A template writes each date as a
+`{date:<field>}` placeholder in `oneLine` or `explanation` (`docs/CONTENT-STYLE.md` §4): the
+validator refuses one that names no date of the template or is cut short (`template-date-unresolved`),
+one in the name or the risk label (`template-date-field`) and a written month name
+(`template-date-month`), in the English file and in each translation. Each template carries at least one drawdown,
 its sources and any `lowSource` on the facts allow-list and `accessed` no later than `lastReviewed`;
 the validator refuses a low before its high (`drawdown-low-before-high`), a coin the template does
 not buy (`drawdown-unknown-coin`) and a fall of 0 or of more than 100 percent
@@ -51,7 +55,10 @@ also goes through the build's own compiler and element list (`scripts/closed-bod
 Deviations): one `module-closed-body` problem, with the line, per module the build would refuse.
 A translation under `i18n/`, every `.json` file at any depth (`scripts/overlay-paths.ts`), is checked
 against its English file (`src/i18n/overlay-validate.ts`, ADR-0057): the `overlay-*` problems for its
-shape and numbers, then the schema and the English field's checks on each text it changes.
+shape, its numbers and its date placeholders (`overlay-date-mismatch`: each text names the
+English text's `{date:<field>}` placeholders, each as often, in any order; a swap of two stays with
+the copy review, as a swap of two numbers does), then the schema and the English field's checks on
+each text it changes.
 
 ## Loaders (the public index)
 
@@ -66,7 +73,8 @@ shape and numbers, then the schema and the English field's checks on each text i
 | `countryRules(profile)` | the core's `CountryRules` | `holdingContext`, `ruleChangeNotice`, `changeCountry` |
 | `suggestionProfiles(profiles)` | what `suggestCountry` reads, without `XX` | the onboarding's suggestion |
 | `countryChoices(profiles, suggestion)` | the picker's order | the onboarding, Settings |
-| `TEMPLATES`, `templateById(id)` | `OfferedTemplate`: the core's `Template` with its `drawdowns` | `planFromTemplate`, `followsTemplate`, the card's dated band |
+| `TEMPLATES`, `templateById(id)` | `OfferedTemplate`: the core's `Template` with its `drawdowns` and its `dates`, each date field by its `{date:<field>}` path | `planFromTemplate`, `followsTemplate`, the card's dated band, the template step's texts |
+| `fillTemplateDates(text, dates, formatDate)`, `templateDatePaths(template)` | the text with each `{date:<field>}` placeholder written by `formatDate`; every date field of a content template by its path | the template step (`packages/app/src/features/onboarding/components/template-step.tsx`), which writes each date with `format.date`; the loader, which builds `dates` |
 | `COINS` | the core's `Coin` | the coin picker, `/api/prices` |
 
 Two exports sit apart, on the subpaths `@proofofcalm/content/modules` and `@proofofcalm/content/cycles`, because they need zod at run time:
