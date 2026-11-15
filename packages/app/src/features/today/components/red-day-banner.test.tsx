@@ -66,12 +66,12 @@ const sentence = () => document.querySelector('[data-slot="banner-description"]'
 describe('RedDayBanner', () => {
   it('names the seven-day fall of the one coin held, dated', async () => {
     await banner();
-    expect(sentence()).toBe('Bitcoin fell 16% in the seven days to 19 Oct 2026.');
+    expect(sentence()).toBe('Bitcoin fell 16% in the 7 days to 19 Oct 2026.');
   });
 
   it('the seven-day fall first when both conditions fired', async () => {
     await banner({ lastRed: lastRed('-10', '-33.2') });
-    expect(sentence()).toBe('Bitcoin fell 10% in the seven days to 19 Oct 2026.');
+    expect(sentence()).toBe('Bitcoin fell 10% in the 7 days to 19 Oct 2026.');
   });
 
   it('the fall from the 90-day high when only that one fired, or the week has no figure', async () => {
@@ -84,13 +84,13 @@ describe('RedDayBanner', () => {
 
   it('one coin is named as the model names it, never by a lowercase id', async () => {
     await banner({ coins: [{ coin: 'bitcoin' as CoinId, name: 'Bitcoin' }] });
-    expect(sentence()).toBe('Bitcoin fell 16% in the seven days to 19 Oct 2026.');
+    expect(sentence()).toBe('Bitcoin fell 16% in the 7 days to 19 Oct 2026.');
   });
 
   it('several coins: named in their order, the figure combined over the amounts held', async () => {
     await banner({ coins: [BTC, ETH] });
     expect(sentence()).toBe(
-      'Bitcoin and Ethereum, in the amounts you hold, fell 16% in the seven days to 19 Oct 2026.',
+      'Bitcoin and Ethereum, in the amounts you hold, fell 16% in the 7 days to 19 Oct 2026.',
     );
     cleanup();
     await banner({ coins: [BTC, ETH], lastRed: lastRed('-2', '-31') });
@@ -100,7 +100,7 @@ describe('RedDayBanner', () => {
     cleanup();
     await banner({ coins: [ETH, SOL, BTC] });
     expect(sentence()).toBe(
-      'Ethereum, Solana, and Bitcoin, in the amounts you hold, fell 16% in the seven days to 19 Oct 2026.',
+      'Ethereum, Solana, and Bitcoin, in the amounts you hold, fell 16% in the 7 days to 19 Oct 2026.',
     );
   });
 

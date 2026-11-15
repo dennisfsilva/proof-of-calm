@@ -118,14 +118,14 @@ describe('PlanScreen', () => {
     const lead = screen.getByText(/^Your plan buys until/);
     expect(within(lead).getByRole('button', { name: 'Why? The sell window' }).textContent).toBe('Why?');
     const timeline = screen.getByRole('region', { name: 'Timeline' });
-    const line = within(timeline).getByText(/^The sell window has three parts\./);
-    expect(within(line).getByRole('button', { name: 'Why? The three parts' }).textContent).toBe('Why?');
+    const line = within(timeline).getByText(/^The sell window has 3 parts\./);
+    expect(within(line).getByRole('button', { name: 'Why? The 3 parts' }).textContent).toBe('Why?');
   });
 
   it('the parts line follows the holding block', async () => {
     // Before the sell phase's clock, where the fixture's Portugal is past its review and links no Sources.
     await mount('buy');
-    const line = screen.getByText(/^The sell window has three parts\./);
+    const line = screen.getByText(/^The sell window has 3 parts\./);
     const after = (first: Element, second: Element) =>
       first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING;
     expect(after(document.querySelector('[data-slot="timeline"]') as Element, line)).toBeTruthy();
@@ -137,9 +137,9 @@ describe('PlanScreen', () => {
   // `cn` joins and never merges (ADR-0043), so the link keeps its Button size and the sentence comes up to it.
   it('the parts line is the size of its link', async () => {
     await mount('buy');
-    const line = screen.getByText(/^The sell window has three parts\./);
+    const line = screen.getByText(/^The sell window has 3 parts\./);
     const sizes = (element: Element) => element.className.split(' ').filter((name) => /^text-\d+$/.test(name));
-    expect(sizes(line)).toEqual(sizes(within(line).getByRole('button', { name: 'Why? The three parts' })));
+    expect(sizes(line)).toEqual(sizes(within(line).getByRole('button', { name: 'Why? The 3 parts' })));
   });
 
   it('no sell window, no link', async () => {
@@ -154,7 +154,7 @@ describe('PlanScreen', () => {
     await act(() => services.start());
     expect(screen.getByText(/^Your plan buys until/)).toBeDefined();
     expect(screen.queryByRole('button', { name: /^Why\?/ })).toBeNull();
-    expect(screen.queryByText(/^The sell window has three parts\./)).toBeNull();
+    expect(screen.queryByText(/^The sell window has 3 parts\./)).toBeNull();
   });
 
   // #222: End buying and Edit plan sit under a heading of their own, which an ended plan keeps for its line.

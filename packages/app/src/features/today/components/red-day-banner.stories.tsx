@@ -33,7 +33,7 @@ type Story = StoryObj<typeof meta>;
 
 export const SevenDays: Story = {
   play: async ({ args, canvas, userEvent }) => {
-    await expect(canvas.getByText(/^Bitcoin fell 16% in the seven days to 19/u)).toBeVisible();
+    await expect(canvas.getByText(/^Bitcoin fell 16% in the 7 days to 19/u)).toBeVisible();
     const link = canvas.getByRole('link', { name: 'See the fall under way' });
     await expect(link).toBeVisible();
     // The label keeps to one line (the button's base is nowrap), so at 360 px it must fit the banner's width.
@@ -57,7 +57,7 @@ export const SeveralCoins: Story = {
   args: { coins: [BTC, ETH] },
   play: async ({ canvas }) => {
     await expect(
-      canvas.getByText(/^Bitcoin and Ethereum, in the amounts you hold, fell 16% in the seven days to 19/u),
+      canvas.getByText(/^Bitcoin and Ethereum, in the amounts you hold, fell 16% in the 7 days to 19/u),
     ).toBeVisible();
     await expect(canvas.getByRole('status')).toBeVisible();
   },

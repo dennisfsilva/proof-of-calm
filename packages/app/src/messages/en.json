@@ -88,8 +88,8 @@
       "row": "The coins you hold against their 90‑day high, and each coin's earlier falls.",
       "back": "Back to Today",
       "title": "The fall under way and your plan",
-      "one": "{coin} is {high} below {window, select, short {its highest close since {since}} other {its 90‑day high}}{change, select, fell { and fell {seven} in the seven days to {date}.} rose { and rose {seven} in the seven days to {date}.} other { ({date}).}}",
-      "several": "{coins}, in the amounts you hold, are {high} below {window, select, short {their highest close since {since}} other {their 90‑day high}}{change, select, fell {. They fell {seven} in the seven days to {date}.} rose {. They rose {seven} in the seven days to {date}.} other { ({date}).}}",
+      "one": "{coin} is {high} below {window, select, short {its highest close since {since}} other {its 90‑day high}}{change, select, fell { and fell {seven} in the 7 days to {date}.} rose { and rose {seven} in the 7 days to {date}.} other { ({date}).}}",
+      "several": "{coins}, in the amounts you hold, are {high} below {window, select, short {their highest close since {since}} other {their 90‑day high}}{change, select, fell {. They fell {seven} in the 7 days to {date}.} rose {. They rose {seven} in the 7 days to {date}.} other { ({date}).}}",
       "why": "Why? The fall under way",
       "missing": "{coin} is not in these figures: {product} has no price history for it.",
       "data": "Daily closes in {currency}, {first} to {last} · Price data by CoinGecko",
@@ -443,11 +443,11 @@
     },
     "why": {
       "window": "Why? The sell window",
-      "parts": "Why? The three parts",
-      "partsLine": "The sell window has three parts."
+      "parts": "Why? The 3 parts",
+      "partsLine": "The sell window has 3 parts."
     },
     "reference": {
-      "window": "Your plan buys until {lastBuy}, holds, then sells in three parts between {opens} and {closes}, out by {exitBy}.",
+      "window": "Your plan buys until {lastBuy}, holds, then sells in 3 parts between {opens} and {closes}, out by {exitBy}.",
       "openEnded": "Your plan buys until {lastBuy}, then holds with no sell window.",
       "amounts": "{starting} to start, then {monthly} a month on day {buyDay}: {split}.",
       "monthly": "{monthly} a month on day {buyDay}: {split}.",
@@ -501,7 +501,7 @@
       "none": "No sell window",
       "noneLine": "Your plan buys, then holds.",
       "dates": "A sell window",
-      "datesLine": "Your plan sells in three parts between the opening and closing dates, out by the last.",
+      "datesLine": "Your plan sells in 3 parts between the opening and closing dates, out by the last.",
       "opens": "Opens",
       "closes": "Closes",
       "exitBy": "Out by",
@@ -1168,7 +1168,7 @@
       "failed": "The review could not be postponed. Try again."
     },
     "redDay": {
-      "week": "{names}{coins, select, one {} other {, in the amounts you hold,}} fell {fall} in the seven days to {date}.",
+      "week": "{names}{coins, select, one {} other {, in the amounts you hold,}} fell {fall} in the 7 days to {date}.",
       "high": "On {date} {names}{coins, select, one { was} other {, in the amounts you hold, were}} {fall} below {coins, select, one {its} other {their combined}} 90‑day high.",
       "open": "See the fall under way",
       "dismiss": "Dismiss",

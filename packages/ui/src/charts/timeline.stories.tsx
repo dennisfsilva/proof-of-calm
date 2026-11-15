@@ -3,7 +3,7 @@ import { expect, within } from 'storybook/test';
 import { Timeline, type TimelineMilestone, type TimelinePhase, type TimelineProps } from './timeline';
 
 // A plan buying monthly from 5 January 2026 to 5 December 2028 in Portugal (tax-free 365 days after
-// the last buy), selling in 2030 in three parts and out by 30 June 2031: the strip story's plan. The
+// the last buy), selling in 2030 in 3 parts and out by 30 June 2031: the strip story's plan. The
 // fractions are days since the first buy over the plan's 2003 days, as the core's strip() returns them.
 const phases: readonly TimelinePhase[] = [
   { kind: 'buy', label: 'Buy', detail: '5 Jan 2026 to 5 Dec 2028', from: 0, to: 0.531702 },
@@ -17,7 +17,7 @@ const phases: readonly TimelinePhase[] = [
   },
   {
     kind: 'sell',
-    label: 'Sell in three parts',
+    label: 'Sell in 3 parts',
     detail: 'Jan, Mar and Dec 2030',
     from: 0.727409,
     to: 0.909136,
@@ -68,9 +68,9 @@ const meta = {
     milestones: milestones('first'),
     table: table(milestones('first')),
     description:
-      'Buy monthly from 5 January 2026 to 5 December 2028, hold until tax-free on 5 December 2029, sell in three parts in January, March and December 2030, out by 30 June 2031.',
+      'Buy monthly from 5 January 2026 to 5 December 2028, hold until tax-free on 5 December 2029, sell in 3 parts in January, March and December 2030, out by 30 June 2031.',
     label:
-      'Plan from January 2026 to June 2031: buy until December 2028, tax-free from December 2029, sell in three parts during 2030, out by 30 June 2031. Today, 17 October 2026, is in Buy.',
+      'Plan from January 2026 to June 2031: buy until December 2028, tax-free from December 2029, sell in 3 parts during 2030, out by 30 June 2031. Today, 17 October 2026, is in Buy.',
   },
 } satisfies Meta<typeof Timeline>;
 
