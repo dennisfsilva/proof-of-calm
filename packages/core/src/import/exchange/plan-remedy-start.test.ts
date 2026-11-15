@@ -1041,6 +1041,29 @@ describe("a lump's claim reads its amount", () => {
     ]);
     expect(planOf(c, after).entries).toEqual([]);
   });
+
+  // CI's world of 2026-11-15 (seed -1110155515, plan-lump-cut.property.test.ts), shrunk: a one-tap lump of 35, half
+  // BTC's monthly part of 70, on 2 Apr. 1 Apr's 52.50 is farther from 35 than 70 is, as a ratio, so the whole file's
+  // lump walks 2 Apr and 3 Apr. An export beginning inside 1 Apr holds its 49 alone, which is nearer: the shorter
+  // export's lump takes 2 Apr, then stops at 1 Apr (59.50 is no nearer 35 than 10.50), never claiming the cut date,
+  // and stores 3 Apr's 3.50, which then counts twice.
+  it("below the part, an export beginning inside 1 Apr: the lump stops at the cut date, and 3 Apr's 3.50 counts twice", () => {
+    const file = [
+      buy('BTC', '2026-04-01T08:00:00Z', '3.50', '0.00005'),
+      buy('BTC', '2026-04-01T12:00:00Z', '49', '0.0007'),
+      buy('BTC', '2026-04-03T10:00:00Z', '3.50', '0.00005'),
+      buy('BTC', '2026-04-02T10:00:00Z', '10.50', '0.00015'),
+    ];
+    const tapped = lump('2026-04-02', { source: 'one-tap', amount: money('35'), units: units('0.0005') });
+    const c = of(file, [tapped], PLAN_70_30);
+    expect(recordedBy(c, c.entries, tapped)).toEqual(['2026-04-02', '2026-04-03']);
+    expect(invested(c, c.entries)).toBe('87.5');
+    const shorter = fileOf(file.filter((m) => m.at >= '2026-04-01T12:00:00Z'));
+    expect(planOf(c, c.entries, shorter).recorded.map((item) => item.dates)).toEqual([['2026-04-02']]);
+    const cut = imported(c, c.entries, shorter);
+    expect(recordedBy(c, cut, tapped)).toEqual(['2026-04-02']);
+    expect(invested(c, cut)).toBe('91');
+  });
 });
 
 // The starting line's totals (docs/DOMAIN.md §3.13 step 3): when the instruction's date holds two or more purchases of
