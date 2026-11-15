@@ -333,6 +333,17 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   had no tool (the island was the next branch); its second review round found the link promising a
   date the page does not give, and the branch waited for the next session (2026-11-15).
 
+- A worker that keeps a value out of its cache keys also deletes the keys an earlier worker wrote.
+  The earlier worker keeps control until the update is accepted or every tab it controls closes (the
+  site pages never post SKIP_WAITING), and WebKit keeps a cache entry's first request URL on a later
+  put of the same page. #245 kept the holding-date tool's fragment out of the `pages` keys; the
+  integration read found a browser that the previous worker still controlled keeping the purchase
+  date in a key after the update, and #247 deletes such keys when the worker activates (2026-11-15).
+- A page with an empty native date field takes its WebKit baselines with the field masked: WebKit
+  draws the day of the run into an empty `input type=date`, so the image fails the next day. The
+  holding-date page's iphone pair was left out of #246 for this and moved to session 24
+  (2026-11-15).
+
 ## Known gaps
 
 - `lighthouse-vercel` sends the bypass as a header to a preview; deployment protection still

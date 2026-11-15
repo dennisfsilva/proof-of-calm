@@ -268,7 +268,7 @@ owner's confirmation and before stage A's trade-mark filing, which is still open
     full gate stay, whatever the date (`docs/RELEASE.md`).
 - **Web first, the stores right after.** Search lands on web pages; there is no store review; there
   is one build; the installable PWA works on every phone, and installing it on iOS also protects
-  local data from Safari's seven-day rule (ADR-0002, ADR-0019, ADR-0033). Many people look for apps
+  local data from Safari's 7-day rule (ADR-0002, ADR-0019, ADR-0033). Many people look for apps
   only in the stores, and push reminders keep the loop going, so the store apps follow within weeks.
 - **Store risks.** Apple rejects apps that are no more than "a repackaged website" (guideline 4.2);
   local notifications, deep links and offline use answer that, and push arrives with accounts.
