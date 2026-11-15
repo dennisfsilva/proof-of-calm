@@ -120,7 +120,9 @@ describe('the Noise and When the market drops modules', () => {
     );
     // The public page shows the same body, so each sentence about an app screen names the app (CONTENT-STYLE §1
     // rule 10), and says only what the app does in every state: no line, row or page without prices that show a fall.
-    expect(body).toContain('In the app, Today then shows one line on one visit, and Learn lists the fall first.');
+    expect(body).toContain(
+      "In the app, Today then shows one line on one visit, and Learn's first row links to the fall.",
+    );
     expect(body).toContain('## The fall page in the app');
     expect(body).toContain(
       "In the app, while the prices it reads show a fall in the coins you hold, Learn's first row opens a page with the figure and each coin's earlier falls.",
