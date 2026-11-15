@@ -1232,6 +1232,23 @@ describe('validateContent: translated overlays (ADR-0057)', () => {
     );
   });
 
+  it("reads English numbers with English separators and a translation's with its number locale", () => {
+    const german = { code: 'DE', locales: ['de-DE'], numberFormatLocale: 'de-DE', dateFormatLocale: 'de-DE' };
+    const english = file(de, withCaveat('Gains up to 1,000 euros a year are exempt.', german));
+    const caveat = (text: string) => file(overlayOf(de), { card: { caveats: [text] } });
+    expect(overlaid([english, caveat('Ganhos até 1.000 euros por ano estão isentos.')])).toEqual([]);
+    expect(overlaid([english, caveat('Ganhos até 1,000 euros por ano estão isentos.')])).toEqual([
+      'overlay-number-mismatch: card.caveats.0: 1, English 1000',
+    ]);
+    const two = 'packages/content/templates/two-coins.json';
+    const fell = file(two, template({ explanation: 'Each coin fell 31.4 % in its worst year.' }));
+    const explanation = (text: string) => file(overlayOf(two), { explanation: text });
+    expect(overlaid([fell, explanation('Cada moeda caiu 31,4 % no seu pior ano.')])).toEqual([]);
+    expect(overlaid([fell, explanation('Cada moeda caiu 3,14 % no seu pior ano.')])).toEqual([
+      'overlay-number-mismatch: explanation: 3.14, English 31.4',
+    ]);
+  });
+
   it('reports the shape problems: an unknown path, a source, an array length, a changed figure', () => {
     const overlay = {
       nickname: 'PT',
