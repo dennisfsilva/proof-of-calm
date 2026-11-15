@@ -212,6 +212,11 @@ describe('renderSitePage (ADR-0045 §6)', () => {
     );
     const holding = renderSitePage('en/holding-date', assets, data);
     expect(holding).toContain('<title>Holding rules by country · Proof of Calm</title>');
+    // A visitor has seen no card, so the intro names none (docs/CONTENT-STYLE.md §1).
+    expect(holding).toContain(
+      '<p class="text-16">Each country&#x27;s holding rule with every condition, its sources, and the date it was last reviewed.</p>',
+    );
+    expect(pt).toContain('>Sources for Portugal</h2>');
     expect(holding).toContain('href="/en/countries/pt"');
     expect(() => renderSitePage('en/countries/xx', assets, data)).toThrow('no listed country XX');
   });
