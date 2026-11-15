@@ -337,6 +337,9 @@ const TRANSLATED: TextChecks = {
   },
   template: (path, [english, translated]) =>
     templateTextProblems(path, changedTexts(templateTexts(english), templateTexts(translated))),
+  // Counsel alone reads the English facts; a translation is new prose that a Learn page quotes.
+  fact: (path, texts) =>
+    texts.flatMap(([field, text]) => [...bannedProblems(path, field, text), ...hyphenProblems(path, field, text)]),
 };
 
 /** Every problem in the given files and modules; the empty list is a pass. */

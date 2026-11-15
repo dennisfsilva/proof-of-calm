@@ -1249,6 +1249,21 @@ describe('validateContent: translated overlays (ADR-0057)', () => {
     ]);
   });
 
+  it("runs the ban list and the hyphen on a translated fact's value, which a Learn page quotes", () => {
+    const facts = 'packages/content/facts/red-day.json';
+    const english = file(facts, [fact(), fact({ key: 'q.week', value: 'A fall over 7 days.', unit: 'days' })]);
+    const pass = 'Uma queda de 10 % ou mais em sete dias, em 5,7 % dos dias, de 2021-10-16 a 2026-10-16.';
+    const translated = (more: Record<string, unknown>) =>
+      file(overlayOf(facts), { 'q.red-day-frequency': { value: pass }, ...more });
+    expect(overlaid([english, translated({})])).toEqual([]);
+    expect(
+      overlaid([english, translated({ 'q.week': { value: 'Recomendamos olhar para uma queda em 7-day.' } })]),
+    ).toEqual([
+      banned('advice', 'q.week.value', 'Recomendamos'),
+      'number-unit-hyphen: q.week.value: "7-day"; write U+2011 between the number and its unit (90‑day)',
+    ]);
+  });
+
   it('reports the shape problems: an unknown path, a source, an array length, a changed figure', () => {
     const overlay = {
       nickname: 'PT',
