@@ -93,6 +93,11 @@ The name carries the calm; the line under it carries the category. People search
 | Proof | Dated country rules with sources; a "what this app leaves out" page; a simulator that shows drawdowns first; "free core forever" in writing; no affiliate links; never asks for keys (ADR-0039) | the site, the press page |
 | Promise about DCA | It takes the timing decision away. It does not make crypto less risky. | the landing page, store descriptions, Learn "Start here" |
 
+Counsel ruled on 2026-11-15 that the Category line, which names four of the catalogue's coins in the
+Cycle plan's order, reads as a pick (`docs/LEGAL.md` §3.3, ADR-0009). Until the owner rewords it, public
+copy (the manifest, link previews, store titles, listings and posts) names no coin; the manifest and
+the link previews say "A planner and log for buying crypto on a fixed monthly schedule."
+
 ### 2.2 What exchanges and wallets show, and what they cannot
 
 Holdings and profit are no longer a reason to use a separate app. Exchanges show both for the coins
