@@ -17,7 +17,10 @@ and email. Decisions: ADR-0021 (sync), ADR-0030 (encryption timing), ADR-0035 (a
    role never reachable from the client.
 4. **Validate at every boundary**; rate-limit every public route; fail closed.
 5. **Assume the browser can be lost or shared.** Short sessions on sign-out, no secrets in
-   `localStorage` other than the Supabase session (ADR-0032), a visible "sign out everywhere".
+   `localStorage` other than the Supabase session (ADR-0032), a visible "sign out everywhere". The
+   other `localStorage` keys hold device preferences, read before the first paint and validated,
+   with a default on any other value: `poc.appearance` (the theme mirror, ADR-0045 §3) and
+   `poc.language` (the UI language, ADR-0023's deviation of 2026-11-15).
 6. **Design for client-side encryption now, ship it in v2** (ADR-0030): opaque payloads, minimal
    plaintext metadata, per-row key ids.
 7. **Humans publish content.** The review agent only opens pull requests (ADR-0015).

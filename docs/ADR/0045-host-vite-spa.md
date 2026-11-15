@@ -1434,3 +1434,34 @@ country library left to the public-pages checkpoint.
   precache the island (`globIgnores`), and its `pages` cache keys a document without its fragment;
   a navigation's FetchEvent does see the fragment, and a worker built before the page kept it in its
   keys, so the worker deletes every `pages` key with a fragment when it activates. Lighthouse measures the page with the public page's budgets and a script budget of 12,288 bytes.
+
+The entries below record the files of the languages after English (§8), which the same day began
+with pt-PT.
+
+- **2026-11-15, translations sit beside English, and the merge completes them** (§8). A feature's or
+  lib module's translation is `messages/<locale>.json` beside its `en.json`. `tools/messages/merge.ts`
+  lists the locales (`LOCALES`, `en` and `pt-PT`) and writes `messages/<locale>/<namespace>.json` for
+  each, a missing key filled from English (`complete`, which refuses a key English lacks); the merged
+  `messages/en.json`, which types the keys, is written for English alone. A locale the app hides
+  may be partial; one in `VISIBLE_LANGUAGES` (`packages/app/src/lib/i18n/language.ts`) must be
+  complete, and `packages/app/src/lib/i18n/locales.test.ts` holds that every translated message has
+  English's ICU arguments and rich tags and an `other` in each plural and select. The pt-PT files are
+  English's copies until the translation lands; German reads English's files until the merge lists
+  it. English's static namespaces stay static imports of the entries; another language's come from
+  `loadStaticNamespaces` before the first render, and `messageRegistry.setLanguage` points
+  `loadNamespace` and `lazyScreen` at that language's lazy files.
+- **2026-11-15, another language's message chunks stay out of the precache** (§5, §8). The hosts'
+  `chunkFileNames` (`packages/config/vite/host-config.ts`) put a chunk of `messages/<locale>/` for any
+  locale but English under `assets/messages/<locale>/`, and `apps/web/scripts/bundle-worker.ts`
+  leaves that folder out of the precache (`globIgnores`), so a hidden language's files reach no
+  install; a person who chose the language gets them from the assets route like any visited file.
+  Measured on the web build: 70 precache entries and 1,371,216 bytes before, 70 and 1,372,906 after
+  (the 1,690 bytes are English's changed entry code). Today's application code
+  (`node tools/size/today.ts`) went from 39,819 to 41,763 bytes; 1,444 of them are pt-PT's today
+  chunk, which the tool's `TODAY` pattern counts as Today's messages, so English's Today grew by
+  about 500 bytes of loader code.
+- **2026-11-15, the review's first sentence has three keys that say the same** (§8). Plan's
+  `plan.review.since` is one select over `kind`; Today's `today.review.created` and
+  `today.review.reviewed` say each branch alone. `packages/app/src/lib/i18n/twins.test.ts` formats
+  the select's `reviewed` and `other` branches and the two Today keys with the same `{date}` in every
+  locale the merge writes and holds them equal, so a translation cannot let them drift.
