@@ -5,9 +5,6 @@
 
 /** The languages content is written in; `UI_LANGUAGES` in packages/app must equal it. */
 export const CONTENT_LANGUAGES = ['en', 'pt-PT', 'de'] as const;
-export type ContentLanguage = (typeof CONTENT_LANGUAGES)[number];
-/** The languages an overlay holds; English is the files themselves. */
-export type OverlayLanguage = Exclude<ContentLanguage, 'en'>;
 export type ContentKind = 'jurisdiction' | 'template' | 'fact';
 
 /** The paths an overlay may hold per kind, `*` for an array index; a fact's are within the fact its key names. */
