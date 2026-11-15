@@ -11,6 +11,7 @@ const ASSETS = ['<link rel="stylesheet" crossorigin href="/assets/app-1.css">'];
 const data = await loadSiteData('2026-11-15' as CalendarDate);
 
 type LegalName = 'terms' | 'privacy' | 'risk' | 'cookies' | 'contact';
+const LEGAL = ['terms', 'privacy', 'risk', 'cookies', 'contact'] as const;
 
 /** React's escapes undone, so a test reads the copy as a person does. */
 const unescaped = (html: string) =>
@@ -25,9 +26,12 @@ function main(name: LegalName): string {
 /** Markup as the text a person reads: tags dropped, spaces joined. */
 const text = (html: string) => html.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ');
 
+/** One section of a legal page by its id. */
+const pageSection = (name: LegalName, page: string, id: string) =>
+  page.match(new RegExp(`<section[^>]*aria-labelledby="${name}-${id}-title"[^>]*>(.*?)</section>`))?.[1] ?? '';
+
 /** One section of the Risk page by its id. */
-const section = (page: string, id: string) =>
-  page.match(new RegExp(`<section[^>]*aria-labelledby="risk-${id}-title"[^>]*>(.*?)</section>`))?.[1] ?? '';
+const section = (page: string, id: string) => pageSection('risk', page, id);
 
 describe('the Risk disclosure (docs/LEGAL.md §5)', () => {
   const risk = messages.legal.risk;
@@ -38,11 +42,10 @@ describe('the Risk disclosure (docs/LEGAL.md §5)', () => {
     expect(text(main('risk'))).toContain('you could lose all the money you put in. Use only money you will not need');
   });
 
-  it('shows no placeholder on Risk, while Terms, Privacy, Cookies and Contact keep it', () => {
-    const placeholder = messages.legal.placeholder.replace('{product}', 'Proof of Calm');
-    expect(text(main('risk'))).not.toContain(placeholder);
-    for (const name of ['terms', 'privacy', 'cookies', 'contact'] as const) {
-      expect(text(main(name)), name).toContain(placeholder);
+  it('no page keeps the pre-launch placeholder', () => {
+    expect(messages.legal).not.toHaveProperty('placeholder');
+    for (const name of LEGAL) {
+      expect(text(main(name)), name).not.toMatch(/published in full before|not available and collects nothing/);
     }
   });
 
@@ -170,20 +173,33 @@ describe('the Cookie-free statement (docs/LEGAL.md §5)', () => {
     }
     expect(page).toContain('until the tab closes');
     expect(page).toContain('Delete everything in Settings clears these too.');
+    expect(text(page)).toContain(
+      'There is no cookie banner, because the browser keeps nothing for tracking, advertising, or analytics.',
+    );
   });
 
-  it('lists what the browser keeps in order, with what lasts only for the tab last', () => {
-    const paragraphs = main('cookies').match(/<p>[^<]*<\/p>/g) ?? [];
+  it('says there is no banner after the lead, then lists what the browser keeps, how visits are counted and the references', () => {
+    const page = main('cookies');
+    const paragraphs = page.match(/<p>[^<]*<\/p>/g) ?? [];
     const starts = [
+      'Proof of Calm sets no advertising or analytics cookies',
+      'There is no cookie banner',
       'Your browser keeps your plan',
       'Your browser also keeps your display settings',
       'Your browser keeps a record of the entries you deleted',
       'It keeps a random identifier for this device',
       'Your browser keeps form drafts until the tab closes',
+      'Proof of Calm does not count visits itself',
+      'The rules on storing information in your browser',
     ];
-    expect(paragraphs.slice(-starts.length).map((p) => p.slice(3, 3 + 60))).toEqual(
+    const first = paragraphs.findIndex((p) => p.includes(starts[0] ?? ''));
+    expect(paragraphs.slice(first, first + starts.length).map((p) => p.slice(3, 3 + 60))).toEqual(
       starts.map((start) => expect.stringContaining(start)),
     );
+    // The Privacy notice is linked right after how visits are counted.
+    const visits = page.indexOf('does not count visits itself');
+    expect(page.indexOf(href('/privacy'))).toBeGreaterThan(visits);
+    expect(page.indexOf(href('/privacy'))).toBeLessThan(page.indexOf('The rules on storing information'));
   });
 
   // Everything M1 keeps in the browser, each in a sentence that also says why (§5's outline).
@@ -194,7 +210,7 @@ describe('the Cookie-free statement (docs/LEGAL.md §5)', () => {
     ['the date each copy was saved', 'so copies past their limit are cleared'],
     ['your display settings', 'so they stay as you chose them'],
     ['the dates of your last JSON backup and your last change', 'so the app can remind you to export a copy'],
-    ['the banners you dismissed or that showed once', 'so they stay hidden'],
+    ['the banners you dismissed and those shown only once', 'so they stay hidden'],
     ['the date of your last annual review', 'so the next review shows when it is due'],
     ['the entries you deleted on this device', 'so an import with Add missing entries only cannot bring them back'],
     [
@@ -211,11 +227,163 @@ describe('the Cookie-free statement (docs/LEGAL.md §5)', () => {
     ],
     ['form drafts until the tab closes', 'so what you typed comes back when you return to the form'],
     ['the tab keeps a short note until it closes', 'so it reloads only once'],
+    ['does not count visits itself', 'the request totals of its host, Vercel, with no script and no identifier'],
+    ['There is no cookie banner', 'nothing for tracking, advertising, or analytics'],
+    [
+      'Article 5(3) of the ePrivacy Directive',
+      "Article 5 of Portugal's Lei 41/2004, Germany's § 25 TDDDG, and the UK's PECR",
+    ],
   ])('names %s and why', (item, why) => {
     const sentence = main('cookies')
       .split(/(?<=\.) |<\/?p>/)
       .find((s) => s.includes(item));
     expect(sentence).toBeDefined();
     expect(sentence).toContain(why);
+  });
+});
+
+/** The ids of a page's sections, in order. */
+const sectionIds = (name: LegalName) =>
+  [...main(name).matchAll(new RegExp(`<section[^>]*aria-labelledby="${name}-([a-z]+)-title"`, 'g'))].map(
+    (match) => match[1],
+  );
+
+const href = (path: string) => `href="${path}"`;
+
+describe('the launch drafts of Terms, Privacy and Contact (docs/LEGAL.md §5)', () => {
+  it("Terms has §5's launch sections in order and none of the account or Plus sections", () => {
+    const page = main('terms');
+    expect(page.match(/<h1/g) ?? []).toHaveLength(1);
+    expect(sectionIds('terms')).toEqual([
+      'who',
+      'what',
+      'age',
+      'countries',
+      'data',
+      'use',
+      'prices',
+      'risk',
+      'changes',
+      'liability',
+      'law',
+    ]);
+    expect(text(page)).not.toMatch(/\bPlus\b|passkey|sign-in code|subscription|withdrawal form|refund|\btips?\b/i);
+    expect(text(page)).toContain(
+      'Proof of Calm is not registered with or supervised by any financial supervisor, and no investor-compensation or deposit-protection scheme covers crypto-assets.',
+    );
+    expect(text(page)).toContain(
+      "Proof of Calm never offers you an investment and never asks for your seed phrase, a private key, an exchange's API key or login, or for coins or money to buy them.",
+    );
+    expect(text(page)).toMatch(/CoinGecko/);
+    expect(page).toContain(href('/risk'));
+  });
+
+  it('Terms links Contact after who provides it and after the law, and states liability without a cap', () => {
+    const page = main('terms');
+    expect(pageSection('terms', page, 'who')).toContain(href('/contact'));
+    const law = pageSection('terms', page, 'law');
+    expect(law).toContain(href('/contact'));
+    expect(text(law)).toContain(
+      'Proof of Calm charges for nothing yet. Before it charges for anything, the Contact page will name the alternative dispute resolution entities a consumer can use.',
+    );
+    expect(text(pageSection('terms', page, 'liability'))).toContain(
+      'Proof of Calm is liable under the law that applies to these terms. Nothing in these terms limits your rights as a consumer.',
+    );
+    expect(text(page)).not.toMatch(/no further|stays that way/);
+    expect(text(pageSection('terms', page, 'changes'))).toContain(
+      'Proof of Calm costs nothing to use, and no part of it that costs nothing today will later carry a charge.',
+    );
+  });
+
+  it('Terms says who provides it in two sentences and what the app keeps and shows', () => {
+    const page = main('terms');
+    const owner = messages.legal.owner;
+    expect(text(pageSection('terms', page, 'who'))).toContain(
+      `${owner.name}, ${owner.legalForm}, ${owner.address}, provides Proof of Calm. The Contact page lists every way to reach them.`,
+    );
+    const what = text(pageSection('terms', page, 'what'));
+    expect(what).toContain('keeps each purchase you log with its date, amount, and units');
+    expect(what).toContain('it shows what their holding rules mean for each purchase, with their sources.');
+  });
+
+  it('Privacy links Contact after the controller and names what the requests and the mail host keep', () => {
+    const page = main('privacy');
+    expect(pageSection('privacy', page, 'controller')).toContain(href('/contact'));
+    expect(text(pageSection('privacy', page, 'device'))).toContain(
+      "Your plan, your entries, and your settings stay in your browser on this device. Proof of Calm's server sees only the coin and currency each price request names.",
+    );
+    expect(text(pageSection('privacy', page, 'requests'))).toContain(
+      'These requests name at most a coin and a currency. They carry no identifier that Proof of Calm sets, and none of your entries, amounts, or dates.',
+    );
+    expect(text(pageSection('privacy', page, 'requests'))).toContain(
+      'with no page, internet address, or browser name.',
+    );
+    expect(text(pageSection('privacy', page, 'hosting'))).toContain(
+      `It keeps its request logs for ${messages.legal.owner.logPeriod}.`,
+    );
+    expect(text(pageSection('privacy', page, 'hosting'))).toContain(
+      "The legal basis is Proof of Calm's legitimate interest in serving the site and protecting it from abuse",
+    );
+    expect(text(pageSection('privacy', page, 'mail'))).toContain(
+      'for 24 months after the last one, to answer follow-up questions (GDPR art. 6(1)(b) and (f)). The mail host keeps its mail logs for 30 days.',
+    );
+    expect(text(pageSection('privacy', page, 'rights'))).toContain('You can also object to its use.');
+    expect(text(pageSection('privacy', page, 'rights'))).toContain(
+      'Proof of Calm makes no automated decision about you and builds no profile of you.',
+    );
+  });
+
+  it('Privacy names Vercel and CoinGecko and links the Cookie-free statement', () => {
+    const page = main('privacy');
+    expect(page.match(/<h1/g) ?? []).toHaveLength(1);
+    expect(text(page)).toContain('Vercel');
+    expect(text(page)).toContain('CoinGecko');
+    expect(text(page)).not.toMatch(/Supabase|Sentry|Resend/);
+    expect(page).toContain(href('/cookies'));
+    expect(text(page)).toContain(
+      "Proof of Calm never offers you an investment and never asks for your seed phrase, a private key, an exchange's API key or login, or for coins or money to buy them.",
+    );
+  });
+
+  it('no legal page shows an e-mail, street address or tax number: each identity field is an [Owner: …] placeholder', () => {
+    const owner = messages.legal.owner as Record<string, string>;
+    expect(Object.keys(owner).sort()).toEqual(
+      [
+        'name',
+        'legalForm',
+        'address',
+        'email',
+        'nif',
+        'vat',
+        'register',
+        'manager',
+        'privacyEmail',
+        'dsaEmail',
+        'mailHost',
+        'logPeriod',
+        'date',
+      ].sort(),
+    );
+    for (const [field, value] of Object.entries(owner)) expect(value, field).toMatch(/^\[Owner: [^\]]+\]$/);
+    const pages = LEGAL.map((name) => text(main(name))).join(' ');
+    for (const [field, value] of Object.entries(owner)) expect(pages, field).toContain(value);
+    expect(text(main('privacy'))).toContain(
+      "It keeps its request logs for [Owner: the request-log period of Vercel's plan, as a numeral with its unit, such as 1 day].",
+    );
+    for (const name of LEGAL) {
+      const shown = text(main(name));
+      expect(shown, name).not.toMatch(/[\w.+-]+@[\w-]+\.[a-z]{2,}/i);
+      expect(shown, name).not.toMatch(/\b(Rua|Avenida|Travessa|Largo|Stra(ss|ß)e|Street)\b|\b\d{4}-\d{3}\b/);
+      expect(shown, name).not.toMatch(/\b(PT ?)?\d{9}\b/);
+    }
+  });
+
+  it('Contact keeps #security and the security.txt link', () => {
+    const page = main('contact');
+    expect(page).toMatch(/<section id="security"[^>]*>/);
+    expect(page).toContain(href('/.well-known/security.txt'));
+    expect(text(page)).toContain('No authorisation scheme applies; no supervisory authority.');
+    expect(sectionIds('contact')).toEqual(['provider', 'dsa', 'privacy']);
+    expect(page.indexOf('id="security"')).toBeGreaterThan(page.indexOf('contact-privacy-title'));
   });
 });

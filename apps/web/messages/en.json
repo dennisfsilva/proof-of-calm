@@ -9,14 +9,126 @@
     "home": "Home"
   },
   "legal": {
-    "placeholder": "This page is published in full before {product} opens. Until then the service is not available and collects nothing.",
+    "owner": {
+      "name": "[Owner: full name or firm name]",
+      "legalForm": "[Owner: legal form]",
+      "address": "[Owner: establishment address, not a home address]",
+      "email": "[Owner: contact e-mail]",
+      "nif": "[Owner: NIF or NIPC]",
+      "vat": "[Owner: VAT number]",
+      "register": "[Owner: commercial register and number, or none]",
+      "manager": "[Owner: manager, or none]",
+      "privacyEmail": "[Owner: privacy e-mail]",
+      "dsaEmail": "[Owner: DSA contact e-mail]",
+      "mailHost": "[Owner: mail host, its country and its transfer safeguard]",
+      "logPeriod": "[Owner: the request-log period of Vercel's plan, as a numeral with its unit, such as 1 day]",
+      "date": "[Owner: date of publication]"
+    },
+    "version": "Version 1, {date}.",
     "terms": {
       "title": "Terms of use",
-      "lead": "{product} is software for recording and visualising a plan you design."
+      "lead": "{product} is software for recording and visualising a plan you design. These terms apply when you use it.",
+      "who": {
+        "title": "Who provides it",
+        "p1": "{name}, {legalForm}, {address}, provides {product}. The Contact page lists every way to reach them."
+      },
+      "what": {
+        "title": "What it is and is not",
+        "p1": "{product} keeps each purchase you log with its date, amount, and units, and shows where you are in the plan you set. For the countries it covers, it shows what their holding rules mean for each purchase, with their sources.",
+        "p2": "It is not an exchange, a wallet, a broker, or an adviser. It places no orders, holds no money or coins, and gives no financial, investment, or tax advice."
+      },
+      "age": {
+        "title": "Age",
+        "p1": "{product} is for people aged 18 or over and is not directed at children."
+      },
+      "countries": {
+        "title": "Where it is not available",
+        "p1": "{product} is not available in the United Kingdom. Visitors there see a page that says so, and these legal pages."
+      },
+      "data": {
+        "title": "Your data",
+        "p1": "Your plan and your entries stay in your browser on this device. {product} holds no copy of them and cannot restore them, so keep your own copy with the export in Settings.",
+        "p2": "The Privacy notice says what reaches {product}'s server and why."
+      },
+      "use": {
+        "title": "Acceptable use",
+        "p1": "Do not use {product} to break the law, to attack or overload the service, or to get around the block in the United Kingdom.",
+        "p2": "To report content on {product} that you believe is illegal, write to {dsaEmail} with where it is and why. You get a confirmation that it arrived, then the decision and its reasons."
+      },
+      "prices": {
+        "title": "Prices and market data",
+        "p1": "Prices and market data come from CoinGecko's API, which is the property of CoinGecko. They can be late, incomplete, or wrong.",
+        "p2": "CoinGecko accepts no liability for any use of its API or its data, and bears no responsibility for any financial decision you make or its outcome."
+      },
+      "risk": {
+        "title": "Risk",
+        "p1": "Crypto-assets are highly volatile, and you could lose all the money you put in. {product} is not registered with or supervised by any financial supervisor, and no investor-compensation or deposit-protection scheme covers crypto-assets.",
+        "p2": "{product} never offers you an investment and never asks for your seed phrase, a private key, an exchange's API key or login, or for coins or money to buy them. The Risk disclosure says more."
+      },
+      "changes": {
+        "title": "Availability and changes",
+        "p1": "{product} costs nothing to use, and no part of it that costs nothing today will later carry a charge. The service can be unavailable at times, and it can change.",
+        "p2": "A change to these terms is published on this page, with a new version and date, before it applies."
+      },
+      "liability": {
+        "title": "Liability",
+        "p1": "{product} is liable under the law that applies to these terms. Nothing in these terms limits your rights as a consumer."
+      },
+      "law": {
+        "title": "Law and disputes",
+        "p1": "Portuguese law applies. If you are a consumer living in another EU country, you keep the protection of that country's consumer law.",
+        "p2": "{product} charges for nothing yet. Before it charges for anything, the Contact page will name the alternative dispute resolution entities a consumer can use."
+      }
     },
     "privacy": {
       "title": "Privacy notice",
-      "lead": "{product} collects only what the service you ask for needs, and never sells or shares it for advertising."
+      "lead": "{product} collects only what the service you ask for needs, and never sells or shares it for advertising.",
+      "controller": {
+        "title": "Who is responsible",
+        "p1": "{name}, {legalForm}, {address}, is the controller of the personal data this notice describes. Write to {privacyEmail} about your data."
+      },
+      "device": {
+        "title": "What stays on your device",
+        "p1": "{product} has no accounts. Your plan, your entries, and your settings stay in your browser on this device. {product}'s server sees only the coin and currency each price request names.",
+        "p2": "{product} never offers you an investment and never asks for your seed phrase, a private key, an exchange's API key or login, or for coins or money to buy them."
+      },
+      "requests": {
+        "title": "What reaches the server",
+        "p1": "To show prices, your browser asks {product}'s server for the latest prices in your currency and for the price history of the coins in your plan. These requests name at most a coin and a currency. They carry no identifier that {product} sets, and none of your entries, amounts, or dates.",
+        "p2": "When your browser blocks something on a page under the site's security rules, it sends a report. {product} keeps only a daily count of the rule and the blocked source, with no page, internet address, or browser name."
+      },
+      "hosting": {
+        "title": "Hosting: Vercel",
+        "p1": "Vercel Inc., in the United States, hosts the site and the server, whose functions run in Frankfurt. It receives each request your browser sends, with its internet address and browser name. It keeps its request logs for {logPeriod}.",
+        "p2": "Vercel reads the country of each request, so visitors in the United Kingdom see the page that says {product} is not available there.",
+        "p3": "Data reaches Vercel in the United States under the EU-U.S. Data Privacy Framework and the EU's standard contractual clauses. The legal basis is {product}'s legitimate interest in serving the site and protecting it from abuse (GDPR art. 6(1)(f))."
+      },
+      "prices": {
+        "title": "Price data: CoinGecko",
+        "p1": "The prices come from CoinGecko. Only {product}'s server asks CoinGecko for them, so CoinGecko receives no personal data about you."
+      },
+      "mail": {
+        "title": "E-mail",
+        "p1": "If you write to {product}, its mail host, {mailHost}, keeps your e-mail address and your messages for 24 months after the last one, to answer follow-up questions (GDPR art. 6(1)(b) and (f)). The mail host keeps its mail logs for 30 days."
+      },
+      "rights": {
+        "title": "Your rights",
+        "p1": "You can ask for access to your data, its correction or erasure, a restriction of its use, or a copy to take elsewhere. You can also object to its use. Write to {privacyEmail}; you get an answer within one month.",
+        "p2": "Your plan and your entries are on your device only: you export or delete them yourself in Settings. {product} makes no automated decision about you and builds no profile of you.",
+        "p3": "You can complain to the Portuguese data protection authority, the CNPD, or to the authority where you live."
+      },
+      "security": {
+        "title": "Security",
+        "p1": "Pages and requests travel over HTTPS, and the site loads no third-party script. {product}'s own storage holds only prices and the daily counts above."
+      },
+      "age": {
+        "title": "Age",
+        "p1": "{product} is for people aged 18 or over and is not directed at children."
+      },
+      "storage": {
+        "title": "What your browser keeps",
+        "p1": "What your browser keeps on this device, and why, is in the Cookie-free statement."
+      }
     },
     "risk": {
       "title": "Risk disclosure",
@@ -75,14 +187,39 @@
       "title": "Cookie-free statement",
       "lead": "{product} sets no advertising or analytics cookies, loads no third-party scripts, and does no fingerprinting.",
       "storesOffline": "Your browser keeps your plan, your entries, and the prices fetched for your coins on this device, so the app works offline. It keeps the app's files, so the app opens offline. It keeps the pages you opened for up to 7 days and the latest price data for 24 hours, so they show offline. It keeps the date each copy was saved, so copies past their limit are cleared.",
-      "storesSettings": "Your browser also keeps your display settings (theme, reduced motion, chart range, and the Log's view), so they stay as you chose them. It keeps the dates of your last JSON backup and your last change, so the app can remind you to export a copy. It keeps the banners you dismissed or that showed once, so they stay hidden. It keeps the date of your last annual review, so the next review shows when it is due.",
+      "storesSettings": "Your browser also keeps your display settings (theme, reduced motion, chart range, and the Log's view), so they stay as you chose them. It keeps the dates of your last JSON backup and your last change, so the app can remind you to export a copy. It keeps the banners you dismissed and those shown only once, so they stay hidden. It keeps the date of your last annual review, so the next review shows when it is due.",
       "storesRecords": "Your browser keeps a record of the entries you deleted on this device, so an import with Add missing entries only cannot bring them back. It keeps the plan and entries that Replace everything removed, in full and marked as deleted, so that import cannot bring the entries back either. These records stay until you choose Delete everything in Settings or clear this site's data in your browser.",
       "storesSync": "It keeps a random identifier for this device, so your changes apply in the order you made them. It does not leave this browser: no request and no backup carries it. It keeps a copy of each change to your plan and entries, for syncing between devices, which the app does not offer. It keeps any stored data that failed its check when read, set aside instead of deleted, so a failed check erases nothing. Delete everything in Settings clears these too.",
-      "storesTab": "Your browser keeps form drafts until the tab closes, so what you typed comes back when you return to the form. After an update, if part of the app fails to load, the tab keeps a short note until it closes, so it reloads only once."
+      "storesTab": "Your browser keeps form drafts until the tab closes, so what you typed comes back when you return to the form. After an update, if part of the app fails to load, the tab keeps a short note until it closes, so it reloads only once.",
+      "visits": "{product} does not count visits itself: it reads only the request totals of its host, Vercel, with no script and no identifier.",
+      "banner": "There is no cookie banner, because the browser keeps nothing for tracking, advertising, or analytics.",
+      "references": "The rules on storing information in your browser are Article 5(3) of the ePrivacy Directive, Article 5 of Portugal's Lei 41/2004, Germany's § 25 TDDDG, and the UK's PECR."
     },
     "contact": {
       "title": "Contact",
-      "lead": "The full contact details and the legal notice are published before {product} opens.",
+      "lead": "Who provides {product}, and how to reach them.",
+      "provider": {
+        "title": "Provider",
+        "authority": "No authorisation scheme applies; no supervisory authority."
+      },
+      "fields": {
+        "name": "Name",
+        "legalForm": "Legal form",
+        "address": "Address",
+        "email": "E-mail",
+        "nif": "Tax number (NIF or NIPC)",
+        "vat": "VAT number",
+        "register": "Commercial register",
+        "manager": "Manager"
+      },
+      "dsa": {
+        "title": "Digital Services Act",
+        "p1": "Authorities, the European Commission, and users can reach {product} about the Digital Services Act at {dsaEmail}, in Portuguese, English, or German."
+      },
+      "privacy": {
+        "title": "Privacy",
+        "p1": "Questions about your data go to {privacyEmail}. The Privacy notice says what {product} processes and why."
+      },
       "securityTitle": "Security",
       "security": "Report a security issue to the address in security.txt. You get an acknowledgement within 72 hours. Good-faith research does not lead to legal action when it accesses no data beyond what proves the issue, does not disrupt the service, and is not made public before a fix. Credit on request.",
       "securityFile": "security.txt"
