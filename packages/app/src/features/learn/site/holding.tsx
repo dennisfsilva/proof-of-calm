@@ -3,7 +3,7 @@ import { useTranslations } from 'use-intl';
 import type { CountryCardModel, CountryEntry } from '../../../lib/services';
 import { CountryDateLine } from '../components/country-date-line';
 import { COUNTRY_LINK } from './countries';
-import { PAGE } from './modules';
+import { BACK_LINK, PAGE } from './modules';
 import { type SiteLinks, useSiteFormatters } from './static';
 
 // The holding-date page's static half (ADR-0048 Deviations of 2026-11-15): each listed country's holding rule as its
@@ -67,13 +67,16 @@ export type SiteHoldingDatesProps = {
   children?: ReactNode;
 };
 
-/** The heading, one intro line, then a country's holding rule per row, in the library's order. */
+/** The way back to the countries, the heading, one intro line, then each country's holding rule in the library's order. */
 export function SiteHoldingDates({ entries, cards, links, children }: SiteHoldingDatesProps) {
-  const t = useTranslations('learn.holding');
+  const t = useTranslations('learn');
   return (
     <div className={PAGE}>
-      <h1 className="text-28">{t('title')}</h1>
-      <p className="text-16">{t('line')}</p>
+      <a href={links.countries} className={BACK_LINK}>
+        {t('countries.back')}
+      </a>
+      <h1 className="text-28">{t('holding.title')}</h1>
+      <p className="text-16">{t('holding.line')}</p>
       {children}
       <ul className="flex flex-col gap-stack-lg">
         {entries.map((entry) => {
