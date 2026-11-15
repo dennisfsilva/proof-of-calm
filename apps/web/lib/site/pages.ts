@@ -14,7 +14,8 @@ export type LegalSlug = (typeof LEGAL_PAGES)[number]['slug'];
 
 /**
  * The public pages' paths under `/en/` (docs/GROWTH.md §2.6), which the static Learn pages link with plain
- * anchors; the country pages and the holding-date page come with the country pages' branch.
+ * anchors. Each resolves to a page the build prerenders (`src/site/render.tsx`): the Learn index and its
+ * modules, the country list and one page per country, and the holding-date page, which has no tool yet.
  */
 export const SITE_LINKS: SiteLinks = {
   learn: '/en/learn',
