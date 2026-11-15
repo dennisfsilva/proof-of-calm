@@ -28,7 +28,8 @@ import { ExchangeSections, ExchangeSummary } from './exchange-import-sections';
 
 // The exchange import's preview, worded (CONTENT-STYLE §3 "Import an exchange's file"): the summary, then one
 // collapsed section per kind of entry with one sentence each, the rows left out with their reasons, and the counted
-// lines, from plans that planExchangeImport makes of synthetic Kraken ledgers (ADR-0056).
+// lines, from plans that planExchangeImport makes of synthetic Kraken ledgers (ADR-0056). The fixture plan is
+// Portugal's, so its amounts read in pt-PT, as they do in production, with or without its rules (ADR-0023).
 
 afterEach(cleanup);
 
@@ -118,16 +119,16 @@ describe('ExchangeSummary and ExchangeSections', () => {
       'Coins added at no cost (1)',
     ]);
     expect(lines('Estimates it replaces (1)')).toEqual([
-      'Monthly buy for October 2026: 0.00119 BTC (estimated) at Bitvavo for €70.00 becomes 2 purchases at Kraken, ' +
-        '0.00200 BTC for €120.00 in all, fees €0.31, on 5 Oct 2026 and 12 Oct 2026.',
+      'Monthly buy for October 2026: 0,00119 BTC (estimated) at Bitvavo for 70,00 € becomes 2 purchases at Kraken, ' +
+        '0,00200 BTC for 120,00 € in all, fees 0,31 €, on 5 Oct 2026 and 12 Oct 2026.',
     ]);
     // The way to keep an estimate is cut: typing its units in the Log turns it into a hand entry (docs/DOMAIN.md §3.13).
     expect(texts().some((text) => text.includes('To keep an estimate instead'))).toBe(false);
     expect(lines('Monthly buys (1)')).toEqual([
-      'Monthly buy for October 2026: 0.012 ETH for €30.00, fee €0.08, on 5 Oct 2026.',
+      'Monthly buy for October 2026: 0,012 ETH for 30,00 €, fee 0,08 €, on 5 Oct 2026.',
     ]);
-    expect(lines('Sales (1)')).toEqual(['Sale: 0.01 ETH for €25.00, fee €0.07, on 15 Oct 2026.']);
-    expect(lines('Coins added at no cost (1)')).toEqual(['Coins added: 0.00005 BTC at no cost, on 16 Oct 2026.']);
+    expect(lines('Sales (1)')).toEqual(['Sale: 0,01 ETH for 25,00 €, fee 0,07 €, on 15 Oct 2026.']);
+    expect(lines('Coins added at no cost (1)')).toEqual(['Coins added: 0,00005 BTC at no cost, on 16 Oct 2026.']);
   });
 
   it('count the estimates replaced, not the months, with one sentence for each estimate', async () => {
@@ -139,10 +140,10 @@ describe('ExchangeSummary and ExchangeSections', () => {
     await mount(planOf(KRAKEN_OCTOBER, [...fixture.entries, ONE_TAP_OCTOBER, second]));
     expect(texts()).toContain('Replaces 2 estimates from Bought as planned.');
     expect(lines('Estimates it replaces (2)')).toEqual([
-      'Monthly buy for October 2026: 0.00119 BTC (estimated) at Bitvavo for €70.00 becomes 2 purchases at Kraken, ' +
-        '0.00200 BTC for €120.00 in all, fees €0.31, on 5 Oct 2026 and 12 Oct 2026.',
-      'Monthly buy for October 2026: 0.0011 BTC (estimated) at Bitvavo for €70.00 becomes 2 purchases at Kraken, ' +
-        '0.0020 BTC for €120.00 in all, fees €0.31, on 5 Oct 2026 and 12 Oct 2026.',
+      'Monthly buy for October 2026: 0,00119 BTC (estimated) at Bitvavo for 70,00 € becomes 2 purchases at Kraken, ' +
+        '0,00200 BTC for 120,00 € in all, fees 0,31 €, on 5 Oct 2026 and 12 Oct 2026.',
+      'Monthly buy for October 2026: 0,0011 BTC (estimated) at Bitvavo for 70,00 € becomes 2 purchases at Kraken, ' +
+        '0,0020 BTC for 120,00 € in all, fees 0,31 €, on 5 Oct 2026 and 12 Oct 2026.',
     ]);
   });
 
@@ -150,8 +151,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
     const csv = btcBuys([['T1', '2026-10-05 09:00:00', '70.0000', '0.0012000000', '0.1800']]);
     await mount(planOf(csv, [...fixture.entries, ONE_TAP_OCTOBER]));
     expect(lines('Estimates it replaces (1)')).toEqual([
-      'Monthly buy for October 2026: 0.00119 BTC (estimated) at Bitvavo for €70.00 becomes 0.00120 BTC at Kraken ' +
-        'for €70.00, fee €0.18, on 5 Oct 2026.',
+      'Monthly buy for October 2026: 0,00119 BTC (estimated) at Bitvavo for 70,00 € becomes 0,00120 BTC at Kraken ' +
+        'for 70,00 €, fee 0,18 €, on 5 Oct 2026.',
     ]);
   });
 
@@ -163,8 +164,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
     ]);
     await mount(planOf(csv, [...fixture.entries, ONE_TAP_OCTOBER]));
     expect(lines('Estimates it replaces (1)')).toEqual([
-      'Monthly buy for October 2026: 0.00119 BTC (estimated) at Bitvavo for €70.00 becomes 3 purchases at Kraken, ' +
-        '0.00200 BTC for €120.00 in all, fee €0.10, on 5 Oct 2026, 12 Oct 2026, and 19 Oct 2026.',
+      'Monthly buy for October 2026: 0,00119 BTC (estimated) at Bitvavo for 70,00 € becomes 3 purchases at Kraken, ' +
+        '0,00200 BTC for 120,00 € in all, fee 0,10 €, on 5 Oct 2026, 12 Oct 2026, and 19 Oct 2026.',
     ]);
   });
 
@@ -175,8 +176,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
     ]);
     await mount(planOf(csv, [...fixture.entries, ONE_TAP_OCTOBER]));
     expect(lines('Estimates it replaces (1)')).toEqual([
-      'Monthly buy for October 2026: 0.00119 BTC (estimated) at Bitvavo for €70.00 becomes 2 purchases at Kraken, ' +
-        '0.00200 BTC for €120.00 in all, on 5 Oct 2026 and 12 Oct 2026.',
+      'Monthly buy for October 2026: 0,00119 BTC (estimated) at Bitvavo for 70,00 € becomes 2 purchases at Kraken, ' +
+        '0,00200 BTC for 120,00 € in all, on 5 Oct 2026 and 12 Oct 2026.',
     ]);
   });
 
@@ -184,9 +185,9 @@ describe('ExchangeSummary and ExchangeSections', () => {
     await mount(planOf(KRAKEN_OCTOBER, fixture.entries));
     expect(texts()).not.toContain('Replaces 1 estimate from Bought as planned.');
     expect(lines('Monthly buys (3)')).toEqual([
-      'Monthly buy for October 2026: 0.0012 BTC for €70.00, fee €0.18, on 5 Oct 2026.',
-      'Monthly buy for October 2026: 0.012 ETH for €30.00, fee €0.08, on 5 Oct 2026.',
-      'Monthly buy for October 2026: 0.0008 BTC for €50.00, fee €0.13, on 12 Oct 2026.',
+      'Monthly buy for October 2026: 0,0012 BTC for 70,00 €, fee 0,18 €, on 5 Oct 2026.',
+      'Monthly buy for October 2026: 0,012 ETH for 30,00 €, fee 0,08 €, on 5 Oct 2026.',
+      'Monthly buy for October 2026: 0,0008 BTC for 50,00 €, fee 0,13 €, on 12 Oct 2026.',
     ]);
   });
 
@@ -218,10 +219,10 @@ describe('ExchangeSummary and ExchangeSections', () => {
     const sentence =
       "To import the file's transaction instead, delete that entry in the Log, then choose the file again.";
     expect(lines('Matching entries in the Log, not added (2)')).toEqual([
-      "The file's 0.00120 BTC for €70.00 on 5 Oct 2026 looks like your monthly buy for October 2026: 0.00121 BTC " +
-        `at Bitvavo for €70.00.${sentence}`,
-      "The file's 0.0120 ETH for €30.00 on 5 Oct 2026 looks like your starting amount of 6 Oct 2026: 0.0121 ETH for " +
-        '€30.00.',
+      "The file's 0,00120 BTC for 70,00 € on 5 Oct 2026 looks like your monthly buy for October 2026: 0,00121 BTC " +
+        `at Bitvavo for 70,00 €.${sentence}`,
+      "The file's 0,0120 ETH for 30,00 € on 5 Oct 2026 looks like your starting amount of 6 Oct 2026: 0,0121 ETH for " +
+        '30,00 €.',
     ]);
     // Its own line at the end of the item, in the secondary ink (CONTENT-STYLE §3).
     const hint = screen.getByText(sentence);
@@ -251,8 +252,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
       "To import the file's transactions instead, delete that entry in the Log, then choose the file again.";
     // Counted by purchase, so two purchases of one date read as purchases in all.
     expect(lines('Matching entries in the Log, not added (1)')).toEqual([
-      "The file's purchases of 0.002 BTC for €120.00 in all, on 5 Oct 2026, look like your monthly buy for October " +
-        `2026: 0.002 BTC at Bitvavo for €120.00.${sentence}`,
+      "The file's purchases of 0,002 BTC for 120,00 € in all, on 5 Oct 2026, look like your monthly buy for October " +
+        `2026: 0,002 BTC at Bitvavo for 120,00 €.${sentence}`,
     ]);
     expect(screen.getByText(sentence)).toBeTruthy();
   });
@@ -276,7 +277,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
     });
     await mount(planOf(csv, [...fixture.entries, sale]));
     expect(lines('Matching entries in the Log, not added (1)')[0]).toMatch(
-      /^The file's sales of 0.002 BTC for €120\.00 in all, on 5 Oct 2026, look like your /,
+      /^The file's sales of 0,002 BTC for 120,00 € in all, on 5 Oct 2026, look like your /,
     );
   });
 
@@ -297,8 +298,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
       const csv = btcBuys([['S1', '2026-04-06 09:00:00', '1000.0000', '0.0125000000', '0.0000']]);
       await mount(planOf(csv, [tapped]));
       expect(lines('Matching entries in the Log, not added (1)')).toEqual([
-        "The file's 0.01250000 BTC for €1,000.00 on 6 Apr 2026 looks like your starting amount of 5 Apr 2026: " +
-          '0.01219512 BTC (estimated) for €1,000.00.',
+        "The file's 0,01250000 BTC for 1000,00 € on 6 Apr 2026 looks like your starting amount of 5 Apr 2026: " +
+          '0,01219512 BTC (estimated) for 1000,00 €.',
       ]);
     });
 
@@ -309,8 +310,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
       ]);
       await mount(planOf(csv, [tapped]));
       expect(lines('Matching entries in the Log, not added (1)')).toEqual([
-        "The file's purchases of 0.01250000 BTC for €1,000.00 in all, on 6 Apr 2026 and 7 Apr 2026, look like your " +
-          'starting amount of 5 Apr 2026: 0.01219512 BTC (estimated) for €1,000.00.',
+        "The file's purchases of 0,01250000 BTC for 1000,00 € in all, on 6 Apr 2026 and 7 Apr 2026, look like your " +
+          'starting amount of 5 Apr 2026: 0,01219512 BTC (estimated) for 1000,00 €.',
       ]);
     });
   });
@@ -318,8 +319,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
   it('word a monthly buy typed by hand that records two of the file’s dates, with what they add up to', async () => {
     await mount(planOf(KRAKEN_OCTOBER, [...fixture.entries, typed120('2026-10-06')]));
     expect(lines('Matching entries in the Log, not added (1)')).toEqual([
-      "The file's purchases of 0.002 BTC for €120.00 in all, on 5 Oct 2026 and 12 Oct 2026, look like your monthly " +
-        'buy for October 2026: 0.002 BTC at Bitvavo for €120.00.',
+      "The file's purchases of 0,002 BTC for 120,00 € in all, on 5 Oct 2026 and 12 Oct 2026, look like your monthly " +
+        'buy for October 2026: 0,002 BTC at Bitvavo for 120,00 €.',
     ]);
   });
 
@@ -333,8 +334,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
     ]);
     await mount(planOf(csv, [...fixture.entries, typed120('2026-10-06')]));
     expect(lines('Matching entries in the Log, not added (1)')).toEqual([
-      "The file's purchases of 0.002 BTC for €120.00 in all, on 5 Oct 2026 and 12 Oct 2026, look like your monthly " +
-        'buy for October 2026: 0.002 BTC at Bitvavo for €120.00.',
+      "The file's purchases of 0,002 BTC for 120,00 € in all, on 5 Oct 2026 and 12 Oct 2026, look like your monthly " +
+        'buy for October 2026: 0,002 BTC at Bitvavo for 120,00 €.',
     ]);
   });
 
@@ -346,8 +347,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
     ]);
     await mount(planOf(csv, [...fixture.entries, typed120('2026-10-12')]));
     expect(lines('Matching entries in the Log, not added (1)')).toEqual([
-      "The file's purchases of 0.002 BTC for €120.00 in all, on 5 Oct 2026, 12 Oct 2026, and 19 Oct 2026, look like " +
-        'your monthly buy for October 2026: 0.002 BTC at Bitvavo for €120.00.',
+      "The file's purchases of 0,002 BTC for 120,00 € in all, on 5 Oct 2026, 12 Oct 2026, and 19 Oct 2026, look like " +
+        'your monthly buy for October 2026: 0,002 BTC at Bitvavo for 120,00 €.',
     ]);
   });
 
@@ -366,12 +367,12 @@ describe('ExchangeSummary and ExchangeSections', () => {
       '1 purchase or sale in USD, not imported: amounts are never converted.',
       'This plan does not list XRP, so 1 XRP transaction was left out. If you want it in this plan, you can add XRP ' +
         'in Coins & split, then choose the file again.',
-      '1 purchase dated on or before 20 Apr 2026, 15 days after your first buy day, not imported: 0.0006 BTC for €40.00 on 10 Apr 2026. The file ' +
+      '1 purchase dated on or before 20 Apr 2026, 15 days after your first buy day, not imported: 0,0006 BTC for 40,00 € on 10 Apr 2026. The file ' +
         'cannot show whether it is part of your starting amount. The Log holds no starting amount.',
-      'Rewards paid in coins, not imported: 0.0001 ETH.',
-      'Coins sent to Kraken from elsewhere, not imported: 0.01 BTC. Record a gift with Add coins you already have, ' +
+      'Rewards paid in coins, not imported: 0,0001 ETH.',
+      'Coins sent to Kraken from elsewhere, not imported: 0,01 BTC. Record a gift with Add coins you already have, ' +
         'and your own coins coming back with Log coins you moved.',
-      'Coins sent out of Kraken with no matching move in the Log: 0.00502 BTC. Record each with Log coins you moved.',
+      'Coins sent out of Kraken with no matching move in the Log: 0,00502 BTC. Record each with Log coins you moved.',
       '1 exchange of one coin for another, not imported: the file gives no amount in EUR for it.',
       '1 row of money with no coin, such as a deposit or withdrawal, not imported.',
       '1 row within Kraken, such as a move between its wallets: it changes no entry.',
@@ -388,8 +389,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
     ]);
     await mount(planOf(csv, []));
     expect(lines('Left out (1)')).toEqual([
-      '2 purchases dated on or before 20 Apr 2026, 15 days after your first buy day, not imported: 0.0006 BTC for €40.00 on 10 Jan 2026 and 0.0006 BTC ' +
-        'for €40.00 on 20 Apr 2026. The file cannot show whether they are part of your starting amount. The Log holds no ' +
+      '2 purchases dated on or before 20 Apr 2026, 15 days after your first buy day, not imported: 0,0006 BTC for 40,00 € on 10 Jan 2026 and 0,0006 BTC ' +
+        'for 40,00 € on 20 Apr 2026. The file cannot show whether they are part of your starting amount. The Log holds no ' +
         'starting amount.',
     ]);
   });
@@ -439,9 +440,9 @@ describe('ExchangeSummary and ExchangeSections', () => {
       ]);
       expect(facts()).toEqual([
         "Your BTC estimate from Bought as planned for October 2026 stays in the Log. This import adds the file's " +
-          '0.0012 BTC for €100.00 on 19 Oct 2026 as a monthly buy for November 2026.',
+          '0,0012 BTC for 100,00 € on 19 Oct 2026 as a monthly buy for November 2026.',
         'Your BTC and ETH estimates from Bought as planned for October 2026 stay in the Log. This import adds the ' +
-          "file's 0.0011 BTC for €70.00 and 0.014 ETH for €30.00 on 19 Oct 2026 as extra buys.",
+          "file's 0,0011 BTC for 70,00 € and 0,014 ETH for 30,00 € on 19 Oct 2026 as extra buys.",
       ]);
       // The instruction is its own line in the secondary ink, as the starting line's is.
       const hints = [
@@ -468,9 +469,9 @@ describe('ExchangeSummary and ExchangeSections', () => {
       // The facts; the instructions are the first test's, worded for one coin and for two.
       expect(facts()).toEqual([
         "Your BTC estimate from Bought as planned for October 2026 stays in the Log. This import adds the file's " +
-          '0.0012 BTC for €100.00 on 19 Oct 2026 as an extra buy.',
+          '0,0012 BTC for 100,00 € on 19 Oct 2026 as an extra buy.',
         'Your BTC and ETH estimates from Bought as planned for October 2026 stay in the Log. This import adds the ' +
-          "file's 0.0011 BTC for €70.00 and 0.012 ETH for €30.00 on 19 Oct 2026 as monthly buys for November 2026.",
+          "file's 0,0011 BTC for 70,00 € and 0,012 ETH for 30,00 € on 19 Oct 2026 as monthly buys for November 2026.",
       ]);
     });
   });
@@ -512,9 +513,9 @@ describe('ExchangeSummary and ExchangeSections', () => {
     it('one purchase that matches the starting amount recorded by hand: asks to change it to the file’s', async () => {
       await withRemedies(march20, [lump('manual', '1000', '0.0125')]);
       expect(startingLine()).toBe(
-        '1 purchase dated on or before 20 Apr 2026, 15 days after your first buy day, not imported: 0.0125 BTC for €1,000.00 on 20 Mar 2026. The file ' +
-          'cannot show whether it is part of your starting amount. The Log holds your starting amount as 0.0125 BTC for ' +
-          `€1,000.00 on 5 Apr 2026.${change('20 Mar 2026')}`,
+        '1 purchase dated on or before 20 Apr 2026, 15 days after your first buy day, not imported: 0,0125 BTC for 1000,00 € on 20 Mar 2026. The file ' +
+          'cannot show whether it is part of your starting amount. The Log holds your starting amount as 0,0125 BTC for ' +
+          `1000,00 € on 5 Apr 2026.${change('20 Mar 2026')}`,
       );
       // Its own line at the end of the item, in the secondary ink, as the matching entries' sentence.
       const hint = screen.getByText(change('20 Mar 2026'));
@@ -531,10 +532,10 @@ describe('ExchangeSummary and ExchangeSections', () => {
         'If you bought your whole starting amount on 20 Mar 2026, change it in the Log to that date and those totals. ' +
         'Then choose the file again.';
       expect(startingLine()).toBe(
-        '2 purchases dated on or before 20 Apr 2026, 15 days after your first buy day, not imported: 0.0075 BTC for ' +
-          '€600.00 on 20 Mar 2026 and 0.0050 BTC for €400.00 on 20 Mar 2026. The file cannot show whether they are part ' +
-          'of your starting amount. The Log holds your starting amount as 0.0125 BTC for €1,000.00 on 5 Apr 2026. ' +
-          `The file's purchases on 20 Mar 2026 add up to 0.0125 BTC for €1,000.00.${instruction}`,
+        '2 purchases dated on or before 20 Apr 2026, 15 days after your first buy day, not imported: 0,0075 BTC for ' +
+          '600,00 € on 20 Mar 2026 and 0,0050 BTC for 400,00 € on 20 Mar 2026. The file cannot show whether they are part ' +
+          'of your starting amount. The Log holds your starting amount as 0,0125 BTC for 1000,00 € on 5 Apr 2026. ' +
+          `The file's purchases on 20 Mar 2026 add up to 0,0125 BTC for 1000,00 €.${instruction}`,
       );
       const hint = screen.getByText(instruction);
       expect([hint.tagName, hint.className, hint.parentElement?.tagName]).toEqual(['SPAN', 'block text-ink-2', 'LI']);
@@ -551,7 +552,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
       ]);
       await withRemedies(csv, []);
       expect(startingLine()).toMatch(
-        /The Log holds no starting amount\. The file's purchases on 20 Mar 2026 add up to 0\.010 BTC for €700\.00 and 0\.1 ETH for €300\.00\./,
+        /The Log holds no starting amount\. The file's purchases on 20 Mar 2026 add up to 0,010 BTC for 700,00 € and 0,1 ETH for 300,00 €\./,
       );
       expect(
         screen.getByText(
@@ -590,10 +591,10 @@ describe('ExchangeSummary and ExchangeSections', () => {
         ]),
       ]);
       await withRemedies(csv, []);
-      const shown = [4, 5, 6].map((day) => `0.001 BTC for €40.00 on ${day} Mar 2026`).join(', ');
+      const shown = [4, 5, 6].map((day) => `0,001 BTC for 40,00 € on ${day} Mar 2026`).join(', ');
       expect(startingLine()).toBe(
-        '7 purchases dated on or before 20 Apr 2026, 15 days after your first buy day, not imported: 0.010 BTC for €700.00 on 1 Mar 2026, 0.1 ETH for ' +
-          `€300.00 on 1 Mar 2026, ${shown}, and 2 more. The file cannot show whether they are part of your starting ` +
+        '7 purchases dated on or before 20 Apr 2026, 15 days after your first buy day, not imported: 0,010 BTC for 700,00 € on 1 Mar 2026, 0,1 ETH for ' +
+          `300,00 € on 1 Mar 2026, ${shown}, and 2 more. The file cannot show whether they are part of your starting ` +
           `amount. The Log holds no starting amount.${record('1 Mar 2026')}`,
       );
     });
@@ -605,9 +606,9 @@ describe('ExchangeSummary and ExchangeSections', () => {
       ]);
       await mount(planOf(csv, [lump('one-tap', '700', '0.00875'), lump('one-tap', '300', '0.1', ETH)]));
       expect(startingLine()).toBe(
-        '2 purchases dated on or before 20 Apr 2026, 15 days after your first buy day, not imported: 0.00600 BTC for €500.00 on 1 Apr 2026 and 0.00240 ' +
-          'BTC for €200.00 on 10 Apr 2026. The file cannot show whether they are part of your starting amount. The Log holds the ' +
-          'BTC part of your starting amount: 0.00875 BTC (estimated) for €700.00 on 5 Apr 2026.',
+        '2 purchases dated on or before 20 Apr 2026, 15 days after your first buy day, not imported: 0,00600 BTC for 500,00 € on 1 Apr 2026 and 0,00240 ' +
+          'BTC for 200,00 € on 10 Apr 2026. The file cannot show whether they are part of your starting amount. The Log holds the ' +
+          'BTC part of your starting amount: 0,00875 BTC (estimated) for 700,00 € on 5 Apr 2026.',
       );
     });
 
@@ -624,9 +625,9 @@ describe('ExchangeSummary and ExchangeSections', () => {
       const csv = bothCoins(['600.0000', '0.0075000000'], ['300.0000', '0.1000000000']);
       await mount(planOf(csv, entries, three), three);
       expect(startingLine()).toBe(
-        '2 purchases dated on or before 20 Apr 2026, 15 days after your first buy day, not imported: 0.0075 BTC for €600.00 on 20 Mar 2026 and 0.10 ETH ' +
-          'for €300.00 on 21 Mar 2026. The file cannot show whether they are part of your starting amount. The Log holds the ' +
-          'BTC and ETH parts of your starting amount: 0.0075 BTC for €600.00 and 0.12 ETH for €300.00, both on 5 Apr 2026.',
+        '2 purchases dated on or before 20 Apr 2026, 15 days after your first buy day, not imported: 0,0075 BTC for 600,00 € on 20 Mar 2026 and 0,10 ETH ' +
+          'for 300,00 € on 21 Mar 2026. The file cannot show whether they are part of your starting amount. The Log holds the ' +
+          'BTC and ETH parts of your starting amount: 0,0075 BTC for 600,00 € and 0,12 ETH for 300,00 €, both on 5 Apr 2026.',
       );
     });
 
@@ -634,7 +635,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
       const csv = btcBuys([['S1', '2026-03-10 09:00:00', '700.0000', '0.0087500000', '0.0000']]);
       await mount(planOf(csv, [lump('manual', '300', '0.12', ETH)]));
       expect(startingLine()).toBe(
-        '1 purchase dated on or before 20 Apr 2026, 15 days after your first buy day, not imported: 0.00875 BTC for €700.00 on 10 Mar 2026. The file ' +
+        '1 purchase dated on or before 20 Apr 2026, 15 days after your first buy day, not imported: 0,00875 BTC for 700,00 € on 10 Mar 2026. The file ' +
           'cannot show whether it is part of your starting amount. The Log holds no starting amount of BTC.',
       );
     });
@@ -643,9 +644,9 @@ describe('ExchangeSummary and ExchangeSections', () => {
       const csv = bothCoins(['700.0000', '0.0087500000'], ['300.0000', '0.1000000000']);
       await mount(planOf(csv, [lump('manual', '700', '0.00875'), lump('manual', '300', '0.12', ETH)]));
       expect(startingLine()).toBe(
-        '2 purchases dated on or before 20 Apr 2026, 15 days after your first buy day, not imported: 0.00875 BTC for €700.00 on 20 Mar 2026 and 0.10 ETH ' +
-          'for €300.00 on 21 Mar 2026. The file cannot show whether they are part of your starting amount. The Log holds your ' +
-          'starting amount as 0.00875 BTC for €700.00 and 0.12 ETH for €300.00, both on 5 Apr 2026.',
+        '2 purchases dated on or before 20 Apr 2026, 15 days after your first buy day, not imported: 0,00875 BTC for 700,00 € on 20 Mar 2026 and 0,10 ETH ' +
+          'for 300,00 € on 21 Mar 2026. The file cannot show whether they are part of your starting amount. The Log holds your ' +
+          'starting amount as 0,00875 BTC for 700,00 € and 0,12 ETH for 300,00 €, both on 5 Apr 2026.',
       );
     });
 
@@ -653,9 +654,9 @@ describe('ExchangeSummary and ExchangeSections', () => {
       const csv = bothCoins(['700.0000', '0.0087500000'], ['300.0000', '0.1000000000']);
       await mount(planOf(csv, [lump('manual', '700', '0.00875')]));
       expect(startingLine()).toBe(
-        '2 purchases dated on or before 20 Apr 2026, 15 days after your first buy day, not imported: 0.00875 BTC for €700.00 on 20 Mar 2026 and 0.1 ETH ' +
-          'for €300.00 on 21 Mar 2026. The file cannot show whether they are part of your starting amount. The Log holds part of ' +
-          'your starting amount as 0.00875 BTC for €700.00 on 5 Apr 2026. It holds no starting amount of ETH.',
+        '2 purchases dated on or before 20 Apr 2026, 15 days after your first buy day, not imported: 0,00875 BTC for 700,00 € on 20 Mar 2026 and 0,1 ETH ' +
+          'for 300,00 € on 21 Mar 2026. The file cannot show whether they are part of your starting amount. The Log holds part of ' +
+          'your starting amount as 0,00875 BTC for 700,00 € on 5 Apr 2026. It holds no starting amount of ETH.',
       );
     });
 
@@ -670,7 +671,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
         ]),
       );
       await withRemedies(csv, []);
-      const shown = [3, 4, 5, 6, 7].map((day) => `0.001 BTC for €40.00 on ${day} Mar 2026`).join(', ');
+      const shown = [3, 4, 5, 6, 7].map((day) => `0,001 BTC for 40,00 € on ${day} Mar 2026`).join(', ');
       expect(startingLine()).toBe(
         `7 purchases dated on or before 20 Apr 2026, 15 days after your first buy day, not imported: ${shown}, and 2 earlier. The file cannot show ` +
           'whether they are part of your starting amount. The Log holds no starting amount.',
@@ -689,9 +690,9 @@ describe('ExchangeSummary and ExchangeSections', () => {
   it('word a purchase with a fee of 0 without a fee, and one with a fee with it', async () => {
     await mount(planOf(TRADE_REPUBLIC_OCTOBER, fixture.entries, PLAN, 'Trade Republic'), PLAN, 'trade-republic');
     expect(lines('Monthly buys (3)')).toEqual([
-      'Monthly buy for October 2026: 0.0012 BTC for €70.00, fee €1.00, on 5 Oct 2026.',
-      'Monthly buy for October 2026: 0.012 ETH for €30.00, fee €1.00, on 5 Oct 2026.',
-      'Monthly buy for October 2026: 0.00005 BTC for €4.50, on 7 Oct 2026.',
+      'Monthly buy for October 2026: 0,0012 BTC for 70,00 €, fee 1,00 €, on 5 Oct 2026.',
+      'Monthly buy for October 2026: 0,012 ETH for 30,00 €, fee 1,00 €, on 5 Oct 2026.',
+      'Monthly buy for October 2026: 0,00005 BTC for 4,50 €, on 7 Oct 2026.',
     ]);
   });
 
@@ -699,8 +700,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
     const csv = btcBuys([['T1', '2026-10-05 09:00:00', '70.0000', '0.0012000000', '0.0000']]);
     await mount(planOf(csv, [...fixture.entries, ONE_TAP_OCTOBER]));
     expect(lines('Estimates it replaces (1)')).toEqual([
-      'Monthly buy for October 2026: 0.00119 BTC (estimated) at Bitvavo for €70.00 becomes 0.00120 BTC at Kraken ' +
-        'for €70.00, on 5 Oct 2026.',
+      'Monthly buy for October 2026: 0,00119 BTC (estimated) at Bitvavo for 70,00 € becomes 0,00120 BTC at Kraken ' +
+        'for 70,00 €, on 5 Oct 2026.',
     ]);
   });
 
@@ -710,7 +711,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
     const first = planOf(before, fixture.entries, PLAN, 'Trade Republic');
     await mount(planOf(TRADE_REPUBLIC_OCTOBER, [...fixture.entries, ...first.entries], PLAN, 'Trade Republic'));
     expect(texts()).toContain(
-      'Your Log has 1 entry imported earlier that this file shows as cancelled: 0.005 ETH for €15.00 on ' +
+      'Your Log has 1 entry imported earlier that this file shows as cancelled: 0,005 ETH for 15,00 € on ' +
         '13 Oct 2026. Delete it in the Log.',
     );
   });
@@ -734,8 +735,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
   it('names two buys imported earlier that the file now shows as cancelled, and says to delete them', async () => {
     await mount(twoCancelled());
     expect(texts()).toContain(
-      'Your Log has 2 entries imported earlier that this file shows as cancelled: 0.00005 BTC for €4.50 on ' +
-        '7 Oct 2026 and 0.005 ETH for €15.00 on 13 Oct 2026. Delete them in the Log.',
+      'Your Log has 2 entries imported earlier that this file shows as cancelled: 0,00005 BTC for 4,50 € on ' +
+        '7 Oct 2026 and 0,005 ETH for 15,00 € on 13 Oct 2026. Delete them in the Log.',
     );
   });
 
@@ -750,8 +751,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
     ];
     await mount({ ...shown, cancelled: [{ ...one, estimates: [tap] }, two] });
     expect(texts()).toContain(
-      'Your Log has 2 entries imported earlier that this file shows as cancelled: 0.00005 BTC for €4.50 on ' +
-        '7 Oct 2026 and 0.005 ETH for €15.00 on 13 Oct 2026. Delete them in the Log. Deleting them leaves BTC for ' +
+      'Your Log has 2 entries imported earlier that this file shows as cancelled: 0,00005 BTC for 4,50 € on ' +
+        '7 Oct 2026 and 0,005 ETH for 15,00 € on 13 Oct 2026. Delete them in the Log. Deleting them leaves BTC for ' +
         'October 2026 without its estimate, which this import cannot bring back. Record that month again in the Log ' +
         'if you bought in it.',
     );
@@ -772,8 +773,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
       ],
     });
     expect(texts()).toContain(
-      'Your Log has 2 entries imported earlier that this file shows as cancelled: 0.00005 BTC for €4.50 on ' +
-        '7 Oct 2026 and 0.00005 BTC on 7 Oct 2026. Delete them in the Log. Deleting them leaves BTC for ' +
+      'Your Log has 2 entries imported earlier that this file shows as cancelled: 0,00005 BTC for 4,50 € on ' +
+        '7 Oct 2026 and 0,00005 BTC on 7 Oct 2026. Delete them in the Log. Deleting them leaves BTC for ' +
         'September 2026, BTC for October 2026, and ETH for October 2026 without their estimates, which this import ' +
         'cannot bring back. Record those months again in the Log if you bought in them.',
     );
@@ -786,8 +787,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
     const wider = { ...one.entry, id: 'aaaaaaaa-0000-4000-8000-000000000042' as EntityId, units: units('0.001') };
     await mount({ ...shown, cancelled: [one, { entry: wider, estimates: [] }] });
     expect(texts()).toContain(
-      'Your Log has 2 entries imported earlier that this file shows as cancelled: 0.00005 BTC for €4.50 on ' +
-        '7 Oct 2026 and 0.00100 BTC for €4.50 on 7 Oct 2026. Delete them in the Log.',
+      'Your Log has 2 entries imported earlier that this file shows as cancelled: 0,00005 BTC for 4,50 € on ' +
+        '7 Oct 2026 and 0,00100 BTC for 4,50 € on 7 Oct 2026. Delete them in the Log.',
     );
   });
 
@@ -796,7 +797,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
     const log = first.entries.map((entry) => (entry.kind === 'held' ? { ...entry, units: units('0.00003') } : entry));
     await mount(planOf(KRAKEN_OCTOBER, [...fixture.entries, ...log]));
     expect(texts()).toContain(
-      'A Coins added entry of 16 Oct 2026 imported earlier holds 0.00003 BTC in the Log and 0.00005 BTC in this ' +
+      'A Coins added entry of 16 Oct 2026 imported earlier holds 0,00003 BTC in the Log and 0,00005 BTC in this ' +
         "file. Change its units in the Log to the file's.",
     );
   });
@@ -810,7 +811,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
     );
     await mount(planOf(KRAKEN_OCTOBER, [...fixture.entries, ...log]));
     expect(texts()).toContain(
-      'A Coins added entry of 18 Oct 2026 imported earlier holds 0.00003 BTC in the Log and 0.00005 BTC in this ' +
+      'A Coins added entry of 18 Oct 2026 imported earlier holds 0,00003 BTC in the Log and 0,00005 BTC in this ' +
         "file. The file dates it 16 Oct 2026. Change its units, and its date, in the Log to the file's.",
     );
   });
@@ -820,9 +821,9 @@ describe('ExchangeSummary and ExchangeSections', () => {
   it("names each row of a Trade Republic export left out in Trade Republic's words", async () => {
     await mount(planOf(TRADE_REPUBLIC_OCTOBER, [], PLAN, 'Trade Republic'), PLAN, 'trade-republic');
     expect(lines('Left out (9)')).toEqual([
-      'Staking rewards and coins sent in to Trade Republic, not imported: 0.00012 ETH in 1 row. Record rewards ' +
+      'Staking rewards and coins sent in to Trade Republic, not imported: 0,00012 ETH in 1 row. Record rewards ' +
         'with Add coins you already have, and your own coins coming back with Log coins you moved.',
-      'Coins sent out of Trade Republic that match no move of the same units in the Log: 0.0001 BTC. If you have ' +
+      'Coins sent out of Trade Republic that match no move of the same units in the Log: 0,0001 BTC. If you have ' +
         'not recorded them, record each with Log coins you moved.',
       '1 exchange of one coin for another, not imported: the file gives no amount in EUR for it.',
       '1 row of money with no coin, such as a card payment, interest, or a transfer, not imported.',
@@ -913,7 +914,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
     const csv = `${krakenLedger([...triple('T1'), ...triple('T2'), ...triple('T3')])}\n${withdrawal}`;
     await mount(planOf(csv, [move]));
     expect(lines('Left out (2)')).toEqual([
-      'Coins sent out of Kraken that match a move in the Log: 0.00502 BTC.',
+      'Coins sent out of Kraken that match a move in the Log: 0,00502 BTC.',
       'Lines 2, 3, 4, 5, 6, and 4 more could not be read or matched to the other rows of their trades, so they were left out.',
     ]);
   });
