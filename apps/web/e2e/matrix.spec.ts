@@ -233,7 +233,9 @@ for (const colorScheme of ['light', 'dark'] as const) {
 
     // The screenshots hold still: the clock is fixed for every page (on the buying phase's date when the
     // page seeds no plan), /api/prices and the closes come from fixtures with the worker blocked, and the
-    // prices line, which names the time of the fetch, is masked.
+    // prices line, which names the time of the fetch, is masked. So is the holding-date page's date field
+    // (`#holding-bought`, a locator that matches nothing on the other pages): WebKit draws the day of the run
+    // into an empty `input type=date`, which the fixed clock does not reach, so its image would fail the next day.
     test.describe('screenshots', () => {
       test.use({ serviceWorkers: 'block' });
 
@@ -262,7 +264,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
           await expect(page).toHaveScreenshot(snapshot, {
             fullPage: true,
             animations: 'disabled',
-            mask: [page.getByText(/^Prices (as of|from) /)],
+            mask: [page.getByText(/^Prices (as of|from) /), page.locator('#holding-bought')],
           });
         });
       }
