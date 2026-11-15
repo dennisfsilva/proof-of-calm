@@ -1375,6 +1375,11 @@ country library left to the public-pages checkpoint.
   (a review date past due reads as overdue), so an indexed page needs a daily rebuild
   (`docs/RELEASE.md`). `SITE_TODAY` pins it: CI's e2e build and `snapshots.yml` build at
   2026-10-20, the matrix's buying-phase date, so the baselines hold still.
+- **2026-11-15, turbo keys the web build on `SITE_TODAY`.** `turbo.json`'s `build` task lists it in
+  `env`, so `pnpm build`, `pnpm test:e2e` and `pnpm gate` pass it on and a new value misses the cache.
+  An unpinned build hashes the same every day, so a cache hit on a later day replays an earlier day's
+  pages. Acceptable: Vercel and CI run the web build directly, not through turbo, and CI pins the day;
+  `pnpm build --force` (turbo's `--force` ignores the cache) renders afresh.
 - **2026-11-15, one flag keeps them out of search.** `PUBLIC_INDEXABLE` in
   `apps/web/lib/site/indexing.ts` is false: every response, `/en/` included, keeps
   `X-Robots-Tag: noindex, nofollow` (`docs/SECURITY.md` §4), the pages carry the robots meta, and
