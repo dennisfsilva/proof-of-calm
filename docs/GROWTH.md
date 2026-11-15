@@ -37,8 +37,8 @@ purchase can be sold tax-free or how to keep a record across exchanges.
 
 Bitcoin's highest price so far in this cycle was $126,272 on 2025-10-06; the lowest since was $57,735
 on 2026-07-01; it closed at $81,501 on 2026-10-16 (`docs/EDUCATION.md` §9, facts
-`c` and `p`). The next halving is due around 2028-04-12 (fact `j`). In the four earlier cycles the
-high came 12 to 18 months after a halving (fact `h`). Four data points are not a law, and whether a
+`c` and `p`). The next halving is due around 2028-04-12 (fact `j`). In the 4 earlier cycles the
+high came 12 to 18 months after a halving (fact `h`). 4 data points are not a law, and whether a
 bull run is starting is not known. The plan is built so that it does not matter:
 
 | If the market | Attention | What the plan does |
@@ -49,8 +49,8 @@ bull run is starting is not known. The plan is built so that it does not matter:
 
 The users a calm app keeps are made in the falls, not the rallies. Price rises bring new users "in
 particular among more risk-seeking segments", and most retail app users lost money on their bitcoin
-between 2015 and 2022 (BIS, `docs/research/market-data-competitors.md` §6.1). A seven-day fall of
-10 % or more happened on 5.7 % of days in the last five years, about six episodes a year
+between 2015 and 2022 (BIS, `docs/research/market-data-competitors.md` §6.1). A 7-day fall of
+10 % or more happened on 5.7 % of days in the last 5 years, about 6 episodes a year
 (`docs/EDUCATION.md` §9, fact `q`). Each one is a moment when people look for a way to stay with a
 plan.
 

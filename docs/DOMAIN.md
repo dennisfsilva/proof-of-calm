@@ -726,8 +726,8 @@ or after it adds its amount to `investedSoFar`, changes no other field but `perc
   longest history of the held coins. The shell passes all the history it has: the 90-day figures need
   the last 90 days, the all-time figure the whole series.
 - `drawdowns(series)`, `drawdownNow(series)`: per date, `{ date, sevenDay, fromHigh90, fromAllTimeHigh }`
-  in percent, as the research calibrated them (close today against the close seven days ago; the
-  trailing 90-day high of closes): `sevenDay` against the latest value at least seven days earlier (null
+  in percent, as the research calibrated them (close today against the close 7 days ago; the
+  trailing 90-day high of closes): `sevenDay` against the latest value at least 7 days earlier (null
   in the first week or from a zero); `fromHigh90` below the highest value of the 90 days ending on the
   date (that date and the 89 before it); `fromAllTimeHigh` below the highest value of the series so far.
   Percentages are truncated toward zero at four decimals, so a threshold is crossed only when the exact
@@ -736,13 +736,13 @@ or after it adds its amount to `investedSoFar`, changes no other field but `perc
 - `redDay(drawdown, thresholds = RED_DAY)`: `true` when `sevenDay <= −10` or `fromHigh90 <= −30`.
   `RED_DAY` is a named constant with those defaults, with tests at the boundaries. Calibration
   (`docs/EDUCATION.md` §9 q): on Bitstamp BTC/USD daily closes from 16 Oct 2021 to 16 Oct 2026, a
-  seven-day fall of 10 % or more held on 5.7 % of days, about six episodes a year; a close 30 % or
+  7-day fall of 10 % or more held on 5.7 % of days, about 6 episodes a year; a close 30 % or
   more below the 90-day high on 11.8 %; either condition on 15.1 %. The module "When the market drops"
   states this frequency with that series and window, the fall page none (`docs/EDUCATION.md` §6,
   `docs/CONTENT-STYLE.md` §3).
 - `redDays(series)`: each date flagged on its own drawdown. `redDayEpisode(days, today)`: the episode
   under way on `today` as `{ start, last }`, or null. An episode starts on a Red day; a later Red day
-  belongs to it while at most six clear days lie between them; it ends once the condition has been clear
+  belongs to it while at most 6 clear days lie between them; it ends once the condition has been clear
   for `RED_DAY.episodeClearDays` (7) consecutive days, missing days counting as clear. Flags dated after
   `today` are not read, so `start <= last <= today`. The banner shows on one visit per episode
   (`bannerFor` below); the page stays reachable from Learn.
