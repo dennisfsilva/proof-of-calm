@@ -247,12 +247,72 @@ describe('ExchangeSummary and ExchangeSections', () => {
     ]);
     const entries = [...fixture.entries, typed120('2026-10-05')];
     await mount(planOf(csv, entries), PLAN, 'kraken', remediesOf(csv, entries));
-    fireEvent.click(screen.getByRole('button', { name: 'Matching entries in the Log, not added (1)' }));
-    expect(
-      screen.getByText(
-        "To import the file's transactions instead, delete that entry in the Log, then choose the file again.",
-      ),
-    ).toBeTruthy();
+    const sentence =
+      "To import the file's transactions instead, delete that entry in the Log, then choose the file again.";
+    // Counted by purchase, so two purchases of one date read as purchases in all.
+    expect(lines('Matching entries in the Log, not added (1)')).toEqual([
+      "The file's purchases of 0.002 BTC for €120.00 in all, on 5 Oct 2026, look like your monthly buy for October " +
+        `2026: 0.002 BTC at Bitvavo for €120.00.${sentence}`,
+    ]);
+    expect(screen.getByText(sentence)).toBeTruthy();
+  });
+
+  it('word a sale typed by hand whose date holds two of the file’s sales as sales in all', async () => {
+    const csv = krakenLedger([
+      ['B1', '2026-10-05 09:00:00', 'trade', 'EUR', '70.0000', '0.0000'],
+      ['B1', '2026-10-05 09:00:00', 'trade', 'BTC', '-0.0012000000', '0.0000000000'],
+      ['B2', '2026-10-05 15:00:00', 'trade', 'EUR', '50.0000', '0.0000'],
+      ['B2', '2026-10-05 15:00:00', 'trade', 'BTC', '-0.0008000000', '0.0000000000'],
+    ]);
+    const sale = anEntry({
+      id: 'aaaaaaaa-0000-4000-8000-000000000033' as EntityId,
+      kind: 'sell',
+      coin: BTC,
+      date: date('2026-10-05'),
+      slot: null,
+      amount: '120' as Entry['amount'],
+      units: units('0.002'),
+      source: 'manual',
+    });
+    await mount(planOf(csv, [...fixture.entries, sale]));
+    expect(lines('Matching entries in the Log, not added (1)')[0]).toMatch(
+      /^The file's sales of 0.002 BTC for €120\.00 in all, on 5 Oct 2026, look like your /,
+    );
+  });
+
+  // A one-tap entry's units are an estimate, as the Left out lines say of it (CONTENT-STYLE §3).
+  describe('a one-tap starting amount matched by the file', () => {
+    const tapped = anEntry({
+      id: 'aaaaaaaa-0000-4000-8000-000000000034' as EntityId,
+      kind: 'lump',
+      coin: BTC,
+      date: date('2026-04-05'),
+      slot: null,
+      amount: '1000' as Entry['amount'],
+      units: units('0.01219512'),
+      source: 'one-tap',
+    });
+
+    it('names its units as estimated, one date', async () => {
+      const csv = btcBuys([['S1', '2026-04-06 09:00:00', '1000.0000', '0.0125000000', '0.0000']]);
+      await mount(planOf(csv, [tapped]));
+      expect(lines('Matching entries in the Log, not added (1)')).toEqual([
+        "The file's 0.01250000 BTC for €1,000.00 on 6 Apr 2026 looks like your starting amount of 5 Apr 2026: " +
+          '0.01219512 BTC (estimated) for €1,000.00.',
+      ]);
+    });
+
+    it('names its units as estimated, two dates', async () => {
+      const csv = btcBuys([
+        ['S1', '2026-04-06 09:00:00', '600.0000', '0.0075000000', '0.0000'],
+        ['S2', '2026-04-07 09:00:00', '400.0000', '0.0050000000', '0.0000'],
+      ]);
+      await mount(planOf(csv, [tapped]));
+      expect(lines('Matching entries in the Log, not added (1)')).toEqual([
+        "The file's purchases of 0.01250000 BTC for €1,000.00 in all, on 6 Apr 2026 and 7 Apr 2026, look like your " +
+          'starting amount of 5 Apr 2026: 0.01219512 BTC (estimated) for €1,000.00.',
+      ]);
+    });
   });
 
   it('word a monthly buy typed by hand that records two of the file’s dates, with what they add up to', async () => {
@@ -459,6 +519,46 @@ describe('ExchangeSummary and ExchangeSections', () => {
       // Its own line at the end of the item, in the secondary ink, as the matching entries' sentence.
       const hint = screen.getByText(change('20 Mar 2026'));
       expect([hint.tagName, hint.className, hint.parentElement?.tagName]).toEqual(['SPAN', 'block text-ink-2', 'LI']);
+    });
+
+    it('the starting amount in two purchases on one day: their totals, and the change to that date and those totals', async () => {
+      const csv = btcBuys([
+        ['S1', '2026-03-20 09:00:00', '600.0000', '0.0075000000', '0.0000'],
+        ['S2', '2026-03-20 15:00:00', '400.0000', '0.0050000000', '0.0000'],
+      ]);
+      await withRemedies(csv, [lump('manual', '1000', '0.0125')]);
+      const instruction =
+        'If you bought your whole starting amount on 20 Mar 2026, change it in the Log to that date and those totals. ' +
+        'Then choose the file again.';
+      expect(startingLine()).toBe(
+        '2 purchases dated on or before 20 Apr 2026, 15 days after your first buy day, not imported: 0.0075 BTC for ' +
+          '€600.00 on 20 Mar 2026 and 0.0050 BTC for €400.00 on 20 Mar 2026. The file cannot show whether they are part ' +
+          'of your starting amount. The Log holds your starting amount as 0.0125 BTC for €1,000.00 on 5 Apr 2026. ' +
+          `The file's purchases on 20 Mar 2026 add up to 0.0125 BTC for €1,000.00.${instruction}`,
+      );
+      const hint = screen.getByText(instruction);
+      expect([hint.tagName, hint.className, hint.parentElement?.tagName]).toEqual(['SPAN', 'block text-ink-2', 'LI']);
+    });
+
+    it('both coins bought on one day, BTC in two purchases, none in the Log: both totals, and the record', async () => {
+      const csv = krakenLedger([
+        ['S1', '2026-03-20 09:00:00', 'trade', 'EUR', '-420.0000', '0.0000'],
+        ['S1', '2026-03-20 09:00:00', 'trade', 'BTC', '0.0060000000', '0.0000000000'],
+        ['S2', '2026-03-20 10:00:00', 'trade', 'EUR', '-280.0000', '0.0000'],
+        ['S2', '2026-03-20 10:00:00', 'trade', 'BTC', '0.0040000000', '0.0000000000'],
+        ['S3', '2026-03-20 11:00:00', 'trade', 'EUR', '-300.0000', '0.0000'],
+        ['S3', '2026-03-20 11:00:00', 'trade', 'ETH', '0.1000000000', '0.0000000000'],
+      ]);
+      await withRemedies(csv, []);
+      expect(startingLine()).toMatch(
+        /The Log holds no starting amount\. The file's purchases on 20 Mar 2026 add up to 0\.010 BTC for €700\.00 and 0\.1 ETH for €300\.00\./,
+      );
+      expect(
+        screen.getByText(
+          'If you bought your whole starting amount on 20 Mar 2026, record it in the Log with that date and those ' +
+            'totals. Then choose the file again.',
+        ),
+      ).toBeTruthy();
     });
 
     it('both coins bought on one day as the plan splits its starting amount, none in the Log: asks to record it', async () => {
