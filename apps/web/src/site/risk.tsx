@@ -3,7 +3,7 @@ import { BRAND } from '@proofofcalm/app/lib/brand';
 import type { CalendarDate } from '@proofofcalm/core';
 import type { ComponentProps, ReactNode } from 'react';
 import { siteTranslator } from '../../lib/site-messages';
-import { type LegalSection, LegalPage, LegalSections } from './legal';
+import { LegalPage, type LegalSection, LegalSections } from './legal';
 import { type OfficialLink, RISK_LINKS } from './risk-links';
 
 // The Risk disclosure at launch (docs/LEGAL.md §5): the lead with §4's warning, then §5's sections in order. It renders

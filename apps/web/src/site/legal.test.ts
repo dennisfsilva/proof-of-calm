@@ -11,13 +11,13 @@ const data = await loadSiteData('2026-11-15' as CalendarDate);
 type LegalName = 'terms' | 'privacy' | 'risk' | 'cookies' | 'contact';
 
 /** React's escapes undone, so a test reads the copy as a person does. */
-const unescape = (html: string) =>
+const unescaped = (html: string) =>
   html.replaceAll('&#x27;', "'").replaceAll('&quot;', '"').replaceAll('&amp;', '&').replaceAll('&lt;', '<');
 
 /** The page's main element. */
 function main(name: LegalName): string {
   const html = renderSitePage(name, ASSETS, data);
-  return unescape(html.slice(html.indexOf('<main'), html.indexOf('</main>')));
+  return unescaped(html.slice(html.indexOf('<main'), html.indexOf('</main>')));
 }
 
 /** Markup as the text a person reads: tags dropped, spaces joined. */
@@ -68,7 +68,10 @@ describe('the Risk disclosure (docs/LEGAL.md §5)', () => {
       /^SOL6 Nov 202129 Dec 2022[-−]97 ?%$/,
       /^LINK10 May 202110 Jun 2023[-−]91 ?%$/,
     ]) {
-      expect(rows.some((candidate) => row.test(candidate)), String(row)).toBe(true);
+      expect(
+        rows.some((candidate) => row.test(candidate)),
+        String(row),
+      ).toBe(true);
     }
   });
 

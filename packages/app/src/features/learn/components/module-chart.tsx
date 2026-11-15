@@ -90,8 +90,7 @@ export function DrawdownBars({ falls, f }: DrawdownBarsProps) {
         }}
       />
       <p className="text-16">
-        {t('source', { publishers, first, last, product: BRAND.name })}{' '}
-        <MODULE_ELEMENTS.PastPerformance />
+        {t('source', { publishers, first, last, product: BRAND.name })} <MODULE_ELEMENTS.PastPerformance />
       </p>
     </div>
   );

@@ -18,7 +18,13 @@ const html = (falls: readonly PastFall[]) =>
   );
 
 const FALLS = [
-  { coin: 'BTC', high: '2011-06-08', low: '2011-11-22', fall: '94', publisher: 'Bitcoinity (Mt. Gox) and CoinMarketCap' },
+  {
+    coin: 'BTC',
+    high: '2011-06-08',
+    low: '2011-11-22',
+    fall: '94',
+    publisher: 'Bitcoinity (Mt. Gox) and CoinMarketCap',
+  },
   { coin: 'BTC', high: '2013-11-30', low: '2015-01-14', fall: '87', publisher: 'Bitstamp' },
   { coin: 'ETH', high: '2018-01-13', low: '2018-12-14', fall: '94', publisher: 'Coinbase' },
   { coin: 'LINK', high: '2021-05-10', low: '2023-06-10', fall: '91', publisher: 'Bitstamp' },
