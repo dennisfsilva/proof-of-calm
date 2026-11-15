@@ -29,6 +29,9 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Build the web host
         run: pnpm --filter @proofofcalm/web build
+        # The public pages render at the matrix's buying-phase date, so their baselines hold still.
+        env:
+          SITE_TODAY: '2026-10-20'
       - name: Render every baseline on the viewport matrix
         run: pnpm --filter @proofofcalm/web exec playwright test --grep "reviewed baseline" --update-snapshots=all
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

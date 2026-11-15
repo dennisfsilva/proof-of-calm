@@ -304,6 +304,9 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Build the web host
         run: pnpm --filter @proofofcalm/web build
+        # The public pages render at the matrix's buying-phase date, as snapshots.yml renders them.
+        env:
+          SITE_TODAY: '2026-10-20'
       # Nothing a browser downloads holds a server-side value or a key-shaped string (docs/SECURITY.md §8).
       - name: Bundle secret scan
         run: node tools/scan/secrets.ts apps/web/dist
