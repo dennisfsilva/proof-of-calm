@@ -194,7 +194,7 @@ const startWorld = fc
           `START-${index}-${fill}`,
           'purchase',
           part.coin,
-          `${day}T0${8 + fill}:00:00Z`,
+          `${day}T${String(8 + fill).padStart(2, '0')}:00:00Z`,
           { units: held[fill] as Units, amount, fee: '0' },
           900 + 10 * index + 2 * fill,
         ),
