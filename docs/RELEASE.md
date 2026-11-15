@@ -61,11 +61,8 @@ gate and this checklist; every merge to `main` goes to production, tagged or not
       app again; the launch is that line.
 - [ ] Error monitoring receiving events from the preview with PII scrubbing verified (send a test event
       containing an email and an amount; confirm they are redacted).
-- [ ] Backups configured; a restore drill performed and logged in `docs/SECURITY.md`.
 - [ ] Rate limits on `/api/prices` and `/api/history/:coin` tested with a load script (429 at the edge).
 - [ ] Domain: HTTPS with HSTS, `www` redirect, apex serving the app, DNS CAA record.
-- [ ] Email domain authenticated (SPF, DKIM, DMARC) even though reminders arrive in M3, so the
-      domain ages before sending.
 - [ ] Status and contact: a support email that is read; a way to report a security issue.
 - [ ] Analytics decision implemented exactly as in ADR-0028; the cookie-free statement is true.
 - [ ] A rollback plan: the previous production deployment can be promoted in Vercel within minutes;
@@ -89,6 +86,12 @@ gate and this checklist; every merge to `main` goes to production, tagged or not
 
 ## Additional before M3 (accounts)
 
+The first two moved here from the launch list on 2026-11-15, following `docs/ROADMAP.md`'s cuts
+from M2 of 2026-10-30: there is no server data before M3, and M3 picks the mail provider (ADR-0026).
+
+- [ ] Backups configured; a restore drill performed and logged in `docs/SECURITY.md`.
+- [ ] Email domain authenticated (SPF, DKIM, DMARC) as soon as the provider is picked, so the domain
+      ages before the first reminder is sent.
 - [ ] RLS tests pass; a manual attempt to read another user's rows fails.
 - [ ] Account deletion verified end to end; data export from the server verified.
 - [ ] Reminder job idempotency verified (run twice, one email).
