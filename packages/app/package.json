@@ -7,7 +7,7 @@
   "sideEffects": false,
   "exports": {
     "./features/learn/site": "./src/features/learn/site/index.ts",
-    "./features/*":"./src/features/*/index.ts",
+    "./features/*": "./src/features/*/index.ts",
     "./lib/adapters/idb/rows": "./src/lib/adapters/idb/rows.ts",
     "./lib/adapters/zip.testing": "./src/lib/adapters/zip.testing.ts",
     "./lib/navigation/routes": "./src/lib/navigation/routes.ts",
