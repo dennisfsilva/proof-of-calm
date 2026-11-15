@@ -47,7 +47,7 @@ describe('the Risk honestly module', () => {
   it('lists every fact whose figures its body quotes, the falls of a and b included', () => {
     const { module, body } = read();
     const quotes = [
-      ['a.btc-drawdowns', /bitcoin fell (?:more than )?\d+ %/u],
+      ['a.btc-drawdowns', /bitcoin had \d+ falls of more than \d+ %/u],
       ['b.alt-drawdowns', /Ether fell \d+ %/u],
     ] as const;
     const quoted = quotes.filter(([, figure]) => figure.test(body.replaceAll(' ', ' '))).map(([key]) => key);
@@ -127,10 +127,11 @@ describe('the Risk honestly module', () => {
     const unrounded = [...factA.matchAll(/\), \u2212(\d+\.\d) %(?! so far)/gu)].map(([, fall]) => Number(fall));
     expect(unrounded.map((fall) => String(Math.round(fall)))).toEqual(rows.map((row) => row.fall));
     const sentence =
-      /In the chart, bitcoin fell more than (\d+)\u00a0% (\w+) times between (\d{4}) and (\d{4})\./u.exec(body);
-    const bound = Number(sentence?.[1]);
+      /In the chart, bitcoin had (\d+) falls of more than (\d+)\u00a0% between (\d{4}) and (\d{4})\./u.exec(body);
+    const bound = Number(sentence?.[2]);
     expect(unrounded.every((fall) => fall > bound)).toBe(true);
-    expect(sentence?.slice(2)).toEqual([
+    // The count leads the sentence, so the skimmer meets the number of falls first (CONTENT-STYLE §1 rule 10).
+    expect([sentence?.[1], ...(sentence?.slice(3) ?? [])]).toEqual([
       // docs/CONTENT-STYLE.md §4: a count in English prose is a numeral.
       String(rows.length),
       rows[0]?.high.slice(0, 4),
