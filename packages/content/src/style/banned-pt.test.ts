@@ -1013,7 +1013,8 @@ const GAPS: [string, string][] = [
   ['Porque não compra BTC agora?', 'spelled like a third-person statement ("o plano compra")'],
   ['Ainda não tem bitcoin? Compre já.', 'the asset is named in the sentence before'],
   ['Não largue o seu BTC.', 'its verb is not on the list'],
-  ['Realize as mais-valias de ETH agora.', 'its verb is not on the list'],
+  ['Realize as mais-valias de ETH agora.', '"realize" takes no purchase or sale noun after it'],
+  ['Realize os seus ganhos em BTC.', '"realize" takes no purchase or sale noun after it'],
   ['Entre em bitcoin agora.', 'its verb is not on the list'],
   ['Saia do ETH antes de março.', 'its verb is not on the list'],
   ['Fique com as suas bitcoins.', 'its verb is not on the list'],
@@ -1601,6 +1602,36 @@ describe('the pt-PT ban list on the walk judge’s corpora', () => {
       expect(findBanned(text), text).not.toEqual([]);
       expect(findBanned(rewording), rewording).toEqual([]);
     }
+  });
+});
+
+// §2's Portuguese claims, each with the texts that prove it.
+const advice = (text: string) => findBanned(text).filter((finding) => finding.rule === 'advice');
+
+describe('§2’s Portuguese claims', () => {
+  it('refuses the frames before the dever row’s verbs, their pronouns and guardar', () => {
+    for (const [text, match] of [
+      ['Convém reforçar a posição.', 'Convém reforçar'],
+      ['Vale a pena adquirir mais.', 'Vale a pena adquirir'],
+      ['Tem que deter mais.', 'Tem que deter'],
+      ['Têm de apostar no plano.', 'Têm de apostar'],
+      ['É melhor comprá-las.', 'É melhor comprá-las'],
+      ['É preferível apostá-lo.', 'É preferível apostá-lo'],
+      ['Precisam de vender.', 'Precisam de vender'],
+      ['É melhor guardar as moedas.', 'É melhor guardar'],
+    ] as const) {
+      expect(advice(text), text).toEqual([{ rule: 'advice', match }]);
+    }
+  });
+
+  it('runs every language’s rows over every text, so a Portuguese pattern refuses a German word', () => {
+    expect(advice('Keine Garantie für Kursgewinne.')).toEqual([{ rule: 'advice', match: 'Garantie' }]);
+    expect(advice('Wir garantieren nichts.')).toEqual([{ rule: 'advice', match: 'garantieren' }]);
+  });
+
+  it('refuses "realize" before a sale noun and passes it without one', () => {
+    expect(findBanned('Realize a venda das suas bitcoins.')).not.toEqual([]);
+    expect(findBanned('Realize os seus ganhos em BTC.')).toEqual([]);
   });
 });
 

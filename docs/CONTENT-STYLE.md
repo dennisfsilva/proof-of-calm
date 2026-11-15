@@ -40,9 +40,10 @@ to buy, when to buy or where to buy.
 ## 2. Advice-shaped language: the ban list
 
 Banned in UI strings, content, templates, emails and marketing. The table names the English words;
-the lint holds each language's own rows, so a German or Portuguese word is refused only where that
-language's list holds it (the Portuguese rows below), with a per-phrase allow-list for proper names
-of taxes such as "imposta di bollo" or "box 3":
+the lint holds each language's own rows (the Portuguese rows below) and runs them together over every
+text, so a pattern refuses its word in any language: the Portuguese `garant` row refuses the German
+`Keine Garantie für Kursgewinne`, as the guarantee row bans in every language. A per-phrase
+allow-list holds proper names of taxes such as "imposta di bollo" or "box 3":
 
 | Banned | Why | Write instead |
 |---|---|---|
@@ -81,9 +82,11 @@ The Portuguese rows (decided 2026-11-15; the voice is §9):
   `manter`, `deter`, `investir`, `acumular`, `reforçar`, `adquirir` or `apostar`, bare or with `-lo`,
   `-la`, `-los` or `-las` (`Deve comprá-las`), but not before `guardar` (`Deve guardar a chave
   privada`); `aconselho`, `aconselhamos`, `aconselha-se`, a form of `aconselhar` with a pronoun after
-  its hyphen (`aconselho-o`), `aconselhável`, `sugiro`; `tem de`,
-  `têm que`, `precisa de`, `vale a pena`, `convém`, `é melhor` and `é preferível` before the same
-  six verbs (`É melhor manter as suas bitcoins`); `sugerimos`,
+  its hyphen (`aconselho-o`), `aconselhável`, `sugiro`; `tem de`, `tem que`, `têm de`, `têm que`,
+  `precisa de`, `precisam de`, `vale a pena`, `convém`, `é melhor` and `é preferível` right before
+  the same nine infinitives with the same pronouns, or before `guardar`, which the earlier rule
+  refused there (`Convém reforçar a posição`, `É melhor manter as suas bitcoins`, `Precisa de
+  guardar as moedas`); `sugerimos`,
   `a nossa escolha`, `dica`, `seguro`, `garantia`, `garanta`, `riqueza`, `ficar rico`,
   `rendimento passivo`, `ganhe dinheiro`, `retorno esperado`, `preço-alvo`, `projetado`, `projeção`,
   `vai subir`, `recuperará`, `há de subir`, `vai voltar a subir`, `deverá subir`,
@@ -131,7 +134,7 @@ The Portuguese rows (decided 2026-11-15; the voice is §9):
   `of`.
 - The imperative rule (`packages/content/src/style/directive-pt.ts`). Spelling cannot tell the
   formal imperative from the present subjunctive, the verb `venda` from the noun, or a command
-  infinitive from a noun infinitive, and the frames that carry advice («É melhor que», «Convém»,
+  infinitive from a noun infinitive. The frames that carry advice («É melhor que», «Convém»,
   «desde que») are an open class, so the rule reads the forms themselves:
   1. A sentence that names an asset fails when it holds, anywhere, a form of `comprar`, `vender`,
      `manter`, `deter`, `guardar`, `investir`, `acumular`, `reforçar`, `adquirir`, `apostar`,
@@ -184,7 +187,8 @@ The Portuguese rows (decided 2026-11-15; the voice is §9):
   The rule misses, and leaves to counsel and the native reader: `Se mantiver as suas bitcoins até
   2030, não se vai arrepender` (`mantiver` is the form every rewording uses); `Todos os meses compra
   BTC` and `Porque não compra BTC agora?` (spelled like a statement in the third person); the verbs
-  it does not list (`largue`, `realize`, `entre`, `saia`, `fique`, `desfaça`); an asset named in
+  it does not list (`largue`, `entre`, `saia`, `fique`, `desfaça`); `realize` and its kin of item 3
+  without a purchase or sale noun after them (`Realize os seus ganhos em BTC`); an asset named in
   another sentence (`Tem bitcoins? Não as venda.`); a dot of an abbreviation, which ends the
   sentence (`16 de out. de 2026`); and `junto ao` before a regulator.
 - The Risk page's statement on status (`docs/LEGAL.md` §5) passes in Portuguese with no allow-list
