@@ -115,3 +115,8 @@ generated rules files of each language.
   chunk: since ADR-0045's Deviations of 2026-11-15 it leaves another language's message chunks out
   (`assets/messages/<locale>/`), and the loaders' chunks join that rule when they land. Found by the
   integration read of the pt-PT checkpoint (#19).
+- **2026-11-15.** "What validation holds" gains `overlay-date-mismatch`. A template's texts write
+  their dates as `{date:<field>}` placeholders (`docs/CONTENT-STYLE.md` §4), which hold no digits, so
+  the number check cannot see one dropped or added: a translated string carries the same multiset of
+  placeholders as English, in any order. Two placeholders swapped between their nouns pass, as two
+  numbers do, and counsel's read holds the rest. Found by the review of the template dates (#19's D7).
