@@ -11,6 +11,13 @@ lint (`lint/styles.ts`), message merging (`messages/merge.ts`), the secret scan 
 (`serve/`). Content validation is `packages/content/scripts/validate.ts`; the reference-close data
 pipeline (`tools/data/`, ADR-0036) arrives in M2.
 
+`messages/merge.ts` reads every feature's and lib module's `messages/<locale>.json` for the locales
+in its `LOCALES` list (`en`, `pt-PT`) and writes, into `packages/app/src/messages`, one
+`<locale>/<namespace>.json` per namespace and locale and the merged `en.json` for English alone. A
+translated file is completed from English (`complete`): a missing key takes English's message, and a
+key English lacks, or a file in a locale the list does not name, stops the merge (ADR-0045,
+Deviations of 2026-11-15). `--check` reports a missing, stale or leftover file and writes nothing.
+
 `content-review/reminder.ts` is the content review's reminder (`docs/CONTENT-OPS.md` §2): `issue`
 opens or comments on the `content-review` issue for the content-review-reminder.yml workflow
 (`--dry-run` prints it, `--today YYYY-MM-DD` picks the day), and `session` is the `SessionStart` hook

@@ -23,7 +23,7 @@ All commands from the repo root.
 - Typecheck: `pnpm typecheck` (apps/web also checks the service worker against `apps/web/tsconfig.sw.json`)
 - Lint, format, the dependency rule, the styling lint (no hex colours, px font sizes, font families or removed outlines outside `packages/ui/src/styles`), the docs lint and the size lint: `pnpm lint` (fix formatting: `pnpm lint:fix`); on their own: `pnpm lint:docs` (paths, commands, ADR numbers and owned literals in the documents), `pnpm lint:size` (source files over 400 lines); dead code: `pnpm lint:dead`
 - Commit subjects of the branch (conventional, at most 100 characters, the check CI runs): `pnpm lint:commits` (reads `origin/main..HEAD`, so fetch `origin/main` first)
-- Merge the feature and lib message files into `packages/app/src/messages/<locale>.json` and one `<locale>/<namespace>.json` per namespace: `pnpm --filter @proofofcalm/tools messages` (a test fails when a file there is stale)
+- Merge the feature and lib message files into `packages/app/src/messages/en.json` and one `<locale>/<namespace>.json` per namespace and locale, each translation completed from English: `pnpm --filter @proofofcalm/tools messages` (a test fails when a file there is stale)
 - Content validation (schemas, 60-word cards, banned words, sources, the Learn modules' front matter, length, syntax and age): `pnpm validate:content`
 - The generated rules files the shell boots on, after a profile changes (ADR-0049): `pnpm --filter @proofofcalm/content rules` (a test fails when one is stale)
 - Unit and component tests: `pnpm test` (watch: `pnpm test:watch`; coverage: `pnpm test:coverage`)
