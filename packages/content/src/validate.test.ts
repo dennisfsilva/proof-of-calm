@@ -1075,6 +1075,34 @@ describe('validateContent: messages and other files', () => {
     expect(codes([file('apps/web/messages/en.json', ['Safe and sound'])])).toEqual([banned('advice', '0', 'Safe')]);
   });
 
+  it('lints a pt-PT message file with the Portuguese rows, and its other checks pass correct Portuguese', () => {
+    const today = 'packages/app/src/features/today/messages/pt-PT.json';
+    expect(codes([file(today, { lead: 'Recomendamos este plano.' })])).toEqual([
+      banned('advice', 'lead', 'Recomendamos'),
+    ]);
+    expect(codes([file('apps/web/messages/pt-PT.json', { a: 'Recomendamos.' })])).toEqual([
+      banned('advice', 'a', 'Recomendamos'),
+    ]);
+    expect(codes([file(today, { sale: 'Não venda as suas bitcoins numa queda.' })])).toEqual([
+      banned('imperative', 'sale', 'Não venda as suas bitcoins numa queda'),
+    ]);
+    const correct = {
+      redDay: { high: 'Abaixo do máximo de 90 dias.' },
+      holding: 'Período de detenção de 365 dias; não tributado a partir de 2 de março de 2027.',
+      tax: 'As mais-valias são tributadas à taxa especial de 28%, ao abrigo da Lei n.º 24-D/2022.',
+      button: 'Registar compra',
+      taxName: 'Imposto sobre mais-valias de 28%.',
+      exempt: 'As mais-valias não são tributadas se mantiver as bitcoins durante 365 dias.',
+      early: 'Caso o BTC seja vendido antes de 2 de março de 2027, a mais-valia é tributada a 28%.',
+      sale: 'A venda de 3 de março de 2027: 0,1 BTC',
+    };
+    expect(codes([file(today, correct)])).toEqual([]);
+    expect(codes([file(today, { lead: 'Ganhe até 8 % ao ano.', hold: 'É melhor manter.' })])).toEqual([
+      banned('return-percentage', 'lead', 'Ganhe até 8 %'),
+      banned('advice', 'hold', 'É melhor manter'),
+    ]);
+  });
+
   it('refuses a file it does not know', () => {
     expect(codes([file('packages/content/notes.json', {})])).toEqual(['unknown-file: not a content or message file']);
   });
