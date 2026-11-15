@@ -4,7 +4,8 @@
 // that match the coin catalogue, template drawdowns from dated, allow-listed sources, the cycles file's completed
 // falls in catalogue order, unique fact keys, the Learn modules (modules-validate.ts), a profile's locale tags and
 // percent joiner (percent-validate.ts), the banned-words lint and the no-break hyphen between a number and its unit
-// (hyphen-validate.ts) on what users read. Pure: the
+// (hyphen-validate.ts) on what users read, and a template text's dates as `{date:<field>}` with no month name
+// (template-dates.ts). Pure: the
 // CLI in scripts/validate.ts reads the files. Relative imports name their .ts files, so that Node runs the
 // CLI without a build step, as tools/ does.
 import { hyphenProblems } from './hyphen-validate.ts';

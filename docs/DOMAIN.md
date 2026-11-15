@@ -1469,6 +1469,14 @@ and ETH −82%, each high to low between 10 Nov 2021 and 21 Nov 2022"). An expla
 without the day, month and year of its high and low. The core never reads `drawdowns`; the validator
 checks its sources and dates.
 
+The `oneLine` and the explanation write each date as `{date:<field>}`, a path to one of the template's date fields:
+`lastBuy`, `validUntil`, `sellWindow.opens`, `sellWindow.closes`, `sellWindow.exitBy`, `references.<field>` and
+`drawdowns.<COIN>.high` or `.low`, `<COIN>` a ticker of `drawdowns` (`templateDatePaths` in
+`packages/content/src/template-dates.ts`; the onboarding fills them with `fillTemplateDates` and `format.date`, the
+rule is `docs/CONTENT-STYLE.md` §4). A date only the text names is a text-only field of `references`: the Cycle plan's
+`secondThird` 2029-08-01 and `lastThird` 2029-10-01, which the loader keeps out of the core's references, so a plan
+never copies them (decided 2026-11-15).
+
 | id | Name | Coins / split | Sell window | Risk label |
 |---|---|---|---|---|
 | `btc-only-hold` | Bitcoin only, no sell window | BTC 100 | none | High risk · single asset |
