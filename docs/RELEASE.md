@@ -32,10 +32,22 @@ gate and this checklist; every merge to `main` goes to production, tagged or not
 
 ## Additional before the public launch (after M2)
 
-- [ ] Legal pages live and linked from the footer and onboarding: Terms, Privacy, Risk disclosure,
-      Cookie-free statement, Contact/Impressum (`docs/LEGAL.md`).
+- [ ] Legal pages live and linked from the site's footer, onboarding and Settings → About: Terms,
+      Privacy, Risk disclosure, Cookie-free statement, Contact/Impressum (`docs/LEGAL.md` §5).
+- [ ] The four legal texts (Terms, Privacy, Contact/Impressum, the Cookie-free statement's launch
+      text) signed by the owner through the needs-owner PR that fills in the owner's identity, which
+      only the owner merges; their visual baselines rendered after that merge.
+- [ ] The name cleared: the TMview search and, if it is clean, the EUTM filed (`docs/LEGAL.md` §1).
+- [ ] Vercel Pro in place, since the free tier forbids commercial use (ADR-0005).
+- [ ] Portuguese (pt-PT) and German (de) read by native readers before the language picker shows
+      them (`docs/CONTENT-STYLE.md` §8).
+- [ ] The owner's first `/review-content` run made, the review pipeline's one manual run
+      (`docs/CONTENT-OPS.md` §3).
+- [ ] If the simulator ships: its attribution text under every price and chart (ADR-0036).
 - [ ] Before the public pages under `/en/` are indexed: a daily production rebuild in place, since they
       render at the build's UTC date (ADR-0045, Deviations of 2026-11-15).
+- [ ] The `PUBLIC_INDEXABLE` switch (ADR-0045, Deviations of 2026-11-15), the owner-approved PR that
+      opens `/en/` to search, merged after brand's search polish of those pages (`docs/GROWTH.md` §4.1).
 - [ ] UK handling implemented as decided in ADR-0029 and tested; the two checks below run once
       from a UK vantage point against the production domain, because the e2e suite only injects
       Vercel's geolocation header (ADR-0045 Risks).
