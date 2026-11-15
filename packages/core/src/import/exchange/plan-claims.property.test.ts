@@ -5,7 +5,7 @@ import { fileOf, heldGuards, startingGuards, type World, world } from '../../../
 import { LISBON, NOW, testId, trade } from '../../../test/exchange/plan-fixture';
 import { partOf, preCut } from '../../../test/exchange/plan-late';
 import { addDays, type CalendarDate, clampDay, daysBetween } from '../../dates/calendar';
-import { abs, compare, type Money, minus, sum } from '../../money/decimal';
+import { abs, compare, type Money, minus, plus, product, sum } from '../../money/decimal';
 import type { Entry } from '../../schema/entry';
 import type { ExchangeFile, Movement } from './kraken';
 import { type ExchangeImportPlan, leftOutBefore, planExchangeImport } from './plan';
@@ -125,46 +125,68 @@ describe('planExchangeImport, by windows and by exchanges', () => {
   );
 
   it(
-    "a `lump` records only dates as near its amount as its coin's monthly part, and leaves no free one within 3 days",
+    "a `lump` walks its coin's dates within 3 days as near its amount as the monthly part, as a ratio, stored ones in its sum",
     () => {
-      let reached = 0;
+      const reached = { none: 0, many: 0, stored: 0 };
       fc.assert(
         fc.property(world, (drawn) => {
           const plan = run(drawn, drawn.entries, drawn.file);
           const stored = new Set(drawn.entries.map((entry) => entry.id));
-          // A date's amount, stored purchases included: the file's purchases of the coin that the steps consider.
-          const totalOn = (coin: string, day: CalendarDate) =>
-            sum(
-              drawn.file.movements
-                .filter((movement) => movement.role === 'purchase' && movement.coin === coin)
-                .filter((movement) => LISBON.dateOf(movement.at) === day)
-                .filter((movement) => stored.has(testId(movement.key)) || leftOutBefore(drawn.plan, movement) === null)
-                .map((movement) => movement.amount as Money),
+          // The file's purchases of a coin that the steps consider, by date: stored ones, and free ones step 1 keeps.
+          const purchases = (coin: string) =>
+            drawn.file.movements.filter(
+              (movement) =>
+                movement.role === 'purchase' &&
+                movement.coin === coin &&
+                (stored.has(testId(movement.key)) || leftOutBefore(drawn.plan, movement) === null),
             );
-          const passes = (lump: Entry, day: CalendarDate) => {
-            const total = totalOn(lump.coin, day);
-            const part = partOf(drawn.plan, drawn.plan.monthlyAmount, lump.coin);
-            return compare(abs(minus(total, lump.amount as Money)), abs(minus(total, part))) <= 0;
-          };
+          const claimedBy = new Map(
+            plan.recorded.flatMap((item) => item.dates.map((day) => [`${item.coin}|${day}`, item.entry.id] as const)),
+          );
           const lumps = drawn.entries.filter((entry) => entry.deletedAt === null && entry.kind === 'lump');
           for (const lump of lumps) {
+            const A = lump.amount as Money;
+            const p = partOf(drawn.plan, drawn.plan.monthlyAmount, lump.coin);
+            const byDate = new Map<CalendarDate, Movement[]>();
+            for (const movement of purchases(lump.coin)) {
+              const day = LISBON.dateOf(movement.at);
+              if (Math.abs(daysBetween(lump.date, day)) <= 3) byDate.set(day, [...(byDate.get(day) ?? []), movement]);
+            }
+            // Only a lump with no other entry's claim within its 3 days: an earlier claim takes its date out whole.
+            const others = [...byDate.keys()].filter((day) => {
+              const by = claimedBy.get(`${lump.coin}|${day}`);
+              return by !== undefined && by !== lump.id;
+            });
+            if (others.length > 0) continue;
+            const amountOn = (day: CalendarDate) => sum((byDate.get(day) ?? []).map((each) => each.amount as Money));
+            const side = compare(A, p);
+            const square = (day: CalendarDate) => compare(product<Money>(amountOn(day), amountOn(day)), product(A, p));
+            const order = [...byDate.keys()]
+              .filter((day) => side === 0 || (side > 0 ? square(day) >= 0 : square(day) <= 0))
+              .sort(
+                (a, b) => Math.abs(daysBetween(lump.date, a)) - Math.abs(daysBetween(lump.date, b)) || (a < b ? -1 : 1),
+              );
+            const walked: CalendarDate[] = [];
+            let total: Money | null = null;
+            for (const day of order) {
+              const next: Money = total === null ? amountOn(day) : plus(total, amountOn(day));
+              if (total !== null && compare(abs(minus(next, A)), abs(minus(total, A))) >= 0) break;
+              total = next;
+              walked.push(day);
+            }
+            const free = (day: CalendarDate) =>
+              (byDate.get(day) ?? []).some((movement) => !stored.has(testId(movement.key)));
             const dates = plan.recorded.find((each) => each.entry.id === lump.id)?.dates ?? [];
-            expect(dates.filter((day) => !passes(lump, day))).toEqual([]);
-            if (dates.length > 0) continue;
-            const near = plan.entries.filter(
-              (entry) =>
-                (entry.kind === 'dca' || entry.kind === 'extra') &&
-                entry.coin === lump.coin &&
-                Math.abs(daysBetween(lump.date, entry.date)) <= 3,
-            );
-            if (near.length > 0) reached += 1;
-            expect(near.filter((entry) => passes(lump, entry.date))).toEqual([]);
+            expect(dates).toEqual(walked.filter(free).sort());
+            if (byDate.size > 0 && dates.length === 0) reached.none += 1;
+            if (dates.length > 1) reached.many += 1;
+            if (walked.some((day) => !free(day))) reached.stored += 1;
           }
         }),
         RUNS,
       );
-      // The rule bites: a lump records none while the plan adds a purchase of its coin within 3 days of it.
-      expect(reached).toBeGreaterThan(0);
+      // The rule bites: a lump records none beside its coin's dates, records several, and walks a stored date.
+      expect(Object.values(reached).every((count) => count > 0)).toBe(true);
     },
     TIMEOUT,
   );
