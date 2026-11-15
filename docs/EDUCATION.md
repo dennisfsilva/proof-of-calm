@@ -52,7 +52,7 @@ timing decision back".
 more than ninety percent (dated figures from §9); an exchange can fail and take deposits with it
 (Mt. Gox and FTX, each one dated, sourced event, §9 rows `d.mt-gox` and `d.ftx`); leverage turns a drawdown
 into a liquidation (one dated figure: CoinGlass's liquidations of 10 Oct 2025, §9 row `f.leverage`); scams follow the
-same patterns every cycle (six signs of a scam in plain words, each quoted from the ESAs' factsheet in its own §9 row
+same patterns every cycle (6 signs of a scam in plain words, each quoted from the ESAs' factsheet in its own §9 row
 `e.unknown-platforms` to `e.address-poisoning`). The order, as the FCA's InvestSmart page gives it and in its words
 (§9 row `m.emergency-fund`): short-term debt paid off first, then an emergency cash fund (3 to 6 months of
 outgoings, attributed to the many experts the page cites), both before investing, and never a credit card to buy
@@ -137,7 +137,8 @@ honestly is not built, so the caveat points to no module.)
 
 ## 6. When the market drops
 
-**Idea**: this has happened before; your plan already assumed it would.
+**Idea**: from 16 Oct 2021 to 16 Oct 2026, bitcoin had a 7‑day fall of 10 % or more about 6 times a
+year (Bitstamp closes).
 **Two surfaces.** The module, `/learn/when-the-market-drops`, is the resting text, in Learn's index
 like any other; while the red-day port finds a fall under way, its route (never its sheet) holds one
 line above the body linking to the fall page. The fall page, `/learn/fall-under-way`, is the other:
@@ -159,8 +160,10 @@ at least one earlier fall is: the sentence sits under historic data or not at al
 each held coin once, by its name, and ends with a Why? that opens this module in the sheet. No chart,
 and no control but the figure's Why?; no red, no P/L or portfolio value; the words are in
 `docs/CONTENT-STYLE.md` §3.
-**Says** (the module, moved here from the page): how the trigger works (a seven-day fall of 10 % or
-more, or a close 30 % or more below the 90-day high, computed from prices only, never from headlines);
+**Says** (the module, moved here from the page): how the trigger works (a 7‑day fall of 10 % or
+more, or a close 30 % or more below the 90-day high, computed from prices only, never from headlines),
+with each sentence about the app's screens (Today's line, Learn's first row, the fall page) naming the
+app, since the module is also a public page;
 how often it fired on bitcoin, with fact q's series and window (Bitstamp BTC/USD daily closes, 16 Oct
 2021 to 16 Oct 2026: either condition on 15.1 % of days); the 118-plan figure with its start months
 and Bitstamp named, and the BIS counterweight beside it (§9 r, `docs/CONTENT-STYLE.md` §5); and
