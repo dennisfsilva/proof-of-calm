@@ -18,7 +18,11 @@ const SECTIONS: readonly LegalSection[] = [
 export function PrivacyPage() {
   return (
     <LegalPage slug="privacy">
-      <LegalSections slug="privacy" sections={SECTIONS} after={{ storage: <LegalLink slug="cookies" /> }} />
+      <LegalSections
+        slug="privacy"
+        sections={SECTIONS}
+        after={{ controller: <LegalLink slug="contact" />, storage: <LegalLink slug="cookies" /> }}
+      />
       <LegalVersion />
     </LegalPage>
   );
