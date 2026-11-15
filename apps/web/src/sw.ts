@@ -29,6 +29,7 @@ declare const self: ServiceWorkerGlobalScope;
 declare const __APP_ROUTES__: readonly string[];
 
 const DAY = 24 * 60 * 60;
+const PAGES = 'pages';
 
 function withoutFragment(href: string): string {
   const url = new URL(href);
@@ -67,7 +68,7 @@ const serwist = new Serwist({
       // The site pages and anything else that is a document: the network, the cache when it is away.
       matcher: ({ sameOrigin, request }) => sameOrigin && request.destination === 'document',
       handler: new NetworkFirst({
-        cacheName: 'pages',
+        cacheName: PAGES,
         networkTimeoutSeconds: 10,
         plugins: [
           // The holding-date tool's inputs live in the fragment, which the request's URL keeps: the copy is kept
@@ -92,3 +93,16 @@ const serwist = new Serwist({
 });
 
 serwist.addEventListeners();
+
+// A worker built before the `pages` route dropped the fragment kept a navigation under its full URL, purchase date
+// included, and nothing else removes that key (WebKit even keeps it on a later put of the bare page): the activating
+// worker deletes every `pages` key with a fragment, by its stored request, and leaves the rest of the cache alone.
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    (async () => {
+      if (!(await caches.has(PAGES))) return;
+      const pages = await caches.open(PAGES);
+      for (const request of await pages.keys()) if (request.url.includes('#')) await pages.delete(request);
+    })(),
+  );
+});
