@@ -13,7 +13,7 @@ import {
 import * as z from 'zod/mini';
 
 // The holding-date tool's pure half, exported as `@proofofcalm/app/features/learn/site/tool` for the page's script
-// (session issue #230, the design check's decisions): the inputs live in the URL's fragment, which no request
+// (its design check of 2026-11-15): the inputs live in the URL's fragment, which no request
 // carries; the answer is the core's `holdingStatus` and states a date only, never whether it has passed, so nothing
 // here reads a clock. Dates are written through the one formatting layer (ADR-0023), re-exported for the script.
 export { createDateFormatter } from '../../../lib/format';

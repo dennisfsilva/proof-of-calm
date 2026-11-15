@@ -8,7 +8,7 @@ import { COUNTRY_LINK } from './countries';
 import { effectsOf, encodeHoldingRule, HOLDING_MIN, type HoldingRules, holdingMax } from './holding-tool.ts';
 import { type SiteLinks, useSiteFormatters } from './static';
 
-// The holding-date tool's markup (session issue #230, the design check's decisions 3, 7, 8 and 9), prerendered with no
+// The holding-date tool's markup (its design check of 2026-11-15), prerendered with no
 // script: a form in the first paint, hidden where script is off and posting nowhere (`method="dialog"`), so a page
 // whose script fails never puts the inputs in a query. Its result region holds one hidden block per country and, in a
 // dated country's block, one hidden line set per effect its rule can state; the page's script (apps/web) reads the
