@@ -74,3 +74,16 @@ Option 4.
 ## Disagreement
 
 None.
+
+## Deviations recorded on 2026-11-15
+
+The decision stands; the rules command writes one more file, so a country's locales never wait on its chunk.
+
+- **Decision, first bullet: "writes `packages/content/rules/<code>.json` from every
+  `jurisdictions/<code>.json`".** It also writes `packages/content/rules/locales.json`: every
+  profile's `locales`, `numberFormatLocale` and `dateFormatLocale`, by code, generated and committed
+  like the rules files, and kept when orphans are deleted. `countryLocales(code)` in
+  `packages/content/src/loaders/locales.ts` reads it synchronously and answers the generic country's
+  for a code with no profile. The app imports it statically, so it ships in the entry, not in a lazy
+  chunk (#261 A); `packages/content/src/loaders/locales.test.ts` fails while it is stale and holds
+  every code's locales to its profile's.

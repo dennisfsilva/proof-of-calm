@@ -108,8 +108,7 @@ function PlanEntryForm({ plan, numberInput: mounted, kind, editing, slot, onDone
   const format = useFormatters();
   const clock = useClock();
   const live = usePrices().state?.snapshot ?? null;
-  // The number locale and the prices are read once, as the form opens (ADR-0020 Readings): a language or price
-  // change never rewrites what is on screen.
+  // The number locale and prices are read once, as the form opens (ADR-0020 Readings): no later change rewrites them.
   const [numberLocale] = useState(() => localesFor(services.language, rules ?? countryLocales(plan.country)).numbers);
   const [numberInput] = useState(() => mounted);
   const currency = plan.payCurrency;

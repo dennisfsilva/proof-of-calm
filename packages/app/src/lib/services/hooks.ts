@@ -65,8 +65,8 @@ export function useRulesSettled(): boolean {
 
 /**
  * The locales of the rules record: its rules', or, when they did not load, its country's from the generated
- * locales file, so a failed rules chunk never moves a number into the UI language's locale (ADR-0049, #261 A).
- * Both are module-level values, so a selector that returns one keeps its identity between renders.
+ * locales file, so a failed rules chunk never moves a number into the UI language's locale (ADR-0049; issue
+ * 261, carry-over A). Both are module-level values, so a selector that returns one keeps its identity between renders.
  */
 function recordLocales(record: UiState['rules']): CountryLocales | null {
   return record === null ? null : (record.rules ?? countryLocales(record.country));
