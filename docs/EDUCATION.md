@@ -1,6 +1,6 @@
 # Education: the Learn modules, the simulator and the Red day page
 
-Seven modules at launch and no more. Each is one idea, under 400 words, one chart only where it earns
+7 modules at launch and no more. Each is one idea, under 400 words, one chart only where it earns
 its place, one caveat, a reading time in whole minutes (the formula: `docs/CONTENT-STYLE.md` §5) and a
 "last reviewed" date. Modules are MDX files in `packages/content/learn/` with front
 matter validated by a schema; every statistic in them has a source and a date in §9 and is flagged by
@@ -48,8 +48,8 @@ timing decision back".
 ## 2. Risk honestly
 
 **Idea**: you can lose everything, and the order of operations matters.
-**Says**: crypto assets have fallen by three quarters or more several times, and smaller coins by
-more than ninety percent (dated figures from §9); an exchange can fail and take deposits with it
+**Says**: crypto assets have fallen by 75 % or more several times, and smaller coins by
+more than 90 % (dated figures from §9); an exchange can fail and take deposits with it
 (Mt. Gox and FTX, each one dated, sourced event, §9 rows `d.mt-gox` and `d.ftx`); leverage turns a drawdown
 into a liquidation (one dated figure: CoinGlass's liquidations of 10 Oct 2025, §9 row `f.leverage`); scams follow the
 same patterns every cycle (6 signs of a scam in plain words, each quoted from the ESAs' factsheet in its own §9 row
@@ -57,7 +57,7 @@ same patterns every cycle (6 signs of a scam in plain words, each quoted from th
 (§9 row `m.emergency-fund`): short-term debt paid off first, then an emergency cash fund (3 to 6 months of
 outgoings, attributed to the many experts the page cites), both before investing, and never a credit card to buy
 an investment; no step the page does not hold.
-Self-custody basics in five sentences: what a seed phrase is, never typed into a website, hardware
+Self-custody basics in 5 sentences: what a seed phrase is, never typed into a website, hardware
 wallets, a test transaction first, a request for it is a warning sign of a scam, whoever it seems to come from (§9 rows
 `e.seed-phrase-requests` and `e.impersonation`).
 **Chart**: one bar chart of maximum drawdowns per asset and cycle (categorical by asset, with values
@@ -100,7 +100,7 @@ and the sheet to the "Why?" link's toast: the text never shows without its card.
 the summary, the classification, the taxable events, the rates, and the allowances. Then the holding rule,
 with every one of the profile's conditions under it: the card never states an exemption without its
 condition. Then the lot rule, losses, reporting, and the questions for an accountant. Each rule carries its
-Sources link; the date line and the profile's sources close the card. The text, under six headings
+Sources link; the date line and the profile's sources close the card. The text, under 6 headings
 in this order, words #24's D2 sentences P1 to P11 (`packages/content/src/taxes.test.ts` pins them):
 what Proof of Calm shows (an opened purchase or entry of coins added in the Log shows the day it passes
 the plan's holding rule, "Tax-free from" or "Long-term rate from"; the app cannot check the rule's other
@@ -111,7 +111,7 @@ a list of them reads as a recipe); when no date appears (a country rule with no
 holding period, the general profile's rule, the rules not loaded on the device; a holding period of
 the person's own dates the Log while the cards and the file keep the country's rule); when a rule
 changes (Today's dated notice with a button to review the plan; the plan keeps its holding rule until
-the person changes it); how fast rules change: five dated examples, one per §9 row k fact but
+the person changes it); how fast rules change: 5 dated examples, one per §9 row k fact but
 `k.ie-2026`, each at most 20 words by the loader's count (`%` is no word), opening with its country and
 when and closing with its source, and worded only from its fact, with no sentence that counts or sums them. Portugal's example names no rate, since Lei
 24-D/2022 does not print it; Portugal's card keeps its own.
@@ -169,7 +169,7 @@ app, since the module is also a public page;
 how often it fired on bitcoin, with fact q's series and window (Bitstamp BTC/USD daily closes, 16 Oct
 2021 to 16 Oct 2026: either condition on 15.1 % of days); the 118-plan figure with its start months
 and Bitstamp named, and the BIS counterweight beside it (§9 r, `docs/CONTENT-STYLE.md` §5); and
-counsel's sentence on the three things: "A monthly buyer can do nothing, log the buy on the buy day,
+counsel's sentence on the 3 things: "A monthly buyer can do nothing, log the buy on the buy day,
 or re-read the plan." Nothing about buying the dip; nothing about selling. One past-performance
 sentence directly under the first historic figure (`docs/LEGAL.md` §4); no other disclosure.
 **Chart**: none. The drawdown-scale chart with a live marker is cut: ROADMAP M2 allows a module at
