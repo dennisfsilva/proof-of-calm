@@ -137,8 +137,9 @@ honestly is not built, so the caveat points to no module.)
 
 ## 6. When the market drops
 
-**Idea**: from 16 Oct 2021 to 16 Oct 2026, bitcoin had a 7‑day fall of 10 % or more about 6 times a
-year (Bitstamp closes).
+**Idea**: how often bitcoin fell 10 % or more in 7 days, and what a monthly plan does then. Learn's
+index rows and a sheet's title show the idea with no past-performance line and no source, so an idea
+holds no historic figure (`docs/LEGAL.md` §3 item 6); 10 % and 7 days are the trigger's thresholds.
 **Two surfaces.** The module, `/learn/when-the-market-drops`, is the resting text, in Learn's index
 like any other; while the red-day port finds a fall under way, its route (never its sheet) holds one
 line above the body linking to the fall page. The fall page, `/learn/fall-under-way`, is the other:
