@@ -1030,10 +1030,13 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      2026-11-15, ADR-0056, Corrections): "A live `lump` of C, hand or one-tap, claims after the hand monthly
      buys: it orders C's purchase dates within 3 days of its own date whose amount a (all the file's
      purchases of C on it, stored ones included) is as near its amount A as C's monthly part p or nearer, as
-     a ratio (a x a at least A x p when A is above p, at most when A is below p, every date when A equals p),
+     a ratio (a x a at least A x p when A is above p, at most when A is below p),
      by nearness to its date, the earlier on a tie, and takes the nearest, then each next while that brings
      the summed amount nearer A. Dates stored already take their place in that order and sum but are never
-     claimed." A date another entry claimed before it is out of its walk. The order (decided 2026-11-15):
+     claimed." A date another entry claimed before it is out of its walk. A `lump` whose amount equals p
+     claims as rule R did: the nearest unclaimed purchase date of C within 3 days of its date, the earlier
+     on a tie, one date (decided 2026-11-15, ADR-0056, Corrections, #226: a walk at p passes every date,
+     so part of a file could stop it at a stored date and store a date the whole file's lump claims). The order (decided 2026-11-15):
      the monthly buys that walk their month go first; then the hand monthly buys whose month has no purchase
      date, in `compareEntries` order; then each `lump` and every other hand purchase or sale, in
      `compareEntries` order. So every hand monthly buy claims before any lump, and a lump keeps its place
@@ -1076,7 +1079,8 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      above 0, or for a coin with a live `lump`, C's purchases dated on or before `firstBuy` + 15 days that
      step 2 left are left out and named, however long before `firstBuy` they are: the file cannot tell the
      starting amount from them." A `lump`, hand or one-tap, claims in step 2 within 3 days of its date by
-     rule G's walk over the dates as near its amount as the coin's monthly part, as a ratio; a one-tap
+     rule G's walk over the dates as near its amount as the coin's monthly part, as a ratio (at the part, the
+     nearest date, step 2); a one-tap
      `lump` is never replaced (rule R, decided 2026-11-14, ADR-0056, Corrections). The line names the last date reached and that it is
      `IMPORT_MATCH_DAYS` (§9) days after the first buy day, each purchase left out with its units,
      amount and date in date order (the latest five past five, then how many came earlier), and what the Log
