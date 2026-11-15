@@ -93,8 +93,9 @@ function asNear(a: Money, A: Money, p: Money) {
  * hand-recorded purchase or sale, claims C's nearest date of the same role within 3 days of its own date." A `lump`,
  * hand or one-tap, walks instead: C's purchase dates within 3 days of its date that no hand monthly buy or earlier entry
  * claimed and that pass `asNear`, nearest its date first, while each brings the sum nearer its amount; a lump whose
- * amount is C's monthly part claims its nearest date within 3 days as a hand extra buy does, one date, so its pieces
- * on other days are imported beside it (docs/DOMAIN.md §3.13 step 2, W1 and W2's fallback entries). The second pass
+ * amount is C's monthly part, hand or one-tap, claims its nearest date within 3 days as a hand extra buy does, one
+ * date, so its pieces on other days are imported beside it (docs/DOMAIN.md §3.13 step 2, W1 and W2's fallback
+ * entries). The second pass
  * takes the monthly buys that fall back first, then each lump, extra buy and sale, each group in `compareEntries`
  * order. `known` holds the file's purchase dates an earlier import stored, live or tombstoned: they take their place in
  * a walk's order and sum but are never claimed. Sets `claimed` on the days it takes.
@@ -162,8 +163,8 @@ export function claimRecorded(
     const role = entry.kind === 'sell' ? 'sale' : 'purchase';
     const amount = entry.amount as Money;
     const part = parts.find((each) => each.coin === entry.coin)?.amount ?? ('0' as Money);
-    // A `lump` of C's monthly part claims as rule R did, its nearest free date: a walk from its date can stop at a date
-    // part of the file stored and leave a date the whole file's lump claims (#226).
+    // A `lump` of C's monthly part, hand or one-tap, claims as rule R did, its nearest free date: a walk from its date
+    // can stop at a date part of the file stored and leave a date the whole file's lump claims (#226).
     if (entry.kind === 'lump' && compare(amount, part) !== 0) {
       const nearby = candidates(
         (day) => day.coin === entry.coin && day.role === role && near(day, entry.date, IMPORT_TYPED_DAYS) && !busy(day),
