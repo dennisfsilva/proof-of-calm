@@ -151,6 +151,34 @@ test('with the boot script removed, a submit leaves the URL unchanged', async ({
   expect(requests.filter((url) => INPUTS.test(url))).toEqual([]);
 });
 
+// A worker built before the `pages` route dropped the fragment kept a navigation under its full URL, and WebKit
+// keeps that first key on a later put of the bare page. Seeded before the current worker is registered, which deletes
+// every `pages` key holding a fragment when it activates and keeps the others. The page registers it as the app does
+// (`register.ts`), without navigating: in the local Windows WebKit a page's Cache Storage writes did not survive one.
+test('the worker deletes a pages key with a fragment that an earlier worker left, and keeps the others', async ({
+  page,
+}) => {
+  await page.goto(PATH);
+  await page.evaluate(async () => {
+    const pages = await caches.open('pages');
+    const html = () => new Response('<!doctype html><title>kept</title>', { headers: { 'content-type': 'text/html' } });
+    await pages.put('/en/holding-date#country=pt&bought=2026-03-01', html());
+    await pages.put('/en/countries/pt', html());
+  });
+  const keys = () =>
+    page.evaluate(async () =>
+      (await (await caches.open('pages')).keys()).map((key) => new URL(key.url).pathname + new URL(key.url).hash),
+    );
+  expect(await keys()).toContain('/en/holding-date#country=pt&bought=2026-03-01');
+
+  await page.evaluate(async () => {
+    await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+    await navigator.serviceWorker.ready;
+  });
+  await expect.poll(keys).not.toContainEqual(expect.stringContaining('#'));
+  expect(await keys()).toContain('/en/countries/pt');
+});
+
 test.describe('with script off', () => {
   test.use({ javaScriptEnabled: false });
 
