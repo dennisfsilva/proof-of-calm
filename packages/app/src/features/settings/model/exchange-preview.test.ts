@@ -1,5 +1,12 @@
-import { type EntityId, type Entry, type Instant, planExchangeImport, readExchangeFile } from '@proofofcalm/core';
-import { anEntry, date, instant, units } from '@proofofcalm/core/testing';
+import {
+  type CoinId,
+  type EntityId,
+  type Entry,
+  type Instant,
+  planExchangeImport,
+  readExchangeFile,
+} from '@proofofcalm/core';
+import { anEntry, date, instant, money, units } from '@proofofcalm/core/testing';
 import { describe, expect, it } from 'vitest';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
 import { KRAKEN_OCTOBER, krakenLedger, ONE_TAP_OCTOBER } from '../../../lib/services/kraken.testing';
@@ -84,7 +91,8 @@ describe('previewModel', () => {
     );
     if (!march.ok) throw new Error('the synthetic ledger reads');
     const shown = planExchangeImport(march.value, { plan, entries: [] }, { venue: 'Kraken', addHeld: false }, CONTEXT);
-    const starting = { kind: 'record', date: date('2026-03-20') } as const;
+    const totals = [{ coin: 'BTC' as CoinId, amount: money('700'), units: units('0.0125'), count: 1 }];
+    const starting = { kind: 'record', date: date('2026-03-20'), totals } as const;
     expect(previewModel(shown, shown, { recorded: new Set(), starting, estimates: [] }).startingAmount?.remedy).toEqual(
       starting,
     );
