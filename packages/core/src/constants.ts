@@ -35,8 +35,8 @@ export const IMPORT_MATCH_DAYS = 15;
 
 /**
  * A hand-recorded entry, or a live one-tap `lump`, claims an imported date of its coin and role within this many days
- * of its own (a `lump` only a date at least as near its amount as the coin's monthly part), and a one-tap monthly
- * estimate reaches this many days before its date (docs/DOMAIN.md §3.13).
+ * of its own (a `lump` walks the dates as near its amount as the coin's monthly part, as a ratio), and a one-tap
+ * monthly estimate reaches this many days before its date (docs/DOMAIN.md §3.13).
  */
 export const IMPORT_TYPED_DAYS = 3;
 
