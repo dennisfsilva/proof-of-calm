@@ -131,9 +131,9 @@ describe('planExchangeImport, by windows and by exchanges', () => {
   );
 
   it(
-    "a `lump` walks its coin's dates within 3 days as near its amount as the monthly part, as a ratio, stored ones in its sum",
+    "a `lump` walks its coin's dates within 3 days as near its amount as the monthly part, as a ratio, stored ones in its sum; one at the part takes the nearest",
     () => {
-      const reached = { none: 0, many: 0, stored: 0 };
+      const reached = { none: 0, many: 0, stored: 0, atPart: 0 };
       fc.assert(
         fc.property(world, (drawn) => {
           const plan = run(drawn, drawn.entries, drawn.file);
@@ -165,36 +165,40 @@ describe('planExchangeImport, by windows and by exchanges', () => {
             });
             if (others.length > 0) continue;
             const amountOn = (day: CalendarDate) => sum((byDate.get(day) ?? []).map((each) => each.amount as Money));
+            const free = (day: CalendarDate) =>
+              (byDate.get(day) ?? []).some((movement) => !stored.has(testId(movement.key)));
             const side = compare(A, p);
             const square = (day: CalendarDate) => compare(product<Money>(amountOn(day), amountOn(day)), product(A, p));
+            // A lump at the part claims its nearest date with a purchase not stored, as rule R did (#226).
             const order = [...byDate.keys()]
-              .filter((day) => side === 0 || (side > 0 ? square(day) >= 0 : square(day) <= 0))
+              .filter((day) => (side === 0 ? free(day) : side > 0 ? square(day) >= 0 : square(day) <= 0))
               .sort(
                 (a, b) => Math.abs(daysBetween(lump.date, a)) - Math.abs(daysBetween(lump.date, b)) || (a < b ? -1 : 1),
               );
-            const walked: CalendarDate[] = [];
+            const walked: CalendarDate[] = side === 0 ? order.slice(0, 1) : [];
             let total: Money | null = null;
-            for (const day of order) {
+            for (const day of side === 0 ? [] : order) {
               const next: Money = total === null ? amountOn(day) : plus(total, amountOn(day));
               if (total !== null && compare(abs(minus(next, A)), abs(minus(total, A))) >= 0) break;
               total = next;
               walked.push(day);
             }
-            const free = (day: CalendarDate) =>
-              (byDate.get(day) ?? []).some((movement) => !stored.has(testId(movement.key)));
             const dates = plan.recorded.find((each) => each.entry.id === lump.id)?.dates ?? [];
             expect(dates).toEqual(walked.filter(free).sort());
             if (byDate.size > 0 && dates.length === 0) reached.none += 1;
             if (dates.length > 1) reached.many += 1;
             if (walked.some((day) => !free(day))) reached.stored += 1;
+            if (side === 0 && dates.length > 0) reached.atPart += 1;
           }
         }),
         LUMP_RUNS,
       );
-      // The rule bites: a lump records none beside its coin's dates, records several, and walks a stored date.
+      // The rule bites: a lump records none beside its coin's dates, records several, walks a stored date, and one at the
+      // part records its nearest date.
       expect(reached.none).toBeGreaterThan(0);
       expect(reached.many).toBeGreaterThan(0);
       expect(reached.stored).toBeGreaterThan(0);
+      expect(reached.atPart).toBeGreaterThan(0);
     },
     LUMP_TIMEOUT,
   );
