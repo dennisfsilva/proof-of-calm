@@ -1063,8 +1063,8 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      purchase date of C within 3 days of a live `lump` of C whose amount is not C's monthly part, whichever
      side (it ends inside the date, begins inside it, or both), can change the Log (W2). The shorter
      export, then the whole file, leaves the Log one import leaves, plus the purchases the shorter export
-     stored of the dates hand entries, or live one-tap `lump`s, claim in one import (with the one-tap
-     estimates they replace), less the purchases of the dates a hand entry, or a live one-tap `lump`, that
+     stored of the purchase dates hand entries, or live one-tap `lump`s, claim in one import (with the
+     one-tap estimates they replace; a hand sale claims its date's sales alone, #228), less the purchases of the dates a hand entry, or a live one-tap `lump`, that
      falls back to its nearest date (an extra buy, a monthly buy whose month has no date, a `lump` at its
      coin's monthly part, hand or one-tap) claims in the second import instead
      (with those dates' estimates left live; a part of 500, a lump of 1,000 on 3 Sep and a lump of 500 on
