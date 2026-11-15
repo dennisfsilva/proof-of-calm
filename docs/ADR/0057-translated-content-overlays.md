@@ -40,7 +40,11 @@ generated rules files of each language.
   rate's label, value and note), each holding rule override's note, each pending change's title and
   summary and `status.changeNotice`; a template's `name`, `oneLine`, `riskLabel` and `explanation`; a
   fact's `value` and `unit`. Codes, dates, numbers, rules, sources and review fields are never
-  translated. Every text the app shows and the English checks read is on the list.
+  translated. Every text the app shows and the English checks read is on the list. A quoted law
+  title or statutory term stays in its own language: a pending change's title and summary quote a
+  statute word for word ("Testo unico delle imposte sui redditi (D.Lgs. 117/2026)" in Italy's file,
+  "Loi n° 2026-534" in France's, "Tauschkryptowerte" in Germany's), so a translation keeps the
+  quotation and translates the words around it.
 - **How it merges.** `applyOverlay(english, overlay, kind)` walks English: a string is replaced only
   at a translatable path by a string; an array merges by index only when its length is English's,
   and `null` keeps an English item; keys keep English's order. Anything else stays English, so a
@@ -49,13 +53,20 @@ generated rules files of each language.
   (`packages/content/src/i18n/overlay-validate.ts`): `overlay-orphan` (no English file, a language
   that is not a content language, a fact key English lacks), `overlay-unknown-path`,
   `overlay-not-translatable`, `overlay-array-length`, and `overlay-number-mismatch`: a translated
-  string carries the same multiset of numbers as English, compared after removing the decimal and
-  group separators between digits (`31.4` and `31,4`, `1,000` and `1 000` are one number; a space
-  joins only a group of three digits). The overlaid value then passes the schema, and every check its
-  English field takes runs on the text that changed: the ban list, the no-break hyphen, the 60 words,
-  the paragraphs of a template's explanation, and the percent joiner at the number locale
-  `localesFor` picks for that language (the profile's locale in that language, else
-  `numberFormatLocale`).
+  string carries the same multiset of values as English. Each text is read with its own separators:
+  English with English ones, which the English files write whatever the country (`1,000` and `5.5`
+  in Germany's file); a profile's translation with the number locale `localesFor` picks for that
+  language (the profile's locale in that language, else `numberFormatLocale`); a template's or a
+  fact's with the language's own. The locale's decimal separator counts once, any other separator
+  before a group of three digits groups, and any other place splits the run: in pt-PT `31,4` is
+  31.4, `1 000` and `1.000` are 1000, `3,14` is not 31.4 and `15` is not 1.5. The check holds values,
+  not which noun each belongs to, nor a sign: two numbers swapped between their nouns pass, and
+  counsel's read of each translation holds the rest. The overlaid value then passes the schema, and
+  every check its English field takes runs on the text that changed: the ban list, the no-break
+  hyphen, the 60 words, the paragraphs of a template's explanation, and the percent joiner at the
+  number locale `localesFor` picks. A translated fact's `value` and `unit` take the ban list and the
+  no-break hyphen, which the English facts do not: counsel alone reads those, while a translation is
+  new prose that a Learn page quotes.
 - **What the gate reads.** `pnpm validate:content` collects every `.json` file at any depth under
   `packages/content/i18n/` (`packages/content/scripts/overlay-paths.ts`), so a folder that is not a
   content language and a misspelled kind folder are reported, not skipped.
@@ -82,8 +93,13 @@ generated rules files of each language.
 
 - A translator edits prose only; a review of an English number or source reaches every language at
   once, and a translation that restates a figure differently fails the gate.
-- A translation of English text that has no number may still add none; one that spells a number in
-  words passes the number check, so counsel's read of each translation stays (`roles.copy`).
+- A translation writes every number as a numeral, as the English does (`docs/CONTENT-STYLE.md` §4)
+  and as the pt-PT voice asks. A number spelled in words passes the number check only where the
+  English text has no number either; where English has one, the missing numeral fails. Counsel's
+  read of each translation stays (`roles.copy`).
+- The no-break hyphen check (`packages/content/src/hyphen-validate.ts`) knows English unit words
+  only: a German "365-Tage-Frist" passes it, while Portuguese writes "365 dias" with no hyphen. The
+  German unit stems join that check before German overlays land.
 - The percent joiner of a German profile read in Portuguese is the German one, because the app
   formats that profile's numbers with its German locale; a Portuguese profile in Portuguese writes
   no joiner.
