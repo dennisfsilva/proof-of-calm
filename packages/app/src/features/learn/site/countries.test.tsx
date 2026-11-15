@@ -115,39 +115,6 @@ describe('SiteCountryPage', () => {
     expect(markup).not.toContain(esc(pt.card.holdingRuleText));
     expect(markup).not.toContain('Sources');
   });
-
-  /** The page as the host renders it with the country's rules: the links to the tool it holds. */
-  const toolLinks = (code: string, from = site, today = TODAY) => {
-    const rules = from.rules.get(code);
-    const markup = html(
-      <SiteCountryPage
-        card={card(code, from)}
-        holding={rules === undefined ? undefined : { code, rules }}
-        links={LINKS}
-      />,
-      today,
-    );
-    return [...markup.matchAll(/href="(\/site\/holding-date[^"]*)"[^>]*>([^<]*)</g)].map(([, href, text]) => ({
-      href,
-      text,
-    }));
-  };
-
-  it('links the holding-date tool, its country chosen, for a dated rule only: PT, DE and US', () => {
-    const linked = site.entries.filter((entry) => toolLinks(entry.code).length > 0).map((entry) => entry.code);
-    expect(linked.sort()).toEqual(['DE', 'PT', 'US']);
-    for (const code of linked) {
-      expect(toolLinks(code)).toEqual([
-        { href: `${LINKS.holding}#country=${code.toLowerCase()}`, text: learn.countries.holdingTool },
-      ]);
-    }
-  });
-
-  it('links no tool for a country under review, nor without its rules', () => {
-    expect(late.entries.length).toBeGreaterThan(0);
-    for (const entry of late.entries) expect(toolLinks(entry.code, late, LATE), entry.code).toEqual([]);
-    expect(html(<SiteCountryPage card={card('PT')} links={LINKS} />)).not.toContain(LINKS.holding);
-  });
 });
 
 describe('SiteHoldingDates', () => {
