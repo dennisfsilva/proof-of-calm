@@ -9,7 +9,9 @@ import { cspViolations, recordCspViolations, SECURITY_HEADERS, test } from './su
 // for a static host: the policy is hashed, not nonced. The app shell carries exactly two inline scripts
 // (the theme before paint, the boot script), the policy names exactly their SHA-256 hashes with
 // 'strict-dynamic', the site pages carry no script at all but the offline page, which carries the theme
-// script alone (ADR-0045, the deviation of 2026-10-19), and loading any page violates nothing, the
+// script alone (ADR-0045, the deviation of 2026-10-19), and the holding-date page, which carries the boot
+// script, hashed, and the one module script under /assets/islands/ it appends (ADR-0045, the deviation of
+// 2026-11-15), and loading any page violates nothing, the
 // not-found page that a path that does not exist answers with status 404 included. Opening a
 // popup violates nothing either: Base UI's Select would insert an inline <style> that the policy refuses,
 // so the ui Select turns Base UI's style elements off (docs/SECURITY.md §4).
@@ -29,6 +31,7 @@ const SITE_PAGES = [
   '/en/countries/pt',
   '/en/holding-date',
 ];
+const ISLAND_PAGE = '/en/holding-date';
 const OFFLINE_PAGE = '/~offline';
 const NOT_FOUND_PAGE = '/no-such-page';
 
@@ -65,7 +68,15 @@ for (const path of [...APP_PAGES, ...SITE_PAGES, OFFLINE_PAGE, NOT_FOUND_PAGE]) 
     const csp = response?.headers()['content-security-policy'] ?? '';
     expect(csp).toContain("'strict-dynamic'");
     expect(csp).not.toMatch(/nonce-|unsafe-inline|unsafe-eval/);
-    if (SITE_PAGES.includes(path) || path === NOT_FOUND_PAGE) await expect(page.locator('script')).toHaveCount(0);
+    if (path === ISLAND_PAGE) {
+      // The boot script, hashed in the policy, and the one module script it appends.
+      await expect(page.locator('script')).toHaveCount(2);
+      await expect(page.locator('script[type="module"][src^="/assets/islands/"]')).toHaveCount(1);
+      const boot = await page.locator('script:not([src])').evaluate((e) => e.textContent ?? '');
+      expect(scriptSources(csp)).toContain(`'${sha256(boot)}'`);
+    } else if (SITE_PAGES.includes(path) || path === NOT_FOUND_PAGE) {
+      await expect(page.locator('script')).toHaveCount(0);
+    }
     if (path === OFFLINE_PAGE) {
       await expect(page.locator('script')).toHaveCount(1);
       expect(await page.locator('script').evaluate((e) => e.textContent)).toBe(THEME_BEFORE_PAINT);
