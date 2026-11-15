@@ -78,7 +78,7 @@ function PlanBody({ plan, entries }: { plan: Plan; entries: readonly Entry[] }) 
         )}
         {plan.sellWindow !== null && (
           <p className="text-16 text-ink-2">
-            {t('why.partsLine')} <WhyLink module="cycles" section="3-parts" name={t('why.parts')} />
+            {t('why.partsLine')} <WhyLink module="cycles" section="selling-in-3-parts" name={t('why.parts')} />
           </p>
         )}
       </section>
