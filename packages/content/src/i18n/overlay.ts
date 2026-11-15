@@ -29,6 +29,7 @@ export const TRANSLATABLE: Readonly<Record<ContentKind, readonly string[]>> = {
     'card.rates.*.label',
     'card.rates.*.value',
     'card.rates.*.note',
+    'holdingRuleOverrides.*.note',
     'pendingChanges.*.title',
     'pendingChanges.*.summary',
     'status.changeNotice',

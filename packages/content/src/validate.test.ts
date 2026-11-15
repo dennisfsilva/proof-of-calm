@@ -1189,6 +1189,16 @@ describe('validateContent: translated overlays (ADR-0057)', () => {
     expect(overlaid([file(pt, profile()), file(overlayOf(pt), overlay)])).toEqual([]);
   });
 
+  it("translates a holding rule override's note, which the app shows, and runs the ban list on it", () => {
+    const holdingRuleOverrides = [{ acquiredFrom: '2027-01-01', rule: { kind: 'none' }, note: 'Bought on or after.' }];
+    const english = file(pt, profile({ holdingRuleOverrides }));
+    const note = (text: string) => ({ holdingRuleOverrides: [{ note: text }] });
+    expect(overlaid([english, file(overlayOf(pt), note('Compradas nessa data ou depois.'))])).toEqual([]);
+    expect(overlaid([english, file(overlayOf(pt), note('Recomendamos comprar depois.'))])).toEqual([
+      banned('advice', 'holdingRuleOverrides.0.note', 'Recomendamos'),
+    ]);
+  });
+
   it('runs the ban list, the 60 words, the hyphen and the schema on each overlaid value', () => {
     const long = `${'sim '.repeat(61)}365 28%`;
     const overlay = {
