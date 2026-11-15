@@ -39,9 +39,10 @@ to buy, when to buy or where to buy.
 
 ## 2. Advice-shaped language: the ban list
 
-Banned in UI strings, content, templates, emails and marketing, in English, German and Portuguese
-(the lint holds the three lists and a per-phrase allow-list for proper names of taxes such as
-"imposta di bollo" or "box 3"):
+Banned in UI strings, content, templates, emails and marketing. The table names the English words;
+the lint holds each language's own rows, so a German or Portuguese word is refused only where that
+language's list holds it (the Portuguese rows below), with a per-phrase allow-list for proper names
+of taxes such as "imposta di bollo" or "box 3":
 
 | Banned | Why | Write instead |
 |---|---|---|
@@ -63,10 +64,141 @@ Banned in UI strings, content, templates, emails and marketing, in English, Germ
 | any second-person imperative about buying or holding | advice | the user's rule in their words: `your rule: €100 on the 1st` |
 | regulated, licensed, authorised, MiCA-compliant, approved by (any claim of status) | raises demand and false confidence (`docs/BENCHMARK.md` §3) | nothing; the Risk page's negative statement is the only one (`docs/LEGAL.md` §5) |
 
-The patterns of the lint (EN, DE and PT), the filler words of §1 and the allow-list with a reason per
-phrase live in `packages/content/style/banned.json`; the lint also flags any sentence with an asset
-name and an imperative verb and any `%` next to return, gain, profit or yield. Template names need a
-human sign-off.
+The patterns of the lint (EN, DE and PT), the filler words of §1 in English and Portuguese, the
+regulators a status claim names and the allow-list with a reason per phrase live in
+`packages/content/style/banned.json`. The lint also flags any `%` next to a gain word, and, in
+English and German, a sentence with an asset name that opens with a buying, selling or holding verb
+on its list: `Buy Bitcoin every month`, `Kaufen Sie Ethereum`; `Buy day` is the plan's noun and
+passes. Portuguese: below. Template names need a human sign-off.
+
+The Portuguese rows (decided 2026-11-15; the voice is §9):
+
+- Every row above has its Portuguese form, except the words of the next bullet: `recomendamos`;
+  every form of `dever` the list holds (`deve`, `devem`, `deves`, `devemos`, `devo`, `devia`,
+  `deviam`, `devias`, `devíamos`, `deveria`, `deveriam`, `deverias`, `deveríamos`, `deverá`,
+  `deverão`, `deveremos`, `devam`, `devesse`, `devessem`), with or without `-se` and with at most one
+  of `não`, `nunca`, `sempre`, `também`, `já`, `só` or `apenas` between, before `comprar`, `vender`,
+  `manter`, `deter`, `investir`, `acumular`, `reforçar`, `adquirir` or `apostar`, bare or with `-lo`,
+  `-la`, `-los` or `-las` (`Deve comprá-las`), but not before `guardar` (`Deve guardar a chave
+  privada`); `aconselho`, `aconselhamos`, `aconselha-se`, a form of `aconselhar` with a pronoun after
+  its hyphen (`aconselho-o`), `aconselhável`, `sugiro`; `tem de`,
+  `têm que`, `precisa de`, `vale a pena`, `convém`, `é melhor` and `é preferível` before the same
+  six verbs (`É melhor manter as suas bitcoins`); `sugerimos`,
+  `a nossa escolha`, `dica`, `seguro`, `garantia`, `garanta`, `riqueza`, `ficar rico`,
+  `rendimento passivo`, `ganhe dinheiro`, `retorno esperado`, `preço-alvo`, `projetado`, `projeção`,
+  `vai subir`, `recuperará`, `há de subir`, `vai voltar a subir`, `deverá subir`,
+  `de certeza que vai`, `disparar` in every form (`disparou`, `dispararam`, `disparado`,
+  `disparando`; `disparidade` passes), `melhores moedas`, `rumo à lua`, `compre na queda`,
+  `aproveitar as quedas`, `acumule sats`, `tendência de alta`, `não perca esta oportunidade`,
+  `não deixe passar`, `não fique de fora`, `a não perder`, `imperdível`, `última hora`,
+  `agora é a altura`, `oportunidade`, `simplesmente`, `sem esforço`, `ouro digital`,
+  `proteção contra a inflação`, `reserva de valor`, `subvalorizada`, `bater o mercado`,
+  `vencer a inflação`, `parabéns`, `crachá`, `emblema`, `medalha`, `subir de nível`, `regulado`,
+  `licenciado`, `autorizado`, `supervisionado`, `aprovado por`, `em conformidade com o MiCA`,
+  `cumpre o MiCA`; `registado`, `registrado`, `inscrito` or `supervisionado`, in any gender and
+  number, then `no`, `na`, `pelo`, `pela`, `por`, `junto do`, `perante o` or `com o` (or their
+  plurals) and a regulator of the list's `regulators`, by its initials or its full name, or
+  `regulador` (`Registada na CMVM`, `Inscrita junto do Banco de Portugal`); `alertas de preço` and
+  `sem alertas`. Portuguese adds rows the English list has no word for: praise (`muito bem`,
+  `bom trabalho`, `continue assim`), reassurance, which §1's register rules out (`não se preocupe`,
+  `fique descansado`, `paz de espírito`, `bom caminho`), and the pronoun `você` (§9). The filler
+  words: `jornada`, `poderoso`, `desbloquear`, `potenciar`, `alavancar`, `robusto`, `pontos-chave`
+  and their kin, `por favor` and `lamentamos` (§1.6, §1.8).
+- Words with an everyday sense the copy needs stay off the list, as their English counterparts do:
+  `apenas`, `só`, `basta`, `fácil`, `grátis`, `barato`, `desconto`, `alerta`, `queda`, `sequência`,
+  `vencedores`, `chave` alone (`chave privada`, `chaves de API`), `entregar`, `simplificar`,
+  `previsto` (the plan's dates), `aconselhamento` («não constitui aconselhamento»). `Não perca`
+  fails only before an opportunity word, so `Não perca a sua chave privada` passes. `autorizado`
+  fails in every use, `não autorizado` too, since the negation lifts no status ban: write
+  `sem a sua autorização` or `que não autorizou`. `registada` passes unless a regulator of the list
+  follows (`Compra registada no Registo`). Smart money, hot, crush and win have no
+  Portuguese word with only the banned sense. The copy review (§8) catches their banned use.
+- The gain words `retorno`, `ganho`, `lucro`, `rendimento`, `rentabilidade`, `rendibilidade` (the
+  CMVM's word for return) and `mais-valia`, singular or plural, and the verbs `ganhe`, `ganhar`,
+  `ganha` and `ganham` fail next to a percentage. A noun may take up to two of `anual`, `mensal`,
+  `médio`, `total`, `potencial` and `esperado` after it, then `de`, `é de`, `cerca de`, `até`,
+  `mais de`, `superior a` or `acima de` before the figure; a verb takes the same connectors without
+  `de`; a figure first takes nothing or `de`. These fail: `uma rentabilidade de 8%`,
+  `um retorno potencial de 300%`, `um rendimento de cerca de 8%`, `lucro superior a 10%`,
+  `um rendimento médio anual de 8%`, `ganhe 8% ao ano`, `Ganhe até 8% ao ano`,
+  `Pode ganhar cerca de 8% ao ano`, `Ganhe mais de 8% por ano`, `o rendimento é de 8% ao ano`,
+  `8% de retorno`. Any other word between them is tax prose and passes, and so does a gain word
+  after `sobre` (with or without `a`, `as`, `o` or `os`), `das` or `dos`:
+  `As mais-valias são tributadas à taxa especial de 28%`, `A taxa sobre as mais-valias é de 28%`,
+  `Imposto sobre mais-valias de 28%`, `28% das mais-valias`, `taxa de 28% sobre as mais-valias`,
+  `Mais-valias: 28%`. The lint reads
+  `28%` and `28 %` alike; a Portuguese page prints `28%` (§4). English joins them with nothing or
+  `of`.
+- The imperative rule (`packages/content/src/style/directive-pt.ts`). Spelling cannot tell the
+  formal imperative from the present subjunctive, the verb `venda` from the noun, or a command
+  infinitive from a noun infinitive, and the frames that carry advice («É melhor que», «Convém»,
+  «desde que») are an open class, so the rule reads the forms themselves:
+  1. A sentence that names an asset fails when it holds, anywhere, a form of `comprar`, `vender`,
+     `manter`, `deter`, `guardar`, `investir`, `acumular`, `reforçar`, `adquirir`, `apostar`,
+     `aproveitar` or `segurar`: the formal imperative or present subjunctive, singular, plural or
+     `nós` (`compre`, `comprem`, `compremos`, `venda`, `mantenha`, `invista`); the infinitive, bare or
+     with `-lo`, `-la`, `-los` or `-las` (`comprá-las`); or the imperfect subjunctive (`comprasse`,
+     `vendesse`, `mantivesse`). So do `continue a comprar` (`investir`, `acumular`) and `troque`,
+     `converta`, `liquide` and `diversifique`. This covers `desde que as mantenha` and `se vender`.
+     The asset names, in any case: `bitcoin`, `bitcoins`, `ether`, `ethers`, `ethereum`, `solana`,
+     `chainlink`, `crypto`, `cripto`, `criptomoeda`, `criptomoedas`, `criptoativo`, `cripto-ativo`
+     and `criptoactivo`, singular or plural; the tickers `BTC`, `ETH`, `SOL` and `LINK` in capitals.
+     A sentence ends at `!`, `?`, a line end or a dot that no digit follows, so
+     `Compre 1.000 € de BTC` is one sentence; the text is read with its accents composed.
+  2. `venda` passes as the noun after the words the lint lists (`uma`, `cada`, `de`, `da`, `na`,
+     `à`, `pela`, `após`, `sua`, `última` and their kin), after `compra e` or `compras e`, or after
+     an `a` that opens the sentence or a clause (not after a comma) or follows a preposition, `e` or
+     `ou` (`Após a venda de ETH`).
+  3. Where the sentence or a clause opens (after a comma, colon, semicolon, bracket, quote, dash or
+     bullet), with only `já`, `agora`, `hoje`, `também`, `sempre`, `só`, `apenas`, `então`, `depois` or
+     `primeiro` before it, the informal imperative
+     fails: `compra`, `vende`, `mantém`, `detém`, `guarda`, `investe`, `acumula`, `reforça`,
+     `adquire`, `aposta`, `aproveita`. So does the informal second person after `não`, `nunca`,
+     `jamais`, `nem` or `que` (`não vendas`, `que compres`), and `faça`, `efetue`, `realize`,
+     `concretize`, `execute`, `antecipe`, `adie`, `proceda` or `dê` up to three words before
+     `compra`, `venda`, `investimento`, `reforço` or `aquisição` (`Faça já a sua compra de BTC`).
+  4. Write instead `se as mantiver` or `se as detiver`; a participle (`compradas`, `detidas`,
+     `se forem vendidas`); `uma venda`, `cada venda` or `as vendas`; or the plan as the subject
+     (`O plano compra BTC todos os meses`). The table below holds the commonest cases.
+  5. `disparar` fails in every form: every word that begins `dispar` and then `a`, `á`, `e` or `o`,
+     except those that begin `disparat` or `disparag`; so `disparate`, `disparidade` and `díspar`
+     pass, and `disparador` fails.
+  6. A claim of registration or inscription fails with a regulator of the list's `regulators`, by its
+     initials or its full name, or with `regulador` (the status bullet above).
+  7. `should buy`, `should hold` and `should sell` cover every form of `dever` the list holds, before
+     the infinitives of the first bullet, `guardar` excluded.
+
+  | Refused | Write instead |
+  |---|---|
+  | `As bitcoins compradas hoje deixam de ser tributadas desde que as mantenha durante 365 dias` | `As bitcoins compradas hoje deixam de ser tributadas se as mantiver durante 365 dias` |
+  | `Uma transferência de bitcoins não autorizada por si não pode ser anulada` | `Uma transferência de bitcoins que não autorizou não pode ser anulada` |
+  | `Acesso não autorizado por terceiros` | `Acesso de terceiros sem a sua autorização` |
+  | `Caso venda BTC antes de 2 de março de 2027, a mais-valia é tributada a 28%` | `Caso o BTC seja vendido antes de 2 de março de 2027, a mais-valia é tributada a 28%` |
+  | `Vender BTC antes de 2 de março de 2027 torna a mais-valia tributável` | `Uma venda de BTC antes de 2 de março de 2027 torna a mais-valia tributável` |
+  | `Nesta data, a venda de BTC é tributada` | `Nesta data, uma venda de BTC é tributada` |
+  | `Venda de 0,1 BTC registada` | `Uma venda de 0,1 BTC registada` |
+  | `Compra mensal de BTC` | `Compras mensais de BTC` |
+  | `O plano é comprar BTC todos os meses` | `O plano compra BTC todos os meses` |
+  | `Comprar BTC` | `Registar compra` |
+
+  The rule misses, and leaves to counsel and the native reader: `Se mantiver as suas bitcoins até
+  2030, não se vai arrepender` (`mantiver` is the form every rewording uses); `Todos os meses compra
+  BTC` and `Porque não compra BTC agora?` (spelled like a statement in the third person); the verbs
+  it does not list (`largue`, `realize`, `entre`, `saia`, `fique`, `desfaça`); an asset named in
+  another sentence (`Tem bitcoins? Não as venda.`); a dot of an abbreviation, which ends the
+  sentence (`16 de out. de 2026`); and `junto ao` before a regulator.
+- The Risk page's statement on status (`docs/LEGAL.md` §5) passes in Portuguese with no allow-list
+  entry, as the Impressum's line does, and the lint's tests hold it: «não está registada junto de
+  nenhum supervisor financeiro nem sujeita à sua supervisão, e nenhum sistema de indemnização dos
+  investidores ou de proteção de depósitos cobre os criptoativos».
+- The tax authority's proper names need no allow-list entry, since none puts a gain word right
+  beside a percentage: `Imposto sobre o Rendimento das Pessoas Singulares`,
+  `rendimentos de capitais` and `Mais-valias e outros incrementos patrimoniais` pass in a profile's
+  sentences (`A taxa é de 28% sobre os rendimentos de capitais`). An entry goes on the list only when
+  a string needs it, with that string in the lint's tests.
+- The lint reports early, on the forms these rows list; it is not the gate. A form it does not list,
+  another verb, connector or spelling with the banned sense, belongs to counsel's read of each
+  translation in the copy review (§8).
 
 A negation does not lift a ban; say what the app does instead. "No alerts" is still `alert`: write
 `no price notifications`, then what the app shows in their place (one line on Today, once per fall).
@@ -332,3 +464,94 @@ The three recurring failures of the benchmark, checked per screen by the brand r
 | A hindsight profit figure without a label | Relai's blog, Swan's homepage, dcaBTC | every historic or simulated figure carries its dates, its source and the past-performance line where `docs/LEGAL.md` §4 places it |
 | A warning repeated on one path | Bitpanda's nine sentences, Kraken's block | at most one disclosure per decision point; none elsewhere on the path |
 | A rule stated without a computed date or a source and last-checked date | marketing pages that omit the rule; FAQs without a date | a holding rule shows the computed date; a card shows its reviewed date and sources |
+
+## 9. Portuguese (pt-PT)
+
+The ten rules of §1 and the ban list of §2 hold in Portuguese; this section adds what the language
+needs (decided 2026-11-15). The native reader's review is §8 item 9.
+
+- **European Portuguese, AO1990 spelling.** `ação`, `receção`, `ótimo`, `direção`; `facto` and
+  `contacto` keep their pt-PT form. Months and weekdays in lower case: `1 de março de 2027`.
+- **Formal address in third-person verb forms, without the pronoun "você".** `Pode alterar isto a
+  qualquer momento`, `Escolha uma data a partir da primeira compra`; never `Você pode` (the lint
+  refuses `você`), never `tu`. The possessive (`o seu`, `a sua`) only where it removes doubt:
+  `o plano` and `os movimentos`, never `o seu plano`; `a sua chave privada`, where whose key it is
+  matters.
+- **Buttons, labels and headings in the infinitive or an impersonal form**, the pt-PT app convention:
+  `Guardar`, `Registar compra`, `Exportar registo CSV`, `Saltar outubro`. A change of the form of
+  address then touches only the sentences, not the controls. A link that ends a sentence takes the
+  sentence's imperative (`Exporte uma cópia.`); a standalone control takes the infinitive
+  (`Exportar cópia`).
+- **§3's participle buttons keep the participle**, which says what is recorded: `Bought as planned`
+  is `Comprado como planeado`, `Bought a different amount` is `Comprado outro montante`.
+- **No courtesy words and no "we" in an error** (§1.6, §1.8): no `por favor`, `lamentamos`,
+  `obrigado`, `caro utilizador` or `Atenção:` (the lint refuses the first two). `Escolha uma data a
+  partir da primeira compra`, never `Não conseguimos guardar`.
+- **The asset and the name.** `a bitcoin` for the unit (`a bitcoin caiu mais de 75%`,
+  `as bitcoins`), `Bitcoin` for the network (`a rede Bitcoin`); the product's name takes the feminine article (`a Proof of Calm`) and stays in
+  English (ADR-0040). Never echo the name as reassurance: no `calma` or `tranquilidade` in copy
+  about the market or the plan.
+- **"Ensure" is `confirme` or `verifique`**, since `garantir` and `garanta` stay banned (§2):
+  `Confirme a data antes de guardar`.
+- **Disclosures take the official Portuguese text** of each regulator phrasing in `docs/LEGAL.md`
+  §4, never a translation back from English: MiFID II Delegated Regulation 2017/565 art. 44(4)(d),
+  «os resultados registados no passado não constituem um indicador fiável dos resultados futuros»;
+  MiCA art. 6(5)(a), «O criptoativo pode perder parcial ou totalmente o seu valor», and (e), «O
+  criptoativo não está abrangido pelos sistemas de indemnização dos investidores»; the
+  deposit-guarantee statement is MiCA art. 6(5)(f), its own point, and holds `garantia`, so a text
+  that needs it takes an allow-list entry with counsel's reason (§2); the ESAs' warning of 2022-03-17 in the Portuguese version the ESAs
+  published. "Not advice" reads «não constitui aconselhamento».
+- **Numerals for every number**, 2 to 9 included: `4 vezes`, `2 moedas`, `há 15 dias`. Numbers,
+  percentages and dates are formatted by the country's locale (§4): `28%` and `0,1234 BTC` in
+  Portugal, never typed by hand where `lib/format` writes them.
+- **The tax authority's own terms**, never a translation back from English: `CIRS`, `Anexo G`,
+  `Anexo G1`, `Quadro 18A`, `mais-valias`, `Autoridade Tributária e Aduaneira`; a rule quoted from the
+  law keeps the law's wording in quotation marks («detidos por um período igual ou superior a 365
+  dias»). A tax name that a string shows the lint refusing goes on the allow-list with its reason
+  (§2).
+- **Lists take no comma before `e`**, as `lib/format` writes them: `BTC, ETH e SOL`.
+- **A country card's summary keeps the 60-word limit**, as in English (`docs/JURISDICTIONS.md` §2;
+  `pnpm validate:content` counts the words). When a Portuguese card runs over 60 words, the
+  explanation gives way, never the computed date, the rule or the source.
+
+The product's nouns, one Portuguese word each, in every string, the site pages and the Learn modules:
+
+| English | pt-PT |
+|---|---|
+| Today (the screen) | Hoje |
+| Log (the screen) | Registo |
+| an entry | movimento |
+| record (the verb) | registar |
+| Portfolio (the screen) | Portefólio |
+| a wallet | carteira |
+| Plan | Plano |
+| Learn | Aprender |
+| Settings | Definições |
+| buy day | dia de compra |
+| monthly buy | compra mensal |
+| starting amount | montante inicial |
+| extra buy | compra adicional |
+| sale | venda |
+| coins added at no cost (held) | moedas adicionadas |
+| sell window | janela de venda |
+| holding period | período de detenção |
+| holding date | data de fim do período de detenção |
+| hold phase | fase de detenção |
+| holding rule | regra de detenção |
+| tax-free | `não tributado a partir de 2 de março de 2027` for the status, `data de exclusão de tributação` for the noun; the status agrees with its noun (`Última compra não tributada`): CIRS art. 10 excludes these gains and Anexo G1 heads them «Mais-valias não tributadas»; never `isento`, since an exemption is a different concept |
+| venue | local |
+| units | unidades |
+| (estimated) | (estimado), agreeing with its noun: `comissão (estimada)`, `unidades (estimadas)`; after a ticker amount the masculine singular, `0,00094 BTC (estimado)` |
+| fee, network fee | comissão, comissão de rede; never `taxa`, which is the tax rate in the same prose |
+| coin | moeda |
+| currency | moeda de pagamento |
+| split | repartição |
+| Undo | Anular |
+| Delete | Eliminar |
+| backup | cópia de segurança |
+| app | aplicação |
+
+Two terms name the same date in two frames: `data de fim do período de detenção` is the date in the
+holding rule's own frame (the hold-phase card, the holding-date tool), and
+`não tributado a partir de <data>` (the status) or `data de exclusão de tributação` (the noun) is its
+tax status in Portugal.
