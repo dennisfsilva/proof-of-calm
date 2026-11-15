@@ -39,7 +39,7 @@ describe('SiteFalls', () => {
     const body = rows(markup).map(cells);
     expect(body).toHaveLength(FALLS.length);
     expect(body.map((row) => row[0])).toEqual(['BTC', 'BTC', 'ETH', 'LINK']);
-    // The key figure right after the row header (docs/DESIGN.md §8): a narrow screen shows it before any scroll.
+    // The main figure right after the row header (docs/DESIGN.md §8): a narrow screen shows it before any scroll.
     expect(body[0]).toEqual(['BTC', expect.stringMatching(/94 ?%/), '8 Jun 2011', '22 Nov 2011']);
     expect(body[3]?.[1]).toMatch(/91 ?%/);
     const header = cells(markup.match(/<thead>(.*?)<\/thead>/)?.[1] ?? '');

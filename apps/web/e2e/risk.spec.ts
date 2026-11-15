@@ -4,7 +4,7 @@ import { test } from './support';
 // The Risk page's layout on every project of the matrix (docs/LEGAL.md §5): site.spec.ts runs on desktop only, and
 // what these check breaks on the narrowest screen (android-small) and at 125 % text (zoom-125).
 
-// A site table puts its key figure right after the row header (docs/DESIGN.md §8), so the narrowest screen and the
+// A site table puts its main figure right after the row header (docs/DESIGN.md §8), so the narrowest screen and the
 // largest text read each fall before the table scrolls.
 test('the Risk page shows the Fall column without scrolling', async ({ page }) => {
   await page.goto('/risk');
