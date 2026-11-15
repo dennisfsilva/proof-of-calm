@@ -11,6 +11,9 @@ const phone = { width: 390, height: 844 };
 // UK block, the PWA wiring, the deployment checks) depend on no viewport: they run on desktop only. The
 // matrix spec lays out every page on every project.
 const requestOnly = /(csp|csp-report|deployment|prices|pwa|site|uk-block)\.spec\.ts$/;
+// The UI-language spec boots the shell in another language; one phone and one desktop project cover it.
+const phoneAndDesktop = /language\.spec\.ts$/;
+const elsewhere = [requestOnly, phoneAndDesktop];
 
 // The suite runs against the production build served by tools/serve/vercel-local.ts, which applies
 // vercel.json's routes, headers and rewrites to `dist` and runs the function bundle (ADR-0045 §1),
@@ -33,7 +36,7 @@ export default defineConfig({
   projects: [
     {
       name: 'android-small',
-      testIgnore: requestOnly,
+      testIgnore: elsewhere,
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 360, height: 780 },
@@ -45,20 +48,20 @@ export default defineConfig({
     { name: 'iphone', testIgnore: requestOnly, use: { ...devices['iPhone 13'], viewport: phone } },
     {
       name: 'tablet',
-      testIgnore: requestOnly,
+      testIgnore: elsewhere,
       use: { ...devices['Desktop Chrome'], viewport: { width: 768, height: 1024 }, isMobile: true, hasTouch: true },
     },
     { name: 'desktop', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } } },
     {
       name: 'desktop-wide',
-      testIgnore: requestOnly,
+      testIgnore: elsewhere,
       use: { ...devices['Desktop Chrome'], viewport: { width: 1920, height: 1080 } },
     },
     // 125 % text zoom: every spec's `page` (e2e/support.ts) has a 20 px root on this project.
-    { name: 'zoom-125', testIgnore: requestOnly, use: { ...devices['Desktop Chrome'], viewport: phone } },
+    { name: 'zoom-125', testIgnore: elsewhere, use: { ...devices['Desktop Chrome'], viewport: phone } },
     {
       name: 'reduced-motion',
-      testIgnore: requestOnly,
+      testIgnore: elsewhere,
       use: { ...devices['Desktop Chrome'], viewport: phone, contextOptions: { reducedMotion: 'reduce' } },
     },
   ],
