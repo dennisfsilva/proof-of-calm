@@ -2,22 +2,27 @@
 import { countryRules, loadProfile } from '@proofofcalm/content';
 import {
   type Action,
+  actionsNow,
   type CalendarDate,
   EntityIdSchema,
   type Entry,
+  isOpen,
+  leadAction,
   MAX_ENTRIES,
   type Money,
   type MonthKey,
   type Pause,
   type Phase,
+  phase as phaseOf,
 } from '@proofofcalm/core';
 import { Toaster } from '@proofofcalm/ui/components/toast';
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { I18nProvider } from '../../../lib/i18n';
+import { NAMESPACE_LOADERS } from '../../../lib/i18n/namespaces';
 import { NavigationProvider } from '../../../lib/navigation';
 import type { Snapshot } from '../../../lib/ports';
-import { ServicesProvider } from '../../../lib/services';
+import { ServicesProvider, useSnapshot, useToday } from '../../../lib/services';
 import { fixtureNowMs, fixtureSnapshot } from '../../../lib/services/fixtures';
 import { createTestServices, FIXTURE_PRICES, preloadLazyModules, TEST_PRICES } from '../../../lib/services/testing';
 import errors from '../../../messages/en/errors.json';
@@ -49,7 +54,19 @@ afterEach(cleanup);
 // loads, outside any timeout, so a findBy on a sheet waits on renders, not on Vite's first transform.
 await preloadLazyModules([() => import('../../log')]);
 
-async function mount(props: PrimaryActionProps, snapshot: Snapshot = fixtureSnapshot()) {
+/** The card as Today renders it, its action read from the store as `TodayBody` reads it (today-screen.tsx). */
+function Live() {
+  const today = useToday();
+  const plan = useSnapshot((snapshot) => snapshot.plan);
+  const entries = useSnapshot((snapshot) => snapshot.entries);
+  if (plan === null) return null;
+  const actions = actionsNow(plan, entries, today);
+  const phase = phaseOf(plan, today);
+  const handled = actions.find((candidate) => candidate.slot !== null && !isOpen(candidate.status)) ?? null;
+  return <PrimaryAction action={leadAction(actions, phase)} handled={handled} phase={phase} />;
+}
+
+async function mount(props: PrimaryActionProps | 'live', snapshot: Snapshot = fixtureSnapshot()) {
   const services = createTestServices({
     snapshot,
     nowMs: fixtureNowMs('buy'),
@@ -64,7 +81,7 @@ async function mount(props: PrimaryActionProps, snapshot: Snapshot = fixtureSnap
       <ServicesProvider services={services}>
         <I18nProvider messages={{ errors, shell, today }}>
           <Toaster closeLabel="Close" toastManager={services.toasts}>
-            <PrimaryAction {...props} />
+            {props === 'live' ? <Live /> : <PrimaryAction {...props} />}
           </Toaster>
         </I18nProvider>
       </ServicesProvider>
@@ -217,6 +234,39 @@ describe('PrimaryAction', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
     expect(await screen.findByRole('dialog', { name: 'Edit the entry' })).toBeDefined();
     expect([paid('BTC'), paid('ETH')]).toEqual(['70,00', '30,00']);
+  });
+
+  // Offline on an installed app in another language, the Log's message chunk sits outside the precache, so its
+  // namespace fails to load after the entries are stored (ADR-0045's deviations of 2026-11-15).
+  describe('the log namespace fails to load after the tap stored the entries', () => {
+    const offline = () =>
+      vi
+        .spyOn(NAMESPACE_LOADERS.en, 'log')
+        .mockRejectedValue(new TypeError('Failed to fetch dynamically imported module'));
+    afterEach(() => vi.restoreAllMocks());
+
+    it('after a stored one-tap save, a rejected log namespace still says recorded, with Edit, never Try again', async () => {
+      await mount(late, priced());
+      offline();
+      fireEvent.click(screen.getByRole('button', { name: 'Bought as planned' }));
+      expect(await screen.findByText(today.action.recorded)).toBeDefined();
+      expect(screen.getByRole('button', { name: 'Edit' })).toBeDefined();
+      expect(screen.queryByText(/Try again/u)).toBeNull();
+      await vi.waitFor(() => expect(document.activeElement).toBe(screen.getByRole('heading', { level: 2 })));
+    });
+
+    it('the store holds exactly one entry and the card shows it done', async () => {
+      const services = await mount('live', priced());
+      expect(heading()).toBe('October 2026 is still open');
+      offline();
+      fireEvent.click(screen.getByRole('button', { name: 'Bought as planned' }));
+      expect(await screen.findByText(today.action.recorded)).toBeDefined();
+      // One save of the month: the planned split once, 70 € of BTC and 30 € of ETH, and no second tap to offer.
+      expect(oneTaps(services).map((entry) => entry.amount)).toEqual(expect.arrayContaining(['70', '30']));
+      expect(oneTaps(services)).toHaveLength(2);
+      expect(heading()).toBe('October 2026 is recorded');
+      expect(screen.queryByRole('button', { name: 'Bought as planned' })).toBeNull();
+    });
   });
 
   it('a coin with no price: the tap writes nothing and opens the form with the planned amounts', async () => {

@@ -19,7 +19,7 @@ import {
 import { Button, buttonVariants } from '@proofofcalm/ui/components/button';
 import { CoinChip } from '@proofofcalm/ui/components/coin-chip';
 import { coinColour } from '@proofofcalm/ui/lib/series';
-import { lazy, type RefObject, Suspense, useRef, useState } from 'react';
+import { lazy, type ReactNode, type RefObject, Suspense, useRef, useState } from 'react';
 import { useTranslations } from 'use-intl';
 import { errorMessage } from '../../../lib/errors';
 import { createNumberInput } from '../../../lib/format';
@@ -265,16 +265,18 @@ function useOneTap(heading: RefObject<HTMLHeadingElement | null>) {
     opener.current = document.activeElement;
     setSkipping({ slot, open: true });
   };
-  const recorded = (saved: readonly Entry[], currency: CurrencyCode) => {
+  const toastRecorded = (saved: readonly Entry[], title: ReactNode) => {
     const [first] = saved;
     if (first === undefined) return;
     const kind = first.kind === 'lump' ? 'lump' : 'dca';
     services.toasts.add({
-      title: <Recorded entries={saved} currency={currency} />,
+      title,
       timeout: UNDO_WINDOW_MS,
       actionProps: { children: t('today.action.edit'), onClick: () => open({ kind, editing: saved }) },
     });
   };
+  const recorded = (saved: readonly Entry[], currency: CurrencyCode) =>
+    toastRecorded(saved, <Recorded entries={saved} currency={currency} />);
   const tap = async (action: Action, shown: Shown) => {
     try {
       const result = await actions.boughtAsPlanned(action, shown);
@@ -297,10 +299,14 @@ function useOneTap(heading: RefObject<HTMLHeadingElement | null>) {
         return;
       }
       if (result.value.length === 0) return;
-      // The toast's words are the Log's: its namespace is in the provider before the toast shows.
-      await loadNamespace('log');
+      // The toast's words are the Log's, its namespace loaded first. The entries are stored by now, so a failed load
+      // (offline, a language's chunk outside the precache) says so in Today's words, never "Try again" (ADR-0045).
+      const title = await loadNamespace('log').then(
+        () => <Recorded entries={result.value} currency={shown.currency} />,
+        () => t('today.action.recorded'),
+      );
       heading.current?.focus();
-      recorded(result.value, shown.currency);
+      toastRecorded(result.value, title);
     } catch (error) {
       say(error);
     }
