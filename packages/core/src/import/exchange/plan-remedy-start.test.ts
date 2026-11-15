@@ -719,6 +719,18 @@ describe("a lump's claim reads its amount", () => {
     },
   );
 
+  // Step 2's price (d): claims are per date, so a starting purchase on a buy day's date takes that day's buy with it.
+  const ON_BUY_DAY = of([...M, buy('BTC', '2026-09-02', '1000', '0.0125')], tap(P6, [], '2026-09-02'));
+
+  it.each(lateOrders(ON_BUY_DAY))(
+    "the starting 1,000 bought 2 Sep beside 2 Sep's buy, tapped 2 Sep, %s: both recorded, 1,300",
+    (_, entries) => {
+      expect(recordedBy(ON_BUY_DAY, entries, lumpsOf(entries)[0] as Entry)).toEqual(['2026-09-02']);
+      expect(fromFile(ON_BUY_DAY, entries, '2026-09-02')).toEqual([]);
+      expect(invested(ON_BUY_DAY, entries)).toBe('1300');
+    },
+  );
+
   const W2 = (() => {
     const fills = [
       buy('BTC', '2026-09-03T09:00:00Z', '300', '0.00375'),
