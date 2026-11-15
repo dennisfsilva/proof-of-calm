@@ -9,9 +9,21 @@
         "$TURBO_ROOT$/apps/web/messages/*.json"
       ]
     },
-    "test": { "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/docs/EDUCATION.md", "$TURBO_ROOT$/docs/JURISDICTIONS.md"] },
+    "test": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/docs/CONTENT-STYLE.md",
+        "$TURBO_ROOT$/docs/EDUCATION.md",
+        "$TURBO_ROOT$/docs/JURISDICTIONS.md"
+      ]
+    },
     "test:coverage": {
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/docs/EDUCATION.md", "$TURBO_ROOT$/docs/JURISDICTIONS.md"]
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/docs/CONTENT-STYLE.md",
+        "$TURBO_ROOT$/docs/EDUCATION.md",
+        "$TURBO_ROOT$/docs/JURISDICTIONS.md"
+      ]
     }
   }
 }
