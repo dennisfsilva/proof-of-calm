@@ -19,11 +19,11 @@ export function lazyScreen<N extends LazyNamespace>(
 }
 
 /**
- * Loads a lazy namespace and registers it with the provider: for a lazy part of a static screen, such as
+ * Loads a lazy namespace in the registry's language and registers it with the provider: for a lazy part of a static screen, such as
  * Today's entry sheet and its "Recorded" toast, which use the Log's messages. A provider re-renders with
  * it, so a translator taken before the load does not see it yet.
  */
 export async function loadNamespace<N extends LazyNamespace>(namespace: N): Promise<void> {
-  const messages = await NAMESPACE_LOADERS[namespace]();
+  const messages = await NAMESPACE_LOADERS[messageRegistry.language()][namespace]();
   messageRegistry.add(namespace, messages.default);
 }

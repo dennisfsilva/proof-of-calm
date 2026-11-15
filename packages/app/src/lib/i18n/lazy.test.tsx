@@ -1,12 +1,13 @@
 // @vitest-environment jsdom
 import { act, cleanup, render, screen } from '@testing-library/react';
 import { Suspense } from 'react';
-import { useMessages, useTranslations } from 'use-intl';
+import { useLocale, useMessages, useTranslations } from 'use-intl';
 import { afterEach, describe, expect, it } from 'vitest';
 import learn from '../../messages/en/learn.json';
 import plan from '../../messages/en/plan.json';
 import today from '../../messages/en/today.json';
 import { lazyScreen, loadNamespace } from './lazy';
+import { NAMESPACE_LOADERS } from './namespaces';
 import { I18nProvider } from './provider';
 import { messageRegistry } from './registry';
 
@@ -69,5 +70,38 @@ describe('loadNamespace', () => {
     expect(messageRegistry.getSnapshot().settings).toBeUndefined();
     await loadNamespace('settings');
     expect(messageRegistry.getSnapshot().settings?.title).toBe('Settings');
+  });
+
+  it('loads the file of the language the registry holds', async () => {
+    messageRegistry.setLanguage('pt-PT');
+    try {
+      await loadNamespace('portfolio');
+      const portuguese = (await NAMESPACE_LOADERS['pt-PT'].portfolio()).default;
+      expect(messageRegistry.getSnapshot().portfolio).toBe(portuguese);
+      expect(portuguese).not.toBe((await NAMESPACE_LOADERS.en.portfolio()).default);
+    } finally {
+      messageRegistry.setLanguage('en');
+    }
+  });
+});
+
+describe('I18nProvider', () => {
+  it('formats in the locale it is given, English by default', () => {
+    function Locale() {
+      return <output>{useLocale()}</output>;
+    }
+    const { unmount } = render(
+      <I18nProvider>
+        <Locale />
+      </I18nProvider>,
+    );
+    expect(screen.getByRole('status').textContent).toBe('en');
+    unmount();
+    render(
+      <I18nProvider locale="pt-PT">
+        <Locale />
+      </I18nProvider>,
+    );
+    expect(screen.getByRole('status').textContent).toBe('pt-PT');
   });
 });

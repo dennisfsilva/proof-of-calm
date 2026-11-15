@@ -225,7 +225,7 @@ let preloaded: Promise<void> | undefined;
  * lazy screen still shows its fallback on its first render.
  */
 export function preloadLazyModules(features: readonly (() => Promise<unknown>)[] = []): Promise<void> {
-  preloaded ??= Promise.all([...Object.values(NAMESPACE_LOADERS).map((load) => load()), loadProfiles()]).then(
+  preloaded ??= Promise.all([...Object.values(NAMESPACE_LOADERS.en).map((load) => load()), loadProfiles()]).then(
     () => undefined,
   );
   return Promise.all([preloaded, ...features.map((load) => load())]).then(() => undefined);

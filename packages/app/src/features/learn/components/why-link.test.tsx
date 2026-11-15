@@ -17,9 +17,12 @@ const network = vi.hoisted(() => ({ offline: false }));
 vi.mock('../../../lib/i18n/namespaces', async (original) => {
   const { namespacesInMemory } = await import('../../../lib/services/testing-modules');
   const namespaces = await namespacesInMemory(await original<typeof import('../../../lib/i18n/namespaces')>());
-  const { learn } = namespaces.NAMESPACE_LOADERS;
+  const { learn } = namespaces.NAMESPACE_LOADERS.en;
   const load = () => (network.offline ? Promise.reject(new Error('Failed to fetch')) : learn());
-  return { ...namespaces, NAMESPACE_LOADERS: { ...namespaces.NAMESPACE_LOADERS, learn: load } };
+  return {
+    ...namespaces,
+    NAMESPACE_LOADERS: { ...namespaces.NAMESPACE_LOADERS, en: { ...namespaces.NAMESPACE_LOADERS.en, learn: load } },
+  };
 });
 
 await preloadLazyModules([

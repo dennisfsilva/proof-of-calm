@@ -25,12 +25,17 @@ export async function profilesInMemory(content: ContentModule): Promise<ContentM
   };
 }
 
-/** The namespaces module with each lazy namespace loaded once and answered from memory. */
+/** The namespaces module with each lazy namespace of each language loaded once and answered from memory. */
 export async function namespacesInMemory(namespaces: NamespacesModule): Promise<NamespacesModule> {
   const entries = await Promise.all(
-    Object.entries(namespaces.NAMESPACE_LOADERS).map(async ([name, load]) => {
-      const loaded = await load();
-      return [name, async () => loaded] as const;
+    Object.entries(namespaces.NAMESPACE_LOADERS).map(async ([language, loaders]) => {
+      const inMemory = await Promise.all(
+        Object.entries(loaders).map(async ([name, load]) => {
+          const loaded = await load();
+          return [name, async () => loaded] as const;
+        }),
+      );
+      return [language, Object.fromEntries(inMemory)] as const;
     }),
   );
   return {
