@@ -190,12 +190,15 @@ export function ExchangeSections({ model, plan, exchange }: SectionsProps) {
   });
   const recorded = model.recorded.map((row) => {
     const text = t('recorded', {
-      count: row.dates.length,
+      // Counted by transaction, as the hint is: several on one date read as purchases (or sales) in all.
+      count: row.count,
+      role: row.entry.kind === 'sell' ? 'sale' : 'purchase',
       dates: w.format.list(row.dates.map((date) => w.format.date(date))),
       units: w.units(row.coin, row.units, [row.entry.units]),
       amount: row.amount === null ? '' : w.money(row.amount),
       label: t('label', { kind: row.entry.kind, month: month(row.entry), date: on(row.entry) }),
-      entry: piece(row.entry, [row.units], true),
+      // A one-tap entry's units are an estimate, as the Left out line marks its lump.
+      entry: piece(row.entry, [row.units], true, isEstimate(row.entry)),
     });
     // Only where deleting the entry imports what the item says (importRemedies, docs/DOMAIN.md §3.13).
     // Counted by transaction: several on one date are several (`count`).
@@ -259,7 +262,9 @@ function useStartingLine({ startingAmount: starting }: Model, w: ReturnType<type
   // Lumps of one date name it once.
   const shared = lumps.length > 1 && lumps.every((entry) => entry.date === lumps[0]?.date);
   // A coin's units share their places across the whole line, the purchases and the lumps together.
-  const figures = [...shown, ...lumps];
+  // The totals the line ends with, when a coin has several purchases on the instruction's date, count among them.
+  const summed = remedy !== null && remedy.totals.some((each) => each.count > 1);
+  const figures = [...shown, ...lumps, ...(summed ? remedy.totals : [])];
   const peers = (coin: string) => figures.flatMap((each) => (each.coin === coin ? [each.units] : []));
   const items = shown.map((item) =>
     t('startingItem', {
@@ -302,7 +307,15 @@ function useStartingLine({ startingAmount: starting }: Model, w: ReturnType<type
   });
   if (remedy === null) return { text };
   const key = remedy.kind === 'change' ? 'startingChange' : 'startingRecord';
-  return { text, hint: t(key, { date: w.format.date(remedy.date) }) };
+  const date = w.format.date(remedy.date);
+  // With several purchases of a coin on the date, the line ends with each coin's totals and the instruction names them:
+  // typing one purchase's figures would leave the others out (DOMAIN §3.13 step 3).
+  if (!summed) return { text, hint: t(key, { date, summed: 'no' }) };
+  const totals = remedy.totals.map((each) =>
+    t('startingTotal', { units: w.units(each.coin, each.units, peers(each.coin)), amount: w.money(each.amount) }),
+  );
+  const sentence = t('startingTotals', { date, totals: w.format.list(totals) });
+  return { text: `${text} ${sentence}`, hint: t(key, { date, summed: 'yes' }) };
 }
 
 /** The left-out lines in the copy's order, each only when it applies. */
