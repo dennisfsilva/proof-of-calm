@@ -44,6 +44,23 @@ describe('pageHead', () => {
     expect(offline.indexOf(THEME_SCRIPT)).toBeLessThan(offline.indexOf(STYLESHEET));
   });
 
+  it('carries the Open Graph tags and a large card, the image at an absolute URL (docs/DESIGN.md §9)', () => {
+    expect(head).toContain('<meta property="og:title" content="Terms of use · Proof of Calm">');
+    expect(head).toContain(
+      '<meta property="og:description" content="A DCA planner for Bitcoin, Ether, Solana and Chainlink.">',
+    );
+    expect(head).toContain('<meta property="og:type" content="website">');
+    expect(head).toContain('<meta property="og:image" content="https://proofofcalm.com/og.png">');
+    expect(head).toContain('<meta property="og:image:width" content="1200">');
+    expect(head).toContain('<meta property="og:image:height" content="630">');
+    expect(head).toContain('<meta name="twitter:card" content="summary_large_image">');
+    const image = /property="og:image" content="([^"]+)"/.exec(head)?.[1] ?? '';
+    expect(new URL(image).href).toBe(image);
+    expect(pageHead({ title: 'A & B', assets: [] })).toContain(
+      '<meta property="og:title" content="A &amp; B · Proof of Calm">',
+    );
+  });
+
   it('titles the holding page with the name alone and escapes a title', () => {
     expect(pageTitle(null)).toBe('Proof of Calm');
     expect(pageHead({ title: 'A & B', assets: [] })).toContain('<title>A &amp; B · Proof of Calm</title>');
@@ -78,6 +95,8 @@ describe('renderSitePage (ADR-0045 §6)', () => {
       if (name === '~offline') expect(html).toContain(THEME_SCRIPT);
       expect(html).toContain('<meta name="robots" content="noindex, nofollow">');
       expect(html).toContain('<h1');
+      // The UK page shares no head with the site, so no preview card of it is offered (ADR-0029).
+      expect(html.includes('og:image'), name).toBe(name !== 'not-available');
     });
   }
 

@@ -6,6 +6,7 @@ import { BRAND } from '@proofofcalm/app/lib/brand';
 import { THEME_BEFORE_PAINT } from '@proofofcalm/app/lib/theme';
 import { escapeHtml } from '../../lib/geo/uk-block';
 import colours from '../../lib/pwa/brand-colors.json';
+import { siteTranslator } from '../../lib/site-messages';
 
 const FONT_PRELOAD = /<link\b[^>]*\brel="preload"[^>]*\bas="font"[^>]*>/;
 const STYLESHEET = /<link\b[^>]*\brel="stylesheet"[^>]*>/;
@@ -34,7 +35,28 @@ type PageHead = {
   themeScript?: boolean;
 };
 
-/** The inner HTML of a site page's head (docs/DESIGN.md §9 for the icons and the theme colours). */
+/** The link preview's image, written by `node tools/icons/generate.ts` (docs/DESIGN.md §9). */
+const OG_IMAGE = { url: `${BRAND.origin}/og.png`, width: 1200, height: 630 } as const;
+
+/**
+ * The link preview: the page's title, the category line of docs/GROWTH.md §2.1 (the manifest's
+ * description) and the image at its absolute URL, which crawlers require.
+ */
+function openGraph(title: string | null): string[] {
+  const property = (name: string, content: string | number) =>
+    `<meta property="og:${name}" content="${escapeHtml(String(content))}">`;
+  return [
+    property('title', pageTitle(title)),
+    property('description', siteTranslator('manifest')('description')),
+    property('type', 'website'),
+    property('image', OG_IMAGE.url),
+    property('image:width', OG_IMAGE.width),
+    property('image:height', OG_IMAGE.height),
+    '<meta name="twitter:card" content="summary_large_image">',
+  ];
+}
+
+/** The inner HTML of a site page's head (docs/DESIGN.md §9 for the icons, the OG image and the theme colours). */
 export function pageHead({ title, assets, themeScript = false }: PageHead): string {
   return [
     '<meta charset="utf-8">',
@@ -42,6 +64,7 @@ export function pageHead({ title, assets, themeScript = false }: PageHead): stri
     ...(themeScript ? [`<script>${THEME_BEFORE_PAINT}</script>`] : []),
     '<meta name="robots" content="noindex, nofollow">',
     `<title>${escapeHtml(pageTitle(title))}</title>`,
+    ...openGraph(title),
     '<link rel="icon" href="/favicon.svg" type="image/svg+xml">',
     '<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">',
     '<link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">',
