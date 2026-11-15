@@ -139,7 +139,9 @@ describe('the Noise and When the market drops modules', () => {
     const body = module.body.replace(/[ \n]+/gu, ' ');
     // Learn's index rows and a sheet's title show the idea with no past-performance line and no source, so it
     // holds no historic result (docs/LEGAL.md \u00a73 item 6): its only numbers are the trigger's thresholds.
-    expect(module.idea).toBe('How often bitcoin fell 10\u00a0% or more in 7\u00a0days, and what a monthly plan does then.');
+    expect(module.idea).toBe(
+      'How often bitcoin fell 10\u00a0% or more in 7\u00a0days, and what a monthly plan does then.',
+    );
     expect(body).toContain('fall 10\u00a0% or more in 7\u00a0days.');
     expect(module.idea).not.toMatch(/\b(?:19|20)\d\d\b|times a year|Bitstamp|your plan/u);
   });
