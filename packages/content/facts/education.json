@@ -373,7 +373,7 @@
   },
   {
     "key": "r.app-user-losses",
-    "value": "BIS Working Paper 1049 (Nov 2022, revised Jul 2023): crypto app downloads in 95 countries from Aug 2015 to Jun 2022; assuming each new user bought $100 of bitcoin in the month of download and every month after, at the time of writing 81 % of these users would have lost money, and the median investor would have lost 48 % of $900 invested.",
+    "value": "BIS Working Paper 1049 (Nov 2022, revised Jul 2023): crypto app downloads in 95 countries from Aug 2015 to Jun 2022. In its Jul 2023 revision, assuming each new user bought $100 of bitcoin in the month of the first app download and in each subsequent month, 81 % of users would have lost money, and the median investor would have lost 48 % of $900 invested.",
     "unit": "% of users; USD",
     "date": "2022-11-14",
     "source": "https://www.bis.org/publ/work1049.htm",
