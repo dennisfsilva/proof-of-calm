@@ -5,6 +5,7 @@ import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type ContentFile, validateContent } from '../src/validate.ts';
 import { closedBodyProblems } from './closed-body.ts';
+import { overlayPaths } from './overlay-paths.ts';
 
 const root = fileURLToPath(new URL('../../../', import.meta.url));
 const filesIn = (directory: string, extension: string) => {
@@ -30,6 +31,7 @@ const paths = [
   ...jsonIn('packages/content/jurisdictions'),
   ...jsonIn('packages/content/templates'),
   ...jsonIn('packages/content/facts'),
+  ...overlayPaths(root),
   ...featureMessages,
   ...jsonIn('apps/web/messages'),
 ];
