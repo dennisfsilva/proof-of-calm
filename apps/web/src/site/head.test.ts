@@ -47,7 +47,7 @@ describe('pageHead', () => {
   it('carries the Open Graph tags and a large card, the image at an absolute URL (docs/DESIGN.md §9)', () => {
     expect(head).toContain('<meta property="og:title" content="Terms of use · Proof of Calm">');
     expect(head).toContain(
-      '<meta property="og:description" content="A DCA planner for Bitcoin, Ether, Solana and Chainlink.">',
+      '<meta property="og:description" content="A planner and log for buying crypto on a fixed monthly schedule.">',
     );
     expect(head).toContain('<meta property="og:type" content="website">');
     expect(head).toContain('<meta property="og:image" content="https://proofofcalm.com/og.png">');

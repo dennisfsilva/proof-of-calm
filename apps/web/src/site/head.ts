@@ -39,8 +39,8 @@ type PageHead = {
 const OG_IMAGE = { url: `${BRAND.origin}/og.png`, width: 1200, height: 630 } as const;
 
 /**
- * The link preview: the page's title, the category line of docs/GROWTH.md §2.1 (the manifest's
- * description) and the image at its absolute URL, which crawlers require.
+ * The link preview: the page's title, the manifest's description (no coin named: the note under
+ * docs/GROWTH.md §2.1) and the image at its absolute URL, which crawlers require.
  */
 function openGraph(title: string | null): string[] {
   const property = (name: string, content: string | number) =>
