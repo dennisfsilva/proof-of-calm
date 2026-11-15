@@ -17,4 +17,5 @@ export * from './schema/jurisdiction.ts';
 export type { ModuleFrontMatter } from './schema/module.ts';
 export * from './schema/template.ts';
 export * from './style/banned.ts';
+export { fillTemplateDates, templateDatePaths } from './template-dates.ts';
 export * from './validate.ts';

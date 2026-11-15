@@ -3,7 +3,7 @@
   "name": "Two coins, no sell window",
   "oneLine": "Each monthly amount is split between Bitcoin and Ethereum; you can add a sell window.",
   "riskLabel": "High risk",
-  "explanation": "2 coins, Bitcoin and Ethereum, bought every month and held, with no date to sell unless you add one. Bitcoin fell 78 % from its high on 10 November 2021 to its low on 21 November 2022. Ethereum fell 82 % from its high on 10 November 2021 to its low on 18 June 2022.\n\nPeople pick it when they want 2 coins rather than 3 or 4. What can go wrong: both falls began on the same day, so 2 coins are not 2 separate risks. A fall of that size can come again.",
+  "explanation": "2 coins, Bitcoin and Ethereum, bought every month and held, with no date to sell unless you add one. Bitcoin fell 78 % from its high on {date:drawdowns.BTC.high} to its low on {date:drawdowns.BTC.low}. Ethereum fell 82 % from its high on {date:drawdowns.ETH.high} to its low on {date:drawdowns.ETH.low}.\n\nPeople pick it when they want 2 coins rather than 3 or 4. What can go wrong: both falls began on the same day, so 2 coins are not 2 separate risks. A fall of that size can come again.",
   "coins": [
     { "id": "BTC", "name": "Bitcoin", "geckoId": "bitcoin", "decimals": 8 },
     { "id": "ETH", "name": "Ethereum", "geckoId": "ethereum", "decimals": 6 }

@@ -3,7 +3,7 @@
   "name": "Three coins, no sell window",
   "oneLine": "Each monthly amount is split between Bitcoin, Ethereum, and Solana, with no sell window.",
   "riskLabel": "Very high risk",
-  "explanation": "3 coins bought every month and held, with no date to sell. People pick it to build up holdings over many years without deciding in advance when money comes out. What can go wrong: 20 % of every amount goes into Solana. Solana fell 97 % from its high on 6 November 2021 to its low on 29 December 2022. With no sell window, the plan’s value on the day money is needed depends on that day’s market prices.",
+  "explanation": "3 coins bought every month and held, with no date to sell. People pick it to build up holdings over many years without deciding in advance when money comes out. What can go wrong: 20 % of every amount goes into Solana. Solana fell 97 % from its high on {date:drawdowns.SOL.high} to its low on {date:drawdowns.SOL.low}. With no sell window, the plan’s value on the day money is needed depends on that day’s market prices.",
   "coins": [
     { "id": "BTC", "name": "Bitcoin", "geckoId": "bitcoin", "decimals": 8 },
     { "id": "ETH", "name": "Ethereum", "geckoId": "ethereum", "decimals": 6 },

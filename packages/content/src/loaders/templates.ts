@@ -7,6 +7,7 @@ import btcOnlyHold from '../../templates/btc-only-hold.json' with { type: 'json'
 import cyclePlan from '../../templates/cycle-plan.json' with { type: 'json' };
 import twoCoins from '../../templates/two-coins.json' with { type: 'json' };
 import type { ContentTemplate } from '../schema/template.ts';
+import { templateDatePaths } from '../template-dates.ts';
 import { asCoinId, asDate, asPercent } from './brands.ts';
 
 /** A record with every value branded; absent keys stay absent, as `exactOptionalPropertyTypes` wants. */
@@ -15,6 +16,8 @@ const branded = <T>(record: Readonly<Record<string, string>>, brand: (value: str
 
 function forCore(template: ContentTemplate): Template {
   const { coins, split, lastBuy, sellWindow, references, validUntil, lastReviewed, ...text } = template;
+  // The thirds' dates are the text's alone: the core's references, which a plan copies, have no field for them.
+  const { secondThird: _second, lastThird: _last, ...planReferences } = references;
   return {
     ...text,
     coins: coins.map((coin) => ({ ...coin, id: asCoinId(coin.id) })),
@@ -22,14 +25,20 @@ function forCore(template: ContentTemplate): Template {
     split: branded(split, asPercent) as Split,
     ...(lastBuy === undefined ? {} : { lastBuy: asDate(lastBuy) }),
     sellWindow: sellWindow === null ? null : (branded(sellWindow, asDate) as Template['sellWindow']),
-    references: branded(references, asDate) as References,
+    references: branded(planReferences, asDate) as References,
     ...(validUntil === undefined ? {} : { validUntil: asDate(validUntil) }),
     lastReviewed: asDate(lastReviewed),
   };
 }
 
-/** The core's template with the falls its card's dated band is composed from (docs/LEGAL.md §4), which the core never reads. */
-export type OfferedTemplate = Template & { readonly drawdowns: readonly Drawdown[] };
+/**
+ * The core's template with the falls its card's dated band is composed from (docs/LEGAL.md §4) and the dates its text
+ * names by `{date:<field>}` (`fillTemplateDates`), which the core never reads.
+ */
+export type OfferedTemplate = Template & {
+  readonly drawdowns: readonly Drawdown[];
+  readonly dates: ReadonlyMap<string, CalendarDate>;
+};
 
 /** One coin's fall, branded as the app formats it: the dates are calendar days, the fall a percentage of 0–100. */
 export type Drawdown = Omit<ContentTemplate['drawdowns'][number], 'high' | 'low' | 'fall'> & {
@@ -46,7 +55,7 @@ export const TEMPLATES: readonly OfferedTemplate[] = [btcOnlyHold, twoCoins, cyc
     low: asDate(each.low),
     fall: asPercent(each.fall),
   }));
-  return { ...forCore(template), drawdowns };
+  return { ...forCore(template), drawdowns, dates: templateDatePaths(template) };
 });
 
 /** The template a plan started from (`plan.templateId`), or null for a custom plan or an id no longer offered. */

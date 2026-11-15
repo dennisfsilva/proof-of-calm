@@ -3,7 +3,7 @@
   "name": "Bitcoin only, no sell window",
   "oneLine": "Every monthly amount goes into Bitcoin, with no sell window.",
   "riskLabel": "High risk · single asset",
-  "explanation": "1 coin and no date to sell. People pick it for the fewest decisions: 1 coin, 1 amount, 1 buy day a month, and no decision about selling. What can go wrong: every amount goes into 1 coin. Bitcoin fell 78 % from its high on 10 November 2021 to its low on 21 November 2022. With no sell window, the plan’s value on the day money is needed depends on the market price that day.",
+  "explanation": "1 coin and no date to sell. People pick it for the fewest decisions: 1 coin, 1 amount, 1 buy day a month, and no decision about selling. What can go wrong: every amount goes into 1 coin. Bitcoin fell 78 % from its high on {date:drawdowns.BTC.high} to its low on {date:drawdowns.BTC.low}. With no sell window, the plan’s value on the day money is needed depends on the market price that day.",
   "coins": [{ "id": "BTC", "name": "Bitcoin", "geckoId": "bitcoin", "decimals": 8 }],
   "split": { "BTC": "100" },
   "sellWindow": null,

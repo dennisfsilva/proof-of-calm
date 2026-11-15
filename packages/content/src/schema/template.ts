@@ -15,7 +15,8 @@ const SellWindowSchema = z.strictObject({
 export const TemplateSchema = z.strictObject({
   id: z.string().check(z.regex(/^[a-z0-9-]{1,40}$/)),
   name: z.string().check(z.minLength(1), z.maxLength(60)),
-  oneLine: z.string().check(z.minLength(1), z.maxLength(160)),
+  /** At most 200 characters as written: a `{date:<field>}` placeholder is longer than the date it shows. */
+  oneLine: z.string().check(z.minLength(1), z.maxLength(200)),
   riskLabel: z.string().check(z.minLength(1), z.maxLength(60)),
   /** The falls the card's dated band is composed from (docs/LEGAL.md §4), in the order of `coins`. */
   drawdowns: z.array(DrawdownSchema).check(z.minLength(1)),
@@ -29,6 +30,9 @@ export const TemplateSchema = z.strictObject({
     peakFrom: z.exactOptional(CalendarDateSchema),
     peakTo: z.exactOptional(CalendarDateSchema),
     halving: z.exactOptional(CalendarDateSchema),
+    /** Dates only the text names (`{date:references.<field>}`): the loader keeps them out of the core's references. */
+    secondThird: z.exactOptional(CalendarDateSchema),
+    lastThird: z.exactOptional(CalendarDateSchema),
   }),
   validUntil: z.exactOptional(CalendarDateSchema),
   lastReviewed: CalendarDateSchema,
