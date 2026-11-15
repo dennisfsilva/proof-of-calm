@@ -240,9 +240,10 @@ external links and the Risk link in the mobile export (M3).
   receipt, since Germany, Italy and the United States carry the giver's cost, so it goes in as coins
   held with its cost unknown);
   the Learn modules, the country pages and the holding-date page public and indexable
-  (`docs/GROWTH.md` §4.1): the Learn index and five modules prerendered under `/en/learn` on
-  2026-11-15 and kept out of search until the launch (ADR-0045 Deviations of 2026-11-15); the
-  country pages, Taxes and the holding-date page with its tool half come with #230.
+  (`docs/GROWTH.md` §4.1): the Learn index and every module, Taxes with every country's row,
+  the country list, one page per country and the holding-date page's static half prerendered under
+  `/en/` on 2026-11-15 and kept out of search until the launch (ADR-0045 Deviations of
+  2026-11-15); the holding-date page's tool half comes with session 23b (#230).
 - Launch readiness: `docs/RELEASE.md` checklist complete for what M2 ships; Vercel Pro in place
   because the free tier forbids commercial use (ADR-0005); the UK explanatory page live (ADR-0029;
   proven by the owner's check from a UK vantage point in `docs/RELEASE.md`); the legal pages' full

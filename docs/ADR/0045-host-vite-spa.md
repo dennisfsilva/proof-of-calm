@@ -1411,3 +1411,12 @@ country library left to the public-pages checkpoint.
 - **2026-11-15, one link waits for the country pages.** The public Learn index's country row links
   `/en/countries`, which #230 builds; until then that link leads to the 404 page, while the pages are
   `noindex` and nothing links to them.
+- **2026-11-15, the country pages are site pages, and the countries link resolves** (§6; the entry of
+  2026-11-05 on the country pages). What that entry left to "session 23" was built in session 23b
+  (#230): `apps/web/src/site/render.tsx` also writes en/countries.html, one en/countries/<code>.html per listed
+  country (the code in lower case, the generic profile left out) and en/holding-date.html, the
+  holding rules' static half with no tool yet, all from `loadCountrySite` at the build's day, and
+  Taxes joins the public modules, ending with every country's row. The app's `/learn/countries`
+  screens are unchanged. `apps/web/src/site/links.test.ts` fails while a site page links a
+  root-relative path the build does not write and no route, legal page or static file answers;
+  Lighthouse measures `/en/countries/pt` with the public page's budgets.
