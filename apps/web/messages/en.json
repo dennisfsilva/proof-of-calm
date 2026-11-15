@@ -45,7 +45,7 @@
     "legal": "Legal information"
   },
   "manifest": {
-    "description": "A DCA planner for Bitcoin, Ether, Solana and Chainlink."
+    "description": "A planner and log for buying crypto on a fixed monthly schedule."
   },
   "offline": {
     "title": "Offline",
