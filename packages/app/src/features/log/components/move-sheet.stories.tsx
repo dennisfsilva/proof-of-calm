@@ -41,7 +41,7 @@ export const EditMove: Story = {
   args: { editing: move },
   play: async () => {
     const sheet = within(await within(document.body).findByRole('dialog', { name: 'Edit the move' }));
-    await expect(await sheet.findByLabelText('Units sent')).toHaveValue('0.01');
-    await expect(await sheet.findByText(/Network fee 0.0001/)).toBeVisible();
+    await expect(await sheet.findByLabelText('Units sent')).toHaveValue('0,01');
+    await expect(await sheet.findByText(/Network fee 0,0001/)).toBeVisible();
   },
 };
