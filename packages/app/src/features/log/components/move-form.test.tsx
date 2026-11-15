@@ -13,7 +13,8 @@ import log from '../../../messages/en/log.json';
 import { MoveForm } from './move-form';
 
 // The move form (ADR-0054, research move-step Q2, Q3, Q9, Q11) over the test services: 0.03 BTC bought at Kraken on
-// 10 Jan 2026 and 0.02 BTC with no venue on 10 Feb 2026, so one group holds BTC on 20 Jan and two on 20 Feb.
+// 10 Jan 2026 and 0.02 BTC with no venue on 10 Feb 2026, so one group holds BTC on 20 Jan and two on 20 Feb. The
+// plan is Portugal's, so the form shows its units in pt-PT, rules loaded or not (ADR-0023).
 
 afterEach(cleanup);
 
@@ -77,7 +78,7 @@ describe('MoveForm', () => {
     await open(lots);
     type('Date', '2026-02-20');
     expect(screen.getAllByRole('radio')).toHaveLength(2);
-    expect(radio('With no venue').textContent).toContain('0.02 BTC');
+    expect(radio('With no venue').textContent).toContain('0,02 BTC');
     expect(checked()).toHaveLength(0);
   });
 
@@ -88,7 +89,7 @@ describe('MoveForm', () => {
     type('Units received', '0.0098');
     type('Units sent', '0.02');
     expect(field('Units received').value).toBe('0.0098');
-    expect(document.body.textContent).toContain('Network fee 0.0102 BTC');
+    expect(document.body.textContent).toContain('Network fee 0,0102 BTC');
   });
 
   it("All fills in the source's units on the date", async () => {
@@ -96,11 +97,11 @@ describe('MoveForm', () => {
     const sold = anEntry({ kind: 'sell', slot: null, date: date('2026-02-20'), units: units('0.01'), venue: 'Kraken' });
     await open([...lots, sold]);
     type('Date', '2026-02-20');
-    expect(radio('Kraken').textContent).toContain('0.03 BTC');
+    expect(radio('Kraken').textContent).toContain('0,03 BTC');
     fireEvent.click(radio('Kraken'));
     fireEvent.click(screen.getByRole('button', { name: 'Fill in all units' }));
-    expect(field('Units sent').value).toBe('0.03');
-    expect(field('Units received').value).toBe('0.03');
+    expect(field('Units sent').value).toBe('0,03');
+    expect(field('Units received').value).toBe('0,03');
   });
 
   it('the short-source line only per venue', async () => {
@@ -159,9 +160,9 @@ describe('MoveForm', () => {
     await open(entries);
     fill('0.5');
     type('Units received', '0.4999');
-    expect(radio('Kraken').textContent?.replace(/ /gu, ' ')).toContain('0.2 BTC');
+    expect(radio('Kraken').textContent?.replace(/ /gu, ' ')).toContain('0,2 BTC');
     expect(screen.getByRole('status').textContent?.replace(/\u00a0/gu, ' ')).toBe(
-      'The Log shows 0.2 BTC at Kraken on 20 Feb 2026. Outside Ledger, the Log shows 0.2 BTC in all on that day, 0.3 BTC fewer than this move sends.',
+      'The Log shows 0,2 BTC at Kraken on 20 Feb 2026. Outside Ledger, the Log shows 0,2 BTC in all on that day, 0,3 BTC fewer than this move sends.',
     );
     // A sale of all of Ledger's lot leaves 1 BTC at Kraken, which covers the move: no line.
     cleanup();
@@ -242,7 +243,7 @@ describe('MoveForm', () => {
     await save();
     expect(onDone).not.toHaveBeenCalled();
     const refusal = [
-      'This move sends 0.01 BTC, more than you hold (0 BTC on 5 Jan 2026).',
+      'This move sends 0,01 BTC, more than you hold (0 BTC on 5 Jan 2026).',
       'Check the units and the date, or log the missing purchases first.',
     ];
     expect(screen.getByText(refusal.join(' '))).toBeTruthy();
@@ -293,7 +294,7 @@ describe('MoveForm', () => {
       expect(stored(services)).toEqual(expect.arrayContaining([other, ...lots]));
       expect(moves(services)).toEqual([]);
       expect(screen.getAllByRole('radio')).toHaveLength(1);
-      expect(radio('Kraken').textContent).toContain('0.03 BTC');
+      expect(radio('Kraken').textContent).toContain('0,03 BTC');
       expect(checked()).toHaveLength(0);
       expect(screen.getByText('Choose the venue the coins left.')).toBeTruthy();
       expect(document.activeElement).toBe(radio('Kraken'));
@@ -309,7 +310,7 @@ describe('MoveForm', () => {
       expect(onDone).not.toHaveBeenCalled();
       expect(planStore.current().entries.filter((entry) => entry.kind === 'move')).toEqual([]);
       expect(screen.getAllByRole('radio')).toHaveLength(1);
-      expect(radio('Kraken').textContent).toContain('0.03 BTC');
+      expect(radio('Kraken').textContent).toContain('0,03 BTC');
       expect(checked()).toHaveLength(0);
       expect(screen.getByText('Choose the venue the coins left.')).toBeTruthy();
       expect(document.activeElement).toBe(radio('Kraken'));
@@ -337,7 +338,7 @@ describe('MoveForm', () => {
       await save();
       expect(onDone).not.toHaveBeenCalled();
       expect(screen.getAllByRole('radio')).toHaveLength(3);
-      expect(radio('Bitstamp').textContent).toContain('0.01 BTC');
+      expect(radio('Bitstamp').textContent).toContain('0,01 BTC');
       expect(checked()).toHaveLength(0);
       expect(screen.getByText('Choose the venue the coins left.')).toBeTruthy();
       expect(document.activeElement).toBe(screen.getAllByRole('radio')[0]);
@@ -444,8 +445,8 @@ describe('MoveForm', () => {
     });
     const { onDone, services } = await open([...lots, move], { editing: move });
     expect(radio('Kraken').getAttribute('aria-checked')).toBe('true');
-    expect(radio('Kraken').textContent).toContain('0.03 BTC');
-    expect(field('Units received').value).toBe('0.0298');
+    expect(radio('Kraken').textContent).toContain('0,03 BTC');
+    expect(field('Units received').value).toBe('0,0298');
     expect(screen.queryByText(/already has this move/)).toBeNull();
     type('Units received', '0.0299');
     await save();

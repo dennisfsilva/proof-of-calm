@@ -135,7 +135,7 @@ describe('EntrySheet', () => {
     const [entry] = fixtureSnapshot().entries.filter((each) => each.kind === 'sell');
     await mount(undefined, { editing: entry === undefined ? [] : [entry] });
     expect(screen.getByRole('dialog', { name: 'Edit the entry' })).toBeTruthy();
-    expect(screen.getByLabelText<HTMLInputElement>('ETH sold (units)').value).toBe('0.06');
+    expect(screen.getByLabelText<HTMLInputElement>('ETH sold (units)').value).toBe('0,06');
     expect(kinds()).toBeNull();
   });
 

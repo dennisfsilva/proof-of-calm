@@ -65,7 +65,7 @@ describe('MoveSheet', () => {
     const move = aMove({ date: date('2026-02-20'), units: units('0.01') });
     await mount([bought, move], move);
     expect(screen.getByRole('dialog', { name: 'Edit the move' })).toBeTruthy();
-    expect(field('Units sent').value).toBe('0.01');
+    expect(field('Units sent').value).toBe('0,01');
   });
 
   it('keeps what was typed across a close and a reopen, and a save clears it', async () => {

@@ -23,7 +23,8 @@ import errors from '../../../messages/en/errors.json';
 import log from '../../../messages/en/log.json';
 import { EntryForm, type EntryFormProps } from './entry-form';
 
-// The entry form (ADR-0034) over the test services: the clock reads 20 Oct 2026, BTC costs €60,000.12.
+// The entry form (ADR-0034) over the test services: the clock reads 20 Oct 2026, BTC costs €60,000.12. The plan is
+// Portugal's, so the form shows its numbers in pt-PT, rules loaded or not (ADR-0023).
 
 afterEach(cleanup);
 // jsdom has no `scrollIntoView`: a save refused from a field scrolls its alert line into view.
@@ -94,7 +95,7 @@ describe('EntryForm', () => {
   it('fills the units as an amount is typed', async () => {
     await renderForm();
     type('BTC cost before fees (EUR)', '120.00');
-    expect(screen.getByLabelText<HTMLInputElement>('BTC received (units)').value).toBe('0.00199999');
+    expect(screen.getByLabelText<HTMLInputElement>('BTC received (units)').value).toBe('0,00199999');
   });
 
   // ADR-0034's keystroke path: an amount passing through empty, zero and "0." keeps the typed units and the price.
@@ -104,7 +105,7 @@ describe('EntryForm', () => {
     type('BTC received (units)', '0.002');
     for (const typed of ['1', '', '0', '0.', '120']) type('BTC cost before fees (EUR)', typed);
     expect(screen.getByLabelText<HTMLInputElement>('BTC received (units)').value).toBe('0.002');
-    expect(screen.getByLabelText<HTMLInputElement>('BTC price (EUR)').value).toBe('60,000.00');
+    expect(screen.getByLabelText<HTMLInputElement>('BTC price (EUR)').value).toBe('60\u00a0000,00');
   });
 
   // Session 12a (#350): the price filled as the form opened stayed beside an earlier date and derived its units.
@@ -118,7 +119,7 @@ describe('EntryForm', () => {
       "The price the form filled in does not apply to an earlier date. Type the cost before fees and the units received, as your exchange's confirmation shows them.",
     );
     type('Date', '2026-10-20');
-    expect([value('BTC received (units)'), value('BTC price (EUR)')]).toEqual(['0.00199999', '60,000.12']);
+    expect([value('BTC received (units)'), value('BTC price (EUR)')]).toEqual(['0,00199999', '60\u00a0000,12']);
     expect(screen.queryByRole('status')).toBeNull();
   });
 
@@ -126,7 +127,7 @@ describe('EntryForm', () => {
   it('fills the amount from units typed beside the live price, and saves both', async () => {
     const { services, onDone } = await renderForm();
     type('BTC received (units)', '0.002');
-    expect(screen.getByLabelText<HTMLInputElement>('BTC cost before fees (EUR)').value).toBe('120.00');
+    expect(screen.getByLabelText<HTMLInputElement>('BTC cost before fees (EUR)').value).toBe('120,00');
     await save();
     expect(onDone).toHaveBeenCalledTimes(1);
     expect(stored(services).filter((entry) => entry.date === '2026-10-20')).toMatchObject([
@@ -139,7 +140,7 @@ describe('EntryForm', () => {
     type('BTC received (units)', '0.002');
     type('BTC cost before fees (EUR)', '130');
     expect(screen.getByLabelText<HTMLInputElement>('BTC received (units)').value).toBe('0.002');
-    expect(screen.getByLabelText<HTMLInputElement>('BTC price (EUR)').value).toBe('65,000.00');
+    expect(screen.getByLabelText<HTMLInputElement>('BTC price (EUR)').value).toBe('65\u00a0000,00');
   });
 
   it('records a new buy with the prefilled fee and venue', async () => {
@@ -267,7 +268,7 @@ describe('EntryForm', () => {
 
   it('keeps the entry ids on an edit', async () => {
     const { services, onDone } = await renderForm({ kind: 'dca', editing: [october] });
-    expect(screen.getByLabelText<HTMLInputElement>('BTC cost before fees (EUR)').value).toBe('70.00');
+    expect(screen.getByLabelText<HTMLInputElement>('BTC cost before fees (EUR)').value).toBe('70,00');
     type('BTC cost before fees (EUR)', '80');
     await save();
     expect(onDone).toHaveBeenCalledTimes(1);
@@ -374,12 +375,14 @@ describe('EntryForm', () => {
       expect(value('BTC cost before fees (EUR)')).toBe('80');
     });
 
+    // Numbers follow the plan's country, rules loaded or not (ADR-0023), so a German UI over the same Portuguese
+    // plan reads in pt-PT as well: the plan moved to Germany meanwhile is what reads in another locale.
     it('drops a draft typed in another number locale', async () => {
       const drafts = createTestServices().drafts;
       const { services } = await renderForm({}, undefined, servicesWith([older, october], { drafts }));
       type('BTC cost before fees (EUR)', '120.00');
       services.dispose();
-      const german = servicesWith([older, october], { drafts, language: 'de' });
+      const german = servicesWith([older, october], { drafts }, { ...plan, country: 'DE' as Plan['country'] });
       await reopen(german);
       expect(value('BTC cost before fees (EUR)')).toBe('');
       expect(drafts.read('entry', 'new:extra:none', anything)).toBeNull();
@@ -412,7 +415,7 @@ describe('EntryForm', () => {
         })),
       );
       await reopen(services, { kind: 'dca', editing: [fresh] });
-      expect(value('BTC cost before fees (EUR)')).toBe('70.00');
+      expect(value('BTC cost before fees (EUR)')).toBe('70,00');
       await save();
       expect(stored(services).find((entry) => entry.id === fresh.id)?.note).toBe('changed elsewhere');
     });
@@ -459,7 +462,7 @@ describe('EntryForm', () => {
         drafts,
       });
       await reopen(raised, { kind: 'dca' });
-      expect(value('BTC cost before fees (EUR)')).toBe('140.00');
+      expect(value('BTC cost before fees (EUR)')).toBe('140,00');
       fireEvent.click(screen.getByRole('button', { name: 'Venue and note' }));
       expect(screen.getByLabelText<HTMLTextAreaElement>('Note (optional)').value).toBe('typed');
       raised.dispose();
@@ -538,7 +541,7 @@ describe('EntryForm', () => {
       type('BTC sold for, before fees (EUR)', '360.00');
       await save();
       expect(text(screen.getByRole('alert'))).toBe(
-        'This sale is 0.001 BTC more than you hold (0.005 BTC on 20 Oct 2026). Check the amount and the date, or log the missing purchases first.',
+        'This sale is 0,001 BTC more than you hold (0,005 BTC on 20 Oct 2026). Check the amount and the date, or log the missing purchases first.',
       );
       expect(onDone).not.toHaveBeenCalled();
       expect(stored(services).some((entry) => entry.kind === 'sell')).toBe(false);
@@ -553,7 +556,7 @@ describe('EntryForm', () => {
       type('BTC sold for, before fees (EUR)', '9000.00');
       // CONTENT-STYLE §3 "Holding warning on a sale": prose figures, the sale's date, the effect's second sentence.
       expect(text(screen.getByRole('status'))).toBe(
-        'Only 0.10 of the 0.15 BTC sold are past the holding rule on 20 Oct 2026. The rest may be taxed.',
+        'Only 0,10 of the 0,15 BTC sold are past the holding rule on 20 Oct 2026. The rest may be taxed.',
       );
       // LEGAL §4: the data line once, beside the holding status.
       expect(screen.getAllByText('Computed from your dates, not tax advice')).toHaveLength(1);
@@ -574,7 +577,7 @@ describe('EntryForm', () => {
       type('BTC sold (units)', '0.001');
       type('BTC sold for, before fees (EUR)', '60.00');
       expect(text(screen.getByRole('status'))).toBe(
-        'None of the 0.001 BTC sold is past the holding rule on 20 Oct 2026. It may be taxed.',
+        'None of the 0,001 BTC sold is past the holding rule on 20 Oct 2026. It may be taxed.',
       );
     });
 
@@ -973,7 +976,7 @@ describe('EntryForm', () => {
       type('BTC sold for, before fees (EUR)', '60.00');
       await save();
       expect(text(screen.getByRole('alert'))).toBe(
-        'This sale is 0.001 BTC more than you hold (0 BTC on 20 Sept 2026). Check the amount and the date, or log the missing purchases first.',
+        'This sale is 0,001 BTC more than you hold (0 BTC on 20 Sept 2026). Check the amount and the date, or log the missing purchases first.',
       );
       expect(stored(services).some((entry) => entry.kind === 'sell')).toBe(false);
     });
@@ -1029,7 +1032,7 @@ describe('EntryForm', () => {
       type('BTC sold (units)', '0.75');
       type('BTC sold for, before fees (EUR)', '45000.00');
       expect(text(screen.getByRole('status'))).toBe(
-        'Only 0.50 of the 0.75 BTC sold are past the holding rule on 20 Oct 2026. The rest may be taxed at the short-term rate.',
+        'Only 0,50 of the 0,75 BTC sold are past the holding rule on 20 Oct 2026. The rest may be taxed at the short-term rate.',
       );
     });
   });
@@ -1211,7 +1214,7 @@ describe('EntryForm', () => {
     expect(screen.queryByRole('status')).toBeNull();
     type('Venue (optional)', 'Ledger');
     expect(screen.getByRole('status').textContent?.replace(/\u00a0/g, ' ')).toBe(
-      "After this change, your move to Ledger on 10 Jan 2026 sends 0.003 BTC more than the Log shows outside Ledger that day. Check that move's date and venues in the Log after you save.",
+      "After this change, your move to Ledger on 10 Jan 2026 sends 0,003 BTC more than the Log shows outside Ledger that day. Check that move's date and venues in the Log after you save.",
     );
     await save();
     expect(onDone).toHaveBeenCalledOnce();
