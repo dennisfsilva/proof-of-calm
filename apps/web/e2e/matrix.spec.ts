@@ -87,6 +87,8 @@ const PAGES: readonly Entry[] = [
     heading: 'Risk honestly',
     holds: /intraday highs and lows in US dollars/,
   },
+  { name: 'site-country-pt', path: '/en/countries/pt', heading: portugal.name },
+  { name: 'site-holding-date', path: '/en/holding-date', heading: 'Holding rules by country' },
   { name: 'not-available', path: '/', heading: 'Not available in the United Kingdom', country: 'GB' },
   { name: 'not-found', path: '/no-such-page', heading: 'Page not found' },
 ];
