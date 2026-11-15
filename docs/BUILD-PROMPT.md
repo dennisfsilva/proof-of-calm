@@ -303,6 +303,11 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   export cut near a lump's date; the condition the next fix round was given, derived by hand, the
   property then refuted: a cut also moves another hand entry's claim and can leave out a purchase
   one import stores (#218, 2026-11-14).
+- A design note's words for an order are checked against the implementation its design check
+  measured, before the build. Rule G's note said a lump claims after the hand monthly buys, while the
+  audit's scratch switch, which gave the note its figures, ordered a lump by date with the monthly
+  buys that fall back to their 3 days. The fourth review round found a lump of 1 Sep claiming before
+  an August buy of 400 typed 2 Sep: 1,600 against the rule's 1,700 (#223, 2026-11-15).
 
 ## Known gaps
 
