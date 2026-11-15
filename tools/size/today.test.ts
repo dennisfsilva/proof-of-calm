@@ -119,6 +119,25 @@ describe('todayAppBytes', () => {
     );
   });
 
+  // Another UI language's static namespaces are chunks the entry imports dynamically (ADR-0023), loaded
+  // only for that language: English's Today never loads them.
+  it("counts English's Today messages, never another language's", () => {
+    const hidden = 'assets/messages/pt-PT/today-x.js';
+    const withHidden: ChunkReport = {
+      chunks: [
+        ...report.chunks.map((item) =>
+          item.isEntry ? { ...item, dynamicImports: [...item.dynamicImports, hidden] } : item,
+        ),
+        chunk({ fileName: hidden, facade: 'C:\\repo\\packages\\app\\src\\messages\\pt-PT\\today.json', brotli: 1444 }),
+      ],
+    };
+    const result = todayAppBytes(withHidden, TODAY);
+    expect(result.chunks).not.toContain(hidden);
+    expect(result.bytes).toBe(500 + 75 + 100 + 25 + 30);
+    expect(TODAY.test('C:\\repo\\packages\\app\\src\\messages\\en\\today.json')).toBe(true);
+    expect(TODAY.test('/repo/packages/app/src/messages/de/today.json')).toBe(false);
+  });
+
   it('counts a profile the entry imports statically: a regression the measurement must show', () => {
     const result = todayAppBytes(withRules(['assets/profile-pt.js']), TODAY);
     expect(result.chunks).toContain('assets/profile-pt.js');

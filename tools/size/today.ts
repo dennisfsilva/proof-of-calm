@@ -22,8 +22,11 @@ export type TodayBytes = {
 /** 45 kB, in bytes. */
 export const LIMIT = 45 * 1024;
 
-/** Today's screen module or its namespace's messages, as a lazy chunk's facade names them. */
-export const TODAY = /[\\/](?:features[\\/]today[\\/]index\.tsx?|messages[\\/][^\\/]+[\\/]today\.json)$/;
+/**
+ * Today's screen module or its English messages, as a lazy chunk's facade names them. Another UI language's
+ * today.json is a chunk the entry loads only in that language (ADR-0023), so it is not English's Today.
+ */
+export const TODAY = /[\\/](?:features[\\/]today[\\/]index\.tsx?|messages[\\/]en[\\/]today\.json)$/;
 
 /** A country's generated rules file of packages/content, as its lazy chunk's facade names it. */
 const RULES = /[\\/]content[\\/]rules[\\/][^\\/]+\.json$/;
