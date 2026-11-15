@@ -81,6 +81,12 @@ const PAGES: readonly Entry[] = [
   { name: 'risk', path: '/risk', heading: 'Risk disclosure' },
   { name: 'cookies', path: '/cookies', heading: 'Cookie-free statement' },
   { name: 'contact', path: '/contact', heading: 'Contact' },
+  {
+    name: 'site-learn-risk',
+    path: '/en/learn/risk-honestly',
+    heading: 'Risk honestly',
+    holds: /intraday highs and lows in US dollars/,
+  },
   { name: 'not-available', path: '/', heading: 'Not available in the United Kingdom', country: 'GB' },
   { name: 'not-found', path: '/no-such-page', heading: 'Page not found' },
 ];
