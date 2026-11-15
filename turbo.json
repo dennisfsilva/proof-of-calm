@@ -10,7 +10,7 @@
       "dependsOn": ["^build", "transit"],
       "inputs": ["$TURBO_DEFAULT$", "!**/*.md", ".env*"],
       "outputs": ["dist/**", "server-dist/**", "storybook-static/**", "node_modules/.cache/chunk-report.json"],
-      "env": ["VITE_*", "SENTRY_AUTH_TOKEN"]
+      "env": ["VITE_*", "SENTRY_AUTH_TOKEN", "SITE_TODAY"]
     },
     "dev": { "cache": false, "persistent": true },
     "typecheck": { "dependsOn": ["transit"] },
