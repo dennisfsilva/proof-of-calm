@@ -1,0 +1,113 @@
+{
+  "title": "Learn",
+  "index": {
+    "readingTime": "{minutes} min read"
+  },
+  "module": {
+    "back": "Back to Learn",
+    "lastReviewed": "Last reviewed {date}{state, select, overdue { · <ink>review overdue</ink>} next { · <keep>Next review due {due}</keep>} other {}}",
+    "taxOverdue": "Rules may have changed since {date}. Check your tax authority before filing.",
+    "taxSiteLead": "The sections before “How fast rules change” describe what the app shows once a plan is set up. The list at the end links to each country's page.",
+    "pastPerformance": "Past performance is not a reliable indicator of future results.",
+    "riskLink": "Risk disclosure",
+    "fallUnderWay": "A fall of the coins you hold is under way. <page>See its figures</page>"
+  },
+  "countries": {
+    "title": "Countries",
+    "other": "Other countries",
+    "line": "Tax and holding rules by country, with their sources and the date each was last reviewed.",
+    "back": "Back to countries",
+    "headTitle": "Crypto tax rules by country",
+    "countryHeadTitle": "Crypto tax in {code, select, GB {the } NL {the } US {the } other {}}{country}",
+    "lastReviewed": "Last reviewed {date}",
+    "notReviewedSince": "Not reviewed since {date}",
+    "holdingTool": "Show the date a purchase passes this holding rule"
+  },
+  "holding": {
+    "title": "Holding rules by country",
+    "line": "Each country's holding rule with every condition, its sources, and the date it was last reviewed.",
+    "tool": {
+      "app": "Proof of Calm's Log shows the day each purchase passes the plan's holding period, where there is one.",
+      "country": "Country",
+      "noCountry": "Choose a country.",
+      "bought": "Purchase date",
+      "submit": "Show the date",
+      "invalid": "Choose a purchase date from {min} to {max}.",
+      "exempt": "Tax-free from <date></date>",
+      "lowerRate": "Long-term rate from <date></date>",
+      "from": "For a purchase on <date></date>",
+      "note": "Computed from your dates, not tax advice",
+      "more": "Show {count} more {count, plural, one {condition} other {conditions}}"
+    }
+  },
+  "thisFall": {
+    "row": "The coins you hold against their 90‑day high, and each coin's earlier falls.",
+    "back": "Back to Today",
+    "title": "The fall under way and your plan",
+    "one": "{coin} is {high} below {window, select, short {its highest close since {since}} other {its 90‑day high}}{change, select, fell { and fell {seven} in the 7 days to {date}.} rose { and rose {seven} in the 7 days to {date}.} other { ({date}).}}",
+    "several": "{coins}, in the amounts you hold, are {high} below {window, select, short {their highest close since {since}} other {their 90‑day high}}{change, select, fell {. They fell {seven} in the 7 days to {date}.} rose {. They rose {seven} in the 7 days to {date}.} other { ({date}).}}",
+    "why": "Why? The fall under way",
+    "missing": "{coin} is not in these figures: {product} has no price history for it.",
+    "data": "Daily closes in {currency}, {first} to {last} · Price data by CoinGecko",
+    "failed": "The price history could not be loaded, so today's figures are not shown. Open this page again to retry.",
+    "fallsOf": "Earlier falls of {coin}, computed by {product} from each source's intraday highs and lows in US dollars:",
+    "fall": "{fall} from {high} to {low} · {publisher}",
+    "noFalls": "{product} has no dated earlier fall for {coin}.",
+    "fallsFailed": "The earlier falls could not be loaded. Open this page again to retry.",
+    "nextBuy": "Your next buy day is {date}. Today is not a buy day unless you decided that earlier.",
+    "buyDayToday": "Today, {date}, is your buy day.",
+    "note": "Your note to yourself",
+    "noteLine": "{date}: “{why}”"
+  },
+  "sheet": {
+    "close": "Close"
+  },
+  "card": {
+    "classification": "How crypto is classified",
+    "events": "What is taxed",
+    "eventLine": "{event} · {taxable}",
+    "event": {
+      "sale-to-fiat": "Selling for money",
+      "crypto-to-crypto": "Swapping one coin for another",
+      "crypto-to-stablecoin": "Swapping for a stablecoin",
+      "spending": "Paying with crypto",
+      "own-wallet-transfer": "Moving coins between your own wallets",
+      "gift-or-inheritance": "A gift or an inheritance",
+      "staking-or-airdrop": "Staking rewards and airdrops"
+    },
+    "taxable": {
+      "yes": "Taxable",
+      "no": "Not taxed at the time",
+      "depends": "Taxable in some cases"
+    },
+    "rates": "Rates",
+    "rateLine": "{label}: {value}",
+    "validFrom": "From {date}",
+    "validRange": "{from} to {to}",
+    "allowances": "Allowances",
+    "holdingRule": "Holding rule",
+    "lotRule": "Matching sales to purchases",
+    "losses": "Losses",
+    "reporting": "Reporting",
+    "caveats": "Questions for an accountant",
+    "sources": "Sources",
+    "sourceList": "Sources for {country}",
+    "sourcePublished": "{publisher} · dated {date}",
+    "sourceAccessed": "{publisher} · accessed {date}",
+    "sourcesName": "Sources for {rule, select, rates {the rates} holdingRule {the holding rule} lotRule {matching sales to purchases} losses {losses} reporting {reporting} other {this rule}}"
+  },
+  "chart": {
+    "label": "Falls from each high to the lowest low after it for {coins}, {first} to {last}",
+    "description": "One bar per coin and cycle, its length the fall from the intraday high to the intraday low, in US dollars.",
+    "bar": "{coin} {year}",
+    "summary": "Show the falls as a table",
+    "columns": {
+      "coin": "Coin",
+      "high": "Date of high",
+      "low": "Date of low",
+      "fall": "Fall"
+    },
+    "source": "{publishers} intraday highs and lows in US dollars, {first} to {last}; the falls are {product}'s own computation.",
+    "failed": "The earlier falls could not be loaded. Open this page again to retry."
+  }
+}

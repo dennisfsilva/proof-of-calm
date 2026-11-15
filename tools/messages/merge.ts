@@ -1,14 +1,18 @@
 // Merges the message files of the features (packages/app/src/features/<feature>/messages/<locale>.json)
 // and of the lib modules that word things (packages/app/src/lib/<module>/messages, such as errors), the
-// folder name being the namespace (ADR-0023), into packages/app/src/messages: <locale>.json holds every
-// namespace and gives the keys their types; <locale>/<namespace>.json holds one namespace, for a route to
-// load with its module (ADR-0045 §8). Everything in that folder is generated and committed, so the app
+// folder name being the namespace (ADR-0023), into packages/app/src/messages: en.json holds every
+// namespace and gives the keys their types; <locale>/<namespace>.json holds one namespace of each locale
+// in LOCALES, completed from English, for a route to load with its module (ADR-0045 §8, the entry of
+// 2026-11-15 on translations). Everything in that folder is generated and committed, so the app
 // needs no build step; `--check` fails when a file there is stale, missing or produced by no message file.
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export type MessageTree = { [key: string]: string | MessageTree };
+
+/** The locales the merge writes; a translation sits beside English as `messages/<locale>.json`. */
+export const LOCALES = ['en', 'pt-PT'] as const;
 
 /** Feature name → that feature's messages, merged under the feature name, in a stable order. */
 export function mergeMessages(byFeature: Record<string, MessageTree>): MessageTree {
@@ -48,13 +52,45 @@ function readSources(appSrc: string): Map<string, Record<string, MessageTree>> {
   return byLocale;
 }
 
-/** Every file the merge writes, by its path in the messages folder, with its contents. */
+/**
+ * The translated tree completed from English, in English's key order: a key the translation lacks keeps its
+ * English text (a hidden locale may be partial, ADR-0045 §8); a key English does not have, or a message
+ * where English has a namespace or the reverse, throws with its path.
+ */
+export function complete(english: MessageTree, translated: MessageTree, path = ''): MessageTree {
+  for (const key of Object.keys(translated))
+    if (!(key in english)) throw new Error(`${path}${key} is not an English key; translate English's keys only.`);
+  const done: MessageTree = {};
+  for (const [key, source] of Object.entries(english)) {
+    const value = translated[key];
+    if (value !== undefined && typeof value !== typeof source)
+      throw new Error(`${path}${key} is a ${typeof source === 'string' ? 'message' : 'namespace'} in English.`);
+    done[key] =
+      typeof source === 'string' || value === undefined
+        ? (value ?? source)
+        : complete(source, value as MessageTree, `${path}${key}.`);
+  }
+  return done;
+}
+
+/**
+ * Every file the merge writes, by its path in the messages folder, with its contents: `<locale>/<namespace>.json`
+ * for each locale of `LOCALES`, completed from English, and the merged `en.json` alone, which types the keys.
+ */
 function collect(appSrc: string): Map<string, string> {
   const files = new Map<string, string>();
-  for (const [locale, namespaces] of readSources(appSrc)) {
-    files.set(`${locale}.json`, serialise(mergeMessages(namespaces)));
-    for (const [namespace, tree] of Object.entries(namespaces))
-      files.set(`${locale}/${namespace}.json`, serialise(tree));
+  const sources = readSources(appSrc);
+  for (const locale of sources.keys())
+    if (!(LOCALES as readonly string[]).includes(locale))
+      throw new Error(`A message file is named "${locale}", which LOCALES in tools/messages/merge.ts does not list.`);
+  const english = sources.get('en') ?? {};
+  files.set('en.json', serialise(mergeMessages(english)));
+  for (const locale of LOCALES) {
+    const translated = sources.get(locale) ?? {};
+    for (const namespace of Object.keys(translated))
+      if (!(namespace in english)) throw new Error(`${namespace} has a ${locale} message file but no English one.`);
+    for (const [namespace, tree] of Object.entries(english))
+      files.set(`${locale}/${namespace}.json`, serialise(complete(tree, translated[namespace] ?? {}, `${namespace}.`)));
   }
   return new Map([...files].sort(([a], [b]) => a.localeCompare(b)));
 }
