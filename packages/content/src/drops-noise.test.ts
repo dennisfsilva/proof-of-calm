@@ -59,6 +59,9 @@ describe('the Noise and When the market drops modules', () => {
       'Each is built to bring a person back to the screen. A monthly plan exists so that no headline decides a purchase.',
     );
     expect(body).toContain('Crypto Fear & Greed Index covers bitcoin only');
+    // docs/CONTENT-STYLE.md §4: numerals in English prose, 2 to 9 included.
+    expect(body).not.toMatch(/\b(?:two|three|four|five|six|seven|eight|nine)\b/iu);
+    expect(body).toContain('2 indexes 13 points apart on one day');
     expect(body).toContain('surveys 15\u00a0%, dominance 10\u00a0%');
     expect(body).toContain(
       'Surveys are marked "currently paused", and alternative.me does not say where their 15\u00a0% goes.',
