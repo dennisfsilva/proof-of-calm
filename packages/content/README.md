@@ -19,6 +19,7 @@ of it. Specifications: `docs/JURISDICTIONS.md`, `docs/EDUCATION.md`, `docs/CONTE
 | `jurisdictions/us.json` | country profile (M2) | `docs/JURISDICTIONS.md` §7.5 and the research file |
 | `jurisdictions/xx.json` | the generic profile for every other country | `docs/JURISDICTIONS.md` §2 |
 | `rules/<code>.json` | generated: the core's `CountryRules` of each profile, what the shell boots on (ADR-0049); never edited | `pnpm --filter @proofofcalm/content rules` (`scripts/rules.ts`); a test fails while one is stale |
+| `rules/locales.json` | generated: every profile's locales by code, shipped statically in the app's entry chunk as the fallback when a rules file fails to load (ADR-0049, Deviations of 2026-11-15); never edited | `pnpm --filter @proofofcalm/content rules` (`scripts/rules.ts`); a test fails while it is stale |
 | `templates/*.json` | the four starting points | `docs/DOMAIN.md` §5, ADR-0009 |
 | `cycles/drawdowns.json` | the completed cycles' maximum drawdowns per coin, each recomputed from its source | `docs/EDUCATION.md` §2, §6 and §9 |
 | `coins.json` | the coin catalogue: the picker's coins and the price route's allow-list | ADR-0036, `docs/DESIGN.md` §5 rule 7 |
@@ -58,6 +59,7 @@ shape and numbers, then the schema and the English field's checks on each text i
 |---|---|---|
 | `loadProfile(code)`, `loadProfiles()` | `CountryProfile` (the content type: card, sources, status) | the card, the onboarding, Settings |
 | `loadRules(code)` | the core's `CountryRules` from the generated `rules/<code>.json`, one chunk each, or `null` for a code without one | the shell's boot (`packages/app/src/lib/services/browser.ts`), the generic country's rules standing in |
+| `countryLocales(code)`, `CountryLocales` | a country's `locales`, `numberFormatLocale` and `dateFormatLocale` from the generated `rules/locales.json`, synchronously; the generic country's for a code without a profile | the number and date locale when a country's rules did not load (`useNumberInput` and `useFormatters` in `packages/app/src/lib/services/hooks.ts`, `packages/app/src/lib/i18n/locale.ts`, the entry and move forms) |
 | `loadedProfile(code)` | the `CountryProfile` a load has already read, synchronously, else `null`; it answers after any load, not at boot (ADR-0049) | `useProfile` (`packages/app/src/lib/services/use-profile.ts`), which the holding conditions (`packages/app/src/features/learn/components/holding-conditions.tsx`) and Settings' holding-rule card (`packages/app/src/features/settings/components/use-holding-country.ts`) read; the country card does not call it |
 | `ruleSource(profile, rule)` | the URL of the source `ruleSources[rule]` names (`rates`, `holdingRule`, `lotRule`, `losses`, `reporting`), or `null` | the country card's Sources link after each rule |
 | `holdingRuleSource(profile)` | `ruleSource(profile, 'holdingRule')` | the date line's Sources link |

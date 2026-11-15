@@ -99,6 +99,12 @@ The decision stands; these are the choices its text left open, made while implem
   the rows asks for the amount paid (the cost before fees since 2026-11-13, #177) and the units received; the opening day or a later one fills
   the opened price again. Typed and derived prices, sales and edits keep theirs, and a restored
   draft follows the same rule (ADR-0020 Readings). The rule is in `docs/DOMAIN.md` §6.
+- **The number locale without the rules** (2026-11-15; replaces the fallback in "The number locale
+  while the rules load" of 2026-10-21). Since this date a country whose rules did not load reads
+  numbers in its own locales, taken from `packages/content/rules/locales.json` through
+  `countryLocales(code)`, not in the UI language's locale; the 2026-10-21 Reading's fallback no
+  longer holds. The change is in ADR-0023, Deviations of 2026-11-15, and ADR-0049, Deviations of
+  2026-11-15.
 
 ## Disagreement
 
