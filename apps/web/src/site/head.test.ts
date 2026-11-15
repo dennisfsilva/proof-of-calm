@@ -212,9 +212,6 @@ describe('renderSitePage (ADR-0045 §6)', () => {
     expect(pt).toMatch(/<h1[^>]*>Portugal<\/h1>/);
     expect(pt).toContain('<link rel="canonical" href="https://proofofcalm.com/en/countries/pt">');
     expect(pt).toContain('href="/en/countries"');
-    // A dated rule links the holding-date tool with the country chosen; a rule with no period does not.
-    expect(pt).toContain('href="/en/holding-date#country=pt"');
-    expect(renderSitePage('en/countries/fr', assets, data)).not.toContain('href="/en/holding-date');
     // The three names that take the article in English.
     for (const [code, name] of [
       ['gb', 'the United Kingdom'],

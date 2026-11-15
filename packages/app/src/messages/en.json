@@ -65,8 +65,7 @@
       "headTitle": "Crypto tax rules by country",
       "countryHeadTitle": "Crypto tax in {code, select, GB {the } NL {the } US {the } other {}}{country}",
       "lastReviewed": "Last reviewed {date}",
-      "notReviewedSince": "Not reviewed since {date}",
-      "holdingTool": "Show the date a purchase passes this holding rule"
+      "notReviewedSince": "Not reviewed since {date}"
     },
     "holding": {
       "title": "Holding rules by country",
