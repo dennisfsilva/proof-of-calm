@@ -7,7 +7,7 @@
     "back": "Back to Learn",
     "lastReviewed": "Last reviewed {date}{state, select, overdue { · <ink>review overdue</ink>} next { · <keep>Next review due {due}</keep>} other {}}",
     "taxOverdue": "Rules may have changed since {date}. Check your tax authority before filing.",
-    "taxSiteLead": "The sections below, up to “How fast rules change”, describe what the app shows once a plan is set up. The list at the end links to each country's page.",
+    "taxSiteLead": "The sections before “How fast rules change” describe what the app shows once a plan is set up. The list at the end links to each country's page.",
     "pastPerformance": "Past performance is not a reliable indicator of future results.",
     "riskLink": "Risk disclosure",
     "fallUnderWay": "A fall of the coins you hold is under way. <page>See its figures</page>"
@@ -18,9 +18,10 @@
     "line": "Tax and holding rules by country, with their sources and the date each was last reviewed.",
     "back": "Back to countries",
     "headTitle": "Crypto tax rules by country",
-    "countryHeadTitle": "Crypto tax in {country}",
+    "countryHeadTitle": "Crypto tax in {code, select, GB {the } NL {the } US {the } other {}}{country}",
     "lastReviewed": "Last reviewed {date}",
-    "notReviewedSince": "Not reviewed since {date}"
+    "notReviewedSince": "Not reviewed since {date}",
+    "holdingTool": "Show the date a purchase passes this holding rule"
   },
   "holding": {
     "title": "Holding rules by country",
