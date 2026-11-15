@@ -12,7 +12,7 @@ import { pastFalls } from '../../../lib/services/red-day-model';
 import type { PastFall } from '../../../lib/services/red-day-types';
 import { DRAWDOWN_COINS } from '../components/module-chart';
 import type { ModuleViewProps } from '../components/module-view';
-import type { HoldingRules } from './holding-tool';
+import type { HoldingRules } from './holding-tool.ts';
 
 // What the static Learn pages read, loaded before the web host's prerender renders them: a static render cannot
 // suspend on a lazy body or wait for the cycles file, so every body is awaited here, and every profile.
