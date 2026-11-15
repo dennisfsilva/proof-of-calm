@@ -59,6 +59,7 @@ test.describe('when the stored language cannot load its static namespaces', () =
   test("boots in English whole: the lang attribute, English's copy and English's date format", async ({
     page,
   }, testInfo) => {
+    // biome-ignore lint/suspicious/noSkippedTests: a runtime skip on every project but desktop, not a disabled test
     test.skip(testInfo.project.name !== 'desktop', 'the boot does not depend on the viewport');
     await bootIn(page, 'pt-PT');
     const aborted: string[] = [];
