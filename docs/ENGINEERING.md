@@ -182,7 +182,8 @@ as ADR-0024's Corrections say, and the test skips on a platform without one.
   (`apps/web/lighthouserc.json`, ci.yml's `lighthouse` job on push to main, the same steps in
   lighthouse-branch.yml on a branch) holds
   the performance score, TBT and LCP of Today, Portfolio, Log and Plan at warn with the same values,
-  and every other assertion (the script budget, Accessibility, CLS, console errors, all of `/` and of the public page `/en/learn/risk-honestly`) at
+  and every other assertion (the script budget, Accessibility, CLS, console errors, all of `/` and of the public pages `/en/learn/risk-honestly` and `/en/countries/pt`, paths
+  `tools/lighthouse/vercel.ts` measures at a deployment too) at
   error: the local medians of 2026-10-23 below miss LCP on three screens and the score on Log, Today's
   LCP sat within 6 % of the budget (2,423 ms locally; 2,349 ms in CI without data, run 39973216176 on
   main, 2026-10-23), and a check that could fail main lands in warn first (`.claude/rules/tools-ci.md`).
