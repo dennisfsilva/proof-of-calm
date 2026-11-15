@@ -107,3 +107,10 @@ was wrong on 2026-10-18, with the fact and where it can be checked.
   wallet addresses as never-add items".** Of the two, only `CLAUDE.md` lists them, in its conventions.
   Since #40, `docs/BUILD-PROMPT.md` points to `CLAUDE.md` for what never gets added (ADR-0010,
   ADR-0013, ADR-0039), and agents read both, so no session drifts into them.
+
+## Corrections recorded on 2026-11-15
+
+- **Context and Consequences, "never asks for keys or money".** A paid plan (ADR-0010) asks for
+  money for the subscription, so the Risk page states the promise as never asking for a seed
+  phrase, an exchange's API key or login, or for coins or money to buy them (`docs/LEGAL.md` §5);
+  the keys promise the decision counts on is unchanged.
