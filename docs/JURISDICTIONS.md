@@ -176,7 +176,10 @@ the classification, the taxable events and the allowances, which have no `ruleSo
 Holding-rule overrides are built when the first profile needs one (decided 2026-10-30): the early-window
 check and `saleWarning`'s per-lot effect do not apply them yet (`docs/ROADMAP.md` M2, "Carried from M1"),
 so `overrides-unapplied` fails any profile that holds one. The build that applies them everywhere removes
-the check in the same pull request as the profile that needs it.
+the check in the same pull request as the profile that needs it. An override that leaves a purchase with no
+period while the country's rule sets one would give the holding-date tool a form `docs/LEGAL.md` §4 does not
+list, so that pull request also adds the tool's no-period form for that country's block (its holding-rule
+text, as §4 states it).
 
 ### Generic profile `XX`
 
