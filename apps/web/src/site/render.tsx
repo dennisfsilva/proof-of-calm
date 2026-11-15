@@ -128,7 +128,7 @@ function publicPage(name: PublicPage, { learn, countries, today }: SiteData): Re
   if (name === 'en/countries') {
     return {
       ...common,
-      title: t('countries.title'),
+      title: t('countries.headTitle'),
       body: page(<SiteCountryList entries={entries} links={SITE_LINKS} />),
     };
   }
@@ -143,7 +143,11 @@ function publicPage(name: PublicPage, { learn, countries, today }: SiteData): Re
     const code = name.slice(COUNTRY.length).toUpperCase();
     const card = cards.get(code);
     if (card === undefined) throw new Error(`no listed country ${code}`);
-    return { ...common, title: card.name, body: page(<SiteCountryPage card={card} links={SITE_LINKS} />) };
+    return {
+      ...common,
+      title: t('countries.countryHeadTitle', { country: card.name }),
+      body: page(<SiteCountryPage card={card} links={SITE_LINKS} />),
+    };
   }
   const slug = name.slice('en/learn/'.length);
   const module = learn.modules.find((candidate) => candidate.slug === slug);

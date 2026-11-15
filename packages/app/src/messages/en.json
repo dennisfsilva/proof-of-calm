@@ -61,6 +61,8 @@
       "other": "Other countries",
       "line": "Tax and holding rules by country, with their sources and the date each was last reviewed.",
       "back": "Back to countries",
+      "headTitle": "Crypto tax rules by country",
+      "countryHeadTitle": "Crypto tax in {country}",
       "lastReviewed": "Last reviewed {date}",
       "notReviewedSince": "Not reviewed since {date}"
     },
