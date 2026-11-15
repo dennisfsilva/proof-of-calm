@@ -127,6 +127,20 @@ describe('the Noise and When the market drops modules', () => {
     expect(body).not.toMatch(/Learn opens with|## The fall under way/u);
   });
 
+  it("When the market drops' idea is the module's own dated figure, read by a visitor with no plan", () => {
+    const { module } = read('when-the-market-drops');
+    const body = module.body.replace(/[ \n]+/gu, ' ');
+    const idea =
+      'From 16\u00a0Oct\u00a02021 to 16\u00a0Oct\u00a02026, bitcoin had a 7\u2011day fall of 10\u00a0% or more about 6 times a year (Bitstamp closes).';
+    expect(module.idea).toBe(idea);
+    // Each figure, window and series the idea names is one the body states (fact q); no new fact.
+    for (const quoted of ['16\u00a0Oct\u00a02021 to 16\u00a0Oct\u00a02026', '10\u00a0% or more', 'about 6 episodes a year']) {
+      expect(body).toContain(quoted);
+    }
+    expect(body).toContain('Bitstamp BTC/USD daily closes');
+    expect(module.idea).not.toMatch(/your plan/u);
+  });
+
   it('When the market drops quotes the BIS paper as its revision gives it, from its own fact r', () => {
     const body = read('when-the-market-drops').module.body.replace(/[ \n]+/gu, ' ');
     const bis = facts.find((fact) => fact.key === 'r.app-user-losses');
