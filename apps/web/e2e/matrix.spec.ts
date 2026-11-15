@@ -118,7 +118,9 @@ async function screenReady(page: Page, heading: string) {
 /**
  * Interactive elements smaller than the target, leaving out links inside running text (WCAG 2.5.8) and
  * the hidden inputs Base UI's form controls keep for the form (aria-hidden, out of the tab order and
- * 1 × 1 px; the visible control they mirror is the target, and is measured).
+ * 1 × 1 px; the visible control they mirror is the target, and is measured). A native input inside a `label` is
+ * activated by the whole label, so the label's box is its target: docs/DESIGN.md §8's "a 20 px circle, each in a
+ * 44 px target".
  */
 function smallTargets(page: Page, target: number) {
   return page.evaluate((size) => {
@@ -127,7 +129,8 @@ function smallTargets(page: Page, target: number) {
     return [...document.querySelectorAll<HTMLElement>(selector)]
       .filter((element) => !element.closest('p, li, td') && !mirror(element))
       .map((element) => {
-        const box = element.getBoundingClientRect();
+        const label = element instanceof HTMLInputElement ? element.closest('label') : null;
+        const box = (label ?? element).getBoundingClientRect();
         return { element: element.outerHTML.slice(0, 80), width: box.width, height: box.height };
       })
       .filter((box) => box.width > 0 && box.height > 0 && (box.width < size || box.height < size));
