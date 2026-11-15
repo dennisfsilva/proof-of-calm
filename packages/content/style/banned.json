@@ -80,6 +80,7 @@
   "allow": [
     { "phrase": "API key", "reason": "names the thing the app never asks for (ADR-0039)" },
     { "phrase": "API keys", "reason": "names the thing the app never asks for (ADR-0039)" },
+    { "phrase": "private key", "reason": "names the thing the app never asks for (ADR-0039; the Risk page's scams section)" },
     { "phrase": "imposta di bollo", "reason": "the proper name of an Italian tax" },
     { "phrase": "box 3", "reason": "the proper name of the Dutch wealth tax box" },
     {

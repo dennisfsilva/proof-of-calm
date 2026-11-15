@@ -45,8 +45,8 @@
       },
       "scams": {
         "title": "Scams",
-        "p1": "{product} never offers you an investment and never asks for your seed phrase, an exchange's API key or login, or for coins or money to buy them. A message that does is not from {product}, whoever it seems to come from.",
-        "p2": "Signs of a scam: a promise that money will grow fast with little risk, a stranger who turns the talk to investing, or any request for your seed phrase or for an exchange's API key or login."
+        "p1": "{product} never offers you an investment and never asks for your seed phrase, a private key, an exchange's API key or login, or for coins or money to buy them. A message that does is not from {product}, whoever it seems to come from.",
+        "p2": "Signs of a scam: a promise that money will grow fast with little risk, a stranger who turns the talk to investing, or any request for your seed phrase, a private key, or an exchange's API key or login."
       },
       "register": {
         "title": "Check a provider",
