@@ -20,7 +20,7 @@ const snapshot = { ...fixture, plan: { ...fixture.plan, lastBuy: ended, endedBuy
 const HOLD_MS = Date.UTC(2028, 2, 15, 12);
 
 const IDEA = 'Averaging takes away the timing decision, not the risk.';
-const CYCLES = "Bitcoin's highs and halvings, dated, and why 4 cycles are not a law.";
+const CYCLES = '4 cycles are 4 data points, not a law.';
 const WINDOW = 'The window is a discipline device';
 const RISK = 'You can lose everything, and the order of operations matters.';
 const TAXES = 'Where you live decides what holding means for tax, and the rules keep changing.';
