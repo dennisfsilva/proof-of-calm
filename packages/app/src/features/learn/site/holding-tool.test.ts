@@ -65,6 +65,18 @@ describe('the fragment', () => {
     }
   });
 
+  it('refuses a key an object inherits, which a plain object would swallow', () => {
+    for (const hash of [
+      '#__proto__=x&country=pt',
+      '#__proto__=a&__proto__=b&country=pt',
+      '#constructor=x&country=pt',
+      '#toString=x&country=pt',
+      '#hasOwnProperty=x&country=pt',
+    ]) {
+      expect(parseHoldingFragment(hash, CODES, BOUNDS), hash).toBeNull();
+    }
+  });
+
   it('refuses a date outside min and max, which are the first block and the build’s day plus one year', () => {
     expect(BOUNDS).toEqual({ min: '2009-01-03', max: '2027-11-15' });
     expect(holdingMax(day('2028-02-29'))).toBe('2029-02-28');
