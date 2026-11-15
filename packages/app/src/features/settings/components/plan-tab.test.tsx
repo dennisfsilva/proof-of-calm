@@ -65,8 +65,8 @@ const save = () => act(async () => fireEvent.click(screen.getByRole('button', { 
 describe('PlanTab', () => {
   it("shows the plan's amounts at two decimals and its dates", async () => {
     await mount();
-    expect(field(MONTHLY).value).toBe('100.00');
-    expect(field(STARTING).value).toBe('1,000.00');
+    expect(field(MONTHLY).value).toBe('100,00');
+    expect(field(STARTING).value).toBe('1000,00');
     expect(field('First buy').value).toBe('2026-04-05');
     expect(field('Last buy').value).toBe('2027-03-05');
   });
@@ -89,7 +89,7 @@ describe('PlanTab', () => {
     await mount();
     type(MONTHLY, '1250.5');
     fireEvent.blur(field(MONTHLY));
-    expect(field(MONTHLY).value).toBe('1,250.50');
+    expect(field(MONTHLY).value).toBe('1250,50');
     type(STARTING, 'ten');
     fireEvent.blur(field(STARTING));
     expect(field(STARTING).value).toBe('ten');
@@ -101,7 +101,7 @@ describe('PlanTab', () => {
     await save();
     expect(stored(services).monthlyAmount).toBe('250');
     expect(stored(services).startingAmount).toBe('1000');
-    expect(field(MONTHLY).value).toBe('250.00');
+    expect(field(MONTHLY).value).toBe('250,00');
     services.dispose();
   });
 
@@ -128,7 +128,7 @@ describe('PlanTab', () => {
     await save();
     expect(stored(services).monthlyAmount).toBe('300');
     expect(stored(services).lastBuy).toBe('2027-06-05');
-    expect(field(MONTHLY).value).toBe('300.00');
+    expect(field(MONTHLY).value).toBe('300,00');
     services.dispose();
   });
 
@@ -253,7 +253,7 @@ describe('PlanTab', () => {
     };
     const opened = fixtureSnapshot();
     const services = await mount({ ...opened, plan: { ...(opened.plan as Plan), country: 'DE' } }, rules);
-    expect(field(MONTHLY).value).toBe('100.00');
+    expect(field(MONTHLY).value).toBe('100,00');
     // Written as another tab would, not through the country section.
     await act(() => services.domain.write(({ plan }) => ({ plan: { ...(plan as Plan), country: 'PT' } })));
     expect(screen.queryByLabelText(MONTHLY)).toBeNull();

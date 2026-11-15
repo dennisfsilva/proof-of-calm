@@ -55,7 +55,7 @@ describe('DataSection, an import past the entry cap', () => {
   it('Add missing that would leave more than 10,000 entries adds nothing, and the alert says what to do', async () => {
     const { services, before, alert } = await overCap();
     expect(alert.textContent).toBe(
-      'Adding these entries would leave 12,000 entries in this plan, more than the 10,000 a plan holds, so nothing ' +
+      'Adding these entries would leave 12\u00a0000 entries in this plan, more than the 10\u00a0000 a plan holds, so nothing ' +
         "was added. Delete entries in the Log, then import again. To keep only the file's entries, import again " +
         'with Replace everything.',
     );

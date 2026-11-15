@@ -378,9 +378,10 @@ describe('EndBuying, the dialog body', () => {
     );
   });
 
+  // The fixture plan is Portugal's: pt-PT groups a count from five digits on.
   it('groups a large count', async () => {
-    expect(await body({ ...fixture, entries: many(1234) })).toBe(
-      'No buy days after today, 20 Oct 2026. Your 1,234 entries and your sell window stay. A calendar file you added keeps its events.',
+    expect(await body({ ...fixture, entries: many(12_345) })).toBe(
+      'No buy days after today, 20 Oct 2026. Your 12 345 entries and your sell window stay. A calendar file you added keeps its events.',
     );
   });
 
