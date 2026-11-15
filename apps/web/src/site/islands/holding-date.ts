@@ -1,6 +1,7 @@
 // The holding-date tool's island (docs/research/holding-date-tool.md; ADR-0045 Deviations of 2026-11-15), loaded by
 // the boot script at the end of /en/holding-date and bundled by scripts/bundle-islands.ts. It reads the fragment
-// (`#country=pt&bought=2026-03-01`), which no request carries, once and on every `hashchange`; on submit it checks
+// (`#country=pt&bought=2026-03-01`), which no network request carries (a navigation's FetchEvent sees it, and the
+// worker keeps it out of its cache keys), once and on every `hashchange`; on submit it checks
 // both inputs, writes the fragment with `replaceState` and shows the answer. It reveals one country's block and one
 // effect in the prerendered markup and writes the dates into their `<time>` elements; every word is the page's own.
 // No clock, no storage, no request: the answer is a date, never whether it has passed.
