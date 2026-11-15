@@ -17,6 +17,8 @@
         "server/api.ts",
         "api/index.mjs",
         "src/sw.ts",
+        // The site pages' islands, which esbuild builds by path (scripts/bundle-islands.ts).
+        "src/site/islands/*.ts",
         "public/serwist/sw.js",
         "scripts/*.ts"
       ]
