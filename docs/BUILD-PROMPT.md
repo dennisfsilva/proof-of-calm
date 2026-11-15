@@ -326,6 +326,12 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   it hands back, since a development build or a worker that does not install fails only there.
   #234's first CI run failed there: Vite's `runnerImport` had set `NODE_ENV` to `development` for
   the client build (2026-11-15).
+- A link to a feature, or a document sentence that describes it, lands in the branch that makes the
+  feature live, never in an earlier branch of the same plan: each merged part is true on main by
+  itself. #230's steps branch added the country pages' link "Show the date a purchase passes this
+  holding rule" and LEGAL §4's and JURISDICTIONS §1's sentences on the tool's lines while the page
+  had no tool (the island was the next branch); its second review round found the link promising a
+  date the page does not give, and the branch waited for the next session (2026-11-15).
 
 ## Known gaps
 
