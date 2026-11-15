@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { TEMPLATES } from '@proofofcalm/content';
+import { fillTemplateDates, TEMPLATES } from '@proofofcalm/content';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createFormatters, type Formatters } from '../../../lib/format';
@@ -14,6 +14,7 @@ const OWN = 'Your own coins';
 const LINE = 'A starting point some people use. You choose every setting. Not advice.';
 const ABOUT = 'Show how it works and what can go wrong';
 const NO_BREAK = ' ';
+const british = createFormatters('en-GB', 'en-GB');
 
 const offered = (id: string) => {
   const found = TEMPLATES.find((template) => template.id === id);
@@ -133,7 +134,9 @@ describe('TemplateStep', () => {
       const line = lines[template.id as keyof typeof lines];
       const card = screen.getByRole('radio', { name: template.name });
       const text = card.closest('[data-slot="radio-card"]')?.textContent ?? '';
-      expect(text, template.id).toContain(`${template.oneLine}${line}${template.drawdowns[0]?.coin}`);
+      const oneLine = fillTemplateDates(template.oneLine, template.dates, british.date);
+      expect(text, template.id).toContain(`${oneLine}${line}${template.drawdowns[0]?.coin}`);
+      expect(text, template.id).not.toContain('{date:');
     }
     cleanup();
     mount();
@@ -148,7 +151,9 @@ describe('TemplateStep', () => {
     await pick(two.name);
     expect(controls()).toHaveLength(1);
     expect(controls()[0]?.getAttribute('aria-expanded')).toBe('false');
-    const paragraphs = two.explanation.split('\n\n').map((paragraph) => paragraph.replaceAll(' %', '%'));
+    const paragraphs = fillTemplateDates(two.explanation, two.dates, british.date)
+      .split('\n\n')
+      .map((paragraph) => paragraph.replaceAll(' %', '%'));
     expect(screen.queryByText(paragraphs[0] ?? '')).toBeNull();
     const panel = await openPanel();
     expect(controls()[0]?.getAttribute('aria-expanded')).toBe('true');
@@ -171,8 +176,31 @@ describe('TemplateStep', () => {
     expect(german).not.toMatch(/\d %/);
     cleanup();
     mount({ kind: 'template', id: 'cycle-plan' });
-    const british = (await openPanel()).textContent ?? '';
-    expect(british).toContain('40% Bitcoin, 30% Ethereum, 15% Solana, and 15% Chainlink');
+    const english = (await openPanel()).textContent ?? '';
+    expect(english).toContain('40% Bitcoin, 30% Ethereum, 15% Solana, and 15% Chainlink');
+  });
+
+  it('writes the texts’ dates from the template’s fields in the plan’s order, never breaking one', async () => {
+    const card = () =>
+      screen.getByRole('radio', { name: offered('cycle-plan').name }).closest('[data-slot="radio-card"]');
+    mount({ kind: 'template', id: 'cycle-plan' }, createFormatters('en-US', 'en-US'));
+    expect(card()?.textContent).toContain(
+      `until Jun${NO_BREAK}1,${NO_BREAK}2028, held, then sold in thirds from Jun${NO_BREAK}1,${NO_BREAK}2029 to Oct${NO_BREAK}31,${NO_BREAK}2029.`,
+    );
+    const american = (await openPanel()).textContent ?? '';
+    expect(american).toContain(
+      `its high on May${NO_BREAK}10,${NO_BREAK}2021 to its low on Jun${NO_BREAK}10,${NO_BREAK}2023.`,
+    );
+    expect(american).not.toContain('{date:');
+    cleanup();
+    mount({ kind: 'template', id: 'cycle-plan' });
+    expect(card()?.textContent).toContain(
+      `until 1${NO_BREAK}Jun${NO_BREAK}2028, held, then sold in thirds from 1${NO_BREAK}Jun${NO_BREAK}2029 to 31${NO_BREAK}Oct${NO_BREAK}2029.`,
+    );
+    const english = (await openPanel()).textContent ?? '';
+    expect(english).toContain(
+      `thirds to sell from 1${NO_BREAK}Jun${NO_BREAK}2029, 1${NO_BREAK}Aug${NO_BREAK}2029, and 1${NO_BREAK}Oct${NO_BREAK}2029,`,
+    );
   });
 
   it('offers your own coins as the last card, after the alphabetical templates, with no risk label', () => {

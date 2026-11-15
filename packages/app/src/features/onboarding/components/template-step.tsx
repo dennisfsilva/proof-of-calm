@@ -1,4 +1,4 @@
-import { type OfferedTemplate, TEMPLATES } from '@proofofcalm/content';
+import { fillTemplateDates, type OfferedTemplate, TEMPLATES } from '@proofofcalm/content';
 import { type CalendarDate, decimal, negate, type Percent } from '@proofofcalm/core';
 import { Button } from '@proofofcalm/ui/components/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@proofofcalm/ui/components/collapsible';
@@ -66,9 +66,15 @@ const splitLine = (format: Formatters, { coins, split }: OfferedTemplate) =>
     coins.map(({ id }) => `${id}${NO_BREAK_SPACE}${format.percent(split[id] ?? ('0' as Percent), { decimals: 0 })}`),
   );
 
+/** A text's `{date:<field>}` placeholders written by `format.date`, in the plan's order and unbroken (CONTENT-STYLE §4). */
+const datedText = (format: Formatters, template: OfferedTemplate, text: string) =>
+  fillTemplateDates(text, template.dates, format.date);
+
 /** The explanation's percentages in the plan's format: the JSON stays literal, `N %` (CONTENT-STYLE §4). */
-const explanationText = (format: Formatters, text: string) =>
-  text.replace(/(\d+) %/g, (_, share: string) => format.percent(decimal(share), { decimals: 0 }));
+const explanationText = (format: Formatters, template: OfferedTemplate, text: string) =>
+  datedText(format, template, text).replace(/(\d+) %/g, (_, share: string) =>
+    format.percent(decimal(share), { decimals: 0 }),
+  );
 
 export function TemplateStep({ value, format, onChoose, onBack }: TemplateStepProps) {
   const t = useTranslations('onboarding');
@@ -95,7 +101,7 @@ export function TemplateStep({ value, format, onChoose, onBack }: TemplateStepPr
             title={template.name}
             line={
               <>
-                {template.oneLine}
+                {datedText(format, template, template.oneLine)}
                 <span className="block">{splitLine(format, template)}</span>
                 <span className="block">{t('template.band', bandOf(format, template))}</span>
               </>
@@ -110,7 +116,7 @@ export function TemplateStep({ value, format, onChoose, onBack }: TemplateStepPr
           <CollapsibleTrigger>{t('template.about')}</CollapsibleTrigger>
           <CollapsibleContent className="flex flex-col gap-stack-sm">
             {explained.explanation.split('\n\n').map((paragraph) => (
-              <p key={paragraph}>{explanationText(format, paragraph)}</p>
+              <p key={paragraph}>{explanationText(format, explained, paragraph)}</p>
             ))}
           </CollapsibleContent>
         </Collapsible>
