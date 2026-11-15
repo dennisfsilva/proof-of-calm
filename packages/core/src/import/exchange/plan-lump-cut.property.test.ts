@@ -12,9 +12,12 @@ import { type ExchangeImportPlan, planExchangeImport } from './plan';
 // docs/DOMAIN.md §3.13 step 2's export cut at `splitsLumpDay`'s width, the cuts the other import properties skip: a
 // shorter export that cuts inside a purchase date of a coin within 3 days of a live `lump` of it, stored before the
 // whole file, leaves the Log one import leaves plus the purchases the shorter export stored of the dates a hand entry
-// claims in one import, less the purchases of the dates a hand entry claims in the second import instead (with the
-// estimates either replaced). Each such date of a `lump` above the monthly part is the cut date; below it, it lies
-// wholly in the shorter export while that export's `lump` claimed the cut date's part.
+// claims in one import (with the one-tap estimates they replace), less the purchases of the dates a hand entry that
+// falls back to its nearest date claims in the second import instead (with those dates' estimates left live). Each
+// such date of a `lump` above the monthly part is the cut date; below it, it lies wholly in the shorter export while
+// that export's `lump` claimed the cut date's part. The lump's own walk claims what it claims in one import, since
+// stored dates take their place in its order and sum; no generated world reaches the fallback case, which
+// plan-remedy-start.test.ts pins ("400 less").
 
 /** What the write does with a plan: tombstones the estimates it replaces and adds its entries. */
 function store(entries: readonly Entry[], plan: ExchangeImportPlan): Entry[] {
@@ -117,7 +120,8 @@ describe("planExchangeImport, an export cut at a lump's date", () => {
         }),
         RUNS,
       );
-      // Each side of the cut, above and below the part, reaches both outcomes (a slice below the part diverges rarely).
+      // Each side of the cut, above and below the part, reaches both outcomes (a slice below the part diverges rarely);
+      // `instead`, a fallback hand claim moved, is checked when reached and pinned by hand.
       const count = (pattern: RegExp) =>
         [...reach].filter(([label]) => pattern.test(label)).reduce((total, [, n]) => total + n, 0);
       for (const size of ['above', 'below']) {
@@ -129,7 +133,6 @@ describe("planExchangeImport, an export cut at a lump's date", () => {
         }
       }
       expect(count(/^below\|.*\|twice$/)).toBeGreaterThan(0);
-      expect(count(/\|instead$/)).toBeGreaterThan(0);
     },
     TIMEOUT,
   );
