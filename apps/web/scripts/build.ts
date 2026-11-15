@@ -7,9 +7,10 @@ import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { THEME_BEFORE_PAINT } from '@proofofcalm/app/lib/theme';
 import { BOOT_SCRIPT } from '@proofofcalm/config/vite';
-import { build, runnerImport } from 'vite';
+import { build } from 'vite';
 import { bundleApi } from './bundle-api.ts';
 import { bundleWorker } from './bundle-worker.ts';
+import { loadSiteToday } from './site-today.ts';
 
 type Site = typeof import('../src/site/render.tsx');
 
@@ -19,13 +20,8 @@ const configFile = join(root, 'vite.config.ts');
 const SSR_ENTRY = 'src/site/render.tsx';
 const SSR_OUT = 'server-dist/site';
 
-// The day the public pages are rendered at, checked before any build step: lib/site/today.ts parses `SITE_TODAY`
-// with core's calendar module, which plain node cannot load, so Vite's module runner imports it.
-const { module: todayModule } = await runnerImport<typeof import('../lib/site/today.ts')>(
-  join(root, 'lib/site/today.ts'),
-  { root, configFile: false, logLevel: 'warn' },
-);
-const today = todayModule.siteToday(process.env.SITE_TODAY, new Date());
+// The day the public pages are rendered at, checked before any build step (scripts/site-today.ts).
+const today = await loadSiteToday(root, process.env.SITE_TODAY, new Date());
 
 const SCRIPT = /<script\b([^>]*)>([\s\S]*?)<\/script>/g;
 const inlineScripts = (html: string) =>
