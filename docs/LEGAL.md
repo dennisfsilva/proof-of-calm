@@ -189,8 +189,10 @@ The lint runs over UI messages, content, templates, the landing page and site pa
 (`apps/web/messages`), and, from M3, emails; the list is
 `packages/content/style/banned.json` (EN, DE and PT patterns, the filler words, and the allow-list
 with a reason per phrase: proper names of taxes, "API key", "private key", the Risk page's register sentence). It
-also flags any sentence with an asset name and an imperative verb and any percentage next to
-return, gain, profit or yield. Template names need a human sign-off.
+also flags, in English and German, a sentence with an asset name that opens with a buying, selling
+or holding verb on its list; in Portuguese, a sentence with an asset name that holds a buying,
+selling or holding form on its list anywhere (the forms and the gaps: `docs/CONTENT-STYLE.md` §2);
+and any percentage next to a gain word. Template names need a human sign-off.
 
 The counsel checklist, answered for every change to messages, content, Learn, emails, site pages or
 exports (their headers, columns and cells) (the role: `.claude/agents/counsel.md`; the evidence:
