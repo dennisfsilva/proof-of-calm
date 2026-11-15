@@ -1458,7 +1458,10 @@ with pt-PT.
   leaves that folder out of the precache (`globIgnores`), so a hidden language's message files reach
   no install; a person who chose the language gets them from the assets route like any visited file.
   The rule covers message chunks only: the content chunks a language's loaders will emit (ADR-0057)
-  join it when those loaders land.
+  join it when those loaders land. Offline, such a chunk fails to load after Today's one tap has
+  stored its entries, so the tap's toast then says `today.action.recorded` with Edit in place of the
+  Log's words, never `errors.unknown`, whose "Try again" would invite a second entry
+  (`packages/app/src/features/today/components/primary-action.tsx`).
   Measured on the web build: 70 precache entries and 1,371,216 bytes before, 70 and 1,372,906 after
   (the 1,690 bytes are English's changed entry code). Today's application code
   (`node tools/size/today.ts`, whose `TODAY` pattern counts English's today chunk and no other
