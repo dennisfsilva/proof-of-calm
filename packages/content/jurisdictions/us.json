@@ -21,9 +21,9 @@
   "holdingRule": { "kind": "years", "years": 1, "effect": "lower-rate" },
   "holdingRuleOverrides": [],
   "holdingRuleConditions": [
+    "Federal rate only. Most states tax the gain at their own rates (42 levy an income tax; Tax Foundation, 2026; medium confidence). Confirm your state.",
     "A swap or a purchase paid in crypto starts a new holding period for the units received (IRS FAQ Q16 and Q29).",
-    "Gifted units keep the giver's holding period when records show it; inherited units are long-term at once (IRS FAQ Q33; IRS Publication 544).",
-    "Federal rate only. Most states tax the gain at their own rates (42 levy an income tax; Tax Foundation, 2026; medium confidence). Confirm your state."
+    "Gifted units keep the giver's holding period when records show it; inherited units are long-term at once (IRS FAQ Q33; IRS Publication 544)."
   ],
   "lotRule": "specific",
   "lotScope": "per-venue",
