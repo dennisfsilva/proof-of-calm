@@ -15,6 +15,7 @@ import {
   StaleWhileRevalidate,
 } from 'serwist';
 import { stampCopy } from './prices-copy';
+import { PUBLIC_PAGES, shellRoutes } from './shell-navigation';
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
@@ -28,7 +29,6 @@ declare const self: ServiceWorkerGlobalScope;
 declare const __APP_ROUTES__: readonly string[];
 
 const DAY = 24 * 60 * 60;
-const appRoute = new RegExp(`^/(?:${__APP_ROUTES__.join('|')})(?:[/?]|$)`);
 
 const serwist = new Serwist({
   // Undefined in development, where nothing is precached.
@@ -37,7 +37,9 @@ const serwist = new Serwist({
     cleanupOutdatedCaches: true,
     // Every product route is the precached shell, as vercel.json rewrites it online (ADR-0045 §1).
     navigateFallback: '/app',
-    navigateFallbackAllowlist: [appRoute],
+    navigateFallbackAllowlist: [shellRoutes(__APP_ROUTES__)],
+    // A public page under /en/ is a file of its own, never the shell (shell-navigation.test.ts).
+    navigateFallbackDenylist: [PUBLIC_PAGES],
   },
   skipWaiting: false,
   clientsClaim: true,
