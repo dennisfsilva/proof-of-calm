@@ -199,7 +199,7 @@ describe('TemplateStep', () => {
     );
     const english = (await openPanel()).textContent ?? '';
     expect(english).toContain(
-      `thirds to sell from 1${NO_BREAK}Jun${NO_BREAK}2029, 1${NO_BREAK}Aug${NO_BREAK}2029, and 1${NO_BREAK}Oct${NO_BREAK}2029,`,
+      `thirds to sell from 1${NO_BREAK}Jun${NO_BREAK}2029, from 1${NO_BREAK}Aug${NO_BREAK}2029, and from 1${NO_BREAK}Oct${NO_BREAK}2029,`,
     );
   });
 

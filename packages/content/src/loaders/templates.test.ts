@@ -205,7 +205,7 @@ describe('TEMPLATES (docs/DOMAIN.md §5, ADR-0009)', () => {
     );
     const cycle = template('cycle-plan').explanation;
     expect(cycle).toContain('40 % Bitcoin, 30 % Ethereum, 15 % Solana, and 15 % Chainlink.');
-    expect(cycle).toContain('thirds to sell from 1 June 2029, 1 August 2029, and 1 October 2029');
+    expect(cycle).toContain('thirds to sell from 1 June 2029, from 1 August 2029, and from 1 October 2029');
   });
 
   it('state no multiple of the money put in, a projection (LEGAL §3.6, ADR-0011)', () => {
@@ -213,7 +213,7 @@ describe('TEMPLATES (docs/DOMAIN.md §5, ADR-0009)', () => {
       expect(explanation, templateId).not.toMatch(/\d×/);
     }
     expect(template('cycle-plan').explanation.split('\n\n')[2]).toBe(
-      'From 1 June 2028 its dates no longer fill in, and the app asks for new ones.',
+      'Its dates no longer fill in from 1 June 2028, and the app then asks for new ones.',
     );
   });
 
