@@ -14,9 +14,9 @@ release.
 - Set up a plan once, with no account: your country first, then one of 4 templates or your own
   coins and split, the monthly amount, and the first and last buy days. The plan and the entries are
   stored on this device.
-- Today shows this month's buy. `Bought as planned` records it in one tap, its units estimated from
-  the day's price; you can edit it, delete it with an undo, or skip the month. You can pause the plan
-  or end buying.
+- Today shows this month's buy. `Bought as planned` records it in one tap and estimates its units
+  from the day's price. You can edit it, delete it with an undo, or skip the month. You can pause the
+  plan or end buying.
 - Record an extra buy or a sale on any day, coins you held before the plan or received as a gift,
   and moves between an exchange and a wallet.
 - Coins you move between an exchange and a wallet keep each purchase's date and cost.
@@ -25,12 +25,12 @@ release.
 ### Where you are
 
 - Portfolio: the value over time, the split, and each coin's units and average cost.
-- Plan: the milestones from the first buy to the last buy and, where the plan has a sell window, its
-  3 parts; your note, if you wrote one; and in the sell phase, where a holding rule applies, the
-  units past it and the date for the rest.
+- Plan: the milestones from the first buy to the last, the sell window's 3 parts where the plan has
+  one, and your note if you wrote one. In the sell phase, where a holding rule applies, it shows the
+  units past their holding date and the date for the rest.
 - Log: every entry by month, with each purchase's holding date where your plan has a holding rule.
 - Once a year, a review lists the units the Log holds at each exchange or wallet, so you can check
-  them against what those show.
+  them against what each exchange or wallet shows.
 
 ### Your country's rules
 
@@ -38,23 +38,23 @@ release.
   checked, and a profile for every other country that shows no tax-free date.
 - A dated notice on Today when the rules for your plan's country change in the app, with a link to
   review the plan.
-- A tax-year export: a CSV of the year's lots over your country's tax year, with the day each lot
-  passes your country's holding rule where it has one. The file says it is not a tax computation.
+- A tax-year export: a CSV of the lots in your country's tax year, with the day each lot passes the
+  country's holding rule where there is one. The file says it is not a tax computation.
 
 ### Learn
 
 - 6 short modules: Start here, Cycles, Noise, Risk honestly, Taxes where you live, and When the
   market drops. A `Why?` link opens a module in a sheet without leaving the screen.
-- When the coins you hold fall 10 % or more in 7 days, or close 30 % or more below their 90-day
-  high, one line on Today, once per fall, opens a page about that fall. The page shows it beside
-  each coin's earlier dated falls, where the app has any, and your note, if you wrote one.
+- When the coins you hold fall 10 % or more in 7 days, or end a day 30 % or more below their 90-day
+  high, Today shows one line, once per fall, that opens a page about it. The page shows that fall
+  beside each coin's earlier dated falls, where the app has any, and your note, if you wrote one.
 
 ### Your data
 
 - Export everything as a JSON backup and import it again, export the Log as a CSV file, or delete
   everything.
-- Import the buys and sales in an exchange's export file into the Log, in a format the import names,
-  after a preview.
+- Import the buys and sales from an exchange's export file into the Log, after a preview; the import
+  lists the formats it reads.
 
 ### On the web and offline
 
