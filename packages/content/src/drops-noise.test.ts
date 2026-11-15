@@ -136,7 +136,10 @@ describe('the Noise and When the market drops modules', () => {
     expect(body).toContain('BIS Working Paper 1049 (Nov\u00a02022, revised Jul\u00a02023)');
     expect(body).toContain('covered crypto app downloads in 95 countries from Aug\u00a02015 to Jun\u00a02022.');
     expect(body).toContain('$100 of bitcoin in the month of download and every month after.');
-    expect(body).toContain('At the time of writing, 81\u00a0% of these users would have lost money.');
+    // The paper dates the figure by its revision, not by a valuation day, so the module gives that date and no
+    // "time of writing" that a page reviewed in 2026 would date to 2026 (CONTENT-STYLE §1 rule 1).
+    expect(body).toContain('In its Jul\u00a02023 revision, 81\u00a0% of these users would have lost money.');
+    expect(body).not.toMatch(/time of writing/iu);
     expect(body).toContain('The median investor would have lost 48\u00a0% of $900 invested.');
     expect(body).not.toMatch(/October/u);
     // The fact holds what the module quotes and no more; f keeps CoinGlass's figures and no BIS ones.
