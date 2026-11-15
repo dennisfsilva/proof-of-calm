@@ -195,6 +195,11 @@ describe('renderSitePage (ADR-0045 §6)', () => {
 
   it('ends Taxes with every country row and renders each country and the holding rules as pages', () => {
     const taxes = renderSitePage('en/learn/taxes-where-you-live', assets, data);
+    // A visitor has no plan, so one line before the body says which sections describe the app with one.
+    const lead = taxes.indexOf('describe what the app shows once a plan is set up.');
+    expect(lead).toBeGreaterThan(taxes.indexOf('a local accountant knows your situation'));
+    expect(lead).toBeLessThan(taxes.indexOf('What Proof of Calm shows'));
+    expect(renderSitePage('en/learn/risk-honestly', assets, data)).not.toContain('once a plan is set up');
     const rows = taxes.slice(taxes.lastIndexOf('<h2 class="text-20">Countries</h2>'));
     for (const entry of data.countries.entries) {
       expect(rows).toContain(`href="/en/countries/${entry.code.toLowerCase()}"`);

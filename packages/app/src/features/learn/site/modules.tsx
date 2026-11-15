@@ -54,12 +54,14 @@ export type SiteModulePageProps = {
   /** The day the review line is read at. */
   today: CalendarDate;
   links: SiteLinks;
+  /** Directly above the body: the tax module's line for a visitor, who has no plan. */
+  lead?: ReactNode;
   /** After the module: the tax module's country rows. */
   after?: ReactNode;
 };
 
 /** One module as a page: the way back to the index, then the module as the app's route shows it. */
-export function SiteModulePage({ module, Body, falls, today, links, after }: SiteModulePageProps) {
+export function SiteModulePage({ module, Body, falls, today, links, lead, after }: SiteModulePageProps) {
   const t = useTranslations('learn');
   const f = useSiteFormatters();
   const Chart = module.chart === 'drawdowns-bar' ? () => <DrawdownBars falls={falls} f={f} /> : undefined;
@@ -68,7 +70,14 @@ export function SiteModulePage({ module, Body, falls, today, links, after }: Sit
       <a href={links.learn} className={BACK_LINK}>
         {t('module.back')}
       </a>
-      <ModuleArticle module={module} Body={Body} f={f} today={today} {...(Chart !== undefined && { Chart })} />
+      <ModuleArticle
+        module={module}
+        Body={Body}
+        f={f}
+        today={today}
+        {...(Chart !== undefined && { Chart })}
+        {...(lead !== undefined && { lead })}
+      />
       {after}
     </div>
   );
