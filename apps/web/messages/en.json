@@ -20,7 +20,56 @@
     },
     "risk": {
       "title": "Risk disclosure",
-      "lead": "{product} is software for a plan you design. It gives no financial, investment or tax advice and never tells anyone what, when or where to buy. Crypto-assets are highly volatile; you could lose all the money you put in. Only use money you can afford to lose."
+      "lead": "{product} is software for a plan you design. It gives no financial, investment or tax advice and never tells anyone what, when or where to buy. Crypto-assets are highly volatile; you could lose all the money you put in. Use only money you will not need for years.",
+      "dca": {
+        "title": "What a plan does and does not do",
+        "p1": "A plan buys a set amount on a set schedule, so no single day's price decides what you pay on average. {product} helps you keep to the plan you set and shows where you are in it.",
+        "p2": "A plan does not limit how far a price can fall, does not make a gain more likely and does not protect what you put in. If prices fall and stay low, a plan can end with less than it cost."
+      },
+      "falls": {
+        "title": "Falls from a high",
+        "p1": "Crypto-assets are highly volatile. Each row below is one fall of one coin, from a cycle high to the lowest price after it. The deepest falls so far are not a limit: a coin can fall further, to zero."
+      },
+      "custody": {
+        "title": "Custody and counterparties",
+        "p1": "{product} never holds your money or your coins. You buy and keep coins with a provider you choose, or in a wallet of your own.",
+        "p2": "A provider can fail, be hacked or stop withdrawals, with its customers' coins inside. If you keep coins yourself and lose the seed phrase, nobody can restore them."
+      },
+      "status": {
+        "title": "No supervisor and no compensation scheme",
+        "p1": "{product} is not registered with or supervised by any authority, and no compensation scheme covers the money or coins you put in."
+      },
+      "tax": {
+        "title": "Tax",
+        "p1": "Selling, swapping or spending coins can mean tax to pay, and each country's rules differ and change. {product} shows the holding rules of a country as information, with their sources, not as tax advice. A tax adviser or your tax authority can tell you what applies to you."
+      },
+      "scams": {
+        "title": "Scams",
+        "p1": "{product} never offers you an investment, never asks for your seed phrase and never asks you to send coins, or money to buy them. A message that does is not from {product}, whoever it seems to come from.",
+        "p2": "A promise of high returns with low risk, a stranger who steers the talk to investing, and any request for a seed phrase are signs of a scam."
+      },
+      "register": {
+        "title": "Check a provider",
+        "p1": "ESMA keeps a public register of the providers authorised under MiCA: <link>{label}</link>. Check any provider there before sending money. {product} is not a provider and is not listed."
+      },
+      "adviser": {
+        "title": "Finding an adviser",
+        "p1": "For advice on your own situation, look for a financial adviser registered with your country's supervisor, and check them on that supervisor's register before you pay or sign anything. Ask how they are paid: an adviser paid by the products they sell has a reason to sell them."
+      },
+      "warnings": {
+        "title": "Official warnings",
+        "p1": "Supervisors publish their own information on the risks of crypto-assets:"
+      },
+      "checked": "Link checked {date}.",
+      "links": {
+        "esma-register": "ESMA's register of crypto-asset service providers",
+        "cmvm": "CMVM's investor portal, in Portuguese",
+        "bafin": "BaFin on crypto-asset investments and social media, in English",
+        "fca": "FCA: Crypto, the basics, in English",
+        "esas-pt": "European supervisors' factsheet on crypto-assets and MiCA, in Portuguese (PDF)",
+        "esas-de": "European supervisors' factsheet on crypto-assets and MiCA, in German (PDF)",
+        "esas-en": "European supervisors' factsheet on crypto-assets and MiCA, in English (PDF)"
+      }
     },
     "cookies": {
       "title": "Cookie-free statement",

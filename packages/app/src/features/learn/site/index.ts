@@ -13,4 +13,4 @@ export { SiteHoldingDates, type SiteHoldingDatesProps } from './holding';
 export { SiteHoldingTool, type SiteHoldingToolProps } from './holding-tool.tsx';
 export { type Body, type CountrySite, type LearnSite, loadCountrySite, loadLearnSite } from './load';
 export { SiteLearnIndex, type SiteLearnIndexProps, SiteModulePage, type SiteModulePageProps } from './modules';
-export { type SiteLinks, StaticLearn, type StaticLearnProps } from './static';
+export { type SiteLinks, StaticLearn, type StaticLearnProps, useSiteFormatters } from './static';
