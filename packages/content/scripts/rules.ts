@@ -1,5 +1,6 @@
 // `pnpm --filter @proofofcalm/content rules`: writes rules/<code>.json, the core's `CountryRules` of each profile
-// in jurisdictions/ as `countryRules` maps it. The shell boots on that small generated file (the measurement:
+// in jurisdictions/ as `countryRules` maps it, and rules/locales.json, every profile's locales by code
+// (src/loaders/locales.ts). The shell boots on that small generated file (the measurement:
 // ADR-0049); the profile's card text and sources load only where a card, a source link or the picker shows
 // them. A rules file with no profile is removed. The files are committed and never edited by hand:
 // src/loaders/rules.test.ts fails while one is stale or missing. The profiles are read from disk, as
@@ -8,7 +9,7 @@ import { mkdirSync, readdirSync, readFileSync, unlinkSync, writeFileSync } from 
 import { join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { countryRules } from '../src/loaders/countries.ts';
-import { CountryProfileSchema } from '../src/schema/jurisdiction.ts';
+import { type CountryProfile, CountryProfileSchema } from '../src/schema/jurisdiction.ts';
 
 const INDENT = '  ';
 const LINE = 100;
@@ -35,9 +36,26 @@ function render(value: unknown, indent: string): string {
   return JSON.stringify(value);
 }
 
+/** The file of every profile's locales, keyed by code: read at once where the rules file did not arrive. */
+export const LOCALES_FILE = 'locales.json';
+
+/** Each profile's `locales`, `numberFormatLocale` and `dateFormatLocale` by code, rendered as the rules files are. */
+export function renderLocales(profiles: readonly CountryProfile[]): string {
+  const byCode = [...profiles].sort((a, b) => (a.code < b.code ? -1 : 1));
+  return renderRules(
+    Object.fromEntries(
+      byCode.map(({ code, locales, numberFormatLocale, dateFormatLocale }) => [
+        code,
+        { locales, numberFormatLocale, dateFormatLocale },
+      ]),
+    ),
+  );
+}
+
 /**
- * Writes each profile's rules file into `rules` and removes any other `.json` there; the names of both. A file
- * that is not a country profile throws, so a code that is not two capitals never names a file outside `rules`.
+ * Writes each profile's rules file and the locales file into `rules` and removes any other `.json` there; the names
+ * of both. A file that is not a country profile throws, so a code that is not two capitals never names a file
+ * outside `rules`.
  */
 export function writeRules({ profiles, rules }: { profiles: string; rules: string }): {
   written: string[];
@@ -45,6 +63,7 @@ export function writeRules({ profiles, rules }: { profiles: string; rules: strin
 } {
   mkdirSync(rules, { recursive: true });
   const written: string[] = [];
+  const read: CountryProfile[] = [];
   for (const name of readdirSync(profiles)
     .filter((entry) => entry.endsWith('.json'))
     .sort()) {
@@ -55,7 +74,10 @@ export function writeRules({ profiles, rules }: { profiles: string; rules: strin
     if (!target.startsWith(resolve(rules) + sep)) throw new Error(`${file} would land outside ${rules}`);
     writeFileSync(target, renderRules(countryRules(parsed.data)));
     written.push(file);
+    read.push(parsed.data);
   }
+  writeFileSync(join(rules, LOCALES_FILE), renderLocales(read));
+  written.push(LOCALES_FILE);
   const removed = readdirSync(rules)
     .filter((name) => name.endsWith('.json') && !written.includes(name))
     .sort();

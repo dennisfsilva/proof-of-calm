@@ -1,0 +1,52 @@
+{
+  "DE": {
+    "locales": ["de-DE"],
+    "numberFormatLocale": "de-DE",
+    "dateFormatLocale": "de-DE"
+  },
+  "ES": {
+    "locales": ["es-ES", "ca-ES", "gl-ES", "eu-ES"],
+    "numberFormatLocale": "es-ES",
+    "dateFormatLocale": "es-ES"
+  },
+  "FR": {
+    "locales": ["fr-FR"],
+    "numberFormatLocale": "fr-FR",
+    "dateFormatLocale": "fr-FR"
+  },
+  "GB": {
+    "locales": ["en-GB", "cy-GB"],
+    "numberFormatLocale": "en-GB",
+    "dateFormatLocale": "en-GB"
+  },
+  "IE": {
+    "locales": ["en-IE", "ga-IE"],
+    "numberFormatLocale": "en-IE",
+    "dateFormatLocale": "en-IE"
+  },
+  "IT": {
+    "locales": ["it-IT"],
+    "numberFormatLocale": "it-IT",
+    "dateFormatLocale": "it-IT"
+  },
+  "NL": {
+    "locales": ["nl-NL"],
+    "numberFormatLocale": "nl-NL",
+    "dateFormatLocale": "nl-NL"
+  },
+  "PT": {
+    "locales": ["pt-PT"],
+    "numberFormatLocale": "pt-PT",
+    "dateFormatLocale": "pt-PT"
+  },
+  "US": {
+    "locales": ["en-US"],
+    "numberFormatLocale": "en-US",
+    "dateFormatLocale": "en-US"
+  },
+  "XX": {
+    "locales": ["und"],
+    "numberFormatLocale": "und",
+    "dateFormatLocale": "und"
+  }
+}

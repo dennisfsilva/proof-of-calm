@@ -4,6 +4,7 @@
 // this index exports only its types.
 export * from './loaders/coins.ts';
 export * from './loaders/countries.ts';
+export * from './loaders/locales.ts';
 export type { LearnModule, LearnModuleMeta } from './loaders/modules.ts';
 export * from './loaders/rules.ts';
 export * from './loaders/templates.ts';
