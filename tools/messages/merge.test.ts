@@ -55,6 +55,15 @@ describe('complete', () => {
     expect(() => complete({ title: 'Today' }, { title: { nested: 'Hoje' } })).toThrow(/title/);
     expect(() => complete({ sheet: { save: 'Save' } }, { sheet: 'Folha' })).toThrow(/sheet/);
   });
+
+  it('refuses a key that only Object.prototype has, rather than dropping the translation', () => {
+    expect(() => complete({ title: 'Today' }, { constructor: 'Construtor' })).toThrow(/constructor/);
+    expect(() => complete({ title: 'Today' }, JSON.parse('{"__proto__":"x"}') as Record<string, string>)).toThrow(
+      /__proto__/,
+    );
+    expect(() => complete({ title: 'Today' }, { toString: 'y' })).toThrow(/toString/);
+    expect(() => complete({ title: 'Today' }, { title: 'Hoje', hasOwnProperty: 'z' })).toThrow(/hasOwnProperty/);
+  });
 });
 
 describe('run', () => {
@@ -83,6 +92,11 @@ describe('run', () => {
     expect(() => run(unknownKey, true)).toThrow(/today\.titel/);
     const unknownLocale = fixture({ today: { en: { title: 'Today' }, fr: { title: "Aujourd'hui" } } });
     expect(() => run(unknownLocale, true)).toThrow(/"fr"/);
+  });
+
+  it('refuses a translated namespace that only Object.prototype has', () => {
+    const root = fixture({ today: { en: { title: 'Today' } }, constructor: { 'pt-PT': { title: 'Hoje' } } });
+    expect(() => run(root, true)).toThrow(/constructor has a pt-PT message file but no English one/);
   });
 
   it('fails the check on a missing and on a stale per-locale file', () => {
