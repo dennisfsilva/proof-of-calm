@@ -245,9 +245,9 @@ A template's `oneLine` and explanation write no date: each is a placeholder `{da
 template's own date fields (`lastBuy`, `validUntil`, `sellWindow.opens`, `references.peakFrom`,
 `drawdowns.BTC.high`; the list is `docs/DOMAIN.md` §5), and the onboarding writes it with `format.date` in the plan's
 order, unbroken (`1 Jun 2028` in Portugal, `Jun 1, 2028` in the US; decided 2026-11-15). `pnpm validate:content`
-refuses a placeholder that names no date of its template or is not whole (`template-date-unresolved`), one in any
-other field (`template-date-field`), and a month name in English, Portuguese or German in any of a template's texts
-or in their translations, a short one only beside a figure (`template-date-month`).
+refuses a placeholder that names no date of its template or is not whole (`template-date-unresolved`) and one in any
+other field (`template-date-field`). It also refuses a month name in English, Portuguese or German in any of a
+template's texts or in their translations, a short one only beside a figure (`template-date-month`).
 A numeral joined to its unit by a hyphen (`90‑day`, `365‑day`) never breaks there. Text a screen shows writes the
 no-break hyphen U+2011 between them (`\u2011` in a JSON string, the character itself in a module): messages, modules
 (title, idea, caveat and body), every profile text the app shows, a template's name, one-line summary, risk label
