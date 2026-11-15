@@ -166,8 +166,10 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   that day's buy (500 against 450); a late starting purchase more than 3 days away is imported beside it (file L:
   2,400 on 128 of 135 tap days); claims are per date (1,300 against 1,400). One exception stands: an
   export that cuts inside a purchase date within 3 days of a live `lump` whose amount is not its coin's
-  monthly part can count a date twice (W2: 1,700 against 1,400 above the part, 2,550 against 2,450
-  below; the condition is step 2's, checked by
+  monthly part can count a date twice (W2: 1,700 against 1,400 above the part, where the doubled date
+  is the cut date; 2,550 against 2,450 below, where it is a date stored while the shorter export's lump
+  claimed the cut date's part or stopped its walk at that part, 91 against 87.50 in CI's world of
+  2026-11-15; the condition is step 2's, checked by
   `packages/core/src/import/exchange/plan-lump-cut.property.test.ts`). Only a date at the file's edge
   shows a cut, and keeping a `lump` off such a date would undo #214's tap on the day of purchase, often
   an export's last date. This narrows rule R's entry. The rest stands.
