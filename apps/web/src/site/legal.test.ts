@@ -11,6 +11,7 @@ const ASSETS = ['<link rel="stylesheet" crossorigin href="/assets/app-1.css">'];
 const data = await loadSiteData('2026-11-15' as CalendarDate);
 
 type LegalName = 'terms' | 'privacy' | 'risk' | 'cookies' | 'contact';
+const LEGAL = ['terms', 'privacy', 'risk', 'cookies', 'contact'] as const;
 
 /** React's escapes undone, so a test reads the copy as a person does. */
 const unescaped = (html: string) =>
@@ -38,11 +39,10 @@ describe('the Risk disclosure (docs/LEGAL.md §5)', () => {
     expect(text(main('risk'))).toContain('you could lose all the money you put in. Use only money you will not need');
   });
 
-  it('shows no placeholder on Risk, while Terms, Privacy, Cookies and Contact keep it', () => {
-    const placeholder = messages.legal.placeholder.replace('{product}', 'Proof of Calm');
-    expect(text(main('risk'))).not.toContain(placeholder);
-    for (const name of ['terms', 'privacy', 'cookies', 'contact'] as const) {
-      expect(text(main(name)), name).toContain(placeholder);
+  it('no page keeps the pre-launch placeholder', () => {
+    expect(messages.legal).not.toHaveProperty('placeholder');
+    for (const name of LEGAL) {
+      expect(text(main(name)), name).not.toMatch(/published in full before|not available and collects nothing/);
     }
   });
 
@@ -174,7 +174,7 @@ describe('the Cookie-free statement (docs/LEGAL.md §5)', () => {
     expect(page).toContain('Delete everything in Settings clears this data too.');
   });
 
-  it('lists what the browser keeps in order, with what lasts only for the tab last', () => {
+  it('lists what the browser keeps in order, then how visits are counted, the banner and the references', () => {
     const paragraphs = main('cookies').match(/<p>[^<]*<\/p>/g) ?? [];
     const starts = [
       'Your browser keeps your plan',
@@ -182,8 +182,12 @@ describe('the Cookie-free statement (docs/LEGAL.md §5)', () => {
       'Your browser keeps a record of the entries you deleted',
       'Your browser keeps any stored data that failed its check',
       'Your browser keeps form drafts until the tab closes',
+      'Proof of Calm does not count visits itself',
+      'There is no cookie banner',
+      'The rules on storing information in your browser',
     ];
-    expect(paragraphs.slice(-starts.length).map((p) => p.slice(3, 3 + 60))).toEqual(
+    const first = paragraphs.findIndex((p) => p.includes(starts[0] ?? ''));
+    expect(paragraphs.slice(first, first + starts.length).map((p) => p.slice(3, 3 + 60))).toEqual(
       starts.map((start) => expect.stringContaining(start)),
     );
   });
@@ -196,7 +200,7 @@ describe('the Cookie-free statement (docs/LEGAL.md §5)', () => {
     ['the date each copy was saved', 'so copies past their limit are cleared'],
     ['your display settings', 'so they stay as you chose them'],
     ['the dates of your last JSON backup and your last change', 'so the app can remind you to export a copy'],
-    ['the banners you dismissed or that showed once', 'so they stay hidden'],
+    ['the banners you dismissed and those shown only once', 'so they stay hidden'],
     ['the date of your last annual review', 'so the next review shows when it is due'],
     ['the entries you deleted on this device', 'so an import with Add missing entries only cannot bring them back'],
     [
@@ -210,6 +214,12 @@ describe('the Cookie-free statement (docs/LEGAL.md §5)', () => {
     ],
     ['form drafts until the tab closes', 'so what you typed comes back when you return to the form'],
     ['the tab keeps a short note until it closes', 'so it reloads only once'],
+    ['does not count visits itself', 'the request totals of its host, Vercel, with no script and no identifier'],
+    ['There is no cookie banner', 'nothing for tracking, advertising, or analytics'],
+    [
+      'Article 5(3) of the ePrivacy Directive',
+      "Article 5 of Portugal's Lei 41/2004, Germany's § 25 TDDDG, and the UK's PECR",
+    ],
   ])('names %s and why', (item, why) => {
     const sentence = main('cookies')
       .split(/(?<=\.) |<\/?p>/)
@@ -228,7 +238,96 @@ describe('the Cookie-free statement (docs/LEGAL.md §5)', () => {
   // Every row carries one fixed id until M3's sync, the same in every browser (ADR-0019 Readings, 2026-11-24).
   it('names no device identifier', () => {
     const page = main('cookies');
-    expect(page).not.toContain('identifier');
+    // The one "identifier" left is the visits sentence's "no identifier".
+    expect(page.split('identifier')).toHaveLength(2);
+    expect(page).toContain('with no script and no identifier.');
     expect(page).not.toContain('the order you made them');
+  });
+});
+
+/** The ids of a page's sections, in order. */
+const sectionIds = (name: LegalName) =>
+  [...main(name).matchAll(new RegExp(`<section[^>]*aria-labelledby="${name}-([a-z]+)-title"`, 'g'))].map(
+    (match) => match[1],
+  );
+
+const href = (path: string) => `href="${path}"`;
+
+describe('the launch drafts of Terms, Privacy and Contact (docs/LEGAL.md §5)', () => {
+  it("Terms has §5's launch sections in order and none of the account or Plus sections", () => {
+    const page = main('terms');
+    expect(page.match(/<h1/g) ?? []).toHaveLength(1);
+    expect(sectionIds('terms')).toEqual([
+      'who',
+      'what',
+      'age',
+      'countries',
+      'data',
+      'use',
+      'prices',
+      'risk',
+      'changes',
+      'liability',
+      'law',
+    ]);
+    expect(text(page)).not.toMatch(/\bPlus\b|passkey|sign-in code|subscription|withdrawal form|refund|\btips?\b/i);
+    expect(text(page)).toContain(
+      'Proof of Calm is not registered with or supervised by any financial supervisor, and no investor-compensation or deposit-protection scheme covers crypto-assets.',
+    );
+    expect(text(page)).toContain(
+      "Proof of Calm never offers you an investment and never asks for your seed phrase, a private key, an exchange's API key or login, or for coins or money to buy them.",
+    );
+    expect(text(page)).toMatch(/CoinGecko/);
+    expect(page).toContain(href('/risk'));
+  });
+
+  it('Privacy names Vercel and CoinGecko and links the Cookie-free statement', () => {
+    const page = main('privacy');
+    expect(page.match(/<h1/g) ?? []).toHaveLength(1);
+    expect(text(page)).toContain('Vercel');
+    expect(text(page)).toContain('CoinGecko');
+    expect(text(page)).not.toMatch(/Supabase|Sentry|Resend/);
+    expect(page).toContain(href('/cookies'));
+    expect(text(page)).toContain(
+      "Proof of Calm never offers you an investment and never asks for your seed phrase, a private key, an exchange's API key or login, or for coins or money to buy them.",
+    );
+  });
+
+  it('no legal page shows an e-mail, street address or tax number: each identity field is an [Owner: …] placeholder', () => {
+    const owner = messages.legal.owner as Record<string, string>;
+    expect(Object.keys(owner).sort()).toEqual(
+      [
+        'name',
+        'legalForm',
+        'address',
+        'email',
+        'nif',
+        'vat',
+        'register',
+        'manager',
+        'privacyEmail',
+        'dsaEmail',
+        'mailHost',
+        'date',
+      ].sort(),
+    );
+    for (const [field, value] of Object.entries(owner)) expect(value, field).toMatch(/^\[Owner: [^\]]+\]$/);
+    const pages = LEGAL.map((name) => text(main(name))).join(' ');
+    for (const [field, value] of Object.entries(owner)) expect(pages, field).toContain(value);
+    for (const name of LEGAL) {
+      const shown = text(main(name));
+      expect(shown, name).not.toMatch(/[\w.+-]+@[\w-]+\.[a-z]{2,}/i);
+      expect(shown, name).not.toMatch(/\b(Rua|Avenida|Travessa|Largo|Stra(ss|ß)e|Street)\b|\b\d{4}-\d{3}\b/);
+      expect(shown, name).not.toMatch(/\b(PT ?)?\d{9}\b/);
+    }
+  });
+
+  it('Contact keeps #security and the security.txt link', () => {
+    const page = main('contact');
+    expect(page).toMatch(/<section id="security"[^>]*>/);
+    expect(page).toContain(href('/.well-known/security.txt'));
+    expect(text(page)).toContain('No authorisation scheme applies; no supervisory authority.');
+    expect(sectionIds('contact')).toEqual(['provider', 'dsa', 'privacy']);
+    expect(page.indexOf('id="security"')).toBeGreaterThan(page.indexOf('contact-privacy-title'));
   });
 });
