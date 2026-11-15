@@ -58,7 +58,9 @@ function cutDays(file: ExchangeFile, shorter: ExchangeFile) {
  * The property runs 600 times with a 90 s timeout (the core's default is Vitest's 5 s), so each outcome it counts is
  * reached at every seed. Measured on 2026-11-14 under the full core suite with coverage, seeds 1 to 8 (fast-check's
  * global seed): the worst was 3.71 s (seed 8; the best 2.94 s, seed 1), so six times the worst, the margin budgeted
- * for CI's slower runner, is 22.3 s, under a third of the timeout (30 s).
+ * for CI's slower runner, is 22.3 s, under a third of the timeout (30 s). Measured again on 2026-11-15 after a `lump`
+ * walks by the ratio (rule G), seeds 1 to 8: the worst was 4.11 s (seed 5; the best 3.46 s, seed 1), six times it
+ * 24.7 s, under 30 s.
  */
 const RUNS = { numRuns: 600 };
 const TIMEOUT = 90_000;

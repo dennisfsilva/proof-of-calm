@@ -62,10 +62,16 @@ function cut(file: ExchangeFile, { shape, byDay, from, to }: Drawn<typeof window
  * `held` one 0.68 s, the starting amount 0.55 s), six times it 5.9 s. Measured again after a one-tap `lump` claims in
  * step 2, its date near the file's, seeds 1 to 8: the worst was 0.96 s (the window property, seed 2); six times it 5.8 s.
  * Measured again with the `lump` claim's property and the generator's lumps of every amount, seeds 1 to 8: the worst
- * was 1.24 s (the window property, seed 8); six times it 7.4 s.
+ * was 1.24 s (the window property, seed 8); six times it 7.4 s. Measured again on 2026-11-15 after a `lump` walks by
+ * the ratio (rule G), seeds 1 to 8: the window property's worst was 1.33 s (seed 5), six times it 8.0 s. The `lump`
+ * property runs 1,600 times with a 120 s timeout, since a lump that records several dates is rare (4 to 9 in 1,200
+ * runs at seeds 1 to 8, none in 300 at seed 5): its worst was 2.99 s (seed 8), six times it 17.9 s, under a third of
+ * its timeout (40 s).
  */
 const RUNS = { numRuns: 300 };
 const TIMEOUT = 60_000;
+const LUMP_RUNS = { numRuns: 1600 };
+const LUMP_TIMEOUT = 120_000;
 
 describe('planExchangeImport, by windows and by exchanges', () => {
   it(
@@ -183,12 +189,14 @@ describe('planExchangeImport, by windows and by exchanges', () => {
             if (walked.some((day) => !free(day))) reached.stored += 1;
           }
         }),
-        RUNS,
+        LUMP_RUNS,
       );
       // The rule bites: a lump records none beside its coin's dates, records several, and walks a stored date.
-      expect(Object.values(reached).every((count) => count > 0)).toBe(true);
+      expect(reached.none).toBeGreaterThan(0);
+      expect(reached.many).toBeGreaterThan(0);
+      expect(reached.stored).toBeGreaterThan(0);
     },
-    TIMEOUT,
+    LUMP_TIMEOUT,
   );
 
   it(
