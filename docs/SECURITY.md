@@ -189,7 +189,7 @@ from an allow-listed host and wrote into the gitignored .content-review/pdf fold
 
 ## 10. Backups and the restore drill
 
-- Supabase Pro daily backups (seven-day retention, not downloadable); PITR ($100/month) deferred
+- Supabase Pro daily backups (7-day retention, not downloadable); PITR ($100/month) deferred
   until money depends on a two-minute recovery point.
 - Our own: a nightly `supabase db dump` (roles, schema, data; verify in the first drill that
   `auth.users` is included) encrypted with `age` (recipient key in the repository, identity key
