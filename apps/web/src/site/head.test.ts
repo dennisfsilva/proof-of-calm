@@ -103,15 +103,37 @@ describe('renderSitePage (ADR-0045 §6)', () => {
     ]);
   });
 
-  it('adds the Learn index and every module but Taxes under /en/learn, written as nested files', () => {
+  it('adds the Learn pages, the country pages and the holding-date page under /en/, written as nested files', () => {
     expect(sitePages(data).slice(SITE_PAGES.length)).toEqual([
       'en/learn',
       ...data.learn.modules.map((module) => `en/learn/${module.slug}`),
+      'en/countries',
+      ...data.countries.entries.map((entry) => `en/countries/${entry.code.toLowerCase()}`),
+      'en/holding-date',
+    ]);
+    // Every profile but the generic one (docs/JURISDICTIONS.md §2).
+    expect(data.countries.entries.map((entry) => entry.code).sort()).toEqual([
+      'DE',
+      'ES',
+      'FR',
+      'GB',
+      'IE',
+      'IT',
+      'NL',
+      'PT',
+      'US',
     ]);
     expect(data.learn.modules.map((module) => module.slug)).toEqual(
-      expect.arrayContaining(['start-here', 'risk-honestly', 'cycles', 'noise', 'when-the-market-drops']),
+      expect.arrayContaining([
+        'start-here',
+        'risk-honestly',
+        'cycles',
+        'noise',
+        'when-the-market-drops',
+        'taxes-where-you-live',
+      ]),
     );
-    expect(data.learn.modules).toHaveLength(5);
+    expect(data.learn.modules).toHaveLength(6);
   });
 
   for (const name of sitePages(data)) {
@@ -158,7 +180,8 @@ describe('renderSitePage (ADR-0045 §6)', () => {
     expect(index).toContain('<title>Learn · Proof of Calm</title>');
     expect(index).toContain('<link rel="canonical" href="https://proofofcalm.com/en/learn">');
     expect(index).toContain('href="/en/learn/risk-honestly"');
-    expect(index).not.toContain('href="/en/learn/taxes-where-you-live"');
+    expect(index).toContain('href="/en/learn/taxes-where-you-live"');
+    expect(index).toContain('href="/en/countries"');
     const risk = renderSitePage('en/learn/risk-honestly', assets, data);
     expect(risk).toContain('<title>Risk honestly · Proof of Calm</title>');
     expect(risk).toContain('<link rel="canonical" href="https://proofofcalm.com/en/learn/risk-honestly">');
@@ -168,6 +191,24 @@ describe('renderSitePage (ADR-0045 §6)', () => {
     const drops = renderSitePage('en/learn/when-the-market-drops', assets, data);
     expect(drops).toContain('When the market drops');
     expect(drops).not.toContain('href="/learn');
+  });
+
+  it('ends Taxes with every country row and renders each country and the holding rules as pages', () => {
+    const taxes = renderSitePage('en/learn/taxes-where-you-live', assets, data);
+    const rows = taxes.slice(taxes.lastIndexOf('<h2 class="text-20">Countries</h2>'));
+    for (const entry of data.countries.entries) {
+      expect(rows).toContain(`href="/en/countries/${entry.code.toLowerCase()}"`);
+    }
+    const pt = renderSitePage('en/countries/pt', assets, data);
+    expect(pt).toContain('<title>Portugal · Proof of Calm</title>');
+    expect(pt).toContain('<link rel="canonical" href="https://proofofcalm.com/en/countries/pt">');
+    expect(pt).toContain('href="/en/countries"');
+    const list = renderSitePage('en/countries', assets, data);
+    expect(list).toContain('<title>Countries · Proof of Calm</title>');
+    const holding = renderSitePage('en/holding-date', assets, data);
+    expect(holding).toContain('<title>Holding rules by country · Proof of Calm</title>');
+    expect(holding).toContain('href="/en/countries/pt"');
+    expect(() => renderSitePage('en/countries/xx', assets, data)).toThrow('no listed country XX');
   });
 
   it('writes the not-available page as the UK block defines it', () => {
