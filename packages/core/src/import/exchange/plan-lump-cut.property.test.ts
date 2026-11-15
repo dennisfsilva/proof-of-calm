@@ -14,14 +14,16 @@ import { type ExchangeImportPlan, planExchangeImport } from './plan';
 // shorter export that cuts inside a purchase date of a coin within 3 days of a live `lump` of it, stored before the
 // whole file, leaves the Log one import leaves plus the purchases the shorter export stored of the dates a hand entry
 // claims in one import (with the one-tap estimates they replace), less the purchases of the dates a hand entry that
-// falls back to its nearest date claims in the second import instead (with those dates' estimates left live). Each
+// falls back to its nearest date (an extra buy, a monthly buy whose month has no date, a `lump` at its coin's monthly
+// part) claims in the second import instead (with those dates' estimates left live). Each
 // such date of a `lump` above the monthly part is the cut date; below it, it lies wholly in the shorter export while
 // that export's `lump` claimed the cut date's part or stopped its walk at that part, every date it claimed nearer its
 // date than the cut date, or as near and earlier (CI's world of 2026-11-15, seed -1110155515, pinned in
 // plan-remedy-start.test.ts: "the lump stops at the cut date"). Measured on 2026-11-15 over seeds 1 to 8, CI's and 16
 // others, 600 runs each: 541 such dates below the part, 538 with the cut date claimed, 3 with the walk stopped there.
 // The lump's own walk claims what it claims in one import, since stored dates take their place in its order and sum;
-// no generated world reaches the fallback case, which plan-remedy-start.test.ts pins ("400 less").
+// no generated world reaches the fallback case, which plan-remedy-start.test.ts pins twice: an extra buy ("400 less")
+// and a lump at the part ("a second lump beside the lump of 1,000"); the oracle's `gone` holds for either.
 
 /** What the write does with a plan: tombstones the estimates it replaces and adds its entries. */
 function store(entries: readonly Entry[], plan: ExchangeImportPlan): Entry[] {
