@@ -8,16 +8,18 @@
 // CLI in scripts/validate.ts reads the files. Relative imports name their .ts files, so that Node runs the
 // CLI without a build step, as tools/ does.
 import { hyphenProblems } from './hyphen-validate.ts';
+import { changedTexts, isOverlayFile, overlayFileProblems, type TextChecks } from './i18n/overlay-validate.ts';
 import { moduleProblems } from './modules-validate.ts';
 import { monthsBefore } from './months.ts';
-import { localeProblems } from './percent-validate.ts';
+import { languagePercentProblems, localeProblems } from './percent-validate.ts';
 import { bannedProblems, type Problem, schemaProblems } from './problem.ts';
+import { profileTextProblems, profileTexts, summaryProblems } from './profile-texts.ts';
 import { CoinCatalogueSchema, type ContentCoin } from './schema/coin.ts';
 import { CycleDrawdownsSchema } from './schema/cycles.ts';
 import type { ContentDrawdown } from './schema/drawdown.ts';
 import { FactSchema } from './schema/fact.ts';
 import { type CountryProfile, CountryProfileSchema } from './schema/jurisdiction.ts';
-import { TemplateSchema } from './schema/template.ts';
+import { type ContentTemplate, TemplateSchema } from './schema/template.ts';
 
 export { percentJoiner } from './percent-validate.ts';
 export type { Problem } from './problem.ts';
@@ -34,7 +36,6 @@ export type ValidationOptions = {
 type Source = { readonly url: string; readonly kind?: string };
 type Catalogue = ReadonlyMap<string, ContentCoin>;
 
-const SUMMARY_WORDS = 60;
 const PARAGRAPH_SENTENCES = 5;
 const STALE_MONTHS = 12;
 const COIN_CATALOGUE = /(^|\/)packages\/content\/coins\.json$/;
@@ -44,8 +45,6 @@ const MESSAGES_FILE = /(^|\/)messages\/[^/]+\.json$/;
 // The tax-year file's lines, which only a downloaded file carries, keep U+002D (docs/CONTENT-STYLE.md §4).
 const SETTINGS_MESSAGES = /(^|\/)features\/settings\/messages\/[^/]+\.json$/;
 const TAX_YEAR_FILE = 'data.taxYear.file.';
-// The one profile text only the tax-year file copies (docs/CONTENT-STYLE.md §4).
-const FILE_ONLY_PROFILE_TEXT = 'lotRuleNote';
 const UNAPPLIED = 'holdingRuleOverrides: the early-window check does not apply them yet (docs/JURISDICTIONS.md §2)';
 
 function hostAllowed(url: string, domains: readonly string[]): boolean {
@@ -81,8 +80,7 @@ function jurisdiction(file: ContentFile, options: ValidationOptions): Problem[] 
   if (profile.status.nextReviewDue < monthsBefore(options.today, STALE_MONTHS)) {
     problems.push({ path, code: 'review-overdue', detail: `nextReviewDue ${profile.status.nextReviewDue}` });
   }
-  const words = profile.card.summary60.trim().split(/\s+/).length;
-  if (words > SUMMARY_WORDS) problems.push({ path, code: 'summary-too-long', detail: `${words} words` });
+  problems.push(...summaryProblems(path, profile.card.summary60));
   const domains = [...(options.allow[profile.code] ?? []), ...(options.allow.EU ?? [])];
   const sources = [...profile.sources, ...profile.pendingChanges.map((change) => change.source)];
   problems.push(...sourceProblems(path, sources, domains));
@@ -94,10 +92,7 @@ function jurisdiction(file: ContentFile, options: ValidationOptions): Problem[] 
     // A tripwire until the early-window check applies overrides (docs/JURISDICTIONS.md §2, docs/ROADMAP.md M2).
     problems.push({ path, code: 'overrides-unapplied', detail: UNAPPLIED });
   }
-  for (const [field, text] of profileTexts(profile)) {
-    problems.push(...bannedProblems(path, field, text));
-    if (field !== FILE_ONLY_PROFILE_TEXT) problems.push(...hyphenProblems(path, field, text));
-  }
+  problems.push(...profileTextProblems(path, profileTexts(profile)));
   problems.push(...localeProblems(path, profile, profileTexts(profile)));
   return problems;
 }
@@ -111,44 +106,6 @@ function sourceKeyProblems(path: string, profile: CountryProfile): Problem[] {
     ...Object.entries(profile.ruleSources)
       .filter(([, key]) => !keys.includes(key))
       .map(([rule, key]) => ({ path, code: 'source-key-unknown', detail: `ruleSources.${rule}: ${key}` })),
-  ];
-}
-
-/** Every string of a profile that the app shows; source titles are quoted names and stay as published. */
-function profileTexts(profile: CountryProfile): [string, string][] {
-  const card = profile.card;
-  const list = (prefix: string, texts: readonly string[]) =>
-    texts.map((text, index): [string, string] => [`${prefix}.${index}`, text]);
-  return [
-    ['name', profile.name],
-    ['card.classification', card.classification],
-    ['card.holdingRuleText', card.holdingRuleText],
-    ['card.lotRuleText', card.lotRuleText],
-    ['card.losses', card.losses],
-    ['card.summary60', card.summary60],
-    ['filingNote', profile.filingNote],
-    ['lotRuleNote', profile.lotRuleNote],
-    ...list('card.allowances', card.allowances),
-    ...list('card.reporting', card.reporting),
-    ...list('card.caveats', card.caveats),
-    ...list('holdingRuleConditions', profile.holdingRuleConditions),
-    ...card.taxableEvents.map((event, index): [string, string] => [`card.taxableEvents.${index}.note`, event.note]),
-    ...card.rates.flatMap((rate, index): [string, string][] => [
-      [`card.rates.${index}.label`, rate.label],
-      [`card.rates.${index}.value`, rate.value],
-      ...(rate.note === undefined ? [] : [[`card.rates.${index}.note`, rate.note] as [string, string]]),
-    ]),
-    ...profile.holdingRuleOverrides.map((override, index): [string, string] => [
-      `holdingRuleOverrides.${index}.note`,
-      override.note,
-    ]),
-    ...profile.pendingChanges.flatMap((change, index): [string, string][] => [
-      [`pendingChanges.${index}.title`, change.title],
-      [`pendingChanges.${index}.summary`, change.summary],
-    ]),
-    ...(profile.status.changeNotice === null
-      ? []
-      : [['status.changeNotice', profile.status.changeNotice] as [string, string]]),
   ];
 }
 
@@ -275,13 +232,19 @@ function template(file: ContentFile, catalogue: Catalogue | null, options: Valid
   if (total !== 1_000_000n) problems.push({ path, code: 'split-sum', detail: 'the shares must sum to exactly 100' });
   if (catalogue !== null) problems.push(...catalogueProblems(path, value.coins, catalogue));
   problems.push(...drawdownProblems(path, value.drawdowns, coins, options.allow.facts ?? [], value.lastReviewed));
-  problems.push(...paragraphProblems(path, 'explanation', value.explanation));
-  // Onboarding shows all four, so each takes U+2011 between a number and its unit (docs/CONTENT-STYLE.md §4).
-  for (const field of ['name', 'oneLine', 'riskLabel', 'explanation'] as const) {
-    problems.push(...bannedProblems(path, field, value[field]), ...hyphenProblems(path, field, value[field]));
-  }
+  problems.push(...templateTextProblems(path, templateTexts(value)));
   return problems;
 }
+
+// Onboarding shows all four, so each takes U+2011 between a number and its unit (docs/CONTENT-STYLE.md §4).
+const templateTexts = (value: ContentTemplate) =>
+  (['name', 'oneLine', 'riskLabel', 'explanation'] as const).map((field): [string, string] => [field, value[field]]);
+
+/** The explanation's paragraphs first, then the ban list and the no-break hyphen on each text. */
+const templateTextProblems = (path: string, texts: readonly [string, string][]): Problem[] => [
+  ...texts.flatMap(([field, text]) => (field === 'explanation' ? paragraphProblems(path, field, text) : [])),
+  ...texts.flatMap(([field, text]) => [...bannedProblems(path, field, text), ...hyphenProblems(path, field, text)]),
+];
 
 /** Unique tickers and CoinGecko ids, in ticker order: a neutral order that ranks no coin, and stable diffs. */
 function coinCatalogue(file: ContentFile): Problem[] {
@@ -361,6 +324,21 @@ function factDates(files: readonly ContentFile[]): ReadonlyMap<string, string> {
   return new Map(parsed.map((fact) => [fact.key, fact.lastReviewed]));
 }
 
+/** The English checks on a translation's changed text (ADR-0057); its shape and schema are overlay-validate.ts's. */
+const TRANSLATED: TextChecks = {
+  jurisdiction: (path, language, [english, translated]) => {
+    const texts = changedTexts(profileTexts(english), profileTexts(translated));
+    const summary = texts.some(([field]) => field === 'card.summary60');
+    return [
+      ...(summary ? summaryProblems(path, translated.card.summary60) : []),
+      ...profileTextProblems(path, texts),
+      ...languagePercentProblems(path, language, translated, texts),
+    ];
+  },
+  template: (path, [english, translated]) =>
+    templateTextProblems(path, changedTexts(templateTexts(english), templateTexts(translated))),
+};
+
 /** Every problem in the given files and modules; the empty list is a pass. */
 export function validateContent(files: readonly ContentFile[], options: ValidationOptions): Problem[] {
   const seen = new Set<string>();
@@ -373,6 +351,7 @@ export function validateContent(files: readonly ContentFile[], options: Validati
     if (CYCLES_FILE.test(file.path)) return cycles(file, catalogue, options);
     if (FACTS_FILE.test(file.path)) return facts(file, options, seen);
     if (MESSAGES_FILE.test(file.path)) return messages(file);
+    if (isOverlayFile(file.path)) return overlayFileProblems(file, files, TRANSLATED);
     return [{ path: file.path, code: 'unknown-file', detail: 'not a content or message file' }];
   });
   return [...problems, ...(options.modules ?? []).flatMap((module) => moduleProblems(module, context))];
