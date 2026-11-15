@@ -27,6 +27,20 @@ function venuesLine(venues: readonly (string | null)[]) {
   return screen.getByText(/these entries/).textContent;
 }
 
+describe('FormHints on a new entry', () => {
+  // In English prose, numerals for everything including 2 to 9 (docs/CONTENT-STYLE.md §4).
+  it('writes the live hint with numerals', () => {
+    render(
+      <ServicesProvider services={createTestServices()}>
+        <I18nProvider messages={{ log }}>
+          <FormHints added={false} editing={[]} />
+        </I18nProvider>
+      </ServicesProvider>,
+    );
+    expect(screen.getByText(/the form fills/).textContent).toBe('Type 2 of the 3; the form fills the third.');
+  });
+});
+
 describe('FormHints on a grouped edit at different venues', () => {
   it('names two venues', () => {
     expect(venuesLine(['Bitvavo', 'Ledger'])).toBe(`Venues on these entries: Bitvavo and Ledger. ${KEEPS}`);

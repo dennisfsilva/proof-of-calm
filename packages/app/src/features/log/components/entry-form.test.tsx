@@ -122,7 +122,7 @@ describe('EntryForm', () => {
     expect(screen.queryByRole('status')).toBeNull();
   });
 
-  // "Type two of the three; the form fills the third": units beside the live price filled nothing, and the save refused.
+  // "Type 2 of the 3; the form fills the third": units beside the live price filled nothing, and the save refused.
   it('fills the amount from units typed beside the live price, and saves both', async () => {
     const { services, onDone } = await renderForm();
     type('BTC received (units)', '0.002');
