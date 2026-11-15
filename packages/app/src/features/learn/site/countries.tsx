@@ -37,7 +37,7 @@ function Rows({ entries, links }: RowsProps) {
 
 export type SiteCountryListProps = RowsProps;
 
-/** The library as a page: the way back to Learn, the heading, and a row per country. */
+/** The library as a page: the way back to Learn, the heading, the holding rules' page, and a row per country. */
 export function SiteCountryList({ entries, links }: SiteCountryListProps) {
   const t = useTranslations('learn');
   return (
@@ -46,6 +46,9 @@ export function SiteCountryList({ entries, links }: SiteCountryListProps) {
         {t('module.back')}
       </a>
       <h1 className="text-28">{t('countries.title')}</h1>
+      <a href={links.holding} className={BACK_LINK}>
+        {t('holding.title')}
+      </a>
       <Rows entries={entries} links={links} />
     </div>
   );

@@ -44,4 +44,14 @@ describe('the site pages link only paths that exist', () => {
   it('reads the links it checks: the Learn index links the countries page', () => {
     expect(rootRelativeHrefs(renderSitePage('en/learn', [], data))).toContain('/en/countries');
   });
+
+  it('opens the holding-date page with its way back to the countries, and the country list links it', () => {
+    const main = (html: string) => html.slice(html.indexOf('<main id="main">'));
+    const holding = main(renderSitePage('en/holding-date', [], data));
+    expect(rootRelativeHrefs(holding)[0]).toBe('/en/countries');
+    expect(holding).toMatch(/<a href="\/en\/countries"[^>]*>Back to countries<\/a>/);
+    expect(main(renderSitePage('en/countries', [], data))).toMatch(
+      /<a href="\/en\/holding-date"[^>]*>Holding rules by country<\/a>/,
+    );
+  });
 });
