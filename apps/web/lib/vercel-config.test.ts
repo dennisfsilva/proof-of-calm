@@ -78,6 +78,7 @@ describe('the header rules (ADR-0045 §3)', () => {
       '/manifest.webmanifest',
       '/favicon.svg',
       '/apple-touch-icon.png',
+      '/og.png',
     ]) {
       expect(source.test(path), path).toBe(false);
     }
@@ -156,6 +157,7 @@ describe('the UK route (ADR-0045 §4)', () => {
       '/serwist/sw.js',
       '/favicon.ico',
       '/apple-touch-icon.png',
+      '/og.png',
     ]) {
       expect(blocked.test(path), path).toBe(false);
     }

@@ -10,7 +10,7 @@
   "trailingSlash": false,
   "routes": [
     {
-      "src": "^/(?!(?:terms|privacy|risk|cookies|contact|\\.well-known/security\\.txt)/?$|api/|assets/|icons/|sw\\.js$|serwist/|favicon\\.|apple-touch-icon\\.png$).*$",
+      "src": "^/(?!(?:terms|privacy|risk|cookies|contact|\\.well-known/security\\.txt)/?$|api/|assets/|icons/|sw\\.js$|serwist/|favicon\\.|apple-touch-icon\\.png$|og\\.png$).*$",
       "has": [
         {
           "type": "header",
@@ -75,7 +75,7 @@
       ]
     },
     {
-      "source": "/((?!\\.well-known/|manifest\\.webmanifest$|api/|assets/|icons/|sw\\.js$|serwist/|favicon\\.|apple-touch-icon\\.png$).*)",
+      "source": "/((?!\\.well-known/|manifest\\.webmanifest$|api/|assets/|icons/|sw\\.js$|serwist/|favicon\\.|apple-touch-icon\\.png$|og\\.png$).*)",
       "headers": [
         {
           "key": "Content-Security-Policy",

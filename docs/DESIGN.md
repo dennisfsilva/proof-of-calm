@@ -525,10 +525,10 @@ App icons: `favicon.svg` (adaptive to colour scheme), `favicon.ico` (16, 32, 48 
 `icon-192.png` and `icon-512.png` (`purpose: any`), `icon-maskable-192.png` and
 `icon-maskable-512.png` (opaque full-bleed paper or charcoal, the ring within the central 80 %),
 `icon-monochrome-512.png`, `apple-touch-icon.png` 180 px opaque without rounded corners, manifest
-screenshots per form factor (planned: M2), the OG image `og.png` 1200 × 630 (the mark centred on
-paper at half the height, no text; every site page's head names it at its absolute URL with a large
-Twitter card), two `theme-color` meta tags for light and dark set to the two backgrounds. The Android adaptive-icon safe zone is 66 dp; the PWA uses the maskable
-icon.
+screenshots per form factor (planned: M2), the OG image `apps/web/public/og.png` 1200 × 630 (the
+mark centred on paper at half the height, no text; every site page's head names it at its absolute
+URL with a large Twitter card), two `theme-color` meta tags for light and dark set to the two
+backgrounds. The Android adaptive-icon safe zone is 66 dp; the PWA uses the maskable icon.
 
 ## 10. Checks that enforce this document
 

@@ -44,8 +44,20 @@ export type VercelJson = {
   rewrites: { source: string; destination: string }[];
 };
 
-/** The requests that are not documents: the API, the build's assets, the workers and the icons. */
-const NOT_DOCUMENTS = ['api/', 'assets/', 'icons/', 'sw\\.js$', 'serwist/', 'favicon\\.', 'apple-touch-icon\\.png$'];
+/**
+ * The requests that are not documents: the API, the build's assets, the workers, the icons and the OG
+ * image, which is the mark alone, the image of the legal pages' cards that a UK crawler may read.
+ */
+const NOT_DOCUMENTS = [
+  'api/',
+  'assets/',
+  'icons/',
+  'sw\\.js$',
+  'serwist/',
+  'favicon\\.',
+  'apple-touch-icon\\.png$',
+  'og\\.png$',
+];
 /** With `cleanUrls`, Vercel serves dist/not-available.html here (the ADR's Deviations). */
 const NOT_AVAILABLE = '/not-available';
 const APP_SHELL = '/app';
