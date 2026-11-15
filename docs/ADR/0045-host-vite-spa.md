@@ -1447,8 +1447,10 @@ with pt-PT.
   complete, and `packages/app/src/lib/i18n/locales.test.ts` holds that every translated message has
   English's ICU arguments and rich tags and an `other` in each plural and select. The pt-PT files are
   English's copies until the translation lands; German reads English's files until the merge lists
-  it. English's static namespaces stay static imports of the entries; another language's come from
-  `loadStaticNamespaces` before the first render, and `messageRegistry.setLanguage` points
+  it. Both entries boot through `bootLanguage` (`packages/app/src/lib/i18n/namespaces.ts`), which
+  imports English's static namespaces and loads another language's before the first render, or gives
+  English with English's when they cannot load; the language it gives goes to the document's `lang`,
+  the provider, the services' formatters and `messageRegistry.setLanguage`, which points
   `loadNamespace` and `lazyScreen` at that language's lazy files.
 - **2026-11-15, another language's message chunks stay out of the precache** (§5, §8). The hosts'
   `chunkFileNames` (`packages/config/vite/host-config.ts`) put a chunk of `messages/<locale>/` for any
@@ -1457,9 +1459,8 @@ with pt-PT.
   install; a person who chose the language gets them from the assets route like any visited file.
   Measured on the web build: 70 precache entries and 1,371,216 bytes before, 70 and 1,372,906 after
   (the 1,690 bytes are English's changed entry code). Today's application code
-  (`node tools/size/today.ts`) went from 39,819 to 41,763 bytes; 1,444 of them are pt-PT's today
-  chunk, which the tool's `TODAY` pattern counts as Today's messages, so English's Today grew by
-  about 500 bytes of loader code.
+  (`node tools/size/today.ts`, whose `TODAY` pattern counts English's today chunk and no other
+  language's) went from 39,819 to 40,401 bytes, the loader and boot code.
 - **2026-11-15, the review's first sentence has three keys that say the same** (§8). Plan's
   `plan.review.since` is one select over `kind`; Today's `today.review.created` and
   `today.review.reviewed` say each branch alone. `packages/app/src/lib/i18n/twins.test.ts` formats
