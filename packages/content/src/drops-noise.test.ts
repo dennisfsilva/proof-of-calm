@@ -115,9 +115,16 @@ describe('the Noise and When the market drops modules', () => {
     expect(body).toContain(
       'about 6 episodes a year. A close 30\u00a0% or more below the 90\u2011day high came on 11.8\u00a0% of days. Either one came on 15.1\u00a0% of days.',
     );
-    expect(body).toContain("Learn's first row opens a page with the figure and each coin's earlier falls.");
+    // The public page shows the same body, so each sentence about an app screen names the app (CONTENT-STYLE §1
+    // rule 10), and says only what the app does in every state: no line, row or page without prices that show a fall.
+    expect(body).toContain('In the app, Today then shows one line on one visit, and Learn lists the fall first.');
+    expect(body).toContain('## The fall page in the app');
+    expect(body).toContain(
+      "In the app, while its prices show a fall of the coins you hold, Learn's first row opens a page with the figure and each coin's earlier falls.",
+    );
     expect(body).not.toMatch(/next buy day/u);
-    expect(body).toContain("With no fall under way, that page's address opens this module.");
+    expect(body).toContain("When they show no fall, that page's address opens this module.");
+    expect(body).not.toMatch(/Learn opens with|## The fall under way/u);
   });
 
   it('When the market drops quotes the BIS paper as its revision gives it, from its own fact r', () => {
