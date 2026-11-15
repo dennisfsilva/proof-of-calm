@@ -102,8 +102,9 @@ export function lateOf(plan: Plan, late: LateStart, idOf: (key: string) => Entit
  * Whether `part`, some of the file's movements, splits one date of a coin's purchases within 3 days of a live `lump`
  * of that coin whose amount is not the coin's monthly part, whichever side (it ends inside it, begins inside it, or
  * both). A cut at this width can store a purchase of a date a hand entry claims in one import, so it counts twice with
- * the one-tap estimates it replaced, and can move the date a hand entry that falls back to its nearest date claims,
- * docs/DOMAIN.md §3.13 step 2's one exception; the prefix and window properties skip it and
+ * the one-tap estimates it replaced, and can move the date a hand entry that falls back to its nearest date claims (an
+ * extra buy, a monthly buy whose month has no date, a `lump` at its coin's monthly part), docs/DOMAIN.md §3.13 step
+ * 2's one exception; the prefix and window properties skip it and
  * plan-lump-cut.property.test.ts covers it.
  */
 export function splitsLumpDay(
@@ -227,7 +228,8 @@ export const skipped = { cuts: 0 };
 
 /**
  * Skips (`fc.pre`) and counts a cut at `splitsLumpDay`'s width, which can count a claimed date's purchases twice with
- * their estimates, or move a fallback hand claim (docs/DOMAIN.md §3.13 step 2's one exception);
+ * their estimates, or move a fallback hand claim, a `lump` at its coin's monthly part's too (docs/DOMAIN.md §3.13
+ * step 2's one exception);
  * plan-lump-cut.property.test.ts covers that width.
  */
 export function preCut(drawn: Parameters<typeof splitsLumpDay>[0], part: readonly Movement[]) {
