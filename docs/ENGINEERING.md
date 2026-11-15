@@ -126,8 +126,9 @@ focused: the focused field and the submit button stay reachable). Every spec tak
 125 % text there. Every page of `apps/web/e2e/matrix.spec.ts` passes in light and dark, and so do the
 Today, Log, end-buying, pause and Undo-focus flows; the other flows run in light. Every page of the matrix also
 matches its reviewed screenshot on every project, in light and dark, with the clock fixed, the prices
-and closes answered from fixtures and the prices line masked; the baselines are rendered and reviewed
-as ADR-0024's Corrections say, and the test skips on a platform without one.
+and closes answered from fixtures and the prices line and the holding-date page's date field masked;
+the baselines are rendered and reviewed as ADR-0024's Corrections say, and the test skips on a
+platform without one.
 
 ## 4. Performance budget
 
