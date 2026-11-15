@@ -135,6 +135,38 @@ test('a hint after a result hides the result: no country chosen', async ({ page 
   await expect(page.locator('[aria-live="polite"] [data-country]:visible')).toHaveCount(0);
 });
 
+// Hints belong to a submit: a fragment read on the same page (typed in the address bar, or Back) clears them first.
+test('a fragment changed after the date hint clears the hint and shows its result', async ({ page }) => {
+  await open(page);
+  await page.getByRole('radio', { name: 'Germany' }).check();
+  await submit(page).click();
+  await expect(invalidHint(page)).toBeVisible();
+  await expect(dateField(page)).toHaveAttribute('aria-invalid', 'true');
+  await page.evaluate(() => {
+    location.hash = '#country=pt&bought=2027-03-01';
+  });
+  await expect(result(page, 'pt').getByText(/^Tax-free from 29\sFeb\s2028$/u)).toBeVisible();
+  await expect(invalidHint(page)).toBeHidden();
+  await expect(noCountryHint(page)).toBeHidden();
+  await expect(dateField(page)).not.toHaveAttribute('aria-invalid');
+  expect(await violations(page)).toEqual([]);
+});
+
+test('a fragment changed after the no-country hint clears the hint and shows its result', async ({ page }) => {
+  await open(page);
+  await dateField(page).fill('2027-03-01');
+  await submit(page).click();
+  await expect(noCountryHint(page)).toBeVisible();
+  await page.evaluate(() => {
+    location.hash = '#country=pt&bought=2027-03-01';
+  });
+  await expect(result(page, 'pt').getByText(/^Tax-free from 29\sFeb\s2028$/u)).toBeVisible();
+  await expect(noCountryHint(page)).toBeHidden();
+  await expect(invalidHint(page)).toBeHidden();
+  await expect(dateField(page)).not.toHaveAttribute('aria-invalid');
+  expect(await violations(page)).toEqual([]);
+});
+
 test('with the boot script removed, a submit leaves the URL unchanged', async ({ page }) => {
   await page.route(`**${PATH}`, async (route) => {
     const response = await route.fetch();
