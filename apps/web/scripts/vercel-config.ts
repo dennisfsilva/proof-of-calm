@@ -7,6 +7,7 @@ import { APP_ROUTES } from '@proofofcalm/app/lib/navigation/routes';
 import { THEME_BEFORE_PAINT_SHA256 } from '@proofofcalm/app/lib/theme';
 import { BOOT_SCRIPT_HASH, sha256 } from '@proofofcalm/config/vite';
 import { NOT_AVAILABLE_STYLE } from '../lib/geo/rules.ts';
+import { PUBLIC_INDEXABLE } from '../lib/site/indexing.ts';
 import { LEGAL_PAGES, SECURITY_TXT_PATH } from '../lib/site/pages.ts';
 import { vercelConfig } from '../lib/vercel-config.ts';
 
@@ -17,6 +18,7 @@ const config = vercelConfig({
   appRoutes: APP_ROUTES,
   legalPaths: LEGAL_PAGES.map((page) => page.path),
   securityTxtPath: SECURITY_TXT_PATH,
+  indexable: PUBLIC_INDEXABLE,
 });
 const json = `${JSON.stringify(config, null, 2)}\n`;
 

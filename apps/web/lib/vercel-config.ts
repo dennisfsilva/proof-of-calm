@@ -4,7 +4,8 @@
 // and `vercel-config.test.ts` fails when the committed copy drifts. Plain `node` loads this module.
 import { BLOCKED_COUNTRIES, BLOCKED_STATUS, COUNTRY_HEADER } from './geo/rules.ts';
 import { buildCsp, reportingEndpoints } from './security/csp.ts';
-import { securityHeaders } from './security/headers.ts';
+import { NOINDEX_HEADER, securityHeaders } from './security/headers.ts';
+import { PUBLIC_PREFIX } from './site/indexing.ts';
 
 export type VercelInputs = {
   /** `sha256-…` of THEME_BEFORE_PAINT. */
@@ -19,6 +20,8 @@ export type VercelInputs = {
   legalPaths: readonly string[];
   /** security.txt, reachable from the UK: SECURITY_TXT_PATH. */
   securityTxtPath: string;
+  /** Whether the public pages under PUBLIC_PREFIX may be indexed: PUBLIC_INDEXABLE. */
+  indexable: boolean;
 };
 
 type Header = { key: string; value: string };
@@ -84,6 +87,13 @@ export function vercelConfig(inputs: VercelInputs): VercelJson {
   const exempt = [...inputs.legalPaths, inputs.securityTxtPath].map((path) => escapeRegExp(slug(path)));
   const blocked = `^/(?!(?:${exempt.join('|')})/?$|${NOT_DOCUMENTS.join('|')}).*$`;
   const appRoutes = inputs.appRoutes.join('|');
+  // Once the public pages may be indexed, every response but theirs keeps the noindex header, `/` included.
+  const everyResponse = inputs.indexable
+    ? securityHeaders.filter((header) => header.key !== NOINDEX_HEADER.key)
+    : securityHeaders;
+  const notPublic = inputs.indexable
+    ? [{ source: `/((?!${escapeRegExp(slug(PUBLIC_PREFIX))}).*)`, headers: [{ ...NOINDEX_HEADER }] }]
+    : [];
 
   return {
     $schema: 'https://openapi.vercel.sh/vercel.json',
@@ -109,7 +119,7 @@ export function vercelConfig(inputs: VercelInputs): VercelJson {
       },
     ],
     headers: [
-      { source: '/(.*)', headers: securityHeaders.map(({ key, value }) => ({ key, value })) },
+      { source: '/(.*)', headers: everyResponse.map(({ key, value }) => ({ key, value })) },
       {
         source: `/((?!${['\\.well-known/', 'manifest\\.webmanifest$', ...NOT_DOCUMENTS].join('|')}).*)`,
         headers: policyHeaders,
@@ -117,6 +127,7 @@ export function vercelConfig(inputs: VercelInputs): VercelJson {
       { source: '/assets/(.*)', headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }] },
       { source: '/sw.js', headers: [{ key: 'Service-Worker-Allowed', value: '/' }] },
       { source: '/serwist/sw.js', headers: [{ key: 'Service-Worker-Allowed', value: '/' }] },
+      ...notPublic,
     ],
     rewrites: [
       { source: `/api/(${API_PATHS.join('|')})`, destination: API_FUNCTION },

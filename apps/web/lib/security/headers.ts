@@ -2,6 +2,12 @@
 // lib/vercel-config.ts. The CSP is not here: it is static and hashed, with no nonce (ADR-0045 §3), and
 // lib/security/csp.ts builds it.
 
+/**
+ * Nothing is indexed before the public launch after M2 (docs/ROADMAP.md, docs/GROWTH.md §4.1); once
+ * `PUBLIC_INDEXABLE` is true, vercel-config.ts leaves it off the public pages under `/en/` alone.
+ */
+export const NOINDEX_HEADER = { key: 'X-Robots-Tag', value: 'noindex, nofollow' } as const;
+
 export const securityHeaders = [
   // Submit to hstspreload.org only when every subdomain is HTTPS-only (docs/SECURITY.md §4).
   { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
@@ -15,6 +21,5 @@ export const securityHeaders = [
   { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
   { key: 'Cross-Origin-Resource-Policy', value: 'same-origin' },
   { key: 'X-Frame-Options', value: 'DENY' },
-  // Nothing is indexed before the public launch after M2 (docs/ROADMAP.md, docs/GROWTH.md §4.1).
-  { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
+  NOINDEX_HEADER,
 ] as const;
