@@ -1066,9 +1066,11 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      buy whose month has no date) claims in the second import instead (with those dates' estimates left
      live). Above the part each doubled date is the cut date, its stored part under the square root of
      A x p (300 + 700 on 3 Sep: 1,700 against 1,400); below it, a date the whole file's lump walks that the
-     shorter export stored while its lump claimed the cut date's part (2,550 against 2,450; 2,450 either
-     way when that date lies after the export's end). The lump's own walk claims what it claims in one
-     import. No cut at a date boundary changes anything. The property
+     shorter export stored while its lump claimed the cut date's part or stopped its walk at that part,
+     every date it claimed nearer its date than the cut date, or as near and earlier (2,550 against 2,450;
+     91 against 87.50 when 1 Apr's 49 stops a lump of 35 at 2 Apr's 10.50 and 3 Apr's 3.50 is stored;
+     2,450 either way when that date lies after the export's end). The lump's own walk claims what it
+     claims in one import. No cut at a date boundary changes anything. The property
      `packages/core/src/import/exchange/plan-lump-cut.property.test.ts` checks this condition on every
      such cut, and `plan-remedy-start.test.ts` pins each case. The 3
      days are `IMPORT_TYPED_DAYS` (§9). Decided 2026-11-13 (ADR-0056, Corrections): "Every step that leaves
