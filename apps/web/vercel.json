@@ -30,7 +30,7 @@
         "Cross-Origin-Resource-Policy": "same-origin",
         "X-Frame-Options": "DENY",
         "X-Robots-Tag": "noindex, nofollow",
-        "Content-Security-Policy": "default-src 'self'; script-src 'self' 'sha256-wnpGXoSKl24mPBrgSxtQGoZPqPfH8I2hrV5IqSq/q18=' 'sha256-92ZM1ZTIuAg5GfBEfzDubSanWvwzhnqTfPEc/OMTuSI=' 'strict-dynamic'; style-src 'self' 'sha256-dSZnOanxA/cAZMtwpzDx+jtsj0LWUgAB/eXHYh5Ks0I='; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests; report-uri /api/csp-report; report-to csp-endpoint",
+        "Content-Security-Policy": "default-src 'self'; script-src 'self' 'sha256-wnpGXoSKl24mPBrgSxtQGoZPqPfH8I2hrV5IqSq/q18=' 'sha256-92ZM1ZTIuAg5GfBEfzDubSanWvwzhnqTfPEc/OMTuSI=' 'strict-dynamic'; style-src 'self' 'sha256-7QGQl9gdnrC/11GqUPbUmPSij9EtrYUdMfE4H6gYtyA='; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests; report-uri /api/csp-report; report-to csp-endpoint",
         "Reporting-Endpoints": "csp-endpoint=\"/api/csp-report\"",
         "Cache-Control": "no-store"
       }
@@ -79,7 +79,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'sha256-wnpGXoSKl24mPBrgSxtQGoZPqPfH8I2hrV5IqSq/q18=' 'sha256-92ZM1ZTIuAg5GfBEfzDubSanWvwzhnqTfPEc/OMTuSI=' 'strict-dynamic'; style-src 'self' 'sha256-dSZnOanxA/cAZMtwpzDx+jtsj0LWUgAB/eXHYh5Ks0I='; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests; report-uri /api/csp-report; report-to csp-endpoint"
+          "value": "default-src 'self'; script-src 'self' 'sha256-wnpGXoSKl24mPBrgSxtQGoZPqPfH8I2hrV5IqSq/q18=' 'sha256-92ZM1ZTIuAg5GfBEfzDubSanWvwzhnqTfPEc/OMTuSI=' 'strict-dynamic'; style-src 'self' 'sha256-7QGQl9gdnrC/11GqUPbUmPSij9EtrYUdMfE4H6gYtyA='; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests; report-uri /api/csp-report; report-to csp-endpoint"
         },
         {
           "key": "Reporting-Endpoints",

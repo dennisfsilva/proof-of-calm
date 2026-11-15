@@ -143,6 +143,8 @@ dark mode uses the dark steps above, not an inversion; the validator runs whenev
 - **Monospace: IBM Plex Mono 400** for addresses, hashes, CSV previews and code; dotted zero by
   default. Not preloaded (the hosts' font preload plugin adds only the text family's file): it never sets a first screen, and a preload on every page
   competes with the text family that the largest contentful paint waits for.
+- The UK page loads no stylesheet and no font file: its one inline rule (`apps/web/lib/geo/rules.ts`)
+  names the system part of `--typeface-text`, the families after Calm Sans and its fallback face.
 - No display family. Headings are the text family at 600.
 - Scale (px / line height): 12 / 1.4 axis ticks only; 13 / 1.45 captions, meta and a form's refusal
   line (minimum colour `ink-2`, the refusal line in `negative`); 14 / 1.45 dense tables, a
