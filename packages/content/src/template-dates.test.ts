@@ -181,3 +181,52 @@ describe('the template date check (docs/CONTENT-STYLE.md §4)', () => {
     ]);
   });
 });
+
+describe('an overlay keeps the English text’s placeholders (ADR-0057)', () => {
+  const OVERLAY = 'packages/content/i18n/pt-PT/templates/two-coins.json';
+  const explanation =
+    'Bitcoin fell 78 % from its high on {date:drawdowns.BTC.high} to its low on {date:drawdowns.BTC.low}; ' +
+    'Ether fell 78 % from its high on {date:drawdowns.ETH.high} to its low on {date:drawdowns.ETH.low}.';
+  const english = file(TWO, template({ explanation }));
+  /** The overlay checks only: the fixture's copy checks are the tests' above. */
+  const overlayCodes = (files: ContentFile[]) =>
+    validateContent(files, options)
+      .filter((problem) => problem.code.startsWith('overlay-'))
+      .map((problem) => `${problem.code}: ${problem.detail}`);
+  const translated = (text: string) => file(OVERLAY, { explanation: text });
+  const BTC = 'A Bitcoin caiu 78 % do máximo de {date:drawdowns.BTC.high} ao mínimo de {date:drawdowns.BTC.low}';
+  const englishList =
+    '{date:drawdowns.BTC.high} {date:drawdowns.BTC.low} {date:drawdowns.ETH.high} {date:drawdowns.ETH.low}';
+
+  it('refuses a translation that drops a placeholder', () => {
+    const dropped = `${BTC}; a Ether caiu 78 % do máximo de {date:drawdowns.ETH.high}.`;
+    expect(overlayCodes([english, translated(dropped)])).toEqual([
+      `overlay-date-mismatch: explanation: {date:drawdowns.BTC.high} {date:drawdowns.BTC.low} {date:drawdowns.ETH.high}, English ${englishList}`,
+    ]);
+  });
+
+  it('refuses a translation that adds a placeholder, or writes one twice', () => {
+    const added = `${BTC}; a Ether caiu 78 % de {date:drawdowns.ETH.high} a {date:drawdowns.ETH.low}, até {date:lastBuy}.`;
+    const twice = `${BTC}; a Ether caiu 78 % de {date:drawdowns.ETH.high} a {date:drawdowns.ETH.low} ({date:drawdowns.ETH.low}).`;
+    expect(overlayCodes([english, translated(added)])).toEqual([
+      `overlay-date-mismatch: explanation: {date:drawdowns.BTC.high} {date:drawdowns.BTC.low} {date:drawdowns.ETH.high} {date:drawdowns.ETH.low} {date:lastBuy}, English ${englishList}`,
+    ]);
+    expect(overlayCodes([english, translated(twice)])).toEqual([
+      `overlay-date-mismatch: explanation: {date:drawdowns.BTC.high} {date:drawdowns.BTC.low} {date:drawdowns.ETH.high} {date:drawdowns.ETH.low} {date:drawdowns.ETH.low}, English ${englishList}`,
+    ]);
+  });
+
+  it('passes a translation that keeps every placeholder in another order', () => {
+    const reordered =
+      'A Ether caiu 78 % entre {date:drawdowns.ETH.low} e o máximo de {date:drawdowns.ETH.high}; ' +
+      'a Bitcoin caiu 78 % entre {date:drawdowns.BTC.low} e o máximo de {date:drawdowns.BTC.high}.';
+    expect(overlayCodes([english, translated(reordered)])).toEqual([]);
+  });
+
+  it('leaves the English file to the template checks', () => {
+    expect(overlayCodes([english])).toEqual([]);
+    expect(
+      overlayCodes([file(TWO, template({ explanation: 'Bitcoin fell 78 % from {date:drawdowns.BTC.high}.' }))]),
+    ).toEqual([]);
+  });
+});
