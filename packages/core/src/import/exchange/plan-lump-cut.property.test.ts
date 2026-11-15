@@ -25,8 +25,8 @@ import { type ExchangeImportPlan, planExchangeImport } from './plan';
 // The lump's own walk claims what it claims in one import, since stored dates take their place in its order and sum;
 // no generated world reaches the fallback case, which plan-remedy-start.test.ts pins three times: an extra buy
 // ("400 less"), a lump at the part ("a second lump beside the lump of 1,000") and a one-tap lump at the part
-// ("a one-tap lump beside the lump of 1,000"); the oracle's `gone` holds for each. A hand sale claims its date's
-// sales alone, never a purchase of that date: until 2026-11-15 the oracle keyed a sale's claim as a purchase date's,
+// ("a one-tap lump beside the lump of 1,000"); the oracle's `gone` holds for each. A hand sale claims sales only,
+// never a date's purchases: until 2026-11-15 the oracle keyed a sale's claim as a purchase date's,
 // and seed -605869711 drew the one world of 30,000 that tells them apart (seeds 1 to 8, CI's two and 40 random seeds,
 // 600 runs each, measured that day); keyed by role, the oracle meets the Log in all 30,000.
 
