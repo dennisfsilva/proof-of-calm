@@ -38,6 +38,7 @@ import { SiteLayout } from './layout';
 import { LegalPage, legalTitle } from './legal';
 import { NotFoundPage } from './not-found';
 import { OfflinePage } from './offline';
+import { RiskPage } from './risk';
 
 export { headAssets };
 
@@ -199,7 +200,17 @@ const legal = (slug: LegalSlug): Rendered => ({
   ),
 });
 
-function page(name: Exclude<(typeof SITE_PAGES)[number], 'not-available'>): Rendered {
+/** The Risk disclosure (docs/LEGAL.md §5): its dated falls are the cycles file's rows the Learn pages read. */
+const risk = ({ learn, today }: SiteData): Rendered => ({
+  title: legalTitle('risk'),
+  body: (
+    <SiteLayout>
+      <RiskPage falls={learn.falls} today={today} />
+    </SiteLayout>
+  ),
+});
+
+function page(name: Exclude<(typeof SITE_PAGES)[number], 'not-available' | 'risk'>): Rendered {
   switch (name) {
     case 'index':
       return {
@@ -252,10 +263,15 @@ function page(name: Exclude<(typeof SITE_PAGES)[number], 'not-available'>): Rend
  */
 export function renderSitePage(name: SitePage, assets: readonly string[], data?: SiteData): string {
   if (name === 'not-available') return notAvailableHtml();
+  // The public pages and the Risk disclosure read the site data; the other pages read nothing.
+  const fromData = (render: (loaded: SiteData) => Rendered) => {
+    if (data === undefined) throw new Error(`${name} renders from the loaded site data`);
+    return render(data);
+  };
   let rendered: Rendered;
-  if (!isPublic(name)) rendered = page(name);
-  else if (data !== undefined) rendered = publicPage(name, data);
-  else throw new Error(`${name} renders from the loaded site data`);
+  if (isPublic(name)) rendered = fromData((loaded) => publicPage(name, loaded));
+  else if (name === 'risk') rendered = fromData(risk);
+  else rendered = page(name);
   const { title, body, themeScript = false, canonical, indexable = false, island } = rendered;
   return [
     '<!doctype html>',
