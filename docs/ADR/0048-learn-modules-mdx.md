@@ -146,3 +146,17 @@ delegated the call to a session (ADR-0015 Deviations).
 - 2026-11-09: an allowed element is self-closing: the renderer passes it no children, so `closedBody` refuses one with
   anything between its tags, a flow or a text element alike (an empty `<Chart></Chart>` passes). No `<Chart />` can
   then sit inside another element, where it would never mount, and the count above is the page's.
+
+Recorded on 2026-11-15, when the site's half of the rendering points landed in `packages/app/src/features/learn/site`.
+
+- The one renderer is `ModuleArticle` in `components/module-view.tsx`, which takes the formatters, the day and the chart
+  as props; `ModuleView` is the app's wrapper over it with the services' hooks, and renders as before. The chart splits
+  the same way: `DrawdownBars` draws the rows it is given, and `ModuleChart` keeps the red-day port's read.
+- The site pages are `SiteLearnIndex` and `SiteModulePage` inside `StaticLearn` (English, the formatters of no
+  country), exported as `@proofofcalm/app/features/learn/site` and never imported by the app, so the lazy Learn chunk
+  does not reach them (`lazy-chunk.test.ts`). A static render cannot suspend, so `loadLearnSite` awaits every body and
+  the cycles file before the prerender renders. The host passes the day the pages are read at and every path
+  (`SiteLinks`), and the pages link with plain anchors.
+- A static page shows only what holds on any device: no row or line for a fall under way and no plan's country card,
+  which read the device's plan and prices. A module whose front matter names `drawdowns-bar` draws it from the cycles
+  file, with its source line and the past-performance line, as the app does.
