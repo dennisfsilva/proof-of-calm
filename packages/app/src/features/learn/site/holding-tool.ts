@@ -44,12 +44,13 @@ export function parseHoldingFragment(
   codes: readonly string[],
   bounds: HoldingBounds,
 ): HoldingFragment | null {
-  const raw: Record<string, string> = {};
+  // A Map, not an object literal: a key such as `__proto__` would hit Object.prototype's setter and vanish.
+  const raw = new Map<string, string>();
   for (const [key, value] of new URLSearchParams(hash.replace(/^#/, ''))) {
-    if (Object.hasOwn(raw, key)) return null;
-    raw[key] = value;
+    if (raw.has(key)) return null;
+    raw.set(key, value);
   }
-  const parsed = HoldingFragmentSchema.safeParse(raw);
+  const parsed = HoldingFragmentSchema.safeParse(Object.fromEntries(raw));
   if (!parsed.success) return null;
   const { country, bought } = parsed.data;
   if (country !== undefined && !codes.some((code) => code.toLowerCase() === country)) return null;
