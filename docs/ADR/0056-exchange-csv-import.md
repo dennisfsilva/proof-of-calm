@@ -150,13 +150,20 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   hand one does, and is never replaced, so a starting amount tapped on the day it was bought, after
   `firstBuy` + 15 days, is no longer imported again as a monthly buy (2,200 against 1,200), and a tapped
   lump whose units equal the file's records its date. The rest stands.
-- 2026-11-14, a `lump`'s claim reads its amount (#218): a `lump`, hand or one-tap, claims in step 2 only a
-  date whose amount, stored purchases included, is at least as near its own as its coin's monthly part,
-  so a starting amount tapped on a later buy day no longer takes that day's monthly buy (1,300 against
-  1,400) and a late starting purchase near it is recorded once (2,300 against 1,400). One exception
-  stands: an export that cuts inside a purchase date within 3 days of a live `lump` whose amount is not
-  its coin's monthly part can count a date the whole file claims twice, when the shorter export stored
-  its part or the date itself (W2; the condition is `docs/DOMAIN.md` §3.13 step 2's, checked by
+- 2026-11-15, rule G (#223): a live `lump`, hand or one-tap, claims in step 2 after the hand monthly
+  buys by walking its coin's purchase dates within 3 days of its date whose amount, stored purchases
+  included, is as near its own as its coin's monthly part or nearer, as a ratio, nearest date first,
+  while the sum gets nearer its amount; stored dates count in the order and sum but are never claimed
+  (the rule's text is `docs/DOMAIN.md` §3.13 step 2's). A starting amount tapped on a later buy day no
+  longer takes that day's monthly buy, and one bought in pieces on days near it is recorded whole (W1:
+  1,400 against 2,400). Four prices stand, each with its figures in step 2: a purchase between the
+  square root of the lump's amount times the part and their mean, near the lump, counts as starting
+  money (1,300 against 1,700); a starting amount below the part bought on a buy day takes that day's
+  buy (500 against 450); a late starting purchase more than 3 days away is imported beside it (file L:
+  2,400 on 128 of 135 tap days); claims are per date (1,300 against 1,400). One exception stands: an
+  export that cuts inside a purchase date within 3 days of a live `lump` whose amount is not its coin's
+  monthly part can count a date twice (W2: 1,700 against 1,400 above the part, 2,550 against 2,450
+  below; the condition is step 2's, checked by
   `packages/core/src/import/exchange/plan-lump-cut.property.test.ts`). Only a date at the file's edge
   shows a cut, and keeping a `lump` off such a date would undo #214's tap on the day of purchase, often
   an export's last date. This narrows rule R's entry. The rest stands.
