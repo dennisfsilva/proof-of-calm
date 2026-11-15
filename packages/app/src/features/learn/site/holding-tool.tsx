@@ -17,6 +17,7 @@ import { type SiteLinks, useSiteFormatters } from './static';
 
 const SOURCES = 'inline-flex min-h-target items-center text-13 text-ink underline underline-offset-4 hover:text-ink-2';
 const NOTE = 'text-13 text-ink-2';
+const HINT = 'text-16';
 
 /** One effect's lines: the date, the purchase it was computed from, the note, then the conditions. */
 function Effect({ effect, conditions }: { effect: HoldingEffect; conditions: readonly string[] }) {
@@ -94,7 +95,11 @@ export type SiteHoldingToolProps = {
   today: CalendarDate;
 };
 
-/** The form, then the result region the page's script fills; the radios in the library's order, none checked. */
+/**
+ * The form with its two hidden hints, each under its field, and the result region the page's script fills; then,
+ * outside the form so it shows without script, the line on what the app does. The radios in the library's order,
+ * none checked.
+ */
 export function SiteHoldingTool({ entries, cards, rules, links, today }: SiteHoldingToolProps) {
   const t = useTranslations('learn.holding.tool');
   const f = useSiteFormatters();
@@ -104,41 +109,57 @@ export function SiteHoldingTool({ entries, cards, rules, links, today }: SiteHol
     return country === undefined ? [] : [{ code: entry.code, country, rules: rules.get(entry.code) }];
   });
   return (
-    <form method="dialog" className="flex noscript:hidden flex-col gap-stack-md">
-      <p className="text-16">{t('app')}</p>
-      <fieldset className="flex flex-col">
-        <legend className="font-semibold text-16">{t('country')}</legend>
-        {listed.map(({ code, country, rules: rule }) => (
-          <label key={code} className="flex min-h-target items-center gap-2 text-16">
-            <input
-              type="radio"
-              name="country"
-              value={code.toLowerCase()}
-              data-rule={country.underReview || rule === undefined ? undefined : encodeHoldingRule(rule)}
-              className="size-5 accent-ink"
-            />
-            {country.name}
+    <div className="flex flex-col gap-stack-md">
+      <form method="dialog" className="flex noscript:hidden flex-col gap-stack-md">
+        <div className="flex flex-col gap-stack-xs">
+          <fieldset aria-describedby="holding-no-country" className="flex flex-col gap-target-gap">
+            <legend className="font-semibold text-16">{t('country')}</legend>
+            {listed.map(({ code, country, rules: rule }) => (
+              <label key={code} className="flex min-h-target items-center gap-target-gap text-16">
+                <input
+                  type="radio"
+                  name="country"
+                  value={code.toLowerCase()}
+                  data-rule={country.underReview || rule === undefined ? undefined : encodeHoldingRule(rule)}
+                  className="size-5 accent-ink"
+                />
+                {country.name}
+              </label>
+            ))}
+          </fieldset>
+          <p hidden id="holding-no-country" data-holding-no-country="" className={HINT}>
+            {t('noCountry')}
+          </p>
+        </div>
+        <div className="flex flex-col gap-stack-xs">
+          <label htmlFor="holding-bought" className="font-semibold text-16">
+            {t('bought')}
           </label>
-        ))}
-      </fieldset>
-      <div className="flex flex-col gap-stack-xs">
-        <label htmlFor="holding-bought" className="font-semibold text-16">
-          {t('bought')}
-        </label>
-        <DateInput id="holding-bought" name="bought" min={HOLDING_MIN} max={max} className="max-w-60" />
-      </div>
-      <button type="submit" className={`${buttonVariants()} self-start`}>
-        {t('submit')}
-      </button>
-      {/* The height a dated block takes at phone width, reserved so the list below does not move when it fills. */}
-      <div aria-live="polite" className="flex min-h-64 flex-col gap-stack-md">
-        <p hidden data-holding-invalid="" className="text-16">
-          {t('invalid', { min: f.date(HOLDING_MIN), max: f.date(max) })}
-        </p>
-        {listed.map(({ code, country, rules: rule }) => (
-          <Block key={code} code={code} country={country} rules={rule} links={links} />
-        ))}
-      </div>
-    </form>
+          {/* 15 rem: a native date field's text and its picker icon, kept from stretching across the column. */}
+          <DateInput
+            id="holding-bought"
+            name="bought"
+            min={HOLDING_MIN}
+            max={max}
+            aria-describedby="holding-invalid"
+            className="max-w-60"
+          />
+          <p hidden id="holding-invalid" data-holding-invalid="" className={HINT}>
+            {t('invalid', { min: f.date(HOLDING_MIN), max: f.date(max) })}
+          </p>
+        </div>
+        <button type="submit" className={`${buttonVariants()} self-start`}>
+          {t('submit')}
+        </button>
+        {/* 16 rem: the height a dated block (its date, purchase, note, first condition, Sources and date line) takes
+            at 360 px, reserved so the line below does not move when it fills. */}
+        <div aria-live="polite" className="flex min-h-64 flex-col gap-stack-md">
+          {listed.map(({ code, country, rules: rule }) => (
+            <Block key={code} code={code} country={country} rules={rule} links={links} />
+          ))}
+        </div>
+      </form>
+      <p className="text-16">{t('app')}</p>
+    </div>
   );
 }

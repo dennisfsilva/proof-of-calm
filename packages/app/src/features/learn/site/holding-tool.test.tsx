@@ -55,8 +55,18 @@ describe('SiteHoldingTool', () => {
     expect(form?.hasAttribute('action')).toBe(false);
   });
 
-  it('says what the app does with the rule', () => {
-    expect(dom(markup(site, TODAY)).body.textContent).toContain(T.app);
+  it('says what the app does with the rule below the result region, outside the form, so it shows without script', () => {
+    const doc = dom(markup(site, TODAY));
+    const line = all(doc, 'p').find((p) => p.textContent === T.app);
+    expect(line).toBeDefined();
+    expect(line?.closest('form')).toBeNull();
+    const region = doc.querySelector('[aria-live="polite"]') as Element;
+    expect(region.compareDocumentPosition(line as Node) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('spaces adjacent radio rows by the target gap', () => {
+    const doc = dom(markup(site, TODAY));
+    expect(doc.querySelector('fieldset')?.classList.contains('gap-target-gap')).toBe(true);
   });
 
   it('lists a radio per country in the library’s order, none checked, each with its rule', () => {
@@ -87,16 +97,36 @@ describe('SiteHoldingTool', () => {
     expect(doc.querySelector('button[type="submit"]')?.textContent).toBe(T.submit);
   });
 
-  it('keeps a hidden block per country in a polite live region, with a hidden date hint', () => {
+  it('keeps only a hidden block per country in a polite live region', () => {
     const doc = dom(markup(site, TODAY));
     const region = doc.querySelector('[aria-live="polite"]');
     expect(region).not.toBeNull();
     const blocks = all(region as Element, '[data-country]');
     expect(blocks.map((block) => block.dataset.country)).toEqual(site.entries.map((e) => e.code.toLowerCase()));
     expect(blocks.every((block) => block.hidden)).toBe(true);
+    expect(region?.children).toHaveLength(blocks.length);
+  });
+
+  it('puts a hidden "Choose a country." directly under the fieldset, which it describes', () => {
+    const doc = dom(markup(site, TODAY));
+    const fieldset = doc.querySelector('fieldset');
+    const hint = doc.querySelector<HTMLElement>('[data-holding-no-country]');
+    expect(hint?.hidden).toBe(true);
+    expect(T.noCountry).toBe('Choose a country.');
+    expect(hint?.textContent).toBe(T.noCountry);
+    expect(fieldset?.nextElementSibling).toBe(hint);
+    expect(fieldset?.getAttribute('aria-describedby')).toBe(hint?.id);
+  });
+
+  it('puts a hidden date hint directly under the date field, which it describes', () => {
+    const doc = dom(markup(site, TODAY));
+    const field = doc.querySelector<HTMLInputElement>('input[type="date"]');
     const hint = doc.querySelector<HTMLElement>('[data-holding-invalid]');
     expect(hint?.hidden).toBe(true);
-    expect(hint?.textContent).toBe('Enter a purchase date from 3 Jan 2009 to 15 Nov 2027.');
+    expect(field?.nextElementSibling).toBe(hint);
+    expect(field?.getAttribute('aria-describedby')).toBe(hint?.id);
+    expect(hint?.closest('[aria-live]')).toBeNull();
+    expect(hint?.textContent).toBe('Choose a purchase date from 3 Jan 2009 to 15 Nov 2027.');
   });
 
   it('gives every listed block its Sources link and date line', () => {
