@@ -141,7 +141,7 @@ honestly is not built, so the caveat points to no module.)
 **Idea**: a fall of 10 % or more in 7 days leaves the plan as it was. Learn's
 index rows and a sheet's title show the idea with no past-performance line and no source, so an idea
 holds no historic figure (`docs/LEGAL.md` §3 item 6); 10 % and 7 days are the trigger's thresholds.
-**Two surfaces.** The module, `/learn/when-the-market-drops`, is the resting text, in Learn's index
+**2 surfaces.** The module, `/learn/when-the-market-drops`, is the resting text, in Learn's index
 like any other; while the red-day port finds a fall under way, its route (never its sheet) holds one
 line above the body linking to the fall page. The fall page, `/learn/fall-under-way`, is the other:
 Learn's index opens with its row (`The fall under way and your plan`) only while the red-day port
