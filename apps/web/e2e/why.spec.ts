@@ -30,7 +30,7 @@ const LINKS = [
   { path: '/today', name: 'Why? The hold phase', idea: IDEA, section: 'Why some people hold' },
   { path: '/today', name: 'Why? The sell window', idea: CYCLES, section: WINDOW },
   { path: '/plan', name: 'Why? The sell window', idea: CYCLES, section: WINDOW },
-  { path: '/plan', name: 'Why? The three parts', idea: CYCLES, section: 'Three parts' },
+  { path: '/plan', name: 'Why? The three parts', idea: CYCLES, section: '3 parts' },
 ] as const;
 
 async function seedInHold(page: Page) {

@@ -23,7 +23,7 @@ leaving the screen:
 | "Tax-free from <date>" on an opened Log row (#162), and on a lot once a screen lists lots | Taxes where you live (the country section) |
 | The sell window on Plan and the strip | Cycles → "the window is a discipline device" |
 | The hold phase on Today | Start here → "why some people hold" |
-| The three sell parts | Cycles → "three parts" |
+| The 3 sell parts | Cycles → "3 parts" |
 | The figure on the fall page (`/learn/fall-under-way`) | When the market drops |
 | The P/L line on Portfolio, shown whenever the P/L line shows (every state but a held coin with no price) | Risk honestly |
 | The simulator's result | Simulator → "what this does not show" |
