@@ -69,14 +69,35 @@ test('the country list links every listed country', async ({ page }) => {
   expect(hrefs.sort()).toEqual(countryPages);
 });
 
+test('the country list leads to the holding rules, and that page opens with the way back', async ({ page }) => {
+  await page.goto('/en/countries');
+  await expect(page).toHaveTitle('Crypto tax rules by country · Proof of Calm');
+  await expect(page.locator('main#main p').first()).toHaveText(
+    'Tax and holding rules by country, with their sources and the date each was last reviewed.',
+  );
+  await page.getByRole('link', { name: 'Holding rules by country' }).click();
+  await expect(page).toHaveURL(/\/en\/holding-date$/);
+  await expect(page.locator('main#main a').first()).toHaveText('Back to countries');
+  await expect(page.locator('main#main p').first()).toHaveText(
+    "Each country's holding rule with every condition, its sources, and the date it was last reviewed.",
+  );
+  await page.getByRole('link', { name: 'Back to countries' }).click();
+  await expect(page).toHaveURL(/\/en\/countries$/);
+});
+
 test('Taxes ends with every country row, each a working link', async ({ page }) => {
   await page.goto('/en/learn/taxes-where-you-live');
+  await expect(page.locator('main#main article')).toContainText(
+    'The sections below, up to “How fast rules change”, describe what the app shows once a plan is set up.',
+  );
   const rows = page.locator('main section').last();
   await expect(rows.getByRole('heading', { level: 2 })).toHaveText('Countries');
   for (const path of countryPages) await expect(rows.locator(`a[href="${path}"]`)).toHaveCount(1);
   await rows.locator('a[href="/en/countries/pt"]').click();
   await expect(page).toHaveURL(/\/en\/countries\/pt$/);
+  await expect(page).toHaveTitle('Crypto tax in Portugal · Proof of Calm');
   await expect(page.locator('main#main h1')).toContainText('Portugal');
+  await expect(page.getByRole('heading', { level: 2, name: 'Sources for Portugal', exact: true })).toBeVisible();
 });
 
 test('the Risk page states the warning in full', async ({ page }) => {
