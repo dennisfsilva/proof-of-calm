@@ -7,7 +7,7 @@ import { useSiteFormatters } from './static';
 
 // The Risk page's dated falls (docs/LEGAL.md §5, its volatility and drawdowns with dated ranges): the cycles file's
 // rows as a visible table, then §4's line for falls computed from intraday prices with the past-performance sentence.
-// The page is the Risk disclosure, so the line carries no link to it. The fall, the key figure, comes right after the
+// The page is the Risk disclosure, so the line carries no link to it. The fall, the main figure, comes right after the
 // coin (docs/DESIGN.md §8), so the narrowest screen at 125 % text reads it before the table scrolls.
 
 const HEAD = 'px-2 py-2 font-medium text-13 text-ink-2';
