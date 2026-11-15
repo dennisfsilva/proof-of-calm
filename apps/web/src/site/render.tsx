@@ -153,12 +153,20 @@ function publicPage(name: PublicPage, { learn, countries, today }: SiteData): Re
   const module = learn.modules.find((candidate) => candidate.slug === slug);
   const Body = learn.bodies.get(slug);
   if (module === undefined || Body === undefined) throw new Error(`no public Learn module ${slug}`);
-  const after = slug === TAXES ? <SiteCountryRows entries={entries} links={SITE_LINKS} /> : undefined;
+  // Taxes describes the app with a plan (docs/CONTENT-STYLE.md §1 rule 10): the page says so before its first section,
+  // in the site's own words, so the module's text stays as reviewed.
+  const taxes =
+    slug === TAXES
+      ? {
+          lead: <p className="text-16">{t('module.taxSiteLead')}</p>,
+          after: <SiteCountryRows entries={entries} links={SITE_LINKS} />,
+        }
+      : {};
   return {
     ...common,
     title: module.title,
     body: page(
-      <SiteModulePage module={module} Body={Body} falls={learn.falls} today={today} links={SITE_LINKS} after={after} />,
+      <SiteModulePage module={module} Body={Body} falls={learn.falls} today={today} links={SITE_LINKS} {...taxes} />,
     ),
   };
 }
