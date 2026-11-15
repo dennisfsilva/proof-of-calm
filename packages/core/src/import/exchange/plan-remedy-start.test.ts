@@ -1132,6 +1132,41 @@ describe("a lump's claim reads its amount", () => {
     expect(recordedBy(c, cut, tapped)).toEqual(['2026-04-02']);
     expect(invested(c, cut)).toBe('91');
   });
+
+  // CI's world of 2026-11-15 (seed -605869711, plan-lump-cut.property.test.ts), shrunk: a one-tap lump of 140, twice
+  // BTC's monthly part, on 1 Apr, whose three fills of 14 it passes over, and a hand sale of 8 Sep beside a purchase of
+  // 17.50 that day. The hand sale claims 8 Sep's sales alone, so an export beginning inside 1 Apr stores 8 Sep's
+  // purchase, and the whole file after it leaves that purchase stored once: the Log one import leaves.
+  it("above the part, a hand sale's date beside a purchase that day, an export beginning inside 1 Apr: 199.5 either way", () => {
+    const file = [
+      buy('BTC', '2026-04-01T08:00:00Z', '14', '0.001'),
+      buy('BTC', '2026-04-01T10:00:00Z', '14', '0.005'),
+      buy('BTC', '2026-04-01T12:00:00Z', '14', '0.002'),
+      trade('S8a', 'sale', 'BTC', '2026-09-08T09:00:00Z', { units: '0.001', amount: '70', fee: '0' }, 900),
+      buy('BTC', '2026-09-08T10:00:00Z', '17.50', '0.0003'),
+    ];
+    const tapped = lump('2026-04-01', { source: 'one-tap', amount: money('140'), units: units('0.0122') });
+    const sold = hand({
+      kind: 'sell',
+      coin: BTC,
+      date: date('2026-09-08'),
+      amount: money('70'),
+      units: units('0.001'),
+    });
+    const c = of(file, [tapped, sold], PLAN_70_30);
+    const once = planOf(c, c.entries);
+    expect(once.recorded.map((item) => [item.entry.kind, item.dates])).toEqual([['sell', ['2026-09-08']]]);
+    expect(once.entries.filter((entry) => entry.date === '2026-09-08').map((entry) => entry.kind)).toEqual(['dca']);
+    expect(invested(c, c.entries)).toBe('199.5');
+    const shorter = fileOf(file.filter((m) => m.at >= '2026-04-01T10:00:00Z'));
+    const first = planOf(c, c.entries, shorter);
+    expect(first.recorded.map((item) => [item.entry.kind, item.dates])).toEqual([['sell', ['2026-09-08']]]);
+    const cut = imported(c, c.entries, shorter);
+    expect(cut.filter((entry) => entry.date === '2026-09-08' && entry.kind === 'dca')).toHaveLength(1);
+    const twice = imported(c, cut);
+    expect(twice.filter((entry) => entry.date === '2026-09-08' && entry.kind === 'dca')).toHaveLength(1);
+    expect(invested(c, cut)).toBe('199.5');
+  });
 });
 
 // The starting line's totals (docs/DOMAIN.md §3.13 step 3): when the instruction's date holds two or more purchases of
