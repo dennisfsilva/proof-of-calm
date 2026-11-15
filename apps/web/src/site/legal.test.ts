@@ -54,7 +54,7 @@ describe('the Risk disclosure (docs/LEGAL.md §5)', () => {
     expect(titles).toEqual(ids.map((id) => sections[id ?? '']?.title));
   });
 
-  it('lists every row of the cycles file with coin, high, low and fall', () => {
+  it('lists every row of the cycles file with coin, fall, high and low', () => {
     const falls = section(main('risk'), 'falls');
     const rows = [...falls.matchAll(/<tbody>(.*?)<\/tbody>/g)].flatMap((match) =>
       [...(match[1] ?? '').matchAll(/<tr[^>]*>(.*?)<\/tr>/g)].map((row) => text(row[1] ?? '')),
@@ -63,10 +63,10 @@ describe('the Risk disclosure (docs/LEGAL.md §5)', () => {
     expect(rows).toHaveLength(data.learn.falls.length);
     // The cycles file (packages/content/cycles/drawdowns.json): Bitcoin's first fall, Solana's, and Chainlink's last.
     for (const row of [
-      /^BTC8 Jun 201122 Nov 2011[-−]94 ?%$/,
-      /^ETH13 Jan 201814 Dec 2018[-−]94 ?%$/,
-      /^SOL6 Nov 202129 Dec 2022[-−]97 ?%$/,
-      /^LINK10 May 202110 Jun 2023[-−]91 ?%$/,
+      /^BTC[-−]94 ?%8 Jun 201122 Nov 2011$/,
+      /^ETH[-−]94 ?%13 Jan 201814 Dec 2018$/,
+      /^SOL[-−]97 ?%6 Nov 202129 Dec 2022$/,
+      /^LINK[-−]91 ?%10 May 202110 Jun 2023$/,
     ]) {
       expect(
         rows.some((candidate) => row.test(candidate)),

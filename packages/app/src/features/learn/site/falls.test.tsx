@@ -39,11 +39,12 @@ describe('SiteFalls', () => {
     const body = rows(markup).map(cells);
     expect(body).toHaveLength(FALLS.length);
     expect(body.map((row) => row[0])).toEqual(['BTC', 'BTC', 'ETH', 'LINK']);
-    expect(body[0]?.slice(1, 3)).toEqual(['8 Jun 2011', '22 Nov 2011']);
-    expect(body[0]?.[3]).toMatch(/94 ?%/);
-    expect(body[3]?.[3]).toMatch(/91 ?%/);
+    // The key figure right after the row header (docs/DESIGN.md §8): a narrow screen shows it before any scroll.
+    expect(body[0]).toEqual(['BTC', expect.stringMatching(/94 ?%/), '8 Jun 2011', '22 Nov 2011']);
+    expect(body[3]?.[1]).toMatch(/91 ?%/);
     const header = cells(markup.match(/<thead>(.*?)<\/thead>/)?.[1] ?? '');
-    expect(header).toEqual(Object.values(learn.chart.columns));
+    const { columns } = learn.chart;
+    expect(header).toEqual([columns.coin, columns.fall, columns.high, columns.low]);
     expect(markup).not.toContain('<script');
   });
 
