@@ -13,7 +13,8 @@ in the card's date line; `docs/LEGAL.md` §4, ADR-0047). Decision record: ADR-00
   every sale is a taxable event.
 - The app never computes a tax bill. It flags holding status per lot (a date computed from the
   user's own entries and the rule, with no rate and no amount; on the public holding-date page the
-  entry is a purchase date a visitor types, which Proof of Calm neither stores nor sends) and offers a tax-year
+  entry is a purchase date a visitor types, which the page neither sends nor keeps beyond what
+  `docs/LEGAL.md` §4 states) and offers a tax-year
   export. The
   German line's wording is pending the StBerG check (`docs/BENCHMARK.md` §4); until answered it stays
   as §7.7 and `docs/CONTENT-STYLE.md` §3 write it. Counsel's question 14 (`docs/LEGAL.md` §6) checks
