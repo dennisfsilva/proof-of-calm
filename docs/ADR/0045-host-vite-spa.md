@@ -1471,3 +1471,9 @@ with pt-PT.
   `today.review.reviewed` say each branch alone. `packages/app/src/lib/i18n/twins.test.ts` formats
   the select's `reviewed` and `other` branches and the two Today keys with the same `{date}` in every
   locale the merge writes and holds them equal, so a translation cannot let them drift.
+- **2026-11-16, that toast offers no Edit** (§8; corrects the entry on message chunks above). Edit
+  opens the lazy entry sheet, which loads the same namespace, so offline it failed and the screen's
+  could-not-load fallback replaced Today. When the Log's namespace rejects after the save, the toast
+  says `today.action.recorded` with no action, and the entry stays editable from the Log once its
+  messages load; where the namespace loads, the toast keeps the Log's words and Edit
+  (`packages/app/src/features/today/components/primary-action.tsx`).
