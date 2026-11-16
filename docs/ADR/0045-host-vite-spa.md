@@ -1477,3 +1477,11 @@ with pt-PT.
   says `today.action.recorded` with no action, and the entry stays editable from the Log once its
   messages load; where the namespace loads, the toast keeps the Log's words and Edit
   (`packages/app/src/features/today/components/primary-action.tsx`).
+
+## Corrections recorded on 2026-11-16
+
+- **2026-11-16, pt-PT's translations land per namespace** (the entry of 2026-11-15 on translations).
+  pt-PT's errors, shell and today files are whole even while the locale is hidden, because Today's
+  entry boots with them (`packages/app/src/lib/i18n/locales.test.ts`); every other pt-PT namespace
+  may be partial, its untranslated keys filled from English. Which namespaces are translated:
+  `docs/ROADMAP.md` M2.
