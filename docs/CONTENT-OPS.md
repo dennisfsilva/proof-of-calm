@@ -69,13 +69,17 @@ owns the pipeline around them and its security model.
    nothing. The rules files, a locale's folder under `packages/content/rules/` too, change only as the
    output of `pnpm --filter @proofofcalm/content rules`. A translation under `packages/content/i18n/`
    (ADR-0057) that repeats a figure the agent changed fails `pnpm validate:content`
-   (`overlay-number-mismatch`) on the review's PR. The guard and the finish accept that translation's
-   file and its locale's generated rules files in the PR, but the agent edits only the English data
-   files: the owner changes the figure in the translation at the same path, and nothing else there,
-   in the review (§8 step 4), until the skill takes that step (planned: M2). A translation carries no
-   `reviewedBy`, so the owner's diff read (§8) is its review.
+   (`overlay-number-mismatch`). The agent then changes that figure in the translation, at the path
+   the check names, to the English file's value, and nothing else there; no `allowed-tools` rule
+   approves that edit, so it asks the owner, naming the figure and the English row first. The guard
+   and the finish accept the translation's file and its locale's generated rules files. Nothing
+   refuses a prose edit in a translation, and a translation carries no `reviewedBy`, so the owner's
+   diff read (§8) is its review.
 3. **The expected failure.** The agent runs the content checks, and the skill tells it: "The one
-   failure you expect is `agent-draft` on the entries you marked; fix or revert anything else."
+   failure you expect is `agent-draft` on the entries you marked; when `overlay-number-mismatch`
+   names a figure you changed in its English file, change the same figure in the translation (§1),
+   run `pnpm --filter @proofofcalm/content rules` and run the checks again; fix or revert anything
+   else."
 4. **The draft.** The agent writes its findings as JSON in the shape of `ReviewDraft`
    (`tools/content-review/body.ts`) to .content-review/draft.json, a gitignored folder. A change row's
    `item` is the data file relative to `packages/content/` (`jurisdictions/ie.json`) and its `field`
@@ -84,6 +88,9 @@ owns the pipeline around them and its security model.
    sources read of those it cites, the confidence and its reason. Bookkeeping needs no change row:
    `accessed`, `reviewedBy` and `status.confidence`. The agent never sets `lastReviewed` or
    `nextReviewDue`; the owner sets `lastReviewed` in the flip (§8), once every source was read.
+   A changed translation leaf gets a change row too, its `item` the English file's under
+   `i18n/<locale>/` and its quote, date and reason the English row's, and no `reviewed` row: its
+   `lastReviewed` is its English file's.
    A `reviewed` row's `of` counts the sources on the item's list (the country's list plus `EU`, or
    `facts`), each on-list `pendingChanges[].source` included, and each distinct URL once. The agent fetches no off-list `secondary`
    source, which `packages/content/src/validate.ts` lets a profile cite: it names it in the notes as
@@ -96,7 +103,8 @@ owns the pipeline around them and its security model.
    path outside content data, a mode, a binary, a deletion, an entry not at `agent-draft` or a draft
    problem. It compares the draft's rows with the staged diff both ways
    (`tools/content-review/rows.ts`): a changed leaf with no row, a row for a leaf that did not
-   change, a changed module with no row, a changed file (a module too) with no `reviewed` row,
+   change, a changed module with no row, a changed file (a module too, a translation not) with no
+   `reviewed` row,
    and any change to `lastReviewed` or `nextReviewDue` (in a module, any changed line naming either)
    are refused; the generated `rules/*.json` are skipped. A refusal leaves the index as it found
    it. Without `--dry` at origin/main it first refuses, changing nothing, a HEAD other than
@@ -249,9 +257,9 @@ is read again at every review, because its low can still move.
    file with no row) and you opened each secondary source of step 1, otherwise leave it unchanged (a
    partial review moves nothing); bump `status.version`,
    set `changedOn` and write `changeNotice` when a rule changed in substance; a bump that corrects our
-   own file also writes a `changeNotice` that says so (`docs/JURISDICTIONS.md` §6). When a translation
-   fails `overlay-number-mismatch` (§3 step 2), change that figure in it at the same path, and
-   nothing else there, in the same commit. The Learn country
+   own file also writes a `changeNotice` that says so (`docs/JURISDICTIONS.md` §6). When the PR
+   changes a translation (§3 step 2), check that its diff changes only the figures its English file
+   changed, at the same paths and to the same values, and nothing else there. The Learn country
    screens print `lastReviewed`, so `e2e-visual` can fail on the new date: delete the baselines it names
    in a commit on the agent's branch (the guard accepts a removed baseline, nothing else outside the
    data folders), and send new ones in a needs-owner PR after the merge (`CLAUDE.md`, Visual
