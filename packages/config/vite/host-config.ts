@@ -42,9 +42,9 @@ const CHUNK_REPORT = 'node_modules/.cache/chunk-report.json';
 /** A message file of a language other than English: `messages/<locale>/<namespace>.json`. */
 const TRANSLATED_MESSAGES = /[\\/]messages[\\/]([A-Za-z]{2}(?:-[A-Za-z]{2})?)[\\/][^\\/]+\.json$/;
 
-/** A content file of a language other than English (ADR-0057): `rules/<language>/` or `i18n/<language>/<kind>/`. */
+/** A content file of a language other than English (ADR-0057): `rules/<language>/` or `i18n/<language>/<kind>/`, a Learn module's `.mdx` too. */
 const TRANSLATED_CONTENT =
-  /[\\/]content[\\/](?:rules|i18n)[\\/]([A-Za-z]{2}(?:-[A-Za-z]{2})?)[\\/](?:[a-z]+[\\/])?[^\\/]+\.json$/;
+  /[\\/]content[\\/](?:rules|i18n)[\\/]([A-Za-z]{2}(?:-[A-Za-z]{2})?)[\\/](?:[a-z]+[\\/])?[^\\/]+\.(?:json|mdx)$/;
 
 /**
  * Vite's chunk name, but a chunk of another language's messages or content goes under
