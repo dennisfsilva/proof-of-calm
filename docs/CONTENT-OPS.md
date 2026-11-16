@@ -84,7 +84,10 @@ owns the pipeline around them and its security model.
    names a figure you changed in its English file, change the same figure in the translation,
    written in the translation's number format (§1), run `pnpm --filter @proofofcalm/content rules`
    and run the checks again; fix or revert anything else." A translation's figure that still does
-   not match is reverted on neither side: the agent names it in the draft's notes and its report.
+   not match is reverted on neither side: the agent names it in the draft's notes and its report,
+   and says in both that the PR's `verify` check fails on `pnpm validate:content` until it is fixed.
+   The finish does not run that check; CI's `verify` job does (`.github/workflows/ci.yml`), so the
+   owner fixes the figure before merging (§8 step 4).
 4. **The draft.** The agent writes its findings as JSON in the shape of `ReviewDraft`
    (`tools/content-review/body.ts`) to .content-review/draft.json, a gitignored folder. A change row's
    `item` is the data file relative to `packages/content/` (`jurisdictions/ie.json`) and its `field`
@@ -266,7 +269,10 @@ is read again at every review, because its low can still move.
    changes a translation (§3 step 2), check that its diff changes only the figures its English file
    changed, at the same paths and to the same values, and nothing else there: compare the values,
    not the characters, since the translation writes each in its number locale's format (§3 step 2;
-   `5,5 %` for English `5.5 %` in Germany's pt-PT translation). The Learn country
+   `5,5 %` for English `5.5 %` in Germany's pt-PT translation). When the notes name a translated
+   figure that still fails `overlay-number-mismatch` (§3 step 3), write that figure in the
+   translation, in its number locale's format (the skill's §1), or revert the English change, in a commit on the
+   agent's branch before merging; `verify` stays red until then. The Learn country
    screens print `lastReviewed`, so `e2e-visual` can fail on the new date: delete the baselines it names
    in a commit on the agent's branch (the guard accepts a removed baseline, nothing else outside the
    data folders), and send new ones in a needs-owner PR after the merge (`CLAUDE.md`, Visual
