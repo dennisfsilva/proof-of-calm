@@ -11,7 +11,7 @@ const KEYS = ['slug', ...TEXTS];
 const keyOf = (line: string) => /^([A-Za-z]+):/.exec(line)?.[1];
 
 /** The entries of `dir`, by name; none when the folder is missing. */
-export async function entriesOf(dir: string): Promise<string[]> {
+async function entriesOf(dir: string): Promise<string[]> {
   try {
     return (await readdir(dir)).sort();
   } catch (error) {
