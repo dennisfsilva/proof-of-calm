@@ -194,3 +194,10 @@ Recorded on 2026-11-15, when the site's half of the rendering points landed in `
   compile, the translation gets the ban list and the hyphen check, and English's own run reports its body. English's own checks still read its source
   through `plainText`, which drops every tag, one in code included, keeps a fence's info string and decodes no
   character reference, so on English they can over-report or miss: a limit carried to the next session.
+- 2026-11-17: the plugin reads the modules' translations from `packages/content/i18n/<language>/learn/`, the
+  folder beside `dir` (`translations` overrides it, `packages/config/vite/learn-translations.ts`), and fails the build
+  on a slug with no English module or another key. The metadata is the English module's under the translated texts,
+  parsed by the same `parseModule` from the translation's own body: the reading time counts the translation's words,
+  while the word cap stays English's, which the validator holds. The metadata rides in the translation's chunk as
+  `meta` beside its body (`LEARN_TRANSLATIONS`, under `assets/messages/<language>/`, outside the precache), never in
+  the entry, and `closedBody` runs on the translation as on English, failing at the translation's own line.
