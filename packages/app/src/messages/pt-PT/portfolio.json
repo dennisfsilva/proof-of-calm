@@ -1,96 +1,96 @@
 {
-  "title": "Portfolio",
+  "title": "Portefólio",
   "summary": {
-    "value": "Value",
-    "unpriced": "No price yet for {coins}.",
-    "pnl": "P/L",
-    "invested": "Invested",
-    "fees": "Fees (not in P/L)",
-    "why": "Why? Your profit and loss"
+    "value": "Valor",
+    "unpriced": "Ainda sem preço para {coins}.",
+    "pnl": "Resultado",
+    "invested": "Investido",
+    "fees": "Comissões (fora do resultado)",
+    "why": "Porquê? O resultado"
   },
   "chart": {
-    "label": "Portfolio value, {range, select, 7d {last 7 days} 30d {last 30 days} 90d {last 90 days} 1y {last 12 months} other {since the first entry}} ({start} to {end}), from {from} to {to}",
-    "labelOwnDates": "Portfolio value, {start} to {end}, from {from} to {to}",
-    "range": "Chart range",
+    "label": "Valor do portefólio, {range, select, 7d {últimos 7 dias} 30d {últimos 30 dias} 90d {últimos 90 dias} 1y {últimos 12 meses} other {desde o primeiro movimento}} ({start} a {end}), de {from} a {to}",
+    "labelOwnDates": "Valor do portefólio, {start} a {end}, de {from} a {to}",
+    "range": "Intervalo do gráfico",
     "ranges": {
       "7d": "7D",
       "30d": "30D",
       "90d": "90D",
-      "1y": "1Y",
-      "all": "All"
+      "1y": "1A",
+      "all": "Tudo"
     },
     "rangeNames": {
-      "7d": "{label}, last 7 days",
-      "30d": "{label}, last 30 days",
-      "90d": "{label}, last 90 days",
-      "1y": "{label}, last 12 months",
-      "all": "{label}, since the first entry"
+      "7d": "{label}, últimos 7 dias",
+      "30d": "{label}, últimos 30 dias",
+      "90d": "{label}, últimos 90 dias",
+      "1y": "{label}, últimos 12 meses",
+      "all": "{label}, desde o primeiro movimento"
     },
-    "empty": "There is no value to draw {range, select, 7d {for the last 7 days, {start} to {end}. Choose a longer range.} 30d {for the last 30 days, {start} to {end}. Choose a longer range.} 90d {for the last 90 days, {start} to {end}. Choose a longer range.} 1y {for the last 12 months, {start} to {end}. Choose a longer range.} other {since the first entry: the daily closes end on {end}. The chart starts with the next daily close.}}",
-    "nothingHeld": "There is no value to draw: you held no coins from {start} to {end}, the dates the daily closes cover.",
-    "unavailable": "The price history could not be loaded, so there is no chart. Open Portfolio again to retry.",
-    "tooFewCloses": "The price history has fewer than two daily closes for {coins}, so there is no chart.",
-    "source": "Daily closes, {start} to {end}, as of {time}, {date} · Price data by CoinGecko",
-    "pastPerformance": "Past performance is not a reliable indicator of future results.",
-    "riskLink": "Risk disclosure",
-    "failed": "The chart range could not be saved. Choose it again.",
+    "empty": "Não há valores para desenhar {range, select, 7d {nos últimos 7 dias, de {start} a {end}. Escolha um intervalo mais longo.} 30d {nos últimos 30 dias, de {start} a {end}. Escolha um intervalo mais longo.} 90d {nos últimos 90 dias, de {start} a {end}. Escolha um intervalo mais longo.} 1y {nos últimos 12 meses, de {start} a {end}. Escolha um intervalo mais longo.} other {desde o primeiro movimento: os fechos diários terminam a {end}. O gráfico começa no fecho diário seguinte.}}",
+    "nothingHeld": "Não há valores para desenhar: não detinha moedas de {start} a {end}, as datas que os fechos diários abrangem.",
+    "unavailable": "Não foi possível carregar o histórico de preços, por isso não há gráfico. Abra o Portefólio de novo para tentar outra vez.",
+    "tooFewCloses": "O histórico de preços tem menos de 2 fechos diários para {coins}, por isso não há gráfico.",
+    "source": "Fechos diários, {start} a {end}, à data de {date}, às {time} · Dados de preços da CoinGecko",
+    "pastPerformance": "Os resultados registados no passado não constituem um indicador fiável dos resultados futuros.",
+    "riskLink": "Aviso sobre riscos",
+    "failed": "Não foi possível guardar o intervalo do gráfico. Escolha-o de novo.",
     "table": {
-      "summary": "Show the values as a table",
-      "date": "Date",
-      "value": "Value"
+      "summary": "Mostrar os valores numa tabela",
+      "date": "Data",
+      "value": "Valor"
     }
   },
   "allocation": {
-    "byValue": "Allocation by value: {shares}",
-    "byInvested": "Allocation by amount invested: {shares}",
-    "table": "Show the allocation as a table",
-    "coin": "Coin",
-    "share": "Share",
-    "value": "Value",
-    "invested": "Invested"
+    "byValue": "Distribuição por valor: {shares}",
+    "byInvested": "Distribuição pelo montante investido: {shares}",
+    "table": "Mostrar a distribuição numa tabela",
+    "coin": "Moeda",
+    "share": "Peso",
+    "value": "Valor",
+    "invested": "Investido"
   },
   "holdings": {
-    "caption": "Holdings",
-    "coin": "Coin",
-    "value": "Value",
-    "pnl": "P/L",
-    "noPrice": "No price",
-    "units": "Units",
-    "average": "Average cost",
-    "invested": "Invested",
+    "caption": "Moedas detidas",
+    "coin": "Moeda",
+    "value": "Valor",
+    "pnl": "Resultado",
+    "noPrice": "Sem preço",
+    "units": "Unidades",
+    "average": "Custo médio",
+    "invested": "Investido",
     "chart": {
-      "label": "{coin} price, {range, select, 7d {last 7 days} 30d {last 30 days} 90d {last 90 days} 1y {last 12 months} other {since the first entry}} ({start} to {end}), from {from} to {to}",
-      "labelOwnDates": "{coin} price, {start} to {end}, from {from} to {to}",
+      "label": "Preço de {coin}, {range, select, 7d {últimos 7 dias} 30d {últimos 30 dias} 90d {últimos 90 dias} 1y {últimos 12 meses} other {desde o primeiro movimento}} ({start} a {end}), de {from} a {to}",
+      "labelOwnDates": "Preço de {coin}, {start} a {end}, de {from} a {to}",
       "legend": {
-        "price": "{coin} price",
-        "buy": "Purchase",
-        "sell": "Sale",
-        "average": "Average cost"
+        "price": "Preço de {coin}",
+        "buy": "Compra",
+        "sell": "Venda",
+        "average": "Custo médio"
       },
-      "average": "Average cost {price}",
-      "tooltip": "{date}: {close}{trades, select, bought {, bought {bought}} sold {, sold {sold}} both {, bought {bought}, sold {sold}} other {}}",
+      "average": "Custo médio {price}",
+      "tooltip": "{date}: {close}{trades, select, bought {, compra de {bought}} sold {, venda de {sold}} both {, compra de {bought}, venda de {sold}} other {}}",
       "table": {
-        "summary": "Show the daily closes as a table",
-        "date": "Date",
-        "close": "Close",
-        "bought": "Bought",
-        "sold": "Sold"
+        "summary": "Mostrar os fechos diários numa tabela",
+        "date": "Data",
+        "close": "Fecho",
+        "bought": "Comprado",
+        "sold": "Vendido"
       },
-      "credit": "Price data by CoinGecko",
-      "fewCloses": "The price history has fewer than two daily closes for {coin} from {start} to {end}, so there is no chart."
+      "credit": "Dados de preços da CoinGecko",
+      "fewCloses": "O histórico de preços tem menos de 2 fechos diários para {coin} de {start} a {end}, por isso não há gráfico."
     }
   },
   "januaryValue": {
-    "value": "Value on 1 January {year}",
-    "estimate": "Estimate from the daily closes of {date} for {coins} · Price data by CoinGecko",
-    "missing": "The price history has no daily close of {date} for {coins}, so there is no value to show.",
-    "loading": "Loading the daily closes of {date}.",
-    "pending": "The daily closes of {date} are not in the price history yet, so there is no value to show.",
-    "none": "The Log shows no coins held at the end of {date}.",
-    "heldAfter": "Coins added in the Log with a date after {date} are not counted here: {coins}. If you held them on {date}, change their date in the <log>Log</log>."
+    "value": "Valor a 1 de janeiro de {year}",
+    "estimate": "Estimativa a partir dos fechos diários de {date} para {coins} · Dados de preços da CoinGecko",
+    "missing": "O histórico de preços não tem o fecho diário de {date} para {coins}, por isso não há valor a mostrar.",
+    "loading": "A carregar os fechos diários de {date}.",
+    "pending": "Os fechos diários de {date} ainda não estão no histórico de preços, por isso não há valor a mostrar.",
+    "none": "O Registo não mostra moedas detidas no fim de {date}.",
+    "heldAfter": "As moedas adicionadas no Registo com data posterior a {date} não contam aqui: {coins}. Se já as detinha a {date}, altere a respetiva data no <log>Registo</log>."
   },
-  "unrecorded": "No recorded cost for {coins}, so Invested, the average cost, and the P/L leave these units out.",
-  "notBought": "Not bought yet: {coins}. For coins you already have, open the <log>Log</log> and choose Add coins you already have.",
-  "unmatched": "{units} sold without a purchase dated on or before the sale. Check the dates and amounts in the Log.",
-  "unmatchedFee": "{units} paid as a network fee that no purchase dated on or before the move covers. Check the dates and amounts in the Log."
+  "unrecorded": "Sem custo registado para {coins}, por isso o Investido, o custo médio e o resultado deixam estas unidades de fora.",
+  "notBought": "Ainda sem compras: {coins}. Para moedas que já tem, abra o <log>Registo</log> e escolha Adicionar moedas que já tem.",
+  "unmatched": "{units} vendidos sem uma compra com data igual ou anterior à da venda. Verifique as datas e os montantes no Registo.",
+  "unmatchedFee": "{units} pagos como comissão de rede sem uma compra com data igual ou anterior à da transferência que os cubra. Verifique as datas e os montantes no Registo."
 }
