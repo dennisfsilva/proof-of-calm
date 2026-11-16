@@ -132,3 +132,11 @@ generated rules files of each language.
   profile or rules file, as it does for a missing translation. It caches no failed load, so the next
   load tries the chunk again. Every number already came from English, so a fallback changes
   only the words; the holding rule, its dates and the formatting locale are the same.
+- **2026-11-16.** The entry above held in the unit tests but not in the build: a pt-PT boot with its
+  `pt` rules chunk unreachable showed Plan without its holding line and Settings with its "not
+  loaded on this device" line. In a build, Vite's preload wrapper dispatches `vite:preloadError` and
+  rethrows only when no listener prevents the event's default; the web host's chunk reload
+  (`apps/web/src/chunk-reload.ts`) prevents it, so the failed import resolves to undefined instead of
+  rejecting, and reading `.default` threw past the fallback. `loadRules` and `loadProfile` now read
+  the file inside the same `try`, so either shape of failure answers English and is not cached. Found
+  by the evaluator's offline run of the pt-PT checkpoint (#269).
