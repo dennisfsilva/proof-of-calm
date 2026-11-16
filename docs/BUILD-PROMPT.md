@@ -490,6 +490,15 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - A width check of a control measures its widest state. #293's per-tab check found the selected
   "Detenção" 84 px in an 82 px tab at zoom-125. The evaluator's earlier report measured the
   unselected tab, where "repartição" was the widest word (2026-11-16).
+- A translation shortened to fit a schema's length limit is checked field by field against its
+  English before the content roles read it. #300's builder cut three strings to 240 characters and
+  dropped "always" from mining's category B, "units" from the loss rule and a preamble's attribution;
+  counsel's first read found all three (2026-11-16).
+- A replacement wording the session settles from the content roles goes to the round's reviewer, who
+  checks it against the English like the text it replaces, before the fix round applies it. #300's
+  settled texts dropped "entre criptoativos" to keep a summary at 60 words and moved a comma that
+  widened a condition; round 1's reviewer found both first. Counsel's own round-1 noun for the
+  declared sales came back as its round-2 finding (2026-11-16).
 
 ## Known gaps
 
