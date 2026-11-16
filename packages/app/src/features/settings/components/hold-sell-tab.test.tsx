@@ -35,11 +35,13 @@ afterEach(cleanup);
 // timeout, so a findBy waits on renders, not on Vite's first transform (seconds under load).
 await preloadLazyModules();
 
-const portugal = async () => {
-  const profile = await loadProfile('PT');
-  return profile === null ? null : countryRules(profile);
-};
 const COUNTRY: HoldingRule = { kind: 'days', days: 365, effect: 'exempt' };
+// Portugal's rules with a literal holding rule, the fixture plan's: a content review may change the profile's
+// (docs/ENGINEERING.md §2), and the tab words the rule from the rules it loads.
+const portugal = async (): Promise<CountryRules | null> => {
+  const profile = await loadProfile('PT');
+  return profile === null ? null : { ...countryRules(profile), holdingRule: COUNTRY };
+};
 const OWN: HoldingRule = { kind: 'days', days: 730, effect: 'exempt' };
 
 function view(services: Services) {
