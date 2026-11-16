@@ -1,6 +1,6 @@
 {
   "name": "Só bitcoin, sem janela de venda",
-  "oneLine": "Cada montante mensal vai para bitcoin, sem janela de venda.",
+  "oneLine": "Cada montante mensal vai para a bitcoin, sem janela de venda.",
   "riskLabel": "Risco elevado · um só ativo",
   "explanation": "1 moeda e nenhuma data de venda. É escolhido por quem quer o menor número de decisões: 1 moeda, 1 montante, 1 dia de compra por mês e nenhuma decisão sobre a venda. O que pode correr mal: cada montante vai para 1 moeda. A bitcoin caiu 78 % do máximo de {date:drawdowns.BTC.high} ao mínimo de {date:drawdowns.BTC.low}. Sem janela de venda, o valor do plano no dia em que o dinheiro for necessário depende do preço de mercado nesse dia."
 }
