@@ -66,8 +66,8 @@ describe('loadTemplateTexts in a content language (ADR-0057)', () => {
   });
 
   it('answers English when the import resolves without the file, as the preload wrapper does, and retries', async () => {
-    // In a build, Vite's wrapper resolves a failed import to undefined once a `vite:preloadError` listener prevents
-    // its default (the web host's chunk reload, apps/web/src/chunk-reload.ts; #285).
+    // In the web host a failed import now rejects (apps/web/src/chunk-reload.ts leaves `vite:preloadError`'s default;
+    // #286); Vite's wrapper resolves it to undefined only under a listener that prevents it, so this guard stays.
     const loader = await fresh();
     loader.TEMPLATE_OVERLAYS['pt-PT']['two-coins'] = () =>
       Promise.resolve(undefined as unknown as { default: unknown });
