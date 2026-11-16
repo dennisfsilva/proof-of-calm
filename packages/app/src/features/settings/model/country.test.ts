@@ -7,17 +7,34 @@ import { createFormatters } from '../../../lib/format';
 import { earlyOpenOf, holdingCountryOf, sellWindowValueOf } from '../../plan';
 import { countryOptions, countrySummary, ruleWordsOf } from './country';
 
-// The core's country-change fixture holds the three profiles as the core sees them; they must stay the
-// profiles' own, so a profile that changes fails here, not silently in the fixture.
+// The core's country-change fixture holds three countries' rules as literals, so a content review changes none of
+// them (docs/ENGINEERING.md §2): it keeps only the fields no source states equal to the live profiles'.
 
 const now = instant('2026-10-22T09:00:00+01:00');
 const TODAY = '2026-10-22' as CalendarDate;
 const format = createFormatters('en-GB', 'en-GB');
 
+/** The fields of a country's rules that no source states, so no content review changes them. */
+const unstated = ({
+  code,
+  locales,
+  timezones,
+  numberFormatLocale,
+  dateFormatLocale,
+  englishConfidence,
+}: CountryRules) => ({
+  code,
+  locales,
+  timezones,
+  numberFormatLocale,
+  dateFormatLocale,
+  englishConfidence,
+});
+
 describe('the country-change fixture', () => {
-  it.each(['PT', 'DE', 'XX'] as const)('holds the rules of %s as countryRules maps its profile', async (code) => {
+  it.each(['PT', 'DE', 'XX'] as const)("holds the fields of %s's profile that no source states", async (code) => {
     const profile = await loadProfile(code);
-    expect(profile === null ? null : countryRules(profile)).toEqual(FIXTURE_RULES[code]);
+    expect(profile === null ? null : unstated(countryRules(profile))).toEqual(unstated(FIXTURE_RULES[code]));
   });
 });
 
