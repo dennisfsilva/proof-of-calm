@@ -140,6 +140,54 @@ describe('learnPlugins', () => {
     expect(entry.dynamicImports).toHaveLength(2);
   });
 
+  describe('a translated module (ADR-0057)', () => {
+    const TRANSLATED_PHRASE = 'Um plano definido uma vez';
+    const translation = (slug: string, body: string) =>
+      ['---', `slug: ${slug}`, 'title: Ruído', 'idea: Quase tudo é ruído.', '---', body, ''].join('\n');
+    const WITH_TRANSLATION: FixtureFiles = {
+      ...FIXTURE,
+      'main.js': [
+        "import { LEARN_MODULES, LEARN_TRANSLATIONS } from 'virtual:learn-modules';",
+        'console.log(LEARN_MODULES);',
+        "LEARN_TRANSLATIONS['pt-PT'].noise().then((m) => console.log(m.meta, m.default));",
+      ].join('\n'),
+      'i18n/pt-PT/learn/noise.mdx': translation('noise', `# Ruído\n\n${TRANSLATED_PHRASE}, e nada para vigiar.`),
+    };
+
+    it("builds into LEARN_TRANSLATIONS['pt-PT'].noise, its meta in its own chunk", async () => {
+      const output = await buildLearn(WITH_TRANSLATION);
+      const body = chunks(output).find((chunk) => chunk.code.includes(TRANSLATED_PHRASE));
+      expect(body?.isDynamicEntry).toBe(true);
+      expect(body?.facadeModuleId).toMatch(/i18n[\\/]pt-PT[\\/]learn[\\/]noise\.mdx$/);
+      // The English module's front matter under the translated texts, its reading time from the translation's words.
+      expect(body?.code).toMatch(/title"?: ?"Ruído"/);
+      expect(body?.code).toMatch(/idea"?: ?"Quase tudo é ruído."/);
+      expect(body?.code).toMatch(/reviewedBy"?: ?"owner"/);
+      expect(body?.code).not.toContain('slug: noise');
+    });
+
+    it('puts no translated text in the entry chunk', async () => {
+      const entry = entryOf(await buildLearn(WITH_TRANSLATION));
+      expect(entry.code).toMatch(/title"?: ?"noise title"/);
+      for (const text of [TRANSLATED_PHRASE, 'Ruído', 'Quase tudo']) expect(entry.code).not.toContain(text);
+      // The two English bodies and the one translation, each its own lazy chunk.
+      expect(entry.dynamicImports).toHaveLength(3);
+    });
+
+    it('fails the build at the line of an element outside the set', async () => {
+      const files = { ...WITH_TRANSLATION, 'i18n/pt-PT/learn/noise.mdx': translation('noise', 'Texto.\n\n<Chart />') };
+      await expect(buildLearn(files)).rejects.toThrow(/pt-PT[\\/]learn[\\/]noise\.mdx:8.*Chart/s);
+    });
+
+    it('fails the build on a translation with no English module, and on a key outside the four', async () => {
+      const orphan = { ...WITH_TRANSLATION, 'i18n/pt-PT/learn/cycles.mdx': translation('cycles', 'Texto.') };
+      await expect(buildLearn(orphan)).rejects.toThrow(/cycles\.mdx.*no English module/s);
+      const extra = translation('noise', 'Texto.').replace('idea:', 'chart: none\nidea:');
+      const keyed = { ...WITH_TRANSLATION, 'i18n/pt-PT/learn/noise.mdx': extra };
+      await expect(buildLearn(keyed)).rejects.toThrow(/noise\.mdx.*chart/s);
+    });
+  });
+
   it('a missing folder gives empty lists', async () => {
     const output = await buildLearn(FIXTURE, undefined, 'nowhere');
     expect(chunks(output)).toHaveLength(1);

@@ -2,9 +2,10 @@
 // compiler itself in the `pre` phase with the closed-body check, and one virtual module that holds every
 // module's metadata and a lazy import per body, so no body text reaches the chunk that lists the modules.
 import { readdir, readFile } from 'node:fs/promises';
-import { join, relative } from 'node:path';
+import { dirname, join, relative } from 'node:path';
 import mdx from '@mdx-js/rollup';
 import type { Plugin, PluginOption } from 'vite';
+import { listTranslations, translatedSource } from './learn-translations.ts';
 
 /** A parsed module as the plugin needs it: the slug keys its body, the body is compiled apart from the rest. */
 type ParsedModule = { readonly slug: string; readonly body: string };
@@ -23,9 +24,14 @@ export type LearnPluginOptions = {
   parseModule: ParseModule;
   /** The element names a body may use, the ones the renderer passes through `components`; none by default. */
   elements?: readonly string[];
+  /** The folder of the translations, `<language>/learn/<slug>.mdx` (ADR-0057); `i18n` beside `dir` by default. */
+  translations?: string;
 };
 
-/** The id a host imports: `LEARN_MODULES` (metadata, in slug order) and `LEARN_BODIES` (a lazy import per slug). */
+/**
+ * The id a host imports: `LEARN_MODULES` (metadata, in slug order), `LEARN_BODIES` (a lazy import per slug) and
+ * `LEARN_TRANSLATIONS` (per language, a lazy import per slug of the translated body with its `meta`).
+ */
 export const LEARN_MODULES_ID = 'virtual:learn-modules';
 const RESOLVED_ID = `\0${LEARN_MODULES_ID}`;
 
@@ -278,7 +284,14 @@ const rank = (slug: string) => {
   return index === -1 ? SLUG_ORDER.length : index;
 };
 
-const modulesPlugin = (options: LearnPluginOptions): Plugin => ({
+const slashed = (path: string) => path.replaceAll('\\', '/');
+const importOf = (slug: string, file: string) =>
+  `${JSON.stringify(slug)}: () => import(${JSON.stringify(slashed(file))})`;
+
+/** The translated metadata by file, which the virtual module fills and the compiler appends as `meta`. */
+type MetaOf = Map<string, Omit<ParsedModule, 'body'>>;
+
+const modulesPlugin = (options: LearnPluginOptions, metaOf: MetaOf): Plugin => ({
   name: 'poc:learn-modules',
   resolveId(id) {
     return id === LEARN_MODULES_ID ? RESOLVED_ID : undefined;
@@ -288,10 +301,12 @@ const modulesPlugin = (options: LearnPluginOptions): Plugin => ({
     const modules: { readonly meta: Omit<ParsedModule, 'body'>; readonly file: string }[] = [];
     // The slug keys `LEARN_BODIES`: two files with one slug would leave one body unreachable in silence.
     const fileOf = new Map<string, string>();
+    const sourceOf = new Map<string, string>();
     // `dir` is read here, when the build runs, not when the plugin is made.
     for (const file of await listModules(options.dir)) {
       this.addWatchFile(file);
-      const parsed = options.parseModule(file, await readFile(file, 'utf8'));
+      const source = await readFile(file, 'utf8');
+      const parsed = options.parseModule(file, source);
       if (!parsed.ok) return this.error(parsed.error.map((problem) => `${file}: ${problem.detail}`).join('\n'));
       const { body: _body, ...meta } = parsed.value;
       const other = fileOf.get(meta.slug);
@@ -300,15 +315,31 @@ const modulesPlugin = (options: LearnPluginOptions): Plugin => ({
         return this.error(`${names} both carry the slug ${meta.slug}; one module per slug (ADR-0048)`);
       }
       fileOf.set(meta.slug, file);
+      sourceOf.set(meta.slug, source);
       modules.push({ meta, file });
     }
     modules.sort((a, b) => rank(a.meta.slug) - rank(b.meta.slug) || a.meta.slug.localeCompare(b.meta.slug));
-    const bodies = modules.map(
-      ({ meta, file }) => `${JSON.stringify(meta.slug)}: () => import(${JSON.stringify(file.replaceAll('\\', '/'))})`,
+    const bodies = modules.map(({ meta, file }) => importOf(meta.slug, file));
+    const languages = new Map<string, string[]>();
+    for (const { language, file, source } of await listTranslations(
+      options.translations ?? join(dirname(options.dir), 'i18n'),
+    )) {
+      this.addWatchFile(file);
+      const translated = translatedSource(source, (slug) => sourceOf.get(slug));
+      if (typeof translated === 'string') return this.error(`${file}: ${translated}`);
+      const parsed = options.parseModule(file, translated.source);
+      if (!parsed.ok) return this.error(parsed.error.map((problem) => `${file}: ${problem.detail}`).join('\n'));
+      const { body: _body, ...meta } = parsed.value;
+      metaOf.set(slashed(file), meta);
+      languages.set(language, [...(languages.get(language) ?? []), importOf(translated.slug, file)]);
+    }
+    const translations = [...languages].map(
+      ([language, imports]) => `${JSON.stringify(language)}: Object.freeze({ ${imports.join(', ')} })`,
     );
     return [
       `export const LEARN_MODULES = Object.freeze(${JSON.stringify(modules.map((module) => module.meta))});`,
       `export const LEARN_BODIES = Object.freeze({ ${bodies.join(', ')} });`,
+      `export const LEARN_TRANSLATIONS = Object.freeze({ ${translations.join(', ')} });`,
       '',
     ].join('\n');
   },
@@ -321,6 +352,7 @@ const modulesPlugin = (options: LearnPluginOptions): Plugin => ({
  */
 export function learnPlugins(options: LearnPluginOptions): PluginOption[] {
   const compile = mdx({ remarkPlugins: [closedBody(options.elements ?? [])] });
+  const metaOf: MetaOf = new Map();
   // Spelled out instead of spread: the compiler's `transform` is typed for Rollup, whose answer may carry
   // `map: undefined` or an indexed map (sections, no `mappings`), which Vite's hook type does not admit.
   // The compiler emits a plain map, so the answer is only reshaped here.
@@ -333,8 +365,14 @@ export function learnPlugins(options: LearnPluginOptions): PluginOption[] {
       if (result === undefined) return null;
       const { map } = result;
       const plain = typeof map === 'object' && map !== null && 'mappings' in map ? map : null;
-      return { code: result.code, map: typeof map === 'string' ? map : plain };
+      // A translation's metadata rides in its own chunk, after the body, so no line of the body moves.
+      const meta = metaOf.get(slashed(id.split('?')[0] ?? id));
+      const compiled =
+        meta === undefined
+          ? result.code
+          : `${result.code}\nexport const meta = Object.freeze(${JSON.stringify(meta)});\n`;
+      return { code: compiled, map: typeof map === 'string' ? map : plain };
     },
   };
-  return [frontMatterPlugin(), compiler, modulesPlugin(options)];
+  return [frontMatterPlugin(), compiler, modulesPlugin(options, metaOf)];
 }
