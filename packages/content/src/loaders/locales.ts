@@ -19,7 +19,10 @@ export function spokenLocale(language: string, profile: Pick<CountryLocales, 'lo
  * The locale a profile's numbers take in `language`: its locale in that language, else `numberFormatLocale`. The one
  * source for the app's formats (`localesFor`) and the content checks that read a translation's numbers (ADR-0057).
  */
-export function numberLocaleFor(language: string, profile: Pick<CountryLocales, 'locales' | 'numberFormatLocale'>): string {
+export function numberLocaleFor(
+  language: string,
+  profile: Pick<CountryLocales, 'locales' | 'numberFormatLocale'>,
+): string {
   return spokenLocale(language, profile) ?? profile.numberFormatLocale;
 }
 
