@@ -1,0 +1,159 @@
+{
+  "title": "Registo",
+  "table": {
+    "entry": "Movimento",
+    "amount": "Montante"
+  },
+  "kind": {
+    "dca": "Compra mensal",
+    "lump": "Montante inicial",
+    "extra": "Compra adicional",
+    "sell": "Venda",
+    "held": "Moedas adicionadas",
+    "move": "Moedas transferidas"
+  },
+  "month": {
+    "bought": "compras de {amount}",
+    "sold": "vendas de {amount}"
+  },
+  "skip": {
+    "line": "Saltado",
+    "lineWithNote": "Saltado · {note}",
+    "title": "Saltar {month}",
+    "note": "Nota (opcional)",
+    "placeholder": "p. ex., reparação do carro",
+    "done": "O mês de {month} foi saltado.",
+    "alreadySkipped": "O mês de {month} já foi saltado."
+  },
+  "row": {
+    "item": "{units} por {amount}",
+    "estimate": "{units} (estimados) por {amount}",
+    "fee": "Comissão {amount}",
+    "move": "{at, select, venue {{units} transferidos de {from} para {to}} other {{units} sem local transferidos para {to}}}",
+    "moveFee": "Comissão de rede {units}",
+    "moveOutside": "O Registo mostra {outside} fora de {to} neste dia, menos {short} do que esta transferência envia. Verifique a data e os locais desta transferência face aos movimentos anteriores.",
+    "edit": "Editar movimento",
+    "delete": "Eliminar movimento",
+    "deleted": "{count, plural, one {Movimento eliminado.} other {{figure} movimentos eliminados.}}",
+    "undo": "Anular",
+    "notRestored": "{reason, select, skipped {{count, plural, one {O mês de {month} foi saltado depois de eliminar este movimento, por isso continua eliminado.} other {O mês de {month} foi saltado depois de eliminar estes {figure} movimentos, por isso continuam eliminados.}}} other {{count, plural, one {O mês de {month} foi registado depois de eliminar este movimento, por isso continua eliminado.} other {O mês de {month} foi registado depois de eliminar estes {figure} movimentos, por isso continuam eliminados.}}}}",
+    "notRestoredReplaced": "{count, plural, one {Uma cópia de segurança substituiu o plano depois de eliminar este movimento, por isso continua eliminado.} other {Uma cópia de segurança substituiu o plano depois de eliminar estes {figure} movimentos, por isso continuam eliminados.}}",
+    "notRestoredSold": "{count, plural, one {Repor este movimento deixaria a sua venda de {coin} de {date} sem as unidades que vende, por isso continua eliminado.} other {Repor estes {figure} movimentos deixaria a sua venda de {coin} de {date} sem as unidades que vende, por isso continuam eliminados.}}",
+    "notRestoredOwnSale": "{count, plural, one {Reposta, esta venda ficaria sem as unidades que vende, por isso continua eliminada.} other {Com estes {figure} movimentos repostos, faltariam à venda de {coin} entre eles as unidades que vende, por isso continuam eliminados.}}",
+    "notRestoredFee": "{count, plural, one {Repor este movimento deixaria a sua transferência de {coin} de {date} sem as unidades que a respetiva comissão de rede leva, por isso continua eliminado.} other {Repor estes {figure} movimentos deixaria a sua transferência de {coin} de {date} sem as unidades que a respetiva comissão de rede leva, por isso continuam eliminados.}}",
+    "notRestoredOwnFee": "Reposta, esta transferência ficaria sem as unidades que a respetiva comissão de rede leva, por isso continua eliminada.",
+    "notRestoredFull": "{count, plural, one {Repor este movimento levaria o plano além dos {max} movimentos que um plano comporta, por isso continua eliminado.} other {Repor estes {figure} movimentos levaria o plano além dos {max} movimentos que um plano comporta, por isso continuam eliminados.}}",
+    "notRestoredCurrency": "{count, plural, one {A moeda de pagamento do plano mudou de {from} para {to} depois da eliminação, por isso este movimento continua eliminado. Foi registado em {from}; registe-o de novo apenas se o pagou em {to}.} other {A moeda de pagamento do plano mudou de {from} para {to} depois da eliminação, por isso estes {figure} movimentos continuam eliminados. Foram registados em {from}; registe-os de novo apenas se os pagou em {to}.}}",
+    "noCost": "Custo desconhecido",
+    "notDeleted": "{kind, select, held {{count, plural, one {Eliminar este movimento de moedas adicionadas deixaria a sua venda de {coin} de {date} sem as unidades que vende, por isso o movimento mantém-se. Verifique essa venda no Registo.} other {Eliminar estes {figure} movimentos de moedas adicionadas deixaria a sua venda de {coin} de {date} sem as unidades que vende, por isso os movimentos mantêm-se. Verifique essa venda no Registo.}}} other {Eliminar esta compra deixaria a sua venda de {coin} de {date} sem as unidades que vende, por isso a compra mantém-se. Verifique essa venda no Registo.}}",
+    "notDeletedFee": "{kind, select, held {{count, plural, one {Eliminar este movimento de moedas adicionadas deixaria a sua transferência de {coin} de {date} sem as unidades que a respetiva comissão de rede leva, por isso o movimento mantém-se. Verifique essa transferência no Registo.} other {Eliminar estes {figure} movimentos de moedas adicionadas deixaria a sua transferência de {coin} de {date} sem as unidades que a respetiva comissão de rede leva, por isso os movimentos mantêm-se. Verifique essa transferência no Registo.}}} other {Eliminar esta compra deixaria a sua transferência de {coin} de {date} sem as unidades que a respetiva comissão de rede leva, por isso a compra mantém-se. Verifique essa transferência no Registo.}}",
+    "failed": "Não foi possível guardar a alteração. Tente de novo."
+  },
+  "holding": {
+    "exempt": "Mais-valia não tributada a partir de {date}",
+    "lowerRate": "Mais-valia à taxa de longo prazo a partir de {date}",
+    "why": "{effect, select, exempt {Porquê? A data de exclusão de tributação} other {Porquê? A data da taxa de longo prazo}}",
+    "note": "Calculado a partir das suas datas, não constitui aconselhamento fiscal"
+  },
+  "showAll": "Mostrar todos os {count} movimentos",
+  "empty": {
+    "noPlan": "Ainda sem movimentos. Crie um plano ou importe um ficheiro.",
+    "firstBuy": "Ainda sem movimentos. O primeiro dia de compra é a {date}.",
+    "firstBuyPast": "Ainda sem movimentos. O primeiro dia de compra foi a {date}."
+  },
+  "form": {
+    "movesShort": "Depois desta alteração, a sua transferência para {to} de {date} envia mais {short} do que o Registo mostra fora de {to} nesse dia. Verifique a data e os locais dessa transferência no Registo depois de guardar.",
+    "title": {
+      "dca": "Registar a compra mensal",
+      "lump": "Registar o montante inicial",
+      "extra": "Registar uma compra adicional",
+      "sell": "Registar uma venda",
+      "held": "Registar moedas que já tem",
+      "edit": "Editar o movimento"
+    },
+    "kind": {
+      "label": "Tipo de transação"
+    },
+    "date": "Data",
+    "dateInvalid": "Escolha uma data completa: dia, mês e ano.",
+    "slot": "Para {month}",
+    "amount": "Custo de {coin} antes de comissões ({currency})",
+    "units": "Unidades de {coin} recebidas",
+    "sold": "Unidades de {coin} vendidas",
+    "received": "Valor de venda de {coin}, antes de comissões ({currency})",
+    "price": "Preço de {coin} ({currency})",
+    "cost": "Custo de {coin} ({currency}, se conhecido)",
+    "costHint": "Deixe vazio se não souber o custo: o Investido, o custo médio e o resultado deixam então estas unidades de fora. Introduza 0 se não pagou nada.",
+    "heldDate": "O dia em que as comprou ou recebeu.{rule, select, none {} other { Em caso de dúvida, o dia mais tardio possível nunca inicia uma regra de detenção cedo demais.}} O gráfico do valor conta as moedas a partir desse dia.",
+    "hint": "Preencha 2 dos 3 campos; o formulário preenche o terceiro.",
+    "estimateHint": "«Comprado como planeado» preencheu estas unidades a partir do preço do dia. Cada comissão ou local copiado veio da última compra ou venda que registou esse valor. Introduza as unidades da confirmação da plataforma.",
+    "venuesHint": "{named, plural, one {Local} other {Locais}} destes movimentos: {venues}.{unnamed, plural, =0 {} one { {figure} movimento não tem local.} other { {figure} movimentos não têm local.}} Cada um mantém o seu, a menos que introduza um local para todos.",
+    "earlierDate": "O preço que o formulário preencheu não se aplica a uma data anterior. Introduza o custo antes de comissões e as unidades recebidas, tal como a confirmação da plataforma os mostra.",
+    "fee": "Comissão ({currency}, opcional)",
+    "details": "Local e nota",
+    "addNote": "Adicionar uma nota",
+    "venue": "Local (opcional)",
+    "note": "Nota (opcional)",
+    "save": "Guardar",
+    "saleWarning": {
+      "exempt": "{share, select, none {Nenhum dos {sold} vendidos{at, select, venue { em {venue}} unnamed { sem local} other {}} cumpre a regra de detenção a {date}. A mais-valia pode ser tributada.} other {Apenas {eligible} dos {sold} vendidos{at, select, venue { em {venue}} unnamed { sem local} other {}} cumprem a regra de detenção a {date}. A mais-valia do resto pode ser tributada.}}",
+      "lowerRate": "{share, select, none {Nenhum dos {sold} vendidos{at, select, venue { em {venue}} unnamed { sem local} other {}} cumpre a regra de detenção a {date}. A mais-valia pode ser tributada à taxa de curto prazo.} other {Apenas {eligible} dos {sold} vendidos{at, select, venue { em {venue}} unnamed { sem local} other {}} cumprem a regra de detenção a {date}. A mais-valia do resto pode ser tributada à taxa de curto prazo.}}"
+    },
+    "coversSale": "Esta alteração deixa a sua venda de {coin} de {date} sem as unidades que vende. Verifique essa venda no Registo.",
+    "close": "Fechar",
+    "saved": "Movimento guardado.",
+    "deleted": "Este movimento foi eliminado noutro separador do navegador, por isso a alteração não foi guardada.",
+    "planDeleted": "O plano foi eliminado noutro separador do navegador, por isso este movimento não foi guardado."
+  },
+  "move": {
+    "title": {
+      "new": "Registar moedas transferidas",
+      "edit": "Editar a transferência"
+    },
+    "coin": "Moeda",
+    "date": "Data",
+    "dateHint": "O dia em que as moedas saíram, tal como o comprovativo de levantamento o mostra.",
+    "from": "Local de onde as moedas saíram",
+    "noVenue": "Sem local",
+    "to": "Local para onde as moedas foram",
+    "toHint": "O nome da plataforma ou da carteira, tal como os outros movimentos o escrevem, nunca o endereço.",
+    "sent": "Unidades enviadas",
+    "all": "Preencher todas as unidades",
+    "received": "Unidades recebidas",
+    "fee": "Comissão de rede {units}",
+    "sourceShort": "{at, select, venue {O Registo mostra {held} em {from} a {date}.} other {O Registo mostra {held} sem local a {date}.}}{found, select, yes {} other { O Registo procura os outros {short} nas unidades detidas fora de {to} nesse dia.}}",
+    "sourceFound": "Fora de {to}, o Registo mostra {outside} no total nesse dia, menos {short} do que esta transferência envia.",
+    "duplicate": "O Registo já tem esta transferência a {date}. Guarde-a apenas se transferiu estas moedas 2 vezes.",
+    "laterShort": "Depois desta transferência, a sua transferência para {to} de {date} envia mais {short} do que o Registo mostra fora de {to} nesse dia. Se ambas registarem o mesmo levantamento, deixe apenas uma delas no Registo. Se não, verifique as unidades que essa transferência envia.",
+    "saleShort": "A comissão de rede desta transferência deixa a sua venda de {coin} de {date} sem as unidades que vende. Verifique as unidades recebidas face ao comprovativo de depósito, ou altere primeiro essa venda.",
+    "feeShort": "A comissão de rede desta transferência deixa a sua transferência de {coin} de {date} sem as unidades que a respetiva comissão de rede leva. Verifique as unidades recebidas face ao comprovativo de depósito.",
+    "ownFeeShort": "A comissão de rede desta transferência leva mais unidades do que os outros movimentos de {coin} deixam para ela. Verifique as unidades recebidas face ao comprovativo de depósito.",
+    "note": "Nota (opcional)",
+    "save": "Guardar",
+    "deleted": "Esta transferência foi eliminada noutro separador do navegador, por isso a alteração não foi guardada.",
+    "issue": {
+      "coin-empty": "Escolha a moeda que transferiu.",
+      "date-invalid": "Escolha uma data completa: dia, mês e ano.",
+      "from-empty": "Escolha o local de onde as moedas saíram.",
+      "to-empty": "Introduza o local para onde as moedas foram.",
+      "sent-zero": "Introduza mais de 0 unidades enviadas.",
+      "received-zero": "Introduza mais de 0 unidades recebidas."
+    }
+  },
+  "record": "Registar compra",
+  "recordHeld": "Adicionar moedas que já tem",
+  "recordMoved": "Registar moedas transferidas",
+  "recorded": {
+    "one": "Registado: {amount} de {coin} a {date}.",
+    "several": "Registado: {amount} a {date}.",
+    "sold": {
+      "one": "Registada: uma venda de {amount} de {coin} a {date}.",
+      "several": "Registadas: vendas de {amount} a {date}."
+    },
+    "held": {
+      "one": "Registado: {units} adicionados{cost, select, known { por {amount}} other {}} a {date}.",
+      "several": "Registado: {units} adicionados a {date}."
+    },
+    "moved": "{at, select, venue {Registado: {units} transferidos de {from} para {to} a {date}.} other {Registado: {units} sem local transferidos para {to} a {date}.}}"
+  }
+}
