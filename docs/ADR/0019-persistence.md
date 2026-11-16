@@ -229,6 +229,10 @@ The decision stands; these are the choices its text left open, made while implem
   only for an acknowledgement in a language other than English, which no approved text gives yet
   (`RISK_WORDING_LANGUAGES` in `packages/app/src/lib/brand/index.ts`). So every row this build writes
   is the v2 or v3 row the previous build reads, and a v4 row is newer to it.
+- **2026-11-16, plans v4 with pt-PT approved** (corrects the entry above, which stays as history).
+  With pt-PT approved (#268, 2026-11-16), a pt-PT acknowledgement writes a v4 row, which the build
+  before #275 answers with the newer-version screen. So the branch that approves pt-PT merges only
+  after a production deployment that holds #275's reader.
 
 ## Disagreement
 
