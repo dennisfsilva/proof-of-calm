@@ -397,8 +397,8 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   the switch (a text-size change, a web font narrower than its fallback) leaves it stacked. Such a
   mechanism gets a design check before its second round; the branch waits for it in #268
   (2026-11-16).
-- A fix to a fallback that the test services also take turns every test that relied on the fallback
-  red. The test services load no rules for the Portuguese fixture plan, so #263's country-locale
+- When the test services take a fallback, a fix to that fallback turns red every test that relied on
+  it. The test services load no rules for the Portuguese fixture plan, so #263's country-locale
   fallback changed 84 app tests' expected formats; a brief names that sweep when a fix changes what
   the test services default to (2026-11-15).
 - A brief's expected format is checked against the ADR that owns the format before it reaches a

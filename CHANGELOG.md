@@ -13,7 +13,7 @@ release.
 
 - Set up a plan once, with no account: your country first, then one of 4 templates or your own
   coins and split, the monthly amount, and the first and last buy days. The plan and the entries are
-  stored on this device. The starting points' texts show their dates in the app's date format.
+  stored on this device. Dates in the starting points' descriptions follow the app's date format.
 - Today shows this month's buy. `Bought as planned` records it in one tap and estimates its units
   from the day's price. You can edit it, delete it with an undo, or skip the month. You can pause the
   plan or end buying.
@@ -38,7 +38,7 @@ release.
   checked, and a profile for every other country that shows no tax-free date.
 - A dated notice on Today when the rules for your plan's country change in the app, with a link to
   review the plan.
-- Amounts you type are read and shown in your country's number format, even when the app could not
+- The app reads and shows the amounts you type in your country's number format, even when it cannot
   load that country's rules.
 - A tax-year export: a CSV of the lots in your country's tax year, with the day each lot passes the
   country's holding rule where there is one. The file says it is not a tax computation.
