@@ -177,6 +177,46 @@ describe('findBanned reads a placeholder as one word (docs/CONTENT-STYLE.md §2)
     expect(rules('{coins, select, one {} other {Hold}} the amounts on {date}.')).toEqual([]);
   });
 
+  // Every format.units caller in packages/app/src fills these with units and their ticker ("0.5 BTC").
+  it('counts a placeholder the app fills with units as an asset name', () => {
+    expect(rules('Sell {units} now.')).toEqual(['imperative: Sell {units} now']);
+    expect(rules('You sold {units} on {date}.')).toEqual([]);
+  });
+
+  it.each([
+    ['units', 'Venda {units} agora.', 'Registou {units} em {date}.'],
+    ['held', 'Mantenha {held} até {date}.', 'O Registo tem {held}.'],
+    ['sent', 'Compre de novo {sent} amanhã.', 'Enviou {sent} em {date}.'],
+    ['excess', 'Venda já {excess}.', 'São mais {excess} do que o Registo tem.'],
+    ['heldUnits', 'Guarde {heldUnits} até {date}.', 'O Registo tem {heldUnits} como moedas adicionadas.'],
+    ['short', 'Compre {short} antes de {date}.', 'Faltam {short} nesta origem.'],
+    ['outside', 'Invista {outside} este mês.', 'Ficam {outside} fora do Registo.'],
+  ])('reads {%s} as an asset name in Portuguese: a directive next to it is refused', (_, refused, passed) => {
+    expect(rules(refused)).toEqual([`imperative: ${refused.slice(0, -1)}`]);
+    expect(rules(passed)).toEqual([]);
+  });
+
+  // The sentences the previous head of this rule (a158e890) refused stay refused once the placeholder list widens.
+  it.each([
+    'Hold until {date:sellWindow.opens} your Bitcoin.',
+    'Mantenha até {date:sellWindow.opens} as suas bitcoins.',
+    'Sell before {date:drawdowns.BTC.high} all of it, it is Bitcoin.',
+    'Buy {coin} on {date}, Bitcoin first.',
+    'Bitcoin peaked on {date:references.peakFrom}. Sell ETH.',
+    '{count, plural, one {Mantenha} other {Mantenham}} as suas bitcoins.',
+    '{n, plural, one {Compre} other {Comprem}} BTC todos os meses.',
+    'Até {date}, {formal, select, yes {mantenha} other {mantém}} as suas bitcoins.',
+    'Sell {coins:BTC.units} now.',
+    'Buy {coin} on {date}.',
+    'Compre {coin} todos os meses.',
+    'Hold {coins} until {date:sellWindow.opens}.',
+    'Mantenha {names} até {date}.',
+    'Sell 0.5 BTC on {date:lastBuy} now.',
+    'Sell 10 BTC on {date:lastBuy} or {date:sellWindow.opens}, 1.000 € each.',
+  ])('still refuses %s', (sentence) => {
+    expect(findBanned(sentence).filter((finding) => finding.rule === 'imperative')).toHaveLength(1);
+  });
+
   it('returns the sentence exactly as written, its figures and placeholders restored', () => {
     expect(rules('Sell 0.5 BTC on {date:lastBuy} now.')).toEqual(['imperative: Sell 0.5 BTC on {date:lastBuy} now']);
     expect(rules('Sell 10 BTC on {date:lastBuy} or {date:sellWindow.opens}, 1.000 € each.')).toEqual([
