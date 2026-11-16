@@ -133,7 +133,9 @@ For each profile in `packages/content/jurisdictions/`:
    wording takes the date the quoted rule took effect, else the source's publication date; its
    `reason` starts "Correction of our wording". A start date the passage itself gives (§ 32a's "ab
    dem Veranlagungszeitraum 2026") is the date the rule took effect and comes before the entry's
-   `published`. When neither shows (no start date in the passage, and `published: null`), change
+   `published`. On a page updated over time, the source's publication date is that of the update
+   that published the passage, as `docs/EDUCATION.md` §9 dates a fact: a passage noted "(Redação da
+   Lei n.º 24-D/2022, de 30 de dezembro)" was published on 2022-12-30. When neither shows (no start date in the passage, and `published: null`), change
    nothing. Add the note `correction, no date on the source: <item> <field>: <wording>; "<quote>"`
    and leave the line as it is. An HTML quote is WebFetch's rendering, so the owner's read on the
    source's site (`docs/CONTENT-OPS.md` §8, step 1) stays the check. WebFetch summarises a verbatim
