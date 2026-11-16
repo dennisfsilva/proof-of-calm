@@ -116,7 +116,7 @@ numbers. A payload version rises only with an upgrade path, either an upgrade on
 rollback read tests. A new payload version is read by one release before any release writes it: rows
 and files are written at the lowest version that holds their data (`docs/DOMAIN.md` §2.1). Plans v4,
 which record an acknowledgement's language, are read from the release that adds them and first
-written by a later release that ships a translation counsel approved. Every English acknowledgement
+written by a later release that ships a translation that counsel approved. Every English acknowledgement
 stays the v3 plan. The
 newer-version screen (`packages/app/src/features/shell/newer-version.tsx`) ships in a release
 before any release writes a higher row version, so the build a rollback returns to shows it. Until

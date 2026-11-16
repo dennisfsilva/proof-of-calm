@@ -19,7 +19,7 @@ All commands from the repo root.
 
 - Install: `pnpm install --frozen-lockfile` (install scripts are off except the `allowBuilds` list in `pnpm-workspace.yaml`)
 - Dev server: `pnpm dev` (apps/web on http://localhost:3000)
-- Storybook: `pnpm storybook` (packages/ui on http://localhost:6006 and packages/app on http://localhost:6007; theme, motion and text-size toolbars, the seven viewports); static build: `pnpm storybook:build`
+- Storybook: `pnpm storybook` (packages/ui on http://localhost:6006 and packages/app on http://localhost:6007; theme, motion and text-size toolbars, and in packages/app a language toolbar (English or pt-PT), the seven viewports); static build: `pnpm storybook:build`
 - Typecheck: `pnpm typecheck` (apps/web also checks the service worker against `apps/web/tsconfig.sw.json`)
 - Lint, format, the dependency rule, the styling lint (no hex colours, px font sizes, font families or removed outlines outside `packages/ui/src/styles`), the docs lint and the size lint: `pnpm lint` (fix formatting: `pnpm lint:fix`); on their own: `pnpm lint:docs` (paths, commands, ADR numbers and owned literals in the documents), `pnpm lint:size` (source files over 400 lines); dead code: `pnpm lint:dead`
 - Commit subjects of the branch (conventional, at most 100 characters, the check CI runs): `pnpm lint:commits` (reads `origin/main..HEAD`, so fetch `origin/main` first)
