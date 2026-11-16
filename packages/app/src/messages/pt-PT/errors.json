@@ -20,7 +20,7 @@
     "slot-skipped": "O mês de {slot} já foi saltado. Registe esta compra como compra adicional.",
     "note-too-long": "Use no máximo {max} caracteres na nota.",
     "venue-too-long": "Use no máximo {max} caracteres no local.",
-    "pause-order": "Escolha um fim igual ou posterior ao início.",
+    "pause-order": "Escolha uma data de fim igual ou posterior à data de início.",
     "pauses-overlap": "Esta pausa sobrepõe-se a outra. Escolha outras datas.",
     "not-paused": "O plano não está em pausa.",
     "before-first-buy": "O plano ainda não começou, por isso não há compras para terminar.",
