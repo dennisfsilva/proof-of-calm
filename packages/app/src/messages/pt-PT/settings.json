@@ -2,9 +2,9 @@
   "title": "Definições",
   "tabs": {
     "plan": "Plano",
-    "coins": "Moedas e repartição",
+    "coins": "Moedas e pesos",
     "hold": "Detenção e venda",
-    "data": "Moeda de pagamento e dados"
+    "data": "País e dados"
   },
   "plan": {
     "ended": "As compras terminaram a {date}. Guardar uma última compra posterior volta a acrescentar dias de compra."

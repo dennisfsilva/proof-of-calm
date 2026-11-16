@@ -60,7 +60,7 @@
     "later": "{units} a partir de {date}"
   },
   "coins": {
-    "legend": "Moedas e repartição",
+    "legend": "Moedas e pesos",
     "share": "Peso de {coin} (%)",
     "remove": "Remover {coin}",
     "add": "Adicionar uma moeda",
