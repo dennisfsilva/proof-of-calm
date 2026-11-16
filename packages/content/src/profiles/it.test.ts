@@ -1,5 +1,5 @@
 // Italy's profile (docs/JURISDICTIONS.md §7.1): only what no content review can change (docs/ENGINEERING.md §2,
-// the review-safe test rule); the lot rule's code is the core's, tested on fixtures, and the country facts are
+// Tests and content reviews); the lot rule's code is the core's, tested on fixtures, and the country facts are
 // §7.1's rows, which the review compares and the owner reads.
 import { CountryRulesSchema, suggestCountry } from '@proofofcalm/core';
 import { describe, expect, it } from 'vitest';

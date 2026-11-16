@@ -1,5 +1,5 @@
 // The Netherlands' profile (docs/JURISDICTIONS.md §7.8): only what no content review can change
-// (docs/ENGINEERING.md §2, the review-safe test rule); the country facts are §7.8's rows, which the review
+// (docs/ENGINEERING.md §2, Tests and content reviews); the country facts are §7.8's rows, which the review
 // compares and the owner reads.
 import { CountryRulesSchema, suggestCountry } from '@proofofcalm/core';
 import { describe, expect, it } from 'vitest';

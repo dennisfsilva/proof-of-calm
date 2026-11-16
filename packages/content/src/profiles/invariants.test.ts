@@ -1,6 +1,6 @@
-// What holds for every live profile however a content review changes it (docs/ENGINEERING.md §2, the
-// review-safe test rule): a rule rests on a law, an authority or a court, never on a secondary source
-// alone (docs/CONTENT-OPS.md §5). The values themselves are the review's to change and the owner's to read.
+// What holds for every live profile however a content review changes it (docs/ENGINEERING.md §2, Tests and
+// content reviews): a rule rests on a law, an authority or a court, never on a secondary source alone
+// (docs/CONTENT-OPS.md §5). The values themselves are the review's to change and the owner's to read.
 import { describe, expect, it } from 'vitest';
 import { loadProfiles } from '../loaders/countries.ts';
 import type { CountryProfile } from '../schema/jurisdiction.ts';
