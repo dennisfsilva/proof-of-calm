@@ -305,16 +305,16 @@ export const StacksWithTheTextSize: Story = {
     const before = root.style.fontSize;
     const { box, table } = parts(canvasElement);
     try {
-      root.style.fontSize = '16px';
+      root.style.setProperty('font-size', '16px');
       box.style.width = '0px';
       await waitFor(() => expect(table).toHaveAttribute('data-stacked'));
       table.removeAttribute('data-stacked');
       const columns = table.getBoundingClientRect().width;
       box.style.width = `${Math.ceil(columns) + 8}px`;
       await waitFor(() => expect(table).not.toHaveAttribute('data-stacked'));
-      root.style.fontSize = '20px';
+      root.style.setProperty('font-size', '20px');
       await waitFor(() => expect(table).toHaveAttribute('data-stacked'));
-      root.style.fontSize = '16px';
+      root.style.setProperty('font-size', '16px');
       await waitFor(() => expect(table).not.toHaveAttribute('data-stacked'));
     } finally {
       root.style.fontSize = before;
