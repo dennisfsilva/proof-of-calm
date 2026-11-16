@@ -16,7 +16,7 @@ import today from '../../../messages/en/today.json';
 import { ReviewScreen } from './review-screen';
 
 // The review page (docs/DOMAIN.md §3.12; CONTENT-STYLE §3 "Annual review page (M2)") over the fixture plan, set
-// up on 5 Apr 2026 in Portugal, whose rules were reviewed on 5 Nov 2026 (version 2, next due 2 Nov 2027).
+// up on 5 Apr 2026 in Portugal, whose rules here were reviewed on 5 Nov 2026 (version 2, next due 2 Nov 2027).
 
 // jsdom has no `scrollIntoView`: the result line comes into view by the script focus move.
 beforeAll(() => {
@@ -26,9 +26,29 @@ afterEach(cleanup);
 
 type MemoryStore = ReturnType<typeof memoryPlanStore>;
 
-const rulesOf = (code: string) => async () => {
+// A content review raises each profile's version and moves its dates (docs/CONTENT-OPS.md §8): the status of the
+// two profiles read here is literal, Portugal's at the fixture plan's version 2.
+const day = (value: string) => value as CalendarDate;
+const STATUS: Readonly<Record<'PT' | 'XX', CountryRules['status']>> = {
+  PT: {
+    version: 2,
+    changedOn: day('2026-11-05'),
+    changeNotice: 'Portugal changed a rate. The holding rule is unchanged.',
+    lastReviewed: day('2026-11-05'),
+    nextReviewDue: day('2027-11-02'),
+  },
+  XX: {
+    version: 1,
+    changedOn: day('2026-10-17'),
+    changeNotice: null,
+    lastReviewed: day('2026-10-17'),
+    nextReviewDue: day('2027-10-17'),
+  },
+};
+
+const rulesOf = (code: 'PT' | 'XX') => async () => {
   const profile = await loadProfile(code);
-  return profile === null ? null : countryRules(profile);
+  return profile === null ? null : { ...countryRules(profile), status: STATUS[code] };
 };
 
 type Mount = {

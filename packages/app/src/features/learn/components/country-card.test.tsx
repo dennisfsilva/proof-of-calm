@@ -125,9 +125,12 @@ describe('CountryCard', () => {
     for (const change of PORTUGAL.pendingChanges) expect(card.textContent).not.toContain(change.title);
   });
 
+  // A review moves the profile's dates (docs/CONTENT-OPS.md §8): the twelve months run from a literal nextReviewDue.
+  const DUE: CountryProfile = { ...PORTUGAL, status: { ...PORTUGAL.status, nextReviewDue: '2027-11-02' } };
+
   it('under review shows only the title and the under-review line, with no link', async () => {
-    // Portugal's nextReviewDue is 2027-11-02: under review from 2028-11-03.
-    const card = await mount({ nowMs: Date.parse('2028-11-03T10:00:00Z') });
+    // nextReviewDue 2027-11-02: under review from 2028-11-03.
+    const card = await mount({ profile: DUE, nowMs: Date.parse('2028-11-03T10:00:00Z') });
     expect(card.children).toHaveLength(2);
     expect(within(card).getAllByRole('heading')).toHaveLength(1);
     expect(card.lastElementChild?.textContent).toMatch(/^Not reviewed since .+ · general information, not advice$/);
@@ -136,7 +139,7 @@ describe('CountryCard', () => {
   });
 
   it('is not under review on the last day of the twelve months', async () => {
-    const card = await mount({ nowMs: Date.parse('2028-11-02T10:00:00Z') });
+    const card = await mount({ profile: DUE, nowMs: Date.parse('2028-11-02T10:00:00Z') });
     expect(card.textContent).toContain(PORTUGAL.card.summary60);
   });
 
