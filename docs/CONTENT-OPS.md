@@ -149,7 +149,8 @@ visible rather than impossible:
   the `render` job of `.github/workflows/content-review.yml`.
 - Every link is https, on `packages/content/sources.allow.json` or a subdomain of a listed domain,
   and shows its true host as its text. A change's or pending change's link must be on its item's
-  list: a country's file on that country's list or `EU`, any other data file on `facts`; verified
+  list: a country's file on that country's list or `EU`, any other data file on `facts`, a
+  translation under `i18n/<locale>/` on its English file's; verified
   and unreachable links on any list. The finish refuses any other link. `pnpm validate:content`
   refuses an off-list source in the data unless its `kind` is `secondary`: a secondary source may
   sit off the list, and it is never a profile's only evidence (`packages/content/src/validate.ts`).
