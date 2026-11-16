@@ -1,9 +1,9 @@
-// The United Kingdom's profile (docs/JURISDICTIONS.md §7.4): what the core reads of it, the holding status of a
-// buy, the source each rule links to, the rate change of 30 October 2024 and the suggestion rows of §3 that name GB.
-import { CountryRulesSchema, holdingStatus, suggestCountry } from '@proofofcalm/core';
-import { date } from '@proofofcalm/core/testing';
+// The United Kingdom's profile (docs/JURISDICTIONS.md §7.4): only what no content review can change
+// (docs/ENGINEERING.md §2, the review-safe test rule), and the suggestion rows of §3 that name GB; the country
+// facts are §7.4's rows, which the review compares and the owner reads.
+import { CountryRulesSchema, suggestCountry } from '@proofofcalm/core';
 import { describe, expect, it } from 'vitest';
-import { countryRules, loadProfiles, ruleSource, suggestionProfiles } from '../loaders/countries.ts';
+import { countryRules, loadProfiles, suggestionProfiles } from '../loaders/countries.ts';
 import { loadRules } from '../loaders/rules.ts';
 
 const profiles = await loadProfiles();
@@ -19,52 +19,16 @@ describe('United Kingdom (docs/JURISDICTIONS.md §7.4)', () => {
     expect(CountryRulesSchema.parse(rules)).toEqual(rules);
     expect(rules).toMatchObject({
       code: 'GB',
-      name: 'United Kingdom',
-      currency: 'GBP',
       locales: ['en-GB', 'cy-GB'],
       numberFormatLocale: 'en-GB',
       dateFormatLocale: 'en-GB',
       timezones: ['Europe/London'],
-      taxYear: { start: '04-06', end: '04-05' },
-      computationModel: { kind: 'per-lot' },
-      holdingRule: { kind: 'none' },
-      holdingRuleOverrides: [],
-      holdingRuleConditions: [],
-      lotRule: 'pooled',
-      lotScope: 'global',
-      status: { version: 1, changedOn: '2024-10-30', changeNotice: null },
     });
     expect('englishConfidence' in rules).toBe(false);
   });
 
   it('boots the shell on the generated rules file, equal to the profile’s rules (ADR-0049)', async () => {
     expect(await loadRules('GB')).toEqual(rules);
-  });
-
-  it('no holding rule, so a unit bought on 2026-03-15 is never labelled "tax-free from"', () => {
-    expect(holdingStatus(date('2026-03-15'), rules.holdingRule, rules.holdingRuleOverrides)).toEqual({ kind: 'none' });
-  });
-
-  it('links every rule to a law or an authority', () => {
-    for (const rule of ['holdingRule', 'lotRule', 'rates', 'losses', 'reporting'] as const) {
-      const source = kingdom.sources.find((candidate) => candidate.key === kingdom.ruleSources[rule]);
-      expect(source?.kind, rule).toMatch(/^(law|authority)$/);
-      expect(ruleSource(kingdom, rule)).toBe(source?.url);
-    }
-  });
-
-  it('splits 2024/25 by disposal date: 10 % and 20 % to 29 October 2024, 18 % and 24 % from 30 October 2024', () => {
-    const rates = kingdom.card.rates.map(({ value, validFrom, validTo }) => ({ value, validFrom, validTo }));
-    expect(rates).toContainEqual({ value: '18%', validFrom: '2024-10-30', validTo: null });
-    expect(rates).toContainEqual({ value: '24%', validFrom: '2024-10-30', validTo: null });
-    expect(rates).toContainEqual({ value: '10%', validFrom: '2024-04-06', validTo: '2024-10-29' });
-    expect(rates).toContainEqual({ value: '20%', validFrom: '2024-04-06', validTo: '2024-10-29' });
-  });
-
-  it('keeps the Finance Bill measure a proposal (§2: a proposal is never a rule), effective from 6 April 2027', () => {
-    const measure = kingdom.pendingChanges.find((change) => change.effectiveFrom === '2027-04-06');
-    expect(measure?.status).toBe('proposed');
-    expect(measure?.source.kind).toBe('authority');
   });
 });
 
