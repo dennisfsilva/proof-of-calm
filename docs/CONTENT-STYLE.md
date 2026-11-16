@@ -377,9 +377,10 @@ page takes the spacing of the country's number locale, as `format.percent` write
 Portugal, `40 %` with a no-break space in Germany. Research figures in messages go through
 `format.percent`, and a country profile writes its literal percentages with its own locale's joiner,
 which `pnpm validate:content` checks, so the sign never wraps away from its number. A profile's
-literal percentage also takes the decimal separator of the number locale the page uses for that
-profile, `numberLocaleFor(language, profile)` in `packages/content/src/loaders/locales.ts`, in its
-English text too: `12,2%` for Portugal, `5,5 %` for Germany, `12.2%` for Britain (decided
+literal percentage also takes the decimal separator of the profile's number locale in the page's
+language, `numberLocaleFor(language, profile)` in `packages/content/src/loaders/locales.ts`, in its
+English text too, written once in the content string that the app and the site pages both show:
+`12,2%` for Portugal, `5,5 %` for Germany, `12.2%` for Britain (decided
 2026-11-16). `pnpm validate:content` refuses any other separator in a profile's percentage or in
 a translated profile's (`decimal-separator`). A percentage range is two figures joined by an
 unspaced en dash or hyphen, and both are percentages, the one without the sign too: `12,2–48%`. A
@@ -537,7 +538,7 @@ needs (decided 2026-11-15). The native reader's review is §8 item 9.
   English (ADR-0040). Never echo the name as reassurance: no `calma` or `tranquilidade` in copy
   about the market or the plan.
 - **The other coins take the feminine article too**, read as `a moeda`, as `a bitcoin` does:
-  `a Ethereum`, `a Solana`, `a Chainlink` (`A Ethereum caiu 82 %`). The unit ether keeps the
+  `a Ethereum`, `a Solana`, `a Chainlink` (`A Solana caiu`). The unit ether keeps the
   masculine: `o ether`.
 - **"Ensure" is `confirme` or `verifique`**, since `garantir` and `garanta` stay banned (§2):
   `Confirme a data antes de guardar`.

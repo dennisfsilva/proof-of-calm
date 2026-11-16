@@ -247,7 +247,12 @@ external links and the Risk link in the mobile export (M3).
   it the PT, XX and template overlays and the tax-year header's semicolons move to #290; the other
   settings, learn and log messages, the language of English text, the dynamic imports' failure
   paths, the facts, DE and ES go to #286, and the other profiles and the six Learn modules to #287.
-  So pt-PT takes three build sessions more than #269 planned before German starts. A
+  #290 landed D8 with the ICU-branch lint (#292), the pt-PT Settings tab names (#293) and the four
+  templates' overlays with their loader, the template step and summary in the UI language (#295);
+  the tax-year header's semicolons with the file's UTF-8 byte-order mark, the decimals and
+  holding-date baselines, and Portugal's and XX's profile overlays move to #294, placed first,
+  because the semicolons branch used both review rounds, and the review-content skill's pre-D8
+  number example to #286. So pt-PT takes four build sessions more than #269 planned before German starts. A
   render-and-axe-only pt-PT story run waits for #271, once every namespace is translated. CSV import, free (ADR-0039), for the
   main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
   Republic; Kraken's ledger reader built on 2026-11-13 (#168) and the core's import plan against the
