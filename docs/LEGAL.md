@@ -208,7 +208,8 @@ The lint runs over UI messages, content, templates, the landing page and site pa
 `packages/content/style/banned.json` (what it holds: `docs/CONTENT-STYLE.md` §2; the allow-list's
 legal entries are "API key", "private key" and the Risk page's register sentence). It
 also flags, in English and German, a sentence with an asset name that opens with a buying, selling
-or holding verb on its list; in Portuguese, a sentence with an asset name that holds a buying,
+or holding verb on its list, and such a verb that opens an ICU `plural`, `select` or
+`selectordinal` branch with or without an asset name (`docs/CONTENT-STYLE.md` §2); in Portuguese, a sentence with an asset name that holds a buying,
 selling or holding form on its list anywhere (the forms and the gaps: `docs/CONTENT-STYLE.md` §2);
 and any percentage next to a gain word. Template names need a human sign-off.
 

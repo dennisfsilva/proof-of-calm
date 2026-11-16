@@ -74,13 +74,13 @@ passes. The placeholders that item 1 of the imperative rule below lists count as
 too, so `Sell {units} now` fails. The lint does not count `{sold}`, `{fee}`, `{log}` and `{file}`
 as asset names, as in the imperative rule's item 1; the copy review (§8) checks them by hand. A
 `{date:<field>}` placeholder counts as one word, as it does there. Only a verb that opens the
-sentence is read. The first words of every `plural`, `select` or `selectordinal` branch, nested
-ones included, open the sentence the person reads, so a verb on the list there fails with or
-without an asset name, since the branch's words stand for what its count or selector picks:
-`{count, plural, one {Sell it} other {Sell them}}` and
-`{coins, select, one {} other {Hold}} the amounts on {date}.` fail. A quoted brace (`'{'`) opens
-no branch, and a `#` or a `{date:<field>}` placeholder that opens a branch is its first word. A verb
-after a dot inside a branch opens a new sentence and is read as any sentence is. Portuguese: below. Template names need a human sign-off.
+sentence is read. The lint reads the first words of every `plural`, `select` or `selectordinal`
+branch, nested ones included, as a sentence start, and a verb on the list there fails with or
+without an asset name. `{count, plural, one {Sell it} other {Sell them}}` fails, and so does
+`{coins, select, one {} other {Hold}} the amounts on {date}.` A quoted brace (`'{'`) opens no
+branch, and a `#` or a `{date:<field>}` placeholder that opens a branch is its first word. A verb
+after a dot inside a branch opens a new sentence and is read as any sentence is. Portuguese:
+below. Template names need a human sign-off.
 
 The Portuguese rows (decided 2026-11-15; the voice is §9):
 
@@ -381,9 +381,13 @@ literal percentage also takes the decimal separator of the number locale the pag
 profile, `numberLocaleFor(language, profile)` in `packages/content/src/loaders/locales.ts`, in its
 English text too: `12,2%` for Portugal, `5,5 %` for Germany, `12.2%` for Britain (decided
 2026-11-16). `pnpm validate:content` refuses any other separator in a profile's percentage or in
-its translation's (`decimal-separator`). A figure without the sign keeps its point, since it cites
-a law (`art. 33.1`, `Quadro 9.4`), and the profile's other English figures keep English grouping
-(`EUR 1,000`). Facts, templates
+a translated profile's (`decimal-separator`). Every figure of a percentage range is a percentage,
+the one without the sign too: `12,2–48%`, `2,5% to 13,3%` (an unspaced dash or hyphen, or `to`,
+joins a range). A figure that is not a percentage keeps its point, as a law citation does
+(`art. 33.1`, `Quadro 9.4`). The profile's other English figures keep English grouping
+(`EUR 1,000`), so a sentence with both kinds shows the comma in two roles: `a deemed 6,00% of
+assets above EUR 59,357 per person`. Whether grouped figures follow the page's locale too is
+left for the owner to decide. Facts, templates
 and modules write `N %` with an ordinary space, or with a no-break space where the sign must not
 wrap away. When a page shows a fact's, template's or module's percentage beside a formatted figure,
 that percentage takes the page's joiner. A module without a chart keeps its spacing as written. The
