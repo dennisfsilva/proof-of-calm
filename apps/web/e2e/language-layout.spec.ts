@@ -334,8 +334,23 @@ function tabBox(tab: Locator) {
   return tab.evaluate((element) => ({ scroll: element.scrollWidth, client: element.clientWidth }));
 }
 
-// Settings in pt-PT, its four tabs found by the merged pt-PT file's words: each tab, selected, holds its name inside
-// its own box, and the page stays inside the viewport, with the same wider text.
+/** How many lines a control's text takes: the distinct tops of a Range's client rects over each of its text nodes. */
+function textLines(control: Locator) {
+  return control.evaluate((element) => {
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    const range = document.createRange();
+    const tops = new Set<number>();
+    for (let node = walker.nextNode(); node !== null; node = walker.nextNode()) {
+      range.selectNodeContents(node);
+      for (const rect of range.getClientRects()) if (rect.width > 0) tops.add(Math.round(rect.top));
+    }
+    return tops.size;
+  });
+}
+
+// Settings in pt-PT, its four tabs found by the merged pt-PT file's words: each tab, selected (its widest state), holds
+// its name inside its own box in at most two lines (125 % text broke «Regra e venda» into three before its no-break
+// space, docs/CONTENT-STYLE.md §9), and the page stays inside the viewport, with the same wider text.
 test('pt-PT: /settings keeps each of its four tab names inside its tab with text set wider than its fonts', async ({
   page,
 }) => {
@@ -381,10 +396,68 @@ test('pt-PT: /settings keeps each of its four tab names inside its tab with text
       box.scroll,
       `the ${key} tab's name "${tabs[key]}" stays inside its ${box.client} px tab`,
     ).toBeLessThanOrEqual(box.client);
+    expect(await textLines(tab), `the ${key} tab's name "${tabs[key]}" takes at most two lines`).toBeLessThanOrEqual(2);
     const now = await pastTheViewport(page);
     expect(now.past, `nothing on the ${key} tab ends past the viewport`).toEqual([]);
     expect(now.scrolls, `no page-wide horizontal scroll on the ${key} tab`).toBe(false);
   }
+  expect(errors).toEqual([]);
+});
+
+// Settings › «País e dados» in pt-PT: each entry point of the data section (the import's heading and file button, the
+// exchange formats line, the paste box's label, which names the DCA plan page's export, and its read button), found by
+// the merged pt-PT file's words, holds its text inside its own box with the same wider text.
+test('pt-PT: Settings › País e dados keeps each import, exchange, paste and prototype entry inside its own box', async ({
+  page,
+}) => {
+  const words = {
+    heading: ptSettings.data.import.heading,
+    choose: ptSettings.data.import.choose,
+    formats: ptSettings.data.exchange.formats,
+    paste: ptSettings.data.paste.label,
+    read: ptSettings.data.paste.read,
+  };
+  const english: typeof words = {
+    heading: enSettings.data.import.heading,
+    choose: enSettings.data.import.choose,
+    formats: enSettings.data.exchange.formats,
+    paste: enSettings.data.paste.label,
+    read: enSettings.data.paste.read,
+  };
+  // Each word on its own, so one key left in English fails the case.
+  for (const key of Object.keys(words) as (keyof typeof words)[]) {
+    expect(words[key], `the merged pt-PT file holds the data section's own ${key}`).not.toBe(english[key]);
+  }
+  // The formats line holds the product's name: it is found by its words before the placeholder.
+  const formats = words.formats.slice(0, words.formats.indexOf('{product}')).trim();
+  expect(formats.length, 'the formats line opens with words before {product}').toBeGreaterThan(0);
+  const errors = await boot(page, 'pt-PT');
+  await open(page, '/settings');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'pt-PT');
+  const tab = page.getByRole('tab', { name: ptSettings.tabs.data, exact: true });
+  await tab.click();
+  await expect(tab).toHaveAttribute('aria-selected', 'true');
+  const panel = page.getByRole('tabpanel', { name: ptSettings.tabs.data, exact: true });
+  const controls = {
+    heading: panel.getByRole('heading', { level: 3, name: words.heading, exact: true }),
+    choose: panel.locator('button', { hasText: words.choose }),
+    formats: panel.getByText(formats),
+    paste: panel.getByText(words.paste, { exact: true }),
+    read: panel.getByRole('button', { name: words.read, exact: true }),
+  };
+  await widerText(page, '0.03em');
+  await settled(page);
+  for (const key of Object.keys(controls) as (keyof typeof controls)[]) {
+    await expect(controls[key]).toBeVisible();
+    const box = await tabBox(controls[key]);
+    expect(box.client, `the ${key} control has a box of its own`).toBeGreaterThan(0);
+    expect(box.scroll, `the ${key} control's text stays inside its ${box.client} px box`).toBeLessThanOrEqual(
+      box.client,
+    );
+  }
+  const now = await pastTheViewport(page);
+  expect(now.past, 'nothing in the data section ends past the viewport').toEqual([]);
+  expect(now.scrolls, 'no page-wide horizontal scroll').toBe(false);
   expect(errors).toEqual([]);
 });
 
