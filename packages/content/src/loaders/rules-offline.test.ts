@@ -14,8 +14,8 @@ it("answers the English rules when a language's rules chunk fails to load", asyn
   expect(await loadRules('PT', 'pt-PT')).toBe(english);
 });
 
-// In a build, Vite's preload wrapper resolves a failed import to undefined once a `vite:preloadError` listener
-// prevents its default (the web host's chunk reload, apps/web/src/chunk-reload.ts): reading the file then throws.
+// In the web host a failed import now rejects (apps/web/src/chunk-reload.ts leaves `vite:preloadError`'s default);
+// Vite's preload wrapper resolves it to undefined only under a listener that prevents it; the guard stays as defence.
 vi.mock('../../rules/pt-PT/es.json', () => ({}));
 
 it('answers the English rules when the import resolves without the file, as the preload wrapper does', async () => {
