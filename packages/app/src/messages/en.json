@@ -139,7 +139,8 @@
       "sourceList": "Sources for {country}",
       "sourcePublished": "{publisher} · dated {date}",
       "sourceAccessed": "{publisher} · accessed {date}",
-      "sourcesName": "Sources for {rule, select, rates {the rates} holdingRule {the holding rule} lotRule {matching sales to purchases} losses {losses} reporting {reporting} other {this rule}}"
+      "sourcesName": "Sources for {rule, select, rates {the rates} holdingRule {the holding rule} lotRule {matching sales to purchases} losses {losses} reporting {reporting} other {this rule}}",
+      "inEnglish": "The rules below are in English."
     },
     "chart": {
       "label": "Falls from each high to the lowest low after it for {coins}, {first} to {last}",
