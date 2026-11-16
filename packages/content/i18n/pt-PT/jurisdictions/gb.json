@@ -1,0 +1,79 @@
+{
+  "name": "Reino Unido",
+  "filingNote": "Ano fiscal de 6 de abril a 5 de abril. A declaração Self Assessment online é entregue até 31 de janeiro após o fim do ano fiscal. O serviço real time Capital Gains Tax recebe a comunicação até 31 de dezembro e o pagamento até 31 de janeiro.",
+  "lotRuleNote": "Um pool da section 104 por tipo de token, após a regra do mesmo dia e a regra dos 30 dias (TCGA 1992 ss. 104, 105 e 106A). A Proof of Calm lista cada compra e deixa o agrupamento ao contabilista.",
+  "card": {
+    "classification": "Em regra, um particular paga Capital Gains Tax na alienação de tokens, um investimento pessoal. Há Income Tax sobre tokens de um empregador, da mineração, da confirmação de transações ou de alguns airdrops, e numa atividade comercial.",
+    "taxableEvents": [
+      {
+        "note": "Uma venda de tokens por dinheiro é uma alienação. A mais-valia ou menos-valia apura-se em cada alienação (HMRC Cryptoassets Manual CRYPTO22100)."
+      },
+      { "note": "Uma troca de tokens por outro tipo de token é uma alienação (CRYPTO22100)." },
+      {
+        "note": "Uma troca de tokens por uma stablecoin é uma troca por outro tipo de token, logo uma alienação (CRYPTO22100)."
+      },
+      { "note": "O pagamento de bens ou serviços com tokens é uma alienação (CRYPTO22100)." },
+      {
+        "note": "Não há alienação enquanto o particular conserva a propriedade efetiva do princípio ao fim, por exemplo ao mover tokens entre endereços públicos que controla (CRYPTO22100)."
+      },
+      {
+        "note": "Uma doação de tokens é uma alienação pelo valor em libras, salvo ao cônjuge ou parceiro civil. Uma doação a uma instituição de caridade não paga Capital Gains Tax, salvo se viciada (CRYPTO22100). Tokens herdados: fora deste cartão."
+      },
+      {
+        "note": "Recompensas de staking fora de uma atividade comercial: rendimento diverso pelo valor em libras à receção (CRYPTO21200). Airdrops recebidos sem contrapartida: sem Income Tax (CRYPTO21250). Capital Gains Tax numa alienação posterior."
+      }
+    ],
+    "rates": [
+      {
+        "label": "Mais-valias dentro do escalão de taxa básica",
+        "value": "18%",
+        "note": "Alienações a partir de 30 de outubro de 2024. O escalão de taxa básica é de £37,700 no ano fiscal de 2026 a 2027. As mais-valias somam-se ao rendimento, pelo que a parte não usada do escalão é tributada a 18%."
+      },
+      {
+        "label": "Mais-valias acima do escalão de taxa básica",
+        "value": "24%",
+        "note": "Alienações a partir de 30 de outubro de 2024, para qualquer montante acima do escalão de taxa básica e para os contribuintes das taxas superior ou adicional."
+      },
+      {
+        "label": "Mais-valias dentro do escalão de taxa básica, 6 de abril a 29 de outubro de 2024",
+        "value": "10%",
+        "note": "Alienações de 6 de abril de 2024 a 29 de outubro de 2024, exceto imóveis residenciais e carried interest (tabela de taxas e franquias do GOV.UK)."
+      },
+      {
+        "label": "Mais-valias acima do escalão de taxa básica, 6 de abril a 29 de outubro de 2024",
+        "value": "20%",
+        "note": "Alienações de 6 de abril de 2024 a 29 de outubro de 2024, exceto imóveis residenciais e carried interest (tabela de taxas e franquias do GOV.UK)."
+      }
+    ],
+    "allowances": [
+      "Franquia anual (annual exempt amount) de £3,000 por particular nos anos fiscais de 2024 a 2025, 2025 a 2026 e 2026 a 2027. Só há imposto sobre as mais-valias acima dela."
+    ],
+    "holdingRuleText": "Sem exclusão por período de detenção: cada venda é um facto tributável.",
+    "lotRuleText": "Os tokens de um tipo formam o pool da section 104, com um custo dedutível (TCGA 1992 s. 104). Primeiro vem a regra do mesmo dia (s. 105). Os adquiridos nos 30 dias após uma alienação associam-se a ela, a mais antiga primeiro (s. 106A).",
+    "losses": "Pedidas na declaração, até 4 anos após o fim do ano fiscal da alienação. Abatem-se às mais-valias do mesmo ano e o resto reporta-se. Um pedido de valor irrisório para tokens sem valor abrange todo o pool da section 104.",
+    "reporting": [
+      "O resumo de Capital Gains Tax da Self Assessment (SA108) tem uma secção Cryptoassets, campos 13.1 a 13.8, no ano fiscal 2024 a 2025. Pede o número de alienações, o produto, custos dedutíveis, as mais-valias e menos-valias, e os cálculos.",
+      "Serviço real time Capital Gains Tax: a mais-valia ou menos-valia de tokens já comunicada por ele vai no campo 13.7, o imposto já pago no campo 13.8 e os números de referência no campo 54 (notas do SA108 de 2024 a 2025)."
+    ],
+    "caveats": [
+      "Em que escalão do Income Tax caem as mais-valias.",
+      "A regra dos 30 dias em torno de cada venda.",
+      "O custo agrupado por tipo de token: a Proof of Calm lista cada compra e deixa o agrupamento ao contabilista.",
+      "Rendimentos de staking e de airdrops.",
+      "Tokens herdados.",
+      "Pedidos de valor irrisório.",
+      "Empréstimos de criptoativos e pools de liquidez a partir de 6 de abril de 2027, uma proposta do Finance Bill 2026-27."
+    ],
+    "summary60": "Mais-valias de criptoativos: 18% ou 24% por escalão, após uma franquia de £3,000. Cada venda, troca, pagamento ou doação (salvo ao cônjuge) é alienação, os movimentos entre carteiras próprias não. Sem exclusão por detenção. Custo agrupado por token, com regras do mesmo dia e dos 30 dias. Self Assessment até 31 de janeiro, serviço real time até 31 de dezembro."
+  },
+  "pendingChanges": [
+    {
+      "title": "Empréstimos de criptoativos e pools de liquidez: certas entradas e saídas de acordos qualificados, sem mais-valia nem menos-valia até uma alienação económica",
+      "summary": "Orçamento de 2026, de 28 de outubro de 2026, OOTLAR parágrafo 1.48: o governo vai legislar no Finance Bill 2026-27 sobre empréstimos de criptoativos e pools de liquidez. Certas entradas e saídas de particulares e trustees em acordos qualificados ficariam sem mais-valia nem menos-valia até uma alienação económica. Teria efeitos a partir de 6 de abril de 2027. É uma proposta até à Royal Assent."
+    },
+    {
+      "title": "Cryptoasset Reporting Framework (CARF): os prestadores comunicam os dados dos seus utilizadores ao HMRC",
+      "summary": "Os prestadores de serviços de criptoativos do Reino Unido entregam a primeira comunicação até 31 de maio de 2027, com dados de 1 de janeiro de 2026 a 31 de dezembro de 2026. Recolhem dados de todos os utilizadores e comunicam esses dados e um resumo das transações dos utilizadores com residência fiscal no Reino Unido ou noutro país aderente às regras do CARF."
+    }
+  ]
+}

@@ -15,7 +15,7 @@
   "holdingRuleConditions": [],
   "lotRule": "fifo",
   "lotScope": "global",
-  "lotRuleNote": "First in, first out, Revenue's rule for shares: the oldest units are treated as sold first. The crypto-asset manual sets no lot rule and is silent on the four-week rules for shares.",
+  "lotRuleNote": "First in, first out, Revenue's rule for shares: the oldest units are treated as sold first. The crypto-asset manual sets no lot rule and is silent on the 4-week rules for shares.",
   "card": {
     "classification": "Chargeable assets for Capital Gains Tax: a sale, transfer, or redemption of crypto-assets is most likely a disposal (Tax and Duty Manual Part 02-01-03). A trade of dealing in crypto-assets falls under income tax instead.",
     "taxableEvents": [
@@ -75,7 +75,7 @@
       "EUR 1,270 of chargeable gains a year per person, deducted after allowable losses. The exemption only reduces that year's chargeable gains; a part left over cannot be used."
     ],
     "holdingRuleText": "No holding rule: every disposal is a CGT event whatever the holding time. The amount subject to CGT is calculated separately on each asset on a disposal-by-disposal basis, the sales proceeds less the cost (Tax and Duty Manual Part 02-01-03).",
-    "lotRuleText": "First in, first out: Revenue's rule for shares treats the oldest units as sold first. The crypto-asset manual sets no lot rule and is silent on the four-week rules for shares.",
+    "lotRuleText": "First in, first out: Revenue's rule for shares treats the oldest units as sold first. The crypto-asset manual sets no lot rule and is silent on the 4‑week rules for shares.",
     "losses": "An allowable loss is deducted from chargeable gains of the same tax year. Losses that exceed them carry forward against the next available gains in later years.",
     "reporting": [
       "File by 31 October of the year after the disposal. Form CG1 if you file no annual tax return or use the online Form 12. Form 11 if you are self-employed or have income not taxed under PAYE, or the paper Form 12 if you are under PAYE.",
@@ -83,7 +83,7 @@
       "Payment: disposals from 1 January to 30 November by 15 December of the same year; December disposals by 31 January of the next year."
     ],
     "caveats": [
-      "Whether the four-week rules for shares (a sale within four weeks of a purchase is matched to that purchase; a loss on shares repurchased within four weeks is restricted) reach crypto-assets.",
+      "Whether the 4‑week rules for shares (a sale within 4 weeks of a purchase is matched to that purchase; a loss on shares repurchased within 4 weeks is restricted) reach crypto-assets.",
       "Staking and airdrop income.",
       "Trading or investing: whether the activity is a trade of dealing in crypto-assets.",
       "Capital Acquisitions Tax on gifts and inheritances.",

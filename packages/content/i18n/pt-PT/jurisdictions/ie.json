@@ -1,0 +1,70 @@
+{
+  "name": "Irlanda",
+  "filingNote": "Ano civil. O CGT das alienações de 1 de janeiro a 30 de novembro paga-se até 15 de dezembro do mesmo ano, o das de dezembro até 31 de janeiro. A declaração (Form CG1, Form 11 ou Form 12) entrega-se até 31 de outubro do ano seguinte.",
+  "lotRuleNote": "Primeiro a entrar, primeiro a sair, a regra da Revenue para ações: as unidades mais antigas contam como vendidas primeiro. O manual dos criptoativos não fixa regra de lotes e nada diz sobre as regras das 4 semanas para ações.",
+  "card": {
+    "classification": "Ativos sujeitos a Capital Gains Tax: uma venda, transferência ou resgate de criptoativos é muito provavelmente uma alienação (Tax and Duty Manual Part 02-01-03). Negociar criptoativos como profissão cai antes no imposto sobre o rendimento.",
+    "taxableEvents": [
+      {
+        "note": "Uma alienação: o montante sujeito a CGT é o produto da venda menos o custo do ativo, calculado em separado para cada alienação."
+      },
+      { "note": "Uma troca de um ativo por outro é uma alienação (Revenue, CGT on the disposal of an asset)." },
+      {
+        "note": "Uma troca de um ativo por outro, como qualquer outra. Nenhuma página da Revenue fixa uma regra própria para stablecoins."
+      },
+      {
+        "note": "O exemplo 3 do manual: pagar bens num café local com criptoativos é uma alienação para efeitos de CGT."
+      },
+      {
+        "note": "Não há venda, doação nem troca, pelo que a definição de alienação da Revenue não se cumpre. Nenhuma página da Revenue trata o caso (confiança média)."
+      },
+      {
+        "note": "Uma doação é uma alienação para o doador. O donatário pode dever Capital Acquisitions Tax sobre o valor de mercado em euros na data de avaliação. Sem CGT numa transmissão por morte: o custo do herdeiro é o valor de mercado à data da morte."
+      },
+      {
+        "note": "O manual nada diz sobre staking e airdrops. Negociar criptoativos como profissão é tributado pelas regras do imposto sobre o rendimento. As unidades recebidas são criptoativos cuja alienação posterior é um facto de CGT (confiança média)."
+      }
+    ],
+    "rates": [
+      {
+        "label": "Capital Gains Tax",
+        "value": "31%",
+        "note": "Fixada pela Financial Resolution No. 3 de 6 de outubro de 2026 (Budget 2027), em vigor ao abrigo do Provisional Collection of Taxes Act 1927 até à aprovação do Finance (No. 2) Bill 2026."
+      },
+      {
+        "label": "Capital Gains Tax até 6 de outubro de 2026",
+        "value": "33%",
+        "note": "33% nas alienações de 6 de dezembro de 2012 (Finance Act 2013 s. 43; a tabela de taxas da Revenue indica 6 de dezembro de 2021 nesta linha) a 6 de outubro de 2026. Os terrenos para construção ficam nos 33%."
+      }
+    ],
+    "allowances": [
+      "EUR 1,270 de mais-valias tributáveis por ano e por pessoa, deduzidos após as menos-valias dedutíveis. A franquia só reduz as mais-valias tributáveis desse ano: a parte que sobra não pode ser usada."
+    ],
+    "holdingRuleText": "Sem regra de detenção: cada alienação é um facto de CGT, seja qual for o período de detenção. O montante sujeito a CGT calcula-se em separado para cada ativo, alienação a alienação: o produto da venda menos o custo (Tax and Duty Manual Part 02-01-03).",
+    "lotRuleText": "Primeiro a entrar, primeiro a sair: a regra da Revenue para ações trata as unidades mais antigas como vendidas primeiro. O manual dos criptoativos não fixa regra de lotes e nada diz sobre as regras das 4 semanas para ações.",
+    "losses": "Uma menos-valia dedutível abate-se às mais-valias tributáveis do mesmo ano fiscal. As menos-valias que as excedam reportam-se para as mais-valias seguintes, nos anos posteriores.",
+    "reporting": [
+      "Entrega até 31 de outubro do ano seguinte ao da alienação. Form CG1 sem declaração anual ou com o Form 12 online. Form 11 para quem trabalha por conta própria ou tem rendimentos não tributados pelo PAYE, ou o Form 12 em papel no PAYE.",
+      "A declaração é devida mesmo sem imposto a pagar, por benefícios ou menos-valias dedutíveis. Um pagamento em atraso gera juros e uma declaração em atraso gera uma coima.",
+      "Pagamento: alienações de 1 de janeiro a 30 de novembro até 15 de dezembro do mesmo ano, alienações de dezembro até 31 de janeiro do ano seguinte."
+    ],
+    "caveats": [
+      "Se as regras das 4 semanas para ações (uma venda nas 4 semanas após uma compra associa-se a essa compra, e uma menos-valia em ações recompradas nas 4 semanas é limitada) abrangem os criptoativos.",
+      "Rendimentos de staking e de airdrops.",
+      "Negociação ou investimento: se a atividade é negociar criptoativos como profissão.",
+      "Capital Acquisitions Tax sobre doações e heranças.",
+      "Que taxa, 33% ou 31%, se aplica a uma alienação feita enquanto o Finance (No. 2) Bill 2026 não for aprovado."
+    ],
+    "summary60": "A Irlanda cobra Capital Gains Tax em cada venda, troca, pagamento ou doação de criptoativos, a 33% até 6 de outubro de 2026, 31% desde 7 de outubro de 2026, após franquia anual de EUR 1,270. Sem exclusão por detenção. Pagamento até 15 de dezembro (janeiro a novembro) ou 31 de janeiro (dezembro). Declaração: 31 de outubro seguinte. Menos-valias reportam-se."
+  },
+  "pendingChanges": [
+    {
+      "title": "Finance (No. 2) Bill 2026, secção 36: a taxa de 31%",
+      "summary": "A secção 36 substitui 33 por cento por 31 por cento na secção 28(3) do Taxes Consolidation Act 1997, nas alienações desde 7 de outubro de 2026. Aprovado no Dáil na Second Stage a 20 de outubro de 2026 e enviado à Select Committee on Finance, Public Expenditure, Public Service Reform and Digitalisation, and Taoiseach (registo do Dáil). Até lá, a taxa assenta na Financial Resolution No. 3."
+    },
+    {
+      "title": "DAC8: comunicação pelos prestadores de serviços de criptoativos",
+      "summary": "A secção 891HA do Taxes Consolidation Act 1997, inserida pela secção 92 do Finance Act 2025, aplica-se desde 1 de janeiro de 2026. Um prestador de serviços de criptoativos obrigado comunica as operações relevantes à Revenue até 31 de maio, pelo ano civil anterior, pela primeira vez até 31 de maio de 2027, e dá a cada utilizador uma cópia dos seus dados até 31 de maio."
+    }
+  ]
+}
