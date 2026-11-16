@@ -1,7 +1,7 @@
 {
   "ci": {
     "collect": {
-      "startServerCommand": "node ../../tools/serve/vercel-local.ts --port 3000",
+      "startServerCommand": "node ../../tools/serve/vercel-local.ts --port 3000 --api node_modules/.cache/lighthouse/api.mjs",
       "startServerReadyPattern": "Ready on",
       "startServerReadyTimeout": 60000,
       "url": [
