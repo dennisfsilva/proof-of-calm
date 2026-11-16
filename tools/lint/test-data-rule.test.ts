@@ -42,6 +42,14 @@ const TREE: Record<string, string> = {
   'packages/ui/src/learn-probe.ts': LEARN_MODULES,
   'apps/web/server/learn-probe.ts': LEARN_MODULES,
   'packages/app/src/lib/virtual-probe.ts': "import { other } from 'virtual:nope';\nexport const probe = other;\n",
+  // A translated overlay of packages/content/i18n is product content like the English file beside it
+  // (ADR-0057); the content package's test folder is not.
+  'packages/content/src/loaders/overlay-probe.ts':
+    "import accumulate from '../../i18n/pt-PT/templates/accumulate.json';\nexport const probe = accumulate;\n",
+  'packages/content/i18n/pt-PT/templates/accumulate.json': '{ "name": "Acumular" }\n',
+  'packages/content/src/loaders/content-test-probe.ts':
+    "import overlay from '../../test/overlay.json';\nexport const probe = overlay;\n",
+  'packages/content/test/overlay.json': '{ "name": "Acumular" }\n',
   // Clean: product to product, and a test to the fixtures.
   'packages/app/src/lib/plan.ts': "import { money } from '../../../core/src/money';\nexport const plan = money;\n",
   'packages/core/src/money.ts': "export const money = '1.00';\n",
@@ -120,6 +128,24 @@ describe('the test-data rules of the dependency rule', () => {
   it('fire on product code that imports any other virtual name', () => {
     expect(found('product-reaches-only-product', 'packages/app/src/lib/virtual-probe.ts', 'virtual:nope')).toBe(true);
     expect(violations.filter((v) => v.rule.name === 'no-unresolvable').map((v) => v.to)).toEqual(['virtual:nope']);
+  });
+
+  it("leave product code that imports a translated overlay, and fire on one that imports content's test folder", () => {
+    expect(
+      found(
+        'product-reaches-only-product',
+        'packages/content/src/loaders/overlay-probe.ts',
+        'packages/content/i18n/pt-PT/templates/accumulate.json',
+      ),
+    ).toBe(false);
+    expect(violations.filter((v) => v.from === 'packages/content/src/loaders/overlay-probe.ts')).toEqual([]);
+    expect(
+      found(
+        'product-reaches-only-product',
+        'packages/content/src/loaders/content-test-probe.ts',
+        'packages/content/test/overlay.json',
+      ),
+    ).toBe(true);
   });
 
   it('leave product code that reaches only product code, and tests that import the fixtures', () => {
