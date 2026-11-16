@@ -4,7 +4,7 @@
 // the percent joiner, the 60 words, a template's placeholders against its dates and month names) are validate.ts's,
 // passed in. Pure.
 import { numberLocaleFor } from '../loaders/locales.ts';
-import { decimalSeparator } from '../percent-validate.ts';
+import { decimalSeparator, PERCENT_FOLLOWS } from '../percent-validate.ts';
 import { type Problem, schemaProblems } from '../problem.ts';
 import { FactSchema } from '../schema/fact.ts';
 import { type CountryProfile, CountryProfileSchema } from '../schema/jurisdiction.ts';
@@ -52,18 +52,16 @@ function valuesOf(run: string, decimal: string): string[] {
   return [...values, decimalValue(whole, fraction ?? '')];
 }
 
-// A figure's percent sign, after any joiner a profile writes; `\s` holds U+00A0 and U+202F (docs/CONTENT-STYLE.md §4).
-const PERCENT_AFTER = /^\s*%/u;
-
 /**
- * The numbers of a text as values, read with the separators of `locale`, a percentage's with `percentLocale`'s,
+ * The numbers of a text as values, read with the separators of `locale`, a percentage's with `percentLocale`'s
+ * (every figure of a range `12,2–48%`, the sign after any joiner a profile writes; docs/CONTENT-STYLE.md §4),
  * sorted: a multiset to compare. It holds the values, not which noun each belongs to, nor their sign (ADR-0057).
  */
 export const numbersIn = (text: string, locale: string, percentLocale = locale): string[] => {
   const [decimal, percentDecimal] = [decimalSeparator(locale), decimalSeparator(percentLocale)];
   return [...text.matchAll(NUMBER)]
     .flatMap(({ 0: run, index }) =>
-      valuesOf(run, PERCENT_AFTER.test(text.slice(index + run.length)) ? percentDecimal : decimal),
+      valuesOf(run, PERCENT_FOLLOWS.test(text.slice(index + run.length)) ? percentDecimal : decimal),
     )
     .sort();
 };

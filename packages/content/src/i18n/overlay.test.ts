@@ -150,6 +150,25 @@ describe('overlayProblems', () => {
     expect(summary(['en', 'pt-PT'])).toEqual(['overlay-number-mismatch']);
   });
 
+  it('reads every figure of a percentage range with the percentage’s locale, and a law citation beside one with English', () => {
+    expect(numbersIn('12,2–48% by bracket', 'en', 'pt-PT')).toEqual(['12.2', '48']);
+    expect(numbersIn('12–48,5% by bracket', 'en', 'pt-PT')).toEqual(['12', '48.5']);
+    expect(numbersIn('12,2-48,5%', 'en', 'pt-PT')).toEqual(['12.2', '48.5']);
+    expect(numbersIn('2,5 to 13,3%', 'en', 'pt-PT')).toEqual(['13.3', '2.5']);
+    expect(numbersIn('12.2–48% by bracket', 'en', 'en-GB')).toEqual(['12.2', '48']);
+    expect(numbersIn('Art. 33.1 – 28% flat', 'en', 'pt-PT')).toEqual(['28', '33.1']);
+    const rate = (en: string, translated: string) =>
+      overlayProblems(
+        'jurisdiction',
+        path,
+        { card: { rates: [{ value: en }] } },
+        { card: { rates: [{ value: translated }] } },
+        ['en', 'pt-PT', 'pt-PT'],
+      ).map((problem) => problem.code);
+    expect(rate('12,2–48% by bracket', '12,2–48% por escalão')).toEqual([]);
+    expect(rate('12,2–48% by bracket', '12–48% por escalão')).toEqual(['overlay-number-mismatch']);
+  });
+
   it('reads each value once, its sign and trailing zeros aside', () => {
     expect(numbersIn('−94.0 % from $31.91', 'en')).toEqual(['31.91', '94']);
     expect(numbersIn('31.4', 'en')).not.toEqual(numbersIn('31.5', 'en'));

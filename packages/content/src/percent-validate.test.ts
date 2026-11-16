@@ -43,6 +43,21 @@ describe('a profile’s literal decimals follow its page’s number locale (docs
     expect(english(pt, 'Art. 33.1 and Quadro 9.4 hold no percentage; 28% is whole.')).toEqual([]);
   });
 
+  it('reads every figure of a percentage range as a percentage, the left one without its sign too', () => {
+    expect(english(pt, '12.2–48% by bracket')).toEqual(['card.caveats.0: "12.2–48%" writes ".", expected "," (pt-PT)']);
+    expect(english(pt, '12–48.5% by bracket')).toEqual(['card.caveats.0: "12–48.5%" writes ".", expected "," (pt-PT)']);
+    expect(english(pt, '12.2-48.5%')).toEqual(['card.caveats.0: "12.2-48.5%" writes ".", expected "," (pt-PT)']);
+    expect(english(pt, 'from 2.5 to 13,3%')).toEqual(['card.caveats.0: "2.5 to 13,3%" writes ".", expected "," (pt-PT)']);
+    expect(english(pt, '12,2–48% by bracket, 2,5% to 13,3%')).toEqual([]);
+    expect(english(gb, '12.2–48% by bracket')).toEqual([]);
+    expect(english(gb, '12,2–48%')).toEqual(['card.caveats.0: "12,2–48%" writes ",", expected "." (en-GB)']);
+  });
+
+  it('keeps the point of a law citation beside a percentage, a spaced dash between them', () => {
+    expect(english(pt, 'Art. 33.1 – 28% flat; Quadro 9.4 lists 12,2–48%.')).toEqual([]);
+    expect(english(pt, 'Under art. 72.1, 28%.')).toEqual([]);
+  });
+
   it('refuses a point in a pt-PT overlay’s text for Portugal, and holds a German overlay to de-DE', () => {
     const translated = (language: string, profile: CountryProfile, text: string) =>
       decimals(languagePercentProblems(path, language, profile, [['card.summary60', text]]));
@@ -53,6 +68,10 @@ describe('a profile’s literal decimals follow its page’s number locale (docs
     expect(translated('pt-PT', gb, 'Uma taxa de 12,2% aplica-se.')).toEqual([
       'card.summary60: "12,2%" writes ",", expected "." (en-GB)',
     ]);
+    expect(translated('pt-PT', pt, 'De 12.2–48% por escalão.')).toEqual([
+      'card.summary60: "12.2–48%" writes ".", expected "," (pt-PT)',
+    ]);
+    expect(translated('pt-PT', pt, 'De 12,2–48% por escalão.')).toEqual([]);
     expect(translated('de', de, `Ein Satz von 26,375 %.`)).toEqual([]);
   });
 });
