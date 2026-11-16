@@ -1,4 +1,5 @@
 import { expect, it, vi } from 'vitest';
+import { contentLanguageOf } from './language.ts';
 import { loadRules } from './rules.ts';
 
 // A language's rules chunk sits outside the worker's precache (ADR-0045 Deviations, 2026-11-15), so offline before
@@ -11,7 +12,9 @@ vi.mock('../../rules/pt-PT/pt.json', () => {
 it("answers the English rules when a language's rules chunk fails to load", async () => {
   const english = await loadRules('PT');
   expect(english?.code).toBe('PT');
-  expect(await loadRules('PT', 'pt-PT')).toBe(english);
+  const fallback = await loadRules('PT', 'pt-PT');
+  expect(fallback).toBe(english);
+  expect(fallback === null ? null : contentLanguageOf(fallback)).toBe('en');
 });
 
 // In the web host a failed import rejects (apps/web/src/chunk-reload.ts leaves `vite:preloadError`'s default).

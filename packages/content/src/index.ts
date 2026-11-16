@@ -5,6 +5,7 @@
 export { CONTENT_LANGUAGES, type ContentLanguage, type OverlayLanguage } from './i18n/overlay.ts';
 export * from './loaders/coins.ts';
 export * from './loaders/countries.ts';
+export { contentLanguageOf } from './loaders/language.ts';
 export * from './loaders/locales.ts';
 export type { LearnModule, LearnModuleMeta } from './loaders/modules.ts';
 export * from './loaders/rules.ts';

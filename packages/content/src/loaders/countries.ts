@@ -7,6 +7,7 @@ import type { CountryRules, CountrySuggestion, SuggestProfile } from '@proofofca
 import { applyOverlay, type ContentLanguage, type OverlayLanguage } from '../i18n/overlay.ts';
 import type { CountryProfile } from '../schema/jurisdiction.ts';
 import { asDate } from './brands.ts';
+import { markLanguage } from './language.ts';
 
 /** The generic profile for every country without a reviewed rule set; never suggested (docs/JURISDICTIONS.md §2). */
 export const GENERIC_COUNTRY = 'XX';
@@ -50,13 +51,14 @@ const key = (code: string, language: ContentLanguage) => `${language}:${code}`;
 const load = async (code: ProfileCode) => {
   const profile = (await FILES[code]()).default as CountryProfile;
   loaded.set(key(code, 'en'), profile);
-  return profile;
+  return markLanguage(profile, 'en');
 };
 
 // English is the profile itself; a translation is a new object over it. A translation's chunk that fails to load
 // (offline before it was ever fetched: another language's chunks sit outside the worker's precache) gives the
 // English profile, as a message chunk's failure gives English messages, and is not kept, so the next load retries.
 // The file is read inside the try, as in ./rules.ts: Vite's preload wrapper can resolve a failed import to undefined.
+// Each result carries the language of its text (./language.ts): the English profile English, a translation its own.
 const translated = async (code: ProfileCode, language: ContentLanguage) => {
   const profile = await load(code);
   const overlay = language === 'en' ? undefined : PROFILE_OVERLAYS[language][code];
@@ -69,7 +71,7 @@ const translated = async (code: ProfileCode, language: ContentLanguage) => {
   } catch {
     return profile;
   }
-  const result = applyOverlay(profile, file, 'jurisdiction');
+  const result = markLanguage(applyOverlay(profile, file, 'jurisdiction'), language);
   loaded.set(key(code, language), result);
   return result;
 };

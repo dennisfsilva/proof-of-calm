@@ -18,6 +18,7 @@ import {
   ruleSource,
   suggestionProfiles,
 } from './countries.ts';
+import { contentLanguageOf } from './language.ts';
 
 const profiles = await loadProfiles();
 const profile = (code: string) => {
@@ -213,6 +214,40 @@ describe('loadProfile and loadProfiles in a content language (ADR-0057)', () => 
     expect(fresh.loadedProfile('PT', 'pt-PT')).toBeNull();
     fresh.PROFILE_OVERLAYS['pt-PT'].PT = async () => ({ default: { name: 'Portugal (pt)' } });
     expect((await fresh.loadProfile('PT', 'pt-PT'))?.name).toBe('Portugal (pt)');
+  });
+});
+
+describe('contentLanguageOf over the profiles (ADR-0057, Corrections of 2026-11-16)', () => {
+  const loaded = async (code: string, language: 'en' | 'pt-PT') => {
+    const found = await loadProfile(code, language);
+    if (found === null) throw new Error(`no profile ${code}`);
+    return found;
+  };
+
+  it('gives the language of the text each load returned: a translation its own, English otherwise', async () => {
+    expect(contentLanguageOf(await loaded('PT', 'pt-PT'))).toBe('pt-PT');
+    expect(contentLanguageOf(await loaded('DE', 'pt-PT'))).toBe('en');
+    expect(contentLanguageOf(await loaded('PT', 'en'))).toBe('en');
+    const all = await loadProfiles('pt-PT');
+    const translated = new Set(Object.keys(PROFILE_OVERLAYS['pt-PT']));
+    for (const each of all) expect(contentLanguageOf(each)).toBe(translated.has(each.code) ? 'pt-PT' : 'en');
+  });
+
+  it("gives English for the fallback when the translation's chunk fails to load", async () => {
+    vi.resetModules();
+    const fresh = await import('./countries.ts');
+    const { contentLanguageOf: languageOf } = await import('./language.ts');
+    fresh.PROFILE_OVERLAYS['pt-PT'].PT = () =>
+      Promise.reject(new TypeError('Failed to fetch dynamically imported module'));
+    const fallback = await fresh.loadProfile('PT', 'pt-PT');
+    expect(fallback === null ? null : languageOf(fallback)).toBe('en');
+  });
+
+  it('gives nothing for an object no loader returned, so a copy keeps the page language', async () => {
+    const portugal = await loaded('PT', 'pt-PT');
+    expect(contentLanguageOf({ ...portugal })).toBeUndefined();
+    expect(contentLanguageOf(fileOf('PT'))).toBeUndefined();
+    expect(contentLanguageOf({ code: 'PT', name: 'Portugal' })).toBeUndefined();
   });
 });
 
