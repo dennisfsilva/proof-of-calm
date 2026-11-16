@@ -1,91 +1,91 @@
 {
-  "title": "Set up a plan",
-  "back": "Back",
-  "next": "Continue",
-  "start": "Accept and start the plan",
+  "title": "Criar um plano",
+  "back": "Voltar",
+  "next": "Continuar",
+  "start": "Aceitar e iniciar o plano",
   "country": {
-    "heading": "Where do you live?",
-    "suggested": "This device suggests {country}.",
-    "confirm": "Continue with {country}",
-    "label": "Country",
-    "placeholder": "Choose a country",
-    "languageDiffers": "Residence, not language, decides tax."
+    "heading": "Onde vive?",
+    "suggested": "Este dispositivo sugere {country}.",
+    "confirm": "Continuar com {country}",
+    "label": "País",
+    "placeholder": "Escolher um país",
+    "languageDiffers": "A residência, não a língua, determina os impostos."
   },
   "template": {
-    "heading": "Choose a starting point",
-    "line": "A starting point some people use. You choose every setting. Not advice.",
-    "band": "{falls}, {count, plural, one {high to low} other {each high to low}} between {from} and {to}",
-    "about": "Show how it works and what can go wrong",
+    "heading": "Escolher um ponto de partida",
+    "line": "Um ponto de partida que algumas pessoas usam. Cada definição é escolhida por si. Não constitui aconselhamento.",
+    "band": "{falls}, {count, plural, one {do máximo ao mínimo} other {cada moeda do máximo ao mínimo}} entre {from} e {to}",
+    "about": "Mostrar como funciona e o que pode correr mal",
     "custom": {
-      "title": "Your own coins",
-      "line": "You choose the coins and how each buy is split across them."
+      "title": "Moedas à sua escolha",
+      "line": "As moedas e a repartição de cada compra entre elas são escolhidas por si."
     }
   },
   "coins": {
-    "heading": "Choose your coins and their split"
+    "heading": "Escolher as moedas e a repartição"
   },
   "dates": {
-    "heading": "Choose the amounts and dates",
-    "startingHint": "Bought once on the first buy day and split across your coins like each monthly buy. Enter 0 for none. For coins you already have, choose Add coins you already have on the Log after setup."
+    "heading": "Escolher os montantes e as datas",
+    "startingHint": "Comprado uma vez no primeiro dia de compra e repartido pelas moedas como cada compra mensal. Introduza 0 para não ter montante inicial. Para moedas que já tem, escolha Adicionar moedas que já tem no Registo depois de criar o plano."
   },
   "numbers": {
-    "heading": "Amounts and dates",
-    "monthly": "Monthly amount ({currency})",
-    "starting": "Starting amount ({currency})",
-    "startingHint": "Bought once on the first buy day and split across your coins like each monthly buy. Enter 0 for none. For coins you already have, choose Add coins you already have on the Log after setup.",
-    "firstBuy": "First buy",
-    "lastBuy": "Last buy",
-    "dateEmpty": "Choose a full date: day, month, and year.",
+    "heading": "Montantes e datas",
+    "monthly": "Montante mensal ({currency})",
+    "starting": "Montante inicial ({currency})",
+    "startingHint": "Comprado uma vez no primeiro dia de compra e repartido pelas moedas como cada compra mensal. Introduza 0 para não ter montante inicial. Para moedas que já tem, escolha Adicionar moedas que já tem no Registo depois de criar o plano.",
+    "firstBuy": "Primeira compra",
+    "lastBuy": "Última compra",
+    "dateEmpty": "Escolha uma data completa: dia, mês e ano.",
     "issue": {
-      "no-amount": "Enter a monthly amount, a starting amount, or both.",
-      "amount-precision": "Use at most {max} decimal places.",
-      "last-buy-before-first-buy": "{field, select, firstBuy {Choose a first buy on or before {date}, this starting point's last buy.} other {Choose a last buy on or after the first buy.}}",
-      "plan-too-long": "{field, select, firstBuy {A plan holds at most {max} monthly buys. Choose a later first buy.} other {A plan holds at most {max} monthly buys. Choose an earlier last buy.}}"
+      "no-amount": "Introduza um montante mensal, um montante inicial ou ambos.",
+      "amount-precision": "Use no máximo {max} casas decimais.",
+      "last-buy-before-first-buy": "{field, select, firstBuy {Escolha uma primeira compra até {date}, a última compra deste ponto de partida.} other {Escolha uma última compra no dia da primeira compra ou depois.}}",
+      "plan-too-long": "{field, select, firstBuy {Um plano tem no máximo {max} compras mensais. Escolha uma data posterior para a primeira compra.} other {Um plano tem no máximo {max} compras mensais. Escolha uma data anterior para a última compra.}}"
     }
   },
   "why": {
-    "heading": "In one sentence, why are you doing this?",
-    "line": "You will see it on the days the market falls.",
-    "placeholder": "I buy on the 1st and I do not check the price on other days."
+    "heading": "Numa frase, porque está a fazer isto?",
+    "line": "Vai vê-la nos dias em que o mercado cair.",
+    "placeholder": "Compro no dia 1 e não vejo o preço nos outros dias."
   },
   "reminder": {
-    "heading": "Where should the monthly reminder go?",
-    "calendar": "Add to calendar",
-    "later": "Later",
-    "noneLeftHeading": "Monthly reminder",
-    "noneLeft": "No buy days left, so there is no reminder to add.",
-    "notSaved": "The calendar file was not saved. Add it again, or choose Later."
+    "heading": "Onde colocar o lembrete mensal?",
+    "calendar": "Adicionar ao calendário",
+    "later": "Mais tarde",
+    "noneLeftHeading": "Lembrete mensal",
+    "noneLeft": "Não restam dias de compra, por isso não há lembrete a adicionar.",
+    "notSaved": "O ficheiro do calendário não foi guardado. Adicione-o de novo ou escolha Mais tarde."
   },
   "summary": {
-    "heading": "Check your plan",
-    "country": "Country",
-    "holdingRule": "Holding rule",
-    "holdingRuleValue": "{kind, select, generic {The general profile's rule} other {{name}'s rule}}. {words}",
-    "startingPoint": "Starting point",
-    "coins": "Coins & split",
-    "monthly": "Monthly amount",
-    "starting": "Starting amount",
-    "firstBuy": "First buy",
-    "buyDay": "Buy day",
-    "buyDayValue": "Day {day} of each month",
-    "lastBuy": "Last buy",
-    "sellWindow": "Sell window",
-    "sellWindowValue": "{opens} to {closes}",
-    "sellWindowEarly": "{opens} to {closes}, opening before the last buy passes the holding rule, as you accepted",
-    "why": "Your sentence",
-    "reminder": "Reminder",
-    "reminderValue": "{choice, select, calendar {Calendar file saved} other {No reminder set}}"
+    "heading": "Rever o plano",
+    "country": "País",
+    "holdingRule": "Regra de detenção",
+    "holdingRuleValue": "{kind, select, generic {A regra do perfil geral} other {A regra de {name}}}. {words}",
+    "startingPoint": "Ponto de partida",
+    "coins": "Moedas e repartição",
+    "monthly": "Montante mensal",
+    "starting": "Montante inicial",
+    "firstBuy": "Primeira compra",
+    "buyDay": "Dia de compra",
+    "buyDayValue": "Dia {day} de cada mês",
+    "lastBuy": "Última compra",
+    "sellWindow": "Janela de venda",
+    "sellWindowValue": "{opens} a {closes}",
+    "sellWindowEarly": "{opens} a {closes}, com abertura antes de a última compra cumprir a regra de detenção, como aceitou",
+    "why": "A sua frase",
+    "reminder": "Lembrete",
+    "reminderValue": "{choice, select, calendar {Ficheiro do calendário guardado} other {Sem lembrete definido}}"
   },
   "disclosure": {
     "text": "{product} is software for a plan you design: no orders, no financial or tax advice. You can lose all of it: Bitcoin has fallen more than 75 % from a high four times since 2011; Ethereum fell 94 % in 2018. Use only money you will not need for years.",
-    "riskLink": "Risk disclosure"
+    "riskLink": "Aviso sobre riscos"
   },
   "reask": {
-    "title": "The risk text has changed",
-    "continue": "Accept and open Today"
+    "title": "O texto sobre o risco mudou",
+    "continue": "Aceitar e abrir Hoje"
   },
   "existing": {
-    "body": "A plan is already set up on this device.",
-    "link": "Open the plan"
+    "body": "Já existe um plano neste dispositivo.",
+    "link": "Abrir o plano"
   }
 }

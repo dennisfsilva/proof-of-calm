@@ -1,0 +1,90 @@
+{
+  "title": "Criar um plano",
+  "back": "Voltar",
+  "next": "Continuar",
+  "start": "Aceitar e iniciar o plano",
+  "country": {
+    "heading": "Onde vive?",
+    "suggested": "Este dispositivo sugere {country}.",
+    "confirm": "Continuar com {country}",
+    "label": "País",
+    "placeholder": "Escolher um país",
+    "languageDiffers": "A residência, não a língua, determina os impostos."
+  },
+  "template": {
+    "heading": "Escolher um ponto de partida",
+    "line": "Um ponto de partida que algumas pessoas usam. Cada definição é escolhida por si. Não constitui aconselhamento.",
+    "band": "{falls}, {count, plural, one {do máximo ao mínimo} other {cada moeda do máximo ao mínimo}} entre {from} e {to}",
+    "about": "Mostrar como funciona e o que pode correr mal",
+    "custom": {
+      "title": "Moedas à sua escolha",
+      "line": "As moedas e a repartição de cada compra entre elas são escolhidas por si."
+    }
+  },
+  "coins": {
+    "heading": "Escolher as moedas e a repartição"
+  },
+  "dates": {
+    "heading": "Escolher os montantes e as datas",
+    "startingHint": "Comprado uma vez no primeiro dia de compra e repartido pelas moedas como cada compra mensal. Introduza 0 para não ter montante inicial. Para moedas que já tem, escolha Adicionar moedas que já tem no Registo depois de criar o plano."
+  },
+  "numbers": {
+    "heading": "Montantes e datas",
+    "monthly": "Montante mensal ({currency})",
+    "starting": "Montante inicial ({currency})",
+    "startingHint": "Comprado uma vez no primeiro dia de compra e repartido pelas moedas como cada compra mensal. Introduza 0 para não ter montante inicial. Para moedas que já tem, escolha Adicionar moedas que já tem no Registo depois de criar o plano.",
+    "firstBuy": "Primeira compra",
+    "lastBuy": "Última compra",
+    "dateEmpty": "Escolha uma data completa: dia, mês e ano.",
+    "issue": {
+      "no-amount": "Introduza um montante mensal, um montante inicial ou ambos.",
+      "amount-precision": "Use no máximo {max} casas decimais.",
+      "last-buy-before-first-buy": "{field, select, firstBuy {Escolha uma primeira compra até {date}, a última compra deste ponto de partida.} other {Escolha uma última compra no dia da primeira compra ou depois.}}",
+      "plan-too-long": "{field, select, firstBuy {Um plano tem no máximo {max} compras mensais. Escolha uma data posterior para a primeira compra.} other {Um plano tem no máximo {max} compras mensais. Escolha uma data anterior para a última compra.}}"
+    }
+  },
+  "why": {
+    "heading": "Numa frase, porque está a fazer isto?",
+    "line": "Vai vê-la nos dias em que o mercado cair.",
+    "placeholder": "Compro no dia 1 e não vejo o preço nos outros dias."
+  },
+  "reminder": {
+    "heading": "Onde colocar o lembrete mensal?",
+    "calendar": "Adicionar ao calendário",
+    "later": "Mais tarde",
+    "noneLeftHeading": "Lembrete mensal",
+    "noneLeft": "Não restam dias de compra, por isso não há lembrete a adicionar.",
+    "notSaved": "O ficheiro do calendário não foi guardado. Adicione-o de novo ou escolha Mais tarde."
+  },
+  "summary": {
+    "heading": "Rever o plano",
+    "country": "País",
+    "holdingRule": "Regra de detenção",
+    "holdingRuleValue": "{kind, select, generic {A regra do perfil geral} other {A regra de {name}}}. {words}",
+    "startingPoint": "Ponto de partida",
+    "coins": "Moedas e repartição",
+    "monthly": "Montante mensal",
+    "starting": "Montante inicial",
+    "firstBuy": "Primeira compra",
+    "buyDay": "Dia de compra",
+    "buyDayValue": "Dia {day} de cada mês",
+    "lastBuy": "Última compra",
+    "sellWindow": "Janela de venda",
+    "sellWindowValue": "{opens} a {closes}",
+    "sellWindowEarly": "{opens} a {closes}, com abertura antes de a última compra cumprir a regra de detenção, como aceitou",
+    "why": "A sua frase",
+    "reminder": "Lembrete",
+    "reminderValue": "{choice, select, calendar {Ficheiro do calendário guardado} other {Sem lembrete definido}}"
+  },
+  "disclosure": {
+    "riskLink": "Aviso sobre riscos"
+  },
+  "reask": {
+    "title": "O texto sobre o risco mudou",
+    "continue": "Aceitar e abrir Hoje"
+  },
+  "existing": {
+    "body": "Já existe um plano neste dispositivo.",
+    "link": "Abrir o plano"
+  }
+}
