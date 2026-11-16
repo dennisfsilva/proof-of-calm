@@ -590,6 +590,7 @@ The product's nouns, one Portuguese word each, in every string, the site pages a
 | split | repartição |
 | split, in the coin editor's name (the Settings tab, the Plan tab's legend and onboarding's summary row) | `Moedas e pesos`, since `repartição` (10 letters) runs past its tab at 125 % zoom and the editor's fields already say `peso`; `repartição` stays in every other string |
 | Currency & data (the Settings tab) | `País e dados`, the headings of its two sections, since `pagamento` (9 letters) runs past its tab; `moeda de pagamento` stays in every other string, and a bare `moeda` never stands for currency |
+| Hold & sell (the Settings tab) | `Regra e venda`, the tab label only, since `Detenção` (8 letters) runs past its tab at 125 % zoom when selected; every string that names the tab quotes it as «Regra e venda», and the holding rule itself stays `regra de detenção` |
 | Undo | Anular |
 | Delete | Eliminar |
 | Dismiss | Dispensar |
