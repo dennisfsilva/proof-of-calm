@@ -234,8 +234,16 @@ external links and the Risk link in the mobile export (M3).
   and pt-PT about five build sessions before its native read (a revision of #19's D12, decided
   2026-11-15 in #261). On 2026-11-16 the Portuguese ban rows, the imperative rule and the pt-PT voice
   and nouns (#265, `docs/CONTENT-STYLE.md` §2 and §9) and the checked `{date:<field>}` template
-  placeholders (#264) followed. CSV import, free (ADR-0039), for the main exchanges of
-  Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
+  placeholders (#264) followed. Then the ban lint read placeholders as one word and as asset names
+  (#274), plans v4 recorded the acknowledgement's language (#275, `docs/DOMAIN.md` §2.1), tables
+  stacked while wider than their box (#277, `docs/DESIGN.md` §8), and the first pt-PT messages
+  landed: the shell, Today and the errors (#276). Onboarding and Portfolio with counsel's approval
+  of the pt-PT disclosure wait in #278 for a fix at zoom-125. Session 25d (#269) takes #278 first,
+  then the content review guard over `packages/content/i18n/**` with the flaky tools tests, then the
+  loaders, then the PT profile and templates overlays; whichever of the settings, plan and
+  learn-with-log messages does not fit moves to 25e (#270). A render-and-axe-only pt-PT story run
+  waits for 25f (#271), once every namespace is translated. CSV import, free (ADR-0039), for the
+  main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
   Republic; Kraken's ledger reader built on 2026-11-13 (#168) and the core's import plan against the
   Log the same day (#178, `docs/DOMAIN.md` §3.13, "Meeting the Log"), then its write (#183) and the
   Settings step that previews and imports the ledger (#184, #185); Trade Republic's reader (#191) and
