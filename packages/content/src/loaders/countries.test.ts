@@ -233,6 +233,21 @@ describe('contentLanguageOf over the profiles (ADR-0057, Corrections of 2026-11-
     for (const each of all) expect(contentLanguageOf(each)).toBe(translated.has(each.code) ? 'pt-PT' : 'en');
   });
 
+  it.each([
+    ['GB', 'Reino Unido'],
+    ['IE', 'Irlanda'],
+    ['US', 'Estados Unidos'],
+  ])("gives %s's pt-PT name, marked pt-PT", async (code, name) => {
+    const profile = await loaded(code, 'pt-PT');
+    expect(profile.name).toBe(name);
+    expect(contentLanguageOf(profile)).toBe('pt-PT');
+  });
+
+  it('lists none of those three English names in pt-PT', async () => {
+    const names = (await loadProfiles('pt-PT')).map(({ name }) => name);
+    for (const code of ['GB', 'IE', 'US']) expect(names).not.toContain((await loaded(code, 'en')).name);
+  });
+
   it("gives English for the fallback when the translation's chunk fails to load", async () => {
     vi.resetModules();
     const fresh = await import('./countries.ts');

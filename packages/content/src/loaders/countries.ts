@@ -36,7 +36,10 @@ export const PROFILE_OVERLAYS: Readonly<
   Record<OverlayLanguage, Partial<Record<ProfileCode, () => Promise<{ readonly default: unknown }>>>>
 > = {
   'pt-PT': {
+    GB: () => import('../../i18n/pt-PT/jurisdictions/gb.json'),
+    IE: () => import('../../i18n/pt-PT/jurisdictions/ie.json'),
     PT: () => import('../../i18n/pt-PT/jurisdictions/pt.json'),
+    US: () => import('../../i18n/pt-PT/jurisdictions/us.json'),
     XX: () => import('../../i18n/pt-PT/jurisdictions/xx.json'),
   },
   de: {},

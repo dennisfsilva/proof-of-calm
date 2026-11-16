@@ -1,0 +1,80 @@
+{
+  "name": "Estados Unidos",
+  "filingNote": "Ano fiscal igual ao ano civil. O Form 1040 é entregue até 15 de abril do ano seguinte. Uma prorrogação automática de 6 meses adia a data de entrega, não a de pagamento.",
+  "holdingRuleConditions": [
+    "Só a taxa federal. A maioria dos estados tributa a mais-valia às suas próprias taxas: 42 cobram imposto sobre o rendimento (Tax Foundation, 2026, confiança média). Confirme o seu estado.",
+    "Uma troca ou uma compra paga em criptoativos inicia um novo período de detenção para as unidades recebidas (IRS FAQ Q16 e Q29).",
+    "As unidades recebidas em doação conservam o período de detenção do doador quando os registos o mostram, e as unidades herdadas são de longo prazo desde logo (IRS FAQ Q33 e IRS Publication 544)."
+  ],
+  "lotRuleNote": "O contribuinte escolhe as unidades vendidas quando os seus registos as identificam e mostram o seu custo, por conta, carteira ou endereço. Caso contrário, aplica-se primeiro a entrar, primeiro a sair (IRS FAQ Q39 a Q41).",
+  "card": {
+    "classification": "Propriedade, não moeda, no fisco federal. Uma venda, troca ou pagamento com unidades detidas como ativo de capital dá mais-valia ou menos-valia. Recompensas, mineração, staking e serviços pagos: rendimento ordinário (IRS, Digital assets).",
+    "taxableEvents": [
+      {
+        "note": "Mais-valia ou menos-valia: o montante recebido menos a base ajustada, sendo a base o que se pagou em dólares americanos, com as comissões incluídas (IRS FAQ Q7 e Q8)."
+      },
+      {
+        "note": "Uma troca de unidades detidas como ativo de capital por outro ativo digital gera mais-valia ou menos-valia nas unidades entregues. As unidades recebidas têm como base o seu justo valor de mercado na troca (IRS FAQ Q16 e Q18)."
+      },
+      {
+        "note": "Uma stablecoin é um ativo digital (IRS, Digital assets), pelo que a troca é como qualquer outra: mais-valia ou menos-valia nas unidades entregues (IRS FAQ Q16)."
+      },
+      {
+        "note": "Um pagamento de bens ou serviços com unidades detidas como ativo de capital é a troca de um ativo de capital: mais-valia ou menos-valia entre o justo valor de mercado do que se recebeu e a base ajustada (IRS FAQ Q14 a Q17)."
+      },
+      {
+        "note": "Uma transferência de unidades entre carteiras ou contas próprias não é transação, mesmo que uma plataforma envie uma declaração informativa. Uma comissão de transação paga em ativos digitais é uma transação (IRS, Digital assets; FAQ Q38)."
+      },
+      {
+        "note": "Uma doação recebida não é rendimento. Uma mais-valia futura usa a base do doador, uma menos-valia a menor entre ela e o valor na doação (FAQ Q31, Q32). Unidades herdadas: logo de longo prazo, base em regra o valor à morte (Pub. 544, 551)."
+      },
+      {
+        "note": "Recompensas de mineração e staking: rendimento declarado no Form 1040 Schedule 1 (IRS, Digital assets). Um airdrop após um hard fork é rendimento ordinário ao justo valor de mercado na receção, a nova base das unidades (FAQ Q24 e Q25)."
+      }
+    ],
+    "rates": [
+      {
+        "label": "Mais-valias de longo prazo (detenção de mais de um ano)",
+        "value": "0%, 15% ou 20% conforme o rendimento tributável",
+        "note": "Rendimento tributável de 2026: 0% até USD 49,450 (individual) ou USD 98,900 (conjunta), 15% até USD 545,500 ou USD 613,700, outros estados civis diferem (Rev. Proc. 2025-32 §4.03). 20% acima. Colecionáveis até 28% (Topic 409)."
+      },
+      {
+        "label": "Mais-valias de curto prazo (detenção de um ano ou menos)",
+        "value": "10% a 37% por escalão, como rendimento ordinário",
+        "note": "Tributadas com os outros rendimentos às taxas progressivas (Topic 409). Em 2026, o escalão de 37% começa acima de USD 640,600 de rendimento tributável numa declaração individual e de USD 768,700 numa conjunta (Rev. Proc. 2025-32 §4.01)."
+      },
+      {
+        "label": "Net investment income tax",
+        "value": "3.8%",
+        "note": "Sobre o menor entre o rendimento líquido de investimento e o rendimento bruto ajustado modificado acima de USD 200,000 (individual ou chefe de família), USD 250,000 (conjunta) e USD 125,000 (casados em separado) (Topic 559)."
+      }
+    ],
+    "allowances": [
+      "Sem franquia própria para ativos digitais: cada transação tributável é declarada, seja qual for o montante e chegue ou não um extrato (IRS FAQ Q42).",
+      "As comissões e outros custos de aquisição pagos em dólares americanos fazem parte da base (IRS FAQ Q8).",
+      "Uma menos-valia líquida reduz outros rendimentos até USD 3,000 por ano, USD 1,500 para casados em declaração separada (Topic 409)."
+    ],
+    "holdingRuleText": "Após mais de um ano de detenção, a mais-valia ou menos-valia é de longo prazo e aplicam-se as taxas mais baixas. Com um ano ou menos, é de curto prazo e tributada como rendimento ordinário. O período de detenção começa no dia após a aquisição e acaba no dia da venda ou troca (IRS FAQ Q6). Uma unidade comprada a 15 de março de 2026 é de longo prazo se vendida a partir de 16 de março de 2027.",
+    "lotRuleText": "O contribuinte escolhe as unidades vendidas quando os seus registos as identificam e mostram o seu custo, por conta, carteira ou endereço. Caso contrário, aplica-se primeiro a entrar, primeiro a sair (IRS FAQ Q39 a Q41).",
+    "losses": "As mais-valias e menos-valias de curto e longo prazo compensam-se. A menos-valia líquida reduz outros rendimentos no menor entre USD 3,000 (USD 1,500 para casados em separado) e o total, e o resto reporta-se aos anos seguintes (Topic 409).",
+    "reporting": [
+      "O Form 1040 pergunta a cada contribuinte se recebeu, vendeu, trocou ou alienou de outro modo um ativo digital durante o ano (IRS, Digital assets).",
+      "Form 8949, Sales and Other Dispositions of Capital Assets, para cada venda, troca ou outra alienação de unidades detidas como ativo de capital (IRS, Digital assets). Os totais vão para o Schedule D (Topic 409).",
+      "Form 1040 Schedule 1 para rendimentos de forks, staking e mineração. Schedule C quando a atividade é empresarial (IRS, Digital assets).",
+      "Form 709 para quem doou ativos digitais (IRS, Digital assets).",
+      "Os brokers que ficam com a posse das unidades comunicam no Form 1099-DA o produto bruto das vendas desde 1 de janeiro de 2025 e a base de certas vendas desde 1 de janeiro de 2026. Os brokers sem custódia ficam de fora (IRS, Digital assets).",
+      "Um broker só tem de comunicar a base das unidades adquiridas após 2025 na conta de custódia que as vende. Para unidades transferidas para lá, é voluntária e vem dos registos do contribuinte (Instructions for Form 1099-DA, 2026)."
+    ],
+    "caveats": [
+      "Imposto estadual sobre o rendimento: 42 estados cobram-no, com taxas máximas de 2.5% a 13.3%. Os outros 8 não o cobram, e Washington só tributa mais-valias (Tax Foundation, 2026, confiança média).",
+      "Unidades num broker: os próprios livros e registos, ou uma ordem permanente lá registada, identificam as unidades vendidas até 31 de dezembro de 2026 (Notice 2026-20 §3.03 e §4.02). O alívio acaba nessa data (Notice 2026-20 §5).",
+      "Um NFT é um colecionável quando o direito ou ativo por trás dele o é (Notice 2023-27). As mais-valias de longo prazo de colecionáveis são tributadas até 28% (Topic 409).",
+      "Projetos de lei federais pendentes sobre a tributação de ativos digitais.",
+      "Um Form 1099-DA sem base para unidades transferidas.",
+      "Rendimentos de staking e de mineração, e se a atividade é empresarial.",
+      "Doações e heranças.",
+      "O net investment income tax acima dos seus limiares."
+    ],
+    "summary60": "Os EUA tributam os criptoativos como propriedade. Cada venda, troca ou pagamento é facto tributável, uma transferência entre carteiras próprias não. Com mais de um ano, taxas de longo prazo, mais baixas. Com um ano ou menos, taxas ordinárias até 37%. Vendas associadas às compras por carteira. Menos-valias compensam mais-valias, depois USD 3,000 de rendimento por ano. Só regras federais."
+  }
+}

@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import allowList from '../../sources.allow.json' with { type: 'json' };
 import { headerTexts } from '../header-validate.ts';
-import { loadProfile } from '../loaders/countries.ts';
+import { loadProfile, PROFILE_OVERLAYS } from '../loaders/countries.ts';
 import type { CountryProfile } from '../schema/jurisdiction.ts';
 import { type ContentFile, validateContent } from '../validate.ts';
 
@@ -14,11 +14,15 @@ import { type ContentFile, validateContent } from '../validate.ts';
 const { $comment: _, ...allow } = allowList;
 const ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
 const read = (path: string): ContentFile => ({ path, json: JSON.parse(readFileSync(`${ROOT}${path}`, 'utf8')) });
-const CODES = ['PT', 'XX'] as const;
+const CODES = ['GB', 'IE', 'PT', 'US', 'XX'] as const;
 const englishOf = (code: string) => read(`packages/content/jurisdictions/${code.toLowerCase()}.json`);
 const overlayOf = (code: string) => read(`packages/content/i18n/pt-PT/jurisdictions/${code.toLowerCase()}.json`);
 
 describe('the pt-PT profile overlays', () => {
+  it('are the ones PROFILE_OVERLAYS loads', () => {
+    expect(Object.keys(PROFILE_OVERLAYS['pt-PT']).sort()).toEqual([...CODES]);
+  });
+
   it.each(CODES)("%s's overlay validates against its English file", (code) => {
     const overlay = overlayOf(code);
     const problems = validateContent([englishOf(code), overlay], { today: '2026-11-16', allow }).filter(
