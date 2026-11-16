@@ -98,8 +98,20 @@ async function options() {
   return (await screen.findAllByRole('option')).map((option) => option.textContent);
 }
 
-/** Exports the year shown in the select (or the option named `year` once chosen) and returns the one file saved. */
+const BOM = '﻿';
+
+/**
+ * Exports the year shown in the select (or the option named `year` once chosen) and returns the one file saved, its
+ * content after the one byte order mark it opens with (docs/DOMAIN.md §3.13), as the expected files hold it.
+ */
 async function exportYear(platform: ReturnType<typeof recordingPlatform>, year?: string) {
+  const saved = await savedFile(platform, year);
+  expect(saved.content.startsWith(BOM) && !saved.content.startsWith(BOM + BOM)).toBe(true);
+  return { ...saved, content: saved.content.slice(BOM.length) };
+}
+
+/** The one file saved, byte order mark and all. */
+async function savedFile(platform: ReturnType<typeof recordingPlatform>, year?: string) {
   const select = await yearSelect();
   if (year !== undefined) {
     const user = userEvent.setup({ document });
@@ -378,6 +390,16 @@ describe('TaxYearExport', () => {
   ] as const)('the %s file is the e2e fixture', async (_, patch, year, expected) => {
     const platform = await mount(withPlan(patch as Partial<Plan>), { nowMs: fixtureNowMs('buy') });
     expect((await exportYear(platform, year)).content).toBe(expected);
+  });
+
+  // Excel opens a CSV as UTF-8 only when it starts with a byte order mark, so Portugal's "n.º" and the pt-PT
+  // header's accents read as written; the parser that reads a file back drops it (docs/DOMAIN.md §3.13).
+  it('saves the file as UTF-8 with one byte order mark before the first header line', async () => {
+    const platform = await mount(withPlan({}), { nowMs: fixtureNowMs('buy') });
+    const { content, type } = await savedFile(platform, '2026 (still running)');
+    expect(type).toBe('text/csv');
+    expect(content.codePointAt(0)).toBe(0xfeff);
+    expect(content.slice(1)).toBe(ptFile);
   });
 
   // A spreadsheet that splits on `;` (the de and pt locales) would cut a header cell in two.

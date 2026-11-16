@@ -276,5 +276,7 @@ export async function downloadTaxYear(
     default:
       return assertNever(model);
   }
-  return services.platform.download(taxYearFileName(BRAND.slug, span, rules.code, today), content, 'text/csv');
+  // UTF-8 with a byte order mark, which Excel needs to read the file as UTF-8 (docs/DOMAIN.md §3.13).
+  const name = taxYearFileName(BRAND.slug, span, rules.code, today);
+  return services.platform.download(name, `﻿${content}`, 'text/csv');
 }
