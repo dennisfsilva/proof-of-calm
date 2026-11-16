@@ -71,10 +71,12 @@ regulators a status claim names and the allow-list with a reason per phrase live
 English and German, a sentence with an asset name that opens with a buying, selling or holding verb
 on its list: `Buy Bitcoin every month`, `Kaufen Sie Ethereum`; `Buy day` is the plan's noun and
 passes. The placeholders that item 1 of the imperative rule below lists count as asset names here
-too, so `Sell {units} now` fails. A `{date:<field>}` placeholder counts as one word, as it does
-there. Only a verb that opens the sentence is read, so a verb that opens an ICU branch passes:
-`{coins, select, one {} other {Hold}} the amounts on {date}.` A verb after a dot inside a branch
-opens a new sentence and is read. Portuguese: below. Template names need a human sign-off.
+too, so `Sell {units} now` fails. `{sold}`, `{fee}`, `{log}` and `{file}` are not counted as asset
+names, as there; the copy review (§8) checks them by hand. A `{date:<field>}` placeholder counts as
+one word, as it does there. Only a verb that opens the sentence is read, so a verb that opens an ICU
+branch passes the lint: `{coins, select, one {} other {Hold}} the amounts on {date}.` That pass is a
+gap in the lint, not a permission: the copy review (§8) still refuses such a sentence. A verb after
+a dot inside a branch opens a new sentence and is read. Portuguese: below. Template names need a human sign-off.
 
 The Portuguese rows (decided 2026-11-15; the voice is §9):
 
@@ -157,13 +159,13 @@ The Portuguese rows (decided 2026-11-15; the voice is §9):
      `{date:<field>}` placeholder counts as one word. Its dots end no sentence, and a ticker in its
      path names no asset: `Mantenha até {date:sellWindow.opens} as suas bitcoins` is one sentence
      and fails. The placeholders the app fills with a coin count as asset names: `{coin}`, `{coins}`
-     and `{names}`. So do the placeholders the app fills with units and their ticker, `0.5 BTC`:
-     `{units}`, `{held}`, `{heldUnits}`, `{sent}`, `{excess}`, `{short}` and `{outside}`. A new
+     and `{names}`. So do the placeholders the app fills with units and their ticker
+     (`0.5 BTC`): `{units}`, `{held}`, `{heldUnits}`, `{sent}`, `{excess}`, `{short}` and `{outside}`. A new
      placeholder the app fills with units joins this list in `packages/content/src/style/banned.ts`.
      So `Compre {coin} todos os meses` and `Venda {units} agora` fail. In some messages the app
      fills `{sold}`, `{fee}`, `{log}` and `{file}` with units too. Other messages fill the same names
      with money, a link or a currency, so the lint does not count them as asset names. The copy
-     review (§8) checks them by hand. Every other brace is read as written, an ICU branch's words
+     review (§8) checks them by hand. The lint reads every other brace's words, an ICU branch's
      included: `{count, plural, one {Mantenha} other {Mantenham}} as suas bitcoins` fails, where the
      English rule above passes a verb that opens a branch.
   2. `venda` passes as the noun after the words the lint lists (`uma`, `cada`, `de`, `da`, `na`,
@@ -466,7 +468,8 @@ unsubscribe header; nothing is ever sent that was not asked for.
 3. Every number has a unit and a date; every date has a year.
 4. Buttons are verbs; errors name the fix; nothing says "we" in an error.
 5. No sentence tells anyone what, when or where to buy, hold or sell; templates and reminders are
-   mechanical.
+   mechanical. Read by hand what the lint passes (§2): a sentence with `{sold}`, `{fee}`, `{log}` or
+   `{file}` filled with units, and a sentence whose verb opens an ICU branch.
 6. No exclamation marks, emoji, interjections, "please", "easy", "just".
 7. Risk warnings are where `docs/LEGAL.md` §4 puts them and read as sentences, not as footers.
 8. History is dated and windowed; forecasts are absent; "past performance" line present where
@@ -547,7 +550,14 @@ The product's nouns, one Portuguese word each, in every string, the site pages a
 | Log (the screen) | Registo |
 | an entry | movimento |
 | record (the verb) | registar |
+| move (an entry between venues) | transferência |
 | Portfolio (the screen) | Portefólio |
+| Holdings | moedas detidas |
+| Invested | investido |
+| average cost | custo médio |
+| P/L | resultado |
+| share (of the allocation) | peso |
+| allocation | distribuição, kept apart from split, `repartição` |
 | a wallet | carteira |
 | Plan | Plano |
 | Learn | Aprender |
@@ -556,6 +566,10 @@ The product's nouns, one Portuguese word each, in every string, the site pages a
 | monthly buy | compra mensal |
 | starting amount | montante inicial |
 | extra buy | compra adicional |
+| first buy, last buy | primeira compra, última compra |
+| due {date} | previsto para {date} |
+| skip, skipped | saltar, saltado |
+| paused | em pausa |
 | sale | venda |
 | coins added at no cost (held) | moedas adicionadas |
 | sell window | janela de venda |
@@ -563,6 +577,7 @@ The product's nouns, one Portuguese word each, in every string, the site pages a
 | holding date | data de fim do período de detenção |
 | hold phase | fase de detenção |
 | holding rule | regra de detenção |
+| the plan strip's Buying, Holding, Selling, Out by | Compra, Detenção, Venda, Saída; `Saída` always stands before a range or `a partir de` |
 | tax-free | `não tributado a partir de 2 de março de 2027` for the status, `data de exclusão de tributação` for the noun; the status agrees with its noun, and its noun is the gain, since a buy is never taxed: `Last buy tax-free` is `Mais-valia da última compra não tributada a partir de 2 de março de 2027`, a status from its date (the native reader confirms it, §8 item 9): CIRS art. 10 excludes these gains and Anexo G1 heads them «Mais-valias não tributadas»; never `isento`, since an exemption is a different concept |
 | venue | local |
 | units | unidades |
@@ -573,8 +588,17 @@ The product's nouns, one Portuguese word each, in every string, the site pages a
 | split | repartição |
 | Undo | Anular |
 | Delete | Eliminar |
+| Dismiss | Dispensar |
+| Review (the control) | Rever |
+| Resume | Retomar |
+| Reviewed on {date} | Revisto a {date} |
 | backup | cópia de segurança |
+| keep (data) | conservar |
+| offline | sem ligação |
 | app | aplicação |
+| Risk disclosure (the link) | Aviso sobre riscos |
+| daily close | fecho diário |
+| Price data by CoinGecko | Dados de preços da CoinGecko |
 
 Two terms name the same date in two frames: `data de fim do período de detenção` is the date in the
 holding rule's own frame (the hold-phase card, the holding-date tool), and
