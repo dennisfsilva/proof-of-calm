@@ -10,7 +10,7 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   subject, branch and PR-size limits; the evaluator's two viewport projects; the content roles).
 - How translation files count: hand-written translation files count in full against the 300-line
   PR limit; generated files such as `packages/app/src/messages/pt-PT/*.json` and
-  `packages/content/rules/pt-PT/*.json` (planned: M2) do not, since the stale checks prove them.
+  `packages/content/rules/pt-PT/*.json` do not, since the stale checks prove them.
 - Tiers, empirical gates and reading sets, per path: the frontmatter of `.claude/rules/*.md`.
 - Content roles: `.claude/agents/counsel.md` (the perimeter, blocks a merge) and `.claude/agents/brand.md`
   (proposes).

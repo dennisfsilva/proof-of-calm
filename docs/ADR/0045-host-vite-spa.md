@@ -1477,6 +1477,15 @@ with pt-PT.
   says `today.action.recorded` with no action, and the entry stays editable from the Log once its
   messages load; where the namespace loads, the toast keeps the Log's words and Edit
   (`packages/app/src/features/today/components/primary-action.tsx`).
+- **2026-11-16, a language's content chunks stay out of the precache too** (§5, §8; ADR-0057). The
+  loaders read a profile and its rules in the boot language, so `chunkFileNames` also puts a chunk of
+  `packages/content/rules/<locale>/` or `packages/content/i18n/<locale>/` under
+  `assets/messages/<locale>/`, which the worker already leaves out. Offline, such a chunk that was
+  never fetched fails to load, and the loader answers the English file (ADR-0057's Corrections of
+  2026-11-16). Measured on the web build: 70 precache entries and 1,378,582 bytes before, 70 and
+  1,380,858 after (the 2,276 bytes are the loaders' code), with the ten pt-PT rules chunks under
+  `assets/messages/pt-PT/` and none in the precache. Today's application code (`node tools/size/today.ts`,
+  whose rules pattern counts English's files only) went from 41,385 to 42,038 bytes.
 
 ## Corrections recorded on 2026-11-16
 

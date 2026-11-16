@@ -171,9 +171,9 @@ A profile in Portuguese or German is its English file under a sparse translation
 holding rule override's note, the pending changes' titles and summaries, the change notice); every code,
 number, date, rule and source stays the English file's. Each translated text carries the same number
 values as the English text (`overlay-number-mismatch`) and takes the checks above, with the percent joiner of the number
-locale the app uses for that profile in that language. The loaders that read a profile in a language and
-the generated rules files of each language in `packages/content/rules/<language>/` come next (planned: M2);
-until then the app shows the English profile in every UI language.
+locale the app uses for that profile in that language. The app reads each profile and its generated rules
+file (`packages/content/rules/<language>/`) in the UI language it booted, and the English file where a
+language has no overlay or its chunk fails to load (ADR-0057's Corrections of 2026-11-16).
 
 The holding card links the source `ruleSources.holdingRule` names; each other rule links to the source its
 `ruleSources` key names once a card shows that rule. No link points to a position in `sources`, so
