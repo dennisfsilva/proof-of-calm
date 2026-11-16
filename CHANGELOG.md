@@ -24,8 +24,7 @@ release.
 
 ### Where you are
 
-- Portfolio: the value over time, the split, and each coin's units and average cost. On a narrow
-  screen or with larger text, the chart's range choice stays within its column.
+- Portfolio: the value over time, the split, and each coin's units and average cost.
 - Plan: the milestones from the first buy to the last, the sell window's 3 parts where the plan has
   one, and your note if you wrote one. In the sell phase, where a holding rule applies, it shows the
   units past their holding date and the date for the rest.
@@ -72,14 +71,12 @@ release.
 - It shows where to check a provider in ESMA's public register and how to find an adviser. It links
   to official warnings, each with the date its link was checked.
 
-### In Portuguese (hidden until a native reader has read it)
+### In Portuguese
 
-- The set-up, Portfolio and Plan in Portuguese (Portugal), with the shell, Today and the error
-  messages before them. The language stays hidden until a native reader has read every screen.
-- On a device set to Portuguese, the risk text you accept when you start a plan is shown in
-  Portuguese, and the plan records that you accepted the Portuguese text.
-- Your country's rules and details are read in the app's language. Offline, before that language's
-  files were ever fetched, they show in English.
+- Today, the set-up, Portfolio, Plan, the menus and the error messages in Portuguese (Portugal).
+  The language stays hidden until a native reader has read every screen.
+- With the app's language set to Portuguese, the risk text you accept when you start a plan is
+  shown in Portuguese, and the plan records that you accepted the Portuguese text.
 
 ### On the web and offline
 

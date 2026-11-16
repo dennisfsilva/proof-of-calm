@@ -65,8 +65,8 @@ The product is called **Proof of Calm** (ADR-0040). Before anything public ships
 A disclosure is content at a decision point: it sits where a decision is made, once per path, in the
 same type and background as the sentences around it, with a link to the Risk page, never a coloured
 bar, a modal or a checkbox beyond the one acknowledgement below. A status the domain selects (the
-Red day banner, `docs/DOMAIN.md` §3.11) is never a disclosure. The early-opening notice (Hold & sell, the
-Plan tab, onboarding's numbers step, the country change) is such a status, so its text and its
+Red day banner, `docs/DOMAIN.md` §3.11) is never a disclosure. The early-opening notice (Hold & sell,
+the Plan tab, onboarding's numbers step, the country change) is such a status. Its text and its
 acceptance box count toward no budget of this section and are not the plan-creation acknowledgement.
 The acknowledged plan-creation text is the one long disclosure (three sentences, 40 to 50 words). The template line keeps its three
 short sentences (12 words, ADR-0047); a translation keeps the three sentences and counts its own words,
