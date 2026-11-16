@@ -253,9 +253,9 @@ external links and the Risk link in the mobile export (M3).
   holding-date baselines, and Portugal's and XX's profile overlays move to #294, placed first,
   because the semicolons branch used both review rounds. The review-content skill's pre-D8 number
   example goes to #286. #294 landed the header semicolons with the byte-order mark (#298), 56
-  baselines (#299) and Portugal's and XX's pt-PT profile overlays (#300). Review-safe content tests
-  and the review's backstop follow as #297, placed after #294 and before #286 on 2026-11-16, because
-  #294's design check found content tests a review cannot pass.
+  baselines (#299) and Portugal's and XX's pt-PT profile overlays (#300). #297 follows with content
+  tests a review can pass and the review's backstop, placed after #294 and before #286 on 2026-11-16,
+  because #294's design check found tests a review could not pass.
   So pt-PT takes four build sessions more than #269 planned before German starts. A
   render-and-axe-only pt-PT story run waits for #271, once every namespace is translated. CSV import, free (ADR-0039), for the
   main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
