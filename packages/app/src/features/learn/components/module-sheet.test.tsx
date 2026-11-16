@@ -10,6 +10,7 @@ import { fixtureSnapshot } from '../../../lib/services/fixtures';
 import { createTestServices, preloadLazyModules } from '../../../lib/services/testing';
 import learn from '../../../messages/en/learn.json';
 import shell from '../../../messages/en/shell.json';
+import learnPt from '../../../messages/pt-PT/learn.json';
 import { TAXES_MODULE, YOUR_COUNTRY } from '../lib/taxes';
 import { ModuleSheet } from './module-sheet';
 
@@ -63,6 +64,23 @@ describe('ModuleSheet', () => {
     expect(within(dialog).getByText("The fixture's caveat, in its box.")).toBeDefined();
     expect(within(dialog).getByRole('heading', { level: 2, name: 'A section' })).toBeDefined();
     expect(within(dialog).getByRole('button', { name: 'Close' })).toBeDefined();
+  });
+
+  it('on a pt-PT screen the English idea and body take lang=en, the sheet around them not (ADR-0057)', async () => {
+    render(
+      <ServicesProvider services={createTestServices({ language: 'pt-PT' })}>
+        <I18nProvider locale="pt-PT" messages={{ learn: learnPt }}>
+          <Suspense fallback={null}>
+            <ModuleSheet slug="start-here" open onOpenChange={vi.fn()} />
+          </Suspense>
+        </I18nProvider>
+      </ServicesProvider>,
+    );
+    const dialog = await screen.findByRole('dialog', { name: IDEA });
+    expect(within(dialog).getByRole('heading', { name: IDEA }).getAttribute('lang')).toBe('en');
+    const body = within(dialog).getByRole('heading', { level: 2, name: 'A section' });
+    expect(body.closest('[lang]')?.getAttribute('lang')).toBe('en');
+    expect(within(dialog).getByRole('button', { name: learnPt.sheet.close }).closest('[lang]')).toBeNull();
   });
 
   it("a module with a chart joins its idea's `N %` with the page's joiner, as its caveat and the route's title do", async () => {

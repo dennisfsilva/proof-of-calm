@@ -2,14 +2,21 @@ import type { LearnModuleMeta } from '@proofofcalm/content';
 import type { CalendarDate } from '@proofofcalm/core';
 import { Card } from '@proofofcalm/ui/components/card';
 import { type ComponentType, type ReactNode, useCallback, useMemo } from 'react';
-import { useTranslations } from 'use-intl';
+import { useLocale, useTranslations } from 'use-intl';
 import type { Formatters } from '../../../lib/format';
+import { textLang } from '../../../lib/i18n/text-lang';
 import { useFormatters, useToday } from '../../../lib/services';
 import { type BodyElements, moduleElements, moduleJoiner, withJoiner } from '../lib/body-elements';
 import { reviewLine, TAXES_MODULE } from '../lib/taxes';
 import { ModuleChart } from './module-chart';
 
 const NO_CHART: BodyElements['Chart'] = () => null;
+
+/**
+ * The Learn modules are written in English only and no loader marks them (ADR-0057): their title, caveat and body
+ * carry `lang="en"` on a screen in another language (WCAG 2.2 SC 3.1.2), and nothing on an English one.
+ */
+export const useModuleLang = () => textLang('en', useLocale());
 
 export type ModuleViewProps = {
   module: LearnModuleMeta;
@@ -53,10 +60,15 @@ export function ModuleArticle({ module, Body, heading, lead, f, today, Chart = N
   const state = reviewLine(module, today);
   const reviewed = f.date(module.lastReviewed as CalendarDate);
   const components = useMemo(() => ({ ...moduleElements(joiner), Chart }), [Chart, joiner]);
+  const lang = useModuleLang();
   return (
     <article className="flex flex-col gap-stack-md">
       <header className="flex flex-col gap-stack-xs">
-        {heading ?? <h1 className="text-28">{withJoiner(module.title, joiner)}</h1>}
+        {heading ?? (
+          <h1 lang={lang} className="text-28">
+            {withJoiner(module.title, joiner)}
+          </h1>
+        )}
         <p className="text-13 text-ink-2">
           {t.rich('module.lastReviewed', {
             date: reviewed,
@@ -72,10 +84,12 @@ export function ModuleArticle({ module, Body, heading, lead, f, today, Chart = N
         <p className="text-13 text-ink-2">{t('index.readingTime', { minutes: module.readingMinutes })}</p>
       </header>
       <Card>
-        <p className="text-16">{withJoiner(module.caveat, joiner)}</p>
+        <p lang={lang} className="text-16">
+          {withJoiner(module.caveat, joiner)}
+        </p>
       </Card>
       {lead}
-      <div className="flex flex-col gap-stack-md">
+      <div lang={lang} className="flex flex-col gap-stack-md">
         <Body components={components} />
       </div>
     </article>
