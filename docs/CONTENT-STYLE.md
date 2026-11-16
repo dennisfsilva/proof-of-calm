@@ -74,10 +74,13 @@ passes. The placeholders that item 1 of the imperative rule below lists count as
 too, so `Sell {units} now` fails. The lint does not count `{sold}`, `{fee}`, `{log}` and `{file}`
 as asset names, as in the imperative rule's item 1; the copy review (§8) checks them by hand. A
 `{date:<field>}` placeholder counts as one word, as it does there. Only a verb that opens the
-sentence is read, so a verb that opens an ICU branch passes the lint:
-`{coins, select, one {} other {Hold}} the amounts on {date}.` That pass is a gap in the lint, not a
-permission: the copy review (§8) still refuses such a sentence. A verb after a dot inside a branch
-opens a new sentence and is read. Portuguese: below. Template names need a human sign-off.
+sentence is read. The first words of every `plural`, `select` or `selectordinal` branch, nested
+ones included, open the sentence the person reads, so a verb on the list there fails with or
+without an asset name, since the branch's words stand for what its count or selector picks:
+`{count, plural, one {Sell it} other {Sell them}}` and
+`{coins, select, one {} other {Hold}} the amounts on {date}.` fail. A quoted brace (`'{'`) opens
+no branch, and a `#` or a `{date:<field>}` placeholder that opens a branch is its first word. A verb
+after a dot inside a branch opens a new sentence and is read as any sentence is. Portuguese: below. Template names need a human sign-off.
 
 The Portuguese rows (decided 2026-11-15; the voice is §9):
 
@@ -167,8 +170,7 @@ The Portuguese rows (decided 2026-11-15; the voice is §9):
      fills `{sold}`, `{fee}`, `{log}` and `{file}` with units too. Other messages fill the same names
      with money, a link or a currency, so the lint does not count them as asset names. The copy
      review (§8) checks them by hand. The lint reads every other brace's words, an ICU branch's
-     included: `{count, plural, one {Mantenha} other {Mantenham}} as suas bitcoins` fails, where the
-     English rule above passes a verb that opens a branch.
+     included: `{count, plural, one {Mantenha} other {Mantenham}} as suas bitcoins` fails.
   2. `venda` passes as the noun after the words the lint lists (`uma`, `cada`, `de`, `da`, `na`,
      `à`, `pela`, `após`, `sua`, `última` and their kin), after `compra e` or `compras e`, or after
      an `a` that opens the sentence or a clause (not after a comma) or follows a preposition, `e` or

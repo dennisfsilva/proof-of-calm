@@ -62,8 +62,8 @@ const TICKER = between(['BTC', 'ETH', 'SOL', 'LINK'], 'u');
 // the app also fills with money, a link or a currency ({fee}, {sold}, {log}, {file}) stays out. An ICU argument on
 // them ({coins, select, …}) chooses words and stays copy.
 const COIN_PLACEHOLDER = /\{(?:coins?|names|units|held(?:Units)?|sent|excess|short|outside)\}/u;
-// An English or German imperative is the bare verb, so it counts only at the start of a sentence; "Buy day" is
-// the plan's noun. The Portuguese forms count anywhere (directive-pt.ts).
+// An English or German imperative is the bare verb, so it counts only at the start of a sentence or of an ICU branch;
+// "Buy day" is the plan's noun. The Portuguese forms count anywhere (directive-pt.ts).
 const IMPERATIVE = /^\s*(buy|sell|hold|invest|get|grab|kaufe?n?)(?![\p{L}\p{N}])(?!\s+days?\b)/iu;
 // A sentence ends at "!", "?", a line end or a dot that no digit follows, so "Buy 0.5 BTC" and "1.000 €" stay whole.
 const SENTENCE_END = /[!?\n]+|\.(?!\d)/;
@@ -85,6 +85,72 @@ function sentences(text: string) {
   }));
 }
 
+// An argument that chooses its words: `{count, plural, …}`, `{formal, select, …}`, `{n, selectordinal, …}`.
+const BRANCHING = /^\s*[^\s,{}]+\s*,\s*(?:plural|select|selectordinal)\s*,/u;
+
+/**
+ * Where ICU's quoting that starts at `at` ends: `''` is one apostrophe, an apostrophe before `{`, `}`, `#` or `|`
+ * quotes up to the next lone apostrophe, and any other apostrophe is itself (ICU's DOUBLE_OPTIONAL mode).
+ */
+function afterQuote(text: string, at: number): number {
+  if (text[at + 1] === "'") return at + 2;
+  if (!/[{}#|]/u.test(text[at + 1] ?? '')) return at + 1;
+  for (let index = at + 1; index < text.length; index += 1) {
+    if (text[index] !== "'") continue;
+    if (text[index + 1] !== "'") return index + 1;
+    index += 1;
+  }
+  return text.length;
+}
+
+/** The index of the brace that closes the one at `open`, past quoted text; the text's length when none does. */
+function closing(text: string, open: number): number {
+  let depth = 0;
+  for (let index = open; index < text.length; ) {
+    const char = text[index];
+    if (char === "'") {
+      index = afterQuote(text, index);
+      continue;
+    }
+    if (char === '{') depth += 1;
+    if (char === '}' && --depth === 0) return index;
+    index += 1;
+  }
+  return text.length;
+}
+
+/** The text of every plural, select and selectordinal branch of an ICU message, nested ones included, outer first. */
+function branchTexts(message: string): readonly string[] {
+  const texts: string[] = [];
+  const arguments_ = (from: number, to: number): void => {
+    for (let index = from; index < to; ) {
+      if (message[index] === "'") {
+        index = afterQuote(message, index);
+        continue;
+      }
+      if (message[index] !== '{') {
+        index += 1;
+        continue;
+      }
+      const end = closing(message, index);
+      const head = BRANCHING.exec(message.slice(index + 1, end));
+      if (head !== null) branches(index + 1 + head[0].length, end);
+      index = end + 1;
+    }
+  };
+  // A selector (`one`, `=0`, `offset:1`, a select key) holds no brace or quote, so the next brace opens its branch.
+  const branches = (from: number, to: number): void => {
+    for (let open = message.indexOf('{', from); open !== -1 && open < to; open = message.indexOf('{', open)) {
+      const end = closing(message, open);
+      texts.push(message.slice(open + 1, end));
+      arguments_(open + 1, end);
+      open = end + 1;
+    }
+  };
+  arguments_(0, message.length);
+  return texts;
+}
+
 const findAll = (pattern: RegExp, text: string, rule: Finding['rule']): Finding[] =>
   [...text.matchAll(pattern)].map((match) => ({ rule, match: match[0] }));
 
@@ -95,10 +161,16 @@ export function findBanned(text: string): Finding[] {
   const imperatives = sentences(kept)
     .filter(({ read }) => (IMPERATIVE.test(read) || hasPortugueseDirective(read)) && namesAsset(read))
     .map(({ written }): Finding => ({ rule: 'imperative', match: written.trim() }));
+  // A branch's first words open the sentence the person reads, whatever stands before the argument.
+  const branchImperatives = branchTexts(kept)
+    .map((branch) => sentences(branch)[0])
+    .filter((first) => first !== undefined && IMPERATIVE.test(first.read))
+    .map((first): Finding => ({ rule: 'imperative', match: first?.written.trim() ?? '' }));
   return [
     ...findAll(ADVICE, kept, 'advice'),
     ...findAll(FILLER, kept, 'filler'),
     ...findAll(RETURN_PERCENTAGE, kept, 'return-percentage'),
     ...imperatives,
+    ...branchImperatives,
   ];
 }
