@@ -16,8 +16,8 @@ const VERSION_1 =
 
 /** Version 1 in pt-PT, the text counsel approved as the English text's equal (docs/LEGAL.md §4). */
 const VERSION_1_PT =
-  'A {product} é software para um plano seu: sem ordens nem aconselhamento financeiro ou fiscal. Pode perder tudo: ' +
-  'desde 2011, a bitcoin caiu em 4 ocasiões mais de 75% face a um máximo; o ether caiu 94% em 2018. ' +
+  'A {product} é software para um plano definido por si: sem ordens nem aconselhamento financeiro ou fiscal. ' +
+  'Pode perder tudo: a bitcoin caiu mais de 75% face a um máximo 4 vezes desde 2011; o ether, 94% em 2018. ' +
   'Use apenas dinheiro de que não precise durante anos.';
 
 /** Words as shown, with `{product}` as the three words of the product's name. */

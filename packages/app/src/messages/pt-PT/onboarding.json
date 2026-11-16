@@ -77,7 +77,7 @@
     "reminderValue": "{choice, select, calendar {Ficheiro do calendário guardado} other {Sem lembrete definido}}"
   },
   "disclosure": {
-    "text": "A {product} é software para um plano seu: sem ordens nem aconselhamento financeiro ou fiscal. Pode perder tudo: desde 2011, a bitcoin caiu em 4 ocasiões mais de 75% face a um máximo; o ether caiu 94% em 2018. Use apenas dinheiro de que não precise durante anos.",
+    "text": "A {product} é software para um plano definido por si: sem ordens nem aconselhamento financeiro ou fiscal. Pode perder tudo: a bitcoin caiu mais de 75% face a um máximo 4 vezes desde 2011; o ether, 94% em 2018. Use apenas dinheiro de que não precise durante anos.",
     "riskLink": "Aviso sobre riscos"
   },
   "reask": {
