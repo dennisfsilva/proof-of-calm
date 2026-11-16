@@ -161,8 +161,9 @@ generated rules files of each language.
   `assets/messages/pt-PT/`, outside the precache. The loader reads `.default` inside its `try`: a
   failed import, or one that resolves to undefined, answers English and is not cached. Onboarding
   starts the load at mount, as it starts `loadProfiles`. In English it renders the list at once; in
-  another language it renders the template step only once the texts resolve, so no English name shows
-  first, and English if the load fails. The cards sort by the name shown in the UI locale. The plan
+  another language it renders every step that shows a template's text, the template step and the
+  summary (a draft reopened on it too), only once the texts settle, so no English name shows first,
+  and English if the load fails. The cards sort by the name shown in the UI locale. The plan
   stores the template's id, never its text. "What validation holds" gains `overlay-percent-mismatch`
   for templates. A template's explanation writes `N %`, which the app finds and writes with
   `format.percent` (`docs/CONTENT-STYLE.md` §4). A translation therefore writes the same
