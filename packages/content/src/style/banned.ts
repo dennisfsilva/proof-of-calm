@@ -86,13 +86,12 @@ function sentences(text: string) {
 const findAll = (pattern: RegExp, text: string, rule: Finding['rule']): Finding[] =>
   [...text.matchAll(pattern)].map((match) => ({ rule, match: match[0] }));
 
+const namesAsset = (read: string) => ASSET_NAME.test(read) || TICKER.test(read) || COIN_PLACEHOLDER.test(read);
+
 export function findBanned(text: string): Finding[] {
   const kept = text.replace(ALLOWED, ' ').normalize('NFC');
   const imperatives = sentences(kept)
-    .filter(
-      ({ read }) =>
-        (IMPERATIVE.test(read) || hasPortugueseDirective(read)) && (ASSET_NAME.test(read) || TICKER.test(read) || COIN_PLACEHOLDER.test(read)),
-    )
+    .filter(({ read }) => (IMPERATIVE.test(read) || hasPortugueseDirective(read)) && namesAsset(read))
     .map(({ written }): Finding => ({ rule: 'imperative', match: written.trim() }));
   return [
     ...findAll(ADVICE, kept, 'advice'),
