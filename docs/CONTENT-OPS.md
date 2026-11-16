@@ -83,7 +83,11 @@ owns the pipeline around them and its security model.
    failure you expect is `agent-draft` on the entries you marked; when `overlay-number-mismatch`
    names a figure you changed in its English file, change the same figure in the translation,
    written in the translation's number format (§1), run `pnpm --filter @proofofcalm/content rules`
-   and run the checks again; fix or revert anything else." A translation's figure that still does
+   and run the checks again; fix or revert anything else. A test that fails because it asserts the
+   value a leaf held before your change is not yours to satisfy: revert nothing for it; name its
+   file and line and both values in the draft's notes and your closing report, and say in both that
+   `verify` fails on `pnpm test` until the owner removes that assertion in a pull request of its own
+   (`docs/ENGINEERING.md` §2)." A translation's figure that still does
    not match is reverted on neither side: the agent names it in the draft's notes and its report,
    and says in both that the PR's `verify` check fails on `pnpm validate:content` until it is fixed.
    The finish does not run that check; CI's `verify` job does (`.github/workflows/ci.yml`), so the
