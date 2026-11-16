@@ -1,4 +1,3 @@
-import { readdirSync, readFileSync } from 'node:fs';
 import {
   CalendarDateSchema,
   TemplateSchema as CoreTemplateSchema,
@@ -358,28 +357,38 @@ describe('validateContent: the percent sign keeps its number locale’s spacing 
     expect(run({ dateFormatLocale: 'pt_PT' })()).toEqual(['locale-tag: dateFormatLocale: pt_PT', otherFile]);
   });
 
-  // A relation every profile keeps whatever a content review writes (docs/ENGINEERING.md §2): one problem per
-  // sign given an ordinary space, in every text of every file, so no field holding a sign escapes the check.
-  it('refuses the profiles as main wrote them, with an ordinary space before every sign', () => {
-    const folder = new URL('../jurisdictions/', import.meta.url);
-    const signs = new RegExp(String.raw`(\d)${NBSP}?%(?!\w)`, 'g');
-    const asMain = readdirSync(folder).map((name) => {
-      const json = JSON.stringify(JSON.parse(readFileSync(new URL(name, folder), 'utf8')));
-      const spaced = file(`packages/content/jurisdictions/${name}`, JSON.parse(json.replaceAll(signs, '$1 %')));
-      return { spaced, count: json.match(signs)?.length ?? 0 };
-    });
-    expect(asMain.reduce((sum, { count }) => sum + count, 0)).toBeGreaterThan(0);
-    const problems = validateContent(
-      asMain.map(({ spaced }) => spaced),
-      options,
-    ).filter(({ code }) => code === 'percent-joiner');
-    for (const { spaced, count } of asMain) {
-      expect(
-        problems.filter(({ path }) => path === spaced.path),
-        spaced.path,
-      ).toHaveLength(count);
-    }
-    expect(problems.every(({ detail }) => detail.includes('has U+0020, expected '))).toBe(true);
+  // On a literal fixture (docs/ENGINEERING.md §2, Tests and content reviews): a review may cite a page whose
+  // published title holds a sign, and source titles are quoted names that stay as published.
+  it('checks every text the app shows, a pending change’s title and summary included, and no source title', () => {
+    const spaced = (text: string) => `${text}, taxed at 28 %`;
+    const base = profile();
+    const card = {
+      ...base.card,
+      rates: [{ ...base.card.rates[0], value: '28 %' }],
+      caveats: [spaced('A caveat')],
+      summary60: base.card.summary60.replace('28%', '28 %'),
+    };
+    const pendingChanges = [
+      {
+        title: spaced('A proposed law'),
+        status: 'proposed',
+        effectiveFrom: null,
+        summary: spaced('A rise'),
+        source: { ...source(CIRS), title: 'Lei n.º 1/2026 (taxa de 30 %)' },
+      },
+    ];
+    const sources = [{ ...keyed('pt-cirs', CIRS), title: 'Código do IRS, taxa de 28 % (artigo 72.º)' }];
+    const problems = validateContent([file(pt, profile({ card, pendingChanges, sources }))], options);
+    expect(
+      problems
+        .filter(({ code }) => code === 'percent-joiner')
+        .map(({ detail }) => detail)
+        .toSorted(),
+    ).toEqual(
+      ['card.caveats.0', 'card.rates.0.value', 'card.summary60', 'pendingChanges.0.summary', 'pendingChanges.0.title']
+        .map((field) => `${field}: "28 %" has U+0020, expected none`)
+        .toSorted(),
+    );
   });
 });
 
