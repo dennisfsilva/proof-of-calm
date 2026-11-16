@@ -271,9 +271,14 @@ describe('DataSection', () => {
     const { services, platform } = await mount(snapshot);
     const profile = await loadProfile('PT');
     if (profile === null) throw new Error('the content has Portugal');
-    // An override from 2000 makes the holding dates differ from those without rules.
+    // An override from 2000 makes the holding dates differ from those without rules; the rules hold the plan's own
+    // holding rule, which a content review may change in the profile (docs/ENGINEERING.md §2), so the override applies.
     const override = { acquiredFrom: '2000-01-01' as CalendarDate, note: 'test', rule: TEN_DAYS };
-    const rules = { ...countryRules(profile), holdingRuleOverrides: [override] };
+    const rules = {
+      ...countryRules(profile),
+      holdingRule: snapshot.plan.holdingRule,
+      holdingRuleOverrides: [override],
+    };
     // The previous country's rules stay loaded until the new ones arrive (ADR-0020 Readings).
     act(() => services.ui.getState().setRules({ country: 'DE', rules }));
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Export CSV log' })));
