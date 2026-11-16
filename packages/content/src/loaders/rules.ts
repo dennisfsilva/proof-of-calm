@@ -47,10 +47,9 @@ const isRulesCode = (code: string): code is ProfileCode => Object.hasOwn(RULES, 
 const english = async (code: ProfileCode) => (await RULES[code]()).default as CountryRules;
 
 // A language's chunk sits outside the worker's precache, so offline before it was ever fetched it fails to load:
-// the English file then answers, which holds the same holding rule, numbers and dates (ADR-0057), so Today then
-// shows the same holding rule, numbers and dates, in English words. The file is read inside the try: in a build,
-// Vite's preload wrapper resolves a failed import to undefined instead of rejecting it once a `vite:preloadError`
-// listener prevents the event's default, as the web host's chunk reload does (ADR-0057, Corrections of 2026-11-16).
+// the English file then answers; it holds the same holding rule, numbers and dates (ADR-0057), so on Today only the
+// words are English. Read the file inside the try: Vite's preload wrapper can resolve a failed import to undefined
+// (ADR-0057, Corrections of 2026-11-16).
 const inLanguage = async (code: ProfileCode, language: ContentLanguage) => {
   const files = language === 'en' ? undefined : TRANSLATED[language];
   if (files === undefined) return english(code);

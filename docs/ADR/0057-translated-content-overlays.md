@@ -135,8 +135,9 @@ generated rules files of each language.
 - **2026-11-16.** The entry above held in the unit tests but not in the build: a pt-PT boot with its
   `pt` rules chunk unreachable showed Plan without its holding line and Settings with its "not
   loaded on this device" line. In a build, Vite's preload wrapper dispatches `vite:preloadError` and
-  rethrows only when no listener prevents the event's default; the web host's chunk reload
-  (`apps/web/src/chunk-reload.ts`) prevents it, so the failed import resolves to undefined instead of
-  rejecting, and reading `.default` threw past the fallback. `loadRules` and `loadProfile` now read
-  the file inside the same `try`, so either shape of failure answers English and is not cached. Found
-  by the evaluator's offline run of the pt-PT checkpoint (#269).
+  rethrows only when no listener prevents the event's default. The web host's chunk reload
+  (`apps/web/src/chunk-reload.ts`) prevents it. The failed import then resolves to undefined instead
+  of rejecting, and reading `.default` threw outside the `catch`. `loadRules` and `loadProfile` now
+  read the file inside the same `try`, so a rejected import or one that resolves to undefined
+  answers English and is not cached. Found by the evaluator's offline run of the pt-PT checkpoint
+  (#269).
