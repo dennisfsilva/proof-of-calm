@@ -438,6 +438,11 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - A translated text that a record names is approved per wording version, not per language. #278's
   guard keys the approved texts by `RISK_WORDING_VERSION` (the integration read, confirmed by a
   refuter, 2026-11-16).
+- A fallback across a dynamic import is proven by an e2e case that aborts the chunk in the built
+  app. Vitest has no preload helper, so a unit test never sees what a failed import gives its
+  caller: the content loaders' fallback held in every unit test while the built app's import
+  resolved to `undefined` (#281, #285); `apps/web/e2e/import-failure.spec.ts` holds the sites
+  (2026-11-16).
 - A narrow-project spec of a translation is read on CI's Linux Chromium before the translation is
   called fit. #278's pt-PT Portfolio passed at zoom-125 on Windows and scrolled sideways on CI (run
   43803113963, 2026-11-16).
