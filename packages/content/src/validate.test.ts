@@ -1330,3 +1330,55 @@ describe('validateContent: translated overlays (ADR-0057)', () => {
     ]);
   });
 });
+
+describe('validateContent: no ";" in a text the tax-year header copies (docs/DOMAIN.md §3.13)', () => {
+  const pt = 'packages/content/jurisdictions/pt.json';
+  const SPLITS = 'a comma-decimal spreadsheet splits the header cell there (docs/DOMAIN.md §3.13)';
+  const refused = (field: string, excerpt: string) =>
+    `header-semicolon: ${field}: ${JSON.stringify(excerpt)}, ${SPLITS}`;
+  // The field of each refusal, for the cases whose excerpt is not the point.
+  const fields = (files: ContentFile[]) =>
+    validateContent(files, options).map(({ path, code, detail }) => `${path} ${code}: ${detail.split(':')[0]}`);
+
+  it('refuses a ";" at index 0 and at the end of the lot note, each with its field and an excerpt', () => {
+    expect(codes([file(pt, profile({ lotRuleNote: ';Lots are matched per platform.' }))])).toEqual([
+      refused('lotRuleNote', ';Lots are mat'),
+    ]);
+    expect(codes([file(pt, profile({ lotRuleNote: 'Lots are matched per platform;' }))])).toEqual([
+      refused('lotRuleNote', 'per platform;'),
+    ]);
+  });
+
+  it('refuses a run ";;" once, a ";" inside a condition and one in the name', () => {
+    const holdingRuleConditions = ['The counterparty is in the EU;; or the EEA.', 'Held 365 days; then exempt.'];
+    expect(fields([file(pt, profile({ name: 'Portugal; mainland', holdingRuleConditions }))])).toEqual([
+      `${pt} header-semicolon: name`,
+      `${pt} header-semicolon: holdingRuleConditions.0`,
+      `${pt} header-semicolon: holdingRuleConditions.1`,
+    ]);
+  });
+
+  it("refuses a ';' in the URL of a rule's source, which the review line writes, and passes another source's", () => {
+    const sources = [keyed('pt-cirs', `${CIRS};jsessionid=1`), keyed('pt-other', `${CIRS}/other;v=2`)];
+    expect(fields([file(pt, profile({ sources }))])).toEqual([`${pt} header-semicolon: sources.0.url`]);
+  });
+
+  it('passes a ";" in a text no header line takes (card.summary60, card.lotRuleText)', () => {
+    const card = {
+      ...profile().card,
+      lotRuleText: 'First in, first out; per platform.',
+      summary60: 'Purchases held for 365 days or more are tax-free when sold; gains on others are taxed at 28%.',
+    };
+    expect(codes([file(pt, profile({ card }))])).toEqual([]);
+  });
+
+  it("refuses a ';' in a pt-PT overlay's lot note with English clean, and repeats none of English's", () => {
+    const overlay = 'packages/content/i18n/pt-PT/jurisdictions/pt.json';
+    const note = { lotRuleNote: 'Os lotes casam por plataforma; primeiro a entrar, primeiro a sair.' };
+    expect(fields([file(pt, profile()), file(overlay, note)])).toEqual([`${overlay} header-semicolon: lotRuleNote`]);
+    const english = profile({ holdingRuleConditions: ['The counterparty is in the EU; or the EEA.'] });
+    expect(fields([file(pt, english), file(overlay, { name: 'Portugal' })])).toEqual([
+      `${pt} header-semicolon: holdingRuleConditions.0`,
+    ]);
+  });
+});
