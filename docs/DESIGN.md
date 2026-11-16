@@ -382,7 +382,15 @@ keyboard can scroll it, and becomes a region named by the `label` prop or the ca
 wrapper keeps both until it loses focus. A table with neither name gets the tab stop without the
 region and logs an error in development, so give every table that can scroll a caption or a label. The
 wrapper is padded by the focus ring's extent (§6) and pulled out by as much with a negative margin, so
-its overflow never clips a focused row's ring and the table keeps its place in the column. The
+its overflow never clips a focused row's ring and the table keeps its place in the column. A table
+that stacks (the Table's `stack` prop, which the Log passes; every chart's table view) lays each row's
+cells one under another while its columns side by side are wider than its box, as pt-PT's long dates
+are at 360 px and at 125 % text, and keeps its columns while they fit: a probe in the wrapper, as wide
+as the box and holding a hidden line of text, is measured against the table with `data-stacked`
+removed at every change of the box, the text size, the font, the rows or an enclosing `<details>`, in
+sub-pixels and before paint. Nothing is stored, since a stored width goes stale with every input it
+depends on (`docs/research/narrow-tables.md`, 2026-11-16). Stacked, only the cells become blocks, so
+assistive technology reads the same table; empty cells lose their padding. The
 charts draw the core's geometry as SVG attributes (positions, path data) and keep text in HTML: the
 CSP allows no inline style attributes (`docs/SECURITY.md` §4), and stretched SVG text would distort.
 The strip tells its phases apart by weight and by the labels under it; the accent marks today only.
