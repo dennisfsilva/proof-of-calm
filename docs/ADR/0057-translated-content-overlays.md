@@ -168,4 +168,6 @@ generated rules files of each language.
   `format.percent` (`docs/CONTENT-STYLE.md` §4). A translation therefore writes the same
   percentages, in the same order and with the same ordinary space before the sign, each value read
   with its own text's separators. A wrong value stays `overlay-number-mismatch` alone. Profiles keep
-  their own percent rules (the joiner and the separator, D8).
+  their own percent rules (the joiner and the separator, D8). The dependency rule's product folders
+  gain `packages/content/i18n/`, so `product-reaches-only-product` lets product code import an overlay
+  as it imports the English file beside it (`packages/config/dependency-cruiser.cjs`).
