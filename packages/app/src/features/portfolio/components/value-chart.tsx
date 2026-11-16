@@ -50,10 +50,12 @@ export function ValueChart({ currency, range, state }: ValueChartProps) {
       .catch(() => toasts.add({ title: t('failed'), timeout: UNDO_WINDOW_MS }));
   };
 
+  // At most the column's width: where a language's labels run wider than the page (pt-PT's Tudo at 125 % text on
+  // CI's fonts), each option gives up some of its padding, down to its 44 px target, instead of scrolling the page.
   const ranges = (
     <SegmentedControl
       aria-label={t('range')}
-      className="self-start"
+      className="max-w-full self-start"
       options={CHART_RANGES.map((value) => ({
         value,
         label: (
