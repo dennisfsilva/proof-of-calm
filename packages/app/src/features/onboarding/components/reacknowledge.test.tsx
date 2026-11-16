@@ -173,10 +173,16 @@ describe('reacknowledge', () => {
     expect(planStore.current().prefs).toEqual(once.prefs);
   });
 
-  it('records en under pt-PT, whose re-ask shows the English text until counsel approves one', async () => {
+  it('records en under German, whose re-ask shows the English text until counsel approves one', async () => {
+    const { planStore, services: tab } = await services();
+    await act(() => reacknowledge({ ...tab, language: 'de' }, 2));
+    expect(planStore.current().plan).toMatchObject({ riskWordingVersion: 2, riskLanguage: 'en' });
+  });
+
+  it('records pt-PT under pt-PT, whose own text counsel approved', async () => {
     const { planStore, services: tab } = await services();
     await act(() => reacknowledge({ ...tab, language: 'pt-PT' }, 2));
-    expect(planStore.current().plan).toMatchObject({ riskWordingVersion: 2, riskLanguage: 'en' });
+    expect(planStore.current().plan).toMatchObject({ riskWordingVersion: 2, riskLanguage: 'pt-PT' });
   });
 
   it('writes nothing with nothing recorded or no plan', async () => {

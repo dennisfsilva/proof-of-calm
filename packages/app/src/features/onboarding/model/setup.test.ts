@@ -100,18 +100,30 @@ describe('startPlan (docs/DOMAIN.md §5)', () => {
     expect(writtenPlan(result.value).schemaVersion).toBe(3);
   });
 
-  it('records en when the onboarding text shows English under pt-PT', async () => {
+  it('records en when the onboarding text shows English under another UI language', async () => {
     const context = { profile: await profile('PT'), template: template('two-coins'), numberInput, today, now };
     const typed = draft({ country: 'PT', templateId: 'two-coins' });
-    // pt-PT has no approved disclosure text yet (RISK_WORDING_LANGUAGES), so onboarding shows the English one.
-    expect(RISK_WORDING_LANGUAGES).not.toContain('pt-PT');
-    const result = startPlan(typed, { ...context, language: 'pt-PT' });
+    // German has no approved disclosure text (RISK_WORDING_LANGUAGES), so onboarding shows the English one.
+    expect(RISK_WORDING_LANGUAGES).not.toContain('de');
+    const result = startPlan(typed, { ...context, language: 'de' });
     expect(result.ok && result.value.riskLanguage).toBe('en');
+    expect(result.ok && writtenPlan(result.value).schemaVersion).toBe(3);
     const own = startCustomPlan(draft({ country: 'PT', path: 'custom', coins: coins('60', '40') }), {
       ...context,
-      language: 'pt-PT',
+      language: 'de',
     });
     expect(own.ok && own.value.riskLanguage).toBe('en');
+    // A list without pt-PT, as before counsel's approval, records en under pt-PT too.
+    const unapproved = startPlan(typed, { ...context, language: 'pt-PT', riskLanguages: ['en'] });
+    expect(unapproved.ok && unapproved.value.riskLanguage).toBe('en');
+  });
+
+  it('records pt-PT under pt-PT with the approved list', async () => {
+    const context = { profile: await profile('PT'), template: template('two-coins'), numberInput, today, now };
+    expect(RISK_WORDING_LANGUAGES).toContain('pt-PT');
+    const result = startPlan(draft({ country: 'PT', templateId: 'two-coins' }), { ...context, language: 'pt-PT' });
+    expect(result.ok && result.value.riskLanguage).toBe('pt-PT');
+    expect(result.ok && writtenPlan(result.value).schemaVersion).toBe(4);
   });
 
   it('records the UI language when it is approved and loaded', async () => {

@@ -1197,9 +1197,9 @@ describe('idb plan store: the row versions this build may write (docs/RELEASE.md
   const carried =
     'docs/RELEASE.md, Versioning: the newer-version screen ships in a release before any release writes plans above v3, entries above v4 or encVersion above 0';
 
-  it('reads plans at v4 but writes v4 only for a language other than English, none approved yet; entries at v4 at most, in plain text', async () => {
+  it('reads plans at v4 and writes v4 only for a language other than English, pt-PT approved; entries at v4 at most, in plain text', async () => {
     expect(ROW_SCHEMA_VERSIONS, carried).toEqual({ plans: 4, entries: 4 });
-    expect(RISK_WORDING_LANGUAGES, carried).toEqual(['en']);
+    expect(RISK_WORDING_LANGUAGES, carried).toEqual(['en', 'pt-PT']);
     const plan = aPlan({ riskAcknowledgedAt: instant('2026-10-17T08:30:00.000Z'), riskWordingVersion: 1 });
     await open().write({ plan, entries: [anEntry()] });
     const rows = [...(await raw('plans')), ...(await raw('entries'))] as { encVersion: number }[];

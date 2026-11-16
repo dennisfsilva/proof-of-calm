@@ -34,7 +34,7 @@ import { epochMs } from '../clock';
  * The latest payload schema version each store reads and writes (docs/DOMAIN.md §2), so a reader knows
  * which shape a row holds. Plans are read at v2 and v3 (through `upgradePlan`) and v4, and written at the lowest
  * version that holds them (`writtenPlan`: v3 once an acknowledgement is recorded, v4 only for one in another
- * language than English, which no approved text gives yet: `RISK_WORDING_LANGUAGES`). Entries are read at
+ * language than English, which an approved text gives: `RISK_WORDING_LANGUAGES`). Entries are read at
  * v2, v3 and v4, which share one payload shape, and written the same way (`writtenEntryVersion`: v4 only for
  * a move, which the previous build does not know, v3 for coins held, which the build before it does not know).
  */

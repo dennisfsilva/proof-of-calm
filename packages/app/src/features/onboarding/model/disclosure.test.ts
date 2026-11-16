@@ -3,6 +3,7 @@ import { RISK_WORDING_LANGUAGES, RISK_WORDING_VERSION, riskWordingLanguage } fro
 import { UI_LANGUAGES } from '../../../lib/i18n/locale';
 import { NAMESPACE_LOADERS } from '../../../lib/i18n/namespaces';
 import onboarding from '../messages/en.json';
+import onboardingPt from '../messages/pt-PT.json';
 
 // The plan-creation disclosure is acknowledged with its wording version (docs/LEGAL.md §4, docs/DOMAIN.md
 // §2.1): a plan records the version it was started under, so the words of a version never change.
@@ -13,6 +14,15 @@ const VERSION_1 =
   'Bitcoin has fallen more than 75 % from a high four times since 2011; Ethereum fell 94 % in 2018. ' +
   'Use only money you will not need for years.';
 
+/** Version 1 in pt-PT, the text counsel approved as the English text's equal (docs/LEGAL.md §4). */
+const VERSION_1_PT =
+  'A {product} é software para um plano seu: sem ordens nem aconselhamento financeiro ou fiscal. Pode perder tudo: ' +
+  'desde 2011, a bitcoin caiu em 4 ocasiões mais de 75% face a um máximo; o ether caiu 94% em 2018. ' +
+  'Use apenas dinheiro de que não precise durante anos.';
+
+/** Words as shown, with `{product}` as the three words of the product's name. */
+const words = (text: string) => text.replace('{product}', 'Proof of Calm').split(/\s+/).filter(Boolean).length;
+
 describe('the plan-creation disclosure', () => {
   it('is the text of its wording version', () => {
     expect(RISK_WORDING_VERSION).toBe(1);
@@ -20,6 +30,15 @@ describe('the plan-creation disclosure', () => {
       onboarding.disclosure.text,
       'The acknowledged text changed: raise RISK_WORDING_VERSION, then record the new text here as that version.',
     ).toBe(VERSION_1);
+  });
+
+  it('is the approved text of its wording version in pt-PT, in 40 to 50 words', () => {
+    expect(
+      onboardingPt.disclosure.text,
+      "The pt-PT text changed: it needs counsel's approval and a new RISK_WORDING_VERSION.",
+    ).toBe(VERSION_1_PT);
+    expect(words(VERSION_1_PT)).toBeGreaterThanOrEqual(40);
+    expect(words(VERSION_1_PT)).toBeLessThanOrEqual(50);
   });
 });
 
@@ -42,7 +61,8 @@ describe('the languages of the plan-creation disclosure', () => {
 
   it("every other language's generated file shows the English text, and a language without one loads English", () => {
     const others = UI_LANGUAGES.filter((language) => !RISK_WORDING_LANGUAGES.includes(language));
-    expect(others).toContain('pt-PT');
+    expect(others).toContain('de');
+    expect(others).not.toContain('pt-PT');
     for (const [path, file] of Object.entries(merged)) {
       if (others.includes(tag(path) as never)) expect(file.disclosure.text, path).toBe(onboarding.disclosure.text);
     }
@@ -54,8 +74,8 @@ describe('the languages of the plan-creation disclosure', () => {
 
   it('records the language shown when it is approved, else en', () => {
     expect(riskWordingLanguage('en')).toBe('en');
-    expect(riskWordingLanguage('pt-PT')).toBe('en');
+    expect(riskWordingLanguage('pt-PT')).toBe('pt-PT');
     expect(riskWordingLanguage('de')).toBe('en');
-    expect(riskWordingLanguage('pt-PT', ['en', 'pt-PT'])).toBe('pt-PT');
+    expect(riskWordingLanguage('pt-PT', ['en'])).toBe('en');
   });
 });
