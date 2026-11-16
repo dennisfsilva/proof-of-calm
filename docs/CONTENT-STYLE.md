@@ -173,10 +173,10 @@ The Portuguese rows (decided 2026-11-15; the voice is §9):
 
   | Refused | Write instead |
   |---|---|
-  | `As bitcoins compradas hoje deixam de ser tributadas desde que as mantenha durante 365 dias` | `As bitcoins compradas hoje deixam de ser tributadas se as mantiver durante 365 dias` |
+  | `As mais-valias das bitcoins compradas hoje ficam excluídas de tributação desde que as mantenha durante pelo menos 365 dias` | `As mais-valias das bitcoins compradas hoje ficam excluídas de tributação se as mantiver durante pelo menos 365 dias` |
   | `Uma transferência de bitcoins não autorizada por si não pode ser anulada` | `Uma transferência de bitcoins que não autorizou não pode ser anulada` |
   | `Acesso não autorizado por terceiros` | `Acesso de terceiros sem a sua autorização` |
-  | `Caso venda BTC antes de 2 de março de 2027, a mais-valia é tributada a 28%` | `Caso o BTC seja vendido antes de 2 de março de 2027, a mais-valia é tributada a 28%` |
+  | `Caso venda BTC antes de 2 de março de 2027, a mais-valia é tributada` | `Numa venda de BTC antes de 2 de março de 2027, a mais-valia é tributada` |
   | `Vender BTC antes de 2 de março de 2027 torna a mais-valia tributável` | `Uma venda de BTC antes de 2 de março de 2027 torna a mais-valia tributável` |
   | `Nesta data, a venda de BTC é tributada` | `Nesta data, uma venda de BTC é tributada` |
   | `Venda de 0,1 BTC registada` | `Uma venda de 0,1 BTC registada` |

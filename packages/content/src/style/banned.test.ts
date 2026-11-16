@@ -560,7 +560,7 @@ describe('findBanned in Portuguese: the gaps and over-catches of the second revi
       'Comprar BTC: 100 € por mês.',
       'Manter BTC até 2029.',
       'Vender BTC antes de 2 de março de 2027 torna a mais-valia tributável.',
-      'Caso venda BTC antes de 2 de março de 2027, a mais-valia é tributada a 28%.',
+      'Caso venda BTC antes de 2 de março de 2027, a mais-valia é tributada.',
       'Desde que não venda as bitcoins antes de 365 dias, a mais-valia não é tributada.',
       'Se comprasse BTC hoje, teria mais.',
       'Troque o seu ETH por BTC.',

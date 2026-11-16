@@ -1093,7 +1093,7 @@ describe('validateContent: messages and other files', () => {
       button: 'Registar compra',
       taxName: 'Imposto sobre mais-valias de 28%.',
       exempt: 'As mais-valias não são tributadas se mantiver as bitcoins durante 365 dias.',
-      early: 'Caso o BTC seja vendido antes de 2 de março de 2027, a mais-valia é tributada a 28%.',
+      early: 'Numa venda de BTC antes de 2 de março de 2027, a mais-valia é tributada.',
       sale: 'A venda de 3 de março de 2027: 0,1 BTC',
     };
     expect(codes([file(today, correct)])).toEqual([]);

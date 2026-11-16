@@ -1037,7 +1037,7 @@ const NEEDED: string[] = [
   'Uma venda de BTC antes de 365 dias torna a mais-valia tributável.',
   'Última compra não tributada',
   '0,00094 BTC (estimado)',
-  'As bitcoins compradas hoje deixam de ser tributadas se as mantiver durante 365 dias.',
+  'As mais-valias das bitcoins compradas hoje ficam excluídas de tributação se as mantiver durante pelo menos 365 dias.',
   'Uma transferência de bitcoins que não autorizou não pode ser anulada.',
   'Acesso de terceiros sem a sua autorização.',
   'Se as bitcoins forem vendidas antes de 365 dias, a mais-valia é tributada.',
@@ -1045,7 +1045,7 @@ const NEEDED: string[] = [
   'Registe cada venda de BTC no Registo.',
   'As bitcoins compradas a partir de hoje cumprem a regra de detenção 365 dias depois.',
   '0,1 BTC vendidos em 3 nov. 2026',
-  'A isenção para as bitcoins detidas 365 dias ou mais não muda.',
+  'A exclusão de tributação para as bitcoins detidas 365 dias ou mais não muda.',
   'Quem detém criptoativos tem de declarar as vendas isentas.',
   'Uma carteira física guarda as chaves das suas bitcoins fora da internet.',
   'BTC à venda',
@@ -1258,13 +1258,13 @@ const NEEDED: string[] = [
   'As suas bitcoins estão numa corretora? Uma corretora pode falir, com as moedas dos clientes lá dentro.',
   'Este plano detém ETH até 2029. Sem janela de venda, a fase de detenção não tem data de fim.',
   'A bitcoin caiu 30 % numa semana. Vender agora não faz parte do plano.',
-  'Comprou BTC em 1 de março de 2026. A venda é isenta a partir de 1 de março de 2027.',
-  'Tem ETH há menos de 365 dias. Se o vender agora, a mais-valia é tributada a 28 %.',
+  'Comprou BTC em 1 de março de 2026. A mais-valia de uma venda não é tributada a partir de 1 de março de 2027.',
+  'Tem ETH há menos de 365 dias. A mais-valia de uma venda antes dos 365 dias é tributada.',
 ];
 const REWORDED: [string, string][] = [
   [
-    'As bitcoins compradas hoje deixam de ser tributadas desde que as mantenha durante 365 dias.',
-    'As bitcoins compradas hoje deixam de ser tributadas se as mantiver durante 365 dias.',
+    'As mais-valias das bitcoins compradas hoje ficam excluídas de tributação desde que as mantenha durante pelo menos 365 dias.',
+    'As mais-valias das bitcoins compradas hoje ficam excluídas de tributação se as mantiver durante pelo menos 365 dias.',
   ],
   [
     'Uma transferência de bitcoins não autorizada por si não pode ser anulada.',
@@ -1283,8 +1283,8 @@ const REWORDED: [string, string][] = [
   ],
   ['Venda registada: 0,1 BTC', '0,1 BTC vendidos em 3 nov. 2026'],
   [
-    'Mantém-se a isenção para as bitcoins detidas 365 dias ou mais.',
-    'A isenção para as bitcoins detidas 365 dias ou mais mantém-se.',
+    'Mantém-se a exclusão de tributação para as bitcoins detidas 365 dias ou mais.',
+    'A exclusão de tributação para as bitcoins detidas 365 dias ou mais mantém-se.',
   ],
   ['Quando vender BTC, registe a venda no Registo.', 'Registe cada venda de BTC no Registo.'],
   [
@@ -1318,13 +1318,13 @@ const REWORDED: [string, string][] = [
     'As unidades de BTC vendidas antes de 365 dias são tributadas a 28%.',
   ],
   [
-    'A regra diz que a venda de unidades de BTC detidas há 365 dias ou mais está isenta.',
-    'A regra diz que uma venda de unidades de BTC detidas há 365 dias ou mais está isenta.',
+    'A regra diz que a venda de unidades de BTC detidas há 365 dias ou mais não é tributada.',
+    'A regra diz que a mais-valia de uma venda de unidades de BTC detidas há 365 dias ou mais não é tributada.',
   ],
   ['Sempre que compre BTC, registe a compra no Registo.', 'Registe cada compra de BTC no Registo.'],
   [
-    'A mais-valia está isenta desde que mantenha as bitcoins durante 365 dias.',
-    'A mais-valia está isenta se mantiver as bitcoins durante 365 dias.',
+    'A mais-valia não é tributada desde que mantenha as bitcoins durante 365 dias.',
+    'A mais-valia não é tributada se mantiver as bitcoins durante 365 dias.',
   ],
   [
     'As bitcoins que mantenha durante 365 dias ou mais estão excluídas de tributação.',
@@ -1341,8 +1341,8 @@ const REWORDED: [string, string][] = [
     'A app não lhe dá datas de compra, de venda ou de detenção de bitcoins.',
   ],
   [
-    'Se vender BTC antes de 365 dias, a mais-valia é tributada a 28 %.',
-    'Se o BTC for vendido antes de 365 dias, a mais-valia é tributada a 28 %.',
+    'Se vender ETH antes de 365 dias, a mais-valia é tributada.',
+    'Se o ETH for vendido antes de 365 dias, a mais-valia é tributada.',
   ],
   ['Compra e venda de criptoativos', 'A compra e a venda de criptoativos'],
   ['Compra de BTC registada a 16 out. 2026.', 'Registada a compra de BTC de 16 out. 2026.'],
@@ -1424,8 +1424,8 @@ const REWORDED: [string, string][] = [
     'Numa troca de BTC por ETH, começa um novo período de detenção para o ETH recebido.',
   ],
   [
-    'Se vendesse BTC hoje, a mais-valia seria tributada a 28 %.',
-    'Uma venda de BTC hoje tornaria a mais-valia tributável a 28 %.',
+    'Se vendesse BTC hoje, a mais-valia seria tributada.',
+    'Uma venda de BTC hoje tornaria a mais-valia tributável.',
   ],
   ['Aconselha-se a confirmação junto de um contabilista local.', 'Confirme junto de um contabilista local.'],
 ];
