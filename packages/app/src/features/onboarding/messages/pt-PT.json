@@ -39,7 +39,7 @@
     "issue": {
       "no-amount": "Introduza um montante mensal, um montante inicial ou ambos.",
       "amount-precision": "Use no máximo {max} casas decimais.",
-      "last-buy-before-first-buy": "{field, select, firstBuy {Escolha uma primeira compra até {date}, a última compra deste ponto de partida.} other {Escolha uma última compra no dia da primeira compra ou depois.}}",
+      "last-buy-before-first-buy": "{field, select, firstBuy {Escolha uma primeira compra até {date}, a última compra deste ponto de partida.} other {Escolha uma última compra a partir da primeira compra.}}",
       "plan-too-long": "{field, select, firstBuy {Um plano tem no máximo {max} compras mensais. Escolha uma data posterior para a primeira compra.} other {Um plano tem no máximo {max} compras mensais. Escolha uma data anterior para a última compra.}}"
     }
   },
