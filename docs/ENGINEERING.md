@@ -97,7 +97,7 @@ since sessions are renumbered when one is inserted.
 | Core unit | every exported function, every error code; 100 % statements and branches | `packages/core/src/**/*.test.ts` |
 | Core property | slot generation, planned-parts splitting, eligibility monotonicity, portfolio identities, lot conservation, sync convergence (M3) | `*.property.test.ts`, or `fc.property` cases in the module's own `*.test.ts`, with `fast-check` |
 | Core golden | the prototype's outputs on the same data | `packages/core/test/golden/` |
-| Content | every data file validates; front matter complete; banned words absent | `packages/content/src/*.test.ts` |
+| Content | every data file validates; front matter complete; banned words absent | `packages/content/src/**/*.test.ts` |
 | Component | every stateful component: form, coin editor, range selector, toast with undo, onboarding steps | `features/**/*.test.tsx`; `packages/ui/src/components/*.test.tsx` (jsdom per file) |
 | Storybook | every component at 360 px and 1280 px, light and dark; axe; a story per component is asserted by a test | `*.stories.tsx` + test runner |
 | End to end | every user flow on every viewport project | `apps/web/e2e/` |

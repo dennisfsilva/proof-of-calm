@@ -11,7 +11,7 @@ files in `.claude/rules/`; the process itself is the crew plugin (ADR-0046).
 | `ROADMAP.md` | Milestones M0–M5 with acceptance criteria and the tests that prove them |
 | `DOMAIN.md` | The behavioural specification of `packages/core`, extracted from the prototype and extended |
 | `ARCHITECTURE.md` | Repository layout, package boundaries, the dependency rule, feature folders, naming |
-| `ENGINEERING.md` | Code design principles with examples, what must have a test per layer, the responsiveness regime, the budgets |
+| `ENGINEERING.md` | Code design principles with examples, what must have a test per layer and what a test of content data may assert, the responsiveness regime, the budgets |
 | `DESIGN.md` | The brand system: tokens in OKLCH, type, spacing, radius, motion, chart palette, components |
 | `CONTENT-STYLE.md` | Voice and tone, microcopy, the banned-words list, the copy-review checklist, and the Portuguese (pt-PT) voice and nouns |
 | `EDUCATION.md` | The seven Learn modules, the simulator, the Red day page, with sourced facts |
