@@ -1,10 +1,14 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { CountryRulesSchema, holdingStatus, suggestCountry } from '@proofofcalm/core';
 import { date } from '@proofofcalm/core/testing';
 import { describe, expect, it, vi } from 'vitest';
+import { CONTENT_LANGUAGES } from '../i18n/overlay.ts';
 import { CountryProfileSchema } from '../schema/jurisdiction.ts';
 import {
   COUNTRY_CODES,
+  PROFILE_OVERLAYS,
   countryChoices,
   countryRules,
   GENERIC_COUNTRY,
@@ -51,6 +55,58 @@ describe('loadProfile and loadProfiles', () => {
     await fresh.loadProfiles();
     expect(fresh.loadedProfile('DE')?.code).toBe('DE');
     expect(fresh.loadedProfile('ZZ')).toBeNull();
+  });
+});
+
+describe('loadProfile and loadProfiles in a content language (ADR-0057)', () => {
+  const I18N = fileURLToPath(new URL('../../i18n/', import.meta.url));
+  const overlayCodes = (language: string) => {
+    const folder = join(I18N, language, 'jurisdictions');
+    return existsSync(folder)
+      ? readdirSync(folder)
+          .filter((name) => name.endsWith('.json'))
+          .map((name) => name.slice(0, -'.json'.length).toUpperCase())
+          .sort()
+      : [];
+  };
+  it('holds PROFILE_OVERLAYS to the files under i18n/<language>/jurisdictions, one record per overlay language', () => {
+    expect(Object.keys(PROFILE_OVERLAYS).sort()).toEqual(CONTENT_LANGUAGES.filter((code) => code !== 'en').sort());
+    for (const [language, overlays] of Object.entries(PROFILE_OVERLAYS)) {
+      expect(Object.keys(overlays).sort(), language).toEqual(overlayCodes(language));
+    }
+  });
+
+  it('answers the English profile itself in English and in a language without a translation of the file', async () => {
+    const english = await loadProfile('PT');
+    expect(await loadProfile('PT', 'en')).toBe(english);
+    expect(await loadProfile('PT', 'de')).toBe(english);
+    expect(await loadProfiles('de')).toEqual(profiles);
+    expect(await loadProfile('ZZ', 'pt-PT')).toBeNull();
+  });
+
+  it('lays a translation over the English file, which loadedProfile then answers in that language alone', async () => {
+    vi.resetModules();
+    const fresh = await import('./countries.ts');
+    fresh.PROFILE_OVERLAYS['pt-PT'].PT = async () => ({ default: { name: 'Portugal (pt)', code: 'ES' } });
+    const translated = await fresh.loadProfile('PT', 'pt-PT');
+    expect(translated?.name).toBe('Portugal (pt)');
+    expect(translated?.code).toBe('PT');
+    expect(fresh.loadedProfile('PT', 'pt-PT')).toBe(translated);
+    expect(fresh.loadedProfile('PT')?.name).toBe(fileOf('PT').name);
+    expect((await fresh.loadProfiles('pt-PT')).find(({ code }) => code === 'PT')).toBe(translated);
+  });
+
+  it("answers the English profile when a translation's chunk fails to load (offline before it was fetched)", async () => {
+    vi.resetModules();
+    const fresh = await import('./countries.ts');
+    fresh.PROFILE_OVERLAYS['pt-PT'].PT = () => Promise.reject(new TypeError('Failed to fetch dynamically imported module'));
+    const english = await fresh.loadProfile('PT');
+    expect(await fresh.loadProfile('PT', 'pt-PT')).toBe(english);
+    expect(fresh.loadedProfile('PT', 'pt-PT')).toBeNull();
+    expect((await fresh.loadProfiles('pt-PT')).find(({ code }) => code === 'PT')).toBe(english);
+    // Online again: the next load takes the translation.
+    fresh.PROFILE_OVERLAYS['pt-PT'].PT = async () => ({ default: { name: 'Portugal (pt)' } });
+    expect((await fresh.loadProfile('PT', 'pt-PT'))?.name).toBe('Portugal (pt)');
   });
 });
 

@@ -2,6 +2,7 @@
 // loaders import types only from the schemas, so an app that uses them ships the data without zod. The one
 // exception is the Learn modules' parser, which needs zod at run time: it is the subpath `./modules`, and
 // this index exports only its types.
+export { CONTENT_LANGUAGES, type ContentLanguage, type OverlayLanguage } from './i18n/overlay.ts';
 export * from './loaders/coins.ts';
 export * from './loaders/countries.ts';
 export * from './loaders/locales.ts';
