@@ -228,10 +228,11 @@ The finish refuses a changed entry at any other value.
    name its file and line and both values in the draft's notes and your closing report, and say in
    both that `verify` fails on `pnpm test` until the owner removes that assertion in a pull request
    of its own (`docs/ENGINEERING.md` §2). When a translation's figure still does not match
-   after that, revert neither the English change nor the translation's edit: name the figure, its
-   path and the values the check prints in the draft's notes and in your closing report, and say
-   in both that the pull request's `verify` check fails on `pnpm validate:content` until that figure
-   is fixed (the finish does not run the check, CI does).
+   after you change it and run the checks again, revert neither the English change nor the
+   translation's edit: name the figure, its path and the values the check prints in the draft's
+   notes and in your closing report, and say in both that the pull request's `verify` check fails
+   on `pnpm validate:content` until that figure is fixed (the finish does not run the check, CI
+   does).
    Only `pnpm run validate:content` checks the translations' figures and reports
    `overlay-number-mismatch`; the content test never does. `rules` reports the files it wrote,
    changed or not; the test, which fails on a stale rules file, English or a locale's, is the check
