@@ -154,7 +154,11 @@ describe('overlayProblems', () => {
     expect(numbersIn('12,2–48% by bracket', 'en', 'pt-PT')).toEqual(['12.2', '48']);
     expect(numbersIn('12–48,5% by bracket', 'en', 'pt-PT')).toEqual(['12', '48.5']);
     expect(numbersIn('12,2-48,5%', 'en', 'pt-PT')).toEqual(['12.2', '48.5']);
-    expect(numbersIn('2,5 to 13,3%', 'en', 'pt-PT')).toEqual(['13.3', '2.5']);
+    // Only an unspaced dash or hyphen joins a range (#290): a `to` range writes its sign on each figure.
+    expect(numbersIn('2,5% to 13,3%', 'en', 'pt-PT')).toEqual(['13.3', '2.5']);
+    expect(numbersIn('2,5 to 13,3%', 'en', 'pt-PT')).toEqual(['13.3', '2', '5']);
+    expect(numbersIn('Art. 33.1 to 28% applies.', 'en', 'pt-PT')).toEqual(['28', '33.1']);
+    expect(numbersIn('Quadro 9.4-12-28%', 'en', 'pt-PT')).toEqual(['12', '28', '9.4']);
     expect(numbersIn('12.2–48% by bracket', 'en', 'en-GB')).toEqual(['12.2', '48']);
     expect(numbersIn('Art. 33.1 – 28% flat', 'en', 'pt-PT')).toEqual(['28', '33.1']);
     const rate = (en: string, translated: string) =>

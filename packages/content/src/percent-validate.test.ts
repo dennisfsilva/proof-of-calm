@@ -47,9 +47,6 @@ describe('a profile’s literal decimals follow its page’s number locale (docs
     expect(english(pt, '12.2–48% by bracket')).toEqual(['card.caveats.0: "12.2–48%" writes ".", expected "," (pt-PT)']);
     expect(english(pt, '12–48.5% by bracket')).toEqual(['card.caveats.0: "12–48.5%" writes ".", expected "," (pt-PT)']);
     expect(english(pt, '12.2-48.5%')).toEqual(['card.caveats.0: "12.2-48.5%" writes ".", expected "," (pt-PT)']);
-    expect(english(pt, 'from 2.5 to 13,3%')).toEqual([
-      'card.caveats.0: "2.5 to 13,3%" writes ".", expected "," (pt-PT)',
-    ]);
     expect(english(pt, '12,2–48% by bracket, 2,5% to 13,3%')).toEqual([]);
     expect(english(gb, '12.2–48% by bracket')).toEqual([]);
     expect(english(gb, '12,2–48%')).toEqual(['card.caveats.0: "12,2–48%" writes ",", expected "." (en-GB)']);
@@ -58,6 +55,20 @@ describe('a profile’s literal decimals follow its page’s number locale (docs
   it('keeps the point of a law citation beside a percentage, a spaced dash between them', () => {
     expect(english(pt, 'Art. 33.1 – 28% flat; Quadro 9.4 lists 12,2–48%.')).toEqual([]);
     expect(english(pt, 'Under art. 72.1, 28%.')).toEqual([]);
+  });
+
+  // #290, round 2: only an unspaced dash or hyphen joins a range, of two figures; a `to` range writes its sign on each
+  // figure, which the single-percentage reading covers.
+  it('reads `to` and a spaced dash as prose, and a range as two figures at most', () => {
+    expect(english(pt, 'Art. 33.1 to 28% applies.')).toEqual([]);
+    expect(english(gb, 'GBP 3,000 to 20% applies.')).toEqual([]);
+    expect(english(pt, 'Quadro 9.4-12-28%')).toEqual([]);
+    expect(english(pt, '2,5% to 13,3%')).toEqual([]);
+    expect(english(pt, 'Art. 33.1 – 28%')).toEqual([]);
+    // A citation joined to a percentage by an unspaced hyphen reads as a range, so the copy writes them apart.
+    expect(english(pt, 'Art. 33.1-28%')).toEqual(['card.caveats.0: "33.1-28%" writes ".", expected "," (pt-PT)']);
+    // A gap the copy review owns (docs/BUILD-PROMPT.md): the left figure of a `to` range without its sign is prose.
+    expect(english(pt, 'from 2.5 to 13,3%')).toEqual([]);
   });
 
   it('refuses a point in a pt-PT overlay’s text for Portugal, and holds a German overlay to de-DE', () => {
