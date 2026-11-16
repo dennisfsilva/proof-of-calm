@@ -250,7 +250,7 @@ export async function downloadTaxYear(
 ): Promise<boolean> {
   const loaded = services.ui.getState().rules;
   const rules = loaded !== null && loaded.country === plan.country ? loaded.rules : null;
-  const profile = rules === null ? null : await loadProfile(rules.code);
+  const profile = rules === null ? null : await loadProfile(rules.code, services.language);
   if (rules === null || profile === null) throw new Error("the country's rules or profile are not loaded");
   const today = services.ui.getState().today;
   const span = taxYearSpan(rules.taxYear, endingIn);

@@ -7,13 +7,18 @@ import { useProfile, useProfileLoad } from './use-profile';
 // The content module over fakes: `loaded` is what a load has already read, `arriving` what a load elsewhere
 // finishes between the first read and the next, `pending` the loads in flight, each resolved by the test.
 // Hoisted, since the mock factory runs while the imports above are resolved.
-const { loaded, arriving, pending } = vi.hoisted(() => ({
+const { loaded, arriving, pending, boot, asked } = vi.hoisted(() => ({
   loaded: new Map<string, unknown>(),
   arriving: new Map<string, unknown>(),
   pending: new Map<string, (profile: unknown) => void>(),
+  // The services' boot language, and the language each read and load asked for (ADR-0057).
+  boot: { language: 'en' },
+  asked: [] as string[],
 }));
+vi.mock('./provider', () => ({ useServices: () => ({ language: boot.language }) }));
 vi.mock('@proofofcalm/content', () => ({
-  loadedProfile: (code: string) => {
+  loadedProfile: (code: string, language: string) => {
+    asked.push(`loadedProfile ${code} ${language}`);
     const known = loaded.get(code);
     if (known !== undefined) return known;
     const late = arriving.get(code);
@@ -23,8 +28,9 @@ vi.mock('@proofofcalm/content', () => ({
     }
     return null;
   },
-  loadProfile: (code: string) =>
+  loadProfile: (code: string, language: string) =>
     new Promise((resolve) => {
+      asked.push(`loadProfile ${code} ${language}`);
       pending.set(code, resolve);
     }),
 }));
@@ -41,6 +47,8 @@ afterEach(() => {
   loaded.clear();
   arriving.clear();
   pending.clear();
+  asked.length = 0;
+  boot.language = 'en';
 });
 
 function Probe({ code }: { code: string | undefined }) {
@@ -138,5 +146,13 @@ describe('useProfile', () => {
     loaded.set('PT', PT);
     rerender(<SettledProbe code="PT" />);
     expect(screen.getByRole('status').textContent).toBe('Portugal settled');
+  });
+
+  it('reads and loads the profile in the boot language', async () => {
+    boot.language = 'pt-PT';
+    render(<Probe code="DE" />);
+    await resolve('DE', DE);
+    expect(screen.getByRole('status').textContent).toBe('Germany');
+    expect(new Set(asked)).toEqual(new Set(['loadedProfile DE pt-PT', 'loadProfile DE pt-PT']));
   });
 });

@@ -14,14 +14,27 @@ import type * as Namespaces from '../i18n/namespaces';
 type ContentModule = typeof Content;
 type NamespacesModule = typeof Namespaces;
 
-/** `@proofofcalm/content` with `loadProfile` and `loadProfiles` answered from the profiles loaded once. */
+type Profile = Awaited<ReturnType<ContentModule['loadProfiles']>>[number];
+
+/**
+ * `@proofofcalm/content` with `loadProfile` and `loadProfiles` answered from the profiles loaded once, in each
+ * content language (ADR-0057).
+ */
 export async function profilesInMemory(content: ContentModule): Promise<ContentModule> {
-  const profiles = await content.loadProfiles();
-  const byCode = new Map<string, (typeof profiles)[number]>(profiles.map((profile) => [profile.code, profile]));
+  const languages = await Promise.all(
+    content.CONTENT_LANGUAGES.map(async (language) => [language, await content.loadProfiles(language)] as const),
+  );
+  const byLanguage = new Map(languages);
+  const byCode = new Map(
+    languages.map(([language, profiles]) => [
+      language,
+      new Map<string, Profile>(profiles.map((profile) => [profile.code, profile])),
+    ]),
+  );
   return {
     ...content,
-    loadProfile: async (code: string) => byCode.get(code) ?? null,
-    loadProfiles: async () => [...profiles],
+    loadProfile: async (code: string, language = 'en') => byCode.get(language)?.get(code) ?? null,
+    loadProfiles: async (language = 'en') => [...(byLanguage.get(language) ?? [])],
   };
 }
 

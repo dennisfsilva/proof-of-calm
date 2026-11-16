@@ -11,6 +11,14 @@ describe('profilesInMemory', () => {
     expect(await memory.loadProfile('ZZ')).toBeNull();
     expect(memory.countryRules).toBe(content.countryRules);
   });
+
+  it('answers each content language as the loader does (ADR-0057)', async () => {
+    const memory = await profilesInMemory(content);
+    for (const language of content.CONTENT_LANGUAGES) {
+      expect(await memory.loadProfiles(language)).toEqual(await content.loadProfiles(language));
+      expect(await memory.loadProfile('PT', language)).toEqual(await content.loadProfile('PT', language));
+    }
+  });
 });
 
 describe('namespacesInMemory', () => {

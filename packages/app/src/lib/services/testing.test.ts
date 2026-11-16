@@ -1,7 +1,13 @@
+import { loadProfiles } from '@proofofcalm/content';
 import { ok } from '@proofofcalm/core';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { fixtureNowMs, fixtureSnapshot } from './fixtures';
 import { createTestServices, TEST_HISTORY, TEST_PRICES } from './testing';
+
+vi.mock('@proofofcalm/content', async (original) => {
+  const actual = await original<typeof import('@proofofcalm/content')>();
+  return { ...actual, loadProfiles: vi.fn(actual.loadProfiles) };
+});
 
 // The fixed price and history sources follow the test clock: a story or a test at another date gets
 // prices fetched then and closes that end on that day, so nothing reads as days or years old.
@@ -38,5 +44,10 @@ describe('createTestServices', () => {
         fetchedAt: '2030-03-15T10:00:00.000Z',
       }),
     );
+  });
+
+  it('reads the profiles in the language of the services, as the browser services do (ADR-0057)', async () => {
+    await createTestServices({ language: 'pt-PT' }).countries.list();
+    expect(loadProfiles).toHaveBeenCalledWith('pt-PT');
   });
 });
