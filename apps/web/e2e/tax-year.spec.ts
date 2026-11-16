@@ -6,8 +6,7 @@ import {
   fixtureNowMs,
   fixtureSnapshot,
 } from '@proofofcalm/app/lib/services/fixtures';
-import { CountryProfileSchema, ruleSource } from '@proofofcalm/content';
-import { type Plan, textCell } from '@proofofcalm/core';
+import type { Plan } from '@proofofcalm/core';
 import france from '../../../packages/content/jurisdictions/fr.json' with { type: 'json' };
 import britain from '../../../packages/content/jurisdictions/gb.json' with { type: 'json' };
 import netherlands from '../../../packages/content/jurisdictions/nl.json' with { type: 'json' };
@@ -20,10 +19,12 @@ import { cspViolations, recordCspViolations, test } from './support';
 // under the United Kingdom (a pooled lot rule) the running 2026 to 2027 year's raw listing, under France (the
 // portfolio-wide model) the cessions file and under the Netherlands (the snapshot model) the snapshot file, each
 // a UTF-8 byte order mark, then the file in packages/app/src/features/settings/fixtures: its rows and the app's own
-// header lines byte for byte, and the lines a profile fills (the review line, the lot note, the conditions) built
-// from the profile the app loads, which a content review may change (docs/ENGINEERING.md §2). The local run sends
-// no UK geolocation, so ADR-0029's 451 route does not apply. The Tax year select opens with no CSP violation, and on
-// the sell clock the latest ended year is chosen and downloads.
+// header words byte for byte, and what a profile fills (the country's name, the review line, the lot note, the
+// holding rule's length, the conditions) built from the profile file the app loads, which a content review may
+// change (docs/ENGINEERING.md §2), through no code the spec tests: the spec reads the JSON and quotes each cell
+// itself. Portugal's plan holds the profile's holding rule, as a change of country would derive it. The local run
+// sends no UK geolocation, so ADR-0029's 451 route does not apply. The Tax year select opens with no CSP violation,
+// and on the sell clock the latest ended year is chosen and downloads.
 
 test.use({ serviceWorkers: 'block' });
 
@@ -54,37 +55,92 @@ async function exportYear(page: Page) {
   return { name: file.suggestedFilename(), text: bytes.subarray(3).toString('utf8') };
 }
 
-const PROFILES = { PT: portugal, GB: britain, FR: france, NL: netherlands };
+/** The fields of a profile file the header reads, as the JSON holds them. */
+type ProfileFile = {
+  readonly name: string;
+  readonly status: { readonly lastReviewed: string };
+  readonly lotRuleNote: string;
+  readonly holdingRule: { readonly kind: string; readonly days?: number; readonly years?: number };
+  readonly holdingRuleConditions: readonly string[];
+  readonly sources: readonly { readonly key: string; readonly url: string }[];
+  readonly ruleSources: { readonly lotRule: string; readonly holdingRule: string };
+};
+const PROFILES: Record<'PT' | 'GB' | 'FR' | 'NL', ProfileFile> = {
+  PT: portugal,
+  GB: britain,
+  FR: france,
+  NL: netherlands,
+};
 type Code = keyof typeof PROFILES;
 
-/** Where each expected file holds the lines its literal profile filled: the lot note and the conditions' span. */
-const PROFILE_LINES: Record<Code, { lotNote?: number; conditions?: readonly [number, number] }> = {
-  PT: { lotNote: 5, conditions: [7, 11] },
+/**
+ * One cell as docs/DOMAIN.md §3.13 states the file's quoting: a `'` before the text and before every piece of it
+ * after a `;` or a line break that starts with `=`, `+`, `-`, `@`, a tab or a CR, then quoted per RFC 4180 when it
+ * holds a double quote, a comma or a line break.
+ */
+function cell(text: string): string {
+  let safe = '';
+  for (let at = 0; at < text.length; at += 1) {
+    const opensPiece = at === 0 || ';\r\n'.includes(text.charAt(at - 1));
+    if (opensPiece && '=+-@\t\r'.includes(text.charAt(at))) safe += "'";
+    safe += text.charAt(at);
+  }
+  return /[",\r\n]/u.test(safe) ? `"${safe.replaceAll('"', '""')}"` : safe;
+}
+
+/** The text of a cell of the app's own words, which start with no trigger: its RFC 4180 quotes taken off. */
+const unquoted = (line: string) => (line.startsWith('"') ? line.slice(1, -1).replaceAll('""', '"') : line);
+
+/** The holding rule's length as the header words it: `365 days`, `1 year`. */
+function ruleLength(rule: ProfileFile['holdingRule']): string {
+  const count = rule.kind === 'years' ? rule.years : rule.days;
+  return `${count} ${rule.kind === 'years' ? 'year' : 'day'}${count === 1 ? '' : 's'}`;
+}
+
+/** The URL of the source a rule names, from the profile's own list. */
+const sourceOf = (profile: ProfileFile, rule: 'lotRule' | 'holdingRule') =>
+  profile.sources.find((source) => source.key === profile.ruleSources[rule])?.url;
+
+/** Where each expected file holds the lines its literal profile filled: the lot note, the holding line, the conditions. */
+const PROFILE_LINES: Record<Code, { lotNote?: number; holding?: number; conditions?: readonly [number, number] }> = {
+  PT: { lotNote: 5, holding: 6, conditions: [7, 11] },
   GB: { lotNote: 5 },
   FR: {},
   NL: {},
 };
 
 /**
- * The expected file of `code` with its review line, lot note and conditions built from the live profile (the
- * sources as the app lists them, the lot rule's first, without repeats); the app's lines and the rows stay as written.
+ * The expected file of `code` with what its profile fills built from the profile file: the name in the title, the
+ * review line (the sources as the app lists them, the lot rule's first, without repeats), the lot note, the holding
+ * rule's name and length, and the conditions; the app's words and the rows stay as written.
  */
 async function expected(code: Code, name: string) {
   const file = await readFile(
     new URL(`../../../packages/app/src/features/settings/fixtures/${name}`, import.meta.url),
     'utf8',
   );
-  const profile = CountryProfileSchema.parse(PROFILES[code]);
-  const sources = [...new Set([ruleSource(profile, 'lotRule'), ruleSource(profile, 'holdingRule')])];
-  const { lotNote, conditions } = PROFILE_LINES[code];
+  const profile = PROFILES[code];
+  const sources = [...new Set([sourceOf(profile, 'lotRule'), sourceOf(profile, 'holdingRule')])];
+  const { lotNote, holding, conditions } = PROFILE_LINES[code];
   const split = file.indexOf('\n\n');
   const header = file.slice(0, split).split('\n');
-  header[3] = textCell(
+  const title = unquoted(header[0] ?? '').split(' · ');
+  title[1] = profile.name;
+  header[0] = cell(title.join(' · '));
+  header[3] = cell(
     `${profile.name} rules reviewed on ${profile.status.lastReviewed} · general information, not advice · Sources: ${sources.join(', ')}`,
   );
-  if (lotNote !== undefined) header[lotNote] = textCell(profile.lotRuleNote);
+  if (lotNote !== undefined) header[lotNote] = cell(profile.lotRuleNote);
+  if (holding !== undefined) {
+    header[holding] = cell(
+      unquoted(header[holding] ?? '').replace(
+        /^eligible_from: the first day past the .+? holding rule \(\d+ (?:day|year)s?\)\./u,
+        `eligible_from: the first day past the ${profile.name} holding rule (${ruleLength(profile.holdingRule)}).`,
+      ),
+    );
+  }
   if (conditions !== undefined) {
-    header.splice(conditions[0], conditions[1] - conditions[0], ...profile.holdingRuleConditions.map(textCell));
+    header.splice(conditions[0], conditions[1] - conditions[0], ...profile.holdingRuleConditions.map(cell));
   }
   return header.join('\n') + file.slice(split);
 }
@@ -104,11 +160,12 @@ test('at 2030-03-15 the latest ended year, 2029, is chosen and its file download
   await expect(yearSelect(page)).toHaveText(/^2029\b/u);
   const file = await exportYear(page);
   expect(file.name).toBe(`proof-of-calm-tax-year-2029-PT-${FIXTURE_DATES.sell}.csv`);
-  expect(file.text.split('\n')[0]).toBe('Proof of Calm tax-year file · Portugal · 2029-01-01 to 2029-12-31');
+  expect(file.text.split('\n')[0]).toBe(`Proof of Calm tax-year file · ${portugal.name} · 2029-01-01 to 2029-12-31`);
 });
 
 test('the PT fixture downloads the expected CSV', async ({ page }) => {
-  await openData(page, {});
+  // The plan keeps the profile's rule, so a review that changes it adds no line for a plan rule of its own.
+  await openData(page, { holdingRule: portugal.holdingRule as Plan['holdingRule'] });
   await expect(yearSelect(page)).toContainText('2026 (still running)');
   await yearSelect(page).click();
   await page.getByRole('option', { name: '2026 (still running)' }).click();
