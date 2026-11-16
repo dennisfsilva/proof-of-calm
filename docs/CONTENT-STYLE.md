@@ -350,7 +350,8 @@ The tabs of Settings and the save of the Plan, Coins & split and Hold & sell tab
 
 ## 4. Numbers and dates in copy
 
-Per `docs/DESIGN.md` §5: formatted by the country's locale, never hand-built. Every percentage on a
+Per `docs/DESIGN.md` §5: numbers are formatted by the country's locale and dates by the UI language
+(ADR-0023), never hand-built. Every percentage on a
 page takes the spacing of the country's number locale, as `format.percent` writes it: `70%` in
 Portugal, `40 %` with a no-break space in Germany. Research figures in messages go through
 `format.percent`, and a country profile writes its literal percentages with its own locale's joiner,
@@ -381,8 +382,8 @@ shortened by hand.
 A template's `oneLine` and explanation write no date: each is a placeholder `{date:<field>}` that names one of the
 template's own date fields (`lastBuy`, `validUntil`, `sellWindow.opens`, `references.peakFrom`,
 `drawdowns.BTC.high`; the list is `docs/DOMAIN.md` §5), and the onboarding writes it with `format.date`, unbroken.
-The UI language decides its format, as for every date in copy (ADR-0023), never the plan's country: `1 Jun 2028` in
-English for a plan in Portugal, Britain or the US alike (decided 2026-11-15, corrected 2026-11-16). `pnpm validate:content`
+The UI language decides its format, never the plan's country, as for every date in copy (ADR-0023). In English that
+is `1 Jun 2028` for a plan in Portugal, Britain, or the US (decided 2026-11-15, corrected 2026-11-16). `pnpm validate:content`
 refuses a placeholder that names no date of its template or is not whole (`template-date-unresolved`) and one in any
 other field (`template-date-field`). It also refuses a month name in English, Portuguese or German in any of a
 template's texts or in their translations, a short one only beside a figure (`template-date-month`).
@@ -431,7 +432,8 @@ for a reader who never opens its control, in the Cycle plan's `oneLine`, as its 
 The explanation sits behind one closed control for the picked template, because shown by default
 each explanation (76 to 192 words) would break the 120-word budget of `docs/LEGAL.md` §4.
 Every date a template's text names comes from a field of that template, written `{date:<field>}` (§4), so a date in
-the text and the plan it starts never disagree and each country reads it in its own order (decided 2026-11-15). A
+the text and the plan it starts never disagree, and each date is written in the UI language's format (§4; ADR-0023;
+decided 2026-11-15, corrected 2026-11-16). A
 date the text needs that no plan holds (the Cycle plan's second and last thirds) is a text-only field of `references`.
 
 ## 7. Emails
