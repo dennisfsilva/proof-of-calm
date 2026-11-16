@@ -265,15 +265,12 @@ function useOneTap(heading: RefObject<HTMLHeadingElement | null>) {
     opener.current = document.activeElement;
     setSkipping({ slot, open: true });
   };
-  const toastRecorded = (saved: readonly Entry[], title: ReactNode) => {
+  const toastRecorded = (saved: readonly Entry[], title: ReactNode, editable = true) => {
     const [first] = saved;
     if (first === undefined) return;
     const kind = first.kind === 'lump' ? 'lump' : 'dca';
-    services.toasts.add({
-      title,
-      timeout: UNDO_WINDOW_MS,
-      actionProps: { children: t('today.action.edit'), onClick: () => open({ kind, editing: saved }) },
-    });
+    const edit = { children: t('today.action.edit'), onClick: () => open({ kind, editing: saved }) };
+    services.toasts.add({ title, timeout: UNDO_WINDOW_MS, ...(editable ? { actionProps: edit } : {}) });
   };
   const recorded = (saved: readonly Entry[], currency: CurrencyCode) =>
     toastRecorded(saved, <Recorded entries={saved} currency={currency} />);
@@ -300,13 +297,15 @@ function useOneTap(heading: RefObject<HTMLHeadingElement | null>) {
       }
       if (result.value.length === 0) return;
       // The toast's words are the Log's, its namespace loaded first. The entries are stored by now, so a failed load
-      // (offline, a language's chunk outside the precache) says so in Today's words, never "Try again" (ADR-0045).
-      const title = await loadNamespace('log').then(
-        () => <Recorded entries={result.value} currency={shown.currency} />,
-        () => t('today.action.recorded'),
+      // (offline, a language's chunk outside the precache) says so in Today's words, never "Try again", and offers no
+      // Edit, since the entry sheet needs the same messages; the Log edits the entry once they load (ADR-0045).
+      const loaded = await loadNamespace('log').then(
+        () => true,
+        () => false,
       );
+      const title = loaded ? <Recorded entries={result.value} currency={shown.currency} /> : t('today.action.recorded');
       heading.current?.focus();
-      toastRecorded(result.value, title);
+      toastRecorded(result.value, title, loaded);
     } catch (error) {
       say(error);
     }
