@@ -194,10 +194,10 @@ test('pt-PT: the keyboard reaches the first row toggle with its ring, and axe fi
   await expect(toggle).toBeFocused();
   const ring = await toggle.evaluate((element) => {
     const style = getComputedStyle(element);
-    return { style: style.outlineStyle, width: Number.parseFloat(style.outlineWidth) };
+    return { style: style.outlineStyle, width: style.outlineWidth };
   });
   expect(ring.style).not.toBe('none');
-  expect(ring.width).toBeGreaterThan(0);
+  expect(ring.width).not.toBe('0px');
   const axe = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
     .analyze();
