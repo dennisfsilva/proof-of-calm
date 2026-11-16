@@ -80,7 +80,9 @@ describe('packages/content/rules/<language> (ADR-0057)', () => {
     const english = countryRules(profileFile(code));
     const overlay = overlayFile(code);
     const translated = JSON.parse(readFileSync(join(RULES, 'pt-PT', fileName(code)), 'utf8'));
-    const conditions = english.holdingRuleConditions.map((text, index) => overlay.holdingRuleConditions?.[index] ?? text);
+    const conditions = english.holdingRuleConditions.map(
+      (text, index) => overlay.holdingRuleConditions?.[index] ?? text,
+    );
     const changeNotice = overlay.status?.changeNotice ?? english.status.changeNotice;
     expect(translated).toEqual({
       ...english,

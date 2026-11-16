@@ -32,7 +32,7 @@ describe('createBrowserServices', () => {
     expect(content.loadProfiles).toHaveBeenCalledWith('pt-PT');
     await services.countries.card('PT');
     expect(content.loadProfile).toHaveBeenCalledWith('PT', 'pt-PT');
-    expect(await services.rules('ZZ')).toEqual(await content.loadRules('XX'));
+    expect(await services.rules('ZZ')).toEqual(await content.loadRules('XX', 'pt-PT'));
     expect(content.loadRules).toHaveBeenCalledWith('XX', 'pt-PT');
   });
 
