@@ -24,8 +24,9 @@ import { TaxYearExport } from './tax-year-export';
 // chosen one with the header lines the app words, and nothing for the models it does not export yet.
 
 // `gate.held` holds the profiles back, as on a device that has not read them yet: none is known, and a load waits.
-// Portugal, the UK, France and the Netherlands answer the literal profiles the expected files are made from, so a
-// content review changes none of them (docs/ENGINEERING.md §2); the other countries answer the live files.
+// Portugal, the UK, France and the Netherlands answer the literal profiles the expected files are made from, and
+// Italy its literal profile, so a content review changes none of them (docs/ENGINEERING.md §2); the other countries
+// answer the live files.
 const gate = vi.hoisted(() => ({ held: null as Promise<void> | null }));
 vi.mock('@proofofcalm/content', async (original) => {
   const content = await (await import('../../../lib/services/testing-modules')).profilesInMemory(
@@ -273,7 +274,7 @@ describe('TaxYearExport', () => {
     ];
     const platform = await mount(withPlan({ country: 'IT' as Plan['country'] }, held));
     const header = headerOf((await exportYear(platform, '2026 (still running)')).content);
-    const note = (await loadProfile('IT'))?.lotRuleNote ?? '';
+    const note = TAX_YEAR_PROFILES.IT.lotRuleNote;
     expect(note).toMatch(/A cost without proof counts as zero\.$/u);
     expect(header).toContain('Each sale is matched to purchases of the same coin, last in, first out.');
     expect(header).toContain(textCell(note));

@@ -25,7 +25,7 @@ const STATUS = {
   reviewedBy: 'owner',
 } as const;
 
-/** The rule keys of a profile whose every rule cites `lotRule`'s source but its holding rule's. */
+/** The rule sources of a profile: the holding rule cites its own source, every other rule the lot rule's. */
 const ruleSources = (holdingRule: string, lotRule: string) => ({
   holdingRule,
   lotRule,
@@ -217,5 +217,48 @@ const NL: CountryProfile = {
   status: { ...STATUS, version: 1, changedOn: '2026-01-01', nextReviewDue: '2027-01-01' },
 };
 
+// Italy has no expected file: the export test reads its lot rule (lifo) and its note from this literal.
+const IT: CountryProfile = {
+  schemaVersion: 1,
+  code: 'IT',
+  name: 'Italy',
+  currency: 'EUR',
+  locales: ['it-IT'],
+  numberFormatLocale: 'it-IT',
+  dateFormatLocale: 'it-IT',
+  timezones: ['Europe/Rome'],
+  taxYear: { start: '01-01', end: '12-31' },
+  filingNote: 'Calendar tax year.',
+  computationModel: { kind: 'per-lot' },
+  holdingRule: { kind: 'none' },
+  holdingRuleOverrides: [],
+  holdingRuleConditions: [],
+  lotRule: 'lifo',
+  lotScope: 'global',
+  lotRuleNote:
+    'The most recently bought coins count as sold first: Circolare 30/E §3.2.1 states the L.I.F.O. method for cripto-attività of the same denomination under the regime dichiarativo. A cost without proof counts as zero.',
+  card: CARD,
+  pendingChanges: [],
+  sources: [
+    {
+      key: 'it-ade-circolare-30e-2023',
+      title: 'Circolare n. 30/E del 27 ottobre 2023: Trattamento fiscale delle cripto-attività',
+      url: 'https://www.agenziaentrate.gov.it/portale/documents/20143/5589638/Circolare+criptoattivita+del+27+ottobre+2023.pdf',
+      publisher: 'Agenzia delle Entrate',
+      kind: 'authority',
+      published: '2023-10-27',
+      accessed: '2026-11-05',
+    },
+  ],
+  ruleSources: ruleSources('it-ade-circolare-30e-2023', 'it-ade-circolare-30e-2023'),
+  status: { ...STATUS, version: 1, changedOn: '2026-01-01', nextReviewDue: '2027-01-01' },
+};
+
 /** The literal profiles by country code. */
-export const TAX_YEAR_PROFILES: Readonly<Record<'PT' | 'GB' | 'FR' | 'NL', CountryProfile>> = { PT, GB, FR, NL };
+export const TAX_YEAR_PROFILES: Readonly<Record<'PT' | 'GB' | 'FR' | 'NL' | 'IT', CountryProfile>> = {
+  PT,
+  GB,
+  FR,
+  NL,
+  IT,
+};
