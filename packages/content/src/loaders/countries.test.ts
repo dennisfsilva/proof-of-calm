@@ -29,7 +29,7 @@ const fileOf = (code: string) =>
   JSON.parse(readFileSync(new URL(`../../jurisdictions/${code.toLowerCase()}.json`, import.meta.url), 'utf8'));
 
 // A literal profile for the code that reads one: a content review may change every value of a live
-// profile but its identity fields (docs/ENGINEERING.md §2, the review-safe test rule).
+// profile but its identity fields (docs/ENGINEERING.md §2, Tests and content reviews).
 const LAW = 'https://example.org/law/holding';
 const CIRCULAR = 'https://example.org/circular/lots';
 const FIXTURE = CountryProfileSchema.parse({

@@ -17,7 +17,7 @@ docs:
   - path: docs/ADR/0031-jurisdiction-content-model.md
   - path: docs/ADR/0048-learn-modules-mdx.md
   - path: docs/ENGINEERING.md
-    sections: §2 (the review-safe test rule)
+    sections: §2 (Tests and content reviews)
 ---
 
 # packages/content

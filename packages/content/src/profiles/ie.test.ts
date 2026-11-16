@@ -1,5 +1,5 @@
 // Ireland's profile (docs/JURISDICTIONS.md §7.3): only what no content review can change (docs/ENGINEERING.md
-// §2, the review-safe test rule), and the suggestion rows of §3 that name IE; the country facts are §7.3's
+// §2, Tests and content reviews), and the suggestion rows of §3 that name IE; the country facts are §7.3's
 // rows, which the review compares and the owner reads.
 import { CountryRulesSchema, suggestCountry } from '@proofofcalm/core';
 import { describe, expect, it } from 'vitest';
