@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { expect, type Locator, type Page } from '@playwright/test';
 import type { Snapshot } from '@proofofcalm/app/lib/ports';
@@ -462,6 +463,67 @@ test('pt-PT: Settings › País e dados keeps each import, exchange, paste and p
   expect(now.scrolls, 'no page-wide horizontal scroll').toBe(false);
   expect(errors).toEqual([]);
 });
+
+/** The golden two-coins export of the DCA plan page (18 purchases), pasted or chosen as a file. */
+const prototypeExport = JSON.stringify(
+  JSON.parse(readFileSync(new URL('../../../packages/core/test/golden/two-coins.json', import.meta.url), 'utf8')).state,
+);
+
+// Settings › «País e dados» in pt-PT once a DCA plan page export is read, pasted or chosen as a file, on a device with
+// a plan: the read line, «Substituir tudo» and the add-missing button, found by the merged pt-PT file's words, each
+// hold their text inside their own box with the same wider text, and the page does not scroll sideways.
+for (const source of ['paste', 'file'] as const) {
+  test(`pt-PT: Settings › País e dados keeps a ${source === 'paste' ? 'pasted' : 'chosen'} prototype export's buttons inside their boxes`, async ({
+    page,
+  }) => {
+    const name = 'DCA-Plan.json';
+    const pick = ({ data }: typeof ptSettings | typeof enSettings) => ({
+      read: (source === 'paste' ? data.prototype.pasted : data.prototype.file).replace('{name}', name),
+      replace: data.import.replace,
+      addMissing: data.import.addMissing,
+    });
+    const words = pick(ptSettings);
+    const english = pick(enSettings);
+    // Each word on its own, so one key left in English fails the case.
+    for (const key of Object.keys(words) as (keyof typeof words)[]) {
+      expect(words[key], `the merged pt-PT file holds the data section's own ${key}`).not.toBe(english[key]);
+    }
+    const errors = await boot(page, 'pt-PT');
+    await open(page, '/settings');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'pt-PT');
+    const tab = page.getByRole('tab', { name: ptSettings.tabs.data, exact: true });
+    await tab.click();
+    await expect(tab).toHaveAttribute('aria-selected', 'true');
+    const panel = page.getByRole('tabpanel', { name: ptSettings.tabs.data, exact: true });
+    if (source === 'paste') {
+      await panel.getByRole('textbox', { name: ptSettings.data.paste.label, exact: true }).fill(prototypeExport);
+      await panel.getByRole('button', { name: ptSettings.data.paste.read, exact: true }).click();
+    } else {
+      const chooser = page.waitForEvent('filechooser');
+      await panel.locator('button', { hasText: ptSettings.data.import.choose }).click();
+      await (await chooser).setFiles({ name, mimeType: 'application/json', buffer: Buffer.from(prototypeExport) });
+    }
+    const controls = {
+      read: panel.getByText(shown(words.read)),
+      replace: panel.getByRole('button', { name: words.replace, exact: true }),
+      addMissing: panel.getByRole('button', { name: words.addMissing, exact: true }),
+    };
+    await widerText(page, '0.03em');
+    await settled(page);
+    for (const key of Object.keys(controls) as (keyof typeof controls)[]) {
+      await expect(controls[key]).toBeVisible();
+      const box = await tabBox(controls[key]);
+      expect(box.client, `the ${key} control has a box of its own`).toBeGreaterThan(0);
+      expect(box.scroll, `the ${key} control's text stays inside its ${box.client} px box`).toBeLessThanOrEqual(
+        box.client,
+      );
+    }
+    const now = await pastTheViewport(page);
+    expect(now.past, `nothing in the data section ends past the viewport once the ${source} is read`).toEqual([]);
+    expect(now.scrolls, 'no page-wide horizontal scroll').toBe(false);
+    expect(errors).toEqual([]);
+  });
+}
 
 /** What a screen shows of a message: its words before the first placeholder, or its select's `exempt` branch. */
 const shown = (message: string) => message.slice(0, message.indexOf('{')).trim();
