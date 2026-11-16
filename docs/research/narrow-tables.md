@@ -30,7 +30,10 @@ their own. Their prototypes, harnesses (`cases.mjs`, `harness.mjs`; `run.mjs`) a
    switches, so the check cannot loop.
 2. The check, in one task before paint: remove `data-stacked`, compare the table's width with the probe's in
    sub-pixels, set `data-stacked` when the table is wider. It runs at mount, from the ResizeObserver, and from one
-   MutationObserver on the table (rows, text, the detail rows' `hidden`) and on an enclosing `<details>` (`open`).
+   MutationObserver on the table (rows, text, the detail rows' `hidden`, a nested `<details>`' `open`, a nested
+   table's `data-stacked`, but not the table's own) and on an enclosing `<details>` (`open`). A chart's table view
+   nested in a table's cell is `width: 0; min-width: 100%`: it adds nothing to the cell's min-content width, so its
+   probe measures the cell and it stacks there (Holdings in pt-PT at 360 px: 442 px before, 328 px after, 2026-11-16).
    A table that is not rendered is skipped (`checkVisibility`, Safari 17.4; without it the check always runs).
 3. The Table's tab stop (`scrolls`) comes from the same callback.
 4. Stacked, only the cells (`th`, `td`) become blocks; the table, its row groups and rows keep their display, so the
