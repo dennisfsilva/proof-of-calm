@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
-import type { HoldingRule } from '@proofofcalm/core';
+import { loadProfile, loadRules } from '@proofofcalm/content';
+import type { CalendarDate, HoldingRule } from '@proofofcalm/core';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { useState } from 'react';
 import { userEvent } from 'storybook/test';
@@ -9,7 +10,10 @@ import { I18nProvider } from '../../../lib/i18n';
 import errors from '../../../messages/en/errors.json';
 import plan from '../../../messages/en/plan.json';
 import shell from '../../../messages/en/shell.json';
-import { type HoldingCountry, type HoldingValue, holdingRuleOf } from '../lib/holding';
+import errorsPt from '../../../messages/pt-PT/errors.json';
+import planPt from '../../../messages/pt-PT/plan.json';
+import shellPt from '../../../messages/pt-PT/shell.json';
+import { type HoldingCountry, type HoldingValue, holdingCountryOf, holdingRuleOf } from '../lib/holding';
 import { HoldingRuleEditor } from './holding-rule-editor';
 
 // The holding rule editor as a host holds it: the value in state, the issues from holdingRuleOf in en-GB.
@@ -157,6 +161,23 @@ describe('HoldingRuleEditor', () => {
       },
     );
     expect(radio("The general profile's rule").textContent).toBe("XXThe general profile's rule");
+  });
+
+  it("marks no lang on the general profile's line when its pt-PT profile and rules both load (ADR-0057)", async () => {
+    const [rules, profile] = await Promise.all([loadRules('XX', 'pt-PT'), loadProfile('XX', 'pt-PT')]);
+    if (rules === null || profile === null) throw new Error('XX did not load');
+    render(
+      <I18nProvider locale="pt-PT" messages={{ plan: planPt, errors: errorsPt, shell: shellPt }}>
+        <HoldingRuleEditor
+          value={{ source: 'country', kind: 'none', count: '', effect: 'exempt' }}
+          issues={[]}
+          country={holdingCountryOf(rules, '17 out. 2026', profile, '2026-11-16' as CalendarDate)}
+          onChange={() => undefined}
+          format={createFormatters('pt-PT', 'pt-PT')}
+        />
+      </I18nProvider>,
+    );
+    expect(screen.getByText(profile.card.holdingRuleText, { exact: false }).closest('[lang]')).toBeNull();
   });
 
   it('shows the own rule from the plan and changes its count', () => {

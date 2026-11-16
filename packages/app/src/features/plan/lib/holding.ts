@@ -44,10 +44,15 @@ export type HoldingCountry = {
   readonly rule: HoldingRule;
   readonly reviewed: string;
   readonly conditions?: readonly string[];
-  /** The language of the rules' sentences, as their loader marked it (ADR-0057); see `textLang`. */
+  /** The language of the rules' sentences, the `conditions`, as their loader marked it (ADR-0057); see `textLang`. */
   readonly language?: ContentLanguage | undefined;
   readonly source: string | null;
-  readonly unreviewed?: { readonly status: string | null; readonly text: string | null };
+  /** The profile's status and text, with the profile's language: offline the two loaders can answer two languages. */
+  readonly unreviewed?: {
+    readonly status: string | null;
+    readonly text: string | null;
+    readonly language?: ContentLanguage | undefined;
+  };
   readonly underReview?: true;
 };
 
@@ -73,7 +78,11 @@ export function holdingCountryOf(
     return {
       ...card,
       source: null,
-      unreviewed: { status: profile?.card.classification ?? null, text: profile?.card.holdingRuleText ?? null },
+      unreviewed: {
+        status: profile?.card.classification ?? null,
+        text: profile?.card.holdingRuleText ?? null,
+        language: profile === null ? undefined : contentLanguageOf(profile),
+      },
     };
   }
   if (underReview(rules.status, today)) return { ...card, source: null, underReview: true };

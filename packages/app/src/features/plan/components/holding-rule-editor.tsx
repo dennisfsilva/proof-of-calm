@@ -77,7 +77,8 @@ export function HoldingRuleEditor({ value, issues, country, onChange, format }: 
     if (unreviewed !== undefined) {
       if (unreviewed.text === null) return undefined;
       const text = [unreviewed.status, unreviewed.text].filter((part) => part !== null).join(' ');
-      return <span lang={textLang(known.language, locale)}>{text}</span>;
+      // The profile's text, so the profile's language, not the rules' (ADR-0057).
+      return <span lang={textLang(unreviewed.language, locale)}>{text}</span>;
     }
     return known.source === null ? undefined : ruleText(known.rule);
   };
