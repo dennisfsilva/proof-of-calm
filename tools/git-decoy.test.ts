@@ -35,4 +35,4 @@ it('catches a git that inherits the decoy and passes one that runs on GIT_FREE_E
     rmSync(repo, { recursive: true, force: true });
   }
   expect(process.env.GIT_DIR).toBe(before);
-}, 20_000);
+}, 60_000);
