@@ -272,7 +272,10 @@ is read again at every review, because its low can still move.
    file with no row) and you opened each secondary source of step 1, otherwise leave it unchanged (a
    partial review moves nothing); bump `status.version`,
    set `changedOn` and write `changeNotice` when a rule changed in substance; a bump that corrects our
-   own file also writes a `changeNotice` that says so (`docs/JURISDICTIONS.md` §6). When the PR
+   own file also writes a `changeNotice` that says so (`docs/JURISDICTIONS.md` §6). When `verify`
+   fails on `pnpm test` because a test asserts a value the review changed, named in the notes or
+   shown only by CI, as an app or web test is, have the assertion removed in a session pull request
+   to main first; push the flip after it merges. When the PR
    changes a translation (§3 step 2), check that its diff changes only the figures its English file
    changed, at the same paths and to the same values, and nothing else there: compare the values,
    not the characters, since the translation writes each in its number locale's format (§3 step 2;
