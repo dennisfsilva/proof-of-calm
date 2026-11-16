@@ -113,7 +113,8 @@ test('a card past its review reads Not reviewed since', async ({ page }) => {
   await page.getByRole('tab', { name: 'Hold & sell' }).click();
   await expect(page.getByText(/^Not reviewed since /)).toBeVisible();
   await expect(page.getByRole('radio', { name: /^Portugal's rule/ })).toBeVisible();
-  await expect(page.getByText('365 days, then tax-free.')).toHaveCount(0);
+  // No rule words of any length or effect, whatever a review makes Portugal's rule (the plan messages' rule words).
+  await expect(page.getByText(/\d+ (?:day|year)s?, then (?:tax-free|the long-term rate)\./u)).toHaveCount(0);
   await expect(page.getByRole('link', { name: 'Sources' })).toHaveCount(0);
 });
 
