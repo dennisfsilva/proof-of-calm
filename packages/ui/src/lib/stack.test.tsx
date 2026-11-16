@@ -82,6 +82,21 @@ function Stacking({ stack = true }: { stack?: boolean }) {
               <td>28 de fevereiro de 2027</td>
               <td>12 345,67 €</td>
             </tr>
+            <tr>
+              <td colSpan={2}>
+                {/* A detail row's own table view, such as a coin's daily closes, with its own stacking. */}
+                <details data-testid="nested-details">
+                  <summary>Daily closes</summary>
+                  <table data-testid="nested-table">
+                    <tbody>
+                      <tr>
+                        <td>28 de fevereiro de 2027</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </details>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -158,7 +173,7 @@ describe('useStack', () => {
     expect(table().hasAttribute('data-stacked')).toBe(true);
   });
 
-  it('watches the probe and its ruler, the rows and text, the detail rows’ hidden and the details’ open', () => {
+  it('watches the probe and its ruler, the rows and text, hidden, open and nested stacking inside, the details’ open', () => {
     render(<Stacking />);
     const probe = document.querySelector('[data-testid="scroller"] > div');
     expect(resizes).toHaveLength(1);
@@ -170,7 +185,7 @@ describe('useStack', () => {
       characterData: true,
       subtree: true,
       attributes: true,
-      attributeFilter: ['hidden'],
+      attributeFilter: ['hidden', 'open', 'data-stacked'],
     });
     expect(observed.find((entry) => entry.target === document.querySelector('details'))?.options).toEqual({
       attributes: true,
@@ -218,6 +233,51 @@ describe('useStack', () => {
 
     // Its own attribute is not watched: setting it starts no further check.
     const checks = stackedWhenMeasured.length;
+    table().setAttribute('data-stacked', '');
+    await flush();
+    expect(stackedWhenMeasured).toHaveLength(checks);
+  });
+
+  it('checks again when a <details> inside the table opens or closes, and reports scrolls from it', async () => {
+    // Portfolio's Holdings: a coin's daily closes open inside its detail row and widen the table past its box.
+    vi.stubGlobal('MutationObserver', NativeMutationObserver);
+    widths = { table: 328, box: 328, scroll: 328, client: 328 };
+    render(<Stacking stack={false} />);
+    expect(scrolls()).toBe('false');
+    const flush = () => act(async () => await Promise.resolve());
+    const nested = document.querySelector('[data-testid="nested-details"]') as HTMLDetailsElement;
+
+    widths = { ...widths, scroll: 442 };
+    nested.open = true;
+    await flush();
+    expect(scrolls()).toBe('true');
+    widths = { ...widths, scroll: 328 };
+    nested.open = false;
+    await flush();
+    expect(scrolls()).toBe('false');
+  });
+
+  it('checks again when a table inside the table stacks or unstacks, and not on its own toggle', async () => {
+    vi.stubGlobal('MutationObserver', NativeMutationObserver);
+    widths = { table: 400, box: 328, scroll: 0, client: 0 };
+    render(<Stacking />);
+    expect(table().hasAttribute('data-stacked')).toBe(true);
+    const flush = () => act(async () => await Promise.resolve());
+    const nested = document.querySelector('[data-testid="nested-table"]') as HTMLTableElement;
+
+    widths = { ...widths, table: 320 };
+    nested.setAttribute('data-stacked', '');
+    await flush();
+    expect(table().hasAttribute('data-stacked')).toBe(false);
+    widths = { ...widths, table: 400 };
+    nested.removeAttribute('data-stacked');
+    await flush();
+    expect(table().hasAttribute('data-stacked')).toBe(true);
+
+    // The outer check toggles its own attribute twice; those records start no further check, so nothing loops.
+    await flush();
+    const checks = stackedWhenMeasured.length;
+    table().removeAttribute('data-stacked');
     table().setAttribute('data-stacked', '');
     await flush();
     expect(stackedWhenMeasured).toHaveLength(checks);
