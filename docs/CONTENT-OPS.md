@@ -291,3 +291,5 @@ is read again at every review, because its low can still move.
    snapshots). Merge; the next deploy shows the dated notice to affected users.
 5. Log the run in `docs/content-review-log.md`: its date, the PR, the model and what you corrected,
    so the skill improves. The log goes in its own PR, since the agent's branch takes content data only.
+   The log PR also updates each `docs/JURISDICTIONS.md` §7 row and `docs/EDUCATION.md` §9 row that the
+   merged review changed.
