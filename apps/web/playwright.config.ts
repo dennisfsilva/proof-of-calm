@@ -13,7 +13,10 @@ const phone = { width: 390, height: 844 };
 const requestOnly = /(csp|csp-report|deployment|prices|pwa|site|uk-block)\.spec\.ts$/;
 // The UI-language spec boots the shell in another language; one phone and one desktop project cover it.
 const phoneAndDesktop = /language\.spec\.ts$/;
+// The long-date layout spec lays pt-PT's tables out where they are narrowest: android-small and zoom-125 only.
+const narrowOnly = /language-layout\.spec\.ts$/;
 const elsewhere = [requestOnly, phoneAndDesktop];
+const notNarrow = [...elsewhere, narrowOnly];
 
 // The suite runs against the production build served by tools/serve/vercel-local.ts, which applies
 // vercel.json's routes, headers and rewrites to `dist` and runs the function bundle (ADR-0045 §1),
@@ -45,23 +48,27 @@ export default defineConfig({
         hasTouch: true,
       },
     },
-    { name: 'iphone', testIgnore: requestOnly, use: { ...devices['iPhone 13'], viewport: phone } },
+    { name: 'iphone', testIgnore: [requestOnly, narrowOnly], use: { ...devices['iPhone 13'], viewport: phone } },
     {
       name: 'tablet',
-      testIgnore: elsewhere,
+      testIgnore: notNarrow,
       use: { ...devices['Desktop Chrome'], viewport: { width: 768, height: 1024 }, isMobile: true, hasTouch: true },
     },
-    { name: 'desktop', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } } },
+    {
+      name: 'desktop',
+      testIgnore: narrowOnly,
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } },
+    },
     {
       name: 'desktop-wide',
-      testIgnore: elsewhere,
+      testIgnore: notNarrow,
       use: { ...devices['Desktop Chrome'], viewport: { width: 1920, height: 1080 } },
     },
     // 125 % text zoom: every spec's `page` (e2e/support.ts) has a 20 px root on this project.
     { name: 'zoom-125', testIgnore: elsewhere, use: { ...devices['Desktop Chrome'], viewport: phone } },
     {
       name: 'reduced-motion',
-      testIgnore: elsewhere,
+      testIgnore: notNarrow,
       use: { ...devices['Desktop Chrome'], viewport: phone, contextOptions: { reducedMotion: 'reduce' } },
     },
   ],
