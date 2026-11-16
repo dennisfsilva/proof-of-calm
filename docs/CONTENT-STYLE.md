@@ -94,7 +94,9 @@ The Portuguese rows (decided 2026-11-15; the voice is §9):
   `disparando`; `disparidade` passes), `melhores moedas`, `rumo à lua`, `compre na queda`,
   `aproveitar as quedas`, `acumule sats`, `tendência de alta`, `não perca esta oportunidade`,
   `não deixe passar`, `não fique de fora`, `a não perder`, `imperdível`, `última hora`,
-  `agora é a altura`, `oportunidade`, `simplesmente`, `sem esforço`, `ouro digital`,
+  `agora é a altura`, `é altura de`, `é hora de`, `está na altura de` and `está na hora de` before
+  `comprar`, `vender` or `manter` (`O preço da bitcoin caiu. É altura de comprar.`), every word that
+  begins `arrepend` (`Se mantiver as suas bitcoins até 2030, não se vai arrepender`), `oportunidade`, `simplesmente`, `sem esforço`, `ouro digital`,
   `proteção contra a inflação`, `reserva de valor`, `subvalorizada`, `bater o mercado`,
   `vencer a inflação`, `parabéns`, `crachá`, `emblema`, `medalha`, `subir de nível`, `regulado`,
   `licenciado`, `autorizado`, `supervisionado`, `aprovado por`, `em conformidade com o MiCA`,
@@ -184,8 +186,7 @@ The Portuguese rows (decided 2026-11-15; the voice is §9):
   | `O plano é comprar BTC todos os meses` | `O plano compra BTC todos os meses` |
   | `Comprar BTC` | `Registar compra` |
 
-  The rule misses, and leaves to counsel and the native reader: `Se mantiver as suas bitcoins até
-  2030, não se vai arrepender` (`mantiver` is the form every rewording uses); `Todos os meses compra
+  The rule misses, and leaves to counsel and the native reader: `Todos os meses compra
   BTC` and `Porque não compra BTC agora?` (spelled like a statement in the third person); the verbs
   it does not list (`largue`, `entre`, `saia`, `fique`, `desfaça`); `realize` and its kin of item 3
   without a purchase or sale noun after them (`Realize os seus ganhos em BTC`); an asset named in
