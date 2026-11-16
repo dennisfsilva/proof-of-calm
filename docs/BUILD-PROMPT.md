@@ -499,6 +499,17 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   dropped "entre criptoativos" to keep a summary at 60 words and moved a comma that widened a
   condition; round 1's reviewer found both first. The noun counsel proposed for the declared sales in
   round 1 became its own finding in round 2 (2026-11-16).
+- A scratch review that applies a full review's changes to a checkout, in the draft and the flipped
+  state, finds the pins an audit misses, but only those its changes reach. #297's script found 44 and
+  86 reds on main, and the reviewers still found pins on rule lengths, Italy's texts and source URLs
+  it never changed; a review finding that names a change the script does not make extends the script
+  (#297, 2026-11-16).
+- A property test that checks every outcome was drawn runs that check at a fixed seed beside its
+  random-seed property. 600 runs at a random seed missed an outcome at 2 of 30,000 seeds and turned a
+  docs-only PR's CI red (#303, 2026-11-16).
+- A test that drops a pin keeps the relation the pin held, and a relation that finds its sentences by
+  a word list misses a rewording. #297's facts branch dropped two relations with their pins in round
+  1 and, restored, read only sentences with five fall verbs in round 2 (#297, 2026-11-16).
 
 ## Known gaps
 

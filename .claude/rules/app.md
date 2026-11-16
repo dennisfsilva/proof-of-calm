@@ -8,7 +8,7 @@ docs:
   - path: docs/ARCHITECTURE.md
     sections: Packages and their boundaries; Inside packages/app; the wrapper rules under The API, the hosts and the store wrapper
   - path: docs/ENGINEERING.md
-    sections: §1.4 to §1.6
+    sections: §1.4 to §1.6; §2 (Tests and content reviews)
   - path: docs/ADR/0032-repository-architecture.md
   - path: docs/ADR/0033-pwa-offline.md
   - path: docs/ADR/0034-forms-validation-numeric-input.md

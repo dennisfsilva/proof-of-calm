@@ -9,6 +9,8 @@ docs:
     sections: §4 (headers and CSP); §8 (secrets) when an env var is touched
   - path: docs/ARCHITECTURE.md
     sections: "The API, the hosts and the store wrapper"
+  - path: docs/ENGINEERING.md
+    sections: §2 (Tests and content reviews)
   - path: docs/ADR/0029-uk-visitors.md
   - path: docs/ADR/0032-repository-architecture.md
   - path: docs/ADR/0045-host-vite-spa.md
