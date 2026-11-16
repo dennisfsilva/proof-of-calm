@@ -48,17 +48,24 @@ Arguments: $ARGUMENTS
   `templates/*.json` and `facts/*.json` there. In one, change only a figure that
   `overlay-number-mismatch` names, at the path it names, to the English file's new value, and
   never its prose. Write that value in the translation's number format, not as the English
-  characters. The check reads each file with its own number locale: in the English file, a
-  profile's percentages with its D8 locale (§3 step 2), and every other figure, a template's and a
-  fact's included, with English separators; the translation with its number locale's (ADR-0057: a
-  profile's locale in the translation's language, else its `numberFormatLocale`; a template's or a
-  fact's, the language's own). So Germany's pt-PT translation reads with de-DE's: there English
-  `5,5 %` stays `5,5 %`, and English `EUR 20,350` is `20 350` or `20.350`, since `20,350` copied
-  as written reads 20.35; a template's English `31.4 %` is `31,4 %` in pt-PT. A point in a
-  translated profile's percentage also draws `decimal-separator`. Keep the form the translation
-  already writes for that figure, its percent joiner too (`docs/CONTENT-STYLE.md` §4 and §9: a
-  no-break space at de-DE, none at pt-PT). The check prints the translation's values, then the
-  English ones; on the next run they must be equal. No `allowed-tools` rule approves that edit, so
+  characters. The check reads each file with its own number locale. In the English file, it reads a
+  profile's percentages with the page's number locale, `numberLocaleFor('en', profile)`: the
+  profile's locale in English if it has one, else its `numberFormatLocale` (§3 step 2). It reads
+  every other English figure, a template's and a fact's included, with English separators. It reads
+  the translation with its number locale's (ADR-0057: a profile's locale in the translation's
+  language, else its `numberFormatLocale`; a template's or a fact's, the language's own). So a pt-PT
+  translation of Germany, which does not exist yet, would read with de-DE's: there English
+  `5,5 %` would stay `5,5 %`, and English `EUR 20,350` would be `20.350`, since `20,350`
+  copied as written would read 20.35. A template's English `31.4 %` is `31,4 %` in pt-PT, with its
+  ordinary space (`docs/CONTENT-STYLE.md` §9). A profile's percentage, in the English file and in a
+  translation alike, takes its number locale's decimal separator, and any other separator draws
+  `decimal-separator`: a point in de-DE or pt-PT, a comma in und or en-GB. Keep the form the
+  translation already writes for that figure. A profile's percentage keeps its number locale's
+  joiner too (`docs/CONTENT-STYLE.md` §4: a no-break space at de-DE, none at pt-PT); a template's
+  keeps its ordinary space. The check prints the translation's values, then the English ones: every
+  figure of the text as a value, sorted, each decimal with a point (`20350 33.1 5.5`). Find the value
+  that differs and write it in the translation's format, not as printed; on the next run the two
+  lists must be equal. No `allowed-tools` rule approves that edit, so
   Claude Code asks the owner unless the session's permission mode approves it. Either way, before
   the edit name the figure, its path and the English file's `changes` row that changed it, and list
   the edit in your closing report to the owner. Nothing refuses a prose edit in a translation; the
@@ -155,12 +162,14 @@ For each profile in `packages/content/jurisdictions/`:
    number inline ("2Solche"): drop it from the quote, since on the page it marks the sentence and is
    not part of it. In the default permission mode, each fetch and each `pdf.ts` run is one owner prompt (DE on 2026-11-11: 9
    fetches, 3 runs). Prefer `pdf.ts`'s `.txt` for a PDF.
-   Write a profile's percentage, in English too, in its page's number format (D8,
-   `docs/CONTENT-STYLE.md` §4): Germany's `5,5 %` with its no-break space, Portugal's `12,2%`,
-   Britain's `12.2%`, each figure of a range `12,2–48%`. `pnpm run validate:content` refuses a point there with
+   Write a profile's percentage, in English too, in its page's number format. The page's number
+   locale is `numberLocaleFor('en', profile)`: the profile's locale in English if it has one, else
+   its `numberFormatLocale` (`docs/CONTENT-STYLE.md` §4). So Germany writes `5,5 %`, Portugal
+   `12,2%` and Britain `12.2%`, each figure of a range too (`12,2–48%`). `pnpm run validate:content`
+   refuses any other separator (a point in Germany or Portugal, a comma in Britain), for example
    `decimal-separator: <field>: "12.3%" writes ".", expected "," (pt-PT)`; write the separator the
-   message expects. A figure with no percent sign after it (`EUR 20,350`, a law's `art. 33.1`)
-   and every figure of a template or a fact keep English separators.
+   message expects. A figure that is not a percentage or part of a percentage range (`EUR 20,350`, a
+   law's `art. 33.1`), and every figure of a template or a fact, keeps English separators.
 3. Set the entry's `accessed` to the day you read the source. Set `status.confidence` and give its
    one-line reason in the draft's `reviewed[].reason` for that file.
 4. Never set `lastReviewed` or `nextReviewDue`; the finish refuses a change to either. Set
@@ -184,8 +193,9 @@ For each profile in `packages/content/jurisdictions/`:
    it prints the filing rule: also add a note `PDF not read: <url>` naming the lines that rest only
    on it, and leave those lines unchanged.
 8. After a profile changes, regenerate the rules files with `pnpm --filter @proofofcalm/content rules`.
-   It reports every file it writes, changed or not (`10 rules files written`), so its count says
-   nothing about which rules changed.
+   It prints one line per language, each counting every file it wrote there, changed or not
+   (`en: 11 rules files written (…)` and `pt-PT: 10 rules files written (…)` on 2026-11-16), so a
+   count grows with the profiles and the languages and says nothing about which rules changed.
 
 ## 4. Per fact, template and cycle row
 
