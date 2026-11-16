@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { countryRules, loadProfile } from '@proofofcalm/content';
+import { CountryProfileSchema, countryRules, loadProfile } from '@proofofcalm/content';
 import { type CalendarDate, type CountryCode, type Entry, type Plan, textCell } from '@proofofcalm/core';
 import { aMove } from '@proofofcalm/core/testing';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
@@ -17,23 +17,28 @@ import gbFile from '../fixtures/tax-year-2026-27-GB.csv?raw';
 import frFile from '../fixtures/tax-year-2026-FR.csv?raw';
 import nlFile from '../fixtures/tax-year-2026-NL.csv?raw';
 import ptFile from '../fixtures/tax-year-2026-PT.csv?raw';
+import { TAX_YEAR_PROFILES } from '../fixtures/tax-year-profiles';
 import { TaxYearExport } from './tax-year-export';
 
 // The tax-year export under Your data (docs/DOMAIN.md §3.13): the years of the plan's country, the file of the
 // chosen one with the header lines the app words, and nothing for the models it does not export yet.
 
 // `gate.held` holds the profiles back, as on a device that has not read them yet: none is known, and a load waits.
+// Portugal, the UK, France and the Netherlands answer the literal profiles the expected files are made from, so a
+// content review changes none of them (docs/ENGINEERING.md §2); the other countries answer the live files.
 const gate = vi.hoisted(() => ({ held: null as Promise<void> | null }));
 vi.mock('@proofofcalm/content', async (original) => {
   const content = await (await import('../../../lib/services/testing-modules')).profilesInMemory(
     await original<typeof import('@proofofcalm/content')>(),
   );
+  const { TAX_YEAR_PROFILES } = await import('../fixtures/tax-year-profiles');
+  const literal = (code: string) => TAX_YEAR_PROFILES[code as keyof typeof TAX_YEAR_PROFILES];
   return {
     ...content,
-    loadedProfile: (code: string) => (gate.held === null ? content.loadedProfile(code) : null),
+    loadedProfile: (code: string) => (gate.held === null ? (literal(code) ?? content.loadedProfile(code)) : null),
     loadProfile: async (code: string) => {
       if (gate.held !== null) await gate.held;
-      return content.loadProfile(code);
+      return literal(code) ?? content.loadProfile(code);
     },
   };
 });
@@ -240,7 +245,7 @@ describe('TaxYearExport', () => {
     const file = await exportYear(platform);
     expect(file.name).toBe('proof-of-calm-tax-year-2025-PT-2026-10-20.csv');
     expect(file.type).toBe('text/csv');
-    const profile = await loadProfile('PT');
+    const profile = TAX_YEAR_PROFILES.PT;
     expect(headerOf(file.content)).toBe(
       lines(
         'Proof of Calm tax-year file · Portugal · 2025-01-01 to 2025-12-31',
@@ -248,9 +253,9 @@ describe('TaxYearExport', () => {
         'Amounts are as you logged them and are not converted. Your pay currency is EUR.',
         `Portugal rules reviewed on 2026-11-05 · general information, not advice · Sources: ${PT_SOURCES}`,
         'Each sale is matched to purchases of the same coin, first in, first out.',
-        profile?.lotRuleNote ?? '',
+        profile.lotRuleNote,
         'eligible_from: the first day past the Portugal holding rule (365 days). past_holding_rule: whether that day had come by the sale, or by 2025-12-31 for units still held. Computed from your dates, not tax advice.',
-        ...(profile?.holdingRuleConditions ?? []),
+        ...profile.holdingRuleConditions,
         'Sales are matched per venue as named in the Log. Entries with no venue are one group.',
         HELD_AT,
         'Dates are YYYY-MM-DD. Amounts and units use a decimal point.',
@@ -337,11 +342,11 @@ describe('TaxYearExport', () => {
   it('under review, the file quotes no rule words', async () => {
     const platform = await mount(withPlan({}, yearEarlier), { nowMs: Date.parse('2029-01-01T10:00:00Z') });
     const header = headerOf((await exportYear(platform, '2025')).content);
-    const profile = await loadProfile('PT');
+    const profile = TAX_YEAR_PROFILES.PT;
     expect(header).toContain('Portugal rules not reviewed since 2026-11-05 · general information, not advice');
     expect(header).not.toContain('Sources');
-    expect(header).not.toContain(profile?.lotRuleNote);
-    for (const condition of profile?.holdingRuleConditions ?? []) expect(header).not.toContain(condition);
+    expect(header).not.toContain(profile.lotRuleNote);
+    for (const condition of profile.holdingRuleConditions) expect(header).not.toContain(condition);
   });
 
   it('a plan in USD under Portugal says the amounts are not converted', async () => {
@@ -375,8 +380,12 @@ describe('TaxYearExport', () => {
     expect(file.content).toContain('\n\nkind,date,coin,venue,units,cost_basis,fee,eligible_from,proceeds,');
   });
 
-  // The expected files the e2e spec also reads (apps/web/e2e/tax-year.spec.ts), byte for byte from the same seed and clock,
-  // so a change of wording or rows fails here before the viewport matrix runs.
+  it.each(Object.entries(TAX_YEAR_PROFILES))('the literal %s profile passes the schema', (_, profile) => {
+    expect(CountryProfileSchema.safeParse(profile).success).toBe(true);
+  });
+
+  // The expected files the e2e spec also reads (apps/web/e2e/tax-year.spec.ts), byte for byte from the same seed, clock
+  // and literal profiles, so a change of wording or rows fails here before the viewport matrix runs.
   it.each([
     ['PT', {}, '2026 (still running)', ptFile],
     [
