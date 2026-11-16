@@ -2,7 +2,13 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { afterAll, describe, expect, it } from 'vitest';
+import { useGitDecoy } from '../git-decoy.ts';
+import { GIT_FREE_ENV } from '../git-env.ts';
+
+useGitDecoy();
+const here = fileURLToPath(new URL('.', import.meta.url));
 
 const workflowText = (workflow: string) => {
   const file = new URL(`../../.github/workflows/${workflow}`, import.meta.url);
@@ -45,7 +51,11 @@ const script = (() => {
 const bash =
   process.platform === 'win32'
     ? join(
-        dirname(dirname(dirname(execFileSync('git', ['--exec-path'], { encoding: 'utf8' }).trim()))),
+        dirname(
+          dirname(
+            dirname(execFileSync('git', ['--exec-path'], { cwd: here, env: GIT_FREE_ENV, encoding: 'utf8' }).trim()),
+          ),
+        ),
         'bin',
         'bash.exe',
       )
