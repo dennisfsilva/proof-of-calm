@@ -245,6 +245,50 @@ test('pt-PT: the keyboard reaches the first row toggle with its ring, and axe fi
   expect(errors).toEqual([]);
 });
 
+/** Widens every glyph's advance by `spacing`, through the CSSOM: a stand-in for a platform whose fonts run wider. */
+function widerText(page: Page, spacing: string) {
+  return page.evaluate((value) => {
+    document.body.style.letterSpacing = value;
+  }, spacing);
+}
+
+/** No plan stored, the language pt-PT: the shell opens onboarding's first step. */
+async function bootEmpty(page: Page): Promise<Errors> {
+  const errors: Errors = [];
+  page.on('pageerror', (error) => errors.push(`pageerror: ${error.message}`));
+  await page.addInitScript((key) => window.localStorage.setItem(key, 'pt-PT'), LANGUAGE_STORAGE_KEY);
+  return errors;
+}
+
+/** Whether the page scrolls sideways, and the innermost elements that end past the viewport, to name in a failure. */
+function pastTheViewport(page: Page) {
+  return page.evaluate(() => {
+    const width = window.innerWidth;
+    const past = [...document.querySelectorAll<HTMLElement>('body *')]
+      .filter((element) => element.getBoundingClientRect().right > width + 0.5)
+      .filter((element) => getComputedStyle(element).position !== 'absolute')
+      .filter((element) => ![...element.children].some((child) => child.getBoundingClientRect().right > width + 0.5))
+      .map((element) => `${element.tagName.toLowerCase()} "${(element.textContent ?? '').trim().slice(0, 40)}"`);
+    return { scrolls: document.documentElement.scrollWidth > width, past };
+  });
+}
+
+// CI's Linux fonts set pt-PT's Portfolio about a pixel wider than this machine's (run 43803113963, zoom-125): text
+// spaced 0.03 em wider stands in for them, so the case fails on every platform while a row cannot wrap.
+for (const path of ['/portfolio', '/onboarding'] as const) {
+  test(`pt-PT: ${path} stays inside the page with text set wider than this platform's fonts`, async ({ page }) => {
+    const errors = path === '/portfolio' ? await boot(page, 'pt-PT') : await bootEmpty(page);
+    await open(page, path);
+    await expect(page.locator('html')).toHaveAttribute('lang', 'pt-PT');
+    await widerText(page, '0.03em');
+    await settled(page);
+    const now = await pastTheViewport(page);
+    expect(now.past, 'nothing ends past the viewport').toEqual([]);
+    expect(now.scrolls, 'no page-wide horizontal scroll').toBe(false);
+    expect(errors).toEqual([]);
+  });
+}
+
 test("in English, the Log's, Today's dates and Portfolio's value tables keep their columns", async ({ page }) => {
   const errors = await boot(page, null);
   for (const screen of ['log', 'today', 'portfolio'] as const) {
