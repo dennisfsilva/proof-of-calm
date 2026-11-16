@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { countryRules, holdingRuleSource, loadProfile } from '@proofofcalm/content';
+import { countryRules, loadProfile } from '@proofofcalm/content';
 import type { CalendarDate, CountryCode, CountryRules, Money, Plan } from '@proofofcalm/core';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -171,8 +171,13 @@ describe('PlanTab', () => {
   });
 
   it("names Portugal's rule for an early last buy, with the note and Portugal's date line and its Sources", async () => {
+    // Portugal's rules with the fixture plan's holding rule as a literal: a content review may change the profile's
+    // (docs/ENGINEERING.md §2), and the date and the rule's name follow it.
     const pt = await loadProfile('PT');
-    const services = await mount(fixtureSnapshot(), async () => (pt === null ? null : countryRules(pt)));
+    const holdingRule = (fixtureSnapshot().plan as Plan).holdingRule;
+    const services = await mount(fixtureSnapshot(), async () =>
+      pt === null ? null : { ...countryRules(pt), holdingRule },
+    );
     type('Last buy', '2030-01-05');
     expect(
       screen.getByText(
@@ -182,7 +187,10 @@ describe('PlanTab', () => {
     ).toBeDefined();
     expect(screen.getByText('Computed from your dates, not tax advice')).toBeDefined();
     const sources = await screen.findByRole('link', { name: 'Sources' });
-    expect(sources.getAttribute('href')).toBe(pt === null ? null : holdingRuleSource(pt));
+    // The source the profile's ruleSources.holdingRule names, looked up here, not by the code under test.
+    expect(sources.getAttribute('href')).toBe(
+      pt?.sources.find((source) => source.key === pt.ruleSources.holdingRule)?.url,
+    );
     expect(sources.parentElement?.textContent).toMatch(
       /^Reviewed on \d+\s\w+\s\d{4} · general information, not advice · Sources$/,
     );
