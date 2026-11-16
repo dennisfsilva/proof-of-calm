@@ -536,6 +536,9 @@ needs (decided 2026-11-15). The native reader's review is §8 item 9.
   `as bitcoins`), `Bitcoin` for the network (`a rede Bitcoin`); the product's name takes the feminine article (`a Proof of Calm`) and stays in
   English (ADR-0040). Never echo the name as reassurance: no `calma` or `tranquilidade` in copy
   about the market or the plan.
+- **The other coins take the feminine article too**, read as `a moeda`, as `a bitcoin` does:
+  `a Ethereum`, `a Solana`, `a Chainlink` (`A Ethereum caiu 82 %`). The unit ether keeps the
+  masculine: `o ether`.
 - **"Ensure" is `confirme` or `verifique`**, since `garantir` and `garanta` stay banned (§2):
   `Confirme a data antes de guardar`.
 - **Disclosures take the official Portuguese text** of each regulator phrasing in `docs/LEGAL.md`
@@ -550,6 +553,12 @@ needs (decided 2026-11-15). The native reader's review is §8 item 9.
 - **Numerals for every number**, 2 to 9 included: `4 vezes`, `2 moedas`, `há 15 dias`. Numbers,
   percentages and dates are formatted by the country's locale (§4): `28%` and `0,1234 BTC` in
   Portugal, never typed by hand where `lib/format` writes them.
+- **A template's name spells out its number, as the English name does**: `Três moedas, sem janela
+  de venda`, `Duas moedas, sem janela de venda` (`Three coins`, `Two coins`). The one exception to the
+  numerals above; the template's other texts keep numerals (`1 moeda`, `2 moedas`).
+- **A template's explanation writes its percentages by hand as `N %`**, with an ordinary space, as
+  the English file does (`40 %`): a token the app finds and replaces with its formatted percentage
+  (`packages/content/i18n/pt-PT/README.md`, §4). The one exception to "never typed by hand".
 - **The tax authority's own terms**, never a translation back from English: `CIRS`, `Anexo G`,
   `Anexo G1`, `Quadro 18A`, `mais-valias`, `Autoridade Tributária e Aduaneira`; a rule quoted from the
   law keeps the law's wording in quotation marks («detidos por um período igual ou superior a 365
