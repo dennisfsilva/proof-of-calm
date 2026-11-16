@@ -15,7 +15,7 @@ import { deviceLocale } from '../../../lib/adapters';
 import { reportError } from '../../../lib/errors';
 import { createNumberInput } from '../../../lib/format';
 import { loadNamespace } from '../../../lib/i18n';
-import { useFormatters } from '../../../lib/services';
+import { useFormatters, useServices } from '../../../lib/services';
 import { CountryStep } from '../../onboarding';
 import type { ReportNote } from '../actions';
 
@@ -106,11 +106,12 @@ export function PrototypeImport({ name, count, hasPlan, pending, onReplace, onIm
 /** The country step, once the profiles and onboarding's words are loaded; the suggestion is the device's. */
 function PrototypeCountry({ pending, onChoose }: { readonly pending: boolean; onChoose(country: ProfileCode): void }) {
   const t = useTranslations('settings');
+  const { language } = useServices();
   const [profiles, setProfiles] = useState<CountryProfile[] | null>(null);
   const [failed, setFailed] = useState(false);
   useEffect(() => {
     let live = true;
-    Promise.all([loadProfiles(), loadNamespace('onboarding')])
+    Promise.all([loadProfiles(language), loadNamespace('onboarding')])
       .then(([loaded]) => live && setProfiles(loaded))
       .catch((error: unknown) => {
         reportError(error);
@@ -119,7 +120,7 @@ function PrototypeCountry({ pending, onChoose }: { readonly pending: boolean; on
     return () => {
       live = false;
     };
-  }, []);
+  }, [language]);
   const suggestion = useMemo(
     () => (profiles === null ? null : suggestCountry(deviceLocale(), suggestionProfiles(profiles))),
     [profiles],

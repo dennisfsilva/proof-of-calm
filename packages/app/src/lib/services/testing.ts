@@ -9,6 +9,7 @@ import { createToastManager } from '@proofofcalm/ui/components/toast';
 import { systemClock } from '../adapters/clock';
 import { sessionDrafts } from '../adapters/drafts';
 import { memoryPlanStore } from '../adapters/memory-store';
+import type { UiLanguage } from '../i18n/locale';
 import { NAMESPACE_LOADERS } from '../i18n/namespaces';
 import type { CachedHistory, HistorySource, Platform, PriceSource, PricesState, Snapshot } from '../ports';
 import { createCountries, type ProfileLoaders } from './countries';
@@ -188,11 +189,18 @@ export type TestServicesOptions = Partial<ServicesOptions> & {
   readonly nowMs?: number;
 };
 
-let profiles: Promise<CountryProfile[]> | undefined;
+const profiles = new Map<UiLanguage, Promise<CountryProfile[]>>();
 
-/** The profile loaders over the files read once per module (the round trip of each import() under Vitest, ./testing-modules). */
-function profilesInMemory(): ProfileLoaders {
-  const all = () => (profiles ??= loadProfiles());
+/**
+ * The profile loaders in `language` (ADR-0057), as the browser services' are, over the files read once per
+ * module and language (the round trip of each import() under Vitest, ./testing-modules).
+ */
+function profilesInMemory(language: UiLanguage): ProfileLoaders {
+  const all = () => {
+    const known = profiles.get(language) ?? loadProfiles(language);
+    profiles.set(language, known);
+    return known;
+  };
   return { all, one: async (code) => (await all()).find((profile) => profile.code === code) ?? null };
 }
 
@@ -209,7 +217,7 @@ export function createTestServices(overrides: TestServicesOptions = {}): Service
     drafts: sessionDrafts(() => storage),
     toasts: createToastManager(),
     rules: async () => null,
-    countries: createCountries(profilesInMemory(), clock),
+    countries: createCountries(profilesInMemory(options.language ?? 'en'), clock),
     ...options,
   });
 }

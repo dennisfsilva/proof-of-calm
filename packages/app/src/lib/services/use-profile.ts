@@ -1,5 +1,6 @@
 import { type CountryProfile, loadedProfile, loadProfile } from '@proofofcalm/content';
 import { useEffect, useState } from 'react';
+import { useServices } from './provider';
 
 // The profile of a country where a card, a source link or the picker shows it (ADR-0049). The shell boots on
 // the country's rules file, not on its profile, so the first render may have none: the profile a load has
@@ -9,7 +10,8 @@ import { useEffect, useState } from 'react';
 // loading, through the same settled path, so the hook never stays null with no load pending and the state is
 // set in a callback, never in the effect itself. A code with no profile (a plan on the generic rules) stays
 // null; `useProfileLoad` also says whether the load has settled, so a caller can tell a profile still loading
-// from one the device does not have (a load that throws settles with none).
+// from one the device does not have (a load that throws settles with none). Both read the profile in the
+// services' boot language (ADR-0057), which a language change reboots.
 
 type Loaded = { readonly code: string; readonly profile: CountryProfile | null };
 
@@ -18,13 +20,14 @@ export function useProfileLoad(code: string | undefined): {
   readonly profile: CountryProfile | null;
   readonly settled: boolean;
 } {
+  const { language } = useServices();
   const [loaded, setLoaded] = useState<Loaded | null>(null);
-  const known = code === undefined ? null : loadedProfile(code);
+  const known = code === undefined ? null : loadedProfile(code, language);
   useEffect(() => {
     if (code === undefined || known !== null) return;
     let current = true;
-    const late = loadedProfile(code);
-    void (late !== null ? Promise.resolve(late) : loadProfile(code))
+    const late = loadedProfile(code, language);
+    void (late !== null ? Promise.resolve(late) : loadProfile(code, language))
       .catch(() => null)
       .then((profile) => {
         if (!current) return;
@@ -33,7 +36,7 @@ export function useProfileLoad(code: string | undefined): {
     return () => {
       current = false;
     };
-  }, [code, known]);
+  }, [code, known, language]);
   if (code === undefined) return { profile: null, settled: true };
   if (known !== null) return { profile: known, settled: true };
   const mine = loaded !== null && loaded.code === code ? loaded : null;

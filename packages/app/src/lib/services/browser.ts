@@ -4,9 +4,9 @@
 // sessionStorage, the one toast manager, the cross-tab channel, no analytics (ADR-0028), the rules
 // of the plan's country from packages/content's generated rules file (ADR-0049: the profile with its
 // card text loads only where something shows it), the generic profile's rules standing in for a
-// country without one, and the country library over the profile loaders, all formatting in the UI
-// language the entry read (`readLanguage`, ADR-0023). The hosts' main.tsx calls it once and starts it
-// after the first render.
+// country without one, and the country library over the profile loaders, the content and all formatting
+// in the UI language the entry booted (`bootLanguage`, ADR-0023, ADR-0057). The hosts' main.tsx calls it
+// once and starts it after the first render.
 import { GENERIC_COUNTRY, loadProfile, loadProfiles, loadRules } from '@proofofcalm/content';
 import { createToastManager } from '@proofofcalm/ui/components/toast';
 import {
@@ -45,7 +45,11 @@ export function createBrowserServices({
     toasts: createToastManager(),
     analytics: noAnalytics,
     channel: crossTabChannel(),
-    rules: async (code) => (await loadRules(code)) ?? loadRules(GENERIC_COUNTRY),
-    countries: createCountries({ all: loadProfiles, one: loadProfile }, clock),
+    // In the boot language (ADR-0057): a language change reboots (ADR-0045 §8), so these never switch in place.
+    rules: async (code) => (await loadRules(code, language)) ?? loadRules(GENERIC_COUNTRY, language),
+    countries: createCountries(
+      { all: () => loadProfiles(language), one: (code) => loadProfile(code, language) },
+      clock,
+    ),
   });
 }

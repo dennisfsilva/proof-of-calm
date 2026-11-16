@@ -175,11 +175,11 @@ export function OnboardingScreen({ device }: OnboardingScreenProps) {
   });
   useEffect(
     () =>
-      void loadProfiles().then((loaded) => {
+      void loadProfiles(language).then((loaded) => {
         resume(loaded);
         setProfiles(loaded);
       }),
-    [],
+    [language],
   );
   // Dated in the UI language with the country's formatting, as the plan screens show them (ADR-0023); before a
   // country is chosen, the UI language's.

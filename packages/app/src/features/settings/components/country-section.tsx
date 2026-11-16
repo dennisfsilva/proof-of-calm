@@ -121,7 +121,10 @@ export function CountrySection() {
   useEffect(() => {
     let current = true;
     const load = (code: CountryCode) =>
-      Promise.all([services.rules(code).catch(() => null), loadProfile(code).catch(() => null)] as const);
+      Promise.all([
+        services.rules(code).catch(() => null),
+        loadProfile(code, services.language).catch(() => null),
+      ] as const);
     void Promise.all(COUNTRY_CODES.map(load)).then((loaded) => {
       if (!current) return;
       setProfiles(loaded.flatMap(([, profile]) => (profile === null ? [] : [profile])));
