@@ -1,0 +1,6 @@
+{
+  "name": "Duas moedas, sem janela de venda",
+  "oneLine": "Cada montante mensal é repartido entre a bitcoin e a Ethereum; pode adicionar uma janela de venda.",
+  "riskLabel": "Risco elevado",
+  "explanation": "2 moedas, a bitcoin e a Ethereum, compradas todos os meses e detidas, sem data de venda, a menos que adicione uma. A bitcoin caiu 78 % do máximo de {date:drawdowns.BTC.high} ao mínimo de {date:drawdowns.BTC.low}. A Ethereum caiu 82 % do máximo de {date:drawdowns.ETH.high} ao mínimo de {date:drawdowns.ETH.low}.\n\nÉ escolhido por quem quer 2 moedas em vez de 3 ou 4. O que pode correr mal: as duas quedas começaram no mesmo dia, por isso 2 moedas não são 2 riscos separados. Uma queda dessa dimensão pode repetir-se."
+}

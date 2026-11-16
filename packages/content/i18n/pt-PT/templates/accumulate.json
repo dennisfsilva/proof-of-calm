@@ -1,0 +1,6 @@
+{
+  "name": "Três moedas, sem janela de venda",
+  "oneLine": "Cada montante mensal é repartido entre a bitcoin, a Ethereum e a Solana, sem janela de venda.",
+  "riskLabel": "Risco muito elevado",
+  "explanation": "3 moedas compradas todos os meses e detidas, sem data de venda. É escolhido por quem quer juntar moedas ao longo de muitos anos sem decidir com antecedência quando sai o dinheiro. O que pode correr mal: 20 % de cada montante vai para a Solana. A Solana caiu 97 % do máximo de {date:drawdowns.SOL.high} ao mínimo de {date:drawdowns.SOL.low}. Sem janela de venda, o valor do plano no dia em que o dinheiro for necessário depende dos preços de mercado desse dia."
+}
