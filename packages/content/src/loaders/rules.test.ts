@@ -7,7 +7,8 @@ import { afterAll, describe, expect, it } from 'vitest';
 import { LOCALES_FILE, renderLocales, renderRules, writeRules } from '../../scripts/rules.ts';
 import { CONTENT_LANGUAGES, type OverlayLanguage } from '../i18n/overlay.ts';
 import type { CountryProfile } from '../schema/jurisdiction.ts';
-import { COUNTRY_CODES, countryRules, loadProfile } from './countries.ts';
+import { COUNTRY_CODES, countryRules, loadProfile, PROFILE_OVERLAYS } from './countries.ts';
+import { contentLanguageOf } from './language.ts';
 import { loadRules, RULES_LANGUAGES } from './rules.ts';
 
 // The generated rules files (ADR-0049): what the shell boots on in place of the profile. Each is the script's
@@ -103,6 +104,23 @@ describe('packages/content/rules/<language> (ADR-0057)', () => {
     expect(await loadRules('PT', 'en')).toBe(english);
     expect(await loadRules('PT', 'de')).toBe(english);
     expect(await loadRules('ZZ', 'pt-PT')).toBeNull();
+  });
+});
+
+describe('contentLanguageOf over the rules (ADR-0057, Corrections of 2026-11-16)', () => {
+  it("gives a translated profile's rules its language, and English rules English, whatever their folder", async () => {
+    const translated = new Set(Object.keys(PROFILE_OVERLAYS['pt-PT']));
+    for (const code of COUNTRY_CODES) {
+      const rules = await loadRules(code, 'pt-PT');
+      expect(rules === null ? null : contentLanguageOf(rules)).toBe(translated.has(code) ? 'pt-PT' : 'en');
+      const english = await loadRules(code);
+      expect(english === null ? null : contentLanguageOf(english)).toBe('en');
+    }
+  });
+
+  it('gives nothing for a copy of the rules', async () => {
+    const rules = await loadRules('PT', 'pt-PT');
+    expect(contentLanguageOf({ ...rules })).toBeUndefined();
   });
 });
 

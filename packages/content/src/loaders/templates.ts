@@ -10,6 +10,7 @@ import { applyOverlay, type ContentLanguage, type OverlayLanguage } from '../i18
 import type { ContentTemplate } from '../schema/template.ts';
 import { templateDatePaths } from '../template-dates.ts';
 import { asCoinId, asDate, asPercent } from './brands.ts';
+import { markLanguage } from './language.ts';
 
 /** A record with every value branded; absent keys stay absent, as `exactOptionalPropertyTypes` wants. */
 const branded = <T>(record: Readonly<Record<string, string>>, brand: (value: string) => T) =>
@@ -82,12 +83,9 @@ export const TEMPLATE_OVERLAYS: Readonly<Record<OverlayLanguage, Partial<Record<
   de: {},
 };
 
-const textsOf = ({ name, oneLine, riskLabel, explanation }: TemplateTexts): TemplateTexts => ({
-  name,
-  oneLine,
-  riskLabel,
-  explanation,
-});
+// The English texts, marked English (./language.ts); a translation over them is marked with its language.
+const textsOf = ({ name, oneLine, riskLabel, explanation }: TemplateTexts): TemplateTexts =>
+  markLanguage({ name, oneLine, riskLabel, explanation }, 'en');
 
 const translated = new Map<string, TemplateTexts>();
 
@@ -108,7 +106,7 @@ async function textsIn(template: OfferedTemplate, language: ContentLanguage): Pr
   } catch {
     return english;
   }
-  const result = applyOverlay(english, file, 'template');
+  const result = markLanguage(applyOverlay(english, file, 'template'), language);
   translated.set(key, result);
   return result;
 }

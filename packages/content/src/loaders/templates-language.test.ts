@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it, vi } from 'vitest';
 import { CONTENT_LANGUAGES, TRANSLATABLE } from '../i18n/overlay.ts';
+import { contentLanguageOf } from './language.ts';
 import { loadTemplateTexts, TEMPLATE_OVERLAYS, TEMPLATES } from './templates.ts';
 
 // The templates' texts in a content language (ADR-0057): the four fields TRANSLATABLE names, per template id, from
@@ -81,5 +82,20 @@ describe('loadTemplateTexts in a content language (ADR-0057)', () => {
     loader.TEMPLATE_OVERLAYS['pt-PT']['cycle-plan'] = () =>
       Promise.reject(new TypeError('Failed to fetch dynamically imported module'));
     expect((await loader.loadTemplateTexts('pt-PT')).get('cycle-plan')).toEqual(englishTexts.get('cycle-plan'));
+    const { contentLanguageOf: languageOf } = await import('./language.ts');
+    const texts = (await loader.loadTemplateTexts('pt-PT')).get('cycle-plan');
+    expect(texts === undefined ? null : languageOf(texts)).toBe('en');
+  });
+
+  it('gives each texts object the language it is in, and nothing to a copy (ADR-0057, Corrections)', async () => {
+    const translated = await loadTemplateTexts('pt-PT');
+    const english = await loadTemplateTexts('en');
+    for (const { id } of TEMPLATES) {
+      const each = translated.get(id);
+      expect(each === undefined ? null : contentLanguageOf(each)).toBe('pt-PT');
+      const own = english.get(id);
+      expect(own === undefined ? null : contentLanguageOf(own)).toBe('en');
+      expect(contentLanguageOf({ ...each })).toBeUndefined();
+    }
   });
 });

@@ -4,7 +4,8 @@
 // loads only where a card, a source link or the picker shows it (`loadProfile` in ./countries.ts).
 import type { CountryRules } from '@proofofcalm/core';
 import type { ContentLanguage, OverlayLanguage } from '../i18n/overlay.ts';
-import type { ProfileCode } from './countries.ts';
+import { PROFILE_OVERLAYS, type ProfileCode } from './countries.ts';
+import { markLanguage } from './language.ts';
 
 // One dynamic import per file, so that a bundler splits them. Only bundlers and Vitest run these (the script
 // reads the profiles from disk), so they need no `with { type: 'json' }` attribute. The record's keys are the
@@ -44,17 +45,19 @@ export const RULES_LANGUAGES = Object.keys(TRANSLATED);
 
 const isRulesCode = (code: string): code is ProfileCode => Object.hasOwn(RULES, code);
 
-const english = async (code: ProfileCode) => (await RULES[code]()).default as CountryRules;
+const english = async (code: ProfileCode) => markLanguage((await RULES[code]()).default as CountryRules, 'en');
 
 // A language's chunk sits outside the worker's precache, so offline before it was ever fetched it fails to load:
 // the English file then answers; it holds the same holding rule, numbers and dates (ADR-0057), so on Today only the
 // words are English. Read the file inside the try: Vite's preload wrapper can resolve a failed import to undefined
-// (ADR-0057, Corrections of 2026-11-16).
+// (ADR-0057, Corrections of 2026-11-16). A language's file over a profile with no translation holds English text,
+// so it is marked English (./language.ts); only the files over a translated profile carry the language.
 const inLanguage = async (code: ProfileCode, language: ContentLanguage) => {
   const files = language === 'en' ? undefined : TRANSLATED[language];
   if (files === undefined) return english(code);
   try {
-    return (await files[code]()).default as CountryRules;
+    const file = (await files[code]()).default as CountryRules;
+    return markLanguage(file, language !== 'en' && PROFILE_OVERLAYS[language][code] !== undefined ? language : 'en');
   } catch {
     return english(code);
   }
