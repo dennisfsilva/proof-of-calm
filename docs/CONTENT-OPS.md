@@ -71,12 +71,14 @@ owns the pipeline around them and its security model.
    (ADR-0057) that repeats a figure the agent changed fails `pnpm validate:content`
    (`overlay-number-mismatch`). The agent then changes that figure in the translation, at the path
    the check names, to the English file's value written in the translation's number format, and
-   nothing else there: the check reads each file with its own number locale, the English file's
-   profile percentages with their D8 locale and its other figures with English separators, the
-   translation with its number locale's (ADR-0057), so English characters copied as written can
-   read as another value (the skill's §1 gives the rule and its examples). A profile's percentage,
-   in English too, takes its page's decimal separator (`docs/CONTENT-STYLE.md` §4), and
-   `pnpm validate:content` refuses another with `decimal-separator` (the skill's §3 step 2). No `allowed-tools` rule approves that edit, so Claude Code asks
+   nothing else there. The check reads each file with its own number locale. In the English file it
+   reads a profile's percentages with the page's number locale, `numberLocaleFor('en', profile)`:
+   the profile's locale in English if it has one, else its `numberFormatLocale`. It reads the
+   English file's other figures with English separators, and the translation with its number
+   locale's (ADR-0057), so English characters copied as written can read as another value (the
+   skill's §1 gives the rule and its examples). A profile's percentage, in English and in a
+   translation alike, takes its number locale's decimal separator (`docs/CONTENT-STYLE.md` §4), and
+   `pnpm validate:content` refuses any other with `decimal-separator` (the skill's §3 step 2). No `allowed-tools` rule approves that edit, so Claude Code asks
    the owner unless the session's permission mode approves it; either way the agent names the
    figure and the English row first and lists the edit in its closing report. The guard and the
    finish accept the translation's file and its locale's generated rules files. Nothing refuses a
@@ -284,9 +286,10 @@ is read again at every review, because its low can still move.
    changes a translation (§3 step 2), check that its diff changes only the figures its English file
    changed, at the same paths and to the same values, and nothing else there: compare the values,
    not the characters, since the translation writes each in its number locale's format (§3 step 2;
-   in Germany's pt-PT translation, read in de-DE, `20.350` for English `EUR 20,350`, while English
-   `5,5 %` stays `5,5 %`, since a profile's English percentage already takes its page's separator
-   and draws `decimal-separator` otherwise). When the notes name a translated
+   a pt-PT translation of Germany, which does not exist yet, would be read in de-DE: `20.350` for
+   English `EUR 20,350`, while English `5,5 %` would stay `5,5 %`, since a profile's
+   English percentage already takes its page's separator and draws `decimal-separator` otherwise).
+   When the notes name a translated
    figure that still fails `overlay-number-mismatch` (§3 step 3), write that figure in the
    translation, in its number locale's format (the skill's §1), or revert the English change, in a commit on the
    agent's branch before merging; `verify` stays red until then. The Learn country
