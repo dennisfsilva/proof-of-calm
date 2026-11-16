@@ -181,7 +181,10 @@ platform without one.
   any of them, and so does a preview measured by hand; at its branch URL a preview passes only while
   its commit is the branch's head (the header of `.github/workflows/lighthouse-vercel.yml`). The local run
   (`apps/web/lighthouserc.json`, ci.yml's `lighthouse` job on push to main, the same steps in
-  lighthouse-branch.yml on a branch) holds
+  lighthouse-branch.yml on a branch) serves the real handlers with CoinGecko as a fixture
+  (`apps/web/lighthouse/api.ts`: BTC and ETH in EUR and USD, flat daily closes ending that day), so
+  the keyless upstream's 503 no longer fails Today's console check, as it did three times on
+  2026-11-15 and 2026-11-16; the deployment runs keep the live API. It holds
   the performance score, TBT and LCP of Today, Portfolio, Log and Plan at warn with the same values,
   and every other assertion (the script budget, Accessibility, CLS, console errors, all of `/` and of the public pages `/en/learn/risk-honestly`, `/en/countries/pt` and `/en/holding-date`, the last with a script budget of 12,288 bytes for its island (ADR-0045 Deviations of 2026-11-15), paths
   `tools/lighthouse/vercel.ts` measures at a deployment too) at
