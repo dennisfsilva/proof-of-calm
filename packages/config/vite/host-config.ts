@@ -42,13 +42,18 @@ const CHUNK_REPORT = 'node_modules/.cache/chunk-report.json';
 /** A message file of a language other than English: `messages/<locale>/<namespace>.json`. */
 const TRANSLATED_MESSAGES = /[\\/]messages[\\/]([A-Za-z]{2}(?:-[A-Za-z]{2})?)[\\/][^\\/]+\.json$/;
 
+/** A content file of a language other than English (ADR-0057): `rules/<language>/` or `i18n/<language>/<kind>/`. */
+const TRANSLATED_CONTENT =
+  /[\\/]content[\\/](?:rules|i18n)[\\/]([A-Za-z]{2}(?:-[A-Za-z]{2})?)[\\/](?:[a-z]+[\\/])?[^\\/]+\.json$/;
+
 /**
- * Vite's chunk name, but a chunk of another language's messages goes under `assets/messages/<locale>/`,
- * which the worker's precache leaves out (ADR-0045 §8, the entry of 2026-11-15): a hidden language's
- * files would otherwise reach every install.
+ * Vite's chunk name, but a chunk of another language's messages or content goes under
+ * `assets/messages/<locale>/`, which the worker's precache leaves out (ADR-0045 §8, the entries of
+ * 2026-11-15 and 2026-11-16): a hidden language's files would otherwise reach every install.
  */
 function chunkFileNames(chunk: Rolldown.PreRenderedChunk): string {
-  const locale = TRANSLATED_MESSAGES.exec(chunk.facadeModuleId ?? '')?.[1];
+  const id = chunk.facadeModuleId ?? '';
+  const locale = (TRANSLATED_MESSAGES.exec(id) ?? TRANSLATED_CONTENT.exec(id))?.[1];
   return locale === undefined || locale === 'en'
     ? 'assets/[name]-[hash].js'
     : `assets/messages/${locale}/[name]-[hash].js`;
