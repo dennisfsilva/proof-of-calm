@@ -9,10 +9,21 @@ import { fileURLToPath } from 'node:url';
 
 export type ChangedPath = { path: string; previous?: string; mode?: string; binary?: boolean; deleted?: boolean };
 
-/** The only paths the agent may change: one file name of lowercase letters, digits and hyphens per folder. */
-export const DATA_PATHS: readonly RegExp[] = ['jurisdictions', 'rules', 'facts', 'templates', 'cycles', 'learn'].map(
-  (dir) => new RegExp(`^packages/content/${dir}/[a-z0-9][a-z0-9-]*\\.${dir === 'learn' ? 'mdx' : 'json'}$`),
-);
+/** One file name of lowercase letters, digits and hyphens; a locale (`pt-PT`), the folder of a translation. */
+const FILE = '[a-z0-9][a-z0-9-]*';
+const LOCALE = '[a-z]{2}(?:-[A-Z]{2})?';
+
+/**
+ * The only paths the agent may change: one file name per data folder, a translation overlay at its English
+ * file's name (`i18n/<locale>/`, ADR-0057) and the generated rules file of a locale (`rules/<locale>/`).
+ */
+export const DATA_PATHS: readonly RegExp[] = [
+  ...['jurisdictions', 'rules', 'facts', 'templates', 'cycles', 'learn'].map(
+    (dir) => new RegExp(`^packages/content/${dir}/${FILE}\\.${dir === 'learn' ? 'mdx' : 'json'}$`),
+  ),
+  new RegExp(`^packages/content/i18n/${LOCALE}/(?:jurisdictions|templates|facts)/${FILE}\\.json$`),
+  new RegExp(`^packages/content/rules/${LOCALE}/${FILE}\\.json$`),
+];
 
 const isData = (path: string) => DATA_PATHS.some((pattern) => pattern.test(path));
 
@@ -101,8 +112,8 @@ const field = (value: unknown, key: string): unknown =>
 /**
  * Whether every changed profile, template, cycles file and module, and every fact entry that differs by
  * `key`, carries `reviewedBy: agent-draft`, so the owner's flip is the review; a deleted file or fact entry
- * is refused (`after` undefined: deleted). The generated rules files carry no reviewer; a path outside
- * content data is outsideData's.
+ * is refused (`after` undefined: deleted). The generated rules files and the translation overlays (prose only,
+ * ADR-0057) carry no reviewer, so only their deletion is refused; a path outside content data is outsideData's.
  */
 export function reviewerProblems(path: string, before: string | undefined, after: string | undefined): string[] {
   if (before === after || !isData(path)) return [];
