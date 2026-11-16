@@ -88,8 +88,9 @@ owns the pipeline around them and its security model.
    nothing for it; name its file and line and both values in the draft's notes and your closing
    report, and say in both that `verify` fails on `pnpm test` until the owner removes that assertion
    in a pull request of its own (`docs/ENGINEERING.md` §2)." A translation's figure that still does
-   not match is reverted on neither side: the agent names it in the draft's notes and its report,
-   and says in both that the PR's `verify` check fails on `pnpm validate:content` until it is fixed.
+   not match after the agent changes it and runs the checks again is reverted on neither side: the
+   agent names it in the draft's notes and its report, and says in both that the PR's `verify`
+   check fails on `pnpm validate:content` until it is fixed.
    The finish does not run that check; CI's `verify` job does (`.github/workflows/ci.yml`), so the
    owner fixes the figure before merging (§8 step 4).
 4. **The draft.** The agent writes its findings as JSON in the shape of `ReviewDraft`
