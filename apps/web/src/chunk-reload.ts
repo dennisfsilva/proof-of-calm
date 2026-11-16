@@ -6,6 +6,12 @@
 // chunk it can import changes, so a missing entry means a new deployment. The HEAD reaches the network,
 // as the service worker routes only GET (`apps/web/src/sw.ts`); `connect-src 'self'` allows it; Vercel
 // does not rewrite `/assets/*`, so a missing file answers 404.
+//
+// The handler leaves the event's default (ADR-0045's Deviations of 2026-11-16): Vite's preload helper then
+// throws the import's own error, as the platform's import() would, and every caller reaches its fallback
+// through that rejection. Preventing it made the helper resolve the import to `undefined`, so a caller failed
+// only by reading a property of it, and one that read none would have carried on in silence. The cost: a CSS
+// dependency that fails to preload now fails the import even when the module itself would load.
 
 /** Set once this tab reloaded for a new build: a second failure never reloads again (no loop). */
 export const CHUNK_RELOAD_KEY = 'poc.preload-reload';
@@ -48,8 +54,7 @@ export function installChunkReload(options: ChunkReloadOptions): void {
     return true;
   };
 
-  options.target.addEventListener('vite:preloadError', (event) => {
-    event.preventDefault();
+  options.target.addEventListener('vite:preloadError', () => {
     if (checking) return;
     checking = true;
     void check().then((reloaded) => {
