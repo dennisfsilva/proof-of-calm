@@ -223,9 +223,9 @@ describe('findBanned in Portuguese (docs/CONTENT-STYLE.md §2 and §9)', () => {
       'Guarde o ficheiro.',
       'Guardar',
       'Registar compra',
-      'Compras mensais de BTC.',
+      'Montante da compra mensal de BTC.',
       'Comprei BTC em março.',
-      'Uma venda de 0,1 BTC registada.',
+      'Registada uma venda de 0,1 BTC.',
       '0,1 BTC vendidos em 3 nov. 2026.',
       'Vendas de ETH em 2026.',
     ]) {
@@ -237,9 +237,9 @@ describe('findBanned in Portuguese (docs/CONTENT-STYLE.md §2 and §9)', () => {
   // the lint refuses both; the label takes a determiner or the plural (docs/CONTENT-STYLE.md §2, Portuguese).
   it('refuses a label that opens with a buying or selling form beside an asset, and passes its rewording', () => {
     for (const [refused, instead] of [
-      ['Compra mensal de BTC.', 'Compras mensais de BTC.'],
+      ['Compra mensal de BTC.', 'Montante da compra mensal de BTC.'],
       ['Compra periódica de BTC.', 'Compras periódicas de BTC.'],
-      ['Venda de 0,1 BTC registada.', 'Uma venda de 0,1 BTC registada.'],
+      ['Venda de 0,1 BTC registada.', 'Registada uma venda de 0,1 BTC.'],
       ['Venda registada: 0,1 BTC.', '0,1 BTC vendidos em 3 nov. 2026.'],
       ['Venda em 3 de março de 2027: 0,1 BTC', 'A venda de 3 de março de 2027: 0,1 BTC'],
       ['Venda parcial de ETH', 'Uma venda parcial de ETH'],
@@ -432,8 +432,8 @@ describe('findBanned in Portuguese: advice, forecasts, urgency, status and the v
     ]);
     for (const copy of [
       'Registar compra',
-      'Compras mensais de BTC.',
-      'Uma venda de 0,1 BTC registada.',
+      'Montante da compra mensal de BTC.',
+      'Registada uma venda de 0,1 BTC.',
       'Guarde o ficheiro.',
       'Registe cada venda de BTC no Registo.',
       'A janela de venda abre em 2029 para os seus BTC.',
@@ -610,7 +610,7 @@ describe('findBanned in Portuguese: the gaps and over-catches of the second revi
   it('reads "venda" as the noun after a determiner, a preposition or an "a" that opens a clause', () => {
     for (const copy of [
       'A venda de BTC antes de 365 dias é tributada.',
-      'Uma venda de 0,1 BTC registada.',
+      'Registada uma venda de 0,1 BTC.',
       'Após a venda de ETH, a mais-valia é calculada.',
       'Cada venda de ETH conta.',
       'A janela de venda abre em 2029 para os seus BTC.',

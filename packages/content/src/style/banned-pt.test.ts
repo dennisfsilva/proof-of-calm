@@ -1032,8 +1032,8 @@ const GAPS: [string, string][] = [
 const NEEDED: string[] = [
   'Caso os venda antes de 2 de março de 2027, a mais-valia é tributada.',
   'Uma venda de BTC antes de 365 dias torna a mais-valia tributável.',
-  'Última compra não tributada',
-  '0,00094 BTC (estimado)',
+  'Mais-valia da última compra não tributada a partir de 2 de março de 2027',
+  '0,00094 BTC (estimados)',
   'As mais-valias das bitcoins compradas hoje ficam excluídas de tributação se as mantiver durante pelo menos 365 dias.',
   'Uma transferência de bitcoins que não autorizou não pode ser anulada.',
   'Acesso de terceiros sem a sua autorização.',
@@ -1054,11 +1054,11 @@ const NEEDED: string[] = [
   'Manter e vender',
   'O seu plano compra até {lastBuy}, mantém e depois vende em 3 partes entre {opens} e {closes}, com saída até {exitBy}.',
   'Nenhuma das {sold} vendidas em {venue} cumpre a regra de detenção em {date}. Pode ser tributada.',
-  'Pode perder tudo: a Bitcoin caiu mais de 75 % a partir de um máximo quatro vezes desde 2011; a Ethereum caiu 94 % em 2018. Use apenas dinheiro de que não vá precisar durante anos.',
+  'Pode perder tudo: a bitcoin caiu mais de 75% a partir de um máximo 4 vezes desde 2011; a Ethereum caiu 94% em 2018. Use apenas dinheiro de que não vá precisar durante anos.',
   'Nunca deve usar um cartão de crédito para comprar um investimento.',
   'Não invista a menos que esteja preparado para perder todo o dinheiro que investe.',
   'A venda, a troca ou o uso de criptoativos pode implicar imposto a pagar.',
-  'A venda de BTC antes de 365 dias é tributada a 28%.',
+  'A mais-valia de uma venda de BTC antes de 365 dias é tributada a 28%.',
   'Todas as compras, vendas e movimentos de BTC ficam no Registo.',
   'É importante manter uma cópia dos seus dados.',
   'Exporte uma cópia para manter os seus dados.',
@@ -1070,7 +1070,7 @@ const NEEDED: string[] = [
   'O dia de compra foi 1 de outubro, há 15 dias. Registe-o ou salte o mês.',
   'Não tributado a partir de 2 mar. 2027',
   '0,1234 BTC vendíveis agora · 0,0100 BTC a partir de 12 mar. 2030',
-  'Pode perder tudo. A Bitcoin caiu mais de 75 % a partir de um máximo quatro vezes desde 2011.',
+  'Pode perder tudo. A bitcoin caiu mais de 75% a partir de um máximo 4 vezes desde 2011.',
   'O seu dia de compra é 1 de março. Hoje não é dia de compra, a menos que o tenha decidido antes.',
   'O Proof of Calm nunca pede chaves de API de corretoras.',
   'Três moedas, sem janela de venda',
@@ -1231,7 +1231,7 @@ const NEEDED: string[] = [
   'A próxima compra cai no dia de compra, no montante que o plano define.',
   'O plano conta uma queda quando as moedas que detém perdem 10 % ou mais em 7 dias.',
   'Se perder a frase de recuperação, ninguém pode restaurar as suas bitcoins.',
-  'A Bitcoin caiu mais de 75 % a partir de um máximo quatro vezes desde 2011.',
+  'A bitcoin caiu mais de 75% a partir de um máximo 4 vezes desde 2011.',
   'O ETH caiu 94 % em 2018.',
   'Quem detém bitcoins numa corretora depende da solvência dessa corretora.',
   'Regras de detenção por país',
@@ -1249,7 +1249,7 @@ const NEEDED: string[] = [
   'Com a venda de BTC, a mais-valia torna-se tributável.',
   'Vendeu BTC em 2026? Registe a venda no Registo.',
   'O plano compra BTC até 1 de junho de 2028. Depois, vende em 3 partes.',
-  'A Bitcoin caiu mais de 75 % a partir de um máximo quatro vezes desde 2011. Use apenas dinheiro de que não vá precisar durante anos.',
+  'A bitcoin caiu mais de 75% a partir de um máximo 4 vezes desde 2011. Use apenas dinheiro de que não vá precisar durante anos.',
   'A bitcoin caiu 30 % numa semana. Quem compra todos os meses pode não fazer nada, registar a compra no dia de compra ou reler o plano.',
   'O plano compra bitcoin no dia 1. Quando o preço está alto, esse montante compra menos.',
   'As suas bitcoins estão numa corretora? Uma corretora pode falir, com as moedas dos clientes lá dentro.',
@@ -1285,8 +1285,8 @@ const REWORDED: [string, string][] = [
   ],
   ['Quando vender BTC, registe a venda no Registo.', 'Registe cada venda de BTC no Registo.'],
   [
-    'Invista apenas dinheiro de que não vá precisar durante anos: a Bitcoin caiu mais de 75 % a partir de um máximo quatro vezes desde 2011.',
-    'Use apenas dinheiro de que não vá precisar durante anos: a Bitcoin caiu mais de 75 % a partir de um máximo quatro vezes desde 2011.',
+    'Invista apenas dinheiro de que não vá precisar durante anos: a bitcoin caiu mais de 75% a partir de um máximo 4 vezes desde 2011.',
+    'Use apenas dinheiro de que não vá precisar durante anos: a bitcoin caiu mais de 75% a partir de um máximo 4 vezes desde 2011.',
   ],
   [
     'Vender, trocar ou gastar criptoativos pode implicar imposto a pagar.',
@@ -1305,7 +1305,7 @@ const REWORDED: [string, string][] = [
     'Vender BTC antes de 365 dias torna a mais-valia tributável.',
     'Uma venda de BTC antes de 365 dias torna a mais-valia tributável.',
   ],
-  ['Venda de BTC antes de 365 dias: tributada a 28%.', 'A venda de BTC antes de 365 dias é tributada a 28%.'],
+  ['Venda de BTC antes de 365 dias: tributada a 28%.', 'A mais-valia de uma venda de BTC antes de 365 dias é tributada a 28%.'],
   [
     'Cada compra, venda ou movimento de BTC fica no Registo.',
     'Todas as compras, vendas e movimentos de BTC ficam no Registo.',
@@ -1335,7 +1335,7 @@ const REWORDED: [string, string][] = [
   ['Registado: venda de 0,01 BTC.', 'Registada uma venda de 0,01 BTC.'],
   [
     'A app não lhe diz quando comprar, vender ou manter bitcoins.',
-    'A app não lhe dá datas de compra, de venda ou de detenção de bitcoins.',
+    'A aplicação não indica o que comprar, quando comprar ou onde comprar.',
   ],
   [
     'Se vender ETH antes de 365 dias, a mais-valia é tributada.',
@@ -1352,8 +1352,8 @@ const REWORDED: [string, string][] = [
     'Se as suas bitcoins estiverem numa carteira sua e perder a frase de recuperação, ninguém as pode restaurar.',
   ],
   [
-    'O {product} não está registado junto de nenhum supervisor financeiro nem é supervisionado por nenhum, e nenhum sistema de indemnização aos investidores ou de garantia de depósitos cobre os criptoativos.',
-    'O {product} não tem registo nem supervisão de nenhum supervisor financeiro, e nenhum sistema de indemnização aos investidores ou de proteção de depósitos cobre os criptoativos.',
+    'A {product} não está registada junto de nenhum supervisor financeiro nem é supervisionada por nenhum, e nenhum sistema de indemnização dos investidores ou de garantia de depósitos cobre os criptoativos.',
+    'A {product} não está registada junto de nenhum supervisor financeiro nem sujeita à sua supervisão, e nenhum sistema de indemnização dos investidores ou de proteção de depósitos cobre os criptoativos.',
   ],
   [
     'Para aconselhamento sobre a sua situação, procure um consultor financeiro registado na CMVM.',
@@ -1404,9 +1404,9 @@ const REWORDED: [string, string][] = [
   ],
   [
     'O plano compra bitcoin todos os meses até 1 de junho de 2028, mantém e depois vende em terços.',
-    'A bitcoin é comprada todos os meses até 1 de junho de 2028, mantida e depois vendida em terços.',
+    'O plano: compras mensais de bitcoin até 1 de junho de 2028, uma fase de detenção e depois vendas em terços.',
   ],
-  ['Compra mensal de BTC: 100 €', 'Compras mensais de BTC: 100 €'],
+  ['Compra mensal de BTC: 100 €', 'Montante da compra mensal de BTC: 100 €'],
   [
     'Caso venda as suas bitcoins antes de 2 de março de 2027, a mais-valia é tributada.',
     'Caso as suas bitcoins sejam vendidas antes de 2 de março de 2027, a mais-valia é tributada.',
@@ -1415,7 +1415,7 @@ const REWORDED: [string, string][] = [
     'Desde que as mantenha durante 365 dias, as mais-valias das suas bitcoins estão excluídas de tributação.',
     'Se as mantiver durante 365 dias, as mais-valias das suas bitcoins estão excluídas de tributação.',
   ],
-  ['Nesta data, a venda de BTC é tributada.', 'Nesta data, uma venda de BTC é tributada.'],
+  ['Nesta data, a venda de BTC é tributada.', 'Nesta data, a mais-valia de uma venda de BTC é tributada.'],
   [
     'Caso troque BTC por ETH, começa um novo período de detenção para o ETH recebido.',
     'Numa troca de BTC por ETH, começa um novo período de detenção para o ETH recebido.',

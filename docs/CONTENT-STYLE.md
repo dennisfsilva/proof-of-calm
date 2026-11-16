@@ -164,7 +164,7 @@ The Portuguese rows (decided 2026-11-15; the voice is §9):
      `compra`, `venda`, `investimento`, `reforço` or `aquisição` (`Faça já a sua compra de BTC`).
   4. Write instead `se as mantiver` or `se as detiver`; a participle (`compradas`, `detidas`,
      `se forem vendidas`); `uma venda`, `cada venda` or `as vendas`; or the plan as the subject
-     (`O plano compra BTC todos os meses`). The table below holds the commonest cases.
+     (`O plano prevê uma compra de BTC por mês`). The table below holds the commonest cases.
   5. `disparar` fails in every form: every word that begins `dispar` and then `a`, `á`, `e` or `o`,
      except those that begin `disparat` or `disparag`; so `disparate`, `disparidade` and `díspar`
      pass, and `disparador` fails.
@@ -180,10 +180,10 @@ The Portuguese rows (decided 2026-11-15; the voice is §9):
   | `Acesso não autorizado por terceiros` | `Acesso de terceiros sem a sua autorização` |
   | `Caso venda BTC antes de 2 de março de 2027, a mais-valia é tributada` | `Numa venda de BTC antes de 2 de março de 2027, a mais-valia é tributada` |
   | `Vender BTC antes de 2 de março de 2027 torna a mais-valia tributável` | `Uma venda de BTC antes de 2 de março de 2027 torna a mais-valia tributável` |
-  | `Nesta data, a venda de BTC é tributada` | `Nesta data, uma venda de BTC é tributada` |
-  | `Venda de 0,1 BTC registada` | `Uma venda de 0,1 BTC registada` |
-  | `Compra mensal de BTC` | `Compras mensais de BTC` |
-  | `O plano é comprar BTC todos os meses` | `O plano compra BTC todos os meses` |
+  | `Nesta data, a venda de BTC é tributada` | `Nesta data, a mais-valia de uma venda de BTC é tributada` |
+  | `Venda de 0,1 BTC registada` | `Registada uma venda de 0,1 BTC` |
+  | `Compra mensal de BTC` | `Montante da compra mensal de BTC` |
+  | `O plano é comprar BTC todos os meses` | `O plano prevê uma compra de BTC por mês` |
   | `Comprar BTC` | `Registar compra` |
 
   The rule misses, and leaves to counsel and the native reader: `Todos os meses compra
@@ -503,8 +503,9 @@ needs (decided 2026-11-15). The native reader's review is §8 item 9.
   «os resultados registados no passado não constituem um indicador fiável dos resultados futuros»;
   MiCA art. 6(5)(a), «O criptoativo pode perder parcial ou totalmente o seu valor», and (e), «O
   criptoativo não está abrangido pelos sistemas de indemnização dos investidores»; the
-  deposit-guarantee statement is MiCA art. 6(5)(f), its own point, and holds `garantia`, so a text
-  that needs it takes an allow-list entry with counsel's reason (§2); the ESAs' warning of 2022-03-17 in the Portuguese version the ESAs
+  deposit-guarantee statement is MiCA art. 6(5)(f), its own point: as the English Risk page writes
+  `deposit-protection`, the Portuguese one adapts the scheme's name to `proteção de depósitos`, with
+  no allow-list entry, in §2's statement on status, which opens `A {product} não está registada`; the ESAs' warning of 2022-03-17 in the Portuguese version the ESAs
   published. "Not advice" reads «não constitui aconselhamento».
 - **Numerals for every number**, 2 to 9 included: `4 vezes`, `2 moedas`, `há 15 dias`. Numbers,
   percentages and dates are formatted by the country's locale (§4): `28%` and `0,1234 BTC` in
@@ -543,10 +544,10 @@ The product's nouns, one Portuguese word each, in every string, the site pages a
 | holding date | data de fim do período de detenção |
 | hold phase | fase de detenção |
 | holding rule | regra de detenção |
-| tax-free | `não tributado a partir de 2 de março de 2027` for the status, `data de exclusão de tributação` for the noun; the status agrees with its noun (`Última compra não tributada`): CIRS art. 10 excludes these gains and Anexo G1 heads them «Mais-valias não tributadas»; never `isento`, since an exemption is a different concept |
+| tax-free | `não tributado a partir de 2 de março de 2027` for the status, `data de exclusão de tributação` for the noun; the status agrees with its noun, and its noun is the gain, since a buy is never taxed: `Last buy tax-free` is `Mais-valia da última compra não tributada a partir de 2 de março de 2027`, a status from its date (the native reader confirms it, §8 item 9): CIRS art. 10 excludes these gains and Anexo G1 heads them «Mais-valias não tributadas»; never `isento`, since an exemption is a different concept |
 | venue | local |
 | units | unidades |
-| (estimated) | (estimado), agreeing with its noun: `comissão (estimada)`, `unidades (estimadas)`; after a ticker amount the masculine singular, `0,00094 BTC (estimado)` |
+| (estimated) | (estimado), agreeing with its noun: `comissão (estimada)`, `unidades (estimadas)`; a ticker amount is a masculine plural, as its units are, and every word after it agrees: `0,00094 BTC (estimados)`, `0,1 BTC vendidos` (the native reader confirms it, §8 item 9) |
 | fee, network fee | comissão, comissão de rede; never `taxa`, which is the tax rate in the same prose |
 | coin | moeda |
 | currency | moeda de pagamento |
