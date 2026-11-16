@@ -74,9 +74,16 @@ export type NumberLocales = readonly [english: string, translated: string, engli
 
 // Every percentage a text writes, in any form (`40 %`, `40%`, `40,5 %`, a no-break space). A template writes `N %`
 // with an ordinary space, which the app finds and formats with `format.percent` (template-step.tsx, CONTENT-STYLE §4),
-// so its translation writes the same tokens in the same order, whatever the language's own percent style.
-const PERCENT_TOKEN = /\d+(?:[.,]\d+)*[\s  ]?%/gu;
-const percentsIn = (text: string) => (text.match(PERCENT_TOKEN) ?? []).join(' | ') || 'none';
+// so its translation writes the same percentages in the same order with the same space before the sign, each value
+// read with its own text's separators (`31.4 %` in English is `31,4 %` in pt-PT).
+const PERCENT_TOKEN = /(\d+(?:[.,]\d+)*)([\s  ]?)%/gu;
+const percentsIn = (text: string, locale: string) =>
+  [...text.matchAll(PERCENT_TOKEN)]
+    .map(({ 1: run = '', 2: space = '' }) => {
+      const joiner = space === '' ? '' : space === ' ' ? ' ' : `U+${space.codePointAt(0)?.toString(16).toUpperCase()} `;
+      return `${valuesOf(run, decimalSeparator(locale)).join('/')}${joiner}%`;
+    })
+    .join(', ') || 'none';
 
 /** Every way the overlay departs from English; the empty list is a pass. */
 export function overlayProblems(
@@ -123,8 +130,9 @@ export function overlayProblems(
       datePlaceholdersIn(en).join(' ') || 'none',
     ];
     if (ourDates !== theirDates) report('date-mismatch', at, `: ${ourDates}, English ${theirDates}`);
-    if (kind !== 'template') return;
-    const [ourPercents, theirPercents] = [percentsIn(over), percentsIn(en)];
+    // A wrong value is the number check's problem; this one finds a right value written another way or moved.
+    if (kind !== 'template' || mine !== theirs) return;
+    const [ourPercents, theirPercents] = [percentsIn(over, locales[1]), percentsIn(en, locales[0])];
     if (ourPercents !== theirPercents) report('percent-mismatch', at, `: ${ourPercents}, English ${theirPercents}`);
   };
   walk(english, overlay, []);

@@ -187,13 +187,16 @@ describe('overlayProblems', () => {
     const en = 'It splits each amount 40 % Bitcoin and 30 % Ethereum.';
     expect(template(en, 'Divide cada montante: 40 % Bitcoin e 30 % Ethereum.')).toEqual([]);
     expect(template(en, 'Divide cada montante: 40% Bitcoin e 30 % Ethereum.')).toEqual(['overlay-percent-mismatch']);
-    expect(template(en, 'Divide cada montante: 40,5 % Bitcoin e 30 % Ethereum.')).toContain(
-      'overlay-percent-mismatch',
+    expect(template(en, 'Divide cada montante: 40,5 % Bitcoin e 30 % Ethereum.')).toEqual(
+      ['overlay-number-mismatch'],
     );
     expect(template(en, 'Divide cada montante: 30 % Ethereum e 40 % Bitcoin.')).toEqual(['overlay-percent-mismatch']);
     expect(template(en, `Divide cada montante: 40${String.fromCodePoint(0xa0)}% Bitcoin e 30 % Ethereum.`)).toEqual([
       'overlay-percent-mismatch',
     ]);
+    // A decimal takes the translation's separator, and keeps the ordinary space before the sign.
+    expect(template('Each coin fell 31.4 %.', 'Cada moeda caiu 31,4 %.')).toEqual([]);
+    expect(template('Each coin fell 31.4 %.', 'Cada moeda caiu 31,4%.')).toEqual(['overlay-percent-mismatch']);
   });
 
   it('keeps a template’s `{date:<field>}` placeholder intact, never translated (#274)', () => {
