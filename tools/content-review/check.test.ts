@@ -47,6 +47,33 @@ describe('outsideData', () => {
     const renamed = { path: 'packages/content/facts/b.json', previous: 'packages/content/facts/a.json' };
     expect(outsideData([renamed])).toEqual([]);
   });
+
+  it('outsideData accepts a translation overlay and a locale rules file, one name deep (ADR-0057)', () => {
+    const paths = [
+      'packages/content/i18n/pt-PT/jurisdictions/pt.json',
+      'packages/content/i18n/pt-PT/templates/two-coins.json',
+      'packages/content/i18n/pt-PT/facts/education.json',
+      'packages/content/i18n/de/facts/education.json',
+      'packages/content/rules/pt-PT/pt.json',
+    ];
+    expect(outsideData(paths.map((path) => ({ path, mode: '100644' })))).toEqual([]);
+    for (const path of [
+      'packages/content/i18n/pt-PT/README.md',
+      'packages/content/i18n/pt-PT/x/pt.json',
+      'packages/content/i18n/pt-PT/cycles/drawdowns.json',
+      'packages/content/i18n/pt-PT/learn/noise.mdx',
+      'packages/content/i18n/pt-PT/jurisdictions/PT.json',
+      'packages/content/i18n/pt-PT/jurisdictions/sub/pt.json',
+      'packages/content/i18n/pt-pt/jurisdictions/pt.json',
+      'packages/content/i18n/pt-PT/pt.json',
+      'packages/content/rules/pt-PT/PT.json',
+      'packages/content/rules/pt-PT/x/pt.json',
+      'packages/content/rules/PT/pt.json',
+    ])
+      expect(outsideData([{ path }])).toEqual([`${path}: not content data`]);
+    const nested = 'packages/content/i18n/pt-PT/../../src/x.json';
+    expect(outsideData([{ path: nested }])).toEqual([`${nested}: not a relative path`]);
+  });
 });
 
 describe('prFiles', () => {
