@@ -224,7 +224,9 @@ The finish refuses a changed entry at any other value.
    `packages/content/` (`jurisdictions/ie.json`), its `field` the changed leaf's path
    (`card.allowances[0]`). A changed translation leaf gets its own `changes` row: its `item` is
    `i18n/<locale>/<dir>/<file>.json`, the English file's item under the locale's folder, its `field`
-   the leaf's path, and its quote, date, reason and URL the English row's.
+   the leaf's path, and its quote, date, reason and URL the English row's. The finish matches a
+   `field` exactly and only in brackets, while the content check prints an index as a dot: write
+   the bracket form of the path it prints (`card.rates.0.value` is `card.rates[0].value`).
    `accessed`, `reviewedBy` and `status.confidence` need no `changes` row.
    Give one `reviewed` row per file reviewed; the finish refuses a changed file, a module too, with
    no `reviewed` row. A translation gets none: its `lastReviewed` is its English file's. The owner sets `lastReviewed` to today only when that row shows every source
