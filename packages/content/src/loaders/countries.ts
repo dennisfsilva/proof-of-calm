@@ -50,15 +50,20 @@ const load = async (code: ProfileCode) => {
 // English is the profile itself; a translation is a new object over it. A translation's chunk that fails to load
 // (offline before it was ever fetched: another language's chunks sit outside the worker's precache) gives the
 // English profile, as a message chunk's failure gives English messages, and is not kept, so the next load retries.
+// The file is read inside the try, as in ./rules.ts: Vite's preload wrapper can resolve a failed import to undefined.
 const translated = async (code: ProfileCode, language: ContentLanguage) => {
   const profile = await load(code);
   const overlay = language === 'en' ? undefined : PROFILE_OVERLAYS[language][code];
   if (overlay === undefined) return profile;
   const known = loaded.get(key(code, language));
   if (known !== undefined) return known;
-  const file = await overlay().catch(() => null);
-  if (file === null) return profile;
-  const result = applyOverlay(profile, file.default, 'jurisdiction');
+  let file: unknown;
+  try {
+    file = (await overlay()).default;
+  } catch {
+    return profile;
+  }
+  const result = applyOverlay(profile, file, 'jurisdiction');
   loaded.set(key(code, language), result);
   return result;
 };

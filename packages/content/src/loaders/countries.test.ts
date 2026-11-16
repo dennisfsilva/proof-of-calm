@@ -109,6 +109,19 @@ describe('loadProfile and loadProfiles in a content language (ADR-0057)', () => 
     fresh.PROFILE_OVERLAYS['pt-PT'].PT = async () => ({ default: { name: 'Portugal (pt)' } });
     expect((await fresh.loadProfile('PT', 'pt-PT'))?.name).toBe('Portugal (pt)');
   });
+
+  it('answers the English profile when the import resolves without the file, as the preload wrapper does', async () => {
+    // In a build, Vite's wrapper resolves a failed import to undefined once a `vite:preloadError` listener prevents
+    // its default (the web host's chunk reload, apps/web/src/chunk-reload.ts).
+    vi.resetModules();
+    const fresh = await import('./countries.ts');
+    fresh.PROFILE_OVERLAYS['pt-PT'].PT = () => Promise.resolve(undefined as unknown as { default: unknown });
+    const english = await fresh.loadProfile('PT');
+    expect(await fresh.loadProfile('PT', 'pt-PT')).toBe(english);
+    expect(fresh.loadedProfile('PT', 'pt-PT')).toBeNull();
+    fresh.PROFILE_OVERLAYS['pt-PT'].PT = async () => ({ default: { name: 'Portugal (pt)' } });
+    expect((await fresh.loadProfile('PT', 'pt-PT'))?.name).toBe('Portugal (pt)');
+  });
 });
 
 describe('holdingRuleSource (docs/JURISDICTIONS.md §2)', () => {
