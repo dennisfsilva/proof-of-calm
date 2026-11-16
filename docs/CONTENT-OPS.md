@@ -69,9 +69,11 @@ owns the pipeline around them and its security model.
    nothing. The rules files, a locale's folder under `packages/content/rules/` too, change only as the
    output of `pnpm --filter @proofofcalm/content rules`. A translation under `packages/content/i18n/`
    (ADR-0057) that repeats a figure the agent changed fails `pnpm validate:content`
-   (`overlay-number-mismatch`): the agent changes that figure in the translation at the same path and
-   nothing else there. A translation carries no `reviewedBy`, so the owner's diff read (§8) is its
-   review.
+   (`overlay-number-mismatch`) on the review's PR. The guard and the finish accept that translation's
+   file and its locale's generated rules files in the PR, but the agent edits only the English data
+   files: the owner changes the figure in the translation at the same path, and nothing else there,
+   in the review (§8 step 4), until the skill takes that step (planned: M2). A translation carries no
+   `reviewedBy`, so the owner's diff read (§8) is its review.
 3. **The expected failure.** The agent runs the content checks, and the skill tells it: "The one
    failure you expect is `agent-draft` on the entries you marked; fix or revert anything else."
 4. **The draft.** The agent writes its findings as JSON in the shape of `ReviewDraft`
@@ -247,7 +249,9 @@ is read again at every review, because its low can still move.
    file with no row) and you opened each secondary source of step 1, otherwise leave it unchanged (a
    partial review moves nothing); bump `status.version`,
    set `changedOn` and write `changeNotice` when a rule changed in substance; a bump that corrects our
-   own file also writes a `changeNotice` that says so (`docs/JURISDICTIONS.md` §6). The Learn country
+   own file also writes a `changeNotice` that says so (`docs/JURISDICTIONS.md` §6). When a translation
+   fails `overlay-number-mismatch` (§3 step 2), change that figure in it at the same path, and
+   nothing else there, in the same commit. The Learn country
    screens print `lastReviewed`, so `e2e-visual` can fail on the new date: delete the baselines it names
    in a commit on the agent's branch (the guard accepts a removed baseline, nothing else outside the
    data folders), and send new ones in a needs-owner PR after the merge (`CLAUDE.md`, Visual
