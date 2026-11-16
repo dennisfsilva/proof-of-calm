@@ -3,7 +3,7 @@
   "tabs": {
     "plan": "Plano",
     "coins": "Moedas e pesos",
-    "hold": "Detenção e venda",
+    "hold": "Regra e venda",
     "data": "País e dados"
   },
   "plan": {
@@ -48,7 +48,7 @@
     },
     "confirmRule": "Substituir a regra de detenção: em vez de {from}, {to}",
     "confirmRuleIssue": "Marque a caixa para substituir a regra de detenção.",
-    "notSaved": "Não guardado: esta alteração entra em conflito com outra parte do plano. Verifique «Plano» e «Detenção e venda» e depois mude de país novamente.",
+    "notSaved": "Não guardado: esta alteração entra em conflito com outra parte do plano. Verifique «Plano» e «Regra e venda» e depois mude de país novamente.",
     "confirm": "Mudar o país para {name}",
     "changed": "País alterado para {name}.",
     "alreadyChanged": "O plano foi alterado para {name} noutro separador do navegador."
