@@ -11,8 +11,9 @@ const phone = { width: 390, height: 844 };
 // UK block, the PWA wiring, the deployment checks) depend on no viewport: they run on desktop only. The
 // matrix spec lays out every page on every project.
 const requestOnly = /(csp|csp-report|deployment|prices|pwa|site|uk-block)\.spec\.ts$/;
-// The UI-language spec boots the shell in another language; one phone and one desktop project cover it.
-const phoneAndDesktop = /language\.spec\.ts$/;
+// The UI-language specs boot the shell in another language, and the import-failure spec aborts chunks in the
+// built app: neither depends on the viewport, so one phone and one desktop project (one per engine) cover them.
+const phoneAndDesktop = /(language|import-failure)\.spec\.ts$/;
 // The long-date layout spec lays pt-PT's tables out where they are narrowest: android-small and zoom-125 only.
 const narrowOnly = /language-layout\.spec\.ts$/;
 const elsewhere = [requestOnly, phoneAndDesktop];
