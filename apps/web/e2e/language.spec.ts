@@ -3,6 +3,8 @@ import { fixtureNowMs, fixtureSnapshot } from '@proofofcalm/app/lib/services/fix
 import ptPlan from '../../../packages/app/src/messages/pt-PT/plan.json' with { type: 'json' };
 import ptSettings from '../../../packages/app/src/messages/pt-PT/settings.json' with { type: 'json' };
 import ptShell from '../../../packages/app/src/messages/pt-PT/shell.json' with { type: 'json' };
+import portugalPt from '../../../packages/content/i18n/pt-PT/jurisdictions/pt.json' with { type: 'json' };
+import portugal from '../../../packages/content/jurisdictions/pt.json' with { type: 'json' };
 import { seedPlan } from './seed';
 import { routeFixturePrices, test } from './support';
 
@@ -114,7 +116,7 @@ test.describe("when the language's rules chunk cannot load (offline before it wa
     await expect(page.getByRole('heading', { level: 1, name: ptPlan.title })).toBeVisible();
     expect(aborted.length).toBeGreaterThan(0);
     await expect(page.getByText(new RegExp(`^${ptPlan.holding.exempt.replace('{date}', '.+')}$`))).toBeVisible();
-    await expect(page.getByText(/the counterparty is tax-resident/i)).toBeVisible();
+    await expect(page.getByText(portugal.holdingRuleConditions[0] ?? '')).toBeVisible();
     await expect(page.getByText(new RegExp(`^${ptShell.countryLine.sources.split(' {date}')[0]} `))).toBeVisible();
 
     await page.goto('/settings');
@@ -122,5 +124,28 @@ test.describe("when the language's rules chunk cannot load (offline before it wa
     await page.getByRole('tab', { name: ptSettings.tabs.hold }).click();
     await expect(page.getByRole('radio', { name: /^A regra de Portugal$/ })).toBeVisible();
     await expect(page.getByText(ptPlan.holdingRule.countryUnknown)).toHaveCount(0);
+
+    // The profile's translation is a chunk of the same name, so Learn's card shows the English profile.
+    await page.goto('/learn/countries/pt');
+    await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
+    await expect(page.getByText(portugal.card.summary60)).toBeVisible();
+    await expect(page.getByText(portugalPt.card.summary60)).toHaveCount(0);
+  });
+});
+
+test.describe("when the language's chunks load", () => {
+  test.use({ serviceWorkers: 'block' });
+
+  // ADR-0057: Learn's card shows the profile through its pt-PT overlay, the rule conditions included.
+  test("Learn's PT card shows the profile's pt-PT translation", async ({ page }, testInfo) => {
+    // biome-ignore lint/suspicious/noSkippedTests: a runtime skip on every project but desktop, not a disabled test
+    test.skip(testInfo.project.name !== 'desktop', 'the translation does not depend on the viewport');
+    await bootIn(page, 'pt-PT');
+    await page.goto('/learn/countries/pt');
+    await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'pt-PT');
+    await expect(page.getByText(portugalPt.card.summary60)).toBeVisible();
+    await expect(page.getByText(portugalPt.holdingRuleConditions[0] ?? '')).toBeVisible();
+    await expect(page.getByText(portugal.card.summary60)).toHaveCount(0);
   });
 });
