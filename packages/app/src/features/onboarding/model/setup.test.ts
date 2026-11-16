@@ -58,12 +58,15 @@ describe('startPlan (docs/DOMAIN.md §5)', () => {
     const result = await start('PT', 'two-coins');
     if (!result.ok) throw new Error(JSON.stringify(result.error));
     const plan = result.value;
-    expect(plan.holdingRule).toEqual({ kind: 'days', days: 365, effect: 'exempt' });
+    // The rule, its version and the currency are the profile's, which a content review may change
+    // (docs/CONTENT-OPS.md §8): compared with the loaded profile, not written here.
+    const portugal = await profile('PT');
+    expect(plan.holdingRule).toEqual(portugal.holdingRule);
     expect([plan.country, plan.countryRuleVersion, plan.payCurrency, plan.displayCurrency]).toEqual([
       'PT',
-      2,
-      'EUR',
-      'EUR',
+      portugal.status.version,
+      portugal.currency,
+      portugal.currency,
     ]);
     expect([plan.buyDay, plan.monthlyAmount, plan.startingAmount, plan.why]).toEqual([1, '100', '0', '']);
     expect(plan.coins.map((coin) => coin.id)).toEqual(['BTC', 'ETH']);

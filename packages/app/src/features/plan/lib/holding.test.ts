@@ -1,4 +1,4 @@
-import { loadProfile } from '@proofofcalm/content';
+import { type CountryProfile, loadProfile } from '@proofofcalm/content';
 import { type CalendarDate, type HoldingRule, HoldingRuleSchema, sameHoldingRule } from '@proofofcalm/core';
 import { FIXTURE_RULES } from '@proofofcalm/core/testing/country-change';
 import { describe, expect, it } from 'vitest';
@@ -136,27 +136,35 @@ describe('holdingRuleText', () => {
 
 describe('holdingCountryOf', () => {
   const TODAY = '2026-10-20' as CalendarDate;
+  // The URL of the source the profile's ruleSources.holdingRule names, read here as the file states it: a content
+  // review may change the URL (docs/CONTENT-OPS.md §8), never which source the rule cites.
+  const lawOf = (profile: CountryProfile) => {
+    const url = profile.sources.find((source) => source.key === profile.ruleSources.holdingRule)?.url;
+    if (url === undefined) throw new Error(`no holdingRule source in ${profile.code}`);
+    return url;
+  };
 
   it('names the country and links its rule to the law that sets it, its holdingRule source', async () => {
     const pt = await loadProfile('PT');
+    if (pt === null) throw new Error('the PT profile loads');
     expect(holdingCountryOf(FIXTURE_RULES.PT, '16 Oct 2026', pt, TODAY)).toEqual({
       code: 'PT',
       name: 'Portugal',
       rule: FIXTURE_RULES.PT.holdingRule,
       reviewed: '16 Oct 2026',
       conditions: FIXTURE_RULES.PT.holdingRuleConditions,
-      source:
-        'https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs10.aspx',
+      source: lawOf(pt),
     });
   });
 
   it('the card links the holdingRule source, not the first', async () => {
     const de = await loadProfile('DE');
     if (de === null) throw new Error('the DE profile loads');
-    const reordered = { ...de, sources: [...de.sources].reverse() };
-    expect(holdingCountryOf(FIXTURE_RULES.DE, '16 Oct 2026', reordered, TODAY).source).toBe(
-      'https://www.gesetze-im-internet.de/estg/__23.html',
-    );
+    // The law last, so the first source is another one.
+    const cites = (source: CountryProfile['sources'][number]) => source.key === de.ruleSources.holdingRule;
+    const reordered = { ...de, sources: [...de.sources.filter((one) => !cites(one)), ...de.sources.filter(cites)] };
+    expect(reordered.sources[0]?.url).not.toBe(lawOf(de));
+    expect(holdingCountryOf(FIXTURE_RULES.DE, '16 Oct 2026', reordered, TODAY).source).toBe(lawOf(de));
   });
 
   it('links no source while the profile is not loaded', () => {
