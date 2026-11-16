@@ -1,5 +1,214 @@
 {
+  "title": "Plano",
+  "edit": "Editar o plano",
+  "change": {
+    "heading": "Alterar o plano",
+    "review": "Rever o plano"
+  },
   "review": {
-    "since": "{kind, select, reviewed {Reviu este plano pela última vez a {date}.} other {Criou este plano a {date}.}}"
+    "title": "Rever o plano",
+    "back": "Voltar ao Plano",
+    "since": "{kind, select, reviewed {Reviu este plano pela última vez a {date}.} other {Criou este plano a {date}.}}",
+    "right": {
+      "heading": "Continua correto?",
+      "noteLabel": "A nota que escreveu para si",
+      "note": "{date}: «{note}»"
+    },
+    "rules": {
+      "heading": "As regras mudaram?",
+      "country": "País do plano: {country}.",
+      "notice": "{date}: {notice}",
+      "changed": "{date}: {kind, select, generic {o perfil geral mudou} other {as regras de {country} mudaram}}.",
+      "link": "{kind, select, generic {Ver os países} other {Ver o cartão de {country}}}"
+    },
+    "where": {
+      "heading": "Onde estão as moedas",
+      "intro": "No fim de {date}, depois das vendas e transferências com data igual ou anterior, o Registo mostra estas unidades em cada local.",
+      "noVenue": "Sem local",
+      "estimated": "{count, plural, one {Comprado como planeado estimou as unidades de {figure} movimento de {coin} a partir do preço do dia. A confirmação da plataforma tem as unidades exatas.} other {Comprado como planeado estimou as unidades de {figure} movimentos de {coin} a partir do preço do dia. As confirmações da plataforma têm as unidades exatas.}}",
+      "differs": "Se a plataforma ou a carteira mostrar outras unidades, registe a compra, a venda, a transferência ou as moedas recebidas em falta, ou corrija as unidades, o local ou a data de um movimento.",
+      "log": "Abrir o Registo",
+      "none": "O Registo não mostra moedas detidas no fim de {date}."
+    },
+    "mark": "Marcar como revisto",
+    "marked": "Reviu este plano a {date}. Próxima revisão a partir de {next}.",
+    "failed": "Não foi possível registar a revisão. Tente de novo."
+  },
+  "why": {
+    "window": "Porquê? A janela de venda",
+    "parts": "Porquê? As 3 partes",
+    "partsLine": "A janela de venda tem 3 partes."
+  },
+  "reference": {
+    "window": "O plano prevê compras até {lastBuy}, uma fase de detenção e uma venda em 3 partes entre {opens} e {closes}, com saída até {exitBy}.",
+    "openEnded": "O plano prevê compras até {lastBuy} e depois uma fase de detenção, sem janela de venda.",
+    "amounts": "{starting} para começar e depois {monthly} por mês no dia {buyDay}: {split}.",
+    "monthly": "{monthly} por mês no dia {buyDay}: {split}.",
+    "why": "Nas suas palavras: {why}"
+  },
+  "totals": {
+    "planned": "{invested} de {planned} investidos até agora ({percent}). Compras em falta: {left}.",
+    "sellPhase": "{invested} de {planned} investidos ({percent}).",
+    "nothingPlanned": "{invested} investidos até agora.",
+    "ended": "{invested} investidos. As compras terminaram a {date}.",
+    "beforeFirstBuy": "{count, plural, one {{figure} compra adicional com data anterior ao primeiro dia de compra, {date}, não está no montante investido acima. O Investido do Portefólio inclui-a.} other {{figure} compras adicionais com data anterior ao primeiro dia de compra, {date}, não estão no montante investido acima. O Investido do Portefólio inclui-as.}}",
+    "heldWithCost": "{count, plural, one {{figure} movimento de moedas adicionadas com custo registado não está no montante investido acima. O Investido do Portefólio inclui-o.} other {{figure} movimentos de moedas adicionadas com custo registado não estão no montante investido acima. O Investido do Portefólio inclui-os.}}",
+    "beforeFirstBuyAndHeld": "{count, plural, one {{figure} compra adicional com data anterior ao primeiro dia de compra, {date}, não está no montante investido acima.} other {{figure} compras adicionais com data anterior ao primeiro dia de compra, {date}, não estão no montante investido acima.}} {held, plural, one {{heldFigure} movimento de moedas adicionadas com custo registado também não está.} other {{heldFigure} movimentos de moedas adicionadas com custo registado também não estão.}} O Investido do Portefólio inclui-os todos."
+  },
+  "sellable": {
+    "now": "{units} vendáveis agora",
+    "later": "{units} a partir de {date}"
+  },
+  "coins": {
+    "legend": "Moedas e repartição",
+    "share": "Peso de {coin} (%)",
+    "remove": "Remover {coin}",
+    "add": "Adicionar uma moeda",
+    "addCoin": "Adicionar {coin}",
+    "limit": "Um plano tem no máximo {max} moedas.",
+    "issue": {
+      "split-sum": "Ajuste os pesos para que somem 100%.",
+      "split-precision": "Use no máximo 4 casas decimais."
+    }
+  },
+  "schedule": {
+    "legend": "Montantes e datas",
+    "monthly": "Montante mensal ({currency})",
+    "starting": "Montante inicial ({currency})",
+    "startingHint": "Comprado uma vez no primeiro dia de compra e repartido pelas moedas como cada compra mensal. Introduza 0 para não ter montante inicial.",
+    "firstBuy": "Primeira compra",
+    "buyDay": "Dia de compra",
+    "buyDayHint": "O dia do mês de cada compra depois da primeira.",
+    "lastBuy": "Última compra",
+    "issue": {
+      "no-amount": "Introduza um montante mensal, um montante inicial ou ambos.",
+      "amount-precision": "Use no máximo {max} casas decimais.",
+      "date-required": "Escolha uma data completa: dia, mês e ano.",
+      "last-buy-before-first-buy": "Escolha uma última compra a partir da primeira compra.",
+      "plan-too-long": "Um plano tem no máximo {max} compras mensais. Escolha uma data anterior para a última compra.",
+      "plan-too-long-years": "Um plano dura no máximo {years} anos a partir da primeira compra. Escolha uma data anterior para a última compra."
+    }
+  },
+  "sellWindow": {
+    "legend": "Janela de venda",
+    "none": "Sem janela de venda",
+    "noneLine": "O plano prevê compras e depois uma fase de detenção.",
+    "dates": "Uma janela de venda",
+    "datesLine": "O plano prevê uma venda em 3 partes entre as datas de abertura e de fecho, com saída até à última.",
+    "opens": "Abertura",
+    "closes": "Fecho",
+    "exitBy": "Saída até",
+    "issue": {
+      "date-required": "Escolha uma data completa: dia, mês e ano.",
+      "order": {
+        "closes": "Escolha uma data de fecho igual ou posterior à data de abertura.",
+        "exitBy": "Escolha uma data de saída igual ou posterior à data de fecho."
+      }
+    }
+  },
+  "earlyWindow": {
+    "notice": "A janela de venda abre a {opensOn}. {on, select, lastBuy {A mais-valia desta última compra} template {A mais-valia da última compra do ponto de partida} other {A mais-valia da última compra}} {effect, select, exempt {não é tributada} other {é tributada à taxa de longo prazo}} a partir de {eligibleOn}, segundo {rule, select, country {a regra de detenção do plano} named {a regra de {country}} generic {a regra do perfil geral} other {a regra definida por si}}. Também pode {on, select, lastBuy {escolher uma última compra anterior} template {escolher outro ponto de partida} other {{host, select, country {cancelar esta alteração e escolher uma data de abertura posterior em Detenção e venda} other {escolher uma data de abertura posterior}}}}.",
+    "accept": "Abrir a janela de venda a {opensOn}, antes de {on, select, lastBuy {esta última compra} template {a última compra do ponto de partida} other {a última compra}} cumprir a regra de detenção",
+    "refused": "{on, select, template {Marque a caixa para abrir a janela de venda mais cedo ou escolha outro ponto de partida.} lastBuy {Marque a caixa para abrir a janela de venda mais cedo ou escolha uma última compra anterior.} other {{host, select, country {Marque a caixa para abrir a janela de venda mais cedo ou cancele esta alteração e escolha uma data de abertura posterior em Detenção e venda.} other {Marque a caixa para abrir a janela de venda mais cedo ou escolha uma data de abertura posterior.}}}}"
+  },
+  "holding": {
+    "exempt": "Mais-valia não tributada a partir de {date}",
+    "lowerRate": "Mais-valia à taxa de longo prazo a partir de {date}",
+    "note": "Calculado a partir das suas datas, não constitui aconselhamento fiscal",
+    "templateNote": "Calculado a partir das datas do ponto de partida, não constitui aconselhamento fiscal"
+  },
+  "holdingRule": {
+    "legend": "Regra de detenção",
+    "country": "{kind, select, named {A regra de {name}} generic {A regra do perfil geral} other {A regra do seu país}}",
+    "countryUnknown": "A regra do seu país não está carregada neste dispositivo.",
+    "own": "Uma regra definida por si",
+    "ownLine": "Aplica-se a todas as compras, seja qual for a data.",
+    "kind": "Regra",
+    "kinds": {
+      "none": "Sem regra de detenção",
+      "days": "Um número de dias",
+      "years": "Um número de anos"
+    },
+    "count": {
+      "days": "Dias",
+      "years": "Anos"
+    },
+    "effect": "Depois do período",
+    "effects": {
+      "exempt": "Mais-valia não tributada",
+      "lower-rate": "Mais-valia à taxa de longo prazo"
+    },
+    "text": {
+      "none": "Sem regra de detenção.",
+      "days": "{count, plural, one {{figure} dia} other {{figure} dias}}; depois, {effect, select, exempt {mais-valia não tributada} other {mais-valia à taxa de longo prazo}}.",
+      "years": "{count, plural, one {{figure} ano} other {{figure} anos}}; depois, {effect, select, exempt {mais-valia não tributada} other {mais-valia à taxa de longo prazo}}."
+    },
+    "issue": {
+      "count-whole": "Introduza um número inteiro de {kind, select, years {anos} other {dias}}.",
+      "count-range": "Introduza de {min} a {max} {kind, select, years {anos} other {dias}}.",
+      "country-unknown": "A regra do seu país não está carregada neste dispositivo. Escolha uma regra definida por si."
+    }
+  },
+  "timeline": {
+    "heading": "Cronologia",
+    "phase": {
+      "buy": "Compra",
+      "hold": "Detenção",
+      "sell": "Venda",
+      "exit": "Saída"
+    },
+    "current": {
+      "buy": "na fase de compra",
+      "hold": "na fase de detenção",
+      "sell": "na janela de venda",
+      "exit": "depois do fecho da janela de venda"
+    },
+    "milestone": {
+      "first": "Primeira compra",
+      "last": "Última compra",
+      "exempt": "Mais-valia da última compra não tributada",
+      "lowerRate": "Mais-valia da última compra à taxa de longo prazo",
+      "part1": "Parte 1 de 3: um terço das moedas detidas",
+      "part2": "Parte 2 de 3: um terço das moedas detidas",
+      "part3": "Parte 3 de 3: o resto das moedas detidas",
+      "out": "Saída",
+      "today": "Hoje",
+      "halving": "Halving",
+      "peak": "Máximo do ciclo que {source, select, template {o ponto de partida} other {a página do plano DCA}} pressupõe"
+    },
+    "range": "{from} a {to}",
+    "noEnd": "Sem fim definido",
+    "around": "Por volta de {month}",
+    "today": "Hoje, {date}",
+    "label": "Plano {open, select, yes {a partir de {start}, sem fim definido} other {de {start} a {end}}}.",
+    "labelToday": "Plano {open, select, yes {a partir de {start}, sem fim definido} other {de {start} a {end}}}. Hoje, {date}, o plano está {phase}.",
+    "table": {
+      "summary": "Mostrar a cronologia numa tabela",
+      "date": "Data",
+      "milestone": "Marco"
+    }
+  },
+  "pause": {
+    "heading": "Pôr o plano em pausa",
+    "body": "Os dias de compra durante a pausa ficam marcados como em pausa, não como falhados. Os movimentos mantêm-se. Um ficheiro de calendário que tenha adicionado mantém os eventos. Ao retomar, o próximo dia de compra e a última compra mantêm as datas.",
+    "pause": "Pôr em pausa a partir de hoje",
+    "since": "Em pausa desde {date}",
+    "resume": "Retomar",
+    "overlap": "O plano não foi posto em pausa, porque uma pausa ainda por vir se sobreporia a uma pausa a partir de hoje."
+  },
+  "endBuying": {
+    "title": "Terminar as compras",
+    "body": "Sem dias de compra depois de hoje, {date}.{count, plural, =0 {{window, select, yes { A janela de venda mantém-se.} other {}}} one { {figure} movimento{window, select, yes { e a janela de venda mantêm-se} other { mantém-se}}.} other { {figure} movimentos{window, select, yes { e a janela de venda mantêm-se} other { mantêm-se}}.}} Um ficheiro de calendário que tenha adicionado mantém os eventos.",
+    "confirm": "Terminar as compras hoje",
+    "keep": "Manter o plano como está",
+    "ended": "As compras terminaram a {date}.",
+    "undo": "Anular",
+    "notRestored": "O plano mudou depois de terminar as compras, por isso a última compra anterior não foi reposta."
+  },
+  "reminder": {
+    "event": {
+      "summary": "Dia de compra",
+      "description": "Hoje é o dia de compra. Abra a {product} para registar a compra."
+    }
   }
 }
