@@ -9,8 +9,8 @@ import { routeFixturePrices, test } from './support';
 // pt-PT's long dates on the narrow projects, android-small and zoom-125 (docs/DESIGN.md §7 and §8): "28 de fevereiro
 // de 2026" keeps its month name and its no-break spaces (docs/CONTENT-STYLE.md §4), so a table whose columns are then
 // wider than its box stacks each row's cells, measured afresh at every change and stored nowhere
-// (docs/research/narrow-tables.md). The Log, Today's dates table and Portfolio's value table stay inside their box with
-// every amount's € in view; `data-stacked` always agrees with a measure taken here; English keeps their columns.
+// (docs/research/narrow-tables.md). The Log, Today's dates table, Portfolio's value table and its Holdings with a coin's
+// daily closes open stay inside their box with every amount's € in view; `data-stacked` always agrees with a measure taken here; English keeps their columns.
 
 /** `LANGUAGE_STORAGE_KEY` of `packages/app/src/lib/i18n/language.ts`, whose index Node cannot import (JSON). */
 const LANGUAGE_STORAGE_KEY = 'poc.language';
@@ -162,6 +162,31 @@ for (const screen of ['log', 'today', 'portfolio'] as const) {
     expect(errors).toEqual([]);
   });
 }
+
+test("pt-PT: a coin's daily closes open in Holdings stack inside its row and keep Holdings inside its box", async ({
+  page,
+}) => {
+  const errors = await boot(page, 'pt-PT');
+  await open(page, '/portfolio');
+  const holdings = page.locator('main#main table[data-slot="table"]');
+  await holdings.locator('tbody button[aria-expanded]').first().click();
+  const details = holdings.locator('details[data-slot="chart-table"]');
+  await details.locator('summary').click();
+  await expect(details).toHaveAttribute('open', '');
+  const closes = details.locator('table');
+  await expect(closes).toContainText(/de\s\S+\sde\s20\d\d/);
+  // The closes' four columns are wider than the row's cell: they stack there instead of widening Holdings.
+  expect((await expectFitting(closes)).stacked).toBe(true);
+  // Whenever Holdings does scroll, its wrapper is the tab stop a keyboard user scrolls it with (WCAG 2.1.1).
+  const wrapper = await holdings.evaluate((element) => {
+    const box = element.parentElement as HTMLElement;
+    return { scrolls: box.scrollWidth > box.clientWidth, tabindex: box.getAttribute('tabindex') };
+  });
+  if (wrapper.scrolls) expect(wrapper.tabindex, 'a Holdings that scrolls is a tab stop').toBe('0');
+  // Holdings does not stack, so a fresh measure wider than its box would be a Holdings that scrolls.
+  await expectFitting(holdings);
+  expect(errors).toEqual([]);
+});
 
 test('pt-PT at 125 % text: the Log unstacks at a 16 px root and stacks again at 20 px, every time it changes', async ({
   page,
