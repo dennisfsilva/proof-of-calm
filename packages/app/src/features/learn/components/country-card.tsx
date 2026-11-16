@@ -21,8 +21,9 @@ import { CountryDateLine } from './country-date-line';
 // (`lib/services/countries.ts`), so this lazy chunk imports no value of packages/content or packages/core.
 // `CountryCardView` is the card with the formatters passed in, which the static country pages render too
 // (`../site/countries.tsx`); `CountryCard` gives it the app's. A profile whose text is in another language than the
-// screen's (no translation yet, or its chunk failed offline; ADR-0057) marks that text with `lang` and says so in one
-// line under the title, in the screen's language; the static pages are English, so they never show it.
+// screen's (no translation yet, or its chunk failed offline; ADR-0057) marks that text with `lang`; English text on
+// another screen says so in one line under the title, in the screen's language, and nothing else does (a Portuguese
+// model cached across a switch to English is not "in English"); the static pages are English, so they never show it.
 
 type RuleKey = keyof CountryCardModel['ruleSources'];
 
@@ -109,7 +110,7 @@ export function CountryCardView({ country, level, id, f }: CountryCardProps & { 
         line
       ) : (
         <>
-          {lang !== undefined && <p className="text-13 text-ink-2">{t('inEnglish')}</p>}
+          {lang === 'en' && <p className="text-13 text-ink-2">{t('inEnglish')}</p>}
           {text(card.summary60)}
           {section(t('classification'), text(card.classification))}
           {section(

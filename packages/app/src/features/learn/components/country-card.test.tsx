@@ -213,4 +213,23 @@ describe('CountryCard in pt-PT (WCAG 2.2 SC 3.1.2, ADR-0057)', () => {
     expect(card.querySelector('[lang]')).toBeNull();
     expect(screen.queryByText(IN_ENGLISH)).toBeNull();
   });
+
+  // A model cached across a switch to English: the text is Portuguese, so the line that says it is English never shows.
+  it('marks a Portuguese profile lang=pt-PT on an English screen and shows no line that it is in English', async () => {
+    const portugal = await loadProfile('PT', 'pt-PT');
+    if (portugal === null) throw new Error('no profile PT');
+    const services = createTestServices();
+    await services.start();
+    const { container } = render(
+      <ServicesProvider services={services}>
+        <I18nProvider messages={{ learn, shell }}>
+          <CountryCard country={countryCardModel(portugal, services.clock.today())} level={1} />
+        </I18nProvider>
+      </ServicesProvider>,
+    );
+    await act(() => Promise.resolve());
+    expect(screen.getByText(portugal.card.summary60).getAttribute('lang')).toBe('pt-PT');
+    expect(screen.queryByText(learn.card.inEnglish)).toBeNull();
+    expect(container.textContent).not.toContain(learn.card.inEnglish);
+  });
 });
