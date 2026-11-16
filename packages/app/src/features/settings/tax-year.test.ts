@@ -23,6 +23,8 @@ vi.mock('@proofofcalm/content', async (original) =>
 await preloadLazyModules();
 
 const LANGUAGES = { en: english, 'pt-PT': portuguese } as const;
+type Language = keyof typeof LANGUAGES;
+const LANGUAGE_TAGS = Object.keys(LANGUAGES) as Language[];
 
 /**
  * The English profile texts that hold a `;` on 2026-11-16: Germany's lot note, the US lot note and two of its
@@ -72,14 +74,14 @@ function flagged(country: string): Snapshot {
 }
 
 /** The header of the running year's file of `country`, worded in `language`. */
-async function header(country: CountryCode, language: keyof typeof LANGUAGES): Promise<string> {
+async function header(country: CountryCode, language: Language): Promise<string> {
   const snapshot = flagged(country);
   const platform = recordingPlatform();
   const services = createTestServices({ snapshot, platform, rules });
   await services.start();
   await vi.waitFor(() => expect(services.ui.getState().rules?.country).toBe(country));
   const loaded = services.ui.getState().rules?.rules;
-  if (loaded === undefined) throw new Error(`no rules for ${country}`);
+  if (loaded === undefined || loaded === null) throw new Error(`no rules for ${country}`);
   const t = createTranslator({ locale: language, messages: { settings: LANGUAGES[language] }, namespace: FILE });
   const endingIn = taxYearEndingIn(services.ui.getState().today, loaded.taxYear);
   const plan = { plan: snapshot.plan as Plan, entries: snapshot.entries };
@@ -89,12 +91,12 @@ async function header(country: CountryCode, language: keyof typeof LANGUAGES): P
 }
 
 describe('the tax-year header lines', () => {
-  it.each(Object.keys(LANGUAGES))('hold no ";" in any %s message or branch', (language) => {
-    const file = LANGUAGES[language as keyof typeof LANGUAGES].data.taxYear.file;
+  it.each(LANGUAGE_TAGS)('hold no ";" in any %s message or branch', (language) => {
+    const file = LANGUAGES[language].data.taxYear.file;
     expect(strings(file).filter((text) => text.includes(';'))).toEqual([]);
   });
 
-  it("hold a \";\" in no country's English name, lot note, condition or source but the listed ones", async () => {
+  it('hold a ";" in no country\'s English name, lot note, condition or source but the listed ones', async () => {
     const texts = (await loadProfiles('en')).flatMap((profile) => [
       profile.name,
       profile.lotRuleNote,
@@ -105,8 +107,8 @@ describe('the tax-year header lines', () => {
     expect(texts.filter((text) => text.includes(';')).sort()).toEqual(PROFILE_SEMICOLONS);
   });
 
-  it.each(COUNTRY_CODES.flatMap((code) => Object.keys(LANGUAGES).map((language) => [code, language] as const)))(
-    "%s's file in %s opens with header lines, a \";\" only in a listed profile text",
+  it.each(COUNTRY_CODES.flatMap((code) => LANGUAGE_TAGS.map((language) => [code, language] as const)))(
+    '%s\'s file in %s opens with header lines, a ";" only in a listed profile text',
     async (code, language) => {
       const lines = (await header(code, language)).split('\n').map(uncell);
       expect(lines.length).toBeGreaterThan(5);
