@@ -186,8 +186,12 @@ generated rules files of each language.
   unmarked and keeps the page's language. `textLang` (`packages/app/src/lib/i18n/text-lang.ts`) gives
   an element `lang="en"` where the text's language is not the screen's: the country card, the
   holding conditions, the early-opening notice's conditions, the rule editor's general-profile line,
-  and a Learn module's title, caveat and body, which no loader returns and are English. A country
-  card whose text is English says so under its title (`learn.card.inEnglish`, D5), outside the
-  marked text and only while the text is on the card; the static site pages are English and never
-  show it. Known limit: no overlay holds a `null` item today; a future one keeps its English under
+  and a Learn module's title, idea (the Learn index's rows too), caveat and body, which no loader
+  returns and are English. Each `lang` comes from the object whose text the element shows: the
+  general-profile line from the profile, not the rules, since offline the two loaders can answer two
+  languages. The app's own lines inside a module's body, its chart and its past-performance line,
+  carry the UI's language (`uiLang`) on a screen that is not English. A country card whose text is
+  English on a screen that is not says so under its title (`learn.card.inEnglish`, D5), outside the
+  marked text and only while the text is on the card; a Portuguese card on an English screen does
+  not; the static site pages are English and never show it. Known limit: no overlay holds a `null` item today; a future one keeps its English under
   the object's language, so that item would be marked as the overlay's language.
