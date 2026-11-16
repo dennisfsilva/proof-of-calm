@@ -1,101 +1,101 @@
 {
-  "title": "Today",
+  "title": "Hoje",
   "empty": {
-    "title": "No plan yet",
-    "noPlan": "<setup>Set up a plan</setup> or <import>import a file</import>."
+    "title": "Ainda sem plano",
+    "noPlan": "<setup>Crie um plano</setup> ou <import>importe um ficheiro</import>."
   },
   "action": {
-    "late": "{month} is still open",
-    "lateBody": "Buy day was {date}, {days, plural, one {{figure} day} other {{figure} days}} ago. Record it or skip the month.",
-    "due": "Today is the {month} buy day",
-    "upcoming": "Next buy day: {date}",
-    "noneLeft": "No buy days left",
-    "starting": "Starting amount: due {date}",
-    "startingLate": "It was due on {date}, {days, plural, one {{figure} day} other {{figure} days}} ago.",
-    "done": "{month} is recorded",
-    "skipped": "{month} is skipped",
-    "pausedMonth": "{month} is paused",
-    "paused": "Paused until {date}",
-    "pausedOpen": "Paused since {date}",
-    "resume": "Resume",
-    "next": "Next buy day: {date}.",
-    "record": "Record a purchase",
-    "asPlanned": "Bought as planned",
-    "different": "Bought a different amount",
-    "skip": "Skip {month}",
-    "edit": "Edit",
-    "recorded": "Purchase recorded.",
-    "parts": "Planned split"
+    "late": "O mês de {month} continua em aberto",
+    "lateBody": "O dia de compra foi a {date}, há {days, plural, one {{figure} dia} other {{figure} dias}}. Registe a compra ou salte o mês.",
+    "due": "Hoje é o dia de compra de {month}",
+    "upcoming": "Próximo dia de compra: {date}",
+    "noneLeft": "Não restam dias de compra",
+    "starting": "Montante inicial: previsto para {date}",
+    "startingLate": "Estava previsto para {date}, há {days, plural, one {{figure} dia} other {{figure} dias}}.",
+    "done": "O mês de {month} está registado",
+    "skipped": "O mês de {month} foi saltado",
+    "pausedMonth": "O mês de {month} está em pausa",
+    "paused": "Em pausa até {date}",
+    "pausedOpen": "Em pausa desde {date}",
+    "resume": "Retomar",
+    "next": "Próximo dia de compra: {date}.",
+    "record": "Registar compra",
+    "asPlanned": "Comprado como planeado",
+    "different": "Comprado outro montante",
+    "skip": "Saltar {month}",
+    "edit": "Editar",
+    "recorded": "Compra registada.",
+    "parts": "Repartição planeada"
   },
   "phase": {
-    "hold": "In the hold phase",
-    "holdBody": "The sell window opens on {date}.",
-    "sell": "In the sell window",
-    "sellBody": "It closes on {date}.",
-    "exit": "The sell window has closed",
-    "exitBody": "The plan ends on {date}.",
-    "done": "The plan ended on {date}"
+    "hold": "Na fase de detenção",
+    "holdBody": "A janela de venda abre a {date}.",
+    "sell": "Na janela de venda",
+    "sellBody": "Fecha a {date}.",
+    "exit": "A janela de venda fechou",
+    "exitBody": "O plano termina a {date}.",
+    "done": "O plano terminou a {date}"
   },
   "why": {
-    "hold": "Why? The hold phase",
-    "window": "Why? The sell window"
+    "hold": "Porquê? A fase de detenção",
+    "window": "Porquê? A janela de venda"
   },
   "pending": {
-    "heading": "Also open",
-    "dca": "{month}: due {date}"
+    "heading": "Também em aberto",
+    "dca": "{month}: previsto para {date}"
   },
   "portfolio": {
-    "value": "Portfolio value",
-    "invested": "Invested"
+    "value": "Valor do portefólio",
+    "invested": "Investido"
   },
   "prices": {
-    "asOf": "Prices as of {time}, {date}",
-    "asOfLive": "Prices as of {time}, {date} · Price data by CoinGecko",
-    "delayed": "Prices as of {time}, {date} · delayed",
-    "delayedLive": "Prices as of {time}, {date} · delayed · Price data by CoinGecko",
-    "fromOffline": "Prices from {time}, {date} · offline",
-    "fromOfflineLive": "Prices from {time}, {date} · offline · Price data by CoinGecko"
+    "asOf": "Preços de {date}, às {time}",
+    "asOfLive": "Preços de {date}, às {time} · Dados de preços da CoinGecko",
+    "delayed": "Preços de {date}, às {time} · com atraso",
+    "delayedLive": "Preços de {date}, às {time} · com atraso · Dados de preços da CoinGecko",
+    "fromOffline": "Preços de {date}, às {time} · sem ligação",
+    "fromOfflineLive": "Preços de {date}, às {time} · sem ligação · Dados de preços da CoinGecko"
   },
   "strip": {
-    "link": "Your plan",
-    "buy": "Buying",
-    "hold": "Holding",
-    "sell": "Selling",
-    "exit": "Out by",
-    "range": "{from} to {to}",
-    "from": "from {from}",
-    "label": "Plan from {start}{open, select, yes {, with no end set} other { to {end}}}. Today is {today}.",
-    "table": "Show the dates as a table",
-    "phase": "Phase",
-    "start": "From",
-    "end": "To"
+    "link": "O plano",
+    "buy": "Compra",
+    "hold": "Detenção",
+    "sell": "Venda",
+    "exit": "Saída",
+    "range": "{from} a {to}",
+    "from": "a partir de {from}",
+    "label": "Plano {open, select, yes {a partir de {start}, sem fim definido} other {de {start} a {end}}}. Hoje é {today}.",
+    "table": "Mostrar as datas numa tabela",
+    "phase": "Fase",
+    "start": "De",
+    "end": "Até"
   },
   "banner": {
-    "never": "Your data lives only on this device. <link>Export a copy.</link>",
-    "last": "Your data lives only on this device. Last export {date}. <link>Export a copy.</link>"
+    "never": "Os dados ficam apenas neste dispositivo. <link>Exporte uma cópia.</link>",
+    "last": "Os dados ficam apenas neste dispositivo. Última exportação: {date}. <link>Exporte uma cópia.</link>"
   },
   "ruleChange": {
     "notice": "{date}: {notice}",
-    "generic": "{date}: {kind, select, generic {the general profile} other {the rules for {country}}} changed. Review your plan.",
-    "review": "Review",
-    "dismiss": "Dismiss",
-    "failed": "The notice could not be dismissed. Try again."
+    "generic": "{date}: {kind, select, generic {o perfil geral mudou} other {as regras do país do plano ({country}) mudaram}}. Reveja o plano.",
+    "review": "Rever",
+    "dismiss": "Dispensar",
+    "failed": "Não foi possível dispensar o aviso. Tente de novo."
   },
   "review": {
-    "created": "You set up this plan on {date}.",
-    "reviewed": "You last reviewed this plan on {date}.",
-    "question": "Is it still right? Have the rules changed?",
-    "open": "Review the plan",
-    "later": "Later",
-    "failed": "The review could not be postponed. Try again."
+    "created": "Criou este plano a {date}.",
+    "reviewed": "Reviu este plano pela última vez a {date}.",
+    "question": "Continua correto? As regras mudaram?",
+    "open": "Rever o plano",
+    "later": "Mais tarde",
+    "failed": "Não foi possível adiar a revisão. Tente de novo."
   },
   "redDay": {
-    "week": "{names}{coins, select, one {} other {, in the amounts you hold,}} fell {fall} in the 7 days to {date}.",
-    "high": "On {date} {names}{coins, select, one { was} other {, in the amounts you hold, were}} {fall} below {coins, select, one {its} other {their combined}} 90‑day high.",
-    "open": "See the fall under way",
-    "dismiss": "Dismiss",
-    "failed": "The notice could not be dismissed on this device, so it may show again."
+    "week": "{names}{coins, select, one {} other {, nas quantidades que detém,}} {coins, select, one {caiu} other {caíram}} {fall} nos 7 dias até {date}.",
+    "high": "A {date}, {names}{coins, select, one { estava} other {, nas quantidades que detém, estavam}} {fall} abaixo {coins, select, one {do respetivo máximo} other {do máximo conjunto}} de 90 dias.",
+    "open": "Ver a queda em curso",
+    "dismiss": "Dispensar",
+    "failed": "Não foi possível dispensar o aviso neste dispositivo, por isso pode voltar a aparecer."
   },
-  "durability": "Your data lives only in this browser. Install the app or export a copy to keep it.",
-  "durabilityInstalled": "Your data lives only on this device. Export a copy to keep it."
+  "durability": "Os dados ficam apenas neste navegador. Instale a aplicação ou exporte uma cópia para os conservar.",
+  "durabilityInstalled": "Os dados ficam apenas neste dispositivo. Exporte uma cópia para os conservar."
 }
