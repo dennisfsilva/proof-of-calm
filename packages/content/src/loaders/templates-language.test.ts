@@ -46,7 +46,10 @@ describe('loadTemplateTexts in a content language (ADR-0057)', () => {
     expect([...texts.keys()]).toEqual(TEMPLATES.map(({ id }) => id));
     for (const templateId of overlayIds('pt-PT')) {
       const file = overlayFile('pt-PT', templateId);
-      expect(Object.keys(file).every((field) => TRANSLATABLE.template.includes(field)), templateId).toBe(true);
+      expect(
+        Object.keys(file).every((field) => TRANSLATABLE.template.includes(field)),
+        templateId,
+      ).toBe(true);
       expect(texts.get(templateId), templateId).toEqual({ ...englishTexts.get(templateId), ...file });
     }
   });
@@ -66,7 +69,8 @@ describe('loadTemplateTexts in a content language (ADR-0057)', () => {
     // In a build, Vite's wrapper resolves a failed import to undefined once a `vite:preloadError` listener prevents
     // its default (the web host's chunk reload, apps/web/src/chunk-reload.ts; #285).
     const loader = await fresh();
-    loader.TEMPLATE_OVERLAYS['pt-PT']['two-coins'] = () => Promise.resolve(undefined as unknown as { default: unknown });
+    loader.TEMPLATE_OVERLAYS['pt-PT']['two-coins'] = () =>
+      Promise.resolve(undefined as unknown as { default: unknown });
     expect((await loader.loadTemplateTexts('pt-PT')).get('two-coins')).toEqual(englishTexts.get('two-coins'));
     loader.TEMPLATE_OVERLAYS['pt-PT']['two-coins'] = async () => ({ default: { name: 'Duas moedas' } });
     expect((await loader.loadTemplateTexts('pt-PT')).get('two-coins')?.name).toBe('Duas moedas');

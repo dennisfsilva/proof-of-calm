@@ -6,8 +6,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createFormatters, type Formatters } from '../../../lib/format';
 import { I18nProvider, localesFor } from '../../../lib/i18n';
 import onboarding from '../../../messages/en/onboarding.json';
-import portuguese from '../../../messages/pt-PT/onboarding.json';
 import shell from '../../../messages/en/shell.json';
+import portuguese from '../../../messages/pt-PT/onboarding.json';
 import { type TemplateChoice, TemplateStep } from './template-step';
 
 afterEach(cleanup);
