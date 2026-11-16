@@ -44,8 +44,11 @@ const RANGE_JOINER = String.raw`(?:[–-]|\s+to\s+)`;
 const FIGURE = String.raw`\d+(?:[.,]\d+)*`;
 /** The rest of a percentage range after one of its figures: further figures, then the sign. */
 export const PERCENT_FOLLOWS = new RegExp(String.raw`^(?:${RANGE_JOINER}${FIGURE})*\s*%`, 'u');
-// A sign followed by two hexadecimal digits is a URL's percent-escape (`a1%20b`), never a percentage.
-const PERCENT = new RegExp(String.raw`${FIGURE}(?:${RANGE_JOINER}${FIGURE})*(\s*)%(?![\dA-Fa-f]{2})`, 'g');
+// A sign followed by two hexadecimal digits is a URL's percent-escape (`a1%20b`), never a percentage. The joiner
+// check reads the figure before the sign; the decimal check reads the whole range.
+const SIGN = String.raw`(\s*)%(?![\dA-Fa-f]{2})`;
+const PERCENT = new RegExp(`${FIGURE}${SIGN}`, 'g');
+const PERCENT_RANGE = new RegExp(`${FIGURE}(?:${RANGE_JOINER}${FIGURE})*${SIGN}`, 'g');
 const URL_IN_TEXT = /https?:\/\/\S+/g;
 
 /**
@@ -104,7 +107,7 @@ export function decimalSeparator(locale: string): string {
 function decimalProblems(path: string, locale: string, texts: readonly [string, string][]): Problem[] {
   const decimal = decimalSeparator(locale);
   return texts.flatMap(([field, text]) =>
-    [...text.replaceAll(URL_IN_TEXT, ' ').matchAll(PERCENT)].flatMap(([excerpt]): Problem[] => {
+    [...text.replaceAll(URL_IN_TEXT, ' ').matchAll(PERCENT_RANGE)].flatMap(([excerpt]): Problem[] => {
       const wrong = /[.,]/.exec(excerpt.replaceAll(decimal, ''))?.[0];
       if (wrong === undefined) return [];
       const detail = `${field}: ${JSON.stringify(excerpt)} writes "${wrong}", expected "${decimal}" (${locale})`;
