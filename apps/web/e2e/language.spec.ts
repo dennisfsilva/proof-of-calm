@@ -27,6 +27,19 @@ async function bootIn(page: Page, language: string) {
 
 const screenArea = (page: Page) => page.locator('main#main');
 
+/**
+ * Portugal's pt-PT text as the loader merges the overlay over English (ADR-0057): a string replaces English's, a
+ * missing one or `null` keeps it, and an array merges only at English's length. A review may translate either
+ * way, so no text is asserted to differ from English.
+ */
+const inPortuguese = (english: string, translated: string | null | undefined) => translated ?? english;
+const ptConditions: readonly (string | null)[] = portugalPt.holdingRuleConditions;
+const ptCondition = (index: number) =>
+  inPortuguese(
+    portugal.holdingRuleConditions[index] ?? '',
+    ptConditions.length === portugal.holdingRuleConditions.length ? ptConditions[index] : undefined,
+  );
+
 test('boots in pt-PT from the stored language: the lang attribute, its message files and no bare key', async ({
   page,
 }) => {
@@ -129,7 +142,6 @@ test.describe("when the language's rules chunk cannot load (offline before it wa
     await page.goto('/learn/countries/pt');
     await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
     await expect(page.getByText(portugal.card.summary60)).toBeVisible();
-    await expect(page.getByText(portugalPt.card.summary60)).toHaveCount(0);
   });
 });
 
@@ -144,8 +156,7 @@ test.describe("when the language's chunks load", () => {
     await page.goto('/learn/countries/pt');
     await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
     await expect(page.locator('html')).toHaveAttribute('lang', 'pt-PT');
-    await expect(page.getByText(portugalPt.card.summary60)).toBeVisible();
-    await expect(page.getByText(portugalPt.holdingRuleConditions[0] ?? '')).toBeVisible();
-    await expect(page.getByText(portugal.card.summary60)).toHaveCount(0);
+    await expect(page.getByText(inPortuguese(portugal.card.summary60, portugalPt.card?.summary60))).toBeVisible();
+    await expect(page.getByText(ptCondition(0))).toBeVisible();
   });
 });
