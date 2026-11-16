@@ -58,8 +58,10 @@ const ASSET_NAME = between(
 );
 const TICKER = between(['BTC', 'ETH', 'SOL', 'LINK'], 'u');
 // The messages' placeholders the app fills with a coin: {coin} with its ticker, {coins} and {names} with a list of
-// coins. An ICU argument on them ({coins, select, …}) chooses words and stays copy.
-const COIN_PLACEHOLDER = /\{(?:coins?|names)\}/u;
+// coins, and the names each format.units caller in packages/app fills with units and their ticker ("0.5 BTC"). A name
+// the app also fills with money, a link or a currency ({fee}, {sold}, {log}, {file}) stays out. An ICU argument on
+// them ({coins, select, …}) chooses words and stays copy.
+const COIN_PLACEHOLDER = /\{(?:coins?|names|units|held(?:Units)?|sent|excess|short|outside)\}/u;
 // An English or German imperative is the bare verb, so it counts only at the start of a sentence; "Buy day" is
 // the plan's noun. The Portuguese forms count anywhere (directive-pt.ts).
 const IMPERATIVE = /^\s*(buy|sell|hold|invest|get|grab|kaufe?n?)(?![\p{L}\p{N}])(?!\s+days?\b)/iu;
