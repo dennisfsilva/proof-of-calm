@@ -4,11 +4,13 @@ import {
   anEntry,
   aPlan,
   asV2Plan,
+  asV3Plan,
   BTC,
   date,
   ETH,
   id,
   instant,
+  MainPlanV3Schema,
   money,
   month,
   PreviousBuildPlanSchema,
@@ -34,17 +36,29 @@ const kept = anEntry();
 const deleted = anEntry({ deletedAt: instant('2026-02-01T10:00:00Z') });
 const exportedAt = instant('2026-10-16T10:00:00+01:00');
 const now = instant('2026-10-17T08:00:00Z');
+const at = instant('2026-10-22T09:00:00+01:00');
 const roundTrip = (value: unknown): unknown => JSON.parse(JSON.stringify(value));
 
 describe('exportBackup (docs/DOMAIN.md §3.13)', () => {
   it('writes the plan and the entries that are not deleted, in the Proof of Calm format', () => {
     expect(exportBackup(plan, [kept, deleted], exportedAt)).toEqual({
       format: BACKUP_FORMAT,
-      schemaVersion: 5,
+      schemaVersion: 6,
       exportedAt,
       plan,
       entries: [kept],
     });
+  });
+
+  it('writes a plan acknowledged in another language than English as a version 6 file, which main answers newer-version', () => {
+    const portuguese = aPlan({ riskAcknowledgedAt: at, riskWordingVersion: 1, riskLanguage: 'pt-PT' });
+    for (const entries of [[kept], [kept, aMove()]]) {
+      const exported = exportBackup(portuguese, entries, exportedAt);
+      expect(writtenBackup(exported)).toStrictEqual(exported);
+      expect(readBackup(roundTrip(writtenBackup(exported)))).toStrictEqual({ ok: true, value: exported });
+      // Main (73d5deec) reads backups up to version 5 and answers newer-version above it.
+      expect(writtenBackup(exported).schemaVersion).toBeGreaterThan(5);
+    }
   });
 
   it('writes a plan with nothing recorded as a version 2 file with the v2 plan, which reads back exactly', () => {
@@ -55,19 +69,21 @@ describe('exportBackup (docs/DOMAIN.md §3.13)', () => {
     expect(readBackup(roundTrip(written))).toStrictEqual({ ok: true, value: exported });
   });
 
-  it('writes an acknowledged plan as a version 3 file, unchanged, which reads back exactly', () => {
-    const acknowledged = aPlan({ riskAcknowledgedAt: instant('2026-10-22T09:00:00+01:00'), riskWordingVersion: 1 });
+  it("writes a plan acknowledged in English as a version 3 file with main's v3 plan, which reads back exactly", () => {
+    const acknowledged = aPlan({ riskAcknowledgedAt: at, riskWordingVersion: 1 });
     const exported = exportBackup(acknowledged, [kept], exportedAt);
-    expect(writtenBackup(exported)).toStrictEqual({ ...exported, schemaVersion: 3 });
-    expect(readBackup(roundTrip(writtenBackup(exported)))).toStrictEqual({ ok: true, value: exported });
+    const written = writtenBackup(exported);
+    expect(written).toStrictEqual({ ...exported, schemaVersion: 3, plan: asV3Plan(acknowledged) });
+    expect(MainPlanV3Schema.parse(written.plan)).toStrictEqual(written.plan);
+    expect(readBackup(roundTrip(written))).toStrictEqual({ ok: true, value: exported });
   });
 
   it('writes version 4 only with a held entry, whatever the plan records, and reads it back exactly', () => {
     const held = anEntry({ kind: 'held', slot: null, amount: null, units: units('0.5') });
-    const acknowledged = aPlan({ riskAcknowledgedAt: instant('2026-10-22T09:00:00+01:00'), riskWordingVersion: 1 });
+    const acknowledged = aPlan({ riskAcknowledgedAt: at, riskWordingVersion: 1 });
     for (const withPlan of [plan, acknowledged]) {
       const exported = exportBackup(withPlan, [kept, held], exportedAt);
-      expect(writtenBackup(exported)).toStrictEqual({ ...exported, schemaVersion: 4 });
+      expect(writtenBackup(exported)).toStrictEqual({ ...exported, schemaVersion: 4, plan: asV3Plan(withPlan) });
       expect(readBackup(roundTrip(writtenBackup(exported)))).toStrictEqual({ ok: true, value: exported });
     }
     // A deleted held entry is never exported, so it raises nothing.
@@ -83,8 +99,7 @@ describe('exportBackup (docs/DOMAIN.md §3.13)', () => {
       [kept, held, move],
     ]) {
       const exported = exportBackup(plan, entries, exportedAt);
-      expect(writtenBackup(exported)).toStrictEqual(exported);
-      expect(writtenBackup(exported).schemaVersion).toBe(5);
+      expect(writtenBackup(exported)).toStrictEqual({ ...exported, schemaVersion: 5, plan: asV3Plan(plan) });
       expect(readBackup(roundTrip(writtenBackup(exported)))).toStrictEqual({ ok: true, value: exported });
     }
     // A deleted move is never exported, so it raises nothing; no other kind carries `to` or `received`.
@@ -120,10 +135,12 @@ describe('readBackup (docs/DOMAIN.md §3.13)', () => {
     expect(readBackup(roundTrip(file))).toEqual({ ok: true, value: file });
   });
 
-  it('reads a v3 export of an acknowledged plan back exactly', () => {
-    const acknowledged = aPlan({ riskAcknowledgedAt: instant('2026-10-22T09:00:00+01:00'), riskWordingVersion: 2 });
+  it('reads a v3 backup of an acknowledged plan, as main wrote it, as acknowledged in en', () => {
+    const acknowledged = aPlan({ riskAcknowledgedAt: at, riskWordingVersion: 2 });
     const exported = exportBackup(acknowledged, [kept], exportedAt);
-    expect(readBackup(roundTrip(exported))).toEqual({ ok: true, value: exported });
+    const mainWrote = { ...exported, schemaVersion: 3, plan: asV3Plan(acknowledged) };
+    expect(readBackup(roundTrip(mainWrote))).toStrictEqual({ ok: true, value: exported });
+    expect(exported.plan.riskLanguage).toBe('en');
   });
 
   it('imports a v2 file of the previous build as v3, with no acknowledgement', () => {
@@ -145,20 +162,18 @@ describe('readBackup (docs/DOMAIN.md §3.13)', () => {
   });
 
   it('says when the file comes from a newer version of the app', () => {
-    expect(readBackup({ ...(roundTrip(file) as object), schemaVersion: 6 })).toEqual({
+    expect(readBackup({ ...(roundTrip(file) as object), schemaVersion: 7 })).toEqual({
       ok: false,
-      error: { code: 'newer-version', schemaVersion: 6 },
+      error: { code: 'newer-version', schemaVersion: 7 },
     });
   });
 
-  it('reads v2, v3 and v4 files', () => {
-    const acknowledged = aPlan({ riskAcknowledgedAt: instant('2026-10-22T09:00:00+01:00'), riskWordingVersion: 1 });
+  it('reads v2 to v5 files, their plans at v2 or v3', () => {
+    const acknowledged = aPlan({ riskAcknowledgedAt: at, riskWordingVersion: 1 });
     const v3 = exportBackup(acknowledged, [kept], exportedAt);
-    for (const version of [3, 4]) {
-      expect(readBackup({ ...(roundTrip(v3) as object), schemaVersion: version })).toStrictEqual({
-        ok: true,
-        value: v3,
-      });
+    for (const version of [3, 4, 5]) {
+      const mainWrote = { ...(roundTrip(v3) as object), schemaVersion: version, plan: roundTrip(asV3Plan(acknowledged)) };
+      expect(readBackup(mainWrote)).toStrictEqual({ ok: true, value: v3 });
     }
     const v2 = { ...(roundTrip(file) as object), schemaVersion: 2, plan: roundTrip(asV2Plan(plan)) };
     expect(readBackup(v2)).toStrictEqual({ ok: true, value: file });

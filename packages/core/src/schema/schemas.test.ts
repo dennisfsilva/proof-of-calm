@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { anEntry, aPlan, asV2Plan, BTC, date, instant, PreviousBuildPlanSchema } from '../../test/builders';
+import { anEntry, aPlan, asV2Plan, asV3Plan, BTC, date, instant, PreviousBuildPlanSchema } from '../../test/builders';
 import { BACKUP_FORMAT, BACKUP_SCHEMA_VERSION, BackupFileSchema } from './backup';
 import { CoinSchema } from './coin';
 import { CountryRulesSchema } from './country';
@@ -105,11 +105,11 @@ describe('prefs and prices', () => {
   });
 });
 
-describe('plan schema v3 and the upgrade from v2 (docs/DOMAIN.md §2.1)', () => {
+describe('plan schema v4 and the upgrade from v2 and v3 (docs/DOMAIN.md §2.1; upgrade.test.ts)', () => {
   const acknowledged = aPlan({ riskAcknowledgedAt: instant('2026-10-22T09:00:00+01:00'), riskWordingVersion: 1 });
 
-  it('parses a v3 plan, acknowledged or not', () => {
-    expect(PLAN_SCHEMA_VERSION).toBe(3);
+  it('parses a v4 plan, acknowledged or not', () => {
+    expect(PLAN_SCHEMA_VERSION).toBe(4);
     expect(PlanSchema.safeParse(aPlan()).success).toBe(true);
     expect(PlanSchema.parse(acknowledged)).toEqual(acknowledged);
     expect(PlanSchema.safeParse({ ...acknowledged, riskWordingVersion: -1 }).success).toBe(false);
@@ -117,32 +117,19 @@ describe('plan schema v3 and the upgrade from v2 (docs/DOMAIN.md §2.1)', () => 
     expect(PlanSchema.safeParse({ ...acknowledged, riskAcknowledgedAt: '2026-10-22' }).success).toBe(false);
   });
 
-  it('refuses a v2 plan, which upgradePlan turns into a v3 plan with nothing acknowledged', () => {
+  it('refuses a v2 or v3 plan, which upgradePlan turns into a v4 plan', () => {
     const plan = aPlan();
     expect(PlanSchema.safeParse(asV2Plan(plan)).success).toBe(false);
+    expect(PlanSchema.safeParse(asV3Plan(acknowledged)).success).toBe(false);
     expect(PlanSchema.parse(upgradePlan(asV2Plan(plan)))).toEqual(plan);
-    expect(plan).toMatchObject({ riskAcknowledgedAt: null, riskWordingVersion: 0 });
+    expect(PlanSchema.parse(upgradePlan(asV3Plan(acknowledged)))).toEqual(acknowledged);
   });
 
-  it('returns anything that is not a v2 plan unchanged, for the schema to judge', () => {
-    for (const other of [null, 'plan', [], acknowledged, { schemaVersion: 1 }, { ...acknowledged, schemaVersion: 4 }]) {
-      expect(upgradePlan(other)).toBe(other);
-    }
-  });
-
-  it('writes a plan with nothing recorded as the v2 plan the previous build reads, and upgradePlan gives it back', () => {
-    const plan = aPlan();
-    const written = writtenPlan(plan);
-    expect(written).toStrictEqual({ schemaVersion: 2, payload: asV2Plan(plan) });
-    expect(PreviousBuildPlanSchema.parse(written.payload)).toStrictEqual(written.payload);
-    expect(PlanSchema.parse(upgradePlan(written.payload))).toStrictEqual(plan);
-  });
-
-  it('writes a plan with anything recorded as v3, unchanged, which the previous build cannot read', () => {
+  it('writes a plan with anything recorded in English as v3, which the build before v3 cannot read', () => {
     const halves = [aPlan({ riskWordingVersion: 1 }), aPlan({ riskAcknowledgedAt: instant('2026-10-22T08:00:00Z') })];
     for (const plan of [acknowledged, ...halves]) {
-      expect(writtenPlan(plan)).toStrictEqual({ schemaVersion: 3, payload: plan });
-      expect(PreviousBuildPlanSchema.safeParse(plan).success).toBe(false);
+      expect(writtenPlan(plan)).toStrictEqual({ schemaVersion: 3, payload: asV3Plan(plan) });
+      expect(PreviousBuildPlanSchema.safeParse(writtenPlan(plan).payload).success).toBe(false);
       expect(PlanSchema.parse(upgradePlan(writtenPlan(plan).payload))).toStrictEqual(plan);
     }
   });
@@ -159,7 +146,7 @@ describe('backup file (docs/DOMAIN.md §3.13)', () => {
     };
     expect(BackupFileSchema.safeParse(file).success).toBe(true);
     expect(BackupFileSchema.safeParse({ ...file, format: 'dca-plan' }).success).toBe(false);
-    expect(BACKUP_SCHEMA_VERSION).toBe(5);
+    expect(BACKUP_SCHEMA_VERSION).toBe(6);
     expect(BackupFileSchema.safeParse({ ...file, schemaVersion: 1 }).success).toBe(false);
     expect(BackupFileSchema.safeParse({ ...file, schemaVersion: 2 }).success).toBe(false);
     expect(BackupFileSchema.safeParse({ ...file, schemaVersion: 3 }).success).toBe(false);
