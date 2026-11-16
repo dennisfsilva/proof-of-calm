@@ -37,8 +37,15 @@ const codePoints = (text: string) =>
   text === ''
     ? 'none'
     : [...text].map((char) => `U+${(char.codePointAt(0) ?? 0).toString(16).toUpperCase().padStart(4, '0')}`).join(' ');
+// What joins the figures of a percentage range, every one of them a percentage (`12,2–48%`, `2,5 to 13,3%`): an
+// unspaced en dash or hyphen, or `to` (docs/CONTENT-STYLE.md §4). A spaced dash breaks the sentence instead, so
+// `art. 33.1 – 28%` keeps the law citation's point.
+const RANGE_JOINER = String.raw`(?:[–-]|\s+to\s+)`;
+const FIGURE = String.raw`\d+(?:[.,]\d+)*`;
+/** The rest of a percentage range after one of its figures: further figures, then the sign. */
+export const PERCENT_FOLLOWS = new RegExp(String.raw`^(?:${RANGE_JOINER}${FIGURE})*\s*%`, 'u');
 // A sign followed by two hexadecimal digits is a URL's percent-escape (`a1%20b`), never a percentage.
-const PERCENT = /\d+(?:[.,]\d+)*(\s*)%(?![\dA-Fa-f]{2})/g;
+const PERCENT = new RegExp(String.raw`${FIGURE}(?:${RANGE_JOINER}${FIGURE})*(\s*)%(?![\dA-Fa-f]{2})`, 'g');
 const URL_IN_TEXT = /https?:\/\/\S+/g;
 
 /**
