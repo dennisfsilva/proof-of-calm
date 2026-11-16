@@ -2,7 +2,7 @@ import { failOnClassConflicts, globalTypes, VIEWPORTS, withGlobals } from '@proo
 import type { Decorator, Preview } from '@storybook/react-vite';
 import { type ReactNode, useEffect, useState } from 'react';
 import { EMPTY_SNAPSHOT } from '../src/lib/adapters';
-import { I18nProvider, messages } from '../src/lib/i18n';
+import { I18nProvider, type Messages, messageRegistry, messages, type UiLanguage } from '../src/lib/i18n';
 import { NavigationProvider } from '../src/lib/navigation';
 import type { Snapshot } from '../src/lib/ports';
 import { type Services, ServicesProvider } from '../src/lib/services';
@@ -18,7 +18,18 @@ import './preview.css';
 // shell's appearance effect sets what the globals' decorator set. Every module the product reaches with
 // import() loads with this file, before any story and outside any test's timeout, so a play function's
 // findBy waits on renders, not on Vite's first transform of a chunk, a namespace or a profile (seconds
-// under load).
+// under load). The language global renders a story in English or pt-PT: the provider's locale, that
+// language's merged namespaces whole, the files `loadNamespace` reads and the services' formatters (a
+// story with its own services factory keeps English formats).
+
+const PORTUGUESE = Object.fromEntries(
+  Object.entries(
+    import.meta.glob<Messages[keyof Messages]>('../src/messages/pt-PT/*.json', { eager: true, import: 'default' }),
+  ).map(([path, namespace]) => [/([^/]+)\.json$/.exec(path)?.[1], namespace]),
+) as Messages;
+const MESSAGES: Readonly<Record<'en' | 'pt-PT', Messages>> = { en: messages, 'pt-PT': PORTUGUESE };
+const languageOf = (globals: Record<string, unknown>): 'en' | 'pt-PT' =>
+  globals.language === 'pt-PT' ? 'pt-PT' : 'en';
 
 const withNavigation: Decorator = (Story, { parameters }) => (
   <NavigationProvider location="memory" initialPath={typeof parameters.path === 'string' ? parameters.path : '/today'}>
@@ -37,6 +48,7 @@ function ServicesFrame({ create, children }: { create: () => Services; children:
 const withServices: Decorator = (Story, { parameters, globals }) => {
   const theme = globals.theme === 'dark' ? 'dark' : 'light';
   const motion = globals.motion === 'reduce' ? 'reduce' : 'system';
+  const language: UiLanguage = languageOf(globals);
   const custom = parameters.services;
   const snapshot: Snapshot = parameters.snapshot ?? EMPTY_SNAPSHOT;
   const nowMs: unknown = parameters.nowMs;
@@ -46,20 +58,26 @@ const withServices: Decorator = (Story, { parameters, globals }) => {
       : () =>
           createTestServices({
             snapshot: { ...snapshot, prefs: { ...snapshot.prefs, theme, motion } },
+            language,
             ...(typeof nowMs === 'number' ? { nowMs } : {}),
           });
   return (
-    <ServicesFrame key={`${theme}-${motion}`} create={create}>
+    <ServicesFrame key={`${theme}-${motion}-${language}`} create={create}>
       <Story />
     </ServicesFrame>
   );
 };
 
-const withMessages: Decorator = (Story) => (
-  <I18nProvider messages={messages}>
-    <Story />
-  </I18nProvider>
-);
+const withMessages: Decorator = (Story, { globals }) => {
+  const language = languageOf(globals);
+  messageRegistry.setLanguage(language);
+  document.documentElement.lang = language;
+  return (
+    <I18nProvider locale={language} messages={MESSAGES[language]}>
+      <Story />
+    </I18nProvider>
+  );
+};
 
 await preloadLazyModules([
   () => import('../src/features/learn').then((learn) => learn.loadLearnScreen()),
@@ -76,8 +94,23 @@ await preloadLazyModules([
 const preview: Preview = {
   decorators: [withNavigation, withMessages, withServices, withGlobals],
   afterEach: failOnClassConflicts,
-  globalTypes,
+  globalTypes: {
+    ...globalTypes,
+    language: {
+      description: 'UI language',
+      toolbar: {
+        title: 'Language',
+        icon: 'globe',
+        items: [
+          { value: 'en', title: 'English' },
+          { value: 'pt-PT', title: 'Português (pt-PT)' },
+        ],
+        dynamicTitle: true,
+      },
+    },
+  },
   initialGlobals: {
+    language: 'en',
     theme: 'light',
     motion: 'full',
     textZoom: '100',
