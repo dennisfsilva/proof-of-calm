@@ -57,6 +57,9 @@ const ASSET_NAME = between(
   'iu',
 );
 const TICKER = between(['BTC', 'ETH', 'SOL', 'LINK'], 'u');
+// The messages' placeholders the app fills with a coin: {coin} with its ticker, {coins} and {names} with a list of
+// coins. An ICU argument on them ({coins, select, …}) chooses words and stays copy.
+const COIN_PLACEHOLDER = /\{(?:coins?|names)\}/u;
 // An English or German imperative is the bare verb, so it counts only at the start of a sentence; "Buy day" is
 // the plan's noun. The Portuguese forms count anywhere (directive-pt.ts).
 const IMPERATIVE = /^\s*(buy|sell|hold|invest|get|grab|kaufe?n?)(?![\p{L}\p{N}])(?!\s+days?\b)/iu;
@@ -88,7 +91,7 @@ export function findBanned(text: string): Finding[] {
   const imperatives = sentences(kept)
     .filter(
       ({ read }) =>
-        (IMPERATIVE.test(read) || hasPortugueseDirective(read)) && (ASSET_NAME.test(read) || TICKER.test(read)),
+        (IMPERATIVE.test(read) || hasPortugueseDirective(read)) && (ASSET_NAME.test(read) || TICKER.test(read) || COIN_PLACEHOLDER.test(read)),
     )
     .map(({ written }): Finding => ({ rule: 'imperative', match: written.trim() }));
   return [
