@@ -329,13 +329,28 @@ test("pt-PT: /plan stays inside the page with its timeline's table open and text
   expect(errors).toEqual([]);
 });
 
-// Settings in pt-PT, its tabs found by the merged pt-PT file's words: the Plan, Hold & sell and Data tabs, the longest
-// of its words, stay inside the page with the same wider text.
-test('pt-PT: /settings keeps its Plan, Hold and Data tabs inside the page with text set wider than its fonts', async ({
+/** A tab's own box against its text: the page's edge misses a name that runs into the next tab or its ring (#288). */
+function tabBox(tab: Locator) {
+  return tab.evaluate((element) => ({ scroll: element.scrollWidth, client: element.clientWidth }));
+}
+
+// Settings in pt-PT, its four tabs found by the merged pt-PT file's words: each tab, selected, holds its name inside
+// its own box, and the page stays inside the viewport, with the same wider text.
+test('pt-PT: /settings keeps each of its four tab names inside its tab with text set wider than its fonts', async ({
   page,
 }) => {
-  const tabs = { plan: ptSettings.tabs.plan, hold: ptSettings.tabs.hold, data: ptSettings.tabs.data };
-  const english: typeof tabs = { plan: enSettings.tabs.plan, hold: enSettings.tabs.hold, data: enSettings.tabs.data };
+  const tabs = {
+    plan: ptSettings.tabs.plan,
+    coins: ptSettings.tabs.coins,
+    hold: ptSettings.tabs.hold,
+    data: ptSettings.tabs.data,
+  };
+  const english: typeof tabs = {
+    plan: enSettings.tabs.plan,
+    coins: enSettings.tabs.coins,
+    hold: enSettings.tabs.hold,
+    data: enSettings.tabs.data,
+  };
   // Each tab's name on its own, so one left in English fails the case.
   for (const key of Object.keys(tabs) as (keyof typeof tabs)[]) {
     expect(tabs[key], `the merged pt-PT file holds Settings' own ${key} tab`).not.toBe(english[key]);
@@ -350,6 +365,7 @@ test('pt-PT: /settings keeps its Plan, Hold and Data tabs inside the page with t
   const panel = (key: keyof typeof tabs) => page.getByRole('tabpanel', { name: tabs[key], exact: true });
   const shown = {
     plan: panel('plan').getByRole('button', { name: ptSettings.save, exact: true }),
+    coins: panel('coins').getByRole('button', { name: ptSettings.save, exact: true }),
     hold: panel('hold').getByRole('button', { name: ptSettings.save, exact: true }),
     data: panel('data').getByRole('heading', { level: 2, name: ptSettings.data.heading, exact: true }),
   };
@@ -360,6 +376,11 @@ test('pt-PT: /settings keeps its Plan, Hold and Data tabs inside the page with t
     await expect(tab).toHaveAttribute('aria-selected', 'true');
     await expect(shown[key]).toBeVisible();
     await settled(page);
+    const box = await tabBox(tab);
+    expect(
+      box.scroll,
+      `the ${key} tab's name "${tabs[key]}" stays inside its ${box.client} px tab`,
+    ).toBeLessThanOrEqual(box.client);
     const now = await pastTheViewport(page);
     expect(now.past, `nothing on the ${key} tab ends past the viewport`).toEqual([]);
     expect(now.scrolls, `no page-wide horizontal scroll on the ${key} tab`).toBe(false);
