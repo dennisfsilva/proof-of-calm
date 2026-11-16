@@ -1,7 +1,7 @@
 // A template's dates come from its fields (docs/CONTENT-STYLE.md §4 and §6, docs/DOMAIN.md §5): its text names each
-// date as `{date:<field path>}`, the app writes it with `format.date` in the plan's order with no-break spaces, and
-// the validator refuses a placeholder that names no date of the template and any month name in en, pt or de, so no
-// date is written out by hand. Pure and without zod: the app ships the loaders' half.
+// date as `{date:<field path>}`, the app writes it with `format.date` in the UI language's format, unbroken
+// (ADR-0023), and the validator refuses a placeholder that names no date of the template and any month name in en,
+// pt or de, so no date is written out by hand. Pure and without zod: the app ships the loaders' half.
 import type { CalendarDate } from '@proofofcalm/core';
 import { asDate } from './loaders/brands.ts';
 import type { Problem } from './problem.ts';
