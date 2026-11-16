@@ -3,7 +3,7 @@ import { StackProbe, useStack } from '../lib/stack';
 
 // Every chart's table view (ADR-0022): the same values as the marks, in a <details> beside the chart.
 // It sits outside the role="img" element, whose content assistive technology does not read. Its rows stack while
-// the columns are wider than the box (useStack, docs/DESIGN.md §8).
+// the columns are wider than the box (useStack, docs/DESIGN.md §8), the box being the cell when it sits in a table.
 
 type ChartTableProps = {
   /** The disclosure's label, such as "Show as a table". */
@@ -21,7 +21,9 @@ function ChartTable({ summary, caption, columns, rows, numericColumns = [], clas
   const numeric = (index: number) => numericColumns.includes(index);
   const { probe, table } = useStack(true);
   return (
-    <details data-slot="chart-table" className={cn('text-14', className)}>
+    // No width of its own, at least its container's: it fills a block as before, and in a table's cell (a coin's
+    // detail row) it adds nothing to the cell's width, so its probe measures the cell and its table stacks there.
+    <details data-slot="chart-table" className={cn('w-0 min-w-full text-14', className)}>
       <summary className="w-fit cursor-pointer py-3 text-ink-2 underline underline-offset-4 hover:text-ink">
         {summary}
       </summary>
