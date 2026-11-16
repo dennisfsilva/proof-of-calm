@@ -33,9 +33,10 @@ const decimalValue = (whole: string, fraction: string) => {
 
 /**
  * The values of one run of digits and separators: the locale's decimal separator once, any other separator before
- * a group of three digits groups them, and any other place splits the run (`3,14` in English is 3 and 14).
+ * a group of three digits groups them, in a figure that is no percentage (`cited`) a point before other digits is a
+ * citation's, and any other place splits the run (`3,14` in English is 3 and 14).
  */
-function valuesOf(run: string, decimal: string): string[] {
+function valuesOf(run: string, decimal: string, cited = false): string[] {
   const [first = '', ...rest] = run.split(/(\D)/);
   const values: string[] = [];
   let whole = first;
@@ -44,6 +45,8 @@ function valuesOf(run: string, decimal: string): string[] {
     const [separator, digits = ''] = [rest[index], rest[index + 1]];
     if (fraction === null && separator === decimal) fraction = digits;
     else if (fraction === null && /^\d{3}$/.test(digits)) whole += digits;
+    // A citation's point (`Quadro 9.4`), which every language keeps (CONTENT-STYLE §4).
+    else if (cited && fraction === null && separator === '.') fraction = digits;
     else {
       values.push(decimalValue(whole, fraction ?? ''));
       [whole, fraction] = [digits, null];
@@ -61,7 +64,9 @@ export const numbersIn = (text: string, locale: string, percentLocale = locale):
   const [decimal, percentDecimal] = [decimalSeparator(locale), decimalSeparator(percentLocale)];
   return [...text.matchAll(NUMBER)]
     .flatMap(({ 0: run, index }) =>
-      valuesOf(run, PERCENT_FOLLOWS.test(text.slice(index + run.length)) ? percentDecimal : decimal),
+      PERCENT_FOLLOWS.test(text.slice(index + run.length))
+        ? valuesOf(run, percentDecimal)
+        : valuesOf(run, decimal, true),
     )
     .sort();
 };
