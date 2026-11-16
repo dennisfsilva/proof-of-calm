@@ -358,18 +358,27 @@ describe('validateContent: the percent sign keeps its number locale’s spacing 
     expect(run({ dateFormatLocale: 'pt_PT' })()).toEqual(['locale-tag: dateFormatLocale: pt_PT', otherFile]);
   });
 
+  // A relation every profile keeps whatever a content review writes (docs/ENGINEERING.md §2): one problem per
+  // sign given an ordinary space, in every text of every file, so no field holding a sign escapes the check.
   it('refuses the profiles as main wrote them, with an ordinary space before every sign', () => {
     const folder = new URL('../jurisdictions/', import.meta.url);
+    const signs = new RegExp(String.raw`(\d)${NBSP}?%(?!\w)`, 'g');
     const asMain = readdirSync(folder).map((name) => {
       const json = JSON.stringify(JSON.parse(readFileSync(new URL(name, folder), 'utf8')));
-      const text = json.replaceAll(new RegExp(String.raw`(\d)${NBSP}?%(?!\w)`, 'g'), '$1 %');
-      return file(`packages/content/jurisdictions/${name}`, JSON.parse(text));
+      const spaced = file(`packages/content/jurisdictions/${name}`, JSON.parse(json.replaceAll(signs, '$1 %')));
+      return { spaced, count: json.match(signs)?.length ?? 0 };
     });
-    const problems = validateContent(asMain, options).filter(({ code }) => code === 'percent-joiner');
-    expect(problems).toHaveLength(97);
-    expect(new Set(problems.map(({ path }) => path.slice(-7)))).toEqual(
-      new Set(['de.json', 'es.json', 'fr.json', 'gb.json', 'ie.json', 'it.json', 'nl.json', 'pt.json', 'us.json']),
-    );
+    expect(asMain.reduce((sum, { count }) => sum + count, 0)).toBeGreaterThan(0);
+    const problems = validateContent(
+      asMain.map(({ spaced }) => spaced),
+      options,
+    ).filter(({ code }) => code === 'percent-joiner');
+    for (const { spaced, count } of asMain) {
+      expect(
+        problems.filter(({ path }) => path === spaced.path),
+        spaced.path,
+      ).toHaveLength(count);
+    }
     expect(problems.every(({ detail }) => detail.includes('has U+0020, expected '))).toBe(true);
   });
 });
