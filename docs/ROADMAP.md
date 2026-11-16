@@ -242,9 +242,13 @@ external links and the Risk link in the mobile export (M3).
   rules loaders in a language with English as the offline fallback (#281) and Plan (#283) followed.
   #269 moved to #270 the content review guard with the review-content skill's overlay step, the
   templates and PT profile overlays (D8, the ICU-branch lint), the settings messages with D10, the
-  learn and log messages, the facts loader and WhyLink, so pt-PT may take one more build session
-  before German starts. A render-and-axe-only pt-PT story run
-  waits for #271, once every namespace is translated. CSV import, free (ADR-0039), for the
+  learn and log messages, the facts loader and WhyLink. #270 landed the overlay step with its guard
+  (#289) and the first settings messages with D10 (#288). D8 waits with one review finding, and with
+  it the PT, XX and template overlays and the tax-year header's semicolons move to #290; the other
+  settings, learn and log messages, the language of English text, the dynamic imports' failure
+  paths, the facts, DE and ES go to #286, and the other profiles and the six Learn modules to #287.
+  So pt-PT takes three build sessions more than #269 planned before German starts. A
+  render-and-axe-only pt-PT story run waits for #271, once every namespace is translated. CSV import, free (ADR-0039), for the
   main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
   Republic; Kraken's ledger reader built on 2026-11-13 (#168) and the core's import plan against the
   Log the same day (#178, `docs/DOMAIN.md` §3.13, "Meeting the Log"), then its write (#183) and the

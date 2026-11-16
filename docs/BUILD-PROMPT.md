@@ -459,6 +459,22 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   guard branch, round 2, 2026-11-16).
 - A spec that checks that translated words differ from English checks each word on its own: a pair
   compared at once passed when one key reverted (#283, 2026-11-16).
+- A check widened to catch one missed case is tested on the neighbours it now reads too. #270's
+  decimals branch fixed a missed range (`12.2–48%`) by reading every figure before ` to ` or an
+  unspaced dash as a percentage when one followed, so "Art. 33.1 to 28%" and "GBP 3,000 to 20%"
+  were refused; the second review round found it, and the branch moved to #290 (2026-11-16).
+- A wording that a content role proposes is checked against the code like the line it replaces.
+  Brand's "que os tinha registados" in #288's first round said one entry recorded both the fee and
+  the venue, which `defaultFee` and `lastVenue` take apart; the second round's reviewer and brand's
+  own re-read found it (2026-11-16).
+- A skill step that copies a figure from one file into another says in which file's number format
+  it is written, and its rehearsal seeds a figure with a separator. #289's overlay step said "the
+  English file's value", while a translation reads its own separators (`numberLocaleFor`: de-DE for
+  Germany's pt-PT text); the rehearsal's integer seed could not show it, and the first review round
+  did (2026-11-16).
+- A layout spec of a translation checks each control's own box, not only the page's edge. #288's
+  pt-PT Settings case passed while tab names ran into the next tab at zoom-125; the evaluator's
+  `scrollWidth` against `clientWidth` per tab found it, and the fix moved to #290 (2026-11-16).
 
 ## Known gaps
 
