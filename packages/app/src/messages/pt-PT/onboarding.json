@@ -62,7 +62,7 @@
     "holdingRule": "Regra de detenção",
     "holdingRuleValue": "{kind, select, generic {A regra do perfil geral} other {A regra de {name}}}. {words}",
     "startingPoint": "Ponto de partida",
-    "coins": "Moedas e repartição",
+    "coins": "Moedas e pesos",
     "monthly": "Montante mensal",
     "starting": "Montante inicial",
     "firstBuy": "Primeira compra",
