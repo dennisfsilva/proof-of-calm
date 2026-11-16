@@ -1,10 +1,12 @@
 // @vitest-environment jsdom
-import { countryRules, fillTemplateDates, loadProfile, TEMPLATES } from '@proofofcalm/content';
+import { countryRules, fillTemplateDates, loadProfile, loadTemplateTexts, TEMPLATES } from '@proofofcalm/content';
+import { decimal } from '@proofofcalm/core';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createFormatters, type Formatters } from '../../../lib/format';
 import { I18nProvider, localesFor } from '../../../lib/i18n';
 import onboarding from '../../../messages/en/onboarding.json';
+import portuguese from '../../../messages/pt-PT/onboarding.json';
 import shell from '../../../messages/en/shell.json';
 import { type TemplateChoice, TemplateStep } from './template-step';
 
@@ -226,5 +228,53 @@ describe('TemplateStep', () => {
     expect(own.getAttribute('aria-checked')).toBe('true');
     const text = own.closest('[data-slot="radio-card"]')?.textContent ?? '';
     expect(text).toBe('Your own coinsYou choose the coins and how each buy is split across them.');
+  });
+});
+
+describe('TemplateStep in pt-PT (ADR-0057)', () => {
+  /** The formatters the onboarding screen builds for a Portuguese plan in a pt-PT UI (`formatOf`, ADR-0023). */
+  async function portugal() {
+    const profile = await loadProfile('PT', 'pt-PT');
+    if (profile === null) throw new Error('no profile PT');
+    const locales = localesFor('pt-PT', countryRules(profile));
+    return createFormatters(locales.numbers, locales.ui);
+  }
+
+  async function mountPortuguese(value: TemplateChoice | null = null) {
+    const [texts, format] = await Promise.all([loadTemplateTexts('pt-PT'), portugal()]);
+    render(
+      <I18nProvider locale="pt-PT" messages={{ onboarding: portuguese, shell }}>
+        <TemplateStep value={value} format={format} texts={texts} onChoose={vi.fn()} onBack={vi.fn()} />
+      </I18nProvider>,
+    );
+    return { texts, format };
+  }
+
+  it('shows the translated name, risk label and line of each card, sorted by the name shown', async () => {
+    const { texts } = await mountPortuguese();
+    const shown = TEMPLATES.map((template) => texts.get(template.id));
+    const names = shown.map((text) => text?.name ?? '');
+    expect(names).not.toContain(TEMPLATES[0]?.name);
+    const cards = screen
+      .getAllByRole('radio')
+      .slice(0, -1)
+      .map((card) => card.closest('[data-slot="radio-card"]')?.textContent ?? '');
+    expect(cards.map((text) => names.find((name) => text.includes(name)))).toEqual(
+      [...names].sort(new Intl.Collator('pt-PT').compare),
+    );
+    for (const text of shown) {
+      expect(cards.some((card) => card.includes(text?.riskLabel ?? '?'))).toBe(true);
+    }
+    expect(document.body.textContent).not.toContain('no sell window');
+  });
+
+  it('writes the explanation’s percentages with format.percent, never the file’s literal `N %`', async () => {
+    const { format } = await mountPortuguese({ kind: 'template', id: 'cycle-plan' });
+    await act(() => fireEvent.click(screen.getByRole('button', { name: portuguese.template.about })));
+    const text = document.body.textContent ?? '';
+    const percent = (share: string) => format.percent(decimal(share), { decimals: 0 });
+    expect(text).toContain(`${percent('40')} bitcoin, ${percent('30')} Ethereum, ${percent('15')} Solana`);
+    expect(text).toContain(`A Solana caiu ${percent('97')} do máximo`);
+    expect(text).not.toMatch(/\d %/);
   });
 });

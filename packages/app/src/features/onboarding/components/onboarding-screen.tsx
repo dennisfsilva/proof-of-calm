@@ -3,7 +3,9 @@ import {
   countryChoices,
   countryRules,
   loadProfiles,
+  loadTemplateTexts,
   suggestionProfiles,
+  type TemplateTexts,
   templateById,
 } from '@proofofcalm/content';
 import {
@@ -98,6 +100,9 @@ function choiceOf(draft: SetupDraft): TemplateChoice | null {
 
 export type OnboardingScreenProps = { readonly device?: ReturnType<typeof deviceLocale> };
 
+/** No overlay: every template keeps its English texts. */
+const ENGLISH_TEXTS: ReadonlyMap<string, TemplateTexts> = new Map();
+
 export function OnboardingScreen({ device }: OnboardingScreenProps) {
   const t = useTranslations('onboarding');
   const errors = useTranslations('errors');
@@ -111,6 +116,9 @@ export function OnboardingScreen({ device }: OnboardingScreenProps) {
   const { form, entity } = ONBOARDING_DRAFT;
   const [saved] = useState(() => drafts.read(form, entity, OnboardingDraftSchema));
   const [profiles, setProfiles] = useState<CountryProfile[] | null>(null);
+  // English is the templates' own text, on the first render; another language's texts load at mount and its list
+  // waits for them, so no English shows first, and a failed load gives English (ADR-0057). Kept with its language.
+  const [loadedTexts, setLoadedTexts] = useState<{ language: string; texts: ReadonlyMap<string, TemplateTexts> }>();
   const [step, setStep] = useState<Step>(saved?.step ?? 'country');
   // The plan's id is made once with the draft, and kept with it: the calendar file's UID and the stored plan's id
   // are one. The early window's acceptance is never restored: it is asked again on the numbers (`resumeStep`).
@@ -181,6 +189,12 @@ export function OnboardingScreen({ device }: OnboardingScreenProps) {
       }),
     [language],
   );
+  useEffect(() => {
+    if (language === 'en') return;
+    const done = (texts: ReadonlyMap<string, TemplateTexts>) => setLoadedTexts({ language, texts });
+    void loadTemplateTexts(language).then(done, () => done(ENGLISH_TEXTS));
+  }, [language]);
+  const texts = language === 'en' ? ENGLISH_TEXTS : loadedTexts?.language === language ? loadedTexts.texts : null;
   // Dated in the UI language with the country's formatting, as the plan screens show them (ADR-0023); before a
   // country is chosen, the UI language's.
   const formatOf = (chosen: CountryProfile | undefined) => {
@@ -316,7 +330,7 @@ export function OnboardingScreen({ device }: OnboardingScreenProps) {
           profile,
           today,
         )}
-        templateName={template?.name ?? null}
+        templateName={template === null ? null : (texts?.get(template.id)?.name ?? template.name)}
         reminder={draft.reminder}
         format={formatOf(profile)}
         pending={pending}
@@ -356,16 +370,19 @@ export function OnboardingScreen({ device }: OnboardingScreenProps) {
       ) : SHARED.includes(step) ? (
         shared()
       ) : step === 'template' || profile === undefined || template === null ? (
-        <TemplateStep
-          value={choiceOf(draft)}
-          format={formatOf(profile)}
-          onBack={() => setStep('country')}
-          onChoose={(choice) =>
-            choice.kind === 'custom'
-              ? choose({ path: 'custom', templateId: null }, 'coins')
-              : choose({ path: 'template', templateId: choice.id }, 'numbers')
-          }
-        />
+        texts !== null && (
+          <TemplateStep
+            value={choiceOf(draft)}
+            format={formatOf(profile)}
+            texts={texts}
+            onBack={() => setStep('country')}
+            onChoose={(choice) =>
+              choice.kind === 'custom'
+                ? choose({ path: 'custom', templateId: null }, 'coins')
+                : choose({ path: 'template', templateId: choice.id }, 'numbers')
+            }
+          />
+        )
       ) : (
         numbers()
       )}

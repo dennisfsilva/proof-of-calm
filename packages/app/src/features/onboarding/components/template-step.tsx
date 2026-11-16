@@ -1,4 +1,4 @@
-import { fillTemplateDates, type OfferedTemplate, TEMPLATES } from '@proofofcalm/content';
+import { fillTemplateDates, type OfferedTemplate, TEMPLATES, type TemplateTexts } from '@proofofcalm/content';
 import { type CalendarDate, decimal, negate, type Percent } from '@proofofcalm/core';
 import { Button } from '@proofofcalm/ui/components/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@proofofcalm/ui/components/collapsible';
@@ -20,6 +20,8 @@ export type TemplateStepProps = {
   readonly value: TemplateChoice | null;
   /** The chosen country's formatting, as the summary uses it. */
   readonly format: Formatters;
+  /** The UI language's texts by template id (`loadTemplateTexts`, ADR-0057); without them, English. */
+  readonly texts?: ReadonlyMap<string, TemplateTexts>;
   onChoose(choice: TemplateChoice): void;
   onBack(): void;
 };
@@ -76,10 +78,12 @@ const explanationText = (format: Formatters, template: OfferedTemplate, text: st
     format.percent(decimal(share), { decimals: 0 }),
   );
 
-export function TemplateStep({ value, format, onChoose, onBack }: TemplateStepProps) {
+export function TemplateStep({ value, format, texts, onChoose, onBack }: TemplateStepProps) {
   const t = useTranslations('onboarding');
   const byName = new Intl.Collator(useLocale()).compare;
-  const templates = [...TEMPLATES].sort((a, b) => byName(a.name, b.name));
+  const templates = TEMPLATES.map((template) => ({ ...template, ...texts?.get(template.id) })).sort((a, b) =>
+    byName(a.name, b.name),
+  );
   const lineId = useId();
   const [picked, setPicked] = useState<string | undefined>(radioOf(value));
   const explained = templates.find((template) => template.id === picked);
