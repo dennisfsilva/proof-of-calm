@@ -1,0 +1,47 @@
+{
+  "skip": "Saltar para o conteúdo",
+  "why": {
+    "link": "Porquê?",
+    "failed": "Não foi possível carregar esta explicação. Verifique a ligação e depois recarregue a página."
+  },
+  "holdingConditions": {
+    "more": "Mostrar mais {count} {count, plural, one {condição} other {condições}}"
+  },
+  "countryLine": {
+    "plain": "Revisto a {date} · informação geral, não constitui aconselhamento",
+    "generic": "Revisto a {date}: o perfil geral, não uma regra para o seu país · informação geral, não constitui aconselhamento",
+    "sources": "Revisto a {date} · informação geral, não constitui aconselhamento · <sources>Fontes</sources>",
+    "underReview": "Sem revisão desde {date} · informação geral, não constitui aconselhamento"
+  },
+  "nav": {
+    "label": "Principal",
+    "today": "Hoje",
+    "portfolio": "Portefólio",
+    "log": "Registo",
+    "learn": "Aprender"
+  },
+  "settings": "Definições",
+  "toast": {
+    "close": "Fechar"
+  },
+  "update": {
+    "title": "Está disponível uma nova versão.",
+    "reload": "Recarregar"
+  },
+  "failure": {
+    "title": "Não foi possível abrir os dados.",
+    "retry": "Tentar de novo"
+  },
+  "newer": {
+    "title": "O plano foi guardado por uma versão mais recente da {product}.",
+    "line": "Esta versão não o consegue abrir, por isso fica como foi guardado. Recarregue a página para o abrir na versão mais recente.",
+    "again": "Se este ecrã voltar depois de recarregar a página, o plano fica neste dispositivo, por ler; uma versão mais recente da {product} consegue abri-lo.",
+    "reload": "Recarregar",
+    "entries": "{count, plural, one {{figure} movimento foi guardado} other {{figure} movimentos foram guardados}} por uma versão mais recente da {product}, por isso não {count, plural, one {é mostrado} other {são mostrados}} aqui. Recarregue a página para {count, plural, one {o ver} other {os ver}}."
+  },
+  "screenError": {
+    "title": "Não foi possível carregar este ecrã.",
+    "line": "Verifique a ligação e depois recarregue a página.",
+    "reload": "Recarregar"
+  }
+}
