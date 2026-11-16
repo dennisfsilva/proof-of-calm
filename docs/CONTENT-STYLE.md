@@ -569,6 +569,9 @@ needs (decided 2026-11-15). The native reader's review is §8 item 9.
 - **A country card's summary keeps the 60-word limit**, as in English (`docs/JURISDICTIONS.md` §2;
   `pnpm validate:content` counts the words). When a Portuguese card runs over 60 words, the
   explanation gives way, never the computed date, the rule or the source.
+- **Content still in English on a pt-PT screen is marked, not hidden**: its element takes `lang="en"`
+  and a country card says `As regras abaixo estão em inglês.` under its title (ADR-0057, the
+  Corrections of 2026-11-16).
 
 The product's nouns, one Portuguese word each, in every string, the site pages and the Learn modules:
 
