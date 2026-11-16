@@ -113,7 +113,7 @@ const holdingSourceOf = async (code: CountryCode) => {
   const profile = await loadProfile(code);
   return profile?.sources.find((source) => source.key === profile.ruleSources.holdingRule)?.url;
 };
-const dated = (date: string) =>`Reviewed on ${date} · general information, not advice · Sources`;
+const dated = (date: string) => `Reviewed on ${date} · general information, not advice · Sources`;
 // The line that reports the result, always there and empty until a change ends (docs/DESIGN.md §6).
 const resultLine = () => screen.getByRole('status');
 
