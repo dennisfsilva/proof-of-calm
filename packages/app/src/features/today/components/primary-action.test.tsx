@@ -245,12 +245,14 @@ describe('PrimaryAction', () => {
         .mockRejectedValue(new TypeError('Failed to fetch dynamically imported module'));
     afterEach(() => vi.restoreAllMocks());
 
-    it('after a stored one-tap save, a rejected log namespace still says recorded, with Edit, never Try again', async () => {
+    // The entry sheet needs the same messages, so Edit would replace Today with the failed-chunk screen; the entry
+    // stays editable from the Log once its messages load.
+    it('after a stored one-tap save, a rejected log namespace says recorded with no Edit action', async () => {
       await mount(late, priced());
       offline();
       fireEvent.click(screen.getByRole('button', { name: 'Bought as planned' }));
       expect(await screen.findByText(today.action.recorded)).toBeDefined();
-      expect(screen.getByRole('button', { name: 'Edit' })).toBeDefined();
+      expect(screen.queryByRole('button', { name: 'Edit' })).toBeNull();
       expect(screen.queryByText(/Try again/u)).toBeNull();
       await vi.waitFor(() => expect(document.activeElement).toBe(screen.getByRole('heading', { level: 2 })));
     });
