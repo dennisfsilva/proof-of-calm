@@ -133,8 +133,8 @@ permission mode approves it, each run asks the owner and shows its URL, and it f
 URL on the allow-list, checks every redirect hop the same way and writes only under
 .content-review/pdf/. Pre-approval does not confine: any other tool still goes through the session's
 permission mode, which in the default mode asks the owner. WebFetch
-keeps the session's own permission settings, so each new domain's first WebFetch shows the owner
-what the agent reads.
+keeps the session's own permission settings, so in the default mode each new domain's first
+WebFetch shows the owner what the agent reads; a mode that approves it shows nothing.
 
 Until the owner's first run, only the tests, which run it against a local origin and a fake gh,
 cover the finish's non-dry path. The `finish-dry` job of `.github/workflows/content-review.yml` runs the dry path on fixtures.
