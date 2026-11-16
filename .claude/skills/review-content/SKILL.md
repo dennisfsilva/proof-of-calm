@@ -213,8 +213,10 @@ The finish refuses a changed entry at any other value.
    expect is `agent-draft` on the entries you marked; when `overlay-number-mismatch` names a figure
    you changed in its English file, change the same figure in the translation (§1), run
    `pnpm --filter @proofofcalm/content rules` and run the checks again; fix or revert anything else.
-   `rules` reports the files it wrote, changed or not; the test, which fails on a stale rules file,
-   is the check that they match the profiles and their translations.
+   Only `pnpm run validate:content` checks the translations' figures and reports
+   `overlay-number-mismatch`; the content test never does. `rules` reports the files it wrote,
+   changed or not; the test, which fails on a stale rules file, English or a locale's, is the check
+   that they match the profiles and their translations.
 2. Write the draft to .content-review/draft.json in the shape of `ReviewDraft` in
    `tools/content-review/body.ts`; `.claude/skills/review-content/draft-example.json` is an example.
    Set `model`, `countries` and `date` to the run's own. Give one `changes` row per changed leaf,
