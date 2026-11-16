@@ -1305,7 +1305,10 @@ const REWORDED: [string, string][] = [
     'Vender BTC antes de 365 dias torna a mais-valia tributável.',
     'Uma venda de BTC antes de 365 dias torna a mais-valia tributável.',
   ],
-  ['Venda de BTC antes de 365 dias: tributada a 28%.', 'A mais-valia de uma venda de BTC antes de 365 dias é tributada a 28%.'],
+  [
+    'Venda de BTC antes de 365 dias: tributada a 28%.',
+    'A mais-valia de uma venda de BTC antes de 365 dias é tributada a 28%.',
+  ],
   [
     'Cada compra, venda ou movimento de BTC fica no Registo.',
     'Todas as compras, vendas e movimentos de BTC ficam no Registo.',
@@ -1420,10 +1423,7 @@ const REWORDED: [string, string][] = [
     'Caso troque BTC por ETH, começa um novo período de detenção para o ETH recebido.',
     'Numa troca de BTC por ETH, começa um novo período de detenção para o ETH recebido.',
   ],
-  [
-    'Se vendesse BTC hoje, a mais-valia seria tributada.',
-    'Uma venda de BTC hoje tornaria a mais-valia tributável.',
-  ],
+  ['Se vendesse BTC hoje, a mais-valia seria tributada.', 'Uma venda de BTC hoje tornaria a mais-valia tributável.'],
   ['Aconselha-se a confirmação junto de um contabilista local.', 'Confirme junto de um contabilista local.'],
 ];
 
