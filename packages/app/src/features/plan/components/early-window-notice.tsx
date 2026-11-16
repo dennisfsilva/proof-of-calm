@@ -2,8 +2,9 @@
 
 import { Checkbox } from '@proofofcalm/ui/components/checkbox';
 import { useId } from 'react';
-import { useTranslations } from 'use-intl';
+import { useLocale, useTranslations } from 'use-intl';
 import type { Formatters } from '../../../lib/format';
+import { textLang } from '../../../lib/i18n';
 import { useFormatters } from '../../../lib/services';
 import { ConditionLines, CountryDateLine } from '../../learn';
 import type { EarlyNotice } from '../lib/sell-window';
@@ -42,6 +43,7 @@ export function EarlyWindowNotice(props: EarlyWindowNoticeProps) {
   const holding = useTranslations('plan.holding');
   const plans = useFormatters();
   const f = props.format ?? plans;
+  const locale = useLocale();
   const notice = useId();
   const refusal = useId();
   const refused = invalid === true;
@@ -63,7 +65,9 @@ export function EarlyWindowNotice(props: EarlyWindowNoticeProps) {
       {taxLine && <p className="text-13 text-ink-2">{holding(on === 'template' ? 'templateNote' : 'note')}</p>}
       {country !== undefined && rule !== 'own' && (
         <>
-          {taxLine && <ConditionLines conditions={country.conditions ?? []} />}
+          {taxLine && (
+            <ConditionLines conditions={country.conditions ?? []} lang={textLang(country.language, locale)} />
+          )}
           <CountryDateLine country={country} />
         </>
       )}

@@ -8,6 +8,7 @@ import { ServicesProvider } from '../../../lib/services';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
 import { createTestServices } from '../../../lib/services/testing';
 import shell from '../../../messages/en/shell.json';
+import shellPt from '../../../messages/pt-PT/shell.json';
 import { ConditionLines, HoldingConditions } from './holding-conditions';
 
 // What the app cannot verify about a date, beside the first date on a screen (docs/JURISDICTIONS.md §2,
@@ -202,5 +203,40 @@ describe('HoldingConditions', () => {
     expect(sources.parentElement?.textContent).toMatch(
       /^Reviewed on \d+\s\w+\s\d{4} · general information, not advice · Sources$/,
     );
+  });
+});
+
+describe('HoldingConditions on a pt-PT screen (WCAG 2.2 SC 3.1.2, ADR-0057)', () => {
+  const ptMount = async (rules: CountryRules) => {
+    const snapshot = fixtureSnapshot();
+    const plan = { ...(snapshot.plan as Plan), country: rules.code, holdingRule: rules.holdingRule } as Plan;
+    const services = createTestServices({
+      snapshot: { ...snapshot, plan },
+      rules: async () => rules,
+      language: 'pt-PT',
+    });
+    await services.start();
+    render(
+      <ServicesProvider services={services}>
+        <I18nProvider locale="pt-PT" messages={{ shell: shellPt }}>
+          <HoldingConditions />
+        </I18nProvider>
+      </ServicesProvider>,
+    );
+    await act(() => Promise.resolve());
+  };
+
+  it('marks the English conditions of an untranslated country lang=en, the control not', async () => {
+    const germany = (await loadRules('DE', 'pt-PT')) as CountryRules;
+    await ptMount(germany);
+    const [first] = germany.holdingRuleConditions;
+    expect(screen.getByText(first as string).getAttribute('lang')).toBe('en');
+    const more = screen.queryByRole('button', { name: /^Mostrar mais/ });
+    expect(more === null || more.closest('[lang]') === null).toBe(true);
+  });
+
+  it("gives a translated country's conditions no lang", async () => {
+    await ptMount((await loadRules('PT', 'pt-PT')) as CountryRules);
+    expect(document.querySelector('[lang]')).toBeNull();
   });
 });
