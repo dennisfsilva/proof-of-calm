@@ -126,7 +126,7 @@ describe('the tax-year header lines', () => {
     const translated = [lines[5], ...lines.slice(7, 11)];
     expect(translated).toEqual([overlay.lotRuleNote, ...overlay.holdingRuleConditions]);
     const originals = [english.lotRuleNote, ...english.holdingRuleConditions];
-    translated.forEach((line, index) => expect(line).not.toBe(originals[index]));
+    expect(translated.filter((line, index) => line === originals[index])).toEqual([]);
     expect(translated.filter((line) => line?.includes(';'))).toEqual([]);
   });
 });

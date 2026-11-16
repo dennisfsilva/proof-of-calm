@@ -20,7 +20,9 @@
         "note": "Diferida como qualquer troca. A informação vinculativa PIV 28969 da AT, de 31 de outubro de 2025, trata uma conversão técnica imediata como um não acontecimento (confiança média)."
       },
       { "note": "O pagamento de bens ou serviços com criptoativos é tributado como uma venda." },
-      { "note": "Uma transferência de unidades entre carteiras do mesmo titular não é uma alienação. Não há nada a declarar." },
+      {
+        "note": "Uma transferência de unidades entre carteiras do mesmo titular não é uma alienação. Não há nada a declarar."
+      },
       {
         "note": "Sem IRS. Imposto do Selo de 10% sobre criptoativos numa instituição em Portugal, ou fora dela se o donatário ou o falecido tiver cá domicílio. Cônjuge, unido de facto, descendentes e ascendentes não pagam (confiança média)."
       },
