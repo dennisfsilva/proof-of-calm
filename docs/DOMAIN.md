@@ -146,7 +146,8 @@ The recorded language is the language of the disclosure text shown. It is the UI
 language is in `RISK_WORDING_LANGUAGES` (`packages/app/src/lib/brand/index.ts`), and `en` otherwise,
 because every other UI language shows the English text. The list holds the languages whose own text
 counsel approved as the English text's equal (`docs/LEGAL.md` §4). A wording version names the
-English text and each approved translation. The list holds `en` and `pt-PT` (counsel's approval of 2026-11-16), so a pt-PT acknowledgement writes v4.
+English text and each approved translation. The list holds `en` and `pt-PT` (counsel's approval of #268, 2026-11-16, of the text at
+`onboarding.disclosure.text` in `packages/app/src/features/onboarding/messages/pt-PT.json`), so a pt-PT acknowledgement writes v4.
 
 The acknowledgement is asked again only when a recorded wording version (1 or more) is below the
 disclosure text's current version (`acknowledgementDue`). That one comparison reads the plan as it

@@ -24,7 +24,7 @@ export const RISK_WORDING_VERSION = 1;
  * English text and each of these. Onboarding and the re-ask show every other UI language the English text,
  * and the plan records `en` (docs/DOMAIN.md §2.1); `features/onboarding/model/disclosure.test.ts` holds
  * that each approved language has its own text and every other one shows the English. pt-PT: counsel's
- * approval of 2026-11-16.
+ * approval of #268, 2026-11-16, of `onboarding.disclosure.text` in `features/onboarding/messages/pt-PT.json`.
  */
 export const RISK_WORDING_LANGUAGES: readonly UiLanguage[] = ['en', 'pt-PT'];
 
