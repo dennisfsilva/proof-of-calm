@@ -153,3 +153,19 @@ generated rules files of each language.
   Portugal, `docs/CONTENT-STYLE.md` §4). The number check reads an English profile's percentages
   with `numberLocaleFor('en', profile)` and its other figures with English ones (`1,000`), and a
   translation's `decimal-separator` problem joins the checks its English field takes.
+- **2026-11-16.** "The loaders in a language" has landed for the templates, with another name than
+  `loadTemplates`. `TEMPLATES` and `templateById` stay English and synchronous, so English shows on the
+  first render and every plan is checked against English templates; `loadTemplateTexts(language)`
+  answers a template's `name`, `oneLine`, `riskLabel` and `explanation` by id. `TEMPLATE_OVERLAYS`
+  holds one import per file of `packages/content/i18n/pt-PT/templates/`, and their chunks sit under
+  `assets/messages/pt-PT/`, outside the precache. The loader reads `.default` inside its `try`: a
+  failed import, or one that resolves to undefined, answers English and is not cached. Onboarding
+  starts the load at mount, as it starts `loadProfiles`. In English it renders the list at once; in
+  another language it renders the template step only once the texts resolve, so no English name shows
+  first, and English if the load fails. The cards sort by the name shown in the UI locale. The plan
+  stores the template's id, never its text. "What validation holds" gains `overlay-percent-mismatch`
+  for templates. A template's explanation writes `N %`, which the app finds and writes with
+  `format.percent` (`docs/CONTENT-STYLE.md` §4). A translation therefore writes the same
+  percentages, in the same order and with the same ordinary space before the sign, each value read
+  with its own text's separators. A wrong value stays `overlay-number-mismatch` alone. Profiles keep
+  their own percent rules (the joiner and the separator, D8).
