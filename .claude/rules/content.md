@@ -8,7 +8,7 @@ docs:
   - path: docs/JURISDICTIONS.md
     sections: §1 (the honesty rule); §2 (the data model); §6 (rule changes and reviews); §7 for the country touched
   - path: docs/CONTENT-STYLE.md
-    sections: §1 (the ten rules); §2 (the ban list); §5 to §7 for modules, templates and emails
+    sections: §1 (the ten rules); §2 (the ban list); §4 (numbers and dates, a template's {date:<field>}); §5 to §7 for modules, templates and emails; §9 for Portuguese
   - path: docs/LEGAL.md
     sections: §3 to §6 (the information side, disclaimer placement, the pages, the legal half of the copy review)
   - path: docs/DOMAIN.md

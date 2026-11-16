@@ -162,7 +162,7 @@ landing page says so in one sentence. It loses a few sign-ups and keeps the wron
 | Signature page | "What this app leaves out": news, price notifications (one line on Today, once per fall, in their place), sentiment indexes, ads, affiliate links, streaks and badges, trading, exchange keys, a token; one sentence of reason for each |
 | Look | The ring is the plan and the accent dot is "now" (`docs/DESIGN.md` §1–2); warm paper, matte charcoal, no gradients or illustration. Marketing images show the mark, a product screen or one sentence, never a price chart |
 | Descriptor | "DCA planner" in English; the German and Portuguese descriptors chosen by native speakers against the search terms in §4.1 |
-| Form of address | German "du" or "Sie"; Portuguese "tu", "você" or impersonal forms. Decided once, before any translation (§9). "Du" reads as the careful friend, "Sie" as a bank |
+| Form of address | German "du" or "Sie", decided once, before its translation (§9). Portuguese: formal third-person forms without "você" (decided 2026-11-15, `docs/CONTENT-STYLE.md` §9). "Du" reads as the careful friend, "Sie" as a bank |
 | About the name | On the About page only: "Proof of work. Proof of stake. Proof of calm." Rule 5 of the content style says no jokes; the owner decides whether the name's own pun is the exception (§9) |
 
 ### 2.6 Domain and site structure
@@ -582,7 +582,8 @@ Decided on 2026-10-17:
 
 Still open, for the owner:
 
-1. The German and Portuguese form of address (§2.5).
+1. The German form of address (§2.5); the Portuguese one was decided on 2026-11-15 under the
+   unattended M2 rule (`docs/CONTENT-STYLE.md` §9), for the owner to confirm at the end of M2.
 2. The social accounts to run and the ones only to reserve (§4.3).
 3. The list provider and its consent text (§4.5).
 4. AI crawlers in `robots.txt` (§4.1).

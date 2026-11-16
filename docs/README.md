@@ -13,7 +13,7 @@ files in `.claude/rules/`; the process itself is the crew plugin (ADR-0046).
 | `ARCHITECTURE.md` | Repository layout, package boundaries, the dependency rule, feature folders, naming |
 | `ENGINEERING.md` | Code design principles with examples, what must have a test per layer, the responsiveness regime, the budgets |
 | `DESIGN.md` | The brand system: tokens in OKLCH, type, spacing, radius, motion, chart palette, components |
-| `CONTENT-STYLE.md` | Voice and tone, microcopy, the banned-words list and the copy-review checklist |
+| `CONTENT-STYLE.md` | Voice and tone, microcopy, the banned-words list, the copy-review checklist, and the Portuguese (pt-PT) voice and nouns |
 | `EDUCATION.md` | The seven Learn modules, the simulator, the Red day page, with sourced facts |
 | `JURISDICTIONS.md` | The country content model, suggestion logic, tax years, and the country facts with sources |
 | `CONTENT-OPS.md` | The "agent drafts, human publishes" pipeline: schedule, sources per country, PR template, guard rails |
