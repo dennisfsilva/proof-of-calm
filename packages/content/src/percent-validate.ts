@@ -37,18 +37,18 @@ const codePoints = (text: string) =>
   text === ''
     ? 'none'
     : [...text].map((char) => `U+${(char.codePointAt(0) ?? 0).toString(16).toUpperCase().padStart(4, '0')}`).join(' ');
-// What joins the figures of a percentage range, every one of them a percentage (`12,2–48%`, `2,5 to 13,3%`): an
-// unspaced en dash or hyphen, or `to` (docs/CONTENT-STYLE.md §4). A spaced dash breaks the sentence instead, so
-// `art. 33.1 – 28%` keeps the law citation's point.
-const RANGE_JOINER = String.raw`(?:[–-]|\s+to\s+)`;
+// What joins the two figures of a percentage range, both of them percentages (`12,2–48%`): an unspaced en dash or
+// hyphen (docs/CONTENT-STYLE.md §4). A `to` range writes its sign on each figure (`2,5% to 13,3%`), and a spaced
+// dash breaks the sentence, so `art. 33.1 to 28%` and `art. 33.1 – 28%` keep the law citation's point.
+const RANGE_JOINER = '[–-]';
 const FIGURE = String.raw`\d+(?:[.,]\d+)*`;
-/** The rest of a percentage range after one of its figures: further figures, then the sign. */
-export const PERCENT_FOLLOWS = new RegExp(String.raw`^(?:${RANGE_JOINER}${FIGURE})*\s*%`, 'u');
+/** The rest of a percentage range after one of its figures: at most one further figure, then the sign. */
+export const PERCENT_FOLLOWS = new RegExp(String.raw`^(?:${RANGE_JOINER}${FIGURE})?\s*%`, 'u');
 // A sign followed by two hexadecimal digits is a URL's percent-escape (`a1%20b`), never a percentage. The joiner
 // check reads the figure before the sign; the decimal check reads the whole range.
 const SIGN = String.raw`(\s*)%(?![\dA-Fa-f]{2})`;
 const PERCENT = new RegExp(`${FIGURE}${SIGN}`, 'g');
-const PERCENT_RANGE = new RegExp(`${FIGURE}(?:${RANGE_JOINER}${FIGURE})*${SIGN}`, 'g');
+const PERCENT_RANGE = new RegExp(`${FIGURE}(?:${RANGE_JOINER}${FIGURE})?${SIGN}`, 'g');
 const URL_IN_TEXT = /https?:\/\/\S+/g;
 
 /**
