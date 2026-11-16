@@ -1391,8 +1391,7 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   header lines, as to the English ones. The profile lines of a pt-PT file (the lot note and the holding
   conditions) come from the profile's pt-PT overlay where one exists (ADR-0057, Portugal's and the generic
   profile's since 2026-11-16). The pt-PT tax-year file's offline mix (English profile lines among Portuguese
-  words when the profile chunk fails) is accepted while pt-PT is hidden, as hidden chunks are not precached; it
-  moves to 25g's language-of-text item (DOMAIN §3.13 in the profile branch; ADR-0057 Corrections in 25g).
+  words when the profile chunk fails) is accepted while pt-PT is hidden, as hidden chunks are not precached.
 - `snapshotValue(plan, entries, histories, date)`: the portfolio value at the end of a calendar date (decided
   2026-11-08): the units of the live entries dated on or before `date` (sales subtract; a negative holding counts
   as none, as in `valueSeries`, §3.11), each coin priced at the close dated exactly `date`, the price at 00:00 UTC
