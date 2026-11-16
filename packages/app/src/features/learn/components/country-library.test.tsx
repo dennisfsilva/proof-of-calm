@@ -3,10 +3,12 @@ import { GENERIC_COUNTRY, loadProfiles } from '@proofofcalm/content';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { Suspense } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
+import { systemClock } from '../../../lib/adapters/clock';
 import { I18nProvider } from '../../../lib/i18n';
 import { NavigationProvider, Route, usePathname } from '../../../lib/navigation';
 import { ServicesProvider } from '../../../lib/services';
-import { createTestServices } from '../../../lib/services/testing';
+import { createCountries } from '../../../lib/services/countries';
+import { createTestServices, type TestServicesOptions } from '../../../lib/services/testing';
 import learn from '../../../messages/en/learn.json';
 import shell from '../../../messages/en/shell.json';
 import { GENERIC, GERMANY, PORTUGAL } from '../fixtures/profiles';
@@ -27,8 +29,8 @@ const NAMES = (await loadProfiles())
 
 const Path = () => <output data-testid="path">{usePathname()}</output>;
 
-async function mount(initialPath: string, nowMs?: number) {
-  const services = createTestServices(nowMs === undefined ? {} : { nowMs });
+async function mount(initialPath: string, nowMs?: number, options: TestServicesOptions = {}) {
+  const services = createTestServices({ ...options, ...(nowMs !== undefined && { nowMs }) });
   await services.start();
   // Rendered in an awaited act, so React retries the screens that suspended on a profile once it is in.
   await act(async () => {
@@ -65,9 +67,18 @@ describe('CountryList', () => {
   });
 
   it("a row whose card is under review reads as its card's date line does; the others keep Last reviewed", async () => {
-    // Under review from the day after twelve months past nextReviewDue (docs/JURISDICTIONS.md §1).
-    const [year, month, day] = GERMANY.status.nextReviewDue.split('-').map(Number) as [number, number, number];
-    await mount('/learn/countries', Date.UTC(year + 1, month - 1, day + 1, 10));
+    // Under review from the day after twelve months past nextReviewDue (docs/JURISDICTIONS.md §1). A review moves
+    // the profiles' dates (docs/CONTENT-OPS.md §8), so Germany's and the others' are literal here.
+    const dated = (await loadProfiles()).map((profile) => ({
+      ...profile,
+      status: { ...profile.status, nextReviewDue: profile.code === GERMANY.code ? '2026-06-01' : '2027-11-02' },
+    }));
+    const nowMs = Date.parse('2027-06-02T10:00:00Z');
+    const countries = createCountries(
+      { all: async () => dated, one: async (code) => dated.find((profile) => profile.code === code) ?? null },
+      systemClock('Europe/Lisbon', () => nowMs),
+    );
+    await mount('/learn/countries', nowMs, { countries });
     const row = (name: string) => screen.getByRole('link', { name }).closest('li')?.textContent;
     expect(await screen.findByRole('heading', { level: 1, name: 'Countries' })).toBeDefined();
     expect(row(GERMANY.name)).toMatch(/Not reviewed since \d+\s\w+\s\d{4}$/u);

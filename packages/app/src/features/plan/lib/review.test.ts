@@ -6,8 +6,9 @@ import { fixtureSnapshot } from '../../../lib/services/fixtures';
 import { reviewSummary } from './review';
 
 // The review page's parts (docs/DOMAIN.md §3.12): the day it counts from, the next review day, the person's
-// note, and the rules held: Portugal's (reviewed 5 Nov 2026, next due 2 Nov 2027, version 2) or the general
-// profile's.
+// note, and the rules held: Portugal's or the general profile's. A content review raises Portugal's version and
+// moves its dates (docs/CONTENT-OPS.md §8), so its status here is literal: reviewed 5 Nov 2026, next due 2 Nov 2027,
+// version 2, the fixture plan's.
 
 const day = (value: string) => value as CalendarDate;
 const plan = (changes: Partial<Plan> = {}): Plan => ({ ...(fixtureSnapshot().plan as Plan), ...changes });
@@ -22,7 +23,16 @@ beforeAll(async () => {
   const [pt, xx] = await Promise.all([loadProfile('PT'), loadProfile('XX')]);
   if (pt === null || xx === null) throw new Error('the profiles did not load');
   [ptProfile, xxProfile] = [pt, xx];
-  portugal = countryRules(pt);
+  portugal = {
+    ...countryRules(pt),
+    status: {
+      version: 2,
+      changedOn: day('2026-11-05'),
+      changeNotice: 'The rule changed.',
+      lastReviewed: day('2026-11-05'),
+      nextReviewDue: day('2027-11-02'),
+    },
+  };
   generic = countryRules(xx);
 });
 
