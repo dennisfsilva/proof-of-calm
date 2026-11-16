@@ -14,7 +14,7 @@ import { cspViolations, recordCspViolations, test } from './support';
 // the fixture plan under Portugal (FIFO per venue, the 365-day rule) downloads the running year's per-lot file,
 // under the United Kingdom (a pooled lot rule) the running 2026 to 2027 year's raw listing, under France (the
 // portfolio-wide model) the cessions file and under the Netherlands (the snapshot model) the snapshot file, each
-// byte for byte the file in packages/app/src/features/settings/fixtures. The local run sends no UK geolocation,
+// a UTF-8 byte order mark, then byte for byte the file in packages/app/src/features/settings/fixtures. The local run sends no UK geolocation,
 // so ADR-0029's 451 route does not apply. The Tax year select opens with no CSP violation, and on the sell clock
 // the latest ended year is chosen and downloads.
 
@@ -34,13 +34,17 @@ async function openData(page: Page, patch: Partial<Plan>, phase: FixturePhase = 
 
 const yearSelect = (page: Page) => page.getByRole('combobox', { name: 'Tax year' });
 
-/** Exports the year the select shows and returns the file's suggested name and its text. */
+/**
+ * Exports the year the select shows and returns the file's suggested name and its text after the UTF-8 byte order
+ * mark the saved bytes open with (docs/DOMAIN.md §3.13).
+ */
 async function exportYear(page: Page) {
   const event = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Export tax-year CSV' }).click();
   const file = await event;
-  const path = await file.path();
-  return { name: file.suggestedFilename(), text: await readFile(path, 'utf8') };
+  const bytes = await readFile(await file.path());
+  expect([...bytes.subarray(0, 3)]).toEqual([0xef, 0xbb, 0xbf]);
+  return { name: file.suggestedFilename(), text: bytes.subarray(3).toString('utf8') };
 }
 
 const expected = (name: string) =>
