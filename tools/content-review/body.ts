@@ -5,7 +5,8 @@
 // whose text is its host. render-check.ts proves both through GitHub's own renderer.
 // A change's or pending change's `item` is a data file relative to packages/content/, and its link must
 // be on that file's list (#135): `jurisdictions/<cc>.json` on the country's list or EU's, any other
-// data file on `facts`; verified and unreachable links on any list. A change's `field` is a leaf path
+// data file on `facts`, a translation under `i18n/<locale>/` on its English file's; verified and
+// unreachable links on any list. A change's `field` is a leaf path
 // (`card.allowances[0]`). rows.ts ties the rows to the staged diff both ways, with bookkeeping
 // (`*.accessed`, `reviewedBy`, `status.confidence`) exempt and covered by a `reviewed` row
 // (docs/CONTENT-OPS.md §3, steps 4 and 5).
@@ -165,13 +166,17 @@ const listOf = (allow: unknown, key: string): string[] => {
   return Array.isArray(list) ? list.filter((domain): domain is string => typeof domain === 'string') : [];
 };
 
-/** The domains a data file's link may use (#135), as validate:content allows them; none for any other item. */
+/**
+ * The domains a data file's link may use (#135), as validate:content allows them; none for any other item.
+ * A translation (`i18n/<locale>/…`) takes its English file's list.
+ */
 export function itemDomains(item: string, allow: unknown): string[] {
   const path = `packages/content/${item}`;
   if (!DATA_PATHS.some((pattern) => pattern.test(path))) return [];
-  const country = /^jurisdictions\/([a-z]{2})\.json$/.exec(item)?.[1];
+  const english = item.replace(/^i18n\/[^/]+\//, '');
+  const country = /^jurisdictions\/([a-z]{2})\.json$/.exec(english)?.[1];
   if (country) return [...listOf(allow, country.toUpperCase()), ...listOf(allow, 'EU')];
-  return item.startsWith('jurisdictions/') || item.startsWith('rules/') ? [] : listOf(allow, 'facts');
+  return english.startsWith('jurisdictions/') || english.startsWith('rules/') ? [] : listOf(allow, 'facts');
 }
 
 /**
