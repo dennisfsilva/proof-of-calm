@@ -48,11 +48,14 @@ Arguments: $ARGUMENTS
   `templates/*.json` and `facts/*.json` there. In one, change only a figure that
   `overlay-number-mismatch` names, at the path it names, to the English file's new value, and
   never its prose. Write that value in the translation's number format, not as the English
-  characters: the check reads English with English separators and the translation with its number
-  locale's (ADR-0057: a profile's locale in the translation's language, else its
-  `numberFormatLocale`; a template's or a fact's, the language's own), so Germany's pt-PT
-  translation reads with de-DE's. There English `5.5 %` is `5,5 %` and English `EUR 1,000` is
-  `1000` or `1.000`; copied as written they read 5 and 5, and 1. Keep the form the translation
+  characters. The check reads each file with its own number locale: in the English file, a
+  profile's percentages with its D8 locale (§3 step 2), and every other figure, a template's and a
+  fact's included, with English separators; the translation with its number locale's (ADR-0057: a
+  profile's locale in the translation's language, else its `numberFormatLocale`; a template's or a
+  fact's, the language's own). So Germany's pt-PT translation reads with de-DE's: there English
+  `5,5 %` stays `5,5 %`, and English `EUR 20,350` is `20 350` or `20.350`, since `20,350` copied
+  as written reads 20.35; a template's English `31.4 %` is `31,4 %` in pt-PT. A point in a
+  translated profile's percentage also draws `decimal-separator`. Keep the form the translation
   already writes for that figure, its percent joiner too (`docs/CONTENT-STYLE.md` §4 and §9: a
   no-break space at de-DE, none at pt-PT). The check prints the translation's values, then the
   English ones; on the next run they must be equal. No `allowed-tools` rule approves that edit, so
@@ -152,6 +155,12 @@ For each profile in `packages/content/jurisdictions/`:
    number inline ("2Solche"): drop it from the quote, since on the page it marks the sentence and is
    not part of it. In the default permission mode, each fetch and each `pdf.ts` run is one owner prompt (DE on 2026-11-11: 9
    fetches, 3 runs). Prefer `pdf.ts`'s `.txt` for a PDF.
+   Write a profile's percentage, in English too, in its page's number format (D8,
+   `docs/CONTENT-STYLE.md` §4): Germany's `5,5 %` with its no-break space, Portugal's `12,2%`,
+   Britain's `12.2%`, each figure of a range `12,2–48%`. `pnpm run validate:content` refuses a point there with
+   `decimal-separator: <field>: "12.3%" writes ".", expected "," (pt-PT)`; write the separator the
+   message expects. A figure with no percent sign after it (`EUR 20,350`, a law's `art. 33.1`)
+   and every figure of a template or a fact keep English separators.
 3. Set the entry's `accessed` to the day you read the source. Set `status.confidence` and give its
    one-line reason in the draft's `reviewed[].reason` for that file.
 4. Never set `lastReviewed` or `nextReviewDue`; the finish refuses a change to either. Set
