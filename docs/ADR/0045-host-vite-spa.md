@@ -1496,3 +1496,32 @@ with pt-PT.
   entry boots with them (`packages/app/src/lib/i18n/locales.test.ts`); every other pt-PT namespace
   may be partial, its untranslated keys filled from English. Which namespaces are translated:
   `docs/ROADMAP.md` M2.
+
+## Deviations recorded on 2026-11-16
+
+The decision stands; this changes what a failed dynamic import gives its caller. The 2026-10-22 entry's
+rule on when the reload runs is unchanged.
+
+- **2026-11-16, a failed dynamic import rejects with its own error** (§3, Risks; the 2026-10-22
+  entry). The chunk reload called `preventDefault()` on every `vite:preloadError`, and Vite's preload
+  helper then resolves the import to `undefined` instead of throwing. Vite 8.3.4's helper
+  (packages/vite/src/node/plugins/importAnalysisBuild.ts at the `v8.3.4` tag,
+  https://github.com/vitejs/vite/blob/v8.3.4/packages/vite/src/node/plugins/importAnalysisBuild.ts,
+  accessed 2026-11-16, and the installed package's built copy) dispatches the event and continues
+  with `if (!e.defaultPrevented) { throw err }`, and its last step is
+  `return baseModule().catch(handlePreloadError)`, after the loop over the dependencies' preloads that
+  calls the same function for each rejected one. Every caller happened to read a property of the
+  module at once and so failed with a TypeError ("Cannot read properties of undefined"), not the
+  import's error; a caller that destructured with a default or read through optional chaining would
+  have carried on in silence. `apps/web/src/chunk-reload.ts` now leaves the default, so the import
+  rejects as the platform's `import()` does; the HEAD check and the one reload per tab run as before.
+  The visible outcome is the same on every path measured: a lazy screen, a lazy namespace under
+  Today's one tap, the "Why?" sheet, the red-day model and a Learn module's body each reach their
+  fallback through a rejection either way (`apps/web/e2e/import-failure.spec.ts`, desktop and
+  iphone, which fails on the old handler by the TypeError or by the event's prevented default).
+  The cost: only a CSS dependency's preload can reject (a script's `modulepreload` link is not
+  awaited), and one that fails now fails the import even when the module itself would load, where it
+  went on before. That happens only when the network fails while the build is still deployed, where
+  the module's own request usually fails too. ADR-0057's Corrections of 2026-11-16 describe the
+  handler as preventing the default; its loaders keep their guard for an import that resolves
+  without the file.
