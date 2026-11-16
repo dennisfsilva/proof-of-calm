@@ -26,7 +26,7 @@
       "intro": "No fim de {date}, depois das vendas e transferências com data igual ou anterior, o Registo mostra estas unidades em cada local.",
       "noVenue": "Sem local",
       "estimated": "{count, plural, one {«Comprado como planeado» estimou as unidades de {figure} movimento de {coin} a partir do preço do dia. A confirmação da plataforma tem as unidades exatas.} other {«Comprado como planeado» estimou as unidades de {figure} movimentos de {coin} a partir do preço do dia. As confirmações da plataforma têm as unidades exatas.}}",
-      "differs": "Se a plataforma ou a carteira mostrar outras unidades, registe o movimento em falta (compra, venda, transferência ou moedas recebidas) ou corrija as unidades, o local ou a data de um movimento.",
+      "differs": "Se a plataforma ou a carteira mostrar outras unidades, registe o movimento em falta (compra, venda, transferência ou moedas adicionadas) ou corrija as unidades, o local ou a data de um movimento.",
       "log": "Abrir o Registo",
       "none": "O Registo não mostra moedas detidas no fim de {date}."
     },
@@ -94,7 +94,7 @@
     "none": "Sem janela de venda",
     "noneLine": "O plano prevê compras e depois uma fase de detenção.",
     "dates": "Uma janela de venda",
-    "datesLine": "O plano prevê uma venda em 3 partes entre as datas de abertura e de fecho, com saída até à data de saída.",
+    "datesLine": "O plano prevê uma venda em 3 partes entre as datas de abertura e de fecho, com saída até à última das 3 datas.",
     "opens": "Abertura",
     "closes": "Fecho",
     "exitBy": "Saída até",
@@ -171,7 +171,7 @@
       "part1": "Parte 1 de 3: um terço das moedas detidas",
       "part2": "Parte 2 de 3: um terço das moedas detidas",
       "part3": "Parte 3 de 3: o resto das moedas detidas",
-      "out": "Saída até",
+      "out": "Limite de saída",
       "today": "Hoje",
       "halving": "Halving",
       "peak": "Máximo do ciclo que {source, select, template {o ponto de partida} other {a página do plano DCA}} pressupõe"
