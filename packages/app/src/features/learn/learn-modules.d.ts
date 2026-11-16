@@ -4,7 +4,7 @@
 // path, so the elements' type is an `import()` type.
 
 declare module 'virtual:learn-modules' {
-  import type { LearnModuleMeta } from '@proofofcalm/content';
+  import type { LearnModuleMeta, OverlayLanguage } from '@proofofcalm/content';
   import type { ComponentType } from 'react';
 
   type Body = ComponentType<{ components: import('./lib/body-elements').BodyElements }>;
@@ -13,6 +13,13 @@ declare module 'virtual:learn-modules' {
   export const LEARN_MODULES: readonly LearnModuleMeta[];
   /** A lazy import per slug, each body its own chunk. */
   export const LEARN_BODIES: Readonly<Record<string, () => Promise<{ default: Body }>>>;
+  /**
+   * Per language with a translation folder (ADR-0057), a lazy import per translated slug: the body and its
+   * metadata, both in the translation's own chunk, never in the one that lists the modules.
+   */
+  export const LEARN_TRANSLATIONS: Readonly<
+    Partial<Record<OverlayLanguage, Readonly<Record<string, () => Promise<{ meta: LearnModuleMeta; default: Body }>>>>>
+  >;
 }
 
 declare module '*.mdx' {

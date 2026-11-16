@@ -3,7 +3,8 @@ import { LEARN_MODULES } from 'virtual:learn-modules';
 import type { ReactNode } from 'react';
 import { useTranslations } from 'use-intl';
 import { Link, Redirect, Route, Switch } from '../../../lib/navigation';
-import { moduleBody } from '../lib/bodies';
+import { useServices } from '../../../lib/services';
+import { useModuleBody } from '../lib/bodies';
 import { TAXES_MODULE } from '../lib/taxes';
 import { BACK_LINK, CountryList, CountryRoute, CountryRows, PlanCountryCard } from './country-library';
 import { ModuleIndex } from './module-index';
@@ -37,15 +38,14 @@ const LEADS: Partial<Record<string, () => ReactNode>> = {
 
 function ModuleRoute({ slug }: { slug: string }) {
   const t = useTranslations('learn');
-  const module = LEARN_MODULES.find((known) => known.slug === slug);
-  const Body = moduleBody(slug);
-  if (module === undefined || Body === undefined) return <Redirect to={INDEX} replace />;
+  const shown = useModuleBody(slug, useServices().language);
+  if (shown === undefined) return <Redirect to={INDEX} replace />;
   return (
     <div className={PAGE}>
       <Link href={INDEX} className={BACK_LINK}>
         {t('module.back')}
       </Link>
-      <ModuleView module={module} Body={Body} lead={LEADS[slug]?.()} />
+      <ModuleView module={shown.module} Body={shown.Body} language={shown.language} lead={LEADS[slug]?.()} />
       {slug === TAXES_MODULE && <CountryRows />}
     </div>
   );
