@@ -8,3 +8,12 @@ import type { ContentLanguage } from '@proofofcalm/content';
 export function textLang(content: ContentLanguage | undefined, ui: string): ContentLanguage | undefined {
   return content === undefined || content === ui ? undefined : content;
 }
+
+/**
+ * The `lang` of the app's own lines that a Learn module's English body renders, its chart and its past-performance
+ * line: the UI's language where the UI is not English, so they leave the body's `lang="en"`; nothing on an English
+ * screen, which marks no `lang` at all.
+ */
+export function uiLang(ui: string): string | undefined {
+  return ui === 'en' ? undefined : ui;
+}

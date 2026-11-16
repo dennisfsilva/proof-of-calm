@@ -2,9 +2,10 @@ import type { LearnModuleMeta } from '@proofofcalm/content';
 import type { Decimal } from '@proofofcalm/core';
 import { BarChart } from '@proofofcalm/ui/charts/bar-chart';
 import { useEffect, useState } from 'react';
-import { useTranslations } from 'use-intl';
+import { useLocale, useTranslations } from 'use-intl';
 import { BRAND } from '../../../lib/brand';
 import type { Formatters } from '../../../lib/format';
+import { uiLang } from '../../../lib/i18n/text-lang';
 import { useFormatters, useServices } from '../../../lib/services';
 import type { PastFall } from '../../../lib/services/red-day-types';
 import { MODULE_ELEMENTS } from '../lib/body-elements';
@@ -67,12 +68,19 @@ export type DrawdownBarsProps = { falls: readonly PastFall[]; f: Formatters };
 /** The chart over the rows given, with no services: the app's chart below and the static site pages draw it. */
 export function DrawdownBars({ falls, f }: DrawdownBarsProps) {
   const t = useTranslations('learn.chart');
-  if (falls.length === 0) return <p className="text-16">{t('failed')}</p>;
+  // The chart stands inside a module's English body; its lines are the page's (ADR-0057).
+  const lang = uiLang(useLocale());
+  if (falls.length === 0)
+    return (
+      <p lang={lang} className="text-16">
+        {t('failed')}
+      </p>
+    );
   const { publishers, first, last } = fallsSpan(falls, f);
   const percent = (fall: PastFall['fall']) => fallPercent(f, fall);
   const coins = [...new Set(falls.map(({ coin }) => coin))];
   return (
-    <div className="flex flex-col gap-stack-xs">
+    <div lang={lang} className="flex flex-col gap-stack-xs">
       <BarChart
         bars={falls.map((row) => ({
           id: `${row.coin}-${row.high}`,

@@ -130,6 +130,50 @@ describe('ModuleView', () => {
     const { container } = mount();
     expect(container.querySelector('[lang]')).toBeNull();
   });
+
+  // A body's `<Chart />` and `<PastPerformance />` render the app's own lines inside the English body (risk-honestly,
+  // cycles and when-the-market-drops write them): those lines are in the page's language, not the body's.
+  const ChartBody: ComponentProps<typeof ModuleView>['Body'] = ({ components }) => (
+    <>
+      <components.p>Own prose of the module.</components.p>
+      <components.Chart />
+      <components.PastPerformance />
+    </>
+  );
+
+  it("marks the body's chart and past-performance line in the page's language on a pt-PT screen", async () => {
+    render(
+      <ServicesProvider services={createTestServices({ language: 'pt-PT' })}>
+        <I18nProvider locale="pt-PT" messages={{ learn: learnPt }}>
+          <ModuleView module={{ ...module, chart: 'drawdowns-bar' }} Body={ChartBody} />
+        </I18nProvider>
+      </ServicesProvider>,
+    );
+    const nearest = (element: Element) => element.closest('[lang]')?.getAttribute('lang');
+    expect(nearest(screen.getByText('Own prose of the module.'))).toBe('en');
+    const drawing = await screen.findByRole('img', { name: new RegExp(learnPt.chart.label.slice(0, 12)) });
+    expect(nearest(drawing)).toBe('pt-PT');
+    expect(nearest(screen.getByText(learnPt.chart.summary))).toBe('pt-PT');
+    // Twice: the chart's own line under its source, and the body's.
+    const links = screen.getAllByRole('link', { name: learnPt.module.riskLink });
+    expect(links).toHaveLength(2);
+    for (const link of links) expect(nearest(link)).toBe('pt-PT');
+    for (const line of screen.getAllByText(learnPt.module.pastPerformance, { exact: false })) {
+      expect(nearest(line)).toBe('pt-PT');
+    }
+  });
+
+  it('marks neither the chart nor the past-performance line on an English screen', async () => {
+    const { container } = render(
+      <ServicesProvider services={createTestServices()}>
+        <I18nProvider messages={{ learn }}>
+          <ModuleView module={{ ...module, chart: 'drawdowns-bar' }} Body={ChartBody} />
+        </I18nProvider>
+      </ServicesProvider>,
+    );
+    await screen.findByRole('img', { name: /^Falls from each high/ });
+    expect(container.querySelector('[lang]')).toBeNull();
+  });
 });
 
 // The line under the title (docs/CONTENT-STYLE.md §5): a module is overdue from the day after its nextReviewDue, and
