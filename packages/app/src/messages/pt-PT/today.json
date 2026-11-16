@@ -86,7 +86,7 @@
     "reviewed": "Reviu este plano pela última vez a {date}.",
     "question": "Continua correto? As regras mudaram?",
     "open": "Rever o plano",
-    "later": "Mais tarde",
+    "later": "Adiar",
     "failed": "Não foi possível adiar a revisão. Tente de novo."
   },
   "redDay": {
