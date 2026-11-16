@@ -50,9 +50,10 @@ function setup(options: { readonly storage?: ChunkReloadOptions['storage']; read
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 describe('installChunkReload', () => {
-  it('prevents the default of the event, so Vite does not throw the error', () => {
-    const { dispatch } = setup();
-    expect(dispatch().defaultPrevented).toBe(true);
+  it('leaves the default of the event, so Vite rejects the import with its own error', () => {
+    const { dispatch, held } = setup();
+    expect(dispatch().defaultPrevented).toBe(false);
+    expect(held.calls).toHaveLength(1);
   });
 
   it('keeps the page while the running entry is still deployed (a chunk cancelled while leaving)', async () => {
