@@ -66,7 +66,12 @@ owns the pipeline around them and its security model.
    logged out (no token, or GitHub's HTTP 401 for an expired or revoked one) or offline, and names
    the fix: reconnect, install GitHub CLI, or `gh auth login`.
 2. **Edits.** The agent edits only content data, marks every change `agent-draft` and deletes
-   nothing. The rules files change only as the output of `pnpm --filter @proofofcalm/content rules`.
+   nothing. The rules files, a locale's folder under `packages/content/rules/` too, change only as the
+   output of `pnpm --filter @proofofcalm/content rules`. A translation under `packages/content/i18n/`
+   (ADR-0057) that repeats a figure the agent changed fails `pnpm validate:content`
+   (`overlay-number-mismatch`): the agent changes that figure in the translation at the same path and
+   nothing else there. A translation carries no `reviewedBy`, so the owner's diff read (§8) is its
+   review.
 3. **The expected failure.** The agent runs the content checks, and the skill tells it: "The one
    failure you expect is `agent-draft` on the entries you marked; fix or revert anything else."
 4. **The draft.** The agent writes its findings as JSON in the shape of `ReviewDraft`
@@ -156,7 +161,9 @@ visible rather than impossible:
   deletes it in a session's PR.
 - CI's guard: ci.yml's `verify` job runs the base commit's copy of `tools/content-review/check.ts`
   before pnpm or any PR code. An `agent/*` branch or a PR labelled `content-review` may change only
-  content data and delete none of it, with one exception: the guard also accepts the removal of a
+  content data (`DATA_PATHS`: one file name per data folder, a translation in `jurisdictions/`,
+  `templates/` or `facts/` of a locale under `packages/content/i18n/`, and a locale's generated rules
+  file) and delete none of it, with one exception: the guard also accepts the removal of a
   visual baseline PNG under `apps/web/e2e/*-snapshots/`, the owner's step 4 in §8.
 - The guard step is a tripwire. It lives in the PR's own copy of ci.yml, so a PR that edits ci.yml
   can change or drop it. The robust form, a `pull_request_target` guard as a required check, is not
