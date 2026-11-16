@@ -260,13 +260,13 @@ external links and the Risk link in the mobile export (M3).
   seed (#303), the content tests a review can pass with their rule in `docs/ENGINEERING.md` §2
   (#304), and the app's and the settings and e2e tests on literal profiles (#305, #306). The facts'
   review-safe tests move to #286 as its first branch, and the owner's first real `/review-content`
-  run waits for them. #286 landed a failed dynamic import's own rejection under the chunk reload
-  (#308), Settings' data section (#309), the review-content skill's separator by number locale
-  (#310), the Log (#311) and the learn messages with `lang` on English content (#312). Its design
-  check moved the figures' review-safe tests to a validator rule: the facts branch, which waits with
-  two round-2 findings, and the validator go to #287 as its first branches, with the facts loader,
-  DE and ES and the grouped figures; the settings and onboarding `lang` sites and the tax-year file's
-  profile language go to #271.
+  run waits for them. #286 landed five branches: a failed dynamic import's own rejection under the
+  chunk reload (#308), Settings' data section (#309) and the Log (#311) in pt-PT, the review-content
+  skill's separator by number locale (#310), and the learn messages with `lang` on English content
+  (#312). Its design check moved the figures' review-safe tests to a validator rule. The facts
+  branch, which waits with two findings of its second review round (2026-11-16), and the validator
+  go to #287 as its first branches, with the facts loader, DE and ES and the grouped figures. The
+  settings and onboarding `lang` sites and the tax-year file's profile language go to #271.
   So pt-PT takes four build sessions more than #269 planned before German starts. A
   render-and-axe-only pt-PT story run waits for #271, once every namespace is translated. CSV import, free (ADR-0039), for the
   main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade

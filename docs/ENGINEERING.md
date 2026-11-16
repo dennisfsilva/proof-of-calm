@@ -135,8 +135,8 @@ profile or a message namespace answers them from memory through the `vi.mock` fa
 ## 3. Responsiveness is tested, not assumed
 
 Seven Playwright projects (ADR-0024), each running every flow but the request-level specs (desktop
-only), the UI-language spec (`language.spec.ts`) and the import-failure spec (`import-failure.spec.ts`),
-iphone and desktop only, and the long-date layout
+only), two specs on iphone and desktop only (`language.spec.ts` and `import-failure.spec.ts`), and
+the long-date layout
 spec (`language-layout.spec.ts`, android-small and zoom-125 only): two phones (one WebKit), a tablet,
 two desktops, a 125 % text-zoom phone and a reduced-motion phone, defined in
 `apps/web/playwright.config.ts` (the three lists are its `requestOnly`, `phoneAndDesktop` and
