@@ -9,7 +9,7 @@ import { I18nProvider } from '../../../lib/i18n';
 import { NavigationProvider, usePathname } from '../../../lib/navigation';
 import type { PlanStore, Snapshot } from '../../../lib/ports';
 import { type Services, ServicesProvider } from '../../../lib/services';
-import { fixtureSnapshot } from '../../../lib/services/fixtures';
+import { fixtureSnapshot as storedFixture } from '../../../lib/services/fixtures';
 import { clearRedDay, createTestServices } from '../../../lib/services/testing';
 import shell from '../../../messages/en/shell.json';
 import today from '../../../messages/en/today.json';
@@ -22,6 +22,15 @@ import { TodayScreen } from './today-screen';
 const profile = await loadProfile('PT');
 if (profile === null) throw new Error('no PT profile');
 const PORTUGAL = countryRules(profile);
+
+/**
+ * The fixture plan as one that has seen Portugal's rule version, whatever a content review raised it to
+ * (docs/CONTENT-OPS.md §8): no rule-change notice takes the foot before the review.
+ */
+const fixtureSnapshot = (): Snapshot => {
+  const snapshot = storedFixture();
+  return { ...snapshot, plan: snapshot.plan && { ...snapshot.plan, countryRuleVersion: PORTUGAL.status.version } };
+};
 
 const QUESTION = 'Is it still right? Have the rules changed?';
 const BACKUP = /^Your data lives only on this device\./;
