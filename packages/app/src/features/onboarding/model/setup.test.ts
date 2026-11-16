@@ -1,5 +1,12 @@
 import { COINS, type CountryProfile, loadProfile, templateById } from '@proofofcalm/content';
-import { type CalendarDate, type Coin, type CoinId, EntityIdSchema, type Instant } from '@proofofcalm/core';
+import {
+  type CalendarDate,
+  type Coin,
+  type CoinId,
+  EntityIdSchema,
+  type Instant,
+  writtenPlan,
+} from '@proofofcalm/core';
 import { describe, expect, it } from 'vitest';
 import { RISK_WORDING_LANGUAGES, RISK_WORDING_VERSION } from '../../../lib/brand';
 import { createNumberInput } from '../../../lib/format';
@@ -89,6 +96,8 @@ describe('startPlan (docs/DOMAIN.md §5)', () => {
     if (!result.ok) throw new Error(JSON.stringify(result.error));
     expect([result.value.riskAcknowledgedAt, result.value.riskWordingVersion]).toEqual([now, RISK_WORDING_VERSION]);
     expect(result.value.riskLanguage).toBe('en');
+    // An English acknowledgement stays the v3 plan the previous build reads (docs/DOMAIN.md §2.1).
+    expect(writtenPlan(result.value).schemaVersion).toBe(3);
   });
 
   it('records en when the onboarding text shows English under pt-PT', async () => {
@@ -113,6 +122,9 @@ describe('startPlan (docs/DOMAIN.md §5)', () => {
     const own = startCustomPlan(draft({ country: 'PT', path: 'custom', coins: coins('60', '40') }), approved);
     expect(own.ok && own.value.riskLanguage).toBe('pt-PT');
     expect(checkPlan(draft({ country: 'PT', templateId: 'two-coins' }), approved)).toEqual(result);
+    // A pt-PT acknowledgement is the v4 plan, which records its language (docs/DOMAIN.md §2.1).
+    expect(result.ok && writtenPlan(result.value).schemaVersion).toBe(4);
+    expect(own.ok && writtenPlan(own.value).schemaVersion).toBe(4);
   });
 
   it('a first buy on the 29th to the 31st makes buy day 28; the 28th stays; XX pays in EUR', async () => {
