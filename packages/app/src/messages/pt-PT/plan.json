@@ -8,7 +8,7 @@
   "review": {
     "title": "Review the plan",
     "back": "Back to Plan",
-    "since": "{kind, select, reviewed {You last reviewed this plan on {date}.} other {You set up this plan on {date}.}}",
+    "since": "{kind, select, reviewed {Reviu este plano pela última vez a {date}.} other {Criou este plano a {date}.}}",
     "right": {
       "heading": "Is it still right?",
       "noteLabel": "Your note to yourself",

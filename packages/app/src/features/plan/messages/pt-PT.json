@@ -1,0 +1,5 @@
+{
+  "review": {
+    "since": "{kind, select, reviewed {Reviu este plano pela última vez a {date}.} other {Criou este plano a {date}.}}"
+  }
+}
