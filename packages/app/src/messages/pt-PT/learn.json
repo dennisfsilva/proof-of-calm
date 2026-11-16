@@ -1,113 +1,114 @@
 {
-  "title": "Learn",
+  "title": "Aprender",
   "index": {
-    "readingTime": "{minutes} min read"
+    "readingTime": "{minutes} min de leitura"
   },
   "module": {
-    "back": "Back to Learn",
-    "lastReviewed": "Last reviewed {date}{state, select, overdue { · <ink>review overdue</ink>} next { · <keep>Next review due {due}</keep>} other {}}",
-    "taxOverdue": "Rules may have changed since {date}. Check your tax authority before filing.",
-    "taxSiteLead": "The sections before “How fast rules change” describe what the app shows once a plan is set up. The list at the end links to each country's page.",
-    "pastPerformance": "Past performance is not a reliable indicator of future results.",
-    "riskLink": "Risk disclosure",
-    "fallUnderWay": "A fall of the coins you hold is under way. <page>See its figures</page>"
+    "back": "Voltar a Aprender",
+    "lastReviewed": "Revisto a {date}{state, select, overdue { · <ink>revisão em atraso</ink>} next { · <keep>Próxima revisão prevista para {due}</keep>} other {}}",
+    "taxOverdue": "As regras podem ter mudado desde {date}. Confirme junto da autoridade tributária antes de entregar a declaração.",
+    "taxSiteLead": "As secções antes de «Com que rapidez mudam as regras» descrevem o que a aplicação mostra depois de definido um plano. A lista no fim tem uma ligação para a página de cada país.",
+    "pastPerformance": "Os resultados registados no passado não constituem um indicador fiável dos resultados futuros.",
+    "riskLink": "Aviso sobre riscos",
+    "fallUnderWay": "Está em curso uma queda das moedas que detém. <page>Ver os valores</page>"
   },
   "countries": {
-    "title": "Countries",
-    "other": "Other countries",
-    "line": "Tax and holding rules by country, with their sources and the date each was last reviewed.",
-    "back": "Back to countries",
-    "headTitle": "Crypto tax rules by country",
-    "countryHeadTitle": "Crypto tax in {code, select, GB {the } NL {the } US {the } other {}}{country}",
-    "lastReviewed": "Last reviewed {date}",
-    "notReviewedSince": "Not reviewed since {date}",
-    "holdingTool": "Show the date a purchase passes this holding rule"
+    "title": "Países",
+    "other": "Outros países",
+    "line": "Regras fiscais e de detenção por país, com as fontes e a data da última revisão de cada uma.",
+    "back": "Voltar aos países",
+    "headTitle": "Tributação dos criptoativos por país",
+    "countryHeadTitle": "Tributação dos criptoativos {code, select, GB {no } NL {nos } US {nos } other {em }}{country}",
+    "lastReviewed": "Revisto a {date}",
+    "notReviewedSince": "Sem revisão desde {date}",
+    "holdingTool": "Mostrar a data em que uma compra cumpre esta regra de detenção"
   },
   "holding": {
-    "title": "Holding rules by country",
-    "line": "Each country's holding rule with every condition, its sources, and the date it was last reviewed.",
+    "title": "Regras de detenção por país",
+    "line": "A regra de detenção de cada país com todas as condições, as fontes e a data da última revisão.",
     "tool": {
-      "app": "Proof of Calm's Log shows the day each purchase passes the plan's holding period, where there is one.",
-      "country": "Country",
-      "noCountry": "Choose a country.",
-      "bought": "Purchase date",
-      "submit": "Show the date",
-      "invalid": "Choose a purchase date from {min} to {max}.",
-      "exempt": "Tax-free from <date></date>",
-      "lowerRate": "Long-term rate from <date></date>",
-      "from": "For a purchase on <date></date>",
-      "note": "Computed from your dates, not tax advice",
-      "more": "Show {count} more {count, plural, one {condition} other {conditions}}"
+      "app": "O Registo da Proof of Calm mostra o dia em que cada compra cumpre o período de detenção do plano, quando existe um.",
+      "country": "País",
+      "noCountry": "Escolha um país.",
+      "bought": "Data da compra",
+      "submit": "Mostrar a data",
+      "invalid": "Escolha uma data de compra entre {min} e {max}.",
+      "exempt": "Mais-valia não tributada a partir de <date></date>",
+      "lowerRate": "Taxa de longo prazo a partir de <date></date>",
+      "from": "Para uma compra a <date></date>",
+      "note": "Calculado a partir das suas datas, não constitui aconselhamento fiscal",
+      "more": "Mostrar mais {count} {count, plural, one {condição} other {condições}}"
     }
   },
   "thisFall": {
-    "row": "The coins you hold against their 90‑day high, and each coin's earlier falls.",
-    "back": "Back to Today",
-    "title": "The fall under way and your plan",
-    "one": "{coin} is {high} below {window, select, short {its highest close since {since}} other {its 90‑day high}}{change, select, fell { and fell {seven} in the 7 days to {date}.} rose { and rose {seven} in the 7 days to {date}.} other { ({date}).}}",
-    "several": "{coins}, in the amounts you hold, are {high} below {window, select, short {their highest close since {since}} other {their 90‑day high}}{change, select, fell {. They fell {seven} in the 7 days to {date}.} rose {. They rose {seven} in the 7 days to {date}.} other { ({date}).}}",
-    "why": "Why? The fall under way",
-    "missing": "{coin} is not in these figures: {product} has no price history for it.",
-    "data": "Daily closes in {currency}, {first} to {last} · Price data by CoinGecko",
-    "failed": "The price history could not be loaded, so today's figures are not shown. Open this page again to retry.",
-    "fallsOf": "Earlier falls of {coin}, computed by {product} from each source's intraday highs and lows in US dollars:",
-    "fall": "{fall} from {high} to {low} · {publisher}",
-    "noFalls": "{product} has no dated earlier fall for {coin}.",
-    "fallsFailed": "The earlier falls could not be loaded. Open this page again to retry.",
-    "nextBuy": "Your next buy day is {date}. Today is not a buy day unless you decided that earlier.",
-    "buyDayToday": "Today, {date}, is your buy day.",
-    "note": "Your note to yourself",
-    "noteLine": "{date}: “{why}”"
+    "row": "As moedas que detém face ao máximo de 90 dias e as quedas anteriores de cada moeda.",
+    "back": "Voltar a Hoje",
+    "title": "A queda em curso e o plano",
+    "one": "{coin} está {high} abaixo {window, select, short {do fecho mais alto desde {since}} other {do máximo de 90 dias}}{change, select, fell { e caiu {seven} nos 7 dias até {date}.} rose { e subiu {seven} nos 7 dias até {date}.} other { ({date}).}}",
+    "several": "{coins}, nas quantidades que detém, estão {high} abaixo {window, select, short {do fecho mais alto conjunto desde {since}} other {do máximo conjunto de 90 dias}}{change, select, fell {. Caíram {seven} nos 7 dias até {date}.} rose {. Subiram {seven} nos 7 dias até {date}.} other { ({date}).}}",
+    "why": "Porquê? A queda em curso",
+    "missing": "{coin} não está nestes valores: a {product} não tem histórico de preços desta moeda.",
+    "data": "Fechos diários em {currency}, {first} a {last} · Dados de preços da CoinGecko",
+    "failed": "Não foi possível carregar o histórico de preços, por isso os valores de hoje não são mostrados. Volte a abrir esta página para tentar de novo.",
+    "fallsOf": "Quedas anteriores de {coin}, calculadas pela {product} a partir dos máximos e mínimos intradiários de cada fonte, em dólares americanos:",
+    "fall": "{fall} de {high} a {low} · {publisher}",
+    "noFalls": "A {product} não tem nenhuma queda anterior datada de {coin}.",
+    "fallsFailed": "Não foi possível carregar as quedas anteriores. Volte a abrir esta página para tentar de novo.",
+    "nextBuy": "O próximo dia de compra é a {date}. Hoje não é dia de compra, a menos que o tenha decidido antes.",
+    "buyDayToday": "Hoje, {date}, é dia de compra.",
+    "note": "A nota que escreveu para si",
+    "noteLine": "{date}: «{why}»"
   },
   "sheet": {
-    "close": "Close"
+    "close": "Fechar"
   },
   "card": {
-    "classification": "How crypto is classified",
-    "events": "What is taxed",
+    "classification": "Como são classificados os criptoativos",
+    "events": "O que é tributado",
     "eventLine": "{event} · {taxable}",
     "event": {
-      "sale-to-fiat": "Selling for money",
-      "crypto-to-crypto": "Swapping one coin for another",
-      "crypto-to-stablecoin": "Swapping for a stablecoin",
-      "spending": "Paying with crypto",
-      "own-wallet-transfer": "Moving coins between your own wallets",
-      "gift-or-inheritance": "A gift or an inheritance",
-      "staking-or-airdrop": "Staking rewards and airdrops"
+      "sale-to-fiat": "Vender por dinheiro",
+      "crypto-to-crypto": "Trocar uma moeda por outra",
+      "crypto-to-stablecoin": "Trocar por uma stablecoin",
+      "spending": "Pagar com criptoativos",
+      "own-wallet-transfer": "Transferir moedas entre carteiras próprias",
+      "gift-or-inheritance": "Uma doação ou uma herança",
+      "staking-or-airdrop": "Recompensas de staking e airdrops"
     },
     "taxable": {
-      "yes": "Taxable",
-      "no": "Not taxed at the time",
-      "depends": "Taxable in some cases"
+      "yes": "Tributado",
+      "no": "Não tributado no momento",
+      "depends": "Tributado em alguns casos"
     },
-    "rates": "Rates",
+    "rates": "Taxas",
     "rateLine": "{label}: {value}",
-    "validFrom": "From {date}",
-    "validRange": "{from} to {to}",
-    "allowances": "Allowances",
-    "holdingRule": "Holding rule",
-    "lotRule": "Matching sales to purchases",
-    "losses": "Losses",
-    "reporting": "Reporting",
-    "caveats": "Questions for an accountant",
-    "sources": "Sources",
-    "sourceList": "Sources for {country}",
-    "sourcePublished": "{publisher} · dated {date}",
-    "sourceAccessed": "{publisher} · accessed {date}",
-    "sourcesName": "Sources for {rule, select, rates {the rates} holdingRule {the holding rule} lotRule {matching sales to purchases} losses {losses} reporting {reporting} other {this rule}}"
+    "validFrom": "A partir de {date}",
+    "validRange": "{from} a {to}",
+    "allowances": "Montantes não tributados",
+    "holdingRule": "Regra de detenção",
+    "lotRule": "Correspondência entre vendas e compras",
+    "losses": "Perdas",
+    "reporting": "Declaração",
+    "caveats": "Perguntas para um contabilista",
+    "sources": "Fontes",
+    "sourceList": "Fontes de {country}",
+    "sourcePublished": "{publisher} · datado de {date}",
+    "sourceAccessed": "{publisher} · consultado a {date}",
+    "sourcesName": "Fontes {rule, select, rates {das taxas} holdingRule {da regra de detenção} lotRule {da correspondência entre vendas e compras} losses {das perdas} reporting {da declaração} other {desta regra}}",
+    "inEnglish": "As regras abaixo estão em inglês."
   },
   "chart": {
-    "label": "Falls from each high to the lowest low after it for {coins}, {first} to {last}",
-    "description": "One bar per coin and cycle, its length the fall from the intraday high to the intraday low, in US dollars.",
+    "label": "Quedas de cada máximo até ao mínimo mais baixo que se lhe seguiu, de {coins}, {first} a {last}",
+    "description": "Uma barra por moeda e ciclo, com o comprimento da queda do máximo intradiário ao mínimo intradiário, em dólares americanos.",
     "bar": "{coin} {year}",
-    "summary": "Show the falls as a table",
+    "summary": "Mostrar as quedas numa tabela",
     "columns": {
-      "coin": "Coin",
-      "high": "Date of high",
-      "low": "Date of low",
-      "fall": "Fall"
+      "coin": "Moeda",
+      "high": "Data do máximo",
+      "low": "Data do mínimo",
+      "fall": "Queda"
     },
-    "source": "{publishers} intraday highs and lows in US dollars, {first} to {last}; the falls are {product}'s own computation.",
-    "failed": "The earlier falls could not be loaded. Open this page again to retry."
+    "source": "Máximos e mínimos intradiários de {publishers}, em dólares americanos, {first} a {last}; as quedas são um cálculo próprio da {product}.",
+    "failed": "Não foi possível carregar as quedas anteriores. Volte a abrir esta página para tentar de novo."
   }
 }
