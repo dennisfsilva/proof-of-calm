@@ -8,7 +8,7 @@ import { I18nProvider } from '../../../lib/i18n';
 import { NavigationProvider } from '../../../lib/navigation';
 import type { PricesState, Snapshot } from '../../../lib/ports';
 import { type RedDayModel, type RedDayPort, ServicesProvider } from '../../../lib/services';
-import { fixtureSnapshot } from '../../../lib/services/fixtures';
+import { fixtureSnapshot as storedFixture } from '../../../lib/services/fixtures';
 import {
   clearRedDay,
   createTestServices,
@@ -31,9 +31,18 @@ afterEach(cleanup);
 // jsdom has no `scrollIntoView`: a foot banner's Dismiss brings the card's heading into view with it.
 Element.prototype.scrollIntoView = vi.fn();
 
-const portugal = async () => {
-  const profile = await loadProfile('PT');
-  return profile === null ? null : countryRules(profile);
+const profile = await loadProfile('PT');
+if (profile === null) throw new Error('no PT profile');
+const PORTUGAL = countryRules(profile);
+const portugal = async () => PORTUGAL;
+
+/**
+ * The fixture plan as one that has seen Portugal's rule version, whatever a content review raised it to
+ * (docs/CONTENT-OPS.md §8): the rule-change notice stays away unless a test sets an older version itself.
+ */
+const fixtureSnapshot = (): Snapshot => {
+  const snapshot = storedFixture();
+  return { ...snapshot, plan: snapshot.plan && { ...snapshot.plan, countryRuleVersion: PORTUGAL.status.version } };
 };
 
 const at = (date: string) => Date.parse(`${date}T10:00:00Z`);
