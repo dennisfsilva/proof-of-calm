@@ -1,5 +1,6 @@
 import type { LearnModuleMeta } from '@proofofcalm/content';
-import { useTranslations } from 'use-intl';
+import { useLocale, useTranslations } from 'use-intl';
+import { textLang } from '../../../lib/i18n/text-lang';
 import { Link } from '../../../lib/navigation';
 
 const ROW = 'flex min-h-target flex-col justify-center gap-stack-xs no-underline';
@@ -15,6 +16,8 @@ export type ModuleIndexProps = { modules: readonly LearnModuleMeta[]; thisFall?:
  */
 export function ModuleIndex({ modules, thisFall = false }: ModuleIndexProps) {
   const t = useTranslations('learn');
+  // Each module's title and idea are its English front matter, marked as module-view marks them (ADR-0057).
+  const lang = textLang('en', useLocale());
   return (
     <>
       <h1 className="text-28">{t('title')}</h1>
@@ -30,8 +33,12 @@ export function ModuleIndex({ modules, thisFall = false }: ModuleIndexProps) {
         {modules.map((module) => (
           <li key={module.slug}>
             <Link href={`/${module.slug}`} className={ROW}>
-              <span className={TITLE}>{module.title}</span>
-              <span className="text-16 text-ink-2">{module.idea}</span>
+              <span lang={lang} className={TITLE}>
+                {module.title}
+              </span>
+              <span lang={lang} className="text-16 text-ink-2">
+                {module.idea}
+              </span>
               <span className="text-13 text-ink-2">{t('index.readingTime', { minutes: module.readingMinutes })}</span>
             </Link>
           </li>
