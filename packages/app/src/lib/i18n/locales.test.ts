@@ -127,6 +127,14 @@ describe('the translations in the repository', () => {
     },
   );
 
+  // Today's entry boots with these three in Portuguese (ADR-0045 §8), so they are whole while pt-PT is
+  // still hidden: a key the merge completed from English would show English on Today.
+  it.each(['errors', 'shell', 'today'])('%s is whole in pt-PT', (folder) => {
+    const translated = byFolder.get(`${folder}/pt-PT`)?.tree;
+    expect(translated, `${folder} has no pt-PT file`).toBeDefined();
+    expect(problems(byFolder.get(`${folder}/en`)?.tree ?? {}, translated ?? {}, true)).toEqual([]);
+  });
+
   it('are complete for every visible locale', () => {
     const folders = [...byFolder.values()].filter(({ locale }) => locale === 'en').map(({ folder }) => folder);
     for (const locale of VISIBLE_LANGUAGES.filter((language) => language !== 'en'))
