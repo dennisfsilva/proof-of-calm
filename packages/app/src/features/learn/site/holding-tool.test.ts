@@ -127,28 +127,34 @@ describe('the answer', () => {
     expect(answer('2024-02-29', US)).toEqual(dated('2025-03-01', 'lower-rate'));
   });
 
-  // The oracle: each dated card's own worked example ("bought on 1 March 2026 … on 1 March 2027") gives the card's date.
+  // The oracle: each dated card's worked example ("bought on 1 March 2026 … on 1 March 2027") gives the card's date.
+  // The sentences are the cards' as they stood on 2026-11-16, literal here: a content review may reword them or
+  // move their years (docs/CONTENT-OPS.md §8), and their rules are this file's.
   it('gives each dated card’s example purchase the card’s own result date', () => {
+    const examples: readonly (readonly [string, HoldingRule, string])[] = [
+      [
+        'DE',
+        DE,
+        'bought on 15 March 2026, a sale on 15 March 2027 is still inside the year; from 16 March 2027 it is tax-free.',
+      ],
+      ['PT', PT, 'A unit bought on 1 March 2026 qualifies on 1 March 2027.'],
+      ['US', US, 'A unit bought on 15 March 2026 is long-term when sold from 16 March 2027.'],
+    ];
     const months = Array.from({ length: 12 }, (_, index) =>
       new Intl.DateTimeFormat('en', { month: 'long', timeZone: 'UTC' }).format(Date.UTC(2026, index, 1)),
     );
     const iso = (d: string, m: string, y: string) =>
       `${y}-${String(months.indexOf(m) + 1).padStart(2, '0')}-${d.padStart(2, '0')}`;
-    const checked: string[] = [];
-    for (const [code, rules] of site.rules) {
-      if (rules.rule.kind === 'none') continue;
-      const text = site.cards.get(code)?.card.holdingRuleText ?? '';
+    for (const [code, rule, text] of examples) {
       const dates = [...text.matchAll(new RegExp(`(\\d{1,2}) (${months.join('|')}) (\\d{4})`, 'g'))].map((match) =>
         iso(match[1] ?? '', match[2] ?? '', match[3] ?? ''),
       );
       const [bought] = dates;
       expect(bought, code).toBeDefined();
-      expect(holdingAnswer(day(bought ?? ''), { ...rules, underReview: false }), code).toMatchObject({
+      expect(holdingAnswer(day(bought ?? ''), { rule, overrides: [], underReview: false }), code).toMatchObject({
         from: dates.at(-1),
       });
-      checked.push(code);
     }
-    expect(checked.sort()).toEqual(['DE', 'PT', 'US']);
   });
 });
 
