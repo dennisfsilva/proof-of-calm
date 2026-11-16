@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, it } from 'vitest';
+import { GIT_FREE_ENV } from '../git-env.ts';
 
 const SCRIPT = fileURLToPath(new URL('./propose.ts', import.meta.url));
 const TEMPLATE = '.github/PULL_REQUEST_TEMPLATE/content-review.md';
@@ -17,7 +18,8 @@ const fromRepo = (path: string) => readFileSync(new URL(`../../${path}`, import.
 it('finish --dry accepts a pending change with a null effectiveFrom and prints no effective date yet', () => {
   const repo = mkdtempSync(join(tmpdir(), 'finish-dry-'));
   const outside = mkdtempSync(join(tmpdir(), 'finish-dry-draft-'));
-  const git = (...args: string[]) => execFileSync('git', args, { cwd: repo, encoding: 'utf8' }).trim();
+  const git = (...args: string[]) =>
+    execFileSync('git', args, { cwd: repo, encoding: 'utf8', env: GIT_FREE_ENV }).trim();
   const write = (path: string, text: string) => {
     mkdirSync(join(repo, path, '..'), { recursive: true });
     writeFileSync(join(repo, path), text);
@@ -45,6 +47,7 @@ it('finish --dry accepts a pending change with a null effectiveFrom and prints n
     const result = spawnSync(process.execPath, [SCRIPT, 'finish', '--dry', '--draft', draftPath], {
       cwd: repo,
       encoding: 'utf8',
+      env: GIT_FREE_ENV,
     });
     expect(result.stdout.trim().split('\n')).toEqual([
       'finish --dry: accepted, 1 paths; the body is in .content-review/body.md',

@@ -63,7 +63,9 @@ that the documents name only paths, commands and ADRs that exist, mark planned i
 literal in its owner and change accepted ADRs only below their history heading; it fails on a
 finding, and `--warn` (or `DOCS_LINT=warn`) prints the findings and exits 0. `lint/size.ts` (`pnpm lint:size`) holds source files
 to 400 lines unless the header says why in a `size-lint-allow:` line. `lint/test-count.ts`
-(`pnpm testCount`) prints the number of test files and cases for the pre-PR check.
+(`pnpm testCount`) prints the number of test files and cases for the pre-PR check. A test that runs
+the real git passes `GIT_FREE_ENV` from `git-env.ts` and an explicit cwd, so a git hook's `GIT_DIR`
+or `GIT_INDEX_FILE` cannot aim it at another repository.
 
 `size/today.ts` (`node tools/size/today.ts [report] [--warn]`, in ci.yml's e2e-build job after the
 build) reads the chunk report the web host's build writes into its `node_modules` cache

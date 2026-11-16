@@ -10,6 +10,7 @@ import { createRequire } from 'node:module';
 import { join, posix, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { GIT_FREE_ENV } from '../git-env.ts';
 import { copyPathScan, isScanned, trackedFiles } from '../lint/copy-paths-scan.ts';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
@@ -30,7 +31,7 @@ function plan(packageName: string, task: string, env: Record<string, string> = {
   const output = execFileSync(process.execPath, [turbo, 'run', task, `--filter=${packageName}`, '--dry=json'], {
     cwd: root,
     encoding: 'utf8',
-    env: { ...process.env, ...env },
+    env: { ...GIT_FREE_ENV, ...env },
     maxBuffer: 64 * 1024 * 1024,
   });
   const { tasks } = JSON.parse(output) as { tasks: PlannedTask[] };

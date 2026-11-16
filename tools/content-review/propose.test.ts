@@ -14,6 +14,7 @@ import { tmpdir } from 'node:os';
 import { delimiter, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { GIT_FREE_ENV } from '../git-env.ts';
 import { finishProblems, parseRaw, prArgs } from './propose.ts';
 import { reviewNames } from './resume.ts';
 
@@ -25,11 +26,8 @@ const TEMPLATE = '.github/PULL_REQUEST_TEMPLATE/content-review.md';
 const ALLOW = 'packages/content/sources.allow.json';
 const SCRIPT = fileURLToPath(new URL('./propose.ts', import.meta.url));
 const here = (path: string) => readFileSync(new URL(path, import.meta.url), 'utf8');
-/**
- * The environment of every git and propose.ts run here: the caller's without its GIT_* variables. A git hook
- * sets GIT_DIR and GIT_INDEX_FILE, which would aim a temporary repository's git at the caller's repository.
- */
-const ENV = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.toUpperCase().startsWith('GIT_')));
+/** The environment of every git and propose.ts run here (../git-env.ts says why). */
+const ENV = GIT_FREE_ENV;
 /** finish-good.patch's new fact, which fixtures/draft-good.json's change and reviewed rows name. */
 const ENTRY = '[\n  { "key": "finish-fixture", "reviewedBy": "agent-draft" }\n]\n';
 const UNTOUCHED = 'finish: refused, 1 problems; nothing committed, the index as found';
