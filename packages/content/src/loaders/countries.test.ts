@@ -203,7 +203,7 @@ describe('loadProfile and loadProfiles in a content language (ADR-0057)', () => 
   });
 
   it('answers the English profile when the import resolves without the file, as the preload wrapper does', async () => {
-    // In the web host a failed import now rejects (apps/web/src/chunk-reload.ts leaves `vite:preloadError`'s default);
+    // In the web host a failed import rejects (apps/web/src/chunk-reload.ts leaves `vite:preloadError`'s default).
     // Vite's wrapper resolves it to undefined only under a listener that prevents it, so this guard stays as defence.
     vi.resetModules();
     const fresh = await import('./countries.ts');
