@@ -165,6 +165,18 @@ describe('findBanned reads a placeholder as one word (docs/CONTENT-STYLE.md §2)
     expect(rules('Sell {coins:BTC.units} now.')).toEqual(['imperative: Sell {coins:BTC']);
   });
 
+  // The app fills {coin} with a ticker, {coins} and {names} with a list of coins: the person reads a coin there.
+  it('counts a placeholder the app fills with a coin as an asset name', () => {
+    expect(rules('Buy {coin} on {date}.')).toEqual(['imperative: Buy {coin} on {date}']);
+    expect(rules('Compre {coin} todos os meses.')).toEqual(['imperative: Compre {coin} todos os meses']);
+    expect(rules('Hold {coins} until {date:sellWindow.opens}.')).toEqual([
+      'imperative: Hold {coins} until {date:sellWindow.opens}',
+    ]);
+    expect(rules('Mantenha {names} até {date}.')).toEqual(['imperative: Mantenha {names} até {date}']);
+    expect(rules('Registado: comprou {amount} de {coin} em {date}.')).toEqual([]);
+    expect(rules('{coins, select, one {} other {Hold}} the amounts on {date}.')).toEqual([]);
+  });
+
   it('returns the sentence exactly as written, its figures and placeholders restored', () => {
     expect(rules('Sell 0.5 BTC on {date:lastBuy} now.')).toEqual(['imperative: Sell 0.5 BTC on {date:lastBuy} now']);
     expect(rules('Sell 10 BTC on {date:lastBuy} or {date:sellWindow.opens}, 1.000 € each.')).toEqual([
