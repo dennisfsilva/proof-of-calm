@@ -1,4 +1,4 @@
-import type { LearnModuleMeta } from '@proofofcalm/content';
+import type { ContentLanguage, LearnModuleMeta } from '@proofofcalm/content';
 import type { CalendarDate } from '@proofofcalm/core';
 import { Card } from '@proofofcalm/ui/components/card';
 import { type ComponentType, type ReactNode, useCallback, useMemo } from 'react';
@@ -13,14 +13,17 @@ import { ModuleChart } from './module-chart';
 const NO_CHART: BodyElements['Chart'] = () => null;
 
 /**
- * The Learn modules are written in English only and no loader marks them (ADR-0057): their title, caveat and body
- * carry `lang="en"` on a screen in another language (WCAG 2.2 SC 3.1.2), and nothing on an English one.
+ * A module shown in another language than the screen's, English where a language has no translation of it or its
+ * chunk failed (ADR-0057): its title, caveat and body carry that `lang` (WCAG 2.2 SC 3.1.2), and nothing when the
+ * two agree, so a translated module on its own language's screen is marked nowhere.
  */
-export const useModuleLang = () => textLang('en', useLocale());
+export const useModuleLang = (language: ContentLanguage = 'en') => textLang(language, useLocale());
 
 export type ModuleViewProps = {
   module: LearnModuleMeta;
   Body: ComponentType<{ components: BodyElements }>;
+  /** The language the module's texts are in (`useModuleBody`); English by default. */
+  language?: ContentLanguage;
   /** Stands where the title does: the sheet's dialog title, which is the module's idea. */
   heading?: ReactNode;
   /** Directly above the body: the route's line to the fall page while a fall is under way, the tax module's card. */
@@ -54,13 +57,22 @@ export type ModuleArticleProps = ModuleViewProps & {
 };
 
 /** `ModuleView` without services: the static site pages render it with their own formatters, date and chart. */
-export function ModuleArticle({ module, Body, heading, lead, f, today, Chart = NO_CHART }: ModuleArticleProps) {
+export function ModuleArticle({
+  module,
+  Body,
+  language,
+  heading,
+  lead,
+  f,
+  today,
+  Chart = NO_CHART,
+}: ModuleArticleProps) {
   const t = useTranslations('learn');
   const joiner = moduleJoiner(module, f);
   const state = reviewLine(module, today);
   const reviewed = f.date(module.lastReviewed as CalendarDate);
   const components = useMemo(() => ({ ...moduleElements(joiner), Chart }), [Chart, joiner]);
-  const lang = useModuleLang();
+  const lang = useModuleLang(language);
   return (
     <article className="flex flex-col gap-stack-md">
       <header className="flex flex-col gap-stack-xs">

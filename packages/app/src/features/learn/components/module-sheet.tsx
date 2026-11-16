@@ -6,8 +6,8 @@ import { Sheet, SheetClose, SheetContent, SheetTitle } from '@proofofcalm/ui/com
 import { XIcon } from 'lucide-react';
 import { type ComponentProps, useRef } from 'react';
 import { useTranslations } from 'use-intl';
-import { useFormatters } from '../../../lib/services';
-import { moduleBody } from '../lib/bodies';
+import { useFormatters, useServices } from '../../../lib/services';
+import { useModuleBody } from '../lib/bodies';
 import { moduleJoiner, withJoiner } from '../lib/body-elements';
 import { TAXES_MODULE } from '../lib/taxes';
 import { PlanCountryCard } from './country-library';
@@ -49,13 +49,8 @@ export type ModuleSheetProps = {
  */
 export function ModuleSheet({ slug, section, open, onOpenChange, finalFocus }: ModuleSheetProps) {
   const t = useTranslations('learn');
-  const f = useFormatters();
   const popup = useRef<HTMLDivElement>(null);
-  const lang = useModuleLang();
-  const module = LEARN_MODULES.find((known) => known.slug === slug);
-  const Body = moduleBody(slug);
-  if (module === undefined || Body === undefined) return null;
-  const joiner = moduleJoiner(module, f);
+  if (!LEARN_MODULES.some((known) => known.slug === slug)) return null;
   const heading = () =>
     (section !== undefined && popup.current?.querySelector<HTMLElement>(`[id="${section}"]`)) || true;
   return (
@@ -73,13 +68,26 @@ export function ModuleSheet({ slug, section, open, onOpenChange, finalFocus }: M
             </SheetClose>
           </div>
         </div>
-        <ModuleView
-          module={module}
-          Body={Body}
-          heading={<SheetTitle lang={lang}>{withJoiner(module.idea, joiner)}</SheetTitle>}
-          lead={slug === TAXES_MODULE ? <PlanCountryCard /> : undefined}
-        />
+        <SheetModule slug={slug} />
       </SheetContent>
     </Sheet>
+  );
+}
+
+/** The module inside the popup, so a closed sheet loads nothing: its translation's chunk loads as it opens. */
+function SheetModule({ slug }: { slug: string }) {
+  const f = useFormatters();
+  const shown = useModuleBody(slug, useServices().language);
+  const lang = useModuleLang(shown?.language);
+  if (shown === undefined) return null;
+  const { module, Body, language } = shown;
+  return (
+    <ModuleView
+      module={module}
+      Body={Body}
+      language={language}
+      heading={<SheetTitle lang={lang}>{withJoiner(module.idea, moduleJoiner(module, f))}</SheetTitle>}
+      lead={slug === TAXES_MODULE ? <PlanCountryCard /> : undefined}
+    />
   );
 }
