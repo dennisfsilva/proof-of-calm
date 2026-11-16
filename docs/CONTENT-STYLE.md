@@ -381,10 +381,12 @@ literal percentage also takes the decimal separator of the number locale the pag
 profile, `numberLocaleFor(language, profile)` in `packages/content/src/loaders/locales.ts`, in its
 English text too: `12,2%` for Portugal, `5,5 %` for Germany, `12.2%` for Britain (decided
 2026-11-16). `pnpm validate:content` refuses any other separator in a profile's percentage or in
-a translated profile's (`decimal-separator`). Every figure of a percentage range is a percentage,
-the one without the sign too: `12,2–48%`, `2,5% to 13,3%` (an unspaced dash or hyphen, or `to`,
-joins a range). A figure that is not a percentage keeps its point, as a law citation does
-(`art. 33.1`, `Quadro 9.4`). The profile's other English figures keep English grouping
+a translated profile's (`decimal-separator`). A percentage range is two figures joined by an
+unspaced en dash or hyphen, and both are percentages, the one without the sign too: `12,2–48%`. A
+range with `to` writes the sign on each figure: `2,5% to 13,3%`. A figure that is not a percentage
+keeps its point, as a law citation does (`art. 33.1`, `Quadro 9.4`), and is written apart from a
+percentage beside it, `art. 33.1 – 28%` or `art. 33.1 to 28%`, never joined to it by a hyphen
+(`art. 33.1-28%` reads as a range). The profile's other English figures keep English grouping
 (`EUR 1,000`), so a sentence with both kinds shows the comma in two roles: `a deemed 6,00% of
 assets above EUR 59,357 per person`. Whether grouped figures follow the page's locale too is
 left for the owner to decide. Facts, templates
