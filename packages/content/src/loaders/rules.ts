@@ -47,8 +47,8 @@ const isRulesCode = (code: string): code is ProfileCode => Object.hasOwn(RULES, 
 const english = async (code: ProfileCode) => (await RULES[code]()).default as CountryRules;
 
 // A language's chunk sits outside the worker's precache, so offline before it was ever fetched it fails to load:
-// the English file then answers, which holds the same holding rule, numbers and dates (ADR-0057), so Today still
-// shows its holding lines in the other language's words for the rest.
+// the English file then answers, which holds the same holding rule, numbers and dates (ADR-0057), so Today then
+// shows the same holding rule, numbers and dates, in English words.
 const inLanguage = async (code: ProfileCode, language: ContentLanguage) => {
   const files = language === 'en' ? undefined : TRANSLATED[language];
   if (files === undefined) return english(code);
