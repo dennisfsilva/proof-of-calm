@@ -1,7 +1,9 @@
 import { cn } from '#lib/utils';
+import { StackProbe, useStack } from '../lib/stack';
 
 // Every chart's table view (ADR-0022): the same values as the marks, in a <details> beside the chart.
-// It sits outside the role="img" element, whose content assistive technology does not read.
+// It sits outside the role="img" element, whose content assistive technology does not read. Its rows stack while
+// the columns are wider than the box (useStack, docs/DESIGN.md §8).
 
 type ChartTableProps = {
   /** The disclosure's label, such as "Show as a table". */
@@ -17,13 +19,15 @@ type ChartTableProps = {
 
 function ChartTable({ summary, caption, columns, rows, numericColumns = [], className }: ChartTableProps) {
   const numeric = (index: number) => numericColumns.includes(index);
+  const { probe, table } = useStack(true);
   return (
     <details data-slot="chart-table" className={cn('text-14', className)}>
       <summary className="w-fit cursor-pointer py-3 text-ink-2 underline underline-offset-4 hover:text-ink">
         {summary}
       </summary>
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
+        <StackProbe ref={probe} />
+        <table ref={table} className="w-full border-collapse">
           {caption !== undefined && <caption className="pb-2 text-left text-13 text-ink-2">{caption}</caption>}
           <thead>
             <tr className="border-line-2 border-b">
@@ -32,8 +36,8 @@ function ChartTable({ summary, caption, columns, rows, numericColumns = [], clas
                   key={column}
                   scope="col"
                   className={cn(
-                    'px-2 py-2 font-medium text-13 text-ink-2',
-                    numeric(index) ? 'text-right' : 'text-left',
+                    'px-2 py-2 font-medium text-13 text-ink-2 in-data-stacked:block in-data-stacked:empty:p-0',
+                    numeric(index) ? 'text-right in-data-stacked:text-left' : 'text-left',
                   )}
                 >
                   {column}
@@ -47,7 +51,10 @@ function ChartTable({ summary, caption, columns, rows, numericColumns = [], clas
                 {row.map((cell, index) => (
                   <td
                     key={columns[index] ?? index}
-                    className={cn('px-2 py-2 text-ink', numeric(index) && 'nums text-right')}
+                    className={cn(
+                      'px-2 py-2 text-ink in-data-stacked:block in-data-stacked:empty:p-0',
+                      numeric(index) && 'nums text-right in-data-stacked:text-left',
+                    )}
                   >
                     {cell}
                   </td>
