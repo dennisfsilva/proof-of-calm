@@ -3,6 +3,10 @@ import { expect, type Locator, type Page } from '@playwright/test';
 import type { Snapshot } from '@proofofcalm/app/lib/ports';
 import { fixtureNowMs, fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
 import type { CalendarDate, Entry } from '@proofofcalm/core';
+import enPortfolio from '../../../packages/app/src/messages/en/portfolio.json' with { type: 'json' };
+import enToday from '../../../packages/app/src/messages/en/today.json' with { type: 'json' };
+import ptPortfolio from '../../../packages/app/src/messages/pt-PT/portfolio.json' with { type: 'json' };
+import ptToday from '../../../packages/app/src/messages/pt-PT/today.json' with { type: 'json' };
 import { seedPlan } from './seed';
 import { routeFixturePrices, test } from './support';
 
@@ -14,6 +18,17 @@ import { routeFixturePrices, test } from './support';
 
 /** `LANGUAGE_STORAGE_KEY` of `packages/app/src/lib/i18n/language.ts`, whose index Node cannot import (JSON). */
 const LANGUAGE_STORAGE_KEY = 'poc.language';
+
+/**
+ * The summaries that open Today's dates table and Portfolio's value table, read from the app's merged message files of
+ * each language the test boots in, so a run finds them by the words its screen shows, whatever those are translated to.
+ */
+const SUMMARIES = {
+  en: { today: enToday.strip.table, portfolio: enPortfolio.chart.table.summary },
+  'pt-PT': { today: ptToday.strip.table, portfolio: ptPortfolio.chart.table.summary },
+} as const;
+
+type Language = keyof typeof SUMMARIES;
 
 /** The fixture with an extra buy of 1234.56 EUR on 28 February, the longest Portuguese month, beside its 20 September sale. */
 function withLongDates(): Snapshot {
@@ -59,11 +74,11 @@ async function open(page: Page, path: string) {
   await expect(page.locator('main#main')).not.toHaveAttribute('aria-busy', 'true');
 }
 
-/** The Log's entries table, Today's dates table or Portfolio's value table, opened. */
-async function tableOf(page: Page, screen: 'log' | 'today' | 'portfolio'): Promise<Locator> {
+/** The Log's entries table, Today's dates table or Portfolio's value table, opened by its summary in `language`. */
+async function tableOf(page: Page, screen: 'log' | 'today' | 'portfolio', language: Language): Promise<Locator> {
   await open(page, `/${screen}`);
   if (screen === 'log') return page.locator('main#main table[data-slot="table"]');
-  const summary = screen === 'today' ? 'Show the dates as a table' : 'Show the values as a table';
+  const summary = SUMMARIES[language][screen];
   const details = page.locator('details[data-slot="chart-table"]', { has: page.getByText(summary, { exact: true }) });
   await details.locator('summary').click();
   await expect(details).toHaveAttribute('open', '');
@@ -143,7 +158,7 @@ for (const screen of ['log', 'today', 'portfolio'] as const) {
     page,
   }, testInfo) => {
     const errors = await boot(page, 'pt-PT');
-    const table = await tableOf(page, screen);
+    const table = await tableOf(page, screen, 'pt-PT');
     await expect(page.locator('html')).toHaveAttribute('lang', 'pt-PT');
     await expect(table).toContainText(/de\s\S+\sde\s20\d\d/);
     const money = screen !== 'today';
@@ -194,7 +209,7 @@ test('pt-PT at 125 % text: the Log unstacks at a 16 px root and stacks again at 
   // biome-ignore lint/suspicious/noSkippedTests: the 20 px root is the zoom-125 project's, a runtime skip elsewhere
   test.skip(testInfo.project.name !== 'zoom-125', 'the text-size round trip runs on zoom-125');
   const errors = await boot(page, 'pt-PT');
-  const table = await tableOf(page, 'log');
+  const table = await tableOf(page, 'log', 'pt-PT');
   await rootFont(page, '20px');
   expect((await expectFitting(table)).stacked).toBe(true);
   await rootFont(page, '16px');
@@ -208,7 +223,7 @@ test('pt-PT: the keyboard reaches the first row toggle with its ring, and axe fi
   page,
 }, testInfo) => {
   const errors = await boot(page, 'pt-PT');
-  const table = await tableOf(page, 'log');
+  const table = await tableOf(page, 'log', 'pt-PT');
   const { stacked } = await expectFitting(table);
   if (testInfo.project.name === 'zoom-125') expect(stacked).toBe(true);
   const toggle = table.locator('tbody button[aria-expanded]').first();
@@ -233,7 +248,7 @@ test('pt-PT: the keyboard reaches the first row toggle with its ring, and axe fi
 test("in English, the Log's, Today's dates and Portfolio's value tables keep their columns", async ({ page }) => {
   const errors = await boot(page, null);
   for (const screen of ['log', 'today', 'portfolio'] as const) {
-    const table = await tableOf(page, screen);
+    const table = await tableOf(page, screen, 'en');
     await expect(table).toContainText(/\d\s\S{3}\s20\d\d/);
     const now = await expectFitting(table, screen !== 'today');
     expect(now.stacked, `${screen} keeps its columns`).toBe(false);
