@@ -28,8 +28,9 @@ function StackProbe({ ref }: { ref: RefObject<HTMLDivElement | null> }) {
  * still scrolls after the check (`scrolls`). The check removes `data-stacked`, compares the table's width with the
  * probe's in sub-pixels, and sets the attribute when the table is wider, in one task before the frame paints. It
  * runs at mount; when the probe or its ruler changes size (the box's width, a rotation, the text size, a web font);
- * and when the table's rows, text or detail rows' `hidden` change, or an enclosing `<details>` opens or closes. A
- * table that is not rendered (a closed `<details>`) is skipped.
+ * and when the table's rows, text or detail rows' `hidden` change, a `<details>` in it or around it opens or
+ * closes, or a table in it stacks or unstacks (its own toggle starts no check). A table that is not rendered (a
+ * closed `<details>`) is skipped.
  */
 function useStack(stack: boolean) {
   const probe = useRef<HTMLDivElement>(null);
@@ -54,13 +55,18 @@ function useStack(stack: boolean) {
     const sizes = typeof ResizeObserver === 'function' ? new ResizeObserver(check) : null;
     sizes?.observe(box);
     if (box.firstElementChild !== null) sizes?.observe(box.firstElementChild);
-    const content = new MutationObserver(check);
+    // A <details> opening inside the table, or a table inside it stacking, changes its width with no row or text
+    // change. The check's own toggle of the table's attribute is no reason to check again, or it would loop.
+    const own = (record: MutationRecord) => record.target === element && record.attributeName === STACKED;
+    const content = new MutationObserver((records) => {
+      if (!records.every(own)) check();
+    });
     content.observe(element, {
       childList: true,
       characterData: true,
       subtree: true,
       attributes: true,
-      attributeFilter: ['hidden'],
+      attributeFilter: ['hidden', 'open', STACKED],
     });
     const details = element.closest('details');
     if (details !== null) content.observe(details, { attributes: true, attributeFilter: ['open'] });
