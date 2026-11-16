@@ -23,9 +23,10 @@ export const RISK_WORDING_VERSION = 1;
  * The languages whose own text of the disclosure counsel approved (docs/LEGAL.md §4): a version names the
  * English text and each of these. Onboarding and the re-ask show every other UI language the English text,
  * and the plan records `en` (docs/DOMAIN.md §2.1); `features/onboarding/model/disclosure.test.ts` holds
- * that each approved language has its own text and every other one shows the English.
+ * that each approved language has its own text and every other one shows the English. pt-PT: counsel's
+ * approval of 2026-11-16.
  */
-export const RISK_WORDING_LANGUAGES: readonly UiLanguage[] = ['en'];
+export const RISK_WORDING_LANGUAGES: readonly UiLanguage[] = ['en', 'pt-PT'];
 
 /** The language of the disclosure text shown under the UI language `shown`, which the plan records. */
 export function riskWordingLanguage(shown: UiLanguage, approved = RISK_WORDING_LANGUAGES): UiLanguage {
