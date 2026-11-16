@@ -70,7 +70,11 @@ regulators a status claim names and the allow-list with a reason per phrase live
 `packages/content/style/banned.json`. The lint also flags any `%` next to a gain word, and, in
 English and German, a sentence with an asset name that opens with a buying, selling or holding verb
 on its list: `Buy Bitcoin every month`, `Kaufen Sie Ethereum`; `Buy day` is the plan's noun and
-passes. Portuguese: below. Template names need a human sign-off.
+passes. The placeholders that item 1 of the imperative rule below lists count as asset names here
+too, so `Sell {units} now` fails. A `{date:<field>}` placeholder counts as one word, as it does
+there. Only a verb that opens the sentence is read, so a verb that opens an ICU branch passes:
+`{coins, select, one {} other {Hold}} the amounts on {date}.` A verb after a dot inside a branch
+opens a new sentence and is read. Portuguese: below. Template names need a human sign-off.
 
 The Portuguese rows (decided 2026-11-15; the voice is §9):
 
@@ -152,12 +156,16 @@ The Portuguese rows (decided 2026-11-15; the voice is §9):
      `Compre 1.000 € de BTC` is one sentence; the text is read with its accents composed. A
      `{date:<field>}` placeholder counts as one word. Its dots end no sentence, and a ticker in its
      path names no asset: `Mantenha até {date:sellWindow.opens} as suas bitcoins` is one sentence
-     and fails. A placeholder the app fills with a coin counts as an asset name: `{coin}`, `{coins}`
-     and `{names}`, and the units with their ticker (`{units}`, `{held}`, `{heldUnits}`, `{sent}`,
-     `{excess}`, `{short}`, `{outside}`), so `Compre {coin} todos os meses` and
-     `Venda {units} agora` fail. Every other brace is read as written, an ICU branch's words
-     included. The English rule reads only a verb that opens the sentence as written, so a verb
-     that opens an ICU branch is not read.
+     and fails. The placeholders the app fills with a coin count as asset names: `{coin}`, `{coins}`
+     and `{names}`. So do the placeholders the app fills with units and their ticker, `0.5 BTC`:
+     `{units}`, `{held}`, `{heldUnits}`, `{sent}`, `{excess}`, `{short}` and `{outside}`. A new
+     placeholder the app fills with units joins this list in `packages/content/src/style/banned.ts`.
+     So `Compre {coin} todos os meses` and `Venda {units} agora` fail. In some messages the app
+     fills `{sold}`, `{fee}`, `{log}` and `{file}` with units too. Other messages fill the same names
+     with money, a link or a currency, so the lint does not count them as asset names. The copy
+     review (§8) checks them by hand. Every other brace is read as written, an ICU branch's words
+     included: `{count, plural, one {Mantenha} other {Mantenham}} as suas bitcoins` fails, where the
+     English rule above passes a verb that opens a branch.
   2. `venda` passes as the noun after the words the lint lists (`uma`, `cada`, `de`, `da`, `na`,
      `à`, `pela`, `após`, `sua`, `última` and their kin), after `compra e` or `compras e`, or after
      an `a` that opens the sentence or a clause (not after a comma) or follows a preposition, `e` or
