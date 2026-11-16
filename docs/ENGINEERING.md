@@ -107,6 +107,18 @@ since sessions are renumbered when one is inserted.
 | Build | web build, static-export build for the wrapper | CI |
 | Tooling | every repository script and every plugin of the hosts' Vite factory, case by case; the server guard against a real `vite build` of a fixture | `tools/**/*.test.ts`, `packages/config/vite/*.test.ts` (Node environment) |
 
+A test that reads the content data asserts only what no content review can change: the fields no
+source states (each profile's `code`, `locales`, `timezones`, `numberFormatLocale`,
+`dateFormatLocale` and `englishConfidence`, and the generic profile's rules), what code computes
+from them, and relations every file the validator accepts keeps; any other value is the review's to
+change and the owner's to read (`docs/CONTENT-OPS.md` §8), so code that reads it is tested on a
+literal fixture. The rest lives elsewhere: code, in the core's and the loaders' tests on literal
+fixtures; a rule that holds for every file, in the validator; "a rule's source is not `secondary`",
+in one test over the live profiles (`packages/content/src/profiles/invariants.test.ts`), with
+Germany's two rules excepted until the owner settles them; the country facts, in the
+`docs/JURISDICTIONS.md` §7 rows, which the review agent compares and the owner reads. Screenshot
+baselines remain the one exception, which the owner removes.
+
 Flaky tests are fixed or quarantined the same day with an issue; a quarantined test cannot stay
 quarantined for more than one release. A unit test that mounts a screen loading a jurisdiction
 profile or a message namespace answers them from memory through the `vi.mock` factories of
