@@ -1644,7 +1644,8 @@ describe('§2’s Portuguese claims', () => {
   });
 });
 
-// §2's Portuguese table, read as jurisdictions-doc.test.ts reads its document.
+// §2's Portuguese table, read from the document itself. No test reads the country facts so: docs/JURISDICTIONS.md
+// §7's rows are the review agent's to compare and the owner's to read.
 const styleGuide = readFileSync(new URL('../../../../docs/CONTENT-STYLE.md', import.meta.url), 'utf8');
 const section2 = styleGuide.slice(styleGuide.indexOf('## 2. '), styleGuide.indexOf('## 3. '));
 const table = section2.slice(section2.indexOf('| Refused | Write instead |'));
