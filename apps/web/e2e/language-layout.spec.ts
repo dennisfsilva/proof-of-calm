@@ -297,11 +297,12 @@ for (const path of ['/portfolio', '/onboarding'] as const) {
 test("pt-PT: /plan stays inside the page with its timeline's table open and text set wider than this platform's fonts", async ({
   page,
 }) => {
-  const words = { title: ptPlan.title, table: ptPlan.timeline.table.summary };
-  expect(words, "the merged pt-PT file holds Plan's own words").not.toEqual({
-    title: enPlan.title,
-    table: enPlan.timeline.table.summary,
-  });
+  const words = { title: ptPlan.title, table: ptPlan.timeline.table.summary, why: ptPlan.why.window };
+  const english: typeof words = { title: enPlan.title, table: enPlan.timeline.table.summary, why: enPlan.why.window };
+  // Each word on its own, so one key left in English fails the case.
+  for (const key of Object.keys(words) as (keyof typeof words)[]) {
+    expect(words[key], `the merged pt-PT file holds Plan's own ${key}`).not.toBe(english[key]);
+  }
   const errors = await boot(page, 'pt-PT');
   await open(page, '/plan');
   await expect(page.locator('html')).toHaveAttribute('lang', 'pt-PT');
@@ -313,7 +314,7 @@ test("pt-PT: /plan stays inside the page with its timeline's table open and text
   await expect(details).toHaveAttribute('open', '');
   await expect(details.locator('table')).toContainText(/de\s\S+\sde\s20\d\d/);
   // Each Why? control's name starts with its visible pt-PT word (WCAG 2.5.3, axe's label-content-name-mismatch).
-  await expect(page.getByRole('button', { name: ptPlan.why.window, exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: words.why, exact: true })).toBeVisible();
   const axe = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
     .analyze();
