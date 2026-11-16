@@ -25,8 +25,8 @@
       "heading": "Onde estão as moedas",
       "intro": "No fim de {date}, depois das vendas e transferências com data igual ou anterior, o Registo mostra estas unidades em cada local.",
       "noVenue": "Sem local",
-      "estimated": "{count, plural, one {Comprado como planeado estimou as unidades de {figure} movimento de {coin} a partir do preço do dia. A confirmação da plataforma tem as unidades exatas.} other {Comprado como planeado estimou as unidades de {figure} movimentos de {coin} a partir do preço do dia. As confirmações da plataforma têm as unidades exatas.}}",
-      "differs": "Se a plataforma ou a carteira mostrar outras unidades, registe a compra, a venda, a transferência ou as moedas recebidas em falta, ou corrija as unidades, o local ou a data de um movimento.",
+      "estimated": "{count, plural, one {«Comprado como planeado» estimou as unidades de {figure} movimento de {coin} a partir do preço do dia. A confirmação da plataforma tem as unidades exatas.} other {«Comprado como planeado» estimou as unidades de {figure} movimentos de {coin} a partir do preço do dia. As confirmações da plataforma têm as unidades exatas.}}",
+      "differs": "Se a plataforma ou a carteira mostrar outras unidades, registe o movimento em falta (compra, venda, transferência ou moedas recebidas) ou corrija as unidades, o local ou a data de um movimento.",
       "log": "Abrir o Registo",
       "none": "O Registo não mostra moedas detidas no fim de {date}."
     },
@@ -47,7 +47,7 @@
     "why": "Nas suas palavras: {why}"
   },
   "totals": {
-    "planned": "{invested} de {planned} investidos até agora ({percent}). Compras em falta: {left}.",
+    "planned": "{invested} de {planned} investidos até agora ({percent}). Compras restantes: {left}.",
     "sellPhase": "{invested} de {planned} investidos ({percent}).",
     "nothingPlanned": "{invested} investidos até agora.",
     "ended": "{invested} investidos. As compras terminaram a {date}.",
@@ -94,7 +94,7 @@
     "none": "Sem janela de venda",
     "noneLine": "O plano prevê compras e depois uma fase de detenção.",
     "dates": "Uma janela de venda",
-    "datesLine": "O plano prevê uma venda em 3 partes entre as datas de abertura e de fecho, com saída até à última.",
+    "datesLine": "O plano prevê uma venda em 3 partes entre as datas de abertura e de fecho, com saída até à data de saída.",
     "opens": "Abertura",
     "closes": "Fecho",
     "exitBy": "Saída até",
@@ -119,8 +119,8 @@
   },
   "holdingRule": {
     "legend": "Regra de detenção",
-    "country": "{kind, select, named {A regra de {name}} generic {A regra do perfil geral} other {A regra do seu país}}",
-    "countryUnknown": "A regra do seu país não está carregada neste dispositivo.",
+    "country": "{kind, select, named {A regra de {name}} generic {A regra do perfil geral} other {A regra do país do plano}}",
+    "countryUnknown": "A regra do país do plano não está carregada neste dispositivo.",
     "own": "Uma regra definida por si",
     "ownLine": "Aplica-se a todas as compras, seja qual for a data.",
     "kind": "Regra",
@@ -146,7 +146,7 @@
     "issue": {
       "count-whole": "Introduza um número inteiro de {kind, select, years {anos} other {dias}}.",
       "count-range": "Introduza de {min} a {max} {kind, select, years {anos} other {dias}}.",
-      "country-unknown": "A regra do seu país não está carregada neste dispositivo. Escolha uma regra definida por si."
+      "country-unknown": "A regra do país do plano não está carregada neste dispositivo. Escolha uma regra definida por si."
     }
   },
   "timeline": {
@@ -161,7 +161,7 @@
       "buy": "na fase de compra",
       "hold": "na fase de detenção",
       "sell": "na janela de venda",
-      "exit": "depois do fecho da janela de venda"
+      "exit": "com a janela de venda já fechada"
     },
     "milestone": {
       "first": "Primeira compra",
@@ -171,7 +171,7 @@
       "part1": "Parte 1 de 3: um terço das moedas detidas",
       "part2": "Parte 2 de 3: um terço das moedas detidas",
       "part3": "Parte 3 de 3: o resto das moedas detidas",
-      "out": "Saída",
+      "out": "Saída até",
       "today": "Hoje",
       "halving": "Halving",
       "peak": "Máximo do ciclo que {source, select, template {o ponto de partida} other {a página do plano DCA}} pressupõe"
