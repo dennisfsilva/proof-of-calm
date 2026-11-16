@@ -7,6 +7,8 @@ import { StackProbe, useStack } from './stack';
 // nowhere (docs/DESIGN.md §8). jsdom lays nothing out, so the widths are stubbed, and stand-in observers record
 // what they watch and run the check when a test says the probe resized or the table changed.
 
+const NativeMutationObserver = globalThis.MutationObserver;
+
 let widths = { table: 0, box: 0, scroll: 0, client: 0 };
 /** Whether the table still carried `data-stacked` each time its width was read. */
 let stackedWhenMeasured: boolean[] = [];
@@ -174,6 +176,51 @@ describe('useStack', () => {
       attributes: true,
       attributeFilter: ['open'],
     });
+  });
+
+  it('checks again when a row’s hidden changes, the details open or close, a row is added or its text changes', async () => {
+    // jsdom's own MutationObserver here, so the filter on the table and the details is what decides.
+    vi.stubGlobal('MutationObserver', NativeMutationObserver);
+    widths = { table: 400, box: 328, scroll: 0, client: 0 };
+    render(<Stacking />);
+    expect(table().hasAttribute('data-stacked')).toBe(true);
+    const flush = () => act(async () => await Promise.resolve());
+    const row = table().querySelector('tr') as HTMLTableRowElement;
+    const details = document.querySelector('details') as HTMLDetailsElement;
+    const cell = table().querySelector('td') as HTMLTableCellElement;
+
+    widths = { ...widths, table: 320 };
+    row.hidden = true;
+    await flush();
+    expect(table().hasAttribute('data-stacked')).toBe(false);
+    widths = { ...widths, table: 400 };
+    row.hidden = false;
+    await flush();
+    expect(table().hasAttribute('data-stacked')).toBe(true);
+
+    widths = { ...widths, table: 320 };
+    details.open = false;
+    await flush();
+    expect(table().hasAttribute('data-stacked')).toBe(false);
+    widths = { ...widths, table: 400 };
+    details.open = true;
+    await flush();
+    expect(table().hasAttribute('data-stacked')).toBe(true);
+
+    widths = { ...widths, table: 320 };
+    (cell.firstChild as Text).data = '28 Feb 2027';
+    await flush();
+    expect(table().hasAttribute('data-stacked')).toBe(false);
+    widths = { ...widths, table: 400 };
+    row.after(row.cloneNode(true));
+    await flush();
+    expect(table().hasAttribute('data-stacked')).toBe(true);
+
+    // Its own attribute is not watched: setting it starts no further check.
+    const checks = stackedWhenMeasured.length;
+    table().setAttribute('data-stacked', '');
+    await flush();
+    expect(stackedWhenMeasured).toHaveLength(checks);
   });
 
   it('reports scrolls from the same check, both ways', () => {
