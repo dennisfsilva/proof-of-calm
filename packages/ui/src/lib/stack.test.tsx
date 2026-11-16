@@ -119,8 +119,12 @@ function resize(next: Partial<typeof widths>) {
 function mutate(next: Partial<typeof widths>) {
   widths = { ...widths, ...next };
   act(() => {
-    const record = { type: 'childList', target: table(), attributeName: null } as MutationRecord;
-    for (const observer of mutations) if (observer.connected) observer.callback([record]);
+    const record: Pick<MutationRecord, 'type' | 'target' | 'attributeName'> = {
+      type: 'childList',
+      target: table(),
+      attributeName: null,
+    };
+    for (const observer of mutations) if (observer.connected) observer.callback([record as MutationRecord]);
   });
 }
 
