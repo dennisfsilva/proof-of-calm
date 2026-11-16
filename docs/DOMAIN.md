@@ -137,8 +137,8 @@ build before the acknowledgement reads. With an acknowledgement in English it is
 (`schemaVersion: 3`, without `riskLanguage`), which the previous build's strict v3 schema reads. With
 one in a language other than English it is v4. So a rollback of one release reads every plan this
 build writes (`docs/RELEASE.md`, Versioning) on one condition: the release rolled back to holds the v4
-reader. pt-PT's approval, the first that writes a v4 plan, ships only after a production deployment
-holds that reader (#275; `docs/ADR/0019-persistence.md`, its 2026-11-16 entries).
+reader. pt-PT's approval, the first approval under which an acknowledgement writes a v4 plan, ships only
+after a production deployment holds that reader (#275; `docs/ADR/0019-persistence.md`, its 2026-11-16 entries).
 
 Reading takes all three versions through `upgradePlan`. A v2 plan is read with null, 0 and null. A v3
 plan with an acknowledgement is read with `en`, since every acknowledgement before v4 was of the
