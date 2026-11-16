@@ -34,8 +34,12 @@ await preloadLazyModules();
 const LISBON = { languages: ['pt-PT'], timeZone: 'Europe/Lisbon' } as const;
 const english = TEMPLATES.map((template) => template.name);
 
-async function mount(language: UiLanguage) {
-  const services = createTestServices({ planStore: memoryPlanStore(EMPTY_SNAPSHOT), language });
+type TestServices = ReturnType<typeof createTestServices>;
+
+async function mount(
+  language: UiLanguage,
+  services: TestServices = createTestServices({ planStore: memoryPlanStore(EMPTY_SNAPSHOT), language }),
+) {
   const messages =
     language === 'en'
       ? { errors, onboarding, plan, shell }
@@ -50,6 +54,7 @@ async function mount(language: UiLanguage) {
     </NavigationProvider>,
   );
   await act(() => services.start());
+  return services;
 }
 
 const confirm = async (name: string) => act(async () => fireEvent.click(await screen.findByRole('button', { name })));
@@ -92,5 +97,58 @@ describe('OnboardingScreen: the template texts in the UI language (ADR-0057)', (
     await mount('pt-PT');
     await confirm('Continuar com Portugal');
     expect(cardNames()).toEqual([...english].sort(new Intl.Collator('pt-PT').compare));
+  });
+});
+
+describe('OnboardingScreen: a draft reopened on the summary in pt-PT (ADR-0057)', () => {
+  const TWO_COINS = 'Two coins, no sell window';
+  const click = (name: string) => act(() => fireEvent.click(screen.getByRole('button', { name })));
+  const type = (label: RegExp, value: string) =>
+    act(() => fireEvent.change(screen.getByLabelText(label), { target: { value } }));
+  /** Every pending load that can settle has settled: the profiles are in, the steps rendered. */
+  const settle = () => act(() => new Promise<void>((done) => void setTimeout(done, 0)));
+
+  /** The English flow to the summary with Portugal, the two-coin template, Monthly 100 and Last buy 2036-10-01. */
+  async function englishDraftOnSummary() {
+    const services = await mount('en');
+    await confirm('Continue with Portugal');
+    await act(() => fireEvent.click(screen.getByRole('radio', { name: TWO_COINS })));
+    await click('Continue');
+    await type(/^Monthly amount/, '100');
+    await type(/^Last buy/, '2036-10-01');
+    await click('Continue');
+    await click('Continue');
+    await click('Later');
+    await screen.findByRole('heading', { level: 2, name: 'Check your plan' });
+    cleanup();
+    return services;
+  }
+  const reopen = (services: TestServices) =>
+    mount('pt-PT', createTestServices({ drafts: services.drafts, language: 'pt-PT' }));
+  const startingPoint = () => screen.getByText(portuguese.summary.startingPoint).parentElement?.textContent ?? '';
+
+  it('shows no English template name while the texts load', async () => {
+    const services = await englishDraftOnSummary();
+    vi.mocked(loadTemplateTexts).mockReturnValueOnce(new Promise(() => {}));
+    await reopen(services);
+    await settle();
+    expect(document.body.textContent).not.toContain(TWO_COINS);
+    expect(screen.queryByRole('heading', { level: 2, name: portuguese.summary.heading })).toBeNull();
+  });
+
+  it('shows the pt-PT name once the texts resolve', async () => {
+    const services = await englishDraftOnSummary();
+    await reopen(services);
+    await screen.findByRole('heading', { level: 2, name: portuguese.summary.heading });
+    expect(startingPoint()).toContain('Duas moedas, sem janela de venda');
+    expect(document.body.textContent).not.toContain(TWO_COINS);
+  });
+
+  it('shows the English name when the load fails', async () => {
+    const services = await englishDraftOnSummary();
+    vi.mocked(loadTemplateTexts).mockRejectedValueOnce(new Error('offline'));
+    await reopen(services);
+    await screen.findByRole('heading', { level: 2, name: portuguese.summary.heading });
+    expect(startingPoint()).toContain(TWO_COINS);
   });
 });
