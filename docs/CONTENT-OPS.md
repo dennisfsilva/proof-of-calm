@@ -71,7 +71,9 @@ owns the pipeline around them and its security model.
    (ADR-0057) that repeats a figure the agent changed fails `pnpm validate:content`
    (`overlay-number-mismatch`). The agent then changes that figure in the translation, at the path
    the check names, to the English file's value, and nothing else there; no `allowed-tools` rule
-   approves that edit, so it asks the owner, naming the figure and the English row first. The guard
+   approves that edit, so Claude Code asks the owner unless the session's permission mode approves
+   it; either way the agent names the figure and the English row first and lists the edit in its
+   closing report. The guard
    and the finish accept the translation's file and its locale's generated rules files. Nothing
    refuses a prose edit in a translation, and a translation carries no `reviewedBy`, so the owner's
    diff read (§8) is its review.

@@ -47,8 +47,10 @@ Arguments: $ARGUMENTS
 - The translations under `packages/content/i18n/<locale>/` (ADR-0057) are `jurisdictions/*.json`,
   `templates/*.json` and `facts/*.json` there. In one, change only a figure that
   `overlay-number-mismatch` names, at the path it names, to the value written in its English file;
-  never its prose. Editing a translation asks the owner's permission: before you ask, name the
-  figure, its path and the English file's `changes` row that changed it. Nothing refuses a prose
+  never its prose. No `allowed-tools` rule approves that edit, so Claude Code asks the owner unless
+  the session's permission mode approves it. Either way, before the edit name the figure, its path
+  and the English file's `changes` row that changed it, and list the edit in your closing report to
+  the owner. Nothing refuses a prose
   edit in a translation; the owner's diff read does (`docs/CONTENT-OPS.md` §8).
 - Change `rules/*.json` and a locale's `rules/<locale>/*.json` only by running
   `pnpm --filter @proofofcalm/content rules`, never by hand.
@@ -57,7 +59,8 @@ Arguments: $ARGUMENTS
 - In a template, change only a dated figure and its source; never its name, risk label, `oneLine`
   or explanation.
 - Fetch only the domains in `packages/content/sources.allow.json`. Nothing refuses an off-list
-  fetch: WebFetch asks the owner's permission. The finish refuses an off-list URL in the draft's link
+  fetch: no `allowed-tools` rule approves WebFetch, so Claude Code asks the owner unless the
+  session's settings or permission mode approve it. The finish refuses an off-list URL in the draft's link
   fields: `changes[].url` and `pending[].url` off their item's list, `verified[].urls` and
   `unreachable[].url` off every list. A URL in `notes` or `canary` prints as plain text and may stay.
   `pnpm run validate:content` refuses an off-list source in the data unless its `kind` is
@@ -105,8 +108,10 @@ For each profile in `packages/content/jurisdictions/`:
 1. Fetch every source the profile lists, each on-list `pendingChanges[].source` included: the
    validator checks those as profile sources (`packages/content/src/validate.ts`), so each is fetched
    and counted in `of`. Fetch a PDF with `node tools/content-review/pdf.ts '<url>'`, the URL in
-   single quotes, because `?` and `&` split the command. Read the `.txt` it names; the command asks
-   the owner on each run and shows its URL. Its quotes are verbatim. Copy a passage as the `.txt`
+   single quotes, because `?` and `&` split the command. Read the `.txt` it names. No `allowed-tools`
+   rule approves the command, so Claude Code asks the owner on each run, showing its URL, unless the
+   session's permission mode approves it; either way, name the URL before you run it. Its quotes are
+   verbatim. Copy a passage as the `.txt`
    holds it: join its lines with single spaces and drop the indentation. A hyphen at a line's end
    stays and joins the next line with no space. A page footer or header inside the passage (`Seite 20
    von 34`) is left out, and the lines on either side join as one. A margin number (`Rz. 60`) is left
@@ -135,7 +140,7 @@ For each profile in `packages/content/jurisdictions/`:
    passage over about 125 characters: in the first prompt for a page, ask for each passage in
    consecutive verbatim pieces under 125 characters, and join them. WebFetch renders a sentence
    number inline ("2Solche"): drop it from the quote, since on the page it marks the sentence and is
-   not part of it. Each fetch and each `pdf.ts` run is one owner prompt (DE on 2026-11-11: 9
+   not part of it. In the default permission mode, each fetch and each `pdf.ts` run is one owner prompt (DE on 2026-11-11: 9
    fetches, 3 runs). Prefer `pdf.ts`'s `.txt` for a PDF.
 3. Set the entry's `accessed` to the day you read the source. Set `status.confidence` and give its
    one-line reason in the draft's `reviewed[].reason` for that file.
