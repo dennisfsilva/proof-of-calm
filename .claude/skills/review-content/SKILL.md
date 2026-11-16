@@ -46,12 +46,20 @@ Arguments: $ARGUMENTS
   path.
 - The translations under `packages/content/i18n/<locale>/` (ADR-0057) are `jurisdictions/*.json`,
   `templates/*.json` and `facts/*.json` there. In one, change only a figure that
-  `overlay-number-mismatch` names, at the path it names, to the value written in its English file;
-  never its prose. No `allowed-tools` rule approves that edit, so Claude Code asks the owner unless
-  the session's permission mode approves it. Either way, before the edit name the figure, its path
-  and the English file's `changes` row that changed it, and list the edit in your closing report to
-  the owner. Nothing refuses a prose
-  edit in a translation; the owner's diff read does (`docs/CONTENT-OPS.md` §8).
+  `overlay-number-mismatch` names, at the path it names, to the English file's new value, and
+  never its prose. Write that value in the translation's number format, not as the English
+  characters: the check reads English with English separators and the translation with its number
+  locale's (ADR-0057: a profile's locale in the translation's language, else its
+  `numberFormatLocale`; a template's or a fact's, the language's own), so Germany's pt-PT
+  translation reads with de-DE's. There English `5.5 %` is `5,5 %` and English `EUR 1,000` is
+  `1000` or `1.000`; copied as written they read 5 and 5, and 1. Keep the form the translation
+  already writes for that figure, its percent joiner too (`docs/CONTENT-STYLE.md` §4 and §9: a
+  no-break space at de-DE, none at pt-PT). The check prints the translation's values, then the
+  English ones; on the next run they must be equal. No `allowed-tools` rule approves that edit, so
+  Claude Code asks the owner unless the session's permission mode approves it. Either way, before
+  the edit name the figure, its path and the English file's `changes` row that changed it, and list
+  the edit in your closing report to the owner. Nothing refuses a prose edit in a translation; the
+  owner's diff read does (`docs/CONTENT-OPS.md` §8).
 - Change `rules/*.json` and a locale's `rules/<locale>/*.json` only by running
   `pnpm --filter @proofofcalm/content rules`, never by hand.
 - Never delete an entry or a file; the finish refuses a deletion. Name a gone source in the draft's
@@ -213,8 +221,11 @@ The finish refuses a changed entry at any other value.
 
 1. Run `pnpm run validate:content` and `pnpm --filter @proofofcalm/content test`. The one failure you
    expect is `agent-draft` on the entries you marked; when `overlay-number-mismatch` names a figure
-   you changed in its English file, change the same figure in the translation (§1), run
-   `pnpm --filter @proofofcalm/content rules` and run the checks again; fix or revert anything else.
+   you changed in its English file, change the same figure in the translation, written in the
+   translation's number format (§1), run `pnpm --filter @proofofcalm/content rules` and run the
+   checks again; fix or revert anything else. When a translation's figure still does not match
+   after that, revert neither the English change nor the translation's edit: name the figure, its
+   path and the values the check prints in the draft's notes and in your closing report.
    Only `pnpm run validate:content` checks the translations' figures and reports
    `overlay-number-mismatch`; the content test never does. `rules` reports the files it wrote,
    changed or not; the test, which fails on a stale rules file, English or a locale's, is the check
