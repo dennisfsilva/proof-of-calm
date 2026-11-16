@@ -141,6 +141,12 @@ generated rules files of each language.
   read the file inside the same `try`, so a rejected import or one that resolves to undefined
   answers English and is not cached. Found by the evaluator's offline run of the pt-PT checkpoint
   (#269).
+- **2026-11-16.** The entry above describes the chunk reload before ADR-0045's Deviations of
+  2026-11-16: `apps/web/src/chunk-reload.ts` no longer prevents the default of `vite:preloadError`,
+  so in the web host a failed content chunk now rejects with its own error instead of resolving to
+  undefined. `loadRules`, `loadProfile` and `loadTemplateTexts` keep reading the file inside their
+  `try`, so either outcome answers English and is not cached; the guard for an import that resolves
+  without the file stays as defence. Recorded with ADR-0045's entry (#286).
 - **2026-11-16.** "A review of an English number or source reaches every language at once" holds for
   the source and for each number's value, not for its characters: a translation that repeats a figure
   the content review changes fails `overlay-number-mismatch` until that figure changes there too, in
