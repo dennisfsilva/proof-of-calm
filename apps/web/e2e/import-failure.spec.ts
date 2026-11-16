@@ -103,7 +103,10 @@ async function failChunks(page: Page, urls: readonly string[]) {
     async settled() {
       expect(aborted.length).toBeGreaterThan(0);
       expect(errors.filter((error) => UNDEFINED_READ.test(error))).toEqual([]);
-      const prevented = await page.evaluate((key) => (window as unknown as Record<string, boolean[]>)[key], PREVENTED);
+      const prevented = await page.evaluate(
+        (key) => (window as unknown as Record<string, boolean[]>)[key] ?? [],
+        PREVENTED,
+      );
       expect(prevented.length).toBeGreaterThan(0);
       expect(prevented).not.toContain(true);
     },
