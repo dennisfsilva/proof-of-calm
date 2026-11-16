@@ -116,8 +116,9 @@ export function OnboardingScreen({ device }: OnboardingScreenProps) {
   const { form, entity } = ONBOARDING_DRAFT;
   const [saved] = useState(() => drafts.read(form, entity, OnboardingDraftSchema));
   const [profiles, setProfiles] = useState<CountryProfile[] | null>(null);
-  // English is the templates' own text, on the first render; another language's texts load at mount and its list
-  // waits for them, so no English shows first, and a failed load gives English (ADR-0057). Kept with its language.
+  // English is the templates' own text, on the first render; another language's texts load at mount and every step
+  // that shows one (the list, the summary) waits for them, so no English shows first, and a failed load gives English
+  // (ADR-0057). Kept with its language.
   const [loadedTexts, setLoadedTexts] = useState<{ language: string; texts: ReadonlyMap<string, TemplateTexts> }>();
   const [step, setStep] = useState<Step>(saved?.step ?? 'country');
   // The plan's id is made once with the draft, and kept with it: the calendar file's UID and the stored plan's id
@@ -321,6 +322,8 @@ export function OnboardingScreen({ device }: OnboardingScreenProps) {
         />
       );
     }
+    // The summary names the template: in another language it waits for the texts, as the list does.
+    if (texts === null) return null;
     return (
       <SummaryStep
         plan={plan}
@@ -330,7 +333,7 @@ export function OnboardingScreen({ device }: OnboardingScreenProps) {
           profile,
           today,
         )}
-        templateName={template === null ? null : (texts?.get(template.id)?.name ?? template.name)}
+        templateName={template === null ? null : (texts.get(template.id)?.name ?? template.name)}
         reminder={draft.reminder}
         format={formatOf(profile)}
         pending={pending}
