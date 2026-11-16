@@ -74,11 +74,11 @@ describe("France's profile (docs/JURISDICTIONS.md §7.10)", () => {
     const note = rate?.note ?? '';
     // A no-break space before the sign, as fr-FR formats a percentage (docs/CONTENT-STYLE.md §4).
     const percent = (figure: string) => `${figure}${String.fromCodePoint(0xa0)}%`;
-    expect([rate?.value, rate?.validFrom]).toEqual([percent('31.4'), '2025-01-01']);
+    expect([rate?.value, rate?.validFrom]).toEqual([percent('31,4'), '2025-01-01']);
     expect(note).not.toMatch(/loi|n°|art\./i);
-    const percentages = note.match(/\d+(?:\.\d+)?\s*%/g) ?? [];
+    const percentages = note.match(/\d+(?:[.,]\d+)?\s*%/g) ?? [];
     expect(percentages.length).toBeGreaterThan(0);
-    for (const percentage of percentages) expect(['12.8', '18.6', '31.4'].map(percent)).toContain(percentage);
+    for (const percentage of percentages) expect(['12,8', '18,6', '31,4'].map(percent)).toContain(percentage);
     expect(note).toMatch(/3CN/);
   });
 

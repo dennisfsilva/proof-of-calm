@@ -4,6 +4,7 @@
 // the percent joiner, the 60 words, a template's placeholders against its dates and month names) are validate.ts's,
 // passed in. Pure.
 import { numberLocaleFor } from '../loaders/locales.ts';
+import { decimalSeparator } from '../percent-validate.ts';
 import { type Problem, schemaProblems } from '../problem.ts';
 import { FactSchema } from '../schema/fact.ts';
 import { type CountryProfile, CountryProfileSchema } from '../schema/jurisdiction.ts';
@@ -22,15 +23,6 @@ import {
 // Digits with the separators a number can hold between them: `31.4`, `31,4`, `1,000`, `1 000`, `1 000`,
 // `1 000`. A space joins only a group of three digits, so `365 28` stays two numbers.
 const NUMBER = /\d+(?:(?:[.,]|[   ](?=\d{3}(?!\d)))\d+)*/g;
-
-/** The decimal separator `locale` writes; a tag Intl refuses is the English file's `locale-tag` problem. */
-function decimalOf(locale: string): string {
-  try {
-    return new Intl.NumberFormat(locale).formatToParts(1.5).find((part) => part.type === 'decimal')?.value ?? '.';
-  } catch {
-    return '.';
-  }
-}
 
 /** A value as a canonical decimal string: no leading zeros before the units, no trailing zeros after the point. */
 const decimalValue = (whole: string, fraction: string) => {
@@ -60,17 +52,27 @@ function valuesOf(run: string, decimal: string): string[] {
   return [...values, decimalValue(whole, fraction ?? '')];
 }
 
+// A figure's percent sign, after any joiner a profile writes; `\s` holds U+00A0 and U+202F (docs/CONTENT-STYLE.md §4).
+const PERCENT_AFTER = /^\s*%/u;
+
 /**
- * The numbers of a text as values, read with the separators of `locale`, sorted: a multiset to compare. It holds the
- * values, not which noun each belongs to, nor their sign (ADR-0057).
+ * The numbers of a text as values, read with the separators of `locale`, a percentage's with `percentLocale`'s,
+ * sorted: a multiset to compare. It holds the values, not which noun each belongs to, nor their sign (ADR-0057).
  */
-export const numbersIn = (text: string, locale: string): string[] => {
-  const decimal = decimalOf(locale);
-  return [...text.matchAll(NUMBER)].flatMap(([run]) => valuesOf(run, decimal)).sort();
+export const numbersIn = (text: string, locale: string, percentLocale = locale): string[] => {
+  const [decimal, percentDecimal] = [decimalSeparator(locale), decimalSeparator(percentLocale)];
+  return [...text.matchAll(NUMBER)]
+    .flatMap(({ 0: run, index }) =>
+      valuesOf(run, PERCENT_AFTER.test(text.slice(index + run.length)) ? percentDecimal : decimal),
+    )
+    .sort();
 };
 
-/** The number locales of an English text and of its translation, the English first. */
-export type NumberLocales = readonly [english: string, translated: string];
+/**
+ * The number locales of an English text and of its translation, the English first, then the one an English
+ * profile's percentages take (D8: `12,2%` for Portugal), by default the English one.
+ */
+export type NumberLocales = readonly [english: string, translated: string, englishPercent?: string];
 
 /** Every way the overlay departs from English; the empty list is a pass. */
 export function overlayProblems(
@@ -107,7 +109,7 @@ export function overlayProblems(
     }
     const [mine, theirs] = [
       numbersIn(over, locales[1]).join(' ') || 'none',
-      numbersIn(en, locales[0]).join(' ') || 'none',
+      numbersIn(en, locales[0], locales[2]).join(' ') || 'none',
     ];
     if (mine !== theirs) report('number-mismatch', at, `: ${mine}, English ${theirs}`);
     // A placeholder holds no digits, so the number check cannot see one dropped or added; a swap of two keeps the
@@ -143,7 +145,8 @@ export type TextChecks = {
   readonly fact: (path: string, texts: readonly [string, string][]) => Problem[];
 };
 
-// The English content writes its numbers with English separators whatever the country (de.json: `1,000`, `5.5`).
+// The English content writes its numbers with English separators whatever the country (de.json: `1,000`), except a
+// profile's percentages, which take the separator of its English page's number locale (D8, percent-validate.ts).
 const ENGLISH_NUMBERS = 'en';
 
 /**
@@ -182,8 +185,13 @@ export function overlayFileProblems(
   if (!parsed.success) return [];
   const translated = applyOverlay(parsed.data, json, kind);
   const check = CountryProfileSchema.safeParse(translated);
+  const locales = [
+    ENGLISH_NUMBERS,
+    numberLocaleFor(language, parsed.data),
+    numberLocaleFor('en', parsed.data),
+  ] as const;
   return [
-    ...overlayProblems(kind, path, parsed.data, json, [ENGLISH_NUMBERS, numberLocaleFor(language, parsed.data)]),
+    ...overlayProblems(kind, path, parsed.data, json, locales),
     ...(check.success ? [] : schemaProblems(path, check.error.issues)),
     ...checks.jurisdiction(path, language, [parsed.data, translated]),
   ];

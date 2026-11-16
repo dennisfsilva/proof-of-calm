@@ -376,7 +376,14 @@ Per `docs/DESIGN.md` §5: numbers are formatted by the country's locale and date
 page takes the spacing of the country's number locale, as `format.percent` writes it: `70%` in
 Portugal, `40 %` with a no-break space in Germany. Research figures in messages go through
 `format.percent`, and a country profile writes its literal percentages with its own locale's joiner,
-which `pnpm validate:content` checks, so the sign never wraps away from its number. Facts, templates
+which `pnpm validate:content` checks, so the sign never wraps away from its number. A profile's
+literal percentage also takes the decimal separator of the number locale the page uses for that
+profile, `numberLocaleFor(language, profile)` in `packages/content/src/loaders/locales.ts`, in its
+English text too: `12,2%` for Portugal, `5,5 %` for Germany, `12.2%` for Britain (decided
+2026-11-16). `pnpm validate:content` refuses any other separator in a profile's percentage or in
+its translation's (`decimal-separator`). A figure without the sign keeps its point, since it cites
+a law (`art. 33.1`, `Quadro 9.4`), and the profile's other English figures keep English grouping
+(`EUR 1,000`). Facts, templates
 and modules write `N %` with an ordinary space, or with a no-break space where the sign must not
 wrap away. When a page shows a fact's, template's or module's percentage beside a formatted figure,
 that percentage takes the page's joiner. A module without a chart keeps its spacing as written. The

@@ -147,3 +147,9 @@ generated rules files of each language.
   the translation's number format. The review's agent makes that one edit and the owner reads its
   diff (`docs/CONTENT-OPS.md` §3 step 2 and §8 step 4). Found by the docs sync of the content review's
   translation step (#289).
+- **2026-11-16.** "What validation holds" reads English with English separators except a profile's
+  percentages. Since D8 (#269), a profile's literal percentage takes the decimal separator of the
+  number locale its page uses, `numberLocaleFor(language, profile)`, in English too (`12,2%` for
+  Portugal, `docs/CONTENT-STYLE.md` §4). The number check reads an English profile's percentages
+  with `numberLocaleFor('en', profile)` and its other figures with English ones (`1,000`), and a
+  translation's `decimal-separator` problem joins the checks its English field takes.
