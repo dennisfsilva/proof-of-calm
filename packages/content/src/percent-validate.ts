@@ -64,7 +64,8 @@ function percentProblems(path: string, profile: CountryProfile, texts: readonly 
 
 /**
  * A translated profile's percentages against the number locale `localesFor` (packages/app) picks in `language`: the
- * profile's locale in that language where it has one, else `numberFormatLocale` (ADR-0057).
+ * profile's locale in that language where it has one, else `numberFormatLocale` (ADR-0057). The joiner and the
+ * decimal separator both.
  */
 export function languagePercentProblems(
   path: string,
@@ -73,7 +74,36 @@ export function languagePercentProblems(
   texts: readonly [string, string][],
 ): Problem[] {
   const locale = numberLocaleFor(language, profile);
-  return wellFormed(locale) ? percentTextProblems(path, locale, texts) : [];
+  return wellFormed(locale)
+    ? [...percentTextProblems(path, locale, texts), ...decimalProblems(path, locale, texts)]
+    : [];
+}
+
+/** The decimal separator `locale` writes, as Intl formats it; a tag Intl refuses writes the point. */
+export function decimalSeparator(locale: string): string {
+  try {
+    return new Intl.NumberFormat(locale).formatToParts(1.5).find((part) => part.type === 'decimal')?.value ?? '.';
+  } catch {
+    return '.';
+  }
+}
+
+/**
+ * Each literal percentage in `texts` whose figure holds a separator other than the decimal one `locale` writes (D8,
+ * docs/CONTENT-STYLE.md §4): the page formats that profile's figures in `locale`, so its prose writes `12,2%` beside
+ * them in Portugal, in English too. A percentage never reaches a thousand, so its separator is the decimal one; a
+ * figure with no sign beside it (`art. 33.1`, `Quadro 9.4`) cites a law and keeps its point.
+ */
+function decimalProblems(path: string, locale: string, texts: readonly [string, string][]): Problem[] {
+  const decimal = decimalSeparator(locale);
+  return texts.flatMap(([field, text]) =>
+    [...text.replaceAll(URL_IN_TEXT, ' ').matchAll(PERCENT)].flatMap(([excerpt]): Problem[] => {
+      const wrong = /[.,]/.exec(excerpt.replaceAll(decimal, ''))?.[0];
+      if (wrong === undefined) return [];
+      const detail = `${field}: ${JSON.stringify(excerpt)} writes "${wrong}", expected "${decimal}" (${locale})`;
+      return [{ path, code: 'decimal-separator', detail }];
+    }),
+  );
 }
 
 /** Each literal percentage in `texts` without the joiner `locale` writes; the locale is well formed. */
@@ -90,7 +120,15 @@ function percentTextProblems(path: string, locale: string, texts: readonly [stri
   return problems;
 }
 
-/** The profile's malformed locale tags, then its percentages without the number locale's joiner; `texts` by field. */
+/**
+ * The profile's malformed locale tags, its percentages without the number locale's joiner, then those whose decimal
+ * separator is not the one its English page writes; `texts` by field.
+ */
 export function localeProblems(path: string, profile: CountryProfile, texts: readonly [string, string][]): Problem[] {
-  return [...localeTagProblems(path, profile), ...percentProblems(path, profile, texts)];
+  const english = numberLocaleFor('en', profile);
+  return [
+    ...localeTagProblems(path, profile),
+    ...percentProblems(path, profile, texts),
+    ...(wellFormed(english) ? decimalProblems(path, english, texts) : []),
+  ];
 }

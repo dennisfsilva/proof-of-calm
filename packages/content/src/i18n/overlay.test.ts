@@ -132,6 +132,24 @@ describe('overlayProblems', () => {
     expect(same('5 % on gains, 10 % on income', '10 % sobre os ganhos, 5 % sobre o rendimento')).toBe(true);
   });
 
+  // D8 (2026-11-16): an English profile writes a percentage's decimal as its page's number locale does, `12,2%` for
+  // Portugal, and its other figures as English does, `1,000`.
+  it('reads an English profile’s percentages with its page’s number locale and its other figures with English', () => {
+    expect(numbersIn('12,2% of 1,000 and 6,00%', 'en', 'pt-PT')).toEqual(['1000', '12.2', '6']);
+    expect(numbersIn(`12.2 % of 1,000`, 'en', 'en-GB')).toEqual(['1000', '12.2']);
+    expect(numbersIn('12,2% of 1,000', 'en')).toEqual(['1000', '12', '2']);
+    const summary = (locales: readonly [string, string, string?]) =>
+      overlayProblems(
+        'jurisdiction',
+        path,
+        { card: { summary60: 'The first bracket is 12,2% above 1,000 euros.' } },
+        { card: { summary60: 'O primeiro escalão é 12,2% acima de 1000 euros.' } },
+        locales,
+      ).map((problem) => problem.code);
+    expect(summary(['en', 'pt-PT', 'pt-PT'])).toEqual([]);
+    expect(summary(['en', 'pt-PT'])).toEqual(['overlay-number-mismatch']);
+  });
+
   it('reads each value once, its sign and trailing zeros aside', () => {
     expect(numbersIn('−94.0 % from $31.91', 'en')).toEqual(['31.91', '94']);
     expect(numbersIn('31.4', 'en')).not.toEqual(numbersIn('31.5', 'en'));

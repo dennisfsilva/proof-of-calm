@@ -68,7 +68,7 @@
       },
       {
         "label": "Solidarity surcharge (§ 3 SolZG 1995)",
-        "value": "5.5\u00a0% of the income tax",
+        "value": "5,5\u00a0% of the income tax",
         "validFrom": "2026-01-01",
         "validTo": null,
         "note": "Only where the income tax exceeds EUR 20,350 (single) or EUR 40,700 (joint), with a sliding zone above."

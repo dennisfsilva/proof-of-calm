@@ -1250,14 +1250,19 @@ describe('validateContent: translated overlays (ADR-0057)', () => {
   it("holds a percentage to the joiner of the language's number locale, as localesFor picks it", () => {
     const german = { code: 'DE', locales: ['de-DE'], numberFormatLocale: 'de-DE', dateFormatLocale: 'de-DE' };
     const nbsp = String.fromCodePoint(0xa0);
-    const english = file(de, withCaveat(`A rate of 12.2${nbsp}% applies.`, german));
+    // D8: the English profile writes the decimal its page's number locale writes, `12,2` for Germany and Portugal.
+    const english = file(de, withCaveat(`A rate of 12,2${nbsp}% applies.`, german));
     expect(overlaid([english, file(overlayOf(de), { card: { caveats: ['Aplica-se uma taxa de 12,2%.'] } })])).toEqual([
       'percent-joiner: card.caveats.0: "12,2%" has none, expected U+00A0',
     ]);
-    const portugal = file(pt, withCaveat('A rate of 12.2% applies.'));
+    const portugal = file(pt, withCaveat('A rate of 12,2% applies.'));
     expect(overlaid([portugal, file(overlayOf(pt), { card: { caveats: ['Aplica-se uma taxa de 12,2%.'] } })])).toEqual(
       [],
     );
+    expect(overlaid([portugal, file(overlayOf(pt), { card: { caveats: ['Aplica-se uma taxa de 12.2%.'] } })])).toEqual([
+      'overlay-number-mismatch: card.caveats.0: 12 2, English 12.2',
+      'decimal-separator: card.caveats.0: "12.2%" writes ".", expected "," (pt-PT)',
+    ]);
   });
 
   it("reads English numbers with English separators and a translation's with its number locale", () => {
