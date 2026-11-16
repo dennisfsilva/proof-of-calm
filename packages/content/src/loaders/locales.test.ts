@@ -39,7 +39,7 @@ describe('spokenLocale and numberLocaleFor (ADR-0023, ADR-0057)', () => {
     expect(numberLocaleFor('pt-PT', { locales: ['pt-BR'], numberFormatLocale: 'en-US' })).toBe('pt-BR');
   });
 
-  it("fall back to numberFormatLocale in a language the profile does not speak", () => {
+  it('fall back to numberFormatLocale in a language the profile does not speak', () => {
     expect(spokenLocale('pt-PT', belgium)).toBeUndefined();
     expect(numberLocaleFor('pt-PT', belgium)).toBe('nl-BE');
     expect(numberLocaleFor('en', countryLocales('DE'))).toBe(countryLocales('DE').numberFormatLocale);

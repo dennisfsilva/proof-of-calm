@@ -99,7 +99,8 @@ describe('loadProfile and loadProfiles in a content language (ADR-0057)', () => 
   it("answers the English profile when a translation's chunk fails to load (offline before it was fetched)", async () => {
     vi.resetModules();
     const fresh = await import('./countries.ts');
-    fresh.PROFILE_OVERLAYS['pt-PT'].PT = () => Promise.reject(new TypeError('Failed to fetch dynamically imported module'));
+    fresh.PROFILE_OVERLAYS['pt-PT'].PT = () =>
+      Promise.reject(new TypeError('Failed to fetch dynamically imported module'));
     const english = await fresh.loadProfile('PT');
     expect(await fresh.loadProfile('PT', 'pt-PT')).toBe(english);
     expect(fresh.loadedProfile('PT', 'pt-PT')).toBeNull();
