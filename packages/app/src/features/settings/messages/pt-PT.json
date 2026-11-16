@@ -18,7 +18,7 @@
     "line": "O país onde vive define a regra de detenção do plano, a moeda de pagamento dos novos montantes e a forma como se escrevem números e datas.",
     "label": "País",
     "notLoaded": "Os perfis dos países não estão carregados neste dispositivo.",
-    "ruleNotLoaded": "A regra do seu país não está carregada neste dispositivo. Recarregue a página quando tiver ligação para alterar o país.",
+    "ruleNotLoaded": "A regra do país não está carregada neste dispositivo. Recarregue a página quando tiver ligação para alterar o país.",
     "summary": "Ao mudar para {name}:",
     "row": {
       "country": "País: de {from} para {to}",
@@ -42,7 +42,7 @@
     },
     "files": "Os ficheiros do ano fiscal seguem as regras do país atual até mudar de país. Exporte primeiro os anos de que precisa.",
     "payCurrency": {
-      "line": "O plano está em {logged} e a moeda do seu país é {country}. Se os montantes foram pagos em {country}, mude o plano para {country}. Todos os montantes passam então a aparecer em {country}, tal como foram introduzidos. Nada é convertido.",
+      "line": "O plano está em {logged} e a moeda do país é {country}. Se os montantes foram pagos em {country}, mude o plano para {country}. Todos os montantes passam então a aparecer em {country}, tal como foram introduzidos. Nada é convertido.",
       "button": "Mudar para {country}",
       "changed": "Moeda de pagamento do plano alterada para {country}."
     },
@@ -54,7 +54,7 @@
     "alreadyChanged": "O plano foi alterado para {name} noutro separador do navegador."
   },
   "data": {
-    "heading": "Os seus dados",
+    "heading": "Dados",
     "exportLine": "As exportações são geradas pela {product} a partir dos movimentos registados e não constituem aconselhamento. Confirme os valores antes de qualquer uso fiscal ou financeiro.",
     "riskLink": "Aviso sobre riscos",
     "exportJson": "Exportar cópia JSON",
@@ -69,7 +69,7 @@
       "running": "{year} (ainda a decorrer)",
       "export": "Exportar CSV do ano fiscal",
       "noEntries": "Ainda não há movimentos, por isso não há ano fiscal para exportar.",
-      "notLoaded": "As regras do seu país não estão carregadas neste dispositivo. Recarregue a página quando tiver ligação para exportar um ano fiscal.",
+      "notLoaded": "As regras do país não estão carregadas neste dispositivo. Recarregue a página quando tiver ligação para exportar um ano fiscal.",
       "file": {
         "title": "Ficheiro do ano fiscal da {product} · {country} · {from} a {to}",
         "owned": "Dados do Registo. Não é um cálculo fiscal.",
@@ -87,10 +87,10 @@
         "perVenue": "As vendas são associadas por local, tal como indicado no Registo. Os movimentos sem local formam um único grupo.",
         "crossVenue": "Em {count, plural, one {{figure} linha} other {{figure} linhas}}, a venda usou unidades compradas noutro local. sale_venue mostra onde essas vendas foram feitas.",
         "heldAt": "held_at: onde estavam as unidades quando foram vendidas, pagas como comissão de rede ou no fim do ano. Fica vazio sem local e nas linhas sem data de aquisição. moved_on: a data da transferência que as levou para lá, vazio se nenhuma o fez.",
-        "moveFee": "Uma linha com disposed_on mas sem proceeds contém as unidades que uma transferência pagou como comissão de rede, e deixa past_holding_rule vazio. Este ficheiro não diz se o seu país trata essa comissão como uma alienação.",
+        "moveFee": "Uma linha com disposed_on mas sem proceeds contém as unidades que uma transferência pagou como comissão de rede, e deixa past_holding_rule vazio. Este ficheiro não diz se o país trata essa comissão como uma alienação.",
         "feeAtDestination": "{count, plural, one {Em {figure} linha, o Registo retirou a comissão de rede de uma transferência das unidades que já estavam no local para onde as moedas foram. Nessa data, o Registo mostra fora desse local menos unidades do que a transferência enviou. Verifique essa transferência no Registo.} other {Em {figure} linhas, o Registo retirou a comissão de rede de uma transferência das unidades que já estavam no local para onde as moedas foram. Na data disposed_on de cada linha, o Registo mostra fora do local held_at dessa linha menos unidades do que a transferência enviou. Verifique a transferência de cada uma dessas linhas no Registo.}}",
         "moveRows": "Uma linha de transferência lista as unidades enviadas de venue para to_venue. units_received é o que chegou. units menos units_received é a comissão de rede, paga na moeda.",
-        "moveFeeRaw": "Este ficheiro não diz se o seu país trata essa comissão como uma alienação.",
+        "moveFeeRaw": "Este ficheiro não diz se o país trata essa comissão como uma alienação.",
         "pooledListed": "Para uma moeda vendida, ou paga como comissão de rede, no ano fiscal, todos os movimentos até {to} são listados para a agregação (pool). As compras até {windowEnd} são listadas para a regra dos 30 dias.",
         "rawListed": "Para uma moeda vendida, ou paga como comissão de rede, no ano fiscal, todos os movimentos até {to} são listados.",
         "windowOpen": "Feito a {today}: as compras posteriores a esse dia não estão neste ficheiro.",
@@ -98,7 +98,7 @@
         "uncosted": "Numa linha de moedas adicionadas, um cost_basis vazio significa que não foi registado nenhum custo, e não um custo zero. As linhas sem data de aquisição deixam cost_basis vazio.",
         "uncostedRaw": "Numa linha de moedas adicionadas, um cost_basis vazio significa que não foi registado nenhum custo, e não um custo zero. As linhas de venda deixam cost_basis vazio.",
         "estimated": "units_estimated yes: o botão «Comprado como planeado» da {product} preencheu as unidades a partir do preço do dia, e não a partir da confirmação da plataforma. A comissão ou o local que copiou vieram da última compra ou venda que os tinha registados.",
-        "estimatedBlock": "units_estimated yes: a venda ou uma linha de detenção do seu bloco conta unidades que o botão «Comprado como planeado» da {product} preencheu a partir do preço do dia, e não a partir da confirmação da plataforma. A comissão ou o local que copiou vieram da última compra ou venda que os tinha registados.",
+        "estimatedBlock": "units_estimated yes: a venda ou uma linha de detenção do bloco conta unidades que o botão «Comprado como planeado» da {product} preencheu a partir do preço do dia, e não a partir da confirmação da plataforma. A comissão ou o local que copiou vieram da última compra ou venda que os tinha registados.",
         "unmatched": "Uma linha sem data de aquisição contém unidades vendidas, ou pagas como comissão de rede, que nenhuma compra registada cobria.",
         "ongoing": "O ano fiscal termina a {to}. Este ficheiro mostra o Registo a {today}.",
         "cessions": "Cada bloco é uma venda do Registo: uma linha de detenção para cada moeda detida imediatamente antes dela e depois a linha da venda. As compras não têm linhas aqui: o registo CSV lista todos os movimentos. O cálculo a partir destes valores fica a seu cargo ou do seu contabilista.",
