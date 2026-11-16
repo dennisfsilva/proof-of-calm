@@ -1,7 +1,7 @@
 import { COINS, type CountryProfile, loadProfile, templateById } from '@proofofcalm/content';
 import { type CalendarDate, type Coin, type CoinId, EntityIdSchema, type Instant } from '@proofofcalm/core';
 import { describe, expect, it } from 'vitest';
-import { RISK_WORDING_VERSION } from '../../../lib/brand';
+import { RISK_WORDING_LANGUAGES, RISK_WORDING_VERSION } from '../../../lib/brand';
 import { createNumberInput } from '../../../lib/format';
 import type { SetupDraft } from './draft';
 import {
@@ -19,6 +19,7 @@ const today = '2026-10-20' as CalendarDate;
 const now = '2026-10-20T10:00:00.000Z' as Instant;
 const id = EntityIdSchema.parse('00000000-0000-4000-8000-000000000001');
 const numberInput = createNumberInput('en-GB');
+const language = 'en' as const;
 
 async function profile(code: 'DE' | 'PT' | 'XX'): Promise<CountryProfile> {
   const loaded = await loadProfile(code);
@@ -41,7 +42,7 @@ const draft = (overrides: Partial<SetupDraft>): SetupDraft => ({
 });
 
 async function start(code: 'DE' | 'PT' | 'XX', templateId: string, overrides: Partial<SetupDraft> = {}) {
-  const context = { profile: await profile(code), template: template(templateId), numberInput, today, now };
+  const context = { profile: await profile(code), template: template(templateId), numberInput, today, now, language };
   return startPlan(draft({ country: code, templateId, ...overrides }), context);
 }
 
@@ -72,7 +73,7 @@ describe('startPlan (docs/DOMAIN.md §5)', () => {
   });
 
   it('checkPlan is the dry run of the path: the template or the custom plan, with the same refusals', async () => {
-    const context = { profile: await profile('DE'), numberInput, today, now };
+    const context = { profile: await profile('DE'), numberInput, today, now, language };
     const cycle = draft({ country: 'DE', templateId: 'cycle-plan' });
     expect(checkPlan(cycle, { ...context, template: template('cycle-plan') })).toEqual(
       startPlan(cycle, { ...context, template: template('cycle-plan') }),
@@ -87,6 +88,31 @@ describe('startPlan (docs/DOMAIN.md §5)', () => {
     const result = await start('PT', 'two-coins');
     if (!result.ok) throw new Error(JSON.stringify(result.error));
     expect([result.value.riskAcknowledgedAt, result.value.riskWordingVersion]).toEqual([now, RISK_WORDING_VERSION]);
+    expect(result.value.riskLanguage).toBe('en');
+  });
+
+  it('records en when the onboarding text shows English under pt-PT', async () => {
+    const context = { profile: await profile('PT'), template: template('two-coins'), numberInput, today, now };
+    const typed = draft({ country: 'PT', templateId: 'two-coins' });
+    // pt-PT has no approved disclosure text yet (RISK_WORDING_LANGUAGES), so onboarding shows the English one.
+    expect(RISK_WORDING_LANGUAGES).not.toContain('pt-PT');
+    const result = startPlan(typed, { ...context, language: 'pt-PT' });
+    expect(result.ok && result.value.riskLanguage).toBe('en');
+    const own = startCustomPlan(draft({ country: 'PT', path: 'custom', coins: coins('60', '40') }), {
+      ...context,
+      language: 'pt-PT',
+    });
+    expect(own.ok && own.value.riskLanguage).toBe('en');
+  });
+
+  it('records the UI language when it is approved and loaded', async () => {
+    const context = { profile: await profile('PT'), template: template('two-coins'), numberInput, today, now };
+    const approved = { ...context, language: 'pt-PT' as const, riskLanguages: ['en', 'pt-PT'] as const };
+    const result = startPlan(draft({ country: 'PT', templateId: 'two-coins' }), approved);
+    expect(result.ok && result.value.riskLanguage).toBe('pt-PT');
+    const own = startCustomPlan(draft({ country: 'PT', path: 'custom', coins: coins('60', '40') }), approved);
+    expect(own.ok && own.value.riskLanguage).toBe('pt-PT');
+    expect(checkPlan(draft({ country: 'PT', templateId: 'two-coins' }), approved)).toEqual(result);
   });
 
   it('a first buy on the 29th to the 31st makes buy day 28; the 28th stays; XX pays in EUR', async () => {
@@ -201,7 +227,7 @@ const coins = (btc: string, eth: string) => ({
 });
 
 async function custom(overrides: Partial<SetupDraft> = {}) {
-  const context = { profile: await profile('PT'), numberInput, today, now };
+  const context = { profile: await profile('PT'), numberInput, today, now, language };
   const typed = draft({ country: 'PT', path: 'custom', coins: coins('60', '40'), ...overrides });
   return { context, typed, result: startCustomPlan(typed, context) };
 }

@@ -57,7 +57,12 @@ const TITLE = 'The risk text has changed';
 
 const fixture = fixtureSnapshot();
 if (fixture.plan === null) throw new Error('the fixture has a plan');
-const recorded: Plan = { ...fixture.plan, riskAcknowledgedAt: ACKNOWLEDGED_AT, riskWordingVersion: 1 };
+const recorded: Plan = {
+  ...fixture.plan,
+  riskAcknowledgedAt: ACKNOWLEDGED_AT,
+  riskWordingVersion: 1,
+  riskLanguage: 'en',
+};
 
 async function services(plan: Plan | null = recorded) {
   const planStore = memoryPlanStore({ ...fixture, plan });
@@ -106,7 +111,13 @@ describe('Reacknowledge', () => {
     const written = planStore.current().plan as Plan;
     const at = written.riskAcknowledgedAt as Instant;
     expect(at > ACKNOWLEDGED_AT).toBe(true);
-    expect(written).toEqual({ ...recorded, riskAcknowledgedAt: at, riskWordingVersion: 2, updatedAt: at });
+    expect(written).toEqual({
+      ...recorded,
+      riskAcknowledgedAt: at,
+      riskWordingVersion: 2,
+      riskLanguage: 'en',
+      updatedAt: at,
+    });
     expect(screen.queryByRole('heading', { level: 1, name: TITLE })).toBeNull();
     // The pathname stays, so the shell moves no focus: the screen that goes hands it to Today's heading.
     await vi.waitFor(() => expect(document.activeElement).toBe(heading));
@@ -160,6 +171,12 @@ describe('reacknowledge', () => {
     // An empty write still rebuilds the snapshot object: what counts is that the rows stay the same ones.
     expect(planStore.current().plan).toBe(once.plan);
     expect(planStore.current().prefs).toEqual(once.prefs);
+  });
+
+  it('records en under pt-PT, whose re-ask shows the English text until counsel approves one', async () => {
+    const { planStore, services: tab } = await services();
+    await act(() => reacknowledge({ ...tab, language: 'pt-PT' }, 2));
+    expect(planStore.current().plan).toMatchObject({ riskWordingVersion: 2, riskLanguage: 'en' });
   });
 
   it('writes nothing with nothing recorded or no plan', async () => {
