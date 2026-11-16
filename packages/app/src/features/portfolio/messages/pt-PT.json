@@ -28,7 +28,7 @@
     },
     "empty": "Não há valores para desenhar {range, select, 7d {nos últimos 7 dias, de {start} a {end}. Escolha um intervalo mais longo.} 30d {nos últimos 30 dias, de {start} a {end}. Escolha um intervalo mais longo.} 90d {nos últimos 90 dias, de {start} a {end}. Escolha um intervalo mais longo.} 1y {nos últimos 12 meses, de {start} a {end}. Escolha um intervalo mais longo.} other {desde o primeiro movimento: os fechos diários terminam a {end}. O gráfico começa no fecho diário seguinte.}}",
     "nothingHeld": "Não há valores para desenhar: não detinha moedas de {start} a {end}, as datas que os fechos diários abrangem.",
-    "unavailable": "Não foi possível carregar o histórico de preços, por isso não há gráfico. Abra o Portefólio de novo para tentar outra vez.",
+    "unavailable": "Não foi possível carregar o histórico de preços, por isso não há gráfico. Abra o Portefólio de novo para voltar a carregá-lo.",
     "tooFewCloses": "O histórico de preços tem menos de 2 fechos diários para {coins}, por isso não há gráfico.",
     "source": "Fechos diários, {start} a {end}, à data de {date}, às {time} · Dados de preços da CoinGecko",
     "pastPerformance": "Os resultados registados no passado não constituem um indicador fiável dos resultados futuros.",
@@ -91,6 +91,6 @@
   },
   "unrecorded": "Sem custo registado para {coins}, por isso o Investido, o custo médio e o resultado deixam estas unidades de fora.",
   "notBought": "Ainda sem compras: {coins}. Para moedas que já tem, abra o <log>Registo</log> e escolha Adicionar moedas que já tem.",
-  "unmatched": "{units} vendidos sem uma compra com data igual ou anterior à da venda. Verifique as datas e os montantes no Registo.",
-  "unmatchedFee": "{units} pagos como comissão de rede sem uma compra com data igual ou anterior à da transferência que os cubra. Verifique as datas e os montantes no Registo."
+  "unmatched": "{units} vendidos sem uma compra com data igual ou anterior à da venda. Verifique as datas e as unidades no Registo.",
+  "unmatchedFee": "{units} pagos como comissão de rede sem uma compra com data igual ou anterior à da transferência que os cubra. Verifique as datas e as unidades no Registo."
 }
