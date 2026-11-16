@@ -4,6 +4,7 @@
 // own chunk, loaded where a card, a source link or the picker shows it: the shell boots on the country's
 // generated rules file instead (./rules.ts, ADR-0049); the onboarding and Settings load every profile.
 import type { CountryRules, CountrySuggestion, SuggestProfile } from '@proofofcalm/core';
+import { applyOverlay, type ContentLanguage, type OverlayLanguage } from '../i18n/overlay.ts';
 import type { CountryProfile } from '../schema/jurisdiction.ts';
 import { asDate } from './brands.ts';
 
@@ -28,30 +29,55 @@ const FILES: Readonly<Record<ProfileCode, () => Promise<{ readonly default: unkn
   XX: () => import('../../jurisdictions/xx.json'),
 };
 
+// The translations under packages/content/i18n (ADR-0057), the same way: a country without one in a language shows
+// its English text there. A test holds this record to the files.
+export const PROFILE_OVERLAYS: Readonly<
+  Record<OverlayLanguage, Partial<Record<ProfileCode, () => Promise<{ readonly default: unknown }>>>>
+> = { 'pt-PT': {}, de: {} };
+
 const isProfileCode = (code: string): code is ProfileCode => Object.hasOwn(FILES, code);
 
 const loaded = new Map<string, CountryProfile>();
+const key = (code: string, language: ContentLanguage) => `${language}:${code}`;
 
 // The files pass the schema in CI and in this package's tests, so they are not parsed again on the device.
 const load = async (code: ProfileCode) => {
   const profile = (await FILES[code]()).default as CountryProfile;
-  loaded.set(code, profile);
+  loaded.set(key(code, 'en'), profile);
   return profile;
 };
 
-/** The profile of a country, or null where none exists yet (the shell then offers the generic one). */
-export async function loadProfile(code: string): Promise<CountryProfile | null> {
-  return isProfileCode(code) ? load(code) : null;
+// English is the profile itself; a translation is a new object over it. A translation's chunk that fails to load
+// (offline before it was ever fetched: another language's chunks sit outside the worker's precache) gives the
+// English profile, as a message chunk's failure gives English messages, and is not kept, so the next load retries.
+const translated = async (code: ProfileCode, language: ContentLanguage) => {
+  const profile = await load(code);
+  const overlay = language === 'en' ? undefined : PROFILE_OVERLAYS[language][code];
+  if (overlay === undefined) return profile;
+  const known = loaded.get(key(code, language));
+  if (known !== undefined) return known;
+  const file = await overlay().catch(() => null);
+  if (file === null) return profile;
+  const result = applyOverlay(profile, file.default, 'jurisdiction');
+  loaded.set(key(code, language), result);
+  return result;
+};
+
+/** The profile of a country in a language, or null where none exists yet (the shell then offers the generic one). */
+export async function loadProfile(code: string, language: ContentLanguage = 'en'): Promise<CountryProfile | null> {
+  return isProfileCode(code) ? translated(code, language) : null;
 }
 
-/** Every profile, for the suggestion and the picker. */
-export function loadProfiles(): Promise<CountryProfile[]> {
-  return Promise.all(COUNTRY_CODES.map(load));
+/** Every profile in a language, for the suggestion and the picker. */
+export function loadProfiles(language: ContentLanguage = 'en'): Promise<CountryProfile[]> {
+  return Promise.all(COUNTRY_CODES.map((code) => translated(code, language)));
 }
 
-/** The profile once any load has read it, at once, else null: the shell boots on the rules file, not on this one. */
-export function loadedProfile(code: string): CountryProfile | null {
-  return loaded.get(code) ?? null;
+/** The profile in a language once a load has read it, at once, else null: the shell boots on the rules file. */
+export function loadedProfile(code: string, language: ContentLanguage = 'en'): CountryProfile | null {
+  const english = loaded.get(key(code, 'en')) ?? null;
+  if (language === 'en' || english === null || !isProfileCode(code)) return english;
+  return PROFILE_OVERLAYS[language][code] === undefined ? english : (loaded.get(key(code, language)) ?? null);
 }
 
 /**
