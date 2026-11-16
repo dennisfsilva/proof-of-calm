@@ -24,9 +24,11 @@ function ChartFrame({ axis, children }: { axis: ChartAxis; children: ReactNode }
           <span className="nums text-12 text-ink-2">{axis.bottom}</span>
         </div>
       </div>
-      <div aria-hidden className="flex justify-between">
+      {/* The range ends wrap rather than widen a narrow box, such as a coin's detail row in Holdings with pt-PT's
+          long dates at 125 % text; the end then keeps to the right. */}
+      <div aria-hidden className="flex flex-wrap justify-between gap-x-2">
         <span className="nums text-12 text-ink-2">{axis.start}</span>
-        <span className="nums text-12 text-ink-2">{axis.end}</span>
+        <span className="nums ml-auto text-12 text-ink-2">{axis.end}</span>
       </div>
     </>
   );
