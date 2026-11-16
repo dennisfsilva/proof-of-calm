@@ -1,5 +1,6 @@
 import { expect } from '@playwright/test';
 import { fixtureNowMs, fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
+import portugal from '../../../packages/content/jurisdictions/pt.json' with { type: 'json' };
 import { seedPlan } from './seed';
 import { applyTextZoom, cspViolations, recordCspViolations, test } from './support';
 
@@ -34,10 +35,10 @@ test('a change from Portugal to Germany lists the rule it replaces, then changes
   await select.click();
   await page.getByRole('option', { name: 'Germany' }).click();
   await expect(page.getByText('Country: Portugal to Germany')).toBeVisible();
-  await expect(
-    page.getByText("Holding rule now: Portugal's rule. 365 days, then tax-free.", { exact: false }),
-  ).toBeVisible();
-  await expect(page.getByText("After the change: Germany's rule. 1 year, then tax-free.")).toBeVisible();
+  // Each rule by its name; its words are the profile's, which a content review may change (the unit test of the
+  // section holds them on literal rules, docs/ENGINEERING.md §2).
+  await expect(page.getByText(/^Holding rule now: Portugal's rule\. /)).toBeVisible();
+  await expect(page.getByText(/^After the change: Germany's rule\. /)).toBeVisible();
   await expect(
     page.getByRole('listitem').filter({ hasText: /^Last buy tax-free from .* now, from .* after the change/ }),
   ).toBeVisible();
@@ -100,10 +101,12 @@ test('a change from Portugal to the United Kingdom with EUR amounts asks, and Ke
   await expect(page.locator('main#main')).not.toContainText('£');
 });
 
-// A card more than twelve months past its nextReviewDue (docs/JURISDICTIONS.md §1): on 1 January 2029 Portugal's,
-// due 2 November 2027, says so, with no Sources link and the rule by its name alone.
+// A card more than twelve months past its nextReviewDue (docs/JURISDICTIONS.md §1) says so, with no Sources link and
+// the rule by its name alone: Portugal's on 1 January of the second year after its nextReviewDue, which each review
+// moves (1 January 2029 for 2 November 2027).
 test('a card past its review reads Not reviewed since', async ({ page }) => {
-  await page.clock.setFixedTime(new Date('2029-01-01T10:00:00Z'));
+  const year = Number(portugal.status.nextReviewDue.slice(0, 4)) + 2;
+  await page.clock.setFixedTime(new Date(`${year}-01-01T10:00:00Z`));
   await seedPlan(page, fixtureSnapshot());
   await page.goto('/settings');
   await expect(page.locator('main#main')).not.toHaveAttribute('aria-busy', 'true');
