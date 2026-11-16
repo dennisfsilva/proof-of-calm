@@ -68,8 +68,11 @@ describe('OnboardingScreen: the template texts in the UI language (ADR-0057)', (
   });
 
   it('in pt-PT, starts the load at mount and lists the cards once it resolves, never English first', async () => {
-    let resolve: (texts: ReadonlyMap<string, TemplateTexts>) => void = () => undefined;
-    vi.mocked(loadTemplateTexts).mockReturnValueOnce(new Promise((settle) => void (resolve = settle)));
+    const settlers: ((texts: ReadonlyMap<string, TemplateTexts>) => void)[] = [];
+    vi.mocked(loadTemplateTexts).mockReturnValueOnce(new Promise((settle) => void settlers.push(settle)));
+    const resolve = (texts: ReadonlyMap<string, TemplateTexts>) => {
+      for (const settle of settlers) settle(texts);
+    };
     await mount('pt-PT');
     expect(loadTemplateTexts).toHaveBeenCalledWith('pt-PT');
     await confirm('Continuar com Portugal');
