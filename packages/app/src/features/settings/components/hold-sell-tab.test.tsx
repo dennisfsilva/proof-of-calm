@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { countryRules, holdingRuleSource, loadProfile } from '@proofofcalm/content';
+import { countryRules, loadProfile } from '@proofofcalm/content';
 import type { CountryRules, HoldingRule, Plan } from '@proofofcalm/core';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { userEvent } from 'storybook/test';
@@ -86,7 +86,9 @@ describe('HoldSellTab', () => {
     );
     // The law that sets Portugal's holding rule, the source its `ruleSources.holdingRule` names.
     const profile = await loadProfile('PT');
-    expect(sources.getAttribute('href')).toBe(profile === null ? null : holdingRuleSource(profile));
+    expect(sources.getAttribute('href')).toBe(
+      profile?.sources.find((source) => source.key === profile.ruleSources.holdingRule)?.url,
+    );
   });
 
   it('Sources is there on the first render once the profile is loaded', async () => {
