@@ -28,6 +28,98 @@ const profile = (code: string) => {
 const fileOf = (code: string) =>
   JSON.parse(readFileSync(new URL(`../../jurisdictions/${code.toLowerCase()}.json`, import.meta.url), 'utf8'));
 
+// A literal profile for the code that reads one: a content review may change every value of a live
+// profile but its identity fields (docs/ENGINEERING.md §2, the review-safe test rule).
+const LAW = 'https://example.org/law/holding';
+const CIRCULAR = 'https://example.org/circular/lots';
+const FIXTURE = CountryProfileSchema.parse({
+  schemaVersion: 1,
+  code: 'PT',
+  name: 'Fixtureland',
+  currency: 'EUR',
+  locales: ['pt-PT'],
+  numberFormatLocale: 'pt-PT',
+  dateFormatLocale: 'pt-PT',
+  timezones: ['Europe/Lisbon', 'Atlantic/Azores'],
+  englishConfidence: 'low',
+  taxYear: { start: '01-01', end: '12-31' },
+  filingNote: 'Gains go in the annual return.',
+  computationModel: { kind: 'per-lot' },
+  holdingRule: { kind: 'days', days: 365, effect: 'exempt' },
+  holdingRuleOverrides: [],
+  holdingRuleConditions: ['The counterparty is in the EU or the EEA.'],
+  lotRule: 'fifo',
+  lotScope: 'per-venue',
+  lotRuleNote: 'Lots are matched per platform.',
+  card: {
+    classification: 'Crypto held privately is a capital asset.',
+    taxableEvents: [{ event: 'sale-to-fiat', taxable: 'depends', note: 'Tax-free after 365 days of holding.' }],
+    rates: [{ label: 'Flat rate on gains', value: '28%', validFrom: '2023-01-01', validTo: null }],
+    allowances: [],
+    holdingRuleText: 'A purchase held for 365 days or more can be sold without tax on the gain.',
+    lotRuleText: 'First in, first out, per platform.',
+    losses: 'Losses offset gains of the same kind.',
+    reporting: ['Annex G of the return.'],
+    caveats: ['A professional should confirm how a swap counts.'],
+    summary60: 'Purchases held for 365 days or more are tax-free when sold.',
+  },
+  pendingChanges: [],
+  sources: [
+    {
+      key: 'law',
+      title: 'The law',
+      url: LAW,
+      publisher: 'Parliament',
+      kind: 'law',
+      published: null,
+      accessed: '2026-10-16',
+    },
+    {
+      key: 'circular',
+      title: 'The circular',
+      url: CIRCULAR,
+      publisher: 'Tax authority',
+      kind: 'authority',
+      published: '2025-01-02',
+      accessed: '2026-10-16',
+    },
+  ],
+  ruleSources: { holdingRule: 'law', lotRule: 'circular', rates: 'law', losses: 'law', reporting: 'law' },
+  status: {
+    confidence: 'high',
+    version: 3,
+    changedOn: '2026-05-04',
+    changeNotice: 'The rate changed on 4 May 2026.',
+    lastReviewed: '2026-10-16',
+    nextReviewDue: '2027-10-16',
+    reviewedBy: 'owner',
+  },
+});
+const FIXTURE_RULES = {
+  code: 'PT',
+  name: 'Fixtureland',
+  currency: 'EUR',
+  locales: ['pt-PT'],
+  numberFormatLocale: 'pt-PT',
+  dateFormatLocale: 'pt-PT',
+  timezones: ['Europe/Lisbon', 'Atlantic/Azores'],
+  englishConfidence: 'low',
+  taxYear: { start: '01-01', end: '12-31' },
+  computationModel: { kind: 'per-lot' },
+  holdingRule: { kind: 'days', days: 365, effect: 'exempt' },
+  holdingRuleOverrides: [],
+  holdingRuleConditions: ['The counterparty is in the EU or the EEA.'],
+  lotRule: 'fifo',
+  lotScope: 'per-venue',
+  status: {
+    version: 3,
+    changedOn: '2026-05-04',
+    changeNotice: 'The rate changed on 4 May 2026.',
+    lastReviewed: '2026-10-16',
+    nextReviewDue: '2027-10-16',
+  },
+};
+
 describe('loadProfile and loadProfiles', () => {
   it('load each profile as its file holds it, valid against the schema', async () => {
     expect(profiles.map((loaded) => loaded.code)).toEqual(['DE', 'ES', 'FR', 'GB', 'IE', 'IT', 'NL', 'PT', 'US', 'XX']);
@@ -157,8 +249,9 @@ describe('ruleSource (docs/JURISDICTIONS.md §2)', () => {
       const ruleSources = { ...portugal.ruleSources, [rule]: 'no-such-source' };
       expect(ruleSource({ ...portugal, ruleSources }, rule)).toBeNull();
     }
-    expect(ruleSource(portugal, 'lotRule')).not.toBe(ruleSource(portugal, 'holdingRule'));
     expect(holdingRuleSource(portugal)).toBe(ruleSource(portugal, 'holdingRule'));
+    expect([ruleSource(FIXTURE, 'holdingRule'), ruleSource(FIXTURE, 'lotRule')]).toEqual([LAW, CIRCULAR]);
+    expect(holdingRuleSource(FIXTURE)).toBe(LAW);
   });
 });
 
@@ -170,30 +263,16 @@ describe('countryRules (docs/DOMAIN.md §4)', () => {
     }
   });
 
-  it('carries the currency, the holding rule, the lot rule and its scope, and the rule version', () => {
-    expect(countryRules(profile('PT'))).toMatchObject({
-      currency: 'EUR',
-      englishConfidence: 'low',
-      holdingRule: { kind: 'days', days: 365, effect: 'exempt' },
-      holdingRuleOverrides: [],
-      lotRule: 'fifo',
-      lotScope: 'per-venue',
-      status: {
-        version: 2,
-        changedOn: '2026-11-05',
-        changeNotice:
-          'Portugal lowered six IRS bracket rates for 2026 income. The 28% rate and the 365\u2011day rule are unchanged.',
-        nextReviewDue: '2027-11-02',
-      },
-    });
-    const germany = countryRules(profile('DE'));
-    expect(germany).toMatchObject({
-      holdingRule: { kind: 'years', years: 1, effect: 'exempt' },
-      lotRule: 'fifo',
-      lotScope: 'per-venue',
-      status: { version: 1, nextReviewDue: '2027-01-01' },
-    });
-    expect('englishConfidence' in germany).toBe(false);
+  it('carries what the core reads of a profile, and englishConfidence only where the profile states it', () => {
+    expect(countryRules(FIXTURE)).toEqual(FIXTURE_RULES);
+    const { englishConfidence: _, ...unstated } = FIXTURE;
+    const { englishConfidence: __, ...rulesUnstated } = FIXTURE_RULES;
+    const rules = countryRules(unstated);
+    expect(rules).toEqual(rulesUnstated);
+    expect('englishConfidence' in rules).toBe(false);
+  });
+
+  it('the generic profile carries the rules of docs/JURISDICTIONS.md \u00a72', () => {
     expect(countryRules(profile('XX'))).toMatchObject({
       currency: 'EUR',
       holdingRule: { kind: 'none' },
@@ -205,7 +284,8 @@ describe('countryRules (docs/DOMAIN.md §4)', () => {
 
   it('keeps an enacted override by acquisition date (what Germany’s draft would add once it is law)', () => {
     const enacted = {
-      ...profile('DE'),
+      ...FIXTURE,
+      holdingRule: { kind: 'years' as const, years: 1, effect: 'exempt' as const },
       holdingRuleOverrides: [
         {
           acquiredFrom: '2027-01-01',
@@ -224,19 +304,11 @@ describe('countryRules (docs/DOMAIN.md §4)', () => {
   });
 });
 
-describe('the holding rule applied per profile (docs/JURISDICTIONS.md §7.6, §7.7)', () => {
+describe('the holding rule applied to the generic profile (docs/JURISDICTIONS.md §2)', () => {
   const statusIn = (code: string, bought: string) => {
     const rules = countryRules(profile(code));
     return holdingStatus(date(bought), rules.holdingRule, rules.holdingRuleOverrides);
   };
-
-  it('Portugal: 365 days, so a unit bought on 2026-03-01 is tax-free from 2027-03-01', () => {
-    expect(statusIn('PT', '2026-03-01')).toEqual({ kind: 'dated', from: '2027-03-01', effect: 'exempt' });
-  });
-
-  it('Germany: more than one year, so a unit bought on 2026-03-15 is tax-free from 2027-03-16', () => {
-    expect(statusIn('DE', '2026-03-15')).toEqual({ kind: 'dated', from: '2027-03-16', effect: 'exempt' });
-  });
 
   it('the generic profile: no rule, so nothing is labelled "tax-free from"', () => {
     expect(statusIn('XX', '2026-03-15')).toEqual({ kind: 'none' });
@@ -304,10 +376,24 @@ describe('suggestCountry with the profiles of M1 (docs/JURISDICTIONS.md §3)', (
 });
 
 describe('countryChoices (the picker, docs/JURISDICTIONS.md §3)', () => {
-  const codes = (suggestion: { country: string } | null) => countryChoices(profiles, suggestion).map((c) => c.code);
+  // Literal names in the live order, since a review may rename a country: the picker sorts what it is given.
+  const NAMES = [
+    ['DE', 'Germany'],
+    ['ES', 'Spain'],
+    ['FR', 'France'],
+    ['GB', 'United Kingdom'],
+    ['IE', 'Ireland'],
+    ['IT', 'Italy'],
+    ['NL', 'Netherlands'],
+    ['PT', 'Portugal'],
+    ['US', 'United States'],
+    ['XX', 'Other country'],
+  ] as const;
+  const named = NAMES.map(([code, name]) => ({ ...FIXTURE, code, name }));
+  const codes = (suggestion: { country: string } | null) => countryChoices(named, suggestion).map((c) => c.code);
 
   it('puts the generic profile first when nothing is suggested, then the countries by name', () => {
-    expect(countryChoices(profiles, null)).toEqual([
+    expect(countryChoices(named, null)).toEqual([
       { code: 'XX', name: 'Other country' },
       { code: 'FR', name: 'France' },
       { code: 'DE', name: 'Germany' },
@@ -345,12 +431,7 @@ describe('the generic profile (docs/JURISDICTIONS.md §2)', () => {
     );
   });
 
-  it('lists only UTC, which the suggestion treats as no timezone, and states the card text of §2', () => {
-    const generic = profile('XX');
-    expect(generic.timezones).toEqual(['UTC']);
-    expect(generic.card.summary60).toBe(
-      'Proof of Calm has no reviewed rule set for your country. Treat every sale as a possibly taxable event and check with a local accountant. You can still use the plan, the log and the portfolio.',
-    );
-    expect(generic.status).toMatchObject({ confidence: 'high', reviewedBy: 'owner' });
+  it('lists only UTC, which the suggestion treats as no timezone', () => {
+    expect(profile('XX').timezones).toEqual(['UTC']);
   });
 });
