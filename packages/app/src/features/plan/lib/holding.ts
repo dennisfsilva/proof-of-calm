@@ -1,7 +1,13 @@
 // The holding rule editor's value (docs/JURISDICTIONS.md §5, docs/DOMAIN.md §2.1): the country's rule, or the
 // person's own, its count as typed and read with the formatting locale (ADR-0034). An own rule equal to the
 // country's gives back the country's, so its acquisition-date overrides still apply (`holdingContext`).
-import { type CountryProfile, GENERIC_COUNTRY, holdingRuleSource } from '@proofofcalm/content';
+import {
+  type ContentLanguage,
+  type CountryProfile,
+  contentLanguageOf,
+  GENERIC_COUNTRY,
+  holdingRuleSource,
+} from '@proofofcalm/content';
 import {
   type CalendarDate,
   type CountryCode,
@@ -38,6 +44,8 @@ export type HoldingCountry = {
   readonly rule: HoldingRule;
   readonly reviewed: string;
   readonly conditions?: readonly string[];
+  /** The language of the rules' sentences, as their loader marked it (ADR-0057); see `textLang`. */
+  readonly language?: ContentLanguage | undefined;
   readonly source: string | null;
   readonly unreviewed?: { readonly status: string | null; readonly text: string | null };
   readonly underReview?: true;
@@ -59,6 +67,7 @@ export function holdingCountryOf(
     rule: rules.holdingRule,
     reviewed,
     conditions: rules.holdingRuleConditions,
+    language: contentLanguageOf(rules),
   };
   if (rules.code === GENERIC_COUNTRY) {
     return {

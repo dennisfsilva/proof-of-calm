@@ -1,9 +1,10 @@
 'use client';
 
-import { holdingRuleSource } from '@proofofcalm/content';
+import { contentLanguageOf, holdingRuleSource } from '@proofofcalm/content';
 import { sameHoldingRule, underReview } from '@proofofcalm/core';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@proofofcalm/ui/components/collapsible';
-import { useTranslations } from 'use-intl';
+import { useLocale, useTranslations } from 'use-intl';
+import { textLang } from '../../../lib/i18n/text-lang';
 import { useFormatters, useProfile, useRules, useSnapshot, useToday } from '../../../lib/services';
 import { CountryDateLine } from './country-date-line';
 
@@ -17,19 +18,27 @@ import { CountryDateLine } from './country-date-line';
 // the sentence that can deny it stays too. The sentences are the rules'. Nothing shows for a rule that is not
 // the country's: the person's own, or a plan whose country fell back to the generic profile.
 
+type ConditionLinesProps = {
+  readonly conditions: readonly string[];
+  /** The sentences' language where it is not the screen's (`textLang`, ADR-0057); the control stays the screen's. */
+  readonly lang?: string | undefined;
+};
+
 /** The conditions alone: the first in full, the rest behind one control; nothing for an empty list. */
-export function ConditionLines({ conditions }: { readonly conditions: readonly string[] }) {
+export function ConditionLines({ conditions, lang }: ConditionLinesProps) {
   const t = useTranslations('shell.holdingConditions');
   const [first, ...rest] = conditions;
   if (first === undefined) return null;
   return (
     <>
-      <p className="text-13 text-ink-2">{first}</p>
+      <p lang={lang} className="text-13 text-ink-2">
+        {first}
+      </p>
       {rest.length > 0 && (
         <Collapsible className="gap-stack-xs">
           <CollapsibleTrigger>{t('more', { count: rest.length })}</CollapsibleTrigger>
           <CollapsibleContent>
-            <ul className="flex flex-col gap-stack-xs text-13 text-ink-2">
+            <ul lang={lang} className="flex flex-col gap-stack-xs text-13 text-ink-2">
               {rest.map((condition) => (
                 <li key={condition}>{condition}</li>
               ))}
@@ -46,6 +55,7 @@ export function HoldingConditions() {
   const rules = useRules();
   const f = useFormatters();
   const today = useToday();
+  const locale = useLocale();
   const shown =
     plan !== null &&
     rules !== null &&
@@ -57,7 +67,7 @@ export function HoldingConditions() {
   const source = stale || profile === null ? null : holdingRuleSource(profile);
   return (
     <div className="flex w-full flex-col gap-stack-xs">
-      <ConditionLines conditions={rules.holdingRuleConditions} />
+      <ConditionLines conditions={rules.holdingRuleConditions} lang={textLang(contentLanguageOf(rules), locale)} />
       <CountryDateLine country={{ reviewed: f.date(rules.status.lastReviewed), source, underReview: stale }} />
     </div>
   );

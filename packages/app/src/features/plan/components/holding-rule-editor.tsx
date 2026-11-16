@@ -13,8 +13,9 @@ import {
   SelectValue,
 } from '@proofofcalm/ui/components/select';
 import { useId } from 'react';
-import { useTranslations } from 'use-intl';
+import { useLocale, useTranslations } from 'use-intl';
 import type { Formatters } from '../../../lib/format';
+import { textLang } from '../../../lib/i18n';
 import { CountryDateLine } from '../../learn';
 import { type HoldingCountry, type HoldingIssue, type HoldingValue, holdingRuleText } from '../lib/holding';
 
@@ -40,6 +41,7 @@ const EFFECTS = ['exempt', 'lower-rate'] as const;
 
 export function HoldingRuleEditor({ value, issues, country, onChange, format }: HoldingRuleEditorProps) {
   const t = useTranslations('plan.holdingRule');
+  const locale = useLocale();
   const input = useTranslations('errors.input');
   const legend = useId();
   const sourceError = useId();
@@ -73,9 +75,9 @@ export function HoldingRuleEditor({ value, issues, country, onChange, format }: 
   const countryText = (known: HoldingCountry) => {
     const { unreviewed } = known;
     if (unreviewed !== undefined) {
-      return unreviewed.text === null
-        ? undefined
-        : [unreviewed.status, unreviewed.text].filter((part) => part !== null).join(' ');
+      if (unreviewed.text === null) return undefined;
+      const text = [unreviewed.status, unreviewed.text].filter((part) => part !== null).join(' ');
+      return <span lang={textLang(known.language, locale)}>{text}</span>;
     }
     return known.source === null ? undefined : ruleText(known.rule);
   };
