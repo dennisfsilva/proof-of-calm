@@ -147,13 +147,13 @@ describe('the translations in the repository', () => {
   });
 });
 
-// Onboarding and Portfolio are whole in pt-PT, but for the acknowledged disclosure: a language shows its own
-// text only once counsel approved it as the English text's equal (RISK_WORDING_LANGUAGES, docs/LEGAL.md §4).
-describe('the pt-PT onboarding and portfolio', () => {
+// Onboarding, Portfolio and Plan are whole in pt-PT, but for the acknowledged disclosure: a language shows its
+// own text only once counsel approved it as the English text's equal (RISK_WORDING_LANGUAGES, docs/LEGAL.md §4).
+describe('the pt-PT onboarding, portfolio and plan', () => {
   const owesEnglish = (folder: string, locale: UiLanguage) =>
     folder === 'onboarding' && !RISK_WORDING_LANGUAGES.includes(locale) ? ['disclosure.text: not translated'] : [];
 
-  it.each(['onboarding', 'portfolio'])('%s is whole in pt-PT', (folder) => {
+  it.each(['onboarding', 'portfolio', 'plan'])('%s is whole in pt-PT', (folder) => {
     const translated = byFolder.get(`${folder}/pt-PT`)?.tree;
     expect(translated, `${folder} has no pt-PT file`).toBeDefined();
     expect(problems(byFolder.get(`${folder}/en`)?.tree ?? {}, translated ?? {}, true)).toEqual(

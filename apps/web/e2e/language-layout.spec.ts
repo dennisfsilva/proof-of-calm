@@ -3,8 +3,10 @@ import { expect, type Locator, type Page } from '@playwright/test';
 import type { Snapshot } from '@proofofcalm/app/lib/ports';
 import { fixtureNowMs, fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
 import type { CalendarDate, Entry } from '@proofofcalm/core';
+import enPlan from '../../../packages/app/src/messages/en/plan.json' with { type: 'json' };
 import enPortfolio from '../../../packages/app/src/messages/en/portfolio.json' with { type: 'json' };
 import enToday from '../../../packages/app/src/messages/en/today.json' with { type: 'json' };
+import ptPlan from '../../../packages/app/src/messages/pt-PT/plan.json' with { type: 'json' };
 import ptPortfolio from '../../../packages/app/src/messages/pt-PT/portfolio.json' with { type: 'json' };
 import ptToday from '../../../packages/app/src/messages/pt-PT/today.json' with { type: 'json' };
 import { seedPlan } from './seed';
@@ -289,6 +291,32 @@ for (const path of ['/portfolio', '/onboarding'] as const) {
     expect(errors).toEqual([]);
   });
 }
+
+// Plan in pt-PT, its heading and its timeline's table found by the merged pt-PT file's words, the table open, as the
+// widest state of the screen: it stays inside the page with the same wider text.
+test("pt-PT: /plan stays inside the page with its timeline's table open and text set wider than this platform's fonts", async ({
+  page,
+}) => {
+  const words = { title: ptPlan.title, table: ptPlan.timeline.table.summary };
+  expect(words, "the merged pt-PT file holds Plan's own words").not.toEqual({
+    title: enPlan.title,
+    table: enPlan.timeline.table.summary,
+  });
+  const errors = await boot(page, 'pt-PT');
+  await open(page, '/plan');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'pt-PT');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(words.title);
+  const details = page.locator('details[data-slot="chart-table"]', { has: page.getByText(words.table, { exact: true }) });
+  await details.locator('summary').click();
+  await expect(details).toHaveAttribute('open', '');
+  await expect(details.locator('table')).toContainText(/de\s\S+\sde\s20\d\d/);
+  await widerText(page, '0.03em');
+  await settled(page);
+  const now = await pastTheViewport(page);
+  expect(now.past, 'nothing ends past the viewport').toEqual([]);
+  expect(now.scrolls, 'no page-wide horizontal scroll').toBe(false);
+  expect(errors).toEqual([]);
+});
 
 test("in English, the Log's, Today's dates and Portfolio's value tables keep their columns", async ({ page }) => {
   const errors = await boot(page, null);
