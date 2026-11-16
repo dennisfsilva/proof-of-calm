@@ -108,7 +108,12 @@ const ruleLines = () =>
     .flatMap((item) => Array.from(item.querySelectorAll('p'), (p) => p.textContent));
 const NOTE = 'Computed from your dates, not tax advice';
 const [DE_FIRST, DE_SECOND] = FIXTURE_RULES.DE.holdingRuleConditions as [string, string];
-const dated = (date: string) => `Reviewed on ${date} · general information, not advice · Sources`;
+/** The URL of the source a loaded profile names for its holding rule, looked up here, not by the code under test. */
+const holdingSourceOf = async (code: CountryCode) => {
+  const profile = await loadProfile(code);
+  return profile?.sources.find((source) => source.key === profile.ruleSources.holdingRule)?.url;
+};
+const dated = (date: string) =>`Reviewed on ${date} · general information, not advice · Sources`;
 // The line that reports the result, always there and empty until a change ends (docs/DESIGN.md §6).
 const resultLine = () => screen.getByRole('status');
 
@@ -157,7 +162,8 @@ describe('CountrySection', () => {
     expect(screen.queryByText(DE_SECOND)).toBeNull();
     expect(screen.getAllByText(NOTE)).toHaveLength(1);
     const sources = screen.getAllByRole('link', { name: 'Sources' }).map((link) => link.getAttribute('href'));
-    expect(sources).toEqual([expect.stringContaining('portaldasfinancas'), expect.stringContaining('estg/__23')]);
+    // Each rule's Sources is the source its profile's ruleSources.holdingRule names, whatever a review makes it.
+    expect(sources).toEqual([await holdingSourceOf('PT'), await holdingSourceOf('DE')]);
     expect(screen.getByText('Amounts you already logged stay as typed; nothing is converted.')).toBeTruthy();
     await confirm('Germany');
     expect(screen.getByRole('alert').textContent).toBe('Tick the box to replace the holding rule.');
