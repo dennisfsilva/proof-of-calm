@@ -65,7 +65,9 @@ finding, and `--warn` (or `DOCS_LINT=warn`) prints the findings and exits 0. `li
 to 400 lines unless the header says why in a `size-lint-allow:` line. `lint/test-count.ts`
 (`pnpm testCount`) prints the number of test files and cases for the pre-PR check. A test that runs
 the real git passes `GIT_FREE_ENV` from `git-env.ts` and an explicit cwd, so a git hook's `GIT_DIR`
-or `GIT_INDEX_FILE` cannot aim it at another repository.
+or `GIT_INDEX_FILE` cannot aim it at another repository. Its file calls `useGitDecoy()` from
+`git-decoy.ts`, which aims those two variables at an empty repository for the file's run, as a hook
+would, and fails the file when a git left a ref or an index entry there.
 
 `size/today.ts` (`node tools/size/today.ts [report] [--warn]`, in ci.yml's e2e-build job after the
 build) reads the chunk report the web host's build writes into its `node_modules` cache

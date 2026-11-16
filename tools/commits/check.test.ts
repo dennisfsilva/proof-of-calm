@@ -1,8 +1,11 @@
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { useGitDecoy } from '../git-decoy.ts';
 import { GIT_FREE_ENV } from '../git-env.ts';
 import { checkRange, checkSubject, type Git } from './check.ts';
+
+useGitDecoy();
 
 /** git itself in this test's folder, without the caller's GIT_* variables (../git-env.ts says why). */
 const realGit: Git = (args) =>
