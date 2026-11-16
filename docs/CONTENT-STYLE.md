@@ -152,9 +152,12 @@ The Portuguese rows (decided 2026-11-15; the voice is §9):
      `Compre 1.000 € de BTC` is one sentence; the text is read with its accents composed. A
      `{date:<field>}` placeholder counts as one word. Its dots end no sentence, and a ticker in its
      path names no asset: `Mantenha até {date:sellWindow.opens} as suas bitcoins` is one sentence
-     and fails. A placeholder the app fills with a coin (`{coin}`, `{coins}`, `{names}`) counts as
-     an asset name, so `Compre {coin} todos os meses` fails. Every other brace is read as written,
-     an ICU branch's words included. The English rule reads placeholders the same way.
+     and fails. A placeholder the app fills with a coin counts as an asset name: `{coin}`, `{coins}`
+     and `{names}`, and the units with their ticker (`{units}`, `{held}`, `{heldUnits}`, `{sent}`,
+     `{excess}`, `{short}`, `{outside}`), so `Compre {coin} todos os meses` and
+     `Venda {units} agora` fail. Every other brace is read as written, an ICU branch's words
+     included. The English rule reads only a verb that opens the sentence as written, so a verb
+     that opens an ICU branch is not read.
   2. `venda` passes as the noun after the words the lint lists (`uma`, `cada`, `de`, `da`, `na`,
      `à`, `pela`, `após`, `sua`, `última` and their kin), after `compra e` or `compras e`, or after
      an `a` that opens the sentence or a clause (not after a comma) or follows a preposition, `e` or
