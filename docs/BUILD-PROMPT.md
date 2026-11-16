@@ -430,7 +430,7 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   2026-11-16).
 - A story project in a second language needs plays that find elements without English names.
   #276's planned pt-PT story project failed 81 of 243 stories, and a render-and-axe-only run waits
-  for 25f (#271, 2026-11-16).
+  for #271 (2026-11-16).
 - A table's tab stop is derived again when anything inside it changes size. #277's first round
   dropped Table's observer and lost the stop when a nested `<details>` opened (2026-11-16).
 - A probe that measures its box inside an auto-layout table cell measures its content. #277's nested
