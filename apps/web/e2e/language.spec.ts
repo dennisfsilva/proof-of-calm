@@ -1,7 +1,10 @@
 import { expect, type Page } from '@playwright/test';
 import { fixtureNowMs, fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
+import ptPlan from '../../../packages/app/src/messages/pt-PT/plan.json' with { type: 'json' };
+import ptSettings from '../../../packages/app/src/messages/pt-PT/settings.json' with { type: 'json' };
+import ptShell from '../../../packages/app/src/messages/pt-PT/shell.json' with { type: 'json' };
 import { seedPlan } from './seed';
-import { test } from './support';
+import { routeFixturePrices, test } from './support';
 
 // The UI language (ADR-0023, the entry of 2026-11-15): a device preference in localStorage, read before the
 // first render. The shell boots in it, sets the document's lang, loads the static and the lazy screens'
@@ -83,5 +86,41 @@ test.describe('when the stored language cannot load its static namespaces', () =
     expect(aborted.some((url) => /\/today-[^/]+\.js$/.test(url))).toBe(true);
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     await expect(page.getByText('Buy day was 5 Oct 2026, 15 days ago. Record it or skip the month.')).toBeVisible();
+  });
+});
+
+test.describe("when the language's rules chunk cannot load (offline before it was ever fetched)", () => {
+  test.use({ serviceWorkers: 'block' });
+
+  // ADR-0057: the English rules file answers, so Plan keeps its holding line, conditions and review line in the
+  // booted language's messages with the rule's English text, and Settings keeps the plan's country rule.
+  test("Plan and Settings keep the plan's rule from the English file", async ({ page }, testInfo) => {
+    // biome-ignore lint/suspicious/noSkippedTests: a runtime skip on every project but desktop, not a disabled test
+    test.skip(testInfo.project.name !== 'desktop', 'the fallback does not depend on the viewport');
+    await bootIn(page, 'pt-PT');
+    const aborted: string[] = [];
+    // Routed before the seed, which loads Today and with it the rules (docs/BUILD-PROMPT.md).
+    await page.route(/\/assets\/messages\/pt-PT\/pt-[^/]+\.js$/, (route) => {
+      aborted.push(route.request().url());
+      return route.abort('internetdisconnected');
+    });
+    const nowMs = fixtureNowMs('buy');
+    await page.clock.setFixedTime(new Date(nowMs));
+    await routeFixturePrices(page, nowMs);
+    await seedPlan(page, fixtureSnapshot());
+
+    await page.goto('/plan');
+    await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
+    await expect(page.getByRole('heading', { level: 1, name: ptPlan.title })).toBeVisible();
+    expect(aborted.length).toBeGreaterThan(0);
+    await expect(page.getByText(new RegExp(`^${ptPlan.holding.exempt.replace('{date}', '.+')}$`))).toBeVisible();
+    await expect(page.getByText(/the counterparty is tax-resident/i)).toBeVisible();
+    await expect(page.getByText(new RegExp(`^${ptShell.countryLine.sources.split(' {date}')[0]} `))).toBeVisible();
+
+    await page.goto('/settings');
+    await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
+    await page.getByRole('tab', { name: ptSettings.tabs.hold }).click();
+    await expect(page.getByRole('radio', { name: /^A regra de Portugal$/ })).toBeVisible();
+    await expect(page.getByText(ptPlan.holdingRule.countryUnknown)).toHaveCount(0);
   });
 });
