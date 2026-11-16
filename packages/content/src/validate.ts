@@ -5,9 +5,10 @@
 // falls in catalogue order, unique fact keys, the Learn modules (modules-validate.ts), a profile's locale tags and
 // percent joiner (percent-validate.ts), the banned-words lint and the no-break hyphen between a number and its unit
 // (hyphen-validate.ts) on what users read, and a template text's dates as `{date:<field>}` with no month name
-// (template-dates.ts). Pure: the
+// (template-dates.ts), and no `;` in a text the tax-year header copies (header-validate.ts). Pure: the
 // CLI in scripts/validate.ts reads the files. Relative imports name their .ts files, so that Node runs the
 // CLI without a build step, as tools/ does.
+import { headerTextProblems, headerTexts, semicolonProblems } from './header-validate.ts';
 import { hyphenProblems } from './hyphen-validate.ts';
 import { changedTexts, isOverlayFile, overlayFileProblems, type TextChecks } from './i18n/overlay-validate.ts';
 import { moduleProblems } from './modules-validate.ts';
@@ -96,6 +97,7 @@ function jurisdiction(file: ContentFile, options: ValidationOptions): Problem[] 
   }
   problems.push(...profileTextProblems(path, profileTexts(profile)));
   problems.push(...localeProblems(path, profile, profileTexts(profile)));
+  problems.push(...headerTextProblems(path, profile));
   return problems;
 }
 
@@ -336,6 +338,7 @@ const TRANSLATED: TextChecks = {
       ...(summary ? summaryProblems(path, translated.card.summary60) : []),
       ...profileTextProblems(path, texts),
       ...languagePercentProblems(path, language, translated, texts),
+      ...semicolonProblems(path, changedTexts(headerTexts(english), headerTexts(translated))),
     ];
   },
   template: (path, [english, translated]) =>
