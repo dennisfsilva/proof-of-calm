@@ -3,10 +3,12 @@ import { expect, type Locator, type Page } from '@playwright/test';
 import type { Snapshot } from '@proofofcalm/app/lib/ports';
 import { fixtureNowMs, fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
 import type { CalendarDate, Entry } from '@proofofcalm/core';
+import enLog from '../../../packages/app/src/messages/en/log.json' with { type: 'json' };
 import enPlan from '../../../packages/app/src/messages/en/plan.json' with { type: 'json' };
 import enPortfolio from '../../../packages/app/src/messages/en/portfolio.json' with { type: 'json' };
 import enSettings from '../../../packages/app/src/messages/en/settings.json' with { type: 'json' };
 import enToday from '../../../packages/app/src/messages/en/today.json' with { type: 'json' };
+import ptLog from '../../../packages/app/src/messages/pt-PT/log.json' with { type: 'json' };
 import ptPlan from '../../../packages/app/src/messages/pt-PT/plan.json' with { type: 'json' };
 import ptPortfolio from '../../../packages/app/src/messages/pt-PT/portfolio.json' with { type: 'json' };
 import ptSettings from '../../../packages/app/src/messages/pt-PT/settings.json' with { type: 'json' };
@@ -458,6 +460,95 @@ test('pt-PT: Settings › País e dados keeps each import, exchange, paste and p
   const now = await pastTheViewport(page);
   expect(now.past, 'nothing in the data section ends past the viewport').toEqual([]);
   expect(now.scrolls, 'no page-wide horizontal scroll').toBe(false);
+  expect(errors).toEqual([]);
+});
+
+/** What a screen shows of a message: its words before the first placeholder, or its select's `exempt` branch. */
+const shown = (message: string) => message.slice(0, message.indexOf('{')).trim();
+const exemptBranch = (message: string) => /exempt \{([^{}]*)\}/.exec(message)?.[1] ?? '';
+
+// The Log in pt-PT, found by the merged pt-PT file's words: its entries table, the long-dated extra buy's details open
+// (its holding line and Why?) and the add sheet stay inside the page with the same wider text, the table stacked
+// exactly when its columns are wider, and each control holds its own text inside its own box.
+test("pt-PT: the Log keeps its table, a row's details and the add sheet inside their boxes with wider text", async ({
+  page,
+}) => {
+  const pick = (log: typeof ptLog) => ({
+    title: log.title,
+    entry: log.table.entry,
+    amount: log.table.amount,
+    record: log.record,
+    held: log.recordHeld,
+    moved: log.recordMoved,
+    exempt: shown(log.holding.exempt),
+    why: exemptBranch(log.holding.why),
+    edit: log.row.edit,
+    delete: log.row.delete,
+    sheet: log.form.title.dca,
+    dca: log.kind.dca,
+    extra: log.kind.extra,
+    sell: log.kind.sell,
+    save: log.form.save,
+  });
+  const words = pick(ptLog);
+  const english = pick(enLog);
+  // Each word on its own, so one key left in English fails the case.
+  for (const key of Object.keys(words) as (keyof typeof words)[]) {
+    expect(words[key].length, `the Log's own ${key} has words`).toBeGreaterThan(0);
+    expect(words[key], `the merged pt-PT file holds the Log's own ${key}`).not.toBe(english[key]);
+  }
+  /** Each control is shown and holds its text inside its own box. */
+  const ownBoxes = async (controls: Record<string, Locator>) => {
+    await settled(page);
+    for (const [key, control] of Object.entries(controls)) {
+      await expect(control).toBeVisible();
+      const box = await tabBox(control);
+      expect(box.client, `the ${key} control has a box of its own`).toBeGreaterThan(0);
+      expect(box.scroll, `the ${key} control's text stays inside its ${box.client} px box`).toBeLessThanOrEqual(
+        box.client,
+      );
+    }
+    const now = await pastTheViewport(page);
+    expect(now.past, 'nothing ends past the viewport').toEqual([]);
+    expect(now.scrolls, 'no page-wide horizontal scroll').toBe(false);
+  };
+  const button = (scope: Page | Locator, name: string) => scope.getByRole('button', { name, exact: true });
+  const errors = await boot(page, 'pt-PT');
+  await open(page, '/log');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'pt-PT');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(words.title);
+  const table = page.locator('main#main table[data-slot="table"]');
+  await expect(table.locator('thead')).toContainText(words.entry);
+  await expect(table.locator('thead')).toContainText(words.amount);
+  await widerText(page, '0.03em');
+  await expectFitting(table);
+  await ownBoxes({
+    record: button(page, words.record),
+    held: button(page, words.held),
+    moved: button(page, words.moved),
+  });
+
+  const row = table.locator('tbody button[aria-expanded]', { hasText: /28\sde\sfevereiro\sde\s2026/ });
+  await row.click();
+  await expect(row).toHaveAttribute('aria-expanded', 'true');
+  await expectFitting(table);
+  await ownBoxes({
+    exempt: table.getByText(words.exempt).filter({ visible: true }),
+    why: button(table, words.why),
+    edit: button(table, words.edit),
+    delete: button(table, words.delete),
+  });
+
+  await button(page, words.record).click();
+  const sheet = page.getByRole('dialog');
+  await expect(sheet.getByRole('heading', { name: words.sheet, exact: true })).toBeVisible();
+  await sheet.evaluate((element) => Promise.all(element.getAnimations({ subtree: true }).map((each) => each.finished)));
+  await ownBoxes({
+    dca: button(sheet, words.dca),
+    extra: button(sheet, words.extra),
+    sell: button(sheet, words.sell),
+    save: button(sheet, words.save),
+  });
   expect(errors).toEqual([]);
 });
 
