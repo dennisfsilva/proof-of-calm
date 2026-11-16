@@ -195,3 +195,8 @@ generated rules files of each language.
   marked text and only while the text is on the card; a Portuguese card on an English screen does
   not; the static site pages are English and never show it. Known limit: no overlay holds a `null` item today; a future one keeps its English under
   the object's language, so that item would be marked as the overlay's language.
+- **2026-11-16.** Two sites are not marked yet: Settings' change-country confirmation lists the new
+  country's holding conditions without `lang` when its eligible-day row replaces the early-opening
+  notice's list, and onboarding's template cards read the template texts through a spread, which
+  drops the mark, with an unmarked English fallback (seen only offline, since every template has a
+  pt-PT overlay). Both wait for #271, the last session before pt-PT can show.

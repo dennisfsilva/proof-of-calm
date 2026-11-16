@@ -515,6 +515,19 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - A test that drops a pin keeps the relation the pin held, and a relation that finds its sentences by
   a word list misses a rewording. #297's facts branch dropped two relations with their pins in round
   1 and, restored, read only sentences with five fall verbs in round 2 (#297, 2026-11-16).
+- A relation that reads figures out of free text gets an unanchored design check before its build.
+  #286's facts branch attributed each percent to a nearby coin: round 1 found a bound dropped in a
+  dated sentence and a figure written before its coin read for the wrong one, and the check then moved
+  the figures to a validator rule for the next session (2026-11-16).
+- A branch that removes test pins lists, in its plan, every refusal and limit main holds in the files
+  it changes, since no content review needs to change one. #286's facts branch took three builders and
+  a second review round to restore refusals and a word cap that earlier commits had dropped with their
+  pins, and round 2 still found one (2026-11-16).
+- A `lang` mark goes on the element whose text is foreign, never on a wrapper that also holds the
+  app's own lines, and it is read from the loaded object whose text the element shows. #312's module
+  body wrapper marked the chart's controls and the official past-performance line English on a pt-PT
+  screen, and Plan's general-profile line, which took its language from the rules and its text from
+  the profile, was wrong in both offline fallbacks (2026-11-16).
 
 ## Known gaps
 
