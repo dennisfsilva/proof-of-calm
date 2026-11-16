@@ -2,8 +2,9 @@
 // changed JSON leaf that is not bookkeeping needs a changes[] row whose item is the data file and whose
 // field is the leaf's path; every row names a changed leaf; a changed module (.mdx) needs at least one
 // row; every changed file, a module too, needs a reviewed[] row, whose read and of the owner's flip
-// rests on. The generated rules files are skipped. The agent never sets lastReviewed or nextReviewDue: the owner sets lastReviewed in the flip
-// (§8), so a change to either is refused, in a module any changed line that names either.
+// rests on; a translation (`i18n/<locale>/…`, ADR-0057) needs none, since its lastReviewed is its English file's.
+// The generated rules files are skipped. The agent never sets lastReviewed or nextReviewDue: the owner sets
+// lastReviewed in the flip (§8), so a change to either is refused, in a module any changed line that names either.
 import type { ReviewDraft } from './body.ts';
 
 /** Leaves the agent changes as it reads, which need no changes[] row of their own. */
@@ -63,7 +64,7 @@ export function rowProblems(draft: ReviewDraft, changed: readonly Changed[]): st
           problems.push(`${file}: ${JSON.stringify(path)} changed, and no changes[] row names it`);
       }
     }
-    if (!draft.reviewed.some((row) => row.item === item))
+    if (!item.startsWith('i18n/') && !draft.reviewed.some((row) => row.item === item))
       problems.push(`${file}: changed, and no reviewed[] row names it`);
   }
   for (const [i, change] of draft.changes.entries()) {
