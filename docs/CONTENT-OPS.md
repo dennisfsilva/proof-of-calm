@@ -70,18 +70,21 @@ owns the pipeline around them and its security model.
    output of `pnpm --filter @proofofcalm/content rules`. A translation under `packages/content/i18n/`
    (ADR-0057) that repeats a figure the agent changed fails `pnpm validate:content`
    (`overlay-number-mismatch`). The agent then changes that figure in the translation, at the path
-   the check names, to the English file's value, and nothing else there; no `allowed-tools` rule
-   approves that edit, so Claude Code asks the owner unless the session's permission mode approves
-   it; either way the agent names the figure and the English row first and lists the edit in its
-   closing report. The guard
-   and the finish accept the translation's file and its locale's generated rules files. Nothing
-   refuses a prose edit in a translation, and a translation carries no `reviewedBy`, so the owner's
-   diff read (§8) is its review.
+   the check names, to the English file's value written in the translation's number format, and
+   nothing else there: the check reads the translation with its number locale's separators
+   (ADR-0057), so English characters copied as written can read as another value (the skill's §1
+   gives the rule and its examples). No `allowed-tools` rule approves that edit, so Claude Code asks
+   the owner unless the session's permission mode approves it; either way the agent names the
+   figure and the English row first and lists the edit in its closing report. The guard and the
+   finish accept the translation's file and its locale's generated rules files. Nothing refuses a
+   prose edit in a translation, and a translation carries no `reviewedBy`, so the owner's diff read
+   (§8) is its review.
 3. **The expected failure.** The agent runs the content checks, and the skill tells it: "The one
    failure you expect is `agent-draft` on the entries you marked; when `overlay-number-mismatch`
-   names a figure you changed in its English file, change the same figure in the translation (§1),
-   run `pnpm --filter @proofofcalm/content rules` and run the checks again; fix or revert anything
-   else."
+   names a figure you changed in its English file, change the same figure in the translation,
+   written in the translation's number format (§1), run `pnpm --filter @proofofcalm/content rules`
+   and run the checks again; fix or revert anything else." A translation's figure that still does
+   not match is reverted on neither side: the agent names it in the draft's notes and its report.
 4. **The draft.** The agent writes its findings as JSON in the shape of `ReviewDraft`
    (`tools/content-review/body.ts`) to .content-review/draft.json, a gitignored folder. A change row's
    `item` is the data file relative to `packages/content/` (`jurisdictions/ie.json`) and its `field`
@@ -261,7 +264,9 @@ is read again at every review, because its low can still move.
    set `changedOn` and write `changeNotice` when a rule changed in substance; a bump that corrects our
    own file also writes a `changeNotice` that says so (`docs/JURISDICTIONS.md` §6). When the PR
    changes a translation (§3 step 2), check that its diff changes only the figures its English file
-   changed, at the same paths and to the same values, and nothing else there. The Learn country
+   changed, at the same paths and to the same values, and nothing else there: compare the values,
+   not the characters, since the translation writes each in its number locale's format (§3 step 2;
+   `5,5 %` for English `5.5 %` in Germany's pt-PT translation). The Learn country
    screens print `lastReviewed`, so `e2e-visual` can fail on the new date: delete the baselines it names
    in a commit on the agent's branch (the guard accepts a removed baseline, nothing else outside the
    data folders), and send new ones in a needs-owner PR after the merge (`CLAUDE.md`, Visual
