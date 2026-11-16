@@ -15,9 +15,12 @@ import { PlanScreen } from './plan-screen';
 
 afterEach(cleanup);
 
+// Portugal's rules with literal conditions: a content review may reword, add or drop one (docs/CONTENT-OPS.md §8).
+const FIRST_CONDITION = 'The first condition, shown in the note.';
+const CONDITIONS = [FIRST_CONDITION, 'The second.', 'The third.', 'The fourth.'];
 const portugal = async () => {
   const profile = await loadProfile('PT');
-  return profile === null ? null : countryRules(profile);
+  return profile === null ? null : { ...countryRules(profile), holdingRuleConditions: CONDITIONS };
 };
 
 async function mount(phase: FixturePhase | null, why = '') {
@@ -65,7 +68,7 @@ describe('PlanScreen', () => {
   it('the holding note carries the conditions', async () => {
     await mount('buy');
     const note = screen.getByText('Computed from your dates, not tax advice');
-    const first = screen.getByText(/the counterparty is tax-resident/i);
+    const first = screen.getByText(FIRST_CONDITION);
     expect(note.compareDocumentPosition(first) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Show 3 more conditions' })).toBeDefined();
     expect(screen.getByRole('link', { name: 'Sources' })).toBeDefined();
@@ -86,7 +89,7 @@ describe('PlanScreen', () => {
     view(services);
     await act(() => services.start());
     expect(screen.queryByText('Computed from your dates, not tax advice')).toBeNull();
-    expect(screen.queryByText(/the counterparty is tax-resident/i)).toBeNull();
+    expect(screen.queryByText(FIRST_CONDITION)).toBeNull();
     expect(screen.queryByRole('link', { name: 'Sources' })).toBeNull();
   });
 
@@ -130,7 +133,7 @@ describe('PlanScreen', () => {
       first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING;
     expect(after(document.querySelector('[data-slot="timeline"]') as Element, line)).toBeTruthy();
     expect(after(screen.getByText('Computed from your dates, not tax advice'), line)).toBeTruthy();
-    expect(after(screen.getByText(/the counterparty is tax-resident/i), line)).toBeTruthy();
+    expect(after(screen.getByText(FIRST_CONDITION), line)).toBeTruthy();
     expect(after(screen.getByRole('link', { name: 'Sources' }), line)).toBeTruthy();
   });
 

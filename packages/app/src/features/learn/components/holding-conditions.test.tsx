@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { type CountryProfile, holdingRuleSource, loadedProfile, loadProfile, loadRules } from '@proofofcalm/content';
-import type { CountryRules, HoldingRule, Plan } from '@proofofcalm/core';
+import type { CalendarDate, CountryRules, HoldingRule, Plan } from '@proofofcalm/core';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { I18nProvider } from '../../../lib/i18n';
@@ -16,8 +16,26 @@ import { ConditionLines, HoldingConditions } from './holding-conditions';
 // Portugal's profile is loaded and each `null` below comes from its one condition. `ConditionLines` is the
 // sentences alone, as the early-opening notice and the country change's last-buy row show them.
 
-const PORTUGAL = (await loadRules('PT')) as CountryRules;
-const [FIRST, SECOND] = PORTUGAL.holdingRuleConditions as [string, string];
+// Portugal's rules with literal conditions and review dates: a content review may reword, add or drop a condition
+// and moves the dates (docs/CONTENT-OPS.md §8), so the count on the control and the under-review day are the
+// fixture's, not the profile's.
+const CONDITIONS = [
+  'The first condition, shown beside the date.',
+  'The second condition.',
+  'The third condition.',
+  'The fourth condition.',
+] as const;
+const loadedPortugal = (await loadRules('PT')) as CountryRules;
+const PORTUGAL: CountryRules = {
+  ...loadedPortugal,
+  holdingRuleConditions: [...CONDITIONS],
+  status: {
+    ...loadedPortugal.status,
+    lastReviewed: '2026-11-05' as CalendarDate,
+    nextReviewDue: '2027-11-02' as CalendarDate,
+  },
+};
+const [FIRST, SECOND] = CONDITIONS;
 const MORE = 'Show 3 more conditions';
 const portugalSource = async () => holdingRuleSource((await loadProfile('PT')) as CountryProfile);
 
@@ -168,7 +186,7 @@ describe('HoldingConditions', () => {
   });
 
   it('under review keeps the conditions beside the date, with no Sources', async () => {
-    // Past Portugal's nextReviewDue by more than twelve months (docs/JURISDICTIONS.md §1). The date stays on the
+    // Past the fixture's nextReviewDue by more than twelve months (docs/JURISDICTIONS.md §1). The date stays on the
     // rows beside this block, so the sentences that can deny it stay too (docs/LEGAL.md §4).
     await mount({ nowMs: Date.parse('2029-01-01T10:00:00Z') });
     expect(screen.getByText(FIRST)).toBeDefined();

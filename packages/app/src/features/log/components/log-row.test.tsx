@@ -26,9 +26,12 @@ import { LogRow } from './log-row';
 
 afterEach(cleanup);
 
+// Portugal's rules with literal conditions: a content review may reword, add or drop one (docs/CONTENT-OPS.md §8).
+const FIRST_CONDITION = 'The first condition, shown in the note.';
+const CONDITIONS = [FIRST_CONDITION, 'The second.', 'The third.', 'The fourth.'];
 const portugal = async () => {
   const profile = await loadProfile('PT');
-  return profile === null ? null : countryRules(profile);
+  return profile === null ? null : { ...countryRules(profile), holdingRuleConditions: CONDITIONS };
 };
 
 async function fixtureRows(plan: Plan = fixtureSnapshot().plan as Plan) {
@@ -250,13 +253,13 @@ describe('LogRow', () => {
     const lump = find(await fixtureRows(), 'lump');
     await mount(lump, plan, { note: true });
     fireEvent.click(screen.getByRole('button', { expanded: false }));
-    expect(screen.getByText(/the counterparty is tax-resident/i)).toBeDefined();
+    expect(screen.getByText(FIRST_CONDITION)).toBeDefined();
     expect(screen.getByRole('button', { name: 'Show 3 more conditions' })).toBeDefined();
     expect(screen.getByRole('link', { name: 'Sources' })).toBeDefined();
     cleanup();
     await mount(lump, plan);
     fireEvent.click(screen.getByRole('button', { expanded: false }));
-    expect(screen.queryByText(/the counterparty is tax-resident/i)).toBeNull();
+    expect(screen.queryByText(FIRST_CONDITION)).toBeNull();
     expect(screen.queryByRole('button', { name: 'Show 3 more conditions' })).toBeNull();
     expect(screen.queryByRole('link', { name: 'Sources' })).toBeNull();
   });
