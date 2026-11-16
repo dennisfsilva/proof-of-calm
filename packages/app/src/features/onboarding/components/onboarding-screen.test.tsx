@@ -153,7 +153,7 @@ describe('OnboardingScreen', () => {
     expect(screen.getByTestId('path').textContent).toBe('/today');
   });
 
-  it('records the acknowledgement: the clock’s now at the tap and wording version 1', async () => {
+  it('records the acknowledgement: the clock’s now at the tap, wording version 1 and the English text', async () => {
     const { services } = await numbers();
     const before = services.clock.now();
     await click(START);
@@ -162,6 +162,7 @@ describe('OnboardingScreen', () => {
     const at = stored?.riskAcknowledgedAt ?? '';
     expect(before <= at && at <= after, `${before} <= ${at} <= ${after}`).toBe(true);
     expect(stored?.riskWordingVersion).toBe(1);
+    expect(stored?.riskLanguage).toBe('en');
   });
 
   it('after Start, never renders the already-set-up notice and never moves the focus to it (#101)', async () => {
