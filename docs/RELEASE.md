@@ -114,7 +114,10 @@ migrations, raised only with a migration and a test. Each entity's payload has a
 numbers. A payload version rises only with an upgrade path, either an upgrade on read
 (`docs/ADR/0019-persistence.md` Readings, "Row shape") or a database migration, and with forward and
 rollback read tests. A new payload version is read by one release before any release writes it: rows
-and files are written at the lowest version that holds their data (`docs/DOMAIN.md` §2.1). The
+and files are written at the lowest version that holds their data (`docs/DOMAIN.md` §2.1); plans v4,
+which record an acknowledgement's language, are read from the release that adds them and first
+written by a later one that approves a translation of the disclosure, while every English
+acknowledgement stays the v3 plan. The
 newer-version screen (`packages/app/src/features/shell/newer-version.tsx`) ships in a release
 before any release writes a higher row version, so the build a rollback returns to shows it. Until
 the first `vX.Y.Z` tag, a release in this section is a production deployment of a `main` commit,

@@ -38,7 +38,7 @@ cumulative split `cumulativeShares` instead, whose parts sum exactly too.
 
 ---
 
-## 2. Stored entities (plans v3, entries v4)
+## 2. Stored entities (plans v4, entries v4)
 
 All entities are validated by zod schemas in `packages/core/src/schema/`; types are inferred from the
 schemas. Storage (IndexedDB), export files and sync payloads all use these shapes. A stored row of a
@@ -50,7 +50,7 @@ shows the newer-version screen in place of a newer plan (ADR-0019 readings).
 ```ts
 type Plan = {
   id: EntityId;
-  schemaVersion: 3;
+  schemaVersion: 4;
   country: CountryCode;                 // drives defaults; confirmed by the user, never taken from IP
   countryRuleVersion: number;           // the country profile version the user last saw; a newer one shows the dated notice (§3.12)
   payCurrency: CurrencyCode;            // every logged amount is in this currency; never converted
@@ -76,6 +76,7 @@ type Plan = {
   riskAcknowledgedAt: Instant | null;   // when the plan-creation disclosure was acknowledged (docs/LEGAL.md §4, ADR-0047)
   riskWordingVersion: number;           // integer >= 0: the version of the disclosure text acknowledged; carried by the export
                                         // null with 0: nothing recorded (a v2 row, a v2 backup or the prototype); onboarding and the re-ask below write both, together
+  riskLanguage: LanguageTag | null;     // the language of the disclosure text acknowledged (`en`, `pt-PT`); null exactly when nothing is recorded
   createdAt: Instant;
   updatedAt: Instant;
 };
@@ -112,6 +113,8 @@ Invariants (validated; each has a test):
 - `pauses` do not overlap; `until` is `null` (open-ended) or `>= from`.
 - `skips` have unique slots.
 - `coins` have unique ids; every key of `split` is one of them.
+- `riskLanguage` is null exactly when nothing is recorded (null and 0), and otherwise a language tag
+  (two or three lowercase letters, optionally a hyphen and two capitals: `LanguageTagSchema`).
 
 One currency per plan (ADR-0053): no invariant ties `payCurrency` to the country's currency. A change of
 country converts nothing, and relabels the logged amounts only on the person's answer to the currency
@@ -129,10 +132,19 @@ plans, so neither the schema nor a row version changes for them.
 
 A plan is written at the lowest schema version that holds it (`writtenPlan` in
 `packages/core/src/schema/upgrade.ts`), in a storage row and in a backup alike: with nothing recorded
-(null and 0) it is the v2 plan exactly (`schemaVersion: 2`, without the two fields), which the previous
-build's strict v2 schema reads; with anything recorded it is v3. Reading takes both, a v2 plan through
-`upgradePlan` with null and 0. So v3 is first written by onboarding's acknowledgement, in a build that
-follows one that reads v3, and a one-release rollback reads every plan (`docs/RELEASE.md`, Versioning).
+(null, 0 and null) it is the v2 plan exactly (`schemaVersion: 2`, without the three fields), which the
+build before the acknowledgement reads; recorded in English it is the v3 plan exactly (`schemaVersion: 3`,
+without `riskLanguage`), which the previous build's strict v3 schema reads; recorded in any other
+language it is v4. Reading takes all three through `upgradePlan`: a v2 plan with null, 0 and null, a
+v3 plan with `en` when anything is recorded (every acknowledgement before v4 was of the English text)
+and null when nothing is. So a rollback of one release reads every plan this build writes
+(`docs/RELEASE.md`, Versioning).
+
+The recorded language is the language of the disclosure text shown: the UI language when it is in
+`RISK_WORDING_LANGUAGES` (`packages/app/src/lib/brand/index.ts`), the languages whose own text counsel
+approved as the English text's equal (`docs/LEGAL.md` §4), and `en` for every other one, which shows
+the English text. A wording version names the English text and each approved translation. The list
+holds `en` alone, so no build writes v4 yet.
 
 The acknowledgement is asked again only when a recorded wording version (1 or more) is below the
 disclosure text's current version (`acknowledgementDue`). That one comparison reads the plan as it
@@ -141,8 +153,8 @@ by "Replace everything" or the import with no plan (§3.13), with an older recor
 once, on Today. A plan with nothing recorded (null and 0: a v2 row, a v2 backup or the prototype,
 including the plan either of those imports takes whole from such a file, §3.13) is never asked again
 because of that. The ask takes Today's place until it is answered, as a screen and never a modal, and
-every other screen stays open; its button records the time and the current version together
-(`acknowledge`). The current version is `RISK_WORDING_VERSION` in
+every other screen stays open; its button records the time, the current version and the language of
+the text shown together (`acknowledge`). The current version is `RISK_WORDING_VERSION` in
 `packages/app/src/lib/brand/index.ts`.
 
 Each invariant is a coded issue (`planIssues`, `PLAN_ISSUE_CODES` in `packages/core/src/schema/plan.ts`):
@@ -845,18 +857,19 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
 
 - JSON export (`proof-of-calm-backup-YYYY-MM-DD.json`; `exportFileName(slug, kind, today)` with the
   product's slug from the shell) = `exportBackup(plan, entries, exportedAt)` =
-  `{ format: 'proof-of-calm', schemaVersion: 5, exportedAt, plan, entries }`; exports exclude deleted
+  `{ format: 'proof-of-calm', schemaVersion: 6, exportedAt, plan, entries }`; exports exclude deleted
   entries. It is also the sync payload shape and the backup format. The file is written through
-  `writtenBackup`, at the lowest version that holds its plan and entries (§2.1, §2.2): version 5 when
-  any entry is a move, else version 4 when any entry is `held`, else version 3 once an acknowledgement is recorded, else version 2 with the v2
-  plan, so the previous build imports every file without a move and answers `newer-version` for one
-  with it.
+  `writtenBackup`, at the lowest version that holds its plan and entries (§2.1, §2.2): version 6 with the
+  v4 plan when the plan is acknowledged in another language than English; else, with the v3 plan,
+  version 5 when any entry is a move, else version 4 when any entry is `held`, else version 3 once an
+  acknowledgement is recorded; else version 2 with the v2 plan. So the previous build imports every
+  file it can hold and answers `newer-version` for one with a v4 plan.
   The `format` marker stays `proof-of-calm` whatever the product is called, so that old backups keep importing.
 - Import of a Proof of Calm file: `readBackup(json)` validates with the zod schema and answers
-  `not-recognised` (no format marker), `newer-version` (a schema version above 5) or `invalid-backup`
+  `not-recognised` (no format marker), `newer-version` (a schema version above 6) or `invalid-backup`
   (each issue as `path: code`; a file that holds one entry id twice, which no export writes, is
-  `entries: duplicate-id`); files at versions 2 to 5 import, a version 2 file (an earlier build's, or this one's) with its plan read through
-  `upgradePlan`, with no acknowledgement (§2.1); `applyImport(current, file, mode, now)` then does "Replace everything"
+  `entries: duplicate-id`); files at versions 2 to 6 import, the plan of a version 2 to 5 file read through `upgradePlan` (§2.1):
+  a version 2 file's with no acknowledgement, a version 3 to 5 file's v3 plan in `en` when one is recorded; `applyImport(current, file, mode, now)` then does "Replace everything"
   or "Add missing entries only" (by `id`; the file's skips and pauses are not merged), as the prototype.
   Imported rows are stamped `updatedAt = now` (ADR-0019), or one millisecond after the row stored here
   (its `updatedAt`, and its `deletedAt` for a tombstone) when `now` is not later, so that a clock behind
