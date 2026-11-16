@@ -4,6 +4,9 @@
 // the lump, five dca months, one extra buy, one sale; July is skipped. It is meant to be seen at two
 // dates: in the buying phase (`buy`, October's buy not yet logged) and inside the sell window (`sell`).
 import type { CalendarDate, Coin, Entry, EntryKind, Instant, MonthKey, Plan } from '@proofofcalm/core';
+// The plan has seen Portugal's rules as the generated file holds them, whatever version a content review raised
+// them to (docs/CONTENT-OPS.md §8): no rule-change notice shows unless a test or story sets an older version.
+import portugal from '../../../../content/rules/pt.json' with { type: 'json' };
 import { EMPTY_SNAPSHOT } from '../adapters/memory-store';
 import type { Snapshot } from '../ports';
 
@@ -38,7 +41,7 @@ export function fixtureSnapshot(): Snapshot {
     id: entityId(1000),
     schemaVersion: 4,
     country: 'PT' as Plan['country'],
-    countryRuleVersion: 2,
+    countryRuleVersion: portugal.status.version,
     payCurrency: 'EUR',
     displayCurrency: 'EUR',
     coins: [BTC, ETH],
