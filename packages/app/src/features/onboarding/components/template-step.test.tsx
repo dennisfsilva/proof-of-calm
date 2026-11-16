@@ -106,17 +106,34 @@ describe('TemplateStep', () => {
 
   it('shows each template’s dated band after its line, composed in the plan’s formats and read with the card', () => {
     // A German plan in English: `−78 %` signed with U+2212 and the locale's no-break space, the serial comma of
-    // English lists, and one window that holds every fall, with dates that never break (LEGAL §4).
+    // English lists, and one window that holds every fall, from the earliest high to the latest low, with dates that
+    // never break (LEGAL §4). The figures and dates are each template's own rows, which a content review may change
+    // (docs/CONTENT-OPS.md §8); the shape of each band is written here.
     mount(null, createFormatters('de-DE', 'en-GB'));
     const NB = ' ';
     const M = '−';
-    const fall = (coin: string, value: number) => `${coin}${NB}${M}${value}${NB}%`;
-    const day = (text: string) => text.replaceAll(' ', NB);
+    const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const day = (iso: string) => {
+      const [year, month, date] = iso.split('-');
+      return [String(Number(date)), MONTHS[Number(month) - 1], year].join(NB);
+    };
+    const rows = (id: string) => offered(id).drawdowns;
+    const fall = (id: string, coin: string) =>
+      `${coin}${NB}${M}${rows(id).find((row) => row.coin === coin)?.fall}${NB}%`;
+    const window = (id: string) => {
+      const highs = rows(id)
+        .map(({ high }) => high)
+        .sort();
+      const lows = rows(id)
+        .map(({ low }) => low)
+        .sort();
+      return `between ${day(highs[0] ?? '')} and ${day(lows.at(-1) ?? '')}`;
+    };
     const bands = {
-      'btc-only-hold': `${fall('BTC', 78)}, high to low between ${day('10 Nov 2021')} and ${day('21 Nov 2022')}`,
-      'two-coins': `${fall('BTC', 78)} and ${fall('ETH', 82)}, each high to low between ${day('10 Nov 2021')} and ${day('21 Nov 2022')}`,
-      'cycle-plan': `${fall('BTC', 78)}, ${fall('ETH', 82)}, ${fall('SOL', 97)}, and ${fall('LINK', 91)}, each high to low between ${day('10 May 2021')} and ${day('10 Jun 2023')}`,
-      accumulate: `${fall('BTC', 78)}, ${fall('ETH', 82)}, and ${fall('SOL', 97)}, each high to low between ${day('6 Nov 2021')} and ${day('29 Dec 2022')}`,
+      'btc-only-hold': `${fall('btc-only-hold', 'BTC')}, high to low ${window('btc-only-hold')}`,
+      'two-coins': `${fall('two-coins', 'BTC')} and ${fall('two-coins', 'ETH')}, each high to low ${window('two-coins')}`,
+      'cycle-plan': `${['BTC', 'ETH', 'SOL'].map((coin) => fall('cycle-plan', coin)).join(', ')}, and ${fall('cycle-plan', 'LINK')}, each high to low ${window('cycle-plan')}`,
+      accumulate: `${['BTC', 'ETH'].map((coin) => fall('accumulate', coin)).join(', ')}, and ${fall('accumulate', 'SOL')}, each high to low ${window('accumulate')}`,
     };
     expect(TEMPLATES.map((template) => template.id).sort()).toEqual(Object.keys(bands).sort());
     for (const template of TEMPLATES) {
