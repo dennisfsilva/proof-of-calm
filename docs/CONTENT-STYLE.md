@@ -380,8 +380,9 @@ locale's own, so en-GB writes `1 Sept 2029` beside `31 Aug 2030`; copy quotes th
 shortened by hand.
 A template's `oneLine` and explanation write no date: each is a placeholder `{date:<field>}` that names one of the
 template's own date fields (`lastBuy`, `validUntil`, `sellWindow.opens`, `references.peakFrom`,
-`drawdowns.BTC.high`; the list is `docs/DOMAIN.md` §5), and the onboarding writes it with `format.date` in the plan's
-order, unbroken (`1 Jun 2028` in Portugal, `Jun 1, 2028` in the US; decided 2026-11-15). `pnpm validate:content`
+`drawdowns.BTC.high`; the list is `docs/DOMAIN.md` §5), and the onboarding writes it with `format.date`, unbroken.
+The UI language decides its format, as for every date in copy (ADR-0023), never the plan's country: `1 Jun 2028` in
+English for a plan in Portugal, Britain or the US alike (decided 2026-11-15, corrected 2026-11-16). `pnpm validate:content`
 refuses a placeholder that names no date of its template or is not whole (`template-date-unresolved`) and one in any
 other field (`template-date-field`). It also refuses a month name in English, Portuguese or German in any of a
 template's texts or in their translations, a short one only beside a figure (`template-date-month`).
