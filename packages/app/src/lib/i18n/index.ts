@@ -21,3 +21,4 @@ export {
 } from './namespaces';
 export { I18nProvider, type I18nProviderProps } from './provider';
 export { createMessageRegistry, type MessageRegistry, messageRegistry } from './registry';
+export { textLang } from './text-lang';

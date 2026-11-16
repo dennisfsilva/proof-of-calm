@@ -4,7 +4,14 @@
 // value of content or core: Rolldown groups modules by the set of entries that reach them, so a value import of a
 // module the app entry reaches too would split it out of the entry's shared chunk and cost Today bytes
 // (docs/ENGINEERING.md §4). `browser.ts` hands the port the real loaders, `testing.ts` the profiles in memory.
-import { type CountryProfile, countryRules, GENERIC_COUNTRY, ruleSource } from '@proofofcalm/content';
+import {
+  type ContentLanguage,
+  type CountryProfile,
+  contentLanguageOf,
+  countryRules,
+  GENERIC_COUNTRY,
+  ruleSource,
+} from '@proofofcalm/content';
 import { type CalendarDate, underReview } from '@proofofcalm/core';
 import type { Clock } from '../ports';
 
@@ -33,6 +40,8 @@ export type CountryCardModel = {
   readonly ruleSources: Readonly<Record<RuleKey, string | null>>;
   /** The profile's sources in the file's order, which also back the rules without a link. */
   readonly sources: CountryProfile['sources'];
+  /** The language of the profile's text, as its loader marked it (ADR-0057); undefined for a profile no loader returned. */
+  readonly language: ContentLanguage | undefined;
 };
 
 export type Countries = {
@@ -85,6 +94,7 @@ export function countryCardModel(profile: CountryProfile, today: CalendarDate): 
       RULES.map((rule) => [rule, generic ? null : ruleSource(profile, rule)]),
     ) as CountryCardModel['ruleSources'],
     sources: profile.sources,
+    language: contentLanguageOf(profile),
   };
 }
 
