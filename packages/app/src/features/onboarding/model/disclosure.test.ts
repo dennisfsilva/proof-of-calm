@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { RISK_WORDING_LANGUAGES, RISK_WORDING_VERSION, riskWordingLanguage } from '../../../lib/brand';
-import { UI_LANGUAGES } from '../../../lib/i18n/locale';
+import { UI_LANGUAGES, type UiLanguage } from '../../../lib/i18n/locale';
 import { NAMESPACE_LOADERS } from '../../../lib/i18n/namespaces';
 import onboarding from '../messages/en.json';
 import onboardingPt from '../messages/pt-PT.json';
@@ -20,32 +20,43 @@ const VERSION_1_PT =
   'Pode perder tudo: a bitcoin caiu mais de 75% face a um máximo 4 vezes desde 2011; o ether, 94% em 2018. ' +
   'Use apenas dinheiro de que não precise durante anos.';
 
+/**
+ * The approved texts of each wording version, by language: a version names the English text and each
+ * translation counsel approved as its equal (docs/LEGAL.md §4). A version's words never change, so an
+ * entry stays once written; a new version adds one with a text for every language it keeps.
+ */
+const APPROVED: Readonly<Record<number, Partial<Record<UiLanguage, string>>>> = {
+  1: { en: VERSION_1, 'pt-PT': VERSION_1_PT },
+};
+
 /** Words as shown, with `{product}` as the three words of the product's name. */
 const words = (text: string) => text.replace('{product}', 'Proof of Calm').split(/\s+/).filter(Boolean).length;
 
+type Onboarding = { readonly disclosure: { readonly text: string } };
+const written = import.meta.glob<Onboarding>('../messages/*.json', { eager: true, import: 'default' });
+
 describe('the plan-creation disclosure', () => {
-  it('is the text of its wording version', () => {
-    expect(RISK_WORDING_VERSION).toBe(1);
-    expect(
-      onboarding.disclosure.text,
-      'The acknowledged text changed: raise RISK_WORDING_VERSION, then record the new text here as that version.',
-    ).toBe(VERSION_1);
+  it('is, in every approved language, the approved text of its wording version', () => {
+    const approved = APPROVED[RISK_WORDING_VERSION];
+    for (const language of RISK_WORDING_LANGUAGES) {
+      expect(
+        written[`../messages/${language}.json`]?.disclosure.text,
+        `${language}: the acknowledged text must be the approved text of RISK_WORDING_VERSION. A changed text ` +
+          "needs a new RISK_WORDING_VERSION; a new wording version needs counsel's approved text for every " +
+          'language in RISK_WORDING_LANGUAGES, or the language leaves the list.',
+      ).toBe(approved?.[language]);
+      expect(approved?.[language], language).toBeDefined();
+    }
   });
 
-  it('is the approved text of its wording version in pt-PT, in 40 to 50 words', () => {
-    expect(
-      onboardingPt.disclosure.text,
-      "The pt-PT text changed: it needs counsel's approval and a new RISK_WORDING_VERSION.",
-    ).toBe(VERSION_1_PT);
-    expect(words(VERSION_1_PT)).toBeGreaterThanOrEqual(40);
-    expect(words(VERSION_1_PT)).toBeLessThanOrEqual(50);
+  it('is in 40 to 50 words in pt-PT', () => {
+    expect(words(onboardingPt.disclosure.text)).toBeGreaterThanOrEqual(40);
+    expect(words(onboardingPt.disclosure.text)).toBeLessThanOrEqual(50);
   });
 });
 
 // A plan records the language of the text acknowledged (docs/DOMAIN.md §2.1): a language counsel approved
 // has its own hand-written text; every other one shows the English text, and records en.
-type Onboarding = { readonly disclosure: { readonly text: string } };
-const written = import.meta.glob<Onboarding>('../messages/*.json', { eager: true, import: 'default' });
 const merged = import.meta.glob<Onboarding>('../../../messages/*/onboarding.json', { eager: true, import: 'default' });
 const tag = (path: string) => /([^/]+)(?:\/onboarding)?\.json$/.exec(path)?.[1] ?? '';
 
