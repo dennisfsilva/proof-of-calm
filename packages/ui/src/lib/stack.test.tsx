@@ -15,7 +15,7 @@ let stackedWhenMeasured: boolean[] = [];
 
 type Observed = { target: Node; options?: MutationObserverInit };
 const resizes: { callback: () => void; targets: Element[]; connected: boolean }[] = [];
-const mutations: { callback: () => void; observed: Observed[]; connected: boolean }[] = [];
+const mutations: { callback: (records: MutationRecord[]) => void; observed: Observed[]; connected: boolean }[] = [];
 
 class StubResizeObserver {
   readonly #entry: (typeof resizes)[number];
@@ -33,7 +33,7 @@ class StubResizeObserver {
 
 class StubMutationObserver {
   readonly #entry: (typeof mutations)[number];
-  constructor(callback: () => void) {
+  constructor(callback: (records: MutationRecord[]) => void) {
     this.#entry = { callback, observed: [], connected: true };
     mutations.push(this.#entry);
   }
@@ -119,7 +119,8 @@ function resize(next: Partial<typeof widths>) {
 function mutate(next: Partial<typeof widths>) {
   widths = { ...widths, ...next };
   act(() => {
-    for (const observer of mutations) if (observer.connected) observer.callback();
+    const record = { type: 'childList', target: table(), attributeName: null } as MutationRecord;
+    for (const observer of mutations) if (observer.connected) observer.callback([record]);
   });
 }
 
