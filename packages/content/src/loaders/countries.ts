@@ -33,7 +33,13 @@ const FILES: Readonly<Record<ProfileCode, () => Promise<{ readonly default: unkn
 // its English text there. A test holds this record to the files.
 export const PROFILE_OVERLAYS: Readonly<
   Record<OverlayLanguage, Partial<Record<ProfileCode, () => Promise<{ readonly default: unknown }>>>>
-> = { 'pt-PT': {}, de: {} };
+> = {
+  'pt-PT': {
+    PT: () => import('../../i18n/pt-PT/jurisdictions/pt.json'),
+    XX: () => import('../../i18n/pt-PT/jurisdictions/xx.json'),
+  },
+  de: {},
+};
 
 const isProfileCode = (code: string): code is ProfileCode => Object.hasOwn(FILES, code);
 

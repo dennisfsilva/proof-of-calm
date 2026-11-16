@@ -1,0 +1,27 @@
+{
+  "name": "Outro país",
+  "filingNote": "Não revisto para o seu país: o ano civil faz as vezes do ano fiscal, e as datas de entrega da declaração ficam para um contabilista local confirmar.",
+  "lotRuleNote": "Não revisto para o seu país. A aplicação associa cada venda às compras mais antigas da mesma moeda (primeiro a entrar, primeiro a sair).",
+  "card": {
+    "classification": "Não revisto: o Proof of Calm não tem um conjunto de regras revisto para o seu país.",
+    "taxableEvents": [
+      { "note": "Cada venda pode ser um facto tributável." },
+      { "note": "Uma troca pode contar como uma venda." },
+      { "note": "Um pagamento com criptoativos pode contar como uma venda." }
+    ],
+    "rates": [{ "label": "Taxa sobre as mais-valias", "value": "Não revisto para o seu país" }],
+    "allowances": ["Não revisto para o seu país."],
+    "holdingRuleText": "Não se aplica nenhuma exclusão por período de detenção: cada venda pode ser um facto tributável.",
+    "lotRuleText": "Não revisto para o seu país.",
+    "losses": "Não revisto para o seu país.",
+    "reporting": [
+      "Não revisto para o seu país.",
+      "Na UE, os prestadores de serviços de criptoativos comunicam as operações dos utilizadores às autoridades tributárias desde o ano civil de 2026 (DAC8). A primeira troca entre Estados-Membros é até 30 de setembro de 2027."
+    ],
+    "caveats": [
+      "Se o seu país tributa cada venda, troca ou pagamento, e a que taxa.",
+      "Se o seu país exclui de tributação os criptoativos detidos durante um período."
+    ],
+    "summary60": "O Proof of Calm não tem um conjunto de regras revisto para o seu país. Cada venda pode ser um facto tributável: confirme com um contabilista local. Pode continuar a usar o plano, o registo e o portefólio."
+  }
+}
