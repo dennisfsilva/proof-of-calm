@@ -1,8 +1,11 @@
 // Test-only: a decoy repository whose GIT_DIR and GIT_INDEX_FILE a suite that runs the real git puts into
-// process.env for its run, as a git hook would (./git-env.ts). A git that ignores GIT_FREE_ENV or its cwd
-// reads or writes the decoy instead of the repository it meant; the suite's last hook fails when the decoy
-// gained a ref or an index entry. Each test file runs in its own worker (vitest's isolation), and the hook
-// restores the two variables, so the setting stays inside the file that asks for it.
+// process.env for its run, as a git hook would (./git-env.ts). It catches a git that inherits GIT_DIR or
+// GIT_INDEX_FILE (a run whose GIT_FREE_ENV was reverted): that git reads or writes the decoy instead of the
+// repository it meant, and the suite's last hook fails when the decoy gained a ref or an index entry. It does
+// not catch a git run without its cwd (a cwd reverted): on GIT_FREE_ENV that git runs in the test process's
+// folder, inside this same repository, and never reaches the decoy. Each test file runs in its own worker
+// (vitest's isolation), and the hook restores the two variables, so the setting stays inside the file that
+// asks for it.
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -43,7 +46,8 @@ export function useGitDecoy(): void {
   afterAll(() => {
     decoy.restore();
     try {
-      expect(decoy.left(), 'a git in this file ignored GIT_FREE_ENV or its cwd').toEqual({ refs: '', index: '' });
+      const message = 'a git in this file inherited GIT_DIR or GIT_INDEX_FILE, not GIT_FREE_ENV';
+      expect(decoy.left(), message).toEqual({ refs: '', index: '' });
     } finally {
       decoy.remove();
     }
