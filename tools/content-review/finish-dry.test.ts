@@ -7,7 +7,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, it } from 'vitest';
+import { useGitDecoy } from '../git-decoy.ts';
 import { GIT_FREE_ENV } from '../git-env.ts';
+
+useGitDecoy();
 
 const SCRIPT = fileURLToPath(new URL('./propose.ts', import.meta.url));
 const TEMPLATE = '.github/PULL_REQUEST_TEMPLATE/content-review.md';

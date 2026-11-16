@@ -14,9 +14,12 @@ import { tmpdir } from 'node:os';
 import { delimiter, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { useGitDecoy } from '../git-decoy.ts';
 import { GIT_FREE_ENV } from '../git-env.ts';
 import { finishProblems, parseRaw, prArgs } from './propose.ts';
 import { reviewNames } from './resume.ts';
+
+useGitDecoy();
 
 const FACTS = 'packages/content/facts/education.json';
 const CYCLES = 'packages/content/cycles/drawdowns.json';

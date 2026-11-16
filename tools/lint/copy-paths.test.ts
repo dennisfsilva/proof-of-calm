@@ -10,7 +10,10 @@
 import { readFileSync } from 'node:fs';
 import { posix } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { useGitDecoy } from '../git-decoy.ts';
 import { copyPathScan, isScanned, trackedFiles } from './copy-paths-scan.ts';
+
+useGitDecoy();
 
 const crew = JSON.parse(readFileSync(new URL('../../.claude/crew.json', import.meta.url), 'utf8')) as {
   roles?: { copyPaths?: string[] };

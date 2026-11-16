@@ -10,8 +10,11 @@ import { createRequire } from 'node:module';
 import { join, posix, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { useGitDecoy } from '../git-decoy.ts';
 import { GIT_FREE_ENV } from '../git-env.ts';
 import { copyPathScan, isScanned, trackedFiles } from '../lint/copy-paths-scan.ts';
+
+useGitDecoy();
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const turbo = fileURLToPath(new URL('../../node_modules/turbo/bin/turbo', import.meta.url));
