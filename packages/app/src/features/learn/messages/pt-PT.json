@@ -7,7 +7,7 @@
     "back": "Voltar a Aprender",
     "lastReviewed": "Revisto a {date}{state, select, overdue { · <ink>revisão em atraso</ink>} next { · <keep>Próxima revisão prevista para {due}</keep>} other {}}",
     "taxOverdue": "As regras podem ter mudado desde {date}. Confirme junto da autoridade tributária antes de entregar a declaração.",
-    "taxSiteLead": "As secções antes de «Com que rapidez mudam as regras» descrevem o que a aplicação mostra depois de definido um plano. A lista no fim tem uma ligação para a página de cada país.",
+    "taxSiteLead": "As secções antes de «How fast rules change» descrevem o que a aplicação mostra depois de definido um plano. A lista no fim tem uma ligação para a página de cada país.",
     "pastPerformance": "Os resultados registados no passado não constituem um indicador fiável dos resultados futuros.",
     "riskLink": "Aviso sobre riscos",
     "fallUnderWay": "Está em curso uma queda das moedas que detém. <page>Ver os valores</page>"
@@ -18,7 +18,7 @@
     "line": "Regras fiscais e de detenção por país, com as fontes e a data da última revisão de cada uma.",
     "back": "Voltar aos países",
     "headTitle": "Tributação dos criptoativos por país",
-    "countryHeadTitle": "Tributação dos criptoativos {code, select, GB {no } NL {nos } US {nos } other {em }}{country}",
+    "countryHeadTitle": "Tributação dos criptoativos {code, select, DE {na } IE {na } GB {no } NL {nos } US {nos } other {em }}{country}",
     "lastReviewed": "Revisto a {date}",
     "notReviewedSince": "Sem revisão desde {date}",
     "holdingTool": "Mostrar a data em que uma compra cumpre esta regra de detenção"
@@ -55,7 +55,7 @@
     "noFalls": "A {product} não tem nenhuma queda anterior datada de {coin}.",
     "fallsFailed": "Não foi possível carregar as quedas anteriores. Volte a abrir esta página para tentar de novo.",
     "nextBuy": "O próximo dia de compra é a {date}. Hoje não é dia de compra, a menos que o tenha decidido antes.",
-    "buyDayToday": "Hoje, {date}, é dia de compra.",
+    "buyDayToday": "Hoje, {date}, é o dia de compra do plano.",
     "note": "A nota que escreveu para si",
     "noteLine": "{date}: «{why}»"
   },
@@ -77,7 +77,7 @@
     },
     "taxable": {
       "yes": "Tributado",
-      "no": "Não tributado no momento",
+      "no": "Não tributado no momento da operação",
       "depends": "Tributado em alguns casos"
     },
     "rates": "Taxas",
