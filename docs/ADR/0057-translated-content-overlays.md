@@ -120,3 +120,14 @@ generated rules files of each language.
   the number check cannot see one dropped or added: a translated string carries the same multiset of
   placeholders as English, in any order. Two placeholders swapped between their nouns pass, as two
   numbers do, and counsel's read holds the rest. Found by the review of the template dates (#19's D7).
+- **2026-11-16.** "The loaders in a language" has landed for the profiles and the rules:
+  `loadProfile`, `loadProfiles` and `loadRules` take the language, `PROFILE_OVERLAYS` holds one
+  import per overlay file (none yet), `pnpm --filter @proofofcalm/content rules` writes
+  `packages/content/rules/pt-PT/`, and the stale test covers each language folder; the markers above
+  stay because the decision text is fixed. `loadTemplates` and `loadFacts` still read English only
+  (#270). The app's services pass the boot language, and a language change reboots (ADR-0045 §8).
+  A translated chunk sits under `assets/messages/<locale>/`, outside the worker's precache (ADR-0045's
+  Deviations of 2026-11-16), so offline a chunk never fetched fails to load: the loader then answers
+  the English profile or rules file, as a missing translation does, and keeps no failed profile, so
+  the next load tries the chunk again. Every number already came from English, so a fallback changes
+  only the words; the holding rule, its dates and the formatting locale are the same.
