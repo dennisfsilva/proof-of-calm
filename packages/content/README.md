@@ -27,14 +27,14 @@ of it. Specifications: `docs/JURISDICTIONS.md`, `docs/EDUCATION.md`, `docs/CONTE
 | `style/banned.json` | the banned-words lint | `docs/CONTENT-STYLE.md` §2, `docs/LEGAL.md` §6 |
 | `sources.allow.json` | the domains a primary source may come from | `docs/CONTENT-OPS.md` §5 |
 | `learn/*.mdx` | the Learn modules: flat front matter and a closed body | `docs/EDUCATION.md`, `docs/CONTENT-STYLE.md` §5, ADR-0048 |
-| `i18n/pt-PT/` | the European Portuguese translations, sparse: prose only, at the English paths, under the English file name in `jurisdictions/`, `templates/` or `facts/` (none yet; validated; a profile's translation loads once `PROFILE_OVERLAYS` lists it, the templates' and facts' not yet) | ADR-0057 |
+| `i18n/pt-PT/` | the European Portuguese translations, sparse: prose only, at the English paths, under the English file name in `jurisdictions/`, `templates/` or `facts/` (the four templates so far, `i18n/pt-PT/README.md`; validated; a profile's translation loads once `PROFILE_OVERLAYS` lists it, a template's once `TEMPLATE_OVERLAYS` does, the facts' not yet) | ADR-0057 |
 
 `pnpm validate:content` (`scripts/validate.ts` over `src/validate.ts`) checks every file against its
 schema and the rules of `docs/JURISDICTIONS.md` §2: owner review, review dates, sources on the
 allow-list, the 60-word card, and the banned words in everything the app shows (the card, the
 taxable-event notes, the rates, the holding-rule override notes, the pending changes; source titles
 are quoted as published), each literal percentage with the number locale's joiner (`percent-joiner`)
-and each locale tag well formed (`locale-tag`), as `docs/JURISDICTIONS.md` §2 says. It refuses an ordinary
+and its decimal separator (`decimal-separator`, D8, #292; `docs/CONTENT-STYLE.md` §4), and each locale tag well formed (`locale-tag`), as `docs/JURISDICTIONS.md` §2 says. It refuses an ordinary
 hyphen between a numeral and its unit in text a screen shows (`number-unit-hyphen`; which text:
 `docs/CONTENT-STYLE.md` §4). Templates must split exactly 100 over their own coins, each coin as the
 catalogue lists it, and keep each paragraph of the explanation (paragraphs separated by a blank line)
@@ -58,7 +58,8 @@ A translation under `i18n/`, every `.json` file at any depth (`scripts/overlay-p
 against its English file (`src/i18n/overlay-validate.ts`, ADR-0057): the `overlay-*` problems for its
 shape, its numbers and its date placeholders (`overlay-date-mismatch`: each text names the
 English text's `{date:<field>}` placeholders, each as often, in any order; a swap of two stays with
-the copy review, as a swap of two numbers does), then the schema and the English field's checks on
+the copy review, as a swap of two numbers does), and in a template its `N %` tokens
+(`overlay-percent-mismatch`, templates only, #295; ADR-0057, Corrections of 2026-11-16), then the schema and the English field's checks on
 each text it changes.
 
 ## Loaders (the public index)
@@ -78,6 +79,8 @@ each text it changes.
 | `suggestionProfiles(profiles)` | what `suggestCountry` reads, without `XX` | the onboarding's suggestion |
 | `countryChoices(profiles, suggestion)` | the picker's order | the onboarding, Settings |
 | `TEMPLATES`, `templateById(id)` | `OfferedTemplate`: the core's `Template` with its `drawdowns` and its `dates`, each date field by its `{date:<field>}` path | `planFromTemplate`, `followsTemplate`, the card's dated band, the template step's texts |
+| `loadTemplateTexts(language)`, `TemplateTexts` | every template's `name`, `oneLine`, `riskLabel` and `explanation` in `language` (default `'en'`) by template id, in `TEMPLATES`' order: the English texts with the template's translation from `TEMPLATE_OVERLAYS` applied, kept once loaded; the English texts, not kept, for a template without a translation or when its import fails or resolves to undefined (ADR-0057, Corrections of 2026-11-16) | the template step and the onboarding summary in the UI language |
+| `TEMPLATE_OVERLAYS` | one lazy import per translated template file by overlay language and template id (the four pt-PT templates today) | `loadTemplateTexts`; the test that holds it to the files under `i18n/<language>/templates/` |
 | `fillTemplateDates(text, dates, formatDate)`, `templateDatePaths(template)` | the text with each `{date:<field>}` placeholder written by `formatDate`; every date field of a content template by its path | the template step (`packages/app/src/features/onboarding/components/template-step.tsx`), which writes each date with `format.date`; the loader, which builds `dates` |
 | `COINS` | the core's `Coin` | the coin picker, `/api/prices` |
 
