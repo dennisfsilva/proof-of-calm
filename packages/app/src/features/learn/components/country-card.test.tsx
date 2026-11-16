@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { type CountryProfile, ruleSource } from '@proofofcalm/content';
+import { type CountryProfile, loadProfile, ruleSource } from '@proofofcalm/content';
 import { act, cleanup, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { I18nProvider } from '../../../lib/i18n';
@@ -7,7 +7,9 @@ import { countryCardModel, ServicesProvider } from '../../../lib/services';
 import { createTestServices } from '../../../lib/services/testing';
 import learn from '../../../messages/en/learn.json';
 import shell from '../../../messages/en/shell.json';
-import { GENERIC, PORTUGAL, SHAPES } from '../fixtures/profiles';
+import learnPt from '../../../messages/pt-PT/learn.json';
+import shellPt from '../../../messages/pt-PT/shell.json';
+import { GENERIC, GERMANY, PORTUGAL, SHAPES } from '../fixtures/profiles';
 import { CountryCard } from './country-card';
 
 // The country card (docs/JURISDICTIONS.md §1 and §2, docs/EDUCATION.md §4). Its structure and the links are
@@ -167,5 +169,48 @@ describe('CountryCard', () => {
     expect(title?.id).toBe('country-pt');
     expect(title?.getAttribute('tabindex')).toBe('-1');
     expect(new Set(sections.map((heading) => heading.tagName))).toEqual(new Set(['H3']));
+  });
+});
+
+describe('CountryCard in pt-PT (WCAG 2.2 SC 3.1.2, ADR-0057)', () => {
+  const IN_ENGLISH = learnPt.card.inEnglish;
+  const mountPt = async (profile: CountryProfile) => {
+    const services = createTestServices({ language: 'pt-PT' });
+    await services.start();
+    const view = render(
+      <ServicesProvider services={services}>
+        <I18nProvider locale="pt-PT" messages={{ learn: learnPt, shell: shellPt }}>
+          <CountryCard country={countryCardModel(profile, services.clock.today())} level={1} />
+        </I18nProvider>
+      </ServicesProvider>,
+    );
+    await act(() => Promise.resolve());
+    return view.container.querySelector('article') as HTMLElement;
+  };
+
+  it("marks an English profile's text lang=en and says so in Portuguese, under the title", async () => {
+    const card = await mountPt(GERMANY);
+    expect(within(card).getByRole('heading', { level: 1 }).getAttribute('lang')).toBe('en');
+    expect(screen.getByText(GERMANY.card.summary60).getAttribute('lang')).toBe('en');
+    expect(screen.getByText(GERMANY.card.holdingRuleText).getAttribute('lang')).toBe('en');
+    expect(screen.getByText(GERMANY.card.lotRuleText).getAttribute('lang')).toBe('en');
+    const line = screen.getByText(IN_ENGLISH);
+    expect(card.children[1]).toBe(line);
+    expect(line.closest('[lang]')).toBeNull();
+    expect(screen.getByRole('heading', { name: learnPt.card.holdingRule }).closest('[lang]')).toBeNull();
+  });
+
+  it("gives a translated profile's text no lang and no line", async () => {
+    const portugal = await loadProfile('PT', 'pt-PT');
+    if (portugal === null) throw new Error('no profile PT');
+    const card = await mountPt(portugal);
+    expect(card.querySelector('[lang]')).toBeNull();
+    expect(screen.queryByText(IN_ENGLISH)).toBeNull();
+  });
+
+  it('gives a copy no loader returned the page language: no lang, no line', async () => {
+    const card = await mountPt(SHAPES.none);
+    expect(card.querySelector('[lang]')).toBeNull();
+    expect(screen.queryByText(IN_ENGLISH)).toBeNull();
   });
 });

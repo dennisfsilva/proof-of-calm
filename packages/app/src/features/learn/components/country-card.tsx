@@ -2,8 +2,9 @@
 
 import type { CalendarDate } from '@proofofcalm/core';
 import type { ReactNode } from 'react';
-import { useTranslations } from 'use-intl';
+import { useLocale, useTranslations } from 'use-intl';
 import type { Formatters } from '../../../lib/format';
+import { textLang } from '../../../lib/i18n/text-lang';
 import { type CountryCardModel, useFormatters } from '../../../lib/services';
 import { CountryDateLine } from './country-date-line';
 
@@ -19,7 +20,9 @@ import { CountryDateLine } from './country-date-line';
 // calendar dates. The card renders the model the countries port derives from the profile at today
 // (`lib/services/countries.ts`), so this lazy chunk imports no value of packages/content or packages/core.
 // `CountryCardView` is the card with the formatters passed in, which the static country pages render too
-// (`../site/countries.tsx`); `CountryCard` gives it the app's.
+// (`../site/countries.tsx`); `CountryCard` gives it the app's. A profile whose text is in another language than the
+// screen's (no translation yet, or its chunk failed offline; ADR-0057) marks that text with `lang` and says so in one
+// line under the title, in the screen's language; the static pages are English, so they never show it.
 
 type RuleKey = keyof CountryCardModel['ruleSources'];
 
@@ -38,6 +41,8 @@ export function CountryCard(props: CountryCardProps) {
 export function CountryCardView({ country, level, id, f }: CountryCardProps & { readonly f: Formatters }) {
   const t = useTranslations('learn.card');
   const { card, generic, underReview: stale } = country;
+  // The profile's text in a language other than the screen's carries its own (WCAG 2.2 SC 3.1.2, ADR-0057).
+  const lang = textLang(country.language, useLocale());
   const Title = level === 1 ? 'h1' : 'h2';
   const Section = level === 1 ? 'h2' : 'h3';
   const date = (value: string) => f.date(value as CalendarDate);
@@ -69,13 +74,19 @@ export function CountryCardView({ country, level, id, f }: CountryCardProps & { 
   );
 
   const list = (items: readonly string[]) => (
-    <ul className="flex list-disc flex-col gap-stack-xs ps-inset-lg">
+    <ul lang={lang} className="flex list-disc flex-col gap-stack-xs ps-inset-lg">
       {items.map((item) => (
         <li key={item} className="text-16">
           {item}
         </li>
       ))}
     </ul>
+  );
+
+  const text = (value: string) => (
+    <p lang={lang} className="text-16">
+      {value}
+    </p>
   );
 
   const line = (
@@ -91,15 +102,16 @@ export function CountryCardView({ country, level, id, f }: CountryCardProps & { 
 
   return (
     <article className="flex flex-col gap-stack-md">
-      <Title id={id} tabIndex={-1} className={level === 1 ? 'text-28' : 'text-20'}>
+      <Title id={id} tabIndex={-1} lang={lang} className={level === 1 ? 'text-28' : 'text-20'}>
         {country.name}
       </Title>
       {stale ? (
         line
       ) : (
         <>
-          <p className="text-16">{card.summary60}</p>
-          {section(t('classification'), <p className="text-16">{card.classification}</p>)}
+          {lang !== undefined && <p className="text-13 text-ink-2">{t('inEnglish')}</p>}
+          {text(card.summary60)}
+          {section(t('classification'), text(card.classification))}
           {section(
             t('events'),
             <ul className="flex flex-col gap-stack-sm">
@@ -108,7 +120,9 @@ export function CountryCardView({ country, level, id, f }: CountryCardProps & { 
                   <span className="text-16">
                     {t('eventLine', { event: t(`event.${event.event}`), taxable: t(`taxable.${event.taxable}`) })}
                   </span>
-                  <span className="text-14 text-ink-2">{event.note}</span>
+                  <span lang={lang} className="text-14 text-ink-2">
+                    {event.note}
+                  </span>
                 </li>
               ))}
             </ul>,
@@ -118,13 +132,19 @@ export function CountryCardView({ country, level, id, f }: CountryCardProps & { 
             <ul className="flex flex-col gap-stack-sm">
               {card.rates.map((rate) => (
                 <li key={`${rate.label} ${rate.validFrom}`} className="flex flex-col">
-                  <span className="text-16">{t('rateLine', { label: rate.label, value: rate.value })}</span>
+                  <span lang={lang} className="text-16">
+                    {t('rateLine', { label: rate.label, value: rate.value })}
+                  </span>
                   <span className="text-13 text-ink-2">
                     {rate.validTo === null
                       ? t('validFrom', { date: date(rate.validFrom) })
                       : t('validRange', { from: date(rate.validFrom), to: date(rate.validTo) })}
                   </span>
-                  {rate.note !== undefined && <span className="text-14 text-ink-2">{rate.note}</span>}
+                  {rate.note !== undefined && (
+                    <span lang={lang} className="text-14 text-ink-2">
+                      {rate.note}
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>,
@@ -134,13 +154,13 @@ export function CountryCardView({ country, level, id, f }: CountryCardProps & { 
           {section(
             t('holdingRule'),
             <>
-              <p className="text-16">{card.holdingRuleText}</p>
+              {text(card.holdingRuleText)}
               {country.holdingRuleConditions.length > 0 && list(country.holdingRuleConditions)}
             </>,
             'holdingRule',
           )}
-          {section(t('lotRule'), <p className="text-16">{card.lotRuleText}</p>, 'lotRule')}
-          {section(t('losses'), <p className="text-16">{card.losses}</p>, 'losses')}
+          {section(t('lotRule'), text(card.lotRuleText), 'lotRule')}
+          {section(t('losses'), text(card.losses), 'losses')}
           {section(t('reporting'), list(card.reporting), 'reporting')}
           {section(t('caveats'), list(card.caveats))}
           {line}
