@@ -214,4 +214,12 @@ describe('overlayProblems', () => {
     expect(numbersIn('365 28%', 'en')).toEqual(['28', '365']);
     expect(numbersIn('6.00 and 06', 'en')).toEqual(['6', '6']);
   });
+
+  it('reads a cited point in a comma-decimal translation as English does, a group of three as a group', () => {
+    // CONTENT-STYLE §4: a figure that is not a percentage keeps its point, as a law citation does.
+    expect(same('Anexo J Quadro 9.4 and art. 33.1', 'Anexo J, Quadro 9.4, e art. 33.1')).toBe(true);
+    expect(numbersIn('Quadro 9.4', 'pt-PT')).toEqual(['9.4']);
+    expect(numbersIn('1.000 e 9.40', 'pt-PT')).toEqual(['1000', '9.4']);
+    expect(numbersIn('3,14 and 9.4', 'en')).toEqual(['14', '3', '9.4']);
+  });
 });
