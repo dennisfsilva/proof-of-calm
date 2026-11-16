@@ -51,6 +51,17 @@ export const PreviousBuildPlanSchema = z.strictObject({
 });
 
 /**
+ * Main's plan fields at 73d5deec, frozen: the v3 plan exactly, the v2 fields with the acknowledgement and no
+ * recorded language. A rollback test parses the v3 payload this build writes with it, key for key.
+ */
+export const MainPlanV3Schema = z.strictObject({
+  ...PreviousBuildPlanSchema.shape,
+  schemaVersion: z.literal(3),
+  riskAcknowledgedAt: z.nullable(InstantSchema),
+  riskWordingVersion: z.int().check(z.minimum(0)),
+});
+
+/**
  * The version gate of the previous build's `readBackup`, frozen: that build wrote and read backups up to version 4
  * (the `held` kind) and answered `newer-version` above it before it read anything else.
  */

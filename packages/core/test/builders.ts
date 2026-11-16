@@ -29,10 +29,21 @@ export function split(shares: Record<string, string>): Split {
   return Object.fromEntries(Object.entries(shares).map(([coin, share]) => [coin, percent(share)])) as Split;
 }
 
+/**
+ * A plan with nothing recorded by default. An override that records an acknowledgement and names no language
+ * gets `en`, the language of every acknowledgement main recorded (docs/DOMAIN.md §2.1).
+ */
 export function aPlan(overrides: Partial<Plan> = {}): Plan {
+  const plan = basePlan(overrides);
+  if (Object.hasOwn(overrides, 'riskLanguage')) return plan;
+  const recorded = plan.riskAcknowledgedAt !== null || plan.riskWordingVersion !== 0;
+  return { ...plan, riskLanguage: recorded ? 'en' : null };
+}
+
+function basePlan(overrides: Partial<Plan>): Plan {
   return {
     id: id(),
-    schemaVersion: 3,
+    schemaVersion: 4,
     country: 'PT',
     countryRuleVersion: 1,
     payCurrency: 'EUR',
@@ -56,18 +67,25 @@ export function aPlan(overrides: Partial<Plan> = {}): Plan {
     templateId: null,
     riskAcknowledgedAt: null,
     riskWordingVersion: 0,
+    riskLanguage: null,
     createdAt: instant('2026-01-01T09:00:00+00:00'),
     updatedAt: instant('2026-01-01T09:00:00+00:00'),
     ...overrides,
   };
 }
 
-export { PreviousBuildPlanSchema, previousBuildBackupGate } from './previous-build';
+export { MainPlanV3Schema, PreviousBuildPlanSchema, previousBuildBackupGate } from './previous-build';
 
-/** The plan as the previous build stored and exported it: schema version 2, with no acknowledgement fields. */
+/** The plan as the build before the acknowledgement stored and exported it: schema version 2, with no acknowledgement fields. */
 export function asV2Plan(plan: Plan): Record<string, unknown> {
-  const { riskAcknowledgedAt: _at, riskWordingVersion: _version, ...rest } = plan;
+  const { riskAcknowledgedAt: _at, riskWordingVersion: _version, riskLanguage: _language, ...rest } = plan;
   return { ...rest, schemaVersion: 2 };
+}
+
+/** The plan as main at 73d5deec stored and exported it: schema version 3, with no recorded language. */
+export function asV3Plan(plan: Plan): Record<string, unknown> {
+  const { riskLanguage: _language, ...rest } = plan;
+  return { ...rest, schemaVersion: 3 };
 }
 
 export function anEntry(overrides: Partial<Entry> = {}): Entry {
