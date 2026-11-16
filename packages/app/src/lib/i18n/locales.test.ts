@@ -1,6 +1,8 @@
 import compile from 'icu-minify/compile';
 import { describe, expect, it } from 'vitest';
+import { RISK_WORDING_LANGUAGES } from '../brand';
 import { VISIBLE_LANGUAGES } from './language';
+import type { UiLanguage } from './locale';
 
 // The translations beside English (ADR-0045 §8, the entry of 2026-11-15): `<folder>/messages/<locale>.json`,
 // completed from English by the merge. A translated key exists in English with the same ICU arguments,
@@ -142,5 +144,35 @@ describe('the translations in the repository', () => {
         folders.filter((folder) => !byFolder.has(`${folder}/${locale}`)),
         locale,
       ).toEqual([]);
+  });
+});
+
+// Onboarding and Portfolio are whole in pt-PT, but for the acknowledged disclosure: a language shows its own
+// text only once counsel approved it as the English text's equal (RISK_WORDING_LANGUAGES, docs/LEGAL.md §4).
+describe('the pt-PT onboarding and portfolio', () => {
+  const owesEnglish = (folder: string, locale: UiLanguage) =>
+    folder === 'onboarding' && !RISK_WORDING_LANGUAGES.includes(locale) ? ['disclosure.text: not translated'] : [];
+
+  it.each(['onboarding', 'portfolio'])('%s is whole in pt-PT', (folder) => {
+    const translated = byFolder.get(`${folder}/pt-PT`)?.tree;
+    expect(translated, `${folder} has no pt-PT file`).toBeDefined();
+    expect(problems(byFolder.get(`${folder}/en`)?.tree ?? {}, translated ?? {}, true)).toEqual(
+      owesEnglish(folder, 'pt-PT'),
+    );
+  });
+});
+
+// A count is a figure in the country's number format: a plural picks its form from the count and writes the
+// formatted figure, never ICU's `#`, which follows the language (docs/CONTENT-STYLE.md §4).
+describe('a translated plural', () => {
+  it("writes no ICU '#'", () => {
+    const plural = (message: string) => shape(message).some((part) => /^arg:[^:]+:2$/.test(part));
+    expect(plural('{n, plural, one {{figure} dia} other {{figure} dias}}')).toBe(true);
+    const found = translations.flatMap(({ folder, locale, tree }) =>
+      leaves(tree)
+        .filter(([, message]) => plural(message) && message.includes('#'))
+        .map(([key]) => `${folder}/${locale} ${key}`),
+    );
+    expect(found).toEqual([]);
   });
 });
