@@ -1,5 +1,8 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import allowList from '../../sources.allow.json' with { type: 'json' };
 import banned from '../../style/banned.json' with { type: 'json' };
+import { validateContent } from '../validate.ts';
 import { findBanned } from './banned.ts';
 
 const rules = (text: string) => findBanned(text).map((finding) => `${finding.rule}: ${finding.match}`);
@@ -113,6 +116,59 @@ describe('findBanned (docs/CONTENT-STYLE.md §2, docs/LEGAL.md §6)', () => {
       'imperative: Hold ETH until 2029',
     ]);
     expect(rules('Kaufen Sie Ethereum.')).toEqual(['imperative: Kaufen Sie Ethereum']);
+  });
+});
+
+// A template's date placeholder holds a dotted path ({date:sellWindow.opens}), and the person reads a date there, so
+// the lint reads each placeholder as one word: its dots end no sentence, and the coin in its path names no asset.
+describe('findBanned reads a placeholder as one word (docs/CONTENT-STYLE.md §2)', () => {
+  it('refuses an imperative before a dotted placeholder and an asset after it, as with the date written out', () => {
+    expect(rules('Hold until 1 June 2029 your Bitcoin.')).toEqual(['imperative: Hold until 1 June 2029 your Bitcoin']);
+    expect(rules('Hold until {date:sellWindow.opens} your Bitcoin.')).toEqual([
+      'imperative: Hold until {date:sellWindow.opens} your Bitcoin',
+    ]);
+    expect(rules('Mantenha até 1 de junho de 2029 as suas bitcoins.')).toEqual([
+      'imperative: Mantenha até 1 de junho de 2029 as suas bitcoins',
+    ]);
+    expect(rules('Mantenha até {date:sellWindow.opens} as suas bitcoins.')).toEqual([
+      'imperative: Mantenha até {date:sellWindow.opens} as suas bitcoins',
+    ]);
+    expect(rules('Sell before {date:drawdowns.BTC.high} all of it, it is Bitcoin.')).toEqual([
+      'imperative: Sell before {date:drawdowns.BTC.high} all of it, it is Bitcoin',
+    ]);
+    expect(rules('Buy {coin} on {date}, Bitcoin first.')).toEqual(['imperative: Buy {coin} on {date}, Bitcoin first']);
+  });
+
+  it('ends a sentence at a dot after a placeholder, and keeps two sentences apart across one', () => {
+    expect(rules('Hold until {date:sellWindow.opens}. Bitcoin fell 78 % from its high.')).toEqual([]);
+    expect(rules('Hold until the window opens. From {date:sellWindow.opens}, Bitcoin is sold in thirds.')).toEqual([]);
+    expect(rules('Hold until {date:sellWindow.opens}. Then sell your Bitcoin.')).toEqual([]);
+    expect(rules('Bitcoin peaked on {date:references.peakFrom}. Sell ETH.')).toEqual(['imperative: Sell ETH']);
+  });
+
+  it('reads no asset in a placeholder’s path, since the person reads a date there', () => {
+    expect(rules('Hold until {date:drawdowns.BTC.high}.')).toEqual([]);
+    expect(rules('Mantenha até {date:drawdowns.SOL.low}.')).toEqual([]);
+  });
+
+  it('refuses the sentence in a template’s text through the validator, its placeholder as written', () => {
+    const json = JSON.parse(readFileSync(new URL('../../templates/cycle-plan.json', import.meta.url), 'utf8'));
+    const path = 'packages/content/templates/cycle-plan.json';
+    const { $comment: _, ...allow } = allowList;
+    const bannedCodes = (sentence: string) =>
+      validateContent([{ path, json: { ...json, explanation: `${json.explanation}${sentence}` } }], {
+        today: '2026-10-17',
+        allow,
+      })
+        .filter((problem) => problem.code.startsWith('banned-'))
+        .map((problem) => `${problem.code}: ${problem.detail}`);
+    expect(bannedCodes('')).toEqual([]);
+    expect(bannedCodes(' Hold until {date:lastBuy} your Bitcoin.')).toEqual([
+      'banned-imperative: explanation: "Hold until {date:lastBuy} your Bitcoin" is on the ban list; reword it (docs/CONTENT-STYLE.md §2)',
+    ]);
+    expect(bannedCodes(' Hold until {date:sellWindow.opens} your Bitcoin.')).toEqual([
+      'banned-imperative: explanation: "Hold until {date:sellWindow.opens} your Bitcoin" is on the ban list; reword it (docs/CONTENT-STYLE.md §2)',
+    ]);
   });
 });
 
