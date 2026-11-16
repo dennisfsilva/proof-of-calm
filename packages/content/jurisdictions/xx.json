@@ -15,7 +15,7 @@
   "holdingRuleConditions": [],
   "lotRule": "unspecified",
   "lotScope": "global",
-  "lotRuleNote": "Not reviewed for your country; the app matches sales to purchases first in, first out per coin.",
+  "lotRuleNote": "Not reviewed for your country. The app matches sales to purchases first in, first out per coin.",
   "card": {
     "classification": "Not reviewed: Proof of Calm has no reviewed rule set for your country.",
     "taxableEvents": [

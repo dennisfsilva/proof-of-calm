@@ -38,9 +38,9 @@ describe('the United States profile (docs/JURISDICTIONS.md §7.5)', () => {
   // rate is federal only (docs/JURISDICTIONS.md §1, never a benefit the country does not give).
   it('lists three conditions beside the date: the state sentence first, then the swap, then gifts and inheritance', () => {
     expect(us.holdingRuleConditions).toEqual([
-      'Federal rate only. Most states tax the gain at their own rates (42 levy an income tax; Tax Foundation, 2026; medium confidence). Confirm your state.',
+      'Federal rate only. Most states tax the gain at their own rates: 42 levy an income tax (Tax Foundation, 2026, medium confidence). Confirm your state.',
       'A swap or a purchase paid in crypto starts a new holding period for the units received (IRS FAQ Q16 and Q29).',
-      "Gifted units keep the giver's holding period when records show it; inherited units are long-term at once (IRS FAQ Q33; IRS Publication 544).",
+      "Gifted units keep the giver's holding period when records show it, and inherited units are long-term at once (IRS FAQ Q33 and IRS Publication 544).",
     ]);
   });
 

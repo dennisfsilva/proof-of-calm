@@ -18,7 +18,7 @@
   ],
   "lotRule": "fifo",
   "lotScope": "per-venue",
-  "lotRuleNote": "Per wallet: the BMF accepts first in, first out or individual identification, elected per wallet and per crypto-asset and applied consistently; average cost is the fallback (medium-high confidence).",
+  "lotRuleNote": "Per wallet: the BMF accepts first in, first out or individual identification, elected per wallet and per crypto-asset and applied consistently, with average cost as the fallback (medium-high confidence).",
   "card": {
     "classification": "A private sale (§ 23(1) sentence 1 no. 2 EStG) taxed at the personal progressive rate, not the flat Abgeltungsteuer; staking and lending rewards under § 22 no. 3 EStG. Basis: BMF-Schreiben of 6 March 2025; BFH IX R 3/22 of 14 February 2023.",
     "taxableEvents": [

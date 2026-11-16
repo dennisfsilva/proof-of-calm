@@ -21,13 +21,13 @@
   "holdingRule": { "kind": "years", "years": 1, "effect": "lower-rate" },
   "holdingRuleOverrides": [],
   "holdingRuleConditions": [
-    "Federal rate only. Most states tax the gain at their own rates (42 levy an income tax; Tax Foundation, 2026; medium confidence). Confirm your state.",
+    "Federal rate only. Most states tax the gain at their own rates: 42 levy an income tax (Tax Foundation, 2026, medium confidence). Confirm your state.",
     "A swap or a purchase paid in crypto starts a new holding period for the units received (IRS FAQ Q16 and Q29).",
-    "Gifted units keep the giver's holding period when records show it; inherited units are long-term at once (IRS FAQ Q33; IRS Publication 544)."
+    "Gifted units keep the giver's holding period when records show it, and inherited units are long-term at once (IRS FAQ Q33 and IRS Publication 544)."
   ],
   "lotRule": "specific",
   "lotScope": "per-venue",
-  "lotRuleNote": "You choose which units you sold when your records identify them and what they cost, kept per account, wallet, or address; otherwise first in, first out (IRS FAQ Q39 to Q41).",
+  "lotRuleNote": "You choose which units you sold when your records identify them and what they cost, kept per account, wallet, or address. Otherwise, first in, first out applies (IRS FAQ Q39 to Q41).",
   "card": {
     "classification": "Property for federal tax purposes, not currency. Selling, exchanging, or spending units held as a capital asset is a capital gain or loss; rewards, mining, staking, and payment for services are ordinary income (IRS, Digital assets).",
     "taxableEvents": [
@@ -96,7 +96,7 @@
       "A net capital loss lowers other income by up to USD 3,000 a year, USD 1,500 if married filing separately (Topic 409)."
     ],
     "holdingRuleText": "Held more than one year before the sale or exchange, a gain or loss is long-term and the lower capital gains rates apply. Held one year or less, it is short-term and taxed as ordinary income. The holding period begins on the day after you acquired the units and ends on the day you sell or exchange them (IRS FAQ Q6). A unit bought on 15 March 2026 is long-term when sold from 16 March 2027.",
-    "lotRuleText": "You choose which units you sold when your records identify them and what they cost, kept per account, wallet, or address; otherwise first in, first out (IRS FAQ Q39 to Q41).",
+    "lotRuleText": "You choose which units you sold when your records identify them and what they cost, kept per account, wallet, or address. Otherwise, first in, first out applies (IRS FAQ Q39 to Q41).",
     "losses": "Short- and long-term gains and losses are netted; a net loss lowers other income by the lesser of USD 3,000 (USD 1,500 if married filing separately) or the total net loss, and the rest carries forward to later years (Topic 409).",
     "reporting": [
       "Form 1040 asks every filer whether they received, sold, exchanged, or otherwise disposed of a digital asset during the year (IRS, Digital assets).",
