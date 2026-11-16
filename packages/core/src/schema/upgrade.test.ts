@@ -65,7 +65,8 @@ describe('writtenPlan: what main reads back (rollback)', () => {
 
 describe('the recorded language in the plan schema', () => {
   it('is a language tag', () => {
-    for (const tag of ['en', 'pt-PT', 'de', 'fil', 'es-ES']) expect(LanguageTagSchema.safeParse(tag).success).toBe(true);
+    for (const tag of ['en', 'pt-PT', 'de', 'fil', 'es-ES'])
+      expect(LanguageTagSchema.safeParse(tag).success).toBe(true);
     for (const tag of ['', 'EN', 'pt-pt', 'pt_PT', 'english', 'pt-PTX']) {
       expect(LanguageTagSchema.safeParse(tag).success).toBe(false);
     }
@@ -82,7 +83,9 @@ describe('the recorded language in the plan schema', () => {
 });
 
 describe('property: upgradePlan(writtenPlan(p).payload) gives p back', () => {
-  const minute = fc.integer({ min: 0, max: 59 }).map((m) => instant(`2026-10-22T09:${String(m).padStart(2, '0')}:00.000Z`));
+  const minute = fc
+    .integer({ min: 0, max: 59 })
+    .map((m) => instant(`2026-10-22T09:${String(m).padStart(2, '0')}:00.000Z`));
   const language = fc.oneof(fc.constant('en'), fc.constant('pt-PT'), fc.stringMatching(/^[a-z]{2,3}(-[A-Z]{2})?$/));
   // Every consistent pair: nothing recorded with no language, or anything recorded with one.
   const acknowledgement = fc.oneof(

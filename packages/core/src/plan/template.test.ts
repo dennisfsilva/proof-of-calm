@@ -72,7 +72,7 @@ describe('planFromTemplate (docs/DOMAIN.md §5)', () => {
       ok: true,
       value: {
         id: begin.id,
-        schemaVersion: 3,
+        schemaVersion: 4,
         country: 'PT',
         countryRuleVersion: 3,
         payCurrency: 'EUR',
@@ -97,6 +97,7 @@ describe('planFromTemplate (docs/DOMAIN.md §5)', () => {
         // Onboarding records the acknowledgement; the template records none (docs/DOMAIN.md §2.1).
         riskAcknowledgedAt: null,
         riskWordingVersion: 0,
+        riskLanguage: null,
         createdAt: now,
         updatedAt: now,
       },
