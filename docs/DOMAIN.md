@@ -1383,12 +1383,12 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   hold none in any language (`packages/app/src/features/settings/tax-year.test.ts`), and `pnpm validate:content`
   refuses one in every profile text a header line copies, English or translated (`header-semicolon`,
   `packages/content/src/header-validate.ts`). The file is saved as UTF-8 with a byte order mark (decided
-  2026-11-16): Microsoft states that Excel opens a UTF-8 CSV normally when it was saved with one
-  ([Opening CSV UTF-8 files correctly in Excel](https://support.microsoft.com/en-us/office/opening-csv-utf-8-files-correctly-in-excel-8a935af5-3416-4edd-ba7e-3dfd2bc4a032)),
-  and Portugal's `n.º` and the pt-PT header's accents need UTF-8; the mark goes before the first header line, the
-  core's CSV after it is unchanged, and the import's table parser (`packages/core/src/import/exchange/table.ts`)
-  drops a leading one. Counsel reads every change to
-  the pt-PT header lines, as to the English ones.
+  2026-11-16), since Microsoft writes: "You can open a CSV file encoded with UTF-8 normally if it was saved with
+  BOM" ([Opening CSV UTF-8 files correctly in Excel](https://support.microsoft.com/en-us/office/opening-csv-utf-8-files-correctly-in-excel-8a935af5-3416-4edd-ba7e-3dfd2bc4a032)).
+  pt-PT needs UTF-8 for Portugal's `n.º` and the accents of its header lines. The mark sits before the first
+  header line with the core's CSV unchanged after it, and the import's table parser
+  (`packages/core/src/import/exchange/table.ts`) drops a leading one. Counsel reads every change to the pt-PT
+  header lines, as to the English ones.
 - `snapshotValue(plan, entries, histories, date)`: the portfolio value at the end of a calendar date (decided
   2026-11-08): the units of the live entries dated on or before `date` (sales subtract; a negative holding counts
   as none, as in `valueSeries`, §3.11), each coin priced at the close dated exactly `date`, the price at 00:00 UTC
