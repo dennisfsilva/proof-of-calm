@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { TEMPLATES, templateById } from '@proofofcalm/content';
+import { loadProfile, TEMPLATES, templateById } from '@proofofcalm/content';
 import { type CalendarDate, EntityIdSchema, type Plan } from '@proofofcalm/core';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -19,17 +19,40 @@ import { emptyDraft } from '../model/setup';
 import { OnboardingScreen } from './onboarding-screen';
 
 // Under Vitest each import() of a profile is a round trip to the main process, which under load outlasted the
-// country's findBy (2026-10-26): the profiles load once, here (lib/services/testing-modules.ts).
-vi.mock('@proofofcalm/content', async (original) =>
-  (await import('../../../lib/services/testing-modules')).profilesInMemory(
+// country's findBy (2026-10-26): the profiles load once, here (lib/services/testing-modules.ts). Germany's holding
+// rule is literal, as the words and dates below read it: a content review may change a rule (docs/CONTENT-OPS.md §8).
+vi.mock('@proofofcalm/content', async (original) => {
+  const content = await (await import('../../../lib/services/testing-modules')).profilesInMemory(
     await original<typeof import('@proofofcalm/content')>(),
-  ),
-);
+  );
+  type Profile = NonNullable<Awaited<ReturnType<typeof content.loadProfile>>>;
+  const literal = (profile: Profile): Profile =>
+    profile.code === 'DE'
+      ? { ...profile, holdingRule: { kind: 'years', years: 1, effect: 'exempt' }, holdingRuleOverrides: [] }
+      : profile;
+  return {
+    ...content,
+    loadProfile: async (...args: Parameters<typeof content.loadProfile>) => {
+      const profile = await content.loadProfile(...args);
+      return profile === null ? null : literal(profile);
+    },
+    loadProfiles: async (...args: Parameters<typeof content.loadProfiles>) =>
+      (await content.loadProfiles(...args)).map(literal),
+  };
+});
 
 afterEach(cleanup);
 // The jurisdiction profiles the country step loads with import() load while the file loads, outside any
 // test's timeout, so the country's findBy waits on renders, not on Vite's first transform (seconds under load).
 await preloadLazyModules();
+
+/** The URL of the source Germany's ruleSources.holdingRule names, as its file states it. */
+const GERMAN_LAW = await (async () => {
+  const germany = await loadProfile('DE');
+  const url = germany?.sources.find((source) => source.key === germany.ruleSources.holdingRule)?.url;
+  if (url === undefined) throw new Error('no holdingRule source in DE');
+  return url;
+})();
 
 const LINE = 'A starting point some people use. You choose every setting. Not advice.';
 const EXISTING = 'A plan is already set up on this device.';
@@ -239,7 +262,7 @@ describe('OnboardingScreen', () => {
     expect(screen.getByText("Computed from the template's dates, not tax advice")).toBeDefined();
     expect(screen.queryByText('Computed from your dates, not tax advice')).toBeNull();
     const sources = screen.getByRole('link', { name: 'Sources' });
-    expect(sources.getAttribute('href')).toContain('estg/__23');
+    expect(sources.getAttribute('href')).toBe(GERMAN_LAW);
     expect(sources.parentElement?.textContent).toMatch(
       /^Reviewed on \d+\s\w+\s\d{4} · general information, not advice · Sources$/,
     );
@@ -286,7 +309,7 @@ describe('OnboardingScreen', () => {
     expect(screen.queryByRole('alert')).toBeNull();
     await toSummary();
     expect(screen.getByText("Germany's rule. 1 year, then tax-free.")).toBeDefined();
-    expect(screen.getByRole('link', { name: 'Sources' }).getAttribute('href')).toContain('estg/__23');
+    expect(screen.getByRole('link', { name: 'Sources' }).getAttribute('href')).toBe(GERMAN_LAW);
     expect(
       screen.getByText(/^1 Jun 2029 to .+, opening before the last buy passes the holding rule, as you accepted$/),
     ).toBeDefined();
