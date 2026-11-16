@@ -34,8 +34,8 @@ describe('the pt-PT profile overlays', () => {
       const english = (await loadProfile(code)) as CountryProfile;
       expect(headerTexts(profile).filter(([, text]) => text.includes(';'))).toEqual([]);
       const { lotRuleNote } = overlayOf(code).json as Partial<CountryProfile>;
-      expect(profile.lotRuleNote).toBe(lotRuleNote);
-      expect(profile.lotRuleNote).not.toBe(english.lotRuleNote);
+      // A review may reword or drop the overlay's text (ADR-0057): the profile holds it, or English's without it.
+      expect(profile.lotRuleNote).toBe(lotRuleNote ?? english.lotRuleNote);
     },
   );
 });
