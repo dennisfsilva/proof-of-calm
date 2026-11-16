@@ -224,4 +224,13 @@ describe('reviewerProblems', () => {
     ]);
     expect(reviewerProblems(path, undefined, undefined)).toEqual([]);
   });
+
+  it('reviewerProblems asks no reviewer of an overlay or a locale rules file, and refuses deleting one', () => {
+    for (const data of ['packages/content/i18n/pt-PT/facts/education.json', 'packages/content/rules/pt-PT/pt.json']) {
+      expect(reviewerProblems(data, '{}', '{"a":"b"}')).toEqual([]);
+      expect(reviewerProblems(data, '{}', undefined)).toEqual([
+        `${data}: deleted; the draft names the removal and the owner deletes it`,
+      ]);
+    }
+  });
 });
