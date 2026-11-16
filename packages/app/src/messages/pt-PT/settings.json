@@ -57,7 +57,7 @@
     "heading": "Os seus dados",
     "exportLine": "As exportações são geradas pela {product} a partir dos seus movimentos e não constituem aconselhamento. Confirme os valores antes de qualquer uso fiscal ou financeiro.",
     "riskLink": "Aviso sobre riscos",
-    "exportJson": "Exportar cópia de segurança JSON",
+    "exportJson": "Exportar cópia JSON",
     "exportCsv": "Exportar registo CSV",
     "exportNotSaved": "O ficheiro não foi guardado. Exporte de novo para conservar uma cópia.",
     "exportDateFailed": "A cópia de segurança foi guardada, mas este dispositivo não conseguiu registar a data da exportação. Exporte de novo para a registar.",
