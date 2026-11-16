@@ -1,0 +1,44 @@
+{
+  "input": {
+    "number-empty": "Introduza um número.",
+    "number-negative": "Introduza o número sem o sinal de menos.",
+    "number-invalid": "Introduza um número como {example}."
+  },
+  "action": {
+    "no-coins": "Introduza pelo menos uma moeda.",
+    "amount-and-units": "{coin}: introduza o montante e as unidades.",
+    "unknown-coin": "{coin} não está no plano. Adicione primeiro a moeda nas Definições.",
+    "units-precision": "{coin}: use no máximo 10 casas decimais.",
+    "fee-negative": "Introduza uma comissão de zero ou mais.",
+    "fee-not-allowed": "Deixe a comissão vazia nas moedas adicionadas; inclua no custo qualquer comissão que tenha pago.",
+    "slot-required": "Escolha o mês a que esta compra se refere.",
+    "slot-not-allowed": "Só uma compra mensal tem um mês.",
+    "unknown-slot": "O mês de {slot} não pertence ao plano.",
+    "fee-exceeds-held": "Esta alteração deixa a transferência de {coin} de {date} sem as unidades que a respetiva comissão de rede consome ({held} detidos antes dela). Verifique essa transferência e os movimentos anteriores no Registo.",
+    "sell-exceeds-held": "Esta venda excede em {excess} o que detém ({held} a {date}). Verifique o montante e a data, ou registe primeiro as compras em falta.",
+    "slot-done": "O mês de {slot} já está registado. Edite ou elimine esse movimento no Registo.",
+    "slot-skipped": "O mês de {slot} já foi saltado. Registe esta compra como compra adicional.",
+    "note-too-long": "Use no máximo {max} caracteres na nota.",
+    "venue-too-long": "Use no máximo {max} caracteres no local.",
+    "pause-order": "Escolha um fim igual ou posterior ao início.",
+    "pauses-overlap": "Esta pausa sobrepõe-se a outra. Escolha outras datas.",
+    "not-paused": "O plano não está em pausa.",
+    "before-first-buy": "O plano ainda não começou, por isso não há compras para terminar.",
+    "buying-over": "As compras já terminaram.",
+    "plan-changed": "O plano foi alterado noutro separador do navegador, por isso esta compra não foi registada. Verifique os montantes apresentados e depois registe-a de novo.",
+    "too-many-entries": "Registar isto levaria o plano além de {max} movimentos, o máximo que um plano comporta. Elimine movimentos no Registo para libertar espaço.",
+    "move-exceeds-held": "Esta transferência envia {sent}, mais do que detém ({held} a {date}). Verifique as unidades e a data, ou registe primeiro as compras em falta.",
+    "same-venue": "Escolha um local diferente daquele de onde as moedas saíram.",
+    "received-exceeds-sent": "Introduza um número de unidades recebidas que não exceda o de unidades enviadas."
+  },
+  "backup": {
+    "not-recognised": "Este ficheiro não está num formato que a {product} consiga ler. Escolha uma cópia de segurança da {product}, uma exportação da página do plano DCA, a exportação Ledgers da Kraken ou a exportação de transações da Trade Republic.",
+    "not-recognised-pasted": "Este texto não está num formato que a {product} consiga ler. Copie de novo a exportação completa e depois cole-a.",
+    "prototype-invalid": "O plano deste ficheiro da página do plano DCA está incompleto, por isso nada foi importado. Verifique lá os montantes e as datas, exporte-o de novo e depois importe o novo ficheiro.",
+    "newer-version": "Esta cópia de segurança vem de uma versão mais recente da {product}. Atualize a aplicação e depois importe-a de novo.",
+    "invalid-backup": "Esta cópia de segurança está danificada e não pode ser importada. Exporte uma nova.",
+    "not-prototype": "Este ficheiro não é uma cópia de segurança da página do plano DCA.",
+    "invalid-plan": "O plano deste ficheiro está incompleto. Verifique as datas e os montantes e depois importe-o de novo."
+  },
+  "unknown": "Não foi possível concluir esta operação. Tente de novo; se voltar a acontecer, exporte uma cópia dos dados."
+}
