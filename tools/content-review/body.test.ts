@@ -281,6 +281,22 @@ describe('renderBody', () => {
     expect(itemDomains('jurisdictions/../ie.json', ALLOW)).toEqual([]);
     expect(itemDomains('jurisdictions/xx.json', ALLOW)).toEqual(['example.gov']);
   });
+
+  it('a translation takes its English file’s list, so a jurisdiction overlay cites the country', () => {
+    const draft = good();
+    const change = draft.changes[0] as Change;
+    const overlay = { ...change, item: 'i18n/pt-PT/jurisdictions/ie.json', url: 'https://www.gov.ie/a' };
+    const spanish = { ...overlay, url: 'https://www.boe.es/a' };
+    expect(renderBody({ ...draft, changes: [overlay, spanish] }, TEMPLATE, ALLOW).problems).toEqual([
+      'changes[1].url: www.boe.es is not on packages/content/sources.allow.json for i18n/pt-PT/jurisdictions/ie.json',
+    ]);
+    for (const english of ['jurisdictions/ie.json', 'jurisdictions/xx.json', 'templates/steady.json', 'facts/a.json'])
+      expect(itemDomains(`i18n/pt-PT/${english}`, ALLOW)).toEqual(itemDomains(english, ALLOW));
+    expect(itemDomains('i18n/pt-PT/jurisdictions/ie.json', ALLOW)).toEqual(['revenue.ie', 'gov.ie', 'example.gov']);
+    expect(itemDomains('rules/pt-PT/ie.json', ALLOW)).toEqual([]);
+    expect(itemDomains('i18n/pt-PT/learn/what-is-dca.mdx', ALLOW)).toEqual([]);
+    expect(itemDomains('i18n/PT/jurisdictions/ie.json', ALLOW)).toEqual([]);
+  });
 });
 
 describe('parseDraft', () => {
