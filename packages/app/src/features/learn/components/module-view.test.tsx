@@ -10,6 +10,7 @@ import { ServicesProvider } from '../../../lib/services';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
 import { createTestServices } from '../../../lib/services/testing';
 import learn from '../../../messages/en/learn.json';
+import learnPt from '../../../messages/pt-PT/learn.json';
 import Body from '../fixtures/start-here.mdx';
 import TaxesBody from '../fixtures/taxes-where-you-live.mdx';
 import { TAXES_MODULE } from '../lib/taxes';
@@ -108,6 +109,26 @@ describe('ModuleView', () => {
     expect(bullets?.className).toContain('list-disc');
     expect(steps?.className).toContain('list-decimal');
     expect(screen.getByText('A first step').className).toContain('text-16');
+  });
+
+  it('marks the English title, caveat and body lang=en on a pt-PT screen, and its own lines not (ADR-0057)', () => {
+    const { container } = render(
+      <ServicesProvider services={createTestServices({ language: 'pt-PT' })}>
+        <I18nProvider locale="pt-PT" messages={{ learn: learnPt }}>
+          <ModuleView module={module} Body={Body} />
+        </I18nProvider>
+      </ServicesProvider>,
+    );
+    const title = screen.getByRole('heading', { level: 1, name: 'Start here' });
+    expect(title.getAttribute('lang')).toBe('en');
+    expect(container.querySelector('[data-slot="card"] p')?.getAttribute('lang')).toBe('en');
+    expect(screen.getByText('A paragraph under the section.').closest('[lang]')?.getAttribute('lang')).toBe('en');
+    expect(title.nextElementSibling?.closest('[lang]')).toBeNull();
+  });
+
+  it('marks nothing on an English screen', () => {
+    const { container } = mount();
+    expect(container.querySelector('[lang]')).toBeNull();
   });
 });
 

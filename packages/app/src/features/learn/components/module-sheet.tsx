@@ -11,7 +11,7 @@ import { moduleBody } from '../lib/bodies';
 import { moduleJoiner, withJoiner } from '../lib/body-elements';
 import { TAXES_MODULE } from '../lib/taxes';
 import { PlanCountryCard } from './country-library';
-import { ModuleView } from './module-view';
+import { ModuleView, useModuleLang } from './module-view';
 
 export type ModuleSheetProps = {
   readonly slug: LearnModuleMeta['slug'];
@@ -51,6 +51,7 @@ export function ModuleSheet({ slug, section, open, onOpenChange, finalFocus }: M
   const t = useTranslations('learn');
   const f = useFormatters();
   const popup = useRef<HTMLDivElement>(null);
+  const lang = useModuleLang();
   const module = LEARN_MODULES.find((known) => known.slug === slug);
   const Body = moduleBody(slug);
   if (module === undefined || Body === undefined) return null;
@@ -75,7 +76,7 @@ export function ModuleSheet({ slug, section, open, onOpenChange, finalFocus }: M
         <ModuleView
           module={module}
           Body={Body}
-          heading={<SheetTitle>{withJoiner(module.idea, joiner)}</SheetTitle>}
+          heading={<SheetTitle lang={lang}>{withJoiner(module.idea, joiner)}</SheetTitle>}
           lead={slug === TAXES_MODULE ? <PlanCountryCard /> : undefined}
         />
       </SheetContent>
