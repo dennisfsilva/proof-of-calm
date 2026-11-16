@@ -62,16 +62,18 @@ const TICKER = between(['BTC', 'ETH', 'SOL', 'LINK'], 'u');
 const IMPERATIVE = /^\s*(buy|sell|hold|invest|get|grab|kaufe?n?)(?![\p{L}\p{N}])(?!\s+days?\b)/iu;
 // A sentence ends at "!", "?", a line end or a dot that no digit follows, so "Buy 0.5 BTC" and "1.000 €" stay whole.
 const SENTENCE_END = /[!?\n]+|\.(?!\d)/;
-// A placeholder without a space ({coin}, {date:sellWindow.opens}) is one word the person reads as a value, so before
-// the cut it stands in as a token with no dot, letter or listed verb: its path neither ends a sentence nor names an
-// asset. A finding shows it as written. An ICU branch with words in it ({count, plural, one {…}}) stays copy.
-const PLACEHOLDER = /\{[^{}\s]+\}/gu;
+// A template's date placeholder ({date:sellWindow.opens}, template-dates.ts) is one word the person reads as a date,
+// so before the cut it stands in as a token with no dot, letter or listed verb: its path neither ends a sentence nor
+// names an asset. A finding shows it as written. Every other brace stays as written, so an ICU branch body
+// ({count, plural, one {Mantenha} …}) is copy the lint reads, and a non-date path with a ticker in it names that coin.
+const DATE_PLACEHOLDER = /\{date:[^{}\s]+\}/gu;
+// The token is U+E000, the index, U+E001: private-use characters no copy holds, invisible in most diffs.
 const TOKEN = /(\d+)/gu;
 
 /** The text's sentences, each as the lint reads it and as written. */
 function sentences(text: string) {
   const held: string[] = [];
-  const masked = text.replace(PLACEHOLDER, (whole) => `${held.push(whole) - 1}`);
+  const masked = text.replace(DATE_PLACEHOLDER, (whole) => `${held.push(whole) - 1}`);
   return masked.split(SENTENCE_END).map((read) => ({
     read,
     written: read.replace(TOKEN, (_, index: string) => held[Number(index)] ?? ''),

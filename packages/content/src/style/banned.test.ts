@@ -120,7 +120,7 @@ describe('findBanned (docs/CONTENT-STYLE.md §2, docs/LEGAL.md §6)', () => {
 });
 
 // A template's date placeholder holds a dotted path ({date:sellWindow.opens}), and the person reads a date there, so
-// the lint reads each placeholder as one word: its dots end no sentence, and the coin in its path names no asset.
+// the lint reads each date placeholder as one word: its dots end no sentence, and a ticker in its path names no asset.
 describe('findBanned reads a placeholder as one word (docs/CONTENT-STYLE.md §2)', () => {
   it('refuses an imperative before a dotted placeholder and an asset after it, as with the date written out', () => {
     expect(rules('Hold until 1 June 2029 your Bitcoin.')).toEqual(['imperative: Hold until 1 June 2029 your Bitcoin']);
@@ -149,6 +149,27 @@ describe('findBanned reads a placeholder as one word (docs/CONTENT-STYLE.md §2)
   it('reads no asset in a placeholder’s path, since the person reads a date there', () => {
     expect(rules('Hold until {date:drawdowns.BTC.high}.')).toEqual([]);
     expect(rules('Mantenha até {date:drawdowns.SOL.low}.')).toEqual([]);
+  });
+
+  it('reads every other brace as written: an ICU branch body is copy, a non-date path is text', () => {
+    expect(rules('{count, plural, one {Mantenha} other {Mantenham}} as suas bitcoins.')).toEqual([
+      'imperative: {count, plural, one {Mantenha} other {Mantenham}} as suas bitcoins',
+    ]);
+    expect(rules('{n, plural, one {Compre} other {Comprem}} BTC todos os meses.')).toEqual([
+      'imperative: {n, plural, one {Compre} other {Comprem}} BTC todos os meses',
+    ]);
+    expect(rules('Até {date}, {formal, select, yes {mantenha} other {mantém}} as suas bitcoins.')).toEqual([
+      'imperative: Até {date}, {formal, select, yes {mantenha} other {mantém}} as suas bitcoins',
+    ]);
+    // Only a date placeholder is one word: this path's dot ends the sentence, and its ticker names an asset.
+    expect(rules('Sell {coins:BTC.units} now.')).toEqual(['imperative: Sell {coins:BTC']);
+  });
+
+  it('returns the sentence exactly as written, its figures and placeholders restored', () => {
+    expect(rules('Sell 0.5 BTC on {date:lastBuy} now.')).toEqual(['imperative: Sell 0.5 BTC on {date:lastBuy} now']);
+    expect(rules('Sell 10 BTC on {date:lastBuy} or {date:sellWindow.opens}, 1.000 € each.')).toEqual([
+      'imperative: Sell 10 BTC on {date:lastBuy} or {date:sellWindow.opens}, 1.000 € each',
+    ]);
   });
 
   it('refuses the sentence in a template’s text through the validator, its placeholder as written', () => {
