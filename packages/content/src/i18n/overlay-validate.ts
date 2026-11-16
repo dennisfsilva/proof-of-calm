@@ -1,6 +1,6 @@
 // A translation file against its English file (ADR-0057), for validate.ts: every path exists in English, holds prose
 // TRANSLATABLE names, keeps the English array lengths and carries the English numbers and `{date:<field>}`
-// placeholders, and the overlaid value passes the schema. The checks on the overlaid text (the ban list, the hyphen,
+// placeholders (a template's `N %` tokens too, in order), and the overlaid value passes the schema. The checks on the overlaid text (the ban list, the hyphen,
 // the percent joiner, the 60 words, a template's placeholders against its dates and month names) are validate.ts's,
 // passed in. Pure.
 import { numberLocaleFor } from '../loaders/locales.ts';
@@ -72,6 +72,12 @@ export const numbersIn = (text: string, locale: string, percentLocale = locale):
  */
 export type NumberLocales = readonly [english: string, translated: string, englishPercent?: string];
 
+// Every percentage a text writes, in any form (`40 %`, `40%`, `40,5 %`, a no-break space). A template writes `N %`
+// with an ordinary space, which the app finds and formats with `format.percent` (template-step.tsx, CONTENT-STYLE §4),
+// so its translation writes the same tokens in the same order, whatever the language's own percent style.
+const PERCENT_TOKEN = /\d+(?:[.,]\d+)*[\s  ]?%/gu;
+const percentsIn = (text: string) => (text.match(PERCENT_TOKEN) ?? []).join(' | ') || 'none';
+
 /** Every way the overlay departs from English; the empty list is a pass. */
 export function overlayProblems(
   kind: ContentKind,
@@ -117,6 +123,9 @@ export function overlayProblems(
       datePlaceholdersIn(en).join(' ') || 'none',
     ];
     if (ourDates !== theirDates) report('date-mismatch', at, `: ${ourDates}, English ${theirDates}`);
+    if (kind !== 'template') return;
+    const [ourPercents, theirPercents] = [percentsIn(over), percentsIn(en)];
+    if (ourPercents !== theirPercents) report('percent-mismatch', at, `: ${ourPercents}, English ${theirPercents}`);
   };
   walk(english, overlay, []);
   return problems;

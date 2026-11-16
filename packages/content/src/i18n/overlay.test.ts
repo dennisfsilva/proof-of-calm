@@ -173,6 +173,40 @@ describe('overlayProblems', () => {
     expect(rate('12,2–48% by bracket', '12–48% por escalão')).toEqual(['overlay-number-mismatch']);
   });
 
+  // A template's explanation writes `N %`, which the app formats with `format.percent` (CONTENT-STYLE §4, ADR-0023).
+  const template = (en: string, translated: string) =>
+    overlayProblems(
+      'template',
+      'packages/content/i18n/pt-PT/templates/cycle-plan.json',
+      { explanation: en },
+      { explanation: translated },
+      ['en', 'pt-PT'],
+    ).map((problem) => problem.code);
+
+  it('refuses a template percentage not written `N %` as English writes it, in English’s order', () => {
+    const en = 'It splits each amount 40 % Bitcoin and 30 % Ethereum.';
+    expect(template(en, 'Divide cada montante: 40 % Bitcoin e 30 % Ethereum.')).toEqual([]);
+    expect(template(en, 'Divide cada montante: 40% Bitcoin e 30 % Ethereum.')).toEqual(['overlay-percent-mismatch']);
+    expect(template(en, 'Divide cada montante: 40,5 % Bitcoin e 30 % Ethereum.')).toContain(
+      'overlay-percent-mismatch',
+    );
+    expect(template(en, 'Divide cada montante: 30 % Ethereum e 40 % Bitcoin.')).toEqual(['overlay-percent-mismatch']);
+    expect(template(en, `Divide cada montante: 40${String.fromCodePoint(0xa0)}% Bitcoin e 30 % Ethereum.`)).toEqual([
+      'overlay-percent-mismatch',
+    ]);
+  });
+
+  it('keeps a template’s `{date:<field>}` placeholder intact, never translated (#274)', () => {
+    const en = 'Bitcoin fell 78 % from its high on {date:drawdowns.BTC.high}.';
+    expect(template(en, 'A bitcoin caiu 78 % desde o máximo de {date:drawdowns.BTC.high}.')).toEqual([]);
+    expect(template(en, 'A bitcoin caiu 78 % desde o máximo de {data:drawdowns.BTC.high}.')).toEqual([
+      'overlay-date-mismatch',
+    ]);
+    expect(template(en, 'A bitcoin caiu 78 % desde o máximo de {date:drawdowns.BTC.alto}.')).toEqual([
+      'overlay-date-mismatch',
+    ]);
+  });
+
   it('reads each value once, its sign and trailing zeros aside', () => {
     expect(numbersIn('−94.0 % from $31.91', 'en')).toEqual(['31.91', '94']);
     expect(numbersIn('31.4', 'en')).not.toEqual(numbersIn('31.5', 'en'));
