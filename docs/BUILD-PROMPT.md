@@ -391,6 +391,32 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   pt-PT's dates pushed Log's entries table 2 px past the viewport at zoom-125 and cut the € off every
   amount, which `apps/web/e2e/language.spec.ts` (desktop and iphone only) could not see; the
   evaluator found it after #258 merged (2026-11-15).
+- A layout that switches on a measured width and stores the width it measured goes stale with every
+  input that width depends on. The pt-PT tables' fix stored the columns' width; its first review
+  found that shorter rows never turned the table back, and its second that text which shrinks after
+  the switch (a text-size change, a web font narrower than its fallback) leaves it stacked. Such a
+  mechanism gets a design check before its second round; the branch waits for it in #268
+  (2026-11-16).
+- A fix to a fallback that the test services also take turns every test that relied on the fallback
+  red. The test services load no rules for the Portuguese fixture plan, so #263's country-locale
+  fallback changed 84 app tests' expected formats; a brief names that sweep when a fix changes what
+  the test services default to (2026-11-15).
+- A brief's expected format is checked against the ADR that owns the format before it reaches a
+  builder. The brief for #264 asked for US-ordered template dates, while ADR-0023 decides that dates
+  in copy follow the UI language; the builder's test built an en-US formatter by hand and passed, and
+  only the evaluator showed the screen's `1 Jun 2028` (#267, 2026-11-16).
+- A text a lint cuts into sentences is checked against every token the text can hold. #265 split
+  sentences at a dot followed by a letter, and #264's placeholders hold dotted paths
+  (`{date:sellWindow.opens}`), so an imperative before a placeholder and the asset after it fell
+  into different sentences; the integration read found it, and the lint now reads a placeholder as
+  one word (2026-11-16).
+- An action a fallback offers is walked through the same failure. #262's offline toast offered
+  Edit, whose sheet loads the namespace that had just failed; pressing it replaced Today with a load
+  error, which only the evaluator's offline run showed (#266, 2026-11-16).
+- ci.yml's push-to-main Lighthouse reads the keyless CoinGecko API through `/api/prices`, and its 503
+  fails `errors-in-console` on Today: twice on 2026-11-15, then on both attempts of run 43777047831
+  on 2026-11-16, with the next push passing. A rerun is not a fix, and a red main stops the
+  unattended chain; the Lighthouse runs route the price API to fixtures in #268.
 
 ## Known gaps
 
