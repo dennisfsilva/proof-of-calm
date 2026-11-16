@@ -65,13 +65,15 @@ The product is called **Proof of Calm** (ADR-0040). Before anything public ships
 A disclosure is content at a decision point: it sits where a decision is made, once per path, in the
 same type and background as the sentences around it, with a link to the Risk page, never a coloured
 bar, a modal or a checkbox beyond the one acknowledgement below. A status the domain selects (the
-Red day banner, `docs/DOMAIN.md` §3.11) is never a disclosure. The acknowledged plan-creation text
-is the one long disclosure (three sentences, 40 to 50 words). The template line keeps its three
+Red day banner, `docs/DOMAIN.md` §3.11) is never a disclosure. The early-opening notice (Hold & sell, the
+Plan tab, onboarding's numbers step, the country change) is such a status, so its text and its
+acceptance box count toward no budget of this section and are not the plan-creation acknowledgement.
+The acknowledged plan-creation text is the one long disclosure (three sentences, 40 to 50 words). The template line keeps its three
 short sentences (12 words, ADR-0047); a translation keeps the three sentences and counts its own words,
 within the onboarding path's 120-word budget. Every other disclosure is at most two sentences plus a link.
 Budgets: at most 120 words of legal and educational copy from the first
 screen to the first logged purchase, the data lines below excluded, at most 30 on Today. Words are
-counted at spaces, except that a figure with its unit is one word ("75 %") and `{product}`, shown as "Proof
+split at spaces, except that a figure with its unit is one word ("75 %") and `{product}`, shown as "Proof
 of Calm", is three; the link `Risk disclosure` is left out. By this count the English plan-creation text is
 50 words. A template's
 `oneLine` describes the plan and stays outside the 120 words, except a sentence that states a risk,
@@ -94,10 +96,10 @@ translation's own words count under the row's 40 to 50 words. The approved list 
 (`RISK_WORDING_LANGUAGES` in `packages/app/src/lib/brand/index.ts`; pt-PT by counsel's approval of #268,
 2026-11-16, of the text at `onboarding.disclosure.text` in
 `packages/app/src/features/onboarding/messages/pt-PT.json`, since the table holds only the English), so every
-other UI language shows the English text and records `en` (`docs/DOMAIN.md` §2.1, which also says when
-the same text is asked again: in Today's place, never as a modal; an import triggers nothing new of its own, and a
+other UI language shows the English text and records `en`. `docs/DOMAIN.md` §2.1 also says when the same
+text is asked again: in Today's place, never as a modal; an import triggers nothing new of its own, and a
 plan brought in by "Replace everything" or the import with no plan, with an older recorded version, is asked
-once, on Today). Asked again, the text counts under the row's 40 to 50 words, not under Today's 30 or the path's
+once, on Today. Asked again, the text counts under the row's 40 to 50 words, not under Today's 30 or the path's
 120.
 
 Lines that are data, not disclosures, and do not count as a repeat: the jurisdiction card's date line, in

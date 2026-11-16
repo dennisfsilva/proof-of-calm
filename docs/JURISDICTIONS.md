@@ -172,10 +172,10 @@ holding rule override's note, the pending changes' titles and summaries, the cha
 number, date, rule and source stays the English file's. Each translated text carries the same number
 values as the English text (`overlay-number-mismatch`) and takes the checks above, with the percent joiner of the number
 locale the app uses for that profile in that language. The app reads each profile and its generated rules
-file (`packages/content/rules/<language>/`) in the UI language it booted. In a language with a rules folder, the
-rules loader reads that folder's generated file, which equals English until an overlay translates it; in
-a language without an overlay, the profile loader returns the English profile; where a chunk fails to
-load, either loader returns the English file (ADR-0057's Corrections of 2026-11-16).
+file (`packages/content/rules/<language>/`) in the UI language it booted. In a language with a rules
+folder, the rules loader reads that folder's generated file, which equals English until an overlay
+translates it. In a language without an overlay, the profile loader answers the English profile. Where a
+chunk fails to load, either loader answers the English file (ADR-0057's Corrections of 2026-11-16).
 
 The holding card links the source `ruleSources.holdingRule` names; each other rule links to the source its
 `ruleSources` key names once a card shows that rule. No link points to a position in `sources`, so

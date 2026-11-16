@@ -444,6 +444,21 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - A branch's Lighthouse run on a slower runner is read against a page the branch does not touch on
   the same run. #277 measured Today at 117 ms against Plan's 68 ms, beside main's 70 against 31
   (2026-11-16).
+- A layout fix found on a translation can move the English screen too. #278's `max-w-full` kept the
+  English chart-range control in its column at zoom-125, where CI's fonts had put it 5 px past, so
+  four English baselines changed (run 43809390983). The PR's own CI run is read for the English
+  baselines of every screen a layout fix touches; those that no longer match are deleted in the PR,
+  and the new ones are rendered after the merge (#282, 2026-11-16).
+- A guard that widens what an agent's branch may change lands with the instructions that make the
+  agent use it. The content review guard accepted overlay paths while the review-content skill still
+  told the agent to fix or revert any validation failure, so CONTENT-OPS' new step was false on main;
+  the guard waits in #270 with the skill's overlay step and its rehearsal (2026-11-16).
+- A test helper that stands in for a hostile environment proves only the half it sets. A decoy
+  `GIT_DIR` catches a git that inherits the environment, not one that drops its cwd, since a git
+  without a cwd runs inside the same repository; the helper says which reverts it catches (#269's
+  guard branch, round 2, 2026-11-16).
+- A spec that checks that translated words differ from English checks each word on its own: a pair
+  compared at once passed when one key reverted (#283, 2026-11-16).
 
 ## Known gaps
 
