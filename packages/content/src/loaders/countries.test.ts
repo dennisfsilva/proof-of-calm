@@ -8,13 +8,13 @@ import { CONTENT_LANGUAGES } from '../i18n/overlay.ts';
 import { CountryProfileSchema } from '../schema/jurisdiction.ts';
 import {
   COUNTRY_CODES,
-  PROFILE_OVERLAYS,
   countryChoices,
   countryRules,
   GENERIC_COUNTRY,
   holdingRuleSource,
   loadProfile,
   loadProfiles,
+  PROFILE_OVERLAYS,
   ruleSource,
   suggestionProfiles,
 } from './countries.ts';
