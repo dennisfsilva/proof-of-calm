@@ -96,6 +96,8 @@
       "tendência de (alta|subida|baixa)",
       "reserva de valor",
       "agora é (a altura|o momento|a hora)",
+      "(é|está na) (altura|hora) de (comprar|vender|manter)",
+      "arrepend\\p{L}*",
       "oportunidades?",
       "simplesmente",
       "sem esforço",

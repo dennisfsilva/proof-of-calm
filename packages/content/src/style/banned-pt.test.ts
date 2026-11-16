@@ -1001,14 +1001,12 @@ const ADVICE: string[] = [
   'Devera\u0301 comprar BTC.',
   'E\u0301 melhor na\u0303o vender as suas bitcoins.',
   'Na\u0303o compres ETH agora.',
+  'Se mantiver as suas bitcoins até 2030, não se vai arrepender.',
+  'O preço da bitcoin caiu. É altura de comprar.',
 ];
 // The gaps, each with its reason, left to counsel and the native reader.
 const GAPS: [string, string][] = [
   ['Tem bitcoins? É preferível que as mantenha.', 'the asset is named in the sentence before'],
-  [
-    'Se mantiver as suas bitcoins até 2030, não se vai arrepender.',
-    '"mantiver" is the future subjunctive, the form every rewording uses',
-  ],
   ['Todos os meses compra BTC.', 'spelled like a third-person statement ("o plano compra")'],
   ['Porque não compra BTC agora?', 'spelled like a third-person statement ("o plano compra")'],
   ['Ainda não tem bitcoin? Compre já.', 'the asset is named in the sentence before'],
@@ -1025,7 +1023,6 @@ const GAPS: [string, string][] = [
   ['O ETH subiu 40 %. Venda agora.', 'the asset is named in the sentence before'],
   ['A Solana está em queda. Aproveite e compre.', 'the asset is named in the sentence before'],
   ['Ainda tem ETH? Mantenha-o.', 'the asset is named in the sentence before'],
-  ['O preço da bitcoin caiu. É altura de comprar.', 'the asset is named in the sentence before'],
   ['Compre a 16 de out. de 2026 o seu BTC.', 'the dot of an abbreviation ("out.") ends the sentence'],
   ['Registada junto ao Banco de Portugal.', '"junto ao" is not one of the registration prepositions'],
 ];
@@ -1627,6 +1624,18 @@ describe('§2’s Portuguese claims', () => {
   it('runs every language’s rows over every text, so a Portuguese pattern refuses a German word', () => {
     expect(advice('Keine Garantie für Kursgewinne.')).toEqual([{ rule: 'advice', match: 'Garantie' }]);
     expect(advice('Wir garantieren nichts.')).toEqual([{ rule: 'advice', match: 'garantieren' }]);
+  });
+
+  it('refuses regret and the time to buy, sell or hold with no asset named', () => {
+    for (const [text, match] of [
+      ['Não se vai arrepender.', 'arrepender'],
+      ['Ninguém se arrependeu.', 'arrependeu'],
+      ['É hora de comprar.', 'É hora de comprar'],
+      ['Está na altura de manter.', 'Está na altura de manter'],
+      ['Está na hora de vender.', 'Está na hora de vender'],
+    ] as const) {
+      expect(advice(text), text).toEqual([{ rule: 'advice', match }]);
+    }
   });
 
   it('refuses "realize" before a sale noun and passes it without one', () => {
