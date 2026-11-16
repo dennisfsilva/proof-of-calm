@@ -1,5 +1,20 @@
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { checkRange, checkSubject, type Git } from './check.ts';
+
+/**
+ * git itself in this test's folder, without the caller's GIT_* variables: a git hook's GIT_DIR (relative, `.git`)
+ * or GIT_INDEX_FILE would otherwise decide which repository it reads, and the folder the run started in.
+ */
+const ENV = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.toUpperCase().startsWith('GIT_')));
+const realGit: Git = (args) =>
+  execFileSync('git', args, {
+    cwd: fileURLToPath(new URL('.', import.meta.url)),
+    env: ENV,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
 
 describe('checkSubject', () => {
   it.each([
@@ -68,8 +83,8 @@ describe('checkRange (pnpm gate: origin/main..HEAD)', () => {
   });
 
   it('reads this repository with git itself', () => {
-    expect(checkRange('HEAD', 'HEAD')).toEqual([]);
-    expect(checkRange('refs/heads/no-such-branch-for-the-check', 'HEAD')).toEqual([
+    expect(checkRange('HEAD', 'HEAD', realGit)).toEqual([]);
+    expect(checkRange('refs/heads/no-such-branch-for-the-check', 'HEAD', realGit)).toEqual([
       expect.stringMatching(/^refs\/heads\/no-such-branch-for-the-check is not a commit in this clone/),
     ]);
   });
