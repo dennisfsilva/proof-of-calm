@@ -310,6 +310,12 @@ test("pt-PT: /plan stays inside the page with its timeline's table open and text
   await details.locator('summary').click();
   await expect(details).toHaveAttribute('open', '');
   await expect(details.locator('table')).toContainText(/de\s\S+\sde\s20\d\d/);
+  // Each Why? control's name starts with its visible pt-PT word (WCAG 2.5.3, axe's label-content-name-mismatch).
+  await expect(page.getByRole('button', { name: ptPlan.why.window, exact: true })).toBeVisible();
+  const axe = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+    .analyze();
+  expect(axe.violations.map((violation) => `${violation.id}: ${violation.help}`)).toEqual([]);
   await widerText(page, '0.03em');
   await settled(page);
   const now = await pastTheViewport(page);
