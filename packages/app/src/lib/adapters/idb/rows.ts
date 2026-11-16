@@ -32,12 +32,13 @@ import { epochMs } from '../clock';
 
 /**
  * The latest payload schema version each store reads and writes (docs/DOMAIN.md §2), so a reader knows
- * which shape a row holds. Plans are read at v2 (through `upgradePlan`) and v3, and written at the lowest
- * version that holds them (`writtenPlan`: v3 only once an acknowledgement is recorded). Entries are read at
+ * which shape a row holds. Plans are read at v2 and v3 (through `upgradePlan`) and v4, and written at the lowest
+ * version that holds them (`writtenPlan`: v3 once an acknowledgement is recorded, v4 only for one in another
+ * language than English, which no approved text gives yet: `RISK_WORDING_LANGUAGES`). Entries are read at
  * v2, v3 and v4, which share one payload shape, and written the same way (`writtenEntryVersion`: v4 only for
  * a move, which the previous build does not know, v3 for coins held, which the build before it does not know).
  */
-export const ROW_SCHEMA_VERSIONS = { plans: 3, entries: 4 } as const;
+export const ROW_SCHEMA_VERSIONS = { plans: 4, entries: 4 } as const;
 /** A build's row versions; a test passes the previous build's to prove a rollback (docs/RELEASE.md). */
 export type RowVersions = { readonly [store in SyncedStore]: number };
 /** The oldest payload version any build wrote; every later one up to the build's own is read. */
@@ -195,7 +196,7 @@ function readRow<R extends { readonly id: EntityId; readonly payload: unknown },
   return ok({ row: row.data, value: value.data });
 }
 
-/** A plan row of version 2 or 3; a v2 payload is upgraded before the schema judges it (docs/DOMAIN.md §2.1). */
+/** A plan row of version 2 to 4; a v2 or v3 payload is upgraded before the schema judges it (docs/DOMAIN.md §2.1). */
 export const readPlanRow = (raw: unknown, versions: RowVersions = ROW_SCHEMA_VERSIONS): Read<PlanRow, Plan> =>
   readRow('plans', versions, schemasFor(versions).plans, PlanSchema, raw, upgradePlan);
 export const readEntryRow = (raw: unknown, versions: RowVersions = ROW_SCHEMA_VERSIONS): Read<EntryRow, Entry> =>

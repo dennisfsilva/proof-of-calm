@@ -36,7 +36,7 @@ const entityId = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12
 export function fixtureSnapshot(): Snapshot {
   const plan: Plan = {
     id: entityId(1000),
-    schemaVersion: 3,
+    schemaVersion: 4,
     country: 'PT' as Plan['country'],
     countryRuleVersion: 2,
     payCurrency: 'EUR',
@@ -61,6 +61,7 @@ export function fixtureSnapshot(): Snapshot {
     // Nothing recorded yet: onboarding writes the acknowledgement (docs/DOMAIN.md §2.1).
     riskAcknowledgedAt: null,
     riskWordingVersion: 0,
+    riskLanguage: null,
     createdAt: at('2026-04-05'),
     updatedAt: at('2026-07-05'),
   };

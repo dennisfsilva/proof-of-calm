@@ -11,6 +11,7 @@ const plan: Plan = {
   ...(fixture.plan as Plan),
   riskAcknowledgedAt: '2026-05-10T09:00:00.000Z' as Instant,
   riskWordingVersion: 1,
+  riskLanguage: 'en',
 };
 
 const meta = {

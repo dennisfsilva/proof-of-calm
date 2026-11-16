@@ -145,6 +145,7 @@ describe('AppRoutes', () => {
       ...fixture.plan,
       riskAcknowledgedAt: '2026-05-10T09:00:00.000Z' as Instant,
       riskWordingVersion: 1,
+      riskLanguage: 'en',
     } as Plan;
 
     /** The table over a plan that recorded version 1, with the current version as `riskWording`. */

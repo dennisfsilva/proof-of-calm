@@ -653,7 +653,7 @@ describe('dataActions beside rows from a newer version (docs/DOMAIN.md §3.13)',
 
   /** A tombstone of a newer build at OTHER_PLAN, the id of the plan in a test's file. */
   const newerPlanTombstone: Rewrite = async (db, plan) => {
-    await db.put('plans', { ...plan, ...unknown, ...deleted, id: OTHER_PLAN, schemaVersion: 4 });
+    await db.put('plans', { ...plan, ...unknown, ...deleted, id: OTHER_PLAN, schemaVersion: 5 });
   };
 
   /** The fixture's plan and entries in the idb store, then the rows a newer build left. */

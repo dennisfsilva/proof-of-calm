@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { RISK_WORDING_LANGUAGES, RISK_WORDING_VERSION, riskWordingLanguage } from '../../../lib/brand';
-import { NAMESPACE_LOADERS } from '../../../lib/i18n/namespaces';
 import { UI_LANGUAGES } from '../../../lib/i18n/locale';
+import { NAMESPACE_LOADERS } from '../../../lib/i18n/namespaces';
 import onboarding from '../messages/en.json';
 
 // The plan-creation disclosure is acknowledged with its wording version (docs/LEGAL.md §4, docs/DOMAIN.md
