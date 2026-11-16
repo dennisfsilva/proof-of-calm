@@ -1,8 +1,9 @@
 import type { LearnModuleMeta } from '@proofofcalm/content';
 import type { Decimal } from '@proofofcalm/core';
 import { Children, type ComponentProps, type ReactNode } from 'react';
-import { useTranslations } from 'use-intl';
+import { useLocale, useTranslations } from 'use-intl';
 import type { Formatters } from '../../../lib/format';
+import { uiLang } from '../../../lib/i18n/text-lang';
 import { TAXES_MODULE } from './taxes';
 
 /** A section's id: the heading's words, lower case, joined by hyphens (`Why some people hold` to `why-some-people-hold`). */
@@ -17,10 +18,11 @@ export function headingId(text: string): string {
 // one without the other. The type is the body's, set here too because on a line of its own the element stands
 // outside any paragraph. The Risk page is a site page, so a plain anchor, as beside the Portfolio chart's line. A
 // module's text holds no link of its own (ADR-0048 Deviations).
+// It stands inside the module's English body, so it carries the page's language (ADR-0057).
 function PastPerformance() {
   const t = useTranslations('learn');
   return (
-    <span className="text-16">
+    <span lang={uiLang(useLocale())} className="text-16">
       {t('module.pastPerformance')}{' '}
       <a href="/risk" className="text-ink underline underline-offset-4 hover:text-ink-2">
         {t('module.riskLink')}
