@@ -279,6 +279,7 @@ for (const path of ['/portfolio', '/onboarding'] as const) {
   test(`pt-PT: ${path} stays inside the page with text set wider than this platform's fonts`, async ({ page }) => {
     const errors = path === '/portfolio' ? await boot(page, 'pt-PT') : await bootEmpty(page);
     await open(page, path);
+    await expect(page).toHaveURL(new RegExp(path));
     await expect(page.locator('html')).toHaveAttribute('lang', 'pt-PT');
     await widerText(page, '0.03em');
     await settled(page);
