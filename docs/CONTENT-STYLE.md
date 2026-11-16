@@ -150,10 +150,11 @@ The Portuguese rows (decided 2026-11-15; the voice is §9):
      and `criptoactivo`, singular or plural; the tickers `BTC`, `ETH`, `SOL` and `LINK` in capitals.
      A sentence ends at `!`, `?`, a line end or a dot that no digit follows, so
      `Compre 1.000 € de BTC` is one sentence; the text is read with its accents composed. A
-     placeholder without a space (`{coin}`, `{date:sellWindow.opens}`) counts as one word, so its
-     dots end no sentence and the coin in its path names no asset, so
-     `Mantenha até {date:sellWindow.opens} as suas bitcoins` is one sentence and fails. The English
-     rule cuts the same way.
+     `{date:<field>}` placeholder counts as one word. Its dots end no sentence, and a ticker in its
+     path names no asset: `Mantenha até {date:sellWindow.opens} as suas bitcoins` is one sentence
+     and fails. A placeholder the app fills with a coin (`{coin}`, `{coins}`, `{names}`) counts as
+     an asset name, so `Compre {coin} todos os meses` fails. Every other brace is read as written,
+     an ICU branch's words included. The English rule reads placeholders the same way.
   2. `venda` passes as the noun after the words the lint lists (`uma`, `cada`, `de`, `da`, `na`,
      `à`, `pela`, `após`, `sua`, `última` and their kin), after `compra e` or `compras e`, or after
      an `a` that opens the sentence or a clause (not after a comma) or follows a preposition, `e` or
