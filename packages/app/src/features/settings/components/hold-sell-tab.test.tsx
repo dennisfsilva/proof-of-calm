@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { countryRules, loadProfile } from '@proofofcalm/content';
+import { countryRules, holdingRuleSource, loadProfile } from '@proofofcalm/content';
 import type { CountryRules, HoldingRule, Plan } from '@proofofcalm/core';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { userEvent } from 'storybook/test';
@@ -82,9 +82,9 @@ describe('HoldSellTab', () => {
     expect(sources.parentElement?.textContent).toMatch(
       /^Reviewed on \d+\s\w+\s\d{4} · general information, not advice · Sources$/,
     );
-    // The law that sets Portugal's 365 days, the profile's first source (art. 10 CIRS).
-    expect(sources.getAttribute('href')).toBe((await loadProfile('PT'))?.sources[0]?.url);
-    expect(sources.getAttribute('href')).toMatch(/irs10\.aspx$/);
+    // The law that sets Portugal's holding rule, the source its `ruleSources.holdingRule` names.
+    const profile = await loadProfile('PT');
+    expect(sources.getAttribute('href')).toBe(profile === null ? null : holdingRuleSource(profile));
   });
 
   it('Sources is there on the first render once the profile is loaded', async () => {

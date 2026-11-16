@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { countryRules, loadProfile } from '@proofofcalm/content';
+import { countryRules, holdingRuleSource, loadProfile } from '@proofofcalm/content';
 import type { CalendarDate, CountryCode, CountryRules, Money, Plan } from '@proofofcalm/core';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -182,7 +182,7 @@ describe('PlanTab', () => {
     ).toBeDefined();
     expect(screen.getByText('Computed from your dates, not tax advice')).toBeDefined();
     const sources = await screen.findByRole('link', { name: 'Sources' });
-    expect(sources.getAttribute('href')).toBe(pt?.sources[0]?.url);
+    expect(sources.getAttribute('href')).toBe(pt === null ? null : holdingRuleSource(pt));
     expect(sources.parentElement?.textContent).toMatch(
       /^Reviewed on \d+\s\w+\s\d{4} · general information, not advice · Sources$/,
     );
