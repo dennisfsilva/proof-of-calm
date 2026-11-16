@@ -47,7 +47,9 @@ describe('a profile’s literal decimals follow its page’s number locale (docs
     expect(english(pt, '12.2–48% by bracket')).toEqual(['card.caveats.0: "12.2–48%" writes ".", expected "," (pt-PT)']);
     expect(english(pt, '12–48.5% by bracket')).toEqual(['card.caveats.0: "12–48.5%" writes ".", expected "," (pt-PT)']);
     expect(english(pt, '12.2-48.5%')).toEqual(['card.caveats.0: "12.2-48.5%" writes ".", expected "," (pt-PT)']);
-    expect(english(pt, 'from 2.5 to 13,3%')).toEqual(['card.caveats.0: "2.5 to 13,3%" writes ".", expected "," (pt-PT)']);
+    expect(english(pt, 'from 2.5 to 13,3%')).toEqual([
+      'card.caveats.0: "2.5 to 13,3%" writes ".", expected "," (pt-PT)',
+    ]);
     expect(english(pt, '12,2–48% by bracket, 2,5% to 13,3%')).toEqual([]);
     expect(english(gb, '12.2–48% by bracket')).toEqual([]);
     expect(english(gb, '12,2–48%')).toEqual(['card.caveats.0: "12,2–48%" writes ",", expected "." (en-GB)']);
