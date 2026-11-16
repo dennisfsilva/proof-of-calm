@@ -93,6 +93,15 @@ describe('rowProblems', () => {
     );
   });
 
+  it("rowProblems asks a translation for a changes[] row per changed leaf and no reviewed[] row (its English file's)", () => {
+    const overlay = 'packages/content/i18n/pt-PT/jurisdictions/pt.json';
+    const changed = [{ file: overlay, leaves: ['card.allowances[0]'] }];
+    expect(rowProblems(draft([]), changed)).toEqual([
+      `${overlay}: "card.allowances[0]" changed, and no changes[] row names it`,
+    ]);
+    expect(rowProblems(draft([row('i18n/pt-PT/jurisdictions/pt.json', 'card.allowances[0]')]), changed)).toEqual([]);
+  });
+
   it('rowProblems refuses a change to lastReviewed or nextReviewDue', () => {
     const changed = [{ file: IE, leaves: ['status.lastReviewed', 'status.nextReviewDue', 'status.reviewedBy'] }];
     const owner = 'the agent never sets lastReviewed or nextReviewDue; the owner sets lastReviewed in the flip';

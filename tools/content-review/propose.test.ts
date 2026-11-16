@@ -345,6 +345,44 @@ describe('propose', () => {
     }
   }, 30_000);
 
+  it("finish --dry accepts a translation's repeated figure with a changes row and only its English file's reviewed row", () => {
+    const [english, overlay] = ['jurisdictions/pt.json', 'i18n/pt-PT/jurisdictions/pt.json'];
+    const profile = (by: string, figure: string) => `${JSON.stringify({ status: { reviewedBy: by }, figure })}\n`;
+    const { repo, git, write } = tempRepo({
+      [`packages/content/${english}`]: profile('owner', '365 days'),
+      [`packages/content/${overlay}`]: '{"figure":"365 dias"}\n',
+      [TEMPLATE]: readFileSync(new URL(`../../${TEMPLATE}`, import.meta.url), 'utf8'),
+      [ALLOW]: '{"PT":["example.org"]}\n',
+    });
+    const outside = mkdtempSync(join(tmpdir(), 'propose-draft-'));
+    try {
+      write(`packages/content/${english}`, profile('agent-draft', '366 days'));
+      write(`packages/content/${overlay}`, '{"figure":"366 dias"}\n');
+      const row = (item: string, old: string, now: string) => ({
+        ...{ item, field: 'figure', old, new: now, quote: 'held 366 days', eventDate: '2026-11-10' },
+        ...{ url: 'https://example.org/a', accessed: '2026-11-10', confidence: 'high', substantive: true },
+        reason: 'The source now says 366 days.',
+      });
+      const reviewed = [{ item: english, read: 1, of: 1, confidence: 'high', reason: 'The one source was read.' }];
+      const changes = [row(english, '365 days', '366 days'), row(overlay, '365 dias', '366 dias')];
+      const lists = { reviewed, verified: [], unreachable: [], pending: [], queue: [], notes: [] };
+      const draft = join(outside, 'draft.json');
+      writeFileSync(draft, JSON.stringify({ date: '2026-11-10', model: 'm', countries: ['PT'], changes, ...lists }));
+      const result = spawnSync(process.execPath, [SCRIPT, 'finish', '--dry', '--draft', draft], {
+        cwd: repo,
+        encoding: 'utf8',
+        env: ENV,
+      });
+      expect([lines(result), result.status]).toEqual([
+        ['finish --dry: accepted, 2 paths; the body is in .content-review/body.md'],
+        0,
+      ]);
+    } finally {
+      rmSync(repo, { recursive: true, force: true });
+      rmSync(outside, { recursive: true, force: true });
+    }
+  }, 30_000);
+
   it('start and finish refuse, changing nothing, when gh is missing, logged out, its token expired or offline, and when the fetch fails', () => {
     const { root, repo, git, write, clean } = originRepo();
     const loggedOut =
