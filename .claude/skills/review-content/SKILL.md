@@ -41,9 +41,17 @@ Arguments: $ARGUMENTS
 ## 1. Boundary
 
 - Edit only the data files under `packages/content/`: `jurisdictions/*.json`, `facts/*.json`,
-  `templates/*.json`, `cycles/*.json` and `learn/*.mdx`. Never `sources.allow.json`, the code, the
-  scripts or the style lists. The finish refuses any other path.
-- Change `rules/*.json` only by running `pnpm --filter @proofofcalm/content rules`, never by hand.
+  `templates/*.json`, `cycles/*.json` and `learn/*.mdx`, and a translation as the next item allows.
+  Never `sources.allow.json`, the code, the scripts or the style lists. The finish refuses any other
+  path.
+- The translations under `packages/content/i18n/<locale>/` (ADR-0057) are `jurisdictions/*.json`,
+  `templates/*.json` and `facts/*.json` there. In one, change only a figure that
+  `overlay-number-mismatch` names, at the path it names, to the value written in its English file;
+  never its prose. Editing a translation asks the owner's permission: before you ask, name the
+  figure, its path and the English file's `changes` row that changed it. Nothing refuses a prose
+  edit in a translation; the owner's diff read does (`docs/CONTENT-OPS.md` §8).
+- Change `rules/*.json` and a locale's `rules/<locale>/*.json` only by running
+  `pnpm --filter @proofofcalm/content rules`, never by hand.
 - Never delete an entry or a file; the finish refuses a deletion. Name a gone source in the draft's
   notes, and the owner deletes it.
 - In a template, change only a dated figure and its source; never its name, risk label, `oneLine`
@@ -190,23 +198,29 @@ the draft's notes any banned word it holds, for the owner to allow-list with a r
 
 ## 6. Mark every change
 
-Set `reviewedBy: agent-draft` on every file you change and on every fact entry you change. Leave the
-rules files as the generator writes them. The finish refuses a changed entry at any other value.
+Set `reviewedBy: agent-draft` on every file you change and on every fact entry you change. A
+translation has no `reviewedBy`: set none on it. Leave the rules files as the generator writes them.
+The finish refuses a changed entry at any other value.
 
 ## 7. Finish
 
 1. Run `pnpm run validate:content` and `pnpm --filter @proofofcalm/content test`. The one failure you
-   expect is `agent-draft` on the entries you marked; fix or revert anything else. `rules` reports
-   the files it wrote, changed or not; the test, which fails on a stale rules file, is the check that
-   they match the profiles.
+   expect is `agent-draft` on the entries you marked; when `overlay-number-mismatch` names a figure
+   you changed in its English file, change the same figure in the translation (§1), run
+   `pnpm --filter @proofofcalm/content rules` and run the checks again; fix or revert anything else.
+   `rules` reports the files it wrote, changed or not; the test, which fails on a stale rules file,
+   is the check that they match the profiles and their translations.
 2. Write the draft to .content-review/draft.json in the shape of `ReviewDraft` in
    `tools/content-review/body.ts`; `.claude/skills/review-content/draft-example.json` is an example.
    Set `model`, `countries` and `date` to the run's own. Give one `changes` row per changed leaf,
    with the quote, the event's date and the reason: its `item` is the data file relative to
    `packages/content/` (`jurisdictions/ie.json`), its `field` the changed leaf's path
-   (`card.allowances[0]`). `accessed`, `reviewedBy` and `status.confidence` need no `changes` row.
+   (`card.allowances[0]`). A changed translation leaf gets its own `changes` row: its `item` is
+   `i18n/<locale>/<dir>/<file>.json`, the English file's item under the locale's folder, its `field`
+   the leaf's path, and its quote, date, reason and URL the English row's.
+   `accessed`, `reviewedBy` and `status.confidence` need no `changes` row.
    Give one `reviewed` row per file reviewed; the finish refuses a changed file, a module too, with
-   no `reviewed` row. The owner sets `lastReviewed` to today only when that row shows every source
+   no `reviewed` row. A translation gets none: its `lastReviewed` is its English file's. The owner sets `lastReviewed` to today only when that row shows every source
    read (`read` equals `of`) and the owner opened each off-list secondary source your notes name.
 3. Give every changed copy (a `summary60`, a note, a module's text) its own `changes` row, so the
    counsel read gets each one.
