@@ -66,7 +66,7 @@ const splitLine = (format: Formatters, { coins, split }: OfferedTemplate) =>
     coins.map(({ id }) => `${id}${NO_BREAK_SPACE}${format.percent(split[id] ?? ('0' as Percent), { decimals: 0 })}`),
   );
 
-/** A text's `{date:<field>}` placeholders written by `format.date`, in the plan's order and unbroken (CONTENT-STYLE §4). */
+/** A text's `{date:<field>}` placeholders written by `format.date` in the UI language's format, unbroken (ADR-0023). */
 const datedText = (format: Formatters, template: OfferedTemplate, text: string) =>
   fillTemplateDates(text, template.dates, format.date);
 
