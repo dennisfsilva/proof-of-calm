@@ -178,3 +178,16 @@ generated rules files of each language.
   their own percent rules (the joiner and the separator, D8). The dependency rule's product folders
   gain `packages/content/i18n/`, so `product-reaches-only-product` lets product code import an overlay
   as it imports the English file beside it (`packages/config/dependency-cruiser.cjs`).
+- **2026-11-16.** English content text on a pt-PT screen is marked (WCAG 2.2 SC 3.1.2, D4). The
+  loaders mark each profile, rules file and template text they return with its language in a
+  WeakMap (`contentLanguageOf`, `packages/content/src/loaders/language.ts`): English and every
+  fallback as `en`, a merged overlay as its language; a rules file is `pt-PT` only for a code in
+  `PROFILE_OVERLAYS`, since the others are generated from English. A copy (a spread, a parse) is
+  unmarked and keeps the page's language. `textLang` (`packages/app/src/lib/i18n/text-lang.ts`) gives
+  an element `lang="en"` where the text's language is not the screen's: the country card, the
+  holding conditions, the early-opening notice's conditions, the rule editor's general-profile line,
+  and a Learn module's title, caveat and body, which no loader returns and are English. A country
+  card whose text is English says so under its title (`learn.card.inEnglish`, D5), outside the
+  marked text and only while the text is on the card; the static site pages are English and never
+  show it. Known limit: no overlay holds a `null` item today; a future one keeps its English under
+  the object's language, so that item would be marked as the overlay's language.
