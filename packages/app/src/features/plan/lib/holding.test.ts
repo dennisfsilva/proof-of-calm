@@ -193,8 +193,9 @@ describe('holdingCountryOf', () => {
   // The rule in words shows only with its source (docs/LEGAL.md §6 question 13), so no source, no words.
   it("under review drops the source and the rule's words", async () => {
     const de = await loadProfile('DE');
+    if (de === null) throw new Error('the DE profile loads');
     const card = (today: string) => holdingCountryOf(FIXTURE_RULES.DE, '16 Oct 2026', de, today as CalendarDate);
-    expect(card('2028-01-01')).toMatchObject({ source: 'https://www.gesetze-im-internet.de/estg/__23.html' });
+    expect(card('2028-01-01')).toMatchObject({ source: lawOf(de) });
     expect(card('2028-01-01').underReview).toBeUndefined();
     expect(card('2028-01-02')).toMatchObject({ name: 'Germany', source: null, underReview: true });
   });
