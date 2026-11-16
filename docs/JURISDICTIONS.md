@@ -162,7 +162,9 @@ a `ruleSources` key names no source (`source-key-unknown`); `holdingRuleOverride
 (`overrides-unapplied`); a literal percentage in the profile's text, or a `locales` entry, does not use
 the joiner of `numberFormatLocale` between number and sign (`percent-joiner`, `docs/CONTENT-STYLE.md`
 §4); a profile text the app shows joins a numeral to its unit with an ordinary hyphen
-(`number-unit-hyphen`, `docs/CONTENT-STYLE.md` §4); a locale tag is malformed, which is reported rather than thrown (`locale-tag`). The gate is `pnpm validate:content`
+(`number-unit-hyphen`, `docs/CONTENT-STYLE.md` §4); the name, the lot-rule note, a holding-rule condition
+or the URL of the lot or holding rule's source, each of which the tax-year file's header copies, holds a `;`
+(`header-semicolon`, `docs/DOMAIN.md` §3.13); a locale tag is malformed, which is reported rather than thrown (`locale-tag`). The gate is `pnpm validate:content`
 (`packages/content/scripts/validate.ts`), which also lints every UI message file.
 
 A profile in Portuguese or German is its English file under a sparse translation in
