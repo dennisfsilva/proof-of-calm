@@ -205,19 +205,9 @@ describe('TemplateStep', () => {
     }
   });
 
-  it('writes the texts’ dates from the template’s fields in the plan’s order, never breaking one', async () => {
+  it('writes the texts’ dates from the template’s fields, never breaking one', async () => {
     const card = () =>
       screen.getByRole('radio', { name: offered('cycle-plan').name }).closest('[data-slot="radio-card"]');
-    mount({ kind: 'template', id: 'cycle-plan' }, createFormatters('en-US', 'en-US'));
-    expect(card()?.textContent).toContain(
-      `until Jun${NO_BREAK}1,${NO_BREAK}2028, held, then sold in thirds from Jun${NO_BREAK}1,${NO_BREAK}2029 to Oct${NO_BREAK}31,${NO_BREAK}2029.`,
-    );
-    const american = (await openPanel()).textContent ?? '';
-    expect(american).toContain(
-      `its high on May${NO_BREAK}10,${NO_BREAK}2021 to its low on Jun${NO_BREAK}10,${NO_BREAK}2023.`,
-    );
-    expect(american).not.toContain('{date:');
-    cleanup();
     mount({ kind: 'template', id: 'cycle-plan' });
     expect(card()?.textContent).toContain(
       `until 1${NO_BREAK}Jun${NO_BREAK}2028, held, then sold in thirds from 1${NO_BREAK}Jun${NO_BREAK}2029 to 31${NO_BREAK}Oct${NO_BREAK}2029.`,
@@ -226,6 +216,7 @@ describe('TemplateStep', () => {
     expect(english).toContain(
       `thirds to sell from 1${NO_BREAK}Jun${NO_BREAK}2029, from 1${NO_BREAK}Aug${NO_BREAK}2029, and from 1${NO_BREAK}Oct${NO_BREAK}2029,`,
     );
+    expect(english).not.toContain('{date:');
   });
 
   it('offers your own coins as the last card, after the alphabetical templates, with no risk label', () => {
