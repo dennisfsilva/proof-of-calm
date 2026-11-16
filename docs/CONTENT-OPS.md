@@ -84,10 +84,10 @@ owns the pipeline around them and its security model.
    names a figure you changed in its English file, change the same figure in the translation,
    written in the translation's number format (§1), run `pnpm --filter @proofofcalm/content rules`
    and run the checks again; fix or revert anything else. A test that fails because it asserts the
-   value a leaf held before your change is not yours to satisfy: revert nothing for it; name its
-   file and line and both values in the draft's notes and your closing report, and say in both that
-   `verify` fails on `pnpm test` until the owner removes that assertion in a pull request of its own
-   (`docs/ENGINEERING.md` §2)." A translation's figure that still does
+   value a leaf other than `reviewedBy` held before your change is not yours to satisfy: revert
+   nothing for it; name its file and line and both values in the draft's notes and your closing
+   report, and say in both that `verify` fails on `pnpm test` until the owner removes that assertion
+   in a pull request of its own (`docs/ENGINEERING.md` §2)." A translation's figure that still does
    not match is reverted on neither side: the agent names it in the draft's notes and its report,
    and says in both that the PR's `verify` check fails on `pnpm validate:content` until it is fixed.
    The finish does not run that check; CI's `verify` job does (`.github/workflows/ci.yml`), so the
@@ -273,8 +273,9 @@ is read again at every review, because its low can still move.
    partial review moves nothing); bump `status.version`,
    set `changedOn` and write `changeNotice` when a rule changed in substance; a bump that corrects our
    own file also writes a `changeNotice` that says so (`docs/JURISDICTIONS.md` §6). When `verify`
-   fails on `pnpm test` because a test asserts a value the review changed, named in the notes or
-   shown only by CI, as an app or web test is, have the assertion removed in a session pull request
+   fails on `pnpm test` because a test asserts a value the review changed other than `reviewedBy`,
+   named in the notes or shown only by CI, as an app or web test is, have the assertion removed in a
+   session pull request
    to main first; push the flip after it merges. When the PR
    changes a translation (§3 step 2), check that its diff changes only the figures its English file
    changed, at the same paths and to the same values, and nothing else there: compare the values,

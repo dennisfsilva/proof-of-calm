@@ -224,10 +224,10 @@ The finish refuses a changed entry at any other value.
    you changed in its English file, change the same figure in the translation, written in the
    translation's number format (§1), run `pnpm --filter @proofofcalm/content rules` and run the
    checks again; fix or revert anything else. A test that fails because it asserts the value a leaf
-   held before your change is not yours to satisfy: revert nothing for it; name its file and line
-   and both values in the draft's notes and your closing report, and say in both that `verify`
-   fails on `pnpm test` until the owner removes that assertion in a pull request of its own
-   (`docs/ENGINEERING.md` §2). When a translation's figure still does not match
+   other than `reviewedBy` held before your change is not yours to satisfy: revert nothing for it;
+   name its file and line and both values in the draft's notes and your closing report, and say in
+   both that `verify` fails on `pnpm test` until the owner removes that assertion in a pull request
+   of its own (`docs/ENGINEERING.md` §2). When a translation's figure still does not match
    after that, revert neither the English change nor the translation's edit: name the figure, its
    path and the values the check prints in the draft's notes and in your closing report, and say
    in both that the pull request's `verify` check fails on `pnpm validate:content` until that figure
