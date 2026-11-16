@@ -1522,6 +1522,6 @@ rule on when the reload runs is unchanged.
   The cost: only a CSS dependency's preload can reject (a script's `modulepreload` link is not
   awaited), and one that fails now fails the import even when the module itself would load, where it
   went on before. That happens only when the network fails while the build is still deployed, where
-  the module's own request usually fails too. ADR-0057's Corrections of 2026-11-16 describe the
-  handler as preventing the default; its loaders keep their guard for an import that resolves
-  without the file.
+  the module's own request usually fails too. ADR-0057's Corrections of 2026-11-16 record what this
+  means for the content loaders: a failed content chunk now rejects, and their `try` keeps the
+  English fallback, with the guard for an import that resolves without the file kept as defence.
