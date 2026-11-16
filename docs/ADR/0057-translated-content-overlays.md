@@ -141,3 +141,9 @@ generated rules files of each language.
   read the file inside the same `try`, so a rejected import or one that resolves to undefined
   answers English and is not cached. Found by the evaluator's offline run of the pt-PT checkpoint
   (#269).
+- **2026-11-16.** "A review of an English number or source reaches every language at once" holds for
+  the source and for each number's value, not for its characters: a translation that repeats a figure
+  the content review changes fails `overlay-number-mismatch` until that figure changes there too, in
+  the translation's number format. The review's agent makes that one edit and the owner reads its
+  diff (`docs/CONTENT-OPS.md` §3 step 2 and §8 step 4). Found by the docs sync of the content review's
+  translation step (#289).

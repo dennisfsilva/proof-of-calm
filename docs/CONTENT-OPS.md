@@ -114,7 +114,7 @@ owns the pipeline around them and its security model.
    change, a changed module with no row, a changed file (a module too, a translation not) with no
    `reviewed` row,
    and any change to `lastReviewed` or `nextReviewDue` (in a module, any changed line naming either)
-   are refused; the generated `rules/*.json` are skipped. A refusal leaves the index as it found
+   are refused; the generated rules files, a locale's too, are skipped. A refusal leaves the index as it found
    it. Without `--dry` at origin/main it first refuses, changing nothing, a HEAD other than
    origin/main, then a failed fetch of the agent/ branches or a gh that is missing, logged out or
    offline, and takes the day's first free name. When nothing is refused, it renders the body,
@@ -128,10 +128,11 @@ owns the pipeline around them and its security model.
 
 The agent has no git and no gh. The skill's `allowed-tools` pre-approve the data edits, the three
 pnpm commands and the three `propose.ts` commands, and name no git, gh, WebFetch, WebSearch or
-pdf.ts rule. `node tools/content-review/pdf.ts <url>` is not pre-approved: each run asks the owner
-and shows its URL, and it fetches only an https URL on the allow-list, checks every redirect hop the
-same way and writes only under .content-review/pdf/. Pre-approval does not confine: any other tool
-still asks the owner. WebFetch
+pdf.ts rule. `node tools/content-review/pdf.ts <url>` is not pre-approved: unless the session's
+permission mode approves it, each run asks the owner and shows its URL, and it fetches only an https
+URL on the allow-list, checks every redirect hop the same way and writes only under
+.content-review/pdf/. Pre-approval does not confine: any other tool still goes through the session's
+permission mode, which in the default mode asks the owner. WebFetch
 keeps the session's own permission settings, so each new domain's first WebFetch shows the owner
 what the agent reads.
 
@@ -172,7 +173,8 @@ visible rather than impossible:
   and unreachable links on any list. The finish refuses any other link. `pnpm validate:content`
   refuses an off-list source in the data unless its `kind` is `secondary`: a secondary source may
   sit off the list, and it is never a profile's only evidence (`packages/content/src/validate.ts`).
-- `tools/content-review/pdf.ts` is not pre-approved: each run asks the owner and shows its URL. It
+- `tools/content-review/pdf.ts` is not pre-approved: unless the session's permission mode approves
+  it, each run asks the owner and shows its URL. It
   takes one URL, fetches it only over https, checks it and every redirect hop against the allow-list, keeps only bytes that start as a PDF and writes only
   under .content-review/pdf/. The agent reads its text as data, like any fetched page.
 - Deletions are refused: the finish refuses every one, so the agent deletes nothing, and CI's guard
@@ -253,8 +255,9 @@ is read again at every review, because its low can still move.
 
 ## 8. The owner's review, step by step
 
-1. Open the PR and read its file list first. Close it unmerged when any path lies outside the data
-   folders of §1, such as `.github/`, `tools/`, a `src/` folder or a package file. Then, for each
+1. Open the PR and read its file list first. Close it unmerged when any path lies outside the
+   content data the guard accepts (§3, `DATA_PATHS`), such as `.github/`, `tools/`, a `src/` folder
+   or a package file. Then, for each
    change, open the source URL yourself (not the quote) and find the passage. Open also each
    off-list secondary source the notes name as not fetched, on its own site, and read the lines that
    cite it.
