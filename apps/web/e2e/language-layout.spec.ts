@@ -306,7 +306,9 @@ test("pt-PT: /plan stays inside the page with its timeline's table open and text
   await open(page, '/plan');
   await expect(page.locator('html')).toHaveAttribute('lang', 'pt-PT');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(words.title);
-  const details = page.locator('details[data-slot="chart-table"]', { has: page.getByText(words.table, { exact: true }) });
+  const details = page.locator('details[data-slot="chart-table"]', {
+    has: page.getByText(words.table, { exact: true }),
+  });
   await details.locator('summary').click();
   await expect(details).toHaveAttribute('open', '');
   await expect(details.locator('table')).toContainText(/de\s\S+\sde\s20\d\d/);
