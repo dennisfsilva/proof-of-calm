@@ -5,9 +5,11 @@ import { fixtureNowMs, fixtureSnapshot } from '@proofofcalm/app/lib/services/fix
 import type { CalendarDate, Entry } from '@proofofcalm/core';
 import enPlan from '../../../packages/app/src/messages/en/plan.json' with { type: 'json' };
 import enPortfolio from '../../../packages/app/src/messages/en/portfolio.json' with { type: 'json' };
+import enSettings from '../../../packages/app/src/messages/en/settings.json' with { type: 'json' };
 import enToday from '../../../packages/app/src/messages/en/today.json' with { type: 'json' };
 import ptPlan from '../../../packages/app/src/messages/pt-PT/plan.json' with { type: 'json' };
 import ptPortfolio from '../../../packages/app/src/messages/pt-PT/portfolio.json' with { type: 'json' };
+import ptSettings from '../../../packages/app/src/messages/pt-PT/settings.json' with { type: 'json' };
 import ptToday from '../../../packages/app/src/messages/pt-PT/today.json' with { type: 'json' };
 import { seedPlan } from './seed';
 import { routeFixturePrices, test } from './support';
@@ -324,6 +326,44 @@ test("pt-PT: /plan stays inside the page with its timeline's table open and text
   const now = await pastTheViewport(page);
   expect(now.past, 'nothing ends past the viewport').toEqual([]);
   expect(now.scrolls, 'no page-wide horizontal scroll').toBe(false);
+  expect(errors).toEqual([]);
+});
+
+// Settings in pt-PT, its tabs found by the merged pt-PT file's words: the Plan, Hold & sell and Data tabs, the longest
+// of its words, stay inside the page with the same wider text.
+test('pt-PT: /settings keeps its Plan, Hold and Data tabs inside the page with text set wider than its fonts', async ({
+  page,
+}) => {
+  const tabs = { plan: ptSettings.tabs.plan, hold: ptSettings.tabs.hold, data: ptSettings.tabs.data };
+  const english: typeof tabs = { plan: enSettings.tabs.plan, hold: enSettings.tabs.hold, data: enSettings.tabs.data };
+  // Each tab's name on its own, so one left in English fails the case.
+  for (const key of Object.keys(tabs) as (keyof typeof tabs)[]) {
+    expect(tabs[key], `the merged pt-PT file holds Settings' own ${key} tab`).not.toBe(english[key]);
+  }
+  expect(ptSettings.title).not.toBe(enSettings.title);
+  const errors = await boot(page, 'pt-PT');
+  await open(page, '/settings');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'pt-PT');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(ptSettings.title);
+  // What each tab's own panel shows, found by the tab's name, since the panel left keeps its contents while it closes:
+  // the form's save button, or the data section's heading.
+  const panel = (key: keyof typeof tabs) => page.getByRole('tabpanel', { name: tabs[key], exact: true });
+  const shown = {
+    plan: panel('plan').getByRole('button', { name: ptSettings.save, exact: true }),
+    hold: panel('hold').getByRole('button', { name: ptSettings.save, exact: true }),
+    data: panel('data').getByRole('heading', { level: 2, name: ptSettings.data.heading, exact: true }),
+  };
+  await widerText(page, '0.03em');
+  for (const key of Object.keys(tabs) as (keyof typeof tabs)[]) {
+    const tab = page.getByRole('tab', { name: tabs[key], exact: true });
+    await tab.click();
+    await expect(tab).toHaveAttribute('aria-selected', 'true');
+    await expect(shown[key]).toBeVisible();
+    await settled(page);
+    const now = await pastTheViewport(page);
+    expect(now.past, `nothing on the ${key} tab ends past the viewport`).toEqual([]);
+    expect(now.scrolls, `no page-wide horizontal scroll on the ${key} tab`).toBe(false);
+  }
   expect(errors).toEqual([]);
 });
 
