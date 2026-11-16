@@ -75,6 +75,17 @@ describe('createHostConfig', () => {
       'assets/messages/de/[name]-[hash].js',
     );
     expect(name(chunk('/repo/packages/app/src/messages/en/learn.json'))).toBe('assets/[name]-[hash].js');
+    // A language's content chunks join them (ADR-0057); English content keeps assets/.
+    expect(name(chunk('/repo/packages/content/rules/pt-PT/pt.json'))).toBe('assets/messages/pt-PT/[name]-[hash].js');
+    expect(name(chunk('C:\\repo\\packages\\content\\i18n\\pt-PT\\jurisdictions\\pt.json'))).toBe(
+      'assets/messages/pt-PT/[name]-[hash].js',
+    );
+    expect(name(chunk('/repo/packages/content/i18n/de/templates/steady.json'))).toBe(
+      'assets/messages/de/[name]-[hash].js',
+    );
+    expect(name(chunk('/repo/packages/content/rules/pt.json'))).toBe('assets/[name]-[hash].js');
+    expect(name(chunk('/repo/packages/content/rules/locales.json'))).toBe('assets/[name]-[hash].js');
+    expect(name(chunk('/repo/packages/content/jurisdictions/pt.json'))).toBe('assets/[name]-[hash].js');
     expect(name(chunk('/repo/packages/app/src/features/learn/index.ts'))).toBe('assets/[name]-[hash].js');
     expect(name(chunk(null))).toBe('assets/[name]-[hash].js');
   });
