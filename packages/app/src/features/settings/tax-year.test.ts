@@ -2,6 +2,7 @@ import { COUNTRY_CODES, countryRules, loadProfile, loadProfiles } from '@proofof
 import { type CalendarDate, type CountryCode, type Entry, type Plan, taxYearEndingIn } from '@proofofcalm/core';
 import { createTranslator } from 'use-intl/core';
 import { describe, expect, it, vi } from 'vitest';
+import { headerTexts } from '../../../../content/src/header-validate.ts';
 import type { Snapshot } from '../../lib/ports';
 import { fixtureSnapshot } from '../../lib/services/fixtures';
 import { createTestServices, preloadLazyModules, recordingPlatform } from '../../lib/services/testing';
@@ -12,7 +13,8 @@ import { downloadTaxYear } from './tax-year';
 // D10 (docs/DOMAIN.md §3.13): the tax-year file's header lines follow the UI language, and none holds a `;`, the
 // list separator a spreadsheet in a comma-decimal locale splits a cell on. A line is a message of
 // `settings.data.taxYear.file`, filled with the country's name, its sources, dates, counts and codes, or one of the
-// English profile's texts (the lot note, the holding rule's conditions).
+// English profile's texts (the lot note, the holding rule's conditions). packages/content refuses a `;` in every
+// profile text `headerTexts` names (`header-semicolon`); the drift case below keeps that list the header's.
 
 vi.mock('@proofofcalm/content', async (original) =>
   (await import('../../lib/services/testing-modules')).profilesInMemory(
@@ -26,26 +28,15 @@ const LANGUAGES = { en: english, 'pt-PT': portuguese } as const;
 type Language = keyof typeof LANGUAGES;
 const LANGUAGE_TAGS = Object.keys(LANGUAGES) as Language[];
 
-/**
- * The English profile texts that hold a `;` on 2026-11-16: Germany's lot note, the US lot note and two of its
- * conditions, the general profile's lot note. Their wording is packages/content's, outside the app's words; listed so
- * that a new one fails here and a reworded one leaves the list.
- */
-const PROFILE_SEMICOLONS = [
-  'Federal rate only. Most states tax the gain at their own rates (42 levy an income tax; Tax Foundation, 2026; medium confidence). Confirm your state.',
-  "Gifted units keep the giver's holding period when records show it; inherited units are long-term at once (IRS FAQ Q33; IRS Publication 544).",
-  'Not reviewed for your country; the app matches sales to purchases first in, first out per coin.',
-  'Per wallet: the BMF accepts first in, first out or individual identification, elected per wallet and per crypto-asset and applied consistently; average cost is the fallback (medium-high confidence).',
-  'You choose which units you sold when your records identify them and what they cost, kept per account, wallet, or address; otherwise first in, first out (IRS FAQ Q39 to Q41).',
-];
-
 /** A header line as the file holds it, one `textCell`, back to its text. */
 const uncell = (line: string) => (line.startsWith('"') ? line.slice(1, -1).replaceAll('""', '"') : line);
 const FILE = 'settings.data.taxYear.file';
 
-/** Every string of a message tree, each ICU branch inside its source text. */
-const strings = (tree: unknown): string[] =>
-  typeof tree === 'string' ? [tree] : Object.values(tree as Record<string, unknown>).flatMap(strings);
+/** Every string of a message tree or a profile, each ICU branch inside its source text. */
+const strings = (tree: unknown): string[] => {
+  if (typeof tree === 'string') return [tree];
+  return typeof tree === 'object' && tree !== null ? Object.values(tree).flatMap(strings) : [];
+};
 
 const rules = async (code: CountryCode) => {
   const profile = await loadProfile(code);
@@ -96,23 +87,30 @@ describe('the tax-year header lines', () => {
     expect(strings(file).filter((text) => text.includes(';'))).toEqual([]);
   });
 
-  it('hold a ";" in no country\'s English name, lot note, condition or source but the listed ones', async () => {
-    const texts = (await loadProfiles('en')).flatMap((profile) => [
-      profile.name,
-      profile.lotRuleNote,
-      ...profile.holdingRuleConditions,
-      ...strings(profile.ruleSources),
-    ]);
-    expect(texts.length).toBeGreaterThan(COUNTRY_CODES.length * 2);
-    expect(texts.filter((text) => text.includes(';')).sort()).toEqual(PROFILE_SEMICOLONS);
-  });
+  it.each(COUNTRY_CODES)(
+    "%s's English header copies no profile text but the ones packages/content checks for a ';'",
+    async (code) => {
+      const profile = (await loadProfiles('en')).find((each) => each.code === code);
+      if (profile === undefined) throw new Error(`no ${code} profile`);
+      const checked = headerTexts(profile).map(([, text]) => text);
+      const lines = (await header(code, 'en')).split('\n').map(uncell);
+      // A line the profile's prose fills, or a URL among the review line's words. Dates, codes and keys, which the
+      // schema shapes, hold no space and cannot hold a `;`.
+      const pieces = new Set([...lines, ...lines.flatMap((line) => line.split(/,? /))]);
+      const copied = strings(profile).filter(
+        (text) => (text.includes(' ') || text.startsWith('https://')) && pieces.has(text),
+      );
+      expect(copied.length).toBeGreaterThan(0);
+      expect(copied.filter((text) => !checked.includes(text))).toEqual([]);
+    },
+  );
 
   it.each(COUNTRY_CODES.flatMap((code) => LANGUAGE_TAGS.map((language) => [code, language] as const)))(
-    '%s\'s file in %s opens with header lines, a ";" only in a listed profile text',
+    '%s\'s file in %s opens with header lines, none holding a ";"',
     async (code, language) => {
       const lines = (await header(code, language)).split('\n').map(uncell);
       expect(lines.length).toBeGreaterThan(5);
-      expect(lines.filter((line) => line.includes(';') && !PROFILE_SEMICOLONS.includes(line))).toEqual([]);
+      expect(lines.filter((line) => line.includes(';'))).toEqual([]);
     },
   );
 });
