@@ -5,9 +5,10 @@ import { fileURLToPath } from 'node:url';
 import { CountryRulesSchema } from '@proofofcalm/core';
 import { afterAll, describe, expect, it } from 'vitest';
 import { LOCALES_FILE, renderLocales, renderRules, writeRules } from '../../scripts/rules.ts';
+import { CONTENT_LANGUAGES, type OverlayLanguage } from '../i18n/overlay.ts';
 import type { CountryProfile } from '../schema/jurisdiction.ts';
 import { COUNTRY_CODES, countryRules, loadProfile } from './countries.ts';
-import { loadRules } from './rules.ts';
+import { loadRules, RULES_LANGUAGES } from './rules.ts';
 
 // The generated rules files (ADR-0049): what the shell boots on in place of the profile. Each is the script's
 // render of `countryRules` over the profile file, so a stale one fails here and names the command.
@@ -16,6 +17,10 @@ const RULES = fileURLToPath(new URL('../../rules/', import.meta.url));
 const PROFILES = fileURLToPath(new URL('../../jurisdictions/', import.meta.url));
 const STALE = 'stale rules file: run `pnpm --filter @proofofcalm/content rules` and commit the result';
 const fileName = (code: string) => `${code.toLowerCase()}.json`;
+// The script writes rules/<language>/ for each content language with a folder under i18n/ (ADR-0057).
+const I18N_LANGUAGES = readdirSync(fileURLToPath(new URL('../../i18n/', import.meta.url)))
+  .filter((name): name is OverlayLanguage => (CONTENT_LANGUAGES as readonly string[]).includes(name) && name !== 'en')
+  .sort();
 const profileFile = (code: string) =>
   JSON.parse(readFileSync(join(PROFILES, fileName(code)), 'utf8')) as CountryProfile;
 
@@ -38,13 +43,39 @@ describe('loadRules', () => {
 });
 
 describe('packages/content/rules', () => {
-  it('holds one file per profile code and the locales file, and no other', () => {
-    expect(readdirSync(RULES).sort()).toEqual([...COUNTRY_CODES.map(fileName), LOCALES_FILE].sort());
+  it('holds one file per profile code, the locales file and a folder per translated language, and no other', () => {
+    const entries = readdirSync(RULES, { withFileTypes: true });
+    const files = entries.filter((entry) => entry.isFile()).map((entry) => entry.name);
+    expect(files.sort()).toEqual([...COUNTRY_CODES.map(fileName), LOCALES_FILE].sort());
+    const folders = entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
+    expect(folders.sort()).toEqual(I18N_LANGUAGES);
   });
 
   it.each(COUNTRY_CODES)('%s reads as the script renders its profile', (code) => {
     const text = readFileSync(join(RULES, fileName(code)), 'utf8');
     expect(text, STALE).toBe(renderRules(countryRules(profileFile(code))));
+  });
+});
+
+describe('packages/content/rules/<language> (ADR-0057)', () => {
+  it('has a folder, and a loadRules record, for each language with a folder under i18n/', () => {
+    expect(I18N_LANGUAGES).toContain('pt-PT');
+    expect([...RULES_LANGUAGES].sort()).toEqual(I18N_LANGUAGES);
+  });
+
+  const cases = I18N_LANGUAGES.flatMap((language) => COUNTRY_CODES.map((code) => [language, code] as const));
+  it.each(cases)('%s/%s reads as the script renders its translated profile', async (language, code) => {
+    expect(readdirSync(join(RULES, language)).sort(), STALE).toEqual(COUNTRY_CODES.map(fileName).sort());
+    const text = readFileSync(join(RULES, language, fileName(code)), 'utf8');
+    expect(text, STALE).toBe(renderRules(countryRules((await loadProfile(code, language)) as CountryProfile)));
+    expect(await loadRules(code, language)).toEqual(JSON.parse(text));
+  });
+
+  it("answers English's own file in English and in a language without generated files", async () => {
+    const english = await loadRules('PT');
+    expect(await loadRules('PT', 'en')).toBe(english);
+    expect(await loadRules('PT', 'de')).toBe(english);
+    expect(await loadRules('ZZ', 'pt-PT')).toBeNull();
   });
 });
 
@@ -87,6 +118,19 @@ describe('writeRules (scripts/rules.ts)', () => {
     writeFileSync(join(rules, 'notes.txt'), 'kept');
     expect(writeRules({ profiles, rules })).toEqual({ written: ['pt.json', LOCALES_FILE], removed: ['zz.json'] });
     expect(readdirSync(rules).sort()).toEqual([LOCALES_FILE, 'notes.txt', 'pt.json']);
+  });
+
+  it("writes a language's rules over its translation, the numbers and dates English's, and no locales file", () => {
+    const profiles = join(dir, 'jurisdictions');
+    const overlays = join(dir, 'i18n', 'pt-PT', 'jurisdictions');
+    const rules = join(dir, 'rules', 'pt-PT');
+    mkdirSync(overlays, { recursive: true });
+    const overlay = { name: 'Portugal (pt)', holdingRule: { days: 1 }, status: { changedOn: '2020-01-01' } };
+    writeFileSync(join(overlays, 'pt.json'), JSON.stringify(overlay));
+    expect(writeRules({ profiles, rules, overlays })).toEqual({ written: ['pt.json'], removed: [] });
+    const english = countryRules(profileFile('PT'));
+    expect(JSON.parse(readFileSync(join(rules, 'pt.json'), 'utf8'))).toEqual({ ...english, name: 'Portugal (pt)' });
+    expect(readdirSync(rules)).toEqual(['pt.json']);
   });
 
   it('refuses a profile whose code is not two capitals and writes nothing outside the rules folder', () => {

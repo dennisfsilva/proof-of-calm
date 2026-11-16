@@ -2,12 +2,14 @@
 // in jurisdictions/ as `countryRules` maps it, and rules/locales.json, every profile's locales by code
 // (src/loaders/locales.ts). The shell boots on a country's rules/<code>.json (the measurement:
 // ADR-0049); the profile's card text and sources load only where a card, a source link or the picker shows
-// them. A rules file with no profile is removed. The files are committed and never edited by hand:
+// them. Each content language with a folder under i18n/ gets rules/<language>/ over its translations (ADR-0057).
+// A rules file with no profile is removed. The files are committed and never edited by hand:
 // src/loaders/rules.test.ts fails while one is stale or missing. The profiles are read from disk, as
 // scripts/validate.ts reads them.
-import { mkdirSync, readdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { applyOverlay, CONTENT_LANGUAGES } from '../src/i18n/overlay.ts';
 import { countryRules } from '../src/loaders/countries.ts';
 import { type CountryProfile, CountryProfileSchema } from '../src/schema/jurisdiction.ts';
 
@@ -52,12 +54,19 @@ export function renderLocales(profiles: readonly CountryProfile[]): string {
   );
 }
 
+/** The profile under its translation at `overlay`, where that file exists (ADR-0057). */
+function translated(profile: CountryProfile, overlay: string | undefined): CountryProfile {
+  if (overlay === undefined || !existsSync(overlay)) return profile;
+  return applyOverlay(profile, JSON.parse(readFileSync(overlay, 'utf8')), 'jurisdiction');
+}
+
 /**
- * Writes each profile's rules file and the locales file into `rules` and removes any other `.json` there; the names
- * of both. A file that is not a country profile throws, so a code that is not two capitals never names a file
- * outside `rules`.
+ * Writes each profile's rules file into `rules`, under its translation in `overlays` where one exists, and, for
+ * English (no `overlays`), the locales file, which no translation changes; removes any other `.json` there; the
+ * names of both. A file that is not a country profile throws, so a code that is not two capitals never names a
+ * file outside `rules`.
  */
-export function writeRules({ profiles, rules }: { profiles: string; rules: string }): {
+export function writeRules({ profiles, rules, overlays }: { profiles: string; rules: string; overlays?: string }): {
   written: string[];
   removed: string[];
 } {
@@ -72,12 +81,14 @@ export function writeRules({ profiles, rules }: { profiles: string; rules: strin
     const file = `${parsed.data.code.toLowerCase()}.json`;
     const target = resolve(rules, file);
     if (!target.startsWith(resolve(rules) + sep)) throw new Error(`${file} would land outside ${rules}`);
-    writeFileSync(target, renderRules(countryRules(parsed.data)));
+    writeFileSync(target, renderRules(countryRules(translated(parsed.data, overlays && join(overlays, name)))));
     written.push(file);
     read.push(parsed.data);
   }
-  writeFileSync(join(rules, LOCALES_FILE), renderLocales(read));
-  written.push(LOCALES_FILE);
+  if (overlays === undefined) {
+    writeFileSync(join(rules, LOCALES_FILE), renderLocales(read));
+    written.push(LOCALES_FILE);
+  }
   const removed = readdirSync(rules)
     .filter((name) => name.endsWith('.json') && !written.includes(name))
     .sort();
@@ -88,7 +99,18 @@ export function writeRules({ profiles, rules }: { profiles: string; rules: strin
 const isMain = process.argv[1] !== undefined && fileURLToPath(import.meta.url) === process.argv[1];
 if (isMain) {
   const root = fileURLToPath(new URL('../', import.meta.url));
-  const { written, removed } = writeRules({ profiles: join(root, 'jurisdictions'), rules: join(root, 'rules') });
-  const gone = removed.length === 0 ? '' : `, ${removed.length} removed (${removed.join(', ')})`;
-  console.log(`${written.length} rules files written (${written.join(', ')})${gone}`);
+  const i18n = join(root, 'i18n');
+  // English, then each content language with a folder under i18n/ (ADR-0057).
+  const languages = existsSync(i18n)
+    ? readdirSync(i18n).filter((name) => name !== 'en' && (CONTENT_LANGUAGES as readonly string[]).includes(name))
+    : [];
+  for (const language of ['', ...languages.sort()]) {
+    const { written, removed } = writeRules({
+      profiles: join(root, 'jurisdictions'),
+      rules: join(root, 'rules', language),
+      ...(language === '' ? {} : { overlays: join(i18n, language, 'jurisdictions') }),
+    });
+    const gone = removed.length === 0 ? '' : `, ${removed.length} removed (${removed.join(', ')})`;
+    console.log(`${language || 'en'}: ${written.length} rules files written (${written.join(', ')})${gone}`);
+  }
 }
