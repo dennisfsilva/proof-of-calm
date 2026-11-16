@@ -74,6 +74,7 @@ export function planFromTemplate(template: Template, start: TemplateStart): Resu
     // Onboarding records the acknowledgement on the plan it saves (docs/DOMAIN.md §2.1).
     riskAcknowledgedAt: null,
     riskWordingVersion: 0,
+    riskLanguage: null,
     createdAt: start.now,
     updatedAt: start.now,
   };

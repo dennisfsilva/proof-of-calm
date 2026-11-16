@@ -76,7 +76,7 @@ describe('importPrototype (docs/DOMAIN.md §7)', () => {
     const result = imported(exported());
     expect(result.plan).toEqual({
       id: 'p0plan',
-      schemaVersion: 3,
+      schemaVersion: 4,
       country: 'PT',
       countryRuleVersion: 2,
       payCurrency: 'EUR',
@@ -106,6 +106,7 @@ describe('importPrototype (docs/DOMAIN.md §7)', () => {
       // The prototype records no acknowledgement: the plan-creation disclosure was never shown (§2.1).
       riskAcknowledgedAt: null,
       riskWordingVersion: 0,
+      riskLanguage: null,
       createdAt: now,
       updatedAt: now,
     });

@@ -1,4 +1,4 @@
-// The plan (docs/DOMAIN.md §2.1, schema version 3). Every invariant is a coded issue so that forms,
+// The plan (docs/DOMAIN.md §2.1, schema version 4). Every invariant is a coded issue so that forms,
 // storage reads and imports report the same problem the same way; the shell maps codes to copy.
 import * as z from 'zod/mini';
 import { MAX_SLOTS, NOTE_MAX_LENGTH } from '../constants';
@@ -70,8 +70,14 @@ export type SellChecks = z.infer<typeof SellChecksSchema>;
 export const SplitSchema = z.record(CoinIdSchema, PercentSchema);
 export type Split = z.infer<typeof SplitSchema>;
 
-/** The plan's payload version (docs/DOMAIN.md §2); a v2 plan is read through `upgradePlan`. */
-export const PLAN_SCHEMA_VERSION = 3;
+/** The plan's payload version (docs/DOMAIN.md §2); a v2 or v3 plan is read through `upgradePlan`. */
+export const PLAN_SCHEMA_VERSION = 4;
+
+/**
+ * A UI language's tag (`en`, `pt-PT`): the app owns the list of languages, which the core cannot import
+ * (docs/ARCHITECTURE.md), so the core checks only the tag's form.
+ */
+export const LanguageTagSchema = z.string().check(z.regex(/^[a-z]{2,3}(-[A-Z]{2})?$/));
 
 const PlanFieldsSchema = z.strictObject({
   id: EntityIdSchema,
@@ -104,6 +110,8 @@ const PlanFieldsSchema = z.strictObject({
   riskAcknowledgedAt: z.nullable(InstantSchema),
   /** The disclosure wording version acknowledged; 0 with a null instant: nothing recorded. Onboarding writes both. */
   riskWordingVersion: z.int().check(z.minimum(0)),
+  /** The language of the disclosure text acknowledged; null exactly when nothing is recorded. */
+  riskLanguage: z.nullable(LanguageTagSchema),
   createdAt: InstantSchema,
   updatedAt: InstantSchema,
 });
@@ -126,6 +134,7 @@ export const PLAN_ISSUE_CODES = [
   'pause-order',
   'pauses-overlap',
   'skips-not-unique',
+  'risk-language',
 ] as const;
 export type PlanIssueCode = (typeof PLAN_ISSUE_CODES)[number];
 export type PlanIssue = { readonly code: PlanIssueCode; readonly path: readonly (string | number)[] };
@@ -214,9 +223,18 @@ function scheduleIssues(plan: PlanFields): PlanIssue[] {
   return issues;
 }
 
+/** Whether an acknowledgement is recorded: either half of it (docs/DOMAIN.md §2.1). */
+export function acknowledgementRecorded(plan: Pick<Plan, 'riskAcknowledgedAt' | 'riskWordingVersion'>): boolean {
+  return plan.riskAcknowledgedAt !== null || plan.riskWordingVersion !== 0;
+}
+
 /** Every invariant of docs/DOMAIN.md §2.1 that the plan breaks, in a stable order. */
 export function planIssues(plan: PlanFields): PlanIssue[] {
-  return [...splitIssues(plan), ...amountIssues(plan), ...dateIssues(plan), ...scheduleIssues(plan)];
+  const language: PlanIssue[] =
+    acknowledgementRecorded(plan) === (plan.riskLanguage !== null)
+      ? []
+      : [{ code: 'risk-language', path: ['riskLanguage'] }];
+  return [...splitIssues(plan), ...amountIssues(plan), ...dateIssues(plan), ...scheduleIssues(plan), ...language];
 }
 
 export const PlanSchema = PlanFieldsSchema.check(

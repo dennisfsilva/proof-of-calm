@@ -172,7 +172,11 @@ describe('readBackup (docs/DOMAIN.md §3.13)', () => {
     const acknowledged = aPlan({ riskAcknowledgedAt: at, riskWordingVersion: 1 });
     const v3 = exportBackup(acknowledged, [kept], exportedAt);
     for (const version of [3, 4, 5]) {
-      const mainWrote = { ...(roundTrip(v3) as object), schemaVersion: version, plan: roundTrip(asV3Plan(acknowledged)) };
+      const mainWrote = {
+        ...(roundTrip(v3) as object),
+        schemaVersion: version,
+        plan: roundTrip(asV3Plan(acknowledged)),
+      };
       expect(readBackup(mainWrote)).toStrictEqual({ ok: true, value: v3 });
     }
     const v2 = { ...(roundTrip(file) as object), schemaVersion: 2, plan: roundTrip(asV2Plan(plan)) };

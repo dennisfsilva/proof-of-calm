@@ -438,6 +438,7 @@ export function importPrototype(
     // The prototype never showed the plan-creation disclosure: nothing is recorded (docs/DOMAIN.md §2.1).
     riskAcknowledgedAt: null,
     riskWordingVersion: 0,
+    riskLanguage: null,
     createdAt: input.now,
     updatedAt: input.now,
   });

@@ -13,15 +13,17 @@ import { BACKUP_FORMAT, BACKUP_SCHEMA_VERSION, type BackupFile, BackupFileSchema
 import { ENTRY_SCHEMA_VERSION, type Entry, invalidEntryIds, writtenEntryVersion } from '../schema/entry';
 import type { CountryCode, EntityId } from '../schema/ids';
 import { PLAN_SCHEMA_VERSION, type Plan } from '../schema/plan';
-import { upgradePlan, writtenPlan } from '../schema/upgrade';
+import { planV3, upgradePlan, writtenPlan } from '../schema/upgrade';
 import type { TaxYearSpan } from './tax-year';
 
-/** A file of the build before the acknowledgement, and of this one while nothing is recorded: its plan is read as v3 with none. */
+/** A file of the build before the acknowledgement, and of this one while nothing is recorded: its plan is v2. */
 const PLAN_V2_SCHEMA_VERSION = 2;
 /** A file whose entries hold no `held` entry: the previous build's, and this one's while none is recorded. */
 const ENTRIES_V2_SCHEMA_VERSION = 3;
 /** A file whose entries hold a `held` entry but no move: the previous build's, and this one's while no move is recorded. */
 const ENTRIES_V3_SCHEMA_VERSION = 4;
+/** A file with a move, its plan at v3: the previous build's, and this one's while no language but English is recorded. */
+const MOVES_SCHEMA_VERSION = 5;
 const EXTENSION = { backup: 'json', log: 'csv' } as const;
 
 /** `<slug>-backup-YYYY-MM-DD.json`, `<slug>-log-YYYY-MM-DD.csv`; the shell passes the product's slug. */
@@ -48,17 +50,20 @@ export function exportBackup(plan: Plan, entries: readonly Entry[], exportedAt: 
 }
 
 /**
- * The file as written, at the lowest version that holds it: 5 once an entry is a move, 4 once one is `held`
- * (`writtenEntryVersion`), else 3 once an acknowledgement is recorded, else 2 with the v2 plan, so the previous build
- * imports every file it can read.
+ * The file as written, at the lowest version that holds it: 6 once the plan is acknowledged in another language than
+ * English, else with the v3 plan 5 once an entry is a move, 4 once one is `held` (`writtenEntryVersion`), 3 once an
+ * acknowledgement is recorded, else 2 with the v2 plan, so earlier builds import every file they can read.
  */
 export function writtenBackup(file: BackupFile) {
-  const versions = file.entries.map(writtenEntryVersion);
-  if (versions.includes(ENTRY_SCHEMA_VERSION)) return file;
-  if (versions.includes(3)) return { ...file, schemaVersion: ENTRIES_V3_SCHEMA_VERSION };
   const plan = writtenPlan(file.plan);
-  return plan.schemaVersion === PLAN_SCHEMA_VERSION
-    ? { ...file, schemaVersion: ENTRIES_V2_SCHEMA_VERSION }
+  if (plan.schemaVersion === PLAN_SCHEMA_VERSION) return file;
+  const versions = file.entries.map(writtenEntryVersion);
+  if (versions.includes(ENTRY_SCHEMA_VERSION)) {
+    return { ...file, schemaVersion: MOVES_SCHEMA_VERSION, plan: planV3(file.plan) };
+  }
+  if (versions.includes(3)) return { ...file, schemaVersion: ENTRIES_V3_SCHEMA_VERSION, plan: planV3(file.plan) };
+  return plan.schemaVersion === 3
+    ? { ...file, schemaVersion: ENTRIES_V2_SCHEMA_VERSION, plan: plan.payload }
     : { ...file, schemaVersion: PLAN_V2_SCHEMA_VERSION, plan: plan.payload };
 }
 
@@ -74,14 +79,13 @@ export function readBackup(json: unknown): Result<BackupFile, BackupError> {
   if (typeof schemaVersion === 'number' && schemaVersion > BACKUP_SCHEMA_VERSION) {
     return err({ code: 'newer-version', schemaVersion });
   }
-  // Versions 2 to 4 hold the same shape as 5 but for the plan's acknowledgement (2), the `held` kind (2 and 3) and
-  // the move (2 to 4).
-  const file =
-    schemaVersion === PLAN_V2_SCHEMA_VERSION
-      ? { ...json, schemaVersion: BACKUP_SCHEMA_VERSION, plan: upgradePlan(json.plan) }
-      : schemaVersion === ENTRIES_V2_SCHEMA_VERSION || schemaVersion === ENTRIES_V3_SCHEMA_VERSION
-        ? { ...json, schemaVersion: BACKUP_SCHEMA_VERSION }
-        : json;
+  // Versions 2 to 5 hold the same shape as 6 but for the plan's version (v2 in 2, v3 in 3 to 5), the `held` kind
+  // (2 and 3) and the move (2 to 4); `upgradePlan` reads the plan.
+  const earlier =
+    typeof schemaVersion === 'number' &&
+    schemaVersion >= PLAN_V2_SCHEMA_VERSION &&
+    schemaVersion < BACKUP_SCHEMA_VERSION;
+  const file = earlier ? { ...json, schemaVersion: BACKUP_SCHEMA_VERSION, plan: upgradePlan(json.plan) } : json;
   const parsed = BackupFileSchema.safeParse(file);
   if (parsed.success) return ok(parsed.data);
   const issues = parsed.error.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`);

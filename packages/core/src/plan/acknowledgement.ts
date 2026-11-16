@@ -8,12 +8,16 @@ export function acknowledgementDue(plan: Pick<Plan, 'riskWordingVersion'>, curre
   return plan.riskWordingVersion >= 1 && plan.riskWordingVersion < current;
 }
 
-/** Records the acknowledgement of `version` at `now`, in a write strictly later than the stored plan's. */
-export function acknowledge(plan: Plan, version: number, now: Instant): Plan {
+/**
+ * Records the acknowledgement of `version` in `language`, the language of the text shown, at `now`, in a write
+ * strictly later than the stored plan's.
+ */
+export function acknowledge(plan: Plan, version: number, language: string, now: Instant): Plan {
   return {
     ...plan,
     riskAcknowledgedAt: now,
     riskWordingVersion: version,
+    riskLanguage: language,
     updatedAt: stampAfter(now, plan.updatedAt),
   };
 }
