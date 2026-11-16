@@ -14,6 +14,7 @@ import {
   useState,
 } from 'react';
 import { cn } from '#lib/utils';
+import { StackProbe, useStack } from '../lib/stack';
 
 // shadcn's base-nova Table on the tokens (docs/DESIGN.md §5 and §7): dense 14 px text, 48 px rows that
 // grow with their text (no fixed heights, WCAG 1.4.12), numeric columns right-aligned with tabular
@@ -25,31 +26,27 @@ const Caption = createContext<{ id: string; mounted: (present: boolean) => void 
 type TableProps = ComponentProps<'table'> & {
   /** The name of the scrolling region when the table has no caption, or the caption is not a name. */
   label?: string;
+  /** Stacks each row's cells while the columns are wider than the box (docs/DESIGN.md §8); off, the table scrolls. */
+  stack?: boolean;
 };
 
 /**
- * A table that scrolls sideways inside its wrapper when it is wider. Only while it is wider does the
+ * A table that scrolls sideways inside its wrapper when it is wider; with `stack`, it first stacks each row's
+ * cells (`useStack`), and scrolls only if it is wider even then. Only while it is wider does the
  * wrapper take a tab stop, so a keyboard user can scroll it (WCAG 2.1.1), and become a region named by
  * the `label` or the caption; a table that fits adds no landmark and no tab stop. A focused wrapper
  * keeps both until it loses focus, or focus would fall to the page when the table fits again. The wrapper
  * is padded by the focus ring's extent and pulled out by as much, so its overflow never clips a focused
  * row's ring and the table keeps its place (docs/DESIGN.md §6).
  */
-function Table({ className, label, ...props }: TableProps) {
+function Table({ className, label, stack = false, ...props }: TableProps) {
   const wrapper = useRef<HTMLDivElement>(null);
   const id = useId();
-  const [scrolls, setScrolls] = useState(false);
+  // The probe's ResizeObserver tells whether the wrapper scrolls; one on the wrapper and the table would loop.
+  const { probe, table, scrolls } = useStack(stack);
   const [focused, setFocused] = useState(false);
   const [captioned, setCaptioned] = useState(false);
   const caption = useMemo(() => ({ id, mounted: setCaptioned }), [id]);
-  useEffect(() => {
-    const element = wrapper.current;
-    if (element === null || typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver(() => setScrolls(element.scrollWidth > element.clientWidth));
-    observer.observe(element);
-    if (element.firstElementChild !== null) observer.observe(element.firstElementChild);
-    return () => observer.disconnect();
-  }, []);
   // focus and blur do not bubble, so these hear the wrapper only, never a button inside the table.
   useEffect(() => {
     const element = wrapper.current;
@@ -82,7 +79,13 @@ function Table({ className, label, ...props }: TableProps) {
         className="relative -m-[calc(var(--focus-offset)+var(--focus-width))] overflow-x-auto p-[calc(var(--focus-offset)+var(--focus-width))]"
         {...region}
       >
-        <table data-slot="table" className={cn('w-full border-collapse text-14 text-ink', className)} {...props} />
+        <StackProbe ref={probe} />
+        <table
+          data-slot="table"
+          className={cn('w-full border-collapse text-14 text-ink', className)}
+          {...props}
+          ref={table}
+        />
       </div>
     </Caption.Provider>
   );
@@ -111,8 +114,8 @@ function TableHead({ className, numeric = false, ...props }: ComponentProps<'th'
     <th
       data-slot="table-head"
       className={cn(
-        'px-3 py-2 align-bottom font-medium text-13 text-ink-2',
-        numeric ? 'text-right' : 'text-left',
+        'px-3 py-2 align-bottom font-medium text-13 text-ink-2 in-data-stacked:block in-data-stacked:empty:p-0',
+        numeric ? 'text-right in-data-stacked:text-left' : 'text-left',
         className,
       )}
       {...props}
@@ -124,7 +127,11 @@ function TableCell({ className, numeric = false, ...props }: ComponentProps<'td'
   return (
     <td
       data-slot="table-cell"
-      className={cn('px-3 py-2 align-middle', numeric && 'nums whitespace-nowrap text-right', className)}
+      className={cn(
+        'px-3 py-2 align-middle in-data-stacked:block in-data-stacked:empty:p-0',
+        numeric && 'nums whitespace-nowrap text-right in-data-stacked:text-left',
+        className,
+      )}
       {...props}
     />
   );
@@ -153,7 +160,7 @@ function TableGroupHeader({ className, colSpan, children, ...props }: ComponentP
       <th
         scope="colgroup"
         colSpan={colSpan}
-        className={cn('px-3 py-2 text-left font-medium text-13 text-ink-2', className)}
+        className={cn('px-3 py-2 text-left font-medium text-13 text-ink-2 in-data-stacked:block', className)}
         {...props}
       >
         {children}
@@ -198,7 +205,7 @@ function TableExpandableRow({
         data-expanded={expanded || undefined}
         className={cn('h-row border-line border-b', className)}
       >
-        <td className="p-0 align-middle">
+        <td className="p-0 align-middle in-data-stacked:block">
           <button
             type="button"
             aria-expanded={expanded}
@@ -222,7 +229,7 @@ function TableExpandableRow({
         {children}
       </tr>
       <tr id={detailId} data-slot="table-detail-row" hidden={!expanded} className="border-line border-b bg-surface-2">
-        <td colSpan={colSpan} className="px-3 py-3">
+        <td colSpan={colSpan} className="px-3 py-3 in-data-stacked:block">
           {detail}
         </td>
       </tr>
