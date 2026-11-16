@@ -3,6 +3,7 @@
 // (docs/BUILD-PROMPT.md: a test that scans by a name pattern gets inputs that hash its whole scan).
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { GIT_FREE_ENV } from '../git-env.ts';
 
 export const copyPathScan = {
   /**
@@ -30,10 +31,15 @@ export function isScanned(file: string): boolean {
   );
 }
 
-/** The repository's tracked files, relative to its root. */
+/** The repository's tracked files, relative to its root, read without the caller's GIT_* variables. */
 export function trackedFiles(): string[] {
   const root = fileURLToPath(new URL('../../', import.meta.url));
-  return execFileSync('git', ['ls-files', '-z'], { cwd: root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
+  return execFileSync('git', ['ls-files', '-z'], {
+    cwd: root,
+    env: GIT_FREE_ENV,
+    encoding: 'utf8',
+    maxBuffer: 64 * 1024 * 1024,
+  })
     .split('\0')
     .filter((file) => file !== '');
 }

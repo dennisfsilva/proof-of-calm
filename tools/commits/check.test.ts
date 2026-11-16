@@ -1,17 +1,14 @@
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { GIT_FREE_ENV } from '../git-env.ts';
 import { checkRange, checkSubject, type Git } from './check.ts';
 
-/**
- * git itself in this test's folder, without the caller's GIT_* variables: a git hook's GIT_DIR (relative, `.git`)
- * or GIT_INDEX_FILE would otherwise decide which repository it reads, and the folder the run started in.
- */
-const ENV = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.toUpperCase().startsWith('GIT_')));
+/** git itself in this test's folder, without the caller's GIT_* variables (../git-env.ts says why). */
 const realGit: Git = (args) =>
   execFileSync('git', args, {
     cwd: fileURLToPath(new URL('.', import.meta.url)),
-    env: ENV,
+    env: GIT_FREE_ENV,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
   });
