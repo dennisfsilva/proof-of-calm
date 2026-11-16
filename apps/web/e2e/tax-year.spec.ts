@@ -20,7 +20,7 @@ import { cspViolations, recordCspViolations, test } from './support';
 // portfolio-wide model) the cessions file and under the Netherlands (the snapshot model) the snapshot file, each
 // a UTF-8 byte order mark, then the file in packages/app/src/features/settings/fixtures: its rows and the app's own
 // header words byte for byte, and what a profile fills (the country's name, the review line, the lot note, the
-// holding rule's length, the conditions) built from the profile file the app loads, which a content review may
+// holding rule's length, the conditions, the rows' holding dates) built from the profile file the app loads, which a content review may
 // change (docs/ENGINEERING.md §2), through no code the spec tests: the spec reads the JSON and quotes each cell
 // itself. Portugal's plan holds the profile's holding rule, as a change of country would derive it. The local run
 // sends no UK geolocation, so ADR-0029's 451 route does not apply. The Tax year select opens with no CSP violation,
@@ -55,12 +55,14 @@ async function exportYear(page: Page) {
   return { name: file.suggestedFilename(), text: bytes.subarray(3).toString('utf8') };
 }
 
-/** The fields of a profile file the header reads, as the JSON holds them. */
+type HoldingRuleFile = { readonly kind: string; readonly days?: number; readonly years?: number };
+/** The fields of a profile file the header and the holding columns read, as the JSON holds them. */
 type ProfileFile = {
   readonly name: string;
   readonly status: { readonly lastReviewed: string };
   readonly lotRuleNote: string;
-  readonly holdingRule: { readonly kind: string; readonly days?: number; readonly years?: number };
+  readonly holdingRule: HoldingRuleFile;
+  readonly holdingRuleOverrides: readonly { readonly acquiredFrom: string; readonly rule: HoldingRuleFile }[];
   readonly holdingRuleConditions: readonly string[];
   readonly sources: readonly { readonly key: string; readonly url: string }[];
   readonly ruleSources: { readonly lotRule: string; readonly holdingRule: string };
@@ -97,6 +99,56 @@ function ruleLength(rule: ProfileFile['holdingRule']): string {
   return `${count} ${rule.kind === 'years' ? 'year' : 'day'}${count === 1 ? '' : 's'}`;
 }
 
+const DAY_MS = 86_400_000;
+const shift = (date: string, days: number) =>
+  new Date(Date.parse(`${date}T00:00:00Z`) + days * DAY_MS).toISOString().slice(0, 10);
+
+/**
+ * A purchase's eligible_from as docs/DOMAIN.md §3.7 states it, under the latest override dated on or before it, else
+ * the rule: n days after it, or the day after its nth anniversary with 29 February taken as 28 February.
+ */
+function eligibleOn(acquired: string, profile: ProfileFile): string {
+  const overrides = profile.holdingRuleOverrides.filter((override) => override.acquiredFrom <= acquired);
+  const rule =
+    overrides.reduce<{ acquiredFrom: string; rule: HoldingRuleFile } | null>(
+      (chosen, override) => (chosen === null || override.acquiredFrom >= chosen.acquiredFrom ? override : chosen),
+      null,
+    )?.rule ?? profile.holdingRule;
+  if (rule.kind === 'days') return shift(acquired, rule.days ?? 0);
+  const year = Number(acquired.slice(0, 4)) + (rule.years ?? 0);
+  const leap = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+  const rest = acquired.slice(4) === '-02-29' && !leap ? '-02-28' : acquired.slice(4);
+  return shift(`${year}${rest}`, 1);
+}
+
+/**
+ * The rows with eligible_from and past_holding_rule built from the profile's rule (docs/DOMAIN.md §3.13 "Holding"):
+ * past when eligible_from is on or before the row's disposed_on, or the year end's date (the "as of" day of a running
+ * year, else the year's last day); the cells the file leaves empty stay empty.
+ */
+function heldRows(header: string, body: string, profile: ProfileFile): string {
+  const lines = body.split('\n');
+  const columns = (lines[0] ?? '').split(',');
+  const at = (name: string) => columns.indexOf(name);
+  const asOf = (/as of (\d{4}-\d{2}-\d{2})\./u.exec(header) ??
+    /tax year ends on (\d{4}-\d{2}-\d{2})\./u.exec(header))?.[1];
+  return lines
+    .map((line, index) => {
+      if (index === 0 || line === '') return line;
+      if (line.includes('"')) throw new Error(`a quoted row the spec does not split: ${line}`);
+      const row = line.split(',');
+      const acquired = row[at('acquired')] ?? '';
+      if (acquired === '' || row[at('eligible_from')] === '') return line;
+      const eligible = eligibleOn(acquired, profile);
+      row[at('eligible_from')] = eligible;
+      const on = row[at('disposed_on')] || asOf;
+      if (on === undefined) throw new Error('a year-end row with no as-of date in the file');
+      if (row[at('past_holding_rule')] !== '') row[at('past_holding_rule')] = eligible <= on ? 'yes' : 'no';
+      return row.join(',');
+    })
+    .join('\n');
+}
+
 /** The URL of the source a rule names, from the profile's own list. */
 const sourceOf = (profile: ProfileFile, rule: 'lotRule' | 'holdingRule') =>
   profile.sources.find((source) => source.key === profile.ruleSources[rule])?.url;
@@ -112,7 +164,8 @@ const PROFILE_LINES: Record<Code, { lotNote?: number; holding?: number; conditio
 /**
  * The expected file of `code` with what its profile fills built from the profile file: the name in the title, the
  * review line (the sources as the app lists them, the lot rule's first, without repeats), the lot note, the holding
- * rule's name and length, and the conditions; the app's words and the rows stay as written.
+ * rule's name and length, the conditions, and the rows' eligible_from and past_holding_rule where the file has a
+ * holding line; the app's words and the other cells stay as written.
  */
 async function expected(code: Code, name: string) {
   const file = await readFile(
@@ -142,7 +195,9 @@ async function expected(code: Code, name: string) {
   if (conditions !== undefined) {
     header.splice(conditions[0], conditions[1] - conditions[0], ...profile.holdingRuleConditions.map(cell));
   }
-  return header.join('\n') + file.slice(split);
+  const head = header.join('\n');
+  const body = file.slice(split + 2);
+  return `${head}\n\n${holding === undefined ? body : heldRows(head, body, profile)}`;
 }
 
 // A native select once broke WebKit's hashed CSP on this screen, so the Tax year select opens under the recorder.
