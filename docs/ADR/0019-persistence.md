@@ -226,8 +226,8 @@ The decision stands; these are the choices its text left open, made while implem
 - **2026-11-16, plans v4** (extends Row shape). Plans are read at v2, v3 and v4; v4 adds
   `riskLanguage`, the language of the disclosure text acknowledged (`docs/DOMAIN.md` §2.1). A v3 row
   is upgraded when read, to `en` with an acknowledgement and to null without one. A plan row is v4
-  only for an acknowledgement in another language than English, which no approved text gives yet
-  (`RISK_WORDING_LANGUAGES` in `packages/app/src/lib/brand/index.ts`), so every row this build writes
+  only for an acknowledgement in a language other than English, which no approved text gives yet
+  (`RISK_WORDING_LANGUAGES` in `packages/app/src/lib/brand/index.ts`). So every row this build writes
   is the v2 or v3 row the previous build reads, and a v4 row is newer to it.
 
 ## Disagreement

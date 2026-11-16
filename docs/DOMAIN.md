@@ -131,20 +131,22 @@ paragraph, this one wins. The prototype import already stores such
 plans, so neither the schema nor a row version changes for them.
 
 A plan is written at the lowest schema version that holds it (`writtenPlan` in
-`packages/core/src/schema/upgrade.ts`), in a storage row and in a backup alike: with nothing recorded
+`packages/core/src/schema/upgrade.ts`), in a storage row and in a backup alike. With nothing recorded
 (null, 0 and null) it is the v2 plan exactly (`schemaVersion: 2`, without the three fields), which the
-build before the acknowledgement reads; recorded in English it is the v3 plan exactly (`schemaVersion: 3`,
-without `riskLanguage`), which the previous build's strict v3 schema reads; recorded in any other
-language it is v4. Reading takes all three through `upgradePlan`: a v2 plan with null, 0 and null, a
-v3 plan with `en` when anything is recorded (every acknowledgement before v4 was of the English text)
-and null when nothing is. So a rollback of one release reads every plan this build writes
-(`docs/RELEASE.md`, Versioning).
+build before the acknowledgement reads. With an acknowledgement in English it is the v3 plan exactly
+(`schemaVersion: 3`, without `riskLanguage`), which the previous build's strict v3 schema reads. With
+one in a language other than English it is v4. So a rollback of one release reads every plan this
+build writes (`docs/RELEASE.md`, Versioning).
 
-The recorded language is the language of the disclosure text shown: the UI language when it is in
-`RISK_WORDING_LANGUAGES` (`packages/app/src/lib/brand/index.ts`), the languages whose own text counsel
-approved as the English text's equal (`docs/LEGAL.md` §4), and `en` for every other one, which shows
-the English text. A wording version names the English text and each approved translation. The list
-holds `en` alone, so no build writes v4 yet.
+Reading takes all three versions through `upgradePlan`. A v2 plan is read with null, 0 and null. A v3
+plan with an acknowledgement is read with `en`, since every acknowledgement before v4 was of the
+English text. A v3 plan with nothing recorded is read with null.
+
+The recorded language is the language of the disclosure text shown. It is the UI language when that
+language is in `RISK_WORDING_LANGUAGES` (`packages/app/src/lib/brand/index.ts`), and `en` otherwise,
+because every other UI language shows the English text. The list holds the languages whose own text
+counsel approved as the English text's equal (`docs/LEGAL.md` §4). A wording version names the
+English text and each approved translation. The list holds `en` alone, so no build writes v4 yet.
 
 The acknowledgement is asked again only when a recorded wording version (1 or more) is below the
 disclosure text's current version (`acknowledgementDue`). That one comparison reads the plan as it
@@ -860,7 +862,7 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   `{ format: 'proof-of-calm', schemaVersion: 6, exportedAt, plan, entries }`; exports exclude deleted
   entries. It is also the sync payload shape and the backup format. The file is written through
   `writtenBackup`, at the lowest version that holds its plan and entries (§2.1, §2.2): version 6 with the
-  v4 plan when the plan is acknowledged in another language than English; else, with the v3 plan,
+  v4 plan when the plan is acknowledged in a language other than English; else, with the v3 plan,
   version 5 when any entry is a move, else version 4 when any entry is `held`, else version 3 once an
   acknowledgement is recorded; else version 2 with the v2 plan. So the previous build imports every
   file it can hold and answers `newer-version` for one with a v4 plan.
