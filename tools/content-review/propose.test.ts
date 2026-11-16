@@ -25,6 +25,11 @@ const TEMPLATE = '.github/PULL_REQUEST_TEMPLATE/content-review.md';
 const ALLOW = 'packages/content/sources.allow.json';
 const SCRIPT = fileURLToPath(new URL('./propose.ts', import.meta.url));
 const here = (path: string) => readFileSync(new URL(path, import.meta.url), 'utf8');
+/**
+ * The environment of every git and propose.ts run here: the caller's without its GIT_* variables. A git hook
+ * sets GIT_DIR and GIT_INDEX_FILE, which would aim a temporary repository's git at the caller's repository.
+ */
+const ENV = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.toUpperCase().startsWith('GIT_')));
 /** finish-good.patch's new fact, which fixtures/draft-good.json's change and reviewed rows name. */
 const ENTRY = '[\n  { "key": "finish-fixture", "reviewedBy": "agent-draft" }\n]\n';
 const UNTOUCHED = 'finish: refused, 1 problems; nothing committed, the index as found';
@@ -33,7 +38,7 @@ const lines = (result: { stdout: string }) => result.stdout.trim().split('\n');
 /** A temporary repository with one committed file per entry, and git and write helpers bound to it. */
 function tempRepo(files: Record<string, string>) {
   const repo = mkdtempSync(join(tmpdir(), 'propose-'));
-  const git = (...args: string[]) => execFileSync('git', args, { cwd: repo, encoding: 'utf8' }).trim();
+  const git = (...args: string[]) => execFileSync('git', args, { cwd: repo, encoding: 'utf8', env: ENV }).trim();
   const write = (path: string, text: string) => {
     mkdirSync(join(repo, path, '..'), { recursive: true });
     writeFileSync(join(repo, path), text);
@@ -62,7 +67,7 @@ function originRepo() {
     [ALLOW]: here(`../../${ALLOW}`),
   });
   const origin = join(root, 'origin.git').replace(/\\/g, '/');
-  execFileSync('git', ['init', '--quiet', '--bare', origin], { encoding: 'utf8' });
+  execFileSync('git', ['init', '--quiet', '--bare', origin], { cwd: root, encoding: 'utf8', env: ENV });
   git('remote', 'add', 'origin', origin);
   git('push', '--quiet', 'origin', 'main');
   git('fetch', '--quiet', 'origin');
@@ -171,11 +176,11 @@ const writeGh = (root: string, state: FakeGh) => writeFileSync(ghState(root), JS
  * beside libexec/git-core).
  */
 function cli(root: string, repo: string, args: string[], gh = true) {
-  const exec = execFileSync('git', ['--exec-path'], { encoding: 'utf8' }).trim();
+  const exec = execFileSync('git', ['--exec-path'], { cwd: repo, encoding: 'utf8', env: ENV }).trim();
   const gitDirs =
     process.platform === 'win32' ? ['mingw64/bin', 'usr/bin'].map((dir) => resolve(exec, '../../..', dir)) : [exec];
   const env = Object.fromEntries(
-    Object.entries(process.env).filter(([key]) => !['PATH', 'NODE_OPTIONS'].includes(key.toUpperCase())),
+    Object.entries(ENV).filter(([key]) => !['PATH', 'NODE_OPTIONS'].includes(key.toUpperCase())),
   );
   const fake = gh ? fakeGh() : { dir: '', env: {} };
   env.PATH = [...(gh ? [fake.dir] : []), dirname(process.execPath), ...gitDirs].join(delimiter);
@@ -281,7 +286,7 @@ describe('propose', () => {
       const head = git('rev-parse', 'HEAD');
       const status = git('status', '--porcelain');
       const tree = git('write-tree');
-      const result = spawnSync(process.execPath, [SCRIPT, 'finish'], { cwd: repo, encoding: 'utf8' });
+      const result = spawnSync(process.execPath, [SCRIPT, 'finish'], { cwd: repo, encoding: 'utf8', env: ENV });
       const originMain = git('rev-parse', 'origin/main');
       expect(lines(result)).toEqual([
         `HEAD ${head.slice(0, 8)} on branch ahead holds 1 commits that origin/main ${originMain.slice(0, 8)} lacks: ` +
@@ -324,7 +329,7 @@ describe('propose', () => {
       const lists = { reviewed, verified: [], unreachable: [], pending: [], queue: [], notes: [] };
       writeFileSync(draft, JSON.stringify({ date: '2026-11-10', model: 'm', countries: [], changes: [row], ...lists }));
       const args = [SCRIPT, 'finish', '--dry', '--draft', draft];
-      const result = spawnSync(process.execPath, args, { cwd: repo, encoding: 'utf8' });
+      const result = spawnSync(process.execPath, args, { cwd: repo, encoding: 'utf8', env: ENV });
       const owner = 'the agent never sets lastReviewed or nextReviewDue; the owner sets lastReviewed in the flip';
       expect(result.stdout.trim().split('\n')).toEqual([
         `draft: ${MODULE}: a line with lastReviewed or nextReviewDue changed; ${owner} (docs/CONTENT-OPS.md §8)`,
