@@ -1,9 +1,11 @@
 import { expect, type Page } from '@playwright/test';
 import { fixtureNowMs, fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
+import ptLearn from '../../../packages/app/src/messages/pt-PT/learn.json' with { type: 'json' };
 import ptPlan from '../../../packages/app/src/messages/pt-PT/plan.json' with { type: 'json' };
 import ptSettings from '../../../packages/app/src/messages/pt-PT/settings.json' with { type: 'json' };
 import ptShell from '../../../packages/app/src/messages/pt-PT/shell.json' with { type: 'json' };
 import portugalPt from '../../../packages/content/i18n/pt-PT/jurisdictions/pt.json' with { type: 'json' };
+import germany from '../../../packages/content/jurisdictions/de.json' with { type: 'json' };
 import portugal from '../../../packages/content/jurisdictions/pt.json' with { type: 'json' };
 import { seedPlan } from './seed';
 import { routeFixturePrices, test } from './support';
@@ -158,5 +160,76 @@ test.describe("when the language's chunks load", () => {
     await expect(page.locator('html')).toHaveAttribute('lang', 'pt-PT');
     await expect(page.getByText(inPortuguese(portugal.card.summary60, portugalPt.card?.summary60))).toBeVisible();
     await expect(page.getByText(ptCondition(0))).toBeVisible();
+  });
+});
+
+// WCAG 2.2 SC 3.1.2 (ADR-0057, the Corrections of 2026-11-16): English content text on a pt-PT screen carries
+// lang="en" on its element, and a card whose profile text is English says so in Portuguese under its title.
+const ON_TWO = ['desktop', 'iphone'];
+const ptRulesText = (page: Page, text: string) => page.getByText(text, { exact: true });
+
+test.describe('English content text on a pt-PT screen', () => {
+  test.use({ serviceWorkers: 'block' });
+
+  test("Learn's DE card marks its English text and says so; PT's translated text takes no lang", async ({
+    page,
+  }, testInfo) => {
+    // biome-ignore lint/suspicious/noSkippedTests: a runtime skip outside the two named projects, not a disabled test
+    test.skip(!ON_TWO.includes(testInfo.project.name), 'desktop and iphone carry the language checks');
+    await bootIn(page, 'pt-PT');
+    await page.goto('/learn/countries/de');
+    await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
+    await expect(ptRulesText(page, germany.card.holdingRuleText)).toHaveAttribute('lang', 'en');
+    await expect(ptRulesText(page, germany.card.summary60)).toHaveAttribute('lang', 'en');
+    await expect(page.getByText(ptLearn.card.inEnglish)).toBeVisible();
+
+    await page.goto('/learn/countries/pt');
+    await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
+    const summary = ptRulesText(page, inPortuguese(portugal.card.summary60, portugalPt.card?.summary60));
+    await expect(summary).toBeVisible();
+    await expect(summary).not.toHaveAttribute('lang', /./);
+    await expect(page.getByText(ptLearn.card.inEnglish)).toHaveCount(0);
+  });
+
+  test("Plan's Why? sheet marks the English module's body", async ({ page }, testInfo) => {
+    // biome-ignore lint/suspicious/noSkippedTests: a runtime skip outside the two named projects, not a disabled test
+    test.skip(!ON_TWO.includes(testInfo.project.name), 'desktop and iphone carry the language checks');
+    await bootIn(page, 'pt-PT');
+    const nowMs = fixtureNowMs('buy');
+    await page.clock.setFixedTime(new Date(nowMs));
+    await routeFixturePrices(page, nowMs);
+    await seedPlan(page, fixtureSnapshot());
+    await page.goto('/plan');
+    await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
+    await page.getByRole('button', { name: ptPlan.why.window }).click();
+    const sheet = page.getByRole('dialog');
+    await expect(sheet.locator('[data-slot="sheet-title"]')).toHaveAttribute('lang', 'en');
+    await expect(sheet.locator('[data-slot="card"] p[lang="en"]')).toBeVisible();
+    // The body's section headings sit inside the one lang="en" element; the sheet's title is a heading of its own.
+    await expect(sheet.locator('[lang="en"] :is(h2, h3)').first()).toBeVisible();
+    await expect(sheet.getByRole('button', { name: ptLearn.sheet.close })).toBeVisible();
+  });
+
+  test("with PT's overlay chunk aborted, PT's English text takes lang=en and the line shows", async ({
+    page,
+  }, testInfo) => {
+    // biome-ignore lint/suspicious/noSkippedTests: a runtime skip outside the two named projects, not a disabled test
+    test.skip(!ON_TWO.includes(testInfo.project.name), 'desktop and iphone carry the language checks');
+    await bootIn(page, 'pt-PT');
+    const aborted: string[] = [];
+    // Routed before the seed, which loads Today and with it the rules (docs/BUILD-PROMPT.md).
+    await page.route(/\/assets\/messages\/pt-PT\/pt-[^/]+\.js$/, (route) => {
+      aborted.push(route.request().url());
+      return route.abort('internetdisconnected');
+    });
+    const nowMs = fixtureNowMs('buy');
+    await page.clock.setFixedTime(new Date(nowMs));
+    await routeFixturePrices(page, nowMs);
+    await seedPlan(page, fixtureSnapshot());
+    await page.goto('/learn/countries/pt');
+    await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
+    expect(aborted.length).toBeGreaterThan(0);
+    await expect(ptRulesText(page, portugal.card.summary60)).toHaveAttribute('lang', 'en');
+    await expect(page.getByText(ptLearn.card.inEnglish)).toBeVisible();
   });
 });
