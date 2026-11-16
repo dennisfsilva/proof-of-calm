@@ -62,20 +62,33 @@ const TICKER = between(['BTC', 'ETH', 'SOL', 'LINK'], 'u');
 const IMPERATIVE = /^\s*(buy|sell|hold|invest|get|grab|kaufe?n?)(?![\p{L}\p{N}])(?!\s+days?\b)/iu;
 // A sentence ends at "!", "?", a line end or a dot that no digit follows, so "Buy 0.5 BTC" and "1.000 €" stay whole.
 const SENTENCE_END = /[!?\n]+|\.(?!\d)/;
+// A placeholder without a space ({coin}, {date:sellWindow.opens}) is one word the person reads as a value, so before
+// the cut it stands in as a token with no dot, letter or listed verb: its path neither ends a sentence nor names an
+// asset. A finding shows it as written. An ICU branch with words in it ({count, plural, one {…}}) stays copy.
+const PLACEHOLDER = /\{[^{}\s]+\}/gu;
+const TOKEN = /(\d+)/gu;
+
+/** The text's sentences, each as the lint reads it and as written. */
+function sentences(text: string) {
+  const held: string[] = [];
+  const masked = text.replace(PLACEHOLDER, (whole) => `${held.push(whole) - 1}`);
+  return masked.split(SENTENCE_END).map((read) => ({
+    read,
+    written: read.replace(TOKEN, (_, index: string) => held[Number(index)] ?? ''),
+  }));
+}
 
 const findAll = (pattern: RegExp, text: string, rule: Finding['rule']): Finding[] =>
   [...text.matchAll(pattern)].map((match) => ({ rule, match: match[0] }));
 
 export function findBanned(text: string): Finding[] {
   const kept = text.replace(ALLOWED, ' ').normalize('NFC');
-  const imperatives = kept
-    .split(SENTENCE_END)
+  const imperatives = sentences(kept)
     .filter(
-      (sentence) =>
-        (IMPERATIVE.test(sentence) || hasPortugueseDirective(sentence)) &&
-        (ASSET_NAME.test(sentence) || TICKER.test(sentence)),
+      ({ read }) =>
+        (IMPERATIVE.test(read) || hasPortugueseDirective(read)) && (ASSET_NAME.test(read) || TICKER.test(read)),
     )
-    .map((sentence): Finding => ({ rule: 'imperative', match: sentence.trim() }));
+    .map(({ written }): Finding => ({ rule: 'imperative', match: written.trim() }));
   return [
     ...findAll(ADVICE, kept, 'advice'),
     ...findAll(FILLER, kept, 'filler'),
