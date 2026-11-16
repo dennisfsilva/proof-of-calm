@@ -121,13 +121,13 @@ Plan B (ADR-0005) was triggered by ADR-0045 and carried out in M1's sessions 2 a
 ```
 packages/content/
 ├── jurisdictions/   pt.json, de.json, …, xx.json (schema: docs/JURISDICTIONS.md §2)
-├── rules/           <code>.json, generated from each profile by `pnpm --filter @proofofcalm/content rules`: the core's rules the shell boots on (ADR-0049)
+├── rules/           <code>.json, generated from each profile by `pnpm --filter @proofofcalm/content rules`: the core's rules the shell boots on, and locales.json, every country's locales, the fallback when a rules chunk fails (ADR-0049)
 ├── templates/       four starting points (docs/DOMAIN.md §5)
 ├── learn/           MDX modules with front matter (docs/EDUCATION.md §10): start-here, risk-honestly, cycles, taxes-where-you-live, noise and when-the-market-drops; the simulator's module (planned: M2)
 ├── facts/           every cited number with source, date, lastReviewed (docs/CONTENT-OPS.md §7)
 ├── i18n/            <language>/: sparse prose translations over the English files (ADR-0057; what each holds: `packages/content/README.md`)
 ├── cycles/          completed cycles' maximum drawdowns per coin; the current cycle is computed, never stored (docs/EDUCATION.md §2 and §6)
-├── style/           banned.json: the banned words in en, de and pt, the filler words, and the allow-list with a reason per phrase (docs/CONTENT-STYLE.md)
+├── style/           banned.json, the ban list's patterns, filler words, regulators and allow-list (what it holds: docs/CONTENT-STYLE.md §2)
 ├── coins.json       the coin catalogue: the picker's coins and the price route's allow-list (ADR-0036, ADR-0052)
 ├── sources.allow.json
 ├── scripts/         validate.ts, run by `pnpm validate:content`; rules.ts, which writes rules/

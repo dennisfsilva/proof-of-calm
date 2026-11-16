@@ -550,7 +550,7 @@ The product's nouns, one Portuguese word each, in every string, the site pages a
 | tax-free | `não tributado a partir de 2 de março de 2027` for the status, `data de exclusão de tributação` for the noun; the status agrees with its noun, and its noun is the gain, since a buy is never taxed: `Last buy tax-free` is `Mais-valia da última compra não tributada a partir de 2 de março de 2027`, a status from its date (the native reader confirms it, §8 item 9): CIRS art. 10 excludes these gains and Anexo G1 heads them «Mais-valias não tributadas»; never `isento`, since an exemption is a different concept |
 | venue | local |
 | units | unidades |
-| (estimated) | (estimado), agreeing with its noun: `comissão (estimada)`, `unidades (estimadas)`; a ticker amount is a masculine plural, as its units are, and every word after it agrees: `0,00094 BTC (estimados)`, `0,1 BTC vendidos` (the native reader confirms it, §8 item 9) |
+| (estimated) | (estimado), agreeing with its noun: `comissão (estimada)`, `unidades (estimadas)`; until the native reader decides (§8 item 9), a ticker amount takes the masculine plural, and every word after it agrees: `0,00094 BTC (estimados)`, `0,1 BTC vendidos` |
 | fee, network fee | comissão, comissão de rede; never `taxa`, which is the tax rate in the same prose |
 | coin | moeda |
 | currency | moeda de pagamento |

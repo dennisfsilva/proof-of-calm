@@ -187,8 +187,8 @@ EU"); a sentence may say where one kind of data is stored when that is true (ADR
 
 The lint runs over UI messages, content, templates, the landing page and site pages
 (`apps/web/messages`), and, from M3, emails; the list is
-`packages/content/style/banned.json` (EN, DE and PT patterns, the filler words, and the allow-list
-with a reason per phrase: proper names of taxes, "API key", "private key", the Risk page's register sentence). It
+`packages/content/style/banned.json` (what it holds: `docs/CONTENT-STYLE.md` §2; the allow-list's
+legal entries are "API key", "private key" and the Risk page's register sentence). It
 also flags, in English and German, a sentence with an asset name that opens with a buying, selling
 or holding verb on its list; in Portuguese, a sentence with an asset name that holds a buying,
 selling or holding form on its list anywhere (the forms and the gaps: `docs/CONTENT-STYLE.md` §2);
