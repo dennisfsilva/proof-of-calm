@@ -408,8 +408,9 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - A text a lint cuts into sentences is checked against every token the text can hold. #265 split
   sentences at a dot followed by a letter, and #264's placeholders hold dotted paths
   (`{date:sellWindow.opens}`), so an imperative before a placeholder and the asset after it fell
-  into different sentences; the integration read found it, and the lint now reads a placeholder as
-  one word (2026-11-16).
+  into different sentences. The integration read found it. The fix that reads a `{date:<field>}`
+  placeholder as one word waits in #268 with its review's last finding: `{units}` and the other
+  placeholders the app fills with a ticker do not count as asset names yet (2026-11-16).
 - An action a fallback offers is walked through the same failure. #262's offline toast offered
   Edit, whose sheet loads the namespace that had just failed; pressing it replaced Today with a load
   error, which only the evaluator's offline run showed (#266, 2026-11-16).
