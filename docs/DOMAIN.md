@@ -1375,6 +1375,14 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   `ongoing`. Neither names a form line number, a threshold, the Dutch box, a deemed return or a deadline. No
   line names a gain, a loss, tax due, a
   rate or an allowance, calls a row exempt, tax-free or taxable, or calls the file complete or ready to file.
+  The header lines follow the UI language (D10, decided 2026-11-16): `useTaxYearWords` reads them from
+  `settings.data.taxYear.file` of the language shown, pt-PT's own since 2026-11-16, English for every other
+  language. The column names stay the core's identifiers in every language, and the cells keep their formats
+  (`YYYY-MM-DD`, a decimal point, `yes` and `no`), so a spreadsheet or an accountant reads one file shape. No
+  header line holds a `;`, the list separator a comma-decimal spreadsheet splits a cell on; the app's own words
+  hold none in any language, and five English profile texts that still do (the lot notes of Germany, the US and
+  the general profile, two US conditions) are listed in `packages/app/src/features/settings/tax-year.test.ts`
+  until `packages/content` rewords them. Counsel reads every change to the pt-PT header lines, as to the English ones.
 - `snapshotValue(plan, entries, histories, date)`: the portfolio value at the end of a calendar date (decided
   2026-11-08): the units of the live entries dated on or before `date` (sales subtract; a negative holding counts
   as none, as in `valueSeries`, §3.11), each coin priced at the close dated exactly `date`, the price at 00:00 UTC
