@@ -29,7 +29,7 @@ async function plan(): Promise<Plan> {
   const draft = { ...emptyDraft(TODAY, ID, 'PT'), templateId: 'two-coins', monthly: '100', firstBuy: '2026-11-05' };
   const result = startPlan(
     { ...draft, lastBuy: '2036-10-05' },
-    { profile, template, numberInput: createNumberInput('en-GB'), today: TODAY, now: NOW },
+    { profile, template, numberInput: createNumberInput('en-GB'), today: TODAY, now: NOW, language: 'en' },
   );
   if (!result.ok) throw new Error(JSON.stringify(result.error));
   return result.value;

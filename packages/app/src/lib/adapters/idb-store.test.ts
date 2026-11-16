@@ -25,8 +25,10 @@ import {
   anEntry,
   aPlan,
   asV2Plan,
+  asV3Plan,
   date,
   instant,
+  MainPlanV3Schema,
   PreviousBuildPlanSchema,
   split,
 } from '@proofofcalm/core/testing';
@@ -38,6 +40,7 @@ import type { CachedHistory, PricesState } from '../ports';
 import { localOnly } from '../store/channel';
 import { createDomainStore } from '../store/domain';
 import { DATABASE_NAME, STORE_NAMES, type StoreName } from './idb/database';
+import { RISK_WORDING_LANGUAGES } from '../brand';
 import { ROW_SCHEMA_VERSIONS } from './idb/rows';
 import { type IdbPlanStore, type IdbPlanStoreOptions, idbPlanStore } from './idb-store';
 import { EMPTY_SNAPSHOT } from './memory-store';
@@ -685,7 +688,12 @@ describe('idb plan store: plan schema v3, the risk acknowledgement (docs/DOMAIN.
 
     const loaded = await open().load();
     expect(loaded).toStrictEqual({ ...EMPTY_SNAPSHOT, plan, entries: [entry] });
-    expect(loaded.plan).toMatchObject({ schemaVersion: 3, riskAcknowledgedAt: null, riskWordingVersion: 0 });
+    expect(loaded.plan).toMatchObject({
+      schemaVersion: 4,
+      riskAcknowledgedAt: null,
+      riskWordingVersion: 0,
+      riskLanguage: null,
+    });
     expect((await raw('meta')).filter(Array.isArray)).toEqual([]);
     await open().write({ entries: [anEntry()] });
     expect(await raw('plans')).toStrictEqual([previous]);
@@ -696,7 +704,7 @@ describe('idb plan store: plan schema v3, the risk acknowledgement (docs/DOMAIN.
     const recorded = acknowledged({ id: plan.id, updatedAt: instant('2026-10-17T09:30:00.000Z') });
     await open().write({ plan: recorded });
     expect(await raw('plans')).toStrictEqual([
-      { ...previous, payload: recorded, updatedAt: recorded.updatedAt, schemaVersion: 3 },
+      { ...previous, payload: asV3Plan(recorded), updatedAt: recorded.updatedAt, schemaVersion: 3 },
     ]);
   });
 
@@ -704,17 +712,17 @@ describe('idb plan store: plan schema v3, the risk acknowledgement (docs/DOMAIN.
     const plan = acknowledged();
     const entry = anEntry();
     await open().write({ plan, entries: [entry] });
-    expect(await raw('plans')).toStrictEqual([expect.objectContaining({ schemaVersion: 3, payload: plan })]);
+    expect(await raw('plans')).toStrictEqual([expect.objectContaining({ schemaVersion: 3, payload: asV3Plan(plan) })]);
     expect(await open().load()).toStrictEqual({ ...EMPTY_SNAPSHOT, plan, entries: [entry] });
   });
 
   it('a re-acknowledged plan reads back exactly at schemaVersion 3', async () => {
     const plan = acknowledged();
     await open().write({ plan });
-    const again = acknowledge(plan, 2, NOW);
+    const again = acknowledge(plan, 2, 'en', NOW);
     await open().write({ plan: again });
     expect(await raw('plans')).toStrictEqual([
-      expect.objectContaining({ schemaVersion: 3, payload: again, updatedAt: again.updatedAt }),
+      expect.objectContaining({ schemaVersion: 3, payload: asV3Plan(again), updatedAt: again.updatedAt }),
     ]);
     expect((await open().load()).plan).toStrictEqual(again);
     // The same row shape as a first acknowledgement: this build asks nothing more, and neither does a
@@ -745,7 +753,7 @@ describe('idb plan store: plan schema v3, the risk acknowledgement (docs/DOMAIN.
     const entry = anEntry();
     await open().write({ plan, entries: [entry] });
     const [written] = await raw('plans');
-    expect(written).toMatchObject({ schemaVersion: 3, payload: plan });
+    expect(written).toMatchObject({ schemaVersion: 3, payload: asV3Plan(plan) });
 
     expect(await open({ rowVersions: PLANS_V2_BUILD }).load()).toStrictEqual({
       ...EMPTY_SNAPSHOT,
@@ -757,6 +765,58 @@ describe('idb plan store: plan schema v3, the risk acknowledgement (docs/DOMAIN.
     // Its own plan write tombstones the live plans it reads, never the v3 row it cannot read.
     await open({ rowVersions: PLANS_V2_BUILD }).write({ plan: aPlan(), entries: [anEntry()] });
     expect(await raw('plans')).toContainEqual(written);
+  });
+});
+
+describe('idb plan store: plan schema v4, the language acknowledged (docs/DOMAIN.md §2.1, docs/RELEASE.md rollback)', () => {
+  const at = instant('2026-10-17T08:30:00.000Z');
+
+  it('a v3 row main wrote reads as en', async () => {
+    const plan = aPlan({ riskAcknowledgedAt: at, riskWordingVersion: 1 });
+    const entry = anEntry();
+    await open().write({ plan, entries: [entry] });
+    const [row] = (await raw('plans')) as Record<string, unknown>[];
+    // Main (73d5deec) writes an acknowledged plan as this v3 row: its strict v3 payload, no language.
+    const mainWrote = { ...row, schemaVersion: 3, payload: asV3Plan(plan) };
+    expect(MainPlanV3Schema.parse(mainWrote.payload)).toStrictEqual(mainWrote.payload);
+    await put('plans', mainWrote);
+    const loaded = await open().load();
+    expect(loaded).toStrictEqual({ ...EMPTY_SNAPSHOT, plan, entries: [entry] });
+    expect(loaded.plan?.riskLanguage).toBe('en');
+    expect((await raw('meta')).filter(Array.isArray)).toEqual([]);
+  });
+
+  it("an English acknowledgement's row is the v3 row main reads", async () => {
+    const plan = acknowledge(aPlan(), 1, 'en', NOW);
+    const entry = anEntry();
+    await open().write({ plan, entries: [entry] });
+    const [written] = (await raw('plans')) as { schemaVersion: number; payload: unknown }[];
+    expect(written).toMatchObject({ schemaVersion: 3, payload: asV3Plan(plan) });
+    expect(MainPlanV3Schema.parse(written?.payload)).toStrictEqual(written?.payload);
+    expect(await open({ rowVersions: PREVIOUS_BUILD }).load()).toStrictEqual({
+      ...EMPTY_SNAPSHOT,
+      plan,
+      entries: [entry],
+    });
+    expect(await raw('plans')).toStrictEqual([written]);
+  });
+
+  it("a v4 row's version is above main's 3, so the previous build shows the newer-version screen", async () => {
+    const plan = acknowledge(aPlan(), 1, 'pt-PT', NOW);
+    const entry = anEntry();
+    await open().write({ plan, entries: [entry] });
+    const [written] = (await raw('plans')) as { schemaVersion: number; payload: unknown }[];
+    expect(written).toMatchObject({ schemaVersion: 4, payload: plan });
+    expect(written?.schemaVersion).toBeGreaterThan(PREVIOUS_BUILD.plans);
+    expect(await open().load()).toStrictEqual({ ...EMPTY_SNAPSHOT, plan, entries: [entry] });
+    // The `newer` count is what makes the shell show features/shell/newer-version.tsx; the row stays as written.
+    expect(await open({ rowVersions: PREVIOUS_BUILD }).load()).toStrictEqual({
+      ...EMPTY_SNAPSHOT,
+      entries: [entry],
+      newer: { plans: 1, entries: 0 },
+    });
+    expect(await raw('plans')).toStrictEqual([written]);
+    expect((await raw('meta')).filter(Array.isArray)).toEqual([]);
   });
 });
 
@@ -1137,8 +1197,9 @@ describe('idb plan store: the row versions this build may write (docs/RELEASE.md
   const carried =
     'docs/RELEASE.md, Versioning: the newer-version screen ships in a release before any release writes plans above v3, entries above v4 or encVersion above 0';
 
-  it('reads and writes plans at v3 at most and entries at v4 at most, in plain text, until a release with that screen has shipped', async () => {
-    expect(ROW_SCHEMA_VERSIONS, carried).toEqual({ plans: 3, entries: 4 });
+  it('reads plans at v4 but writes v4 only for a language other than English, none approved yet; entries at v4 at most, in plain text', async () => {
+    expect(ROW_SCHEMA_VERSIONS, carried).toEqual({ plans: 4, entries: 4 });
+    expect(RISK_WORDING_LANGUAGES, carried).toEqual(['en']);
     const plan = aPlan({ riskAcknowledgedAt: instant('2026-10-17T08:30:00.000Z'), riskWordingVersion: 1 });
     await open().write({ plan, entries: [anEntry()] });
     const rows = [...(await raw('plans')), ...(await raw('entries'))] as { encVersion: number }[];
