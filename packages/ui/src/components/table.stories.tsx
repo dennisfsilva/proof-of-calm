@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, userEvent } from 'storybook/test';
+import { expect, userEvent, waitFor } from 'storybook/test';
 import { CoinChip } from './coin-chip';
 import {
   Table,
@@ -168,6 +168,159 @@ export const Scrolling: Story = {
     await expect(region).toHaveAttribute('tabindex', '0');
     await userEvent.tab();
     await expect(region).toHaveFocus();
+  },
+};
+
+// The stacking table (docs/DESIGN.md §8): its columns side by side while they fit its box, each row's cells stacked
+// while they are wider, measured afresh at each change. The box, 384 px at every viewport, lies between the columns'
+// width in English (about 345 px) and in pt-PT (about 430 px). The strings are the app's formats of one purchase:
+// pt-PT's long dates (docs/CONTENT-STYLE.md §4) and English.
+
+type Purchase = readonly [date: string, units: string, paid: string];
+
+const PT: readonly Purchase[] = [
+  ['28 de fevereiro de 2027', '0,240000 ETH', '12 345,67 €'],
+  ['20 de setembro de 2026', '0,037120 ETH', '612,30 €'],
+];
+const EN: readonly Purchase[] = [
+  ['28 Feb 2027', '0.240000 ETH', '€12,345.67'],
+  ['20 Sep 2026', '0.037120 ETH', '€612.30'],
+];
+
+function Purchases({ rows }: { rows: readonly Purchase[] }) {
+  return (
+    <div data-testid="box">
+      <Table stack label="Purchases">
+        <TableHeader>
+          <TableRow>
+            <TableHead scope="col">Date</TableHead>
+            <TableHead scope="col" numeric>
+              Units
+            </TableHead>
+            <TableHead scope="col" numeric>
+              Paid
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {rows.map(([date, units, paid]) => (
+            <TableExpandableRow
+              key={date}
+              summary={<span className="whitespace-nowrap">{date}</span>}
+              colSpan={3}
+              detail={<p className="nums">{units}</p>}
+            >
+              <TableCell numeric>{units}</TableCell>
+              <TableCell numeric>{paid}</TableCell>
+            </TableExpandableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
+/** The window errors a play function saw, the ResizeObserver loop's among them. */
+function windowErrors() {
+  const seen: string[] = [];
+  const listen = (event: ErrorEvent) => seen.push(event.message);
+  window.addEventListener('error', listen);
+  return {
+    seen,
+    stop: () => window.removeEventListener('error', listen),
+  };
+}
+
+/**
+ * Whether the table is wider than its box with its columns side by side, measured now; the attribute is restored.
+ * Never inside waitFor, whose MutationObserver would run it again on each toggle of the attribute.
+ */
+function measuredWider(table: HTMLTableElement) {
+  const stacked = table.hasAttribute('data-stacked');
+  table.removeAttribute('data-stacked');
+  const box = table.parentElement?.firstElementChild?.getBoundingClientRect().width ?? 0;
+  const wider = table.getBoundingClientRect().width - box > 0.01;
+  table.toggleAttribute('data-stacked', stacked);
+  return wider;
+}
+
+function parts(canvasElement: HTMLElement) {
+  const box = canvasElement.querySelector<HTMLElement>('[data-testid="box"]');
+  const table = canvasElement.querySelector<HTMLTableElement>('table');
+  if (box === null || table === null) throw new Error('the story renders its box and table');
+  return { box, table };
+}
+
+const between = (box: HTMLElement) => {
+  box.style.width = '384px';
+};
+
+/** Two frames: the probe's ResizeObserver has reported the box by then. */
+const frames = () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+export const StacksLongDates: Story = {
+  render: () => <Purchases rows={PT} />,
+  play: async ({ canvasElement }) => {
+    const errors = windowErrors();
+    const { box, table } = parts(canvasElement);
+    between(box);
+    await waitFor(() => expect(table).toHaveAttribute('data-stacked'));
+    await expect(measuredWider(table)).toBe(true);
+    // Stacked, each row's amount sits below its date.
+    for (const row of table.querySelectorAll('tbody tr[data-slot="table-row"]')) {
+      const [date, , paid] = row.querySelectorAll('td');
+      await expect((paid?.getBoundingClientRect().top ?? 0) >= (date?.getBoundingClientRect().bottom ?? 0)).toBe(true);
+    }
+    // Shorter rows lay the columns side by side again: nothing kept from the stacked check holds them.
+    const english = new Map(PT.flatMap((row, index) => row.map((text, cell) => [text, EN[index]?.[cell] ?? text])));
+    for (const element of table.querySelectorAll('tbody *')) {
+      const text = element.childElementCount === 0 ? english.get(element.textContent ?? '') : undefined;
+      if (text !== undefined) element.textContent = text;
+    }
+    await waitFor(() => expect(table).not.toHaveAttribute('data-stacked'));
+    await expect(measuredWider(table)).toBe(false);
+    errors.stop();
+    await expect(errors.seen).toEqual([]);
+  },
+};
+
+export const KeepsColumnsInEnglish: Story = {
+  render: () => <Purchases rows={EN} />,
+  play: async ({ canvasElement }) => {
+    const { box, table } = parts(canvasElement);
+    between(box);
+    await frames();
+    await expect(measuredWider(table)).toBe(false);
+    await expect(table).not.toHaveAttribute('data-stacked');
+  },
+};
+
+// The text size alone decides it: in a box a little wider than the columns at 16 px, a 20 px root stacks the table
+// and 16 px turns it back.
+export const StacksWithTheTextSize: Story = {
+  render: () => <Purchases rows={EN} />,
+  play: async ({ canvasElement }) => {
+    const errors = windowErrors();
+    const root = document.documentElement;
+    const before = root.style.fontSize;
+    const { box, table } = parts(canvasElement);
+    try {
+      root.style.fontSize = '16px';
+      box.style.width = '0px';
+      await waitFor(() => expect(table).toHaveAttribute('data-stacked'));
+      table.removeAttribute('data-stacked');
+      const columns = table.getBoundingClientRect().width;
+      box.style.width = `${Math.ceil(columns) + 8}px`;
+      await waitFor(() => expect(table).not.toHaveAttribute('data-stacked'));
+      root.style.fontSize = '20px';
+      await waitFor(() => expect(table).toHaveAttribute('data-stacked'));
+      root.style.fontSize = '16px';
+      await waitFor(() => expect(table).not.toHaveAttribute('data-stacked'));
+    } finally {
+      root.style.fontSize = before;
+    }
+    errors.stop();
+    await expect(errors.seen).toEqual([]);
   },
 };
 
