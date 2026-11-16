@@ -237,11 +237,13 @@ external links and the Risk link in the mobile export (M3).
   placeholders (#264) followed. Then the ban lint read placeholders as one word and as asset names
   (#274), plans v4 recorded the acknowledgement's language (#275, `docs/DOMAIN.md` §2.1), tables
   stacked while wider than their box (#277, `docs/DESIGN.md` §8), and the first pt-PT messages
-  landed: the shell, Today and the errors (#276). Onboarding and Portfolio with counsel's approval
-  of the pt-PT disclosure wait in #278 for a fix at zoom-125. #269 takes #278 first,
-  then the content review guard over `packages/content/i18n/**` with the flaky tools tests, then the
-  loaders, then the PT profile and templates overlays; whichever of the settings, plan and
-  learn-with-log messages does not fit moves to #270. A render-and-axe-only pt-PT story run
+  landed: the shell, Today and the errors (#276). Then onboarding and Portfolio with counsel's
+  approval of the pt-PT disclosure (#278, its English zoom-125 baselines in #282), the profile and
+  rules loaders in a language with English as the offline fallback (#281) and Plan (#283) followed.
+  #269 moved to #270 the content review guard with the review-content skill's overlay step, the
+  templates and PT profile overlays (D8, the ICU-branch lint), the settings messages with D10, the
+  learn and log messages, the facts loader and WhyLink, so pt-PT may take one more build session
+  before German starts. A render-and-axe-only pt-PT story run
   waits for #271, once every namespace is translated. CSV import, free (ADR-0039), for the
   main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
   Republic; Kraken's ledger reader built on 2026-11-13 (#168) and the core's import plan against the

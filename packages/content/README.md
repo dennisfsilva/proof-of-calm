@@ -19,6 +19,7 @@ of it. Specifications: `docs/JURISDICTIONS.md`, `docs/EDUCATION.md`, `docs/CONTE
 | `jurisdictions/us.json` | country profile (M2) | `docs/JURISDICTIONS.md` §7.5 and the research file |
 | `jurisdictions/xx.json` | the generic profile for every other country | `docs/JURISDICTIONS.md` §2 |
 | `rules/<code>.json` | generated: the core's `CountryRules` of each profile, what the shell boots on (ADR-0049); never edited | `pnpm --filter @proofofcalm/content rules` (`scripts/rules.ts`); a test fails while one is stale |
+| `rules/<language>/<code>.json` | generated: the same rules over each profile's translation, one folder per content language with a folder under `i18n/` (`pt-PT` today), with no `locales.json` of its own (ADR-0057); never edited | `pnpm --filter @proofofcalm/content rules` (`scripts/rules.ts`); a test fails while one is stale |
 | `rules/locales.json` | generated: every profile's locales by code, shipped statically in the app's entry chunk as the fallback when a rules file fails to load (ADR-0049, Deviations of 2026-11-15); never edited | `pnpm --filter @proofofcalm/content rules` (`scripts/rules.ts`); a test fails while it is stale |
 | `templates/*.json` | the four starting points | `docs/DOMAIN.md` §5, ADR-0009 |
 | `cycles/drawdowns.json` | the completed cycles' maximum drawdowns per coin, each recomputed from its source | `docs/EDUCATION.md` §2, §6 and §9 |
@@ -26,7 +27,7 @@ of it. Specifications: `docs/JURISDICTIONS.md`, `docs/EDUCATION.md`, `docs/CONTE
 | `style/banned.json` | the banned-words lint | `docs/CONTENT-STYLE.md` §2, `docs/LEGAL.md` §6 |
 | `sources.allow.json` | the domains a primary source may come from | `docs/CONTENT-OPS.md` §5 |
 | `learn/*.mdx` | the Learn modules: flat front matter and a closed body | `docs/EDUCATION.md`, `docs/CONTENT-STYLE.md` §5, ADR-0048 |
-| `i18n/pt-PT/` | the European Portuguese translations, sparse: prose only, at the English paths, under the English file name in `jurisdictions/`, `templates/` or `facts/` (none yet; validated, not loaded) | ADR-0057 |
+| `i18n/pt-PT/` | the European Portuguese translations, sparse: prose only, at the English paths, under the English file name in `jurisdictions/`, `templates/` or `facts/` (none yet; validated; a profile's translation loads once `PROFILE_OVERLAYS` lists it, the templates' and facts' not yet) | ADR-0057 |
 
 `pnpm validate:content` (`scripts/validate.ts` over `src/validate.ts`) checks every file against its
 schema and the rules of `docs/JURISDICTIONS.md` §2: owner review, review dates, sources on the
@@ -64,10 +65,13 @@ each text it changes.
 
 | Export | Gives | For |
 |---|---|---|
-| `loadProfile(code)`, `loadProfiles()` | `CountryProfile` (the content type: card, sources, status) | the card, the onboarding, Settings |
-| `loadRules(code)` | the core's `CountryRules` from the generated `rules/<code>.json`, one chunk each, or `null` for a code without one | the shell's boot (`packages/app/src/lib/services/browser.ts`), the generic country's rules standing in |
+| `loadProfile(code, language)`, `loadProfiles(language)` | `CountryProfile` (the content type: card, sources, status) in `language` (default `'en'`): the English profile with its translation from `PROFILE_OVERLAYS` applied; the English profile for a language without a translation or when the translation's chunk fails to load (why: ADR-0057, Corrections of 2026-11-16) | the card, the onboarding, Settings |
+| `loadRules(code, language)` | the core's `CountryRules` from the generated `rules/<code>.json`, or `rules/<language>/<code>.json` for a language in `RULES_LANGUAGES` (default `'en'`), one chunk each; the English file for a language without one or when its chunk fails to load (ADR-0057, Corrections of 2026-11-16); `null` for a code without a profile | the shell's boot (`packages/app/src/lib/services/browser.ts`), the generic country's rules standing in |
+| `spokenLocale(language, profile)`, `numberLocaleFor(language, profile)` | the profile's locale in `language`'s language (de-BE for German), if it has one; the locale its numbers take in `language`, that locale else `numberFormatLocale` (ADR-0023) | the app's formats (`packages/app/src/lib/i18n/locale.ts`), the percentage check over a translation (`src/percent-validate.ts`) |
+| `CONTENT_LANGUAGES`, `ContentLanguage`, `OverlayLanguage` | the languages content is written in, its type, and the same without English (the languages an overlay holds) | the loaders' `language` argument, the overlay validation, the app's language list |
+| `PROFILE_OVERLAYS`, `RULES_LANGUAGES` | one import per translated profile file by overlay language and code (none yet); the languages with generated rules folders | `loadProfile`'s translation; the tests that hold both to the files under `i18n/` |
 | `countryLocales(code)`, `CountryLocales` | a country's `locales`, `numberFormatLocale` and `dateFormatLocale` from the generated `rules/locales.json`, synchronously; the generic country's for a code without a profile | the number and date locale when a country's rules did not load (`useNumberInput` and `useFormatters` in `packages/app/src/lib/services/hooks.ts`, `packages/app/src/lib/i18n/locale.ts`, the entry and move forms) |
-| `loadedProfile(code)` | the `CountryProfile` a load has already read, synchronously, else `null`; it answers after any load, not at boot (ADR-0049) | `useProfile` (`packages/app/src/lib/services/use-profile.ts`), which the holding conditions (`packages/app/src/features/learn/components/holding-conditions.tsx`) and Settings' holding-rule card (`packages/app/src/features/settings/components/use-holding-country.ts`) read; the country card does not call it |
+| `loadedProfile(code, language)` | the `CountryProfile` in `language` (default `'en'`) a load has already read, synchronously, else `null`; the English one for a code without a translation in that language; it answers after any load, not at boot (ADR-0049) | `useProfile` (`packages/app/src/lib/services/use-profile.ts`), which the holding conditions (`packages/app/src/features/learn/components/holding-conditions.tsx`) and Settings' holding-rule card (`packages/app/src/features/settings/components/use-holding-country.ts`) read; the country card does not call it |
 | `ruleSource(profile, rule)` | the URL of the source `ruleSources[rule]` names (`rates`, `holdingRule`, `lotRule`, `losses`, `reporting`), or `null` | the country card's Sources link after each rule |
 | `holdingRuleSource(profile)` | `ruleSource(profile, 'holdingRule')` | the date line's Sources link |
 | `countryRules(profile)` | the core's `CountryRules` | `holdingContext`, `ruleChangeNotice`, `changeCountry` |
@@ -108,8 +112,8 @@ Three decisions shape them:
   shows it first ("pt-BR in São Paulo: XX first", `docs/JURISDICTIONS.md` §3); otherwise last.
 
 Adding a profile in M2: its JSON file, a line in `COUNTRY_CODES` and `FILES` in
-`src/loaders/countries.ts` (a test fails while a file has no loader), a line in `RULES` in
-`src/loaders/rules.ts` and its rules file from `pnpm --filter @proofofcalm/content rules` (a test
+`src/loaders/countries.ts` (a test fails while a file has no loader), a line in `RULES` and, for each
+overlay language (`pt-PT` today), in `TRANSLATED` in `src/loaders/rules.ts`, and its rules files from `pnpm --filter @proofofcalm/content rules` (a test
 fails while the file is missing or stale), its domains in `sources.allow.json`. The app's
 `packages/app/src/features/learn/components/country-section.test.tsx` keeps its three-profile harness:
 `countryChoices`' test proves every profile's position in the picker.

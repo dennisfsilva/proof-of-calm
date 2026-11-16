@@ -121,7 +121,7 @@ Plan B (ADR-0005) was triggered by ADR-0045 and carried out in M1's sessions 2 a
 ```
 packages/content/
 ├── jurisdictions/   pt.json, de.json, …, xx.json (schema: docs/JURISDICTIONS.md §2)
-├── rules/           <code>.json, generated from each profile by `pnpm --filter @proofofcalm/content rules`: the core's rules the shell boots on, and locales.json, every country's locales, the fallback when a rules chunk fails (ADR-0049)
+├── rules/           <code>.json, generated from each profile by `pnpm --filter @proofofcalm/content rules`: the core's rules the shell boots on, and locales.json, every country's locales, the fallback when a rules chunk fails (ADR-0049); <language>/<code>.json, the same over that language's overlays (ADR-0057)
 ├── templates/       four starting points (docs/DOMAIN.md §5)
 ├── learn/           MDX modules with front matter (docs/EDUCATION.md §10): start-here, risk-honestly, cycles, taxes-where-you-live, noise and when-the-market-drops; the simulator's module (planned: M2)
 ├── facts/           every cited number with source, date, lastReviewed (docs/CONTENT-OPS.md §7)
