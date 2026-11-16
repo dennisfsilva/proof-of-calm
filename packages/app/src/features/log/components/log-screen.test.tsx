@@ -44,9 +44,12 @@ vi.mock('@proofofcalm/content', async (original) =>
 // findBy waits on renders, not on Vite's first transform (seconds under load).
 await preloadLazyModules();
 
+// Portugal's rules with literal conditions: a content review may reword, add or drop one (docs/CONTENT-OPS.md §8).
+const FIRST_CONDITION = 'The first condition, shown in the note.';
+const CONDITIONS = [FIRST_CONDITION, 'The second.', 'The third.', 'The fourth.'];
 const portugal = async () => {
   const profile = await loadProfile('PT');
-  return profile === null ? null : countryRules(profile);
+  return profile === null ? null : { ...countryRules(profile), holdingRuleConditions: CONDITIONS };
 };
 
 /** The fixture with four more buys, and any `extra` dates: 12 transactions and July's skip, plus those. */
