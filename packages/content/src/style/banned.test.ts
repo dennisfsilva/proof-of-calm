@@ -174,7 +174,6 @@ describe('findBanned reads a placeholder as one word (docs/CONTENT-STYLE.md §2)
     ]);
     expect(rules('Mantenha {names} até {date}.')).toEqual(['imperative: Mantenha {names} até {date}']);
     expect(rules('Registado: comprou {amount} de {coin} em {date}.')).toEqual([]);
-    expect(rules('{coins, select, one {} other {Hold}} the amounts on {date}.')).toEqual([]);
   });
 
   // Every format.units caller in packages/app/src fills these with units and their ticker ("0.5 BTC").
@@ -242,6 +241,62 @@ describe('findBanned reads a placeholder as one word (docs/CONTENT-STYLE.md §2)
     expect(bannedCodes(' Hold until {date:sellWindow.opens} your Bitcoin.')).toEqual([
       'banned-imperative: explanation: "Hold until {date:sellWindow.opens} your Bitcoin" is on the ban list; reword it (docs/CONTENT-STYLE.md §2)',
     ]);
+  });
+});
+
+// A plural, select or selectordinal branch opens the sentence the person reads, so its first words are a sentence
+// start; the edge positions: a branch at index 0, a nested select, `#` first, a quoted brace, a date placeholder first.
+describe('findBanned reads the first words of an ICU branch as a sentence start (docs/CONTENT-STYLE.md §2)', () => {
+  it('refuses a verb on the list that opens a branch, in each branch', () => {
+    expect(rules('{count, plural, one {Sell it} other {Sell them}}')).toEqual([
+      'imperative: Sell it',
+      'imperative: Sell them',
+    ]);
+    expect(rules('{coins, select, one {} other {Hold}} the amounts on {date}.')).toEqual(['imperative: Hold']);
+    expect(rules('Done: {n, selectordinal, one {Buy your #st} other {Buy your #th}}.')).toEqual([
+      'imperative: Buy your #st',
+      'imperative: Buy your #th',
+    ]);
+    expect(rules('{formal, select, yes {Kaufen Sie} other {Kauf}} jetzt.')).toEqual([
+      'imperative: Kaufen Sie',
+      'imperative: Kauf',
+    ]);
+  });
+
+  it('passes a branch that opens with another word, the plan’s noun or a figure', () => {
+    expect(rules('{count, plural, one {It is sold} other {They are sold}}')).toEqual([]);
+    expect(rules('{count, plural, one {Buy day is the 1st} other {Buy days are the 1st and 15th}}')).toEqual([]);
+    expect(rules('{count, plural, one {# purchase to hold} other {# purchases to hold}}')).toEqual([]);
+    expect(rules('{count, plural, one {#. Sell it} other {#}}')).toEqual([]);
+  });
+
+  it('reads a branch at index 0 and a select nested in a plural branch, outer first', () => {
+    expect(rules('{n, plural, one {Hold {c, select, BTC {Sell it} other {it}}} other {x}}')).toEqual([
+      'imperative: Hold {c, select, BTC {Sell it} other {it}}',
+      'imperative: Sell it',
+    ]);
+    expect(rules('In {n, plural, one {{c, select, BTC {Hold your bitcoin} other {x}}} other {y}}.')).toEqual([
+      'imperative: Hold your bitcoin',
+    ]);
+  });
+
+  it('skips a quoted brace, so it opens no branch and closes none', () => {
+    expect(rules("Use '{'braces'}' {n, plural, one {Sell it} other {x}}")).toEqual(['imperative: Sell it']);
+    expect(rules("{n, plural, one {'{'Sell'}' it} other {Sell '}' them}}")).toEqual(["imperative: Sell '}' them"]);
+    expect(rules("{n, plural, one {It''s sold} other {Sell them}}")).toEqual(['imperative: Sell them']);
+    expect(rules("{n, plural, one {Don't sell} other {Sell them}}")).toEqual(['imperative: Sell them']);
+  });
+
+  it('reads a date placeholder that opens a branch as one word, and returns the branch as written', () => {
+    expect(rules('{n, plural, one {{date:lastBuy} is the day} other {{date:sellWindow.opens}. Sell it}}')).toEqual([]);
+    expect(
+      rules('{n, plural, one {{date:lastBuy}} other {Hold your bitcoin until {date:drawdowns.BTC.high}}}'),
+    ).toEqual(['imperative: Hold your bitcoin until {date:drawdowns.BTC.high}']);
+  });
+
+  it('reads an unclosed argument to the end of the text without throwing', () => {
+    expect(rules('{n, plural, one {Sell it')).toEqual(['imperative: Sell it']);
+    expect(rules('{n, plural,')).toEqual([]);
   });
 });
 
