@@ -1,5 +1,6 @@
 // A country profile's locale tags and the joiner of its literal percentages (docs/CONTENT-STYLE.md §4), for
 // validate.ts. Pure; relative imports name their .ts files, so that Node runs the CLI without a build step.
+import { numberLocaleFor } from './loaders/locales.ts';
 import type { Problem } from './problem.ts';
 import type { CountryProfile } from './schema/jurisdiction.ts';
 
@@ -71,8 +72,7 @@ export function languagePercentProblems(
   profile: CountryProfile,
   texts: readonly [string, string][],
 ): Problem[] {
-  const base = language.split('-')[0];
-  const locale = profile.locales.find((tag) => tag.split('-')[0] === base) ?? profile.numberFormatLocale;
+  const locale = numberLocaleFor(language, profile);
   return wellFormed(locale) ? percentTextProblems(path, locale, texts) : [];
 }
 

@@ -3,6 +3,7 @@
 // placeholders, and the overlaid value passes the schema. The checks on the overlaid text (the ban list, the hyphen,
 // the percent joiner, the 60 words, a template's placeholders against its dates and month names) are validate.ts's,
 // passed in. Pure.
+import { numberLocaleFor } from '../loaders/locales.ts';
 import { type Problem, schemaProblems } from '../problem.ts';
 import { FactSchema } from '../schema/fact.ts';
 import { type CountryProfile, CountryProfileSchema } from '../schema/jurisdiction.ts';
@@ -145,10 +146,6 @@ export type TextChecks = {
 // The English content writes its numbers with English separators whatever the country (de.json: `1,000`, `5.5`).
 const ENGLISH_NUMBERS = 'en';
 
-/** The number locale `localesFor` (packages/app) picks in `language`, as languagePercentProblems reads it. */
-const profileNumberLocale = (language: string, profile: CountryProfile) =>
-  profile.locales.find((tag) => tag.split('-')[0] === language.split('-')[0]) ?? profile.numberFormatLocale;
-
 /**
  * A translation file (ADR-0057): its English file among `files`, its shape against English, the schema and every check
  * the English field takes on its overlaid value. An English file that fails its schema is the English file's problem.
@@ -186,7 +183,7 @@ export function overlayFileProblems(
   const translated = applyOverlay(parsed.data, json, kind);
   const check = CountryProfileSchema.safeParse(translated);
   return [
-    ...overlayProblems(kind, path, parsed.data, json, [ENGLISH_NUMBERS, profileNumberLocale(language, parsed.data)]),
+    ...overlayProblems(kind, path, parsed.data, json, [ENGLISH_NUMBERS, numberLocaleFor(language, parsed.data)]),
     ...(check.success ? [] : schemaProblems(path, check.error.issues)),
     ...checks.jurisdiction(path, language, [parsed.data, translated]),
   ];
