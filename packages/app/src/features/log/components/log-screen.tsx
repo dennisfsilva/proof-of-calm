@@ -305,7 +305,8 @@ export function LogScreen() {
     }
     content = (
       <>
-        <Table>
+        {/* pt-PT's long dates can make the two columns wider than a phone: each row then stacks its amount below its date. */}
+        <Table stack>
           <TableHeader>
             <TableRow>
               <TableHead scope="col">{t('table.entry')}</TableHead>

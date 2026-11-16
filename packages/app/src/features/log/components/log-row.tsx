@@ -173,8 +173,8 @@ export function LogRow({ row, plan, note, open, onOpenChange, onDelete, onEdit }
       {...(onOpenChange !== undefined && { onOpenChange })}
     >
       {/* A move shows its units sent, as its line does; coins added with no recorded cost say so; at no cost they show
-          0 (DOMAIN §2.2, CONTENT-STYLE §3 "Log, a move"). */}
-      <TableCell numeric>
+          0 (DOMAIN §2.2, CONTENT-STYLE §3 "Log, a move"). Stacked, it starts under the date, past the chevron. */}
+      <TableCell numeric className="in-data-stacked:pt-0 in-data-stacked:pl-10">
         {row.kind === 'move'
           ? row.items.map((item) => units(item))
           : row.total === null
