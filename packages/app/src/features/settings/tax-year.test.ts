@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { COUNTRY_CODES, countryRules, loadProfile, loadProfiles } from '@proofofcalm/content';
 import { type CalendarDate, type CountryCode, type Entry, type Plan, taxYearEndingIn } from '@proofofcalm/core';
 import { createTranslator } from 'use-intl/core';
@@ -68,7 +69,7 @@ function flagged(country: string): Snapshot {
 async function header(country: CountryCode, language: Language): Promise<string> {
   const snapshot = flagged(country);
   const platform = recordingPlatform();
-  const services = createTestServices({ snapshot, platform, rules });
+  const services = createTestServices({ snapshot, platform, rules, language });
   await services.start();
   await vi.waitFor(() => expect(services.ui.getState().rules?.country).toBe(country));
   const loaded = services.ui.getState().rules?.rules;
@@ -113,4 +114,19 @@ describe('the tax-year header lines', () => {
       expect(lines.filter((line) => line.includes(';'))).toEqual([]);
     },
   );
+
+  it("PT's pt-PT file holds the overlay's lot note on line 6 and its conditions on lines 8 to 11, none with a ';'", async () => {
+    // The overlay read at test time (ADR-0057): the lines are its texts, each unlike English's.
+    const overlay = JSON.parse(
+      readFileSync(new URL('../../../../content/i18n/pt-PT/jurisdictions/pt.json', import.meta.url), 'utf8'),
+    ) as { lotRuleNote: string; holdingRuleConditions: string[] };
+    const english = await loadProfile('PT');
+    if (english === null) throw new Error('no PT profile');
+    const lines = (await header('PT', 'pt-PT')).split('\n').map(uncell);
+    const translated = [lines[5], ...lines.slice(7, 11)];
+    expect(translated).toEqual([overlay.lotRuleNote, ...overlay.holdingRuleConditions]);
+    const originals = [english.lotRuleNote, ...english.holdingRuleConditions];
+    translated.forEach((line, index) => expect(line).not.toBe(originals[index]));
+    expect(translated.filter((line) => line?.includes(';'))).toEqual([]);
+  });
 });

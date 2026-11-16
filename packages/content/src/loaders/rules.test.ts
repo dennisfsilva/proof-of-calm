@@ -71,6 +71,31 @@ describe('packages/content/rules/<language> (ADR-0057)', () => {
     expect(await loadRules(code, language)).toEqual(JSON.parse(text));
   });
 
+  // The overlay read here, at test time: the translated file is English's but for the texts the overlay holds.
+  const overlayFile = (code: string) =>
+    JSON.parse(
+      readFileSync(fileURLToPath(new URL(`../../i18n/pt-PT/jurisdictions/${fileName(code)}`, import.meta.url)), 'utf8'),
+    ) as { name?: string; holdingRuleConditions?: (string | null)[]; status?: { changeNotice?: string | null } };
+  it.each(['PT', 'XX'])("pt-PT/%s is English's outside the name, the conditions and the change notice", (code) => {
+    const english = countryRules(profileFile(code));
+    const overlay = overlayFile(code);
+    const translated = JSON.parse(readFileSync(join(RULES, 'pt-PT', fileName(code)), 'utf8'));
+    const conditions = english.holdingRuleConditions.map((text, index) => overlay.holdingRuleConditions?.[index] ?? text);
+    const changeNotice = overlay.status?.changeNotice ?? english.status.changeNotice;
+    expect(translated).toEqual({
+      ...english,
+      name: overlay.name ?? english.name,
+      holdingRuleConditions: conditions,
+      status: { ...english.status, changeNotice },
+    });
+    // Each text the overlay translates reads differently from English's, one by one.
+    english.holdingRuleConditions.forEach((text, index) => {
+      if (typeof overlay.holdingRuleConditions?.[index] === 'string') expect(conditions[index]).not.toBe(text);
+    });
+    if (typeof overlay.status?.changeNotice === 'string') expect(changeNotice).not.toBe(english.status.changeNotice);
+    if (overlay.name !== undefined) expect(translated.name).not.toBe(english.name);
+  });
+
   it("answers English's own file in English and in a language without generated files", async () => {
     const english = await loadRules('PT');
     expect(await loadRules('PT', 'en')).toBe(english);
