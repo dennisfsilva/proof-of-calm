@@ -395,8 +395,9 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   input that width depends on. The pt-PT tables' fix stored the columns' width; its first review
   found that shorter rows never turned the table back, and its second that text which shrinks after
   the switch (a text-size change, a web font narrower than its fallback) leaves it stacked. Such a
-  mechanism gets a design check before its second round; the branch waits for it in #268
-  (2026-11-16).
+  mechanism gets a design check before its second round; #268's check (two blind designers) chose a
+  width measured afresh at every change with nothing stored, which #277 shipped (`docs/DESIGN.md` §8,
+  `docs/research/narrow-tables.md`, 2026-11-16).
 - When the test services take a fallback, a fix to that fallback turns red every test that relied on
   it. The test services load no rules for the Portuguese fixture plan, so #263's country-locale
   fallback changed 84 app tests' expected formats; a brief names that sweep when a fix changes what
@@ -408,16 +409,41 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - A text a lint cuts into sentences is checked against every token the text can hold. #265 split
   sentences at a dot followed by a letter, and #264's placeholders hold dotted paths
   (`{date:sellWindow.opens}`), so an imperative before a placeholder and the asset after it fell
-  into different sentences. The integration read found it. The fix that reads a `{date:<field>}`
-  placeholder as one word waits in #268 with its review's last finding: `{units}` and the other
-  placeholders the app fills with a ticker do not count as asset names yet (2026-11-16).
+  into different sentences. The integration read found it. #274 reads a `{date:<field>}`
+  placeholder as one word and counts the placeholders the app fills with units as asset names
+  (`docs/CONTENT-STYLE.md` §2); counsel's judgment on a verb that opens an ICU branch in English
+  moved to #269 (2026-11-16).
 - An action a fallback offers is walked through the same failure. #262's offline toast offered
   Edit, whose sheet loads the namespace that had just failed; pressing it replaced Today with a load
   error, which only the evaluator's offline run showed (#266, 2026-11-16).
-- ci.yml's push-to-main Lighthouse reads the keyless CoinGecko API through `/api/prices`, and its 503
-  fails `errors-in-console` on Today: twice on 2026-11-15, then on both attempts of run 43777047831
+- ci.yml's push-to-main Lighthouse read the keyless CoinGecko API through `/api/prices`, and its 503
+  failed `errors-in-console` on Today: twice on 2026-11-15, then on both attempts of run 43777047831
   on 2026-11-16, with the next push passing. A rerun is not a fix, and a red main stops the
-  unattended chain; the Lighthouse runs route the price API to fixtures in #268.
+  unattended chain; since #273 the local and branch runs answer the price and history API from
+  fixtures (`docs/ENGINEERING.md` §4), and the deployment runs keep the live API (2026-11-16).
+- A spec that boots in a language finds a control by that language's words, not by English. #277's
+  layout spec opened Today's and Portfolio's tables by their English summaries in its pt-PT runs,
+  which held only while those namespaces were untranslated, and #279 reads them from the merged
+  message file (2026-11-16).
+- A PR whose checks ran before a sibling's new spec merged is rerun on top of it before it merges,
+  since strict is off. #276's and #278's green runs predated #277's spec (the integration read,
+  2026-11-16).
+- A story project in a second language needs plays that find elements without English names.
+  #276's planned pt-PT story project failed 81 of 243 stories, and a render-and-axe-only run waits
+  for 25f (#271, 2026-11-16).
+- A table's tab stop is derived again when anything inside it changes size. #277's first round
+  dropped Table's observer and lost the stop when a nested `<details>` opened (2026-11-16).
+- A probe that measures its box inside an auto-layout table cell measures its content. #277's nested
+  chart table needed `w-0 min-w-full` to stack (2026-11-16).
+- A translated text that a record names is approved per wording version, not per language. #278's
+  guard keys the approved texts by `RISK_WORDING_VERSION` (the integration read, confirmed by a
+  refuter, 2026-11-16).
+- A narrow-project spec of a translation is read on CI's Linux Chromium before the translation is
+  called fit. #278's pt-PT Portfolio passed at zoom-125 on Windows and scrolled sideways on CI (run
+  43803113963, 2026-11-16).
+- A branch's Lighthouse run on a slower runner is read against a page the branch does not touch on
+  the same run. #277 measured Today at 117 ms against Plan's 68 ms, beside main's 70 against 31
+  (2026-11-16).
 
 ## Known gaps
 
