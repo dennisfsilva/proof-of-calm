@@ -70,7 +70,9 @@ is the one long disclosure (three sentences, 40 to 50 words). The template line 
 short sentences (12 words, ADR-0047); a translation keeps the three sentences and counts its own words,
 within the onboarding path's 120-word budget. Every other disclosure is at most two sentences plus a link.
 Budgets: at most 120 words of legal and educational copy from the first
-screen to the first logged purchase, the data lines below excluded, at most 30 on Today. A template's
+screen to the first logged purchase, the data lines below excluded, at most 30 on Today. Words are
+counted by whitespace, a figure with its unit as one word ("75 %"), `{product}` as three words and the data
+lines below left out; by this count the English plan-creation text is 50 words. A template's
 `oneLine` describes the plan and stays outside the 120 words, except a sentence that states a risk,
 as the Cycle plan's second does; it counts toward the 120 words and belongs to the Template row's
 disclosure, with that row's line and link. The evidence and the competitor comparison:
