@@ -481,15 +481,15 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   (2026-11-16).
 - A test that must survive a content review pins structure with fixed literal fixtures, never a copy
   derived from the live data by `replace` and never a word a review may change. The semicolons
-  branch's round 1 replaced `us.test.ts`'s word-for-word pin with an order check, and round 2 found
-  its self-test built the reviewed copy from the live text, so a review that sets another year still
+  branch's round 1 replaced `us.test.ts`'s word-for-word pin with an order check. Round 2 found its
+  self-test built the reviewed copy from the live text, so a review that sets another year still
   fails `verify` (#294, 2026-11-16).
 - A step that shows a translated text waits for it like the step that lists it. #295's summary
   showed the English template name for a resumed pt-PT draft while only the template step waited
   (2026-11-16).
 - A width check of a control measures its widest state. #293's per-tab check found the selected
-  "Detenção" 84 of 82 px at zoom-125, which the evaluator's earlier report, read on the unselected
-  tab, had hidden behind "repartição" (2026-11-16).
+  "Detenção" 84 px in an 82 px tab at zoom-125. The evaluator's earlier report measured the
+  unselected tab, where "repartição" was the widest word (2026-11-16).
 
 ## Known gaps
 
