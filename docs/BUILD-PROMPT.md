@@ -494,11 +494,11 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   English before the content roles read it. #300's builder cut three strings to 240 characters and
   dropped "always" from mining's category B, "units" from the loss rule and a preamble's attribution;
   counsel's first read found all three (2026-11-16).
-- A replacement wording the session settles from the content roles goes to the round's reviewer, who
-  checks it against the English like the text it replaces, before the fix round applies it. #300's
-  settled texts dropped "entre criptoativos" to keep a summary at 60 words and moved a comma that
-  widened a condition; round 1's reviewer found both first. Counsel's own round-1 noun for the
-  declared sales came back as its round-2 finding (2026-11-16).
+- Before the fix round applies a wording the session settled from the content roles, the round's
+  reviewer checks it against the English, as it checks the text it replaces. #300's settled texts
+  dropped "entre criptoativos" to keep a summary at 60 words and moved a comma that widened a
+  condition; round 1's reviewer found both first. The noun counsel proposed for the declared sales in
+  round 1 became its own finding in round 2 (2026-11-16).
 
 ## Known gaps
 
