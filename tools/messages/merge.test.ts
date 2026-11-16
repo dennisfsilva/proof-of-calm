@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -149,5 +149,31 @@ describe('the committed app messages', () => {
   it('are up to date with the message files of the features and lib modules', () => {
     const appSrc = fileURLToPath(new URL('../../packages/app/src', import.meta.url));
     expect(run(appSrc, true)).toEqual([]);
+  });
+
+  it('join «Regra e venda» with a no-break space in every pt-PT string (CONTENT-STYLE §9)', () => {
+    const appSrc = fileURLToPath(new URL('../../packages/app/src', import.meta.url));
+    const strings = (value: unknown): string[] =>
+      typeof value === 'string'
+        ? [value]
+        : value !== null && typeof value === 'object'
+          ? Object.values(value).flatMap(strings)
+          : [];
+    const broken: string[] = [];
+    let named = 0;
+    for (const kind of ['features', 'lib']) {
+      for (const folder of readdirSync(join(appSrc, kind))) {
+        const file = join(appSrc, kind, folder, 'messages', 'pt-PT.json');
+        if (!existsSync(file)) continue;
+        for (const text of strings(JSON.parse(readFileSync(file, 'utf8')))) {
+          for (const match of text.matchAll(/Regra e(\P{L}*)venda/gu)) {
+            named += 1;
+            if (match[1] !== ' ') broken.push(`${kind}/${folder}: ${text}`);
+          }
+        }
+      }
+    }
+    expect(named).toBeGreaterThan(0);
+    expect(broken).toEqual([]);
   });
 });
