@@ -51,8 +51,8 @@ describe('readImport', () => {
   });
 
   it('refuses a backup from a newer schema version, whatever else it holds', () => {
-    const newer = JSON.stringify({ format: 'proof-of-calm', schemaVersion: 6, plan: {}, entries: [] });
-    expect(readImport(newer)).toEqual({ ok: false, error: { code: 'newer-version', schemaVersion: 6 } });
+    const newer = JSON.stringify({ format: 'proof-of-calm', schemaVersion: 7, plan: {}, entries: [] });
+    expect(readImport(newer)).toEqual({ ok: false, error: { code: 'newer-version', schemaVersion: 7 } });
   });
 });
 

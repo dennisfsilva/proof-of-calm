@@ -1,3 +1,5 @@
+import type { UiLanguage } from '../i18n/locale';
+
 // The product's name in one place (docs/BUILD-PROMPT.md, ADR-0040): copy takes it as the {product} value,
 // file names take the slug, the holding page takes the wordmark (lowercase, on one line: docs/DESIGN.md
 // §1) and absolute URLs take the origin. The backup format marker stays "proof-of-calm" whatever the
@@ -16,3 +18,16 @@ export const BRAND = {
 
 /** The version of the acknowledged text that onboarding shows today. */
 export const RISK_WORDING_VERSION = 1;
+
+/**
+ * The languages whose own text of the disclosure counsel approved (docs/LEGAL.md §4): a version names the
+ * English text and each of these. Onboarding and the re-ask show every other UI language the English text,
+ * and the plan records `en` (docs/DOMAIN.md §2.1); `features/onboarding/model/disclosure.test.ts` holds
+ * that each approved language has its own text and every other one shows the English.
+ */
+export const RISK_WORDING_LANGUAGES: readonly UiLanguage[] = ['en'];
+
+/** The language of the disclosure text shown under the UI language `shown`, which the plan records. */
+export function riskWordingLanguage(shown: UiLanguage, approved = RISK_WORDING_LANGUAGES): UiLanguage {
+  return approved.includes(shown) ? shown : 'en';
+}

@@ -4,7 +4,7 @@
 // ADR-0053 reads and rewrites such a plan as it is (docs/RELEASE.md, rollback; .claude/rules/app-storage.md).
 import 'fake-indexeddb/auto';
 import { acknowledge, changeCountry, type EntityId, type Plan } from '@proofofcalm/core';
-import { anEntry, aPlan, instant } from '@proofofcalm/core/testing';
+import { anEntry, aPlan, asV3Plan, instant } from '@proofofcalm/core/testing';
 import { FIXTURE_RULES } from '@proofofcalm/core/testing/country-change';
 import { IDBFactory } from 'fake-indexeddb';
 import { openDB } from 'idb';
@@ -45,12 +45,12 @@ afterEach(async () => {
 
 describe('idb plan store: a plan whose currency is not its country’s (ADR-0053)', () => {
   it('this build writes it as a v3 row the previous build reads and rewrites as it is', async () => {
-    const plan = changeCountry(acknowledge(aPlan(), 1, NOW), uk, NOW, 'keep').plan;
+    const plan = changeCountry(acknowledge(aPlan(), 1, 'en', NOW), uk, NOW, 'keep').plan;
     const entry = anEntry();
-    expect(plan).toMatchObject({ schemaVersion: 3, country: 'GB', payCurrency: 'EUR', displayCurrency: 'EUR' });
+    expect(plan).toMatchObject({ schemaVersion: 4, country: 'GB', payCurrency: 'EUR', displayCurrency: 'EUR' });
     await open().write({ plan, entries: [entry] });
     const [written] = await planRows();
-    expect(written).toMatchObject({ schemaVersion: 3, payload: plan });
+    expect(written).toMatchObject({ schemaVersion: 3, payload: asV3Plan(plan) });
 
     const previous = open({ rowVersions: PREVIOUS_BUILD });
     expect(await previous.load()).toStrictEqual({ ...EMPTY_SNAPSHOT, plan, entries: [entry] });

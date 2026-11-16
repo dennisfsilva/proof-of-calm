@@ -25,8 +25,9 @@ import {
   type TemplateError,
   templateDatesUsable,
 } from '@proofofcalm/core';
-import { RISK_WORDING_VERSION } from '../../../lib/brand';
+import { RISK_WORDING_VERSION, riskWordingLanguage } from '../../../lib/brand';
 import type { NumberInput, NumberInputError } from '../../../lib/format';
+import type { UiLanguage } from '../../../lib/i18n/locale';
 import { coinSplit, type ScheduleIssue, type ScheduleValue, type SplitIssue, schedule } from '../../plan';
 import type { SetupDraft } from './draft';
 
@@ -47,6 +48,10 @@ export type StartContext = {
   readonly numberInput: NumberInput;
   readonly today: CalendarDate;
   readonly now: Instant;
+  /** The UI language onboarding renders in; the plan records the language of the disclosure text it shows. */
+  readonly language: UiLanguage;
+  /** The languages with an approved disclosure text, `RISK_WORDING_LANGUAGES` unless a test names others. */
+  readonly riskLanguages?: readonly UiLanguage[];
 };
 
 /** The highest buy day: every month has it (ADR-0034's select of 1 to 28). */
@@ -139,7 +144,7 @@ export function startPlan(
   if (result.ok) {
     return {
       ...result,
-      value: { ...result.value, riskAcknowledgedAt: context.now, riskWordingVersion: RISK_WORDING_VERSION },
+      value: { ...result.value, ...acknowledgement(context) },
     };
   }
   if (result.error.code !== 'invalid-plan') return result;
@@ -166,6 +171,12 @@ export function startPlan(
 
 /** What the custom path reads the draft with: the country, the formatting and the time. */
 export type CustomContext = Omit<StartContext, 'template'>;
+
+/** Start records when, which version and in which language the disclosure was acknowledged (docs/LEGAL.md §4). */
+function acknowledgement(context: CustomContext) {
+  const riskLanguage = riskWordingLanguage(context.language, context.riskLanguages);
+  return { riskAcknowledgedAt: context.now, riskWordingVersion: RISK_WORDING_VERSION, riskLanguage };
+}
 
 /**
  * The chosen country's plan with the draft's coins and placeholders for the rest, the base `coinSplit`
@@ -199,6 +210,7 @@ function basePlan(draft: SetupDraft, context: CustomContext): Plan {
     templateId: null,
     riskAcknowledgedAt: null,
     riskWordingVersion: 0,
+    riskLanguage: null,
     createdAt: context.now,
     updatedAt: context.now,
   };
@@ -250,8 +262,7 @@ export function startCustomPlan(draft: SetupDraft, context: CustomContext): Resu
     ...base,
     ...coins.value,
     ...fields.value,
-    riskAcknowledgedAt: context.now,
-    riskWordingVersion: RISK_WORDING_VERSION,
+    ...acknowledgement(context),
   };
   const issues = planIssues(plan);
   return issues.length > 0 ? err({ code: 'invalid-plan', issues: issues.map((issue) => issue.code) }) : ok(plan);

@@ -3,6 +3,7 @@
 // `reacknowledge` is the one other write: the re-ask of the disclosure (docs/DOMAIN.md §2.1).
 import { acknowledge, acknowledgementDue, type Plan } from '@proofofcalm/core';
 import { useRef, useState } from 'react';
+import { riskWordingLanguage } from '../../lib/brand';
 import { useRouter } from '../../lib/navigation';
 import { type Services, useServices } from '../../lib/services';
 
@@ -12,11 +13,13 @@ import { type Services, useServices } from '../../lib/services';
  * throws.
  */
 export async function reacknowledge(
-  { domain, clock }: Pick<Services, 'domain' | 'clock'>,
+  { domain, clock, language }: Pick<Services, 'domain' | 'clock' | 'language'>,
   version: number,
 ): Promise<void> {
   await domain.write(({ plan }) =>
-    plan !== null && acknowledgementDue(plan, version) ? { plan: acknowledge(plan, version, clock.now()) } : {},
+    plan !== null && acknowledgementDue(plan, version)
+      ? { plan: acknowledge(plan, version, riskWordingLanguage(language), clock.now()) }
+      : {},
   );
 }
 

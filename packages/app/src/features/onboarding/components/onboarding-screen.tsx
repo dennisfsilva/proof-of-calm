@@ -159,6 +159,7 @@ export function OnboardingScreen({ device }: OnboardingScreenProps) {
     numberInput: createNumberInput(localesFor(language, countryRules(chosen)).numbers),
     today,
     now: clock.now(),
+    language,
     template,
   });
   // The restored step is shown as the first step is, without moving the focus. A shared step is kept only while the
