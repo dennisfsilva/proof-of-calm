@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
-import { fillTemplateDates, TEMPLATES } from '@proofofcalm/content';
+import { countryRules, fillTemplateDates, loadProfile, TEMPLATES } from '@proofofcalm/content';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createFormatters, type Formatters } from '../../../lib/format';
-import { I18nProvider } from '../../../lib/i18n';
+import { I18nProvider, localesFor } from '../../../lib/i18n';
 import onboarding from '../../../messages/en/onboarding.json';
 import shell from '../../../messages/en/shell.json';
 import { type TemplateChoice, TemplateStep } from './template-step';
@@ -41,6 +41,14 @@ function mount(value: TemplateChoice | null = null, format: Formatters = createF
     </I18nProvider>,
   );
   return handlers;
+}
+
+/** The formatters the onboarding screen builds for a plan in an English UI (`formatOf`, ADR-0023). */
+async function planFormat(code: string) {
+  const profile = await loadProfile(code);
+  if (profile === null) throw new Error(`no profile ${code}`);
+  const locales = localesFor('en', countryRules(profile));
+  return createFormatters(locales.numbers, locales.ui);
 }
 
 describe('TemplateStep', () => {
@@ -178,6 +186,23 @@ describe('TemplateStep', () => {
     mount({ kind: 'template', id: 'cycle-plan' });
     const english = (await openPanel()).textContent ?? '';
     expect(english).toContain('40% Bitcoin, 30% Ethereum, 15% Solana, and 15% Chainlink');
+  });
+
+  it('writes the texts’ dates in the UI language’s format whatever the plan’s country (ADR-0023)', async () => {
+    const card = () =>
+      screen.getByRole('radio', { name: offered('cycle-plan').name }).closest('[data-slot="radio-card"]');
+    for (const code of ['US', 'PT', 'GB']) {
+      mount({ kind: 'template', id: 'cycle-plan' }, await planFormat(code));
+      expect(card()?.textContent).toContain(
+        `until 1${NO_BREAK}Jun${NO_BREAK}2028, held, then sold in thirds from 1${NO_BREAK}Jun${NO_BREAK}2029 to 31${NO_BREAK}Oct${NO_BREAK}2029.`,
+      );
+      const panel = (await openPanel()).textContent ?? '';
+      expect(panel).toContain(
+        `its high on 10${NO_BREAK}May${NO_BREAK}2021 to its low on 10${NO_BREAK}Jun${NO_BREAK}2023.`,
+      );
+      expect(panel).not.toContain('{date:');
+      cleanup();
+    }
   });
 
   it('writes the texts’ dates from the template’s fields in the plan’s order, never breaking one', async () => {
