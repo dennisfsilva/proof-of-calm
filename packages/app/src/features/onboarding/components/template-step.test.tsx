@@ -1,5 +1,12 @@
 // @vitest-environment jsdom
-import { countryRules, fillTemplateDates, loadProfile, loadTemplateTexts, TEMPLATES } from '@proofofcalm/content';
+import {
+  type ContentDrawdown,
+  countryRules,
+  fillTemplateDates,
+  loadProfile,
+  loadTemplateTexts,
+  TEMPLATES,
+} from '@proofofcalm/content';
 import { decimal } from '@proofofcalm/core';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -10,7 +17,27 @@ import shell from '../../../messages/en/shell.json';
 import portuguese from '../../../messages/pt-PT/onboarding.json';
 import { type TemplateChoice, TemplateStep } from './template-step';
 
-afterEach(cleanup);
+// The band test mounts each template with literal drawdown rows, so it proves the card's own formatting and no
+// content review of a template's rows (docs/CONTENT-OPS.md §8) changes what it expects; every other test reads the
+// templates as the files hold them.
+const literalRows = vi.hoisted(() => ({ byId: null as null | Readonly<Record<string, ContentDrawdown[]>> }));
+vi.mock('@proofofcalm/content', async (original) => {
+  const content = await original<typeof import('@proofofcalm/content')>();
+  return {
+    ...content,
+    get TEMPLATES() {
+      const byId = literalRows.byId;
+      return byId === null
+        ? content.TEMPLATES
+        : content.TEMPLATES.map((template) => ({ ...template, drawdowns: byId[template.id] ?? template.drawdowns }));
+    },
+  };
+});
+
+afterEach(() => {
+  cleanup();
+  literalRows.byId = null;
+});
 
 const OWN = 'Your own coins';
 const LINE = 'A starting point some people use. You choose every setting. Not advice.';
@@ -107,33 +134,43 @@ describe('TemplateStep', () => {
   it('shows each template’s dated band after its line, composed in the plan’s formats and read with the card', () => {
     // A German plan in English: `−78 %` signed with U+2212 and the locale's no-break space, the serial comma of
     // English lists, and one window that holds every fall, from the earliest high to the latest low, with dates that
-    // never break (LEGAL §4). The figures and dates are each template's own rows, which a content review may change
-    // (docs/CONTENT-OPS.md §8); the shape of each band is written here.
+    // never break (LEGAL §4). The rows are literal (the mock above), so a review of a template's rows changes nothing
+    // here: whole percents rounded from each row's fall, en-GB's own short month (`Sept`), and a window whose ends
+    // need not come from the first row.
+    const row = (coin: string, high: string, low: string, fall: string): ContentDrawdown => ({
+      coin,
+      high: high as ContentDrawdown['high'],
+      low: low as ContentDrawdown['low'],
+      fall: fall as ContentDrawdown['fall'],
+      source: 'https://example.com/series',
+      publisher: 'Example',
+      accessed: '2026-01-01' as ContentDrawdown['accessed'],
+    });
+    literalRows.byId = {
+      'btc-only-hold': [row('BTC', '2021-09-07', '2022-11-21', '77.6')],
+      'two-coins': [row('BTC', '2021-11-10', '2022-06-18', '74.4'), row('ETH', '2021-09-03', '2022-12-30', '81.6')],
+      'cycle-plan': [
+        row('BTC', '2021-11-10', '2022-11-21', '77.2'),
+        row('ETH', '2021-11-10', '2022-06-18', '81.8'),
+        row('SOL', '2021-11-06', '2022-12-29', '96.4'),
+        row('LINK', '2021-05-10', '2023-06-10', '90.6'),
+      ],
+      accumulate: [
+        row('BTC', '2021-11-10', '2022-11-21', '78'),
+        row('ETH', '2021-11-16', '2022-06-18', '82'),
+        row('SOL', '2021-11-06', '2022-12-29', '97'),
+      ],
+    };
     mount(null, createFormatters('de-DE', 'en-GB'));
     const NB = ' ';
     const M = '−';
-    const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const day = (iso: string) => {
-      const [year, month, date] = iso.split('-');
-      return [String(Number(date)), MONTHS[Number(month) - 1], year].join(NB);
-    };
-    const rows = (id: string) => offered(id).drawdowns;
-    const fall = (id: string, coin: string) =>
-      `${coin}${NB}${M}${rows(id).find((row) => row.coin === coin)?.fall}${NB}%`;
-    const window = (id: string) => {
-      const highs = rows(id)
-        .map(({ high }) => high)
-        .sort();
-      const lows = rows(id)
-        .map(({ low }) => low)
-        .sort();
-      return `between ${day(highs[0] ?? '')} and ${day(lows.at(-1) ?? '')}`;
-    };
+    const fall = (coin: string, value: number) => `${coin}${NB}${M}${value}${NB}%`;
+    const day = (text: string) => text.replaceAll(' ', NB);
     const bands = {
-      'btc-only-hold': `${fall('btc-only-hold', 'BTC')}, high to low ${window('btc-only-hold')}`,
-      'two-coins': `${fall('two-coins', 'BTC')} and ${fall('two-coins', 'ETH')}, each high to low ${window('two-coins')}`,
-      'cycle-plan': `${['BTC', 'ETH', 'SOL'].map((coin) => fall('cycle-plan', coin)).join(', ')}, and ${fall('cycle-plan', 'LINK')}, each high to low ${window('cycle-plan')}`,
-      accumulate: `${['BTC', 'ETH'].map((coin) => fall('accumulate', coin)).join(', ')}, and ${fall('accumulate', 'SOL')}, each high to low ${window('accumulate')}`,
+      'btc-only-hold': `${fall('BTC', 78)}, high to low between ${day('7 Sept 2021')} and ${day('21 Nov 2022')}`,
+      'two-coins': `${fall('BTC', 74)} and ${fall('ETH', 82)}, each high to low between ${day('3 Sept 2021')} and ${day('30 Dec 2022')}`,
+      'cycle-plan': `${fall('BTC', 77)}, ${fall('ETH', 82)}, ${fall('SOL', 96)}, and ${fall('LINK', 91)}, each high to low between ${day('10 May 2021')} and ${day('10 Jun 2023')}`,
+      accumulate: `${fall('BTC', 78)}, ${fall('ETH', 82)}, and ${fall('SOL', 97)}, each high to low between ${day('6 Nov 2021')} and ${day('29 Dec 2022')}`,
     };
     expect(TEMPLATES.map((template) => template.id).sort()).toEqual(Object.keys(bands).sort());
     for (const template of TEMPLATES) {
