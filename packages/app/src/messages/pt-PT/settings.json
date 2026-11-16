@@ -120,7 +120,7 @@
       "file": "{name}, exportado a {date}. Movimentos nesta cópia de segurança: {count}.",
       "pasted": "Cópia de segurança colada, exportada a {date}. Movimentos nesta cópia de segurança: {count}.",
       "replace": "Substituir tudo",
-      "addMissing": "Adicionar só os movimentos em falta",
+      "addMissing": "Adicionar só o que falta",
       "importThis": "Importar esta cópia de segurança",
       "result": "Movimentos adicionados: {added}. Já neste plano, não adicionados: {skipped}.",
       "deletedHere": "Eliminados antes neste dispositivo, não adicionados: {deleted}.",
