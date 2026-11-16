@@ -1,7 +1,9 @@
-import { CountryRulesSchema, holdingStatus, suggestCountry } from '@proofofcalm/core';
-import { date } from '@proofofcalm/core/testing';
+// The United States' profile (docs/JURISDICTIONS.md §7.5): only what no content review can change
+// (docs/ENGINEERING.md §2, the review-safe test rule); the country facts are §7.5's rows, which the review
+// compares and the owner reads.
+import { CountryRulesSchema, suggestCountry } from '@proofofcalm/core';
 import { describe, expect, it } from 'vitest';
-import { countryRules, loadProfiles, ruleSource, suggestionProfiles } from '../loaders/countries.ts';
+import { countryRules, loadProfiles, suggestionProfiles } from '../loaders/countries.ts';
 import { loadRules } from '../loaders/rules.ts';
 
 const profiles = await loadProfiles();
@@ -10,15 +12,8 @@ if (us === undefined) throw new Error('no US profile');
 const rules = countryRules(us);
 
 describe('the United States profile (docs/JURISDICTIONS.md §7.5)', () => {
-  it('parses to the rules the core reads: lower long-term rate after one year, specific lots per venue', () => {
+  it('parses to the rules the core reads, and the timezones the suggestion reads', () => {
     expect(CountryRulesSchema.parse(rules)).toEqual(rules);
-    expect(rules).toMatchObject({
-      currency: 'USD',
-      holdingRule: { kind: 'years', years: 1, effect: 'lower-rate' },
-      lotRule: 'specific',
-      lotScope: 'per-venue',
-      computationModel: { kind: 'per-lot' },
-    });
     expect(us.timezones).toEqual([
       'America/New_York',
       'America/Chicago',
@@ -32,20 +27,6 @@ describe('the United States profile (docs/JURISDICTIONS.md §7.5)', () => {
 
   it('the generated rules file answers the same rules as the profile (ADR-0049)', async () => {
     expect(await loadRules('US')).toEqual(rules);
-  });
-
-  it('a unit bought on 2026-03-15 takes the long-term rate from 2027-03-16, the day after the anniversary', () => {
-    const statusOn = (bought: string) => holdingStatus(date(bought), rules.holdingRule, rules.holdingRuleOverrides);
-    expect(statusOn('2026-03-15')).toEqual({ kind: 'dated', from: '2027-03-16', effect: 'lower-rate' });
-  });
-
-  it('every rule source resolves to a law or an authority', () => {
-    for (const field of Object.keys(us.ruleSources) as (keyof typeof us.ruleSources)[]) {
-      const key = us.ruleSources[field];
-      const source = us.sources.find((candidate) => candidate.key === key);
-      expect(ruleSource(us, field), field).toBe(source?.url ?? null);
-      expect(['law', 'authority'], `${field}: ${key}`).toContain(source?.kind);
-    }
   });
 
   describe('suggestCountry with the profiles so far (docs/JURISDICTIONS.md §3)', () => {
