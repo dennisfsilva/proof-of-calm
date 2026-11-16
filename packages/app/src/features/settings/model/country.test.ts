@@ -8,7 +8,7 @@ import { earlyOpenOf, holdingCountryOf, sellWindowValueOf } from '../../plan';
 import { countryOptions, countrySummary, ruleWordsOf } from './country';
 
 // The core's country-change fixture holds three countries' rules as literals, so a content review changes none of
-// them (docs/ENGINEERING.md §2): it keeps only the fields no source states equal to the live profiles'.
+// them (docs/ENGINEERING.md §2): this test checks that the fields no source states equal the live profiles'.
 
 const now = instant('2026-10-22T09:00:00+01:00');
 const TODAY = '2026-10-22' as CalendarDate;
