@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { applyOverlay, CONTENT_LANGUAGES, TRANSLATABLE } from './overlay.ts';
 import { groupProblems } from '../percent-validate.ts';
+import { applyOverlay, CONTENT_LANGUAGES, TRANSLATABLE } from './overlay.ts';
 import { numbersIn, overlayProblems } from './overlay-validate.ts';
 
 // Translated content as sparse overlays on the English files (ADR-0057): the merge, and what an overlay may hold.

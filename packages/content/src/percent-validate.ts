@@ -135,7 +135,7 @@ const MONEY = new RegExp(
   'g',
 );
 /** A whole figure as a comma-decimal page's profile writes it: groups of three from 10 000, joined by U+00A0. */
-const grouped =(digits: string) => (digits.length < 5 ? digits : digits.replace(/\B(?=(\d{3})+$)/g, NBSP));
+const grouped = (digits: string) => (digits.length < 5 ? digits : digits.replace(/\B(?=(\d{3})+$)/g, NBSP));
 /** A text with the escapes a writer types in JSON, so a no-break space never looks like a space. */
 export const escaped = (text: string) =>
   text.replace(
