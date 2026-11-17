@@ -120,7 +120,7 @@ describe('JanuaryValue', () => {
     );
     expect(estimate.className).toContain('text-14');
     expect(estimate.closest('a')).toBeNull();
-    expect(text()).not.toMatch(/wealth|box 3|taxable/i);
+    expect(text()).not.toMatch(/wealth|box\s3|taxable/i);
   });
 
   it('names a coin without a close dated the eve, and shows no partial sum', async () => {

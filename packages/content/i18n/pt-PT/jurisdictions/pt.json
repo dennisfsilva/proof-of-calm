@@ -1,8 +1,8 @@
 {
-  "filingNote": "Ano fiscal igual ao ano civil. A declaração (Modelo 3) é entregue de 1 de abril a 30 de junho do ano seguinte.",
+  "filingNote": "Ano fiscal igual ao ano civil. A declaração (Modelo\u00a03) é entregue de 1 de abril a 30 de junho do ano seguinte.",
   "holdingRuleConditions": [
-    "A exclusão de tributação das mais-valias só se aplica quando a contraparte tem residência fiscal na UE, no EEE ou numa jurisdição com convenção para evitar a dupla tributação (caso contrário, declara-se no Anexo G, Quadro 18B).",
-    "As alienações excluídas de tributação continuam a ter de ser declaradas (Anexo G1, Quadro 7).",
+    "A exclusão de tributação das mais-valias só se aplica quando a contraparte tem residência fiscal na UE, no EEE ou numa jurisdição com convenção para evitar a dupla tributação (caso contrário, declara-se no Anexo\u00a0G, Quadro\u00a018B).",
+    "As alienações excluídas de tributação continuam a ter de ser declaradas (Anexo\u00a0G1, Quadro\u00a07).",
     "Não está decidido se o período de detenção continua numa troca entre criptoativos. A Proof of Calm trata uma troca como uma venda e uma nova compra, pelo que começa um novo período de detenção para as moedas recebidas.",
     "A perda da residência fiscal em Portugal conta como alienação (art. 10.º n.º 25 do CIRS, n.º 22 nos documentos de 2023–2025)."
   ],
@@ -11,7 +11,7 @@
     "classification": "O ganho é da categoria G (art. 10.º n.º 1 al. k) do CIRS) se o criptoativo não for valor mobiliário. Staking ou empréstimo pago em moeda fiduciária: E (28%). Atividade habitual, profissional, mineração ou validação: B. Excluem-se os NFT.",
     "taxableEvents": [
       {
-        "note": "A mais-valia fica excluída de tributação com 365 dias ou mais de detenção e contraparte com residência fiscal na UE, no EEE ou numa jurisdição com convenção. As alienações excluídas continuam a ser declaradas (Anexo G1, Quadro 7)."
+        "note": "A mais-valia fica excluída de tributação com 365 dias ou mais de detenção e contraparte com residência fiscal na UE, no EEE ou numa jurisdição com convenção. As alienações excluídas continuam a ser declaradas (Anexo\u00a0G1, Quadro\u00a07)."
       },
       {
         "note": "Diferida: o criptoativo recebido assume o valor de aquisição do entregue, salvo se uma das partes residir fiscalmente fora da UE, do EEE ou de jurisdição com convenção (art. 10.º n.ºs 23–24 do CIRS, n.ºs 20–21 nos documentos de 2023–2025)."
@@ -50,17 +50,17 @@
     "lotRuleText": "Primeiro a entrar, primeiro a sair («os alienados são os adquiridos há mais tempo», art. 43.º n.º 8 al. g) do CIRS, antes n.º 6 al. g)), em separado por depositário ou plataforma (art. 43.º n.º 9, antes n.º 7).",
     "losses": "Abatem-se às mais-valias de criptoativos do ano, salvo unidades detidas 365 dias ou mais. Só com englobamento o saldo negativo se reporta cinco anos (art. 55.º n.º 1 al. d)). Com contraparte em paraíso fiscal nunca contam (art. 43.º n.º 7).",
     "reporting": [
-      "Modelo 3, Anexo G, Quadro 18A: alienações de unidades detidas menos de 365 dias, por operação, com o país da contraparte.",
-      "Anexo G, Quadro 18B: alienações com contraparte fora da UE ou do EEE.",
-      "Anexo G1, Quadro 7: alienações excluídas de tributação, de declaração obrigatória.",
-      "Anexo J, Quadro 9.4, para rendimentos tratados como obtidos no estrangeiro. Que anexo se aplica a uma venda numa plataforma estrangeira é uma questão recorrente entre profissionais.",
-      "Anexo E, código E21, para rendimentos de criptoativos. Anexo B, campos 419 e 422, para negociação e mineração como atividade empresarial.",
+      "Modelo\u00a03, Anexo\u00a0G, Quadro\u00a018A: alienações de unidades detidas menos de 365 dias, por operação, com o país da contraparte.",
+      "Anexo\u00a0G, Quadro\u00a018B: alienações com contraparte fora da UE ou do EEE.",
+      "Anexo\u00a0G1, Quadro\u00a07: alienações excluídas de tributação, de declaração obrigatória.",
+      "Anexo\u00a0J, Quadro\u00a09.4, para rendimentos tratados como obtidos no estrangeiro. Que anexo se aplica a uma venda numa plataforma estrangeira é uma questão recorrente entre profissionais.",
+      "Anexo\u00a0E, código E21, para rendimentos de criptoativos. Anexo\u00a0B, campos\u00a0419 e 422, para negociação e mineração como atividade empresarial.",
       "DAC8: Lei n.º 26/2026, de 3 de junho de 2026, com efeitos desde 1 de janeiro de 2026. Os prestadores comunicam os residentes em Portugal à AT até 31 de maio do ano seguinte, pela primeira vez a 31 de maio de 2027."
     ],
     "caveats": [
       "Contrapartes fora da UE ou do EEE.",
       "Se o período de detenção continua numa troca.",
-      "Anexo G, Quadro 18A, ou Anexo J, Quadro 9.4, para plataformas estrangeiras.",
+      "Anexo\u00a0G, Quadro\u00a018A, ou Anexo\u00a0J, Quadro\u00a09.4, para plataformas estrangeiras.",
       "Perdas, utilizáveis apenas com englobamento.",
       "Rendimentos de staking.",
       "O risco de a atividade contar como profissional.",

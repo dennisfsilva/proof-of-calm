@@ -21,8 +21,8 @@
   },
   "holdingRuleOverrides": [],
   "holdingRuleConditions": [
-    "A exclusão de tributação das mais-valias só se aplica quando a contraparte tem residência fiscal na UE, no EEE ou numa jurisdição com convenção para evitar a dupla tributação (caso contrário, declara-se no Anexo G, Quadro 18B).",
-    "As alienações excluídas de tributação continuam a ter de ser declaradas (Anexo G1, Quadro 7).",
+    "A exclusão de tributação das mais-valias só se aplica quando a contraparte tem residência fiscal na UE, no EEE ou numa jurisdição com convenção para evitar a dupla tributação (caso contrário, declara-se no Anexo G, Quadro 18B).",
+    "As alienações excluídas de tributação continuam a ter de ser declaradas (Anexo G1, Quadro 7).",
     "Não está decidido se o período de detenção continua numa troca entre criptoativos. A Proof of Calm trata uma troca como uma venda e uma nova compra, pelo que começa um novo período de detenção para as moedas recebidas.",
     "A perda da residência fiscal em Portugal conta como alienação (art. 10.º n.º 25 do CIRS, n.º 22 nos documentos de 2023–2025)."
   ],

@@ -93,7 +93,7 @@
     "losses": "Claimed on the tax return, up to 4 years after the end of the tax year of the disposal; deducted from the same year's gains, the rest carried forward. A negligible value claim for worthless tokens covers the whole section 104 pool.",
     "reporting": [
       "The Self Assessment Capital Gains Tax summary (SA108) has a Cryptoassets section, boxes 13.1 to 13.8, for the 2024 to 2025 tax year. It takes the number of disposals, proceeds, allowable costs, gains, and losses, plus the computations.",
-      "Real time Capital Gains Tax service: a gain or loss on tokens already reported through it goes in box 13.7, the tax already paid in box 13.8, and the reference numbers in box 54 (SA108 notes 2024 to 2025)."
+      "Real time Capital Gains Tax service: a gain or loss on tokens already reported through it goes in box\u00a013.7, the tax already paid in box\u00a013.8, and the reference numbers in box\u00a054 (SA108 notes 2024 to 2025)."
     ],
     "caveats": [
       "Which Income Tax band the gains fall in.",
