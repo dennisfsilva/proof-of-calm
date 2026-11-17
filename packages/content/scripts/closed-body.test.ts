@@ -283,16 +283,17 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
     const TEXT = 'Text.\n';
     const IMPERDIVEL = banned('imperdível');
 
-    it('refuses a banned word with a soft hyphen or a zero-width character inside it', async () => {
-      expect(await validated(TEXT, 'Uma ocasião imper&shy;dível.\n')).toEqual([IMPERDIVEL]);
-      expect(await validated(TEXT, 'Uma ocasião imper&#8203;dível.\n')).toEqual([IMPERDIVEL]);
-      const hidden = ['­', '​', '‌', '‍', '⁠', '﻿', '͏', '⁡'];
-      for (const character of hidden) {
-        expect([character, await validated(TEXT, `Uma ocasião imper${character}dível.\n`)]).toEqual([
-          character,
-          [IMPERDIVEL],
-        ]);
-      }
+    // One case per literal, so a mutation names each character it lets through.
+    const HIDDEN: readonly [string, string][] = [
+      ['&shy;', 'imper&shy;dível'],
+      ['&#8203;', 'imper&#8203;dível'],
+      ...['00AD', '200B', '200C', '200D', '2060', 'FEFF', '034F', '2061'].map((hex): [string, string] => [
+        `U+${hex}`,
+        `imper${String.fromCodePoint(Number.parseInt(hex, 16))}dível`,
+      ]),
+    ];
+    it.each(HIDDEN)('refuses a banned word with %s inside it', async (_name, word) => {
+      expect(await validated(TEXT, `Uma ocasião ${word}.\n`)).toEqual([IMPERDIVEL]);
     });
 
     it('reads a heading and the paragraph after it apart, as 3 and 100, never 3100', async () => {
@@ -308,6 +309,9 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
       expect(await validated('Buy 1\n\n250 euros.\n', 'Compre 1\n\n251 euros.\n')).toEqual([
         'overlay-number-mismatch: body: 1 251, English 1 250',
       ]);
+    });
+
+    it('reads a figure at the end of one list item apart from one at the start of the next, as 1 and 250', async () => {
       expect(await validated('- Step 1\n- 250 euros\n', '- Passo 1\n- 250 euros\n')).toEqual([]);
       expect(await validated('- Step 1\n- 250 euros\n', '- Passo 1\n- 251 euros\n')).toEqual([
         'overlay-number-mismatch: body: 1 251, English 1 250',

@@ -338,9 +338,14 @@ describe('checkModuleBody', () => {
     });
 
     // A soft hyphen or a zero-width character inside a word shows as nothing unless the line wraps there.
-    it('removes every default-ignorable code point, so the block holds the word the page shows', async () => {
-      const hidden = ['­', '​', '‌', '‍', '⁠', '﻿', '͏', '⁡'];
-      for (const character of hidden) expect(await blocks(`imper${character}dível`)).toEqual(['imperdível']);
+    it.each(['00AD', '200B', '200C', '200D', '2060', 'FEFF', '034F', '2061'])(
+      'removes U+%s, a default-ignorable code point, so the block holds the word the page shows',
+      async (hex) => {
+        expect(await blocks(`imper${String.fromCodePoint(Number.parseInt(hex, 16))}dível`)).toEqual(['imperdível']);
+      },
+    );
+
+    it('removes a soft hyphen and a zero-width space written as character references', async () => {
       expect(await blocks('imper&shy;dível e imper&#8203;dível')).toEqual(['imperdível e imperdível']);
     });
   });
