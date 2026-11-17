@@ -3,8 +3,10 @@
 // without a build step.
 import type { Problem } from './problem.ts';
 
-// A reference such as `24-D/2022`, an ISO date and a tax year such as `2026-27` name no unit, so they pass.
-const NUMBER_UNIT = /\d-(?:day|week|month|year|hour|minute)s?(?![\p{L}\p{N}])/gu;
+// English's units and pt-PT's (`90-dias`, `1-mês`). A reference such as `24-D/2022`, an ISO date and a tax year
+// such as `2026-27` name no unit, so they pass.
+const NUMBER_UNIT =
+  /\d-(?:(?:day|week|month|year|hour|minute)s?|dia|dias|semana|semanas|mês|meses|ano|anos|hora|horas|minuto|minutos)(?![\p{L}\p{N}])/gu;
 const DIGITS_BEFORE = /\d*$/;
 const DETAIL = 'write U+2011 between the number and its unit (90\u2011day)';
 
