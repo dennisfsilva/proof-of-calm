@@ -145,6 +145,29 @@ describe('moduleTranslationProblems', () => {
   });
 });
 
+describe('the pt-PT start-here, split as English is (brand, 25h round 2)', () => {
+  const PLAN = 'Com ela, define o plano uma vez e regista cada compra, estejam as moedas onde estiverem.';
+  const WHERE = 'Mostra-lhe em que ponto do plano está.';
+
+  it('passes the number and ban rows with the two sentences against English', () => {
+    const english: LearnModule = {
+      ...ENGLISH,
+      slug: 'start-here',
+      chart: 'none',
+      body: 'You set a plan once and record each purchase, wherever the coins are. It shows where you are in the plan.\n',
+    };
+    const front = { ...FRONT, slug: 'start-here', caveat: 'Um plano pode perder 87 % do valor.' };
+    const path = 'packages/content/i18n/pt-PT/learn/start-here.mdx';
+    expect(translatedModuleProblems(path, english, { front, body: `${PLAN} ${WHERE}\n` }, 'pt-PT')).toEqual([]);
+  });
+
+  it('writes the two sentences in the real file', () => {
+    const source = readFileSync(new URL('../../i18n/pt-PT/learn/start-here.mdx', import.meta.url), 'utf8');
+    const text = source.replace(/\s+/g, ' ');
+    expect(text).toContain(`${PLAN} ${WHERE}`);
+  });
+});
+
 describe('readTranslatedModule', () => {
   it('reads the flat front matter and keeps the body from the line after the fence', () => {
     const source = ['---', 'slug: noise', 'title: Ruído', '---', '', '## Ruído', ''].join('\n');
