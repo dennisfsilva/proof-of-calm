@@ -122,16 +122,6 @@ describe('the education facts (docs/EDUCATION.md §9)', () => {
     expect(late.map((fact) => fact.key)).toEqual([]);
   });
 
-  it('give each Bitstamp OHLC source a limit of 1 to 1000 candles, since Bitstamp answers 400 without one', () => {
-    const ohlc = facts.filter((fact) => fact.source.startsWith('https://www.bitstamp.net/api/v2/ohlc/'));
-    expect(ohlc).toHaveLength(8);
-    const limit = (source: string) => Number(new URL(source).searchParams.get('limit'));
-    const unanswered = ohlc.filter(
-      (fact) => !(Number.isInteger(limit(fact.source)) && limit(fact.source) >= 1 && limit(fact.source) <= 1000),
-    );
-    expect(unanswered.map((fact) => fact.key)).toEqual([]);
-  });
-
   it('name the data’s publisher, so "[Source] closes" reads as LEGAL §4 writes it; our computation opens the value', () => {
     expect(facts.filter((fact) => fact.publisher.includes('Proof of Calm')).map((fact) => fact.key)).toEqual([]);
     const computed = facts.filter((fact) => /^[abhiopq]\./.test(fact.key));

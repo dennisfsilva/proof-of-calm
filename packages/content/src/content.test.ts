@@ -54,6 +54,34 @@ describe('the content files (docs/CONTENT-OPS.md §1)', () => {
     expect(typed).toEqual([]);
   });
 
+  // Bitstamp's OHLC endpoint answers HTTP 400 without `limit`, so a source the owner opens would not
+  // answer. Every JSON file of the package is read, the facts, templates, cycles and overlays alike.
+  it('give each Bitstamp OHLC source a limit of 1 to 1000 candles, since Bitstamp answers 400 without one', () => {
+    // The top level first, so the walk never descends into node_modules.
+    const json = readdirSync(root, { withFileTypes: true })
+      .filter((entry) => entry.name !== 'node_modules')
+      .flatMap((entry) =>
+        entry.isDirectory()
+          ? readdirSync(new URL(`${entry.name}/`, root), { recursive: true, encoding: 'utf8' }).map(
+              (path) => `${entry.name}/${path.replaceAll('\\', '/')}`,
+            )
+          : [entry.name],
+      )
+      .filter((path) => path.endsWith('.json'));
+    const ohlc = json.flatMap((path) =>
+      [
+        ...readFileSync(new URL(path, root), 'utf8').matchAll(/https:\/\/www\.bitstamp\.net\/api\/v2\/ohlc\/[^"\s]*/g),
+      ].map(([url]) => ({ path, url })),
+    );
+    expect(new Set(ohlc.map(({ path }) => path.split('/')[0]))).toEqual(new Set(['cycles', 'facts', 'templates']));
+    expect(ohlc).toHaveLength(22);
+    const limit = (source: string) => Number(new URL(source).searchParams.get('limit'));
+    const unanswered = ohlc.filter(
+      ({ url }) => !(Number.isInteger(limit(url)) && limit(url) >= 1 && limit(url) <= 1000),
+    );
+    expect(unanswered.map(({ path, url }) => `${path}: ${url}`)).toEqual([]);
+  });
+
   // The folder arrives with the first module, so an absent one is empty.
   it('every module in learn/ has the required front matter', () => {
     const learn = new URL('learn/', root);
