@@ -73,23 +73,34 @@ Arguments: $ARGUMENTS
   owner's diff read does (`docs/CONTENT-OPS.md` §8).
 - Change `rules/*.json` and a locale's `rules/<locale>/*.json` only by running
   `pnpm --filter @proofofcalm/content rules`, never by hand.
-- Never delete an entry or a file; the finish refuses a deletion. Name a gone source in the draft's
-  notes, and the owner deletes it.
+- Never delete an entry, a chart row or a file; the finish refuses a deleted file or fact entry.
+  Name a gone source in the draft's notes, and the owner deletes it.
 - In a template, change only a dated figure and its source; never its name, risk label, `oneLine`
   or an explanation's words: in an explanation, change only the figure the next item names.
 - A figure check's refusal is the text's to fix from its cited source, never a check to satisfy
   by rewording. `pnpm run validate:content` names it by code family: a code that starts with
   `figure-`, `figure-join` aside (below), which is today `figure-form`, `figure-mismatch` and
-  `figure-unclassed` on a template's explanation and any rule the family gains later; a
-  `percent-token` refusal; and a `number-group` refusal
-  that gives no suggestion. Fix each from the cited source's figure: write the figure the source
-  gives (for a template's fall, its `drawdowns` row's `fall`, read from that row's `source` and,
-  when it has one, its `lowSource`) in the form the detail and `docs/CONTENT-STYLE.md` §4 set,
+  `figure-unclassed` on a template's explanation, `figure-chart` and `figure-unstated` on a
+  module's chart section, and any rule the family gains later; a `percent-token` refusal; and a
+  `number-group` refusal that gives no suggestion. Fix each from the cited source's figure: write the figure the source
+  gives (a fall is the `fall` of a row in `packages/content/cycles/drawdowns.json`: a template's
+  `drawdowns` row, or for a module a row of the coin the detail names, `ETH` for Ether or
+  Ethereum; read it from that row's `source` and, when it has one, its `lowSource`) in the form
+  the detail and `docs/CONTENT-STYLE.md` §4 set,
   never a bound (`more than N %`) in its place, and change no other word of the sentence.
   Never reword a sentence toward a shape, and never pick one of the two readings a `number-group`
   detail names. When the source's figure fits no shape of §4, stop on that item: leave its figure
   and its sentence as they were, add the note `figure fits no shape: <item> <field>: "<quote>"`
-  and name it in your closing report, since a new wording needs a new reviewed shape. A
+  and name it in your closing report, since a new wording needs a new reviewed shape.
+  In a module's chart section, change only the digits of a figure an E sentence (`<coin> fell …`)
+  already holds, to its row's new whole fall; end each edit's text at the last digit, so the
+  figure's joiner stays as written. When a chart row's change draws a module refusal that edit
+  cannot fix (`figure-unstated` after a new row; a B sentence's count, years or bound; a coin the
+  chart draws no fall of; a row you would remove), revert that row's change, add the note
+  `chart row for the owner: <coin>, high <high>, low <low>, fall <fall> %, <source> <lowSource>`
+  (the `lowSource` only when the row has one) and name it in your closing report: the owner
+  rewrites the sentence in a reviewed shape and makes the row's change. Never change a B sentence's bound (`more than N %`), never add, move or delete a clause
+  or a sentence, and never remove a chart row. A
   `number-group` refusal with a suggestion keeps the value: write the suggestion. A `figure-join`
   detail names a pair and the space between them: replace only that space with U+00A0
   (`\u00a0` in a JSON file), never a figure.
