@@ -66,3 +66,37 @@ export function translatedSource(
   const texts = parts.front.filter((line) => TEXTS.includes(keyOf(line) ?? ''));
   return { slug, source: [FENCE, ...kept, ...texts, FENCE, ...parts.body].join('\n') };
 }
+
+type Heading = {
+  readonly type: string;
+  readonly depth?: number;
+  readonly value?: string;
+  readonly children?: readonly Heading[];
+  data?: { readonly hProperties?: Readonly<Record<string, unknown>> };
+};
+
+const textOf = (node: Heading): string => node.value ?? (node.children ?? []).map(textOf).join('');
+const sectionsOf = (tree: Heading): Heading[] =>
+  tree.type === 'heading' && tree.depth === 2 ? [tree] : (tree.children ?? []).flatMap(sectionsOf);
+
+/**
+ * The remark plugin that keeps a translation's sections where English links name them (ADR-0048, 2026-11-17): each
+ * depth-2 heading takes as `sourceHeading` the text of the English module's depth-2 heading at the same position,
+ * and the page's h2 makes its id from that text. `englishOf` gives the English body (its front matter blanked) by a
+ * translation's path, slashed; for any other file it gives undefined, and the tree stays as it is. The English body
+ * is read by the compiler's own parser, so its headings are the ones its own compile renders.
+ */
+export function sourceHeadings(englishOf: (path: string) => string | undefined) {
+  return function attach(this: { parse(source: string): unknown }) {
+    return (tree: Heading, file: { readonly path?: string }) => {
+      const english = englishOf((file.path ?? '').replaceAll('\\', '/'));
+      if (english === undefined) return;
+      const texts = sectionsOf(this.parse(english) as Heading).map(textOf);
+      sectionsOf(tree).forEach((heading, index) => {
+        const sourceHeading = texts[index];
+        if (sourceHeading !== undefined)
+          heading.data = { ...heading.data, hProperties: { ...heading.data?.hProperties, sourceHeading } };
+      });
+    };
+  };
+}

@@ -5,7 +5,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import { dirname, join, relative } from 'node:path';
 import mdx from '@mdx-js/rollup';
 import type { Plugin, PluginOption } from 'vite';
-import { listTranslations, translatedSource } from './learn-translations.ts';
+import { listTranslations, sourceHeadings, translatedSource } from './learn-translations.ts';
 
 /** A parsed module as the plugin needs it: the slug keys its body, the body is compiled apart from the rest. */
 type ParsedModule = { readonly slug: string; readonly body: string };
@@ -291,7 +291,7 @@ const importOf = (slug: string, file: string) =>
 /** The translated metadata by file, which the virtual module fills and the compiler appends as `meta`. */
 type MetaOf = Map<string, Omit<ParsedModule, 'body'>>;
 
-const modulesPlugin = (options: LearnPluginOptions, metaOf: MetaOf): Plugin => ({
+const modulesPlugin = (options: LearnPluginOptions, metaOf: MetaOf, englishOf: Map<string, string>): Plugin => ({
   name: 'poc:learn-modules',
   resolveId(id) {
     return id === LEARN_MODULES_ID ? RESOLVED_ID : undefined;
@@ -331,6 +331,8 @@ const modulesPlugin = (options: LearnPluginOptions, metaOf: MetaOf): Plugin => (
       if (!parsed.ok) return this.error(parsed.error.map((problem) => `${file}: ${problem.detail}`).join('\n'));
       const { body: _body, ...meta } = parsed.value;
       metaOf.set(slashed(file), meta);
+      // The English body whose h2 texts the translation's h2s take by position (`sourceHeadings`).
+      englishOf.set(slashed(file), blankFrontMatter(sourceOf.get(translated.slug) ?? ''));
       languages.set(language, [...(languages.get(language) ?? []), importOf(translated.slug, file)]);
     }
     const translations = [...languages].map(
@@ -347,12 +349,14 @@ const modulesPlugin = (options: LearnPluginOptions, metaOf: MetaOf): Plugin => (
 
 /**
  * The three plugins, in order: the front-matter transform, the MDX compiler in the `pre` phase (mdxjs.com's
- * Vite section: before `@vitejs/plugin-react`) with `closedBody`, and the virtual module. The host puts
- * them before `react()`.
+ * Vite section: before `@vitejs/plugin-react`) with `closedBody` and `sourceHeadings`, and the virtual module.
+ * The host puts them before `react()`.
  */
 export function learnPlugins(options: LearnPluginOptions): PluginOption[] {
-  const compile = mdx({ remarkPlugins: [closedBody(options.elements ?? [])] });
   const metaOf: MetaOf = new Map();
+  const englishOf = new Map<string, string>();
+  const remarkPlugins = [closedBody(options.elements ?? []), sourceHeadings((path) => englishOf.get(path))];
+  const compile = mdx({ remarkPlugins });
   // Spelled out instead of spread: the compiler's `transform` is typed for Rollup, whose answer may carry
   // `map: undefined` or an indexed map (sections, no `mappings`), which Vite's hook type does not admit.
   // The compiler emits a plain map, so the answer is only reshaped here.
@@ -374,5 +378,5 @@ export function learnPlugins(options: LearnPluginOptions): PluginOption[] {
       return { code: compiled, map: typeof map === 'string' ? map : plain };
     },
   };
-  return [frontMatterPlugin(), compiler, modulesPlugin(options, metaOf)];
+  return [frontMatterPlugin(), compiler, modulesPlugin(options, metaOf, englishOf)];
 }
