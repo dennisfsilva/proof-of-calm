@@ -343,7 +343,10 @@ The finish refuses a changed entry at any other value.
    name its file and line and both values in the draft's notes and your closing report, and say in
    both that `verify` fails on `pnpm test` until the owner removes that assertion in a pull request
    of its own (`docs/ENGINEERING.md` §2): one changed to your new value would fail on main, where
-   the data still holds the old one. When a translation's figure still does not match
+   the data still holds the old one. For the tie of a fact's value to its `docs/EDUCATION.md` §9 row
+   (`packages/content/src/facts.test.ts`), say instead that the owner's pull request to main records
+   the fact's old and new value as pending and keeps the tie (`docs/CONTENT-OPS.md` §8 step 4).
+   When a translation's figure still does not match
    after you change it and run the checks again, revert neither the English change nor the
    translation's edit: name the figure, its path and the values the check prints in the draft's
    notes and in your closing report, and say in both that the pull request's `verify` check fails
