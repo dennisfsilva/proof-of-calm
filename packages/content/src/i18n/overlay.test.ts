@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { applyOverlay, CONTENT_LANGUAGES, TRANSLATABLE } from './overlay.ts';
+import { groupProblems } from '../percent-validate.ts';
 import { numbersIn, overlayProblems } from './overlay-validate.ts';
 
 // Translated content as sparse overlays on the English files (ADR-0057): the merge, and what an overlay may hold.
@@ -180,6 +181,58 @@ describe('overlayProblems', () => {
       `card.caveats.0: 20.350, English 20${typedNbsp}350; write 20${typedNbsp}350, ${since}`,
     ]);
     expect(detail('art. 33.1', 'art. 33.10')).toEqual(['card.caveats.0: 33.10, English 33.1']);
+  });
+
+  // Round 1 of #318's fix: the fix is English's figure as written (a translation copies it, ADR-0057), never one
+  // rebuilt from the translation's, and only a figure number-group passes is named.
+  it('names English’s figure as written as the fix, and no fix where number-group refuses it', () => {
+    const detail = (english: string, translated: string) =>
+      overlayProblems('jurisdiction', path, { card: { caveats: [english] } }, { card: { caveats: [translated] } }, [
+        'de-DE',
+        'de-DE',
+      ]).map((problem) => problem.detail);
+    const since = 'since a point in this profile marks only a citation';
+    expect(detail('Up to EUR 1,1250 a year.', 'Até EUR 1.125 por ano.')).toEqual([
+      `card.caveats.0: 1.125, English 1,1250; write 1,1250, ${since}`,
+    ]);
+    expect(detail('Up to EUR 2,5 a year.', 'Até EUR 2.500 por ano.')).toEqual([
+      `card.caveats.0: 2.500, English 2,5; write 2,5, ${since}`,
+    ]);
+    // number-group refuses English's `EUR 1,125` (a group in English, a decimal on the page): no fix to copy.
+    expect(detail('Up to EUR 1,125 a year.', 'Até EUR 1.125 por ano.')).toEqual([
+      'card.caveats.0: 1.125, English 1,125',
+    ]);
+  });
+
+  // Every row whose detail names a fix: the fix put in the translation leaves nothing to number-group or this check.
+  it('names only a fix that number-group and the overlay check both pass in the translation', () => {
+    const nbsp = String.fromCodePoint(0xa0);
+    const rows: readonly [english: string, translated: string, locale: string][] = [
+      ['0,125 BTC', '0.125 BTC', 'de-DE'],
+      ['EUR 1000', 'EUR 1.000', 'de-DE'],
+      [`EUR 20${nbsp}350`, 'EUR 20.350', 'de-DE'],
+      ['Up to EUR 1,1250 a year.', 'Até EUR 1.125 por ano.', 'de-DE'],
+      ['Up to EUR 2,5 a year.', 'Até EUR 2.500 por ano.', 'de-DE'],
+      ['Up to EUR 1,125 a year.', 'Até EUR 1.125 por ano.', 'de-DE'],
+      ...['pt-PT', 'nl-NL'].flatMap((locale): [string, string, string][] => [
+        ['EUR 1000', 'EUR 1.000', locale],
+        ['0,125 BTC', '0.125 BTC', locale],
+      ]),
+    ];
+    const check = (english: string, translated: string, locale: string) =>
+      overlayProblems('jurisdiction', path, { card: { caveats: [english] } }, { card: { caveats: [translated] } }, [
+        locale,
+        locale,
+      ]);
+    const fixed = rows.flatMap(([english, translated, locale]) => {
+      const fix = /; write (.+), since /.exec(check(english, translated, locale)[0]?.detail ?? '')?.[1];
+      if (fix === undefined) return [];
+      const figure = fix.replaceAll(`${String.fromCodePoint(0x5c)}u00a0`, nbsp);
+      const text = translated.replace(/\d+(?:\.\d+)+/, figure);
+      return [[...check(english, text, locale), ...groupProblems(path, locale, [['card.caveats.0', text]])]];
+    });
+    expect(fixed).toHaveLength(rows.length - 1);
+    expect(fixed.flat()).toEqual([]);
   });
 
   // #318's design check (D10 of #316): each page form number-group suggests reads as its value in both texts.
