@@ -252,10 +252,8 @@ describe('a chart section fails', () => {
     ['a projection with a figure', para('Solana could fall 97 % again.'), [1, 0]],
     [
       'respectively',
-      body(
-        `${S1} Ether fell 82 %, Chainlink 91 %, and Solana 97 %. Ether and Chainlink fell 94 % and 89 %, respectively.`,
-      ),
-      [3, 2],
+      body(`${S1} Ether and Chainlink fell 94 % and 89 %, respectively. Solana fell 97 %.`),
+      [1, 2],
     ],
     ['a figure in words', E('and Solana ninety-seven per cent.'), [1, 3]],
     ['a count of the bars', after('In all, the chart holds 9 falls.'), [1, 0]],
@@ -316,6 +314,7 @@ describe('a chart section fails', () => {
     ['a clause after a semicolon', E('and Solana 97 %; it may fall that far again.'), [1, 3]],
     ['a vulgar fraction', para('A ½ share went.'), [1, 0]],
     ['a Roman numeral', para('Cycle Ⅳ ended.'), [1, 0]],
+    ['a Roman numeral nine', para('Cycle Ⅸ ended.'), [1, 0]],
     ['50 per cent with U+00A0', para('It fell 50 per cent.'), [1, 0]],
     ["Ether's figures out of order", body(`${S1} ${S2.replace('94 % and 82 %', '82 % and 94 %')}`), [2, 0]],
     [
