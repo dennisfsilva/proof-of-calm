@@ -202,8 +202,8 @@ generated rules files of each language.
   pt-PT overlay. Both wait for #271, the last session before pt-PT can show.
 - **2026-11-16.** A profile's grouped figures on a page whose number locale writes a comma decimal
   (Germany, Spain, France, Italy, the Netherlands, Portugal). A figure of 10 000 or more groups its
-  digits in threes with a no-break space (U+00A0), and a smaller one takes none (`EUR 1000`,
-  `EUR 20 350`), in English and in every translation alike. A decimal in a profile's text
+  digits in threes with a no-break space (U+00A0): `EUR 20 350`; a smaller one takes none:
+  `EUR 1000`. Both hold in English and in every translation alike. A decimal in a profile's text
   takes the comma, and a point in it is only a citation's (`art. 33.1`). No locale reads the space
   as a decimal, so the comma keeps one role beside D8's percentages. For these pages this reverses
   "What validation holds" (`1,000` in Germany's file) and the D8 entry's English reading of other
@@ -211,7 +211,9 @@ generated rules files of each language.
   and compares a figure holding a point as written. A template's and a fact's texts keep the
   reading "What validation holds" gives them: English with English separators, the translation
   with its language's own. `number-group` refuses other grouping beside a currency code, before or
-  after the figure, and moves a point's cents after a comma. A summary counts a grouped figure as
-  one word. Britain, Ireland, and the US keep theirs (`£37,700`), in English and in every
-  translation. Decided by the unanchored design check of the grouped figures
-  (`docs/research/grouped-figures.md`).
+  after the figure, and expects a point's cents after a comma (`EUR 12,50`); its suggestion takes
+  the digits after the last mark as decimals when there are one or two or the whole part is 0, and
+  every other mark as a group (`EUR 1.125` is 1125, `EUR 0.125` keeps its value; 2026-11-17). A
+  summary counts a grouped figure as one word. Britain, Ireland, and the US keep theirs
+  (`£37,700`), in English and in every translation. Decided by the unanchored design check of the
+  grouped figures (`docs/research/grouped-figures.md`).
