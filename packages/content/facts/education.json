@@ -18,7 +18,7 @@
     "date": "2026-10-16",
     "source": "https://api.exchange.coinbase.com/products/ETH-USD/candles?granularity=86400&start=2021-10-01T00:00:00Z&end=2022-07-27T00:00:00Z",
     "publisher": "Coinbase Exchange",
-    "accessed": "2026-11-17",
+    "accessed": "2026-11-02",
     "confidence": "medium",
     "lastReviewed": "2026-11-09",
     "reviewedBy": "owner"
@@ -318,7 +318,7 @@
     "date": "2026-10-16",
     "source": "https://api.exchange.coinbase.com/products/ETH-USD/candles?granularity=86400&start=2017-01-01T00:00:00Z&end=2017-10-27T00:00:00Z",
     "publisher": "Coinbase Exchange",
-    "accessed": "2026-11-17",
+    "accessed": "2026-11-02",
     "confidence": "high",
     "lastReviewed": "2026-11-02",
     "reviewedBy": "owner"
@@ -342,7 +342,7 @@
     "date": "2026-10-16",
     "source": "https://api.exchange.coinbase.com/products/ETH-USD/candles?granularity=86400&start=2021-11-01T00:00:00Z&end=2022-08-27T00:00:00Z",
     "publisher": "Coinbase Exchange",
-    "accessed": "2026-11-17",
+    "accessed": "2026-11-02",
     "confidence": "medium",
     "lastReviewed": "2026-11-02",
     "reviewedBy": "owner"
