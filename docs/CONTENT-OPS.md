@@ -71,12 +71,11 @@ owns the pipeline around them and its security model.
    (ADR-0057) that repeats a figure the agent changed fails `pnpm validate:content`
    (`overlay-number-mismatch`). The agent then changes that figure in the translation, at the path
    the check names, to the English file's value written in the translation's number format, and
-   nothing else there. The check reads each file with its own number locale. In the English file it
-   reads a profile's percentages with the page's number locale, `numberLocaleFor('en', profile)`:
-   the profile's locale in English if it has one, else its `numberFormatLocale`. It reads the
-   English file's other figures with English separators, and the translation with its number
-   locale's (ADR-0057), so English characters copied as written can read as another value (the
-   skill's §1 gives the rule and its examples). A profile's percentage, in English and in a
+   nothing else there. The check reads each file with its own number locale: a profile's English
+   file and its translation both with the page's, `numberLocaleFor`, so the translation copies each
+   figure as written; a template's or a fact's English with English separators, and its translation
+   with the language's own, so English characters copied as written can read as another value
+   (ADR-0057; the skill's §1 gives the rule and its examples). A profile's percentage, in English and in a
    translation alike, takes its number locale's decimal separator (`docs/CONTENT-STYLE.md` §4), and
    `pnpm validate:content` refuses any other with `decimal-separator` (the skill's §3 step 2). No `allowed-tools` rule approves that edit, so Claude Code asks
    the owner unless the session's permission mode approves it; either way the agent names the
@@ -98,6 +97,14 @@ owns the pipeline around them and its security model.
    check fails on `pnpm validate:content` until it is fixed.
    The finish does not run that check; CI's `verify` job does (`.github/workflows/ci.yml`), so the
    owner fixes the figure before merging (§8 step 4).
+   Of "anything else", a figure check's refusal has its own rule in the skill's §1, which names the
+   refusals by code family, so a new rule in the family needs no skill edit: a code that starts
+   with `figure-` (`figure-join` aside), a `percent-token` refusal and a `number-group` refusal
+   with no suggestion. The agent fixes each from the cited source's figure and changes no other
+   word. It never rewords a sentence toward a shape and never picks one of the two readings a
+   `number-group` detail names. When the source's figure fits no shape of `docs/CONTENT-STYLE.md`
+   §4, it stops on that item, leaves it as it was and names it in the notes and its report: a new
+   wording needs a new reviewed shape, which a session pull request adds (decided 2026-11-17).
 4. **The draft.** The agent writes its findings as JSON in the shape of `ReviewDraft`
    (`tools/content-review/body.ts`) to .content-review/draft.json, a gitignored folder. A change row's
    `item` is the data file relative to `packages/content/` (`jurisdictions/ie.json`) and its `field`
@@ -283,10 +290,13 @@ moving both, and another coin by its product (`SOL-USD`, `LINK-USD`).
    cite it.
 2. Check the effective date and the status word; a proposal is never a rule.
 3. Read the `summary60` aloud; cut anything that sounds like advice.
-4. In a commit on the agent's branch, flip `reviewedBy`; set a file's `lastReviewed` to today only
-   when its `reviewed` row shows every source read (`read` equals `of`; the finish refuses a changed
-   file with no row) and you opened each secondary source of step 1, otherwise leave it unchanged (a
-   partial review moves nothing); bump `status.version`,
+4. In a commit on the agent's branch, flip `reviewedBy` only on the files and fact entries whose
+   changes you checked in steps 1 to 3. After a partial review the rest stay at `agent-draft`, which
+   `verify` fails, so the PR waits until you check them or revert their changes. Set a file's
+   `lastReviewed` to today only after a whole-file review: its `reviewed` row shows every source
+   read (`read` equals `of`; the finish refuses a changed file with no row), you opened each
+   secondary source of step 1 and you checked every change in the file; otherwise leave it
+   unchanged (a partial review moves nothing); bump `status.version`,
    set `changedOn` and write `changeNotice` when a rule changed in substance; a bump that corrects our
    own file also writes a `changeNotice` that says so (`docs/JURISDICTIONS.md` §6). When `verify`
    fails on `pnpm test`, or an end-to-end spec fails in CI, because a test asserts a value the review
@@ -296,9 +306,10 @@ moving both, and another coin by its product (`SOL-USD`, `LINK-USD`).
    changes a translation (§3 step 2), check that its diff changes only the figures its English file
    changed, at the same paths and to the same values, and nothing else there: compare the values,
    not the characters, since the translation writes each in its number locale's format (§3 step 2;
-   the pt-PT translation of Germany is read in de-DE: `20.350` for
-   English `EUR 20,350`, while English `5,5 %` stays `5,5 %`, since a profile's
-   English percentage already takes its page's separator and draws `decimal-separator` otherwise).
+   the pt-PT translation of Germany is read in de-DE, as its English file is, so it copies each
+   figure as written: `EUR 20 350` stays `EUR 20 350` and `5,5 %` stays `5,5 %`, since a
+   profile's English figures already take the page's form and draw `decimal-separator` or
+   `number-group` otherwise).
    When the notes name a translated
    figure that still fails `overlay-number-mismatch` (§3 step 3), write that figure in the
    translation, in its number locale's format (the skill's §1), or revert the English change, in a commit on the
