@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { type LearnModule, parseModule } from '../loaders/modules.ts';
 import {
@@ -180,6 +181,31 @@ describe('moduleTranslationProblems', () => {
         expect(problemsOf([...LINES, line])).toEqual(english(line));
       }
     });
+  });
+
+  it('passes the real pt-PT start-here against the real English module', () => {
+    const read = (path: string) => readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8');
+    const english = parseModule('packages/content/learn/start-here.mdx', read('learn/start-here.mdx'));
+    if (!english.ok) throw new Error('the English start-here does not parse');
+    const translated = file('pt-PT', read('i18n/pt-PT/learn/start-here.mdx'));
+    expect(
+      moduleTranslationProblems(
+        [{ ...translated, path: 'packages/content/i18n/pt-PT/learn/start-here.mdx' }],
+        [english.value],
+      ),
+    ).toEqual([]);
+  });
+});
+
+describe('the pt-PT start-here, split as English is (brand, 25h round 2)', () => {
+  const PLAN = 'Com ela, define o plano uma vez e regista cada compra, estejam as moedas onde estiverem.';
+  const WHERE = 'Mostra-lhe em que ponto do plano está.';
+
+  // Their number and ban rows against English are read from the compiled text in scripts/closed-body.test.ts.
+  it('writes the two sentences in the real file', () => {
+    const source = readFileSync(new URL('../../i18n/pt-PT/learn/start-here.mdx', import.meta.url), 'utf8');
+    const text = source.replace(/\s+/g, ' ');
+    expect(text).toContain(`${PLAN} ${WHERE}`);
   });
 });
 

@@ -600,6 +600,7 @@ The product's nouns, one Portuguese word each, in every string, the site pages a
 | Holdings | moedas detidas |
 | Invested | investido |
 | average cost | custo médio |
+| averaging (the method, DCA) | estratégia de custo médio, kept apart from average cost, `custo médio`; `a estratégia` once named |
 | P/L | resultado |
 | share (of the allocation) | peso |
 | allocation | distribuição, kept apart from split, `repartição` |
