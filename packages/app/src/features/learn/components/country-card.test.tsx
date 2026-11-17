@@ -113,6 +113,18 @@ describe('CountryCard', () => {
     });
   });
 
+  // The sources heading takes the article the title gives the name (`learn.sourceList`, CONTENT-STYLE §1.2).
+  it.each([
+    ['NL', 'Sources for the Netherlands'],
+    ['DE', 'Sources for Germany'],
+  ])("heads %s's sources “%s”", async (code, heading) => {
+    const profile = await loadProfile(code);
+    if (profile === null) throw new Error(`no profile ${code}`);
+    const card = await mount({ profile });
+    const foot = card.lastElementChild as HTMLElement;
+    expect(within(foot).getByRole('heading', { level: 2 }).textContent).toBe(heading);
+  });
+
   it('lists no source that only a pending change lists', async () => {
     // A pending change's source that is none of the profile's, so the assertion holds whatever the file lists.
     const [change] = PORTUGAL.pendingChanges;
