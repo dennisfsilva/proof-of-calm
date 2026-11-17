@@ -138,7 +138,8 @@ owns the pipeline around them and its security model.
    `i18n/<locale>/` and its quote, date and reason the English row's, and no `reviewed` row: its
    `lastReviewed` is its English file's.
    A `reviewed` row's `of` counts the sources on the item's list (the country's list plus `EU`, or
-   `facts`), each on-list `pendingChanges[].source` included, and each distinct URL once. The agent fetches no off-list `secondary`
+   `facts`), each on-list `pendingChanges[].source` included, and each distinct URL once; the facts
+   file's and a module's add the cycles rows their figures rest on (the skill's §3 step 1). The agent fetches no off-list `secondary`
    source, which `packages/content/src/validate.ts` lets a profile cite: it names it in the notes as
    `secondary, off the list, not fetched: <url>` with the lines that cite only it, and leaves those
    lines unchanged; the owner opens it (§8, step 1). The agent reads a PDF through

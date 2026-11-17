@@ -185,9 +185,12 @@ For each profile in `packages/content/jurisdictions/`:
      `packages/content/sources.allow.json` plus `EU`, or `facts`. Count each distinct URL once,
      however many entries cite it. A `drawdowns` row's `lowSource` is a URL of its own and counts.
      A template's `of` counts every URL it cites; the cycles file's, every `source` and `lowSource`
-     of its rows; a module's, every URL its figures rest on: those of the facts its front matter
-     names, and the `source` and `lowSource` of each cycles row whose fall its chart draws or its
-     text quotes, itself or through a fact's clause (Cycles' 2011 line rests on the BTC 2011 row's).
+     of its rows; the facts file's, every URL its entries cite and the `source` and `lowSource` of
+     each row §4 step 3 checks a clause against (29 on 2026-11-17: 26 cited, 3 of the BTC 2011 and
+     LINK 2018 rows); a module's, the URLs of the facts its front matter names and the `source` and
+     `lowSource` of every cycles row whose figure its chart draws or its text quotes, directly or
+     through a fact's clause (Cycles: 8 on 2026-11-17, its facts' 3 and the four BTC rows' 5). A URL
+     that two files count, read once, counts in both `reviewed` rows' `read`.
    - Never fetch a `secondary` source off the list. Name it in `notes` as
      `secondary, off the list, not fetched: <url>`, with the lines that cite only it, a line that
      links it only through `ruleSources` included, and leave those lines unchanged. The owner opens
