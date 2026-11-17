@@ -85,21 +85,24 @@ owns the pipeline around them and its security model.
    (§8) is its review.
 3. **The expected failure.** The agent runs the content checks, and the skill tells it: "The one
    failure you expect is `agent-draft` on the entries you marked; when `overlay-number-mismatch`
-   names a figure you changed in its English file, change the same figure in the translation (a
-   translated module only as §1 says), written in the translation's number format (§1), run
+   names a figure you changed in its English file, change the same figure in the translation (never
+   a translated module: §1), written in the translation's number format (§1), run
    `pnpm --filter @proofofcalm/content rules` and run the checks again; fix or revert anything
    else, a figure check's refusal only as §1 says, from its source. A test that fails because it
    asserts what your change replaced (the value a leaf other than `reviewedBy` held, a module
    sentence it pins, or a figure it derives from a value you changed) is not yours to satisfy:
    revert nothing for it; name its file and line and both values in the draft's notes and your
-   closing report, and say in both that `verify` fails on `pnpm test` until the owner changes or
-   removes that assertion in a pull request of its own (`docs/ENGINEERING.md` §2)."
+   closing report, and say in both that `verify` fails on `pnpm test` until the owner removes that
+   assertion in a pull request of its own (`docs/ENGINEERING.md` §2): one changed to your new
+   value would fail on main, where the data still holds the old one."
    A translated module (`i18n/<locale>/learn/*.mdx`) is the skill's translation item too, but the
    agent edits none: the finish and CI's guard refuse its path (`DATA_PATHS` holds no translated
-   module). When `overlay-number-mismatch` or that language's `figure-chart` names a figure there
-   after an English change, the agent names the path, the figure and the English file's new value
-   in the translation's number format, joiner kept, in its notes and report, and `verify` stays red
-   until the owner changes those digits (decided 2026-11-17). A translation's figure that still does
+   module), and the guard stays so. An English change that draws `overlay-number-mismatch` or that
+   language's `figure-chart` there is one more refusal no edit of the agent's fixes: it reverts the
+   change in every file it touched and notes the English item, its new value from the source, the
+   source and the translated module's path, and the owner makes the change in the English and
+   translated files in a pull request of their own (decided 2026-11-17: the owner's commit of the
+   digits on the agent's branch fails the guard). A translation's figure that still does
    not match after the agent changes it and runs the checks again is reverted on neither side: the
    agent names it in the draft's notes and its report, and says in both that the PR's `verify`
    check fails on `pnpm validate:content` until it is fixed.
@@ -117,10 +120,12 @@ owns the pipeline around them and its security model.
    In a module's chart section the agent changes only the digits of a fall an E sentence already
    states, to its chart row's new fall, and keeps the figure's joiner. A row change that draws a
    module refusal no such edit fixes (a row no sentence states, a B sentence's count, years or
-   bound, a coin with no fall, a row it would remove) it reverts, and notes the coin, the dates,
-   the fall and the source for the owner, who rewrites the sentence in a reviewed shape. It never
-   changes a bound, adds, moves or deletes a clause or a sentence, or removes a row (decided
-   2026-11-17).
+   bound, a coin with no fall, a row it would remove) it reverts in the same way, noting the coin,
+   the dates, the fall and the sources, or a removal's reason, and the templates' copies of the
+   row, for the owner, who rewrites the sentence in a reviewed shape. When a revert leaves only
+   marks, the agent keeps the mark on the item's source figure, so the pull request carries the
+   note. It never changes a bound, adds, moves or deletes a clause or a sentence, or removes a row
+   (decided 2026-11-17).
 4. **The draft.** The agent writes its findings as JSON in the shape of `ReviewDraft`
    (`tools/content-review/body.ts`) to .content-review/draft.json, a gitignored folder. A change row's
    `item` is the data file relative to `packages/content/` (`jurisdictions/ie.json`) and its `field`
@@ -327,7 +332,8 @@ fact to the window its URL names (the skill's §4 step 3).
    own file also writes a `changeNotice` that says so (`docs/JURISDICTIONS.md` §6). When `verify`
    fails on `pnpm test`, or an end-to-end spec fails in CI, because a test asserts a value the review
    changed other than `reviewedBy` (named in the notes, or shown only by CI, as an app, web or
-   end-to-end test is), have the assertion removed in a session pull request to main first; push the
+   end-to-end test is), have the assertion removed in a session pull request to main first, since
+   one changed to the new value fails on main, where the data still holds the old one; push the
    flip after it merges. When the PR
    changes a translation (§3 step 2), check that its diff changes only the figures its English file
    changed, at the same paths and to the same values, and nothing else there: compare the values,
@@ -336,10 +342,11 @@ fact to the window its URL names (the skill's §4 step 3).
    figure as written: `EUR 20 350` stays `EUR 20 350` and `5,5 %` stays `5,5 %`, since a
    profile's English figures already take the page's form and draw `decimal-separator` or
    `number-group` otherwise).
-   When the notes name a translated
-   figure that still fails `overlay-number-mismatch` (§3 step 3), write that figure in the
-   translation, in its number locale's format (the skill's §1), or revert the English change, in a commit on the
-   agent's branch before merging; `verify` stays red until then. The Learn country
+   When the notes name a JSON translation's figure that still fails `overlay-number-mismatch` (§3
+   step 3), write that figure in the translation, in its number locale's format (the skill's §1),
+   or revert the English change, in a commit on the agent's branch before merging; `verify` stays
+   red until then. A note for a translated module or a chart row names a change the agent
+   reverted: make it in a pull request of your own, never on the agent's branch. The Learn country
    screens print `lastReviewed`, so `e2e-visual` can fail on the new date: delete the baselines it names
    in a commit on the agent's branch (the guard accepts a removed baseline, nothing else outside the
    data folders), and send new ones in a needs-owner PR after the merge (`CLAUDE.md`, Visual
