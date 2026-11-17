@@ -217,6 +217,19 @@ describe('CountryCard in pt-PT (WCAG 2.2 SC 3.1.2, ADR-0057)', () => {
     expect(screen.queryByText(IN_ENGLISH)).toBeNull();
   });
 
+  // The sources heading takes the article countryHeadTitle gives each name (`learn.sourceList`, ADR-0057).
+  it.each([
+    ['NL', 'Fontes dos Países Baixos'],
+    ['DE', 'Fontes da Alemanha'],
+    ['ES', 'Fontes de Espanha'],
+  ])("heads %s's sources «%s»", async (code, heading) => {
+    const profile = await loadProfile(code, 'pt-PT');
+    if (profile === null) throw new Error(`no profile ${code}`);
+    const card = await mountPt(profile);
+    const foot = card.lastElementChild as HTMLElement;
+    expect(within(foot).getByRole('heading', { level: 2 }).textContent).toBe(heading);
+  });
+
   // A model cached across a switch to English: the text is Portuguese, so the line that says it is English never shows.
   it('marks a Portuguese profile lang=pt-PT on an English screen and shows no line that it is in English', async () => {
     const portugal = await loadProfile('PT', 'pt-PT');

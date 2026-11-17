@@ -29,6 +29,8 @@ export type CountryEntry = {
 
 /** What a country's card renders (docs/JURISDICTIONS.md §1 and §2, docs/EDUCATION.md §4). */
 export type CountryCardModel = {
+  /** The profile's upper-case code; pt-PT's headings choose the article of the name by it. */
+  readonly code: string;
   readonly name: string;
   /** The generic profile: the generic date line, no source link, never under review. */
   readonly generic: boolean;
@@ -84,6 +86,7 @@ export function countryCardModel(profile: CountryProfile, today: CalendarDate): 
   const generic = profile.code === GENERIC_COUNTRY;
   const { status } = countryRules(profile);
   return {
+    code: profile.code,
     name: profile.name,
     generic,
     underReview: !generic && underReview(status, today),
