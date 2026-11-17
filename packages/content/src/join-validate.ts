@@ -33,7 +33,7 @@ const JOINS = new RegExp(
 
 // The prose joins of a language (docs/CONTENT-STYLE.md §4): a closed list of law names, taken from a census of every
 // profile, and its month names. A language without an entry gets the code and form joins only.
-export const PROSE_JOINS: Readonly<Record<string, { names: RegExp; months: RegExp }>> = {
+const PROSE_JOINS: Readonly<Record<string, { names: RegExp; months: RegExp }>> = {
   en: {
     names:
       /§§?|[Aa]rts?\.|[Aa]rticles?|[Ss]ections?|s{1,2}\.|[Nn]os?\.|n\.ºs?|Nr\.|c\.|[Ss]entence|[Pp]aragraph|Part|Lei|Ley|Law|L\.|Decreto-Lei|D\.Lgs\.|BGBl\.|TCA|TCGA|SolZG|Act|Bill|Budget|Belastingplan|BMF|Circolare|Notice|Topic|Publication|Pub\.|Proc\./u,
