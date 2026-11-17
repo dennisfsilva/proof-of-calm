@@ -182,7 +182,7 @@ const WHY = {
   none: 'has no reading in English or on this page',
   range: 'is a range',
 };
-const RULE = `so it has no suggestion: write it by hand as CONTENT-STYLE §4 does, groups of three joined by ${String.fromCodePoint(0x5c)}u00a0 from 10 000, none below, a comma before the decimals, and a fourth decimal on an amount of 1 to 999 that has three (EUR 1,1250)`;
+const RULE = `so it has no suggestion. Write it by hand as CONTENT-STYLE §4 does: groups of three joined by ${String.fromCodePoint(0x5c)}u00a0 from 10 000, none below, and a comma before the decimals. An amount of 1 to 999 with three decimals takes a fourth (EUR 1,1250)`;
 
 /**
  * Each money figure in `texts` grouped otherwise than a comma-decimal page writes it (decided 2026-11-16,
