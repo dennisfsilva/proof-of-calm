@@ -82,8 +82,9 @@ Arguments: $ARGUMENTS
   `figure-unclassed` on a template's explanation and any rule the family gains later; a
   `percent-token` refusal; and a `number-group` refusal
   that gives no suggestion. Fix each from the cited source's figure: write the figure the source
-  gives (for a template's fall, its `drawdowns` row's `fall`, read from that row's source) in the
-  form the detail and `docs/CONTENT-STYLE.md` §4 set, and change no other word of the sentence.
+  gives (for a template's fall, its `drawdowns` row's `fall`, read from that row's `source` and,
+  when it has one, its `lowSource`) in the form the detail and `docs/CONTENT-STYLE.md` §4 set,
+  never a bound (`more than N %`) in its place, and change no other word of the sentence.
   Never reword a sentence toward a shape, and never pick one of the two readings a `number-group`
   detail names. When the source's figure fits no shape of §4, stop on that item: leave its figure
   and its sentence as they were, add the note `figure fits no shape: <item> <field>: "<quote>"`
