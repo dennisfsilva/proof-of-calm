@@ -580,15 +580,15 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - A fact check of a translation reads who does what in each sentence: a verb without its subject
   takes the reader as its subject. #326's «os preços que lê» read as the person's prices, and «as
   moedas que detém» after the app as subject read as the app holding the coins (2026-11-17).
-- A rule that reads a figure's neighbours leaks one step further out each round: sessions 25l, 25m
-  and 25o each found one more hedge or join (`Roughly, Solana fell 97 %`, a numeral-led sentence
-  joined to the one before). Before building such a check, settle a closed set of sentence shapes;
+- A check that reads the words beside a figure meets one more sentence shape in each round: the
+  review rounds of #316, #318 and #328 each found one more hedge or join (`Roughly, Solana fell
+  97 %`, a numeral-led sentence joined to the one before). Before building such a check, settle a closed set of sentence shapes;
   otherwise land it with main's literal pins kept and remove pins in a later PR (#328, 2026-11-17).
 - A translation of a Learn module changes which language a screen in that language shows, so its
-  branch searches the e2e specs for the module's language marks and its title text. #331's first CI
+  branch searches the e2e specs for the module's `lang` attribute and its English title. #331's first CI
   run failed `apps/web/e2e/language.spec.ts`, which expected Cycles in English on a pt-PT screen
   (2026-11-17).
-- A fix to dev-server wiring (a watched file, a module's imports) is tested through a real dev
+- A fix to what the dev server watches or imports is tested through a real dev
   server with the source broken mid-edit as well as changed. The second round of
   fix/learn-pt-section-ids found the translation dropped its English dependency while the English
   file failed to parse (#328, 2026-11-17).
