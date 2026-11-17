@@ -25,7 +25,7 @@ const fromRepo = (path: string) => readFileSync(new URL(`../../${path}`, import.
 function dryFinish(
   base: Record<string, string>,
   change: Record<string, string>,
-  edit: (draft: { pending: { effectiveFrom: unknown }[] }) => void,
+  edit: (draft: { pending: [{ effectiveFrom: unknown }] }) => void,
 ) {
   const repo = mkdtempSync(join(tmpdir(), 'finish-dry-'));
   const outside = mkdtempSync(join(tmpdir(), 'finish-dry-draft-'));
