@@ -50,7 +50,9 @@ describe('the content files (docs/CONTENT-OPS.md §1)', () => {
     const overlays = readdirSync(new URL('i18n/', root), { recursive: true, encoding: 'utf8' })
       .map((path) => `i18n/${path.replaceAll('\\', '/')}`)
       .filter((path) => path.endsWith('.json'));
-    expect(overlays.length).toBeGreaterThan(0);
+    expect(overlays).toEqual(
+      expect.arrayContaining(['i18n/pt-PT/jurisdictions/de.json', 'i18n/pt-PT/jurisdictions/es.json']),
+    );
     const typed = [...jsonIn('jurisdictions/'), ...overlays].flatMap((path) =>
       readFileSync(new URL(path, root), 'utf8')
         .split('\n')

@@ -28,7 +28,10 @@ it('answers the English rules when the import resolves without the file, as the 
 });
 
 it("answers the language's file where its chunk loads", async () => {
+  // Germany's file is translated since 2026-11-17: its name and texts differ from English, its rule does not.
   const translated = await loadRules('DE', 'pt-PT');
-  expect(translated).toEqual(await loadRules('DE'));
-  expect(translated).not.toBe(await loadRules('DE'));
+  const english = await loadRules('DE');
+  expect(translated?.name).toBe('Alemanha');
+  expect(translated?.holdingRule).toEqual(english?.holdingRule);
+  expect(translated === null ? null : contentLanguageOf(translated)).toBe('pt-PT');
 });

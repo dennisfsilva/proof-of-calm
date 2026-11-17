@@ -1,0 +1,59 @@
+{
+  "name": "Espanha",
+  "filingNote": "Ano civil. A Renta (Modelo\u00a0D-100) de 2025 entrega-se de 8 de abril a 30 de junho de 2026 (Orden HAC/277/2026); uma ordem fixa as datas todos os anos. Criptoativos detidos no estrangeiro (Modelo\u00a0721): de 1 de janeiro a 31 de março.",
+  "lotRuleNote": "Primeiro a entrar, primeiro a sair, por tipo de moeda: nas vendas parciais de moedas compradas em momentos e por valores diferentes, as moedas vendidas são as adquiridas primeiro («criterio FIFO», o manual da Renta da AEAT).",
+  "card": {
+    "classification": "Mais-valias e menos-valias na base da poupança (art. 46 b LIRPF), para operações fora de uma atividade económica; cada tipo de moeda é um ativo distinto. Nenhuma página da AEAT lida trata o staking ou os airdrops.",
+    "taxableEvents": [
+      {
+        "note": "A mais-valia ou menos-valia é o valor de transmissão menos o valor de aquisição, contando as comissões e os impostos da operação pagos pelo contribuinte; tributável seja qual for o período de detenção."
+      },
+      {
+        "note": "Uma troca entre moedas diferentes é uma troca em espécie (uma permuta, art. 37.1.h LIRPF). A mais-valia é o maior dos dois valores de mercado menos o valor de aquisição das moedas entregues. Esse valor maior é o custo das moedas recebidas."
+      },
+      { "note": "Uma stablecoin é outro tipo de moeda, por isso a troca é uma permuta como qualquer outra." },
+      {
+        "note": "Pagar bens ou serviços com criptoativos altera a composição do património (art. 33.1 LIRPF), pelo que surge uma mais-valia ou menos-valia, como numa venda; nenhuma página da AEAT lida trata os pagamentos (confiança média)."
+      },
+      {
+        "note": "Mover moedas entre carteiras do mesmo titular não altera a composição do património, pelo que não surge mais-valia nem menos-valia (art. 33.1 LIRPF). As moedas cujas chaves privadas o titular guarda não contam para o Modelo\u00a0721."
+      },
+      {
+        "note": "A mais-valia do doador usa o valor do ISD (doações e sucessões), até ao valor de mercado (art. 36 LIRPF); por morte, nenhuma (art. 33.3.b). Uma menos-valia em doação não é dedutível (art. 33.5.c). Quem recebe paga ISD, não IRPF (art. 6.4)."
+      },
+      {
+        "note": "Nenhuma página da AEAT lida trata as recompensas de staking ou os airdrops; as moedas recebidas assim são tributadas como mais-valia quando vendidas, e o seu valor de aquisição fica em aberto (confiança média)."
+      }
+    ],
+    "rates": [
+      {
+        "label": "Escala da base da poupança",
+        "value": "19\u00a0% a 30\u00a0% por escalão",
+        "note": "Metade estatal (art. 66.1 LIRPF) e regional (art. 76) na mesma escala: 19\u00a0% até EUR\u00a06000; 21\u00a0% até EUR\u00a050\u00a0000; 23\u00a0% até EUR\u00a0200\u00a0000; 27\u00a0% até EUR\u00a0300\u00a0000; 30\u00a0% acima. O escalão de 30\u00a0% vigora desde 1 de janeiro de 2025 (Ley 7/2024)."
+      }
+    ],
+    "allowances": [
+      "Sem franquia para mais-valias de criptoativos; as comissões e os impostos da operação pagos pelo contribuinte ajustam os valores.",
+      "Modelo\u00a0721 só quando os criptoativos num custodiante no estrangeiro excedem EUR\u00a050\u00a0000 a 31 de dezembro; nova declaração se esse saldo crescer mais de EUR\u00a020\u00a0000 desde a última (art. 42 quater RGAT). Moedas em autocustódia não contam."
+    ],
+    "holdingRuleText": "Sem regra de período de detenção: cada venda, troca ou pagamento é um facto tributável, seja qual for o tempo de detenção. A mesma escala da base da poupança aplica-se a uma moeda detida 1 dia ou 10 anos.",
+    "lotRuleText": "Primeiro a entrar, primeiro a sair, por tipo de moeda («criterio FIFO», manual da Renta da AEAT): numa venda parcial de moedas compradas em datas e a valores diferentes, saem as adquiridas primeiro. O manual lido não separa por plataforma.",
+    "losses": "Compensam-se na base da poupança do ano; um saldo negativo que reste compensa rendimentos de capital do ano até 25\u00a0% destes, e o resto reporta-se por 4 anos (art. 49.1 LIRPF).",
+    "reporting": [
+      "A declaração da Renta (Modelo\u00a0D-100): a secção «Ganancias y pérdidas patrimoniales derivadas de la transmisión o permuta de monedas virtuales por particulares».",
+      "As menos-valias por compensar em anos seguintes constam do anexo\u00a0C da declaração.",
+      "Modelo\u00a0721, de 1 de janeiro a 31 de março, para criptoativos num custodiante no estrangeiro acima de EUR\u00a050\u00a0000 a 31 de dezembro; para os detidos em 2025, de 1 de janeiro a 31 de março de 2026."
+    ],
+    "caveats": [
+      "Se o FIFO é obrigatório, e por plataforma ou no total.",
+      "As recompensas de staking e os airdrops.",
+      "A compensação de 25\u00a0% com rendimentos de capital.",
+      "Doações: paga quem doa.",
+      "O Impuesto sobre el Patrimonio e as suas regras regionais.",
+      "O País Basco e Navarra, com IRPF próprio.",
+      "O reporte DAC8 pelos prestadores de criptoativos: se Espanha já o transpôs.",
+      "O que muda depois das eleições de 29 de novembro de 2026."
+    ],
+    "summary60": "Espanha: cada venda, troca entre criptoativos ou pagamento com criptoativos é um facto tributável. Sem exclusão por período de detenção. Mais-valias líquidas tributadas na base da poupança, de 19\u00a0% a 30\u00a0%. FIFO por moeda. Menos-valias compensam mais-valias e reportam-se por 4 anos. Criptoativos num custodiante estrangeiro acima de EUR\u00a050\u00a0000 declaram-se no Modelo\u00a0721 até 31 de março."
+  }
+}
