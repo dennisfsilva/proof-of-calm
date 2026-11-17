@@ -268,7 +268,10 @@ is read again at every review, because its low can still move.
 1. Open the PR and read its file list first. Close it unmerged when any path lies outside the
    content data the guard accepts (§3, `DATA_PATHS`), such as `.github/`, `tools/`, a `src/` folder
    or a package file. Then, for each
-   change, open the source URL yourself (not the quote) and find the passage. Open also each
+   change, open the source URL yourself (not the quote) and find the passage. An exchange's price API
+   answers one window per request: a Bitstamp OHLC source opens at its `start` and returns at most
+   `limit` daily candles (1000 at most), so for a figure past that window set `start` in the same URL
+   to the figure's day, in Unix seconds. Open also each
    off-list secondary source the notes name as not fetched, on its own site, and read the lines that
    cite it.
 2. Check the effective date and the status word; a proposal is never a rule.
