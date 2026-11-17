@@ -118,14 +118,24 @@ describe('overlayProblems', () => {
     expect(same('1.5 %', '15 %')).toBe(false);
   });
 
-  it('reads 1,000 as 1 000 in pt-PT, and as one thousand only where a space groups (CONTENT-STYLE §4)', () => {
+  it('reads 1,000 as 1 000 and 1.000 in pt-PT, and as one thousand only where the separator groups', () => {
     expect(same('1,000 euros', '1 000 euros')).toBe(true);
     expect(same('1,000 euros', `1${String.fromCodePoint(0xa0)}000 euros`)).toBe(true);
+    expect(same('1,000 euros', '1.000 euros')).toBe(true);
     expect(same('1,000 euros', '1,000 euros')).toBe(false);
+    expect(same('5.5 % of 1,000', '5,5 % de 1.000', 'de')).toBe(true);
     expect(same('1,000.5', '1 000,5')).toBe(true);
-    // In a comma-decimal text a point is a citation's, never a group (decided 2026-11-16).
-    expect(same('1,000 euros', '1.000 euros')).toBe(false);
-    expect(same('5.5 % of 1,000', '5,5 % de 1.000', 'de')).toBe(false);
+  });
+
+  // ADR-0057 'What validation holds': a template or a fact has no page, so its English reads with `en` and its
+  // translation with its language's own grouping; only a profile's texts compare a point as written.
+  it('reads a template’s and a fact’s translation with its language’s own grouping and citation points', () => {
+    const problems = (kind: 'template' | 'fact', field: string, en: string, translated: string, language: string) =>
+      overlayProblems(kind, 'p', { [field]: en }, { [field]: translated }, ['en', language]).map((p) => p.detail);
+    const german = ['Each coin fell 31.4 % from 1,000 euros.', 'Jede Münze fiel 31,4 % von 1.000 Euro.'] as const;
+    expect(problems('template', 'explanation', ...german, 'de')).toEqual([]);
+    expect(problems('template', 'explanation', 'BIP 32.1 wallets.', 'Carteiras BIP 32.1.', 'pt-PT')).toEqual([]);
+    expect(problems('fact', 'value', 'BIP 32.1 wallets.', 'Carteiras BIP 32.1.', 'pt-PT')).toEqual([]);
   });
 
   it('holds values, not word order, nor which noun each belongs to', () => {
@@ -137,13 +147,13 @@ describe('overlayProblems', () => {
   // `12,2%` and `EUR 59 357` for Portugal and the Netherlands, `12.2%` and `£37,700` for Britain.
   it('reads both texts of a profile with its page’s number locale', () => {
     const nbsp = String.fromCodePoint(0xa0);
-    expect(numbersIn(`12,2% of EUR 1000 and 6,00% above EUR 59${nbsp}357`, 'pt-PT')).toEqual([
+    expect(numbersIn(`12,2% of EUR 1000 and 6,00% above EUR 59${nbsp}357`, 'pt-PT', true)).toEqual([
       '1000',
       '12.2',
       '59357',
       '6',
     ]);
-    expect(numbersIn('12.2 % of £37,700', 'en-GB')).toEqual(['12.2', '37700']);
+    expect(numbersIn('12.2 % of £37,700', 'en-GB', true)).toEqual(['12.2', '37700']);
     const summary = (english: string, translated: string, locale = 'nl-NL') =>
       overlayProblems('jurisdiction', path, { card: { summary60: english } }, { card: { summary60: translated } }, [
         locale,
@@ -173,20 +183,24 @@ describe('overlayProblems', () => {
     expect(value('art. 33.100', 'art. 33.100')).toEqual([]);
     expect(value('12,2–48 %', '12,2–48 %')).toEqual([]);
     expect(value('EUR 1000 to EUR 2000', 'EUR 1000 a EUR 2000')).toEqual([]);
-    expect(numbersIn('art. 33.1 and §3.2.1 above EUR 1000', 'de-DE')).toEqual(['1000', 'cited 3.2.1', 'cited 33.1']);
+    expect(numbersIn('art. 33.1 and §3.2.1 above EUR 1000', 'de-DE', true)).toEqual([
+      '1000',
+      'cited 3.2.1',
+      'cited 33.1',
+    ]);
   });
 
   it('reads every figure of a percentage range as a percentage, and a law citation beside one as written', () => {
-    expect(numbersIn('12,2–48% by bracket', 'pt-PT')).toEqual(['12.2', '48']);
-    expect(numbersIn('12–48,5% by bracket', 'pt-PT')).toEqual(['12', '48.5']);
-    expect(numbersIn('12,2-48,5%', 'pt-PT')).toEqual(['12.2', '48.5']);
+    expect(numbersIn('12,2–48% by bracket', 'pt-PT', true)).toEqual(['12.2', '48']);
+    expect(numbersIn('12–48,5% by bracket', 'pt-PT', true)).toEqual(['12', '48.5']);
+    expect(numbersIn('12,2-48,5%', 'pt-PT', true)).toEqual(['12.2', '48.5']);
     // Only an unspaced dash or hyphen joins a range (#290): a `to` range writes its sign on each figure.
-    expect(numbersIn('2,5% to 13,3%', 'pt-PT')).toEqual(['13.3', '2.5']);
-    expect(numbersIn('2,5 to 13,3%', 'pt-PT')).toEqual(['13.3', '2.5']);
-    expect(numbersIn('Art. 33.1 to 28% applies.', 'pt-PT')).toEqual(['28', 'cited 33.1']);
-    expect(numbersIn('Quadro 9.4-12-28%', 'pt-PT')).toEqual(['12', '28', 'cited 9.4']);
-    expect(numbersIn('12.2–48% by bracket', 'en-GB')).toEqual(['12.2', '48']);
-    expect(numbersIn('Art. 33.1 – 28% flat', 'pt-PT')).toEqual(['28', 'cited 33.1']);
+    expect(numbersIn('2,5% to 13,3%', 'pt-PT', true)).toEqual(['13.3', '2.5']);
+    expect(numbersIn('2,5 to 13,3%', 'pt-PT', true)).toEqual(['13.3', '2.5']);
+    expect(numbersIn('Art. 33.1 to 28% applies.', 'pt-PT', true)).toEqual(['28', 'cited 33.1']);
+    expect(numbersIn('Quadro 9.4-12-28%', 'pt-PT', true)).toEqual(['12', '28', 'cited 9.4']);
+    expect(numbersIn('12.2–48% by bracket', 'en-GB', true)).toEqual(['12.2', '48']);
+    expect(numbersIn('Art. 33.1 – 28% flat', 'pt-PT', true)).toEqual(['28', 'cited 33.1']);
     const rate = (en: string, translated: string) =>
       overlayProblems(
         'jurisdiction',
@@ -241,13 +255,19 @@ describe('overlayProblems', () => {
     expect(numbersIn('6.00 and 06', 'en')).toEqual(['6', '6']);
   });
 
-  it('reads a point in a comma-decimal text as a citation’s, kept as written', () => {
+  it('reads a cited point in a comma-decimal translation as English does, a group of three as a group', () => {
     // CONTENT-STYLE §4: a figure that is not a percentage keeps its point, as a law citation does.
-    expect(numbersIn('Anexo J, Quadro 9.4, e art. 33.1', 'pt-PT')).toEqual(
-      numbersIn('Anexo J Quadro 9.4 and art. 33.1', 'pt-PT'),
-    );
-    expect(numbersIn('Quadro 9.4', 'pt-PT')).toEqual(['cited 9.4']);
-    expect(numbersIn('1.000 e 9.40', 'pt-PT')).toEqual(['cited 1.000', 'cited 9.40']);
+    expect(same('Anexo J Quadro 9.4 and art. 33.1', 'Anexo J, Quadro 9.4, e art. 33.1')).toBe(true);
+    expect(numbersIn('Quadro 9.4', 'pt-PT')).toEqual(['9.4']);
+    expect(numbersIn('1.000 e 9.40', 'pt-PT')).toEqual(['1000', '9.4']);
     expect(numbersIn('3,14 and 9.4', 'en')).toEqual(['14', '3', '9.4']);
+  });
+
+  it('reads a point in a comma-decimal profile’s text as a citation’s, kept as written', () => {
+    expect(numbersIn('Anexo J, Quadro 9.4, e art. 33.1', 'pt-PT', true)).toEqual(
+      numbersIn('Anexo J Quadro 9.4 and art. 33.1', 'pt-PT', true),
+    );
+    expect(numbersIn('Quadro 9.4', 'pt-PT', true)).toEqual(['cited 9.4']);
+    expect(numbersIn('1.000 e 9.40', 'pt-PT', true)).toEqual(['cited 1.000', 'cited 9.40']);
   });
 });
