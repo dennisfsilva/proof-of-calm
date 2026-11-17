@@ -58,7 +58,7 @@ const EXAMPLES_HEADING = 'How fast rules change';
 const EXAMPLES = [
   [
     'k.pt-2023',
-    'Portugal, from 1 Jan 2023: crypto gains taxed, with a 365‑day exclusion under conditions (Lei 24-D/2022).',
+    'Portugal, from 1 Jan 2023: crypto gains taxed, with a 365‑day exclusion under conditions (Lei 24‑D/2022).',
     ['Lei 24-D/2022', 'under conditions'],
   ],
   [
