@@ -282,14 +282,16 @@ For each profile in `packages/content/jurisdictions/`:
      new `date` passes its `accessed` fails that test either way: set it, and say in the notes that
      the flip needs the whole file read.
 2. Check a date like a figure: the passage holds the day, month and year you write.
-3. Trim no fact a module quotes. Check it against its `source`, at every window
-   `docs/CONTENT-OPS.md` §7 moves its request to (`a.btc-drawdowns`, `b.alt-drawdowns`), not only
-   the one its URL names. Check a clause whose figures come from a source other than its request's
+3. Trim no fact a module quotes. Check it against its `source` at every window its request moves
+   to, not only the one its URL names: a Coinbase Exchange request's as `docs/CONTENT-OPS.md` §7
+   moves it (`b.alt-drawdowns`), a Bitstamp OHLC request's by its `start` as §8 step 1 there does
+   (`a.btc-drawdowns`). Check a clause whose figures come from a source other than its request's
    series (`a.btc-drawdowns`' 2011 clause, from Mt. Gox and CoinMarketCap; `b.alt-drawdowns`'
    `LINK 2018 (CoinMarketCap series only)`) against the cycles row of its coin and high, which
    `packages/content/src/cycles.test.ts` ties it to, and that row's `source` and `lowSource`. Note
-   a line that neither holds as `no listed source holds: <item> <field>`, named as a `changes` row
-   names it (`facts/education.json [0].value`), and leave it unchanged.
+   a clause that neither holds as `no listed source holds: <item> <field>: "<clause>"`, named as a
+   `changes` row names it (`facts/education.json [0].value`), the clause quoted as the file writes
+   it, and leave it unchanged.
 4. Read the items of `docs/CONTENT-OPS.md` §6 and §7 for the templates and
    `packages/content/cycles/drawdowns.json`.
 
