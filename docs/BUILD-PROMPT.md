@@ -636,6 +636,17 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   codes, merged before #354 added `figure-chart` and `figure-unstated`: a new chart row left the
   agent no edit its words allowed, and lowering a bound to a figure no source gives cleared three
   refusals at once (#357, 2026-11-17).
+- A skill step that hands the owner a fix on the agent's branch is checked against CI's guard on
+  that branch, by the rehearsal and the reviewer. #355's first wording of the translated-module rule
+  told the owner to change a translated module's digits in a commit on the agent's branch, which the
+  guard refuses as not content data (2026-11-17).
+- A language's closed trigger lists verbs and inflected nouns by stem, not form by form, and walks
+  English's lists entry by entry before the first review. #355's pt-PT trigger missed `trilhão` and
+  the ordinals 40th to 90th in round 1, then `dobrado`, the imperfect and future of the doubling
+  verbs, and `terço` in round 2 (2026-11-17).
+- A rule that sets or keeps a mark so a pull request carries a note is walked through a run whose
+  only outcome is that note. #355's mark rule left a removal-only run with nothing staged, so the
+  finish refused and no pull request carried the note (2026-11-17).
 
 ## Known gaps
 
