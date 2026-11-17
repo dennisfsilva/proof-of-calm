@@ -33,18 +33,24 @@ function PastPerformance() {
 
 // A module body's Markdown elements on the tokens' type (docs/DESIGN.md §5): what the renderer passes
 // through `components` (ADR-0048). Compiled modules take their elements from that prop alone. An h2 is a
-// section a link can name: the id comes from its text, and it takes the focus the sheet moves to it.
+// section a link can name: the id comes from its text, and it takes the focus the sheet moves to it. In a
+// translation the compiler passes the English h2's text at the same position as `sourceHeading`, and the id comes
+// from that, so a link names the section in every language; the prop never reaches the page (ADR-0048, 2026-11-17).
+type SectionProps = ComponentProps<'h2'> & { readonly sourceHeading?: string };
 export const MODULE_ELEMENTS = {
-  h2: ({ children, ...props }: ComponentProps<'h2'>) => (
-    <h2
-      className="mt-stack-sm text-20"
-      id={typeof children === 'string' ? headingId(children) : undefined}
-      tabIndex={-1}
-      {...props}
-    >
-      {children}
-    </h2>
-  ),
+  h2: ({ children, sourceHeading, ...props }: SectionProps) => {
+    const text = sourceHeading ?? children;
+    return (
+      <h2
+        className="mt-stack-sm text-20"
+        id={typeof text === 'string' ? headingId(text) : undefined}
+        tabIndex={-1}
+        {...props}
+      >
+        {children}
+      </h2>
+    );
+  },
   h3: (props: ComponentProps<'h3'>) => <h3 className="text-18" {...props} />,
   p: (props: ComponentProps<'p'>) => <p className="text-16" {...props} />,
   ul: (props: ComponentProps<'ul'>) => <ul className="flex list-disc flex-col gap-stack-xs ps-inset-lg" {...props} />,
