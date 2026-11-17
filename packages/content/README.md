@@ -40,8 +40,8 @@ are quoted as published), each literal percentage with the number locale's joine
 and its decimal separator (`decimal-separator`, D8, #292; `docs/CONTENT-STYLE.md` §4), each money figure on a comma-decimal page grouped as that page writes it (`number-group`, `docs/CONTENT-STYLE.md` §4), each currency code and form name joined to its figure by U+00A0 on every page (`figure-join`, `src/join-validate.ts`), no `;` in a profile text the tax-year header copies, English or overlay (`header-semicolon`, #298), and each locale tag well formed (`locale-tag`), as `docs/JURISDICTIONS.md` §2 says. It refuses an ordinary
 hyphen between a numeral and its unit in text a screen shows (`number-unit-hyphen`; which text:
 `docs/CONTENT-STYLE.md` §4). Templates must split exactly 100 over their own coins, each coin as the
-catalogue lists it, and keep each paragraph of the explanation (paragraphs separated by a blank line)
-to five sentences (`docs/CONTENT-STYLE.md` §1 rule 4). A template writes each date as a
+catalogue lists it, and keep each paragraph of the explanation (paragraphs as `paragraphsOf` reads them,
+the split the template step renders) to five sentences (`docs/CONTENT-STYLE.md` §1 rule 4). A template writes each date as a
 `{date:<field>}` placeholder in `oneLine` or `explanation` (`docs/CONTENT-STYLE.md` §4): the
 validator refuses one that names no date of the template or is cut short (`template-date-unresolved`),
 one in the name or the risk label (`template-date-field`) and a written month name
