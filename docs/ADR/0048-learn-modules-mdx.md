@@ -207,7 +207,9 @@ Recorded on 2026-11-15, when the site's half of the rendering points landed in `
   gives each depth-2 heading the English module's depth-2 heading text at the same position as
   `data.hProperties.sourceHeading`; a heading past English's count keeps its own text. The compiler reads the English
   module of the translation's slug from disk as it compiles the translation, and registers it with `addWatchFile`, so
-  under `pnpm dev` an English edit compiles the translation again with the new headings. The page's h2
+  under `pnpm dev` an English edit compiles the translation again with the new headings. The English file is watched
+  whether or not it parses: while it does not, the translation compiles without `sourceHeadings`, and once it is fixed
+  the translation takes the new ids with no restart. The page's h2
   (`packages/app/src/features/learn/lib/body-elements.tsx`) takes its id from `headingId(sourceHeading ?? children)`
   and never passes the prop to the page; `headingId` stays the one slug, and English pages are unchanged. The position
   holds because `pnpm validate:content` matches the two bodies' depth-2 headings in order (the 2026-11-16 entry).
