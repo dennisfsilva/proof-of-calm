@@ -9,13 +9,13 @@
   "timezones": ["Europe/Lisbon", "Atlantic/Madeira", "Atlantic/Azores"],
   "englishConfidence": "low",
   "taxYear": { "start": "01-01", "end": "12-31" },
-  "filingNote": "Calendar tax year. The return (Modelo 3) is filed from 1 April to 30 June of the following year.",
+  "filingNote": "Calendar tax year. The return (Modelo\u00a03) is filed from 1 April to 30 June of the following year.",
   "computationModel": { "kind": "per-lot" },
   "holdingRule": { "kind": "days", "days": 365, "effect": "exempt" },
   "holdingRuleOverrides": [],
   "holdingRuleConditions": [
-    "Tax-free only when the counterparty is tax-resident in the EU, the EEA, or a treaty jurisdiction (declared in Anexo G Q18B otherwise).",
-    "Exempt sales must still be declared (Anexo G1 Q7).",
+    "Tax-free only when the counterparty is tax-resident in the EU, the EEA, or a treaty jurisdiction (declared in Anexo\u00a0G Q18B otherwise).",
+    "Exempt sales must still be declared (Anexo\u00a0G1 Q7).",
     "Whether the holding period carries across a crypto-to-crypto swap is unsettled. Proof of Calm treats a swap as a sale and a new purchase, so a new holding period starts for the coins received.",
     "Loss of Portuguese tax residence counts as a disposal (art. 10 n.º 25 CIRS, numbered n.º 22 in 2023–2025 documents)."
   ],
@@ -28,7 +28,7 @@
       {
         "event": "sale-to-fiat",
         "taxable": "yes",
-        "note": "Excluded from tax when held 365 days or more and the counterparty is tax-resident in the EU, the EEA, or a treaty jurisdiction. Excluded sales are still declared (Anexo G1 Quadro 7)."
+        "note": "Excluded from tax when held 365 days or more and the counterparty is tax-resident in the EU, the EEA, or a treaty jurisdiction. Excluded sales are still declared (Anexo\u00a0G1 Quadro\u00a07)."
       },
       {
         "event": "crypto-to-crypto",
@@ -86,17 +86,17 @@
     "lotRuleText": "First in, first out (“os alienados são os adquiridos há mais tempo”, art. 43 n.º 8(g) CIRS, formerly n.º 6(g)), separately per custodian or platform (art. 43 n.º 9, formerly n.º 7).",
     "losses": "Netted against same-year crypto gains, leaving out units held 365 days or more. A net loss carries forward five years only with aggregation (art. 55(1)(d)); losses with blacklisted counterparties never count (art. 43 n.º 7).",
     "reporting": [
-      "Modelo 3, Anexo G Quadro 18A: disposals of units held under 365 days, per operation, with the country of the counterparty.",
-      "Anexo G Quadro 18B: disposals with a counterparty outside the EU or the EEA.",
-      "Anexo G1 Quadro 7: exempt disposals, mandatory.",
-      "Anexo J Quadro 9.4 for income treated as foreign-sourced; which annex applies to a sale on a foreign exchange is a recurring practitioner question.",
-      "Anexo E code E21 for crypto income; Anexo B fields 419 and 422 for trading and mining as a business.",
+      "Modelo\u00a03, Anexo\u00a0G Quadro\u00a018A: disposals of units held under 365 days, per operation, with the country of the counterparty.",
+      "Anexo\u00a0G Quadro\u00a018B: disposals with a counterparty outside the EU or the EEA.",
+      "Anexo\u00a0G1 Quadro\u00a07: exempt disposals, mandatory.",
+      "Anexo\u00a0J Quadro\u00a09.4 for income treated as foreign-sourced; which annex applies to a sale on a foreign exchange is a recurring practitioner question.",
+      "Anexo\u00a0E code E21 for crypto income; Anexo\u00a0B fields\u00a0419 and 422 for trading and mining as a business.",
       "DAC8: Lei n.º 26/2026 of 3 June 2026, in effect from 1 January 2026; providers report Portuguese residents to the AT by 31 May of the following year, first on 31 May 2027."
     ],
     "caveats": [
       "Counterparties outside the EU or the EEA.",
       "Whether the holding period carries across a swap.",
-      "Anexo G Quadro 18A or Anexo J Quadro 9.4 for foreign platforms.",
+      "Anexo\u00a0G Quadro\u00a018A or Anexo\u00a0J Quadro\u00a09.4 for foreign platforms.",
       "Losses, usable only with aggregation.",
       "Staking income.",
       "The risk that the activity counts as professional.",

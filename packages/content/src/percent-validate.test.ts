@@ -175,7 +175,7 @@ describe('a profile’s money figures group as its comma-decimal page does (docs
       'card.caveats.0: "12.2%" writes ".", expected "," (de-DE)',
     ]);
     // Germany's page joins the sign with a no-break space, the percent joiner's own finding (CONTENT-STYLE §4).
-    const fixed = `The first bracket is 12,2${nbsp}% up to EUR 1000.`;
+    const fixed = `The first bracket is 12,2${nbsp}% up to EUR${nbsp}1000.`;
     expect(localeProblems(path, de, [['card.caveats.0', fixed]])).toEqual([]);
     expect(german(fixed)).toEqual([]);
   });
@@ -259,8 +259,11 @@ describe('a profile’s money figures group as its comma-decimal page does (docs
     ...[`50${nbsp}000${nbsp}€`, '1000 Euro', '600 dollars', 'EUR 1000 to EUR 2000', 'EUR 1000–2000'],
   ];
 
+  // D3 of #328: a code and a form name join their figures with U+00A0 (`figure-join`).
+  const joined = (text: string) => text.replace(/(EUR|Modelo) /g, `$1${nbsp}`).replace(/ EUR/g, `${nbsp}EUR`);
+
   it('raises no problem at all on any figure the page writes as it should', () => {
-    for (const figure of passed) {
+    for (const figure of passed.map(joined)) {
       expect(localeProblems(path, de, [['card.rates.1.note', `Up to ${figure} a year.`]]), figure).toEqual([]);
     }
     expect(german('Up to EUR 6000 a year.', es)).toEqual([]);

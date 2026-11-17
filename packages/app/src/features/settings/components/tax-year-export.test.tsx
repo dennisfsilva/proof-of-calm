@@ -616,9 +616,11 @@ describe('TaxYearExport', () => {
     // The fee_units column is in every Dutch file, so its line is too, as the value columns' line.
     expect(nl).toContain("fee_units: units the year's Coins moved entries paid as network fees, in the coin.");
     for (const header of [fr, nl]) {
-      for (const dropped of ['matched', 'eligible_from', 'per venue', 'Box 3', 'box 3']) {
+      for (const dropped of ['matched', 'eligible_from', 'per venue']) {
         expect(header).not.toContain(dropped);
       }
+      // A profile joins a form name to its number with U+00A0 (docs/CONTENT-STYLE.md §4).
+      expect(header).not.toMatch(/box\s3/i);
       expect(header).not.toContain('Check figures before any tax or financial use');
     }
   });

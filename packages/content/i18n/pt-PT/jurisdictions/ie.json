@@ -1,6 +1,6 @@
 {
   "name": "Irlanda",
-  "filingNote": "Ano civil. O CGT das alienações de 1 de janeiro a 30 de novembro paga-se até 15 de dezembro do mesmo ano; o de dezembro, até 31 de janeiro. A declaração (Form CG1, Form 11 ou Form 12) entrega-se até 31 de outubro do ano seguinte.",
+  "filingNote": "Ano civil. O CGT das alienações de 1 de janeiro a 30 de novembro paga-se até 15 de dezembro do mesmo ano; o de dezembro, até 31 de janeiro. A declaração (Form\u00a0CG1, Form\u00a011 ou Form\u00a012) entrega-se até 31 de outubro do ano seguinte.",
   "lotRuleNote": "Primeiro a entrar, primeiro a sair, a regra da Revenue para ações: as unidades mais antigas contam como vendidas primeiro. O manual dos criptoativos não fixa regra de lotes e nada diz sobre as regras das 4 semanas para ações.",
   "card": {
     "classification": "Ativos sujeitos a Capital Gains Tax: uma venda, transferência ou resgate de criptoativos é muito provavelmente uma alienação (Tax and Duty Manual Part 02-01-03). Negociar criptoativos como profissão cai antes no imposto sobre o rendimento.",
@@ -38,13 +38,13 @@
       }
     ],
     "allowances": [
-      "EUR 1,270 de mais-valias tributáveis por ano e por pessoa, deduzidos após as menos-valias dedutíveis. A franquia só reduz as mais-valias tributáveis desse ano: a parte que sobra não pode ser usada."
+      "EUR\u00a01,270 de mais-valias tributáveis por ano e por pessoa, deduzidos após as menos-valias dedutíveis. A franquia só reduz as mais-valias tributáveis desse ano: a parte que sobra não pode ser usada."
     ],
     "holdingRuleText": "Sem regra de detenção: cada alienação é um facto de CGT, seja qual for o período de detenção. O montante sujeito a CGT calcula-se em separado para cada ativo, alienação a alienação: o produto da venda menos o custo (Tax and Duty Manual Part 02-01-03).",
     "lotRuleText": "Primeiro a entrar, primeiro a sair: a regra da Revenue para ações trata as unidades mais antigas como vendidas primeiro. O manual dos criptoativos não fixa regra de lotes e nada diz sobre as regras das 4 semanas para ações.",
     "losses": "Uma menos-valia dedutível abate-se às mais-valias tributáveis do mesmo ano fiscal. As menos-valias que as excedam reportam-se para as mais-valias seguintes, nos anos posteriores.",
     "reporting": [
-      "Entrega até 31 de outubro do ano seguinte ao da alienação. Form CG1 sem declaração anual ou com o Form 12 online. Form 11 para quem trabalha por conta própria ou tem rendimentos fora do PAYE, ou o Form 12 em papel para quem está no PAYE.",
+      "Entrega até 31 de outubro do ano seguinte ao da alienação. Form\u00a0CG1 sem declaração anual ou com o Form\u00a012 online. Form\u00a011 para quem trabalha por conta própria ou tem rendimentos fora do PAYE, ou o Form\u00a012 em papel para quem está no PAYE.",
       "A declaração é devida mesmo quando benefícios ou menos-valias dedutíveis eliminam o imposto a pagar. Um pagamento em atraso gera juros e uma declaração em atraso gera uma coima.",
       "Pagamento: alienações de 1 de janeiro a 30 de novembro até 15 de dezembro do mesmo ano, alienações de dezembro até 31 de janeiro do ano seguinte."
     ],
@@ -55,7 +55,7 @@
       "Capital Acquisitions Tax sobre doações e heranças.",
       "Que taxa, 33% ou 31%, se aplica a uma alienação feita enquanto o Finance (No. 2) Bill 2026 não for aprovado."
     ],
-    "summary60": "A Irlanda cobra Capital Gains Tax em cada venda, troca, pagamento ou doação de criptoativos: 33% até 6 de outubro de 2026, 31% desde 7 de outubro de 2026, após franquia anual de EUR 1,270. Sem exclusão por detenção. Pagamento até 15 de dezembro (janeiro a novembro) ou 31 de janeiro (dezembro). Declaração: 31 de outubro seguinte. As menos-valias reportam-se."
+    "summary60": "A Irlanda cobra Capital Gains Tax em cada venda, troca, pagamento ou doação de criptoativos: 33% até 6 de outubro de 2026, 31% desde 7 de outubro de 2026, após franquia anual de EUR\u00a01,270. Sem exclusão por detenção. Pagamento até 15 de dezembro (janeiro a novembro) ou 31 de janeiro (dezembro). Declaração: 31 de outubro seguinte. As menos-valias reportam-se."
   },
   "pendingChanges": [
     {

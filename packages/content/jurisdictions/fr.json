@@ -29,7 +29,7 @@
       {
         "event": "sale-to-fiat",
         "taxable": "yes",
-        "note": "Any sale for a currency with legal tender, whatever the holding period; taxed from the first euro once the household's sale prices for the year exceed EUR 305."
+        "note": "Any sale for a currency with legal tender, whatever the holding period; taxed from the first euro once the household's sale prices for the year exceed EUR\u00a0305."
       },
       {
         "event": "crypto-to-crypto",
@@ -68,31 +68,31 @@
         "value": "31,4\u00a0%",
         "validFrom": "2025-01-01",
         "validTo": null,
-        "note": "12,8\u00a0% income tax plus 18,6\u00a0% social levies. An irrevocable option (box 3CN) puts the gains on the progressive scale."
+        "note": "12,8\u00a0% income tax plus 18,6\u00a0% social levies. An irrevocable option (box\u00a03CN) puts the gains on the progressive scale."
       }
     ],
     "allowances": [
-      "No tax when the household's sale prices for the year (not the gains) total EUR 305 or less, deferred swaps left out; above EUR 305 every gain of the year is taxed (art. 150 VH bis II B).",
+      "No tax when the household's sale prices for the year (not the gains) total EUR\u00a0305 or less, deferred swaps left out; above EUR\u00a0305 every gain of the year is taxed (art. 150 VH bis II B).",
       "Fees paid on a sale, with proof, reduce the sale price."
     ],
-    "holdingRuleText": "No holding-period rule: a sale for euros or a payment with crypto is taxable whatever the holding period, once the household's sale prices for the year exceed EUR 305. A swap of crypto for crypto with no balancing payment is deferred until a taxable sale.",
+    "holdingRuleText": "No holding-period rule: a sale for euros or a payment with crypto is taxable whatever the holding period, once the household's sale prices for the year exceed EUR\u00a0305. A swap of crypto for crypto with no balancing payment is deferred until a taxable sale.",
     "lotRuleText": "No matching per lot. The gain on a sale is the sale price minus the sale's share of the whole portfolio's total cost (total cost × sale price ÷ portfolio value just before the sale); that share then leaves the total cost for later sales.",
     "losses": "A loss offsets only gains of the same kind made in the same year; it does not carry forward to later years.",
     "reporting": [
-      "Form 2042 C: box 3AN for a net gain, 3BN for a net loss, 3CN to opt for the progressive scale.",
+      "Form\u00a02042 C: box\u00a03AN for a net gain, 3BN for a net loss, 3CN to opt for the progressive scale.",
       "Annexe 2086 lists every taxable sale: date, value of the whole portfolio, sale price, fees, total acquisition price, and the part of that price already used in earlier sales (the form's 'fractions de capital initial').",
-      "Form 3916-bis for every crypto account on a platform abroad."
+      "Form\u00a03916-bis for every crypto account on a platform abroad."
     ],
     "caveats": [
       "The value of all your holdings at the moment of each sale.",
-      "The EUR 305 threshold, counted on sale prices.",
+      "The EUR\u00a0305 threshold, counted on sale prices.",
       "Losses, usable in the same year only.",
       "Declarations for platforms abroad and their fines.",
       "Staking rewards and airdrops.",
       "Surtaxes on high incomes.",
       "The 2027 budget measures, which are not law yet."
     ],
-    "summary60": "France: selling crypto for euros or paying with crypto is taxable; swapping one crypto for another is not. Gains are taxed at a flat 31,4\u00a0%, or at your progressive rate on request. If your household's sales in a year total EUR 305 or less, nothing is due. Gains are computed on your whole portfolio, not per coin."
+    "summary60": "France: selling crypto for euros or paying with crypto is taxable; swapping one crypto for another is not. Gains are taxed at a flat 31,4\u00a0%, or at your progressive rate on request. If your household's sales in a year total EUR\u00a0305 or less, nothing is due. Gains are computed on your whole portfolio, not per coin."
   },
   "pendingChanges": [
     {

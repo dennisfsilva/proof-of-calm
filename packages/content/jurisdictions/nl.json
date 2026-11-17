@@ -15,14 +15,14 @@
   "holdingRuleConditions": [],
   "lotRule": "unspecified",
   "lotScope": "global",
-  "lotRuleNote": "No sale is matched to a purchase: box 3 taxes the value held on 1 January, not the result of a sale.",
+  "lotRuleNote": "No sale is matched to a purchase: box\u00a03 taxes the value held on 1 January, not the result of a sale.",
   "card": {
-    "classification": "Box 3: crypto counts among your assets at its value on 1 January. A deemed return on that value is taxed, not what a sale makes. When extra work beyond investing often earns you extra income, that income is declared.",
+    "classification": "Box\u00a03: crypto counts among your assets at its value on 1 January. A deemed return on that value is taxed, not what a sale makes. When extra work beyond investing often earns you extra income, that income is declared.",
     "taxableEvents": [
       {
         "event": "sale-to-fiat",
         "taxable": "no",
-        "note": "Not taxed as a sale: when you invest and speculate on the price, the proceeds of trading are not declared. The value you hold on 1 January counts in box 3."
+        "note": "Not taxed as a sale: when you invest and speculate on the price, the proceeds of trading are not declared. The value you hold on 1 January counts in box\u00a03."
       },
       {
         "event": "crypto-to-crypto",
@@ -37,7 +37,7 @@
       {
         "event": "spending",
         "taxable": "no",
-        "note": "Not an event in box 3: only the total you hold on 1 January counts."
+        "note": "Not an event in box\u00a03: only the total you hold on 1 January counts."
       },
       {
         "event": "own-wallet-transfer",
@@ -47,17 +47,17 @@
       {
         "event": "gift-or-inheritance",
         "taxable": "depends",
-        "note": "Not a box 3 event; the value held on 1 January counts there. A gift may carry gift tax, which the recipient declares and usually pays. An inheritance may carry inheritance tax: the heirs file when they inherit more than the exempt amount."
+        "note": "Not a box\u00a03 event; the value held on 1 January counts there. A gift may carry gift tax, which the recipient declares and usually pays. An inheritance may carry inheritance tax: the heirs file when they inherit more than the exempt amount."
       },
       {
         "event": "staking-or-airdrop",
         "taxable": "depends",
-        "note": "The sources name neither staking nor airdrops. Box 3 counts what you hold on 1 January; under the actual-return option all income from your assets counts in the year. Mining proceeds are declared only when they exceed the costs."
+        "note": "The sources name neither staking nor airdrops. Box\u00a03 counts what you hold on 1 January; under the actual-return option all income from your assets counts in the year. Mining proceeds are declared only when they exceed the costs."
       }
     ],
     "rates": [
       {
-        "label": "Box 3 rate on the deemed return",
+        "label": "Box\u00a03 rate on the deemed return",
         "value": "36%",
         "validFrom": "2026-01-01",
         "validTo": null,
@@ -65,14 +65,14 @@
       }
     ],
     "allowances": [
-      "Tax-free capital (heffingsvrij vermogen): EUR 59\u00a0357 per person in 2026, EUR 118\u00a0714 for fiscal partners; the deemed return is taxed only on the value above it.",
+      "Tax-free capital (heffingsvrij vermogen): EUR\u00a059\u00a0357 per person in 2026, EUR\u00a0118\u00a0714 for fiscal partners; the deemed return is taxed only on the value above it.",
       "No allowance under the actual-return option, as the supreme court (Hoge Raad) decided."
     ],
-    "holdingRuleText": "No holding rule. The Netherlands does not tax your sale: box 3 taxes a deemed return on what you hold on 1 January at 00:00. The value follows the rate of the exchange you used. How long you have held a coin changes nothing.",
+    "holdingRuleText": "No holding rule. The Netherlands does not tax your sale: box\u00a03 taxes a deemed return on what you hold on 1 January at 00:00. The value follows the rate of the exchange you used. How long you have held a coin changes nothing.",
     "lotRuleText": "Not applicable: no sale is matched to a purchase, because the tax rests on the value held on 1 January, not on the result of a sale.",
-    "losses": "No loss exists under the deemed return. Under the actual-return option a negative year is set to EUR 0 and cannot be set against another year; costs are not deductible, except interest paid on a box 3 debt.",
+    "losses": "No loss exists under the deemed return. Under the actual-return option a negative year is set to EUR\u00a00 and cannot be set against another year; costs are not deductible, except interest paid on a box\u00a03 debt.",
     "reporting": [
-      "Box 3 of the income tax return has a field 'Cryptobezittingen' (crypto holdings) for the value on 1 January at the rate of the exchange used.",
+      "Box\u00a03 of the income tax return has a field 'Cryptobezittingen' (crypto holdings) for the value on 1 January at the rate of the exchange used.",
       "From the 2025 return the form asks whether you also report your actual return; that needs the values on 1 January and 31 December and the year's total purchases and sales."
     ],
     "caveats": [
@@ -83,11 +83,11 @@
       "The rate of your exchange on 1 January.",
       "What your exchange reports to the Belastingdienst from 2026."
     ],
-    "summary60": "Netherlands: selling, swapping, or spending crypto is not taxed. Your crypto's value on 1 January counts in box 3: in 2026 a deemed 6,00% of assets above EUR 59\u00a0357 per person is taxed at 36%. If what you actually made was lower, you can report that instead. A system taxing what you actually make is proposed for 2029."
+    "summary60": "Netherlands: selling, swapping, or spending crypto is not taxed. Your crypto's value on 1 January counts in box\u00a03: in 2026 a deemed 6,00% of assets above EUR\u00a059\u00a0357 per person is taxed at 36%. If what you actually made was lower, you can report that instead. A system taxing what you actually make is proposed for 2029."
   },
   "pendingChanges": [
     {
-      "title": "Tax plan 2027 (Belastingplan 2027): the box 3 figures for 2027",
+      "title": "Tax plan 2027 (Belastingplan 2027): the box\u00a03 figures for 2027",
       "status": "proposed",
       "effectiveFrom": "2027-01-01",
       "summary": "As reported on 17 September 2026: the deemed percentage for other assets comes to 6,37%, and the rate stays 36% in 2027 (medium confidence).",
@@ -101,10 +101,10 @@
       }
     },
     {
-      "title": "Actual-return law for box 3 (Wet werkelijk rendement box 3)",
+      "title": "Actual-return law for box\u00a03 (Wet werkelijk rendement box\u00a03)",
       "status": "proposed",
       "effectiveFrom": null,
-      "summary": "On 3 November 2026 the cabinet sent an amendment (novelle) extending the capital-gains part of the box 3 bill, and proposed a start on 1 January 2029, or 2028 if feasible.",
+      "summary": "On 3 November 2026 the cabinet sent an amendment (novelle) extending the capital-gains part of the box\u00a03 bill, and proposed a start on 1 January 2029, or 2028 if feasible.",
       "source": {
         "title": "Brief van de staatssecretaris van Financiën (Kamerstuk 37053, nr. 5)",
         "url": "https://www.eerstekamer.nl/behandeling/20261103/brief_regering_aanbiedingsbrief/document3/f=/vn2boh2krkzv.pdf",

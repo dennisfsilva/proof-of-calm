@@ -1,6 +1,7 @@
 // A country profile's locale tags, the joiner and decimal of its literal percentages and its money figures' grouping
 // (docs/CONTENT-STYLE.md §4), for validate.ts. Pure; relative imports name their .ts files, so that Node runs the CLI
 // without a build step.
+import { joinProblems } from './join-validate.ts';
 import { numberLocaleFor } from './loaders/locales.ts';
 import type { Problem } from './problem.ts';
 import type { CountryProfile } from './schema/jurisdiction.ts';
@@ -76,7 +77,7 @@ function percentProblems(path: string, profile: CountryProfile, texts: readonly 
 /**
  * A translated profile's percentages against the number locale `localesFor` (packages/app) picks in `language`: the
  * profile's locale in that language where it has one, else `numberFormatLocale` (ADR-0057). The joiner, the decimal
- * separator and a money figure's grouping.
+ * separator and a money figure's grouping; in any locale, each currency code and form name joined to its figure.
  */
 export function languagePercentProblems(
   path: string,
@@ -85,13 +86,14 @@ export function languagePercentProblems(
   texts: readonly [string, string][],
 ): Problem[] {
   const locale = numberLocaleFor(language, profile);
-  return wellFormed(locale)
+  const local = wellFormed(locale)
     ? [
         ...percentTextProblems(path, locale, texts),
         ...decimalProblems(path, locale, texts),
         ...groupProblems(path, locale, texts),
       ]
     : [];
+  return [...local, ...joinProblems(path, texts)];
 }
 
 /** The decimal separator `locale` writes, as Intl formats it; a tag Intl refuses writes the point. */
@@ -230,7 +232,8 @@ function percentTextProblems(path: string, locale: string, texts: readonly [stri
 
 /**
  * The profile's malformed locale tags, its percentages without the number locale's joiner, then those whose decimal
- * separator is not the one its English page writes, then its money figures grouped otherwise; `texts` by field.
+ * separator is not the one its English page writes, then its money figures grouped otherwise, then its currency codes
+ * and form names not joined to their figures by U+00A0 (join-validate.ts); `texts` by field.
  */
 export function localeProblems(path: string, profile: CountryProfile, texts: readonly [string, string][]): Problem[] {
   const english = numberLocaleFor('en', profile);
@@ -238,5 +241,6 @@ export function localeProblems(path: string, profile: CountryProfile, texts: rea
     ...localeTagProblems(path, profile),
     ...percentProblems(path, profile, texts),
     ...(wellFormed(english) ? [...decimalProblems(path, english, texts), ...groupProblems(path, english, texts)] : []),
+    ...joinProblems(path, texts),
   ];
 }
