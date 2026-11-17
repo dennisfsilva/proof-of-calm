@@ -33,9 +33,10 @@ const decimalValue = (whole: string, fraction: string) => {
 
 /**
  * The values of one run of digits and separators: the locale's decimal separator once, any other separator before
- * a group of three digits groups them, and any other place splits the run (`3,14` in English is 3 and 14).
+ * a group of three digits groups them, in a figure that is no percentage (`cited`) a point before other digits is a
+ * citation's, and any other place splits the run (`3,14` in English is 3 and 14).
  */
-function valuesOf(run: string, decimal: string): string[] {
+function valuesOf(run: string, decimal: string, cited = false): string[] {
   const [first = '', ...rest] = run.split(/(\D)/);
   const values: string[] = [];
   let whole = first;
@@ -44,6 +45,8 @@ function valuesOf(run: string, decimal: string): string[] {
     const [separator, digits = ''] = [rest[index], rest[index + 1]];
     if (fraction === null && separator === decimal) fraction = digits;
     else if (fraction === null && /^\d{3}$/.test(digits)) whole += digits;
+    // A citation's point (`Quadro 9.4`), which every language keeps (CONTENT-STYLE §4).
+    else if (cited && fraction === null && separator === '.') fraction = digits;
     else {
       values.push(decimalValue(whole, fraction ?? ''));
       [whole, fraction] = [digits, null];
@@ -54,18 +57,18 @@ function valuesOf(run: string, decimal: string): string[] {
 
 /**
  * The numbers of a text as values, read with the separators of `locale`, sorted: a multiset to compare. It holds
- * the values, not which noun each belongs to, nor their sign (ADR-0057). Where the locale's decimal is a comma, a
- * figure holding a point is a citation's (`art. 33.1`, `Quadro 9.4`) and is compared as written (`cited 33.1`),
- * unless a percentage sign follows it (every figure of a range `12,2–48%`; docs/CONTENT-STYLE.md §4).
+ * the values, not which noun each belongs to, nor their sign (ADR-0057). A figure that is no percentage (every
+ * figure of a range `12,2–48%` is one) reads a point before other than three digits as a citation's (`Quadro 9.4`).
+ * In a `profile`'s text where the locale's decimal is a comma, such a figure holding a point is a citation's
+ * (`art. 33.1`, `art. 33.100`) and is compared as written (`cited 33.1`; docs/CONTENT-STYLE.md §4).
  */
-export const numbersIn = (text: string, locale: string): string[] => {
+export const numbersIn = (text: string, locale: string, profile = false): string[] => {
   const decimal = decimalSeparator(locale);
   return [...text.matchAll(NUMBER)]
-    .flatMap(({ 0: run, index }) =>
-      decimal === ',' && run.includes('.') && !PERCENT_FOLLOWS.test(text.slice(index + run.length))
-        ? [`cited ${run}`]
-        : valuesOf(run, decimal),
-    )
+    .flatMap(({ 0: run, index }) => {
+      if (PERCENT_FOLLOWS.test(text.slice(index + run.length))) return valuesOf(run, decimal);
+      return profile && decimal === ',' && run.includes('.') ? [`cited ${run}`] : valuesOf(run, decimal, true);
+    })
     .sort();
 };
 
@@ -121,9 +124,10 @@ export function overlayProblems(
     if (typeof over !== 'string' || typeof en !== 'string' || !isTranslatable(kind, at)) {
       return void report('not-translatable', at);
     }
+    const profile = kind === 'jurisdiction';
     const [mine, theirs] = [
-      numbersIn(over, locales[1]).join(' ') || 'none',
-      numbersIn(en, locales[0]).join(' ') || 'none',
+      numbersIn(over, locales[1], profile).join(' ') || 'none',
+      numbersIn(en, locales[0], profile).join(' ') || 'none',
     ];
     if (mine !== theirs) report('number-mismatch', at, `: ${mine}, English ${theirs}`);
     // A placeholder holds no digits, so the number check cannot see one dropped or added; a swap of two keeps the
@@ -163,8 +167,9 @@ export type TextChecks = {
   readonly fact: (path: string, texts: readonly [string, string][]) => Problem[];
 };
 
-// A template and a fact write their English numbers with English separators; a profile writes its own in its English
-// page's number locale (D8 and the grouped figures, docs/CONTENT-STYLE.md §4; de.json: `EUR 1000`, `5,5 %`).
+// A template and a fact write their English numbers with English separators, and a translation its language's own
+// (ADR-0057 'What validation holds'); a profile writes both in its page's number locale (D8 and the grouped figures,
+// docs/CONTENT-STYLE.md §4; de.json: `EUR 1000`, `5,5 %`).
 const ENGLISH_NUMBERS = 'en';
 
 /**
