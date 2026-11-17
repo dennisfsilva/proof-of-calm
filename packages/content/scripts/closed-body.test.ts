@@ -99,8 +99,14 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
       it("passes <Chart /> on a line of its own, and refuses it in a code span or a fence with English's code", async () => {
         expect(await translatedOf('drawdowns-bar', 'Texto.\n\n<Chart />\n')).toEqual([]);
         const elements = `${translated}: module-overlay-elements: English flow:Chart; translation none`;
-        expect(await translatedOf('drawdowns-bar', 'Um `<Chart />` sinal.\n')).toEqual([`${translated}: ${ONE}`, elements]);
-        expect(await translatedOf('drawdowns-bar', '```\n<Chart />\n```\n')).toEqual([`${translated}: ${ONE}`, elements]);
+        expect(await translatedOf('drawdowns-bar', 'Um `<Chart />` sinal.\n')).toEqual([
+          `${translated}: ${ONE}`,
+          elements,
+        ]);
+        expect(await translatedOf('drawdowns-bar', '```\n<Chart />\n```\n')).toEqual([
+          `${translated}: ${ONE}`,
+          elements,
+        ]);
       });
 
       it("refuses a <Chart /> where English's chart is none, and skips a file named after no English module", async () => {
@@ -157,7 +163,8 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
 
     it("refuses a missing element, another order and an element in a sentence where English's is a block", async () => {
       const english = 'Text.\n\n<Chart />\n\n<PastPerformance />\n';
-      const CHART = 'module-chart-element: write <Chart /> once, on a line of its own, where the drawdowns-bar chart stands';
+      const CHART =
+        'module-chart-element: write <Chart /> once, on a line of its own, where the drawdowns-bar chart stands';
       expect(await validated(english, 'Texto.\n\n<PastPerformance />\n', 'drawdowns-bar')).toEqual([
         CHART,
         'module-overlay-elements: English flow:Chart, flow:PastPerformance; translation flow:PastPerformance',
@@ -172,8 +179,10 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
 
     it('counts an element in a code span or a fenced block as none, and passes one after a fence left open', async () => {
       const english = 'Text.\n\n<Chart />\n\n<PastPerformance />\n';
-      const CHART = 'module-chart-element: write <Chart /> once, on a line of its own, where the drawdowns-bar chart stands';
-      const missing = 'module-overlay-elements: English flow:Chart, flow:PastPerformance; translation flow:PastPerformance';
+      const CHART =
+        'module-chart-element: write <Chart /> once, on a line of its own, where the drawdowns-bar chart stands';
+      const missing =
+        'module-overlay-elements: English flow:Chart, flow:PastPerformance; translation flow:PastPerformance';
       for (const chart of ['`<Chart />`', '```\n<Chart />\n```', '~~~~mdx\n<Chart />\n~~~~']) {
         const body = `Texto.\n\n${chart}\n\n<PastPerformance />\n`;
         expect(await validated(english, body, 'drawdowns-bar')).toEqual([CHART, missing]);
