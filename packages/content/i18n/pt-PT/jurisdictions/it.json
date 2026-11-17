@@ -1,7 +1,7 @@
 {
   "name": "Itália",
   "filingNote": "Ano civil. O Modello Redditi Persone fisiche entrega-se online até 31 de outubro do ano seguinte (para 2025: 2 de novembro de 2026, porque 31 de outubro de 2026 é um sábado). O Modello\u00a0730 entrega-se até 30 de setembro.",
-  "lotRuleNote": "As moedas compradas mais recentemente contam como vendidas primeiro: a Circolare 30/E §3.2.1 fixa o método L.I.F.O. para cripto-attività da mesma denominação no regime dichiarativo. Um custo sem prova conta como zero.",
+  "lotRuleNote": "As moedas compradas mais recentemente contam como vendidas primeiro: a Circolare 30/E §3.2.1 indica o método L.I.F.O. para cripto-attività da mesma denominação no regime dichiarativo. Um custo sem prova conta como zero.",
   "card": {
     "classification": "Cripto-attività: as mais-valias e outros rendimentos de resgate, de venda a título oneroso, de troca ou de detenção são redditi diversi sujeitos a um imposto substitutivo (art. 67 c. 1 lett. c-sexies TUIR, aditado pela L. 197/2022).",
     "taxableEvents": [
@@ -41,34 +41,34 @@
       {
         "label": "Rendimentos de tokens de moeda eletrónica em euros",
         "value": "26%",
-        "note": "Sobre rendimentos da detenção, venda ou utilização de tokens de moeda eletrónica denominados em euros (L. 199/2025 art. 1 c. 28); converter euros num desses tokens, ou reembolsá-lo ao par, não é uma realização."
+        "note": "Sobre rendimentos da detenção, venda ou utilização de tokens de moeda eletrónica denominados em euros (L. 199/2025 art. 1 c. 28); converter euros num desses tokens, ou resgatá-lo ao par, não é uma realização."
       }
     ],
     "allowances": [
       "Sem limiar: a L. 207/2024 art. 1 c. 25 eliminou o montante anual de EUR\u00a02000 abaixo do qual as mais-valias e as menos-valias não contavam, para as alienações desde 1 de janeiro de 2025."
     ],
-    "holdingRuleText": "Sem regra de detenção: cada venda é tributável seja qual for o período de detenção, desde o primeiro euro de mais-valia desde 1 de janeiro de 2025. Isso abrange uma venda por euros, por uma stablecoin que seja um token de moeda eletrónica, ou por bens. Uma troca entre criptoativos com as mesmas características e funções não é um facto tributável (art. 67 c. 1 lett. c-sexies TUIR).",
-    "lotRuleText": "Último a entrar, primeiro a sair: as moedas mais recentes contam como vendidas primeiro. A Circolare 30/E §3.2.1 fixa-o (regime dichiarativo): «deve essere assunto come costo o valore di acquisto quello determinato con il metodo L.I.F.O.».",
-    "losses": "As menos-valias compensam mais-valias da mesma natureza no ano; o excedente reporta-se até ao quarto ano seguinte, se for declarado na declaração do ano em que surgiu (art. 68 c. 9-bis TUIR, como as Istruzioni o indicam).",
+    "holdingRuleText": "Sem regra de detenção: cada venda é tributável seja qual for o período de detenção, desde o primeiro euro de mais-valia, a partir de 1 de janeiro de 2025. Isso abrange uma venda por euros, por uma stablecoin que seja um token de moeda eletrónica ou por bens. Uma troca entre criptoativos com as mesmas características e funções não é um facto tributável (art. 67 c. 1 lett. c-sexies TUIR).",
+    "lotRuleText": "Último a entrar, primeiro a sair: as moedas mais recentes contam como vendidas primeiro. A Circolare 30/E §3.2.1, para o regime dichiarativo: «deve essere assunto come costo o valore di acquisto quello determinato con il metodo L.I.F.O.».",
+    "losses": "As menos-valias compensam mais-valias da mesma natureza no ano; o excedente reporta-se até ao quarto ano seguinte, se constar da declaração do ano em que surgiu (art. 68 c. 9-bis TUIR, como as Istruzioni o indicam).",
     "reporting": [
       "Quadro\u00a0RT sezione V-A do Modello Redditi Persone fisiche 2026 (quadro\u00a0T do 730) para mais-valias e outros rendimentos realizados até 31 de dezembro de 2025, tributados a 26% (art. 67 c. 1 lett. c-sexies TUIR).",
-      "Quadro\u00a0RW para moedas detidas, em qualquer carteira. Imposto anual de 0,2% (imposta sulle cripto-attività, código 21 na colonna 3, codice tributo 1727) sobre o valor a 31 de dezembro, salvo se um intermediário aplicou a imposta di bollo."
+      "Quadro\u00a0RW para moedas detidas, em qualquer carteira. Imposto anual de 0,2% (imposta sulle cripto-attività, código 21 na colonna 3, codice tributo 1727) sobre o valor a 31 de dezembro, salvo se um intermediário aplicou o imposto do selo."
     ],
     "caveats": [
       "Que trocas contam como feitas entre criptoativos com as mesmas características e funções.",
       "Recompensas de staking e airdrops: a regra dos rendimentos brutos aplica-se desde 1 de janeiro de 2023; a retenção de 26% por uma empresa italiana que os credita era o regime da circular até 31 de dezembro de 2022.",
       "Alienações de 2025 cujo preço foi recebido em 2026.",
       "O Quadro\u00a0RW e o imposto de 0,2% quando uma plataforma italiana aplica o imposto do selo.",
-      "Que método de custo aplica o intermediário: no regime opcional do risparmio amministrato, usa o custo médio ponderado, não o último a entrar, primeiro a sair (Circolare 30/E §3.2.2). Uma questão para um contabilista.",
+      "Que método de custo aplica o intermediário: no regime opcional do risparmio amministrato, o intermediário usa o custo médio ponderado, não o último a entrar, primeiro a sair (Circolare 30/E §3.2.2). Uma questão para um contabilista.",
       "A lei do orçamento de 2027, no Parlamento a 5 de novembro de 2026.",
       "Prova do custo: um custo sem prova conta como zero."
     ],
-    "summary60": "Itália: mais-valias à taxa fixa de 33% desde 1 de janeiro de 2026 (26% em 2025), sem franquia nem exclusão por detenção. Troca por criptoativo semelhante não tributada; a venda por euros ou tokens de moeda eletrónica, sim. Último a entrar, primeiro a sair. Menos-valias reportam-se 4 anos. Moedas detidas declaradas anualmente (Quadro\u00a0RW, imposto de 0,2% do valor)."
+    "summary60": "Itália: mais-valias à taxa fixa de 33% desde 1 de janeiro de 2026 (26% em 2025), sem franquia nem exclusão por detenção. A troca por criptoativo semelhante não é tributada; a venda por euros ou tokens de moeda eletrónica, sim. Último a entrar, primeiro a sair. Menos-valias reportam-se 4 anos. Moedas detidas declaradas anualmente (Quadro\u00a0RW, 0,2% do valor)."
   },
   "pendingChanges": [
     {
       "title": "Testo unico delle imposte sui redditi (D.Lgs. 117/2026)",
-      "summary": "Sem alteração de taxa: desde 1 de janeiro de 2027, a mesma regra passa a ser o art. 304 c. 7 do novo texto (D.Lgs. 117/2026)."
+      "summary": "Sem alteração de taxa: a partir de 1 de janeiro de 2027, a mesma regra passa a ser o art. 304 c. 7 do novo texto (D.Lgs. 117/2026)."
     }
   ]
 }
