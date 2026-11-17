@@ -8,7 +8,7 @@
   "dateFormatLocale": "es-ES",
   "timezones": ["Europe/Madrid", "Atlantic/Canary", "Africa/Ceuta"],
   "taxYear": { "start": "01-01", "end": "12-31" },
-  "filingNote": "Calendar tax year. The Renta return (Modelo\u00a0D-100) for 2025 is filed from 8 April to 30 June 2026 (Orden HAC/277/2026); each year an order sets the dates. The return on crypto held abroad (Modelo\u00a0721): 1 January to 31 March.",
+  "filingNote": "Calendar tax year. The Renta return (Modelo\u00a0D-100) for 2025 is filed from 8\u00a0April to 30\u00a0June\u00a02026 (Orden HAC/277/2026); each year an order sets the dates. The return on crypto held abroad (Modelo\u00a0721): 1\u00a0January to 31\u00a0March.",
   "computationModel": { "kind": "per-lot" },
   "holdingRule": { "kind": "none" },
   "holdingRuleOverrides": [],
@@ -17,7 +17,7 @@
   "lotScope": "global",
   "lotRuleNote": "First in, first out per type of coin: in partial sales of coins bought at different times and values, the coins sold are the ones acquired first («criterio FIFO», the AEAT Renta manual).",
   "card": {
-    "classification": "Capital gains and losses in the savings base (art. 46 b LIRPF) for operations outside an economic activity; each type of coin is a distinct asset. No AEAT page read covers staking or airdrops.",
+    "classification": "Capital gains and losses in the savings base (art.\u00a046 b LIRPF) for operations outside an economic activity; each type of coin is a distinct asset. No AEAT page read covers staking or airdrops.",
     "taxableEvents": [
       {
         "event": "sale-to-fiat",
@@ -27,7 +27,7 @@
       {
         "event": "crypto-to-crypto",
         "taxable": "yes",
-        "note": "A swap between different coins is an exchange in kind (a permuta, art. 37.1.h LIRPF). The gain is the higher of the two market values less the acquisition value of the coins given. That higher value is the cost of the coins received."
+        "note": "A swap between different coins is an exchange in kind (a permuta, art.\u00a037.1.h LIRPF). The gain is the higher of the two market values less the acquisition value of the coins given. That higher value is the cost of the coins received."
       },
       {
         "event": "crypto-to-stablecoin",
@@ -37,17 +37,17 @@
       {
         "event": "spending",
         "taxable": "yes",
-        "note": "Paying for goods or services with crypto alters the composition of the estate (art. 33.1 LIRPF), so a gain or loss arises as in a sale; no AEAT page read covers payments (medium confidence)."
+        "note": "Paying for goods or services with crypto alters the composition of the estate (art.\u00a033.1 LIRPF), so a gain or loss arises as in a sale; no AEAT page read covers payments (medium confidence)."
       },
       {
         "event": "own-wallet-transfer",
         "taxable": "no",
-        "note": "Moving coins between wallets of the same owner does not alter the composition of the estate, so no gain or loss arises (art. 33.1 LIRPF). Coins whose private keys the holder keeps are not counted for Modelo\u00a0721."
+        "note": "Moving coins between wallets of the same owner does not alter the composition of the estate, so no gain or loss arises (art.\u00a033.1 LIRPF). Coins whose private keys the holder keeps are not counted for Modelo\u00a0721."
       },
       {
         "event": "gift-or-inheritance",
         "taxable": "depends",
-        "note": "The giver's gain uses the gift and inheritance tax (ISD) value, at most market value (art. 36 LIRPF); none on death (art. 33.3.b). A gift loss is not deductible (art. 33.5.c). The recipient falls under ISD, not income tax (IRPF, art. 6.4)."
+        "note": "The giver's gain uses the gift and inheritance tax (ISD) value, at most market value (art.\u00a036 LIRPF); none on death (art.\u00a033.3.b). A gift loss is not deductible (art.\u00a033.5.c). The recipient falls under ISD, not income tax (IRPF, art.\u00a06.4)."
       },
       {
         "event": "staking-or-airdrop",
@@ -61,20 +61,20 @@
         "value": "19\u00a0% to 30\u00a0% by bracket",
         "validFrom": "2025-01-01",
         "validTo": null,
-        "note": "State half (art. 66.1 LIRPF) and regional half (art. 76) on the same scale: 19\u00a0% up to EUR\u00a06000; 21\u00a0% up to EUR\u00a050\u00a0000; 23\u00a0% up to EUR\u00a0200\u00a0000; 27\u00a0% up to EUR\u00a0300\u00a0000; 30\u00a0% above. The 30\u00a0% bracket applies since 1 January 2025 (Ley 7/2024)."
+        "note": "State half (art.\u00a066.1 LIRPF) and regional half (art.\u00a076) on the same scale: 19\u00a0% up to EUR\u00a06000; 21\u00a0% up to EUR\u00a050\u00a0000; 23\u00a0% up to EUR\u00a0200\u00a0000; 27\u00a0% up to EUR\u00a0300\u00a0000; 30\u00a0% above. The 30\u00a0% bracket applies since 1\u00a0January\u00a02025 (Ley\u00a07/2024)."
       }
     ],
     "allowances": [
       "No allowance for crypto gains; the fees and taxes of the operation paid by the taxpayer adjust the values.",
-      "Modelo\u00a0721 only when crypto with a custodian abroad exceeds EUR\u00a050\u00a0000 on 31 December; later returns once that balance has grown by more than EUR\u00a020\u00a0000 since the last one filed (art. 42 quater RGAT). Self-custodied coins are not counted."
+      "Modelo\u00a0721 only when crypto with a custodian abroad exceeds EUR\u00a050\u00a0000 on 31\u00a0December; later returns once that balance has grown by more than EUR\u00a020\u00a0000 since the last one filed (art.\u00a042 quater RGAT). Self-custodied coins are not counted."
     ],
     "holdingRuleText": "No holding-period rule: every sale, swap, or payment is a taxable event whatever the time held. The same savings-base scale applies to a coin held 1 day or 10 years.",
     "lotRuleText": "First in, first out per type of coin («criterio FIFO», the AEAT Renta manual): in partial sales of coins bought at different times and values, the coins sold are the ones acquired first. The manual read names no per-platform split.",
-    "losses": "Netted within the savings base in the year; a remaining negative balance offsets capital income of the year up to 25\u00a0% of it, and the rest carries forward 4 years (art. 49.1 LIRPF).",
+    "losses": "Netted within the savings base in the year; a remaining negative balance offsets capital income of the year up to 25\u00a0% of it, and the rest carries forward 4 years (art.\u00a049.1 LIRPF).",
     "reporting": [
       "The Renta return (Modelo\u00a0D-100): the section «Ganancias y pérdidas patrimoniales derivadas de la transmisión o permuta de monedas virtuales por particulares».",
       "Losses pending to offset in later years are listed in annex\u00a0C of the return.",
-      "Modelo\u00a0721, from 1 January to 31 March, for crypto held with a custodian abroad above EUR\u00a050\u00a0000 on 31 December; for 2025 holdings, 1 January to 31 March 2026."
+      "Modelo\u00a0721, from 1\u00a0January to 31\u00a0March, for crypto held with a custodian abroad above EUR\u00a050\u00a0000 on 31\u00a0December; for 2025 holdings, 1\u00a0January to 31\u00a0March\u00a02026."
     ],
     "caveats": [
       "Whether FIFO is mandatory, and per platform or overall.",
@@ -84,9 +84,9 @@
       "The Impuesto sobre el Patrimonio and its regional rules.",
       "The Basque Country and Navarre, with their own IRPF.",
       "DAC8 reporting by crypto providers: whether Spain has transposed it.",
-      "What changes after the election of 29 November 2026."
+      "What changes after the election of 29\u00a0November\u00a02026."
     ],
-    "summary60": "Spain: every sale, crypto-to-crypto swap, or payment with crypto is a taxable event. No holding-period exemption. Net gains are taxed in the savings base at 19\u00a0% to 30\u00a0%. First-in, first-out per coin. Losses offset gains and carry forward 4 years. Crypto held with a foreign custodian above EUR\u00a050\u00a0000 must be reported on Modelo\u00a0721 by 31 March."
+    "summary60": "Spain: every sale, crypto-to-crypto swap, or payment with crypto is a taxable event. No holding-period exemption. Net gains are taxed in the savings base at 19\u00a0% to 30\u00a0%. First-in, first-out per coin. Losses offset gains and carry forward 4 years. Crypto held with a foreign custodian above EUR\u00a050\u00a0000 must be reported on Modelo\u00a0721 by 31\u00a0March."
   },
   "pendingChanges": [],
   "sources": [

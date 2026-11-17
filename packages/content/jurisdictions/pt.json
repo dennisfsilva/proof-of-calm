@@ -9,7 +9,7 @@
   "timezones": ["Europe/Lisbon", "Atlantic/Madeira", "Atlantic/Azores"],
   "englishConfidence": "low",
   "taxYear": { "start": "01-01", "end": "12-31" },
-  "filingNote": "Calendar tax year. The return (Modelo\u00a03) is filed from 1 April to 30 June of the following year.",
+  "filingNote": "Calendar tax year. The return (Modelo\u00a03) is filed from 1\u00a0April to 30\u00a0June of the following year.",
   "computationModel": { "kind": "per-lot" },
   "holdingRule": { "kind": "days", "days": 365, "effect": "exempt" },
   "holdingRuleOverrides": [],
@@ -17,13 +17,13 @@
     "Tax-free only when the counterparty is tax-resident in the EU, the EEA, or a treaty jurisdiction (declared in Anexo\u00a0G Q18B otherwise).",
     "Exempt sales must still be declared (Anexo\u00a0G1 Q7).",
     "Whether the holding period carries across a crypto-to-crypto swap is unsettled. Proof of Calm treats a swap as a sale and a new purchase, so a new holding period starts for the coins received.",
-    "Loss of Portuguese tax residence counts as a disposal (art. 10 n.º 25 CIRS, numbered n.º 22 in 2023–2025 documents)."
+    "Loss of Portuguese tax residence counts as a disposal (art.\u00a010 n.º\u00a025 CIRS, numbered n.º\u00a022 in 2023–\u20602025 documents)."
   ],
   "lotRule": "fifo",
   "lotScope": "per-venue",
   "lotRuleNote": "First in, first out, applied separately per custodian or platform when units are held at more than one (art. 43 n.º 9 CIRS, formerly n.º 7).",
   "card": {
-    "classification": "Category G gains (art. 10(1)(k) CIRS) for crypto that is not a security; category E (28%) for staking or lending paid in fiat; category B if habitual or professional, and always for mining and validation. NFTs are excluded.",
+    "classification": "Category G gains (art.\u00a010(1)(k) CIRS) for crypto that is not a security; category E (28%) for staking or lending paid in fiat; category B if habitual or professional, and always for mining and validation. NFTs are excluded.",
     "taxableEvents": [
       {
         "event": "sale-to-fiat",
@@ -33,12 +33,12 @@
       {
         "event": "crypto-to-crypto",
         "taxable": "no",
-        "note": "Deferred: the crypto received takes the acquisition value of the crypto given, unless either party is tax-resident outside the EU, the EEA, or a treaty jurisdiction (art. 10 n.ºs 23–24 CIRS, numbered n.ºs 20–21 in 2023–2025 documents)."
+        "note": "Deferred: the crypto received takes the acquisition value of the crypto given, unless either party is tax-resident outside the EU, the EEA, or a treaty jurisdiction (art.\u00a010 n.ºs\u00a023–\u206024 CIRS, numbered n.ºs\u00a020–\u206021 in 2023–\u20602025 documents)."
       },
       {
         "event": "crypto-to-stablecoin",
         "taxable": "no",
-        "note": "Deferred like any swap; AT ruling PIV 28969 of 31 October 2025 treats an immediate technical conversion as a non-event (medium confidence)."
+        "note": "Deferred like any swap; AT ruling PIV 28969 of 31\u00a0October\u00a02025 treats an immediate technical conversion as a non-event (medium confidence)."
       },
       {
         "event": "spending",
@@ -67,31 +67,31 @@
         "value": "28%",
         "validFrom": "2023-01-01",
         "validTo": null,
-        "note": "On the positive balance of category G crypto gains (art. 72(1)(c) CIRS). The 35% rate for blacklisted jurisdictions does not list crypto; there the exclusion and the swap deferral are lost instead."
+        "note": "On the positive balance of category G crypto gains (art.\u00a072(1)(c) CIRS). The 35% rate for blacklisted jurisdictions does not list crypto; there the exclusion and the swap deferral are lost instead."
       },
       {
         "label": "Optional aggregation (englobamento)",
-        "value": "12,2–48% by bracket, plus the solidarity surcharge",
+        "value": "12,2–\u206048% by bracket, plus the solidarity surcharge",
         "validFrom": "2026-01-01",
         "validTo": null,
-        "note": "The 2026 progressive scale (art. 68(1) CIRS), amended by Decreto-Lei n.º 212/2026 of 4 November 2026 for 2026 income from 1 January 2026. The brackets: 12,2%, 15,2%, 20,7%, 23,6%, 30,6%, 34,6%, 43,1%, 44,6%, and 48%."
+        "note": "The 2026 progressive scale (art.\u00a068(1) CIRS), amended by Decreto-Lei n.º\u00a0212/2026 of 4\u00a0November\u00a02026 for 2026 income from 1\u00a0January\u00a02026. The brackets: 12,2%, 15,2%, 20,7%, 23,6%, 30,6%, 34,6%, 43,1%, 44,6%, and 48%."
       }
     ],
     "allowances": [
       "No allowance: the only relief is the 365\u2011day exclusion.",
       "Fees that were necessary and actually paid (“necessárias e efetivamente suportadas”) are deductible.",
-      "Purchases made before 2023 count toward the 365 days (art. 220 Lei 24\u2011D/2022)."
+      "Purchases made before 2023 count toward the 365 days (art.\u00a0220 Lei\u00a024\u2011D/2022)."
     ],
-    "holdingRuleText": "Gains and losses on crypto held 365 days or more are excluded from tax: “detidos por um período igual ou superior a 365 dias” (art. 10 n.º 22 CIRS, numbered n.º 19 in 2023–2025 documents). A unit bought on 1 March 2026 qualifies on 1 March 2027.",
-    "lotRuleText": "First in, first out (“os alienados são os adquiridos há mais tempo”, art. 43 n.º 8(g) CIRS, formerly n.º 6(g)), separately per custodian or platform (art. 43 n.º 9, formerly n.º 7).",
-    "losses": "Netted against same-year crypto gains, leaving out units held 365 days or more. A net loss carries forward 5 years only with aggregation (art. 55(1)(d)); losses with blacklisted counterparties never count (art. 43 n.º 7).",
+    "holdingRuleText": "Gains and losses on crypto held 365 days or more are excluded from tax: “detidos por um período igual ou superior a 365 dias” (art.\u00a010 n.º\u00a022 CIRS, numbered n.º\u00a019 in 2023–\u20602025 documents). A unit bought on 1\u00a0March\u00a02026 qualifies on 1\u00a0March\u00a02027.",
+    "lotRuleText": "First in, first out (“os alienados são os adquiridos há mais tempo”, art.\u00a043 n.º\u00a08(g) CIRS, formerly n.º\u00a06(g)), separately per custodian or platform (art.\u00a043 n.º\u00a09, formerly n.º\u00a07).",
+    "losses": "Netted against same-year crypto gains, leaving out units held 365 days or more. A net loss carries forward 5 years only with aggregation (art.\u00a055(1)(d)); losses with blacklisted counterparties never count (art.\u00a043 n.º\u00a07).",
     "reporting": [
       "Modelo\u00a03, Anexo\u00a0G Quadro\u00a018A: disposals of units held under 365 days, per operation, with the country of the counterparty.",
       "Anexo\u00a0G Quadro\u00a018B: disposals with a counterparty outside the EU or the EEA.",
       "Anexo\u00a0G1 Quadro\u00a07: exempt disposals, mandatory.",
       "Anexo\u00a0J Quadro\u00a09.4 for income treated as foreign-sourced; which annex applies to a sale on a foreign exchange is a recurring practitioner question.",
       "Anexo\u00a0E code E21 for crypto income; Anexo\u00a0B fields\u00a0419 and 422 for trading and mining as a business.",
-      "DAC8: Lei n.º 26/2026 of 3 June 2026, in effect from 1 January 2026; providers report Portuguese residents to the AT by 31 May of the following year, first on 31 May 2027."
+      "DAC8: Lei n.º\u00a026/2026 of 3\u00a0June\u00a02026, in effect from 1\u00a0January\u00a02026; providers report Portuguese residents to the AT by 31\u00a0May of the following year, first on 31\u00a0May\u00a02027."
     ],
     "caveats": [
       "Counterparties outside the EU or the EEA.",
@@ -106,10 +106,10 @@
   },
   "pendingChanges": [
     {
-      "title": "State Budget 2027 proposal (OE2027)",
+      "title": "State Budget\u00a02027 proposal (OE2027)",
       "status": "proposed",
       "effectiveFrom": null,
-      "summary": "Delivered on 8 October 2026 with no crypto measure; general debate from 27 October 2026, final vote expected late November 2026.",
+      "summary": "Delivered on 8\u00a0October\u00a02026 with no crypto measure; general debate from 27\u00a0October\u00a02026, final vote expected late November\u00a02026.",
       "source": {
         "title": "Proposta de lei do Orçamento do Estado 2027",
         "url": "https://kpmg.com/pt/pt/insights/2026/10/orcamento-estado-2027.html",
@@ -120,7 +120,7 @@
       }
     },
     {
-      "title": "State Budget 2026 (Lei n.º 73\u2011A/2025)",
+      "title": "State Budget\u00a02026 (Lei n.º\u00a073\u2011A/2025)",
       "status": "in-force",
       "effectiveFrom": null,
       "summary": "No change to the taxation of crypto, as reported on the budget; the law itself is still to be read (medium confidence).",
@@ -134,10 +134,10 @@
       }
     },
     {
-      "title": "Lower rates in 6 IRS brackets (Decreto-Lei n.º 212/2026)",
+      "title": "Lower rates in 6 IRS brackets (Decreto-Lei n.º\u00a0212/2026)",
       "status": "in-force",
       "effectiveFrom": "2026-01-01",
-      "summary": "The 28% rate of art. 72(1)(c) does not change. Decreto-Lei n.º 212/2026 of 4 November 2026 (Diário da República n.º 214/2026, Série I), under Lei n.º 64\u2011B/2026 (Proposta de Lei n.º 108/XVII/2.ª), lowers the first 6 rates of art. 68 n.º 1 CIRS to 12,2%, 15,2%, 20,7%, 23,6%, 30,6%, and 34,6%. In force since 5 November 2026; its preamble applies the cut to 2026 income from 1 January 2026.",
+      "summary": "The 28% rate of art.\u00a072(1)(c) does not change. Decreto-Lei n.º\u00a0212/2026 of 4\u00a0November\u00a02026 (Diário da República n.º\u00a0214/2026, Série I), under Lei n.º\u00a064\u2011B/2026 (Proposta de Lei n.º\u00a0108/XVII/2.ª), lowers the first 6 rates of art.\u00a068 n.º\u00a01 CIRS to 12,2%, 15,2%, 20,7%, 23,6%, 30,6%, and 34,6%. In force since 5\u00a0November\u00a02026; its preamble applies the cut to 2026 income from 1\u00a0January\u00a02026.",
       "source": {
         "title": "Decreto-Lei n.º 212/2026, de 4 de novembro",
         "url": "https://files.diariodarepublica.pt/1s/2026/11/21400/0000500006.pdf",
@@ -176,10 +176,10 @@
       }
     },
     {
-      "title": "Renumbered crypto rules in art. 10 CIRS",
+      "title": "Renumbered crypto rules in art.\u00a010 CIRS",
       "status": "in-force",
       "effectiveFrom": null,
-      "summary": "The consolidated text of the AT numbers the crypto rules n.ºs 20 to 25 (formerly 17 to 22); this profile cites both numberings.",
+      "summary": "The consolidated text of the AT numbers the crypto rules n.ºs\u00a020 to 25 (formerly 17 to 22); this profile cites both numberings.",
       "source": {
         "title": "Código do IRS, artigo 10.º",
         "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs10.aspx",

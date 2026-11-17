@@ -16,14 +16,14 @@
     "Pacific/Honolulu"
   ],
   "taxYear": { "start": "01-01", "end": "12-31" },
-  "filingNote": "Calendar tax year. Form\u00a01040 is due on 15 April of the following year; an automatic 6‑month extension moves the date to file, not the date to pay.",
+  "filingNote": "Calendar tax year. Form\u00a01040 is due on 15\u00a0April of the following year; an automatic 6‑month extension moves the date to file, not the date to pay.",
   "computationModel": { "kind": "per-lot" },
   "holdingRule": { "kind": "years", "years": 1, "effect": "lower-rate" },
   "holdingRuleOverrides": [],
   "holdingRuleConditions": [
     "Federal rate only. Most states tax the gain at their own rates: 42 levy an income tax (Tax Foundation, 2026, medium confidence). Confirm your state.",
     "A swap or a purchase paid in crypto starts a new holding period for the units received (IRS FAQ Q16 and Q29).",
-    "Gifted units keep the giver's holding period when records show it, and inherited units are long-term at once (IRS FAQ Q33 and IRS Publication 544)."
+    "Gifted units keep the giver's holding period when records show it, and inherited units are long-term at once (IRS FAQ Q33 and IRS Publication\u00a0544)."
   ],
   "lotRule": "specific",
   "lotScope": "per-venue",
@@ -59,7 +59,7 @@
       {
         "event": "gift-or-inheritance",
         "taxable": "depends",
-        "note": "A gift received is not income; a later gain uses the giver's basis, a loss the lesser of that basis or the value at the gift (FAQ Q31, Q32). Inherited units are long-term at once, generally with the value at death as basis (Pub. 544, 551)."
+        "note": "A gift received is not income; a later gain uses the giver's basis, a loss the lesser of that basis or the value at the gift (FAQ Q31, Q32). Inherited units are long-term at once, generally with the value at death as basis (Pub.\u00a0544, 551)."
       },
       {
         "event": "staking-or-airdrop",
@@ -73,43 +73,43 @@
         "value": "0%, 15% or 20% by taxable income",
         "validFrom": "2026-01-01",
         "validTo": null,
-        "note": "2026 taxable income: 0% up to USD\u00a049,450 single or USD\u00a098,900 joint; 15% up to USD\u00a0545,500 or USD\u00a0613,700; other filing statuses differ (Rev. Proc. 2025-32 §4.03). 20% above; collectibles up to 28% (Topic 409)."
+        "note": "2026 taxable income: 0% up to USD\u00a049,450 single or USD\u00a098,900 joint; 15% up to USD\u00a0545,500 or USD\u00a0613,700; other filing statuses differ (Rev. Proc.\u00a02025-32 §4.03). 20% above; collectibles up to 28% (Topic\u00a0409)."
       },
       {
         "label": "Short-term capital gains (held one year or less)",
         "value": "10% to 37% by bracket, as ordinary income",
         "validFrom": "2026-01-01",
         "validTo": null,
-        "note": "Taxed with your other income at the graduated rates (Topic 409). For 2026 the 37% bracket begins above USD\u00a0640,600 of taxable income for a single filer and USD\u00a0768,700 for a joint return (Rev. Proc. 2025-32 §4.01)."
+        "note": "Taxed with your other income at the graduated rates (Topic\u00a0409). For 2026 the 37% bracket begins above USD\u00a0640,600 of taxable income for a single filer and USD\u00a0768,700 for a joint return (Rev. Proc.\u00a02025-32 §4.01)."
       },
       {
         "label": "Net investment income tax",
         "value": "3.8%",
         "validFrom": "2026-01-01",
         "validTo": null,
-        "note": "On the lesser of net investment income or modified adjusted gross income above USD\u00a0200,000 for a single filer or head of household, USD\u00a0250,000 for a joint return and USD\u00a0125,000 married filing separately (Topic 559)."
+        "note": "On the lesser of net investment income or modified adjusted gross income above USD\u00a0200,000 for a single filer or head of household, USD\u00a0250,000 for a joint return and USD\u00a0125,000 married filing separately (Topic\u00a0559)."
       }
     ],
     "allowances": [
       "No allowance specific to digital assets: every taxable transaction is reported, whatever the amount and whether or not a statement arrives (IRS FAQ Q42).",
       "Fees, commissions, and other acquisition costs paid in US dollars are part of the basis (IRS FAQ Q8).",
-      "A net capital loss lowers other income by up to USD\u00a03,000 a year, USD\u00a01,500 if married filing separately (Topic 409)."
+      "A net capital loss lowers other income by up to USD\u00a03,000 a year, USD\u00a01,500 if married filing separately (Topic\u00a0409)."
     ],
-    "holdingRuleText": "Held more than one year before the sale or exchange, a gain or loss is long-term and the lower capital gains rates apply. Held one year or less, it is short-term and taxed as ordinary income. The holding period begins on the day after you acquired the units and ends on the day you sell or exchange them (IRS FAQ Q6). A unit bought on 15 March 2026 is long-term when sold from 16 March 2027.",
+    "holdingRuleText": "Held more than one year before the sale or exchange, a gain or loss is long-term and the lower capital gains rates apply. Held one year or less, it is short-term and taxed as ordinary income. The holding period begins on the day after you acquired the units and ends on the day you sell or exchange them (IRS FAQ Q6). A unit bought on 15\u00a0March\u00a02026 is long-term when sold from 16\u00a0March\u00a02027.",
     "lotRuleText": "You choose which units you sold when your records identify them and what they cost, kept per account, wallet, or address. Otherwise, first in, first out applies (IRS FAQ Q39 to Q41).",
-    "losses": "Short- and long-term gains and losses are netted; a net loss lowers other income by the lesser of USD\u00a03,000 (USD\u00a01,500 if married filing separately) or the total net loss, and the rest carries forward to later years (Topic 409).",
+    "losses": "Short- and long-term gains and losses are netted; a net loss lowers other income by the lesser of USD\u00a03,000 (USD\u00a01,500 if married filing separately) or the total net loss, and the rest carries forward to later years (Topic\u00a0409).",
     "reporting": [
       "Form\u00a01040 asks every filer whether they received, sold, exchanged, or otherwise disposed of a digital asset during the year (IRS, Digital assets).",
-      "Form\u00a08949, Sales and Other Dispositions of Capital Assets, for each sale, exchange, or other disposal of units held as a capital asset (IRS, Digital assets); the totals go on Schedule\u00a0D (Topic 409).",
+      "Form\u00a08949, Sales and Other Dispositions of Capital Assets, for each sale, exchange, or other disposal of units held as a capital asset (IRS, Digital assets); the totals go on Schedule\u00a0D (Topic\u00a0409).",
       "Form\u00a01040 Schedule\u00a01 for income from forks, staking, and mining; Schedule\u00a0C when the activity is a business (IRS, Digital assets).",
       "Form\u00a0709 when you gave digital assets as a gift (IRS, Digital assets).",
-      "Brokers that take possession of your units report gross proceeds of sales from 1 January 2025 and the basis of certain sales from 1 January 2026 on Form\u00a01099-DA. Non-custodial brokers are not covered (IRS, Digital assets).",
+      "Brokers that take possession of your units report gross proceeds of sales from 1\u00a0January\u00a02025 and the basis of certain sales from 1\u00a0January\u00a02026 on Form\u00a01099-DA. Non-custodial brokers are not covered (IRS, Digital assets).",
       "A broker must report basis only for units acquired after 2025 in the custodial account that sells them; for units transferred in, basis reporting is voluntary and your own records give it (Instructions for Form\u00a01099-DA, 2026)."
     ],
     "caveats": [
       "State income tax: 42 states levy one, with top rates from 2.5% to 13.3%; the other 8 levy none, and Washington taxes capital gains only (Tax Foundation, 2026; medium confidence).",
-      "Units held with a broker: your own books and records, or a standing order kept there, identify the units sold until 31 December 2026 (Notice 2026-20 §3.03 and §4.02). The relief ends with that date (Notice 2026-20 §5).",
-      "An NFT is a collectible when the right or asset behind it is one (Notice 2023-27); long-term gains on collectibles are taxed at up to 28% (Topic 409).",
+      "Units held with a broker: your own books and records, or a standing order kept there, identify the units sold until 31\u00a0December\u00a02026 (Notice\u00a02026-20 §3.03 and §4.02). The relief ends with that date (Notice\u00a02026-20 §5).",
+      "An NFT is a collectible when the right or asset behind it is one (Notice\u00a02023-27); long-term gains on collectibles are taxed at up to 28% (Topic\u00a0409).",
       "Pending federal bills on digital asset taxation.",
       "A Form\u00a01099-DA without basis for units transferred in.",
       "Staking and mining income, and whether the activity is a business.",
