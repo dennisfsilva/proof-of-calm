@@ -241,6 +241,27 @@ describe('the trigger is a closed set: four signs, or "per" and "cent" with a jo
   });
 });
 
+describe('the trigger reads the whole explanation: no break hides it (round 4 of #340)', () => {
+  // The app splits paragraphs on "\n\n" only, so the first two render as "Solana fell 15 per cent." in one.
+  it.each(['Solana fell 15 per \n \ncent.', 'Solana fell 15 per\r\n\r\ncent.', 'Solana fell 15 per\n\ncent.'])(
+    '%j is figure-unclassed',
+    (explanation) => {
+      expect(ruled(explanation)).toEqual(['figure-unclassed R4']);
+    },
+  );
+
+  it('names the match across the break in its detail', () => {
+    expect(run('Solana fell 15 per\n\ncent.').map(({ detail }) => detail)).toEqual([
+      'explanation: "per\\n\\ncent" spans a sentence or paragraph break and matches no shape of a fall or a share; ' +
+        'R4 (docs/CONTENT-STYLE.md §4)',
+    ]);
+  });
+
+  it('passes two paragraphs whose percentages each sit inside one sentence of a shape', () => {
+    expect(run(`Bitcoin takes 40 % of each amount.\n\nSolana fell 97 % ${D('SOL')}.`)).toEqual([]);
+  });
+});
+
 describe('the 25o mutations fail closed on the live templates', () => {
   const mutated = (name: string, from: string, to: string) => {
     const template = live(name);

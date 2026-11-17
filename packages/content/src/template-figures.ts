@@ -19,6 +19,7 @@ const DATED = /\{date:drawdowns\./;
 const JOIN = '(?:\\s+|[\\u002D\\u2010\\u2011])?';
 const SIGN_OR_WORD = `[%٪﹪％]|(?<![\\p{L}\\p{M}])per${JOIN}cent(?:ages?)?`;
 const PERCENT = new RegExp(SIGN_OR_WORD, 'iu');
+const PERCENTS = new RegExp(SIGN_OR_WORD, 'giu');
 const WRITTEN = new RegExp(`\\d+(?:[.,]\\d+)?${JOIN}(?:${SIGN_OR_WORD})`, 'giu');
 const PLACEHOLDER = /\{date:drawdowns\.([^.{}]+)\.(?:high|low)\}/gu;
 const LEAD = '(?:What can go wrong: )?';
@@ -140,6 +141,12 @@ export function templateFigureProblems(path: string, t: Figures): Problem[] {
         seen.add(id);
       }
     }
+  }
+  // A break between "per" and "cent" splits the trigger across two sentences, so it is read on the whole text too.
+  for (const [match] of t.explanation.matchAll(PERCENTS)) {
+    if (sentencesOf(match).length < 2) continue;
+    const what = `${JSON.stringify(match)} spans a sentence or paragraph break and matches no shape of a fall or a share`;
+    problems.push({ path, code: 'figure-unclassed', detail: `explanation: ${what}; R4 (docs/CONTENT-STYLE.md §4)` });
   }
   return problems;
 }
