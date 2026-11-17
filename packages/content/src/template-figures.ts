@@ -17,7 +17,7 @@ type Shape = 'F1' | 'F2' | 'S1' | 'S2' | 'S3' | 'S4';
 const DATED = /\{date:drawdowns\./;
 // The trigger is a closed set: the four signs, or "per" and "cent" at the start of a word or right after a digit,
 // joined by nothing, any space, or a hyphen, in any case, with nothing required after "cent": percent, per cent,
-// percentage, and the like count.
+// percentage, percentile, and the like all count.
 const JOIN = '(?:\\s+|[\\u002D\\u2010\\u2011])?';
 const SIGN_OR_WORD = `[%٪﹪％]|(?<![\\p{L}\\p{M}])per${JOIN}cent(?:ages?)?`;
 const PERCENT = new RegExp(SIGN_OR_WORD, 'iu');
