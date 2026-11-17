@@ -47,8 +47,9 @@ Arguments: $ARGUMENTS
 - The translations under `packages/content/i18n/<locale>/` (ADR-0057) are `jurisdictions/*.json`,
   `templates/*.json` and `facts/*.json` there. In one, change only a figure that
   `overlay-number-mismatch` names, at the path it names, to the English file's new value, and
-  never its prose. Write that value in the translation's number format, not as the English
-  characters. The check reads each file with its own number locale. A profile's English file and
+  never its prose. When a figure check also refuses that figure in the English file, fix the
+  English file from its source first (the figure item below), then copy its value here. Write
+  that value in the translation's number format, not as the English characters. The check reads each file with its own number locale. A profile's English file and
   its translation both read every figure with the page's number locale, `numberLocaleFor`: the
   profile's locale in that language if it has one, else its `numberFormatLocale` (§3 step 2;
   ADR-0057). A template's or a fact's English figures read with English separators, and its
