@@ -170,11 +170,8 @@ const flowElements = (flow: string[], all: string[]) => () => (tree: MdastNode) 
  * What the compiler read in one module body: the build's message or null, its flow elements by name, and every
  * element as `flow:<Name>` (a block) or `text:<Name>` (inside a sentence), in tree order.
  */
-export type ModuleBodyCheck = {
-  readonly problem: string | null;
-  readonly flow: readonly string[];
-  readonly elements: readonly string[];
-};
+export type ModuleBodyCheck = { readonly problem: string | null; readonly flow: Names; readonly elements: Names };
+type Names = readonly string[];
 
 /**
  * The build's own check on one module, for `pnpm validate:content`: the MDX compiler with `closedBody` on the
