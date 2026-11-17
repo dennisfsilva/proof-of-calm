@@ -237,15 +237,29 @@ describe('contentLanguageOf over the profiles (ADR-0057, Corrections of 2026-11-
     ['GB', 'Reino Unido'],
     ['IE', 'Irlanda'],
     ['US', 'Estados Unidos'],
+    ['FR', 'França'],
+    ['IT', 'Itália'],
+    ['NL', 'Países Baixos'],
   ])("gives %s's pt-PT name, marked pt-PT", async (code, name) => {
     const profile = await loaded(code, 'pt-PT');
     expect(profile.name).toBe(name);
     expect(contentLanguageOf(profile)).toBe('pt-PT');
   });
 
-  it('lists none of those three English names in pt-PT', async () => {
+  it('lists none of those six English names in pt-PT', async () => {
     const names = (await loadProfiles('pt-PT')).map(({ name }) => name);
-    for (const code of ['GB', 'IE', 'US']) expect(names).not.toContain((await loaded(code, 'en')).name);
+    for (const code of ['GB', 'IE', 'US', 'FR', 'IT', 'NL'])
+      expect(names).not.toContain((await loaded(code, 'en')).name);
+  });
+
+  it.each([
+    ['FR', 'EUR 305'],
+    ['IT', 'Quadro RW'],
+    ['NL', 'EUR 59 357'],
+  ])("keeps %s's summary figure or form name joined as English writes it, in pt-PT", async (code, literal) => {
+    const { summary60 } = (await loaded(code, 'pt-PT')).card;
+    expect(summary60).toContain(literal);
+    expect(summary60).not.toBe((await loaded(code, 'en')).card.summary60);
   });
 
   it("gives English for the fallback when the translation's chunk fails to load", async () => {
