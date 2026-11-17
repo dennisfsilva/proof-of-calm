@@ -169,6 +169,8 @@ describe('turbo inputs', () => {
     expect(read).toContain('packages/app/src/lib/errors/messages/en.json');
     expect(read).toContain('apps/web/messages/en.json');
     expect(hashedFiles('@proofofcalm/content', 'validate')).toEqual(expect.arrayContaining(read));
+    // packages/content/scripts/validate.test.ts runs the script on a copy of the same files.
+    expect(hashedFiles('@proofofcalm/content', 'test')).toEqual(expect.arrayContaining(read));
   }, 60_000);
 
   // A cache hit restores the outputs only: without the report among them, tools/size/today.ts would
