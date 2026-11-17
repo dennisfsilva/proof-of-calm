@@ -61,7 +61,6 @@ const translations = languages.flatMap((language) =>
 );
 
 const problems: Problem[] = moduleTranslationProblems(translations, englishModules);
-// The build's compiler on each translation, its chart and its elements held to its English module's (ADR-0048).
 problems.push(...(await closedBodyProblems(translations, englishModules)));
 const files: ContentFile[] = [];
 for (const absolute of paths) {

@@ -24,15 +24,15 @@ function chartElementProblems(path: string, chart: LearnModule['chart'], flow: r
   return [{ path, code: 'module-chart-element', detail }];
 }
 
+const englishOf = (path: string, english: readonly LearnModule[]) =>
+  english.find(({ slug }) => path.endsWith(`/${slug}.mdx`));
+
 /**
  * The chart a file is held to: its own front matter's, or with `english`, the file being a translation with no
  * chart key (ADR-0048 Deviations), the chart of the English module it is named after. A file whose front matter
  * does not parse, or a translation named after no English module, is skipped: `moduleProblems` and
  * `moduleTranslationProblems` report it.
  */
-const englishOf = (path: string, english: readonly LearnModule[]) =>
-  english.find(({ slug }) => path.endsWith(`/${slug}.mdx`));
-
 function chartOf(path: string, source: string, english?: readonly LearnModule[]) {
   if (english !== undefined) return englishOf(path, english)?.chart;
   const parsed = parseModule(path, source);
@@ -41,18 +41,11 @@ function chartOf(path: string, source: string, english?: readonly LearnModule[])
 
 const listed = (elements: readonly string[]) => elements.join(', ') || 'none';
 
-/**
- * A translation's elements against its English module's, both as the compiler reads them (ADR-0048 Deviations):
- * the same `flow:<Name>` and `text:<Name>` list in the same order, so code hides an element on both sides alike.
- * An English body the build refuses is skipped: English's own run reports it.
- */
+/** A translation's compiled elements against its English module's, in order; English's own run reports its body. */
 async function elementProblems(path: string, elements: readonly string[], english: LearnModule | undefined) {
   if (english === undefined) return [];
-  const theirs = await checkModuleBody(
-    english.body,
-    `packages/content/learn/${english.slug}.mdx`,
-    MODULE_BODY_ELEMENTS,
-  );
+  const at = `packages/content/learn/${english.slug}.mdx`;
+  const theirs = await checkModuleBody(english.body, at, MODULE_BODY_ELEMENTS);
   if (theirs.problem !== null || listed(theirs.elements) === listed(elements)) return [];
   const detail = `English ${listed(theirs.elements)}; translation ${listed(elements)}`;
   return [{ path, code: 'module-overlay-elements', detail }];
@@ -61,8 +54,7 @@ async function elementProblems(path: string, elements: readonly string[], englis
 /**
  * One `module-closed-body` problem per module the build would refuse, and one `module-chart-element` problem
  * per module that compiles with a chart count its chart does not name; the empty list is a pass. With
- * `english`, every file is a translation of one of them, and one whose elements are not its English module's is
- * a `module-overlay-elements` problem.
+ * `english`, every file is a translation of one of them, also held to its elements (`module-overlay-elements`).
  */
 export async function closedBodyProblems(
   modules: readonly ModuleFile[],
