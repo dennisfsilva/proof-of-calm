@@ -311,8 +311,14 @@ external links and the Risk link in the mobile export (M3).
   with the rest of #334's cut list: the review-content skill's figure clause, Risk honestly in
   pt-PT, the Learn index in the person's language, a module's joins and per-block checks,
   `number-group`'s open shapes, the Coinbase source's window, the template pins' removal and the
-  stale translated meta under `pnpm dev`. With #334 and the next, pt-PT takes 10 build sessions more
-  than #269 planned before German starts. A render-and-axe-only pt-PT
+  stale translated meta under `pnpm dev`. On 2026-11-17, #340 merged #334's docs sync (#341) and the
+  Coinbase facts' request windows (#342). The figures validator's PR 1 (feat/template-figure-shapes
+  at 7123363a) used #340's two rounds: round 3 made the percentage trigger a closed set and round 4
+  read it over the whole text, and each confirmed one finding with one root, the checker splitting
+  paragraphs at a blank line that holds spaces while the app splits only at an empty one. PR 1, PR 2
+  (the module rules), the review-content skill's figure clause and the rest of #340's cut list move
+  to #343, which comes before #271. With #340 and #343, pt-PT takes 11 build sessions more than #269
+  planned before German starts. A render-and-axe-only pt-PT
   story run waits for #271, once every namespace is translated. CSV import, free (ADR-0039), for the
   main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
   Republic; Kraken's ledger reader built on 2026-11-13 (#168) and the core's import plan against the
