@@ -226,14 +226,26 @@ describe('contentLanguageOf over the profiles (ADR-0057, Corrections of 2026-11-
 
   it('gives the language of the text each load returned: a translation its own, English otherwise', async () => {
     expect(contentLanguageOf(await loaded('PT', 'pt-PT'))).toBe('pt-PT');
-    expect(contentLanguageOf(await loaded('DE', 'pt-PT'))).toBe('en');
     expect(contentLanguageOf(await loaded('PT', 'en'))).toBe('en');
     const all = await loadProfiles('pt-PT');
     const translated = new Set(Object.keys(PROFILE_OVERLAYS['pt-PT']));
     for (const each of all) expect(contentLanguageOf(each)).toBe(translated.has(each.code) ? 'pt-PT' : 'en');
   });
 
+  // Every profile has a pt-PT file since Germany's and Spain's (2026-11-17), so a file without one is removed here.
+  it('gives English for a profile without a translation of its file', async () => {
+    vi.resetModules();
+    const fresh = await import('./countries.ts');
+    const { contentLanguageOf: languageOf } = await import('./language.ts');
+    delete fresh.PROFILE_OVERLAYS['pt-PT'].DE;
+    const english = await fresh.loadProfile('DE', 'pt-PT');
+    expect(english?.name).toBe('Germany');
+    expect(english === null ? null : languageOf(english)).toBe('en');
+  });
+
   it.each([
+    ['DE', 'Alemanha'],
+    ['ES', 'Espanha'],
     ['GB', 'Reino Unido'],
     ['IE', 'Irlanda'],
     ['US', 'Estados Unidos'],
@@ -246,13 +258,15 @@ describe('contentLanguageOf over the profiles (ADR-0057, Corrections of 2026-11-
     expect(contentLanguageOf(profile)).toBe('pt-PT');
   });
 
-  it('lists none of those six English names in pt-PT', async () => {
+  it('lists none of those eight English names in pt-PT', async () => {
     const names = (await loadProfiles('pt-PT')).map(({ name }) => name);
-    for (const code of ['GB', 'IE', 'US', 'FR', 'IT', 'NL'])
+    for (const code of ['DE', 'ES', 'GB', 'IE', 'US', 'FR', 'IT', 'NL'])
       expect(names).not.toContain((await loaded(code, 'en')).name);
   });
 
   it.each([
+    ['DE', 'EUR 1000'],
+    ['ES', 'EUR 50 000'],
     ['FR', 'EUR 305'],
     ['IT', 'Quadro RW'],
     ['NL', 'EUR 59 357'],

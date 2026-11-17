@@ -1,0 +1,79 @@
+{
+  "name": "Alemanha",
+  "filingNote": "Ano civil. O prazo da declaração de 2026 termina a 31 de julho de 2027 (29 de fevereiro de 2028 com um consultor fiscal); a entrega faz-se pelo ELSTER.",
+  "holdingRuleConditions": [
+    "Uma troca ou uma compra paga em criptoativos inicia um novo período de detenção para as moedas recebidas.",
+    "As moedas recebidas em doação mantêm o período de detenção do doador."
+  ],
+  "lotRuleNote": "Por carteira: o BMF aceita primeiro a entrar, primeiro a sair ou a identificação individual, escolhidos por carteira e por criptoativo e aplicados de forma consistente, com o custo médio como alternativa (confiança média-alta).",
+  "card": {
+    "classification": "Venda privada (§ 23(1) frase 1 n.º 2 EStG) à taxa progressiva pessoal, não à Abgeltungsteuer fixa; staking e empréstimo pelo § 22 n.º 3 EStG. Base: BMF-Schreiben de 6 de março de 2025; BFH IX R 3/22 de 14 de fevereiro de 2023.",
+    "taxableEvents": [
+      {
+        "note": "Tributável quando entre a compra e a venda decorre um ano ou menos; não tributada após mais de um ano."
+      },
+      {
+        "note": "Uma alienação ao valor de mercado e uma nova aquisição; começa um novo período de detenção para a moeda recebida."
+      },
+      { "note": "Como qualquer troca: uma alienação ao valor de mercado e uma nova aquisição." },
+      { "note": "Uma alienação ao valor dos bens ou serviços." },
+      {
+        "note": "Não é uma alienação; são precisos registos para seguir o período de detenção de carteira em carteira."
+      },
+      {
+        "note": "Sem imposto sobre o rendimento; pode aplicar-se o imposto sobre doações ou sucessões; quem recebe assume a data de aquisição e o custo do doador (§ 23(1) frase 3 EStG)."
+      },
+      {
+        "note": "Rendimento do § 22 n.º 3 no momento da receção (Freigrenze de EUR\u00a0256); o staking ou o empréstimo passivos não alargam o período de detenção para 10\u00a0anos (BMF 2022 e 2025)."
+      }
+    ],
+    "rates": [
+      {
+        "label": "Imposto sobre o rendimento pessoal (§ 32a EStG)",
+        "value": "0–45\u00a0% conforme o rendimento tributável (tabela de 2026)",
+        "note": "0\u00a0% até EUR\u00a012\u00a0348; 14\u00a0%, a subir até 42\u00a0% em EUR\u00a069\u00a0879; 45\u00a0% a partir de EUR\u00a0277\u00a0826."
+      },
+      {
+        "label": "Sobretaxa de solidariedade (§ 3 SolZG 1995)",
+        "value": "5,5\u00a0% do imposto sobre o rendimento",
+        "note": "Só quando o imposto sobre o rendimento excede EUR\u00a020\u00a0350 (tributação individual) ou EUR\u00a040\u00a0700 (tributação conjunta), com uma zona de transição acima desses valores."
+      },
+      {
+        "label": "Imposto eclesiástico",
+        "value": "8–9\u00a0% do imposto sobre o rendimento",
+        "note": "Quando aplicável."
+      }
+    ],
+    "allowances": [
+      "Freigrenze de EUR\u00a01000 por ano sobre as mais-valias do § 23 (criptoativos e outras vendas privadas): com EUR\u00a01000 ou mais, todo o montante é tributável: um limiar, não uma franquia. Desde o ano de liquidação de 2024 (antes, EUR\u00a0600).",
+      "Freigrenze de EUR\u00a0256 por ano para rendimentos do § 22 n.º 3 (staking, empréstimo).",
+      "O Sparer-Pauschbetrag não se aplica atualmente às mais-valias do § 23."
+    ],
+    "holdingRuleText": "Tributável apenas quando «der Zeitraum zwischen Anschaffung und Veräußerung nicht mehr als ein Jahr beträgt» (§ 23(1) frase 1 n.º 2 EStG). O dia da compra não conta e o ano termina no mesmo dia do calendário um ano depois (§ 108 AO, §§ 187–188 BGB): comprada a 15 de março de 2026, uma venda a 15 de março de 2027 ainda conta no ano; a partir de 16 de março de 2027, a mais-valia não é tributada.",
+    "lotRuleText": "Primeiro a entrar, primeiro a sair, por carteira («walletbezogene Betrachtung»); o BMF aceita FIFO ou a identificação individual, escolhidos por carteira e por criptoativo; o custo médio é a alternativa.",
+    "losses": "As menos-valias só compensam mais-valias do § 23, não salários nem rendimentos de capital; reportam-se um ano para trás e sem limite para a frente, dentro do § 23. As perdas do § 22 n.º 3 só compensam rendimentos do § 22 n.º 3.",
+    "reporting": [
+      "O ónus da prova cabe ao contribuinte; os relatórios fiscais gerados por software são aceites se forem plausíveis e coerentes (BMF-Schreiben de 6 de março de 2025)."
+    ],
+    "caveats": [
+      "A contagem exata dos dias.",
+      "O limiar de EUR\u00a01000.",
+      "Staking e empréstimo (a regra dos EUR\u00a0256).",
+      "A data de corte e o regime transitório da reforma, um projeto que pode mudar.",
+      "As menos-valias.",
+      "O imposto eclesiástico.",
+      "Os registos que o Finanzamt espera."
+    ],
+    "summary60": "Alemanha: criptoativos vendidos mais de um ano após a compra não são tributados. Antes disso, a mais-valia é tributada à taxa progressiva pessoal; trocas e compras com criptoativos contam como vendas. Abaixo de EUR\u00a01000 por ano, estas mais-valias não são tributadas. FIFO por carteira. Um projeto de lei acabaria com a regra de um ano nas compras desde 2027."
+  },
+  "pendingChanges": [
+    {
+      "title": "Referentenentwurf de 30 de setembro de 2026: Gesetz zur Reform der Besteuerung bestimmter Kryptowerte im Privatvermögen",
+      "summary": "Tauschkryptowerte como BTC e ETH adquiridos após 31 de dezembro de 2026 seriam rendimentos de capital a 25\u00a0% mais sobretaxa de solidariedade, sem prazo de detenção, retidos pelos prestadores nacionais desde 1 de janeiro de 2028; as anteriores mantêm a regra de um ano. Excluídos: tokens de moeda eletrónica, NFT, security tokens e RWA. O Conselho de Ministros de 14 de outubro de 2026 não decidiu."
+    },
+    {
+      "title": "Valores da tabela para 2027",
+      "summary": "O mínimo de existência de 2027 (Grundfreibetrag) e os limiares da sobretaxa de solidariedade chegam com a lei fiscal anual."
+    }
+  ]
+}

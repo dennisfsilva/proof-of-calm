@@ -14,7 +14,7 @@ import { type ContentFile, validateContent } from '../validate.ts';
 const { $comment: _, ...allow } = allowList;
 const ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
 const read = (path: string): ContentFile => ({ path, json: JSON.parse(readFileSync(`${ROOT}${path}`, 'utf8')) });
-const CODES = ['FR', 'GB', 'IE', 'IT', 'NL', 'PT', 'US', 'XX'] as const;
+const CODES = ['DE', 'ES', 'FR', 'GB', 'IE', 'IT', 'NL', 'PT', 'US', 'XX'] as const;
 const englishOf = (code: string) => read(`packages/content/jurisdictions/${code.toLowerCase()}.json`);
 const overlayOf = (code: string) => read(`packages/content/i18n/pt-PT/jurisdictions/${code.toLowerCase()}.json`);
 

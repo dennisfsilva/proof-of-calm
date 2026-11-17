@@ -1,6 +1,6 @@
 {
   "code": "DE",
-  "name": "Germany",
+  "name": "Alemanha",
   "currency": "EUR",
   "locales": ["de-DE"],
   "numberFormatLocale": "de-DE",
@@ -20,8 +20,8 @@
   },
   "holdingRuleOverrides": [],
   "holdingRuleConditions": [
-    "A swap or a purchase paid in crypto starts a new holding period for the coins received.",
-    "Gifts keep the giver's holding period."
+    "Uma troca ou uma compra paga em criptoativos inicia um novo período de detenção para as moedas recebidas.",
+    "As moedas recebidas em doação mantêm o período de detenção do doador."
   ],
   "lotRule": "fifo",
   "lotScope": "per-venue",
