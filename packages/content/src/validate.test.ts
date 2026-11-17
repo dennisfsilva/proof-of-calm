@@ -444,6 +444,12 @@ describe('validateContent: templates (docs/DOMAIN.md §5)', () => {
     expect(codes([file(path, template({ explanation: `${five}\n\n${six}` }))])).toEqual([
       'paragraph-too-long: explanation, paragraph 2: 6 sentences',
     ]);
+    // The paragraphs the app renders (paragraphsOf): a line of only white space ends one, a single line break does not.
+    expect(codes([file(path, template({ explanation: `${five}\n \n${five}` }))])).toEqual([]);
+    expect(codes([file(path, template({ explanation: `${five}\r\n\r\n${five}` }))])).toEqual([]);
+    expect(codes([file(path, template({ explanation: `${five}\n${five}` }))])).toEqual([
+      'paragraph-too-long: explanation, paragraph 1: 10 sentences',
+    ]);
   });
 
   it('wants dated drawdowns: each fall sourced off the facts list and read no later than the review (LEGAL §4)', () => {
