@@ -215,3 +215,10 @@ Recorded on 2026-11-15, when the site's half of the rendering points landed in `
   holds because `pnpm validate:content` matches the two bodies' depth-2 headings in order (the 2026-11-16 entry).
   `why-sections.test.ts` checks every named section against each translation of its module too. A refused link's
   build message now says to write the link's words as plain text.
+- 2026-11-17: the page reader is its own file, `packages/config/vite/page-blocks.ts`, and `checkModuleBody` returns
+  the compiled page beside `blocks`: `page`, one entry per paragraph, heading (with its depth) or code block, with the
+  same text `blocks` holds, and one per flow element by name where it stands in tree order, so a check can tell the
+  section a `<Chart />` sits in. An element inside a sentence stays inside its paragraph's text, and a node outside
+  `PAGE_NODES` throws, naming the path and the line, as before. `pageOf` reads it with `pageBlocks`' node rules, and
+  `blocks` is the texts of `page` without its elements, so its values are unchanged on every English module and
+  every translation. A check of a module's figures reads `page`, never a second split of the MDX source.
