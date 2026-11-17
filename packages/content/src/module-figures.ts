@@ -71,12 +71,16 @@ const PT_ORDINALS = `(?:primeir|segund|terceir|quart|quint|sext|sétim|oitav|non
 trigésim|quadragésim|quinquagésim|sexagésim|sep?tuagésim|octogésim|nonagésim|centésim|ducentésim|tr[ei]centésim|\
 quadringentésim|quingentésim|se(?:x|is)centésim|sep?tingentésim|oct(?:in|o)gentésim|non(?:in)?gentésim|milésim|\
 milionésim|bilionésim)[oa]s?`;
-// half and halves, double, triple, quadruple and the other -fold words, as nouns, adjectives and verbs.
+// half and halves, a third (`terço`, English's `third` as a fraction), double, triple, quadruple and the other -fold
+// words. The verbs close by stem, not form by form: `dobr` or `duplic` to `centuplic` (`qu` before e) at a word's
+// start, then any letters, so every tense, participle and noun of each triggers (hole 14: `dobra`, a fold, too).
+const STEM = '[\\p{L}\\p{M}]*';
 const PT_OTHERS = [
   'metades?',
-  'dobr(?:o|os|ar|a|am|ou|aram)',
+  'terços?',
+  `dobr${STEM}`,
   '(?:dupl|tripl|quádrupl|quíntupl|sêxtupl|sétupl|óctupl|n[óô]nupl|décupl|cêntupl)[oa]s?',
-  '(?:dupl|tripl|quadrupl|quintupl|sextupl|decupl|centupl)ic(?:ar|a|am|ou|aram|ad[oa]s?)',
+  `(?:dupl|tripl|quadrupl|quintupl|sextupl|sep?tupl|octupl|nonupl|decupl|centupl)i(?:c|qu)${STEM}`,
   'trimestres?',
   'par',
   'pares',
