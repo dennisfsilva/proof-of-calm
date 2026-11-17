@@ -99,13 +99,21 @@ owns the pipeline around them and its security model.
    The finish does not run that check; CI's `verify` job does (`.github/workflows/ci.yml`), so the
    owner fixes the figure before merging (§8 step 4).
    Of "anything else", a figure check's refusal has its own rule in the skill's §1, which names the
-   refusals by code family, so a new rule in the family needs no skill edit: a code that starts
-   with `figure-` (`figure-join` aside), a `percent-token` refusal and a `number-group` refusal
-   with no suggestion. The agent fixes each from the cited source's figure and changes no other
+   refusals by code family: a code that starts with `figure-` (`figure-join` aside), a
+   `percent-token` refusal and a `number-group` refusal with no suggestion. A new code in the
+   family falls under that rule, but one that no figure from the source fixes needs a skill edit,
+   as `figure-unstated` did (2026-11-17). The agent fixes each from the cited source's figure and changes no other
    word. It never rewords a sentence toward a shape and never picks one of the two readings a
    `number-group` detail names. When the source's figure fits no shape of `docs/CONTENT-STYLE.md`
    §4, it stops on that item, leaves it as it was and names it in the notes and its report: a new
    wording needs a new reviewed shape, which a session pull request adds (decided 2026-11-17).
+   In a module's chart section the agent changes only the digits of a fall an E sentence already
+   states, to its chart row's new fall, and keeps the figure's joiner. A row change that draws a
+   module refusal no such edit fixes (a row no sentence states, a B sentence's count, years or
+   bound, a coin with no fall, a row it would remove) it reverts, and notes the coin, the dates,
+   the fall and the source for the owner, who rewrites the sentence in a reviewed shape. It never
+   changes a bound, adds, moves or deletes a clause or a sentence, or removes a row (decided
+   2026-11-17).
 4. **The draft.** The agent writes its findings as JSON in the shape of `ReviewDraft`
    (`tools/content-review/body.ts`) to .content-review/draft.json, a gitignored folder. A change row's
    `item` is the data file relative to `packages/content/` (`jurisdictions/ie.json`) and its `field`
