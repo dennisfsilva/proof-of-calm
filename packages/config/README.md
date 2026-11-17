@@ -49,7 +49,10 @@ configs live in their packages. See `docs/ENGINEERING.md`.
     words the page shows (`pageBlocks`): one string per paragraph, heading or code block in tree order as
     the parser decoded it, a character reference included, inside a block the text of every node joined
     with no space between, a hard break as one space, and every default-ignorable code point removed; an attribute's value and a
-    fence's info string are not in it, and a node type outside `PAGE_NODES` throws. `pnpm validate:content`
+    fence's info string are not in it, and a node type outside `PAGE_NODES` throws. `page` is the page
+    in tree order (`pageOf`, `packages/config/vite/page-blocks.ts`): each heading with its depth, each
+    paragraph and code block with its text, and each flow element by name, empty when the body does not
+    compile; `blocks` is the texts of `page` without its elements. `pnpm validate:content`
     runs it, and runs the ban list and the hyphen check on each of a translated module's `blocks`. It
     compares the module's `elements` with its English module's (`module-overlay-elements`). It reads the
     numbers of each of its `blocks` on its own and compares them, pooled into one sorted list on each side,
