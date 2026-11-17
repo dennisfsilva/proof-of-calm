@@ -35,8 +35,8 @@ describe('the Noise and When the market drops modules', () => {
     const { path, source, module } = read(slug);
     expect(moduleProblems({ path, source }, context)).toEqual([]);
     expect([module.title, module.idea, module.caveat].flatMap((text) => findBanned(text))).toEqual([]);
-    // Main's pin, dropped with lastReviewed and reviewedBy, the fields a content review and the owner's sign-off
-    // set; the gate above still refuses an agent's draft (agent-draft).
+    // Main pinned the review fields, which a content review and the owner's sign-off set; the gate above still
+    // refuses an agent's draft (agent-draft).
   });
 
   it.each(SLUGS)('%s keeps each figure with its unit and each date whole', (slug) => {

@@ -241,7 +241,7 @@ describe('TEMPLATES (docs/DOMAIN.md §5, ADR-0009)', () => {
 
   it('keep the Cycle plan’s fields as its file holds them, reviewed by the owner', () => {
     const file = JSON.parse(readFileSync(new URL('../../templates/cycle-plan.json', import.meta.url), 'utf8'));
-    // Main's pin, restored but for lastReviewed, the date a content review sets.
+    // Main's pin, but for lastReviewed, the date a content review sets.
     expect(template('cycle-plan')).toMatchObject({ reviewedBy: 'owner' });
     // The thirds' dates stay with the text: a plan copies the core's references, which have no field for them.
     const { secondThird, lastThird, ...references } = file.references;
