@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { expect, type Page } from '@playwright/test';
 import { fixtureNowMs, fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
 import ptLearn from '../../../packages/app/src/messages/pt-PT/learn.json' with { type: 'json' };
@@ -231,5 +232,78 @@ test.describe('English content text on a pt-PT screen', () => {
     expect(aborted.length).toBeGreaterThan(0);
     await expect(ptRulesText(page, portugal.card.summary60)).toHaveAttribute('lang', 'en');
     await expect(page.getByText(ptLearn.card.inEnglish)).toBeVisible();
+  });
+});
+
+// A Learn module's translation is a chunk of its own under assets/messages/pt-PT/ (ADR-0057, ADR-0048's Deviations):
+// a failed import shows English, marked lang="en", and the mount loads it once more, which only the built app
+// compiled by the React Compiler shows (useModuleBody).
+const frontMatter = (path: string) => {
+  const text = readFileSync(new URL(path, import.meta.url), 'utf8');
+  const field = (name: string) => new RegExp(`^${name}: (.+)$`, 'm').exec(text)?.[1] ?? '';
+  return { title: field('title'), caveat: field('caveat'), heading: /^## (.+)$/m.exec(text)?.[1] ?? '' };
+};
+const startHere = frontMatter('../../../packages/content/learn/start-here.mdx');
+const startHerePt = frontMatter('../../../packages/content/i18n/pt-PT/learn/start-here.mdx');
+const START_HERE_PT_CHUNK = /\/assets\/messages\/pt-PT\/start-here-[^/]+\.js$/;
+
+test.describe("a Learn module's pt-PT chunk", () => {
+  test.use({ serviceWorkers: 'block' });
+
+  /** Aborts the first `failing` requests for start-here's pt-PT chunk and records the page's errors. */
+  async function openStartHere(page: Page, failing: number) {
+    await bootIn(page, 'pt-PT');
+    const aborted: string[] = [];
+    await page.route(START_HERE_PT_CHUNK, (route) => {
+      if (aborted.length >= failing) return route.continue();
+      aborted.push(route.request().url());
+      return route.abort('internetdisconnected');
+    });
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    page.on('console', (message) => {
+      // The aborted request's own line is the network's, not the app's.
+      if (message.type() === 'error' && !/Failed to load resource/.test(message.text())) errors.push(message.text());
+    });
+    await page.goto('/learn/start-here');
+    await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
+    await expect(page.getByRole('link', { name: ptLearn.module.back })).toBeVisible();
+    return { aborted, errors };
+  }
+
+  test('a first import that fails and a retry that loads: the same mount shows the translation', async ({
+    page,
+  }, testInfo) => {
+    // biome-ignore lint/suspicious/noSkippedTests: a runtime skip outside the two named projects, not a disabled test
+    test.skip(!ON_TWO.includes(testInfo.project.name), 'desktop and iphone carry the language checks');
+    const { aborted, errors } = await openStartHere(page, 1);
+
+    const title = page.getByRole('heading', { level: 1, name: startHerePt.title });
+    await expect(title).toBeVisible();
+    await expect(title).not.toHaveAttribute('lang', /./);
+    await expect(page.getByRole('heading', { level: 2, name: startHerePt.heading })).toBeVisible();
+    await expect(screenArea(page).locator('[lang]')).toHaveCount(0);
+    expect(aborted).toHaveLength(1);
+    expect(errors).toEqual([]);
+  });
+
+  test('every import fails: English shows, its title, caveat and body marked lang="en", and nothing else', async ({
+    page,
+  }, testInfo) => {
+    // biome-ignore lint/suspicious/noSkippedTests: a runtime skip outside the two named projects, not a disabled test
+    test.skip(!ON_TWO.includes(testInfo.project.name), 'desktop and iphone carry the language checks');
+    const { aborted, errors } = await openStartHere(page, Number.POSITIVE_INFINITY);
+
+    await expect(page.getByRole('heading', { level: 1, name: startHere.title })).toHaveAttribute('lang', 'en');
+    await expect(page.getByText(startHere.caveat, { exact: true })).toHaveAttribute('lang', 'en');
+    const body = screenArea(page).locator('[lang="en"]', {
+      has: page.getByRole('heading', { level: 2, name: startHere.heading }),
+    });
+    await expect(body).toHaveCount(1);
+    await expect(screenArea(page).locator('[lang]')).toHaveCount(3);
+    await expect(page.getByRole('link', { name: ptLearn.module.back })).not.toHaveAttribute('lang', /./);
+    await expect(page.locator('html')).toHaveAttribute('lang', 'pt-PT');
+    expect(aborted.length).toBeGreaterThan(0);
+    expect(errors).toEqual([]);
   });
 });
