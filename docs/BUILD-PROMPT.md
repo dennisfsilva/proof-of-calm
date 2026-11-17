@@ -598,6 +598,12 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   its English before the content roles. The compressed fields of feat/pt-overlays-fr-it-nl dropped a
   condition («com essa carta» for "if you got that letter") and moved a deadline («a data da carta»
   for the date in the letter) (#328, 2026-11-17).
+- A closed set converges on what it lists, not on what triggers it. The figures validator's
+  whole-sentence shapes drew no finding in #334's second round, while the trigger that decides
+  whether a sentence holds a percentage at all leaked twice (`per cent` with a no-break space, then
+  `15percent` and `15-percentage-point`). Brief such a trigger as closed too (a sign, or the letters
+  per and cent with any joiner, at a word start or after a digit) and state in the requirement what
+  lies outside it (#334, 2026-11-17).
 
 ## Known gaps
 

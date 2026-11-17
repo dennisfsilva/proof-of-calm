@@ -42,6 +42,8 @@ release.
   load that country's rules.
 - A tax-year export: a CSV of the lots in your country's tax year, with the day each lot passes the
   country's holding rule where there is one. The file says it is not a tax computation.
+- Portugal's rules write their counts as numerals: 5 years, 6 brackets.
+- A law's number, such as Lei 24‑D/2022, no longer breaks across lines at its hyphen.
 
 ### Learn
 
@@ -77,6 +79,10 @@ release.
   The language stays hidden until a native reader has read every screen.
 - With the app's language set to Portuguese, the risk text you accept when you start a plan is
   shown in Portuguese, and the plan records that you accepted the Portuguese text.
+- Germany's and Spain's rules in Portuguese.
+- In Portuguese, a `Why?` link opens its Learn module at the section it names.
+- The sources heading takes the country's article in Portuguese and English: «Fontes dos Países
+  Baixos», "Sources for the Netherlands".
 
 ### On the web and offline
 

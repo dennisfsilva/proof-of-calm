@@ -302,8 +302,17 @@ external links and the Risk link in the mobile export (M3).
   validator's PR 1 (round 3) and PR 2, the translated h2 ids by position (round 3), the
   review-content skill's figure clause, the DE and ES overlays, Risk honestly in pt-PT, Portugal's
   English numerals with its baselines, the Learn index in the person's language, the module checks
-  per block with `figure-join` over modules, and `number-group`'s open shapes. With #334, pt-PT
-  takes 9 build sessions more than #269 planned before German starts. A render-and-axe-only pt-PT
+  per block with `figure-join` over modules, and `number-group`'s open shapes. On 2026-11-17, #334
+  merged the translated h2 ids by position (#336), Portugal's numerals (#337), the DE and ES
+  overlays (#338) and their baseline render (#339). The figures validator's PR 1
+  (feat/template-figure-shapes at f84ed02b, both review rounds used: its closed sentence shapes
+  held, and two confirmed findings stay open on the trigger that decides what counts as a
+  percentage) and its PR 2, the module rules, move to the next session's issue, which comes before #271,
+  with the rest of #334's cut list: the review-content skill's figure clause, Risk honestly in
+  pt-PT, the Learn index in the person's language, a module's joins and per-block checks,
+  `number-group`'s open shapes, the Coinbase source's window, the template pins' removal and the
+  stale translated meta under `pnpm dev`. With #334 and the next, pt-PT takes 10 build sessions more
+  than #269 planned before German starts. A render-and-axe-only pt-PT
   story run waits for #271, once every namespace is translated. CSV import, free (ADR-0039), for the
   main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
   Republic; Kraken's ledger reader built on 2026-11-13 (#168) and the core's import plan against the
