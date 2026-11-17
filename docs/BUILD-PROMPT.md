@@ -592,8 +592,9 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   server with the source broken mid-edit as well as changed. The second round of
   fix/learn-pt-section-ids found the translation dropped its English dependency while the English
   file failed to parse (#328, 2026-11-17).
-- A fact that cites an exchange's price API carries `limit` and `start`, and a series longer than one
-  request says how the review reaches the rest (#332, `docs/CONTENT-OPS.md` §8 step 1, 2026-11-17).
+- A fact that cites an exchange's price API carries its request window (Bitstamp's `limit` and
+  `start`, Coinbase's `start` and `end`), and a series longer than one request says how the review
+  reaches the rest (#332, #342, `docs/CONTENT-OPS.md` §7 and §8 step 1, 2026-11-17).
 - A profile overlay translated under tight field limits gets a field-by-field fidelity check against
   its English before the content roles. The compressed fields of feat/pt-overlays-fr-it-nl dropped a
   condition («com essa carta» for "if you got that letter") and moved a deadline («a data da carta»
@@ -604,6 +605,11 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   (`per cent` with a no-break space, then `15percent` and `15-percentage-point`). Brief that check
   as a closed list too: a sign, or the letters per and cent with any joiner, at a word start or
   after a digit. State in the requirement what it leaves out (#334, 2026-11-17).
+- A check reads the text the app renders. When the checker's sentence or paragraph split differs
+  from the renderer's, wording hides across the difference: in rounds 3 and 4 of #340, `\n \n` sat
+  between "per" and "cent", then before an exact shape. Give the checker and the app one split, or
+  refuse the input on which they disagree, before reviewing what the check closes (#340,
+  2026-11-17).
 
 ## Known gaps
 
