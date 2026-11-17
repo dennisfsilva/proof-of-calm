@@ -84,7 +84,7 @@
     ],
     "holdingRuleText": "Gains and losses on crypto held 365 days or more are excluded from tax: “detidos por um período igual ou superior a 365 dias” (art. 10 n.º 22 CIRS, numbered n.º 19 in 2023–2025 documents). A unit bought on 1 March 2026 qualifies on 1 March 2027.",
     "lotRuleText": "First in, first out (“os alienados são os adquiridos há mais tempo”, art. 43 n.º 8(g) CIRS, formerly n.º 6(g)), separately per custodian or platform (art. 43 n.º 9, formerly n.º 7).",
-    "losses": "Netted against same-year crypto gains, leaving out units held 365 days or more. A net loss carries forward 5\u00a0years only with aggregation (art. 55(1)(d)); losses with blacklisted counterparties never count (art. 43 n.º 7).",
+    "losses": "Netted against same-year crypto gains, leaving out units held 365 days or more. A net loss carries forward 5 years only with aggregation (art. 55(1)(d)); losses with blacklisted counterparties never count (art. 43 n.º 7).",
     "reporting": [
       "Modelo\u00a03, Anexo\u00a0G Quadro\u00a018A: disposals of units held under 365 days, per operation, with the country of the counterparty.",
       "Anexo\u00a0G Quadro\u00a018B: disposals with a counterparty outside the EU or the EEA.",
@@ -134,10 +134,10 @@
       }
     },
     {
-      "title": "Lower rates in 6\u00a0IRS brackets (Decreto-Lei n.º 212/2026)",
+      "title": "Lower rates in 6 IRS brackets (Decreto-Lei n.º 212/2026)",
       "status": "in-force",
       "effectiveFrom": "2026-01-01",
-      "summary": "The 28% rate of art. 72(1)(c) does not change. Decreto-Lei n.º 212/2026 of 4 November 2026 (Diário da República n.º 214/2026, Série I), under Lei n.º 64\u2011B/2026 (Proposta de Lei n.º 108/XVII/2.ª), lowers the first 6\u00a0rates of art. 68 n.º 1 CIRS to 12,2%, 15,2%, 20,7%, 23,6%, 30,6%, and 34,6%. In force since 5 November 2026; its preamble applies the cut to 2026 income from 1 January 2026.",
+      "summary": "The 28% rate of art. 72(1)(c) does not change. Decreto-Lei n.º 212/2026 of 4 November 2026 (Diário da República n.º 214/2026, Série I), under Lei n.º 64\u2011B/2026 (Proposta de Lei n.º 108/XVII/2.ª), lowers the first 6 rates of art. 68 n.º 1 CIRS to 12,2%, 15,2%, 20,7%, 23,6%, 30,6%, and 34,6%. In force since 5 November 2026; its preamble applies the cut to 2026 income from 1 January 2026.",
       "source": {
         "title": "Decreto-Lei n.º 212/2026, de 4 de novembro",
         "url": "https://files.diariodarepublica.pt/1s/2026/11/21400/0000500006.pdf",
@@ -356,7 +356,7 @@
     "confidence": "high",
     "version": 2,
     "changedOn": "2026-11-05",
-    "changeNotice": "Portugal lowered 6\u00a0IRS bracket rates for 2026 income. The 28% rate and the 365\u2011day rule are unchanged.",
+    "changeNotice": "Portugal lowered 6 IRS bracket rates for 2026 income. The 28% rate and the 365\u2011day rule are unchanged.",
     "lastReviewed": "2026-11-05",
     "nextReviewDue": "2027-11-02",
     "reviewedBy": "owner"
