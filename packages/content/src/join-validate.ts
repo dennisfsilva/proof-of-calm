@@ -62,7 +62,7 @@ export function joinProblems(path: string, texts: readonly [string, string][]): 
       ];
       const code = codeBefore ?? codeAfter;
       const pair =
-        code === undefined ? `the form ${typed(form ?? '')} and its number` : `${typed(code)} and its figure`;
+        code === undefined ? `the name ${typed(form ?? '')} and its number` : `${typed(code)} and its figure`;
       const detail = `${field}: ${pair} ${typed(figure)} are joined by ${codePoints(gap).join(' ')}, not U+00A0 (docs/CONTENT-STYLE.md §4)`;
       return { path, code: 'figure-join', detail };
     }),

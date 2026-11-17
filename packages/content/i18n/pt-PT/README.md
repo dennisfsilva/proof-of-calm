@@ -6,4 +6,6 @@ For translators: write every number as a numeral, as the English does, and keep 
 
 In a template's texts, write each percentage as the English does, `40 %` with an ordinary space, in the same order: the app writes it in the plan's format (`overlay-percent-mismatch` otherwise).
 
-In a profile whose page writes a comma decimal (Germany, Spain, France, Italy, the Netherlands, Portugal), copy every figure as the English writes it. Put a no-break space between groups from 10 000 (`EUR 20 350`, written `\u00a0` in JSON) and none below (`EUR 1000`). Join a currency code to its figure and a form's name to its number with a no-break space too, in every profile and module (`EUR 1000`, `100 USD`, `Modelo 721`, `Anexo G`; `figure-join`, `docs/CONTENT-STYLE.md` §4). Write a decimal with a comma (`5,5 %`). Keep a point only in a citation (`art. 33.1`). Never write `EUR 20.350` or `EUR 20,350`.
+In a profile whose page writes a comma decimal (Germany, Spain, France, Italy, the Netherlands, Portugal), copy every figure as the English writes it. Put a no-break space between groups from 10 000 (`EUR 20 350`, written `\u00a0` in JSON) and none below (`EUR 1000`). Write a decimal with a comma (`5,5 %`). Keep a point only in a citation (`art. 33.1`). Never write `EUR 20.350` or `EUR 20,350`.
+
+In every profile and module, whatever its decimal, join a currency code to its figure and a form's name to its number with a no-break space (`GBP 3000`, `100 USD`, `Modelo 721`, `Anexo G`; `figure-join`, `docs/CONTENT-STYLE.md` §4).

@@ -163,7 +163,8 @@ describe('validateContent: jurisdictions (docs/JURISDICTIONS.md §2)', () => {
   it('holds the card to 60 words and keeps banned words out of what users read', () => {
     const long = { ...profile().card, summary60: Array.from({ length: 61 }, () => 'word').join(' ') };
     expect(codes([file(pt, profile({ card: long }))])).toEqual(['summary-too-long: 61 words']);
-    // A figure grouped with a no-break space is one word (docs/CONTENT-STYLE.md §4): `EUR 50 000` counts two.
+    // A figure grouped with a no-break space is one word (docs/CONTENT-STYLE.md §4); the code joined to it by U+00A0 is
+    // another, so `EUR 50 000` counts two.
     const nbsp = String.fromCodePoint(0xa0);
     const grouped = `${Array.from({ length: 58 }, () => 'word').join(' ')} EUR${nbsp}50${nbsp}000`;
     expect(codes([file(pt, profile({ card: { ...profile().card, summary60: grouped } }))])).toEqual([]);
