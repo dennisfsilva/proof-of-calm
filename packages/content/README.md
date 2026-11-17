@@ -50,10 +50,13 @@ not buy (`drawdown-unknown-coin`) and a fall of 0 or of more than 100 percent
 tickers and adds 4 of its own: whole percents (`drawdown-fall-not-whole`), rows in catalogue order
 then by high (`cycles-out-of-order`), each coin's high once (`cycles-duplicate`), and the one name
 `cycles/drawdowns.json` (`file-name`). The owner's sign-off is `reviewedBy: owner` (`agent-draft` until
-the owner sets it), and the reviewer still recomputes every fall from its source. The catalogue lists
-unique tickers and CoinGecko ids in ticker order, an order that ranks no coin. Each Learn module's body
-also goes through the build's own compiler and element list (`scripts/closed-body.ts`, ADR-0048
-Deviations): one `module-closed-body` problem, with the line, per module the build would refuse.
+the owner sets it), and the reviewer still recomputes every fall from its source. The review reads an
+`agent-draft` file's sources again, so `accessed` may pass `lastReviewed` until the owner signs the
+file off. `accessed-after-review` and `src/facts.test.ts` refuse such a date only once `reviewedBy` is
+`owner`. The catalogue lists unique tickers and CoinGecko ids in ticker order, an order that ranks no
+coin. Each Learn module's body also goes through the build's own compiler and element list
+(`scripts/closed-body.ts`, ADR-0048 Deviations): one `module-closed-body` problem, with the line, per
+module the build would refuse.
 A translation under `i18n/`, every `.json` file at any depth (`scripts/overlay-paths.ts`), is checked
 against its English file (`src/i18n/overlay-validate.ts`, ADR-0057): the `overlay-*` problems for its
 shape, its numbers and its date placeholders (`overlay-date-mismatch`: each text names the
