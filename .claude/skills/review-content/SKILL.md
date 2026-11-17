@@ -186,8 +186,9 @@ For each profile in `packages/content/jurisdictions/`:
    `pnpm run validate:content` refuses any other separator (a point in Germany or Portugal, a comma
    in Britain), for example
    `decimal-separator: <field>: "12.3%" writes ".", expected "," (pt-PT)`; write the separator the
-   message expects. On the comma-decimal pages CONTENT-STYLE §4 lists, Germany's and Portugal's, a
-   profile's other figures take the page's form too: a figure of 10 000 or more groups its digits in
+   message expects. On a page whose number locale writes a comma decimal (CONTENT-STYLE §4 lists
+   Germany, Spain, France, Italy, the Netherlands and Portugal), a profile's other figures take the
+   page's form too: a figure of 10 000 or more groups its digits in
    threes with a no-break space (`EUR 20 350`, `\u00a0` in the JSON), a smaller one takes
    none (`EUR 1000`), and a decimal takes the comma; `number-group` refuses any other. Britain,
    Ireland and the US keep their locale's grouping (`£37,700`). On every page a currency code
