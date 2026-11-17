@@ -23,8 +23,15 @@ describe('a profile’s money figures group as its comma-decimal page does (docs
   const german = (text: string) => groups(localeProblems(path, de, [['card.rates.1.note', text]]));
 
   it('refuses another grouping of a figure after a currency on a de-DE page', () => {
+    // The expected figure prints the escape the writer types in JSON, so it never looks like the refused one.
     expect(german('Where the income tax exceeds EUR 20,350.')).toEqual([
-      `card.rates.1.note: "EUR 20,350" expected "EUR 20${nbsp}350" (de-DE)`,
+      String.raw`card.rates.1.note: "EUR 20,350" expected "EUR 20\u00a0350" (de-DE)`,
+    ]);
+    expect(german('Where the income tax exceeds EUR 20 350.')).toEqual([
+      String.raw`card.rates.1.note: "EUR 20 350" expected "EUR 20\u00a0350" (de-DE)`,
+    ]);
+    expect(german(`Where the income tax exceeds EUR 20${narrow}350.`)).toEqual([
+      String.raw`card.rates.1.note: "EUR 20\u202f350" expected "EUR 20\u00a0350" (de-DE)`,
     ]);
     const flagged = [
       'EUR 20.350',
@@ -38,7 +45,33 @@ describe('a profile’s money figures group as its comma-decimal page does (docs
     for (const figure of flagged) expect(german(`Up to ${figure} a year.`)).toHaveLength(1);
     expect(german('EUR 1.000 and €20 350')).toEqual([
       'card.rates.1.note: "EUR 1.000" expected "EUR 1000" (de-DE)',
-      `card.rates.1.note: "€20 350" expected "€20${nbsp}350" (de-DE)`,
+      String.raw`card.rates.1.note: "€20 350" expected "€20\u00a0350" (de-DE)`,
+    ]);
+  });
+
+  it('refuses another grouping of a figure before a currency code, sign or word', () => {
+    expect(german('Up to 20 350 EUR a year.')).toEqual([
+      String.raw`card.rates.1.note: "20 350 EUR" expected "20\u00a0350 EUR" (de-DE)`,
+    ]);
+    expect(german('Up to 50.000 € a year.')).toEqual([
+      String.raw`card.rates.1.note: "50.000 €" expected "50\u00a0000 €" (de-DE)`,
+    ]);
+    expect(german('Up to 20,350 euros a year.')).toEqual([
+      String.raw`card.rates.1.note: "20,350 euros" expected "20\u00a0350 euros" (de-DE)`,
+    ]);
+    expect(german('Up to 20350 € a year.')).toEqual([
+      String.raw`card.rates.1.note: "20350 €" expected "20\u00a0350 €" (de-DE)`,
+    ]);
+    expect(german('From 2026 EUR 20,350 a year.')).toHaveLength(1);
+    for (const figure of [`20${nbsp}350 EUR`, `50${nbsp}000${nbsp}€`, '1000 Euro', '600 dollars']) {
+      expect(german(`Up to ${figure} a year.`)).toEqual([]);
+    }
+  });
+
+  it('keeps the value of a point-decimal money figure, its cents after a comma', () => {
+    expect(german('A fee of EUR 12.50.')).toEqual(['card.rates.1.note: "EUR 12.50" expected "EUR 12,50" (de-DE)']);
+    expect(german('Up to €20,350.50 a year.')).toEqual([
+      String.raw`card.rates.1.note: "€20,350.50" expected "€20\u00a0350,50" (de-DE)`,
     ]);
   });
 
@@ -62,7 +95,7 @@ describe('a profile’s money figures group as its comma-decimal page does (docs
     const translated = (profile: CountryProfile, text: string) =>
       groups(languagePercentProblems(path, 'pt-PT', profile, [['card.allowances.0', text]]));
     expect(translated(de, 'Acima de EUR 20.350.')).toEqual([
-      `card.allowances.0: "EUR 20.350" expected "EUR 20${nbsp}350" (de-DE)`,
+      String.raw`card.allowances.0: "EUR 20.350" expected "EUR 20\u00a0350" (de-DE)`,
     ]);
     expect(translated(de, `Acima de EUR 20${nbsp}350.`)).toEqual([]);
     expect(translated(gb, 'Acima de £37,700.')).toEqual([]);

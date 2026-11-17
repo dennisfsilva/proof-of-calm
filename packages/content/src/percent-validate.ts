@@ -121,25 +121,43 @@ function decimalProblems(path: string, locale: string, texts: readonly [string, 
   );
 }
 
-// A money figure after its currency, with every mark a figure can be grouped by; a space joins only a group of three.
-const MONEY = /(?:EUR|USD|GBP|CHF|€|£|\$)[  ]?(\d+(?:(?:[.,]|[   ](?=\d{3}(?!\d)))\d+)*)/g;
-const NBSP = String.fromCodePoint(0xa0);
+const [NBSP, NARROW] = [String.fromCodePoint(0xa0), String.fromCodePoint(0x202f)];
+// A money figure beside its currency, before or after it, with every mark a figure can be grouped by; a space joins
+// only a group of three. A currency after the figure is a code, a sign or a word (`20 350 EUR`, `50 000 €`, `euros`).
+const MONEY_FIGURE = String.raw`\d+(?:(?:[.,]|[ ${NBSP}${NARROW}](?=\d{3}(?!\d)))\d+)*`;
+const CURRENCY = String.raw`EUR|USD|GBP|CHF|€|£|\$`;
+const CURRENCY_AFTER = String.raw`(?:${CURRENCY}|[Ee]uros?|dollars?|pounds?|francs?)(?![A-Za-z])`;
+const MONEY = new RegExp(
+  String.raw`(?:${CURRENCY})[ ${NBSP}]?(${MONEY_FIGURE})|(?<![\d.,])(${MONEY_FIGURE})(?=([ ${NBSP}]?${CURRENCY_AFTER}))`,
+  'g',
+);
 /** A whole figure as a comma-decimal page's profile writes it: groups of three from 10 000, joined by U+00A0. */
-const grouped = (digits: string) => (digits.length < 5 ? digits : digits.replace(/\B(?=(\d{3})+$)/g, NBSP));
+export const grouped = (digits: string) => (digits.length < 5 ? digits : digits.replace(/\B(?=(\d{3})+$)/g, NBSP));
+/** A text with the escapes a writer types in JSON, so a no-break space never looks like a space. */
+export const escaped = (text: string) =>
+  text.replace(
+    new RegExp(`[${NBSP}${NARROW}]`, 'g'),
+    (char) => `${String.fromCodePoint(0x5c)}u${(char.codePointAt(0) ?? 0).toString(16).padStart(4, '0')}`,
+  );
+const typed = (text: string) => escaped(JSON.stringify(text));
 
 /**
  * Each money figure in `texts` grouped otherwise than a comma-decimal page writes it (decided 2026-11-16,
  * docs/CONTENT-STYLE.md §4): a no-break space between groups of three from 10 000, none below, a comma before the
- * cents (`EUR 12,50`). Under a point-decimal locale (`£37,700`) the locale's grouping stands, so nothing is read.
+ * cents (`EUR 12,50`; a point's cents move after a comma, so the value stays). Under a point-decimal locale
+ * (`£37,700`) the locale's grouping stands, so nothing is read.
  */
 function groupProblems(path: string, locale: string, texts: readonly [string, string][]): Problem[] {
   if (decimalSeparator(locale) !== ',') return [];
   return texts.flatMap(([field, text]) =>
-    [...text.replaceAll(URL_IN_TEXT, ' ').matchAll(MONEY)].flatMap(([excerpt, figure = '']): Problem[] => {
-      const [, whole = '', cents = ''] = /^(.*?)(,\d{1,2})?$/.exec(figure) ?? [];
-      const expected = `${grouped(whole.replace(/\D/g, ''))}${cents}`;
+    [...text.replaceAll(URL_IN_TEXT, ' ').matchAll(MONEY)].flatMap((match): Problem[] => {
+      // A currency after the figure is only looked at, so `2026 EUR 20,350` still reads the figure after the code.
+      const [matched, before, after, currency = ''] = match;
+      const [figure = '', excerpt] = [before ?? after, `${matched}${currency}`];
+      const [, whole = '', cents] = /^(.*?)(?:[.,](\d{1,2}))?$/.exec(figure) ?? [];
+      const expected = `${grouped(whole.replace(/\D/g, ''))}${cents === undefined ? '' : `,${cents}`}`;
       if (expected === figure) return [];
-      const detail = `${field}: ${JSON.stringify(excerpt)} expected ${JSON.stringify(excerpt.replace(figure, expected))} (${locale})`;
+      const detail = `${field}: ${typed(excerpt)} expected ${typed(excerpt.replace(figure, expected))} (${locale})`;
       return [{ path, code: 'number-group', detail }];
     }),
   );
