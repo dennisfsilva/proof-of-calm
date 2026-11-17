@@ -1293,7 +1293,8 @@ describe('validateContent: translated overlays (ADR-0057)', () => {
     expect(overlaid([english, caveat('Ganhos até 1000 euros por ano estão isentos.')])).toEqual([]);
     expect(overlaid([english, caveat('Ganhos até 1.000 euros por ano estão isentos.')])).toEqual([
       'overlay-number-mismatch: card.caveats.0: 1.000, English 1000; write 1000, since a point in this profile marks only a citation',
-      'number-group: card.caveats.0: "1.000 euros" expected "1000 euros" (de-DE)',
+      // S3(b) of #318's design check: English reads 1.000 as 1, the page as 1000, so no suggestion.
+      String.raw`number-group: card.caveats.0: "1.000 euros" is a decimal in English and a group on this page (de-DE), so it has no suggestion: CONTENT-STYLE §4 writes groups of three joined by \u00a0 from 10 000, none below, and a comma before the decimals`,
     ]);
     const two = 'packages/content/templates/two-coins.json';
     const fell = file(two, template({ explanation: 'Each coin fell 31.4 % in its worst year.' }));

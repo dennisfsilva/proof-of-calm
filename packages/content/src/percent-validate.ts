@@ -123,12 +123,15 @@ function decimalProblems(path: string, locale: string, texts: readonly [string, 
 
 const [NBSP, NARROW] = [String.fromCodePoint(0xa0), String.fromCodePoint(0x202f)];
 // A money figure beside its currency, before or after it, with every mark a figure can be grouped by; a space joins
-// only a group of three. A currency after the figure is a code, a sign or a word (`20 350 EUR`, `50 000 €`, `euros`).
+// only a group of three. A currency after the figure is a code, a sign or a word (`20 350 EUR`, `50 000 €`, `euros`),
+// and counts only when no figure follows it: in `art. 33.1 EUR 1000` the code is 1000's. Two figures joined by an
+// unspaced dash or hyphen are one range, read whole (`0.125–1.125 EUR`).
 const MONEY_FIGURE = String.raw`\d+(?:(?:[.,]|[ ${NBSP}${NARROW}](?=\d{3}(?!\d)))\d+)*`;
+const MONEY_RUN = `${MONEY_FIGURE}(?:[–-]${MONEY_FIGURE})?`;
 const CURRENCY = String.raw`EUR|USD|GBP|CHF|€|£|\$`;
-const CURRENCY_AFTER = String.raw`(?:${CURRENCY}|[Ee]uros?|dollars?|pounds?|francs?)(?![A-Za-z])`;
+const CURRENCY_AFTER = String.raw`(?:${CURRENCY}|[Ee]uros?|dollars?|pounds?|francs?)(?![A-Za-z])(?![ ${NBSP}]?\d)`;
 const MONEY = new RegExp(
-  String.raw`(?:${CURRENCY})[ ${NBSP}]?(${MONEY_FIGURE})|(?<![\d.,])(${MONEY_FIGURE})(?=([ ${NBSP}]?${CURRENCY_AFTER}))`,
+  String.raw`(?:${CURRENCY})[ ${NBSP}]?(${MONEY_RUN})|(?<![\d.,])(${MONEY_RUN})(?=([ ${NBSP}]?${CURRENCY_AFTER}))`,
   'g',
 );
 /** A whole figure as a comma-decimal page's profile writes it: groups of three from 10 000, joined by U+00A0. */
@@ -141,28 +144,52 @@ export const escaped = (text: string) =>
   );
 const typed = (text: string) => escaped(JSON.stringify(text));
 
+type Reading = { readonly whole: string; readonly fraction?: string | undefined };
 /**
- * The decimals of a money figure, or `undefined` when every mark in it groups. D2 as amended after its review
- * (2026-11-17): the figure's structure decides first. A point and a comma together make the last mark the decimal. A
- * mark written twice groups. A lone mark after a space group or four digits, or before four digits, is the decimal. Only
- * then does D2's rule read it: one or two digits after it, or a whole part of 0, are decimals; three after 1 to 3 digits
- * are a group.
+ * A money figure read with `decimal` as its decimal mark, by structure (#318's design check, D10 of #316): at most one
+ * decimal mark with no mark after it, every group three digits after a first group of 1 to 999, one kind of group
+ * mark (every space is one kind), and no 0 before other digits; else no reading.
  */
-function decimalsOf(figure: string): string | undefined {
-  const at = Math.max(figure.lastIndexOf('.'), figure.lastIndexOf(','));
-  const [head, tail, marks] = [figure.slice(0, at), figure.slice(at + 1), figure.replace(/[^.,]/g, '')];
-  if (at < 0 || !/^\d+$/.test(tail)) return undefined;
-  if (marks.includes('.') && marks.includes(',')) return tail;
-  if (marks.length > 1) return undefined;
-  if (!/^\d{1,3}$/.test(head) || tail.length !== 3) return tail;
-  return head === '0' ? tail : undefined;
+function readAs(figure: string, decimal: string): Reading | undefined {
+  const [first = '', ...rest] = figure.split(/(\D)/);
+  let [whole, group, fraction]: [string, string | undefined, string | undefined] = [first, undefined, undefined];
+  for (let index = 0; index < rest.length; index += 2) {
+    const [mark = '', digits = ''] = [rest[index], rest[index + 1]];
+    if (fraction !== undefined) return undefined;
+    if (mark === decimal) {
+      fraction = digits;
+      continue;
+    }
+    const kind = mark === '.' || mark === ',' ? mark : ' ';
+    if (digits.length !== 3 || !/^[1-9]\d{0,2}$/.test(first) || (group ?? kind) !== kind) return undefined;
+    [whole, group] = [`${whole}${digits}`, kind];
+  }
+  return /^0\d/.test(first) ? undefined : { whole, fraction };
 }
+const amountOf = ({ whole, fraction }: Reading) =>
+  fraction === undefined ? whole : `${whole}.${fraction}`.replace(/\.?0+$/, '');
+/** A figure's one value as English (a point decimal) and the page (a comma decimal) read it, or why it has none. */
+function readingOf(figure: string): Reading | 'ambiguous' | 'none' {
+  const [english, page] = [readAs(figure, '.'), readAs(figure, ',')];
+  if (english !== undefined && page !== undefined && amountOf(english) !== amountOf(page)) return 'ambiguous';
+  return english ?? page ?? 'none';
+}
+/** A value as the page writes it: groups of three joined by U+00A0 from 10 000, then a comma and the decimals. */
+const pageForm = ({ whole, fraction }: Reading) => `${grouped(whole)}${fraction === undefined ? '' : `,${fraction}`}`;
+const WHY = {
+  comma: 'is a group in English and a decimal on this page',
+  point: 'is a decimal in English and a group on this page',
+  none: 'reads as no figure in English or on this page',
+  range: 'is a range',
+};
+const RULE = `so it has no suggestion: CONTENT-STYLE §4 writes groups of three joined by ${String.fromCodePoint(0x5c)}u00a0 from 10 000, none below, and a comma before the decimals`;
 
 /**
  * Each money figure in `texts` grouped otherwise than a comma-decimal page writes it (decided 2026-11-16,
  * docs/CONTENT-STYLE.md §4): a no-break space between groups of three from 10 000, none below, a comma before the
  * cents (`EUR 12,50`, never `EUR 12.50`). Under a point-decimal locale (`£37,700`) the locale's grouping stands, so
- * nothing is read.
+ * nothing is read. Only a single figure with one value gets the page's form as its suggestion; a figure read as two
+ * values, as none, or in a range gets §4's rule and no suggestion.
  */
 function groupProblems(path: string, locale: string, texts: readonly [string, string][]): Problem[] {
   if (decimalSeparator(locale) !== ',') return [];
@@ -170,13 +197,18 @@ function groupProblems(path: string, locale: string, texts: readonly [string, st
     [...text.replaceAll(URL_IN_TEXT, ' ').matchAll(MONEY)].flatMap((match): Problem[] => {
       // A currency after the figure is only looked at, so `2026 EUR 20,350` still reads the figure after the code.
       const [matched, before, after, currency = ''] = match;
-      const [figure = '', excerpt] = [before ?? after, `${matched}${currency}`];
-      // `EUR 1.125` is 1125, `EUR 0.125` keeps 0,125, `EUR 1.250,125` is 1250,125 and `EUR 1000,125` stands.
-      const cents = decimalsOf(figure);
-      const whole = cents === undefined ? figure : figure.slice(0, -cents.length - 1);
-      const expected = `${grouped(whole.replace(/\D/g, ''))}${cents === undefined ? '' : `,${cents}`}`;
-      if (expected === figure) return [];
-      const detail = `${field}: ${typed(excerpt)} expected ${typed(excerpt.replace(figure, expected))} (${locale})`;
+      const [run = '', excerpt] = [before ?? after, `${matched}${currency}`];
+      const figures = run.split(/[–-]/);
+      const readings = figures.map(readingOf);
+      const forms = readings.map((reading) => (typeof reading === 'string' ? undefined : pageForm(reading)));
+      if (forms.every((form, index) => form === figures[index])) return [];
+      const [form] = forms;
+      const why =
+        figures.length > 1 ? 'range' : readings[0] === 'none' ? 'none' : run.includes(',') ? 'comma' : 'point';
+      const detail =
+        figures.length === 1 && form !== undefined
+          ? `${field}: ${typed(excerpt)} expected ${typed(excerpt.replace(run, form))} (${locale})`
+          : `${field}: ${typed(excerpt)} ${WHY[why]} (${locale}), ${RULE}`;
       return [{ path, code: 'number-group', detail }];
     }),
   );

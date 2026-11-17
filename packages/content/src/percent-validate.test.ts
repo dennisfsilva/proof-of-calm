@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { numbersIn } from './i18n/overlay-validate.ts';
 import { escaped, languagePercentProblems, localeProblems } from './percent-validate.ts';
 import { type CountryProfile, CountryProfileSchema } from './schema/jurisdiction.ts';
 
@@ -8,6 +9,7 @@ const load = (code: string): CountryProfile =>
     JSON.parse(readFileSync(new URL(`../jurisdictions/${code}.json`, import.meta.url), 'utf8')),
   );
 const [pt, gb, de] = [load('pt'), load('gb'), load('de')];
+const [es, fr, italy, nl] = [load('es'), load('fr'), load('it'), load('nl')];
 const path = 'packages/content/jurisdictions/pt.json';
 const decimals = (problems: readonly { code: string; detail: string }[]) =>
   problems.filter(({ code }) => code === 'decimal-separator').map(({ detail }) => detail);
@@ -20,12 +22,29 @@ describe('a profile’s money figures group as its comma-decimal page does (docs
   const [nbsp, narrow] = [String.fromCodePoint(0xa0), String.fromCodePoint(0x202f)];
   const groups = (problems: readonly { code: string; detail: string }[]) =>
     problems.filter(({ code }) => code === 'number-group').map(({ detail }) => detail);
-  const german = (text: string) => groups(localeProblems(path, de, [['card.rates.1.note', text]]));
+  const german = (text: string, profile = de) => groups(localeProblems(path, profile, [['card.rates.1.note', text]]));
+  const translated = (profile: CountryProfile, text: string) =>
+    groups(languagePercentProblems(path, 'pt-PT', profile, [['card.rates.1.note', text]]));
+  const typed = (text: string) => escaped(JSON.stringify(text));
+  const suggestion = (figure: string, expected: string, locale = 'de-DE') =>
+    `card.rates.1.note: ${typed(figure)} expected ${typed(expected)} (${locale})`;
+  // S3 of #318's design check (D10 of #316): a figure without one value under both readers, English's (a point before
+  // the decimals) and the page's (a comma), gets §4's rule and no suggestion.
+  const RULE = String.raw`so it has no suggestion: CONTENT-STYLE §4 writes groups of three joined by \u00a0 from 10 000, none below, and a comma before the decimals`;
+  const WHY = {
+    comma: 'is a group in English and a decimal on this page',
+    point: 'is a decimal in English and a group on this page',
+    none: 'reads as no figure in English or on this page',
+    range: 'is a range',
+  } as const;
+  type Why = keyof typeof WHY;
+  const refusal = (figure: string, why: Why, locale = 'de-DE') =>
+    `card.rates.1.note: ${typed(figure)} ${WHY[why]} (${locale}), ${RULE}`;
 
   it('refuses another grouping of a figure after a currency on a de-DE page', () => {
     // The expected figure prints the escape the writer types in JSON, so it never looks like the refused one.
     expect(german('Where the income tax exceeds EUR 20,350.')).toEqual([
-      String.raw`card.rates.1.note: "EUR 20,350" expected "EUR 20\u00a0350" (de-DE)`,
+      String.raw`card.rates.1.note: "EUR 20,350" is a group in English and a decimal on this page (de-DE), so it has no suggestion: CONTENT-STYLE §4 writes groups of three joined by \u00a0 from 10 000, none below, and a comma before the decimals`,
     ]);
     expect(german('Where the income tax exceeds EUR 20 350.')).toEqual([
       String.raw`card.rates.1.note: "EUR 20 350" expected "EUR 20\u00a0350" (de-DE)`,
@@ -44,7 +63,7 @@ describe('a profile’s money figures group as its comma-decimal page does (docs
     ];
     for (const figure of flagged) expect(german(`Up to ${figure} a year.`)).toHaveLength(1);
     expect(german('EUR 1.000 and €20 350')).toEqual([
-      'card.rates.1.note: "EUR 1.000" expected "EUR 1000" (de-DE)',
+      String.raw`card.rates.1.note: "EUR 1.000" is a decimal in English and a group on this page (de-DE), so it has no suggestion: CONTENT-STYLE §4 writes groups of three joined by \u00a0 from 10 000, none below, and a comma before the decimals`,
       String.raw`card.rates.1.note: "€20 350" expected "€20\u00a0350" (de-DE)`,
     ]);
   });
@@ -53,16 +72,12 @@ describe('a profile’s money figures group as its comma-decimal page does (docs
     expect(german('Up to 20 350 EUR a year.')).toEqual([
       String.raw`card.rates.1.note: "20 350 EUR" expected "20\u00a0350 EUR" (de-DE)`,
     ]);
-    expect(german('Up to 50.000 € a year.')).toEqual([
-      String.raw`card.rates.1.note: "50.000 €" expected "50\u00a0000 €" (de-DE)`,
-    ]);
-    expect(german('Up to 20,350 euros a year.')).toEqual([
-      String.raw`card.rates.1.note: "20,350 euros" expected "20\u00a0350 euros" (de-DE)`,
-    ]);
+    expect(german('Up to 50.000 € a year.')).toEqual([refusal('50.000 €', 'point')]);
+    expect(german('Up to 20,350 euros a year.')).toEqual([refusal('20,350 euros', 'comma')]);
     expect(german('Up to 20350 € a year.')).toEqual([
       String.raw`card.rates.1.note: "20350 €" expected "20\u00a0350 €" (de-DE)`,
     ]);
-    expect(german('From 2026 EUR 20,350 a year.')).toHaveLength(1);
+    expect(german('From 2026 EUR 20,350 a year.')).toEqual([refusal('EUR 20,350', 'comma')]);
     for (const figure of [`20${nbsp}350 EUR`, `50${nbsp}000${nbsp}€`, '1000 Euro', '600 dollars']) {
       expect(german(`Up to ${figure} a year.`)).toEqual([]);
     }
@@ -75,81 +90,169 @@ describe('a profile’s money figures group as its comma-decimal page does (docs
     ]);
   });
 
-  // Each refused figure and the one the check suggests in its place, both as the text writes them (decided 2026-11-17,
-  // D2 of #316, amended after its review): the figure's structure decides first, the three-digit rule only what it
-  // leaves open. A point and a comma together make the last one the decimal; a mark written twice groups; a lone mark
-  // after a group or four digits, or before four digits, is the decimal; else one or two digits after the last mark, or
-  // a whole part of 0, are decimals and three digits group.
-  const suggested: readonly [string, string][] = [
-    ['EUR 0.125', 'EUR 0,125'],
-    ['EUR 0.05', 'EUR 0,05'],
-    ['EUR 0.0125', 'EUR 0,0125'],
-    ['0.125 EUR', '0,125 EUR'],
-    ['EUR 1.125', 'EUR 1125'],
-    ['EUR 2,000', 'EUR 2000'],
-    ['EUR 1.234,56', 'EUR 1234,56'],
-    ['EUR 20.350,5', `EUR 20${nbsp}350,5`],
-    ['EUR 12.50', 'EUR 12,50'],
-    ['EUR 1,250.125', 'EUR 1250,125'],
-    ['EUR 1.250,125', 'EUR 1250,125'],
-    ['EUR 12.345,678', `EUR 12${nbsp}345,678`],
-    ['EUR 1.234.567', `EUR 1${nbsp}234${nbsp}567`],
-    ['EUR 20 350,125', `EUR 20${nbsp}350,125`],
-    ['EUR 1.2345', 'EUR 1,2345'],
+  // S2: a figure with one value under both readers, in `Up to … a year.` unless a row gives the text; the excerpt the
+  // check suggests; and the value numbersIn reads from that excerpt.
+  const suggested: readonly [figure: string, expected: string, value: string, text?: string][] = [
+    ['EUR 0.125', 'EUR 0,125', '0.125'],
+    ['EUR 0.05', 'EUR 0,05', '0.05'],
+    ['EUR 0.0125', 'EUR 0,0125', '0.0125'],
+    ['0.125 EUR', '0,125 EUR', '0.125'],
+    ['EUR 1.234,56', 'EUR 1234,56', '1234.56'],
+    ['EUR 1,234.56', 'EUR 1234,56', '1234.56'],
+    ['EUR 20.350,5', `EUR 20${nbsp}350,5`, '20350.5'],
+    ['EUR 12.50', 'EUR 12,50', '12.5'],
+    ['EUR 1.250,125', 'EUR 1250,125', '1250.125'],
+    ['EUR 1,250.125', 'EUR 1250,125', '1250.125'],
+    ['EUR 12.345,678', `EUR 12${nbsp}345,678`, '12345.678'],
+    ['EUR 20 350,125', `EUR 20${nbsp}350,125`, '20350.125'],
+    ['EUR 1.2345', 'EUR 1,2345', '1.2345'],
+    ['EUR 1.1250', 'EUR 1,1250', '1.125'],
+    ['EUR 1.23456', 'EUR 1,23456', '1.23456'],
+    ['EUR 20 350', `EUR 20${nbsp}350`, '20350'],
+    [`EUR 20${narrow}350`, `EUR 20${nbsp}350`, '20350'],
+    ['EUR 20350', `EUR 20${nbsp}350`, '20350'],
+    [`EUR 1${nbsp}000`, 'EUR 1000', '1000'],
+    ['EUR 1 000', 'EUR 1000', '1000'],
+    ['20 350 EUR', `20${nbsp}350 EUR`, '20350'],
+    ['20350 €', `20${nbsp}350 €`, '20350'],
+    ['€20,350.50', `€20${nbsp}350,50`, '20350.5'],
+    ['EUR 1.234.567', `EUR 1${nbsp}234${nbsp}567`, '1234567'],
+    ['EUR 1,234,567', `EUR 1${nbsp}234${nbsp}567`, '1234567'],
+    ['EUR 1,000,000', `EUR 1${nbsp}000${nbsp}000`, '1000000'],
+    ['EUR 1,234,567.89', `EUR 1${nbsp}234${nbsp}567,89`, '1234567.89'],
+    ['EUR 1.234.567,5', `EUR 1${nbsp}234${nbsp}567,5`, '1234567.5'],
+    ['EUR 1,234,567.125', `EUR 1${nbsp}234${nbsp}567,125`, '1234567.125'],
+    ['EUR 1,234.567', 'EUR 1234,567', '1234.567'],
+    ['EUR 1000.125', 'EUR 1000,125', '1000.125'],
+    [`EUR 20${nbsp}350.125`, `EUR 20${nbsp}350,125`, '20350.125'],
+    ['EUR 12345.5', `EUR 12${nbsp}345,5`, '12345.5'],
+    ['EUR 1.000,50', 'EUR 1000,50', '1000.5'],
+    ['EUR 1,000.50', 'EUR 1000,50', '1000.5'],
+    ['EUR 0.000', 'EUR 0,000', '0'],
+    ['EUR 1.5', 'EUR 1,5', '1.5', 'Up to EUR 1.5 million a year.'],
+    ['12.50 EUR', '12,50 EUR', '12.5', 'Up to -12.50 EUR a year.'],
+    ['EUR 12.50', 'EUR 12,50', '12.5', 'Up to EUR 12.50 to 13.50 a year.'],
   ];
+
+  it('suggests the page’s form of a figure with one value, that value, and passes the text it suggests', () => {
+    for (const [figure, expected, value, text = `Up to ${figure} a year.`] of suggested) {
+      expect(german(text), text).toEqual([suggestion(figure, expected)]);
+      expect(numbersIn(expected, 'de-DE', true), figure).toEqual([value]);
+      expect(german(text.replace(figure, expected)), figure).toEqual([]);
+    }
+    expect([...(suggested[10]?.[1] ?? '')].map((char) => char.codePointAt(0))).toContain(0xa0);
+    expect(german('EUR 1.000 and €20 350')[1]).toBe(suggestion('€20 350', `€20${nbsp}350`));
+  });
+
+  it('suggests the page’s form on Portugal’s and France’s English texts and in a pt-PT text for the Netherlands', () => {
+    expect(german('Up to EUR 1.5 a year.', pt)).toEqual([suggestion('EUR 1.5', 'EUR 1,5', 'pt-PT')]);
+    expect(german('Up to EUR 12.50 a year.', pt)).toEqual([suggestion('EUR 12.50', 'EUR 12,50', 'pt-PT')]);
+    const million = `EUR 1${narrow}000${narrow}000,5`;
+    expect(german(`Up to ${million} a year.`, fr)).toEqual([
+      suggestion(million, `EUR 1${nbsp}000${nbsp}000,5`, 'fr-FR'),
+    ]);
+    expect(translated(nl, 'Até EUR 0.125 por ano.')).toEqual([suggestion('EUR 0.125', 'EUR 0,125', 'nl-NL')]);
+    expect(translated(nl, 'Até EUR 20 350 por ano.')).toEqual([suggestion('EUR 20 350', `EUR 20${nbsp}350`, 'nl-NL')]);
+  });
+
+  // S3: a figure the two readers read as different values, one neither reads, and a range; the excerpt refused.
+  const refused: readonly [figure: string, why: Why, text?: string][] = [
+    ...(['EUR 20,350', 'EUR 12,348', 'EUR 277,826', 'EUR 1,000', 'EUR 1,125', 'EUR 2,000'] as const).map(
+      (figure): [string, Why] => [figure, 'comma'],
+    ),
+    ['20,350 euros', 'comma'],
+    ['EUR12,348', 'comma'],
+    ['EUR 12,348', 'comma', 'Up to EUR 12,348/year.'],
+    ['EUR 1,000', 'comma', 'Up to −EUR 1,000 a year.'],
+    ['EUR 1,000', 'comma', 'Up to EUR 1,000 to 2,000 a year.'],
+    ['EUR 1,000', 'comma', 'EUR 256 and EUR 1,000'],
+    ...(['EUR 1.125', 'EUR 20.350', 'EUR 1.000', '50.000 €', '1.000 €', 'EUR 12.345', '€1.125'] as const).map(
+      (figure): [string, Why] => [figure, 'point'],
+    ),
+    ...[`EUR 1.000,125${nbsp}000`, `EUR 0,125${nbsp}000`, `0,125${nbsp}000 EUR`, 'EUR 1,23.456', 'EUR 1.23,456'].map(
+      (figure): [string, Why] => [figure, 'none'],
+    ),
+    ...['EUR 0125', 'EUR 01,000', 'EUR 00.50', 'EUR 012,348', 'EUR 012.125', 'EUR 12,34,567.50'].map(
+      (figure): [string, Why] => [figure, 'none'],
+    ),
+    ...[`EUR 1,000${nbsp}000`, 'EUR 1,000,50', 'EUR 1.5,000,000'].map((figure): [string, Why] => [figure, 'none']),
+    ...['0.125–1.125 EUR', '0,125–1,125 EUR', 'EUR 12.50–13.50', 'EUR 10-12.50', 'EUR 1,000–2,000'].map(
+      (figure): [string, Why] => [figure, 'range'],
+    ),
+    ...['EUR 1.125–1.5', 'EUR 1.000–2.000', 'EUR 0.5–1.000', 'EUR 0,5–1,000', 'EUR 1,000.5–2,5'].map(
+      (figure): [string, Why] => [figure, 'range'],
+    ),
+  ];
+
+  it('refuses a figure read two ways, read no way or in a range with §4’s rule and no suggestion', () => {
+    for (const [figure, why, text = `Up to ${figure} a year.`] of refused) {
+      expect(german(text), text).toEqual([refusal(figure, why)]);
+    }
+    expect(german('Where the income tax exceeds EUR 20,350 (single) or EUR 40,700 (joint).')).toEqual([
+      refusal('EUR 20,350', 'comma'),
+      refusal('EUR 40,700', 'comma'),
+    ]);
+    const spain = '19 % up to EUR 6,000; 21 % up to EUR 50,000; 27 % up to EUR 300,000.';
+    expect(german(spain, es)).toEqual(
+      ['EUR 6,000', 'EUR 50,000', 'EUR 300,000'].map((figure) => refusal(figure, 'comma', 'es-ES')),
+    );
+    expect(german('Up to EUR 2,000 a year.', italy)).toEqual([refusal('EUR 2,000', 'comma', 'it-IT')]);
+    expect(german('A deemed 6,00% of assets above EUR 59,357 per person.', nl)).toEqual([
+      refusal('EUR 59,357', 'comma', 'nl-NL'),
+    ]);
+    expect(german('EUR 1,500 and EUR 12,348', fr)).toEqual([
+      refusal('EUR 1,500', 'comma', 'fr-FR'),
+      refusal('EUR 12,348', 'comma', 'fr-FR'),
+    ]);
+  });
+
   // Each figure the page writes as it should: its grouping, a decimal comma, an identifier, a citation.
   const passed = [
-    ...[`EUR 20${nbsp}350`, `EUR 277${nbsp}826`, 'EUR 1000', 'EUR 600', 'EUR 12,50', 'PIV 28969', 'Modelo 721'],
-    ...['art. 33.1', '§3.2.1', 'EUR 0,125', 'EUR 0,05', 'EUR 0,0125', '0,125 EUR'],
+    ...[
+      `EUR 20${nbsp}350`,
+      `EUR 277${nbsp}826`,
+      'EUR 1000',
+      'EUR 600',
+      'EUR 12,50',
+      '12,50 €',
+      'PIV 28969',
+      'Modelo 721',
+    ],
+    ...['art. 33.1', '§3.2.1', 'EUR 0,125', 'EUR 0,05', 'EUR 0,0125', '0,125 EUR', `20${nbsp}350 EUR`],
     ...[`EUR 20${nbsp}350,125`, 'EUR 1000,125', '1000,125 EUR', 'EUR 1,2345', `EUR 12${nbsp}345,678`],
+    ...[`50${nbsp}000${nbsp}€`, '1000 Euro', '600 dollars', 'EUR 1000 to EUR 2000', 'EUR 1000–2000'],
   ];
-
-  it('suggests the same value: the structure decides, then one or two digits or a 0 keep their decimals', () => {
-    for (const [figure, expected] of suggested) {
-      expect(german(`Up to ${figure} a year.`), figure).toEqual([
-        `card.rates.1.note: "${figure}" expected ${escaped(JSON.stringify(expected))} (de-DE)`,
-      ]);
-    }
-  });
-
-  it('raises nothing on the text it suggests for any figure it refuses', () => {
-    const refused = [
-      ...suggested.map(([figure]) => figure),
-      ...['EUR 20,350', 'EUR 20.350', 'EUR 1,000', 'EUR 1.000', 'EUR 20350', `EUR 1${nbsp}000`, 'EUR 20 350'],
-      ...[`EUR 20${narrow}350`, '20 350 EUR', '50.000 €', '20,350 euros', '20350 €', '€20,350.50', 'EUR 1.000.000'],
-    ];
-    const expectedOf = new Map(suggested);
-    for (const figure of refused) {
-      const [detail = ''] = german(`Up to ${figure} a year.`);
-      const suggestion = /expected ("(?:[^"\\]|\\.)*")/.exec(detail)?.[1] ?? '""';
-      expect(suggestion, figure).not.toBe('""');
-      // The pasted text is the decoded one: real U+00A0 characters, no escape left in it.
-      const pasted = JSON.parse(suggestion) as string;
-      expect(pasted, figure).not.toContain(String.fromCodePoint(0x5c));
-      if (expectedOf.has(figure)) expect(pasted, figure).toBe(expectedOf.get(figure));
-      expect(german(`Up to ${pasted} a year.`), figure).toEqual([]);
-    }
-    expect([...(expectedOf.get('EUR 12.345,678') ?? '')].map((char) => char.codePointAt(0))).toContain(0xa0);
-  });
 
   it('raises no problem at all on any figure the page writes as it should', () => {
     for (const figure of passed) {
       expect(localeProblems(path, de, [['card.rates.1.note', `Up to ${figure} a year.`]]), figure).toEqual([]);
     }
+    expect(german('Up to EUR 6000 a year.', es)).toEqual([]);
+    expect(german(`Up to EUR 50${nbsp}000 a year.`, es)).toEqual([]);
+  });
+
+  it('reads a code after a figure only when no figure follows the code, and a range whole', () => {
+    expect(german('Under art. 33.1 EUR 1000 is exempt.')).toEqual([]);
+    expect(german('Circolare 30/E §3.2.1 EUR 2000 a year.', italy)).toEqual([]);
+    expect(german('In 2025–2026 EUR 1000 a year.')).toEqual([]);
   });
 
   it('passes a point-decimal page’s commas', () => {
-    expect(groups(localeProblems(path, gb, [['card.allowances.0', 'A £37,700 band and GBP 3,000.']]))).toEqual([]);
+    const british = (text: string) => groups(localeProblems(path, gb, [['card.allowances.0', text]]));
+    expect(british('A £37,700 band and GBP 3,000.')).toEqual([]);
+    expect(british('GBP 1.125 and EUR 0,125')).toEqual([]);
+    expect(british('EUR 12,50 and £37 700')).toEqual([]);
+    expect(british('GBP 1.234.567,5, EUR 1,270 and USD 49,450')).toEqual([]);
   });
 
   it('holds a translation to the grouping of its own page', () => {
-    const translated = (profile: CountryProfile, text: string) =>
-      groups(languagePercentProblems(path, 'pt-PT', profile, [['card.allowances.0', text]]));
-    expect(translated(de, 'Acima de EUR 20.350.')).toEqual([
-      String.raw`card.allowances.0: "EUR 20.350" expected "EUR 20\u00a0350" (de-DE)`,
-    ]);
+    expect(translated(de, 'Acima de EUR 20.350.')).toEqual([refusal('EUR 20.350', 'point')]);
     expect(translated(de, `Acima de EUR 20${nbsp}350.`)).toEqual([]);
     expect(translated(gb, 'Acima de £37,700.')).toEqual([]);
+    expect(translated(pt, 'Acima de EUR 1.000.')).toEqual([refusal('EUR 1.000', 'point', 'pt-PT')]);
+    expect(translated(de, 'Acima de EUR 1,125.')).toEqual([refusal('EUR 1,125', 'comma')]);
+    expect(translated(de, 'Até 20,350 euros.')).toEqual([refusal('20,350 euros', 'comma')]);
+    expect(translated(de, 'De EUR 0,125–1,125.')).toEqual([refusal('EUR 0,125–1,125', 'range')]);
   });
 });
 

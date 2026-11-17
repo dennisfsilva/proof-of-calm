@@ -182,6 +182,34 @@ describe('overlayProblems', () => {
     expect(detail('art. 33.1', 'art. 33.10')).toEqual(['card.caveats.0: 33.10, English 33.1']);
   });
 
+  // #318's design check (D10 of #316): each page form number-group suggests reads as its value in both texts.
+  it('passes a translation that writes the page form number-group suggests, and names one that differs', () => {
+    const detail = (english: string, translated: string, locale = 'de-DE') =>
+      overlayProblems('jurisdiction', path, { card: { caveats: [english] } }, { card: { caveats: [translated] } }, [
+        locale,
+        locale,
+      ]).map((problem) => problem.detail);
+    const nbsp = String.fromCodePoint(0xa0);
+    const unchanged: readonly [english: string, translated: string, locale?: string][] = [
+      ['EUR 12,50', 'EUR 12,50'],
+      ['EUR 1234,56', 'EUR 1234,56'],
+      [`EUR 20${nbsp}350,5`, `EUR 20${nbsp}350,5`],
+      [`EUR 1${nbsp}234${nbsp}567`, `EUR 1${nbsp}234${nbsp}567`],
+      ['EUR 0,125', 'EUR 0,125', 'nl-NL'],
+      ['EUR 1250,125', 'EUR 1250,125'],
+      ['EUR 20 350', `EUR 20${nbsp}350`],
+      ['EUR 1000,125', 'EUR 1000,125', 'pt-PT'],
+      // number-group refuses the range; the overlay check compares the same figures.
+      ['0.125–1.125 EUR', '0.125–1.125 EUR'],
+    ];
+    for (const [english, translated, locale] of unchanged) {
+      expect(detail(english, translated, locale), english).toEqual([]);
+    }
+    expect(detail('EUR 12.50', 'EUR 12,50')).toEqual(['card.caveats.0: 12,50, English 12.50']);
+    expect(detail('EUR 20,350', `EUR 20${nbsp}350`)).toEqual(['card.caveats.0: 20350, English 20.35']);
+    expect(detail('EUR 1.5 million', 'EUR 1,5 milhões')).toEqual(['card.caveats.0: 1,5, English 1.5']);
+  });
+
   // D5 of #316: the carry-over "A cited point with three digits", as literal pt-PT and nl-NL profile overlays.
   it.each(['pt-PT', 'nl-NL'])('reads a %s profile’s point as a citation’s and its comma as the decimal', (locale) => {
     const codes = (english: string, translated: string) =>
