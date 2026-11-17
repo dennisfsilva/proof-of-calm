@@ -236,6 +236,20 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
       const problems = [...moduleTranslationProblems(files, english), ...(await closedBodyProblems(files, english))];
       expect(problems).toEqual([]);
     });
+
+    // D12 of #322: a pt-PT module joins a numeral to its sign or unit word with U+00A0, as English joins its figure,
+    // so a line never breaks inside a figure; an ordinary space or a source line break would render as a breakable one.
+    it('joins every numeral of a real pt-PT module to its sign or unit word with a no-break space', () => {
+      const translated = fileURLToPath(new URL('../i18n/pt-PT/learn/', import.meta.url));
+      const units = 'dias?|semanas?|mês|meses|anos?|horas?|minutos?|pontos|episódios';
+      const broken = new RegExp(`\\d[ \\t\\r\\n]+(?:%|×|(?:${units})(?![\\p{L}\\d]))`, 'gu');
+      const names = readdirSync(translated).filter((name) => name.endsWith('.mdx'));
+      expect(names.length).toBeGreaterThan(0);
+      const found = names.flatMap((name) =>
+        [...readFileSync(join(translated, name), 'utf8').matchAll(broken)].map((match) => `${name}: ${match[0]}`),
+      );
+      expect(found).toEqual([]);
+    });
   });
 
   // Review 25m round 1: the ban list read `imperd&iacute;vel` in the source, where the page shows imperdível. A
