@@ -24,7 +24,7 @@ describe('a currency code or a form name joined to its figure (docs/CONTENT-STYL
       refused('"EUR" and its figure', `"20${String.fromCodePoint(0x5c)}u00a0350"`),
     ]);
     expect(joins('Each plan buys 100 USD a month.')).toEqual([refused('"USD" and its figure', '"100"')]);
-    expect(joins('Declare it on Modelo 721.')).toEqual([refused('the form "Modelo" and its number', '"721"')]);
+    expect(joins('Declare it on Modelo 721.')).toEqual([refused('the name "Modelo" and its number', '"721"')]);
   });
 
   it('passes the same three joined by U+00A0', () => {
@@ -73,18 +73,18 @@ describe('a currency code or a form name joined to its figure (docs/CONTENT-STYL
 
   it('reads a form number of capitals, points or a hyphen, and every form-name word', () => {
     expect(joins('Anexo G, Quadro 9.4, Form 1099-DA, box 3AN and Modelo D-100.')).toEqual([
-      refused('the form "Anexo" and its number', '"G"'),
-      refused('the form "Quadro" and its number', '"9.4"'),
-      refused('the form "Form" and its number', '"1099-DA"'),
-      refused('the form "box" and its number', '"3AN"'),
-      refused('the form "Modelo" and its number', '"D-100"'),
+      refused('the name "Anexo" and its number', '"G"'),
+      refused('the name "Quadro" and its number', '"9.4"'),
+      refused('the name "Form" and its number', '"1099-DA"'),
+      refused('the name "box" and its number', '"3AN"'),
+      refused('the name "Modelo" and its number', '"D-100"'),
     ]);
     const words = ['Box', 'boxes', 'annex', 'Annexe', 'campo', 'fields', 'Modello', 'Schedule'];
     expect(words.map((word) => joins(`${word} 1`).length)).toEqual(words.map(() => 1));
     expect(joins('A section, boxes 13.1 to 13.8, then Annexe 2086 and annex C.')).toEqual([
-      refused('the form "boxes" and its number', '"13.1"'),
-      refused('the form "Annexe" and its number', '"2086"'),
-      refused('the form "annex" and its number', '"C"'),
+      refused('the name "boxes" and its number', '"13.1"'),
+      refused('the name "Annexe" and its number', '"2086"'),
+      refused('the name "annex" and its number', '"C"'),
     ]);
   });
 

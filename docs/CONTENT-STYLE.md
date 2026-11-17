@@ -394,9 +394,9 @@ profile's figure of 10 000 or more groups its digits in threes with a no-break s
 and in each translation. A decimal in a profile's text there takes the comma, and a point in
 it is only a citation's. An identifier keeps its digits plain (`PIV 28969`). On every page, a currency
 code and its figure (`EUR 20 350`, `100 USD`) and a form's name and its number (`Modelo 721`,
-`Anexo G`, `Form 1040`, `Box 3`, `Quadro 9.4`) are joined by U+00A0 too, `\u00a0` in JSON and the
-character itself in a module, so that a line never ends on the code or the name: in English, in each
-translation and in a module (D3 of #328). `pnpm validate:content` refuses any other space there in a
+`Anexo G`, `Form 1040`, `Box 3`, `Quadro 9.4`) are joined by U+00A0 too, so that a line never ends
+on the code or the name. This holds in English, in each translation and in a module. A JSON file
+writes the space as `\u00a0`, an MDX file as the character itself (decided 2026-11-17). `pnpm validate:content` refuses any other space there in a
 profile or a translated one (`figure-join`); its detail names the pair and the space, never a text to write.
 `pnpm validate:content` refuses other grouping beside a currency code (`number-group`). It reads
 each figure as English does (a comma or a space between groups, a point before the decimals) and
