@@ -3,6 +3,7 @@ import { expect, type Page } from '@playwright/test';
 import { fixtureNowMs, fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
 import ptLearn from '../../../packages/app/src/messages/pt-PT/learn.json' with { type: 'json' };
 import ptPlan from '../../../packages/app/src/messages/pt-PT/plan.json' with { type: 'json' };
+import ptPortfolio from '../../../packages/app/src/messages/pt-PT/portfolio.json' with { type: 'json' };
 import ptSettings from '../../../packages/app/src/messages/pt-PT/settings.json' with { type: 'json' };
 import ptShell from '../../../packages/app/src/messages/pt-PT/shell.json' with { type: 'json' };
 import portugalPt from '../../../packages/content/i18n/pt-PT/jurisdictions/pt.json' with { type: 'json' };
@@ -169,6 +170,29 @@ test.describe("when the language's chunks load", () => {
 const ON_TWO = ['desktop', 'iphone'];
 const ptRulesText = (page: Page, text: string) => page.getByText(text, { exact: true });
 
+/** A Learn module's front matter fields and its first section heading, read from its `.mdx` file. */
+const frontMatter = (path: string) => {
+  const text = readFileSync(new URL(path, import.meta.url), 'utf8');
+  const field = (name: string) => new RegExp(`^${name}: (.+)$`, 'm').exec(text)?.[1] ?? '';
+  return {
+    title: field('title'),
+    idea: field('idea'),
+    caveat: field('caveat'),
+    heading: /^## (.+)$/m.exec(text)?.[1] ?? '',
+  };
+};
+// Risk honestly has no pt-PT translation, so a pt-PT screen opens it in English; Cycles has one.
+const riskHonestly = frontMatter('../../../packages/content/learn/risk-honestly.mdx');
+const cyclesPt = frontMatter('../../../packages/content/i18n/pt-PT/learn/cycles.mdx');
+
+/** The fixture plan in its buying phase, with the fixture's prices, so Plan and Portfolio's P/L both show. */
+async function seedBuying(page: Page) {
+  const nowMs = fixtureNowMs('buy');
+  await page.clock.setFixedTime(new Date(nowMs));
+  await routeFixturePrices(page, nowMs);
+  await seedPlan(page, fixtureSnapshot());
+}
+
 test.describe('English content text on a pt-PT screen', () => {
   test.use({ serviceWorkers: 'block' });
 
@@ -192,22 +216,39 @@ test.describe('English content text on a pt-PT screen', () => {
     await expect(page.getByText(ptLearn.card.inEnglish)).toHaveCount(0);
   });
 
-  test("Plan's Why? sheet marks the English module's body", async ({ page }, testInfo) => {
+  test("Portfolio's P/L Why? sheet marks the English module's body", async ({ page }, testInfo) => {
     // biome-ignore lint/suspicious/noSkippedTests: a runtime skip outside the two named projects, not a disabled test
     test.skip(!ON_TWO.includes(testInfo.project.name), 'desktop and iphone carry the language checks');
     await bootIn(page, 'pt-PT');
-    const nowMs = fixtureNowMs('buy');
-    await page.clock.setFixedTime(new Date(nowMs));
-    await routeFixturePrices(page, nowMs);
-    await seedPlan(page, fixtureSnapshot());
+    await seedBuying(page);
+    await page.goto('/portfolio');
+    await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
+    await page.getByRole('button', { name: ptPortfolio.summary.why, exact: true }).click();
+    const sheet = page.getByRole('dialog');
+    const title = sheet.locator('[data-slot="sheet-title"]');
+    await expect(title).toHaveText(riskHonestly.idea);
+    await expect(title).toHaveAttribute('lang', 'en');
+    await expect(sheet.locator('[data-slot="card"] p[lang="en"]')).toBeVisible();
+    // The body's section headings sit inside the one lang="en" element; the sheet's title is a heading of its own.
+    await expect(sheet.locator('[lang="en"] :is(h2, h3)').first()).toBeVisible();
+    await expect(sheet.getByRole('button', { name: ptLearn.sheet.close })).toBeVisible();
+  });
+
+  test("Plan's Why? sheet opens Cycles in pt-PT, with nothing marked lang", async ({ page }, testInfo) => {
+    // biome-ignore lint/suspicious/noSkippedTests: a runtime skip outside the two named projects, not a disabled test
+    test.skip(!ON_TWO.includes(testInfo.project.name), 'desktop and iphone carry the language checks');
+    await bootIn(page, 'pt-PT');
+    await seedBuying(page);
     await page.goto('/plan');
     await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
     await page.getByRole('button', { name: ptPlan.why.window }).click();
     const sheet = page.getByRole('dialog');
-    await expect(sheet.locator('[data-slot="sheet-title"]')).toHaveAttribute('lang', 'en');
-    await expect(sheet.locator('[data-slot="card"] p[lang="en"]')).toBeVisible();
-    // The body's section headings sit inside the one lang="en" element; the sheet's title is a heading of its own.
-    await expect(sheet.locator('[lang="en"] :is(h2, h3)').first()).toBeVisible();
+    const title = sheet.locator('[data-slot="sheet-title"]');
+    await expect(title).toHaveText(cyclesPt.idea);
+    await expect(title).not.toHaveAttribute('lang', /./);
+    await expect(sheet.getByRole('heading', { level: 2, name: cyclesPt.heading })).toBeAttached();
+    await expect(sheet.getByText(cyclesPt.caveat, { exact: true })).not.toHaveAttribute('lang', /./);
+    await expect(sheet.locator('[lang]')).toHaveCount(0);
     await expect(sheet.getByRole('button', { name: ptLearn.sheet.close })).toBeVisible();
   });
 
@@ -238,11 +279,6 @@ test.describe('English content text on a pt-PT screen', () => {
 // A Learn module's translation is a chunk of its own under assets/messages/pt-PT/ (ADR-0057, ADR-0048's Deviations):
 // a failed import shows English, marked lang="en", and the mount loads it once more, which only the built app
 // compiled by the React Compiler shows (useModuleBody).
-const frontMatter = (path: string) => {
-  const text = readFileSync(new URL(path, import.meta.url), 'utf8');
-  const field = (name: string) => new RegExp(`^${name}: (.+)$`, 'm').exec(text)?.[1] ?? '';
-  return { title: field('title'), caveat: field('caveat'), heading: /^## (.+)$/m.exec(text)?.[1] ?? '' };
-};
 const startHere = frontMatter('../../../packages/content/learn/start-here.mdx');
 const startHerePt = frontMatter('../../../packages/content/i18n/pt-PT/learn/start-here.mdx');
 const START_HERE_PT_CHUNK = /\/assets\/messages\/pt-PT\/start-here-[^/]+\.js$/;
