@@ -30,11 +30,11 @@ describe('a profile’s money figures group as its comma-decimal page does (docs
     `card.rates.1.note: ${typed(figure)} expected ${typed(expected)} (${locale})`;
   // S3 of #318's design check (D10 of #316): a figure without one value under both readers, English's (a point before
   // the decimals) and the page's (a comma), gets §4's rule and no suggestion.
-  const RULE = String.raw`so it has no suggestion: CONTENT-STYLE §4 writes groups of three joined by \u00a0 from 10 000, none below, and a comma before the decimals`;
+  const RULE = String.raw`so it has no suggestion: write it by hand as CONTENT-STYLE §4 does, groups of three joined by \u00a0 from 10 000, none below, a comma before the decimals, and a fourth decimal on an amount of 1 to 999 that has three (EUR 1,1250)`;
   const WHY = {
-    comma: 'is a group in English and a decimal on this page',
-    point: 'is a decimal in English and a group on this page',
-    none: 'reads as no figure in English or on this page',
+    comma: 'has a comma that is a group in English and a decimal on this page',
+    point: 'has a point that is a decimal in English and a group on this page',
+    none: 'has no reading in English or on this page',
     range: 'is a range',
   } as const;
   type Why = keyof typeof WHY;
@@ -44,7 +44,7 @@ describe('a profile’s money figures group as its comma-decimal page does (docs
   it('refuses another grouping of a figure after a currency on a de-DE page', () => {
     // The expected figure prints the escape the writer types in JSON, so it never looks like the refused one.
     expect(german('Where the income tax exceeds EUR 20,350.')).toEqual([
-      String.raw`card.rates.1.note: "EUR 20,350" is a group in English and a decimal on this page (de-DE), so it has no suggestion: CONTENT-STYLE §4 writes groups of three joined by \u00a0 from 10 000, none below, and a comma before the decimals`,
+      String.raw`card.rates.1.note: "EUR 20,350" has a comma that is a group in English and a decimal on this page (de-DE), so it has no suggestion: write it by hand as CONTENT-STYLE §4 does, groups of three joined by \u00a0 from 10 000, none below, a comma before the decimals, and a fourth decimal on an amount of 1 to 999 that has three (EUR 1,1250)`,
     ]);
     expect(german('Where the income tax exceeds EUR 20 350.')).toEqual([
       String.raw`card.rates.1.note: "EUR 20 350" expected "EUR 20\u00a0350" (de-DE)`,
@@ -63,7 +63,7 @@ describe('a profile’s money figures group as its comma-decimal page does (docs
     ];
     for (const figure of flagged) expect(german(`Up to ${figure} a year.`)).toHaveLength(1);
     expect(german('EUR 1.000 and €20 350')).toEqual([
-      String.raw`card.rates.1.note: "EUR 1.000" is a decimal in English and a group on this page (de-DE), so it has no suggestion: CONTENT-STYLE §4 writes groups of three joined by \u00a0 from 10 000, none below, and a comma before the decimals`,
+      String.raw`card.rates.1.note: "EUR 1.000" has a point that is a decimal in English and a group on this page (de-DE), so it has no suggestion: write it by hand as CONTENT-STYLE §4 does, groups of three joined by \u00a0 from 10 000, none below, a comma before the decimals, and a fourth decimal on an amount of 1 to 999 that has three (EUR 1,1250)`,
       String.raw`card.rates.1.note: "€20 350" expected "€20\u00a0350" (de-DE)`,
     ]);
   });
