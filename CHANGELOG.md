@@ -43,8 +43,8 @@ release.
 - A tax-year export: a CSV of the lots in your country's tax year, with the day each lot passes the
   country's holding rule where there is one. The file says it is not a tax computation.
 - Portugal's rules show their counts as numerals, such as 5 years and 6 brackets.
-- In the rules' text, a law's number such as 24‑D/2022 never breaks at its hyphen; a source's title
-  keeps it as the source writes it.
+- In the rules' text, a law's number such as 24‑D/2022 never breaks at its hyphen. A source's
+  title writes the number as the source does.
 
 ### Learn
 
