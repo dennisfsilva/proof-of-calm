@@ -1,5 +1,5 @@
-// A currency code joined to its figure and a form's name joined to its number by a no-break space (D3 of #328,
-// docs/CONTENT-STYLE.md §4), for percent-validate.ts. Pure; relative imports name their .ts files, so that Node runs
+// A currency code joined to its figure and a form's name joined to its number by a no-break space
+// (docs/CONTENT-STYLE.md §4), for percent-validate.ts. Pure; relative imports name their .ts files, so that Node runs
 // the CLI without a build step.
 import type { Problem } from './problem.ts';
 
