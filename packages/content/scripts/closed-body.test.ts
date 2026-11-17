@@ -1,7 +1,9 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { checkModuleBody } from '@proofofcalm/config/vite';
 import { describe, expect, it } from 'vitest';
+import { moduleTranslationProblems } from '../src/i18n/module-overlay-validate.ts';
 import { parseModule } from '../src/loaders/modules.ts';
 import { closedBodyProblems } from './closed-body.ts';
 
@@ -96,8 +98,9 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
 
       it("passes <Chart /> on a line of its own, and refuses it in a code span or a fence with English's code", async () => {
         expect(await translatedOf('drawdowns-bar', 'Texto.\n\n<Chart />\n')).toEqual([]);
-        expect(await translatedOf('drawdowns-bar', 'Um `<Chart />` sinal.\n')).toEqual([`${translated}: ${ONE}`]);
-        expect(await translatedOf('drawdowns-bar', '```\n<Chart />\n```\n')).toEqual([`${translated}: ${ONE}`]);
+        const elements = `${translated}: module-overlay-elements: English flow:Chart; translation none`;
+        expect(await translatedOf('drawdowns-bar', 'Um `<Chart />` sinal.\n')).toEqual([`${translated}: ${ONE}`, elements]);
+        expect(await translatedOf('drawdowns-bar', '```\n<Chart />\n```\n')).toEqual([`${translated}: ${ONE}`, elements]);
       });
 
       it("refuses a <Chart /> where English's chart is none, and skips a file named after no English module", async () => {
@@ -107,6 +110,98 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
         const orphan = 'packages/content/i18n/pt-PT/learn/ruido.mdx';
         expect(await translatedOf('drawdowns-bar', 'Texto.\n', orphan)).toEqual([]);
       });
+    });
+  });
+
+  // Review 25l round 2 (D11): the regex remover read code unlike the compiler, in both directions. Both checks run,
+  // as scripts/validate.ts runs them, on literal translations against a literal English; each value is the compiler's.
+  describe("a translation's elements, as the compiler reads them, against its English module's", () => {
+    const at = 'packages/content/i18n/pt-PT/learn/noise.mdx';
+    const englishOf = (body: string, chart = 'none') => {
+      const front = ['---', 'slug: noise', 'title: Noise', 'idea: Most price moves are noise.'];
+      const rest = ['caveat: A plan can lose money.', `chart: ${chart}`, 'facts: ', 'lastReviewed: 2026-11-02'];
+      const lines = [...front, ...rest, 'nextReviewDue: 2027-11-02', 'reviewedBy: owner', '---', '', body];
+      const parsed = parseModule('packages/content/learn/noise.mdx', lines.join('\n'));
+      if (!parsed.ok) throw new Error('the English fixture does not parse');
+      return [parsed.value];
+    };
+    const front = ['---', 'slug: noise', 'title: Ruído', 'idea: A maior parte das variações de preço é ruído.'];
+    const translationOf = (body: string) =>
+      [...front, 'caveat: Um plano pode perder dinheiro.', '---', '', body].join('\n');
+    const validated = async (englishBody: string, body: string, chart = 'none') => {
+      const english = englishOf(englishBody, chart);
+      const files = [{ language: 'pt-PT', path: at, source: translationOf(body) }];
+      const problems = [...moduleTranslationProblems(files, english), ...(await closedBodyProblems(files, english))];
+      return problems.map(({ code, detail }) => `${code}: ${detail}`);
+    };
+    const PAST = 'Text.\n\n<PastPerformance />\n\nAn end.\n';
+
+    it('reads a fence closed by ~~~` as still open, so the element after it is code', async () => {
+      const english = 'Text.\n\n~~~\ncode\n~~~\n\n<PastPerformance />\n';
+      expect(await validated(english, 'Texto.\n\n~~~\ncódigo\n~~~`\n\n<PastPerformance />\n')).toEqual([
+        'module-overlay-elements: English flow:PastPerformance; translation none',
+      ]);
+    });
+
+    it('pairs no code span across a blank line, so the element between the backticks shows', async () => {
+      expect(await validated(PAST, 'Um `sinal.\n\n<PastPerformance />\n\nUm` fim.\n')).toEqual([]);
+    });
+
+    it('closes a fence left open in a list item where the item ends', async () => {
+      expect(await validated(PAST, '- Um item:\n\n  ```\n  código\n\n<PastPerformance />\n\nUm fim.\n')).toEqual([]);
+    });
+
+    it('reads a backtick fence with a backtick in its info string as text, not a fence', async () => {
+      expect(await validated(PAST, '```js`\n\n<PastPerformance />\n\nUm fim.\n')).toEqual([]);
+    });
+
+    it("refuses a missing element, another order and an element in a sentence where English's is a block", async () => {
+      const english = 'Text.\n\n<Chart />\n\n<PastPerformance />\n';
+      const CHART = 'module-chart-element: write <Chart /> once, on a line of its own, where the drawdowns-bar chart stands';
+      expect(await validated(english, 'Texto.\n\n<PastPerformance />\n', 'drawdowns-bar')).toEqual([
+        CHART,
+        'module-overlay-elements: English flow:Chart, flow:PastPerformance; translation flow:PastPerformance',
+      ]);
+      expect(await validated(english, '<PastPerformance />\n\nTexto.\n\n<Chart />\n', 'drawdowns-bar')).toEqual([
+        'module-overlay-elements: English flow:Chart, flow:PastPerformance; translation flow:PastPerformance, flow:Chart',
+      ]);
+      expect(await validated(PAST, 'Texto. <PastPerformance />\n\nUm fim.\n')).toEqual([
+        'module-overlay-elements: English flow:PastPerformance; translation text:PastPerformance',
+      ]);
+    });
+
+    it('counts an element in a code span or a fenced block as none, and passes one after a fence left open', async () => {
+      const english = 'Text.\n\n<Chart />\n\n<PastPerformance />\n';
+      const CHART = 'module-chart-element: write <Chart /> once, on a line of its own, where the drawdowns-bar chart stands';
+      const missing = 'module-overlay-elements: English flow:Chart, flow:PastPerformance; translation flow:PastPerformance';
+      for (const chart of ['`<Chart />`', '```\n<Chart />\n```', '~~~~mdx\n<Chart />\n~~~~']) {
+        const body = `Texto.\n\n${chart}\n\n<PastPerformance />\n`;
+        expect(await validated(english, body, 'drawdowns-bar')).toEqual([CHART, missing]);
+      }
+      const open = 'Texto.\n\n<Chart />\n\n<PastPerformance />\n\n```\n<Chart />\n';
+      expect(await validated(english, open, 'drawdowns-bar')).toEqual([]);
+    });
+
+    it("gives each English module's elements alike from its file and from its body", async () => {
+      const names = readdirSync(learn).filter((name) => name.endsWith('.mdx'));
+      expect(names).toHaveLength(6);
+      for (const name of names) {
+        const path = `packages/content/learn/${name}`;
+        const source = readFileSync(join(learn, name), 'utf8');
+        const parsed = parseModule(path, source);
+        if (!parsed.ok) throw new Error(`${name} does not parse`);
+        const [file, body] = [await checkModuleBody(source, path), await checkModuleBody(parsed.value.body, path)];
+        expect([name, body.problem, body.elements]).toEqual([name, null, file.elements]);
+      }
+    });
+
+    it('passes the real pt-PT start-here against the real English module', async () => {
+      const source = (path: string) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
+      const english = parseModule('packages/content/learn/start-here.mdx', source('learn/start-here.mdx'));
+      if (!english.ok) throw new Error('the English start-here does not parse');
+      const path = 'packages/content/i18n/pt-PT/learn/start-here.mdx';
+      const files = [{ language: 'pt-PT', path, source: source('i18n/pt-PT/learn/start-here.mdx') }];
+      expect(await closedBodyProblems(files, [english.value])).toEqual([]);
     });
   });
 
