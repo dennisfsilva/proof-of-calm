@@ -195,10 +195,10 @@ Recorded on 2026-11-15, when the site's half of the rendering points landed in `
   through `plainText`, which drops every tag, one in code included, keeps a fence's info string and decodes no
   character reference, so on English they can over-report or miss: a limit carried to the next session.
 - 2026-11-17: the plugin reads the modules' translations from `packages/content/i18n/<language>/learn/`, the
-  folder beside `dir` (`translations` overrides it, `packages/config/vite/learn-translations.ts`), and fails the build
-  on a translation whose slug has no English module or whose front matter holds a key a translation does not take.
-  A translation's metadata is the English module's under the translated texts, parsed by the same `parseModule` from
-  the translation's own body, so the reading time counts the translation's words. The metadata rides in the
-  translation's chunk as `meta` beside its body (`LEARN_TRANSLATIONS`, under `assets/messages/<language>/`, outside
-  the precache), never in the entry, and `closedBody` runs on the translation as on English, failing at the
-  translation's own line.
+  folder beside `dir` (`translations` overrides it, `packages/config/vite/learn-translations.ts`). The build fails on
+  a translation whose slug has no English module or whose front matter holds a key a translation does not take. A
+  translation's metadata is the English module's, with the translated texts in place of the English ones, parsed by
+  the same `parseModule` from the translation's own body, so the reading time counts the translation's words. The
+  metadata travels in the translation's chunk as `meta` beside its body (`LEARN_TRANSLATIONS`, under
+  `assets/messages/<language>/`, outside the precache), never in the entry. `closedBody` runs on the translation as
+  on English, failing at the translation's own line.

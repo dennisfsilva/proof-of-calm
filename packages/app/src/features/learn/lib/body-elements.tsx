@@ -18,7 +18,7 @@ export function headingId(text: string): string {
 // one without the other. The type is the body's, set here too because on a line of its own the element stands
 // outside any paragraph. The Risk page is a site page, so a plain anchor, as beside the Portfolio chart's line. A
 // module's text holds no link of its own (ADR-0048 Deviations).
-// It stands inside the module's English body, so it carries the page's language (ADR-0057).
+// It stands inside the module's body, so it carries the page's language (ADR-0057).
 function PastPerformance() {
   const t = useTranslations('learn');
   return (
