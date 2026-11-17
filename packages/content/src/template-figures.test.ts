@@ -307,7 +307,10 @@ describe('the details (D17 of #318: a datum written in passes, one step past it 
         `Solana fell about 97 % ${D('SOL')}.`,
         `explanation: "97 %" beside the dates of SOL's fall of 97 % matches neither F1 nor F2`,
       ],
-      [`Ethereum’s high and low came ${D('ETH')}.`, `explanation: the dates of ETH's fall of 83 % sit in no F1 or F2 sentence`],
+      [
+        `Ethereum’s high and low came ${D('ETH')}.`,
+        `explanation: the dates of ETH's fall of 83 % sit in no F1 or F2 sentence`,
+      ],
       [`Solana fell 97 % ${D('DOGE')}.`, `explanation: "97 %" carries the dates of DOGE, which has no drawdown row`],
     ];
     for (const [explanation, what] of exact) {
