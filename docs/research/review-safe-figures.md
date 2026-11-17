@@ -297,3 +297,7 @@ such as an en dash, a minus sign, a soft hyphen, or a zero-width space.
 `paragraphsOf` (`packages/content/src/paragraphs.ts`): a line holding only spaces, tabs, carriage returns or form
 feeds ends a paragraph, and inside a paragraph each run of those characters and line feeds reads as one space, as CSS
 shows it. Rounds 3 and 4 of #340 found wording hidden where the checker split paragraphs and the app did not.
+
+2026-11-17: an explanation's percentage, English or translated, is the one token the app formats, `N %` with an
+ordinary space, read by the shapes, the `percent-token` check and the template step from
+`packages/content/src/percent-token.ts`; the shapes took U+00A0, U+202F or nothing, which the app showed as typed.
