@@ -1,5 +1,6 @@
-// A country profile's locale tags and the joiner of its literal percentages (docs/CONTENT-STYLE.md §4), for
-// validate.ts. Pure; relative imports name their .ts files, so that Node runs the CLI without a build step.
+// A country profile's locale tags, the joiner and decimal of its literal percentages and its money figures' grouping
+// (docs/CONTENT-STYLE.md §4), for validate.ts. Pure; relative imports name their .ts files, so that Node runs the CLI
+// without a build step.
 import { numberLocaleFor } from './loaders/locales.ts';
 import type { Problem } from './problem.ts';
 import type { CountryProfile } from './schema/jurisdiction.ts';
@@ -74,8 +75,8 @@ function percentProblems(path: string, profile: CountryProfile, texts: readonly 
 
 /**
  * A translated profile's percentages against the number locale `localesFor` (packages/app) picks in `language`: the
- * profile's locale in that language where it has one, else `numberFormatLocale` (ADR-0057). The joiner and the
- * decimal separator both.
+ * profile's locale in that language where it has one, else `numberFormatLocale` (ADR-0057). The joiner, the decimal
+ * separator and a money figure's grouping.
  */
 export function languagePercentProblems(
   path: string,
@@ -85,7 +86,11 @@ export function languagePercentProblems(
 ): Problem[] {
   const locale = numberLocaleFor(language, profile);
   return wellFormed(locale)
-    ? [...percentTextProblems(path, locale, texts), ...decimalProblems(path, locale, texts)]
+    ? [
+        ...percentTextProblems(path, locale, texts),
+        ...decimalProblems(path, locale, texts),
+        ...groupProblems(path, locale, texts),
+      ]
     : [];
 }
 
@@ -116,6 +121,30 @@ function decimalProblems(path: string, locale: string, texts: readonly [string, 
   );
 }
 
+// A money figure after its currency, with every mark a figure can be grouped by; a space joins only a group of three.
+const MONEY = /(?:EUR|USD|GBP|CHF|€|£|\$)[  ]?(\d+(?:(?:[.,]|[   ](?=\d{3}(?!\d)))\d+)*)/g;
+const NBSP = String.fromCodePoint(0xa0);
+/** A whole figure as a comma-decimal page's profile writes it: groups of three from 10 000, joined by U+00A0. */
+const grouped = (digits: string) => (digits.length < 5 ? digits : digits.replace(/\B(?=(\d{3})+$)/g, NBSP));
+
+/**
+ * Each money figure in `texts` grouped otherwise than a comma-decimal page writes it (decided 2026-11-16,
+ * docs/CONTENT-STYLE.md §4): a no-break space between groups of three from 10 000, none below, a comma before the
+ * cents (`EUR 12,50`). Under a point-decimal locale (`£37,700`) the locale's grouping stands, so nothing is read.
+ */
+function groupProblems(path: string, locale: string, texts: readonly [string, string][]): Problem[] {
+  if (decimalSeparator(locale) !== ',') return [];
+  return texts.flatMap(([field, text]) =>
+    [...text.replaceAll(URL_IN_TEXT, ' ').matchAll(MONEY)].flatMap(([excerpt, figure = '']): Problem[] => {
+      const [, whole = '', cents = ''] = /^(.*?)(,\d{1,2})?$/.exec(figure) ?? [];
+      const expected = `${grouped(whole.replace(/\D/g, ''))}${cents}`;
+      if (expected === figure) return [];
+      const detail = `${field}: ${JSON.stringify(excerpt)} expected ${JSON.stringify(excerpt.replace(figure, expected))} (${locale})`;
+      return [{ path, code: 'number-group', detail }];
+    }),
+  );
+}
+
 /** Each literal percentage in `texts` without the joiner `locale` writes; the locale is well formed. */
 function percentTextProblems(path: string, locale: string, texts: readonly [string, string][]): Problem[] {
   const joiner = percentJoiner(locale);
@@ -132,13 +161,13 @@ function percentTextProblems(path: string, locale: string, texts: readonly [stri
 
 /**
  * The profile's malformed locale tags, its percentages without the number locale's joiner, then those whose decimal
- * separator is not the one its English page writes; `texts` by field.
+ * separator is not the one its English page writes, then its money figures grouped otherwise; `texts` by field.
  */
 export function localeProblems(path: string, profile: CountryProfile, texts: readonly [string, string][]): Problem[] {
   const english = numberLocaleFor('en', profile);
   return [
     ...localeTagProblems(path, profile),
     ...percentProblems(path, profile, texts),
-    ...(wellFormed(english) ? decimalProblems(path, english, texts) : []),
+    ...(wellFormed(english) ? [...decimalProblems(path, english, texts), ...groupProblems(path, english, texts)] : []),
   ];
 }
