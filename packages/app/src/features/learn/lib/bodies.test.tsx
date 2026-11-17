@@ -8,11 +8,14 @@ import { createTestServices, preloadLazyModules } from '../../../lib/services/te
 import learnPt from '../../../messages/pt-PT/learn.json';
 import { ModuleSheet } from '../components/module-sheet';
 import { ModuleView } from '../components/module-view';
-import { useModuleBody } from './bodies';
+import { useModuleBody, useModuleIndex } from './bodies';
 
-// A translated module (ADR-0057, ADR-0048 Deviations): its metadata and body come from its own chunk; English stands
-// for a slug without one, and for a chunk that fails or resolves to nothing, and the next mount tries again.
-const { translation } = vi.hoisted(() => ({ translation: { load: (): Promise<unknown> => Promise.resolve() } }));
+// A translated module (ADR-0057, ADR-0048 Deviations): its body comes from its own chunk and its metadata from its
+// language's (LEARN_META); English stands for a slug without one, and for a chunk that fails or resolves to nothing,
+// and the next mount tries again.
+const { translation } = vi.hoisted(() => ({
+  translation: { load: (): Promise<unknown> => Promise.resolve(), meta: (): Promise<unknown> => Promise.resolve() },
+}));
 vi.mock('virtual:learn-modules', async (original) => {
   const modules = await original<typeof import('virtual:learn-modules')>();
   // One slug per case: a translation that loaded stays kept for the file's later tests. The fixture folder holds four
@@ -21,13 +24,14 @@ vi.mock('virtual:learn-modules', async (original) => {
   const base = modules.LEARN_MODULES.find((module) => module.slug === 'start-here');
   const body = modules.LEARN_BODIES['start-here'];
   if (base === undefined || body === undefined) throw new Error('the start-here fixture is missing');
-  const copies = ['strict-retry', 'left-retry'];
+  const copies = ['strict-retry', 'left-retry', 'meta-fails'];
   const slugs = ['start-here', 'risk-honestly', 'taxes-where-you-live', ...copies];
   return {
     ...modules,
     LEARN_MODULES: [...modules.LEARN_MODULES, ...copies.map((slug) => ({ ...base, slug }))],
     LEARN_BODIES: { ...modules.LEARN_BODIES, ...Object.fromEntries(copies.map((slug) => [slug, body])) },
     LEARN_TRANSLATIONS: { 'pt-PT': Object.fromEntries(slugs.map((slug) => [slug, load])) },
+    LEARN_META: { 'pt-PT': () => translation.meta() },
   };
 });
 // The retry's dispatch, counted (BUILD-PROMPT: a load started after commit is cancelled by its cleanup).
@@ -45,11 +49,16 @@ await preloadLazyModules([
     ),
 ]);
 
-const { LEARN_MODULES } = await import('virtual:learn-modules');
+const { LEARN_MODULES, LEARN_TRANSLATIONS } = await import('virtual:learn-modules');
 const ENGLISH = LEARN_MODULES.find((module) => module.slug === 'start-here');
 if (ENGLISH === undefined) throw new Error('the start-here fixture is missing');
 const PT = { ...ENGLISH, title: 'Começar aqui', idea: 'Uma ideia traduzida.', caveat: 'Uma ressalva traduzida.' };
-const translated = () => Promise.resolve({ meta: PT, default: () => <p>Um parágrafo traduzido.</p> });
+const translated = () => Promise.resolve({ default: () => <p>Um parágrafo traduzido.</p> });
+/** pt-PT's metadata module: PT's texts for every slug with a translated body. */
+const ptMeta = () => ({
+  default: Object.fromEntries(Object.keys(LEARN_TRANSLATIONS['pt-PT'] ?? {}).map((slug) => [slug, { ...PT, slug }])),
+});
+const translatedMeta = () => Promise.resolve(ptMeta());
 
 function deferred() {
   let resolve: (value: unknown) => void = () => undefined;
@@ -84,6 +93,7 @@ const mount = async (slug = 'start-here', sheet = false, strict = false) => {
 
 beforeEach(() => {
   translation.load = translated;
+  translation.meta = translatedMeta;
   vi.mocked(startTransition).mockClear();
 });
 afterEach(cleanup);
@@ -163,10 +173,9 @@ describe('useModuleBody on a pt-PT screen', () => {
     const first = await mount('strict-retry', false, true);
     expect((await screen.findByRole('heading', { level: 1, name: ENGLISH.title })).getAttribute('lang')).toBe('en');
     expect(loading).toHaveBeenCalledTimes(3);
-    await act(async () => kept.resolve({ meta: PT, default: () => <p>Um parágrafo traduzido.</p> }));
+    await act(async () => kept.resolve({ default: () => <p>Um parágrafo traduzido.</p> }));
     // The cancelled retry resolves last, with another text: it must neither be kept nor dispatch.
-    const stale = { ...PT, title: 'Um título antigo' };
-    await act(async () => cancelled.resolve({ meta: stale, default: () => <p>Um parágrafo antigo.</p> }));
+    await act(async () => cancelled.resolve({ default: () => <p>Um parágrafo antigo.</p> }));
     expect(await screen.findByRole('heading', { level: 1, name: PT.title })).toBeTruthy();
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
     expect(screen.queryByText('Um parágrafo antigo.')).toBeNull();
@@ -191,10 +200,99 @@ describe('useModuleBody on a pt-PT screen', () => {
     expect((await screen.findByRole('heading', { level: 1, name: ENGLISH.title })).getAttribute('lang')).toBe('en');
     expect(loading).toHaveBeenCalledTimes(2);
     left.unmount();
-    await act(async () => retry.resolve({ meta: PT, default: () => <p>Um parágrafo traduzido.</p> }));
+    await act(async () => retry.resolve({ default: () => <p>Um parágrafo traduzido.</p> }));
     expect(startTransition).not.toHaveBeenCalled();
     await mount('left-retry');
     expect(await screen.findByRole('heading', { level: 1, name: PT.title })).toBeTruthy();
     expect(loading).toHaveBeenCalledTimes(3);
+  });
+
+  it("renders English when the language's metadata chunk fails, though the body loaded, and the next mount loads it", async () => {
+    translation.meta = () => Promise.reject(new Error('offline'));
+    const first = await mount('meta-fails');
+    expect((await screen.findByRole('heading', { level: 1, name: ENGLISH.title })).getAttribute('lang')).toBe('en');
+    expect(screen.queryByText('Um parágrafo traduzido.')).toBeNull();
+    first.unmount();
+    translation.meta = translatedMeta;
+    await mount('meta-fails');
+    expect(await screen.findByRole('heading', { level: 1, name: PT.title })).toBeTruthy();
+  });
+});
+
+function Index({ language }: { language: 'en' | 'pt-PT' }) {
+  return (
+    <ul>
+      {useModuleIndex(language).map(({ meta, language: shown }) => (
+        <li key={meta.slug} data-lang={shown}>
+          {meta.title}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+const rows = (container: HTMLElement) =>
+  [...container.querySelectorAll('li')].map((row) => [row.textContent, row.dataset['lang']]);
+
+describe('useModuleIndex', () => {
+  it('lists English, marked so, until the language’s metadata resolves, then each translated module in it', async () => {
+    const meta = deferred();
+    translation.meta = () => meta.promise;
+    const { container } = render(<Index language="pt-PT" />);
+    expect(rows(container)).toEqual(LEARN_MODULES.map((module) => [module.title, 'en']));
+    await act(async () => meta.resolve(ptMeta()));
+    const translatedSlugs = new Set(Object.keys(LEARN_TRANSLATIONS['pt-PT'] ?? {}));
+    expect(rows(container)).toEqual(
+      LEARN_MODULES.map((module) =>
+        translatedSlugs.has(module.slug) ? [PT.title, 'pt-PT'] : [module.title, 'en'],
+      ),
+    );
+    expect(rows(container).some(([, lang]) => lang === 'en')).toBe(true);
+  });
+
+  it('keeps English for good when the chunk fails, and loads nothing for English', async () => {
+    const failing = vi.fn(() => Promise.reject(new Error('offline')));
+    translation.meta = failing;
+    const { container } = render(<Index language="pt-PT" />);
+    await act(async () => undefined);
+    expect(rows(container)).toEqual(LEARN_MODULES.map((module) => [module.title, 'en']));
+    cleanup();
+    failing.mockClear();
+    render(<Index language="en" />);
+    expect(failing).not.toHaveBeenCalled();
+  });
+
+  it('under StrictMode loads twice, sets once, and shows the translation with no error', async () => {
+    const errors = vi.spyOn(console, 'error');
+    const [cancelled, kept] = [deferred(), deferred()];
+    const loading = vi
+      .fn<() => Promise<unknown>>()
+      .mockImplementationOnce(() => cancelled.promise)
+      .mockImplementationOnce(() => kept.promise);
+    translation.meta = loading;
+    const { container } = render(
+      <StrictMode>
+        <Index language="pt-PT" />
+      </StrictMode>,
+    );
+    expect(loading).toHaveBeenCalledTimes(2);
+    await act(async () => kept.resolve(ptMeta()));
+    // The cleaned-up first load resolves last, with another title: it must not be set.
+    await act(async () => cancelled.resolve({ default: { 'start-here': { ...PT, title: 'Um título antigo' } } }));
+    expect(container.textContent).toContain(PT.title);
+    expect(container.textContent).not.toContain('Um título antigo');
+    expect(errors).not.toHaveBeenCalled();
+    errors.mockRestore();
+  });
+
+  it('sets nothing when the index leaves while the metadata loads', async () => {
+    const errors = vi.spyOn(console, 'error');
+    const meta = deferred();
+    translation.meta = () => meta.promise;
+    const left = render(<Index language="pt-PT" />);
+    left.unmount();
+    await act(async () => meta.resolve(ptMeta()));
+    expect(errors).not.toHaveBeenCalled();
+    errors.mockRestore();
   });
 });

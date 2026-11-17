@@ -1,10 +1,8 @@
-/// <reference path="../learn-modules.d.ts" />
-import { LEARN_MODULES } from 'virtual:learn-modules';
 import type { ReactNode } from 'react';
 import { useTranslations } from 'use-intl';
 import { Link, Redirect, Route, Switch } from '../../../lib/navigation';
 import { useServices } from '../../../lib/services';
-import { useModuleBody } from '../lib/bodies';
+import { useModuleBody, useModuleIndex } from '../lib/bodies';
 import { TAXES_MODULE } from '../lib/taxes';
 import { BACK_LINK, CountryList, CountryRoute, CountryRows, PlanCountryCard } from './country-library';
 import { ModuleIndex } from './module-index';
@@ -51,12 +49,16 @@ function ModuleRoute({ slug }: { slug: string }) {
   );
 }
 
-/** The index, with the fall page's row while a fall of the held coins is under way on this device. */
+/**
+ * The index, each module in the person's language where it has a translation (ADR-0057), with the fall page's row
+ * while a fall of the held coins is under way on this device.
+ */
 function IndexRoute() {
   const model = useFallModel();
+  const modules = useModuleIndex(useServices().language);
   return (
     <div className={PAGE}>
-      <ModuleIndex modules={LEARN_MODULES} thisFall={model?.state === 'episode'} />
+      <ModuleIndex modules={modules} thisFall={model?.state === 'episode'} />
     </div>
   );
 }

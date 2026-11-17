@@ -37,12 +37,18 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
+/** Entries as useModuleIndex gives them: English metadata, marked so. */
+const english = (...metas: LearnModuleMeta[]) => metas.map((meta) => ({ meta, language: 'en' as const }));
+
 export const Modules: Story = {
   args: {
-    modules: [
-      start,
-      { ...start, slug: 'cycles', title: 'Cycles', idea: 'The fixture idea of another module.', readingMinutes: 3 },
-    ],
+    modules: english(start, {
+      ...start,
+      slug: 'cycles',
+      title: 'Cycles',
+      idea: 'The fixture idea of another module.',
+      readingMinutes: 3,
+    }),
   },
   play: async ({ canvas }) => {
     await expect(canvas.getByRole('heading', { level: 1, name: 'Learn' })).toBeVisible();
@@ -53,7 +59,7 @@ export const Modules: Story = {
 };
 
 export const DuringAFall: Story = {
-  args: { modules: [start], thisFall: true },
+  args: { modules: english(start), thisFall: true },
   play: async ({ canvas }) => {
     const rows = canvas.getAllByRole('link');
     await expect(rows[0]).toHaveAttribute('href', '/fall-under-way');
