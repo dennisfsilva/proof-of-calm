@@ -14,6 +14,7 @@ import { hyphenProblems } from './hyphen-validate.ts';
 import { changedTexts, isOverlayFile, overlayFileProblems, type TextChecks } from './i18n/overlay-validate.ts';
 import { moduleProblems } from './modules-validate.ts';
 import { monthsBefore } from './months.ts';
+import { paragraphsOf } from './paragraphs.ts';
 import { languagePercentProblems, localeProblems } from './percent-validate.ts';
 import { bannedProblems, type Problem, schemaProblems } from './problem.ts';
 import { profileTextProblems, profileTexts, summaryProblems } from './profile-texts.ts';
@@ -24,7 +25,7 @@ import { FactSchema } from './schema/fact.ts';
 import { type CountryProfile, CountryProfileSchema } from './schema/jurisdiction.ts';
 import { type ContentTemplate, TemplateSchema } from './schema/template.ts';
 import { templateDateProblems } from './template-dates.ts';
-import { templateFigureProblems } from './template-figures.ts';
+import { sentencesOf, templateFigureProblems } from './template-figures.ts';
 
 export { percentJoiner } from './percent-validate.ts';
 export type { Problem } from './problem.ts';
@@ -115,13 +116,10 @@ function sourceKeyProblems(path: string, profile: CountryProfile): Problem[] {
   ];
 }
 
-/** Paragraphs are separated by a blank line; a sentence ends at ., ? or ! followed by a space or the end. */
+/** The paragraphs the app renders (`paragraphsOf`), each counted in the sentences the figures check reads. */
 function paragraphProblems(path: string, field: string, text: string): Problem[] {
-  return text.split(/\n\s*\n/).flatMap((paragraph, index): Problem[] => {
-    const sentences = paragraph
-      .trim()
-      .split(/(?<=[.?!])\s+/)
-      .filter(Boolean).length;
+  return paragraphsOf(text).flatMap((paragraph, index): Problem[] => {
+    const sentences = sentencesOf(paragraph).length;
     return sentences > PARAGRAPH_SENTENCES
       ? [{ path, code: 'paragraph-too-long', detail: `${field}, paragraph ${index + 1}: ${sentences} sentences` }]
       : [];
