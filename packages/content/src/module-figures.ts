@@ -47,7 +47,8 @@ const MONTHS =
   'january|february|april|june|july|august|september|october|november|december|jan|feb|apr|jun|jul|aug|sept?|oct|nov|dec';
 const SIGNS = '[%٪﹪％‰‱]';
 const NUMERAL = '\\p{N}+(?:[.,]\\p{N}+)*';
-const KINDS: readonly (readonly [string, RegExp])[] = [
+type Kinds = readonly (readonly [kind: string, pattern: RegExp])[];
+const KINDS: Kinds = [
   ['a figure', new RegExp(`${NUMERAL}(?:\\s?${SIGNS})?`, 'u')],
   ['a percentage sign or word', new RegExp(`${PERCENTS.source}|[‰‱]`, 'iu')],
   [
@@ -58,6 +59,26 @@ const KINDS: readonly (readonly [string, RegExp])[] = [
   ['a month', word('May|March|Mar', 'u')],
   ['a currency sign', /\p{Sc}/u],
 ];
+// pt-PT's words, read beside English's: never `um` or `uma`, which the section's prose needs («uma queda de uma
+// moeda»), and `Mar` only capitalised, since `mar` is the sea. Brazilian spellings count too.
+const PT_CARDINALS = 'zero dois duas três quatro cinco seis sete oito nove dez onze doze treze catorze quatorze quinze \
+dezasseis dezesseis dezassete dezessete dezoito dezanove dezenove vinte trinta quarenta cinquenta sessenta setenta \
+oitenta noventa cem cento mil milhar milhares milhão milhões bilião biliões bilhão bilhões trilião triliões dúzias? \
+dezenas? centenas? (?:duz|trez|quatroc|quinh|seisc|setec|oitoc|novec)ent[oa]s'.split(' ');
+const PT_ORDINALS =
+  '(?:primeir|segund|terceir|quart|quint|sext|sétim|oitav|non|décim|vigésim|trigésim|centésim|milésim)[oa]s?';
+const PT_OTHERS = 'metade dobro dobrou duplicou triplo triplicou quádruplo quadruplicou par pares'.split(' ');
+const PT_MONTHS =
+  'janeiro|fevereiro|março|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro|jan|fev|abr|\
+mai|jun|jul|ago|set|out|nov|dez';
+const PT_KINDS: Kinds = [
+  ['a percentage sign or word', word('por(?:\\s+|[\\u002D\\u2010\\u2011])?cento', 'iu')],
+  ['a number word', word([...PT_CARDINALS, PT_ORDINALS, ...PT_OTHERS].join('|'), 'iu')],
+  ['a month', word(PT_MONTHS, 'iu')],
+  ['a month', word('Mar', 'u')],
+];
+/** The closed trigger of a language: English's alone, or pt-PT's beside it, so an English word in a translation counts. */
+const kindsOf = (language: string): Kinds => (language === 'pt-PT' ? [...KINDS, ...PT_KINDS] : KINDS);
 // Each mark a paragraph's `marks` names, in §4's words; no detail prints a parser name.
 const MARKS: Readonly<Record<string, string>> = {
   emphasis: 'emphasis',
@@ -68,31 +89,68 @@ const MARKS: Readonly<Record<string, string>> = {
   ignorable: 'a hidden character',
 };
 
-// The shapes, as docs/CONTENT-STYLE.md §4 writes them. Only English has them; a translation's section fails closed.
+// The shapes, as docs/CONTENT-STYLE.md §4 and §9 write them, for English and pt-PT; any other language's section
+// fails closed. `one` is the word for one fall; C1 is a coin with its article capitalised, which opens pt-PT's E.
+type Shapes = { readonly b: RegExp; readonly e: RegExp; readonly clause: RegExp; readonly one: string };
 const N = '(?:100|[1-9][0-9]?)';
 const J = `(?:${MODULE_PERCENT_JOINERS.map(esc).join('|')})`;
-const L = `${N}${J}%(?: and ${N}${J}%|(?:, ${N}${J}%)+, and ${N}${J}%)?`;
+const F = `${N}${J}%`;
 const Y = '[12][0-9]{3}';
-const shapesOf = (language: string, C: string) =>
-  language === 'en'
-    ? {
-        b: new RegExp(
-          `^In the chart, (?<c>${C}) had (?<k>[1-9][0-9]?) (?<falls>falls?) of more than (?<n>${N})${J}% between (?<y1>${Y}) and (?<y2>${Y})\\.$`,
-          'u',
-        ),
-        e: new RegExp(`^(?:${C}) fell ${L}(?:(?:, (?:${C}) ${L})*, and (?:${C}) ${L})?\\.$`, 'u'),
-      }
-    : undefined;
-
-/** Each catalogue coin by the names a shape reads: as written, with a lower-case first letter, and Ether for ETH. */
-const spellings = (coins: readonly Coin[]) =>
-  new Map(
-    coins.flatMap(({ id, name }) =>
-      [name, name.charAt(0).toLowerCase() + name.slice(1), ...(id === 'ETH' ? ['Ether', 'ether'] : [])].map(
-        (spelling) => [spelling, id] as const,
+const K = '(?<k>[1-9][0-9]?)';
+const B = (C: string) => `(?<c>${C})`;
+const clause = (C: string) => new RegExp(`(?<c>${C})(?= )|(?<f>${N})(?=${J}%)`, 'gu');
+function shapesOf(language: string, C: string, C1: string): Shapes | undefined {
+  if (language === 'en') {
+    const L = `${F}(?: and ${F}|(?:, ${F})+, and ${F})?`;
+    return {
+      b: new RegExp(
+        `^In the chart, ${B(C)} had ${K} (?<falls>falls?) of more than (?<n>${N})${J}% between (?<y1>${Y}) and (?<y2>${Y})\\.$`,
+        'u',
       ),
+      e: new RegExp(`^(?:${C}) fell ${L}(?:(?:, (?:${C}) ${L})*, and (?:${C}) ${L})?\\.$`, 'u'),
+      clause: clause(C),
+      one: 'fall',
+    };
+  }
+  if (language !== 'pt-PT') return undefined;
+  // No comma before `e`, in a list of figures or between clauses (§9).
+  const L = `${F}(?: e ${F}|(?:, ${F})+ e ${F})?`;
+  return {
+    b: new RegExp(
+      `^No gráfico, ${B(C)} teve ${K} (?<falls>quedas?) de mais de (?<n>${N})${J}% entre (?<y1>${Y}) e (?<y2>${Y})\\.$`,
+      'u',
+    ),
+    e: new RegExp(`^(?:${C1}) caiu ${L}(?:(?:, (?:${C}) ${L})* e (?:${C}) ${L})?\\.$`, 'u'),
+    clause: clause(`${C1}|${C}`),
+    one: 'queda',
+  };
+}
+
+const lowerFirst = (text: string) => text.charAt(0).toLowerCase() + text.slice(1);
+const upperFirst = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+/**
+ * Each catalogue coin by the names a shape reads, spelling to id. English: as written, with a lower-case first
+ * letter, and Ether for ETH. pt-PT (§9): `a` before either spelling of every coin and `o ether` for ETH, each also
+ * with its article capitalised; no other article agrees.
+ */
+function spellings(coins: readonly Coin[], language: string): Map<string, string> {
+  if (language !== 'pt-PT')
+    return new Map(
+      coins.flatMap(({ id, name }) =>
+        [name, lowerFirst(name), ...(id === 'ETH' ? ['Ether', 'ether'] : [])].map(
+          (spelling) => [spelling, id] as const,
+        ),
+      ),
+    );
+  return new Map(
+    coins.flatMap(({ id, name }) =>
+      [`a ${name}`, `a ${lowerFirst(name)}`, ...(id === 'ETH' ? ['o ether'] : [])].flatMap((spelling) => [
+        [spelling, id] as const,
+        [upperFirst(spelling), id] as const,
+      ]),
     ),
   );
+}
 
 const year = (date: string) => Number(date.slice(0, 4));
 const quote = (text: string) => JSON.stringify(text).slice(1, -1);
@@ -118,13 +176,16 @@ export function moduleFigureProblems(path: string, page: readonly PageBlock[], c
   // Only the drawdowns chart has rows, so any figure in another chart's section fails.
   const own = context.chart === 'drawdowns-bar' ? rows : [];
   const chartIds = [...new Set(own.map((row) => row.coin))];
-  const names = spellings(coins);
-  const C = alt([...names.keys()]);
-  const shapes = shapesOf(language, C);
+  const names = spellings(coins, language);
+  const opens = (spelling: string) => language === 'pt-PT' && /^[AO] /u.test(spelling);
+  const keys = [...names.keys()];
+  const shapes = shapesOf(language, alt(keys.filter((key) => !opens(key))), alt(keys.filter(opens)));
+  // A detail names the coin without its article.
+  const bare = (spelling: string) => (language === 'pt-PT' ? spelling.slice(2) : spelling);
   const mine = coins.filter(({ id }) => chartIds.includes(id));
   const coinNames = [...mine.map(({ name }) => name), ...(chartIds.includes('ETH') ? ['ether'] : [])];
-  const kinds: readonly (readonly [string, RegExp])[] = [
-    ...KINDS,
+  const kinds: Kinds = [
+    ...kindsOf(language),
     ['a coin', coinNames.length > 0 ? word(`(?:${alt(coinNames)})s?`, 'iu') : NEVER],
     ['a coin', mine.length > 0 ? word(alt(mine.map(({ id }) => id)), 'u') : NEVER],
   ];
@@ -135,7 +196,17 @@ export function moduleFigureProblems(path: string, page: readonly PageBlock[], c
     }
     return null;
   };
-  const bounds: { sentence: string; id: string; name: string; k: number; n: string; y1: number; y2: number }[] = [];
+  type Bound = {
+    sentence: string;
+    id: string;
+    name: string;
+    k: number;
+    falls: string;
+    n: string;
+    y1: number;
+    y2: number;
+  };
+  const bounds: Bound[] = [];
   const exacts: { sentence: string; clauses: { name: string; id: string; figures: string[] }[] }[] = [];
   for (const block of page.slice(start, end)) {
     if (block.kind === 'element') continue;
@@ -165,13 +236,14 @@ reads plain text only`);
       const found = triggerIn(sentence);
       if (found === null) continue;
       const b = shapes?.b.exec(sentence)?.groups;
-      if (b?.c !== undefined && (b.k === '1') === (b.falls === 'fall')) {
-        const [k, n, y1, y2] = [Number(b.k), b.n ?? '', Number(b.y1), Number(b.y2)];
-        bounds.push({ sentence, id: names.get(b.c) ?? '', name: b.c, k, n, y1, y2 });
+      if (shapes !== undefined && b?.c !== undefined && (b.k === '1') === (b.falls === shapes.one)) {
+        const [k, falls, n, y1, y2] = [Number(b.k), b.falls ?? '', b.n ?? '', Number(b.y1), Number(b.y2)];
+        bounds.push({ sentence, id: names.get(b.c) ?? '', name: bare(b.c), k, falls, n, y1, y2 });
       } else if (shapes?.e.test(sentence) === true) {
         const clauses: (typeof exacts)[number]['clauses'] = [];
-        for (const { groups } of sentence.matchAll(new RegExp(`(?<c>${C})(?= )|(?<f>${N})(?=${J}%)`, 'gu'))) {
-          if (groups?.c !== undefined) clauses.push({ name: groups.c, id: names.get(groups.c) ?? '', figures: [] });
+        for (const { groups } of sentence.matchAll(shapes.clause)) {
+          if (groups?.c !== undefined)
+            clauses.push({ name: bare(groups.c), id: names.get(groups.c) ?? '', figures: [] });
           else if (groups?.f !== undefined) clauses.at(-1)?.figures.push(groups.f);
         }
         exacts.push({ sentence, clauses });
@@ -202,7 +274,7 @@ section${where}`);
     else {
       if (hits.length !== b.k)
         report(
-          `"${b.k} fall${b.k === 1 ? '' : 's'}" in "${b.sentence}" is not how many of ${b.name}'s falls in the \
+          `"${b.k} ${b.falls}" in "${b.sentence}" is not how many of ${b.name}'s falls in the \
 chart are more than ${b.n} % ${between}`,
           'R6',
         );
