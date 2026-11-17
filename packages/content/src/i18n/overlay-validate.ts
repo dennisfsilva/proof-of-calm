@@ -4,7 +4,7 @@
 // the percent joiner, the 60 words, a template's placeholders against its dates and month names) are validate.ts's,
 // passed in. Pure.
 import { numberLocaleFor } from '../loaders/locales.ts';
-import { decimalSeparator, escaped, groupProblems, PERCENT_FOLLOWS } from '../percent-validate.ts';
+import { decimalSeparator, escaped, PERCENT_FOLLOWS } from '../percent-validate.ts';
 import { type Problem, schemaProblems } from '../problem.ts';
 import { FactSchema } from '../schema/fact.ts';
 import { type CountryProfile, CountryProfileSchema } from '../schema/jurisdiction.ts';
@@ -92,28 +92,9 @@ const percentsIn = (text: string, locale: string) =>
     .join(', ') || 'none';
 
 /**
- * The fix for each figure a profile's translation writes with a point where its English figure has none: the English
- * figure as written, which a translation copies (ADR-0057), whose value is the point's group (`1000` for `1.000`) or
- * decimal (`1,1250` for `1.125`). It is named only when number-group passes it beside a currency code, the one place
- * that check reads a figure, so an English figure it refuses (`1,125`) gets no fix.
+ * The figures of a text as it writes them, so `cited` never names a figure its writer did not cite. The detail names
+ * no computed fix: the translator copies English's figure as written (ADR-0057, D16 of #318).
  */
-function citedFix(ours: readonly string[], english: readonly string[], en: string, locale: string): string {
-  const figures = [...en.matchAll(NUMBER)].map(([run]) => run).filter((run) => !run.includes('.'));
-  const fixes = ours
-    .filter((value) => value.startsWith('cited ') && !english.includes(value))
-    .flatMap((value) => {
-      const run = value.slice('cited '.length);
-      const readings = [
-        /^\d{1,3}(?:\.\d{3})+$/.test(run) ? run.replaceAll('.', '') : undefined,
-        /^\d+\.\d+$/.test(run) ? valuesOf(run.replace('.', ','), ',').join() : undefined,
-      ];
-      const [fix] = readings.flatMap((reading) => figures.filter((figure) => valuesOf(figure, ',').join() === reading));
-      return fix !== undefined && groupProblems('', locale, [['', `EUR ${fix}`]]).length === 0 ? [escaped(fix)] : [];
-    });
-  return fixes.length === 0 ? '' : `; write ${fixes.join(', ')}, since a point in this profile marks only a citation`;
-}
-
-/** The figures of a text as it writes them, so `cited` never names a figure its writer did not cite. */
 const written = (text: string) => [...text.matchAll(NUMBER)].map(([run]) => escaped(run)).join(' ') || 'none';
 
 /** Every way the overlay departs from English; the empty list is a pass. */
@@ -155,7 +136,7 @@ export function overlayProblems(
     // A text holding a cited point prints each side's figures as written (`0.125, English 0,125`), never as values.
     const cited = [...ours, ...english].some((value) => value.startsWith('cited '));
     const detail = cited ? `: ${written(over)}, English ${written(en)}` : `: ${mine}, English ${theirs}`;
-    if (mine !== theirs) report('number-mismatch', at, `${detail}${citedFix(ours, english, en, locales[1])}`);
+    if (mine !== theirs) report('number-mismatch', at, detail);
     // A placeholder holds no digits, so the number check cannot see one dropped or added; a swap of two keeps the
     // multiset and stays with counsel's read, as a swap of two written dates does.
     const [ourDates, theirDates] = [

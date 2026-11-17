@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { numbersIn } from './i18n/overlay-validate.ts';
-import { escaped, languagePercentProblems, localeProblems } from './percent-validate.ts';
+import { escaped, groupProblems, languagePercentProblems, localeProblems } from './percent-validate.ts';
 import { type CountryProfile, CountryProfileSchema } from './schema/jurisdiction.ts';
 
 const load = (code: string): CountryProfile =>
@@ -164,6 +164,8 @@ describe('a profile’s money figures group as its comma-decimal page does (docs
     ] as const) {
       expect(german('Up to EUR 1,1250 a year.', profile), locale).toEqual([]);
       expect(german('EUR 1,1250', profile), locale).toEqual([]);
+      // number-group itself, by the page's locale alone, as the overlay of any language meets it.
+      expect(groupProblems(path, locale, [['card.rates.1.note', 'Até EUR 1,1250 por ano.']]), locale).toEqual([]);
       expect(numbersIn('Up to EUR 1,1250 a year.', locale, true), locale).toEqual(['1.125']);
     }
   });
