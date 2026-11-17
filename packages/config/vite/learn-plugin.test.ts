@@ -234,7 +234,9 @@ describe('checkModuleBody', () => {
     ['text in a text element', 'A line. <PastPerformance>past</PastPerformance>\n', /noise\.mdx:6: <PastPerf/],
     ['a space in a text element', 'A line. <PastPerformance> </PastPerformance>\n', /noise\.mdx:6: <PastPerf/],
   ];
-  const PASS = { problem: null, flow: [] };
+  const PASS = { problem: null, flow: [], elements: [] };
+  const TEXT_PAST = { problem: null, flow: [], elements: ['text:PastPerformance'] };
+  const FLOW_CHART = { problem: null, flow: ['Chart'], elements: ['flow:Chart'] };
 
   it.each(refused)('refuses %s, naming the file and line', async (_name, body, message) => {
     expect((await checkModuleBody(module('noise', body), path)).problem).toMatch(message);
@@ -242,17 +244,32 @@ describe('checkModuleBody', () => {
 
   it('allows the elements of MODULE_BODY_ELEMENTS by default', async () => {
     expect(MODULE_BODY_ELEMENTS).toEqual(['PastPerformance', 'Chart']);
-    expect(await checkModuleBody(module('noise', 'A line. <PastPerformance />\n'), path)).toEqual(PASS);
+    expect(await checkModuleBody(module('noise', 'A line. <PastPerformance />\n'), path)).toEqual(TEXT_PAST);
     const chart = await checkModuleBody(module('noise', 'Text.\n\n<Chart />\n'), path);
-    expect(chart).toEqual({ problem: null, flow: ['Chart'] });
+    expect(chart).toEqual(FLOW_CHART);
   });
 
   // MDX parses an element with nothing between its tags as one with no children: it renders as <X /> does.
   it('passes an allowed element closed with nothing inside', async () => {
     const text = await checkModuleBody(module('noise', 'A line. <PastPerformance></PastPerformance>\n'), path);
-    expect(text).toEqual(PASS);
+    expect(text).toEqual(TEXT_PAST);
     const flow = await checkModuleBody(module('noise', 'Text.\n\n<Chart></Chart>\n'), path);
-    expect(flow).toEqual({ problem: null, flow: ['Chart'] });
+    expect(flow).toEqual(FLOW_CHART);
+  });
+
+  // A translation is held to its English module's elements on this list (ADR-0048 Deviations), so it is the tree's.
+  it('names every element in tree order, a flow one as flow:<Name> and one in a sentence as text:<Name>', async () => {
+    const body = 'Text.\n\n<Chart />\n\nA line. <PastPerformance />\n\n- <Chart />\n\n<PastPerformance />\n';
+    expect((await checkModuleBody(module('noise', body), path)).elements).toEqual([
+      'flow:Chart',
+      'text:PastPerformance',
+      'flow:Chart',
+      'flow:PastPerformance',
+    ]);
+    expect((await checkModuleBody(module('noise', 'A \\<PastPerformance /> `<Chart />`.\n'), path)).elements).toEqual(
+      [],
+    );
+    expect((await checkModuleBody(module('noise', 'Text {1}.\n\n<Chart />\n'), path)).elements).toEqual([]);
   });
 
   // `pnpm validate:content` counts the charts from the tree: an escaped element or a code span is text, no chart.
@@ -260,7 +277,7 @@ describe('checkModuleBody', () => {
     const body = 'Text.\n\n<Chart />\n\nA line. <PastPerformance />\n\n- <Chart />\n';
     expect((await checkModuleBody(module('noise', body), path)).flow).toEqual(['Chart', 'Chart']);
     // On its own line, even right under a paragraph's line, the element ends the paragraph and stands as a block.
-    expect((await checkModuleBody(module('noise', 'A sign.\n<Chart />\n'), path)).flow).toEqual(['Chart']);
+    expect(await checkModuleBody(module('noise', 'A sign.\n<Chart />\n'), path)).toEqual(FLOW_CHART);
     expect(await checkModuleBody(module('noise', 'A \\<Chart /> sign.\n'), path)).toEqual(PASS);
     expect(await checkModuleBody(module('noise', 'A `<Chart />` sign.\n'), path)).toEqual(PASS);
   });
