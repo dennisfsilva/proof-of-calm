@@ -3,6 +3,7 @@
 // the whole sentence, so a wording one step past the shapes fails, and a new wording needs a new reviewed shape
 // (docs/research/review-safe-figures.md, amendment 7). English only: overlay-number-mismatch ties a translation's
 // figures to these.
+import { paragraphsOf } from './paragraphs.ts';
 import type { Problem } from './problem.ts';
 
 type Figures = {
@@ -15,7 +16,8 @@ type Shape = 'F1' | 'F2' | 'S1' | 'S2' | 'S3' | 'S4';
 
 const DATED = /\{date:drawdowns\./;
 // The trigger is a closed set: the four signs, or "per" and "cent" at the start of a word or right after a digit,
-// joined by nothing, any space, or a hyphen, with nothing required after "cent": per cent and percentage(s) count.
+// joined by nothing, any space, or a hyphen, in any case, with nothing required after "cent": percent, per cent,
+// percentage, and the like count.
 const JOIN = '(?:\\s+|[\\u002D\\u2010\\u2011])?';
 const SIGN_OR_WORD = `[%٪﹪％]|(?<![\\p{L}\\p{M}])per${JOIN}cent(?:ages?)?`;
 const PERCENT = new RegExp(SIGN_OR_WORD, 'iu');
@@ -51,11 +53,10 @@ const shapes = (names: readonly string[]): Record<Shape, RegExp> => {
   };
 };
 
-/** Splits after `.`, `!` or `?` followed by whitespace, and at blank lines, whatever the next character is. */
+/** The paragraphs the app renders (`paragraphsOf`), each split after `.`, `!` or `?` followed by whitespace. */
 export const sentencesOf = (text: string): string[] =>
-  text
-    .split(/(?<=[.!?])\s+|\n\s*\n/u)
-    .map((sentence) => sentence.trim())
+  paragraphsOf(text)
+    .flatMap((paragraph) => paragraph.split(/(?<=[.!?])\s+/u))
     .filter((sentence) => sentence !== '');
 
 /** The shape a whole sentence matches, or null. */
@@ -142,10 +143,11 @@ export function templateFigureProblems(path: string, t: Figures): Problem[] {
       }
     }
   }
-  // A break between "per" and "cent" splits the trigger across two sentences, so it is read on the whole text too.
+  // Each paragraph is read alone, so a trigger split across two sits in neither: it is read on the whole text too.
+  // A match never holds `.`, `!` or `?`, so the only break it can span is a paragraph break.
   for (const [match] of t.explanation.matchAll(PERCENTS)) {
-    if (sentencesOf(match).length < 2) continue;
-    const what = `${JSON.stringify(match)} spans a sentence or paragraph break and matches no shape`;
+    if (paragraphsOf(match).length < 2) continue;
+    const what = `${JSON.stringify(match)} spans a paragraph break and matches no shape`;
     const detail = `explanation: ${what} of a fall or a share; R4 (docs/CONTENT-STYLE.md §4)`;
     problems.push({ path, code: 'figure-unclassed', detail });
   }

@@ -242,7 +242,7 @@ describe('the trigger is a closed set: four signs, or "per" and "cent" with a jo
 });
 
 describe('the trigger reads the whole explanation: no break hides it (round 4 of #340)', () => {
-  // The app splits paragraphs on "\n\n" only, so the first two render as "Solana fell 15 per cent." in one.
+  // Each paragraph is read alone, so a trigger split across two sits in neither: the whole text is read too.
   it.each(['Solana fell 15 per \n \ncent.', 'Solana fell 15 per\r\n\r\ncent.', 'Solana fell 15 per\n\ncent.'])(
     '%j is figure-unclassed',
     (explanation) => {
@@ -252,13 +252,38 @@ describe('the trigger reads the whole explanation: no break hides it (round 4 of
 
   it('names the match across the break in its detail', () => {
     expect(run('Solana fell 15 per\n\ncent.').map(({ detail }) => detail)).toEqual([
-      'explanation: "per\\n\\ncent" spans a sentence or paragraph break and matches no shape of a fall or a share; ' +
+      'explanation: "per\\n\\ncent" spans a paragraph break and matches no shape of a fall or a share; ' +
         'R4 (docs/CONTENT-STYLE.md §4)',
     ]);
   });
 
   it('passes two paragraphs whose percentages each sit inside one sentence of a shape', () => {
     expect(run(`Bitcoin takes 40 % of each amount.\n\nSolana fell 97 % ${D('SOL')}.`)).toEqual([]);
+  });
+});
+
+describe('the check reads the paragraphs the app renders: paragraphsOf (round 5 of #340)', () => {
+  const F1 = `Solana fell 97 % ${D('SOL')}.`;
+  const SEPARATORS = ['\n\n', '\n \n', '\r\n\r\n', '\n\t\n', '\n\n\n', '\n\n\n\n', '\n\f\n'];
+
+  it.each(SEPARATORS)('%j ends a paragraph, so an exact F1 after it passes', (separator) => {
+    expect(run(`Expect it again:${separator}${F1}`)).toEqual([]);
+  });
+
+  it.each(['\n', ' '])('%j joins the lead to an F1 in one sentence, which is figure-form', (joiner) => {
+    expect(ruled(`Expect it again:${joiner}${F1}`)).toEqual(['figure-form R1']);
+  });
+
+  it.each(SEPARATORS)('"per" and "cent" across %j are figure-unclassed, spanning a paragraph break', (separator) => {
+    const problems = run(`Solana fell 15 per${separator}cent.`);
+    expect(problems.map(({ code }) => code)).toEqual(['figure-unclassed']);
+    expect(problems[0]?.detail).toContain('spans a paragraph break');
+  });
+
+  it('reads "per" and "cent" across a single line break in one sentence, as the app shows it', () => {
+    const problems = run('Solana fell 15 per\ncent.');
+    expect(problems.map(({ code }) => code)).toEqual(['figure-unclassed']);
+    expect(problems[0]?.detail).not.toContain('spans');
   });
 });
 
