@@ -31,40 +31,99 @@ const JOINS = new RegExp(
   'gu',
 );
 
+// The prose joins of a language (D5 to D7 of #358, docs/CONTENT-STYLE.md §4): a closed list of law names, taken
+// from a census of every profile, and its month names. A language without an entry gets the code and form joins only.
+export const PROSE_JOINS: Readonly<Record<string, { names: RegExp; months: RegExp }>> = {
+  en: {
+    names:
+      /§§?|[Aa]rts?\.|[Aa]rticles?|[Ss]ections?|s{1,2}\.|[Nn]os?\.|n\.ºs?|Nr\.|c\.|[Ss]entence|[Pp]aragraph|Part|Lei|Ley|Law|L\.|Decreto-Lei|D\.Lgs\.|BGBl\.|TCA|TCGA|SolZG|Act|Bill|Budget|Belastingplan|BMF|Circolare|Notice|Topic|Publication|Pub\.|Proc\./u,
+    // en-GB's long and short months, with `Sept` as en-GB writes it; counted only when capitalised (`may`).
+    months:
+      /January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sept?|Oct|Nov|Dec/u,
+  },
+};
+const WJ = String.fromCodePoint(0x2060);
+// A law's number: digits first, then letters, digits, and points, slashes or hyphens between them (`24‑D/2022`).
+const LAW_NUMBER = String.raw`\d[\d\p{L}]*(?:[./‑-][\d\p{L}]+)*`;
+const prose = ({ names, months }: { names: RegExp; months: RegExp }) => ({
+  names: new RegExp(String.raw`(?<![\p{L}\d.§])(${names.source})(\s+)(${LAW_NUMBER})`, 'gu'),
+  // `D Month YYYY`, `D Month` and `Month YYYY`; a month alone is no date.
+  dates: new RegExp(
+    String.raw`(?<![\p{L}\d.,])(?:(\d{1,2})(\s+))?(${months.source})(?![\p{L}\d])(?:(\s+)(\d{4})(?!\d))?`,
+    'gu',
+  ),
+});
+// Two figures joined by an en dash with no U+2060 after it; a hyphen-minus range is left out.
+const RANGE = new RegExp(String.raw`(?<![\d.,])\d+(?:[.,]\d+)*–(?!${WJ})\d+(?:[.,]\d+)*`, 'gu');
+
 const codePoints = (text: string) =>
   [...new Set(text)].map((char) => `U+${(char.codePointAt(0) ?? 0).toString(16).toUpperCase().padStart(4, '0')}`);
 const typed = (text: string) => JSON.stringify(text).replaceAll(NBSP, `${String.fromCodePoint(0x5c)}u00a0`);
+const joined = (path: string, field: string, pair: string, figure: string, gap: string): Problem[] =>
+  gap === NBSP
+    ? []
+    : [
+        {
+          path,
+          code: 'figure-join',
+          detail: `${field}: ${pair} ${typed(figure)} are joined by ${codePoints(gap).join(' ')}, not U+00A0 (docs/CONTENT-STYLE.md §4)`,
+        },
+      ];
+
+/** A language's law names and date parts not joined by U+00A0, and its en-dash ranges without U+2060 after the dash. */
+function proseProblems(path: string, field: string, text: string, language: string): Problem[] {
+  const lists = Object.hasOwn(PROSE_JOINS, language) ? PROSE_JOINS[language] : undefined;
+  if (lists === undefined) return [];
+  const { names, dates } = prose(lists);
+  return [
+    ...[...text.matchAll(names)].flatMap(([, name = '', gap = '', number = '']) =>
+      joined(path, field, `the name ${typed(name)} and its number`, number, gap),
+    ),
+    ...[...text.matchAll(dates)].flatMap(([, day, dayGap = '', month = '', yearGap = '', year]) => [
+      ...(day === undefined ? [] : joined(path, field, `the day ${typed(day)} and its month`, month, dayGap)),
+      ...(year === undefined ? [] : joined(path, field, `the month ${typed(month)} and its year`, year, yearGap)),
+    ]),
+    ...[...text.matchAll(RANGE)].map(([range]): Problem => {
+      const detail = `${field}: the range ${typed(range)} can break after its dash (docs/CONTENT-STYLE.md §4)`;
+      return { path, code: 'range-join', detail };
+    }),
+  ];
+}
 
 /**
  * Each currency code and its figure (`EUR 20 350`, `100 USD`) and each form's name and its number (`Modelo 721`,
  * `Anexo G`) in `texts` joined by anything but U+00A0, so that a line can break between them (docs/CONTENT-STYLE.md
- * §4), but in the file-only text, which does not wrap. The detail names the pair and the space between them, never a
- * text to write.
+ * §4), then the prose joins of `language`, but in the file-only text, which does not wrap. The detail names the pair
+ * and the space between them, or the range, never a text to write.
  */
-export function joinProblems(path: string, texts: readonly [string, string][]): Problem[] {
+export function joinProblems(path: string, texts: readonly [string, string][], language = 'en'): Problem[] {
   return texts.flatMap(([field, text]) =>
-    [...(field === FILE_ONLY_PROFILE_TEXT ? [] : text.matchAll(JOINS))].map((match): Problem => {
-      const [
-        ,
-        codeBefore,
-        gapAfterCode,
-        figureAfterCode,
-        figureBefore,
-        gapBeforeCode,
-        codeAfter,
-        form,
-        gapAfterForm,
-        number,
-      ] = match;
-      const [gap = '', figure = ''] = [
-        gapAfterCode ?? gapBeforeCode ?? gapAfterForm,
-        figureAfterCode ?? figureBefore ?? number,
-      ];
-      const code = codeBefore ?? codeAfter;
-      const pair =
-        code === undefined ? `the name ${typed(form ?? '')} and its number` : `${typed(code)} and its figure`;
-      const detail = `${field}: ${pair} ${typed(figure)} are joined by ${codePoints(gap).join(' ')}, not U+00A0 (docs/CONTENT-STYLE.md §4)`;
-      return { path, code: 'figure-join', detail };
-    }),
+    field === FILE_ONLY_PROFILE_TEXT
+      ? []
+      : [...codeProblems(path, field, text), ...proseProblems(path, field, text, language)],
   );
+}
+
+function codeProblems(path: string, field: string, text: string): Problem[] {
+  return [...text.matchAll(JOINS)].flatMap((match) => {
+    const [
+      ,
+      codeBefore,
+      gapAfterCode,
+      figureAfterCode,
+      figureBefore,
+      gapBeforeCode,
+      codeAfter,
+      form,
+      gapAfterForm,
+      number,
+    ] = match;
+    const [gap = '', figure = ''] = [
+      gapAfterCode ?? gapBeforeCode ?? gapAfterForm,
+      figureAfterCode ?? figureBefore ?? number,
+    ];
+    const code = codeBefore ?? codeAfter;
+    const pair = code === undefined ? `the name ${typed(form ?? '')} and its number` : `${typed(code)} and its figure`;
+    return joined(path, field, pair, figure, gap);
+  });
 }

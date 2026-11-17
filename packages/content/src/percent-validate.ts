@@ -40,9 +40,9 @@ const codePoints = (text: string) =>
     ? 'none'
     : [...text].map((char) => `U+${(char.codePointAt(0) ?? 0).toString(16).toUpperCase().padStart(4, '0')}`).join(' ');
 // What joins the two figures of a percentage range, both of them percentages (`12,2–48%`): an unspaced en dash or
-// hyphen (docs/CONTENT-STYLE.md §4). A `to` range writes its sign on each figure (`2,5% to 13,3%`), and a spaced
+// hyphen, with the U+2060 that keeps it on one line (docs/CONTENT-STYLE.md §4). A `to` range writes its sign on each figure (`2,5% to 13,3%`), and a spaced
 // dash breaks the sentence, so `art. 33.1 to 28%` and `art. 33.1 – 28%` keep the law citation's point.
-const RANGE_JOINER = '[–-]';
+const RANGE_JOINER = `[–-]${String.fromCodePoint(0x2060)}?`;
 const FIGURE = String.raw`\d+(?:[.,]\d+)*`;
 /** The rest of a percentage range after one of its figures: at most one further figure, then the sign. */
 export const PERCENT_FOLLOWS = new RegExp(String.raw`^(?:${RANGE_JOINER}${FIGURE})?\s*%`, 'u');
@@ -93,7 +93,7 @@ export function languagePercentProblems(
         ...groupProblems(path, locale, texts),
       ]
     : [];
-  return [...local, ...joinProblems(path, texts)];
+  return [...local, ...joinProblems(path, texts, language)];
 }
 
 /** The decimal separator `locale` writes, as Intl formats it; a tag Intl refuses writes the point. */
@@ -129,7 +129,7 @@ const [NBSP, NARROW] = [String.fromCodePoint(0xa0), String.fromCodePoint(0x202f)
 // and counts only when no figure follows it: in `art. 33.1 EUR 1000` the code is 1000's. Two figures joined by an
 // unspaced dash or hyphen are one range, read whole (`0.125–1.125 EUR`).
 const MONEY_FIGURE = String.raw`\d+(?:(?:[.,]|[ ${NBSP}${NARROW}](?=\d{3}(?!\d)))\d+)*`;
-const MONEY_RUN = `${MONEY_FIGURE}(?:[–-]${MONEY_FIGURE})?`;
+const MONEY_RUN = `${MONEY_FIGURE}(?:${RANGE_JOINER}${MONEY_FIGURE})?`;
 const CURRENCY = String.raw`EUR|USD|GBP|CHF|€|£|\$`;
 const CURRENCY_AFTER = String.raw`(?:${CURRENCY}|[Ee]uros?|dollars?|pounds?|francs?)(?![A-Za-z])(?![ ${NBSP}]?\d)`;
 const MONEY = new RegExp(
@@ -200,7 +200,7 @@ export function groupProblems(path: string, locale: string, texts: readonly [str
       // A currency after the figure is only looked at, so `2026 EUR 20,350` still reads the figure after the code.
       const [matched, before, after, currency = ''] = match;
       const [run = '', excerpt] = [before ?? after, `${matched}${currency}`];
-      const figures = run.split(/[–-]/);
+      const figures = run.split(new RegExp(RANGE_JOINER));
       const readings = figures.map(readingOf);
       const forms = readings.map((reading) => (typeof reading === 'string' ? undefined : pageForm(reading)));
       if (forms.every((form, index) => form === figures[index])) return [];
@@ -241,6 +241,6 @@ export function localeProblems(path: string, profile: CountryProfile, texts: rea
     ...localeTagProblems(path, profile),
     ...percentProblems(path, profile, texts),
     ...(wellFormed(english) ? [...decimalProblems(path, english, texts), ...groupProblems(path, english, texts)] : []),
-    ...joinProblems(path, texts),
+    ...joinProblems(path, texts, 'en'),
   ];
 }
