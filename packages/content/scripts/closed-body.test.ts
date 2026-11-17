@@ -277,6 +277,75 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
     });
   });
 
+  // Review 25m round 2 (D12; #322's D3 and D4): the checks read each compiled block on its own, with every
+  // default-ignorable code point removed, so no phrase or figure is read across a block or hidden inside a word.
+  describe("a translation's checks, per compiled block, on the characters the page shows", () => {
+    const TEXT = 'Text.\n';
+    const IMPERDIVEL = banned('imperdível');
+
+    it('refuses a banned word with a soft hyphen or a zero-width character inside it', async () => {
+      expect(await validated(TEXT, 'Uma ocasião imper&shy;dível.\n')).toEqual([IMPERDIVEL]);
+      expect(await validated(TEXT, 'Uma ocasião imper&#8203;dível.\n')).toEqual([IMPERDIVEL]);
+      const hidden = ['­', '​', '‌', '‍', '⁠', '﻿', '͏', '⁡'];
+      for (const character of hidden) {
+        expect([character, await validated(TEXT, `Uma ocasião imper${character}dível.\n`)]).toEqual([
+          character,
+          [IMPERDIVEL],
+        ]);
+      }
+    });
+
+    it('reads a heading and the paragraph after it apart, as 3 and 100, never 3100', async () => {
+      const english = '## Step 3\n\n100 euros a month.\n';
+      expect(await validated(english, '## 3.º passo\n\n100 euros por mês.\n')).toEqual([]);
+      expect(await validated(english, '## 3.º passo\n\n101 euros por mês.\n')).toEqual([
+        'overlay-number-mismatch: body: 101 3, English 100 3',
+      ]);
+    });
+
+    it('reads a figure at the end of one paragraph apart from one at the start of the next, as 1 and 250', async () => {
+      expect(await validated('Buy 1\n\n250 euros.\n', 'Compre 1\n\n250 euros.\n')).toEqual([]);
+      expect(await validated('Buy 1\n\n250 euros.\n', 'Compre 1\n\n251 euros.\n')).toEqual([
+        'overlay-number-mismatch: body: 1 251, English 1 250',
+      ]);
+      expect(await validated('- Step 1\n- 250 euros\n', '- Passo 1\n- 250 euros\n')).toEqual([]);
+      expect(await validated('- Step 1\n- 250 euros\n', '- Passo 1\n- 251 euros\n')).toEqual([
+        'overlay-number-mismatch: body: 1 251, English 1 250',
+      ]);
+    });
+
+    it('reads no banned phrase across a heading and a paragraph, and one inside a paragraph', async () => {
+      expect(await validated(TEXT, '# Última\n\nhora de comprar.\n')).toEqual([]);
+      expect(await validated(TEXT, 'Última hora de comprar.\n')).toEqual([banned('Última hora')]);
+    });
+
+    it('joins emphasis, strong and a code span inside a word, and a hard break with a space', async () => {
+      for (const word of ['imperd*í*vel', 'imperd**í**vel', 'imper`dí`vel']) {
+        expect([word, await validated(TEXT, `Uma ocasião ${word}.\n`)]).toEqual([word, [IMPERDIVEL]]);
+      }
+      expect(await validated(TEXT, 'Última\\\nhora de comprar.\n')).toEqual([banned('Última hora')]);
+    });
+
+    // Brand, 25m round 2: a module holds no link (closedBody refuses one), so none is read.
+    it('refuses a link around a banned word as a link, never passing it', async () => {
+      expect(await validated(TEXT, 'Uma ocasião [imperd*í*vel](x).\n')).toEqual([
+        expect.stringMatching(/^module-closed-body: line 8: a link is not allowed/),
+      ]);
+    });
+
+    it("holds the translation's depth-2 headings to English's, in order among the elements", async () => {
+      const english = '## One\n\nText.\n\n## Two\n\nMore.\n';
+      expect(await validated(english, '## Um\n\nTexto.\n\n## Dois\n\nMais.\n')).toEqual([]);
+      expect(await validated(english, '## Um\n\nTexto.\n\nMais.\n')).toEqual([
+        `module-overlay-elements: English heading:2, heading:2; translation heading:2${ORDER}`,
+      ]);
+      const past = '## One\n\n<PastPerformance />\n\n## Two\n\nText.\n';
+      expect(await validated(past, '## Um\n\n## Dois\n\n<PastPerformance />\n\nTexto.\n')).toEqual([
+        `module-overlay-elements: English heading:2, flow:PastPerformance, heading:2; translation heading:2, heading:2, flow:PastPerformance${ORDER}`,
+      ]);
+    });
+  });
+
   it('reports one problem per refused module', async () => {
     const modules = [
       { path: 'packages/content/learn/a.mdx', source: `${FRONT}Text with {1} in it.\n` },

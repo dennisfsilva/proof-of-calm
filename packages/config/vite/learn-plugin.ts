@@ -59,6 +59,7 @@ type MdastNode = {
   readonly type: string;
   readonly name?: string | null;
   readonly value?: string;
+  readonly depth?: number;
   readonly position?: { readonly start: { readonly line: number } };
   readonly children?: readonly MdastNode[];
   readonly attributes?: readonly MdxAttribute[];
@@ -154,46 +155,71 @@ export const MODULE_BODY_ELEMENTS = ['PastPerformance', 'Chart'] as const;
 
 /**
  * A remark plugin that records the name of every flow element of the tree, and every element as `flow:<Name>` or
- * `text:<Name>`, both in document order. Its lists are read only when `closedBody` passed, and then no element sits
- * inside another, so each one named is one the page renders.
+ * `text:<Name>` and every depth-2 heading as `heading:2`, both in document order. Its lists are read only when
+ * `closedBody` passed, and then no element sits inside another, so each one named is one the page renders.
  */
 const flowElements = (flow: string[], all: string[]) => () => (tree: MdastNode) => {
   const visit = (node: MdastNode): void => {
     if (node.type === 'mdxJsxFlowElement') flow.push(node.name ?? '');
     if (node.type === 'mdxJsxFlowElement' || node.type === 'mdxJsxTextElement')
       all.push(`${node.type === 'mdxJsxFlowElement' ? 'flow' : 'text'}:${node.name ?? ''}`);
+    if (node.type === 'heading' && node.depth === 2) all.push('heading:2');
     for (const child of node.children ?? []) visit(child);
   };
   visit(tree);
 };
 
-// The nodes whose value the page shows as text; a fence's info string is its `lang` and `meta`, never its value.
-const TEXT_NODES = new Set(['text', 'inlineCode', 'code']);
-// The parents whose children run inside one line of text; any other parent's children are blocks.
-const PHRASING_PARENTS = new Set(['paragraph', 'heading', 'emphasis', 'strong', 'delete', 'tableCell']);
+// Every node a compiling body holds: `closedBody` refuses the rest, and the compiler runs without remark-gfm. A
+// block's text is the page's one run of text; a container holds blocks; an inline node sits inside a block. An
+// allowed element has no children (`closedBody`), and a fence's info string is its `lang` and `meta`, never shown.
+const BLOCK_NODES = ['paragraph', 'heading', 'code'];
+const CONTAINER_NODES = ['root', 'list', 'listItem', 'blockquote', 'thematicBreak', 'mdxJsxFlowElement'];
+const INLINE_NODES = ['text', 'inlineCode', 'emphasis', 'strong', 'break', 'mdxJsxTextElement'];
+/** The node types the page text reader knows; it throws on any other, so a remark plugin added later fails closed. */
+export const PAGE_NODES: readonly string[] = [...BLOCK_NODES, ...CONTAINER_NODES, ...INLINE_NODES];
 
-/** The words a node shows, as the parser decoded them: inline values joined with nothing, blocks with a newline. */
-function pageText(node: MdastNode): string {
-  if (TEXT_NODES.has(node.type)) return node.value ?? '';
-  if (node.type === 'break') return '\n';
-  return (node.children ?? []).map(pageText).join(PHRASING_PARENTS.has(node.type) ? '' : '\n');
+// A soft hyphen, a zero-width space or joiner, a word joiner: the page shows none of them unless a line wraps there.
+const IGNORABLE = /\p{Default_Ignorable_Code_Point}/gu;
+
+/**
+ * The text the page shows, one string per paragraph, heading or code block in tree order, as the parser decoded it:
+ * every value below a block joined with nothing, a hard break with a space, every default-ignorable code point
+ * removed. It throws on a node outside `PAGE_NODES` or in a place its kind never takes, naming `path` and the line.
+ */
+export function pageBlocks(tree: MdastNode, path: string): string[] {
+  const unknown = (node: MdastNode) =>
+    new Error(`${path}:${node.position?.start.line ?? 0}: a ${node.type} node is not one the page text reader knows`);
+  const inline = (node: MdastNode): string => {
+    if (!INLINE_NODES.includes(node.type)) throw unknown(node);
+    if (node.type === 'break') return ' ';
+    return node.value ?? (node.children ?? []).map(inline).join('');
+  };
+  const blocks: string[] = [];
+  const visit = (node: MdastNode): void => {
+    if (node.type === 'code') blocks.push(node.value ?? '');
+    else if (BLOCK_NODES.includes(node.type)) blocks.push((node.children ?? []).map(inline).join(''));
+    else if (CONTAINER_NODES.includes(node.type)) for (const child of node.children ?? []) visit(child);
+    else throw unknown(node);
+  };
+  visit(tree);
+  return blocks.map((block) => block.replace(IGNORABLE, ''));
 }
 
-/** A remark plugin that records the words of the tree; no attribute value is a word, as the page shows none. */
-const pageWords = (words: string[]) => () => (tree: MdastNode) => {
-  words.push(pageText(tree));
+/** A remark plugin that records the page's blocks; no attribute value is a word, as the page shows none. */
+const pageWords = (words: string[]) => () => (tree: MdastNode, file: { readonly path?: string }) => {
+  words.push(...pageBlocks(tree, file.path ?? 'a module'));
 };
 
 /**
  * What the compiler read in one module body: the build's message or null, its flow elements by name, every
- * element as `flow:<Name>` (a block) or `text:<Name>` (inside a sentence), in tree order, and the words the page
- * shows (empty when the body does not compile).
+ * element as `flow:<Name>` (a block) or `text:<Name>` (inside a sentence) and every depth-2 heading as
+ * `heading:2`, in tree order, and the page's text block by block (empty when the body does not compile).
  */
 export type ModuleBodyCheck = {
   readonly problem: string | null;
   readonly flow: Names;
   readonly elements: Names;
-  readonly text: string;
+  readonly blocks: Names;
 };
 type Names = readonly string[];
 
@@ -202,7 +228,7 @@ type Names = readonly string[];
  * source with its front matter blanked. `problem` is the message the build would fail with, or null when the
  * body compiles; `path` is the module's `.mdx` path, and the message names it with the line. `flow` names the
  * flow elements the tree holds and `elements` every element, so an escaped `\<Chart />` or code counts as none.
- * `text` is every text, code span and code block value in tree order, a character reference decoded.
+ * `blocks` is the page's text, one string per paragraph, heading or code block (`pageBlocks`).
  */
 export async function checkModuleBody(
   source: string,
@@ -213,11 +239,11 @@ export async function checkModuleBody(
   const all: string[] = [];
   const words: string[] = [];
   const compile = mdx({ remarkPlugins: [closedBody(elements), flowElements(flow, all), pageWords(words)] });
-  const none = { flow: [], elements: [], text: '' };
+  const none = { flow: [], elements: [], blocks: [] };
   try {
     // The compiler skips an id outside its extensions: a body it never read is not a pass.
     const result = await compile.transform(blankFrontMatter(source), path);
-    if (result !== undefined) return { problem: null, flow, elements: all, text: words.join('') };
+    if (result !== undefined) return { problem: null, flow, elements: all, blocks: words };
     return { problem: `${path}: not an .mdx file, so the compiler did not read it (ADR-0048)`, ...none };
   } catch (error) {
     return { problem: error instanceof Error ? error.message : String(error), ...none };

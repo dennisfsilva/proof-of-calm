@@ -74,6 +74,17 @@ describe('translatedModuleProblems', () => {
   it('fails a pt-PT banned row in the front matter', () => {
     expect(codes({ ...FRONT, title: 'Dicas sobre ruído' })).toEqual(['banned-advice']);
   });
+
+  // The page shows a soft hyphen or a zero-width character as nothing, so the field is read without one, as the body is.
+  it('fails a banned word with a default-ignorable code point inside it, and reads a figure without one', () => {
+    for (const character of ['­', '​', '⁠', '͏', '⁡']) {
+      expect([character, codes({ ...FRONT, title: `Uma ocasião imper${character}dível` })]).toEqual([
+        character,
+        ['banned-advice'],
+      ]);
+    }
+    expect(codes({ ...FRONT, caveat: 'Um plano pode perder 8​7 % do valor.' })).toEqual([]);
+  });
 });
 
 describe('translatedModuleProblems, field by field', () => {
