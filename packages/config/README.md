@@ -39,8 +39,10 @@ configs live in their packages. See `docs/ENGINEERING.md`.
     order of `docs/EDUCATION.md` §10 with no body text, and `LEARN_BODIES`, one lazy import per slug, so
     each body is its own chunk and imports only `react/jsx-runtime`.
   - `checkModuleBody(source, path, elements = MODULE_BODY_ELEMENTS)`: the same compiler and `closedBody` on
-    one module with its front matter blanked; `problem` is the build's message or null, and `flow` names the
-    tree's flow elements, so an escaped element or a code span is none. `pnpm validate:content` runs it.
+    one module with its front matter blanked; `problem` is the build's message or null, `flow` names the
+    tree's flow elements, and `elements` every element as `flow:<Name>` or `text:<Name>` in tree order, so
+    an escaped element or a code span is none. `pnpm validate:content` runs it, and compares a translated
+    module's `elements` with its English module's (`module-overlay-elements`).
   - `bootScriptPlugin()`: after every other html hook, in the client build only, the one module entry
     becomes the inline boot script `BOOT_SCRIPT` with the entry URL in `data-entry`; its fixed text
     has the fixed hash `BOOT_SCRIPT_HASH` that the CSP carries (`sha256()` computes such a hash). An
