@@ -364,7 +364,9 @@ describe("each detail quotes its sentence and names its figure and rule (§4's l
     [
       '2: a wrong join, the whole numeral quoted',
       body(`${S1} ${S2.replace('97 %', '97\n%')}`, { raw: true }),
-      [`figure-chart: body: "97\\n%" joins a figure to a sign other than as N %${R(5)}`],
+      [
+        `figure-chart: body: "97\\n%" in "${S1} ${S2}" joins a figure to a sign other than by one space and %${R(5)}`,
+      ],
     ],
     [
       '3: a code block',
@@ -381,6 +383,28 @@ describe("each detail quotes its sentence and names its figure and rule (§4's l
       after('*Each* fall is 1 of 9.'),
       [
         `figure-chart: body: the paragraph "${S1} ${S2} Each fall is 1 of 9." holds emphasis beside a figure "4" in the chart's section, which reads plain text only${R(5)}`,
+        ...['Bitcoin', 'Ethereum', 'Chainlink', 'Solana'].map(
+          (name) =>
+            `figure-unstated: body: the chart draws a fall of ${name} that no sentence of its section states${R(5)}`,
+        ),
+      ],
+    ],
+    [
+      '5: two marks, an English list',
+      after('`Each` fall is 1 of 9.\\\nAgain.'),
+      [
+        `figure-chart: body: the paragraph "${S1} ${S2} Each fall is 1 of 9. Again." holds a code span and a hard break beside a figure "4" in the chart's section, which reads plain text only${R(5)}`,
+        ...['Bitcoin', 'Ethereum', 'Chainlink', 'Solana'].map(
+          (name) =>
+            `figure-unstated: body: the chart draws a fall of ${name} that no sentence of its section states${R(5)}`,
+        ),
+      ],
+    ],
+    [
+      '5: three marks, with the serial comma',
+      after('**Each** fall is `1` of 9.\\\nAgain.'),
+      [
+        `figure-chart: body: the paragraph "${S1} ${S2} Each fall is 1 of 9. Again." holds strong text, a code span, and a hard break beside a figure "4" in the chart's section, which reads plain text only${R(5)}`,
         ...['Bitcoin', 'Ethereum', 'Chainlink', 'Solana'].map(
           (name) =>
             `figure-unstated: body: the chart draws a fall of ${name} that no sentence of its section states${R(5)}`,
@@ -421,7 +445,7 @@ describe("each detail quotes its sentence and names its figure and rule (§4's l
       '10: the years',
       body(`In the chart, bitcoin had 4 falls of more than 75 % between 2010 and 2024. ${S2}`),
       [
-        `figure-chart: body: "between 2010 and 2024" in "In the chart, bitcoin had 4 falls of more than 75 % between 2010 and 2024." is not the year of the first high and the year of the last low of the falls it counts${R(6)}`,
+        `figure-chart: body: "between 2010 and 2024" in "In the chart, bitcoin had 4 falls of more than 75 % between 2010 and 2024." does not run from the year of the first high to the year of the last low of the falls it counts${R(6)}`,
       ],
     ],
     [
@@ -442,7 +466,7 @@ describe("each detail quotes its sentence and names its figure and rule (§4's l
       '13: beyond the rows',
       body(`${S1} Ether fell 94 %, 82 %, and 63 %, Chainlink 89 % and 91 %, and Solana 97 %.`),
       [
-        `figure-chart: body: "63 %" in "${nb('Ether fell 94 %, 82 %, and 63 %, Chainlink 89 % and 91 %, and Solana 97 %.')}" names a fall of Ether that the chart does not draw or a bound already counts${R(5)}`,
+        `figure-chart: body: "63 %" in "${nb('Ether fell 94 %, 82 %, and 63 %, Chainlink 89 % and 91 %, and Solana 97 %.')}" names a fall of Ether that the chart does not draw or a B sentence already counts${R(5)}`,
       ],
     ],
     [
