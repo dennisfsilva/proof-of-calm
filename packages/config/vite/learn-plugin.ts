@@ -6,6 +6,7 @@ import { dirname, join, relative } from 'node:path';
 import mdx from '@mdx-js/rollup';
 import type { Plugin, PluginOption } from 'vite';
 import { englishModuleOf, listTranslations, sourceHeadings, translatedSource } from './learn-translations.ts';
+import { type MdastNode, type MdxAttribute, type PageBlock, pageBlocks, pageOf } from './page-blocks.ts';
 
 /** A parsed module as the plugin needs it: the slug keys its body, the body is compiled apart from the rest. */
 type ParsedModule = { readonly slug: string; readonly body: string };
@@ -60,25 +61,6 @@ export function blankFrontMatter(source: string): string {
   if (close === -1) return source;
   return lines.map((line, index) => (index <= close ? '' : line)).join('\n');
 }
-
-type MdastNode = {
-  readonly type: string;
-  readonly name?: string | null;
-  readonly value?: string;
-  readonly depth?: number;
-  readonly position?: { readonly start: { readonly line: number } };
-  readonly children?: readonly MdastNode[];
-  readonly attributes?: readonly MdxAttribute[];
-};
-
-// mdast-util-mdx-jsx's attribute nodes: `{...spread}` is an `mdxJsxExpressionAttribute`; `name="text"`,
-// a bare `name` and `name={code}` are an `mdxJsxAttribute` whose value is a string, null or an expression node.
-type MdxAttribute = {
-  readonly type: 'mdxJsxAttribute' | 'mdxJsxExpressionAttribute';
-  readonly name?: string;
-  readonly value?: string | null | { readonly type: string };
-  readonly position?: { readonly start: { readonly line: number } };
-};
 
 const CODE_NODES: Readonly<Record<string, string>> = {
   mdxjsEsm: 'an import or export statement',
@@ -176,57 +158,24 @@ const flowElements = (flow: string[], all: string[]) => () => (tree: MdastNode) 
   visit(tree);
 };
 
-// Every node a compiling body holds: `closedBody` refuses the rest, and the compiler runs without remark-gfm. A
-// block's text is the page's one run of text; a container holds blocks; an inline node sits inside a block. An
-// allowed element has no children (`closedBody`), and a fence's info string is its `lang` and `meta`, never shown.
-const BLOCK_NODES = ['paragraph', 'heading', 'code'];
-const CONTAINER_NODES = ['root', 'list', 'listItem', 'blockquote', 'thematicBreak', 'mdxJsxFlowElement'];
-const INLINE_NODES = ['text', 'inlineCode', 'emphasis', 'strong', 'break', 'mdxJsxTextElement'];
-/** The node types the page text reader knows; it throws on any other, so a remark plugin added later fails closed. */
-export const PAGE_NODES: readonly string[] = [...BLOCK_NODES, ...CONTAINER_NODES, ...INLINE_NODES];
-
-// A soft hyphen, a zero-width space or joiner, a word joiner: the page shows none of them unless a line wraps there.
-const IGNORABLE = /\p{Default_Ignorable_Code_Point}/gu;
-
-/**
- * The text the page shows, one string per paragraph, heading or code block in tree order, as the parser decoded it:
- * every value below a block joined with nothing, a hard break with a space, every default-ignorable code point
- * removed. It throws on a node outside `PAGE_NODES` or in a place its kind never takes, naming `path` and the line.
- */
-export function pageBlocks(tree: MdastNode, path: string): string[] {
-  const unknown = (node: MdastNode) =>
-    new Error(`${path}:${node.position?.start.line ?? 0}: a ${node.type} node is not one the page text reader knows`);
-  const inline = (node: MdastNode): string => {
-    if (!INLINE_NODES.includes(node.type)) throw unknown(node);
-    if (node.type === 'break') return ' ';
-    return node.value ?? (node.children ?? []).map(inline).join('');
-  };
-  const blocks: string[] = [];
-  const visit = (node: MdastNode): void => {
-    if (node.type === 'code') blocks.push(node.value ?? '');
-    else if (BLOCK_NODES.includes(node.type)) blocks.push((node.children ?? []).map(inline).join(''));
-    else if (CONTAINER_NODES.includes(node.type)) for (const child of node.children ?? []) visit(child);
-    else throw unknown(node);
-  };
-  visit(tree);
-  return blocks.map((block) => block.replace(IGNORABLE, ''));
-}
-
-/** A remark plugin that records the page's blocks; no attribute value is a word, as the page shows none. */
-const pageWords = (words: string[]) => () => (tree: MdastNode, file: { readonly path?: string }) => {
+/** A remark plugin that records the page and its blocks' text; no attribute value is a word, as the page shows none. */
+const pageWords = (page: PageBlock[], words: string[]) => () => (tree: MdastNode, file: { readonly path?: string }) => {
+  page.push(...pageOf(tree, file.path ?? 'a module'));
   words.push(...pageBlocks(tree, file.path ?? 'a module'));
 };
 
 /**
  * What the compiler read in one module body: the build's message or null, its flow elements by name, every
  * element as `flow:<Name>` (a block) or `text:<Name>` (inside a sentence) and every depth-2 heading as
- * `heading:2`, in tree order, and the page's text block by block (empty when the body does not compile).
+ * `heading:2`, in tree order, the page's text block by block, and the page with each block's kind and each flow
+ * element where it stands (both empty when the body does not compile).
  */
 export type ModuleBodyCheck = {
   readonly problem: string | null;
   readonly flow: Names;
   readonly elements: Names;
   readonly blocks: Names;
+  readonly page: readonly PageBlock[];
 };
 type Names = readonly string[];
 
@@ -235,7 +184,8 @@ type Names = readonly string[];
  * source with its front matter blanked. `problem` is the message the build would fail with, or null when the
  * body compiles; `path` is the module's `.mdx` path, and the message names it with the line. `flow` names the
  * flow elements the tree holds and `elements` every element, so an escaped `\<Chart />` or code counts as none.
- * `blocks` is the page's text, one string per paragraph, heading or code block (`pageBlocks`).
+ * `blocks` is the page's text, one string per paragraph, heading or code block (`pageBlocks`), and `page` the
+ * same blocks with their kinds and the flow elements among them (`pageOf`).
  */
 export async function checkModuleBody(
   source: string,
@@ -245,12 +195,13 @@ export async function checkModuleBody(
   const flow: string[] = [];
   const all: string[] = [];
   const words: string[] = [];
-  const compile = mdx({ remarkPlugins: [closedBody(elements), flowElements(flow, all), pageWords(words)] });
-  const none = { flow: [], elements: [], blocks: [] };
+  const page: PageBlock[] = [];
+  const compile = mdx({ remarkPlugins: [closedBody(elements), flowElements(flow, all), pageWords(page, words)] });
+  const none = { flow: [], elements: [], blocks: [], page: [] };
   try {
     // The compiler skips an id outside its extensions: a body it never read is not a pass.
     const result = await compile.transform(blankFrontMatter(source), path);
-    if (result !== undefined) return { problem: null, flow, elements: all, blocks: words };
+    if (result !== undefined) return { problem: null, flow, elements: all, blocks: words, page };
     return { problem: `${path}: not an .mdx file, so the compiler did not read it (ADR-0048)`, ...none };
   } catch (error) {
     return { problem: error instanceof Error ? error.message : String(error), ...none };

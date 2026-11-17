@@ -18,6 +18,7 @@ export {
   type ModuleBodyCheck,
   type ParseModule,
 } from './learn-plugin.ts';
+export { type PageBlock, pageBlocks, pageOf } from './page-blocks.ts';
 export {
   type CompiledMessages,
   compileMessages,
