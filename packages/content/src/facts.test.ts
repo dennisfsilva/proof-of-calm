@@ -168,7 +168,8 @@ describe('the education facts (docs/EDUCATION.md §9)', () => {
   it('f dates its leverage figure by the day and names neither ESMA nor the FCA', () => {
     const leverage = facts.find((fact) => fact.key === 'f.leverage');
     expect(leverage?.value).not.toMatch(/ESMA|FCA/u);
-    // Main pinned the day, 10 Oct 2025, a date a content review sets; the relation keeps the figure dated by its day.
+    // Main pinned the day, 10 Oct 2025; a review may date the figure by another day, so the relation holds a dollar
+    // figure dated by its day.
     expect(leverage?.value).toMatch(/\bon \d{1,2} [A-Z][a-z]{2,3} \d{4}, [^.]*\$\d/u);
   });
 

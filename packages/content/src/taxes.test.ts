@@ -7,16 +7,16 @@ import { findBanned } from './style/banned.ts';
 
 // docs/EDUCATION.md §4: Taxes where you live. Its body is #24's D2 sentences P1 to P11, word for word. #159 replaced
 // two of them (the sentence on rules not loaded, and P10's button), and review rounds 1 and 2 changed P1 and P6. They
-// sit under D2's six headings; its five dated examples quote only what their trimmed facts hold (D7, the delegated
-// read of 2026-11-12). Every pin is main's but the review dates, the sign-off and a fact's source, the fields a
-// content review sets (docs/ENGINEERING.md §2).
+// sit under D2's six headings, and the module's five dated examples quote only what their trimmed facts hold (D7,
+// the delegated read of 2026-11-12). Every pin is main's but the review dates, the sign-off and a fact's source, the
+// fields a content review sets (docs/ENGINEERING.md §2).
 const path = 'packages/content/learn/taxes-where-you-live.mdx';
 const source = readFileSync(new URL('../learn/taxes-where-you-live.mdx', import.meta.url), 'utf8');
 const context = { facts: new Map(facts.map((fact) => [fact.key, fact.lastReviewed])), today: '2026-11-12' };
 const KEYS = ['k.pt-2023', 'k.de-2024', 'k.it-2026', 'k.be-2026', 'k.gb-2024'] as const;
 const MONTH = 'Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sept?|Oct|Nov|Dec';
 
-// Review round 1 (rule 4): D2's one 45-word sentence split in two. The line
+// Review round 1 (CONTENT-STYLE §1 rule 4): D2's one 45-word sentence split in two. The line
 // shows when a row is opened (log-row.tsx's details; log-row.test.tsx's holding line after the expand click).
 // Review round 2 (rule 10): "It" could be read as the rule or the purchase, so the second sentence names the date.
 const P1 =
@@ -151,7 +151,7 @@ const exampleLines = (body: string) =>
     .map((line) => line.slice(2));
 
 describe('the Taxes where you live module', () => {
-  it('passes the module gate, with no banned word, read under the delegation of 2026-11-12', () => {
+  it('passes the module gate, with no banned word', () => {
     const module = read();
     expect(moduleProblems({ path, source }, context)).toEqual([]);
     expect([module.title, module.idea, module.caveat].flatMap((text) => findBanned(text))).toEqual([]);
@@ -200,7 +200,8 @@ describe('the Taxes where you live module', () => {
   });
 
   // Main also pinned each fact's read and review days, its sign-off and k.de-2024's source, the fields a content
-  // review sets (facts.test.ts refuses a draft and a read after the owner's review; the allow-list holds the source).
+  // review sets (facts.test.ts refuses a draft and a read after the owner's review, and holds each source to the
+  // allow-list).
   it('trims each fact to what the module quotes and its one source holds', () => {
     for (const key of KEYS) {
       const fact = facts.find((item) => item.key === key);
