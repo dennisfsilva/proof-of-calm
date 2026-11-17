@@ -48,7 +48,11 @@ const listed = (elements: readonly string[]) => elements.join(', ') || 'none';
  */
 async function elementProblems(path: string, elements: readonly string[], english: LearnModule | undefined) {
   if (english === undefined) return [];
-  const theirs = await checkModuleBody(english.body, `packages/content/learn/${english.slug}.mdx`, MODULE_BODY_ELEMENTS);
+  const theirs = await checkModuleBody(
+    english.body,
+    `packages/content/learn/${english.slug}.mdx`,
+    MODULE_BODY_ELEMENTS,
+  );
   if (theirs.problem !== null || listed(theirs.elements) === listed(elements)) return [];
   const detail = `English ${listed(theirs.elements)}; translation ${listed(elements)}`;
   return [{ path, code: 'module-overlay-elements', detail }];
