@@ -154,14 +154,14 @@ describe('useModuleBody on a pt-PT screen', () => {
     const [cancelled, kept] = [deferred(), deferred()];
     // The render's import fails; StrictMode runs the retry effect, cleans it up and runs it again: two retries.
     const loading = vi
-      .fn(translated)
+      .fn<() => Promise<unknown>>(translated)
       .mockImplementationOnce(() => Promise.reject(new Error('offline')))
       .mockImplementationOnce(() => cancelled.promise)
       .mockImplementationOnce(() => kept.promise);
     translation.load = loading;
-    const english = LEARN_MODULES.find((module) => module.slug === 'strict-retry');
+    // The copy keeps start-here's English texts.
     const first = await mount('strict-retry', false, true);
-    expect((await screen.findByRole('heading', { level: 1, name: english?.title })).getAttribute('lang')).toBe('en');
+    expect((await screen.findByRole('heading', { level: 1, name: ENGLISH.title })).getAttribute('lang')).toBe('en');
     expect(loading).toHaveBeenCalledTimes(3);
     await act(async () => kept.resolve({ meta: PT, default: () => <p>Um parágrafo traduzido.</p> }));
     // The cancelled retry resolves last, with another text: it must neither be kept nor dispatch.
@@ -183,13 +183,12 @@ describe('useModuleBody on a pt-PT screen', () => {
   it('drops a retry that resolves after its mount left, so the next mount loads again', async () => {
     const retry = deferred();
     const loading = vi
-      .fn(translated)
+      .fn<() => Promise<unknown>>(translated)
       .mockImplementationOnce(() => Promise.reject(new Error('offline')))
       .mockImplementationOnce(() => retry.promise);
     translation.load = loading;
-    const english = LEARN_MODULES.find((module) => module.slug === 'left-retry');
     const left = await mount('left-retry');
-    expect((await screen.findByRole('heading', { level: 1, name: english?.title })).getAttribute('lang')).toBe('en');
+    expect((await screen.findByRole('heading', { level: 1, name: ENGLISH.title })).getAttribute('lang')).toBe('en');
     expect(loading).toHaveBeenCalledTimes(2);
     left.unmount();
     await act(async () => retry.resolve({ meta: PT, default: () => <p>Um parágrafo traduzido.</p> }));
