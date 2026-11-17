@@ -250,3 +250,34 @@ figure, written next to it, and a template's fall shares its sentence only with 
 Out of scope for part 2: the skill and CONTENT-OPS clause (part 3), the plan-creation text (LEGAL §4, versioned), the
 messages' copy, reading words. If the content review guard in CI refuses the noise.mdx edit in a session PR, move that
 line to its own PR before part 2.
+
+## Amendments, 2026-11-17
+
+A second judge read part 2's design against #318 before it was built; these amend the decision and the design note
+above.
+
+1. The kind comes first. A template sentence with one row's placeholders is a fall, one that names the amount is a
+   share, and any other percentage fails. A bound is read only inside its kind: `more than N %` in a fall (D14 of
+   #318) and none in a share; other comparison words and ranges fail. This amends J item 6, and it closes the hole "a
+   template's undated fall equal to its coin's share" for a sentence that does not name the amount.
+2. No coin crosses a sentence. J item 1 loses design B's "a clause naming no coin continues the last coin named". A
+   clause made of a coin name joins the next clause, and a fall's placeholders name its coin. The must-pass guard "It
+   then fell 91 %." becomes a must-fail.
+3. No message prints a text to write (D17 of #318). Each detail names the figure, a template's datum where one exists,
+   and its §4 rule, and a test writes each datum in and re-runs one step past it.
+4. The Remove list above shrinks to the templates test's lines 122-133, 142-143 and 146-147, with `drawdown-coins` and
+   a figure-free pin of two-coins' ETH dates. The verb list, the `' fell '` count, the cycles test, template-dates.test.ts
+   and Risk honestly's pins stay, each for a mutation the validator passes (D13 of #318).
+5. Part 2 becomes two PRs from main: the reader and the template rule (about 205 lines), then the module rules (about
+   190 lines, removing no pin).
+
+## Amendment 7, 2026-11-17
+
+A template sentence that holds a percentage or a drawdown date passes only when it matches one of the closed shapes
+CONTENT-STYLE §4 lists, as a whole. Anything else is `figure-form` when it holds a drawdown date and `figure-unclassed`
+otherwise, and a new wording needs a new reviewed shape. The validator lands with main's template pins kept; a later
+PR removes a pin only with D13's mutation table.
+
+This replaces amendment 6, the word lists a reader allowed around a figure, which never reached main: its second review
+found wordings one step past those lists that passed as exact (#334, D1). The shapes read no neighbouring words, so
+those wordings fail.
