@@ -300,4 +300,5 @@ shows it. Rounds 3 and 4 of #340 found wording hidden where the checker split pa
 
 2026-11-17: an explanation's percentage, English or translated, is the one token the app formats, `N %` with an
 ordinary space, read by the shapes, the `percent-token` check and the template step from
-`packages/content/src/percent-token.ts`; the shapes took U+00A0, U+202F or nothing, which the app showed as typed.
+`packages/content/src/percent-token.ts`. Before, the shapes took U+00A0, U+202F or nothing, which the app showed as
+typed (#343).
