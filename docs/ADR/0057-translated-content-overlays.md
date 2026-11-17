@@ -230,8 +230,10 @@ generated rules files of each language.
   English instead, through `overlay-number-mismatch` in `translatedModuleProblems`
   (`packages/content/src/i18n/module-overlay-validate.ts`), with the same elements in the same order. The app shows a
   module through `useModuleBody`, which loads the language's chunk and falls back to English, marked `lang="en"`, when
-  there is none, when it fails or when it resolves to nothing; a failure is not kept, so the next mount tries again.
-  The owner confirms the cut at the end of M2.
+  there is none, when it fails or when it resolves to nothing. A failure is not kept, so the next mount tries again.
+  The mount that shows English also loads the chunk once more and shows the translation if it comes; WebKit keeps a
+  failed import for the page's life, so there English stays until a reload. The owner confirms the cut at the end of
+  M2.
 - **2026-11-17.** The Consequences' "knows English unit words only" no longer holds for Portuguese:
   the number-unit hyphen check (`packages/content/src/hyphen-validate.ts`) also reads the Portuguese
   unit words (dia, semana, mês, ano, hora, minuto and their plurals), so `90-dias` and `1-mês` are

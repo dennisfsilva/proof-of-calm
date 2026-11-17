@@ -68,7 +68,7 @@ export type DrawdownBarsProps = { falls: readonly PastFall[]; f: Formatters };
 /** The chart over the rows given, with no services: the app's chart below and the static site pages draw it. */
 export function DrawdownBars({ falls, f }: DrawdownBarsProps) {
   const t = useTranslations('learn.chart');
-  // The chart stands inside a module's English body; its lines are the page's (ADR-0057).
+  // The chart stands inside the module's body; its lines are the page's (ADR-0057).
   const lang = uiLang(useLocale());
   if (falls.length === 0)
     return (

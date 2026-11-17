@@ -13,9 +13,8 @@ import { ModuleChart } from './module-chart';
 const NO_CHART: BodyElements['Chart'] = () => null;
 
 /**
- * A module shown in another language than the screen's, English where a language has no translation of it or its
- * chunk failed (ADR-0057): its title, caveat and body carry that `lang` (WCAG 2.2 SC 3.1.2), and nothing when the
- * two agree, so a translated module on its own language's screen is marked nowhere.
+ * When a module's language differs from the screen's (English when no translation exists or its chunk fails), its
+ * title, idea, caveat and body carry that `lang` (ADR-0057, WCAG 2.2 SC 3.1.2); when the two agree, nothing is marked.
  */
 export const useModuleLang = (language: ContentLanguage = 'en') => textLang(language, useLocale());
 
