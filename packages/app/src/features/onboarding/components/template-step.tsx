@@ -1,5 +1,6 @@
 import {
   fillTemplateDates,
+  formatPercentTokens,
   type OfferedTemplate,
   paragraphsOf,
   TEMPLATES,
@@ -78,11 +79,12 @@ const splitLine = (format: Formatters, { coins, split }: OfferedTemplate) =>
 const datedText = (format: Formatters, template: OfferedTemplate, text: string) =>
   fillTemplateDates(text, template.dates, format.date);
 
-/** The explanation's percentages in the plan's format: the JSON stays literal, `N %` (CONTENT-STYLE §4). */
+/**
+ * The explanation's percentages in the plan's format: the JSON stays literal, `N %` (CONTENT-STYLE §4), the one token
+ * `pnpm validate:content` accepts, read from the content package's definition so both find the same form.
+ */
 const explanationText = (format: Formatters, template: OfferedTemplate, text: string) =>
-  datedText(format, template, text).replace(/(\d+) %/g, (_, share: string) =>
-    format.percent(decimal(share), { decimals: 0 }),
-  );
+  formatPercentTokens(datedText(format, template, text), (share) => format.percent(decimal(share), { decimals: 0 }));
 
 export function TemplateStep({ value, format, texts, onChoose, onBack }: TemplateStepProps) {
   const t = useTranslations('onboarding');
