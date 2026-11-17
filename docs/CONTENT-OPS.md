@@ -87,7 +87,8 @@ owns the pipeline around them and its security model.
    failure you expect is `agent-draft` on the entries you marked; when `overlay-number-mismatch`
    names a figure you changed in its English file, change the same figure in the translation,
    written in the translation's number format (§1), run `pnpm --filter @proofofcalm/content rules`
-   and run the checks again; fix or revert anything else. A test that fails because it asserts the
+   and run the checks again; fix or revert anything else, a figure check's refusal only as §1 says,
+   from its source. A test that fails because it asserts the
    value a leaf other than `reviewedBy` held before your change is not yours to satisfy: revert
    nothing for it; name its file and line and both values in the draft's notes and your closing
    report, and say in both that `verify` fails on `pnpm test` until the owner removes that assertion
