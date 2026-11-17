@@ -57,7 +57,8 @@ two shares (`figure-form`), a figure other than its row's fall or its coin's sha
 percentage in a sentence of no shape (`figure-unclassed`). Each detail quotes the sentence and names the figure, its
 coin, the row's fall or the coin's share, and the rule. A translation's figures are tied to English's by
 `overlay-number-mismatch`. In every explanation, English or translated, `src/percent-token.ts` refuses a percentage
-written other than `N %` with an ordinary space, the token the onboarding step formats (`percent-token`). The cycles file takes the same drawdown checks against the catalogue's
+written other than `N %` with an ordinary space, the token the onboarding step formats (`percent-token`). The
+cycles file takes the same drawdown checks against the catalogue's
 tickers and adds 4 of its own: whole percents (`drawdown-fall-not-whole`), rows in catalogue order
 then by high (`cycles-out-of-order`), each coin's high once (`cycles-duplicate`), and the one name
 `cycles/drawdowns.json` (`file-name`). The owner's sign-off is `reviewedBy: owner` (`agent-draft` until
