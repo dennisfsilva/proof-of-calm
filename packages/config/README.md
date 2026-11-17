@@ -46,9 +46,10 @@ configs live in their packages. See `docs/ENGINEERING.md`.
     the parser decoded it, a character reference included, every value below a block joined with nothing,
     a hard break with a space and every default-ignorable code point removed; an attribute's value and a
     fence's info string are not in it, and a node type outside `PAGE_NODES` throws. `pnpm validate:content`
-    runs it, and compares a translated module's `elements` and the numbers of its `blocks`, read block by
-    block and pooled, with its English module's (`module-overlay-elements`, `overlay-number-mismatch`),
-    and runs the ban list and the hyphen check on each of its `blocks`.
+    runs it, and runs the ban list and the hyphen check on each of a translated module's `blocks`. It
+    compares the module's `elements` with its English module's (`module-overlay-elements`). It reads the
+    numbers of each of its `blocks` on its own and compares them, pooled into one sorted list on each side,
+    with English's (`overlay-number-mismatch`).
   - `bootScriptPlugin()`: after every other html hook, in the client build only, the one module entry
     becomes the inline boot script `BOOT_SCRIPT` with the entry URL in `data-entry`; its fixed text
     has the fixed hash `BOOT_SCRIPT_HASH` that the CSP carries (`sha256()` computes such a hash). An
