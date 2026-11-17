@@ -48,21 +48,21 @@ Arguments: $ARGUMENTS
   `templates/*.json` and `facts/*.json` there. In one, change only a figure that
   `overlay-number-mismatch` names, at the path it names, to the English file's new value, and
   never its prose. Write that value in the translation's number format, not as the English
-  characters. The check reads each file with its own number locale. In the English file, it reads a
-  profile's percentages with the page's number locale, `numberLocaleFor('en', profile)`: the
-  profile's locale in English if it has one, else its `numberFormatLocale` (§3 step 2). It reads
-  every other English figure, a template's and a fact's included, with English separators. It reads
-  the translation with its number locale's (ADR-0057: a profile's locale in the translation's
-  language, else its `numberFormatLocale`; a template's or a fact's, the language's own). So a pt-PT
-  translation of Germany, which does not exist yet, would read with de-DE's: there English
-  `5,5 %` would stay `5,5 %`, and English `EUR 20,350` would be `20.350`, since `20,350`
-  copied as written would read 20.35. A template's English `31.4 %` is `31,4 %` in pt-PT, with its
-  ordinary space (`docs/CONTENT-STYLE.md` §9). A profile's percentage, in the English file and in a
-  translation alike, takes its number locale's decimal separator, and any other separator draws
-  `decimal-separator`: a point in de-DE or pt-PT, a comma in und or en-GB. Keep the form the
-  translation already writes for that figure. A profile's percentage keeps its number locale's
-  joiner too (`docs/CONTENT-STYLE.md` §4: a no-break space at de-DE, none at pt-PT); a template's
-  keeps its ordinary space. The check prints the translation's values, then the English ones: every
+  characters. The check reads each file with its own number locale. A profile's English file and
+  its translation both read every figure with the page's number locale, `numberLocaleFor`: the
+  profile's locale in that language if it has one, else its `numberFormatLocale` (§3 step 2;
+  ADR-0057). A template's or a fact's English figures read with English separators, and its
+  translation with the language's own. So the pt-PT translation of Germany reads with de-DE's in
+  both files and copies each English figure as written, no-break spaces included (`\u00a0` in the
+  JSON): `5,5 %` stays `5,5 %`, and `EUR 20 350` stays `EUR 20 350`. Portugal's
+  English `12,2%` stays `12,2%` in pt-PT. A template's English `31.4 %` is `31,4 %` in pt-PT, with
+  its ordinary space (`docs/CONTENT-STYLE.md` §9). A profile's percentage, in the English file
+  and in a translation alike, takes its number locale's decimal separator, and any other separator
+  draws `decimal-separator`: for example a point in de-DE or pt-PT, a comma in und or en-GB. Keep
+  the form the translation already writes for that figure. A profile's percentage keeps its number
+  locale's joiner too (`docs/CONTENT-STYLE.md` §4: a no-break space at de-DE, none at pt-PT or
+  en-GB; `percent-joiner` refuses any other); a template's keeps its ordinary space. The check
+  prints the translation's values, then the English ones: every
   figure of the text as a value, sorted, each decimal with a point (`20350 33.1 5.5`). Find the value
   that differs and write it in the translation's format, not as printed; on the next run the two
   lists must be equal. No `allowed-tools` rule approves that edit, so
@@ -75,7 +75,22 @@ Arguments: $ARGUMENTS
 - Never delete an entry or a file; the finish refuses a deletion. Name a gone source in the draft's
   notes, and the owner deletes it.
 - In a template, change only a dated figure and its source; never its name, risk label, `oneLine`
-  or explanation.
+  or an explanation's words: in an explanation, change only the figure the next item names.
+- A figure check's refusal is the text's to fix from its cited source, never a check to satisfy
+  by rewording. `pnpm run validate:content` names it by code family: a code that starts with
+  `figure-`, `figure-join` aside (below), which is today `figure-form`, `figure-mismatch` and
+  `figure-unclassed` on a template's explanation and any rule the family gains later; a
+  `percent-token` refusal; and a `number-group` refusal
+  that gives no suggestion. Fix each from the cited source's figure: write the figure the source
+  gives (for a template's fall, its `drawdowns` row's `fall`, read from that row's source) in the
+  form the detail and `docs/CONTENT-STYLE.md` §4 set, and change no other word of the sentence.
+  Never reword a sentence toward a shape, and never pick one of the two readings a `number-group`
+  detail names. When the source's figure fits no shape of §4, stop on that item: leave its figure
+  and its sentence as they were, add the note `figure fits no shape: <item> <field>: "<quote>"`
+  and name it in your closing report, since a new wording needs a new reviewed shape. A
+  `number-group` refusal with a suggestion keeps the value: write the suggestion. A `figure-join`
+  detail names a pair and the space between them: replace only that space with U+00A0
+  (`\u00a0` in a JSON file), never a figure.
 - Fetch only the domains in `packages/content/sources.allow.json`. Nothing refuses an off-list
   fetch: no `allowed-tools` rule approves WebFetch, so Claude Code asks the owner unless the
   session's settings or permission mode approve it. The finish refuses an off-list URL in the draft's link
