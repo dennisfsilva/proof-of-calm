@@ -3,7 +3,7 @@
 Date: 2026-11-16. The unanchored design check behind ADR-0057's Corrections entry of that day on grouped figures,
 run for #287: two blind designers (neither saw `packages/content/src/i18n/overlay-validate.ts`, ADR-0057 or the
 overlays), then a judge who read everything and tested every stated reason against the code, Intl (Node 24.20,
-ICU 78.3) and probes. Evidence, not a rule: `docs/CONTENT-STYLE.md` §4 owns the rule. File and line references are
+ICU 78.3), and probes. Evidence, not a rule: `docs/CONTENT-STYLE.md` §4 owns the rule. File and line references are
 the code of that day.
 
 ## The questions
@@ -14,7 +14,7 @@ the code of that day.
   grouping `EUR 20.350`, (c) no group separator, or a variant? Can a reader misread a comma in two roles (nl
   `card.summary60` "a deemed 6,00% of assets above EUR 59,357"; de `5,5 %` beside `EUR 20,350`)?
 - Q2: in a comma-decimal translation, how is a point followed by exactly three digits read: a thousands group
-  (`1.000`), a citation that keeps its point (`art. 33.100`, `Quadro 9.4`) or an English decimal (`0.125 BTC`)?
+  (`1.000`), a citation that keeps its point (`art. 33.100`, `Quadro 9.4`), or an English decimal (`0.125 BTC`)?
 
 ## The designers
 
@@ -33,19 +33,15 @@ the code of that day.
 
 ## The judge's decision
 
-- Q1, English, on the comma-decimal pages (de, es, fr, it, nl, pt): B's variant. A figure of 10 000 or more puts a
-  no-break space between its groups of three; a smaller one takes none: `EUR 1000`, `EUR 20 350`, `EUR 59 357`.
-  Identifiers stay plain. GB, IE, US and XX are unchanged (`£37,700`).
-- Q1, pt-PT: the translation copies the English figure character for character.
-- Q2, both texts of a comma-decimal profile: a comma is always the decimal (`2,5`, `0,125 BTC`, `12,2–48 %`);
-  U+00A0 is the only group mark; a point is only a citation's, compared as written (`art. 33.1`, `Quadro 9.4`,
-  `§3.2.1`); `1.000` is never a thousand and is a finding; a money range is written `EUR 1000 to EUR 2000`.
+- Q1, on the comma-decimal pages (de, es, fr, it, nl, pt): B's variant (`EUR 1000`, `EUR 20 350`), identifiers
+  plain, and the pt-PT translation copies the English figure character for character. GB, IE, US, and XX are
+  unchanged (`£37,700`).
+- Q2, both texts of a comma-decimal profile: a comma is always the decimal (`0,125 BTC`) and U+00A0 the only group;
+  a point is a citation's, compared as written; `1.000` is a finding; a money range reads `EUR 1000 to EUR 2000`.
 - Why not (b): it puts the English decimal mark where the group goes, so the point takes two roles and needs a
   list of citation words to tell them apart, and an English voice reads `20.350` as another value. Why not (a): it
   contradicts D8's comma decimal inside the same card. Why B: each mark keeps one role, and no reader of either
   convention gets another value.
-- It reverses ADR-0057's "What validation holds" (`1,000` in Germany's file) and the D8 Corrections entry's English
-  reading of other figures, for these pages.
 
 ## Reasons tested (the judge's table)
 
@@ -74,8 +70,6 @@ the code of that day.
 | B Q2: today's check misses four cases | Verified | passes `EUR 1000` vs `EUR 1.000`, `33.1` vs `33.10`, `9.4` vs `9,4`, `0,125` vs `0.125`; fails an identical `art. 33.100`; the prototype reading fixes all five with 0 new mismatches on the pt and xx overlays |
 | Both: §4's "1,234 in Portugal" | False | Intl pt-PT writes `1234` |
 
-The translation check of that day already refused (a): de-DE read `EUR 20,350` as 20.35.
-
 ## The live English defect
 
 On 13 fields: nl `card.summary60` put `6,00%` beside `EUR 59,357` in one sentence; de `card.rates.1` put `5,5 %`
@@ -84,8 +78,3 @@ the Log screen under the sheet writes the comma as the decimal. A reader who app
 a value a thousand times smaller (the amounts make that unlikely). Screen readers were not run: an English voice
 reads (a) correctly, (b) as "twenty point three five zero", and may split B into two numbers, so audio does not
 decide between the forms.
-
-## Outside the question
-
-The GB, IE, and US pt-PT overlays keep their page's number locale (`£37,700`), as D8 says; the owner confirms
-it with D8 at the end of M2.
