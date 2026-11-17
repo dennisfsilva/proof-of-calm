@@ -33,10 +33,9 @@ const decimalValue = (whole: string, fraction: string) => {
 
 /**
  * The values of one run of digits and separators: the locale's decimal separator once, any other separator before
- * a group of three digits groups them, in a figure that is no percentage (`cited`) a point before other digits is a
- * citation's, and any other place splits the run (`3,14` in English is 3 and 14).
+ * a group of three digits groups them, and any other place splits the run (`3,14` in English is 3 and 14).
  */
-function valuesOf(run: string, decimal: string, cited = false): string[] {
+function valuesOf(run: string, decimal: string): string[] {
   const [first = '', ...rest] = run.split(/(\D)/);
   const values: string[] = [];
   let whole = first;
@@ -45,8 +44,6 @@ function valuesOf(run: string, decimal: string, cited = false): string[] {
     const [separator, digits = ''] = [rest[index], rest[index + 1]];
     if (fraction === null && separator === decimal) fraction = digits;
     else if (fraction === null && /^\d{3}$/.test(digits)) whole += digits;
-    // A citation's point (`Quadro 9.4`), which every language keeps (CONTENT-STYLE §4).
-    else if (cited && fraction === null && separator === '.') fraction = digits;
     else {
       values.push(decimalValue(whole, fraction ?? ''));
       [whole, fraction] = [digits, null];
@@ -56,26 +53,27 @@ function valuesOf(run: string, decimal: string, cited = false): string[] {
 }
 
 /**
- * The numbers of a text as values, read with the separators of `locale`, a percentage's with `percentLocale`'s
- * (every figure of a range `12,2–48%`, the sign after any joiner a profile writes; docs/CONTENT-STYLE.md §4),
- * sorted: a multiset to compare. It holds the values, not which noun each belongs to, nor their sign (ADR-0057).
+ * The numbers of a text as values, read with the separators of `locale`, sorted: a multiset to compare. It holds
+ * the values, not which noun each belongs to, nor their sign (ADR-0057). Where the locale's decimal is a comma, a
+ * figure holding a point is a citation's (`art. 33.1`, `Quadro 9.4`) and is compared as written (`cited 33.1`),
+ * unless a percentage sign follows it (every figure of a range `12,2–48%`; docs/CONTENT-STYLE.md §4).
  */
-export const numbersIn = (text: string, locale: string, percentLocale = locale): string[] => {
-  const [decimal, percentDecimal] = [decimalSeparator(locale), decimalSeparator(percentLocale)];
+export const numbersIn = (text: string, locale: string): string[] => {
+  const decimal = decimalSeparator(locale);
   return [...text.matchAll(NUMBER)]
     .flatMap(({ 0: run, index }) =>
-      PERCENT_FOLLOWS.test(text.slice(index + run.length))
-        ? valuesOf(run, percentDecimal)
-        : valuesOf(run, decimal, true),
+      decimal === ',' && run.includes('.') && !PERCENT_FOLLOWS.test(text.slice(index + run.length))
+        ? [`cited ${run}`]
+        : valuesOf(run, decimal),
     )
     .sort();
 };
 
 /**
- * The number locales of an English text and of its translation, the English first, then the one an English
- * profile's percentages take (D8: `12,2%` for Portugal), by default the English one.
+ * The number locales of an English text and of its translation, the English first. A profile's two texts both take
+ * its page's (D8 and the grouped figures: `12,2%` and `EUR 20 350` for Germany, `£37,700` for Britain).
  */
-export type NumberLocales = readonly [english: string, translated: string, englishPercent?: string];
+export type NumberLocales = readonly [english: string, translated: string];
 
 // Every percentage a text writes, in any form (`40 %`, `40%`, `40,5 %`, a no-break space). A template writes `N %`
 // with an ordinary space, which the app finds and formats with `format.percent` (template-step.tsx, CONTENT-STYLE §4),
@@ -125,7 +123,7 @@ export function overlayProblems(
     }
     const [mine, theirs] = [
       numbersIn(over, locales[1]).join(' ') || 'none',
-      numbersIn(en, locales[0], locales[2]).join(' ') || 'none',
+      numbersIn(en, locales[0]).join(' ') || 'none',
     ];
     if (mine !== theirs) report('number-mismatch', at, `: ${mine}, English ${theirs}`);
     // A placeholder holds no digits, so the number check cannot see one dropped or added; a swap of two keeps the
@@ -165,8 +163,8 @@ export type TextChecks = {
   readonly fact: (path: string, texts: readonly [string, string][]) => Problem[];
 };
 
-// The English content writes its numbers with English separators whatever the country (de.json: `1,000`), except a
-// profile's percentages, which take the separator of its English page's number locale (D8, percent-validate.ts).
+// A template and a fact write their English numbers with English separators; a profile writes its own in its English
+// page's number locale (D8 and the grouped figures, docs/CONTENT-STYLE.md §4; de.json: `EUR 1000`, `5,5 %`).
 const ENGLISH_NUMBERS = 'en';
 
 /**
@@ -205,11 +203,7 @@ export function overlayFileProblems(
   if (!parsed.success) return [];
   const translated = applyOverlay(parsed.data, json, kind);
   const check = CountryProfileSchema.safeParse(translated);
-  const locales = [
-    ENGLISH_NUMBERS,
-    numberLocaleFor(language, parsed.data),
-    numberLocaleFor('en', parsed.data),
-  ] as const;
+  const locales: NumberLocales = [numberLocaleFor('en', parsed.data), numberLocaleFor(language, parsed.data)];
   return [
     ...overlayProblems(kind, path, parsed.data, json, locales),
     ...(check.success ? [] : schemaProblems(path, check.error.issues)),
