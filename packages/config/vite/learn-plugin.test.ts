@@ -17,6 +17,7 @@ import {
   type ParseModule,
   pageBlocks,
 } from './learn-plugin.ts';
+import { englishModuleOf } from './learn-translations.ts';
 
 type Node = { readonly type: string; readonly children?: readonly Node[] };
 
@@ -514,6 +515,43 @@ describe('checkModuleBody', () => {
 
 // Under `pnpm dev`, a translation's h2s follow the English module as it is on disk now: an English edit recompiles
 // the translation (ADR-0048, 2026-11-17). Proven through the dev server's own watcher and module graph.
+describe('englishModuleOf', () => {
+  it('reads <slug>.mdx whether or not it parses, and nothing outside the English folder or a missing file', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'poc-english-of-'));
+    try {
+      const files: Record<string, string> = {
+        'learn/noise.mdx': '# Noise, saved without its front matter\n',
+        'learn/start-here.mdx': module('start-here', '# Start here'),
+        'secret.mdx': module('secret', '# Outside'),
+        'i18n/pt-PT/learn/noise.mdx': '# Ruído, without front matter: the file name gives the slug\n',
+        'i18n/pt-PT/learn/inicio.mdx': ['---', 'slug: start-here', '---', '# Início'].join('\n'),
+        'i18n/pt-PT/learn/fora.mdx': ['---', 'slug: ../secret', '---', '# Fora'].join('\n'),
+        'i18n/pt-PT/learn/nada.mdx': ['---', 'slug: nothing', '---', '# Nada'].join('\n'),
+      };
+      for (const [name, text] of Object.entries(files)) {
+        await mkdir(dirname(join(root, name)), { recursive: true });
+        await writeFile(join(root, name), text);
+      }
+      const dirs = { translations: join(root, 'i18n'), english: join(root, 'learn') };
+      const of = (name: string) => englishModuleOf(join(root, name), dirs, parseModule);
+      expect(await of('i18n/pt-PT/learn/noise.mdx')).toMatchObject({
+        file: join(root, 'learn/noise.mdx'),
+        parsed: false,
+      });
+      expect(await of('i18n/pt-PT/learn/inicio.mdx')).toMatchObject({
+        file: join(root, 'learn/start-here.mdx'),
+        parsed: true,
+      });
+      expect(await of('i18n/pt-PT/learn/fora.mdx')).toBeUndefined();
+      expect(await of('i18n/pt-PT/learn/nada.mdx')).toBeUndefined();
+      expect(await of('i18n/pt-PT/learn/gone.mdx')).toBeUndefined();
+      expect(await of('learn/noise.mdx')).toBeUndefined();
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+});
+
 describe('learnPlugins under the dev server', () => {
   const RUNTIME =
     'export const jsx = () => null; export const jsxs = jsx; export const jsxDEV = jsx; export const Fragment = jsx;';
