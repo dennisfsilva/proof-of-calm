@@ -181,14 +181,14 @@ Recorded on 2026-11-15, when the site's half of the rendering points landed in `
 - 2026-11-17: the ban list, the number check and the hyphen check of a translated body read the text its compiled
   page shows, not its source, block by block. `checkModuleBody` returns `blocks`: one string per paragraph, heading
   or code block of the tree its closed-body compile parses, in tree order, as the parser decoded it, a character
-  reference included. Every value below a block joins with nothing and a hard break with a space; an attribute's
-  value and a fence's info string are not in it. Every default-ignorable code point (`\p{Default_Ignorable_Code_Point}`,
+  reference included. Inside a block, the text of every node is joined with no space between, and a hard break
+  becomes one space; an attribute's value and a fence's info string are not in it. Every default-ignorable code point (`\p{Default_Ignorable_Code_Point}`,
   a soft hyphen or a zero-width space among them) is removed, since the page shows the word without it. The reader
   knows the closed set of node types a compiling body holds (`PAGE_NODES`: `closedBody` refuses the rest, and the
   compiler runs without remark-gfm) and throws on any other, so a remark plugin added later fails closed. A module
   holds no link (`closedBody` refuses one), so none is read. `closedBodyProblems` runs the ban list and the hyphen
-  check on each block of the translation, and reads the numbers of each block on its own, pooled into one sorted list
-  on each side and compared with English's compiled body's, so no phrase or figure is read across a block;
+  check on each block of the translation, so no phrase is read across a block. It reads the numbers block by block
+  and compares one sorted list per side with English's compiled body's, so no figure is read across a block.
   `translatedModuleProblems` reads the front matter only, each field without a default-ignorable code point too. A
   translation that does not compile gets `module-closed-body` and none of the three; while English's body does not
   compile, the translation gets the ban list and the hyphen check, and English's own run reports its body. English's own checks still read its source
