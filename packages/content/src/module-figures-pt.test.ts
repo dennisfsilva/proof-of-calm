@@ -281,6 +281,24 @@ describe("pt-PT's chart section", () => {
     ['O papel tinha uma dobra.', 'a number word', 'dobra'],
     ['A dobradiça partiu.', 'a number word', 'dobradiça'],
     ['Era um duplicado.', 'a number word', 'duplicado'],
+    // Each entry's spellings in both norms, before and after the 1990 Agreement (the table of amendment 8).
+    ['O preço quadriplicou no ano.', 'a number word', 'quadriplicou'],
+    ['O preço ficou quadriplicado.', 'a number word', 'quadriplicado'],
+    ['O preço chegou ao séptuplo.', 'a number word', 'séptuplo'],
+    ['Foi uma subida séptupla.', 'a number word', 'séptupla'],
+    ['O preço chegou ao sétuplo.', 'a number word', 'sétuplo'],
+    ['Caiu cinqüenta vezes.', 'a number word', 'cinqüenta'],
+    ['Foi a qüinquagésima queda.', 'a number word', 'qüinquagésima'],
+    ['Foi a qüingentésima queda.', 'a number word', 'qüingentésima'],
+    ['A porcentagem caiu.', 'a percentage sign or word', 'porcentagem'],
+    ['As porcentagens caíram.', 'a percentage sign or word', 'porcentagens'],
+    ['A queda porcentual foi grande.', 'a percentage sign or word', 'porcentual'],
+    ['As quedas porcentuais foram grandes.', 'a percentage sign or word', 'porcentuais'],
+    // The -ar verbs beside the -icar ones (Priberam: `quadruplar` and `decuplar`), on every stem.
+    ['O preço quadruplou.', 'a number word', 'quadruplou'],
+    ['O preço decuplou.', 'a number word', 'decuplou'],
+    ['O preço triplou.', 'a number word', 'triplou'],
+    ['O preço ficou quadruplo.', 'a number word', 'quadruplo'],
   ])('6: «%s» fails on %s', async (sentence, kind, token) => {
     const found = await problemsOf(ptPara(sentence));
     expect(found.map(({ code, detail: words }) => [code, words])).toEqual([[FC, detail(sentence, kind, token)]]);
@@ -302,7 +320,7 @@ describe("pt-PT's chart section", () => {
     ].map(([sentence = '', form = '']) => [sentence.replace('%', form), form] as const);
   };
   it.each(
-    'dobr duplic triplic quadruplic quintuplic sextuplic septuplic setuplic octuplic nonuplic decuplic centuplic'.split(
+    'dobr duplic triplic quadruplic quadriplic quintuplic sextuplic septuplic setuplic octuplic nonuplic decuplic centuplic quadrupl decupl'.split(
       ' ',
     ),
   )('6: every form of %sar fails on a number word', async (stem) => {
@@ -320,6 +338,9 @@ describe("pt-PT's chart section", () => {
     // A stem holds at a word's start, as English's `doubled` misses `redoubled`; `meio` stays prose (hole 13).
     'A atenção redobrou.',
     'A queda parou a meio do ciclo.',
+    // The -ar verbs' stems stop before `mente`: the adverbs stay prose (hole 13).
+    'Foi duplamente difícil.',
+    'Foi triplamente difícil.',
   ])('6: «%s» passes', async (sentence) => {
     expect(await codes(ptPara(sentence))).toEqual([]);
   });

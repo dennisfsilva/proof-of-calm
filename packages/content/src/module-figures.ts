@@ -60,27 +60,30 @@ const KINDS: Kinds = [
   ['a currency sign', /\p{Sc}/u],
 ];
 // pt-PT's words, read beside English's: never `um` or `uma`, which the section's prose needs («uma queda de uma
-// moeda»), and `Mar` only capitalised, since `mar` is the sea. Brazilian spellings count too. Each English entry has
-// its pt-PT words here or stays prose by hole 13 of amendment 8 (`uma vez` for `once`, since `uma` stays prose).
+// moeda»), and `Mar` only capitalised, since `mar` is the sea. Every entry holds its spellings in European Portuguese
+// before and after the 1990 Agreement and in Brazilian Portuguese before and after it (`séptuplo` and `sétuplo`,
+// `cinqüenta`, `quadriplicar`, `dezesseis`), as amendment 8's table walks them. Each English entry has its pt-PT
+// words here or stays prose by hole 13 of amendment 8 (`uma vez` for `once`, since `uma` stays prose).
 const PT_CARDINALS = 'zero dois duas três quatro cinco seis sete oito nove dez onze doze treze catorze quatorze quinze \
-dezasseis dezesseis dezassete dezessete dezoito dezanove dezenove vinte trinta quarenta cinquenta sessenta setenta \
+dezasseis dezesseis dezassete dezessete dezoito dezanove dezenove vinte trinta quarenta cinq[uü]enta sessenta setenta \
 oitenta noventa cem cento mil milhar milhares milhão milhões bilião biliões bilhão bilhões trilião triliões trilhão \
 trilhões dúzias? dezenas? centenas? (?:duz|trez|quatroc|quinh|seisc|setec|oitoc|novec)ent[oa]s'.split(' ');
 // The ordinals from first to ninetieth and from hundredth to billionth, the hundreds' own words among them.
 const PT_ORDINALS = `(?:primeir|segund|terceir|quart|quint|sext|sétim|oitav|non|décim|undécim|duodécim|vigésim|\
-trigésim|quadragésim|quinquagésim|sexagésim|sep?tuagésim|octogésim|nonagésim|centésim|ducentésim|tr[ei]centésim|\
-quadringentésim|quingentésim|se(?:x|is)centésim|sep?tingentésim|oct(?:in|o)gentésim|non(?:in)?gentésim|milésim|\
+trigésim|quadragésim|q[uü]inquagésim|sexagésim|sep?tuagésim|octogésim|nonagésim|centésim|ducentésim|tr[ei]centésim|\
+quadringentésim|q[uü]ingentésim|se(?:x|is)centésim|sep?tingentésim|oct(?:in|o)gentésim|non(?:in)?gentésim|milésim|\
 milionésim|bilionésim)[oa]s?`;
 // half and halves, a third (`terço`, English's `third` as a fraction), double, triple, quadruple and the other -fold
-// words. The verbs close by stem, not form by form: `dobr` or `duplic` to `centuplic` (`qu` before e) at a word's
+// words. The verbs close by stem, not form by form: `dobr`, or `dupl` to `centupl` before `ic`, `iqu` (the -icar
+// verbs) or a vowel (the -ar verbs `quadruplar` and `decuplar`, and the unaccented `duplo`) but `-mente`, at a word's
 // start, then any letters, so every tense, participle and noun of each triggers (hole 14: `dobra`, a fold, too).
 const STEM = '[\\p{L}\\p{M}]*';
 const PT_OTHERS = [
   'metades?',
   'terços?',
   `dobr${STEM}`,
-  '(?:dupl|tripl|quádrupl|quíntupl|sêxtupl|sétupl|óctupl|n[óô]nupl|décupl|cêntupl)[oa]s?',
-  `(?:dupl|tripl|quadrupl|quintupl|sextupl|sep?tupl|octupl|nonupl|decupl|centupl)i(?:c|qu)${STEM}`,
+  '(?:quádrupl|quíntupl|sêxtupl|sép?tupl|óctupl|n[óô]nupl|décupl|cêntupl)[oa]s?',
+  `(?:dupl|tripl|quadr[iu]pl|quintupl|sextupl|sep?tupl|octupl|nonupl|decupl|centupl)(?:i(?:c|qu)|[aeoá](?!mente))${STEM}`,
   'trimestres?',
   'par',
   'pares',
@@ -89,7 +92,8 @@ const PT_MONTHS =
   'janeiro|fevereiro|março|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro|jan|fev|abr|\
 mai|jun|jul|ago|set|out|nov|dez';
 const PT_KINDS: Kinds = [
-  ['a percentage sign or word', word('por(?:\\s+|[\\u002D\\u2010\\u2011])?cento', 'iu')],
+  // `por cento`, and Brazil's `porcentagem` and `porcentual` (pt-PT's `percentagem` meets English's `per cent`).
+  ['a percentage sign or word', word('por(?:\\s+|[\\u002D\\u2010\\u2011])?cent(?:o|agem|agens|ual|uais)', 'iu')],
   ['a number word', word([...PT_CARDINALS, PT_ORDINALS, ...PT_OTHERS].join('|'), 'iu')],
   ['a month', word(PT_MONTHS, 'iu')],
   ['a month', word('Mar', 'u')],
