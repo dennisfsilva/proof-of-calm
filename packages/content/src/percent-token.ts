@@ -18,14 +18,25 @@ const named = (text: string) =>
 export const formatPercentTokens = (text: string, format: (digits: string) => string): string =>
   text.replace(TOKEN, (_, digits: string) => format(digits));
 
+// The sentences of a paragraph as the figures check's `sentencesOf` splits them (template-figures.ts imports this
+// file, so it cannot be imported here; the test holds the two to one split). A figure holds no `.`, `!` or `?`,
+// so it never spans two sentences.
+const sentencesIn = (paragraph: string) => paragraph.split(/(?<=[.!?])\s+/u);
+
 /** Each percentage in the paragraphs the app renders (`paragraphsOf`) written other than as the token. */
 export const percentTokenProblems = (path: string, field: string, text: string): Problem[] =>
-  paragraphsOf(text).flatMap((paragraph) =>
-    [...paragraph.matchAll(WRITTEN)]
-      .filter(({ groups: { joiner = '', sign = '' } = {} }) => joiner !== PERCENT_JOINER || sign !== '%')
-      .map(({ 0: figure, groups: { joiner = '', sign = '' } = {} }) => {
-        const other = sign === '%' ? '' : `, and ${named(sign)} for "%"`;
-        const what = `"${figure}" has ${named(joiner)} before its sign${other}`;
-        return { path, code: 'percent-token', detail: `${field}: ${what}; write N % (docs/CONTENT-STYLE.md §4)` };
-      }),
-  );
+  paragraphsOf(text)
+    .flatMap(sentencesIn)
+    .flatMap((sentence) =>
+      [...sentence.matchAll(WRITTEN)]
+        .filter(({ groups: { joiner = '', sign = '' } = {} }) => joiner !== PERCENT_JOINER || sign !== '%')
+        .map(({ 0: figure, groups: { joiner = '', sign = '' } = {} }) => {
+          const parts = [
+            joiner === PERCENT_JOINER ? '' : `${joiner === '' ? 'nothing' : named(joiner)} before its sign`,
+            sign === '%' ? '' : `${named(sign)} in place of %`,
+          ];
+          const what = `"${figure}" has ${parts.filter(Boolean).join(' and ')} in "${sentence}"`;
+          const fix = 'write N % with an ordinary space (U+0020) (docs/CONTENT-STYLE.md §4)';
+          return { path, code: 'percent-token', detail: `${field}: ${what}; ${fix}` };
+        }),
+    );
