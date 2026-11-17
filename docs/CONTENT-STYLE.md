@@ -471,6 +471,33 @@ nothing required after "cent": percent, per cent, percentage, percentile, and th
 whole explanation, so a line or paragraph break between the two words counts as a space. A new wording needs a new
 reviewed shape (decided 2026-11-17). The shapes accept only the past tense `fell`. The copy review (`docs/LEGAL.md` §6
 Q6) catches a projection with no percentage and no drawdown date, such as "Solana could fall that far again".
+
+A Learn module's chart section runs from the heading before `<Chart />`, or the page's start, to the next heading, on
+the page the build's compiler gives (`packages/content/src/module-figures.ts`). A sentence there that holds a number
+character, a percentage, a number word, a month, a currency sign or the name of a coin the chart draws matches one of
+two shapes as a whole: B, `In the chart, C had K falls of more than N between Y and Y.` with `1 fall` for one, or E,
+`C fell L.` or `C fell L`, then any number of `, C L`, then `, and C L.`. In them `N` is a whole number from 1 to 100,
+one ordinary or no-break space and `%`; `K` is 1 to 99; `Y` is a year of four digits; `L` is `N`, `N and N`, or two or
+more `N` joined by `, ` with `, and ` before the last; `C` is a catalogue coin's name, as written or with its first
+letter in lower case, or `Ether` or `ether` for ETH, never a ticker. Every other gap is one space. A number word is a
+cardinal, an ordinal, or a word such as `once`, `half`, `double` or `couple`; a month is its name or short form, with
+`May`, `March` and `Mar` counted only when capitalized; a coin the chart draws counts by its name in any case, `ether`
+for ETH, or its ticker as written. Anything else fails (`figure-chart`). So does a code block in the section, a heading
+there that holds one of them, a figure joined to `%` other than by one ordinary or no-break space, and a paragraph that
+holds one of them beside emphasis, strong, a code span, a hard break, a text element or a character the page hides.
+
+R5: E states each coin's falls in the chart's order, oldest high first. Each `N` is the row's whole fall, and the falls
+a B counts are left out. A coin the chart draws no fall of fails (`figure-chart`). The section states every row: a coin
+gets one `figure-unstated` when no sentence there states one of its rows. A sentence outside the shapes states none.
+
+R6: B counts C's falls of more than `N`, strictly, whose high is in the first `Y` or later and whose low is in the last
+`Y` or earlier. There are `K` of them and at least one, the first high is in the first `Y`, and the last low is in the
+last `Y` (`figure-chart`).
+
+Each detail quotes the sentence and names its own figure and rule, never a row or a count to copy (decided
+2026-11-17). A translation's chart section fails closed until its language has shapes. A chart other than
+`drawdowns-bar` has no rows, so any figure in its section fails.
+
 A numeral joined to its unit by a hyphen (`90‑day`, `365‑day`) never breaks there. Text a screen shows writes the
 no-break hyphen U+2011 between them (`\u2011` in a JSON string, the character itself in a module): messages, modules
 (title, idea, caveat and body), every profile text the app shows, a template's name, one-line summary, risk label
