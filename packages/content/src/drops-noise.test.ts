@@ -35,8 +35,8 @@ describe('the Noise and When the market drops modules', () => {
     const { path, source, module } = read(slug);
     expect(moduleProblems({ path, source }, context)).toEqual([]);
     expect([module.title, module.idea, module.caveat].flatMap((text) => findBanned(text))).toEqual([]);
-    expect(module.reviewedBy).toBe('owner');
-    expect(module.lastReviewed).toBe('2026-11-09');
+    // Main's pin, dropped with lastReviewed and reviewedBy, the fields a content review and the owner's sign-off
+    // set; the gate above still refuses an agent's draft (agent-draft).
   });
 
   it.each(SLUGS)('%s keeps each figure with its unit and each date whole', (slug) => {
@@ -74,6 +74,7 @@ describe('the Noise and When the market drops modules', () => {
     expect(body).not.toMatch(/next buy day/u);
   });
 
+  // Counsel's three things a buyer can do, as docs/EDUCATION.md §6 quotes them.
   it("When the market drops holds counsel's three things, the frequency with its window, and one past-performance element", () => {
     const { module, source } = read('when-the-market-drops');
     // A line end reads as a space; the no-break spaces stay, so the window is matched as written.
@@ -148,7 +149,8 @@ describe('the Noise and When the market drops modules', () => {
     const body = read('when-the-market-drops').module.body.replace(/[ \n]+/gu, ' ');
     const bis = facts.find((fact) => fact.key === 'r.app-user-losses');
     expect(bis?.publisher).toBe('BIS');
-    expect(bis?.source).toBe('https://www.bis.org/publ/work1049.htm');
+    // Main also pinned the paper's URL, a source a content review sets (D12): the publisher and the body's
+    // "BIS Working Paper 1049" below hold the paper, and facts.test.ts holds the URL to the allow-list.
     // The quoted figures come from the July 2023 revision; October 2022 belongs to the one-purchase case only.
     expect(body).toContain('BIS Working Paper 1049 (Nov\u00a02022, revised Jul\u00a02023)');
     expect(body).toContain('covered crypto app downloads in 95 countries from Aug\u00a02015 to Jun\u00a02022.');
