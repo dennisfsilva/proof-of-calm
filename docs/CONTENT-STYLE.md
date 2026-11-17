@@ -683,10 +683,11 @@ needs (decided 2026-11-15). The native reader's review is §8 item 9.
   §4's. The trigger is English's beside pt-PT's own: `por cento` in any case, joined by nothing, a space or a hyphen;
   the cardinals and ordinals but `um` and `uma`, which the prose needs, Brazilian spellings included (`dezesseis`,
   `bilhão`, `trilhão`), each English list's entries in pt-PT (`quadragésimo` to `nonagésimo`, `milionésimo`,
-  `bilionésimo`); `dúzia`, `dezena`, `centena`, `milhar`, `metade`, `dobro`, `par`, `trimestre`, the multiplicatives
-  `duplo` to `cêntuplo` and their verbs (`dobrou`, `duplica`, `triplicaram`); the months and their short forms
-  (`jan` to `dez`) in any case, and `Mar` only capitalised. `segundo` ('according to') triggers, so the section
-  writes `de acordo com`; lowercase `sol` does not. `packages/content/src/module-figures.ts` holds the lists.
+  `bilionésimo`); `dúzia`, `dezena`, `centena`, `milhar`, `metade`, `terço`, `par`, `trimestre`, the multiplicatives
+  `duplo` to `cêntuplo`, and every word that starts with the stem of `dobrar` or of `duplicar` to `centuplicar`
+  (`dobro`, `dobrado`, `duplicava`, `triplicará`); the months and their short forms (`jan` to `dez`) in any case,
+  and `Mar` only capitalised. `segundo` ('according to') triggers, so the section writes `de acordo com`; `dobra`
+  ('a fold') triggers too, and lowercase `sol` does not. `packages/content/src/module-figures.ts` holds the lists.
 - **A country card's summary keeps the 60-word limit**, as in English (`docs/JURISDICTIONS.md` §2;
   `pnpm validate:content` counts the words). When a Portuguese card runs over 60 words, the
   explanation gives way, never the computed date, the rule or the source.

@@ -359,13 +359,20 @@ ETH, and C1 the same with its article capitalised, only to open E. Agreement is 
 `o Solana` and `a Ether` fail, `a Ethereum` passes.
 
 13. pt-PT's lists close only what they list: `um`, `uma` (so `uma vez`, English's `once`), `cada`, `todos`,
-    `ambos`, `vários`, `alguns`, `muitos`, `poucos`, `último`, `meio` and `meia` (also 'middle' and 'means'),
-    `terço`, `década` and `semestre` (no English entry names them), `casal` (English's `couple` is `par`), a date or
-    amount in words outside the lists (`no verão passado`, `dólares`), lowercase `mar` and `sol` (the ticker kind is
-    case-sensitive) stay prose, as hole 2's English words do.
+    `ambos`, `vários`, `alguns`, `muitos`, `poucos`, `último`, `meio` and `meia` (also 'middle' and 'means', so
+    `ao meio`, one pt-PT wording of English's `halved`, passes; the other, `para metade`, triggers), `década` and
+    `semestre` (no English entry names them), `vintena`, `quinzena` and `quarentena` (English names no count noun
+    but `dozen`, and they are also a fortnight and a quarantine), `avos` (its count, `doze avos`, triggers), the
+    adverbs `duplamente` and `primeiramente` and the prefixed `redobrar` and `desdobrar` (English's `doubly`,
+    `firstly` and `redoubled` pass too, since each stem holds at a word's start), `casal` (English's `couple` is
+    `par`), a date or amount in words outside the lists (`no verão passado`, `dólares`), lowercase `mar` and `sol`
+    (the ticker kind is case-sensitive) stay prose, as hole 2's English words do.
 14. Loud false failures in pt-PT: `segundo` ('according to'), `metade` and `primeira` trigger and fail outside B and
     E, so a section writes `de acordo com`; a capitalised `Mar` at a sentence's start fails («Mar e montanha»), and
-    so do `dobra` ('a fold') and `duplicado` ('a duplicate').
+    so does `par` in `a par de` ('alongside'). The verb stems take every word that starts with them: `dobra` ('a
+    fold'), `dobrado` ('folded', 'dubbed'), `dobrada` ('tripe'), `dobradiça` ('a hinge'), `dobragem` ('dubbing'),
+    `dobrar a esquina` ('to turn a corner'), `duplicado` ('a duplicate') and `duplicidade` ('duplicity') fail, and
+    `terço` fails as 'a rosary' too.
 
 The lists walked against English's, 2026-11-17 (the review of the pt-PT Risk honestly found `trilhão` and the
 ordinals from `quadragésimo` to `nonagésimo` missing). Each entry of `CARDINALS`, `ORDINALS` and `OTHERS` now has its
@@ -374,6 +381,17 @@ pt-PT words in `PT_CARDINALS`, `PT_ORDINALS` and `PT_OTHERS`, or stays prose by 
 `octogésim`, `nonagésim`, `undécim` and `duodécim` (English's eleventh and twelfth), the hundreds' (`ducentésim` to
 `nongentésim`, as `two hundredth` triggers on `two`), `milionésim` and `bilionésim`; `metades` (`halves`); the
 multiplicatives `duplo` to `cêntuplo` in both genders and numbers (English's `-fold`, `double`, `triple`,
-`quadruple`), `nónuplo` and the Brazilian `nônuplo`; the forms of `dobrar` and of `duplicar` to `centuplicar` that
-English's `doubled`, `doubles`, `tripled` and `quadrupled` name; and `trimestre` (English's `quarter` of a year). Each
+`quadruple`), `nónuplo` and the Brazilian `nônuplo`; and `trimestre` (English's `quarter` of a year). Each
 has a sentence outside the shapes in `module-figures-pt.test.ts` that fails on it.
+
+The verbs closed by stem, 2026-11-17 (round 2 of the same review). The list named only some forms of `dobrar` and
+of `duplicar` to `centuplicar`, so `dobrado`, `dobrava`, `duplicava` and `duplicará` passed while English's
+`doubled`, `tripled` and `quadrupled` trigger in every past use; and `terço`, English's `third` as a fraction, was
+missing. Each round had found one more form, so the verbs now close by stem: `dobr`, and each stem from `dupl` to
+`centupl` (`septupl` and `setupl`, `octupl` and `nonupl` among them) before `ic` or `iqu` (the subjunctive's
+`duplique`), at a word's start and followed by any letters, so every tense, the participle, the
+subjunctive and the nouns (`dobro`, `duplicação`) trigger. `terço` and `terços` joined. The other entries walked
+again for a pt-PT verb or a noun with inflections: the plurals of the cardinals and ordinals were listed already,
+`quarter` is the ordinal `quarto` or `trimestre`, `halved` has no pt-PT verb (hole 13), and `couple` and `pair`
+are `par` and `pares`; the rest stay prose by hole 13. A test gives each stem's infinitive, present, preterite,
+imperfect, future, conditional, participle and subjunctive its code, and the live translation still gives none.
