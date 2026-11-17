@@ -83,10 +83,13 @@ describe('createHostConfig', () => {
     expect(name(chunk('/repo/packages/content/i18n/de/templates/steady.json'))).toBe(
       'assets/messages/de/[name]-[hash].js',
     );
-    // A translated Learn module's chunk, its meta inside it (ADR-0048 Deviations); English modules keep assets/.
+    // A translated Learn module's chunk and its language's metadata module (ADR-0048 Deviations); English modules keep
+    // assets/.
     expect(name(chunk('C:\\repo\\packages\\content\\i18n\\pt-PT\\learn\\start-here.mdx'))).toBe(
       'assets/messages/pt-PT/[name]-[hash].js',
     );
+    expect(name(chunk('\0virtual:learn-meta/pt-PT'))).toBe('assets/messages/pt-PT/learn-meta-[hash].js');
+    expect(name(chunk('\0virtual:learn-meta/de'))).toBe('assets/messages/de/learn-meta-[hash].js');
     expect(name(chunk('/repo/packages/content/learn/start-here.mdx'))).toBe('assets/[name]-[hash].js');
     expect(name(chunk('/repo/packages/content/rules/pt.json'))).toBe('assets/[name]-[hash].js');
     expect(name(chunk('/repo/packages/content/rules/locales.json'))).toBe('assets/[name]-[hash].js');
