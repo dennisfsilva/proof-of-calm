@@ -243,9 +243,7 @@ describe('useModuleIndex', () => {
     await act(async () => meta.resolve(ptMeta()));
     const translatedSlugs = new Set(Object.keys(LEARN_TRANSLATIONS['pt-PT'] ?? {}));
     expect(rows(container)).toEqual(
-      LEARN_MODULES.map((module) =>
-        translatedSlugs.has(module.slug) ? [PT.title, 'pt-PT'] : [module.title, 'en'],
-      ),
+      LEARN_MODULES.map((module) => (translatedSlugs.has(module.slug) ? [PT.title, 'pt-PT'] : [module.title, 'en'])),
     );
     expect(rows(container).some(([, lang]) => lang === 'en')).toBe(true);
   });
