@@ -330,11 +330,13 @@ Holes accepted with it:
 2. `one`, `a`, `each`, `every`, `all`, `both`, `last`, `several`, `few`, `many`, `most`, a date or amount in words
    outside the lists (`last spring`, `dollars`) and Roman numerals in letters (`IX`) stay prose.
 3. A catalogue coin the chart does not draw, named in a sentence with no other trigger, passes.
-4. The lists are English: another language's number word or month inside an English module passes.
+4. The lists are English: another language's number word or month inside an English module passes. A pt-PT
+   section reads English's lists beside its own (hole 13), so an English word inside a pt-PT translation counts.
 5. A true, weaker statement passes: a lower `N`, or a second bound over rows another bound counts.
 6. A chart figure moved under the next heading leaves the section. Its rows get `figure-unstated`, and no rule reads
    the moved sentence until R7; the copy review (`docs/LEGAL.md` §6 Q6) does.
-7. A translated chart section fails closed until its language's shapes land.
+7. A translated chart section other than pt-PT's fails closed until its language's shapes land. pt-PT's B and E
+   (CONTENT-STYLE §9) landed with the pt-PT Risk honestly on 2026-11-17.
 8. A chart other than `drawdowns-bar` has no rows, so any figure in its section fails.
 9. Loud false failures: any wording outside B and E (a label, a ticker, a verb in a later clause, `from 2011 to 2022`,
    years in E). Each needs a reviewed shape.
@@ -343,3 +345,22 @@ Holes accepted with it:
 11. The rows are whole (`drawdown-fall-not-whole`), so the rule compares exactly. A decimal row fails both checks.
 12. In the Cycles list a figure moved to another line passes: no rule reads that list until R7's PR, and the cycles
     test holds only the 2017 line.
+
+pt-PT's trigger and shapes, 2026-11-17 (D4 and D5, `packages/content/src/module-figures.ts`). The pt-PT trigger is
+the union of English's lists and pt-PT's: `por cento`, joined by nothing, white space, U+002D, U+2010 or U+2011, in
+any case, reported as 'a percentage sign or word'; the cardinals without `um` and `uma`, with `cem` and `cento`, the
+hundreds as `(duz|trez|quatroc|quinh|seisc|setec|oitoc|novec)ent[oa]s`, `milhar`, `milhares`, `trilião`,
+`triliões` and the singular and plural `dúzia`, `dezena` and `centena`; the Brazilian spellings `dezesseis`,
+`dezessete`, `dezenove`, `bilhão` and `bilhões`, so a Brazilian slip counts too; the ordinal stems with o, a, os
+or as; the months `janeiro` to `dezembro` and `jan fev abr mai jun jul ago set out nov dez` in any case, and `Mar`
+only capitalised. B is `No gráfico, C teve K queda|quedas de mais de N J% entre Y e Y.`, E is `C1 caiu L.` or
+`C1 caiu L`, any number of `, C L`, then ` e C L.`, with no comma before `e`; C is `a` and the catalogue name for every coin, `o ether` for
+ETH, and C1 the same with its article capitalised, only to open E. Agreement is part of the shape: `A ether caiu`,
+`o Solana` and `a Ether` fail, `a Ethereum` passes.
+
+13. pt-PT's lists close only what they list: `um`, `uma`, `cada`, `todos`, `ambos`, `vários`, `alguns`, `muitos`,
+    `poucos`, `último`, `meio`, `terço`, `década`, a date or amount in words outside the lists (`no verão passado`,
+    `dólares`), lowercase `mar` and `sol` (the ticker kind is case-sensitive) stay prose, as hole 2's English words
+    do.
+14. Loud false failures in pt-PT: `segundo` ('according to'), `metade` and `primeira` trigger and fail outside B and
+    E, so a section writes `de acordo com`; a capitalised `Mar` at a sentence's start fails («Mar e montanha»).
