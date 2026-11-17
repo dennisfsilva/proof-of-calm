@@ -3,6 +3,9 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { moduleTranslationProblems } from '../src/i18n/module-overlay-validate.ts';
+import { parseModule } from '../src/loaders/modules.ts';
+import type { Problem } from '../src/problem.ts';
 import { type ContentFile, validateContent } from '../src/validate.ts';
 import { closedBodyProblems } from './closed-body.ts';
 import { overlayPaths } from './overlay-paths.ts';
@@ -42,7 +45,23 @@ const modules = filesIn('packages/content/learn', '.mdx').map((absolute) => ({
   source: readFileSync(absolute, 'utf8'),
 }));
 
-const problems: { path: string; code: string; detail: string }[] = [];
+// Each translated module, `i18n/<language>/learn/<slug>.mdx`, against the English module of its slug (ADR-0057).
+const englishModules = modules.flatMap(({ path, source }) => {
+  const parsed = parseModule(path, source);
+  return parsed.ok ? [parsed.value] : [];
+});
+const i18n = join(root, 'packages/content/i18n');
+const languages = existsSync(i18n) ? readdirSync(i18n).filter((name) => existsSync(join(i18n, name, 'learn'))) : [];
+const translations = languages.flatMap((language) =>
+  filesIn(`packages/content/i18n/${language}/learn`, '.mdx').map((absolute) => ({
+    language,
+    path: fromRoot(absolute),
+    source: readFileSync(absolute, 'utf8'),
+  })),
+);
+
+const problems: Problem[] = moduleTranslationProblems(translations, englishModules);
+problems.push(...(await closedBodyProblems(translations)));
 const files: ContentFile[] = [];
 for (const absolute of paths) {
   const path = fromRoot(absolute);
@@ -58,5 +77,5 @@ problems.push(...validateContent(files, { today: new Date().toISOString().slice(
 problems.push(...(await closedBodyProblems(modules)));
 
 for (const problem of problems) console.error(`${problem.path}: ${problem.code}: ${problem.detail}`);
-console.log(`${files.length + modules.length} files checked, ${problems.length} problems`);
+console.log(`${files.length + modules.length + translations.length} files checked, ${problems.length} problems`);
 if (problems.length > 0) process.exitCode = 1;
