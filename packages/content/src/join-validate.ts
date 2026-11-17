@@ -31,8 +31,8 @@ const JOINS = new RegExp(
   'gu',
 );
 
-// The prose joins of a language (D5 to D7 of #358, docs/CONTENT-STYLE.md §4): a closed list of law names, taken
-// from a census of every profile, and its month names. A language without an entry gets the code and form joins only.
+// The prose joins of a language (docs/CONTENT-STYLE.md §4): a closed list of law names, taken from a census of every
+// profile, and its month names. A language without an entry gets the code and form joins only.
 export const PROSE_JOINS: Readonly<Record<string, { names: RegExp; months: RegExp }>> = {
   en: {
     names:
