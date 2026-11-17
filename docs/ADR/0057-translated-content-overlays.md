@@ -214,8 +214,8 @@ generated rules files of each language.
   after the figure, and expects a point's cents after a comma (`EUR 12,50`). Its suggestion keeps
   the figure's value (amended 2026-11-17 by #318's design check, D10 of #316): only a figure with
   one value, read as English writes numbers and as the page does, gets the page's form; a figure
-  the two read as different values (`EUR 20,350`, `EUR 1.125`), one neither reads and a range get
-  §4's rule and no suggestion. CONTENT-STYLE §4 owns the reading. A summary counts a grouped
+  the two read as different values (`EUR 20,350`, `EUR 1.125`), one neither reads and a range not
+  already in the page's form get §4's rule and no suggestion. CONTENT-STYLE §4 owns the reading. A summary counts a grouped
   figure as one word. Britain, Ireland, and the US keep theirs
   (`£37,700`), in English and in every translation. Decided by the unanchored design check of the
   grouped figures (`docs/research/grouped-figures.md`).
