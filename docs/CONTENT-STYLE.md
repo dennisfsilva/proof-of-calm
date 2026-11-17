@@ -399,10 +399,10 @@ as the page does (a point or a space between groups, a comma before the decimals
 digits after a first group of 1 to 999, with one kind of mark between groups. A figure with one
 value in both readings, or a reading in only one, is suggested in the page's form with that value:
 `EUR 12.50` becomes `EUR 12,50`, `EUR 1,234.56` becomes `EUR 1234,56`. A figure the two read as
-different values (`EUR 20,350`, `EUR 1.125`), one neither reads (`EUR 1,23.456`) and a range
-(`0.125–1.125 EUR`) are refused with this rule and no suggestion: write them by hand, and give an
-amount of 1 to 999 a fourth decimal where it has three (`EUR 1,1250`). Britain,
-Ireland, and the US keep their locale's grouping (`£37,700`) (decided 2026-11-16). A figure the app
+different values (`EUR 20,350`, `EUR 1.125`), one neither reads (`EUR 1,23.456`) and a range not
+already in the page's form (`0.125–1.125 EUR`) are refused with this rule and no suggestion: write
+them by hand, and give an amount of 1 to 999 a fourth decimal where it has three (`EUR 1,1250`).
+Britain, Ireland, and the US keep their locale's grouping (`£37,700`) (decided 2026-11-16). A figure the app
 formats follows its locale (`1.234` in Germany); only a profile's literal figures group as above.
 Facts, templates and modules write `N %` with an ordinary space, or with a no-break space where the sign must not
 wrap away. When a page shows a fact's, template's or module's percentage beside a formatted figure,
