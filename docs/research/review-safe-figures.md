@@ -281,3 +281,11 @@ validator lands with main's template pins kept; a later PR removes a pin only wi
 This replaces amendment 6, the word lists a reader allowed around a figure, which never reached main: its second review
 found wordings one step past those lists that the reader still passed (#334, D1). A shape matches the whole sentence, so
 those wordings fail.
+
+2026-11-17: the trigger that sends a sentence to the shapes is a closed set too. It is one of the four signs `%`, `٪`,
+`﹪` and `％`, or "per" and "cent" at the start of a word or right after a digit, joined by nothing, any space, U+002D,
+U+2010 or U+2011, in any case and with nothing required after "cent". The second review of #334 found `15percent` and
+`15-percentage-point` passing the earlier trigger (#340). The numeral condition on "percentage" is dropped, since no
+live template holds "percent" or "percentage" (a search of the four templates on this date found none), so a bare
+"percentage" now fails as `figure-unclassed`. The holes on record, `pct`, `pc`, `‰`, `bps` and `points`, stay with the
+copy review (`docs/LEGAL.md` §6 Q6).

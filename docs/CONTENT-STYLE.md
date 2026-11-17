@@ -461,9 +461,9 @@ its row's coin and states the row's fall or a bound below it written `more than 
 `figure-mismatch` for another figure). A bound sits below the row's fall because the row's whole percent may round up:
 77.6 % shows as 78 %. R3: any other percentage is a coin's share in S1 to S4, each coin named once with its share of
 the split (`figure-form` for a coin named twice, `figure-mismatch` for another figure). R4: any other percentage fails,
-whatever words surround it (`figure-unclassed`). A percentage is `%`, "percent" or "per cent" with any space or hyphen
-between the two words, or a numeral before "percentage". A new wording needs a new reviewed shape (decided
-2026-11-17). The shapes accept only the past tense `fell`. The copy review (`docs/LEGAL.md` §6 Q6) catches a
+whatever words surround it (`figure-unclassed`). A percentage is one of the signs `%`, `٪`, `﹪` or `％`, or "per" and
+"cent" at the start of a word or right after a digit, joined by nothing, a space or a hyphen, in any case: percent, per
+cent, percentage and percentages all count. A new wording needs a new reviewed shape (decided 2026-11-17). The shapes accept only the past tense `fell`. The copy review (`docs/LEGAL.md` §6 Q6) catches a
 projection with no percentage and no drawdown date, such as "Solana could fall that far again".
 A numeral joined to its unit by a hyphen (`90‑day`, `365‑day`) never breaks there. Text a screen shows writes the
 no-break hyphen U+2011 between them (`\u2011` in a JSON string, the character itself in a module): messages, modules
