@@ -259,8 +259,13 @@ describe('a profile’s money figures group as its comma-decimal page does (docs
     ...[`50${nbsp}000${nbsp}€`, '1000 Euro', '600 dollars', 'EUR 1000 to EUR 2000', 'EUR 1000–2000'],
   ];
 
-  // D3 of #328: a code and a form name join their figures with U+00A0 (`figure-join`).
-  const joined = (text: string) => text.replace(/(EUR|Modelo) /g, `$1${nbsp}`).replace(/ EUR/g, `${nbsp}EUR`);
+  // D3 of #328: a code and a form name join their figures with U+00A0 (`figure-join`); D5 of #358: so does a law's
+  // name, and an en-dash range takes U+2060 after its dash (`range-join`).
+  const joined = (text: string) =>
+    text
+      .replace(/(EUR|Modelo|art\.) /g, `$1${nbsp}`)
+      .replace(/ EUR/g, `${nbsp}EUR`)
+      .replace(/(?<=\d)–(?=\d)/g, `–${String.fromCodePoint(0x2060)}`);
 
   it('raises no problem at all on any figure the page writes as it should', () => {
     for (const figure of passed.map(joined)) {

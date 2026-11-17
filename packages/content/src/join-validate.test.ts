@@ -127,7 +127,8 @@ const nb = String.fromCodePoint(0x2011);
 const codes = (problems: readonly { code: string }[]) => problems.map(({ code }) => code);
 const ranged = (range: string) =>
   `card.caveats.0: the range ${JSON.stringify(range)} can break after its dash (docs/CONTENT-STYLE.md §4)`;
-const named = (name: string, number: string) => refused(`the name ${JSON.stringify(name)} and its number`, `"${number}"`);
+const named = (name: string, number: string) =>
+  refused(`the name ${JSON.stringify(name)} and its number`, `"${number}"`);
 const dayed = (day: string, month: string) => refused(`the day "${day}" and its month`, `"${month}"`);
 const yeared = (month: string, year: string) => refused(`the month "${month}" and its year`, `"${year}"`);
 
@@ -169,7 +170,7 @@ describe('a law name, a date and a range in English prose (docs/CONTENT-STYLE.md
     expect(joins('In 2023–2025 documents.')).toEqual([ranged('2023–2025')]);
     expect(joins('Rates of 40–45 %.')).toEqual([ranged('40–45')]);
     expect(joins('See §§ 187–188 BGB.')).toEqual([named('§§', '187'), ranged('187–188')]);
-    expect([`In 2023–${wj}2025 documents.`, `Rates of 40–${wj}45 %.`, 'Finance Bill 2026-27.'].flatMap(joins)).toEqual(
+    expect([`In 2023–${wj}2025 documents.`, `Rates of 40–${wj}45 %.`, 'The 2026-27 tax year.'].flatMap(joins)).toEqual(
       [],
     );
   });
@@ -187,9 +188,9 @@ describe('a law name, a date and a range in English prose (docs/CONTENT-STYLE.md
   it('gives a pt-PT text no law, date or range join until its language has lists (D6)', () => {
     const pt = '§ 23, de 1 de janeiro de 2023, art. 10, 2023–2025.';
     expect(joinProblems(path, [['card.caveats.0', pt]], 'pt-PT')).toEqual([]);
-    expect(codes(languagePercentProblems(path, 'pt-PT', load('jurisdictions/pt.json'), [['card.caveats.0', pt]]))).toEqual(
-      [],
-    );
+    expect(
+      codes(languagePercentProblems(path, 'pt-PT', load('jurisdictions/pt.json'), [['card.caveats.0', pt]])),
+    ).toEqual([]);
   });
 
   it('runs through localeProblems and the content gate on an English profile', () => {
@@ -201,7 +202,10 @@ describe('a law name, a date and a range in English prose (docs/CONTENT-STYLE.md
     const json = { ...JSON.parse(readFileSync(new URL('jurisdictions/es.json', root), 'utf8')) };
     json.filingNote = 'Filed by 30 June (art. 46).';
     const gate = validateContent([{ path, json }], { today: '2026-10-17', allow });
-    expect(codes(gate.filter(({ detail }) => detail.startsWith('filingNote:')))).toEqual(['figure-join', 'figure-join']);
+    expect(codes(gate.filter(({ detail }) => detail.startsWith('filingNote:')))).toEqual([
+      'figure-join',
+      'figure-join',
+    ]);
   });
 
   it('keeps a range with U+2060 whole for the decimal check', () => {
