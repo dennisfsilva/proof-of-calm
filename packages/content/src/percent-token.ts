@@ -1,0 +1,31 @@
+// The one percentage token of a template's explanation, English or translated (docs/CONTENT-STYLE.md §4 and §9):
+// whole digits, an ordinary space, `%`. The figures check's shapes, the token check and the onboarding template step
+// all read it here, so every percentage the checks accept is one the app formats
+// (docs/research/review-safe-figures.md, amendment 7).
+import { paragraphsOf } from './paragraphs.ts';
+import type { Problem } from './problem.ts';
+
+/** The joiner between a figure and its `%`: the ordinary space (U+0020). */
+export const PERCENT_JOINER = ' ';
+const TOKEN = new RegExp(`(\\d+)${PERCENT_JOINER}%`, 'gu');
+// A figure and one of the four signs, joined by nothing, any run of white space, or a hyphen: the token or not.
+const WRITTEN = /\d+(?<joiner>[\s\u2010\u2011-]*)(?<sign>[%\u066A\uFE6A\uFF05])/gu;
+
+const named = (text: string) =>
+  [...text].map((char) => `U+${char.codePointAt(0)?.toString(16).toUpperCase().padStart(4, '0')}`).join(' ') || 'none';
+
+/** The text with each token written by `format` from its digits, as the app shows a paragraph. */
+export const formatPercentTokens = (text: string, format: (digits: string) => string): string =>
+  text.replace(TOKEN, (_, digits: string) => format(digits));
+
+/** Each percentage in the paragraphs the app renders (`paragraphsOf`) written other than as the token. */
+export const percentTokenProblems = (path: string, field: string, text: string): Problem[] =>
+  paragraphsOf(text).flatMap((paragraph) =>
+    [...paragraph.matchAll(WRITTEN)]
+      .filter(({ groups: { joiner = '', sign = '' } = {} }) => joiner !== PERCENT_JOINER || sign !== '%')
+      .map(({ 0: figure, groups: { joiner = '', sign = '' } = {} }) => {
+        const other = sign === '%' ? '' : `, and ${named(sign)} for "%"`;
+        const what = `"${figure}" has ${named(joiner)} before its sign${other}`;
+        return { path, code: 'percent-token', detail: `${field}: ${what}; write N % (docs/CONTENT-STYLE.md §4)` };
+      }),
+  );

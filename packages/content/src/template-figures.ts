@@ -4,6 +4,7 @@
 // (docs/research/review-safe-figures.md, amendment 7). English only: overlay-number-mismatch ties a translation's
 // figures to these.
 import { paragraphsOf } from './paragraphs.ts';
+import { PERCENT_JOINER } from './percent-token.ts';
 import type { Problem } from './problem.ts';
 
 type Figures = {
@@ -25,8 +26,8 @@ const PERCENTS = new RegExp(SIGN_OR_WORD, 'giu');
 const WRITTEN = new RegExp(`\\d+(?:[.,]\\d+)?${JOIN}(?:${SIGN_OR_WORD})`, 'giu');
 const PLACEHOLDER = /\{date:drawdowns\.([^.{}]+)\.(?:high|low)\}/gu;
 const LEAD = '(?:What can go wrong: )?';
-const N = '\\d{1,3}[   ]?%';
-const FALL = `(?<fig>(?<more>more than )?−?(?<n>\\d{1,3})[   ]?%)`;
+const N = `\\d{1,3}${PERCENT_JOINER}%`;
+const FALL = `(?<fig>(?<more>more than )?−?(?<n>\\d{1,3})${PERCENT_JOINER}%)`;
 const A = '(?:each|every)(?: monthly)? amount';
 const dates = (from: string) =>
   `${from} its high on \\{date:drawdowns\\.(?<x>[^.{}]+)\\.high\\} to its low on \\{date:drawdowns\\.\\k<x>\\.low\\}`;
