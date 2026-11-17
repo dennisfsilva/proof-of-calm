@@ -129,7 +129,8 @@ export function closedBody(elements: readonly string[], flowOnly: readonly strin
       const code = CODE_NODES[node.type];
       if (code !== undefined) refuse(node, code);
       const link = LINK_NODES[node.type];
-      if (link !== undefined) throw new Error(`${at(node)}: ${link} is not allowed; a module holds no link (ADR-0048)`);
+      if (link !== undefined)
+        throw new Error(`${at(node)}: ${link} is not allowed; write the link's words as plain text (ADR-0048)`);
       if (node.type === 'mdxJsxFlowElement' || node.type === 'mdxJsxTextElement') {
         if (!allowed.has(node.name ?? ''))
           throw new Error(`${at(node)}: <${node.name ?? ''}> is not allowed; ${set} (ADR-0048)`);
