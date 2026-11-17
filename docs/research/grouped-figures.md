@@ -79,28 +79,13 @@ The translation check of that day already refused (a): de-DE read `EUR 20,350` a
 ## The live English defect
 
 On 13 fields: nl `card.summary60` put `6,00%` beside `EUR 59,357` in one sentence; de `card.rates.1` put `5,5 %`
-above `EUR 20,350` in one list item. Italy's card put `0,2%` beside `EUR 2,000`. On the de, es, it and nl pages,
+above `EUR 20,350` in one list item. Italy's card put `0,2%` beside `EUR 2,000`. On the de, es, it, and nl pages,
 the Log screen under the sheet writes the comma as the decimal. A reader who applies the card's own decimal comma gets
 a value a thousand times smaller (the amounts make that unlikely). Screen readers were not run: an English voice
 reads (a) correctly, (b) as "twenty point three five zero", and may split B into two numbers, so audio does not
 decide between the forms.
 
-## The change
-
-- The English profiles: de.json (9 figures), es.json (8), it.json (2) and nl.json (3), each U+00A0 written as
-  `\u00a0` in JSON.
-- `packages/content/src/i18n/overlay-validate.ts`: both texts of a profile read with
-  `numberLocaleFor(language, profile)`; where the decimal is a comma, a figure in a profile's text that is no
-  percentage and holds a point is compared as written (`cited 33.1`), and a mismatch names the fix. Templates and
-  facts keep English for their English text and the language's own grouping for the translation.
-- `packages/content/src/percent-validate.ts`: `number-group` refuses other grouping of money beside EUR, USD, GBP,
-  CHF, €, £ or $, before or after the figure, or before a currency word (`euros`), only where the decimal is a
-  comma; a point's cents move after a comma, so the value stays (`EUR 12,50`).
-- `packages/content/src/profile-texts.ts`: a summary counts a figure grouped with U+00A0 as one word.
-
 ## Outside the question
 
-The GB, IE and US pt-PT overlays copy `£37,700` and `USD 49,450` into Portuguese prose, where the comma is
-Portuguese's decimal. They keep their page's number locale (en-GB, en-IE, en-US), as D8 says:
-`numberLocaleFor('pt-PT', profile)` is that locale, so the card matches the app's own `£37,700.00` on the same
-screen. The owner confirms it with D8 at the end of M2.
+The GB, IE, and US pt-PT overlays keep their page's number locale (`£37,700`), as D8 says; the owner confirms
+it with D8 at the end of M2.
