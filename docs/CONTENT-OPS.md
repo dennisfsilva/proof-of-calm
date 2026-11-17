@@ -262,6 +262,13 @@ and the Red day page live in `packages/content/cycles/drawdowns.json`. `docs/EDU
 quote the same falls to one decimal, each on the series it names; the file rounds them to whole
 percents. A fall runs to the lowest low before the coin regains its high; a coin that has not regained it, as LINK on 2 Nov 2026,
 is read again at every review, because its low can still move.
+A fact that cites Coinbase Exchange's daily candles names one request: `start` and `end` at
+`T00:00:00Z`, fewer than 300 days apart, since a request answers at most 300 candles and one without
+a window only the latest days. The window holds where the review starts: `b.alt-drawdowns`' ETH 2021
+high and 2022 low (its row's window in the cycles file), a simulation's first buy
+(`p.simulator-examples-eth`'s worst value-to-cost too); the review reaches the rest of the series by
+moving both, and another coin by its product (`SOL-USD`, `LINK-USD`).
+`packages/content/src/fact-windows.test.ts` holds each window.
 
 ## 8. The owner's review, step by step
 
