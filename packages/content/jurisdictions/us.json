@@ -123,6 +123,7 @@
     {
       "key": "us-irs-digital-assets",
       "title": "Digital assets",
+      "lang": "en",
       "url": "https://www.irs.gov/filing/digital-assets",
       "publisher": "Internal Revenue Service",
       "kind": "authority",
@@ -132,6 +133,7 @@
     {
       "key": "us-irs-faq-virtual-currency",
       "title": "Frequently asked questions on virtual currency transactions",
+      "lang": "en",
       "url": "https://www.irs.gov/individuals/international-taxpayers/frequently-asked-questions-on-virtual-currency-transactions",
       "publisher": "Internal Revenue Service",
       "kind": "authority",
@@ -141,6 +143,7 @@
     {
       "key": "us-irs-topic-409",
       "title": "Topic no. 409, Capital gains and losses",
+      "lang": "en",
       "url": "https://www.irs.gov/taxtopics/tc409",
       "publisher": "Internal Revenue Service",
       "kind": "authority",
@@ -150,6 +153,7 @@
     {
       "key": "us-irs-rp-2025-32",
       "title": "Rev. Proc. 2025-32, 2026 adjusted items",
+      "lang": "en",
       "url": "https://www.irs.gov/pub/irs-drop/rp-25-32.pdf",
       "publisher": "Internal Revenue Service",
       "kind": "authority",
@@ -159,6 +163,7 @@
     {
       "key": "us-irs-1099da-instructions",
       "title": "Instructions for Form 1099-DA (2026)",
+      "lang": "en",
       "url": "https://www.irs.gov/instructions/i1099da",
       "publisher": "Internal Revenue Service",
       "kind": "authority",
@@ -168,6 +173,7 @@
     {
       "key": "us-irs-when-to-file",
       "title": "When to file",
+      "lang": "en",
       "url": "https://www.irs.gov/filing/individuals/when-to-file",
       "publisher": "Internal Revenue Service",
       "kind": "authority",
@@ -177,6 +183,7 @@
     {
       "key": "us-irs-topic-559",
       "title": "Topic no. 559, Net investment income tax",
+      "lang": "en",
       "url": "https://www.irs.gov/taxtopics/tc559",
       "publisher": "Internal Revenue Service",
       "kind": "authority",
@@ -186,6 +193,7 @@
     {
       "key": "us-irs-pub-544",
       "title": "Publication 544 (2025), Sales and Other Dispositions of Assets",
+      "lang": "en",
       "url": "https://www.irs.gov/publications/p544",
       "publisher": "Internal Revenue Service",
       "kind": "authority",
@@ -195,6 +203,7 @@
     {
       "key": "us-irs-pub-551",
       "title": "Publication 551 (12/2025), Basis of Assets",
+      "lang": "en",
       "url": "https://www.irs.gov/publications/p551",
       "publisher": "Internal Revenue Service",
       "kind": "authority",
@@ -204,6 +213,7 @@
     {
       "key": "us-irs-notice-2026-20",
       "title": "Notice 2026-20, Extension of temporary relief under section 1.1012-1(j)(3)(ii)",
+      "lang": "en",
       "url": "https://www.irs.gov/pub/irs-drop/n-26-20.pdf",
       "publisher": "Internal Revenue Service",
       "kind": "authority",
@@ -213,6 +223,7 @@
     {
       "key": "us-irs-notice-2023-27",
       "title": "Notice 2023-27, Treatment of certain nonfungible tokens as collectibles",
+      "lang": "en",
       "url": "https://www.irs.gov/pub/irs-drop/n-23-27.pdf",
       "publisher": "Internal Revenue Service",
       "kind": "authority",
@@ -222,6 +233,7 @@
     {
       "key": "us-taxfoundation-state-rates",
       "title": "State individual income tax rates and brackets, 2026",
+      "lang": "en",
       "url": "https://taxfoundation.org/data/all/state/state-income-tax-rates-2026/",
       "publisher": "Tax Foundation",
       "kind": "secondary",

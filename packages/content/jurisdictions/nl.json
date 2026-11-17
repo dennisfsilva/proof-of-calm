@@ -133,6 +133,7 @@
     {
       "key": "nl-bd-crypto",
       "title": "Moet ik aangifte doen en belasting betalen over mijn crypto's?",
+      "lang": "nl",
       "url": "https://www.belastingdienst.nl/wps/wcm/connect/nl/werk-en-inkomen/content/aangifte-doen-en-belasting-betalen-met-cryptos",
       "publisher": "Belastingdienst",
       "kind": "authority",
@@ -142,6 +143,7 @@
     {
       "key": "nl-bd-cryptobezittingen",
       "title": "Cryptobezittingen (zoals bitcoins)",
+      "lang": "nl",
       "url": "https://www.belastingdienst.nl/wps/wcm/connect/nl/werk-en-inkomen/content/cryptovaluta",
       "publisher": "Belastingdienst",
       "kind": "authority",
@@ -151,6 +153,7 @@
     {
       "key": "nl-bd-werkelijk-rendement",
       "title": "Wat is mijn werkelijk rendement?",
+      "lang": "nl",
       "url": "https://www.belastingdienst.nl/wps/wcm/connect/nl/box-3/content/wat-is-mijn-werkelijk-rendement",
       "publisher": "Belastingdienst",
       "kind": "authority",
@@ -160,6 +163,7 @@
     {
       "key": "nl-bd-heffingsvrij-vermogen",
       "title": "Heffingsvrij vermogen",
+      "lang": "nl",
       "url": "https://www.belastingdienst.nl/wps/wcm/connect/nl/box-3/content/heffingsvrij-vermogen",
       "publisher": "Belastingdienst",
       "kind": "authority",
@@ -169,6 +173,7 @@
     {
       "key": "nl-bd-schenkbelasting",
       "title": "Wie betaalt de schenkbelasting?",
+      "lang": "nl",
       "url": "https://www.belastingdienst.nl/wps/wcm/connect/nl/schenken/content/wie-betaalt-de-schenkbelasting",
       "publisher": "Belastingdienst",
       "kind": "authority",
@@ -178,6 +183,7 @@
     {
       "key": "nl-bd-erfbelasting",
       "title": "Moet ik aangifte erfbelasting doen?",
+      "lang": "nl",
       "url": "https://www.belastingdienst.nl/wps/wcm/connect/nl/erfbelasting/content/erfbelasting_wanneer_doe_ik_aangifte",
       "publisher": "Belastingdienst",
       "kind": "authority",
@@ -187,6 +193,7 @@
     {
       "key": "nl-bd-aangifte-termijn",
       "title": "Wanneer moet mijn aangifte inkomstenbelasting binnen zijn?",
+      "lang": "nl",
       "url": "https://www.belastingdienst.nl/wps/wcm/connect/nl/belastingaangifte/content/wanneer-moet-ik-aangifte-doen",
       "publisher": "Belastingdienst",
       "kind": "authority",
@@ -196,6 +203,7 @@
     {
       "key": "nl-bd-uitstel",
       "title": "Uitstel aanvragen voor de belastingaangifte 2025 - hoe doe ik dat?",
+      "lang": "nl",
       "url": "https://www.belastingdienst.nl/wps/wcm/connect/nl/belastingaangifte/content/ik-moet-aangifte-doen-maar-ik-wil-graag-uitstel-kan-dat",
       "publisher": "Belastingdienst",
       "kind": "authority",

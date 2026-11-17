@@ -74,7 +74,12 @@ export const HoldingRuleOverrideSchema = z.strictObject({
 /** A source's name within its profile, lower case with hyphens, naming what it is: `pt-cirs-art10`. */
 export const SourceKeySchema = z.string().check(z.regex(/^[a-z0-9-]+$/));
 
-export const ProfileSourceSchema = z.extend(SourceSchema, { key: SourceKeySchema });
+/** `lang`: the language the title is written in, a primary subtag (`de`, `en`), not the country's
+ * (docs/JURISDICTIONS.md §2); the country card marks the title's link with it. */
+export const ProfileSourceSchema = z.extend(SourceSchema, {
+  key: SourceKeySchema,
+  lang: z.string().check(z.regex(/^[a-z]{2,3}$/)),
+});
 
 /** The source each rule of the card links to, by key; the validator checks that a source has it. */
 export const RuleSourcesSchema = z.strictObject({

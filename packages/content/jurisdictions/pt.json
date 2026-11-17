@@ -194,6 +194,7 @@
     {
       "key": "pt-cirs-art10",
       "title": "Código do IRS, artigo 10.º",
+      "lang": "pt",
       "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs10.aspx",
       "publisher": "Autoridade Tributária e Aduaneira",
       "kind": "law",
@@ -203,6 +204,7 @@
     {
       "key": "pt-cirs-art43",
       "title": "Código do IRS, artigo 43.º",
+      "lang": "pt",
       "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs43.aspx",
       "publisher": "Autoridade Tributária e Aduaneira",
       "kind": "law",
@@ -212,6 +214,7 @@
     {
       "key": "pt-cirs-art55",
       "title": "Código do IRS, artigo 55.º",
+      "lang": "pt",
       "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs55.aspx",
       "publisher": "Autoridade Tributária e Aduaneira",
       "kind": "law",
@@ -221,6 +224,7 @@
     {
       "key": "pt-cirs-art72",
       "title": "Código do IRS, artigo 72.º",
+      "lang": "pt",
       "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs72.aspx",
       "publisher": "Autoridade Tributária e Aduaneira",
       "kind": "law",
@@ -230,6 +234,7 @@
     {
       "key": "pt-at-criptoativos-leaflet",
       "title": "Criptoativos – Conceito fiscal e tributação",
+      "lang": "pt",
       "url": "https://info.portaldasfinancas.gov.pt/pt/apoio_contribuinte/Folhetos_informativos/Documents/Criptoativos.pdf",
       "publisher": "Autoridade Tributária e Aduaneira",
       "kind": "authority",
@@ -239,6 +244,7 @@
     {
       "key": "pt-at-oficio-20269-2024",
       "title": "Ofício Circulado n.º 20269/2024",
+      "lang": "pt",
       "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/legislacao/instrucoes_administrativas/Documents/Oficio_Circulado_20269_2024.pdf",
       "publisher": "Autoridade Tributária e Aduaneira",
       "kind": "authority",
@@ -248,6 +254,7 @@
     {
       "key": "pt-at-piv-28969",
       "title": "Informação vinculativa, processo 28969",
+      "lang": "pt",
       "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/informacoes_vinculativas/rendimento/cirs/Documents/PIV_28969.pdf",
       "publisher": "Autoridade Tributária e Aduaneira",
       "kind": "authority",
@@ -257,6 +264,7 @@
     {
       "key": "pt-at-piv-29052",
       "title": "Informação vinculativa, processo 29052",
+      "lang": "pt",
       "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/informacoes_vinculativas/rendimento/cirs/Documents/PIV_29052.pdf",
       "publisher": "Autoridade Tributária e Aduaneira",
       "kind": "authority",
@@ -266,6 +274,7 @@
     {
       "key": "pt-lei-26-2026",
       "title": "Lei n.º 26/2026, de 3 de junho (Diário da República n.º 107/2026, Série I)",
+      "lang": "pt",
       "url": "https://files.diariodarepublica.pt/1s/2026/06/10700/0001000066.pdf",
       "publisher": "Diário da República",
       "kind": "law",
@@ -275,6 +284,7 @@
     {
       "key": "pt-lei-64-b-2026",
       "title": "Lei n.º 64-B/2026, de 22 de outubro (Diário da República n.º 205/2026, Série I, Suplemento)",
+      "lang": "pt",
       "url": "https://files.diariodarepublica.pt/1s/2026/10/20501/0000400004.pdf",
       "publisher": "Diário da República",
       "kind": "law",
@@ -284,6 +294,7 @@
     {
       "key": "pt-dl-212-2026",
       "title": "Decreto-Lei n.º 212/2026, de 4 de novembro (Diário da República n.º 214/2026, Série I)",
+      "lang": "pt",
       "url": "https://files.diariodarepublica.pt/1s/2026/11/21400/0000500006.pdf",
       "publisher": "Diário da República",
       "kind": "law",
@@ -293,6 +304,7 @@
     {
       "key": "pt-cirs-art68",
       "title": "Código do IRS, artigo 68.º",
+      "lang": "pt",
       "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs68.aspx",
       "publisher": "Autoridade Tributária e Aduaneira",
       "kind": "law",
@@ -302,6 +314,7 @@
     {
       "key": "pt-lei-24-d-2022",
       "title": "Lei n.º 24-D/2022, de 30 de dezembro (Diário da República n.º 251/2022, Série I, 2.º Suplemento)",
+      "lang": "pt",
       "url": "https://files.diariodarepublica.pt/1s/2022/12/25102/0009000377.pdf",
       "publisher": "Diário da República",
       "kind": "law",
@@ -311,6 +324,7 @@
     {
       "key": "pt-cis-art1",
       "title": "Código do Imposto do Selo, artigo 1.º",
+      "lang": "pt",
       "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/selo/Pages/selo1.aspx",
       "publisher": "Autoridade Tributária e Aduaneira",
       "kind": "law",
@@ -320,6 +334,7 @@
     {
       "key": "pt-cis-art4",
       "title": "Código do Imposto do Selo, artigo 4.º",
+      "lang": "pt",
       "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/selo/Pages/selo4.aspx",
       "publisher": "Autoridade Tributária e Aduaneira",
       "kind": "law",
@@ -329,6 +344,7 @@
     {
       "key": "pt-cis-art6",
       "title": "Código do Imposto do Selo, artigo 6.º",
+      "lang": "pt",
       "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/selo/Pages/selo6.aspx",
       "publisher": "Autoridade Tributária e Aduaneira",
       "kind": "law",
@@ -338,6 +354,7 @@
     {
       "key": "pt-cis-tabela-geral",
       "title": "Tabela Geral do Imposto do Selo",
+      "lang": "pt",
       "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/selo/Pages/ccod-selo-tabgiselo.aspx",
       "publisher": "Autoridade Tributária e Aduaneira",
       "kind": "law",
