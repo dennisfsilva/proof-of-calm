@@ -7,7 +7,7 @@
     "back": "Voltar a Aprender",
     "lastReviewed": "Revisto a {date}{state, select, overdue { · <ink>revisão em atraso</ink>} next { · <keep>Próxima revisão prevista para {due}</keep>} other {}}",
     "taxOverdue": "As regras podem ter mudado desde {date}. Confirme junto da autoridade tributária antes de entregar a declaração.",
-    "taxSiteLead": "As secções antes de «How fast rules change» descrevem o que a aplicação mostra depois de definido um plano. A lista no fim tem uma ligação para a página de cada país.",
+    "taxSiteLead": "As secções antes de «Com que rapidez as regras mudam» descrevem o que a aplicação mostra depois de definido um plano. A lista no fim tem uma ligação para a página de cada país.",
     "pastPerformance": "Os resultados registados no passado não constituem um indicador fiável dos resultados futuros.",
     "riskLink": "Aviso sobre riscos",
     "fallUnderWay": "Está em curso uma queda das moedas que detém. <page>Ver os valores</page>"
