@@ -25,7 +25,7 @@ const ONLY_2021 = ROWS.filter((r) => r.coin !== 'BTC' || r.high === '2021-11-10'
 const S1 = 'No gráfico, a bitcoin teve 4 quedas de mais de 75 % entre 2011 e 2022.';
 const S2 = 'O ether caiu 94 % e 82 %, a Chainlink 89 % e 91 % e a Solana 97 %.';
 const INTRO =
-  'Um plano mensal define quando compra. Não limita até onde um preço pode cair, e uma moeda pode perder quase todo\no seu valor. Cada barra abaixo é uma queda de uma moeda, desde um máximo de ciclo até ao preço mais baixo que se\nlhe seguiu.';
+  'Um plano mensal define o dia de cada compra. Não limita até onde um preço pode cair, e uma moeda pode perder quase\ntodo o seu valor. Cada barra abaixo é uma queda de uma moeda, desde um máximo de ciclo até ao preço mais baixo\ndepois desse máximo.';
 const REST =
   '## Outras formas de perder as moedas\n\nA 10 out. 2025, as liquidações passaram 19 mil milhões de $ num dia.';
 const EN1 = 'In the chart, bitcoin had 4 falls of more than 75 % between 2011 and 2022.';
