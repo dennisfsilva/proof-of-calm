@@ -149,6 +149,14 @@ const fallInRange = (fall: string) => {
   return /[1-9]/.test(fall) && (BigInt(whole) < 100n || hundred);
 };
 
+type Review = { lastReviewed: string; reviewedBy: string };
+/**
+ * A source read after the owner's review. An agent's draft may be read later: a content review reads each source
+ * again before the owner sets `lastReviewed` and `reviewedBy` (docs/CONTENT-OPS.md §8), and `agent-draft` refuses it.
+ */
+export const readAfterReview = (accessed: string, { lastReviewed, reviewedBy }: Review) =>
+  reviewedBy === 'owner' && accessed > lastReviewed;
+
 /**
  * Each fall from allow-listed fact sources (the low's own when it has one), read no later than the review, of a
  * coin among `coins` (a template's own, or the catalogue's tickers; null skips the check), with its low on or after
@@ -159,7 +167,7 @@ function drawdownProblems(
   rows: readonly ContentDrawdown[],
   coins: ReadonlySet<string> | null,
   facts: readonly string[],
-  lastReviewed: string,
+  review: Review,
 ): Problem[] {
   const urls = rows.flatMap(({ source, lowSource }) => [source, ...(lowSource === undefined ? [] : [lowSource])]);
   const problems = sourceProblems(
@@ -169,8 +177,8 @@ function drawdownProblems(
   );
   rows.forEach(({ accessed, coin, high, low, fall }, index) => {
     const at = `drawdowns.${index}`;
-    if (accessed > lastReviewed) {
-      const detail = `${at} accessed ${accessed}, last reviewed ${lastReviewed}`;
+    if (readAfterReview(accessed, review)) {
+      const detail = `${at} accessed ${accessed}, last reviewed ${review.lastReviewed}`;
       problems.push({ path, code: 'accessed-after-review', detail });
     }
     if (low < high) problems.push({ path, code: 'drawdown-low-before-high', detail: `${at} high ${high}, low ${low}` });
@@ -201,7 +209,7 @@ function cycles(file: ContentFile, catalogue: Catalogue | null, options: Validat
     problems.push({ path, code: 'agent-draft', detail: 'the owner sets reviewedBy to owner after the review' });
   }
   const tickers = catalogue === null ? null : new Set(catalogue.keys());
-  problems.push(...drawdownProblems(path, drawdowns, tickers, options.allow.facts ?? [], lastReviewed));
+  problems.push(...drawdownProblems(path, drawdowns, tickers, options.allow.facts ?? [], { lastReviewed, reviewedBy }));
   drawdowns.forEach(({ coin, high, fall }, index) => {
     const at = `drawdowns.${index}`;
     if (!wholePercent(fall)) problems.push({ path, code: 'drawdown-fall-not-whole', detail: `${at} fall ${fall}` });
@@ -235,7 +243,7 @@ function template(file: ContentFile, catalogue: Catalogue | null, options: Valid
   const total = shares.reduce((sum, [, share]) => sum + tenThousandths(share), 0n);
   if (total !== 1_000_000n) problems.push({ path, code: 'split-sum', detail: 'the shares must sum to exactly 100' });
   if (catalogue !== null) problems.push(...catalogueProblems(path, value.coins, catalogue));
-  problems.push(...drawdownProblems(path, value.drawdowns, coins, options.allow.facts ?? [], value.lastReviewed));
+  problems.push(...drawdownProblems(path, value.drawdowns, coins, options.allow.facts ?? [], value));
   problems.push(...templateTextProblems(path, value, templateTexts(value)));
   return problems;
 }
