@@ -1493,7 +1493,7 @@ pick it, what can go wrong; paragraphs separated by a blank line, at most five s
 `validUntil?`, `drawdowns`. A template holds no `expectations`, and the strict content schema refuses them: a multiple of the money put in is a projection (`docs/LEGAL.md` §3.6). `holdingRule` is always taken from the user's country at setup; `monthlyAmount`,
 `firstBuy`, `startingAmount` are always the user's.
 
-`drawdowns` holds at least one fall per template, each a coin's intraday high to its intraday low
+`drawdowns` holds one fall per coin, in the order of `coins` (`drawdown-coins`), each a coin's intraday high to its intraday low
 (`coin`, `high`, `low`, `fall` in whole percent) with its `source` on the facts allow-list (and a
 `lowSource` when one request to that series cannot reach both ends, or to run to today for a coin
 that has not regained its high), its `publisher` and its
