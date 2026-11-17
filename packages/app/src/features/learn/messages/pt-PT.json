@@ -91,7 +91,7 @@
     "reporting": "Declaração",
     "caveats": "Perguntas para um contabilista",
     "sources": "Fontes",
-    "sourceList": "Fontes de {country}",
+    "sourceList": "Fontes {code, select, DE {da } IE {da } GB {do } NL {dos } US {dos } other {de }}{country}",
     "sourcePublished": "{publisher} · datado de {date}",
     "sourceAccessed": "{publisher} · consultado a {date}",
     "sourcesName": "Fontes {rule, select, rates {das taxas} holdingRule {da regra de detenção} lotRule {da correspondência entre vendas e compras} losses {das perdas} reporting {da declaração} other {desta regra}}",
