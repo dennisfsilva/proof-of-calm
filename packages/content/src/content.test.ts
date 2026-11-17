@@ -44,6 +44,16 @@ describe('the content files (docs/CONTENT-OPS.md §1)', () => {
     expect(files.map((name) => name.toUpperCase()).sort()).toEqual([...COUNTRY_CODES]);
   });
 
+  // CONTENT-STYLE §4: a no-break space is written `\u00a0` in JSON, since a typed one looks like a space.
+  it('a profile writes a no-break space as its escape, never the character', () => {
+    const typed = jsonIn('jurisdictions/').flatMap((path) =>
+      readFileSync(new URL(path, root), 'utf8')
+        .split('\n')
+        .flatMap((line, index) => (line.includes('\u00a0') ? [`${path}:${index + 1}`] : [])),
+    );
+    expect(typed).toEqual([]);
+  });
+
   // The folder arrives with the first module, so an absent one is empty.
   it('every module in learn/ has the required front matter', () => {
     const learn = new URL('learn/', root);
