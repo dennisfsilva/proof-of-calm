@@ -60,14 +60,27 @@ const KINDS: Kinds = [
   ['a currency sign', /\p{Sc}/u],
 ];
 // pt-PT's words, read beside English's: never `um` or `uma`, which the section's prose needs («uma queda de uma
-// moeda»), and `Mar` only capitalised, since `mar` is the sea. Brazilian spellings count too.
+// moeda»), and `Mar` only capitalised, since `mar` is the sea. Brazilian spellings count too. Each English entry has
+// its pt-PT words here or stays prose by hole 13 of amendment 8 (`uma vez` for `once`, since `uma` stays prose).
 const PT_CARDINALS = 'zero dois duas três quatro cinco seis sete oito nove dez onze doze treze catorze quatorze quinze \
 dezasseis dezesseis dezassete dezessete dezoito dezanove dezenove vinte trinta quarenta cinquenta sessenta setenta \
-oitenta noventa cem cento mil milhar milhares milhão milhões bilião biliões bilhão bilhões trilião triliões dúzias? \
-dezenas? centenas? (?:duz|trez|quatroc|quinh|seisc|setec|oitoc|novec)ent[oa]s'.split(' ');
-const PT_ORDINALS =
-  '(?:primeir|segund|terceir|quart|quint|sext|sétim|oitav|non|décim|vigésim|trigésim|centésim|milésim)[oa]s?';
-const PT_OTHERS = 'metade dobro dobrou duplicou triplo triplicou quádruplo quadruplicou par pares'.split(' ');
+oitenta noventa cem cento mil milhar milhares milhão milhões bilião biliões bilhão bilhões trilião triliões trilhão \
+trilhões dúzias? dezenas? centenas? (?:duz|trez|quatroc|quinh|seisc|setec|oitoc|novec)ent[oa]s'.split(' ');
+// The ordinals from first to ninetieth and from hundredth to billionth, the hundreds' own words among them.
+const PT_ORDINALS = `(?:primeir|segund|terceir|quart|quint|sext|sétim|oitav|non|décim|undécim|duodécim|vigésim|\
+trigésim|quadragésim|quinquagésim|sexagésim|sep?tuagésim|octogésim|nonagésim|centésim|ducentésim|tr[ei]centésim|\
+quadringentésim|quingentésim|se(?:x|is)centésim|sep?tingentésim|oct(?:in|o)gentésim|non(?:in)?gentésim|milésim|\
+milionésim|bilionésim)[oa]s?`;
+// half and halves, double, triple, quadruple and the other -fold words, as nouns, adjectives and verbs.
+const PT_OTHERS = [
+  'metades?',
+  'dobr(?:o|os|ar|a|am|ou|aram)',
+  '(?:dupl|tripl|quádrupl|quíntupl|sêxtupl|sétupl|óctupl|n[óô]nupl|décupl|cêntupl)[oa]s?',
+  '(?:dupl|tripl|quadrupl|quintupl|sextupl|decupl|centupl)ic(?:ar|a|am|ou|aram|ad[oa]s?)',
+  'trimestres?',
+  'par',
+  'pares',
+];
 const PT_MONTHS =
   'janeiro|fevereiro|março|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro|jan|fev|abr|\
 mai|jun|jul|ago|set|out|nov|dez';
