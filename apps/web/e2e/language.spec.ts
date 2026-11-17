@@ -181,8 +181,11 @@ const frontMatter = (path: string) => {
     heading: /^## (.+)$/m.exec(text)?.[1] ?? '',
   };
 };
-// Risk honestly has no pt-PT translation, so a pt-PT screen opens it in English; Cycles has one.
+// Every Learn module has a pt-PT translation since Risk honestly's, so no module reaches a pt-PT screen in English
+// and the sheets below show pt-PT, unmarked. An English module's lang="en" stays held where a chunk fails: the
+// aborted body and metadata chunks below, and the component tests (module-view.test.tsx, learn-screen.test.tsx).
 const riskHonestly = frontMatter('../../../packages/content/learn/risk-honestly.mdx');
+const riskHonestlyPt = frontMatter('../../../packages/content/i18n/pt-PT/learn/risk-honestly.mdx');
 const cyclesPt = frontMatter('../../../packages/content/i18n/pt-PT/learn/cycles.mdx');
 
 /** The fixture plan in its buying phase, with the fixture's prices, so Plan and Portfolio's P/L both show. */
@@ -219,7 +222,9 @@ test.describe('English content text on a pt-PT screen', () => {
     await expect(page.getByText(ptLearn.card.inEnglish)).toHaveCount(0);
   });
 
-  test("Portfolio's P/L Why? sheet marks the English module's body", async ({ page }, testInfo) => {
+  test("Portfolio's P/L Why? sheet opens Risk honestly in pt-PT, with nothing marked lang=en", async ({
+    page,
+  }, testInfo) => {
     // biome-ignore lint/suspicious/noSkippedTests: a runtime skip outside the two named projects, not a disabled test
     test.skip(!ON_TWO.includes(testInfo.project.name), 'desktop and iphone carry the language checks');
     await bootIn(page, 'pt-PT');
@@ -229,11 +234,12 @@ test.describe('English content text on a pt-PT screen', () => {
     await page.getByRole('button', { name: ptPortfolio.summary.why, exact: true }).click();
     const sheet = page.getByRole('dialog');
     const title = sheet.locator('[data-slot="sheet-title"]');
-    await expect(title).toHaveText(riskHonestly.idea);
-    await expect(title).toHaveAttribute('lang', 'en');
-    await expect(sheet.locator('[data-slot="card"] p[lang="en"]')).toBeVisible();
-    // The body's section headings sit inside the one lang="en" element; the sheet's title is a heading of its own.
-    await expect(sheet.locator('[lang="en"] :is(h2, h3)').first()).toBeVisible();
+    await expect(title).toHaveText(riskHonestlyPt.idea);
+    await expect(title).not.toHaveAttribute('lang', /./);
+    await expect(sheet.getByRole('heading', { level: 2, name: riskHonestlyPt.heading })).toBeAttached();
+    await expect(sheet.getByText(riskHonestlyPt.caveat, { exact: true })).not.toHaveAttribute('lang', /./);
+    // The chart's labels and source line are the app's own and carry the page's language, so lang="en" is absent.
+    await expect(sheet.locator('[lang="en"]')).toHaveCount(0);
     await expect(sheet.getByRole('button', { name: ptLearn.sheet.close })).toBeVisible();
   });
 
@@ -357,18 +363,21 @@ const LEARN_META_PT_CHUNK = /\/assets\/messages\/pt-PT\/learn-meta-[^/]+\.js$/;
 test.describe("Learn's index on a pt-PT screen", () => {
   test.use({ serviceWorkers: 'block' });
 
-  test("lists a translated module by its pt-PT title, unmarked, and an English one's title lang=en", async ({
-    page,
-  }, testInfo) => {
+  test('lists each module by its pt-PT title, unmarked, and no English title', async ({ page }, testInfo) => {
     // biome-ignore lint/suspicious/noSkippedTests: a runtime skip outside the two named projects, not a disabled test
     test.skip(!ON_TWO.includes(testInfo.project.name), 'desktop and iphone carry the language checks');
     await bootIn(page, 'pt-PT');
     await page.goto('/learn');
-    const translated = screenArea(page).getByText(startHerePt.title, { exact: true });
-    await expect(translated).toBeVisible();
-    await expect(translated).not.toHaveAttribute('lang', /./);
-    await expect(screenArea(page).getByText(startHere.title, { exact: true })).toHaveCount(0);
-    await expect(screenArea(page).getByText(riskHonestly.title, { exact: true })).toHaveAttribute('lang', 'en');
+    for (const [pt, en] of [
+      [startHerePt, startHere],
+      [riskHonestlyPt, riskHonestly],
+    ] as const) {
+      const translated = screenArea(page).getByText(pt.title, { exact: true });
+      await expect(translated).toBeVisible();
+      await expect(translated).not.toHaveAttribute('lang', /./);
+      await expect(screenArea(page).getByText(en.title, { exact: true })).toHaveCount(0);
+    }
+    await expect(screenArea(page).locator('[lang="en"]')).toHaveCount(0);
     await expect(page.getByRole('heading', { level: 1 })).not.toHaveAttribute('lang', /./);
   });
 
