@@ -681,7 +681,8 @@ needs (decided 2026-11-15). The native reader's review is §8 item 9.
   first letter in lower case, or `o ether` for ETH; only E's first `C` capitalises its article (`O ether caiu`,
   `A Solana caiu`), and the article agrees (`A ether caiu`, `o Solana` and `a Ether` fail). `N`, `K` and `Y` are
   §4's. The trigger is English's beside pt-PT's own: `por cento` in any case, joined by nothing, a space or a hyphen,
-  and `porcentagem` and `porcentual`; the cardinals but `um` and `uma`, which the prose needs; the ordinals from
+  and `porcentagem` and `porcentual`; the cardinals but `um` and `uma`, which the prose needs, and their noun plurals
+  (`setes`, `dezes`, `vintes`, `trintas`, `centos`, `mis`), as English's `sevens` triggers; the ordinals from
   `primeiro` to `nonagésimo` and from `centésimo` to `bilionésimo`; `dúzia`, `dezena`, `centena`, `milhar`, `metade`,
   `terço`, `par`, `trimestre`, the multiplicatives `duplo` to `cêntuplo`, and every word that starts with `dobr`, or
   with `dupl` to `centupl` before `ic`, `iqu` or a vowel, except an adverb in `-mente` (`dobro`, `dobrado`,
