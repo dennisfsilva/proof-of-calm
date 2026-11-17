@@ -46,14 +46,10 @@ Arguments: $ARGUMENTS
   path.
 - The translations under `packages/content/i18n/<locale>/` (ADR-0057) are `jurisdictions/*.json`,
   `templates/*.json`, `facts/*.json` and `learn/*.mdx` there. Never edit a translated module
-  (`learn/*.mdx`): the finish refuses its path as not content data. When `overlay-number-mismatch`
-  or that language's `figure-chart` names a figure in one after your English change, name in the
-  draft's notes and your closing report its path, the figure, and the English file's new value
-  (a fall's new whole fall) written in the translation's number format with the figure's joiner
-  kept (pt-PT's `cycles.mdx` writes `−94,0` and a no-break space before `%`), and say in both that
-  `verify` fails on `pnpm validate:content` until the owner changes only those digits. In a JSON
-  translation, change only a figure that
-  `overlay-number-mismatch` names, at the path it names, to the English file's new value, and
+  (`learn/*.mdx`): the finish and CI's guard refuse its path as not content data. A refusal on one
+  after your English change (`overlay-number-mismatch`, or that language's `figure-chart`) is a
+  refusal no edit of yours fixes: follow the figure item's rule for those (below). In a JSON translation, change
+  only a figure that `overlay-number-mismatch` names, at the path it names, to the English file's new value, and
   never its prose. When a figure check also refuses that figure in the English file, fix the
   English file from its source first (the figure item below), then copy its value here. Write
   that value in the translation's number format, not as the English characters. The check reads each file with its own number locale. A profile's English file and
@@ -103,15 +99,27 @@ Arguments: $ARGUMENTS
   and name it in your closing report, since a new wording needs a new reviewed shape.
   In a module's chart section, change only the digits of a figure an E sentence (`<coin> fell …`)
   already holds, to its row's new whole fall; end each edit's text at the last digit, so the
-  figure's joiner stays as written. When a chart row's change draws a module refusal that edit
-  cannot fix (`figure-unstated` after a new row; a B sentence's count, years or bound; a coin the
-  chart draws no fall of; a row you would remove), revert that row's change, add the note
-  `chart row for the owner: <coin>, high <high>, low <low>, fall <fall> %, <source> <lowSource>`
-  (`<coin>` the row's ticker, `SOL`; the `lowSource` only when the row has one) and name it in
-  your closing report: the owner rewrites the sentence in a reviewed shape and makes the row's
-  change. When that row was the file's only change, keep the file's `reviewedBy: agent-draft`: the
-  finish accepts the mark and the note, and refuses a run with nothing staged. Never change a B sentence's bound (`more than N %`), never add, move or delete a clause
-  or a sentence, and never remove a chart row. A
+  figure's joiner stays as written. No edit you may make fixes these refusals: after a chart row's
+  change, `figure-unstated` after a new row, a B sentence's count, years or bound, a coin the chart
+  draws no fall of, or a row you would remove; after any English change, one on a translated
+  module (above). Revert that item's change in every file it touched (the fact, the English
+  module, a chart row and the templates' copies of it), add one note and name it in your closing
+  report; the owner makes the change, in the English and translated files and in a reviewed
+  shape, in a pull request of their own. For a chart row the note is `chart row for the owner:
+  <coin>, high <high>, low <low>, fall <fall> %, <source> <lowSource>`, the values its sources
+  give (`<coin>` the row's ticker, `SOL`; the `lowSource` only when the row has one), or for a row
+  you would remove `chart row for the owner: remove <coin>, high <high>: <why, from the source>,
+  <source>`; either ends with the row's copies, `templates/<file>.json drawdowns[<n>]`, when it
+  has any. For a translated module it is `translated module for the owner: <item> <field>:
+  <value>, <source>; <path>`: the English item as a `changes` row names it, its new value from the
+  source as the English file writes it and in the translation's number format (fact a's
+  `−94.0 %`, pt-PT's `−94,0`), and the translated module's path (`i18n/pt-PT/learn/cycles.mdx`).
+  When the revert leaves files or fact entries changed only in their mark, keep
+  `reviewedBy: agent-draft` on the one that holds the item's source figure (the fact entry; the
+  cycles file for a row), so the pull request carries the note (the finish accepts the mark and
+  the note, and refuses a run with nothing staged), and put back HEAD's `reviewedBy` on the rest.
+  Never change a B sentence's bound (`more than N %`), never add, move or delete a clause or a
+  sentence, and never remove a chart row. A
   `number-group` refusal with a suggestion keeps the value: write the suggestion. A `figure-join`
   detail names a pair and the space between them: replace only that space with U+00A0
   (`\u00a0` in a JSON file), never a figure.
@@ -178,8 +186,9 @@ For each profile in `packages/content/jurisdictions/`:
      `packages/content/sources.allow.json` plus `EU`, or `facts`. Count each distinct URL once,
      however many entries cite it. A `drawdowns` row's `lowSource` is a URL of its own and counts.
      A template's `of` counts every URL it cites; the cycles file's, every `source` and `lowSource`
-     of its rows; a module's, the URLs of the facts its front matter names, plus, for a module
-     with a chart, the `source` and `lowSource` of each cycles row its chart draws.
+     of its rows; a module's, every URL its figures rest on: those of the facts its front matter
+     names, and the `source` and `lowSource` of each cycles row whose fall its chart draws or its
+     text quotes, itself or through a fact's clause (Cycles' 2011 line rests on the BTC 2011 row's).
    - Never fetch a `secondary` source off the list. Name it in `notes` as
      `secondary, off the list, not fetched: <url>`, with the lines that cite only it, a line that
      links it only through `ruleSources` included, and leave those lines unchanged. The owner opens
@@ -271,10 +280,14 @@ For each profile in `packages/content/jurisdictions/`:
      new `date` passes its `accessed` fails that test either way: set it, and say in the notes that
      the flip needs the whole file read.
 2. Check a date like a figure: the passage holds the day, month and year you write.
-3. A fact a module quotes holds only what its one cited source holds. Trim it to that first. A
-   fact whose falls `docs/CONTENT-OPS.md` §7 reaches by moving its request's window
-   (`a.btc-drawdowns`, `b.alt-drawdowns`) holds what the moved windows give: trim nothing from it
-   for lying outside the window its URL names.
+3. Trim no fact a module quotes. Check it against its `source`, at every window
+   `docs/CONTENT-OPS.md` §7 moves its request to (`a.btc-drawdowns`, `b.alt-drawdowns`), not only
+   the one its URL names. Check a clause whose figures come from a source other than its request's
+   series (`a.btc-drawdowns`' 2011 clause, from Mt. Gox and CoinMarketCap; `b.alt-drawdowns`'
+   `LINK 2018 (CoinMarketCap series only)`) against the cycles row of its coin and high, which
+   `packages/content/src/cycles.test.ts` ties it to, and that row's `source` and `lowSource`. Note
+   a line that neither holds as `no listed source holds: <item> <field>`, named as a `changes` row
+   names it (`facts/education.json [0].value`), and leave it unchanged.
 4. Read the items of `docs/CONTENT-OPS.md` §6 and §7 for the templates and
    `packages/content/cycles/drawdowns.json`.
 
@@ -303,29 +316,35 @@ the draft's notes any banned word it holds, for the owner to allow-list with a r
 ## 6. Mark every change
 
 Set `reviewedBy: agent-draft` on every file you change and on every fact entry you change. A
-translation has no `reviewedBy`: set none on it. Leave the rules files as the generator writes them.
+translation has no `reviewedBy`: set none on it. A file or entry left with no change but its mark,
+after a revert or a fix that puts back HEAD's text, takes HEAD's `reviewedBy` back, unless §1
+keeps the mark for an owner's note. Leave the rules files as the generator writes them.
 The finish refuses a changed entry at any other value.
 
 ## 7. Finish
 
 1. Run `pnpm run validate:content` and `pnpm --filter @proofofcalm/content test`. The one failure you
    expect is `agent-draft` on the entries you marked; when `overlay-number-mismatch` names a figure
-   you changed in its English file, change the same figure in the translation (a translated
-   module only as §1 says), written in the translation's number format (§1), run `pnpm --filter @proofofcalm/content rules` and run the
+   you changed in its English file, change the same figure in the translation (never a translated
+   module: §1), written in the translation's number format (§1), run `pnpm --filter @proofofcalm/content rules` and run the
    checks again; fix or revert anything else, a figure check's refusal only as §1 says, from its
    source. A test that fails because it asserts what your change replaced (the value a leaf
    other than `reviewedBy` held, a module sentence it pins, or a figure it derives from a value you
    changed) is not yours to satisfy: revert nothing for it;
    name its file and line and both values in the draft's notes and your closing report, and say in
-   both that `verify` fails on `pnpm test` until the owner changes or removes that assertion in a
-   pull request of its own (`docs/ENGINEERING.md` §2). When a translation's figure still does not match
+   both that `verify` fails on `pnpm test` until the owner removes that assertion in a pull request
+   of its own (`docs/ENGINEERING.md` §2): one changed to your new value would fail on main, where
+   the data still holds the old one. When a translation's figure still does not match
    after you change it and run the checks again, revert neither the English change nor the
    translation's edit: name the figure, its path and the values the check prints in the draft's
    notes and in your closing report, and say in both that the pull request's `verify` check fails
-   on `pnpm validate:content` until that figure is fixed (the finish does not run the check, CI
+   on `pnpm validate:content` and `pnpm test` until that figure is fixed (the finish does not run the check, CI
    does).
-   Only `pnpm run validate:content` checks the translations' figures and reports
-   `overlay-number-mismatch`; the content test never does. `rules` reports the files it wrote,
+   The content test runs the same checks on the real files (`packages/content/scripts/validate.test.ts`,
+   and `packages/content/scripts/closed-body.test.ts` on the translated modules), so it fails on
+   every refusal of `pnpm run validate:content`, `overlay-number-mismatch` included: fix or revert
+   as that refusal's rule says; the rule for tests above covers only a test that asserts what your
+   change replaced. `rules` reports the files it wrote,
    changed or not; the test, which fails on a stale rules file, English or a locale's, is the check
    that they match the profiles and their translations.
 2. Write the draft to .content-review/draft.json in the shape of `ReviewDraft` in
@@ -346,7 +365,7 @@ The finish refuses a changed entry at any other value.
    price, its `reason` names the `lowSource` when the row has one, and its `eventDate` is the low's
    day. `accessed`, `reviewedBy` and `status.confidence` need no `changes` row. A fix that puts
    back HEAD's text leaves no changed leaf and takes no `changes` row (the finish refuses a row
-   for a non-change): name it in the notes instead.
+   for a non-change): name it in the notes instead, and its mark goes as §6 says.
    Give one `reviewed` row per file reviewed; the finish refuses a changed file, a module too, with
    no `reviewed` row. A translation gets none: its `lastReviewed` is its English file's. The owner sets `lastReviewed` to today only when that row shows every source
    read (`read` equals `of`) and the owner opened each off-list secondary source your notes name.
@@ -359,7 +378,8 @@ The finish refuses a changed entry at any other value.
    (a field, a path, a row, a link), fix that and run it again. Stop at any other refusal or error,
    such as `nothing staged` or a template heading, and show the owner its output word for word.
    A failed step prints `<step>: <git's or gh's first line>: run finish again`: show the owner that
-   line, and on a yes run the same command again. Never change data only to have something staged.
+   line, and on a yes run the same command again. Never change data only to have something staged;
+   the mark §1 keeps for an owner's note is the one exception.
    Run no git or gh command; `git switch --detach origin/main` in its output is the owner's to run.
    On a review branch the finish reads the branch's pull-request record first. With an open PR it
    commits and pushes nothing. On a clean tree with HEAD at origin's copy of the branch or behind
