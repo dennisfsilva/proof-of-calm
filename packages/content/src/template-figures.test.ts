@@ -61,7 +61,6 @@ describe('templateFigureProblems: the closed shapes pass (the judge’s must-pas
     'Bitcoin takes 40 % of each amount; 30 % goes into Ethereum.',
     `Bitcoin takes 40 % of each amount. Solana fell 97 % ${D('SOL')}.`,
     'It splits each amount 40 % Bitcoin and 30 % Ethereum.',
-    'The percentage of each amount stays as set.',
   ])('%s', (explanation) => {
     expect(run(explanation)).toEqual([]);
   });
@@ -206,6 +205,39 @@ describe('the round-2 leaks (the stated requirement of #334)', () => {
     ),
   ])('%s: %s', (explanation, verdict) => {
     expect(ruled(explanation)).toEqual([verdict]);
+  });
+});
+
+describe('the trigger is a closed set: four signs, or "per" and "cent" with a joiner (round 3 of #334, #340)', () => {
+  const joiners = ['', ' ', ' ', '\t', '-', '‐', '‑'];
+  const cases = [
+    ['per', 'cent'],
+    ['PER', 'CENT'],
+    ['Per', 'Cent'],
+  ];
+  it.each([
+    'Solana fell 15percent.',
+    'A 15-percentage-point drop can come again.',
+    ...joiners.flatMap((joiner) => cases.map(([per, cent]) => `Solana fell 15 ${per}${joiner}${cent}.`)),
+    ...['٪', '﹪', '％'].map((sign) => `Solana fell 15${sign}.`),
+    // The numeral condition on "percentage" is dropped (D1 of #334): no live template holds the word.
+    'The percentage of each amount stays as set.',
+    'The percentages of each amount stay as set.',
+  ])('%j is figure-unclassed', (explanation) => {
+    expect(ruled(explanation)).toEqual(['figure-unclassed R4']);
+  });
+
+  it.each([
+    'The upper centre of each amount stays as set.',
+    'Supercentury coins stay as set.',
+    // The holes on record, left to the copy review (docs/research/review-safe-figures.md, amendment 7).
+    'Solana fell 15 pct.',
+    'Solana fell 15 pc.',
+    'Solana fell 15 ‰.',
+    'Solana fell 15 bps.',
+    'Solana fell 15 points.',
+  ])('%j does not trigger', (explanation) => {
+    expect(run(explanation)).toEqual([]);
   });
 });
 
