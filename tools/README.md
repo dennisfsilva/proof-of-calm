@@ -46,7 +46,8 @@ or gh: `node tools/content-review/propose.ts start` fetches, refuses a dirty tre
 than origin/main and names the day's first free review name; on a review branch it prints that
 branch's pull requests and what finish would decide, and refuses;
 `node tools/content-review/propose.ts finish` (`--dry`, `--draft <path>`) stages
-everything and refuses a path outside content data, a mode, a binary, a deletion, an entry not at
+everything and refuses a path outside content data, a mode, a binary, a deletion (a removed chart
+row of the cycles file too, counted per coin), an entry not at
 agent-draft, a draft problem or a draft row that does not match the staged diff (`rows.ts`), leaving the index as it found it, before any commit. Without `--dry`,
 off a review branch, it first refuses a HEAD other than the commit the local origin/main names, the check start makes,
 and a failed fetch or gh, before it stages, switches, commits or pushes anything. `resume.ts` holds
