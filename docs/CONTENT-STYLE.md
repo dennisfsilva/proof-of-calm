@@ -447,8 +447,9 @@ is a whole sentence, capitals as written, and may open with the fixed lead `What
 digits, an ordinary space and `%`, the one token the app formats, and a fall's may start with U+2212; `C` is one of the
 template's coin names; `A` is `each amount` or `every amount`, either with `monthly` before `amount`; `D(X)` is
 `from its high on {date:drawdowns.X.high} to its low on {date:drawdowns.X.low}`, one row X both times. An explanation,
-English or translated, that joins a figure to its sign any other way (nothing, U+00A0, U+202F, a hyphen) or writes
-another sign fails (`percent-token`); the check and the app read the token from `packages/content/src/percent-token.ts`.
+English or translated, writes no other joiner (nothing, U+00A0, U+202F, a hyphen) and no other sign (`percent-token`).
+The check reads it as `paragraphsOf` does, so a tab, two spaces or a line break before the sign is one ordinary space.
+The check and the app read the token from `packages/content/src/percent-token.ts`.
 
 - F1: `C fell N D(X).`, with `more than N` in place of `N` allowed. A fall names its coin, never `It`.
 - F2: `From its high on {date:drawdowns.X.high} to its low on {date:drawdowns.X.low}, C fell N.`, with `more than N`
