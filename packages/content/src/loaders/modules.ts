@@ -29,7 +29,8 @@ const wordCount = (body: string) =>
 /** Words ÷ 230 plus 10 seconds per chart, rounded up to whole minutes: over 13,800 to stay in whole numbers. */
 const minutesToRead = (words: number, charts: number) => Math.ceil((words * 60 + 2300 * charts) / 13_800);
 
-function readFields(path: string, lines: readonly string[]) {
+/** The front matter's lines as flat `key: value` fields, and one problem per line that is not one, by its number. */
+export function readFields(path: string, lines: readonly string[]) {
   const fields = new Map<string, string>();
   const problems: Problem[] = [];
   lines.forEach((line, index) => {

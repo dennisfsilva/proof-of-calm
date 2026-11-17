@@ -52,8 +52,7 @@ describe('translatedModuleProblems', () => {
     expect(codes(FRONT, BODY.replace('31,4', '31.4'))).toEqual(['overlay-number-mismatch']);
   });
 
-  it('fails an added facts key, an idea over 120 characters and a caveat over 240', () => {
-    expect(codes({ ...FRONT, facts: 'drawdowns' })).toEqual(['module-overlay-front-matter']);
+  it('fails an idea over 120 characters and a caveat over 240', () => {
     expect(codes({ ...FRONT, idea: 'a'.repeat(121) })).toEqual(['module-overlay-front-matter']);
     expect(codes({ ...FRONT, caveat: `87 % ${'a'.repeat(236)}` })).toEqual(['module-overlay-front-matter']);
   });
@@ -64,6 +63,19 @@ describe('translatedModuleProblems', () => {
       .replace('<PastPerformance />', '<Chart />')
       .replace('X', '<PastPerformance />');
     expect(codes(FRONT, swapped)).toEqual(['module-overlay-elements']);
+  });
+
+  // Code is text, as the compiler reads it: English writing <Chart /> so is refused with module-chart-element.
+  it('counts a <Chart /> in a code span or a fenced block as no element', () => {
+    const detail = (body: string) =>
+      translatedModuleProblems(PATH, ENGLISH, { front: FRONT, body }, 'pt-PT').map(
+        ({ code, detail: text }) => `${code}: ${text}`,
+      );
+    const missing = 'module-overlay-elements: body: PastPerformance, English Chart, PastPerformance, in this order';
+    expect(detail(BODY.replace('<Chart />', '`<Chart />`'))).toEqual([missing]);
+    expect(detail(BODY.replace('<Chart />', '```\n<Chart />\n```'))).toEqual([missing]);
+    expect(detail(BODY.replace('<Chart />', '~~~~mdx\n<Chart />\n~~~~'))).toEqual([missing]);
+    expect(detail(`${BODY}\n\`\`\`\n<Chart />\n`)).toEqual([]);
   });
 
   it('fails an orphan slug', () => {
@@ -131,6 +143,45 @@ describe('moduleTranslationProblems', () => {
     ]);
   });
 
+  // English's reader on the translation's front matter (review 25l round 1): each line it refuses, by its number.
+  describe('reads the front matter by English rules, with the four keys only', () => {
+    const LINES = Object.entries(FRONT).map(([key, value]) => `${key}: ${value}`);
+    const problemsOf = (lines: readonly string[]) =>
+      moduleTranslationProblems([file('pt-PT', ['---', ...lines, '---', BODY].join('\n'))], [ENGLISH]).map(
+        ({ code, detail }) => `${code}: ${detail}`,
+      );
+    const NO_INDENT = 'module-overlay-front-matter: line 6: write one key: value on each line, with no indent';
+
+    it('refuses a key English does not read, an indented line and a repeated key, naming the line', () => {
+      expect(problemsOf([...LINES, 'next-review: 2027-11-02'])).toEqual([NO_INDENT]);
+      expect(problemsOf([...LINES, 'reviewed_by: owner'])).toEqual([NO_INDENT]);
+      expect(problemsOf([...LINES, '  e nunca recuperar 50 %.'])).toEqual([NO_INDENT]);
+      expect(problemsOf([...LINES, 'title: Ruído'])).toEqual([
+        'module-overlay-front-matter: line 6: title appears twice; delete one of the 2 lines',
+      ]);
+    });
+
+    it('refuses a quoted value and a key outside slug, title, idea and caveat, naming the line', () => {
+      expect(problemsOf(LINES.map((line) => line.replace('title: Ruído', 'title: "Ruído"')))).toEqual([
+        'module-overlay-front-matter: line 3: write title as plain text, with no quotes, brackets, or braces',
+      ]);
+      expect(problemsOf([...LINES, 'facts: drawdowns', 'chart: none'])).toEqual([
+        "module-overlay-front-matter: line 6: remove facts: a translation holds slug, title, idea and caveat; the rest is English's",
+        "module-overlay-front-matter: line 7: remove chart: a translation holds slug, title, idea and caveat; the rest is English's",
+      ]);
+    });
+
+    it("refuses what English's parseModule refuses on the same lines", () => {
+      const english = (line: string) => {
+        const parsed = parseModule('learn/noise.mdx', ['---', ...LINES, line, '---', BODY].join('\n'));
+        return parsed.ok ? [] : parsed.error.map(({ detail }) => `module-overlay-front-matter: ${detail}`);
+      };
+      for (const line of ['next-review: 2027-11-02', '  e nunca recuperar 50 %.', 'title: Ruído']) {
+        expect(problemsOf([...LINES, line])).toEqual(english(line));
+      }
+    });
+  });
+
   it('passes the real pt-PT start-here against the real English module', () => {
     const read = (path: string) => readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8');
     const english = parseModule('packages/content/learn/start-here.mdx', read('learn/start-here.mdx'));
@@ -171,10 +222,22 @@ describe('the pt-PT start-here, split as English is (brand, 25h round 2)', () =>
 describe('readTranslatedModule', () => {
   it('reads the flat front matter and keeps the body from the line after the fence', () => {
     const source = ['---', 'slug: noise', 'title: Ruído', '---', '', '## Ruído', ''].join('\n');
-    expect(readTranslatedModule(source)).toEqual({ front: { slug: 'noise', title: 'Ruído' }, body: '\n## Ruído\n' });
+    expect(readTranslatedModule(PATH, source)).toEqual({
+      ok: true,
+      value: { front: { slug: 'noise', title: 'Ruído' }, body: '\n## Ruído\n' },
+    });
   });
 
-  it('answers null for a file without front matter', () => {
-    expect(readTranslatedModule('## Ruído\n')).toBeNull();
+  it('refuses a file without front matter', () => {
+    expect(readTranslatedModule(PATH, '## Ruído\n')).toEqual({
+      ok: false,
+      error: [
+        {
+          path: PATH,
+          code: 'module-overlay-front-matter',
+          detail: 'open the file with front matter between 2 --- lines',
+        },
+      ],
+    });
   });
 });
