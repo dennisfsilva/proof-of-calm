@@ -41,8 +41,12 @@ configs live in their packages. See `docs/ENGINEERING.md`.
   - `checkModuleBody(source, path, elements = MODULE_BODY_ELEMENTS)`: the same compiler and `closedBody` on
     one module with its front matter blanked; `problem` is the build's message or null, `flow` names the
     tree's flow elements, and `elements` every element as `flow:<Name>` or `text:<Name>` in tree order, so
-    an escaped element or a code span is none. `pnpm validate:content` runs it, and compares a translated
-    module's `elements` with its English module's (`module-overlay-elements`).
+    an escaped element or one in code is none. `text` is the words the page shows: every text, code span
+    and code block value in tree order as the parser decoded it, a character reference included, inline
+    values joined with nothing and blocks with a newline; an attribute's value and a fence's info string
+    are not in it. `pnpm validate:content` runs it, and compares a translated module's `elements` and the
+    numbers of its `text` with its English module's (`module-overlay-elements`,
+    `overlay-number-mismatch`), and runs the ban list and the hyphen check on its `text`.
   - `bootScriptPlugin()`: after every other html hook, in the client build only, the one module entry
     becomes the inline boot script `BOOT_SCRIPT` with the entry URL in `data-entry`; its fixed text
     has the fixed hash `BOOT_SCRIPT_HASH` that the CSP carries (`sha256()` computes such a hash). An

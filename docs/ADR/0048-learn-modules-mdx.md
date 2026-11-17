@@ -177,6 +177,13 @@ Recorded on 2026-11-15, when the site's half of the rendering points landed in `
   chart. English's body is compiled too, and the two element lists, each element a block or inside a sentence, match
   in order (`module-overlay-elements`, `packages/content/scripts/closed-body.ts`): code hides an element on both sides
   as the page does.
-- 2026-11-17: the number, ban and hyphen checks of a translated body keep reading its source, code included, which is
-  more text than the page shows. The ban list and the hyphen check can then only over-report; the number check can
-  also miss a figure the translated page drops while its code still holds it.
+- 2026-11-17: the ban list, the number check and the hyphen check of a translated body read the text its compiled
+  page shows, not its source. `checkModuleBody` returns `text`: every text, code span and code block value of the tree
+  its closed-body compile parses, as the parser decoded it, a character reference included, inline values joined with
+  nothing and blocks with a newline; an attribute's value and a fence's info string are not in it. `closedBodyProblems`
+  runs the ban list and the hyphen check on the translation's `text` and compares its numbers with the `text` of
+  English's compiled body; `translatedModuleProblems` reads the front matter only. A translation that does not compile
+  gets `module-closed-body` and none of the three; while English's body does not compile, the translation gets the
+  ban list and the hyphen check, and English's own run reports its body. English's own checks still read its source
+  through `plainText`, which drops every tag, one in code included, keeps a fence's info string and decodes no
+  character reference, so on English they can over-report or miss: a limit carried to the next session.
