@@ -171,14 +171,31 @@ describe('overlayProblems', () => {
         'de-DE',
         'de-DE',
       ]).map((problem) => problem.detail);
-    const hint = '; a point marks only a citation here, write';
+    // Each side's figure as its text writes it; `cited` names no figure, since the writer of `0.125` cited nothing.
+    const since = 'since a point in this profile marks only a citation';
     const typedNbsp = `${String.fromCodePoint(0x5c)}u00a0`;
-    expect(detail('EUR 1000', 'EUR 1.000')).toEqual([`card.caveats.0: cited 1.000, English 1000${hint} 1000`]);
+    expect(detail('0,125 BTC', '0.125 BTC')).toEqual([`card.caveats.0: 0.125, English 0,125; write 0,125, ${since}`]);
+    expect(detail('EUR 1000', 'EUR 1.000')).toEqual([`card.caveats.0: 1.000, English 1000; write 1000, ${since}`]);
     expect(detail(`EUR 20${String.fromCodePoint(0xa0)}350`, 'EUR 20.350')).toEqual([
-      `card.caveats.0: cited 20.350, English 20350${hint} 20${typedNbsp}350`,
+      `card.caveats.0: 20.350, English 20${typedNbsp}350; write 20${typedNbsp}350, ${since}`,
     ]);
-    expect(detail('0,125 BTC', '0.125 BTC')).toEqual([`card.caveats.0: cited 0.125, English 0.125${hint} 0,125`]);
-    expect(detail('art. 33.1', 'art. 33.10')).toEqual(['card.caveats.0: cited 33.10, English cited 33.1']);
+    expect(detail('art. 33.1', 'art. 33.10')).toEqual(['card.caveats.0: 33.10, English 33.1']);
+  });
+
+  // D5 of #316: the carry-over "A cited point with three digits", as literal pt-PT and nl-NL profile overlays.
+  it.each(['pt-PT', 'nl-NL'])('reads a %s profile’s point as a citation’s and its comma as the decimal', (locale) => {
+    const codes = (english: string, translated: string) =>
+      overlayProblems('jurisdiction', path, { card: { caveats: [english] } }, { card: { caveats: [translated] } }, [
+        locale,
+        locale,
+      ]).map((problem) => problem.code);
+    const mismatch = ['overlay-number-mismatch'];
+    expect(codes('EUR 1000', 'EUR 1.000')).toEqual(mismatch);
+    expect(codes('art. 33.100', 'art. 33.100')).toEqual([]);
+    expect(codes('0,125 BTC', '0.125 BTC')).toEqual(mismatch);
+    expect(codes('Quadro 9.4', 'Quadro 9.4')).toEqual([]);
+    expect(codes('2,5 %', '2,5 %')).toEqual([]);
+    expect(codes('EUR 1000 to EUR 2000', 'EUR 1000 a EUR 2000')).toEqual([]);
   });
 
   // A comma is the decimal, a no-break space the only group, and a point a citation's, compared as written.

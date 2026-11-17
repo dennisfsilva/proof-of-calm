@@ -62,15 +62,28 @@ function valuesOf(run: string, decimal: string, cited = false): string[] {
  * In a `profile`'s text where the locale's decimal is a comma, such a figure holding a point is a citation's
  * (`art. 33.1`, `art. 33.100`) and is compared as written (`cited 33.1`; docs/CONTENT-STYLE.md §4).
  */
-export const numbersIn = (text: string, locale: string, profile = false): string[] => {
-  const decimal = decimalSeparator(locale);
-  return [...text.matchAll(NUMBER)]
-    .flatMap(({ 0: run, index }) => {
-      if (PERCENT_FOLLOWS.test(text.slice(index + run.length))) return valuesOf(run, decimal);
-      return profile && decimal === ',' && run.includes('.') ? [`cited ${run}`] : valuesOf(run, decimal, true);
-    })
+export const numbersIn = (text: string, locale: string, profile = false): string[] =>
+  figuresIn(text, locale, profile)
+    .flatMap(({ values }) => values)
     .sort();
-};
+
+/** Each run of digits in `text` as written, with its values as `numbersIn` reads them, in the order of those values. */
+function figuresIn(text: string, locale: string, profile: boolean): { run: string; values: string[] }[] {
+  const decimal = decimalSeparator(locale);
+  const figures = [...text.matchAll(NUMBER)].map(({ 0: run, index }) => {
+    if (PERCENT_FOLLOWS.test(text.slice(index + run.length))) return { run, values: valuesOf(run, decimal) };
+    const cited = profile && decimal === ',' && run.includes('.');
+    return { run, values: cited ? [`cited ${run}`] : valuesOf(run, decimal, true) };
+  });
+  const key = ({ values }: { values: string[] }) => [...values].sort().join(' ');
+  return figures.sort((one, other) => (key(one) < key(other) ? -1 : key(one) > key(other) ? 1 : 0));
+}
+
+/** The figures of a text as it writes them, a no-break space as the escape a writer types in JSON. */
+const written = (text: string, locale: string, profile: boolean) =>
+  figuresIn(text, locale, profile)
+    .map(({ run }) => escaped(run))
+    .join(' ') || 'none';
 
 /**
  * The number locales of an English text and of its translation, the English first. A profile's two texts both take
@@ -95,8 +108,8 @@ const percentsIn = (text: string, locale: string) =>
  * The fix for each figure a profile's translation writes with a point where its English figure has none: the group
  * (`1.000` for 1000, `20.350` for `20 350`) or the decimal (`0.125` for `0,125`) as the English writes it.
  */
-function citedFix(ours: readonly string[], english: readonly string[]): string {
-  const fixes = ours
+function citedFixes(ours: readonly string[], english: readonly string[]): string[] {
+  return ours
     .filter((value) => value.startsWith('cited ') && !english.includes(value))
     .flatMap((value) => {
       const run = value.slice('cited '.length);
@@ -105,7 +118,21 @@ function citedFix(ours: readonly string[], english: readonly string[]): string {
       const decimal = run.replace('.', ',');
       return /^\d+\.\d+$/.test(run) && english.includes(valuesOf(decimal, ',').join()) ? [decimal] : [];
     });
-  return fixes.length === 0 ? '' : `; a point marks only a citation here, write ${fixes.join(', ')}`;
+}
+
+/**
+ * The number check's detail: the values each text holds, or for a text holding a cited point each figure as its text
+ * writes it, so `cited` never names a figure its writer did not cite (`0.125, English 0,125; write 0,125, …`).
+ */
+function numberDetail(texts: readonly [string, string], locales: NumberLocales, profile: boolean): string {
+  const [ours, english] = [numbersIn(texts[1], locales[1], profile), numbersIn(texts[0], locales[0], profile)];
+  if (![...ours, ...english].some((value) => value.startsWith('cited '))) {
+    return `: ${ours.join(' ') || 'none'}, English ${english.join(' ') || 'none'}`;
+  }
+  const fixes = citedFixes(ours, english);
+  const fix =
+    fixes.length === 0 ? '' : `; write ${fixes.join(', ')}, since a point in this profile marks only a citation`;
+  return `: ${written(texts[1], locales[1], profile)}, English ${written(texts[0], locales[0], profile)}${fix}`;
 }
 
 /** Every way the overlay departs from English; the empty list is a pass. */
@@ -142,9 +169,11 @@ export function overlayProblems(
       return void report('not-translatable', at);
     }
     const profile = kind === 'jurisdiction';
-    const [ours, english] = [numbersIn(over, locales[1], profile), numbersIn(en, locales[0], profile)];
-    const [mine, theirs] = [ours.join(' ') || 'none', english.join(' ') || 'none'];
-    if (mine !== theirs) report('number-mismatch', at, `: ${mine}, English ${theirs}${citedFix(ours, english)}`);
+    const [mine, theirs] = [
+      numbersIn(over, locales[1], profile).join(' '),
+      numbersIn(en, locales[0], profile).join(' '),
+    ];
+    if (mine !== theirs) report('number-mismatch', at, numberDetail([en, over], locales, profile));
     // A placeholder holds no digits, so the number check cannot see one dropped or added; a swap of two keeps the
     // multiset and stays with counsel's read, as a swap of two written dates does.
     const [ourDates, theirDates] = [
