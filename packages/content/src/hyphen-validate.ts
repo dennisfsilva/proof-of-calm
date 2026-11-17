@@ -3,8 +3,9 @@
 // without a build step.
 import type { Problem } from './problem.ts';
 
-// English's units and pt-PT's (`90-dias`, `1-mês`). A reference such as `24-D/2022`, an ISO date and a tax year
-// such as `2026-27` name no unit, so they pass.
+// English's units and pt-PT's (`90-dias`, `1-mês`). An ISO date and a tax year such as `2026-27` name no unit, so they
+// pass. A law's number (`24-D/2022`) takes U+2011 in text shown on screen and U+002D in a source's title, a fact and a
+// document (docs/CONTENT-STYLE.md §4, the no-break hyphen paragraph); this lint does not check it, so it passes too.
 const NUMBER_UNIT =
   /\d-(?:(?:day|week|month|year|hour|minute)s?|dia|dias|semana|semanas|mês|meses|ano|anos|hora|horas|minuto|minutos)(?![\p{L}\p{N}])/gu;
 const DIGITS_BEFORE = /\d*$/;
