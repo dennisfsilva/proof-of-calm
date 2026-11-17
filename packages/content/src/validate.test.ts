@@ -1292,7 +1292,8 @@ describe('validateContent: translated overlays (ADR-0057)', () => {
     const caveat = (text: string) => file(overlayOf(de), { card: { caveats: [text] } });
     expect(overlaid([english, caveat('Ganhos até 1000 euros por ano estão isentos.')])).toEqual([]);
     expect(overlaid([english, caveat('Ganhos até 1.000 euros por ano estão isentos.')])).toEqual([
-      'overlay-number-mismatch: card.caveats.0: cited 1.000, English 1000',
+      'overlay-number-mismatch: card.caveats.0: cited 1.000, English 1000; a point marks only a citation here, write 1000',
+      'number-group: card.caveats.0: "1.000 euros" expected "1000 euros" (de-DE)',
     ]);
     const two = 'packages/content/templates/two-coins.json';
     const fell = file(two, template({ explanation: 'Each coin fell 31.4 % in its worst year.' }));

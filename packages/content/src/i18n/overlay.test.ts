@@ -165,6 +165,22 @@ describe('overlayProblems', () => {
     expect(summary('A £37,700 band.', 'Um escalão de £37,700.', 'en-GB')).toEqual([]);
   });
 
+  it('names the fix when a profile’s translation writes a point the English figure does not hold', () => {
+    const detail = (english: string, translated: string) =>
+      overlayProblems('jurisdiction', path, { card: { caveats: [english] } }, { card: { caveats: [translated] } }, [
+        'de-DE',
+        'de-DE',
+      ]).map((problem) => problem.detail);
+    const hint = '; a point marks only a citation here, write';
+    const typedNbsp = `${String.fromCodePoint(0x5c)}u00a0`;
+    expect(detail('EUR 1000', 'EUR 1.000')).toEqual([`card.caveats.0: cited 1.000, English 1000${hint} 1000`]);
+    expect(detail(`EUR 20${String.fromCodePoint(0xa0)}350`, 'EUR 20.350')).toEqual([
+      `card.caveats.0: cited 20.350, English 20350${hint} 20${typedNbsp}350`,
+    ]);
+    expect(detail('0,125 BTC', '0.125 BTC')).toEqual([`card.caveats.0: cited 0.125, English 0.125${hint} 0,125`]);
+    expect(detail('art. 33.1', 'art. 33.10')).toEqual(['card.caveats.0: cited 33.10, English cited 33.1']);
+  });
+
   // A comma is the decimal, a no-break space the only group, and a point a citation's, compared as written.
   it('compares a comma-decimal profile’s figure holding a point as written, a citation’s', () => {
     const value = (english: string, translated: string) =>

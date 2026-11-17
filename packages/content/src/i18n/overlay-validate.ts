@@ -4,7 +4,7 @@
 // the percent joiner, the 60 words, a template's placeholders against its dates and month names) are validate.ts's,
 // passed in. Pure.
 import { numberLocaleFor } from '../loaders/locales.ts';
-import { decimalSeparator, PERCENT_FOLLOWS } from '../percent-validate.ts';
+import { decimalSeparator, escaped, grouped, PERCENT_FOLLOWS } from '../percent-validate.ts';
 import { type Problem, schemaProblems } from '../problem.ts';
 import { FactSchema } from '../schema/fact.ts';
 import { type CountryProfile, CountryProfileSchema } from '../schema/jurisdiction.ts';
@@ -91,6 +91,23 @@ const percentsIn = (text: string, locale: string) =>
     })
     .join(', ') || 'none';
 
+/**
+ * The fix for each figure a profile's translation writes with a point where its English figure has none: the group
+ * (`1.000` for 1000, `20.350` for `20 350`) or the decimal (`0.125` for `0,125`) as the English writes it.
+ */
+function citedFix(ours: readonly string[], english: readonly string[]): string {
+  const fixes = ours
+    .filter((value) => value.startsWith('cited ') && !english.includes(value))
+    .flatMap((value) => {
+      const run = value.slice('cited '.length);
+      const whole = run.replaceAll('.', '');
+      if (/^\d{1,3}(?:\.\d{3})+$/.test(run) && english.includes(whole)) return [escaped(grouped(whole))];
+      const decimal = run.replace('.', ',');
+      return /^\d+\.\d+$/.test(run) && english.includes(valuesOf(decimal, ',').join()) ? [decimal] : [];
+    });
+  return fixes.length === 0 ? '' : `; a point marks only a citation here, write ${fixes.join(', ')}`;
+}
+
 /** Every way the overlay departs from English; the empty list is a pass. */
 export function overlayProblems(
   kind: ContentKind,
@@ -125,11 +142,9 @@ export function overlayProblems(
       return void report('not-translatable', at);
     }
     const profile = kind === 'jurisdiction';
-    const [mine, theirs] = [
-      numbersIn(over, locales[1], profile).join(' ') || 'none',
-      numbersIn(en, locales[0], profile).join(' ') || 'none',
-    ];
-    if (mine !== theirs) report('number-mismatch', at, `: ${mine}, English ${theirs}`);
+    const [ours, english] = [numbersIn(over, locales[1], profile), numbersIn(en, locales[0], profile)];
+    const [mine, theirs] = [ours.join(' ') || 'none', english.join(' ') || 'none'];
+    if (mine !== theirs) report('number-mismatch', at, `: ${mine}, English ${theirs}${citedFix(ours, english)}`);
     // A placeholder holds no digits, so the number check cannot see one dropped or added; a swap of two keeps the
     // multiset and stays with counsel's read, as a swap of two written dates does.
     const [ourDates, theirDates] = [
