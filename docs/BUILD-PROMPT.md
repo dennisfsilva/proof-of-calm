@@ -553,6 +553,22 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   reader was not in its brief (2026-11-17).
 - Before naming a new session, read the tracker's whole session list and take the next free letter
   (#287, 2026-11-17).
+- A test branch whose relations keep failing review converges when re-cut on main: main's literal
+  pins back, only the fields a content review sets dropped. #321 merged after one clean round, where
+  nine rounds of relations since #297 had not (2026-11-17).
+- A message's fix is a suggestion: its test applies the fix to the sentence and runs the check
+  again, at the edges. The figures validator's fixes, added in a wording pass, were each refused
+  again once applied, and the overlay check's fix for a translated figure picked an unrelated
+  English figure in a sentence with two (#318, 2026-11-17).
+- A check of the text a compiled page shows reads it per block, with default-ignorable characters
+  removed. A soft hyphen or a zero-width space inside a word hid a banned phrase, and blocks joined
+  into one spaced line read `Step 3` and `100` as 3100 (#318, 2026-11-17).
+- A content role has no shell: its brief names a folder holding the branch's diff and its changed
+  files, written right before the spawn. Every role briefed with git commands in #318 returned
+  without reading the branch (2026-11-17).
+- A design check of one function's suggestion names every function that prints a fix for the same
+  figures. #318's judge settled `number-group`'s suggestion, and both rounds then found cases in the
+  overlay check's fix, which the check did not cover (2026-11-17).
 
 ## Known gaps
 

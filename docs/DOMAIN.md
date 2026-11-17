@@ -1497,12 +1497,13 @@ pick it, what can go wrong; paragraphs separated by a blank line, at most five s
 (`coin`, `high`, `low`, `fall` in whole percent) with its `source` on the facts allow-list (and a
 `lowSource` when one request to that series cannot reach both ends, or to run to today for a coin
 that has not regained its high), its `publisher` and its
-`accessed` date, no later than `lastReviewed`. The card composes its dated band from them in the
-plan's formats, each coin's ticker before its signed fall and the window that holds every fall,
-from the earliest high to the latest low, not each coin's own dates (in the UK's formats: "BTC −78%
-and ETH −82%, each high to low between 10 Nov 2021 and 21 Nov 2022"). An explanation names no fall
-without the day, month and year of its high and low. The core never reads `drawdowns`; the validator
-checks its sources and dates.
+`accessed` date, no later than `lastReviewed` once the owner signs the template off
+(`accessed-after-review`, `packages/content/README.md`). The card composes its dated band from them
+in the plan's formats, each coin's ticker before its signed fall and the window that holds every
+fall, from the earliest high to the latest low, not each coin's own dates (in the UK's formats: "BTC
+−78% and ETH −82%, each high to low between 10 Nov 2021 and 21 Nov 2022"). An explanation names no
+fall without the day, month and year of its high and low. The core never reads `drawdowns`; the
+validator checks its sources and dates.
 
 The `oneLine` and the explanation write each date as `{date:<field>}`, a path to one of the template's date fields:
 `lastBuy`, `validUntil`, `sellWindow.opens`, `sellWindow.closes`, `sellWindow.exitBy`, `references.<field>` and
