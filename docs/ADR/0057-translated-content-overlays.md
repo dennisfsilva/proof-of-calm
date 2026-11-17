@@ -211,13 +211,11 @@ generated rules files of each language.
   and compares a figure holding a point as written. A template's and a fact's texts keep the
   reading "What validation holds" gives them: English with English separators, the translation
   with its language's own. `number-group` refuses other grouping beside a currency code, before or
-  after the figure, and expects a point's cents after a comma (`EUR 12,50`). Its suggestion reads
-  the figure's structure first (2026-11-17). A point and a comma together make the last mark the
-  decimal (`EUR 1.250,125` is 1250,125). A mark written twice is a group mark. A lone mark after a
-  space group is the decimal (`EUR 20 350,125`). So is one after four digits (`EUR 1000,125`), and
-  one before four digits. Otherwise a mark before fewer than three digits is the decimal. So is a
-  mark after a whole part of 0 (`EUR 0.125` keeps its value). Three digits after a whole part of
-  one to three digits are a group (`EUR 1.125` is 1125). A
-  summary counts a grouped figure as one word. Britain, Ireland, and the US keep theirs
+  after the figure, and expects a point's cents after a comma (`EUR 12,50`). Its suggestion keeps
+  the figure's value (amended 2026-11-17 by #318's design check, D10 of #316): only a figure with
+  one value, read as English writes numbers and as the page does, gets the page's form; a figure
+  the two read as different values (`EUR 20,350`, `EUR 1.125`), one neither reads and a range get
+  §4's rule and no suggestion. CONTENT-STYLE §4 owns the reading. A summary counts a grouped
+  figure as one word. Britain, Ireland, and the US keep theirs
   (`£37,700`), in English and in every translation. Decided by the unanchored design check of the
   grouped figures (`docs/research/grouped-figures.md`).
