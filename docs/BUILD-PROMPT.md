@@ -584,6 +584,11 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   review rounds of #316, #318 and #328 each found one more hedge or join (`Roughly, Solana fell
   97 %`, a numeral-led sentence joined to the one before). Before building such a check, settle a closed set of sentence shapes;
   otherwise land it with main's literal pins kept and remove pins in a later PR (#328, 2026-11-17).
+  Kept pins do not stop the rounds: #343's module rules kept them and still met new forms in each
+  round (round 1: code blocks, an open date and money trigger; round 2: years pooled per clause, a
+  count beside a bound, a modifier on a row's figure, a widened year range), while the template
+  rules' closed shapes drew no finding. So a section's figure sentences get closed shapes before
+  their rules are built (#343, 2026-11-17).
 - A translation of a Learn module changes which language a screen in that language shows, so its
   branch searches the e2e specs for the module's `lang` attribute and its English title. #331's first CI
   run failed `apps/web/e2e/language.spec.ts`, which expected Cycles in English on a pt-PT screen
@@ -609,7 +614,15 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   from the renderer's, wording hides across the difference: in rounds 3 and 4 of #340, `\n \n` sat
   between "per" and "cent", then before an exact shape. Give the checker and the app one split, or
   refuse the input on which they disagree, before reviewing what the check closes (#340,
-  2026-11-17).
+  2026-11-17). The same holds for a form the app formats: the check and the app read one
+  definition. The template shapes accepted three percent joiners that the template step left
+  unformatted, until #348 gave both `packages/content/src/percent-token.ts` (#343, 2026-11-17).
+- A check fed through a script's argument is proven by a test of the script's real call that fails
+  when the argument is dropped. #343's module rules could be unwired from `pnpm validate:content`
+  with every test green (2026-11-17).
+- A check that reads a compiled page reads every block kind the page shows, or refuses the kind.
+  #343's module rules read paragraphs and headings and passed a figure in a fenced code block
+  (2026-11-17).
 
 ## Known gaps
 

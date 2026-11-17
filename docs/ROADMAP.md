@@ -317,8 +317,13 @@ external links and the Risk link in the mobile export (M3).
   read it over the whole text, and each confirmed one finding with one root, the checker splitting
   paragraphs at a blank line that holds spaces while the app splits only at an empty one. PR 1, PR 2
   (the module rules), the review-content skill's figure clause and the rest of #340's cut list move
-  to #343, which comes before #271. With #340 and #343, pt-PT takes 11 build sessions more than #269
-  planned before German starts. A render-and-axe-only pt-PT
+  to #343, which comes before #271. On 2026-11-17, #343 merged the Learn page reader (#345), each
+  profile source's title language (#346), the figures validator's PR 1 with its closed sentence
+  shapes (#347) and one percent token for the check and the template step (#348). PR 2, the module
+  rules (feat/module-figures at b76874a9), used both review rounds, each confirming new forms of one
+  kind, and moves with R7 (the module facts rule, cut from it) and the rest of #343's cut list to
+  #349, which comes before #271. With #340, #343 and #349, pt-PT takes 12 build sessions more than
+  #269 planned before German starts. A render-and-axe-only pt-PT
   story run waits for #271, once every namespace is translated. CSV import, free (ADR-0039), for the
   main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
   Republic; Kraken's ledger reader built on 2026-11-13 (#168) and the core's import plan against the
