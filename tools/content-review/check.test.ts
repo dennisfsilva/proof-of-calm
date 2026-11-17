@@ -204,7 +204,9 @@ describe('reviewerProblems', () => {
     expect(reviewerProblems(path, facts(fact), facts(fact, added))).toEqual([]);
     expect(reviewerProblems('packages/content/templates/a.json', '{}', '{"reviewedBy":"owner"}')).toHaveLength(1);
     expect(reviewerProblems('packages/content/jurisdictions/pt.json', undefined, '{"status":{}}')).toHaveLength(1);
-    expect(reviewerProblems('packages/content/cycles/a.json', '{}', '{"reviewedBy":"agent-draft"}')).toEqual([]);
+    expect(
+      reviewerProblems('packages/content/cycles/a.json', '{}', '{"reviewedBy":"agent-draft","drawdowns":[]}'),
+    ).toEqual([]);
     const module = '---\nslug: a\nreviewedBy: agent-draft\n---\n\nreviewedBy: agent-draft\n';
     expect(reviewerProblems('packages/content/learn/a.mdx', '', module)).toEqual([]);
     expect(reviewerProblems('packages/content/learn/a.mdx', '', module.replace('agent-draft', 'owner'))).toEqual([
@@ -223,6 +225,45 @@ describe('reviewerProblems', () => {
       `${path}: deleted; the draft names the removal and the owner deletes it`,
     ]);
     expect(reviewerProblems(path, undefined, undefined)).toEqual([]);
+  });
+
+  describe('a cycles file', () => {
+    const cycles = 'packages/content/cycles/drawdowns.json';
+    const chart = (...rows: object[]) => JSON.stringify({ reviewedBy: 'agent-draft', drawdowns: rows });
+    const btc1 = { coin: 'BTC', high: '2013-11-30', fall: '87' };
+    const btc2 = { coin: 'BTC', high: '2017-12-17', fall: '84' };
+    const btc3 = { coin: 'BTC', high: '2021-11-10', fall: '78' };
+    const sol = { coin: 'SOL', high: '2021-11-06', fall: '96' };
+    const before = chart(btc1, btc2, btc3, sol);
+    const removed = (coin: string) =>
+      `${cycles}: a ${coin} row removed; the draft names the removal and the owner deletes it`;
+
+    it('refuses a removed SOL row with exactly its line', () => {
+      expect(reviewerProblems(cycles, before, chart(btc1, btc2, btc3))).toEqual([removed('SOL')]);
+    });
+
+    it('refuses two removed BTC rows with one BTC line', () => {
+      expect(reviewerProblems(cycles, before, chart(btc3, sol))).toEqual([removed('BTC')]);
+    });
+
+    it('passes a changed fall, an added row and a moved high, asking only for agent-draft', () => {
+      expect(reviewerProblems(cycles, before, chart(btc1, btc2, btc3, { ...sol, fall: '97' }))).toEqual([]);
+      expect(reviewerProblems(cycles, before, chart(btc1, btc2, btc3, sol, { ...sol, high: '2025-01-19' }))).toEqual(
+        [],
+      );
+      expect(reviewerProblems(cycles, before, chart(btc1, { ...btc2, high: '2017-12-16' }, btc3, sol))).toEqual([]);
+      const owner = chart(btc1, btc2, btc3, { ...sol, fall: '97' }).replace('agent-draft', 'owner');
+      expect(reviewerProblems(cycles, before, owner)).toEqual([`${cycles}: reviewedBy is owner, not agent-draft`]);
+    });
+
+    it('refuses drawdowns that are not a list, and a deleted cycles file', () => {
+      expect(reviewerProblems(cycles, before, JSON.stringify({ reviewedBy: 'agent-draft', drawdowns: {} }))).toEqual([
+        `${cycles}: not a list of chart rows`,
+      ]);
+      expect(reviewerProblems(cycles, before, undefined)).toEqual([
+        `${cycles}: deleted; the draft names the removal and the owner deletes it`,
+      ]);
+    });
   });
 
   it('reviewerProblems asks no reviewer of an overlay or a locale rules file, and refuses deleting one', () => {

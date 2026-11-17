@@ -18,7 +18,15 @@ const ALLOW = 'packages/content/sources.allow.json';
 const FACT = 'packages/content/facts/finish-fixture.json';
 const fromRepo = (path: string) => readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8');
 
-it('finish --dry accepts a pending change with a null effectiveFrom and prints no effective date yet', () => {
+/**
+ * A temporary repository holding the PR template, the allow-list and `base` committed, then `change` written
+ * over it; `finish --dry` runs there on draft-good.json as `edit` leaves it. Returns the run and the body.
+ */
+function dryFinish(
+  base: Record<string, string>,
+  change: Record<string, string>,
+  edit: (draft: { pending: { effectiveFrom: unknown }[] }) => void,
+) {
   const repo = mkdtempSync(join(tmpdir(), 'finish-dry-'));
   const outside = mkdtempSync(join(tmpdir(), 'finish-dry-draft-'));
   const git = (...args: string[]) =>
@@ -36,14 +44,14 @@ it('finish --dry accepts a pending change with a null effectiveFrom and prints n
       ['core.autocrlf', 'false'],
     ] as const)
       git('config', key, value);
-    write(TEMPLATE, fromRepo(TEMPLATE));
-    write(ALLOW, fromRepo(ALLOW));
+    for (const [path, text] of Object.entries({ [TEMPLATE]: fromRepo(TEMPLATE), [ALLOW]: fromRepo(ALLOW), ...base }))
+      write(path, text);
     git('add', '-A');
     git('commit', '--quiet', '--message', 'base');
-    write(FACT, '[\n  { "key": "finish-fixture", "reviewedBy": "agent-draft" }\n]\n');
+    for (const [path, text] of Object.entries(change)) write(path, text);
 
     const draft = JSON.parse(fromRepo('tools/content-review/fixtures/draft-good.json'));
-    draft.pending[0].effectiveFrom = null;
+    edit(draft);
     const draftPath = join(outside, 'draft.json');
     writeFileSync(draftPath, JSON.stringify(draft));
 
@@ -52,14 +60,40 @@ it('finish --dry accepts a pending change with a null effectiveFrom and prints n
       encoding: 'utf8',
       env: GIT_FREE_ENV,
     });
-    expect(result.stdout.trim().split('\n')).toEqual([
-      'finish --dry: accepted, 1 paths; the body is in .content-review/body.md',
-    ]);
-    expect(result.status).toBe(0);
-    const body = readFileSync(join(repo, '.content-review/body.md'), 'utf8');
-    expect(body).toMatch(/^## Pending changes noticed\n\n- .*; proposed, no effective date yet; \[/m);
+    const body = result.status === 0 ? readFileSync(join(repo, '.content-review/body.md'), 'utf8') : '';
+    return { lines: result.stdout.trim().split('\n'), status: result.status, body };
   } finally {
     rmSync(repo, { recursive: true, force: true });
     rmSync(outside, { recursive: true, force: true });
   }
+}
+
+const FACT_TEXT = '[\n  { "key": "finish-fixture", "reviewedBy": "agent-draft" }\n]\n';
+
+it('finish --dry accepts a pending change with a null effectiveFrom and prints no effective date yet', () => {
+  const { lines, status, body } = dryFinish({}, { [FACT]: FACT_TEXT }, (draft) => {
+    draft.pending[0].effectiveFrom = null;
+  });
+  expect(lines).toEqual(['finish --dry: accepted, 1 paths; the body is in .content-review/body.md']);
+  expect(status).toBe(0);
+  expect(body).toMatch(/^## Pending changes noticed\n\n- .*; proposed, no effective date yet; \[/m);
+}, 30_000);
+
+// The wiring of the removed-row refusal (check.ts, reviewerProblems' cycles branch): the cycles file loses its
+// SOL row under agent-draft. Deleting removedRows from that branch fails this test, since the finish then
+// prints no row line.
+it('finish --dry refuses a cycles file that lost a chart row and names the coin', () => {
+  const CYCLES = 'packages/content/cycles/drawdowns.json';
+  const btc = { coin: 'BTC', high: '2021-11-10', low: '2022-11-21', fall: '78' };
+  const sol = { coin: 'SOL', high: '2021-11-06', low: '2022-12-29', fall: '96' };
+  const chart = (reviewedBy: string, ...drawdowns: object[]) =>
+    `${JSON.stringify({ lastReviewed: '2026-11-09', reviewedBy, drawdowns }, null, 2)}\n`;
+  const { lines, status } = dryFinish(
+    { [CYCLES]: chart('owner', btc, sol) },
+    { [FACT]: FACT_TEXT, [CYCLES]: chart('agent-draft', btc) },
+    () => {},
+  );
+  expect(lines).toContain(`${CYCLES}: a SOL row removed; the draft names the removal and the owner deletes it`);
+  expect(lines.at(-1)).toMatch(/^finish: refused, \d+ problems; nothing committed, the index as found$/);
+  expect(status).toBe(1);
 }, 30_000);

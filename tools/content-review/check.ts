@@ -110,10 +110,35 @@ const field = (value: unknown, key: string): unknown =>
   typeof value === 'object' && value !== null ? (value as Record<string, unknown>)[key] : undefined;
 
 /**
+ * The chart rows of a cycles file counted per coin, or the problem when `drawdowns` is not a list. Counting,
+ * not keying by (coin, high), lets a corrected `high` pass; so does a row swapped for another of its coin, a
+ * hole the owner's diff read covers (docs/CONTENT-OPS.md §3 step 5).
+ */
+const rowsPerCoin = (file: unknown): Map<string, number> | string => {
+  const rows = field(file, 'drawdowns');
+  if (!Array.isArray(rows)) return 'not a list of chart rows';
+  const counts = new Map<string, number>();
+  for (const coin of rows.map((row) => String(field(row, 'coin')))) counts.set(coin, (counts.get(coin) ?? 0) + 1);
+  return counts;
+};
+
+/** One problem per coin with fewer chart rows after than before; a base that is no list counts as none. */
+function removedRows(path: string, before: string | undefined, after: string): string[] {
+  const now = rowsPerCoin(parse(path, after));
+  if (typeof now === 'string') return [`${path}: ${now}`];
+  const old = before === undefined ? new Map<string, number>() : rowsPerCoin(parse(path, before));
+  if (typeof old === 'string') return [];
+  return [...old]
+    .filter(([coin, count]) => (now.get(coin) ?? 0) < count)
+    .map(([coin]) => `${path}: a ${coin} row removed; ${REMOVAL}`);
+}
+
+/**
  * Whether every changed profile, template, cycles file and module, and every fact entry that differs by
- * `key`, carries `reviewedBy: agent-draft`, so the owner's flip is the review; a deleted file or fact entry
- * is refused (`after` undefined: deleted). The generated rules files and the translation overlays (prose only,
- * ADR-0057) carry no reviewer, so only their deletion is refused; a path outside content data is outsideData's.
+ * `key`, carries `reviewedBy: agent-draft`, so the owner's flip is the review; a deleted file, fact entry or
+ * chart row is refused (`after` undefined: deleted). The generated rules files and the translation overlays
+ * (prose only, ADR-0057) carry no reviewer, so only their deletion is refused; a path outside content data is
+ * outsideData's.
  */
 export function reviewerProblems(path: string, before: string | undefined, after: string | undefined): string[] {
   if (before === after || !isData(path)) return [];
@@ -130,7 +155,9 @@ export function reviewerProblems(path: string, before: string | undefined, after
       return draft(all ? 'agent-draft' : values.join(', ') || 'missing', path);
     }
     if (dir === 'jurisdictions') return draft(field(field(parse(path, after), 'status'), 'reviewedBy'), path);
-    if (dir === 'templates' || dir === 'cycles') return draft(field(parse(path, after), 'reviewedBy'), path);
+    if (dir === 'templates') return draft(field(parse(path, after), 'reviewedBy'), path);
+    if (dir === 'cycles')
+      return [...draft(field(parse(path, after), 'reviewedBy'), path), ...removedRows(path, before, after)];
     if (dir !== 'facts') return [];
     const entries = parse(path, after);
     if (!Array.isArray(entries)) return [`${path}: not a list of facts`];
