@@ -398,6 +398,18 @@ code and its figure (`EUR 20 350`, `100 USD`) and a form's name and its numbe
 on the code or the name. This holds in English, in each translation and in a module. A JSON file
 writes the space as `\u00a0`, a module as the character itself (decided 2026-11-17). `pnpm validate:content` refuses any other space there in a
 profile or a translated one (`figure-join`); its detail names the pair and the space, never a text to write.
+In an English profile the same U+00A0 joins a law's name and its number (`§ 23`, `art. 46`,
+`section 104`, `no. 3`, `Lei 24‑D/2022`, `Finance Bill 2026`) and a date's parts (`31 July 2027`,
+`1 April`, `May 2026`), and a range written with an en dash takes a word joiner (U+2060, `⁠`
+in JSON) after the dash (`2023–2025`, `0–45 %`), so that neither ends a line half way; the dash
+alone lets the line break after it in Chromium and WebKit. `pnpm validate:content` refuses an
+ordinary space there (`figure-join`) and a dash with no joiner after it (`range-join`). The names
+are a closed list per language in `packages/content/src/join-validate.ts`, taken from every
+profile's text; an identifier (`PIV 28969`), a docket (`IX R 3/22`), a form's cell (`colonna 12`)
+and a word the list leaves out stay unchecked. Left out as well: a range with a hyphen-minus
+(`2026-27`, `Rev. Proc. 2025-32`), though both engines break after it too; the month-first US order
+(`April 15`); the file-only lot note and the sources' titles, which do not wrap; the modules and
+the facts; and a translation until its language has its lists (decided 2026-11-17).
 `pnpm validate:content` refuses other grouping beside a currency code (`number-group`). It reads
 each figure as English does (a comma or a space between groups, a point before the decimals) and
 as the page does (a point or a space between groups, a comma before the decimals); a group is three
