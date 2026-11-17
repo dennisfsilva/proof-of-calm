@@ -351,16 +351,29 @@ the union of English's lists and pt-PT's: `por cento`, joined by nothing, white 
 any case, reported as 'a percentage sign or word'; the cardinals without `um` and `uma`, with `cem` and `cento`, the
 hundreds as `(duz|trez|quatroc|quinh|seisc|setec|oitoc|novec)ent[oa]s`, `milhar`, `milhares`, `trilião`,
 `triliões` and the singular and plural `dúzia`, `dezena` and `centena`; the Brazilian spellings `dezesseis`,
-`dezessete`, `dezenove`, `bilhão` and `bilhões`, so a Brazilian slip counts too; the ordinal stems with o, a, os
-or as; the months `janeiro` to `dezembro` and `jan fev abr mai jun jul ago set out nov dez` in any case, and `Mar`
+`dezessete`, `dezenove`, `bilhão`, `bilhões`, `trilhão` and `trilhões`, so a Brazilian slip counts too; the ordinal
+stems with o, a, os or as; the months `janeiro` to `dezembro` and `jan fev abr mai jun jul ago set out nov dez` in any case, and `Mar`
 only capitalised. B is `No gráfico, C teve K queda|quedas de mais de N J% entre Y e Y.`, E is `C1 caiu L.` or
 `C1 caiu L`, any number of `, C L`, then ` e C L.`, with no comma before `e`; C is `a` and the catalogue name for every coin, `o ether` for
 ETH, and C1 the same with its article capitalised, only to open E. Agreement is part of the shape: `A ether caiu`,
 `o Solana` and `a Ether` fail, `a Ethereum` passes.
 
-13. pt-PT's lists close only what they list: `um`, `uma`, `cada`, `todos`, `ambos`, `vários`, `alguns`, `muitos`,
-    `poucos`, `último`, `meio`, `terço`, `década`, a date or amount in words outside the lists (`no verão passado`,
-    `dólares`), lowercase `mar` and `sol` (the ticker kind is case-sensitive) stay prose, as hole 2's English words
-    do.
+13. pt-PT's lists close only what they list: `um`, `uma` (so `uma vez`, English's `once`), `cada`, `todos`,
+    `ambos`, `vários`, `alguns`, `muitos`, `poucos`, `último`, `meio` and `meia` (also 'middle' and 'means'),
+    `terço`, `década` and `semestre` (no English entry names them), `casal` (English's `couple` is `par`), a date or
+    amount in words outside the lists (`no verão passado`, `dólares`), lowercase `mar` and `sol` (the ticker kind is
+    case-sensitive) stay prose, as hole 2's English words do.
 14. Loud false failures in pt-PT: `segundo` ('according to'), `metade` and `primeira` trigger and fail outside B and
-    E, so a section writes `de acordo com`; a capitalised `Mar` at a sentence's start fails («Mar e montanha»).
+    E, so a section writes `de acordo com`; a capitalised `Mar` at a sentence's start fails («Mar e montanha»), and
+    so do `dobra` ('a fold') and `duplicado` ('a duplicate').
+
+The lists walked against English's, 2026-11-17 (the review of the pt-PT Risk honestly found `trilhão` and the
+ordinals from `quadragésimo` to `nonagésimo` missing). Each entry of `CARDINALS`, `ORDINALS` and `OTHERS` now has its
+pt-PT words in `PT_CARDINALS`, `PT_ORDINALS` and `PT_OTHERS`, or stays prose by hole 13. Added: `trilhão` and
+`trilhões`; the ordinal stems `quadragésim`, `quinquagésim`, `sexagésim`, `setuagésim` and `septuagésim`,
+`octogésim`, `nonagésim`, `undécim` and `duodécim` (English's eleventh and twelfth), the hundreds' (`ducentésim` to
+`nongentésim`, as `two hundredth` triggers on `two`), `milionésim` and `bilionésim`; `metades` (`halves`); the
+multiplicatives `duplo` to `cêntuplo` in both genders and numbers (English's `-fold`, `double`, `triple`,
+`quadruple`), `nónuplo` and the Brazilian `nônuplo`; the forms of `dobrar` and of `duplicar` to `centuplicar` that
+English's `doubled`, `doubles`, `tripled` and `quadrupled` name; and `trimestre` (English's `quarter` of a year). Each
+has a sentence outside the shapes in `module-figures-pt.test.ts` that fails on it.
