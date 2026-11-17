@@ -279,6 +279,16 @@ describe('learnPlugins', () => {
       }
     });
 
+    it("says to write a link's words as plain text, and the words alone compile", async () => {
+      const linked = { ...FIXTURE, 'learn/noise.mdx': module('noise', 'See [the plan](/plan) for this.') };
+      await expect(buildLearn(linked)).rejects.toThrow(
+        /noise\.mdx:6: a link is not allowed; write the link's words as plain text \(ADR-0048\)/,
+      );
+      const plain = { ...FIXTURE, 'learn/noise.mdx': module('noise', 'See the plan for this.') };
+      const body = chunks(await buildLearn(plain)).find((chunk) => chunk.code.includes('See the plan for this.'));
+      expect(body?.isDynamicEntry).toBe(true);
+    });
+
     it('an element in the set compiles', async () => {
       const files = { ...FIXTURE, 'learn/noise.mdx': module('noise', 'Text.\n\n<DrawdownsBar />\n') };
       const output = await buildLearn(files, ['DrawdownsBar']);
