@@ -1,7 +1,7 @@
 /// <reference path="../learn-modules.d.ts" />
 import { LEARN_BODIES, LEARN_MODULES, LEARN_TRANSLATIONS } from 'virtual:learn-modules';
 import type { ContentLanguage, LearnModuleMeta } from '@proofofcalm/content';
-import { type ComponentType, lazy, startTransition, use, useEffect, useReducer } from 'react';
+import { type ComponentType, lazy, startTransition, use, useEffect, useState } from 'react';
 import type { BodyElements } from './body-elements';
 
 type Body = ComponentType<{ components: BodyElements }>;
@@ -46,26 +46,31 @@ export function useModuleBody(slug: string, language: ContentLanguage): ShownMod
   const english = ENGLISH.get(slug);
   const load = language === 'en' ? undefined : LEARN_TRANSLATIONS[language]?.[slug];
   const key = `${language}/${slug}`;
+  // The retry's answer is this mount's state, so the render that reads it differs from the one that read the fallback:
+  // the React Compiler caches a block on its inputs, and a module-level Map is none of them.
+  const [retry, setRetry] = useState<{ readonly key: string; readonly promise: Promise<ShownModule> }>();
   let promise: Promise<ShownModule> | undefined;
   if (english !== undefined && load !== undefined) {
-    promise = kept.get(key) ?? translationOf(load, language, english);
-    kept.set(key, promise);
+    if (retry?.key === key) promise = retry.promise;
+    else {
+      promise = kept.get(key) ?? translationOf(load, language, english);
+      kept.set(key, promise);
+    }
   }
   const shown = promise === undefined ? english : use(promise);
-  const [, retried] = useReducer((count: number) => count + 1, 0);
   const fellBack = shown !== undefined && shown.language !== language && load !== undefined;
   useEffect(() => {
     if (!fellBack || promise === undefined || load === undefined || english === undefined) return undefined;
     // The fallback may be one a render left that never committed, so no cleanup dropped it: load once more, keeping
     // English on screen, and drop the fallback when this mount leaves, so the next one loads afresh. A retry whose
-    // effect was cleaned up (an unmount, or StrictMode's second run) neither keeps its answer nor dispatches.
+    // effect was cleaned up (an unmount, or StrictMode's second run) neither keeps its answer nor sets it.
     let cancelled = false;
     if (!kept.has(key)) kept.set(key, promise);
     const again = translationOf(load, language, english);
     void again.then((next) => {
       if (cancelled || next.language !== language) return;
       kept.set(key, again);
-      startTransition(retried);
+      startTransition(() => setRetry({ key, promise: again }));
     });
     return () => {
       cancelled = true;
