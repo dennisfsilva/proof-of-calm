@@ -279,8 +279,12 @@ external links and the Risk link in the mobile export (M3).
   the Noise and When the market drops modules in pt-PT, the FR, IT and NL overlays, the DE and ES
   overlays with Germany's SolZG § 4 check, the review-content skill's figure clause and number
   wording, the cited point with 3 digits, Portugal's English numerals with its 42 baselines, and the
-  last 3 modules in pt-PT. So pt-PT takes 5 build sessions more than #269 planned before German
-  starts. A
+  last 3 modules in pt-PT. On 2026-11-17, #316 split the Learn translation's validation off its
+  loader and gave the facts, the grouped figures and the validation each a fix and two review
+  rounds. Each round found one more case: a dropped pin, a figure shape whose suggestion changes the
+  value, and code that a regex reads unlike the MDX compiler. So none merged, and the four branches
+  move to #318, which comes before #271, with the rest of #316's list. So pt-PT takes 6 build
+  sessions more than #269 planned before German starts. A
   render-and-axe-only pt-PT story run waits for #271, once every namespace is translated. CSV import, free (ADR-0039), for the
   main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
   Republic; Kraken's ledger reader built on 2026-11-13 (#168) and the core's import plan against the
