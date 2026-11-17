@@ -538,6 +538,19 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   `EUR 0.125` (#287, 2026-11-17).
 - An effect that starts a load after commit gets a cancelled flag its cleanup sets, a test under
   `<StrictMode>` and a test that unmounts while the load is pending (#287, 2026-11-17).
+- A branch that drops test pins accounts for every test block of main's version of each file it
+  changes, not only its refusals and limits, and restores by default. #316's first round found
+  main's pins on fact values that literal examples quote, on claims about what screens show and on a
+  module's `chart: none` dropped with nothing in their place, after a list of refusals and limits
+  had passed (2026-11-17).
+- A check's suggested fix is tested on every structure its reader can meet, not only on edge values:
+  a group after the decimal mark, a range, and mixed marks in either order. Four rounds of the
+  grouped-figures check each found one more shape whose suggestion changed the value, and the
+  suggestion's scope went to a design check (#316, #318, 2026-11-17).
+- A check of what a compiler reads, such as an element inside or outside code, compares the
+  compiler's result, never a regex over the source. #316's code remover disagreed with the MDX
+  compiler in both directions on fences and code spans, and the lesson above on emulating a stricter
+  reader was not in its brief (2026-11-17).
 - Before naming a new session, read the tracker's whole session list and take the next free letter
   (#287, 2026-11-17).
 
