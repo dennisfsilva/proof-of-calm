@@ -15,6 +15,7 @@ import { changedTexts, isOverlayFile, overlayFileProblems, type TextChecks } fro
 import { moduleProblems } from './modules-validate.ts';
 import { monthsBefore } from './months.ts';
 import { paragraphsOf } from './paragraphs.ts';
+import { percentTokenProblems } from './percent-token.ts';
 import { languagePercentProblems, localeProblems } from './percent-validate.ts';
 import { bannedProblems, type Problem, schemaProblems } from './problem.ts';
 import { profileTextProblems, profileTexts, summaryProblems } from './profile-texts.ts';
@@ -258,9 +259,10 @@ function template(file: ContentFile, catalogue: Catalogue | null, options: Valid
 const templateTexts = (value: ContentTemplate) =>
   (['name', 'oneLine', 'riskLabel', 'explanation'] as const).map((field): [string, string] => [field, value[field]]);
 
-/** The explanation's paragraphs first, then the ban list and the no-break hyphen on each text, then its dates. */
+/** The explanation's paragraphs and percentages first, then the ban list and the no-break hyphen, then the dates. */
 const templateTextProblems = (path: string, value: ContentTemplate, texts: readonly [string, string][]): Problem[] => [
   ...texts.flatMap(([field, text]) => (field === 'explanation' ? paragraphProblems(path, field, text) : [])),
+  ...texts.flatMap(([field, text]) => (field === 'explanation' ? percentTokenProblems(path, field, text) : [])),
   ...texts.flatMap(([field, text]) => [...bannedProblems(path, field, text), ...hyphenProblems(path, field, text)]),
   ...templateDateProblems(path, value, texts),
 ];

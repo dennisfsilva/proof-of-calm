@@ -11,6 +11,7 @@ export type { LearnModule, LearnModuleMeta } from './loaders/modules.ts';
 export * from './loaders/rules.ts';
 export * from './loaders/templates.ts';
 export { paragraphsOf } from './paragraphs.ts';
+export { formatPercentTokens } from './percent-token.ts';
 export * from './schema/coin.ts';
 export * from './schema/common.ts';
 export * from './schema/cycles.ts';

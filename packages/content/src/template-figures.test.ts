@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import allowList from '../sources.allow.json' with { type: 'json' };
 import { sentencesOf, shapeOf } from './template-figures.ts';
@@ -51,9 +51,6 @@ describe('templateFigureProblems: the closed shapes pass (the judge’s must-pas
     `Solana fell 97 % ${D('SOL')}.`,
     'From its high on {date:drawdowns.SOL.high} to its low on {date:drawdowns.SOL.low}, Solana fell 97 %.',
     `Solana fell more than 96 % ${D('SOL')}.`,
-    `Solana fell 97% ${D('SOL')}.`,
-    `Solana fell 97 % ${D('SOL')}.`,
-    `Solana fell 97 % ${D('SOL')}.`,
     `Solana fell −97 % ${D('SOL')}.`,
     'It splits each monthly amount 40 % Bitcoin, 30 % Ethereum, 15 % Solana, and 15 % Chainlink.',
     'What can go wrong: 15 % of every amount goes into Solana.',
@@ -284,6 +281,56 @@ describe('the check reads the paragraphs the app renders: paragraphsOf (round 5 
     const problems = run('Solana fell 15 per\ncent.');
     expect(problems.map(({ code }) => code)).toEqual(['figure-unclassed']);
     expect(problems[0]?.detail).not.toContain('spans');
+  });
+});
+
+describe('a percentage is the one token the app formats: N, an ordinary space, % (25r G)', () => {
+  // Before 25r the shapes took U+00A0, U+202F or nothing before "%", which the template step showed unformatted.
+  const OTHER = [
+    ['U+00A0', String.fromCodePoint(0xa0)],
+    ['U+202F', String.fromCodePoint(0x202f)],
+    ['no joiner', ''],
+  ];
+  const OVERLAY = 'packages/content/i18n/pt-PT/templates/four.json';
+  const english = { path: PATH, json: four('Bitcoin: 40 % of each amount.') };
+  const translated = (explanation: string) =>
+    validateContent([english, { path: OVERLAY, json: { explanation } }], options)
+      .filter((problem) => problem.path === OVERLAY && problem.code === 'percent-token')
+      .map((problem) => problem.code);
+
+  it.each(OTHER)('refuses %s before "%" in an English explanation, in a share and in a fall', (_, joiner) => {
+    const all = (explanation: string) => validateContent([{ path: PATH, json: four(explanation) }], options);
+    const share = all(`Bitcoin: 40${joiner}% of each amount.`).map(({ code }) => code);
+    expect(share).toEqual(['percent-token', 'figure-unclassed']);
+    const fall = all(`Solana fell 97${joiner}% ${D('SOL')}.`).map(({ code }) => code);
+    expect(fall).toEqual(['percent-token', 'figure-form']);
+  });
+
+  it.each(OTHER)('refuses %s before "%" in a pt-PT overlay', (_, joiner) => {
+    expect(translated(`Bitcoin: 40${joiner}% de cada montante.`)).toEqual(['percent-token']);
+  });
+
+  it('accepts the ordinary space, in English and in a pt-PT overlay', () => {
+    expect(run('Bitcoin: 40 % of each amount.')).toEqual([]);
+    expect(validateContent([english], options)).toEqual([]);
+    expect(translated('Bitcoin: 40 % de cada montante.')).toEqual([]);
+  });
+
+  it('passes every live template and its overlays', () => {
+    const files = [...LIVE.map((name) => ({ path: `packages/content/templates/${name}`, json: live(name) }))];
+    const overlays = readdirSync(new URL('../i18n/', import.meta.url)).flatMap((language) =>
+      LIVE.map((name) => ({ language, name, url: new URL(`../i18n/${language}/templates/${name}`, import.meta.url) })),
+    );
+    for (const { language, name, url } of overlays) {
+      if (!existsSync(url)) continue;
+      files.push({
+        path: `packages/content/i18n/${language}/templates/${name}`,
+        json: JSON.parse(readFileSync(url, 'utf8')),
+      });
+    }
+    expect(files.length).toBeGreaterThan(LIVE.length);
+    const ours = validateContent(files, options).filter(({ code }) => code === 'percent-token');
+    expect(ours).toEqual([]);
   });
 });
 
