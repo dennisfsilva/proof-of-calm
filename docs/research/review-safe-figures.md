@@ -391,7 +391,8 @@ missing. Each round had found one more form, so the verbs now close by stem: `do
 `centupl` (`septupl` and `setupl`, `octupl` and `nonupl` among them) before `ic` or `iqu` (the subjunctive's
 `duplique`), at a word's start and followed by any letters, so every tense, the participle, the
 subjunctive and the nouns (`dobro`, `duplicação`) trigger. `terço` and `terços` joined. The other entries walked
-again for a pt-PT verb or a noun with inflections: the plurals of the cardinals and ordinals were listed already,
+again for a pt-PT verb or a noun with inflections: the plurals of the ordinals were listed already (the cardinals'
+noun plurals joined later, in the last row of the table below),
 `quarter` is the ordinal `quarto` or `trimestre`, `halved` has no pt-PT verb (hole 13), and `couple` and `pair`
 are `par` and `pares`; the rest stay prose by hole 13. A test gives each stem's infinitive, present, preterite,
 imperfect, future, conditional, participle and subjunctive its code, and the live translation still gives none.
@@ -415,3 +416,4 @@ unsure. Each variant joined the list or is left out with its reason below. A sen
 | `dobrar`, `metade`, `terço`, `par`, `pares`, `trimestre` | none | one spelling in every norm |
 | `por cento` | `porcentagem`, `porcentagens`, `porcentual` and `porcentuais` (Brazil; Priberam) | none: `porcento` matched already, and `percentagem` and `percentual` trigger on English's `per cent` |
 | The months and their short forms | none | one spelling in every norm; Portugal capitalised them before 1990 (`Janeiro`), which any case covers |
+| The cardinals' noun plurals, as English's `CARDINALS` take `s` (`sevens`) | `quatros`, `cincos`, `setes`, `oitos`, `noves`, `dezes`, `onzes`, `dozes`, `trezes`, `catorzes`, `quatorzes`, `quinzes`, `dezassetes`, `dezessetes`, `dezoitos`, `dezanoves`, `dezenoves`, `vintes`, the decades `trintas` to `noventas` with `cinqüentas` (also English's `thirties` to `nineties`), `centos` and `mis` (Priberam's plural of `mil`); `dozes` and `quatorzes` have no Priberam page, but `doze` and `quatorze` are nouns with a regular plural | `seises`, `dezasseises` and `dezesseises`: Priberam gives `seis`, `dezasseis` and `dezesseis` as nouns `de dois números`, already listed; `cens`: Priberam gives `cem` no plural; `zeros` triggers on English's `zero` already; `dois`, `duas` and `três` are plural in form; never `uns` or `umas`, which the prose needs as it needs `um` |
