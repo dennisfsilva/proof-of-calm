@@ -8,7 +8,7 @@ import { chunkGroups, noChunkCycles } from './chunk-groups.ts';
 import { chunkReport } from './chunk-report-plugin.ts';
 import { clientNeverImportsServer } from './client-never-imports-server.ts';
 import { fontPreloadPlugin } from './font-preload-plugin.ts';
-import { learnPlugins, MODULE_BODY_ELEMENTS, type ParseModule } from './learn-plugin.ts';
+import { LEARN_META_ID, learnPlugins, MODULE_BODY_ELEMENTS, type ParseModule } from './learn-plugin.ts';
 import { precompileMessagesPlugin } from './precompile-messages-plugin.ts';
 
 export type Host = 'web' | 'mobile';
@@ -46,13 +46,18 @@ const TRANSLATED_MESSAGES = /[\\/]messages[\\/]([A-Za-z]{2}(?:-[A-Za-z]{2})?)[\\
 const TRANSLATED_CONTENT =
   /[\\/]content[\\/](?:rules|i18n)[\\/]([A-Za-z]{2}(?:-[A-Za-z]{2})?)[\\/](?:[a-z]+[\\/])?[^\\/]+\.(?:json|mdx)$/;
 
+/** A language's Learn metadata module, `virtual:learn-meta/<language>` (ADR-0048's Deviations). */
+const TRANSLATED_META = new RegExp(`^\\0${LEARN_META_ID}([A-Za-z]{2}(?:-[A-Za-z]{2})?)$`);
+
 /**
- * Vite's chunk name, but a chunk of another language's messages or content goes under
+ * Vite's chunk name, but a chunk of another language's messages or content, its Learn metadata included, goes under
  * `assets/messages/<locale>/`, which the worker's precache leaves out (ADR-0045 §8, the entries of
  * 2026-11-15 and 2026-11-16): a hidden language's files would otherwise reach every install.
  */
 function chunkFileNames(chunk: Rolldown.PreRenderedChunk): string {
   const id = chunk.facadeModuleId ?? '';
+  const meta = TRANSLATED_META.exec(id)?.[1];
+  if (meta !== undefined && meta !== 'en') return `assets/messages/${meta}/learn-meta-[hash].js`;
   const locale = (TRANSLATED_MESSAGES.exec(id) ?? TRANSLATED_CONTENT.exec(id))?.[1];
   return locale === undefined || locale === 'en'
     ? 'assets/[name]-[hash].js'

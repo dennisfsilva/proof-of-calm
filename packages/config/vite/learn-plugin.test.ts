@@ -7,6 +7,7 @@ import { buildFixtureBundle, type FixtureBuildOptions, type FixtureFiles } from 
 import { createHostConfig } from './host-config.ts';
 import {
   checkModuleBody,
+  LEARN_META_ID,
   LEARN_MODULES_ID,
   learnPlugins,
   MODULE_BODY_ELEMENTS,
@@ -146,23 +147,32 @@ describe('learnPlugins', () => {
     const WITH_TRANSLATION: FixtureFiles = {
       ...FIXTURE,
       'main.js': [
-        "import { LEARN_MODULES, LEARN_TRANSLATIONS } from 'virtual:learn-modules';",
+        "import { LEARN_META, LEARN_MODULES, LEARN_TRANSLATIONS } from 'virtual:learn-modules';",
         'console.log(LEARN_MODULES);',
-        "LEARN_TRANSLATIONS['pt-PT'].noise().then((m) => console.log(m.meta, m.default));",
+        "LEARN_TRANSLATIONS['pt-PT'].noise().then((m) => console.log(m.default));",
+        "LEARN_META['pt-PT']().then((m) => console.log(m.default));",
       ].join('\n'),
       'i18n/pt-PT/learn/noise.mdx': translation('noise', `# Ruído\n\n${TRANSLATED_PHRASE}, e nada para vigiar.`),
     };
 
-    it("builds into LEARN_TRANSLATIONS['pt-PT'].noise, its meta in its own chunk", async () => {
+    it("builds into LEARN_TRANSLATIONS['pt-PT'].noise, with no metadata in the body's chunk", async () => {
       const output = await buildLearn(WITH_TRANSLATION);
       const body = chunks(output).find((chunk) => chunk.code.includes(TRANSLATED_PHRASE));
       expect(body?.isDynamicEntry).toBe(true);
       expect(body?.facadeModuleId).toMatch(/i18n[\\/]pt-PT[\\/]learn[\\/]noise\.mdx$/);
+      for (const text of ['Quase tudo', 'reviewedBy', 'export const meta']) expect(body?.code).not.toContain(text);
+    });
+
+    it("builds LEARN_META['pt-PT'] into a chunk of its own, every translated slug's metadata and no body", async () => {
+      const output = await buildLearn(WITH_TRANSLATION);
+      const meta = chunks(output).find((chunk) => chunk.facadeModuleId === `\0${LEARN_META_ID}pt-PT`);
+      expect(meta?.isDynamicEntry).toBe(true);
       // The English module's front matter under the translated texts, its reading time from the translation's words.
-      expect(body?.code).toMatch(/title"?: ?"Ruído"/);
-      expect(body?.code).toMatch(/idea"?: ?"Quase tudo é ruído."/);
-      expect(body?.code).toMatch(/reviewedBy"?: ?"owner"/);
-      expect(body?.code).not.toContain('slug: noise');
+      expect(meta?.code).toMatch(/noise"?: ?\{[^}]*title"?: ?"Ruído"/);
+      expect(meta?.code).toMatch(/idea"?: ?"Quase tudo é ruído."/);
+      expect(meta?.code).toMatch(/reviewedBy"?: ?"owner"/);
+      expect(meta?.code).not.toContain(TRANSLATED_PHRASE);
+      expect(meta?.code).not.toContain('slug: noise');
     });
 
     // A link names a section by the id its English heading's words make, so a translated h2 takes the English text
@@ -204,8 +214,8 @@ describe('learnPlugins', () => {
       const entry = entryOf(await buildLearn(WITH_TRANSLATION));
       expect(entry.code).toMatch(/title"?: ?"noise title"/);
       for (const text of [TRANSLATED_PHRASE, 'Ruído', 'Quase tudo']) expect(entry.code).not.toContain(text);
-      // The two English bodies and the one translation, each its own lazy chunk.
-      expect(entry.dynamicImports).toHaveLength(3);
+      // The two English bodies, the one translation and pt-PT's metadata, each its own lazy chunk.
+      expect(entry.dynamicImports).toHaveLength(4);
     });
 
     it('fails the build at the line of an element outside the set', async () => {
@@ -221,16 +231,17 @@ describe('learnPlugins', () => {
       await expect(buildLearn(keyed)).rejects.toThrow(/noise\.mdx.*chart/s);
     });
 
-    it('a build with no translations folder emits an empty LEARN_TRANSLATIONS', async () => {
+    it('a build with no translations folder emits an empty LEARN_TRANSLATIONS and LEARN_META', async () => {
       const files: FixtureFiles = {
         ...FIXTURE,
         'main.js': [
-          "import { LEARN_MODULES, LEARN_TRANSLATIONS } from 'virtual:learn-modules';",
-          'console.log(LEARN_MODULES, LEARN_TRANSLATIONS);',
+          "import { LEARN_META, LEARN_MODULES, LEARN_TRANSLATIONS } from 'virtual:learn-modules';",
+          'console.log(LEARN_MODULES, LEARN_TRANSLATIONS, LEARN_META);',
         ].join('\n'),
       };
       const entry = entryOf(await buildLearn(files));
       expect(entry.code).toMatch(/LEARN_TRANSLATIONS = Object\.freeze\(\{\s*\}\)/);
+      expect(entry.code).toMatch(/LEARN_META = Object\.freeze\(\{\s*\}\)/);
       expect(entry.dynamicImports).toHaveLength(2);
     });
   });
@@ -590,6 +601,13 @@ describe('learnPlugins under the dev server', () => {
       const translation = async () =>
         (await dev.environments.client.transformRequest('/i18n/pt-PT/learn/noise.mdx'))?.code;
       const headingOf = async () => /sourceHeading"?: ?"([^"]*)"/.exec((await translation()) ?? '')?.[1];
+      /** The reviewer pt-PT's metadata module carries for noise, or undefined while it fails to load. */
+      const reviewerOf = async () => {
+        const code = await dev.environments.client
+          .transformRequest(`${LEARN_META_ID}pt-PT`)
+          .then((result) => result?.code, () => undefined);
+        return /noise"?: ?\{[^}]*reviewedBy"?: ?"([^"]*)"/.exec(code ?? '')?.[1];
+      };
       // The page loads the list of modules first, then the translation's chunk.
       await dev.environments.client.transformRequest(LEARN_MODULES_ID);
       expect(await headingOf()).toBe('Why some people hold');
@@ -615,17 +633,17 @@ describe('learnPlugins under the dev server', () => {
           dev.watcher.off('change', listener);
         }
       };
-      /** The server invalidates a few ticks after the watcher's event: reads again while the heading is `from`, 1 s at most. */
-      const headingAfter = async (from: string | undefined) => {
+      /** The server invalidates a few ticks after the watcher's event: reads again while the value is `from`, 1 s at most. */
+      const after = (read: () => Promise<string | undefined>) => async (from: string | undefined) => {
         const deadline = Date.now() + 1_000;
-        let heading = await headingOf();
-        while (heading === from && Date.now() < deadline) {
+        let value = await read();
+        while (value === from && Date.now() < deadline) {
           await new Promise((resolve) => setTimeout(resolve, 25));
-          heading = await headingOf();
+          value = await read();
         }
-        return heading;
+        return value;
       };
-      return { close, translation, writeEnglish, headingAfter };
+      return { close, translation, writeEnglish, headingAfter: after(headingOf), reviewerAfter: after(reviewerOf) };
     } catch (error) {
       await close();
       throw error;
@@ -651,6 +669,26 @@ describe('learnPlugins under the dev server', () => {
       expect(await dev.translation()).toContain('Porque se mantém');
       await dev.writeEnglish(module('noise', '# Noise\n\n## Why people hold\n\nText.'));
       expect(await dev.headingAfter(undefined)).toBe('Why people hold');
+    } finally {
+      await dev.close();
+    }
+  });
+
+  // A translation's metadata is the English front matter under the translated texts, so an English edit changes it:
+  // virtual:learn-meta/<language> is built by the pass that builds LEARN_MODULES and watches the same files.
+  it("serves a translation's metadata fresh after an English edit, a save that does not parse and the fix", async () => {
+    const dev = await startDev();
+    const english = (reviewer: string) =>
+      module('noise', '# Noise\n\n## Why some people hold\n\nText.').replace('reviewedBy: owner', `reviewedBy: ${reviewer}`);
+    try {
+      expect(await dev.reviewerAfter(undefined)).toBe('owner');
+      await dev.writeEnglish(english('agent-draft'));
+      expect(await dev.reviewerAfter('owner')).toBe('agent-draft');
+      // Saved mid-edit without its front matter: the metadata fails to load, as the list of modules does.
+      await dev.writeEnglish('# Noise\n\n## Why some people hold\n\nText.\n');
+      expect(await dev.reviewerAfter('agent-draft')).toBeUndefined();
+      await dev.writeEnglish(english('counsel'));
+      expect(await dev.reviewerAfter(undefined)).toBe('counsel');
     } finally {
       await dev.close();
     }

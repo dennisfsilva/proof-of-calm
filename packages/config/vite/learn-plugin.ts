@@ -30,11 +30,15 @@ export type LearnPluginOptions = {
 };
 
 /**
- * The id a host imports: `LEARN_MODULES` (metadata, in slug order), `LEARN_BODIES` (a lazy import per slug) and
- * `LEARN_TRANSLATIONS` (per language, a lazy import per slug of the translated body with its `meta`).
+ * The id a host imports: `LEARN_MODULES` (metadata, in slug order), `LEARN_BODIES` (a lazy import per slug),
+ * `LEARN_TRANSLATIONS` (per language, a lazy import per slug of the translated body) and `LEARN_META` (per language,
+ * a lazy import of `LEARN_META_ID` + the language).
  */
 export const LEARN_MODULES_ID = 'virtual:learn-modules';
 const RESOLVED_ID = `\0${LEARN_MODULES_ID}`;
+/** The prefix of a language's metadata module, `virtual:learn-meta/<language>`: its default export maps slug to meta. */
+export const LEARN_META_ID = 'virtual:learn-meta/';
+const RESOLVED_META = `\0${LEARN_META_ID}`;
 
 // docs/EDUCATION.md §10's slug order; the schema in packages/content/src/schema/module.ts validates the slugs.
 const SLUG_ORDER = [
@@ -240,58 +244,80 @@ const slashed = (path: string) => path.replaceAll('\\', '/');
 const importOf = (slug: string, file: string) =>
   `${JSON.stringify(slug)}: () => import(${JSON.stringify(slashed(file))})`;
 
-/** The translated metadata by file, which the virtual module fills and the compiler appends as `meta`. */
-type MetaOf = Map<string, Omit<ParsedModule, 'body'>>;
+type Meta = Omit<ParsedModule, 'body'>;
+type Read = { readonly slug: string; readonly file: string; readonly meta: Meta };
+type LoadContext = { addWatchFile(file: string): void; error(message: string): never };
 
 const translationsOf = (options: LearnPluginOptions) => options.translations ?? join(dirname(options.dir), 'i18n');
+const problems = (file: string, error: readonly ParseProblem[]) =>
+  error.map((problem) => `${file}: ${problem.detail}`).join('\n');
 
-const modulesPlugin = (options: LearnPluginOptions, metaOf: MetaOf): Plugin => ({
+/**
+ * Every English module in slug order and every translation by language, each file read, parsed and watched: one pass
+ * that both virtual modules load from, so a translation's metadata is as fresh as the list under `pnpm dev`.
+ */
+async function readModules(context: LoadContext, options: LearnPluginOptions) {
+  const modules: Read[] = [];
+  // The slug keys `LEARN_BODIES`: two files with one slug would leave one body unreachable in silence.
+  const fileOf = new Map<string, string>();
+  const sourceOf = new Map<string, string>();
+  // `dir` is read here, when the build runs, not when the plugin is made.
+  for (const file of await listModules(options.dir)) {
+    context.addWatchFile(file);
+    const source = await readFile(file, 'utf8');
+    const parsed = options.parseModule(file, source);
+    if (!parsed.ok) return context.error(problems(file, parsed.error));
+    const { body: _body, ...meta } = parsed.value;
+    const other = fileOf.get(meta.slug);
+    if (other !== undefined) {
+      const names = [other, file].map((path) => relative(options.dir, path)).join(' and ');
+      return context.error(`${names} both carry the slug ${meta.slug}; one module per slug (ADR-0048)`);
+    }
+    fileOf.set(meta.slug, file);
+    sourceOf.set(meta.slug, source);
+    modules.push({ slug: meta.slug, file, meta });
+  }
+  modules.sort((a, b) => rank(a.slug) - rank(b.slug) || a.slug.localeCompare(b.slug));
+  const languages = new Map<string, Read[]>();
+  for (const { language, file, source } of await listTranslations(translationsOf(options))) {
+    context.addWatchFile(file);
+    const translated = translatedSource(source, (slug) => sourceOf.get(slug));
+    if (typeof translated === 'string') return context.error(`${file}: ${translated}`);
+    const parsed = options.parseModule(file, translated.source);
+    if (!parsed.ok) return context.error(problems(file, parsed.error));
+    const { body: _body, ...meta } = parsed.value;
+    languages.set(language, [...(languages.get(language) ?? []), { slug: translated.slug, file, meta }]);
+  }
+  return { modules, languages };
+}
+
+const lazyObject = (entries: readonly string[]) => `Object.freeze({ ${entries.join(', ')} })`;
+
+const modulesPlugin = (options: LearnPluginOptions): Plugin => ({
   name: 'poc:learn-modules',
   resolveId(id) {
-    return id === LEARN_MODULES_ID ? RESOLVED_ID : undefined;
+    if (id === LEARN_MODULES_ID) return RESOLVED_ID;
+    return id.startsWith(LEARN_META_ID) ? `\0${id}` : undefined;
   },
   async load(id) {
-    if (id !== RESOLVED_ID) return;
-    const modules: { readonly meta: Omit<ParsedModule, 'body'>; readonly file: string }[] = [];
-    // The slug keys `LEARN_BODIES`: two files with one slug would leave one body unreachable in silence.
-    const fileOf = new Map<string, string>();
-    const sourceOf = new Map<string, string>();
-    // `dir` is read here, when the build runs, not when the plugin is made.
-    for (const file of await listModules(options.dir)) {
-      this.addWatchFile(file);
-      const source = await readFile(file, 'utf8');
-      const parsed = options.parseModule(file, source);
-      if (!parsed.ok) return this.error(parsed.error.map((problem) => `${file}: ${problem.detail}`).join('\n'));
-      const { body: _body, ...meta } = parsed.value;
-      const other = fileOf.get(meta.slug);
-      if (other !== undefined) {
-        const names = [other, file].map((path) => relative(options.dir, path)).join(' and ');
-        return this.error(`${names} both carry the slug ${meta.slug}; one module per slug (ADR-0048)`);
-      }
-      fileOf.set(meta.slug, file);
-      sourceOf.set(meta.slug, source);
-      modules.push({ meta, file });
-    }
-    modules.sort((a, b) => rank(a.meta.slug) - rank(b.meta.slug) || a.meta.slug.localeCompare(b.meta.slug));
-    const bodies = modules.map(({ meta, file }) => importOf(meta.slug, file));
-    const languages = new Map<string, string[]>();
-    for (const { language, file, source } of await listTranslations(translationsOf(options))) {
-      this.addWatchFile(file);
-      const translated = translatedSource(source, (slug) => sourceOf.get(slug));
-      if (typeof translated === 'string') return this.error(`${file}: ${translated}`);
-      const parsed = options.parseModule(file, translated.source);
-      if (!parsed.ok) return this.error(parsed.error.map((problem) => `${file}: ${problem.detail}`).join('\n'));
-      const { body: _body, ...meta } = parsed.value;
-      metaOf.set(slashed(file), meta);
-      languages.set(language, [...(languages.get(language) ?? []), importOf(translated.slug, file)]);
+    if (id !== RESOLVED_ID && !id.startsWith(RESOLVED_META)) return;
+    const { modules, languages } = await readModules(this, options);
+    if (id !== RESOLVED_ID) {
+      // A language's translated metadata, by slug, in a chunk of its own: never in the entry, nor in a body's chunk.
+      const read = languages.get(id.slice(RESOLVED_META.length)) ?? [];
+      return `export default Object.freeze(${JSON.stringify(Object.fromEntries(read.map((t) => [t.slug, t.meta])))});\n`;
     }
     const translations = [...languages].map(
-      ([language, imports]) => `${JSON.stringify(language)}: Object.freeze({ ${imports.join(', ')} })`,
+      ([language, read]) => `${JSON.stringify(language)}: ${lazyObject(read.map((t) => importOf(t.slug, t.file)))}`,
+    );
+    const metas = [...languages.keys()].map(
+      (language) => `${JSON.stringify(language)}: () => import(${JSON.stringify(`${LEARN_META_ID}${language}`)})`,
     );
     return [
       `export const LEARN_MODULES = Object.freeze(${JSON.stringify(modules.map((module) => module.meta))});`,
-      `export const LEARN_BODIES = Object.freeze({ ${bodies.join(', ')} });`,
-      `export const LEARN_TRANSLATIONS = Object.freeze({ ${translations.join(', ')} });`,
+      `export const LEARN_BODIES = ${lazyObject(modules.map(({ slug, file }) => importOf(slug, file)))};`,
+      `export const LEARN_TRANSLATIONS = ${lazyObject(translations)};`,
+      `export const LEARN_META = ${lazyObject(metas)};`,
       '',
     ].join('\n');
   },
@@ -303,7 +329,6 @@ const modulesPlugin = (options: LearnPluginOptions, metaOf: MetaOf): Plugin => (
  * The host puts them before `react()`.
  */
 export function learnPlugins(options: LearnPluginOptions): PluginOption[] {
-  const metaOf: MetaOf = new Map();
   const closed = closedBody(options.elements ?? []);
   const compile = mdx({ remarkPlugins: [closed] });
   let development = false;
@@ -332,14 +357,8 @@ export function learnPlugins(options: LearnPluginOptions): PluginOption[] {
       if (result === undefined) return null;
       const { map } = result;
       const plain = typeof map === 'object' && map !== null && 'mappings' in map ? map : null;
-      // A translation's metadata rides in its own chunk, after the body, so no line of the body moves.
-      const meta = metaOf.get(slashed(path));
-      const compiled =
-        meta === undefined
-          ? result.code
-          : `${result.code}\nexport const meta = Object.freeze(${JSON.stringify(meta)});\n`;
-      return { code: compiled, map: typeof map === 'string' ? map : plain };
+      return { code: result.code, map: typeof map === 'string' ? map : plain };
     },
   };
-  return [frontMatterPlugin(), compiler, modulesPlugin(options, metaOf)];
+  return [frontMatterPlugin(), compiler, modulesPlugin(options)];
 }
