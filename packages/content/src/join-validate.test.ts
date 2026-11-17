@@ -93,6 +93,10 @@ describe('a currency code or a form name joined to its figure (docs/CONTENT-STYL
     ]);
   });
 
+  it('skips the file-only lotRuleNote, as the no-break hyphen does: a file does not wrap', () => {
+    expect(joinProblems(path, [['lotRuleNote', 'No sale is matched: box 3 taxes 100 EUR held.']])).toEqual([]);
+  });
+
   it('runs on a profile in English and on a translated profile', () => {
     const profile = load('jurisdictions/es.json');
     const codes = (problems: readonly { code: string }[]) => problems.map(({ code }) => code);

@@ -2,6 +2,7 @@
 // (docs/CONTENT-STYLE.md §4), for percent-validate.ts. Pure; relative imports name their .ts files, so that Node runs
 // the CLI without a build step.
 import type { Problem } from './problem.ts';
+import { FILE_ONLY_PROFILE_TEXT } from './profile-texts.ts';
 
 const NBSP = String.fromCodePoint(0xa0);
 // Any white space but the no-break space: an ordinary space, a tab, a line break, a narrow no-break space.
@@ -37,11 +38,12 @@ const typed = (text: string) => JSON.stringify(text).replaceAll(NBSP, `${String.
 /**
  * Each currency code and its figure (`EUR 20 350`, `100 USD`) and each form's name and its number (`Modelo 721`,
  * `Anexo G`) in `texts` joined by anything but U+00A0, so that a line can break between them (docs/CONTENT-STYLE.md
- * §4). The detail names the pair and the space between them, never a text to write.
+ * §4), but in the file-only text, which does not wrap. The detail names the pair and the space between them, never a
+ * text to write.
  */
 export function joinProblems(path: string, texts: readonly [string, string][]): Problem[] {
   return texts.flatMap(([field, text]) =>
-    [...text.matchAll(JOINS)].map((match): Problem => {
+    [...(field === FILE_ONLY_PROFILE_TEXT ? [] : text.matchAll(JOINS))].map((match): Problem => {
       const [
         ,
         codeBefore,

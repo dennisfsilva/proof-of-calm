@@ -619,7 +619,8 @@ describe('TaxYearExport', () => {
       for (const dropped of ['matched', 'eligible_from', 'per venue']) {
         expect(header).not.toContain(dropped);
       }
-      // A profile joins a form name to its number with U+00A0 (docs/CONTENT-STYLE.md §4).
+      // Any space: a shown text joins a form name to its number with U+00A0, the file-only lotRuleNote with U+0020
+      // (docs/CONTENT-STYLE.md §4).
       expect(header).not.toMatch(/box\s3/i);
       expect(header).not.toContain('Check figures before any tax or financial use');
     }

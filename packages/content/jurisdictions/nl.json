@@ -15,7 +15,7 @@
   "holdingRuleConditions": [],
   "lotRule": "unspecified",
   "lotScope": "global",
-  "lotRuleNote": "No sale is matched to a purchase: box\u00a03 taxes the value held on 1 January, not the result of a sale.",
+  "lotRuleNote": "No sale is matched to a purchase: box 3 taxes the value held on 1 January, not the result of a sale.",
   "card": {
     "classification": "Box\u00a03: crypto counts among your assets at its value on 1 January. A deemed return on that value is taxed, not what a sale makes. When extra work beyond investing often earns you extra income, that income is declared.",
     "taxableEvents": [

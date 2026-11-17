@@ -446,9 +446,10 @@ A numeral joined to its unit by a hyphen (`90‑day`, `365‑day`) never breaks 
 no-break hyphen U+2011 between them (`\u2011` in a JSON string, the character itself in a module): messages, modules
 (title, idea, caveat and body), every profile text the app shows, a template's name, one-line summary, risk label
 and explanation, and a coin's name in the catalogue; `pnpm validate:content` refuses an ordinary
-hyphen there (`number-unit-hyphen`). Text only a downloaded file carries keeps U+002D, since a file does not wrap and
-its reader searches it as typed: the tax-year file's lines (the `settings` messages under `data.taxYear.file`) and a
-profile's `lotRuleNote`. A holding condition shows on screens and the file copies it as written, so it takes U+2011.
+hyphen there (`number-unit-hyphen`). Text only a downloaded file carries keeps U+002D and the ordinary space U+0020
+beside a code or a form's name, since a file does not wrap and its reader searches it as typed: the tax-year file's
+lines (the `settings` messages under `data.taxYear.file`) and a profile's `lotRuleNote`, which `figure-join` skips
+(decided 2026-11-17). A holding condition shows on screens and the file copies it as written, so it takes U+2011.
 Facts and documents keep U+002D, and a document quotes copy with it.
 
 ## 5. Education modules
