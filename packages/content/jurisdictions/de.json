@@ -8,7 +8,7 @@
   "dateFormatLocale": "de-DE",
   "timezones": ["Europe/Berlin", "Europe/Busingen"],
   "taxYear": { "start": "01-01", "end": "12-31" },
-  "filingNote": "Calendar tax year. The return for 2026 is due on 31 July 2027 (29 February 2028 with an adviser), filed through ELSTER.",
+  "filingNote": "Calendar tax year. The return for 2026 is due on 31\u00a0July\u00a02027 (29\u00a0February\u00a02028 with an adviser), filed through ELSTER.",
   "computationModel": { "kind": "per-lot" },
   "holdingRule": { "kind": "years", "years": 1, "effect": "exempt" },
   "holdingRuleOverrides": [],
@@ -20,7 +20,7 @@
   "lotScope": "per-venue",
   "lotRuleNote": "Per wallet: the BMF accepts first in, first out or individual identification, elected per wallet and per crypto-asset and applied consistently, with average cost as the fallback (medium-high confidence).",
   "card": {
-    "classification": "A private sale (§ 23(1) sentence 1 no. 2 EStG) taxed at the personal progressive rate, not the flat Abgeltungsteuer; staking and lending rewards under § 22 no. 3 EStG. Basis: BMF-Schreiben of 6 March 2025; BFH IX R 3/22 of 14 February 2023.",
+    "classification": "A private sale (§\u00a023(1) sentence\u00a01 no.\u00a02 EStG) taxed at the personal progressive rate, not the flat Abgeltungsteuer; staking and lending rewards under §\u00a022 no.\u00a03 EStG. Basis: BMF-Schreiben of 6\u00a0March\u00a02025; BFH IX R 3/22 of 14\u00a0February\u00a02023.",
     "taxableEvents": [
       {
         "event": "sale-to-fiat",
@@ -50,24 +50,24 @@
       {
         "event": "gift-or-inheritance",
         "taxable": "depends",
-        "note": "No income tax; gift or inheritance tax may apply; the recipient steps into the acquisition date and cost of the giver (§ 23(1) sentence 3 EStG)."
+        "note": "No income tax; gift or inheritance tax may apply; the recipient steps into the acquisition date and cost of the giver (§\u00a023(1) sentence\u00a03 EStG)."
       },
       {
         "event": "staking-or-airdrop",
         "taxable": "yes",
-        "note": "§ 22 no. 3 income at receipt (Freigrenze EUR\u00a0256); passive staking or lending does not extend the holding period to 10\u00a0years (BMF 2022 and 2025)."
+        "note": "§\u00a022 no.\u00a03 income at receipt (Freigrenze EUR\u00a0256); passive staking or lending does not extend the holding period to 10\u00a0years (BMF\u00a02022 and 2025)."
       }
     ],
     "rates": [
       {
-        "label": "Personal income tax (§ 32a EStG)",
-        "value": "0–45\u00a0% by taxable income (2026 tariff)",
+        "label": "Personal income tax (§\u00a032a EStG)",
+        "value": "0–\u206045\u00a0% by taxable income (2026 tariff)",
         "validFrom": "2026-01-01",
         "validTo": null,
         "note": "0\u00a0% up to EUR\u00a012\u00a0348; 14\u00a0% rising to 42\u00a0% at EUR\u00a069\u00a0879; 45\u00a0% from EUR\u00a0277\u00a0826."
       },
       {
-        "label": "Solidarity surcharge (§ 3 SolZG 1995)",
+        "label": "Solidarity surcharge (§\u00a03 SolZG\u00a01995)",
         "value": "5,5\u00a0% of the income tax",
         "validFrom": "2026-01-01",
         "validTo": null,
@@ -75,22 +75,22 @@
       },
       {
         "label": "Church tax",
-        "value": "8–9\u00a0% of the income tax",
+        "value": "8–\u20609\u00a0% of the income tax",
         "validFrom": "2026-01-01",
         "validTo": null,
         "note": "Where applicable."
       }
     ],
     "allowances": [
-      "Freigrenze of EUR\u00a01000 a year on all § 23 gains together (crypto and other private sales): at EUR\u00a01000 or more the whole amount is taxable, a cliff, not an allowance. Since assessment year 2024 (previously EUR\u00a0600).",
-      "Freigrenze of EUR\u00a0256 per year for § 22 no. 3 income (staking, lending).",
-      "The Sparer-Pauschbetrag does not apply to § 23 gains today."
+      "Freigrenze of EUR\u00a01000 a year on all §\u00a023 gains together (crypto and other private sales): at EUR\u00a01000 or more the whole amount is taxable, a cliff, not an allowance. Since assessment year 2024 (previously EUR\u00a0600).",
+      "Freigrenze of EUR\u00a0256 per year for §\u00a022 no.\u00a03 income (staking, lending).",
+      "The Sparer-Pauschbetrag does not apply to §\u00a023 gains today."
     ],
-    "holdingRuleText": "Taxable only when “der Zeitraum zwischen Anschaffung und Veräußerung nicht mehr als ein Jahr beträgt” (§ 23(1) sentence 1 no. 2 EStG). The day of purchase is not counted and the year ends on the same calendar day a year later (§ 108 AO, §§ 187–188 BGB): bought on 15 March 2026, a sale on 15 March 2027 is still inside the year; from 16 March 2027 it is tax-free.",
+    "holdingRuleText": "Taxable only when “der Zeitraum zwischen Anschaffung und Veräußerung nicht mehr als ein Jahr beträgt” (§\u00a023(1) sentence\u00a01 no.\u00a02 EStG). The day of purchase is not counted and the year ends on the same calendar day a year later (§\u00a0108 AO, §§\u00a0187–\u2060188 BGB): bought on 15\u00a0March\u00a02026, a sale on 15\u00a0March\u00a02027 is still inside the year; from 16\u00a0March\u00a02027 it is tax-free.",
     "lotRuleText": "First in, first out per wallet (“walletbezogene Betrachtung”); the BMF accepts FIFO or individual identification, elected per wallet and per crypto-asset; average cost is the fallback.",
-    "losses": "Only against § 23 gains, not salary or capital income; carried back one year and forward without limit within § 23. Losses under § 22 no. 3 offset only § 22 no. 3 income.",
+    "losses": "Only against §\u00a023 gains, not salary or capital income; carried back one year and forward without limit within §\u00a023. Losses under §\u00a022 no.\u00a03 offset only §\u00a022 no.\u00a03 income.",
     "reporting": [
-      "The taxpayer bears the burden of proof; software tax reports are accepted if plausible and consistent (BMF-Schreiben of 6 March 2025)."
+      "The taxpayer bears the burden of proof; software tax reports are accepted if plausible and consistent (BMF-Schreiben of 6\u00a0March\u00a02025)."
     ],
     "caveats": [
       "The exact day count.",
@@ -105,10 +105,10 @@
   },
   "pendingChanges": [
     {
-      "title": "Referentenentwurf of 30 September 2026: Gesetz zur Reform der Besteuerung bestimmter Kryptowerte im Privatvermögen",
+      "title": "Referentenentwurf of 30\u00a0September\u00a02026: Gesetz zur Reform der Besteuerung bestimmter Kryptowerte im Privatvermögen",
       "status": "proposed",
       "effectiveFrom": "2027-01-01",
-      "summary": "Tauschkryptowerte such as BTC and ETH acquired after 31 December 2026 would become capital income at 25\u00a0% plus solidarity surcharge, whatever the holding period, withheld by domestic providers from 1 January 2028; earlier purchases keep the one-year rule. E-money tokens, NFTs, security and RWA tokens are excluded. The cabinet slot of 14 October 2026 passed without a decision.",
+      "summary": "Tauschkryptowerte such as BTC and ETH acquired after 31\u00a0December\u00a02026 would become capital income at 25\u00a0% plus solidarity surcharge, whatever the holding period, withheld by domestic providers from 1\u00a0January\u00a02028; earlier purchases keep the one-year rule. E-money tokens, NFTs, security and RWA tokens are excluded. The cabinet slot of 14\u00a0October\u00a02026 passed without a decision.",
       "source": {
         "title": "BMF: Entwurf eines Gesetzes zur Reform der Besteuerung bestimmter Kryptowerte im Privatvermögen",
         "url": "https://blogs.pwc.de/de/steuern-und-recht/article/257144/",
