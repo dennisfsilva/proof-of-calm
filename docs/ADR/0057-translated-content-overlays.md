@@ -231,9 +231,12 @@ generated rules files of each language.
   (`packages/content/src/i18n/module-overlay-validate.ts`), with the same elements in the same order. The app shows a
   module through `useModuleBody`, which loads the language's chunk and falls back to English, marked `lang="en"`, when
   there is none, when it fails or when it resolves to nothing. A failure is not kept, so the next mount tries again.
-  The mount that shows English also loads the chunk once more and shows the translation if it comes; WebKit keeps a
-  failed import for the page's life, so there English stays until a reload. The owner confirms the cut at the end of
-  M2.
+  The mount that shows English also loads the chunk once more and shows the translation if it loads. WebKit keeps a
+  failed import for the page's life, so on WebKit English stays until a reload. The owner confirms the cut at the end of
+  M2. This narrows the textLang entry above (2026-11-17): a module's route and sheet show the translation's title,
+  idea, caveat and body, while the Learn index's rows stay English, marked `lang="en"`, since a translation's meta
+  travels in its chunk, outside the entry; showing a translated title and idea in the index is the next step (D13 of
+  #322).
 - **2026-11-17.** The Consequences' "knows English unit words only" no longer holds for Portuguese:
   the number-unit hyphen check (`packages/content/src/hyphen-validate.ts`) also reads the Portuguese
   unit words (dia, semana, mês, ano, hora, minuto and their plurals), so `90-dias` and `1-mês` are
