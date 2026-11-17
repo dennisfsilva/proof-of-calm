@@ -64,10 +64,13 @@ const KINDS: Kinds = [
 // before and after the 1990 Agreement and in Brazilian Portuguese before and after it (`séptuplo` and `sétuplo`,
 // `cinqüenta`, `quadriplicar`, `dezesseis`), as amendment 8's table walks them. Each English entry has its pt-PT
 // words here or stays prose by hole 13 of amendment 8 (`uma vez` for `once`, since `uma` stays prose).
-const PT_CARDINALS = 'zero dois duas três quatro cinco seis sete oito nove dez onze doze treze catorze quatorze quinze \
-dezasseis dezesseis dezassete dezessete dezoito dezanove dezenove vinte trinta quarenta cinq[uü]enta sessenta setenta \
-oitenta noventa cem cento mil milhar milhares milhão milhões bilião biliões bilhão bilhões trilião triliões trilhão \
-trilhões dúzias? dezenas? centenas? (?:duz|trez|quatroc|quinh|seisc|setec|oitoc|novec)ent[oa]s'.split(' ');
+// A cardinal's noun plural beside it, as English's take `s` (Priberam: `setes`, `dezes`, `mis`); `seis`, `dezasseis`
+// and `dezesseis` are the same in both numbers, `cem` has none, and `zeros` triggers on English's `zero`.
+const PT_CARDINALS = 'zero dois duas três quatros? cincos? seis setes? oitos? noves? dez(?:es)? onzes? dozes? trezes? \
+catorzes? quatorzes? quinzes? dezasseis dezesseis dezassetes? dezessetes? dezoitos? dezanoves? dezenoves? vintes? \
+trintas? quarentas? cinq[uü]entas? sessentas? setentas? oitentas? noventas? cem centos? mil mis milhar milhares \
+milhão milhões bilião biliões bilhão bilhões trilião triliões trilhão trilhões dúzias? dezenas? centenas? \
+(?:duz|trez|quatroc|quinh|seisc|setec|oitoc|novec)ent[oa]s'.split(' ');
 // The ordinals from first to ninetieth and from hundredth to billionth, the hundreds' own words among them.
 const PT_ORDINALS = `(?:primeir|segund|terceir|quart|quint|sext|sétim|oitav|non|décim|undécim|duodécim|vigésim|\
 trigésim|quadragésim|q[uü]inquagésim|sexagésim|sep?tuagésim|octogésim|nonagésim|centésim|ducentésim|tr[ei]centésim|\
