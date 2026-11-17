@@ -91,17 +91,37 @@ describe('useModuleBody on a pt-PT screen', () => {
   it.each([
     ['a rejected import', 'risk-honestly', () => Promise.reject(new Error('offline'))],
     ['an import that resolves to undefined', 'taxes-where-you-live', () => Promise.resolve(undefined)],
-  ])('renders English after %s, and tries again on the next mount', async (_name, slug, load) => {
-    const english = LEARN_MODULES.find((module) => module.slug === slug);
-    translation.load = load;
-    const first = await mount(slug);
-    expect((await screen.findByRole('heading', { level: 1, name: english?.title ?? slug })).getAttribute('lang')).toBe(
-      'en',
-    );
-    expect(first.container.querySelectorAll('[lang="en"]')).toHaveLength(3);
-    first.unmount();
-    translation.load = translated;
-    await mount(slug);
-    expect(await screen.findByRole('heading', { level: 1, name: PT.title })).toBeTruthy();
-  });
+  ])(
+    'renders English after %s, and the next mount loads again, though no render committed',
+    async (_name, slug, load) => {
+      // The reader leaves while the chunk loads, then it fails: that render never commits, so no cleanup of it runs.
+      const leave = async () => {
+        let settle = (): void => undefined;
+        translation.load = () => new Promise((resolve) => (settle = () => resolve(load())));
+        const left = await mount(slug);
+        expect(left.container.querySelector('h1')).toBeNull();
+        left.unmount();
+        await act(async () => settle());
+      };
+      const english = LEARN_MODULES.find((module) => module.slug === slug);
+      await leave();
+      const failing = vi.fn(load);
+      translation.load = failing;
+      const first = await mount(slug);
+      expect(
+        (await screen.findByRole('heading', { level: 1, name: english?.title ?? slug })).getAttribute('lang'),
+      ).toBe('en');
+      expect(first.container.querySelectorAll('[lang="en"]')).toHaveLength(3);
+      expect(failing).toHaveBeenCalledTimes(1);
+      first.unmount();
+      // This mount's cleanup dropped the fallback, so the next one suspends on a fresh load; a fallback left again by a
+      // render that never committed gives way to the translation the next mount loads.
+      await leave();
+      const loading = vi.fn(translated);
+      translation.load = loading;
+      await mount(slug);
+      expect(await screen.findByRole('heading', { level: 1, name: PT.title })).toBeTruthy();
+      expect(loading).toHaveBeenCalledTimes(1);
+    },
+  );
 });
