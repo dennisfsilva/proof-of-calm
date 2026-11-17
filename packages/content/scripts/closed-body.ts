@@ -6,6 +6,7 @@ import { hyphenProblems } from '../src/hyphen-validate.ts';
 import type { TranslationFile } from '../src/i18n/module-overlay-validate.ts';
 import { numbersIn } from '../src/i18n/overlay-validate.ts';
 import { type LearnModule, parseModule } from '../src/loaders/modules.ts';
+import { type FigureContext, moduleContext, moduleFigureProblems } from '../src/module-figures.ts';
 import { bannedProblems, type Problem } from '../src/problem.ts';
 
 type ModuleFile = { readonly path: string; readonly source: string };
@@ -85,16 +86,20 @@ async function translationProblems(path: string, language: string, mine: ModuleB
  * One `module-closed-body` problem per module the build would refuse, and one `module-chart-element` problem
  * per module that compiles with a chart count its chart does not name; the empty list is a pass. With
  * `english`, every file is a translation of one of them, also held to its elements (`module-overlay-elements`)
- * and numbers, and read by the ban list and the hyphen check, on the text its compiled page shows.
+ * and numbers, and read by the ban list and the hyphen check, on the text its compiled page shows. Every module
+ * that compiles has its chart's section read against `figures` (`figure-chart`, `figure-unstated`).
  */
-export function closedBodyProblems(modules: readonly ModuleFile[]): Promise<Problem[]>;
+export function closedBodyProblems(
+  modules: readonly ModuleFile[],
+  options: { readonly figures: FigureContext },
+): Promise<Problem[]>;
 export function closedBodyProblems(
   translations: readonly TranslationFile[],
-  english: readonly LearnModule[],
+  options: { readonly english: readonly LearnModule[]; readonly figures: FigureContext },
 ): Promise<Problem[]>;
 export async function closedBodyProblems(
   modules: readonly (ModuleFile & { readonly language?: string })[],
-  english?: readonly LearnModule[],
+  { english, figures }: { readonly english?: readonly LearnModule[]; readonly figures: FigureContext },
 ): Promise<Problem[]> {
   const problems: Problem[] = [];
   for (const { path, source, language } of modules) {
@@ -102,7 +107,11 @@ export async function closedBodyProblems(
     const { problem, flow } = read;
     if (problem === null) {
       const chart = chartOf(path, source, english);
-      if (chart !== undefined) problems.push(...chartElementProblems(path, chart, flow));
+      if (chart !== undefined) {
+        problems.push(...chartElementProblems(path, chart, flow));
+        const context = moduleContext({ chart }, language ?? 'en', figures);
+        problems.push(...moduleFigureProblems(path, read.page, context));
+      }
       if (english !== undefined && language !== undefined)
         problems.push(...(await translationProblems(path, language, read, englishOf(path, english))));
       continue;

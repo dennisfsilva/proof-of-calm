@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { percentJoiner } from '@proofofcalm/content';
+import { MODULE_PERCENT_JOINERS, percentJoiner } from '@proofofcalm/content';
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { createFormatters } from '../../../lib/format';
@@ -120,6 +120,14 @@ describe('withJoiner', () => {
 
   it('with a joiner both spaces before the sign give way to it', () => {
     expect(withJoiner(`94\u00a0% and 77 %`, '')).toBe('94% and 77%');
+  });
+
+  // The module figures check passes a figure joined to `%` only by a joiner this function formats (R5).
+  it('formats a figure and its sign joined by exactly the joiners the module figures check passes', () => {
+    const spaces = Array.from({ length: 0x3001 }, (_, code) => String.fromCodePoint(code)).filter((c) => /\s/u.test(c));
+    const formatted = spaces.filter((c) => withJoiner(`9${c}%`, 'J') === '9J%');
+    expect(formatted).toEqual([...MODULE_PERCENT_JOINERS]);
+    expect(spaces.length).toBeGreaterThan(MODULE_PERCENT_JOINERS.length);
   });
 });
 
