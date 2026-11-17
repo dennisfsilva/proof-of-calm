@@ -396,7 +396,7 @@ it is only a citation's. An identifier keeps its digits plain (`PIV 28969`). On 
 code and its figure (`EUR 20 350`, `100 USD`) and a form's name and its number (`Modelo 721`,
 `Anexo G`, `Form 1040`, `Box 3`, `Quadro 9.4`) are joined by U+00A0 too, so that a line never ends
 on the code or the name. This holds in English, in each translation and in a module. A JSON file
-writes the space as `\u00a0`, an MDX file as the character itself (decided 2026-11-17). `pnpm validate:content` refuses any other space there in a
+writes the space as `\u00a0`, a module as the character itself (decided 2026-11-17). `pnpm validate:content` refuses any other space there in a
 profile or a translated one (`figure-join`); its detail names the pair and the space, never a text to write.
 `pnpm validate:content` refuses other grouping beside a currency code (`number-group`). It reads
 each figure as English does (a comma or a space between groups, a point before the decimals) and
@@ -447,9 +447,9 @@ no-break hyphen U+2011 between them (`\u2011` in a JSON string, the character it
 (title, idea, caveat and body), every profile text the app shows, a template's name, one-line summary, risk label
 and explanation, and a coin's name in the catalogue; `pnpm validate:content` refuses an ordinary
 hyphen there (`number-unit-hyphen`). Text only a downloaded file carries keeps U+002D and the ordinary space U+0020
-beside a code or a form's name, since a file does not wrap and its reader searches it as typed: the tax-year file's
-lines (the `settings` messages under `data.taxYear.file`) and a profile's `lotRuleNote`, which `figure-join` skips
-(decided 2026-11-17). A holding condition shows on screens and the file copies it as written, so it takes U+2011.
+beside a code or a form's name, since a file does not wrap and its reader searches it as typed. These are the
+tax-year file's lines (the `settings` messages under `data.taxYear.file`) and a profile's `lotRuleNote`, which
+`figure-join` skips (decided 2026-11-17). A holding condition shows on screens and the file copies it as written, so it takes U+2011.
 Facts and documents keep U+002D, and a document quotes copy with it.
 
 ## 5. Education modules
