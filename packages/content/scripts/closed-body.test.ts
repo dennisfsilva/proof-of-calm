@@ -33,7 +33,7 @@ const banned = (match: string) =>
   `banned-advice: body: "${match}" is on the ban list; reword it (docs/CONTENT-STYLE.md §2)`;
 // Brand, 25m round 1: the elements problem names its fix (docs/CONTENT-STYLE.md §1, rule 8).
 const ORDER =
-  "; write English's elements in English's order, a flow one on a line of its own and a text one inside its sentence";
+  "; write English's elements and ## headings in English's order, a flow element on a line of its own and a text element inside its sentence";
 
 describe('closedBodyProblems: pnpm validate:content refuses what the build refuses (ADR-0048)', () => {
   it('reports a module holding an element outside the set, with its line', async () => {
