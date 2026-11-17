@@ -1,9 +1,9 @@
 // A translated Learn module against its English module (ADR-0057; ADR-0048 Deviations), for scripts/validate.ts: the
 // front matter is read by English's rules and holds only the texts a reader reads, the idea and the caveat keep
-// English's limits, every field and the body carry English's numbers and the body English's elements in order, and the
-// ban list and the no-break hyphen run on the translated text, as they run on a translated fact. The chart, the facts
-// and the review dates are English's, and so is the word cap; the build's closed-body check runs on the translation
-// with English's chart. Pure.
+// English's limits, every field and the body carry English's numbers, and the ban list and the no-break hyphen run on
+// the translated text, as they run on a translated fact. The chart, the facts and the review dates are English's, and
+// so is the word cap. The body's elements are the compiler's to read: scripts/closed-body.ts holds them, and the
+// translation's chart, to English's. Pure.
 import type { Result } from '@proofofcalm/core';
 import { hyphenProblems } from '../hyphen-validate.ts';
 import { type LearnModule, plainText, readFields } from '../loaders/modules.ts';
@@ -15,11 +15,6 @@ const FENCE = '---';
 const TEXTS = ['title', 'idea', 'caveat'] as const;
 const KEYS: readonly string[] = ['slug', ...TEXTS];
 const LIMITS = { idea: 120, caveat: 240 } as const;
-// An element of the closed set, `<Chart />` or `<PastPerformance />`; an escaped `\<` is text.
-const ELEMENT = /(?<!\\)<([A-Z][A-Za-z]*)\b/g;
-// Code is text, as the compiler reads it: a fenced block, to its closing fence or the end, and a code span.
-const FENCED = /^ {0,3}(`{3,}|~{3,})[^\n]*\n[\s\S]*?(?:^ {0,3}\1(?:`*|~*)[ \t]*$|(?![\s\S]))/gm;
-const CODE_SPAN = /(?<!`)(`+)(?!`)[\s\S]*?(?<!`)\1(?!`)/g;
 
 /** A translation's front matter and body, as `readTranslatedModule` reads them. */
 export type TranslatedModule = {
@@ -51,10 +46,6 @@ export function readTranslatedModule(path: string, source: string): Result<Trans
   return { ok: true, value: { front: Object.fromEntries(fields), body: lines.slice(close + 1).join('\n') } };
 }
 
-const withoutCode = (body: string) => body.replace(FENCED, '').replace(CODE_SPAN, '');
-const elementsIn = (body: string) =>
-  [...withoutCode(body).matchAll(ELEMENT)].map((match) => match[1]).join(', ') || 'none';
-
 function frontProblems(path: string, front: TranslatedModule['front']): Problem[] {
   const report = (detail: string): Problem => ({ path, code: 'module-overlay-front-matter', detail });
   return [
@@ -83,7 +74,6 @@ export function translatedModuleProblems(
     ...TEXTS.map((key): [string, string, string] => [key, front[key] ?? '', english[key]]),
     ['body', read(body), read(english.body)],
   ];
-  const [ours, theirs] = [elementsIn(body), elementsIn(english.body)];
   const named = path.slice(path.lastIndexOf('/') + 1) === `${english.slug}.mdx`;
   return [
     ...(named ? [] : [{ path, code: 'file-name', detail: `rename the file to ${english.slug}.mdx` }]),
@@ -93,9 +83,6 @@ export function translatedModuleProblems(
       if (mine === others) return [];
       return [{ path, code: 'overlay-number-mismatch', detail: `${field}: ${mine}, English ${others}` }];
     }),
-    ...(ours === theirs
-      ? []
-      : [{ path, code: 'module-overlay-elements', detail: `body: ${ours}, English ${theirs}, in this order` }]),
     ...texts.flatMap(([field, text]) => [...bannedProblems(path, field, text), ...hyphenProblems(path, field, text)]),
   ];
 }

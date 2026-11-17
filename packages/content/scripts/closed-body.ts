@@ -30,16 +30,35 @@ function chartElementProblems(path: string, chart: LearnModule['chart'], flow: r
  * does not parse, or a translation named after no English module, is skipped: `moduleProblems` and
  * `moduleTranslationProblems` report it.
  */
+const englishOf = (path: string, english: readonly LearnModule[]) =>
+  english.find(({ slug }) => path.endsWith(`/${slug}.mdx`));
+
 function chartOf(path: string, source: string, english?: readonly LearnModule[]) {
-  if (english !== undefined) return english.find(({ slug }) => path.endsWith(`/${slug}.mdx`))?.chart;
+  if (english !== undefined) return englishOf(path, english)?.chart;
   const parsed = parseModule(path, source);
   return parsed.ok ? parsed.value.chart : undefined;
+}
+
+const listed = (elements: readonly string[]) => elements.join(', ') || 'none';
+
+/**
+ * A translation's elements against its English module's, both as the compiler reads them (ADR-0048 Deviations):
+ * the same `flow:<Name>` and `text:<Name>` list in the same order, so code hides an element on both sides alike.
+ * An English body the build refuses is skipped: English's own run reports it.
+ */
+async function elementProblems(path: string, elements: readonly string[], english: LearnModule | undefined) {
+  if (english === undefined) return [];
+  const theirs = await checkModuleBody(english.body, `packages/content/learn/${english.slug}.mdx`, MODULE_BODY_ELEMENTS);
+  if (theirs.problem !== null || listed(theirs.elements) === listed(elements)) return [];
+  const detail = `English ${listed(theirs.elements)}; translation ${listed(elements)}`;
+  return [{ path, code: 'module-overlay-elements', detail }];
 }
 
 /**
  * One `module-closed-body` problem per module the build would refuse, and one `module-chart-element` problem
  * per module that compiles with a chart count its chart does not name; the empty list is a pass. With
- * `english`, every file is a translation of one of them.
+ * `english`, every file is a translation of one of them, and one whose elements are not its English module's is
+ * a `module-overlay-elements` problem.
  */
 export async function closedBodyProblems(
   modules: readonly ModuleFile[],
@@ -47,10 +66,11 @@ export async function closedBodyProblems(
 ): Promise<Problem[]> {
   const problems: Problem[] = [];
   for (const { path, source } of modules) {
-    const { problem, flow } = await checkModuleBody(source, path, MODULE_BODY_ELEMENTS);
+    const { problem, flow, elements } = await checkModuleBody(source, path, MODULE_BODY_ELEMENTS);
     if (problem === null) {
       const chart = chartOf(path, source, english);
       if (chart !== undefined) problems.push(...chartElementProblems(path, chart, flow));
+      if (english !== undefined) problems.push(...(await elementProblems(path, elements, englishOf(path, english))));
       continue;
     }
     // The compiler's message opens with `<path>:<line>: `; the report already names the path.

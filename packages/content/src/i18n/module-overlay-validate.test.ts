@@ -38,7 +38,7 @@ const codes = (front: Record<string, string> = FRONT, body = BODY) =>
   translatedModuleProblems(PATH, ENGLISH, { front, body }, 'pt-PT').map((problem) => problem.code);
 
 describe('translatedModuleProblems', () => {
-  it('passes a translation with the same numbers, read in its own separators, and the same elements', () => {
+  it('passes a translation with the same numbers, read in its own separators', () => {
     expect(codes()).toEqual([]);
   });
 
@@ -57,25 +57,11 @@ describe('translatedModuleProblems', () => {
     expect(codes({ ...FRONT, caveat: `87 % ${'a'.repeat(236)}` })).toEqual(['module-overlay-front-matter']);
   });
 
-  it('fails a missing <Chart /> and elements in another order', () => {
-    expect(codes(FRONT, BODY.replace('<Chart />', ''))).toEqual(['module-overlay-elements']);
-    const swapped = BODY.replace('<Chart />', 'X')
-      .replace('<PastPerformance />', '<Chart />')
-      .replace('X', '<PastPerformance />');
-    expect(codes(FRONT, swapped)).toEqual(['module-overlay-elements']);
-  });
-
-  // Code is text, as the compiler reads it: English writing <Chart /> so is refused with module-chart-element.
-  it('counts a <Chart /> in a code span or a fenced block as no element', () => {
-    const detail = (body: string) =>
-      translatedModuleProblems(PATH, ENGLISH, { front: FRONT, body }, 'pt-PT').map(
-        ({ code, detail: text }) => `${code}: ${text}`,
-      );
-    const missing = 'module-overlay-elements: body: PastPerformance, English Chart, PastPerformance, in this order';
-    expect(detail(BODY.replace('<Chart />', '`<Chart />`'))).toEqual([missing]);
-    expect(detail(BODY.replace('<Chart />', '```\n<Chart />\n```'))).toEqual([missing]);
-    expect(detail(BODY.replace('<Chart />', '~~~~mdx\n<Chart />\n~~~~'))).toEqual([missing]);
-    expect(detail(`${BODY}\n\`\`\`\n<Chart />\n`)).toEqual([]);
+  // The body's elements are the compiler's (review 25l round 2, D11): their cases, the missing <Chart />, another
+  // order and an element in code, moved to scripts/closed-body.test.ts. This reader leaves them to it.
+  it('reads no element: a missing <Chart /> or one in code is left to the compiled check', () => {
+    expect(codes(FRONT, BODY.replace('<Chart />', ''))).toEqual([]);
+    expect(codes(FRONT, BODY.replace('<Chart />', '`<Chart />`'))).toEqual([]);
   });
 
   it('fails an orphan slug', () => {
