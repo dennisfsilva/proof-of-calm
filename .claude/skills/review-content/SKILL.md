@@ -103,21 +103,20 @@ Arguments: $ARGUMENTS
   change, `figure-unstated` after a new row, a B sentence's count, years or bound, a coin the chart
   draws no fall of, or a row you would remove; after any English change, one on a translated
   module (above). Revert that item's change in every file it touched (the fact, the English
-  module, a chart row and the templates' copies of it), add one note and name it in your closing
-  report; the owner makes the change, in the English and translated files and in a reviewed
-  shape, in a pull request of their own. For a chart row the note is `chart row for the owner:
-  <coin>, high <high>, low <low>, fall <fall> %, <source> <lowSource>`, the values its sources
-  give (`<coin>` the row's ticker, `SOL`; the `lowSource` only when the row has one), or for a row
-  you would remove `chart row for the owner: remove <coin>, high <high>: <why, from the source>,
-  <source>`; either ends with the row's copies, `templates/<file>.json drawdowns[<n>]`, when it
-  has any. For a translated module it is `translated module for the owner: <item> <field>:
-  <value>, <source>; <path>`: the English item as a `changes` row names it, its new value from the
-  source as the English file writes it and in the translation's number format (fact a's
-  `−94.0 %`, pt-PT's `−94,0`), and the translated module's path (`i18n/pt-PT/learn/cycles.mdx`).
-  When the revert leaves files or fact entries changed only in their mark, keep
-  `reviewedBy: agent-draft` on the one that holds the item's source figure (the fact entry; the
-  cycles file for a row), so the pull request carries the note (the finish accepts the mark and
-  the note, and refuses a run with nothing staged), and put back HEAD's `reviewedBy` on the rest.
+  module, a chart row and the templates' copies of it), add one note, and mark as §6 says; the
+  owner makes the change, in the English and translated files and in a reviewed shape, in a pull
+  request of their own. A change that draws a refusal on a translated module, a chart row's too,
+  takes only the note `translated module for the owner: <path>; <item> <field>: <value>; …;
+  <sources>`: the translated module's path (`i18n/pt-PT/learn/cycles.mdx`), then each English file
+  and field the owner must change (the fact, the English module's `body`, a chart row's `low` and
+  `fall`, each template copy), named as a `changes` row names it, with its new value as that file
+  writes it and, for a figure the translated module shows, in the translation's number format too
+  (fact a's `−94.0 %`, pt-PT's `−94,0 %`), then every URL the values rest on, a fall's `source` and
+  `lowSource` both. Any other chart row's change takes `chart row for the owner: <coin>, high
+  <high>, low <low>, fall <fall> %, <source> <lowSource>`, the values its sources give (`<coin>`
+  the row's ticker, `SOL`; the `lowSource` only when the row has one), or for a row you would
+  remove `chart row for the owner: remove <coin>, high <high>: <why, from the source>, <source>`;
+  either ends with the row's copies, `templates/<file>.json drawdowns[<n>]`, when it has any.
   Never change a B sentence's bound (`more than N %`), never add, move or delete a clause or a
   sentence, and never remove a chart row. A
   `number-group` refusal with a suggestion keeps the value: write the suggestion. A `figure-join`
@@ -317,8 +316,13 @@ the draft's notes any banned word it holds, for the owner to allow-list with a r
 
 Set `reviewedBy: agent-draft` on every file you change and on every fact entry you change. A
 translation has no `reviewedBy`: set none on it. A file or entry left with no change but its mark,
-after a revert or a fix that puts back HEAD's text, takes HEAD's `reviewedBy` back, unless §1
-keeps the mark for an owner's note. Leave the rules files as the generator writes them.
+after a revert or a fix that puts back HEAD's text, takes HEAD's `reviewedBy` back. Every note
+goes into the draft's `notes` and your closing report. When the run holds a note but would change
+no file, set `reviewedBy: agent-draft` on one fact entry or file the note names (the cycles file
+for a chart row's note), never on a module, for which the finish would ask a `changes` row: for a
+module's note, on the fact entry or cycles file its figure rests on. Give that file its `reviewed`
+row. The pull request then carries the note: the finish accepts a change of the mark alone and
+refuses a run with nothing staged. Leave the rules files as the generator writes them.
 The finish refuses a changed entry at any other value.
 
 ## 7. Finish
@@ -379,7 +383,7 @@ The finish refuses a changed entry at any other value.
    such as `nothing staged` or a template heading, and show the owner its output word for word.
    A failed step prints `<step>: <git's or gh's first line>: run finish again`: show the owner that
    line, and on a yes run the same command again. Never change data only to have something staged;
-   the mark §1 keeps for an owner's note is the one exception.
+   the mark §6 sets or keeps for an owner's note is the one exception.
    Run no git or gh command; `git switch --detach origin/main` in its output is the owner's to run.
    On a review branch the finish reads the branch's pull-request record first. With an open PR it
    commits and pushes nothing. On a clean tree with HEAD at origin's copy of the branch or behind

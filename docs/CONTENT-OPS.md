@@ -99,8 +99,8 @@ owns the pipeline around them and its security model.
    agent edits none: the finish and CI's guard refuse its path (`DATA_PATHS` holds no translated
    module), and the guard stays so. An English change that draws `overlay-number-mismatch` or that
    language's `figure-chart` there is one more refusal no edit of the agent's fixes: it reverts the
-   change in every file it touched and notes the English item, its new value from the source, the
-   source and the translated module's path, and the owner makes the change in the English and
+   change in every file it touched, a chart row's too, and notes the translated module's path, each
+   English file and field to change with its new value, and every source, and the owner makes the change in the English and
    translated files in a pull request of their own (decided 2026-11-17: the owner's commit of the
    digits on the agent's branch fails the guard). A translation's figure that still does
    not match after the agent changes it and runs the checks again is reverted on neither side: the
@@ -122,9 +122,9 @@ owns the pipeline around them and its security model.
    module refusal no such edit fixes (a row no sentence states, a B sentence's count, years or
    bound, a coin with no fall, a row it would remove) it reverts in the same way, noting the coin,
    the dates, the fall and the sources, or a removal's reason, and the templates' copies of the
-   row, for the owner, who rewrites the sentence in a reviewed shape. When a revert leaves only
-   marks, the agent keeps the mark on the item's source figure, so the pull request carries the
-   note. It never changes a bound, adds, moves or deletes a clause or a sentence, or removes a row
+   row, for the owner, who rewrites the sentence in a reviewed shape. When a run holds a note but
+   would change no file, the agent marks a fact entry or file the note names (never a module), so a
+   pull request carries the note (the skill's §6). It never changes a bound, adds, moves or deletes a clause or a sentence, or removes a row
    (decided 2026-11-17).
 4. **The draft.** The agent writes its findings as JSON in the shape of `ReviewDraft`
    (`tools/content-review/body.ts`) to .content-review/draft.json, a gitignored folder. A change row's
@@ -346,7 +346,9 @@ fact to the window its URL names (the skill's §4 step 3).
    step 3), write that figure in the translation, in its number locale's format (the skill's §1),
    or revert the English change, in a commit on the agent's branch before merging; `verify` stays
    red until then. A note for a translated module or a chart row names a change the agent
-   reverted: make it in a pull request of your own, never on the agent's branch. The Learn country
+   reverted: make it in a pull request of your own, never on the agent's branch. A file or fact entry
+   changed only in its mark carries a note (§3 step 3): flip it back, and close the pull request
+   unmerged when nothing else is left in it. The Learn country
    screens print `lastReviewed`, so `e2e-visual` can fail on the new date: delete the baselines it names
    in a commit on the agent's branch (the guard accepts a removed baseline, nothing else outside the
    data folders), and send new ones in a needs-owner PR after the merge (`CLAUDE.md`, Visual
