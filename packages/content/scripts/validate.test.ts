@@ -63,23 +63,42 @@ describe('scripts/validate.ts on a copy of the files it reads', () => {
     }
   });
 
-  it('3: fails a translated chart section closed until its language has shapes', () => {
+  it("3: reads a pt-PT chart section in pt-PT's shapes, and refuses one figure off", () => {
+    // Fixed bodies, so that no review of the live module or its translation changes what this pins.
     const translated = 'packages/content/i18n/pt-PT/learn/risk-honestly.mdx';
     const english = readFileSync(at(MODULE), 'utf8');
-    const kept = /^(?:slug|title|idea|caveat): /u;
-    const [, front = '', body = ''] = english.split(/^---\n/mu);
-    const translation = `---\n${front
+    const had = existsSync(at(translated)) ? readFileSync(at(translated), 'utf8') : null;
+    const [, front = ''] = english.split(/^---\n/mu);
+    const kept = front
       .split('\n')
-      .filter((line) => kept.test(line))
-      .join('\n')}\n---\n${body}`;
-    writeFileSync(at(translated), translation);
+      .filter((line) => /^(?:slug|title|idea|caveat): /u.test(line))
+      .join('\n');
+    const pt = (solana: string, after = '') =>
+      `---\n${kept}\n---\nUm plano mensal define quando compra. Não limita até onde um preço pode cair.\n\n<Chart />\n\nNo gráfico, a bitcoin teve 4 quedas de mais de 75 % entre 2011 e 2022. O ether caiu 94 % e 82 %,\na Chainlink 89 % e 91 % e a Solana ${solana} %.${after}\n`;
+    writeFileSync(
+      at(MODULE),
+      `---\n${front}---\nA monthly plan sets when you buy. It does not limit how far a price can fall.\n\n<Chart />\n\nIn the chart, bitcoin had 4 falls of more than 75 % between 2011 and 2022. Ether fell 94 % and 82 %,\nChainlink 89 % and 91 %, and Solana 97 %.\n`,
+    );
     try {
+      writeFileSync(at(translated), pt('97'));
+      const passed = run();
+      expect(passed.lines).toEqual([]);
+      expect(passed.status).toBe(0);
+      // One figure off, and a sentence only pt-PT's trigger reads.
+      writeFileSync(at(translated), pt('96', ' A queda durou três anos.'));
       const { status, lines } = run();
-      expect(lines.filter((line) => line.startsWith(`${translated}: figure-chart: `)).length).toBeGreaterThan(0);
-      expect(lines.filter((line) => line.startsWith(`${translated}: figure-unstated: `)).length).toBeGreaterThan(0);
+      const sentence = 'O ether caiu 94 % e 82 %, a Chainlink 89 % e 91 % e a Solana 96 %.';
+      expect(lines).toContain(
+        `${translated}: figure-chart: body: "96 %" in "${sentence}" is not Solana's fall at that place in the chart's order; R5 (docs/CONTENT-STYLE.md §4)`,
+      );
+      expect(lines).toContain(
+        `${translated}: figure-chart: body: "A queda durou três anos." holds a number word "três" and matches neither shape of a chart's section; R5 (docs/CONTENT-STYLE.md §4)`,
+      );
       expect(status).toBe(1);
     } finally {
-      rmSync(at(translated));
+      writeFileSync(at(MODULE), english);
+      if (had === null) rmSync(at(translated));
+      else writeFileSync(at(translated), had);
     }
   });
 }, 30_000);
