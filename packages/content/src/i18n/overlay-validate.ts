@@ -93,7 +93,7 @@ const percentsIn = (text: string, locale: string) =>
 
 /**
  * The figures of a text as it writes them, so `cited` never names a figure its writer did not cite. The detail names
- * no computed fix: the translator copies English's figure as written (ADR-0057, D16 of #318).
+ * no computed fix: the translator copies English's figure as written (ADR-0057's entry decided 2026-11-17).
  */
 const written = (text: string) => [...text.matchAll(NUMBER)].map(([run]) => escaped(run)).join(' ') || 'none';
 
