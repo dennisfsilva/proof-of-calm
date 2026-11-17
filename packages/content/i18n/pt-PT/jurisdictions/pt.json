@@ -48,7 +48,7 @@
     ],
     "holdingRuleText": "As mais-valias e menos-valias de criptoativos detidos durante 365 dias ou mais ficam excluídas de tributação: «detidos por um período igual ou superior a 365 dias» (art. 10.º n.º 22 do CIRS, n.º 19 nos documentos de 2023–2025). Uma unidade comprada a 1 de março de 2026 fica abrangida a 1 de março de 2027.",
     "lotRuleText": "Primeiro a entrar, primeiro a sair («os alienados são os adquiridos há mais tempo», art. 43.º n.º 8 al. g) do CIRS, antes n.º 6 al. g)), em separado por depositário ou plataforma (art. 43.º n.º 9, antes n.º 7).",
-    "losses": "Abatem-se às mais-valias de criptoativos do ano, salvo unidades detidas 365 dias ou mais. Só com englobamento o saldo negativo se reporta cinco anos (art. 55.º n.º 1 al. d)). Com contraparte em paraíso fiscal nunca contam (art. 43.º n.º 7).",
+    "losses": "Abatem-se às mais-valias de criptoativos do ano, salvo unidades detidas 365 dias ou mais. Só com englobamento o saldo negativo se reporta 5\u00a0anos (art. 55.º n.º 1 al. d)). Com contraparte em paraíso fiscal nunca contam (art. 43.º n.º 7).",
     "reporting": [
       "Modelo\u00a03, Anexo\u00a0G, Quadro\u00a018A: alienações de unidades detidas menos de 365 dias, por operação, com o país da contraparte.",
       "Anexo\u00a0G, Quadro\u00a018B: alienações com contraparte fora da UE ou do EEE.",
@@ -78,8 +78,8 @@
       "summary": "Sem alteração à tributação dos criptoativos, segundo o que foi noticiado sobre o orçamento. A própria lei ainda está por ler (confiança média)."
     },
     {
-      "title": "Taxas mais baixas em seis escalões do IRS (Decreto-Lei n.º 212/2026)",
-      "summary": "Os 28% do art. 72.º n.º 1 al. c) não mudam. O Decreto-Lei n.º 212/2026, de 4 de novembro de 2026 (DR n.º 214/2026, Série I), ao abrigo da Lei n.º 64-B/2026 (Proposta de Lei n.º 108/XVII/2.ª), baixa as seis primeiras taxas do art. 68.º n.º 1 para 12,2%, 15,2%, 20,7%, 23,6%, 30,6% e 34,6%. Vigora desde 5 de novembro de 2026 e o preâmbulo aplica-o aos rendimentos de 2026 desde 1 de janeiro de 2026."
+      "title": "Taxas mais baixas em 6\u00a0escalões do IRS (Decreto-Lei n.º 212/2026)",
+      "summary": "Os 28% do art. 72.º n.º 1 al. c) não mudam. O Decreto-Lei n.º 212/2026, de 4 de novembro de 2026 (DR n.º 214/2026, Série I), ao abrigo da Lei n.º 64-B/2026 (Proposta de Lei n.º 108/XVII/2.ª), baixa as 6\u00a0primeiras taxas do art. 68.º n.º 1 para 12,2%, 15,2%, 20,7%, 23,6%, 30,6% e 34,6%. Vigora desde 5 de novembro de 2026 e o preâmbulo aplica-o aos rendimentos de 2026 desde 1 de janeiro de 2026."
     },
     {
       "title": "Informação vinculativa da AT, PIV 28969",
@@ -95,6 +95,6 @@
     }
   ],
   "status": {
-    "changeNotice": "Portugal baixou as taxas de seis escalões do IRS para os rendimentos de 2026. A taxa de 28% e a regra dos 365 dias não mudam."
+    "changeNotice": "Portugal baixou as taxas de 6\u00a0escalões do IRS para os rendimentos de 2026. A taxa de 28% e a regra dos 365 dias não mudam."
   }
 }
