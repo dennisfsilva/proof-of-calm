@@ -6,7 +6,7 @@
     "classification": "Mais-valias de vendas ocasionais de particulares (art. 150 VH bis CGI; desde 1 de janeiro de 2026, só criptoativos MiCA; NFT: art. 150 VH ter). Negociar como profissional: lucros não comerciais (BNC); como empresa: lucros comerciais (BIC).",
     "taxableEvents": [
       {
-        "note": "Qualquer venda por uma moeda com curso legal, seja qual for o período de detenção; tributada desde o primeiro euro quando os preços de venda do agregado familiar no ano excedem EUR 305."
+        "note": "Qualquer venda por uma moeda com curso legal, seja qual for o período de detenção; tributada desde o primeiro euro quando os preços de venda do agregado familiar no ano excedem EUR\u00a0305."
       },
       {
         "note": "Diferida: uma troca de um criptoativo por outro sem pagamento compensatório em dinheiro (soulte) não é um facto tributável; uma troca com pagamento compensatório é tributável."
@@ -24,32 +24,32 @@
     "rates": [
       {
         "label": "Taxa fixa (PFU)",
-        "value": "31,4 %",
-        "note": "12,8 % de imposto sobre o rendimento mais 18,6 % de contribuições sociais. Uma opção irrevogável (campo 3CN) passa as mais-valias para a tabela progressiva."
+        "value": "31,4\u00a0%",
+        "note": "12,8\u00a0% de imposto sobre o rendimento mais 18,6\u00a0% de contribuições sociais. Uma opção irrevogável (campo\u00a03CN) passa as mais-valias para a tabela progressiva."
       }
     ],
     "allowances": [
-      "Sem imposto quando os preços de venda do agregado familiar no ano (não as mais-valias) somam EUR 305 ou menos, sem contar as trocas diferidas; acima de EUR 305, todas as mais-valias do ano são tributadas (art. 150 VH bis II B).",
+      "Sem imposto quando os preços de venda do agregado familiar no ano (não as mais-valias) somam EUR\u00a0305 ou menos, sem contar as trocas diferidas; acima de EUR\u00a0305, todas as mais-valias do ano são tributadas (art. 150 VH bis II B).",
       "As comissões pagas numa venda, com comprovativo, reduzem o preço de venda."
     ],
-    "holdingRuleText": "Sem regra de período de detenção: uma venda por euros ou um pagamento com criptoativos é tributável seja qual for o período de detenção, quando os preços de venda do agregado familiar no ano excedem EUR 305. Uma troca de um criptoativo por outro sem pagamento compensatório fica diferida até uma venda tributável.",
+    "holdingRuleText": "Sem regra de período de detenção: uma venda por euros ou um pagamento com criptoativos é tributável seja qual for o período de detenção, quando os preços de venda do agregado familiar no ano excedem EUR\u00a0305. Uma troca de um criptoativo por outro sem pagamento compensatório fica diferida até uma venda tributável.",
     "lotRuleText": "Sem correspondência por lote. A mais-valia de uma venda é o preço menos a sua parte no custo total do portefólio (custo total × preço de venda ÷ valor do portefólio logo antes da venda); essa parte sai do custo total das vendas seguintes.",
     "losses": "Uma menos-valia só se compensa com mais-valias da mesma natureza do mesmo ano; não se reporta para anos seguintes.",
     "reporting": [
-      "Formulário 2042 C: campo 3AN para uma mais-valia líquida, 3BN para uma menos-valia líquida, 3CN para optar pela tabela progressiva.",
-      "O Annexe 2086 lista cada venda tributável: data, valor de todo o portefólio, preço de venda, comissões, preço total de aquisição e a parte desse preço já usada em vendas anteriores (as «fractions de capital initial» do formulário).",
-      "Formulário 3916-bis para cada conta de criptoativos numa plataforma no estrangeiro."
+      "Formulário\u00a02042\u00a0C: campo\u00a03AN para uma mais-valia líquida, 3BN para uma menos-valia líquida, 3CN para optar pela tabela progressiva.",
+      "O Annexe\u00a02086 lista cada venda tributável: data, valor de todo o portefólio, preço de venda, comissões, preço total de aquisição e a parte desse preço já usada em vendas anteriores (as «fractions de capital initial» do formulário).",
+      "Formulário\u00a03916-bis para cada conta de criptoativos numa plataforma no estrangeiro."
     ],
     "caveats": [
       "O valor de todas as moedas detidas no momento de cada venda.",
-      "O limiar de EUR 305, contado sobre os preços de venda.",
+      "O limiar de EUR\u00a0305, contado sobre os preços de venda.",
       "As menos-valias, utilizáveis apenas no mesmo ano.",
       "As declarações de contas em plataformas no estrangeiro e as respetivas coimas.",
       "Recompensas de staking e airdrops.",
       "As sobretaxas sobre rendimentos elevados.",
       "As medidas do orçamento de 2027, que ainda não são lei."
     ],
-    "summary60": "França: a venda de criptoativos por euros e o pagamento com eles são tributáveis; a troca por outro criptoativo não. Mais-valias tributadas à taxa fixa de 31,4 %, ou à taxa progressiva, a pedido. Se as vendas do agregado familiar num ano somam EUR 305 ou menos, nada é devido. Mais-valias calculadas sobre todo o portefólio, não moeda a moeda."
+    "summary60": "França: a venda de criptoativos por euros e o pagamento com eles são tributáveis; a troca por outro criptoativo não. Mais-valias tributadas à taxa fixa de 31,4\u00a0%, ou à taxa progressiva, a pedido. Se as vendas do agregado familiar num ano somam EUR\u00a0305 ou menos, nada é devido. Mais-valias calculadas sobre todo o portefólio, não moeda a moeda."
   },
   "pendingChanges": [
     {

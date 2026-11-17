@@ -45,8 +45,13 @@ describe('the content files (docs/CONTENT-OPS.md §1)', () => {
   });
 
   // CONTENT-STYLE §4: a no-break space is written `\u00a0` in JSON, since a typed one looks like a space.
-  it('a profile writes a no-break space as its escape, never the character', () => {
-    const typed = jsonIn('jurisdictions/').flatMap((path) =>
+  // The translated overlays under i18n/ are read too, every locale and folder.
+  it('a profile or an overlay writes a no-break space as its escape, never the character', () => {
+    const overlays = readdirSync(new URL('i18n/', root), { recursive: true, encoding: 'utf8' })
+      .map((path) => `i18n/${path.replaceAll('\\', '/')}`)
+      .filter((path) => path.endsWith('.json'));
+    expect(overlays.length).toBeGreaterThan(0);
+    const typed = [...jsonIn('jurisdictions/'), ...overlays].flatMap((path) =>
       readFileSync(new URL(path, root), 'utf8')
         .split('\n')
         .flatMap((line, index) => (line.includes('\u00a0') ? [`${path}:${index + 1}`] : [])),
