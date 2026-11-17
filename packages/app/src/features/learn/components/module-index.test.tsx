@@ -28,12 +28,14 @@ const start: LearnModuleMeta = {
 };
 const COUNTRIES_LINE = learn.countries.line;
 const cycles: LearnModuleMeta = { ...start, slug: 'cycles', title: 'Cycles', idea: 'Another idea.', readingMinutes: 3 };
+/** Entries as useModuleIndex gives them: English metadata, marked so. */
+const english = (...metas: LearnModuleMeta[]) => metas.map((meta) => ({ meta, language: 'en' as const }));
 
 const mount = (modules: readonly LearnModuleMeta[]) =>
   render(
     <NavigationProvider location="memory" initialPath="/learn">
       <I18nProvider messages={{ learn }}>
-        <ModuleIndex modules={modules} />
+        <ModuleIndex modules={english(...modules)} />
       </I18nProvider>
     </NavigationProvider>,
   );
@@ -56,7 +58,7 @@ describe('ModuleIndex', () => {
     render(
       <NavigationProvider location="memory" initialPath="/learn">
         <I18nProvider messages={{ learn }}>
-          <ModuleIndex modules={[start]} thisFall />
+          <ModuleIndex modules={english(start)} thisFall />
         </I18nProvider>
       </NavigationProvider>,
     );
@@ -80,7 +82,7 @@ describe('ModuleIndex', () => {
     const { container } = render(
       <NavigationProvider location="memory" initialPath="/learn">
         <I18nProvider locale="pt-PT" messages={{ learn: learnPt }}>
-          <ModuleIndex modules={[start, cycles]} thisFall />
+          <ModuleIndex modules={english(start, cycles)} thisFall />
         </I18nProvider>
       </NavigationProvider>,
     );
@@ -93,11 +95,29 @@ describe('ModuleIndex', () => {
     ]);
   });
 
+  // A translated module (ADR-0057) shows its own title and idea, unmarked; an untranslated one beside it keeps lang=en.
+  it("shows a translation's title and idea unmarked on a pt-PT screen, lang=en only on an English row's", () => {
+    const translated = { ...start, title: 'Começar aqui', idea: 'Uma ideia.' };
+    const { container } = render(
+      <NavigationProvider location="memory" initialPath="/learn">
+        <I18nProvider locale="pt-PT" messages={{ learn: learnPt }}>
+          <ModuleIndex modules={[{ meta: translated, language: 'pt-PT' }, ...english(cycles)]} />
+        </I18nProvider>
+      </NavigationProvider>,
+    );
+    expect(screen.getByRole('link', { name: /^Começar aquiUma ideia\./ })).toBeDefined();
+    const marked = [...container.querySelectorAll('[lang]')];
+    expect(marked.map((element) => [element.textContent, element.getAttribute('lang')])).toEqual([
+      ['Cycles', 'en'],
+      ['Another idea.', 'en'],
+    ]);
+  });
+
   it('marks nothing on an English screen', () => {
     const { container } = render(
       <NavigationProvider location="memory" initialPath="/learn">
         <I18nProvider messages={{ learn }}>
-          <ModuleIndex modules={[start, cycles]} thisFall />
+          <ModuleIndex modules={english(start, cycles)} thisFall />
         </I18nProvider>
       </NavigationProvider>,
     );

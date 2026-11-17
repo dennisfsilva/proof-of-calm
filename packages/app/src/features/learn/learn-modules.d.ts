@@ -14,11 +14,18 @@ declare module 'virtual:learn-modules' {
   /** A lazy import per slug, each body its own chunk. */
   export const LEARN_BODIES: Readonly<Record<string, () => Promise<{ default: Body }>>>;
   /**
-   * Per language with a translation folder (ADR-0057), a lazy import per translated slug: the body and its
-   * metadata, both in the translation's own chunk, never in the one that lists the modules.
+   * Per language with a translation folder (ADR-0057), a lazy import per translated slug: the body, in the
+   * translation's own chunk, never in the one that lists the modules.
    */
   export const LEARN_TRANSLATIONS: Readonly<
-    Partial<Record<OverlayLanguage, Readonly<Record<string, () => Promise<{ meta: LearnModuleMeta; default: Body }>>>>>
+    Partial<Record<OverlayLanguage, Readonly<Record<string, () => Promise<{ default: Body }>>>>>
+  >;
+  /**
+   * Per language with a translation folder, a lazy import of `virtual:learn-meta/<language>`: every translated slug's
+   * metadata, in one chunk of that language's, built in the pass that builds `LEARN_MODULES`.
+   */
+  export const LEARN_META: Readonly<
+    Partial<Record<OverlayLanguage, () => Promise<{ default: Readonly<Record<string, LearnModuleMeta>> }>>>
   >;
 }
 

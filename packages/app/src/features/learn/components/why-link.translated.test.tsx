@@ -40,8 +40,13 @@ vi.mock('virtual:learn-modules', async (original) => {
       <components.h2 sourceHeading={SOURCE_HEADING}>{PT_HEADING}</components.h2>
     </>
   );
-  const load = () => Promise.resolve({ meta, default: Body });
-  return { ...modules, LEARN_TRANSLATIONS: { 'pt-PT': { 'start-here': load } } };
+  const load = () => Promise.resolve({ default: Body });
+  const metas = () => Promise.resolve({ default: { 'start-here': meta } });
+  return {
+    ...modules,
+    LEARN_TRANSLATIONS: { 'pt-PT': { 'start-here': load } },
+    LEARN_META: { 'pt-PT': metas },
+  };
 });
 
 await preloadLazyModules([
