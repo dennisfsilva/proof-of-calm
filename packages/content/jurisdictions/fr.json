@@ -114,6 +114,7 @@
     {
       "key": "fr-impots-faq-actifs-numeriques",
       "title": "Comment déclarer les plus ou moins-values sur cessions d'actifs numériques ?",
+      "lang": "fr",
       "url": "https://www.impots.gouv.fr/particulier/questions/comment-declarer-les-plus-ou-moins-values-sur-cessions-dactifs-numeriques",
       "publisher": "Direction générale des Finances publiques",
       "kind": "authority",
@@ -123,6 +124,7 @@
     {
       "key": "fr-bofip-pvbmc-30-10",
       "title": "BOI-RPPM-PVBMC-30-10: Cession d'actifs numériques, champ d'application",
+      "lang": "fr",
       "url": "https://bofip.impots.gouv.fr/doctrine/pgp/11967-PGP",
       "publisher": "Bulletin officiel des finances publiques",
       "kind": "authority",
@@ -132,6 +134,7 @@
     {
       "key": "fr-bofip-pvbmc-30-20",
       "title": "BOI-RPPM-PVBMC-30-20: Cession d'actifs numériques, base d'imposition",
+      "lang": "fr",
       "url": "https://bofip.impots.gouv.fr/bofip/11968-PGP.html/identifiant=BOI-RPPM-PVBMC-30-20-20190902",
       "publisher": "Bulletin officiel des finances publiques",
       "kind": "authority",
@@ -141,6 +144,7 @@
     {
       "key": "fr-bofip-pvbmc-30-30",
       "title": "BOI-RPPM-PVBMC-30-30: Cession d'actifs numériques, modalités d'imposition",
+      "lang": "fr",
       "url": "https://bofip.impots.gouv.fr/bofip/11969-PGP.html/identifiant=BOI-RPPM-PVBMC-30-30-20240423",
       "publisher": "Bulletin officiel des finances publiques",
       "kind": "authority",
@@ -150,6 +154,7 @@
     {
       "key": "fr-dgfip-formulaire-2086",
       "title": "Formulaire 2086: Déclaration des plus ou moins-values réalisées en 2025 suite à des cessions d'actifs numériques et droits assimilés",
+      "lang": "fr",
       "url": "https://www.impots.gouv.fr/sites/default/files/formulaires/2086/2026/2086_5515.pdf",
       "publisher": "Direction générale des Finances publiques",
       "kind": "authority",
@@ -159,6 +164,7 @@
     {
       "key": "fr-cgi-art-150-vh-bis",
       "title": "Code général des impôts, article 150 VH bis",
+      "lang": "fr",
       "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000050366751",
       "publisher": "Légifrance",
       "kind": "law",
@@ -168,6 +174,7 @@
     {
       "key": "fr-loi-2026-534",
       "title": "LOI n° 2026-534 du 25 juin 2026 relative à la lutte contre les fraudes sociales et fiscales, article 91",
+      "lang": "fr",
       "url": "https://www.legifrance.gouv.fr/jorf/article_jo/JORFARTI000054310089",
       "publisher": "Légifrance",
       "kind": "law",
@@ -177,6 +184,7 @@
     {
       "key": "fr-lfss-2026-art-12",
       "title": "LOI n° 2025-1403 du 30 décembre 2025 de financement de la sécurité sociale pour 2026, article 12",
+      "lang": "fr",
       "url": "https://www.legifrance.gouv.fr/jorf/article_jo/JORFARTI000053226452",
       "publisher": "Légifrance",
       "kind": "law",

@@ -65,6 +65,7 @@ const PT: CountryProfile = {
     {
       key: 'pt-cirs-art10',
       title: 'Código do IRS, artigo 10.º',
+      lang: 'pt',
       url: 'https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs10.aspx',
       publisher: 'Autoridade Tributária e Aduaneira',
       kind: 'law',
@@ -74,6 +75,7 @@ const PT: CountryProfile = {
     {
       key: 'pt-cirs-art43',
       title: 'Código do IRS, artigo 43.º',
+      lang: 'pt',
       url: 'https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs43.aspx',
       publisher: 'Autoridade Tributária e Aduaneira',
       kind: 'law',
@@ -110,6 +112,7 @@ const GB: CountryProfile = {
     {
       key: 'gb-hmrc-crypto22100',
       title: 'Cryptoassets Manual CRYPTO22100: Capital Gains Tax: what is a disposal',
+      lang: 'en',
       url: 'https://www.gov.uk/hmrc-internal-manuals/cryptoassets-manual/crypto22100',
       publisher: 'HM Revenue & Customs',
       kind: 'authority',
@@ -119,6 +122,7 @@ const GB: CountryProfile = {
     {
       key: 'gb-hmrc-crypto22200',
       title: 'Cryptoassets Manual CRYPTO22200: Capital Gains Tax: pooling',
+      lang: 'en',
       url: 'https://www.gov.uk/hmrc-internal-manuals/cryptoassets-manual/crypto22200',
       publisher: 'HM Revenue & Customs',
       kind: 'authority',
@@ -162,6 +166,7 @@ const FR: CountryProfile = {
     {
       key: 'fr-impots-faq-actifs-numeriques',
       title: "Comment déclarer les plus ou moins-values sur cessions d'actifs numériques ?",
+      lang: 'fr',
       url: 'https://www.impots.gouv.fr/particulier/questions/comment-declarer-les-plus-ou-moins-values-sur-cessions-dactifs-numeriques',
       publisher: 'Direction générale des Finances publiques',
       kind: 'authority',
@@ -171,6 +176,7 @@ const FR: CountryProfile = {
     {
       key: 'fr-bofip-pvbmc-30-20',
       title: "BOI-RPPM-PVBMC-30-20: Cession d'actifs numériques, base d'imposition",
+      lang: 'fr',
       url: 'https://bofip.impots.gouv.fr/bofip/11968-PGP.html/identifiant=BOI-RPPM-PVBMC-30-20-20190902',
       publisher: 'Bulletin officiel des finances publiques',
       kind: 'authority',
@@ -206,6 +212,7 @@ const NL: CountryProfile = {
     {
       key: 'nl-bd-crypto',
       title: "Moet ik aangifte doen en belasting betalen over mijn crypto's?",
+      lang: 'nl',
       url: 'https://www.belastingdienst.nl/wps/wcm/connect/nl/werk-en-inkomen/content/aangifte-doen-en-belasting-betalen-met-cryptos',
       publisher: 'Belastingdienst',
       kind: 'authority',
@@ -243,6 +250,7 @@ const IT: CountryProfile = {
     {
       key: 'it-ade-circolare-30e-2023',
       title: 'Circolare n. 30/E del 27 ottobre 2023: Trattamento fiscale delle cripto-attività',
+      lang: 'it',
       url: 'https://www.agenziaentrate.gov.it/portale/documents/20143/5589638/Circolare+criptoattivita+del+27+ottobre+2023.pdf',
       publisher: 'Agenzia delle Entrate',
       kind: 'authority',

@@ -140,6 +140,7 @@
     {
       "key": "gb-hmrc-crypto20050",
       "title": "Cryptoassets Manual CRYPTO20050: Cryptoassets for individuals: which taxes apply",
+      "lang": "en",
       "url": "https://www.gov.uk/hmrc-internal-manuals/cryptoassets-manual/crypto20050",
       "publisher": "HM Revenue & Customs",
       "kind": "authority",
@@ -149,6 +150,7 @@
     {
       "key": "gb-hmrc-crypto22100",
       "title": "Cryptoassets Manual CRYPTO22100: Capital Gains Tax: what is a disposal",
+      "lang": "en",
       "url": "https://www.gov.uk/hmrc-internal-manuals/cryptoassets-manual/crypto22100",
       "publisher": "HM Revenue & Customs",
       "kind": "authority",
@@ -158,6 +160,7 @@
     {
       "key": "gb-hmrc-crypto22200",
       "title": "Cryptoassets Manual CRYPTO22200: Capital Gains Tax: pooling",
+      "lang": "en",
       "url": "https://www.gov.uk/hmrc-internal-manuals/cryptoassets-manual/crypto22200",
       "publisher": "HM Revenue & Customs",
       "kind": "authority",
@@ -167,6 +170,7 @@
     {
       "key": "gb-hmrc-crypto21200",
       "title": "Cryptoassets Manual CRYPTO21200: Income Tax: staking",
+      "lang": "en",
       "url": "https://www.gov.uk/hmrc-internal-manuals/cryptoassets-manual/crypto21200",
       "publisher": "HM Revenue & Customs",
       "kind": "authority",
@@ -176,6 +180,7 @@
     {
       "key": "gb-hmrc-crypto21250",
       "title": "Cryptoassets Manual CRYPTO21250: Income Tax: airdrops",
+      "lang": "en",
       "url": "https://www.gov.uk/hmrc-internal-manuals/cryptoassets-manual/crypto21250",
       "publisher": "HM Revenue & Customs",
       "kind": "authority",
@@ -185,6 +190,7 @@
     {
       "key": "gb-hmrc-crypto22500",
       "title": "Cryptoassets Manual CRYPTO22500: Capital Gains Tax: S24 and negligible value",
+      "lang": "en",
       "url": "https://www.gov.uk/hmrc-internal-manuals/cryptoassets-manual/crypto22500",
       "publisher": "HM Revenue & Customs",
       "kind": "authority",
@@ -194,6 +200,7 @@
     {
       "key": "gb-govuk-cgt-rates",
       "title": "Capital Gains Tax: what you pay it on, rates and allowances (2026 to 2027)",
+      "lang": "en",
       "url": "https://www.gov.uk/capital-gains-tax/rates",
       "publisher": "HM Revenue & Customs",
       "kind": "authority",
@@ -203,6 +210,7 @@
     {
       "key": "gb-govuk-cgt-rates-and-allowances",
       "title": "Capital Gains Tax rates and allowances (the table by tax year, updated 13 April 2026)",
+      "lang": "en",
       "url": "https://www.gov.uk/guidance/capital-gains-tax-rates-and-allowances",
       "publisher": "HM Revenue & Customs",
       "kind": "authority",
@@ -212,6 +220,7 @@
     {
       "key": "gb-govuk-cgt-losses",
       "title": "Capital Gains Tax: losses",
+      "lang": "en",
       "url": "https://www.gov.uk/capital-gains-tax/losses",
       "publisher": "HM Revenue & Customs",
       "kind": "authority",
@@ -221,6 +230,7 @@
     {
       "key": "gb-govuk-sa-deadlines",
       "title": "Self Assessment tax returns: deadlines",
+      "lang": "en",
       "url": "https://www.gov.uk/self-assessment-tax-returns/deadlines",
       "publisher": "HM Revenue & Customs",
       "kind": "authority",
@@ -230,6 +240,7 @@
     {
       "key": "gb-govuk-cgt-report-other-gains",
       "title": "Report and pay your Capital Gains Tax: if you have other capital gains to report (the real time Capital Gains Tax service)",
+      "lang": "en",
       "url": "https://www.gov.uk/report-and-pay-your-capital-gains-tax/if-you-have-other-capital-gains-to-report",
       "publisher": "HM Revenue & Customs",
       "kind": "authority",
@@ -239,6 +250,7 @@
     {
       "key": "gb-hmrc-sa108-notes-2025",
       "title": "Capital Gains Tax summary notes, tax year 6 April 2024 to 5 April 2025 (SA108 Notes 2025)",
+      "lang": "en",
       "url": "https://assets.publishing.service.gov.uk/media/67e1612564220b68ed6a7009/SA108-Notes-2025.pdf",
       "publisher": "HM Revenue & Customs",
       "kind": "authority",

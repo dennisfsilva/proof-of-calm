@@ -137,6 +137,7 @@
     {
       "key": "de-estg-23",
       "title": "Einkommensteuergesetz (EStG), § 23",
+      "lang": "de",
       "url": "https://www.gesetze-im-internet.de/estg/__23.html",
       "publisher": "Bundesministerium der Justiz",
       "kind": "law",
@@ -146,6 +147,7 @@
     {
       "key": "de-estg-22",
       "title": "Einkommensteuergesetz (EStG), § 22",
+      "lang": "de",
       "url": "https://www.gesetze-im-internet.de/estg/__22.html",
       "publisher": "Bundesministerium der Justiz",
       "kind": "law",
@@ -155,6 +157,7 @@
     {
       "key": "de-estg-32a",
       "title": "Einkommensteuergesetz (EStG), § 32a",
+      "lang": "de",
       "url": "https://www.gesetze-im-internet.de/estg/__32a.html",
       "publisher": "Bundesministerium der Justiz",
       "kind": "law",
@@ -164,6 +167,7 @@
     {
       "key": "de-solzg-3",
       "title": "Solidaritätszuschlaggesetz 1995 (SolZG 1995), § 3",
+      "lang": "de",
       "url": "https://www.gesetze-im-internet.de/solzg_1995/__3.html",
       "publisher": "Bundesministerium der Justiz",
       "kind": "law",
@@ -173,6 +177,7 @@
     {
       "key": "de-ao-108",
       "title": "Abgabenordnung (AO), § 108",
+      "lang": "de",
       "url": "https://www.gesetze-im-internet.de/ao_1977/__108.html",
       "publisher": "Bundesministerium der Justiz",
       "kind": "law",
@@ -182,6 +187,7 @@
     {
       "key": "de-bgb-187",
       "title": "Bürgerliches Gesetzbuch (BGB), § 187",
+      "lang": "de",
       "url": "https://www.gesetze-im-internet.de/bgb/__187.html",
       "publisher": "Bundesministerium der Justiz",
       "kind": "law",
@@ -191,6 +197,7 @@
     {
       "key": "de-bgb-188",
       "title": "Bürgerliches Gesetzbuch (BGB), § 188",
+      "lang": "de",
       "url": "https://www.gesetze-im-internet.de/bgb/__188.html",
       "publisher": "Bundesministerium der Justiz",
       "kind": "law",
@@ -200,6 +207,7 @@
     {
       "key": "de-bmf-2025-03-06",
       "title": "BMF-Schreiben vom 6. März 2025: Einzelfragen zur ertragsteuerrechtlichen Behandlung bestimmter Kryptowerte (IV C 1 - S 2256/00042/064/043)",
+      "lang": "de",
       "url": "https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Einkommensteuer/2025-03-06-einzelfragen-kryptowerte-bmf-schreiben.pdf?__blob=publicationFile&v=2",
       "publisher": "Bundesministerium der Finanzen",
       "kind": "authority",
@@ -209,6 +217,7 @@
     {
       "key": "de-bmf-2022-05-10",
       "title": "BMF-Schreiben vom 10. Mai 2022: Einzelfragen zur ertragsteuerrechtlichen Behandlung von virtuellen Währungen und von sonstigen Token (IV C 1 - S 2256/19/10003 :001)",
+      "lang": "de",
       "url": "https://www.bundesfinanzministerium.de/Content/DE/Pressemitteilungen/Finanzpolitik/2022/05/2022-05-09-einzelfragen-zur-ertragsteuerrechtlichen-behandlung-von-virtuellen-waehrungen-und-von-sonstigen-token-bmf-schreiben.pdf?__blob=publicationFile&v=1",
       "publisher": "Bundesministerium der Finanzen",
       "kind": "authority",
@@ -218,6 +227,7 @@
     {
       "key": "de-bfh-ix-r-3-22",
       "title": "Bundesfinanzhof, Urteil vom 14. Februar 2023, IX R 3/22",
+      "lang": "de",
       "url": "https://www.bundesfinanzhof.de/en/entscheidungen/entscheidungen-online/decision-detail/STRE202310057/",
       "publisher": "Bundesfinanzhof",
       "kind": "court",
@@ -227,6 +237,7 @@
     {
       "key": "de-forvis-mazars-bmf-2025",
       "title": "BMF-Schreiben Einzelfragen … Kryptowerte (Newsletter Steuern 2/2025)",
+      "lang": "de",
       "url": "https://www.forvismazars.com/de/en/who-we-are/news/press-media/newsletters/newsletter-steuern/newsletter-steuern-2-2025/ertragsteuerrechtliche-behandlung-von-kryptowerten",
       "publisher": "Forvis Mazars",
       "kind": "secondary",
@@ -236,6 +247,7 @@
     {
       "key": "de-cms-bmf-2025",
       "title": "Update des BMF-Schreibens zu Kryptowerten",
+      "lang": "de",
       "url": "https://cms.law/de/deu/legal-updates/Update-des-BMF-Schreibens-zu-Kryptowerten",
       "publisher": "CMS Germany",
       "kind": "secondary",
@@ -245,6 +257,7 @@
     {
       "key": "de-pwc-reform-draft",
       "title": "BMF: Entwurf eines Gesetzes zur Reform der Besteuerung bestimmter Kryptowerte im Privatvermögen",
+      "lang": "de",
       "url": "https://blogs.pwc.de/de/steuern-und-recht/article/257144/",
       "publisher": "PwC Germany",
       "kind": "secondary",
@@ -254,6 +267,7 @@
     {
       "key": "de-grant-thornton-reform-draft",
       "title": "BMF plant Reform der Krypto-Besteuerung",
+      "lang": "de",
       "url": "https://www.grantthornton.de/themen/2026/bmf-plant-reform-der-krypto-besteuerung/",
       "publisher": "Grant Thornton Germany",
       "kind": "secondary",
@@ -263,6 +277,7 @@
     {
       "key": "de-etl-reform-draft",
       "title": "Kryptobesteuerung soll sich ab 2027 grundlegend ändern",
+      "lang": "de",
       "url": "https://www.etl.de/aktuelles/kryptobesteuerung-soll-sich-ab-2027-aendern/",
       "publisher": "ETL",
       "kind": "secondary",

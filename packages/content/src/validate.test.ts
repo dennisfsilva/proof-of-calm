@@ -21,7 +21,7 @@ const source = (url: string, kind = 'authority') => ({
   published: null,
   accessed: '2026-10-16',
 });
-const keyed = (key: string, url: string, kind = 'authority') => ({ key, ...source(url, kind) });
+const keyed = (key: string, url: string, kind = 'authority') => ({ key, ...source(url, kind), lang: 'pt' });
 const CIRS = 'https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs';
 const ruleSources = {
   holdingRule: 'pt-cirs',
@@ -253,6 +253,19 @@ describe('validateContent: jurisdictions (docs/JURISDICTIONS.md §2)', () => {
     expect(codes([file(pt, profile({ sources: [keyed('PT CIRS', CIRS)] }))])).toEqual([
       expect.stringMatching(/^schema: sources\.0\.key: /),
     ]);
+  });
+
+  // The language the title is written in, a primary subtag (docs/JURISDICTIONS.md §2).
+  it("rejects a source without its title's language, or with one that is not a lower-case primary subtag", () => {
+    const { lang: _lang, ...unmarked } = keyed('pt-cirs', CIRS);
+    expect(codes([file(pt, profile({ sources: [unmarked] }))])).toEqual([
+      expect.stringMatching(/^schema: sources\.0\.lang: /),
+    ]);
+    for (const lang of ['DE', 'de-DE', 'd', 'deut', ''])
+      expect(codes([file(pt, profile({ sources: [{ ...keyed('pt-cirs', CIRS), lang }] }))])).toEqual([
+        expect.stringMatching(/^schema: sources\.0\.lang: /),
+      ]);
+    expect(codes([file(pt, profile({ sources: [{ ...keyed('pt-cirs', CIRS), lang: 'mul' }] }))])).toEqual([]);
   });
 
   it('rejects two sources with one key', () => {
