@@ -110,7 +110,7 @@ general information, not advice`, for the generic profile, with no Sources; unde
 16 Oct 2026 · general information, not advice`, for a card more than twelve months past
 `nextReviewDue` (`docs/JURISDICTIONS.md` §1), with no Sources; the card in Learn takes the plain form,
 since each rule with a source ends with its own Sources link, and below the line the card ends with the section
-`Sources for Portugal` (the country's name, with the article its language gives it), the profile's sources with their publisher and date, each opening outside the app, none
+`Sources for Portugal` (the country's name, with the article the app's language gives it, as in `Sources for the Netherlands`), the profile's sources with their publisher and date, each opening outside the app, none
 for the generic profile or a card under review (what the list holds: `docs/JURISDICTIONS.md` §2); one "Computed from your
 dates, not tax advice" line per jurisdiction beside the first holding-status date ("Computed from the
 template's dates, not tax advice" on onboarding's template path, where the dates are the template's)

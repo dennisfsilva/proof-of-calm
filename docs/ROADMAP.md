@@ -304,7 +304,7 @@ external links and the Risk link in the mobile export (M3).
   English numerals with its baselines, the Learn index in the person's language, the module checks
   per block with `figure-join` over modules, and `number-group`'s open shapes. On 2026-11-17, #334
   merged the translated h2 ids by position (#336), Portugal's numerals (#337), the DE and ES
-  overlays (#338) and their baseline render (#339). The figures validator's PR 1
+  overlays (#338) and the render of the 58 baselines missing on main (#339). The figures validator's PR 1
   (feat/template-figure-shapes at f84ed02b, both review rounds used: its closed sentence shapes
   held, and two confirmed findings stay open on the trigger that decides what counts as a
   percentage) and its PR 2, the module rules, move to the next session's issue, which comes before #271,
