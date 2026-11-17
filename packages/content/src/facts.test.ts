@@ -30,6 +30,31 @@ function educationKeys(): string[] {
   return educationRows().flatMap(([, keys = '']) => rowKeys(keys));
 }
 
+// A fact whose value a merged review changed, before the log PR updates its EDUCATION §9 row (docs/CONTENT-OPS.md §8
+// steps 4 and 5). The owner's session PR adds the entry to main before the flip, as the value they read; the agent's
+// branch cannot change this file (CI's guard), so a later push that moves the value fails the tie.
+const unlogged: ReadonlyMap<string, { was: string; now: string }> = new Map([]);
+
+/** The first cells of the rows that do not read their facts' values; a value at its entry's `now` reads as `was`. */
+function driftedRows(
+  rows: readonly string[][],
+  values: ReadonlyMap<string, string>,
+  pending: typeof unlogged,
+): string[] {
+  const held = (key: string) => {
+    const value = values.get(key);
+    const entry = pending.get(key);
+    return entry !== undefined && value === entry.now ? entry.was : value;
+  };
+  // A row of one key is its value; row k is its facts' values in order, then the closing sentence.
+  return rows
+    .filter(([, keys = '', cell = '']) => {
+      const read = rowKeys(keys).map(held);
+      return read.length === 1 ? cell !== read[0] : !cell.startsWith(`${read.join(' ')} `);
+    })
+    .map(([, keys = '']) => keys);
+}
+
 const files: ContentFile[] = readdirSync(new URL('facts/', root))
   .filter((name) => name.endsWith('.json'))
   .map((name) => ({
@@ -177,15 +202,65 @@ describe('the education facts (docs/EDUCATION.md §9)', () => {
     expect(facts.filter((fact) => shortSeptember.test(fact.value)).map((fact) => fact.key)).toEqual([]);
   });
 
-  // EDUCATION §9 states every fact's figures, so its copy stays tied to the data until the figures validator lands
-  // (docs/research/review-safe-figures.md); a review that changes a value changes its row in the same commit.
+  // EDUCATION §9 states every fact's figures and no other check reads it, so each row stays tied to its facts' values.
+  // A review cannot change the row (CI's guard refuses docs on its branch), so a changed value passes only through
+  // its `unlogged` entry, until the log PR updates the row and removes the entry.
   it("each fact's value reads the same in its EDUCATION §9 row", () => {
     const values = new Map(facts.map((fact) => [fact.key, fact.value]));
-    // A row of one key is its value; row k is its facts' values in order, then the closing sentence.
-    const drifted = educationRows().filter(([, keys = '', cell = '']) => {
-      const held = rowKeys(keys).map((key) => values.get(key));
-      return held.length === 1 ? cell !== held[0] : !cell.startsWith(`${held.join(' ')} `);
-    });
-    expect(drifted.map(([, keys]) => keys)).toEqual([]);
+    expect(driftedRows(educationRows(), values, unlogged)).toEqual([]);
+  });
+
+  it('the unlogged list names only keys of the facts files and of EDUCATION §9', () => {
+    const keys = new Set(facts.map((fact) => fact.key));
+    const rows = new Set(educationKeys());
+    expect([...unlogged.keys()].filter((key) => !keys.has(key) || !rows.has(key))).toEqual([]);
+  });
+});
+
+// Literal rows and values, never the live files: a review may change any of those.
+describe('the EDUCATION §9 tie with a pending fact (docs/CONTENT-OPS.md §8 steps 4 and 5)', () => {
+  const rows = [['', '`x.one`', 'Old value.', '']];
+  const pending = new Map([['x.one', { was: 'Old value.', now: 'New value.' }]]);
+  const none: typeof unlogged = new Map();
+  const at = (value: string) => new Map([['x.one', value]]);
+
+  it('passes a value that reads its row', () => {
+    expect(driftedRows(rows, at('Old value.'), none)).toEqual([]);
+  });
+
+  it('a changed value with no entry drifts', () => {
+    expect(driftedRows(rows, at('New value.'), none)).toEqual(['`x.one`']);
+  });
+
+  it("passes a value at its entry's now with the row at was (the merged review)", () => {
+    expect(driftedRows(rows, at('New value.'), pending)).toEqual([]);
+  });
+
+  it("a value past its entry's now drifts, longer or shorter", () => {
+    expect(driftedRows(rows, at('New value. Later.'), pending)).toEqual(['`x.one`']);
+    expect(driftedRows(rows, at('New value'), pending)).toEqual(['`x.one`']);
+  });
+
+  it('passes main before the merge: the old value with the entry present', () => {
+    expect(driftedRows(rows, at('Old value.'), pending)).toEqual([]);
+  });
+
+  const logged = [['', '`x.one`', 'New value.', '']];
+
+  it("the log PR's updated row drifts while the entry stays, so the log PR removes it", () => {
+    expect(driftedRows(logged, at('New value.'), pending)).toEqual(['`x.one`']);
+  });
+
+  it('passes the updated row once the entry is removed', () => {
+    expect(driftedRows(logged, at('New value.'), none)).toEqual([]);
+  });
+
+  it('row k passes with one pending key among six, and drifts at a wrong now', () => {
+    const keys = ['k.a', 'k.b', 'k.c', 'k.d', 'k.e', 'k.f'];
+    const row = [['', keys.map((key) => `\`${key}\``).join(', '), 'A. B. C. D. E. F. Closing.', '']];
+    const values = new Map(keys.map((key) => [key, `${key.slice(2).toUpperCase()}.`]));
+    values.set('k.c', 'C2.');
+    expect(driftedRows(row, values, new Map([['k.c', { was: 'C.', now: 'C2.' }]]))).toEqual([]);
+    expect(driftedRows(row, values, new Map([['k.c', { was: 'C.', now: 'C3.' }]]))).toEqual([row[0]?.[1]]);
   });
 });
