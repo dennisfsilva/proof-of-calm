@@ -225,3 +225,10 @@ generated rules files of each language.
   figure as one word. Britain, Ireland, and the US keep theirs
   (`£37,700`), in English and in every translation. Decided by the unanchored design check of the
   grouped figures (`docs/research/grouped-figures.md`).
+- **2026-11-17.** The Consequences' "knows English unit words only" no longer holds for Portuguese:
+  the number-unit hyphen check (`packages/content/src/hyphen-validate.ts`) also reads the Portuguese
+  unit words (dia, semana, mês, ano, hora, minuto and their plurals), so `90-dias` and `1-mês` are
+  refused. Portuguese writes `90 dias` with no hyphen, the numeral joined to its unit by a no-break
+  space (U+00A0) wherever English joins its figure (`docs/CONTENT-STYLE.md` §9). The German unit
+  stems still join the check before German overlays land. Found by the review of the first pt-PT
+  Learn modules (D12 of #322).
