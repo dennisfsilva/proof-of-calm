@@ -17,7 +17,7 @@
         "note": "Não há alienação enquanto o particular conserva a propriedade efetiva do princípio ao fim, por exemplo ao mover tokens entre endereços públicos que controla (CRYPTO22100)."
       },
       {
-        "note": "Uma doação de tokens é uma alienação pelo valor em libras, salvo ao cônjuge ou parceiro civil. Uma doação a uma instituição de caridade não paga Capital Gains Tax, salvo se viciada (CRYPTO22100). Tokens herdados: fora deste cartão."
+        "note": "Doar tokens é alienação pelo valor em libras, salvo ao cônjuge ou parceiro civil. Uma doação a uma instituição de caridade não paga Capital Gains Tax, salvo se for viciada (tainted donation; CRYPTO22100). Tokens herdados: fora deste cartão."
       },
       {
         "note": "Recompensas de staking fora de uma atividade comercial: rendimento diverso pelo valor em libras à receção (CRYPTO21200). Airdrops recebidos sem contrapartida: sem Income Tax (CRYPTO21250). Capital Gains Tax numa alienação posterior."
@@ -50,10 +50,10 @@
     ],
     "holdingRuleText": "Sem exclusão por período de detenção: cada venda é um facto tributável.",
     "lotRuleText": "Os tokens de um tipo formam o pool da section 104, com um custo dedutível (TCGA 1992 s. 104). Primeiro vem a regra do mesmo dia (s. 105). Os adquiridos nos 30 dias após uma alienação associam-se a ela, a mais antiga primeiro (s. 106A).",
-    "losses": "Pedidas na declaração, até 4 anos após o fim do ano fiscal da alienação. Abatem-se às mais-valias do mesmo ano e o resto reporta-se. Um pedido de valor irrisório para tokens sem valor abrange todo o pool da section 104.",
+    "losses": "As menos-valias pedem-se na declaração, até 4 anos após o fim do ano fiscal da alienação. Abatem-se às mais-valias do mesmo ano e o resto reporta-se. Um pedido de valor irrisório para tokens sem valor abrange todo o pool da section 104.",
     "reporting": [
-      "O resumo de Capital Gains Tax da Self Assessment (SA108) tem uma secção Cryptoassets, campos 13.1 a 13.8, no ano fiscal 2024 a 2025. Pede o número de alienações, o produto, custos dedutíveis, as mais-valias e menos-valias, e os cálculos.",
-      "Serviço real time Capital Gains Tax: a mais-valia ou menos-valia de tokens já comunicada por ele vai no campo 13.7, o imposto já pago no campo 13.8 e os números de referência no campo 54 (notas do SA108 de 2024 a 2025)."
+      "O resumo de Capital Gains Tax da Self Assessment (SA108) tem uma secção Cryptoassets, campos 13.1 a 13.8, no ano fiscal de 2024 a 2025. Pede o número de alienações, o produto, os custos dedutíveis e as mais e menos-valias, com os cálculos.",
+      "Serviço real time Capital Gains Tax: a mais-valia ou menos-valia de tokens já comunicada através desse serviço vai no campo 13.7, o imposto já pago no campo 13.8 e os números de referência no campo 54 (notas do SA108 de 2024 a 2025)."
     ],
     "caveats": [
       "Em que escalão do Income Tax caem as mais-valias.",
