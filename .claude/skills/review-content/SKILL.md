@@ -103,19 +103,23 @@ Arguments: $ARGUMENTS
   change, `figure-unstated` after a new row, a B sentence's count, years or bound, a coin the chart
   draws no fall of, or a row you would remove; after any English change, one on a translated
   module (above). Revert that item's change in every file it touched (the fact, the English
-  module, a chart row and the templates' copies of it), add one note, and mark as §6 says; the
+  module, a chart row, the templates' copies of it and a translation's figure), add one note, and
+  mark as §6 says; the
   owner makes the change, in the English and translated files and in a reviewed shape, in a pull
   request of their own. A change that draws a refusal on a translated module, a chart row's too,
   takes only the note `translated module for the owner: <path>; <item> <field>: <value>; …;
-  <sources>`: the translated module's path (`i18n/pt-PT/learn/cycles.mdx`), then each English file
-  and field the owner must change (the fact, the English module's `body`, a chart row's `low` and
-  `fall`, each template copy), named as a `changes` row names it, with its new value as that file
-  writes it and, for a figure the translated module shows, in the translation's number format too
-  (fact a's `−94.0 %`, pt-PT's `−94,0 %`), then every URL the values rest on, a fall's `source` and
-  `lowSource` both. Any other chart row's change takes `chart row for the owner: <coin>, high
-  <high>, low <low>, fall <fall> %, <source> <lowSource>`, the values its sources give (`<coin>`
-  the row's ticker, `SOL`; the `lowSource` only when the row has one), or for a row you would
-  remove `chart row for the owner: remove <coin>, high <high>: <why, from the source>, <source>`;
+  <sources>`: the translated module's path (`i18n/pt-PT/learn/cycles.mdx`), then each file and
+  field the change reached, English or translated (the fact, the English module's `body`, a chart
+  row's `low` and `fall`, each template copy, `i18n/pt-PT/templates/accumulate.json explanation`),
+  named as a `changes` row names it, with its new value as that file writes it (a fact's changed
+  clause, not its whole `value`) and, for a figure the translated module shows, in the
+  translation's number format too (fact a's `−94.0 %`, pt-PT's `−94,0 %`), then every URL the
+  values rest on, a fall's `source` and `lowSource` both. Any other chart row's change takes
+  `chart row for the owner: <coin>, high <high>, low <low>, fall <fall> %, <source> <lowSource>`,
+  the values its sources give (`<coin>` the row's ticker, `SOL`; the `lowSource` only when the row
+  has one), or for a row you would
+  remove `chart row for the owner: remove <coin>, high <high>: <why, from the source>, <source>`,
+  with `<lowSource>` in place of `<source>` when the why rests on it;
   either ends with the row's copies, `templates/<file>.json drawdowns[<n>]`, when it has any.
   Never change a B sentence's bound (`more than N %`), never add, move or delete a clause or a
   sentence, and never remove a chart row. A
@@ -270,9 +274,12 @@ For each profile in `packages/content/jurisdictions/`:
    is 97, never 96.
    - When you change a row of `packages/content/cycles/drawdowns.json`, change every template's
      `drawdowns` row of that coin and high to the same high, low and fall, each with its own
-     `changes` row. Only a test ties the copies to the file (`packages/content/src/cycles.test.ts`,
-     "every template drawdown appears in the cycles file"), so `pnpm run validate:content` names
-     neither; the copy's change then draws the template's figure refusals, fixed as §1 says.
+     `changes` row, and fact a's or b's clause of that coin and high to the row's dates, prices and
+     fall to one decimal. Only a test ties the copies to the file (`packages/content/src/cycles.test.ts`,
+     "every template drawdown appears in the cycles file" and "each row of drawdowns.json reads the
+     same fall as facts a and b"), so `pnpm run validate:content` names neither; the copy's change
+     then draws the template's figure refusals and the clause's the modules' that quote it, fixed as
+     §1 says.
    - Set a fact's or a `drawdowns` row's `accessed` to the day you read its sources only when the
      file's `reviewed` row will show every source read (`read` equals `of`). After a partial
      review leave it as it was, changed row or not, and give the day as the `changes` row's
@@ -285,13 +292,17 @@ For each profile in `packages/content/jurisdictions/`:
 3. Trim no fact a module quotes. Check it against its `source` at every window its request moves
    to, not only the one its URL names: a Coinbase Exchange request's as `docs/CONTENT-OPS.md` §7
    moves it (`b.alt-drawdowns`), a Bitstamp OHLC request's by its `start` as §8 step 1 there does
-   (`a.btc-drawdowns`). Check a clause whose figures come from a source other than its request's
-   series (`a.btc-drawdowns`' 2011 clause, from Mt. Gox and CoinMarketCap; `b.alt-drawdowns`'
-   `LINK 2018 (CoinMarketCap series only)`) against the cycles row of its coin and high, which
-   `packages/content/src/cycles.test.ts` ties it to, and that row's `source` and `lowSource`. Note
-   a clause that neither holds as `no listed source holds: <item> <field>: "<clause>"`, named as a
-   `changes` row names it (`facts/education.json [0].value`), the clause quoted as the file writes
-   it, and leave it unchanged.
+   (`a.btc-drawdowns`). Check the two clauses whose fall comes from a source other than their
+   request's series, `a.btc-drawdowns`' 2011 clause (Mt. Gox and CoinMarketCap) and
+   `b.alt-drawdowns`' `LINK 2018 (CoinMarketCap series only)`, against the cycles row of their coin
+   and high, which `packages/content/src/cycles.test.ts` ties each to, and that row's `source` and
+   `lowSource`. Note a clause that neither holds as
+   `no listed source holds: <item> <field>: "<clause>"`, named as a `changes` row names it
+   (`facts/education.json [0].value`), the clause quoted as the file writes it, and leave it
+   unchanged. Another series' figure in parentheses
+   (fact a's Mt. Gox $1,242, `−85.2 % on the CoinMarketCap series`, CMC $20,089 and $126,198.07)
+   takes no note and no change: no listed source holds it, and the owner's content review of the
+   English facts reads it (tracker #23's Needs the owner line on `a.btc-drawdowns`).
 4. Read the items of `docs/CONTENT-OPS.md` §6 and §7 for the templates and
    `packages/content/cycles/drawdowns.json`.
 
@@ -323,7 +334,8 @@ Set `reviewedBy: agent-draft` on every file you change and on every fact entry y
 translation has no `reviewedBy`: set none on it. A file or entry left with no change but its mark,
 after a revert or a fix that puts back HEAD's text, takes HEAD's `reviewedBy` back. Every note
 goes into the draft's `notes` and your closing report. When the run holds a note but would change
-no file, set `reviewedBy: agent-draft` on one fact entry or file the note names (the cycles file
+no file, set `reviewedBy: agent-draft` on one fact entry or file a note names, one for the run
+however many notes it holds, since the pull request carries them all (the cycles file
 for a chart row's note), never on a module, for which the finish would ask a `changes` row: for a
 module's note, on the fact entry or cycles file its figure rests on. Give that file its `reviewed`
 row. The pull request then carries the note: the finish accepts a change of the mark alone and
@@ -343,9 +355,11 @@ The finish refuses a changed entry at any other value.
    name its file and line and both values in the draft's notes and your closing report, and say in
    both that `verify` fails on `pnpm test` until the owner removes that assertion in a pull request
    of its own (`docs/ENGINEERING.md` §2): one changed to your new value would fail on main, where
-   the data still holds the old one. For the tie of a fact's value to its `docs/EDUCATION.md` §9 row
-   (`packages/content/src/facts.test.ts`), say instead that the owner's pull request to main records
-   the fact's old and new value as pending and keeps the tie (`docs/CONTENT-OPS.md` §8 step 4).
+   the data still holds the old one. A chart row's tie to fact a's or b's clause in
+   `packages/content/src/cycles.test.ts` is no such test: change the clause (§4 step 1). For the tie
+   of a fact's value to its `docs/EDUCATION.md` §9 row (`packages/content/src/facts.test.ts`), say
+   instead that the owner's pull request to main records the fact's old and new value as pending
+   and keeps the tie (`docs/CONTENT-OPS.md` §8 step 4).
    When a translation's figure still does not match
    after you change it and run the checks again, revert neither the English change nor the
    translation's edit: name the figure, its path and the values the check prints in the draft's
