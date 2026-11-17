@@ -283,8 +283,16 @@ external links and the Risk link in the mobile export (M3).
   loader and gave the facts, the grouped figures and the validation each a fix and two review
   rounds. Each round found one more case: a dropped pin, a figure shape whose suggestion changes the
   value, and code that a regex reads unlike the MDX compiler. So none merged, and the four branches
-  move to #318, which comes before #271, with the rest of #316's list. So pt-PT takes 6 build
-  sessions more than #269 planned before German starts. A
+  move to #318, which comes before #271, with the rest of #316's list. On 2026-11-17, #318 re-cut
+  the facts branch on main with main's literal pins and merged it (#321): a content review's dates
+  and sign-off no longer fail the tests. Its design check, two designers and a judge, settled the
+  grouped figures' suggestion: only a figure with one value, read as English writes numbers and as
+  the page does, gets the page's form. The Learn validation, the grouped figures and the new
+  figures validator then each used both review rounds on one more case of the same kind (a soft
+  hyphen or a block boundary in the compiled page's text, a translated figure's fix, a message's
+  fix refused once applied), so they move to #322, which comes before #271, with the Learn folder,
+  the overlays and the rest of #318's list. So pt-PT takes 7 build sessions more than #269 planned
+  before German starts. A
   render-and-axe-only pt-PT story run waits for #271, once every namespace is translated. CSV import, free (ADR-0039), for the
   main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
   Republic; Kraken's ledger reader built on 2026-11-13 (#168) and the core's import plan against the
