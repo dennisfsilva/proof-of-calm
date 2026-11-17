@@ -287,8 +287,13 @@ those wordings fail.
 U+2010, or U+2011, in any case and with nothing required after "cent". The second review of #334 found `15percent` and
 `15-percentage-point` passing the earlier trigger (#340). The numeral condition on "percentage" is dropped, since no
 live template holds "percent" or "percentage" (a search of the four templates on this date found none), so a bare
-"percentage" now fails as `figure-unclassed`. The trigger also runs over the whole explanation, so a line or paragraph
-break between "per" and "cent", which splits them into two sentences, does not hide them: a match no single sentence
-holds is `figure-unclassed`. The holes on record stay with the copy review (`docs/LEGAL.md` §6 Q6): `pct`, `pc`, `‰`,
-`bps`, and `points`, and "per" and "cent" joined by any other character, such as an en dash, a minus sign, a soft
-hyphen, or a zero-width space.
+"percentage" now fails as `figure-unclassed`. The trigger also runs over the whole explanation, so a paragraph break
+between "per" and "cent", which splits them into two sentences, does not hide them, and a single line break reads as a
+space. A match that spans a paragraph break is `figure-unclassed`. The holes on record stay with the copy review
+(`docs/LEGAL.md` §6 Q6): `pct`, `pc`, `‰`, `bps`, and `points`. So do "per" and "cent" joined by any other character,
+such as an en dash, a minus sign, a soft hyphen, or a zero-width space.
+
+2026-11-17: the checker and the onboarding template step read an explanation's paragraphs through one function,
+`paragraphsOf` (`packages/content/src/paragraphs.ts`): a line holding only spaces, tabs, carriage returns or form
+feeds ends a paragraph, and inside a paragraph each run of those characters and line feeds reads as one space, as CSS
+shows it. Rounds 3 and 4 of #340 found wording hidden where the checker split paragraphs and the app did not.
