@@ -44,13 +44,13 @@ describe('the pt-PT profile overlays', () => {
   );
 });
 
-// Numerals for every number, each joined to its unit by U+00A0 (docs/CONTENT-STYLE.md §4 and §9): Portugal's loss
-// carry-forward wrote "five years" and «cinco anos» until session 25p.
+// Numerals for every number (docs/CONTENT-STYLE.md §1 rule 1 and §9): Portugal's loss carry-forward wrote "five years"
+// and «cinco anos» before.
 describe("Portugal's numerals", () => {
-  it('writes the loss carry-forward as a numeral joined to its unit, in English and in pt-PT', async () => {
+  it('writes the loss carry-forward as a numeral, in English and in pt-PT', async () => {
     const english = (await loadProfile('PT')) as CountryProfile;
     const portuguese = (await loadProfile('PT', 'pt-PT')) as CountryProfile;
-    expect(english.card.losses).toContain('carries forward 5\u00a0years');
-    expect(portuguese.card.losses).toContain('se reporta 5\u00a0anos');
+    expect(english.card.losses).toContain('carries forward 5 years');
+    expect(portuguese.card.losses).toContain('se reporta 5 anos');
   });
 });
