@@ -388,13 +388,15 @@ range with `to` writes the sign on each figure: `2,5% to 13,3%`. A figure that i
 keeps its point, as a law citation does (`art. 33.1`, `Quadro 9.4`). Write it apart from a
 percentage beside it, with a word or a spaced dash between them (`art. 33.1 sets 28%`,
 `art. 33.1 – 28%`), never joined by a hyphen or by `to` (`art. 33.1-28%` and `art. 33.1 to 28%`
-read as a range). Where that number locale writes a comma decimal, a profile's figure of 10 000
-or more groups its digits in threes with a no-break space (U+00A0) and a smaller one takes none,
-in English and in each translation alike: `a deemed 6,00% of assets above EUR 59 357 per person`,
-`EUR 1000`. A decimal there takes the comma, and a point is only a citation's.
+read as a range). On the pages of Germany, Spain, France, Italy, the Netherlands, and Portugal, a
+profile's figure of 10 000 or more groups its digits in threes with a no-break space (U+00A0,
+`\u00a0` in JSON): `EUR 59 357`. A smaller one takes none: `EUR 1000`. Both hold in English
+and in each translation alike. A decimal in a profile's text there takes the comma, and a point in
+it is only a citation's. An identifier keeps its digits plain (`PIV 28969`, `Modelo 721`).
 `pnpm validate:content` refuses other grouping beside a currency code (`number-group`). Britain,
-Ireland and the US keep their locale's (`£37,700`) (decided 2026-11-16). Facts, templates
-and modules write `N %` with an ordinary space, or with a no-break space where the sign must not
+Ireland, and the US keep their locale's grouping (`£37,700`) (decided 2026-11-16). A figure the app
+formats follows its locale (`1.234` in Germany); only a profile's literal figures group as above.
+Facts, templates and modules write `N %` with an ordinary space, or with a no-break space where the sign must not
 wrap away. When a page shows a fact's, template's or module's percentage beside a formatted figure,
 that percentage takes the page's joiner. A module without a chart keeps its spacing as written. The
 tax module is the exception: its country card shows the profile's percentages, so its text takes
