@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { checkModuleBody } from '@proofofcalm/config/vite';
 import { describe, expect, it } from 'vitest';
 import catalogue from '../coins.json' with { type: 'json' };
@@ -271,17 +272,63 @@ describe("pt-PT's chart section", () => {
     ['As metades não contam.', 'a number word', 'metades'],
     ['O saldo ficou a zeros.', 'a number word', 'zeros'],
     ['A queda durou um trimestre.', 'a number word', 'trimestre'],
+    // English's `third` with `s?`: a third as a fraction is `terço`, not the ordinal `terceiro`.
+    ['Perdeu um terço do valor.', 'a number word', 'terço'],
+    ['Os terços do gráfico não contam.', 'a number word', 'terços'],
+    ['O preço chegou ao dobro.', 'a number word', 'dobro'],
+    ['O preço teve uma duplicação.', 'a number word', 'duplicação'],
+    // Loud false failures (hole 14 of amendment 8): the stems read a fold, a hinge and a duplicate as figures.
+    ['O papel tinha uma dobra.', 'a number word', 'dobra'],
+    ['A dobradiça partiu.', 'a number word', 'dobradiça'],
+    ['Era um duplicado.', 'a number word', 'duplicado'],
   ])('6: «%s» fails on %s', async (sentence, kind, token) => {
     const found = await problemsOf(ptPara(sentence));
     expect(found.map(({ code, detail: words }) => [code, words])).toEqual([[FC, detail(sentence, kind, token)]]);
   });
 
-  it.each(['Cada barra é uma queda de uma moeda.', 'O mar não entra no gráfico.', 'O sol não entra no gráfico.'])(
-    '6: «%s» passes',
-    async (sentence) => {
-      expect(await codes(ptPara(sentence))).toEqual([]);
-    },
-  );
+  // 6: every form of `dobrar` and of `duplicar` to `centuplicar` triggers, as English's `doubled`, `tripled` and
+  // `quadrupled` do in every past use: one paragraph per verb, its forms in sentences outside the shapes.
+  const forms = (stem: string) => {
+    const subjunctive = stem.endsWith('c') ? `${stem.slice(0, -1)}que` : `${stem}e`;
+    return [
+      ['O preço pode %.', `${stem}ar`],
+      ['O preço % depressa.', `${stem}a`],
+      ['Antes, o preço %.', `${stem}ou`],
+      ['O preço % a cada ciclo.', `${stem}ava`],
+      ['O preço %.', `${stem}ará`],
+      ['O preço %.', `${stem}aria`],
+      ['Antes da queda, o preço tinha %.', `${stem}ado`],
+      ['Talvez o preço %.', subjunctive],
+    ].map(([sentence = '', form = '']) => [sentence.replace('%', form), form] as const);
+  };
+  it.each(
+    'dobr duplic triplic quadruplic quintuplic sextuplic septuplic setuplic octuplic nonuplic decuplic centuplic'.split(
+      ' ',
+    ),
+  )('6: every form of %sar fails on a number word', async (stem) => {
+    const table = forms(stem);
+    const found = await problemsOf(ptPara(table.map(([sentence]) => sentence).join(' ')));
+    expect(found.map(({ code, detail: words }) => [code, words])).toEqual(
+      table.map(([sentence, form]) => [FC, detail(sentence, 'a number word', form)]),
+    );
+  });
+
+  it.each([
+    'Cada barra é uma queda de uma moeda.',
+    'O mar não entra no gráfico.',
+    'O sol não entra no gráfico.',
+    // A stem holds at a word's start, as English's `doubled` misses `redoubled`; `meio` stays prose (hole 13).
+    'A atenção redobrou.',
+    'A queda parou a meio do ciclo.',
+  ])('6: «%s» passes', async (sentence) => {
+    expect(await codes(ptPara(sentence))).toEqual([]);
+  });
+
+  it('6: the live translation of Risk honestly passes: []', async () => {
+    const source = readFileSync(new URL('../i18n/pt-PT/learn/risk-honestly.mdx', import.meta.url), 'utf8');
+    // A translation's front matter holds only its translated fields, so the body is read past it.
+    expect(await codes(source.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/u, ''))).toEqual([]);
+  });
 
   it("7: English's shapes fail in a pt-PT module, and pt-PT's in an English one", async () => {
     expect(await codes(pt(`${S1} Ether fell 94 % and 82 %, Chainlink 89 % and 91 %, and Solana 97 %.`))).toEqual([
