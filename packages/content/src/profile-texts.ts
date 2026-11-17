@@ -9,8 +9,11 @@ const SUMMARY_WORDS = 60;
 // The one profile text only the tax-year file copies (docs/CONTENT-STYLE.md §4).
 const FILE_ONLY_PROFILE_TEXT = 'lotRuleNote';
 
+// The no-break space between the groups of a figure (`EUR 50 000`, docs/CONTENT-STYLE.md §4), which counts as one word.
+const FIGURE_GROUP = /(?<=\d) (?=\d{3}(?!\d))/g;
+
 export function summaryProblems(path: string, summary: string): Problem[] {
-  const words = summary.trim().split(/\s+/).length;
+  const words = summary.replaceAll(FIGURE_GROUP, '').trim().split(/\s+/).length;
   return words > SUMMARY_WORDS ? [{ path, code: 'summary-too-long', detail: `${words} words` }] : [];
 }
 
