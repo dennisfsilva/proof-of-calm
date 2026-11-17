@@ -1,25 +1,19 @@
-import { readdirSync, readFileSync } from 'node:fs';
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import mdx from '@mdx-js/rollup';
 import { createServer, type ViteDevServer } from 'vite';
 import { describe, expect, it } from 'vitest';
 import { buildFixtureBundle, type FixtureBuildOptions, type FixtureFiles } from './fixture.ts';
 import { createHostConfig } from './host-config.ts';
 import {
-  blankFrontMatter,
   checkModuleBody,
   LEARN_MODULES_ID,
   learnPlugins,
   MODULE_BODY_ELEMENTS,
-  PAGE_NODES,
   type ParseModule,
-  pageBlocks,
 } from './learn-plugin.ts';
 import { englishModuleOf } from './learn-translations.ts';
-
-type Node = { readonly type: string; readonly children?: readonly Node[] };
+import type { PageBlock } from './page-blocks.ts';
 
 // A stand-in for `@proofofcalm/content/modules`' parseModule, which this package cannot import (it would
 // close a cycle in the package graph): flat `key: value` lines between two `---` lines, the rest the body.
@@ -357,9 +351,25 @@ describe('checkModuleBody', () => {
     ['text in a text element', 'A line. <PastPerformance>past</PastPerformance>\n', /noise\.mdx:6: <PastPerf/],
     ['a space in a text element', 'A line. <PastPerformance> </PastPerformance>\n', /noise\.mdx:6: <PastPerf/],
   ];
-  const pass = (...blocks: string[]) => ({ problem: null, flow: [], elements: [], blocks });
-  const TEXT_PAST = { problem: null, flow: [], elements: ['text:PastPerformance'], blocks: ['A line. '] };
-  const flowChart = (...blocks: string[]) => ({ problem: null, flow: ['Chart'], elements: ['flow:Chart'], blocks });
+  const paragraphs = (...texts: string[]): PageBlock[] => texts.map((text) => ({ kind: 'paragraph', text }));
+  const pass = (...blocks: string[]) => ({
+    problem: null,
+    flow: [],
+    elements: [],
+    blocks,
+    page: paragraphs(...blocks),
+  });
+  const TEXT_PAST = {
+    ...pass('A line. '),
+    elements: ['text:PastPerformance'],
+  };
+  const flowChart = (...blocks: string[]) => ({
+    problem: null,
+    flow: ['Chart'],
+    elements: ['flow:Chart'],
+    blocks,
+    page: [...paragraphs(...blocks), { kind: 'element', name: 'Chart' }],
+  });
 
   it.each(refused)('refuses %s, naming the file and line', async (_name, body, message) => {
     expect((await checkModuleBody(module('noise', body), path)).problem).toMatch(message);
@@ -461,39 +471,6 @@ describe('checkModuleBody', () => {
     });
   });
 
-  // The reader knows every node a compiling body holds, and fails closed on any other (a remark plugin added later).
-  describe('the block reader reads a closed set of nodes', () => {
-    const learn = new URL('../../content/learn/', import.meta.url);
-
-    it("holds every node type of the English modules' compiled trees", async () => {
-      const names = readdirSync(learn).filter((name) => name.endsWith('.mdx'));
-      expect(names.length).toBeGreaterThan(4);
-      for (const name of names) {
-        const types = new Set<string>();
-        const collect = () => (tree: Node) => {
-          const visit = (node: Node): void => {
-            types.add(node.type);
-            for (const child of node.children ?? []) visit(child);
-          };
-          visit(tree);
-        };
-        const [source, at] = [readFileSync(new URL(name, learn), 'utf8'), `packages/content/learn/${name}`];
-        expect(await mdx({ remarkPlugins: [collect] }).transform(blankFrontMatter(source), at)).toBeDefined();
-        expect([name, [...types].filter((type) => !PAGE_NODES.includes(type))]).toEqual([name, []]);
-        expect((await checkModuleBody(source, at)).problem).toBeNull();
-      }
-    });
-
-    it('throws on a node type outside the set, naming it and its line', () => {
-      const table = { type: 'table', position: { start: { line: 4 } }, children: [] };
-      expect(() => pageBlocks({ type: 'root', children: [table] }, 'learn/noise.mdx')).toThrow(
-        /^learn\/noise\.mdx:4: a table node is not one the page text reader knows/,
-      );
-      const loose = { type: 'text', value: 'Loose.', position: { start: { line: 2 } } };
-      expect(() => pageBlocks({ type: 'root', children: [loose] }, 'learn/noise.mdx')).toThrow(/a text node/);
-    });
-  });
-
   it('takes another set of elements', async () => {
     expect((await checkModuleBody(module('noise', 'Text.\n\n<Chart />\n'), path, ['Chart'])).problem).toBeNull();
     expect((await checkModuleBody(module('noise', 'A line. <PastPerformance />\n'), path, [])).problem).toMatch(
@@ -509,7 +486,10 @@ describe('checkModuleBody', () => {
 
   it('passes Markdown text and ignores the front matter', async () => {
     const markdown = '# Noise\n\nA *calm* plan.\n\n- one\n- two\n';
-    expect(await checkModuleBody(module('noise', markdown), path)).toEqual(pass('Noise', 'A calm plan.', 'one', 'two'));
+    expect(await checkModuleBody(module('noise', markdown), path)).toEqual({
+      ...pass('Noise', 'A calm plan.', 'one', 'two'),
+      page: [{ kind: 'heading', depth: 1, text: 'Noise' }, ...paragraphs('A calm plan.', 'one', 'two')],
+    });
   });
 });
 
