@@ -166,6 +166,41 @@ describe('learnPlugins', () => {
       expect(body?.code).not.toContain('slug: noise');
     });
 
+    // A link names a section by the id its English heading's words make, so a translated h2 takes the English text
+    // at its position as `sourceHeading`, the prop the page's h2 makes its id from (ADR-0048, 2026-11-17).
+    it("gives each translated h2 the English module's h2 text at the same position, and English h2s none", async () => {
+      const english = module('noise', '# Noise\n\n## Why some people hold\n\nText.\n\n## Selling in 3 parts\n\nText.');
+      const files = {
+        ...WITH_TRANSLATION,
+        'learn/noise.mdx': english,
+        'i18n/pt-PT/learn/noise.mdx': translation('noise', '# Ruído\n\n## Porque se mantém\n\n## Vender em 3 partes'),
+      };
+      const output = await buildLearn(files);
+      const body = chunks(output).find((chunk) => chunk.code.includes('Porque se mantém'));
+      const h2s = [...(body?.code ?? '').matchAll(/sourceHeading"?: ?"([^"]*)",\s*children"?: ?"([^"]*)"/g)];
+      expect(h2s.map(([, source, text]) => [source, text])).toEqual([
+        ['Why some people hold', 'Porque se mantém'],
+        ['Selling in 3 parts', 'Vender em 3 partes'],
+      ]);
+      const id = (chunk: ReturnType<typeof chunks>[number]) => chunk.facadeModuleId ?? '';
+      const englishBody = chunks(output).find(
+        (chunk) => id(chunk).endsWith('noise.mdx') && !id(chunk).includes('i18n'),
+      );
+      expect(englishBody?.code).toContain('Why some people hold');
+      expect(englishBody?.code).not.toContain('sourceHeading');
+    });
+
+    it('an h2 past the English count keeps its own text, with no sourceHeading', async () => {
+      const files = {
+        ...WITH_TRANSLATION,
+        'learn/noise.mdx': module('noise', '## One\n\nText.'),
+        'i18n/pt-PT/learn/noise.mdx': translation('noise', '## Um\n\n## Dois'),
+      };
+      const body = chunks(await buildLearn(files)).find((chunk) => chunk.code.includes('Dois'));
+      expect(body?.code.match(/sourceHeading/g)).toHaveLength(1);
+      expect(body?.code).toMatch(/sourceHeading"?: ?"One",\s*children"?: ?"Um"/);
+    });
+
     it('puts no translated text in the entry chunk', async () => {
       const entry = entryOf(await buildLearn(WITH_TRANSLATION));
       expect(entry.code).toMatch(/title"?: ?"noise title"/);
