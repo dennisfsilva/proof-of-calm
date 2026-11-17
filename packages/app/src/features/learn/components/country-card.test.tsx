@@ -19,6 +19,9 @@ afterEach(cleanup);
 
 const RULES = ['rates', 'holdingRule', 'lotRule', 'losses', 'reporting'] as const;
 const SOURCES = /^Sources for /;
+// The query collapses the page's white space, U+00A0 included (`figure-join`, CONTENT-STYLE §4), so the text it
+// looks for is collapsed alike.
+const shown = (text: string) => text.replace(/\s+/g, ' ');
 
 type Options = { profile?: CountryProfile; level?: 1 | 2; id?: string; nowMs?: number };
 
@@ -59,7 +62,7 @@ describe('CountryCard', () => {
     ]);
     expect(card.children[1]?.textContent).toBe(PORTUGAL.card.summary60);
     const [first] = PORTUGAL.holdingRuleConditions;
-    expect(screen.getByText(first as string).tagName).toBe('LI');
+    expect(screen.getByText(shown(first as string)).tagName).toBe('LI');
     expect(screen.queryByRole('button')).toBeNull();
     expect(screen.getByText(/^Selling for money · Taxable$/)).toBeDefined();
     expect(screen.getAllByText(/^From \d+\s\w+\s\d{4}$/u)).toHaveLength(PORTUGAL.card.rates.length);
@@ -191,9 +194,9 @@ describe('CountryCard in pt-PT (WCAG 2.2 SC 3.1.2, ADR-0057)', () => {
   it("marks an English profile's text lang=en and says so in Portuguese, under the title", async () => {
     const card = await mountPt(GERMANY);
     expect(within(card).getByRole('heading', { level: 1 }).getAttribute('lang')).toBe('en');
-    expect(screen.getByText(GERMANY.card.summary60).getAttribute('lang')).toBe('en');
-    expect(screen.getByText(GERMANY.card.holdingRuleText).getAttribute('lang')).toBe('en');
-    expect(screen.getByText(GERMANY.card.lotRuleText).getAttribute('lang')).toBe('en');
+    expect(screen.getByText(shown(GERMANY.card.summary60)).getAttribute('lang')).toBe('en');
+    expect(screen.getByText(shown(GERMANY.card.holdingRuleText)).getAttribute('lang')).toBe('en');
+    expect(screen.getByText(shown(GERMANY.card.lotRuleText)).getAttribute('lang')).toBe('en');
     const line = screen.getByText(IN_ENGLISH);
     expect(card.children[1]).toBe(line);
     expect(line.closest('[lang]')).toBeNull();
@@ -228,7 +231,7 @@ describe('CountryCard in pt-PT (WCAG 2.2 SC 3.1.2, ADR-0057)', () => {
       </ServicesProvider>,
     );
     await act(() => Promise.resolve());
-    expect(screen.getByText(portugal.card.summary60).getAttribute('lang')).toBe('pt-PT');
+    expect(screen.getByText(shown(portugal.card.summary60)).getAttribute('lang')).toBe('pt-PT');
     expect(screen.queryByText(learn.card.inEnglish)).toBeNull();
     expect(container.textContent).not.toContain(learn.card.inEnglish);
   });
