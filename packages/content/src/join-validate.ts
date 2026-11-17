@@ -16,11 +16,15 @@ const FORM =
 const FIGURE = String.raw`(\d+(?:(?:[.,]|\s(?=\d{3}(?!\d)))\d+)*)`;
 const NUMBER = String.raw`(\d[\dA-Za-z]*(?:[.-][\dA-Za-z]+)*|[A-Z][A-Z\d]*(?:-[A-Za-z\d]+)*(?!\p{L}))`;
 const NOT_IN_WORD = String.raw`(?<![\p{L}\d])`;
+// A code joined to a letter by a hyphen (`EUR-denominated`, `non-EUR`) or to another code by a slash (`USD/EUR`,
+// `BTC/USD`) is part of a word or a pair, not a code beside its figure; a slash and a unit word (`5 EUR/month`) is not.
+const CODE_BEFORE = String.raw`${NOT_IN_WORD}(?<!\p{L}-)(?<!\p{Lu}{3}/)`;
+const CODE_AFTER = String.raw`(?![\p{L}\d])(?!-\p{L})(?!/\p{Lu}{3})`;
 // A code after a figure is that figure's only when no figure follows it: in `art. 33.1 EUR 1000` the code is 1000's.
 const JOINS = new RegExp(
   [
-    `${NOT_IN_WORD}${CODE}${GAP}${FIGURE}`,
-    String.raw`(?<![\d.,])${FIGURE}${GAP}${CODE}(?![\p{L}\d])(?!\s?\d)`,
+    `${CODE_BEFORE}${CODE}${GAP}${FIGURE}`,
+    String.raw`(?<![\d.,])${FIGURE}${GAP}${CODE}${CODE_AFTER}(?!\s?\d)`,
     `${NOT_IN_WORD}${FORM}${GAP}${NUMBER}`,
   ].join('|'),
   'gu',
