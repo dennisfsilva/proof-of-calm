@@ -19,7 +19,7 @@
       "country": "País do plano: {country}.",
       "notice": "{date}: {notice}",
       "changed": "{date}: {kind, select, generic {o perfil geral mudou} other {as regras de {country} mudaram}}.",
-      "link": "{kind, select, generic {Ver os países} other {Ver o cartão de {country}}}"
+      "link": "{kind, select, generic {Ver os países} other {Ver a ficha de {country}}}"
     },
     "where": {
       "heading": "Onde estão as moedas",
