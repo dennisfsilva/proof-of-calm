@@ -327,8 +327,11 @@ external links and the Risk link in the mobile export (M3).
   shapes, taken from an unanchored design check (#354). Risk honestly in pt-PT on pt-PT's own
   chart-section shapes (a translated chart section fails closed until then), the joins
   `docs/CONTENT-STYLE.md` §4 does not cover, the overlay check's own percent regex and the
-  review-content skill's remaining wording move to #355, which comes before #271. With #340, #343,
-  #349 and #355, pt-PT takes 13 build sessions more than
+  review-content skill's remaining wording move to #355, which comes before #271. On 2026-11-17,
+  #355 merged nothing: Risk honestly in pt-PT and the review-content skill's remaining wording used
+  both review rounds, each confirming new forms of one kind, and move with the rest of #355's cut
+  list to #358, which comes before #271. With #340, #343, #349, #355 and #358, pt-PT takes 14 build
+  sessions more than
   #269 planned before German starts. A render-and-axe-only pt-PT
   story run waits for #271, once every namespace is translated. CSV import, free (ADR-0039), for the
   main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
