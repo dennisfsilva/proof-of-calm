@@ -142,10 +142,11 @@ export const escaped = (text: string) =>
 const typed = (text: string) => escaped(JSON.stringify(text));
 
 /**
- * The decimals of a money figure, or `undefined` when every mark in it groups. D2 as amended (2026-11-17, #316): the
- * figure's structure decides first. A point and a comma together make the last mark the decimal. A mark written twice
- * groups. A lone mark after a space group or four digits, or before four digits, is the decimal. Only then does D2's
- * rule read it: one or two digits after it, or a whole part of 0, are decimals; three after 1 to 3 digits are a group.
+ * The decimals of a money figure, or `undefined` when every mark in it groups. D2 as amended after its review
+ * (2026-11-17): the figure's structure decides first. A point and a comma together make the last mark the decimal. A
+ * mark written twice groups. A lone mark after a space group or four digits, or before four digits, is the decimal. Only
+ * then does D2's rule read it: one or two digits after it, or a whole part of 0, are decimals; three after 1 to 3 digits
+ * are a group.
  */
 function decimalsOf(figure: string): string | undefined {
   const at = Math.max(figure.lastIndexOf('.'), figure.lastIndexOf(','));
