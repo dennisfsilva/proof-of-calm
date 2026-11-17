@@ -1,12 +1,16 @@
 import { readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
 import mdx from '@mdx-js/rollup';
-import { describe, expect, it } from 'vitest';
+import { createServer, type ViteDevServer } from 'vite';
+import { afterEach, describe, expect, it } from 'vitest';
 import { buildFixtureBundle, type FixtureBuildOptions, type FixtureFiles } from './fixture.ts';
 import { createHostConfig } from './host-config.ts';
 import {
   blankFrontMatter,
   checkModuleBody,
+  LEARN_MODULES_ID,
   learnPlugins,
   MODULE_BODY_ELEMENTS,
   PAGE_NODES,
@@ -505,5 +509,93 @@ describe('checkModuleBody', () => {
   it('passes Markdown text and ignores the front matter', async () => {
     const markdown = '# Noise\n\nA *calm* plan.\n\n- one\n- two\n';
     expect(await checkModuleBody(module('noise', markdown), path)).toEqual(pass('Noise', 'A calm plan.', 'one', 'two'));
+  });
+});
+
+// Under `pnpm dev`, a translation's h2s follow the English module as it is on disk now: an English edit recompiles
+// the translation (ADR-0048, 2026-11-17). Proven through the dev server's own watcher and module graph.
+describe('learnPlugins under the dev server', () => {
+  let cleanup: (() => Promise<void>) | undefined;
+  afterEach(async () => {
+    await cleanup?.();
+    cleanup = undefined;
+  });
+
+  const RUNTIME =
+    'export const jsx = () => null; export const jsxs = jsx; export const jsxDEV = jsx; export const Fragment = jsx;';
+  const DEV_FIXTURE: FixtureFiles = {
+    'learn/noise.mdx': module('noise', '# Noise\n\n## Why some people hold\n\nText.'),
+    'i18n/pt-PT/learn/noise.mdx': [
+      '---',
+      'slug: noise',
+      'title: Ruído',
+      '---',
+      '# Ruído',
+      '',
+      '## Porque se mantém',
+      '',
+    ].join('\n'),
+    'node_modules/react/package.json': JSON.stringify({
+      name: 'react',
+      version: '0.0.0',
+      exports: { './jsx-runtime': './runtime.js', './jsx-dev-runtime': './runtime.js' },
+    }),
+    'node_modules/react/runtime.js': RUNTIME,
+  };
+
+  it("recompiles a translation when the English module's h2 changes on disk", async () => {
+    const root = await mkdtemp(join(tmpdir(), 'poc-vite-dev-'));
+    let server: ViteDevServer | undefined;
+    cleanup = async () => {
+      await server?.close();
+      await rm(root, { recursive: true, force: true });
+    };
+    for (const [name, text] of Object.entries(DEV_FIXTURE)) {
+      await mkdir(dirname(join(root, name)), { recursive: true });
+      await writeFile(join(root, name), text);
+    }
+    // The watcher can be ready before createServer returns: a plugin hears it from the moment the server exists.
+    let ready: Promise<unknown> = Promise.resolve();
+    const watcherReady = {
+      name: 'poc:test-watcher-ready',
+      configureServer(created: ViteDevServer) {
+        ready = new Promise((resolve) => created.watcher.once('ready', resolve));
+      },
+    };
+    const dev = await createServer({
+      root,
+      configFile: false,
+      logLevel: 'silent',
+      appType: 'custom',
+      server: { middlewareMode: true, ws: false },
+      optimizeDeps: { noDiscovery: true, include: [] },
+      plugins: [watcherReady, ...learnPlugins({ dir: join(root, 'learn'), parseModule })],
+    });
+    server = dev;
+    const client = dev.environments.client;
+    const headingOf = async () =>
+      /sourceHeading"?: ?"([^"]*)"/.exec(
+        (await client.transformRequest('/i18n/pt-PT/learn/noise.mdx'))?.code ?? '',
+      )?.[1];
+    // The page loads the list of modules first, then the translation's chunk.
+    await client.transformRequest(LEARN_MODULES_ID);
+    expect(await headingOf()).toBe('Why some people hold');
+
+    await ready;
+    const english = join(root, 'learn', 'noise.mdx');
+    const changed = new Promise((resolve, reject) => {
+      dev.watcher.on('change', (file) => file.replaceAll('\\', '/') === english.replaceAll('\\', '/') && resolve(file));
+      setTimeout(() => reject(new Error('the watcher reported no change of the English module in 10 s')), 10_000);
+    });
+    await writeFile(english, module('noise', '# Noise\n\n## Why people hold\n\nText.'));
+    await changed;
+    // The server invalidates a few ticks after the watcher's event: read again until the id moves, for at most 1 s.
+    const deadline = Date.now() + 1_000;
+    let heading = await headingOf();
+    while (heading === 'Why some people hold' && Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, 25));
+      heading = await headingOf();
+    }
+    expect(heading).toBe('Why people hold');
   });
 });
