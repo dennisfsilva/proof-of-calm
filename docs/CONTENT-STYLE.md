@@ -647,6 +647,10 @@ The product's nouns, one Portuguese word each, in every string, the site pages a
 | app | aplicação |
 | Risk disclosure (the link) | Aviso sobre riscos |
 | daily close | fecho diário |
+| a fall (what Today's line and Learn's first row name) | queda |
+| the fall page | página da queda |
+| 90-day high | máximo de 90 dias, with no hyphen |
+| headline (news) | manchete |
 | Price data by CoinGecko | Dados de preços da CoinGecko |
 
 Two terms name the same date in two frames: `data de fim do período de detenção` is the date in the
