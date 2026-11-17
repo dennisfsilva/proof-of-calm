@@ -174,16 +174,23 @@ Recorded on 2026-11-15, when the site's half of the rendering points landed in `
   numbers. The ban list and the no-break hyphen run on the translated text. The facts, the review dates and the word
   cap are English's, checked on the English module only. `checkModuleBody` compiles the translation with `closedBody`
   as it does English, failing at the translation's own line, and its `<Chart />` is held to the English module's
-  chart. English's body is compiled too, and the two element lists, each element a block or inside a sentence, match
-  in order (`module-overlay-elements`, `packages/content/scripts/closed-body.ts`): code hides an element on both sides
-  as the page does.
+  chart. English's body is compiled too, and the two element lists, each element a block or inside a sentence and
+  each depth-2 heading as `heading:2`, match in order (`module-overlay-elements`,
+  `packages/content/scripts/closed-body.ts`), so a translation holds English's sections: code hides an element on
+  both sides as the page does.
 - 2026-11-17: the ban list, the number check and the hyphen check of a translated body read the text its compiled
-  page shows, not its source. `checkModuleBody` returns `text`: every text, code span and code block value of the tree
-  its closed-body compile parses, as the parser decoded it, a character reference included, inline values joined with
-  nothing and blocks with a newline; an attribute's value and a fence's info string are not in it. `closedBodyProblems`
-  runs the ban list and the hyphen check on the translation's `text` and compares its numbers with the `text` of
-  English's compiled body; `translatedModuleProblems` reads the front matter only. A translation that does not compile
-  gets `module-closed-body` and none of the three; while English's body does not compile, the translation gets the
-  ban list and the hyphen check, and English's own run reports its body. English's own checks still read its source
+  page shows, not its source, block by block. `checkModuleBody` returns `blocks`: one string per paragraph, heading
+  or code block of the tree its closed-body compile parses, in tree order, as the parser decoded it, a character
+  reference included. Every value below a block joins with nothing and a hard break with a space; an attribute's
+  value and a fence's info string are not in it. Every default-ignorable code point (`\p{Default_Ignorable_Code_Point}`,
+  a soft hyphen or a zero-width space among them) is removed, since the page shows the word without it. The reader
+  knows the closed set of node types a compiling body holds (`PAGE_NODES`: `closedBody` refuses the rest, and the
+  compiler runs without remark-gfm) and throws on any other, so a remark plugin added later fails closed. A module
+  holds no link (`closedBody` refuses one), so none is read. `closedBodyProblems` runs the ban list and the hyphen
+  check on each block of the translation, and reads the numbers of each block on its own, pooled into one sorted list
+  on each side and compared with English's compiled body's, so no phrase or figure is read across a block;
+  `translatedModuleProblems` reads the front matter only, each field without a default-ignorable code point too. A
+  translation that does not compile gets `module-closed-body` and none of the three; while English's body does not
+  compile, the translation gets the ban list and the hyphen check, and English's own run reports its body. English's own checks still read its source
   through `plainText`, which drops every tag, one in code included, keeps a fence's info string and decodes no
   character reference, so on English they can over-report or miss: a limit carried to the next session.
