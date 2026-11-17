@@ -85,14 +85,21 @@ owns the pipeline around them and its security model.
    (§8) is its review.
 3. **The expected failure.** The agent runs the content checks, and the skill tells it: "The one
    failure you expect is `agent-draft` on the entries you marked; when `overlay-number-mismatch`
-   names a figure you changed in its English file, change the same figure in the translation,
-   written in the translation's number format (§1), run `pnpm --filter @proofofcalm/content rules`
-   and run the checks again; fix or revert anything else, a figure check's refusal only as §1 says,
-   from its source. A test that fails because it asserts the
-   value a leaf other than `reviewedBy` held before your change is not yours to satisfy: revert
-   nothing for it; name its file and line and both values in the draft's notes and your closing
-   report, and say in both that `verify` fails on `pnpm test` until the owner removes that assertion
-   in a pull request of its own (`docs/ENGINEERING.md` §2)." A translation's figure that still does
+   names a figure you changed in its English file, change the same figure in the translation (a
+   translated module only as §1 says), written in the translation's number format (§1), run
+   `pnpm --filter @proofofcalm/content rules` and run the checks again; fix or revert anything
+   else, a figure check's refusal only as §1 says, from its source. A test that fails because it
+   asserts what your change replaced (the value a leaf other than `reviewedBy` held, a module
+   sentence it pins, or a figure it derives from a value you changed) is not yours to satisfy:
+   revert nothing for it; name its file and line and both values in the draft's notes and your
+   closing report, and say in both that `verify` fails on `pnpm test` until the owner changes or
+   removes that assertion in a pull request of its own (`docs/ENGINEERING.md` §2)."
+   A translated module (`i18n/<locale>/learn/*.mdx`) is the skill's translation item too, but the
+   agent edits none: the finish and CI's guard refuse its path (`DATA_PATHS` holds no translated
+   module). When `overlay-number-mismatch` or that language's `figure-chart` names a figure there
+   after an English change, the agent names the path, the figure and the English file's new value
+   in the translation's number format, joiner kept, in its notes and report, and `verify` stays red
+   until the owner changes those digits (decided 2026-11-17). A translation's figure that still does
    not match after the agent changes it and runs the checks again is reverted on neither side: the
    agent names it in the draft's notes and its report, and says in both that the PR's `verify`
    check fails on `pnpm validate:content` until it is fixed.
@@ -135,7 +142,11 @@ owns the pipeline around them and its security model.
    `PDF not read: <url>` naming the lines that rest only on it, which stay unchanged.
 5. **The finish.** `node tools/content-review/propose.ts finish` stages everything and refuses a
    path outside content data, a mode, a binary, a deletion, an entry not at `agent-draft` or a draft
-   problem. It compares the draft's rows with the staged diff both ways
+   problem. A deletion is a deleted file, a deleted fact entry (by `key`) or a removed chart row of
+   `packages/content/cycles/*.json`: a coin with fewer rows than before, one line per coin. Rows are
+   counted per coin, not keyed by coin and high, so a corrected `high` passes; so does a row swapped
+   for another of its coin, a hole the owner's diff read (§8) covers (decided 2026-11-17). A
+   template's own `drawdowns` rows are not counted. It compares the draft's rows with the staged diff both ways
    (`tools/content-review/rows.ts`): a changed leaf with no row, a row for a leaf that did not
    change, a changed module with no row, a changed file (a module too, a translation not) with no
    `reviewed` row,
@@ -275,15 +286,17 @@ content test fails when a module cites a key that does not exist or whose `lastR
 than twelve months; the owner's manual review (§3) re-reads the sources and proposes updates.
 Templates carry `lastReviewed` too (the Cycle plan's dates age). The chart rows of the risk module
 and the Red day page live in `packages/content/cycles/drawdowns.json`. `docs/EDUCATION.md` §9 a and b
-quote the same falls to one decimal, each on the series it names; the file rounds them to whole
-percents. A fall runs to the lowest low before the coin regains its high; a coin that has not regained it, as LINK on 2 Nov 2026,
+quote the same falls to one decimal, each on the series it names; the file rounds them to the
+nearest whole percent (96.923 % is 97, never 96), and a template's own `drawdowns` copy of a row
+holds the same high, low and fall, tied only by `packages/content/src/cycles.test.ts`. A fall runs to the lowest low before the coin regains its high; a coin that has not regained it, as LINK on 2 Nov 2026,
 is read again at every review, because its low can still move.
 A fact that cites Coinbase Exchange's daily candles names one request: `start` and `end` at
 `T00:00:00Z`, fewer than 300 days apart, since a request answers at most 300 candles and one without
 a window only the latest days. The window holds where the review starts: `b.alt-drawdowns`' ETH 2021
 high and 2022 low (its row's window in the cycles file), a simulation's first buy
 (`p.simulator-examples-eth`'s worst value-to-cost too); the review reaches the rest of the series by
-moving both, and another coin by its product (`SOL-USD`, `LINK-USD`).
+moving both, and another coin by its product (`SOL-USD`, `LINK-USD`), so the review trims no such
+fact to the window its URL names (the skill's §4 step 3).
 `packages/content/src/fact-windows.test.ts` holds each window.
 
 ## 8. The owner's review, step by step
@@ -305,7 +318,11 @@ moving both, and another coin by its product (`SOL-USD`, `LINK-USD`).
    `lastReviewed` to today only after a whole-file review: its `reviewed` row shows every source
    read (`read` equals `of`; the finish refuses a changed file with no row), you opened each
    secondary source of step 1 and you checked every change in the file; otherwise leave it
-   unchanged (a partial review moves nothing); bump `status.version`,
+   unchanged (a partial review moves nothing). An `accessed` later than an unchanged `lastReviewed`
+   then fails the flip: `accessed-after-review` in `pnpm validate:content` on a template's or the
+   cycles file's `drawdowns` row, `packages/content/src/facts.test.ts` on a fact. So after a
+   partial review the agent leaves those `accessed` dates as they were and gives the read day in
+   the change row (the skill's §4 step 1); revert one it set, or review the whole file. Bump `status.version`,
    set `changedOn` and write `changeNotice` when a rule changed in substance; a bump that corrects our
    own file also writes a `changeNotice` that says so (`docs/JURISDICTIONS.md` §6). When `verify`
    fails on `pnpm test`, or an end-to-end spec fails in CI, because a test asserts a value the review
