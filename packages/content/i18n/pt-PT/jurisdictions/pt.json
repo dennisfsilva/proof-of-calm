@@ -11,7 +11,7 @@
     "classification": "O ganho é da categoria G (art. 10.º n.º 1 al. k) do CIRS) se o criptoativo não for valor mobiliário. Staking ou empréstimo pago em moeda fiduciária: E (28%). Atividade habitual, profissional, mineração ou validação: B. Excluem-se os NFT.",
     "taxableEvents": [
       {
-        "note": "A mais-valia fica excluída de tributação com 365 dias ou mais de detenção e contraparte com residência fiscal na UE, no EEE ou numa jurisdição com convenção. As alienações excluídas continuam a ser declaradas (Anexo\u00a0G1, Quadro\u00a07)."
+        "note": "A mais-valia fica excluída de tributação com 365 dias ou mais de detenção e contraparte com residência fiscal na UE, no EEE ou numa jurisdição com convenção. As alienações excluídas continuam a ter de ser declaradas (Anexo\u00a0G1, Quadro\u00a07)."
       },
       {
         "note": "Diferida: o criptoativo recebido assume o valor de aquisição do entregue, salvo se uma das partes residir fiscalmente fora da UE, do EEE ou de jurisdição com convenção (art. 10.º n.ºs 23–24 do CIRS, n.ºs 20–21 nos documentos de 2023–2025)."
