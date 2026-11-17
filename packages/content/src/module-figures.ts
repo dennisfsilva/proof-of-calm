@@ -58,7 +58,10 @@ const KINDS: readonly (readonly [string, RegExp])[] = [
   ['a month', word('May|March|Mar', 'u')],
   ['a currency sign', /\p{Sc}/u],
 ];
+// Each mark a paragraph's `marks` names, in §4's words; no detail prints a parser name.
 const MARKS: Readonly<Record<string, string>> = {
+  emphasis: 'emphasis',
+  strong: 'strong text',
   inlineCode: 'a code span',
   break: 'a hard break',
   mdxJsxTextElement: 'a text element',
@@ -93,6 +96,9 @@ const spellings = (coins: readonly Coin[]) =>
 
 const year = (date: string) => Number(date.slice(0, 4));
 const quote = (text: string) => JSON.stringify(text).slice(1, -1);
+/** Items as an English list: `a and b`, or `a, b, and c` with the serial comma. */
+const list = (items: readonly string[]) =>
+  items.length < 3 ? items.join(' and ') : `${items.slice(0, -1).join(', ')}, and ${items.at(-1)}`;
 
 export function moduleFigureProblems(path: string, page: readonly PageBlock[], context: ModuleFigures): Problem[] {
   const problems: Problem[] = [];
@@ -145,7 +151,7 @@ export function moduleFigureProblems(path: string, page: readonly PageBlock[], c
       continue;
     }
     if (block.marks !== undefined) {
-      const marks = block.marks.map((mark) => MARKS[mark] ?? mark).join(', ');
+      const marks = list(block.marks.map((mark) => MARKS[mark] ?? mark));
       report(`the paragraph "${shown}" holds ${marks} beside ${hit.kind} "${hit.token}" in the chart's section, which \
 reads plain text only`);
       continue;
@@ -153,7 +159,7 @@ reads plain text only`);
     // The app formats N % only with one joiner it knows, in one string (withJoiner); sentencesOf collapses white space.
     for (const [written, joiner = '', sign] of block.text.matchAll(new RegExp(`${NUMERAL}(\\s*)(${SIGNS})`, 'gu'))) {
       if (!MODULE_PERCENT_JOINERS.includes(joiner) || sign !== '%')
-        report(`"${quote(written)}" joins a figure to a sign other than as N %`);
+        report(`"${quote(written)}" in "${shown}" joins a figure to a sign other than by one space and %`);
     }
     for (const sentence of sentencesOf(block.text)) {
       const found = triggerIn(sentence);
@@ -202,8 +208,8 @@ chart are more than ${b.n} % ${between}`,
         );
       if (Math.min(...hits.map((r) => year(r.high))) !== b.y1 || Math.max(...hits.map((r) => year(r.low))) !== b.y2)
         report(
-          `"${between}" in "${b.sentence}" is not the year of the first high and the year of the last low of the \
-falls it counts`,
+          `"${between}" in "${b.sentence}" does not run from the year of the first high to the year of the last low \
+of the falls it counts`,
           'R6',
         );
     }
@@ -220,8 +226,8 @@ falls it counts`,
           const fall = free[place]?.fall;
           used.set(id, place + 1);
           if (fall === undefined)
-            report(`"${figure} %" in "${sentence}" names a fall of ${name} that the chart does not draw or a bound \
-already counts`);
+            report(`"${figure} %" in "${sentence}" names a fall of ${name} that the chart does not draw or a B \
+sentence already counts`);
           else if (Number(fall) !== Number(figure))
             report(`"${figure} %" in "${sentence}" is not ${name}'s fall at that place in the chart's order`);
         }
