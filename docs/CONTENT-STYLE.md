@@ -393,7 +393,15 @@ profile's figure of 10 000 or more groups its digits in threes with a no-break s
 `\u00a0` in JSON): `EUR 59 357`. A smaller one takes none: `EUR 1000`. Both hold in English
 and in each translation. A decimal in a profile's text there takes the comma, and a point in
 it is only a citation's. An identifier keeps its digits plain (`PIV 28969`, `Modelo 721`).
-`pnpm validate:content` refuses other grouping beside a currency code (`number-group`). Britain,
+`pnpm validate:content` refuses other grouping beside a currency code (`number-group`). It reads
+each figure as English does (a comma or a space between groups, a point before the decimals) and
+as the page does (a point or a space between groups, a comma before the decimals); a group is three
+digits after a first group of 1 to 999, with one kind of mark between groups. A figure with one
+value in both readings, or a reading in only one, is suggested in the page's form with that value:
+`EUR 12.50` becomes `EUR 12,50`, `EUR 1,234.56` becomes `EUR 1234,56`. A figure the two read as
+different values (`EUR 20,350`, `EUR 1.125`), one neither reads (`EUR 1,23.456`) and a range
+(`0.125–1.125 EUR`) are refused with this rule and no suggestion: write them by hand, and give an
+amount of 1 to 999 a fourth decimal where it has three (`EUR 1,1250`). Britain,
 Ireland, and the US keep their locale's grouping (`£37,700`) (decided 2026-11-16). A figure the app
 formats follows its locale (`1.234` in Germany); only a profile's literal figures group as above.
 Facts, templates and modules write `N %` with an ordinary space, or with a no-break space where the sign must not

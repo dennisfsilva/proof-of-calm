@@ -43,38 +43,25 @@ the code of that day.
   contradicts D8's comma decimal inside the same card. Why B: each mark keeps one role, and no reader of either
   convention gets another value.
 
-## Reasons tested (the judge's table)
+## Reasons tested
 
-| Reason | Verdict | Evidence |
-|---|---|---|
-| A1: the text already writes decimals in the page locale | Partly true | `percent-validate.ts:137-143` runs `decimalProblems`, but `PERCENT_RANGE` (:107-116) reads only percentages |
-| A2 = B1: (a) is another value in the page locale | Verified | de-DE `format(20.35,{min 3})` = `20,350`; nl-NL `format(59.357)` = `59,357` |
-| A3: `readNumber` misreads (a) | Verified | de, nl, es, it read `20,350` as 20.35, `1,000` as 1, `59.357` as 59357; `20 350` is refused (not misread) there and read as 20350 in pt-PT |
-| A4: under (b) the card matches the screen | Verified | nl-NL money = `€ 59.357,00`; `log-row.tsx:142` opens taxes-where-you-live, whose sheet leads with `PlanCountryCard` (`module-sheet.tsx:80`) |
-| A5: nothing corrects the figure at render | Verified | `countries.ts:91` passes `profile.card` through; `country-card.tsx` prints the strings |
-| A: es-ES and it-IT write 6000 and 2000 | Verified | it-IT `1000 / 2000 / 6000 / 20.350` |
-| A: 22 figures in 13 fields | Verified | DE 9, ES 8, NL 3, IT 2 |
-| A/B5: en and pt-PT number locales equal | Verified | all ten profiles |
-| A: pt-PT spacing adds a third way of writing numbers | Partly true | only beside (a); under B a screen has two, the app's format and the card's |
-| A: Portugal gets `EUR 1000` and `EUR 59 357` | Partly true | Intl agrees, but pt.json holds no grouped figure |
-| A: no three-digit citation exists | Verified | inventory: 49.1, 37.1.h, 33.x, 6.4, 66.1, §3.2.x, 9.4 |
-| A: a citation always follows its citation word | Partly true | true in the comma profiles; gb also uses box, boxes, paragraph |
-| A: `1.125 BTC` reads as 1125 | Verified | de-DE reading |
-| B2: `59.357` is en-GB's decimal | Verified | the group/decimal clash holds only if non-percent decimals stay English; (b) leaves a group/citation clash instead |
-| B3: (b) is not one rule | Verified | es 6000 but 50.000; de 1.000; pt groups with U+00A0 |
-| B4: U+00A0 is no locale's decimal | Verified | `decimalSeparator` returns `.` or `,`; pt-PT's group is U+00A0, fr-FR's U+202F |
-| B6: (c) hard to skim | True (judgment) | `EUR 200000 … 300000` |
-| B7: `5,5 %` and `EUR 20,350` adjacent | Partly true | same `<li>`, the validity line between (:136-148) |
-| B cost: summary word count | Verified | es 60 to 61 words; nl 58 to 59 (passes) |
-| B precondition: numerals in English | Words exist | de "one year", "ten years"; pt "five years", "six IRS brackets": not needed here, a separate §4 finding |
-| B Q2: today's check misses four cases | Verified | passes `EUR 1000` vs `EUR 1.000`, `33.1` vs `33.10`, `9.4` vs `9,4`, `0,125` vs `0.125`; fails an identical `art. 33.100`; the prototype reading fixes all five with 0 new mismatches on the pt and xx overlays |
-| Both: §4's "1,234 in Portugal" | False | Intl pt-PT writes `1234` |
+The judge tested 23 stated reasons. Verified: (a) is another value on these pages (de-DE `20,350` is 20.35, nl-NL
+`59,357` is 59.357), `readNumber` misreads it and nothing corrects it at render; 22 figures in 13 fields (DE 9, ES 8,
+NL 3, IT 2); (b) is not one rule (es `6000` but `50.000`); U+00A0 is no locale's decimal; B's cost (es
+`card.summary60` 60 to 61 words). Partly true: decimals already follow the page (only percentages were read). False:
+§4's "1,234 in Portugal" (Intl pt-PT writes `1234`).
 
 ## The live English defect
 
-On 13 fields: nl `card.summary60` put `6,00%` beside `EUR 59,357` in one sentence; de `card.rates.1` put `5,5 %`
-above `EUR 20,350` in one list item. Italy's card put `0,2%` beside `EUR 2,000`. On the de, es, it, and nl pages,
-the Log screen under the sheet writes the comma as the decimal. A reader who applies the card's own decimal comma gets
-a value a thousand times smaller (the amounts make that unlikely). Screen readers were not run: an English voice
-reads (a) correctly, (b) as "twenty point three five zero", and may split B into two numbers, so audio does not
-decide between the forms.
+On 13 fields: nl `card.summary60` put `6,00%` beside `EUR 59,357`, de `card.rates.1` put `5,5 %` above `EUR 20,350`,
+and Italy's card `0,2%` beside `EUR 2,000`; the Log screen under the sheet writes the comma as the decimal. A reader
+who applies the card's own decimal comma gets a value a thousand times smaller. Screen readers were not run.
+
+## The suggestion's design check (2026-11-17)
+
+Four rounds each found a shape whose suggestion changed the value, so #318 ran a design check (D10 of #316):
+designer A from the problem alone, B against 25l's closed list, then a judge. A suggested only where both readers,
+English and the page's, read one value; B let English decide `EUR 20,350` in an English text. The judge kept A's
+rule with B's structural readers (D6). B's English reading turned `EUR 1,125`, the comma decimal §4 asks for, into
+1125, while the number check reads it as 1,125. 118 test rows and a 50 000-text fuzz against a separate regex reader
+found no suggestion that changes a value.
