@@ -395,3 +395,23 @@ again for a pt-PT verb or a noun with inflections: the plurals of the cardinals 
 `quarter` is the ordinal `quarto` or `trimestre`, `halved` has no pt-PT verb (hole 13), and `couple` and `pair`
 are `par` and `pares`; the rest stay prose by hole 13. A test gives each stem's infinitive, present, preterite,
 imperfect, future, conditional, participle and subjunctive its code, and the live translation still gives none.
+
+The spellings walked in both norms, 2026-11-17 (round 3 of the same review found `quadriplicou` and `séptuplo`
+passing). Each round had found one more form, so every entry of every pt-PT list was walked through its spellings in
+European Portuguese before and after the 1990 Agreement and in Brazilian Portuguese, checked against Priberam where
+unsure. Each variant joined the list or is left out with its reason below. A sentence outside the shapes in
+`module-figures-pt.test.ts` fails on each added form, and the live translation still gives none.
+
+| Entry | Variants added | Variants left out, and why |
+| --- | --- | --- |
+| The cardinals `zero` to `noventa`, `cem`, `cento`, `mil` | `cinqüenta` (Brazil, and Portugal before 1990) | `cincoenta`: Priberam lists no such form; the others have one spelling in every norm |
+| `catorze`, `dezasseis`, `dezassete`, `dezanove` | none: `quatorze`, `dezesseis`, `dezessete` and `dezenove` were listed | none |
+| `milhão`, `bilião`, `trilião` | none: `bilhão`, `trilhão` and their plurals were listed | `milião`: Priberam lists no variant of `milhão` |
+| The hundreds, `dúzia`, `dezena`, `centena`, `milhar` | none | one spelling in every norm |
+| The ordinals `primeiro` to `nonagésimo` | `qüinquagésimo` (Brazil, and Portugal before 1990) | `séptimo`: Priberam lists no variant of `sétimo`; `otogésimo`: Priberam lists only `octogésimo`; `septuagésimo` was listed |
+| The ordinals `centésimo` to `bilionésimo` | `qüingentésimo` (Brazil, and Portugal before 1990) | `quadrigentésimo`: Priberam lists no variant of `quadringentésimo`; the pairs `tricentésimo`, `sexcentésimo`, `septingentésimo`, `octingentésimo` and `noningentésimo` were listed |
+| The multiplicatives `duplo` to `cêntuplo` | `séptuplo` and `séptupla` (Brazil, and Portugal before 1990; Priberam gives both spellings), and the unaccented `quadruplo` to `centuplo` through the stems | `ótuplo`: Priberam lists only `óctuplo`; `qüíntuplo`: Priberam gives no trema |
+| The verbs `duplicar` to `centuplicar` | `quadriplicar` (Brazil, in Houaiss and Aurélio; Priberam has no entry); the -ar verbs `quadruplar` and `decuplar` (Priberam), so each stem from `dupl` to `centupl` takes a vowel after it as well as `ic` and `iqu` (`triplou` triggers too) | `qüintuplicar` and `otuplicar`: Priberam gives no variant of `quintuplicar` or `octuplicar`; the adverbs `duplamente` and `triplamente` stay prose (hole 13), so the stem stops before `-mente` |
+| `dobrar`, `metade`, `terço`, `par`, `pares`, `trimestre` | none | one spelling in every norm |
+| `por cento` | `porcentagem`, `porcentagens`, `porcentual` and `porcentuais` (Brazil; Priberam) | none: `porcento` matched already, and `percentagem` and `percentual` trigger on English's `per cent` |
+| The months and their short forms | none | one spelling in every norm; Portugal capitalised them before 1990 (`Janeiro`), which any case covers |
