@@ -5,3 +5,5 @@ The European Portuguese translations of the content, sparse, in `jurisdictions/`
 For translators: write every number as a numeral, as the English does, and keep a quoted law title or statutory term in its own language, word for word (in a pending change's title or summary, translate the words around the quotation).
 
 In a template's texts, write each percentage as the English does, `40 %` with an ordinary space, in the same order: the app writes it in the plan's format (`overlay-percent-mismatch` otherwise).
+
+In a profile whose page writes a comma decimal (Germany, Spain, France, Italy, the Netherlands, Portugal), copy every figure as the English writes it: a no-break space between groups from 10 000 (`EUR 20 350`, ` ` in JSON), none below (`EUR 1000`), a comma for a decimal (`5,5 %`), a point only in a citation (`art. 33.1`); never `EUR 20.350` or `EUR 20,350`.
