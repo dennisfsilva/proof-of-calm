@@ -472,21 +472,23 @@ whole explanation, so a line or paragraph break between the two words counts as 
 reviewed shape (decided 2026-11-17). The shapes accept only the past tense `fell`. The copy review (`docs/LEGAL.md` §6
 Q6) catches a projection with no percentage and no drawdown date, such as "Solana could fall that far again".
 
-A Learn module's chart section runs from the heading before `<Chart />`, or the page's start, to the next heading, on
-the page the build's compiler gives (`packages/content/src/module-figures.ts`). A sentence there that holds a number
-character, a percentage, a number word, a month, a currency sign or the name of a coin the chart draws matches one of
-two shapes as a whole: B, `In the chart, C had K falls of more than N between Y and Y.` with `1 fall` for one, or E,
+R5: a Learn module's chart section runs from the heading before `<Chart />`, or the page's start, to the next heading,
+on the page the build's compiler gives (`packages/content/src/module-figures.ts`). A sentence there that holds a
+number character, a percentage (as R4 defines it, or the sign `‰` or `‱`), a number word, a month, a currency sign,
+or the name of a coin the chart draws matches one of two shapes as a whole: B,
+`In the chart, C had K falls of more than N between Y and Y.` with `1 fall` for one, or E,
 `C fell L.` or `C fell L`, then any number of `, C L`, then `, and C L.`. In them `N` is a whole number from 1 to 100,
 one ordinary or no-break space and `%`; `K` is 1 to 99; `Y` is a year of four digits; `L` is `N`, `N and N`, or two or
 more `N` joined by `, ` with `, and ` before the last; `C` is a catalogue coin's name, as written or with its first
 letter in lower case, or `Ether` or `ether` for ETH, never a ticker. Every other gap is one space. A number word is a
-cardinal, an ordinal, or a word such as `once`, `half`, `double` or `couple`; a month is its name or short form, with
-`May`, `March` and `Mar` counted only when capitalized; a coin the chart draws counts by its name in any case, `ether`
+cardinal, an ordinal, or a word such as `once`, `half`, `double`, or `couple`; a month is its name or short form, with
+`May`, `March` and `Mar` counted only when capitalised; a coin the chart draws counts by its name in any case, `ether`
 for ETH, or its ticker as written. Anything else fails (`figure-chart`). So does a code block in the section, a heading
 there that holds one of them, a figure joined to `%` other than by one ordinary or no-break space, and a paragraph that
-holds one of them beside emphasis, strong, a code span, a hard break, a text element or a character the page hides.
+holds one of them beside emphasis, strong text, a code span, a hard break, a text element, or a hidden character (one
+the page does not show).
 
-R5: E states each coin's falls in the chart's order, oldest high first. Each `N` is the row's whole fall, and the falls
+E states each coin's falls in the chart's order, oldest high first. Each `N` is the row's whole fall, and the falls
 a B counts are left out. A coin the chart draws no fall of fails (`figure-chart`). The section states every row: a coin
 gets one `figure-unstated` when no sentence there states one of its rows. A sentence outside the shapes states none.
 
