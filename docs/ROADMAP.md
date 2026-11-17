@@ -322,7 +322,13 @@ external links and the Risk link in the mobile export (M3).
   shapes (#347) and one percent token for the check and the template step (#348). PR 2, the module
   rules (feat/module-figures at b76874a9), used both review rounds, each confirming new forms of one
   kind, and moves with R7 (the module facts rule, cut from it) and the rest of #343's cut list to
-  #349, which comes before #271. With #340, #343 and #349, pt-PT takes 12 build sessions more than
+  #349, which comes before #271. On 2026-11-17, #349 merged the Learn index in the person's
+  language (#352), the review-content skill's figure clause (#353) and the module rules on two closed
+  shapes, taken from an unanchored design check (#354). Risk honestly in pt-PT on pt-PT's own
+  chart-section shapes (a translated chart section fails closed until then), the joins
+  `docs/CONTENT-STYLE.md` §4 does not cover, the overlay check's own percent regex and the
+  review-content skill's remaining wording move to #355, which comes before #271. With #340, #343,
+  #349 and #355, pt-PT takes 13 build sessions more than
   #269 planned before German starts. A render-and-axe-only pt-PT
   story run waits for #271, once every namespace is translated. CSV import, free (ADR-0039), for the
   main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
@@ -504,3 +510,7 @@ end-to-end tests against the provider's sandbox and a manual checklist.
   TalkBack, in addition to automated checks).
 - Growth: public pages before launch, launch moments and the rules for marketing (`docs/GROWTH.md`);
   every piece of marketing passes the copy review in `docs/CONTENT-STYLE.md` §8.
+- The figures validator's remaining rules, after M2's stage audit (decided 2026-11-17, #349): R7, the
+  module facts rule, whose closed list of date and money shapes starts from designer A's with
+  designer B's refusals (the judge's comment on #349); the template pins' removal, with D13's
+  mutation table; `number-group`'s open shapes; a module's joins and blocks checked like a profile's.

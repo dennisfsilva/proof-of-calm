@@ -207,6 +207,9 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   designers' alike. The Taxes module's check (#24, 2026-11-12) found 19 reasons false or partly
   false (`docs/research/tax-result-question.md` §8), among them the joiner mechanism the plan rested
   on, which no review of a branch would have reached before the code existed.
+- A design check's judge reads the checks upstream of the rule under design. Both blind designers
+  of #349's figures rules built a rounding step for chart rows that `drawdown-fall-not-whole`
+  (`packages/content/src/validate.ts`) already keeps whole; only the judge found it (2026-11-17).
 - A content-role path list is derived from every file that writes the copy, its fixtures and
   expected files included, never from where the copy is first seen. The two globs proposed for the
   tax-year export missed its fixtures, the core's expected files and its component, so its own
@@ -588,7 +591,8 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   round (round 1: code blocks, an open date and money trigger; round 2: years pooled per clause, a
   count beside a bound, a modifier on a row's figure, a widened year range), while the template
   rules' closed shapes drew no finding. So a section's figure sentences get closed shapes before
-  their rules are built (#343, 2026-11-17).
+  their rules are built (#343, 2026-11-17). The module rules rebuilt on closed shapes from an
+  unanchored design check drew no correctness finding in two review rounds (#354, 2026-11-17).
 - A translation of a Learn module changes which language a screen in that language shows, so its
   branch searches the e2e specs for the module's `lang` attribute and its English title. #331's first CI
   run failed `apps/web/e2e/language.spec.ts`, which expected Cycles in English on a pt-PT screen
@@ -623,6 +627,10 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - A check that reads a compiled page reads every block kind the page shows, or refuses the kind.
   #343's module rules read paragraphs and headings and passed a figure in a fenced code block
   (2026-11-17).
+- A branch with a rule of about 200 lines, a test list of about 60 rows and its docs goes to two
+  builders from the start: the rule and its tests, then the docs and the checks. #354's first
+  builder, briefed with all of it, stopped at its 120-turn limit with the docs, the checks and its
+  report undone (2026-11-17).
 
 ## Known gaps
 

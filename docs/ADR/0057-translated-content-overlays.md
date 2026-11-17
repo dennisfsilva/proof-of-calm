@@ -244,3 +244,7 @@ generated rules files of each language.
   space (U+00A0) wherever English joins its figure (`docs/CONTENT-STYLE.md` §9). The German unit
   stems still join the check before German overlays land. Found by the review of the first pt-PT
   Learn modules (D12 of #322).
+- **2026-11-17.** The Learn index's rows no longer stay English: each translated module's title, idea
+  and reading time show in the person's language, and an untranslated module's stay English, marked
+  `lang="en"` (#352). This ends the narrowing above on the index; how the metadata travels is
+  ADR-0048's Deviations entry of 2026-11-17 on `virtual:learn-meta/<language>`.
