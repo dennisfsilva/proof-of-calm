@@ -12,6 +12,7 @@
 import { headerTextProblems, headerTexts, semicolonProblems } from './header-validate.ts';
 import { hyphenProblems } from './hyphen-validate.ts';
 import { changedTexts, isOverlayFile, overlayFileProblems, type TextChecks } from './i18n/overlay-validate.ts';
+import type { FigureContext } from './module-figures.ts';
 import { moduleProblems } from './modules-validate.ts';
 import { monthsBefore } from './months.ts';
 import { paragraphsOf } from './paragraphs.ts';
@@ -291,6 +292,13 @@ function coinCatalogue(file: ContentFile): Problem[] {
     );
   });
   return problems;
+}
+
+/** The chart's rows and the catalogue a Learn module's figures are read against; a file that does not parse gives null. */
+export function figureContext(files: readonly ContentFile[]): FigureContext {
+  const chart = CycleDrawdownsSchema.safeParse(files.find((file) => CYCLES_FILE.test(file.path))?.json);
+  const catalogue = catalogueIn(files);
+  return { rows: chart.success ? chart.data.drawdowns : null, coins: catalogue && [...catalogue.values()] };
 }
 
 /** The catalogue among the files, when it parses; templates are checked against it. */

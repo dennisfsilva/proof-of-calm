@@ -1,16 +1,17 @@
 // `pnpm validate:content`: reads every content file and every UI message file, and fails on any problem
 // that validateContent or the build's closed-body check finds (docs/CONTENT-OPS.md §1). The clock gives today's date in UTC.
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { moduleTranslationProblems } from '../src/i18n/module-overlay-validate.ts';
 import { parseModule } from '../src/loaders/modules.ts';
 import type { Problem } from '../src/problem.ts';
-import { type ContentFile, validateContent } from '../src/validate.ts';
+import { type ContentFile, figureContext, validateContent } from '../src/validate.ts';
 import { closedBodyProblems } from './closed-body.ts';
 import { overlayPaths } from './overlay-paths.ts';
 
-const root = fileURLToPath(new URL('../../../', import.meta.url));
+// The repository root; a test passes a copy's root.
+const root = resolve(process.argv[2] ?? fileURLToPath(new URL('../../../', import.meta.url)));
 const filesIn = (directory: string, extension: string) => {
   const absolute = join(root, directory);
   return existsSync(absolute)
@@ -60,21 +61,24 @@ const translations = languages.flatMap((language) =>
   })),
 );
 
-const problems: Problem[] = moduleTranslationProblems(translations, englishModules);
-problems.push(...(await closedBodyProblems(translations, englishModules)));
 const files: ContentFile[] = [];
+const unread: Problem[] = [];
 for (const absolute of paths) {
   const path = fromRoot(absolute);
   try {
     files.push({ path, json: JSON.parse(readFileSync(absolute, 'utf8')) });
   } catch (error) {
-    problems.push({ path, code: 'invalid-json', detail: String(error) });
+    unread.push({ path, code: 'invalid-json', detail: String(error) });
   }
 }
+// The chart's rows and the catalogue each module's chart section is read against (docs/CONTENT-STYLE.md §4, R5).
+const figures = figureContext(files);
+const problems: Problem[] = moduleTranslationProblems(translations, englishModules);
+problems.push(...(await closedBodyProblems(translations, { english: englishModules, figures })), ...unread);
 const allow = JSON.parse(readFileSync(join(root, 'packages/content/sources.allow.json'), 'utf8'));
 problems.push(...validateContent(files, { today: new Date().toISOString().slice(0, 10), allow, modules }));
 // The build's own compiler and element list on every module body (ADR-0048).
-problems.push(...(await closedBodyProblems(modules)));
+problems.push(...(await closedBodyProblems(modules, { figures })));
 
 for (const problem of problems) console.error(`${problem.path}: ${problem.code}: ${problem.detail}`);
 console.log(`${files.length + modules.length + translations.length} files checked, ${problems.length} problems`);

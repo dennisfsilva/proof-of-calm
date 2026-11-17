@@ -7,6 +7,8 @@ import type { Problem } from './problem.ts';
 
 /** The joiner between a figure and its `%`: the ordinary space (U+0020). */
 export const PERCENT_JOINER = ' ';
+/** The joiners a Learn module's text may write between a figure and `%`: the ones the app's withJoiner formats. */
+export const MODULE_PERCENT_JOINERS: readonly string[] = [' ', ' '];
 const TOKEN = new RegExp(`(\\d+)${PERCENT_JOINER}%`, 'gu');
 // A figure and one of the four signs, joined by nothing, any run of white space, or a hyphen: the token or not.
 const WRITTEN = /\d+(?<joiner>[\s\u2010\u2011-]*)(?<sign>[%\u066A\uFE6A\uFF05])/gu;

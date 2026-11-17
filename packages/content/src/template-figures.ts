@@ -22,7 +22,8 @@ const DATED = /\{date:drawdowns\./;
 const JOIN = '(?:\\s+|[\\u002D\\u2010\\u2011])?';
 const SIGN_OR_WORD = `[%٪﹪％]|(?<![\\p{L}\\p{M}])per${JOIN}cent(?:ages?)?`;
 const PERCENT = new RegExp(SIGN_OR_WORD, 'iu');
-const PERCENTS = new RegExp(SIGN_OR_WORD, 'giu');
+/** Each percentage sign or word, as the templates' trigger reads it; the module figures check reads its source. */
+export const PERCENTS = new RegExp(SIGN_OR_WORD, 'giu');
 const WRITTEN = new RegExp(`\\d+(?:[.,]\\d+)?${JOIN}(?:${SIGN_OR_WORD})`, 'giu');
 const PLACEHOLDER = /\{date:drawdowns\.([^.{}]+)\.(?:high|low)\}/gu;
 const LEAD = '(?:What can go wrong: )?';

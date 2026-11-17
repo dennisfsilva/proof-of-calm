@@ -5,10 +5,22 @@ import { checkModuleBody } from '@proofofcalm/config/vite';
 import { describe, expect, it } from 'vitest';
 import { moduleTranslationProblems } from '../src/i18n/module-overlay-validate.ts';
 import { parseModule } from '../src/loaders/modules.ts';
+import type { Problem } from '../src/problem.ts';
+import { figureContext } from '../src/validate.ts';
 import { closedBodyProblems } from './closed-body.ts';
 
 const learn = fileURLToPath(new URL('../learn/', import.meta.url));
 const FRONT = ['---', 'slug: noise', 'title: Noise', '---', ''].join('\n');
+// The chart's rows and the catalogue as scripts/validate.ts reads them, from the live files.
+const content = fileURLToPath(new URL('../', import.meta.url));
+const figures = figureContext(
+  ['coins.json', ...readdirSync(join(content, 'cycles')).map((name) => `cycles/${name}`)].map((name) => ({
+    path: `packages/content/${name}`,
+    json: JSON.parse(readFileSync(join(content, name), 'utf8')),
+  })),
+);
+// The element tests' bodies state no figures; src/module-figures.test.ts holds the figure rule.
+const elementsOnly = (problems: readonly Problem[]) => problems.filter(({ code }) => !code.startsWith('figure-'));
 
 // A literal English noise module and its literal pt-PT translation, through both checks as scripts/validate.ts runs them.
 const at = 'packages/content/i18n/pt-PT/learn/noise.mdx';
@@ -26,7 +38,10 @@ const translationOf = (body: string) =>
 const validated = async (englishBody: string, body: string, chart = 'none') => {
   const english = englishOf(englishBody, chart);
   const files = [{ language: 'pt-PT', path: at, source: translationOf(body) }];
-  const problems = [...moduleTranslationProblems(files, english), ...(await closedBodyProblems(files, english))];
+  const problems = [
+    ...moduleTranslationProblems(files, english),
+    ...elementsOnly(await closedBodyProblems(files, { english, figures })),
+  ];
   return problems.map(({ code, detail }) => `${code}: ${detail}`);
 };
 const banned = (match: string) =>
@@ -38,7 +53,7 @@ const ORDER =
 describe('closedBodyProblems: pnpm validate:content refuses what the build refuses (ADR-0048)', () => {
   it('reports a module holding an element outside the set, with its line', async () => {
     const path = 'packages/content/learn/noise.mdx';
-    const problems = await closedBodyProblems([{ path, source: `${FRONT}Text.\n\n<Foo />\n` }]);
+    const problems = await closedBodyProblems([{ path, source: `${FRONT}Text.\n\n<Foo />\n` }], { figures });
     expect(problems).toEqual([
       { path, code: 'module-closed-body', detail: expect.stringMatching(/^line 7: <Foo> is not allowed/) },
     ]);
@@ -64,7 +79,7 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
         body,
       ].join('\n');
     const problemsOf = async (chart: string, body: string) =>
-      (await closedBodyProblems([{ path, source: source(chart, body) }])).map(
+      elementsOnly(await closedBodyProblems([{ path, source: source(chart, body) }], { figures })).map(
         ({ code, detail }) => `${code}: ${detail}`,
       );
     const ONE =
@@ -117,9 +132,12 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
           '\n',
         );
       const translatedOf = async (chart: string, body: string, at = translated) =>
-        (await closedBodyProblems([{ language: 'pt-PT', path: at, source: translation(body) }], englishOf(chart))).map(
-          ({ path: where, code, detail }) => `${where}: ${code}: ${detail}`,
-        );
+        elementsOnly(
+          await closedBodyProblems([{ language: 'pt-PT', path: at, source: translation(body) }], {
+            english: englishOf(chart),
+            figures,
+          }),
+        ).map(({ path: where, code, detail }) => `${where}: ${code}: ${detail}`);
 
       it("passes <Chart /> on a line of its own, and refuses it in a code span or a fence with English's code", async () => {
         expect(await translatedOf('drawdowns-bar', 'Texto.\n\n<Chart />\n')).toEqual([]);
@@ -216,7 +234,7 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
       if (!english.ok) throw new Error('the English start-here does not parse');
       const path = 'packages/content/i18n/pt-PT/learn/start-here.mdx';
       const files = [{ language: 'pt-PT', path, source: source('i18n/pt-PT/learn/start-here.mdx') }];
-      expect(await closedBodyProblems(files, [english.value])).toEqual([]);
+      expect(await closedBodyProblems(files, { english: [english.value], figures })).toEqual([]);
     });
 
     it('passes every real pt-PT module against the real English modules, by both checks', async () => {
@@ -233,7 +251,10 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
           source: readFileSync(join(translated, name), 'utf8'),
         }));
       expect(files.length).toBeGreaterThan(0);
-      const problems = [...moduleTranslationProblems(files, english), ...(await closedBodyProblems(files, english))];
+      const problems = [
+        ...moduleTranslationProblems(files, english),
+        ...(await closedBodyProblems(files, { english, figures })),
+      ];
       expect(problems).toEqual([]);
     });
 
@@ -400,7 +421,7 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
       { path: 'packages/content/learn/b.mdx', source: `${FRONT}A line. <PastPerformance />\n` },
       { path: 'packages/content/learn/c.mdx', source: `${FRONT}A [link](/plan).\n` },
     ];
-    const problems = await closedBodyProblems(modules);
+    const problems = await closedBodyProblems(modules, { figures });
     expect(problems.map(({ path, code }) => `${path}: ${code}`)).toEqual([
       'packages/content/learn/a.mdx: module-closed-body',
       'packages/content/learn/c.mdx: module-closed-body',
@@ -414,6 +435,38 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
       path: `packages/content/learn/${name}`,
       source: readFileSync(join(learn, name), 'utf8'),
     }));
-    expect(await closedBodyProblems(modules)).toEqual([]);
+    expect(await closedBodyProblems(modules, { figures })).toEqual([]);
+  });
+
+  // The figure rules on the path scripts/validate.ts runs: its context from the live files, on a compiled module;
+  // scripts/validate.test.ts runs the script itself.
+  it('reads a module and its translation against the chart as scripts/validate.ts passes them', async () => {
+    expect([figures.rows === null, figures.coins === null]).toEqual([false, false]);
+    const path = 'packages/content/learn/risk-honestly.mdx';
+    const live = readFileSync(join(learn, 'risk-honestly.mdx'), 'utf8');
+    const source = live.replace('<Chart />\n', '<Chart />\n\nSolana could fall 50 % again.\n');
+    expect(source).not.toBe(live);
+    const codes = async (text: string) =>
+      (await closedBodyProblems([{ path, source: text }], { figures })).map(({ code }) => code);
+    expect([await codes(live), await codes(source)]).toEqual([[], ['figure-chart']]);
+    // A translation is held to its English module's chart and has no shapes yet, so its section fails closed.
+    const parsed = parseModule(path, live);
+    if (!parsed.ok) throw new Error(path);
+    const translated = live.replace(
+      /^chart: .*\n|^facts:.*\n(?: {2}- .*\n)*|^lastReviewed: .*\n|^nextReviewDue: .*\n|^reviewedBy: .*\n/gmu,
+      '',
+    );
+    const at = 'packages/content/i18n/pt-PT/learn/risk-honestly.mdx';
+    const file = { language: 'pt-PT', path: at, source: translated };
+    const problems = await closedBodyProblems([file], { english: [parsed.value], figures });
+    expect(problems.filter(({ code }) => code.startsWith('figure-')).map(({ code }) => code)).toEqual([
+      'figure-chart',
+      'figure-chart',
+      'figure-unstated',
+      'figure-unstated',
+      'figure-unstated',
+      'figure-unstated',
+    ]);
+    expect(problems[0]?.detail).toMatch(/, and pt-PT has no shapes for a chart's section yet; R5 /u);
   });
 });
