@@ -82,6 +82,8 @@ release.
   shown in Portuguese, and the plan records that you accepted the Portuguese text.
 - Germany's and Spain's rules in Portuguese.
 - In Portuguese, a `Porquê?` link opens its Learn module at the section it names.
+- In Portuguese, Learn's list of modules shows each translated module's title and summary in
+  Portuguese; the others stay in English.
 - The sources heading names the country the way each language does: «Fontes dos Países
   Baixos», "Sources for the Netherlands".
 

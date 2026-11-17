@@ -93,7 +93,8 @@ Turbo hashes a task over its own package and its dependencies, so a test here th
 package's files names them in `turbo.json`'s `test.inputs` with `$TURBO_ROOT$`; otherwise a change to
 them alone replays the cached pass. That holds for another package's `turbo.json` too: Turbo hashes it
 with that package's own tasks, not globally. `turbo/inputs.test.ts` checks those inputs, and content
-validation's (`packages/content/turbo.json`), against Turbo's dry run; since that run reads
+validation's (`packages/content/turbo.json`, its `validate` task and its `test` task, which runs the
+script on a copy of the same files), against Turbo's dry run; since that run reads
 `packages/content/turbo.json` and the check lists `apps/web/messages`, both are among `test.inputs`.
 It also probes every root, name and folder of `copyPathScan` (`lint/copy-paths-scan.ts`), the scan
 `lint/copy-paths.test.ts` reads, against the globs `turbo.json` declares.
