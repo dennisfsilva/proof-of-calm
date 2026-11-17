@@ -200,3 +200,15 @@ generated rules files of each language.
   notice's list. Onboarding's template cards read the template texts through a spread, which drops
   the mark, and fall back to unmarked English texts, seen only offline since every template has a
   pt-PT overlay. Both wait for #271, the last session before pt-PT can show.
+- **2026-11-16.** A profile's grouped figures on a page whose number locale writes a comma decimal
+  (Germany, Spain, France, Italy, the Netherlands, Portugal): a figure of 10 000 or more groups its
+  digits in threes with a no-break space (U+00A0), a smaller one takes none (`EUR 1000`,
+  `EUR 20 350`), in English and in every translation alike; a decimal takes the comma and a point
+  is only a citation's (`art. 33.1`). No locale reads the space as a decimal, so the comma keeps one
+  role beside D8's percentages. For these pages this reverses "What validation holds" (`1,000` in
+  Germany's file) and the D8 entry's English reading of other figures: the number check reads both
+  texts with `numberLocaleFor(language, profile)` and compares a figure holding a point as written;
+  `number-group` refuses other grouping beside a currency code; a summary counts a grouped figure as
+  one word. Britain, Ireland and the US keep theirs (`£37,700`), in English and in every
+  translation. Decided by the unanchored design check of the grouped figures
+  (`docs/research/grouped-figures.md`).
