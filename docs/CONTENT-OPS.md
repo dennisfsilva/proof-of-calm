@@ -289,8 +289,8 @@ is read again at every review, because its low can still move.
    changes a translation (§3 step 2), check that its diff changes only the figures its English file
    changed, at the same paths and to the same values, and nothing else there: compare the values,
    not the characters, since the translation writes each in its number locale's format (§3 step 2;
-   a pt-PT translation of Germany, which does not exist yet, would be read in de-DE: `20.350` for
-   English `EUR 20,350`, while English `5,5 %` would stay `5,5 %`, since a profile's
+   the pt-PT translation of Germany is read in de-DE: `20.350` for
+   English `EUR 20,350`, while English `5,5 %` stays `5,5 %`, since a profile's
    English percentage already takes its page's separator and draws `decimal-separator` otherwise).
    When the notes name a translated
    figure that still fails `overlay-number-mismatch` (§3 step 3), write that figure in the
