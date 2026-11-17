@@ -37,7 +37,7 @@ schema and the rules of `docs/JURISDICTIONS.md` §2: owner review, review dates,
 allow-list, the 60-word card, and the banned words in everything the app shows (the card, the
 taxable-event notes, the rates, the holding-rule override notes, the pending changes; source titles
 are quoted as published), each literal percentage with the number locale's joiner (`percent-joiner`)
-and its decimal separator (`decimal-separator`, D8, #292; `docs/CONTENT-STYLE.md` §4), each money figure on a comma-decimal page grouped as that page writes it (`number-group`, `docs/CONTENT-STYLE.md` §4), no `;` in a profile text the tax-year header copies, English or overlay (`header-semicolon`, #298), and each locale tag well formed (`locale-tag`), as `docs/JURISDICTIONS.md` §2 says. It refuses an ordinary
+and its decimal separator (`decimal-separator`, D8, #292; `docs/CONTENT-STYLE.md` §4), each money figure on a comma-decimal page grouped as that page writes it (`number-group`, `docs/CONTENT-STYLE.md` §4), each currency code and form name joined to its figure by U+00A0 on every page (`figure-join`, `src/join-validate.ts`), no `;` in a profile text the tax-year header copies, English or overlay (`header-semicolon`, #298), and each locale tag well formed (`locale-tag`), as `docs/JURISDICTIONS.md` §2 says. It refuses an ordinary
 hyphen between a numeral and its unit in text a screen shows (`number-unit-hyphen`; which text:
 `docs/CONTENT-STYLE.md` §4). Templates must split exactly 100 over their own coins, each coin as the
 catalogue lists it, and keep each paragraph of the explanation (paragraphs separated by a blank line)
