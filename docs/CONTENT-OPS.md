@@ -99,9 +99,9 @@ owns the pipeline around them and its security model.
    agent edits none: the finish and CI's guard refuse its path (`DATA_PATHS` holds no translated
    module), and the guard stays so. An English change that draws `overlay-number-mismatch` or that
    language's `figure-chart` there is one more refusal no edit of the agent's fixes: it reverts the
-   change in every file it touched, a chart row's too, and notes the translated module's path, each
-   English file and field to change with its new value, and every source, and the owner makes the change in the English and
-   translated files in a pull request of their own (decided 2026-11-17: the owner's commit of the
+   change, a chart row's too, in every file it touched and notes the translated module's path, each
+   English file and field to change with its new value, and every source; the owner makes the
+   change in the English and translated files in a pull request of their own (decided 2026-11-17: the owner's commit of the
    digits on the agent's branch fails the guard). A translation's figure that still does
    not match after the agent changes it and runs the checks again is reverted on neither side: the
    agent names it in the draft's notes and its report, and says in both that the PR's `verify`
