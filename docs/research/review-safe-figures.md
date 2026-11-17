@@ -125,12 +125,12 @@ Each part is true on main by itself.
    `lastReviewed`, `nextReviewDue`, `reviewedBy` and `accessed`, k.de-2024's source and fact r's URL (D12), in
    `packages/content/src/taxes.test.ts`, `packages/content/src/drops-noise.test.ts` and
    `packages/content/src/risk-honestly.test.ts`; every other pin there is main's, each refusal and limit included.
-   `packages/content/src/loaders/templates.test.ts` reads a drawdown's read day through `readAfterReview` and keeps
-   the Cycle plan's fields as its file holds them. Main's figure tests stay whole in
-   `packages/content/src/cycles.test.ts`, `packages/content/src/template-dates.test.ts` (the Cycle plan's text as
-   written), and `packages/content/src/facts.test.ts` (each value against its `docs/EDUCATION.md` §9 row, f's
-   leverage figure dated by the day, with neither ESMA nor the FCA named); `apps/web/e2e/onboarding.spec.ts` stays
-   as main has it. Until part 2 lands, a review that updates one of those figures fails the pin, as on main; a review
+   `packages/content/src/loaders/templates.test.ts` reads a drawdown's read day through `readAfterReview`, drops the
+   Cycle plan's `lastReviewed` pin and keeps its other fields as its file holds them. Main's figure tests stay whole
+   in `packages/content/src/cycles.test.ts` and `packages/content/src/template-dates.test.ts` (the Cycle plan's text
+   as written); `packages/content/src/facts.test.ts` keeps each value against its `docs/EDUCATION.md` §9 row and f
+   with neither ESMA nor the FCA named, and its pin of f's day (10 Oct 2025) becomes a leverage figure dated by a
+   day; `apps/web/e2e/onboarding.spec.ts` stays as main has it. Until part 2 lands, a review that updates one of those figures fails the pin, as on main; a review
    that only moves its dates on passes.
    The earlier cut replaced main's pins with relations and restored them over three review rounds, since each
    relation let a review make a statement false while the suite passed (a reversed change, swapped tax years, a
@@ -234,11 +234,12 @@ Chainlink."; "Falls of 97 % hit Solana from its high on … to its low on …"; 
 under its own heading. Live half: the content test's gate also passes the facts file and the modules (two lines); the
 module-gate test in the Risk honestly test passes the live chart and facts in its context.
 
-Remove: the templates test's lines 121-132 (the fall pins), in 134-146 the `${fall} %` lookup and the two
-`toContain('… fell …')` pins (keep the `accessed` check as its own test), 148-156 (the verb list), 183-189 (the
-`' fell '` count); the Risk honestly test's fact phrase pins (`25 Feb 2014`, `$19 billion`, `3 and 6 months`, the
-25 Feb Mt. Gox and CoinGlass sentences; part 1's round 2 keeps the 28 Feb one), the sentence regex and the pinned
-"Ether fell …" sentence; the cycles test's cycles.mdx figure pins. Line numbers are main's on 2026-11-16, before part 1.
+Remove: the templates test's lines 122-133 (the fall pins), in 135-148 the `${fall} %` lookup and the two
+`toContain('… fell …')` pins (keep the `readAfterReview` check of `accessed` as its own test), 150-158 (the verb
+list), 185-191 (the `' fell '` count); the Risk honestly test's fact phrase pins (`25 Feb 2014`, `$19 billion`,
+`3 and 6 months`, the 25 Feb Mt. Gox and CoinGlass sentences), the sentence regex and the pinned "Ether fell …"
+sentence; the cycles test's cycles.mdx figure pins. Part 1 keeps every one of them as main has it. Line numbers are
+part 1's branch on 2026-11-17.
 
 CONTENT-STYLE §4 sentences: "In a module's chart section and in a template's fall, a sourced percentage is bounded only
 as `more than N %` or `less than N %`, with its window's years (§5). A whole percent more than N was more than N before
