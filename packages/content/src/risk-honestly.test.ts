@@ -34,8 +34,8 @@ describe('the Risk honestly module', () => {
     const { module } = read();
     expect(moduleProblems({ path, source }, context)).toEqual([]);
     expect([module.title, module.idea, module.caveat].flatMap((text) => findBanned(text))).toEqual([]);
-    expect(module.reviewedBy).toBe('owner');
-    expect(module.lastReviewed).toBe('2026-11-09');
+    // Main's pin, dropped with lastReviewed and reviewedBy, the fields a content review and the owner's sign-off
+    // set; the gate above still refuses an agent's draft (agent-draft).
   });
 
   it('keeps each figure with its unit and each date whole', () => {
@@ -108,7 +108,8 @@ describe('the Risk honestly module', () => {
       expect(plain, key).toContain(words);
       expect(module.facts, key).toContain(key);
       expect(fact?.value, key).toContain(quote);
-      expect([fact?.date, fact?.accessed, fact?.lastReviewed], key).toEqual(['2025-12-15', '2026-11-09', '2026-11-09']);
+      // Main also pinned each sign's read and review days, the dates a content review sets; the factsheet's date stays.
+      expect(fact?.date, key).toBe('2025-12-15');
     }
     expect(new Set(patterns.map(([key]) => facts.find((item) => item.key === key)?.source)).size).toBe(1);
     expect(plain).not.toMatch(/weeks of messages|a balance you cannot withdraw|friendly stranger/u);
