@@ -1,8 +1,20 @@
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import mdx from '@mdx-js/rollup';
 import { describe, expect, it } from 'vitest';
 import { buildFixtureBundle, type FixtureBuildOptions, type FixtureFiles } from './fixture.ts';
 import { createHostConfig } from './host-config.ts';
-import { checkModuleBody, learnPlugins, MODULE_BODY_ELEMENTS, type ParseModule } from './learn-plugin.ts';
+import {
+  blankFrontMatter,
+  checkModuleBody,
+  learnPlugins,
+  MODULE_BODY_ELEMENTS,
+  PAGE_NODES,
+  type ParseModule,
+  pageBlocks,
+} from './learn-plugin.ts';
+
+type Node = { readonly type: string; readonly children?: readonly Node[] };
 
 // A stand-in for `@proofofcalm/content/modules`' parseModule, which this package cannot import (it would
 // close a cycle in the package graph): flat `key: value` lines between two `---` lines, the rest the body.
@@ -234,9 +246,9 @@ describe('checkModuleBody', () => {
     ['text in a text element', 'A line. <PastPerformance>past</PastPerformance>\n', /noise\.mdx:6: <PastPerf/],
     ['a space in a text element', 'A line. <PastPerformance> </PastPerformance>\n', /noise\.mdx:6: <PastPerf/],
   ];
-  const pass = (text: string) => ({ problem: null, flow: [], elements: [], text });
-  const TEXT_PAST = { problem: null, flow: [], elements: ['text:PastPerformance'], text: 'A line. ' };
-  const flowChart = (text: string) => ({ problem: null, flow: ['Chart'], elements: ['flow:Chart'], text });
+  const pass = (...blocks: string[]) => ({ problem: null, flow: [], elements: [], blocks });
+  const TEXT_PAST = { problem: null, flow: [], elements: ['text:PastPerformance'], blocks: ['A line. '] };
+  const flowChart = (...blocks: string[]) => ({ problem: null, flow: ['Chart'], elements: ['flow:Chart'], blocks });
 
   it.each(refused)('refuses %s, naming the file and line', async (_name, body, message) => {
     expect((await checkModuleBody(module('noise', body), path)).problem).toMatch(message);
@@ -246,7 +258,7 @@ describe('checkModuleBody', () => {
     expect(MODULE_BODY_ELEMENTS).toEqual(['PastPerformance', 'Chart']);
     expect(await checkModuleBody(module('noise', 'A line. <PastPerformance />\n'), path)).toEqual(TEXT_PAST);
     const chart = await checkModuleBody(module('noise', 'Text.\n\n<Chart />\n'), path);
-    expect(chart).toEqual(flowChart('Text.\n'));
+    expect(chart).toEqual(flowChart('Text.'));
   });
 
   // MDX parses an element with nothing between its tags as one with no children: it renders as <X /> does.
@@ -254,7 +266,7 @@ describe('checkModuleBody', () => {
     const text = await checkModuleBody(module('noise', 'A line. <PastPerformance></PastPerformance>\n'), path);
     expect(text).toEqual(TEXT_PAST);
     const flow = await checkModuleBody(module('noise', 'Text.\n\n<Chart></Chart>\n'), path);
-    expect(flow).toEqual(flowChart('Text.\n'));
+    expect(flow).toEqual(flowChart('Text.'));
   });
 
   // A translation is held to its English module's elements on this list (ADR-0048 Deviations), so it is the tree's.
@@ -277,23 +289,93 @@ describe('checkModuleBody', () => {
     const body = 'Text.\n\n<Chart />\n\nA line. <PastPerformance />\n\n- <Chart />\n';
     expect((await checkModuleBody(module('noise', body), path)).flow).toEqual(['Chart', 'Chart']);
     // On its own line, even right under a paragraph's line, the element ends the paragraph and stands as a block.
-    expect(await checkModuleBody(module('noise', 'A sign.\n<Chart />\n'), path)).toEqual(flowChart('A sign.\n'));
+    expect(await checkModuleBody(module('noise', 'A sign.\n<Chart />\n'), path)).toEqual(flowChart('A sign.'));
     expect(await checkModuleBody(module('noise', 'A \\<Chart /> sign.\n'), path)).toEqual(pass('A <Chart /> sign.'));
     expect(await checkModuleBody(module('noise', 'A `<Chart />` sign.\n'), path)).toEqual(pass('A <Chart /> sign.'));
   });
 
-  // A translation's ban list, numbers and hyphens read this text (ADR-0048 Deviations), so it is the page's.
-  it('reads the words the page shows, a character reference decoded, in tree order', async () => {
-    const text = async (body: string) => (await checkModuleBody(module('noise', body), path)).text;
-    expect(await text('# Ruído\n\nImperd&iacute;vel, &#49; e imperd*í*vel.\n\n- um\n- dois\n')).toBe(
-      'Ruído\nImperdível, 1 e imperdível.\num\ndois',
-    );
+  // A translation holds English's sections (ADR-0048 Deviations): each depth-2 heading is on the elements list.
+  it('names each depth-2 heading as heading:2, in tree order among the elements', async () => {
+    const body = '# Ruído\n\n## Um\n\n<Chart />\n\n### Dois\n\n## Três\n\nA line. <PastPerformance />\n';
+    expect((await checkModuleBody(module('noise', body), path)).elements).toEqual([
+      'heading:2',
+      'flow:Chart',
+      'heading:2',
+      'text:PastPerformance',
+    ]);
+  });
+
+  // A translation's ban list, numbers and hyphens read these blocks (ADR-0048 Deviations), so they are the page's.
+  describe('reads the words the page shows, one block per paragraph, heading or code block, in tree order', () => {
+    const blocks = async (body: string) => (await checkModuleBody(module('noise', body), path)).blocks;
+
+    it('decodes a character reference and joins every value below a block with nothing', async () => {
+      expect(await blocks('# Ruído\n\nImperd&iacute;vel, &#49; e imperd*í*vel.\n\n- um\n- dois\n')).toEqual([
+        'Ruído',
+        'Imperdível, 1 e imperdível.',
+        'um',
+        'dois',
+      ]);
+      expect(await blocks('Imperd**í**vel e imper`dí`vel.\n\n> Uma\n> citação.\n')).toEqual([
+        'Imperdível e imperdível.',
+        'Uma\ncitação.',
+      ]);
+    });
+
     // A tag in code shows as text; a fence's info string and an attribute's value show nothing.
-    expect(await text('Um `<b>código</b>` aqui,\nnuma linha.\n\n```mdx info\nbloco\n```\n')).toBe(
-      'Um <b>código</b> aqui,\nnuma linha.\nbloco',
-    );
-    expect(await text('Texto.\n\n<PastPerformance id="passado" />\n')).toBe('Texto.\n');
-    expect(await text('Text {1}.\n')).toBe('');
+    it("reads code as the page shows it, and no info string, attribute or element's name", async () => {
+      expect(await blocks('Um `<b>código</b>` aqui,\nnuma linha.\n\n```mdx info\nbloco\n```\n')).toEqual([
+        'Um <b>código</b> aqui,\nnuma linha.',
+        'bloco',
+      ]);
+      expect(await blocks('Texto.\n\n<PastPerformance id="passado" />\n\n---\n\nFim.\n')).toEqual(['Texto.', 'Fim.']);
+      expect(await blocks('Text {1}.\n')).toEqual([]);
+    });
+
+    it('joins a hard break with a space, as the page shows the two lines', async () => {
+      expect(await blocks('Última\\\nhora.\n')).toEqual(['Última hora.']);
+      expect(await blocks('Última  \nhora.\n')).toEqual(['Última hora.']);
+    });
+
+    // A soft hyphen or a zero-width character inside a word shows as nothing unless the line wraps there.
+    it('removes every default-ignorable code point, so the block holds the word the page shows', async () => {
+      const hidden = ['­', '​', '‌', '‍', '⁠', '﻿', '͏', '⁡'];
+      for (const character of hidden) expect(await blocks(`imper${character}dível`)).toEqual(['imperdível']);
+      expect(await blocks('imper&shy;dível e imper&#8203;dível')).toEqual(['imperdível e imperdível']);
+    });
+  });
+
+  // The reader knows every node a compiling body holds, and fails closed on any other (a remark plugin added later).
+  describe('the block reader reads a closed set of nodes', () => {
+    const learn = new URL('../../content/learn/', import.meta.url);
+
+    it("holds every node type of the English modules' compiled trees", async () => {
+      const names = readdirSync(learn).filter((name) => name.endsWith('.mdx'));
+      expect(names.length).toBeGreaterThan(4);
+      for (const name of names) {
+        const types = new Set<string>();
+        const collect = () => (tree: Node) => {
+          const visit = (node: Node): void => {
+            types.add(node.type);
+            for (const child of node.children ?? []) visit(child);
+          };
+          visit(tree);
+        };
+        const [source, at] = [readFileSync(new URL(name, learn), 'utf8'), `packages/content/learn/${name}`];
+        expect(await mdx({ remarkPlugins: [collect] }).transform(blankFrontMatter(source), at)).toBeDefined();
+        expect([name, [...types].filter((type) => !PAGE_NODES.includes(type))]).toEqual([name, []]);
+        expect((await checkModuleBody(source, at)).problem).toBeNull();
+      }
+    });
+
+    it('throws on a node type outside the set, naming it and its line', () => {
+      const table = { type: 'table', position: { start: { line: 4 } }, children: [] };
+      expect(() => pageBlocks({ type: 'root', children: [table] }, 'learn/noise.mdx')).toThrow(
+        /^learn\/noise\.mdx:4: a table node is not one the page text reader knows/,
+      );
+      const loose = { type: 'text', value: 'Loose.', position: { start: { line: 2 } } };
+      expect(() => pageBlocks({ type: 'root', children: [loose] }, 'learn/noise.mdx')).toThrow(/a text node/);
+    });
   });
 
   it('takes another set of elements', async () => {
@@ -311,6 +393,6 @@ describe('checkModuleBody', () => {
 
   it('passes Markdown text and ignores the front matter', async () => {
     const markdown = '# Noise\n\nA *calm* plan.\n\n- one\n- two\n';
-    expect(await checkModuleBody(module('noise', markdown), path)).toEqual(pass('Noise\nA calm plan.\none\ntwo'));
+    expect(await checkModuleBody(module('noise', markdown), path)).toEqual(pass('Noise', 'A calm plan.', 'one', 'two'));
   });
 });
