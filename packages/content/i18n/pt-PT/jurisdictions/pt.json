@@ -8,7 +8,7 @@
   ],
   "lotRuleNote": "Primeiro a entrar, primeiro a sair, aplicado em separado por depositário ou plataforma quando as unidades estão em mais do que um (art. 43.º n.º 9 do CIRS, antes n.º 7).",
   "card": {
-    "classification": "O ganho é da categoria G (art. 10.º n.º 1 al. k) do CIRS) se o criptoativo não for valor mobiliário nem NFT. O staking ou empréstimo pago em moeda fiduciária é da E (28%). A atividade habitual, profissional, mineração ou validação é da B.",
+    "classification": "O ganho é da categoria G (art. 10.º n.º 1 al. k) do CIRS) se o criptoativo não for valor mobiliário. Staking ou empréstimo pago em moeda fiduciária: E (28%). Atividade habitual, profissional, mineração ou validação: B. Excluem-se os NFT.",
     "taxableEvents": [
       {
         "note": "A mais-valia fica excluída de tributação com 365 dias ou mais de detenção e contraparte com residência fiscal na UE, no EEE ou numa jurisdição com convenção. As alienações excluídas continuam a ser declaradas (Anexo G1, Quadro 7)."
@@ -48,7 +48,7 @@
     ],
     "holdingRuleText": "As mais-valias e menos-valias de criptoativos detidos durante 365 dias ou mais ficam excluídas de tributação: «detidos por um período igual ou superior a 365 dias» (art. 10.º n.º 22 do CIRS, n.º 19 nos documentos de 2023–2025). Uma unidade comprada a 1 de março de 2026 fica abrangida a 1 de março de 2027.",
     "lotRuleText": "Primeiro a entrar, primeiro a sair («os alienados são os adquiridos há mais tempo», art. 43.º n.º 8 al. g) do CIRS, antes n.º 6 al. g)), em separado por depositário ou plataforma (art. 43.º n.º 9, antes n.º 7).",
-    "losses": "As menos-valias abatem-se às mais-valias do ano, salvo as de unidades detidas 365 dias ou mais. O saldo negativo só se reporta por cinco anos, com englobamento (art. 55.º n.º 1 al. d)). As de paraísos fiscais nunca contam (art. 43.º n.º 7).",
+    "losses": "Abatem-se às mais-valias de criptoativos do ano, salvo unidades detidas 365 dias ou mais. Só com englobamento o saldo negativo se reporta cinco anos (art. 55.º n.º 1 al. d)). Com contraparte em paraíso fiscal nunca contam (art. 43.º n.º 7).",
     "reporting": [
       "Modelo 3, Anexo G, Quadro 18A: alienações de unidades detidas menos de 365 dias, por operação, com o país da contraparte.",
       "Anexo G, Quadro 18B: alienações com contraparte fora da UE ou do EEE.",

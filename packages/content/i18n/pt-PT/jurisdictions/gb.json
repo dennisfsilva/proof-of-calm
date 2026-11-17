@@ -1,6 +1,6 @@
 {
   "name": "Reino Unido",
-  "filingNote": "Ano fiscal de 6 de abril a 5 de abril. A declaração Self Assessment online é entregue até 31 de janeiro após o fim do ano fiscal. O serviço real time Capital Gains Tax recebe a comunicação até 31 de dezembro e o pagamento até 31 de janeiro.",
+  "filingNote": "Ano fiscal de 6 de abril a 5 de abril. Após o ano fiscal: a declaração Self Assessment online é entregue até 31 de janeiro; o serviço real time Capital Gains Tax recebe a comunicação até 31 de dezembro e o pagamento até 31 de janeiro.",
   "lotRuleNote": "Um pool da section 104 por tipo de token, após a regra do mesmo dia e a regra dos 30 dias (TCGA 1992 ss. 104, 105 e 106A). A Proof of Calm lista cada compra e deixa o agrupamento ao contabilista.",
   "card": {
     "classification": "Em regra, um particular paga Capital Gains Tax na alienação de tokens, um investimento pessoal. Há Income Tax sobre tokens de um empregador, da mineração, da confirmação de transações ou de alguns airdrops, e numa atividade comercial.",
@@ -64,7 +64,7 @@
       "Pedidos de valor irrisório.",
       "Empréstimos de criptoativos e pools de liquidez a partir de 6 de abril de 2027, uma proposta do Finance Bill 2026-27."
     ],
-    "summary60": "Mais-valias de criptoativos: 18% ou 24% por escalão, após uma franquia de £3,000. Cada venda, troca, pagamento ou doação (salvo ao cônjuge) é alienação, os movimentos entre carteiras próprias não. Sem exclusão por detenção. Custo agrupado por token, com regras do mesmo dia e dos 30 dias. Self Assessment até 31 de janeiro, serviço real time até 31 de dezembro."
+    "summary60": "Mais-valias de criptoativos: 18% ou 24% por escalão, após franquia de £3,000. Venda, troca, pagamento ou doação (salvo ao cônjuge ou parceiro civil) é alienação; a transferência entre carteiras próprias não. Sem exclusão por detenção. Custo agrupado por token (regras do mesmo dia e dos 30 dias). Self Assessment até 31 de janeiro, serviço real time até 31 de dezembro."
   },
   "pendingChanges": [
     {
