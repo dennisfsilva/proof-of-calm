@@ -411,8 +411,8 @@ A translation copies English's figure as written; where its figure differs, `ove
 names both texts' figures as written and no fix (decided 2026-11-17).
 Britain, Ireland, and the US keep their locale's grouping (`£37,700`) (decided 2026-11-16). A figure the app
 formats follows its locale (`1.234` in Germany); only a profile's literal figures group as above.
-Facts, templates and modules write `N %` with an ordinary space, or with a no-break space where the sign must not
-wrap away. When a page shows a fact's, template's or module's percentage beside a formatted figure,
+Facts and modules write `N %` with an ordinary space, or with a no-break space where the sign must not wrap
+away; a template's explanation takes only the token below. When a page shows a fact's, template's or module's percentage beside a formatted figure,
 that percentage takes the page's joiner. A module without a chart keeps its spacing as written. The
 tax module is the exception: its country card shows the profile's percentages, so its text takes
 the page's joiner, on the route and in the sheet. A sheet is the module's surface, not the page's,
