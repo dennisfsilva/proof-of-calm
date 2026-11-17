@@ -27,7 +27,7 @@ of it. Specifications: `docs/JURISDICTIONS.md`, `docs/EDUCATION.md`, `docs/CONTE
 | `style/banned.json` | the banned-words lint | `docs/CONTENT-STYLE.md` §2, `docs/LEGAL.md` §6 |
 | `sources.allow.json` | the domains a primary source may come from | `docs/CONTENT-OPS.md` §5 |
 | `learn/*.mdx` | the Learn modules: flat front matter and a closed body | `docs/EDUCATION.md`, `docs/CONTENT-STYLE.md` §5, ADR-0048 |
-| `i18n/pt-PT/` | the European Portuguese translations, sparse: prose only, at the English paths, under the English file name in `jurisdictions/`, `templates/` or `facts/` (what is translated so far: `i18n/pt-PT/README.md`; validated; a profile's translation loads once `PROFILE_OVERLAYS` lists it, a template's once `TEMPLATE_OVERLAYS` does, the facts' not yet) | ADR-0057 |
+| `i18n/pt-PT/` | the European Portuguese translations, sparse: prose only, at the English paths, under the English file name in `jurisdictions/`, `templates/`, `facts/` or `learn/` (what is translated so far: `i18n/pt-PT/README.md`; validated; a profile's translation loads once `PROFILE_OVERLAYS` lists it, a template's once `TEMPLATE_OVERLAYS` does, a Learn module's under `learn/` once `LEARN_TRANSLATIONS` lists it, the facts' never, since their loader is cut) | ADR-0057, ADR-0048 |
 
 `pnpm validate:content` (`scripts/validate.ts` over `src/validate.ts`) checks every file against its
 schema and the rules of `docs/JURISDICTIONS.md` §2: owner review, review dates, sources on the
