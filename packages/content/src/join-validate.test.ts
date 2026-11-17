@@ -120,13 +120,17 @@ describe('a currency code or a form name joined to its figure (docs/CONTENT-STYL
   });
 });
 
-// D5 to D7 of #358 (docs/CONTENT-STYLE.md §4): in English prose a law's name and its number and a date's parts are
-// joined by U+00A0, and an en-dash range takes U+2060 after its dash, so that a narrow screen never splits them.
+// D5 to D7 and S4 of #358 (docs/CONTENT-STYLE.md §4): in English prose a law's name and its number and a date's parts
+// are joined by U+00A0, and an en dash or a hyphen-minus between two digits takes U+2060 after it, so that a narrow
+// screen never splits them.
 const wj = String.fromCodePoint(0x2060);
 const nb = String.fromCodePoint(0x2011);
 const codes = (problems: readonly { code: string }[]) => problems.map(({ code }) => code);
 const ranged = (range: string) =>
   `card.caveats.0: the range ${JSON.stringify(range)} can break after its dash (docs/CONTENT-STYLE.md §4)`;
+// The figure as the detail types it, U+2060 written as its escape.
+const hyphened = (figure: string) =>
+  `card.caveats.0: the range or number "${figure}" can break after its hyphen (docs/CONTENT-STYLE.md §4)`;
 const named = (name: string, number: string) =>
   refused(`the name ${JSON.stringify(name)} and its number`, `"${number}"`);
 const dayed = (day: string, month: string) => refused(`the day "${day}" and its month`, `"${month}"`);
@@ -152,6 +156,31 @@ describe('a law name, a date and a range in English prose (docs/CONTENT-STYLE.md
     expect(['Article six applies.', 'Chapter 5 applies.', 'The ruling PIV 28969 says so.'].flatMap(joins)).toEqual([]);
   });
 
+  it('joins n°, (EU) before a regulation’s number and Orden, and leaves lett. before its letter (round 2)', () => {
+    expect(joins('Loi n° 2026-534 of 2026.')).toEqual([named('n°', '2026-534'), hyphened('2026-534')]);
+    expect(joins('Under Regulation (EU) 2023/1114 (MiCA).')).toEqual([named('(EU)', '2023/1114')]);
+    expect(joins('Filed by June (Orden HAC/277/2026).')).toEqual([named('Orden', 'HAC/277/2026')]);
+    const joined = [
+      `Loi n°${nbsp}2026-${wj}534 of 2026.`,
+      `Under Regulation (EU)${nbsp}2023/1114 (MiCA).`,
+      `Filed by June (Orden${nbsp}HAC/277/2026).`,
+      `Taxed under art.${nbsp}67 c.${nbsp}1 lett. c-sexies TUIR.`,
+      'See lett. c of the article.',
+    ];
+    expect(joined.flatMap(joins)).toEqual([]);
+  });
+
+  it('refuses a hyphen-minus between two digits without U+2060 after it (S4), and passes one beside a letter', () => {
+    expect(joins('The 2026-27 tax year.')).toEqual([hyphened('2026-27')]);
+    expect(joins(`Under Notice${nbsp}2023-27.`)).toEqual([hyphened('2023-27')]);
+    expect(joins(`Manual Part${nbsp}02-01-03.`)).toEqual([hyphened('02-01-03')]);
+    expect(joins(`Manual Part${nbsp}02-${wj}01-03.`)).toEqual([hyphened(String.raw`02-⁠01-03`)]);
+    const joined = [`The 2026-${wj}27 tax year.`, `Under Notice${nbsp}2023-${wj}27.`, `Part${nbsp}02-${wj}01-${wj}03.`];
+    expect(joined.flatMap(joins)).toEqual([]);
+    const letters = ['COVID-19 relief.', 'An e-money token.', `Form${nbsp}1099-DA.`, `art.${nbsp}10 c.${nbsp}1-bis`];
+    expect(letters.flatMap(joins)).toEqual([]);
+  });
+
   it('refuses each ordinary gap of a date, naming its pair, and passes the joined forms', () => {
     expect(joins('From 1 Jan 2023.')).toEqual([dayed('1', 'Jan'), yeared('Jan', '2023')]);
     expect(joins('From Sept 2029.')).toEqual([yeared('Sept', '2029')]);
@@ -166,23 +195,22 @@ describe('a law name, a date and a range in English prose (docs/CONTENT-STYLE.md
     expect(joinProblems(path, [['lotRuleNote', 'From 1 January 2023 (§ 23, 2023–2025).']])).toEqual([]);
   });
 
-  it('refuses an en-dash range without U+2060 after its dash, and passes one with it and a hyphen-minus range', () => {
+  it('refuses an en-dash range without U+2060 after its dash, and passes one with it', () => {
     expect(joins('In 2023–2025 documents.')).toEqual([ranged('2023–2025')]);
     expect(joins('Rates of 40–45 %.')).toEqual([ranged('40–45')]);
     expect(joins('See §§ 187–188 BGB.')).toEqual([named('§§', '187'), ranged('187–188')]);
-    expect([`In 2023–${wj}2025 documents.`, `Rates of 40–${wj}45 %.`, 'The 2026-27 tax year.'].flatMap(joins)).toEqual(
-      [],
-    );
+    expect([`In 2023–${wj}2025 documents.`, `Rates of 40–${wj}45 %.`].flatMap(joins)).toEqual([]);
   });
 
-  it('passes every refusal once its fix is applied: U+00A0 in the gap, U+2060 after the dash', () => {
+  it('passes every refusal once its fix is applied: U+00A0 in the gap, U+2060 after the dash or hyphen', () => {
     const fixed = [
       `See §§${nbsp}187–${wj}188 BGB, from 1${nbsp}Jan${nbsp}2023.`,
       `Under Lei${nbsp}24${nb}D/2022 of 29${nbsp}December${nbsp}2022, art.${nbsp}10 n.º${nbsp}23.`,
-      `Rates of 12,2–${wj}48% (Topic${nbsp}409), Notice${nbsp}2026-20 §3.03.`,
+      `Rates of 12,2–${wj}48% (Topic${nbsp}409), Notice${nbsp}2026-${wj}20 §3.03.`,
+      `Loi n°${nbsp}2026-${wj}534, Regulation (EU)${nbsp}2023/1114, Orden${nbsp}HAC/277/2026, Part${nbsp}02-${wj}01-${wj}03.`,
     ];
     expect(fixed.flatMap(joins)).toEqual([]);
-    expect(fixed.map((text) => joins(text.replaceAll(nbsp, ' ').replaceAll(wj, '')).length)).toEqual([4, 5, 3]);
+    expect(fixed.map((text) => joins(text.replaceAll(nbsp, ' ').replaceAll(wj, '')).length)).toEqual([4, 5, 4, 6]);
   });
 
   it('gives a pt-PT text no law, date or range join until its language has lists (D6)', () => {
