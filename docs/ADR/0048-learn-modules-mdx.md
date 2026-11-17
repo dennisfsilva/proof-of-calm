@@ -222,3 +222,13 @@ Recorded on 2026-11-15, when the site's half of the rendering points landed in `
   `PAGE_NODES` throws, naming the path and the line, as before. `pageOf` reads it with `pageBlocks`' node rules, and
   `blocks` is the texts of `page` without its elements, so its values are unchanged on every English module and
   every translation. A check of a module's figures reads `page`, never a second split of the MDX source.
+- 2026-11-17: a translation's metadata leaves its body's chunk (this supersedes the `meta` of the entry above on the
+  plugin's reading of translations). Each language with a translation folder gets one virtual module,
+  `virtual:learn-meta/<language>`, whose default export maps each translated slug to its metadata; `virtual:learn-modules`
+  exports `LEARN_META`, a lazy import of it per language. The same read that builds `LEARN_MODULES` builds it and
+  watches the same files, so under `pnpm dev` an English front-matter edit, a save that does not parse and the fix all
+  reach it with no restart. Its chunk goes under `assets/messages/<language>/learn-meta-<hash>.js`, outside the entry
+  and the precache. Learn's index shows each translated module's title, idea and reading time in the person's
+  language (`useModuleIndex` in `packages/app/src/features/learn/lib/bodies.ts`): English, its title and idea marked
+  `lang="en"`, stands until the chunk resolves and for good if it fails, and an untranslated module stays English and
+  marked. A module's screen reads its translated metadata from the same chunk beside its body's.

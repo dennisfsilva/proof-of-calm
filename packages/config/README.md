@@ -18,7 +18,8 @@ configs live in their packages. See `docs/ENGINEERING.md`.
     with the compiler through Babel (its `include` covers `.mdx`), Tailwind, the five plugins below
     (and, on the web host, the chunk report), `resolve.dedupe: ['react']`, `build.assetsInlineLimit: 0`,
     Rolldown's `output.codeSplitting` from `chunkGroups()` and `output.chunkFileNames`, which puts
-    another language's chunks of messages and content (a translated Learn module's included) under
+    another language's chunks of messages and content (a translated Learn module's and the language's
+    Learn metadata, `learn-meta-<hash>.js`, included) under
     `assets/messages/<locale>/` (outside the worker's precache, ADR-0045's Deviations of 2026-11-15
     and 2026-11-16),
     the host's `import.meta.env.VITE_API_BASE` and `VITE_SERVICE_WORKER`, and the document (`app.html` on the
@@ -38,7 +39,10 @@ configs live in their packages. See `docs/ENGINEERING.md`.
     no modules), parses each with `parseModule` (a failed parse
     or two files with one slug fails the build) and exports `LEARN_MODULES`, the metadata in the slug
     order of `docs/EDUCATION.md` §10 with no body text, and `LEARN_BODIES`, one lazy import per slug, so
-    each body is its own chunk and imports only `react/jsx-runtime`. A translated module compiles with
+    each body is its own chunk and imports only `react/jsx-runtime`; per language with translations,
+    `LEARN_TRANSLATIONS`, one lazy import per translated body, and `LEARN_META`, a lazy import of
+    `virtual:learn-meta/<language>`, every translated slug's metadata, built by the same read and fresh under
+    `pnpm dev` (ADR-0048's last entry of 2026-11-17, on `LEARN_META`). A translated module compiles with
     `closedBody` and `sourceHeadings`, the English module's h2 texts by position, so each h2 keeps the
     English section id; the English module of its slug is read from disk and watched whether or not it
     parses (ADR-0048's entry of 2026-11-17).
