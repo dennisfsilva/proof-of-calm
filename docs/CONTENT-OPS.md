@@ -287,7 +287,9 @@ they differ.
 `packages/content/facts/*.json` holds every number the modules cite: key, value, unit, date, source
 URL, publisher, accessed date, confidence, `lastReviewed`, `reviewedBy` (CI blocks a fact still at
 `agent-draft`, as it does a profile or a template, §1); the facts test holds its keys against
-`docs/EDUCATION.md` §9. Modules reference facts by key in their front matter; the
+`docs/EDUCATION.md` §9, and each value against its row: a value a review changed passes only at
+the value its `unlogged` entry pins, from the owner's session pull request until the log pull
+request updates the row and removes the entry (§8 steps 4 and 5). Modules reference facts by key in their front matter; the
 content test fails when a module cites a key that does not exist or whose `lastReviewed` is older
 than twelve months; the owner's manual review (§3) re-reads the sources and proposes updates.
 Templates carry `lastReviewed` too (the Cycle plan's dates age). The chart rows of the risk module
@@ -335,7 +337,12 @@ fact to the window its URL names (the skill's §4 step 3).
    changed other than `reviewedBy` (named in the notes, or shown only by CI, as an app, web or
    end-to-end test is), have the assertion removed in a session pull request to main first, since
    one changed to the new value fails on main, where the data still holds the old one; push the
-   flip after it merges. When the PR
+   flip after it merges. For the tie of a fact's value to its `docs/EDUCATION.md` §9 row, that pull
+   request keeps the tie and adds the fact's old and new value, as you read them in the diff, to
+   `unlogged` in `packages/content/src/facts.test.ts`; the agent's branch cannot change that file,
+   so a later push that moves the value fails the tie (decided 2026-11-17: letting the guard accept
+   the document would open a path from a fetched page into a file later build sessions read as
+   instructions, §3). When the PR
    changes a translation (§3 step 2), check that its diff changes only the figures its English file
    changed, at the same paths and to the same values, and nothing else there: compare the values,
    not the characters, since the translation writes each in its number locale's format (§3 step 2;
@@ -357,4 +364,6 @@ fact to the window its URL names (the skill's §4 step 3).
 5. Log the run in `docs/content-review-log.md`: its date, the PR, the model and what you corrected,
    so the skill improves. The log goes in its own PR, since the agent's branch takes content data only.
    The log PR also updates each `docs/JURISDICTIONS.md` §7 row and `docs/EDUCATION.md` §9 row that the
-   merged review changed.
+   merged review changed, and removes each updated fact's `unlogged` entry (step 4), since the facts
+   test fails while one stays; that makes it a tier 2 pull request with the content roles
+   (`.claude/rules/content.md`).
