@@ -47,6 +47,30 @@ describe('a currency code or a form name joined to its figure (docs/CONTENT-STYL
     expect(neighbours.flatMap(joins)).toEqual([]);
   });
 
+  it('passes a code joined to a letter by a hyphen or to another code by a slash, on either side of a figure', () => {
+    const neighbours = [
+      'From 2024 EUR-denominated accounts.',
+      'In 2024 USD-pegged coins.',
+      'Some non-EUR 100 holdings.',
+      'The USD/EUR 1.08 rate.',
+      'The 1.08 USD/EUR rate.',
+      'A BTC/USD 100 close.',
+      'Sold at 100 EUR/USD.',
+      'Sold at 100 USD/BTC.',
+    ];
+    expect(neighbours.flatMap(joins)).toEqual([]);
+  });
+
+  it('refuses a code followed by a slash and a unit word, and a code beside its punctuation', () => {
+    expect(joins('About 5 EUR/month.')).toEqual([refused('"EUR" and its figure', '"5"')]);
+    expect(joins('Pay EUR 5/month.')).toEqual([refused('"EUR" and its figure', '"5"')]);
+    expect(joins('(EUR 5), 100 GBP, 7 USD.')).toEqual([
+      refused('"EUR" and its figure', '"5"'),
+      refused('"GBP" and its figure', '"100"'),
+      refused('"USD" and its figure', '"7"'),
+    ]);
+  });
+
   it('reads a form number of capitals, points or a hyphen, and every form-name word', () => {
     expect(joins('Anexo G, Quadro 9.4, Form 1099-DA, box 3AN and Modelo D-100.')).toEqual([
       refused('the form "Anexo" and its number', '"G"'),
