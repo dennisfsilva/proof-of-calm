@@ -70,7 +70,8 @@ coin. Each Learn module's body also goes through the build's own compiler and el
 (`scripts/closed-body.ts`, ADR-0048 Deviations): one `module-closed-body` problem, with the line, per
 module the build would refuse. On the page that compiler gives, `src/module-figures.ts` reads the chart's section
 of each module and translation against the cycles file and the catalogue (`docs/CONTENT-STYLE.md` §4, R5 and R6): a
-sentence there that matches neither closed shape, or a figure that is not its row's, is `figure-chart`, and a coin
+sentence there that holds one of §4's triggers and matches neither closed shape, or a figure that is not its row's, is
+`figure-chart`, and a coin
 the chart draws whose rows no sentence states is `figure-unstated`. `scripts/validate.ts` takes the root it reads as
 its first argument.
 A translation under `i18n/`, every `.json` file at any depth (`scripts/overlay-paths.ts`), is checked
