@@ -26,7 +26,7 @@ describe('pageOf', () => {
   it('keeps an element inside a sentence inside its paragraph, and reads code as a code block', async () => {
     expect(await pageOfBody('# Noise\n\nA line. <PastPerformance /> More.\n\n```\nbloco\n```\n')).toEqual([
       { kind: 'heading', depth: 1, text: 'Noise' },
-      { kind: 'paragraph', text: 'A line.  More.' },
+      { kind: 'paragraph', text: 'A line.  More.', marks: ['mdxJsxTextElement'] },
       { kind: 'code', text: 'bloco' },
     ]);
   });
@@ -37,6 +37,30 @@ describe('pageOf', () => {
       { kind: 'element', name: 'Chart' },
       { kind: 'paragraph', text: 'A <Chart /> sign.' },
     ]);
+  });
+
+  // A check that reads plain text refuses a paragraph whose text the page formats apart or hides (ADR-0048).
+  it.each([
+    ['emphasis', 'Solana *97* %.', 'Solana 97 %.', ['emphasis']],
+    ['strong', 'Ether **94** %.', 'Ether 94 %.', ['strong']],
+    ['a code span', 'Solana `97` %.', 'Solana 97 %.', ['inlineCode']],
+    ['a hard break', 'Solana 97\\\n%.', 'Solana 97 %.', ['break']],
+    ['a text element', 'Solana <PastPerformance /> 97 %.', 'Solana  97 %.', ['mdxJsxTextElement']],
+    ['a hidden character', 'Solana 9­7​ %.', 'Solana 97 %.', ['ignorable']],
+    ['each mark once, in tree order', '*a **b*** `c` *d* e​.', 'a b c d e.', ['emphasis', 'strong', 'inlineCode']],
+  ])('marks a paragraph holding %s', async (_, body, text, marks) => {
+    const all = body.includes('e​') ? [...marks, 'ignorable'] : marks;
+    expect(await pageOfBody(body)).toEqual([{ kind: 'paragraph', text, marks: all }]);
+  });
+
+  it('marks no plain paragraph, heading or code block', async () => {
+    const page = await pageOfBody('## Falls *4*\n\nSolana 97 %.\n\n```\n`97` %\n```\n');
+    expect(page).toEqual([
+      { kind: 'heading', depth: 2, text: 'Falls 4' },
+      { kind: 'paragraph', text: 'Solana 97 %.' },
+      { kind: 'code', text: '`97` %' },
+    ]);
+    expect(page.map((block) => 'marks' in block)).toEqual([false, false, false]);
   });
 
   it('is empty when the body does not compile', async () => {
