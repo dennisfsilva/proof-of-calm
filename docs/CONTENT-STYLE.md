@@ -390,9 +390,14 @@ percentage beside it, with a word or a spaced dash between them (`art. 33.1 sets
 `art. 33.1 – 28%`), never joined by a hyphen or by `to` (`art. 33.1-28%` and `art. 33.1 to 28%`
 read as a range). On the pages of Germany, Spain, France, Italy, the Netherlands, and Portugal, a
 profile's figure of 10 000 or more groups its digits in threes with a no-break space (U+00A0,
-`\u00a0` in JSON): `EUR 59 357`. A smaller one takes none: `EUR 1000`. Both hold in English
+`\u00a0` in JSON): `EUR 59 357`. A smaller one takes none: `EUR 1000`. Both hold in English
 and in each translation. A decimal in a profile's text there takes the comma, and a point in
-it is only a citation's. An identifier keeps its digits plain (`PIV 28969`, `Modelo 721`).
+it is only a citation's. An identifier keeps its digits plain (`PIV 28969`). On every page, a currency
+code and its figure (`EUR 20 350`, `100 USD`) and a form's name and its number (`Modelo 721`,
+`Anexo G`, `Form 1040`, `Box 3`, `Quadro 9.4`) are joined by U+00A0 too, `\u00a0` in JSON and the
+character itself in a module, so that a line never ends on the code or the name: in English, in each
+translation and in a module (D3 of #328). `pnpm validate:content` refuses any other space there in a
+profile or a translated one (`figure-join`); its detail names the pair and the space, never a text to write.
 `pnpm validate:content` refuses other grouping beside a currency code (`number-group`). It reads
 each figure as English does (a comma or a space between groups, a point before the decimals) and
 as the page does (a point or a space between groups, a comma before the decimals); a group is three
