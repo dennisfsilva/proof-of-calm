@@ -349,3 +349,44 @@ test.describe("a Learn module's pt-PT chunk", () => {
     expect(errors).toEqual([]);
   });
 });
+
+const LEARN_META_PT_CHUNK = /\/assets\/messages\/pt-PT\/learn-meta-[^/]+\.js$/;
+
+// The index reads pt-PT's metadata chunk (ADR-0048 Deviations, virtual:learn-meta/<language>) into its state, so the
+// built app, React Compiler and all, shows a translated module's title once the chunk arrives.
+test.describe("Learn's index on a pt-PT screen", () => {
+  test.use({ serviceWorkers: 'block' });
+
+  test("lists a translated module by its pt-PT title, unmarked, and an English one's title lang=en", async ({
+    page,
+  }, testInfo) => {
+    // biome-ignore lint/suspicious/noSkippedTests: a runtime skip outside the two named projects, not a disabled test
+    test.skip(!ON_TWO.includes(testInfo.project.name), 'desktop and iphone carry the language checks');
+    await bootIn(page, 'pt-PT');
+    await page.goto('/learn');
+    const translated = screenArea(page).getByText(startHerePt.title, { exact: true });
+    await expect(translated).toBeVisible();
+    await expect(translated).not.toHaveAttribute('lang', /./);
+    await expect(screenArea(page).getByText(startHere.title, { exact: true })).toHaveCount(0);
+    await expect(screenArea(page).getByText(riskHonestly.title, { exact: true })).toHaveAttribute('lang', 'en');
+    await expect(page.getByRole('heading', { level: 1 })).not.toHaveAttribute('lang', /./);
+  });
+
+  test('with the metadata chunk aborted, every module keeps its English title, marked lang=en', async ({
+    page,
+  }, testInfo) => {
+    // biome-ignore lint/suspicious/noSkippedTests: a runtime skip outside the two named projects, not a disabled test
+    test.skip(!ON_TWO.includes(testInfo.project.name), 'desktop and iphone carry the language checks');
+    await bootIn(page, 'pt-PT');
+    const aborted: string[] = [];
+    await page.route(LEARN_META_PT_CHUNK, (route) => {
+      aborted.push(route.request().url());
+      return route.abort('internetdisconnected');
+    });
+    await page.goto('/learn');
+    const english = screenArea(page).getByText(startHere.title, { exact: true });
+    await expect(english).toHaveAttribute('lang', 'en');
+    await expect(screenArea(page).getByText(startHerePt.title, { exact: true })).toHaveCount(0);
+    expect(aborted.length).toBeGreaterThan(0);
+  });
+});
