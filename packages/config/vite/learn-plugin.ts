@@ -58,6 +58,7 @@ export function blankFrontMatter(source: string): string {
 type MdastNode = {
   readonly type: string;
   readonly name?: string | null;
+  readonly value?: string;
   readonly position?: { readonly start: { readonly line: number } };
   readonly children?: readonly MdastNode[];
   readonly attributes?: readonly MdxAttribute[];
@@ -166,11 +167,34 @@ const flowElements = (flow: string[], all: string[]) => () => (tree: MdastNode) 
   visit(tree);
 };
 
+// The nodes whose value the page shows as text; a fence's info string is its `lang` and `meta`, never its value.
+const TEXT_NODES = new Set(['text', 'inlineCode', 'code']);
+// The parents whose children run inside one line of text; any other parent's children are blocks.
+const PHRASING_PARENTS = new Set(['paragraph', 'heading', 'emphasis', 'strong', 'delete', 'tableCell']);
+
+/** The words a node shows, as the parser decoded them: inline values joined with nothing, blocks with a newline. */
+function pageText(node: MdastNode): string {
+  if (TEXT_NODES.has(node.type)) return node.value ?? '';
+  if (node.type === 'break') return '\n';
+  return (node.children ?? []).map(pageText).join(PHRASING_PARENTS.has(node.type) ? '' : '\n');
+}
+
+/** A remark plugin that records the words of the tree; no attribute value is a word, as the page shows none. */
+const pageWords = (words: string[]) => () => (tree: MdastNode) => {
+  words.push(pageText(tree));
+};
+
 /**
- * What the compiler read in one module body: the build's message or null, its flow elements by name, and every
- * element as `flow:<Name>` (a block) or `text:<Name>` (inside a sentence), in tree order.
+ * What the compiler read in one module body: the build's message or null, its flow elements by name, every
+ * element as `flow:<Name>` (a block) or `text:<Name>` (inside a sentence), in tree order, and the words the page
+ * shows (empty when the body does not compile).
  */
-export type ModuleBodyCheck = { readonly problem: string | null; readonly flow: Names; readonly elements: Names };
+export type ModuleBodyCheck = {
+  readonly problem: string | null;
+  readonly flow: Names;
+  readonly elements: Names;
+  readonly text: string;
+};
 type Names = readonly string[];
 
 /**
@@ -178,6 +202,7 @@ type Names = readonly string[];
  * source with its front matter blanked. `problem` is the message the build would fail with, or null when the
  * body compiles; `path` is the module's `.mdx` path, and the message names it with the line. `flow` names the
  * flow elements the tree holds and `elements` every element, so an escaped `\<Chart />` or code counts as none.
+ * `text` is every text, code span and code block value in tree order, a character reference decoded.
  */
 export async function checkModuleBody(
   source: string,
@@ -186,15 +211,16 @@ export async function checkModuleBody(
 ): Promise<ModuleBodyCheck> {
   const flow: string[] = [];
   const all: string[] = [];
-  const compile = mdx({ remarkPlugins: [closedBody(elements), flowElements(flow, all)] });
+  const words: string[] = [];
+  const compile = mdx({ remarkPlugins: [closedBody(elements), flowElements(flow, all), pageWords(words)] });
+  const none = { flow: [], elements: [], text: '' };
   try {
     // The compiler skips an id outside its extensions: a body it never read is not a pass.
     const result = await compile.transform(blankFrontMatter(source), path);
-    if (result !== undefined) return { problem: null, flow, elements: all };
-    const problem = `${path}: not an .mdx file, so the compiler did not read it (ADR-0048)`;
-    return { problem, flow: [], elements: [] };
+    if (result !== undefined) return { problem: null, flow, elements: all, text: words.join('') };
+    return { problem: `${path}: not an .mdx file, so the compiler did not read it (ADR-0048)`, ...none };
   } catch (error) {
-    return { problem: error instanceof Error ? error.message : String(error), flow: [], elements: [] };
+    return { problem: error instanceof Error ? error.message : String(error), ...none };
   }
 }
 

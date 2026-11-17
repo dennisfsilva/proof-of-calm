@@ -1,12 +1,12 @@
-// A translated Learn module against its English module (ADR-0057; ADR-0048 Deviations), for scripts/validate.ts: the
-// front matter is read by English's rules and holds only the texts a reader reads, the idea and the caveat keep
-// English's limits, every field and the body carry English's numbers, and the ban list and the no-break hyphen run on
-// the translated text, as they run on a translated fact. The chart, the facts and the review dates are English's, and
-// so is the word cap. The body's elements are the compiler's to read: scripts/closed-body.ts holds them, and the
-// translation's chart, to English's. Pure.
+// A translated Learn module's front matter against its English module (ADR-0057; ADR-0048 Deviations), for
+// scripts/validate.ts: it is read by English's rules and holds only the texts a reader reads, the idea and the caveat
+// keep English's limits, every field carries English's numbers, and the ban list and the no-break hyphen run on it, as
+// they run on a translated fact. The chart, the facts and the review dates are English's, and so is the word cap. The
+// body is the compiler's to read: scripts/closed-body.ts holds its elements, numbers and chart to English's and runs
+// the ban list and the hyphen check on the text its compiled page shows. Pure.
 import type { Result } from '@proofofcalm/core';
 import { hyphenProblems } from '../hyphen-validate.ts';
-import { type LearnModule, plainText, readFields } from '../loaders/modules.ts';
+import { type LearnModule, readFields } from '../loaders/modules.ts';
 import { bannedProblems, type Problem } from '../problem.ts';
 import { CONTENT_LANGUAGES, type OverlayLanguage } from './overlay.ts';
 import { numbersIn } from './overlay-validate.ts';
@@ -56,24 +56,19 @@ function frontProblems(path: string, front: TranslatedModule['front']): Problem[
   ];
 }
 
-/** Every way a translated module departs from its English module; the empty list is a pass. */
+/** Every way a translated module's name and front matter depart from its English module; the empty list is a pass. */
 export function translatedModuleProblems(
   path: string,
   english: LearnModule | undefined,
   translated: TranslatedModule,
   language: OverlayLanguage,
 ): Problem[] {
-  const { front, body } = translated;
+  const { front } = translated;
   if (english === undefined) {
     const detail = `no English module has the slug ${front.slug ?? '(none)'}; name the file and slug after one`;
     return [{ path, code: 'module-overlay-orphan', detail }];
   }
-  // The body as a person reads it, with each line end a space, so a phrase cannot hide across a line.
-  const read = (text: string) => plainText(text).replace(/\s+/g, ' ');
-  const texts: [string, string, string][] = [
-    ...TEXTS.map((key): [string, string, string] => [key, front[key] ?? '', english[key]]),
-    ['body', read(body), read(english.body)],
-  ];
+  const texts = TEXTS.map((key): [string, string, string] => [key, front[key] ?? '', english[key]]);
   const named = path.slice(path.lastIndexOf('/') + 1) === `${english.slug}.mdx`;
   return [
     ...(named ? [] : [{ path, code: 'file-name', detail: `rename the file to ${english.slug}.mdx` }]),

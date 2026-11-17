@@ -48,8 +48,11 @@ describe('translatedModuleProblems', () => {
     ]);
   });
 
-  it('reads 31.4 % in English against 31,4 % in pt-PT, and fails 31.4 % written in pt-PT', () => {
-    expect(codes(FRONT, BODY.replace('31,4', '31.4'))).toEqual(['overlay-number-mismatch']);
+  // Review 25m round 1: the body's source is not what its page shows. Its numbers, ban list and hyphens, a pt-PT
+  // 31.4 % among them, moved to scripts/closed-body.test.ts, which reads the compiled text.
+  it('reads no body: its numbers, banned rows and hyphens are left to the compiled check', () => {
+    expect(codes(FRONT, BODY.replace('31,4', '31.4'))).toEqual([]);
+    expect(codes(FRONT, `${BODY}\nRecomendamos manter o plano, imperd&iacute;vel, de 12-month.\n`)).toEqual([]);
   });
 
   it('fails an idea over 120 characters and a caveat over 240', () => {
@@ -69,8 +72,7 @@ describe('translatedModuleProblems', () => {
     expect(problems.map((problem) => problem.code)).toEqual(['module-overlay-orphan']);
   });
 
-  it('fails a pt-PT banned row in the body and in the front matter', () => {
-    expect(codes(FRONT, `${BODY}\nRecomendamos manter o plano.\n`)).toEqual(['banned-advice']);
+  it('fails a pt-PT banned row in the front matter', () => {
     expect(codes({ ...FRONT, title: 'Dicas sobre ruído' })).toEqual(['banned-advice']);
   });
 });
@@ -86,12 +88,14 @@ describe('translatedModuleProblems, field by field', () => {
     expect(problems.map((problem) => problem.code)).toEqual(['file-name']);
   });
 
-  it('fails an ordinary hyphen between a number and its unit, where English writes U+2011', () => {
-    const english = { ...ENGLISH, body: `${ENGLISH.body}\nA 12‑month plan.\n` };
-    const problems = (body: string) =>
-      translatedModuleProblems(PATH, english, { front: FRONT, body }, 'pt-PT').map((problem) => problem.code);
-    expect(problems(`${BODY}\nUm plano de 12‑month.\n`)).toEqual([]);
-    expect(problems(`${BODY}\nUm plano de 12-month.\n`)).toEqual(['number-unit-hyphen']);
+  it('fails an ordinary hyphen between a number and its unit in the idea, where English writes U+2011', () => {
+    const english = { ...ENGLISH, idea: 'A 12‑month plan.' };
+    const problems = (idea: string) =>
+      translatedModuleProblems(PATH, english, { front: { ...FRONT, idea }, body: BODY }, 'pt-PT').map(
+        (problem) => problem.code,
+      );
+    expect(problems('Um plano de 12‑month.')).toEqual([]);
+    expect(problems('Um plano de 12-month.')).toEqual(['number-unit-hyphen']);
   });
 
   it('fails a number the title or the idea adds or drops', () => {
@@ -186,18 +190,7 @@ describe('the pt-PT start-here, split as English is (brand, 25h round 2)', () =>
   const PLAN = 'Com ela, define o plano uma vez e regista cada compra, estejam as moedas onde estiverem.';
   const WHERE = 'Mostra-lhe em que ponto do plano está.';
 
-  it('passes the number and ban rows with the two sentences against English', () => {
-    const english: LearnModule = {
-      ...ENGLISH,
-      slug: 'start-here',
-      chart: 'none',
-      body: 'You set a plan once and record each purchase, wherever the coins are. It shows where you are in the plan.\n',
-    };
-    const front = { ...FRONT, slug: 'start-here', caveat: 'Um plano pode perder 87 % do valor.' };
-    const path = 'packages/content/i18n/pt-PT/learn/start-here.mdx';
-    expect(translatedModuleProblems(path, english, { front, body: `${PLAN} ${WHERE}\n` }, 'pt-PT')).toEqual([]);
-  });
-
+  // Their number and ban rows against English are read from the compiled text in scripts/closed-body.test.ts.
   it('writes the two sentences in the real file', () => {
     const source = readFileSync(new URL('../../i18n/pt-PT/learn/start-here.mdx', import.meta.url), 'utf8');
     const text = source.replace(/\s+/g, ' ');
