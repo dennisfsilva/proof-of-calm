@@ -145,13 +145,10 @@ describe('overlayProblems', () => {
     ]);
     expect(numbersIn('12.2 % of £37,700', 'en-GB')).toEqual(['12.2', '37700']);
     const summary = (english: string, translated: string, locale = 'nl-NL') =>
-      overlayProblems(
-        'jurisdiction',
-        path,
-        { card: { summary60: english } },
-        { card: { summary60: translated } },
-        [locale, locale],
-      ).map((problem) => problem.code);
+      overlayProblems('jurisdiction', path, { card: { summary60: english } }, { card: { summary60: translated } }, [
+        locale,
+        locale,
+      ]).map((problem) => problem.code);
     const en = `A deemed 6,00% of assets above EUR 59${nbsp}357 per person.`;
     expect(summary(en, `Um rendimento de 6,00% acima de EUR 59${nbsp}357 por pessoa.`)).toEqual([]);
     expect(summary(en, 'Um rendimento de 6,00% acima de EUR 59.357 por pessoa.')).toEqual(['overlay-number-mismatch']);
