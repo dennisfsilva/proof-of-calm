@@ -521,7 +521,7 @@ R6: B counts C's falls of more than `N`, strictly, whose high is in the first `Y
 last `Y` (`figure-chart`).
 
 Each detail quotes the sentence and names its own figure and rule, never a row or a count to copy (decided
-2026-11-17). A translation's chart section fails closed until its language has shapes. A chart other than
+2026-11-17). pt-PT's shapes are in §9; any other language's chart section fails closed. A chart other than
 `drawdowns-bar` has no rows, so any figure in its section fails.
 
 A numeral joined to its unit by a hyphen (`90‑day`, `365‑day`) never breaks there. Text a screen shows writes the
@@ -674,6 +674,17 @@ needs (decided 2026-11-15). The native reader's review is §8 item 9.
   dias»). A tax name that a string shows the lint refusing goes on the allow-list with its reason
   (§2).
 - **Lists take no comma before `e`**, as `lib/format` writes them: `BTC, ETH e SOL`.
+- **A module's chart section takes pt-PT's two shapes of §4 R5** (decided 2026-11-17): B,
+  `No gráfico, C teve K quedas de mais de N entre Y e Y.` with `1 queda` for one, and E, `C caiu L.` or
+  `C caiu L`, then any number of `, C L`, then ` e C L.`, with no comma before `e`; `L` is `N`, `N e N`, or two or
+  more `N` joined by `, ` with ` e ` before the last. `C` is `a` and a catalogue coin's name, as written or with its
+  first letter in lower case, or `o ether` for ETH; only E's first `C` capitalises its article (`O ether caiu`,
+  `A Solana caiu`), and the article agrees (`A ether caiu`, `o Solana` and `a Ether` fail). `N`, `K` and `Y` are
+  §4's. The trigger is English's beside pt-PT's own: `por cento` in any case, joined by nothing, a space or a hyphen;
+  the cardinals and ordinals but `um` and `uma`, which the prose needs, Brazilian spellings included (`dezesseis`,
+  `bilhão`); `dúzia`, `dezena`, `centena`, `milhar`, `metade`, `dobro`, `par`; the months and their short forms
+  (`jan` to `dez`) in any case, and `Mar` only capitalised. `segundo` ('according to') triggers, so the section
+  writes `de acordo com`; lowercase `sol` does not. `packages/content/src/module-figures.ts` holds the lists.
 - **A country card's summary keeps the 60-word limit**, as in English (`docs/JURISDICTIONS.md` §2;
   `pnpm validate:content` counts the words). When a Portuguese card runs over 60 words, the
   explanation gives way, never the computed date, the rule or the source.
