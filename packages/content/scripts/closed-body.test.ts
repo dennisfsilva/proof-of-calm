@@ -10,6 +10,28 @@ import { closedBodyProblems } from './closed-body.ts';
 const learn = fileURLToPath(new URL('../learn/', import.meta.url));
 const FRONT = ['---', 'slug: noise', 'title: Noise', '---', ''].join('\n');
 
+// A literal English noise module and its literal pt-PT translation, through both checks as scripts/validate.ts runs them.
+const at = 'packages/content/i18n/pt-PT/learn/noise.mdx';
+const englishOf = (body: string, chart = 'none') => {
+  const front = ['---', 'slug: noise', 'title: Noise', 'idea: Most price moves are noise.'];
+  const rest = ['caveat: A plan can lose money.', `chart: ${chart}`, 'facts: ', 'lastReviewed: 2026-11-02'];
+  const lines = [...front, ...rest, 'nextReviewDue: 2027-11-02', 'reviewedBy: owner', '---', '', body];
+  const parsed = parseModule('packages/content/learn/noise.mdx', lines.join('\n'));
+  if (!parsed.ok) throw new Error('the English fixture does not parse');
+  return [parsed.value];
+};
+const translationFront = ['---', 'slug: noise', 'title: Ruído', 'idea: A maior parte das variações de preço é ruído.'];
+const translationOf = (body: string) =>
+  [...translationFront, 'caveat: Um plano pode perder dinheiro.', '---', '', body].join('\n');
+const validated = async (englishBody: string, body: string, chart = 'none') => {
+  const english = englishOf(englishBody, chart);
+  const files = [{ language: 'pt-PT', path: at, source: translationOf(body) }];
+  const problems = [...moduleTranslationProblems(files, english), ...(await closedBodyProblems(files, english))];
+  return problems.map(({ code, detail }) => `${code}: ${detail}`);
+};
+const banned = (match: string) =>
+  `banned-advice: body: "${match}" is on the ban list; reword it (docs/CONTENT-STYLE.md §2)`;
+
 describe('closedBodyProblems: pnpm validate:content refuses what the build refuses (ADR-0048)', () => {
   it('reports a module holding an element outside the set, with its line', async () => {
     const path = 'packages/content/learn/noise.mdx';
@@ -92,7 +114,7 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
           '\n',
         );
       const translatedOf = async (chart: string, body: string, at = translated) =>
-        (await closedBodyProblems([{ path: at, source: translation(body) }], englishOf(chart))).map(
+        (await closedBodyProblems([{ language: 'pt-PT', path: at, source: translation(body) }], englishOf(chart))).map(
           ({ path: where, code, detail }) => `${where}: ${code}: ${detail}`,
         );
 
@@ -122,24 +144,6 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
   // Review 25l round 2 (D11): the regex remover read code unlike the compiler, in both directions. Both checks run,
   // as scripts/validate.ts runs them, on literal translations against a literal English; each value is the compiler's.
   describe("a translation's elements, as the compiler reads them, against its English module's", () => {
-    const at = 'packages/content/i18n/pt-PT/learn/noise.mdx';
-    const englishOf = (body: string, chart = 'none') => {
-      const front = ['---', 'slug: noise', 'title: Noise', 'idea: Most price moves are noise.'];
-      const rest = ['caveat: A plan can lose money.', `chart: ${chart}`, 'facts: ', 'lastReviewed: 2026-11-02'];
-      const lines = [...front, ...rest, 'nextReviewDue: 2027-11-02', 'reviewedBy: owner', '---', '', body];
-      const parsed = parseModule('packages/content/learn/noise.mdx', lines.join('\n'));
-      if (!parsed.ok) throw new Error('the English fixture does not parse');
-      return [parsed.value];
-    };
-    const front = ['---', 'slug: noise', 'title: Ruído', 'idea: A maior parte das variações de preço é ruído.'];
-    const translationOf = (body: string) =>
-      [...front, 'caveat: Um plano pode perder dinheiro.', '---', '', body].join('\n');
-    const validated = async (englishBody: string, body: string, chart = 'none') => {
-      const english = englishOf(englishBody, chart);
-      const files = [{ language: 'pt-PT', path: at, source: translationOf(body) }];
-      const problems = [...moduleTranslationProblems(files, english), ...(await closedBodyProblems(files, english))];
-      return problems.map(({ code, detail }) => `${code}: ${detail}`);
-    };
     const PAST = 'Text.\n\n<PastPerformance />\n\nAn end.\n';
 
     it('reads a fence closed by ~~~` as still open, so the element after it is code', async () => {
@@ -211,6 +215,72 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
       const path = 'packages/content/i18n/pt-PT/learn/start-here.mdx';
       const files = [{ language: 'pt-PT', path, source: source('i18n/pt-PT/learn/start-here.mdx') }];
       expect(await closedBodyProblems(files, [english.value])).toEqual([]);
+    });
+  });
+
+  // Review 25m round 1: the ban list read `imperd&iacute;vel` in the source, where the page shows imperdível. A
+  // translation's ban list, number check and hyphen check read the text the compiled page shows.
+  describe("a translation's ban list, numbers and hyphens, on the text the compiled page shows", () => {
+    const TEXT = 'Text.\n';
+
+    it('decodes a named character reference, so a banned phrase written with one is refused', async () => {
+      expect(await validated(TEXT, 'Uma ocasião imperd&iacute;vel.\n')).toEqual([banned('imperdível')]);
+    });
+
+    it('decodes a named character reference at the start of a banned phrase', async () => {
+      expect(await validated(TEXT, 'Uma compra de &uacute;ltima hora.\n')).toEqual([banned('última hora')]);
+    });
+
+    it('decodes a numeric character reference in a banned word', async () => {
+      expect(await validated(TEXT, 'Uma ocasião imperd&#237;vel.\n')).toEqual([banned('imperdível')]);
+    });
+
+    it('reads a digit written as a numeric character reference as the digit', async () => {
+      expect(await validated(TEXT, 'Um passo de &#49;.\n')).toEqual(['overlay-number-mismatch: body: 1, English none']);
+      expect(await validated('A step of 1.\n', 'Um passo de &#49;.\n')).toEqual([]);
+    });
+
+    it('reads a code span and a fenced block as the page shows them, a tag inside included', async () => {
+      expect(await validated(TEXT, 'Uma ocasião `imperdível`.\n')).toEqual([banned('imperdível')]);
+      expect(await validated(TEXT, 'Um código `<imperdível>`.\n')).toEqual([banned('imperdível')]);
+      expect(await validated(TEXT, 'Texto.\n\n```\nimperdível\n```\n')).toEqual([banned('imperdível')]);
+    });
+
+    it("reads no fence's info string, which the page does not show", async () => {
+      expect(await validated(TEXT, 'Texto.\n\n```imperdível\ncódigo\n```\n')).toEqual([]);
+    });
+
+    it('joins a word split by emphasis, as the page shows it', async () => {
+      expect(await validated(TEXT, 'Uma ocasião imperd*í*vel.\n')).toEqual([banned('imperdível')]);
+    });
+
+    it("reads each side's figures in its own separators, and refuses a pt-PT 31.4 % against English's", async () => {
+      const english = 'A fall of 31.4 % in a month.\n';
+      expect(await validated(english, 'Uma queda de 31,4 % num mês.\n')).toEqual([]);
+      expect(await validated(english, 'Uma queda de 31.4 % num mês.\n')).toEqual([
+        'overlay-number-mismatch: body: 31 4, English 31.4',
+      ]);
+    });
+
+    it('refuses a pt-PT banned row in the body', async () => {
+      expect(await validated(TEXT, 'Recomendamos manter o plano.\n')).toEqual([banned('Recomendamos')]);
+    });
+
+    it('refuses an ordinary hyphen between a number and its unit, where English writes U+2011', async () => {
+      const english = 'A 12‑month plan.\n';
+      expect(await validated(english, 'Um plano de 12‑month.\n')).toEqual([]);
+      expect((await validated(english, 'Um plano de 12-month.\n')).map((line) => line.split(':')[0])).toEqual([
+        'number-unit-hyphen',
+      ]);
+    });
+
+    // Brand, 25h round 2: the two pt-PT sentences of start-here hold no number and no banned row.
+    it('passes the pt-PT start-here sentences against English', async () => {
+      const plan = 'Com ela, define o plano uma vez e regista cada compra, estejam as moedas onde estiverem.';
+      const where = 'Mostra-lhe em que ponto do plano está.';
+      const english =
+        'You set a plan once and record each purchase, wherever the coins are. It shows where you are in the plan.\n';
+      expect(await validated(english, `${plan} ${where}\n`)).toEqual([]);
     });
   });
 

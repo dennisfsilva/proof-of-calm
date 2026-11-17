@@ -234,9 +234,9 @@ describe('checkModuleBody', () => {
     ['text in a text element', 'A line. <PastPerformance>past</PastPerformance>\n', /noise\.mdx:6: <PastPerf/],
     ['a space in a text element', 'A line. <PastPerformance> </PastPerformance>\n', /noise\.mdx:6: <PastPerf/],
   ];
-  const PASS = { problem: null, flow: [], elements: [] };
-  const TEXT_PAST = { problem: null, flow: [], elements: ['text:PastPerformance'] };
-  const FLOW_CHART = { problem: null, flow: ['Chart'], elements: ['flow:Chart'] };
+  const pass = (text: string) => ({ problem: null, flow: [], elements: [], text });
+  const TEXT_PAST = { problem: null, flow: [], elements: ['text:PastPerformance'], text: 'A line. ' };
+  const flowChart = (text: string) => ({ problem: null, flow: ['Chart'], elements: ['flow:Chart'], text });
 
   it.each(refused)('refuses %s, naming the file and line', async (_name, body, message) => {
     expect((await checkModuleBody(module('noise', body), path)).problem).toMatch(message);
@@ -246,7 +246,7 @@ describe('checkModuleBody', () => {
     expect(MODULE_BODY_ELEMENTS).toEqual(['PastPerformance', 'Chart']);
     expect(await checkModuleBody(module('noise', 'A line. <PastPerformance />\n'), path)).toEqual(TEXT_PAST);
     const chart = await checkModuleBody(module('noise', 'Text.\n\n<Chart />\n'), path);
-    expect(chart).toEqual(FLOW_CHART);
+    expect(chart).toEqual(flowChart('Text.\n'));
   });
 
   // MDX parses an element with nothing between its tags as one with no children: it renders as <X /> does.
@@ -254,7 +254,7 @@ describe('checkModuleBody', () => {
     const text = await checkModuleBody(module('noise', 'A line. <PastPerformance></PastPerformance>\n'), path);
     expect(text).toEqual(TEXT_PAST);
     const flow = await checkModuleBody(module('noise', 'Text.\n\n<Chart></Chart>\n'), path);
-    expect(flow).toEqual(FLOW_CHART);
+    expect(flow).toEqual(flowChart('Text.\n'));
   });
 
   // A translation is held to its English module's elements on this list (ADR-0048 Deviations), so it is the tree's.
@@ -277,9 +277,23 @@ describe('checkModuleBody', () => {
     const body = 'Text.\n\n<Chart />\n\nA line. <PastPerformance />\n\n- <Chart />\n';
     expect((await checkModuleBody(module('noise', body), path)).flow).toEqual(['Chart', 'Chart']);
     // On its own line, even right under a paragraph's line, the element ends the paragraph and stands as a block.
-    expect(await checkModuleBody(module('noise', 'A sign.\n<Chart />\n'), path)).toEqual(FLOW_CHART);
-    expect(await checkModuleBody(module('noise', 'A \\<Chart /> sign.\n'), path)).toEqual(PASS);
-    expect(await checkModuleBody(module('noise', 'A `<Chart />` sign.\n'), path)).toEqual(PASS);
+    expect(await checkModuleBody(module('noise', 'A sign.\n<Chart />\n'), path)).toEqual(flowChart('A sign.\n'));
+    expect(await checkModuleBody(module('noise', 'A \\<Chart /> sign.\n'), path)).toEqual(pass('A <Chart /> sign.'));
+    expect(await checkModuleBody(module('noise', 'A `<Chart />` sign.\n'), path)).toEqual(pass('A <Chart /> sign.'));
+  });
+
+  // A translation's ban list, numbers and hyphens read this text (ADR-0048 Deviations), so it is the page's.
+  it('reads the words the page shows, a character reference decoded, in tree order', async () => {
+    const text = async (body: string) => (await checkModuleBody(module('noise', body), path)).text;
+    expect(await text('# Ruído\n\nImperd&iacute;vel, &#49; e imperd*í*vel.\n\n- um\n- dois\n')).toBe(
+      'Ruído\nImperdível, 1 e imperdível.\num\ndois',
+    );
+    // A tag in code shows as text; a fence's info string and an attribute's value show nothing.
+    expect(await text('Um `<b>código</b>` aqui,\nnuma linha.\n\n```mdx info\nbloco\n```\n')).toBe(
+      'Um <b>código</b> aqui,\nnuma linha.\nbloco',
+    );
+    expect(await text('Texto.\n\n<PastPerformance id="passado" />\n')).toBe('Texto.\n');
+    expect(await text('Text {1}.\n')).toBe('');
   });
 
   it('takes another set of elements', async () => {
@@ -297,6 +311,6 @@ describe('checkModuleBody', () => {
 
   it('passes Markdown text and ignores the front matter', async () => {
     const markdown = '# Noise\n\nA *calm* plan.\n\n- one\n- two\n';
-    expect(await checkModuleBody(module('noise', markdown), path)).toEqual(PASS);
+    expect(await checkModuleBody(module('noise', markdown), path)).toEqual(pass('Noise\nA calm plan.\none\ntwo'));
   });
 });
