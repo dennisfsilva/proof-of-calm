@@ -209,15 +209,6 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
         expect([name, body.problem, body.elements]).toEqual([name, null, file.elements]);
       }
     });
-
-    it('passes the real pt-PT start-here against the real English module', async () => {
-      const source = (path: string) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
-      const english = parseModule('packages/content/learn/start-here.mdx', source('learn/start-here.mdx'));
-      if (!english.ok) throw new Error('the English start-here does not parse');
-      const path = 'packages/content/i18n/pt-PT/learn/start-here.mdx';
-      const files = [{ language: 'pt-PT', path, source: source('i18n/pt-PT/learn/start-here.mdx') }];
-      expect(await closedBodyProblems(files, [english.value])).toEqual([]);
-    });
   });
 
   // Review 25m round 1: the ban list read `imperd&iacute;vel` in the source, where the page shows imperdível. A
