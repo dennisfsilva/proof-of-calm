@@ -459,12 +459,14 @@ template's coin names; `A` is `each amount` or `every amount`, either with `mont
 R1: a sentence that holds a drawdown date is a dated fall and matches F1 or F2 (`figure-form`). R2: a dated fall names
 its row's coin and states the row's fall or a bound below it written `more than N %` (`figure-form` for another coin,
 `figure-mismatch` for another figure). A bound sits below the row's fall because the row's whole percent may round up:
-77.6 % shows as 78 %. R3: any other percentage is a coin's share in S1 to S4, each coin named once with its share of
-the split (`figure-form` for a coin named twice, `figure-mismatch` for another figure). R4: any other percentage fails,
-whatever words surround it (`figure-unclassed`). A percentage is one of the signs `%`, `٪`, `﹪` or `％`, or "per" and
-"cent" at the start of a word or right after a digit, joined by nothing, a space or a hyphen, in any case: percent, per
-cent, percentage and percentages all count. A new wording needs a new reviewed shape (decided 2026-11-17). The shapes accept only the past tense `fell`. The copy review (`docs/LEGAL.md` §6 Q6) catches a
-projection with no percentage and no drawdown date, such as "Solana could fall that far again".
+77.6 % shows as 78 %. R3: any other percentage is a coin's share in S1 to S4, each coin named once with its share of the
+split (`figure-form` for a coin named twice, `figure-mismatch` for another figure). R4: any other percentage fails,
+whatever words surround it (`figure-unclassed`). A percentage is one of the signs `%`, `٪`, `﹪`, or `％`, or "per" and
+"cent" at the start of a word or right after a digit, joined by nothing, any space, or a hyphen, in any case, with
+nothing required after "cent": percent, per cent, percentage, percentile, and the like all count. The check reads the
+whole explanation, so a line or paragraph break between the two words counts as a space. A new wording needs a new
+reviewed shape (decided 2026-11-17). The shapes accept only the past tense `fell`. The copy review (`docs/LEGAL.md` §6
+Q6) catches a projection with no percentage and no drawdown date, such as "Solana could fall that far again".
 A numeral joined to its unit by a hyphen (`90‑day`, `365‑day`) never breaks there. Text a screen shows writes the
 no-break hyphen U+2011 between them (`\u2011` in a JSON string, the character itself in a module): messages, modules
 (title, idea, caveat and body), every profile text the app shows, a template's name, one-line summary, risk label
