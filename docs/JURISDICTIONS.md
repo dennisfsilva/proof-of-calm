@@ -62,7 +62,10 @@ export const SourceSchema = z.object({
 });
 
 const SourceKey = z.string().regex(/^[a-z0-9-]+$/);   // names what the source is: "pt-cirs-art10", "de-estg-23"
-export const ProfileSourceSchema = SourceSchema.extend({ key: SourceKey });   // unique within the profile
+export const ProfileSourceSchema = SourceSchema.extend({
+  key: SourceKey,                         // unique within the profile
+  lang: z.string().regex(/^[a-z]{2,3}$/), // the language the title is written in, a primary subtag: "de", "en"
+});
 
 export const TaxableEventSchema = z.object({
   event: z.enum(['sale-to-fiat', 'crypto-to-crypto', 'crypto-to-stablecoin', 'spending', 'own-wallet-transfer', 'gift-or-inheritance', 'staking-or-airdrop']),
@@ -187,6 +190,13 @@ the rule it backs, and stays fixed once published. The country card in Learn end
 hold only sources that back a current card line, so a pending change's source lives in `pendingChanges` and
 enters `sources` only when a card line cites it; the card's foot lists `sources` as they stand. That list backs
 the classification, the taxable events and the allowances, which have no `ruleSources` key.
+
+A source's `lang` is the language its title is written in, not the country's: an HMRC title is `en`, a
+Bundesfinanzhof title `de`, and a profile may hold sources in more than one. The card's foot marks each
+source link with it, whatever the screen's language (WCAG 2.2 SC 3.1.2); the publisher line under it is the
+app's and carries no mark. Neither `locales` nor a profile-level field gives it (decided 2026-11-17): `XX`'s
+`locales` is `und`, and one profile-level value would mark a title in another language wrong. A pending
+change's source has no `lang`, since the card shows no pending change.
 
 Holding-rule overrides are built when the first profile needs one (decided 2026-10-30): the early-window
 check and `saleWarning`'s per-lot effect do not apply them yet (`docs/ROADMAP.md` M2, "Carried from M1"),
