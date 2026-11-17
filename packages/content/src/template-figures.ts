@@ -1,7 +1,8 @@
 // A template's figures against its rows and split (docs/CONTENT-STYLE.md §4, R1 to R4). A sentence that holds a
-// percentage or a drawdown date passes only when it matches one of the closed shapes below as a whole; the check reads
-// no neighbouring words, so a new wording needs a new reviewed shape (docs/research/review-safe-figures.md,
-// amendment 7). English only: overlay-number-mismatch ties a translation's figures to these.
+// percentage or a drawdown date passes only when it matches one of the closed shapes below as a whole. A shape matches
+// the whole sentence, so a wording one step past the shapes fails, and a new wording needs a new reviewed shape
+// (docs/research/review-safe-figures.md, amendment 7). English only: overlay-number-mismatch ties a translation's
+// figures to these.
 import type { Problem } from './problem.ts';
 
 type Figures = {
@@ -13,8 +14,11 @@ type Figures = {
 type Shape = 'F1' | 'F2' | 'S1' | 'S2' | 'S3' | 'S4';
 
 const DATED = /\{date:drawdowns\./;
-const PERCENT = /[%٪﹪％]|\bper ?cent\b/iu;
-const WRITTEN = /\d+(?:[.,]\d+)?\s?(?:[%٪﹪％]|per ?cent\b)/giu;
+// "per" and "cent" joined by nothing, any space or a hyphen; "percentage" only after a numeral, so that the bare word
+// in a sentence of no figure stays unclassed by R4.
+const WORD = 'per(?:\\s+|[\\u2010\\u2011-])?cent\\b';
+const PERCENT = new RegExp(`[%٪﹪％]|\\b${WORD}|\\d\\s*percentage`, 'iu');
+const WRITTEN = new RegExp(`\\d+(?:[.,]\\d+)?\\s*(?:[%٪﹪％]|${WORD}|percentage)`, 'giu');
 const PLACEHOLDER = /\{date:drawdowns\.([^.{}]+)\.(?:high|low)\}/gu;
 const LEAD = '(?:What can go wrong: )?';
 const N = '\\d{1,3}[   ]?%';
@@ -34,12 +38,14 @@ const shapes = (names: readonly string[]): Record<Shape, RegExp> => {
   const C = alternation(names);
   const shape = (body: string) => new RegExp(`^${LEAD}${body}\\.$`, 'u');
   return {
-    F1: shape(`(?:(?<coin>${C})|It) fell ${FALL} ${dates('from')}`),
+    // A fall names its coin: no `It`, so no coin crosses a sentence (amendment 2).
+    F1: shape(`(?<coin>${C}) fell ${FALL} ${dates('from')}`),
     F2: shape(`${dates('From')}, (?<coin>${C}) fell ${FALL}`),
     S1: shape(`${N} of ${A} goes into ${C}`),
     S2: shape(`${C}: ${N} of ${A}`),
-    S3: shape(`${C} takes ${N} of ${A}(?:; ${N} goes to ${C})*`),
-    S4: shape(`It splits ${A} ${N} ${C}(?:, ${N} ${C})*,? and ${N} ${C}`),
+    S3: shape(`${C} takes ${N} of ${A}(?:; ${N} goes into ${C})*`),
+    // Two coins take no comma; three or more take the serial comma (CONTENT-STYLE §1 rule 9).
+    S4: shape(`It splits ${A} ${N} ${C}(?:(?:, ${N} ${C})+,)? and ${N} ${C}`),
   };
 };
 
@@ -72,7 +78,8 @@ export function templateFigureProblems(path: string, t: Figures): Problem[] {
   const idOf = new Map(t.coins.map((coin) => [coin.name, coin.id]));
   const falls = new Map(t.drawdowns.map((row) => [row.coin, row.fall] as const));
   const named = new RegExp(alternation(t.coins.map((coin) => coin.name)), 'gu');
-  const fallOf = (id: string) => (falls.has(id) ? `${id}'s fall of ${falls.get(id)} %` : `${id}, which has no row`);
+  const fallOf = (id: string) =>
+    falls.has(id) ? `${id}'s fall of ${falls.get(id)} %` : `${id}, which has no drawdown row`;
   const problems: Problem[] = [];
   for (const sentence of sentencesOf(t.explanation)) {
     const report = (code: string, what: string, rule: number, data = '') => {
@@ -80,30 +87,27 @@ export function templateFigureProblems(path: string, t: Figures): Problem[] {
       const detail = `explanation: ${what} in "${sentence}"${after}; R${rule} (docs/CONTENT-STYLE.md §4)`;
       problems.push({ path, code, detail });
     };
-    const figures = serial([...sentence.matchAll(WRITTEN)].map(([figure]) => `"${figure}"`));
+    const written = [...sentence.matchAll(WRITTEN)].map(([figure]) => `"${figure}"`);
+    const figures = serial(written);
     const dated = DATED.test(sentence);
     const fall = all.F1.exec(sentence) ?? all.F2.exec(sentence);
     if (dated && fall?.groups === undefined) {
       const rows = serial([...new Set([...sentence.matchAll(PLACEHOLDER)].map(([, id = '']) => id))].map(fallOf));
-      report(
-        'figure-form',
-        `the sentence that dates ${rows}${figures ? ` with ${figures}` : ''} matches neither F1 nor F2`,
-        1,
-      );
+      const what =
+        written.length === 0
+          ? `the dates of ${rows} sit in no F1 or F2 sentence`
+          : `${figures} beside the dates of ${rows} ${written.length === 1 ? 'matches' : 'match'} neither F1 nor F2`;
+      report('figure-form', what, 1);
     } else if (fall?.groups !== undefined) {
-      const { coin, more, fig = '', n = '', x = '' } = fall.groups;
+      const { coin = '', more, fig = '', n = '', x = '' } = fall.groups;
       const row = falls.get(x);
-      if (row === undefined) report('figure-form', `"${fig}" is dated by ${fallOf(x)}`, 1);
-      else if (coin !== undefined && idOf.get(coin) !== x) {
+      if (row === undefined) report('figure-form', `"${fig}" carries the dates of ${fallOf(x)}`, 1);
+      else if (idOf.get(coin) !== x) {
         report('figure-form', `"${coin}" is named in the sentence that dates ${fallOf(x)}`, 2);
       } else if (more !== undefined && compare(n, row) >= 0) {
         report('figure-mismatch', `"${fig}" is not below ${fallOf(x)}`, 2);
       } else if (more === undefined && compare(n, row) !== 0) {
-        report(
-          'figure-mismatch',
-          `"${fig}" is neither ${fallOf(x)} nor a bound below it in the form "more than N %"`,
-          2,
-        );
+        report('figure-mismatch', `"${fig}" is neither ${fallOf(x)} nor a bound below it written "more than N %"`, 2);
       }
     } else if (PERCENT.test(sentence)) {
       const share = (['S1', 'S2', 'S3', 'S4'] as const).find((name) => all[name].test(sentence));
@@ -127,10 +131,10 @@ export function templateFigureProblems(path: string, t: Figures): Problem[] {
       for (const [name, figure] of pairs) {
         const id = idOf.get(name) ?? '';
         const split = t.split[id];
-        const written = `${id}'s share of ${split ?? 0} %`;
-        if (seen.has(id)) report('figure-form', `"${figure}" gives "${name}" a second share beside ${written}`, 3);
+        const share = split === undefined ? `${id}, which has no share` : `${id}'s share of ${split} %`;
+        if (seen.has(id)) report('figure-form', `"${figure}" gives "${name}" a second share beside ${share}`, 3);
         else if (split === undefined || compare(figure.replace(/\D/g, ''), split) !== 0) {
-          report('figure-mismatch', `"${figure}" is not ${written}`, 3);
+          report('figure-mismatch', `"${figure}" is not ${share}`, 3);
         }
         seen.add(id);
       }
