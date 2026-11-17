@@ -9,6 +9,7 @@ paths:
   - "**/eslint.config.mjs"
   - "**/pnpm-workspace.yaml"
   - "**/pnpm-lock.yaml"
+  - "**/osv-scanner.toml"
 tier: 2
 security: true
 proof: a run of the changed workflow on the branch (the pull request's run for ci.yml, a dispatch for a workflow that takes one), with the run id
