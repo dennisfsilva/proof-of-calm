@@ -173,6 +173,7 @@ export function CountryCardView({ country, level, id, f }: CountryCardProps & { 
                   <li key={source.key} className="flex flex-col">
                     <a
                       href={source.url}
+                      lang={source.lang}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex min-h-target items-center self-start text-16 text-ink underline underline-offset-4 hover:text-ink-2"

@@ -125,6 +125,21 @@ describe('CountryCard', () => {
     expect(within(foot).getByRole('heading', { level: 2 }).textContent).toBe(heading);
   });
 
+  // A source's title keeps the language it is written in, whatever the screen's (BUILD-PROMPT, the `lang` mark).
+  it.each([
+    ['DE', 'de'],
+    ['US', 'en'],
+  ])("marks each of %s's source links with the language of its title, %s", async (code, lang) => {
+    const profile = await loadProfile(code);
+    if (profile === null) throw new Error(`no profile ${code}`);
+    const card = await mount({ profile });
+    const links = within(card.lastElementChild as HTMLElement).getAllByRole('link');
+    expect(links).toHaveLength(profile.sources.length);
+    expect(links.map((link) => link.getAttribute('lang'))).toEqual(Array(links.length).fill(lang));
+    // The mark is on the link alone: the publisher line is the app's.
+    for (const link of links) expect(link.nextElementSibling?.hasAttribute('lang')).toBe(false);
+  });
+
   it('lists no source that only a pending change lists', async () => {
     // A pending change's source that is none of the profile's, so the assertion holds whatever the file lists.
     const [change] = PORTUGAL.pendingChanges;
@@ -189,6 +204,10 @@ describe('CountryCard', () => {
 
 describe('CountryCard in pt-PT (WCAG 2.2 SC 3.1.2, ADR-0057)', () => {
   const IN_ENGLISH = learnPt.card.inEnglish;
+  // Every element with a `lang`, and the source links with theirs: a profile in the page language marks only those.
+  const marked = (card: HTMLElement) =>
+    [...card.querySelectorAll('[lang]')].map((element) => [element.tagName, element.getAttribute('lang')]);
+  const sourceMarks = (profile: CountryProfile) => profile.sources.map((source) => ['A', source.lang]);
   const mountPt = async (profile: CountryProfile) => {
     const services = createTestServices({ language: 'pt-PT' });
     await services.start();
@@ -219,13 +238,13 @@ describe('CountryCard in pt-PT (WCAG 2.2 SC 3.1.2, ADR-0057)', () => {
     const portugal = await loadProfile('PT', 'pt-PT');
     if (portugal === null) throw new Error('no profile PT');
     const card = await mountPt(portugal);
-    expect(card.querySelector('[lang]')).toBeNull();
+    expect(marked(card)).toEqual(sourceMarks(portugal));
     expect(screen.queryByText(IN_ENGLISH)).toBeNull();
   });
 
   it('gives a copy no loader returned the page language: no lang, no line', async () => {
     const card = await mountPt(SHAPES.none);
-    expect(card.querySelector('[lang]')).toBeNull();
+    expect(marked(card)).toEqual(sourceMarks(SHAPES.none));
     expect(screen.queryByText(IN_ENGLISH)).toBeNull();
   });
 
