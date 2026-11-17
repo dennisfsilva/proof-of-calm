@@ -168,8 +168,10 @@ Recorded on 2026-11-15, when the site's half of the rendering points landed in `
   condition, its Sources link and the card's date line; it computes no date.
 - 2026-11-16: a module's translation is `packages/content/i18n/<language>/learn/<slug>.mdx`, its front matter
   only `slug`, `title`, `idea` and `caveat`. `pnpm validate:content` checks it against the English module of its slug
-  (`packages/content/src/i18n/module-overlay-validate.ts`): a slug with no English module or another key fails, the
-  idea and the caveat keep English's limits, every text and the body carry English's numbers and the body English's
-  elements in order, and the ban list and the no-break hyphen run on the translated text. The chart, the facts, the
-  review dates and the word cap stay English's, which the validator holds, and `closedBody` runs on the translation as
-  on English, failing at the translation's own line.
+  (`packages/content/src/i18n/module-overlay-validate.ts`). A slug with no English module fails, and English's parser
+  reads the front matter, so a key outside the four, a key twice or an indented line fails at its line. The idea and
+  the caveat keep English's limits; the title, the idea, the caveat and the body carry English's numbers, and the body
+  English's elements in order, an element in code counting as text. The ban list and the no-break hyphen run on the
+  translated text. The facts, the review dates and the word cap are English's, checked on the English module only.
+  `closedBody` runs on the translation as on English, failing at the translation's own line, and holds its `<Chart />`
+  to the English module's chart.
