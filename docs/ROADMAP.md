@@ -291,8 +291,12 @@ external links and the Risk link in the mobile export (M3).
   figures validator then each used both review rounds on one more case of the same kind (a soft
   hyphen or a block boundary in the compiled page's text, a translated figure's fix, a message's
   fix refused once applied), so they move to #322, which comes before #271, with the Learn folder,
-  the overlays and the rest of #318's list. So pt-PT takes 7 build sessions more than #269 planned
-  before German starts. A
+  the overlays and the rest of #318's list. On 2026-11-17, #322 merged the grouped figures (#325),
+  the Learn validation per compiled block (#324), the first three pt-PT modules (#326) and the Learn
+  folder that shows them (#327). Its design check, two blind designers and a judge (#322's
+  comments), settled the figures validator, which moves to #328 with the FR, IT and NL overlays, the
+  other three modules and a currency code joined to its figure, before #271. So pt-PT takes 8 build
+  sessions more than #269 planned before German starts. A
   render-and-axe-only pt-PT story run waits for #271, once every namespace is translated. CSV import, free (ADR-0039), for the
   main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
   Republic; Kraken's ledger reader built on 2026-11-13 (#168) and the core's import plan against the

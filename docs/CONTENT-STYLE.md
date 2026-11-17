@@ -574,9 +574,10 @@ needs (decided 2026-11-15). The native reader's review is §8 item 9.
 - **A template's explanation writes its percentages by hand as `N %`**, with an ordinary space, as
   the English file does (`40 %`): a token the app finds and replaces with its formatted percentage
   (`packages/content/i18n/pt-PT/README.md`, §4). The one exception to "never typed by hand".
-- **A translation joins a numeral to its unit or sign with a no-break space (U+00A0) wherever English
-  does**, the character itself in a module, a date's parts included and with no hyphen:
-  `máximo de 90 dias`, `10 %`, `16 de outubro de 2026`, each unbroken (decided 2026-11-17).
+- **Outside a template's explanation, a translation joins a numeral to its unit or sign with a
+  no-break space (U+00A0) wherever English does**, a date's parts included and with no hyphen:
+  `máximo de 90 dias`, `10 %`, `16 de outubro de 2026`, each unbroken (decided 2026-11-17). A module
+  writes the character itself.
 - **The tax authority's own terms**, never a translation back from English: `CIRS`, `Anexo G`,
   `Anexo G1`, `Quadro 18A`, `mais-valias`, `Autoridade Tributária e Aduaneira`; a rule quoted from the
   law keeps the law's wording in quotation marks («detidos por um período igual ou superior a 365

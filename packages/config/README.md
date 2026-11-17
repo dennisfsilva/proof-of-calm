@@ -18,8 +18,9 @@ configs live in their packages. See `docs/ENGINEERING.md`.
     with the compiler through Babel (its `include` covers `.mdx`), Tailwind, the five plugins below
     (and, on the web host, the chunk report), `resolve.dedupe: ['react']`, `build.assetsInlineLimit: 0`,
     Rolldown's `output.codeSplitting` from `chunkGroups()` and `output.chunkFileNames`, which puts
-    another language's `messages/<locale>/` chunks under `assets/messages/<locale>/` (outside the
-    worker's precache, ADR-0045's Deviations of 2026-11-15),
+    another language's chunks of messages and content (a translated Learn module's included) under
+    `assets/messages/<locale>/` (outside the worker's precache, ADR-0045's Deviations of 2026-11-15
+    and 2026-11-16),
     the host's `import.meta.env.VITE_API_BASE` and `VITE_SERVICE_WORKER`, and the document (`app.html` on the
     web, `index.html` in the wrapper). `parseModule` is the host's import from
     `@proofofcalm/content/modules` (ADR-0048, Deviations).
@@ -43,8 +44,8 @@ configs live in their packages. See `docs/ENGINEERING.md`.
     tree's flow elements, and `elements` every element as `flow:<Name>` or `text:<Name>` and every depth-2
     heading as `heading:2` in tree order, so an escaped element or one in code is none. `blocks` is the
     words the page shows (`pageBlocks`): one string per paragraph, heading or code block in tree order as
-    the parser decoded it, a character reference included, every value below a block joined with nothing,
-    a hard break with a space and every default-ignorable code point removed; an attribute's value and a
+    the parser decoded it, a character reference included, inside a block the text of every node joined
+    with no space between, a hard break as one space, and every default-ignorable code point removed; an attribute's value and a
     fence's info string are not in it, and a node type outside `PAGE_NODES` throws. `pnpm validate:content`
     runs it, and runs the ban list and the hyphen check on each of a translated module's `blocks`. It
     compares the module's `elements` with its English module's (`module-overlay-elements`). It reads the

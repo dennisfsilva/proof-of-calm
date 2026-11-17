@@ -569,6 +569,17 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - A design check of one function's suggestion names every function that prints a fix for the same
   figures. #318's judge settled `number-group`'s suggestion, and both rounds then found cases in the
   overlay check's fix, which the check did not cover (2026-11-17).
+- A hook that keeps a load's result in a module-level map and reads it during render can freeze
+  under the React Compiler, which caches a render's derived values on the hook's arguments; Vitest
+  compiles without it, so such a fix is proven by an e2e case in the built app. #327's retry loaded
+  the translation while the screen kept English (2026-11-17).
+- A translation keeps its source's no-break spaces: a numeral and its unit or sign, and a date's
+  parts, stay joined wherever English joins them, held by a test over the real files (CONTENT-STYLE
+  §9). #326's first cut let `%` and `dias` wrap away from their figures and broke two dates across
+  source lines (2026-11-17).
+- A fact check of a translation reads who does what in each sentence: a verb without its subject
+  takes the reader as its subject. #326's «os preços que lê» read as the person's prices, and «as
+  moedas que detém» after the app as subject read as the app holding the coins (2026-11-17).
 
 ## Known gaps
 

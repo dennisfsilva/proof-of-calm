@@ -46,7 +46,7 @@ to five sentences (`docs/CONTENT-STYLE.md` §1 rule 4). A template writes each d
 validator refuses one that names no date of the template or is cut short (`template-date-unresolved`),
 one in the name or the risk label (`template-date-field`) and a written month name
 (`template-date-month`), in the English file and in each translation. Each template carries at least one drawdown,
-its sources and any `lowSource` on the facts allow-list and `accessed` no later than `lastReviewed`;
+its sources and any `lowSource` on the facts allow-list and `accessed` no later than `lastReviewed` once signed off (below);
 the validator refuses a low before its high (`drawdown-low-before-high`), a coin the template does
 not buy (`drawdown-unknown-coin`) and a fall of 0 or of more than 100 percent
 (`drawdown-fall-out-of-range`). The cycles file takes the same drawdown checks against the catalogue's
