@@ -1,8 +1,11 @@
 import { readFileSync } from 'node:fs';
+import { checkModuleBody, MODULE_BODY_ELEMENTS } from '@proofofcalm/config/vite';
 import { describe, expect, it } from 'vitest';
+import coins from '../coins.json' with { type: 'json' };
 import drawdowns from '../cycles/drawdowns.json' with { type: 'json' };
 import facts from '../facts/education.json' with { type: 'json' };
 import { parseModule } from './loaders/modules.ts';
+import { moduleContext, moduleFigureProblems } from './module-figures.ts';
 import { moduleProblems } from './modules-validate.ts';
 import { findBanned } from './style/banned.ts';
 
@@ -144,6 +147,16 @@ describe('the Risk honestly module', () => {
     expect(body).toContain(`Ether fell ${eth1} and ${eth2}, Chainlink ${link1} and ${link2}, and Solana ${sol}.`);
     // The chart's own source line carries the past-performance sentence; the module writes no second one.
     expect(body).not.toContain('<PastPerformance />');
+  });
+
+  // docs/CONTENT-STYLE.md §4, R5 and R6: the chart section, as the build compiles it, against the chart's rows. The
+  // pins above stay: each refuses a change this rule passes (a figure before the chart, a bound fact a's unrounded
+  // falls break, a sentence reworded out of the two shapes).
+  it("reads its chart section's figures against the chart's rows", async () => {
+    const { module } = read();
+    const { page } = await checkModuleBody(source, path, MODULE_BODY_ELEMENTS);
+    const figures = { rows: drawdowns.drawdowns, coins };
+    expect(moduleFigureProblems(path, page, moduleContext(module, 'en', figures))).toEqual([]);
   });
 
   it('quotes each event and figure as its one fact holds it', () => {
