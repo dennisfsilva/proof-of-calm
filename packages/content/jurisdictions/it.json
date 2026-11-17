@@ -68,7 +68,7 @@
         "value": "26%",
         "validFrom": "2023-01-01",
         "validTo": "2025-12-31",
-        "note": "On gains and other proceeds realised up to 31 December 2025, declared in Quadro RT sezione V-A of the following year's return (the 2026 return for 2025); in 2023 and 2024 only the part above EUR 2,000 a year counted (Circolare 30/E §3.2.1)."
+        "note": "On gains and other proceeds realised up to 31 December 2025, declared in Quadro RT sezione V-A of the following year's return (the 2026 return for 2025); in 2023 and 2024 only the part above EUR 2000 a year counted (Circolare 30/E §3.2.1)."
       },
       {
         "label": "Proceeds from euro e-money tokens",
@@ -79,7 +79,7 @@
       }
     ],
     "allowances": [
-      "No threshold: L. 207/2024 art. 1 c. 25 removed the EUR 2,000 yearly amount below which gains and losses did not count, for disposals from 1 January 2025."
+      "No threshold: L. 207/2024 art. 1 c. 25 removed the EUR 2000 yearly amount below which gains and losses did not count, for disposals from 1 January 2025."
     ],
     "holdingRuleText": "No holding rule: every sale is taxable whatever the holding time, from the first euro of gain since 1 January 2025. That covers a sale for euro, for a stablecoin that is an e-money token, or for goods. A swap between crypto-assets with the same characteristics and functions is not a taxable event (art. 67 c. 1 lett. c-sexies TUIR).",
     "lotRuleText": "Last in, first out: the coins acquired most recently count as sold first. Circolare 30/E §3.2.1 states it for the regime dichiarativo (“deve essere assunto come costo o valore di acquisto quello determinato con il metodo L.I.F.O.”).",

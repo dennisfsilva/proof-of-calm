@@ -14,6 +14,61 @@ const decimals = (problems: readonly { code: string; detail: string }[]) =>
 const english = (profile: CountryProfile, text: string) =>
   decimals(localeProblems(path, profile, [['card.caveats.0', text]]));
 
+// The grouped figures (decided 2026-11-16, docs/CONTENT-STYLE.md §4): where the page writes a comma decimal, a figure of
+// 10 000 or more groups its digits in threes with a no-break space and a smaller one takes none, in every language.
+describe('a profile’s money figures group as its comma-decimal page does (docs/CONTENT-STYLE.md §4)', () => {
+  const [nbsp, narrow] = [String.fromCodePoint(0xa0), String.fromCodePoint(0x202f)];
+  const groups = (problems: readonly { code: string; detail: string }[]) =>
+    problems.filter(({ code }) => code === 'number-group').map(({ detail }) => detail);
+  const german = (text: string) => groups(localeProblems(path, de, [['card.rates.1.note', text]]));
+
+  it('refuses another grouping of a figure after a currency on a de-DE page', () => {
+    expect(german('Where the income tax exceeds EUR 20,350.')).toEqual([
+      `card.rates.1.note: "EUR 20,350" expected "EUR 20${nbsp}350" (de-DE)`,
+    ]);
+    const flagged = [
+      'EUR 20.350',
+      'EUR 1,000',
+      'EUR 1.000',
+      'EUR 20350',
+      `EUR 1${nbsp}000`,
+      'EUR 20 350',
+      `EUR 20${narrow}350`,
+    ];
+    for (const figure of flagged) expect(german(`Up to ${figure} a year.`)).toHaveLength(1);
+    expect(german('EUR 1.000 and €20 350')).toEqual([
+      'card.rates.1.note: "EUR 1.000" expected "EUR 1000" (de-DE)',
+      `card.rates.1.note: "€20 350" expected "€20${nbsp}350" (de-DE)`,
+    ]);
+  });
+
+  it('passes the page’s grouping, a decimal comma, an identifier and a citation, and a point-decimal page’s commas', () => {
+    const passed = [
+      `EUR 20${nbsp}350`,
+      `EUR 277${nbsp}826`,
+      'EUR 1000',
+      'EUR 600',
+      'EUR 12,50',
+      'PIV 28969',
+      'Modelo 721',
+      'art. 33.1',
+      '§3.2.1',
+    ];
+    for (const figure of passed) expect(german(`Up to ${figure} a year.`)).toEqual([]);
+    expect(groups(localeProblems(path, gb, [['card.allowances.0', 'A £37,700 band and GBP 3,000.']]))).toEqual([]);
+  });
+
+  it('holds a translation to the grouping of its own page', () => {
+    const translated = (profile: CountryProfile, text: string) =>
+      groups(languagePercentProblems(path, 'pt-PT', profile, [['card.allowances.0', text]]));
+    expect(translated(de, 'Acima de EUR 20.350.')).toEqual([
+      `card.allowances.0: "EUR 20.350" expected "EUR 20${nbsp}350" (de-DE)`,
+    ]);
+    expect(translated(de, `Acima de EUR 20${nbsp}350.`)).toEqual([]);
+    expect(translated(gb, 'Acima de £37,700.')).toEqual([]);
+  });
+});
+
 // D8 (2026-11-16): a literal decimal in a profile's prose takes the separator of the number locale the page uses for
 // that profile, numberLocaleFor(language, profile), so English text for Portugal writes 12,2% (ADR-0023).
 describe('a profile’s literal decimals follow its page’s number locale (docs/CONTENT-STYLE.md §4)', () => {

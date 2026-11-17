@@ -64,14 +64,14 @@
         "value": "0–45\u00a0% by taxable income (2026 tariff)",
         "validFrom": "2026-01-01",
         "validTo": null,
-        "note": "0\u00a0% up to EUR 12,348; 14\u00a0% rising to 42\u00a0% at EUR 69,879; 45\u00a0% from EUR 277,826."
+        "note": "0\u00a0% up to EUR 12\u00a0348; 14\u00a0% rising to 42\u00a0% at EUR 69\u00a0879; 45\u00a0% from EUR 277\u00a0826."
       },
       {
         "label": "Solidarity surcharge (§ 3 SolZG 1995)",
         "value": "5,5\u00a0% of the income tax",
         "validFrom": "2026-01-01",
         "validTo": null,
-        "note": "Only where the income tax exceeds EUR 20,350 (single) or EUR 40,700 (joint), with a sliding zone above."
+        "note": "Only where the income tax exceeds EUR 20 350 (single) or EUR 40 700 (joint), with a sliding zone above."
       },
       {
         "label": "Church tax",
@@ -82,7 +82,7 @@
       }
     ],
     "allowances": [
-      "Freigrenze of EUR 1,000 a year on all § 23 gains together (crypto and other private sales): at EUR 1,000 or more the whole amount is taxable, a cliff, not an allowance. Since assessment year 2024 (previously EUR 600).",
+      "Freigrenze of EUR 1000 a year on all § 23 gains together (crypto and other private sales): at EUR 1000 or more the whole amount is taxable, a cliff, not an allowance. Since assessment year 2024 (previously EUR 600).",
       "Freigrenze of EUR 256 per year for § 22 no. 3 income (staking, lending).",
       "The Sparer-Pauschbetrag does not apply to § 23 gains today."
     ],
@@ -94,14 +94,14 @@
     ],
     "caveats": [
       "The exact day count.",
-      "The EUR 1,000 cliff.",
+      "The EUR 1000 cliff.",
       "Staking and lending (the EUR 256 rule).",
       "The cut-off and grandfathering of the reform, a draft that may change.",
       "Losses.",
       "Church tax.",
       "The records the Finanzamt expects."
     ],
-    "summary60": "Germany: crypto sold more than one year after purchase is tax-free. Sold within a year, the gain is taxed at your personal income-tax rate, and swaps and purchases with crypto count as sales. All such gains under EUR 1,000 per year are tax-free. First-in, first-out per wallet. A draft law would end the one-year rule for coins bought from 2027."
+    "summary60": "Germany: crypto sold more than one year after purchase is tax-free. Sold within a year, the gain is taxed at your personal income-tax rate, and swaps and purchases with crypto count as sales. All such gains under EUR 1000 per year are tax-free. First-in, first-out per wallet. A draft law would end the one-year rule for coins bought from 2027."
   },
   "pendingChanges": [
     {
