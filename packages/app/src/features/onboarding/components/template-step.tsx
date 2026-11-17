@@ -1,4 +1,10 @@
-import { fillTemplateDates, type OfferedTemplate, TEMPLATES, type TemplateTexts } from '@proofofcalm/content';
+import {
+  fillTemplateDates,
+  type OfferedTemplate,
+  paragraphsOf,
+  TEMPLATES,
+  type TemplateTexts,
+} from '@proofofcalm/content';
 import { type CalendarDate, decimal, negate, type Percent } from '@proofofcalm/core';
 import { Button } from '@proofofcalm/ui/components/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@proofofcalm/ui/components/collapsible';
@@ -119,7 +125,7 @@ export function TemplateStep({ value, format, texts, onChoose, onBack }: Templat
         <Collapsible key={picked} className="gap-stack-sm">
           <CollapsibleTrigger>{t('template.about')}</CollapsibleTrigger>
           <CollapsibleContent className="flex flex-col gap-stack-sm">
-            {explained.explanation.split('\n\n').map((paragraph) => (
+            {paragraphsOf(explained.explanation).map((paragraph) => (
               <p key={paragraph}>{explanationText(format, explained, paragraph)}</p>
             ))}
           </CollapsibleContent>
