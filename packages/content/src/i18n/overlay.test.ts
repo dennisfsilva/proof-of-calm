@@ -1,9 +1,23 @@
-import { describe, expect, it } from 'vitest';
-import { groupProblems } from '../percent-validate.ts';
+import { afterAll, describe, expect, it } from 'vitest';
+import type { Problem } from '../problem.ts';
 import { applyOverlay, CONTENT_LANGUAGES, TRANSLATABLE } from './overlay.ts';
-import { numbersIn, overlayProblems } from './overlay-validate.ts';
+import { numbersIn, overlayProblems as overlayProblemsOf } from './overlay-validate.ts';
 
 // Translated content as sparse overlays on the English files (ADR-0057): the merge, and what an overlay may hold.
+
+// D16 of #318: the overlay check names no computed fix for a translated figure. Every problem a case in this file
+// raises is kept, and after the last case no number mismatch's detail holds a `; write …` clause.
+const raised: Problem[] = [];
+const overlayProblems = (...args: Parameters<typeof overlayProblemsOf>) => {
+  const problems = overlayProblemsOf(...args);
+  raised.push(...problems);
+  return problems;
+};
+afterAll(() => {
+  const mismatches = raised.filter(({ code }) => code === 'overlay-number-mismatch');
+  expect(mismatches.length).toBeGreaterThan(20);
+  expect(mismatches.filter(({ detail }) => detail.includes('; write'))).toEqual([]);
+});
 
 const english = {
   name: 'Portugal',
@@ -166,73 +180,49 @@ describe('overlayProblems', () => {
     expect(summary('A £37,700 band.', 'Um escalão de £37,700.', 'en-GB')).toEqual([]);
   });
 
-  it('names the fix when a profile’s translation writes a point the English figure does not hold', () => {
-    const detail = (english: string, translated: string) =>
+  // D16 of #318: where a cited point is in play, the detail names each side's figures as its text writes them and no
+  // fix; the translator copies English's figure (ADR-0057). `cited` names no figure, since the writer of `0.125` cited
+  // nothing.
+  it('names the mismatch and English’s figures as written where a profile’s translation writes a point', () => {
+    const detail = (english: string, translated: string, locale = 'de-DE') =>
       overlayProblems('jurisdiction', path, { card: { caveats: [english] } }, { card: { caveats: [translated] } }, [
-        'de-DE',
-        'de-DE',
+        locale,
+        locale,
       ]).map((problem) => problem.detail);
-    // Each side's figure as its text writes it; `cited` names no figure, since the writer of `0.125` cited nothing.
-    const since = 'since a point in this profile marks only a citation';
     const typedNbsp = `${String.fromCodePoint(0x5c)}u00a0`;
-    expect(detail('0,125 BTC', '0.125 BTC')).toEqual([`card.caveats.0: 0.125, English 0,125; write 0,125, ${since}`]);
-    expect(detail('EUR 1000', 'EUR 1.000')).toEqual([`card.caveats.0: 1.000, English 1000; write 1000, ${since}`]);
+    expect(detail('0,125 BTC', '0.125 BTC')).toEqual(['card.caveats.0: 0.125, English 0,125']);
+    expect(detail('EUR 1000', 'EUR 1.000')).toEqual(['card.caveats.0: 1.000, English 1000']);
     expect(detail(`EUR 20${String.fromCodePoint(0xa0)}350`, 'EUR 20.350')).toEqual([
-      `card.caveats.0: 20.350, English 20${typedNbsp}350; write 20${typedNbsp}350, ${since}`,
+      `card.caveats.0: 20.350, English 20${typedNbsp}350`,
     ]);
     expect(detail('art. 33.1', 'art. 33.10')).toEqual(['card.caveats.0: 33.10, English 33.1']);
-  });
-
-  // Round 1 of #318's fix: the fix is English's figure as written (a translation copies it, ADR-0057), never one
-  // rebuilt from the translation's, and only a figure number-group passes is named.
-  it('names English’s figure as written as the fix, and no fix where number-group refuses it', () => {
-    const detail = (english: string, translated: string) =>
-      overlayProblems('jurisdiction', path, { card: { caveats: [english] } }, { card: { caveats: [translated] } }, [
-        'de-DE',
-        'de-DE',
-      ]).map((problem) => problem.detail);
-    const since = 'since a point in this profile marks only a citation';
     expect(detail('Up to EUR 1,1250 a year.', 'Até EUR 1.125 por ano.')).toEqual([
-      `card.caveats.0: 1.125, English 1,1250; write 1,1250, ${since}`,
+      'card.caveats.0: 1.125, English 1,1250',
     ]);
-    expect(detail('Up to EUR 2,5 a year.', 'Até EUR 2.500 por ano.')).toEqual([
-      `card.caveats.0: 2.500, English 2,5; write 2,5, ${since}`,
-    ]);
-    // number-group refuses English's `EUR 1,125` (a group in English, a decimal on the page): no fix to copy.
+    expect(detail('Up to EUR 2,5 a year.', 'Até EUR 2.500 por ano.')).toEqual(['card.caveats.0: 2.500, English 2,5']);
     expect(detail('Up to EUR 1,125 a year.', 'Até EUR 1.125 por ano.')).toEqual([
       'card.caveats.0: 1.125, English 1,125',
     ]);
+    for (const locale of ['pt-PT', 'nl-NL']) {
+      expect(detail('EUR 1000', 'EUR 1.000', locale)).toEqual(['card.caveats.0: 1.000, English 1000']);
+      expect(detail('0,125 BTC', '0.125 BTC', locale)).toEqual(['card.caveats.0: 0.125, English 0,125']);
+    }
   });
 
-  // Every row whose detail names a fix: the fix put in the translation leaves nothing to number-group or this check.
-  it('names only a fix that number-group and the overlay check both pass in the translation', () => {
-    const nbsp = String.fromCodePoint(0xa0);
-    const rows: readonly [english: string, translated: string, locale: string][] = [
-      ['0,125 BTC', '0.125 BTC', 'de-DE'],
-      ['EUR 1000', 'EUR 1.000', 'de-DE'],
-      [`EUR 20${nbsp}350`, 'EUR 20.350', 'de-DE'],
-      ['Up to EUR 1,1250 a year.', 'Até EUR 1.125 por ano.', 'de-DE'],
-      ['Up to EUR 2,5 a year.', 'Até EUR 2.500 por ano.', 'de-DE'],
-      ['Up to EUR 1,125 a year.', 'Até EUR 1.125 por ano.', 'de-DE'],
-      ...['pt-PT', 'nl-NL'].flatMap((locale): [string, string, string][] => [
-        ['EUR 1000', 'EUR 1.000', locale],
-        ['0,125 BTC', '0.125 BTC', locale],
-      ]),
-    ];
-    const check = (english: string, translated: string, locale: string) =>
+  // Round 2 of #318's fix (25m): a fix picked from every English figure by value named one the translation already
+  // holds (`write 1`, refused again) and withheld the right one. The detail names the figures and no fix.
+  it('names no fix beside a figure the translation already holds', () => {
+    const detail = (english: string, translated: string) =>
       overlayProblems('jurisdiction', path, { card: { caveats: [english] } }, { card: { caveats: [translated] } }, [
-        locale,
-        locale,
-      ]);
-    const fixed = rows.flatMap(([english, translated, locale]) => {
-      const fix = /; write (.+), since /.exec(check(english, translated, locale)[0]?.detail ?? '')?.[1];
-      if (fix === undefined) return [];
-      const figure = fix.replaceAll(`${String.fromCodePoint(0x5c)}u00a0`, nbsp);
-      const text = translated.replace(/\d+(?:\.\d+)+/, figure);
-      return [[...check(english, text, locale), ...groupProblems(path, locale, [['card.caveats.0', text]])]];
-    });
-    expect(fixed).toHaveLength(rows.length - 1);
-    expect(fixed.flat()).toEqual([]);
+        'de-DE',
+        'de-DE',
+      ]).map((problem) => problem.detail);
+    expect(detail('Up to EUR 1500 a year, for 1 person.', 'Até EUR 1.000 por ano, para 1 pessoa.')).toEqual([
+      'card.caveats.0: 1.000 1, English 1500 1',
+    ]);
+    expect(detail('Up to EUR 1,1250 and EUR 1125.', 'Até EUR 1.125 e EUR 1125.')).toEqual([
+      'card.caveats.0: 1.125 1125, English 1,1250 1125',
+    ]);
   });
 
   // #318's design check (D10 of #316): each page form number-group suggests reads as its value in both texts.

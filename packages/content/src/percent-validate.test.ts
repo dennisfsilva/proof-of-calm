@@ -144,6 +144,40 @@ describe('a profile’s money figures group as its comma-decimal page does (docs
     expect(german('EUR 1.000 and €20 350')[1]).toBe(suggestion('€20 350', `€20${nbsp}350`));
   });
 
+  // D16 of #318: each printed form, applied where it stands and at the edges of a text, is passed and keeps its value.
+  it('passes each suggested form put back into its sentence, at a text’s start and end, with its own value', () => {
+    for (const [figure, expected, value, text = `Up to ${figure} a year.`] of suggested) {
+      const applied = [text.replace(figure, expected), expected, `${expected} a year.`, `Up to ${expected}`];
+      for (const sentence of applied) {
+        expect(german(sentence), sentence).toEqual([]);
+        expect(numbersIn(sentence, 'de-DE', true), sentence).toContain(value);
+      }
+    }
+  });
+
+  it('passes the rule’s own example, EUR 1,1250, as 1.125 on every comma-decimal page it names', () => {
+    for (const [profile, locale] of [
+      [de, 'de-DE'],
+      [es, 'es-ES'],
+      [italy, 'it-IT'],
+      [nl, 'nl-NL'],
+    ] as const) {
+      expect(german('Up to EUR 1,1250 a year.', profile), locale).toEqual([]);
+      expect(german('EUR 1,1250', profile), locale).toEqual([]);
+      expect(numbersIn('Up to EUR 1,1250 a year.', locale, true), locale).toEqual(['1.125']);
+    }
+  });
+
+  it('passes the decimal-separator fix applied, 12,2% on a de-DE page, under both checks', () => {
+    expect(english(de, 'The first bracket is 12.2%.')).toEqual([
+      'card.caveats.0: "12.2%" writes ".", expected "," (de-DE)',
+    ]);
+    // Germany's page joins the sign with a no-break space, the percent joiner's own finding (CONTENT-STYLE §4).
+    const fixed = `The first bracket is 12,2${nbsp}% up to EUR 1000.`;
+    expect(localeProblems(path, de, [['card.caveats.0', fixed]])).toEqual([]);
+    expect(german(fixed)).toEqual([]);
+  });
+
   it('suggests the page’s form on Portugal’s and France’s English texts and in a pt-PT text for the Netherlands', () => {
     expect(german('Up to EUR 1.5 a year.', pt)).toEqual([suggestion('EUR 1.5', 'EUR 1,5', 'pt-PT')]);
     expect(german('Up to EUR 12.50 a year.', pt)).toEqual([suggestion('EUR 12.50', 'EUR 12,50', 'pt-PT')]);
