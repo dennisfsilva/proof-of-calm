@@ -7,10 +7,10 @@
   ],
   "lotRuleNote": "Por carteira: o BMF aceita primeiro a entrar, primeiro a sair ou a identificação individual, escolhidos por carteira e por criptoativo e aplicados de forma consistente, com o custo médio como alternativa (confiança média-alta).",
   "card": {
-    "classification": "Venda privada (§ 23(1) frase 1 n.º 2 EStG) à taxa progressiva pessoal, não à Abgeltungsteuer fixa; staking e empréstimo pelo § 22 n.º 3 EStG. Base: BMF-Schreiben de 6 de março de 2025; BFH IX R 3/22 de 14 de fevereiro de 2023.",
+    "classification": "Venda privada (§ 23(1) frase 1 n.º 2 EStG) à taxa progressiva pessoal, não à Abgeltungsteuer fixa; recompensas de staking e de empréstimo: § 22 n.º 3 EStG. Base: BMF-Schreiben de 6 de março de 2025; BFH IX R 3/22 de 14 de fevereiro de 2023.",
     "taxableEvents": [
       {
-        "note": "Tributável quando entre a compra e a venda decorre um ano ou menos; não tributada após mais de um ano."
+        "note": "Tributável quando entre a compra e a venda decorre um ano ou menos; após mais de um ano, a mais-valia não é tributada."
       },
       {
         "note": "Uma alienação ao valor de mercado e uma nova aquisição; começa um novo período de detenção para a moeda recebida."
@@ -45,12 +45,12 @@
       }
     ],
     "allowances": [
-      "Freigrenze de EUR\u00a01000 por ano sobre as mais-valias do § 23 (criptoativos e outras vendas privadas): com EUR\u00a01000 ou mais, todo o montante é tributável: um limiar, não uma franquia. Desde o ano de liquidação de 2024 (antes, EUR\u00a0600).",
+      "Freigrenze de EUR\u00a01000 por ano sobre o total das mais-valias do § 23 (criptoativos e outras vendas privadas). Com EUR\u00a01000 ou mais, tudo é tributável; é um limiar, não uma franquia. Desde o ano de liquidação de 2024 (antes, EUR\u00a0600).",
       "Freigrenze de EUR\u00a0256 por ano para rendimentos do § 22 n.º 3 (staking, empréstimo).",
       "O Sparer-Pauschbetrag não se aplica atualmente às mais-valias do § 23."
     ],
     "holdingRuleText": "Tributável apenas quando «der Zeitraum zwischen Anschaffung und Veräußerung nicht mehr als ein Jahr beträgt» (§ 23(1) frase 1 n.º 2 EStG). O dia da compra não conta e o ano termina no mesmo dia do calendário um ano depois (§ 108 AO, §§ 187–188 BGB): comprada a 15 de março de 2026, uma venda a 15 de março de 2027 ainda conta no ano; a partir de 16 de março de 2027, a mais-valia não é tributada.",
-    "lotRuleText": "Primeiro a entrar, primeiro a sair, por carteira («walletbezogene Betrachtung»); o BMF aceita FIFO ou a identificação individual, escolhidos por carteira e por criptoativo; o custo médio é a alternativa.",
+    "lotRuleText": "Primeiro a entrar, primeiro a sair (FIFO), por carteira («walletbezogene Betrachtung»); o BMF aceita este método ou a identificação individual, escolhidos por carteira e por criptoativo; o custo médio é a alternativa.",
     "losses": "As menos-valias só compensam mais-valias do § 23, não salários nem rendimentos de capital; reportam-se um ano para trás e sem limite para a frente, dentro do § 23. As perdas do § 22 n.º 3 só compensam rendimentos do § 22 n.º 3.",
     "reporting": [
       "O ónus da prova cabe ao contribuinte; os relatórios fiscais gerados por software são aceites se forem plausíveis e coerentes (BMF-Schreiben de 6 de março de 2025)."
@@ -64,12 +64,12 @@
       "O imposto eclesiástico.",
       "Os registos que o Finanzamt espera."
     ],
-    "summary60": "Alemanha: criptoativos vendidos mais de um ano após a compra não são tributados. Antes disso, a mais-valia é tributada à taxa progressiva pessoal; trocas e compras com criptoativos contam como vendas. Abaixo de EUR\u00a01000 por ano, estas mais-valias não são tributadas. FIFO por carteira. Um projeto de lei acabaria com a regra de um ano nas compras desde 2027."
+    "summary60": "Alemanha: a mais-valia de uma venda mais de um ano após a compra não é tributada. Antes disso, é tributada à taxa progressiva pessoal; trocas e compras com criptoativos contam como vendas. Somadas abaixo de EUR\u00a01000 por ano, não são tributadas. FIFO por carteira. Um projeto de lei acabaria com a regra de um ano nas compras desde 2027."
   },
   "pendingChanges": [
     {
       "title": "Referentenentwurf de 30 de setembro de 2026: Gesetz zur Reform der Besteuerung bestimmter Kryptowerte im Privatvermögen",
-      "summary": "Tauschkryptowerte como BTC e ETH adquiridos após 31 de dezembro de 2026 seriam rendimentos de capital a 25\u00a0% mais sobretaxa de solidariedade, sem prazo de detenção, retidos pelos prestadores nacionais desde 1 de janeiro de 2028; as anteriores mantêm a regra de um ano. Excluídos: tokens de moeda eletrónica, NFT, security tokens e RWA. O Conselho de Ministros de 14 de outubro de 2026 não decidiu."
+      "summary": "Tauschkryptowerte como BTC e ETH adquiridos após 31 de dezembro de 2026 seriam rendimentos de capital a 25\u00a0% mais sobretaxa de solidariedade, sem prazo de detenção, retidos pelos prestadores nacionais desde 1 de janeiro de 2028; as compras anteriores mantêm a regra de um ano. Excluídos: tokens de moeda eletrónica, NFT, security tokens e tokens RWA. O Governo não decidiu a 14 de outubro de 2026."
     },
     {
       "title": "Valores da tabela para 2027",
