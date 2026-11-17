@@ -2,6 +2,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { parseModule } from '../src/loaders/modules.ts';
 import { closedBodyProblems } from './closed-body.ts';
 
 const learn = fileURLToPath(new URL('../learn/', import.meta.url));
@@ -74,6 +75,38 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
       expect(await problemsOf('none', 'Text.\n\n<Chart />\n')).toEqual([
         'module-chart-element: remove <Chart />: the front matter says chart: none',
       ]);
+    });
+
+    // A translation has no chart key (ADR-0048 Deviations); review 25l round 1 found a code-span chart passing.
+    describe('a translation, held to the chart of the English module its file is named after', () => {
+      const translated = 'packages/content/i18n/pt-PT/learn/risk-honestly.mdx';
+      const englishOf = (chart: string) => {
+        const parsed = parseModule(path, source(chart, 'Text.\n\n<Chart />\n'));
+        if (!parsed.ok) throw new Error('the English fixture does not parse');
+        return [parsed.value];
+      };
+      const translation = (body: string) =>
+        ['---', 'slug: risk-honestly', 'title: Risco', 'idea: Um plano.', 'caveat: Um plano.', '---', '', body].join(
+          '\n',
+        );
+      const translatedOf = async (chart: string, body: string, at = translated) =>
+        (await closedBodyProblems([{ path: at, source: translation(body) }], englishOf(chart))).map(
+          ({ path: where, code, detail }) => `${where}: ${code}: ${detail}`,
+        );
+
+      it("passes <Chart /> on a line of its own, and refuses it in a code span or a fence with English's code", async () => {
+        expect(await translatedOf('drawdowns-bar', 'Texto.\n\n<Chart />\n')).toEqual([]);
+        expect(await translatedOf('drawdowns-bar', 'Um `<Chart />` sinal.\n')).toEqual([`${translated}: ${ONE}`]);
+        expect(await translatedOf('drawdowns-bar', '```\n<Chart />\n```\n')).toEqual([`${translated}: ${ONE}`]);
+      });
+
+      it("refuses a <Chart /> where English's chart is none, and skips a file named after no English module", async () => {
+        expect(await translatedOf('none', 'Texto.\n\n<Chart />\n')).toEqual([
+          `${translated}: module-chart-element: remove <Chart />: the front matter says chart: none`,
+        ]);
+        const orphan = 'packages/content/i18n/pt-PT/learn/ruido.mdx';
+        expect(await translatedOf('drawdowns-bar', 'Texto.\n', orphan)).toEqual([]);
+      });
     });
   });
 

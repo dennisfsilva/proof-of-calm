@@ -61,7 +61,7 @@ const translations = languages.flatMap((language) =>
 );
 
 const problems: Problem[] = moduleTranslationProblems(translations, englishModules);
-problems.push(...(await closedBodyProblems(translations)));
+problems.push(...(await closedBodyProblems(translations, englishModules)));
 const files: ContentFile[] = [];
 for (const absolute of paths) {
   const path = fromRoot(absolute);
