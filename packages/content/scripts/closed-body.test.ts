@@ -31,6 +31,9 @@ const validated = async (englishBody: string, body: string, chart = 'none') => {
 };
 const banned = (match: string) =>
   `banned-advice: body: "${match}" is on the ban list; reword it (docs/CONTENT-STYLE.md §2)`;
+// Brand, 25m round 1: the elements problem names its fix (docs/CONTENT-STYLE.md §1, rule 8).
+const ORDER =
+  "; write English's elements in English's order, a flow one on a line of its own and a text one inside its sentence";
 
 describe('closedBodyProblems: pnpm validate:content refuses what the build refuses (ADR-0048)', () => {
   it('reports a module holding an element outside the set, with its line', async () => {
@@ -120,7 +123,7 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
 
       it("passes <Chart /> on a line of its own, and refuses it in a code span or a fence with English's code", async () => {
         expect(await translatedOf('drawdowns-bar', 'Texto.\n\n<Chart />\n')).toEqual([]);
-        const elements = `${translated}: module-overlay-elements: English flow:Chart; translation none`;
+        const elements = `${translated}: module-overlay-elements: English flow:Chart; translation none${ORDER}`;
         expect(await translatedOf('drawdowns-bar', 'Um `<Chart />` sinal.\n')).toEqual([
           `${translated}: ${ONE}`,
           elements,
@@ -149,7 +152,7 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
     it('reads a fence closed by ~~~` as still open, so the element after it is code', async () => {
       const english = 'Text.\n\n~~~\ncode\n~~~\n\n<PastPerformance />\n';
       expect(await validated(english, 'Texto.\n\n~~~\ncódigo\n~~~`\n\n<PastPerformance />\n')).toEqual([
-        'module-overlay-elements: English flow:PastPerformance; translation none',
+        `module-overlay-elements: English flow:PastPerformance; translation none${ORDER}`,
       ]);
     });
 
@@ -171,13 +174,13 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
         'module-chart-element: write <Chart /> once, on a line of its own, where the drawdowns-bar chart stands';
       expect(await validated(english, 'Texto.\n\n<PastPerformance />\n', 'drawdowns-bar')).toEqual([
         CHART,
-        'module-overlay-elements: English flow:Chart, flow:PastPerformance; translation flow:PastPerformance',
+        `module-overlay-elements: English flow:Chart, flow:PastPerformance; translation flow:PastPerformance${ORDER}`,
       ]);
       expect(await validated(english, '<PastPerformance />\n\nTexto.\n\n<Chart />\n', 'drawdowns-bar')).toEqual([
-        'module-overlay-elements: English flow:Chart, flow:PastPerformance; translation flow:PastPerformance, flow:Chart',
+        `module-overlay-elements: English flow:Chart, flow:PastPerformance; translation flow:PastPerformance, flow:Chart${ORDER}`,
       ]);
       expect(await validated(PAST, 'Texto. <PastPerformance />\n\nUm fim.\n')).toEqual([
-        'module-overlay-elements: English flow:PastPerformance; translation text:PastPerformance',
+        `module-overlay-elements: English flow:PastPerformance; translation text:PastPerformance${ORDER}`,
       ]);
     });
 
@@ -185,8 +188,7 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
       const english = 'Text.\n\n<Chart />\n\n<PastPerformance />\n';
       const CHART =
         'module-chart-element: write <Chart /> once, on a line of its own, where the drawdowns-bar chart stands';
-      const missing =
-        'module-overlay-elements: English flow:Chart, flow:PastPerformance; translation flow:PastPerformance';
+      const missing = `module-overlay-elements: English flow:Chart, flow:PastPerformance; translation flow:PastPerformance${ORDER}`;
       for (const chart of ['`<Chart />`', '```\n<Chart />\n```', '~~~~mdx\n<Chart />\n~~~~']) {
         const body = `Texto.\n\n${chart}\n\n<PastPerformance />\n`;
         expect(await validated(english, body, 'drawdowns-bar')).toEqual([CHART, missing]);
