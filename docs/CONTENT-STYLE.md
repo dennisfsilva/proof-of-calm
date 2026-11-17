@@ -661,6 +661,10 @@ The product's nouns, one Portuguese word each, in every string, the site pages a
 | the fall page | página da queda |
 | 90-day high | máximo de 90 dias, joined by a no-break space, no hyphen |
 | headline (news) | manchete |
+| template | ponto de partida, its name after it unquoted: `o ponto de partida Plano de ciclo` |
+| country card | ficha do país |
+| tax-year file | ficheiro do ano fiscal |
+| halving | halving, as the plan's chart labels it |
 | Price data by CoinGecko | Dados de preços da CoinGecko |
 
 Two terms name the same date in two frames: `data de fim do período de detenção` is the date in the
