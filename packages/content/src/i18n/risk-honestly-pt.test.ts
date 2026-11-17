@@ -13,7 +13,8 @@ import { readTranslatedModule, translatedModuleProblems } from './module-overlay
 // against English's. The words are the content review's.
 const path = 'packages/content/i18n/pt-PT/learn/risk-honestly.mdx';
 const englishPath = 'packages/content/learn/risk-honestly.mdx';
-const read = (file: string) => readFileSync(new URL(`../../${file.slice('packages/content/'.length)}`, import.meta.url), 'utf8');
+const read = (file: string) =>
+  readFileSync(new URL(`../../${file.slice('packages/content/'.length)}`, import.meta.url), 'utf8');
 
 function english() {
   const parsed = parseModule(englishPath, read(englishPath));
