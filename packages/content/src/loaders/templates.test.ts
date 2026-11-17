@@ -10,6 +10,7 @@ import { date, id, instant, money } from '@proofofcalm/core/testing';
 import { describe, expect, it } from 'vitest';
 import { TemplateSchema as ContentTemplateSchema } from '../schema/template.ts';
 import { fillTemplateDates } from '../template-dates.ts';
+import { readAfterReview } from '../validate.ts';
 import { COINS } from './coins.ts';
 import { type OfferedTemplate, TEMPLATES, templateById } from './templates.ts';
 
@@ -134,9 +135,10 @@ describe('TEMPLATES (docs/DOMAIN.md §5, ADR-0009)', () => {
   it('date every drawdown figure an explanation cites by the day, month and year of its high and low', () => {
     const long = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
     const day = (calendar: string) => long.format(new Date(`${calendar}T00:00:00Z`));
-    for (const { explanation, drawdowns, lastReviewed } of WRITTEN) {
+    for (const { id: templateId, explanation, drawdowns } of WRITTEN) {
+      const review = ContentTemplateSchema.parse(asFile(templateId));
       for (const { coin, high, low, fall, accessed } of drawdowns) {
-        expect(accessed <= lastReviewed, coin).toBe(true);
+        expect(readAfterReview(accessed, review), coin).toBe(false);
         if (!explanation.includes(`${fall} %`)) continue;
         expect(explanation, `${coin} ${fall} %`).toContain(`high on ${day(high)} to its low on ${day(low)}`);
       }
@@ -237,9 +239,10 @@ describe('TEMPLATES (docs/DOMAIN.md §5, ADR-0009)', () => {
     }
   });
 
-  it('keep the owner’s review fields as the files hold them', () => {
+  it('keep the Cycle plan’s fields as its file holds them, reviewed by the owner', () => {
     const file = JSON.parse(readFileSync(new URL('../../templates/cycle-plan.json', import.meta.url), 'utf8'));
-    expect(template('cycle-plan')).toMatchObject({ lastReviewed: '2026-11-02', reviewedBy: 'owner' });
+    // Main's pin, restored but for lastReviewed, the date a content review sets.
+    expect(template('cycle-plan')).toMatchObject({ reviewedBy: 'owner' });
     // The thirds' dates stay with the text: a plan copies the core's references, which have no field for them.
     const { secondThird, lastThird, ...references } = file.references;
     expect(asFile('cycle-plan')).toEqual({ ...file, references });

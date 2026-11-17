@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import allowList from '../sources.allow.json' with { type: 'json' };
 import { FactSchema } from './schema/fact.ts';
-import { type ContentFile, validateContent } from './validate.ts';
+import { type ContentFile, readAfterReview, validateContent } from './validate.ts';
 
 // The facts files against the table they come from (docs/EDUCATION.md §9, docs/CONTENT-OPS.md §7). The
 // content package's turbo.json names EDUCATION.md as an input of the test task, so a change to the table
@@ -118,7 +118,7 @@ describe('the education facts (docs/EDUCATION.md §9)', () => {
   });
 
   it('date every source no later than the day it was read, and read it no later than the review', () => {
-    const late = facts.filter((fact) => fact.date > fact.accessed || fact.accessed > fact.lastReviewed);
+    const late = facts.filter((fact) => fact.date > fact.accessed || readAfterReview(fact.accessed, fact));
     expect(late.map((fact) => fact.key)).toEqual([]);
   });
 
@@ -163,17 +163,21 @@ describe('the education facts (docs/EDUCATION.md §9)', () => {
     expect(hosts.filter((host) => !allowed(host))).toEqual([]);
   });
 
-  // EDUCATION §9 row f: one dated leverage figure. ESMA's figure is about CFDs, and the FCA ban reads close to a status word.
-  it('f holds one dated leverage figure and names neither ESMA nor the FCA', () => {
+  // EDUCATION §9 row f: its leverage figure dated by the day. ESMA's figure is about CFDs, and the FCA ban reads close
+  // to a status word.
+  it('f dates its leverage figure by the day and names neither ESMA nor the FCA', () => {
     const leverage = facts.find((fact) => fact.key === 'f.leverage');
     expect(leverage?.value).not.toMatch(/ESMA|FCA/u);
-    expect(leverage?.value).toContain('10 Oct 2025');
+    // Main pinned the day, 10 Oct 2025, a date a content review sets; the relation keeps the figure dated by its day.
+    expect(leverage?.value).toMatch(/\bon \d{1,2} [A-Z][a-z]{2,3} \d{4}, [^.]*\$\d/u);
   });
 
   it("a value writes September as en-GB's Sept (CONTENT-STYLE §4)", () => {
     expect(facts.filter((fact) => shortSeptember.test(fact.value)).map((fact) => fact.key)).toEqual([]);
   });
 
+  // EDUCATION §9 states every fact's figures, so its copy stays tied to the data until the figures validator lands
+  // (docs/research/review-safe-figures.md); a review that changes a value changes its row in the same commit.
   it("each fact's value reads the same in its EDUCATION §9 row", () => {
     const values = new Map(facts.map((fact) => [fact.key, fact.value]));
     // A row of one key is its value; row k is its facts' values in order, then the closing sentence.
