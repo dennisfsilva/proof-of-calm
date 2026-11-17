@@ -79,8 +79,8 @@
     "lotRuleText": "No matching per lot. The gain on a sale is the sale price minus the sale's share of the whole portfolio's total cost (total cost × sale price ÷ portfolio value just before the sale); that share then leaves the total cost for later sales.",
     "losses": "A loss offsets only gains of the same kind made in the same year; it does not carry forward to later years.",
     "reporting": [
-      "Form\u00a02042 C: box\u00a03AN for a net gain, 3BN for a net loss, 3CN to opt for the progressive scale.",
-      "Annexe 2086 lists every taxable sale: date, value of the whole portfolio, sale price, fees, total acquisition price, and the part of that price already used in earlier sales (the form's 'fractions de capital initial').",
+      "Form\u00a02042\u00a0C: box\u00a03AN for a net gain, 3BN for a net loss, 3CN to opt for the progressive scale.",
+      "Annexe\u00a02086 lists every taxable sale: date, value of the whole portfolio, sale price, fees, total acquisition price, and the part of that price already used in earlier sales (the form's 'fractions de capital initial').",
       "Form\u00a03916-bis for every crypto account on a platform abroad."
     ],
     "caveats": [

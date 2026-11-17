@@ -60,7 +60,7 @@ const FIXTURE = CountryProfileSchema.parse({
     holdingRuleText: 'A purchase held for 365 days or more can be sold without tax on the gain.',
     lotRuleText: 'First in, first out, per platform.',
     losses: 'Losses offset gains of the same kind.',
-    reporting: ['Annex G of the return.'],
+    reporting: ['Annex\u00a0G of the return.'],
     caveats: ['A professional should confirm how a swap counts.'],
     summary60: 'Purchases held for 365 days or more are tax-free when sold.',
   },

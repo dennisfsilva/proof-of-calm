@@ -58,7 +58,7 @@ const profile = (overrides: Record<string, unknown> = {}) => ({
     holdingRuleText: 'A purchase held for 365 days or more can be sold without tax on the gain.',
     lotRuleText: 'First in, first out, per platform.',
     losses: 'Losses on purchases held under 365 days offset gains of the same kind.',
-    reporting: ['Annex G of the IRS return.'],
+    reporting: ['Annex\u00a0G of the IRS return.'],
     caveats: ['A professional should confirm how a swap counts.'],
     summary60:
       'Purchases held for 365 days or more are tax-free when sold. Gains on purchases held for less are taxed at 28%.',

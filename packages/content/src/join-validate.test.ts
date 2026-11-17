@@ -79,8 +79,19 @@ describe('a currency code or a form name joined to its figure (docs/CONTENT-STYL
       refused('the form "box" and its number', '"3AN"'),
       refused('the form "Modelo" and its number', '"D-100"'),
     ]);
-    const words = ['Box', 'campo', 'fields', 'Formulaire', 'Modello', 'Schedule'];
+    const words = ['Box', 'boxes', 'annex', 'Annexe', 'campo', 'fields', 'Modello', 'Schedule'];
     expect(words.map((word) => joins(`${word} 1`).length)).toEqual(words.map(() => 1));
+    expect(joins('A section, boxes 13.1 to 13.8, then Annexe 2086 and annex C.')).toEqual([
+      refused('the form "boxes" and its number', '"13.1"'),
+      refused('the form "Annexe" and its number', '"2086"'),
+      refused('the form "annex" and its number', '"C"'),
+    ]);
+  });
+
+  it('leaves a capital after a form number to the text, since it can be the next word', () => {
+    // `Form 2042 C` joins its letter in the data; a check cannot tell it from an article or a pronoun.
+    const neighbours = [`File Form${nbsp}1040 A copy stays with you.`, `In box${nbsp}3 I list them.`];
+    expect(neighbours.flatMap(joins)).toEqual([]);
   });
 
   it('gives a code between two figures to the figure after it, as the grouping check does', () => {

@@ -10,7 +10,7 @@ const GAP = String.raw`((?:(?!${NBSP})\s)+)`;
 // The ISO codes the live profiles write beside a figure, and the words that name a form or one of its boxes.
 const CODE = '(EUR|GBP|USD)';
 const FORM =
-  '((?:[Aa]nexo|[Bb]ox|[Cc]ampo|[Ff]ield|[Ff]orm|[Ff]ormulaire|[Mm]odelo|[Mm]odello|[Qq]uadro|[Ss]chedule)s?)';
+  '((?:[Aa]nexo|[Aa]nnexe?|[Bb]ox(?:es)?|[Cc]ampo|[Ff]ield|[Ff]orm|[Mm]odelo|[Mm]odello|[Qq]uadro|[Ss]chedule)s?)';
 // A money figure, its groups joined by a point, a comma or a space before three digits (an ordinary space between
 // groups is `number-group`'s), and a form's number: digits with their letters, points and hyphens (`9.4`, `1099-DA`,
 // `3AN`), or capitals with their digits (`G1`, `RW`, `D-100`), never a word (`Modello Redditi`).
