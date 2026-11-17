@@ -297,12 +297,13 @@ external links and the Risk link in the mobile export (M3).
   comments), settled the figures validator, which moves to #328 with the FR, IT and NL overlays, the
   other three modules and a currency code joined to its figure, before #271. On 2026-11-17, #328
   merged a currency code and a form's name joined to their figures (#330), the Bitstamp sources with
-  their request windows (#332) and the Cycles and Taxes where you live modules in pt-PT (#331). The
+  their request windows (#332), the Cycles and Taxes where you live modules in pt-PT (#331) and the
+  FR, IT and NL overlays (#333). The
   figures validator's PR 1 (round 3) and PR 2, the translated h2 ids by position (round 3), the
   review-content skill's figure clause, the DE and ES overlays, Risk honestly in pt-PT, Portugal's
   English numerals with its baselines, the Learn index in the person's language, the module checks
-  per block with `figure-join` over modules, and `number-group`'s open shapes move to the next
-  session's issue, which comes before #271. So pt-PT takes 9 build sessions more than #269 planned
+  per block with `figure-join` over modules, and `number-group`'s open shapes move to #334, which
+  comes before #271. So pt-PT takes 9 build sessions more than #269 planned
   before German starts. A
   render-and-axe-only pt-PT story run waits for #271, once every namespace is translated. CSV import, free (ADR-0039), for the
   main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
