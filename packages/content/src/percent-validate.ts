@@ -146,7 +146,7 @@ const typed = (text: string) => escaped(JSON.stringify(text));
 
 type Reading = { readonly whole: string; readonly fraction?: string | undefined };
 /**
- * A money figure read with `decimal` as its decimal mark, by structure (#318's design check, D10 of #316): at most one
+ * A money figure read with `decimal` as its decimal mark, by structure (the design check of 2026-11-17): at most one
  * decimal mark with no mark after it, every group three digits after a first group of 1 to 999, one kind of group
  * mark (every space is one kind), and no 0 before other digits; else no reading.
  */
