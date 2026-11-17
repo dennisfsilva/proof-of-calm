@@ -186,6 +186,19 @@ describe('learnPlugins', () => {
       const keyed = { ...WITH_TRANSLATION, 'i18n/pt-PT/learn/noise.mdx': extra };
       await expect(buildLearn(keyed)).rejects.toThrow(/noise\.mdx.*chart/s);
     });
+
+    it('a build with no translations folder emits an empty LEARN_TRANSLATIONS', async () => {
+      const files: FixtureFiles = {
+        ...FIXTURE,
+        'main.js': [
+          "import { LEARN_MODULES, LEARN_TRANSLATIONS } from 'virtual:learn-modules';",
+          'console.log(LEARN_MODULES, LEARN_TRANSLATIONS);',
+        ].join('\n'),
+      };
+      const entry = entryOf(await buildLearn(files));
+      expect(entry.code).toMatch(/LEARN_TRANSLATIONS = Object\.freeze\(\{\s*\}\)/);
+      expect(entry.dynamicImports).toHaveLength(2);
+    });
   });
 
   it('a missing folder gives empty lists', async () => {
