@@ -603,9 +603,10 @@ describe('learnPlugins under the dev server', () => {
       const headingOf = async () => /sourceHeading"?: ?"([^"]*)"/.exec((await translation()) ?? '')?.[1];
       /** The reviewer pt-PT's metadata module carries for noise, or undefined while it fails to load. */
       const reviewerOf = async () => {
-        const code = await dev.environments.client
-          .transformRequest(`${LEARN_META_ID}pt-PT`)
-          .then((result) => result?.code, () => undefined);
+        const code = await dev.environments.client.transformRequest(`${LEARN_META_ID}pt-PT`).then(
+          (result) => result?.code,
+          () => undefined,
+        );
         return /noise"?: ?\{[^}]*reviewedBy"?: ?"([^"]*)"/.exec(code ?? '')?.[1];
       };
       // The page loads the list of modules first, then the translation's chunk.
@@ -679,7 +680,10 @@ describe('learnPlugins under the dev server', () => {
   it("serves a translation's metadata fresh after an English edit, a save that does not parse and the fix", async () => {
     const dev = await startDev();
     const english = (reviewer: string) =>
-      module('noise', '# Noise\n\n## Why some people hold\n\nText.').replace('reviewedBy: owner', `reviewedBy: ${reviewer}`);
+      module('noise', '# Noise\n\n## Why some people hold\n\nText.').replace(
+        'reviewedBy: owner',
+        `reviewedBy: ${reviewer}`,
+      );
     try {
       expect(await dev.reviewerAfter(undefined)).toBe('owner');
       await dev.writeEnglish(english('agent-draft'));
