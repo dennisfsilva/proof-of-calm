@@ -71,7 +71,7 @@
         "value": "5,5\u00a0% of the income tax",
         "validFrom": "2026-01-01",
         "validTo": null,
-        "note": "Only where the income tax exceeds EUR 20 350 (single) or EUR 40 700 (joint), with a sliding zone above."
+        "note": "Only where the income tax exceeds EUR 20\u00a0350 (single) or EUR 40\u00a0700 (joint), with a sliding zone above."
       },
       {
         "label": "Church tax",
