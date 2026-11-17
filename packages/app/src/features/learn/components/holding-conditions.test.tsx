@@ -227,7 +227,8 @@ describe('HoldingConditions on a pt-PT screen (WCAG 2.2 SC 3.1.2, ADR-0057)', ()
   };
 
   it('marks the English conditions of an untranslated country lang=en, the control not', async () => {
-    const germany = (await loadRules('DE', 'pt-PT')) as CountryRules;
+    // Every country has a pt-PT rules file since 2026-11-17; the English one stands in, as an offline load gives it.
+    const germany = (await loadRules('DE')) as CountryRules;
     await ptMount(germany);
     const [first] = germany.holdingRuleConditions;
     expect(screen.getByText(first as string).getAttribute('lang')).toBe('en');

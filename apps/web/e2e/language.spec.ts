@@ -6,8 +6,8 @@ import ptPlan from '../../../packages/app/src/messages/pt-PT/plan.json' with { t
 import ptPortfolio from '../../../packages/app/src/messages/pt-PT/portfolio.json' with { type: 'json' };
 import ptSettings from '../../../packages/app/src/messages/pt-PT/settings.json' with { type: 'json' };
 import ptShell from '../../../packages/app/src/messages/pt-PT/shell.json' with { type: 'json' };
+import germanyPt from '../../../packages/content/i18n/pt-PT/jurisdictions/de.json' with { type: 'json' };
 import portugalPt from '../../../packages/content/i18n/pt-PT/jurisdictions/pt.json' with { type: 'json' };
-import germany from '../../../packages/content/jurisdictions/de.json' with { type: 'json' };
 import portugal from '../../../packages/content/jurisdictions/pt.json' with { type: 'json' };
 import { seedPlan } from './seed';
 import { routeFixturePrices, test } from './support';
@@ -196,7 +196,9 @@ async function seedBuying(page: Page) {
 test.describe('English content text on a pt-PT screen', () => {
   test.use({ serviceWorkers: 'block' });
 
-  test("Learn's DE card marks its English text and says so; PT's translated text takes no lang", async ({
+  // Every profile has a pt-PT file since Germany's and Spain's (2026-11-17), so no card reaches a pt-PT screen in
+  // English; the component test in country-card.test.tsx holds an English profile's lang="en" and its line.
+  test("Learn's DE and PT cards show their translated text with no lang and no English line", async ({
     page,
   }, testInfo) => {
     // biome-ignore lint/suspicious/noSkippedTests: a runtime skip outside the two named projects, not a disabled test
@@ -204,9 +206,10 @@ test.describe('English content text on a pt-PT screen', () => {
     await bootIn(page, 'pt-PT');
     await page.goto('/learn/countries/de');
     await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
-    await expect(ptRulesText(page, germany.card.holdingRuleText)).toHaveAttribute('lang', 'en');
-    await expect(ptRulesText(page, germany.card.summary60)).toHaveAttribute('lang', 'en');
-    await expect(page.getByText(ptLearn.card.inEnglish)).toBeVisible();
+    const germanSummary = ptRulesText(page, germanyPt.card.summary60);
+    await expect(germanSummary).toBeVisible();
+    await expect(germanSummary).not.toHaveAttribute('lang', /./);
+    await expect(page.getByText(ptLearn.card.inEnglish)).toHaveCount(0);
 
     await page.goto('/learn/countries/pt');
     await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
