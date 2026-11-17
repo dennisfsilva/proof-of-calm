@@ -367,15 +367,16 @@ export function learnPlugins(options: LearnPluginOptions): PluginOption[] {
       return compile.config(config, env);
     },
     async transform(code, id) {
-      // A translation's h2s take the h2 texts of the English module on disk now (`sourceHeadings`); the compiler
-      // watches that file, so under `pnpm dev` an English edit compiles the translation again.
+      // A translation's h2s take the h2 texts of the English module on disk now (`sourceHeadings`). The compiler
+      // watches that file even while it does not parse, so under `pnpm dev` an English edit or fix compiles the
+      // translation again; a broken English file leaves the translation its own ids, and fails the virtual module.
       const path = id.split('?')[0] ?? id;
       const dirs = { translations: translationsOf(options), english: options.dir };
       const english = MDX_FILE.test(path) ? await englishModuleOf(path, dirs, options.parseModule) : undefined;
       if (english !== undefined) this.addWatchFile(english.file);
-      const result = await (english === undefined
-        ? compile
-        : mdx({ development, remarkPlugins: [closed, sourceHeadings(blankFrontMatter(english.source))] })
+      const result = await (english?.parsed === true
+        ? mdx({ development, remarkPlugins: [closed, sourceHeadings(blankFrontMatter(english.source))] })
+        : compile
       ).transform(code, id);
       if (result === undefined) return null;
       const { map } = result;
