@@ -251,7 +251,7 @@ Out of scope for part 2: the skill and CONTENT-OPS clause (part 3), the plan-cre
 messages' copy, reading words. If the content review guard in CI refuses the noise.mdx edit in a session PR, move that
 line to its own PR before part 2.
 
-## Amendments, 2026-11-17
+## Amendments 1 to 5, 2026-11-17
 
 A second judge read part 2's design against #318 before it was built; these amend the decision and the design note
 above.
@@ -275,9 +275,9 @@ above.
 
 A template sentence that holds a percentage or a drawdown date passes only when it matches one of the closed shapes
 CONTENT-STYLE §4 lists, as a whole. Anything else is `figure-form` when it holds a drawdown date and `figure-unclassed`
-otherwise, and a new wording needs a new reviewed shape. The validator lands with main's template pins kept; a later
-PR removes a pin only with D13's mutation table.
+otherwise, and a new wording needs a new reviewed shape. A fall names its coin, so F1 takes no `It` (amendment 2). The
+validator lands with main's template pins kept; a later PR removes a pin only with D13's mutation table.
 
 This replaces amendment 6, the word lists a reader allowed around a figure, which never reached main: its second review
-found wordings one step past those lists that passed as exact (#334, D1). The shapes read no neighbouring words, so
+found wordings one step past those lists that the reader still passed (#334, D1). A shape matches the whole sentence, so
 those wordings fail.

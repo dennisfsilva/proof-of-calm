@@ -52,8 +52,8 @@ not buy (`drawdown-unknown-coin`), drawdown rows that are not one per coin in th
 (`drawdown-coins`) and a fall of 0 or of more than 100 percent
 (`drawdown-fall-out-of-range`). In the English explanation, `src/template-figures.ts` reads each sentence that holds
 a percentage or a drawdown date against the closed shapes of `docs/CONTENT-STYLE.md` §4 (F1, F2 and S1 to S4), whole.
-It refuses a dated sentence that matches neither fall shape, or a fall that names another row's coin, or a coin
-given two shares (`figure-form`), a figure other than its row's fall or its coin's share (`figure-mismatch`) and a
+It refuses a dated sentence that matches neither fall shape, a fall that names another row's coin, or a coin given
+two shares (`figure-form`), a figure other than its row's fall or its coin's share (`figure-mismatch`), and a
 percentage in a sentence of no shape (`figure-unclassed`). Each detail quotes the sentence and names the figure, its
 coin, the row's fall or the coin's share, and the rule. A translation's figures are tied to English's by
 `overlay-number-mismatch`. The cycles file takes the same drawdown checks against the catalogue's
