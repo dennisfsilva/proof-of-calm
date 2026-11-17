@@ -3,6 +3,7 @@ import {
   type ContentDrawdown,
   countryRules,
   fillTemplateDates,
+  formatPercentTokens,
   loadProfile,
   loadTemplateTexts,
   paragraphsOf,
@@ -26,6 +27,7 @@ vi.mock('@proofofcalm/content', async (original) => {
   const content = await original<typeof import('@proofofcalm/content')>();
   return {
     ...content,
+    formatPercentTokens: vi.fn(content.formatPercentTokens),
     get TEMPLATES() {
       const byId = literalRows.byId;
       return byId === null
@@ -270,6 +272,17 @@ describe('TemplateStep', () => {
       const german = createFormatters('de-DE', 'en-GB');
       const paragraphs = await shown('A first paragraph.\r\n\r\nBitcoin takes 97 % of each amount.', german);
       expect(paragraphs).toEqual(['A first paragraph.', `Bitcoin takes 97${NO_BREAK}% of each amount.`]);
+    });
+
+    it('formats the token the content check accepts, read through formatPercentTokens (25r G)', async () => {
+      const german = createFormatters('de-DE', 'en-GB');
+      vi.mocked(formatPercentTokens).mockClear();
+      const paragraphs = await shown('Bitcoin takes 60 % of each amount;\n40\t% goes into Ethereum.', german);
+      expect(paragraphs).toEqual([`Bitcoin takes 60${NO_BREAK}% of each amount; 40${NO_BREAK}% goes into Ethereum.`]);
+      expect(vi.mocked(formatPercentTokens)).toHaveBeenCalledWith(
+        'Bitcoin takes 60 % of each amount; 40 % goes into Ethereum.',
+        expect.any(Function),
+      );
     });
 
     it('keeps the live cycle-plan and two-coins panels at 3 and 2 paragraphs, each as before', async () => {
