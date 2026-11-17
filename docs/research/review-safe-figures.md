@@ -302,3 +302,44 @@ shows it. Rounds 3 and 4 of #340 found wording hidden where the checker split pa
 ordinary space, read by the shapes, the `percent-token` check and the template step from
 `packages/content/src/percent-token.ts`. Before, the shapes took U+00A0, U+202F or nothing, which the app showed as
 typed (#343).
+
+## Amendment 8, 2026-11-17
+
+The module rules are CONTENT-STYLE §4 R5 and R6 (`packages/content/src/module-figures.ts`), on closed shapes as the
+templates' are (amendment 7). A judge read both designs of #349 and merged them. The chart's section is read on the page
+the build's compiler gives, never on the MDX source a second time. A sentence there that holds a trigger (a number
+character, a percentage, a number word, a month, a currency sign or a coin the chart draws) passes only as B, a bound
+on one coin's falls, or E, each coin's falls in the chart's order, as a whole. Anything else is `figure-chart`, and a
+row no sentence states is `figure-unstated`. The page marks a paragraph's emphasis, strong, code spans, hard breaks,
+text elements and removed hidden characters (`pageOf`'s `marks`), and the rule refuses a trigger beside any of them.
+A figure meets `%` only through the joiners the app formats (`MODULE_PERCENT_JOINERS`). A translation's section fails
+closed until its language has shapes. `pnpm validate:content` takes the root it reads as an argument, and a test runs
+it on a copy with a chart row changed. The PR removes no pin.
+
+R7 (`figure-fact`: the module's other figures, and the idea's and the caveat's, against its listed facts) moves after
+M2. Its trigger was open. A date written "17 June 2025" or "June 17, 2025" passed it, and so did money written "USD 9
+billion". A bound word other than "more than" and "less than", a fact's figure under the wrong coin or window, and a
+count, a year or a figure in words passed it too. R7's PR names the date and money forms a module may hold and refuses
+the rest; until then the copy review (`docs/LEGAL.md` §6) reads those figures.
+
+Holes accepted with it:
+
+1. A sentence with no trigger passes in any paragraph of the section: a hedge (`Or so it seems.`), a projection by
+   pronoun (`It may fall that far again.`), a superlative without a coin. The copy review (`docs/LEGAL.md` §6 Q6)
+   reads it.
+2. `one`, `a`, `each`, `every`, `all`, `both`, `last`, `several`, `few`, `many`, `most`, a date or amount in words
+   outside the lists (`last spring`, `dollars`) and Roman numerals in letters (`IX`) stay prose.
+3. A catalogue coin the chart does not draw, named in a sentence with no other trigger, passes.
+4. The lists are English: another language's number word or month inside an English module passes.
+5. A true, weaker statement passes: a lower `N`, or a second bound over rows another bound counts.
+6. A chart figure moved under the next heading leaves the section. Its rows get `figure-unstated`, and nothing reads
+   the moved sentence until R7.
+7. A translated chart section fails closed until its language's shapes land.
+8. A chart other than `drawdowns-bar` has no rows, so any figure in its section fails.
+9. Loud false failures: any wording outside B and E (a label, a ticker, a verb in a later clause, `from 2011 to 2022`,
+   years in E). Each needs a reviewed shape.
+10. A mark or hidden character refuses its whole figure paragraph, and a refused sentence's coins also get
+    `figure-unstated`.
+11. The rows are whole (`drawdown-fall-not-whole`), so the rule compares exactly. A decimal row fails both checks.
+12. In the Cycles list a figure moved to another line passes: no rule reads that list until R7's PR, and the cycles
+    test holds only the 2017 line.
