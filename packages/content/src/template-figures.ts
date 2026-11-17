@@ -1,5 +1,5 @@
 // A template's figures against its rows and split (docs/CONTENT-STYLE.md §4, R1 to R4). A sentence that holds a
-// percentage or a drawdown date passes only when it matches one of the closed shapes below as a whole. A shape matches
+// percentage or a drawdown date passes only when it matches one of the closed shapes below. A shape matches
 // the whole sentence, so a wording one step past the shapes fails, and a new wording needs a new reviewed shape
 // (docs/research/review-safe-figures.md, amendment 7). English only: overlay-number-mismatch ties a translation's
 // figures to these.
@@ -14,11 +14,12 @@ type Figures = {
 type Shape = 'F1' | 'F2' | 'S1' | 'S2' | 'S3' | 'S4';
 
 const DATED = /\{date:drawdowns\./;
-// "per" and "cent" joined by nothing, any space or a hyphen; "percentage" only after a numeral, so that the bare word
-// in a sentence of no figure stays unclassed by R4.
-const WORD = 'per(?:\\s+|[\\u2010\\u2011-])?cent\\b';
-const PERCENT = new RegExp(`[%٪﹪％]|\\b${WORD}|\\d\\s*percentage`, 'iu');
-const WRITTEN = new RegExp(`\\d+(?:[.,]\\d+)?\\s*(?:[%٪﹪％]|${WORD}|percentage)`, 'giu');
+// The trigger is a closed set: the four signs, or "per" and "cent" joined by nothing, any space, or a hyphen, at the
+// start of a word or after a digit, with nothing required after "cent": percent, per cent, percentage(s) all count.
+const JOIN = '(?:\\s+|[\\u002D\\u2010\\u2011])?';
+const SIGN_OR_WORD = `[%٪﹪％]|(?<![\\p{L}\\p{M}])per${JOIN}cent(?:ages?)?`;
+const PERCENT = new RegExp(SIGN_OR_WORD, 'iu');
+const WRITTEN = new RegExp(`\\d+(?:[.,]\\d+)?${JOIN}(?:${SIGN_OR_WORD})`, 'giu');
 const PLACEHOLDER = /\{date:drawdowns\.([^.{}]+)\.(?:high|low)\}/gu;
 const LEAD = '(?:What can go wrong: )?';
 const N = '\\d{1,3}[   ]?%';
