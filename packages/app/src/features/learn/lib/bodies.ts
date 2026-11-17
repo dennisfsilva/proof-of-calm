@@ -57,15 +57,18 @@ export function useModuleBody(slug: string, language: ContentLanguage): ShownMod
   useEffect(() => {
     if (!fellBack || promise === undefined || load === undefined || english === undefined) return undefined;
     // The fallback may be one a render left that never committed, so no cleanup dropped it: load once more, keeping
-    // English on screen, and drop the fallback when this mount leaves, so the next one loads afresh.
+    // English on screen, and drop the fallback when this mount leaves, so the next one loads afresh. A retry whose
+    // effect was cleaned up (an unmount, or StrictMode's second run) neither keeps its answer nor dispatches.
+    let cancelled = false;
     if (!kept.has(key)) kept.set(key, promise);
     const again = translationOf(load, language, english);
     void again.then((next) => {
-      if (next.language !== language) return;
+      if (cancelled || next.language !== language) return;
       kept.set(key, again);
       startTransition(retried);
     });
     return () => {
+      cancelled = true;
       if (kept.get(key) === promise) kept.delete(key);
     };
   }, [fellBack, promise, load, english, language, key]);
