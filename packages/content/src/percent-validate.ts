@@ -142,10 +142,26 @@ export const escaped = (text: string) =>
 const typed = (text: string) => escaped(JSON.stringify(text));
 
 /**
+ * The decimals of a money figure, or `undefined` when every mark in it groups. D2 as amended (2026-11-17, #316): the
+ * figure's structure decides first. A point and a comma together make the last mark the decimal. A mark written twice
+ * groups. A lone mark after a space group or four digits, or before four digits, is the decimal. Only then does D2's
+ * rule read it: one or two digits after it, or a whole part of 0, are decimals; three after 1 to 3 digits are a group.
+ */
+function decimalsOf(figure: string): string | undefined {
+  const at = Math.max(figure.lastIndexOf('.'), figure.lastIndexOf(','));
+  const [head, tail, marks] = [figure.slice(0, at), figure.slice(at + 1), figure.replace(/[^.,]/g, '')];
+  if (at < 0 || !/^\d+$/.test(tail)) return undefined;
+  if (marks.includes('.') && marks.includes(',')) return tail;
+  if (marks.length > 1) return undefined;
+  if (!/^\d{1,3}$/.test(head) || tail.length !== 3) return tail;
+  return head === '0' ? tail : undefined;
+}
+
+/**
  * Each money figure in `texts` grouped otherwise than a comma-decimal page writes it (decided 2026-11-16,
  * docs/CONTENT-STYLE.md §4): a no-break space between groups of three from 10 000, none below, a comma before the
- * cents (`EUR 12,50`; a point's cents move after a comma, so the value stays). Under a point-decimal locale
- * (`£37,700`) the locale's grouping stands, so nothing is read.
+ * cents (`EUR 12,50`, never `EUR 12.50`). Under a point-decimal locale (`£37,700`) the locale's grouping stands, so
+ * nothing is read.
  */
 function groupProblems(path: string, locale: string, texts: readonly [string, string][]): Problem[] {
   if (decimalSeparator(locale) !== ',') return [];
@@ -154,11 +170,9 @@ function groupProblems(path: string, locale: string, texts: readonly [string, st
       // A currency after the figure is only looked at, so `2026 EUR 20,350` still reads the figure after the code.
       const [matched, before, after, currency = ''] = match;
       const [figure = '', excerpt] = [before ?? after, `${matched}${currency}`];
-      // D2 (decided 2026-11-17): the digits after the last mark are decimals when there are one or two, or when the whole
-      // part is 0, since no group starts with 0; else every mark groups (`EUR 1.125` is 1125, `EUR 0.125` keeps 0,125).
-      const [, head = '', tail] = /^(.*)[.,](\d+)$/.exec(figure) ?? [];
-      const cents = tail !== undefined && (tail.length < 3 || head === '0') ? tail : undefined;
-      const whole = cents === undefined ? figure : head;
+      // `EUR 1.125` is 1125, `EUR 0.125` keeps 0,125, `EUR 1.250,125` is 1250,125 and `EUR 1000,125` stands.
+      const cents = decimalsOf(figure);
+      const whole = cents === undefined ? figure : figure.slice(0, -cents.length - 1);
       const expected = `${grouped(whole.replace(/\D/g, ''))}${cents === undefined ? '' : `,${cents}`}`;
       if (expected === figure) return [];
       const detail = `${field}: ${typed(excerpt)} expected ${typed(excerpt.replace(figure, expected))} (${locale})`;

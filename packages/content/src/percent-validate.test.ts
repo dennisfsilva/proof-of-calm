@@ -76,7 +76,10 @@ describe('a profile’s money figures group as its comma-decimal page does (docs
   });
 
   // Each refused figure and the one the check suggests in its place, both as the text writes them (decided 2026-11-17,
-  // D2 of #316): one or two digits after the last mark, or a whole part of 0, are decimals; any other mark groups.
+  // D2 of #316, amended after its review): the figure's structure decides first, the three-digit rule only what it
+  // leaves open. A point and a comma together make the last one the decimal; a mark written twice groups; a lone mark
+  // after a group or four digits, or before four digits, is the decimal; else one or two digits after the last mark, or
+  // a whole part of 0, are decimals and three digits group.
   const suggested: readonly [string, string][] = [
     ['EUR 0.125', 'EUR 0,125'],
     ['EUR 0.05', 'EUR 0,05'],
@@ -87,16 +90,25 @@ describe('a profile’s money figures group as its comma-decimal page does (docs
     ['EUR 1.234,56', 'EUR 1234,56'],
     ['EUR 20.350,5', `EUR 20${nbsp}350,5`],
     ['EUR 12.50', 'EUR 12,50'],
+    ['EUR 1,250.125', 'EUR 1250,125'],
+    ['EUR 1.250,125', 'EUR 1250,125'],
+    ['EUR 12.345,678', `EUR 12${nbsp}345,678`],
+    ['EUR 1.234.567', `EUR 1${nbsp}234${nbsp}567`],
+    ['EUR 20 350,125', `EUR 20${nbsp}350,125`],
+    ['EUR 1.2345', 'EUR 1,2345'],
+  ];
+  // Each figure the page writes as it should: its grouping, a decimal comma, an identifier, a citation.
+  const passed = [
+    ...[`EUR 20${nbsp}350`, `EUR 277${nbsp}826`, 'EUR 1000', 'EUR 600', 'EUR 12,50', 'PIV 28969', 'Modelo 721'],
+    ...['art. 33.1', '§3.2.1', 'EUR 0,125', 'EUR 0,05', 'EUR 0,0125', '0,125 EUR'],
+    ...[`EUR 20${nbsp}350,125`, 'EUR 1000,125', '1000,125 EUR', 'EUR 1,2345', `EUR 12${nbsp}345,678`],
   ];
 
-  it('suggests the same value: a whole part of 0 or one or two digits keep their decimals, other marks group', () => {
+  it('suggests the same value: the structure decides, then one or two digits or a 0 keep their decimals', () => {
     for (const [figure, expected] of suggested) {
-      expect(german(`Up to ${figure} a year.`)).toEqual([
+      expect(german(`Up to ${figure} a year.`), figure).toEqual([
         `card.rates.1.note: "${figure}" expected ${escaped(JSON.stringify(expected))} (de-DE)`,
       ]);
-    }
-    for (const figure of ['EUR 0,125', 'EUR 0,05', 'EUR 0,0125', '0,125 EUR']) {
-      expect(german(`Up to ${figure} a year.`)).toEqual([]);
     }
   });
 
@@ -106,27 +118,27 @@ describe('a profile’s money figures group as its comma-decimal page does (docs
       ...['EUR 20,350', 'EUR 20.350', 'EUR 1,000', 'EUR 1.000', 'EUR 20350', `EUR 1${nbsp}000`, 'EUR 20 350'],
       ...[`EUR 20${narrow}350`, '20 350 EUR', '50.000 €', '20,350 euros', '20350 €', '€20,350.50', 'EUR 1.000.000'],
     ];
+    const expectedOf = new Map(suggested);
     for (const figure of refused) {
       const [detail = ''] = german(`Up to ${figure} a year.`);
       const suggestion = /expected ("(?:[^"\\]|\\.)*")/.exec(detail)?.[1] ?? '""';
       expect(suggestion, figure).not.toBe('""');
-      expect(german(`Up to ${JSON.parse(suggestion) as string} a year.`), figure).toEqual([]);
+      // The pasted text is the decoded one: real U+00A0 characters, no escape left in it.
+      const pasted = JSON.parse(suggestion) as string;
+      expect(pasted, figure).not.toContain(String.fromCodePoint(0x5c));
+      if (expectedOf.has(figure)) expect(pasted, figure).toBe(expectedOf.get(figure));
+      expect(german(`Up to ${pasted} a year.`), figure).toEqual([]);
+    }
+    expect([...(expectedOf.get('EUR 12.345,678') ?? '')].map((char) => char.codePointAt(0))).toContain(0xa0);
+  });
+
+  it('raises no problem at all on any figure the page writes as it should', () => {
+    for (const figure of passed) {
+      expect(localeProblems(path, de, [['card.rates.1.note', `Up to ${figure} a year.`]]), figure).toEqual([]);
     }
   });
 
-  it('passes the page’s grouping, a decimal comma, an identifier and a citation, and a point-decimal page’s commas', () => {
-    const passed = [
-      `EUR 20${nbsp}350`,
-      `EUR 277${nbsp}826`,
-      'EUR 1000',
-      'EUR 600',
-      'EUR 12,50',
-      'PIV 28969',
-      'Modelo 721',
-      'art. 33.1',
-      '§3.2.1',
-    ];
-    for (const figure of passed) expect(german(`Up to ${figure} a year.`)).toEqual([]);
+  it('passes a point-decimal page’s commas', () => {
     expect(groups(localeProblems(path, gb, [['card.allowances.0', 'A £37,700 band and GBP 3,000.']]))).toEqual([]);
   });
 
