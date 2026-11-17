@@ -179,12 +179,21 @@ For each profile in `packages/content/jurisdictions/`:
    fetches, 3 runs). Prefer `pdf.ts`'s `.txt` for a PDF.
    Write a profile's percentage, in English too, in its page's number format. The page's number
    locale is `numberLocaleFor('en', profile)`: the profile's locale in English if it has one, else
-   its `numberFormatLocale` (`docs/CONTENT-STYLE.md` §4). So Germany writes `5,5 %`, Portugal
-   `12,2%` and Britain `12.2%`, each figure of a range too (`12,2–48%`). `pnpm run validate:content`
-   refuses any other separator (a point in Germany or Portugal, a comma in Britain), for example
+   its `numberFormatLocale` (`docs/CONTENT-STYLE.md` §4). So, for example, Germany writes `5,5 %`
+   with its no-break space (`\u00a0` in the JSON, as the file writes it), Portugal `12,2%` and
+   Britain `12.2%`, each figure of a range too (`12,2–48%`). The joiner is the locale's: a no-break
+   space in Germany, none in Portugal or Britain; `percent-joiner` refuses any other.
+   `pnpm run validate:content` refuses any other separator (a point in Germany or Portugal, a comma
+   in Britain), for example
    `decimal-separator: <field>: "12.3%" writes ".", expected "," (pt-PT)`; write the separator the
-   message expects. A figure that is not a percentage or part of a percentage range (`EUR 20,350`, a
-   law's `art. 33.1`), and every figure of a template or a fact, keeps English separators.
+   message expects. On the comma-decimal pages CONTENT-STYLE §4 lists, Germany's and Portugal's, a
+   profile's other figures take the page's form too: a figure of 10 000 or more groups its digits in
+   threes with a no-break space (`EUR 20 350`, `\u00a0` in the JSON), a smaller one takes
+   none (`EUR 1000`), and a decimal takes the comma; `number-group` refuses any other. Britain,
+   Ireland and the US keep their locale's grouping (`£37,700`). On every page a currency code
+   joins its figure with a no-break space (`figure-join`); §1 says how to fix each refusal. A
+   law's number keeps its point (`art. 33.1`), and every figure of a template or a fact keeps
+   English separators.
 3. Set the entry's `accessed` to the day you read the source. Set `status.confidence` and give its
    one-line reason in the draft's `reviewed[].reason` for that file.
 4. Never set `lastReviewed` or `nextReviewDue`; the finish refuses a change to either. Set
