@@ -215,7 +215,13 @@ generated rules files of each language.
   the figure's value (amended 2026-11-17 by #318's design check, D10 of #316): only a figure with
   one value, read as English writes numbers and as the page does, gets the page's form; a figure
   the two read as different values (`EUR 20,350`, `EUR 1.125`), one neither reads and a range not
-  already in the page's form get §4's rule and no suggestion. CONTENT-STYLE §4 owns the reading. A summary counts a grouped
+  already in the page's form get §4's rule and no suggestion. CONTENT-STYLE §4 owns the reading.
+  The number check names no computed fix for a translated figure (2026-11-17, D16 of #318): its
+  detail names the mismatch and English's figures as written, and the translator copies English's
+  figure. A fix picked from English's figures by value named one the translation already held
+  (`write 1` beside `1 pessoa`) and withheld the right one, so each review round found one more
+  case. Brand's point to name the fix where English's own figure is refused is declined under D16
+  (D6 of #322): `number-group` reports that figure on the English file in its own words. A summary counts a grouped
   figure as one word. Britain, Ireland, and the US keep theirs
   (`£37,700`), in English and in every translation. Decided by the unanchored design check of the
   grouped figures (`docs/research/grouped-figures.md`).

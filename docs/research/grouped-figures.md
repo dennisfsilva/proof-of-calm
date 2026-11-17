@@ -65,3 +65,13 @@ English and the page's, read one value; B let English decide `EUR 20,350` in an 
 rule with B's structural readers (D6). B's English reading turned `EUR 1,125`, the comma decimal §4 asks for, into
 1125, while the number check reads it as 1,125. 118 test rows and a 50 000-text fuzz against a separate regex reader
 found no suggestion that changes a value.
+
+## The overlay check's detail (2026-11-17)
+
+The overlay check once named a fix for a translated figure with a point: English's figure of the same value, printed
+only when `number-group` passed it (D15 of #318). Round 2 found it picked from every English figure by value, the
+ones the translation already held among them: English `EUR 1500 … for 1 person` against `EUR 1.000 … 1 pessoa`
+printed `write 1`, refused again, and withheld the right fix. Each round had found one more such case, so D16 of #318
+removed the fix: the detail names the mismatch and both texts' figures as written (`1.000 1, English 1500 1`), and
+the translator copies English's figure (ADR-0057). Brand's later point, to name the fix where English's own figure is
+refused, is declined under D16 (D6 of #322), since `number-group` reports that figure on the English file.
