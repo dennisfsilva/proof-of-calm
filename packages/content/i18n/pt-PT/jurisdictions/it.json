@@ -52,7 +52,7 @@
     "losses": "As menos-valias compensam mais-valias da mesma natureza no ano; o excedente reporta-se até ao quarto ano seguinte, se constar da declaração do ano em que surgiu (art. 68 c. 9-bis TUIR, como as Istruzioni o indicam).",
     "reporting": [
       "Quadro\u00a0RT sezione V-A do Modello Redditi Persone fisiche 2026 (quadro\u00a0T do 730) para mais-valias e outros rendimentos realizados até 31 de dezembro de 2025, tributados a 26% (art. 67 c. 1 lett. c-sexies TUIR).",
-      "Quadro\u00a0RW para moedas detidas, em qualquer carteira. Imposto anual de 0,2% (imposta sulle cripto-attività, código 21 na colonna 3, codice tributo 1727) sobre o valor a 31 de dezembro, salvo se um intermediário aplicou o imposto do selo."
+      "Quadro\u00a0RW para moedas detidas, em qualquer carteira. Imposto anual de 0,2% (imposta sulle cripto-attività, código 21 na colonna 3, codice tributo 1727) sobre o valor a 31 de dezembro, salvo quando um intermediário aplica o imposto do selo."
     ],
     "caveats": [
       "Que trocas contam como feitas entre criptoativos com as mesmas características e funções.",
@@ -63,7 +63,7 @@
       "A lei do orçamento de 2027, no Parlamento a 5 de novembro de 2026.",
       "Prova do custo: um custo sem prova conta como zero."
     ],
-    "summary60": "Itália: mais-valias à taxa fixa de 33% desde 1 de janeiro de 2026 (26% em 2025), sem franquia nem exclusão por detenção. A troca por criptoativo semelhante não é tributada; a venda por euros ou tokens de moeda eletrónica, sim. Último a entrar, primeiro a sair. Menos-valias reportam-se 4 anos. Moedas detidas declaradas anualmente (Quadro\u00a0RW, 0,2% do valor)."
+    "summary60": "Itália: mais-valias à taxa fixa de 33% desde 1 de janeiro de 2026 (26% em 2025), sem franquia nem exclusão por detenção. A troca por criptoativo semelhante não é tributada; a venda por euros ou tokens de moeda eletrónica, sim. Último a entrar, primeiro a sair. Menos-valias reportam-se 4 anos. Moedas detidas declaradas anualmente (Quadro\u00a0RW, imposto de 0,2%)."
   },
   "pendingChanges": [
     {

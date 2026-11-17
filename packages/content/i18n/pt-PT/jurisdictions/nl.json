@@ -3,7 +3,7 @@
   "filingNote": "Ano civil. A declaração entrega-se até à data indicada na carta da Belastingdienst, muitas vezes 1 de maio do ano seguinte; para a de 2025, se recebeu essa carta, um pedido antes de 1 de maio de 2026 adia o prazo para 1 de setembro de 2026.",
   "lotRuleNote": "Nenhuma venda se associa a uma compra: a box 3 tributa o valor detido a 1 de janeiro, não o resultado de uma venda.",
   "card": {
-    "classification": "Box\u00a03: os criptoativos contam entre os bens pelo valor a 1 de janeiro. Tributa-se um rendimento presumido desse valor, não o ganho de uma venda. Se um trabalho extra além de investir rende muitas vezes rendimento extra, este é declarado.",
+    "classification": "Box\u00a03: os criptoativos contam entre os bens pelo valor a 1 de janeiro. Tributa-se um rendimento presumido desse valor, não o ganho de uma venda. Se um trabalho extra além de investir gera muitas vezes rendimento extra, este é declarado.",
     "taxableEvents": [
       {
         "note": "Não é tributada como venda: quando investe e especula sobre o preço, o produto das negociações não se declara. O valor detido a 1 de janeiro conta na box\u00a03."
