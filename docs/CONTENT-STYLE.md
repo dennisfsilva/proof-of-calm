@@ -452,7 +452,7 @@ tax-year file's lines (the `settings` messages under `data.taxYear.file`) and a 
 `figure-join` skips (decided 2026-11-17). A holding condition shows on screens and the file copies it as written, so it takes U+2011.
 Facts and documents keep U+002D, and a document quotes copy with it.
 A law's number takes U+2011 between its digits and its letter in text shown on screen (`Lei 24‑D/2022`), so it
-does not break at the hyphen. A source's title, a fact and a document keep U+002D, as the source writes it.
+does not break at the hyphen. A source's title keeps U+002D too, as the source writes it.
 
 ## 5. Education modules
 
