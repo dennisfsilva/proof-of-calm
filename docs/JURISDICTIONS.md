@@ -194,9 +194,10 @@ the classification, the taxable events and the allowances, which have no `ruleSo
 A source's `lang` is the language its title is written in, not the country's: an HMRC title is `en`, a
 Bundesfinanzhof title `de`, and a profile may hold sources in more than one. The card's foot marks each
 source link with it, whatever the screen's language (WCAG 2.2 SC 3.1.2); the publisher line under it is the
-app's and carries no mark. Neither `locales` nor a profile-level field gives it (decided 2026-11-17): `XX`'s
-`locales` is `und`, and one profile-level value would mark a title in another language wrong. A pending
-change's source has no `lang`, since the card shows no pending change.
+app's sentence around a proper name, which SC 3.1.2 exempts, and carries no mark. Neither `locales` nor a
+profile-level field gives it (decided 2026-11-17): `XX`'s `locales` is `und`, and one profile-level value
+would mark a title in another language wrong. A pending change's source has no `lang`, since the card shows
+no pending change.
 
 Holding-rule overrides are built when the first profile needs one (decided 2026-10-30): the early-window
 check and `saleWarning`'s per-lot effect do not apply them yet (`docs/ROADMAP.md` M2, "Carried from M1"),
