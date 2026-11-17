@@ -5,6 +5,7 @@ import {
   fillTemplateDates,
   loadProfile,
   loadTemplateTexts,
+  paragraphsOf,
   TEMPLATES,
 } from '@proofofcalm/content';
 import { decimal } from '@proofofcalm/core';
@@ -215,9 +216,9 @@ describe('TemplateStep', () => {
     await pick(two.name);
     expect(controls()).toHaveLength(1);
     expect(controls()[0]?.getAttribute('aria-expanded')).toBe('false');
-    const paragraphs = fillTemplateDates(two.explanation, two.dates, british.date)
-      .split('\n\n')
-      .map((paragraph) => paragraph.replaceAll(' %', '%'));
+    const paragraphs = paragraphsOf(fillTemplateDates(two.explanation, two.dates, british.date)).map((paragraph) =>
+      paragraph.replaceAll(' %', '%'),
+    );
     expect(screen.queryByText(paragraphs[0] ?? '')).toBeNull();
     const panel = await openPanel();
     expect(controls()[0]?.getAttribute('aria-expanded')).toBe('true');
@@ -227,9 +228,66 @@ describe('TemplateStep', () => {
     await pick(cycle.name);
     expect(controls()).toHaveLength(1);
     expect(controls()[0]?.getAttribute('aria-expanded')).toBe('false');
-    expect((await openPanel()).querySelectorAll('p')).toHaveLength(cycle.explanation.split('\n\n').length);
+    expect((await openPanel()).querySelectorAll('p')).toHaveLength(paragraphsOf(cycle.explanation).length);
     await pick(OWN);
     expect(controls()).toHaveLength(0);
+  });
+
+  describe('renders the paragraphs the figures check reads (paragraphsOf, round 5 of #340)', () => {
+    /** The panel's paragraphs for an English explanation put in place of two-coins' own. */
+    async function shown(explanation: string, format: Formatters = british) {
+      const two = offered('two-coins');
+      const texts = new Map([['two-coins', { ...two, explanation }]]);
+      render(
+        <I18nProvider messages={{ onboarding, shell }}>
+          <TemplateStep
+            value={{ kind: 'template', id: 'two-coins' }}
+            format={format}
+            texts={texts}
+            onChoose={vi.fn()}
+            onBack={vi.fn()}
+          />
+        </I18nProvider>,
+      );
+      return [...(await openPanel()).querySelectorAll('p')].map((each) => each.textContent);
+    }
+
+    it.each(['\n \n', '\r\n\r\n', '\n\t\n', '\n\n\n', '\n\n\n\n'])(
+      '%j ends a paragraph, as the check reads it, with no empty one and no duplicate key',
+      async (separator) => {
+        const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+        const explanation = `A first paragraph.${separator}A second paragraph.`;
+        const paragraphs = await shown(explanation);
+        const logged = error.mock.calls.flat().map(String).join('\n');
+        error.mockRestore();
+        expect(paragraphs).toEqual(paragraphsOf(explanation));
+        expect(paragraphsOf(explanation)).toEqual(['A first paragraph.', 'A second paragraph.']);
+        expect(logged).not.toMatch(/same key/);
+      },
+    );
+
+    it('still writes a percentage after a \\r\\n\\r\\n break with format.percent', async () => {
+      const german = createFormatters('de-DE', 'en-GB');
+      const paragraphs = await shown('A first paragraph.\r\n\r\nBitcoin takes 97 % of each amount.', german);
+      expect(paragraphs).toEqual(['A first paragraph.', `Bitcoin takes 97${NO_BREAK}% of each amount.`]);
+    });
+
+    it('keeps the live cycle-plan and two-coins panels at 3 and 2 paragraphs, each as before', async () => {
+      for (const [id, count] of [
+        ['cycle-plan', 3],
+        ['two-coins', 2],
+      ] as const) {
+        const template = offered(id);
+        mount({ kind: 'template', id });
+        const before = fillTemplateDates(template.explanation, template.dates, british.date)
+          .split('\n\n')
+          .map((paragraph) => paragraph.replaceAll(' %', '%'));
+        const panel = [...(await openPanel()).querySelectorAll('p')].map((each) => each.textContent);
+        expect(panel, id).toHaveLength(count);
+        expect(panel, id).toEqual(before);
+        cleanup();
+      }
+    });
   });
 
   it('writes the explanation’s percentages in the plan’s format', async () => {
