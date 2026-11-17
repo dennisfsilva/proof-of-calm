@@ -391,7 +391,7 @@ percentage beside it, with a word or a spaced dash between them (`art. 33.1 sets
 read as a range). On the pages of Germany, Spain, France, Italy, the Netherlands, and Portugal, a
 profile's figure of 10 000 or more groups its digits in threes with a no-break space (U+00A0,
 `\u00a0` in JSON): `EUR 59 357`. A smaller one takes none: `EUR 1000`. Both hold in English
-and in each translation alike. A decimal in a profile's text there takes the comma, and a point in
+and in each translation. A decimal in a profile's text there takes the comma, and a point in
 it is only a citation's. An identifier keeps its digits plain (`PIV 28969`, `Modelo 721`).
 `pnpm validate:content` refuses other grouping beside a currency code (`number-group`). Britain,
 Ireland, and the US keep their locale's grouping (`£37,700`) (decided 2026-11-16). A figure the app
