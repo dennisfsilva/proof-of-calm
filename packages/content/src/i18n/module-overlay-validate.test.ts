@@ -198,7 +198,7 @@ describe('moduleTranslationProblems', () => {
 
   // #328: Cycles and Taxes where you live in pt-PT; a translated h2 takes English's id by position, so the headings
   // match English's in number. Their bodies' numbers, elements and heading order are read in scripts/closed-body.test.ts.
-  it.each(['cycles'])('passes the real pt-PT %s, with English its headings', (slug) => {
+  it.each(['cycles', 'taxes-where-you-live'])('passes the real pt-PT %s, with English its headings', (slug) => {
     const read = (path: string) => readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8');
     const english = parseModule(`packages/content/learn/${slug}.mdx`, read(`learn/${slug}.mdx`));
     if (!english.ok) throw new Error(`the English ${slug} does not parse`);
