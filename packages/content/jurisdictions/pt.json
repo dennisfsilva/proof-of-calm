@@ -120,7 +120,7 @@
       }
     },
     {
-      "title": "State Budget 2026 (Lei n.º 73-A/2025)",
+      "title": "State Budget 2026 (Lei n.º 73\u2011A/2025)",
       "status": "in-force",
       "effectiveFrom": null,
       "summary": "No change to the taxation of crypto, as reported on the budget; the law itself is still to be read (medium confidence).",
@@ -137,7 +137,7 @@
       "title": "Lower rates in 6\u00a0IRS brackets (Decreto-Lei n.º 212/2026)",
       "status": "in-force",
       "effectiveFrom": "2026-01-01",
-      "summary": "The 28% rate of art. 72(1)(c) does not change. Decreto-Lei n.º 212/2026 of 4 November 2026 (Diário da República n.º 214/2026, Série I), under Lei n.º 64-B/2026 (Proposta de Lei n.º 108/XVII/2.ª), lowers the first 6\u00a0rates of art. 68 n.º 1 CIRS to 12,2%, 15,2%, 20,7%, 23,6%, 30,6%, and 34,6%. In force since 5 November 2026; its preamble applies the cut to 2026 income from 1 January 2026.",
+      "summary": "The 28% rate of art. 72(1)(c) does not change. Decreto-Lei n.º 212/2026 of 4 November 2026 (Diário da República n.º 214/2026, Série I), under Lei n.º 64\u2011B/2026 (Proposta de Lei n.º 108/XVII/2.ª), lowers the first 6\u00a0rates of art. 68 n.º 1 CIRS to 12,2%, 15,2%, 20,7%, 23,6%, 30,6%, and 34,6%. In force since 5 November 2026; its preamble applies the cut to 2026 income from 1 January 2026.",
       "source": {
         "title": "Decreto-Lei n.º 212/2026, de 4 de novembro",
         "url": "https://files.diariodarepublica.pt/1s/2026/11/21400/0000500006.pdf",
@@ -274,7 +274,7 @@
     },
     {
       "key": "pt-lei-64-b-2026",
-      "title": "Lei n.º 64-B/2026, de 22 de outubro (Diário da República n.º 205/2026, Série I, Suplemento)",
+      "title": "Lei n.º 64\u2011B/2026, de 22 de outubro (Diário da República n.º 205/2026, Série I, Suplemento)",
       "url": "https://files.diariodarepublica.pt/1s/2026/10/20501/0000400004.pdf",
       "publisher": "Diário da República",
       "kind": "law",
