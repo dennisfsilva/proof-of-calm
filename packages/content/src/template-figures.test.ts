@@ -316,6 +316,23 @@ describe('a percentage is the one token the app formats: N, an ordinary space, %
     expect(translated('Bitcoin: 40 % de cada montante.')).toEqual([]);
   });
 
+  // Counsel's questions on 25r G: two other ways to write a percentage, each already refused by an existing check.
+  const overlayCodes = (explanation: string) =>
+    validateContent([english, { path: OVERLAY, json: { explanation } }], options)
+      .filter((problem) => problem.path === OVERLAY)
+      .map((problem) => problem.code);
+
+  it('refuses a pt-PT overlay that writes "40 por cento" where English has "40 %"', () => {
+    expect(overlayCodes('Bitcoin: 40 por cento de cada montante.')).toEqual(['overlay-percent-mismatch']);
+  });
+
+  // Arabic-Indic, Extended Arabic-Indic, Devanagari and fullwidth digits for 40.
+  it.each(['٤٠', '۴۰', '४०', '４０'])('refuses the figure %s before "%", in English and in an overlay', (digits) => {
+    const english = validateContent([{ path: PATH, json: four(`Bitcoin: ${digits} % of each amount.`) }], options);
+    expect(english.map(({ code }) => code)).toEqual(['figure-unclassed']);
+    expect(overlayCodes(`Bitcoin: ${digits} % de cada montante.`)).toEqual(['overlay-number-mismatch']);
+  });
+
   it('passes every live template and its overlays', () => {
     const files = [...LIVE.map((name) => ({ path: `packages/content/templates/${name}`, json: live(name) }))];
     const overlays = readdirSync(new URL('../i18n/', import.meta.url)).flatMap((language) =>
