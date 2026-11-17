@@ -135,7 +135,7 @@ const MONEY = new RegExp(
   'g',
 );
 /** A whole figure as a comma-decimal page's profile writes it: groups of three from 10 000, joined by U+00A0. */
-export const grouped = (digits: string) => (digits.length < 5 ? digits : digits.replace(/\B(?=(\d{3})+$)/g, NBSP));
+const grouped =(digits: string) => (digits.length < 5 ? digits : digits.replace(/\B(?=(\d{3})+$)/g, NBSP));
 /** A text with the escapes a writer types in JSON, so a no-break space never looks like a space. */
 export const escaped = (text: string) =>
   text.replace(
@@ -191,7 +191,7 @@ const RULE = `so it has no suggestion: CONTENT-STYLE §4 writes groups of three 
  * nothing is read. Only a single figure with one value gets the page's form as its suggestion; a figure read as two
  * values, as none, or in a range gets §4's rule and no suggestion.
  */
-function groupProblems(path: string, locale: string, texts: readonly [string, string][]): Problem[] {
+export function groupProblems(path: string, locale: string, texts: readonly [string, string][]): Problem[] {
   if (decimalSeparator(locale) !== ',') return [];
   return texts.flatMap(([field, text]) =>
     [...text.replaceAll(URL_IN_TEXT, ' ').matchAll(MONEY)].flatMap((match): Problem[] => {
