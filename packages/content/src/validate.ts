@@ -1,13 +1,14 @@
-// The content gate (docs/CONTENT-OPS.md §1, docs/JURISDICTIONS.md §2): every file against its schema,
-// the 60-word card, owner review, review dates, https and allow-listed sources, unique source keys that every
-// rule's source names, no holding-rule override the core would not apply, split sums, template coins
-// that match the coin catalogue, template drawdowns from dated, allow-listed sources, the cycles file's completed
-// falls in catalogue order, unique fact keys, the Learn modules (modules-validate.ts), a profile's locale tags and
-// percent joiner (percent-validate.ts), the banned-words lint and the no-break hyphen between a number and its unit
+// The content gate (docs/CONTENT-OPS.md §1, docs/JURISDICTIONS.md §2): every file against its schema, the 60-word
+// card, owner review, review dates, https and allow-listed sources, unique source keys that every rule's source names,
+// no holding-rule override the core would not apply, split sums, template coins that match the coin catalogue,
+// template drawdowns from dated, allow-listed sources, one per coin in its order, the English explanation's figures in
+// closed shapes against them and the split (template-figures.ts), the cycles file's completed falls in catalogue
+// order, unique fact keys, the Learn modules (modules-validate.ts), a profile's locale tags and percent joiner
+// (percent-validate.ts), the banned-words lint and the no-break hyphen between a number and its unit
 // (hyphen-validate.ts) on what users read, and a template text's dates as `{date:<field>}` with no month name
-// (template-dates.ts), and no `;` in a text the tax-year header copies (header-validate.ts). Pure: the
-// CLI in scripts/validate.ts reads the files. Relative imports name their .ts files, so that Node runs the
-// CLI without a build step, as tools/ does.
+// (template-dates.ts), and no `;` in a text the tax-year header copies (header-validate.ts). Pure: the CLI in
+// scripts/validate.ts reads the files. Relative imports name their .ts files, so that Node runs the CLI without a
+// build step, as tools/ does.
 import { headerTextProblems, headerTexts, semicolonProblems } from './header-validate.ts';
 import { hyphenProblems } from './hyphen-validate.ts';
 import { changedTexts, isOverlayFile, overlayFileProblems, type TextChecks } from './i18n/overlay-validate.ts';
@@ -23,6 +24,7 @@ import { FactSchema } from './schema/fact.ts';
 import { type CountryProfile, CountryProfileSchema } from './schema/jurisdiction.ts';
 import { type ContentTemplate, TemplateSchema } from './schema/template.ts';
 import { templateDateProblems } from './template-dates.ts';
+import { templateFigureProblems } from './template-figures.ts';
 
 export { percentJoiner } from './percent-validate.ts';
 export type { Problem } from './problem.ts';
@@ -244,7 +246,13 @@ function template(file: ContentFile, catalogue: Catalogue | null, options: Valid
   if (total !== 1_000_000n) problems.push({ path, code: 'split-sum', detail: 'the shares must sum to exactly 100' });
   if (catalogue !== null) problems.push(...catalogueProblems(path, value.coins, catalogue));
   problems.push(...drawdownProblems(path, value.drawdowns, coins, options.allow.facts ?? [], value));
+  // One row per coin, in the order of coins (schema/template.ts); a row of another coin is drawdown-unknown-coin's.
+  const [rows, order] = [value.drawdowns.map(({ coin }) => coin).join(', '), [...coins].join(', ')];
+  if (rows !== order && value.drawdowns.every(({ coin }) => coins.has(coin))) {
+    problems.push({ path, code: 'drawdown-coins', detail: `drawdowns ${rows}; coins ${order}` });
+  }
   problems.push(...templateTextProblems(path, value, templateTexts(value)));
+  problems.push(...templateFigureProblems(path, value));
   return problems;
 }
 

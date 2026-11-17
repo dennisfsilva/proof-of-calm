@@ -452,6 +452,7 @@ describe('validateContent: templates (docs/DOMAIN.md §5)', () => {
       'insecure-source: http://www.bitstamp.net/api/',
       'source-not-allowed: https://news.example/eth',
       'accessed-after-review: drawdowns.0 accessed 2026-10-17, last reviewed 2026-10-16',
+      'drawdown-coins: drawdowns BTC, ETH, ETH; coins BTC, ETH',
     ]);
   });
 
@@ -482,9 +483,8 @@ describe('validateContent: templates (docs/DOMAIN.md §5)', () => {
       source: `${coinbase}&start=2021-10-01T00:00:00Z&end=2022-07-27T00:00:00Z`,
       lowSource: `${coinbase}&start=2022-07-27T00:00:00Z&end=2023-01-31T00:00:00Z`,
     });
-    const coins = [...template().coins, { id: 'SOL', name: 'Solana', geckoId: 'solana', decimals: 4 }];
-    const solana = (each: Record<string, unknown>) =>
-      template({ coins, split: { BTC: '70', ETH: '20', SOL: '10' }, drawdowns: [each] });
+    const coins = [{ id: 'SOL', name: 'Solana', geckoId: 'solana', decimals: 4 }];
+    const solana = (each: Record<string, unknown>) => template({ coins, split: { SOL: '100' }, drawdowns: [each] });
     expect(codes([file(path, solana(sol))])).toEqual([]);
     expect(codes([file(path, solana({ ...sol, lowSource: 'not a url' }))])).toEqual([
       expect.stringMatching(/^schema: drawdowns\.0\.lowSource: /),
@@ -503,7 +503,8 @@ describe('validateContent: templates (docs/DOMAIN.md §5)', () => {
       { id: 'SOL', name: 'Solana', geckoId: 'solana', decimals: 4 },
     ];
     const split = { BTC: '50', ETH: '30', SOL: '20' };
-    expect(codes([catalogue, file(path, template({ coins, split }))])).toEqual([
+    const drawdowns = [...template().drawdowns, drawdown('SOL', '2022-12-29', '97')];
+    expect(codes([catalogue, file(path, template({ coins, split, drawdowns }))])).toEqual([
       'coin-differs-from-catalogue: BTC',
       'coin-not-in-catalogue: SOL',
     ]);
