@@ -1,10 +1,12 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import allowList from '../sources.allow.json' with { type: 'json' };
 import { applyOverlay } from './i18n/overlay.ts';
 import { joinProblems } from './join-validate.ts';
 import { languagePercentProblems, localeProblems } from './percent-validate.ts';
 import { profileTexts } from './profile-texts.ts';
 import { type CountryProfile, CountryProfileSchema } from './schema/jurisdiction.ts';
+import { validateContent } from './validate.ts';
 
 // D3 of #328 (docs/CONTENT-STYLE.md §4): a currency code and its figure, and a form's name and its number, are joined
 // by U+00A0, so that a narrow screen never leaves "EUR" or "Modelo" alone at a line's end.
@@ -39,7 +41,7 @@ describe('a currency code or a form name joined to its figure (docs/CONTENT-STYL
       'EUR-denominated savings',
       'The USD/EUR rate.',
       'Prices in EUR and USD.',
-      'Under art. 33.1 the gain is taxed.',
+      `Under art.${nbsp}33.1 the gain is taxed.`,
       'The ruling PIV 28969 says so.',
       'Filed with the Modello Redditi.',
       'A platform 3 days late.',
@@ -95,7 +97,7 @@ describe('a currency code or a form name joined to its figure (docs/CONTENT-STYL
   });
 
   it('gives a code between two figures to the figure after it, as the grouping check does', () => {
-    expect(joins('Under art. 33.1 EUR 1000 is exempt.')).toEqual([refused('"EUR" and its figure', '"1000"')]);
+    expect(joins(`Under art.${nbsp}33.1 EUR 1000 is exempt.`)).toEqual([refused('"EUR" and its figure', '"1000"')]);
   });
 
   it('names a line break as the space it is, as in a module', () => {
@@ -118,8 +120,99 @@ describe('a currency code or a form name joined to its figure (docs/CONTENT-STYL
   });
 });
 
+// D5 to D7 of #358 (docs/CONTENT-STYLE.md §4): in English prose a law's name and its number and a date's parts are
+// joined by U+00A0, and an en-dash range takes U+2060 after its dash, so that a narrow screen never splits them.
+const wj = String.fromCodePoint(0x2060);
+const nb = String.fromCodePoint(0x2011);
+const codes = (problems: readonly { code: string }[]) => problems.map(({ code }) => code);
+const ranged = (range: string) =>
+  `card.caveats.0: the range ${JSON.stringify(range)} can break after its dash (docs/CONTENT-STYLE.md §4)`;
+const named = (name: string, number: string) => refused(`the name ${JSON.stringify(name)} and its number`, `"${number}"`);
+const dayed = (day: string, month: string) => refused(`the day "${day}" and its month`, `"${month}"`);
+const yeared = (month: string, year: string) => refused(`the month "${month}" and its year`, `"${year}"`);
+
+describe('a law name, a date and a range in English prose (docs/CONTENT-STYLE.md §4)', () => {
+  it('refuses an ordinary space after each listed law name, and passes U+00A0', () => {
+    const cases: [string, string, string][] = [
+      ['See § 23 EStG.', '§', '23'],
+      ['Under art. 46 CIRS.', 'art.', '46'],
+      ['Article 6(5) applies.', 'Article', '6'],
+      ['The section 104 pool.', 'section', '104'],
+      ['Rule no. 3 applies.', 'no.', '3'],
+      [`Under Lei 24${nb}D/2022.`, 'Lei', `24${nb}D/2022`],
+    ];
+    for (const [text, name, number] of cases) {
+      expect(joins(text), text).toEqual([named(name, number)]);
+      expect(joins(text.replace(`${name} `, `${name}${nbsp}`)), text).toEqual([]);
+    }
+  });
+
+  it('passes a law name before a word and a name the list leaves out', () => {
+    expect(['Article six applies.', 'Chapter 5 applies.', 'The ruling PIV 28969 says so.'].flatMap(joins)).toEqual([]);
+  });
+
+  it('refuses each ordinary gap of a date, naming its pair, and passes the joined forms', () => {
+    expect(joins('From 1 Jan 2023.')).toEqual([dayed('1', 'Jan'), yeared('Jan', '2023')]);
+    expect(joins('From Sept 2029.')).toEqual([yeared('Sept', '2029')]);
+    expect(joins('Due by 31 January.')).toEqual([dayed('31', 'January')]);
+    expect(joins('It may 2025 be so.')).toEqual([]);
+    expect(
+      [`From 1${nbsp}Jan${nbsp}2023.`, `From Sept${nbsp}2029.`, `Due by 31${nbsp}January.`].flatMap(joins),
+    ).toEqual([]);
+  });
+
+  it('skips a date, a name and a range in the file-only lotRuleNote', () => {
+    expect(joinProblems(path, [['lotRuleNote', 'From 1 January 2023 (§ 23, 2023–2025).']])).toEqual([]);
+  });
+
+  it('refuses an en-dash range without U+2060 after its dash, and passes one with it and a hyphen-minus range', () => {
+    expect(joins('In 2023–2025 documents.')).toEqual([ranged('2023–2025')]);
+    expect(joins('Rates of 40–45 %.')).toEqual([ranged('40–45')]);
+    expect(joins('See §§ 187–188 BGB.')).toEqual([named('§§', '187'), ranged('187–188')]);
+    expect([`In 2023–${wj}2025 documents.`, `Rates of 40–${wj}45 %.`, 'Finance Bill 2026-27.'].flatMap(joins)).toEqual(
+      [],
+    );
+  });
+
+  it('passes every refusal once its fix is applied: U+00A0 in the gap, U+2060 after the dash', () => {
+    const fixed = [
+      `See §§${nbsp}187–${wj}188 BGB, from 1${nbsp}Jan${nbsp}2023.`,
+      `Under Lei${nbsp}24${nb}D/2022 of 29${nbsp}December${nbsp}2022, art.${nbsp}10 n.º${nbsp}23.`,
+      `Rates of 12,2–${wj}48% (Topic${nbsp}409), Notice${nbsp}2026-20 §3.03.`,
+    ];
+    expect(fixed.flatMap(joins)).toEqual([]);
+    expect(fixed.map((text) => joins(text.replaceAll(nbsp, ' ').replaceAll(wj, '')).length)).toEqual([4, 5, 3]);
+  });
+
+  it('gives a pt-PT text no law, date or range join until its language has lists (D6)', () => {
+    const pt = '§ 23, de 1 de janeiro de 2023, art. 10, 2023–2025.';
+    expect(joinProblems(path, [['card.caveats.0', pt]], 'pt-PT')).toEqual([]);
+    expect(codes(languagePercentProblems(path, 'pt-PT', load('jurisdictions/pt.json'), [['card.caveats.0', pt]]))).toEqual(
+      [],
+    );
+  });
+
+  it('runs through localeProblems and the content gate on an English profile', () => {
+    const profile = load('jurisdictions/es.json');
+    expect(codes(localeProblems(path, profile, [['card.caveats.0', 'In 2023–2025 documents.']]))).toEqual([
+      'range-join',
+    ]);
+    const { $comment: _, ...allow } = allowList;
+    const json = { ...JSON.parse(readFileSync(new URL('jurisdictions/es.json', root), 'utf8')) };
+    json.filingNote = 'Filed by 30 June (art. 46).';
+    const gate = validateContent([{ path, json }], { today: '2026-10-17', allow });
+    expect(codes(gate.filter(({ detail }) => detail.startsWith('filingNote:')))).toEqual(['figure-join', 'figure-join']);
+  });
+
+  it('keeps a range with U+2060 whole for the decimal check', () => {
+    const profile = load('jurisdictions/pt.json');
+    const decimals = codes(localeProblems(path, profile, [['card.caveats.0', `From 12.2–${wj}48%.`]]));
+    expect(decimals).toEqual(['decimal-separator']);
+  });
+});
+
 describe('the real profiles and their overlays', () => {
-  it('join every currency code and form name to its figure with U+00A0', () => {
+  it('join every code, form name, law name and date part with U+00A0, and every English range after its dash', () => {
     const english = jsonIn('jurisdictions/').map((name) => `jurisdictions/${name}`);
     const overlays = readdirSync(new URL('i18n/', root), { withFileTypes: true })
       .filter((entry) => entry.isDirectory())
@@ -132,7 +225,7 @@ describe('the real profiles and their overlays', () => {
         const file = `i18n/${language}/jurisdictions/${name}`;
         const overlay: unknown = JSON.parse(readFileSync(new URL(file, root), 'utf8'));
         const translated = applyOverlay(load(`jurisdictions/${name}`), overlay, 'jurisdiction');
-        return joinProblems(file, profileTexts(translated));
+        return joinProblems(file, profileTexts(translated), language);
       }),
     ];
     expect(problems).toEqual([]);
