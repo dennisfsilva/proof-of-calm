@@ -69,6 +69,7 @@ const FIXTURE = CountryProfileSchema.parse({
     {
       key: 'law',
       title: 'The law',
+      lang: 'en',
       url: LAW,
       publisher: 'Parliament',
       kind: 'law',
@@ -78,6 +79,7 @@ const FIXTURE = CountryProfileSchema.parse({
     {
       key: 'circular',
       title: 'The circular',
+      lang: 'en',
       url: CIRCULAR,
       publisher: 'Tax authority',
       kind: 'authority',
