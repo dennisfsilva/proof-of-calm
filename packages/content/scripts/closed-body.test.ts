@@ -449,7 +449,7 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
     const codes = async (text: string) =>
       (await closedBodyProblems([{ path, source: text }], { figures })).map(({ code }) => code);
     expect([await codes(live), await codes(source)]).toEqual([[], ['figure-chart']]);
-    // A translation is held to its English module's chart and has no shapes yet, so its section fails closed.
+    // A translation is held to its English module's chart in its own language's shapes, so English's fail in pt-PT.
     const parsed = parseModule(path, live);
     if (!parsed.ok) throw new Error(path);
     const translated = live.replace(
@@ -467,6 +467,6 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
       'figure-unstated',
       'figure-unstated',
     ]);
-    expect(problems[0]?.detail).toMatch(/, and pt-PT has no shapes for a chart's section yet; R5 /u);
+    expect(problems[0]?.detail).toMatch(/"In the chart, .* matches neither shape of a chart's section; R5 /u);
   });
 });
