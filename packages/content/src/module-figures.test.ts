@@ -345,8 +345,8 @@ describe('a chart section fails', () => {
     expect(await tally(body(), ROWS, { chart: 'halvings-line' })).toEqual([4, 0]);
   });
 
-  it('fails a translated section closed until its language has shapes', async () => {
-    expect(await tally(body(), ROWS, { language: 'pt-PT' })).toEqual([2, 4]);
+  it('fails a translated section closed in a language without shapes', async () => {
+    expect(await tally(body(), ROWS, { language: 'de' })).toEqual([2, 4]);
   });
 });
 
@@ -477,9 +477,9 @@ describe("each detail quotes its sentence and names its figure and rule (§4's l
   });
 
   it('1: a translation names its language', async () => {
-    const [first] = await problemsOf(body(), ROWS, { language: 'pt-PT' });
+    const [first] = await problemsOf(body(), ROWS, { language: 'de' });
     expect(first?.detail).toBe(
-      `body: "${s1}" holds a figure "4" and matches neither shape of a chart's section, and pt-PT has no shapes for a chart's section yet${R(5)}`,
+      `body: "${s1}" holds a figure "4" and matches neither shape of a chart's section, and de has no shapes for a chart's section yet${R(5)}`,
     );
   });
 });
