@@ -202,3 +202,12 @@ Recorded on 2026-11-15, when the site's half of the rendering points landed in `
   metadata travels in the translation's chunk as `meta` beside its body (`LEARN_TRANSLATIONS`, under
   `assets/messages/<language>/`, outside the precache), never in the entry. `closedBody` runs on the translation as
   on English, failing at the translation's own line.
+- 2026-11-17: a translated module keeps English's section ids, so a Why? link that names a section opens it in every
+  language. Compiling a translation, the remark plugin `sourceHeadings` (`packages/config/vite/learn-translations.ts`)
+  gives each depth-2 heading the English module's depth-2 heading text at the same position as
+  `data.hProperties.sourceHeading`; a heading past English's count keeps its own text. The page's h2
+  (`packages/app/src/features/learn/lib/body-elements.tsx`) takes its id from `headingId(sourceHeading ?? children)`
+  and never passes the prop to the page; `headingId` stays the one slug, and English pages are unchanged. The position
+  holds because `pnpm validate:content` matches the two bodies' depth-2 headings in order (the 2026-11-16 entry).
+  `why-sections.test.ts` checks every named section against each translation of its module too. A refused link's
+  build message now says to write the link's words as plain text.
