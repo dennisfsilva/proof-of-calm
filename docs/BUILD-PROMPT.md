@@ -631,6 +631,11 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   builders from the start: the rule and its tests, then the docs and the checks. #354's first
   builder, briefed with all of it, stopped at its 120-turn limit with the docs, the checks and its
   report undone (2026-11-17).
+- A skill clause that names a family of check codes is walked again through each code the family
+  gains, by the integration read and a rehearsal. #353's figure clause, written for the template
+  codes, merged before #354 added `figure-chart` and `figure-unstated`: a new chart row left the
+  agent no edit its words allowed, and lowering a bound to a figure no source gives cleared three
+  refusals at once (#357, 2026-11-17).
 
 ## Known gaps
 
