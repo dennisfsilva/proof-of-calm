@@ -5,7 +5,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import { dirname, join, relative } from 'node:path';
 import mdx from '@mdx-js/rollup';
 import type { Plugin, PluginOption } from 'vite';
-import { listTranslations, sourceHeadings, translatedSource } from './learn-translations.ts';
+import { englishModuleOf, listTranslations, sourceHeadings, translatedSource } from './learn-translations.ts';
 
 /** A parsed module as the plugin needs it: the slug keys its body, the body is compiled apart from the rest. */
 type ParsedModule = { readonly slug: string; readonly body: string };
@@ -292,7 +292,9 @@ const importOf = (slug: string, file: string) =>
 /** The translated metadata by file, which the virtual module fills and the compiler appends as `meta`. */
 type MetaOf = Map<string, Omit<ParsedModule, 'body'>>;
 
-const modulesPlugin = (options: LearnPluginOptions, metaOf: MetaOf, englishOf: Map<string, string>): Plugin => ({
+const translationsOf = (options: LearnPluginOptions) => options.translations ?? join(dirname(options.dir), 'i18n');
+
+const modulesPlugin = (options: LearnPluginOptions, metaOf: MetaOf): Plugin => ({
   name: 'poc:learn-modules',
   resolveId(id) {
     return id === LEARN_MODULES_ID ? RESOLVED_ID : undefined;
@@ -322,9 +324,7 @@ const modulesPlugin = (options: LearnPluginOptions, metaOf: MetaOf, englishOf: M
     modules.sort((a, b) => rank(a.meta.slug) - rank(b.meta.slug) || a.meta.slug.localeCompare(b.meta.slug));
     const bodies = modules.map(({ meta, file }) => importOf(meta.slug, file));
     const languages = new Map<string, string[]>();
-    for (const { language, file, source } of await listTranslations(
-      options.translations ?? join(dirname(options.dir), 'i18n'),
-    )) {
+    for (const { language, file, source } of await listTranslations(translationsOf(options))) {
       this.addWatchFile(file);
       const translated = translatedSource(source, (slug) => sourceOf.get(slug));
       if (typeof translated === 'string') return this.error(`${file}: ${translated}`);
@@ -332,8 +332,6 @@ const modulesPlugin = (options: LearnPluginOptions, metaOf: MetaOf, englishOf: M
       if (!parsed.ok) return this.error(parsed.error.map((problem) => `${file}: ${problem.detail}`).join('\n'));
       const { body: _body, ...meta } = parsed.value;
       metaOf.set(slashed(file), meta);
-      // The English body whose h2 texts the translation's h2s take by position (`sourceHeadings`).
-      englishOf.set(slashed(file), blankFrontMatter(sourceOf.get(translated.slug) ?? ''));
       languages.set(language, [...(languages.get(language) ?? []), importOf(translated.slug, file)]);
     }
     const translations = [...languages].map(
@@ -355,23 +353,35 @@ const modulesPlugin = (options: LearnPluginOptions, metaOf: MetaOf, englishOf: M
  */
 export function learnPlugins(options: LearnPluginOptions): PluginOption[] {
   const metaOf: MetaOf = new Map();
-  const englishOf = new Map<string, string>();
-  const remarkPlugins = [closedBody(options.elements ?? []), sourceHeadings((path) => englishOf.get(path))];
-  const compile = mdx({ remarkPlugins });
+  const closed = closedBody(options.elements ?? []);
+  const compile = mdx({ remarkPlugins: [closed] });
+  let development = false;
   // Spelled out instead of spread: the compiler's `transform` is typed for Rollup, whose answer may carry
   // `map: undefined` or an indexed map (sections, no `mappings`), which Vite's hook type does not admit.
   // The compiler emits a plain map, so the answer is only reshaped here.
   const compiler: Plugin = {
     name: compile.name,
     enforce: 'pre',
-    config: compile.config,
+    config(config, env) {
+      development = env.mode === 'development';
+      return compile.config(config, env);
+    },
     async transform(code, id) {
-      const result = await compile.transform(code, id);
+      // A translation's h2s take the h2 texts of the English module on disk now (`sourceHeadings`); the compiler
+      // watches that file, so under `pnpm dev` an English edit compiles the translation again.
+      const path = id.split('?')[0] ?? id;
+      const dirs = { translations: translationsOf(options), english: options.dir };
+      const english = MDX_FILE.test(path) ? await englishModuleOf(path, dirs, options.parseModule) : undefined;
+      if (english !== undefined) this.addWatchFile(english.file);
+      const result = await (english === undefined
+        ? compile
+        : mdx({ development, remarkPlugins: [closed, sourceHeadings(blankFrontMatter(english.source))] })
+      ).transform(code, id);
       if (result === undefined) return null;
       const { map } = result;
       const plain = typeof map === 'object' && map !== null && 'mappings' in map ? map : null;
       // A translation's metadata rides in its own chunk, after the body, so no line of the body moves.
-      const meta = metaOf.get(slashed(id.split('?')[0] ?? id));
+      const meta = metaOf.get(slashed(path));
       const compiled =
         meta === undefined
           ? result.code
@@ -379,5 +389,5 @@ export function learnPlugins(options: LearnPluginOptions): PluginOption[] {
       return { code: compiled, map: typeof map === 'string' ? map : plain };
     },
   };
-  return [frontMatterPlugin(), compiler, modulesPlugin(options, metaOf, englishOf)];
+  return [frontMatterPlugin(), compiler, modulesPlugin(options, metaOf)];
 }

@@ -3,7 +3,7 @@
 // texts, parsed by the same parseModule from the translation's own body, so the reading time counts the translation's
 // words; it rides in the translation's lazy chunk, never in the chunk that lists the modules.
 import { readdir, readFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { isAbsolute, join, relative } from 'node:path';
 
 const FENCE = '---';
 const TEXTS = ['title', 'idea', 'caveat'];
@@ -79,18 +79,42 @@ const textOf = (node: Heading): string => node.value ?? (node.children ?? []).ma
 const sectionsOf = (tree: Heading): Heading[] =>
   tree.type === 'heading' && tree.depth === 2 ? [tree] : (tree.children ?? []).flatMap(sectionsOf);
 
+/** An English module as read from disk: its absolute path and its source. */
+export type EnglishModule = { readonly file: string; readonly source: string };
+
+/**
+ * The English module whose slug a translation carries, both files read from disk when the translation compiles, so
+ * under `pnpm dev` an English edit reaches the translation's next compile (ADR-0048, 2026-11-17). `parse` is
+ * parseModule, which gives an English module's slug. Undefined for a file outside `<translations>/<language>/learn/` and for a translation
+ * `translatedSource` refuses, which the virtual module fails the build on.
+ */
+export async function englishModuleOf(
+  file: string,
+  { translations, english }: { readonly translations: string; readonly english: string },
+  parse: (file: string, source: string) => { readonly ok: boolean; readonly value?: { readonly slug: string } },
+): Promise<EnglishModule | undefined> {
+  const path = relative(translations, file);
+  const [language, learn, name, ...rest] = path.split(/[\\/]/);
+  if (isAbsolute(path) || language === '..' || learn !== 'learn' || !name?.endsWith('.mdx') || rest.length > 0) return;
+  const bySlug = new Map<string, EnglishModule>();
+  for (const entry of (await entriesOf(english)).filter((each) => each.endsWith('.mdx'))) {
+    const found = { file: join(english, entry), source: await readFile(join(english, entry), 'utf8') };
+    const parsed = parse(found.file, found.source);
+    if (parsed.ok && parsed.value !== undefined) bySlug.set(parsed.value.slug, found);
+  }
+  const translated = translatedSource(await readFile(file, 'utf8'), (slug) => bySlug.get(slug)?.source);
+  return typeof translated === 'string' ? undefined : bySlug.get(translated.slug);
+}
+
 /**
  * The remark plugin that keeps a translation's sections where English links name them (ADR-0048, 2026-11-17): each
  * depth-2 heading takes as `sourceHeading` the text of the English module's depth-2 heading at the same position,
- * and the page's h2 makes its id from that text. `englishOf` gives the English body (its front matter blanked) by a
- * translation's path, slashed; for any other file it gives undefined, and the tree stays as it is. The English body
- * is read by the compiler's own parser, so its headings are the ones its own compile renders.
+ * and the page's h2 makes its id from that text. `english` is the English body, its front matter blanked; it is read
+ * by the compiler's own parser, so its headings are the ones its own compile renders.
  */
-export function sourceHeadings(englishOf: (path: string) => string | undefined) {
+export function sourceHeadings(english: string) {
   return function attach(this: { parse(source: string): unknown }) {
-    return (tree: Heading, file: { readonly path?: string }) => {
-      const english = englishOf((file.path ?? '').replaceAll('\\', '/'));
-      if (english === undefined) return;
+    return (tree: Heading) => {
       const texts = sectionsOf(this.parse(english) as Heading).map(textOf);
       sectionsOf(tree).forEach((heading, index) => {
         const sourceHeading = texts[index];
