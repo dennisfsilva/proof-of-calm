@@ -274,8 +274,10 @@ test.describe("a Learn module's pt-PT chunk", () => {
   test('a first import that fails and a retry that loads: the same mount shows the translation', async ({
     page,
   }, testInfo) => {
-    // biome-ignore lint/suspicious/noSkippedTests: a runtime skip outside the two named projects, not a disabled test
-    test.skip(!ON_TWO.includes(testInfo.project.name), 'desktop and iphone carry the language checks');
+    // WebKit keeps a failed module import for the document's life and never asks for the chunk again, so there the
+    // mount keeps English (case below) until a reload; Chromium asks again.
+    // biome-ignore lint/suspicious/noSkippedTests: a runtime skip on every project but desktop, not a disabled test
+    test.skip(testInfo.project.name !== 'desktop', "WebKit never requests a failed module's chunk again");
     const { aborted, errors } = await openStartHere(page, 1);
 
     const title = page.getByRole('heading', { level: 1, name: startHerePt.title });
