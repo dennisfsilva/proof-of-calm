@@ -529,6 +529,17 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   past-performance line English on a pt-PT screen. The mark is read from the loaded object whose
   text the element shows. Plan's general-profile line took its language from the rules and its text
   from the profile, and was wrong in both offline fallbacks (2026-11-16).
+- Keep a relation in place of a literal pin only after running every mutation the pin refused and
+  seeing the relation refuse each one; otherwise restore the pin. The Taxes examples' relation failed
+  2 rounds on a verb outside its lists, swapped tax years, a negated condition and a figure matched
+  inside a longer one (#287, 2026-11-17).
+- A check's suggested fix is a value an author pastes, so its tests try edge values (a leading zero,
+  three decimals) as well as the refusal. The grouped-figures check suggested `EUR 0125` for
+  `EUR 0.125` (#287, 2026-11-17).
+- An effect that starts a load after commit gets a cancelled flag its cleanup sets, a test under
+  `<StrictMode>` and a test that unmounts while the load is pending (#287, 2026-11-17).
+- Before naming a new session, read the tracker's whole session list and take the next free letter
+  (#287, 2026-11-17).
 
 ## Known gaps
 

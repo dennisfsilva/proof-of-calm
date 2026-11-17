@@ -267,7 +267,20 @@ external links and the Risk link in the mobile export (M3).
   branch, which waits with two findings of its second review round (2026-11-16), and the validator
   go to #287 as its first branches, with the facts loader, DE and ES and the grouped figures. The
   settings and onboarding `lang` sites and the tax-year file's profile language go to #271.
-  So pt-PT takes four build sessions more than #269 planned before German starts. A
+  #287 landed the pt-PT profile overlays of the United Kingdom, Ireland and the United States, with
+  round 2's wording on Portugal's and the generic profile's (#315). Its design check of grouped
+  figures decided how a comma-decimal page groups them. It found 13 fields of the DE, ES, IT and NL
+  profiles, already shipped, that put a decimal comma beside a grouping comma (`6,00%` beside
+  `EUR 59,357`). On 2026-11-17, 3 branches reached their 2-round limit and moved to #316, which comes
+  before #271. #316 restores the Taxes test's literal example pins. It adds a cancelled flag to the
+  Learn module body's retry effect, with tests under StrictMode and for an unmount while the retry
+  is pending. It fixes the grouped-figures check's suggestion for an amount with 3 decimals and
+  applies the content roles' round-2 doc wordings. After those, #316 takes the figures validator,
+  the Noise and When the market drops modules in pt-PT, the FR, IT and NL overlays, the DE and ES
+  overlays with Germany's SolZG § 4 check, the review-content skill's figure clause and number
+  wording, the cited point with 3 digits, Portugal's English numerals with its 42 baselines, and the
+  last 3 modules in pt-PT. So pt-PT takes 5 build sessions more than #269 planned before German
+  starts. A
   render-and-axe-only pt-PT story run waits for #271, once every namespace is translated. CSV import, free (ADR-0039), for the
   main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
   Republic; Kraken's ledger reader built on 2026-11-13 (#168) and the core's import plan against the
