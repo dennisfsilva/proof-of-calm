@@ -580,6 +580,24 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - A fact check of a translation reads who does what in each sentence: a verb without its subject
   takes the reader as its subject. #326's «os preços que lê» read as the person's prices, and «as
   moedas que detém» after the app as subject read as the app holding the coins (2026-11-17).
+- A rule that reads a figure's neighbours leaks one step further out each round: sessions 25l, 25m
+  and 25o each found one more hedge or join (`Roughly, Solana fell 97 %`, a numeral-led sentence
+  joined to the one before). Before building such a check, settle a closed set of sentence shapes;
+  otherwise land it with main's literal pins kept and remove pins in a later PR (#328, 2026-11-17).
+- A translation of a Learn module changes which language a screen in that language shows, so its
+  branch searches the e2e specs for the module's language marks and its title text. #331's first CI
+  run failed `apps/web/e2e/language.spec.ts`, which expected Cycles in English on a pt-PT screen
+  (2026-11-17).
+- A fix to dev-server wiring (a watched file, a module's imports) is tested through a real dev
+  server with the source broken mid-edit as well as changed. The second round of
+  fix/learn-pt-section-ids found the translation dropped its English dependency while the English
+  file failed to parse (#328, 2026-11-17).
+- A fact that cites an exchange's price API carries `limit` and `start`, and a series longer than one
+  request says how the review reaches the rest (#332, `docs/CONTENT-OPS.md` §8 step 1, 2026-11-17).
+- A profile overlay translated under tight field limits gets a field-by-field fidelity check against
+  its English before the content roles. The compressed fields of feat/pt-overlays-fr-it-nl dropped a
+  condition («com essa carta» for "if you got that letter") and moved a deadline («a data da carta»
+  for the date in the letter) (#328, 2026-11-17).
 
 ## Known gaps
 
