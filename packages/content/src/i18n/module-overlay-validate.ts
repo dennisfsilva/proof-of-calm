@@ -39,7 +39,7 @@ export function readTranslatedModule(path: string, source: string): Result<Trans
     .filter((key) => !KEYS.includes(key))
     .map((key) => {
       const at = `line ${head.findIndex((line) => line.startsWith(`${key}:`)) + 2}`;
-      return `${at}: remove ${key}: a translation holds slug, title, idea and caveat; the rest is English's`;
+      return `${at}: remove the ${key} line: a translation holds slug, title, idea and caveat; the rest is English's`;
     });
   const error = [...problems.map(({ detail }) => refuse(detail)), ...extra.map(refuse)];
   if (error.length > 0) return { ok: false, error };

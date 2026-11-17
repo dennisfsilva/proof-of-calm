@@ -152,8 +152,8 @@ describe('moduleTranslationProblems', () => {
         'module-overlay-front-matter: line 3: write title as plain text, with no quotes, brackets, or braces',
       ]);
       expect(problemsOf([...LINES, 'facts: drawdowns', 'chart: none'])).toEqual([
-        "module-overlay-front-matter: line 6: remove facts: a translation holds slug, title, idea and caveat; the rest is English's",
-        "module-overlay-front-matter: line 7: remove chart: a translation holds slug, title, idea and caveat; the rest is English's",
+        "module-overlay-front-matter: line 6: remove the facts line: a translation holds slug, title, idea and caveat; the rest is English's",
+        "module-overlay-front-matter: line 7: remove the chart line: a translation holds slug, title, idea and caveat; the rest is English's",
       ]);
     });
 
