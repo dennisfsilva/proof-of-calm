@@ -308,7 +308,7 @@ typed (#343).
 The module rules are CONTENT-STYLE §4 R5 and R6 (`packages/content/src/module-figures.ts`), on closed shapes as the
 templates' are (amendment 7). A judge read both designs of #349 and merged them. The chart's section is read on the page
 the build's compiler gives, never on the MDX source a second time. A sentence there that holds a trigger (a number
-character, a percentage, a number word, a month, a currency sign or a coin the chart draws) passes only as B, a bound
+character, a percentage, a number word, a month, a currency sign, or a coin the chart draws) passes only as B, a bound
 on one coin's falls, or E, each coin's falls in the chart's order, as a whole. Anything else is `figure-chart`, and a
 row no sentence states is `figure-unstated`. The page marks a paragraph's emphasis, strong, code spans, hard breaks,
 text elements and removed hidden characters (`pageOf`'s `marks`), and the rule refuses a trigger beside any of them.
@@ -332,8 +332,8 @@ Holes accepted with it:
 3. A catalogue coin the chart does not draw, named in a sentence with no other trigger, passes.
 4. The lists are English: another language's number word or month inside an English module passes.
 5. A true, weaker statement passes: a lower `N`, or a second bound over rows another bound counts.
-6. A chart figure moved under the next heading leaves the section. Its rows get `figure-unstated`, and nothing reads
-   the moved sentence until R7.
+6. A chart figure moved under the next heading leaves the section. Its rows get `figure-unstated`, and no rule reads
+   the moved sentence until R7; the copy review (`docs/LEGAL.md` §6 Q6) does.
 7. A translated chart section fails closed until its language's shapes land.
 8. A chart other than `drawdowns-bar` has no rows, so any figure in its section fails.
 9. Loud false failures: any wording outside B and E (a label, a ticker, a verb in a later clause, `from 2011 to 2022`,
