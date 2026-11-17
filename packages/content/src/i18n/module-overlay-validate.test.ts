@@ -195,6 +195,19 @@ describe('moduleTranslationProblems', () => {
       ),
     ).toEqual([]);
   });
+
+  // #328: Cycles and Taxes where you live in pt-PT; a translated h2 takes English's id by position, so the headings
+  // match English's in number. Their bodies' numbers, elements and heading order are read in scripts/closed-body.test.ts.
+  it.each(['cycles'])('passes the real pt-PT %s, with English its headings', (slug) => {
+    const read = (path: string) => readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8');
+    const english = parseModule(`packages/content/learn/${slug}.mdx`, read(`learn/${slug}.mdx`));
+    if (!english.ok) throw new Error(`the English ${slug} does not parse`);
+    const path = `packages/content/i18n/pt-PT/learn/${slug}.mdx`;
+    const translated = file('pt-PT', read(`i18n/pt-PT/learn/${slug}.mdx`));
+    expect(moduleTranslationProblems([{ ...translated, path }], [english.value])).toEqual([]);
+    const headings = (text: string) => text.match(/^## /gm)?.length ?? 0;
+    expect(headings(translated.source)).toBe(headings(english.value.body));
+  });
 });
 
 describe('the pt-PT start-here, split as English is (brand, 25h round 2)', () => {
