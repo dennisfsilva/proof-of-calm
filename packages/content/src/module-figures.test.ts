@@ -250,11 +250,7 @@ describe('a chart section fails', () => {
       [1, 1],
     ],
     ['a projection with a figure', para('Solana could fall 97 % again.'), [1, 0]],
-    [
-      'respectively',
-      body(`${S1} Ether and Chainlink fell 94 % and 89 %, respectively. Solana fell 97 %.`),
-      [1, 2],
-    ],
+    ['respectively', body(`${S1} Ether and Chainlink fell 94 % and 89 %, respectively. Solana fell 97 %.`), [1, 2]],
     ['a figure in words', E('and Solana ninety-seven per cent.'), [1, 3]],
     ['a count of the bars', after('In all, the chart holds 9 falls.'), [1, 0]],
     ['the year of the deepest fall', para('The deepest fall ended in 2022.'), [1, 0]],
