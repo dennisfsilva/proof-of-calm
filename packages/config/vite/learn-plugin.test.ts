@@ -373,6 +373,7 @@ describe('checkModuleBody', () => {
   const TEXT_PAST = {
     ...pass('A line. '),
     elements: ['text:PastPerformance'],
+    page: [{ kind: 'paragraph', text: 'A line. ', marks: ['mdxJsxTextElement'] }],
   };
   const flowChart = (...blocks: string[]) => ({
     problem: null,
@@ -423,7 +424,10 @@ describe('checkModuleBody', () => {
     // On its own line, even right under a paragraph's line, the element ends the paragraph and stands as a block.
     expect(await checkModuleBody(module('noise', 'A sign.\n<Chart />\n'), path)).toEqual(flowChart('A sign.'));
     expect(await checkModuleBody(module('noise', 'A \\<Chart /> sign.\n'), path)).toEqual(pass('A <Chart /> sign.'));
-    expect(await checkModuleBody(module('noise', 'A `<Chart />` sign.\n'), path)).toEqual(pass('A <Chart /> sign.'));
+    expect(await checkModuleBody(module('noise', 'A `<Chart />` sign.\n'), path)).toEqual({
+      ...pass('A <Chart /> sign.'),
+      page: [{ kind: 'paragraph', text: 'A <Chart /> sign.', marks: ['inlineCode'] }],
+    });
   });
 
   // A translation holds English's sections (ADR-0048 Deviations): each depth-2 heading is on the elements list.
@@ -499,7 +503,11 @@ describe('checkModuleBody', () => {
     const markdown = '# Noise\n\nA *calm* plan.\n\n- one\n- two\n';
     expect(await checkModuleBody(module('noise', markdown), path)).toEqual({
       ...pass('Noise', 'A calm plan.', 'one', 'two'),
-      page: [{ kind: 'heading', depth: 1, text: 'Noise' }, ...paragraphs('A calm plan.', 'one', 'two')],
+      page: [
+        { kind: 'heading', depth: 1, text: 'Noise' },
+        { kind: 'paragraph', text: 'A calm plan.', marks: ['emphasis'] },
+        ...paragraphs('one', 'two'),
+      ],
     });
   });
 });
