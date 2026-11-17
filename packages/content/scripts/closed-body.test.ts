@@ -239,10 +239,13 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
 
     // D12 of #322: a pt-PT module joins a numeral to its sign or unit word with U+00A0, as English joins its figure,
     // so a line never breaks inside a figure; an ordinary space or a source line break would render as a breakable one.
-    it('joins every numeral of a real pt-PT module to its sign or unit word with a no-break space', () => {
+    // D3 of #328: a currency code joins its figure the same way, after it or before it (`100 USD`, CONTENT-STYLE §4).
+    it('joins every numeral of a real pt-PT module to its sign, unit word or currency code with a no-break space', () => {
       const translated = fileURLToPath(new URL('../i18n/pt-PT/learn/', import.meta.url));
-      const units = 'dias?|semanas?|mês|meses|anos?|horas?|minutos?|pontos|episódios';
-      const broken = new RegExp(`\\d[ \\t\\r\\n]+(?:%|×|(?:${units})(?![\\p{L}\\d]))`, 'gu');
+      const units = 'dias?|semanas?|mês|meses|anos?|horas?|minutos?|pontos|episódios|EUR|GBP|USD';
+      const gap = '[ \\t\\r\\n]+';
+      const before = `(?<![\\p{L}\\d])(?:EUR|GBP|USD)${gap}\\d`;
+      const broken = new RegExp(`\\d${gap}(?:%|×|(?:${units})(?![\\p{L}\\d]))|${before}`, 'gu');
       const names = readdirSync(translated).filter((name) => name.endsWith('.mdx'));
       expect(names.length).toBeGreaterThan(0);
       const found = names.flatMap((name) =>
