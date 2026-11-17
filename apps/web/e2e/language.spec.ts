@@ -234,7 +234,7 @@ test.describe('English content text on a pt-PT screen', () => {
     await expect(sheet.getByRole('button', { name: ptLearn.sheet.close })).toBeVisible();
   });
 
-  test("Plan's Why? sheet opens Cycles in pt-PT, with nothing marked lang", async ({ page }, testInfo) => {
+  test("Plan's Why? sheet opens Cycles in pt-PT, with nothing marked lang=en", async ({ page }, testInfo) => {
     // biome-ignore lint/suspicious/noSkippedTests: a runtime skip outside the two named projects, not a disabled test
     test.skip(!ON_TWO.includes(testInfo.project.name), 'desktop and iphone carry the language checks');
     await bootIn(page, 'pt-PT');
@@ -248,7 +248,8 @@ test.describe('English content text on a pt-PT screen', () => {
     await expect(title).not.toHaveAttribute('lang', /./);
     await expect(sheet.getByRole('heading', { level: 2, name: cyclesPt.heading })).toBeAttached();
     await expect(sheet.getByText(cyclesPt.caveat, { exact: true })).not.toHaveAttribute('lang', /./);
-    await expect(sheet.locator('[lang]')).toHaveCount(0);
+    // The past-performance line is the app's own and always carries the page's language, so only lang="en" is absent.
+    await expect(sheet.locator('[lang="en"]')).toHaveCount(0);
     await expect(sheet.getByRole('button', { name: ptLearn.sheet.close })).toBeVisible();
   });
 
