@@ -154,7 +154,11 @@ function groupProblems(path: string, locale: string, texts: readonly [string, st
       // A currency after the figure is only looked at, so `2026 EUR 20,350` still reads the figure after the code.
       const [matched, before, after, currency = ''] = match;
       const [figure = '', excerpt] = [before ?? after, `${matched}${currency}`];
-      const [, whole = '', cents] = /^(.*?)(?:[.,](\d{1,2}))?$/.exec(figure) ?? [];
+      // D2 (decided 2026-11-17): the digits after the last mark are decimals when there are one or two, or when the whole
+      // part is 0, since no group starts with 0; else every mark groups (`EUR 1.125` is 1125, `EUR 0.125` keeps 0,125).
+      const [, head = '', tail] = /^(.*)[.,](\d+)$/.exec(figure) ?? [];
+      const cents = tail !== undefined && (tail.length < 3 || head === '0') ? tail : undefined;
+      const whole = cents === undefined ? figure : head;
       const expected = `${grouped(whole.replace(/\D/g, ''))}${cents === undefined ? '' : `,${cents}`}`;
       if (expected === figure) return [];
       const detail = `${field}: ${typed(excerpt)} expected ${typed(excerpt.replace(figure, expected))} (${locale})`;

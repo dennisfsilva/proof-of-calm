@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { languagePercentProblems, localeProblems } from './percent-validate.ts';
+import { escaped, languagePercentProblems, localeProblems } from './percent-validate.ts';
 import { type CountryProfile, CountryProfileSchema } from './schema/jurisdiction.ts';
 
 const load = (code: string): CountryProfile =>
@@ -73,6 +73,45 @@ describe('a profile’s money figures group as its comma-decimal page does (docs
     expect(german('Up to €20,350.50 a year.')).toEqual([
       String.raw`card.rates.1.note: "€20,350.50" expected "€20\u00a0350,50" (de-DE)`,
     ]);
+  });
+
+  // Each refused figure and the one the check suggests in its place, both as the text writes them (decided 2026-11-17,
+  // D2 of #316): one or two digits after the last mark, or a whole part of 0, are decimals; any other mark groups.
+  const suggested: readonly [string, string][] = [
+    ['EUR 0.125', 'EUR 0,125'],
+    ['EUR 0.05', 'EUR 0,05'],
+    ['EUR 0.0125', 'EUR 0,0125'],
+    ['0.125 EUR', '0,125 EUR'],
+    ['EUR 1.125', 'EUR 1125'],
+    ['EUR 2,000', 'EUR 2000'],
+    ['EUR 1.234,56', 'EUR 1234,56'],
+    ['EUR 20.350,5', `EUR 20${nbsp}350,5`],
+    ['EUR 12.50', 'EUR 12,50'],
+  ];
+
+  it('suggests the same value: a whole part of 0 or one or two digits keep their decimals, other marks group', () => {
+    for (const [figure, expected] of suggested) {
+      expect(german(`Up to ${figure} a year.`)).toEqual([
+        `card.rates.1.note: "${figure}" expected ${escaped(JSON.stringify(expected))} (de-DE)`,
+      ]);
+    }
+    for (const figure of ['EUR 0,125', 'EUR 0,05', 'EUR 0,0125', '0,125 EUR']) {
+      expect(german(`Up to ${figure} a year.`)).toEqual([]);
+    }
+  });
+
+  it('raises nothing on the text it suggests for any figure it refuses', () => {
+    const refused = [
+      ...suggested.map(([figure]) => figure),
+      ...['EUR 20,350', 'EUR 20.350', 'EUR 1,000', 'EUR 1.000', 'EUR 20350', `EUR 1${nbsp}000`, 'EUR 20 350'],
+      ...[`EUR 20${narrow}350`, '20 350 EUR', '50.000 €', '20,350 euros', '20350 €', '€20,350.50', 'EUR 1.000.000'],
+    ];
+    for (const figure of refused) {
+      const [detail = ''] = german(`Up to ${figure} a year.`);
+      const suggestion = /expected ("(?:[^"\\]|\\.)*")/.exec(detail)?.[1] ?? '""';
+      expect(suggestion, figure).not.toBe('""');
+      expect(german(`Up to ${JSON.parse(suggestion) as string} a year.`), figure).toEqual([]);
+    }
   });
 
   it('passes the page’s grouping, a decimal comma, an identifier and a citation, and a point-decimal page’s commas', () => {
