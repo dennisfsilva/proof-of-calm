@@ -1,6 +1,5 @@
 // The sentences of a Learn module's chart section, on the page the build's compiler gives (`pageOf`), read against the
 // chart's rows (docs/CONTENT-STYLE.md §4, R5 and R6; docs/research/review-safe-figures.md, amendment 8).
-import type { PageBlock } from '@proofofcalm/config/vite';
 import type { LearnModule } from './loaders/modules.ts';
 import { MODULE_PERCENT_JOINERS } from './percent-token.ts';
 import type { Problem } from './problem.ts';
@@ -8,6 +7,11 @@ import type { ContentCoin } from './schema/coin.ts';
 import type { CycleDrawdown } from './schema/cycles.ts';
 import { PERCENTS, sentencesOf } from './template-figures.ts';
 
+/** A block of the page `pageOf` gives (packages/config/vite/page-blocks.ts), which the product may not import. */
+type PageBlock =
+  | { readonly kind: 'heading' | 'code'; readonly text: string; readonly marks?: undefined }
+  | { readonly kind: 'paragraph'; readonly text: string; readonly marks?: readonly string[] }
+  | { readonly kind: 'element'; readonly name: string };
 type Coin = Readonly<Pick<ContentCoin, 'id' | 'name'>>;
 type Row = Readonly<Pick<CycleDrawdown, 'coin' | 'high' | 'low' | 'fall'>>;
 /** The chart's rows and the coin catalogue; null when a file did not load. */
