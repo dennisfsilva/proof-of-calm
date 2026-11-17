@@ -48,8 +48,15 @@ one in the name or the risk label (`template-date-field`) and a written month na
 (`template-date-month`), in the English file and in each translation. Each template carries at least one drawdown,
 its sources and any `lowSource` on the facts allow-list and `accessed` no later than `lastReviewed` once signed off (below);
 the validator refuses a low before its high (`drawdown-low-before-high`), a coin the template does
-not buy (`drawdown-unknown-coin`) and a fall of 0 or of more than 100 percent
-(`drawdown-fall-out-of-range`). The cycles file takes the same drawdown checks against the catalogue's
+not buy (`drawdown-unknown-coin`), drawdown rows that are not one per coin in the order of `coins`
+(`drawdown-coins`) and a fall of 0 or of more than 100 percent
+(`drawdown-fall-out-of-range`). In the English explanation, `src/template-figures.ts` reads each sentence that holds
+a percentage or a drawdown date against the closed shapes of `docs/CONTENT-STYLE.md` §4 (F1, F2 and S1 to S4), whole.
+It refuses a dated sentence that matches neither fall shape, or a fall that names another row's coin, or a coin
+given two shares (`figure-form`), a figure other than its row's fall or its coin's share (`figure-mismatch`) and a
+percentage in a sentence of no shape (`figure-unclassed`). Each detail quotes the sentence and names the figure, its
+coin, the row's fall or the coin's share, and the rule. A translation's figures are tied to English's by
+`overlay-number-mismatch`. The cycles file takes the same drawdown checks against the catalogue's
 tickers and adds 4 of its own: whole percents (`drawdown-fall-not-whole`), rows in catalogue order
 then by high (`cycles-out-of-order`), each coin's high once (`cycles-duplicate`), and the one name
 `cycles/drawdowns.json` (`file-name`). The owner's sign-off is `reviewedBy: owner` (`agent-draft` until

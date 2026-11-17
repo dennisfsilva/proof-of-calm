@@ -442,6 +442,26 @@ is `1 Jun 2028` for a plan in Portugal, Britain, or the US (decided 2026-11-15, 
 refuses a placeholder that names no date of its template or is not whole (`template-date-unresolved`) and one in any
 other field (`template-date-field`). It also refuses a month name in English, Portuguese or German in any of a
 template's texts or in their translations, a short one only beside a figure (`template-date-month`).
+A template's English explanation writes a percentage or a drawdown date only in one of six closed shapes, each a whole
+sentence with its case as written, and each may open with the fixed lead `What can go wrong: `. In them `N` is 1 to 3
+digits, then nothing, a space, U+00A0 or U+202F, then `%`, and a fall's may start with U+2212; `C` is one of the
+template's coin names; `A` is `each amount` or `every amount`, either with `monthly` before `amount`; `D(X)` is
+`from its high on {date:drawdowns.X.high} to its low on {date:drawdowns.X.low}`, one row X both times.
+
+- F1: `C fell N D(X).` or `It fell N D(X).`, with `more than N` in place of `N` allowed.
+- F2: `From its high on {date:drawdowns.X.high} to its low on {date:drawdowns.X.low}, C fell N.`, with `more than N`
+  allowed.
+- S1: `N of A goes into C.` S2: `C: N of A.` S3: `C takes N of A.`, then any number of `; N goes to C` before the stop.
+- S4: `It splits A N C, N C, and N C.`, with any number of `, N C` and the comma before `and` optional.
+
+R1: a sentence that holds a drawdown date is a dated fall and matches F1 or F2 (`figure-form`). R2: a dated fall names
+its row's coin, or `It`, and states the row's fall or a bound below it written `more than N %` (`figure-form` for
+another coin, `figure-mismatch` for another figure). A bound sits below the row's fall because the row's whole percent
+may round up: 77.6 % shows as 78 %. R3: any other percentage is a coin's share in S1 to S4, each coin named once with
+its share of the split (`figure-form` for a coin named twice, `figure-mismatch` for another figure). R4: any other
+percentage fails, whatever words surround it (`figure-unclassed`). A new wording needs a new reviewed shape (decided
+2026-11-17). State a dated fall in the past tense. The lint reads no tense. The copy review (`docs/LEGAL.md` §6 Q6)
+catches a sentence that projects a figure ("Solana could fall 97 % again from its high on …").
 A numeral joined to its unit by a hyphen (`90‑day`, `365‑day`) never breaks there. Text a screen shows writes the
 no-break hyphen U+2011 between them (`\u2011` in a JSON string, the character itself in a module): messages, modules
 (title, idea, caveat and body), every profile text the app shows, a template's name, one-line summary, risk label
