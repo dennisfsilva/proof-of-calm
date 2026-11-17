@@ -65,7 +65,7 @@ async function translationProblems(path: string, language: string, mine: ModuleB
   if (theirs.problem !== null) return own;
   const problems: Problem[] = [];
   if (listed(theirs.elements) !== listed(mine.elements)) {
-    const detail = `English ${listed(theirs.elements)}; translation ${listed(mine.elements)}`;
+    const detail = `English ${listed(theirs.elements)}; translation ${listed(mine.elements)}; write English's elements in English's order, a flow one on a line of its own and a text one inside its sentence`;
     problems.push({ path, code: 'module-overlay-elements', detail });
   }
   const [ours, others] = [numbers(mine.text, language), numbers(theirs.text, 'en')];
