@@ -6,7 +6,7 @@ version and its date (`docs/RELEASE.md`).
 
 ## Unreleased
 
-There has been no release yet. This section lists what the app does on 16 Nov 2026, before its first
+There has been no release yet. This section lists what the app does on 17 Nov 2026, before its first
 release.
 
 ### The plan and the monthly loop
@@ -42,8 +42,8 @@ release.
   load that country's rules.
 - A tax-year export: a CSV of the lots in your country's tax year, with the day each lot passes the
   country's holding rule where there is one. The file says it is not a tax computation.
-- Portugal's rules write their counts as numerals: 5 years, 6 brackets.
-- A law's number, such as Lei 24‑D/2022, no longer breaks across lines at its hyphen.
+- Portugal's rules show their counts as numerals, such as 5 years and 6 brackets.
+- A law's number, such as 24‑D/2022, never breaks at its hyphen.
 
 ### Learn
 
@@ -80,8 +80,8 @@ release.
 - With the app's language set to Portuguese, the risk text you accept when you start a plan is
   shown in Portuguese, and the plan records that you accepted the Portuguese text.
 - Germany's and Spain's rules in Portuguese.
-- In Portuguese, a `Why?` link opens its Learn module at the section it names.
-- The sources heading takes the country's article in Portuguese and English: «Fontes dos Países
+- In Portuguese, a `Porquê?` link opens its Learn module at the section it names.
+- The sources heading names the country the way each language does: «Fontes dos Países
   Baixos», "Sources for the Netherlands".
 
 ### On the web and offline
