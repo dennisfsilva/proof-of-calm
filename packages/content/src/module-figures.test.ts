@@ -573,7 +573,8 @@ describe("B's count and its noun (R6)", () => {
     expect(first).not.toContain('U+00A0');
   });
 
-  // A format character never reaches B's gap: the page drops it, and R5 refuses the paragraph as hidden text first.
+  // A default-ignorable character never reaches B's gap: the page drops it, and R5 refuses the paragraph as hidden
+  // text first.
   it('refuses U+2060 there as a hidden character, with no figure-join', async () => {
     const [first, ...rest] = await details(body(`${joined(String.fromCodePoint(0x2060))} ${S2}`));
     expect(first).toBe(
