@@ -75,6 +75,17 @@ describe('moduleCountProblems: a count and its listed noun, joined by one U+00A0
     ]);
   });
 
+  it('prints a hidden character inside a noun by code point, and a source line break there as one space', () => {
+    const report = (text: string) => moduleCountProblems(at, [['body', text]], 'en').map(({ detail }) => detail);
+    const tail = 'are joined by U+0020, not U+00A0; write one U+00A0 between them; R7 (docs/CONTENT-STYLE.md §4)';
+    expect(report(`It read 40 data${cp(0x2009)}points in a row.`)).toEqual([
+      `body: the count "40" and its noun "dataU+2009 points" ${tail}`,
+    ]);
+    expect(report('It read 40 data\npoints in a row.')).toEqual([
+      `body: the count "40" and its noun "data points" ${tail}`,
+    ]);
+  });
+
   it("leaves B's falls and quedas to R6, and years, dates and unlisted nouns alone", () => {
     expect(codes('In the chart, bitcoin had 4 falls of more than 70 % between 2011 and 2025.', 'en')).toEqual([]);
     expect(codes('No gráfico, a bitcoin teve 4 quedas de mais de 70 % entre 2011 e 2025.', 'pt-PT')).toEqual([]);
@@ -143,5 +154,21 @@ describe('moduleCountTexts: every text the Learn sheet shows', () => {
       'body: the count "2" and its noun "indexes"',
     ]);
     expect(moduleCountTexts({}, [])).toEqual([]);
+  });
+
+  it('reads a block as the parser decoded it, before the page drops a hidden character', () => {
+    const zwsp = cp(0x200b);
+    const page = [
+      { kind: 'paragraph', text: `6${NBSP}inputs`, written: `6${NBSP}${zwsp}inputs`, listNumbers: [2] },
+      { kind: 'heading', text: `4${NBSP}cycles` },
+    ] as const;
+    const texts = moduleCountTexts({}, page);
+    expect(texts).toEqual([
+      ['body', `2. 6${NBSP}${zwsp}inputs`],
+      ['body', `4${NBSP}cycles`],
+    ]);
+    expect(moduleCountProblems(at, texts, 'en').map(({ detail }) => detail.split(', not ')[0])).toEqual([
+      'body: the count "6" and its noun "inputs" are joined by U+00A0 U+200B',
+    ]);
   });
 });

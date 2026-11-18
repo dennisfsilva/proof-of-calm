@@ -495,6 +495,27 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
         'body: the count "5"',
       ]);
     });
+
+    // #387: the body is read as the parser decoded it, as the front matter is read as written, so a hidden break
+    // beside the noun is refused in either, and the fix (one U+00A0 over the whole gap) removes a soft hyphen too.
+    it('refuses a hidden character in the gap of a paragraph, a heading and the idea alike', async () => {
+      const path = 'packages/content/learn/noise.mdx';
+      const zwsp = String.fromCodePoint(0x200b);
+      const shy = String.fromCodePoint(0xad);
+      const details = async (source: string) =>
+        (await closedBodyProblems([{ path, source }], { figures })).map(({ code, detail }) => `${code} ${detail}`);
+      const joined = (field: string, gap: string) =>
+        `figure-join ${field}: the count "6" and its noun "inputs" are joined by ${gap}, not U+00A0; write one ` +
+        'U+00A0 between them; R7 (docs/CONTENT-STYLE.md §4)';
+      expect(await details(`${FRONT}It mixes 6${NBSP}${zwsp}inputs.\n`)).toEqual([joined('body', 'U+00A0 U+200B')]);
+      expect(await details(`${FRONT}It mixes 6${shy} inputs.\n`)).toEqual([joined('body', 'U+00AD U+0020')]);
+      const idea = FRONT.replace('title: Noise', `title: Noise\nidea: It mixes 6${NBSP}${zwsp}inputs.`);
+      expect(await details(`${idea}It mixes 6${NBSP}${zwsp}inputs.\n`)).toEqual([
+        joined('idea', 'U+00A0 U+200B'),
+        joined('body', 'U+00A0 U+200B'),
+      ]);
+      expect(await details(`${FRONT}## 6${zwsp}inputs\n`)).toEqual([joined('body', 'U+200B')]);
+    });
   });
 
   // The figure rules on the path scripts/validate.ts runs: its context from the live files, on a compiled module;

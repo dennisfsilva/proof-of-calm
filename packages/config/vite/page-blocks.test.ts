@@ -90,7 +90,23 @@ describe('pageOf', () => {
     ['each mark once, in tree order', '*a **b*** `c` *d* e​.', 'a b c d e.', ['emphasis', 'strong', 'inlineCode']],
   ])('marks a paragraph holding %s', async (_, body, text, marks) => {
     const all = body.includes('e​') ? [...marks, 'ignorable'] : marks;
-    expect(await pageOfBody(body)).toEqual([{ kind: 'paragraph', text, marks: all }]);
+    const written = /\p{Default_Ignorable_Code_Point}/u.test(body) ? { written: body.replace(/[*`]/gu, '') } : {};
+    expect(await pageOfBody(body)).toEqual([{ kind: 'paragraph', text, marks: all, ...written }]);
+  });
+
+  // R7 reads each block as the parser decoded it (docs/CONTENT-STYLE.md §4), so the page keeps that text too.
+  it('keeps the decoded text of a paragraph, a heading and a code block that lost a hidden character', async () => {
+    const zwsp = String.fromCodePoint(0x200b);
+    const shy = String.fromCodePoint(0xad);
+    const body = `## 6${zwsp}inputs\n\nIt mixes 6${shy} inputs.\n\n\`\`\`\n2${zwsp}indexes\n\`\`\`\n\nPlain.\n`;
+    const page = await pageOfBody(body);
+    expect(page).toEqual([
+      { kind: 'heading', depth: 2, text: '6inputs', written: `6${zwsp}inputs` },
+      { kind: 'paragraph', text: 'It mixes 6 inputs.', marks: ['ignorable'], written: `It mixes 6${shy} inputs.` },
+      { kind: 'code', text: '2indexes', written: `2${zwsp}indexes` },
+      { kind: 'paragraph', text: 'Plain.' },
+    ]);
+    expect(page.map((block) => 'written' in block)).toEqual([true, true, true, false]);
   });
 
   it('marks no plain paragraph, heading or code block', async () => {
@@ -100,7 +116,7 @@ describe('pageOf', () => {
       { kind: 'paragraph', text: 'Solana 97 %.' },
       { kind: 'code', text: '`97` %' },
     ]);
-    expect(page.map((block) => 'marks' in block)).toEqual([false, false, false]);
+    expect(page.map((block) => 'marks' in block || 'written' in block)).toEqual([false, false, false]);
   });
 
   it('is empty when the body does not compile', async () => {

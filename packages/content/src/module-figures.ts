@@ -173,10 +173,12 @@ const COUNT_JOIN = new RegExp(
   'gu',
 );
 const q = (t: string) => printedPercentText(t, MODULE_PERCENT_JOINERS, COUNT_JOIN);
+/** A block's text with each run of the white space a page collapses as one U+0020, as a detail quotes it. */
+export const pageSpaces = (text: string): string => text.replace(/[ \t\n\r\f]+/gu, ' ');
 /** A block a closed section refuses, as a detail names it. */
 const named = (block: PageBlock) => {
   if (block.kind === 'element') return `the element <${block.name} />`;
-  const shown = q(block.text.replace(/[ \t\n\r\f]+/gu, ' ').trim());
+  const shown = q(pageSpaces(block.text).trim());
   return shown === ''
     ? `an empty ${block.kind}`
     : `the ${block.kind === 'code' ? 'code block' : block.kind} "${shown}"`;
@@ -257,7 +259,7 @@ ${empty ? 'remove the list marker' : `write it outside the ${out}`}`);
 the section`);
       continue;
     }
-    const shown = q(block.text.replace(/[ \t\n\r\f]+/gu, ' ').trim());
+    const shown = q(pageSpaces(block.text).trim());
     if (block.kind === 'code') {
       report(`the code block "${shown}" sits in the chart's section, which holds no code block`);
       continue;
