@@ -50,7 +50,7 @@ test('a public page under /en/ answers at its nested clean URL, out of search un
 test('Settings lists English and Português on the preview', async ({ page }) => {
   await page.goto('/settings');
   await expect(page.locator('main#main')).not.toHaveAttribute('aria-busy', 'true');
-  await page.getByRole('combobox', { name: 'Language of the app' }).click();
+  await page.getByRole('combobox', { name: 'Language', exact: true }).click();
   await expect(page.getByRole('option', { name: 'English' })).toHaveAttribute('lang', 'en');
   await expect(page.getByRole('option', { name: 'Português (Portugal)' })).toHaveAttribute('lang', 'pt-PT');
   await expect(page.getByRole('option')).toHaveCount(2);
