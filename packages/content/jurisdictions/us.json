@@ -73,14 +73,14 @@
         "value": "0%, 15% or 20% by taxable income",
         "validFrom": "2026-01-01",
         "validTo": null,
-        "note": "2026 taxable income: 0% up to USD\u00a049,450 single or USD\u00a098,900 joint; 15% up to USD\u00a0545,500 or USD\u00a0613,700; other filing statuses differ (Rev. Proc.\u00a02025-32 §4.03). 20% above; collectibles up to 28% (Topic\u00a0409)."
+        "note": "2026 taxable income: 0% up to USD\u00a049,450 single or USD\u00a098,900 joint; 15% up to USD\u00a0545,500 or USD\u00a0613,700; other filing statuses differ (Rev. Proc.\u00a02025-\u206032 §4.03). 20% above; collectibles up to 28% (Topic\u00a0409)."
       },
       {
         "label": "Short-term capital gains (held one year or less)",
         "value": "10% to 37% by bracket, as ordinary income",
         "validFrom": "2026-01-01",
         "validTo": null,
-        "note": "Taxed with your other income at the graduated rates (Topic\u00a0409). For 2026 the 37% bracket begins above USD\u00a0640,600 of taxable income for a single filer and USD\u00a0768,700 for a joint return (Rev. Proc.\u00a02025-32 §4.01)."
+        "note": "Taxed with your other income at the graduated rates (Topic\u00a0409). For 2026 the 37% bracket begins above USD\u00a0640,600 of taxable income for a single filer and USD\u00a0768,700 for a joint return (Rev. Proc.\u00a02025-\u206032 §4.01)."
       },
       {
         "label": "Net investment income tax",
@@ -108,8 +108,8 @@
     ],
     "caveats": [
       "State income tax: 42 states levy one, with top rates from 2.5% to 13.3%; the other 8 levy none, and Washington taxes capital gains only (Tax Foundation, 2026; medium confidence).",
-      "Units held with a broker: your own books and records, or a standing order kept there, identify the units sold until 31\u00a0December\u00a02026 (Notice\u00a02026-20 §3.03 and §4.02). The relief ends with that date (Notice\u00a02026-20 §5).",
-      "An NFT is a collectible when the right or asset behind it is one (Notice\u00a02023-27); long-term gains on collectibles are taxed at up to 28% (Topic\u00a0409).",
+      "Units held with a broker: your own books and records, or a standing order kept there, identify the units sold until 31\u00a0December\u00a02026 (Notice\u00a02026-\u206020 §3.03 and §4.02). The relief ends with that date (Notice\u00a02026-\u206020 §5).",
+      "An NFT is a collectible when the right or asset behind it is one (Notice\u00a02023-\u206027); long-term gains on collectibles are taxed at up to 28% (Topic\u00a0409).",
       "Pending federal bills on digital asset taxation.",
       "A Form\u00a01099-DA without basis for units transferred in.",
       "Staking and mining income, and whether the activity is a business.",
