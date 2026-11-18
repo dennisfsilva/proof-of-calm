@@ -12,8 +12,11 @@ const NB_HYPHEN = String.fromCodePoint(0x2011);
  * of a text between its URLs each on its own, and percent-validate.ts reads the text with each URL replaced by a
  * space. No capture group, so that `split` returns no part of a URL. */
 export const URL_IN_TEXT = /https?:\/\/\S+/g;
-// Any white space but the no-break space: an ordinary space, a tab, a line break, a narrow no-break space.
-const GAP = String.raw`((?:(?!${NBSP})\s)+)`;
+// The run of white space (`\s`), format characters (`\p{Cf}`: U+2060, U+0600) and control characters (`\p{Cc}`: U+0085)
+// between a pair, but a lone no-break space, which is the join: a no-break space beside any other is a gap, since a
+// line breaks at the other. Any other character between them ends the run, so that pair is not read.
+const SPACE = String.raw`[\s\p{Cf}\p{Cc}]`;
+const GAP = String.raw`((?!${NBSP}(?!${SPACE}))${SPACE}+)`;
 // The ISO codes the live profiles write beside a figure, and the words that name a form or one of its boxes.
 const CODE = '(EUR|GBP|USD)';
 const FORM =
@@ -210,7 +213,7 @@ export const titleJoinProblems = (path: string, profile: CountryProfile): Proble
   sourceTitles(profile).flatMap(([field, text, lang]) => {
     const language = Object.hasOwn(TITLE_LANGUAGES, lang) ? TITLE_LANGUAGES[lang] : undefined;
     const detail = `${field}: the title ${quoted(text)} holds U+2011; a source's title keeps the published U+002D, with \
-U+2060 after it inside a law number (docs/CONTENT-STYLE.md §4)`;
+U+2060 after it where range-join asks for one (docs/CONTENT-STYLE.md §4)`;
     return [
       ...(text.includes(NB_HYPHEN) ? [{ path, code: 'range-join', detail }] : []),
       ...(language === undefined ? [] : joinProblems(path, [[field, text]], language)),
