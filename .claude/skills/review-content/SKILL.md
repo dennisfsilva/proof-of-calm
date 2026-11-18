@@ -90,7 +90,11 @@ Arguments: $ARGUMENTS
   point: `\x{2060}`, `\x{00A0}` or `\x{2011}`, never the character. The finish drops U+2060 from a
   note, U+00A0 reads as a space, and U+2011 reads as a hyphen. In .content-review/draft.json, type
   the backslash twice, `\\x{2060}`: that JSON string holds the text `\x{2060}`. A `\u2060`
-  or `\u00a0` escape there is the character itself.
+  or `\u00a0` escape there is the character itself. A `changes` row's `old` and `new` are the
+  exception: write them as the data file writes them, `\u2060` escapes included. The finish
+  writes every character of `\p{Cf}` and `\p{Zs}` but U+0020, and U+2011, in those two cells as
+  `\x{HHHH}`, upper-case hex of at least four digits (`spellJoiners` in
+  `tools/content-review/body.ts`), so the table and a note spell one value alike.
 - Change `rules/*.json` and a locale's `rules/<locale>/*.json` only by running
   `pnpm --filter @proofofcalm/content rules`, never by hand.
 - Never delete an entry, a chart row or a file; the finish refuses a deleted file or fact entry or
@@ -132,12 +136,15 @@ Arguments: $ARGUMENTS
   clause, not its whole `value`) and, for a figure the translated module shows, in the
   translation's number format too (fact a's `−94.0 %`, pt-PT's `−94,0 %`), then every URL the
   values rest on, a fall's `source` and `lowSource` both, then `tests:` and each test that failed
-  before the revert. Before you revert, run `pnpm --filter @proofofcalm/content test` and §7 step
+  before the revert, each as its path from the repository root with its line and no column
+  (`packages/content/src/<file>:<line>`). The content test prints `src/<file>:<line>:<column>`:
+  rewrite it to that form, so its src/drops-noise.test.ts:112:18 is
+  packages/content/src/drops-noise.test.ts:112. Before you revert, run `pnpm --filter @proofofcalm/content test` and §7 step
   1's search, and list the file and line of every assertion that pins a replaced value: each
-  failing test as the run prints it, the `agent-draft` checks and the content gates that fail on a
-  refusal excepted (`packages/content/scripts/validate.test.ts` and
-  `packages/content/scripts/closed-body.test.ts`, which run the checks on the real files and pin
-  nothing: §7 step 1's sentences on the content test), and each pinning assertion the search finds. For a BTC row they include the `FALLS` row's tie and the Cycles module's pins in
+  failing test the run prints, the `agent-draft` checks and the content gates excepted. A content
+  gate is a test that runs a check on the real files and expects `[]` or `null`: it fails on any
+  refusal of that check and pins no value (§7 step 1's sentences on the content test). Add each
+  pinning assertion the search finds. For a BTC row they include the `FALLS` row's tie and the Cycles module's pins in
   `packages/content/src/cycles.test.ts`, the rows in `packages/content/src/loaders/templates.test.ts`,
   and the EDUCATION §9 tie in `packages/content/src/facts.test.ts`; the owner changes each with
   the data in that pull request. Any other chart row's change takes
@@ -163,8 +170,8 @@ Arguments: $ARGUMENTS
   `2026-\u206027`, `\u2060` in a JSON file) and nothing else; in text a screen shows, a hyphen-minus
   beside a letter in a law's number (`Lei 24\u2011D/2022`) or before a Latin ordinal suffix (`9\u2011bis`,
   the closed list of `docs/CONTENT-STYLE.md` §4) is replaced by U+2011 instead (`\u2011` in a
-  JSON file). A source's title keeps its published hyphen-minus and takes U+2060 after it, never
-  U+2011.
+  JSON file). A source's title keeps its published hyphen-minus, with U+2060 after it where
+  `range-join` asks for one, never U+2011.
 - Fetch only the domains in `packages/content/sources.allow.json`. Nothing refuses an off-list
   fetch: no `allowed-tools` rule approves WebFetch, so Claude Code asks the owner unless the
   session's settings or permission mode approve it. The finish refuses an off-list URL in the draft's link
@@ -381,8 +388,9 @@ Keep a change only when it has none of the kinds the review log names:
 - a status word stronger than the source;
 - a date with no source, or one narrower than its source.
 
-A §7 row of `docs/JURISDICTIONS.md` that disagrees with a card goes in the draft's notes; you edit
-no document.
+A §7 row of `docs/JURISDICTIONS.md` that disagrees with a card goes in the draft's notes as
+`JURISDICTIONS §7 for the owner: <country> <row>: the card says <x>, §7 says <y>` (`<country>` the
+ISO code, `PT`; `<row>` the row's name, `Losses`); you edit no document.
 
 Copy follows `docs/CONTENT-STYLE.md` §1 and §4, and a value holds only the quotable fact: the figure,
 the date and the condition its source states, with no explanation, advice or forecast around them.
@@ -401,8 +409,10 @@ no file, set `reviewedBy: agent-draft` on one fact entry or file a note names, o
 however many notes it holds, since the pull request carries them all (the cycles file
 for a chart row's note), never on a module, for which the finish would ask a `changes` row: for a
 module's note, on the fact entry or cycles file its figure rests on. After §1's revert, a
-translated module's note included, the mark goes on the cycles file when the reverted change
-reached a chart row, and otherwise on the fact entry the note names first. Give that file its
+translated module's note included, set that mark only when the run would otherwise stage nothing:
+on the cycles file when the reverted change reached a chart row, otherwise on the fact entry the
+note names first, or, when the note names only a module, on the fact entry that the first key of
+that module's front-matter `facts:` names (`a.btc-drawdowns` for `learn/cycles.mdx`). Give that file its
 `reviewed` row. The pull request then carries the note: the finish accepts a change of the mark alone and
 refuses a run with nothing staged. Leave the rules files as the generator writes them.
 The finish refuses a changed entry at any other value.
@@ -450,8 +460,11 @@ The finish refuses a changed entry at any other value.
    BTC/USD series, not a moved row's publisher): leave it. A constant is no such hit when an
    assertion reads it for your row (`BITSTAMP` in `packages/content/src/cycles.test.ts`, when the
    moved row's `FALLS` literal reads it).
-   A `FALLS` literal or a key of `UNREGAINED_KEYS` takes the note below. Name each pinning
-   assertion's file and line and both values in the draft's notes and your closing report, and say in
+   A `FALLS` literal or a key of `UNREGAINED_KEYS` takes the note below. Name each other pinning
+   assertion in the draft's notes and your closing report as
+   `test pin for the owner: <path>:<line> pins <item> <field>: <old> to <new>`: the path from the
+   repository root with the line and no column, as `tests:` writes it (§1), `<item>` and `<field>`
+   as the `changes` row names them, and both values with their joiners spelled (§1). Say in
    both that `verify` fails on `pnpm test` until the owner removes those assertions, the ones only CI
    runs too, in a pull request of its own (`docs/ENGINEERING.md` §2): one changed to your new value
    would fail on main, where the data still holds the old one. The log pull request writes each
@@ -494,8 +507,9 @@ The finish refuses a changed entry at any other value.
    notes and in your closing report, and say in both that the pull request's `verify` check fails
    on `pnpm validate:content` and `pnpm test` until that figure is fixed (the finish does not run the check, CI
    does).
-   The content test runs the same checks on the real files (`packages/content/scripts/validate.test.ts`,
-   and `packages/content/scripts/closed-body.test.ts` on the translated modules), so it fails on
+   The content test runs the same checks on the real files in its content gates, tests that expect
+   `[]` or `null` (`packages/content/scripts/validate.test.ts`, `packages/content/scripts/closed-body.test.ts`
+   on the translated modules, and others under `packages/content/src`), so it fails on
    every refusal of `pnpm run validate:content`, `overlay-number-mismatch` included: fix or revert
    as that refusal's rule says; the rule for tests above covers only a test that asserts what your
    change replaced. `rules` reports the files it wrote,
@@ -519,7 +533,10 @@ The finish refuses a changed entry at any other value.
    price, its `reason` names the `lowSource` when the row has one, and its `eventDate` is the low's
    day. `accessed`, `reviewedBy` and `status.confidence` need no `changes` row. A fix that puts
    back HEAD's text leaves no changed leaf and takes no `changes` row (the finish refuses a row
-   for a non-change): name it in the notes instead, and its mark goes as §6 says.
+   for a non-change): name it in the notes instead as
+   `put back as at HEAD, no change asked: <item> <field>: <why>`, `<item>` and `<field>` as a
+   `changes` row would name them. That note records the fix and asks the owner nothing. Its mark
+   goes as §6 says.
    Give one `reviewed` row per file reviewed; the finish refuses a changed file, a module too, with
    no `reviewed` row. A translation gets none: its `lastReviewed` is its English file's. The owner sets `lastReviewed` to today only when that row shows every source
    read (`read` equals `of`) and the owner opened each off-list secondary source your notes name.
