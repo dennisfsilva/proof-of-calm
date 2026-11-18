@@ -243,11 +243,11 @@ describe('a law name, a date and a range in English prose (docs/CONTENT-STYLE.md
     expect(fixed.map((text) => joins(text.replaceAll(nbsp, ' ').replaceAll(wj, '')).length)).toEqual([4, 5, 4, 6]);
   });
 
-  it('gives a pt-PT text no law, date or range join until its language has lists (D6)', () => {
-    const pt = '§ 23, de 1 de janeiro de 2023, art. 10, 2023–2025.';
-    expect(joinProblems(path, [['card.caveats.0', pt]], 'pt-PT')).toEqual([]);
+  it('gives a translation no law, date or range join until its language has lists', () => {
+    const es = '§ 23, el 1 de enero de 2023, art. 10, 2023–2025.';
+    expect(joinProblems(path, [['card.caveats.0', es]], 'es-ES')).toEqual([]);
     expect(
-      codes(languagePercentProblems(path, 'pt-PT', load('jurisdictions/pt.json'), [['card.caveats.0', pt]])),
+      codes(languagePercentProblems(path, 'es-ES', load('jurisdictions/es.json'), [['card.caveats.0', es]])),
     ).toEqual([]);
   });
 
@@ -270,6 +270,84 @@ describe('a law name, a date and a range in English prose (docs/CONTENT-STYLE.md
     const profile = load('jurisdictions/pt.json');
     const decimals = codes(localeProblems(path, profile, [['card.caveats.0', `From 12.2–${wj}48%.`]]));
     expect(decimals).toEqual(['decimal-separator']);
+  });
+});
+
+// D6 of #358 (docs/CONTENT-STYLE.md §9): pt-PT's law names from the census of its overlays, and its dates `D de M de
+// YYYY`, `D de M` and `M de YYYY` with U+00A0 in each gap, as lib/format writes a pt-PT date.
+describe('a law name, a date and a range in pt-PT prose (docs/CONTENT-STYLE.md §9)', () => {
+  const pt = (text: string) => joinProblems(path, [['card.caveats.0', text]], 'pt-PT').map(({ detail }) => detail);
+  const dayDe = (day: string) => refused(`the day "${day}" and its linker`, '"de"');
+  const deMonth = (month: string) => refused('the linker "de" and its month', `"${month}"`);
+  const monthDe = (month: string) => refused(`the month "${month}" and its linker`, '"de"');
+  const deYear = (year: string) => refused('the linker "de" and its year', `"${year}"`);
+
+  it('refuses each of the four gaps of a full date, and passes it joined (P1)', () => {
+    const date = [dayDe('1'), deMonth('janeiro'), monthDe('janeiro'), deYear('2023')];
+    expect(pt('Desde 1 de janeiro de 2023.')).toEqual(date);
+    expect(pt(`Desde 1${nbsp}de${nbsp}janeiro${nbsp}de${nbsp}2023.`)).toEqual([]);
+  });
+
+  it('refuses the two gaps of a month and its year and of a day and its month (P2)', () => {
+    expect(pt('Em janeiro de 2026.')).toEqual([monthDe('janeiro'), deYear('2026')]);
+    expect(pt('Até 31 de outubro.')).toEqual([dayDe('31'), deMonth('outubro')]);
+    expect([`Em janeiro${nbsp}de${nbsp}2026.`, `Até 31${nbsp}de${nbsp}outubro.`].flatMap(pt)).toEqual([]);
+  });
+
+  it('refuses an ordinary space after each listed law name, and a range after one (P3)', () => {
+    const names = ['§', '§§', 'art.', 'arts.', 'artigo', 'artigos', 'n.º', 'n.ºs', 'Lei', 'Decreto-Lei', 'secção'];
+    for (const name of [...names, 'frase', 'parágrafo', 'exemplo', 'código']) {
+      expect(pt(`Ver ${name} 12.`), name).toEqual([named(name, '12')]);
+      expect(pt(`Ver ${name}${nbsp}12.`), name).toEqual([]);
+    }
+    expect(pt('Pela Lei n.º 3.')).toEqual([named('n.º', '3')]);
+    expect(pt('Nos termos do art. 10.º do CIRS.')).toEqual([named('art.', '10.º')]);
+    expect(pt('Os n.ºs 23–24 do artigo.')).toEqual([named('n.ºs', '23'), ranged('23–24')]);
+  });
+
+  it('refuses a hyphen-minus between two figures without U+2060 after it (P4)', () => {
+    expect(pt('O ano fiscal 2026-27.')).toEqual([hyphened('2026-27')]);
+    expect(pt(`O ano fiscal 2026-${wj}27.`)).toEqual([]);
+  });
+
+  it('leaves English’s results as they were, and reads no month of the other language (P5)', () => {
+    const english = [named('§', '23'), dayed('1', 'January'), yeared('January', '2023')];
+    expect(joins('From 1 January 2023, § 23.')).toEqual(english);
+    expect(joins('Desde 1 de janeiro de 2023.')).toEqual([]);
+    expect(pt('From 1 January 2023.')).toEqual([]);
+  });
+
+  it('leaves de before a bare year, and a name before a word, unchecked (P6)', () => {
+    expect(pt('Desde 2023, o regime de 2026 e a Lei de 2025, em maio.')).toEqual([]);
+  });
+
+  it('runs through the translated call of the content gate with pt-PT, and fails without it (P7)', () => {
+    const portugal = load('jurisdictions/pt.json');
+    const outubro = [['card.caveats.0', 'Até 31 de outubro.']] as [string, string][];
+    expect(codes(languagePercentProblems(path, 'pt-PT', portugal, outubro))).toEqual(['figure-join', 'figure-join']);
+    const english = {
+      path: 'packages/content/jurisdictions/pt.json',
+      json: JSON.parse(readFileSync(new URL('jurisdictions/pt.json', root), 'utf8')),
+    };
+    const overlayPath = 'packages/content/i18n/pt-PT/jurisdictions/pt.json';
+    const note = (gap: string) =>
+      `Ano fiscal igual ao ano civil. A declaração (Modelo${nbsp}3) é entregue de 1${gap}de${gap}abril a 30${gap}de${gap}junho do ano seguinte.`;
+    const { $comment: _, ...allow } = allowList;
+    const gate = (gap: string) =>
+      validateContent([english, { path: overlayPath, json: { filingNote: note(gap) } }], { today: '2026-10-17', allow })
+        .filter((problem) => problem.path === overlayPath)
+        .map(({ code }) => code);
+    expect(gate(' ')).toEqual(['figure-join', 'figure-join', 'figure-join', 'figure-join']);
+    expect(gate(nbsp)).toEqual([]);
+  });
+
+  it('passes every refusal once its fix is applied (P8)', () => {
+    const fixed = [
+      `Lei n.º${nbsp}212/2026, de 4${nbsp}de${nbsp}novembro${nbsp}de${nbsp}2026, art.${nbsp}10.º.`,
+      `Os n.ºs${nbsp}23–${wj}24, o ano 2026-${wj}27 e até 31${nbsp}de${nbsp}maio.`,
+    ];
+    expect(fixed.flatMap(pt)).toEqual([]);
+    expect(fixed.map((text) => pt(text.replaceAll(nbsp, ' ').replaceAll(wj, '')).length)).toEqual([6, 5]);
   });
 });
 
