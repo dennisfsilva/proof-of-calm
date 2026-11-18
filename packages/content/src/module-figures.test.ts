@@ -595,7 +595,8 @@ chart's section, which reads plain text only${R6.replace('R6', 'R5')}`,
     ]);
   });
 
-  // A gap that is neither JS white space nor a format character never matches B, so R5 names it by code point.
+  // A gap that is neither JS white space nor a format character never matches B, so R5 refuses the sentence; these
+  // two are hidden characters, which a quote prints by code point (percent-gap.ts).
   it.each([
     ['U+0007', 0x7],
     ['U+0085', 0x85],
