@@ -176,7 +176,8 @@ export function ExchangeSections({ model, plan, exchange }: SectionsProps) {
     const text = t('replace', {
       ...w.counted(by.length),
       month: month(estimate),
-      estimate: piece(estimate, all, otherVenue, true),
+      // Under "Estimates it replaces", and after pt-PT's «a estimativa de», the piece does not say "estimated" again.
+      estimate: piece(estimate, all, otherVenue, false),
       by: by.length === 1 ? piece(by[0] as Entry, all, otherVenue) : '',
       hasVenue: otherVenue && venue !== null ? 'yes' : 'no',
       venue: venue ?? '',
