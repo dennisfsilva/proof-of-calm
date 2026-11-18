@@ -381,7 +381,10 @@ fact to the window its URL names (the skill's §4 step 3).
    row's high, it also writes the new `<coin> <high>` in place of the old one in that test's
    `UNREGAINED_KEYS`, which reads the old key through the entry only while it stays (its check
    names a key no `FALLS` literal holds). A changed publisher needs no such edit, since the test
-   reads its Coinbase rows from the held falls, `FALLS` read through any entry. The log PR writes
+   reads its Coinbase rows from the held falls, `FALLS` read through any entry. A row moved to
+   Coinbase passes that test's windows only with a `source`, and a `lowSource` when one request
+   cannot hold both ends; a coin of `UNREGAINED_KEYS` stays, with a `chart row for the owner:`
+   note. The log PR writes
    back each assertion step 4 removed at the new value, app, web, and end-to-end tests included. It
    also writes the new value into each passing test the review's notes name for the log pull
    request. These changes make the log PR a tier 2 pull request with the content roles

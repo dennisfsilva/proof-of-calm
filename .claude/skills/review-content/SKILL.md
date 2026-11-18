@@ -419,8 +419,13 @@ The finish refuses a changed entry at any other value.
    through the entry only while it stays: when your change moves a high, say in the notes that
    the log pull request writes the new `<coin> <high>` in place of the old one there when it
    removes the entry (`docs/CONTENT-OPS.md` §8 step 5). A changed publisher takes no such note:
-   the test reads its Coinbase rows from the held falls, `FALLS` read through any entry. A change §1 reverted takes no such note: its `tests:` list names the
-   literal. For the tie
+   the test reads its Coinbase rows from the held falls, `FALLS` read through any entry. A change
+   §1 reverted takes no such note: its `tests:` list names the literal. A row you move to Coinbase
+   must also pass that test's windows, which your run shows only after the entry: give it a
+   `source` and, when one request cannot hold both ends, a `lowSource`, each one request of fewer
+   than 300 daily candles holding its date. A coin of `UNREGAINED_KEYS` keeps its series, since no
+   such request runs from its low to the day you read it: leave the row and write
+   `chart row for the owner: …`. For the tie
    of a fact's value to its `docs/EDUCATION.md` §9 row (`packages/content/src/facts.test.ts`), say
    instead that the owner's pull request to main records the fact's old and new value as an
    `unlogged` entry in that test and keeps the tie, and that the owner removes that entry in a pull request to main when this
