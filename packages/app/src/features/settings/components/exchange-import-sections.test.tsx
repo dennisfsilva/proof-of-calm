@@ -22,6 +22,7 @@ import { KRAKEN_LEFT_OUT, KRAKEN_OCTOBER, krakenLedger, ONE_TAP_OCTOBER } from '
 import { createTestServices } from '../../../lib/services/testing';
 import { TRADE_REPUBLIC_OCTOBER } from '../../../lib/services/trade-republic.testing';
 import settings from '../../../messages/en/settings.json';
+import settingsPt from '../../../messages/pt-PT/settings.json';
 import { previewModel } from '../model/exchange-preview';
 import { exchangeContext } from '../model/import';
 import { ExchangeSections, ExchangeSummary } from './exchange-import-sections';
@@ -119,7 +120,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
       'Coins added at no cost (1)',
     ]);
     expect(lines('Estimates it replaces (1)')).toEqual([
-      'Monthly buy for October 2026: 0,00119 BTC (estimated) at Bitvavo for 70,00 € becomes 2 purchases at Kraken, ' +
+      'Monthly buy for October 2026: 0,00119 BTC at Bitvavo for 70,00 € becomes 2 purchases at Kraken, ' +
         '0,00200 BTC for 120,00 € in all, fees 0,31 €, on 5 Oct 2026 and 12 Oct 2026.',
     ]);
     // The way to keep an estimate is cut: typing its units in the Log turns it into a hand entry (docs/DOMAIN.md §3.13).
@@ -131,6 +132,23 @@ describe('ExchangeSummary and ExchangeSections', () => {
     expect(lines('Coins added at no cost (1)')).toEqual(['Coins added: 0,00005 BTC at no cost, on 16 Oct 2026.']);
   });
 
+  it('say "estimate" once in a pt-PT replacement, where «a estimativa de» already names it', async () => {
+    const services = createTestServices({ snapshot: fixture, language: 'pt-PT' });
+    await act(() => services.start());
+    const shown = planOf(KRAKEN_OCTOBER, [...fixture.entries, ONE_TAP_OCTOBER]);
+    const model = previewModel(shown, shown);
+    render(
+      <ServicesProvider services={services}>
+        <I18nProvider locale="pt-PT" messages={{ settings: settingsPt }}>
+          <ExchangeSections model={model} plan={PLAN} exchange="kraken" />
+        </I18nProvider>
+      </ServicesProvider>,
+    );
+    const [line] = lines('Estimativas que substitui (1)');
+    expect(line).toMatch(/^Na compra mensal de .*, a estimativa de 0,00119 BTC em Bitvavo por 70,00 € passa a /);
+    expect(line?.match(/estimad|estimativ/g)).toEqual(['estimativ']);
+  });
+
   it('count the estimates replaced, not the months, with one sentence for each estimate', async () => {
     const second = {
       ...ONE_TAP_OCTOBER,
@@ -140,9 +158,9 @@ describe('ExchangeSummary and ExchangeSections', () => {
     await mount(planOf(KRAKEN_OCTOBER, [...fixture.entries, ONE_TAP_OCTOBER, second]));
     expect(texts()).toContain('Replaces 2 estimates from Bought as planned.');
     expect(lines('Estimates it replaces (2)')).toEqual([
-      'Monthly buy for October 2026: 0,00119 BTC (estimated) at Bitvavo for 70,00 € becomes 2 purchases at Kraken, ' +
+      'Monthly buy for October 2026: 0,00119 BTC at Bitvavo for 70,00 € becomes 2 purchases at Kraken, ' +
         '0,00200 BTC for 120,00 € in all, fees 0,31 €, on 5 Oct 2026 and 12 Oct 2026.',
-      'Monthly buy for October 2026: 0,0011 BTC (estimated) at Bitvavo for 70,00 € becomes 2 purchases at Kraken, ' +
+      'Monthly buy for October 2026: 0,0011 BTC at Bitvavo for 70,00 € becomes 2 purchases at Kraken, ' +
         '0,0020 BTC for 120,00 € in all, fees 0,31 €, on 5 Oct 2026 and 12 Oct 2026.',
     ]);
   });
@@ -151,7 +169,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
     const csv = btcBuys([['T1', '2026-10-05 09:00:00', '70.0000', '0.0012000000', '0.1800']]);
     await mount(planOf(csv, [...fixture.entries, ONE_TAP_OCTOBER]));
     expect(lines('Estimates it replaces (1)')).toEqual([
-      'Monthly buy for October 2026: 0,00119 BTC (estimated) at Bitvavo for 70,00 € becomes 0,00120 BTC at Kraken ' +
+      'Monthly buy for October 2026: 0,00119 BTC at Bitvavo for 70,00 € becomes 0,00120 BTC at Kraken ' +
         'for 70,00 €, fee 0,18 €, on 5 Oct 2026.',
     ]);
   });
@@ -164,7 +182,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
     ]);
     await mount(planOf(csv, [...fixture.entries, ONE_TAP_OCTOBER]));
     expect(lines('Estimates it replaces (1)')).toEqual([
-      'Monthly buy for October 2026: 0,00119 BTC (estimated) at Bitvavo for 70,00 € becomes 3 purchases at Kraken, ' +
+      'Monthly buy for October 2026: 0,00119 BTC at Bitvavo for 70,00 € becomes 3 purchases at Kraken, ' +
         '0,00200 BTC for 120,00 € in all, fee 0,10 €, on 5 Oct 2026, 12 Oct 2026, and 19 Oct 2026.',
     ]);
   });
@@ -176,7 +194,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
     ]);
     await mount(planOf(csv, [...fixture.entries, ONE_TAP_OCTOBER]));
     expect(lines('Estimates it replaces (1)')).toEqual([
-      'Monthly buy for October 2026: 0,00119 BTC (estimated) at Bitvavo for 70,00 € becomes 2 purchases at Kraken, ' +
+      'Monthly buy for October 2026: 0,00119 BTC at Bitvavo for 70,00 € becomes 2 purchases at Kraken, ' +
         '0,00200 BTC for 120,00 € in all, on 5 Oct 2026 and 12 Oct 2026.',
     ]);
   });
@@ -700,7 +718,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
     const csv = btcBuys([['T1', '2026-10-05 09:00:00', '70.0000', '0.0012000000', '0.0000']]);
     await mount(planOf(csv, [...fixture.entries, ONE_TAP_OCTOBER]));
     expect(lines('Estimates it replaces (1)')).toEqual([
-      'Monthly buy for October 2026: 0,00119 BTC (estimated) at Bitvavo for 70,00 € becomes 0,00120 BTC at Kraken ' +
+      'Monthly buy for October 2026: 0,00119 BTC at Bitvavo for 70,00 € becomes 0,00120 BTC at Kraken ' +
         'for 70,00 €, on 5 Oct 2026.',
     ]);
   });
