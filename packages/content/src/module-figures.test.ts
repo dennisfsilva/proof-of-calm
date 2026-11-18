@@ -364,7 +364,9 @@ describe("each detail quotes its sentence and names its figure and rule (§4's l
     [
       '2: a wrong join, the whole numeral quoted',
       body(`${S1} ${S2.replace('97 %', '97\n%')}`, { raw: true }),
-      [`figure-chart: body: "97\\n%" in "${S1} ${S2}" joins a figure to a sign other than by one space and %${R(5)}`],
+      [
+        `figure-chart: body: "97\\n%" in "${S1} ${S2}" joins a figure to a sign other than by one ordinary or no-break space and %${R(5)}`,
+      ],
     ],
     [
       '3: a code block',

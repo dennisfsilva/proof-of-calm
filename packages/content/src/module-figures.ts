@@ -70,7 +70,7 @@ const NUMERAL = '\\p{N}+(?:[.,]\\p{N}+)*';
 type Kinds = readonly (readonly [kind: string, pattern: RegExp])[];
 const KINDS: Kinds = [
   ['a figure', new RegExp(`${NUMERAL}(?:\\s?${SIGNS})?`, 'u')],
-  ['a percentage sign or word', new RegExp(`${PERCENTS.source}|[‰‱]`, 'iu')],
+  ['a percentage', new RegExp(`${PERCENTS.source}|[‰‱]`, 'iu')],
   [
     'a number word',
     word([...CARDINALS.map((w) => `${w}(?:s|fold)?`), ...ORDINALS.map((w) => `${w}s?`), ...OTHERS].join('|'), 'iu'),
@@ -232,8 +232,11 @@ export function moduleFigureProblems(path: string, page: readonly PageBlock[], c
     if (closed && block.container !== undefined) {
       const [where, out] = CONTAINERS[block.container];
       const item = block.container === 'listItem' ? block.listNumbers?.at(-1) : undefined;
+      // An item with no block reads as an empty paragraph: nothing moves out of the list, so the marker goes.
+      const empty = block.container === 'listItem' && block.kind === 'paragraph' && block.text.trim() === '';
       report(`${named(block)} sits in ${item === undefined ? where : `list item ${item}`} in the chart's section, which \
-reads only paragraphs and headings outside a list, a quote or an element; write it outside the ${out}`);
+reads only paragraphs and headings outside a list, a quote or an element; \
+${empty ? 'remove the list marker' : `write it outside the ${out}`}`);
       continue;
     }
     if (block.kind === 'element') {
@@ -271,7 +274,9 @@ which reads plain text only`);
     // The app formats N % only with one joiner it knows, in one string (withJoiner); sentencesOf collapses white space.
     for (const [written, joiner = '', sign] of block.text.matchAll(new RegExp(`${NUMERAL}(\\s*)(${SIGNS})`, 'gu'))) {
       if (!MODULE_PERCENT_JOINERS.includes(joiner) || sign !== '%')
-        report(`"${quote(written)}" in "${shown}" joins a figure to a sign other than by one space and %`);
+        report(
+          `"${quote(written)}" in "${shown}" joins a figure to a sign other than by one ordinary or no-break space and %`,
+        );
     }
     for (const sentence of sentencesOf(block.text)) {
       const found = triggerIn(sentence);
@@ -292,11 +297,15 @@ which reads plain text only`);
         const where = shapes === undefined ? `, and ${language} has no shapes for a chart's section yet` : '';
         const what =
           found === null ? `is not a sentence ${language}'s list holds` : `holds ${found.kind} "${quote(found.token)}"`;
-        // Only an unlisted sentence with no trigger can pass by listing; one with a trigger passes only as B or E.
+        // Only an unlisted sentence with no trigger can pass by listing; one with a trigger in a closed section passes
+        // only as B or E, so its fix names them where its language has them.
+        const shapesFix = 'write it as B or E (docs/CONTENT-STYLE.md §9)';
         const fix =
           found !== null
-            ? ''
-            : `; ${shapes === undefined ? '' : 'write it as B or E (docs/CONTENT-STYLE.md §9), or '}${LIST_IT}`;
+            ? closed && shapes !== undefined
+              ? `; ${shapesFix}`
+              : ''
+            : `; ${shapes === undefined ? '' : `${shapesFix}, or `}${LIST_IT}`;
         report(`"${sentence}" ${what} and matches neither shape of a chart's section${where}${fix}`);
       }
     }

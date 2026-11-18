@@ -420,9 +420,9 @@ describe("pt-PT's closed chart section", () => {
   // Review of #361 round 1: `1975. <a listed sentence>` is an ordered list that shows 1975, which no block's text
   // holds. A closed section reads only its top-level paragraphs and headings and the chart; it refuses the rest.
   const SENTENCE = LIVE[0] as string;
-  const inside = (what: string, where: string, out: string) =>
+  const inside = (what: string, where: string, out: string, fix = `write it outside the ${out}`) =>
     `body: ${what} sits in ${where} in the chart's section, which reads only paragraphs and headings outside a list, \
-a quote or an element; write it outside the ${out}; R5 (docs/CONTENT-STYLE.md §4)`;
+a quote or an element; ${fix}; R5 (docs/CONTENT-STYLE.md §4)`;
   const pairs = async (source: string) => (await problemsOf(source)).map(({ code, detail }) => [code, detail] as const);
 
   it.each([1975, 2011, 94, 1])(
@@ -439,8 +439,36 @@ a quote or an element; write it outside the ${out}; R5 (docs/CONTENT-STYLE.md §
     expect(await codes(ptPara('Em 1975 um plano mensal define o dia de cada compra.'))).toEqual([FC]);
   });
 
-  it('R1: an empty ordered item after the chart fails, naming its number', async () => {
-    expect(await pairs(ptPara('1975.'))).toEqual([[FC, inside('an empty paragraph', 'list item 1975', 'list')]]);
+  // Brand's round 2 on #365: an empty item has nothing to move out of the list, so its fix removes the marker.
+  it.each([
+    ['1975.', 'list item 1975'],
+    ['-', 'a list item'],
+  ])(
+    'R1: an empty item «%s» after the chart fails, naming where it is and removing the marker',
+    async (item, where) => {
+      expect(await pairs(ptPara(item))).toEqual([
+        [FC, inside('an empty paragraph', where, 'list', 'remove the list marker')],
+      ]);
+      // The fix applied: without its marker the item leaves nothing, and the section passes.
+      expect(await codes(ptPara(''))).toEqual([]);
+    },
+  );
+
+  // Brand's round 2 on #365: a sentence with a trigger passes only as B or E, so its detail names those shapes.
+  it.each([
+    ['Em 2022 a bitcoin caiu muito.', 'a figure "2022"'],
+    ['Uma queda em ‰ é rara.', 'a percentage "‰"'],
+  ])('R1: «%s» after the chart fails, naming B and E as its fix', async (sentence, holds) => {
+    expect(await pairs(ptPara(sentence))).toEqual([
+      [
+        FC,
+        `body: "${sentence}" holds ${holds} and matches neither shape of a chart's section; write it as B or E \
+(docs/CONTENT-STYLE.md §9); R5 (docs/CONTENT-STYLE.md §4)`,
+      ],
+    ]);
+    // The fix applied: the sentence rewritten as the section's E, in place of S2, passes.
+    expect(await codes(pt(`${S1}\n\n${sentence}`))).toEqual([FC, FU, FU, FU]);
+    expect(await codes(pt(`${S1}\n\n${S2}`))).toEqual([]);
   });
 
   it.each([
