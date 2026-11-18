@@ -32,9 +32,9 @@ in the card's date line; `docs/LEGAL.md` §4, ADR-0047). Decision record: ADR-00
 One file per country in `packages/content/jurisdictions/<code>.json`, validated by this schema in
 `packages/content/src/schema/jurisdiction.ts` (the build session writes the code; the shape is fixed
 here). The code makes every object a `z.strictObject`, so an unknown key fails validation. A text
-field's `max` counts what a reader sees, so a word joiner (U+2060) does not count, here and in the
-core's limit on an override's `note` (`packages/core/src/schema/holding-rule.ts`), which the Learn
-holding tool parses again (decided 2026-11-18). Types are inferred from the schema. The core consumes `CountryRules` (`packages/core/src/schema/country.ts`),
+field's `max` counts what a reader sees, so a word joiner (U+2060) does not count. The core's limit
+on an override's `note` (`packages/core/src/schema/holding-rule.ts`), which the Learn holding tool
+parses again, counts the same way (decided 2026-11-18). Types are inferred from the schema. The core consumes `CountryRules` (`packages/core/src/schema/country.ts`),
 which `countryRules(profile)` from `packages/content` derives from a profile (the shell boots on that
 derivation's generated `packages/content/rules/<code>.json`, ADR-0049); the card and the sources stay
 with the profile.
