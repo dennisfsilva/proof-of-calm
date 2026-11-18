@@ -100,7 +100,8 @@ owns the pipeline around them and its security model.
    module), and the guard stays so. An English change that draws `overlay-number-mismatch` or that
    language's `figure-chart` there is one more refusal no edit of the agent's fixes: it reverts the
    change, a chart row's too, in every file it touched and notes the translated module's path, each
-   English file and field to change with its new value, and every source; the owner makes the
+   English file and field to change with its new value, every source and each test that failed
+   before the revert; the owner makes the
    change in the English and translated files in a pull request of their own (decided 2026-11-17: the owner's commit of the
    digits on the agent's branch fails the guard). A translation's figure that still does
    not match after the agent changes it and runs the checks again is reverted on neither side: the
@@ -341,10 +342,15 @@ fact to the window its URL names (the skill's §4 step 3).
    `unlogged` in `packages/content/src/facts.test.ts`; the agent's branch cannot change that file,
    so a later push that moves the value fails the tie (decided 2026-11-17: letting the guard accept
    the document would open a path from a fetched page into a file later build sessions read as
-   instructions, §3). When the review's PR closes unmerged, or no longer holds the value an entry
-   pins, remove that entry in a pull request to main: no test can tell it from the entry of a
-   review still open, since main holds `was` in both, and a later review that writes exactly its
-   `now` would pass the tie with no session pull request of its own. When the PR
+   instructions, §3). For a `FALLS` literal of `packages/content/src/cycles.test.ts` that a
+   `FALLS entry for the owner` note names, that pull request keeps the literal and adds the note's
+   `now` to `unloggedFalls` in the same test, keyed `<coin> <high>` of the literal
+   (`ETH 2021-11-10`): the test reads the literal while the data does, and `now` once the review
+   merges. Deleting or changing the literal instead fails the test's whole-array comparison on
+   main. When the review's PR closes unmerged, or no longer holds the value an `unlogged` or
+   `unloggedFalls` entry pins, remove that entry in a pull request to main: no test can tell it
+   from the entry of a review still open, since main holds the old value in both, and a later
+   review that writes exactly its `now` would pass with no session pull request of its own. When the PR
    changes a translation (§3 step 2), check that its diff changes only the figures its English file
    changed, at the same paths and to the same values, and nothing else there: compare the values,
    not the characters, since the translation writes each in its number locale's format (§3 step 2;
@@ -367,5 +373,7 @@ fact to the window its URL names (the skill's §4 step 3).
    so the skill improves. The log goes in its own PR, since the agent's branch takes content data only.
    The log PR also updates each `docs/JURISDICTIONS.md` §7 row and `docs/EDUCATION.md` §9 row that the
    merged review changed, and removes each updated fact's `unlogged` entry (step 4), since the facts
-   test fails while one stays; that makes it a tier 2 pull request with the content roles
+   test fails while one stays. It also writes each `unloggedFalls` entry's `now` into `FALLS` in
+   `packages/content/src/cycles.test.ts` in place of its literal and removes the entry, since that
+   test's stale check fails on an entry whose literal reads `now` or is gone; that makes it a tier 2 pull request with the content roles
    (`.claude/rules/content.md`).
