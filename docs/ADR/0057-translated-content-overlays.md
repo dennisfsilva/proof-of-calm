@@ -277,10 +277,11 @@ generated rules files of each language.
   is named rather than missing from the list; its sign class is unchanged. A source's title, in any
   language, never holds U+2011 (`range-join`; `docs/CONTENT-STYLE.md` §4): it keeps the published
   U+002D, with U+2060 after it inside a law number (C3, C7, C9, C10 and C11 of #370).
-- **2026-11-18.** The other details that quote a text print it the same way, with no JSON escape (D4 of
-  #377): `percent-token`, `figure-form`, `figure-mismatch`, `figure-unclassed` (a paragraph break
-  prints `U+000A U+000A`), `decimal-separator`, `percent-joiner`, `number-group` (its suggestion
-  and its rule of CONTENT-STYLE §4 name U+00A0 rather than `\u00a0`), `header-semicolon`,
+- **2026-11-18.** Every other detail that quotes a text prints each hidden character by its code
+  point, with no JSON escape (D4 of #377): `percent-token`, `figure-form`, `figure-mismatch`,
+  `figure-unclassed`, `decimal-separator`, `percent-joiner`, `number-group`, `header-semicolon`,
   `number-unit-hyphen`, the ban list's `banned-*`, `template-date-unresolved`,
-  `template-date-month` and `overlay-number-mismatch`'s figures as written beside a cited point;
-  a gap names every character (`printedGap`).
+  `template-date-month`, `overlay-date-mismatch`'s placeholders and `overlay-number-mismatch`'s
+  figures as written beside a cited point. A paragraph break prints `U+000A U+000A`.
+  `number-group`'s suggestion and its rule of CONTENT-STYLE §4 name U+00A0, not `\u00a0`. A gap
+  names every character (`printedGap`).
