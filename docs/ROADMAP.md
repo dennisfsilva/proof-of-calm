@@ -371,8 +371,10 @@ external links and the Risk link in the mobile export (M3).
   `packages/app/src/features/onboarding/components/template-step.test.tsx`, both through the
   templates' explanation sentences. fix/r7-hidden-break waits after two review rounds. Round 1
   found a hidden character at a word edge, and round 2 a default-ignorable that is itself a mark or
-  a letter at an edge. #388 carries both branches, each after a design check, then the review
-  skill's older gaps, and comes before #271. The in-app Learn hash-link scroll was dropped on
+  a letter at an edge. #388 carries both branches, then the review skill's older gaps, and comes
+  before #271. fix/review-note-forms takes an unanchored design check first. fix/r7-hidden-break
+  first lists every place a dropped character can sit against every general category, each tested
+  against main's verdict, and takes a design check only if that list leaves a doubt. The in-app Learn hash-link scroll was dropped on
   2026-11-18. Nothing writes a `learn/<slug>#` URL. The app's section links open the sheet and
   focus the section. The site pages' anchors land.
   With #340, #343, #349, #355, #358, #361, #368, #370, #377, #381, #387 and #388, pt-PT takes 21

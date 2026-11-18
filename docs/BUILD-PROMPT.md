@@ -737,13 +737,15 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - A skill sentence that widens a rule from one case to every case is checked against each case in
   the files it names. "For a row of any coin" was false for 5 of the 9 chart rows
   (fix/review-note-forms, round 2, #381).
-- A skill sentence that lists the tests pinning a value is false the day a test it does not name
-  pins that value. Three review rounds of fix/review-note-forms each found one more test that pins
-  a chart row. In #381's round 2, `templates.test.ts` and the Cycles module's pins held only some
-  rows. In #387's round 1 it was `red-day.test.ts`, through `pastFalls`. In #387's round 2 it was
-  `template-figures.test.ts` and `template-step.test.tsx`, through the templates' explanation
-  sentences. A skill describes the search its agent runs, every form the value is written in and
-  every place a copy of it lives, and gives a list only as examples (#388, 2026-11-18).
+- A skill sentence that lists the tests pinning a value is false when a test it names pins only
+  some of the values, or when a test it does not name pins one. fix/review-note-forms's list of a
+  chart row's pins was wrong three review rounds in a row. First, tests it named pinned only some
+  rows: in #381's round 2 it was `templates.test.ts` and the Cycles module's pins, the widened
+  sentence of the lesson above. Then, twice, a test it did not name pinned a row: in #387's round 1
+  it was `red-day.test.ts`, through `pastFalls`, and in #387's round 2 `template-figures.test.ts`
+  and `template-step.test.tsx`, through the templates' explanation sentences. A skill describes
+  the search its agent runs, every form the value is written in and every place a copy of it
+  lives, and gives a list only as examples (#388, 2026-11-18).
 - A check that matches on a transformed text judges every part of its pattern against the text as
   written: the gap, both word edges, and each class of character the transform drops. R7's
   reader's view on fix/r7-hidden-break lost a pair main reports three times. Before review it was
