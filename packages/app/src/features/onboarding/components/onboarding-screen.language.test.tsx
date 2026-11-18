@@ -37,13 +37,16 @@ afterEach(() => {
 await preloadLazyModules();
 
 const LISBON = { languages: ['pt-PT'], timeZone: 'Europe/Lisbon' } as const;
+const BERLIN = { languages: ['pt-PT'], timeZone: 'Europe/Berlin' } as const;
 const english = TEMPLATES.map((template) => template.name);
 
 type TestServices = ReturnType<typeof createTestServices>;
+type Device = typeof LISBON | typeof BERLIN;
 
 async function mount(
   language: UiLanguage,
   services: TestServices = createTestServices({ planStore: memoryPlanStore(EMPTY_SNAPSHOT), language }),
+  device: Device = LISBON,
 ) {
   const messages =
     language === 'en'
@@ -53,7 +56,7 @@ async function mount(
     <NavigationProvider location="memory" initialPath="/onboarding">
       <ServicesProvider services={services}>
         <I18nProvider locale={language} messages={messages}>
-          <OnboardingScreen device={LISBON} />
+          <OnboardingScreen device={device} />
         </I18nProvider>
       </ServicesProvider>
     </NavigationProvider>,
@@ -179,5 +182,38 @@ describe('OnboardingScreen: a draft reopened on the summary in pt-PT (ADR-0057)'
     await reopen(services);
     await screen.findByRole('heading', { level: 2, name: portuguese.summary.heading });
     expect(screen.getByText(portuguese.summary.country).nextElementSibling?.querySelector('[lang]')).toBeNull();
+  });
+});
+
+describe("OnboardingScreen: the early window's conditions in pt-PT (ADR-0057)", () => {
+  /** The pt-PT flow to the Cycle plan's numbers in Germany, where its early window shows, under these profiles. */
+  async function earlyWindowIn(profiles: Awaited<ReturnType<typeof loadProfiles>>) {
+    vi.mocked(loadProfiles).mockResolvedValueOnce(profiles);
+    const texts = await loadTemplateTexts('pt-PT');
+    await mount('pt-PT', undefined, BERLIN);
+    await confirm(`Continuar com ${profiles.find((profile) => profile.code === 'DE')?.name ?? ''}`);
+    const cycle = await screen.findByRole('radio', { name: texts.get('cycle-plan')?.name ?? '' });
+    await act(() => fireEvent.click(cycle));
+    await act(() => fireEvent.click(screen.getByRole('button', { name: portuguese.next })));
+    await act(() => fireEvent.change(screen.getByLabelText(/^Montante mensal/), { target: { value: '100' } }));
+    expect(screen.getByRole('checkbox')).toBeDefined();
+  }
+
+  it("marks the country's conditions lang=en when its translation did not load (WCAG 2.2 SC 3.1.2)", async () => {
+    // Offline, a jurisdiction chunk that fails gives the English profile, marked English, among the translations.
+    const english = await loadProfile('DE', 'en');
+    if (english === null) throw new Error('no DE');
+    const translated = await loadProfiles('pt-PT');
+    await earlyWindowIn(translated.map((profile) => (profile.code === 'DE' ? english : profile)));
+    const [first] = english.holdingRuleConditions;
+    expect(screen.getByText(first ?? '').closest('[lang]')?.getAttribute('lang')).toBe('en');
+  });
+
+  it("leaves the country's conditions unmarked when its translation loaded", async () => {
+    const translated = await loadProfiles('pt-PT');
+    await earlyWindowIn(translated);
+    const [first] = translated.find((profile) => profile.code === 'DE')?.holdingRuleConditions ?? [];
+    expect(first).toMatch(/^Uma troca/);
+    expect(screen.getByText(first ?? '').closest('[lang]')).toBeNull();
   });
 });
