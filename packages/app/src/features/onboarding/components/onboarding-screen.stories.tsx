@@ -11,7 +11,7 @@ const meta = {
   title: 'Features/Onboarding/OnboardingScreen',
   component: OnboardingScreen,
   parameters: { path: '/onboarding' },
-  args: { device: { languages: ['en-GB'], timeZone: 'Europe/Lisbon' } },
+  args: { device: { languages: ['en-GB', 'pt-PT'], timeZone: 'Europe/Lisbon' } },
 } satisfies Meta<typeof OnboardingScreen>;
 
 export default meta;

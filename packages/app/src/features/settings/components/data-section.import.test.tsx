@@ -10,6 +10,7 @@ import {
 } from '@proofofcalm/core';
 import { FIXTURE_RULES, type FixtureCountry } from '@proofofcalm/core/testing/country-change';
 import { act, cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { userEvent } from 'storybook/test';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import twoCoins from '../../../../../core/test/golden/two-coins.json';
 import { EMPTY_SNAPSHOT, memoryPlanStore } from '../../../lib/adapters/memory-store';
@@ -34,6 +35,16 @@ vi.mock('../../../lib/i18n/namespaces', async (original) =>
     await original<typeof import('../../../lib/i18n/namespaces')>(),
   ),
 );
+/**
+ * The country step reads the runner's time zone: Portugal is one tap in Lisbon with pt-PT, and nothing is named
+ * in `UTC` (CI). Choosing it in the list works in both (docs/JURISDICTIONS.md §3).
+ */
+async function choosePortugal() {
+  const user = userEvent.setup({ document });
+  await user.click(await screen.findByRole('combobox', { name: 'Country' }));
+  await user.click(await screen.findByRole('option', { name: 'Portugal' }));
+}
+
 // The counts of a result, stubbed onto the core's own result so a test needs no thousand entries; null passes
 // the result through.
 const counts = vi.hoisted(() => ({ value: null as null | Record<'added' | 'skipped' | 'deleted' | 'taken', number> }));
@@ -336,6 +347,7 @@ describe('DataSection, a file from the DCA plan page (docs/DOMAIN.md §7)', () =
     await choose(JSON.stringify(twoCoins.state));
     expect(await screen.findByRole('heading', { name: 'Where do you live?' })).toBeDefined();
     expect(screen.queryByRole('button', { name: 'Import this backup' })).toBeNull();
+    await choosePortugal();
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Continue with Portugal' })));
     expect(screen.getByRole('status').textContent).toBe('Plan imported. Entries now: 18.');
     expect(services.domain.store.getState().snapshot.plan?.country).toBe('PT');
@@ -357,6 +369,7 @@ describe('DataSection, a file from the DCA plan page (docs/DOMAIN.md §7)', () =
     vi.spyOn(window.navigator, 'languages', 'get').mockReturnValue(['pt-PT']);
     const { services } = await mount(EMPTY_SNAPSHOT, undefined, { rules });
     await choose(JSON.stringify(twoCoins.state));
+    await choosePortugal();
     const confirm = await screen.findByRole('button', { name: 'Continue with Portugal' });
     const write = vi.spyOn(services.domain, 'write');
     await act(async () => {
@@ -494,6 +507,7 @@ describe('DataSection, the focus after an import that ends in a problem (docs/DE
       await act(async () => fireEvent.click(within(dialog).getByRole('button', { name: 'Replace everything' })));
       await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     } else {
+      if (file !== 'backup') await choosePortugal();
       const name = file === 'backup' ? 'Import this backup' : 'Continue with Portugal';
       const button = await screen.findByRole('button', { name });
       await act(async () => fireEvent.click(button));
