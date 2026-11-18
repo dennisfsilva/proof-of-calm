@@ -56,13 +56,16 @@ configs live in their packages. See `docs/ENGINEERING.md`.
     fence's info string are not in it, and a node type outside `PAGE_NODES` throws. `page` is the page
     in tree order (`pageOf`, `packages/config/vite/page-blocks.ts`): each heading with its depth, each
     paragraph and code block with its text, and each flow element by name, empty when the body does not
-    compile; `blocks` is the texts of `page` without its elements. A paragraph's `marks`, set only when
+    compile; `blocks` is the texts of `page` without its elements. A block below the top level names its
+    innermost `container` (listItem, blockquote or mdxJsxFlowElement); the first block of an ordered list
+    item carries `listNumbers`, the number the page shows for each item it opens (the list's start plus the
+    item's place), and an item with no block reads as an empty paragraph. A paragraph's `marks`, set only when
     non-empty, name each inline node other than text it holds (emphasis, strong, inlineCode, break,
     mdxJsxTextElement) once in tree order, then `ignorable` when a default-ignorable code point was removed. `pnpm validate:content`
     runs it, and runs the ban list and the hyphen check on each of a translated module's `blocks`. It
     compares the module's `elements` with its English module's (`module-overlay-elements`). It reads the
-    numbers of each of its `blocks` on its own and compares them, pooled into one sorted list on each side,
-    with English's (`overlay-number-mismatch`).
+    numbers of each of its `blocks` on its own, and each ordered item's `listNumbers`, and compares them,
+    pooled into one sorted list on each side, with English's (`overlay-number-mismatch`).
   - `bootScriptPlugin()`: after every other html hook, in the client build only, the one module entry
     becomes the inline boot script `BOOT_SCRIPT` with the entry URL in `data-entry`; its fixed text
     has the fixed hash `BOOT_SCRIPT_HASH` that the CSP carries (`sha256()` computes such a hash). An

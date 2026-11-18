@@ -232,3 +232,12 @@ Recorded on 2026-11-15, when the site's half of the rendering points landed in `
   language (`useModuleIndex` in `packages/app/src/features/learn/lib/bodies.ts`): English, its title and idea marked
   `lang="en"`, stands until the chunk resolves and for good if it fails, and an untranslated module stays English and
   marked. A module's screen reads its translated metadata from the same chunk beside its body's.
+- 2026-11-18: `pageOf` records where each block stands, since the page shows an ordered list item's number, which no
+  block's text holds (`1975. Text.` is a list that starts at 1975). A block below the page's top level names its
+  innermost `container` (`listItem`, `blockquote` or `mdxJsxFlowElement`), and the first block of an ordered item
+  carries `listNumbers`, the number the page shows for each item it opens (the list's start, 1 by default, plus the
+  item's place), outermost first. An item with no block reads as an empty paragraph, since the page still shows its
+  marker. Both fields are optional and unset on the top level, so `blocks` keeps its strings on every live module
+  (`page-blocks.test.ts` compares them with the reader as it stood before). A translated body's number check reads
+  each shown number as one of the page's numbers, on both sides, and a translated chart section refuses every block
+  in a container (`docs/CONTENT-STYLE.md` §4 R5).
