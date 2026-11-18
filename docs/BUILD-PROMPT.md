@@ -723,6 +723,20 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   category and to report only a false sentence. With that brief, round 4's review of
   fix/module-count-join found one false sentence where each earlier round had found a new class
   (#377).
+- A number a document states about the content is recomputed from the files, not taken from a
+  probe's rows. #386's probe grouped 28 counts into 23 rows, and R7 first said 23 (2026-11-18).
+- A check that reads a figure before a listed word is tested with a year and a date before each
+  listed word, not only before unlisted ones. R7's first round read 2021 in "the 2017 and 2021
+  cycles" as a count (#386, 2026-11-18).
+- A closed list gets a test that fails when any one entry is cut. #385's month lists passed every
+  test with 33 of their 36 months removed (2026-11-18).
+- A check fed by a reader that drops default-ignorable characters cannot see a hidden break beside
+  the words it keeps together. It refuses the reader's ignorable mark there, as R5 does in the chart
+  section. #386's integration read passed U+00A0 then U+200B in a module body (carried to #387,
+  2026-11-18).
+- A skill sentence that widens a rule from one case to every case is checked against each case in
+  the files it names. "For a row of any coin" was false for 5 of the 9 chart rows
+  (fix/review-note-forms, round 2, #381).
 
 ## Known gaps
 
