@@ -480,7 +480,8 @@ The finish refuses a changed entry at any other value.
    assertion in the draft's notes and your closing report as
    `test pin for the owner: <path>:<line> pins <item> <field>: <old> to <new>`: the path from the
    repository root with the line and no column, as `tests:` writes it (§1), `<item>` and `<field>`
-   as the `changes` row names them, and both values with their joiners spelled (§1). Say in
+   as the `changes` row names them, and both values as the clause the assertion pins, not a long
+   leaf's whole value, each as the data file writes it, with their joiners spelled (§1). Say in
    both that `verify` fails on `pnpm test` until the owner removes those assertions, the ones only CI
    runs too, in a pull request of its own (`docs/ENGINEERING.md` §2): one changed to your new value
    would fail on main, where the data still holds the old one. The log pull request writes each
