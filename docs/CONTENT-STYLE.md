@@ -392,12 +392,15 @@ read as a range). On the pages of Germany, Spain, France, Italy, the Netherlands
 profile's figure of 10 000 or more groups its digits in threes with a no-break space (U+00A0,
 `\u00a0` in JSON): `EUR 59 357`. A smaller one takes none: `EUR 1000`. Both hold in English
 and in each translation. A decimal in a profile's text there takes the comma, and a point in
-it is only a citation's. An identifier keeps its digits plain (`PIV 28969`). On every page, a currency
-code and its figure (`EUR 20 350`, `100 USD`) and a form's name and its number (`Modelo 721`,
-`Anexo G`, `Form 1040`, `Box 3`, `Quadro 9.4`) are joined by U+00A0 too, so that a line never ends
-on the code or the name. This holds in English, in each translation and in a module. A JSON file
-writes the space as `\u00a0`, a module as the character itself (decided 2026-11-17). `pnpm validate:content` refuses any other space there in a
-profile or a translated one (`figure-join`); its detail names the pair and the space, never a text to write.
+it is only a citation's. An identifier keeps its digits plain (`PIV 28969`).
+
+On every page, a currency code and its figure (`EUR 20 350`, `100 USD`) and a form's name and its
+number (`Modelo 721`, `Anexo G`, `Form 1040`, `Box 3`, `Quadro 9.4`) are joined by U+00A0 too, so
+that a line never ends on the code or the name. This holds in English, in each translation and in a
+module. A JSON file writes the space as `\u00a0`, a module as the character itself (decided
+2026-11-17). `pnpm validate:content` refuses any other space there in a profile or a translated one
+(`figure-join`); its detail names the pair and the space, never a text to write.
+
 In an English profile the same U+00A0 joins a law's name and its number (`§ 23`, `art. 46`,
 `section 104`, `no. 3`, `n° 2026-534`, `Lei 24‑D/2022`, `Bill 2026`) and a date's parts
 (`31 July 2027`, `1 April`, `May 2026`), so that none of them ends a line half way. An en dash or
@@ -406,16 +409,19 @@ range (`2023–2025`, `0–45 %`, `2026-27`) and in a number (`Notice 2023-27`, 
 since Chromium and WebKit both break a line after either sign. A hyphen beside a letter
 (`COVID-19`, `e-money`) stays as it is (S4, decided 2026-11-17, in place of the earlier reading
 that a hyphen-minus between digits never breaks). A point after a letter ends an abbreviation, so
-the figures after it take the joiner as well (`s.104-105`, `Rev.Proc.2025-32`, decided
-2026-11-18). `pnpm validate:content` refuses an ordinary space in a name's or a date's join
-(`figure-join`) and a dash or hyphen with no joiner after it (`range-join`). The names
-are a closed list per language in `packages/content/src/join-validate.ts`, taken from every
-profile's text; an identifier (`PIV 28969`), a docket (`IX R 3/22`), a form's cell (`colonna 12`),
-a letter after its name (`lett. c`) and a word the list leaves out stay unchecked. Left out as
-well: the month-first US order (`April 15`); the file-only lot note and the sources' titles, which
-do not wrap; a URL in the text, whose figures belong to its path, as in the percent and grouping
-checks; the modules and the facts; and a translation until its language has its lists (decided
-2026-11-17).
+a dash or hyphen between the figures after it takes the joiner as well (`s.104-105`,
+`Rev.Proc.2025-32`, decided 2026-11-18). `pnpm validate:content` refuses an ordinary space in a
+name's or a date's join (`figure-join`) and a dash or hyphen with no joiner after it (`range-join`).
+
+The names are a closed list per language in `packages/content/src/join-validate.ts`, taken from
+every profile's text; an identifier (`PIV 28969`), a docket (`IX R 3/22`), a form's cell
+(`colonna 12`), a letter after its name (`lett. c`), and a word the list leaves out stay unchecked.
+Left out as well: the month-first US order (`April 15`); the file-only lot note and the sources'
+titles, which do not wrap; the modules and the facts; and a translation until its language has its
+lists (decided 2026-11-17). A URL in the text stays unchecked too, since its figures belong to its
+path, as in the percent and grouping checks (decided 2026-11-18). The text on each side of a URL is
+checked on its own, so no join is read across it.
+
 `pnpm validate:content` refuses other grouping beside a currency code (`number-group`). It reads
 each figure as English does (a comma or a space between groups, a point before the decimals) and
 as the page does (a point or a space between groups, a comma before the decimals); a group is three
