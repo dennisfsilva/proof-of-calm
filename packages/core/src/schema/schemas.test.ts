@@ -3,7 +3,7 @@ import { anEntry, aPlan, asV2Plan, asV3Plan, BTC, date, instant, PreviousBuildPl
 import { BACKUP_FORMAT, BACKUP_SCHEMA_VERSION, BackupFileSchema } from './backup';
 import { CoinSchema } from './coin';
 import { CountryRulesSchema } from './country';
-import { HoldingRuleSchema } from './holding-rule';
+import { HoldingRuleOverrideSchema, HoldingRuleSchema } from './holding-rule';
 import { CoinIdSchema, CountryCodeSchema, EntityIdSchema } from './ids';
 import { PLAN_SCHEMA_VERSION, PlanSchema } from './plan';
 import { DEFAULT_PREFS, PrefsSchema } from './prefs';
@@ -57,6 +57,17 @@ describe('coin and holding rule', () => {
     expect(HoldingRuleSchema.safeParse({ kind: 'days', days: 0, effect: 'exempt' }).success).toBe(false);
     expect(HoldingRuleSchema.safeParse({ kind: 'days', days: 365 }).success).toBe(false);
     expect(HoldingRuleSchema.safeParse({ kind: 'months', months: 12, effect: 'exempt' }).success).toBe(false);
+  });
+
+  it('counts an override note’s 240 characters as a reader sees them, without U+2060 (docs/JURISDICTIONS.md §2)', () => {
+    const override = (note: string) => ({ acquiredFrom: '2027-01-01', rule: { kind: 'none' }, note });
+    const visible = (length: number) => 'a'.repeat(length);
+    const joined = `${visible(120)}\u2060${visible(120)}\u2060`;
+    expect(joined).toHaveLength(242);
+    expect(HoldingRuleOverrideSchema.safeParse(override(joined)).success).toBe(true);
+    expect(HoldingRuleOverrideSchema.safeParse(override(visible(240))).success).toBe(true);
+    expect(HoldingRuleOverrideSchema.safeParse(override(visible(241))).success).toBe(false);
+    expect(HoldingRuleOverrideSchema.safeParse(override(`${visible(241)}\u2060`)).success).toBe(false);
   });
 });
 

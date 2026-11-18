@@ -180,6 +180,16 @@ describe('the rule a radio carries', () => {
     }
   });
 
+  it('decodes a note of 240 characters a reader sees with its word joiners, as the content counts it', () => {
+    const note = `${'a'.repeat(120)}\u2060${'a'.repeat(120)}`;
+    const rules = (text: string) => {
+      const override: HoldingRuleOverride = { acquiredFrom: day('2027-01-01'), rule: DE, note: text };
+      return { rule: PT, overrides: [override] };
+    };
+    expect(decodeHoldingRule(encodeHoldingRule(rules(note)))).toEqual(rules(note));
+    expect(decodeHoldingRule(encodeHoldingRule(rules(`${note}a`)))).toBeNull();
+  });
+
   it('refuses anything else', () => {
     for (const text of [
       '',
