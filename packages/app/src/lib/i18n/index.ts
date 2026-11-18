@@ -1,7 +1,11 @@
 export {
   isUiLanguage,
+  LANGUAGE_NAMES,
   LANGUAGE_STORAGE_KEY,
+  type LanguagesFlag,
+  listedLanguages,
   localStorageOrNull,
+  PREVIEW_LANGUAGES,
   readLanguage,
   VISIBLE_LANGUAGES,
   writeLanguage,
@@ -19,6 +23,6 @@ export {
   STATIC_NAMESPACES,
   type StaticNamespace,
 } from './namespaces';
-export { I18nProvider, type I18nProviderProps } from './provider';
+export { I18nProvider, type I18nProviderProps, useOfferedLanguages } from './provider';
 export { createMessageRegistry, type MessageRegistry, messageRegistry } from './registry';
 export { textLang } from './text-lang';

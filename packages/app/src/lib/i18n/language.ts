@@ -9,6 +9,24 @@ import { UI_LANGUAGES, type UiLanguage } from './locale';
 /** The languages a picker offers; it shows only when it has two. pt-PT and German stay hidden until complete. */
 export const VISIBLE_LANGUAGES: readonly UiLanguage[] = ['en'];
 
+/** The languages the picker offers on a preview deployment, for the native read (ADR-0023, Deviations of 2026-11-18). */
+export const PREVIEW_LANGUAGES: readonly UiLanguage[] = ['en', 'pt-PT'];
+
+/** The hosts' build flag, `__POC_LANGUAGES__`: only a web preview or development build is `listed`. */
+export type LanguagesFlag = 'listed' | 'visible';
+
+/** The languages a host offers for its build's flag; anything but `listed` gives the visible ones. */
+export function listedLanguages(flag: LanguagesFlag): readonly UiLanguage[] {
+  return flag === 'listed' ? PREVIEW_LANGUAGES : VISIBLE_LANGUAGES;
+}
+
+/** Each language's name in itself, as a picker shows it whatever the UI's language; not a message. */
+export const LANGUAGE_NAMES: Record<UiLanguage, string> = {
+  en: 'English',
+  'pt-PT': 'Português (Portugal)',
+  de: 'Deutsch',
+};
+
 export const LANGUAGE_STORAGE_KEY = 'poc.language';
 
 const UiLanguageSchema = z.enum(UI_LANGUAGES);
