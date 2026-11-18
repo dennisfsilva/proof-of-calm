@@ -670,7 +670,8 @@ describe('a source title in es, fr, it, nl and de', () => {
     ['it', (gap) => `Circolare n.${gap}30/E del`, [name('n.', '30/E')]],
     ['it', (gap) => `n. 917, art.${gap}67 (testo`, [name('art.', '67')]],
     ['it', (gap) => `fisiche 2026, fascicolo${gap}2: istruzioni`, [name('fascicolo', '2')]],
-    ['it', (gap) => `Modello${gap}730/2026: istruzioni`, [name('Modello', '730/2026')]],
+    // A form's number stops before a slash (`NUMBER`), so the detail quotes `730`.
+    ['it', (gap) => `Modello${gap}730/2026: istruzioni`, [name('Modello', '730')]],
     [
       'it',
       (gap) => `Repubblica 22${gap}dicembre${gap}1986, n.`,
