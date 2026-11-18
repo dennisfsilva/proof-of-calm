@@ -63,7 +63,7 @@ describe('scripts/validate.ts on a copy of the files it reads', () => {
     }
   });
 
-  it("3: reads a pt-PT chart section in pt-PT's shapes, and refuses one figure off", () => {
+  it("3: reads a pt-PT chart section in pt-PT's shapes and list, and refuses one figure off", () => {
     // Fixed bodies, so that no review of the live module or its translation changes what this pins.
     const translated = 'packages/content/i18n/pt-PT/learn/risk-honestly.mdx';
     const english = readFileSync(at(MODULE), 'utf8');
@@ -74,7 +74,7 @@ describe('scripts/validate.ts on a copy of the files it reads', () => {
       .filter((line) => /^(?:slug|title|idea|caveat): /u.test(line))
       .join('\n');
     const pt = (solana: string, after = '') =>
-      `---\n${kept}\n---\nUm plano mensal define o dia de cada compra. Não limita até onde um preço pode cair.\n\n<Chart />\n\nNo gráfico, a bitcoin teve 4 quedas de mais de 75 % entre 2011 e 2022. O ether caiu 94 % e 82 %,\na Chainlink 89 % e 91 % e a Solana ${solana} %.${after}\n`;
+      `---\n${kept}\n---\n<Chart />\n\nNo gráfico, a bitcoin teve 4 quedas de mais de 75 % entre 2011 e 2022. O ether caiu 94 % e 82 %,\na Chainlink 89 % e 91 % e a Solana ${solana} %.${after}\n`;
     writeFileSync(
       at(MODULE),
       `---\n${front}---\nA monthly plan sets when you buy. It does not limit how far a price can fall.\n\n<Chart />\n\nIn the chart, bitcoin had 4 falls of more than 75 % between 2011 and 2022. Ether fell 94 % and 82 %,\nChainlink 89 % and 91 %, and Solana 97 %.\n`,
@@ -84,16 +84,14 @@ describe('scripts/validate.ts on a copy of the files it reads', () => {
       const passed = run();
       expect(passed.lines).toEqual([]);
       expect(passed.status).toBe(0);
-      // One figure off, and a sentence only pt-PT's trigger reads.
+      // One figure off, and a sentence pt-PT does not list.
       writeFileSync(at(translated), pt('96', ' A queda durou três anos.'));
       const { status, lines } = run();
       const sentence = 'O ether caiu 94 % e 82 %, a Chainlink 89 % e 91 % e a Solana 96 %.';
-      expect(lines).toContain(
+      expect(lines.filter((line) => line.includes(': figure-'))).toEqual([
+        `${translated}: figure-chart: body: "A queda durou três anos." is not a sentence pt-PT's list holds and matches neither shape of a chart's section; R5 (docs/CONTENT-STYLE.md §4)`,
         `${translated}: figure-chart: body: "96 %" in "${sentence}" is not Solana's fall at that place in the chart's order; R5 (docs/CONTENT-STYLE.md §4)`,
-      );
-      expect(lines).toContain(
-        `${translated}: figure-chart: body: "A queda durou três anos." holds a number word "três" and matches neither shape of a chart's section; R5 (docs/CONTENT-STYLE.md §4)`,
-      );
+      ]);
       expect(status).toBe(1);
     } finally {
       writeFileSync(at(MODULE), english);
