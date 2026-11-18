@@ -522,7 +522,11 @@ last `Y` (`figure-chart`).
 
 Each detail quotes the sentence and names its own figure and rule, never a row or a count to copy (decided
 2026-11-17). In a translation the section is closed: each sentence and heading there is its language's B or E (§9) or
-one its language's list holds, character for character; a language without shapes fails closed. A chart other than
+one its language's list holds, character for character; a language without shapes fails closed. It holds only
+top-level paragraphs and headings and the chart: a block in a list item, a quote or an element, and any other element,
+fails, since the page shows a list item's number (`1975. Text.`) that no sentence holds; it ends only at a top-level
+heading (decided 2026-11-18). An unlisted sentence's or heading's detail names the fix: B or E, or a listing in a
+reviewed pull request. A chart other than
 `drawdowns-bar` has no rows, so any figure in its section fails.
 
 A numeral joined to its unit by a hyphen (`90‑day`, `365‑day`) never breaks there. Text a screen shows writes the
@@ -685,7 +689,8 @@ needs (decided 2026-11-15). The native reader's review is §8 item 9.
   `packages/content/src/module-figures.ts` holds for pt-PT, as the page shows it, character for character. It holds
   none of §4's triggers, and its paragraph holds no mark. A new or reworded sentence fails until it is written as B or
   E, or listed in a reviewed pull request whose fact check finds in it no figure, count, date, amount or coin in any
-  language (decided 2026-11-18).
+  language (decided 2026-11-18). Each stands in a top-level paragraph or heading, never in a list item, a quote or an
+  element: `1975. Um plano mensal define o dia de cada compra.` fails, since the page shows 1975 (§4 R5).
 - **A country card's summary keeps the 60-word limit**, as in English (`docs/JURISDICTIONS.md` §2;
   `pnpm validate:content` counts the words). When a Portuguese card runs over 60 words, the
   explanation gives way, never the computed date, the rule or the source.

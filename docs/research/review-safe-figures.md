@@ -372,3 +372,12 @@ character (CONTENT-STYLE §4 R5 and §9). A listed sentence is still read for En
 and the chart's coins. pt-PT lists the 3 sentences of its intro; the list is per language, since only Risk honestly
 has a chart, and a listed sentence states no figure anywhere. The rounds' words stay in `module-figures-pt.test.ts`
 as sentences that fail as unlisted.
+
+A hole closed, 2026-11-18 (#361's review, round 1). A pt-PT chart section could hold `1975. Um plano mensal define o
+dia de cada compra.`: CommonMark reads it as an ordered list that starts at 1975, the page reader kept only the item's
+paragraph, a listed sentence, and the page showed 1975 beside it; 2011, 94 and 1 passed the same way, and the number
+tie never saw them. The closed section now has a closed list of block kinds: it reads a top-level paragraph or heading
+and the chart, and refuses every other element and every block in a list item, a quote or an element, naming the
+container; it ends only at a top-level heading. `pageOf` records each block's container and each ordered item's
+shown number (`listNumbers`), and the number tie (`overlay-number-mismatch`) reads those numbers in English and in
+every translation, so a translation shows no list number English does not. English's section stays open.
