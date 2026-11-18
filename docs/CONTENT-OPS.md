@@ -341,7 +341,10 @@ fact to the window its URL names (the skill's §4 step 3).
    `unlogged` in `packages/content/src/facts.test.ts`; the agent's branch cannot change that file,
    so a later push that moves the value fails the tie (decided 2026-11-17: letting the guard accept
    the document would open a path from a fetched page into a file later build sessions read as
-   instructions, §3). When the PR
+   instructions, §3). When the review's PR closes unmerged, or no longer holds the value an entry
+   pins, remove that entry in a pull request to main: no test can tell it from the entry of a
+   review still open, since main holds `was` in both, and a later review that writes exactly its
+   `now` would pass the tie with no session pull request of its own. When the PR
    changes a translation (§3 step 2), check that its diff changes only the figures its English file
    changed, at the same paths and to the same values, and nothing else there: compare the values,
    not the characters, since the translation writes each in its number locale's format (§3 step 2;
