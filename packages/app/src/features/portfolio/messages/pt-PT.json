@@ -90,7 +90,7 @@
     "heldAfter": "As moedas adicionadas no Registo com data posterior a {date} não contam aqui: {coins}. Se já as detinha a {date}, altere a respetiva data no <log>Registo</log>."
   },
   "unrecorded": "Sem custo registado para {coins}, por isso o Investido, o custo médio e o resultado deixam estas unidades de fora.",
-  "notBought": "Ainda sem compras: {coins}. Para moedas que já tem, abra o <log>Registo</log> e escolha Adicionar moedas que já tem.",
+  "notBought": "Ainda sem compras: {coins}. Para moedas que já tem, abra o <log>Registo</log> e escolha «Adicionar moedas que já tem».",
   "unmatched": "{units} vendidos sem uma compra com data igual ou anterior à da venda. Verifique as datas e as unidades no Registo.",
   "unmatchedFee": "{units} pagos como comissão de rede sem uma compra com data igual ou anterior à da transferência que os cubra. Verifique as datas e as unidades no Registo."
 }
