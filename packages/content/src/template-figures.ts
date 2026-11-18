@@ -79,16 +79,25 @@ const compare = (whole: string, decimal: string) => {
 /** A quoted text as every detail prints it (ADR-0057's Corrections): each hidden character by its code point. */
 const quote = (text: string) => `"${printedText(text, [])}"`;
 
-const serial = (items: readonly string[]) =>
-  items.length < 3 ? items.join(' and ') : `${items.slice(0, -1).join(', ')}, and ${items.at(-1)}`;
+/** A list with the serial comma; an item that closes on its own comma (fallOf's no-row arm) takes no second one. */
+const serial = (items: readonly string[]) => {
+  if (items.length < 3) return items.join(' and ');
+  const head = items.slice(0, -1).map((item) => (item.endsWith(',') ? `${item} ` : `${item}, `));
+  return `${head.join('')}and ${items.at(-1)}`;
+};
 
 export function templateFigureProblems(path: string, t: Figures): Problem[] {
   const all = shapes(t.coins.map((coin) => coin.name));
   const idOf = new Map(t.coins.map((coin) => [coin.name, coin.id]));
   const falls = new Map(t.drawdowns.map((row) => [row.coin, row.fall] as const));
   const named = new RegExp(alternation(t.coins.map((coin) => coin.name)), 'gu');
-  const fallOf = (id: string) =>
-    falls.has(id) ? `${id}'s fall of ${falls.get(id)} %` : `${printedText(id, [])}, which has no drawdown row`;
+  // Both arms print the id by code point: a row's coin is any non-empty text (schema/drawdown.ts). The no-row arm
+  // closes its clause with a comma, since a word always follows it in a detail.
+  const fallOf = (id: string) => {
+    const fall = falls.get(id);
+    const coin = printedText(id, []);
+    return fall === undefined ? `${coin}, which has no drawdown row,` : `${coin}'s fall of ${fall} %`;
+  };
   const problems: Problem[] = [];
   for (const sentence of sentencesOf(t.explanation)) {
     const report = (code: string, what: string, rule: number, data = '') => {
