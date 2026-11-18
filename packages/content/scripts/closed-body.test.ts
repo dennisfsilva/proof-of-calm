@@ -383,6 +383,21 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
       ]);
     });
 
+    // Review of #361 round 1: `1975. Text.` shows 1975 as the item's number, which no block's text holds.
+    it("reads an ordered item's shown number as one of the page's numbers, in English and in the translation", async () => {
+      const english = '1. A plan.\n2. A day.\n';
+      expect(await validated(english, '1. Um plano.\n2. Um dia.\n')).toEqual([]);
+      expect(await validated(english, '1975. Um plano.\n1976. Um dia.\n')).toEqual([
+        'overlay-number-mismatch: body: 1975 1976, English 1 2',
+      ]);
+      expect(await validated('3. A plan.\n', '1. Um plano.\n')).toEqual([
+        'overlay-number-mismatch: body: 1, English 3',
+      ]);
+      expect(await validated('A plan.\n', '1975.\n\nUm plano.\n')).toEqual([
+        'overlay-number-mismatch: body: 1975, English none',
+      ]);
+    });
+
     it('reads no banned phrase across a heading and a paragraph, and one inside a paragraph', async () => {
       expect(await validated(TEXT, '# Última\n\nhora de comprar.\n')).toEqual([]);
       expect(await validated(TEXT, 'Última hora de comprar.\n')).toEqual([banned('Última hora')]);
