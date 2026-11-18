@@ -658,7 +658,7 @@ describe('a source title in es, fr, it, nl and de', () => {
       (gap) => `Orden, de 25${gap}de${gap}marzo, por la que`,
       [date('day', '25', 'linker', 'de'), date('linker', 'de', 'month', 'marzo')],
     ],
-    ['fr', (gap) => `LOI n°${gap}2025-⁠1403 du`, [name('LOI n°', '2025-U+2060 1403')]],
+    ['fr', (gap) => `LOI n°${gap}2025-\u20601403 du`, [name('LOI n°', '2025-U+2060 1403')]],
     ['fr', (gap) => `Code, article${gap}91`, [name('article', '91')]],
     ['fr', (gap) => `Formulaire${gap}2086: D`, [name('Formulaire', '2086')]],
     [
@@ -666,9 +666,9 @@ describe('a source title in es, fr, it, nl and de', () => {
       (gap) => `LOI, du 25${gap}juin${gap}2026 relative`,
       [date('day', '25', 'month', 'juin'), date('month', 'juin', 'year', '2026')],
     ],
-    ['it', (gap) => `Legge${gap}30 dicembre 2025`, [name('Legge', '30')]],
+    ['it', (gap) => `Legge${gap}30\u00a0dicembre\u00a02025`, [name('Legge', '30')]],
     ['it', (gap) => `Circolare n.${gap}30/E del`, [name('n.', '30/E')]],
-    ['it', (gap) => `n. 917, art.${gap}67 (testo`, [name('art.', '67')]],
+    ['it', (gap) => `n.\u00a0917, art.${gap}67 (testo`, [name('art.', '67')]],
     ['it', (gap) => `fisiche 2026, fascicolo${gap}2: istruzioni`, [name('fascicolo', '2')]],
     // A form's number stops before a slash (`NUMBER`), so the detail quotes `730`.
     ['it', (gap) => `Modello${gap}730/2026: istruzioni`, [name('Modello', '730')]],
@@ -680,7 +680,7 @@ describe('a source title in es, fr, it, nl and de', () => {
   ];
   it.each(cases)('reads a %s title: U+0020 is refused and U+00A0 joins (%#)', (lang, title, problems) => {
     expect(read(lang, title(' '))).toEqual(problems);
-    expect(read(lang, title(' '))).toEqual([]);
+    expect(read(lang, title('\u00a0'))).toEqual([]);
   });
 
   // Every month of each language's list, so that a month removed from the list or misspelt in it fails here: the live
@@ -719,10 +719,10 @@ describe('a source title in es, fr, it, nl and de', () => {
   });
 
   it('asks for U+2060 after the hyphen of a French law number', () => {
-    expect(read('fr', 'LOI n° 2026-534 du')).toEqual([
+    expect(read('fr', 'LOI n°\u00a02026-534 du')).toEqual([
       'range-join sources.0.title: the range or number "2026-534" can break after its hyphen (docs/CONTENT-STYLE.md §4)',
     ]);
-    expect(read('fr', 'LOI n° 2026-⁠534 du')).toEqual([]);
+    expect(read('fr', 'LOI n°\u00a02026-\u2060534 du')).toEqual([]);
   });
 
   it('leaves a year after an unlisted word, and a name the census did not find before a number', () => {
