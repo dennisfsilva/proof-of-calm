@@ -263,7 +263,7 @@ describe('a profile’s money figures group as its comma-decimal page does (docs
   // name, and an en-dash range takes U+2060 after its dash (`range-join`).
   const joined = (text: string) =>
     text
-      .replace(/(EUR|Modelo|art\.) /g, `$1${nbsp}`)
+      .replace(/(EUR|Modelo|PIV|art\.) /g, `$1${nbsp}`)
       .replace(/ EUR/g, `${nbsp}EUR`)
       .replace(/(?<=\d)–(?=\d)/g, `–${String.fromCodePoint(0x2060)}`);
 
@@ -372,5 +372,47 @@ describe('a profile’s literal decimals follow its page’s number locale (docs
     ]);
     expect(translated('pt-PT', pt, 'De 12,2–48% por escalão.')).toEqual([]);
     expect(translated('de', de, `Ein Satz von 26,375 %.`)).toEqual([]);
+  });
+});
+
+// #368 A (docs/CONTENT-STYLE.md §4): a source title keeps its words as published, and its joins are read in the
+// language its `lang` names: `en` as English, `pt` as pt-PT, any other left unchecked.
+describe('a source title’s joins in its own language (docs/CONTENT-STYLE.md §4)', () => {
+  const titled = (title: string, lang: string): CountryProfile => {
+    const [first] = pt.sources;
+    if (first === undefined) throw new Error('pt.json has no source');
+    return { ...pt, sources: [{ ...first, title, lang }] };
+  };
+  const joins = (profile: CountryProfile) =>
+    localeProblems(path, profile, [])
+      .filter(({ code }) => ['figure-join', 'citation-join', 'range-join'].includes(code))
+      .map(({ detail }) => detail);
+  const named = (name: string, number: string) =>
+    `sources.0.title: the name "${name}" and its number "${number}" are joined by U+0020, not U+00A0 (docs/CONTENT-STYLE.md §4)`;
+
+  it('reads a title in lang pt as pt-PT: n.º 214/2026 and processo 28969 (T1)', () => {
+    expect(joins(titled('Diário da República n.º 214/2026', 'pt'))).toEqual([named('n.º', '214/2026')]);
+    expect(joins(titled('Informação vinculativa, processo 28969', 'pt'))).toEqual([named('processo', '28969')]);
+  });
+
+  it('leaves the same titles unchecked in lang de (T2)', () => {
+    expect(joins(titled('Diário da República n.º 214/2026', 'de'))).toEqual([]);
+    expect(joins(titled('Informação vinculativa, processo 28969', 'de'))).toEqual([]);
+  });
+
+  it('reads a title in lang en as English, its citation included, and passes the joined title (T3)', () => {
+    const title = 'Extension under section 1.1012-1(j)(3)(ii)';
+    expect(localeProblems(path, titled(title, 'en'), []).map(({ code }) => code)).toEqual([
+      'figure-join',
+      'range-join',
+      'citation-join',
+    ]);
+    const wj = String.fromCodePoint(0x2060);
+    const joined = `Extension under section 1.1012-${wj}1(j)${wj}(3)${wj}(ii)`;
+    expect(joins(titled(joined, 'en'))).toEqual([]);
+  });
+
+  it('runs no ban list or hyphen check on a title: its words stay as published (T4)', () => {
+    expect(localeProblems(path, titled('Decreto-Lei: guaranteed returns', 'pt'), [])).toEqual([]);
   });
 });

@@ -50,7 +50,7 @@ describe("Portugal's numerals", () => {
   it('writes the loss carry-forward as a numeral, in English and in pt-PT', async () => {
     const english = (await loadProfile('PT')) as CountryProfile;
     const portuguese = (await loadProfile('PT', 'pt-PT')) as CountryProfile;
-    expect(english.card.losses).toContain('carries forward 5 years');
-    expect(portuguese.card.losses).toContain('se reporta 5 anos');
+    expect(english.card.losses).toContain('carries forward 5 years');
+    expect(portuguese.card.losses).toContain('se reporta 5 anos');
   });
 });

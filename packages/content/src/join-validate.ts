@@ -2,7 +2,8 @@
 // (docs/CONTENT-STYLE.md §4), for percent-validate.ts. Pure; relative imports name their .ts files, so that Node runs
 // the CLI without a build step.
 import type { Problem } from './problem.ts';
-import { FILE_ONLY_PROFILE_TEXT } from './profile-texts.ts';
+import { FILE_ONLY_PROFILE_TEXT, sourceTitles } from './profile-texts.ts';
+import type { CountryProfile } from './schema/jurisdiction.ts';
 
 const NBSP = String.fromCodePoint(0xa0);
 /** A URL in prose: its figures (`n-23-27.pdf`) and percent-escapes are a path, so the checks here read the pieces
@@ -14,7 +15,7 @@ const GAP = String.raw`((?:(?!${NBSP})\s)+)`;
 // The ISO codes the live profiles write beside a figure, and the words that name a form or one of its boxes.
 const CODE = '(EUR|GBP|USD)';
 const FORM =
-  '((?:[Aa]nexo|[Aa]nnexe?|[Bb]ox(?:es)?|[Cc]ampo|[Ff]ield|[Ff]orm|[Mm]odelo|[Mm]odello|[Qq]uadro|[Ss]chedule)s?)';
+  '((?:[Aa]nexo|[Aa]nnexe?|[Bb]ox(?:es)?|[Cc]ampo|[Ff]ield|[Ff]orm|[Ff]ormulário|[Mm]odelo|[Mm]odello|[Qq]uadro|[Ss]chedule)s?)';
 // A money figure, its groups joined by a point, a comma or a space before three digits (an ordinary space between
 // groups is `number-group`'s), and a form's number: digits with their letters, points and hyphens (`9.4`, `1099-DA`,
 // `3AN`), or capitals with their digits (`G1`, `RW`, `D-100`), never a word (`Modello Redditi`).
@@ -36,40 +37,53 @@ const JOINS = new RegExp(
 );
 
 // The prose joins of a language (docs/CONTENT-STYLE.md §4): a closed list of law names, taken from a census of every
-// profile, and its month names, with the word that links a date's parts where the language writes one (`1 de janeiro
-// de 2023`). A language without an entry gets the code and form joins only.
-type ProseJoins = { names: RegExp; months: RegExp; linker?: string };
+// profile, its month names, with the word that links a date's parts where the language writes one (`1 de janeiro
+// de 2023`), and its unit words, each joined to the figure before it (`365 days`, `2.º Suplemento`; #368's census). A
+// language without an entry gets the code and form joins only.
+type ProseJoins = { names: RegExp; months: RegExp; linker?: string; units: RegExp };
 const ENGLISH_NAMES =
-  /§§?|[Aa]rts?\.|[Aa]rticles?|[Ss]ections?|s{1,2}\.|[Nn]os?\.|n\.ºs?|n°|\(EU\)|Orden|Nr\.|c\.|[Ss]entence|[Pp]aragraph|Part|Lei|Ley|Law|L\.|Decreto-Lei|D\.Lgs\.|BGBl\.|TCA|TCGA|SolZG|Act|Bill|Budget|Belastingplan|BMF|Circolare|Notice|Topic|Publication|Pub\.|Proc\./u;
+  /§§?|[Aa]rts?\.|[Aa]rticles?|[Ss]ections?|s{1,2}\.|[Nn]os?\.|n\.ºs?|n°|\(EU\)|Orden|Nr\.|c\.|[Ss]entence|[Pp]aragraph|Part|Lei|Ley|Law|L\.|Decreto-Lei|D\.Lgs\.|BGBl\.|TCA|TCGA|SolZG|Act|Bill|Budget|Belastingplan|BMF|Circolare|Notice|Topic|Publication|Pub\.|Proc\.|PIV|Série/u;
 const PROSE_JOINS: Readonly<Record<string, ProseJoins>> = {
   en: {
     names: ENGLISH_NAMES,
     // en-GB's long and short months, with `Sept` as en-GB writes it; counted only when capitalised (`may`).
     months:
       /January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sept?|Oct|Nov|Dec/u,
+    units: /days?|weeks?|months?|years?/u,
   },
   // D6 (2026-11-18), from the census of the pt-PT overlays, with English's names, which a translation keeps where the
   // source language's law is cited (`Topic 409`, `Circolare 30/E`, `c. 1`); months in lower case (CONTENT-STYLE §9).
   // `(UE)` is pt-PT's `(EU)` before a regulation's number. A `de` before a bare year (`de 2023`) is no date, as
   // English's word before a year is not.
+  // A source title's `processo 28969` (#368); English's list holds `PIV` and `Série`, which English cites as written.
   'pt-PT': {
     names: new RegExp(
-      `${/[Aa]rtigos?|[Ss]ecção|[Ff]rase|[Pp]arágrafo|[Ee]xemplo|[Cc]ódigo|\(UE\)/u.source}|${ENGLISH_NAMES.source}`,
+      `${/[Aa]rtigos?|[Ss]ecção|[Ff]rase|[Pp]arágrafo|[Ee]xemplo|[Cc]ódigo|\(UE\)|[Pp]rocesso/u.source}|${ENGLISH_NAMES.source}`,
       'u',
     ),
     months: /janeiro|fevereiro|março|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro/u,
     linker: 'de',
+    units: /dias?|semanas?|mês|meses|anos?|Suplemento/u,
   },
 };
 const WJ = String.fromCodePoint(0x2060);
-// A law's number: digits first, or capitals before a slash and a digit (`HAC/277/2026`), then letters, digits, and
-// points, slashes or hyphens between them, a hyphen-minus with the U+2060 after it (`24‑D/2022`, `2026-534`).
-const LAW_NUMBER = String.raw`(?:\d[\d\p{L}]*|\p{Lu}+(?=/\d))(?:[./‑-]${WJ}?[\d\p{L}]+)*`;
+// A law's number: digits first, capitals before a slash and a digit (`HAC/277/2026`), or a roman numeral (`Série I`),
+// then letters, digits, and points, slashes or hyphens between them, a hyphen-minus with the U+2060 after it
+// (`24‑D/2022`, `2026-534`).
+const LAW_NUMBER = String.raw`(?:\d[\d\p{L}]*|\p{Lu}+(?=/\d)|[IVXLC]+(?![\p{L}\d]))(?:[./‑-]${WJ}?[\d\p{L}]+)*`;
+// A hyphen-minus in a law's number beside a letter, with no U+2060 after it (`24-D/2022`); one between two digits is
+// HYPHENED's.
+const OPEN_LAW_HYPHEN = new RegExp(`(?<!\\d)-(?!${WJ})|-(?![\\d${WJ}])`, 'u');
+// A figure, an ordinal's (`2.º`) included, and the unit word after it.
+const UNIT_FIGURE = String.raw`(?<![\p{L}\d.,])(\d+(?:[.,]\d+)*(?:\.º)?)`;
+// A citation's brackets after its figure (`55(1)(d)`, `1(j)(3)(ii)`), two or more, each pair to meet with U+2060.
+const CITATION = new RegExp(String.raw`\d+\([\dA-Za-z]{1,4}\)(?:${WJ}?\([\dA-Za-z]{1,4}\))+`, 'gu');
 // The gap between two parts of a date: a space, or a space, the linker and a space; without a linker its two groups
 // match nothing, so that every language's dates have the same groups.
 const link = (linker?: string) => (linker === undefined ? String.raw`(\s+)()()` : String.raw`(\s+)(${linker})(\s+)`);
-const prose = ({ names, months, linker }: ProseJoins) => ({
+const prose = ({ names, months, linker, units }: ProseJoins) => ({
   names: new RegExp(String.raw`(?<![\p{L}\d.§])(${names.source})(\s+)(${LAW_NUMBER})`, 'gu'),
+  units: new RegExp(String.raw`${UNIT_FIGURE}(\s+)(${units.source})(?![\p{L}\d])`, 'gu'),
   // `D Month YYYY`, `D Month` and `Month YYYY`, or `D de M de YYYY` with a linker; a month alone is no date.
   dates: new RegExp(
     String.raw`(?<![\p{L}\d.,])(?:(\d{1,2})${link(linker)})?(${months.source})(?![\p{L}\d])(?:${link(linker)}(\d{4})(?!\d))?`,
@@ -123,11 +137,12 @@ function dateGaps(
 function proseProblems(path: string, field: string, text: string, language: string): Problem[] {
   const lists = Object.hasOwn(PROSE_JOINS, language) ? PROSE_JOINS[language] : undefined;
   if (lists === undefined) return [];
-  const { names, dates } = prose(lists);
+  const { names, dates, units } = prose(lists);
   return [
-    ...[...text.matchAll(names)].flatMap(([, name = '', gap = '', number = '']) =>
-      joined(path, field, `the name ${typed(name)} and its number`, number, gap),
-    ),
+    ...[...text.matchAll(names)].flatMap(([, name = '', gap = '', number = '']) => [
+      ...joined(path, field, `the name ${typed(name)} and its number`, number, gap),
+      ...(OPEN_LAW_HYPHEN.test(number) ? [hyphenProblem(path, field, number)] : []),
+    ]),
     ...[...text.matchAll(dates)].flatMap(([, day, dayGap = '', dayLink = '', monthGap = '', month = '', ...rest]) => {
       const [yearGap = '', yearLink = '', linkGap = '', year] = rest;
       return [
@@ -141,13 +156,34 @@ function proseProblems(path: string, field: string, text: string, language: stri
       const detail = `${field}: the range ${typed(range)} can break after its dash (docs/CONTENT-STYLE.md §4)`;
       return { path, code: 'range-join', detail };
     }),
-    ...[...text.matchAll(HYPHENED)].flatMap(([figure]): Problem[] => {
-      if (!OPEN_HYPHEN.test(figure)) return [];
-      const detail = `${field}: the range or number ${typed(figure)} can break after its hyphen (docs/CONTENT-STYLE.md §4)`;
-      return [{ path, code: 'range-join', detail }];
+    ...[...text.matchAll(HYPHENED)].flatMap(([figure]) =>
+      OPEN_HYPHEN.test(figure) ? [hyphenProblem(path, field, figure)] : [],
+    ),
+    ...[...text.matchAll(units)].flatMap(([, figure = '', gap = '', unit = '']) =>
+      joined(path, field, `the figure ${typed(figure)} and its unit`, unit, gap),
+    ),
+    ...[...text.matchAll(CITATION)].flatMap(([citation]): Problem[] => {
+      if (!citation.includes(')(')) return [];
+      const detail = `${field}: the citation ${typed(citation)} can break between its brackets (docs/CONTENT-STYLE.md §4)`;
+      return [{ path, code: 'citation-join', detail }];
     }),
   ];
 }
+
+const hyphenProblem = (path: string, field: string, figure: string): Problem => ({
+  path,
+  code: 'range-join',
+  detail: `${field}: the range or number ${typed(figure)} can break after its hyphen (docs/CONTENT-STYLE.md §4)`,
+});
+
+/** Each source title's joins, read in the language its `lang` names (#368): `en` as English, `pt` as pt-PT; a title in
+ * any other language stays unchecked until that language has its lists. */
+const TITLE_LANGUAGES: Readonly<Record<string, string>> = { en: 'en', pt: 'pt-PT' };
+export const titleJoinProblems = (path: string, profile: CountryProfile): Problem[] =>
+  sourceTitles(profile).flatMap(([field, text, lang]) => {
+    const language = Object.hasOwn(TITLE_LANGUAGES, lang) ? TITLE_LANGUAGES[lang] : undefined;
+    return language === undefined ? [] : joinProblems(path, [[field, text]], language);
+  });
 
 /**
  * Each currency code and its figure (`EUR 20 350`, `100 USD`) and each form's name and its number (`Modelo 721`,
