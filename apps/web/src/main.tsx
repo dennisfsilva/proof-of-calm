@@ -3,6 +3,7 @@ import {
   type Boot,
   bootLanguage,
   I18nProvider,
+  listedLanguages,
   localStorageOrNull,
   messageRegistry,
   readLanguage,
@@ -21,7 +22,9 @@ import { installChunkReload } from './chunk-reload';
 // The UI language, a device preference read before the first render (ADR-0023): `bootLanguage` loads
 // another language's static namespaces first and falls back to English whole if they cannot, and the
 // language it gives sets the document's lang, the registry the lazy screens load from, the formatters and
-// the services.
+// the services. Settings offers the languages of the build's flag, `__POC_LANGUAGES__`, which the factory sets from
+// VERCEL_ENV alone: the preview languages on a preview deployment, English everywhere else (ADR-0023, 2026-11-18).
+const LANGUAGES = listedLanguages(__POC_LANGUAGES__);
 
 // The worker, in production builds of the web host only (ADR-0033, ADR-0045 §5 and §10); the wrapper's
 // build removes this branch. The shell hands over the handler that shows the "A new version is ready"
@@ -48,7 +51,7 @@ function App({ boot: { language, messages }, services }: { boot: Boot; services:
   return (
     <ServicesProvider services={services}>
       <NavigationProvider location="browser">
-        <I18nProvider locale={language} messages={messages}>
+        <I18nProvider locale={language} messages={messages} languages={LANGUAGES}>
           <AppShell registerUpdates={registerUpdates}>
             <AppRoutes />
           </AppShell>
