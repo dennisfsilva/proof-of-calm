@@ -95,6 +95,15 @@ function staleFalls(falls: readonly Fall[], pending: ReadonlyMap<string, Fall>):
     .map(([key]) => key);
 }
 
+/** Each `<coin> <high>` of a literal as its held fall writes it, so a list of literal keys follows a held high. */
+function heldKeys(keys: readonly string[], falls: readonly Fall[], held: readonly Fall[]): string[] {
+  return keys.map((key) => {
+    const now = held[falls.findIndex((each) => keyOf(each) === key)];
+    return now === undefined ? key : keyOf(now);
+  });
+}
+const held = () => heldFalls(FALLS, CycleDrawdownsSchema.parse(cycles).drawdowns, factValue, unloggedFalls);
+
 /** Each row of `drawdowns` is the fall at its index: the same row, and its fact's clause reads its figure and dates. */
 function expectFallsRead(falls: readonly Fall[], drawdowns: readonly Drawdown[], factValue: Read) {
   const starts = clauseStarts(falls);
@@ -127,7 +136,7 @@ const BREAKS = [
 describe('the cycles file (docs/EDUCATION.md §2 and §6)', () => {
   it('each row of drawdowns.json reads the same fall as facts a and b', () => {
     const { drawdowns } = CycleDrawdownsSchema.parse(cycles);
-    expectFallsRead(heldFalls(FALLS, drawdowns, factValue, unloggedFalls), drawdowns, factValue);
+    expectFallsRead(held(), drawdowns, factValue);
   });
 
   // A stale entry: the log PR wrote `now` into FALLS and kept the entry, or the literal it names is gone.
@@ -151,11 +160,9 @@ describe('the cycles file (docs/EDUCATION.md §2 and §6)', () => {
       return start <= date && date <= end && (Date.parse(end) - Date.parse(start)) / day < 300;
     };
     const coinbase = drawdowns.filter(({ publisher }) => publisher === COINBASE);
-    expect(coinbase.map(({ coin, high }) => `${coin} ${high}`)).toEqual([
-      'ETH 2018-01-13',
-      'ETH 2021-11-10',
-      'SOL 2021-11-06',
-    ]);
+    expect(coinbase.map(({ coin, high }) => `${coin} ${high}`)).toEqual(
+      heldKeys(['ETH 2018-01-13', 'ETH 2021-11-10', 'SOL 2021-11-06'], FALLS, held()),
+    );
     for (const { coin, high, low, source, lowSource } of coinbase) {
       expect(holds(source, coin, high), source).toBe(true);
       // One request holds both ends, or the low's window is its own (src/schema/drawdown.ts).
@@ -167,7 +174,7 @@ describe('the cycles file (docs/EDUCATION.md §2 and §6)', () => {
 
   it('gives a coin that has not regained its high a low window from its low to the day the row was read', () => {
     // Fact b's line at the 16 Oct 2026 close: LINK is still below its 2021 high, while SOL passed it in Nov 2024.
-    const unregained = ['LINK 2021-05-10'];
+    const unregained = heldKeys(['LINK 2021-05-10'], FALLS, held());
     const isoDay = (ms: number) => new Date(ms).toISOString().slice(0, 10);
     // The window one request returns: Bitstamp's `limit` candles of `step` seconds from `start`, or Coinbase's start to end.
     const windowOf = (href: string) => {
@@ -300,6 +307,12 @@ describe('a FALLS literal with a pending entry (docs/CONTENT-OPS.md §8 steps 4 
     expect(staleFalls([btc, linkNow], pending(['LINK 2021-05-10', linkNow]))).toEqual(['LINK 2021-05-10']);
     expect(staleFalls([btcNow, linkNow], none)).toEqual([]);
     expect(check(file('2021-05-11'), clauses('−84.2 %', '11 May 2021'), none, [btcNow, linkNow])).not.toThrow();
+  });
+
+  it("a literal's key reads as its held entry's, so a key list follows a high-date change", () => {
+    const keys = ['LINK 2021-05-10', 'BTC 2017-12-17', 'SOL 2021-11-06'];
+    expect(heldKeys(keys, falls, [btc, link])).toEqual(keys);
+    expect(heldKeys(keys, falls, [btcNow, linkNow])).toEqual(['LINK 2021-05-11', 'BTC 2017-12-17', 'SOL 2021-11-06']);
   });
 
   it('an entry that differs from the literal it names is not stale', () => {
