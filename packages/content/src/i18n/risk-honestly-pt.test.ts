@@ -64,10 +64,12 @@ describe('the pt-PT Risk honestly module', () => {
     const context = moduleContext(english(), 'pt-PT', { rows: drawdowns.drawdowns, coins });
     expect(context.listed.length).toBeGreaterThan(0);
     expect(context.listed.filter((sentence) => !live.includes(sentence))).toEqual([]);
+    // Alone in the section, an entry leaves each coin's falls unstated: it holds no trigger and counts no fall as B or E.
+    const unstated = new Set(drawdowns.drawdowns.map(({ coin }) => coin)).size;
     for (const sentence of context.listed) {
       const probe = await checkModuleBody(`<Chart />\n\n${sentence}\n`, path, MODULE_BODY_ELEMENTS);
       const codes = moduleFigureProblems(path, probe.page, context).map(({ code }) => code);
-      expect([sentence, codes.filter((code) => code === 'figure-chart')]).toEqual([sentence, []]);
+      expect([sentence, codes]).toEqual([sentence, Array<string>(unstated).fill('figure-unstated')]);
     }
   });
 
