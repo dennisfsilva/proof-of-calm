@@ -398,12 +398,8 @@ On every page, a currency code and its figure (`EUR 20 350`, `100 USD`) and a
 number (`Modelo 721`, `Anexo G`, `Form 1040`, `Box 3`, `Quadro 9.4`) are joined by U+00A0 too, so
 that a line never ends on the code or the name. This holds in English, in each translation, and in a
 module. A JSON file writes the space as `\u00a0`, a module as the character itself (decided
-2026-11-17). `pnpm validate:content` reads the run of white space, format and control characters (Unicode Cf
-and Cc) between the two in a profile or a translated one, and refuses it unless it is one U+00A0
-alone (`figure-join`): U+00A0 beside an ordinary space is refused too, since a line breaks at the
-space (decided 2026-11-18). Any other character between them ends the run, and that pair is not
-read. Its detail names the pair and each character of the run in order (`U+00A0 U+0020`), never a
-text to write.
+2026-11-17). `pnpm validate:content` checks the join in a profile or a translated one
+(`figure-join`), reading its gap as every join's gap is read (below).
 
 In an English profile the same U+00A0 joins a law's name and its number (`§ 23`, `art. 46`,
 `section 104`, `no. 3`, `n° 2026-534`, `Lei 24‑D/2022`, `Bill 2026`) and a date's parts
@@ -420,7 +416,7 @@ a dash or hyphen between the figures after it takes the joiner as well (`s.104-1
 Latin ordinal suffix after a number or a single letter takes the same, with or without a law name
 before it (`Form 3916‑bis`, `lett. c‑sexies`); the suffixes are a closed list, `bis`, `ter`,
 `quater`, `quinquies`, `sexies`, `septies`, `octies`, `novies` and `decies` (decided 2026-11-18).
-`pnpm validate:content` refuses an ordinary space in a name's or a date's join (`figure-join`) and
+`pnpm validate:content` refuses a name's or a date's join that is not U+00A0 (`figure-join`) and
 a dash or hyphen with no joiner after it (`range-join`).
 
 A figure and its unit are joined by U+00A0 as well (`365 days`, `5 anos`): the units are a closed
@@ -433,8 +429,16 @@ ordinal and its noun (`2.º Suplemento`, §9). A word counted after a figure (`6
 between them (`55(1)(d)`, `1.1012-1(j)(3)(ii)`), and nothing between the number and its first
 bracket, which neither engine breaks. A probe at 161 widths from 240 to 400 px found each pair split
 at a line end in Chromium or WebKit, and none once joined (#368, decided 2026-11-18).
-`pnpm validate:content` refuses an ordinary space before a unit (`figure-join`) and a citation with
+`pnpm validate:content` refuses a unit's join that is not U+00A0 (`figure-join`) and a citation with
 no joiner between its brackets (`citation-join`).
+
+Every join above is read the same way: a code and its figure, a form's name and its number, a law's
+name and its number, a date's parts, and a figure and its unit. `pnpm validate:content` reads the run of white
+space, format and control characters (Unicode Cf and Cc) between the two parts. It refuses the run
+unless it is one U+00A0 alone. U+00A0 beside any other space is refused too, since a line breaks at
+the other one (decided 2026-11-18). Any other character between the two parts ends the run, and that
+pair is not read. The detail names the pair and each character of the run in order
+(`U+00A0 U+0020`), never a text to write.
 
 U+00A0 joins a figure to its unit, a name to its number, an ordinal to its noun and a date's parts;
 U+2060 goes only after a dash or a hyphen and between a citation's brackets; U+2011 replaces the
