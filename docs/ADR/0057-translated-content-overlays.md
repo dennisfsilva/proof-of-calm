@@ -277,3 +277,8 @@ generated rules files of each language.
   is named rather than missing from the list; its sign class is unchanged. A source's title, in any
   language, never holds U+2011 (`range-join`; `docs/CONTENT-STYLE.md` §4): it keeps the published
   U+002D, with U+2060 after it inside a law number (C3, C7, C9, C10 and C11 of #370).
+- **2026-11-18.** The other details that quote a text print it the same way, with no JSON escape (D4 of
+  #377): `percent-token`, `figure-form`, `figure-mismatch`, `figure-unclassed` (a paragraph break
+  prints `U+000A U+000A`), `decimal-separator`, `percent-joiner`, `number-group` (its suggestion
+  names U+00A0 rather than `\u00a0`), `header-semicolon`, `number-unit-hyphen`, the ban list's
+  `banned-*`, `template-date-unresolved` and `template-date-month`; a gap names every character (`printedGap`).
