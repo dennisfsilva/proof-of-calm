@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { paragraphsOf } from './paragraphs.ts';
+import { printedText } from './percent-gap.ts';
 import { formatPercentTokens, PERCENT_JOINER, percentTokenProblems } from './percent-token.ts';
 import { sentencesOf } from './template-figures.ts';
 
@@ -30,7 +31,7 @@ describe('percentTokenProblems', () => {
       path: PATH,
       code: 'percent-token',
       detail:
-        `explanation: "60${joiner}%" has ${said} before its sign in "${sentence}"; ` +
+        `explanation: "${printedText(`60${joiner}%`, [])}" has ${said} before its sign in "${printedText(sentence, [])}"; ` +
         'write N % with an ordinary space (U+0020) (docs/CONTENT-STYLE.md §4)',
     });
   });

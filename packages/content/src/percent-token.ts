@@ -3,6 +3,7 @@
 // all read it here, so every percentage the checks accept is one the app formats
 // (docs/research/review-safe-figures.md, amendment 7).
 import { paragraphsOf } from './paragraphs.ts';
+import { printedText } from './percent-gap.ts';
 import type { Problem } from './problem.ts';
 
 /** The joiner between a figure and its `%`: the ordinary space (U+0020). */
@@ -15,6 +16,8 @@ const WRITTEN = /\d+(?<joiner>[\s\u2010\u2011-]*)(?<sign>[%\u066A\uFE6A\uFF05])/
 
 const named = (text: string) =>
   [...text].map((char) => `U+${char.codePointAt(0)?.toString(16).toUpperCase().padStart(4, '0')}`).join(' ') || 'none';
+/** A quoted text as every detail prints it (ADR-0057's Corrections): each hidden character by its code point. */
+const quoted = (text: string) => `"${printedText(text, [])}"`;
 
 /** The text with each token written by `format` from its digits, as the app shows a paragraph. */
 export const formatPercentTokens = (text: string, format: (digits: string) => string): string =>
@@ -37,7 +40,7 @@ export const percentTokenProblems = (path: string, field: string, text: string):
             joiner === PERCENT_JOINER ? '' : `${joiner === '' ? 'nothing' : named(joiner)} before its sign`,
             sign === '%' ? '' : `${named(sign)} in place of %`,
           ];
-          const what = `"${figure}" has ${parts.filter(Boolean).join(' and ')} in "${sentence}"`;
+          const what = `${quoted(figure)} has ${parts.filter(Boolean).join(' and ')} in ${quoted(sentence)}`;
           const fix = 'write N % with an ordinary space (U+0020) (docs/CONTENT-STYLE.md §4)';
           return { path, code: 'percent-token', detail: `${field}: ${what}; ${fix}` };
         }),

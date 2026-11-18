@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import allowList from '../sources.allow.json' with { type: 'json' };
+import { printedText } from './percent-gap.ts';
 import { sentencesOf, shapeOf } from './template-figures.ts';
 import { type ContentFile, validateContent } from './validate.ts';
 
@@ -426,7 +427,7 @@ describe('the details (D17 of #318: a datum written in passes, one step past it 
       ],
       ['Bitcoin takes 40 % of each amount; 30 % goes into Bitcoin.', ['"30 %"', '"Bitcoin"', "BTC's share of 40 %"]],
       ['Solana fell 15 %.', ['"15 %"', 'SOL: fall 97 %, share 15 %']],
-      ['Solana fell 15 per cent.', ['"15 per cent"', 'SOL: fall 97 %, share 15 %']],
+      ['Solana fell 15 per cent.', ['"15 perU+00A0 cent"', 'SOL: fall 97 %, share 15 %']],
       ['A fall of 40 % can come again.', ['"40 %" matches no shape']],
     ];
     for (const [explanation, parts] of cases) {
@@ -434,7 +435,7 @@ describe('the details (D17 of #318: a datum written in passes, one step past it 
       expect(problems).toHaveLength(1);
       const detail = problems[0]?.detail ?? '';
       expect(detail).toMatch(/^explanation: /);
-      expect(detail).toContain(`in "${explanation}"`);
+      expect(detail).toContain(`in "${printedText(explanation, [])}"`);
       expect(detail).toMatch(/; R[1-4] \(docs\/CONTENT-STYLE\.md §4\)$/);
       expect(detail).not.toMatch(/\bwrite\b/i);
       for (const part of parts) expect(detail).toContain(part);

@@ -3,6 +3,7 @@
 // without a build step.
 import { joinProblems, titleJoinProblems, URL_IN_TEXT } from './join-validate.ts';
 import { numberLocaleFor } from './loaders/locales.ts';
+import { printedGap, printedText } from './percent-gap.ts';
 import type { Problem } from './problem.ts';
 import type { CountryProfile } from './schema/jurisdiction.ts';
 
@@ -35,10 +36,9 @@ export function percentJoiner(locale: string): string {
     .join('');
 }
 
-const codePoints = (text: string) =>
-  text === ''
-    ? 'none'
-    : [...text].map((char) => `U+${(char.codePointAt(0) ?? 0).toString(16).toUpperCase().padStart(4, '0')}`).join(' ');
+const codePoints = (text: string) => (text === '' ? 'none' : printedGap(text, []).trimEnd());
+/** A quoted text as every detail prints it (ADR-0057's Corrections): each hidden character by its code point. */
+const quoted = (text: string) => `"${printedText(text, [])}"`;
 // What joins the two figures of a percentage range, both of them percentages (`12,2–48%`): an unspaced en dash or
 // hyphen, with the U+2060 that keeps it on one line (docs/CONTENT-STYLE.md §4). A `to` range writes its sign on each figure (`2,5% to 13,3%`), and a spaced
 // dash breaks the sentence, so `art. 33.1 to 28%` and `art. 33.1 – 28%` keep the law citation's point.
@@ -116,7 +116,7 @@ function decimalProblems(path: string, locale: string, texts: readonly [string, 
     [...text.replaceAll(URL_IN_TEXT, ' ').matchAll(PERCENT_RANGE)].flatMap(([excerpt]): Problem[] => {
       const wrong = /[.,]/.exec(excerpt.replaceAll(decimal, ''))?.[0];
       if (wrong === undefined) return [];
-      const detail = `${field}: ${JSON.stringify(excerpt)} writes "${wrong}", expected "${decimal}" (${locale})`;
+      const detail = `${field}: ${quoted(excerpt)} writes "${wrong}", expected "${decimal}" (${locale})`;
       return [{ path, code: 'decimal-separator', detail }];
     }),
   );
@@ -143,7 +143,6 @@ export const escaped = (text: string) =>
     new RegExp(`[${NBSP}${NARROW}]`, 'g'),
     (char) => `${String.fromCodePoint(0x5c)}u${(char.codePointAt(0) ?? 0).toString(16).padStart(4, '0')}`,
   );
-const typed = (text: string) => escaped(JSON.stringify(text));
 
 type Reading = { readonly whole: string; readonly fraction?: string | undefined };
 /**
@@ -208,8 +207,8 @@ export function groupProblems(path: string, locale: string, texts: readonly [str
         figures.length > 1 ? 'range' : readings[0] === 'none' ? 'none' : run.includes(',') ? 'comma' : 'point';
       const detail =
         figures.length === 1 && form !== undefined
-          ? `${field}: ${typed(excerpt)} expected ${typed(excerpt.replace(run, form))} (${locale})`
-          : `${field}: ${typed(excerpt)} ${WHY[why]} (${locale}), ${RULE}`;
+          ? `${field}: ${quoted(excerpt)} expected ${quoted(excerpt.replace(run, form))} (${locale})`
+          : `${field}: ${quoted(excerpt)} ${WHY[why]} (${locale}), ${RULE}`;
       return [{ path, code: 'number-group', detail }];
     }),
   );
@@ -222,7 +221,7 @@ function percentTextProblems(path: string, locale: string, texts: readonly [stri
   for (const [field, text] of texts) {
     for (const [excerpt, gap = ''] of text.replaceAll(URL_IN_TEXT, ' ').matchAll(PERCENT)) {
       if (gap === joiner) continue;
-      const detail = `${field}: ${JSON.stringify(excerpt)} has ${codePoints(gap)}, expected ${codePoints(joiner)}`;
+      const detail = `${field}: ${quoted(excerpt)} has ${codePoints(gap)}, expected ${codePoints(joiner)}`;
       problems.push({ path, code: 'percent-joiner', detail });
     }
   }
