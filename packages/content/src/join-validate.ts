@@ -39,18 +39,23 @@ const JOINS = new RegExp(
 // profile, and its month names, with the word that links a date's parts where the language writes one (`1 de janeiro
 // de 2023`). A language without an entry gets the code and form joins only.
 type ProseJoins = { names: RegExp; months: RegExp; linker?: string };
+const ENGLISH_NAMES =
+  /§§?|[Aa]rts?\.|[Aa]rticles?|[Ss]ections?|s{1,2}\.|[Nn]os?\.|n\.ºs?|n°|\(EU\)|Orden|Nr\.|c\.|[Ss]entence|[Pp]aragraph|Part|Lei|Ley|Law|L\.|Decreto-Lei|D\.Lgs\.|BGBl\.|TCA|TCGA|SolZG|Act|Bill|Budget|Belastingplan|BMF|Circolare|Notice|Topic|Publication|Pub\.|Proc\./u;
 const PROSE_JOINS: Readonly<Record<string, ProseJoins>> = {
   en: {
-    names:
-      /§§?|[Aa]rts?\.|[Aa]rticles?|[Ss]ections?|s{1,2}\.|[Nn]os?\.|n\.ºs?|n°|\(EU\)|Orden|Nr\.|c\.|[Ss]entence|[Pp]aragraph|Part|Lei|Ley|Law|L\.|Decreto-Lei|D\.Lgs\.|BGBl\.|TCA|TCGA|SolZG|Act|Bill|Budget|Belastingplan|BMF|Circolare|Notice|Topic|Publication|Pub\.|Proc\./u,
+    names: ENGLISH_NAMES,
     // en-GB's long and short months, with `Sept` as en-GB writes it; counted only when capitalised (`may`).
     months:
       /January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sept?|Oct|Nov|Dec/u,
   },
-  // D6 (2026-11-18), from the census of the pt-PT overlays; months in lower case (CONTENT-STYLE §9). A `de` before a
-  // bare year (`de 2023`) is no date, as English's word before a year is not.
+  // D6 (2026-11-18), from the census of the pt-PT overlays, with English's names, which a translation keeps where the
+  // source language's law is cited (`Topic 409`, `Circolare 30/E`, `c. 1`); months in lower case (CONTENT-STYLE §9).
+  // A `de` before a bare year (`de 2023`) is no date, as English's word before a year is not.
   'pt-PT': {
-    names: /§§?|[Aa]rts?\.|[Aa]rtigos?|n\.ºs?|Decreto-Lei|Lei|[Ss]ecção|[Ff]rase|[Pp]arágrafo|[Ee]xemplo|[Cc]ódigo/u,
+    names: new RegExp(
+      `${/[Aa]rtigos?|[Ss]ecção|[Ff]rase|[Pp]arágrafo|[Ee]xemplo|[Cc]ódigo/u.source}|${ENGLISH_NAMES.source}`,
+      'u',
+    ),
     months: /janeiro|fevereiro|março|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro/u,
     linker: 'de',
   },
