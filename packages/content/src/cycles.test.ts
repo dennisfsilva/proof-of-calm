@@ -111,6 +111,10 @@ function heldKeys(keys: readonly string[], falls: readonly Fall[], held: readonl
 function strayKeys(keys: readonly string[], falls: readonly Fall[]): string[] {
   return keys.filter((key) => !falls.some((each) => keyOf(each) === key));
 }
+/** The `<coin> <high>` of each held fall on Coinbase's series: the rows the Coinbase test reads its windows from. */
+function coinbaseKeys(falls: readonly Fall[], held: readonly Fall[]): string[] {
+  return heldKeys(falls.filter(({ row }) => row[2] === COINBASE).map(keyOf), falls, held);
+}
 const held = () => heldFalls(FALLS, CycleDrawdownsSchema.parse(cycles).drawdowns, factValue, unloggedFalls);
 
 /** Each row of `drawdowns` is the fall at its index: the same row, and its fact's clause reads its figure and dates. */
@@ -336,5 +340,89 @@ describe('a FALLS literal with a pending entry (docs/CONTENT-OPS.md §8 steps 4 
 
   it('an entry that differs from the literal it names is not stale', () => {
     expect(staleFalls(falls, pending(['BTC 2017-12-17', btcNow], ['LINK 2021-05-10', linkNow]))).toEqual([]);
+  });
+});
+
+// A review moves ETH's 2021 row from Coinbase's series to Bitstamp's, or LINK's 2021 row from Bitstamp's to Coinbase's.
+// Main stays green in each state: main with the entry, the merged review (the flip changes no row or clause) and the
+// log PR, which writes `now` into the literals and removes the entry.
+describe('a publisher change through an entry (docs/CONTENT-OPS.md §8 steps 4 and 5)', () => {
+  const eth: Fall = { row: ['ETH', '2021-11-10', COINBASE], fact: ['x.two', 'ETH 2022', '−81.9 %', COINBASE] };
+  const link: Fall = { row: ['LINK', '2021-05-10', BITSTAMP], fact: ['x.two', 'LINK 2021', '−90.7 %', COINBASE] };
+  const ethNow: Fall = { row: ['ETH', '2021-11-10', BITSTAMP], fact: ['x.two', 'ETH 2022', '−81.9 %', BITSTAMP] };
+  const linkNow: Fall = { row: ['LINK', '2021-05-10', COINBASE], fact: link.fact };
+  const file = (ethOn: string, linkOn: string): Drawdown[] => [
+    { coin: 'ETH', high: '2021-11-10', low: '2022-06-18', fall: '82', publisher: ethOn },
+    { coin: 'LINK', high: '2021-05-10', low: '2023-06-10', fall: '91', publisher: linkOn },
+  ];
+  const clauses =
+    (ethSeries: string): Read =>
+    () =>
+      `ETH 2022 (${ethSeries}): 10 Nov 2021 to 18 Jun 2022, −81.9 %. ` +
+      'LINK 2021 (Coinbase): 10 May 2021 to 10 Jun 2023, −90.7 %. At the close on 16 Oct 2026, nothing.';
+  const ethMoves: ReadonlyMap<string, Fall> = new Map([['ETH 2021-11-10', ethNow]]);
+  const linkMoves: ReadonlyMap<string, Fall> = new Map([['LINK 2021-05-10', linkNow]]);
+  const none: ReadonlyMap<string, Fall> = new Map();
+  /** The cycles tests' reads of one state: the whole-array tie, the stale check and the Coinbase rows' keys. */
+  const route = (rows: Drawdown[], read: Read, entries: ReadonlyMap<string, Fall>, literals: readonly Fall[]) => {
+    const held = heldFalls(literals, rows, read, entries);
+    expectFallsRead(held, rows, read);
+    expect(staleFalls(literals, entries)).toEqual([]);
+    const onCoinbase = rows
+      .filter(({ publisher }) => publisher === COINBASE)
+      .map(({ coin, high }) => `${coin} ${high}`);
+    expect(onCoinbase).toEqual(coinbaseKeys(literals, held));
+  };
+
+  it.each([
+    {
+      state: 'ETH to Bitstamp: main with the entry',
+      rows: file(COINBASE, BITSTAMP),
+      series: COINBASE,
+      entries: ethMoves,
+      literals: [eth, link],
+    },
+    {
+      state: 'ETH to Bitstamp: the merged review',
+      rows: file(BITSTAMP, BITSTAMP),
+      series: BITSTAMP,
+      entries: ethMoves,
+      literals: [eth, link],
+    },
+    {
+      state: 'ETH to Bitstamp: the log PR',
+      rows: file(BITSTAMP, BITSTAMP),
+      series: BITSTAMP,
+      entries: none,
+      literals: [ethNow, link],
+    },
+    {
+      state: 'LINK to Coinbase: main with the entry',
+      rows: file(COINBASE, BITSTAMP),
+      series: COINBASE,
+      entries: linkMoves,
+      literals: [eth, link],
+    },
+    {
+      state: 'LINK to Coinbase: the merged review',
+      rows: file(COINBASE, COINBASE),
+      series: COINBASE,
+      entries: linkMoves,
+      literals: [eth, link],
+    },
+    {
+      state: 'LINK to Coinbase: the log PR',
+      rows: file(COINBASE, COINBASE),
+      series: COINBASE,
+      entries: none,
+      literals: [eth, linkNow],
+    },
+  ])('$state passes', ({ rows, series, entries, literals }) => {
+    route(rows, clauses(series), entries, literals);
+  });
+
+  it('a publisher change with no entry fails the whole-array comparison', () => {
+    expect(() => route(file(BITSTAMP, BITSTAMP), clauses(BITSTAMP), none, [eth, link])).toThrow(/to deeply equal/u);
+    expect(() => route(file(COINBASE, COINBASE), clauses(COINBASE), none, [eth, link])).toThrow(/to deeply equal/u);
   });
 });
