@@ -29,7 +29,10 @@ export const COUNT_NOUNS: Readonly<Record<Language, RegExp>> = {
 // B's gap or none, and a listed noun no letter, mark or digit continues; matched on the reader's view (readerView).
 const EDGE = '[\\p{L}\\p{M}\\p{N}]';
 const COUNT = (language: Language) =>
-  new RegExp(`(?<!${EDGE})(?<count>\\p{N}+(?:[.,${NBSP}]\\p{N}+)*)${GAP}?(?<noun>${nouns(language)})(?!${EDGE})`, 'giu');
+  new RegExp(
+    `(?<!${EDGE})(?<count>\\p{N}+(?:[.,${NBSP}]\\p{N}+)*)${GAP}?(?<noun>${nouns(language)})(?!${EDGE})`,
+    'giu',
+  );
 // Four ASCII digits from 1900 to 2099 with no group separator are a year (`the 2017 and 2021 cycles`), never a count;
 // a count written like one (`2016 blocks`) is left unread with them.
 const YEAR = /^(?:19|20)[0-9]{2}$/u;
