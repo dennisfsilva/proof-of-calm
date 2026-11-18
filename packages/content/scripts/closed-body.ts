@@ -47,10 +47,14 @@ const listed = (elements: readonly string[]) => elements.join(', ') || 'none';
 
 // A block's words with each line end a space, so a phrase cannot hide across a line inside one block.
 const spaced = (block: string) => block.replace(/\s+/g, ' ');
-// Each block's figures, read on their own so none runs into the next block's, pooled into one sorted list.
-const numbers = (blocks: readonly string[], language: string) =>
-  blocks
-    .flatMap((block) => numbersIn(spaced(block), language))
+// Each block's figures, read on their own so none runs into the next block's, and the number the page shows for each
+// ordered list item (`listNumbers`, which no block's text holds), pooled into one sorted list.
+const numbers = (page: ModuleBodyCheck['page'], language: string) =>
+  page
+    .flatMap((block) => [
+      ...(block.kind === 'element' ? [] : numbersIn(spaced(block.text), language)),
+      ...(block.listNumbers ?? []).flatMap((shown) => numbersIn(String(shown), 'en')),
+    ])
     .sort()
     .join(' ') || 'none';
 
@@ -76,7 +80,7 @@ async function translationProblems(path: string, language: string, mine: ModuleB
     const detail = `English ${listed(theirs.elements)}; translation ${listed(mine.elements)}; write English's elements and ## headings in English's order, a flow element on a line of its own and a text element inside its sentence`;
     problems.push({ path, code: 'module-overlay-elements', detail });
   }
-  const [ours, others] = [numbers(mine.blocks, language), numbers(theirs.blocks, 'en')];
+  const [ours, others] = [numbers(mine.page, language), numbers(theirs.page, 'en')];
   if (ours !== others)
     problems.push({ path, code: 'overlay-number-mismatch', detail: `body: ${ours}, English ${others}` });
   return [...problems, ...own];
