@@ -424,3 +424,26 @@ describe('a source title’s joins in its own language (docs/CONTENT-STYLE.md §
     expect(localeProblems(path, titled('Decreto-Lei: guaranteed returns', 'pt'), [])).toEqual([]);
   });
 });
+
+// D4 of ADR-0057's Corrections (2026-11-18): the decimal, joiner and group details print their excerpt by code point.
+describe('a profile’s percentage and money details print their excerpt by code point (printedText)', () => {
+  const text = 'Taxed at 12.2\u2009% on EUR\u00a020 350, or\u2060 more\u0085.';
+  const details = (code: string) =>
+    localeProblems(path, de, [['card.caveats.0', text]])
+      .filter((problem) => problem.code === code)
+      .map(({ detail }) => detail);
+
+  it('names a refused U+2009 in a decimal-separator excerpt', () => {
+    expect(details('decimal-separator')).toEqual(['card.caveats.0: "12.2U+2009 %" writes ".", expected "," (de-DE)']);
+  });
+
+  it('names a refused U+2009 in a percent-joiner excerpt and its gap', () => {
+    expect(details('percent-joiner')).toEqual(['card.caveats.0: "12.2U+2009 %" has U+2009, expected U+00A0']);
+  });
+
+  it('names U+00A0 in a number-group excerpt and its suggestion, with no JSON escape', () => {
+    expect(details('number-group')).toEqual([
+      'card.caveats.0: "EURU+00A0 20 350" expected "EURU+00A0 20U+00A0 350" (de-DE)',
+    ]);
+  });
+});

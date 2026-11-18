@@ -95,3 +95,14 @@ describe('formatPercentTokens', () => {
     ]);
   });
 });
+
+// D4 of ADR-0057's Corrections (2026-11-18): a detail prints the figure and the sentence it quotes by code point.
+describe('percentTokenProblems prints its quoted text by code point (printedText)', () => {
+  it('names a refused U+2009, U+00A0, U+2060 and U+0085 in the figure and the sentence', () => {
+    const text = 'Bitcoin\u2060 takes 60\u2009% of\u00a0each\u0085 amount.';
+    expect(percentTokenProblems(PATH, 'explanation', text).map(({ detail }) => detail)).toEqual([
+      'explanation: "60U+2009 %" has U+2009 before its sign in "BitcoinU+2060  takes 60U+2009 % ofU+00A0 eachU+0085  ' +
+        'amount."; write N % with an ordinary space (U+0020) (docs/CONTENT-STYLE.md §4)',
+    ]);
+  });
+});
