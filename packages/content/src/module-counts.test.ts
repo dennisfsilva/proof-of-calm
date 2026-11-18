@@ -58,6 +58,12 @@ describe('moduleCountProblems: a count and its listed noun, joined by one U+00A0
     expect(['falls', 'quedas', 'years', 'anos'].filter((noun) => COUNT_NOUNS.en.test(noun))).toEqual([]);
   });
 
+  // The noun's end is judged after the match, so a noun that starts another would lose the shorter alternative.
+  it('lists no noun that starts another noun of either language', () => {
+    const all = [...NOUNS.en, ...NOUNS['pt-PT']].map((noun) => noun.toLowerCase());
+    expect(all.flatMap((noun) => all.filter((other) => other !== noun && other.startsWith(noun)))).toEqual([]);
+  });
+
   it('prints the gap by code point, the field and the noun as the page shows it', () => {
     const report = (text: string, field: string, language: 'en' | 'pt-PT') =>
       moduleCountProblems(at, [[field, text]], language).map(({ detail }) => detail);
@@ -97,6 +103,29 @@ describe('moduleCountProblems: a count and its listed noun, joined by one U+00A0
         'them; R7 (docs/CONTENT-STYLE.md §4)',
     ]);
     expect(report('It mixes 6inputs.')).toEqual([]);
+  });
+
+  // A default-ignorable code point between a word and the count, or between the noun and a word, separates them as the
+  // file writes them (a browser can break at U+200B there), so the word edges are judged as written, like the gap.
+  it('judges the word edges around the count and the noun as written', () => {
+    const zwsp = cp(0x200b);
+    const report = (text: string, field: string) =>
+      moduleCountProblems(at, [[field, text]], 'en').map(({ detail }) => detail);
+    const joined = (field: string) =>
+      `${field}: the count "6" and its noun "inputs" are joined by U+0020, not U+00A0; write one U+00A0 between ` +
+      'them; R7 (docs/CONTENT-STYLE.md §4)';
+    for (const field of ['idea', 'body']) {
+      expect([field, report(`It mixes${zwsp}6 inputs.`, field)]).toEqual([field, [joined(field)]]);
+      expect([field, report(`It mixes 6 inputs${zwsp}x.`, field)]).toEqual([field, [joined(field)]]);
+      expect([field, report('It mixes6 inputs.', field)]).toEqual([field, []]);
+      expect([field, report('It mixes 6 inputsx.', field)]).toEqual([field, []]);
+    }
+    // A word a hidden character splits from a longer figure leaves the figure's written rest a count of its own.
+    expect(report(`It mixes a1${zwsp}6 inputs.`, 'body')).toEqual([joined('body')]);
+    // A letter or digit outside the BMP is an edge too, and the text's start and end are not.
+    expect(report(`${cp(0x1d400)}6 inputs`, 'body')).toEqual([]);
+    expect(report(`6 inputs${cp(0x1d7ce)}`, 'body')).toEqual([]);
+    expect(report(`${cp(0x1d400)}${zwsp}6 inputs${zwsp}${cp(0x1d7ce)}`, 'body')).toEqual([joined('body')]);
   });
 
   it("leaves B's falls and quedas to R6, and years, dates and unlisted nouns alone", () => {
