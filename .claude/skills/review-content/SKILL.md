@@ -355,11 +355,14 @@ The finish refuses a changed entry at any other value.
    name its file and line and both values in the draft's notes and your closing report, and say in
    both that `verify` fails on `pnpm test` until the owner removes that assertion in a pull request
    of its own (`docs/ENGINEERING.md` §2): one changed to your new value would fail on main, where
-   the data still holds the old one. A chart row's tie to fact a's or b's clause in
-   `packages/content/src/cycles.test.ts` is no such test: change the clause (§4 step 1). For the tie
+   the data still holds the old one. In `packages/content/src/cycles.test.ts`, changing fact a's or
+   b's clause (§4 step 1) meets a chart row's tie to it, but each literal of its `FALLS` table
+   that your change replaced (a clause's one-decimal fall, a row's high or publisher) is such a
+   test: name it as above. For the tie
    of a fact's value to its `docs/EDUCATION.md` §9 row (`packages/content/src/facts.test.ts`), say
    instead that the owner's pull request to main records the fact's old and new value as pending
-   and keeps the tie (`docs/CONTENT-OPS.md` §8 step 4).
+   and keeps the tie, and that the owner removes that entry in a pull request to main when this
+   one closes unmerged or no longer holds the new value (`docs/CONTENT-OPS.md` §8 step 4).
    When a translation's figure still does not match
    after you change it and run the checks again, revert neither the English change nor the
    translation's edit: name the figure, its path and the values the check prints in the draft's
