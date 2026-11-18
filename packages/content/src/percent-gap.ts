@@ -12,8 +12,9 @@ const codePoint = (char: string) => `U+${char.codePointAt(0)?.toString(16).toUpp
 export const printedGap = (gap: string, shown: readonly string[]) =>
   shown.includes(gap) ? gap : [...gap].map(codePoint).join('');
 
-// Hidden or look-alike: any space separator but U+0020, a format or control character, U+2010 and U+2011.
-const HIDDEN = /(?! )[\p{Z}\p{Cf}\p{Cc}‐‑]/gu;
+// Hidden or look-alike: any space separator but U+0020, a format or control character, any default-ignorable code
+// point (the class the page reader drops, packages/config/vite/page-blocks.ts), U+2010 and U+2011.
+const HIDDEN = /(?! )[\p{Z}\p{Cf}\p{Cc}\p{Default_Ignorable_Code_Point}‐‑]/gu;
 
 /** A quoted text as a detail prints it: each hidden or look-alike character not in `shown` by its code point, as
  * printedGap prints it (`fellU+2009 50 %`), everything else as written. */
