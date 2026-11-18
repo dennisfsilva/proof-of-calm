@@ -12,8 +12,9 @@ import {
 import { useState } from 'react';
 import { useTranslations } from 'use-intl';
 
-// The country (docs/JURISDICTIONS.md §3, never the IP address): the device's suggestion confirmed with one
-// tap, or changed in the list. Residence decides tax, so the line says so when the language points elsewhere.
+// The country (docs/JURISDICTIONS.md §3, never the IP address): a high or medium suggestion confirmed with
+// one tap, a low one named but chosen in the list. Residence decides tax, so the line says so whenever the
+// language points elsewhere, named country or not.
 export type CountryStepProps = {
   readonly choices: readonly CountryChoice[];
   readonly suggestion: CountrySuggestion | null;
@@ -27,8 +28,9 @@ export type CountryStepProps = {
 export function CountryStep({ choices, suggestion, value, pending = false, onChoose }: CountryStepProps) {
   const t = useTranslations('onboarding.country');
   const suggested = choices.find((choice) => choice.code === suggestion?.country);
+  const confident = suggestion?.confidence === 'high' || suggestion?.confidence === 'medium';
   const [picked, setPicked] = useState<ProfileCode | null>(
-    value ?? (suggested?.code as ProfileCode | undefined) ?? null,
+    value ?? (confident ? (suggested?.code as ProfileCode | undefined) : undefined) ?? null,
   );
   const chosen = choices.find((choice) => choice.code === picked);
   const items = choices.map((choice) => ({ value: choice.code as ProfileCode, label: choice.name }));
@@ -38,9 +40,7 @@ export function CountryStep({ choices, suggestion, value, pending = false, onCho
         {t('heading')}
       </h2>
       {suggested !== undefined && <p>{t('suggested', { country: suggested.name })}</p>}
-      {suggested !== undefined && suggestion?.languageDiffers === true && (
-        <p className="text-ink-2">{t('languageDiffers')}</p>
-      )}
+      {suggestion?.languageDiffers === true && <p className="text-ink-2">{t('languageDiffers')}</p>}
       <Select<ProfileCode> items={items} value={picked} onValueChange={(code) => code !== null && setPicked(code)}>
         <SelectLabel>{t('label')}</SelectLabel>
         <SelectTrigger>

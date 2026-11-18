@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { userEvent } from 'storybook/test';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { I18nProvider } from '../../../lib/i18n';
 import onboarding from '../../../messages/en/onboarding.json';
@@ -23,19 +24,51 @@ function mount(props: Partial<CountryStepProps>) {
   return onChoose;
 }
 
+const LINE = 'Residence, not language, decides tax.';
+
 describe('CountryStep (docs/JURISDICTIONS.md §3)', () => {
-  it('confirms the suggestion with one tap and says when the language points elsewhere', async () => {
-    const onChoose = mount({ suggestion: { country: 'DE', confidence: 'low', languageDiffers: true } });
-    expect(screen.getByText('This device suggests Germany.')).toBeDefined();
-    expect(screen.getByText('Residence, not language, decides tax.')).toBeDefined();
+  it('names a low suggestion without choosing it: Continue appears once a country is chosen', async () => {
+    const onChoose = mount({ suggestion: { country: 'PT', confidence: 'low', languageDiffers: false } });
+    expect(screen.getByText('This device suggests Portugal.')).toBeDefined();
+    expect(screen.getByRole('combobox', { name: 'Country' }).textContent).toContain('Choose a country');
+    expect(screen.queryByRole('button', { name: /Continue/ })).toBeNull();
+    const user = userEvent.setup({ document });
+    await user.click(screen.getByRole('combobox', { name: 'Country' }));
+    await user.click(await screen.findByRole('option', { name: 'Portugal' }));
+    await act(() => fireEvent.click(screen.getByRole('button', { name: 'Continue with Portugal' })));
+    expect(onChoose).toHaveBeenCalledWith('PT');
+  });
+
+  it('chooses a medium suggestion for one tap', async () => {
+    const onChoose = mount({ suggestion: { country: 'DE', confidence: 'medium', languageDiffers: false } });
     await act(() => fireEvent.click(screen.getByRole('button', { name: 'Continue with Germany' })));
     expect(onChoose).toHaveBeenCalledWith('DE');
+  });
+
+  it('shows the suggestion and the residence line together when the language points elsewhere', () => {
+    mount({ suggestion: { country: 'DE', confidence: 'high', languageDiffers: true } });
+    expect(screen.getByText('This device suggests Germany.')).toBeDefined();
+    expect(screen.getByText(LINE)).toBeDefined();
+    expect(screen.getByRole('button', { name: 'Continue with Germany' })).toBeDefined();
+  });
+
+  it('shows the residence line alone when nothing is named', () => {
+    mount({ suggestion: { country: null, confidence: null, languageDiffers: true } });
+    expect(screen.getByText(LINE)).toBeDefined();
+    expect(screen.queryByText(/This device suggests/)).toBeNull();
+    expect(screen.queryByRole('button', { name: /Continue/ })).toBeNull();
+  });
+
+  it('shows neither line when nothing is named and the language agrees', () => {
+    mount({ suggestion: { country: null, confidence: null, languageDiffers: false } });
+    expect(screen.queryByText(LINE)).toBeNull();
+    expect(screen.queryByText(/This device suggests/)).toBeNull();
   });
 
   it('keeps the residence line away while the language agrees', () => {
     mount({ suggestion: { country: 'PT', confidence: 'high', languageDiffers: false } });
     expect(screen.getByRole('button', { name: 'Continue with Portugal' })).toBeDefined();
-    expect(screen.queryByText('Residence, not language, decides tax.')).toBeNull();
+    expect(screen.queryByText(LINE)).toBeNull();
   });
 
   it('without a suggestion shows only the list, and nothing to continue with until a choice', () => {

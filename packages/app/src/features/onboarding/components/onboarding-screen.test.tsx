@@ -2,6 +2,7 @@
 import { loadProfile, TEMPLATES, templateById } from '@proofofcalm/content';
 import { type CalendarDate, EntityIdSchema, type Plan } from '@proofofcalm/core';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { userEvent } from 'storybook/test';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { EMPTY_SNAPSHOT, memoryPlanStore } from '../../../lib/adapters';
 import { I18nProvider } from '../../../lib/i18n';
@@ -56,7 +57,8 @@ const GERMAN_LAW = await (async () => {
 
 const LINE = 'A starting point some people use. You choose every setting. Not advice.';
 const EXISTING = 'A plan is already set up on this device.';
-const LISBON = { languages: ['en-GB'], timeZone: 'Europe/Lisbon' } as const;
+/** Portugal with high confidence (a pt-PT tag), so the step is one tap. */
+const LISBON = { languages: ['en-GB', 'pt-PT'], timeZone: 'Europe/Lisbon' } as const;
 const BERLIN = { languages: ['de-DE'], timeZone: 'Europe/Berlin' } as const;
 /** Template names are content under review: the tests pick a template by its id. */
 const nameOf = (id: string) => templateById(id)?.name ?? id;
@@ -129,6 +131,19 @@ describe('OnboardingScreen', () => {
   it('confirms the suggested country with one tap', async () => {
     await mount();
     expect(await screen.findByText('This device suggests Portugal.')).toBeDefined();
+    await click('Continue with Portugal');
+    expect(screen.getByRole('heading', { level: 2, name: 'Choose a starting point' })).toBeDefined();
+  });
+
+  it('names a low suggestion first in the list and continues once it is chosen', async () => {
+    await mount(false, { languages: ['en-GB'], timeZone: 'Europe/Lisbon' });
+    expect(await screen.findByText('This device suggests Portugal.')).toBeDefined();
+    expect(screen.queryByRole('button', { name: /Continue with/ })).toBeNull();
+    const user = userEvent.setup({ document });
+    await user.click(screen.getByRole('combobox', { name: 'Country' }));
+    const [first] = await screen.findAllByRole('option');
+    expect(first?.textContent).toBe('Portugal');
+    await user.click(screen.getByRole('option', { name: 'Portugal' }));
     await click('Continue with Portugal');
     expect(screen.getByRole('heading', { level: 2, name: 'Choose a starting point' })).toBeDefined();
   });
