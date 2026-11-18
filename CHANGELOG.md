@@ -47,6 +47,8 @@ release.
   title writes the number as the source does.
 - On a country's card and page, a line never ends between a law's name and its number (§ 23),
   between a date's parts (31 July 2027), or after the dash of a range (2023–2025).
+- On a country's card and page, a line never ends between a figure and its unit (365 days),
+  between a citation's parts, or inside a source title's number or date.
 
 ### Learn
 
