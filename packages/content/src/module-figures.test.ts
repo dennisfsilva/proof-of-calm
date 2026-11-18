@@ -345,14 +345,14 @@ describe('a chart section fails', () => {
     expect(await tally(body(), ROWS, { chart: 'halvings-line' })).toEqual([4, 0]);
   });
 
-  it('fails a translated section closed in a language without shapes', async () => {
-    expect(await tally(body(), ROWS, { language: 'de' })).toEqual([2, 4]);
+  it('fails a translated section closed in a language without shapes, its intro too', async () => {
+    expect(await tally(body(), ROWS, { language: 'de' })).toEqual([5, 4]);
   });
 });
 
 describe("each detail quotes its sentence and names its figure and rule (§4's list)", () => {
   const R = (n: number) => `; R${n} (docs/CONTENT-STYLE.md §4)`;
-  const [s1, s2] = [nb(S1), nb(S2)];
+  const s2 = nb(S2);
   it.each<[string, string, readonly string[], FigureContext['rows']?]>([
     [
       '1: no shape',
@@ -479,7 +479,7 @@ describe("each detail quotes its sentence and names its figure and rule (§4's l
   it('1: a translation names its language', async () => {
     const [first] = await problemsOf(body(), ROWS, { language: 'de' });
     expect(first?.detail).toBe(
-      `body: "${s1}" holds a figure "4" and matches neither shape of a chart's section, and de has no shapes for a chart's section yet${R(5)}`,
+      `body: "A monthly plan sets when you buy." is not a sentence de's list holds and matches neither shape of a chart's section, and de has no shapes for a chart's section yet${R(5)}`,
     );
   });
 });

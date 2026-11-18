@@ -6,7 +6,7 @@ import cycles from '../cycles/drawdowns.json' with { type: 'json' };
 import { type FigureContext, moduleContext, moduleFigureProblems } from './module-figures.ts';
 
 // docs/CONTENT-STYLE.md §4 and §9: pt-PT's two shapes of a chart's section, its articles, its agreement, its commas
-// and its closed trigger, against the real catalogue and chart rows. Each case states its codes in order; the parity
+// and its closed list, against the real catalogue and chart rows. Each case states its codes in order; the parity
 // table holds each English case of module-figures.test.ts with a pt-PT form to the same codes in both languages.
 const at = 'packages/content/i18n/pt-PT/learn/risk-honestly.mdx';
 type Row = { readonly coin: string; readonly high: string; readonly low: string; readonly fall: string };
@@ -101,18 +101,6 @@ describe("pt-PT's chart section", () => {
     ],
     ['E first, as two paragraphs', en(`${EN2}\n\n${EN1}`), pt(`${S2}\n\n${S1}`), []],
     [
-      'a paragraph after the figures',
-      enPara('Each fall above is history, not a forecast.'),
-      ptPara('Cada queda acima é história, não uma previsão.'),
-      [],
-    ],
-    [
-      'a catalogue coin the chart does not draw',
-      enPara('Optimism is not a plan.'),
-      ptPara('A Optimism não é um plano.'),
-      [],
-    ],
-    [
       'the order: two figures swapped',
       en(`${EN1} ${EN2.replace('94 % and 82 %', '82 % and 94 %')}`),
       pt(`${S1} ${S2.replace('94 % e 82 %', '82 % e 94 %')}`),
@@ -186,6 +174,23 @@ describe("pt-PT's chart section", () => {
     expect(await codes(portuguese, 'pt-PT', rows)).toEqual(expected);
   });
 
+  // 2: holes 1 and 3 of amendment 8 hold in English only; in pt-PT an unlisted sentence fails closed.
+  it.each([
+    [
+      'a paragraph after the figures',
+      enPara('Each fall above is history, not a forecast.'),
+      ptPara('Cada queda acima é história, não uma previsão.'),
+    ],
+    [
+      'a catalogue coin the chart does not draw',
+      enPara('Optimism is not a plan.'),
+      ptPara('A Optimism não é um plano.'),
+    ],
+  ])('2: %s passes in English and fails unlisted in pt-PT', async (_, english, portuguese) => {
+    expect(await codes(english, 'en')).toEqual([]);
+    expect(await codes(portuguese)).toEqual([FC]);
+  });
+
   // 3: the article agrees with the coin and is capitalised only to open E.
   it.each<[string, string, readonly string[]]>([
     ['A ether caiu', pt(`${S1} ${S2.replace('O ether', 'A ether')}`), [FC, FU, FU, FU]],
@@ -231,147 +236,6 @@ describe("pt-PT's chart section", () => {
     ['two clauses joined by a comma alone', ptE(', a Solana 97 %.')],
   ])('5: %s', async (_, source, rows = ROWS) => {
     expect(await codes(source, 'pt-PT', rows)).toEqual([FC, FU, FU, FU]);
-  });
-
-  // 6: a sentence outside the shapes fails on each kind of pt-PT's trigger, English's beside it.
-  const detail = (sentence: string, kind: string, token: string) =>
-    `body: "${sentence}" holds ${kind} "${token}" and matches neither shape of a chart's section; R5 (docs/CONTENT-STYLE.md §4)`;
-  it.each<[string, string, string]>([
-    ['A queda durou três anos.', 'a number word', 'três'],
-    ['A segunda queda foi a mais funda.', 'a number word', 'segunda'],
-    ['A queda acabou em março.', 'a month', 'março'],
-    ['A queda acabou em Mar.', 'a month', 'Mar'],
-    ['Caiu vinte por cento.', 'a percentage sign or word', 'por cento'],
-    ['Caiu muito em por-cento.', 'a percentage sign or word', 'por-cento'],
-    ['O SOL caiu.', 'a coin', 'SOL'],
-    ['A Solana pode voltar a cair assim.', 'a coin', 'Solana'],
-    ['Perdeu metade.', 'a number word', 'metade'],
-    ['It fell twice.', 'a number word', 'twice'],
-    // English's lists entry by entry: trillion, the ordinals from fortieth to billionth, the multiplicatives.
-    ['As perdas chegaram aos trilhões.', 'a number word', 'trilhões'],
-    ['Perdeu um trilhão.', 'a number word', 'trilhão'],
-    ['Foi a quadragésima queda.', 'a number word', 'quadragésima'],
-    ['Foi a quinquagésima queda.', 'a number word', 'quinquagésima'],
-    ['Foi a sexagésima queda.', 'a number word', 'sexagésima'],
-    ['Foi a setuagésima queda.', 'a number word', 'setuagésima'],
-    ['Foi a septuagésima queda.', 'a number word', 'septuagésima'],
-    ['Foi a octogésima queda.', 'a number word', 'octogésima'],
-    ['Foi a nonagésima queda.', 'a number word', 'nonagésima'],
-    ['Foi a undécima queda.', 'a number word', 'undécima'],
-    ['Foi a duodécima queda.', 'a number word', 'duodécima'],
-    ['Foi a ducentésima queda.', 'a number word', 'ducentésima'],
-    ['Foi a milionésima queda.', 'a number word', 'milionésima'],
-    ['Foi a bilionésima queda.', 'a number word', 'bilionésima'],
-    ['Os preços dobraram.', 'a number word', 'dobraram'],
-    ['O preço duplica.', 'a number word', 'duplica'],
-    ['Foi uma queda dupla.', 'a number word', 'dupla'],
-    ['Os preços triplicaram.', 'a number word', 'triplicaram'],
-    ['O preço quintuplicou.', 'a number word', 'quintuplicou'],
-    ['O preço ficou décuplo.', 'a number word', 'décuplo'],
-    ['O preço chegou ao cêntuplo.', 'a number word', 'cêntuplo'],
-    ['As metades não contam.', 'a number word', 'metades'],
-    ['O saldo ficou a zeros.', 'a number word', 'zeros'],
-    ['A queda durou um trimestre.', 'a number word', 'trimestre'],
-    // English's `third` with `s?`: a third as a fraction is `terço`, not the ordinal `terceiro`.
-    ['Perdeu um terço do valor.', 'a number word', 'terço'],
-    ['Os terços do gráfico não contam.', 'a number word', 'terços'],
-    ['O preço chegou ao dobro.', 'a number word', 'dobro'],
-    ['O preço teve uma duplicação.', 'a number word', 'duplicação'],
-    // Loud false failures (hole 14 of amendment 8): the stems read a fold, a hinge and a duplicate as figures.
-    ['O papel tinha uma dobra.', 'a number word', 'dobra'],
-    ['A dobradiça partiu.', 'a number word', 'dobradiça'],
-    ['Era um duplicado.', 'a number word', 'duplicado'],
-    // Each entry's spellings in both norms, before and after the 1990 Agreement (the table of amendment 8).
-    ['O preço quadriplicou no ano.', 'a number word', 'quadriplicou'],
-    ['O preço ficou quadriplicado.', 'a number word', 'quadriplicado'],
-    ['O preço chegou ao séptuplo.', 'a number word', 'séptuplo'],
-    ['Foi uma subida séptupla.', 'a number word', 'séptupla'],
-    ['O preço chegou ao sétuplo.', 'a number word', 'sétuplo'],
-    ['Caiu cinqüenta vezes.', 'a number word', 'cinqüenta'],
-    ['Foi a qüinquagésima queda.', 'a number word', 'qüinquagésima'],
-    ['Foi a qüingentésima queda.', 'a number word', 'qüingentésima'],
-    ['A porcentagem caiu.', 'a percentage sign or word', 'porcentagem'],
-    ['As porcentagens caíram.', 'a percentage sign or word', 'porcentagens'],
-    ['A queda porcentual foi grande.', 'a percentage sign or word', 'porcentual'],
-    ['As quedas porcentuais foram grandes.', 'a percentage sign or word', 'porcentuais'],
-    // The -ar verbs beside the -icar ones (Priberam: `quadruplar` and `decuplar`), on every stem.
-    ['O preço quadruplou.', 'a number word', 'quadruplou'],
-    ['O preço decuplou.', 'a number word', 'decuplou'],
-    ['O preço triplou.', 'a number word', 'triplou'],
-    ['O preço ficou quadruplo.', 'a number word', 'quadruplo'],
-    // English's cardinals with `s`: each pt-PT cardinal's noun plural (Priberam), the decades as English's `thirties`.
-    ['Os quatros ficaram de fora.', 'a number word', 'quatros'],
-    ['Os cincos ficaram de fora.', 'a number word', 'cincos'],
-    ['Os setes ficaram de fora.', 'a number word', 'setes'],
-    ['Os oitos ficaram de fora.', 'a number word', 'oitos'],
-    ['Os noves ficaram de fora.', 'a number word', 'noves'],
-    ['Os dezes ficaram de fora.', 'a number word', 'dezes'],
-    ['Os onzes ficaram de fora.', 'a number word', 'onzes'],
-    ['Os dozes ficaram de fora.', 'a number word', 'dozes'],
-    ['Os trezes ficaram de fora.', 'a number word', 'trezes'],
-    ['Os catorzes ficaram de fora.', 'a number word', 'catorzes'],
-    ['Os quatorzes ficaram de fora.', 'a number word', 'quatorzes'],
-    ['Os quinzes ficaram de fora.', 'a number word', 'quinzes'],
-    ['Os dezassetes ficaram de fora.', 'a number word', 'dezassetes'],
-    ['Os dezessetes ficaram de fora.', 'a number word', 'dezessetes'],
-    ['Os dezoitos ficaram de fora.', 'a number word', 'dezoitos'],
-    ['Os dezanoves ficaram de fora.', 'a number word', 'dezanoves'],
-    ['Os dezenoves ficaram de fora.', 'a number word', 'dezenoves'],
-    ['Os vintes ficaram de fora.', 'a number word', 'vintes'],
-    ['Comprou nos trintas.', 'a number word', 'trintas'],
-    ['Comprou nos quarentas.', 'a number word', 'quarentas'],
-    ['Comprou nos cinquentas.', 'a number word', 'cinquentas'],
-    ['Comprou nos cinqüentas.', 'a number word', 'cinqüentas'],
-    ['Comprou nos sessentas.', 'a number word', 'sessentas'],
-    ['Comprou nos setentas.', 'a number word', 'setentas'],
-    ['Comprou nos oitentas.', 'a number word', 'oitentas'],
-    ['Comprou nos noventas.', 'a number word', 'noventas'],
-    ['Os centos ficaram de fora.', 'a number word', 'centos'],
-    ['Os mis ficaram de fora.', 'a number word', 'mis'],
-  ])('6: «%s» fails on %s', async (sentence, kind, token) => {
-    const found = await problemsOf(ptPara(sentence));
-    expect(found.map(({ code, detail: words }) => [code, words])).toEqual([[FC, detail(sentence, kind, token)]]);
-  });
-
-  // 6: every form of `dobrar` and of `duplicar` to `centuplicar` triggers, as English's `doubled`, `tripled` and
-  // `quadrupled` do in every past use: one paragraph per verb, its forms in sentences outside the shapes.
-  const forms = (stem: string) => {
-    const subjunctive = stem.endsWith('c') ? `${stem.slice(0, -1)}que` : `${stem}e`;
-    return [
-      ['O preço pode %.', `${stem}ar`],
-      ['O preço % depressa.', `${stem}a`],
-      ['Antes, o preço %.', `${stem}ou`],
-      ['O preço % a cada ciclo.', `${stem}ava`],
-      ['O preço %.', `${stem}ará`],
-      ['O preço %.', `${stem}aria`],
-      ['Antes da queda, o preço tinha %.', `${stem}ado`],
-      ['Talvez o preço %.', subjunctive],
-    ].map(([sentence = '', form = '']) => [sentence.replace('%', form), form] as const);
-  };
-  it.each(
-    'dobr duplic triplic quadruplic quadriplic quintuplic sextuplic septuplic setuplic octuplic nonuplic decuplic centuplic quadrupl decupl'.split(
-      ' ',
-    ),
-  )('6: every form of %sar fails on a number word', async (stem) => {
-    const table = forms(stem);
-    const found = await problemsOf(ptPara(table.map(([sentence]) => sentence).join(' ')));
-    expect(found.map(({ code, detail: words }) => [code, words])).toEqual(
-      table.map(([sentence, form]) => [FC, detail(sentence, 'a number word', form)]),
-    );
-  });
-
-  it.each([
-    'Cada barra é uma queda de uma moeda.',
-    'O mar não entra no gráfico.',
-    'O sol não entra no gráfico.',
-    // A stem holds at a word's start, as English's `doubled` misses `redoubled`; `meio` stays prose (hole 13).
-    'A atenção redobrou.',
-    'A queda parou a meio do ciclo.',
-    // The -ar verbs' stems stop before `mente`: the adverbs stay prose (hole 13).
-    'Foi duplamente difícil.',
-    'Foi triplamente difícil.',
-  ])('6: «%s» passes', async (sentence) => {
-    expect(await codes(ptPara(sentence))).toEqual([]);
   });
 
   it('6: the live translation of Risk honestly passes: []', async () => {
