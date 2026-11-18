@@ -168,7 +168,7 @@ function readingOf(figure: string): Reading | 'ambiguous' | 'none' {
   if (english !== undefined && page !== undefined && amountOf(english) !== amountOf(page)) return 'ambiguous';
   return english ?? page ?? 'none';
 }
-/** A value as the page writes it: groups of three joined by U+00A0 from 10 000, then a comma and the decimals. */
+/** A value as the page writes it: from 10 000 up, groups of three joined by U+00A0, then a comma and the decimals. */
 const pageForm = ({ whole, fraction }: Reading) => `${grouped(whole)}${fraction === undefined ? '' : `,${fraction}`}`;
 const WHY = {
   comma: 'has a comma that is a group in English and a decimal on this page',
@@ -176,7 +176,7 @@ const WHY = {
   none: 'has no reading in English or on this page',
   range: 'is a range',
 };
-const RULE = `so it has no suggestion. Write it by hand as CONTENT-STYLE §4 does: groups of three joined by U+00A0 from 10 000, none below, and a comma before the decimals. An amount of 1 to 999 with three decimals takes a fourth (EUR 1,1250)`;
+const RULE = `so it has no suggestion. Write it by hand as CONTENT-STYLE §4 does: from 10 000 up, groups of three joined by U+00A0; none below; a comma before the decimals. An amount of 1 to 999 with three decimals takes a fourth (EUR 1,1250)`;
 
 /**
  * Each money figure in `texts` grouped otherwise than a comma-decimal page writes it (decided 2026-11-16,
