@@ -50,7 +50,15 @@ Arguments: $ARGUMENTS
   after your English change (`overlay-number-mismatch`, or that language's `figure-chart`) is a
   refusal no edit of yours fixes: follow the figure item's rule for those (below). In a JSON translation, change
   only a figure that `overlay-number-mismatch` names, at the path it names, to the English file's new value, and
-  never its prose. When a figure check also refuses that figure in the English file, fix the
+  never its prose. When your English change alters a letter, word or citation a JSON translation
+  repeats outside its figures, leave the translation and add the note
+  `translation for the owner: <path> <field>: <the English change>` to the draft's notes: the path
+  from `packages/content/` and the field as a `changes` row names them, then the English words as
+  `<old> to <new>`, each joiner spelled `\x{2060}` or `\x{00A0}`, never the character (the finish
+  drops U+2060 from a note, and U+00A0 reads as a space). Portugal's `card.losses` citing
+  `55(1)\x{2060}(e)` in place of `(d)`, which pt-PT writes `al. d)`, takes
+  `translation for the owner: i18n/pt-PT/jurisdictions/pt.json card.losses: 55(1)\x{2060}(d) to 55(1)\x{2060}(e)`.
+  When a figure check also refuses that figure in the English file, fix the
   English file from its source first (the figure item below), then copy its value here. Write
   that value in the translation's number format, not as the English characters. The check reads each file with its own number locale. A profile's English file and
   its translation both read every figure with the page's number locale, `numberLocaleFor`: the
