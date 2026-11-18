@@ -25,6 +25,22 @@ describe('printedText', () => {
     expect(printedText(`Lei 24-D, 40${nbsp}%`, [nbsp])).toBe(`Lei 24-D, 40${nbsp}%`);
     expect(printedText(`40${nbsp}%`, [])).toBe('40U+00A0 %');
   });
+
+  // #388: the printer names exactly what the page reader drops (packages/config/vite/page-blocks.ts), so a hidden
+  // character of any general category shows in a detail: Cf, Mn (U+034F, U+FE0F), Lo (U+3164) and Cn (U+2065).
+  it('names every default-ignorable code point, whatever its general category', () => {
+    const ignorable = /^\p{Default_Ignorable_Code_Point}$/u;
+    const points: number[] = [];
+    for (let point = 0; point <= 0x10ffff; point += 1)
+      if ((point < 0xd800 || point > 0xdfff) && ignorable.test(String.fromCodePoint(point))) points.push(point);
+    expect(points.length).toBe(4174);
+    const name = (point: number) => `U+${point.toString(16).toUpperCase().padStart(4, '0')}`;
+    expect(points.filter((point) => printedText(`a${char(point)}b`, []) !== `a${name(point)} b`).map(name)).toEqual([]);
+    expect(printedText(`in${char(0x34f)}puts`, [])).toBe('inU+034F puts');
+    const nbsp = char(0xa0);
+    expect(printedText(`6 ${nbsp}inputs`, [nbsp])).toBe(`6 ${nbsp}inputs`);
+    expect(printedText(`6 ${nbsp}inputs`, [])).toBe('6 U+00A0 inputs');
+  });
 });
 
 describe('printedPercentText', () => {
@@ -35,6 +51,13 @@ describe('printedPercentText', () => {
       `EtherU+00A0 fell 94${nbsp}% and 82${nnbsp}%.`,
     );
     expect(printedPercentText(`4${nnbsp} %, 9${char(0x2009)}%`, joiners)).toBe('4U+202F  %, 9U+2009 %');
+  });
+
+  it('names a default-ignorable mark away from a percent sign', () => {
+    const nbsp = char(0xa0);
+    expect(printedPercentText(`Ether${char(0xfe0f)} fell 94${nbsp}%`, [nbsp, ' '])).toBe(
+      `EtherU+FE0F  fell 94${nbsp}%`,
+    );
   });
 
   it('keeps as written each hidden character a match of `joined` covers, and names the rest', () => {
