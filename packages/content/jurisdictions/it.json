@@ -17,7 +17,7 @@
   "lotScope": "global",
   "lotRuleNote": "The most recently bought coins count as sold first: Circolare 30/E §3.2.1 states the L.I.F.O. method for cripto-attività of the same denomination under the regime dichiarativo. A cost without proof counts as zero.",
   "card": {
-    "classification": "Cripto-attività: gains and other proceeds from redemption, sale for consideration, swap, or holding are redditi diversi under a substitute tax (art.\u00a067 c.\u00a01 lett. c-sexies TUIR, added by L.\u00a0197/2022).",
+    "classification": "Cripto-attività: gains and other proceeds from redemption, sale for consideration, swap, or holding are redditi diversi under a substitute tax (art.\u00a067 c.\u00a01 lett. c\u2011sexies TUIR, added by L.\u00a0197/2022).",
     "taxableEvents": [
       {
         "event": "sale-to-fiat",
@@ -37,7 +37,7 @@
       {
         "event": "spending",
         "taxable": "yes",
-        "note": "Paying with crypto swaps the coins for the good or service (permuta); only a swap between crypto-assets with the same characteristics and functions is outside the rule (art.\u00a067 c.\u00a01 lett. c-sexies TUIR)."
+        "note": "Paying with crypto swaps the coins for the good or service (permuta); only a swap between crypto-assets with the same characteristics and functions is outside the rule (art.\u00a067 c.\u00a01 lett. c\u2011sexies TUIR)."
       },
       {
         "event": "own-wallet-transfer",
@@ -81,11 +81,11 @@
     "allowances": [
       "No threshold: L.\u00a0207/2024 art.\u00a01 c.\u00a025 removed the EUR\u00a02000 yearly amount below which gains and losses did not count, for disposals from 1\u00a0January\u00a02025."
     ],
-    "holdingRuleText": "No holding rule: every sale is taxable whatever the holding time, from the first euro of gain since 1\u00a0January\u00a02025. That covers a sale for euro, for a stablecoin that is an e-money token, or for goods. A swap between crypto-assets with the same characteristics and functions is not a taxable event (art.\u00a067 c.\u00a01 lett. c-sexies TUIR).",
+    "holdingRuleText": "No holding rule: every sale is taxable whatever the holding time, from the first euro of gain since 1\u00a0January\u00a02025. That covers a sale for euro, for a stablecoin that is an e-money token, or for goods. A swap between crypto-assets with the same characteristics and functions is not a taxable event (art.\u00a067 c.\u00a01 lett. c\u2011sexies TUIR).",
     "lotRuleText": "Last in, first out: the coins acquired most recently count as sold first. Circolare\u00a030/E §3.2.1 states it for the regime dichiarativo (“deve essere assunto come costo o valore di acquisto quello determinato con il metodo L.I.F.O.”).",
     "losses": "Losses offset gains of the same kind in the year; an excess carries forward to the fourth following year if declared in the return for the year it arose (art.\u00a068 c.\u00a09\u2011bis TUIR, as the Istruzioni state it).",
     "reporting": [
-      "Quadro\u00a0RT sezione V-A of the Modello Redditi Persone fisiche 2026 (quadro\u00a0T of the 730) for gains and other proceeds realised up to 31\u00a0December\u00a02025, taxed at 26% (art.\u00a067 c.\u00a01 lett. c-sexies TUIR).",
+      "Quadro\u00a0RT sezione V-A of the Modello Redditi Persone fisiche 2026 (quadro\u00a0T of the 730) for gains and other proceeds realised up to 31\u00a0December\u00a02025, taxed at 26% (art.\u00a067 c.\u00a01 lett. c\u2011sexies TUIR).",
       "Quadro\u00a0RW for crypto held, whatever the wallet. The 0,2% yearly tax (imposta sulle cripto-attività, code 21 in colonna 3, codice tributo 1727) is due on the 31\u00a0December value, unless an intermediary applied stamp duty (imposta di bollo)."
     ],
     "caveats": [

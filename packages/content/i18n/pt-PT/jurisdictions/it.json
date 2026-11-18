@@ -3,7 +3,7 @@
   "filingNote": "Ano civil. O Modello Redditi Persone fisiche entrega-se online até 31\u00a0de\u00a0outubro do ano seguinte (para 2025: 2\u00a0de\u00a0novembro\u00a0de\u00a02026, porque 31\u00a0de\u00a0outubro\u00a0de\u00a02026 é um sábado). O Modello\u00a0730 entrega-se até 30\u00a0de\u00a0setembro.",
   "lotRuleNote": "As moedas compradas mais recentemente contam como vendidas primeiro: a Circolare 30/E §3.2.1 indica o método L.I.F.O. para cripto-attività da mesma denominação no regime dichiarativo. Um custo sem prova conta como zero.",
   "card": {
-    "classification": "Cripto-attività: as mais-valias e outros rendimentos de resgate, de venda a título oneroso, de troca ou de detenção são redditi diversi sujeitos a um imposto substitutivo (art.\u00a067 c.\u00a01 lett. c-sexies TUIR, aditado pela L.\u00a0197/2022).",
+    "classification": "Cripto-attività: as mais-valias e outros rendimentos de resgate, de venda a título oneroso, de troca ou de detenção são redditi diversi sujeitos a um imposto substitutivo (art.\u00a067 c.\u00a01 lett. c\u2011sexies TUIR, aditado pela L.\u00a0197/2022).",
     "taxableEvents": [
       {
         "note": "Uma venda por euros é uma alienação a título oneroso (cessione a titolo oneroso): a mais-valia é o preço recebido menos o custo ou valor de compra documentado (art.\u00a068 c.\u00a09\u2011bis TUIR, como as Istruzioni o indicam)."
@@ -15,7 +15,7 @@
         "note": "Uma troca por um token de moeda eletrónica (uma stablecoin que o emitente reembolsa ao par numa moeda oficial) é um facto tributável; uma troca por um token referenciado a ativos não é (Circolare\u00a030/E)."
       },
       {
-        "note": "Pagar com criptoativos troca as moedas pelo bem ou serviço (permuta); só uma troca entre criptoativos com as mesmas características e funções fica fora da regra (art.\u00a067 c.\u00a01 lett. c-sexies TUIR)."
+        "note": "Pagar com criptoativos troca as moedas pelo bem ou serviço (permuta); só uma troca entre criptoativos com as mesmas características e funções fica fora da regra (art.\u00a067 c.\u00a01 lett. c\u2011sexies TUIR)."
       },
       {
         "note": "Mover moedas entre carteiras do mesmo titular não é facto tributável. No regime opcional do risparmio amministrato, transferir para uma conta em nome de outrem é uma alienação, salvo por doação ou sucessão (Circolare\u00a030/E §3.2.2)."
@@ -47,11 +47,11 @@
     "allowances": [
       "Sem limiar: a L.\u00a0207/2024 art.\u00a01 c.\u00a025 eliminou o montante anual de EUR\u00a02000 abaixo do qual as mais-valias e as menos-valias não contavam, para as alienações desde 1\u00a0de\u00a0janeiro\u00a0de\u00a02025."
     ],
-    "holdingRuleText": "Sem regra de detenção: cada venda é tributável seja qual for o período de detenção, desde o primeiro euro de mais-valia, a partir de 1\u00a0de\u00a0janeiro\u00a0de\u00a02025. Isso abrange uma venda por euros, por uma stablecoin que seja um token de moeda eletrónica ou por bens. Uma troca entre criptoativos com as mesmas características e funções não é um facto tributável (art.\u00a067 c.\u00a01 lett. c-sexies TUIR).",
+    "holdingRuleText": "Sem regra de detenção: cada venda é tributável seja qual for o período de detenção, desde o primeiro euro de mais-valia, a partir de 1\u00a0de\u00a0janeiro\u00a0de\u00a02025. Isso abrange uma venda por euros, por uma stablecoin que seja um token de moeda eletrónica ou por bens. Uma troca entre criptoativos com as mesmas características e funções não é um facto tributável (art.\u00a067 c.\u00a01 lett. c\u2011sexies TUIR).",
     "lotRuleText": "Último a entrar, primeiro a sair: as moedas mais recentes contam como vendidas primeiro. A Circolare\u00a030/E §3.2.1, para o regime dichiarativo: «deve essere assunto come costo o valore di acquisto quello determinato con il metodo L.I.F.O.».",
     "losses": "As menos-valias compensam mais-valias da mesma natureza no ano; o excedente reporta-se até ao quarto ano seguinte, se constar da declaração do ano em que surgiu (art.\u00a068 c.\u00a09\u2011bis TUIR, como as Istruzioni o indicam).",
     "reporting": [
-      "Quadro\u00a0RT sezione V-A do Modello Redditi Persone fisiche 2026 (quadro\u00a0T do 730) para mais-valias e outros rendimentos realizados até 31\u00a0de\u00a0dezembro\u00a0de\u00a02025, tributados a 26% (art.\u00a067 c.\u00a01 lett. c-sexies TUIR).",
+      "Quadro\u00a0RT sezione V-A do Modello Redditi Persone fisiche 2026 (quadro\u00a0T do 730) para mais-valias e outros rendimentos realizados até 31\u00a0de\u00a0dezembro\u00a0de\u00a02025, tributados a 26% (art.\u00a067 c.\u00a01 lett. c\u2011sexies TUIR).",
       "Quadro\u00a0RW para moedas detidas, em qualquer carteira. Imposto anual de 0,2% (imposta sulle cripto-attività, código\u00a021 na colonna 3, codice tributo 1727) sobre o valor a 31\u00a0de\u00a0dezembro, salvo quando um intermediário aplica o imposto do selo."
     ],
     "caveats": [
