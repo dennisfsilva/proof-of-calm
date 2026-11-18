@@ -164,7 +164,7 @@ describe('a law name, a date and a range in English prose (docs/CONTENT-STYLE.md
       `Loi n°${nbsp}2026-${wj}534 of 2026.`,
       `Under Regulation (EU)${nbsp}2023/1114 (MiCA).`,
       `Filed by June (Orden${nbsp}HAC/277/2026).`,
-      `Taxed under art.${nbsp}67 c.${nbsp}1 lett. c-sexies TUIR.`,
+      `Taxed under art.${nbsp}67 c.${nbsp}1 lett. c${nb}sexies TUIR.`,
       'See lett. c of the article.',
     ];
     expect(joined.flatMap(joins)).toEqual([]);
@@ -443,6 +443,38 @@ describe('a figure and its unit, a citation and an identifier (docs/CONTENT-STYL
   it('refuses an ordinary space after Formulário, pt-PT’s form name (#367)', () => {
     expect(pt('No Formulário 3.')).toEqual([named('Formulário', '3')]);
     expect(joins(`No Formulário${nbsp}3.`)).toEqual([]);
+  });
+
+  it('reads every language’s unit words in every text: an English card quotes its country’s law (U5)', () => {
+    const quote = (gap: string) => `Held "por um período igual ou superior a 365${gap}dias" are exempt.`;
+    expect(joins(quote(' '))).toEqual([unit('365', 'dias')]);
+    expect(codes(joinProblems(path, [['card.holdingRuleText', quote(' ')]]))).toEqual(['figure-join']);
+    expect(joins(quote(nbsp))).toEqual([]);
+    expect(joins('Six brackets (6 escalões) in 3 states, for many dias.')).toEqual([]);
+    expect(pt('Detidas há menos de 365 days.')).toEqual([unit('365', 'days')]);
+  });
+
+  it('reads Suplemento as a unit only after an ordinal figure (U6)', () => {
+    expect(pt('No 2.º Suplemento.')).toEqual([unit('2.º', 'Suplemento')]);
+    expect(joins('In the 2.º Suplemento.')).toEqual([unit('2.º', 'Suplemento')]);
+    expect(pt('No 2 Suplemento, 2. Suplemento.')).toEqual([]);
+    expect(pt(`No 2.º${nbsp}Suplemento.`)).toEqual([]);
+  });
+
+  it('refuses a hyphen-minus before a Latin ordinal suffix after a number or a letter (L1)', () => {
+    const suffixes = ['bis', 'ter', 'quater', 'quinquies', 'sexies', 'septies', 'octies', 'novies', 'decies'];
+    expect(joins(suffixes.map((suffix) => `9-${suffix}`).join(', '))).toEqual(
+      suffixes.map((suffix) => hyphened(`9-${suffix}`)),
+    );
+    expect(joins('Under lett. c-sexies TUIR.')).toEqual([hyphened('c-sexies')]);
+    expect(pt(`No Formulário${nbsp}3916-bis.`)).toEqual([hyphened('3916-bis')]);
+    expect(joins(`art.${nbsp}10 c.${nbsp}1-bis`)).toEqual([hyphened('1-bis')]);
+  });
+
+  it('passes U+2011 before the suffix, and leaves a word, a longer prefix and another suffix (L2)', () => {
+    const joined = [`lett. c${nb}sexies`, `Form${nbsp}3916${nb}bis`, `c.${nbsp}9${nb}bis`, `c.${nbsp}1-${wj}bis`];
+    expect(joined.flatMap(joins)).toEqual([]);
+    expect(['An e-money token.', 'The ab-bis case, 9-bisect, 9-terms.', 'COVID-19.'].flatMap(joins)).toEqual([]);
   });
 });
 
