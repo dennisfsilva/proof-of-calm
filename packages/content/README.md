@@ -84,8 +84,11 @@ sign (`overlay-percent-mismatch`, templates only, #295; ADR-0057, Corrections of
 2026-11-18), then the schema and the English field's checks on
 each text it changes. The details of `figure-join`, `range-join`, `citation-join`, `figure-chart` and
 `overlay-percent-mismatch` print a quoted text and a gap one way (`src/percent-gap.ts`): each space
-but U+0020, each format or control character, U+2010 and U+2011 by its code point (`U+202F `); a
-Learn module's own percent joiners show as written (ADR-0057, Corrections of 2026-11-18).
+but U+0020, each format or control character, U+2010 and U+2011 by its code point followed by one
+space that is not in the text (for example `fellU+2009 50 %`). A Learn module's quoted text first
+folds tabs, line breaks and runs of spaces into one space, as the page does, and shows its own
+percent joiners as written only directly before a percent sign (ADR-0057, Corrections of
+2026-11-18).
 
 ## Loaders (the public index)
 
