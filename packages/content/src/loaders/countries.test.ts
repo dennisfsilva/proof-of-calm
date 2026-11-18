@@ -398,9 +398,8 @@ describe('the holding rule applied to the generic profile (docs/JURISDICTIONS.md
 describe('suggestCountry with the profiles of M1 (docs/JURISDICTIONS.md §3)', () => {
   const suggest = (languages: string[], timeZone: string | null) => {
     const suggestion = suggestCountry({ languages, timeZone }, suggestionProfiles(profiles));
-    return suggestion === null
-      ? null
-      : `${suggestion.country} ${suggestion.confidence}${suggestion.languageDiffers ? '*' : ''}`;
+    const named = suggestion.country === null ? 'none' : `${suggestion.country} ${suggestion.confidence}`;
+    return `${named}${suggestion.languageDiffers ? '*' : ''}`;
   };
 
   it.each([
@@ -416,22 +415,22 @@ describe('suggestCountry with the profiles of M1 (docs/JURISDICTIONS.md §3)', (
     [['es-ES'], 'Atlantic/Canary', 'ES high'],
     [['es-MX'], 'Europe/Madrid', 'ES medium'],
     [['de-DE'], 'Europe/Madrid', 'ES low*'],
-    [['es-MX'], 'America/Mexico_City', null],
-    [['es-ES'], 'Europe/Andorra', null],
+    [['es-MX'], 'America/Mexico_City', 'none'],
+    [['es-ES'], 'Europe/Andorra', 'none*'],
     [['fr-FR'], 'Europe/Paris', 'FR high'],
     [['en-US'], 'Europe/Paris', 'FR medium'],
     [['de-DE'], 'Europe/Paris', 'FR low*'],
     [['nl-NL'], 'Europe/Amsterdam', 'NL high'],
     [['en-GB'], 'Europe/Amsterdam', 'NL medium'],
     [['nl-BE'], 'Europe/Amsterdam', 'NL medium'],
-    [['nl-BE'], 'Europe/Brussels', null],
-    [['nl'], null, 'NL low'],
-    [['pt-BR'], 'America/Sao_Paulo', null],
-    [['de-AT'], 'Europe/Vienna', null],
-    [['pt-PT'], 'UTC', 'PT low'],
-    [['de'], null, 'DE low'],
-    [['fr'], null, 'FR low'],
-    [['en'], 'UTC', null],
+    [['nl-BE'], 'Europe/Brussels', 'none'],
+    [['nl'], null, 'none'],
+    [['pt-BR'], 'America/Sao_Paulo', 'none'],
+    [['de-AT'], 'Europe/Vienna', 'none'],
+    [['pt-PT'], 'UTC', 'none*'],
+    [['de'], null, 'none'],
+    [['fr'], null, 'none'],
+    [['en'], 'UTC', 'none'],
   ])('%j in %s suggests %s', (languages, timeZone, expected) => {
     expect(suggest(languages, timeZone)).toBe(expected);
   });
@@ -448,10 +447,12 @@ describe('suggestCountry with the profiles of M1 (docs/JURISDICTIONS.md §3)', (
       'PT',
       'US',
     ]);
-    expect(suggest(['en-XX'], null)).toBeNull();
-    expect(suggest(['en'], 'UTC')).toBeNull();
+    expect(suggest(['en-XX'], null)).toBe('none');
+    expect(suggest(['en'], 'UTC')).toBe('none');
+    // Even when read, the generic profile's only zone is `UTC`, which never counts.
     const withGeneric = profiles.map(countryRules);
-    expect(suggestCountry({ languages: ['en-XX'], timeZone: null }, withGeneric)?.country).toBe(GENERIC_COUNTRY);
+    expect(profile(GENERIC_COUNTRY).timezones).toEqual(['UTC']);
+    expect(suggestCountry({ languages: ['en-XX'], timeZone: 'UTC' }, withGeneric).country).toBeNull();
   });
 });
 
@@ -470,7 +471,7 @@ describe('countryChoices (the picker, docs/JURISDICTIONS.md §3)', () => {
     ['XX', 'Other country'],
   ] as const;
   const named = NAMES.map(([code, name]) => ({ ...FIXTURE, code, name }));
-  const codes = (suggestion: { country: string } | null) => countryChoices(named, suggestion).map((c) => c.code);
+  const codes = (suggestion: { country: string | null } | null) => countryChoices(named, suggestion).map((c) => c.code);
 
   it('puts the generic profile first when nothing is suggested, then the countries by name', () => {
     expect(countryChoices(named, null)).toEqual([
@@ -489,7 +490,9 @@ describe('countryChoices (the picker, docs/JURISDICTIONS.md §3)', () => {
       { languages: ['pt-BR'], timeZone: 'America/Sao_Paulo' },
       suggestionProfiles(profiles),
     );
+    expect(nothing.country).toBeNull();
     expect(codes(nothing)).toEqual(['XX', 'FR', 'DE', 'IE', 'IT', 'NL', 'PT', 'ES', 'GB', 'US']);
+    expect(codes({ country: null })).toEqual(['XX', 'FR', 'DE', 'IE', 'IT', 'NL', 'PT', 'ES', 'GB', 'US']);
   });
 
   it('puts a suggested country first and the generic profile last', () => {

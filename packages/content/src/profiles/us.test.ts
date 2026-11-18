@@ -32,9 +32,8 @@ describe('the United States profile (docs/JURISDICTIONS.md §7.5)', () => {
   describe('suggestCountry with the profiles so far (docs/JURISDICTIONS.md §3)', () => {
     const suggest = (languages: string[], timeZone: string | null) => {
       const suggestion = suggestCountry({ languages, timeZone }, suggestionProfiles(profiles));
-      return suggestion === null
-        ? null
-        : `${suggestion.country} ${suggestion.confidence}${suggestion.languageDiffers ? '*' : ''}`;
+      const named = suggestion.country === null ? 'none' : `${suggestion.country} ${suggestion.confidence}`;
+      return `${named}${suggestion.languageDiffers ? '*' : ''}`;
     };
 
     it.each([
@@ -42,10 +41,10 @@ describe('the United States profile (docs/JURISDICTIONS.md §7.5)', () => {
       [['en'], 'America/New_York', 'US medium'],
       [['es-US'], 'America/Chicago', 'US medium'],
       // Toronto is a zone of no profile: nothing is suggested.
-      [['en-US'], 'America/Toronto', null],
+      [['en-US'], 'America/Toronto', 'none'],
       [['en-US'], 'Europe/Berlin', 'DE medium'],
-      [['en-US'], null, 'US low'],
-      [['pt-BR'], 'America/Sao_Paulo', null],
+      [['en-US'], null, 'none'],
+      [['pt-BR'], 'America/Sao_Paulo', 'none'],
     ])('%j in %s suggests %s', (languages, timeZone, expected) => {
       expect(suggest(languages, timeZone)).toBe(expected);
     });
