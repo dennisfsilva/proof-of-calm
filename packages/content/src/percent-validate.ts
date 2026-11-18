@@ -137,12 +137,6 @@ const MONEY = new RegExp(
 );
 /** A whole figure as a comma-decimal page's profile writes it: groups of three from 10 000, joined by U+00A0. */
 const grouped = (digits: string) => (digits.length < 5 ? digits : digits.replace(/\B(?=(\d{3})+$)/g, NBSP));
-/** A text with the escapes a writer types in JSON, so a no-break space never looks like a space. */
-export const escaped = (text: string) =>
-  text.replace(
-    new RegExp(`[${NBSP}${NARROW}]`, 'g'),
-    (char) => `${String.fromCodePoint(0x5c)}u${(char.codePointAt(0) ?? 0).toString(16).padStart(4, '0')}`,
-  );
 
 type Reading = { readonly whole: string; readonly fraction?: string | undefined };
 /**
@@ -182,7 +176,7 @@ const WHY = {
   none: 'has no reading in English or on this page',
   range: 'is a range',
 };
-const RULE = `so it has no suggestion. Write it by hand as CONTENT-STYLE §4 does: groups of three joined by ${String.fromCodePoint(0x5c)}u00a0 from 10 000, none below, and a comma before the decimals. An amount of 1 to 999 with three decimals takes a fourth (EUR 1,1250)`;
+const RULE = `so it has no suggestion. Write it by hand as CONTENT-STYLE §4 does: groups of three joined by U+00A0 from 10 000, none below, and a comma before the decimals. An amount of 1 to 999 with three decimals takes a fourth (EUR 1,1250)`;
 
 /**
  * Each money figure in `texts` grouped otherwise than a comma-decimal page writes it (decided 2026-11-16,
