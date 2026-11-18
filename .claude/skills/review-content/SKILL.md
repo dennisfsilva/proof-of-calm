@@ -115,8 +115,10 @@ Arguments: $ARGUMENTS
   clause, not its whole `value`) and, for a figure the translated module shows, in the
   translation's number format too (fact a's `−94.0 %`, pt-PT's `−94,0 %`), then every URL the
   values rest on, a fall's `source` and `lowSource` both, then `tests:` and each test that failed
-  before the revert, `agent-draft`'s aside, by the file and line its failure prints: run
-  `pnpm --filter @proofofcalm/content test` with the change in place, before you revert it. For a
+  before the revert, `agent-draft`'s aside, by the file and line of every assertion that pins a
+  value the change replaced, found by §7 step 1's search, not only the line its failure prints: run
+  `pnpm --filter @proofofcalm/content test` and the search with the change in place, before you
+  revert it. For a
   BTC row they include the `FALLS` row's tie and the Cycles module's pins in
   `packages/content/src/cycles.test.ts`, the rows in `packages/content/src/loaders/templates.test.ts`
   and the EDUCATION §9 tie in `packages/content/src/facts.test.ts`; the owner changes each with
@@ -378,9 +380,20 @@ The finish refuses a changed entry at any other value.
    checks again; fix or revert anything else, a figure check's refusal only as §1 says, from its
    source. A test that fails because it asserts what your change replaced (the value a leaf
    other than `reviewedBy` held, a module sentence it pins, or a figure it derives from a value you
-   changed) is not yours to satisfy: revert nothing for it;
-   name its file and line and both values in the draft's notes and your closing report, and say in
-   both that `verify` fails on `pnpm test` until the owner removes that assertion in a pull request
+   changed) is not yours to satisfy: revert nothing for it. Find every assertion that pins the old
+   value, not only the line its failure prints: Vitest prints a test's first failing assertion
+   alone, so an owner who removes that line meets the next. Grep with `path` `packages/content`,
+   `glob` `**/*.test.ts`, `output_mode` `content` and one pattern that joins with `|` each old
+   value as the data file writes it, each old date by its day and year,
+   `\b<day>\b\D{1,20}\b<year>\b`, and each old figure's digits, with `[ ,.  ]?` between digit
+   groups and `[.,]` as the decimal point; for ETH's low moved off `2022-06-18` and its clause off
+   `$880` and `−81.9 %` that is `2022-06-18|\b18\b\D{1,20}\b2022\b|880|81[.,]9`. Read each hit in
+   a test that failed: it pins the value when an assertion reads it, directly or through a constant
+   it defines (in `packages/content/src/loaders/templates.test.ts` a row's `const` and each
+   `expect` that reads it); a hit in a test that passed is a fixture of its own, and a `FALLS`
+   literal or a key of `COINBASE_KEYS` or `UNREGAINED_KEYS` takes the note below. Name each such assertion's file and line and both values
+   in the draft's notes and your closing report, and say in
+   both that `verify` fails on `pnpm test` until the owner removes those assertions in a pull request
    of its own (`docs/ENGINEERING.md` §2): one changed to your new value would fail on main, where
    the data still holds the old one. In `packages/content/src/cycles.test.ts`, a chart row's change
    meets its tie to fact a's or b's clause (§4 step 1). A literal of its `FALLS` table that your
