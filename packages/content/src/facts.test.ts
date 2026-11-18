@@ -31,8 +31,10 @@ function educationKeys(): string[] {
 }
 
 // A fact whose value a merged review changed, before the log PR updates its EDUCATION §9 row (docs/CONTENT-OPS.md §8
-// steps 4 and 5). The owner's session PR adds the entry to main before the flip, as the value they read; the agent's
-// branch cannot change this file (CI's guard), so a later push that moves the value fails the tie.
+// steps 4 and 5). The owner's session PR adds the entry to main before the flip, with the fact's old and new value as
+// read in the review's diff. The agent's branch cannot change this file (CI's guard), so a later push that moves the
+// value fails the tie. An entry whose review closed unmerged reads as one still open, main at `was` in both, so no
+// test finds it: the owner removes it (§8 step 4).
 const unlogged: ReadonlyMap<string, { was: string; now: string }> = new Map([]);
 
 /** The first cells of the rows that do not read their facts' values; a value at its entry's `now` reads as `was`. */
@@ -203,8 +205,8 @@ describe('the education facts (docs/EDUCATION.md §9)', () => {
   });
 
   // EDUCATION §9 states every fact's figures and no other check reads it, so each row stays tied to its facts' values.
-  // A review cannot change the row (CI's guard refuses docs on its branch), so a changed value passes only through
-  // its `unlogged` entry, until the log PR updates the row and removes the entry.
+  // A review cannot change the row: CI's guard refuses docs on its branch. A changed value passes only through its
+  // `unlogged` entry, until the log PR updates the row and removes the entry.
   it("each fact's value reads the same in its EDUCATION §9 row", () => {
     const values = new Map(facts.map((fact) => [fact.key, fact.value]));
     expect(driftedRows(educationRows(), values, unlogged)).toEqual([]);
@@ -224,7 +226,7 @@ describe('the EDUCATION §9 tie with a pending fact (docs/CONTENT-OPS.md §8 ste
   const none: typeof unlogged = new Map();
   const at = (value: string) => new Map([['x.one', value]]);
 
-  it('passes a value that reads its row', () => {
+  it('a value that reads its row passes', () => {
     expect(driftedRows(rows, at('Old value.'), none)).toEqual([]);
   });
 
@@ -232,7 +234,7 @@ describe('the EDUCATION §9 tie with a pending fact (docs/CONTENT-OPS.md §8 ste
     expect(driftedRows(rows, at('New value.'), none)).toEqual(['`x.one`']);
   });
 
-  it("passes a value at its entry's now with the row at was (the merged review)", () => {
+  it("a value at its entry's now passes with the row at was (the merged review)", () => {
     expect(driftedRows(rows, at('New value.'), pending)).toEqual([]);
   });
 
@@ -241,7 +243,7 @@ describe('the EDUCATION §9 tie with a pending fact (docs/CONTENT-OPS.md §8 ste
     expect(driftedRows(rows, at('New value'), pending)).toEqual(['`x.one`']);
   });
 
-  it('passes main before the merge: the old value with the entry present', () => {
+  it('the old value with the entry present passes (main before the merge)', () => {
     expect(driftedRows(rows, at('Old value.'), pending)).toEqual([]);
   });
 
@@ -251,7 +253,7 @@ describe('the EDUCATION §9 tie with a pending fact (docs/CONTENT-OPS.md §8 ste
     expect(driftedRows(logged, at('New value.'), pending)).toEqual(['`x.one`']);
   });
 
-  it('passes the updated row once the entry is removed', () => {
+  it('the updated row passes once the entry is removed', () => {
     expect(driftedRows(logged, at('New value.'), none)).toEqual([]);
   });
 
