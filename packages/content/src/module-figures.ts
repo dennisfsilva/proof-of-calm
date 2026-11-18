@@ -98,6 +98,9 @@ const J = `(?:${MODULE_PERCENT_JOINERS.map(esc).join('|')})`;
 const F = `${N}${J}%`;
 const Y = '[12][0-9]{3}';
 const K = '(?<k>[1-9][0-9]?)';
+// B's count and its noun: any gap of white space or format characters reads, and one but U+00A0 is reported (R6).
+const GAP = '(?<gap>[\\s\\p{Cf}]+)';
+const NBSP = String.fromCodePoint(0xa0);
 const B = (C: string) => `(?<c>${C})`;
 const clause = (C: string) => new RegExp(`(?<c>${C})(?= )|(?<f>${N})(?=${J}%)`, 'gu');
 function shapesOf(language: string, C: string, C1: string): Shapes | undefined {
@@ -105,7 +108,7 @@ function shapesOf(language: string, C: string, C1: string): Shapes | undefined {
     const L = `${F}(?: and ${F}|(?:, ${F})+, and ${F})?`;
     return {
       b: new RegExp(
-        `^In the chart, ${B(C)} had ${K} (?<falls>falls?) of more than (?<n>${N})${J}% between (?<y1>${Y}) and (?<y2>${Y})\\.$`,
+        `^In the chart, ${B(C)} had ${K}${GAP}(?<falls>falls?) of more than (?<n>${N})${J}% between (?<y1>${Y}) and (?<y2>${Y})\\.$`,
         'u',
       ),
       e: new RegExp(`^(?:${C}) fell ${L}(?:(?:, (?:${C}) ${L})*, and (?:${C}) ${L})?\\.$`, 'u'),
@@ -118,7 +121,7 @@ function shapesOf(language: string, C: string, C1: string): Shapes | undefined {
   const L = `${F}(?: e ${F}|(?:, ${F})+ e ${F})?`;
   return {
     b: new RegExp(
-      `^No gráfico, ${B(C)} teve ${K} (?<falls>quedas?) de mais de (?<n>${N})${J}% entre (?<y1>${Y}) e (?<y2>${Y})\\.$`,
+      `^No gráfico, ${B(C)} teve ${K}${GAP}(?<falls>quedas?) de mais de (?<n>${N})${J}% entre (?<y1>${Y}) e (?<y2>${Y})\\.$`,
       'u',
     ),
     e: new RegExp(`^(?:${C1}) caiu ${L}(?:(?:, (?:${C}) ${L})* e (?:${C}) ${L})?\\.$`, 'u'),
@@ -161,8 +164,13 @@ const CONTAINERS = {
   blockquote: ['a quote', 'quote'],
   mdxJsxFlowElement: ['an element', 'element'],
 } as const;
-// Every quoted text, as the page shows it, with each joiner but one before % by its code point (percent-gap.ts).
-const q = (t: string) => printedPercentText(t, MODULE_PERCENT_JOINERS);
+// Every quoted text, as the page shows it, with each joiner but one before % or B's U+00A0 after its count by its code
+// point (percent-gap.ts).
+const COUNT_JOIN = new RegExp(
+  `(?<=(?:had|teve) [1-9][0-9]?)${NBSP}(?=(?:falls?|quedas?)(?![\\p{L}\\p{M}\\p{N}]))`,
+  'gu',
+);
+const q = (t: string) => printedPercentText(t, MODULE_PERCENT_JOINERS, COUNT_JOIN);
 /** A block a closed section refuses, as a detail names it. */
 const named = (block: PageBlock) => {
   if (block.kind === 'element') return `the element <${block.name} />`;
@@ -289,6 +297,13 @@ figure, one ordinary or no-break space, and %`,
       const b = shapes?.b.exec(sentence)?.groups;
       if (shapes !== undefined && b?.c !== undefined && (b.k === '1') === (b.falls === shapes.one)) {
         const [k, falls, n, y1, y2] = [Number(b.k), b.falls ?? '', b.n ?? '', Number(b.y1), Number(b.y2)];
+        if (b.gap !== NBSP)
+          report(
+            `the count "${b.k}" and its noun "${falls}" are joined by ${printedGap(b.gap ?? '', []).trim()}, not \
+U+00A0, in "${q(sentence)}"`,
+            'R6',
+            'figure-join',
+          );
         bounds.push({ sentence: q(sentence), id: names.get(b.c) ?? '', name: bare(b.c), k, falls, n, y1, y2 });
       } else if (shapes?.e.test(sentence) === true) {
         const clauses: (typeof exacts)[number]['clauses'] = [];
