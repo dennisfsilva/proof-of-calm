@@ -36,15 +36,16 @@ const JOINS = new RegExp(
 const PROSE_JOINS: Readonly<Record<string, { names: RegExp; months: RegExp }>> = {
   en: {
     names:
-      /§§?|[Aa]rts?\.|[Aa]rticles?|[Ss]ections?|s{1,2}\.|[Nn]os?\.|n\.ºs?|Nr\.|c\.|[Ss]entence|[Pp]aragraph|Part|Lei|Ley|Law|L\.|Decreto-Lei|D\.Lgs\.|BGBl\.|TCA|TCGA|SolZG|Act|Bill|Budget|Belastingplan|BMF|Circolare|Notice|Topic|Publication|Pub\.|Proc\./u,
+      /§§?|[Aa]rts?\.|[Aa]rticles?|[Ss]ections?|s{1,2}\.|[Nn]os?\.|n\.ºs?|n°|\(EU\)|Orden|Nr\.|c\.|[Ss]entence|[Pp]aragraph|Part|Lei|Ley|Law|L\.|Decreto-Lei|D\.Lgs\.|BGBl\.|TCA|TCGA|SolZG|Act|Bill|Budget|Belastingplan|BMF|Circolare|Notice|Topic|Publication|Pub\.|Proc\./u,
     // en-GB's long and short months, with `Sept` as en-GB writes it; counted only when capitalised (`may`).
     months:
       /January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sept?|Oct|Nov|Dec/u,
   },
 };
 const WJ = String.fromCodePoint(0x2060);
-// A law's number: digits first, then letters, digits, and points, slashes or hyphens between them (`24‑D/2022`).
-const LAW_NUMBER = String.raw`\d[\d\p{L}]*(?:[./‑-][\d\p{L}]+)*`;
+// A law's number: digits first, or capitals before a slash and a digit (`HAC/277/2026`), then letters, digits, and
+// points, slashes or hyphens between them, a hyphen-minus with the U+2060 after it (`24‑D/2022`, `2026-534`).
+const LAW_NUMBER = String.raw`(?:\d[\d\p{L}]*|\p{Lu}+(?=/\d))(?:[./‑-]${WJ}?[\d\p{L}]+)*`;
 const prose = ({ names, months }: { names: RegExp; months: RegExp }) => ({
   names: new RegExp(String.raw`(?<![\p{L}\d.§])(${names.source})(\s+)(${LAW_NUMBER})`, 'gu'),
   // `D Month YYYY`, `D Month` and `Month YYYY`; a month alone is no date.
@@ -53,12 +54,18 @@ const prose = ({ names, months }: { names: RegExp; months: RegExp }) => ({
     'gu',
   ),
 });
-// Two figures joined by an en dash with no U+2060 after it; a hyphen-minus range is left out.
-const RANGE = new RegExp(String.raw`(?<![\d.,])\d+(?:[.,]\d+)*–(?!${WJ})\d+(?:[.,]\d+)*`, 'gu');
+// Two figures joined by an en dash with no U+2060 after it.
+const DIGITS = String.raw`\d+(?:[.,]\d+)*`;
+const RANGE = new RegExp(String.raw`(?<![\d.,])${DIGITS}–(?!${WJ})${DIGITS}`, 'gu');
+// S4 (2026-11-17): figures joined by hyphen-minus (`2026-27`, `2026-534`, `02-01-03`), each hyphen to take U+2060,
+// since Chromium and WebKit break after it; a hyphen beside a letter (`COVID-19`, `e-money`) is left out.
+const HYPHENED = new RegExp(String.raw`(?<![\d.,])${DIGITS}(?:-${WJ}?${DIGITS})+`, 'gu');
+const OPEN_HYPHEN = new RegExp(`-(?!${WJ})`, 'u');
 
 const codePoints = (text: string) =>
   [...new Set(text)].map((char) => `U+${(char.codePointAt(0) ?? 0).toString(16).toUpperCase().padStart(4, '0')}`);
-const typed = (text: string) => JSON.stringify(text).replaceAll(NBSP, `${String.fromCodePoint(0x5c)}u00a0`);
+const escape = (code: string) => `${String.fromCodePoint(0x5c)}u${code}`;
+const typed = (text: string) => JSON.stringify(text).replaceAll(NBSP, escape('00a0')).replaceAll(WJ, escape('2060'));
 const joined = (path: string, field: string, pair: string, figure: string, gap: string): Problem[] =>
   gap === NBSP
     ? []
@@ -70,7 +77,7 @@ const joined = (path: string, field: string, pair: string, figure: string, gap: 
         },
       ];
 
-/** A language's law names and date parts not joined by U+00A0, and its en-dash ranges without U+2060 after the dash. */
+/** A language's law names and date parts not joined by U+00A0, and its dashes and hyphens between figures without U+2060. */
 function proseProblems(path: string, field: string, text: string, language: string): Problem[] {
   const lists = Object.hasOwn(PROSE_JOINS, language) ? PROSE_JOINS[language] : undefined;
   if (lists === undefined) return [];
@@ -86,6 +93,11 @@ function proseProblems(path: string, field: string, text: string, language: stri
     ...[...text.matchAll(RANGE)].map(([range]): Problem => {
       const detail = `${field}: the range ${typed(range)} can break after its dash (docs/CONTENT-STYLE.md §4)`;
       return { path, code: 'range-join', detail };
+    }),
+    ...[...text.matchAll(HYPHENED)].flatMap(([figure]): Problem[] => {
+      if (!OPEN_HYPHEN.test(figure)) return [];
+      const detail = `${field}: the range or number ${typed(figure)} can break after its hyphen (docs/CONTENT-STYLE.md §4)`;
+      return [{ path, code: 'range-join', detail }];
     }),
   ];
 }
