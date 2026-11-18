@@ -135,6 +135,31 @@ describe('a currency code or a form name joined to its figure (docs/CONTENT-STYL
     expect(joins('Swap EUR\u00a0100 USD.')).toEqual([refused('"USD" and its figure', '"100"')]);
   });
 
+  // Round 1 of fix/join-gap-title-words: a refused run after a code took the figure the next pair needed.
+  it('leaves the figure to the next pair after a code or a form name, joined or not, so both gaps are read', () => {
+    const by = (pair: string, figure: string, gap: string) =>
+      `card.caveats.0: ${pair} "${figure}" are joined by ${gap}, not U+00A0 (docs/CONTENT-STYLE.md \u00a74)`;
+    const eur = (gap: string) => by('"EUR" and its figure', '100', gap);
+    const usd = by('"USD" and its figure', '100', 'U+0020');
+    expect(joins('Swap EUR\u00a0\u2060100 USD.')).toEqual([eur('U+00A0 U+2060'), usd]);
+    expect(joins('Swap EUR\u00a0 100 USD.')).toEqual([eur('U+00A0 U+0020'), usd]);
+    expect(joins('Swap EUR\u2060100 USD.')).toEqual([eur('U+2060'), usd]);
+    expect(joins('Swap EUR 100 USD.')).toEqual([eur('U+0020'), usd]);
+    const box = (gap: string) => by('the name "Box" and its number', '100', gap);
+    expect(joins('Box\u00a0 100 USD.')).toEqual([box('U+00A0 U+0020'), usd]);
+    expect(joins('Box 100 USD.')).toEqual([box('U+0020'), usd]);
+    expect(joins('Box\u00a0100 USD.')).toEqual([usd]);
+  });
+
+  it('gives a code to the figure after it across any run, and reads that pair', () => {
+    expect(joins('Under art.\u00a033.1 EUR\u00a0 1000 is exempt.')).toEqual([
+      'card.caveats.0: "EUR" and its figure "1000" are joined by U+00A0 U+0020, not U+00A0 (docs/CONTENT-STYLE.md \u00a74)',
+    ]);
+    expect(joins('Under art.\u00a033.1 EUR\u20601000 is exempt.')).toEqual([
+      'card.caveats.0: "EUR" and its figure "1000" are joined by U+2060, not U+00A0 (docs/CONTENT-STYLE.md \u00a74)',
+    ]);
+  });
+
   it('skips the file-only lotRuleNote, as the no-break hyphen does: a file does not wrap', () => {
     expect(joinProblems(path, [['lotRuleNote', 'No sale is matched: box 3 taxes 100 EUR held.']])).toEqual([]);
   });
@@ -195,6 +220,24 @@ describe('the gap of every prose join, read as a code join reads it (docs/CONTEN
     ]);
     expect(read('en', 'Under art.\u00a046-bis, 365\u2060days.')).toEqual([
       'card.caveats.0: the range or number "46-bis" can break after its hyphen (docs/CONTENT-STYLE.md §4)',
+      by('the figure "365" and its unit', 'days', 'U+2060'),
+    ]);
+  });
+
+  // Round 1 of fix/join-gap-title-words: each kind of prose pair is its own search, and a date reads its two gaps in
+  // one match, so a refused run takes no part another pair needs.
+  it('reads every pair beside a refused run, of its own kind or another', () => {
+    expect(read('en', 'Under art.\u00a0\u002046\u2060days.')).toEqual([
+      by('the name "art." and its number', '46', 'U+00A0 U+0020'),
+      by('the figure "46" and its unit', 'days', 'U+2060'),
+    ]);
+    expect(read('en', 'On 31\u00a0\u0020July\u2060\u00202027 days.')).toEqual([
+      by('the day "31" and its month', 'July', 'U+00A0 U+0020'),
+      by('the month "July" and its year', '2027', 'U+2060 U+0020'),
+      by('the figure "2027" and its unit', 'days', 'U+0020'),
+    ]);
+    expect(read('en', 'Pay EUR\u00a0\u0020365\u2060days.')).toEqual([
+      by('"EUR" and its figure', '365', 'U+00A0 U+0020'),
       by('the figure "365" and its unit', 'days', 'U+2060'),
     ]);
   });
