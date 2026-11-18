@@ -403,16 +403,19 @@ In an English profile the same U+00A0 joins a law's name and its number (`§ 23`
 (`31 July 2027`, `1 April`, `May 2026`), so that none of them ends a line half way. An en dash or
 a hyphen-minus between two digits takes a word joiner after it (U+2060, `\u2060` in JSON), in a
 range (`2023–2025`, `0–45 %`, `2026-27`) and in a number (`Notice 2023-27`, `Part 02-01-03`),
-since Chromium and WebKit both break a line after either sign; a hyphen beside a letter
+since Chromium and WebKit both break a line after either sign. A hyphen beside a letter
 (`COVID-19`, `e-money`) stays as it is (S4, decided 2026-11-17, in place of the earlier reading
-that a hyphen-minus between digits never breaks). `pnpm validate:content` refuses an ordinary
-space there (`figure-join`) and a dash or hyphen with no joiner after it (`range-join`). The names
+that a hyphen-minus between digits never breaks). A point after a letter ends an abbreviation, so
+the figures after it take the joiner as well (`s.104-105`, `Rev.Proc.2025-32`, decided
+2026-11-18). `pnpm validate:content` refuses an ordinary space in a name's or a date's join
+(`figure-join`) and a dash or hyphen with no joiner after it (`range-join`). The names
 are a closed list per language in `packages/content/src/join-validate.ts`, taken from every
 profile's text; an identifier (`PIV 28969`), a docket (`IX R 3/22`), a form's cell (`colonna 12`),
 a letter after its name (`lett. c`) and a word the list leaves out stay unchecked. Left out as
 well: the month-first US order (`April 15`); the file-only lot note and the sources' titles, which
-do not wrap; the modules and the facts; and a translation until its language has its lists
-(decided 2026-11-17).
+do not wrap; a URL in the text, whose figures belong to its path, as in the percent and grouping
+checks; the modules and the facts; and a translation until its language has its lists (decided
+2026-11-17).
 `pnpm validate:content` refuses other grouping beside a currency code (`number-group`). It reads
 each figure as English does (a comma or a space between groups, a point before the decimals) and
 as the page does (a point or a space between groups, a comma before the decimals); a group is three
