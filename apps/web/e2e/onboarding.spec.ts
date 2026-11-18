@@ -3,11 +3,11 @@ import { type Download, expect, type Page } from '@playwright/test';
 import { fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
 import { templateById } from '@proofofcalm/content';
 import { seedPlan } from './seed';
-import { test } from './support';
+import { chooseCountry, test } from './support';
 
-// Onboarding (ROADMAP M1): the projects run in en-GB and Europe/Lisbon, so the device suggests Portugal;
-// one tap confirms it, a template and two numbers lead on through the sentence and the reminder, whose
-// "Add to calendar" saves a monthly calendar file with no amount in it, to the summary, whose Start writes
+// Onboarding (ROADMAP M1): the projects run in en-GB and Europe/Lisbon, so the device suggests Portugal with
+// low confidence (docs/JURISDICTIONS.md §3): named and first in the list, chosen there; a template and two
+// numbers lead on through the sentence and the reminder, whose "Add to calendar" saves a monthly calendar file with no amount in it, to the summary, whose Start writes
 // the plan; the Plan screen then shows the template's coins. The custom path starts a plan of the user's
 // own coins and split, each step's heading taking the focus, and "Later" saves no file; its start row wraps
 // inside the summary at 125 % text. The Cycle plan in Germany goes on only once its early sell window is
@@ -39,9 +39,22 @@ async function toReminder(page: Page, why = '') {
   await expect(page.getByRole('heading', { level: 2, name: 'Where should the monthly reminder go?' })).toBeFocused();
 }
 
+test('English in Lisbon names Portugal first in the list, and Continue appears once it is chosen', async ({ page }) => {
+  await openOnboarding(page);
+  await expect(page.getByText('This device suggests Portugal.')).toBeVisible();
+  const select = page.getByRole('combobox', { name: 'Country' });
+  await expect(select).toHaveText(/Choose a country/);
+  await expect(page.getByRole('button', { name: /^Continue with/ })).toHaveCount(0);
+  await select.click();
+  await expect(page.getByRole('option').first()).toHaveText('Portugal');
+  await page.getByRole('option', { name: 'Portugal', exact: true }).click();
+  await page.getByRole('button', { name: 'Continue with Portugal' }).click();
+  await expect(page.getByRole('heading', { level: 2, name: 'Choose a starting point' })).toBeFocused();
+});
+
 test('the template path saves the calendar file and starts a plan with the template coins', async ({ page }) => {
   await openOnboarding(page);
-  await page.getByRole('button', { name: 'Continue with Portugal' }).click();
+  await chooseCountry(page);
   await pickTemplate(page, 'two-coins');
   await page.getByLabel(/^Monthly amount/).fill('100');
   await page.getByLabel(/^Last buy/).fill('2036-10-01');
@@ -74,7 +87,7 @@ test('the custom path starts a plan of your own coins, Later saves no file, and 
   const downloads: Download[] = [];
   page.on('download', (download) => void downloads.push(download));
   await openOnboarding(page);
-  await page.getByRole('button', { name: 'Continue with Portugal' }).click();
+  await chooseCountry(page);
   await expect(page.getByRole('heading', { level: 2, name: 'Choose a starting point' })).toBeFocused();
   await page.getByRole('radio', { name: 'Your own coins' }).click();
   await continueButton(page).click();
@@ -131,7 +144,7 @@ test('the Cycle plan in Germany goes on only once its early sell window is accep
 
 test('a step left for another page or reloaded opens again with what was typed, until Start', async ({ page }) => {
   await openOnboarding(page);
-  await page.getByRole('button', { name: 'Continue with Portugal' }).click();
+  await chooseCountry(page);
   await page.getByRole('radio', { name: 'Your own coins' }).click();
   await continueButton(page).click();
   await page.getByRole('button', { name: 'Add Bitcoin' }).click();

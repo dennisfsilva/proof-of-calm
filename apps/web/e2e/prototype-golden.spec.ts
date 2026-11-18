@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { expect, type Page } from '@playwright/test';
 import { createFormatters } from '@proofofcalm/app/lib/format';
 import { type CurrencyCode, type Decimal, fromFloat } from '@proofofcalm/core';
-import { routeFixtureHistory, test } from './support';
+import { chooseCountry, routeFixtureHistory, test } from './support';
 
 // The four synthetic exports of the DCA plan page (tools/golden/states.ts), pasted into Settings → Currency &
 // data on a device with no plan, then read on Today and Portfolio as the prototype read them
@@ -80,7 +80,7 @@ async function pasteExport(page: Page, fixture: Fixture) {
 }
 
 async function importAsPortugal(page: Page, fixture: Fixture) {
-  await page.getByRole('button', { name: 'Continue with Portugal' }).click();
+  await chooseCountry(page);
   await expect(page.getByText(`Plan imported. Entries now: ${fixture.state.purchases.length}.`)).toBeVisible();
 }
 

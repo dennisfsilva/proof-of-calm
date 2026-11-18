@@ -26,6 +26,38 @@ export const test = base.extend({
   },
 });
 
+/** The country step's words, English unless a spec boots in another language. */
+type CountryWords = { readonly label?: string; readonly country?: string; readonly confirm?: string };
+
+/**
+ * Chooses a country on the onboarding country step (also Settings' prototype import) and continues
+ * (docs/JURISDICTIONS.md §3). The default context, en-GB in Europe/Lisbon, names Portugal with low confidence:
+ * named and first in the list, chosen there before Continue appears. `keyboard` opens the list, moves to the
+ * country, selects it and presses Continue by keys alone, with bounded presses.
+ */
+export async function chooseCountry(page: Page, words: CountryWords = {}, { keyboard = false } = {}): Promise<void> {
+  const { label = 'Country', country = 'Portugal', confirm = `Continue with ${country}` } = words;
+  const select = page.getByRole('combobox', { name: label });
+  const option = page.getByRole('option', { name: country, exact: true });
+  const button = page.getByRole('button', { name: confirm });
+  if (!keyboard) {
+    await select.click();
+    await option.click();
+    await button.click();
+    return;
+  }
+  await select.focus();
+  await page.keyboard.press('Enter');
+  await option.waitFor();
+  const highlighted = () => option.evaluate((element) => element.hasAttribute('data-highlighted'));
+  for (let step = 0; step < 15 && !(await highlighted()); step += 1) await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Enter');
+  await option.waitFor({ state: 'hidden' });
+  const focused = () => button.evaluate((element) => element === document.activeElement);
+  for (let step = 0; step < 10 && !(await focused()); step += 1) await page.keyboard.press('Tab');
+  await page.keyboard.press('Enter');
+}
+
 /**
  * The history fixture's shape, each over 365 points whose last is the live price dated `nowMs`'s UTC day (the
  * red-day model drops it, docs/DOMAIN.md §3.11): 'rise' gains about 0.1 % a day; 'week-fall' and 'high-fall' are
