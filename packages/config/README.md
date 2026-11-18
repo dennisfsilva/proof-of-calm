@@ -14,7 +14,7 @@ configs live in their packages. See `docs/ENGINEERING.md`.
   the two test-data rules, `product-reaches-only-product` and `no-test-data-in-product`:
   `docs/ARCHITECTURE.md`, Packages and their boundaries.
 - `vite/`: the hosts' Vite factory and its plugins (`@proofofcalm/config/vite`, ADR-0045):
-  - `createHostConfig({ host, root, parseModule })`: the Learn modules' plugins ahead of React, React
+  - `createHostConfig({ host, root, parseModule, env })`: the Learn modules' plugins ahead of React, React
     with the compiler through Babel (its `include` covers `.mdx`), Tailwind, the five plugins below
     (and, on the web host, the chunk report), `resolve.dedupe: ['react']`, `build.assetsInlineLimit: 0`,
     Rolldown's `output.codeSplitting` from `chunkGroups()` and `output.chunkFileNames`, which puts
@@ -22,7 +22,9 @@ configs live in their packages. See `docs/ENGINEERING.md`.
     Learn metadata, `learn-meta-<hash>.js`, included) under
     `assets/messages/<locale>/` (outside the worker's precache, ADR-0045's Deviations of 2026-11-15
     and 2026-11-16),
-    the host's `import.meta.env.VITE_API_BASE` and `VITE_SERVICE_WORKER`, and the document (`app.html` on the
+    the host's `import.meta.env.VITE_API_BASE` and `VITE_SERVICE_WORKER`, the languages flag
+    `__POC_LANGUAGES__` (`listed` only on the web host with `VERCEL_ENV` `preview` or `development`, read from
+    `env`, `process.env` by default; ADR-0023, Deviations of 2026-11-18), and the document (`app.html` on the
     web, `index.html` in the wrapper). `parseModule` is the host's import from
     `@proofofcalm/content/modules` (ADR-0048, Deviations).
   - `learnPlugins({ dir, parseModule, elements })` (ADR-0048): three plugins, in order. The front-matter
