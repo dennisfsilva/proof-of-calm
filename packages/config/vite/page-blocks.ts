@@ -32,11 +32,13 @@ type Place = {
   readonly listNumbers?: readonly number[];
 };
 
+/** A block's text as the parser decoded it, before the default-ignorable code points went; set only when one went. */
+type Written = { readonly written?: string };
 /** One block of the page: a heading, a paragraph or a code block with its text, or a flow element by name. */
 export type PageBlock = (
-  | { readonly kind: 'heading'; readonly depth: number; readonly text: string }
-  | { readonly kind: 'paragraph'; readonly text: string; readonly marks?: readonly string[] }
-  | { readonly kind: 'code'; readonly text: string }
+  | ({ readonly kind: 'heading'; readonly depth: number; readonly text: string } & Written)
+  | ({ readonly kind: 'paragraph'; readonly text: string; readonly marks?: readonly string[] } & Written)
+  | ({ readonly kind: 'code'; readonly text: string } & Written)
   | { readonly kind: 'element'; readonly name: string }
 ) &
   Place;
@@ -59,7 +61,8 @@ const IGNORABLE = /\p{Default_Ignorable_Code_Point}/gu;
  * default-ignorable code point removed), and each flow element by name where it stands. An element inside a
  * sentence stays inside its paragraph. A paragraph's `marks`, set only when non-empty, name each inline node type
  * other than `text` it holds, once each in tree order, then `ignorable` when its text lost a default-ignorable code
- * point, so a check that reads plain text can refuse what the page formats apart or hides. A block below the top
+ * point, so a check that reads plain text can refuse what the page formats apart or hides. A block that lost one
+ * keeps its decoded text in `written` (R7 reads it, docs/CONTENT-STYLE.md §4). A block below the top
  * level names its innermost `container`; the first block of an ordered list item carries in `listNumbers` the number
  * the page shows for it (the list's start, 1 by default, plus the item's place), and an item with no block reads as
  * an empty paragraph, since the page still shows its marker. It throws on a node outside `PAGE_NODES` or in a place
@@ -105,9 +108,11 @@ export function pageOf(tree: MdastNode, path: string): PageBlock[] {
     } else throw unknown(node);
   };
   visit(tree);
-  return page.map((block) =>
-    block.kind === 'element' ? block : { ...block, text: block.text.replace(IGNORABLE, '') },
-  );
+  return page.map((block) => {
+    if (block.kind === 'element') return block;
+    const shown = block.text.replace(IGNORABLE, '');
+    return shown === block.text ? block : { ...block, text: shown, written: block.text };
+  });
 }
 
 /** The text of every block of the page but its elements (`pageOf`), one string per block in tree order. */

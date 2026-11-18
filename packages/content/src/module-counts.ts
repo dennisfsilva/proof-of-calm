@@ -3,7 +3,7 @@
 // and the 25z probe joined, in Calm Sans at the Learn sheet's paragraph styles, in Chromium and WebKit, 240 to 400 px,
 // at 16/24 and 20/30 px. B's count (falls, quedas) stays off it: R6 in module-figures.ts reads that one. Years (YEAR
 // below), dates, amounts and unlisted nouns are not counts here.
-import { GAP } from './module-figures.ts';
+import { GAP, pageSpaces } from './module-figures.ts';
 import { printedGap, printedText } from './percent-gap.ts';
 import type { Problem } from './problem.ts';
 
@@ -42,7 +42,7 @@ export function moduleCountProblems(
     [...text.matchAll(COUNT(language))].flatMap(({ groups }) => {
       const { count = '', gap = '', noun = '' } = groups ?? {};
       if (gap === NBSP || YEAR.test(count)) return [];
-      const shown = noun.replace(/\s+/gu, ' ');
+      const shown = printedText(pageSpaces(noun), []);
       const detail = `${field}: the count "${printedText(count, [NBSP])}" and its noun "${shown}" are joined by \
 ${printedGap(gap, []).trim()}, not U+00A0; write one U+00A0 between them; R7 (docs/CONTENT-STYLE.md §4)`;
       return [{ path, code: 'figure-join', detail }];
@@ -51,20 +51,27 @@ ${printedGap(gap, []).trim()}, not U+00A0; write one U+00A0 between them; R7 (do
 }
 
 /** A block of the compiled page (packages/config/vite/page-blocks.ts), as far as this check reads it. */
-type Block = { readonly kind: string; readonly text?: string; readonly listNumbers?: readonly number[] };
+type Block = {
+  readonly kind: string;
+  readonly text?: string;
+  readonly written?: string;
+  readonly listNumbers?: readonly number[];
+};
 const FRONT = ['title', 'idea', 'caveat'] as const;
 
 /**
- * Every text the Learn sheet shows of a module: the front matter's title, idea and caveat, then each block of its
- * compiled page of every kind that holds text, an ordered list item's shown number before its first block's text.
+ * Every text the Learn sheet shows of a module: the front matter's title, idea and caveat as written, then each block
+ * of its compiled page of every kind that holds text, as the parser decoded it (`written`, before the page drops a
+ * default-ignorable code point, where it dropped one), an ordered list item's shown number before its first block's
+ * text. Body and front matter read alike, so a hidden break beside a noun is refused in either.
  */
 export function moduleCountTexts(
   front: Readonly<Partial<Record<string, string>>>,
   page: readonly Block[],
 ): (readonly [field: string, text: string])[] {
   const fields = FRONT.flatMap((key) => (front[key] === undefined ? [] : [[key, front[key]] as const]));
-  const blocks = page.flatMap(({ text, listNumbers = [] }) =>
-    text === undefined ? [] : [['body', `${listNumbers.map((shown) => `${shown}. `).join('')}${text}`] as const],
+  const blocks = page.flatMap(({ text, written = text, listNumbers = [] }) =>
+    written === undefined ? [] : [['body', `${listNumbers.map((shown) => `${shown}. `).join('')}${written}`] as const],
   );
   return [...fields, ...blocks];
 }
