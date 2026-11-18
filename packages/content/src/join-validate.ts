@@ -64,8 +64,8 @@ const OPEN_HYPHEN = new RegExp(`-(?!${WJ})`, 'u');
 
 const codePoints = (text: string) =>
   [...new Set(text)].map((char) => `U+${(char.codePointAt(0) ?? 0).toString(16).toUpperCase().padStart(4, '0')}`);
-const escape = (code: string) => `${String.fromCodePoint(0x5c)}u${code}`;
-const typed = (text: string) => JSON.stringify(text).replaceAll(NBSP, escape('00a0')).replaceAll(WJ, escape('2060'));
+const escaped = (code: string) => `${String.fromCodePoint(0x5c)}u${code}`;
+const typed = (text: string) => JSON.stringify(text).replaceAll(NBSP, escaped('00a0')).replaceAll(WJ, escaped('2060'));
 const joined = (path: string, field: string, pair: string, figure: string, gap: string): Problem[] =>
   gap === NBSP
     ? []
