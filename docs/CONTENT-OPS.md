@@ -208,7 +208,10 @@ visible rather than impossible:
 
 - The agent's free Markdown never reaches GitHub. `body.ts` writes every text cell of the draft as
   literal text, and `tools/content-review/render-check.ts` proves that through GitHub's renderer in
-  the `render` job of `.github/workflows/content-review.yml`.
+  the `render` job of `.github/workflows/content-review.yml`. A cell loses its format
+  characters (`defuseCell`), except a `changes` row's `old` and `new`, which first spell each character of `\p{Cf}` and
+  `\p{Zs}` but U+0020, and U+2011, as `\x{HHHH}` in upper-case hex (`spellJoiners`), as the skill
+  spells a joiner in a note, so the table and a note quote one value alike.
 - Every link is https, on `packages/content/sources.allow.json` or a subdomain of a listed domain,
   and shows its true host as its text. A change's or pending change's link must be on its item's
   list: a country's file on that country's list or `EU`, any other data file on `facts`, a
