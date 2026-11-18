@@ -1,7 +1,7 @@
 // The sentences of a Learn module's chart section, on the page the build's compiler gives (`pageOf`), read against the
 // chart's rows (docs/CONTENT-STYLE.md §4, R5 and R6; docs/research/review-safe-figures.md, amendment 8).
 import type { LearnModule } from './loaders/modules.ts';
-import { printedGap, printedText } from './percent-gap.ts';
+import { printedGap, printedPercentText } from './percent-gap.ts';
 import { MODULE_PERCENT_JOINERS } from './percent-token.ts';
 import type { Problem } from './problem.ts';
 import type { ContentCoin } from './schema/coin.ts';
@@ -161,8 +161,8 @@ const CONTAINERS = {
   blockquote: ['a quote', 'quote'],
   mdxJsxFlowElement: ['an element', 'element'],
 } as const;
-// Every quoted text, as the page shows it, with each refused joiner by its code point (percent-gap.ts).
-const q = (t: string) => printedText(t, MODULE_PERCENT_JOINERS);
+// Every quoted text, as the page shows it, with each joiner but one before % by its code point (percent-gap.ts).
+const q = (t: string) => printedPercentText(t, MODULE_PERCENT_JOINERS);
 /** A block a closed section refuses, as a detail names it. */
 const named = (block: PageBlock) => {
   if (block.kind === 'element') return `the element <${block.name} />`;

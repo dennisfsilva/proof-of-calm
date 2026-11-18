@@ -19,3 +19,8 @@ const HIDDEN = /(?! )[\p{Z}\p{Cf}\p{Cc}‐‑]/gu;
  * printedGap prints it (`fellU+2009 50 %`), everything else as written. */
 export const printedText = (text: string, shown: readonly string[]) =>
   text.replace(HIDDEN, (char) => (shown.includes(char) ? char : codePoint(char)));
+
+/** A quoted text of a Learn module's chart section: as printedText prints it, but a joiner of `joiners` prints as
+ * written only directly before a percent sign, the one place the module check accepts it (`EtherU+00A0 fell 94 %`). */
+export const printedPercentText = (text: string, joiners: readonly string[]) =>
+  text.replace(HIDDEN, (char, at: number) => (joiners.includes(char) && text[at + 1] === '%' ? char : codePoint(char)));
