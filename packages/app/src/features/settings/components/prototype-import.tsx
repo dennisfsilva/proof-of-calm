@@ -158,7 +158,7 @@ export function PrototypeReport({ notes }: { readonly notes: readonly ReportNote
     <ul className="flex list-disc flex-col gap-stack-sm pl-5 text-ink-2">
       {notes.map((note) => {
         const { code, ...values } = note;
-        // The percentages and the date in the locale; the scenario under its own name, since `key` reads as filler.
+        // The percentages, the whole of the split's 100 included, and the date in the locale; the scenario under its own name, since `key` reads as filler.
         // A count selects the plural as it is and is shown as a figure, grouped as the file line's (`1.234`).
         const shown =
           note.code === 'last-buy-defaulted'
@@ -168,6 +168,7 @@ export function PrototypeReport({ notes }: { readonly notes: readonly ReportNote
                   coin: note.coin,
                   from: format.percent(note.from, { decimals: 2 }),
                   to: format.percent(note.to, { decimals: 2 }),
+                  whole: format.percent(decimal('100'), { decimals: 0 }),
                 }
               : note.code === 'expectation-dropped'
                 ? { scenario: note.key }

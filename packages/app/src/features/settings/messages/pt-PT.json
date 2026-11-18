@@ -253,7 +253,7 @@
         "coin-added": "{coin} tinha compras, mas não estava na lista de moedas do ficheiro, por isso foi adicionada ao plano.",
         "coin-not-in-plan": "{count, plural, one {{figure} compra de {coin} foi adicionada} other {{figure} compras de {coin} foram adicionadas}}. Este plano não inclui {coin}, por isso o Portefólio mostra-a depois das moedas do plano. Pode adicioná-la em «Moedas e pesos».",
         "split-from-dca-split": "A repartição vem da antiga repartição mensal do ficheiro.",
-        "split-normalised": "O peso de {coin} passou de {from} para {to}, para a repartição somar 100%.",
+        "split-normalised": "O peso de {coin} passou de {from} para {to}, para a repartição somar {whole}.",
         "currency-defaulted": "{field, select, payCurrency {A moeda de pagamento} other {A moeda de apresentação}} estava em falta ou era desconhecida, por isso é {field, select, payCurrency {EUR} other {USD}}.",
         "starting-amount-from-steps": "O montante inicial é a soma dos passos de montante único do ficheiro.",
         "plan-amounts-rounded": "O montante mensal e o montante inicial foram arredondados ao cêntimo.",
