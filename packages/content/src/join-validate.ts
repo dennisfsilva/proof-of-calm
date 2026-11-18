@@ -38,7 +38,7 @@ const JOINS = new RegExp(
 
 // The prose joins of a language (docs/CONTENT-STYLE.md §4): a closed list of law names, taken from a census of every
 // profile, its month names, with the word that links a date's parts where the language writes one (`1 de janeiro
-// de 2023`), and its unit words, each joined to the figure before it (`365 days`, `2.º Suplemento`; #368's census). A
+// de 2023`), and its unit words, each joined to the figure before it (`365 days`, `2.º Suplemento`; decided 2026-11-18). A
 // language without an entry gets the code and form joins only.
 type ProseJoins = { names: RegExp; months: RegExp; linker?: string; units: RegExp };
 const ENGLISH_NAMES =
@@ -55,7 +55,7 @@ const PROSE_JOINS: Readonly<Record<string, ProseJoins>> = {
   // source language's law is cited (`Topic 409`, `Circolare 30/E`, `c. 1`); months in lower case (CONTENT-STYLE §9).
   // `(UE)` is pt-PT's `(EU)` before a regulation's number. A `de` before a bare year (`de 2023`) is no date, as
   // English's word before a year is not.
-  // A source title's `processo 28969` (#368); English's list holds `PIV` and `Série`, which English cites as written.
+  // A source title's `processo 28969`; English's list holds `PIV` and `Série`, which English cites as written.
   'pt-PT': {
     names: new RegExp(
       `${/[Aa]rtigos?|[Ss]ecção|[Ff]rase|[Pp]arágrafo|[Ee]xemplo|[Cc]ódigo|\(UE\)|[Pp]rocesso/u.source}|${ENGLISH_NAMES.source}`,
@@ -176,7 +176,7 @@ const hyphenProblem = (path: string, field: string, figure: string): Problem => 
   detail: `${field}: the range or number ${typed(figure)} can break after its hyphen (docs/CONTENT-STYLE.md §4)`,
 });
 
-/** Each source title's joins, read in the language its `lang` names (#368): `en` as English, `pt` as pt-PT; a title in
+/** Each source title's joins, read in the language its `lang` names: `en` as English, `pt` as pt-PT; a title in
  * any other language stays unchecked until that language has its lists. */
 const TITLE_LANGUAGES: Readonly<Record<string, string>> = { en: 'en', pt: 'pt-PT' };
 export const titleJoinProblems = (path: string, profile: CountryProfile): Problem[] =>
