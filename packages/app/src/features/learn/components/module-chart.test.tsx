@@ -6,6 +6,7 @@ import { I18nProvider } from '../../../lib/i18n';
 import { ServicesProvider } from '../../../lib/services';
 import { createTestServices } from '../../../lib/services/testing';
 import learn from '../../../messages/en/learn.json';
+import learnPt from '../../../messages/pt-PT/learn.json';
 import { DRAWDOWN_COINS, ModuleChart } from './module-chart';
 
 // The risk module's chart (docs/EDUCATION.md §2): the cycles file's rows through the red-day port, then, inside the
@@ -77,6 +78,23 @@ describe('ModuleChart', () => {
       await screen.findByText('The earlier falls could not be loaded. Open this page again to retry.'),
     ).toBeTruthy();
     expect(screen.queryByRole('img')).toBeNull();
+  });
+
+  it("marks the failed line with the UI's language on a pt-PT screen, inside an English body (ADR-0057)", async () => {
+    const services = createTestServices();
+    const failing = { ...services, redDay: { ...services.redDay, pastFalls: () => Promise.reject(new Error('x')) } };
+    render(
+      <ServicesProvider services={failing}>
+        <I18nProvider locale="pt-PT" messages={{ learn: learnPt }}>
+          <div lang="en">
+            <ModuleChart chart="drawdowns-bar" />
+          </div>
+        </I18nProvider>
+      </ServicesProvider>,
+    );
+    const line = await screen.findByText(learnPt.chart.failed);
+    expect(line.tagName).toBe('P');
+    expect(line.closest('[lang]')?.getAttribute('lang')).toBe('pt-PT');
   });
 
   it('draws nothing for a chart it has no renderer for', () => {
