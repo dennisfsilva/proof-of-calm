@@ -731,9 +731,9 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - A closed list gets a test that fails when any one entry is cut. #385's month lists passed every
   test with 33 of their 36 months removed (2026-11-18).
 - A check fed by a reader that drops default-ignorable characters cannot see a hidden break beside
-  the words it keeps together. Such a check refuses the reader's ignorable mark there, as R5 does in the chart
-  section. #386's integration read passed U+00A0 then U+200B in a module body (carried to #387,
-  2026-11-18).
+  the words it keeps together. Make such a check refuse the reader's ignorable mark there, as R5
+  does in the chart section. R7 does not yet: #386's integration read passed U+00A0 then U+200B in
+  a module body (carried to #387, then #388, 2026-11-18).
 - A skill sentence that widens a rule from one case to every case is checked against each case in
   the files it names. "For a row of any coin" was false for 5 of the 9 chart rows
   (fix/review-note-forms, round 2, #381).
