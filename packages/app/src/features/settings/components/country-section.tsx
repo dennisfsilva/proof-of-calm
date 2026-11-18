@@ -1,4 +1,4 @@
-import { COUNTRY_CODES, type CountryProfile, loadProfile } from '@proofofcalm/content';
+import { COUNTRY_CODES, type CountryProfile, contentLanguageOf, loadProfile } from '@proofofcalm/content';
 import {
   type CountryCode,
   type CountryRules,
@@ -21,7 +21,8 @@ import {
 } from '@proofofcalm/ui/components/select';
 import { reveal } from '@proofofcalm/ui/lib/reveal';
 import { type FormEvent, useEffect, useId, useRef, useState } from 'react';
-import { useTranslations } from 'use-intl';
+import { useLocale, useTranslations } from 'use-intl';
+import { textLang } from '../../../lib/i18n';
 import { useFormatters, useServices, useSnapshot, useToday } from '../../../lib/services';
 import { ConditionLines } from '../../learn';
 import {
@@ -67,6 +68,7 @@ export function CountrySection() {
   const ruleText = useTranslations('plan.holdingRule.text');
   const holding = useTranslations('plan.holding');
   const services = useServices();
+  const locale = useLocale();
   const f = useFormatters();
   const today = useToday();
   const plan = useSnapshot((snapshot) => snapshot.plan);
@@ -293,7 +295,10 @@ export function CountrySection() {
                           {t('row.lastBuyEligible', { effect: row.effect, from: f.date(row.from), to: f.date(row.to) })}
                         </p>
                         <p className="text-13 text-ink-2">{holding('note')}</p>
-                        <ConditionLines conditions={pending.rules.holdingRuleConditions} />
+                        <ConditionLines
+                          conditions={pending.rules.holdingRuleConditions}
+                          lang={textLang(contentLanguageOf(pending.rules), locale)}
+                        />
                       </div>
                     </li>
                   ) : (
