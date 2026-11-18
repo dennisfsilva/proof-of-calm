@@ -127,12 +127,23 @@ Arguments: $ARGUMENTS
   has one), or for a row you would
   remove `chart row for the owner: remove <coin>, high <high>: <why, from the source>, <source>`,
   with `<lowSource>` in place of `<source>` when the why rests on it;
-  either ends with the row's copies, `templates/<file>.json drawdowns[<n>]`, when it has any.
-  Never change a B sentence's bound (`more than N %`), never add, move or delete a clause or a
-  sentence, and never remove a chart row. A
+  either ends with the row's copies, `templates/<file>.json drawdowns[<n>]`, when it has any. For a
+  row of a coin of `UNREGAINED_KEYS` (`packages/content/src/cycles.test.ts`) that \u00a77 step 1 leaves
+  on its series, the first form then ends `; keeps its series, unregained`, after the copies when
+  it has any; that ending says the note asks no change, so a note asking the owner for one never
+  takes it. Never change a B sentence's bound (`more than N %`), never add, move or delete a clause
+  or a sentence, and never remove a chart row. A
   `number-group` refusal with a suggestion keeps the value: write the suggestion. A `figure-join`
-  detail names a pair and the space between them: replace only that space with U+00A0
-  (`\u00a0` in a JSON file), never a figure.
+  detail names a pair and the gap between them: replace the whole gap, every character between
+  that pair however the detail prints it, with one U+00A0 (`\u00a0` in a JSON file), never a figure. A `citation-join`
+  detail names a citation: write U+2060 between each pair of its brackets (`55(1)\u2060(d)`, `\u2060`
+  in a JSON file) and nothing else, none between the number and its first bracket. A `range-join`
+  detail names a range or a number: write U+2060 after its dash or hyphen-minus (`2023\u2013\u20602025`,
+  `2026-\u206027`, `\u2060` in a JSON file) and nothing else; in text a screen shows, a hyphen-minus
+  beside a letter in a law's number (`Lei 24\u2011D/2022`) or before a Latin ordinal suffix (`9\u2011bis`,
+  the closed list of `docs/CONTENT-STYLE.md` \u00a74) is replaced by U+2011 instead (`\u2011` in a
+  JSON file). A source's title keeps its published hyphen-minus and takes U+2060 after it, never
+  U+2011.
 - Fetch only the domains in `packages/content/sources.allow.json`. Nothing refuses an off-list
   fetch: no `allowed-tools` rule approves WebFetch, so Claude Code asks the owner unless the
   session's settings or permission mode approve it. The finish refuses an off-list URL in the draft's link
