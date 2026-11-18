@@ -1,8 +1,8 @@
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import mdx from '@mdx-js/rollup';
 import { describe, expect, it } from 'vitest';
 import { blankFrontMatter, checkModuleBody } from './learn-plugin.ts';
-import { PAGE_NODES, pageBlocks, pageOf } from './page-blocks.ts';
+import { type MdastNode, PAGE_NODES, pageBlocks, pageOf } from './page-blocks.ts';
 
 type Node = { readonly type: string; readonly children?: readonly Node[] };
 
@@ -33,9 +33,49 @@ describe('pageOf', () => {
 
   it('reads a flow element inside a list item where it stands, and none for an escaped one', async () => {
     expect(await pageOfBody('- one\n- <Chart />\n\nA \\<Chart /> sign.\n')).toEqual([
-      { kind: 'paragraph', text: 'one' },
-      { kind: 'element', name: 'Chart' },
+      { kind: 'paragraph', text: 'one', container: 'listItem' },
+      { kind: 'element', name: 'Chart', container: 'listItem' },
       { kind: 'paragraph', text: 'A <Chart /> sign.' },
+    ]);
+  });
+
+  // Review of #361 round 1: `1975. Text.` shows 1975 as the item's number, which no block's text holds.
+  it('records the container a block sits in, and the number the page shows for each ordered item', async () => {
+    const body = '3. One\n4. Two\n\n   More.\n5. <Chart />\n\n- Dot\n\n> Quote\n\n1. 2. Inner\n\nTop.\n';
+    expect(await pageOfBody(body)).toEqual([
+      { kind: 'paragraph', text: 'One', container: 'listItem', listNumbers: [3] },
+      { kind: 'paragraph', text: 'Two', container: 'listItem', listNumbers: [4] },
+      { kind: 'paragraph', text: 'More.', container: 'listItem' },
+      { kind: 'element', name: 'Chart', container: 'listItem', listNumbers: [5] },
+      { kind: 'paragraph', text: 'Dot', container: 'listItem' },
+      { kind: 'paragraph', text: 'Quote', container: 'blockquote' },
+      { kind: 'paragraph', text: 'Inner', container: 'listItem', listNumbers: [1, 2] },
+      { kind: 'paragraph', text: 'Top.' },
+    ]);
+  });
+
+  it('reads an empty item as an empty paragraph, so its number still stands on the page', async () => {
+    expect(await pageOfBody('1975.\n\n- \n')).toEqual([
+      { kind: 'paragraph', text: '', container: 'listItem', listNumbers: [1975] },
+      { kind: 'paragraph', text: '', container: 'listItem' },
+    ]);
+  });
+
+  it('records an element as the container of what it holds', () => {
+    const inner = { type: 'paragraph', children: [{ type: 'text', value: 'In.' }] };
+    const box = { type: 'mdxJsxFlowElement', name: 'Box', children: [inner] };
+    expect(pageOf({ type: 'root', children: [box] }, path)).toEqual([
+      { kind: 'element', name: 'Box' },
+      { kind: 'paragraph', text: 'In.', container: 'mdxJsxFlowElement' },
+    ]);
+  });
+
+  it('sets no container and no number on a top-level block', async () => {
+    const page = await pageOfBody('## One\n\nText.\n\n<Chart />\n');
+    expect(page.map((block) => ['container', 'listNumbers'].some((key) => key in block))).toEqual([
+      false,
+      false,
+      false,
     ]);
   });
 
@@ -108,9 +148,23 @@ describe('the block reader reads a closed set of nodes', () => {
   });
 });
 
+// The block reader as it stood before containers and list numbers (2026-11-18): the oracle that `blocks` keeps its
+// strings on every live module.
+const HIDDEN = /\p{Default_Ignorable_Code_Point}/gu;
+const inlineText = (node: MdastNode): string =>
+  node.type === 'break' ? ' ' : (node.value ?? (node.children ?? []).map(inlineText).join(''));
+const formerBlocks = (node: MdastNode): string[] => {
+  if (node.type === 'code') return [(node.value ?? '').replace(HIDDEN, '')];
+  if (node.type === 'paragraph' || node.type === 'heading')
+    return [(node.children ?? []).map(inlineText).join('').replace(HIDDEN, '')];
+  return (node.children ?? []).flatMap(formerBlocks);
+};
+
 // `blocks` keeps its values (the translated body's checks read them): it is the page's text without its elements.
 describe('blocks and page on the live modules', () => {
-  const folders = [new URL('learn/', content), new URL('i18n/pt-PT/learn/', content)];
+  const i18n = new URL('i18n/', content);
+  const languages = readdirSync(i18n).filter((name) => existsSync(new URL(`${name}/learn/`, i18n)));
+  const folders = [new URL('learn/', content), ...languages.map((name) => new URL(`${name}/learn/`, i18n))];
   const files = folders.flatMap((folder) => mdxIn(folder).map((name) => new URL(name, folder)));
 
   it('covers the 6 English modules and every pt-PT translation', () => {
@@ -126,6 +180,21 @@ describe('blocks and page on the live modules', () => {
       expect(check.blocks.length).toBeGreaterThan(0);
       expect(check.blocks).toEqual(check.page.flatMap((block) => (block.kind === 'element' ? [] : [block.text])));
       expect(check.page.flatMap((block) => (block.kind === 'element' ? [block.name] : []))).toEqual(check.flow);
+    },
+  );
+
+  it.each(files.map((file) => [file.pathname.split('/content/')[1] ?? '', file] as const))(
+    '%s: pageBlocks gives the strings the reader gave before it recorded containers and list numbers',
+    async (at, file) => {
+      const trees: MdastNode[] = [];
+      const keep = () => (tree: MdastNode) => void trees.push(tree);
+      const source = blankFrontMatter(readFileSync(file, 'utf8'));
+      expect(await mdx({ remarkPlugins: [keep] }).transform(source, `packages/content/${at}`)).toBeDefined();
+      const [tree] = trees;
+      expect(tree).toBeDefined();
+      const former = formerBlocks(tree as MdastNode);
+      expect(former.length).toBeGreaterThan(0);
+      expect(pageBlocks(tree as MdastNode, at)).toEqual(former);
     },
   );
 });

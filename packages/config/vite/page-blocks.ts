@@ -7,6 +7,8 @@ export type MdastNode = {
   readonly name?: string | null;
   readonly value?: string;
   readonly depth?: number;
+  readonly ordered?: boolean | null;
+  readonly start?: number | null;
   readonly position?: { readonly start: { readonly line: number } };
   readonly children?: readonly MdastNode[];
   readonly attributes?: readonly MdxAttribute[];
@@ -21,12 +23,23 @@ export type MdxAttribute = {
   readonly position?: { readonly start: { readonly line: number } };
 };
 
+/** The node a block sits in below the page's top level, the innermost: a list item, a quote or a flow element. */
+export type PageContainer = 'listItem' | 'blockquote' | 'mdxJsxFlowElement';
+/** Where a block stands; both fields unset on the page's top level. */
+type Place = {
+  readonly container?: PageContainer;
+  /** The number the page shows for each ordered list item this block opens, outermost first. */
+  readonly listNumbers?: readonly number[];
+};
+
 /** One block of the page: a heading, a paragraph or a code block with its text, or a flow element by name. */
-export type PageBlock =
+export type PageBlock = (
   | { readonly kind: 'heading'; readonly depth: number; readonly text: string }
   | { readonly kind: 'paragraph'; readonly text: string; readonly marks?: readonly string[] }
   | { readonly kind: 'code'; readonly text: string }
-  | { readonly kind: 'element'; readonly name: string };
+  | { readonly kind: 'element'; readonly name: string }
+) &
+  Place;
 
 // Every node a compiling body holds: `closedBody` refuses the rest, and the compiler runs without remark-gfm. A
 // block's text is the page's one run of text; a container holds blocks; an inline node sits inside a block. An
@@ -46,8 +59,11 @@ const IGNORABLE = /\p{Default_Ignorable_Code_Point}/gu;
  * default-ignorable code point removed), and each flow element by name where it stands. An element inside a
  * sentence stays inside its paragraph. A paragraph's `marks`, set only when non-empty, name each inline node type
  * other than `text` it holds, once each in tree order, then `ignorable` when its text lost a default-ignorable code
- * point, so a check that reads plain text can refuse what the page formats apart or hides. It throws on a node
- * outside `PAGE_NODES` or in a place its kind never takes, naming `path` and the line.
+ * point, so a check that reads plain text can refuse what the page formats apart or hides. A block below the top
+ * level names its innermost `container`; the first block of an ordered list item carries in `listNumbers` the number
+ * the page shows for it (the list's start, 1 by default, plus the item's place), and an item with no block reads as
+ * an empty paragraph, since the page still shows its marker. It throws on a node outside `PAGE_NODES` or in a place
+ * its kind never takes, naming `path` and the line.
  */
 export function pageOf(tree: MdastNode, path: string): PageBlock[] {
   const unknown = (node: MdastNode) =>
@@ -59,19 +75,33 @@ export function pageOf(tree: MdastNode, path: string): PageBlock[] {
     return node.value ?? (node.children ?? []).map((child) => inline(child, marks)).join('');
   };
   const page: PageBlock[] = [];
-  const visit = (node: MdastNode): void => {
+  // The numbers of the ordered items opened since the last block, which the next block carries.
+  let numbers: number[] = [];
+  const push = (block: PageBlock, container: PageContainer | undefined) => {
+    page.push({ ...block, ...(container && { container }), ...(numbers.length > 0 && { listNumbers: numbers }) });
+    numbers = [];
+  };
+  const visit = (node: MdastNode, container?: PageContainer, number?: number): void => {
     const marks = new Set<string>();
     const text = () =>
       node.type === 'code' ? (node.value ?? '') : (node.children ?? []).map((child) => inline(child, marks)).join('');
-    if (node.type === 'heading') page.push({ kind: 'heading', depth: node.depth ?? 0, text: text() });
-    else if (node.type === 'code') page.push({ kind: 'code', text: text() });
+    if (node.type === 'heading') push({ kind: 'heading', depth: node.depth ?? 0, text: text() }, container);
+    else if (node.type === 'code') push({ kind: 'code', text: text() }, container);
     else if (node.type === 'paragraph') {
       const shown = text();
       if (shown.search(IGNORABLE) >= 0) marks.add('ignorable');
-      page.push({ kind: 'paragraph', text: shown, ...(marks.size > 0 && { marks: [...marks] }) });
+      push({ kind: 'paragraph', text: shown, ...(marks.size > 0 && { marks: [...marks] }) }, container);
+    } else if (node.type === 'listItem') {
+      if (number !== undefined) numbers = [...numbers, number];
+      const before = page.length;
+      for (const child of node.children ?? []) visit(child, 'listItem');
+      if (page.length === before) push({ kind: 'paragraph', text: '' }, 'listItem');
     } else if (CONTAINER_NODES.includes(node.type)) {
-      if (node.type === 'mdxJsxFlowElement') page.push({ kind: 'element', name: node.name ?? '' });
-      for (const child of node.children ?? []) visit(child);
+      if (node.type === 'mdxJsxFlowElement') push({ kind: 'element', name: node.name ?? '' }, container);
+      const inner = node.type === 'blockquote' || node.type === 'mdxJsxFlowElement' ? node.type : container;
+      const first = node.type === 'list' && node.ordered === true ? (node.start ?? 1) : undefined;
+      for (const [index, child] of (node.children ?? []).entries())
+        visit(child, inner, first === undefined ? first : first + index);
     } else throw unknown(node);
   };
   visit(tree);
