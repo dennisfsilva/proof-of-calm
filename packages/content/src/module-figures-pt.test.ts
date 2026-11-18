@@ -1,18 +1,35 @@
 import { readFileSync } from 'node:fs';
 import { checkModuleBody } from '@proofofcalm/config/vite';
 import { describe, expect, it } from 'vitest';
-import catalogue from '../coins.json' with { type: 'json' };
-import cycles from '../cycles/drawdowns.json' with { type: 'json' };
 import { type FigureContext, moduleContext, moduleFigureProblems } from './module-figures.ts';
 
 // docs/CONTENT-STYLE.md §4 and §9: pt-PT's two shapes of a chart's section, its articles, its agreement, its commas
-// and its closed list, against the real catalogue and chart rows. Each case states its codes in order; the parity
-// table holds each English case of module-figures.test.ts with a pt-PT form to the same codes in both languages.
+// and its closed list, against literal coins and rows, the ones module-figures.test.ts freezes, so that no content
+// review changes what these pin. Each case states its codes in order; the parity table holds each English case of
+// module-figures.test.ts with a pt-PT form to the same codes in both languages.
 const at = 'packages/content/i18n/pt-PT/learn/risk-honestly.mdx';
+const COINS = [
+  { id: 'ADA', name: 'Cardano' },
+  { id: 'BTC', name: 'Bitcoin' },
+  { id: 'ETH', name: 'Ethereum' },
+  { id: 'LINK', name: 'Chainlink' },
+  { id: 'OP', name: 'Optimism' },
+  { id: 'SOL', name: 'Solana' },
+  { id: 'XRP', name: 'XRP' },
+];
 type Row = { readonly coin: string; readonly high: string; readonly low: string; readonly fall: string };
-const COINS = catalogue.map(({ id, name }) => ({ id, name }));
-const ROWS: readonly Row[] = cycles.drawdowns.map(({ coin, high, low, fall }) => ({ coin, high, low, fall }));
 const row = (coin: string, high: string, low: string, fall: string): Row => ({ coin, high, low, fall });
+const ROWS: readonly Row[] = [
+  row('BTC', '2011-06-08', '2011-11-22', '94'),
+  row('BTC', '2013-11-30', '2015-01-14', '87'),
+  row('BTC', '2017-12-17', '2018-12-15', '84'),
+  row('BTC', '2021-11-10', '2022-11-21', '78'),
+  row('ETH', '2018-01-13', '2018-12-14', '94'),
+  row('ETH', '2021-11-10', '2022-06-18', '82'),
+  row('LINK', '2018-01-08', '2018-06-29', '89'),
+  row('LINK', '2021-05-10', '2023-06-10', '91'),
+  row('SOL', '2021-11-06', '2022-12-29', '97'),
+];
 const set = (coin: string, high: string, change: Partial<Row>) =>
   ROWS.map((r) => (r.coin === coin && r.high === high ? { ...r, ...change } : r));
 const insert = (coin: string, extra: Row) => {
