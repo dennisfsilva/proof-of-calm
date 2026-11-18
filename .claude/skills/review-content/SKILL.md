@@ -404,7 +404,13 @@ the draft's notes any banned word it holds, for the owner to allow-list with a r
 Set `reviewedBy: agent-draft` on every file you change and on every fact entry you change. A
 translation has no `reviewedBy`: set none on it. A file or entry left with no change but its mark,
 after a revert or a fix that puts back HEAD's text, takes HEAD's `reviewedBy` back. Every note
-goes into the draft's `notes` and your closing report. When the run holds a note but would change
+goes into the draft's `notes` and your closing report. A `put back as at HEAD, no change asked`
+note asks the owner nothing and takes no mark: a run whose only notes are such stages nothing, and
+§7 step 5's finish refuses it, `nothing staged: the review changed no content data` among its
+lines; show the owner that output word for word, give your closing report with each note, and stop.
+Decide the mark below after your last change: when a later change stages a file, the entry or
+file you marked only to carry a note takes HEAD's `reviewedBy` back, unless a change of yours
+reached it. When the run holds a note that asks the owner for something but would change
 no file, set `reviewedBy: agent-draft` on one fact entry or file a note names, one for the run
 however many notes it holds, since the pull request carries them all (the cycles file
 for a chart row's note), never on a module, for which the finish would ask a `changes` row: for a
@@ -412,9 +418,11 @@ module's note, on the fact entry or cycles file its figure rests on. After §1's
 translated module's note included, set that mark only when the run would otherwise stage nothing:
 on the cycles file when the reverted change reached a chart row, otherwise on the fact entry the
 note names first, or, when the note names only a module, on the fact entry that the first key of
-that module's front-matter `facts:` names (`a.btc-drawdowns` for `learn/cycles.mdx`); a module
-with no such key, `learn/start-here.mdx`, cites no source and quotes no figure, so no change of
-yours reaches it (§4 step 1) and no revert names it. Give that file its
+the English module's front-matter `facts:` names: a translated module has no `facts:` key, so its
+key comes from its English source's (`a.btc-drawdowns` for `learn/cycles.mdx` and for
+`i18n/pt-PT/learn/cycles.mdx`). The English module whose `facts:` is empty,
+`learn/start-here.mdx`, holds no digit outside its review dates and no URL, and its pt-PT copy
+none at all, so no change of yours reaches either (§4 step 1) and no revert names them. Give that file its
 `reviewed` row. The pull request then carries the note: the finish accepts a change of the mark alone and
 refuses a run with nothing staged. Leave the rules files as the generator writes them.
 The finish refuses a changed entry at any other value.
@@ -537,8 +545,8 @@ The finish refuses a changed entry at any other value.
    back HEAD's text leaves no changed leaf and takes no `changes` row (the finish refuses a row
    for a non-change): name it in the notes instead as
    `put back as at HEAD, no change asked: <item> <field>: <why>`, `<item>` and `<field>` as a
-   `changes` row would name them. That note records the fix and asks the owner nothing. Its mark
-   goes as §6 says.
+   `changes` row would name them. That note records the fix, asks the owner nothing and takes
+   no mark (§6).
    Give one `reviewed` row per file reviewed; the finish refuses a changed file, a module too, with
    no `reviewed` row. A translation gets none: its `lastReviewed` is its English file's. The owner sets `lastReviewed` to today only when that row shows every source
    read (`read` equals `of`) and the owner opened each off-list secondary source your notes name.
