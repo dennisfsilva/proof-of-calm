@@ -16,11 +16,26 @@ type Coin = Readonly<Pick<ContentCoin, 'id' | 'name'>>;
 type Row = Readonly<Pick<CycleDrawdown, 'coin' | 'high' | 'low' | 'fall'>>;
 /** The chart's rows and the coin catalogue; null when a file did not load. */
 export type FigureContext = { readonly rows: readonly Row[] | null; readonly coins: readonly Coin[] | null };
-/** What one module's chart section is read against. */
-export type ModuleFigures = FigureContext & { readonly chart: LearnModule['chart']; readonly language: string };
+/** What one module's chart section is read against; `listed` is its language's list (LISTED). */
+export type ModuleFigures = FigureContext & {
+  readonly chart: LearnModule['chart'];
+  readonly language: string;
+  readonly listed: readonly string[];
+};
+
+// A translation's chart section is closed (§9): each sentence and heading there is its language's B or E, or one listed
+// here as the page shows it, compared character for character. Each was listed in a reviewed pull request whose fact
+// check found in it no figure, count, date, amount or coin. A language with no entry lists nothing.
+const LISTED: Readonly<Record<string, readonly string[]>> = {
+  'pt-PT': [
+    'Um plano mensal define o dia de cada compra.',
+    'Não limita até onde um preço pode cair, e uma moeda pode perder quase todo o seu valor.',
+    'Cada barra abaixo é uma queda de uma moeda, desde um máximo de ciclo até ao preço mais baixo depois desse máximo.',
+  ],
+};
 
 export const moduleContext = ({ chart }: Pick<LearnModule, 'chart'>, language: string, all: FigureContext) =>
-  ({ chart, language, ...all }) satisfies ModuleFigures;
+  ({ chart, language, listed: LISTED[language] ?? [], ...all }) satisfies ModuleFigures;
 
 const RULE = '(docs/CONTENT-STYLE.md §4)';
 const esc = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
@@ -59,50 +74,6 @@ const KINDS: Kinds = [
   ['a month', word('May|March|Mar', 'u')],
   ['a currency sign', /\p{Sc}/u],
 ];
-// pt-PT's words, read beside English's: never `um` or `uma`, which the section's prose needs («uma queda de uma
-// moeda»), and `Mar` only capitalised, since `mar` is the sea. Every entry holds its spellings in European Portuguese
-// before and after the 1990 Agreement and in Brazilian Portuguese before and after it (`séptuplo` and `sétuplo`,
-// `cinqüenta`, `quadriplicar`, `dezesseis`), as amendment 8's table walks them. Each English entry has its pt-PT
-// words here or stays prose by hole 13 of amendment 8 (`uma vez` for `once`, since `uma` stays prose).
-// A cardinal's noun plural beside it, as English's take `s` (Priberam: `setes`, `dezes`, `mis`); `seis`, `dezasseis`
-// and `dezesseis` are the same in both numbers, `cem` has none, and `zeros` triggers on English's `zero`.
-const PT_CARDINALS = 'zero dois duas três quatros? cincos? seis setes? oitos? noves? dez(?:es)? onzes? dozes? trezes? \
-catorzes? quatorzes? quinzes? dezasseis dezesseis dezassetes? dezessetes? dezoitos? dezanoves? dezenoves? vintes? \
-trintas? quarentas? cinq[uü]entas? sessentas? setentas? oitentas? noventas? cem centos? mil mis milhar milhares \
-milhão milhões bilião biliões bilhão bilhões trilião triliões trilhão trilhões dúzias? dezenas? centenas? \
-(?:duz|trez|quatroc|quinh|seisc|setec|oitoc|novec)ent[oa]s'.split(' ');
-// The ordinals from first to ninetieth and from hundredth to billionth, the hundreds' own words among them.
-const PT_ORDINALS = `(?:primeir|segund|terceir|quart|quint|sext|sétim|oitav|non|décim|undécim|duodécim|vigésim|\
-trigésim|quadragésim|q[uü]inquagésim|sexagésim|sep?tuagésim|octogésim|nonagésim|centésim|ducentésim|tr[ei]centésim|\
-quadringentésim|q[uü]ingentésim|se(?:x|is)centésim|sep?tingentésim|oct(?:in|o)gentésim|non(?:in)?gentésim|milésim|\
-milionésim|bilionésim)[oa]s?`;
-// half and halves, a third (`terço`, English's `third` as a fraction), double, triple, quadruple and the other -fold
-// words. The verbs close by stem, not form by form: `dobr`, or `dupl` to `centupl` before `ic`, `iqu` (the -icar
-// verbs) or a vowel (the -ar verbs `quadruplar` and `decuplar`, and the unaccented `duplo`) but `-mente`, at a word's
-// start, then any letters, so every tense, participle and noun of each triggers (hole 14: `dobra`, a fold, too).
-const STEM = '[\\p{L}\\p{M}]*';
-const PT_OTHERS = [
-  'metades?',
-  'terços?',
-  `dobr${STEM}`,
-  '(?:quádrupl|quíntupl|sêxtupl|sép?tupl|óctupl|n[óô]nupl|décupl|cêntupl)[oa]s?',
-  `(?:dupl|tripl|quadr[iu]pl|quintupl|sextupl|sep?tupl|octupl|nonupl|decupl|centupl)(?:i(?:c|qu)|[aeoá](?!mente))${STEM}`,
-  'trimestres?',
-  'par',
-  'pares',
-];
-const PT_MONTHS =
-  'janeiro|fevereiro|março|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro|jan|fev|abr|\
-mai|jun|jul|ago|set|out|nov|dez';
-const PT_KINDS: Kinds = [
-  // `por cento`, and Brazil's `porcentagem` and `porcentual` (pt-PT's `percentagem` meets English's `per cent`).
-  ['a percentage sign or word', word('por(?:\\s+|[\\u002D\\u2010\\u2011])?cent(?:o|agem|agens|ual|uais)', 'iu')],
-  ['a number word', word([...PT_CARDINALS, PT_ORDINALS, ...PT_OTHERS].join('|'), 'iu')],
-  ['a month', word(PT_MONTHS, 'iu')],
-  ['a month', word('Mar', 'u')],
-];
-/** The closed trigger of a language: English's alone, or pt-PT's beside it, so an English word in a translation counts. */
-const kindsOf = (language: string): Kinds => (language === 'pt-PT' ? [...KINDS, ...PT_KINDS] : KINDS);
 // Each mark a paragraph's `marks` names, in §4's words; no detail prints a parser name.
 const MARKS: Readonly<Record<string, string>> = {
   emphasis: 'emphasis',
@@ -190,6 +161,8 @@ export function moduleFigureProblems(path: string, page: readonly PageBlock[], c
   // No chart, or no element (module-chart-element reports that one).
   if (context.chart === 'none' || at === -1) return problems;
   const { rows, coins, language } = context;
+  const closed = language !== 'en';
+  const listed = new Set(context.listed);
   if (rows === null || coins === null) {
     report("the chart's rows or the coin catalogue did not load, so the chart's section cannot be read");
     return problems;
@@ -209,7 +182,7 @@ export function moduleFigureProblems(path: string, page: readonly PageBlock[], c
   const mine = coins.filter(({ id }) => chartIds.includes(id));
   const coinNames = [...mine.map(({ name }) => name), ...(chartIds.includes('ETH') ? ['ether'] : [])];
   const kinds: Kinds = [
-    ...kindsOf(language),
+    ...KINDS,
     ['a coin', coinNames.length > 0 ? word(`(?:${alt(coinNames)})s?`, 'iu') : NEVER],
     ['a coin', mine.length > 0 ? word(alt(mine.map(({ id }) => id)), 'u') : NEVER],
   ];
@@ -239,16 +212,24 @@ export function moduleFigureProblems(path: string, page: readonly PageBlock[], c
       report(`the code block "${shown}" sits in the chart's section, which holds no code block`);
       continue;
     }
+    // English's section is open: a block with no trigger is prose. A translation's is closed: such a block is prose
+    // only when its language lists each of its sentences and it holds no mark.
     const hit = triggerIn(block.text);
-    if (hit === null) continue;
+    const allListed = sentencesOf(block.text).every((sentence) => listed.has(sentence));
+    if (hit === null && (!closed || (allListed && block.marks === undefined))) continue;
+    const holds = hit === null ? '' : ` ${hit.kind} "${hit.token}"`;
     if (block.kind === 'heading') {
-      report(`the heading "${shown}" holds ${hit.kind} "${hit.token}" in the chart's section`);
+      report(
+        hit === null
+          ? `the heading "${shown}" in the chart's section is not a sentence ${language}'s list holds`
+          : `the heading "${shown}" holds${holds} in the chart's section`,
+      );
       continue;
     }
     if (block.marks !== undefined) {
       const marks = list(block.marks.map((mark) => MARKS[mark] ?? mark));
-      report(`the paragraph "${shown}" holds ${marks} beside ${hit.kind} "${hit.token}" in the chart's section, which \
-reads plain text only`);
+      report(`the paragraph "${shown}" holds ${marks}${hit === null ? '' : ` beside${holds}`} in the chart's section, \
+which reads plain text only`);
       continue;
     }
     // The app formats N % only with one joiner it knows, in one string (withJoiner); sentencesOf collapses white space.
@@ -258,7 +239,7 @@ reads plain text only`);
     }
     for (const sentence of sentencesOf(block.text)) {
       const found = triggerIn(sentence);
-      if (found === null) continue;
+      if (found === null && (!closed || listed.has(sentence))) continue;
       const b = shapes?.b.exec(sentence)?.groups;
       if (shapes !== undefined && b?.c !== undefined && (b.k === '1') === (b.falls === shapes.one)) {
         const [k, falls, n, y1, y2] = [Number(b.k), b.falls ?? '', b.n ?? '', Number(b.y1), Number(b.y2)];
@@ -273,8 +254,11 @@ reads plain text only`);
         exacts.push({ sentence, clauses });
       } else {
         const where = shapes === undefined ? `, and ${language} has no shapes for a chart's section yet` : '';
-        report(`"${sentence}" holds ${found.kind} "${quote(found.token)}" and matches neither shape of a chart's \
-section${where}`);
+        const what =
+          found === null
+            ? `is not a sentence ${language}'s list holds`
+            : `holds ${found.kind} "${quote(found.token)}"`;
+        report(`"${sentence}" ${what} and matches neither shape of a chart's section${where}`);
       }
     }
   }
