@@ -50,9 +50,9 @@ const FALLS = [
   { row: ['SOL', '2021-11-06', COINBASE], fact: [B, 'SOL (Coinbase)', '−96.9 %', COINBASE] },
 ] as const satisfies readonly Fall[];
 // A FALLS literal that a merged review replaced, until the log PR writes its new value here (docs/CONTENT-OPS.md §8
-// steps 4 and 5). Keyed `<coin> <high>` of the literal, the value the whole entry that replaces it. The owner's session
-// PR adds the entry to main, which reads the literal until the review merges and `now` after; the agent's branch
-// cannot change this file (CI's guard). The log PR writes `now` into FALLS and removes the entry. When `now` moves a
+// steps 4 and 5). Each key is the literal's `<coin> <high>`; each value is the whole entry that replaces it. The
+// owner's session PR adds the entry to main, which reads the literal until the review merges and `now` after; the
+// agent's branch cannot change this file (CI's guard). The log PR writes `now` into FALLS and removes the entry. When `now` moves a
 // high, it also writes the new `<coin> <high>` in place of the old one in UNREGAINED_KEYS, which reads the old key
 // through the entry only while the entry stays. The Coinbase rows come from the held falls' publishers, so a changed
 // publisher moves its row in or out of them with the entry and leaves no list to edit.

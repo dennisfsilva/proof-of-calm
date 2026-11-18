@@ -115,12 +115,11 @@ Arguments: $ARGUMENTS
   clause, not its whole `value`) and, for a figure the translated module shows, in the
   translation's number format too (fact a's `−94.0 %`, pt-PT's `−94,0 %`), then every URL the
   values rest on, a fall's `source` and `lowSource` both, then `tests:` and each test that failed
-  before the revert, `agent-draft`'s aside, by the file and line of every assertion that pins a
-  value the change replaced, found by §7 step 1's search, not only the line its failure prints: run
-  `pnpm --filter @proofofcalm/content test` and the search with the change in place, before you
-  revert it. For a
-  BTC row they include the `FALLS` row's tie and the Cycles module's pins in
-  `packages/content/src/cycles.test.ts`, the rows in `packages/content/src/loaders/templates.test.ts`
+  before the revert. Before you revert, run `pnpm --filter @proofofcalm/content test` and §7 step
+  1's search, and list the file and line of every assertion that pins a replaced value: each
+  failing test as the run prints it, the `agent-draft` checks excepted, and each pinning assertion
+  the search finds. For a BTC row they include the `FALLS` row's tie and the Cycles module's pins in
+  `packages/content/src/cycles.test.ts`, the rows in `packages/content/src/loaders/templates.test.ts`,
   and the EDUCATION §9 tie in `packages/content/src/facts.test.ts`; the owner changes each with
   the data in that pull request. Any other chart row's change takes
   `chart row for the owner: <coin>, high <high>, low <low>, fall <fall> %, <source> <lowSource>`,

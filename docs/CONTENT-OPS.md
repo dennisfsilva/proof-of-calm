@@ -380,8 +380,9 @@ fact to the window its URL names (the skill's §4 step 3).
    test's stale check fails on an entry whose literal reads `now` or is gone. When `now` moves a
    row's high, it also writes the new `<coin> <high>` in place of the old one in that test's
    `UNREGAINED_KEYS`, which reads the old key through the entry only while it stays (its check
-   names a key no `FALLS` literal holds); a changed publisher needs no such edit, since the test
-   reads its Coinbase rows from `FALLS` and the entries; that makes it a tier 2 pull request with the content roles
-   (`.claude/rules/content.md`). It writes back, at the new value, each assertion the session pull
-   request of step 4 removed, an app's, web's or end-to-end test's too, and writes the new value
-   into each passing test the review's notes name for the log pull request.
+   names a key no `FALLS` literal holds). A changed publisher needs no such edit, since the test
+   reads its Coinbase rows from `FALLS` and the entries. It writes back, at the new value, each
+   assertion the session pull request of step 4 removed, those in app, web and end-to-end
+   tests too, and writes the new value into each passing test the review's notes name for the log pull
+   request. These changes make the log PR a tier 2 pull request with the content roles
+   (`.claude/rules/content.md`).
