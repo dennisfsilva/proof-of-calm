@@ -25,7 +25,7 @@ function leaves(language: string): Map<string, string> {
 
 const en = leaves('en');
 const pt = leaves('pt-PT');
-const escape = (text: string) => text.replace(/[{}()[\]^$.*+?|\\]/gu, '\\$&');
+const literal = (text: string) => text.replace(/[{}()[\]^$.*+?|\\]/gu, '\\$&');
 const isLabel = (text: string) => /^\p{Lu}/u.test(text) && text.length <= 40 && !/[.:?]$/u.test(text);
 // A one-word label is also a screen's or a coin's name, so it counts only where English says to choose it.
 const isPhrase = (text: string) => text.includes(' ') || text.includes('{');
@@ -33,7 +33,7 @@ const isPhrase = (text: string) => text.includes(' ') || text.includes('{');
 /** Each English label another English message names mid-sentence, with that message's key and both pt-PT texts. */
 const found = [...en].flatMap(([labelKey, label]) => {
   if (!isLabel(label)) return [];
-  const inSentence = new RegExp(`${isPhrase(label) ? '\\p{Ll}' : 'choose'} ${escape(label)}(?!\\p{L})`, 'u');
+  const inSentence = new RegExp(`${isPhrase(label) ? '\\p{Ll}' : 'choose'} ${literal(label)}(?!\\p{L})`, 'u');
   const ptLabel = pt.get(labelKey) ?? '';
   return [...en]
     .filter(([key, text]) => key !== labelKey && inSentence.test(text) && (pt.get(key) ?? '').includes(ptLabel))
