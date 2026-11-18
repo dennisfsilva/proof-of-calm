@@ -62,16 +62,16 @@ describe('moduleCountProblems: a count and its listed noun, joined by one U+00A0
     const report = (text: string, field: string, language: 'en' | 'pt-PT') =>
       moduleCountProblems(at, [[field, text]], language).map(({ detail }) => detail);
     expect(report('It mixes 6 inputs, as published.', 'body', 'en')).toEqual([
-      'body: the count "6" and its noun "inputs" are joined by U+0020, not U+00A0; write one U+00A0 between them ' +
-        '(docs/CONTENT-STYLE.md §4)',
+      'body: the count "6" and its noun "inputs" are joined by U+0020, not U+00A0; write one U+00A0 between them; ' +
+        'R7 (docs/CONTENT-STYLE.md §4)',
     ]);
     expect(report(`about 750${NBSP}000${cp(0x85)}bitcoins`, 'idea', 'pt-PT')).toEqual([
       `idea: the count "750${NBSP}000" and its noun "bitcoins" are joined by U+0085, not U+00A0; write one U+00A0 ` +
-        'between them (docs/CONTENT-STYLE.md §4)',
+        'between them; R7 (docs/CONTENT-STYLE.md §4)',
     ]);
     expect(report('Every plan, 118 start\nmonths from Jan 2013', 'body', 'en')).toEqual([
       'body: the count "118" and its noun "start months" are joined by U+0020, not U+00A0; write one U+00A0 between ' +
-        'them (docs/CONTENT-STYLE.md §4)',
+        'them; R7 (docs/CONTENT-STYLE.md §4)',
     ]);
   });
 
