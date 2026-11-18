@@ -500,6 +500,27 @@ describe("each detail quotes its sentence and names its figure and rule (§4's l
     expect(await details(source, rows)).toEqual(expected);
   });
 
+  // C3 of #370: every quoted text names a refused joiner by its code point, so that it never reads as a space.
+  it.each([
+    [
+      'a marked paragraph whose figure follows U+202F',
+      para('*Each* fall is 4 %.'),
+      `figure-chart: body: the paragraph "Each fall is 4U+202F %." holds emphasis beside a figure "4U+202F %" in the chart's section, which reads plain text only${R(5)}`,
+    ],
+    [
+      'a sentence holding U+2009 that matches neither shape',
+      para('It fell 50 %.'),
+      `figure-chart: body: "It fellU+2009 50 %." holds a figure "50 %" and matches neither shape of a chart's section${R(5)}`,
+    ],
+    [
+      'a heading holding U+3000',
+      body(undefined, { intro: `## Falls　since May\n\n${INTRO}` }),
+      `figure-chart: body: the heading "FallsU+3000 since May" holds a month "May" in the chart's section${R(5)}`,
+    ],
+  ])('names the hidden character in %s', async (_, source, expected) => {
+    expect(await details(source)).toEqual([expected]);
+  });
+
   it('1: a translation names its language', async () => {
     const [first] = await problemsOf(body(), ROWS, { language: 'de' });
     expect(first?.detail).toBe(

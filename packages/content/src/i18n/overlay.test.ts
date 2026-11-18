@@ -375,6 +375,21 @@ describe('overlayProblems', () => {
     ]);
   });
 
+  // C11 of #370: the gap reads every dash (\p{Pd}), so a dash before the sign is named, not read as no percentage.
+  it.each(['2010', '2011', '2012', '2013', '2014'])('names the dash U+%s before the sign', (hex) => {
+    const [problem] = overlayProblems(
+      'template',
+      'packages/content/i18n/pt-PT/templates/cycle-plan.json',
+      { explanation: 'Bitcoin: 40 % of each amount.' },
+      { explanation: `Bitcoin: 40${String.fromCodePoint(Number.parseInt(hex, 16))}% de cada montante.` },
+      ['en', 'pt-PT'],
+    );
+    expect([problem?.code, problem?.detail]).toEqual([
+      'overlay-percent-mismatch',
+      `explanation: 40U+${hex} %, English 40 %`,
+    ]);
+  });
+
   it('keeps a template’s `{date:<field>}` placeholder intact, never translated (#274)', () => {
     const en = 'Bitcoin fell 78 % from its high on {date:drawdowns.BTC.high}.';
     expect(template(en, 'A bitcoin caiu 78 % desde o máximo de {date:drawdowns.BTC.high}.')).toEqual([]);
