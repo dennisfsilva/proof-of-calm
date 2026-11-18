@@ -297,3 +297,9 @@ generated rules files of each language.
   `printedText` like every other quoted text, after folding each run of spaces, tabs, line feeds,
   carriage returns and form feeds into one space (`inU+034F puts`, `dataU+2009 points`;
   `docs/CONTENT-STYLE.md` §4 R7).
+- **2026-11-18.** The two sites the entry of 2026-11-16 left unmarked are marked (#271). Settings'
+  change-country confirmation gives the conditions under its eligible-day row the `lang` of the new
+  country's rules file. Onboarding's template cards read each template's mark before the spread, and
+  a template with no texts in the map, as after the screen's empty fallback, shows its English
+  marked `en`: the name, the risk label, the one line and the explanation, while the split, the band
+  and the custom card keep the page's language.
