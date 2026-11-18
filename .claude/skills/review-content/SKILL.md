@@ -50,19 +50,22 @@ Arguments: $ARGUMENTS
   after your English change (`overlay-number-mismatch`, or that language's `figure-chart`) is a
   refusal no edit of yours fixes: follow the figure item's rule for those (below). In a JSON translation, change
   only a figure that `overlay-number-mismatch` names, at the path it names, to the English file's new value, and
-  never its prose. When a figure check also refuses that figure in the English file, fix the
-  English file from its source first (the figure item below), then copy its value here. Write
+  never its prose. Write
   that value in the translation's number format, not as the English characters. The check reads each file with its own number locale. A profile's English file and
   its translation both read every figure with the page's number locale, `numberLocaleFor`: the
   profile's locale in that language if it has one, else its `numberFormatLocale` (§3 step 2;
   ADR-0057). A template's or a fact's English figures read with English separators, and its
   translation with the language's own. So the pt-PT translation of Germany reads with de-DE's in
   both files and copies each English figure as written, no-break spaces included (`\u00a0` in the
-  JSON): `5,5 %` stays `5,5 %`, and `EUR 20 350` stays `EUR 20 350`. Portugal's
+  JSON): `5,5`, U+00A0, `%` and `EUR`, U+00A0, `20`, U+00A0, `350` stay as written. Portugal's
   English `12,2%` stays `12,2%` in pt-PT. A template's English `31.4 %` is `31,4 %` in pt-PT, with
   its ordinary space (`docs/CONTENT-STYLE.md` §9). A profile's percentage, in the English file
   and in a translation alike, takes its number locale's decimal separator, and any other separator
-  draws `decimal-separator`: for example a point in de-DE or pt-PT, a comma in und or en-GB. Keep
+  draws `decimal-separator`: for example a point in de-DE or pt-PT, a comma in und or en-GB.
+  When any check also refuses that figure in the English file (a figure check, `decimal-separator`,
+  `number-group` or `percent-joiner`), fix the English file first; a mismatch the English fix ends
+  needs no translation edit. Fix a figure check's refusal from its source (the figure item below);
+  only a mismatch left after the English fix takes the English file's new value here. Keep
   the form the translation already writes for that figure. A profile's percentage keeps its number
   locale's joiner too (`docs/CONTENT-STYLE.md` §4: a no-break space at de-DE, none at pt-PT or
   en-GB; `percent-joiner` refuses any other); a template's keeps its ordinary space. The check
@@ -92,9 +95,12 @@ Arguments: $ARGUMENTS
   the backslash twice, `\\x{2060}`: that JSON string holds the text `\x{2060}`. A `\u2060`
   or `\u00a0` escape there is the character itself. A `changes` row's `old` and `new` are the
   exception: write them as the data file writes them, `\u2060` escapes included. The finish
-  writes every character of `\p{Cf}` and `\p{Zs}` but U+0020, and U+2011, in those two cells as
-  `\x{HHHH}`, upper-case hex of at least four digits (`spellJoiners` in
-  `tools/content-review/body.ts`), so the table and a note spell one value alike.
+  writes each character a check's detail names by code point (`printedText` in
+  `packages/content/src/percent-gap.ts`) in those two cells as `\x{HHHH}`, upper-case hex of at
+  least four digits (`spellJoiners` in `tools/content-review/body.ts`), so the table and a note
+  spell one value alike. U+0020, a tab, a line feed and a carriage return stay as written, and
+  every cell writes them as a space. So in a note, spell each such character the same way: a
+  value whose `old` holds U+034F reads `\x{034F}` in both.
 - Change `rules/*.json` and a locale's `rules/<locale>/*.json` only by running
   `pnpm --filter @proofofcalm/content rules`, never by hand.
 - Never delete an entry, a chart row or a file; the finish refuses a deleted file or fact entry or
@@ -120,11 +126,15 @@ Arguments: $ARGUMENTS
   and name it in your closing report, since a new wording needs a new reviewed shape.
   In a module's chart section, change only the digits of a figure an E sentence (`<coin> fell …`)
   already holds, to its row's new whole fall; end each edit's text at the last digit, so the
-  figure's joiner stays as written. No edit you may make fixes these refusals: after a chart row's
-  change, `figure-unstated` after a new row, a B sentence's count, years or bound, a coin the chart
-  draws no fall of, or a row you would remove; after any English change, one on a translated
-  module (above). Revert that item's change in every file it touched (the fact, the English
-  module, a chart row, the templates' copies of it and a translation's figure), add one note, and
+  figure's joiner stays as written. End every edit's old and new text on a visible character; the
+  Edit tool drops a trailing space of the new text. No edit you may make fixes these refusals:
+  after a chart row's change, `figure-unstated` after a new row, a B sentence's count, years or
+  bound, a coin the chart draws no fall of, or a row you would remove; after any English change,
+  one on a translated module (above). Before the revert, make every edit the items above allow
+  and run the checks, so the note names each file and field the change reaches; then revert them
+  all. Revert that item's change in every file it touched (the fact, the English module, a chart
+  row, the templates' copies of it and their explanations, and a translation's figure, a template
+  explanation's included), add one note, and
   mark as §6 says; the
   owner makes the change, in the English and translated files and in a reviewed shape, in a pull
   request of their own. A change that draws a refusal on a translated module, a chart row's too,
@@ -143,9 +153,14 @@ Arguments: $ARGUMENTS
   revert, run `pnpm --filter @proofofcalm/content test` and §7 step 1's search, and list the file
   and line of every assertion that pins a replaced value: each failing test the run prints, the
   `agent-draft` checks and the content gates excepted, and each pin the search finds, in a test
-  only CI runs or a screenshot too. A content gate is a test that runs a check on the real files
+  only CI runs or a screenshot too. Write a pin only CI runs as `<file>:<line> (only CI runs it)`,
+  and a `toHaveScreenshot` line with the pages it captures that show the value, as
+  `<file>:<line> (only CI runs it; pages <page>, <page>)`: for example
+  `apps/web/e2e/matrix.spec.ts:<line> (only CI runs it; pages learn-risk-honestly, site-learn-risk, risk)`.
+  A content gate is a test that runs a check on the real files
   and expects `[]` or `null`: it fails on any refusal of that check and pins no value (§7 step 1's
-  sentences on the content test). A test that expects `[]` but compares a value with a file you
+  sentences on the content test). A check of a translated module against the rows is a content
+  gate. A test that expects `[]` but compares a value with a document you
   may not edit pins that value: list it when it fails (the EDUCATION §9 tie in
   `packages/content/src/facts.test.ts` compares each fact with its `docs/EDUCATION.md` row). A
   test that runs a check on a copy of the real files with a row, body or file of its own is no
@@ -165,14 +180,21 @@ Arguments: $ARGUMENTS
   either ends with the row's copies, `templates/<file>.json drawdowns[<n>]`, when it has any. For a
   row of a coin of `UNREGAINED_KEYS` (`packages/content/src/cycles.test.ts`) that §7 step 1 leaves
   on its series, the first form then ends `; keeps its series, unregained`, after the copies when
-  it has any; that ending says the note asks no change, so a note asking the owner for one never
-  takes it. Never change a B sentence's bound (`more than N %`), never add, move or delete a clause
+  it has any; that ending says the note asks no data change but asks the owner to record its
+  reading in the log (`docs/CONTENT-OPS.md` §8 steps 4 and 5), so it takes §6's mark on the
+  cycles file when the run would otherwise stage nothing, and a note asking the owner for a data
+  change never takes it. Never change a B sentence's bound (`more than N %`), never add, move or delete a clause
   or a sentence, and never remove a chart row. A
   `number-group` refusal with a suggestion keeps the value: write the suggestion. Where it names
-  U+00A0, however the detail prints it (`\u00a0`, or `U+00A0` and a space), write one U+00A0
-  (`\u00a0` in a JSON file), with no space after it. A `figure-join`
-  detail names a pair and the gap between them: replace the whole gap, every character between
-  that pair however the detail prints it, with one U+00A0 (`\u00a0` in a JSON file), never a figure. A `citation-join`
+  U+00A0, which the detail prints as `U+00A0` and a space that is not in the file, write one
+  U+00A0 (`\u00a0` in a JSON file), with no space after it. A `figure-join`
+  detail on a profile's join or on R6 (a module's B count) names a pair and the gap between them:
+  replace the whole gap, every character between that pair however the detail prints it, with one
+  U+00A0 (`\u00a0` in a JSON file), never a figure. A `figure-join` detail of R7, on a count and
+  its noun in a module (it ends `R7 (docs/CONTENT-STYLE.md §4)`), carries its own fix: do what
+  that fix says and nothing else (`docs/CONTENT-STYLE.md` §4, R7). In a module the fix is the
+  character itself, never a `\u00a0` escape, which the page shows as written; run
+  `pnpm run validate:content` again after the edit. A `citation-join`
   detail names a citation: write U+2060 between each pair of its brackets (`55(1)\u2060(d)`, `\u2060`
   in a JSON file) and nothing else, none between the number and its first bracket. A `range-join`
   detail names a range or a number: write U+2060 after its dash or hyphen-minus (`2023\u2013\u20602025`,
@@ -247,7 +269,8 @@ For each profile in `packages/content/jurisdictions/`:
      A template's `of` counts every URL it cites; the cycles file's, every `source` and `lowSource`
      of its rows; the facts file's, every URL its entries cite and the `source` and `lowSource` of
      each row §4 step 3 checks a clause against (29 on 2026-11-17: 26 cited, 3 of the BTC 2011 and
-     LINK 2018 rows); a module's, the URLs of the facts its front matter names and the `source` and
+     LINK 2018 rows), and each window a check moves fact a's or b's request to (§4 step 3); a
+     module's, the URLs of the facts its front matter names and the `source` and
      `lowSource` of every cycles row whose figure its chart draws or its text quotes, directly or
      through a fact's clause (Cycles: 8 on 2026-11-17, its facts' 3 and the four BTC rows' 5). A URL
      that two files count, read once, counts in both `reviewed` rows' `read`.
@@ -278,8 +301,8 @@ For each profile in `packages/content/jurisdictions/`:
    fetches, 3 runs). Prefer `pdf.ts`'s `.txt` for a PDF.
    Write a profile's percentage, in English too, in its page's number format. The page's number
    locale is `numberLocaleFor('en', profile)`: the profile's locale in English if it has one, else
-   its `numberFormatLocale` (`docs/CONTENT-STYLE.md` §4). So, for example, Germany writes `5,5 %`
-   with its no-break space (`\u00a0` in the JSON, as the file writes it), Portugal `12,2%` and
+   its `numberFormatLocale` (`docs/CONTENT-STYLE.md` §4). So, for example, Germany writes `5,5`, U+00A0,
+   `%` (`\u00a0` in the JSON, as the file writes it), Portugal `12,2%` and
    Britain `12.2%`, each figure of a range too (`12,2–48%`). The joiner is the locale's: a no-break
    space in Germany, none in Portugal or Britain; `percent-joiner` refuses any other.
    `pnpm run validate:content` refuses any other separator (a point in Germany or Portugal, a comma
@@ -288,8 +311,8 @@ For each profile in `packages/content/jurisdictions/`:
    message expects. On a page whose number locale writes a comma decimal (CONTENT-STYLE §4 lists
    Germany, Spain, France, Italy, the Netherlands and Portugal), a profile's other figures take the
    page's form too: a figure of 10 000 or more groups its digits in
-   threes with a no-break space (`EUR 20 350`, `\u00a0` in the JSON), a smaller one takes
-   none (`EUR 1000`), and a decimal takes the comma; `number-group` refuses any other. Britain,
+   threes with a no-break space (`EUR`, U+00A0, `20`, U+00A0, `350`, `\u00a0` in the JSON), a smaller one takes
+   none (`EUR`, U+00A0, `1000`), and a decimal takes the comma; `number-group` refuses any other. Britain,
    Ireland and the US keep their locale's grouping (`£37,700`). On every page a currency code
    joins its figure with a no-break space (`figure-join`); §1 says how to fix each refusal. A
    law's number keeps its point (`art. 33.1`), and every figure of a template or a fact keeps
@@ -347,14 +370,16 @@ For each profile in `packages/content/jurisdictions/`:
      `i18n/<locale>/learn/*.mdx`, a translated file even when its English file has no hit),
      `output_mode` `content` and `multiline` true, and one pattern that joins with `|` each old
      figure's digits, with `(?:[ ,.\x{00A0}\x{202F}]|\p{Cf}|\\u[0-9a-fA-F]{4}){0,2}` between digit
-     groups and `[.,]` as the decimal point, and each old date by its day and year,
-     `\b<day>\b\D{1,20}\b<year>\b`. For `$3,122 (15 Dec 2018), −84.1 %` that is
-     `3(?:[ ,.\x{00A0}\x{202F}]|\p{Cf}|\\u[0-9a-fA-F]{4}){0,2}122|84[.,]1|\b15\b\D{1,20}\b2018\b`,
-     which finds `$3,122`, `3122 USD`, the same digits joined by U+2060, `−84,1 %` and
+     groups and `[.,]` as the decimal point, each date of the changed part of the clause, moved or
+     not, by its day and year, `\b<day>\b\D{1,20}\b<year>\b`, and the row's old whole fall,
+     `\b<fall>\b`. For `$3,122 (15 Dec 2018), −84.1 %` on a row whose fall was 84 that is
+     `3(?:[ ,.\x{00A0}\x{202F}]|\p{Cf}|\\u[0-9a-fA-F]{4}){0,2}122|84[.,]1|\b84\b|\b15\b\D{1,20}\b2018\b`,
+     which finds `$3,122`, `3122 USD`, the same digits joined by U+2060, `−84,1 %`, `84 %` and
      `15 de dezembro de 2018`. Read each hit:
      change an English hit's figure as a module sentence, and treat a hit in a translated module
-     as §1's translated-module case. A hit that holds a figure or date other than the clause's is
-     no quote of it (LINK's `\b10\b\D{1,20}\b2021\b` also finds BTC's `10 Nov 2021`): leave it.
+     as §1's translated-module case; a hit outside a chart section is a module sentence to change
+     as the figure item says. A hit that holds a figure or date other than the clause's or the
+     row's is no quote of it (LINK's `\b10\b\D{1,20}\b2021\b` also finds BTC's `10 Nov 2021`): leave it.
    - Set a fact's or a `drawdowns` row's `accessed` to the day you read its sources only when the
      file's `reviewed` row will show every source read (`read` equals `of`). After a partial
      review leave it as it was, changed row or not, and give the day as the `changes` row's
@@ -414,7 +439,8 @@ Set `reviewedBy: agent-draft` on every file you change and on every fact entry y
 translation has no `reviewedBy`: set none on it. A file or entry left with no change but its mark,
 after a revert or a fix that puts back HEAD's text, takes HEAD's `reviewedBy` back. Every note
 goes into the draft's `notes` and your closing report. A `put back as at HEAD, no change asked`
-note asks the owner nothing and takes no mark: a run whose only notes are such stages nothing, and
+note is the only note that takes no mark, since it asks the owner nothing (a chart row note that
+ends `keeps its series, unregained` asks for a reading in the log, so it takes one): a run whose only notes are such stages nothing, and
 §7 step 5's finish refuses it, `nothing staged: the review changed no content data` among its
 lines; show the owner that output word for word, give your closing report with each note, and stop.
 Decide the mark below after your last change: when a later change stages a file, the entry or
@@ -443,7 +469,7 @@ The finish refuses a changed entry at any other value.
    you changed in its English file, change the same figure in the translation (never a translated
    module: §1), written in the translation's number format (§1), run `pnpm --filter @proofofcalm/content rules` and run the
    checks again; fix or revert anything else, a figure check's refusal only as §1 says, from its
-   source. A test that fails because it asserts what your change replaced (the value a leaf
+   source, and a revert only after every edit §1 allows is made and checked. A test that fails because it asserts what your change replaced (the value a leaf
    other than `reviewedBy` held, a module sentence it pins, or a figure it derives from a value you
    changed) is not yours to satisfy: revert nothing for it. Find every assertion that pins a value
    your change replaced, in any test of the repository, not only the line its failure prints:
@@ -460,14 +486,14 @@ The finish refuses a changed entry at any other value.
    `\u` escape or the character, as `(?:\\u[0-9a-fA-F]{4}|[\x{00A0}\x{2060}\x{2011}])` (the Grep
    tool reads `\x{…}` as the character; never type the character itself), since a test writes it
    either way (`5(?:\\u[0-9a-fA-F]{4}|[\x{00A0}\x{2060}\x{2011}])years` for a profile's
-   `5 years`); a URL by its address before `?` and by each `key=value` of its query, since a
+   `5`, U+00A0, `years`); a URL by its address before `?` and by each `key=value` of its query, since a
    test can build it in parts (`start=2021-10-01T00:00:00Z`); a publisher also by each name it
    joins (`Bitcoinity \(Mt\. Gox\)` and `CoinMarketCap`), since a chart names each once; each old
    date by its day and year,
    `(?:\b|\d{4}|\\u[0-9a-fA-F]{4})0?<day>\b(?:\D|\\u[0-9a-fA-F]{4}|\b0?<month>\b){1,30}<year>`
    (the day at a word start, right after a year a test joins to it, as in `202129 Dec 2022`, or
    right after a `\u` escape; between the parts any non-digit, a `\u` escape or the month's
-   number, so `10 Jun 2023`, `10${NO_BREAK}Jun${NO_BREAK}2023` and `10/06/2023` match;
+   number, so `10 Jun 2023` with U+00A0 between its parts, `10${NO_BREAK}Jun${NO_BREAK}2023` and `10/06/2023` match;
    no boundary after the year, which a test can join to the next date); each old figure's digits
    after `(?:\b|\\u[0-9a-fA-F]{4})` and before `\b`, with
    `(?:[ ,.\x{00A0}\x{202F}]|\p{Cf}|\\u[0-9a-fA-F]{4}|\$\{[^}]{1,40}\}){0,2}` between digit
@@ -482,12 +508,14 @@ The finish refuses a changed entry at any other value.
    Read each hit's test from its imports to its assertion. A hit pins the value when an assertion
    compares it, directly or through a constant or helper the test defines or imports, with what
    the live data gives: a data file the test imports or reads, a copy of those files, a loader, a
-   service or a page that renders them, or a running app. Name the assertion's line, and the
-   constant's line when a constant holds the value (in
-   `packages/content/src/loaders/templates.test.ts` a row's `const` and each `expect` that reads
-   it). A test that sets a value of its own to draw a refusal pins your new value too when the two
-   are equal (`packages/content/scripts/validate.test.ts` moves Solana's fall to 96): name that
-   line as well. A `toHaveScreenshot` hit pins the value when a page it captures shows it: read
+   service or a page that renders them, or a running app. Name the `expect` that compares the
+   value, each constant or table row that holds it, and the line the run prints when it differs
+   (in `packages/content/src/loaders/templates.test.ts` a row's `const` and each `expect` that
+   reads it; for a multi-line expected list or a helper's assertion, each line of the list that
+   holds the value as well as the `expect`). A test that sets a value of its own to draw a refusal
+   pins your new value too when the two are equal (`packages/content/scripts/validate.test.ts`
+   moves Solana's fall to 96): name that line as well. Read each failing test whole for a value
+   it sets equal to your new one. A `toHaveScreenshot` hit pins the value when a page it captures shows it: read
    the spec's pages, name its line, and name each such page in your closing report. A hit pins
    nothing when its test builds the rows, bodies or files it asserts and reads no live one (a
    fixture), when no test reads its file as an expected value, or when the value there is another
@@ -532,8 +560,9 @@ The finish refuses a changed entry at any other value.
    (`docs/CONTENT-OPS.md` §7) holding its date. A coin of `UNREGAINED_KEYS` keeps its series,
    since that test wants its low window to run from its low to the row's `accessed`, which no such
    request does: leave the row and write `chart row for the owner: …` with
-   `; keeps its series, unregained` after the row's copies. That note records the reading and asks
-   no change (`docs/CONTENT-OPS.md` §8 step 4). When a row moves to a publisher fact b's opening does not name
+   `; keeps its series, unregained` after the row's copies. That note asks no data change but asks
+   the owner to record its reading in the log (`docs/CONTENT-OPS.md` §8 steps 4 and 5), so it
+   takes §6's mark on the cycles file when the run would otherwise stage nothing. When a row moves to a publisher fact b's opening does not name
    (`b.alt-drawdowns`, `(Coinbase Exchange and CoinMarketCap …)`), add it there in the order the
    clauses first name each publisher, with a serial comma from three on
    (`Coinbase Exchange, Bitstamp, and CoinMarketCap`), and remove a publisher no clause names any
