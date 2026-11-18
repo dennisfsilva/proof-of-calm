@@ -88,7 +88,7 @@ export function templateFigureProblems(path: string, t: Figures): Problem[] {
   const falls = new Map(t.drawdowns.map((row) => [row.coin, row.fall] as const));
   const named = new RegExp(alternation(t.coins.map((coin) => coin.name)), 'gu');
   const fallOf = (id: string) =>
-    falls.has(id) ? `${id}'s fall of ${falls.get(id)} %` : `${id}, which has no drawdown row`;
+    falls.has(id) ? `${id}'s fall of ${falls.get(id)} %` : `${printedText(id, [])}, which has no drawdown row`;
   const problems: Problem[] = [];
   for (const sentence of sentencesOf(t.explanation)) {
     const report = (code: string, what: string, rule: number, data = '') => {

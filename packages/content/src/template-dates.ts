@@ -97,7 +97,7 @@ export function templateDateProblems(
       return problems;
     }
     for (const [whole, at = ''] of placeholders) {
-      if (!dates.has(at)) report('unresolved', `${whole} names no date of this template`);
+      if (!dates.has(at)) report('unresolved', `${printedText(whole, [])} names no date of this template`);
     }
     for (const [broken] of text.replace(PLACEHOLDER, '').matchAll(/\{date[^}\s]*/g)) {
       report('unresolved', `"${printedText(broken, [])}" is not a whole placeholder`);

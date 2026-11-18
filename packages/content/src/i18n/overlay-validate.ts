@@ -144,11 +144,13 @@ export function overlayProblems(
     if (mine !== theirs) report('number-mismatch', at, detail);
     // A placeholder holds no digits, so the number check cannot see one dropped or added; a swap of two keeps the
     // multiset and stays with counsel's read, as a swap of two written dates does.
+    // They compare as written and print by code point (ADR-0057's Corrections, 2026-11-18).
     const [ourDates, theirDates] = [
       datePlaceholdersIn(over).join(' ') || 'none',
       datePlaceholdersIn(en).join(' ') || 'none',
     ];
-    if (ourDates !== theirDates) report('date-mismatch', at, `: ${ourDates}, English ${theirDates}`);
+    const dates = `: ${printedText(ourDates, [])}, English ${printedText(theirDates, [])}`;
+    if (ourDates !== theirDates) report('date-mismatch', at, dates);
     // A wrong value is the number check's problem; this one finds a right value written another way or moved.
     if (kind !== 'template' || mine !== theirs) return;
     const [ourPercents, theirPercents] = [percentsIn(over, locales[1]), percentsIn(en, locales[0])];
