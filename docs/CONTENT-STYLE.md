@@ -455,30 +455,31 @@ hidden-character rule refuses that paragraph before B reads the gap. B reads a g
 white space (`\s`), format characters (`\p{Cf}`) or control characters (`\p{Cc}`), the class the
 joins above read. `pnpm validate:content` refuses a sentence that matches B with any such gap other
 than one U+00A0 (`figure-join`, R6). Any other character the page keeps between the count and its
-noun makes the sentence match neither shape (`figure-chart`, R5). The probe's census of the modules
-also found 16 other counts that could end a line apart from their noun.
+noun makes the sentence match neither shape (`figure-chart`, R5).
 
 R7: in a Learn module, a count before a listed noun is joined to it by exactly one U+00A0 (`6 inputs`,
 `95 países`), written as the character itself, so that no line ends between them. `moduleCountProblems` in
 `packages/content/src/module-counts.ts` reads it, and `packages/content/scripts/closed-body.ts` runs it in
 `pnpm validate:content` on every English and pt-PT module that compiles. It reads the front matter's title, idea
-and caveat as written, and every block of the compiled page that holds text
-(`packages/config/vite/page-blocks.ts`): a heading, a paragraph in a list item or a quote, and a code block
-included. It reads an ordered list item's first block after the number the page shows (`3. `). The page's text
-has every default-ignorable code point removed, so in the body a count with only such a code point before its
-noun touches the noun and is not read. A count is a run of number characters (`\p{N}`) that no letter, mark or
-number character touches, its groups split by a comma, a dot or U+00A0 (`750,000`, `210 000`). Between the
-count and its noun R7 reads B's gap, the class in `packages/content/src/module-figures.ts`: a run of JS white
-space (`\s`), format characters (`\p{Cf}`) or control characters (`\p{Cc}`). It refuses any such gap other
-than one U+00A0 (`figure-join`), and the detail names the gap by its code points. Any other character between
-the two, a hyphen or a word, leaves the pair unread. A noun matches whole and in any case, with no letter, mark
-or number character after it; a space inside one (`data points`) matches any run of white space. The lists are
-closed, one per language, and hold the nouns of the counts the census found: in English `blocks`, `data points`,
-`inputs`, `components`, `indexes`, `bitcoins`, `episodes`, `start months`, `countries`, `completed cycles`,
-`cycles`, `parts` and `signs`, and in pt-PT the nine §9 names. B's noun (`falls`, `quedas`) is on neither list:
-R6 reads it. A count before any other noun stays unread. A probe joined the 23 counts the English and pt-PT
-modules write before these nouns by U+00A0 and ran them at 161 widths from 240 to 400 px, at 100 % and 125 % zoom, in Chromium and WebKit: none split and none
-overflowed (decided 2026-11-18).
+and caveat as written, and every block of the compiled page that holds text, including a heading, a paragraph in
+a list item or a quote, and a code block (`packages/config/vite/page-blocks.ts`). It reads an ordered list
+item's first block after the number the page shows (`3. `). The page's text has every default-ignorable code
+point removed, so in the body a count with only such a code point before its noun touches the noun and is not
+read. A count is a run of number characters (`\p{N}`) that no letter, mark or number character touches, its
+groups split by a comma, a dot or U+00A0 (`750,000`, `210 000`). Four ASCII digits from 1900 to 2099 with no
+group separator are a year (`the 2017 and 2021 cycles`) and stay unread, so a count written like a year
+(`2016 blocks`) is not read either. Between the count and its noun R7 reads B's gap, the class in
+`packages/content/src/module-figures.ts`: a run of JS white space (`\s`), format characters (`\p{Cf}`) or
+control characters (`\p{Cc}`). It refuses any such gap other than one U+00A0 (`figure-join`), and the detail
+names the gap by its code points. Any other character between the two, a hyphen or a word, leaves the pair
+unread. A noun matches whole and in any case, with no letter, mark or number character after it; a space inside
+one (`data points`) matches any run of white space. The lists are closed, one per language, and hold the nouns
+of the counts a census of the modules found, which at 16 places could end a line apart from their noun: in
+English `blocks`, `data points`, `inputs`, `components`, `indexes`, `bitcoins`, `episodes`, `start months`,
+`countries`, `completed cycles`, `cycles`, `parts` and `signs`, and in pt-PT the nine §9 names. B's noun
+(`falls`, `quedas`) is on neither list: R6 reads it. A count before any other noun stays unread. A probe joined
+the 28 counts the English (15) and pt-PT (13) modules write before these nouns by U+00A0. At 161 widths from 240
+to 400 px, at 100 % and 125 % zoom, in Chromium and WebKit, none split and none overflowed (decided 2026-11-18).
 
 U+00A0 joins a figure to its unit, a name to its number, an ordinal to its noun, B's count and R7's
 count to their nouns, and a date's parts; U+2060 goes only after a dash or a hyphen and between a citation's brackets; U+2011 replaces the
@@ -782,9 +783,9 @@ needs (decided 2026-11-15). The native reader's review is §8 item 9.
   English's word before a year does (decided 2026-11-18). Its units are `dia`, `semana`, `mês` and
   `ano` with their plurals, and `Suplemento` after an ordinal (`2.º Suplemento`); a form's name may be
   a `Formulário` (#368, decided 2026-11-18). A source title in Portuguese (`lang` `pt`) is read with
-  these lists. A module's count (§4 R7) is read before pt-PT's nouns `blocos`, `observações`,
-  `componentes`, `índices`, `bitcoins`, `países`, `ciclos`, `partes` and `sinais`, each joined by U+00A0
-  (`95 países`); `quedas` stays with R6.
+  these lists. In a module, a count before pt-PT's nouns `blocos`, `observações`, `componentes`,
+  `índices`, `bitcoins`, `países`, `ciclos`, `partes` and `sinais` is joined to its noun by U+00A0
+  (`95 países`, §4 R7); `quedas` stays with R6.
 - **The tax authority's own terms**, never a translation back from English: `CIRS`, `Anexo G`,
   `Anexo G1`, `Quadro 18A`, `mais-valias`, `Autoridade Tributária e Aduaneira`; a rule quoted from the
   law keeps the law's wording in quotation marks («detidos por um período igual ou superior a 365
