@@ -3,15 +3,15 @@ import type { Snapshot } from '@proofofcalm/app/lib/ports';
 import { FIXTURE_DATES, fixtureNowMs, fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
 import { addDays, type CalendarDate, strip } from '@proofofcalm/core';
 import { seedPlan } from './seed';
-import { test } from './support';
+import { routeFixturePrices, test } from './support';
 
 // The sell phase across Today, the Log, Plan and Portfolio on the viewport matrix (docs/DOMAIN.md §3.5, §3.7,
 // §3.10): the fixture plan, its buying ended in September 2026, on 15 March 2030, inside its sell window (1 Sep
 // 2029 to 31 Aug 2030), where every purchase is past Portugal's 365 days. Today names the phase and its strip
 // puts the today marker on the Sell segment; a sale recorded in the Log lowers Plan's sellable line and
 // Portfolio's units, and both hold after a reload; the day after the window closes, Today and Plan name the
-// time after the sell window closed. The plan is Portugal's, so units read in pt-PT (ADR-0034); /api/prices is
-// answered by the page's route.
+// time after the sell window closed. The plan is Portugal's, so units read in pt-PT (ADR-0034); /api/prices and
+// /api/history are answered by the page's routes, so nothing reaches CoinGecko.
 
 test.use({ serviceWorkers: 'block' });
 
@@ -27,14 +27,7 @@ const ready = (page: Page) => expect(page.locator('main#main')).not.toHaveAttrib
 
 async function seedAt(page: Page, nowMs: number, seeded: Snapshot = snapshot) {
   await page.clock.setFixedTime(new Date(nowMs));
-  await page.route('**/api/prices?*', (route) =>
-    route.fulfill({
-      json: {
-        at: new Date(nowMs - 30_000).toISOString(),
-        prices: { BTC: { EUR: '60000.12', USD: '70000' }, ETH: { EUR: '2500.5', USD: '2900' } },
-      },
-    }),
-  );
+  await routeFixturePrices(page, nowMs);
   await seedPlan(page, seeded);
 }
 
