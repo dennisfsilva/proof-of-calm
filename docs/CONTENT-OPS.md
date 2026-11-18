@@ -301,8 +301,10 @@ is read again at every review, because its low can still move.
 A fact that cites Coinbase Exchange's daily candles names one request: `start` and `end` at
 `T00:00:00Z`, fewer than 300 days apart, since a request answers at most 300 candles and one without
 a window only the latest days. The window holds where the review starts: `b.alt-drawdowns`' ETH 2021
-high and 2022 low (its row's window in the cycles file), a simulation's first buy
-(`p.simulator-examples-eth`'s worst value-to-cost too); the review reaches the rest of the series by
+high and 2022 low (the ETH 2021 row's window in the cycles file while that row cites Coinbase; a
+review that moves the row to another publisher gives the row its own request there and leaves the
+fact's `source` at this window, which the test named below holds and the agent's branch cannot
+change), a simulation's first buy (`p.simulator-examples-eth`'s worst value-to-cost too); the review reaches the rest of the series by
 moving both, and another coin by its product (`SOL-USD`, `LINK-USD`), so the review trims no such
 fact to the window its URL names (the skill's §4 step 3).
 `packages/content/src/fact-windows.test.ts` holds each window.
@@ -364,7 +366,11 @@ fact to the window its URL names (the skill's §4 step 3).
    step 3), write that figure in the translation, in its number locale's format (the skill's §1),
    or revert the English change, in a commit on the agent's branch before merging; `verify` stays
    red until then. A note for a translated module or a chart row names a change the agent
-   reverted: make it in a pull request of your own, never on the agent's branch. A file or fact entry
+   reverted: make it in a pull request of your own, never on the agent's branch. A chart row note
+   that ends `keeps its series, unregained` (a coin of `UNREGAINED_KEYS`) asks no change: record
+   its reading in the log (step 5) and leave the row, since `packages/content/src/cycles.test.ts`
+   wants that coin's low window to run to the row's `accessed`, which no Coinbase request of
+   fewer than 300 days does (§7). A file or fact entry
    changed only in its mark carries a note (§3 step 3): flip it back, and close the pull request
    unmerged when nothing else is left in it. The Learn country
    screens print `lastReviewed`, so `e2e-visual` can fail on the new date: delete the baselines it names
@@ -386,9 +392,12 @@ fact to the window its URL names (the skill's §4 step 3).
    names a key no `FALLS` literal holds). A changed publisher needs no such edit, since the test
    reads its Coinbase rows from the held falls, `FALLS` read through any entry. A row moved to
    Coinbase passes that test's windows only with a `source`, and a `lowSource` when one request
-   cannot hold both ends; a coin of `UNREGAINED_KEYS` stays, with a `chart row for the owner:`
-   note. The log PR writes
+   cannot hold both ends, each with `start` and `end` fewer than 300 days apart (§7); a coin of
+   `UNREGAINED_KEYS` stays, with a `chart row for the owner:` note that ends
+   `keeps its series, unregained`, whose reading the log records (step 4). The log PR writes
    back each assertion step 4 removed at the new value, app, web, and end-to-end tests included. It
    also writes the new value into each passing test the review's notes name for the log pull
-   request. These changes make the log PR a tier 2 pull request with the content roles
+   request, and into no test that holds the same word, figure or date for another row, fact or
+   series (the `Bitstamp` that `packages/content/src/drops-noise.test.ts` asserts is fact q's
+   BTC/USD series, and stays when a row moves off Bitstamp). These changes make the log PR a tier 2 pull request with the content roles
    (`.claude/rules/content.md`).
