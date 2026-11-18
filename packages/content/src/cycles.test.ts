@@ -53,11 +53,11 @@ const FALLS = [
 // steps 4 and 5). Keyed `<coin> <high>` of the literal, the value the whole entry that replaces it. The owner's session
 // PR adds the entry to main, which reads the literal until the review merges and `now` after; the agent's branch
 // cannot change this file (CI's guard). The log PR writes `now` into FALLS and removes the entry. When `now` moves a
-// high, it also writes the new `<coin> <high>` in place of the old one in COINBASE_KEYS and UNREGAINED_KEYS: they read
-// the old key through the entry only while the entry stays.
+// high, it also writes the new `<coin> <high>` in place of the old one in UNREGAINED_KEYS, which reads the old key
+// through the entry only while the entry stays. The Coinbase rows come from the held falls' publishers, so a changed
+// publisher moves its row in or out of them with the entry and leaves no list to edit.
 const unloggedFalls: ReadonlyMap<string, Fall> = new Map([]);
-// The FALLS rows on Coinbase's series, and the coins fact b's 16 Oct 2026 line names as still below their high.
-const COINBASE_KEYS = ['ETH 2018-01-13', 'ETH 2021-11-10', 'SOL 2021-11-06'];
+// The coins fact b's 16 Oct 2026 line names as still below their high.
 const UNREGAINED_KEYS = ['LINK 2021-05-10'];
 
 // What follows the last row's clause of each fact: the current cycle, and the line at the 16 Oct 2026 close. Fact b
@@ -112,8 +112,8 @@ function strayKeys(keys: readonly string[], falls: readonly Fall[]): string[] {
   return keys.filter((key) => !falls.some((each) => keyOf(each) === key));
 }
 /** The `<coin> <high>` of each held fall on Coinbase's series: the rows the Coinbase test reads its windows from. */
-function coinbaseKeys(falls: readonly Fall[], held: readonly Fall[]): string[] {
-  return heldKeys(falls.filter(({ row }) => row[2] === COINBASE).map(keyOf), falls, held);
+function coinbaseKeys(held: readonly Fall[]): string[] {
+  return held.filter(({ row }) => row[2] === COINBASE).map(keyOf);
 }
 const held = () => heldFalls(FALLS, CycleDrawdownsSchema.parse(cycles).drawdowns, factValue, unloggedFalls);
 
@@ -157,9 +157,9 @@ describe('the cycles file (docs/EDUCATION.md §2 and §6)', () => {
     expect(staleFalls(FALLS, unloggedFalls)).toEqual([]);
   });
 
-  it('the key lists name only FALLS literals', () => {
+  it('the unregained key list names only FALLS literals', () => {
     const fix = 'write the new `<coin> <high>` in place of the old one (docs/CONTENT-OPS.md §8 step 5)';
-    expect(strayKeys([...COINBASE_KEYS, ...UNREGAINED_KEYS], FALLS), fix).toEqual([]);
+    expect(strayKeys(UNREGAINED_KEYS, FALLS), fix).toEqual([]);
   });
 
   it("cites Coinbase Exchange's daily candles for each Coinbase row, a request of at most 300 holding its date", () => {
@@ -178,7 +178,7 @@ describe('the cycles file (docs/EDUCATION.md §2 and §6)', () => {
       return start <= date && date <= end && (Date.parse(end) - Date.parse(start)) / day < 300;
     };
     const coinbase = drawdowns.filter(({ publisher }) => publisher === COINBASE);
-    expect(coinbase.map(({ coin, high }) => `${coin} ${high}`)).toEqual(heldKeys(COINBASE_KEYS, FALLS, held()));
+    expect(coinbase.map(({ coin, high }) => `${coin} ${high}`)).toEqual(coinbaseKeys(held()));
     for (const { coin, high, low, source, lowSource } of coinbase) {
       expect(holds(source, coin, high), source).toBe(true);
       // One request holds both ends, or the low's window is its own (src/schema/drawdown.ts).
@@ -371,7 +371,7 @@ describe('a publisher change through an entry (docs/CONTENT-OPS.md §8 steps 4 a
     const onCoinbase = rows
       .filter(({ publisher }) => publisher === COINBASE)
       .map(({ coin, high }) => `${coin} ${high}`);
-    expect(onCoinbase).toEqual(coinbaseKeys(literals, held));
+    expect(onCoinbase).toEqual(coinbaseKeys(held));
   };
 
   it.each([
