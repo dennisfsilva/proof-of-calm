@@ -395,7 +395,7 @@ and in each translation. A decimal in a profile's text there takes the comma, an
 it is only a citation's. An identifier keeps its digits plain (`PIV 28969`).
 
 On every page, a currency code and its figure (`EUR 20 350`, `100 USD`) and a form's name and its
-number (`Modelo 721`, `Anexo G`, `Form 1040`, `Box 3`, `Quadro 9.4`) are joined by U+00A0 too, so
+number (`Modelo 721`, `Anexo G`, `Formulaire 2086`, `Form 1040`, `Box 3`, `Quadro 9.4`) are joined by U+00A0 too, so
 that a line never ends on the code or the name. This holds in English, in each translation, and in a
 module. A JSON file writes the space as `\u00a0`, a module as the character itself (decided
 2026-11-17). `pnpm validate:content` refuses a code's or a form's join that is not U+00A0 in a
@@ -475,16 +475,16 @@ as in the percent and grouping checks (decided 2026-11-18). `pnpm validate:conte
 on each side of a URL on its own, so it reads no join across it.
 
 A source's title is read for joins in its own language, from its `lang`: `en` as English, `pt` as
-pt-PT, and `es`, `fr` and `it` with their own lists, which `titleJoinProblems` in
-`packages/content/src/join-validate.ts` takes from a census of that language's titles only, without
-English's names: Spanish's names `Ley`, `Real Decreto`, `Orden` and `art.`, its months with the
-linker `de` (`25 de marzo`); French's `LOI n°` and `article`, its months with no linker
-(`25 juin 2026`); Italian's `Legge`, `n.`, `art.` and `fascicolo`, its months with no linker
-(`22 dicembre 1986`). None of the three has a unit word. An `nl` title is read for the code and
-form joins only, since its titles hold no name, date or unit. A form's name may be a `Formulaire`
-(`Formulaire 2086`), in a title as on a page. A title in any other language (`de`) stays unchecked for joins
-until it has its lists (#381, decided 2026-11-18), though U+2011 is refused in every title. Its
-words stay as published, so the ban list and `number-unit-hyphen` stay off it,
+pt-PT, and `es`, `fr` and `it` with lists that `titleJoinProblems` in
+`packages/content/src/join-validate.ts` takes from that language's titles alone, without English's
+names. Spanish's names are `Ley`, `Real Decreto`, `Orden` and `art.`, its months with the linker
+`de` (`25 de marzo`). French's are `LOI n°` and `article`, its months with no linker
+(`25 juin 2026`). Italian's are `Legge`, `n.`, `art.` and `fascicolo`, its months with no linker
+(`22 dicembre 1986`). None of the three lists holds a unit. An `nl` title is read for the code and
+form joins only, since its titles hold no name, date or unit. A title in any other language (`de`)
+stays unchecked for joins until it has its lists (#381, decided 2026-11-18), though U+2011 is
+refused in every title. A source title's words stay as published, so the ban list and
+`number-unit-hyphen` stay off it,
 and a translation cannot change it (#368, decided 2026-11-18). The joins check reads the whole
 title, its hyphen rules included (`range-join` asks for U+2060 after an en dash or a hyphen-minus
 between two figures, and after a hyphen-minus in a law number or before a Latin ordinal suffix). `pnpm validate:content` refuses U+2011 in any title (`range-join`, decided 2026-11-18): a
