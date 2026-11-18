@@ -260,3 +260,15 @@ generated rules files of each language.
   their own percent rules, as above. A Learn module's `figure-chart` join detail prints its gap the
   same way, except that it shows one no-break space as written too, since that space is one of its
   two joiners (`"97U+202F %" in "…"`); both read `packages/content/src/percent-gap.ts`.
+- **2026-11-18.** One printing for every detail that quotes a text or a gap: `figure-join`,
+  `range-join`, `citation-join`, `figure-chart` and `overlay-percent-mismatch`. A quoted text names
+  each space but U+0020, each format or control character, U+2010 and U+2011 by its code point
+  (`printedText` in `packages/content/src/percent-gap.ts`), and a gap names every character of it
+  the same way (`printedGap`), so two ordinary spaces print `U+0020 U+0020` and a no-break hyphen
+  `U+2011` rather than a character a reader cannot tell from `-`. Before, the joins check printed a
+  JSON escape (` `) and the module check folded every white space into one space, which hid the
+  very gap it refused. A Learn module still shows its own percent joiners as written. The overlay's
+  percent gap now reads every hyphen and dash (`\p{Pd}`), not the hyphen-minus alone, so `40–%`
+  is named rather than missing from the list; its sign class is unchanged. A source's title, in any
+  language, never holds U+2011 (`range-join`; `docs/CONTENT-STYLE.md` §4): it keeps the published
+  U+002D, with U+2060 after it inside a law number (C3, C7, C9, C10 and C11 of #370).
