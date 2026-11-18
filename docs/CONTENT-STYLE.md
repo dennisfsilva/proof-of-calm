@@ -437,7 +437,7 @@ number, a law's name and its number, a date's parts, and a figure and its unit.
 `pnpm validate:content` reads the run of white space, format and control characters (Unicode Cf
 and Cc) between the two parts. It refuses the run unless it is one U+00A0 alone. A lone U+2060 is
 refused, and so is U+00A0 beside any other character of the run. Beside an ordinary space, a line
-can still break there (decided 2026-11-18).
+can still break at that space (decided 2026-11-18).
 
 When any other character sits between the two parts, they are not a join, so they stay unchecked.
 A part that two pairs share is read in both (`EUR 100 USD`), whether the first pair's run is
