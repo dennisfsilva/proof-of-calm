@@ -27,13 +27,15 @@ const en = leaves('en');
 const pt = leaves('pt-PT');
 const literal = (text: string) => text.replace(/[{}()[\]^$.*+?|\\]/gu, '\\$&');
 const isLabel = (text: string) => /^\p{Lu}/u.test(text) && text.length <= 40 && !/[.:?]$/u.test(text);
-// A one-word label is also a screen's or a coin's name, so it counts only where English says to choose it.
+// A one-word label is also a screen's or a coin's name, so it counts only where English says to choose it, in any
+// tense (`if you chose Later`); `open Today` names a screen, a place, so other verbs do not count.
 const isPhrase = (text: string) => text.includes(' ') || text.includes('{');
+const choose = 'cho(?:ose|se|sen)';
 
 /** Each English label another English message names mid-sentence, with that message's key and both pt-PT texts. */
 const found = [...en].flatMap(([labelKey, label]) => {
   if (!isLabel(label)) return [];
-  const inSentence = new RegExp(`${isPhrase(label) ? '\\p{Ll}' : 'choose'} ${literal(label)}(?!\\p{L})`, 'u');
+  const inSentence = new RegExp(`${isPhrase(label) ? '\\p{Ll}' : choose} ${literal(label)}(?!\\p{L})`, 'u');
   const ptLabel = pt.get(labelKey) ?? '';
   return [...en]
     .filter(([key, text]) => key !== labelKey && inSentence.test(text) && (pt.get(key) ?? '').includes(ptLabel))
@@ -63,6 +65,11 @@ describe('a control named inside a pt-PT sentence', () => {
         'today.action.asPlanned',
       ]),
     );
+  });
+
+  it('finds a one-word label after any tense of choose', () => {
+    const later = found.filter(({ labelKey }) => labelKey === 'onboarding.reminder.later').map(({ key }) => key);
+    expect(later).toEqual(expect.arrayContaining(['onboarding.reminder.notSaved', 'settings.reminder.line']));
   });
 
   it.each(named.map(({ label, key, sentence }) => [label, key, sentence]))(
