@@ -407,11 +407,127 @@ describe("pt-PT's chart section", () => {
     );
   });
 
-  it('9: a language without shapes still fails closed', async () => {
+  // N10: the intro's three sentences, B and E each fail, since de lists none and has no shapes.
+  it('9: a language without shapes still fails closed, its intro too', async () => {
     const found = await problemsOf(pt(), 'de');
-    expect(found.map(({ code }) => code)).toEqual([FC, FC, ...FU4]);
+    expect(found.map(({ code }) => code)).toEqual([FC, FC, FC, FC, FC, ...FU4]);
     expect(found[0]?.detail).toBe(
+      `body: "Um plano mensal define o dia de cada compra." is not a sentence de's list holds and matches neither shape of a chart's section, and de has no shapes for a chart's section yet; R5 (docs/CONTENT-STYLE.md §4)`,
+    );
+    expect(found[3]?.detail).toBe(
       `body: "${nb(S1)}" holds a figure "4" and matches neither shape of a chart's section, and de has no shapes for a chart's section yet; R5 (docs/CONTENT-STYLE.md §4)`,
     );
+  });
+});
+
+// docs/CONTENT-STYLE.md §9 (#358, 2026-11-18): a translation's chart section is closed. Each sentence and heading there
+// is B, E or one its language's list holds, character for character; English's section stays open.
+describe("pt-PT's closed chart section", () => {
+  const LIVE = [
+    'Um plano mensal define o dia de cada compra.',
+    'Não limita até onde um preço pode cair, e uma moeda pode perder quase todo o seu valor.',
+    'Cada barra abaixo é uma queda de uma moeda, desde um máximo de ciclo até ao preço mais baixo depois desse máximo.',
+  ];
+  const unlisted = (sentence: string, language = 'pt-PT') =>
+    `body: "${sentence}" is not a sentence ${language}'s list holds and matches neither shape of a chart's section; R5 (docs/CONTENT-STYLE.md §4)`;
+  /** The codes with `extra` listed for pt-PT beside its own list. */
+  async function listedCodes(source: string, extra: readonly string[]) {
+    const { problem, page } = await checkModuleBody(source, at);
+    expect(problem).toBeNull();
+    const context = moduleContext({ chart: 'drawdowns-bar' }, 'pt-PT', { rows: ROWS, coins: COINS });
+    return moduleFigureProblems(at, page, { ...context, listed: [...context.listed, ...extra] }).map(({ code }) => code);
+  }
+
+  it.each(LIVE)('N2: the listed «%s» passes after the figures', async (sentence) => {
+    expect(await codes(ptPara(sentence))).toEqual([]);
+  });
+
+  // N2: compared character for character, never case-blind, folded or normalised.
+  const variants = LIVE.flatMap((sentence) =>
+    (
+      [
+        ['a letter', sentence.replace('a', 'á')],
+        ['NFD', sentence.normalize('NFD')],
+        ['U+00A0', sentence.replace(' ', ' ')],
+        ['lower-case first', sentence.charAt(0).toLowerCase() + sentence.slice(1)],
+      ] as const
+    )
+      .filter(([, variant]) => variant !== sentence)
+      .map(([how, variant]) => [`${how}: ${sentence}`, variant] as const),
+  );
+  it.each(variants)('N2: %s fails', async (_, variant) => {
+    expect(await codes(ptPara(variant))).toEqual([FC]);
+  });
+
+  // N3: the forms the five rounds of word lists missed, and prose a list would pass, fail as unlisted.
+  it.each([
+    ...[
+      'trilhão',
+      'quadragésima',
+      'dobrado',
+      'duplicava',
+      'terço',
+      'quadriplicou',
+      'séptuplo',
+      'undécuplo',
+      'duodécuplo',
+      'quadruplávamos',
+      'setes',
+      'tríplice',
+      'milheiro',
+      'parelha',
+      'trilionésimo',
+      'trimestral',
+      'enésima',
+      'três'.normalize('NFD'),
+      'dоis', // a Cyrillic о
+    ].map((form) => `O preço ficou ${form}.`),
+    'Ou assim parece.',
+    'Cada queda acima é história, não uma previsão.',
+  ])('N3: «%s» fails', async (sentence) => {
+    expect(await codes(ptPara(sentence))).toEqual([FC]);
+  });
+
+  it('N4: an unlisted sentence names its list in the detail', async () => {
+    const found = await problemsOf(ptPara('Ou assim parece.'));
+    expect(found.map(({ code, detail }) => [code, detail])).toEqual([[FC, unlisted('Ou assim parece.')]]);
+  });
+
+  it('N5: a heading in the section is listed or fails', async () => {
+    const found = await problemsOf(pt(undefined, { intro: `## Quedas\n\n${INTRO}` }));
+    expect(found.map(({ code, detail }) => [code, detail])).toEqual([
+      [
+        FC,
+        `body: the heading "Quedas" in the chart's section is not a sentence pt-PT's list holds; R5 (docs/CONTENT-STYLE.md §4)`,
+      ],
+    ]);
+  });
+
+  it('N6: a mark in a paragraph of listed sentences fails', async () => {
+    const found = await problemsOf(pt(undefined, { intro: INTRO.replace('mensal', '*mensal*') }));
+    expect(found.map(({ code, detail }) => [code, detail])).toEqual([
+      [
+        FC,
+        `body: the paragraph "${INTRO.replace(/\s+/gu, ' ')}" holds emphasis in the chart's section, which reads plain text only; R5 (docs/CONTENT-STYLE.md §4)`,
+      ],
+    ]);
+  });
+
+  // N7: a listed sentence is still read for English's trigger and the chart's coins.
+  it.each(['A Solana caiu muito.', nb('Caiu 50 % num ano.')])('N7: a listed «%s» fails', async (sentence) => {
+    expect(await listedCodes(ptPara(sentence), [sentence])).toEqual([FC]);
+  });
+
+  it('N8: prose with `uma` passes only once listed', async () => {
+    const sentence = 'Cada barra é uma queda de uma moeda.';
+    expect(await listedCodes(ptPara(sentence), [sentence])).toEqual([]);
+    expect(await listedCodes(ptPara(sentence), [])).toEqual([FC]);
+  });
+
+  it("N9: English's section stays open, a translation's is closed", async () => {
+    expect(await codes(enPara('Each fall above is history, not a forecast.'), 'en')).toEqual([]);
+    const live = readFileSync(new URL('../learn/risk-honestly.mdx', import.meta.url), 'utf8');
+    expect(await codes(live.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/u, ''), 'en')).toEqual([]);
+    expect(await codes(ptPara('Cada queda acima é história, não uma previsão.'))).toEqual([FC]);
   });
 });

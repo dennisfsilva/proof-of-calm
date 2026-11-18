@@ -449,7 +449,8 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
     const codes = async (text: string) =>
       (await closedBodyProblems([{ path, source: text }], { figures })).map(({ code }) => code);
     expect([await codes(live), await codes(source)]).toEqual([[], ['figure-chart']]);
-    // A translation is held to its English module's chart in its own language's shapes, so English's fail in pt-PT.
+    // A translation is held to its English module's chart in its own language's shapes and list, so English's intro,
+    // B and E fail in pt-PT.
     const parsed = parseModule(path, live);
     if (!parsed.ok) throw new Error(path);
     const translated = live.replace(
@@ -459,14 +460,14 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
     const at = 'packages/content/i18n/pt-PT/learn/risk-honestly.mdx';
     const file = { language: 'pt-PT', path: at, source: translated };
     const problems = await closedBodyProblems([file], { english: [parsed.value], figures });
-    expect(problems.filter(({ code }) => code.startsWith('figure-')).map(({ code }) => code)).toEqual([
-      'figure-chart',
-      'figure-chart',
-      'figure-unstated',
-      'figure-unstated',
-      'figure-unstated',
-      'figure-unstated',
+    const figureProblems = problems.filter(({ code }) => code.startsWith('figure-'));
+    expect(figureProblems.map(({ code }) => code)).toEqual([
+      ...Array<string>(5).fill('figure-chart'),
+      ...Array<string>(4).fill('figure-unstated'),
     ]);
-    expect(problems[0]?.detail).toMatch(/"In the chart, .* matches neither shape of a chart's section; R5 /u);
+    expect(figureProblems[0]?.detail).toMatch(
+      /^body: "A monthly plan sets when you buy\." is not a sentence pt-PT's list holds and matches neither shape /u,
+    );
+    expect(figureProblems[3]?.detail).toMatch(/"In the chart, .* matches neither shape of a chart's section; R5 /u);
   });
 });

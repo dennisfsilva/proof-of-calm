@@ -6,6 +6,7 @@ import drawdowns from '../../cycles/drawdowns.json' with { type: 'json' };
 import { parseModule } from '../loaders/modules.ts';
 import { moduleContext, moduleFigureProblems } from '../module-figures.ts';
 import { findBanned } from '../style/banned.ts';
+import { sentencesOf } from '../template-figures.ts';
 import { readTranslatedModule, translatedModuleProblems } from './module-overlay-validate.ts';
 
 // The pt-PT Risk honestly over the real files (ADR-0057; docs/CONTENT-STYLE.md §4 R5 and §9). It pins structure only:
@@ -48,6 +49,26 @@ describe('the pt-PT Risk honestly module', () => {
     expect(problem).toBeNull();
     const context = moduleContext(english(), 'pt-PT', { rows: drawdowns.drawdowns, coins });
     expect(moduleFigureProblems(path, page, context)).toEqual([]);
+  });
+
+  // N12: each sentence pt-PT lists is one the live section holds, and none holds a trigger, read listed beside B and E.
+  it('lists only live sentences of its chart section, none with a trigger', async () => {
+    const { problem, page } = await checkModuleBody(read(path), path, MODULE_BODY_ELEMENTS);
+    expect(problem).toBeNull();
+    const at = page.findIndex((block) => block.kind === 'element' && block.name === 'Chart');
+    const end = page.findIndex((block, index) => index > at && block.kind === 'heading');
+    const start = page.findLastIndex((block, index) => index < at && block.kind === 'heading') + 1;
+    const live = page
+      .slice(start, end === -1 ? page.length : end)
+      .flatMap((block) => (block.kind === 'paragraph' ? sentencesOf(block.text) : []));
+    const context = moduleContext(english(), 'pt-PT', { rows: drawdowns.drawdowns, coins });
+    expect(context.listed.length).toBeGreaterThan(0);
+    expect(context.listed.filter((sentence) => !live.includes(sentence))).toEqual([]);
+    for (const sentence of context.listed) {
+      const probe = await checkModuleBody(`<Chart />\n\n${sentence}\n`, path, MODULE_BODY_ELEMENTS);
+      const codes = moduleFigureProblems(path, probe.page, context).map(({ code }) => code);
+      expect([sentence, codes.filter((code) => code === 'figure-chart')]).toEqual([sentence, []]);
+    }
   });
 
   it('keeps each figure with its unit and each date whole, wherever English does', () => {
