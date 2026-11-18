@@ -410,17 +410,38 @@ since Chromium and WebKit both break a line after either sign. A hyphen beside a
 (`COVID-19`, `e-money`) stays as it is (S4, decided 2026-11-17, in place of the earlier reading
 that a hyphen-minus between digits never breaks). A point after a letter ends an abbreviation, so
 a dash or hyphen between the figures after it takes the joiner as well (`s.104-105`,
-`Rev.Proc.2025-32`, decided 2026-11-18). `pnpm validate:content` refuses an ordinary space in a
-name's or a date's join (`figure-join`) and a dash or hyphen with no joiner after it (`range-join`).
+`Rev.Proc.2025-32`, decided 2026-11-18). A hyphen-minus inside a law number takes the joiner too
+(`Lei 24-⁠D/2022`, `9-⁠bis`), or the text writes U+2011 there (`9‑bis`). `pnpm validate:content`
+refuses an ordinary space in a name's or a date's join (`figure-join`) and a dash or hyphen with no
+joiner after it (`range-join`).
+
+A figure and its unit are joined by U+00A0 as well (`365 days`, `5 anos`, `2.º Suplemento`): the
+units are a closed list, `day`, `week`, `month` and `year` with their plurals in English, and
+`dia`, `semana`, `mês`, `ano` with their plurals and `Suplemento` in pt-PT. A word counted after a
+figure (`6 escalões`, `3 states`) is no unit and stays unchecked. A citation's brackets take U+2060
+between them (`55(1)(d)`, `1.1012-1(j)(3)(ii)`), and nothing between the number and its first
+bracket, which neither engine breaks. A probe at 161 widths from 240 to 400 px found each pair split
+at a line end in Chromium or WebKit, and none once joined (#368, decided 2026-11-18).
+`pnpm validate:content` refuses an ordinary space before a unit (`figure-join`) and a citation with
+no joiner between its brackets (`citation-join`).
+
+U+00A0 joins a figure to its unit, a name to its number, an ordinal to its noun and a date's parts;
+U+2060 goes only after a dash or a hyphen and between a citation's brackets. U+202F is never typed
+by hand: it is the percent sign's joiner in a locale that has one (the percent paragraphs below).
 
 The names are a closed list per language in `packages/content/src/join-validate.ts`, taken from
-every profile's text. An identifier (`PIV 28969`), a docket (`IX R 3/22`), a form's cell
-(`colonna 12`), a letter after its name (`lett. c`), and a word the list leaves out stay unchecked.
-Left out as well: the month-first US order (`April 15`); the file-only lot note and the sources'
-titles, which do not wrap; the modules and the facts; and a translation until its language has its
-lists (decided 2026-11-17). A URL in the text stays unchecked too, since its figures belong to its
-path, as in the percent and grouping checks (decided 2026-11-18). `pnpm validate:content` checks the text
+every profile's text and its sources' titles; a law number may be a roman numeral (`Série I`). A
+docket (`IX R 3/22`), a form's cell (`colonna 12`), a letter after its name (`lett. c`), and a word
+the list leaves out stay unchecked. Left out as well: the month-first US order (`April 15`); the
+file-only lot note; the modules and the facts; and a translation until its language has its lists
+(decided 2026-11-17). A URL in the text stays unchecked too, since its figures belong to its path,
+as in the percent and grouping checks (decided 2026-11-18). `pnpm validate:content` checks the text
 on each side of a URL on its own, so it reads no join across it.
+
+A source's title is read for joins in its own language, from its `lang`: `en` as English, `pt` as
+pt-PT, any other language unchecked until it has its lists. Its words stay as published, so the ban
+list and the hyphen check stay off it, and a translation cannot change it (#368, decided
+2026-11-18). A pending change's source is not shown and stays unchecked.
 
 `pnpm validate:content` refuses other grouping beside a currency code (`number-group`). It reads
 each figure as English does (a comma or a space between groups, a point before the decimals) and
@@ -541,7 +562,8 @@ tax-year file's lines (the `settings` messages under `data.taxYear.file`) and a 
 `figure-join` skips (decided 2026-11-17). A holding condition shows on screens and the file copies it as written, so it takes U+2011.
 Facts and documents keep U+002D, and a document quotes copy with it.
 A law's number takes U+2011 between its digits and its letter in text shown on screen (`Lei 24‑D/2022`), so it
-does not break at the hyphen. A source's title keeps U+002D too, as the source writes it.
+does not break at the hyphen. A source's title keeps U+002D, as the source writes it, with U+2060 after it inside
+a law number (`Lei 24-⁠D/2022` in JSON, #368).
 
 ## 5. Education modules
 
@@ -675,11 +697,14 @@ needs (decided 2026-11-15). The native reader's review is §8 item 9.
   no-break space (U+00A0) wherever English does**, a date's parts included and with no hyphen:
   `máximo de 90 dias`, `10 %`, `16 de outubro de 2026`, each unbroken (decided 2026-11-17). A module
   writes the character itself. A pt-PT profile's check (§4) reads pt-PT's law names (`artigo`,
-  `secção`, `frase`, `parágrafo`, `exemplo`, `código`, `(UE)`; `(UE)` is pt-PT's `(EU)` before a
-  regulation's number) and English's, which a translation
-  keeps where it cites the source's law (`Topic 409`). It reads each gap of `1 de janeiro de 2023`,
+  `secção`, `frase`, `parágrafo`, `exemplo`, `código`, `processo`, `(UE)`; `(UE)` is pt-PT's `(EU)`
+  before a regulation's number) and English's, which a translation keeps where it cites the source's
+  law (`Topic 409`, `PIV 28969`, `Série I`). It reads each gap of `1 de janeiro de 2023`,
   `31 de outubro` and `janeiro de 2026`. A `de` before a bare year (`de 2023`) stays unchecked, as
-  English's word before a year does (decided 2026-11-18).
+  English's word before a year does (decided 2026-11-18). Its units are `dia`, `semana`, `mês` and
+  `ano` with their plurals, and `Suplemento` after an ordinal (`2.º Suplemento`); a form's name may be
+  a `Formulário` (#368, decided 2026-11-18). A source title in Portuguese (`lang` `pt`) is read with
+  these lists.
 - **The tax authority's own terms**, never a translation back from English: `CIRS`, `Anexo G`,
   `Anexo G1`, `Quadro 18A`, `mais-valias`, `Autoridade Tributária e Aduaneira`; a rule quoted from the
   law keeps the law's wording in quotation marks («detidos por um período igual ou superior a 365
