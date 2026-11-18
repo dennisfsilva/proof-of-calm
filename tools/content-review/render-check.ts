@@ -7,7 +7,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { JSDOM } from 'jsdom';
-import { allowedDomains, parseDraft, type ReviewDraft, renderBody, sourceLink } from './body.ts';
+import { allowedDomains, parseDraft, type ReviewDraft, renderBody, sourceLink, spellJoiners } from './body.ts';
 
 /** The elements GitHub returned for the fixture drafts and the template (2026-11-11). */
 const ELEMENTS = new Set(
@@ -21,10 +21,10 @@ const plain = (text: string) =>
     .replace(/[\p{Cc}\p{Cf}]/gu, '')
     .trim();
 
-/** The draft's URLs and its free-text cells, in the template's order. */
+/** The draft's URLs and its free-text cells, in the template's order; a change's old and new spelled as body.ts writes them. */
 function expected(d: ReviewDraft): { urls: string[]; texts: string[] } {
   const texts = [
-    ...d.changes.flatMap((c) => [c.item, c.field, c.old, c.new, c.quote, c.reason]),
+    ...d.changes.flatMap((c) => [c.item, c.field, spellJoiners(c.old), spellJoiners(c.new), c.quote, c.reason]),
     ...d.verified.map((v) => v.item),
     ...d.reviewed.flatMap((r) => [r.item, r.reason]),
     ...d.unreachable.map((u) => u.expected),

@@ -79,4 +79,19 @@ describe('htmlProblems', () => {
     const unlinked = GOOD.replace(new RegExp(`<a href=[^>]*>www${WJ}\\.revenue\\.ie</a>`), 'www.revenue.ie');
     expect(htmlProblems(unlinked, draft, domains)).toEqual([`draft URL not linked: ${URL1}`]);
   });
+
+  it('expects a change row old and new with their joiners spelled, as body.ts renders them', () => {
+    const NBSP = String.fromCodePoint(0x00a0);
+    const [change] = draft.changes;
+    if (!change) throw new Error('the draft above has a change row');
+    const joined: ReviewDraft = { ...draft, changes: [{ ...change, old: `55(1)${WJ}(d)`, new: `20${NBSP}350` }] };
+    const spelled = GOOD.replace('<td>a</td><td>b</td>', '<td>55(1)\\x{2060}(d)</td><td>20\\x{00A0}350</td>');
+    expect(htmlProblems(spelled, joined, domains)).toEqual([]);
+
+    const raw = GOOD.replace('<td>a</td><td>b</td>', `<td>55(1)${WJ}(d)</td><td>20${NBSP}350</td>`);
+    expect(htmlProblems(raw, joined, domains)).toEqual([
+      'cell not found as written: "55(1)\\x{2060}(d)"',
+      'cell not found as written: "20\\x{00A0}350"',
+    ]);
+  });
 });

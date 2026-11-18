@@ -7,8 +7,8 @@
     {
       "item": "jurisdictions/es.json",
       "field": "line one\n@dennisfsilva after a newline",
-      "old": "in backticks `@dennisfsilva`",
-      "new": "a | pipe and code `span | across` cells",
+      "old": "55(1)\u2060(d) in backticks `@dennisfsilva`",
+      "new": "a | pipe and code `span | across` cells, 20\u00a0350",
       "quote": "- ```\nfence in a list item",
       "eventDate": "2026-12-28",
       "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2006-20764&tn=1&p=20231228",
