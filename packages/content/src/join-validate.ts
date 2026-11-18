@@ -5,8 +5,9 @@ import type { Problem } from './problem.ts';
 import { FILE_ONLY_PROFILE_TEXT } from './profile-texts.ts';
 
 const NBSP = String.fromCodePoint(0xa0);
-/** A URL in prose: its figures (`n-23-27.pdf`) and percent-escapes are a path, so every check here and in
- * percent-validate.ts reads the text with each URL replaced by a space. */
+/** A URL in prose: its figures (`n-23-27.pdf`) and percent-escapes are a path, so the checks here read the pieces
+ * of a text between its URLs each on its own, and percent-validate.ts reads the text with each URL replaced by a
+ * space. No capture group, so that `split` returns no part of a URL. */
 export const URL_IN_TEXT = /https?:\/\/\S+/g;
 // Any white space but the no-break space: an ordinary space, a tab, a line break, a narrow no-break space.
 const GAP = String.raw`((?:(?!${NBSP})\s)+)`;
@@ -116,8 +117,11 @@ function proseProblems(path: string, field: string, text: string, language: stri
 export function joinProblems(path: string, texts: readonly [string, string][], language = 'en'): Problem[] {
   return texts.flatMap(([field, text]) => {
     if (field === FILE_ONLY_PROFILE_TEXT) return [];
-    const unlinked = text.replaceAll(URL_IN_TEXT, ' ');
-    return [...codeProblems(path, field, unlinked), ...proseProblems(path, field, unlinked, language)];
+    // Each piece between URLs on its own, so that no join is read across a URL; URL_IN_TEXT has no capture group,
+    // so split returns no part of a URL.
+    return text
+      .split(URL_IN_TEXT)
+      .flatMap((piece) => [...codeProblems(path, field, piece), ...proseProblems(path, field, piece, language)]);
   });
 }
 
