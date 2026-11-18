@@ -673,9 +673,9 @@ needs (decided 2026-11-15). The native reader's review is §8 item 9.
   no-break space (U+00A0) wherever English does**, a date's parts included and with no hyphen:
   `máximo de 90 dias`, `10 %`, `16 de outubro de 2026`, each unbroken (decided 2026-11-17). A module
   writes the character itself. A pt-PT profile's check (§4) reads pt-PT's law names (`artigo`,
-  `secção`, `frase`, `parágrafo`, `exemplo`, `código`) beside English's, which a translation keeps
-  where it cites the source's law (`Topic 409`), and each gap of `1 de janeiro de 2023`,
-  `31 de outubro` and `janeiro de 2026`; a `de` before a bare year (`de 2023`) stays unchecked, as
+  `secção`, `frase`, `parágrafo`, `exemplo`, `código`, `(UE)`) and English's, which a translation
+  keeps where it cites the source's law (`Topic 409`). It reads each gap of `1 de janeiro de 2023`,
+  `31 de outubro` and `janeiro de 2026`. A `de` before a bare year (`de 2023`) stays unchecked, as
   English's word before a year does (decided 2026-11-18).
 - **The tax authority's own terms**, never a translation back from English: `CIRS`, `Anexo G`,
   `Anexo G1`, `Quadro 18A`, `mais-valias`, `Autoridade Tributária e Aduaneira`; a rule quoted from the
