@@ -9,6 +9,7 @@ import {
   type ReviewDraft,
   renderBody,
   sourceLink,
+  spellJoiners,
 } from './body.ts';
 
 const WJ = String.fromCodePoint(0x2060);
@@ -296,6 +297,47 @@ describe('renderBody', () => {
     expect(itemDomains('rules/pt-PT/ie.json', ALLOW)).toEqual([]);
     expect(itemDomains('i18n/pt-PT/learn/what-is-dca.mdx', ALLOW)).toEqual([]);
     expect(itemDomains('i18n/PT/jurisdictions/ie.json', ALLOW)).toEqual([]);
+  });
+
+  it('a change row spells each joiner of its old and new by code point, as a note does', () => {
+    const draft = good();
+    const change = draft.changes[0] as Change;
+    const row = {
+      ...change,
+      old: '55(1)\u2060(d), EUR 20\u00a0350',
+      new: '20\u202f350 and Lei 24\u2011D/2022',
+      quote: 'quote 55(1)\u2060(d) at 20\u00a0350',
+      reason: 'reason 20\u202f350',
+    };
+    const { body, problems } = renderBody({ ...draft, changes: [row] }, TEMPLATE, ALLOW);
+    expect(problems).toEqual([]);
+    const old = defuseCell('55(1)\\x{2060}(d), EUR 20\\x{00A0}350');
+    const now = defuseCell('20\\x{202F}350 and Lei 24\\x{2011}D/2022');
+    expect(body).toContain(`| ${old} | ${now} | ${defuseCell(row.quote)} |`);
+    expect(body).toContain(`| ${defuseCell(row.reason)} |`);
+    expect(defuseCell(row.quote)).toBe('quote 55\\(1\\)\\(d\\) at 20\u00a0350');
+    expect(defuseCell(row.reason)).toBe('reason 20\u202f350');
+  });
+
+  it('a hostile format character in a change row prints as its code point, never raw', () => {
+    const draft = good();
+    const change = draft.changes[0] as Change;
+    const row = { ...change, old: 'a\u202eb c\u200bd', new: 'e\u3000f\u{e0041}g' };
+    const { body, problems } = renderBody({ ...draft, changes: [row] }, TEMPLATE, ALLOW);
+    expect(problems).toEqual([]);
+    const cells = `| ${defuseCell('a\\x{202E}b c\\x{200B}d')} | ${defuseCell('e\\x{3000}f\\x{E0041}g')} |`;
+    expect(body).toContain(cells);
+    expect(body).not.toContain('\u202e');
+  });
+});
+
+describe('spellJoiners', () => {
+  it('spellJoiners writes every format and space character but U+0020 as upper-case hex', () => {
+    expect(spellJoiners('55(1)\u2060(d) 20\u00a0350 20\u202f350 24\u2011D')).toBe(
+      '55(1)\\x{2060}(d) 20\\x{00A0}350 20\\x{202F}350 24\\x{2011}D',
+    );
+    expect(spellJoiners('a\u00adb\u2009c\ufeffd\u0600e')).toBe('a\\x{00AD}b\\x{2009}c\\x{FEFF}d\\x{0600}e');
+    expect(spellJoiners('plain words, a-b \u2013 c')).toBe('plain words, a-b \u2013 c');
   });
 });
 
