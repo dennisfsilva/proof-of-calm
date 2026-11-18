@@ -384,7 +384,11 @@ fact to the window its URL names (the skill's §4 step 3).
    test fails while one stays. When a row moved to a publisher fact b's opening did not name, the
    review added it there in the order the clauses first name each publisher, with a serial comma
    from three on (`Coinbase Exchange, Bitstamp, and CoinMarketCap`), and removed a publisher no
-   clause names any more (decided 2026-11-18); §9 row b takes that opening as written. It also writes each `unloggedFalls` entry's `now` into `FALLS` in
+   clause names any more (decided 2026-11-18); §9 row b takes that opening as written. When the
+   cycles file's ETH row for the 2021–22 fall moved to Bitstamp, the log PR also rewrites the two
+   places that still describe its old series: §6's paragraph on the templates' ETH rows and the cycles file, and the comment above
+   `DATED` in `packages/content/src/fact-windows.test.ts`, which calls fact b's window its cycles
+   row's. It also writes each `unloggedFalls` entry's `now` into `FALLS` in
    `packages/content/src/cycles.test.ts` in place of its literal and removes the entry, since that
    test's stale check fails on an entry whose literal reads `now` or is gone. When `now` moves a
    row's high, it also writes the new `<coin> <high>` in place of the old one in that test's
