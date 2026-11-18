@@ -704,6 +704,11 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - A pattern a skill hands an agent to type spells every invisible character as `\x{…}`. In #376's
   rehearsal the agent typed the joiner class's raw U+00A0 into the Grep tool as U+0020, and the
   search missed two pins (#370 comment 6971507531, 2026-11-18).
+- An agent cannot type U+00A0 or U+202F: its Edit and Write tools write a typed one as U+0020,
+  while U+2060 and U+034F arrive intact. A skill or brief that needs one in a file names the JSON
+  escape `\u00a0`, keeps a module's edits clear of the line's U+00A0, and routes a fix that needs
+  a typed one to a note for the owner. #399's first rehearsal failed its module case on this
+  (#393 comment 6986113402, 2026-11-18).
 - Describe a check's character class by what its code reads and where everything else goes, not by
   listing kinds of characters. The three review rounds of fix/module-count-join each found another
   class its prose misdescribed (format, default-ignorable, control), and the branch waited at the
@@ -723,6 +728,10 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   6974076456).
 - Brief a rehearsal to probe the builder's own `open` item. Probing the skill builder's out-of-scope
   note gave that builder's fix round its main change (#380, 2026-11-18).
+- A rehearsal case that plants a defect the skill's own steps cannot put back ends in the finish's
+  refusal of the plant, not in the skill's verdict. Plant only what an allowed edit can undo, or
+  state the finish's expected refusal in the case's criterion. #399's second rehearsal ended this
+  way (#393 comment 6986664960, 2026-11-18).
 - For prose about a character class, brief the reviewer to probe one character of every general
   category and to report only a false sentence. With that brief, round 4's review of
   fix/module-count-join found one false sentence where each earlier round had found a new class

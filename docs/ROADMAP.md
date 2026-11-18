@@ -387,7 +387,15 @@ external links and the Risk link in the mobile export (M3).
   review skill's older gaps, three R7 neighbours (the profiles' joins class, a character reference
   in a module body, `pageSpaces`' copy of the page's white-space class), brand's three optional
   wording points, the eight gaps of #391's rehearsal and a search of the other e2e specs for
-  #392's double match move to #393, which comes before #271.
+  #392's double match move to #393, which comes before #271. #393 closed them. On 2026-11-18, #393
+  merged three changes. Four more e2e specs answer the coin history from fixtures as well as the
+  prices, so none of them reaches CoinGecko (#396). The content joins read the gap R7 reads,
+  default-ignorable code points included, and `pageSpaces` reads the page's white-space class from
+  the one place that defines it (#398). The review skill and `docs/CONTENT-OPS.md` close the skill's
+  older wording gaps, and a change row spells as `\x{HHHH}` every character a check's detail names
+  by its code point (#399). The review skill's remaining wording gaps move to #152, for the owner's
+  first real run. A hidden code point at a join's edge or inside a part, and character references
+  in a module body, move to #397. The Today-only e2e specs move to #395. All three come after M2.
   With #340, #343, #349, #355, #358, #361, #368, #370, #377, #381, #387, #388 and #393, pt-PT
   takes 22 build sessions more than #269 planned before German starts. A render-and-axe-only pt-PT
   story run waits for #271, once every namespace is translated. CSV import, free (ADR-0039), for the
