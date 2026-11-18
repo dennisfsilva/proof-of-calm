@@ -13,7 +13,9 @@
       },
       { "note": "Tratada como qualquer outra troca: não se declara; conta o valor detido a 1\u00a0de\u00a0janeiro." },
       { "note": "Não é um facto da box\u00a03: conta apenas o total detido a 1\u00a0de\u00a0janeiro." },
-      { "note": "Mover unidades entre carteiras próprias não altera nada; conta o total detido a 1\u00a0de\u00a0janeiro." },
+      {
+        "note": "Mover unidades entre carteiras próprias não altera nada; conta o total detido a 1\u00a0de\u00a0janeiro."
+      },
       {
         "note": "Não é facto da box\u00a03; aí conta o valor a 1\u00a0de\u00a0janeiro. Uma doação pode ter imposto sobre doações, que o donatário declara e em regra paga. Uma herança pode ter imposto sucessório: os herdeiros declaram ao herdar acima do montante isento."
       },
