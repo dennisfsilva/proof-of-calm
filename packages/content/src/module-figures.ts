@@ -3,6 +3,7 @@
 import type { LearnModule } from './loaders/modules.ts';
 import { printedGap, printedPercentText } from './percent-gap.ts';
 import { MODULE_PERCENT_JOINERS } from './percent-token.ts';
+import { pageSpaces } from './paragraphs.ts';
 import type { Problem } from './problem.ts';
 import type { ContentCoin } from './schema/coin.ts';
 import type { CycleDrawdown } from './schema/cycles.ts';
@@ -173,8 +174,6 @@ const COUNT_JOIN = new RegExp(
   'gu',
 );
 const q = (t: string) => printedPercentText(t, MODULE_PERCENT_JOINERS, COUNT_JOIN);
-/** A block's text with each run of the white space a page collapses as one U+0020, as a detail quotes it. */
-export const pageSpaces = (text: string): string => text.replace(/[ \t\n\r\f]+/gu, ' ');
 /** A block a closed section refuses, as a detail names it. */
 const named = (block: PageBlock) => {
   if (block.kind === 'element') return `the element <${block.name} />`;
