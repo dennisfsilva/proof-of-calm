@@ -181,6 +181,23 @@ describe('a law name, a date and a range in English prose (docs/CONTENT-STYLE.md
     expect(letters.flatMap(joins)).toEqual([]);
   });
 
+  it('reads no figure inside a URL, as the percent and grouping checks do (J1, J2)', () => {
+    const url = 'https://www.irs.gov/pub/irs-drop/n-23-27.pdf';
+    expect(joins(`See ${url}`)).toEqual([]);
+    expect(joins(`Notice${nbsp}2023-27, ${url}`)).toEqual([hyphened('2023-27')]);
+    expect(joins(`See Notice${nbsp}2023-${wj}27 at ${url} for 2023–2025.`)).toEqual([ranged('2023–2025')]);
+  });
+
+  it('starts a figure at a point after a letter, never at one inside a figure (J3, J4)', () => {
+    expect(joins('Under s.104-105 TCGA.')).toEqual([hyphened('104-105')]);
+    expect(joins('Under Rev.Proc.2025-32.')).toEqual([hyphened('2025-32')]);
+    expect(joins('Under s.104–105 TCGA.')).toEqual([ranged('104–105')]);
+    expect(joins('A rate of 1.5-2 points.')).toEqual([hyphened('1.5-2')]);
+    expect(joins('A rate of 1,5–2 points.')).toEqual([ranged('1,5–2')]);
+    const joined = [`Under s.104-${wj}105 TCGA.`, `Under Rev.Proc.2025-${wj}32.`, `Under s.104–${wj}105 TCGA.`];
+    expect(joined.flatMap(joins)).toEqual([]);
+  });
+
   it('refuses each ordinary gap of a date, naming its pair, and passes the joined forms', () => {
     expect(joins('From 1 Jan 2023.')).toEqual([dayed('1', 'Jan'), yeared('Jan', '2023')]);
     expect(joins('From Sept 2029.')).toEqual([yeared('Sept', '2029')]);
