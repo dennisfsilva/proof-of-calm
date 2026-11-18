@@ -36,8 +36,10 @@ const JOINS = new RegExp(
 );
 
 // The prose joins of a language (docs/CONTENT-STYLE.md §4): a closed list of law names, taken from a census of every
-// profile, and its month names. A language without an entry gets the code and form joins only.
-const PROSE_JOINS: Readonly<Record<string, { names: RegExp; months: RegExp }>> = {
+// profile, and its month names, with the word that links a date's parts where the language writes one (`1 de janeiro
+// de 2023`). A language without an entry gets the code and form joins only.
+type ProseJoins = { names: RegExp; months: RegExp; linker?: string };
+const PROSE_JOINS: Readonly<Record<string, ProseJoins>> = {
   en: {
     names:
       /§§?|[Aa]rts?\.|[Aa]rticles?|[Ss]ections?|s{1,2}\.|[Nn]os?\.|n\.ºs?|n°|\(EU\)|Orden|Nr\.|c\.|[Ss]entence|[Pp]aragraph|Part|Lei|Ley|Law|L\.|Decreto-Lei|D\.Lgs\.|BGBl\.|TCA|TCGA|SolZG|Act|Bill|Budget|Belastingplan|BMF|Circolare|Notice|Topic|Publication|Pub\.|Proc\./u,
@@ -45,16 +47,26 @@ const PROSE_JOINS: Readonly<Record<string, { names: RegExp; months: RegExp }>> =
     months:
       /January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sept?|Oct|Nov|Dec/u,
   },
+  // D6 (2026-11-18), from the census of the pt-PT overlays; months in lower case (CONTENT-STYLE §9). A `de` before a
+  // bare year (`de 2023`) is no date, as English's word before a year is not.
+  'pt-PT': {
+    names: /§§?|[Aa]rts?\.|[Aa]rtigos?|n\.ºs?|Decreto-Lei|Lei|[Ss]ecção|[Ff]rase|[Pp]arágrafo|[Ee]xemplo|[Cc]ódigo/u,
+    months: /janeiro|fevereiro|março|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro/u,
+    linker: 'de',
+  },
 };
 const WJ = String.fromCodePoint(0x2060);
 // A law's number: digits first, or capitals before a slash and a digit (`HAC/277/2026`), then letters, digits, and
 // points, slashes or hyphens between them, a hyphen-minus with the U+2060 after it (`24‑D/2022`, `2026-534`).
 const LAW_NUMBER = String.raw`(?:\d[\d\p{L}]*|\p{Lu}+(?=/\d))(?:[./‑-]${WJ}?[\d\p{L}]+)*`;
-const prose = ({ names, months }: { names: RegExp; months: RegExp }) => ({
+// The gap between two parts of a date: a space, or a space, the linker and a space; without a linker its two groups
+// match nothing, so that every language's dates have the same groups.
+const link = (linker?: string) => (linker === undefined ? String.raw`(\s+)()()` : String.raw`(\s+)(${linker})(\s+)`);
+const prose = ({ names, months, linker }: ProseJoins) => ({
   names: new RegExp(String.raw`(?<![\p{L}\d.§])(${names.source})(\s+)(${LAW_NUMBER})`, 'gu'),
-  // `D Month YYYY`, `D Month` and `Month YYYY`; a month alone is no date.
+  // `D Month YYYY`, `D Month` and `Month YYYY`, or `D de M de YYYY` with a linker; a month alone is no date.
   dates: new RegExp(
-    String.raw`(?<![\p{L}\d.,])(?:(\d{1,2})(\s+))?(${months.source})(?![\p{L}\d])(?:(\s+)(\d{4})(?!\d))?`,
+    String.raw`(?<![\p{L}\d.,])(?:(\d{1,2})${link(linker)})?(${months.source})(?![\p{L}\d])(?:${link(linker)}(\d{4})(?!\d))?`,
     'gu',
   ),
 });
@@ -83,6 +95,24 @@ const joined = (path: string, field: string, pair: string, figure: string, gap: 
         },
       ];
 
+/** The gap between two parts of a date (`the day "1" and its month`), or with a linker the gaps on its either side
+ * (`the day "1" and its linker`, `the linker "de" and its month`). */
+function dateGaps(
+  path: string,
+  field: string,
+  [left, before]: [string, string],
+  [right, after]: [string, string],
+  gap: string,
+  linker: string,
+  linkerGap: string,
+): Problem[] {
+  if (linker === '') return joined(path, field, `the ${left} ${typed(before)} and its ${right}`, after, gap);
+  return [
+    ...joined(path, field, `the ${left} ${typed(before)} and its linker`, linker, gap),
+    ...joined(path, field, `the linker ${typed(linker)} and its ${right}`, after, linkerGap),
+  ];
+}
+
 /** A language's law names and date parts not joined by U+00A0, and its dashes and hyphens between figures without U+2060. */
 function proseProblems(path: string, field: string, text: string, language: string): Problem[] {
   const lists = Object.hasOwn(PROSE_JOINS, language) ? PROSE_JOINS[language] : undefined;
@@ -92,10 +122,15 @@ function proseProblems(path: string, field: string, text: string, language: stri
     ...[...text.matchAll(names)].flatMap(([, name = '', gap = '', number = '']) =>
       joined(path, field, `the name ${typed(name)} and its number`, number, gap),
     ),
-    ...[...text.matchAll(dates)].flatMap(([, day, dayGap = '', month = '', yearGap = '', year]) => [
-      ...(day === undefined ? [] : joined(path, field, `the day ${typed(day)} and its month`, month, dayGap)),
-      ...(year === undefined ? [] : joined(path, field, `the month ${typed(month)} and its year`, year, yearGap)),
-    ]),
+    ...[...text.matchAll(dates)].flatMap(([, day, dayGap = '', dayLink = '', monthGap = '', month = '', ...rest]) => {
+      const [yearGap = '', yearLink = '', linkGap = '', year] = rest;
+      return [
+        ...(day === undefined ? [] : dateGaps(path, field, ['day', day], ['month', month], dayGap, dayLink, monthGap)),
+        ...(year === undefined
+          ? []
+          : dateGaps(path, field, ['month', month], ['year', year], yearGap, yearLink, linkGap)),
+      ];
+    }),
     ...[...text.matchAll(RANGE)].map(([range]): Problem => {
       const detail = `${field}: the range ${typed(range)} can break after its dash (docs/CONTENT-STYLE.md §4)`;
       return { path, code: 'range-join', detail };
