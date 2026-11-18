@@ -32,7 +32,10 @@ type Place = {
   readonly listNumbers?: readonly number[];
 };
 
-/** A block's text as the parser decoded it, before the default-ignorable code points went; set only when one went. */
+/**
+ * A block's text as the parser decoded it, before the page removed its default-ignorable code points; set only when
+ * it removed one.
+ */
 type Written = { readonly written?: string };
 /** One block of the page: a heading, a paragraph or a code block with its text, or a flow element by name. */
 export type PageBlock = (
