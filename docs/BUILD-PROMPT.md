@@ -789,6 +789,10 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   through a branch's review, a branch whose Vercel side another branch's preview checklist already
   proved merges on its preview cases run against a local `VERCEL_ENV=preview` build served by
   `tools/serve/vercel-local.ts` (#405 after #403's run 44389797339, 2026-11-18).
+- Agents that each install a fresh worktree do not start their installs together: one installs and
+  builds, and the others reuse its worktree. #271's pt-PT sweep ran
+  `pnpm install --frozen-lockfile --offline` beside the changed-flows evaluator's, started in the same
+  second; it stalled for about 40 minutes and the sweep walked no flow (2026-11-18).
 
 ## Known gaps
 
