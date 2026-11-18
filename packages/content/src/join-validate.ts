@@ -21,7 +21,7 @@ const RUN = `(${SPACE}+)`;
 // The ISO codes the live profiles write beside a figure, and the words that name a form or one of its boxes.
 const CODE = '(EUR|GBP|USD)';
 const FORM =
-  '((?:[Aa]nexo|[Aa]nnexe?|[Bb]ox(?:es)?|[Cc]ampo|[Ff]ield|[Ff]orm|[Ff]ormulário|[Mm]odelo|[Mm]odello|[Qq]uadro|[Ss]chedule)s?)';
+  '((?:[Aa]nexo|[Aa]nnexe?|[Bb]ox(?:es)?|[Cc]ampo|[Ff]ield|[Ff]orm|[Ff]ormulaire|[Ff]ormulário|[Mm]odelo|[Mm]odello|[Qq]uadro|[Ss]chedule)s?)';
 // A money figure, its groups joined by a point, a comma or a space before three digits (an ordinary space between
 // groups is `number-group`'s), and a form's number: digits with their letters, points and hyphens (`9.4`, `1099-DA`,
 // `3AN`), or capitals with their digits (`G1`, `RW`, `D-100`), never a word (`Modello Redditi`).
@@ -46,9 +46,9 @@ const JOINS = new RegExp(
 
 // The prose joins of a language (docs/CONTENT-STYLE.md §4): a closed list of law names, taken from a census of every
 // profile, its month names, with the word that links a date's parts where the language writes one (`1 de janeiro
-// de 2023`), and its unit words, each joined to the figure before it (`365 days`, `2.º Suplemento`; decided 2026-11-18). A
-// language without an entry gets the code and form joins only.
-type ProseJoins = { names: RegExp; months: RegExp; linker?: string; units: RegExp };
+// de 2023`), and its unit words where it has any, each joined to the figure before it (`365 days`, `2.º Suplemento`;
+// decided 2026-11-18). A language without an entry gets the code and form joins only.
+type ProseJoins = { names: RegExp; months: RegExp; linker?: string; units?: RegExp };
 const ENGLISH_NAMES =
   /§§?|[Aa]rts?\.|[Aa]rticles?|[Ss]ections?|s{1,2}\.|[Nn]os?\.|n\.ºs?|n°|\(EU\)|Orden|Nr\.|c\.|[Ss]entence|[Pp]aragraph|Part|Lei|Ley|Law|L\.|Decreto-Lei|D\.Lgs\.|BGBl\.|TCA|TCGA|SolZG|Act|Bill|Budget|Belastingplan|BMF|Circolare|Notice|Topic|Publication|Pub\.|Proc\.|PIV|Série/u;
 const PROSE_JOINS: Readonly<Record<string, ProseJoins>> = {
@@ -74,12 +74,28 @@ const PROSE_JOINS: Readonly<Record<string, ProseJoins>> = {
     // `Suplemento` only after an ordinal figure (`2.º Suplemento`, CONTENT-STYLE §9): `2 Suplemento` is no unit.
     units: new RegExp(String.raw`dias?|semanas?|mês|meses|anos?|(?<=\d\.º${SPACE}+)Suplemento`, 'u'),
   },
+  // #381 (2026-11-18), for the source titles only: each language's names from a census of its own titles, without
+  // English's; its months in lower case, all twelve. No unit word follows a figure in them, so they add none.
+  es: {
+    names: /Ley|Real Decreto|Orden|art\./u,
+    months: /enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre/u,
+    linker: 'de',
+  },
+  fr: {
+    names: /LOI n°|article/u,
+    months: /janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre/u,
+  },
+  // `Circolare` and `Decreto` stand before `n.` or a title in Italy's, never before a number.
+  it: {
+    names: /Legge|n\.|art\.|fascicolo/u,
+    months: /gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre/u,
+  },
 };
 // Every language's unit words, read in every text a language with lists writes: a profile quotes its country's law in
 // that law's language (`365 dias` in Portugal's English card; decided 2026-11-18). Two closed lists make one closed list.
 const UNITS = new RegExp(
   Object.values(PROSE_JOINS)
-    .map(({ units }) => units.source)
+    .flatMap(({ units }) => (units === undefined ? [] : [units.source]))
     .join('|'),
   'u',
 );
@@ -208,10 +224,18 @@ const hyphenProblem = (path: string, field: string, figure: string): Problem => 
   detail: `${field}: the range or number ${quoted(figure)} can break after its hyphen (docs/CONTENT-STYLE.md §4)`,
 });
 
-/** Each source title's joins, read in the language its `lang` names: `en` as English, `pt` as pt-PT; a title in
- * any other language stays unchecked until that language has its lists. A title of any language never holds U+2011:
- * it keeps the published hyphen-minus (docs/CONTENT-STYLE.md §4). */
-const TITLE_LANGUAGES: Readonly<Record<string, string>> = { en: 'en', pt: 'pt-PT' };
+/** Each source title's joins, read in the language its `lang` names: `en` as English, `pt` as pt-PT, `es`, `fr` and
+ * `it` with their own lists, `nl` with the code and form joins only; a title in any other language stays unchecked
+ * until that language has its lists. A title of any language never holds U+2011: it keeps the published hyphen-minus
+ * (docs/CONTENT-STYLE.md §4). */
+const TITLE_LANGUAGES: Readonly<Record<string, string>> = {
+  en: 'en',
+  pt: 'pt-PT',
+  es: 'es',
+  fr: 'fr',
+  it: 'it',
+  nl: 'nl',
+};
 export const titleJoinProblems = (path: string, profile: CountryProfile): Problem[] =>
   sourceTitles(profile).flatMap(([field, text, lang]) => {
     const language = Object.hasOwn(TITLE_LANGUAGES, lang) ? TITLE_LANGUAGES[lang] : undefined;
