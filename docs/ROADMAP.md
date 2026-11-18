@@ -346,11 +346,12 @@ external links and the Risk link in the mobile export (M3).
   review-content skill's search and route gaps after two dry rehearsals (#373). Twelve items move to
   #370, which comes before #271: among them a Learn module's count joined to its noun and the source
   titles in de, es, fr, it and nl; the rest are check details and the skill's words. On 2026-11-18,
-  #370 merged one printing of every quoted text and gap in the content checks' details (#375) and
-  the review-content skill's routes for a figure, citation or range join and its test search
-  (#376). The count join's branch, fix/module-count-join, waits at ccf65959 with two docs findings
-  after two fix rounds: round 2's review found its prose misdescribing a character class again, and
-  the skill's round limit holds it. Nine items move to #377, which comes before #271.
+  #370 merged two changes: one printing of every quoted text and gap in the content checks'
+  details (#375), and the review-content skill's routes for a figure, citation or range join,
+  with its test search (#376). The count join's branch, fix/module-count-join, waits at ccf65959
+  with two docs findings after two fix rounds. Round 2's review found its prose misdescribing a
+  character class again, and the round limit holds the branch. Nine items move to #377, which
+  comes before #271.
   With #340, #343, #349, #355, #358, #361, #368, #370 and #377, pt-PT takes 18 build sessions more than
   #269 planned before German starts. A render-and-axe-only pt-PT
   story run waits for #271, once every namespace is translated. CSV import, free (ADR-0039), for the

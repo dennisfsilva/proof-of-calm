@@ -693,9 +693,10 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   data change of that size goes to a script the builder writes and reads back file by file, or to a
   second builder (2026-11-18).
 - The Edit and Write tools can turn a typed `\uXXXX` escape into its character and can miss a raw
-  invisible character in old text, so a builder writes an escape or a joiner from a script that
-  builds it with `chr()` and checks the bytes with `od -c`. Two of #370's confirmed findings came
-  from it: #376's two literal `\u00a7` and #375's ADR code span holding a raw U+00A0 (2026-11-18).
+  invisible character in old text. A builder writes an escape or a joiner from a script that
+  builds it with `chr()`, then checks the bytes with `od -c`. Two of #370's confirmed findings
+  came from it: #376's two literal `\u00a7` and #375's ADR code span holding a raw U+00A0
+  (2026-11-18).
 - A pattern a skill hands an agent to type spells every invisible character as `\x{…}`. In #376's
   rehearsal the agent typed the joiner class's raw U+00A0 into the Grep tool as U+0020, and the
   search missed two pins (#370 comment 6971507531, 2026-11-18).
