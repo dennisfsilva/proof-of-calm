@@ -521,6 +521,21 @@ describe("each detail quotes its sentence and names its figure and rule (§4's l
     expect(await details(source)).toEqual([expected]);
   });
 
+  // A module joiner reads as written only before a percent sign, the one place the check accepts it (fix round 1).
+  const NBSP = String.fromCodePoint(0xa0);
+  it('names a no-break space that sits anywhere but before a percent sign', async () => {
+    const found = await details(body(`${S1} ${S2.replace('Ether fell', `Ether${NBSP}fell`)}`));
+    const neither = found.find((detail) => detail.includes('matches neither shape'));
+    expect(neither).toContain('"EtherU+00A0 fell 94');
+    expect(neither).not.toContain(`Ether${NBSP}`);
+  });
+
+  it('quotes a no-break space before a percent sign as written', async () => {
+    const [first] = await details(body(`${nb(S1)} ${nb(S2)} *Each* fall is 1 of 9.`));
+    expect(first).toContain(`"${nb(S1)} ${nb(S2)} Each fall is 1 of 9."`);
+    expect(first).not.toContain('U+00A0');
+  });
+
   it('1: a translation names its language', async () => {
     const [first] = await problemsOf(body(), ROWS, { language: 'de' });
     expect(first?.detail).toBe(

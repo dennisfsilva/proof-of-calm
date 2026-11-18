@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { printedGap, printedText } from './percent-gap.ts';
+import { printedGap, printedPercentText, printedText } from './percent-gap.ts';
 
 // One printing for every quoted text and every gap in a detail (ADR-0057's Corrections, 2026-11-18): a hidden or
 // look-alike character prints by its code point, so a refused joiner never reads as the allowed form.
@@ -24,6 +24,17 @@ describe('printedText', () => {
     const nbsp = char(0xa0);
     expect(printedText(`Lei 24-D, 40${nbsp}%`, [nbsp])).toBe(`Lei 24-D, 40${nbsp}%`);
     expect(printedText(`40${nbsp}%`, [])).toBe('40U+00A0 %');
+  });
+});
+
+describe('printedPercentText', () => {
+  it('keeps a joiner as written only directly before a percent sign and names it anywhere else', () => {
+    const [nbsp, nnbsp] = [char(0xa0), char(0x202f)];
+    const joiners = [nbsp, nnbsp];
+    expect(printedPercentText(`Ether${nbsp}fell 94${nbsp}% and 82${nnbsp}%.`, joiners)).toBe(
+      `EtherU+00A0 fell 94${nbsp}% and 82${nnbsp}%.`,
+    );
+    expect(printedPercentText(`4${nnbsp} %, 9${char(0x2009)}%`, joiners)).toBe('4U+202F  %, 9U+2009 %');
   });
 });
 
