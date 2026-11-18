@@ -108,13 +108,19 @@ Arguments: $ARGUMENTS
   owner makes the change, in the English and translated files and in a reviewed shape, in a pull
   request of their own. A change that draws a refusal on a translated module, a chart row's too,
   takes only the note `translated module for the owner: <path>; <item> <field>: <value>; …;
-  <sources>`: the translated module's path (`i18n/pt-PT/learn/cycles.mdx`), then each file and
+  <sources>; tests: <file>:<line> …`: the translated module's path (`i18n/pt-PT/learn/cycles.mdx`), then each file and
   field the change reached, English or translated (the fact, the English module's `body`, a chart
   row's `low` and `fall`, each template copy, `i18n/pt-PT/templates/accumulate.json explanation`),
   named as a `changes` row names it, with its new value as that file writes it (a fact's changed
   clause, not its whole `value`) and, for a figure the translated module shows, in the
   translation's number format too (fact a's `−94.0 %`, pt-PT's `−94,0 %`), then every URL the
-  values rest on, a fall's `source` and `lowSource` both. Any other chart row's change takes
+  values rest on, a fall's `source` and `lowSource` both, then `tests:` and each test that failed
+  before the revert, `agent-draft`'s aside, by the file and line its failure prints: run
+  `pnpm --filter @proofofcalm/content test` with the change in place, before you revert it. For a
+  BTC row they include the `FALLS` row's tie and the Cycles module's pins in
+  `packages/content/src/cycles.test.ts`, the rows in `packages/content/src/loaders/templates.test.ts`
+  and the EDUCATION §9 tie in `packages/content/src/facts.test.ts`; the owner changes each with
+  the data in that pull request. Any other chart row's change takes
   `chart row for the owner: <coin>, high <high>, low <low>, fall <fall> %, <source> <lowSource>`,
   the values its sources give (`<coin>` the row's ticker, `SOL`; the `lowSource` only when the row
   has one), or for a row you would
@@ -187,7 +193,8 @@ For each profile in `packages/content/jurisdictions/`:
    field with what the source says today.
    - `of` counts the sources on the item's list: the country's key in
      `packages/content/sources.allow.json` plus `EU`, or `facts`. Count each distinct URL once,
-     however many entries cite it. A `drawdowns` row's `lowSource` is a URL of its own and counts.
+     however many entries cite it, as the file cites it after your run: a URL you replaced counts
+     at its new value only. A `drawdowns` row's `lowSource` is a URL of its own and counts.
      A template's `of` counts every URL it cites; the cycles file's, every `source` and `lowSource`
      of its rows; the facts file's, every URL its entries cite and the `source` and `lowSource` of
      each row §4 step 3 checks a clause against (29 on 2026-11-17: 26 cited, 3 of the BTC 2011 and
@@ -269,11 +276,13 @@ For each profile in `packages/content/jurisdictions/`:
 
 1. Re-read each source. When the number or the date changed, update the entry; when the source is
    gone, name it in the draft's notes. `j.next-halving`'s source names a fixed height, and
-   `docs/EDUCATION.md` §9's rules for use recompute it from the current height: read mempool.space's
-   tip height and the times of the tip, of block 840,000 and of the block 2,016 below the tip,
-   write the value in its shape, set its `source` to that tip's `api/block-height/<height>`
-   request, give that URL as the `changes` row's `url` and name the other requests in its `reason`.
-   Every change to a fact,
+   `docs/EDUCATION.md` §9's rules for use recompute it from the current height. Read the tip's
+   height from `https://mempool.space/api/v1/blocks` (its first block's `height`), then three
+   requests, each of which answers its own block first with its `height` and `timestamp`:
+   `https://mempool.space/api/v1/blocks/<tip>`, `https://mempool.space/api/v1/blocks/840000` and
+   `https://mempool.space/api/v1/blocks/<tip − 2016>`, the heights written as digits. Write the
+   value in its shape, set its `source` to the first of the three, give that URL as the `changes`
+   row's `url`, and name the other two by their full URLs in its `reason`. Every change to a fact,
    template, cycle row or module sentence needs a quoted allow-listed passage and the event's date,
    both in the draft. A row's `fall` is the nearest whole percent of (high − low) / high: 96.923 %
    is 97, never 96.
@@ -284,9 +293,16 @@ For each profile in `packages/content/jurisdictions/`:
      "every template drawdown appears in the cycles file" and "each row of drawdowns.json reads the
      same fall as facts a and b"), so `pnpm run validate:content` names neither; the template's
      copy then draws its figure refusals, fixed as §1 says. No check reads a module's quote of a
-     clause outside a chart section, so search `learn/*.mdx` and each locale's `learn/*.mdx` for
-     the clause's old figures: change an English hit's figure as a module sentence, and treat a hit
-     in a translated module as §1's translated-module case.
+     clause outside a chart section, so search the modules for the clause's old figures: Grep with
+     `path` `packages/content`, `glob` `**/learn/*.mdx` (the English modules and every
+     `i18n/<locale>/learn/*.mdx`, a translated file even when its English file has no hit),
+     `output_mode` `content` and `multiline` true, and one pattern that joins with `|` each old
+     figure's digits, with `[ ,.  ]?` between digit groups and `[.,]` as the decimal
+     point, and each old date by its day and year, `\b<day>\b\D{1,20}\b<year>\b`. For `$3,122
+     (15 Dec 2018), −84.1 %` that is `3[ ,.  ]?122|84[.,]1|\b15\b\D{1,20}\b2018\b`,
+     which finds `$3,122`, `3122 USD`, `−84,1 %` and `15 de dezembro de 2018`. Read each hit:
+     change an English hit's figure as a module sentence, and treat a hit in a translated module
+     as §1's translated-module case.
    - Set a fact's or a `drawdowns` row's `accessed` to the day you read its sources only when the
      file's `reviewed` row will show every source read (`read` equals `of`). After a partial
      review leave it as it was, changed row or not, and give the day as the `changes` row's
@@ -346,8 +362,10 @@ goes into the draft's `notes` and your closing report. When the run holds a note
 no file, set `reviewedBy: agent-draft` on one fact entry or file a note names, one for the run
 however many notes it holds, since the pull request carries them all (the cycles file
 for a chart row's note), never on a module, for which the finish would ask a `changes` row: for a
-module's note, on the fact entry or cycles file its figure rests on. Give that file its `reviewed`
-row. The pull request then carries the note: the finish accepts a change of the mark alone and
+module's note, on the fact entry or cycles file its figure rests on. After §1's revert, a
+translated module's note included, the mark goes on the cycles file when the reverted change
+reached a chart row, and otherwise on the fact entry the note names first. Give that file its
+`reviewed` row. The pull request then carries the note: the finish accepts a change of the mark alone and
 refuses a run with nothing staged. Leave the rules files as the generator writes them.
 The finish refuses a changed entry at any other value.
 
@@ -364,10 +382,19 @@ The finish refuses a changed entry at any other value.
    name its file and line and both values in the draft's notes and your closing report, and say in
    both that `verify` fails on `pnpm test` until the owner removes that assertion in a pull request
    of its own (`docs/ENGINEERING.md` §2): one changed to your new value would fail on main, where
-   the data still holds the old one. In `packages/content/src/cycles.test.ts`, changing fact a's or
-   b's clause (§4 step 1) meets a chart row's tie to it, but each literal of its `FALLS` table
-   that your change replaced (a clause's one-decimal fall, a row's high or publisher) is such a
-   test: name it as above. For the tie
+   the data still holds the old one. In `packages/content/src/cycles.test.ts`, a chart row's change
+   meets its tie to fact a's or b's clause (§4 step 1). A literal of its `FALLS` table that your
+   change replaced (a clause's one-decimal fall, a row's high or publisher) takes no such removal:
+   copy the literal as the test writes it and write the note
+   `FALLS entry for the owner: packages/content/src/cycles.test.ts:<line>; was <literal>; now <entry>`,
+   `<entry>` the same literal with your values, for example
+   `was { row: ['ETH', '2021-11-10', COINBASE], fact: [B, 'ETH 2022', '−81.9 %', COINBASE] }; now { row: ['ETH', '2021-11-10', COINBASE], fact: [B, 'ETH 2022', '−82.5 %', COINBASE] }`.
+   Say in the notes and your closing report that the owner's pull request to main adds the entry
+   to `unloggedFalls` in that test, keyed `<coin> <high>` of the literal (`ETH 2021-11-10`), and
+   removes it when this one closes unmerged or no longer holds the new values
+   (`docs/CONTENT-OPS.md` §8 step 4). The test's Coinbase list and `unregained` read their keys
+   through the same entries. A change §1 reverted takes no such note: its `tests:` list names the
+   literal. For the tie
    of a fact's value to its `docs/EDUCATION.md` §9 row (`packages/content/src/facts.test.ts`), say
    instead that the owner's pull request to main records the fact's old and new value as an
    `unlogged` entry in that test and keeps the tie, and that the owner removes that entry in a pull request to main when this
