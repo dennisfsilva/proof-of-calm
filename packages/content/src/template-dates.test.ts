@@ -167,6 +167,15 @@ describe('the template date check (docs/CONTENT-STYLE.md §4)', () => {
     );
   });
 
+  // D4 of ADR-0057's Corrections (2026-11-18): a detail prints the text it quotes by code point (printedText).
+  it('names a refused U+2009, U+00A0, U+2060 and U+0085 in a broken placeholder and a month name by code point', () => {
+    const explanation = 'Held\u2009until\u00a0June 2028. Sold from {date:last\u2060Buy\u0085.';
+    expect(dateCodes([file(TWO, template({ explanation }))])).toEqual([
+      'template-date-unresolved: explanation: "{date:lastU+2060 BuyU+0085 ." is not a whole placeholder',
+      'template-date-month: explanation: "June" is a month name; write {date:<field>} (docs/CONTENT-STYLE.md §4)',
+    ]);
+  });
+
   it('reads “may”, “out” and “set” as words, not months', () => {
     const oneLine = 'The plan may not come true; set it once, and money comes out.';
     expect(dateCodes([file(TWO, template({ oneLine }))])).toEqual([]);

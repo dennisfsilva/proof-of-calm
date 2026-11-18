@@ -249,7 +249,7 @@ describe('the trigger reads the whole explanation: no break hides it (round 4 of
 
   it('names the match across the break in its detail', () => {
     expect(run('Solana fell 15 per\n\ncent.').map(({ detail }) => detail)).toEqual([
-      'explanation: "per\\n\\ncent" spans a paragraph break and matches no shape of a fall or a share; ' +
+      'explanation: "perU+000A U+000A cent" spans a paragraph break and matches no shape of a fall or a share; ' +
         'R4 (docs/CONTENT-STYLE.md §4)',
     ]);
   });
@@ -467,5 +467,24 @@ describe('the details (D17 of #318: a datum written in passes, one step past it 
     expect(details).toContain(
       `explanation: "15 %" is not LINK, which has no share in "Chainlink: 15 % of each amount."; R3 (docs/CONTENT-STYLE.md §4)`,
     );
+  });
+});
+
+// D4 of ADR-0057's Corrections (2026-11-18): a detail prints the figures and the sentence it quotes by code point.
+describe('templateFigureProblems prints its quoted text by code point (printedText)', () => {
+  const details = (explanation: string) => run(explanation).map(({ detail }) => detail);
+
+  it('names a refused U+2009, U+00A0, U+2060 and U+0085 in the figure and the sentence', () => {
+    expect(details('Bitcoin\u2060 takes 40\u00a0% of\u2009each\u0085 amount.')).toEqual([
+      'explanation: "40U+00A0 %" matches no shape of a fall or a share in "BitcoinU+2060  takes 40U+00A0 % ofU+2009 ' +
+        'eachU+0085  amount." (BTC: fall 78 %, share 40 %); R4 (docs/CONTENT-STYLE.md §4)',
+    ]);
+  });
+
+  it('names them in a match across a paragraph break, with no JSON escape', () => {
+    expect(details('Solana fell 15 per\u2009\u00a0\n\ncent.')).toEqual([
+      'explanation: "perU+2009 U+00A0 U+000A U+000A cent" spans a paragraph break and matches no shape of a fall or a ' +
+        'share; R4 (docs/CONTENT-STYLE.md §4)',
+    ]);
   });
 });
