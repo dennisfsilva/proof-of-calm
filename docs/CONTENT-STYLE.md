@@ -453,8 +453,8 @@ every title. Its words stay as published, so the ban list and `number-unit-hyphe
 and a translation cannot change it (#368, decided 2026-11-18). The joins check reads the whole
 title, its hyphen rules included (`range-join` refuses a hyphen-minus with no U+2060 after it in a
 law number or before a Latin ordinal suffix). `pnpm validate:content` refuses U+2011 in any
-title, which keeps the published U+002D, with U+2060 after it inside a law number (`range-join`,
-decided 2026-11-18). A pending change's source is not shown and stays unchecked.
+title (`range-join`, decided 2026-11-18): a title keeps the published U+002D, with U+2060 after it
+inside a law number. A pending change's source is not shown and stays unchecked.
 
 `pnpm validate:content` refuses other grouping beside a currency code (`number-group`). It reads
 each figure as English does (a comma or a space between groups, a point before the decimals) and
