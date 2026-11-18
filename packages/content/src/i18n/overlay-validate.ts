@@ -4,8 +4,8 @@
 // the percent joiner, the 60 words, a template's placeholders against its dates and month names) are validate.ts's,
 // passed in. Pure.
 import { numberLocaleFor } from '../loaders/locales.ts';
-import { printedGap } from '../percent-gap.ts';
-import { decimalSeparator, escaped, PERCENT_FOLLOWS } from '../percent-validate.ts';
+import { printedGap, printedText } from '../percent-gap.ts';
+import { decimalSeparator, PERCENT_FOLLOWS } from '../percent-validate.ts';
 import { type Problem, schemaProblems } from '../problem.ts';
 import { FactSchema } from '../schema/fact.ts';
 import { type CountryProfile, CountryProfileSchema } from '../schema/jurisdiction.ts';
@@ -96,10 +96,11 @@ const percentsIn = (text: string, locale: string) =>
     .join(', ') || 'none';
 
 /**
- * The figures of a text as it writes them, so `cited` never names a figure its writer did not cite. The detail names
- * no computed fix: the translator copies English's figure as written (ADR-0057's entry decided 2026-11-17).
+ * The figures of a text as it writes them, a group joiner by its code point (printedText), so `cited` never names a
+ * figure its writer did not cite. The detail names no computed fix: the translator copies English's figure as written
+ * (ADR-0057's entry decided 2026-11-17).
  */
-const written = (text: string) => [...text.matchAll(NUMBER)].map(([run]) => escaped(run)).join(' ') || 'none';
+const written = (text: string) => [...text.matchAll(NUMBER)].map(([run]) => printedText(run, [])).join(' ') || 'none';
 
 /** Every way the overlay departs from English; the empty list is a pass. */
 export function overlayProblems(
