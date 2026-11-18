@@ -8,7 +8,7 @@
   "dateFormatLocale": "es-ES",
   "timezones": ["Europe/Madrid", "Atlantic/Canary", "Africa/Ceuta"],
   "taxYear": { "start": "01-01", "end": "12-31" },
-  "filingNote": "Calendar tax year. The Renta return (Modelo\u00a0D-100) for 2025 is filed from 8\u00a0April to 30\u00a0June\u00a02026 (Orden HAC/277/2026); each year an order sets the dates. The return on crypto held abroad (Modelo\u00a0721): 1\u00a0January to 31\u00a0March.",
+  "filingNote": "Calendar tax year. The Renta return (Modelo\u00a0D-100) for 2025 is filed from 8\u00a0April to 30\u00a0June\u00a02026 (Orden\u00a0HAC/277/2026); each year an order sets the dates. The return on crypto held abroad (Modelo\u00a0721): 1\u00a0January to 31\u00a0March.",
   "computationModel": { "kind": "per-lot" },
   "holdingRule": { "kind": "none" },
   "holdingRuleOverrides": [],
