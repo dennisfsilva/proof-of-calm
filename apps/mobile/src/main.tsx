@@ -3,6 +3,7 @@ import {
   type Boot,
   bootLanguage,
   I18nProvider,
+  listedLanguages,
   localStorageOrNull,
   messageRegistry,
   readLanguage,
@@ -17,13 +18,15 @@ import './app.css';
 // behind the hash of the one document, so the wrapper's file server never resolves a deep path. No
 // service worker (the factory defines VITE_SERVICE_WORKER off, and the shell gets no `registerUpdates`)
 // and the API at the absolute origin the factory defines as VITE_API_BASE.
-// The UI language as the web host boots it (ADR-0023; apps/web/src/main.tsx says how).
+// The UI language as the web host boots it (ADR-0023; apps/web/src/main.tsx says how); the factory's flag is
+// `visible` on this host, so Settings offers English alone.
+const LANGUAGES = listedLanguages(__POC_LANGUAGES__);
 
 function App({ boot: { language, messages }, services }: { boot: Boot; services: Services }) {
   return (
     <ServicesProvider services={services}>
       <NavigationProvider location="hash">
-        <I18nProvider locale={language} messages={messages}>
+        <I18nProvider locale={language} messages={messages} languages={LANGUAGES}>
           <AppShell>
             <AppRoutes />
           </AppShell>
