@@ -6,7 +6,7 @@ version and its date (`docs/RELEASE.md`).
 
 ## Unreleased
 
-There has been no release yet. This section lists what the app does on 17 Nov 2026, before its first
+There has been no release yet. This section lists what the app does on 18 Nov 2026, before its first
 release.
 
 ### The plan and the monthly loop
@@ -45,6 +45,8 @@ release.
 - Portugal's rules show their counts as numerals, such as 5 years and 6 brackets.
 - In the rules' text, a law's number such as 24‑D/2022 never breaks at its hyphen. A source's
   title writes the number as the source does.
+- On a country's card and page, a line never ends between a law's name and its number (§ 23),
+  between a date's parts (31 July 2027) or after the dash of a range (2023–2025).
 
 ### Learn
 
