@@ -79,9 +79,9 @@ describe('moduleCountProblems: a count and its listed noun, joined by one U+00A0
     expect(codes('In the chart, bitcoin had 4 falls of more than 70 % between 2011 and 2025.', 'en')).toEqual([]);
     expect(codes('No gráfico, a bitcoin teve 4 quedas de mais de 70 % entre 2011 e 2025.', 'pt-PT')).toEqual([]);
     expect(codes('From 2013 the highs came about 4 years apart, on 28 Nov 2012 and 9 Jul 2016.', 'en')).toEqual([]);
-    expect(codes('A partir de 2013, os máximos chegaram com 4 anos de intervalo, a 8 de junho de 2011.', 'pt-PT')).toEqual(
-      [],
-    );
+    expect(
+      codes('A partir de 2013, os máximos chegaram com 4 anos de intervalo, a 8 de junho de 2011.', 'pt-PT'),
+    ).toEqual([]);
     expect(codes('It has 2 indexed sources and 12 inputsless rows.', 'en')).toEqual([]);
     expect(codes('2021 blocks', 'pt-PT')).toEqual([]);
   });
@@ -117,7 +117,7 @@ describe('moduleCountTexts: every text the Learn sheet shows', () => {
       ['body', 'Most moves are noise.'],
       ['body', '2 indexes'],
     ]);
-    expect(moduleCountProblems(at, texts, 'en').map(({ detail }) => detail.split(' and ')[0])).toEqual([
+    expect(moduleCountProblems(at, texts, 'en').map(({ detail }) => detail.split(' are ')[0])).toEqual([
       'idea: the count "4" and its noun "cycles"',
       'idea: the count "4" and its noun "data points"',
       'body: the count "6" and its noun "signs"',
