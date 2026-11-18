@@ -376,9 +376,20 @@ external links and the Risk link in the mobile export (M3).
   against main's verdict, and takes a design check only if that list leaves a doubt. #387 dropped
   the in-app Learn hash-link scroll on 2026-11-18. Nothing writes a `learn/<slug>#` URL. The app's
   section links open the sheet and focus the section. A link to a site page's anchor scrolls to
-  that section.
-  With #340, #343, #349, #355, #358, #361, #368, #370, #377, #381, #387 and #388, pt-PT takes 21
-  build sessions more than #269 planned before German starts. A render-and-axe-only pt-PT
+  that section. On 2026-11-18, #388 merged three changes. The portfolio e2e test answers the coin
+  history as well as the prices and reads each figure from its own term or definition (#392).
+  R7 reads a count, its gap and its noun as the file writes them: a default-ignorable code point
+  is part of the gap, never a letter beside the count or the noun, and refused inside a count; every
+  content-check detail prints each default-ignorable code point by its code point (#390). The
+  review skill spells a change row's joiners as `\x{HHHH}`, gives its note forms, and finds a chart
+  row's pins by a search it describes, not by a list of tests (#391). Each of #390 and #391 took an
+  unanchored design check first, and both blind designers of each reached the same design. The
+  review skill's older gaps, three R7 neighbours (the profiles' joins class, a character reference
+  in a module body, `pageSpaces`' copy of the page's white-space class), brand's three optional
+  wording points, the eight gaps of #391's rehearsal and a search of the other e2e specs for
+  #392's double match move to #393, which comes before #271.
+  With #340, #343, #349, #355, #358, #361, #368, #370, #377, #381, #387, #388 and #393, pt-PT
+  takes 22 build sessions more than #269 planned before German starts. A render-and-axe-only pt-PT
   story run waits for #271, once every namespace is translated. CSV import, free (ADR-0039), for the
   main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
   Republic; Kraken's ledger reader built on 2026-11-13 (#168) and the core's import plan against the

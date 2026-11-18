@@ -166,7 +166,11 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   design check before the next round. Six review rounds of the content review's resume each found
   one more state; two blind designers found the root cause in #144: every review of a day shared
   one branch name, so finish guessed which pull request belonged to which review. Since #151
-  (2026-11-12), each review takes its own name.
+  (2026-11-12), each review takes its own name. #388's two design checks ended two more such runs
+  of three rounds each, R7's reader and the review skill's list of a chart row's pins: both blind
+  designers of each check reached the same design, and the review rounds of #390 and #391 drew no
+  correctness finding (one wording finding from brand on #390's detail, confirmed by its test,
+  2026-11-18).
 - A test harness that copies an executable on Windows pays the antivirus scan of the copy on its
   first run. #147's fake gh, a copy of node.exe, took 27.6 s of a 30 s timeout cold in a fresh
   worktree and 1.7 to 7.9 s warm, while Linux CI never saw it: keep such a test's first run well
@@ -734,7 +738,7 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   the words it keeps together. Make such a check refuse the reader's ignorable mark there, as R5
   does in the chart section. R7 reads each block's `written` text instead: a default-ignorable code
   point is part of its gap and never a letter beside a count or a noun, and one inside a count is
-  refused (#388, 2026-11-18).
+  refused (#390, 2026-11-18).
 - A skill sentence that widens a rule from one case to every case is checked against each case in
   the files it names. "For a row of any coin" was false for 5 of the 9 chart rows
   (fix/review-note-forms, round 2, #381).
@@ -755,6 +759,16 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   at an edge. Before the build, list each place a dropped character can sit (before, inside,
   between, after) and each general category it can have, and test each against the old verdict
   (#388, 2026-11-18).
+- A test that answers some of a page's requests and leaves another to the live upstream passes or
+  fails with the upstream. Answer every request the page makes, or abort it.
+  `apps/web/e2e/portfolio.spec.ts`'s fixture-dates test answered `/api/prices` only; its coin chart
+  drew from the live `/api/history`, and the chart's "Average cost" label made the average-cost
+  locator match twice. It failed #390's pull request runs twice while #391's run passed it within
+  the hour. #392 answers the history and reads each figure from its own `<dd>` or `<dt>`
+  (2026-11-18).
+- A search a skill hands its agent sets the Grep tool's `head_limit` to 0 when it can pass 250
+  lines, the tool's default cut. One chart row's search returned 169 to 225 lines, and two rows
+  about 335 (#391, 2026-11-18).
 
 ## Known gaps
 
