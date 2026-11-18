@@ -218,9 +218,9 @@ describe('the Risk honestly module', () => {
     // e.seed-phrase-requests calls a request a warning sign; e.impersonation names whom it may seem to come from.
     expect(plain).toContain('A request for a seed phrase is a warning sign of a scam, whoever it seems to come from.');
     expect(plain).not.toMatch(/Nobody from support/u);
-    const custody = body.slice(body.indexOf('## Keeping coins yourself'), body.indexOf('## 6 signs of a scam'));
+    const custody = body.slice(body.indexOf('## Keeping coins yourself'), body.indexOf('## 6\u00a0signs of a scam'));
     expect(custody.replace('## Keeping coins yourself', '').match(/[.?]( |$)/gu)).toHaveLength(5);
     const lines = read().module.body;
-    expect(lines.slice(lines.indexOf('## 6 signs of a scam')).match(/^- /gmu)).toHaveLength(6);
+    expect(lines.slice(lines.indexOf('## 6\u00a0signs of a scam')).match(/^- /gmu)).toHaveLength(6);
   });
 });
