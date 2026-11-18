@@ -101,7 +101,7 @@ describe('CountryRoute', () => {
   it('/learn/countries/pt shows the card at level 1, with the way back to the list', async () => {
     await mount('/learn/countries/pt');
     expect(await screen.findByRole('heading', { level: 1, name: PORTUGAL.name })).toBeDefined();
-    expect(screen.getByText(PORTUGAL.card.summary60)).toBeDefined();
+    expect(screen.getByText(PORTUGAL.card.summary60.replace(/\s+/g, ' '))).toBeDefined();
     fireEvent.click(screen.getByRole('link', { name: 'Back to countries' }));
     expect(await screen.findByRole('heading', { level: 1, name: 'Countries' })).toBeDefined();
     expect(path()).toBe('/learn/countries');
