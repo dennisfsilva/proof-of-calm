@@ -242,7 +242,7 @@ describe('the cycles file (docs/EDUCATION.md §2 and §6)', () => {
     const module = parseModule(path, readFileSync(new URL('learn/cycles.mdx', root), 'utf8'));
     if (!module.ok) throw new Error(path);
     // docs/LEGAL.md §3 item 6: an index row or a sheet's title carries no past-performance line.
-    expect(module.value.idea).toBe('4 cycles are 4 data points, not a law.');
+    expect(module.value.idea).toBe('4\u00a0cycles are 4\u00a0data points, not a law.');
     expect(module.value.idea).not.toMatch(/\b(?:19|20)\d\d\b|years apart|so far/u);
   });
 

@@ -61,7 +61,7 @@ describe('the Noise and When the market drops modules', () => {
     expect(body).toContain('Crypto Fear & Greed Index covers bitcoin only');
     // docs/CONTENT-STYLE.md §4: numerals in English prose, 2 to 9 included.
     expect(body).not.toMatch(/\b(?:two|three|four|five|six|seven|eight|nine)\b/iu);
-    expect(body).toContain('The 2 indexes, 13 points apart on one day, also show how much the number depends');
+    expect(body).toContain('The 2\u00a0indexes, 13 points apart on one day, also show how much the number depends');
     expect(body).toContain('surveys 15\u00a0%, dominance 10\u00a0%');
     expect(body).toContain(
       'Surveys are marked "currently paused", and alternative.me does not say where their 15\u00a0% goes.',
@@ -117,7 +117,7 @@ describe('the Noise and When the market drops modules', () => {
     expect(body).toContain('a 7\u2011day fall of 10\u00a0% or more came on 5.7\u00a0% of days');
     expect(body).toContain('Every 4\u2011year plan in this data');
     expect(body).toContain(
-      'about 6 episodes a year. A close 30\u00a0% or more below the 90\u2011day high came on 11.8\u00a0% of days. Either one came on 15.1\u00a0% of days.',
+      'about 6\u00a0episodes a year. A close 30\u00a0% or more below the 90\u2011day high came on 11.8\u00a0% of days. Either one came on 15.1\u00a0% of days.',
     );
     // The public page shows the same body, so each sentence about an app screen names the app (CONTENT-STYLE §1
     // rule 10), and says only what the app does in every state: no line, row or page without prices that show a fall.
@@ -153,7 +153,7 @@ describe('the Noise and When the market drops modules', () => {
     // "BIS Working Paper 1049" below hold the paper, and facts.test.ts holds the URL to the allow-list.
     // The quoted figures come from the July 2023 revision; October 2022 belongs to the one-purchase case only.
     expect(body).toContain('BIS Working Paper 1049 (Nov\u00a02022, revised Jul\u00a02023)');
-    expect(body).toContain('covered crypto app downloads in 95 countries from Aug\u00a02015 to Jun\u00a02022.');
+    expect(body).toContain('covered crypto app downloads in 95\u00a0countries from Aug\u00a02015 to Jun\u00a02022.');
     expect(body).toContain('$100 of bitcoin in the month of download and every month after.');
     // The paper dates the figure by its revision, not by a valuation day, so the module gives that date and no
     // "time of writing" that a page reviewed in 2026 would date to 2026 (CONTENT-STYLE §1 rule 1).
