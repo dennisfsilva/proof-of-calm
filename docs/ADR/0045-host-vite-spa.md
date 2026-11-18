@@ -1525,3 +1525,18 @@ rule on when the reload runs is unchanged.
   the module's own request usually fails too. ADR-0057's Corrections of 2026-11-16 record what this
   means for the content loaders: a failed content chunk now rejects, and their `try` keeps the
   English fallback, with the guard for an import that resolves without the file kept as defence.
+
+## Deviations recorded on 2026-11-18
+
+The decision stands; this gives the site pages of §6 a second language without a route for it.
+
+- **2026-11-18, site messages per language, no routes** (§6, §8). `apps/web/messages/pt-PT.json`
+  translates the site messages beside `apps/web/messages/en.json`, all but the four legal pages' own
+  objects (`legal.terms`, `legal.privacy`, `legal.cookies`, `legal.contact`), whose English waits
+  for the owner and falls back key by key. `renderSitePage` takes the language, English by default
+  and byte-identical to before; in pt-PT it renders the home, Risk, offline, 404 and not-available
+  pages and the four legal placeholders with `<html lang="pt-PT">`, and every English part on them
+  (those four objects and the Risk page's table of falls, read from the English Learn messages)
+  carries `lang="en"` (`docs/CONTENT-STYLE.md` §9). A public page under `/en/` refuses pt-PT.
+  `scripts/build.ts` still writes English only: the pt-PT pages exist for the native read, and a
+  route, hreflang and the sitemap come with the decision to publish them.
