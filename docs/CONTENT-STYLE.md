@@ -435,10 +435,11 @@ no joiner between its brackets (`citation-join`).
 
 The five U+00A0 joins above are read the same way: a code and its figure, a form's name and its
 number, a law's name and its number, a date's parts, and a figure and its unit.
-`pnpm validate:content` reads the run of white space, format and control characters (Unicode Cf
-and Cc) between the two parts. It refuses the run unless it is one U+00A0 alone. A lone U+2060 is
-refused, and so is U+00A0 beside any other character of the run. Beside an ordinary space, a line
-can still break at that space (decided 2026-11-18).
+`pnpm validate:content` reads the run between the two parts with R7's gap class (below): JS white
+space (`\s`), format characters (`\p{Cf}`), control characters (`\p{Cc}`) and default-ignorable
+code points (`\p{Default_Ignorable_Code_Point}`). It refuses the run unless it is one U+00A0 alone.
+A lone U+2060 is refused, and so is U+00A0 beside any other character of the run. Beside an
+ordinary space, a line can still break at that space (decided 2026-11-18).
 
 When any other character sits between the two parts, they are not a join, so they stay unchecked.
 A part that two pairs share is read in both (`EUR 100 USD`), whether the first pair's run is
@@ -453,7 +454,8 @@ own styles at 161 widths from 240 to 400 px in Chromium and WebKit. With U+0020,
 2026-11-18). The page drops a default-ignorable code point between the count and its noun. R5's
 hidden-character rule refuses that paragraph before B reads the gap. Between the count and its noun,
 B reads a gap made of JS white space (`\s`), format characters (`\p{Cf}`) or control characters
-(`\p{Cc}`), the class the five joins above read. `pnpm validate:content` refuses a sentence that
+(`\p{Cc}`): the class the five joins above read, less `\p{Default_Ignorable_Code_Point}`, since the
+page drops those code points before B reads. `pnpm validate:content` refuses a sentence that
 matches B with any such gap other than one U+00A0 (`figure-join`, R6). Any other character the page
 keeps between the count and its noun makes the sentence match neither shape (`figure-chart`, R5).
 
@@ -477,21 +479,20 @@ stay unread, so a count written like a year (`2016 blocks`) is not read either. 
 R7 reads B's gap, the class in `packages/content/src/module-figures.ts`, and every default-ignorable code point:
 a run of JS white space (`\s`), format characters (`\p{Cf}`), control characters (`\p{Cc}`) or default-ignorable
 code points. It refuses any such gap other than one U+00A0 (`figure-join`), U+00A0 beside a default-ignorable
-code point included (`U+00A0 U+200B`). The fix replaces the whole gap with one U+00A0, the hidden code point
-with it. The detail quotes the count, the noun and the gap as written and names the gap by its code points. It
-quotes each run of spaces, tabs, line feeds, carriage returns or form feeds in the noun as one space
-(`pageSpaces` in `packages/content/src/module-figures.ts`), and names each other hidden or look-alike character
+code point included (`U+00A0 U+200B`). The fix replaces the whole gap, any hidden code point in it included,
+with one U+00A0. The detail quotes the count, the noun and the gap as written and names the gap by its code
+points. It quotes each run of spaces, tabs, line feeds, carriage returns or form feeds in the noun as one space
+(`pageSpaces` in `packages/content/src/paragraphs.ts`), and names each other hidden or look-alike character
 in the count or the noun by its code point, as `printedText` in `packages/content/src/percent-gap.ts` prints it
 (`6U+FE0F 0`, `dataU+2009 points`, `inU+00AD puts`). Any other character between the two, a hyphen or a word,
 leaves the pair unread. A noun matches whole and in any case, with no letter, mark or number character after it;
 a space inside one (`data points`) matches any run of white space. So a default-ignorable code point between a
 word and the count or the noun separates them, and R7 reads the pair. It does not read R5's `ignorable` mark,
 which only a paragraph carries and which names no place (decided 2026-11-18, #387). The lists are closed, one
-per language, and hold the nouns
-of the counts a census of the modules found (16 of them could end a line apart from their noun): in
-English `blocks`, `data points`, `inputs`, `components`, `indexes`, `bitcoins`, `episodes`, `start months`,
-`countries`, `completed cycles`, `cycles`, `parts` and `signs`, and in pt-PT the nine §9 names. B's noun
-(`falls`, `quedas`) is on neither list: R6 reads it. A count before any other noun stays unread. A probe joined
+per language, and hold the nouns of the counts a census of the modules found (16 of them could end a line apart
+from their noun): in English `blocks`, `data points`, `inputs`, `components`, `indexes`, `bitcoins`, `episodes`,
+`start months`, `countries`, `completed cycles`, `cycles`, `parts` and `signs`, and in pt-PT the nine §9 names.
+B's noun (`falls`, `quedas`) is on neither list: R6 reads it. A count before any other noun stays unread. A probe joined
 the 28 counts the English (15) and pt-PT (13) modules write before these nouns by U+00A0. At 161 widths from 240
 to 400 px, at 100 % and 125 % zoom, in Chromium and WebKit, none split and none overflowed (decided 2026-11-18).
 
