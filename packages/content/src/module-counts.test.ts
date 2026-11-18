@@ -86,6 +86,24 @@ describe('moduleCountProblems: a count and its listed noun, joined by one U+00A0
     expect(codes('2021 blocks', 'pt-PT')).toEqual([]);
   });
 
+  it('reads a year before a listed noun as a year, not a count', () => {
+    expect(codes('The 2017 and 2021 cycles had highs.', 'en')).toEqual([]);
+    expect(codes('On 9 Jul 2016 blocks paid half as much.', 'en')).toEqual([]);
+    expect(codes('Os 2017 e 2021 ciclos tiveram picos.', 'pt-PT')).toEqual([]);
+    expect(codes('2013 cycles began the chart.', 'en')).toEqual([]);
+    expect(codes('1900 blocks and 2099 cycles', 'en')).toEqual([]);
+    expect(codes('A 9 de julho de 2016 blocos pagaram metade.', 'pt-PT')).toEqual([]);
+  });
+
+  it('still reads a count outside the years, or one with a group separator', () => {
+    expect(codes('1899 blocks', 'en')).toEqual(['figure-join']);
+    expect(codes('2100 blocks', 'en')).toEqual(['figure-join']);
+    expect(codes('20210 blocks', 'en')).toEqual(['figure-join']);
+    expect(codes('2,016 blocks', 'en')).toEqual(['figure-join']);
+    expect(codes(`2${NBSP}016 blocos`, 'pt-PT')).toEqual(['figure-join']);
+    expect(codes('118 start months and 95 countries', 'en')).toEqual(['figure-join', 'figure-join']);
+  });
+
   it('reads every text it is given, each on its own', () => {
     const texts = [
       ['idea', '4 cycles are 4 data points, not a law.'],

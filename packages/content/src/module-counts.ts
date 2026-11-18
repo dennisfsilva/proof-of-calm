@@ -1,8 +1,8 @@
 // A Learn module's counts and their nouns (docs/CONTENT-STYLE.md §4, R7): a figure before a noun a closed list names is
 // joined to it by exactly one U+00A0, so that no line ends between them. The list holds the counts the modules write
 // and the 25z probe joined, in Calm Sans at the Learn sheet's paragraph styles, in Chromium and WebKit, 240 to 400 px,
-// at 16/24 and 20/30 px. B's count (falls, quedas) stays off it: R6 in module-figures.ts reads that one. Years, dates,
-// amounts and unlisted nouns are not counts here.
+// at 16/24 and 20/30 px. B's count (falls, quedas) stays off it: R6 in module-figures.ts reads that one. Years (YEAR
+// below), dates, amounts and unlisted nouns are not counts here.
 import { GAP } from './module-figures.ts';
 import { printedGap, printedText } from './percent-gap.ts';
 import type { Problem } from './problem.ts';
@@ -28,6 +28,9 @@ export const COUNT_NOUNS: Readonly<Record<Language, RegExp>> = {
 const EDGE = '[\\p{L}\\p{M}\\p{N}]';
 const COUNT = (language: Language) =>
   new RegExp(`(?<!${EDGE})(?<count>\\p{N}+(?:[.,${NBSP}]\\p{N}+)*)${GAP}(?<noun>${nouns(language)})(?!${EDGE})`, 'giu');
+// Four ASCII digits from 1900 to 2099 with no group separator are a year (`the 2017 and 2021 cycles`), never a count;
+// a count written like one (`2016 blocks`) is left unread with them.
+const YEAR = /^(?:19|20)[0-9]{2}$/u;
 
 /** Each text's counts before a listed noun whose gap is not exactly one U+00A0 (`figure-join`), by its field. */
 export function moduleCountProblems(
@@ -38,7 +41,7 @@ export function moduleCountProblems(
   return texts.flatMap(([field, text]) =>
     [...text.matchAll(COUNT(language))].flatMap(({ groups }) => {
       const { count = '', gap = '', noun = '' } = groups ?? {};
-      if (gap === NBSP) return [];
+      if (gap === NBSP || YEAR.test(count)) return [];
       const shown = noun.replace(/\s+/gu, ' ');
       const detail = `${field}: the count "${printedText(count, [NBSP])}" and its noun "${shown}" are joined by \
 ${printedGap(gap, []).trim()}, not U+00A0; write one U+00A0 between them; R7 (docs/CONTENT-STYLE.md §4)`;
