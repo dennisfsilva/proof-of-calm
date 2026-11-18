@@ -579,8 +579,9 @@ gets one `figure-unstated` when no sentence there states one of its rows. A sent
 R6: B counts C's falls of more than `N`, strictly, whose high is in the first `Y` or later and whose low is in the last
 `Y` or earlier. There are `K` of them and at least one, the first high is in the first `Y`, and the last low is in the
 last `Y` (`figure-chart`). The page drops a default-ignorable code point between `K` and its noun, and R5's
-hidden-character rule refuses the paragraph first (`figure-chart`). B reads the sentence as `paragraphsOf` gives it,
-each run of `[ \t\n\r\f]` as one U+0020. Between `K` and its noun, B reads a gap of JS white space (`\s`) or format
+hidden-character rule refuses the paragraph first (`figure-chart`). B reads the sentence as `paragraphsOf` gives it:
+two line feeds with only spaces, tabs, carriage returns or form feeds between them end the paragraph, and any other
+run of `[ \t\n\r\f]` becomes one U+0020. Between `K` and its noun, B reads a gap of JS white space (`\s`) or format
 characters (`\p{Cf}`). A sentence that matches B with any such gap other than one U+00A0 fails (`figure-join`). The
 detail names the gap as B reads it, by its code points, so a tab there is U+0020; the fix is one U+00A0 in its place
 (decided 2026-11-18). Any other character the page keeps between `K` and its noun makes the sentence match neither
