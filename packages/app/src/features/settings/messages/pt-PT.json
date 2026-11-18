@@ -27,7 +27,7 @@
       "ruleNow": "Regra de detenção atual: {name}. {rule}",
       "ruleAfter": "Depois da alteração: {name}. {rule}",
       "lastBuyEligible": "{effect, select, exempt {Mais-valia da última compra não tributada} other {Mais-valia da última compra à taxa de longo prazo}} a partir de {from} agora, a partir de {to} depois da alteração",
-      "amount": "{field, select, startingAmount {Montante inicial} other {Montante mensal}}: {from} passa a {to}. Confirme-o no Plano."
+      "amount": "{field, select, startingAmount {Montante inicial} other {Montante mensal}}: {from} passa a {to}. Confirme-o em «Plano»."
     },
     "ruleName": "{kind, select, own {a regra definida por si} generic {a regra do perfil geral} other {a regra de {country}}}",
     "logged": "Os montantes já registados ficam como foram introduzidos. Nada é convertido.",
@@ -38,7 +38,7 @@
       "country": "Mudar para {country}",
       "countryLine": "{count, plural, one {Se o país estava errado desde o início: foi pago em {country}. Aparece em {country}, tal como foi introduzido. Nada é convertido.} other {Se o país estava errado desde o início: foram pagos em {country}. Aparecem em {country}, tal como foram introduzidos. Nada é convertido.}}",
       "oneCurrency": "Um plano tem uma única moeda de pagamento. Para pagar em {country} a partir de agora, mantenha {logged}, exporte uma cópia e crie um novo plano em {country}.",
-      "issue": "Escolha Manter {logged} ou Mudar para {country}."
+      "issue": "Escolha «Manter {logged}» ou «Mudar para {country}»."
     },
     "files": "Os ficheiros do ano fiscal seguem as regras do país atual até mudar de país. Exporte primeiro os anos de que precisa.",
     "payCurrency": {
@@ -127,9 +127,9 @@
       "taken": "Movimentos de meses já registados ou saltados neste dispositivo, não adicionados: {taken}.",
       "replaced": "Plano substituído. Movimentos agora: {count}.",
       "imported": "Plano importado. Movimentos agora: {count}.",
-      "currencyMismatch": "As compras deste ficheiro estão em {file} e as deste plano estão em {plan}, por isso nada foi adicionado. Os montantes nunca são convertidos. Se quiser o plano do ficheiro e a respetiva moeda de pagamento em vez deste, escolha o ficheiro de novo e depois Substituir tudo.",
-      "currencyMismatchPasted": "As compras do texto colado estão em {file} e as deste plano estão em {plan}, por isso nada foi adicionado. Os montantes nunca são convertidos. Se quiser o plano colado e a respetiva moeda de pagamento em vez deste, cole o texto de novo e depois Substituir tudo.",
-      "tooManyEntries": "Adicionar estes movimentos deixaria {entries} movimentos neste plano, mais do que os {max} que um plano comporta, por isso nada foi adicionado. Elimine movimentos no Registo e depois importe de novo. Para conservar só os movimentos do ficheiro, importe de novo com Substituir tudo.",
+      "currencyMismatch": "As compras deste ficheiro estão em {file} e as deste plano estão em {plan}, por isso nada foi adicionado. Os montantes nunca são convertidos. Se quiser o plano do ficheiro e a respetiva moeda de pagamento em vez deste, escolha o ficheiro de novo e depois «Substituir tudo».",
+      "currencyMismatchPasted": "As compras do texto colado estão em {file} e as deste plano estão em {plan}, por isso nada foi adicionado. Os montantes nunca são convertidos. Se quiser o plano colado e a respetiva moeda de pagamento em vez deste, cole o texto de novo e depois «Substituir tudo».",
+      "tooManyEntries": "Adicionar estes movimentos deixaria {entries} movimentos neste plano, mais do que os {max} que um plano comporta, por isso nada foi adicionado. Elimine movimentos no Registo e depois importe de novo. Para conservar só os movimentos do ficheiro, importe de novo com «Substituir tudo».",
       "tooManyInFile": "Esta exportação da página do plano DCA tem {file} compras, mais do que os {max} movimentos que um plano comporta, por isso nada foi importado. Elimine compras lá, exporte de novo e depois importe o novo ficheiro.",
       "tooLarge": "Este ficheiro tem mais de {max} MB, por isso não foi lido. Se for a exportação de uma plataforma, exporte lá um período mais curto e depois escolha o novo ficheiro.",
       "newerRows": "Uma versão mais recente da {product} guardou ou eliminou movimentos neste dispositivo, por isso nada foi importado. Recarregue a página e depois importe de novo.",
@@ -186,9 +186,9 @@
         "startingChange": "Se comprou todo o montante inicial a {date}, {summed, select, yes {altere-o no Registo para essa data e esses totais} other {altere no Registo a data, o custo e as unidades para os do ficheiro}}. Depois escolha o ficheiro de novo.",
         "startingRecord": "Se comprou todo o montante inicial a {date}, {summed, select, yes {registe-o no Registo com essa data e esses totais} other {registe-o no Registo com a data, o custo e as unidades do ficheiro}}. Depois escolha o ficheiro de novo.",
         "reward": "Recompensas pagas em moedas, não importadas: {units}.",
-        "coin-deposit": "{exchange, select, kraken {Moedas enviadas para a Kraken de outro lado, não importadas: {units}. Registe uma oferta com Adicionar moedas que já tem} other {Recompensas de staking e moedas enviadas para a Trade Republic, não importadas: {units} em {count, plural, one {{figure} linha} other {{figure} linhas}}. Registe as recompensas com Adicionar moedas que já tem}}, e as suas próprias moedas que regressam com Registar moedas transferidas.",
+        "coin-deposit": "{exchange, select, kraken {Moedas enviadas para a Kraken de outro lado, não importadas: {units}. Registe uma oferta com «Adicionar moedas que já tem»} other {Recompensas de staking e moedas enviadas para a Trade Republic, não importadas: {units} em {count, plural, one {{figure} linha} other {{figure} linhas}}. Registe as recompensas com «Adicionar moedas que já tem»}}, e as suas próprias moedas que regressam com «Registar moedas transferidas».",
         "logged": "Moedas enviadas da {exchange, select, kraken {Kraken} other {Trade Republic}} que correspondem a uma transferência no Registo: {units}.",
-        "notLogged": "{exchange, select, kraken {Moedas enviadas da Kraken sem transferência correspondente no Registo: {units}. Registe cada envio} other {Moedas enviadas da Trade Republic que não correspondem a nenhuma transferência das mesmas unidades no Registo: {units}. Se não as registou, registe cada envio}} com Registar moedas transferidas.",
+        "notLogged": "{exchange, select, kraken {Moedas enviadas da Kraken sem transferência correspondente no Registo: {units}. Registe cada envio} other {Moedas enviadas da Trade Republic que não correspondem a nenhuma transferência das mesmas unidades no Registo: {units}. Se não as registou, registe cada envio}} com «Registar moedas transferidas».",
         "conversion": "{count, plural, one {{figure} troca de uma moeda por outra, não importada: o ficheiro não indica um montante em {currency} para ela} other {{figure} trocas de uma moeda por outra, não importadas: o ficheiro não indica um montante em {currency} para elas}}.",
         "cash": "{exchange, select, kraken {{count, plural, one {{figure} linha de dinheiro sem moeda, como um depósito ou um levantamento, não importada} other {{figure} linhas de dinheiro sem moeda, como depósitos e levantamentos, não importadas}}} other {{count, plural, one {{figure} linha de dinheiro sem moeda, como um pagamento com cartão, juros ou uma transferência de dinheiro, não importada} other {{figure} linhas de dinheiro sem moeda, como pagamentos com cartão, juros ou transferências de dinheiro, não importadas}}}}.",
         "benefit": "{count, plural, one {{figure} crédito em dinheiro Saveback, não importado. Uma compra feita com ele é lida como as outras compras.} other {{figure} créditos em dinheiro Saveback, não importados. Uma compra feita com eles é lida como as outras compras.}}",

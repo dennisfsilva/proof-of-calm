@@ -26,13 +26,13 @@
   },
   "dates": {
     "heading": "Escolher os montantes e as datas",
-    "startingHint": "Comprado uma vez no primeiro dia de compra e repartido pelas moedas como cada compra mensal. Introduza 0 para não ter montante inicial. Para moedas que já tem, escolha Adicionar moedas que já tem no Registo depois de criar o plano."
+    "startingHint": "Comprado uma vez no primeiro dia de compra e repartido pelas moedas como cada compra mensal. Introduza 0 para não ter montante inicial. Para moedas que já tem, escolha «Adicionar moedas que já tem» no Registo depois de criar o plano."
   },
   "numbers": {
     "heading": "Montantes e datas",
     "monthly": "Montante mensal ({currency})",
     "starting": "Montante inicial ({currency})",
-    "startingHint": "Comprado uma vez no primeiro dia de compra e repartido pelas moedas como cada compra mensal. Introduza 0 para não ter montante inicial. Para moedas que já tem, escolha Adicionar moedas que já tem no Registo depois de criar o plano.",
+    "startingHint": "Comprado uma vez no primeiro dia de compra e repartido pelas moedas como cada compra mensal. Introduza 0 para não ter montante inicial. Para moedas que já tem, escolha «Adicionar moedas que já tem» no Registo depois de criar o plano.",
     "firstBuy": "Primeira compra",
     "lastBuy": "Última compra",
     "dateEmpty": "Escolha uma data completa: dia, mês e ano.",
@@ -54,7 +54,7 @@
     "later": "Mais tarde",
     "noneLeftHeading": "Lembrete mensal",
     "noneLeft": "Não restam dias de compra, por isso não há lembrete a adicionar.",
-    "notSaved": "O ficheiro do calendário não foi guardado. Adicione-o de novo ou escolha Mais tarde."
+    "notSaved": "O ficheiro do calendário não foi guardado. Adicione-o de novo ou escolha «Mais tarde»."
   },
   "summary": {
     "heading": "Rever o plano",

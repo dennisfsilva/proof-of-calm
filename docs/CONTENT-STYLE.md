@@ -760,6 +760,16 @@ needs (decided 2026-11-15). The native reader's review is §8 item 9.
   (`Exportar cópia`).
 - **§3's participle buttons keep the participle**, which says what is recorded: `Bought as planned`
   is `Comprado como planeado`, `Bought a different amount` is `Comprado outro montante`.
+- **A control named inside a sentence stands in guillemets**, as the control shows it, its placeholders
+  included: `escolha «Adicionar moedas que já tem» no Registo`, `Escolha «Manter {logged}» ou «Mudar
+  para {country}».`, `importe de novo com «Substituir tudo»`. This holds for a button, an option and a
+  Settings tab (`Pode alterá-las em «Moedas e pesos».`, as the table's `Regra e venda` row has it).
+  English names the same control bare, since its capital marks it (`choose Add coins you already
+  have`); pt-PT's infinitive would read as the sentence's own verb. A screen named as a place stays a
+  bare noun (`no Registo`, `abra o Portefólio`), and an imperative that says what to do is a sentence,
+  not a name (`Tente de novo.`). `packages/app/src/lib/i18n/control-names.test.ts` checks every control
+  that an English sentence names after a lower-case word, or after `choose`. Decided 2026-11-18; the
+  native reader confirms or overturns it (§8 item 9).
 - **No courtesy words and no "we" in an error** (§1.6, §1.8): no `por favor`, `lamentamos`,
   `obrigado`, `caro utilizador` or `Atenção:` (the lint refuses the first two). `Escolha uma data a
   partir da primeira compra`, never `Não conseguimos guardar`.
