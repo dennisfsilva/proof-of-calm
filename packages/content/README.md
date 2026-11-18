@@ -87,11 +87,11 @@ any of six signs and any white space, hyphen, dash (every `\p{Pd}`) or format ch
 sign (`overlay-percent-mismatch`, templates only, #295; ADR-0057, Corrections of 2026-11-16 and
 2026-11-18), then the schema and the English field's checks on
 each text it changes. Every detail that quotes a file's text or a gap prints it one way
-(`src/percent-gap.ts`), except R7's quoted noun. It prints each space but U+0020, each format or
-control character, and U+2010 and U+2011 by its code point, followed by one space that is not in
-the text (for example `fellU+2009 50 %`). R7's detail prints each run of JS white space (`\s`)
-inside its quoted noun as one U+0020 (`src/module-counts.ts`). A Learn module's quoted text first
-folds tabs, line breaks, and runs of spaces into one space, as the page does, and shows its own
+(`src/percent-gap.ts`). It prints each space but U+0020, each format or control character, each
+other default-ignorable code point, and U+2010 and U+2011 by its code point, followed by one space
+that is not in the text (for example `fellU+2009 50 %`, `inU+034F puts`). A Learn module's quoted
+text first folds each run of spaces, tabs, line feeds, carriage returns and form feeds into one
+space, as the page does, and shows its own
 joiners as written only where its check accepts them: before a percent sign, B's U+00A0 after its
 count, and a U+00A0 inside a count R7 reads (`docs/CONTENT-STYLE.md` §4 R6 and R7; ADR-0057,
 Corrections of 2026-11-18). A pair that a `figure-chart` detail builds from the values it read
