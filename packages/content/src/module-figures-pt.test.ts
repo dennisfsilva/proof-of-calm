@@ -299,7 +299,9 @@ describe("pt-PT's closed chart section", () => {
     const { problem, page } = await checkModuleBody(source, at);
     expect(problem).toBeNull();
     const context = moduleContext({ chart: 'drawdowns-bar' }, 'pt-PT', { rows: ROWS, coins: COINS });
-    return moduleFigureProblems(at, page, { ...context, listed: [...context.listed, ...extra] }).map(({ code }) => code);
+    return moduleFigureProblems(at, page, { ...context, listed: [...context.listed, ...extra] }).map(
+      ({ code }) => code,
+    );
   }
 
   it.each(LIVE)('N2: the listed «%s» passes after the figures', async (sentence) => {

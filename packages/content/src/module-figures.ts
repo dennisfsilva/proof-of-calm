@@ -255,9 +255,7 @@ which reads plain text only`);
       } else {
         const where = shapes === undefined ? `, and ${language} has no shapes for a chart's section yet` : '';
         const what =
-          found === null
-            ? `is not a sentence ${language}'s list holds`
-            : `holds ${found.kind} "${quote(found.token)}"`;
+          found === null ? `is not a sentence ${language}'s list holds` : `holds ${found.kind} "${quote(found.token)}"`;
         report(`"${sentence}" ${what} and matches neither shape of a chart's section${where}`);
       }
     }
