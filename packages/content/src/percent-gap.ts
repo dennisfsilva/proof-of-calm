@@ -21,6 +21,15 @@ export const printedText = (text: string, shown: readonly string[]) =>
   text.replace(HIDDEN, (char) => (shown.includes(char) ? char : codePoint(char)));
 
 /** A quoted text of a Learn module's chart section: as printedText prints it, but a joiner of `joiners` prints as
- * written only directly before a percent sign, the one place the module check accepts it (`EtherU+00A0 fell 94 %`). */
-export const printedPercentText = (text: string, joiners: readonly string[]) =>
-  text.replace(HIDDEN, (char, at: number) => (joiners.includes(char) && text[at + 1] === '%' ? char : codePoint(char)));
+ * written only directly before a percent sign, and any hidden character a match of the global `joined` covers prints
+ * as written too: the places the module check accepts them (`EtherU+00A0 fell 94 %`). */
+export const printedPercentText = (text: string, joiners: readonly string[], joined?: RegExp) => {
+  const kept = new Set(
+    [...(joined === undefined ? [] : text.matchAll(joined))].flatMap(({ 0: match, index }) =>
+      Array.from({ length: match.length }, (_, offset) => index + offset),
+    ),
+  );
+  return text.replace(HIDDEN, (char, at: number) =>
+    kept.has(at) || (joiners.includes(char) && text[at + 1] === '%') ? char : codePoint(char),
+  );
+};
