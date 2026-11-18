@@ -391,7 +391,7 @@ The finish refuses a changed entry at any other value.
    a test that failed: it pins the value when an assertion reads it, directly or through a constant
    it defines (in `packages/content/src/loaders/templates.test.ts` a row's `const` and each
    `expect` that reads it); a hit in a test that passed is a fixture of its own, and a `FALLS`
-   literal or a key of `COINBASE_KEYS` or `UNREGAINED_KEYS` takes the note below. Name each such assertion's file and line and both values
+   literal or a key of `UNREGAINED_KEYS` takes the note below. Name each such assertion's file and line and both values
    in the draft's notes and your closing report, and say in
    both that `verify` fails on `pnpm test` until the owner removes those assertions in a pull request
    of its own (`docs/ENGINEERING.md` §2): one changed to your new value would fail on main, where
@@ -405,10 +405,11 @@ The finish refuses a changed entry at any other value.
    Say in the notes and your closing report that the owner's pull request to main adds the entry
    to `unloggedFalls` in that test, keyed `<coin> <high>` of the literal (`ETH 2021-11-10`), and
    removes it when this one closes unmerged or no longer holds the new values
-   (`docs/CONTENT-OPS.md` §8 step 4). The test's `COINBASE_KEYS` and `UNREGAINED_KEYS` read a
-   moved high's key through the entry only while it stays: when your change moves a high, say in
-   the notes that the log pull request writes the new `<coin> <high>` in place of the old one
-   there when it removes the entry (`docs/CONTENT-OPS.md` §8 step 5). A change §1 reverted takes no such note: its `tests:` list names the
+   (`docs/CONTENT-OPS.md` §8 step 4). The test's `UNREGAINED_KEYS` reads a moved high's key
+   through the entry only while it stays: when your change moves a high, say in the notes that
+   the log pull request writes the new `<coin> <high>` in place of the old one there when it
+   removes the entry (`docs/CONTENT-OPS.md` §8 step 5). A changed publisher takes no such note:
+   the test reads its Coinbase rows from the entry. A change §1 reverted takes no such note: its `tests:` list names the
    literal. For the tie
    of a fact's value to its `docs/EDUCATION.md` §9 row (`packages/content/src/facts.test.ts`), say
    instead that the owner's pull request to main records the fact's old and new value as an
