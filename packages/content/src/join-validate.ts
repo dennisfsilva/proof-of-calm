@@ -15,11 +15,8 @@ export const URL_IN_TEXT = /https?:\/\/\S+/g;
 // The run of white space (`\s`), format characters (`\p{Cf}`: U+2060, U+0600) and control characters (`\p{Cc}`: U+0085)
 // between the two parts of every join, refused by `joined` unless it is a lone no-break space: a no-break space beside
 // any other is a gap, since a line breaks at the other. Any other character between them ends the run, so that pair
-// is not read. A code's or a form's GAP does not match a lone no-break space, so that a joined pair takes no figure
-// from the next (the `100 USD` after a joined `EUR 100`); a prose join's RUN does, so that a joined law name's number
-// is still read.
+// is not read.
 const SPACE = String.raw`[\s\p{Cf}\p{Cc}]`;
-const GAP = `((?!${NBSP}(?!${SPACE}))${SPACE}+)`;
 const RUN = `(${SPACE}+)`;
 // The ISO codes the live profiles write beside a figure, and the words that name a form or one of its boxes.
 const CODE = '(EUR|GBP|USD)';
@@ -35,12 +32,14 @@ const NOT_IN_WORD = String.raw`(?<![\p{L}\d])`;
 // `BTC/USD`) is part of a word or a pair, not a code beside its figure; a slash and a unit word (`5 EUR/month`) is not.
 const CODE_BEFORE = String.raw`${NOT_IN_WORD}(?<!\p{L}-)(?<!\p{Lu}{3}/)`;
 const CODE_AFTER = String.raw`(?![\p{L}\d])(?!-\p{L})(?!/\p{Lu}{3})`;
-// A code after a figure is that figure's only when no figure follows it: in `art. 33.1 EUR 1000` the code is 1000's.
+// A code after a figure is that figure's only when no figure follows it across a run: in `art. 33.1 EUR 1000` the code
+// is 1000's. Each pair takes its first part and its run and reads its second part in a lookahead, so that, joined or
+// refused, it leaves that part to the next pair (`EUR 100 USD` is two pairs).
 const JOINS = new RegExp(
   [
-    `${CODE_BEFORE}${CODE}${GAP}${FIGURE}`,
-    String.raw`(?<![\d.,])${FIGURE}${GAP}${CODE}${CODE_AFTER}(?!\s?\d)`,
-    `${NOT_IN_WORD}${FORM}${GAP}${NUMBER}`,
+    `${CODE_BEFORE}${CODE}${RUN}(?=${FIGURE})`,
+    String.raw`(?<![\d.,])${FIGURE}${RUN}(?=${CODE}${CODE_AFTER}(?!${SPACE}*\d))`,
+    `${NOT_IN_WORD}${FORM}${RUN}(?=${NUMBER})`,
   ].join('|'),
   'gu',
 );
