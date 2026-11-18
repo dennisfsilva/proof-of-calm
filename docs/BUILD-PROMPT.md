@@ -680,13 +680,14 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - An English profile quotes its country's law in that law's language, so a check of the word beside
   a figure reads every language's list in every text. #372's first round found Portugal's English
   card holding `365 dias` with a plain space, which the English list could not read (2026-11-18).
-- A review round's finding in a line the branch did not change, which keeps main green, moves to the
-  next session while the branch merges; the round limit governs the branch's own change. #371's
-  third round found two quoting paths that predate it (64a1906e, 6ef48c42), and they went to #370
-  (2026-11-18).
-- A search that finds more also finds lines that hold the same word for another row, fact or series:
-  the rule that writes hits back says which hits are no pin. #373's eighth rehearsal saw the log
-  pull request turn red on `drops-noise.test.ts`' Bitstamp, fact q's series (2026-11-18).
+- When a review round finds a fault in a line the branch did not change and main stays green, the
+  finding moves to the next session and the branch merges; the round limit governs the branch's own
+  change. #371's third round found two quoting paths that predate it (64a1906e, 6ef48c42), and they
+  went to #370 (2026-11-18).
+- A search that finds more also finds lines that hold the same word for another row, fact or
+  series, so the rule that writes hits back says which hits belong to another row and stay as they
+  are. #373's eighth rehearsal saw the log pull request turn red on `drops-noise.test.ts`'
+  Bitstamp, fact q's series (2026-11-18).
 - A builder briefed with a probe, a census, a rule, its tests, twenty data files and the docs
   reached its 120-turn limit before its report (#372's first builder); one message finished it. A
   data change of that size goes to a script the builder writes and reads back file by file, or to a
