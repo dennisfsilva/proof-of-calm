@@ -375,5 +375,8 @@ fact to the window its URL names (the skill's §4 step 3).
    merged review changed, and removes each updated fact's `unlogged` entry (step 4), since the facts
    test fails while one stays. It also writes each `unloggedFalls` entry's `now` into `FALLS` in
    `packages/content/src/cycles.test.ts` in place of its literal and removes the entry, since that
-   test's stale check fails on an entry whose literal reads `now` or is gone; that makes it a tier 2 pull request with the content roles
+   test's stale check fails on an entry whose literal reads `now` or is gone. When `now` moves a
+   row's high, it also writes the new `<coin> <high>` in place of the old one in that test's
+   `COINBASE_KEYS` and `UNREGAINED_KEYS`, which read the old key through the entry only while it
+   stays (their check names a key no `FALLS` literal holds); that makes it a tier 2 pull request with the content roles
    (`.claude/rules/content.md`).
