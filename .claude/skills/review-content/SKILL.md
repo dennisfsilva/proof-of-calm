@@ -128,7 +128,7 @@ Arguments: $ARGUMENTS
   remove `chart row for the owner: remove <coin>, high <high>: <why, from the source>, <source>`,
   with `<lowSource>` in place of `<source>` when the why rests on it;
   either ends with the row's copies, `templates/<file>.json drawdowns[<n>]`, when it has any. For a
-  row of a coin of `UNREGAINED_KEYS` (`packages/content/src/cycles.test.ts`) that \u00a77 step 1 leaves
+  row of a coin of `UNREGAINED_KEYS` (`packages/content/src/cycles.test.ts`) that §7 step 1 leaves
   on its series, the first form then ends `; keeps its series, unregained`, after the copies when
   it has any; that ending says the note asks no change, so a note asking the owner for one never
   takes it. Never change a B sentence's bound (`more than N %`), never add, move or delete a clause
@@ -141,7 +141,7 @@ Arguments: $ARGUMENTS
   detail names a range or a number: write U+2060 after its dash or hyphen-minus (`2023\u2013\u20602025`,
   `2026-\u206027`, `\u2060` in a JSON file) and nothing else; in text a screen shows, a hyphen-minus
   beside a letter in a law's number (`Lei 24\u2011D/2022`) or before a Latin ordinal suffix (`9\u2011bis`,
-  the closed list of `docs/CONTENT-STYLE.md` \u00a74) is replaced by U+2011 instead (`\u2011` in a
+  the closed list of `docs/CONTENT-STYLE.md` §4) is replaced by U+2011 instead (`\u2011` in a
   JSON file). A source's title keeps its published hyphen-minus and takes U+2060 after it, never
   U+2011.
 - Fetch only the domains in `packages/content/sources.allow.json`. Nothing refuses an off-list
