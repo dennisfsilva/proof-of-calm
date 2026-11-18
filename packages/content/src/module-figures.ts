@@ -1,9 +1,9 @@
 // The sentences of a Learn module's chart section, on the page the build's compiler gives (`pageOf`), read against the
 // chart's rows (docs/CONTENT-STYLE.md §4, R5 and R6; docs/research/review-safe-figures.md, amendment 8).
 import type { LearnModule } from './loaders/modules.ts';
+import { pageSpaces } from './paragraphs.ts';
 import { printedGap, printedPercentText } from './percent-gap.ts';
 import { MODULE_PERCENT_JOINERS } from './percent-token.ts';
-import { pageSpaces } from './paragraphs.ts';
 import type { Problem } from './problem.ts';
 import type { ContentCoin } from './schema/coin.ts';
 import type { CycleDrawdown } from './schema/cycles.ts';

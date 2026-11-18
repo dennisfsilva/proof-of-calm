@@ -278,7 +278,9 @@ describe('a default-ignorable code point in a join’s run (docs/CONTENT-STYLE.m
   it('reads the class in every kind of join', () => {
     const gap = `U+00A0 ${at(0x3164)}`;
     expect(read('en', `Pay 100${nbsp}${hangulFiller}EUR.`)).toEqual([eur(gap)]);
-    expect(read('en', `Under art.${nbsp}${hangulFiller}46.`)).toEqual([by('the name "art." and its number', '46', gap)]);
+    expect(read('en', `Under art.${nbsp}${hangulFiller}46.`)).toEqual([
+      by('the name "art." and its number', '46', gap),
+    ]);
     expect(read('pt-PT', `Durante 30${nbsp}${hangulFiller}dias.`)).toEqual([
       by('the figure "30" and its unit', 'dias', gap),
     ]);
