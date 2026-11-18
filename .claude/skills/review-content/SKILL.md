@@ -125,8 +125,10 @@ Arguments: $ARGUMENTS
   values rest on, a fall's `source` and `lowSource` both, then `tests:` and each test that failed
   before the revert. Before you revert, run `pnpm --filter @proofofcalm/content test` and §7 step
   1's search, and list the file and line of every assertion that pins a replaced value: each
-  failing test as the run prints it, the `agent-draft` checks excepted, and each pinning assertion
-  the search finds. For a BTC row they include the `FALLS` row's tie and the Cycles module's pins in
+  failing test as the run prints it, the `agent-draft` checks and the content gates that fail on a
+  refusal excepted (`packages/content/scripts/validate.test.ts` and
+  `packages/content/scripts/closed-body.test.ts`, which run the checks on the real files and pin
+  nothing: §7 step 1's sentences on the content test), and each pinning assertion the search finds. For a BTC row they include the `FALLS` row's tie and the Cycles module's pins in
   `packages/content/src/cycles.test.ts`, the rows in `packages/content/src/loaders/templates.test.ts`,
   and the EDUCATION §9 tie in `packages/content/src/facts.test.ts`; the owner changes each with
   the data in that pull request. Any other chart row's change takes
