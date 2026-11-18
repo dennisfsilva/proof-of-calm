@@ -1,9 +1,9 @@
-import { siteTranslator } from '../../lib/site-messages';
+import { useSiteTranslator } from '../../lib/site-messages';
 import { SiteMain } from './layout';
 
 // The 404 page (ADR-0045 §1): an unknown path is a site page with the footer, never the app shell.
 export function NotFoundPage() {
-  const t = siteTranslator('notFound');
+  const t = useSiteTranslator('notFound');
   return (
     <SiteMain>
       <h1 className="text-28">{t('title')}</h1>

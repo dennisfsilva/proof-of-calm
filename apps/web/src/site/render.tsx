@@ -29,7 +29,7 @@ import { notAvailableHtml } from '../../lib/geo/uk-block';
 import { manifest } from '../../lib/pwa/manifest';
 import { indexFiles, PUBLIC_INDEXABLE } from '../../lib/site/indexing';
 import { LEGAL_PAGES, type LegalSlug, SITE_LINKS } from '../../lib/site/pages';
-import { siteTranslator } from '../../lib/site-messages';
+import { type SiteLanguage, SiteLanguageContext, siteTranslator } from '../../lib/site-messages';
 import { ContactPage } from './contact';
 import { CookiesPage } from './cookies';
 import { headAssets, pageHead } from './head';
@@ -191,8 +191,8 @@ function publicPage(name: PublicPage, { learn, countries, today, islands }: Site
   };
 }
 
-const legal = (slug: LegalSlug): Rendered => ({
-  title: legalTitle(slug),
+const legal = (slug: LegalSlug, language: SiteLanguage): Rendered => ({
+  title: legalTitle(slug, language),
   body: (
     <SiteLayout>
       <LegalPage slug={slug} />
@@ -204,10 +204,10 @@ const legal = (slug: LegalSlug): Rendered => ({
  * The Risk disclosure (docs/LEGAL.md §5): its dated falls are the cycles file's rows the Learn pages read. Its falls
  * paragraph points at the table ("Each row below…"), so the page is never built without rows.
  */
-function risk({ learn, today }: SiteData): Rendered {
+function risk({ learn, today }: SiteData, language: SiteLanguage): Rendered {
   if (learn.falls.length === 0) throw new Error('risk needs the falls of the cycles file');
   return {
-    title: legalTitle('risk'),
+    title: legalTitle('risk', language),
     body: (
       <SiteLayout>
         <RiskPage falls={learn.falls} today={today} />
@@ -216,7 +216,7 @@ function risk({ learn, today }: SiteData): Rendered {
   };
 }
 
-function page(name: Exclude<(typeof SITE_PAGES)[number], 'not-available' | 'risk'>): Rendered {
+function page(name: Exclude<(typeof SITE_PAGES)[number], 'not-available' | 'risk'>, language: SiteLanguage): Rendered {
   switch (name) {
     case 'index':
       return {
@@ -229,7 +229,7 @@ function page(name: Exclude<(typeof SITE_PAGES)[number], 'not-available' | 'risk
       };
     case 'cookies':
       return {
-        title: legalTitle('cookies'),
+        title: legalTitle('cookies', language),
         body: (
           <SiteLayout>
             <CookiesPage />
@@ -238,7 +238,7 @@ function page(name: Exclude<(typeof SITE_PAGES)[number], 'not-available' | 'risk
       };
     case 'contact':
       return {
-        title: legalTitle('contact'),
+        title: legalTitle('contact', language),
         body: (
           <SiteLayout>
             <ContactPage />
@@ -248,10 +248,10 @@ function page(name: Exclude<(typeof SITE_PAGES)[number], 'not-available' | 'risk
     case '~offline':
       // Served by the worker in place of the app: no footer, as the Next host had it, and the theme
       // script, so a session that chose a theme keeps it offline (docs/DESIGN.md §3).
-      return { title: siteTranslator('offline')('title'), body: <OfflinePage />, themeScript: true };
+      return { title: siteTranslator('offline', language)('title'), body: <OfflinePage />, themeScript: true };
     case '404':
       return {
-        title: siteTranslator('notFound')('title'),
+        title: siteTranslator('notFound', language)('title'),
         body: (
           <SiteLayout>
             <NotFoundPage />
@@ -259,7 +259,7 @@ function page(name: Exclude<(typeof SITE_PAGES)[number], 'not-available' | 'risk
         ),
       };
     default:
-      return legal(name);
+      return legal(name, language);
   }
 }
 
@@ -267,8 +267,15 @@ function page(name: Exclude<(typeof SITE_PAGES)[number], 'not-available' | 'risk
  * The whole document of one site page; `assets` are the tags `headAssets` read from the built app.html, and
  * `data` what the public pages read (`loadSiteData`).
  */
-export function renderSitePage(name: SitePage, assets: readonly string[], data?: SiteData): string {
-  if (name === 'not-available') return notAvailableHtml();
+export function renderSitePage(
+  name: SitePage,
+  assets: readonly string[],
+  data?: SiteData,
+  language: SiteLanguage = 'en',
+): string {
+  // The public pages live under /en/ and have no other language yet (ADR-0045, the Deviations of 2026-11-18).
+  if (isPublic(name) && language !== 'en') throw new Error(`${name} has no ${language} page`);
+  if (name === 'not-available') return notAvailableHtml(language);
   // The public pages and the Risk disclosure read the site data; the other pages read nothing.
   const fromData = (render: (loaded: SiteData) => Rendered) => {
     if (data === undefined) throw new Error(`${name} renders from the loaded site data`);
@@ -276,17 +283,17 @@ export function renderSitePage(name: SitePage, assets: readonly string[], data?:
   };
   let rendered: Rendered;
   if (isPublic(name)) rendered = fromData((loaded) => publicPage(name, loaded));
-  else if (name === 'risk') rendered = fromData(risk);
-  else rendered = page(name);
+  else if (name === 'risk') rendered = fromData((loaded) => risk(loaded, language));
+  else rendered = page(name, language);
   const { title, body, themeScript = false, canonical, indexable = false, island } = rendered;
   return [
     '<!doctype html>',
-    '<html lang="en">',
+    `<html lang="${language}">`,
     '<head>',
-    pageHead({ title, assets, themeScript, indexable, ...(canonical !== undefined && { canonical }) }),
+    pageHead({ title, assets, themeScript, indexable, language, ...(canonical !== undefined && { canonical }) }),
     '</head>',
     '<body>',
-    renderToStaticMarkup(body),
+    renderToStaticMarkup(<SiteLanguageContext value={language}>{body}</SiteLanguageContext>),
     // Last in the body, so the page paints before the island loads; the entry is a hashed path the build wrote.
     ...(island === undefined ? [] : [`<script data-entry="${island.entry}">${island.boot}</script>`]),
     '</body>',

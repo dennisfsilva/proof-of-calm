@@ -6,7 +6,7 @@ import { BRAND } from '@proofofcalm/app/lib/brand';
 import { THEME_BEFORE_PAINT } from '@proofofcalm/app/lib/theme';
 import { escapeHtml } from '../../lib/geo/uk-block';
 import colours from '../../lib/pwa/brand-colors.json';
-import { siteTranslator } from '../../lib/site-messages';
+import { type SiteLanguage, siteTranslator } from '../../lib/site-messages';
 
 const FONT_PRELOAD = /<link\b[^>]*\brel="preload"[^>]*\bas="font"[^>]*>/;
 const STYLESHEET = /<link\b[^>]*\brel="stylesheet"[^>]*>/;
@@ -39,6 +39,8 @@ type PageHead = {
   canonical?: string;
   /** False keeps the page out of search with the robots meta, as the X-Robots-Tag header does. */
   indexable: boolean;
+  /** The language of the page's words; the link preview's fallback description follows it. */
+  language?: SiteLanguage;
 };
 
 /** The link preview's image, written by `node tools/icons/generate.ts` (docs/DESIGN.md §9). */
@@ -63,7 +65,8 @@ function openGraph(title: string | null, description: string): string[] {
 }
 
 /** The inner HTML of a site page's head (docs/DESIGN.md §9 for the icons, the OG image and the theme colours). */
-export function pageHead({ title, assets, themeScript = false, description, canonical, indexable }: PageHead): string {
+export function pageHead(head: PageHead): string {
+  const { title, assets, themeScript = false, description, canonical, indexable, language = 'en' } = head;
   return [
     '<meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
@@ -72,7 +75,7 @@ export function pageHead({ title, assets, themeScript = false, description, cano
     `<title>${escapeHtml(pageTitle(title))}</title>`,
     ...(description === undefined ? [] : [`<meta name="description" content="${escapeHtml(description)}">`]),
     ...(canonical === undefined ? [] : [`<link rel="canonical" href="${escapeHtml(`${BRAND.origin}${canonical}`)}">`]),
-    ...openGraph(title, description ?? siteTranslator('manifest')('description')),
+    ...openGraph(title, description ?? siteTranslator('manifest', language)('description')),
     '<link rel="icon" href="/favicon.svg" type="image/svg+xml">',
     '<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">',
     '<link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">',

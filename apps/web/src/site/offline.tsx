@@ -1,9 +1,9 @@
-import { siteTranslator } from '../../lib/site-messages';
+import { useSiteTranslator } from '../../lib/site-messages';
 import { SiteMain } from './layout';
 
 // The page the service worker serves to a navigation it cannot answer offline (ADR-0033).
 export function OfflinePage() {
-  const t = siteTranslator('offline');
+  const t = useSiteTranslator('offline');
   return (
     <SiteMain>
       <h1 className="text-28">{t('title')}</h1>
