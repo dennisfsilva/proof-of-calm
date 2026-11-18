@@ -647,6 +647,20 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - A rule that sets or keeps a mark so a pull request carries a note is walked through a run whose
   only outcome is that note. #355's mark rule left a removal-only run with nothing staged, so the
   finish refused and no pull request carried the note (2026-11-17).
+- A walk is not a closure. A fix brief told to close a word list "as a class" by walking more forms
+  (both spelling norms, then the cardinals' noun plurals) still met new forms in the next round
+  (`undécuplo`, the `-á-` verb forms). After a list's second round, run the design check of the
+  lesson on review rounds above before the next fix: #358's check closed the translated chart
+  section instead of listing words (comments 6963962566 and 6964882009, 2026-11-18).
+- Run a route that a skill hands the owner on main on a scratch main before the review; do not
+  reason it. #358's FALLS route had the owner delete a data row that `cycles.test.ts`' whole-array
+  comparison needs, and round 2 turned main red with it (comment 6964927489, 2026-11-18).
+- A new check over profile text reuses its sibling checks' URL removal (`URL_IN_TEXT` in
+  `packages/content/src/percent-validate.ts`) from its first commit. #358's hyphen check flagged a
+  figure inside a URL in round 2 (2026-11-18).
+- Probe a design note's claim about where a browser breaks a line in Chromium and WebKit before the
+  build. #358's D5 said a hyphen-minus range never breaks (UAX #14 LB25); the builder's probe found
+  both engines break after it (S4, comment 6964566623, 2026-11-18).
 
 ## Known gaps
 
