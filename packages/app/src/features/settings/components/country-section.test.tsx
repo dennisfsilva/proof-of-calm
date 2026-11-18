@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-import { countryRules, loadProfile } from '@proofofcalm/content';
-import type { CountryCode, Plan } from '@proofofcalm/core';
+import { countryRules, loadProfile, loadRules } from '@proofofcalm/content';
+import type { CountryCode, CountryRules, Plan } from '@proofofcalm/core';
 import { FIXTURE_RULES } from '@proofofcalm/core/testing/country-change';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { ComponentProps } from 'react';
@@ -785,5 +785,32 @@ describe('CountrySection', () => {
     await mount(fixtureSnapshot(), async () => null);
     expect(screen.getByText('The country profiles are not loaded on this device.')).toBeTruthy();
     expect(screen.queryByRole('combobox')).toBeNull();
+  });
+});
+
+describe('CountrySection on a pt-PT screen (WCAG 2.2 SC 3.1.2, ADR-0057)', () => {
+  it("marks the new country's English conditions under the last-buy row lang=en", async () => {
+    // Germany's English rules file, as an offline load gives it; the eligible day moves across 29 Feb 2028, so the
+    // last-buy row lists the conditions and the early-opening notice, which marks its own, does not show.
+    const germany = (await loadRules('DE')) as CountryRules;
+    const load = async (code: CountryCode) => (code === 'DE' ? germany : rules(code));
+    const services = createTestServices({ snapshot: fixtureSnapshot(), rules: load, language: 'pt-PT' });
+    await services.start();
+    render(
+      <NavigationProvider location="memory" initialPath="/settings">
+        <ServicesProvider services={services}>
+          <I18nProvider locale="pt-PT" messages={{ settings, plan, errors, today, shell }}>
+            <CountrySection />
+          </I18nProvider>
+        </ServicesProvider>
+      </NavigationProvider>,
+    );
+    await screen.findByRole('heading', { name: 'Country' });
+    await choose('Germany');
+    const lastBuy = screen.getByText(NOTE).closest('li');
+    expect(lastBuy?.textContent).toMatch(/^Last buy tax-free from /);
+    const [first] = germany.holdingRuleConditions;
+    expect(screen.getByText(first as string).getAttribute('lang')).toBe('en');
+    expect(screen.getByText(first as string).closest('li')).toBe(lastBuy);
   });
 });
