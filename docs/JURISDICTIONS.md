@@ -226,9 +226,12 @@ review leaves nothing stale to withdraw.
 ## 3. Locale and timezone suggestion (never IP)
 
 Inputs: `navigator.languages` (ordered), `Intl.DateTimeFormat().resolvedOptions().timeZone`.
-Output: `{ country, confidence: 'high' | 'medium' | 'low', languageDiffers }`, or `null` for no
-suggestion. The onboarding shows the suggestion as one tap to confirm and a list to change; with `null`
-it shows the list; `languageDiffers` adds the line "residence, not language, decides tax".
+Output: `{ country, confidence: 'high' | 'medium' | 'low', languageDiffers }`, or `{ country: null,
+confidence: null, languageDiffers }` when nothing is named. The onboarding (and Settings' prototype import)
+names any suggested country and lists it first: `high` and `medium` are preselected, one tap to confirm;
+`low` is named but not preselected, and "Continue with …" appears once a country is chosen; with nothing
+named "Other country" comes first. `languageDiffers` adds the line "residence, not language, decides tax",
+named country or not.
 
 Algorithm (pure, in `packages/core/src/country/suggest.ts`, tested against the table below, which it
 reproduces row by row; the build session rewrote the first draft's steps on 2026-10-17 because the
@@ -246,13 +249,17 @@ steps and the table disagreed):
    (`de-DE` in Madrid, `nl-BE` in Amsterdam) → the timezone country, `low`, `languageDiffers`. English
    is a lingua franca and never points elsewhere. A region points elsewhere only when it names a profile
    the shell passes to `suggestCountry` (`codes.has(first.region)`), not one the table knows. `nl-BE` in
-   Amsterdam reads `NL medium` until Belgium ships a profile and `NL low` after.
+   Amsterdam reads `NL medium` until Belgium ships a profile and `NL low` after. The same reading sets
+   `languageDiffers` for every outcome: the first readable tag is not English, has a region, and that
+   region is a passed profile other than the named country (any profile when nothing is named), so
+   `pt-PT` first in Berlin reads `DE high` with the line when `de-DE` follows, and `pt-PT` in `UTC` names
+   nothing with the line; `medium` never carries it, since this step catches that case first.
 5. Else if the first language is English and the profile's `englishConfidence` is `low` (Portugal: many
    English speakers in Lisbon are visitors, not residents) → the timezone country, `low`.
 6. Else → the timezone country, `medium` (people travel; expats are common; the tap confirms).
-7. Without a usable timezone: the first tag whose region is a profile → `low`; else the first bare
-   language that names a profile by its own code (`pt` → PT, `de` → DE, `nl` → NL; `en` names none) →
-   `low`; else `null`.
+7. No suggestion without a usable timezone: a language says what someone reads, not where they live, so
+   nothing is named and the list opens with "Other country" (the language-only fallback went on
+   2026-11-18, ADR-0014's Deviations).
 
 Ambiguity table (kept in the profiles' test fixtures):
 
@@ -285,7 +292,7 @@ Ambiguity table (kept in the profiles' test fixtures):
 | language and timezone disagree (`de-DE` + `Europe/Madrid`) | the timezone country | low, with the line "residence, not language, decides tax" |
 | any locale, `Europe/Monaco`, `Europe/Andorra`, `Europe/Gibraltar`, `Europe/Luxembourg`, `Europe/Vienna`, `Europe/Zurich` | none | — |
 | any locale, `Asia/*` or `Australia/*` | none | — |
-| timezone unavailable or `UTC` | the language's country if it is a profile | low |
+| timezone unavailable, `UTC` or `Etc/*` | none (the line still shows when the first language names a profile) | — |
 
 The US zone list is explicit in the US profile (`America/New_York`, `America/Chicago`, `America/Denver`,
 `America/Phoenix`, `America/Los_Angeles`, `America/Anchorage`, `Pacific/Honolulu`);
