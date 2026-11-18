@@ -365,8 +365,13 @@ describe('overlayProblems', () => {
     expect(details('A bitcoin caiu 40\t\t% e o ether 31,4-٪.')).toEqual([
       'explanation: 40U+0009 U+0009 %, 31.4U+002D ٪, English 40 %, 31.4 %',
     ]);
+    // Brand's round 2 on #365: a gap that holds anything but one ordinary space names every character, the ordinary
+    // space as U+0020, so no space reads as the separator; one ordinary space alone stays a space.
+    expect(details('A bitcoin caiu 40  % e o ether 31,4 ‰.')).toEqual([
+      'explanation: 40U+0020 U+0020 %, 31.4 ‰, English 40 %, 31.4 %',
+    ]);
     expect(details('A bitcoin caiu 40⁠ ‰ e o ether 31,4 %.')).toEqual([
-      'explanation: 40U+2060  ‰, 31.4U+00A0 %, English 40 %, 31.4 %',
+      'explanation: 40U+2060 U+0020 ‰, 31.4U+00A0 %, English 40 %, 31.4 %',
     ]);
   });
 
