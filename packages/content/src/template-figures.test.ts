@@ -553,4 +553,23 @@ describe('templateFigureProblems prints its quoted text by code point (printedTe
         `"more than N %"${end(neither, 2)}`,
     ]);
   });
+
+  it('names a U+2060 in a coin id by code point in the share details and the data of figure-unclassed', () => {
+    const [unclassed, other, twice] = [
+      'Ethereum fell 15 %.',
+      'Ethereum takes 40 % of each amount.',
+      'Ethereum takes 100 % of each amount; 100 % goes into Ethereum.',
+    ];
+    expect(direct(unclassed)).toEqual([
+      `figure-unclassed explanation: "15 %" matches no shape of a fall or a share in "${unclassed}" ` +
+        `(${printed}: fall 83 %, share 100 %); R4 (docs/CONTENT-STYLE.md §4)`,
+    ]);
+    expect(direct(other)).toEqual([`figure-mismatch explanation: "40 %" is not ${printed}'s share of 100 %${end(other, 3)}`]);
+    expect(direct(other, {})).toEqual([
+      `figure-mismatch explanation: "40 %" is not ${printed}, which has no share${end(other, 3)}`,
+    ]);
+    expect(direct(twice)).toEqual([
+      `figure-form explanation: "100 %" gives "Ethereum" a second share beside ${printed}'s share of 100 %${end(twice, 3)}`,
+    ]);
+  });
 });

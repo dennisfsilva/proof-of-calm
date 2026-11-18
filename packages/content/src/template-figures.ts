@@ -137,7 +137,7 @@ export function templateFigureProblems(path: string, t: Figures): Problem[] {
         const ids = [...new Set([...sentence.matchAll(named)].map(([name]) => idOf.get(name) ?? ''))];
         const data = ids.map((id) => {
           const parts = [falls.has(id) ? `fall ${falls.get(id)} %` : '', id in t.split ? `share ${t.split[id]} %` : ''];
-          return `${id}: ${parts.filter(Boolean).join(', ')}`;
+          return `${printedText(id, [])}: ${parts.filter(Boolean).join(', ')}`;
         });
         const quoted = figures || quote(PERCENT.exec(sentence)?.[0] ?? '');
         report('figure-unclassed', `${quoted} matches no shape of a fall or a share`, 4, data.join('; '));
@@ -153,7 +153,8 @@ export function templateFigureProblems(path: string, t: Figures): Problem[] {
       for (const [name, figure] of pairs) {
         const id = idOf.get(name) ?? '';
         const split = t.split[id];
-        const share = split === undefined ? `${id}, which has no share` : `${id}'s share of ${split} %`;
+        const coin = printedText(id, []);
+        const share = split === undefined ? `${coin}, which has no share` : `${coin}'s share of ${split} %`;
         if (seen.has(id))
           report('figure-form', `${quote(figure)} gives ${quote(name)} a second share beside ${share}`, 3);
         else if (split === undefined || compare(figure.replace(/\D/g, ''), split) !== 0) {
