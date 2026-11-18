@@ -395,11 +395,11 @@ and in each translation. A decimal in a profile's text there takes the comma, an
 it is only a citation's. An identifier keeps its digits plain (`PIV 28969`).
 
 On every page, a currency code and its figure (`EUR 20 350`, `100 USD`) and a form's name and its
-number (`Modelo 721`, `Anexo G`, `Formulaire 2086`, `Form 1040`, `Box 3`, `Quadro 9.4`) are joined by U+00A0 too, so
-that a line never ends on the code or the name. This holds in English, in each translation, and in a
-module. A JSON file writes the space as `\u00a0`, a module as the character itself (decided
-2026-11-17). `pnpm validate:content` refuses a code's or a form's join that is not U+00A0 in a
-profile or a translated one (`figure-join`).
+number (`Modelo 721`, `Anexo G`, `Formulaire 2086`, `Form 1040`, `Box 3`, `Quadro 9.4`) are joined
+by U+00A0 too, so that a line never ends on the code or the name. This holds in English, in each
+translation, and in a module. A JSON file writes the space as `\u00a0`, a module as the character
+itself (decided 2026-11-17). `pnpm validate:content` refuses a code's or a form's join that is not
+U+00A0 in a profile or a translated one (`figure-join`).
 
 In an English profile the same U+00A0 joins a law's name and its number (`§ 23`, `art. 46`,
 `section 104`, `no. 3`, `n° 2026-534`, `Lei 24‑D/2022`, `Bill 2026`) and a date's parts
@@ -451,11 +451,11 @@ own styles at 161 widths from 240 to 400 px in Chromium and WebKit. With U+0020,
 `falls` at 34 widths at 125 % zoom and none at 100 %, and `teve 4` split from `quedas` at 7 widths at
 100 % and 68 at 125 % zoom. With U+00A0 nothing split (comment 6971015219 on #370, decided
 2026-11-18). The page drops a default-ignorable code point between the count and its noun. R5's
-hidden-character rule refuses that paragraph before B reads the gap. B reads a gap there made of JS
-white space (`\s`), format characters (`\p{Cf}`) or control characters (`\p{Cc}`), the class the
-joins above read. `pnpm validate:content` refuses a sentence that matches B with any such gap other
-than one U+00A0 (`figure-join`, R6). Any other character the page keeps between the count and its
-noun makes the sentence match neither shape (`figure-chart`, R5).
+hidden-character rule refuses that paragraph before B reads the gap. Between the count and its noun,
+B reads a gap made of JS white space (`\s`), format characters (`\p{Cf}`) or control characters
+(`\p{Cc}`), the class the five joins above read. `pnpm validate:content` refuses a sentence that
+matches B with any such gap other than one U+00A0 (`figure-join`, R6). Any other character the page
+keeps between the count and its noun makes the sentence match neither shape (`figure-chart`, R5).
 
 R7: in a Learn module, a count before a listed noun is joined to it by exactly one U+00A0 (`6 inputs`,
 `95 países`), written as the character itself, so that no line ends between them. `moduleCountProblems` in
@@ -474,7 +474,7 @@ control characters (`\p{Cc}`). It refuses any such gap other than one U+00A0 (`f
 names the gap by its code points. Any other character between the two, a hyphen or a word, leaves the pair
 unread. A noun matches whole and in any case, with no letter, mark or number character after it; a space inside
 one (`data points`) matches any run of white space. The lists are closed, one per language, and hold the nouns
-of the counts a census of the modules found, which at 16 places could end a line apart from their noun: in
+of the counts a census of the modules found (16 of them could end a line apart from their noun): in
 English `blocks`, `data points`, `inputs`, `components`, `indexes`, `bitcoins`, `episodes`, `start months`,
 `countries`, `completed cycles`, `cycles`, `parts` and `signs`, and in pt-PT the nine §9 names. B's noun
 (`falls`, `quedas`) is on neither list: R6 reads it. A count before any other noun stays unread. A probe joined
@@ -504,15 +504,15 @@ names. Spanish's names are `Ley`, `Real Decreto`, `Orden` and `art.`, its months
 (`25 juin 2026`). Italian's are `Legge`, `n.`, `art.` and `fascicolo`, its months with no linker
 (`22 dicembre 1986`). None of the three lists adds a unit: their titles are read with every
 language's units, as every text of a language with lists is (above). An `nl` title is read for the
-code and form joins only, since its titles hold no name, date or unit. A title in any other language (`de`)
-stays unchecked for joins until it has its lists (#381, decided 2026-11-18), though U+2011 is
-refused in every title. A source title's words stay as published, so the ban list and
-`number-unit-hyphen` stay off it,
-and a translation cannot change it (#368, decided 2026-11-18). The joins check reads the whole
-title, its hyphen rules included (`range-join` asks for U+2060 after an en dash or a hyphen-minus
-between two figures, and after a hyphen-minus in a law number or before a Latin ordinal suffix). `pnpm validate:content` refuses U+2011 in any title (`range-join`, decided 2026-11-18): a
-title keeps the published U+002D, with U+2060 after it where `range-join` asks for one. A pending
-change's source is not shown and stays unchecked.
+code and form joins only, since its titles hold no name, date or unit. A title in any other
+language (`de`) stays unchecked for joins until it has its lists (#381, decided 2026-11-18), though
+U+2011 is refused in every title. A source title's words stay as published, so the ban list and
+`number-unit-hyphen` stay off it, and a translation cannot change it (#368, decided 2026-11-18).
+The joins check reads the whole title, its hyphen rules included (`range-join` asks for U+2060
+after an en dash or a hyphen-minus between two figures, and after a hyphen-minus in a law number or
+before a Latin ordinal suffix). `pnpm validate:content` refuses U+2011 in any title (`range-join`,
+decided 2026-11-18): a title keeps the published U+002D, with U+2060 after it where `range-join`
+asks for one. A pending change's source is not shown and stays unchecked.
 
 `pnpm validate:content` refuses other grouping beside a currency code (`number-group`). It reads
 each figure as English does (a comma or a space between groups, a point before the decimals) and
