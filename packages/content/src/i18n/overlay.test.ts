@@ -189,11 +189,13 @@ describe('overlayProblems', () => {
         locale,
         locale,
       ]).map((problem) => problem.detail);
-    const typedNbsp = `${String.fromCodePoint(0x5c)}u00a0`;
+    const [nbsp, narrow] = [String.fromCodePoint(0xa0), String.fromCodePoint(0x202f)];
     expect(detail('0,125 BTC', '0.125 BTC')).toEqual(['card.caveats.0: 0.125, English 0,125']);
     expect(detail('EUR 1000', 'EUR 1.000')).toEqual(['card.caveats.0: 1.000, English 1000']);
-    expect(detail(`EUR 20${String.fromCodePoint(0xa0)}350`, 'EUR 20.350')).toEqual([
-      `card.caveats.0: 20.350, English 20${typedNbsp}350`,
+    // D4 of #377: a group joiner prints by its code point (printedText), never as a JSON escape.
+    expect(detail(`EUR 20${nbsp}350`, 'EUR 20.350')).toEqual(['card.caveats.0: 20.350, English 20U+00A0 350']);
+    expect(detail(`EUR 1${narrow}250${nbsp}000`, `EUR 1.250${narrow}000`)).toEqual([
+      'card.caveats.0: 1.250U+202F 000, English 1U+202F 250U+00A0 000',
     ]);
     expect(detail('art. 33.1', 'art. 33.10')).toEqual(['card.caveats.0: 33.10, English 33.1']);
     expect(detail('Up to EUR 1,1250 a year.', 'Até EUR 1.125 por ano.')).toEqual([
