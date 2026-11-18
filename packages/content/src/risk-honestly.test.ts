@@ -131,7 +131,7 @@ describe('the Risk honestly module', () => {
     const unrounded = [...factA.matchAll(/\), \u2212(\d+\.\d) %(?! so far)/gu)].map(([, fall]) => Number(fall));
     expect(unrounded.map((fall) => String(Math.round(fall)))).toEqual(rows.map((row) => row.fall));
     const sentence =
-      /In the chart, bitcoin had (\d+) falls of more than (\d+)\u00a0% between (\d{4}) and (\d{4})\./u.exec(body);
+      /In the chart, bitcoin had (\d+)\u00a0falls of more than (\d+)\u00a0% between (\d{4}) and (\d{4})\./u.exec(body);
     const bound = Number(sentence?.[2]);
     expect(unrounded.every((fall) => fall > bound)).toBe(true);
     // The count leads the sentence, so the skimmer meets the number of falls first (CONTENT-STYLE §1 rule 10).

@@ -56,13 +56,13 @@ const without = (coin: string) => ROWS.filter((r) => r.coin !== coin);
 const ONLY_2021 = ROWS.filter((r) => r.coin !== 'BTC' || r.high === '2021-11-10');
 
 // The judge's two sentences (#349) and a plausible pt-PT draft of the section's other sentences.
-const S1 = 'No gráfico, a bitcoin teve 4 quedas de mais de 75 % entre 2011 e 2022.';
+const S1 = 'No gráfico, a bitcoin teve 4 quedas de mais de 75 % entre 2011 e 2022.';
 const S2 = 'O ether caiu 94 % e 82 %, a Chainlink 89 % e 91 % e a Solana 97 %.';
 const INTRO =
   'Um plano mensal define o dia de cada compra. Não limita até onde um preço pode cair, e uma moeda pode perder quase\ntodo o seu valor. Cada barra abaixo é uma queda de uma moeda, desde um máximo de ciclo até ao preço mais baixo\ndepois desse máximo.';
 const REST =
   '## Outras formas de perder as moedas\n\nA 10 out. 2025, as liquidações passaram 19 mil milhões de $ num dia.';
-const EN1 = 'In the chart, bitcoin had 4 falls of more than 75 % between 2011 and 2022.';
+const EN1 = 'In the chart, bitcoin had 4 falls of more than 75 % between 2011 and 2022.';
 const EN2 = 'Ether fell 94 % and 82 %, Chainlink 89 % and 91 %, and Solana 97 %.';
 const EN_INTRO = 'A monthly plan sets when you buy. Each bar below is one fall of one coin.';
 const nb = (text: string) => text.replaceAll(' %', ' %');
@@ -99,8 +99,8 @@ describe("pt-PT's chart section", () => {
     ['S1 and S2 with U+0020', en(undefined, { raw: true }), pt(undefined, { raw: true }), []],
     [
       'a BTC row at 52 to 2026, counted by a lower bound',
-      en(`In the chart, bitcoin had 5 falls of more than 50 % between 2011 and 2026. ${EN2}`),
-      pt(`No gráfico, a bitcoin teve 5 quedas de mais de 50 % entre 2011 e 2026. ${S2}`),
+      en(`In the chart, bitcoin had 5 falls of more than 50 % between 2011 and 2026. ${EN2}`),
+      pt(`No gráfico, a bitcoin teve 5 quedas de mais de 50 % entre 2011 e 2026. ${S2}`),
       [],
       insert('BTC', row('BTC', '2025-10-06', '2026-10-30', '52')),
     ],
@@ -121,17 +121,17 @@ describe("pt-PT's chart section", () => {
     [
       'a bound on Solana',
       en(
-        `${EN1} In the chart, Solana had 1 fall of more than 95 % between 2021 and 2022. Ether fell 94 % and 82 %, and Chainlink 89 % and 91 %.`,
+        `${EN1} In the chart, Solana had 1 fall of more than 95 % between 2021 and 2022. Ether fell 94 % and 82 %, and Chainlink 89 % and 91 %.`,
       ),
       pt(
-        `${S1} No gráfico, a Solana teve 1 queda de mais de 95 % entre 2021 e 2022. O ether caiu 94 % e 82 % e a Chainlink 89 % e 91 %.`,
+        `${S1} No gráfico, a Solana teve 1 queda de mais de 95 % entre 2021 e 2022. O ether caiu 94 % e 82 % e a Chainlink 89 % e 91 %.`,
       ),
       [],
     ],
     [
       "only BTC's 2021 row",
-      en(`In the chart, bitcoin had 1 fall of more than 75 % between 2021 and 2022. ${EN2}`),
-      pt(`No gráfico, a bitcoin teve 1 queda de mais de 75 % entre 2021 e 2022. ${S2}`),
+      en(`In the chart, bitcoin had 1 fall of more than 75 % between 2021 and 2022. ${EN2}`),
+      pt(`No gráfico, a bitcoin teve 1 queda de mais de 75 % entre 2021 e 2022. ${S2}`),
       [],
       ONLY_2021,
     ],
@@ -152,14 +152,14 @@ describe("pt-PT's chart section", () => {
     ],
     [
       'a bound too high',
-      en(`In the chart, bitcoin had 1 fall of more than 95 % between 2011 and 2022. ${EN2}`),
-      pt(`No gráfico, a bitcoin teve 1 queda de mais de 95 % entre 2011 e 2022. ${S2}`),
+      en(`In the chart, bitcoin had 1 fall of more than 95 % between 2011 and 2022. ${EN2}`),
+      pt(`No gráfico, a bitcoin teve 1 queda de mais de 95 % entre 2011 e 2022. ${S2}`),
       [FC, FU],
     ],
     [
       'a bound that counts three falls ending in 2018',
-      en(`In the chart, bitcoin had 4 falls of more than 78 % between 2011 and 2022. ${EN2}`),
-      pt(`No gráfico, a bitcoin teve 4 quedas de mais de 78 % entre 2011 e 2022. ${S2}`),
+      en(`In the chart, bitcoin had 4 falls of more than 78 % between 2011 and 2022. ${EN2}`),
+      pt(`No gráfico, a bitcoin teve 4 quedas de mais de 78 % entre 2011 e 2022. ${S2}`),
       [FC, FC, FU],
     ],
     [
@@ -171,20 +171,20 @@ describe("pt-PT's chart section", () => {
     ],
     [
       'a wrong K',
-      en(`In the chart, bitcoin had 5 falls of more than 75 % between 2011 and 2022. ${EN2}`),
-      pt(`No gráfico, a bitcoin teve 5 quedas de mais de 75 % entre 2011 e 2022. ${S2}`),
+      en(`In the chart, bitcoin had 5 falls of more than 75 % between 2011 and 2022. ${EN2}`),
+      pt(`No gráfico, a bitcoin teve 5 quedas de mais de 75 % entre 2011 e 2022. ${S2}`),
       [FC],
     ],
     [
       'years wider than the falls',
-      en(`In the chart, bitcoin had 4 falls of more than 75 % between 2010 and 2024. ${EN2}`),
-      pt(`No gráfico, a bitcoin teve 4 quedas de mais de 75 % entre 2010 e 2024. ${S2}`),
+      en(`In the chart, bitcoin had 4 falls of more than 75 % between 2010 and 2024. ${EN2}`),
+      pt(`No gráfico, a bitcoin teve 4 quedas de mais de 75 % entre 2010 e 2024. ${S2}`),
       [FC],
     ],
     [
       'years reversed',
-      en(`In the chart, bitcoin had 4 falls of more than 75 % between 2022 and 2011. ${EN2}`),
-      pt(`No gráfico, a bitcoin teve 4 quedas de mais de 75 % entre 2022 e 2011. ${S2}`),
+      en(`In the chart, bitcoin had 4 falls of more than 75 % between 2022 and 2011. ${EN2}`),
+      pt(`No gráfico, a bitcoin teve 4 quedas de mais de 75 % entre 2022 e 2011. ${S2}`),
       [FC, FU],
     ],
     ['a coin with no row', enE('Solana 97 %, and Cardano 97 %.'), ptE(', a Solana 97 % e a Cardano 97 %.'), [FC]],
@@ -262,15 +262,15 @@ space, and %; R5 (docs/CONTENT-STYLE.md §4)`,
   it.each<[string, string, readonly string[], FigureContext['rows']?]>([
     [
       '1 quedas',
-      pt(`No gráfico, a bitcoin teve 1 quedas de mais de 75 % entre 2021 e 2022. ${S2}`),
+      pt(`No gráfico, a bitcoin teve 1 quedas de mais de 75 % entre 2021 e 2022. ${S2}`),
       [FC, FU],
       ONLY_2021,
     ],
-    ['2 queda', pt(`${S1} No gráfico, a bitcoin teve 2 queda de mais de 85 % entre 2011 e 2015. ${S2}`), [FC]],
+    ['2 queda', pt(`${S1} No gráfico, a bitcoin teve 2 queda de mais de 85 % entre 2011 e 2015. ${S2}`), [FC]],
     [
       '1 queda with one matching row',
       pt(
-        'No gráfico, a bitcoin teve 1 queda de mais de 90 % entre 2011 e 2011. O ether caiu 94 % e 82 %, a Chainlink 89 % e 91 %, a Solana 97 % e a bitcoin 87 %, 84 % e 78 %.',
+        'No gráfico, a bitcoin teve 1 queda de mais de 90 % entre 2011 e 2011. O ether caiu 94 % e 82 %, a Chainlink 89 % e 91 %, a Solana 97 % e a bitcoin 87 %, 84 % e 78 %.',
       ),
       [],
     ],
@@ -315,7 +315,7 @@ space, and %; R5 (docs/CONTENT-STYLE.md §4)`,
   });
 
   it("8: a wrong K is quoted in the sentence's words, the coin without its article", async () => {
-    const sentence = nb('No gráfico, a bitcoin teve 5 quedas de mais de 75 % entre 2011 e 2022.');
+    const sentence = nb('No gráfico, a bitcoin teve 5 quedas de mais de 75 % entre 2011 e 2022.');
     const [first] = await problemsOf(pt(`${sentence} ${S2}`));
     expect(first?.detail).toBe(
       `body: "5 quedas" in "${sentence}" is not how many of bitcoin's falls in the chart are more than 75 % between 2011 and 2022; R6 (docs/CONTENT-STYLE.md §4)`,

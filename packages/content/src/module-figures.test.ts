@@ -36,7 +36,7 @@ const without = (coin: string, high?: string) =>
 
 const ONLY_2021 = ROWS.filter((r) => r.coin !== 'BTC' || r.high === '2021-11-10');
 
-const S1 = 'In the chart, bitcoin had 4 falls of more than 75 % between 2011 and 2022.';
+const S1 = 'In the chart, bitcoin had 4 falls of more than 75 % between 2011 and 2022.';
 const S2 = 'Ether fell 94 % and 82 %, Chainlink 89 % and 91 %, and Solana 97 %.';
 const INTRO =
   'A monthly plan sets when you buy. It does not limit how far a price can fall, and a coin can lose almost all\nof its value. Each bar below is one fall of one coin, from a cycle high to the lowest price after it.';
@@ -73,7 +73,7 @@ describe('a chart section passes', () => {
     ['S1 and S2 with U+0020 before each %', body(`${S1} ${S2}`, { raw: true }), ROWS],
     [
       '3: a BTC row at 52 to 2026, counted by a lower bound',
-      body(`In the chart, bitcoin had 5 falls of more than 50 % between 2011 and 2026. ${S2}`),
+      body(`In the chart, bitcoin had 5 falls of more than 50 % between 2011 and 2026. ${S2}`),
       insert(4, row('BTC', '2025-10-06', '2026-10-30', '52')),
     ],
     [
@@ -89,7 +89,7 @@ describe('a chart section passes', () => {
     ['6: SOL at 96', E('and Solana 96 %.'), set('SOL', '2021-11-06', { fall: '96' })],
     [
       "7: BTC's 2011 high in 2010",
-      body(`In the chart, bitcoin had 4 falls of more than 75 % between 2010 and 2022. ${S2}`),
+      body(`In the chart, bitcoin had 4 falls of more than 75 % between 2010 and 2022. ${S2}`),
       set('BTC', '2011-06-08', { high: '2010-07-17' }),
     ],
     [
@@ -101,24 +101,24 @@ describe('a chart section passes', () => {
     ['10: an XRP row at 92', E('Solana 97 %, and XRP 92 %.'), [...ROWS, row('XRP', '2018-01-04', '2018-12-24', '92')]],
     [
       '11: BTC 2021 removed',
-      body(`In the chart, bitcoin had 3 falls of more than 75 % between 2011 and 2018. ${S2}`),
+      body(`In the chart, bitcoin had 3 falls of more than 75 % between 2011 and 2018. ${S2}`),
       without('BTC', '2021-11-10'),
     ],
     [
       '12: more than 77 %',
-      body(`In the chart, bitcoin had 4 falls of more than 77 % between 2011 and 2022. ${S2}`),
+      body(`In the chart, bitcoin had 4 falls of more than 77 % between 2011 and 2022. ${S2}`),
       ROWS,
     ],
     [
       '13: a bound on Solana',
       body(
-        `${S1} In the chart, Solana had 1 fall of more than 95 % between 2021 and 2022. Ether fell 94 % and 82 %, and Chainlink 89 % and 91 %.`,
+        `${S1} In the chart, Solana had 1 fall of more than 95 % between 2021 and 2022. Ether fell 94 % and 82 %, and Chainlink 89 % and 91 %.`,
       ),
       ROWS,
     ],
     [
       "14: only BTC's 2021 row",
-      body(`In the chart, bitcoin had 1 fall of more than 75 % between 2021 and 2022. ${S2}`),
+      body(`In the chart, bitcoin had 1 fall of more than 75 % between 2021 and 2022. ${S2}`),
       ONLY_2021,
     ],
     ['15: S2 and S1 as two paragraphs, S2 first', body(`${S2}\n\n${S1}`), ROWS],
@@ -135,13 +135,13 @@ describe('a chart section passes', () => {
     ],
     [
       '19: a second, narrower bound',
-      body(`${S1} In the chart, bitcoin had 2 falls of more than 85 % between 2011 and 2015. ${S2}`),
+      body(`${S1} In the chart, bitcoin had 2 falls of more than 85 % between 2011 and 2015. ${S2}`),
       ROWS,
     ],
     [
       '20: BTC 2021 at 75, stated in E',
       body(
-        'In the chart, bitcoin had 3 falls of more than 75 % between 2011 and 2018. Ether fell 94 % and 82 %, Chainlink 89 % and 91 %, Solana 97 %, and bitcoin 75 %.',
+        'In the chart, bitcoin had 3 falls of more than 75 % between 2011 and 2018. Ether fell 94 % and 82 %, Chainlink 89 % and 91 %, Solana 97 %, and bitcoin 75 %.',
       ),
       set('BTC', '2021-11-10', { fall: '75' }),
     ],
@@ -181,10 +181,10 @@ describe("#343's cases, their fixes and one step past", () => {
     ],
     [
       'a total after the bound',
-      body(`In the chart, bitcoin had 4 falls of more than 75 % between 2011 and 2022, of 6 falls in all. ${S2}`),
+      body(`In the chart, bitcoin had 4 falls of more than 75 % between 2011 and 2022, of 6 falls in all. ${S2}`),
       [1, 1],
       body(),
-      body(`In the chart, bitcoin had 4 falls of more than 75 % between 2011 and 2022, of 6 in all. ${S2}`),
+      body(`In the chart, bitcoin had 4 falls of more than 75 % between 2011 and 2022, of 6 in all. ${S2}`),
     ],
     [
       'a dated count',
@@ -213,18 +213,18 @@ describe("#343's cases, their fixes and one step past", () => {
     ['nearly', E('and Solana nearly 97 %.'), [1, 3], body(), E('and Solana 97 % at most.')],
     [
       'years wider than the falls',
-      body(`In the chart, bitcoin had 4 falls of more than 75 % between 2010 and 2024. ${S2}`),
+      body(`In the chart, bitcoin had 4 falls of more than 75 % between 2010 and 2024. ${S2}`),
       [1, 0],
       body(),
-      body(`In the chart, bitcoin had 4 falls of more than 75 % between 2011 and 2023. ${S2}`),
+      body(`In the chart, bitcoin had 4 falls of more than 75 % between 2011 and 2023. ${S2}`),
     ],
     ['Solana 96 % against 97', E('and Solana 96 %.'), [1, 0], body(), E('and Solana 98 %.')],
     [
       '5 falls',
-      body(`In the chart, bitcoin had 5 falls of more than 75 % between 2011 and 2022. ${S2}`),
+      body(`In the chart, bitcoin had 5 falls of more than 75 % between 2011 and 2022. ${S2}`),
       [1, 0],
       body(),
-      body(`In the chart, bitcoin had 3 falls of more than 75 % between 2011 and 2022. ${S2}`),
+      body(`In the chart, bitcoin had 3 falls of more than 75 % between 2011 and 2022. ${S2}`),
     ],
   ])('%s', async (_, source, counts, fix, past) => {
     expect(await tally(source)).toEqual(counts);
@@ -233,7 +233,7 @@ describe("#343's cases, their fixes and one step past", () => {
   });
 
   it('more than 78 % counts three falls in years that end in 2018: FC twice and FU; 77 is the fix', async () => {
-    const at78 = body(`In the chart, bitcoin had 4 falls of more than 78 % between 2011 and 2022. ${S2}`);
+    const at78 = body(`In the chart, bitcoin had 4 falls of more than 78 % between 2011 and 2022. ${S2}`);
     expect(await tally(at78)).toEqual([2, 1]);
     expect(await details(at78.replace('78', '77'))).toEqual([]);
   });
@@ -259,10 +259,10 @@ describe('a chart section fails', () => {
     ['a BTC row at 52 added, the text kept', body(), [0, 1], insert(4, row('BTC', '2025-10-06', '2026-07-01', '52'))],
     [
       'years reversed',
-      body(`In the chart, bitcoin had 4 falls of more than 75 % between 2022 and 2011. ${S2}`),
+      body(`In the chart, bitcoin had 4 falls of more than 75 % between 2022 and 2011. ${S2}`),
       [1, 1],
     ],
-    ['less than', body(`In the chart, bitcoin had 4 falls of less than 75 % between 2011 and 2022. ${S2}`), [1, 1]],
+    ['less than', body(`In the chart, bitcoin had 4 falls of less than 75 % between 2011 and 2022. ${S2}`), [1, 1]],
     ['97 and a line feed before %', body(`${S1} ${S2.replace('97 %', '97\n%')}`, { raw: true }), [1, 0]],
     ['97%', body(`${S1} ${S2.replace('97 %', '97%')}`, { raw: true }), [2, 3]],
     ['97 and U+066A', body(`${S1} ${S2.replace('97 %', '97 ٪')}`, { raw: true }), [2, 3]],
@@ -299,8 +299,8 @@ describe('a chart section fails', () => {
       [1, 0],
     ],
     ['a colon list', body(`${S1} Ether: 94 % and 82 %. Chainlink fell 89 % and 91 %, and Solana 97 %.`), [1, 1]],
-    ['75 % or more', body(`In the chart, bitcoin had 4 falls of 75 % or more between 2011 and 2022. ${S2}`), [1, 1]],
-    ['over 75 %', body(`In the chart, bitcoin had 4 falls of over 75 % between 2011 and 2022. ${S2}`), [1, 1]],
+    ['75 % or more', body(`In the chart, bitcoin had 4 falls of 75 % or more between 2011 and 2022. ${S2}`), [1, 1]],
+    ['over 75 %', body(`In the chart, bitcoin had 4 falls of over 75 % between 2011 and 2022. ${S2}`), [1, 1]],
     [
       'no serial comma, SOL removed',
       body(`${S1} Ether fell 94 % and 82 % and Chainlink 89 % and 91 %.`),
@@ -325,12 +325,12 @@ describe('a chart section fails', () => {
       [1, 3],
     ],
     [
-      'had 1 falls',
-      body(`In the chart, bitcoin had 1 falls of more than 75 % between 2021 and 2022. ${S2}`),
+      'had 1 falls',
+      body(`In the chart, bitcoin had 1 falls of more than 75 % between 2021 and 2022. ${S2}`),
       [1, 1],
       ONLY_2021,
     ],
-    ['had 0 falls', body(`In the chart, bitcoin had 0 falls of more than 95 % between 2011 and 2022. ${S2}`), [1, 1]],
+    ['had 0 falls', body(`In the chart, bitcoin had 0 falls of more than 95 % between 2011 and 2022. ${S2}`), [1, 1]],
     [
       'the figures moved under the next heading',
       body('Each bar is a fall.', { rest: `${REST}\n\n${nb(`${S1} ${S2}`)}` }),
@@ -443,31 +443,31 @@ describe("each detail quotes its sentence and names its figure and rule (§4's l
     ],
     [
       '7: B on a coin without rows',
-      after('In the chart, Cardano had 1 fall of more than 50 % between 2018 and 2022.'),
+      after('In the chart, Cardano had 1 fall of more than 50 % between 2018 and 2022.'),
       [
-        `figure-chart: body: "Cardano" in "In the chart, Cardano had 1 fall of more than 50 % between 2018 and 2022." names a coin the chart draws no fall of${R(6)}`,
+        `figure-chart: body: "Cardano" in "In the chart, Cardano had 1 fall of more than 50 % between 2018 and 2022." names a coin the chart draws no fall of${R(6)}`,
       ],
     ],
     [
       '8: B holds for none',
-      body(`In the chart, bitcoin had 1 fall of more than 95 % between 2011 and 2022. ${S2}`),
+      body(`In the chart, bitcoin had 1 fall of more than 95 % between 2011 and 2022. ${S2}`),
       [
-        `figure-chart: body: "more than 95 %" in "In the chart, bitcoin had 1 fall of more than 95 % between 2011 and 2022." holds for none of bitcoin's falls in the chart between 2011 and 2022${R(6)}`,
+        `figure-chart: body: "more than 95 %" in "In the chart, bitcoin had 1 fall of more than 95 % between 2011 and 2022." holds for none of bitcoin's falls in the chart between 2011 and 2022${R(6)}`,
         `figure-unstated: body: the chart draws a fall of Bitcoin that no sentence of its section states${R(5)}`,
       ],
     ],
     [
       '9: the count',
-      body(`In the chart, bitcoin had 5 falls of more than 75 % between 2011 and 2022. ${S2}`),
+      body(`In the chart, bitcoin had 5 falls of more than 75 % between 2011 and 2022. ${S2}`),
       [
-        `figure-chart: body: "5 falls" in "In the chart, bitcoin had 5 falls of more than 75 % between 2011 and 2022." is not how many of bitcoin's falls in the chart are more than 75 % between 2011 and 2022${R(6)}`,
+        `figure-chart: body: "5 falls" in "In the chart, bitcoin had 5 falls of more than 75 % between 2011 and 2022." is not how many of bitcoin's falls in the chart are more than 75 % between 2011 and 2022${R(6)}`,
       ],
     ],
     [
       '10: the years',
-      body(`In the chart, bitcoin had 4 falls of more than 75 % between 2010 and 2024. ${S2}`),
+      body(`In the chart, bitcoin had 4 falls of more than 75 % between 2010 and 2024. ${S2}`),
       [
-        `figure-chart: body: "between 2010 and 2024" in "In the chart, bitcoin had 4 falls of more than 75 % between 2010 and 2024." does not run from the year of the first high to the year of the last low of the falls it counts${R(6)}`,
+        `figure-chart: body: "between 2010 and 2024" in "In the chart, bitcoin had 4 falls of more than 75 % between 2010 and 2024." does not run from the year of the first high to the year of the last low of the falls it counts${R(6)}`,
       ],
     ],
     [
