@@ -594,4 +594,16 @@ chart's section, which reads plain text only${R6.replace('R6', 'R5')}`,
       `figure-join: body: the count "4" and its noun "falls" are joined by ${named}, not U+00A0, in "${shown(`${named} `)}"${R6}`,
     ]);
   });
+
+  // A gap that is neither JS white space nor a format character never matches B, so R5 names it by code point.
+  it.each([
+    ['U+0007', 0x7],
+    ['U+0085', 0x85],
+  ])('refuses %s there as matching neither shape, with no figure-join', async (named, code) => {
+    const [first, ...rest] = await details(body(`${joined(String.fromCodePoint(code))} ${S2}`));
+    expect(first).toBe(
+      `figure-chart: body: "${shown(`${named} `)}" holds a figure "4" and matches neither shape of a chart's section${R6.replace('R6', 'R5')}`,
+    );
+    expect(rest.filter((detail) => !detail.startsWith('figure-unstated'))).toEqual([]);
+  });
 });
