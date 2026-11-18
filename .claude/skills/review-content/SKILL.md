@@ -135,39 +135,27 @@ Arguments: $ARGUMENTS
   named as a `changes` row names it, with its new value as that file writes it, its joiners spelled as above (a fact's changed
   clause, not its whole `value`) and, for a figure the translated module shows, in the
   translation's number format too (fact a's `−94.0 %`, pt-PT's `−94,0 %`), then every URL the
-  values rest on, a fall's `source` and `lowSource` both, then `tests:` and each test that failed
-  before the revert, each as its path from the repository root with its line and no column
-  (`packages/content/src/<file>:<line>`). The content test prints `src/<file>:<line>:<column>`:
-  rewrite it to that form, so its src/drops-noise.test.ts:112:18 is
-  packages/content/src/drops-noise.test.ts:112. Before you revert, run `pnpm --filter @proofofcalm/content test` and §7 step
-  1's search, and list the file and line of every assertion that pins a replaced value: each
-  failing test the run prints, the `agent-draft` checks and the content gates excepted. A content
-  gate is a test that runs a check on the real files and expects `[]` or `null`: it fails on any
-  refusal of that check and pins no value (§7 step 1's sentences on the content test). The
-  EDUCATION §9 tie (`packages/content/src/facts.test.ts`, "each fact's value reads the same in its
-  EDUCATION §9 row") expects `[]` but pins each fact's value through its row: list it when it
-  fails. A test that runs a check on a copy of the real files with a body or file of its own
-  (`packages/content/scripts/validate.test.ts` tests 2 to 4: a chart row it moves, module bodies it
-  writes) is no content gate, even where it expects `[]`: name each line of it that holds a
-  replaced value. Add each pinning assertion the search finds. A chart row's pins are the
-  assertions that hold one of its values, each test below named with the rows it holds by their
-  highs; the list is open, and a pin your search finds beyond it counts the same: the `FALLS`
-  row's tie (`packages/content/src/cycles.test.ts`, every row); the rows in
-  `packages/content/src/loaders/templates.test.ts` (the four 2021 highs the templates copy: BTC
-  and ETH 2021-11-10, SOL 2021-11-06, LINK 2021-05-10); `packages/content/src/template-dates.test.ts`
-  (LINK 2021-05-10, through its copy in `packages/content/templates/cycle-plan.json`); the
-  EDUCATION §9 tie (`packages/content/src/facts.test.ts`, every row, through the clause fact a or
-  b gives it); and the Cycles module's pins (`packages/content/src/cycles.test.ts`, the BTC
-  2011-06-08 and 2017-12-17 rows). Outside `packages/content`, in tests only CI runs (name each pin
-  there as one, as §7 step 1 says): `packages/app/src/lib/services/red-day.test.ts` (SOL 2021-11-06 and BTC
-  2011-06-08, 2013-11-30, 2017-12-17 and 2021-11-10, the 2011-06-08 row's low and publisher
-  too); `apps/web/src/site/legal.test.ts` (BTC 2011-06-08, ETH 2018-01-13, SOL 2021-11-06, LINK
-  2021-05-10); `packages/app/src/features/learn/components/module-chart.test.tsx` (BTC 2011-06-08
-  and 2013-11-30, LINK 2021-05-10's low, and every row's publisher);
-  `packages/app/src/features/learn/components/this-fall-page.test.tsx` (BTC 2011-06-08); and
-  `packages/app/src/features/onboarding/components/template-step.test.tsx` (LINK 2021-05-10,
-  through its copy in `packages/content/templates/cycle-plan.json`). The owner changes each with
-  the data in that pull request. Any other chart
+  values rest on, a fall's `source` and `lowSource` both, then `tests:` and each assertion that
+  pins a value the revert put back, each as its path from the repository root with its line and no column
+  (`packages/content/src/<file>:<line>`). The content test prints a path from `packages/content`
+  with a column: write its src/drops-noise.test.ts:112:18 as
+  packages/content/src/drops-noise.test.ts:112, and a `scripts/` path the same way. Before you
+  revert, run `pnpm --filter @proofofcalm/content test` and §7 step 1's search, and list the file
+  and line of every assertion that pins a replaced value: each failing test the run prints, the
+  `agent-draft` checks and the content gates excepted, and each pin the search finds, in a test
+  only CI runs or a screenshot too. A content gate is a test that runs a check on the real files
+  and expects `[]` or `null`: it fails on any refusal of that check and pins no value (§7 step 1's
+  sentences on the content test). A test that expects `[]` but compares a value with a file you
+  may not edit pins that value: list it when it fails (the EDUCATION §9 tie in
+  `packages/content/src/facts.test.ts` compares each fact with its `docs/EDUCATION.md` row). A
+  test that runs a check on a copy of the real files with a row, body or file of its own is no
+  content gate either, even where it expects `[]`: name each line of it that holds a replaced
+  value (`packages/content/scripts/validate.test.ts` moves a chart row and writes module bodies).
+  A chart row's values reach tests in forms the row does not write, such as a template's or a
+  translation's sentence, a fact's clause, a chart's label, span or list of publishers, and a
+  page a screenshot captures: §7 step 1's search reaches each, so list every pin it finds, not
+  only the tests this skill names as examples, and name each pin outside `packages/content` as one
+  only CI runs. The owner changes each with the data in that pull request. Any other chart
   row's change takes
   `chart row for the owner: <coin>, high <high>, low <low>, fall <fall> %, <source> <lowSource>`,
   the values its sources give (`<coin>` the row's ticker, `SOL`; the `lowSource` only when the row
@@ -457,40 +445,60 @@ The finish refuses a changed entry at any other value.
    checks again; fix or revert anything else, a figure check's refusal only as §1 says, from its
    source. A test that fails because it asserts what your change replaced (the value a leaf
    other than `reviewedBy` held, a module sentence it pins, or a figure it derives from a value you
-   changed) is not yours to satisfy: revert nothing for it. Find every assertion that pins the old
-   value, not only the line its failure prints: Vitest prints a test's first failing assertion
-   alone, so an owner who removes that line meets the next. Grep with `path` `.`,
-   `glob` `**/*.{test,spec}.{ts,tsx}`, `output_mode` `content` and one pattern that joins with `|` each old
-   value as the data file writes it, with each regex character escaped (`\?`, `\.`, `\(`) and
-   each joiner it holds, a `\u` escape or the character, as
-   `(?:\\u[0-9a-fA-F]{4}|[\x{00A0}\x{2060}\x{2011}])`
-   (the Grep tool reads `\x{…}` as the character; never type the character itself), since a test writes it either way
-   (`5(?:\\u[0-9a-fA-F]{4}|[\x{00A0}\x{2060}\x{2011}])years` for a profile's `5 years`), each
-   old date by its day and year,
-   `(?:\b|\d{4}|\\u[0-9a-fA-F]{4})<day>\b(?:\D|\\u[0-9a-fA-F]{4}){1,30}<year>` (the day at a
-   word start, right after a year a test joins to it, as in `202129 Dec 2022`, or right after a
-   `\u` escape; between the parts any non-digit or a `\u` escape, so `10 Jun 2023` and
-   `10${NO_BREAK}Jun${NO_BREAK}2023` match; no boundary after the year, which a test can join to
-   the next date), and each old figure's digits, with
+   changed) is not yours to satisfy: revert nothing for it. Find every assertion that pins a value
+   your change replaced, in any test of the repository, not only the line its failure prints:
+   Vitest prints a test's first failing assertion alone, so an owner who removes that line meets
+   the next, and the content test runs no test outside `packages/content`, which CI runs. Grep
+   with `path` `.`, `glob` `**/*.{ts,tsx}` (tests, end-to-end specs, stories and the helpers they
+   import), `output_mode` `content` and `head_limit` `0`, since the tool otherwise stops at 250
+   lines and a chart row's search can return more, and read every line it returns. Join with `|`
+   in one pattern each old value your change replaced in any file it reached: the row's dates,
+   fall, publisher and sources, each template copy's, each translation's, the fact's clause (its
+   dates, prices and one-decimal fall), and each figure another fact or a module computes from
+   them (fact h's months to a moved high, fact i's whole fall). Write each value as the data file
+   writes it, with each regex character escaped (`\?`, `\.`, `\(`) and each joiner it holds, a
+   `\u` escape or the character, as `(?:\\u[0-9a-fA-F]{4}|[\x{00A0}\x{2060}\x{2011}])` (the Grep
+   tool reads `\x{…}` as the character; never type the character itself), since a test writes it
+   either way (`5(?:\\u[0-9a-fA-F]{4}|[\x{00A0}\x{2060}\x{2011}])years` for a profile's
+   `5 years`); a URL by its address before `?` and by each `key=value` of its query, since a
+   test can build it in parts (`start=2021-10-01T00:00:00Z`); a publisher also by each name it
+   joins (`Bitcoinity \(Mt\. Gox\)` and `CoinMarketCap`), since a chart names each once; each old
+   date by its day and year,
+   `(?:\b|\d{4}|\\u[0-9a-fA-F]{4})0?<day>\b(?:\D|\\u[0-9a-fA-F]{4}|\b0?<month>\b){1,30}<year>`
+   (the day at a word start, right after a year a test joins to it, as in `202129 Dec 2022`, or
+   right after a `\u` escape; between the parts any non-digit, a `\u` escape or the month's
+   number, so `10 Jun 2023`, `10${NO_BREAK}Jun${NO_BREAK}2023` and `10/06/2023` match;
+   no boundary after the year, which a test can join to the next date); each old figure's digits
+   after `(?:\b|\\u[0-9a-fA-F]{4})` and before `\b`, with
    `(?:[ ,.\x{00A0}\x{202F}]|\p{Cf}|\\u[0-9a-fA-F]{4}|\$\{[^}]{1,40}\}){0,2}` between digit
    groups (a space, comma or point, a no-break space, a format character, a `\u` escape, or a
-   test's placeholder or expression, such as `${nbsp}` or `${String.fromCodePoint(0xa0)}`) and `[.,]` as the decimal point; for ETH's low moved off
-   `2022-06-18` and its clause off `$880` and `−81.9 %` that is
-   `2022-06-18|(?:\b|\d{4}|\\u[0-9a-fA-F]{4})18\b(?:\D|\\u[0-9a-fA-F]{4}){1,30}2022|880|81[.,]9`.
-   Read each hit in
-   a test that failed: it pins the value when an assertion reads it, directly or through a constant
-   it defines (in `packages/content/src/loaders/templates.test.ts` a row's `const` and each
-   `expect` that reads it). A hit outside `packages/content` is in a test only CI runs (an app,
-   web, or end-to-end test, such as `apps/web/src/site/legal.test.ts`): read it the same way, and
-   name each assertion that reads the old value as one only CI runs. A hit in a content test that
-   passed is a fixture of its own. When that test reads a live data file and names the old value
-   (`packages/content/src/fact-windows.test.ts` names fact b's old low in its window), name that
-   line and both values in the notes for the log pull request. A hit that holds the same word,
-   figure or date for another row, fact or series is no pin of it, in a test that passed or
-   failed (the `Bitstamp` that `packages/content/src/drops-noise.test.ts` asserts is fact q's
-   BTC/USD series, not a moved row's publisher): leave it. A constant is no such hit when an
-   assertion reads it for your row (`BITSTAMP` in `packages/content/src/cycles.test.ts`, when the
-   moved row's `FALLS` literal reads it).
+   test's placeholder or expression, such as `${nbsp}` or `${String.fromCodePoint(0xa0)}`) and
+   `[.,]` as the decimal point; when a high moves to another year, its coin and old year,
+   `\bBTC\W{1,3}2011\b`, as a chart's label writes them; when a new high comes before the file's
+   first high, or a new low after its last low, that first high or last low too, which a chart's
+   span writes; and `toHaveScreenshot`. For ETH's low moved off `2022-06-18` and its clause off
+   `$880` and `−81.9 %` that is
+   `2022-06-18|(?:\b|\d{4}|\\u[0-9a-fA-F]{4})0?18\b(?:\D|\\u[0-9a-fA-F]{4}|\b0?6\b){1,30}2022|(?:\b|\\u[0-9a-fA-F]{4})880\b|(?:\b|\\u[0-9a-fA-F]{4})81[.,]9\b|toHaveScreenshot`.
+   Read each hit's test from its imports to its assertion. A hit pins the value when an assertion
+   compares it, directly or through a constant or helper the test defines or imports, with what
+   the live data gives: a data file the test imports or reads, a copy of those files, a loader, a
+   service or a page that renders them, or a running app. Name the assertion's line, and the
+   constant's line when a constant holds the value (in
+   `packages/content/src/loaders/templates.test.ts` a row's `const` and each `expect` that reads
+   it). A test that sets a value of its own to draw a refusal pins your new value too when the two
+   are equal (`packages/content/scripts/validate.test.ts` moves Solana's fall to 96): name that
+   line as well. A `toHaveScreenshot` hit pins the value when a page it captures shows it: read
+   the spec's pages, name its line, and name each such page in your closing report. A hit pins
+   nothing when its test builds the rows, bodies or files it asserts and reads no live one (a
+   fixture), when no test reads its file as an expected value, or when the value there is another
+   row's, fact's or series' (the `Bitstamp` that `packages/content/src/drops-noise.test.ts`
+   asserts is fact q's BTC/USD series, not a moved row's publisher): leave it. A constant is no
+   such hit when an assertion reads it for your row (`BITSTAMP` in
+   `packages/content/src/cycles.test.ts`, when the moved row's `FALLS` literal reads it). Name
+   each pinning assertion outside `packages/content` as one only CI runs. A content test that
+   reads a live data file, names the old value and passes
+   (`packages/content/src/fact-windows.test.ts` names fact b's old low in its window) takes a note
+   for the log pull request: that line and both values.
    A `FALLS` literal or a key of `UNREGAINED_KEYS` takes the note below. Name each other pinning
    assertion in the draft's notes and your closing report as
    `test pin for the owner: <path>:<line> pins <item> <field>: <old> to <new>`: the path from the
@@ -499,7 +507,9 @@ The finish refuses a changed entry at any other value.
    leaf's whole value, each as the data file writes it, with their joiners spelled (§1). Say in
    both that `verify` fails on `pnpm test` until the owner removes those assertions, the ones only CI
    runs too, in a pull request of its own (`docs/ENGINEERING.md` §2): one changed to your new value
-   would fail on main, where the data still holds the old one. The log pull request writes each
+   would fail on main, where the data still holds the old one. For a `toHaveScreenshot` pin say
+   instead that `e2e-visual` fails on those pages' baselines until the owner deletes them on this
+   branch (`docs/CONTENT-OPS.md` §8 step 4). The log pull request writes each
    back at your new value (`docs/CONTENT-OPS.md` §8 step 5). In `packages/content/src/cycles.test.ts`, a chart row's change
    meets its tie to fact a's or b's clause (§4 step 1). A literal of its `FALLS` table that your
    change replaced (a clause's one-decimal fall, a row's high or publisher) takes no such removal:
@@ -541,8 +551,8 @@ The finish refuses a changed entry at any other value.
    does).
    The content test runs the same checks on the real files in its content gates, tests that expect
    `[]` or `null` (`packages/content/scripts/validate.test.ts` test 1, `packages/content/scripts/closed-body.test.ts`
-   on the translated modules, and others under `packages/content/src`; §1 names the tests that
-   expect `[]` and still pin a value), so it fails on
+   on the translated modules, and others under `packages/content/src`; §1 says when a test that
+   expects `[]` still pins a value), so it fails on
    every refusal of `pnpm run validate:content`, `overlay-number-mismatch` included: fix or revert
    as that refusal's rule says; the rule for tests above covers only a test that asserts what your
    change replaced. `rules` reports the files it wrote,
