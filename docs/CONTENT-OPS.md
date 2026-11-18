@@ -335,9 +335,11 @@ fact to the window its URL names (the skill's §4 step 3).
    own file also writes a `changeNotice` that says so (`docs/JURISDICTIONS.md` §6). When `verify`
    fails on `pnpm test`, or an end-to-end spec fails in CI, because a test asserts a value the review
    changed other than `reviewedBy` (named in the notes, or shown only by CI, as an app, web or
-   end-to-end test is), have the assertion removed in a session pull request to main first, since
-   one changed to the new value fails on main, where the data still holds the old one; push the
-   flip after it merges. For the tie of a fact's value to its `docs/EDUCATION.md` §9 row, that pull
+   end-to-end test is), have every assertion that pins the old value removed in a session pull
+   request to main first, not only the line a failure prints (Vitest prints a test's first failing
+   assertion alone; the notes name each, a constant's line with every assertion that reads it),
+   since one changed to the new value fails on main, where the data still holds the old one; push
+   the flip after it merges. For the tie of a fact's value to its `docs/EDUCATION.md` §9 row, that pull
    request keeps the tie and adds the fact's old and new value, as you read them in the diff, to
    `unlogged` in `packages/content/src/facts.test.ts`; the agent's branch cannot change that file,
    so a later push that moves the value fails the tie (decided 2026-11-17: letting the guard accept
