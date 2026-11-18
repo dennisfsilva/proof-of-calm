@@ -168,6 +168,8 @@ describe('the Cookie-free statement (docs/LEGAL.md §5)', () => {
     for (const setting of ['theme', 'reduced motion', 'chart range', "the Log's view", 'the language']) {
       expect(stored).toContain(setting);
     }
+    // Production offers one language and stores none, so the statement names it only where there is a choice.
+    expect(stored).toContain('the language, where the app offers a choice');
     expect(page).toContain('until the tab closes');
     expect(page).toContain('Delete everything in Settings clears these too.');
   });
