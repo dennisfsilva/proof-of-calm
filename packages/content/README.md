@@ -78,8 +78,8 @@ A translation under `i18n/`, every `.json` file at any depth (`scripts/overlay-p
 against its English file (`src/i18n/overlay-validate.ts`, ADR-0057): the `overlay-*` problems for its
 shape, its numbers and its date placeholders (`overlay-date-mismatch`: each text names the
 English text's `{date:<field>}` placeholders, each as often, in any order; a swap of two stays with
-the copy review, as a swap of two numbers does), and in a template its `N %` tokens
-(`overlay-percent-mismatch`, templates only, #295; ADR-0057, Corrections of 2026-11-16), then the schema and the English field's checks on
+the copy review, as a swap of two numbers does), and in a template every percentage it writes, in any
+gap and sign (`overlay-percent-mismatch`, templates only, #295; ADR-0057, Corrections of 2026-11-16 and 2026-11-18), then the schema and the English field's checks on
 each text it changes.
 
 ## Loaders (the public index)
