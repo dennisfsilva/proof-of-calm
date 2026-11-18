@@ -30,28 +30,28 @@ const PROFILES: SuggestProfile[] = [
   { code: 'US', locales: ['en-US'], timezones: US_ZONES },
   { code: 'XX', locales: ['en'], timezones: ['UTC'] },
 ];
-type Row = readonly [languages: string[], timeZone: string | null, expected: string | null];
+type Row = readonly [languages: string[], timeZone: string | null, expected: string];
 
-// The ambiguity table of docs/JURISDICTIONS.md §3, one row per signal: "PT high", "ES low*" (* the
+// The ambiguity table of docs/JURISDICTIONS.md §3, one row per signal: "PT high", "ES low*", "none" (* the
 // device language names another country we serve, so the page says residence, not language, decides).
 const TABLE: Row[] = [
-  [['pt-BR'], 'America/Sao_Paulo', null],
+  [['pt-BR'], 'America/Sao_Paulo', 'none'],
   [['nl-BE'], 'Europe/Brussels', 'BE high'],
   [['fr-BE'], 'Europe/Brussels', 'BE high'],
-  [['fr-CH', 'de-CH'], 'Europe/Zurich', null],
-  [['de-AT'], 'Europe/Vienna', null],
+  [['fr-CH', 'de-CH'], 'Europe/Zurich', 'none'],
+  [['de-AT'], 'Europe/Vienna', 'none'],
   [['en-GB'], 'Europe/Dublin', 'IE medium'],
   [['en-IE'], 'Europe/London', 'GB medium'],
   [['en-US'], 'Europe/Berlin', 'DE medium'],
-  [['es-MX'], 'America/Mexico_City', null],
+  [['es-MX'], 'America/Mexico_City', 'none'],
   [['en'], 'America/New_York', 'US medium'],
   ...US_ZONES.map((zone): Row => [['en-US'], zone, 'US high']),
   ...['America/Toronto', 'America/Vancouver', 'America/Mexico_City', 'America/Sao_Paulo'].map(
-    (zone): Row => [['en-US'], zone, null],
+    (zone): Row => [['en-US'], zone, 'none'],
   ),
   [['es-US'], 'America/Los_Angeles', 'US medium'],
-  [['en-CA', 'fr-CA'], 'America/Toronto', null],
-  [['it-CH'], 'Europe/Zurich', null],
+  [['en-CA', 'fr-CA'], 'America/Toronto', 'none'],
+  [['it-CH'], 'Europe/Zurich', 'none'],
   [['en-GB'], 'Europe/Rome', 'IT medium'],
   [['en-US'], 'Europe/Brussels', 'BE medium'],
   [['pt-BR'], 'Europe/Lisbon', 'PT medium'],
@@ -70,27 +70,37 @@ const TABLE: Row[] = [
     (zone): Row => [['en-GB'], zone, `${PROFILES.find((p) => p.timezones.includes(zone))?.code} medium`],
   ),
   [['de-DE'], 'Europe/Madrid', 'ES low*'],
+  // A zone outside every profile names nothing; a language that names a profile still adds the line.
   ...[
-    ['fr-FR', 'Europe/Monaco'],
-    ['es-ES', 'Europe/Andorra'],
-    ['en-GB', 'Europe/Gibraltar'],
-    ['fr-FR', 'Europe/Luxembourg'],
-    ['de-DE', 'Europe/Vienna'],
-    ['de-DE', 'Europe/Zurich'],
-    ['en-US', 'Asia/Tokyo'],
-    ['en-GB', 'Australia/Sydney'],
-  ].map(([tag, zone]): Row => [[tag as string], zone as string, null]),
-  [['pt-PT'], 'UTC', 'PT low'],
-  [['en-US'], null, 'US low'],
-  [['de'], 'Etc/UTC', 'DE low'],
-  [['nl'], '', 'NL low'],
-  [['en'], 'UTC', null],
+    ['fr-FR', 'Europe/Monaco', 'none*'],
+    ['es-ES', 'Europe/Andorra', 'none*'],
+    ['en-GB', 'Europe/Gibraltar', 'none'],
+    ['fr-FR', 'Europe/Luxembourg', 'none*'],
+    ['de-DE', 'Europe/Vienna', 'none*'],
+    ['de-DE', 'Europe/Zurich', 'none*'],
+    ['en-US', 'Asia/Tokyo', 'none'],
+    ['en-GB', 'Australia/Sydney', 'none'],
+  ].map(([tag, zone, expected]): Row => [[tag as string], zone as string, expected as string]),
+  // Without a usable timezone nothing is named; the line still shows for a language naming a country we serve.
+  [['pt-PT'], 'UTC', 'none*'],
+  [['en-US'], null, 'none'],
+  [['de'], 'Etc/UTC', 'none'],
+  [['nl'], '', 'none'],
+  [['en'], 'UTC', 'none'],
+  [['en-US', 'en'], 'UTC', 'none'],
+  [['en-US', 'en'], 'Atlantic/Reykjavik', 'none'],
+  // The line follows the first language at every confidence and when nothing is named.
+  [['pt-PT', 'de-DE'], 'Europe/Berlin', 'DE high*'],
+  [['pt-PT'], 'Europe/Berlin', 'DE low*'],
+  [['pt-PT'], 'America/Toronto', 'none*'],
+  [['de-DE'], 'Europe/Lisbon', 'PT low*'],
+  [['de-DE', 'pt-PT'], 'Europe/Lisbon', 'PT high*'],
 ];
 
 const describeSuggestion = (languages: string[], timeZone: string | null) => {
   const suggestion = suggestCountry({ languages, timeZone }, PROFILES);
-  if (suggestion === null) return null;
-  return `${suggestion.country} ${suggestion.confidence}${suggestion.languageDiffers ? '*' : ''}`;
+  const named = suggestion.country === null ? 'none' : `${suggestion.country} ${suggestion.confidence}`;
+  return `${named}${suggestion.languageDiffers ? '*' : ''}`;
 };
 
 describe('suggestCountry (docs/JURISDICTIONS.md §3)', () => {
@@ -106,11 +116,15 @@ describe('suggestCountry (docs/JURISDICTIONS.md §3)', () => {
   it('ignores tags it cannot read and works without languages', () => {
     expect(describeSuggestion(['*', 'x-private', 'zh-Hant-TW', 'de-DE'], 'Europe/Berlin')).toBe('DE high');
     expect(describeSuggestion([], 'Europe/Paris')).toBe('FR medium');
-    expect(describeSuggestion([], null)).toBeNull();
+    expect(describeSuggestion([], null)).toBe('none');
   });
 
   it('suggests nothing for a timezone that two profiles list', () => {
     const shared = [...PROFILES, { code: 'LU', locales: ['fr-LU'], timezones: ['Europe/Brussels'] }];
-    expect(suggestCountry({ languages: ['fr-BE'], timeZone: 'Europe/Brussels' }, shared)).toBeNull();
+    expect(suggestCountry({ languages: ['fr-BE'], timeZone: 'Europe/Brussels' }, shared)).toEqual({
+      country: null,
+      confidence: null,
+      languageDiffers: true,
+    });
   });
 });
