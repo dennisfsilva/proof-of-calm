@@ -203,13 +203,14 @@ export function defuseCell(text: string): string {
 const WJ = String.fromCodePoint(0x2060);
 
 /**
- * A change row's `old` and `new` with each format character (`\p{Cf}`), each space separator but
- * U+0020 (`\p{Zs}`) and U+2011 written as `\x{HHHH}`, upper-case hex of at least four digits, the
- * spelling the skill gives a note, so the table and a note quote one value alike and `defuseCell`
- * finds no such character left to drop.
+ * A change row's `old` and `new` with each character a check's detail names by code point
+ * (`printedText` in packages/content/src/percent-gap.ts) written as `\x{HHHH}`, upper-case hex of at
+ * least four digits, the spelling the skill gives a note, so the table and a note quote one value
+ * alike and `defuseCell` finds no such character left to drop. U+0020, a tab, a line feed and a
+ * carriage return stay as written: every cell writes them as a space.
  */
 export function spellJoiners(text: string): string {
-  return text.replace(/(?! )[\p{Cf}\p{Zs}\u2011]/gu, (char) => {
+  return text.replace(/(?![ \t\n\r])[\p{Z}\p{Cf}\p{Cc}\p{Default_Ignorable_Code_Point}\u2010\u2011]/gu, (char) => {
     const hex = (char.codePointAt(0) ?? 0).toString(16).toUpperCase().padStart(4, '0');
     return `\\x{${hex}}`;
   });
