@@ -1,13 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import {
   isUiLanguage,
+  LANGUAGE_NAMES,
   LANGUAGE_STORAGE_KEY,
+  listedLanguages,
   localStorageOrNull,
+  PREVIEW_LANGUAGES,
   readLanguage,
   VISIBLE_LANGUAGES,
   writeLanguage,
 } from './language';
 import { UI_LANGUAGES } from './locale';
+
+/** The merged message files, `<language>/<namespace>.json`, by path (not loaded). */
+const messageFiles = Object.keys(import.meta.glob('../../messages/*/*.json')).map((path) =>
+  path.replace('../../messages/', ''),
+);
 
 /** A Storage over a Map, enough for the language's two calls. */
 function memoryStorage(): Storage {
@@ -28,6 +36,26 @@ describe('the UI language (ADR-0023, the device preference)', () => {
   it('shows English alone while pt-PT and German are hidden', () => {
     expect(VISIBLE_LANGUAGES).toEqual(['en']);
     expect(LANGUAGE_STORAGE_KEY).toBe('poc.language');
+  });
+
+  it("lists the preview languages only on the flag 'listed' (ADR-0023, Deviations of 2026-11-18)", () => {
+    expect(listedLanguages('listed')).toEqual(PREVIEW_LANGUAGES);
+    expect(listedLanguages('visible')).toEqual(VISIBLE_LANGUAGES);
+    expect(PREVIEW_LANGUAGES).toEqual(['en', 'pt-PT']);
+  });
+
+  it('previews only UI languages, English first, each with every namespace English has', () => {
+    expect(PREVIEW_LANGUAGES[0]).toBe('en');
+    const english = messageFiles.filter((file) => file.startsWith('en/')).map((file) => file.slice('en/'.length));
+    expect(english.length).toBeGreaterThan(0);
+    for (const language of PREVIEW_LANGUAGES) {
+      expect(UI_LANGUAGES).toContain(language);
+      for (const namespace of english) expect(messageFiles).toContain(`${language}/${namespace}`);
+    }
+  });
+
+  it('names every UI language in itself', () => {
+    expect(LANGUAGE_NAMES).toEqual({ en: 'English', 'pt-PT': 'Português (Portugal)', de: 'Deutsch' });
   });
 
   it('knows the UI languages and nothing else', () => {
