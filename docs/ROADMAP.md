@@ -399,7 +399,13 @@ external links and the Risk link in the mobile export (M3).
   in a module body, move to #397. The Today-only e2e specs move to #395. All three come after M2.
   With #340, #343, #349, #355, #358, #361, #368, #370, #377, #381, #387, #388 and #393, pt-PT
   takes 22 build sessions more than #269 planned before German starts. A render-and-axe-only pt-PT
-  story run waits for #271, once every namespace is translated. CSV import, free (ADR-0039), for the
+  story run waits for #271, once every namespace is translated. On 2026-11-18, #271 ran D11's
+  unanchored design check and merged six changes: the site's messages in pt-PT without routes
+  (#401), the remaining `lang` marks (#402), the language picker listed on protected previews and
+  hidden in production (#403), the country step that preselects only agreeing signals (#404), the
+  UI language derived from the device among the offered languages (#405) and the pt-PT convention
+  for a control named inside a sentence (#406); the re-rendered baselines follow in #407. pt-PT now
+  waits for the owner's native read (`docs/CONTENT-STYLE.md` §8). CSV import, free (ADR-0039), for the
   main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
   Republic; Kraken's ledger reader built on 2026-11-13 (#168) and the core's import plan against the
   Log the same day (#178, `docs/DOMAIN.md` §3.13, "Meeting the Log"), then its write (#183) and the
