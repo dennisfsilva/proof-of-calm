@@ -152,7 +152,9 @@ Arguments: $ARGUMENTS
   it has any; that ending says the note asks no change, so a note asking the owner for one never
   takes it. Never change a B sentence's bound (`more than N %`), never add, move or delete a clause
   or a sentence, and never remove a chart row. A
-  `number-group` refusal with a suggestion keeps the value: write the suggestion. A `figure-join`
+  `number-group` refusal with a suggestion keeps the value: write the suggestion. Where it names
+  U+00A0, however the detail prints it (`\u00a0`, or `U+00A0` and a space), write one U+00A0
+  (`\u00a0` in a JSON file), with no space after it. A `figure-join`
   detail names a pair and the gap between them: replace the whole gap, every character between
   that pair however the detail prints it, with one U+00A0 (`\u00a0` in a JSON file), never a figure. A `citation-join`
   detail names a citation: write U+2060 between each pair of its brackets (`55(1)\u2060(d)`, `\u2060`
