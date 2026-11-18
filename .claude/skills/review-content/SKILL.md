@@ -309,10 +309,10 @@ For each profile in `packages/content/jurisdictions/`:
      `path` `packages/content`, `glob` `**/learn/*.mdx` (the English modules and every
      `i18n/<locale>/learn/*.mdx`, a translated file even when its English file has no hit),
      `output_mode` `content` and `multiline` true, and one pattern that joins with `|` each old
-     figure's digits, with `(?:[ ,.  ]|\p{Cf}|\\u[0-9a-fA-F]{4}){0,2}` between digit
+     figure's digits, with `(?:[ ,.\x{00A0}\x{202F}]|\p{Cf}|\\u[0-9a-fA-F]{4}){0,2}` between digit
      groups and `[.,]` as the decimal point, and each old date by its day and year,
      `\b<day>\b\D{1,20}\b<year>\b`. For `$3,122 (15 Dec 2018), −84.1 %` that is
-     `3(?:[ ,.  ]|\p{Cf}|\\u[0-9a-fA-F]{4}){0,2}122|84[.,]1|\b15\b\D{1,20}\b2018\b`,
+     `3(?:[ ,.\x{00A0}\x{202F}]|\p{Cf}|\\u[0-9a-fA-F]{4}){0,2}122|84[.,]1|\b15\b\D{1,20}\b2018\b`,
      which finds `$3,122`, `3122 USD`, the same digits joined by U+2060, `−84,1 %` and
      `15 de dezembro de 2018`. Read each hit:
      change an English hit's figure as a module sentence, and treat a hit in a translated module
@@ -401,15 +401,16 @@ The finish refuses a changed entry at any other value.
    `glob` `**/*.{test,spec}.{ts,tsx}`, `output_mode` `content` and one pattern that joins with `|` each old
    value as the data file writes it, with each regex character escaped (`\?`, `\.`, `\(`) and
    each joiner it holds, a `\u` escape or the character, as
-   `(?:\\u[0-9a-fA-F]{4}|[ ⁠‑])`, since a test writes it either way
-   (`5(?:\\u[0-9a-fA-F]{4}|[ ⁠‑])years` for a profile's `5 years`), each
+   `(?:\\u[0-9a-fA-F]{4}|[\x{00A0}\x{2060}\x{2011}])`
+   (the Grep tool reads `\x{…}` as the character; never type the character itself), since a test writes it either way
+   (`5(?:\\u[0-9a-fA-F]{4}|[\x{00A0}\x{2060}\x{2011}])years` for a profile's `5 years`), each
    old date by its day and year,
    `(?:\b|\d{4}|\\u[0-9a-fA-F]{4})<day>\b(?:\D|\\u[0-9a-fA-F]{4}){1,30}<year>` (the day at a
    word start, right after a year a test joins to it, as in `202129 Dec 2022`, or right after a
    `\u` escape; between the parts any non-digit or a `\u` escape, so `10 Jun 2023` and
    `10${NO_BREAK}Jun${NO_BREAK}2023` match; no boundary after the year, which a test can join to
    the next date), and each old figure's digits, with
-   `(?:[ ,.  ]|\p{Cf}|\\u[0-9a-fA-F]{4}|\$\{[^}]{1,40}\}){0,2}` between digit
+   `(?:[ ,.\x{00A0}\x{202F}]|\p{Cf}|\\u[0-9a-fA-F]{4}|\$\{[^}]{1,40}\}){0,2}` between digit
    groups (a space, comma or point, a no-break space, a format character, a `\u` escape, or a
    test's placeholder or expression, such as `${nbsp}` or `${String.fromCodePoint(0xa0)}`) and `[.,]` as the decimal point; for ETH's low moved off
    `2022-06-18` and its clause off `$880` and `−81.9 %` that is
