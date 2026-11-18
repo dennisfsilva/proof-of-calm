@@ -707,20 +707,22 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - Before removing a branch of a character class as dead, probe it with one character of every kind.
   Round 1 of fix/module-count-join dropped `\p{Cf}`, and U+0600, which the page keeps, proved it
   live (2026-11-18).
-- Prose that restates how a shared reader treats characters fails at its corner cases. Round 4 of
-  fix/module-count-join described `paragraphsOf`'s collapse and missed its split at two line feeds.
-  Name the reader and its file, and claim only what the check itself does (#377, 2026-11-18).
+- Prose that restates how a shared reader treats characters fails at its corner cases. Round 4's fix
+  on fix/module-count-join described how `paragraphsOf` collapses white space and missed its split
+  at two line feeds. Name the reader and its file, and claim only what the check itself does (#377,
+  2026-11-18).
 - When a check's character class widens inside one global regex, probe the next pair: a pair that
   matches more can consume the part the next pair needs. #379 reads a pair's second part in a
   lookahead and pins a figure two pairs share (2026-11-18).
 - A fix that routes one arm of a conditional through `printedText` can leave the other arm raw.
   Route the whole expression and test both arms (fix/printed-details, round 2; #377 comment
   6974076456).
-- Brief a rehearsal to probe the builder's own `open` item. 25y's probe of the skill builder's
-  out-of-scope note became its fix round's main change (#380, 2026-11-18).
+- Brief a rehearsal to probe the builder's own `open` item. Probing the skill builder's out-of-scope
+  note gave that builder's fix round its main change (#380, 2026-11-18).
 - For prose about a character class, brief the reviewer to probe one character of every general
-  category and to report only a false sentence. With that brief, round 4 of fix/module-count-join
-  found one false sentence where each earlier round had found a new class (#377).
+  category and to report only a false sentence. With that brief, round 4's review of
+  fix/module-count-join found one false sentence where each earlier round had found a new class
+  (#377).
 
 ## Known gaps
 
