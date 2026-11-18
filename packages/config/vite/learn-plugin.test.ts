@@ -506,7 +506,7 @@ describe('checkModuleBody', () => {
       page: [
         { kind: 'heading', depth: 1, text: 'Noise' },
         { kind: 'paragraph', text: 'A calm plan.', marks: ['emphasis'] },
-        ...paragraphs('one', 'two'),
+        ...paragraphs('one', 'two').map((block) => ({ ...block, container: 'listItem' })),
       ],
     });
   });
