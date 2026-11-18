@@ -257,4 +257,6 @@ generated rules files of each language.
   than named. Its pattern stays in `packages/content/src/i18n/overlay-validate.ts`,
   apart from `packages/content/src/percent-token.ts`: that file holds the one token the app
   formats, while this check compares two texts and reads more than the app formats. Profiles keep
-  their own percent rules, as above.
+  their own percent rules, as above. A Learn module's `figure-chart` join detail prints its gap the
+  same way, except that it shows one no-break space as written too, since that space is one of its
+  two joiners (`"97U+202F %" in "…"`); both read `packages/content/src/percent-gap.ts`.
