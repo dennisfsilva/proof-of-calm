@@ -478,6 +478,35 @@ describe('a figure and its unit, a citation and an identifier (docs/CONTENT-STYL
   });
 });
 
+// C9 and C10 of #370: a detail prints a quoted text and its gap by every code point they hold (printedText,
+// printedGap), and a source's title never holds U+2011, in any language (docs/CONTENT-STYLE.md §4).
+describe('one printing of a figure and its gap, and no U+2011 in a title', () => {
+  it('names each space of a gap, and U+2011 in a quoted figure', () => {
+    expect(joins('Up to EUR  20 a year.')).toEqual([
+      'card.caveats.0: "EUR" and its figure "20" are joined by U+0020 U+0020, not U+00A0 (docs/CONTENT-STYLE.md §4)',
+    ]);
+    expect(joins(`Under Lei${nbsp}24${nb}D-A/2022.`)).toEqual([hyphened('24U+2011 D-A/2022')]);
+  });
+
+  const titled = (title: string, lang: string): CountryProfile => {
+    const profile = load('jurisdictions/pt.json');
+    const [first] = profile.sources;
+    if (first === undefined) throw new Error('pt.json has no source');
+    return { ...profile, sources: [{ ...first, title, lang }] };
+  };
+  it.each(['en', 'pt', 'de'])('refuses U+2011 in a title in lang %s, and passes U+002D with U+2060', (lang) => {
+    expect(titleJoinProblems(path, titled(`The 9${nb}bis rule`, lang))).toEqual([
+      {
+        path,
+        code: 'range-join',
+        detail:
+          'sources.0.title: the title "The 9U+2011 bis rule" holds U+2011; a source\'s title keeps the published U+002D, with U+2060 after it inside a law number (docs/CONTENT-STYLE.md §4)',
+      },
+    ]);
+    expect(titleJoinProblems(path, titled(`The 9-${wj}bis rule`, lang))).toEqual([]);
+  });
+});
+
 describe('the real profiles and their overlays', () => {
   it('join every code, form name, law name and date part with U+00A0, and every English range after its dash', () => {
     const english = jsonIn('jurisdictions/').map((name) => `jurisdictions/${name}`);
