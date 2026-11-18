@@ -78,16 +78,20 @@ export const numbersIn = (text: string, locale: string, profile = false): string
  */
 export type NumberLocales = readonly [english: string, translated: string];
 
-// Every percentage a text writes, in any form (`40 %`, `40%`, `40,5 %`, a no-break space). A template writes `N %`
-// with an ordinary space, which the app finds and formats with `format.percent` (template-step.tsx, CONTENT-STYLE §4),
-// so its translation writes the same percentages in the same order with the same space before the sign, each value
-// read with its own text's separators (`31.4 %` in English is `31,4 %` in pt-PT).
-const PERCENT_TOKEN = /(\d+(?:[.,]\d+)*)([\s  ]?)%/gu;
+// Every percentage a text writes, in any form: a figure, a gap of nothing, white space, hyphens or hidden characters,
+// and any of the six signs. A translation writes English's percentages as English writes them, in the same order,
+// each value read with its own text's separators (`31.4 %` in English is `31,4 %` in pt-PT; ADR-0057's Corrections).
+// It stays apart from percent-token.ts (decided 2026-11-18): that file holds the one token the app formats, `N %` in a
+// template's explanation, while this one compares two texts of any kind, so it reads more than the app formats
+// (`‰`, `‱`, a hidden character) and names each gap's code points, never a form to write.
+const PERCENT_TOKEN = /(\d+(?:[.,]\d+)*)((?:\s|-|\p{Cf})*)([%٪﹪％‰‱])/gu;
+const codePoint = (char: string) =>
+  char === ' ' ? ' ' : `U+${char.codePointAt(0)?.toString(16).toUpperCase().padStart(4, '0')} `;
 const percentsIn = (text: string, locale: string) =>
   [...text.matchAll(PERCENT_TOKEN)]
-    .map(({ 1: run = '', 2: space = '' }) => {
-      const joiner = space === '' ? '' : space === ' ' ? ' ' : `U+${space.codePointAt(0)?.toString(16).toUpperCase()} `;
-      return `${valuesOf(run, decimalSeparator(locale)).join('/')}${joiner}%`;
+    .map(({ 1: run = '', 2: gap = '', 3: sign = '' }) => {
+      const joiner = [...gap].map(codePoint).join('');
+      return `${valuesOf(run, decimalSeparator(locale)).join('/')}${joiner}${sign}`;
     })
     .join(', ') || 'none';
 

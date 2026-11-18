@@ -341,6 +341,35 @@ describe('overlayProblems', () => {
     expect(template('Each coin fell 31.4 %.', 'Cada moeda caiu 31,4%.')).toEqual(['overlay-percent-mismatch']);
   });
 
+  // The check reads every sign and every gap of nothing, white space, hyphens and hidden characters, so a form the
+  // app does not format is named in the detail rather than missing from it (ADR-0057's Corrections, 2026-11-18).
+  it.each(['40٪', '40‰', '40\t\t%', '40-%', '40⁠ %'])(
+    'refuses %j in a template overlay against English `40 %`',
+    (form) => {
+      expect(template('Bitcoin: 40 % of each amount.', `Bitcoin: ${form} de cada montante.`)).toEqual([
+        'overlay-percent-mismatch',
+      ]);
+    },
+  );
+
+  it("names the gap's code points and the sign, so the translator sees what differs", () => {
+    const details = (translated: string) =>
+      overlayProblems(
+        'template',
+        'packages/content/i18n/pt-PT/templates/cycle-plan.json',
+        { explanation: 'Bitcoin fell 40 % and Ether 31.4 %.' },
+        { explanation: translated },
+        ['en', 'pt-PT'],
+      ).map(({ detail }) => detail);
+    expect(details('A bitcoin caiu 40 % e o ether 31,4 %.')).toEqual([]);
+    expect(details('A bitcoin caiu 40\t\t% e o ether 31,4-٪.')).toEqual([
+      'explanation: 40U+0009 U+0009 %, 31.4U+002D ٪, English 40 %, 31.4 %',
+    ]);
+    expect(details('A bitcoin caiu 40⁠ ‰ e o ether 31,4 %.')).toEqual([
+      'explanation: 40U+2060  ‰, 31.4U+00A0 %, English 40 %, 31.4 %',
+    ]);
+  });
+
   it('keeps a template’s `{date:<field>}` placeholder intact, never translated (#274)', () => {
     const en = 'Bitcoin fell 78 % from its high on {date:drawdowns.BTC.high}.';
     expect(template(en, 'A bitcoin caiu 78 % desde o máximo de {date:drawdowns.BTC.high}.')).toEqual([]);
