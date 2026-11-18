@@ -104,9 +104,9 @@ Arguments: $ARGUMENTS
 - Never type U+00A0 or U+202F: your Edit and Write tools write either one, typed, as U+0020 (a
   typed U+2060 or U+034F arrives intact). In a JSON file, write U+00A0 as `\u00a0`, as the file
   writes it. In a module, keep each Edit's old and new text clear of every U+00A0 on the line,
-  ending the text at the characters beside it, so the file keeps its own U+00A0. Never rewrite a
-  module with Write. A module's refusal whose fix needs U+00A0 is one no edit of yours fixes (the
-  figure item below).
+  ending the text at the characters beside it, so the file keeps its own U+00A0. A Write of a
+  module writes each U+00A0 it holds as U+0020, so a module's change goes through Edit. A module's
+  refusal whose fix needs U+00A0 is one no edit of yours fixes (the figure item below).
 - Change `rules/*.json` and a locale's `rules/<locale>/*.json` only by running
   `pnpm --filter @proofofcalm/content rules`, never by hand.
 - Never delete an entry, a chart row or a file; the finish refuses a deleted file or fact entry or
