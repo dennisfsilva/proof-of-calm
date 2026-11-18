@@ -357,10 +357,11 @@ external links and the Risk link in the mobile export (M3).
   fix/module-count-join and fix/printed-details each wait with one confirmed finding after two
   review rounds. Five items move to #381, which comes before #271. On 2026-11-18, #381 merged four
   changes. B's count is joined to its noun, and the check reads a control character in that gap as
-  the joins do (#383). Every content-check detail prints the file text it quotes by code point
-  (#384). The es, fr and it source titles are read with their own lists, nl titles with the code
-  and form joins only, and 20 titles are joined (#385). R7 checks that a Learn module's count
-  before a listed noun is joined to it, and 28 counts are joined (#386). An agent compared each
+  the joins do (#383). Every content-check detail but R7's quoted noun prints the file text it
+  quotes by code point (#384). The es, fr and it source titles are read with their own lists, nl
+  titles with the code and form joins only, and 20 titles are joined (#385). R7 checks that a Learn
+  module's count before a listed noun is joined to it, and 28 counts are joined (#386). R7's detail
+  prints each run of white space inside its quoted noun as one space. An agent compared each
   image before 10 English baselines were updated. fix/review-note-forms waits with one
   confirmed finding after two review rounds. Five items move to #387, which comes before #271.
   With #340, #343, #349, #355, #358, #361, #368, #370, #377, #381 and #387, pt-PT takes 20 build
