@@ -84,7 +84,7 @@ describe('scripts/validate.ts on a copy of the files it reads', () => {
       const passed = run();
       expect(passed.lines).toEqual([]);
       expect(passed.status).toBe(0);
-      // One figure off, and a sentence pt-PT does not list.
+      // One figure off, and a sentence pt-PT does not list: exactly two figure lines (the number tie adds its own).
       writeFileSync(at(translated), pt('96', ' A queda durou três anos.'));
       const { status, lines } = run();
       const sentence = 'O ether caiu 94 % e 82 %, a Chainlink 89 % e 91 % e a Solana 96 %.';
