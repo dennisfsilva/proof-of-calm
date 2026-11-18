@@ -364,7 +364,7 @@ fact to the window its URL names (the skill's §4 step 3).
    `number-group` otherwise). Then take each `translation for the owner:` note: a letter, word,
    name or citation the English change altered that a translation repeats outside its figures,
    which the agent leaves (the skill's §1). Make that change in the translation's own wording,
-   at the path and field the note names. pt-PT writes the English `55(1)\x{2060}(e)` as `al. e)`.
+   at the path and field the note names, wherever that field repeats it. pt-PT writes the English `55(1)\x{2060}(e)` as `al. e)`.
    The note's path sets the route. A JSON translation's change goes in a commit on the agent's
    branch before merging. After the change, run `pnpm --filter @proofofcalm/content rules` and
    commit each file it changes under `packages/content/rules/<locale>/` with it. A change to a

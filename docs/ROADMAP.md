@@ -351,9 +351,13 @@ external links and the Risk link in the mobile export (M3).
   with its test search (#376). The count join's branch, fix/module-count-join, waits at ccf65959
   with two docs findings after two fix rounds. Round 2's review found its prose misdescribing a
   character class again, and the round limit holds the branch. Nine items move to #377, which
-  comes before #271.
-  With #340, #343, #349, #355, #358, #361, #368, #370 and #377, pt-PT takes 18 build sessions more than
-  #269 planned before German starts. A render-and-axe-only pt-PT
+  comes before #271. On 2026-11-18, #377 merged one gap rule for every join in the content checks,
+  which refuses U+00A0 beside another space and reads a figure two pairs share in both (#379). It
+  merged the review skill's note for a translation's repeated words, routed to the owner (#380).
+  fix/module-count-join and fix/printed-details each wait with one confirmed finding after two
+  review rounds. Five items move to #381, which comes before #271.
+  With #340, #343, #349, #355, #358, #361, #368, #370, #377 and #381, pt-PT takes 19 build sessions
+  more than #269 planned before German starts. A render-and-axe-only pt-PT
   story run waits for #271, once every namespace is translated. CSV import, free (ADR-0039), for the
   main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
   Republic; Kraken's ledger reader built on 2026-11-13 (#168) and the core's import plan against the

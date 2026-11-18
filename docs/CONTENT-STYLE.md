@@ -435,12 +435,14 @@ no joiner between its brackets (`citation-join`).
 The five U+00A0 joins above are read the same way: a code and its figure, a form's name and its
 number, a law's name and its number, a date's parts, and a figure and its unit.
 `pnpm validate:content` reads the run of white space, format and control characters (Unicode Cf
-and Cc) between the two parts. It refuses the run unless it is one U+00A0 alone, so a lone U+2060
-is refused, and so is U+00A0 beside any other character of the run. Beside an ordinary space, a
-line can still break at that space (decided 2026-11-18). When any other character sits between the
-two parts, they are not a join, so the check skips them. A part that two pairs share is read in
-both (`EUR 100 USD`), whether the first pair's run is refused or not. The detail names the pair and
-each character of the run in order (`U+00A0 U+0020`), never a text to write.
+and Cc) between the two parts. It refuses the run unless it is one U+00A0 alone. A lone U+2060 is
+refused, and so is U+00A0 beside any other character of the run. Beside an ordinary space, a line
+can still break there (decided 2026-11-18).
+
+When any other character sits between the two parts, they are not a join, so they stay unchecked.
+A part that two pairs share is read in both (`EUR 100 USD`), whether the first pair's run is
+refused or not. The detail names the pair and each character of the run in order
+(`U+00A0 U+0020`), never a text to write.
 
 U+00A0 joins a figure to its unit, a name to its number, an ordinal to its noun and a date's parts;
 U+2060 goes only after a dash or a hyphen and between a citation's brackets; U+2011 replaces the
