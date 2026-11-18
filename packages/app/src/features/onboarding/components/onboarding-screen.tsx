@@ -1,5 +1,6 @@
 import {
   type CountryProfile,
+  contentLanguageOf,
   countryChoices,
   countryRules,
   loadProfiles,
@@ -324,6 +325,7 @@ export function OnboardingScreen({ device }: OnboardingScreenProps) {
     }
     // The summary names the template: in another language it waits for the texts, as the list does.
     if (texts === null) return null;
+    const shown = template === null ? undefined : texts.get(template.id);
     return (
       <SummaryStep
         plan={plan}
@@ -333,7 +335,8 @@ export function OnboardingScreen({ device }: OnboardingScreenProps) {
           profile,
           today,
         )}
-        templateName={template === null ? null : (texts.get(template.id)?.name ?? template.name)}
+        templateName={template === null ? null : (shown?.name ?? template.name)}
+        templateLanguage={template === null ? undefined : shown === undefined ? 'en' : contentLanguageOf(shown)}
         reminder={draft.reminder}
         format={formatOf(profile)}
         pending={pending}

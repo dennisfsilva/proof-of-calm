@@ -9,6 +9,10 @@ import errors from '../../../messages/en/errors.json';
 import onboarding from '../../../messages/en/onboarding.json';
 import plan from '../../../messages/en/plan.json';
 import shell from '../../../messages/en/shell.json';
+import errosPt from '../../../messages/pt-PT/errors.json';
+import onboardingPt from '../../../messages/pt-PT/onboarding.json';
+import planoPt from '../../../messages/pt-PT/plan.json';
+import shellPt from '../../../messages/pt-PT/shell.json';
 import type { HoldingCountry } from '../../plan';
 import { SummaryStep, type SummaryStepProps } from './summary-step';
 
@@ -151,7 +155,9 @@ describe('SummaryStep', () => {
 
   it("names the general profile's rule with its own text and the generic date line, without Sources", () => {
     mount({ plan: { ...fixturePlan(), holdingRule: { kind: 'none' } }, holding: GENERIC });
-    expect(screen.getByText("The general profile's rule. No holding exemption is applied.")).toBeDefined();
+    expect(value('Holding rule')?.textContent).toMatch(
+      /^The general profile's rule\. No holding exemption is applied\./,
+    );
     expect(
       screen.getByText(
         'Reviewed on 17 Oct 2026: the general profile, not a rule for your country · general information, not advice',
@@ -173,5 +179,66 @@ describe('SummaryStep', () => {
   it('disables Start while the plan is being written', () => {
     mount({ pending: true });
     expect(screen.getByRole('button', { name: START }).getAttribute('aria-disabled')).toBe('true');
+  });
+});
+
+describe('SummaryStep on a pt-PT screen: content text keeps its own language (ADR-0057, WCAG 2.2 SC 3.1.2)', () => {
+  function mountPt(props: Partial<SummaryStepProps> = {}) {
+    render(
+      <I18nProvider
+        locale="pt-PT"
+        messages={{ errors: errosPt, onboarding: onboardingPt, plan: planoPt, shell: shellPt }}
+      >
+        <SummaryStep
+          plan={fixturePlan()}
+          holding={{ ...PORTUGAL, language: 'pt-PT' }}
+          templateName="Plano de ciclo"
+          templateLanguage="pt-PT"
+          reminder="calendar"
+          format={createFormatters('pt-PT', 'pt-PT')}
+          onBack={vi.fn()}
+          onStart={vi.fn()}
+          {...props}
+        />
+      </I18nProvider>,
+    );
+  }
+  /** The `lang` the text is read in: the nearest marked element's, or null for the page's. */
+  const langOf = (text: string) => screen.getByText(text).closest('[lang]')?.getAttribute('lang') ?? null;
+
+  it("marks the template's name lang=en when its texts came back English", () => {
+    mountPt({ templateName: 'Cycle plan', templateLanguage: 'en' });
+    expect(langOf('Cycle plan')).toBe('en');
+  });
+
+  it("marks no lang on a translated template's name, nor on the own-coins title", () => {
+    mountPt();
+    expect(langOf('Plano de ciclo')).toBeNull();
+    cleanup();
+    mountPt({ templateName: null, templateLanguage: undefined });
+    expect(langOf(onboardingPt.template.custom.title)).toBeNull();
+  });
+
+  it("marks the country's name with its rules' language", () => {
+    mountPt({ plan: { ...fixturePlan(), holdingRule: GERMANY.rule }, holding: { ...GERMANY, language: 'en' } });
+    expect(langOf('Germany')).toBe('en');
+    cleanup();
+    mountPt();
+    expect(langOf('Portugal')).toBeNull();
+  });
+
+  it("marks the general profile's English text, not the sentence around it", () => {
+    const unreviewed = { status: null, text: 'No holding exemption is applied.', language: 'en' } as const;
+    mountPt({ plan: { ...fixturePlan(), holdingRule: { kind: 'none' } }, holding: { ...GENERIC, unreviewed } });
+    expect(langOf('No holding exemption is applied.')).toBe('en');
+    expect(value(onboardingPt.summary.holdingRule)?.textContent).toMatch(
+      /^A regra do perfil geral\. No holding exemption is applied\./,
+    );
+    cleanup();
+    mountPt({
+      plan: { ...fixturePlan(), holdingRule: { kind: 'none' } },
+      holding: { ...GENERIC, unreviewed: { ...unreviewed, text: 'Não se aplica isenção.', language: 'pt-PT' } },
+    });
+    expect(langOf('Não se aplica isenção.')).toBeNull();
   });
 });

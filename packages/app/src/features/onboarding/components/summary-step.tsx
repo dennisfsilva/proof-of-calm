@@ -1,7 +1,9 @@
+import type { ContentLanguage } from '@proofofcalm/content';
 import { isPositive, type Percent, type Plan } from '@proofofcalm/core';
 import type { ReactNode } from 'react';
-import { useTranslations } from 'use-intl';
+import { useLocale, useTranslations } from 'use-intl';
 import type { Formatters } from '../../../lib/format';
+import { textLang } from '../../../lib/i18n';
 import { CountryDateLine, type HoldingCountry, holdingRuleText } from '../../plan';
 import type { SetupDraft } from '../model/draft';
 import { StartRow } from './start-row';
@@ -17,6 +19,8 @@ export type SummaryStepProps = {
   readonly holding: HoldingCountry;
   /** The template's name; null on the custom path. */
   readonly templateName: string | null;
+  /** The language of the template's texts as their loader marked it, `en` for English shown in their place (ADR-0057). */
+  readonly templateLanguage?: ContentLanguage | undefined;
   readonly reminder: SetupDraft['reminder'];
   /** The chosen country's formatting, as the numbers step uses it. */
   readonly format: Formatters;
@@ -30,6 +34,7 @@ export function SummaryStep({
   plan,
   holding,
   templateName,
+  templateLanguage,
   reminder,
   format,
   pending,
@@ -38,6 +43,12 @@ export function SummaryStep({
 }: SummaryStepProps) {
   const t = useTranslations('onboarding');
   const rule = useTranslations('plan.holdingRule');
+  const locale = useLocale();
+  // Each content text keeps the `lang` of the object it comes from where that is not the screen's (ADR-0057, WCAG 2.2
+  // SC 3.1.2): the country's name its rules', the template's name its texts', the general profile's text its own.
+  const marked = (text: string, language: ContentLanguage | undefined) => (
+    <span lang={textLang(language, locale)}>{text}</span>
+  );
   const money = (amount: Plan['monthlyAmount']) => format.money(amount, plan.payCurrency);
   const split = plan.coins
     // A coin never breaks from its share (docs/CONTENT-STYLE.md §4).
@@ -49,14 +60,32 @@ export function SummaryStep({
   const { key, values } = holdingRuleText(plan.holdingRule, format);
   const words = generic ? (holding.unreviewed?.text ?? '') : holding.source === null ? '' : rule(`text.${key}`, values);
   const ruleValue = t('summary.holdingRuleValue', { kind: generic ? 'generic' : 'named', name: holding.name, words });
+  // The profile's text closes the sentence in every language: split off, it keeps the profile's `lang`.
+  const ruleHead = generic && words !== '' && ruleValue.endsWith(words) ? ruleValue.slice(0, -words.length) : null;
   // Tabular figures only on the values that are numbers or dates (docs/DESIGN.md §5); the country, the rule,
   // the starting point, the sentence and the reminder are words and keep proportional figures. A row's
   // optional node shows under its value.
-  type Row = readonly [term: string, value: string, figures: boolean, under?: ReactNode];
+  type Row = readonly [term: string, value: ReactNode, figures: boolean, under?: ReactNode];
   const rows: (Row | null)[] = [
-    [t('summary.country'), holding.name, false],
-    [t('summary.holdingRule'), ruleValue.trim(), false, <CountryDateLine country={holding} />],
-    [t('summary.startingPoint'), templateName ?? t('template.custom.title'), false],
+    [t('summary.country'), marked(holding.name, holding.language), false],
+    [
+      t('summary.holdingRule'),
+      ruleHead === null ? (
+        ruleValue.trim()
+      ) : (
+        <span>
+          {ruleHead}
+          {marked(words, holding.unreviewed?.language)}
+        </span>
+      ),
+      false,
+      <CountryDateLine country={holding} />,
+    ],
+    [
+      t('summary.startingPoint'),
+      templateName === null ? t('template.custom.title') : marked(templateName, templateLanguage),
+      false,
+    ],
     [t('summary.coins'), split, true],
     [t('summary.monthly'), money(plan.monthlyAmount), true],
     isPositive(plan.startingAmount) ? [t('summary.starting'), money(plan.startingAmount), true] : null,

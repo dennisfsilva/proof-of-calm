@@ -142,13 +142,15 @@ describe('OnboardingScreen: a draft reopened on the summary in pt-PT (ADR-0057)'
     await screen.findByRole('heading', { level: 2, name: portuguese.summary.heading });
     expect(startingPoint()).toContain('Duas moedas, sem janela de venda');
     expect(document.body.textContent).not.toContain(TWO_COINS);
+    expect(screen.getByText('Duas moedas, sem janela de venda').closest('[lang]')).toBeNull();
   });
 
-  it('shows the English name when the load fails', async () => {
+  it('shows the English name when the load fails, marked lang=en (WCAG 2.2 SC 3.1.2)', async () => {
     const services = await englishDraftOnSummary();
     vi.mocked(loadTemplateTexts).mockRejectedValueOnce(new Error('offline'));
     await reopen(services);
     await screen.findByRole('heading', { level: 2, name: portuguese.summary.heading });
     expect(startingPoint()).toContain(TWO_COINS);
+    expect(screen.getByText(TWO_COINS).closest('[lang]')?.getAttribute('lang')).toBe('en');
   });
 });

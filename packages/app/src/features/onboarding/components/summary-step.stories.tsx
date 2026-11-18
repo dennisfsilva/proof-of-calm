@@ -97,7 +97,9 @@ export const GermanyEarlyWindow: Story = {
 export const GeneralProfile: Story = {
   args: { holding: generic, plan: { ...plan, holdingRule: { kind: 'none' } } },
   play: async ({ canvas }) => {
-    await expect(canvas.getByText(/^The general profile's rule\. No holding exemption is applied/)).toBeVisible();
+    // The profile's text sits in its own element, which carries the profile's `lang` where it differs (ADR-0057).
+    await expect(canvas.getByText(/^The general profile's rule\.\s*$/)).toBeVisible();
+    await expect(canvas.getByText(/^No holding exemption is applied/)).toBeVisible();
     await expect(canvas.queryByRole('link', { name: 'Sources' })).toBeNull();
   },
 };
