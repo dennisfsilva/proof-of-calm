@@ -24,7 +24,7 @@
       },
       "custody": {
         "title": "Custódia e contrapartes",
-        "p1": "A {product} nunca detém o seu dinheiro nem as suas moedas. Quem usa a {product} compra e guarda as moedas junto de um prestador à sua escolha ou numa carteira própria.",
+        "p1": "A {product} nunca detém o seu dinheiro nem as suas moedas. Quem a usa compra e guarda as moedas junto de um prestador à sua escolha ou numa carteira própria.",
         "p2": "Um prestador pode falir, ser alvo de um ataque informático ou suspender os levantamentos, com as moedas dos clientes lá dentro. Se guardar as moedas por conta própria e perder a frase de recuperação, ninguém as pode restaurar."
       },
       "status": {
