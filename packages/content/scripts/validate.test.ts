@@ -75,10 +75,10 @@ describe('scripts/validate.ts on a copy of the files it reads', () => {
       .filter((line) => /^(?:slug|title|idea|caveat): /u.test(line))
       .join('\n');
     const pt = (solana: string, after = '') =>
-      `---\n${kept}\n---\n<Chart />\n\nNo gráfico, a bitcoin teve 4 quedas de mais de 75 % entre 2011 e 2022. O ether caiu 94 % e 82 %,\na Chainlink 89 % e 91 % e a Solana ${solana} %.${after}\n`;
+      `---\n${kept}\n---\n<Chart />\n\nNo gráfico, a bitcoin teve 4 quedas de mais de 75 % entre 2011 e 2022. O ether caiu 94 % e 82 %,\na Chainlink 89 % e 91 % e a Solana ${solana} %.${after}\n`;
     writeFileSync(
       at(MODULE),
-      `---\n${front}---\nA monthly plan sets when you buy. It does not limit how far a price can fall.\n\n<Chart />\n\nIn the chart, bitcoin had 4 falls of more than 75 % between 2011 and 2022. Ether fell 94 % and 82 %,\nChainlink 89 % and 91 %, and Solana 97 %.\n${more}`,
+      `---\n${front}---\nA monthly plan sets when you buy. It does not limit how far a price can fall.\n\n<Chart />\n\nIn the chart, bitcoin had 4 falls of more than 75 % between 2011 and 2022. Ether fell 94 % and 82 %,\nChainlink 89 % and 91 %, and Solana 97 %.\n${more}`,
     );
     const restore = () => {
       writeFileSync(at(MODULE), english);
