@@ -26,7 +26,9 @@ export type HoldingRule = z.infer<typeof HoldingRuleSchema>;
 // schema (docs/JURISDICTIONS.md §2).
 const WORD_JOINER = /\u2060/g;
 const visibleUpTo = (max: number) =>
-  z.string().check(z.refine((text) => text.replace(WORD_JOINER, '').length <= max, `Expected at most ${max} characters`));
+  z
+    .string()
+    .check(z.refine((text) => text.replace(WORD_JOINER, '').length <= max, `Expected at most ${max} characters`));
 
 /** An enacted rule that applies to lots acquired on or after a date (Germany's draft reform would be one). */
 export const HoldingRuleOverrideSchema = z.strictObject({
