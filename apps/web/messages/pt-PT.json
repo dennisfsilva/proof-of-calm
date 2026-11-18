@@ -37,8 +37,8 @@
       },
       "scams": {
         "title": "Burlas",
-        "p1": "A {product} nunca lhe oferece um investimento e nunca pede a sua frase de recuperação, uma chave privada, a chave de API ou os dados de acesso de uma plataforma de negociação, nem moedas ou dinheiro para as comprar. Uma mensagem que o faça não é da {product}, seja qual for a sua origem aparente.",
-        "p2": "Sinais de burla: uma promessa de que o dinheiro vai crescer depressa com pouco risco, um desconhecido que leva a conversa para o investimento ou qualquer pedido da sua frase de recuperação, de uma chave privada ou da chave de API ou dos dados de acesso de uma plataforma de negociação."
+        "p1": "A {product} nunca lhe oferece um investimento e nunca pede a sua frase de recuperação, uma chave privada, a chave de API de uma plataforma de negociação ou os respetivos dados de acesso, nem moedas nem dinheiro para as comprar. Uma mensagem que o faça não é da {product}, seja qual for a sua origem aparente.",
+        "p2": "Sinais de burla: uma promessa de que o dinheiro vai crescer depressa com pouco risco, um desconhecido que leva a conversa para o investimento ou qualquer pedido da sua frase de recuperação, de uma chave privada, da chave de API de uma plataforma de negociação ou dos respetivos dados de acesso."
       },
       "register": {
         "title": "Verificar um prestador",
