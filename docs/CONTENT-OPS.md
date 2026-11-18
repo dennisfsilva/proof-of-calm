@@ -384,7 +384,10 @@ fact to the window its URL names (the skill's §4 step 3).
    step 3), write that figure in the translation, in its number locale's format (the skill's §1),
    or revert the English change, in a commit on the agent's branch before merging; `verify` stays
    red until then. A `translated module for the owner:` or chart row note names a change the agent
-   reverted: make it in a pull request of your own, never on the agent's branch. A chart row note
+   reverted: make it in a pull request of your own, never on the agent's branch. A `module gap for
+   the owner:` note names a gap in a module that only U+00A0 fixes, which the agent cannot type
+   (the skill's §1): write U+00A0 there, on the agent's branch when its `verify` fails on that
+   gap, else in a pull request of your own. A chart row note
    that ends `keeps its series, unregained` (a coin of `UNREGAINED_KEYS`) asks no data change: record
    its reading in the log (step 5) and leave the row, since `packages/content/src/cycles.test.ts`
    wants that coin's low window to run to the row's `accessed`, which no Coinbase request of

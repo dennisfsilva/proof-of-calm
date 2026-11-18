@@ -101,6 +101,12 @@ Arguments: $ARGUMENTS
   spell one value alike. U+0020, a tab, a line feed and a carriage return stay as written, and
   every cell writes them as a space. So in a note, spell each such character the same way: a
   value whose `old` holds U+034F reads `\x{034F}` in both.
+- Never type U+00A0 or U+202F: your Edit and Write tools write either one, typed, as U+0020 (a
+  typed U+2060 or U+034F arrives intact). In a JSON file, write U+00A0 as `\u00a0`, as the file
+  writes it. In a module, keep each Edit's old and new text clear of every U+00A0 on the line,
+  ending the text at the characters beside it, so the file keeps its own U+00A0. Never rewrite a
+  module with Write. A module's refusal whose fix needs U+00A0 is one no edit of yours fixes (the
+  figure item below).
 - Change `rules/*.json` and a locale's `rules/<locale>/*.json` only by running
   `pnpm --filter @proofofcalm/content rules`, never by hand.
 - Never delete an entry, a chart row or a file; the finish refuses a deleted file or fact entry or
@@ -130,7 +136,8 @@ Arguments: $ARGUMENTS
   Edit tool drops a trailing space of the new text. No edit you may make fixes these refusals:
   after a chart row's change, `figure-unstated` after a new row, a B sentence's count, years or
   bound, a coin the chart draws no fall of, or a row you would remove; after any English change,
-  one on a translated module (above). Before the revert, make every edit the items above allow
+  one on a translated module (above); in a module, one whose fix needs U+00A0 (below). Before
+  the revert, make every edit the items above allow
   and run the checks, so the note names each file and field the change reaches; then revert them
   all. Revert that item's change in every file it touched (the fact, the English module, a chart
   row, the templates' copies of it and their explanations, and a translation's figure, a template
@@ -187,14 +194,18 @@ Arguments: $ARGUMENTS
   or a sentence, and never remove a chart row. A
   `number-group` refusal with a suggestion keeps the value: write the suggestion. Where it names
   U+00A0, which the detail prints as `U+00A0` and a space that is not in the file, write one
-  U+00A0 (`\u00a0` in a JSON file), with no space after it. A `figure-join`
+  U+00A0 as `\u00a0` in a JSON file, with no space after it. A `figure-join`
   detail on a profile's join or on R6 (a module's B count) names a pair and the gap between them:
   replace the whole gap, every character between that pair however the detail prints it, with one
   U+00A0 (`\u00a0` in a JSON file), never a figure. A `figure-join` detail of R7, on a count and
   its noun in a module (it ends `R7 (docs/CONTENT-STYLE.md §4)`), carries its own fix: do what
-  that fix says and nothing else (`docs/CONTENT-STYLE.md` §4, R7). In a module the fix is the
-  character itself, never a `\u00a0` escape, which the page shows as written; run
-  `pnpm run validate:content` again after the edit. A `citation-join`
+  that fix says and nothing else (`docs/CONTENT-STYLE.md` §4, R7), and run
+  `pnpm run validate:content` again after the edit. In a module, a fix that deletes (R7's `delete
+  it`) is yours to make, but a fix that needs U+00A0 (R7's gap, R6's, a join's gap, a
+  `number-group` suggestion) is a refusal no edit of yours fixes: you cannot type U+00A0, and the
+  page shows a `\u00a0` escape as written. Take the revert above, with the one note
+  `module gap for the owner: <path> <field>: <the check's detail>`, its joiners spelled as above;
+  when the gap was there before your change, nothing is yours to revert. A `citation-join`
   detail names a citation: write U+2060 between each pair of its brackets (`55(1)\u2060(d)`, `\u2060`
   in a JSON file) and nothing else, none between the number and its first bracket. A `range-join`
   detail names a range or a number: write U+2060 after its dash or hyphen-minus (`2023\u2013\u20602025`,
