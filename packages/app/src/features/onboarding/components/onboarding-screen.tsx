@@ -28,6 +28,7 @@ import { useClock, useDrafts, useServices, useSnapshot, useToday } from '../../.
 import {
   type EarlyNotice,
   earlyOpenOf,
+  type HoldingCountry,
   holdingCountryOf,
   reminderFile,
   ruleNameOf,
@@ -84,8 +85,14 @@ function earlyOf(
   if (template.lastBuy === undefined) return null;
   const early = earlyOpenOf({ lastBuy: template.lastBuy, holdingRule }, sellWindowValueOf(template.sellWindow));
   if (early === null) return null;
-  const country = holdingCountryOf(rules, format.date(rules.status.lastReviewed), profile, today);
-  return { ...early, rule: ruleNameOf(holdingRule, rules), country };
+  return { ...early, rule: ruleNameOf(holdingRule, rules), country: cardOf(profile, format, today) };
+}
+
+/** The country's card from its profile; `countryRules` gives a copy, which carries no mark: the profile's (ADR-0057). */
+function cardOf(profile: CountryProfile, format: Formatters, today: CalendarDate): HoldingCountry {
+  const rules = countryRules(profile);
+  const card = holdingCountryOf(rules, format.date(rules.status.lastReviewed), profile, today);
+  return { ...card, language: contentLanguageOf(profile) };
 }
 
 /** The steps both paths share after numbers or dates: each needs a plan whose dry run passes. */
@@ -329,12 +336,7 @@ export function OnboardingScreen({ device }: OnboardingScreenProps) {
     return (
       <SummaryStep
         plan={plan}
-        holding={holdingCountryOf(
-          countryRules(profile),
-          formatOf(profile).date(countryRules(profile).status.lastReviewed),
-          profile,
-          today,
-        )}
+        holding={cardOf(profile, formatOf(profile), today)}
         templateName={template === null ? null : (shown?.name ?? template.name)}
         templateLanguage={template === null ? undefined : shown === undefined ? 'en' : contentLanguageOf(shown)}
         reminder={draft.reminder}

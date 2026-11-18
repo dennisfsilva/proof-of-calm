@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { loadTemplateTexts, TEMPLATES, type TemplateTexts } from '@proofofcalm/content';
+import { loadProfile, loadProfiles, loadTemplateTexts, TEMPLATES, type TemplateTexts } from '@proofofcalm/content';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { EMPTY_SNAPSHOT, memoryPlanStore } from '../../../lib/adapters';
@@ -22,11 +22,16 @@ vi.mock('@proofofcalm/content', async (original) => {
   const content = await (await import('../../../lib/services/testing-modules')).profilesInMemory(
     await original<typeof import('@proofofcalm/content')>(),
   );
-  return { ...content, loadTemplateTexts: vi.fn(content.loadTemplateTexts) };
+  return {
+    ...content,
+    loadProfiles: vi.fn(content.loadProfiles),
+    loadTemplateTexts: vi.fn(content.loadTemplateTexts),
+  };
 });
 
 afterEach(() => {
   cleanup();
+  vi.mocked(loadProfiles).mockClear();
   vi.mocked(loadTemplateTexts).mockClear();
 });
 await preloadLazyModules();
@@ -152,5 +157,27 @@ describe('OnboardingScreen: a draft reopened on the summary in pt-PT (ADR-0057)'
     await screen.findByRole('heading', { level: 2, name: portuguese.summary.heading });
     expect(startingPoint()).toContain(TWO_COINS);
     expect(screen.getByText(TWO_COINS).closest('[lang]')?.getAttribute('lang')).toBe('en');
+  });
+
+  it("marks the country's name lang=en when its translation did not load (WCAG 2.2 SC 3.1.2)", async () => {
+    const services = await englishDraftOnSummary();
+    // Offline, a jurisdiction chunk that fails gives the English profile, marked English, among the translations.
+    const english = await loadProfile('PT', 'en');
+    const translated = await loadProfiles('pt-PT');
+    vi.mocked(loadProfiles).mockResolvedValueOnce(
+      translated.map((profile) => (profile.code === 'PT' && english !== null ? english : profile)),
+    );
+    await reopen(services);
+    await screen.findByRole('heading', { level: 2, name: portuguese.summary.heading });
+    const country = screen.getByText(portuguese.summary.country).nextElementSibling;
+    expect(country?.querySelector('[lang]')?.getAttribute('lang')).toBe('en');
+    expect(country?.textContent).toBe('Portugal');
+  });
+
+  it("leaves the country's name unmarked when its translation loaded", async () => {
+    const services = await englishDraftOnSummary();
+    await reopen(services);
+    await screen.findByRole('heading', { level: 2, name: portuguese.summary.heading });
+    expect(screen.getByText(portuguese.summary.country).nextElementSibling?.querySelector('[lang]')).toBeNull();
   });
 });
