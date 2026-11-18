@@ -52,6 +52,9 @@ const codes = async (source: string, language?: string, rows?: FigureContext['ro
 const FC = 'figure-chart';
 const FU = 'figure-unstated';
 const FU4 = [FU, FU, FU, FU];
+// The fix a closed section's refusal names (docs/CONTENT-STYLE.md §1 rule 8).
+const LIST_IT = 'list it in LISTED in packages/content/src/module-figures.ts in a reviewed pull request';
+const FIX = `write it as B or E (docs/CONTENT-STYLE.md §9), or ${LIST_IT}`;
 
 describe("pt-PT's chart section", () => {
   it("1: passes the judge's two sentences under the draft's other sentences: []", async () => {
@@ -276,7 +279,7 @@ describe("pt-PT's chart section", () => {
     const found = await problemsOf(pt(), 'de');
     expect(found.map(({ code }) => code)).toEqual([FC, FC, FC, FC, FC, ...FU4]);
     expect(found[0]?.detail).toBe(
-      `body: "Um plano mensal define o dia de cada compra." is not a sentence de's list holds and matches neither shape of a chart's section, and de has no shapes for a chart's section yet; R5 (docs/CONTENT-STYLE.md §4)`,
+      `body: "Um plano mensal define o dia de cada compra." is not a sentence de's list holds and matches neither shape of a chart's section, and de has no shapes for a chart's section yet; ${LIST_IT}; R5 (docs/CONTENT-STYLE.md §4)`,
     );
     expect(found[3]?.detail).toBe(
       `body: "${nb(S1)}" holds a figure "4" and matches neither shape of a chart's section, and de has no shapes for a chart's section yet; R5 (docs/CONTENT-STYLE.md §4)`,
@@ -293,7 +296,7 @@ describe("pt-PT's closed chart section", () => {
     'Cada barra abaixo é uma queda de uma moeda, desde um máximo de ciclo até ao preço mais baixo depois desse máximo.',
   ];
   const unlisted = (sentence: string, language = 'pt-PT') =>
-    `body: "${sentence}" is not a sentence ${language}'s list holds and matches neither shape of a chart's section; R5 (docs/CONTENT-STYLE.md §4)`;
+    `body: "${sentence}" is not a sentence ${language}'s list holds and matches neither shape of a chart's section; ${FIX}; R5 (docs/CONTENT-STYLE.md §4)`;
   /** The codes with `extra` listed for pt-PT beside its own list. */
   async function listedCodes(source: string, extra: readonly string[]) {
     const { problem, page } = await checkModuleBody(source, at);
@@ -364,7 +367,7 @@ describe("pt-PT's closed chart section", () => {
     expect(found.map(({ code, detail }) => [code, detail])).toEqual([
       [
         FC,
-        `body: the heading "Quedas" in the chart's section is not a sentence pt-PT's list holds; R5 (docs/CONTENT-STYLE.md §4)`,
+        `body: the heading "Quedas" in the chart's section is not a sentence pt-PT's list holds; ${LIST_IT}, or remove it; R5 (docs/CONTENT-STYLE.md §4)`,
       ],
     ]);
   });
@@ -395,5 +398,87 @@ describe("pt-PT's closed chart section", () => {
     const live = readFileSync(new URL('../learn/risk-honestly.mdx', import.meta.url), 'utf8');
     expect(await codes(live.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/u, ''), 'en')).toEqual([]);
     expect(await codes(ptPara('Cada queda acima é história, não uma previsão.'))).toEqual([FC]);
+  });
+
+  // Review of #361 round 1: `1975. <a listed sentence>` is an ordered list that shows 1975, which no block's text
+  // holds. A closed section reads only its top-level paragraphs and headings and the chart; it refuses the rest.
+  const SENTENCE = LIVE[0] as string;
+  const inside = (what: string, where: string, out: string) =>
+    `body: ${what} sits in ${where} in the chart's section, which reads only paragraphs and headings outside a list, \
+a quote or an element; write it outside the ${out}; R5 (docs/CONTENT-STYLE.md §4)`;
+  const pairs = async (source: string) => (await problemsOf(source)).map(({ code, detail }) => [code, detail] as const);
+
+  it.each([1975, 2011, 94, 1])(
+    'R1: «%i. <a listed sentence>» after the chart fails, naming the list item',
+    async (n) => {
+      expect(await pairs(ptPara(`${n}. ${SENTENCE}`))).toEqual([
+        [FC, inside(`the paragraph "${SENTENCE}"`, `list item ${n}`, 'list')],
+      ]);
+    },
+  );
+
+  it('R1: the listed sentence as a paragraph passes, and a year in a paragraph fails', async () => {
+    expect(await codes(ptPara(SENTENCE))).toEqual([]);
+    expect(await codes(ptPara('Em 1975 um plano mensal define o dia de cada compra.'))).toEqual([FC]);
+  });
+
+  it('R1: an empty ordered item after the chart fails, naming its number', async () => {
+    expect(await pairs(ptPara('1975.'))).toEqual([[FC, inside('an empty paragraph', 'list item 1975', 'list')]]);
+  });
+
+  it.each([
+    ['- ', 'a list item', 'list'],
+    ['> ', 'a quote', 'quote'],
+  ])('R2: «%s<a listed sentence>» after the chart fails, naming %s', async (marker, where, out) => {
+    expect(await pairs(ptPara(`${marker}${SENTENCE}`))).toEqual([
+      [FC, inside(`the paragraph "${SENTENCE}"`, where, out)],
+    ]);
+  });
+
+  it('R2: a listed sentence inside an element other than the chart fails', async () => {
+    const { page } = await checkModuleBody(ptPara(SENTENCE), at);
+    const held = page.map((block) =>
+      block.kind === 'paragraph' && block.text === SENTENCE
+        ? { ...block, container: 'mdxJsxFlowElement' as const }
+        : block,
+    );
+    const context = moduleContext({ chart: 'drawdowns-bar' }, 'pt-PT', { rows: ROWS, coins: COINS });
+    expect(moduleFigureProblems(at, held, context).map(({ code, detail }) => [code, detail])).toEqual([
+      [FC, inside(`the paragraph "${SENTENCE}"`, 'an element', 'element')],
+    ]);
+  });
+
+  it('R2: a heading in a quote fails and does not end the section', async () => {
+    expect(await pairs(ptPara('> ## Quedas\n\nOu assim parece.'))).toEqual([
+      [FC, inside('the heading "Quedas"', 'a quote', 'quote')],
+      [FC, unlisted('Ou assim parece.')],
+    ]);
+  });
+
+  it('R2: the chart in a quote, and another element in the section, fail', async () => {
+    const quoted = pt().replace('<Chart />', '> <Chart />');
+    expect(await pairs(quoted)).toEqual([[FC, inside('the element <Chart />', 'a quote', 'quote')]]);
+    expect(await pairs(ptPara('<PastPerformance />'))).toEqual([
+      [
+        FC,
+        `body: the element <PastPerformance /> stands in the chart's section, which holds no element but the chart; \
+move it out of the section; R5 (docs/CONTENT-STYLE.md §4)`,
+      ],
+    ]);
+  });
+
+  // R3: English's section stays open, so the same blocks give what they gave before the section read containers.
+  it.each(['1975. ', '- ', '> '])(
+    "R3: «%sA monthly plan sets when you buy.» in English's section: []",
+    async (marker) => {
+      expect(await codes(enPara(`${marker}A monthly plan sets when you buy.`), 'en')).toEqual([]);
+      expect(await codes(enPara(`${marker}${SENTENCE}`), 'en')).toEqual([]);
+      expect(await codes(enPara('<PastPerformance />'), 'en')).toEqual([]);
+    },
+  );
+
+  it('R3: English still reads a figure in a list item: E there passes, one figure off fails', async () => {
+    expect(await codes(en(`${EN1}\n\n1. ${EN2}`), 'en')).toEqual([]);
+    expect(await codes(en(`${EN1}\n\n1. ${EN2.replace('97', '96')}`), 'en')).toEqual([FC]);
   });
 });

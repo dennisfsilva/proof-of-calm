@@ -89,7 +89,7 @@ describe('scripts/validate.ts on a copy of the files it reads', () => {
       const { status, lines } = run();
       const sentence = 'O ether caiu 94 % e 82 %, a Chainlink 89 % e 91 % e a Solana 96 %.';
       expect(lines.filter((line) => line.includes(': figure-'))).toEqual([
-        `${translated}: figure-chart: body: "A queda durou três anos." is not a sentence pt-PT's list holds and matches neither shape of a chart's section; R5 (docs/CONTENT-STYLE.md §4)`,
+        `${translated}: figure-chart: body: "A queda durou três anos." is not a sentence pt-PT's list holds and matches neither shape of a chart's section; write it as B or E (docs/CONTENT-STYLE.md §9), or list it in LISTED in packages/content/src/module-figures.ts in a reviewed pull request; R5 (docs/CONTENT-STYLE.md §4)`,
         `${translated}: figure-chart: body: "96 %" in "${sentence}" is not Solana's fall at that place in the chart's order; R5 (docs/CONTENT-STYLE.md §4)`,
       ]);
       expect(status).toBe(1);

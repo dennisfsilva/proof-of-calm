@@ -479,7 +479,7 @@ describe("each detail quotes its sentence and names its figure and rule (§4's l
   it('1: a translation names its language', async () => {
     const [first] = await problemsOf(body(), ROWS, { language: 'de' });
     expect(first?.detail).toBe(
-      `body: "A monthly plan sets when you buy." is not a sentence de's list holds and matches neither shape of a chart's section, and de has no shapes for a chart's section yet${R(5)}`,
+      `body: "A monthly plan sets when you buy." is not a sentence de's list holds and matches neither shape of a chart's section, and de has no shapes for a chart's section yet; list it in LISTED in packages/content/src/module-figures.ts in a reviewed pull request${R(5)}`,
     );
   });
 });

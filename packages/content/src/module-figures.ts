@@ -8,10 +8,14 @@ import type { CycleDrawdown } from './schema/cycles.ts';
 import { PERCENTS, sentencesOf } from './template-figures.ts';
 
 /** A block of the page `pageOf` gives (packages/config/vite/page-blocks.ts), which the product may not import. */
-type PageBlock =
+type PageBlock = (
   | { readonly kind: 'heading' | 'code'; readonly text: string; readonly marks?: undefined }
   | { readonly kind: 'paragraph'; readonly text: string; readonly marks?: readonly string[] }
-  | { readonly kind: 'element'; readonly name: string };
+  | { readonly kind: 'element'; readonly name: string }
+) & {
+  readonly container?: 'listItem' | 'blockquote' | 'mdxJsxFlowElement';
+  readonly listNumbers?: readonly number[];
+};
 type Coin = Readonly<Pick<ContentCoin, 'id' | 'name'>>;
 type Row = Readonly<Pick<CycleDrawdown, 'coin' | 'high' | 'low' | 'fall'>>;
 /** The chart's rows and the coin catalogue; null when a file did not load. */
@@ -23,7 +27,8 @@ export type ModuleFigures = FigureContext & {
   readonly listed: readonly string[];
 };
 
-// A translation's chart section is closed (§9): each sentence and heading there is its language's B or E, or one listed
+// A translation's chart section is closed (§9): it holds top-level paragraphs and headings and the chart, nothing in a
+// list, a quote or an element, and each sentence and heading there is its language's B or E, or one listed
 // here as the page shows it, compared character for character. Each was listed in a reviewed pull request whose fact
 // check found in it no figure, count, date, amount or coin. A language with no entry lists nothing.
 const LISTED: Readonly<Record<string, readonly string[]>> = {
@@ -147,6 +152,22 @@ function spellings(coins: readonly Coin[], language: string): Map<string, string
   );
 }
 
+// The fix a closed section's refusal names (docs/CONTENT-STYLE.md §1 rule 8).
+const LIST_IT = 'list it in LISTED in packages/content/src/module-figures.ts in a reviewed pull request';
+// A closed section reads only top-level paragraphs and headings: a container's name in a detail, and what to leave.
+const CONTAINERS = {
+  listItem: ['a list item', 'list'],
+  blockquote: ['a quote', 'quote'],
+  mdxJsxFlowElement: ['an element', 'element'],
+} as const;
+/** A block a closed section refuses, as a detail names it. */
+const named = (block: PageBlock) => {
+  if (block.kind === 'element') return `the element <${block.name} />`;
+  const shown = block.text.replace(/\s+/gu, ' ').trim();
+  return shown === ''
+    ? `an empty ${block.kind}`
+    : `the ${block.kind === 'code' ? 'code block' : block.kind} "${shown}"`;
+};
 const year = (date: string) => Number(date.slice(0, 4));
 const quote = (text: string) => JSON.stringify(text).slice(1, -1);
 /** Items as an English list: `a and b`, or `a, b, and c` with the serial comma. */
@@ -167,7 +188,9 @@ export function moduleFigureProblems(path: string, page: readonly PageBlock[], c
     report("the chart's rows or the coin catalogue did not load, so the chart's section cannot be read");
     return problems;
   }
-  const headings = page.flatMap((block, index) => (block.kind === 'heading' ? [index] : []));
+  // A closed section ends only at a top-level heading, so a heading in a container stays in it and is refused.
+  const ends = (block: PageBlock) => block.kind === 'heading' && (!closed || block.container === undefined);
+  const headings = page.flatMap((block, index) => (ends(block) ? [index] : []));
   const start = headings.filter((index) => index < at).at(-1) ?? 0;
   const end = headings.find((index) => index > at) ?? page.length;
   // Only the drawdowns chart has rows, so any figure in another chart's section fails.
@@ -206,7 +229,19 @@ export function moduleFigureProblems(path: string, page: readonly PageBlock[], c
   const bounds: Bound[] = [];
   const exacts: { sentence: string; clauses: { name: string; id: string; figures: string[] }[] }[] = [];
   for (const block of page.slice(start, end)) {
-    if (block.kind === 'element') continue;
+    if (closed && block.container !== undefined) {
+      const [where, out] = CONTAINERS[block.container];
+      const item = block.container === 'listItem' ? block.listNumbers?.at(-1) : undefined;
+      report(`${named(block)} sits in ${item === undefined ? where : `list item ${item}`} in the chart's section, which \
+reads only paragraphs and headings outside a list, a quote or an element; write it outside the ${out}`);
+      continue;
+    }
+    if (block.kind === 'element') {
+      if (closed && block.name !== 'Chart')
+        report(`${named(block)} stands in the chart's section, which holds no element but the chart; move it out of \
+the section`);
+      continue;
+    }
     const shown = block.text.replace(/\s+/gu, ' ').trim();
     if (block.kind === 'code') {
       report(`the code block "${shown}" sits in the chart's section, which holds no code block`);
@@ -221,7 +256,8 @@ export function moduleFigureProblems(path: string, page: readonly PageBlock[], c
     if (block.kind === 'heading') {
       report(
         hit === null
-          ? `the heading "${shown}" in the chart's section is not a sentence ${language}'s list holds`
+          ? `the heading "${shown}" in the chart's section is not a sentence ${language}'s list holds; ${LIST_IT}, or \
+remove it`
           : `the heading "${shown}" holds${holds} in the chart's section`,
       );
       continue;
@@ -256,7 +292,12 @@ which reads plain text only`);
         const where = shapes === undefined ? `, and ${language} has no shapes for a chart's section yet` : '';
         const what =
           found === null ? `is not a sentence ${language}'s list holds` : `holds ${found.kind} "${quote(found.token)}"`;
-        report(`"${sentence}" ${what} and matches neither shape of a chart's section${where}`);
+        // Only an unlisted sentence with no trigger can pass by listing; one with a trigger passes only as B or E.
+        const fix =
+          found !== null
+            ? ''
+            : `; ${shapes === undefined ? '' : 'write it as B or E (docs/CONTENT-STYLE.md §9), or '}${LIST_IT}`;
+        report(`"${sentence}" ${what} and matches neither shape of a chart's section${where}${fix}`);
       }
     }
   }
