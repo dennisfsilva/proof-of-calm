@@ -14,7 +14,7 @@ import { type ContentFile, percentJoiner, validateContent } from './validate.ts'
 const { $comment: _, ...allow } = allowList;
 const options = { today: '2026-10-17', allow };
 const source = (url: string, kind = 'authority') => ({
-  title: 'Código do IRS, artigo 10.º',
+  title: 'Código do IRS, artigo\u00a010.º',
   url,
   publisher: 'Autoridade Tributária e Aduaneira',
   kind,
@@ -52,16 +52,16 @@ const profile = (overrides: Record<string, unknown> = {}) => ({
   lotRuleNote: 'Lots are matched per platform.',
   card: {
     classification: 'Crypto held privately is a capital asset.',
-    taxableEvents: [{ event: 'sale-to-fiat', taxable: 'depends', note: 'Tax-free after 365 days of holding.' }],
+    taxableEvents: [{ event: 'sale-to-fiat', taxable: 'depends', note: 'Tax-free after 365\u00a0days of holding.' }],
     rates: [{ label: 'Flat rate on gains', value: '28%', validFrom: '2023-01-01', validTo: null }],
     allowances: [],
-    holdingRuleText: 'A purchase held for 365 days or more can be sold without tax on the gain.',
+    holdingRuleText: 'A purchase held for 365\u00a0days or more can be sold without tax on the gain.',
     lotRuleText: 'First in, first out, per platform.',
-    losses: 'Losses on purchases held under 365 days offset gains of the same kind.',
+    losses: 'Losses on purchases held under 365\u00a0days offset gains of the same kind.',
     reporting: ['Annex\u00a0G of the IRS return.'],
     caveats: ['A professional should confirm how a swap counts.'],
     summary60:
-      'Purchases held for 365 days or more are tax-free when sold. Gains on purchases held for less are taxed at 28%.',
+      'Purchases held for 365\u00a0days or more are tax-free when sold. Gains on purchases held for less are taxed at 28%.',
   },
   pendingChanges: [],
   sources: [keyed('pt-cirs', CIRS)],
@@ -1347,7 +1347,7 @@ describe('validateContent: translated overlays (ADR-0057)', () => {
     const overlay = {
       nickname: 'PT',
       sources: [{ url: 'https://example.com/' }],
-      card: { reporting: ['a', 'b'], summary60: 'Compras detidas 366 dias ou mais estão isentas; o resto paga 28%.' },
+      card: { reporting: ['a', 'b'], summary60: 'Compras detidas 366\u00a0dias ou mais estão isentas; o resto paga 28%.' },
     };
     expect(overlaid([file(pt, profile()), file(overlayOf(pt), overlay)])).toEqual([
       'overlay-unknown-path: nickname',
@@ -1396,7 +1396,7 @@ describe('validateContent: no ";" in a text the tax-year header copies (docs/DOM
   });
 
   it('refuses a run ";;" once, a ";" inside a condition and one in the name', () => {
-    const holdingRuleConditions = ['The counterparty is in the EU;; or the EEA.', 'Held 365 days; then exempt.'];
+    const holdingRuleConditions = ['The counterparty is in the EU;; or the EEA.', 'Held 365\u00a0days; then exempt.'];
     expect(fields([file(pt, profile({ name: 'Portugal; mainland', holdingRuleConditions }))])).toEqual([
       `${pt} header-semicolon: name`,
       `${pt} header-semicolon: holdingRuleConditions.0`,
@@ -1413,7 +1413,7 @@ describe('validateContent: no ";" in a text the tax-year header copies (docs/DOM
     const card = {
       ...profile().card,
       lotRuleText: 'First in, first out; per platform.',
-      summary60: 'Purchases held for 365 days or more are tax-free when sold; gains on others are taxed at 28%.',
+      summary60: 'Purchases held for 365\u00a0days or more are tax-free when sold; gains on others are taxed at 28%.',
     };
     expect(codes([file(pt, profile({ card }))])).toEqual([]);
   });

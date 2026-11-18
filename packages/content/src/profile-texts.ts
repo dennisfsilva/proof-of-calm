@@ -24,7 +24,13 @@ export const profileTextProblems = (path: string, texts: readonly [string, strin
     ...(field === FILE_ONLY_PROFILE_TEXT ? [] : hyphenProblems(path, field, text)),
   ]);
 
-/** Every string of a profile that the app shows; source titles are quoted names and stay as published. */
+/** Each source title the country card shows, with the language its `lang` names; a pending change's source has no
+ * `lang` and the card shows none, so it is left out. A title is a quoted name: its words stay as published, the ban
+ * list and the hyphen check stay off it, and only its joins are read (join-validate.ts, #368). */
+export const sourceTitles = (profile: CountryProfile): [string, string, string][] =>
+  profile.sources.map((source, index): [string, string, string] => [`sources.${index}.title`, source.title, source.lang]);
+
+/** Every string of a profile that the app shows but its source titles (`sourceTitles`). */
 export function profileTexts(profile: CountryProfile): [string, string][] {
   const card = profile.card;
   const list = (prefix: string, texts: readonly string[]) =>

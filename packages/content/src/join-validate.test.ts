@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import allowList from '../sources.allow.json' with { type: 'json' };
 import { applyOverlay } from './i18n/overlay.ts';
-import { joinProblems } from './join-validate.ts';
+import { joinProblems, titleJoinProblems } from './join-validate.ts';
 import { languagePercentProblems, localeProblems } from './percent-validate.ts';
 import { profileTexts } from './profile-texts.ts';
 import { type CountryProfile, CountryProfileSchema } from './schema/jurisdiction.ts';
@@ -42,9 +42,9 @@ describe('a currency code or a form name joined to its figure (docs/CONTENT-STYL
       'The USD/EUR rate.',
       'Prices in EUR and USD.',
       `Under art.${nbsp}33.1 the gain is taxed.`,
-      'The ruling PIV 28969 says so.',
+      'The docket IX R 3/22 says so.',
       'Filed with the Modello Redditi.',
-      'A platform 3 days late.',
+      `A platform 3${nbsp}days late.`,
     ];
     expect(neighbours.flatMap(joins)).toEqual([]);
   });
@@ -153,7 +153,7 @@ describe('a law name, a date and a range in English prose (docs/CONTENT-STYLE.md
   });
 
   it('passes a law name before a word and a name the list leaves out', () => {
-    expect(['Article six applies.', 'Chapter 5 applies.', 'The ruling PIV 28969 says so.'].flatMap(joins)).toEqual([]);
+    expect(['Article six applies.', 'Chapter 5 applies.', 'The docket IX R 3/22 says so.'].flatMap(joins)).toEqual([]);
   });
 
   it('joins n°, (EU) before a regulation’s number and Orden, and leaves lett. before its letter (round 2)', () => {
@@ -177,8 +177,9 @@ describe('a law name, a date and a range in English prose (docs/CONTENT-STYLE.md
     expect(joins(`Manual Part${nbsp}02-${wj}01-03.`)).toEqual([hyphened(`02-${String.fromCodePoint(0x5c)}u206001-03`)]);
     const joined = [`The 2026-${wj}27 tax year.`, `Under Notice${nbsp}2023-${wj}27.`, `Part${nbsp}02-${wj}01-${wj}03.`];
     expect(joined.flatMap(joins)).toEqual([]);
-    const letters = ['COVID-19 relief.', 'An e-money token.', `Form${nbsp}1099-DA.`, `art.${nbsp}10 c.${nbsp}1-bis`];
+    const letters = ['COVID-19 relief.', 'An e-money token.', `Form${nbsp}1099-DA.`, `art.${nbsp}10 c.${nbsp}1‑bis`, `c.${nbsp}1-${wj}bis`];
     expect(letters.flatMap(joins)).toEqual([]);
+    expect(joins(`art.${nbsp}10 c.${nbsp}1-bis`)).toEqual([hyphened('1-bis')]);
   });
 
   it('reads no figure inside a URL, as the percent and grouping checks do (J1, J2)', () => {
@@ -373,6 +374,72 @@ describe('a law name, a date and a range in pt-PT prose (docs/CONTENT-STYLE.md �
   });
 });
 
+// #368 A (docs/CONTENT-STYLE.md §4 and §9): a figure and its unit word, a citation's brackets, an identifier, a law
+// number's hyphen and pt-PT's form name, each of which a narrow screen split in the probe of #368.
+describe('a figure and its unit, a citation and an identifier (docs/CONTENT-STYLE.md §4)', () => {
+  const pt = (text: string) => joinProblems(path, [['card.caveats.0', text]], 'pt-PT').map(({ detail }) => detail);
+  const unit = (figure: string, word: string) => refused(`the figure "${figure}" and its unit`, `"${word}"`);
+  const cited = (citation: string) =>
+    `card.caveats.0: the citation "${citation}" can break between its brackets (docs/CONTENT-STYLE.md §4)`;
+
+  it('refuses an ordinary space between a figure and its English unit word, and passes U+00A0 (U1)', () => {
+    expect(joins('Held under 365 days.')).toEqual([unit('365', 'days')]);
+    expect(joins('Exempt after 5 years.')).toEqual([unit('5', 'years')]);
+    expect(joins('After 1 day, 2 weeks, 1 month, 12 months or 1 year.')).toEqual([
+      unit('1', 'day'),
+      unit('2', 'weeks'),
+      unit('1', 'month'),
+      unit('12', 'months'),
+      unit('1', 'year'),
+    ]);
+    expect(joins(`Held under 365${nbsp}days, exempt after 5${nbsp}years.`)).toEqual([]);
+  });
+
+  it('refuses the same in pt-PT, an ordinal before Suplemento included, and passes U+00A0 (U2)', () => {
+    expect(pt('Detidas há menos de 365 dias.')).toEqual([unit('365', 'dias')]);
+    expect(pt('No 2.º Suplemento.')).toEqual([unit('2.º', 'Suplemento')]);
+    expect(pt('Em 1 dia, 2 semanas, 1 mês, 3 meses, 1 ano ou 5 anos.')).toHaveLength(6);
+    expect(pt(`Detidas há menos de 365${nbsp}dias, no 2.º${nbsp}Suplemento.`)).toEqual([]);
+  });
+
+  it('leaves a unit word after a word, inside a word, and in a language without lists (U3)', () => {
+    expect(joins('For many days, a 365-day rule, 5 yearsago.')).toEqual([]);
+    expect(joinProblems(path, [['card.caveats.0', 'Held under 365 days.']], 'de')).toEqual([]);
+  });
+
+  it('refuses a citation whose brackets meet with no U+2060, and passes one with it (C1)', () => {
+    expect(codes(joinProblems(path, [['card.caveats.0', `Under art.${nbsp}55(1)(d).`]]))).toEqual(['citation-join']);
+    expect(joins(`Under art.${nbsp}55(1)(d).`)).toEqual([cited('55(1)(d)')]);
+    expect(joins(`Under art.${nbsp}55(1)${wj}(d) and 6(5).`)).toEqual([]);
+    expect(pt(`Nos termos do artigo${nbsp}55(1)(d).`)).toEqual([cited('55(1)(d)')]);
+  });
+
+  it('reads nothing inside a URL or in the file-only lotRuleNote (U4)', () => {
+    expect(joins('See https://example.org/55(1)(d)/365 days ago.')).toEqual([]);
+    const note = 'Held 365 days, art. 55(1)(d), processo 28969.';
+    expect(joinProblems(path, [['lotRuleNote', note]], 'pt-PT')).toEqual([]);
+  });
+
+  it('refuses an ordinary space after PIV, processo and Série, and leaves a docket unchecked (N1)', () => {
+    expect(joins('The ruling PIV 28969 says so.')).toEqual([named('PIV', '28969')]);
+    expect(pt('Informação vinculativa, processo 28969')).toEqual([named('processo', '28969')]);
+    expect(pt('Processo 28969 e PIV 29052')).toEqual([named('Processo', '28969'), named('PIV', '29052')]);
+    expect(pt('Diário da República, Série I, 2.º Suplemento')).toHaveLength(2);
+    expect(pt('Diário da República, Série I')).toEqual([named('Série', 'I')]);
+    expect(pt(`Série${nbsp}I, Série${nbsp}II, processo${nbsp}28969, IX R 3/22`)).toEqual([]);
+  });
+
+  it('refuses a hyphen-minus inside a law number without U+2060 after it (N2)', () => {
+    expect(pt(`Lei n.º${nbsp}24-D/2022`)).toEqual([hyphened('24-D/2022')]);
+    expect(pt(`Lei n.º${nbsp}24-${wj}D/2022 e Lei n.º${nbsp}24${nb}D/2022`)).toEqual([]);
+  });
+
+  it('refuses an ordinary space after Formulário, pt-PT’s form name (#367)', () => {
+    expect(pt('No Formulário 3.')).toEqual([named('Formulário', '3')]);
+    expect(joins(`No Formulário${nbsp}3.`)).toEqual([]);
+  });
+});
+
 describe('the real profiles and their overlays', () => {
   it('join every code, form name, law name and date part with U+00A0, and every English range after its dash', () => {
     const english = jsonIn('jurisdictions/').map((name) => `jurisdictions/${name}`);
@@ -383,6 +450,7 @@ describe('the real profiles and their overlays', () => {
     expect(overlays.length).toBeGreaterThan(0);
     const problems = [
       ...english.flatMap((file) => joinProblems(file, profileTexts(load(file)))),
+      ...english.flatMap((file) => titleJoinProblems(file, load(file))),
       ...overlays.flatMap(({ language, name }) => {
         const file = `i18n/${language}/jurisdictions/${name}`;
         const overlay: unknown = JSON.parse(readFileSync(new URL(file, root), 'utf8'));

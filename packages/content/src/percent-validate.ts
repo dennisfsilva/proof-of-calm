@@ -1,7 +1,7 @@
 // A country profile's locale tags, the joiner and decimal of its literal percentages and its money figures' grouping
 // (docs/CONTENT-STYLE.md §4), for validate.ts. Pure; relative imports name their .ts files, so that Node runs the CLI
 // without a build step.
-import { joinProblems, URL_IN_TEXT } from './join-validate.ts';
+import { joinProblems, titleJoinProblems, URL_IN_TEXT } from './join-validate.ts';
 import { numberLocaleFor } from './loaders/locales.ts';
 import type { Problem } from './problem.ts';
 import type { CountryProfile } from './schema/jurisdiction.ts';
@@ -232,7 +232,8 @@ function percentTextProblems(path: string, locale: string, texts: readonly [stri
 /**
  * The profile's malformed locale tags, its percentages without the number locale's joiner, then those whose decimal
  * separator is not the one its English page writes, then its money figures grouped otherwise, then its currency codes
- * and form names not joined to their figures by U+00A0 (join-validate.ts); `texts` by field.
+ * and form names not joined to their figures by U+00A0 (join-validate.ts); `texts` by field. Last, the joins of each
+ * source title in its own language; a translation cannot change a title (overlay.ts), so this pass reads them all.
  */
 export function localeProblems(path: string, profile: CountryProfile, texts: readonly [string, string][]): Problem[] {
   const english = numberLocaleFor('en', profile);
@@ -241,5 +242,6 @@ export function localeProblems(path: string, profile: CountryProfile, texts: rea
     ...percentProblems(path, profile, texts),
     ...(wellFormed(english) ? [...decimalProblems(path, english, texts), ...groupProblems(path, english, texts)] : []),
     ...joinProblems(path, texts, 'en'),
+    ...titleJoinProblems(path, profile),
   ];
 }
