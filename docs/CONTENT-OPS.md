@@ -339,8 +339,8 @@ fact to the window its URL names (the skill's §4 step 3).
    set `changedOn` and write `changeNotice` when a rule changed in substance; a bump that corrects our
    own file also writes a `changeNotice` that says so (`docs/JURISDICTIONS.md` §6). When `verify`
    fails on `pnpm test`, or an end-to-end spec fails in CI, because a test asserts a value the review
-   changed other than `reviewedBy` (named in the notes, which also list the app, web, and end-to-end
-   tests only CI runs, or shown only by CI), have every assertion that pins the old value removed in a session pull
+   changed other than `reviewedBy` (a screenshot aside: below), named in the notes, which also list
+   the app, web, and end-to-end tests only CI runs, or shown only by CI, have every assertion that pins the old value removed in a session pull
    request to main first, not only the line a failure prints (Vitest prints a test's first failing
    assertion alone; the notes name each, a constant's line with every assertion that reads it),
    since one changed to the new value fails on main, where the data still holds the old one; push
@@ -388,7 +388,9 @@ fact to the window its URL names (the skill's §4 step 3).
    fewer than 300 days does (§7). A file or fact entry
    changed only in its mark carries a note (§3 step 3): flip it back, and close the pull request
    unmerged when nothing else is left in it. The Learn country
-   screens print `lastReviewed`, so `e2e-visual` can fail on the new date: delete the baselines it names
+   screens print `lastReviewed`, and a screen that shows a value the review changed changes with it
+   (the notes name each `toHaveScreenshot` pin and its pages), so `e2e-visual` can fail on the new
+   date or value: delete the baselines it names
    in a commit on the agent's branch (the guard accepts a removed baseline, nothing else outside the
    data folders), and send new ones in a needs-owner PR after the merge (`CLAUDE.md`, Visual
    snapshots). Merge; the next deploy shows the dated notice to affected users.
