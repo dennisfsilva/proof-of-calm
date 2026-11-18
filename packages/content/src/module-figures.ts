@@ -98,8 +98,9 @@ const J = `(?:${MODULE_PERCENT_JOINERS.map(esc).join('|')})`;
 const F = `${N}${J}%`;
 const Y = '[12][0-9]{3}';
 const K = '(?<k>[1-9][0-9]?)';
-// B's count and its noun: any gap of white space or format characters reads, and one but U+00A0 is reported (R6).
-const GAP = '(?<gap>[\\s\\p{Cf}]+)';
+// B's count and its noun: a gap of white space reads, and any gap but one U+00A0 is reported (R6). A format character
+// never reaches it: the page drops it and R5 refuses the paragraph as hidden text first.
+const GAP = '(?<gap>\\s+)';
 const NBSP = String.fromCodePoint(0xa0);
 const B = (C: string) => `(?<c>${C})`;
 const clause = (C: string) => new RegExp(`(?<c>${C})(?= )|(?<f>${N})(?=${J}%)`, 'gu');
