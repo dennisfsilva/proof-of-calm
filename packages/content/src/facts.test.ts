@@ -33,8 +33,8 @@ function educationKeys(): string[] {
 // A fact whose value a merged review changed, before the log PR updates its EDUCATION §9 row (docs/CONTENT-OPS.md §8
 // steps 4 and 5). The owner's session PR adds the entry to main before the flip, with the fact's old and new value as
 // read in the review's diff. The agent's branch cannot change this file (CI's guard), so a later push that moves the
-// value fails the tie. An entry whose review closed unmerged reads as one still open, main at `was` in both, so no
-// test finds it: the owner removes it (§8 step 4).
+// value fails the tie. An entry whose review closed unmerged looks like one still open: main holds `was` in both. No
+// test finds it, so the owner removes it (§8 step 4).
 const unlogged: ReadonlyMap<string, { was: string; now: string }> = new Map([]);
 
 /** The first cells of the rows that do not read their facts' values; a value at its entry's `now` reads as `was`. */
