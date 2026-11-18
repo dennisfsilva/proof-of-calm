@@ -355,9 +355,15 @@ external links and the Risk link in the mobile export (M3).
   (#379). The rule refuses U+00A0 beside another space and reads a figure two pairs share in both.
   It merged the review skill's note that leaves a translation's repeated words to the owner (#380).
   fix/module-count-join and fix/printed-details each wait with one confirmed finding after two
-  review rounds. Five items move to #381, which comes before #271.
-  With #340, #343, #349, #355, #358, #361, #368, #370, #377 and #381, pt-PT takes 19 build sessions
-  more than #269 planned before German starts. A render-and-axe-only pt-PT
+  review rounds. Five items move to #381, which comes before #271. On 2026-11-18, #381 merged four
+  changes. B's count is joined to its noun, and the check reads a control character in that gap as
+  the joins do (#383). Every content-check detail prints a quoted text by code point (#384). The es,
+  fr, it and nl source titles are read with their own lists, and 20 titles are joined (#385). R7
+  joins every Learn module's count to its listed noun, with 28 counts joined and 10 English
+  baselines updated after an agent compared each image (#386). fix/review-note-forms waits with one
+  confirmed finding after two review rounds. Five items move to #387, which comes before #271.
+  With #340, #343, #349, #355, #358, #361, #368, #370, #377, #381 and #387, pt-PT takes 20 build
+  sessions more than #269 planned before German starts. A render-and-axe-only pt-PT
   story run waits for #271, once every namespace is translated. CSV import, free (ADR-0039), for the
   main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
   Republic; Kraken's ledger reader built on 2026-11-13 (#168) and the core's import plan against the
