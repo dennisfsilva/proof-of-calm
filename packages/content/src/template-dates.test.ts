@@ -176,6 +176,14 @@ describe('the template date check (docs/CONTENT-STYLE.md §4)', () => {
     ]);
   });
 
+  it('names a U+2060 and a U+0085 inside a closed placeholder by code point', () => {
+    const explanation = 'Bought until {date:last\u2060Buy}. Sold from {date:valid\u0085Until}.';
+    expect(dateCodes([file(TWO, template({ explanation }))])).toEqual([
+      'template-date-unresolved: explanation: {date:lastU+2060 Buy} names no date of this template',
+      'template-date-unresolved: explanation: {date:validU+0085 Until} names no date of this template',
+    ]);
+  });
+
   it('reads “may”, “out” and “set” as words, not months', () => {
     const oneLine = 'The plan may not come true; set it once, and money comes out.';
     expect(dateCodes([file(TWO, template({ oneLine }))])).toEqual([]);
@@ -224,6 +232,14 @@ describe('an overlay keeps the English text’s placeholders (ADR-0057)', () => 
     ]);
     expect(overlayCodes([english, translated(twice)])).toEqual([
       `overlay-date-mismatch: explanation: {date:drawdowns.BTC.high} {date:drawdowns.BTC.low} {date:drawdowns.ETH.high} {date:drawdowns.ETH.low} {date:drawdowns.ETH.low}, English ${englishList}`,
+    ]);
+  });
+
+  it('names a U+2060 in a translated placeholder by code point', () => {
+    const hidden = `${BTC}; a Ether caiu 78 % de {date:drawdowns.ETH.high} a {date:drawdowns.E\u2060TH.low}.`;
+    expect(overlayCodes([english, translated(hidden)])).toEqual([
+      'overlay-date-mismatch: explanation: {date:drawdowns.BTC.high} {date:drawdowns.BTC.low} ' +
+        `{date:drawdowns.ETH.high} {date:drawdowns.EU+2060 TH.low}, English ${englishList}`,
     ]);
   });
 

@@ -488,4 +488,15 @@ describe('templateFigureProblems prints its quoted text by code point (printedTe
         'share; R4 (docs/CONTENT-STYLE.md §4)',
     ]);
   });
+
+  it('names a U+2060 in the coin of a drawdown placeholder by code point', () => {
+    const [sold, came] = [`Solana fell 97 % ${D('DO\u2060GE')}.`, `Ethereum came ${D('E\u2060TH')}.`];
+    const shown = (sentence: string) => sentence.replace('\u2060', 'U+2060 ').replace('\u2060', 'U+2060 ');
+    expect(details(`${sold} ${came}`)).toEqual([
+      `explanation: "97 %" carries the dates of DOU+2060 GE, which has no drawdown row in "${shown(sold)}"; R1 ` +
+        '(docs/CONTENT-STYLE.md §4)',
+      `explanation: the dates of EU+2060 TH, which has no drawdown row sit in no F1 or F2 sentence in "${shown(came)}"; ` +
+        'R1 (docs/CONTENT-STYLE.md §4)',
+    ]);
+  });
 });
