@@ -290,3 +290,10 @@ generated rules files of each language.
   reads (`210 000`, #386). The entry above that names U+00A0 everywhere but before a percent sign
   has these two exceptions. A pair that a `figure-chart` detail builds from the values it read
   (`"5 falls"`) is written with plain spaces. The rules are `docs/CONTENT-STYLE.md` §4 R6 and R7.
+- **2026-11-18.** A quoted text names every default-ignorable code point by its code point, whatever
+  its general category: U+034F and U+FE0F (Mn), U+3164 (Lo) and U+2065 (Cn) print as `U+034F`,
+  `U+FE0F`, `U+3164` and `U+2065` (`printedText` and `printedPercentText`). Before, 4,036 of the
+  4,174 printed as written and showed as nothing. R7's quoted noun now prints through `printedText`
+  like every other quoted text, after folding each run of spaces, tabs, line feeds, carriage returns
+  and form feeds into one space (`inU+034F puts`, `dataU+2009 points`; `docs/CONTENT-STYLE.md` §4
+  R7).
