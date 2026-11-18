@@ -321,6 +321,12 @@ describe('a law name, a date and a range in pt-PT prose (docs/CONTENT-STYLE.md �
     }
   });
 
+  it('refuses an ordinary space after (UE), pt-PT’s form of English’s (EU) (P3)', () => {
+    const regulation = 'os criptoativos do Regulamento (UE) 2023/1114 (MiCA)';
+    expect(pt(regulation)).toEqual([named('(UE)', '2023/1114')]);
+    expect(pt(regulation.replace('(UE) ', `(UE)${nbsp}`))).toEqual([]);
+  });
+
   it('refuses a hyphen-minus between two figures without U+2060 after it (P4)', () => {
     expect(pt('O ano fiscal 2026-27.')).toEqual([hyphened('2026-27')]);
     expect(pt(`O ano fiscal 2026-${wj}27.`)).toEqual([]);

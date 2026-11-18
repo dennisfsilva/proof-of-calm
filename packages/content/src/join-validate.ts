@@ -50,10 +50,11 @@ const PROSE_JOINS: Readonly<Record<string, ProseJoins>> = {
   },
   // D6 (2026-11-18), from the census of the pt-PT overlays, with English's names, which a translation keeps where the
   // source language's law is cited (`Topic 409`, `Circolare 30/E`, `c. 1`); months in lower case (CONTENT-STYLE §9).
-  // A `de` before a bare year (`de 2023`) is no date, as English's word before a year is not.
+  // `(UE)` is pt-PT's `(EU)` before a regulation's number. A `de` before a bare year (`de 2023`) is no date, as
+  // English's word before a year is not.
   'pt-PT': {
     names: new RegExp(
-      `${/[Aa]rtigos?|[Ss]ecção|[Ff]rase|[Pp]arágrafo|[Ee]xemplo|[Cc]ódigo/u.source}|${ENGLISH_NAMES.source}`,
+      `${/[Aa]rtigos?|[Ss]ecção|[Ff]rase|[Pp]arágrafo|[Ee]xemplo|[Cc]ódigo|\(UE\)/u.source}|${ENGLISH_NAMES.source}`,
       'u',
     ),
     months: /janeiro|fevereiro|março|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro/u,
