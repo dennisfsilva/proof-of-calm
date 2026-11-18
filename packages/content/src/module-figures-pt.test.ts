@@ -237,7 +237,7 @@ describe("pt-PT's chart section", () => {
   ])('2: a join with %s fails by its code point', async (point, gap) => {
     const [first] = await problemsOf(pt(`${S1} ${S2.replace('97 %', `97${gap}%`)}`, { raw: true }));
     expect(first?.detail).toBe(
-      `body: "97${point} %" in "${S1} ${S2}" joins a figure to a sign; write the figure, one ordinary or no-break \
+      `body: "97${point} %" in "${S1} ${S2.replace('97 %', `97${point} %`)}" joins a figure to a sign; write the figure, one ordinary or no-break \
 space, and %; R5 (docs/CONTENT-STYLE.md §4)`,
     );
     for (const space of [' ', ' '])

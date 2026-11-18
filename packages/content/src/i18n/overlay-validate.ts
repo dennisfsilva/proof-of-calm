@@ -79,14 +79,14 @@ export const numbersIn = (text: string, locale: string, profile = false): string
  */
 export type NumberLocales = readonly [english: string, translated: string];
 
-// Every percentage a text writes, in any form: a figure, a gap of nothing, white space, hyphens or hidden characters,
-// and any of the six signs. A translation writes English's percentages as English writes them, in the same order,
+// Every percentage a text writes, in any form: a figure, a gap of nothing, white space, hyphens and dashes (every
+// \p{Pd}) or hidden characters, and any of the six signs. A translation writes English's percentages as English writes them, in the same order,
 // each value read with its own text's separators (`31.4 %` in English is `31,4 %` in pt-PT; ADR-0057's Corrections).
 // It stays apart from percent-token.ts (decided 2026-11-18): that file holds the one token the app formats, `N %` in a
 // template's explanation, while this one compares two texts of any kind, so it reads more than the app formats
 // (`‰`, `‱`, a hidden character) and names each gap's code points, never a form to write. A gap of one ordinary space
-// shows as that space; any other gap names every character (printedGap, which a module's figure check shares).
-const PERCENT_TOKEN = /(\d+(?:[.,]\d+)*)((?:\s|-|\p{Cf})*)([%٪﹪％‰‱])/gu;
+// shows as that space; any other gap names every character (printedGap, which the joins and module checks share).
+const PERCENT_TOKEN = /(\d+(?:[.,]\d+)*)((?:\s|\p{Pd}|\p{Cf})*)([%٪﹪％‰‱])/gu;
 const percentsIn = (text: string, locale: string) =>
   [...text.matchAll(PERCENT_TOKEN)]
     .map(

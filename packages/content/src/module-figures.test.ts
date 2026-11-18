@@ -360,12 +360,12 @@ describe("each detail quotes its sentence and names its figure and rule (§4's l
     ['‰', '97‰', `"97‰" in "${S1} ${S2.replace('97 %', '97‰')}" ${JOIN}`],
     ['٪', '97 ٪', `"97 ٪" in "${S1} ${S2.replace('97 %', '97 ٪')}" ${JOIN}`],
     // A gap other than one ordinary or no-break space names each character by its code point, as the overlay check
-    // names a gap (ADR-0057's Corrections), since the quoted sentence folds white space to one space.
+    // names a gap (ADR-0057's Corrections); the quoted sentence folds the white space CSS folds and names the rest.
     ['a tab', '97\t%', `"97U+0009 %" in "${S1} ${S2}" ${JOIN}`],
-    ['U+202F', '97 %', `"97U+202F %" in "${S1} ${S2}" ${JOIN}`],
-    ['U+2009', '97 %', `"97U+2009 %" in "${S1} ${S2}" ${JOIN}`],
-    ['U+2007', '97 %', `"97U+2007 %" in "${S1} ${S2}" ${JOIN}`],
-    ['U+3000', '97　%', `"97U+3000 %" in "${S1} ${S2}" ${JOIN}`],
+    ['U+202F', '97 %', `"97U+202F %" in "${S1} ${S2.replace('97 %', '97U+202F %')}" ${JOIN}`],
+    ['U+2009', '97 %', `"97U+2009 %" in "${S1} ${S2.replace('97 %', '97U+2009 %')}" ${JOIN}`],
+    ['U+2007', '97 %', `"97U+2007 %" in "${S1} ${S2.replace('97 %', '97U+2007 %')}" ${JOIN}`],
+    ['U+3000', '97　%', `"97U+3000 %" in "${S1} ${S2.replace('97 %', '97U+3000 %')}" ${JOIN}`],
     ['two ordinary spaces', '97  %', `"97U+0020 U+0020 %" in "${S1} ${S2}" ${JOIN}`],
     // U+2060 is no white space: the paragraph, shown without it, fails as hidden text, and the join's fix passes it too.
     ['U+2060', '97⁠%', `the paragraph "${S1} ${S2.replace('97 %', '97%')}" holds a hidden character`],
@@ -404,7 +404,7 @@ describe("each detail quotes its sentence and names its figure and rule (§4's l
       '5: marks',
       after('*Each* fall is 1 of 9.'),
       [
-        `figure-chart: body: the paragraph "${S1} ${S2} Each fall is 1 of 9." holds emphasis beside a figure "4" in the chart's section, which reads plain text only${R(5)}`,
+        `figure-chart: body: the paragraph "${nb(S1)} ${s2} Each fall is 1 of 9." holds emphasis beside a figure "4" in the chart's section, which reads plain text only${R(5)}`,
         ...['Bitcoin', 'Ethereum', 'Chainlink', 'Solana'].map(
           (name) =>
             `figure-unstated: body: the chart draws a fall of ${name} that no sentence of its section states${R(5)}`,
@@ -415,7 +415,7 @@ describe("each detail quotes its sentence and names its figure and rule (§4's l
       '5: two marks, an English list',
       after('`Each` fall is 1 of 9.\\\nAgain.'),
       [
-        `figure-chart: body: the paragraph "${S1} ${S2} Each fall is 1 of 9. Again." holds a code span and a hard break beside a figure "4" in the chart's section, which reads plain text only${R(5)}`,
+        `figure-chart: body: the paragraph "${nb(S1)} ${s2} Each fall is 1 of 9. Again." holds a code span and a hard break beside a figure "4" in the chart's section, which reads plain text only${R(5)}`,
         ...['Bitcoin', 'Ethereum', 'Chainlink', 'Solana'].map(
           (name) =>
             `figure-unstated: body: the chart draws a fall of ${name} that no sentence of its section states${R(5)}`,
@@ -426,7 +426,7 @@ describe("each detail quotes its sentence and names its figure and rule (§4's l
       '5: three marks, with the serial comma',
       after('**Each** fall is `1` of 9.\\\nAgain.'),
       [
-        `figure-chart: body: the paragraph "${S1} ${S2} Each fall is 1 of 9. Again." holds strong text, a code span, and a hard break beside a figure "4" in the chart's section, which reads plain text only${R(5)}`,
+        `figure-chart: body: the paragraph "${nb(S1)} ${s2} Each fall is 1 of 9. Again." holds strong text, a code span, and a hard break beside a figure "4" in the chart's section, which reads plain text only${R(5)}`,
         ...['Bitcoin', 'Ethereum', 'Chainlink', 'Solana'].map(
           (name) =>
             `figure-unstated: body: the chart draws a fall of ${name} that no sentence of its section states${R(5)}`,
