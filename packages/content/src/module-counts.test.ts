@@ -86,6 +86,19 @@ describe('moduleCountProblems: a count and its listed noun, joined by one U+00A0
     ]);
   });
 
+  it('finds the pair as the reader reads it and quotes the count, the noun and the gap as written', () => {
+    const report = (text: string) => moduleCountProblems(at, [['body', text]], 'en').map(({ detail }) => detail);
+    expect(report(`It mixes 6${cp(0x200b)}0 inputs.`)).toEqual([
+      'body: the count "6U+200B 0" and its noun "inputs" are joined by U+0020, not U+00A0; write one U+00A0 between ' +
+        'them; R7 (docs/CONTENT-STYLE.md §4)',
+    ]);
+    expect(report(`It mixes 6${cp(0xe0001)} inputs.`)).toEqual([
+      'body: the count "6" and its noun "inputs" are joined by U+E0001 U+0020, not U+00A0; write one U+00A0 between ' +
+        'them; R7 (docs/CONTENT-STYLE.md §4)',
+    ]);
+    expect(report('It mixes 6inputs.')).toEqual([]);
+  });
+
   it("leaves B's falls and quedas to R6, and years, dates and unlisted nouns alone", () => {
     expect(codes('In the chart, bitcoin had 4 falls of more than 70 % between 2011 and 2025.', 'en')).toEqual([]);
     expect(codes('No gráfico, a bitcoin teve 4 quedas de mais de 70 % entre 2011 e 2025.', 'pt-PT')).toEqual([]);

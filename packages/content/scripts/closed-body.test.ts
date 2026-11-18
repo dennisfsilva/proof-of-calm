@@ -516,6 +516,21 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
       ]);
       expect(await details(`${FRONT}## 6${zwsp}inputs\n`)).toEqual([joined('body', 'U+200B')]);
     });
+
+    // #387: the pair is found as the reader reads it, so a hidden character inside the noun never hides the gap.
+    it('refuses a plain space before a noun a hidden character splits, in a paragraph and the idea alike', async () => {
+      const path = 'packages/content/learn/noise.mdx';
+      const shy = String.fromCodePoint(0xad);
+      const details = async (source: string) =>
+        (await closedBodyProblems([{ path, source }], { figures })).map(({ code, detail }) => `${code} ${detail}`);
+      const joined = (field: string) =>
+        `figure-join ${field}: the count "6" and its noun "inU+00AD puts" are joined by U+0020, not U+00A0; write one ` +
+        'U+00A0 between them; R7 (docs/CONTENT-STYLE.md §4)';
+      expect(await details(`${FRONT}It mixes 6 in${shy}puts.\n`)).toEqual([joined('body')]);
+      const idea = FRONT.replace('title: Noise', `title: Noise\nidea: It mixes 6 in${shy}puts.`);
+      expect(await details(`${idea}It mixes 6${NBSP}inputs.\n`)).toEqual([joined('idea')]);
+      expect(await details(`${FRONT}It mixes 6${NBSP}in${shy}puts.\n`)).toEqual([]);
+    });
   });
 
   // The figure rules on the path scripts/validate.ts runs: its context from the live files, on a compiled module;
