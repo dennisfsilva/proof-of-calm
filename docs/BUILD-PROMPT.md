@@ -626,7 +626,9 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   with every test green (2026-11-17).
 - A check that reads a compiled page reads every block kind the page shows, or refuses the kind.
   #343's module rules read paragraphs and headings and passed a figure in a fenced code block
-  (2026-11-17).
+  (2026-11-17). A container's visible marker counts too: #365's closed pt-PT chart section passed
+  `1975. <a listed sentence>`, because the page reader kept an ordered list item's paragraph and
+  dropped the number the page shows (2026-11-18).
 - A branch with a rule of about 200 lines, a test list of about 60 rows and its docs goes to two
   builders from the start: the rule and its tests, then the docs and the checks. #354's first
   builder, briefed with all of it, stopped at its 120-turn limit with the docs, the checks and its
@@ -661,6 +663,20 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - Probe a design note's claim about where a browser breaks a line in Chromium and WebKit before the
   build. #358's D5 said a hyphen-minus range never breaks (UAX #14 LB25); the builder's probe found
   both engines break after it (S4, comment 6964566623, 2026-11-18).
+- A limit relaxed in one schema is relaxed wherever the same field is parsed again. #367's joiners
+  took two pt-PT fields to 241 and 242 characters of 240; the limit now skips U+2060, and the core's
+  schema, which the Learn holding tool decodes the rules with, had to count the same way
+  (2026-11-18).
+- A list that repeats a table's column goes stale on the route that changes the column; derive it
+  from the table. #366's Coinbase key list repeated `FALLS`' publishers and turned main red after a
+  publisher change (2026-11-18).
+- A builder counts each commit subject before it commits, since a pushed commit cannot be reworded
+  under a builder's rules: two builders pushed 101-character subjects that the session re-cut by
+  cherry-pick (#364, #366; 2026-11-18).
+- A rehearsal gap that keeps main green moves to the next session with its proposed words; only a
+  gap that turns main or the log pull request red holds the merge. #366's seventh rehearsal still
+  found three gaps, after a scratch-main play and six rehearsals, each in a corner the one before
+  had not played (2026-11-18).
 
 ## Known gaps
 
