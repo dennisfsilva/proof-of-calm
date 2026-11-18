@@ -311,10 +311,10 @@ the build's compiler gives, never on the MDX source a second time. A sentence th
 character, a percentage, a number word, a month, a currency sign, or a coin the chart draws) passes only as B, a bound
 on one coin's falls, or E, each coin's falls in the chart's order, as a whole. Anything else is `figure-chart`, and a
 row no sentence states is `figure-unstated`. The page marks a paragraph's emphasis, strong text, code spans, hard
-breaks, text elements, and removed hidden characters (`pageOf`'s `marks`), and the rule refuses a trigger beside any of them.
-A figure meets `%` only through the joiners the app formats (`MODULE_PERCENT_JOINERS`). A translation's section fails
-closed until its language has shapes. `pnpm validate:content` takes the root it reads as an argument, and a test runs
-it on a copy with a chart row changed. The PR removes no pin.
+breaks, text elements, and removed hidden characters (`pageOf`'s `marks`), and the rule refuses a trigger beside any of
+them. A figure meets `%` only through the joiners the app formats (`MODULE_PERCENT_JOINERS`). A translation's section
+fails closed until its language has shapes. `pnpm validate:content` takes the root it reads as an argument, and a test
+runs it on a copy with a chart row changed. The PR removes no pin.
 
 R7 (`figure-fact`: the module's other figures, and the idea's and the caveat's, against its listed facts) moves after
 M2. Its trigger was open. A date written "17 June 2025" or "June 17, 2025" passed it, and so did money written "USD 9
