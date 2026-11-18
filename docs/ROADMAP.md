@@ -330,8 +330,12 @@ external links and the Risk link in the mobile export (M3).
   review-content skill's remaining wording move to #355, which comes before #271. On 2026-11-17,
   #355 merged nothing: Risk honestly in pt-PT and the review-content skill's remaining wording used
   both review rounds, each confirming new forms of one kind, and move with the rest of #355's cut
-  list to #358, which comes before #271. With #340, #343, #349, #355 and #358, pt-PT takes 14 build
-  sessions more than
+  list to #358, which comes before #271. On 2026-11-17, #358 merged the finish's refusal of a
+  removed chart row, counted per coin, and the review-content skill's remaining wording (#360).
+  Risk honestly in pt-PT, the fact value route and the English profile joins used both review
+  rounds and move to #361, which comes before #271. #358's design check closed a translated chart
+  section instead of listing words: each sentence is B, E or a listed one, and #361 builds it. With
+  #340, #343, #349, #355, #358 and #361, pt-PT takes 15 build sessions more than
   #269 planned before German starts. A render-and-axe-only pt-PT
   story run waits for #271, once every namespace is translated. CSV import, free (ADR-0039), for the
   main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
