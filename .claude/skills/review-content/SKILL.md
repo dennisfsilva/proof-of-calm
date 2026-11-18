@@ -392,8 +392,10 @@ The finish refuses a changed entry at any other value.
    Say in the notes and your closing report that the owner's pull request to main adds the entry
    to `unloggedFalls` in that test, keyed `<coin> <high>` of the literal (`ETH 2021-11-10`), and
    removes it when this one closes unmerged or no longer holds the new values
-   (`docs/CONTENT-OPS.md` §8 step 4). The test's Coinbase list and `unregained` read their keys
-   through the same entries. A change §1 reverted takes no such note: its `tests:` list names the
+   (`docs/CONTENT-OPS.md` §8 step 4). The test's `COINBASE_KEYS` and `UNREGAINED_KEYS` read a
+   moved high's key through the entry only while it stays: when your change moves a high, say in
+   the notes that the log pull request writes the new `<coin> <high>` in place of the old one
+   there when it removes the entry (`docs/CONTENT-OPS.md` §8 step 5). A change §1 reverted takes no such note: its `tests:` list names the
    literal. For the tie
    of a fact's value to its `docs/EDUCATION.md` §9 row (`packages/content/src/facts.test.ts`), say
    instead that the owner's pull request to main records the fact's old and new value as an
