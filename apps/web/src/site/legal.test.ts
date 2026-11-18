@@ -165,7 +165,7 @@ describe('the Cookie-free statement (docs/LEGAL.md §5)', () => {
     expect(page.match(/<h1/g) ?? []).toHaveLength(1);
     const stored = page.split(/(?<=\.) /).find((sentence) => sentence.includes('display settings'));
     expect(stored).toBeDefined();
-    for (const setting of ['theme', 'reduced motion', 'chart range', "the Log's view"]) {
+    for (const setting of ['theme', 'reduced motion', 'chart range', "the Log's view", 'the language']) {
       expect(stored).toContain(setting);
     }
     expect(page).toContain('until the tab closes');
