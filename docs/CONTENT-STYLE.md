@@ -411,14 +411,20 @@ since Chromium and WebKit both break a line after either sign. A hyphen beside a
 that a hyphen-minus between digits never breaks). A point after a letter ends an abbreviation, so
 a dash or hyphen between the figures after it takes the joiner as well (`s.104-105`,
 `Rev.Proc.2025-32`, decided 2026-11-18). A hyphen-minus inside a law number takes the joiner too
-(`Lei 24-⁠D/2022`, `9-⁠bis`), or the text writes U+2011 there (`9‑bis`). `pnpm validate:content`
-refuses an ordinary space in a name's or a date's join (`figure-join`) and a dash or hyphen with no
-joiner after it (`range-join`).
+(`Lei 24-⁠D/2022`, `9-⁠bis`), or the text writes U+2011 there (`9‑bis`). The hyphen before a
+Latin ordinal suffix after a number or a single letter takes the same, with or without a law name
+before it (`Form 3916‑bis`, `lett. c‑sexies`); the suffixes are a closed list, `bis`, `ter`,
+`quater`, `quinquies`, `sexies`, `septies`, `octies`, `novies` and `decies` (decided 2026-11-18).
+`pnpm validate:content` refuses an ordinary space in a name's or a date's join (`figure-join`) and
+a dash or hyphen with no joiner after it (`range-join`).
 
-A figure and its unit are joined by U+00A0 as well (`365 days`, `5 anos`, `2.º Suplemento`): the
-units are a closed list, `day`, `week`, `month` and `year` with their plurals in English, and
-`dia`, `semana`, `mês`, `ano` with their plurals and `Suplemento` in pt-PT. A word counted after a
-figure (`6 escalões`, `3 states`) is no unit and stays unchecked. A citation's brackets take U+2060
+A figure and its unit are joined by U+00A0 as well (`365 days`, `5 anos`): the units are a closed
+list, `day`, `week`, `month` and `year` with their plurals in English, and `dia`, `semana`, `mês`,
+`ano` with their plurals in pt-PT. Every text of a language with lists is read with every
+language's units, since an English card quotes its country's law in that law's language
+(`365 dias` in Portugal's English card, decided 2026-11-18). `Suplemento` is checked only after an ordinal figure, as an
+ordinal and its noun (`2.º Suplemento`, §9). A word counted after a figure (`6 escalões`,
+`3 states`) is not a unit, so it stays unchecked. A citation's brackets take U+2060
 between them (`55(1)(d)`, `1.1012-1(j)(3)(ii)`), and nothing between the number and its first
 bracket, which neither engine breaks. A probe at 161 widths from 240 to 400 px found each pair split
 at a line end in Chromium or WebKit, and none once joined (#368, decided 2026-11-18).
@@ -426,7 +432,8 @@ at a line end in Chromium or WebKit, and none once joined (#368, decided 2026-11
 no joiner between its brackets (`citation-join`).
 
 U+00A0 joins a figure to its unit, a name to its number, an ordinal to its noun and a date's parts;
-U+2060 goes only after a dash or a hyphen and between a citation's brackets. U+202F is never typed
+U+2060 goes only after a dash or a hyphen and between a citation's brackets; U+2011 replaces the
+hyphen inside a law number in text a screen shows (`9‑bis`). U+202F is never typed
 by hand: it is the percent sign's joiner in a locale that has one (the percent paragraphs below).
 
 The names are a closed list per language in `packages/content/src/join-validate.ts`, taken from
