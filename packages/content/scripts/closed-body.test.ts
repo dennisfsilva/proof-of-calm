@@ -453,6 +453,50 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
     expect(await closedBodyProblems(modules, { figures })).toEqual([]);
   });
 
+  // docs/CONTENT-STYLE.md §4: a count and its listed noun, on the path scripts/validate.ts runs, in every module, with
+  // a chart or none, and in the front matter the sheet shows; src/module-counts.test.ts holds the rule.
+  describe('a count joined to its listed noun by one U+00A0', () => {
+    const NBSP = String.fromCodePoint(0xa0);
+    const live = (name: string) => readFileSync(new URL(`../${name}`, import.meta.url), 'utf8');
+    const english = parseModule('packages/content/learn/noise.mdx', live('learn/noise.mdx'));
+
+    it("refuses English noise's 6 inputs written with a space, and passes the live module", async () => {
+      const path = 'packages/content/learn/noise.mdx';
+      const source = live('learn/noise.mdx');
+      const seeded = source.replace(`6${NBSP}inputs`, '6 inputs');
+      expect(seeded).not.toBe(source);
+      const codes = async (text: string) =>
+        (await closedBodyProblems([{ path, source: text }], { figures })).map(({ code }) => code);
+      expect([await codes(source), await codes(seeded)]).toEqual([[], ['figure-join']]);
+    });
+
+    it("refuses pt-PT noise's 6 componentes across a source line break, and passes the live translation", async () => {
+      if (!english.ok) throw new Error('the English noise does not parse');
+      const source = live('i18n/pt-PT/learn/noise.mdx');
+      const seeded = source.replace(`6${NBSP}componentes`, '6\ncomponentes');
+      expect(seeded).not.toBe(source);
+      const codes = async (text: string) =>
+        (
+          await closedBodyProblems([{ language: 'pt-PT', path: at, source: text }], {
+            english: [english.value],
+            figures,
+          })
+        ).map(({ code }) => code);
+      expect([await codes(source), await codes(seeded)]).toEqual([[], ['figure-join']]);
+    });
+
+    it('reads the front matter and the body of a module whose front matter names no chart', async () => {
+      const path = 'packages/content/learn/noise.mdx';
+      const source = `${FRONT.replace('title: Noise', 'title: 2 indexes')}It mixes 6 inputs.\n\n- 5 components\n`;
+      const problems = await closedBodyProblems([{ path, source }], { figures });
+      expect(problems.map(({ detail }) => detail.split(' and ')[0])).toEqual([
+        'title: the count "2"',
+        'body: the count "6"',
+        'body: the count "5"',
+      ]);
+    });
+  });
+
   // The figure rules on the path scripts/validate.ts runs: its context from the live files, on a compiled module;
   // scripts/validate.test.ts runs the script itself.
   it('reads a module and its translation against the chart as scripts/validate.ts passes them', async () => {
