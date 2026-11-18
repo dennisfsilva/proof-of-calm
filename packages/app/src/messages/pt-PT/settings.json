@@ -309,7 +309,7 @@
   },
   "reminder": {
     "heading": "Lembrete no calendário",
-    "line": "Um evento em cada dia de compra que resta no plano. Adicione-o se escolheu Mais tarde, ou de novo depois de alterar o dia de compra. O calendário pode conservar o evento anterior. Elimine-o lá.",
+    "line": "Um evento em cada dia de compra que resta no plano. Adicione-o se escolheu «Mais tarde», ou de novo depois de alterar o dia de compra. O calendário pode conservar o evento anterior. Elimine-o lá.",
     "calendar": "Adicionar ao calendário",
     "saved": "Ficheiro do calendário guardado.",
     "notSaved": "O ficheiro do calendário não foi guardado. Adicione-o de novo.",
