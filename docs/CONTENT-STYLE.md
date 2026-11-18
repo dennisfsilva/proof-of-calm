@@ -425,8 +425,8 @@ list, `day`, `week`, `month` and `year` with their plurals in English, and `dia`
 language's units, since an English card quotes its country's law in that law's language
 (`365 dias` in Portugal's English card, decided 2026-11-18). `Suplemento` is checked only after an ordinal figure, as an
 ordinal and its noun (`2.º Suplemento`, §9). A word counted after a figure (`6 escalões`,
-`3 states`) is not a unit, so it stays unchecked, except B's count in a Learn module, which R6
-checks (below). A citation's brackets take U+2060
+`3 states`) is not a unit, so it stays unchecked, except in a Learn module, where R6 checks B's
+count and R7 a count before a listed noun (below). A citation's brackets take U+2060
 between them (`55(1)(d)`, `1.1012-1(j)(3)(ii)`), and nothing between the number and its first
 bracket, which neither engine breaks. A probe at 161 widths from 240 to 400 px found each pair split
 at a line end in Chromium or WebKit, and none once joined (#368, decided 2026-11-18).
@@ -456,11 +456,32 @@ white space (`\s`), format characters (`\p{Cf}`) or control characters (`\p{Cc}`
 joins above read. `pnpm validate:content` refuses a sentence that matches B with any such gap other
 than one U+00A0 (`figure-join`, R6). Any other character the page keeps between the count and its
 noun makes the sentence match neither shape (`figure-chart`, R5). The probe's census of the modules
-also found 16 other counts that can end a line apart from their noun (`6 inputs`, `95 países`).
-They are not joined or checked yet.
+also found 16 other counts that could end a line apart from their noun.
 
-U+00A0 joins a figure to its unit, a name to its number, an ordinal to its noun, B's count to its
-noun and a date's parts; U+2060 goes only after a dash or a hyphen and between a citation's brackets; U+2011 replaces the
+R7: in a Learn module, a count before a listed noun is joined to it by exactly one U+00A0 (`6 inputs`,
+`95 países`), written as the character itself, so that no line ends between them. `moduleCountProblems` in
+`packages/content/src/module-counts.ts` reads it, and `packages/content/scripts/closed-body.ts` runs it in
+`pnpm validate:content` on every English and pt-PT module that compiles. It reads the front matter's title, idea
+and caveat as written, and every block of the compiled page that holds text
+(`packages/config/vite/page-blocks.ts`): a heading, a paragraph in a list item or a quote, and a code block
+included. It reads an ordered list item's first block after the number the page shows (`3. `). The page's text
+has every default-ignorable code point removed, so in the body a count with only such a code point before its
+noun touches the noun and is not read. A count is a run of number characters (`\p{N}`) that no letter, mark or
+number character touches, its groups split by a comma, a dot or U+00A0 (`750,000`, `210 000`). Between the
+count and its noun R7 reads B's gap, the class in `packages/content/src/module-figures.ts`: a run of JS white
+space (`\s`), format characters (`\p{Cf}`) or control characters (`\p{Cc}`). It refuses any such gap other
+than one U+00A0 (`figure-join`), and the detail names the gap by its code points. Any other character between
+the two, a hyphen or a word, leaves the pair unread. A noun matches whole and in any case, with no letter, mark
+or number character after it; a space inside one (`data points`) matches any run of white space. The lists are
+closed, one per language, and hold the nouns of the counts the census found: in English `blocks`, `data points`,
+`inputs`, `components`, `indexes`, `bitcoins`, `episodes`, `start months`, `countries`, `completed cycles`,
+`cycles`, `parts` and `signs`, and in pt-PT the nine §9 names. B's noun (`falls`, `quedas`) is on neither list:
+R6 reads it. A count before any other noun stays unread. A probe joined the 23 counts the English and pt-PT
+modules write before these nouns by U+00A0 and ran them at 161 widths from 240 to 400 px, at 100 % and 125 % zoom, in Chromium and WebKit: none split and none
+overflowed (decided 2026-11-18).
+
+U+00A0 joins a figure to its unit, a name to its number, an ordinal to its noun, B's count and R7's
+count to their nouns, and a date's parts; U+2060 goes only after a dash or a hyphen and between a citation's brackets; U+2011 replaces the
 hyphen inside a law number in text a screen shows, except in a source's title (below):
 `9‑bis`. U+202F is never typed
 by hand: it is the percent sign's joiner in a locale that has one (the percent paragraphs below).
@@ -761,7 +782,9 @@ needs (decided 2026-11-15). The native reader's review is §8 item 9.
   English's word before a year does (decided 2026-11-18). Its units are `dia`, `semana`, `mês` and
   `ano` with their plurals, and `Suplemento` after an ordinal (`2.º Suplemento`); a form's name may be
   a `Formulário` (#368, decided 2026-11-18). A source title in Portuguese (`lang` `pt`) is read with
-  these lists.
+  these lists. A module's count (§4 R7) is read before pt-PT's nouns `blocos`, `observações`,
+  `componentes`, `índices`, `bitcoins`, `países`, `ciclos`, `partes` and `sinais`, each joined by U+00A0
+  (`95 países`); `quedas` stays with R6.
 - **The tax authority's own terms**, never a translation back from English: `CIRS`, `Anexo G`,
   `Anexo G1`, `Quadro 18A`, `mais-valias`, `Autoridade Tributária e Aduaneira`; a rule quoted from the
   law keeps the law's wording in quotation marks («detidos por um período igual ou superior a 365
