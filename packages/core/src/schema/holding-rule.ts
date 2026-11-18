@@ -22,10 +22,16 @@ export const HoldingRuleSchema = z.discriminatedUnion('kind', [
 ]);
 export type HoldingRule = z.infer<typeof HoldingRuleSchema>;
 
+// A limit counts what a reader sees, so a word joiner (U+2060, no width) does not count, as in the content's
+// schema (docs/JURISDICTIONS.md §2).
+const WORD_JOINER = /\u2060/g;
+const visibleUpTo = (max: number) =>
+  z.string().check(z.refine((text) => text.replace(WORD_JOINER, '').length <= max, `Expected at most ${max} characters`));
+
 /** An enacted rule that applies to lots acquired on or after a date (Germany's draft reform would be one). */
 export const HoldingRuleOverrideSchema = z.strictObject({
   acquiredFrom: CalendarDateSchema,
   rule: HoldingRuleSchema,
-  note: z.string().check(z.maxLength(240)),
+  note: visibleUpTo(240),
 });
 export type HoldingRuleOverride = z.infer<typeof HoldingRuleOverrideSchema>;
