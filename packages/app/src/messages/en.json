@@ -1011,6 +1011,11 @@
       "undo": "Undo",
       "undoRefused": "Another browser tab started or imported a plan after you deleted this one, so it stays deleted."
     },
+    "language": {
+      "heading": "Language",
+      "label": "Language of the app",
+      "reloads": "The app reloads in the language you choose."
+    },
     "about": {
       "heading": "About",
       "line": "Data and tools, not advice. Crypto-assets can lose all their value.",
