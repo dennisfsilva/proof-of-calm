@@ -61,7 +61,10 @@ configs live in their packages. See `docs/ENGINEERING.md`.
     item carries `listNumbers`, the number the page shows for each item it opens (the list's start plus the
     item's place), and an item with no block reads as an empty paragraph. A paragraph's `marks`, set only when
     non-empty, name each inline node other than text it holds (emphasis, strong, inlineCode, break,
-    mdxJsxTextElement) once in tree order, then `ignorable` when a default-ignorable code point was removed. `pnpm validate:content`
+    mdxJsxTextElement) once in tree order, then `ignorable` when a default-ignorable code point was removed.
+    A heading, paragraph or code block that lost one keeps its text from before the removal in `written`,
+    set only then; the count check (R7) reads it. Only `checkModuleBody` reads the page: the build's
+    compiler runs without `pageOf`, so `written` never reaches the module the browser loads. `pnpm validate:content`
     runs it, and runs the ban list and the hyphen check on each of a translated module's `blocks`. It
     compares the module's `elements` with its English module's (`module-overlay-elements`). It reads the
     numbers of each of its `blocks` on its own, and each ordered item's `listNumbers`, and compares them,
