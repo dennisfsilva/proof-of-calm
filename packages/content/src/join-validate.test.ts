@@ -686,10 +686,11 @@ describe('a source title in es, fr, it, nl and de', () => {
   // Every month of each language's list, so that a month removed from the list or misspelt in it fails here: the live
   // titles already join their dates with U+00A0, so the real profiles' test passes without the list (the review's
   // finding on the fix round). The names and the es linker are each in a case above.
+  const words = (list: string) => list.split(' ');
   const months: Record<'es' | 'fr' | 'it', string[]> = {
-    es: 'enero febrero marzo abril mayo junio julio agosto septiembre octubre noviembre diciembre'.split(' '),
-    fr: 'janvier f\u00e9vrier mars avril mai juin juillet ao\u00fbt septembre octobre novembre d\u00e9cembre'.split(' '),
-    it: 'gennaio febbraio marzo aprile maggio giugno luglio agosto settembre ottobre novembre dicembre'.split(' '),
+    es: words('enero febrero marzo abril mayo junio julio agosto septiembre octubre noviembre diciembre'),
+    fr: words('janvier f\u00e9vrier mars avril mai juin juillet ao\u00fbt septembre octobre novembre d\u00e9cembre'),
+    it: words('gennaio febbraio marzo aprile maggio giugno luglio agosto settembre ottobre novembre dicembre'),
   };
   const dated: [string, string, (gap: string) => string, string[]][] = [
     ...months.es.map((month): [string, string, (gap: string) => string, string[]] => [
