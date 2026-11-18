@@ -149,6 +149,57 @@ describe('a currency code or a form name joined to its figure (docs/CONTENT-STYL
   });
 });
 
+// Carry-overs 5 and 6 of #377: a law name's, a date's and a unit's gap read the same run as a code's, so a format or
+// control character there, or U+00A0 beside another space, is refused as the gap it is.
+describe('the gap of every prose join, read as a code join reads it (docs/CONTENT-STYLE.md §4)', () => {
+  const read = (language: string, text: string) =>
+    joinProblems(path, [['card.caveats.0', text]], language).map(({ detail }) => detail);
+  const by = (pair: string, figure: string, gap: string) =>
+    `card.caveats.0: ${pair} "${figure}" are joined by ${gap}, not U+00A0 (docs/CONTENT-STYLE.md §4)`;
+  // Each pair's language, its words as the detail prints them, and a text with `{gap}` where its gap goes.
+  const pairs = [
+    ['en', 'the name "art." and its number', '46', 'Under art.{gap}46 it is.'],
+    ['en', 'the day "31" and its month', 'July', 'On 31{gap}July\u00a02027.'],
+    ['en', 'the month "July" and its year', '2027', 'On 31\u00a0July{gap}2027.'],
+    ['en', 'the figure "365" and its unit', 'days', 'Held for 365{gap}days.'],
+    ['pt-PT', 'the name "artigo" and its number', '10', 'Nos termos do artigo{gap}10.'],
+    ['pt-PT', 'the day "1" and its linker', 'de', 'Desde 1{gap}de\u00a0janeiro\u00a0de\u00a02023.'],
+    ['pt-PT', 'the linker "de" and its month', 'janeiro', 'Desde 1\u00a0de{gap}janeiro\u00a0de\u00a02023.'],
+    ['pt-PT', 'the month "janeiro" and its linker', 'de', 'Desde 1\u00a0de\u00a0janeiro{gap}de\u00a02023.'],
+    ['pt-PT', 'the linker "de" and its year', '2023', 'Desde 1\u00a0de\u00a0janeiro\u00a0de{gap}2023.'],
+    ['pt-PT', 'the figure "2.º" and its unit', 'Suplemento', 'No 2.º{gap}Suplemento.'],
+  ] as const;
+  const gaps = [
+    ['\u2060', 'U+2060'],
+    ['\u0600', 'U+0600'],
+    ['\u0085', 'U+0085'],
+    ['\u0007', 'U+0007'],
+    ['\u00a0\u0020', 'U+00A0 U+0020'],
+    ['\u0020\u00a0', 'U+0020 U+00A0'],
+    ['\u2060\u00a0', 'U+2060 U+00A0'],
+  ] as const;
+  const cases = pairs.flatMap((pair) => gaps.map(([gap, printed]) => [printed, ...pair, gap] as const));
+
+  it.each(cases)('refuses %s in %s, between %s %s', (printed, language, pair, figure, text, gap) => {
+    expect(read(language, text.replace('{gap}', gap))).toEqual([by(pair, figure, printed)]);
+  });
+
+  it.each(pairs)('in %s, passes a lone U+00A0 and refuses U+0020 between %s %s', (language, pair, figure, text) => {
+    expect(read(language, text.replace('{gap}', '\u00a0'))).toEqual([]);
+    expect(read(language, text.replace('{gap}', '\u0020'))).toEqual([by(pair, figure, 'U+0020')]);
+  });
+
+  it('still reads the gap after a joined one, and a joined law number', () => {
+    expect(read('pt-PT', 'Desde 1\u00a0de janeiro.')).toEqual([
+      by('the linker "de" and its month', 'janeiro', 'U+0020'),
+    ]);
+    expect(read('en', 'Under art.\u00a046-bis, 365\u2060days.')).toEqual([
+      'card.caveats.0: the range or number "46-bis" can break after its hyphen (docs/CONTENT-STYLE.md §4)',
+      by('the figure "365" and its unit', 'days', 'U+2060'),
+    ]);
+  });
+});
+
 // D5 to D7 and S4 of #358 (docs/CONTENT-STYLE.md §4): in English prose a law's name and its number and a date's parts
 // are joined by U+00A0, and an en dash or a hyphen-minus between two digits takes U+2060 after it, so that a narrow
 // screen never splits them.
