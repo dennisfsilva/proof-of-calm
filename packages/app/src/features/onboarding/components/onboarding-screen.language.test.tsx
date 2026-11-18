@@ -206,7 +206,12 @@ describe("OnboardingScreen: the early window's conditions in pt-PT (ADR-0057)", 
     const translated = await loadProfiles('pt-PT');
     await earlyWindowIn(translated.map((profile) => (profile.code === 'DE' ? english : profile)));
     const [first] = english.holdingRuleConditions;
-    expect(screen.getByText(first ?? '').closest('[lang]')?.getAttribute('lang')).toBe('en');
+    expect(
+      screen
+        .getByText(first ?? '')
+        .closest('[lang]')
+        ?.getAttribute('lang'),
+    ).toBe('en');
   });
 
   it("leaves the country's conditions unmarked when its translation loaded", async () => {
