@@ -361,7 +361,11 @@ fact to the window its URL names (the skill's §4 step 3).
    the pt-PT translation of Germany is read in de-DE, as its English file is, so it copies each
    figure as written: `EUR 20 350` stays `EUR 20 350` and `5,5 %` stays `5,5 %`, since a
    profile's English figures already take the page's form and draw `decimal-separator` or
-   `number-group` otherwise).
+   `number-group` otherwise). Then, for each `translation for the owner:` note (a letter, word or
+   citation the English change altered that the translation repeats outside its figures, which
+   the agent leaves: the skill's §1), make that change in the translation's own wording, at the
+   path and field the note names, in a commit on the agent's branch before merging; the guard
+   accepts a JSON translation (§3). pt-PT writes the English `55(1)\x{2060}(e)` as `al. e)`.
    When the notes name a JSON translation's figure that still fails `overlay-number-mismatch` (§3
    step 3), write that figure in the translation, in its number locale's format (the skill's §1),
    or revert the English change, in a commit on the agent's branch before merging; `verify` stays
