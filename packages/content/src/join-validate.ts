@@ -74,7 +74,7 @@ const PROSE_JOINS: Readonly<Record<string, ProseJoins>> = {
     // `Suplemento` only after an ordinal figure (`2.º Suplemento`, CONTENT-STYLE §9): `2 Suplemento` is no unit.
     units: new RegExp(String.raw`dias?|semanas?|mês|meses|anos?|(?<=\d\.º${SPACE}+)Suplemento`, 'u'),
   },
-  // #381 (2026-11-18), for the source titles only: each language's names from a census of its own titles, without
+  // Decided 2026-11-18, for the source titles only: each language's names from a census of its own titles, without
   // English's; its months in lower case, all twelve. No unit word follows a figure in them, so they add none.
   es: {
     names: /Ley|Real Decreto|Orden|art\./u,
