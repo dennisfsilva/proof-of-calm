@@ -12,7 +12,8 @@ import {
   SourceSchema,
 } from './common.ts';
 
-const short = (max: number) => z.string().check(z.maxLength(max));
+// A limit counts what a reader sees, so a word joiner (U+2060, no width) does not count (§2).
+const short = (max: number) => z.string().check(z.refine((text) => text.replaceAll('\u2060', '').length <= max));
 
 export const TaxableEventSchema = z.strictObject({
   event: z.enum([
