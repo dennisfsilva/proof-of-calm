@@ -1,17 +1,22 @@
 import { Fragment, type ReactNode } from 'react';
 import { LEGAL_PAGES } from '../../lib/site/pages';
-import { siteTranslator } from '../../lib/site-messages';
+import { englishLang, siteTranslator, useSiteLanguage } from '../../lib/site-messages';
 
 // The site pages before launch: each page's own content, then the footer that every site page
 // carries, the one-line disclaimer with a link to the Risk page (docs/LEGAL.md §4) and the legal pages.
 // The links sit inline in a sentence-like line, so their target size follows the text (WCAG 2.5.8).
 // Plain anchors: the site pages are prerendered and ship no script (ADR-0045 §6).
 export function SiteLayout({ children }: { children: ReactNode }) {
-  const t = siteTranslator('site');
-  const legal = siteTranslator('legal');
+  const language = useSiteLanguage();
+  const t = siteTranslator('site', language);
+  const legal = siteTranslator('legal', language);
   const links = [
-    { path: '/', label: t('home') },
-    ...LEGAL_PAGES.map((page) => ({ path: page.path, label: legal(`${page.slug}.title`) })),
+    { path: '/', label: t('home'), lang: undefined },
+    ...LEGAL_PAGES.map((page) => ({
+      path: page.path,
+      label: legal(`${page.slug}.title`),
+      lang: englishLang(language, `legal.${page.slug}.title`),
+    })),
   ];
   return (
     <>
@@ -25,7 +30,9 @@ export function SiteLayout({ children }: { children: ReactNode }) {
             {links.map((link, index) => (
               <Fragment key={link.path}>
                 {index > 0 ? ' · ' : null}
-                <a href={link.path}>{link.label}</a>
+                <a href={link.path} lang={link.lang}>
+                  {link.label}
+                </a>
               </Fragment>
             ))}
           </p>

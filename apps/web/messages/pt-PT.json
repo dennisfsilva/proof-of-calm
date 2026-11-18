@@ -1,0 +1,83 @@
+{
+  "holding": {
+    "body": "Um planeador e um registo de compras de cripto num calendário mensal fixo. Ainda não abriu."
+  },
+  "site": {
+    "footer": "Dados e ferramentas que não constituem aconselhamento. Os criptoativos podem perder parcial ou totalmente o seu valor.",
+    "risk": "Ler o aviso sobre riscos",
+    "legal": "Informação legal",
+    "home": "Início"
+  },
+  "legal": {
+    "placeholder": "Esta página é publicada na íntegra antes de a {product} abrir. Até lá, o serviço não está disponível e não recolhe nada.",
+    "risk": {
+      "title": "Aviso sobre riscos",
+      "lead": "A {product} é software para um plano definido por si. Não dá aconselhamento financeiro, de investimento nem fiscal; as moedas, os montantes e os dias de um plano são os que definir. A maioria dos criptoativos é muito volátil; pode perder todo o dinheiro investido. Use apenas dinheiro de que não precise durante anos.",
+      "dca": {
+        "title": "O que um plano faz e não faz",
+        "p1": "Com um plano, compra um montante fixo num calendário fixo, por isso o preço de um único dia não decide o que paga em média. A {product} regista cada compra com a data, o montante e as unidades, e mostra em que ponto do plano está.",
+        "p2": "Um plano não limita até onde um preço pode cair, não torna mais provável um resultado melhor e não protege o que gasta. Se os preços caírem e ficarem baixos, um plano pode acabar com menos do que custou."
+      },
+      "falls": {
+        "title": "Quedas face a um máximo",
+        "p1": "Cada linha abaixo é uma queda de uma moeda, desde um máximo de ciclo até ao preço mais baixo depois dele. As quedas mais profundas até agora não são um limite: uma moeda pode cair ainda mais, até zero."
+      },
+      "custody": {
+        "title": "Custódia e contrapartes",
+        "p1": "A {product} nunca detém o seu dinheiro nem as suas moedas. Compra e guarda as moedas junto de um prestador à sua escolha ou numa carteira própria.",
+        "p2": "Um prestador pode falir, ser alvo de um ataque informático ou suspender os levantamentos, com as moedas dos clientes lá dentro. Se guardar as moedas por conta própria e perder a frase de recuperação, ninguém as pode restaurar."
+      },
+      "status": {
+        "title": "Sem supervisor nem sistema de indemnização",
+        "p1": "A {product} não está registada junto de nenhum supervisor financeiro nem sujeita à sua supervisão, e nenhum sistema de indemnização dos investidores ou de proteção de depósitos cobre os criptoativos."
+      },
+      "tax": {
+        "title": "Impostos",
+        "p1": "Vender, trocar ou gastar moedas pode implicar imposto a pagar, e as regras de cada país são diferentes e mudam. A {product} mostra as regras de detenção dos países que abrange, com as fontes e a data da última revisão de cada uma, exceto enquanto uma regra está em revisão. Quando o plano tem uma regra de detenção, a {product} mostra a data de fim do período de detenção de cada compra. É informação e não constitui aconselhamento fiscal. Um consultor fiscal ou a sua autoridade tributária pode dizer-lhe o que se aplica a si."
+      },
+      "scams": {
+        "title": "Burlas",
+        "p1": "A {product} nunca lhe oferece um investimento e nunca pede a sua frase de recuperação, uma chave privada, a chave de API ou os dados de acesso de uma plataforma de negociação, nem moedas ou dinheiro para as comprar. Uma mensagem que o faça não é da {product}, seja qual for a sua origem aparente.",
+        "p2": "Sinais de burla: uma promessa de que o dinheiro vai crescer depressa com pouco risco, um desconhecido que leva a conversa para o investimento ou qualquer pedido da sua frase de recuperação, de uma chave privada ou da chave de API ou dos dados de acesso de uma plataforma de negociação."
+      },
+      "register": {
+        "title": "Verificar um prestador",
+        "p1": "A ESMA tem um registo público dos prestadores autorizados ao abrigo do MiCA: <link>{label}</link>. Verifique aí qualquer prestador antes de enviar dinheiro. A {product} não é um prestador e não consta do registo."
+      },
+      "adviser": {
+        "title": "Encontrar um consultor",
+        "p1": "Para aconselhamento sobre a sua situação, procure um consultor financeiro registado junto do supervisor do seu país. Confirme-o no registo desse supervisor antes de pagar ou assinar o que quer que seja. Pergunte como é remunerado: um consultor pago pelos produtos que vende tem uma razão para os vender."
+      },
+      "warnings": {
+        "title": "Avisos oficiais",
+        "p1": "Os supervisores publicam a sua própria informação sobre os riscos dos criptoativos:"
+      },
+      "checked": "Ligação verificada a {date}.",
+      "links": {
+        "esma-register": "Registo da ESMA dos prestadores de serviços de criptoativos",
+        "cmvm": "CMVM sobre o que saber acerca dos criptoativos, em português",
+        "bafin": "BaFin sobre investimentos em criptoativos e redes sociais, em inglês",
+        "fca": "FCA sobre as noções básicas de cripto, em inglês",
+        "esas-pt": "Ficha informativa dos supervisores europeus sobre os criptoativos e o MiCA, em português (PDF)",
+        "esas-de": "Ficha informativa dos supervisores europeus sobre os criptoativos e o MiCA, em alemão (PDF)",
+        "esas-en": "Ficha informativa dos supervisores europeus sobre os criptoativos e o MiCA, em inglês (PDF)"
+      }
+    }
+  },
+  "unavailable": {
+    "title": "Indisponível no Reino Unido",
+    "body": "A {product} ainda não está disponível no Reino Unido.",
+    "legal": "Informação legal"
+  },
+  "manifest": {
+    "description": "Um planeador e um registo de compras de cripto num calendário mensal fixo."
+  },
+  "offline": {
+    "title": "Sem ligação",
+    "body": "Esta página precisa de ligação. O ecrã Hoje e as páginas que já abriu antes funcionam sem ligação."
+  },
+  "notFound": {
+    "title": "Página não encontrada",
+    "body": "Não existe nenhuma página neste endereço. Abaixo estão as ligações para a página inicial e para as páginas legais."
+  }
+}

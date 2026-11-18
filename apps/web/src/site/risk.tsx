@@ -1,8 +1,10 @@
 import { SiteFalls, StaticLearn, useSiteFormatters } from '@proofofcalm/app/features/learn/site';
 import { BRAND } from '@proofofcalm/app/lib/brand';
+import { createDateFormatter } from '@proofofcalm/app/lib/format';
+import { localesFor } from '@proofofcalm/app/lib/i18n';
 import type { CalendarDate } from '@proofofcalm/core';
 import type { ComponentProps, ReactNode } from 'react';
-import { siteTranslator } from '../../lib/site-messages';
+import { siteTranslator, useSiteLanguage } from '../../lib/site-messages';
 import { LegalPage, type LegalSection, LegalSections } from './legal';
 import { type OfficialLink, RISK_LINKS } from './risk-links';
 
@@ -48,9 +50,14 @@ export function RiskPage({ falls, today }: RiskPageProps) {
 }
 
 function RiskBody({ falls }: Falls) {
-  const t = siteTranslator('legal');
+  const language = useSiteLanguage();
+  const t = siteTranslator('legal', language);
   const f = useSiteFormatters();
-  const checked = (link: OfficialLink) => t('risk.checked', { date: f.date(link.accessed) });
+  // `StaticLearn` formats in English; a pt-PT page writes its dates in Portuguese and marks the falls' table, which
+  // reads the English Learn messages, as English (docs/CONTENT-STYLE.md §9).
+  const date = language === 'en' ? f.date : createDateFormatter(localesFor(language, null).ui);
+  const checked = (link: OfficialLink) => t('risk.checked', { date: date(link.accessed) });
+  const table = <SiteFalls falls={falls} />;
   const [register, ...warnings] = RISK_LINKS;
   if (register === undefined) throw new Error('the register link is missing');
   return (
@@ -59,7 +66,14 @@ function RiskBody({ falls }: Falls) {
         slug="risk"
         sections={SECTIONS}
         after={{
-          falls: <SiteFalls falls={falls} />,
+          falls:
+            language === 'en' ? (
+              table
+            ) : (
+              <div lang="en" className="contents">
+                {table}
+              </div>
+            ),
           register: (
             <>
               <p>

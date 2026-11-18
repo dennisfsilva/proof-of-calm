@@ -4,7 +4,7 @@
 // sign-up and no persuasion. The status is 451, because the reason is legal (RFC 7725).
 import { BRAND } from '@proofofcalm/app/lib/brand';
 import { LEGAL_PAGES, SECURITY_TXT_PATH } from '../site/pages';
-import { siteTranslator } from '../site-messages';
+import { englishLang, type SiteLanguage, siteTranslator } from '../site-messages';
 import { BLOCKED_COUNTRIES, NOT_AVAILABLE_STYLE } from './rules';
 
 // The header, the country, the status and the style live in rules.ts, which vercel.json is written from;
@@ -35,16 +35,20 @@ export function escapeHtml(text: string): string {
   return text.replace(/[&<>"']/g, (character) => ENTITIES[character] ?? character);
 }
 
-/** The whole page, as the build writes it: one sentence and the legal pages, one hashed style element. */
-export function notAvailableHtml(): string {
-  const t = siteTranslator('unavailable');
-  const legal = siteTranslator('legal');
-  const links = LEGAL_PAGES.map((page) => `<a href="${page.path}">${escapeHtml(legal(`${page.slug}.title`))}</a>`).join(
-    ' · ',
-  );
+/**
+ * The whole page, as the build writes it: one sentence and the legal pages, one hashed style element. A legal page's
+ * title that the language leaves in English is marked so.
+ */
+export function notAvailableHtml(language: SiteLanguage = 'en'): string {
+  const t = siteTranslator('unavailable', language);
+  const legal = siteTranslator('legal', language);
+  const links = LEGAL_PAGES.map((page) => {
+    const english = englishLang(language, `legal.${page.slug}.title`) === undefined ? '' : ' lang="en"';
+    return `<a href="${page.path}"${english}>${escapeHtml(legal(`${page.slug}.title`))}</a>`;
+  }).join(' · ');
   return [
     '<!doctype html>',
-    '<html lang="en">',
+    `<html lang="${language}">`,
     '<head>',
     '<meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
