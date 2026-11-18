@@ -1,6 +1,7 @@
 // The sentences of a Learn module's chart section, on the page the build's compiler gives (`pageOf`), read against the
 // chart's rows (docs/CONTENT-STYLE.md §4, R5 and R6; docs/research/review-safe-figures.md, amendment 8).
 import type { LearnModule } from './loaders/modules.ts';
+import { printedGap } from './percent-gap.ts';
 import { MODULE_PERCENT_JOINERS } from './percent-token.ts';
 import type { Problem } from './problem.ts';
 import type { ContentCoin } from './schema/coin.ts';
@@ -271,11 +272,15 @@ remove it`
 which reads plain text only`);
       continue;
     }
-    // The app formats N % only with one joiner it knows, in one string (withJoiner); sentencesOf collapses white space.
-    for (const [written, joiner = '', sign] of block.text.matchAll(new RegExp(`${NUMERAL}(\\s*)(${SIGNS})`, 'gu'))) {
+    // The app formats N % only with one joiner it knows, in one string (withJoiner); sentencesOf collapses white space,
+    // and so does the quoted sentence, so any other gap is named by its code points (printedGap).
+    for (const [, figure = '', joiner = '', sign] of block.text.matchAll(
+      new RegExp(`(${NUMERAL})(\\s*)(${SIGNS})`, 'gu'),
+    )) {
       if (!MODULE_PERCENT_JOINERS.includes(joiner) || sign !== '%')
         report(
-          `"${quote(written)}" in "${shown}" joins a figure to a sign; write the figure, one ordinary or no-break space, and %`,
+          `"${figure}${printedGap(joiner, MODULE_PERCENT_JOINERS)}${sign}" in "${shown}" joins a figure to a sign; write the \
+figure, one ordinary or no-break space, and %`,
         );
     }
     for (const sentence of sentencesOf(block.text)) {

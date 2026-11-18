@@ -227,6 +227,23 @@ describe("pt-PT's chart section", () => {
     expect(await codes(portuguese)).toEqual([FC]);
   });
 
+  // 2: a translation's join takes English's path: a gap other than one ordinary or no-break space names each character
+  // by its code point, and the sentence written as the detail's fix passes.
+  it.each([
+    ['U+202F', ' '],
+    ['U+2009', ' '],
+    ['U+2007', ' '],
+    ['U+3000', '　'],
+  ])('2: a join with %s fails by its code point', async (point, gap) => {
+    const [first] = await problemsOf(pt(`${S1} ${S2.replace('97 %', `97${gap}%`)}`, { raw: true }));
+    expect(first?.detail).toBe(
+      `body: "97${point} %" in "${S1} ${S2}" joins a figure to a sign; write the figure, one ordinary or no-break \
+space, and %; R5 (docs/CONTENT-STYLE.md §4)`,
+    );
+    for (const space of [' ', ' '])
+      expect(await codes(pt(`${S1} ${S2.replace('97 %', `97${space}%`)}`, { raw: true }))).toEqual([]);
+  });
+
   // 3: the article agrees with the coin and is capitalised only to open E.
   it.each<[string, string, readonly string[]]>([
     ['A ether caiu', pt(`${S1} ${S2.replace('O ether', 'A ether')}`), [FC, FU, FU, FU]],
