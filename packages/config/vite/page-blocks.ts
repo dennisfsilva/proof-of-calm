@@ -24,7 +24,7 @@ export type MdxAttribute = {
 };
 
 /** The node a block sits in below the page's top level, the innermost: a list item, a quote or a flow element. */
-export type PageContainer = 'listItem' | 'blockquote' | 'mdxJsxFlowElement';
+type PageContainer = 'listItem' | 'blockquote' | 'mdxJsxFlowElement';
 /** Where a block stands; both fields unset on the page's top level. */
 type Place = {
   readonly container?: PageContainer;
