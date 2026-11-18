@@ -4,6 +4,7 @@
 // the percent joiner, the 60 words, a template's placeholders against its dates and month names) are validate.ts's,
 // passed in. Pure.
 import { numberLocaleFor } from '../loaders/locales.ts';
+import { printedGap } from '../percent-gap.ts';
 import { decimalSeparator, escaped, PERCENT_FOLLOWS } from '../percent-validate.ts';
 import { type Problem, schemaProblems } from '../problem.ts';
 import { FactSchema } from '../schema/fact.ts';
@@ -84,16 +85,14 @@ export type NumberLocales = readonly [english: string, translated: string];
 // It stays apart from percent-token.ts (decided 2026-11-18): that file holds the one token the app formats, `N %` in a
 // template's explanation, while this one compares two texts of any kind, so it reads more than the app formats
 // (`‰`, `‱`, a hidden character) and names each gap's code points, never a form to write. A gap of one ordinary space
-// shows as that space; any other gap names every character, the ordinary space as U+0020, so that no space after a
-// code point reads as the separator (`40U+2060 U+0020 ‰`).
+// shows as that space; any other gap names every character (printedGap, which a module's figure check shares).
 const PERCENT_TOKEN = /(\d+(?:[.,]\d+)*)((?:\s|-|\p{Cf})*)([%٪﹪％‰‱])/gu;
-const codePoint = (char: string) => `U+${char.codePointAt(0)?.toString(16).toUpperCase().padStart(4, '0')} `;
 const percentsIn = (text: string, locale: string) =>
   [...text.matchAll(PERCENT_TOKEN)]
-    .map(({ 1: run = '', 2: gap = '', 3: sign = '' }) => {
-      const joiner = gap === ' ' ? ' ' : [...gap].map(codePoint).join('');
-      return `${valuesOf(run, decimalSeparator(locale)).join('/')}${joiner}${sign}`;
-    })
+    .map(
+      ({ 1: run = '', 2: gap = '', 3: sign = '' }) =>
+        `${valuesOf(run, decimalSeparator(locale)).join('/')}${printedGap(gap, [' '])}${sign}`,
+    )
     .join(', ') || 'none';
 
 /**

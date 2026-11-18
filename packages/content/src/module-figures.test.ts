@@ -359,7 +359,14 @@ describe("each detail quotes its sentence and names its figure and rule (§4's l
   it.each([
     ['‰', '97‰', `"97‰" in "${S1} ${S2.replace('97 %', '97‰')}" ${JOIN}`],
     ['٪', '97 ٪', `"97 ٪" in "${S1} ${S2.replace('97 %', '97 ٪')}" ${JOIN}`],
-    ['a tab', '97\t%', `"97\\t%" in "${S1} ${S2}" ${JOIN}`],
+    // A gap other than one ordinary or no-break space names each character by its code point, as the overlay check
+    // names a gap (ADR-0057's Corrections), since the quoted sentence folds white space to one space.
+    ['a tab', '97\t%', `"97U+0009 %" in "${S1} ${S2}" ${JOIN}`],
+    ['U+202F', '97 %', `"97U+202F %" in "${S1} ${S2}" ${JOIN}`],
+    ['U+2009', '97 %', `"97U+2009 %" in "${S1} ${S2}" ${JOIN}`],
+    ['U+2007', '97 %', `"97U+2007 %" in "${S1} ${S2}" ${JOIN}`],
+    ['U+3000', '97　%', `"97U+3000 %" in "${S1} ${S2}" ${JOIN}`],
+    ['two ordinary spaces', '97  %', `"97U+0020 U+0020 %" in "${S1} ${S2}" ${JOIN}`],
     // U+2060 is no white space: the paragraph, shown without it, fails as hidden text, and the join's fix passes it too.
     ['U+2060', '97⁠%', `the paragraph "${S1} ${S2.replace('97 %', '97%')}" holds a hidden character`],
   ])('2: a join with %s fails, and the sentence written as its fix says passes', async (_, join, refused) => {
@@ -381,7 +388,7 @@ describe("each detail quotes its sentence and names its figure and rule (§4's l
     [
       '2: a wrong join, the whole numeral quoted',
       body(`${S1} ${S2.replace('97 %', '97\n%')}`, { raw: true }),
-      [`figure-chart: body: "97\\n%" in "${S1} ${S2}" ${JOIN}${R(5)}`],
+      [`figure-chart: body: "97U+000A %" in "${S1} ${S2}" ${JOIN}${R(5)}`],
     ],
     [
       '3: a code block',
