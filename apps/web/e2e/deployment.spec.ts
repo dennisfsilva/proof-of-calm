@@ -3,7 +3,7 @@ import { test } from './support';
 
 // The lines of ADR-0045's preview checklist (Risks 1 and 2, the deviations) that only a deployment can
 // answer: Vercel's 404 and the clean-URL 308, the function seeing the requested path, the CDN bound on
-// the prices, and what deployment protection does to the worker. Everything else on the checklist is
+// the prices, what deployment protection does to the worker, and the preview's languages. Everything else on the checklist is
 // asserted by csp.spec.ts, pwa.spec.ts, site.spec.ts, prices.spec.ts and csp-report.spec.ts, which
 // run against the deployment in the same dispatch (the preview-checks job of
 // .github/workflows/lighthouse-vercel.yml). The local
@@ -42,6 +42,18 @@ test('a public page under /en/ answers at its nested clean URL, out of search un
   expect(response.status()).toBe(200);
   expect(response.headers()['x-robots-tag']).toBe('noindex, nofollow');
   expect(await response.text()).toContain('Risk honestly');
+});
+
+// The checklist runs on previews only, where VERCEL_ENV lists the preview languages (ADR-0023, Deviations of
+// 2026-11-18): Settings offers English and Português, each named in itself with its lang. Nothing is chosen, so
+// the run stays in English.
+test('Settings lists English and Português on the preview', async ({ page }) => {
+  await page.goto('/settings');
+  await expect(page.locator('main#main')).not.toHaveAttribute('aria-busy', 'true');
+  await page.getByRole('combobox', { name: 'Language of the app' }).click();
+  await expect(page.getByRole('option', { name: 'English' })).toHaveAttribute('lang', 'en');
+  await expect(page.getByRole('option', { name: 'Português (Portugal)' })).toHaveAttribute('lang', 'pt-PT');
+  await expect(page.getByRole('option')).toHaveCount(2);
 });
 
 test('the function sees the requested path on every /api route', async ({ request }) => {
