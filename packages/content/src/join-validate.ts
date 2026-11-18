@@ -13,10 +13,14 @@ const NB_HYPHEN = String.fromCodePoint(0x2011);
  * space. No capture group, so that `split` returns no part of a URL. */
 export const URL_IN_TEXT = /https?:\/\/\S+/g;
 // The run of white space (`\s`), format characters (`\p{Cf}`: U+2060, U+0600) and control characters (`\p{Cc}`: U+0085)
-// between a pair, but a lone no-break space, which is the join: a no-break space beside any other is a gap, since a
-// line breaks at the other. Any other character between them ends the run, so that pair is not read.
+// between the two parts of every join, refused by `joined` unless it is a lone no-break space: a no-break space beside
+// any other is a gap, since a line breaks at the other. Any other character between them ends the run, so that pair
+// is not read. A code's or a form's GAP does not match a lone no-break space, so that a joined pair takes no figure
+// from the next (the `100 USD` after a joined `EUR 100`); a prose join's RUN does, so that a joined law name's number
+// is still read.
 const SPACE = String.raw`[\s\p{Cf}\p{Cc}]`;
-const GAP = String.raw`((?!${NBSP}(?!${SPACE}))${SPACE}+)`;
+const GAP = `((?!${NBSP}(?!${SPACE}))${SPACE}+)`;
+const RUN = `(${SPACE}+)`;
 // The ISO codes the live profiles write beside a figure, and the words that name a form or one of its boxes.
 const CODE = '(EUR|GBP|USD)';
 const FORM =
@@ -69,7 +73,7 @@ const PROSE_JOINS: Readonly<Record<string, ProseJoins>> = {
     months: /janeiro|fevereiro|março|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro/u,
     linker: 'de',
     // `Suplemento` only after an ordinal figure (`2.º Suplemento`, CONTENT-STYLE §9): `2 Suplemento` is no unit.
-    units: /dias?|semanas?|mês|meses|anos?|(?<=\d\.º\s+)Suplemento/u,
+    units: new RegExp(String.raw`dias?|semanas?|mês|meses|anos?|(?<=\d\.º${SPACE}+)Suplemento`, 'u'),
   },
 };
 // Every language's unit words, read in every text a language with lists writes: a profile quotes its country's law in
@@ -92,12 +96,12 @@ const OPEN_LAW_HYPHEN = new RegExp(`(?<!\\d)-(?!${WJ})|-(?![\\d${WJ}])`, 'u');
 const UNIT_FIGURE = String.raw`(?<![\p{L}\d.,])(\d+(?:[.,]\d+)*(?:\.º)?)`;
 // A citation's brackets after its figure (`55(1)(d)`, `1(j)(3)(ii)`), two or more, each pair to meet with U+2060.
 const CITATION = new RegExp(String.raw`\d+\([\dA-Za-z]{1,4}\)(?:${WJ}?\([\dA-Za-z]{1,4}\))+`, 'gu');
-// The gap between two parts of a date: a space, or a space, the linker and a space; without a linker its two groups
-// match nothing, so that every language's dates have the same groups.
-const link = (linker?: string) => (linker === undefined ? String.raw`(\s+)()()` : String.raw`(\s+)(${linker})(\s+)`);
+// The gap between two parts of a date: a run, or a run, the linker and a run; without a linker its two groups match
+// nothing, so that every language's dates have the same groups.
+const link = (linker?: string) => (linker === undefined ? `${RUN}()()` : `${RUN}(${linker})${RUN}`);
 const prose = ({ names, months, linker }: ProseJoins) => ({
-  names: new RegExp(String.raw`(?<![\p{L}\d.§])(${names.source})(\s+)(${LAW_NUMBER})`, 'gu'),
-  units: new RegExp(String.raw`${UNIT_FIGURE}(\s+)(${UNITS.source})(?![\p{L}\d])`, 'gu'),
+  names: new RegExp(String.raw`(?<![\p{L}\d.§])(${names.source})${RUN}(${LAW_NUMBER})`, 'gu'),
+  units: new RegExp(String.raw`${UNIT_FIGURE}${RUN}(${UNITS.source})(?![\p{L}\d])`, 'gu'),
   // `D Month YYYY`, `D Month` and `Month YYYY`, or `D de M de YYYY` with a linker; a month alone is no date.
   dates: new RegExp(
     String.raw`(?<![\p{L}\d.,])(?:(\d{1,2})${link(linker)})?(${months.source})(?![\p{L}\d])(?:${link(linker)}(\d{4})(?!\d))?`,
