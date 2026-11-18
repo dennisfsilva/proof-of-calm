@@ -26,7 +26,7 @@ export const profileTextProblems = (path: string, texts: readonly [string, strin
 
 /** Each source title the country card shows, with the language its `lang` names; a pending change's source has no
  * `lang` and the card shows none, so it is left out. A title is a quoted name: its words stay as published, the ban
- * list and the hyphen check stay off it, and only its joins are read (join-validate.ts, #368). */
+ * list and the hyphen check stay off it, and only its joins are read (join-validate.ts). */
 export const sourceTitles = (profile: CountryProfile): [string, string, string][] =>
   profile.sources.map((source, index): [string, string, string] => [
     `sources.${index}.title`,
