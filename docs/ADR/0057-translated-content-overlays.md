@@ -285,3 +285,7 @@ generated rules files of each language.
   figures as written beside a cited point. A paragraph break prints `U+000A U+000A`.
   `number-group`'s suggestion and its rule of CONTENT-STYLE §4 name U+00A0, not `\u00a0`. A gap
   names every character (`printedGap`).
+- **2026-11-18.** A Learn module's quoted text shows two more U+00A0 as written, since their checks
+  accept one there: B's between its count and its noun (R6, #383), and one inside a count that R7
+  quotes (`210 000`, #386). The entry above that names U+00A0 everywhere but before a percent sign
+  has these two exceptions. The rules are `docs/CONTENT-STYLE.md` §4 R6 and R7.
