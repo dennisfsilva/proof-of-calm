@@ -7,6 +7,7 @@ import { CoinsTab } from './coins-tab';
 import { CountrySection } from './country-section';
 import { DataSection } from './data-section';
 import { HoldSellTab } from './hold-sell-tab';
+import { LanguageSection } from './language-section';
 import { PlanTab } from './plan-tab';
 
 // The Settings screen: four tabs over packages/ui's Tabs (docs/DESIGN.md §8), Plan, Coins & split, Hold & sell
@@ -14,7 +15,8 @@ import { PlanTab } from './plan-tab';
 // packages/app"). The shell mounts it once the store is ready, so the tab it opens on is read once: Plan with a plan,
 // Currency & data without one, where a backup can be imported. The tab is held here, not in the URL: the empty
 // state's "import a file" on the plan tabs would lead to /settings, already showing, so it opens
-// Currency & data with the focus on its tab instead. About closes the screen below the tabs, on every tab.
+// Currency & data with the focus on its tab instead. Below the tabs, on every tab, the language when the build
+// offers two (ADR-0023, Deviations of 2026-11-18), then About, which closes the screen.
 export function SettingsScreen() {
   const t = useTranslations('settings');
   const hasPlan = useSnapshot((snapshot) => snapshot.plan !== null);
@@ -50,6 +52,7 @@ export function SettingsScreen() {
           <DataSection />
         </TabsContent>
       </Tabs>
+      <LanguageSection />
       <AboutSection />
     </div>
   );
