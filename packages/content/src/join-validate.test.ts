@@ -630,6 +630,78 @@ describe('one printing of a figure and its gap, and no U+2011 in a title', () =>
   });
 });
 
+// #381: a source title in es, fr or it is read with its own language's lists, taken from a census of that
+// language's titles; an nl title with the code and form joins only; a de title stays unchecked (docs/CONTENT-STYLE.md
+// §4).
+describe('a source title in es, fr, it, nl and de', () => {
+  const titled = (title: string, lang: string): CountryProfile => {
+    const profile = load('jurisdictions/es.json');
+    const [first] = profile.sources;
+    if (first === undefined) throw new Error('es.json has no source');
+    return { ...profile, sources: [{ ...first, title, lang }] };
+  };
+  const read = (lang: string, title: string) =>
+    titleJoinProblems(path, titled(title, lang)).map(({ code, detail }) => `${code} ${detail}`);
+  const join = (pair: string, figure: string) =>
+    `figure-join sources.0.title: ${pair} "${figure}" are joined by U+0020, not U+00A0 (docs/CONTENT-STYLE.md §4)`;
+  const name = (word: string, number: string) => join(`the name ${JSON.stringify(word)} and its number`, number);
+  const date = (left: string, before: string, right: string, after: string) =>
+    join(`the ${left} "${before}" and its ${right}`, after);
+  const cases: [string, (gap: string) => string, string[]][] = [
+    ['es', (gap) => `Ley${gap}35/2006, del Impuesto`, [name('Ley', '35/2006')]],
+    ['es', (gap) => `Real Decreto${gap}1065/2007, Reglamento`, [name('Real Decreto', '1065/2007')]],
+    ['es', (gap) => `Orden${gap}HAC/277/2026, por la que`, [name('Orden', 'HAC/277/2026')]],
+    ['es', (gap) => `RGAT, art.${gap}42 quater`, [name('art.', '42')]],
+    ['es', (gap) => `Modelo${gap}721. Plazos`, [name('Modelo', '721')]],
+    [
+      'es',
+      (gap) => `Orden, de 25${gap}de${gap}marzo, por la que`,
+      [date('day', '25', 'linker', 'de'), date('linker', 'de', 'month', 'marzo')],
+    ],
+    ['fr', (gap) => `LOI n°${gap}2025-⁠1403 du`, [name('LOI n°', '2025-U+2060 1403')]],
+    ['fr', (gap) => `Code, article${gap}91`, [name('article', '91')]],
+    ['fr', (gap) => `Formulaire${gap}2086: D`, [name('Formulaire', '2086')]],
+    [
+      'fr',
+      (gap) => `LOI, du 25${gap}juin${gap}2026 relative`,
+      [date('day', '25', 'month', 'juin'), date('month', 'juin', 'year', '2026')],
+    ],
+    ['it', (gap) => `Legge${gap}30 dicembre 2025`, [name('Legge', '30')]],
+    ['it', (gap) => `Circolare n.${gap}30/E del`, [name('n.', '30/E')]],
+    ['it', (gap) => `n. 917, art.${gap}67 (testo`, [name('art.', '67')]],
+    ['it', (gap) => `fisiche 2026, fascicolo${gap}2: istruzioni`, [name('fascicolo', '2')]],
+    ['it', (gap) => `Modello${gap}730/2026: istruzioni`, [name('Modello', '730/2026')]],
+    [
+      'it',
+      (gap) => `Repubblica 22${gap}dicembre${gap}1986, n.`,
+      [date('day', '22', 'month', 'dicembre'), date('month', 'dicembre', 'year', '1986')],
+    ],
+  ];
+  it.each(cases)('reads a %s title: U+0020 is refused and U+00A0 joins (%#)', (lang, title, problems) => {
+    expect(read(lang, title(' '))).toEqual(problems);
+    expect(read(lang, title(' '))).toEqual([]);
+  });
+
+  it('asks for U+2060 after the hyphen of a French law number', () => {
+    expect(read('fr', 'LOI n° 2026-534 du')).toEqual([
+      'range-join sources.0.title: the range or number "2026-534" can break after its hyphen (docs/CONTENT-STYLE.md §4)',
+    ]);
+    expect(read('fr', 'LOI n° 2026-⁠534 du')).toEqual([]);
+  });
+
+  it('leaves a year after an unlisted word, and a name the census did not find before a number', () => {
+    expect(read('es', 'Manual práctico Renta 2025: Compra, ejercicio 2025')).toEqual([]);
+    expect(read('fr', 'Déclaration des plus ou moins-values réalisées en 2025, pour 2026')).toEqual([]);
+    expect(read('it', 'Decreto del Presidente della Repubblica, Redditi Persone fisiche 2026')).toEqual([]);
+  });
+
+  it('reads an nl title for its code and form joins only, and leaves a de title unchecked', () => {
+    const text = 'Box 3, EUR 100, art. 5 op 25 maart 2026, 2026-27';
+    expect(read('nl', text)).toEqual([name('Box', '3'), join('"EUR" and its figure', '100')]);
+    expect(read('de', `${text}, § 23, vom 6. März 2025`)).toEqual([]);
+  });
+});
+
 describe('the real profiles and their overlays', () => {
   it('join every code, form name, law name and date part with U+00A0, and every English range after its dash', () => {
     const english = jsonIn('jurisdictions/').map((name) => `jurisdictions/${name}`);
