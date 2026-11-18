@@ -683,6 +683,40 @@ describe('a source title in es, fr, it, nl and de', () => {
     expect(read(lang, title(' '))).toEqual([]);
   });
 
+  // Every month of each language's list, so that a month removed from the list or misspelt in it fails here: the live
+  // titles already join their dates with U+00A0, so the real profiles' test passes without the list (the review's
+  // finding on the fix round). The names and the es linker are each in a case above.
+  const months: Record<'es' | 'fr' | 'it', string[]> = {
+    es: 'enero febrero marzo abril mayo junio julio agosto septiembre octubre noviembre diciembre'.split(' '),
+    fr: 'janvier f\u00e9vrier mars avril mai juin juillet ao\u00fbt septembre octobre novembre d\u00e9cembre'.split(' '),
+    it: 'gennaio febbraio marzo aprile maggio giugno luglio agosto settembre ottobre novembre dicembre'.split(' '),
+  };
+  const dated: [string, string, (gap: string) => string, string[]][] = [
+    ...months.es.map((month): [string, string, (gap: string) => string, string[]] => [
+      'es',
+      month,
+      (gap) => `Ley${nbsp}7/2024, de 20${gap}de${gap}${month}${gap}de${gap}2024, de medidas`,
+      [
+        date('day', '20', 'linker', 'de'),
+        date('linker', 'de', 'month', month),
+        date('month', month, 'linker', 'de'),
+        date('linker', 'de', 'year', '2024'),
+      ],
+    ]),
+    ...(['fr', 'it'] as const).flatMap((lang) =>
+      months[lang].map((month): [string, string, (gap: string) => string, string[]] => [
+        lang,
+        month,
+        (gap) => `Texte du 20${gap}${month}${gap}2024 relatif`,
+        [date('day', '20', 'month', month), date('month', month, 'year', '2024')],
+      ]),
+    ),
+  ];
+  it.each(dated)('reads a %s date in %s: U+0020 is refused and U+00A0 joins', (lang, _month, title, problems) => {
+    expect(read(lang, title(' '))).toEqual(problems);
+    expect(read(lang, title(nbsp))).toEqual([]);
+  });
+
   it('asks for U+2060 after the hyphen of a French law number', () => {
     expect(read('fr', 'LOI n° 2026-534 du')).toEqual([
       'range-join sources.0.title: the range or number "2026-534" can break after its hyphen (docs/CONTENT-STYLE.md §4)',
