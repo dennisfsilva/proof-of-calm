@@ -447,8 +447,12 @@ on each side of a URL on its own, so it reads no join across it.
 
 A source's title is read for joins in its own language, from its `lang`: `en` as English, `pt` as
 pt-PT, any other language unchecked until it has its lists. Its words stay as published, so the ban
-list and the hyphen check stay off it, and a translation cannot change it (#368, decided
-2026-11-18). A pending change's source is not shown and stays unchecked.
+list and `number-unit-hyphen` stay off it, and a translation cannot change it (#368, decided
+2026-11-18). The joins check reads the whole title, its hyphen rules included (`range-join` after a
+hyphen-minus in a law number or before a Latin ordinal suffix). A title in any language never holds
+U+2011: it keeps the published U+002D, with U+2060 after it inside a law number, and
+`pnpm validate:content` refuses U+2011 in any title (`range-join`, decided 2026-11-18). A pending
+change's source is not shown and stays unchecked.
 
 `pnpm validate:content` refuses other grouping beside a currency code (`number-group`). It reads
 each figure as English does (a comma or a space between groups, a point before the decimals) and

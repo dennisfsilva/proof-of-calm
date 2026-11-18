@@ -37,7 +37,7 @@ schema and the rules of `docs/JURISDICTIONS.md` §2: owner review, review dates,
 allow-list, the 60-word card, and the banned words in everything the app shows (the card, the
 taxable-event notes, the rates, the holding-rule override notes, the pending changes; source titles
 are quoted as published), each literal percentage with the number locale's joiner (`percent-joiner`)
-and its decimal separator (`decimal-separator`, D8, #292; `docs/CONTENT-STYLE.md` §4), each money figure on a comma-decimal page grouped as that page writes it (`number-group`, `docs/CONTENT-STYLE.md` §4), each currency code and form name joined to its figure by U+00A0 on every page, and in a profile a law's name to its number, a figure to its unit and a date's parts (`figure-join`), each dash or hyphen between two digits or inside a law number with a word joiner after it (`range-join`), each citation's brackets with a word joiner between them (`citation-join`; all three `src/join-validate.ts`, read in an en or pt source title too, `docs/CONTENT-STYLE.md` §4), no `;` in a profile text the tax-year header copies, English or overlay (`header-semicolon`, #298), and each locale tag well formed (`locale-tag`), as `docs/JURISDICTIONS.md` §2 says. It refuses an ordinary
+and its decimal separator (`decimal-separator`, D8, #292; `docs/CONTENT-STYLE.md` §4), each money figure on a comma-decimal page grouped as that page writes it (`number-group`, `docs/CONTENT-STYLE.md` §4), each currency code and form name joined to its figure by U+00A0 on every page, and in a profile a law's name to its number, a figure to its unit and a date's parts (`figure-join`), each dash or hyphen between two digits or inside a law number with a word joiner after it (`range-join`), each citation's brackets with a word joiner between them (`citation-join`; all three `src/join-validate.ts`, read in an en or pt source title too, `docs/CONTENT-STYLE.md` §4), U+2011 in a source title of any language (`range-join`), no `;` in a profile text the tax-year header copies, English or overlay (`header-semicolon`, #298), and each locale tag well formed (`locale-tag`), as `docs/JURISDICTIONS.md` §2 says. It refuses an ordinary
 hyphen between a numeral and its unit in text a screen shows (`number-unit-hyphen`; which text:
 `docs/CONTENT-STYLE.md` §4). Templates must split exactly 100 over their own coins, each coin as the
 catalogue lists it, and keep each paragraph of the explanation (paragraphs as `paragraphsOf` reads them,
@@ -79,10 +79,13 @@ against its English file (`src/i18n/overlay-validate.ts`, ADR-0057): the `overla
 shape, its numbers and its date placeholders (`overlay-date-mismatch`: each text names the
 English text's `{date:<field>}` placeholders, each as often, in any order; a swap of two stays with
 the copy review, as a swap of two numbers does), and in a template every percentage it writes, with
-any of six signs and any white space, hyphen-minus or format character before the sign
-(`overlay-percent-mismatch`, templates only, #295; ADR-0057, Corrections of 2026-11-16 and
+any of six signs and any white space, hyphen, dash (every `\p{Pd}`) or format character before the
+sign (`overlay-percent-mismatch`, templates only, #295; ADR-0057, Corrections of 2026-11-16 and
 2026-11-18), then the schema and the English field's checks on
-each text it changes.
+each text it changes. The details of `figure-join`, `range-join`, `citation-join`, `figure-chart` and
+`overlay-percent-mismatch` print a quoted text and a gap one way (`src/percent-gap.ts`): each space
+but U+0020, each format or control character, U+2010 and U+2011 by its code point (`U+202F `); a
+Learn module's own percent joiners show as written (ADR-0057, Corrections of 2026-11-18).
 
 ## Loaders (the public index)
 
