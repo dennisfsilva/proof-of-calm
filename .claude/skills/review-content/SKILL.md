@@ -319,9 +319,11 @@ For each profile in `packages/content/jurisdictions/`:
 3. Trim no fact a module quotes. Check it against its `source` at every window its request moves
    to, not only the one its URL names: a Coinbase Exchange request's as `docs/CONTENT-OPS.md` §7
    moves it (`b.alt-drawdowns`), a Bitstamp OHLC request's by its `start` as §8 step 1 there does
-   (`a.btc-drawdowns`). Check the two clauses whose fall comes from a source other than their
-   request's series, `a.btc-drawdowns`' 2011 clause (Mt. Gox and CoinMarketCap) and
-   `b.alt-drawdowns`' `LINK 2018 (CoinMarketCap series only)`, against the cycles row of their coin
+   (`a.btc-drawdowns`). Check each clause whose fall comes from a source other than its
+   request's series, `a.btc-drawdowns`' 2011 clause (Mt. Gox and CoinMarketCap),
+   `b.alt-drawdowns`' `LINK 2018 (CoinMarketCap series only)` and a clause a review moved off
+   Coinbase with its row (`ETH 2022 (Bitstamp)`: fact b's `source` stays its Coinbase window,
+   `docs/CONTENT-OPS.md` §7), against the cycles row of their coin
    and high, which `packages/content/src/cycles.test.ts` ties each to, and that row's `source` and
    `lowSource`; check `i.diminishing`'s 2011 figures (Mt. Gox's high, CoinMarketCap's low, −94 %),
    which its Bitstamp request starting 30 Nov 2013 cannot hold, against the same BTC 2011 row.
@@ -406,7 +408,12 @@ The finish refuses a changed entry at any other value.
    name each assertion that reads the old value as one only CI runs. A hit in a content test that
    passed is a fixture of its own. When that test reads a live data file and names the old value
    (`packages/content/src/fact-windows.test.ts` names fact b's old low in its window), name that
-   line and both values in the notes for the log pull request.
+   line and both values in the notes for the log pull request. A hit that holds the same word,
+   figure or date for another row, fact or series is no pin of it, in a test that passed or
+   failed (the `Bitstamp` that `packages/content/src/drops-noise.test.ts` asserts is fact q's
+   BTC/USD series, not a moved row's publisher): leave it. A constant is no such hit when an
+   assertion reads it for your row (`BITSTAMP` in `packages/content/src/cycles.test.ts`, when the
+   moved row's `FALLS` literal reads it).
    A `FALLS` literal or a key of `UNREGAINED_KEYS` takes the note below. Name each pinning
    assertion's file and line and both values in the draft's notes and your closing report, and say in
    both that `verify` fails on `pnpm test` until the owner removes those assertions, the ones only CI
@@ -429,10 +436,13 @@ The finish refuses a changed entry at any other value.
    the test reads its Coinbase rows from the held falls, `FALLS` read through any entry. A change
    §1 reverted takes no such note: its `tests:` list names the literal. A row you move to Coinbase
    must also pass that test's windows, which your run shows only after the entry: give it a
-   `source` and, when one request cannot hold both ends, a `lowSource`, each one request of fewer
-   than 300 daily candles holding its date. A coin of `UNREGAINED_KEYS` keeps its series, since no
-   such request runs from its low to the day you read it: leave the row and write
-   `chart row for the owner: …`. When a row moves to a publisher fact b's opening does not name
+   `source` and, when one request cannot hold both ends, a `lowSource`, each one request of
+   Coinbase's daily candles with `start` and `end` at `T00:00:00Z` fewer than 300 days apart
+   (`docs/CONTENT-OPS.md` §7) holding its date. A coin of `UNREGAINED_KEYS` keeps its series,
+   since that test wants its low window to run from its low to the row's `accessed`, which no such
+   request does: leave the row and write `chart row for the owner: …` with
+   `; keeps its series, unregained` after the row's copies. That note records the reading and asks
+   no change (`docs/CONTENT-OPS.md` §8 step 4). When a row moves to a publisher fact b's opening does not name
    (`b.alt-drawdowns`, `(Coinbase Exchange and CoinMarketCap …)`), add it there in the order the
    clauses first name each publisher, with a serial comma from three on
    (`Coinbase Exchange, Bitstamp, and CoinMarketCap`), and remove a publisher no clause names any
