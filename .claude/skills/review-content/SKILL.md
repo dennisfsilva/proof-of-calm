@@ -149,11 +149,15 @@ Arguments: $ARGUMENTS
   fails. A test that runs a check on a copy of the real files with a body or file of its own
   (`packages/content/scripts/validate.test.ts` tests 2 to 4: a chart row it moves, module bodies it
   writes) is no content gate, even where it expects `[]`: name each line of it that holds a
-  replaced value. Add each pinning assertion the search finds. For a row of any coin they include
-  the `FALLS` row's tie in `packages/content/src/cycles.test.ts`, the rows in
-  `packages/content/src/loaders/templates.test.ts`, and the EDUCATION §9 tie, through fact a's or
-  b's clause; for a BTC row, the Cycles module's pins in `packages/content/src/cycles.test.ts` too; the owner changes each with
-  the data in that pull request. Any other chart row's change takes
+  replaced value. Add each pinning assertion the search finds. A chart row's pins are the
+  assertions that hold one of its values: the `FALLS` row's tie
+  (`packages/content/src/cycles.test.ts`, every row); the rows in
+  `packages/content/src/loaders/templates.test.ts` (the four 2021 highs the templates copy: BTC
+  and ETH 2021-11-10, SOL 2021-11-06, LINK 2021-05-10); the EDUCATION §9 tie
+  (`packages/content/src/facts.test.ts`, every row, through the clause fact a or b gives it); and
+  the Cycles module's pins (`packages/content/src/cycles.test.ts`, the BTC 2011-06-08 and
+  2017-12-17 rows). The owner changes each with the data in that pull request. Any other chart
+  row's change takes
   `chart row for the owner: <coin>, high <high>, low <low>, fall <fall> %, <source> <lowSource>`,
   the values its sources give (`<coin>` the row's ticker, `SOL`; the `lowSource` only when the row
   has one), or for a row you would
