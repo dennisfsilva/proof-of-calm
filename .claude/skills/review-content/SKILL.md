@@ -386,11 +386,12 @@ The finish refuses a changed entry at any other value.
    value, not only the line its failure prints: Vitest prints a test's first failing assertion
    alone, so an owner who removes that line meets the next. Grep with `path` `.`,
    `glob` `**/*.{test,spec}.{ts,tsx}`, `output_mode` `content` and one pattern that joins with `|` each old
-   value as the data file writes it, each old date by its day and year,
-   `\b<day>\b\D{1,20}\b<year>\b`, and each old figure's digits, with
+   value as the data file writes it, with each regex character escaped (`\?`, `\.`, `\(`), each
+   old date by its day and year, `\b<day>\b\D{1,30}<year>` (a test can join the year to the next
+   date, or write `${NO_BREAK}` between the parts), and each old figure's digits, with
    `(?:[ ,.  ]|\p{Cf}|\\u[0-9a-fA-F]{4}){0,2}` between digit
    groups and `[.,]` as the decimal point; for ETH's low moved off `2022-06-18` and its clause off
-   `$880` and `−81.9 %` that is `2022-06-18|\b18\b\D{1,20}\b2022\b|880|81[.,]9`. Read each hit in
+   `$880` and `−81.9 %` that is `2022-06-18|\b18\b\D{1,30}2022|880|81[.,]9`. Read each hit in
    a test that failed: it pins the value when an assertion reads it, directly or through a constant
    it defines (in `packages/content/src/loaders/templates.test.ts` a row's `const` and each
    `expect` that reads it). A hit outside `packages/content` is in a test only CI runs (an app,
