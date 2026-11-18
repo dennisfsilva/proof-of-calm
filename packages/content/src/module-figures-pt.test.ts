@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { checkModuleBody } from '@proofofcalm/config/vite';
 import { describe, expect, it } from 'vitest';
+import catalogue from '../coins.json' with { type: 'json' };
+import cycles from '../cycles/drawdowns.json' with { type: 'json' };
 import { type FigureContext, moduleContext, moduleFigureProblems } from './module-figures.ts';
 
 // docs/CONTENT-STYLE.md §4 and §9: pt-PT's two shapes of a chart's section, its articles, its agreement, its commas
@@ -8,6 +10,20 @@ import { type FigureContext, moduleContext, moduleFigureProblems } from './modul
 // review changes what these pin. Each case states its codes in order; the parity table holds each English case of
 // module-figures.test.ts with a pt-PT form to the same codes in both languages.
 const at = 'packages/content/i18n/pt-PT/learn/risk-honestly.mdx';
+// A live module is read against the live catalogue and rows, as validate:content reads it: a review that changes a
+// fall in the rows and in both modules together fails no case here, and one that changes a module alone still does.
+const LIVE_DATA: FigureContext = {
+  rows: cycles.drawdowns.map(({ coin, high, low, fall }) => ({ coin, high, low, fall })),
+  coins: catalogue.map(({ id, name }) => ({ id, name })),
+};
+async function liveCodes(module: string, language: string) {
+  const source = readFileSync(new URL(module, import.meta.url), 'utf8');
+  // A translation's front matter holds only its translated fields, so each body is read past it.
+  const { problem, page } = await checkModuleBody(source.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/u, ''), at);
+  expect(problem).toBeNull();
+  const context = moduleContext({ chart: 'drawdowns-bar' }, language, LIVE_DATA);
+  return moduleFigureProblems(at, page, context).map(({ code }) => code);
+}
 const COINS = [
   { id: 'ADA', name: 'Cardano' },
   { id: 'BTC', name: 'Bitcoin' },
@@ -259,9 +275,7 @@ describe("pt-PT's chart section", () => {
   });
 
   it('6: the live translation of Risk honestly passes: []', async () => {
-    const source = readFileSync(new URL('../i18n/pt-PT/learn/risk-honestly.mdx', import.meta.url), 'utf8');
-    // A translation's front matter holds only its translated fields, so the body is read past it.
-    expect(await codes(source.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/u, ''))).toEqual([]);
+    expect(await liveCodes('../i18n/pt-PT/learn/risk-honestly.mdx', 'pt-PT')).toEqual([]);
   });
 
   it("7: English's shapes fail in a pt-PT module, and pt-PT's in an English one", async () => {
@@ -412,8 +426,7 @@ describe("pt-PT's closed chart section", () => {
 
   it("N9: English's section stays open, a translation's is closed", async () => {
     expect(await codes(enPara('Each fall above is history, not a forecast.'), 'en')).toEqual([]);
-    const live = readFileSync(new URL('../learn/risk-honestly.mdx', import.meta.url), 'utf8');
-    expect(await codes(live.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/u, ''), 'en')).toEqual([]);
+    expect(await liveCodes('../learn/risk-honestly.mdx', 'en')).toEqual([]);
     expect(await codes(ptPara('Cada queda acima é história, não uma previsão.'))).toEqual([FC]);
   });
 
