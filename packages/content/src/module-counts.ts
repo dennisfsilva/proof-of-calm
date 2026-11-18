@@ -6,7 +6,7 @@
 // file writes them. A default-ignorable code point is part of the gap, nothing between two digits of a count or two
 // letters of a noun, and never a letter, mark or digit beside either, so a hidden character never hides the pair, and
 // one inside a count is refused.
-import { pageSpaces } from './module-figures.ts';
+import { pageSpaces } from './paragraphs.ts';
 import { printedGap, printedText } from './percent-gap.ts';
 import type { Problem } from './problem.ts';
 
