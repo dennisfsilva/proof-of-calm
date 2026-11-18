@@ -1,66 +1,66 @@
 {
   "name": "Países Baixos",
-  "filingNote": "Ano civil. A declaração entrega-se até à data indicada na carta da Belastingdienst, muitas vezes 1 de maio do ano seguinte; para a de 2025, se recebeu essa carta, um pedido antes de 1 de maio de 2026 adia o prazo para 1 de setembro de 2026.",
+  "filingNote": "Ano civil. A declaração entrega-se até à data indicada na carta da Belastingdienst, muitas vezes 1\u00a0de\u00a0maio do ano seguinte; para a de 2025, se recebeu essa carta, um pedido antes de 1\u00a0de\u00a0maio\u00a0de\u00a02026 adia o prazo para 1\u00a0de\u00a0setembro\u00a0de\u00a02026.",
   "lotRuleNote": "Nenhuma venda se associa a uma compra: a box 3 tributa o valor detido a 1 de janeiro, não o resultado de uma venda.",
   "card": {
-    "classification": "Box\u00a03: os criptoativos contam entre os bens pelo valor a 1 de janeiro. Tributa-se um rendimento presumido desse valor, não o ganho de uma venda. Se um trabalho extra além de investir gera muitas vezes rendimento extra, este é declarado.",
+    "classification": "Box\u00a03: os criptoativos contam entre os bens pelo valor a 1\u00a0de\u00a0janeiro. Tributa-se um rendimento presumido desse valor, não o ganho de uma venda. Se um trabalho extra além de investir gera muitas vezes rendimento extra, este é declarado.",
     "taxableEvents": [
       {
-        "note": "Não é tributada como venda: quando investe e especula sobre o preço, o produto das negociações não se declara. O valor detido a 1 de janeiro conta na box\u00a03."
+        "note": "Não é tributada como venda: quando investe e especula sobre o preço, o produto das negociações não se declara. O valor detido a 1\u00a0de\u00a0janeiro conta na box\u00a03."
       },
       {
-        "note": "Trocar é negociar: quando investe e especula sobre o preço, o produto não se declara. Conta apenas o valor detido a 1 de janeiro, à cotação da plataforma usada."
+        "note": "Trocar é negociar: quando investe e especula sobre o preço, o produto não se declara. Conta apenas o valor detido a 1\u00a0de\u00a0janeiro, à cotação da plataforma usada."
       },
-      { "note": "Tratada como qualquer outra troca: não se declara; conta o valor detido a 1 de janeiro." },
-      { "note": "Não é um facto da box\u00a03: conta apenas o total detido a 1 de janeiro." },
-      { "note": "Mover unidades entre carteiras próprias não altera nada; conta o total detido a 1 de janeiro." },
+      { "note": "Tratada como qualquer outra troca: não se declara; conta o valor detido a 1\u00a0de\u00a0janeiro." },
+      { "note": "Não é um facto da box\u00a03: conta apenas o total detido a 1\u00a0de\u00a0janeiro." },
+      { "note": "Mover unidades entre carteiras próprias não altera nada; conta o total detido a 1\u00a0de\u00a0janeiro." },
       {
-        "note": "Não é facto da box\u00a03; aí conta o valor a 1 de janeiro. Uma doação pode ter imposto sobre doações, que o donatário declara e em regra paga. Uma herança pode ter imposto sucessório: os herdeiros declaram ao herdar acima do montante isento."
+        "note": "Não é facto da box\u00a03; aí conta o valor a 1\u00a0de\u00a0janeiro. Uma doação pode ter imposto sobre doações, que o donatário declara e em regra paga. Uma herança pode ter imposto sucessório: os herdeiros declaram ao herdar acima do montante isento."
       },
       {
-        "note": "As fontes não referem staking nem airdrops. A box\u00a03 conta o que detém a 1 de janeiro; na opção do rendimento real, todo o rendimento dos bens conta no ano. O produto da mineração só se declara quando excede os custos."
+        "note": "As fontes não referem staking nem airdrops. A box\u00a03 conta o que detém a 1\u00a0de\u00a0janeiro; na opção do rendimento real, todo o rendimento dos bens conta no ano. O produto da mineração só se declara quando excede os custos."
       }
     ],
     "rates": [
       {
         "label": "Taxa da box\u00a03 sobre o rendimento presumido",
         "value": "36%",
-        "note": "Sobre o rendimento presumido de 2026 (36% também em 2025 e 2024). A percentagem presumida para criptoativos é de 6,00% em 2026 (5,88% em 2025), aplicada ao valor detido a 1 de janeiro acima da franquia."
+        "note": "Sobre o rendimento presumido de 2026 (36% também em 2025 e 2024). A percentagem presumida para criptoativos é de 6,00% em 2026 (5,88% em 2025), aplicada ao valor detido a 1\u00a0de\u00a0janeiro acima da franquia."
       }
     ],
     "allowances": [
       "Capital livre de imposto (heffingsvrij vermogen): EUR\u00a059\u00a0357 por pessoa em 2026, EUR\u00a0118\u00a0714 para parceiros fiscais; o rendimento presumido só é tributado sobre o valor acima dele.",
       "Sem franquia na opção do rendimento real, como decidiu o supremo tribunal (Hoge Raad)."
     ],
-    "holdingRuleText": "Sem regra de detenção. Os Países Baixos não tributam a venda: a box\u00a03 tributa um rendimento presumido sobre o que detém a 1 de janeiro às 00:00. O valor segue a cotação da plataforma usada. O tempo de detenção de uma moeda não altera nada.",
-    "lotRuleText": "Não se aplica: nenhuma venda se associa a uma compra, porque o imposto assenta no valor detido a 1 de janeiro, não no resultado de uma venda.",
+    "holdingRuleText": "Sem regra de detenção. Os Países Baixos não tributam a venda: a box\u00a03 tributa um rendimento presumido sobre o que detém a 1\u00a0de\u00a0janeiro às 00:00. O valor segue a cotação da plataforma usada. O tempo de detenção de uma moeda não altera nada.",
+    "lotRuleText": "Não se aplica: nenhuma venda se associa a uma compra, porque o imposto assenta no valor detido a 1\u00a0de\u00a0janeiro, não no resultado de uma venda.",
     "losses": "No rendimento presumido não há menos-valias. Na opção do rendimento real, um ano negativo conta como EUR\u00a00 e não se compensa com outro ano; os custos não são dedutíveis, exceto os juros pagos sobre uma dívida da box\u00a03.",
     "reporting": [
-      "A box\u00a03 da declaração do imposto sobre o rendimento tem um campo «Cryptobezittingen» (moedas detidas) para o valor a 1 de janeiro, à cotação da plataforma usada.",
-      "Desde a declaração de 2025, o formulário pergunta se declara também o rendimento real; isso exige os valores a 1 de janeiro e a 31 de dezembro e o total de compras e vendas do ano."
+      "A box\u00a03 da declaração do imposto sobre o rendimento tem um campo «Cryptobezittingen» (moedas detidas) para o valor a 1\u00a0de\u00a0janeiro, à cotação da plataforma usada.",
+      "Desde a declaração de 2025, o formulário pergunta se declara também o rendimento real; isso exige os valores a 1\u00a0de\u00a0janeiro e a 31\u00a0de\u00a0dezembro e o total de compras e vendas do ano."
     ],
     "caveats": [
       "Se declara o rendimento real: uma subida de valor conta mesmo sem venda.",
-      "A franquia de 2027, que depende do plano fiscal de 2027 (Belastingplan 2027), e a percentagem presumida de 2027.",
+      "A franquia de 2027, que depende do plano fiscal de 2027 (Belastingplan\u00a02027), e a percentagem presumida de 2027.",
       "O sistema proposto para 2029 (2028, se for viável) e o lugar dos criptoativos nele.",
       "Um trabalho extra além de investir que rende muitas vezes um rendimento extra.",
-      "A cotação da plataforma a 1 de janeiro.",
+      "A cotação da plataforma a 1\u00a0de\u00a0janeiro.",
       "O que a plataforma comunica à Belastingdienst desde 2026."
     ],
-    "summary60": "Países Baixos: a venda, troca ou pagamento com criptoativos não são tributados. O valor a 1 de janeiro conta na box\u00a03: em 2026, um rendimento presumido de 6,00% dos bens acima de EUR\u00a059\u00a0357 por pessoa é tributado a 36%. Se o rendimento real foi menor, pode declará-lo. Proposto para 2029: um sistema que tributa o rendimento real."
+    "summary60": "Países Baixos: a venda, troca ou pagamento com criptoativos não são tributados. O valor a 1\u00a0de\u00a0janeiro conta na box\u00a03: em 2026, um rendimento presumido de 6,00% dos bens acima de EUR\u00a059\u00a0357 por pessoa é tributado a 36%. Se o rendimento real foi menor, pode declará-lo. Proposto para 2029: um sistema que tributa o rendimento real."
   },
   "pendingChanges": [
     {
-      "title": "Plano fiscal de 2027 (Belastingplan 2027): os valores da box\u00a03 para 2027",
-      "summary": "Segundo o noticiado a 17 de setembro de 2026: a percentagem presumida para outros bens passa a 6,37%, e a taxa fica nos 36% em 2027 (confiança média)."
+      "title": "Plano fiscal de 2027 (Belastingplan\u00a02027): os valores da box\u00a03 para 2027",
+      "summary": "Segundo o noticiado a 17\u00a0de\u00a0setembro\u00a0de\u00a02026: a percentagem presumida para outros bens passa a 6,37%, e a taxa fica nos 36% em 2027 (confiança média)."
     },
     {
       "title": "Lei do rendimento real na box\u00a03 (Wet werkelijk rendement box\u00a03)",
-      "summary": "A 3 de novembro de 2026, o governo enviou uma alteração (novelle) que alarga a parte de mais-valias do projeto de lei da box\u00a03 e propôs o início a 1 de janeiro de 2029, ou em 2028 se for viável."
+      "summary": "A 3\u00a0de\u00a0novembro\u00a0de\u00a02026, o governo enviou uma alteração (novelle) que alarga a parte de mais-valias do projeto de lei da box\u00a03 e propôs o início a 1\u00a0de\u00a0janeiro\u00a0de\u00a02029, ou em 2028 se for viável."
     },
     {
       "title": "DAC8: os prestadores de serviços de criptoativos comunicam os dados dos clientes",
-      "summary": "Wet implementatie EU-richtlijn gegevensuitwisseling cryptoactiva: os prestadores guardam dados sobre os clientes desde 1 de janeiro de 2026 e enviam-nos à Belastingdienst até 31 de janeiro de 2027, depois todos os anos até 31 de janeiro. Nada muda na forma como os criptoativos são tributados."
+      "summary": "Wet implementatie EU-richtlijn gegevensuitwisseling cryptoactiva: os prestadores guardam dados sobre os clientes desde 1\u00a0de\u00a0janeiro\u00a0de\u00a02026 e enviam-nos à Belastingdienst até 31\u00a0de\u00a0janeiro\u00a0de\u00a02027, depois todos os anos até 31\u00a0de\u00a0janeiro. Nada muda na forma como os criptoativos são tributados."
     }
   ]
 }

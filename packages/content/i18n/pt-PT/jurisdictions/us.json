@@ -1,10 +1,10 @@
 {
   "name": "Estados Unidos",
-  "filingNote": "Ano fiscal igual ao ano civil. O Form\u00a01040 é entregue até 15 de abril do ano seguinte. Uma prorrogação automática de 6 meses adia a data de entrega, não a de pagamento.",
+  "filingNote": "Ano fiscal igual ao ano civil. O Form\u00a01040 é entregue até 15\u00a0de\u00a0abril do ano seguinte. Uma prorrogação automática de 6 meses adia a data de entrega, não a de pagamento.",
   "holdingRuleConditions": [
     "Só a taxa federal. A maioria dos estados tributa a mais-valia às suas próprias taxas: 42 cobram imposto sobre o rendimento (Tax Foundation, 2026, confiança média). Confirme o seu estado.",
     "Uma troca ou uma compra paga em criptoativos inicia um novo período de detenção para as unidades recebidas (IRS FAQ Q16 e Q29).",
-    "As unidades recebidas em doação conservam o período de detenção do doador quando os registos o mostram, e as unidades herdadas são de longo prazo desde logo (IRS FAQ Q33 e IRS Publication 544)."
+    "As unidades recebidas em doação conservam o período de detenção do doador quando os registos o mostram, e as unidades herdadas são de longo prazo desde logo (IRS FAQ Q33 e IRS Publication\u00a0544)."
   ],
   "lotRuleNote": "O contribuinte escolhe as unidades vendidas quando os seus registos as identificam e mostram o seu custo, por conta, carteira ou endereço. Caso contrário, aplica-se primeiro a entrar, primeiro a sair (IRS FAQ Q39 a Q41).",
   "card": {
@@ -26,7 +26,7 @@
         "note": "Transferir unidades entre carteiras ou contas que detém ou controla não é transação, mesmo que uma plataforma envie uma declaração informativa. Uma comissão de transação paga em ativos digitais é transação (IRS, Digital assets; FAQ Q38)."
       },
       {
-        "note": "A doação recebida não é rendimento. Uma mais-valia futura usa a base do doador, uma menos-valia a menor entre ela e o valor na doação (FAQ Q31, Q32). Unidades herdadas: logo de longo prazo, base, em regra, o valor no óbito (Pub. 544, 551)."
+        "note": "A doação recebida não é rendimento. Uma mais-valia futura usa a base do doador, uma menos-valia a menor entre ela e o valor na doação (FAQ Q31, Q32). Unidades herdadas: logo de longo prazo, base, em regra, o valor no óbito (Pub.\u00a0544, 551)."
       },
       {
         "note": "Recompensas de mineração e staking: rendimento declarado no Form\u00a01040 Schedule\u00a01 (IRS, Digital assets). Um airdrop após um hard fork é rendimento ordinário ao justo valor de mercado na receção, a nova base das unidades (FAQ Q24 e Q25)."
@@ -36,39 +36,39 @@
       {
         "label": "Mais-valias de longo prazo (detenção de mais de um ano)",
         "value": "0%, 15% ou 20% conforme o rendimento tributável",
-        "note": "Rendimento tributável de 2026: 0% até USD\u00a049,450 (individual) ou USD\u00a098,900 (conjunta), 15% até USD\u00a0545,500 ou USD\u00a0613,700, outros estados civis diferem (Rev. Proc. 2025-32 §4.03). 20% acima. Colecionáveis até 28% (Topic 409)."
+        "note": "Rendimento tributável de 2026: 0% até USD\u00a049,450 (individual) ou USD\u00a098,900 (conjunta), 15% até USD\u00a0545,500 ou USD\u00a0613,700, outros estados civis diferem (Rev. Proc.\u00a02025-\u206032 §4.03). 20% acima. Colecionáveis até 28% (Topic\u00a0409)."
       },
       {
         "label": "Mais-valias de curto prazo (detenção de um ano ou menos)",
         "value": "10% a 37% por escalão, como rendimento ordinário",
-        "note": "Tributadas com os outros rendimentos às taxas progressivas (Topic 409). Em 2026, o escalão de 37% começa acima de USD\u00a0640,600 de rendimento tributável numa declaração individual e de USD\u00a0768,700 numa conjunta (Rev. Proc. 2025-32 §4.01)."
+        "note": "Tributadas com os outros rendimentos às taxas progressivas (Topic\u00a0409). Em 2026, o escalão de 37% começa acima de USD\u00a0640,600 de rendimento tributável numa declaração individual e de USD\u00a0768,700 numa conjunta (Rev. Proc.\u00a02025-\u206032 §4.01)."
       },
       {
         "label": "Net investment income tax",
         "value": "3.8%",
-        "note": "Sobre o menor entre o rendimento líquido de investimento e o rendimento bruto ajustado modificado acima de USD\u00a0200,000 (individual ou chefe de família), USD\u00a0250,000 (conjunta) e USD\u00a0125,000 (casados em declaração separada; Topic 559)."
+        "note": "Sobre o menor entre o rendimento líquido de investimento e o rendimento bruto ajustado modificado acima de USD\u00a0200,000 (individual ou chefe de família), USD\u00a0250,000 (conjunta) e USD\u00a0125,000 (casados em declaração separada; Topic\u00a0559)."
       }
     ],
     "allowances": [
       "Sem franquia própria para ativos digitais: cada transação tributável é declarada, seja qual for o montante e chegue ou não um extrato (IRS FAQ Q42).",
       "As comissões e outros custos de aquisição pagos em dólares americanos fazem parte da base (IRS FAQ Q8).",
-      "Uma menos-valia líquida reduz outros rendimentos até USD\u00a03,000 por ano, USD\u00a01,500 para casados em declaração separada (Topic 409)."
+      "Uma menos-valia líquida reduz outros rendimentos até USD\u00a03,000 por ano, USD\u00a01,500 para casados em declaração separada (Topic\u00a0409)."
     ],
-    "holdingRuleText": "Após mais de um ano de detenção, a mais-valia ou menos-valia é de longo prazo e aplicam-se as taxas mais baixas. Com um ano ou menos, é de curto prazo e tributada como rendimento ordinário. O período de detenção começa no dia após a aquisição e acaba no dia da venda ou troca (IRS FAQ Q6). Uma unidade comprada a 15 de março de 2026 é de longo prazo se vendida a partir de 16 de março de 2027.",
+    "holdingRuleText": "Após mais de um ano de detenção, a mais-valia ou menos-valia é de longo prazo e aplicam-se as taxas mais baixas. Com um ano ou menos, é de curto prazo e tributada como rendimento ordinário. O período de detenção começa no dia após a aquisição e acaba no dia da venda ou troca (IRS FAQ Q6). Uma unidade comprada a 15\u00a0de\u00a0março\u00a0de\u00a02026 é de longo prazo se vendida a partir de 16\u00a0de\u00a0março\u00a0de\u00a02027.",
     "lotRuleText": "O contribuinte escolhe as unidades vendidas quando os seus registos as identificam e mostram o seu custo, por conta, carteira ou endereço. Caso contrário, aplica-se primeiro a entrar, primeiro a sair (IRS FAQ Q39 a Q41).",
-    "losses": "As mais-valias e menos-valias de curto e longo prazo compensam-se. A menos-valia líquida reduz outros rendimentos até USD\u00a03,000 (USD\u00a01,500 para casados em declaração separada), e o resto reporta-se aos anos seguintes (Topic 409).",
+    "losses": "As mais-valias e menos-valias de curto e longo prazo compensam-se. A menos-valia líquida reduz outros rendimentos até USD\u00a03,000 (USD\u00a01,500 para casados em declaração separada), e o resto reporta-se aos anos seguintes (Topic\u00a0409).",
     "reporting": [
       "O Form\u00a01040 pergunta a cada contribuinte se recebeu, vendeu, trocou ou alienou de outro modo um ativo digital durante o ano (IRS, Digital assets).",
-      "Form\u00a08949, Sales and Other Dispositions of Capital Assets, para cada venda, troca ou outra alienação de unidades detidas como ativo de capital (IRS, Digital assets). Os totais vão para o Schedule\u00a0D (Topic 409).",
+      "Form\u00a08949, Sales and Other Dispositions of Capital Assets, para cada venda, troca ou outra alienação de unidades detidas como ativo de capital (IRS, Digital assets). Os totais vão para o Schedule\u00a0D (Topic\u00a0409).",
       "Form\u00a01040 Schedule\u00a01 para rendimentos de forks, staking e mineração. Schedule\u00a0C quando a atividade é empresarial (IRS, Digital assets).",
       "Form\u00a0709 para quem doou ativos digitais (IRS, Digital assets).",
-      "Os brokers que ficam com a posse das unidades comunicam no Form\u00a01099-DA o produto bruto das vendas desde 1 de janeiro de 2025 e a base de certas vendas desde 1 de janeiro de 2026. Os brokers sem custódia ficam de fora (IRS, Digital assets).",
+      "Os brokers que ficam com a posse das unidades comunicam no Form\u00a01099-DA o produto bruto das vendas desde 1\u00a0de\u00a0janeiro\u00a0de\u00a02025 e a base de certas vendas desde 1\u00a0de\u00a0janeiro\u00a0de\u00a02026. Os brokers sem custódia ficam de fora (IRS, Digital assets).",
       "Um broker só tem de comunicar a base das unidades adquiridas após 2025 na conta de custódia que as vende. Nas transferidas para lá, a comunicação é voluntária e a base vem dos registos do contribuinte (Instructions for Form\u00a01099-DA, 2026)."
     ],
     "caveats": [
       "Imposto estadual sobre o rendimento: 42 estados cobram-no, com taxas máximas de 2.5% a 13.3%. Os outros 8 não o cobram, e Washington só tributa mais-valias (Tax Foundation, 2026, confiança média).",
-      "Unidades num broker: os livros e registos do contribuinte, ou uma ordem permanente lá registada, identificam as unidades vendidas até 31 de dezembro de 2026 (Notice 2026-20 §3.03 e §4.02). O alívio acaba nessa data (Notice 2026-20 §5).",
-      "Um NFT é um colecionável quando o direito ou ativo por trás dele o é (Notice 2023-27). As mais-valias de longo prazo de colecionáveis são tributadas até 28% (Topic 409).",
+      "Unidades num broker: os livros e registos do contribuinte, ou uma ordem permanente lá registada, identificam as unidades vendidas até 31\u00a0de\u00a0dezembro\u00a0de\u00a02026 (Notice\u00a02026-\u206020 §3.03 e §4.02). O alívio acaba nessa data (Notice\u00a02026-\u206020 §5).",
+      "Um NFT é um colecionável quando o direito ou ativo por trás dele o é (Notice\u00a02023-\u206027). As mais-valias de longo prazo de colecionáveis são tributadas até 28% (Topic\u00a0409).",
       "Projetos de lei federais pendentes sobre a tributação de ativos digitais.",
       "Um Form\u00a01099-DA sem base para unidades transferidas.",
       "Rendimentos de staking e de mineração, e se a atividade é empresarial.",

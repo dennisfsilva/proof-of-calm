@@ -1,23 +1,23 @@
 {
-  "filingNote": "Ano fiscal igual ao ano civil. A declaração (Modelo\u00a03) é entregue de 1 de abril a 30 de junho do ano seguinte.",
+  "filingNote": "Ano fiscal igual ao ano civil. A declaração (Modelo\u00a03) é entregue de 1\u00a0de\u00a0abril a 30\u00a0de\u00a0junho do ano seguinte.",
   "holdingRuleConditions": [
     "A exclusão de tributação das mais-valias só se aplica quando a contraparte tem residência fiscal na UE, no EEE ou numa jurisdição com convenção para evitar a dupla tributação (caso contrário, declara-se no Anexo\u00a0G, Quadro\u00a018B).",
     "As alienações excluídas de tributação continuam a ter de ser declaradas (Anexo\u00a0G1, Quadro\u00a07).",
     "Não está decidido se o período de detenção continua numa troca entre criptoativos. A Proof of Calm trata uma troca como uma venda e uma nova compra, pelo que começa um novo período de detenção para as moedas recebidas.",
-    "A perda da residência fiscal em Portugal conta como alienação (art. 10.º n.º 25 do CIRS, n.º 22 nos documentos de 2023–2025)."
+    "A perda da residência fiscal em Portugal conta como alienação (art.\u00a010.º n.º\u00a025 do CIRS, n.º\u00a022 nos documentos de 2023–\u20602025)."
   ],
   "lotRuleNote": "Primeiro a entrar, primeiro a sair, aplicado em separado por depositário ou plataforma quando as unidades estão em mais do que um (art. 43.º n.º 9 do CIRS, antes n.º 7).",
   "card": {
-    "classification": "O ganho é da categoria G (art. 10.º n.º 1 al. k) do CIRS) se o criptoativo não for valor mobiliário. Staking ou empréstimo pago em moeda fiduciária: E (28%). Atividade habitual, profissional, mineração ou validação: B. Excluem-se os NFT.",
+    "classification": "O ganho é da categoria G (art.\u00a010.º n.º\u00a01 al. k) do CIRS) se o criptoativo não for valor mobiliário. Staking ou empréstimo pago em moeda fiduciária: E (28%). Atividade habitual, profissional, mineração ou validação: B. Excluem-se os NFT.",
     "taxableEvents": [
       {
         "note": "A mais-valia fica excluída de tributação com 365 dias ou mais de detenção e contraparte com residência fiscal na UE, no EEE ou numa jurisdição com convenção. As alienações excluídas continuam a ter de ser declaradas (Anexo\u00a0G1, Quadro\u00a07)."
       },
       {
-        "note": "Diferida: o criptoativo recebido assume o valor de aquisição do entregue, salvo se uma das partes residir fiscalmente fora da UE, do EEE ou de jurisdição com convenção (art. 10.º n.ºs 23–24 do CIRS, n.ºs 20–21 nos documentos de 2023–2025)."
+        "note": "Diferida: o criptoativo recebido assume o valor de aquisição do entregue, salvo se uma das partes residir fiscalmente fora da UE, do EEE ou de jurisdição com convenção (art.\u00a010.º n.ºs\u00a023–\u206024 do CIRS, n.ºs\u00a020–\u206021 nos documentos de 2023–\u20602025)."
       },
       {
-        "note": "Diferida como qualquer troca. A informação vinculativa PIV 28969 da AT, de 31 de outubro de 2025, trata uma conversão técnica imediata como não sendo um facto tributável (confiança média)."
+        "note": "Diferida como qualquer troca. A informação vinculativa PIV 28969 da AT, de 31\u00a0de\u00a0outubro\u00a0de\u00a02025, trata uma conversão técnica imediata como não sendo um facto tributável (confiança média)."
       },
       { "note": "O pagamento de bens ou serviços com criptoativos é tributado como uma venda." },
       {
@@ -33,29 +33,29 @@
     "rates": [
       {
         "label": "Taxa especial sobre as mais-valias de criptoativos",
-        "note": "Sobre o saldo positivo das mais-valias de criptoativos da categoria G (art. 72.º n.º 1 al. c) do CIRS). A taxa de 35% dos paraísos fiscais não abrange os criptoativos: aí perdem-se a exclusão e o diferimento da troca."
+        "note": "Sobre o saldo positivo das mais-valias de criptoativos da categoria G (art.\u00a072.º n.º\u00a01 al. c) do CIRS). A taxa de 35% dos paraísos fiscais não abrange os criptoativos: aí perdem-se a exclusão e o diferimento da troca."
       },
       {
         "label": "Englobamento opcional",
-        "value": "12,2–48% por escalão, mais a taxa adicional de solidariedade",
-        "note": "Escala de 2026 (art. 68.º n.º 1 do CIRS), alterada pelo Decreto-Lei n.º 212/2026, de 4 de novembro de 2026, para os rendimentos de 2026 desde 1 de janeiro de 2026. Escalões: 12,2%, 15,2%, 20,7%, 23,6%, 30,6%, 34,6%, 43,1%, 44,6% e 48%."
+        "value": "12,2–\u206048% por escalão, mais a taxa adicional de solidariedade",
+        "note": "Escala de 2026 (art.\u00a068.º n.º\u00a01 do CIRS), alterada pelo Decreto-Lei n.º\u00a0212/2026, de 4\u00a0de\u00a0novembro\u00a0de\u00a02026, para os rendimentos de 2026 desde 1\u00a0de\u00a0janeiro\u00a0de\u00a02026. Escalões: 12,2%, 15,2%, 20,7%, 23,6%, 30,6%, 34,6%, 43,1%, 44,6% e 48%."
       }
     ],
     "allowances": [
       "Sem franquia: o único alívio é a exclusão de tributação das mais-valias aos 365 dias.",
       "São dedutíveis as comissões «necessárias e efetivamente suportadas».",
-      "As compras feitas antes de 2023 contam para os 365 dias (art. 220.º da Lei 24\u2011D/2022)."
+      "As compras feitas antes de 2023 contam para os 365 dias (art.\u00a0220.º da Lei\u00a024\u2011D/2022)."
     ],
-    "holdingRuleText": "As mais-valias e menos-valias de criptoativos detidos durante 365 dias ou mais ficam excluídas de tributação: «detidos por um período igual ou superior a 365 dias» (art. 10.º n.º 22 do CIRS, n.º 19 nos documentos de 2023–2025). Uma unidade comprada a 1 de março de 2026 fica abrangida a 1 de março de 2027.",
-    "lotRuleText": "Primeiro a entrar, primeiro a sair («os alienados são os adquiridos há mais tempo», art. 43.º n.º 8 al. g) do CIRS, antes n.º 6 al. g)), em separado por depositário ou plataforma (art. 43.º n.º 9, antes n.º 7).",
-    "losses": "Abatem-se às mais-valias de criptoativos do ano, salvo unidades detidas 365 dias ou mais. Só com englobamento o saldo negativo se reporta 5 anos (art. 55.º n.º 1 al. d)). Com contraparte em paraíso fiscal nunca contam (art. 43.º n.º 7).",
+    "holdingRuleText": "As mais-valias e menos-valias de criptoativos detidos durante 365 dias ou mais ficam excluídas de tributação: «detidos por um período igual ou superior a 365 dias» (art.\u00a010.º n.º\u00a022 do CIRS, n.º\u00a019 nos documentos de 2023–\u20602025). Uma unidade comprada a 1\u00a0de\u00a0março\u00a0de\u00a02026 fica abrangida a 1\u00a0de\u00a0março\u00a0de\u00a02027.",
+    "lotRuleText": "Primeiro a entrar, primeiro a sair («os alienados são os adquiridos há mais tempo», art.\u00a043.º n.º\u00a08 al. g) do CIRS, antes n.º\u00a06 al. g)), em separado por depositário ou plataforma (art.\u00a043.º n.º\u00a09, antes n.º\u00a07).",
+    "losses": "Abatem-se às mais-valias de criptoativos do ano, salvo unidades detidas 365 dias ou mais. Só com englobamento o saldo negativo se reporta 5 anos (art.\u00a055.º n.º\u00a01 al. d)). Com contraparte em paraíso fiscal nunca contam (art.\u00a043.º n.º\u00a07).",
     "reporting": [
       "Modelo\u00a03, Anexo\u00a0G, Quadro\u00a018A: alienações de unidades detidas menos de 365 dias, por operação, com o país da contraparte.",
       "Anexo\u00a0G, Quadro\u00a018B: alienações com contraparte fora da UE ou do EEE.",
       "Anexo\u00a0G1, Quadro\u00a07: alienações excluídas de tributação, de declaração obrigatória.",
       "Anexo\u00a0J, Quadro\u00a09.4, para rendimentos tratados como obtidos no estrangeiro. Que anexo se aplica a uma venda numa plataforma estrangeira é uma questão recorrente entre profissionais.",
       "Anexo\u00a0E, código E21, para rendimentos de criptoativos. Anexo\u00a0B, campos\u00a0419 e 422, para negociação e mineração como atividade empresarial.",
-      "DAC8: Lei n.º 26/2026, de 3 de junho de 2026, com efeitos desde 1 de janeiro de 2026. Os prestadores comunicam os residentes em Portugal à AT até 31 de maio do ano seguinte, pela primeira vez a 31 de maio de 2027."
+      "DAC8: Lei n.º\u00a026/2026, de 3\u00a0de\u00a0junho\u00a0de\u00a02026, com efeitos desde 1\u00a0de\u00a0janeiro\u00a0de\u00a02026. Os prestadores comunicam os residentes em Portugal à AT até 31\u00a0de\u00a0maio do ano seguinte, pela primeira vez a 31\u00a0de\u00a0maio\u00a0de\u00a02027."
     ],
     "caveats": [
       "Contrapartes fora da UE ou do EEE.",
@@ -71,15 +71,15 @@
   "pendingChanges": [
     {
       "title": "Proposta de Orçamento do Estado para 2027 (OE2027)",
-      "summary": "Entregue a 8 de outubro de 2026, sem medidas sobre criptoativos. Debate na generalidade a partir de 27 de outubro de 2026, votação final prevista para o fim de novembro de 2026."
+      "summary": "Entregue a 8\u00a0de\u00a0outubro\u00a0de\u00a02026, sem medidas sobre criptoativos. Debate na generalidade a partir de 27\u00a0de\u00a0outubro\u00a0de\u00a02026, votação final prevista para o fim de novembro\u00a0de\u00a02026."
     },
     {
-      "title": "Orçamento do Estado para 2026 (Lei n.º 73\u2011A/2025)",
+      "title": "Orçamento do Estado para 2026 (Lei n.º\u00a073\u2011A/2025)",
       "summary": "Sem alteração à tributação dos criptoativos, segundo o que foi noticiado sobre o orçamento. A própria lei ainda está por ler (confiança média)."
     },
     {
-      "title": "Taxas mais baixas em 6 escalões do IRS (Decreto-Lei n.º 212/2026)",
-      "summary": "Os 28% do art. 72.º n.º 1 al. c) não mudam. O Decreto-Lei n.º 212/2026, de 4 de novembro de 2026 (DR n.º 214/2026, Série I), ao abrigo da Lei n.º 64\u2011B/2026 (Proposta de Lei n.º 108/XVII/2.ª), baixa as 6 primeiras taxas do art. 68.º n.º 1 para 12,2%, 15,2%, 20,7%, 23,6%, 30,6% e 34,6%. Vigora desde 5 de novembro de 2026 e o preâmbulo aplica-o aos rendimentos de 2026 desde 1 de janeiro de 2026."
+      "title": "Taxas mais baixas em 6 escalões do IRS (Decreto-Lei n.º\u00a0212/2026)",
+      "summary": "Os 28% do art.\u00a072.º n.º\u00a01 al. c) não mudam. O Decreto-Lei n.º\u00a0212/2026, de 4\u00a0de\u00a0novembro\u00a0de\u00a02026 (DR n.º\u00a0214/2026, Série I), ao abrigo da Lei n.º\u00a064\u2011B/2026 (Proposta de Lei n.º\u00a0108/XVII/2.ª), baixa as 6 primeiras taxas do art.\u00a068.º n.º\u00a01 para 12,2%, 15,2%, 20,7%, 23,6%, 30,6% e 34,6%. Vigora desde 5\u00a0de\u00a0novembro\u00a0de\u00a02026 e o preâmbulo aplica-o aos rendimentos de 2026 desde 1\u00a0de\u00a0janeiro\u00a0de\u00a02026."
     },
     {
       "title": "Informação vinculativa da AT, PIV 28969",
@@ -90,8 +90,8 @@
       "summary": "As compras feitas desde 2019 contam para os 365 dias. A exclusão limita-se a contrapartes na UE, no EEE ou numa jurisdição com convenção. Um teste de habitualidade decide a categoria B."
     },
     {
-      "title": "Regras dos criptoativos renumeradas no art. 10.º do CIRS",
-      "summary": "O texto consolidado da AT numera as regras dos criptoativos como n.ºs 20 a 25 (antes 17 a 22). Este perfil cita ambas as numerações."
+      "title": "Regras dos criptoativos renumeradas no art.\u00a010.º do CIRS",
+      "summary": "O texto consolidado da AT numera as regras dos criptoativos como n.ºs\u00a020 a 25 (antes 17 a 22). Este perfil cita ambas as numerações."
     }
   ],
   "status": {
