@@ -608,11 +608,12 @@ chart's section, which reads plain text only${R6.replace('R6', 'R5')}`,
     expect(rest.filter((detail) => !detail.startsWith('figure-unstated'))).toEqual([]);
   });
 
-  // B reads the sentence as paragraphsOf gives it: each run of [ \t\n\r\f] as one U+0020, so figure-join names the
-  // gap as read, by its code points; U+000B, outside that run, keeps its own.
+  // B reads the sentence as paragraphsOf gives it: a run of [ \t\n\r\f] that does not end the paragraph becomes one
+  // U+0020, so figure-join names the gap as read, by its code points; U+000B, outside that run, keeps its own.
   it.each([
     ['a tab', '\t', 'U+0020', ' '],
     ['a form feed', '\f', 'U+0020', ' '],
+    ['two form feeds', '\f\f', 'U+0020', ' '],
     ['U+00A0 and a tab', '\u00a0\t', 'U+00A0 U+0020', 'U+00A0  '],
     ['U+000B', '\u000b', 'U+000B', 'U+000B '],
     ['U+2028', '\u2028', 'U+2028', 'U+2028 '],
@@ -620,6 +621,22 @@ chart's section, which reads plain text only${R6.replace('R6', 'R5')}`,
     expect(await details(body(`${joined(gap)} ${S2}`))).toEqual([
       `figure-join: body: the count "4" and its noun "falls" are joined by ${named}, not U+00A0, in "${shown(quoted)}"${R6}`,
     ]);
+  });
+
+  // Two line feeds with only [ \t\r\f] between them end the paragraph (paragraphsOf), so B never reads that gap: R5
+  // refuses each piece as matching neither shape, and no figure-join is given.
+  it.each([
+    ['&#10; and a source line break', '&#10;\n'],
+    ['two &#10;', '&#10;&#10;'],
+  ])('a gap of %s ends the paragraph: two figure-chart, no figure-join', async (_, gap) => {
+    const found = await details(body(`${joined(gap)} ${S2}`));
+    expect(found.slice(0, 2)).toEqual([
+      `figure-chart: body: "In the chart, bitcoin had 4" holds a figure "4" and matches neither shape of a chart's \
+section${R6.replace('R6', 'R5')}`,
+      `figure-chart: body: "${nb('falls of more than 75 % between 2011 and 2022.')}" holds a figure "${nb('75 %')}" and \
+matches neither shape of a chart's section${R6.replace('R6', 'R5')}`,
+    ]);
+    expect(found.filter((detail) => !detail.startsWith('figure-unstated')).length).toBe(2);
   });
 
   // GAP reads only JS white space and format characters: any other character there falls to R5's neither-shape
