@@ -3,7 +3,7 @@
   "filingNote": "Ano civil. A declaração online abre em abril do ano seguinte; o prazo de entrega varia por département.",
   "lotRuleNote": "Sem associação por lote: a mais-valia de cada venda tributável calcula-se sobre todo o portefólio (art. 150 VH bis III CGI).",
   "card": {
-    "classification": "Mais-valias de vendas ocasionais de particulares (art. 150 VH bis CGI; desde 1 de janeiro de 2026, só criptoativos MiCA; NFT: art. 150 VH ter). Negociar como um profissional: lucros não comerciais (BNC); como empresa: comerciais (BIC).",
+    "classification": "Mais-valias de vendas ocasionais de particulares (art.\u00a0150 VH bis CGI; desde 1\u00a0de\u00a0janeiro\u00a0de\u00a02026, só criptoativos MiCA; NFT: art.\u00a0150 VH ter). Negociar como um profissional: lucros não comerciais (BNC); como empresa: comerciais (BIC).",
     "taxableEvents": [
       {
         "note": "Qualquer venda por uma moeda com curso legal, seja qual for o período de detenção; tributada desde o primeiro euro quando os preços de venda do agregado familiar no ano excedem EUR\u00a0305."
@@ -15,7 +15,7 @@
       { "note": "Pagar um bem ou um serviço com criptoativos é uma venda tributável." },
       { "note": "Não é uma venda a título oneroso: nada se recebe em troca." },
       {
-        "note": "Não é uma venda a título oneroso. Para quem recebe, o preço de aquisição é o valor considerado para os impostos sobre doações e sucessões (droits de mutation à titre gratuit, art. 150 VH bis III)."
+        "note": "Não é uma venda a título oneroso. Para quem recebe, o preço de aquisição é o valor considerado para os impostos sobre doações e sucessões (droits de mutation à titre gratuit, art.\u00a0150 VH bis III)."
       },
       {
         "note": "As recompensas de mineração ou de staking são tributadas como lucros não comerciais (BNC). As FAQ da administração fiscal não tratam os airdrops (confiança média)."
@@ -29,7 +29,7 @@
       }
     ],
     "allowances": [
-      "Sem imposto quando os preços de venda do agregado familiar no ano (não as mais-valias) somam EUR\u00a0305 ou menos, sem contar as trocas diferidas; acima de EUR\u00a0305, todas as mais-valias do ano são tributadas (art. 150 VH bis II B).",
+      "Sem imposto quando os preços de venda do agregado familiar no ano (não as mais-valias) somam EUR\u00a0305 ou menos, sem contar as trocas diferidas; acima de EUR\u00a0305, todas as mais-valias do ano são tributadas (art.\u00a0150 VH bis II B).",
       "As comissões pagas numa venda, com comprovativo, reduzem o preço de venda."
     ],
     "holdingRuleText": "Sem regra de período de detenção: uma venda por euros ou um pagamento com criptoativos é tributável seja qual for o período de detenção, quando os preços de venda do agregado familiar no ano excedem EUR\u00a0305. Uma troca de um criptoativo por outro sem pagamento compensatório fica diferida até uma venda tributável.",
@@ -53,8 +53,8 @@
   },
   "pendingChanges": [
     {
-      "title": "Loi n° 2026-534 de 25 de junho de 2026 contra a fraude social e fiscal, art. 91",
-      "summary": "O art. 150 VH bis passa a abranger os criptoativos do Regulamento (UE) 2023/1114 (MiCA); o novo art. 150 VH ter tributa os criptoativos únicos e não fungíveis (NFT) pelas regras do ativo que representam. Ambos se aplicam às vendas desde 1 de janeiro de 2026. Os artigos 1649 bis C e 1736 juntam os NFT detidos no estrangeiro às declarações de contas e às respetivas coimas."
+      "title": "Loi n°\u00a02026-\u2060534 de 25\u00a0de\u00a0junho\u00a0de\u00a02026 contra a fraude social e fiscal, art.\u00a091",
+      "summary": "O art.\u00a0150 VH bis passa a abranger os criptoativos do Regulamento (UE) 2023/1114 (MiCA); o novo art.\u00a0150 VH ter tributa os criptoativos únicos e não fungíveis (NFT) pelas regras do ativo que representam. Ambos se aplicam às vendas desde 1\u00a0de\u00a0janeiro\u00a0de\u00a02026. Os artigos\u00a01649 bis C e 1736 juntam os NFT detidos no estrangeiro às declarações de contas e às respetivas coimas."
     }
   ]
 }

@@ -30,7 +30,7 @@
   "holdingRuleConditions": [
     "Só a taxa federal. A maioria dos estados tributa a mais-valia às suas próprias taxas: 42 cobram imposto sobre o rendimento (Tax Foundation, 2026, confiança média). Confirme o seu estado.",
     "Uma troca ou uma compra paga em criptoativos inicia um novo período de detenção para as unidades recebidas (IRS FAQ Q16 e Q29).",
-    "As unidades recebidas em doação conservam o período de detenção do doador quando os registos o mostram, e as unidades herdadas são de longo prazo desde logo (IRS FAQ Q33 e IRS Publication 544)."
+    "As unidades recebidas em doação conservam o período de detenção do doador quando os registos o mostram, e as unidades herdadas são de longo prazo desde logo (IRS FAQ Q33 e IRS Publication 544)."
   ],
   "lotRule": "specific",
   "lotScope": "per-venue",
