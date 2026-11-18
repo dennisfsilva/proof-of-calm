@@ -19,6 +19,8 @@ const nbsp = String.fromCodePoint(0xa0);
 const joins = (text: string) => joinProblems(path, [['card.caveats.0', text]]).map(({ detail }) => detail);
 const refused = (pair: string, figure: string) =>
   `card.caveats.0: ${pair} ${figure} are joined by U+0020, not U+00A0 (docs/CONTENT-STYLE.md §4)`;
+const refusedBy = (gap: string) =>
+  `card.caveats.0: "EUR" and its figure "20" are joined by ${gap}, not U+00A0 (docs/CONTENT-STYLE.md §4)`;
 
 describe('a currency code or a form name joined to its figure (docs/CONTENT-STYLE.md §4)', () => {
   it('refuses an ordinary space between a code and its figure, before or after it, and after a form name', () => {
@@ -102,6 +104,35 @@ describe('a currency code or a form name joined to its figure (docs/CONTENT-STYL
     expect(joins('100\nUSD')).toEqual([
       'card.caveats.0: "USD" and its figure "100" are joined by U+000A, not U+00A0 (docs/CONTENT-STYLE.md §4)',
     ]);
+  });
+
+  // Carry-over 6 of #377: a line still breaks at the ordinary space beside the U+00A0.
+  it('refuses U+00A0 beside an ordinary space, on either side, and names each space in order', () => {
+    const mixed = (pair: string, figure: string, gap: string) =>
+      `card.caveats.0: ${pair} ${figure} are joined by ${gap}, not U+00A0 (docs/CONTENT-STYLE.md §4)`;
+    const code = '"EUR" and its figure';
+    expect(joins('Up to EUR  20 a year.')).toEqual([mixed(code, '"20"', 'U+00A0 U+0020')]);
+    expect(joins('Up to EUR  20 a year.')).toEqual([mixed(code, '"20"', 'U+0020 U+00A0')]);
+    expect(joins('Up to 20  EUR a year.')).toEqual([mixed(code, '"20"', 'U+00A0 U+0020')]);
+    expect(joins('Declare it on Modelo  721.')).toEqual([
+      mixed('the name "Modelo" and its number', '"721"', 'U+0020 U+00A0'),
+    ]);
+    expect(joins('Held for 365  days.')).toEqual([
+      mixed('the figure "365" and its unit', '"days"', 'U+00A0 U+0020'),
+    ]);
+  });
+
+  it('reads a format or control character in the gap as part of it, and a lone U+00A0 as no gap', () => {
+    const gaps = ['⁠', '؀', '\u0085', '\u0007', '⁠ '];
+    expect(gaps.flatMap((gap) => joins(`Up to EUR${gap}20 a year.`))).toEqual([
+      refusedBy('U+2060'),
+      refusedBy('U+0600'),
+      refusedBy('U+0085'),
+      refusedBy('U+0007'),
+      refusedBy('U+2060 U+0020'),
+    ]);
+    // The joined `EUR 100` is no match, so the `100 USD` after it is still read.
+    expect(joins('Swap EUR 100 USD.')).toEqual([refused('"USD" and its figure', '"100"')]);
   });
 
   it('skips the file-only lotRuleNote, as the no-break hyphen does: a file does not wrap', () => {
@@ -498,7 +529,7 @@ describe('one printing of a figure and its gap, and no U+2011 in a title', () =>
         path,
         code: 'range-join',
         detail:
-          'sources.0.title: the title "The 9U+2011 bis rule" holds U+2011; a source\'s title keeps the published U+002D, with U+2060 after it inside a law number (docs/CONTENT-STYLE.md §4)',
+          'sources.0.title: the title "The 9U+2011 bis rule" holds U+2011; a source\'s title keeps the published U+002D, with U+2060 after it where range-join asks for one (docs/CONTENT-STYLE.md §4)',
       },
     ]);
     expect(titleJoinProblems(path, titled(`The 9-${wj}bis rule`, lang))).toEqual([]);
