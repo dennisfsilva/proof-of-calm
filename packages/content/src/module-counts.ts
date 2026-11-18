@@ -2,9 +2,9 @@
 // joined to it by exactly one U+00A0, so that no line ends between them. The list holds the counts the modules write
 // and the 25z probe joined, in Calm Sans at the Learn sheet's paragraph styles, in Chromium and WebKit, 240 to 400 px,
 // at 16/24 and 20/30 px. B's count (falls, quedas) stays off it: R6 in module-figures.ts reads that one. Years (YEAR
-// below), dates, amounts and unlisted nouns are not counts here. A count and its noun are found as the reader reads
-// them, without default-ignorable code points; the gap between them is judged as the file writes it, so a hidden
-// character inside a count or a noun never hides the pair and one inside the gap is always seen.
+// below), dates, amounts and unlisted nouns are not counts here. R7 finds a count and its noun as the reader reads
+// them, without default-ignorable code points. It judges the gap between them, and the word edges around them, as the
+// file writes it. A hidden character inside a count or a noun never hides the pair, and one in the gap is always seen.
 import { GAP, pageSpaces } from './module-figures.ts';
 import { printedGap, printedText } from './percent-gap.ts';
 import type { Problem } from './problem.ts';

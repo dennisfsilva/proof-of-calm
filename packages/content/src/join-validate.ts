@@ -76,7 +76,7 @@ const PROSE_JOINS: Readonly<Record<string, ProseJoins>> = {
   },
   // Decided 2026-11-18, for the source titles only: each language's names from a census of its own titles, without
   // English's; its months in lower case, all twelve. They add no unit word, but their titles are read with every
-  // language's (UNITS below), so `Durante 2 semanas` with a space is a `figure-join`.
+  // language's unit words (`UNITS` below), so `Durante 2 semanas` with a space is a `figure-join`.
   es: {
     names: /Ley|Real Decreto|Orden|art\./u,
     months: /enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre/u,
