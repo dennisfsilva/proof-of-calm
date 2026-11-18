@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { TaxableEventSchema } from './jurisdiction.ts';
 
 const fits = (note: string) => TaxableEventSchema.safeParse({ event: 'spending', taxable: 'yes', note }).success;
-const JOINER = '⁠';
+const JOINER = '\u2060';
 
 describe('a profile field length limit (docs/JURISDICTIONS.md §2)', () => {
   it('passes 240 characters with two word joiners added', () => {
@@ -16,8 +16,8 @@ describe('a profile field length limit (docs/JURISDICTIONS.md §2)', () => {
   });
 
   it('counts a no-break space as one character', () => {
-    expect(fits(`${'a'.repeat(239)} `)).toBe(true);
-    expect(fits(`${'a'.repeat(240)} `)).toBe(false);
+    expect(fits(`${'a'.repeat(239)}\u00a0`)).toBe(true);
+    expect(fits(`${'a'.repeat(240)}\u00a0`)).toBe(false);
   });
 
   it('passes a field over the limit only through its word joiners', () => {
