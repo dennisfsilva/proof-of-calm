@@ -506,11 +506,11 @@ one ordinary or no-break space and `%`; `K` is 1 to 99; `Y` is a year of four di
 more `N` joined by `, ` with `, and ` before the last; `C` is a catalogue coin's name, as written or with its first
 letter in lower case, or `Ether` or `ether` for ETH, never a ticker. Every other gap is one space. A number word is a
 cardinal, an ordinal, or a word such as `once`, `half`, `double`, or `couple`; a month is its name or short form, with
-`May`, `March` and `Mar` counted only when capitalised; a coin the chart draws counts by its name in any case, `ether`
+`May`, `March`, and `Mar` counted only when capitalised; a coin the chart draws counts by its name in any case, `ether`
 for ETH, or its ticker as written. Anything else fails (`figure-chart`). So does a code block in the section, a heading
-there that holds one of them, a figure joined to `%` other than by one ordinary or no-break space, and a paragraph that
-holds one of them beside emphasis, strong text, a code span, a hard break, a text element, or a hidden character (one
-the page does not show).
+there that holds one of them, a figure joined to a sign (`%`, `٪`, `﹪`, `％`, `‰`, or `‱`) other than by one ordinary
+or no-break space and `%`, and a paragraph that holds one of them beside emphasis, strong text, a code span, a hard
+break, a text element, or a hidden character (one the page does not show).
 
 E states each coin's falls in the chart's order, oldest high first. Each `N` is the row's whole fall, and the falls
 a B counts are left out. A coin the chart draws no fall of fails (`figure-chart`). The section states every row: a coin
@@ -526,8 +526,10 @@ one its language's list holds, character for character; a language without shape
 top-level paragraphs and headings and the chart (decided 2026-11-18). A block in a list item, a quote or an element,
 and any other element, fails, since the page shows a list item's number (`1975. Text.`) that no sentence holds. The
 section ends only at a top-level heading. An unlisted sentence's detail names B or E, or a listing in a reviewed pull
-request; an unlisted heading's names the listing or its removal. A chart other than
-`drawdowns-bar` has no rows, so any figure in its section fails.
+request; an unlisted heading's names the listing or its removal. A sentence refused for a number character or another
+trigger above names B or E (§9), since no listing passes it; an empty list item's detail says to remove the list
+marker (decided 2026-11-18).
+A chart other than `drawdowns-bar` has no rows, so any figure in its section fails.
 
 A numeral joined to its unit by a hyphen (`90‑day`, `365‑day`) never breaks there. Text a screen shows writes the
 no-break hyphen U+2011 between them (`\u2011` in a JSON string, the character itself in a module): messages, modules

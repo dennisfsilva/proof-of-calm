@@ -310,8 +310,8 @@ templates' are (amendment 7). A judge read both designs of #349 and merged them.
 the build's compiler gives, never on the MDX source a second time. A sentence there that holds a trigger (a number
 character, a percentage, a number word, a month, a currency sign, or a coin the chart draws) passes only as B, a bound
 on one coin's falls, or E, each coin's falls in the chart's order, as a whole. Anything else is `figure-chart`, and a
-row no sentence states is `figure-unstated`. The page marks a paragraph's emphasis, strong, code spans, hard breaks,
-text elements and removed hidden characters (`pageOf`'s `marks`), and the rule refuses a trigger beside any of them.
+row no sentence states is `figure-unstated`. The page marks a paragraph's emphasis, strong text, code spans, hard
+breaks, text elements, and removed hidden characters (`pageOf`'s `marks`), and the rule refuses a trigger beside any of them.
 A figure meets `%` only through the joiners the app formats (`MODULE_PERCENT_JOINERS`). A translation's section fails
 closed until its language has shapes. `pnpm validate:content` takes the root it reads as an argument, and a test runs
 it on a copy with a chart row changed. The PR removes no pin.
