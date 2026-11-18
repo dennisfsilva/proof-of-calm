@@ -444,8 +444,18 @@ A part that two pairs share is read in both (`EUR 100 USD`), whether the first p
 refused or not. The detail names the pair and each character of the run in order
 (`U+00A0 U+0020`), never a text to write.
 
-U+00A0 joins a figure to its unit, a name to its number, an ordinal to its noun and a date's parts;
-U+2060 goes only after a dash or a hyphen and between a citation's brackets; U+2011 replaces the
+In a Learn module, B's count joins its noun with U+00A0 (`had 4 falls`, `teve 4 quedas`, R5 and
+§9), written as the character itself. A probe of the chart section's paragraph in the Learn sheet's
+own styles, at 161 widths from 240 to 400 px in Chromium and WebKit, found U+0020 splitting
+`had 4` from `falls` at 34 widths at 125 % in English, and `teve 4` from `quedas` at 7 widths at
+100 % and 68 at 125 % in pt-PT, and U+00A0 splitting none (comment 6971015219 on #370, decided
+2026-11-18). `pnpm validate:content` refuses any other gap there (`figure-join`, R6). The same
+census found 16 other counts in the modules' text that a reader can see split from their noun
+(`6 inputs`, `95 países`); they wait for the joins check to read module text and are not checked
+yet.
+
+U+00A0 joins a figure to its unit, a name to its number, an ordinal to its noun, B's count to its
+noun and a date's parts; U+2060 goes only after a dash or a hyphen and between a citation's brackets; U+2011 replaces the
 hyphen inside a law number in text a screen shows, except in a source's title (below):
 `9‑bis`. U+202F is never typed
 by hand: it is the percent sign's joiner in a locale that has one (the percent paragraphs below).
@@ -548,7 +558,8 @@ number character, a percentage (as R4 defines it, or the sign `‰` or `‱`), a
 or the name of a coin the chart draws matches one of two shapes as a whole: B,
 `In the chart, C had K falls of more than N between Y and Y.` with `1 fall` for one, or E,
 `C fell L.` or `C fell L`, then any number of `, C L`, then `, and C L.`. In them `N` is a whole number from 1 to 100,
-one ordinary or no-break space and `%`; `K` is 1 to 99; `Y` is a year of four digits; `L` is `N`, `N and N`, or two or
+one ordinary or no-break space and `%`; `K` is 1 to 99, joined to its noun by U+00A0 (R6);
+`Y` is a year of four digits; `L` is `N`, `N and N`, or two or
 more `N` joined by `, ` with `, and ` before the last; `C` is a catalogue coin's name, as written or with its first
 letter in lower case, or `Ether` or `ether` for ETH, never a ticker. Every other gap is one space. A number word is a
 cardinal, an ordinal, or a word such as `once`, `half`, `double`, or `couple`; a month is its name or short form, with
@@ -564,7 +575,10 @@ gets one `figure-unstated` when no sentence there states one of its rows. A sent
 
 R6: B counts C's falls of more than `N`, strictly, whose high is in the first `Y` or later and whose low is in the last
 `Y` or earlier. There are `K` of them and at least one, the first high is in the first `Y`, and the last low is in the
-last `Y` (`figure-chart`).
+last `Y` (`figure-chart`). B reads any run of white space or format characters between `K` and its
+noun, a source line break as one space, and refuses any but one U+00A0 (`figure-join`); the detail names
+that gap by its code points, so its fix is to write one U+00A0 in its place (decided 2026-11-18). A
+detail's quote shows that U+00A0 as written, as it shows a joiner before `%`.
 
 Each detail quotes the sentence and names its own figure and rule, never a row or a count to copy (decided
 2026-11-17). In a translation the section is closed: each sentence and heading there is its language's B or E (§9) or
@@ -739,7 +753,8 @@ needs (decided 2026-11-15). The native reader's review is §8 item 9.
 - **A module's chart section takes pt-PT's two shapes of §4 R5** (decided 2026-11-17): B,
   `No gráfico, C teve K quedas de mais de N entre Y e Y.` with `1 queda` for one, and E, `C caiu L.` or
   `C caiu L`, then any number of `, C L`, then ` e C L.`, with no comma before `e`; `L` is `N`, `N e N`, or two or
-  more `N` joined by `, ` with ` e ` before the last. `C` is `a` and a catalogue coin's name, as written or with its
+  more `N` joined by `, ` with ` e ` before the last; `K` joins `quedas` or `queda` by U+00A0, as R6
+  has it. `C` is `a` and a catalogue coin's name, as written or with its
   first letter in lower case, or `o ether` for ETH; only E's first `C` capitalises its article (`O ether caiu`,
   `A Solana caiu`), and the article agrees (`A ether caiu`, `o Solana` and `a Ether` fail). `N`, `K` and `Y` are
   §4's. Every other sentence of the section, and a heading there, is one `LISTED` in
