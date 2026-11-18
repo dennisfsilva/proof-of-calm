@@ -398,8 +398,8 @@ On every page, a currency code and its figure (`EUR 20 350`, `100 USD`) and a
 number (`Modelo 721`, `Anexo G`, `Form 1040`, `Box 3`, `Quadro 9.4`) are joined by U+00A0 too, so
 that a line never ends on the code or the name. This holds in English, in each translation, and in a
 module. A JSON file writes the space as `\u00a0`, a module as the character itself (decided
-2026-11-17). `pnpm validate:content` checks the join in a profile or a translated one
-(`figure-join`), reading its gap as every join's gap is read (below).
+2026-11-17). `pnpm validate:content` refuses a code's or a form's join that is not U+00A0 in a
+profile or a translated one (`figure-join`).
 
 In an English profile the same U+00A0 joins a law's name and its number (`§ 23`, `art. 46`,
 `section 104`, `no. 3`, `n° 2026-534`, `Lei 24‑D/2022`, `Bill 2026`) and a date's parts
@@ -432,13 +432,15 @@ at a line end in Chromium or WebKit, and none once joined (#368, decided 2026-11
 `pnpm validate:content` refuses a unit's join that is not U+00A0 (`figure-join`) and a citation with
 no joiner between its brackets (`citation-join`).
 
-Every join above is read the same way: a code and its figure, a form's name and its number, a law's
-name and its number, a date's parts, and a figure and its unit. `pnpm validate:content` reads the run of white
-space, format and control characters (Unicode Cf and Cc) between the two parts. It refuses the run
-unless it is one U+00A0 alone. U+00A0 beside any other space is refused too, since a line breaks at
-the other one (decided 2026-11-18). Any other character between the two parts ends the run, and that
-pair is not read. The detail names the pair and each character of the run in order
-(`U+00A0 U+0020`), never a text to write.
+The five U+00A0 joins above are read the same way: a code and its figure, a form's name and its
+number, a law's name and its number, a date's parts, and a figure and its unit.
+`pnpm validate:content` reads the run of white space, format and control characters (Unicode Cf
+and Cc) between the two parts. It refuses the run unless it is one U+00A0 alone, so a lone U+2060
+is refused, and so is U+00A0 beside any other character of the run. Beside an ordinary space, a
+line can still break at that space (decided 2026-11-18). When any other character sits between the
+two parts, they are not a join, so the check skips them. A part that two pairs share is read in
+both (`EUR 100 USD`), whether the first pair's run is refused or not. The detail names the pair and
+each character of the run in order (`U+00A0 U+0020`), never a text to write.
 
 U+00A0 joins a figure to its unit, a name to its number, an ordinal to its noun and a date's parts;
 U+2060 goes only after a dash or a hyphen and between a citation's brackets; U+2011 replaces the
@@ -459,9 +461,8 @@ A source's title is read for joins in its own language, from its `lang`: `en` as
 pt-PT, any other language unchecked for joins until it has its lists, though U+2011 is refused in
 every title. Its words stay as published, so the ban list and `number-unit-hyphen` stay off it,
 and a translation cannot change it (#368, decided 2026-11-18). The joins check reads the whole
-title, its hyphen rules included (`range-join` refuses an en dash or a hyphen-minus between two
-figures, and a hyphen-minus in a law number or before a Latin ordinal suffix, with no U+2060 after
-it). `pnpm validate:content` refuses U+2011 in any title (`range-join`, decided 2026-11-18): a
+title, its hyphen rules included (`range-join` asks for U+2060 after an en dash or a hyphen-minus
+between two figures, and after a hyphen-minus in a law number or before a Latin ordinal suffix). `pnpm validate:content` refuses U+2011 in any title (`range-join`, decided 2026-11-18): a
 title keeps the published U+002D, with U+2060 after it where `range-join` asks for one. A pending
 change's source is not shown and stays unchecked.
 

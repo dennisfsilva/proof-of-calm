@@ -13,9 +13,9 @@ const NB_HYPHEN = String.fromCodePoint(0x2011);
  * space. No capture group, so that `split` returns no part of a URL. */
 export const URL_IN_TEXT = /https?:\/\/\S+/g;
 // The run of white space (`\s`), format characters (`\p{Cf}`: U+2060, U+0600) and control characters (`\p{Cc}`: U+0085)
-// between the two parts of every join, refused by `joined` unless it is a lone no-break space: a no-break space beside
-// any other is a gap, since a line breaks at the other. Any other character between them ends the run, so that pair
-// is not read.
+// between the two parts of every join, refused by `joined` unless it is a lone no-break space, so a no-break space
+// beside any other character of the run is refused too (beside an ordinary space a line still breaks at that space).
+// Any other character between them ends the run, so that pair is not read.
 const SPACE = String.raw`[\s\p{Cf}\p{Cc}]`;
 const RUN = `(${SPACE}+)`;
 // The ISO codes the live profiles write beside a figure, and the words that name a form or one of its boxes.
