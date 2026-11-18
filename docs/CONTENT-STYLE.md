@@ -454,8 +454,8 @@ own styles at 161 widths from 240 to 400 px in Chromium and WebKit. With U+0020,
 2026-11-18). The page drops a default-ignorable code point between the count and its noun. R5's
 hidden-character rule refuses that paragraph before B reads the gap. Between the count and its noun,
 B reads a gap made of JS white space (`\s`), format characters (`\p{Cf}`) or control characters
-(`\p{Cc}`): the class the five joins above read, less `\p{Default_Ignorable_Code_Point}`, since the
-page drops those code points before B reads. `pnpm validate:content` refuses a sentence that
+(`\p{Cc}`). That is the class the five joins above read without the default-ignorable marks, letters
+and unassigned code points (U+FE0F, U+3164, U+2065). `pnpm validate:content` refuses a sentence that
 matches B with any such gap other than one U+00A0 (`figure-join`, R6). Any other character the page
 keeps between the count and its noun makes the sentence match neither shape (`figure-chart`, R5).
 
@@ -492,9 +492,10 @@ which only a paragraph carries and which names no place (decided 2026-11-18, #38
 per language, and hold the nouns of the counts a census of the modules found (16 of them could end a line apart
 from their noun): in English `blocks`, `data points`, `inputs`, `components`, `indexes`, `bitcoins`, `episodes`,
 `start months`, `countries`, `completed cycles`, `cycles`, `parts` and `signs`, and in pt-PT the nine §9 names.
-B's noun (`falls`, `quedas`) is on neither list: R6 reads it. A count before any other noun stays unread. A probe joined
-the 28 counts the English (15) and pt-PT (13) modules write before these nouns by U+00A0. At 161 widths from 240
-to 400 px, at 100 % and 125 % zoom, in Chromium and WebKit, none split and none overflowed (decided 2026-11-18).
+B's noun (`falls`, `quedas`) is on neither list: R6 reads it. A count before any other noun stays unread. A
+probe joined the 28 counts the English (15) and pt-PT (13) modules write before these nouns by U+00A0. At 161
+widths from 240 to 400 px, at 100 % and 125 % zoom, in Chromium and WebKit, none split and none overflowed
+(decided 2026-11-18).
 
 U+00A0 joins a figure to its unit, a name to its number, an ordinal to its noun, B's count and R7's
 count to their nouns, and a date's parts; U+2060 goes only after a dash or a hyphen and between a citation's brackets; U+2011 replaces the
