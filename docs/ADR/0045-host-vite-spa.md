@@ -1540,3 +1540,7 @@ The decision stands; this gives the site pages of §6 a second language without 
   carries `lang="en"` (`docs/CONTENT-STYLE.md` §9). A public page under `/en/` refuses pt-PT.
   `scripts/build.ts` still writes English only: the pt-PT pages exist for the native read, and a
   route, hreflang and the sitemap come with the decision to publish them.
+- **2026-11-18, the precache entry of 2026-11-15: "a person who chose the language gets them".** With
+  nothing stored, the device's languages give the UI language among the ones the build offers
+  (ADR-0023, Deviations of 2026-11-18), so the files reach a person whose choice or device gives the
+  language, from the assets route like any visited file; the folder stays out of the precache.
