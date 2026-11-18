@@ -548,6 +548,59 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
       const idea = FRONT.replace('title: Noise', 'title: Noise\nidea: It mixes6 inputs.');
       expect(await details(`${idea}It mixes 6 inputsx.\n`)).toEqual([]);
     });
+
+    // #388: a default-ignorable code point is never a letter, mark or digit beside the pair, whatever its category,
+    // so a block that lost one keeps every refusal main gives, and a character reference counts as its character.
+    const cp = (...points: number[]) => String.fromCodePoint(...points);
+    const pairDetails = async (body: string) =>
+      (
+        await closedBodyProblems([{ path: 'packages/content/learn/noise.mdx', source: `${FRONT}${body}\n` }], {
+          figures,
+        })
+      ).map(({ code, detail }) => `${code} ${detail}`);
+    const joinedBy = (gap: string, count = '6', noun = 'inputs') =>
+      `figure-join body: the count "${count}" and its noun "${noun}" are joined by ${gap}, not U+00A0; replace the ` +
+      'gap with one U+00A0; R7 (docs/CONTENT-STYLE.md §4)';
+
+    it("refuses round 2's repro as main does", async () => {
+      expect(await pairDetails(`It mixes ${cp(0xfe0f)}6 inputs.`)).toEqual([joinedBy('U+0020')]);
+    });
+
+    it("reads a heading's and a list item's edges as written", async () => {
+      expect(await pairDetails(`## 6 inputs${cp(0x3164)}`)).toEqual([joinedBy('U+0020')]);
+      expect(await pairDetails(`3. 6 inputs${cp(0xfe0f)}`)).toEqual([joinedBy('U+0020')]);
+      expect(await pairDetails(`## ${cp(0x34f)}6${NBSP}inputs`)).toEqual([]);
+      expect(await pairDetails(`## 6${NBSP}${cp(0x2060)}cycles`)).toEqual([joinedBy('U+00A0 U+2060', '6', 'cycles')]);
+    });
+
+    it('reads a character reference as the character it stands for', async () => {
+      expect(await pairDetails('It has 6&nbsp;&#x200B;inputs.')).toEqual([joinedBy('U+00A0 U+200B')]);
+      expect(await pairDetails('It has 1&#x34F;2&nbsp;inputs.')).toEqual([
+        'figure-join body: the count "1U+034F 2" before its noun "inputs" holds U+034F; delete it; R7 ' +
+          '(docs/CONTENT-STYLE.md §4)',
+      ]);
+      // A reference that decodes to U+00A0 passes, though §4 asks for the character itself (a later rule, #388).
+      expect(await pairDetails('It has 6&nbsp;inputs.')).toEqual([]);
+    });
+
+    it('refuses a hidden character after U+00A0 in the live noise modules, English and pt-PT', async () => {
+      if (!english.ok) throw new Error('the English noise does not parse');
+      const path = 'packages/content/learn/noise.mdx';
+      const source = live('learn/noise.mdx');
+      const seeded = source.replace(`6${NBSP}inputs`, `6${NBSP}${cp(0x200b)}inputs`);
+      expect(seeded).not.toBe(source);
+      const codes = async (text: string) =>
+        (await closedBodyProblems([{ path, source: text }], { figures })).map(({ code }) => code);
+      expect(await codes(seeded)).toEqual(['figure-join']);
+      const translated = live('i18n/pt-PT/learn/noise.mdx');
+      const twin = translated.replace(`6${NBSP}componentes`, `6${NBSP}${cp(0xfe0f)}componentes`);
+      expect(twin).not.toBe(translated);
+      const problems = await closedBodyProblems([{ language: 'pt-PT', path: at, source: twin }], {
+        english: [english.value],
+        figures,
+      });
+      expect(problems.map(({ code }) => code)).toEqual(['figure-join']);
+    });
   });
 
   // The figure rules on the path scripts/validate.ts runs: its context from the live files, on a compiled module;
