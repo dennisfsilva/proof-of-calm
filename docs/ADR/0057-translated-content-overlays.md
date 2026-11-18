@@ -280,5 +280,7 @@ generated rules files of each language.
 - **2026-11-18.** The other details that quote a text print it the same way, with no JSON escape (D4 of
   #377): `percent-token`, `figure-form`, `figure-mismatch`, `figure-unclassed` (a paragraph break
   prints `U+000A U+000A`), `decimal-separator`, `percent-joiner`, `number-group` (its suggestion
-  names U+00A0 rather than `\u00a0`), `header-semicolon`, `number-unit-hyphen`, the ban list's
-  `banned-*`, `template-date-unresolved` and `template-date-month`; a gap names every character (`printedGap`).
+  and its rule of CONTENT-STYLE §4 name U+00A0 rather than `\u00a0`), `header-semicolon`,
+  `number-unit-hyphen`, the ban list's `banned-*`, `template-date-unresolved`,
+  `template-date-month` and `overlay-number-mismatch`'s figures as written beside a cited point;
+  a gap names every character (`printedGap`).
