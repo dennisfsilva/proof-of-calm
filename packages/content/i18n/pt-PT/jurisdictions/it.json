@@ -6,7 +6,7 @@
     "classification": "Cripto-attività: as mais-valias e outros rendimentos de resgate, de venda a título oneroso, de troca ou de detenção são redditi diversi sujeitos a um imposto substitutivo (art.\u00a067 c.\u00a01 lett. c-sexies TUIR, aditado pela L.\u00a0197/2022).",
     "taxableEvents": [
       {
-        "note": "Uma venda por euros é uma alienação a título oneroso (cessione a titolo oneroso): a mais-valia é o preço recebido menos o custo ou valor de compra documentado (art.\u00a068 c.\u00a09-bis TUIR, como as Istruzioni o indicam)."
+        "note": "Uma venda por euros é uma alienação a título oneroso (cessione a titolo oneroso): a mais-valia é o preço recebido menos o custo ou valor de compra documentado (art.\u00a068 c.\u00a09\u2011bis TUIR, como as Istruzioni o indicam)."
       },
       {
         "note": "Uma troca entre criptoativos com as mesmas características e funções (ether comprado com bitcoin, no exemplo da circular) não é facto tributável; as moedas recebidas ficam com o custo das entregues. Uma troca por um NFT é tributável."
@@ -21,10 +21,10 @@
         "note": "Mover moedas entre carteiras do mesmo titular não é facto tributável. No regime opcional do risparmio amministrato, transferir para uma conta em nome de outrem é uma alienação, salvo por doação ou sucessão (Circolare\u00a030/E §3.2.2)."
       },
       {
-        "note": "Não há alienação para o doador. O donatário fica com o custo do doador; um herdeiro, com o valor declarado para o imposto sucessório (art.\u00a068 c.\u00a09-bis TUIR, segundo as Istruzioni). O imposto sobre sucessões e doações é outra questão."
+        "note": "Não há alienação para o doador. O donatário fica com o custo do doador; um herdeiro, com o valor declarado para o imposto sucessório (art.\u00a068 c.\u00a09\u2011bis TUIR, segundo as Istruzioni). O imposto sobre sucessões e doações é outra questão."
       },
       {
-        "note": "Os rendimentos da detenção de criptoativos (staking, no exemplo da circular) são redditi diversi tributados pelo valor bruto, sem dedução, desde 1\u00a0de\u00a0janeiro\u00a0de\u00a02023 (art.\u00a068 c.\u00a09-bis TUIR, como a Circolare\u00a030/E §3.1 o indica)."
+        "note": "Os rendimentos da detenção de criptoativos (staking, no exemplo da circular) são redditi diversi tributados pelo valor bruto, sem dedução, desde 1\u00a0de\u00a0janeiro\u00a0de\u00a02023 (art.\u00a068 c.\u00a09\u2011bis TUIR, como a Circolare\u00a030/E §3.1 o indica)."
       }
     ],
     "rates": [
@@ -49,7 +49,7 @@
     ],
     "holdingRuleText": "Sem regra de detenção: cada venda é tributável seja qual for o período de detenção, desde o primeiro euro de mais-valia, a partir de 1\u00a0de\u00a0janeiro\u00a0de\u00a02025. Isso abrange uma venda por euros, por uma stablecoin que seja um token de moeda eletrónica ou por bens. Uma troca entre criptoativos com as mesmas características e funções não é um facto tributável (art.\u00a067 c.\u00a01 lett. c-sexies TUIR).",
     "lotRuleText": "Último a entrar, primeiro a sair: as moedas mais recentes contam como vendidas primeiro. A Circolare\u00a030/E §3.2.1, para o regime dichiarativo: «deve essere assunto come costo o valore di acquisto quello determinato con il metodo L.I.F.O.».",
-    "losses": "As menos-valias compensam mais-valias da mesma natureza no ano; o excedente reporta-se até ao quarto ano seguinte, se constar da declaração do ano em que surgiu (art.\u00a068 c.\u00a09-bis TUIR, como as Istruzioni o indicam).",
+    "losses": "As menos-valias compensam mais-valias da mesma natureza no ano; o excedente reporta-se até ao quarto ano seguinte, se constar da declaração do ano em que surgiu (art.\u00a068 c.\u00a09\u2011bis TUIR, como as Istruzioni o indicam).",
     "reporting": [
       "Quadro\u00a0RT sezione V-A do Modello Redditi Persone fisiche 2026 (quadro\u00a0T do 730) para mais-valias e outros rendimentos realizados até 31\u00a0de\u00a0dezembro\u00a0de\u00a02025, tributados a 26% (art.\u00a067 c.\u00a01 lett. c-sexies TUIR).",
       "Quadro\u00a0RW para moedas detidas, em qualquer carteira. Imposto anual de 0,2% (imposta sulle cripto-attività, código\u00a021 na colonna 3, codice tributo 1727) sobre o valor a 31\u00a0de\u00a0dezembro, salvo quando um intermediário aplica o imposto do selo."
@@ -63,7 +63,7 @@
       "A lei do orçamento de 2027, no Parlamento a 5\u00a0de\u00a0novembro\u00a0de\u00a02026.",
       "Prova do custo: um custo sem prova conta como zero."
     ],
-    "summary60": "Itália: mais-valias à taxa fixa de 33% desde 1\u00a0de\u00a0janeiro\u00a0de\u00a02026 (26% em 2025), sem franquia nem exclusão por detenção. A troca por criptoativo semelhante não é tributada; a venda por euros ou tokens de moeda eletrónica, sim. Último a entrar, primeiro a sair. Menos-valias reportam-se 4 anos. Moedas detidas declaradas anualmente (Quadro\u00a0RW, imposto de 0,2%)."
+    "summary60": "Itália: mais-valias à taxa fixa de 33% desde 1\u00a0de\u00a0janeiro\u00a0de\u00a02026 (26% em 2025), sem franquia nem exclusão por detenção. A troca por criptoativo semelhante não é tributada; a venda por euros ou tokens de moeda eletrónica, sim. Último a entrar, primeiro a sair. Menos-valias reportam-se 4\u00a0anos. Moedas detidas declaradas anualmente (Quadro\u00a0RW, imposto de 0,2%)."
   },
   "pendingChanges": [
     {

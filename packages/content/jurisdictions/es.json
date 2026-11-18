@@ -68,9 +68,9 @@
       "No allowance for crypto gains; the fees and taxes of the operation paid by the taxpayer adjust the values.",
       "Modelo\u00a0721 only when crypto with a custodian abroad exceeds EUR\u00a050\u00a0000 on 31\u00a0December; later returns once that balance has grown by more than EUR\u00a020\u00a0000 since the last one filed (art.\u00a042 quater RGAT). Self-custodied coins are not counted."
     ],
-    "holdingRuleText": "No holding-period rule: every sale, swap, or payment is a taxable event whatever the time held. The same savings-base scale applies to a coin held 1 day or 10 years.",
+    "holdingRuleText": "No holding-period rule: every sale, swap, or payment is a taxable event whatever the time held. The same savings-base scale applies to a coin held 1\u00a0day or 10\u00a0years.",
     "lotRuleText": "First in, first out per type of coin («criterio FIFO», the AEAT Renta manual): in partial sales of coins bought at different times and values, the coins sold are the ones acquired first. The manual read names no per-platform split.",
-    "losses": "Netted within the savings base in the year; a remaining negative balance offsets capital income of the year up to 25\u00a0% of it, and the rest carries forward 4 years (art.\u00a049.1 LIRPF).",
+    "losses": "Netted within the savings base in the year; a remaining negative balance offsets capital income of the year up to 25\u00a0% of it, and the rest carries forward 4\u00a0years (art.\u00a049.1 LIRPF).",
     "reporting": [
       "The Renta return (Modelo\u00a0D-100): the section «Ganancias y pérdidas patrimoniales derivadas de la transmisión o permuta de monedas virtuales por particulares».",
       "Losses pending to offset in later years are listed in annex\u00a0C of the return.",
@@ -86,7 +86,7 @@
       "DAC8 reporting by crypto providers: whether Spain has transposed it.",
       "What changes after the election of 29\u00a0November\u00a02026."
     ],
-    "summary60": "Spain: every sale, crypto-to-crypto swap, or payment with crypto is a taxable event. No holding-period exemption. Net gains are taxed in the savings base at 19\u00a0% to 30\u00a0%. First-in, first-out per coin. Losses offset gains and carry forward 4 years. Crypto held with a foreign custodian above EUR\u00a050\u00a0000 must be reported on Modelo\u00a0721 by 31\u00a0March."
+    "summary60": "Spain: every sale, crypto-to-crypto swap, or payment with crypto is a taxable event. No holding-period exemption. Net gains are taxed in the savings base at 19\u00a0% to 30\u00a0%. First-in, first-out per coin. Losses offset gains and carry forward 4\u00a0years. Crypto held with a foreign custodian above EUR\u00a050\u00a0000 must be reported on Modelo\u00a0721 by 31\u00a0March."
   },
   "pendingChanges": [],
   "sources": [
