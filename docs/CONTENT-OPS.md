@@ -209,9 +209,12 @@ visible rather than impossible:
 - The agent's free Markdown never reaches GitHub. `body.ts` writes every text cell of the draft as
   literal text, and `tools/content-review/render-check.ts` proves that through GitHub's renderer in
   the `render` job of `.github/workflows/content-review.yml`. A cell loses its format
-  characters (`defuseCell`), except a `changes` row's `old` and `new`, which first spell each character of `\p{Cf}` and
-  `\p{Zs}` but U+0020, and U+2011, as `\x{HHHH}` in upper-case hex (`spellJoiners`), as the skill
-  spells a joiner in a note, so the table and a note quote one value alike.
+  characters (`defuseCell`), except a `changes` row's `old` and `new`, which first spell each
+  character a check's detail names by code point (`printedText` in
+  `packages/content/src/percent-gap.ts`) as `\x{HHHH}` in upper-case hex (`spellJoiners`), as the
+  skill spells it in a note, so the table and a note quote one value alike. U+0020, a tab, a line
+  feed and a carriage return stay as written there, and every cell writes them as a space, so for
+  those three line characters a note and the table can differ.
 - Every link is https, on `packages/content/sources.allow.json` or a subdomain of a listed domain,
   and shows its true host as its text. A change's or pending change's link must be on its item's
   list: a country's file on that country's list or `EU`, any other data file on `facts`, a
@@ -338,13 +341,13 @@ fact to the window its URL names (the skill's §4 step 3).
    the change row (the skill's §4 step 1); revert one it set, or review the whole file. Bump `status.version`,
    set `changedOn` and write `changeNotice` when a rule changed in substance; a bump that corrects our
    own file also writes a `changeNotice` that says so (`docs/JURISDICTIONS.md` §6). When `verify`
-   fails on `pnpm test`, or an end-to-end spec fails in CI, because a test asserts a value the review
-   changed other than `reviewedBy` (a screenshot aside: below), named in the notes, which also list
-   the app, web, and end-to-end tests only CI runs, or shown only by CI, have every assertion that pins the old value removed in a session pull
-   request to main first, not only the line a failure prints (Vitest prints a test's first failing
-   assertion alone; the notes name each, a constant's line with every assertion that reads it),
-   since one changed to the new value fails on main, where the data still holds the old one; push
-   the flip after it merges. For the tie of a fact's value to its `docs/EDUCATION.md` §9 row, that pull
+   fails on `pnpm test`, or an end-to-end spec other than a screenshot (below) fails in CI, because
+   a test asserts a value the review changed other than `reviewedBy`, have every assertion that
+   pins the old value removed in a session pull request to main first; the notes name each, a
+   constant's line with every assertion that reads it, and the app, web and end-to-end tests only
+   CI runs, not only the line a failure prints (Vitest prints a test's first failing assertion
+   alone), since one changed to the new value fails on main, where the data still holds the old
+   one; push the flip after it merges. For the tie of a fact's value to its `docs/EDUCATION.md` §9 row, that pull
    request keeps the tie and adds the fact's old and new value, as you read them in the diff, to
    `unlogged` in `packages/content/src/facts.test.ts`; the agent's branch cannot change that file,
    so a later push that moves the value fails the tie (decided 2026-11-17: letting the guard accept
@@ -382,7 +385,7 @@ fact to the window its URL names (the skill's §4 step 3).
    or revert the English change, in a commit on the agent's branch before merging; `verify` stays
    red until then. A `translated module for the owner:` or chart row note names a change the agent
    reverted: make it in a pull request of your own, never on the agent's branch. A chart row note
-   that ends `keeps its series, unregained` (a coin of `UNREGAINED_KEYS`) asks no change: record
+   that ends `keeps its series, unregained` (a coin of `UNREGAINED_KEYS`) asks no data change: record
    its reading in the log (step 5) and leave the row, since `packages/content/src/cycles.test.ts`
    wants that coin's low window to run to the row's `accessed`, which no Coinbase request of
    fewer than 300 days does (§7). A file or fact entry
