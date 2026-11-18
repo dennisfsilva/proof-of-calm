@@ -243,4 +243,4 @@ Recorded on 2026-11-15, when the site's half of the rendering points landed in `
   in a container (`docs/CONTENT-STYLE.md` §4 R5).
 - 2026-11-18: `pageOf` keeps a heading's, paragraph's or code block's decoded text from before it drops the
   default-ignorable code points in `written`, and sets it only when it dropped one. R7 reads a count, its gap and its
-  noun from it (`docs/CONTENT-STYLE.md` §4 R7).
+  noun from `written` (`docs/CONTENT-STYLE.md` §4 R7).
