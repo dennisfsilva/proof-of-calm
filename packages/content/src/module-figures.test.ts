@@ -353,6 +353,23 @@ describe('a chart section fails', () => {
 describe("each detail quotes its sentence and names its figure and rule (§4's list)", () => {
   const R = (n: number) => `; R${n} (docs/CONTENT-STYLE.md §4)`;
   const s2 = nb(S2);
+  const JOIN = 'joins a figure to a sign; write the figure, one ordinary or no-break space, and %';
+
+  // Brand's round 2 on #365: the join's detail gives its fix like its siblings, and the fix applied passes.
+  it.each([
+    ['‰', '97‰', `"97‰" in "${S1} ${S2.replace('97 %', '97‰')}" ${JOIN}`],
+    ['٪', '97 ٪', `"97 ٪" in "${S1} ${S2.replace('97 %', '97 ٪')}" ${JOIN}`],
+    ['a tab', '97\t%', `"97\\t%" in "${S1} ${S2}" ${JOIN}`],
+    // U+2060 is no white space: the paragraph, shown without it, fails as hidden text, and the join's fix passes it too.
+    ['U+2060', '97⁠%', `the paragraph "${S1} ${S2.replace('97 %', '97%')}" holds a hidden character`],
+  ])('2: a join with %s fails, and the sentence written as its fix says passes', async (_, join, refused) => {
+    const sentence = S2.replace('97 %', join);
+    const [first] = await details(body(`${S1} ${sentence}`, { raw: true }));
+    expect(first?.startsWith(`figure-chart: body: ${refused}`)).toBe(true);
+    // The fix: the figure, one ordinary or no-break space, and %, in place of the join.
+    for (const space of [' ', ' '])
+      expect(await details(body(`${S1} ${sentence.replace(join, `97${space}%`)}`, { raw: true }))).toEqual([]);
+  });
   it.each<[string, string, readonly string[], FigureContext['rows']?]>([
     [
       '1: no shape',
@@ -364,9 +381,7 @@ describe("each detail quotes its sentence and names its figure and rule (§4's l
     [
       '2: a wrong join, the whole numeral quoted',
       body(`${S1} ${S2.replace('97 %', '97\n%')}`, { raw: true }),
-      [
-        `figure-chart: body: "97\\n%" in "${S1} ${S2}" joins a figure to a sign other than by one ordinary or no-break space and %${R(5)}`,
-      ],
+      [`figure-chart: body: "97\\n%" in "${S1} ${S2}" ${JOIN}${R(5)}`],
     ],
     [
       '3: a code block',

@@ -275,7 +275,7 @@ which reads plain text only`);
     for (const [written, joiner = '', sign] of block.text.matchAll(new RegExp(`${NUMERAL}(\\s*)(${SIGNS})`, 'gu'))) {
       if (!MODULE_PERCENT_JOINERS.includes(joiner) || sign !== '%')
         report(
-          `"${quote(written)}" in "${shown}" joins a figure to a sign other than by one ordinary or no-break space and %`,
+          `"${quote(written)}" in "${shown}" joins a figure to a sign; write the figure, one ordinary or no-break space, and %`,
         );
     }
     for (const sentence of sentencesOf(block.text)) {
