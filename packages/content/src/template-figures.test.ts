@@ -2,7 +2,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import allowList from '../sources.allow.json' with { type: 'json' };
 import { printedText } from './percent-gap.ts';
-import { sentencesOf, shapeOf } from './template-figures.ts';
+import { sentencesOf, shapeOf, templateFigureProblems } from './template-figures.ts';
 import { type ContentFile, validateContent } from './validate.ts';
 
 // A template's figures against its rows and split (docs/CONTENT-STYLE.md §4, R1 to R4), through the content gate on
@@ -454,7 +454,7 @@ describe('the details (D17 of #318: a datum written in passes, one step past it 
         `Ethereum’s high and low came ${D('ETH')}.`,
         `explanation: the dates of ETH's fall of 83 % sit in no F1 or F2 sentence`,
       ],
-      [`Solana fell 97 % ${D('DOGE')}.`, `explanation: "97 %" carries the dates of DOGE, which has no drawdown row`],
+      [`Solana fell 97 % ${D('DOGE')}.`, `explanation: "97 %" carries the dates of DOGE, which has no drawdown row,`],
     ];
     for (const [explanation, what] of exact) {
       const rule = what.includes('neither SOL') ? 2 : 1;
@@ -493,10 +493,64 @@ describe('templateFigureProblems prints its quoted text by code point (printedTe
     const [sold, came] = [`Solana fell 97 % ${D('DO\u2060GE')}.`, `Ethereum came ${D('E\u2060TH')}.`];
     const shown = (sentence: string) => sentence.replace('\u2060', 'U+2060 ').replace('\u2060', 'U+2060 ');
     expect(details(`${sold} ${came}`)).toEqual([
-      `explanation: "97 %" carries the dates of DOU+2060 GE, which has no drawdown row in "${shown(sold)}"; R1 ` +
+      `explanation: "97 %" carries the dates of DOU+2060 GE, which has no drawdown row, in "${shown(sold)}"; R1 ` +
         '(docs/CONTENT-STYLE.md §4)',
-      `explanation: the dates of EU+2060 TH, which has no drawdown row sit in no F1 or F2 sentence in "${shown(came)}"; ` +
+      `explanation: the dates of EU+2060 TH, which has no drawdown row, sit in no F1 or F2 sentence in "${shown(came)}"; ` +
         'R1 (docs/CONTENT-STYLE.md §4)',
+    ]);
+  });
+
+  // The other arm of fallOf: a drawdown row's coin is any non-empty text (schema/drawdown.ts).
+  const ETH = 'E⁠TH';
+  const printed = 'EU+2060 TH';
+  const shown = (sentence: string) => sentence.replaceAll('⁠', 'U+2060 ');
+  const end = (sentence: string, rule: number) => ` in "${shown(sentence)}"; R${rule} (docs/CONTENT-STYLE.md §4)`;
+
+  it('names a U+2060 in the coin of a drawdown row by code point (figure-form)', () => {
+    const json = { ...four(''), drawdowns: [...four('').drawdowns, row(ETH, '83')] };
+    const sentences = [
+      `Ethereum came ${D(ETH)}.`,
+      `Ethereum fell about 83 % ${D(ETH)}.`,
+      `Ethereum fell 83 % ${D(ETH)}.`,
+    ];
+    const details = sentences.map(
+      (explanation) => problemsOf([{ path: PATH, json: { ...json, explanation } }])[0]?.detail,
+    );
+    expect(details).toEqual([
+      `explanation: the dates of ${printed}'s fall of 83 % sit in no F1 or F2 sentence${end(sentences[0] ?? '', 1)}`,
+      `explanation: "83 %" beside the dates of ${printed}'s fall of 83 % matches neither F1 nor F2` +
+        end(sentences[1] ?? '', 1),
+      `explanation: "Ethereum" is named in the sentence that dates ${printed}'s fall of 83 %${end(sentences[2] ?? '', 2)}`,
+    ]);
+  });
+
+  it('names a row and no row in one list, each with its commas', () => {
+    const json = { ...four(''), drawdowns: [...four('').drawdowns, row(ETH, '83')] };
+    const explanation = `Ethereum came ${D('DOGE')}, ${D(ETH)} and ${D('PEPE')}.`;
+    expect(problemsOf([{ path: PATH, json: { ...json, explanation } }])[0]?.detail).toBe(
+      `explanation: the dates of DOGE, which has no drawdown row, ${printed}'s fall of 83 %, and PEPE, which has no ` +
+        `drawdown row, sit in no F1 or F2 sentence${end(explanation, 1)}`,
+    );
+  });
+
+  // A catalogue coin's id cannot hold U+2060 (schema/coin.ts), so these call the check itself.
+  const figures = (explanation: string, split: Record<string, string> = { [ETH]: '100' }) => ({
+    coins: [{ id: ETH, name: 'Ethereum' }],
+    split,
+    drawdowns: [{ coin: ETH, fall: '83' }],
+    explanation,
+  });
+  const direct = (explanation: string, split?: Record<string, string>) =>
+    templateFigureProblems(PATH, figures(explanation, split)).map(({ code, detail }) => `${code} ${detail}`);
+
+  it('names a U+2060 in the coin of a drawdown row by code point (figure-mismatch)', () => {
+    const [below, neither] = [`Ethereum fell more than 90 % ${D(ETH)}.`, `Ethereum fell 80 % ${D(ETH)}.`];
+    expect(direct(below)).toEqual([
+      `figure-mismatch explanation: "more than 90 %" is not below ${printed}'s fall of 83 %${end(below, 2)}`,
+    ]);
+    expect(direct(neither)).toEqual([
+      `figure-mismatch explanation: "80 %" is neither ${printed}'s fall of 83 % nor a bound below it written ` +
+        `"more than N %"${end(neither, 2)}`,
     ]);
   });
 });
