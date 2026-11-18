@@ -305,6 +305,19 @@ describe('a law name, a date and a range in pt-PT prose (docs/CONTENT-STYLE.md �
     expect(pt('Os n.ºs 23–24 do artigo.')).toEqual([named('n.ºs', '23'), ranged('23–24')]);
   });
 
+  it('refuses a law name the translation keeps in its source language, as English joins it (P3, lesson 579)', () => {
+    const kept: [string, string, string][] = [
+      ['Ver Topic 409.', 'Topic', '409'],
+      ['Pela Circolare 30/E.', 'Circolare', '30/E'],
+      ['No art. 67 c. 1.', 'c.', '1'],
+      ['Pela TCGA 1992.', 'TCGA', '1992'],
+    ];
+    for (const [text, name, number] of kept) {
+      expect(pt(text).filter((detail) => !detail.includes('"art."')), text).toEqual([named(name, number)]);
+      expect(pt(text.replaceAll(' ', nbsp)), text).toEqual([]);
+    }
+  });
+
   it('refuses a hyphen-minus between two figures without U+2060 after it (P4)', () => {
     expect(pt('O ano fiscal 2026-27.')).toEqual([hyphened('2026-27')]);
     expect(pt(`O ano fiscal 2026-${wj}27.`)).toEqual([]);
