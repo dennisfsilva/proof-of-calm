@@ -302,4 +302,7 @@ generated rules files of each language.
   country's rules file. Onboarding's template cards read each template's mark before the spread, and
   a template with no texts in the map, as after the screen's empty fallback, shows its English
   marked `en`: the name, the risk label, the one line and the explanation, while the split, the band
-  and the custom card keep the page's language.
+  and the custom card keep the page's language; the summary marks the template's name the same way,
+  the country's name with its rules' language and the general profile's text with the profile's,
+  while the name inside the rule's sentence, the person's own sentence and the UI's lines keep the
+  page's.
