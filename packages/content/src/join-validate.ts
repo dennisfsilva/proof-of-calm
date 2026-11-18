@@ -12,11 +12,12 @@ const NB_HYPHEN = String.fromCodePoint(0x2011);
  * of a text between its URLs each on its own, and percent-validate.ts reads the text with each URL replaced by a
  * space. No capture group, so that `split` returns no part of a URL. */
 export const URL_IN_TEXT = /https?:\/\/\S+/g;
-// The run of white space (`\s`), format characters (`\p{Cf}`: U+2060, U+0600) and control characters (`\p{Cc}`: U+0085)
-// between the two parts of every join, refused by `joined` unless it is a lone no-break space, so a no-break space
-// beside any other character of the run is refused too (beside an ordinary space a line still breaks at that space).
-// Any other character between them ends the run, so that pair is not read.
-const SPACE = String.raw`[\s\p{Cf}\p{Cc}]`;
+// The run between the two parts of every join, read with R7's gap class (`WRITTEN_GAP` in module-counts.ts): white
+// space (`\s`), format characters (`\p{Cf}`), control characters (`\p{Cc}`) and default-ignorable code points, a mark,
+// a letter or an unassigned one among them (U+FE0F, U+3164, U+2065). `joined` refuses the run unless it is a lone
+// no-break space, so a no-break space beside any other character of the run is refused too (beside an ordinary space a
+// line still breaks at that space). Any other character between them ends the run, so that pair is not read.
+const SPACE = String.raw`[\s\p{Cf}\p{Cc}\p{Default_Ignorable_Code_Point}]`;
 const RUN = `(${SPACE}+)`;
 // The ISO codes the live profiles write beside a figure, and the words that name a form or one of its boxes.
 const CODE = '(EUR|GBP|USD)';

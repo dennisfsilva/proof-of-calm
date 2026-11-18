@@ -243,6 +243,58 @@ describe('the gap of every prose join, read as a code join reads it (docs/CONTEN
   });
 });
 
+// The 25zb ruling (its point 1 outside R7): every join reads R7's gap class, so a default-ignorable code point that is
+// a mark, a letter or unassigned is part of the run too, beside U+00A0 or alone, as a format character already was.
+describe('a default-ignorable code point in a join’s run (docs/CONTENT-STYLE.md §4)', () => {
+  const read = (language: string, text: string) =>
+    joinProblems(path, [['card.caveats.0', text]], language).map(({ detail }) => detail);
+  const by = (pair: string, figure: string, gap: string) =>
+    `card.caveats.0: ${pair} "${figure}" are joined by ${gap}, not U+00A0 (docs/CONTENT-STYLE.md §4)`;
+  const at = (point: number) => `U+${point.toString(16).toUpperCase().padStart(4, '0')}`;
+  // U+FE0F, U+034F and U+E0100 (Mn), U+3164 and U+115F (Lo), U+2065 (Cn), and U+200B (Cf), read before as Cf.
+  const IGNORABLES = [0xfe0f, 0x034f, 0xe0100, 0x3164, 0x115f, 0x2065, 0x200b];
+  const hangulFiller = String.fromCodePoint(0x3164);
+  const eur = (gap: string) => by('"EUR" and its figure', '100', gap);
+
+  it('refuses a default-ignorable code point of every general category beside U+00A0 in a join’s run', () => {
+    const texts = IGNORABLES.flatMap((point) => {
+      const x = String.fromCodePoint(point);
+      return [`EUR${nbsp}${x}100`, `EUR${x}${nbsp}100`, `365${nbsp}${x}days`, `Modelo${nbsp}${x}3`];
+    });
+    const details = IGNORABLES.flatMap((point) => [
+      eur(`U+00A0 ${at(point)}`),
+      eur(`${at(point)} U+00A0`),
+      by('the figure "365" and its unit', 'days', `U+00A0 ${at(point)}`),
+      by('the name "Modelo" and its number', '3', `U+00A0 ${at(point)}`),
+    ]);
+    expect(texts.flatMap((text) => read('en', text))).toEqual(details);
+  });
+
+  it('refuses a lone default-ignorable code point between the two parts', () => {
+    const texts = IGNORABLES.map((point) => `EUR${String.fromCodePoint(point)}100`);
+    expect(texts.flatMap((text) => read('en', text))).toEqual(IGNORABLES.map((point) => eur(at(point))));
+  });
+
+  it('reads the class in every kind of join', () => {
+    const gap = `U+00A0 ${at(0x3164)}`;
+    expect(read('en', `Pay 100${nbsp}${hangulFiller}EUR.`)).toEqual([eur(gap)]);
+    expect(read('en', `Under art.${nbsp}${hangulFiller}46.`)).toEqual([by('the name "art." and its number', '46', gap)]);
+    expect(read('pt-PT', `Durante 30${nbsp}${hangulFiller}dias.`)).toEqual([
+      by('the figure "30" and its unit', 'dias', gap),
+    ]);
+    expect(read('en', `On 31${nbsp}${hangulFiller}July${nbsp}2027.`)).toEqual([
+      by('the day "31" and its month', 'July', gap),
+    ]);
+  });
+
+  it('probes the next pair', () => {
+    expect(read('en', `Swap EUR${nbsp}${hangulFiller}100 USD.`)).toEqual([
+      eur(`U+00A0 ${at(0x3164)}`),
+      by('"USD" and its figure', '100', 'U+0020'),
+    ]);
+  });
+});
+
 // D5 to D7 and S4 of #358 (docs/CONTENT-STYLE.md §4): in English prose a law's name and its number and a date's parts
 // are joined by U+00A0, and an en dash or a hyphen-minus between two digits takes U+2060 after it, so that a narrow
 // screen never splits them.
