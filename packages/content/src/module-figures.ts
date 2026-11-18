@@ -98,9 +98,10 @@ const J = `(?:${MODULE_PERCENT_JOINERS.map(esc).join('|')})`;
 const F = `${N}${J}%`;
 const Y = '[12][0-9]{3}';
 const K = '(?<k>[1-9][0-9]?)';
-// B's count and its noun. A default-ignorable character never reaches it: the page drops it and R5 refuses the
-// paragraph first; any other white-space or format gap but one U+00A0 is reported (R6).
-const GAP = '(?<gap>[\\s\\p{Cf}]+)';
+// B's count and its noun, read as the joins read their run (join-validate.ts). A default-ignorable character never
+// reaches it: the page drops it and R5 refuses the paragraph first; any other white-space, format or control gap but
+// one U+00A0 is reported (R6).
+const GAP = '(?<gap>[\\s\\p{Cf}\\p{Cc}]+)';
 const NBSP = String.fromCodePoint(0xa0);
 const B = (C: string) => `(?<c>${C})`;
 const clause = (C: string) => new RegExp(`(?<c>${C})(?= )|(?<f>${N})(?=${J}%)`, 'gu');

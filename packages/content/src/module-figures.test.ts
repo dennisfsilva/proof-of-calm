@@ -595,17 +595,31 @@ chart's section, which reads plain text only${R6.replace('R6', 'R5')}`,
     ]);
   });
 
-  // A gap that is neither JS white space nor a format character never matches B, so R5 refuses the sentence; these
-  // two are hidden characters, which a quote prints by code point (percent-gap.ts).
+  // B's gap reads control characters as the joins of #370 do (join-validate.ts), so a control character paragraphsOf
+  // keeps reaches it and R6 names it by its code point, alone or beside U+00A0 or U+0020.
   it.each([
-    ['U+0007', 0x7],
-    ['U+0085', 0x85],
-  ])('refuses %s there as matching neither shape, with no figure-join', async (named, code) => {
-    const [first, ...rest] = await details(body(`${joined(String.fromCodePoint(code))} ${S2}`));
-    expect(first).toBe(
-      `figure-chart: body: "${shown(`${named} `)}" holds a figure "4" and matches neither shape of a chart's section${R6.replace('R6', 'R5')}`,
-    );
-    expect(rest.filter((detail) => !detail.startsWith('figure-unstated'))).toEqual([]);
+    ['U+0007', String.fromCodePoint(0x7), 'U+0007 '],
+    ['U+0085', String.fromCodePoint(0x85), 'U+0085 '],
+    ['U+001F', String.fromCodePoint(0x1f), 'U+001F '],
+    ['U+007F', String.fromCodePoint(0x7f), 'U+007F '],
+    ['U+00A0 U+0007', `${NBSP}${String.fromCodePoint(0x7)}`, 'U+00A0 U+0007 '],
+    ['U+0007 U+0020', `${String.fromCodePoint(0x7)} `, 'U+0007  '],
+  ])('joined by %s, a control character, gives one figure-join', async (named, gap, quoted) => {
+    expect(await details(body(`${joined(gap)} ${S2}`))).toEqual([
+      `figure-join: body: the count "4" and its noun "falls" are joined by ${named}, not U+00A0, in "${shown(quoted)}"${R6}`,
+    ]);
+  });
+
+  // In each of two B sentences of one paragraph, the gap reads only up to its own noun.
+  it('reads a control character in the gap of each of two B sentences', async () => {
+    const BEL = String.fromCodePoint(0x7);
+    const second = 'In the chart, ether had 2 falls of more than 80 % between 2018 and 2022.';
+    const twice = `${joined(BEL)} ${second.replace(' falls', `${BEL}falls`)}`;
+    const joins = (await details(body(`${twice} ${S2}`))).filter((detail) => detail.startsWith('figure-join'));
+    expect(joins).toEqual([
+      `figure-join: body: the count "4" and its noun "falls" are joined by U+0007, not U+00A0, in "${shown('U+0007 ')}"${R6}`,
+      `figure-join: body: the count "2" and its noun "falls" are joined by U+0007, not U+00A0, in "${nb(second.replace(' falls', 'U+0007 falls'))}"${R6}`,
+    ]);
   });
 
   // B reads the sentence as paragraphsOf gives it: a run of [ \t\n\r\f] that does not end the paragraph becomes one
@@ -639,8 +653,8 @@ matches neither shape of a chart's section${R6.replace('R6', 'R5')}`,
     expect(found.filter((detail) => !detail.startsWith('figure-unstated')).length).toBe(2);
   });
 
-  // GAP reads only JS white space and format characters: any other character there falls to R5's neither-shape
-  // detail, whatever its kind.
+  // GAP reads only JS white space, format and control characters: any other character there falls to R5's
+  // neither-shape detail, whatever its kind.
   it.each([
     ['U+2800, a symbol', '\u2800'],
     ['U+0301, a combining mark', '\u0301'],
