@@ -50,15 +50,7 @@ Arguments: $ARGUMENTS
   after your English change (`overlay-number-mismatch`, or that language's `figure-chart`) is a
   refusal no edit of yours fixes: follow the figure item's rule for those (below). In a JSON translation, change
   only a figure that `overlay-number-mismatch` names, at the path it names, to the English file's new value, and
-  never its prose. When your English change alters a letter, word or citation a JSON translation
-  repeats outside its figures, leave the translation and add the note
-  `translation for the owner: <path> <field>: <the English change>` to the draft's notes: the path
-  from `packages/content/` and the field as a `changes` row names them, then the English words as
-  `<old> to <new>`, each joiner spelled `\x{2060}` or `\x{00A0}`, never the character (the finish
-  drops U+2060 from a note, and U+00A0 reads as a space). Portugal's `card.losses` citing
-  `55(1)\x{2060}(e)` in place of `(d)`, which pt-PT writes `al. d)`, takes
-  `translation for the owner: i18n/pt-PT/jurisdictions/pt.json card.losses: 55(1)\x{2060}(d) to 55(1)\x{2060}(e)`.
-  When a figure check also refuses that figure in the English file, fix the
+  never its prose. When a figure check also refuses that figure in the English file, fix the
   English file from its source first (the figure item below), then copy its value here. Write
   that value in the translation's number format, not as the English characters. The check reads each file with its own number locale. A profile's English file and
   its translation both read every figure with the page's number locale, `numberLocaleFor`: the
@@ -82,6 +74,23 @@ Arguments: $ARGUMENTS
   the edit name the figure, its path and the English file's `changes` row that changed it, and list
   the edit in your closing report to the owner. Nothing refuses a prose edit in a translation; the
   owner's diff read does (`docs/CONTENT-OPS.md` §8).
+  After each English change, read the same field in every `i18n/<locale>/` copy
+  of that file, a translated module (`learn/*.mdx`) included. When your change alters a letter,
+  word, name or citation that a copy repeats outside its figures, leave the copy as it is. Add the
+  note `translation for the owner: <path> <field>: <the English change>` to the draft's notes. The
+  path runs from `packages/content/`. The field is the one a `changes` row names: a JSON leaf's
+  path, or a module's front-matter key or `body` (§7 step 2). Write the change as
+  the English words, `<old> to <new>`. Portugal's `card.losses` citing `55(1)\x{2060}(e)` in place of `(d)`,
+  which pt-PT writes `al. d)`, takes
+  `translation for the owner: i18n/pt-PT/jurisdictions/pt.json card.losses: 55(1)\x{2060}(d) to 55(1)\x{2060}(e)`.
+  The owner makes a JSON copy's change on your branch, and a module's in a pull request of their
+  own after the review merges (`docs/CONTENT-OPS.md` §8 step 4). A change you revert under the
+  figure item (below) takes that item's note instead of this one.
+  In every note that quotes a value, and in your closing report, spell each joiner by its code
+  point: `\x{2060}`, `\x{00A0}` or `\x{2011}`, never the character. The finish drops U+2060 from a
+  note, U+00A0 reads as a space, and U+2011 reads as a hyphen. In .content-review/draft.json, type
+  the backslash twice, `\\x{2060}`: that JSON string holds the text `\x{2060}`. A `\u2060`
+  or `\u00a0` escape there is the character itself.
 - Change `rules/*.json` and a locale's `rules/<locale>/*.json` only by running
   `pnpm --filter @proofofcalm/content rules`, never by hand.
 - Never delete an entry, a chart row or a file; the finish refuses a deleted file or fact entry or
@@ -119,7 +128,7 @@ Arguments: $ARGUMENTS
   <sources>; tests: <file>:<line> …`: the translated module's path (`i18n/pt-PT/learn/cycles.mdx`), then each file and
   field the change reached, English or translated (the fact, the English module's `body`, a chart
   row's `low` and `fall`, each template copy, `i18n/pt-PT/templates/accumulate.json explanation`),
-  named as a `changes` row names it, with its new value as that file writes it (a fact's changed
+  named as a `changes` row names it, with its new value as that file writes it, its joiners spelled as above (a fact's changed
   clause, not its whole `value`) and, for a figure the translated module shows, in the
   translation's number format too (fact a's `−94.0 %`, pt-PT's `−94,0 %`), then every URL the
   values rest on, a fall's `source` and `lowSource` both, then `tests:` and each test that failed
