@@ -19,7 +19,20 @@ export type HostConfigOptions = {
   root: string;
   /** `parseModule` from `@proofofcalm/content/modules`, which the host imports (ADR-0048, Deviations). */
   parseModule: ParseModule;
+  /** The build's environment; `process.env` but in the tests. Only `VERCEL_ENV` is read. */
+  env?: Record<string, string | undefined>;
 };
+
+/**
+ * The picker's flag (ADR-0023, Deviations of 2026-11-18): `listed` offers the preview languages, `visible`
+ * English alone. Only Vercel's `VERCEL_ENV` sets it, and only on the web host's preview and development
+ * deployments, so every other build fails closed. It is defined as `__POC_LANGUAGES__`, not an
+ * `import.meta.env.VITE_*` key, which any stray `VITE_*` variable could fill.
+ */
+function languagesFlag(host: Host, env: Record<string, string | undefined>): 'listed' | 'visible' {
+  const vercel = env.VERCEL_ENV;
+  return host === 'web' && (vercel === 'preview' || vercel === 'development') ? 'listed' : 'visible';
+}
 
 /** The Learn modules (ADR-0048), from a host's directory. */
 const LEARN_DIR = '../../packages/content/learn';
@@ -71,7 +84,7 @@ function chunkFileNames(chunk: Rolldown.PreRenderedChunk): string {
  * guard, the font preload, the web host's chunk report and, last, the boot script; no asset inlined as
  * `data:` (the CSP has no `data:` for fonts, §3). The host spreads it into its own `vite.config.ts`.
  */
-export function createHostConfig({ host, root, parseModule }: HostConfigOptions): UserConfig {
+export function createHostConfig({ host, root, parseModule, env = process.env }: HostConfigOptions): UserConfig {
   const { input, apiBase, serviceWorker, chunkReport: report } = HOSTS[host];
   const plugins: PluginOption[] = [
     // The past-performance sentence with its Risk link, the one element a module's body holds (ADR-0048 Deviations).
@@ -94,6 +107,7 @@ export function createHostConfig({ host, root, parseModule }: HostConfigOptions)
     define: {
       'import.meta.env.VITE_API_BASE': JSON.stringify(apiBase),
       'import.meta.env.VITE_SERVICE_WORKER': JSON.stringify(serviceWorker),
+      __POC_LANGUAGES__: JSON.stringify(languagesFlag(host, env)),
     },
     build: {
       assetsInlineLimit: 0,

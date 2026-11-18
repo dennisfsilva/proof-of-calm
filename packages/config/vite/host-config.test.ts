@@ -25,7 +25,7 @@ const parseModule = () => ({ ok: false as const, error: [] });
 
 describe('createHostConfig', () => {
   it('web: React with the compiler through Babel, Tailwind, the five plugins and the chunk report, app.html, no inlined assets', () => {
-    const config = createHostConfig({ host: 'web', root: '/repo/apps/web', parseModule });
+    const config = createHostConfig({ host: 'web', root: '/repo/apps/web', parseModule, env: {} });
     const names = pluginNames(config.plugins);
     for (const name of OWN) expect(names).toContain(name);
     expect(names.some((name) => name.includes('react'))).toBe(true);
@@ -39,17 +39,67 @@ describe('createHostConfig', () => {
     expect(config.define).toEqual({
       'import.meta.env.VITE_API_BASE': '""',
       'import.meta.env.VITE_SERVICE_WORKER': '"on"',
+      __POC_LANGUAGES__: '"visible"',
     });
   });
 
   it('mobile: index.html, the absolute API origin, no service worker and no chunk report (ADR-0045 §10)', () => {
-    const config = createHostConfig({ host: 'mobile', root: '/repo/apps/mobile', parseModule });
+    const config = createHostConfig({ host: 'mobile', root: '/repo/apps/mobile', parseModule, env: {} });
     expect(pluginNames(config.plugins)).toEqual(expect.arrayContaining(OWN));
     expect(pluginNames(config.plugins)).not.toContain('poc:chunk-report');
     expect(config.build?.rolldownOptions?.input).toBe(resolve('/repo/apps/mobile', 'index.html'));
     expect(config.define).toEqual({
       'import.meta.env.VITE_API_BASE': '"https://proofofcalm.com"',
       'import.meta.env.VITE_SERVICE_WORKER': '"off"',
+      __POC_LANGUAGES__: '"visible"',
+    });
+  });
+
+  // The language picker's flag (ADR-0023, Deviations of 2026-11-18): only Vercel's own VERCEL_ENV lists the
+  // preview languages, and only on the web host's preview and development deployments; anything else, a stray
+  // VITE_* variable included (Vite hands every one to import.meta.env), gives English alone.
+  describe('the languages flag', () => {
+    const flag = (host: 'web' | 'mobile', env: Record<string, string | undefined>) =>
+      createHostConfig({ host, root: `/repo/apps/${host}`, parseModule, env }).define?.__POC_LANGUAGES__;
+
+    it("lists the preview languages on the web host's preview and development deployments", () => {
+      expect(flag('web', { VERCEL_ENV: 'preview' })).toBe('"listed"');
+      expect(flag('web', { VERCEL_ENV: 'development' })).toBe('"listed"');
+    });
+
+    it('keeps them hidden in production, without VERCEL_ENV, on the mobile host and for any other value', () => {
+      expect(flag('web', { VERCEL_ENV: 'production' })).toBe('"visible"');
+      expect(flag('web', {})).toBe('"visible"');
+      expect(flag('web', { VERCEL_ENV: '' })).toBe('"visible"');
+      expect(flag('web', { VERCEL_ENV: 'Preview' })).toBe('"visible"');
+      expect(flag('mobile', { VERCEL_ENV: 'preview' })).toBe('"visible"');
+      expect(flag('mobile', { VERCEL_ENV: 'development' })).toBe('"visible"');
+    });
+
+    it('ignores a stray VITE_* variable on a production build', () => {
+      const env = {
+        VERCEL_ENV: 'production',
+        VITE_LANGUAGES: 'listed',
+        VITE_POC_LANGUAGES: 'listed',
+        VITE_VERCEL_ENV: 'preview',
+      };
+      const config = createHostConfig({ host: 'web', root: '/repo/apps/web', parseModule, env });
+      expect(config.define?.__POC_LANGUAGES__).toBe('"visible"');
+      // The flag is no import.meta.env key, so no VITE_* variable can stand in for it.
+      expect(Object.keys(config.define ?? {}).filter((key) => /LANGUAGE/i.test(key))).toEqual(['__POC_LANGUAGES__']);
+    });
+
+    it("reads process.env when no env is given (the hosts' vite.config.ts)", () => {
+      const before = process.env.VERCEL_ENV;
+      process.env.VERCEL_ENV = 'preview';
+      try {
+        expect(createHostConfig({ host: 'web', root: '/repo/apps/web', parseModule }).define?.__POC_LANGUAGES__).toBe(
+          '"listed"',
+        );
+      } finally {
+        if (before === undefined) delete process.env.VERCEL_ENV;
+        else process.env.VERCEL_ENV = before;
+      }
     });
   });
 
