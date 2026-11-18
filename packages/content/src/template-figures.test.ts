@@ -466,7 +466,7 @@ describe('the details (D17 of #318: a datum written in passes, one step past it 
     const json = { ...four('Chainlink: 15 % of each amount.'), split: { BTC: '40', ETH: '30', SOL: '30' } };
     const details = problemsOf([{ path: PATH, json }]).map((problem) => problem.detail);
     expect(details).toContain(
-      `explanation: "15 %" is not LINK, which has no share in "Chainlink: 15 % of each amount."; R3 (docs/CONTENT-STYLE.md §4)`,
+      `explanation: "15 %" is not LINK, which has no share, in "Chainlink: 15 % of each amount."; R3 (docs/CONTENT-STYLE.md §4)`,
     );
   });
 });
@@ -568,10 +568,15 @@ describe('templateFigureProblems prints its quoted text by code point (printedTe
       `figure-mismatch explanation: "40 %" is not ${printed}'s share of 100 %${end(other, 3)}`,
     ]);
     expect(direct(other, {})).toEqual([
-      `figure-mismatch explanation: "40 %" is not ${printed}, which has no share${end(other, 3)}`,
+      `figure-mismatch explanation: "40 %" is not ${printed}, which has no share,${end(other, 3)}`,
     ]);
     expect(direct(twice)).toEqual([
       `figure-form explanation: "100 %" gives "Ethereum" a second share beside ${printed}'s share of 100 %${end(twice, 3)}`,
+    ]);
+    // The no-share clause closes on a comma in both arms, since " in" always follows it.
+    expect(direct(twice, {})).toEqual([
+      `figure-mismatch explanation: "100 %" is not ${printed}, which has no share,${end(twice, 3)}`,
+      `figure-form explanation: "100 %" gives "Ethereum" a second share beside ${printed}, which has no share,${end(twice, 3)}`,
     ]);
   });
 });
