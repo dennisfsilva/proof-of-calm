@@ -452,11 +452,12 @@ own styles at 161 widths from 240 to 400 px in Chromium and WebKit. With U+0020,
 100 % and 68 at 125 % zoom. With U+00A0 nothing split (comment 6971015219 on #370, decided
 2026-11-18). The page drops a default-ignorable code point between the count and its noun. R5's
 hidden-character rule refuses that paragraph before B reads the gap. B reads a gap there made of JS
-white space (`\s`) or format characters (`\p{Cf}`). `pnpm validate:content` refuses a sentence that
-matches B with any such gap other than one U+00A0 (`figure-join`, R6). Any other character the page
-keeps between the count and its noun makes the sentence match neither shape (`figure-chart`, R5).
-The probe's census of the modules also found 16 other counts that can end a line apart from their
-noun (`6 inputs`, `95 países`). They are not joined or checked yet.
+white space (`\s`), format characters (`\p{Cf}`) or control characters (`\p{Cc}`), the class the
+joins above read. `pnpm validate:content` refuses a sentence that matches B with any such gap other
+than one U+00A0 (`figure-join`, R6). Any other character the page keeps between the count and its
+noun makes the sentence match neither shape (`figure-chart`, R5). The probe's census of the modules
+also found 16 other counts that can end a line apart from their noun (`6 inputs`, `95 países`).
+They are not joined or checked yet.
 
 U+00A0 joins a figure to its unit, a name to its number, an ordinal to its noun, B's count to its
 noun and a date's parts; U+2060 goes only after a dash or a hyphen and between a citation's brackets; U+2011 replaces the
@@ -583,10 +584,11 @@ last `Y` (`figure-chart`). The page drops a default-ignorable code point between
 hidden-character rule refuses that paragraph before B reads the gap (`figure-chart`). B reads the sentence as
 `paragraphsOf` gives it: two line feeds with only spaces, tabs, carriage returns or form feeds between them end the
 paragraph, and any other run of `[ \t\n\r\f]` becomes one U+0020. Between `K` and its noun, B reads a gap of JS white
-space (`\s`) or format characters (`\p{Cf}`). A sentence that matches B with any such gap other than one U+00A0 fails
-(`figure-join`). The detail names the gap as B reads it, by its code points, so a tab there is U+0020. The fix is one
-U+00A0 in its place (decided 2026-11-18). Any other character the page keeps between `K` and its noun makes the sentence match neither
-shape (R5, `figure-chart`). A detail's quote shows that U+00A0 as written, as it shows a joiner before `%`.
+space (`\s`), format characters (`\p{Cf}`) or control characters (`\p{Cc}`). A sentence that matches B with any such
+gap other than one U+00A0 fails (`figure-join`). The detail names the gap as B reads it, by its code points, so a tab
+there is U+0020. The fix is one U+00A0 in its place (decided 2026-11-18). Any other character the page keeps between
+`K` and its noun makes the sentence match neither shape (R5, `figure-chart`). A detail's quote shows that U+00A0 as
+written, as it shows a joiner before `%`.
 
 Each detail quotes the sentence and names its own figure and rule, never a row or a count to copy (decided
 2026-11-17). In a translation the section is closed: each sentence and heading there is its language's B or E (§9) or

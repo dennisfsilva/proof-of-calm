@@ -571,6 +571,7 @@ describe("pt-PT's B: the count and its noun (R6)", () => {
     ['an ordinary space', ' ', 'U+0020', ' '],
     ['U+202F', String.fromCodePoint(0x202f), 'U+202F', 'U+202F '],
     ['a source line break', '\n', 'U+0020', ' '],
+    ['U+0085, a control character', String.fromCodePoint(0x85), 'U+0085', 'U+0085 '],
   ])('joined by %s gives one figure-join naming it', async (_, gap, named, quoted) => {
     expect(await pairs(pt(`${joined(gap)} ${S2}`))).toEqual([
       [
