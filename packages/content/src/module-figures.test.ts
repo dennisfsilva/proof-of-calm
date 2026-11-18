@@ -582,4 +582,15 @@ chart's section, which reads plain text only${R6.replace('R6', 'R5')}`,
     );
     expect(rest.filter((detail) => !detail.startsWith('figure-unstated'))).toEqual([]);
   });
+
+  // A format character the page keeps (not default-ignorable) reaches B's gap, and R6 names it.
+  it.each([
+    ['U+0600', 0x600],
+    ['U+06DD', 0x6dd],
+    ['U+FFF9', 0xfff9],
+  ])('joined by %s, a format character the page keeps, gives one figure-join', async (named, code) => {
+    expect(await details(body(`${joined(String.fromCodePoint(code))} ${S2}`))).toEqual([
+      `figure-join: body: the count "4" and its noun "falls" are joined by ${named}, not U+00A0, in "${shown(`${named} `)}"${R6}`,
+    ]);
+  });
 });
