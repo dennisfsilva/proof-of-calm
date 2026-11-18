@@ -298,10 +298,12 @@ For each profile in `packages/content/jurisdictions/`:
      `path` `packages/content`, `glob` `**/learn/*.mdx` (the English modules and every
      `i18n/<locale>/learn/*.mdx`, a translated file even when its English file has no hit),
      `output_mode` `content` and `multiline` true, and one pattern that joins with `|` each old
-     figure's digits, with `[ ,.  ]?` between digit groups and `[.,]` as the decimal
-     point, and each old date by its day and year, `\b<day>\b\D{1,20}\b<year>\b`. For `$3,122
-     (15 Dec 2018), −84.1 %` that is `3[ ,.  ]?122|84[.,]1|\b15\b\D{1,20}\b2018\b`,
-     which finds `$3,122`, `3122 USD`, `−84,1 %` and `15 de dezembro de 2018`. Read each hit:
+     figure's digits, with `(?:[ ,.  ]|\p{Cf}|\\u[0-9a-fA-F]{4}){0,2}` between digit
+     groups and `[.,]` as the decimal point, and each old date by its day and year,
+     `\b<day>\b\D{1,20}\b<year>\b`. For `$3,122 (15 Dec 2018), −84.1 %` that is
+     `3(?:[ ,.  ]|\p{Cf}|\\u[0-9a-fA-F]{4}){0,2}122|84[.,]1|\b15\b\D{1,20}\b2018\b`,
+     which finds `$3,122`, `3122 USD`, the same digits joined by U+2060, `−84,1 %` and
+     `15 de dezembro de 2018`. Read each hit:
      change an English hit's figure as a module sentence, and treat a hit in a translated module
      as §1's translated-module case. A hit that holds a figure or date other than the clause's is
      no quote of it (LINK's `\b10\b\D{1,20}\b2021\b` also finds BTC's `10 Nov 2021`): leave it.
@@ -385,7 +387,8 @@ The finish refuses a changed entry at any other value.
    alone, so an owner who removes that line meets the next. Grep with `path` `.`,
    `glob` `**/*.{test,spec}.{ts,tsx}`, `output_mode` `content` and one pattern that joins with `|` each old
    value as the data file writes it, each old date by its day and year,
-   `\b<day>\b\D{1,20}\b<year>\b`, and each old figure's digits, with `[ ,.  ]?` between digit
+   `\b<day>\b\D{1,20}\b<year>\b`, and each old figure's digits, with
+   `(?:[ ,.  ]|\p{Cf}|\\u[0-9a-fA-F]{4}){0,2}` between digit
    groups and `[.,]` as the decimal point; for ETH's low moved off `2022-06-18` and its clause off
    `$880` and `−81.9 %` that is `2022-06-18|\b18\b\D{1,20}\b2022\b|880|81[.,]9`. Read each hit in
    a test that failed: it pins the value when an assertion reads it, directly or through a constant
