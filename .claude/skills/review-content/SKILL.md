@@ -268,7 +268,12 @@ For each profile in `packages/content/jurisdictions/`:
 ## 4. Per fact, template and cycle row
 
 1. Re-read each source. When the number or the date changed, update the entry; when the source is
-   gone, name it in the draft's notes. Every change to a fact,
+   gone, name it in the draft's notes. `j.next-halving`'s source names a fixed height, and
+   `docs/EDUCATION.md` §9's rules for use recompute it from the current height: read mempool.space's
+   tip height and the times of the tip, of block 840,000 and of the block 2,016 below the tip,
+   write the value in its shape, set its `source` to that tip's `api/block-height/<height>`
+   request, give that URL as the `changes` row's `url` and name the other requests in its `reason`.
+   Every change to a fact,
    template, cycle row or module sentence needs a quoted allow-listed passage and the event's date,
    both in the draft. A row's `fall` is the nearest whole percent of (high − low) / high: 96.923 %
    is 97, never 96.
@@ -277,9 +282,11 @@ For each profile in `packages/content/jurisdictions/`:
      `changes` row, and fact a's or b's clause of that coin and high to the row's dates, prices and
      fall to one decimal. Only a test ties the copies to the file (`packages/content/src/cycles.test.ts`,
      "every template drawdown appears in the cycles file" and "each row of drawdowns.json reads the
-     same fall as facts a and b"), so `pnpm run validate:content` names neither; the copy's change
-     then draws the template's figure refusals and the clause's the modules' that quote it, fixed as
-     §1 says.
+     same fall as facts a and b"), so `pnpm run validate:content` names neither; the template's
+     copy then draws its figure refusals, fixed as §1 says. No check reads a module's quote of a
+     clause outside a chart section, so search `learn/*.mdx` and each locale's `learn/*.mdx` for
+     the clause's old figures: change an English hit's figure as a module sentence, and treat a hit
+     in a translated module as §1's translated-module case.
    - Set a fact's or a `drawdowns` row's `accessed` to the day you read its sources only when the
      file's `reviewed` row will show every source read (`read` equals `of`). After a partial
      review leave it as it was, changed row or not, and give the day as the `changes` row's
@@ -296,7 +303,9 @@ For each profile in `packages/content/jurisdictions/`:
    request's series, `a.btc-drawdowns`' 2011 clause (Mt. Gox and CoinMarketCap) and
    `b.alt-drawdowns`' `LINK 2018 (CoinMarketCap series only)`, against the cycles row of their coin
    and high, which `packages/content/src/cycles.test.ts` ties each to, and that row's `source` and
-   `lowSource`. Note a clause that neither holds as
+   `lowSource`; check `i.diminishing`'s 2011 figures (Mt. Gox's high, CoinMarketCap's low, −94 %),
+   which its Bitstamp request starting 30 Nov 2013 cannot hold, against the same BTC 2011 row.
+   Note a clause or figure that neither holds as
    `no listed source holds: <item> <field>: "<clause>"`, named as a `changes` row names it
    (`facts/education.json [0].value`), the clause quoted as the file writes it, and leave it
    unchanged. Another series' figure in parentheses
@@ -360,8 +369,8 @@ The finish refuses a changed entry at any other value.
    that your change replaced (a clause's one-decimal fall, a row's high or publisher) is such a
    test: name it as above. For the tie
    of a fact's value to its `docs/EDUCATION.md` §9 row (`packages/content/src/facts.test.ts`), say
-   instead that the owner's pull request to main records the fact's old and new value as pending
-   and keeps the tie, and that the owner removes that entry in a pull request to main when this
+   instead that the owner's pull request to main records the fact's old and new value as an
+   `unlogged` entry in that test and keeps the tie, and that the owner removes that entry in a pull request to main when this
    one closes unmerged or no longer holds the new value (`docs/CONTENT-OPS.md` §8 step 4).
    When a translation's figure still does not match
    after you change it and run the checks again, revert neither the English change nor the

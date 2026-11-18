@@ -322,7 +322,7 @@ fact to the window its URL names (the skill's §4 step 3).
 4. In a commit on the agent's branch, flip `reviewedBy` only on the files and fact entries whose
    changes you checked in steps 1 to 3. After a partial review the rest stay at `agent-draft`, which
    `verify` fails, so the PR waits until you check them or revert their changes. Set a file's
-   `lastReviewed` to today only after a whole-file review: its `reviewed` row shows every source
+   `lastReviewed` (in a facts file, every fact entry's) to today only after a whole-file review: its `reviewed` row shows every source
    read (`read` equals `of`; the finish refuses a changed file with no row), you opened each
    secondary source of step 1 and you checked every change in the file; otherwise leave it
    unchanged (a partial review moves nothing). An `accessed` later than an unchanged `lastReviewed`
