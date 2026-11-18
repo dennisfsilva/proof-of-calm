@@ -2,7 +2,7 @@ import { expect, type Locator, type Page } from '@playwright/test';
 import { fixtureNowMs, fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
 import { templateById } from '@proofofcalm/content';
 import { seedPlan } from './seed';
-import { test } from './support';
+import { chooseCountry, test } from './support';
 
 // Forms with the on-screen keyboard open (docs/ENGINEERING.md §3, ROADMAP M1 "Proven by"): on the two
 // phones and the tablet, a field is focused, then the keyboard is emulated by reducing the viewport's
@@ -230,7 +230,7 @@ test.describe('with the keyboard open, the focused field and Save stay visible a
     await page.clock.setFixedTime(new Date(fixtureNowMs('buy')));
     await page.goto('/onboarding');
     await expect(page.locator('main#main')).not.toHaveAttribute('aria-busy', 'true');
-    await page.getByRole('button', { name: 'Continue with Portugal' }).click();
+    await chooseCountry(page, {}, { keyboard: true });
     await page.getByRole('radio', { name: templateById('two-coins')?.name ?? 'two-coins', exact: true }).click();
     const next = page.getByRole('button', { name: 'Continue', exact: true });
     await next.click();

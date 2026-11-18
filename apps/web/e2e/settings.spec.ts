@@ -3,7 +3,7 @@ import { expect, type Page } from '@playwright/test';
 import { FIXTURE_DATES, fixtureNowMs, fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
 import { exportBackup, type Instant } from '@proofofcalm/core';
 import { seedPlan } from './seed';
-import { test } from './support';
+import { chooseCountry, test } from './support';
 
 // Settings → Currency & data on the viewport matrix (docs/DOMAIN.md §3.13): the JSON backup and the CSV log download
 // under their dated names, the fixture's own backup added as "missing entries only" adds nothing, and
@@ -240,7 +240,7 @@ test('a file from the DCA plan page on a device with no plan asks for the countr
   await choosePrototype(page);
   await expect(page.getByRole('button', { name: 'Import this backup' })).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'Where do you live?' })).toBeVisible();
-  await page.getByRole('button', { name: 'Continue with Portugal' }).click();
+  await chooseCountry(page);
   await expect(page.getByText('Plan imported. Entries now: 18.')).toBeVisible();
   await expect(page.getByRole('listitem').filter({ hasText: taxNoteLine })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Export JSON backup' })).toBeVisible();

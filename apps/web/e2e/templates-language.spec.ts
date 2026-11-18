@@ -5,7 +5,7 @@ import ptAccumulate from '../../../packages/content/i18n/pt-PT/templates/accumul
 import ptBtcOnly from '../../../packages/content/i18n/pt-PT/templates/btc-only-hold.json' with { type: 'json' };
 import ptCycle from '../../../packages/content/i18n/pt-PT/templates/cycle-plan.json' with { type: 'json' };
 import ptTwoCoins from '../../../packages/content/i18n/pt-PT/templates/two-coins.json' with { type: 'json' };
-import { test } from './support';
+import { chooseCountry, test } from './support';
 
 // The template step in the UI language (ADR-0057): a pt-PT boot lists the four templates under their pt-PT names,
 // sorted by those names, once their overlays load (from assets/messages/pt-PT/, outside the precache), and with
@@ -27,7 +27,7 @@ async function openInPortuguese(page: Page) {
   await page.goto('/onboarding');
   await expect(page.locator('main#main')).not.toHaveAttribute('aria-busy', 'true');
   await expect(page.locator('html')).toHaveAttribute('lang', 'pt-PT');
-  await page.getByRole('button', { name: 'Continuar com Portugal' }).click();
+  await chooseCountry(page, { label: 'País', country: 'Portugal', confirm: 'Continuar com Portugal' });
   await expect(page.getByRole('heading', { level: 2, name: ptOnboarding.template.heading })).toBeVisible();
 }
 
