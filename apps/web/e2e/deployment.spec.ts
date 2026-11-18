@@ -1,9 +1,9 @@
-import { expect } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 import { test } from './support';
 
 // The lines of ADR-0045's preview checklist (Risks 1 and 2, the deviations) that only a deployment can
 // answer: Vercel's 404 and the clean-URL 308, the function seeing the requested path, the CDN bound on
-// the prices, what deployment protection does to the worker, and the preview's languages. Everything else on the checklist is
+// the prices, what deployment protection does to the worker, and the preview's languages with the device's default. Everything else on the checklist is
 // asserted by csp.spec.ts, pwa.spec.ts, site.spec.ts, prices.spec.ts and csp-report.spec.ts, which
 // run against the deployment in the same dispatch (the preview-checks job of
 // .github/workflows/lighthouse-vercel.yml). The local
@@ -54,6 +54,49 @@ test('Settings lists English and Português on the preview', async ({ page }) =>
   await expect(page.getByRole('option', { name: 'English' })).toHaveAttribute('lang', 'en');
   await expect(page.getByRole('option', { name: 'Português (Portugal)' })).toHaveAttribute('lang', 'pt-PT');
   await expect(page.getByRole('option')).toHaveCount(2);
+});
+
+// With nothing stored, the device's languages give the UI language among the offered ones, and the derived one is
+// never written (ADR-0023, Deviations of 2026-11-18): a preview offers pt-PT, so any Portuguese device opens it in
+// Portuguese.
+const storedLanguage = (page: Page) => page.evaluate(() => window.localStorage.getItem('poc.language'));
+
+test.describe('on a pt-PT device with nothing stored', () => {
+  test.use({ locale: 'pt-PT' });
+
+  test('the preview boots in pt-PT, stores nothing and Settings shows Português as the language', async ({ page }) => {
+    await page.goto('/settings');
+    await expect(page.locator('main#main')).not.toHaveAttribute('aria-busy', 'true');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'pt-PT');
+    await expect(page.getByRole('combobox', { name: 'Idioma', exact: true })).toContainText('Português (Portugal)');
+    expect(await storedLanguage(page)).toBeNull();
+  });
+});
+
+test.describe('on a pt-BR device with nothing stored', () => {
+  test.use({ locale: 'pt-BR' });
+
+  test('the preview boots in pt-PT', async ({ page }) => {
+    await page.goto('/settings');
+    await expect(page.locator('main#main')).not.toHaveAttribute('aria-busy', 'true');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'pt-PT');
+    expect(await storedLanguage(page)).toBeNull();
+  });
+});
+
+// docs/BUILD-PROMPT.md: a fallback is tested through every value the boot derives, the derived language too.
+test.describe("when the device's language cannot load its static namespaces", () => {
+  test.use({ locale: 'pt-PT', serviceWorkers: 'block' });
+
+  test('a pt-PT device boots the preview in English whole', async ({ page }) => {
+    await page.route('**/assets/messages/pt-PT/**', (route) => route.abort());
+    await page.goto('/settings');
+    await expect(page.locator('main#main')).not.toHaveAttribute('aria-busy', 'true');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+    await expect(page.getByRole('heading', { level: 1, name: 'Settings', exact: true })).toBeVisible();
+    await expect(page.getByRole('combobox', { name: 'Language', exact: true })).toContainText('English');
+    expect(await storedLanguage(page)).toBeNull();
+  });
 });
 
 test('the function sees the requested path on every /api route', async ({ request }) => {

@@ -75,6 +75,28 @@ test('boots in English when the stored language is not one the app has', async (
   await expect(screenArea(page)).not.toHaveText(BARE_KEY);
 });
 
+// With nothing stored, the device's languages give the UI language among the offered ones (ADR-0023, Deviations
+// of 2026-11-18). This build's flag is `visible`, as production's is: it offers English alone, so a Portuguese
+// device boots English, nothing is written and Settings has no picker. deployment.spec.ts holds the preview's case.
+test.describe('on a pt-PT device with nothing stored', () => {
+  test.use({ locale: 'pt-PT' });
+
+  test('boots English where only English is offered, stores nothing and shows no picker', async ({
+    page,
+  }, testInfo) => {
+    // biome-ignore lint/suspicious/noSkippedTests: a runtime skip on every project but desktop, not a disabled test
+    test.skip(testInfo.project.name !== 'desktop', 'the boot does not depend on the viewport');
+    await page.goto('/settings');
+    await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+    expect(await page.evaluate(() => navigator.languages[0])).toBe('pt-PT');
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Language', exact: true })).toHaveCount(0);
+    await expect(page.getByRole('combobox', { name: 'Language', exact: true })).toHaveCount(0);
+    expect(await page.evaluate((key) => window.localStorage.getItem(key), LANGUAGE_STORAGE_KEY)).toBeNull();
+  });
+});
+
 test.describe('when the stored language cannot load its static namespaces', () => {
   test.use({ serviceWorkers: 'block' });
 
