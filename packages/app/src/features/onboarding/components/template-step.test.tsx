@@ -402,4 +402,47 @@ describe('TemplateStep in pt-PT (ADR-0057)', () => {
     expect(text).toContain(`A Solana caiu ${percent('97')} do máximo`);
     expect(text).not.toMatch(/\d %/);
   });
+
+  // A failed pt-PT chunk answers each template's English texts marked `en` (`loadTemplateTexts`, as 'en' gives
+  // them); the screen's own fallback is an empty map, which leaves every card on the templates' English.
+  const fallbacks = [
+    ['the loader answers English', () => loadTemplateTexts('en')],
+    ['the screen falls back to no texts', async () => new Map()],
+  ] as const;
+  it.each(fallbacks)('marks the English name, risk label, line and explanation lang=en when %s', async (_, load) => {
+    const [texts, format] = await Promise.all([load(), portugal()]);
+    render(
+      <I18nProvider locale="pt-PT" messages={{ onboarding: portuguese, shell }}>
+        <TemplateStep
+          value={{ kind: 'template', id: 'cycle-plan' }}
+          format={format}
+          texts={texts}
+          onChoose={vi.fn()}
+          onBack={vi.fn()}
+        />
+      </I18nProvider>,
+    );
+    await act(() => fireEvent.click(screen.getByRole('button', { name: portuguese.template.about })));
+    const cycle = offered('cycle-plan');
+    const marked = [...document.querySelectorAll('[lang]')].map((element) => element.getAttribute('lang'));
+    expect(new Set(marked)).toEqual(new Set(['en']));
+    expect(screen.getByText(cycle.name).getAttribute('lang')).toBe('en');
+    expect(screen.getByText(cycle.riskLabel).getAttribute('lang')).toBe('en');
+    // The query normalizes the page's text, the dates' no-break spaces included, so the expected line is too.
+    const line = fillTemplateDates(cycle.oneLine, cycle.dates, format.date).replace(/\s+/g, ' ');
+    expect(screen.getByText(line).getAttribute('lang')).toBe('en');
+    const [first] = paragraphsOf(cycle.explanation);
+    const paragraph = [...document.querySelectorAll('p')].find((p) =>
+      p.textContent?.startsWith((first ?? '?').slice(0, 20)),
+    );
+    expect(paragraph?.getAttribute('lang')).toBe('en');
+    // The app's own lines on the card, the split and the band, keep the page's language.
+    expect(screen.getByText(portuguese.template.custom.title).closest('[lang]')).toBeNull();
+  });
+
+  it('gives the translated texts no lang', async () => {
+    await mountPortuguese({ kind: 'template', id: 'cycle-plan' });
+    await act(() => fireEvent.click(screen.getByRole('button', { name: portuguese.template.about })));
+    expect(document.querySelector('[lang]')).toBeNull();
+  });
 });

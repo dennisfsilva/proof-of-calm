@@ -1,4 +1,5 @@
 import {
+  contentLanguageOf,
   fillTemplateDates,
   formatPercentTokens,
   type OfferedTemplate,
@@ -13,6 +14,7 @@ import { RadioCard, RadioGroup } from '@proofofcalm/ui/components/radio-group';
 import { useId, useState } from 'react';
 import { useLocale, useTranslations } from 'use-intl';
 import type { Formatters } from '../../../lib/format';
+import { textLang } from '../../../lib/i18n';
 
 // The four starting points, alphabetical by the name shown in the UI locale's collation, never ranked by
 // risk (docs/LEGAL.md §3 item 3): each card leads with its risk label, then its one line, the split line built
@@ -88,10 +90,15 @@ const explanationText = (format: Formatters, template: OfferedTemplate, text: st
 
 export function TemplateStep({ value, format, texts, onChoose, onBack }: TemplateStepProps) {
   const t = useTranslations('onboarding');
-  const byName = new Intl.Collator(useLocale()).compare;
-  const templates = TEMPLATES.map((template) => ({ ...template, ...texts?.get(template.id) })).sort((a, b) =>
-    byName(a.name, b.name),
-  );
+  const locale = useLocale();
+  const byName = new Intl.Collator(locale).compare;
+  // Each card's `lang` is read from the texts its loader marked, before the spread drops the mark; a template with no
+  // texts shows its own English (ADR-0057, WCAG 2.2 SC 3.1.2).
+  const templates = TEMPLATES.map((template) => {
+    const shown = texts?.get(template.id);
+    const lang = textLang(shown === undefined ? 'en' : contentLanguageOf(shown), locale);
+    return { ...template, ...shown, lang };
+  }).sort((a, b) => byName(a.name, b.name));
   const lineId = useId();
   const [picked, setPicked] = useState<string | undefined>(radioOf(value));
   const explained = templates.find((template) => template.id === picked);
@@ -109,11 +116,11 @@ export function TemplateStep({ value, format, texts, onChoose, onBack }: Templat
           <RadioCard
             key={template.id}
             value={template.id}
-            badge={template.riskLabel}
-            title={template.name}
+            badge={<span lang={template.lang}>{template.riskLabel}</span>}
+            title={<span lang={template.lang}>{template.name}</span>}
             line={
               <>
-                {datedText(format, template, template.oneLine)}
+                <span lang={template.lang}>{datedText(format, template, template.oneLine)}</span>
                 <span className="block">{splitLine(format, template)}</span>
                 <span className="block">{t('template.band', bandOf(format, template))}</span>
               </>
@@ -128,7 +135,9 @@ export function TemplateStep({ value, format, texts, onChoose, onBack }: Templat
           <CollapsibleTrigger>{t('template.about')}</CollapsibleTrigger>
           <CollapsibleContent className="flex flex-col gap-stack-sm">
             {paragraphsOf(explained.explanation).map((paragraph) => (
-              <p key={paragraph}>{explanationText(format, explained, paragraph)}</p>
+              <p key={paragraph} lang={explained.lang}>
+                {explanationText(format, explained, paragraph)}
+              </p>
             ))}
           </CollapsibleContent>
         </Collapsible>
