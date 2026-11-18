@@ -334,8 +334,8 @@ fact to the window its URL names (the skill's §4 step 3).
    set `changedOn` and write `changeNotice` when a rule changed in substance; a bump that corrects our
    own file also writes a `changeNotice` that says so (`docs/JURISDICTIONS.md` §6). When `verify`
    fails on `pnpm test`, or an end-to-end spec fails in CI, because a test asserts a value the review
-   changed other than `reviewedBy` (named in the notes, or shown only by CI, as an app, web or
-   end-to-end test is), have every assertion that pins the old value removed in a session pull
+   changed other than `reviewedBy` (named in the notes, with those in the app, web and end-to-end
+   tests only CI runs, or shown only by CI), have every assertion that pins the old value removed in a session pull
    request to main first, not only the line a failure prints (Vitest prints a test's first failing
    assertion alone; the notes name each, a constant's line with every assertion that reads it),
    since one changed to the new value fails on main, where the data still holds the old one; push
@@ -382,4 +382,6 @@ fact to the window its URL names (the skill's §4 step 3).
    `UNREGAINED_KEYS`, which reads the old key through the entry only while it stays (its check
    names a key no `FALLS` literal holds); a changed publisher needs no such edit, since the test
    reads its Coinbase rows from `FALLS` and the entries; that makes it a tier 2 pull request with the content roles
-   (`.claude/rules/content.md`).
+   (`.claude/rules/content.md`). It writes back, at the new value, each assertion the session pull
+   request of step 4 removed, an app's, web's or end-to-end test's too, and writes the new value
+   into each passing test the review's notes name for the log pull request.
