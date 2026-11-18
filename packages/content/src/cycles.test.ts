@@ -1,4 +1,5 @@
 import { readdirSync, readFileSync } from 'node:fs';
+import { isDeepStrictEqual } from 'node:util';
 import { describe, expect, it } from 'vitest';
 import cycles from '../cycles/drawdowns.json' with { type: 'json' };
 import facts from '../facts/education.json' with { type: 'json' };
@@ -71,16 +72,27 @@ const keyOf = ({ row: [coin, high] }: Fall) => `${coin} ${high}`;
 /** FALLS with each pending entry's `now` in its literal's place where the file's row and its fact's clause read `now`. */
 function heldFalls(
   falls: readonly Fall[],
-  _drawdowns: readonly Drawdown[],
-  _factValue: Read,
-  _pending: ReadonlyMap<string, Fall>,
+  drawdowns: readonly Drawdown[],
+  factValue: Read,
+  pending: ReadonlyMap<string, Fall>,
 ): Fall[] {
-  return [...falls];
+  const starts = clauseStarts([...falls, ...pending.values()]);
+  return falls.map((literal, index) => {
+    const now = pending.get(keyOf(literal));
+    const { coin, high, publisher } = drawdowns[index] ?? {};
+    if (now === undefined || !isDeepStrictEqual([coin, high, publisher], now.row)) return literal;
+    return figureIn(now.fact).test(clauseOf(factValue(now.fact[0]), now.fact[1], starts)) ? now : literal;
+  });
 }
 
 /** The keys of `pending` that name no literal of `falls`, or whose entry its literal already reads. */
-function staleFalls(_falls: readonly Fall[], _pending: ReadonlyMap<string, Fall>): string[] {
-  return [];
+function staleFalls(falls: readonly Fall[], pending: ReadonlyMap<string, Fall>): string[] {
+  return [...pending]
+    .filter(([key, now]) => {
+      const literal = falls.find((each) => keyOf(each) === key);
+      return literal === undefined || isDeepStrictEqual(literal, now);
+    })
+    .map(([key]) => key);
 }
 
 /** Each row of `drawdowns` is the fall at its index: the same row, and its fact's clause reads its figure and dates. */
