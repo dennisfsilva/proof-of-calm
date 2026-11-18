@@ -341,12 +341,11 @@ external links and the Risk link in the mobile export (M3).
   (`365 days`, `365 dias`) and a source title's law number, which the joins rule never covered; those
   joins, the figure wording, the review-content route's remaining gaps and pt-PT's form name move to
   #368, which comes before #271. On 2026-11-18, #368 merged the figure wording and the frozen pt-PT
-  rows (#371), the unit, citation, suffix and source-title joins in every profile and pt-PT overlay,
-  with the evaluator's 14 of 14 on Portugal's card in both languages (#372), and the review-content
-  skill's search and route gaps, after its eighth and ninth dry rehearsals (#373). A Learn module's
-  count joined to its noun, the source titles in de, es, fr, it and nl, the figure details' other
-  quoting paths, the unregained ending in the skill's note format, two stale lines after a move to
-  Bitstamp and an expression placeholder in the test search move to #370, which comes before #271.
+  rows (#371). It joined units, citations, suffixes and source titles in every profile and pt-PT
+  overlay (#372); the evaluator passed Portugal's card 14 of 14 in both languages. It closed the
+  review-content skill's search and route gaps after two dry rehearsals (#373). Twelve items move to
+  #370, which comes before #271: among them a Learn module's count joined to its noun and the source
+  titles in de, es, fr, it and nl; the rest are check details and the skill's words.
   With #340, #343, #349, #355, #358, #361, #368 and #370, pt-PT takes 17 build sessions more than
   #269 planned before German starts. A render-and-axe-only pt-PT
   story run waits for #271, once every namespace is translated. CSV import, free (ADR-0039), for the
