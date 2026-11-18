@@ -190,4 +190,13 @@ describe('turbo inputs', () => {
     expect(first.environmentVariables.specified.env).toContain('SITE_TODAY');
     expect(first.hash).not.toBe(second.hash);
   }, 60_000);
+
+  // The hosts' factory lists the preview languages from VERCEL_ENV (ADR-0023, Deviations of 2026-11-18): it must
+  // reach the build, and a production and a preview build must not share a cache entry.
+  it('pass VERCEL_ENV to the web build and key its cache on it', () => {
+    const production = plan('@proofofcalm/web', 'build', { VERCEL_ENV: 'production' });
+    const preview = plan('@proofofcalm/web', 'build', { VERCEL_ENV: 'preview' });
+    expect(production.environmentVariables.specified.env).toContain('VERCEL_ENV');
+    expect(production.hash).not.toBe(preview.hash);
+  }, 60_000);
 });
