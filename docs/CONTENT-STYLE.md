@@ -450,11 +450,11 @@ In a Learn module, B's count joins its noun with U+00A0 (`had 4 falls`, `teve 4
 own styles at 161 widths from 240 to 400 px in Chromium and WebKit. With U+0020, `had 4` split from
 `falls` at 34 widths at 125 % zoom and none at 100 %, and `teve 4` split from `quedas` at 7 widths at
 100 % and 68 at 125 % zoom. With U+00A0 nothing split (comment 6971015219 on #370, decided
-2026-11-18). B reads a gap there of JS white space (`\s`) or format characters (`\p{Cf}`), and
-`pnpm validate:content` refuses any such gap but one U+00A0 (`figure-join`, R6). A hidden character
-there that the page drops is refused earlier, by R5's hidden-character rule. Anything else between
-the count and its noun matches neither shape (R5), and that detail names it by code point. The
-probe's census of the modules also found 16 other counts that can end a line apart from their noun
+2026-11-18). The page drops a default-ignorable code point between the count and its noun, and R5's
+hidden-character rule refuses the paragraph first. B reads a gap there made of JS white space (`\s`)
+or format characters (`\p{Cf}`). `pnpm validate:content` refuses a sentence that matches B with any
+such gap other than one U+00A0 (`figure-join`, R6). Any other character the page keeps between the
+count and its noun makes the sentence match neither shape (`figure-chart`, R5). The probe's census of the modules also found 16 other counts that can end a line apart from their noun
 (`6 inputs`, `95 países`). They are not joined or checked yet.
 
 U+00A0 joins a figure to its unit, a name to its number, an ordinal to its noun, B's count to its
@@ -578,12 +578,13 @@ gets one `figure-unstated` when no sentence there states one of its rows. A sent
 
 R6: B counts C's falls of more than `N`, strictly, whose high is in the first `Y` or later and whose low is in the last
 `Y` or earlier. There are `K` of them and at least one, the first high is in the first `Y`, and the last low is in the
-last `Y` (`figure-chart`). B reads a gap between `K` and its noun of JS white space (`\s`) or format characters
-(`\p{Cf}`), a source line break as one space, and refuses any gap but one U+00A0 (`figure-join`). The detail names
-the gap by its code points; the fix is one U+00A0 in its place (decided 2026-11-18). A hidden character the page
-drops (a default-ignorable code point) is refused earlier, by R5's hidden-character rule (`figure-chart`), and B
-never reads it. Anything else between `K` and its noun matches neither shape (R5, `figure-chart`), and that detail
-names it by code point. A detail's quote shows that U+00A0 as written, as it shows a joiner before `%`.
+last `Y` (`figure-chart`). The page drops a default-ignorable code point between `K` and its noun, and R5's
+hidden-character rule refuses the paragraph first (`figure-chart`). B reads the sentence as `paragraphsOf` gives it,
+each run of `[ \t\n\r\f]` as one U+0020. Between `K` and its noun, B reads a gap of JS white space (`\s`) or format
+characters (`\p{Cf}`). A sentence that matches B with any such gap other than one U+00A0 fails (`figure-join`). The
+detail names the gap as B reads it, by its code points, so a tab there is U+0020; the fix is one U+00A0 in its place
+(decided 2026-11-18). Any other character the page keeps between `K` and its noun makes the sentence match neither
+shape (R5, `figure-chart`). A detail's quote shows that U+00A0 as written, as it shows a joiner before `%`.
 
 Each detail quotes the sentence and names its own figure and rule, never a row or a count to copy (decided
 2026-11-17). In a translation the section is closed: each sentence and heading there is its language's B or E (§9) or
