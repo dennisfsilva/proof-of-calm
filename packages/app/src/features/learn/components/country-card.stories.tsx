@@ -33,7 +33,7 @@ type Story = StoryObj<typeof meta>;
 export const Portugal: Story = {
   play: async ({ canvas }) => {
     await expect(canvas.getByRole('heading', { level: 1, name: 'Portugal' })).toBeVisible();
-    await expect(canvas.getByText(PORTUGAL.card.summary60)).toBeVisible();
+    await expect(canvas.getByText(PORTUGAL.card.summary60.replace(/\s+/g, ' '))).toBeVisible();
     const links = canvas.getAllByRole('link', { name: SOURCES });
     await expect(links).toHaveLength(5);
     // Each Sources link stands on a line of its own, so it takes the 44 px target (docs/DESIGN.md §6).
