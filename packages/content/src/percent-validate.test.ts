@@ -31,7 +31,7 @@ describe('a profile’s money figures group as its comma-decimal page does (docs
     `card.rates.1.note: ${typed(figure)} expected ${typed(expected)} (${locale})`;
   // S3 of #318's design check (D10 of #316): a figure without one value under both readers, English's (a point before
   // the decimals) and the page's (a comma), gets §4's rule and no suggestion.
-  const RULE = String.raw`so it has no suggestion. Write it by hand as CONTENT-STYLE §4 does: groups of three joined by U+00A0 from 10 000, none below, and a comma before the decimals. An amount of 1 to 999 with three decimals takes a fourth (EUR 1,1250)`;
+  const RULE = String.raw`so it has no suggestion. Write it by hand as CONTENT-STYLE §4 does: from 10 000 up, groups of three joined by U+00A0; none below; a comma before the decimals. An amount of 1 to 999 with three decimals takes a fourth (EUR 1,1250)`;
   const WHY = {
     comma: 'has a comma that is a group in English and a decimal on this page',
     point: 'has a point that is a decimal in English and a group on this page',
@@ -45,7 +45,7 @@ describe('a profile’s money figures group as its comma-decimal page does (docs
   it('refuses another grouping of a figure after a currency on a de-DE page', () => {
     // The figures print a no-break space by its code point (printedText), so it never looks like the refused one.
     expect(german('Where the income tax exceeds EUR 20,350.')).toEqual([
-      String.raw`card.rates.1.note: "EUR 20,350" has a comma that is a group in English and a decimal on this page (de-DE), so it has no suggestion. Write it by hand as CONTENT-STYLE §4 does: groups of three joined by U+00A0 from 10 000, none below, and a comma before the decimals. An amount of 1 to 999 with three decimals takes a fourth (EUR 1,1250)`,
+      String.raw`card.rates.1.note: "EUR 20,350" has a comma that is a group in English and a decimal on this page (de-DE), so it has no suggestion. Write it by hand as CONTENT-STYLE §4 does: from 10 000 up, groups of three joined by U+00A0; none below; a comma before the decimals. An amount of 1 to 999 with three decimals takes a fourth (EUR 1,1250)`,
     ]);
     expect(german('Where the income tax exceeds EUR 20 350.')).toEqual([
       String.raw`card.rates.1.note: "EUR 20 350" expected "EUR 20U+00A0 350" (de-DE)`,
@@ -64,7 +64,7 @@ describe('a profile’s money figures group as its comma-decimal page does (docs
     ];
     for (const figure of flagged) expect(german(`Up to ${figure} a year.`)).toHaveLength(1);
     expect(german('EUR 1.000 and €20 350')).toEqual([
-      String.raw`card.rates.1.note: "EUR 1.000" has a point that is a decimal in English and a group on this page (de-DE), so it has no suggestion. Write it by hand as CONTENT-STYLE §4 does: groups of three joined by U+00A0 from 10 000, none below, and a comma before the decimals. An amount of 1 to 999 with three decimals takes a fourth (EUR 1,1250)`,
+      String.raw`card.rates.1.note: "EUR 1.000" has a point that is a decimal in English and a group on this page (de-DE), so it has no suggestion. Write it by hand as CONTENT-STYLE §4 does: from 10 000 up, groups of three joined by U+00A0; none below; a comma before the decimals. An amount of 1 to 999 with three decimals takes a fourth (EUR 1,1250)`,
       String.raw`card.rates.1.note: "€20 350" expected "€20U+00A0 350" (de-DE)`,
     ]);
   });
@@ -75,7 +75,7 @@ describe('a profile’s money figures group as its comma-decimal page does (docs
     const details = german('EUR 20,350, EUR 1.000, 20,350 euros and EUR 0,125–1,125.');
     expect(details).toHaveLength(4);
     for (const detail of details) {
-      expect(detail).toContain('groups of three joined by U+00A0 from 10 000, none below');
+      expect(detail).toContain('from 10 000 up, groups of three joined by U+00A0; none below');
       expect(detail).not.toContain(String.fromCodePoint(0x5c));
     }
   });
