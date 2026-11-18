@@ -143,10 +143,16 @@ Arguments: $ARGUMENTS
   1's search, and list the file and line of every assertion that pins a replaced value: each
   failing test the run prints, the `agent-draft` checks and the content gates excepted. A content
   gate is a test that runs a check on the real files and expects `[]` or `null`: it fails on any
-  refusal of that check and pins no value (§7 step 1's sentences on the content test). Add each
-  pinning assertion the search finds. For a BTC row they include the `FALLS` row's tie and the Cycles module's pins in
-  `packages/content/src/cycles.test.ts`, the rows in `packages/content/src/loaders/templates.test.ts`,
-  and the EDUCATION §9 tie in `packages/content/src/facts.test.ts`; the owner changes each with
+  refusal of that check and pins no value (§7 step 1's sentences on the content test). The
+  EDUCATION §9 tie (`packages/content/src/facts.test.ts`, "each fact's value reads the same in its
+  EDUCATION §9 row") expects `[]` but pins each fact's value through its row: list it when it
+  fails. A test that runs a check on a copy of the real files with a body or file of its own
+  (`packages/content/scripts/validate.test.ts` tests 2 to 4: a chart row it moves, module bodies it
+  writes) is no content gate, even where it expects `[]`: name each line of it that holds a
+  replaced value. Add each pinning assertion the search finds. For a row of any coin they include
+  the `FALLS` row's tie in `packages/content/src/cycles.test.ts`, the rows in
+  `packages/content/src/loaders/templates.test.ts`, and the EDUCATION §9 tie, through fact a's or
+  b's clause; for a BTC row, the Cycles module's pins in `packages/content/src/cycles.test.ts` too; the owner changes each with
   the data in that pull request. Any other chart row's change takes
   `chart row for the owner: <coin>, high <high>, low <low>, fall <fall> %, <source> <lowSource>`,
   the values its sources give (`<coin>` the row's ticker, `SOL`; the `lowSource` only when the row
@@ -518,8 +524,9 @@ The finish refuses a changed entry at any other value.
    on `pnpm validate:content` and `pnpm test` until that figure is fixed (the finish does not run the check, CI
    does).
    The content test runs the same checks on the real files in its content gates, tests that expect
-   `[]` or `null` (`packages/content/scripts/validate.test.ts`, `packages/content/scripts/closed-body.test.ts`
-   on the translated modules, and others under `packages/content/src`), so it fails on
+   `[]` or `null` (`packages/content/scripts/validate.test.ts` test 1, `packages/content/scripts/closed-body.test.ts`
+   on the translated modules, and others under `packages/content/src`; §1 names the tests that
+   expect `[]` and still pin a value), so it fails on
    every refusal of `pnpm run validate:content`, `overlay-number-mismatch` included: fix or revert
    as that refusal's rule says; the rule for tests above covers only a test that asserts what your
    change replaced. `rules` reports the files it wrote,
