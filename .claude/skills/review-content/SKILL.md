@@ -304,7 +304,8 @@ For each profile in `packages/content/jurisdictions/`:
      (15 Dec 2018), −84.1 %` that is `3[ ,.  ]?122|84[.,]1|\b15\b\D{1,20}\b2018\b`,
      which finds `$3,122`, `3122 USD`, `−84,1 %` and `15 de dezembro de 2018`. Read each hit:
      change an English hit's figure as a module sentence, and treat a hit in a translated module
-     as §1's translated-module case.
+     as §1's translated-module case. A hit that holds a figure or date other than the clause's is
+     no quote of it (LINK's `\b10\b\D{1,20}\b2021\b` also finds BTC's `10 Nov 2021`): leave it.
    - Set a fact's or a `drawdowns` row's `accessed` to the day you read its sources only when the
      file's `reviewed` row will show every source read (`read` equals `of`). After a partial
      review leave it as it was, changed row or not, and give the day as the `changes` row's
@@ -382,20 +383,26 @@ The finish refuses a changed entry at any other value.
    other than `reviewedBy` held, a module sentence it pins, or a figure it derives from a value you
    changed) is not yours to satisfy: revert nothing for it. Find every assertion that pins the old
    value, not only the line its failure prints: Vitest prints a test's first failing assertion
-   alone, so an owner who removes that line meets the next. Grep with `path` `packages/content`,
-   `glob` `**/*.test.ts`, `output_mode` `content` and one pattern that joins with `|` each old
+   alone, so an owner who removes that line meets the next. Grep with `path` `.`,
+   `glob` `**/*.{test,spec}.{ts,tsx}`, `output_mode` `content` and one pattern that joins with `|` each old
    value as the data file writes it, each old date by its day and year,
    `\b<day>\b\D{1,20}\b<year>\b`, and each old figure's digits, with `[ ,.  ]?` between digit
    groups and `[.,]` as the decimal point; for ETH's low moved off `2022-06-18` and its clause off
    `$880` and `−81.9 %` that is `2022-06-18|\b18\b\D{1,20}\b2022\b|880|81[.,]9`. Read each hit in
    a test that failed: it pins the value when an assertion reads it, directly or through a constant
    it defines (in `packages/content/src/loaders/templates.test.ts` a row's `const` and each
-   `expect` that reads it); a hit in a test that passed is a fixture of its own, and a `FALLS`
-   literal or a key of `UNREGAINED_KEYS` takes the note below. Name each such assertion's file and line and both values
-   in the draft's notes and your closing report, and say in
-   both that `verify` fails on `pnpm test` until the owner removes those assertions in a pull request
-   of its own (`docs/ENGINEERING.md` §2): one changed to your new value would fail on main, where
-   the data still holds the old one. In `packages/content/src/cycles.test.ts`, a chart row's change
+   `expect` that reads it). A hit outside `packages/content` is in a test only CI runs (an app,
+   web or end-to-end test, such as `apps/web/src/site/legal.test.ts`): read it the same way, and
+   name each assertion that reads the old value as one only CI runs. A hit in a content test that
+   passed is a fixture of its own, unless the test reads a live data file and names the old value
+   (`packages/content/src/fact-windows.test.ts` names fact b's old low in its window): name that
+   line and both values in the notes for the log pull request, which writes the new value there.
+   A `FALLS` literal or a key of `UNREGAINED_KEYS` takes the note below. Name each pinning
+   assertion's file and line and both values in the draft's notes and your closing report, and say in
+   both that `verify` fails on `pnpm test` until the owner removes those assertions, the ones only CI
+   runs too, in a pull request of its own (`docs/ENGINEERING.md` §2): one changed to your new value
+   would fail on main, where the data still holds the old one; the log pull request writes each
+   back at your new value (`docs/CONTENT-OPS.md` §8 step 5). In `packages/content/src/cycles.test.ts`, a chart row's change
    meets its tie to fact a's or b's clause (§4 step 1). A literal of its `FALLS` table that your
    change replaced (a clause's one-decimal fall, a row's high or publisher) takes no such removal:
    copy the literal as the test writes it and write the note
