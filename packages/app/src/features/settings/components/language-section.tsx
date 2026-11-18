@@ -12,7 +12,8 @@ import { isUiLanguage, LANGUAGE_NAMES, type UiLanguage, useOfferedLanguages, wri
 
 // Settings → Language (ADR-0023, Deviations of 2026-11-18): the languages the build offers, each named in itself
 // with its `lang`, shown only when there are two (a preview deployment of the web host). A choice stores the device
-// preference and reloads the page, so every namespace on screen comes back in one language.
+// preference and reloads the page, so every namespace on screen comes back in one language. The line that says so
+// leads, before the select it describes (docs/CONTENT-STYLE.md §3, Settings tabs).
 
 export type LanguageSectionProps = {
   /** The page reload after the choice is stored; a story or test passes a spy. */
@@ -24,6 +25,7 @@ export function LanguageSection({ reload = () => location.reload() }: LanguageSe
   const offered = useOfferedLanguages();
   const current = useLocale();
   const headingId = useId();
+  const lineId = useId();
   if (offered.length < 2) return null;
   const choose = (value: UiLanguage | null) => {
     if (value === null || value === current) return;
@@ -35,9 +37,12 @@ export function LanguageSection({ reload = () => location.reload() }: LanguageSe
       <h2 id={headingId} className="font-semibold text-20 text-ink">
         {t('heading')}
       </h2>
+      <p id={lineId} className="text-13 text-ink-2">
+        {t('reloads')}
+      </p>
       <Select<UiLanguage> value={isUiLanguage(current) ? current : 'en'} onValueChange={choose}>
         <SelectLabel>{t('label')}</SelectLabel>
-        <SelectTrigger>
+        <SelectTrigger aria-describedby={lineId}>
           <SelectValue>{(value: UiLanguage) => <span lang={value}>{LANGUAGE_NAMES[value]}</span>}</SelectValue>
         </SelectTrigger>
         <SelectContent>
@@ -48,7 +53,6 @@ export function LanguageSection({ reload = () => location.reload() }: LanguageSe
           ))}
         </SelectContent>
       </Select>
-      <p className="text-13 text-ink-2">{t('reloads')}</p>
     </section>
   );
 }

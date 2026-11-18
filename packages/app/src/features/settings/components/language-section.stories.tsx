@@ -43,7 +43,7 @@ export const Offered: Story = {};
 export const ChoosesPortuguese: Story = {
   play: async ({ args, canvas, canvasElement }) => {
     // Base UI names the select a render after it shows; a click before that can land on a select still settling.
-    await userEvent.click(await canvas.findByRole('combobox', { name: 'Language of the app' }));
+    await userEvent.click(await canvas.findByRole('combobox', { name: 'Language' }));
     const popup = within(canvasElement.ownerDocument.body);
     const options = await popup.findAllByRole('option');
     await expect(options.map((option) => option.getAttribute('lang'))).toEqual(['en', 'pt-PT']);

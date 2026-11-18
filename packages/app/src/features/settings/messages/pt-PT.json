@@ -294,8 +294,8 @@
   },
   "language": {
     "heading": "Idioma",
-    "label": "Idioma da aplicação",
-    "reloads": "A aplicação recarrega no idioma escolhido."
+    "label": "Idioma",
+    "reloads": "A aplicação volta a abrir no idioma escolhido."
   },
   "about": {
     "heading": "Sobre",
