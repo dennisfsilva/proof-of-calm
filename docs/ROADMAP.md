@@ -357,15 +357,15 @@ external links and the Risk link in the mobile export (M3).
   fix/module-count-join and fix/printed-details each wait with one confirmed finding after two
   review rounds. Five items move to #381, which comes before #271. On 2026-11-18, #381 merged four
   changes. B's count is joined to its noun, and the check reads a control character in that gap as
-  the joins do (#383). Every content-check detail but R7's quoted noun prints the file text it
-  quotes by code point (#384). The es, fr and it source titles are read with their own lists, nl
-  titles with the code and form joins only, and 20 titles are joined (#385). R7 checks that a Learn
-  module's count before a listed noun is joined to it, and 28 counts are joined (#386). R7's detail
-  prints each run of white space inside its quoted noun as one space. An agent compared each
-  image before 10 English baselines were updated. fix/review-note-forms waits with one
-  confirmed finding after two review rounds. Five items move to #387, which comes before #271. On
-  2026-11-18, #387 merged only its docs sync. fix/review-note-forms waits after two review rounds.
-  Each round found one more test that pins a chart row: first
+  the joins do (#383). Every content-check detail prints the file text it quotes by code point
+  (#384). The es, fr and it source titles are read with their own lists, nl titles with the code
+  and form joins only, and 20 titles are joined (#385). R7 checks that a Learn module's count
+  before a listed noun is joined to it, and 28 counts are joined (#386). R7's detail is the
+  exception: it prints each run of white space inside its quoted noun as one space. An agent
+  compared each image before 10 English baselines were updated. fix/review-note-forms waits with
+  one confirmed finding after two review rounds. Five items move to #387, which comes before #271.
+  On 2026-11-18, #387 merged only its docs sync. fix/review-note-forms waits after two more review
+  rounds. Each round found one more test that pins a chart row: first
   `packages/app/src/lib/services/red-day.test.ts`, then
   `packages/content/src/template-figures.test.ts` with
   `packages/app/src/features/onboarding/components/template-step.test.tsx`, both through the
@@ -374,9 +374,10 @@ external links and the Risk link in the mobile export (M3).
   a letter at an edge. #388 carries both branches, then the review skill's older gaps, and comes
   before #271. fix/review-note-forms takes an unanchored design check first. fix/r7-hidden-break
   first lists every place a dropped character can sit against every general category, each tested
-  against main's verdict, and takes a design check only if that list leaves a doubt. The in-app Learn hash-link scroll was dropped on
-  2026-11-18. Nothing writes a `learn/<slug>#` URL. The app's section links open the sheet and
-  focus the section. The site pages' anchors land.
+  against main's verdict, and takes a design check only if that list leaves a doubt. #387 dropped
+  the in-app Learn hash-link scroll on 2026-11-18. Nothing writes a `learn/<slug>#` URL. The app's
+  section links open the sheet and focus the section. A link to a site page's anchor scrolls to
+  that section.
   With #340, #343, #349, #355, #358, #361, #368, #370, #377, #381, #387 and #388, pt-PT takes 21
   build sessions more than #269 planned before German starts. A render-and-axe-only pt-PT
   story run waits for #271, once every namespace is translated. CSV import, free (ADR-0039), for the

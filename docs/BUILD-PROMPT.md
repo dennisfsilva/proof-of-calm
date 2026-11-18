@@ -743,16 +743,17 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   rows: in #381's round 2 it was `templates.test.ts` and the Cycles module's pins, the widened
   sentence of the lesson above. Then, twice, a test it did not name pinned a row: in #387's round 1
   it was `red-day.test.ts`, through `pastFalls`, and in #387's round 2 `template-figures.test.ts`
-  and `template-step.test.tsx`, through the templates' explanation sentences. A skill describes
-  the search its agent runs, every form the value is written in and every place a copy of it
-  lives, and gives a list only as examples (#388, 2026-11-18).
+  and `template-step.test.tsx`, through the templates' explanation sentences. Make a skill
+  describe the search its agent runs, every form the value is written in, and every place a copy
+  of it lives. Give a list only as examples (#388, 2026-11-18).
 - A check that matches on a transformed text judges every part of its pattern against the text as
-  written: the gap, both word edges, and each class of character the transform drops. R7's
-  reader's view on fix/r7-hidden-break lost a pair main reports three times. Before review it was
-  a soft hyphen inside a noun. In round 1 it was a zero-width space at a word edge in the front
+  written: the gap, both word edges, and each class of character the transform drops. Three times
+  on fix/r7-hidden-break, R7's view of the text missed a pair that main reports. Before review it
+  was a soft hyphen inside a noun. In round 1 it was a zero-width space at a word edge in the front
   matter. In round 2 it was a default-ignorable that is itself a mark or a letter, such as U+FE0F,
-  at an edge. Before the build, list where a dropped character can sit (before, inside, between,
-  after) and of which general category, and test each against the old verdict (#388, 2026-11-18).
+  at an edge. Before the build, list each place a dropped character can sit (before, inside,
+  between, after) and each general category it can have, and test each against the old verdict
+  (#388, 2026-11-18).
 
 ## Known gaps
 
