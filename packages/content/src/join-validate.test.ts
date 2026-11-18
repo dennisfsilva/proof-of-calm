@@ -111,19 +111,19 @@ describe('a currency code or a form name joined to its figure (docs/CONTENT-STYL
     const mixed = (pair: string, figure: string, gap: string) =>
       `card.caveats.0: ${pair} ${figure} are joined by ${gap}, not U+00A0 (docs/CONTENT-STYLE.md §4)`;
     const code = '"EUR" and its figure';
-    expect(joins('Up to EUR  20 a year.')).toEqual([mixed(code, '"20"', 'U+00A0 U+0020')]);
-    expect(joins('Up to EUR  20 a year.')).toEqual([mixed(code, '"20"', 'U+0020 U+00A0')]);
-    expect(joins('Up to 20  EUR a year.')).toEqual([mixed(code, '"20"', 'U+00A0 U+0020')]);
-    expect(joins('Declare it on Modelo  721.')).toEqual([
+    expect(joins('Up to EUR\u00a0\u002020 a year.')).toEqual([mixed(code, '"20"', 'U+00A0 U+0020')]);
+    expect(joins('Up to EUR\u0020\u00a020 a year.')).toEqual([mixed(code, '"20"', 'U+0020 U+00A0')]);
+    expect(joins('Up to 20\u00a0\u0020EUR a year.')).toEqual([mixed(code, '"20"', 'U+00A0 U+0020')]);
+    expect(joins('Declare it on Modelo\u0020\u00a0721.')).toEqual([
       mixed('the name "Modelo" and its number', '"721"', 'U+0020 U+00A0'),
     ]);
-    expect(joins('Held for 365  days.')).toEqual([
+    expect(joins('Held for 365\u00a0\u0020days.')).toEqual([
       mixed('the figure "365" and its unit', '"days"', 'U+00A0 U+0020'),
     ]);
   });
 
   it('reads a format or control character in the gap as part of it, and a lone U+00A0 as no gap', () => {
-    const gaps = ['⁠', '؀', '\u0085', '\u0007', '⁠ '];
+    const gaps = ['\u2060', '\u0600', '\u0085', '\u0007', '\u2060\u0020'];
     expect(gaps.flatMap((gap) => joins(`Up to EUR${gap}20 a year.`))).toEqual([
       refusedBy('U+2060'),
       refusedBy('U+0600'),
@@ -132,7 +132,7 @@ describe('a currency code or a form name joined to its figure (docs/CONTENT-STYL
       refusedBy('U+2060 U+0020'),
     ]);
     // The joined `EUR 100` is no match, so the `100 USD` after it is still read.
-    expect(joins('Swap EUR 100 USD.')).toEqual([refused('"USD" and its figure', '"100"')]);
+    expect(joins('Swap EUR\u00a0100 USD.')).toEqual([refused('"USD" and its figure', '"100"')]);
   });
 
   it('skips the file-only lotRuleNote, as the no-break hyphen does: a file does not wrap', () => {
