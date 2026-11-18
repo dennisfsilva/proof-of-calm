@@ -411,7 +411,8 @@ since Chromium and WebKit both break a line after either sign. A hyphen beside a
 that a hyphen-minus between digits never breaks). A point after a letter ends an abbreviation, so
 a dash or hyphen between the figures after it takes the joiner as well (`s.104-105`,
 `Rev.Proc.2025-32`, decided 2026-11-18). A hyphen-minus inside a law number takes the joiner too
-(`Lei 24-⁠D/2022`, `9-⁠bis`), or the text writes U+2011 there (`9‑bis`). The hyphen before a
+(`Lei 24-⁠D/2022`, `9-⁠bis`), or, outside a source's title, the text writes U+2011 there
+(`9‑bis`). The hyphen before a
 Latin ordinal suffix after a number or a single letter takes the same, with or without a law name
 before it (`Form 3916‑bis`, `lett. c‑sexies`); the suffixes are a closed list, `bis`, `ter`,
 `quater`, `quinquies`, `sexies`, `septies`, `octies`, `novies` and `decies` (decided 2026-11-18).
@@ -433,7 +434,8 @@ no joiner between its brackets (`citation-join`).
 
 U+00A0 joins a figure to its unit, a name to its number, an ordinal to its noun and a date's parts;
 U+2060 goes only after a dash or a hyphen and between a citation's brackets; U+2011 replaces the
-hyphen inside a law number in text a screen shows (`9‑bis`). U+202F is never typed
+hyphen inside a law number in text a screen shows, except in a source's title (below):
+`9‑bis`. U+202F is never typed
 by hand: it is the percent sign's joiner in a locale that has one (the percent paragraphs below).
 
 The names are a closed list per language in `packages/content/src/join-validate.ts`, taken from
@@ -446,13 +448,13 @@ as in the percent and grouping checks (decided 2026-11-18). `pnpm validate:conte
 on each side of a URL on its own, so it reads no join across it.
 
 A source's title is read for joins in its own language, from its `lang`: `en` as English, `pt` as
-pt-PT, any other language unchecked until it has its lists. Its words stay as published, so the ban
-list and `number-unit-hyphen` stay off it, and a translation cannot change it (#368, decided
-2026-11-18). The joins check reads the whole title, its hyphen rules included (`range-join` after a
-hyphen-minus in a law number or before a Latin ordinal suffix). A title in any language never holds
-U+2011: it keeps the published U+002D, with U+2060 after it inside a law number, and
-`pnpm validate:content` refuses U+2011 in any title (`range-join`, decided 2026-11-18). A pending
-change's source is not shown and stays unchecked.
+pt-PT, any other language unchecked for joins until it has its lists, though U+2011 is refused in
+every title. Its words stay as published, so the ban list and `number-unit-hyphen` stay off it,
+and a translation cannot change it (#368, decided 2026-11-18). The joins check reads the whole
+title, its hyphen rules included (`range-join` refuses a hyphen-minus with no U+2060 after it in a
+law number or before a Latin ordinal suffix). `pnpm validate:content` refuses U+2011 in any
+title, which keeps the published U+002D, with U+2060 after it inside a law number (`range-join`,
+decided 2026-11-18). A pending change's source is not shown and stays unchecked.
 
 `pnpm validate:content` refuses other grouping beside a currency code (`number-group`). It reads
 each figure as English does (a comma or a space between groups, a point before the decimals) and
