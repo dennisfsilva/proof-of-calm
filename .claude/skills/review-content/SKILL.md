@@ -425,7 +425,12 @@ The finish refuses a changed entry at any other value.
    `source` and, when one request cannot hold both ends, a `lowSource`, each one request of fewer
    than 300 daily candles holding its date. A coin of `UNREGAINED_KEYS` keeps its series, since no
    such request runs from its low to the day you read it: leave the row and write
-   `chart row for the owner: …`. For the tie
+   `chart row for the owner: …`. When a row moves to a publisher fact b's opening does not name
+   (`b.alt-drawdowns`, `(Coinbase Exchange and CoinMarketCap …)`), add it there in the order the
+   clauses first name each publisher, with a serial comma from three on
+   (`Coinbase Exchange, Bitstamp, and CoinMarketCap`), and remove a publisher no clause names any
+   more; the log pull request writes the same opening into its §9 row (`docs/CONTENT-OPS.md` §8
+   step 5). For the tie
    of a fact's value to its `docs/EDUCATION.md` §9 row (`packages/content/src/facts.test.ts`), say
    instead that the owner's pull request to main records the fact's old and new value as an
    `unlogged` entry in that test and keeps the tie, and that the owner removes that entry in a pull request to main when this
