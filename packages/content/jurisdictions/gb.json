@@ -89,8 +89,8 @@
       "Annual exempt amount £3,000 for individuals in the 2024 to 2025, 2025 to 2026, and 2026 to 2027 tax years; tax is due only on gains above it."
     ],
     "holdingRuleText": "No holding exemption: every sale is a taxable event.",
-    "lotRuleText": "Tokens of one type form one pool with one allowable cost (section\u00a0104 pool, TCGA\u00a01992 s.\u00a0104). The same-day rule (s.\u00a0105) applies first; tokens acquired within 30 days after a disposal are matched to it, earliest disposal first (s.\u00a0106A).",
-    "losses": "Claimed on the tax return, up to 4 years after the end of the tax year of the disposal; deducted from the same year's gains, the rest carried forward. A negligible value claim for worthless tokens covers the whole section\u00a0104 pool.",
+    "lotRuleText": "Tokens of one type form one pool with one allowable cost (section\u00a0104 pool, TCGA\u00a01992 s.\u00a0104). The same-day rule (s.\u00a0105) applies first; tokens acquired within 30\u00a0days after a disposal are matched to it, earliest disposal first (s.\u00a0106A).",
+    "losses": "Claimed on the tax return, up to 4\u00a0years after the end of the tax year of the disposal; deducted from the same year's gains, the rest carried forward. A negligible value claim for worthless tokens covers the whole section\u00a0104 pool.",
     "reporting": [
       "The Self Assessment Capital Gains Tax summary (SA108) has a Cryptoassets section, boxes\u00a013.1 to 13.8, for the 2024 to 2025 tax year. It takes the number of disposals, proceeds, allowable costs, gains, and losses, plus the computations.",
       "Real time Capital Gains Tax service: a gain or loss on tokens already reported through it goes in box\u00a013.7, the tax already paid in box\u00a013.8, and the reference numbers in box\u00a054 (SA108 notes 2024 to 2025)."
@@ -209,7 +209,7 @@
     },
     {
       "key": "gb-govuk-cgt-rates-and-allowances",
-      "title": "Capital Gains Tax rates and allowances (the table by tax year, updated 13 April 2026)",
+      "title": "Capital Gains Tax rates and allowances (the table by tax year, updated 13\u00a0April\u00a02026)",
       "lang": "en",
       "url": "https://www.gov.uk/guidance/capital-gains-tax-rates-and-allowances",
       "publisher": "HM Revenue & Customs",
@@ -249,7 +249,7 @@
     },
     {
       "key": "gb-hmrc-sa108-notes-2025",
-      "title": "Capital Gains Tax summary notes, tax year 6 April 2024 to 5 April 2025 (SA108 Notes 2025)",
+      "title": "Capital Gains Tax summary notes, tax year 6\u00a0April\u00a02024 to 5\u00a0April\u00a02025 (SA108 Notes 2025)",
       "lang": "en",
       "url": "https://assets.publishing.service.gov.uk/media/67e1612564220b68ed6a7009/SA108-Notes-2025.pdf",
       "publisher": "HM Revenue & Customs",

@@ -36,9 +36,9 @@
       "Sem franquia para mais-valias de criptoativos; as comissões e os impostos da operação pagos pelo contribuinte ajustam os valores.",
       "Modelo\u00a0721 só quando os criptoativos num custodiante no estrangeiro excedem EUR\u00a050\u00a0000 a 31\u00a0de\u00a0dezembro; nova declaração se esse saldo crescer mais de EUR\u00a020\u00a0000 desde a última (art.\u00a042 quater RGAT). Moedas em autocustódia não contam."
     ],
-    "holdingRuleText": "Sem regra de período de detenção: cada venda, troca ou pagamento é um facto tributável, seja qual for o tempo de detenção. A mesma escala da base da poupança aplica-se a uma moeda detida 1 dia ou 10 anos.",
+    "holdingRuleText": "Sem regra de período de detenção: cada venda, troca ou pagamento é um facto tributável, seja qual for o tempo de detenção. A mesma escala da base da poupança aplica-se a uma moeda detida 1\u00a0dia ou 10\u00a0anos.",
     "lotRuleText": "FIFO por tipo de moeda («criterio FIFO», manual da Renta da AEAT): numa venda parcial de moedas compradas em datas e a valores diferentes, saem as adquiridas primeiro. O manual consultado não menciona separação por plataforma.",
-    "losses": "As menos-valias compensam-se na base da poupança do ano; um saldo negativo que reste compensa rendimentos de capital do ano até 25\u00a0% destes, e o resto reporta-se por 4 anos (art.\u00a049.1 LIRPF).",
+    "losses": "As menos-valias compensam-se na base da poupança do ano; um saldo negativo que reste compensa rendimentos de capital do ano até 25\u00a0% destes, e o resto reporta-se por 4\u00a0anos (art.\u00a049.1 LIRPF).",
     "reporting": [
       "A declaração da Renta (Modelo\u00a0D-100): a secção «Ganancias y pérdidas patrimoniales derivadas de la transmisión o permuta de monedas virtuales por particulares».",
       "As menos-valias por compensar em anos seguintes constam do anexo\u00a0C da declaração.",
@@ -54,6 +54,6 @@
       "O reporte DAC8 pelos prestadores de criptoativos: se Espanha já o transpôs.",
       "O que muda depois das eleições de 29\u00a0de\u00a0novembro\u00a0de\u00a02026."
     ],
-    "summary60": "Espanha: cada venda, troca entre criptoativos ou pagamento com criptoativos é um facto tributável. Sem exclusão por período de detenção. Mais-valias líquidas tributadas na base da poupança, de 19\u00a0% a 30\u00a0%. FIFO por moeda. Menos-valias compensam mais-valias e reportam-se por 4 anos. Criptoativos num custodiante estrangeiro acima de EUR\u00a050\u00a0000 declaram-se no Modelo\u00a0721 até 31\u00a0de\u00a0março."
+    "summary60": "Espanha: cada venda, troca entre criptoativos ou pagamento com criptoativos é um facto tributável. Sem exclusão por período de detenção. Mais-valias líquidas tributadas na base da poupança, de 19\u00a0% a 30\u00a0%. FIFO por moeda. Menos-valias compensam mais-valias e reportam-se por 4\u00a0anos. Criptoativos num custodiante estrangeiro acima de EUR\u00a050\u00a0000 declaram-se no Modelo\u00a0721 até 31\u00a0de\u00a0março."
   }
 }

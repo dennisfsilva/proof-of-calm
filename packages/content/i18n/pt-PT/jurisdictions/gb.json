@@ -49,22 +49,22 @@
       "Franquia anual (annual exempt amount) de £3,000 por particular nos anos fiscais de 2024 a 2025, 2025 a 2026 e 2026 a 2027. Só há imposto sobre as mais-valias acima dela."
     ],
     "holdingRuleText": "Sem exclusão por período de detenção: cada venda é um facto tributável.",
-    "lotRuleText": "Os tokens de um tipo formam o pool da section\u00a0104, com um custo dedutível (TCGA\u00a01992 s.\u00a0104). Primeiro vem a regra do mesmo dia (s.\u00a0105). Os adquiridos nos 30 dias após uma alienação associam-se a ela, a mais antiga primeiro (s.\u00a0106A).",
-    "losses": "As menos-valias pedem-se na declaração, até 4 anos após o fim do ano fiscal da alienação. Abatem-se às mais-valias do mesmo ano e o resto reporta-se. Um pedido de valor irrisório para tokens sem valor abrange todo o pool da section\u00a0104.",
+    "lotRuleText": "Os tokens de um tipo formam o pool da section\u00a0104, com um custo dedutível (TCGA\u00a01992 s.\u00a0104). Primeiro vem a regra do mesmo dia (s.\u00a0105). Os adquiridos nos 30\u00a0dias após uma alienação associam-se a ela, a mais antiga primeiro (s.\u00a0106A).",
+    "losses": "As menos-valias pedem-se na declaração, até 4\u00a0anos após o fim do ano fiscal da alienação. Abatem-se às mais-valias do mesmo ano e o resto reporta-se. Um pedido de valor irrisório para tokens sem valor abrange todo o pool da section\u00a0104.",
     "reporting": [
       "O resumo de Capital Gains Tax da Self Assessment (SA108) tem uma secção Cryptoassets, campos\u00a013.1 a 13.8, no ano fiscal de 2024 a 2025. Pede o número de alienações, o produto, os custos dedutíveis e as mais e menos-valias, com os cálculos.",
       "Serviço real time Capital Gains Tax: a mais-valia ou menos-valia de tokens já comunicada através desse serviço vai no campo\u00a013.7, o imposto já pago no campo\u00a013.8 e os números de referência no campo\u00a054 (notas do SA108 de 2024 a 2025)."
     ],
     "caveats": [
       "Em que escalão do Income Tax caem as mais-valias.",
-      "A regra dos 30 dias em torno de cada venda.",
+      "A regra dos 30\u00a0dias em torno de cada venda.",
       "O custo agrupado por tipo de token: a Proof of Calm lista cada compra e deixa o agrupamento ao contabilista.",
       "Rendimentos de staking e de airdrops.",
       "Tokens herdados.",
       "Pedidos de valor irrisório.",
       "Empréstimos de criptoativos e pools de liquidez a partir de 6\u00a0de\u00a0abril\u00a0de\u00a02027, uma proposta do Finance Bill\u00a02026-\u206027."
     ],
-    "summary60": "Mais-valias de criptoativos: 18% ou 24% por escalão, após franquia de £3,000. Venda, troca, pagamento ou doação (salvo ao cônjuge ou parceiro civil) é alienação; a transferência entre carteiras próprias não. Sem exclusão por detenção. Custo agrupado por token (regras do mesmo dia e dos 30 dias). Self Assessment até 31\u00a0de\u00a0janeiro, serviço real time até 31\u00a0de\u00a0dezembro."
+    "summary60": "Mais-valias de criptoativos: 18% ou 24% por escalão, após franquia de £3,000. Venda, troca, pagamento ou doação (salvo ao cônjuge ou parceiro civil) é alienação; a transferência entre carteiras próprias não. Sem exclusão por detenção. Custo agrupado por token (regras do mesmo dia e dos 30\u00a0dias). Self Assessment até 31\u00a0de\u00a0janeiro, serviço real time até 31\u00a0de\u00a0dezembro."
   },
   "pendingChanges": [
     {

@@ -83,7 +83,7 @@
       "Payment: disposals from 1\u00a0January to 30\u00a0November by 15\u00a0December of the same year; December disposals by 31\u00a0January of the next year."
     ],
     "caveats": [
-      "Whether the 4‑week rules for shares (a sale within 4 weeks of a purchase is matched to that purchase; a loss on shares repurchased within 4 weeks is restricted) reach crypto-assets.",
+      "Whether the 4‑week rules for shares (a sale within 4\u00a0weeks of a purchase is matched to that purchase; a loss on shares repurchased within 4\u00a0weeks is restricted) reach crypto-assets.",
       "Staking and airdrop income.",
       "Trading or investing: whether the activity is a trade of dealing in crypto-assets.",
       "Capital Acquisitions Tax on gifts and inheritances.",
@@ -124,7 +124,7 @@
   "sources": [
     {
       "key": "ie-revenue-tdm-02-01-03",
-      "title": "Tax and Duty Manual Part 02-01-03: Taxation of Crypto-Asset Transactions",
+      "title": "Tax and Duty Manual Part\u00a002-\u206001-\u206003: Taxation of Crypto-Asset Transactions",
       "lang": "en",
       "url": "https://www.revenue.ie/en/tax-professionals/tdm/income-tax-capital-gains-tax-corporation-tax/part-02/02-01-03.pdf",
       "publisher": "Revenue Commissioners",
@@ -184,7 +184,7 @@
     },
     {
       "key": "ie-oireachtas-financial-resolution-3-2026",
-      "title": "Dáil Éireann debate of 6 October 2026: Financial Resolution No. 3: Capital Gains Tax",
+      "title": "Dáil Éireann debate of 6\u00a0October\u00a02026: Financial Resolution No.\u00a03: Capital Gains Tax",
       "lang": "en",
       "url": "https://data.oireachtas.ie/akn/ie/debateRecord/dail/2026-10-06/debate/mul@/main.xml",
       "publisher": "Houses of the Oireachtas",
@@ -194,7 +194,7 @@
     },
     {
       "key": "ie-oireachtas-finance-no-2-bill-2026",
-      "title": "Finance (No. 2) Bill 2026, as initiated (No. 98 of 2026)",
+      "title": "Finance (No.\u00a02) Bill\u00a02026, as initiated (No.\u00a098 of 2026)",
       "lang": "en",
       "url": "https://data.oireachtas.ie/ie/oireachtas/bill/2026/98/eng/initiated/b9826d.pdf",
       "publisher": "Houses of the Oireachtas",
@@ -204,7 +204,7 @@
     },
     {
       "key": "ie-finance-act-2013-s43",
-      "title": "Finance Act 2013, Section 43",
+      "title": "Finance Act\u00a02013, Section\u00a043",
       "lang": "en",
       "url": "https://www.irishstatutebook.ie/eli/2013/act/8/section/43/enacted/en/html",
       "publisher": "Office of the Attorney General",

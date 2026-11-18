@@ -22,7 +22,7 @@
       {
         "event": "sale-to-fiat",
         "taxable": "yes",
-        "note": "A sale for euro is a disposal for consideration (cessione a titolo oneroso): the gain is the price received minus the documented cost or purchase value (art.\u00a068 c.\u00a09-bis TUIR, as the Istruzioni state it)."
+        "note": "A sale for euro is a disposal for consideration (cessione a titolo oneroso): the gain is the price received minus the documented cost or purchase value (art.\u00a068 c.\u00a09\u2011bis TUIR, as the Istruzioni state it)."
       },
       {
         "event": "crypto-to-crypto",
@@ -47,12 +47,12 @@
       {
         "event": "gift-or-inheritance",
         "taxable": "depends",
-        "note": "No disposal for the giver. The recipient of a gift takes the giver's cost; an heir takes the value declared for inheritance tax (art.\u00a068 c.\u00a09-bis TUIR, as the Istruzioni state it). Inheritance and gift tax are a separate matter."
+        "note": "No disposal for the giver. The recipient of a gift takes the giver's cost; an heir takes the value declared for inheritance tax (art.\u00a068 c.\u00a09\u2011bis TUIR, as the Istruzioni state it). Inheritance and gift tax are a separate matter."
       },
       {
         "event": "staking-or-airdrop",
         "taxable": "yes",
-        "note": "Proceeds from holding crypto (staking, in the circular's example) are redditi diversi taxed gross, with no deduction, since 1\u00a0January\u00a02023 (art.\u00a068 c.\u00a09-bis TUIR, as Circolare\u00a030/E §3.1 states it)."
+        "note": "Proceeds from holding crypto (staking, in the circular's example) are redditi diversi taxed gross, with no deduction, since 1\u00a0January\u00a02023 (art.\u00a068 c.\u00a09\u2011bis TUIR, as Circolare\u00a030/E §3.1 states it)."
       }
     ],
     "rates": [
@@ -83,7 +83,7 @@
     ],
     "holdingRuleText": "No holding rule: every sale is taxable whatever the holding time, from the first euro of gain since 1\u00a0January\u00a02025. That covers a sale for euro, for a stablecoin that is an e-money token, or for goods. A swap between crypto-assets with the same characteristics and functions is not a taxable event (art.\u00a067 c.\u00a01 lett. c-sexies TUIR).",
     "lotRuleText": "Last in, first out: the coins acquired most recently count as sold first. Circolare\u00a030/E §3.2.1 states it for the regime dichiarativo (“deve essere assunto come costo o valore di acquisto quello determinato con il metodo L.I.F.O.”).",
-    "losses": "Losses offset gains of the same kind in the year; an excess carries forward to the fourth following year if declared in the return for the year it arose (art.\u00a068 c.\u00a09-bis TUIR, as the Istruzioni state it).",
+    "losses": "Losses offset gains of the same kind in the year; an excess carries forward to the fourth following year if declared in the return for the year it arose (art.\u00a068 c.\u00a09\u2011bis TUIR, as the Istruzioni state it).",
     "reporting": [
       "Quadro\u00a0RT sezione V-A of the Modello Redditi Persone fisiche 2026 (quadro\u00a0T of the 730) for gains and other proceeds realised up to 31\u00a0December\u00a02025, taxed at 26% (art.\u00a067 c.\u00a01 lett. c-sexies TUIR).",
       "Quadro\u00a0RW for crypto held, whatever the wallet. The 0,2% yearly tax (imposta sulle cripto-attività, code 21 in colonna 3, codice tributo 1727) is due on the 31\u00a0December value, unless an intermediary applied stamp duty (imposta di bollo)."
@@ -97,7 +97,7 @@
       "The 2027 budget law, in Parliament on 5\u00a0November\u00a02026.",
       "Proof of cost: a cost without proof counts as zero."
     ],
-    "summary60": "Italy taxes crypto gains at a flat 33% from 1\u00a0January\u00a02026 (26% in 2025), with no exempt amount or holding-period exemption. Swapping one crypto for a similar one is not taxed; selling for euro or e-money tokens is. Last-in, first-out. Losses carry forward 4 years. Holdings are reported yearly (Quadro\u00a0RW, 0,2% tax on value held)."
+    "summary60": "Italy taxes crypto gains at a flat 33% from 1\u00a0January\u00a02026 (26% in 2025), with no exempt amount or holding-period exemption. Swapping one crypto for a similar one is not taxed; selling for euro or e-money tokens is. Last-in, first-out. Losses carry forward 4\u00a0years. Holdings are reported yearly (Quadro\u00a0RW, 0,2% tax on value held)."
   },
   "pendingChanges": [
     {

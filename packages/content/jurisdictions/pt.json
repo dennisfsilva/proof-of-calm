@@ -23,12 +23,12 @@
   "lotScope": "per-venue",
   "lotRuleNote": "First in, first out, applied separately per custodian or platform when units are held at more than one (art. 43 n.º 9 CIRS, formerly n.º 7).",
   "card": {
-    "classification": "Category G gains (art.\u00a010(1)(k) CIRS) for crypto that is not a security; category E (28%) for staking or lending paid in fiat; category B if habitual or professional, and always for mining and validation. NFTs are excluded.",
+    "classification": "Category G gains (art.\u00a010(1)\u2060(k) CIRS) for crypto that is not a security; category E (28%) for staking or lending paid in fiat; category B if habitual or professional, and always for mining and validation. NFTs are excluded.",
     "taxableEvents": [
       {
         "event": "sale-to-fiat",
         "taxable": "yes",
-        "note": "Excluded from tax when held 365 days or more and the counterparty is tax-resident in the EU, the EEA, or a treaty jurisdiction. Excluded sales are still declared (Anexo\u00a0G1 Quadro\u00a07)."
+        "note": "Excluded from tax when held 365\u00a0days or more and the counterparty is tax-resident in the EU, the EEA, or a treaty jurisdiction. Excluded sales are still declared (Anexo\u00a0G1 Quadro\u00a07)."
       },
       {
         "event": "crypto-to-crypto",
@@ -38,7 +38,7 @@
       {
         "event": "crypto-to-stablecoin",
         "taxable": "no",
-        "note": "Deferred like any swap; AT ruling PIV 28969 of 31\u00a0October\u00a02025 treats an immediate technical conversion as a non-event (medium confidence)."
+        "note": "Deferred like any swap; AT ruling PIV\u00a028969 of 31\u00a0October\u00a02025 treats an immediate technical conversion as a non-event (medium confidence)."
       },
       {
         "event": "spending",
@@ -67,7 +67,7 @@
         "value": "28%",
         "validFrom": "2023-01-01",
         "validTo": null,
-        "note": "On the positive balance of category G crypto gains (art.\u00a072(1)(c) CIRS). The 35% rate for blacklisted jurisdictions does not list crypto; there the exclusion and the swap deferral are lost instead."
+        "note": "On the positive balance of category G crypto gains (art.\u00a072(1)\u2060(c) CIRS). The 35% rate for blacklisted jurisdictions does not list crypto; there the exclusion and the swap deferral are lost instead."
       },
       {
         "label": "Optional aggregation (englobamento)",
@@ -80,13 +80,13 @@
     "allowances": [
       "No allowance: the only relief is the 365\u2011day exclusion.",
       "Fees that were necessary and actually paid (“necessárias e efetivamente suportadas”) are deductible.",
-      "Purchases made before 2023 count toward the 365 days (art.\u00a0220 Lei\u00a024\u2011D/2022)."
+      "Purchases made before 2023 count toward the 365\u00a0days (art.\u00a0220 Lei\u00a024\u2011D/2022)."
     ],
-    "holdingRuleText": "Gains and losses on crypto held 365 days or more are excluded from tax: “detidos por um período igual ou superior a 365 dias” (art.\u00a010 n.º\u00a022 CIRS, numbered n.º\u00a019 in 2023–\u20602025 documents). A unit bought on 1\u00a0March\u00a02026 qualifies on 1\u00a0March\u00a02027.",
+    "holdingRuleText": "Gains and losses on crypto held 365\u00a0days or more are excluded from tax: “detidos por um período igual ou superior a 365 dias” (art.\u00a010 n.º\u00a022 CIRS, numbered n.º\u00a019 in 2023–\u20602025 documents). A unit bought on 1\u00a0March\u00a02026 qualifies on 1\u00a0March\u00a02027.",
     "lotRuleText": "First in, first out (“os alienados são os adquiridos há mais tempo”, art.\u00a043 n.º\u00a08(g) CIRS, formerly n.º\u00a06(g)), separately per custodian or platform (art.\u00a043 n.º\u00a09, formerly n.º\u00a07).",
-    "losses": "Netted against same-year crypto gains, leaving out units held 365 days or more. A net loss carries forward 5 years only with aggregation (art.\u00a055(1)(d)); losses with blacklisted counterparties never count (art.\u00a043 n.º\u00a07).",
+    "losses": "Netted against same-year crypto gains, leaving out units held 365\u00a0days or more. A net loss carries forward 5\u00a0years only with aggregation (art.\u00a055(1)\u2060(d)); losses with blacklisted counterparties never count (art.\u00a043 n.º\u00a07).",
     "reporting": [
-      "Modelo\u00a03, Anexo\u00a0G Quadro\u00a018A: disposals of units held under 365 days, per operation, with the country of the counterparty.",
+      "Modelo\u00a03, Anexo\u00a0G Quadro\u00a018A: disposals of units held under 365\u00a0days, per operation, with the country of the counterparty.",
       "Anexo\u00a0G Quadro\u00a018B: disposals with a counterparty outside the EU or the EEA.",
       "Anexo\u00a0G1 Quadro\u00a07: exempt disposals, mandatory.",
       "Anexo\u00a0J Quadro\u00a09.4 for income treated as foreign-sourced; which annex applies to a sale on a foreign exchange is a recurring practitioner question.",
@@ -102,7 +102,7 @@
       "The risk that the activity counts as professional.",
       "Stamp duty on gifts."
     ],
-    "summary60": "Portugal: gains on crypto held under 365 days are taxed at 28% by default. Units held 365 days or more are exempt when the counterparty is tax-resident in the EU, the EEA, or a treaty jurisdiction, but every sale must be declared. Crypto-to-crypto swaps are not taxed at the time. First-in, first-out per platform. Return filed April to June."
+    "summary60": "Portugal: gains on crypto held under 365\u00a0days are taxed at 28% by default. Units held 365\u00a0days or more are exempt when the counterparty is tax-resident in the EU, the EEA, or a treaty jurisdiction, but every sale must be declared. Crypto-to-crypto swaps are not taxed at the time. First-in, first-out per platform. Return filed April to June."
   },
   "pendingChanges": [
     {
@@ -137,7 +137,7 @@
       "title": "Lower rates in 6 IRS brackets (Decreto-Lei n.º\u00a0212/2026)",
       "status": "in-force",
       "effectiveFrom": "2026-01-01",
-      "summary": "The 28% rate of art.\u00a072(1)(c) does not change. Decreto-Lei n.º\u00a0212/2026 of 4\u00a0November\u00a02026 (Diário da República n.º\u00a0214/2026, Série I), under Lei n.º\u00a064\u2011B/2026 (Proposta de Lei n.º\u00a0108/XVII/2.ª), lowers the first 6 rates of art.\u00a068 n.º\u00a01 CIRS to 12,2%, 15,2%, 20,7%, 23,6%, 30,6%, and 34,6%. In force since 5\u00a0November\u00a02026; its preamble applies the cut to 2026 income from 1\u00a0January\u00a02026.",
+      "summary": "The 28% rate of art.\u00a072(1)\u2060(c) does not change. Decreto-Lei n.º\u00a0212/2026 of 4\u00a0November\u00a02026 (Diário da República n.º\u00a0214/2026, Série\u00a0I), under Lei n.º\u00a064\u2011B/2026 (Proposta de Lei n.º\u00a0108/XVII/2.ª), lowers the first 6 rates of art.\u00a068 n.º\u00a01 CIRS to 12,2%, 15,2%, 20,7%, 23,6%, 30,6%, and 34,6%. In force since 5\u00a0November\u00a02026; its preamble applies the cut to 2026 income from 1\u00a0January\u00a02026.",
       "source": {
         "title": "Decreto-Lei n.º 212/2026, de 4 de novembro",
         "url": "https://files.diariodarepublica.pt/1s/2026/11/21400/0000500006.pdf",
@@ -148,7 +148,7 @@
       }
     },
     {
-      "title": "AT binding ruling PIV 28969",
+      "title": "AT binding ruling PIV\u00a028969",
       "status": "in-force",
       "effectiveFrom": "2025-10-31",
       "summary": "An immediate technical conversion into a stablecoin to reach a euro pair is not a taxable moment, so the original asset keeps its exclusion (medium confidence).",
@@ -162,10 +162,10 @@
       }
     },
     {
-      "title": "AT binding ruling PIV 29052",
+      "title": "AT binding ruling PIV\u00a029052",
       "status": "in-force",
       "effectiveFrom": "2025-12-04",
-      "summary": "Purchases from 2019 count toward the 365 days; the exclusion is limited to counterparties in the EU, the EEA, or a treaty jurisdiction; a habituality test decides category B.",
+      "summary": "Purchases from 2019 count toward the 365\u00a0days; the exclusion is limited to counterparties in the EU, the EEA, or a treaty jurisdiction; a habituality test decides category B.",
       "source": {
         "title": "Informação vinculativa, processo 29052",
         "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/informacoes_vinculativas/rendimento/cirs/Documents/PIV_29052.pdf",
@@ -193,7 +193,7 @@
   "sources": [
     {
       "key": "pt-cirs-art10",
-      "title": "Código do IRS, artigo 10.º",
+      "title": "Código do IRS, artigo\u00a010.º",
       "lang": "pt",
       "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs10.aspx",
       "publisher": "Autoridade Tributária e Aduaneira",
@@ -203,7 +203,7 @@
     },
     {
       "key": "pt-cirs-art43",
-      "title": "Código do IRS, artigo 43.º",
+      "title": "Código do IRS, artigo\u00a043.º",
       "lang": "pt",
       "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs43.aspx",
       "publisher": "Autoridade Tributária e Aduaneira",
@@ -213,7 +213,7 @@
     },
     {
       "key": "pt-cirs-art55",
-      "title": "Código do IRS, artigo 55.º",
+      "title": "Código do IRS, artigo\u00a055.º",
       "lang": "pt",
       "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs55.aspx",
       "publisher": "Autoridade Tributária e Aduaneira",
@@ -223,7 +223,7 @@
     },
     {
       "key": "pt-cirs-art72",
-      "title": "Código do IRS, artigo 72.º",
+      "title": "Código do IRS, artigo\u00a072.º",
       "lang": "pt",
       "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs72.aspx",
       "publisher": "Autoridade Tributária e Aduaneira",
@@ -243,7 +243,7 @@
     },
     {
       "key": "pt-at-oficio-20269-2024",
-      "title": "Ofício Circulado n.º 20269/2024",
+      "title": "Ofício Circulado n.º\u00a020269/2024",
       "lang": "pt",
       "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/legislacao/instrucoes_administrativas/Documents/Oficio_Circulado_20269_2024.pdf",
       "publisher": "Autoridade Tributária e Aduaneira",
@@ -253,7 +253,7 @@
     },
     {
       "key": "pt-at-piv-28969",
-      "title": "Informação vinculativa, processo 28969",
+      "title": "Informação vinculativa, processo\u00a028969",
       "lang": "pt",
       "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/informacoes_vinculativas/rendimento/cirs/Documents/PIV_28969.pdf",
       "publisher": "Autoridade Tributária e Aduaneira",
@@ -263,7 +263,7 @@
     },
     {
       "key": "pt-at-piv-29052",
-      "title": "Informação vinculativa, processo 29052",
+      "title": "Informação vinculativa, processo\u00a029052",
       "lang": "pt",
       "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/informacoes_vinculativas/rendimento/cirs/Documents/PIV_29052.pdf",
       "publisher": "Autoridade Tributária e Aduaneira",
@@ -273,7 +273,7 @@
     },
     {
       "key": "pt-lei-26-2026",
-      "title": "Lei n.º 26/2026, de 3 de junho (Diário da República n.º 107/2026, Série I)",
+      "title": "Lei n.º\u00a026/2026, de 3\u00a0de\u00a0junho (Diário da República n.º\u00a0107/2026, Série\u00a0I)",
       "lang": "pt",
       "url": "https://files.diariodarepublica.pt/1s/2026/06/10700/0001000066.pdf",
       "publisher": "Diário da República",
@@ -283,7 +283,7 @@
     },
     {
       "key": "pt-lei-64-b-2026",
-      "title": "Lei n.º 64-B/2026, de 22 de outubro (Diário da República n.º 205/2026, Série I, Suplemento)",
+      "title": "Lei n.º\u00a064-\u2060B/2026, de 22\u00a0de\u00a0outubro (Diário da República n.º\u00a0205/2026, Série\u00a0I, Suplemento)",
       "lang": "pt",
       "url": "https://files.diariodarepublica.pt/1s/2026/10/20501/0000400004.pdf",
       "publisher": "Diário da República",
@@ -293,7 +293,7 @@
     },
     {
       "key": "pt-dl-212-2026",
-      "title": "Decreto-Lei n.º 212/2026, de 4 de novembro (Diário da República n.º 214/2026, Série I)",
+      "title": "Decreto-Lei n.º\u00a0212/2026, de 4\u00a0de\u00a0novembro (Diário da República n.º\u00a0214/2026, Série\u00a0I)",
       "lang": "pt",
       "url": "https://files.diariodarepublica.pt/1s/2026/11/21400/0000500006.pdf",
       "publisher": "Diário da República",
@@ -303,7 +303,7 @@
     },
     {
       "key": "pt-cirs-art68",
-      "title": "Código do IRS, artigo 68.º",
+      "title": "Código do IRS, artigo\u00a068.º",
       "lang": "pt",
       "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/cirs_rep/Pages/irs68.aspx",
       "publisher": "Autoridade Tributária e Aduaneira",
@@ -313,7 +313,7 @@
     },
     {
       "key": "pt-lei-24-d-2022",
-      "title": "Lei n.º 24-D/2022, de 30 de dezembro (Diário da República n.º 251/2022, Série I, 2.º Suplemento)",
+      "title": "Lei n.º\u00a024-\u2060D/2022, de 30\u00a0de\u00a0dezembro (Diário da República n.º\u00a0251/2022, Série\u00a0I, 2.º\u00a0Suplemento)",
       "lang": "pt",
       "url": "https://files.diariodarepublica.pt/1s/2022/12/25102/0009000377.pdf",
       "publisher": "Diário da República",
@@ -323,7 +323,7 @@
     },
     {
       "key": "pt-cis-art1",
-      "title": "Código do Imposto do Selo, artigo 1.º",
+      "title": "Código do Imposto do Selo, artigo\u00a01.º",
       "lang": "pt",
       "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/selo/Pages/selo1.aspx",
       "publisher": "Autoridade Tributária e Aduaneira",
@@ -333,7 +333,7 @@
     },
     {
       "key": "pt-cis-art4",
-      "title": "Código do Imposto do Selo, artigo 4.º",
+      "title": "Código do Imposto do Selo, artigo\u00a04.º",
       "lang": "pt",
       "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/selo/Pages/selo4.aspx",
       "publisher": "Autoridade Tributária e Aduaneira",
@@ -343,7 +343,7 @@
     },
     {
       "key": "pt-cis-art6",
-      "title": "Código do Imposto do Selo, artigo 6.º",
+      "title": "Código do Imposto do Selo, artigo\u00a06.º",
       "lang": "pt",
       "url": "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/codigos_tributarios/selo/Pages/selo6.aspx",
       "publisher": "Autoridade Tributária e Aduaneira",
