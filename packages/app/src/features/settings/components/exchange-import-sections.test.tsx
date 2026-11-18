@@ -119,10 +119,13 @@ describe('ExchangeSummary and ExchangeSections', () => {
       'Sales (1)',
       'Coins added at no cost (1)',
     ]);
-    expect(lines('Estimates it replaces (1)')).toEqual([
-      'Monthly buy for October 2026: 0,00119 BTC at Bitvavo for 70,00 € becomes 2 purchases at Kraken, ' +
+    const replaced = lines('Estimates it replaces (1)');
+    expect(replaced).toEqual([
+      'Monthly buy for October 2026: the estimate of 0,00119 BTC at Bitvavo for 70,00 € becomes 2 purchases at Kraken, ' +
         '0,00200 BTC for 120,00 € in all, fees 0,31 €, on 5 Oct 2026 and 12 Oct 2026.',
     ]);
+    // The sentence names the estimate once, as pt-PT's does: the piece does not say "estimated" again.
+    expect(replaced[0]?.match(/estimate/g)).toEqual(['estimate']);
     // The way to keep an estimate is cut: typing its units in the Log turns it into a hand entry (docs/DOMAIN.md §3.13).
     expect(texts().some((text) => text.includes('To keep an estimate instead'))).toBe(false);
     expect(lines('Monthly buys (1)')).toEqual([
@@ -132,7 +135,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
     expect(lines('Coins added at no cost (1)')).toEqual(['Coins added: 0,00005 BTC at no cost, on 16 Oct 2026.']);
   });
 
-  it('say "estimate" once in a pt-PT replacement, where «a estimativa de» already names it', async () => {
+  it('say "estimate" once in a pt-PT replacement, where «a estimativa de» names it as English\'s words do', async () => {
     const services = createTestServices({ snapshot: fixture, language: 'pt-PT' });
     await act(() => services.start());
     const shown = planOf(KRAKEN_OCTOBER, [...fixture.entries, ONE_TAP_OCTOBER]);
@@ -158,9 +161,9 @@ describe('ExchangeSummary and ExchangeSections', () => {
     await mount(planOf(KRAKEN_OCTOBER, [...fixture.entries, ONE_TAP_OCTOBER, second]));
     expect(texts()).toContain('Replaces 2 estimates from Bought as planned.');
     expect(lines('Estimates it replaces (2)')).toEqual([
-      'Monthly buy for October 2026: 0,00119 BTC at Bitvavo for 70,00 € becomes 2 purchases at Kraken, ' +
+      'Monthly buy for October 2026: the estimate of 0,00119 BTC at Bitvavo for 70,00 € becomes 2 purchases at Kraken, ' +
         '0,00200 BTC for 120,00 € in all, fees 0,31 €, on 5 Oct 2026 and 12 Oct 2026.',
-      'Monthly buy for October 2026: 0,0011 BTC at Bitvavo for 70,00 € becomes 2 purchases at Kraken, ' +
+      'Monthly buy for October 2026: the estimate of 0,0011 BTC at Bitvavo for 70,00 € becomes 2 purchases at Kraken, ' +
         '0,0020 BTC for 120,00 € in all, fees 0,31 €, on 5 Oct 2026 and 12 Oct 2026.',
     ]);
   });
@@ -169,7 +172,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
     const csv = btcBuys([['T1', '2026-10-05 09:00:00', '70.0000', '0.0012000000', '0.1800']]);
     await mount(planOf(csv, [...fixture.entries, ONE_TAP_OCTOBER]));
     expect(lines('Estimates it replaces (1)')).toEqual([
-      'Monthly buy for October 2026: 0,00119 BTC at Bitvavo for 70,00 € becomes 0,00120 BTC at Kraken ' +
+      'Monthly buy for October 2026: the estimate of 0,00119 BTC at Bitvavo for 70,00 € becomes 0,00120 BTC at Kraken ' +
         'for 70,00 €, fee 0,18 €, on 5 Oct 2026.',
     ]);
   });
@@ -182,7 +185,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
     ]);
     await mount(planOf(csv, [...fixture.entries, ONE_TAP_OCTOBER]));
     expect(lines('Estimates it replaces (1)')).toEqual([
-      'Monthly buy for October 2026: 0,00119 BTC at Bitvavo for 70,00 € becomes 3 purchases at Kraken, ' +
+      'Monthly buy for October 2026: the estimate of 0,00119 BTC at Bitvavo for 70,00 € becomes 3 purchases at Kraken, ' +
         '0,00200 BTC for 120,00 € in all, fee 0,10 €, on 5 Oct 2026, 12 Oct 2026, and 19 Oct 2026.',
     ]);
   });
@@ -194,7 +197,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
     ]);
     await mount(planOf(csv, [...fixture.entries, ONE_TAP_OCTOBER]));
     expect(lines('Estimates it replaces (1)')).toEqual([
-      'Monthly buy for October 2026: 0,00119 BTC at Bitvavo for 70,00 € becomes 2 purchases at Kraken, ' +
+      'Monthly buy for October 2026: the estimate of 0,00119 BTC at Bitvavo for 70,00 € becomes 2 purchases at Kraken, ' +
         '0,00200 BTC for 120,00 € in all, on 5 Oct 2026 and 12 Oct 2026.',
     ]);
   });
@@ -718,7 +721,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
     const csv = btcBuys([['T1', '2026-10-05 09:00:00', '70.0000', '0.0012000000', '0.0000']]);
     await mount(planOf(csv, [...fixture.entries, ONE_TAP_OCTOBER]));
     expect(lines('Estimates it replaces (1)')).toEqual([
-      'Monthly buy for October 2026: 0,00119 BTC at Bitvavo for 70,00 € becomes 0,00120 BTC at Kraken ' +
+      'Monthly buy for October 2026: the estimate of 0,00119 BTC at Bitvavo for 70,00 € becomes 0,00120 BTC at Kraken ' +
         'for 70,00 €, on 5 Oct 2026.',
     ]);
   });
