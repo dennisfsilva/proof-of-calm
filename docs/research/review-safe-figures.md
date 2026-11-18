@@ -326,12 +326,14 @@ Holes accepted with it:
 
 1. A sentence with no trigger passes in any paragraph of the section: a hedge (`Or so it seems.`), a projection by
    pronoun (`It may fall that far again.`), a superlative without a coin. The copy review (`docs/LEGAL.md` §6 Q6)
-   reads it.
+   reads it. This holds in English; in a translation, only as a listed sentence.
 2. `one`, `a`, `each`, `every`, `all`, `both`, `last`, `several`, `few`, `many`, `most`, a date or amount in words
    outside the lists (`last spring`, `dollars`) and Roman numerals in letters (`IX`) stay prose.
-3. A catalogue coin the chart does not draw, named in a sentence with no other trigger, passes.
-4. The lists are English: another language's number word or month inside an English module passes. A pt-PT
-   section reads English's lists beside its own (hole 13), so an English word inside a pt-PT translation counts.
+3. A catalogue coin the chart does not draw, named in a sentence with no other trigger, passes in English; in a
+   translation, only as a listed sentence.
+4. The lists are English: another language's number word or month inside an English module passes. A translation
+   reads no list of its language: its section is closed (below), and English's lists still read each of its
+   sentences, so an English word inside a pt-PT translation counts.
 5. A true, weaker statement passes: a lower `N`, or a second bound over rows another bound counts.
 6. A chart figure moved under the next heading leaves the section. Its rows get `figure-unstated`, and no rule reads
    the moved sentence until R7; the copy review (`docs/LEGAL.md` §6 Q6) does.
@@ -346,74 +348,27 @@ Holes accepted with it:
 12. In the Cycles list a figure moved to another line passes: no rule reads that list until R7's PR, and the cycles
     test holds only the 2017 line.
 
-pt-PT's trigger and shapes, 2026-11-17 (D4 and D5, `packages/content/src/module-figures.ts`). The pt-PT trigger is
-the union of English's lists and pt-PT's: `por cento`, joined by nothing, white space, U+002D, U+2010 or U+2011, in
-any case, reported as 'a percentage sign or word'; the cardinals without `um` and `uma`, with `cem` and `cento`, the
-hundreds as `(duz|trez|quatroc|quinh|seisc|setec|oitoc|novec)ent[oa]s`, `milhar`, `milhares`, `trilião`,
-`triliões` and the singular and plural `dúzia`, `dezena` and `centena`; the Brazilian spellings `dezesseis`,
-`dezessete`, `dezenove`, `bilhão`, `bilhões`, `trilhão` and `trilhões`, so a Brazilian slip counts too; the ordinal
-stems with o, a, os or as; the months `janeiro` to `dezembro` and `jan fev abr mai jun jul ago set out nov dez` in any case, and `Mar`
-only capitalised. B is `No gráfico, C teve K queda|quedas de mais de N J% entre Y e Y.`, E is `C1 caiu L.` or
-`C1 caiu L`, any number of `, C L`, then ` e C L.`, with no comma before `e`; C is `a` and the catalogue name for every coin, `o ether` for
-ETH, and C1 the same with its article capitalised, only to open E. Agreement is part of the shape: `A ether caiu`,
-`o Solana` and `a Ether` fail, `a Ethereum` passes.
+pt-PT's shapes, 2026-11-17 (D4 and D5, `packages/content/src/module-figures.ts`); its trigger, English's lists beside
+pt-PT's own, was removed 2026-11-18 (below). B is `No gráfico, C teve K queda|quedas de mais de N J% entre Y e Y.`, E
+is `C1 caiu L.` or `C1 caiu L`, any number of `, C L`, then ` e C L.`, with no comma before `e`; C is `a` and the
+catalogue name for every coin, `o ether` for ETH, and C1 the same with its article capitalised, only to open E.
+Agreement is part of the shape: `A ether caiu`, `o Solana` and `a Ether` fail, `a Ethereum` passes.
 
-13. pt-PT's lists close only what they list: `um`, `uma` (so `uma vez`, English's `once`), `cada`, `todos`,
-    `ambos`, `vários`, `alguns`, `muitos`, `poucos`, `último`, `meio` and `meia` (also 'middle' and 'means', so
-    `ao meio`, one pt-PT wording of English's `halved`, passes; the other, `para metade`, triggers), `década` and
-    `semestre` (no English entry names them), `vintena`, `quinzena` and `quarentena` (English names no count noun
-    but `dozen`, and they are also a fortnight and a quarantine), `avos` (its count, `doze avos`, triggers), the
-    adverbs `duplamente` and `primeiramente` and the prefixed `redobrar` and `desdobrar` (English's `doubly`,
-    `firstly` and `redoubled` pass too, since each stem holds at a word's start), `casal` (English's `couple` is
-    `par`), a date or amount in words outside the lists (`no verão passado`, `dólares`), lowercase `mar` and `sol`
-    (the ticker kind is case-sensitive) stay prose, as hole 2's English words do.
-14. Loud false failures in pt-PT: `segundo` ('according to'), `metade` and `primeira` trigger and fail outside B and
-    E, so a section writes `de acordo com`; a capitalised `Mar` at a sentence's start fails («Mar e montanha»), and
-    so does `par` in `a par de` ('alongside'). The verb stems take every word that starts with them: `dobra` ('a
-    fold'), `dobrado` ('folded', 'dubbed'), `dobrada` ('tripe'), `dobradiça` ('a hinge'), `dobragem` ('dubbing'),
-    `dobrar a esquina` ('to turn a corner'), `duplicado` ('a duplicate') and `duplicidade` ('duplicity') fail, and
-    `terço` fails as 'a rosary' too.
+13. A listed sentence's meaning, a pt-PT word for a quantity, date or amount included (`uma vez`, `no verão
+    passado`). A listing is a code change in a reviewed pull request that the fact check, counsel and brand read, and
+    the native reader reads pt-PT before it is shown.
+14. Loud false failures in a translation: every new or reworded sentence or heading of its chart section until it is
+    written as B or E or listed; a listed sentence with a hidden encoding (NFD, U+00A0, a Cyrillic letter), a changed
+    letter or case, or a mark in its paragraph; an English trigger inside a listed sentence (`Mar` at its start).
+15. A translation may drop, repeat or reorder its listed sentences and swap B and E. None of that states a figure the
+    rows do not check, and the number tie (`overlay-number-mismatch`) holds each digit to English's.
 
-The lists walked against English's, 2026-11-17 (the review of the pt-PT Risk honestly found `trilhão` and the
-ordinals from `quadragésimo` to `nonagésimo` missing). Each entry of `CARDINALS`, `ORDINALS` and `OTHERS` now has its
-pt-PT words in `PT_CARDINALS`, `PT_ORDINALS` and `PT_OTHERS`, or stays prose by hole 13. Added: `trilhão` and
-`trilhões`; the ordinal stems `quadragésim`, `quinquagésim`, `sexagésim`, `setuagésim` and `septuagésim`,
-`octogésim`, `nonagésim`, `undécim` and `duodécim` (English's eleventh and twelfth), the hundreds' (`ducentésim` to
-`nongentésim`, as `two hundredth` triggers on `two`), `milionésim` and `bilionésim`; `metades` (`halves`); the
-multiplicatives `duplo` to `cêntuplo` in both genders and numbers (English's `-fold`, `double`, `triple`,
-`quadruple`), `nónuplo` and the Brazilian `nônuplo`; and `trimestre` (English's `quarter` of a year). Each
-has a sentence outside the shapes in `module-figures-pt.test.ts` that fails on it.
-
-The verbs closed by stem, 2026-11-17 (round 2 of the same review). The list named only some forms of `dobrar` and
-of `duplicar` to `centuplicar`, so `dobrado`, `dobrava`, `duplicava` and `duplicará` passed while English's
-`doubled`, `tripled` and `quadrupled` trigger in every past use; and `terço`, English's `third` as a fraction, was
-missing. Each round had found one more form, so the verbs now close by stem: `dobr`, and each stem from `dupl` to
-`centupl` (`septupl` and `setupl`, `octupl` and `nonupl` among them) before `ic` or `iqu` (the subjunctive's
-`duplique`), at a word's start and followed by any letters, so every tense, the participle, the
-subjunctive and the nouns (`dobro`, `duplicação`) trigger. `terço` and `terços` joined. The other entries walked
-again for a pt-PT verb or a noun with inflections: the plurals of the ordinals were listed already (the cardinals'
-noun plurals joined later, in the last row of the table below),
-`quarter` is the ordinal `quarto` or `trimestre`, `halved` has no pt-PT verb (hole 13), and `couple` and `pair`
-are `par` and `pares`; the rest stay prose by hole 13. A test gives each stem's infinitive, present, preterite,
-imperfect, future, conditional, participle and subjunctive its code, and the live translation still gives none.
-
-The spellings walked in both norms, 2026-11-17 (round 3 of the same review found `quadriplicou` and `séptuplo`
-passing). Each round had found one more form, so every entry of every pt-PT list was walked through its spellings in
-European Portuguese before and after the 1990 Agreement and in Brazilian Portuguese, checked against Priberam where
-unsure. Each variant joined the list or is left out with its reason below. A sentence outside the shapes in
-`module-figures-pt.test.ts` fails on each added form, and the live translation still gives none.
-
-| Entry | Variants added | Variants left out, and why |
-| --- | --- | --- |
-| The cardinals `zero` to `noventa`, `cem`, `cento`, `mil` | `cinqüenta` (Brazil, and Portugal before 1990) | `cincoenta`: Priberam lists no such form; the others have one spelling in every norm |
-| `catorze`, `dezasseis`, `dezassete`, `dezanove` | none: `quatorze`, `dezesseis`, `dezessete` and `dezenove` were listed | none |
-| `milhão`, `bilião`, `trilião` | none: `bilhão`, `trilhão` and their plurals were listed | `milião`: Priberam lists no variant of `milhão` |
-| The hundreds, `dúzia`, `dezena`, `centena`, `milhar` | none | one spelling in every norm |
-| The ordinals `primeiro` to `nonagésimo` | `qüinquagésimo` (Brazil, and Portugal before 1990) | `séptimo`: Priberam lists no variant of `sétimo`; `otogésimo`: Priberam lists only `octogésimo`; `septuagésimo` was listed |
-| The ordinals `centésimo` to `bilionésimo` | `qüingentésimo` (Brazil, and Portugal before 1990) | `quadrigentésimo`: Priberam lists no variant of `quadringentésimo`; the pairs `tricentésimo`, `sexcentésimo`, `septingentésimo`, `octingentésimo` and `noningentésimo` were listed |
-| The multiplicatives `duplo` to `cêntuplo` | `séptuplo` and `séptupla` (Brazil, and Portugal before 1990; Priberam gives both spellings), and the unaccented `quadruplo` to `centuplo` through the stems | `ótuplo`: Priberam lists only `óctuplo`; `qüíntuplo`: Priberam gives no trema |
-| The verbs `duplicar` to `centuplicar` | `quadriplicar` (Brazil, in Houaiss and Aurélio; Priberam has no entry); the -ar verbs `quadruplar` and `decuplar` (Priberam), so each stem from `dupl` to `centupl` takes a vowel after it as well as `ic` and `iqu` (`triplou` triggers too) | `qüintuplicar` and `otuplicar`: Priberam gives no variant of `quintuplicar` or `octuplicar`; the adverbs `duplamente` and `triplamente` stay prose (hole 13), so the stem stops before `-mente` |
-| `dobrar`, `metade`, `terço`, `par`, `pares`, `trimestre` | none | one spelling in every norm |
-| `por cento` | `porcentagem`, `porcentagens`, `porcentual` and `porcentuais` (Brazil; Priberam) | none: `porcento` matched already, and `percentagem` and `percentual` trigger on English's `per cent` |
-| The months and their short forms | none | one spelling in every norm; Portugal capitalised them before 1990 (`Janeiro`), which any case covers |
-| The cardinals' noun plurals, as English's `CARDINALS` take `s` (`sevens`) | `quatros`, `cincos`, `setes`, `oitos`, `noves`, `dezes`, `onzes`, `dozes`, `trezes`, `catorzes`, `quatorzes`, `quinzes`, `dezassetes`, `dezessetes`, `dezoitos`, `dezanoves`, `dezenoves`, `vintes`, the decades `trintas` to `noventas` with `cinqüentas` (also English's `thirties` to `nineties`), `centos` and `mis` (Priberam's plural of `mil`); `dozes` and `quatorzes` have no Priberam page, but `doze` and `quatorze` are nouns with a regular plural | `seises`, `dezasseises` and `dezesseises`: Priberam gives `seis`, `dezasseis` and `dezesseis` as nouns `de dois números`, already listed; `cens`: Priberam gives `cem` no plural; `zeros` triggers on English's `zero` already; `dois`, `duas` and `três` are plural in form; never `uns` or `umas`, which the prose needs as it needs `um` |
+The translated section closed, 2026-11-18 (#358's design check). Five rounds of review of the pt-PT Risk honestly
+walked pt-PT's word lists against English's, by verb stem, through both spelling norms and through the cardinals'
+noun plurals, and each round found one more form that passed (`trilhão`, `dobrado`, `quadriplicou`, `setes`,
+`undécuplo`). A word list does not converge, so a translation's chart section is closed: each sentence and heading
+there is its language's B or E, or one `LISTED` holds for that language, as the page shows it, character for
+character (CONTENT-STYLE §4 R5 and §9). A listed sentence is still read for English's lists, a sign, a currency sign
+and the chart's coins. pt-PT lists the 3 sentences of its intro; the list is per language, since only Risk honestly
+has a chart, and a listed sentence states no figure anywhere. The rounds' words stay in `module-figures-pt.test.ts`
+as sentences that fail as unlisted.

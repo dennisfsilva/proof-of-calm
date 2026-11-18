@@ -325,7 +325,7 @@ external links and the Risk link in the mobile export (M3).
   #349, which comes before #271. On 2026-11-17, #349 merged the Learn index in the person's
   language (#352), the review-content skill's figure clause (#353) and the module rules on two closed
   shapes, taken from an unanchored design check (#354). Risk honestly in pt-PT on pt-PT's own
-  chart-section shapes (`docs/CONTENT-STYLE.md` §9; any other language's chart section fails closed), the joins
+  chart-section shapes (`docs/CONTENT-STYLE.md` §9; a translated chart section is closed), the joins
   `docs/CONTENT-STYLE.md` §4 does not cover, the overlay check's own percent regex and the
   review-content skill's remaining wording move to #355, which comes before #271. On 2026-11-17,
   #355 merged nothing: Risk honestly in pt-PT and the review-content skill's remaining wording used
