@@ -25,9 +25,8 @@ describe("France's profile (docs/JURISDICTIONS.md §7.10)", () => {
 describe('suggestCountry with France (docs/JURISDICTIONS.md §3)', () => {
   const suggest = (languages: string[], timeZone: string | null) => {
     const suggestion = suggestCountry({ languages, timeZone }, suggestionProfiles(profiles));
-    return suggestion === null
-      ? null
-      : `${suggestion.country} ${suggestion.confidence}${suggestion.languageDiffers ? '*' : ''}`;
+    const named = suggestion.country === null ? 'none' : `${suggestion.country} ${suggestion.confidence}`;
+    return `${named}${suggestion.languageDiffers ? '*' : ''}`;
   };
 
   it.each([
@@ -38,9 +37,9 @@ describe('suggestCountry with France (docs/JURISDICTIONS.md §3)', () => {
     // Belgium has no profile: a region the profiles do not know is no evidence of another country.
     [['fr-BE'], 'Europe/Paris', 'FR medium'],
     [['de-DE'], 'Europe/Paris', 'FR low*'],
-    [['fr-CH'], 'Europe/Zurich', null],
-    [['fr-FR'], 'Europe/Monaco', null],
-    [['fr'], null, 'FR low'],
+    [['fr-CH'], 'Europe/Zurich', 'none'],
+    [['fr-FR'], 'Europe/Monaco', 'none*'],
+    [['fr'], null, 'none'],
   ])('%j in %s suggests %s', (languages, timeZone, expected) => {
     expect(suggest(languages, timeZone)).toBe(expected);
   });

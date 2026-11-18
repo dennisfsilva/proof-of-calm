@@ -35,9 +35,8 @@ describe('United Kingdom (docs/JURISDICTIONS.md §7.4)', () => {
 describe('suggestCountry with the United Kingdom among the profiles (docs/JURISDICTIONS.md §3)', () => {
   const suggest = (languages: string[], timeZone: string | null) => {
     const suggestion = suggestCountry({ languages, timeZone }, suggestionProfiles(profiles));
-    return suggestion === null
-      ? null
-      : `${suggestion.country} ${suggestion.confidence}${suggestion.languageDiffers ? '*' : ''}`;
+    const named = suggestion.country === null ? 'none' : `${suggestion.country} ${suggestion.confidence}`;
+    return `${named}${suggestion.languageDiffers ? '*' : ''}`;
   };
 
   it.each([
@@ -45,7 +44,7 @@ describe('suggestCountry with the United Kingdom among the profiles (docs/JURISD
     [['cy-GB'], 'Europe/London', 'GB high'],
     [['en'], 'Europe/London', 'GB medium'],
     [['en-IE'], 'Europe/London', 'GB medium'],
-    [['en-GB'], null, 'GB low'],
+    [['en-GB'], null, 'none'],
     // Dublin is Ireland's timezone and English one of its languages: the table's row reads "IE medium".
     [['en-GB'], 'Europe/Dublin', 'IE medium'],
   ])('%j in %s suggests %s', (languages, timeZone, expected) => {

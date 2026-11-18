@@ -18,9 +18,8 @@ describe('Spain (docs/JURISDICTIONS.md §7.9)', () => {
 describe('suggestCountry with Spain among the profiles (docs/JURISDICTIONS.md §3)', () => {
   const suggest = (languages: string[], timeZone: string | null) => {
     const suggestion = suggestCountry({ languages, timeZone }, suggestionProfiles(profiles));
-    return suggestion === null
-      ? null
-      : `${suggestion.country} ${suggestion.confidence}${suggestion.languageDiffers ? '*' : ''}`;
+    const named = suggestion.country === null ? 'none' : `${suggestion.country} ${suggestion.confidence}`;
+    return `${named}${suggestion.languageDiffers ? '*' : ''}`;
   };
 
   it.each([
@@ -29,8 +28,8 @@ describe('suggestCountry with Spain among the profiles (docs/JURISDICTIONS.md §
     [['es-ES'], 'Atlantic/Canary', 'ES high'],
     [['es-MX'], 'Europe/Madrid', 'ES medium'],
     [['de-DE'], 'Europe/Madrid', 'ES low*'],
-    [['es-MX'], 'America/Mexico_City', null],
-    [['es-ES'], 'Europe/Andorra', null],
+    [['es-MX'], 'America/Mexico_City', 'none'],
+    [['es-ES'], 'Europe/Andorra', 'none*'],
   ])('%j in %s suggests %s', (languages, timeZone, expected) => {
     expect(suggest(languages, timeZone)).toBe(expected);
   });

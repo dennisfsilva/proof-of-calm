@@ -159,7 +159,7 @@ export type CountryChoice = Pick<CountryProfile, 'code' | 'name'>;
 
 /**
  * The picker's order (docs/JURISDICTIONS.md §3): the suggested country first, the others by name, and the
- * generic profile last; with no suggestion, the generic profile first ("pt-BR in São Paulo: XX first").
+ * generic profile last; with no country named, the generic profile first ("pt-BR in São Paulo: XX first").
  */
 export function countryChoices(
   profiles: readonly CountryProfile[],
@@ -170,7 +170,8 @@ export function countryChoices(
   const named = choices
     .filter((choice) => choice.code !== GENERIC_COUNTRY)
     .sort((a, b) => a.name.localeCompare(b.name, 'en'));
-  if (suggestion === null) return [...generic, ...named];
-  const first = named.filter((choice) => choice.code === suggestion.country);
-  return [...first, ...named.filter((choice) => choice.code !== suggestion.country), ...generic];
+  const country = suggestion?.country ?? null;
+  if (country === null) return [...generic, ...named];
+  const first = named.filter((choice) => choice.code === country);
+  return [...first, ...named.filter((choice) => choice.code !== country), ...generic];
 }

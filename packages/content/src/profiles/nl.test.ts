@@ -24,17 +24,16 @@ describe('the Netherlands profile (docs/JURISDICTIONS.md §7.8)', () => {
 describe('the suggestion for the Netherlands (docs/JURISDICTIONS.md §3)', () => {
   const suggest = (languages: string[], timeZone: string | null) => {
     const suggestion = suggestCountry({ languages, timeZone }, suggestionProfiles(profiles));
-    return suggestion === null
-      ? null
-      : `${suggestion.country} ${suggestion.confidence}${suggestion.languageDiffers ? '*' : ''}`;
+    const named = suggestion.country === null ? 'none' : `${suggestion.country} ${suggestion.confidence}`;
+    return `${named}${suggestion.languageDiffers ? '*' : ''}`;
   };
 
   it.each([
     [['nl-NL'], 'Europe/Amsterdam', 'NL high'],
     [['en-GB'], 'Europe/Amsterdam', 'NL medium'],
     [['nl-BE'], 'Europe/Amsterdam', 'NL medium'],
-    [['nl-BE'], 'Europe/Brussels', null],
-    [['nl'], null, 'NL low'],
+    [['nl-BE'], 'Europe/Brussels', 'none'],
+    [['nl'], null, 'none'],
   ])('%j in %s suggests %s', (languages, timeZone, expected) => {
     expect(suggest(languages, timeZone)).toBe(expected);
   });
