@@ -778,6 +778,17 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - A search a skill hands its agent sets the Grep tool's `head_limit` to 0 when it can pass 250
   lines, the tool's default cut. One chart row's search returned 169 to 225 lines, and two rows
   about 335 (#391, 2026-11-18).
+- A branch that changes the words of a page with visual baselines deletes that page's baselines in
+  the same PR, and its brief names them. Builders run no e2e, so #403's first CI run failed all 14
+  cookies comparisons over one changed sentence (2026-11-18).
+- When one branch of a wave changes a shared default, a sibling branch's new tests can rest on the
+  old one. #402 added two tests that took a `low` country suggestion's one tap, which #404 removed;
+  the pre-PR check on #404's rebase caught both (2026-11-18). A brief that changes a default names
+  the sibling branches' tests to check.
+- Under Vercel's deploy cap a same-tree re-cut push retries a branch's preview. When the cap holds
+  through a branch's review, a branch whose Vercel side another branch's preview checklist already
+  proved merges on its preview cases run against a local `VERCEL_ENV=preview` build served by
+  `tools/serve/vercel-local.ts` (#405 after #403's run 44389797339, 2026-11-18).
 
 ## Known gaps
 

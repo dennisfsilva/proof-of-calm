@@ -230,7 +230,7 @@ Output: `{ country, confidence: 'high' | 'medium' | 'low', languageDiffers }`, o
 confidence: null, languageDiffers }` when nothing is named. The onboarding (and Settings' prototype import)
 names any suggested country and lists it first: `high` and `medium` are preselected, one tap to confirm;
 `low` is named but not preselected, and "Continue with …" appears once a country is chosen; with nothing
-named "Other country" comes first. `languageDiffers` adds the line "residence, not language, decides tax",
+named "Other country" comes first. `languageDiffers` adds the line "Residence, not language, decides tax.",
 named country or not.
 
 Algorithm (pure, in `packages/core/src/country/suggest.ts`, tested against the table below, which it
@@ -289,7 +289,7 @@ Ambiguity table (kept in the profiles' test fixtures):
 | `nl-BE`, `Europe/Amsterdam` | NL | low once Belgium ships a profile, medium until then (step 4) |
 | `en-*`, `Europe/Lisbon` | PT | low (expats; the full list stays visible) |
 | `en-*`, `Europe/Berlin`, `Europe/Amsterdam`, `Europe/Madrid`, `Europe/Paris` | the timezone country | medium |
-| language and timezone disagree (`de-DE` + `Europe/Madrid`) | the timezone country | low, with the line "residence, not language, decides tax" |
+| language and timezone disagree (`de-DE` + `Europe/Madrid`) | the timezone country | low, with the line "Residence, not language, decides tax." |
 | `en-*`, or a first language naming no profile (`de-AT`, `it-CH`), `Europe/Monaco`, `Europe/Andorra`, `Europe/Gibraltar`, `Europe/Luxembourg`, `Europe/Vienna`, `Europe/Zurich` | none | — |
 | a first language naming a profile: `fr-FR`, `Europe/Monaco` or `Europe/Luxembourg`; `es-ES`, `Europe/Andorra`; `de-DE`, `Europe/Vienna` or `Europe/Zurich` | none (the line still shows when the first language names a profile) | — |
 | any locale, `Asia/*` or `Australia/*` | none (the line still shows when the first language names a profile) | — |

@@ -916,4 +916,7 @@ The product's nouns, one Portuguese word each, in every string, the site pages a
 Two terms name the same date in two frames: `data de fim do período de detenção` is the date in the
 holding rule's own frame (the hold-phase card, the holding-date tool), and
 `não tributado a partir de <data>` (the status) or `data de exclusão de tributação` (the noun) is its
-tax status in Portugal.
+tax status in Portugal. The date the app shows for a purchase is the day after that period ends,
+«o primeiro dia depois do período da regra de detenção» (the tax-year file's `eligible_from` line in
+settings, and the site's Risk tax line since #401); it is not `data de fim do período de detenção`,
+the period's last day, so the two are never mixed (2026-11-18).
