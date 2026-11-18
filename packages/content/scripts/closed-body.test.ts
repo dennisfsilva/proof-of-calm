@@ -531,6 +531,23 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
       expect(await details(`${idea}It mixes 6${NBSP}inputs.\n`)).toEqual([joined('idea')]);
       expect(await details(`${FRONT}It mixes 6${NBSP}in${shy}puts.\n`)).toEqual([]);
     });
+
+    // #387: a hidden character between a word and the count, or the noun and a word, separates them as written.
+    it('refuses a plain space when a hidden character parts the count or the noun from a word', async () => {
+      const path = 'packages/content/learn/noise.mdx';
+      const zwsp = String.fromCodePoint(0x200b);
+      const details = async (source: string) =>
+        (await closedBodyProblems([{ path, source }], { figures })).map(({ code, detail }) => `${code} ${detail}`);
+      const joined = (field: string) =>
+        `figure-join ${field}: the count "6" and its noun "inputs" are joined by U+0020, not U+00A0; write one ` +
+        'U+00A0 between them; R7 (docs/CONTENT-STYLE.md §4)';
+      for (const text of [`It mixes${zwsp}6 inputs.`, `It mixes 6 inputs${zwsp}x.`]) {
+        const idea = FRONT.replace('title: Noise', `title: Noise\nidea: ${text}`);
+        expect(await details(`${idea}${text}\n`)).toEqual([joined('idea'), joined('body')]);
+      }
+      const idea = FRONT.replace('title: Noise', 'title: Noise\nidea: It mixes6 inputs.');
+      expect(await details(`${idea}It mixes 6 inputsx.\n`)).toEqual([]);
+    });
   });
 
   // The figure rules on the path scripts/validate.ts runs: its context from the live files, on a compiled module;
