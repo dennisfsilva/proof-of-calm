@@ -241,3 +241,7 @@ Recorded on 2026-11-15, when the site's half of the rendering points landed in `
   (`page-blocks.test.ts` compares them with the reader as it stood before). A translated body's number check reads
   each shown number as one of the page's numbers, on both sides, and a translated chart section refuses every block
   in a container (`docs/CONTENT-STYLE.md` §4 R5).
+- 2026-11-18: `pageOf` keeps a heading's, paragraph's or code block's decoded text from before it drops the
+  default-ignorable code points in `written`, set only when it dropped one, since R7 judges the gap between a count
+  and its noun as the file writes it (`docs/CONTENT-STYLE.md` §4 R7). `text`, `blocks` and every other check read the
+  page as above.
