@@ -200,12 +200,8 @@ describe('moduleCountProblems: a count and its listed noun, joined by one U+00A0
     const [zwsp, shy] = [cp(0x200b), cp(0xad)];
     const them = (count: string, held: string) =>
       `body: the count "${count}" before its noun "inputs" holds ${held}; delete them; R7 (docs/CONTENT-STYLE.md §4)`;
-    expect(details(`It has 1${zwsp}2${zwsp}3${NBSP}inputs.`)).toEqual([
-      them('1U+200B 2U+200B 3', 'U+200B U+200B'),
-    ]);
-    expect(details(`It has 1${shy}2${zwsp}3${NBSP}inputs.`)).toEqual([
-      them('1U+00AD 2U+200B 3', 'U+00AD U+200B'),
-    ]);
+    expect(details(`It has 1${zwsp}2${zwsp}3${NBSP}inputs.`)).toEqual([them('1U+200B 2U+200B 3', 'U+200B U+200B')]);
+    expect(details(`It has 1${shy}2${zwsp}3${NBSP}inputs.`)).toEqual([them('1U+00AD 2U+200B 3', 'U+00AD U+200B')]);
   });
 
   it('reads U+FEFF as a hidden character', () => {
