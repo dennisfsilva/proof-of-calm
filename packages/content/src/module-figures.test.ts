@@ -572,4 +572,14 @@ describe("B's count and its noun (R6)", () => {
     expect(first).toContain(`in "${shown(NBSP).replace('4', '3')}"`);
     expect(first).not.toContain('U+00A0');
   });
+
+  // A format character never reaches B's gap: the page drops it, and R5 refuses the paragraph as hidden text first.
+  it('refuses U+2060 there as a hidden character, with no figure-join', async () => {
+    const [first, ...rest] = await details(body(`${joined(String.fromCodePoint(0x2060))} ${S2}`));
+    expect(first).toBe(
+      `figure-chart: body: the paragraph "${shown('')} ${nb(S2)}" holds a hidden character beside a figure "4" in the \
+chart's section, which reads plain text only${R6.replace('R6', 'R5')}`,
+    );
+    expect(rest.filter((detail) => !detail.startsWith('figure-unstated'))).toEqual([]);
+  });
 });
