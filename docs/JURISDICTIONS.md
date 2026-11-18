@@ -290,8 +290,9 @@ Ambiguity table (kept in the profiles' test fixtures):
 | `en-*`, `Europe/Lisbon` | PT | low (expats; the full list stays visible) |
 | `en-*`, `Europe/Berlin`, `Europe/Amsterdam`, `Europe/Madrid`, `Europe/Paris` | the timezone country | medium |
 | language and timezone disagree (`de-DE` + `Europe/Madrid`) | the timezone country | low, with the line "residence, not language, decides tax" |
-| any locale, `Europe/Monaco`, `Europe/Andorra`, `Europe/Gibraltar`, `Europe/Luxembourg`, `Europe/Vienna`, `Europe/Zurich` | none | — |
-| any locale, `Asia/*` or `Australia/*` | none | — |
+| `en-*`, or a first language naming no profile (`de-AT`, `it-CH`), `Europe/Monaco`, `Europe/Andorra`, `Europe/Gibraltar`, `Europe/Luxembourg`, `Europe/Vienna`, `Europe/Zurich` | none | — |
+| a first language naming a profile: `fr-FR`, `Europe/Monaco` or `Europe/Luxembourg`; `es-ES`, `Europe/Andorra`; `de-DE`, `Europe/Vienna` or `Europe/Zurich` | none (the line still shows when the first language names a profile) | — |
+| any locale, `Asia/*` or `Australia/*` | none (the line still shows when the first language names a profile) | — |
 | timezone unavailable, `UTC` or `Etc/*` | none (the line still shows when the first language names a profile) | — |
 
 The US zone list is explicit in the US profile (`America/New_York`, `America/Chicago`, `America/Denver`,
