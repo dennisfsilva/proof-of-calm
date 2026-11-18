@@ -564,7 +564,9 @@ describe('templateFigureProblems prints its quoted text by code point (printedTe
       `figure-unclassed explanation: "15 %" matches no shape of a fall or a share in "${unclassed}" ` +
         `(${printed}: fall 83 %, share 100 %); R4 (docs/CONTENT-STYLE.md §4)`,
     ]);
-    expect(direct(other)).toEqual([`figure-mismatch explanation: "40 %" is not ${printed}'s share of 100 %${end(other, 3)}`]);
+    expect(direct(other)).toEqual([
+      `figure-mismatch explanation: "40 %" is not ${printed}'s share of 100 %${end(other, 3)}`,
+    ]);
     expect(direct(other, {})).toEqual([
       `figure-mismatch explanation: "40 %" is not ${printed}, which has no share${end(other, 3)}`,
     ]);
