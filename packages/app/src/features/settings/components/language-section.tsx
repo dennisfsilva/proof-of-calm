@@ -8,13 +8,7 @@ import {
 } from '@proofofcalm/ui/components/select';
 import { useId } from 'react';
 import { useLocale, useTranslations } from 'use-intl';
-import {
-  isUiLanguage,
-  LANGUAGE_NAMES,
-  type UiLanguage,
-  useOfferedLanguages,
-  writeLanguage,
-} from '../../../lib/i18n';
+import { isUiLanguage, LANGUAGE_NAMES, type UiLanguage, useOfferedLanguages, writeLanguage } from '../../../lib/i18n';
 
 // Settings → Language (ADR-0023, Deviations of 2026-11-18): the languages the build offers, each named in itself
 // with its `lang`, shown only when there are two (a preview deployment of the web host). A choice stores the device
