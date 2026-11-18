@@ -16,7 +16,7 @@
       "dca": {
         "title": "O que um plano faz e não faz",
         "p1": "Um plano fixa o montante e o calendário de cada compra, por isso o preço de um único dia não decide o que paga em média. A {product} regista cada compra com a data, o montante e as unidades, e mostra em que ponto do plano está.",
-        "p2": "Um plano não limita até onde um preço pode cair, não torna mais provável um resultado melhor e não protege o que gasta. Se os preços caírem e ficarem baixos, um plano pode acabar com menos do que custou."
+        "p2": "Um plano não limita até onde um preço pode cair, não torna mais provável um resultado melhor e não protege o que gasta. Se os preços caírem e ficarem baixos, um plano pode terminar a valer menos do que custou."
       },
       "falls": {
         "title": "Quedas face a um máximo",
@@ -74,7 +74,7 @@
   },
   "offline": {
     "title": "Sem ligação",
-    "body": "Esta página precisa de ligação. O ecrã Hoje e as páginas que já abriu antes funcionam sem ligação."
+    "body": "Esta página precisa de ligação. O ecrã Hoje e as páginas que já abriu funcionam sem ligação."
   },
   "notFound": {
     "title": "Página não encontrada",
