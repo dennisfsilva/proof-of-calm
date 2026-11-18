@@ -365,7 +365,7 @@ fact to the window its URL names (the skill's §4 step 3).
    changed, at the same paths and to the same values, and nothing else there: compare the values,
    not the characters, since the translation writes each in its number locale's format (§3 step 2;
    the pt-PT translation of Germany is read in de-DE, as its English file is, so it copies each
-   figure as written: `EUR 20 350` stays `EUR 20 350` and `5,5 %` stays `5,5 %`, since a
+   figure as written: `EUR`, U+00A0, `20`, U+00A0, `350` and `5,5`, U+00A0, `%` stay as written, since a
    profile's English figures already take the page's form and draw `decimal-separator` or
    `number-group` otherwise). Then take each `translation for the owner:` note: a letter, word,
    name or citation the English change altered that a translation repeats outside its figures,
