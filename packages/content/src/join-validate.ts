@@ -5,6 +5,9 @@ import type { Problem } from './problem.ts';
 import { FILE_ONLY_PROFILE_TEXT } from './profile-texts.ts';
 
 const NBSP = String.fromCodePoint(0xa0);
+/** A URL in prose: its figures (`n-23-27.pdf`) and percent-escapes are a path, so every check here and in
+ * percent-validate.ts reads the text with each URL replaced by a space. */
+export const URL_IN_TEXT = /https?:\/\/\S+/g;
 // Any white space but the no-break space: an ordinary space, a tab, a line break, a narrow no-break space.
 const GAP = String.raw`((?:(?!${NBSP})\s)+)`;
 // The ISO codes the live profiles write beside a figure, and the words that name a form or one of its boxes.
@@ -54,12 +57,14 @@ const prose = ({ names, months }: { names: RegExp; months: RegExp }) => ({
     'gu',
   ),
 });
-// Two figures joined by an en dash with no U+2060 after it.
+// Two figures joined by an en dash with no U+2060 after it. A figure starts after anything but a digit, or a point or
+// a comma after one: a point after a letter ends an abbreviation (`s.104–105`, `Rev.Proc.2025-32`).
 const DIGITS = String.raw`\d+(?:[.,]\d+)*`;
-const RANGE = new RegExp(String.raw`(?<![\d.,])${DIGITS}–(?!${WJ})${DIGITS}`, 'gu');
+const STARTS = String.raw`(?<!\d)(?<!\d[.,])`;
+const RANGE = new RegExp(String.raw`${STARTS}${DIGITS}–(?!${WJ})${DIGITS}`, 'gu');
 // S4 (2026-11-17): figures joined by hyphen-minus (`2026-27`, `2026-534`, `02-01-03`), each hyphen to take U+2060,
 // since Chromium and WebKit break after it; a hyphen beside a letter (`COVID-19`, `e-money`) is left out.
-const HYPHENED = new RegExp(String.raw`(?<![\d.,])${DIGITS}(?:-${WJ}?${DIGITS})+`, 'gu');
+const HYPHENED = new RegExp(String.raw`${STARTS}${DIGITS}(?:-${WJ}?${DIGITS})+`, 'gu');
 const OPEN_HYPHEN = new RegExp(`-(?!${WJ})`, 'u');
 
 const codePoints = (text: string) =>
@@ -105,15 +110,15 @@ function proseProblems(path: string, field: string, text: string, language: stri
 /**
  * Each currency code and its figure (`EUR 20 350`, `100 USD`) and each form's name and its number (`Modelo 721`,
  * `Anexo G`) in `texts` joined by anything but U+00A0, so that a line can break between them (docs/CONTENT-STYLE.md
- * §4), then the prose joins of `language`, but in the file-only text, which does not wrap. The detail names the pair
- * and the space between them, or the range, never a text to write.
+ * §4), then the prose joins of `language`, but in the file-only text, which does not wrap, and in a URL. The detail
+ * names the pair and the space between them, or the range, never a text to write.
  */
 export function joinProblems(path: string, texts: readonly [string, string][], language = 'en'): Problem[] {
-  return texts.flatMap(([field, text]) =>
-    field === FILE_ONLY_PROFILE_TEXT
-      ? []
-      : [...codeProblems(path, field, text), ...proseProblems(path, field, text, language)],
-  );
+  return texts.flatMap(([field, text]) => {
+    if (field === FILE_ONLY_PROFILE_TEXT) return [];
+    const unlinked = text.replaceAll(URL_IN_TEXT, ' ');
+    return [...codeProblems(path, field, unlinked), ...proseProblems(path, field, unlinked, language)];
+  });
 }
 
 function codeProblems(path: string, field: string, text: string): Problem[] {
