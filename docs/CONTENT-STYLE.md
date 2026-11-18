@@ -876,7 +876,7 @@ The product's nouns, one Portuguese word each, in every string, the site pages a
 | coins added at no cost (held) | moedas adicionadas |
 | sell window | janela de venda |
 | holding period | período de detenção |
-| holding date | data de fim do período de detenção |
+| holding date | o primeiro dia depois do período da regra de detenção (never `data de fim do período de detenção`, the period's last day) |
 | hold phase | fase de detenção |
 | holding rule | regra de detenção |
 | the plan strip's Buying, Holding, Selling, Out by | Compra, Detenção, Venda, Saída; the four stand only as the strip's phase labels, before a range or `a partir de`, never beside an asset name (`Compra` and `Venda` are spelled like imperatives, §2's imperative rule) |
@@ -913,10 +913,10 @@ The product's nouns, one Portuguese word each, in every string, the site pages a
 | halving | halving, as the plan's chart labels it |
 | Price data by CoinGecko | Dados de preços da CoinGecko |
 
-Two terms name the same date in two frames: `data de fim do período de detenção` is the date in the
-holding rule's own frame (the hold-phase card, the holding-date tool), and
-`não tributado a partir de <data>` (the status) or `data de exclusão de tributação` (the noun) is its
-tax status in Portugal. The date the app shows for a purchase is the day after that period ends,
-«o primeiro dia depois do período da regra de detenção» (the tax-year file's `eligible_from` line in
-settings, and the site's Risk tax line since #401); it is not `data de fim do período de detenção`,
-the period's last day, so the two are never mixed (2026-11-18).
+Two terms name the same date in two frames: `o primeiro dia depois do período da regra de detenção`
+is the date in the holding rule's own frame (the hold-phase card, the holding-date tool, the tax-year
+file's `eligible_from` line in settings; the site's Risk tax line since #401 says «o primeiro dia
+depois do período dessa regra»), and `não tributado a partir de <data>` (the status) or
+`data de exclusão de tributação` (the noun) is its tax status in Portugal. `data de fim do período
+de detenção` reads as the period's last day, one day before that date, so it names neither; no
+shipped string uses it (counsel on #401, 2026-11-18).
