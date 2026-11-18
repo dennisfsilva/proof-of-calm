@@ -399,16 +399,19 @@ The finish refuses a changed entry at any other value.
    value, not only the line its failure prints: Vitest prints a test's first failing assertion
    alone, so an owner who removes that line meets the next. Grep with `path` `.`,
    `glob` `**/*.{test,spec}.{ts,tsx}`, `output_mode` `content` and one pattern that joins with `|` each old
-   value as the data file writes it, with each regex character escaped (`\?`, `\.`, `\(`), each
+   value as the data file writes it, with each regex character escaped (`\?`, `\.`, `\(`) and
+   each joiner it holds, a `\u` escape or the character, as
+   `(?:\\u[0-9a-fA-F]{4}|[ ⁠‑])`, since a test writes it either way
+   (`5(?:\\u[0-9a-fA-F]{4}|[ ⁠‑])years` for a profile's `5 years`), each
    old date by its day and year,
    `(?:\b|\d{4}|\\u[0-9a-fA-F]{4})<day>\b(?:\D|\\u[0-9a-fA-F]{4}){1,30}<year>` (the day at a
    word start, right after a year a test joins to it, as in `202129 Dec 2022`, or right after a
    `\u` escape; between the parts any non-digit or a `\u` escape, so `10 Jun 2023` and
    `10${NO_BREAK}Jun${NO_BREAK}2023` match; no boundary after the year, which a test can join to
    the next date), and each old figure's digits, with
-   `(?:[ ,.  ]|\p{Cf}|\\u[0-9a-fA-F]{4}|\$\{\w{1,12}\}){0,2}` between digit
+   `(?:[ ,.  ]|\p{Cf}|\\u[0-9a-fA-F]{4}|\$\{[^}]{1,40}\}){0,2}` between digit
    groups (a space, comma or point, a no-break space, a format character, a `\u` escape, or a
-   test's placeholder such as `${nbsp}`) and `[.,]` as the decimal point; for ETH's low moved off
+   test's placeholder or expression, such as `${nbsp}` or `${String.fromCodePoint(0xa0)}`) and `[.,]` as the decimal point; for ETH's low moved off
    `2022-06-18` and its clause off `$880` and `−81.9 %` that is
    `2022-06-18|(?:\b|\d{4}|\\u[0-9a-fA-F]{4})18\b(?:\D|\\u[0-9a-fA-F]{4}){1,30}2022|880|81[.,]9`.
    Read each hit in
