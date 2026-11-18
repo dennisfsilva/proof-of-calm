@@ -8,6 +8,7 @@ import { fixtureSnapshot } from '../../../lib/services/fixtures';
 import { createTestServices } from '../../../lib/services/testing';
 import en from '../../../messages/en/settings.json';
 import pt from '../../../messages/pt-PT/settings.json';
+import type { ReportNote } from '../actions';
 import { PrototypeReport } from './prototype-import';
 
 // The report's split line names three percentages, the coin's old and new share and the whole they add up to: all
@@ -16,7 +17,12 @@ import { PrototypeReport } from './prototype-import';
 
 afterEach(cleanup);
 
-const NOTE = { code: 'split-normalised', coin: 'BTC' as CoinId, from: '49.9' as Percent, to: '50.1' as Percent };
+const NOTE: ReportNote = {
+  code: 'split-normalised',
+  coin: 'BTC' as CoinId,
+  from: '49.9' as Percent,
+  to: '50.1' as Percent,
+};
 const NO_BREAK_SPACE = String.fromCodePoint(0xa0);
 
 async function reportLine(country: CountryCode, language: UiLanguage): Promise<string> {
@@ -27,7 +33,7 @@ async function reportLine(country: CountryCode, language: UiLanguage): Promise<s
   render(
     <ServicesProvider services={services}>
       <I18nProvider locale={language} messages={{ settings: language === 'en' ? en : pt }}>
-        <PrototypeReport notes={[NOTE] as const} />
+        <PrototypeReport notes={[NOTE]} />
       </I18nProvider>
     </ServicesProvider>,
   );
@@ -42,12 +48,15 @@ describe('PrototypeReport’s split line', () => {
     ['PT', 'pt-PT'],
     ['DE', 'en'],
     ['DE', 'pt-PT'],
-  ] as const)('writes 100 with the percent spacing of %s’s numbers in %s, as {from} and {to}', async (country, language) => {
-    const percentages = [...(await reportLine(country, language)).matchAll(/(\d[\d.,]*)(\s?)%/gu)];
-    // Both countries' numbers take the decimal comma, in English too (ADR-0023).
-    expect(percentages.map(([, figure]) => figure)).toEqual(['49,90', '50,10', '100']);
-    const spacing = percentages.map(([, , space]) => space);
-    expect(spacing).toEqual([spacing[0], spacing[0], spacing[0]]);
-    expect(spacing[0]).toBe(country === 'DE' ? NO_BREAK_SPACE : '');
-  });
+  ] as const)(
+    'writes 100 with the percent spacing of %s’s numbers in %s, as {from} and {to}',
+    async (country, language) => {
+      const percentages = [...(await reportLine(country, language)).matchAll(/(\d[\d.,]*)(\s?)%/gu)];
+      // Both countries' numbers take the decimal comma, in English too (ADR-0023).
+      expect(percentages.map(([, figure]) => figure)).toEqual(['49,90', '50,10', '100']);
+      const spacing = percentages.map(([, , space]) => space);
+      expect(spacing).toEqual([spacing[0], spacing[0], spacing[0]]);
+      expect(spacing[0]).toBe(country === 'DE' ? NO_BREAK_SPACE : '');
+    },
+  );
 });
