@@ -25,7 +25,7 @@ function mount(languages?: readonly UiLanguage[], reload = vi.fn()) {
 }
 
 // Base UI names the select a render after it shows (the label registers its id in an effect).
-const languageSelect = () => screen.findByRole('combobox', { name: 'Language of the app' });
+const languageSelect = () => screen.findByRole('combobox', { name: 'Language' });
 
 describe('LanguageSection', () => {
   it('renders nothing while the build offers one language', () => {
@@ -47,6 +47,17 @@ describe('LanguageSection', () => {
       ['English', 'en'],
       ['Português (Portugal)', 'pt-PT'],
     ]);
+  });
+
+  // The reload follows the pick at once, so the line that says so leads (CONTENT-STYLE §1.10), between the heading
+  // and the select, as the Country section places its line, and the select's trigger is described by it.
+  it('says the app reloads before the select, and describes the select with it', async () => {
+    mount(PREVIEW_LANGUAGES);
+    const line = screen.getByText('The app reloads in the language you choose.');
+    const select = await languageSelect();
+    expect(line.compareDocumentPosition(select) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(line.id).not.toBe('');
+    expect(select.getAttribute('aria-describedby')?.split(' ')).toContain(line.id);
   });
 
   it('stores pt-PT and reloads once when Português is chosen', async () => {
