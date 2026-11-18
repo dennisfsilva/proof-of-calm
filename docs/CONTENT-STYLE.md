@@ -425,7 +425,8 @@ list, `day`, `week`, `month` and `year` with their plurals in English, and `dia`
 language's units, since an English card quotes its country's law in that law's language
 (`365 dias` in Portugal's English card, decided 2026-11-18). `Suplemento` is checked only after an ordinal figure, as an
 ordinal and its noun (`2.º Suplemento`, §9). A word counted after a figure (`6 escalões`,
-`3 states`) is not a unit, so it stays unchecked. A citation's brackets take U+2060
+`3 states`) is not a unit, so it stays unchecked, except B's count in a Learn module, which R6
+checks (below). A citation's brackets take U+2060
 between them (`55(1)(d)`, `1.1012-1(j)(3)(ii)`), and nothing between the number and its first
 bracket, which neither engine breaks. A probe at 161 widths from 240 to 400 px found each pair split
 at a line end in Chromium or WebKit, and none once joined (#368, decided 2026-11-18).
@@ -444,15 +445,15 @@ A part that two pairs share is read in both (`EUR 100 USD`), whether the first p
 refused or not. The detail names the pair and each character of the run in order
 (`U+00A0 U+0020`), never a text to write.
 
-In a Learn module, B's count joins its noun with U+00A0 (`had 4 falls`, `teve 4 quedas`, R5 and
-§9), written as the character itself. A probe of the chart section's paragraph in the Learn sheet's
-own styles, at 161 widths from 240 to 400 px in Chromium and WebKit, found U+0020 splitting
-`had 4` from `falls` at 34 widths at 125 % in English, and `teve 4` from `quedas` at 7 widths at
-100 % and 68 at 125 % in pt-PT, and U+00A0 splitting none (comment 6971015219 on #370, decided
-2026-11-18). `pnpm validate:content` refuses any other gap there (`figure-join`, R6). The same
-census found 16 other counts in the modules' text that a reader can see split from their noun
-(`6 inputs`, `95 países`); they wait for the joins check to read module text and are not checked
-yet.
+In a Learn module, B's count joins its noun with U+00A0 (`had 4 falls`, `teve 4 quedas`, R5 and
+§9), written as the character itself. A probe ran the chart section's paragraph in the Learn sheet's
+own styles at 161 widths from 240 to 400 px in Chromium and WebKit. With U+0020, `had 4` split from
+`falls` at 34 widths at 125 % zoom and none at 100 %, and `teve 4` split from `quedas` at 7 widths at
+100 % and 68 at 125 % zoom. With U+00A0 nothing split (comment 6971015219 on #370, decided
+2026-11-18). `pnpm validate:content` refuses a white-space gap there other than one U+00A0
+(`figure-join`, R6); a format or other hidden character there is refused earlier, by R5's
+hidden-character rule. The probe's census of the modules also found 16 other counts that can end a
+line apart from their noun (`6 inputs`, `95 países`). They are not joined or checked yet.
 
 U+00A0 joins a figure to its unit, a name to its number, an ordinal to its noun, B's count to its
 noun and a date's parts; U+2060 goes only after a dash or a hyphen and between a citation's brackets; U+2011 replaces the
@@ -575,10 +576,11 @@ gets one `figure-unstated` when no sentence there states one of its rows. A sent
 
 R6: B counts C's falls of more than `N`, strictly, whose high is in the first `Y` or later and whose low is in the last
 `Y` or earlier. There are `K` of them and at least one, the first high is in the first `Y`, and the last low is in the
-last `Y` (`figure-chart`). B reads any run of white space or format characters between `K` and its
-noun, a source line break as one space, and refuses any but one U+00A0 (`figure-join`); the detail names
-that gap by its code points, so its fix is to write one U+00A0 in its place (decided 2026-11-18). A
-detail's quote shows that U+00A0 as written, as it shows a joiner before `%`.
+last `Y` (`figure-chart`). B reads any run of white space between `K` and its noun, a source line break as one space,
+and refuses any gap but one U+00A0 (`figure-join`). The detail names the gap by its code points; the fix is one U+00A0
+in its place (decided 2026-11-18). So a white-space gap other than one U+00A0, in a sentence that is otherwise B,
+gets `figure-join`; a format or other hidden character there is refused earlier, by R5's hidden-character rule
+(`figure-chart`), and B never reads it. A detail's quote shows that U+00A0 as written, as it shows a joiner before `%`.
 
 Each detail quotes the sentence and names its own figure and rule, never a row or a count to copy (decided
 2026-11-17). In a translation the section is closed: each sentence and heading there is its language's B or E (§9) or
