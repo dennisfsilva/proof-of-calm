@@ -4,6 +4,7 @@
 // (docs/research/review-safe-figures.md, amendment 7). English only: overlay-number-mismatch ties a translation's
 // figures to these.
 import { paragraphsOf } from './paragraphs.ts';
+import { printedText } from './percent-gap.ts';
 import { PERCENT_JOINER } from './percent-token.ts';
 import type { Problem } from './problem.ts';
 
@@ -75,6 +76,9 @@ const compare = (whole: string, decimal: string) => {
   return a < b ? -1 : a > b ? 1 : 0;
 };
 
+/** A quoted text as every detail prints it (ADR-0057's Corrections): each hidden character by its code point. */
+const quote = (text: string) => `"${printedText(text, [])}"`;
+
 const serial = (items: readonly string[]) =>
   items.length < 3 ? items.join(' and ') : `${items.slice(0, -1).join(', ')}, and ${items.at(-1)}`;
 
@@ -89,10 +93,10 @@ export function templateFigureProblems(path: string, t: Figures): Problem[] {
   for (const sentence of sentencesOf(t.explanation)) {
     const report = (code: string, what: string, rule: number, data = '') => {
       const after = data === '' ? '' : ` (${data})`;
-      const detail = `explanation: ${what} in "${sentence}"${after}; R${rule} (docs/CONTENT-STYLE.md §4)`;
+      const detail = `explanation: ${what} in ${quote(sentence)}${after}; R${rule} (docs/CONTENT-STYLE.md §4)`;
       problems.push({ path, code, detail });
     };
-    const written = [...sentence.matchAll(WRITTEN)].map(([figure]) => `"${figure}"`);
+    const written = [...sentence.matchAll(WRITTEN)].map(([figure]) => quote(figure));
     const figures = serial(written);
     const dated = DATED.test(sentence);
     const fall = all.F1.exec(sentence) ?? all.F2.exec(sentence);
@@ -106,13 +110,17 @@ export function templateFigureProblems(path: string, t: Figures): Problem[] {
     } else if (fall?.groups !== undefined) {
       const { coin = '', more, fig = '', n = '', x = '' } = fall.groups;
       const row = falls.get(x);
-      if (row === undefined) report('figure-form', `"${fig}" carries the dates of ${fallOf(x)}`, 1);
+      if (row === undefined) report('figure-form', `${quote(fig)} carries the dates of ${fallOf(x)}`, 1);
       else if (idOf.get(coin) !== x) {
-        report('figure-form', `"${coin}" is named in the sentence that dates ${fallOf(x)}`, 2);
+        report('figure-form', `${quote(coin)} is named in the sentence that dates ${fallOf(x)}`, 2);
       } else if (more !== undefined && compare(n, row) >= 0) {
-        report('figure-mismatch', `"${fig}" is not below ${fallOf(x)}`, 2);
+        report('figure-mismatch', `${quote(fig)} is not below ${fallOf(x)}`, 2);
       } else if (more === undefined && compare(n, row) !== 0) {
-        report('figure-mismatch', `"${fig}" is neither ${fallOf(x)} nor a bound below it written "more than N %"`, 2);
+        report(
+          'figure-mismatch',
+          `${quote(fig)} is neither ${fallOf(x)} nor a bound below it written "more than N %"`,
+          2,
+        );
       }
     } else if (PERCENT.test(sentence)) {
       const share = (['S1', 'S2', 'S3', 'S4'] as const).find((name) => all[name].test(sentence));
@@ -122,7 +130,7 @@ export function templateFigureProblems(path: string, t: Figures): Problem[] {
           const parts = [falls.has(id) ? `fall ${falls.get(id)} %` : '', id in t.split ? `share ${t.split[id]} %` : ''];
           return `${id}: ${parts.filter(Boolean).join(', ')}`;
         });
-        const quoted = figures || `"${PERCENT.exec(sentence)?.[0]}"`;
+        const quoted = figures || quote(PERCENT.exec(sentence)?.[0] ?? '');
         report('figure-unclassed', `${quoted} matches no shape of a fall or a share`, 4, data.join('; '));
         continue;
       }
@@ -137,9 +145,10 @@ export function templateFigureProblems(path: string, t: Figures): Problem[] {
         const id = idOf.get(name) ?? '';
         const split = t.split[id];
         const share = split === undefined ? `${id}, which has no share` : `${id}'s share of ${split} %`;
-        if (seen.has(id)) report('figure-form', `"${figure}" gives "${name}" a second share beside ${share}`, 3);
+        if (seen.has(id))
+          report('figure-form', `${quote(figure)} gives ${quote(name)} a second share beside ${share}`, 3);
         else if (split === undefined || compare(figure.replace(/\D/g, ''), split) !== 0) {
-          report('figure-mismatch', `"${figure}" is not ${share}`, 3);
+          report('figure-mismatch', `${quote(figure)} is not ${share}`, 3);
         }
         seen.add(id);
       }
@@ -149,7 +158,7 @@ export function templateFigureProblems(path: string, t: Figures): Problem[] {
   // A match never holds `.`, `!` or `?`, so the only break it can span is a paragraph break.
   for (const [match] of t.explanation.matchAll(PERCENTS)) {
     if (paragraphsOf(match).length < 2) continue;
-    const what = `${JSON.stringify(match)} spans a paragraph break and matches no shape`;
+    const what = `${quote(match)} spans a paragraph break and matches no shape`;
     const detail = `explanation: ${what} of a fall or a share; R4 (docs/CONTENT-STYLE.md §4)`;
     problems.push({ path, code: 'figure-unclassed', detail });
   }

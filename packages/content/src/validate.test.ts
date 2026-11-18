@@ -7,6 +7,7 @@ import {
 import { describe, expect, it } from 'vitest';
 import allowList from '../sources.allow.json' with { type: 'json' };
 import { numberUnitHyphens } from './hyphen-validate.ts';
+import { printedText } from './percent-gap.ts';
 import { CountryProfileSchema } from './schema/jurisdiction.ts';
 import { TemplateSchema } from './schema/template.ts';
 import { type ContentFile, percentJoiner, validateContent } from './validate.ts';
@@ -296,7 +297,7 @@ describe('validateContent: the percent sign keeps its number locale’s spacing 
     return codes([file(pt, profile({ ...at, card, ...overrides }))]);
   };
   const refused = (locale: Locale, excerpt: string, found: string) =>
-    `percent-joiner: card.caveats.0: ${JSON.stringify(excerpt)} has ${found}, expected ${NAME[locale]}`;
+    `percent-joiner: card.caveats.0: "${printedText(excerpt, [])}" has ${found}, expected ${NAME[locale]}`;
 
   it('pins the joiners Intl gives: none in Portugal, a no-break space in Germany, Spain and France', () => {
     expect(['pt-PT', 'de-DE', 'es-ES', 'fr-FR'].map(percentJoiner)).toEqual(['', NBSP, NBSP, NBSP]);

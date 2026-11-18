@@ -1,7 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { numbersIn } from './i18n/overlay-validate.ts';
-import { escaped, groupProblems, languagePercentProblems, localeProblems } from './percent-validate.ts';
+import { printedText } from './percent-gap.ts';
+import { groupProblems, languagePercentProblems, localeProblems } from './percent-validate.ts';
 import { type CountryProfile, CountryProfileSchema } from './schema/jurisdiction.ts';
 
 const load = (code: string): CountryProfile =>
@@ -25,7 +26,7 @@ describe('a profile’s money figures group as its comma-decimal page does (docs
   const german = (text: string, profile = de) => groups(localeProblems(path, profile, [['card.rates.1.note', text]]));
   const translated = (profile: CountryProfile, text: string) =>
     groups(languagePercentProblems(path, 'pt-PT', profile, [['card.rates.1.note', text]]));
-  const typed = (text: string) => escaped(JSON.stringify(text));
+  const typed = (text: string) => `"${printedText(text, [])}"`;
   const suggestion = (figure: string, expected: string, locale = 'de-DE') =>
     `card.rates.1.note: ${typed(figure)} expected ${typed(expected)} (${locale})`;
   // S3 of #318's design check (D10 of #316): a figure without one value under both readers, English's (a point before
@@ -42,15 +43,15 @@ describe('a profile’s money figures group as its comma-decimal page does (docs
     `card.rates.1.note: ${typed(figure)} ${WHY[why]} (${locale}), ${RULE}`;
 
   it('refuses another grouping of a figure after a currency on a de-DE page', () => {
-    // The expected figure prints the escape the writer types in JSON, so it never looks like the refused one.
+    // The figures print a no-break space by its code point (printedText), so it never looks like the refused one.
     expect(german('Where the income tax exceeds EUR 20,350.')).toEqual([
       String.raw`card.rates.1.note: "EUR 20,350" has a comma that is a group in English and a decimal on this page (de-DE), so it has no suggestion. Write it by hand as CONTENT-STYLE §4 does: groups of three joined by \u00a0 from 10 000, none below, and a comma before the decimals. An amount of 1 to 999 with three decimals takes a fourth (EUR 1,1250)`,
     ]);
     expect(german('Where the income tax exceeds EUR 20 350.')).toEqual([
-      String.raw`card.rates.1.note: "EUR 20 350" expected "EUR 20\u00a0350" (de-DE)`,
+      String.raw`card.rates.1.note: "EUR 20 350" expected "EUR 20U+00A0 350" (de-DE)`,
     ]);
     expect(german(`Where the income tax exceeds EUR 20${narrow}350.`)).toEqual([
-      String.raw`card.rates.1.note: "EUR 20\u202f350" expected "EUR 20\u00a0350" (de-DE)`,
+      String.raw`card.rates.1.note: "EUR 20U+202F 350" expected "EUR 20U+00A0 350" (de-DE)`,
     ]);
     const flagged = [
       'EUR 20.350',
@@ -64,18 +65,18 @@ describe('a profile’s money figures group as its comma-decimal page does (docs
     for (const figure of flagged) expect(german(`Up to ${figure} a year.`)).toHaveLength(1);
     expect(german('EUR 1.000 and €20 350')).toEqual([
       String.raw`card.rates.1.note: "EUR 1.000" has a point that is a decimal in English and a group on this page (de-DE), so it has no suggestion. Write it by hand as CONTENT-STYLE §4 does: groups of three joined by \u00a0 from 10 000, none below, and a comma before the decimals. An amount of 1 to 999 with three decimals takes a fourth (EUR 1,1250)`,
-      String.raw`card.rates.1.note: "€20 350" expected "€20\u00a0350" (de-DE)`,
+      String.raw`card.rates.1.note: "€20 350" expected "€20U+00A0 350" (de-DE)`,
     ]);
   });
 
   it('refuses another grouping of a figure before a currency code, sign or word', () => {
     expect(german('Up to 20 350 EUR a year.')).toEqual([
-      String.raw`card.rates.1.note: "20 350 EUR" expected "20\u00a0350 EUR" (de-DE)`,
+      String.raw`card.rates.1.note: "20 350 EUR" expected "20U+00A0 350 EUR" (de-DE)`,
     ]);
     expect(german('Up to 50.000 € a year.')).toEqual([refusal('50.000 €', 'point')]);
     expect(german('Up to 20,350 euros a year.')).toEqual([refusal('20,350 euros', 'comma')]);
     expect(german('Up to 20350 € a year.')).toEqual([
-      String.raw`card.rates.1.note: "20350 €" expected "20\u00a0350 €" (de-DE)`,
+      String.raw`card.rates.1.note: "20350 €" expected "20U+00A0 350 €" (de-DE)`,
     ]);
     expect(german('From 2026 EUR 20,350 a year.')).toEqual([refusal('EUR 20,350', 'comma')]);
     for (const figure of [`20${nbsp}350 EUR`, `50${nbsp}000${nbsp}€`, '1000 Euro', '600 dollars']) {
@@ -86,7 +87,7 @@ describe('a profile’s money figures group as its comma-decimal page does (docs
   it('keeps the value of a point-decimal money figure, its cents after a comma', () => {
     expect(german('A fee of EUR 12.50.')).toEqual(['card.rates.1.note: "EUR 12.50" expected "EUR 12,50" (de-DE)']);
     expect(german('Up to €20,350.50 a year.')).toEqual([
-      String.raw`card.rates.1.note: "€20,350.50" expected "€20\u00a0350,50" (de-DE)`,
+      String.raw`card.rates.1.note: "€20,350.50" expected "€20U+00A0 350,50" (de-DE)`,
     ]);
   });
 
@@ -325,7 +326,9 @@ describe('a profile’s literal decimals follow its page’s number locale (docs
       'card.caveats.0: "6.00%" writes ".", expected "," (pt-PT)',
       'card.caveats.0: "5.88%" writes ".", expected "," (pt-PT)',
     ]);
-    expect(english(de, `Taxed at 26.375 %`)).toEqual(['card.caveats.0: "26.375 %" writes ".", expected "," (de-DE)']);
+    expect(english(de, `Taxed at 26.375 %`)).toEqual([
+      'card.caveats.0: "26.375U+00A0 %" writes ".", expected "," (de-DE)',
+    ]);
     expect(english(pt, 'Art. 33.1 and Quadro 9.4 hold no percentage; 28% is whole.')).toEqual([]);
   });
 

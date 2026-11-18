@@ -4,6 +4,7 @@
 // pt or de, so no date is written out by hand. Pure and without zod: the app ships the loaders' half.
 import type { CalendarDate } from '@proofofcalm/core';
 import { asDate } from './loaders/brands.ts';
+import { printedText } from './percent-gap.ts';
 import type { Problem } from './problem.ts';
 import type { ContentTemplate } from './schema/template.ts';
 
@@ -99,10 +100,10 @@ export function templateDateProblems(
       if (!dates.has(at)) report('unresolved', `${whole} names no date of this template`);
     }
     for (const [broken] of text.replace(PLACEHOLDER, '').matchAll(/\{date[^}\s]*/g)) {
-      report('unresolved', `"${broken}" is not a whole placeholder`);
+      report('unresolved', `"${printedText(broken, [])}" is not a whole placeholder`);
     }
     for (const [name] of text.matchAll(monthPattern())) {
-      report('month', `"${name}" is a month name; write {date:<field>} (docs/CONTENT-STYLE.md §4)`);
+      report('month', `"${printedText(name, [])}" is a month name; write {date:<field>} (docs/CONTENT-STYLE.md §4)`);
     }
     return problems;
   });

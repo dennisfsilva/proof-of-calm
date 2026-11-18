@@ -1,6 +1,7 @@
 // A numeral joined to its unit by a hyphen never breaks there on a screen: the text writes U+2011 (docs/CONTENT-STYLE.md
 // §4), for validate.ts and modules-validate.ts. Pure; relative imports name their .ts files, so that Node runs the CLI
 // without a build step.
+import { printedText } from './percent-gap.ts';
 import type { Problem } from './problem.ts';
 
 // English's units and pt-PT's (`90-dias`, `1-mês`). An ISO date and a tax year such as `2026-27` name no unit, so they
@@ -23,5 +24,5 @@ export const hyphenProblems = (path: string, field: string, text: string): Probl
   numberUnitHyphens(text).map((match) => ({
     path,
     code: 'number-unit-hyphen',
-    detail: `${field}: ${JSON.stringify(match)}; ${DETAIL}`,
+    detail: `${field}: "${printedText(match, [])}"; ${DETAIL}`,
   }));

@@ -3,6 +3,7 @@
 // `headerTexts` follows `cessionsHeader`, `snapshotHeader` and `perLotFile` in
 // packages/app/src/features/settings/tax-year.ts, whose test imports it, so the two cannot drift. Pure; relative
 // imports name their .ts files, so that Node runs the CLI without a build step.
+import { printedText } from './percent-gap.ts';
 import type { Problem } from './problem.ts';
 import type { CountryProfile } from './schema/jurisdiction.ts';
 
@@ -36,7 +37,7 @@ export const semicolonProblems = (path: string, texts: readonly [string, string]
     const at = text.indexOf(';');
     if (at < 0) return [];
     const excerpt = text.slice(Math.max(0, at - AROUND), at + AROUND + 1);
-    return [{ path, code: 'header-semicolon', detail: `${field}: ${JSON.stringify(excerpt)}, ${SPLITS}` }];
+    return [{ path, code: 'header-semicolon', detail: `${field}: "${printedText(excerpt, [])}", ${SPLITS}` }];
   });
 
 /** The `;` check on every text of `profile` that a tax-year header line copies. */
