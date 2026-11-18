@@ -412,6 +412,14 @@ describe('a source title’s joins in its own language (docs/CONTENT-STYLE.md §
     expect(joins(titled(joined, 'en'))).toEqual([]);
   });
 
+  it('refuses a plain hyphen before a Latin ordinal suffix in a title, and passes it with U+2060 after (T5)', () => {
+    const hyphened = (figure: string) =>
+      `sources.0.title: the range or number "${figure}" can break after its hyphen (docs/CONTENT-STYLE.md §4)`;
+    expect(joins(titled('Formulaire 3916-bis', 'en'))).toEqual([hyphened('3916-bis')]);
+    const wj = String.fromCodePoint(0x2060);
+    expect(joins(titled(`Formulaire 3916-${wj}bis`, 'en'))).toEqual([]);
+  });
+
   it('runs no ban list or hyphen check on a title: its words stay as published (T4)', () => {
     expect(localeProblems(path, titled('Decreto-Lei: guaranteed returns', 'pt'), [])).toEqual([]);
   });

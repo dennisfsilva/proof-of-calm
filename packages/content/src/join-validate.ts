@@ -63,9 +63,18 @@ const PROSE_JOINS: Readonly<Record<string, ProseJoins>> = {
     ),
     months: /janeiro|fevereiro|março|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro/u,
     linker: 'de',
-    units: /dias?|semanas?|mês|meses|anos?|Suplemento/u,
+    // `Suplemento` only after an ordinal figure (`2.º Suplemento`, CONTENT-STYLE §9): `2 Suplemento` is no unit.
+    units: /dias?|semanas?|mês|meses|anos?|(?<=\d\.º\s+)Suplemento/u,
   },
 };
+// Every language's unit words, read in every text a language with lists writes: a profile quotes its country's law in
+// that law's language (`365 dias` in Portugal's English card; decided 2026-11-18). Two closed lists make one closed list.
+const UNITS = new RegExp(
+  Object.values(PROSE_JOINS)
+    .map(({ units }) => units.source)
+    .join('|'),
+  'u',
+);
 const WJ = String.fromCodePoint(0x2060);
 // A law's number: digits first, capitals before a slash and a digit (`HAC/277/2026`), or a roman numeral (`Série I`),
 // then letters, digits, and points, slashes or hyphens between them, a hyphen-minus with the U+2060 after it
@@ -81,9 +90,9 @@ const CITATION = new RegExp(String.raw`\d+\([\dA-Za-z]{1,4}\)(?:${WJ}?\([\dA-Za-
 // The gap between two parts of a date: a space, or a space, the linker and a space; without a linker its two groups
 // match nothing, so that every language's dates have the same groups.
 const link = (linker?: string) => (linker === undefined ? String.raw`(\s+)()()` : String.raw`(\s+)(${linker})(\s+)`);
-const prose = ({ names, months, linker, units }: ProseJoins) => ({
+const prose = ({ names, months, linker }: ProseJoins) => ({
   names: new RegExp(String.raw`(?<![\p{L}\d.§])(${names.source})(\s+)(${LAW_NUMBER})`, 'gu'),
-  units: new RegExp(String.raw`${UNIT_FIGURE}(\s+)(${units.source})(?![\p{L}\d])`, 'gu'),
+  units: new RegExp(String.raw`${UNIT_FIGURE}(\s+)(${UNITS.source})(?![\p{L}\d])`, 'gu'),
   // `D Month YYYY`, `D Month` and `Month YYYY`, or `D de M de YYYY` with a linker; a month alone is no date.
   dates: new RegExp(
     String.raw`(?<![\p{L}\d.,])(?:(\d{1,2})${link(linker)})?(${months.source})(?![\p{L}\d])(?:${link(linker)}(\d{4})(?!\d))?`,
@@ -99,6 +108,13 @@ const RANGE = new RegExp(String.raw`${STARTS}${DIGITS}–(?!${WJ})${DIGITS}`, 'g
 // since Chromium and WebKit break after it; a hyphen beside a letter (`COVID-19`, `e-money`) is left out.
 const HYPHENED = new RegExp(String.raw`${STARTS}${DIGITS}(?:-${WJ}?${DIGITS})+`, 'gu');
 const OPEN_HYPHEN = new RegExp(`-(?!${WJ})`, 'u');
+// The Latin ordinal suffixes the profiles' laws write after a number or a single letter (`9-bis`, `c-sexies`), a closed
+// list, each after a hyphen-minus with no U+2060 after it: text a screen shows writes U+2011 (`9‑bis`), a source's title
+// a hyphen-minus and U+2060 (docs/CONTENT-STYLE.md §4). One inside a law name's number is that name's check.
+const ORDINAL_SUFFIX = new RegExp(
+  String.raw`(?<![\p{L}\d])(?:\d+|\p{L})-(?!${WJ})(?:bis|ter|quater|quinquies|sexies|septies|octies|novies|decies)(?![\p{L}\d])`,
+  'gu',
+);
 
 const codePoints = (text: string) =>
   [...new Set(text)].map((char) => `U+${(char.codePointAt(0) ?? 0).toString(16).toUpperCase().padStart(4, '0')}`);
@@ -138,8 +154,15 @@ function proseProblems(path: string, field: string, text: string, language: stri
   const lists = Object.hasOwn(PROSE_JOINS, language) ? PROSE_JOINS[language] : undefined;
   if (lists === undefined) return [];
   const { names, dates, units } = prose(lists);
+  const named = [...text.matchAll(names)];
+  // Where each law name's number starts and ends in the text.
+  const numbers = named.map(({ index, 1: name = '', 2: gap = '', 3: number = '' }) => {
+    const start = index + name.length + gap.length;
+    return [start, start + number.length] as const;
+  });
+  const inNumber = (at: number) => numbers.some(([start, end]) => at >= start && at < end);
   return [
-    ...[...text.matchAll(names)].flatMap(([, name = '', gap = '', number = '']) => [
+    ...named.flatMap(([, name = '', gap = '', number = '']) => [
       ...joined(path, field, `the name ${typed(name)} and its number`, number, gap),
       ...(OPEN_LAW_HYPHEN.test(number) ? [hyphenProblem(path, field, number)] : []),
     ]),
@@ -158,6 +181,9 @@ function proseProblems(path: string, field: string, text: string, language: stri
     }),
     ...[...text.matchAll(HYPHENED)].flatMap(([figure]) =>
       OPEN_HYPHEN.test(figure) ? [hyphenProblem(path, field, figure)] : [],
+    ),
+    ...[...text.matchAll(ORDINAL_SUFFIX)].flatMap(({ 0: figure, index }) =>
+      inNumber(index) ? [] : [hyphenProblem(path, field, figure)],
     ),
     ...[...text.matchAll(units)].flatMap(([, figure = '', gap = '', unit = '']) =>
       joined(path, field, `the figure ${typed(figure)} and its unit`, unit, gap),
