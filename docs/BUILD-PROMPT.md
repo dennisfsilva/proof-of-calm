@@ -656,8 +656,8 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   reason it. #358's FALLS route had the owner delete a data row that `cycles.test.ts`' whole-array
   comparison needs, and round 2 turned main red with it (comment 6964927489, 2026-11-18).
 - A new check over profile text reuses its sibling checks' URL removal (`URL_IN_TEXT` in
-  `packages/content/src/percent-validate.ts`) from its first commit. #358's hyphen check flagged a
-  figure inside a URL in round 2 (2026-11-18).
+  `packages/content/src/join-validate.ts`, which the percent and grouping checks import) from its
+  first commit. #358's hyphen check flagged a figure inside a URL in round 2 (2026-11-18).
 - Probe a design note's claim about where a browser breaks a line in Chromium and WebKit before the
   build. #358's D5 said a hyphen-minus range never breaks (UAX #14 LB25); the builder's probe found
   both engines break after it (S4, comment 6964566623, 2026-11-18).
