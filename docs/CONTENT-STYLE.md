@@ -522,11 +522,11 @@ last `Y` (`figure-chart`).
 
 Each detail quotes the sentence and names its own figure and rule, never a row or a count to copy (decided
 2026-11-17). In a translation the section is closed: each sentence and heading there is its language's B or E (§9) or
-one its language's list holds, character for character; a language without shapes fails closed. It holds only
-top-level paragraphs and headings and the chart: a block in a list item, a quote or an element, and any other element,
-fails, since the page shows a list item's number (`1975. Text.`) that no sentence holds; it ends only at a top-level
-heading (decided 2026-11-18). An unlisted sentence's or heading's detail names the fix: B or E, or a listing in a
-reviewed pull request. A chart other than
+one its language's list holds, character for character; a language without shapes fails closed. The section holds only
+top-level paragraphs and headings and the chart (decided 2026-11-18). A block in a list item, a quote or an element,
+and any other element, fails, since the page shows a list item's number (`1975. Text.`) that no sentence holds. The
+section ends only at a top-level heading. An unlisted sentence's detail names B or E, or a listing in a reviewed pull
+request; an unlisted heading's names the listing or its removal. A chart other than
 `drawdowns-bar` has no rows, so any figure in its section fails.
 
 A numeral joined to its unit by a hyphen (`90‑day`, `365‑day`) never breaks there. Text a screen shows writes the
