@@ -63,7 +63,8 @@ account-free reminder, legal pages, no account yet.
 
 **Done when**
 
-- Onboarding: country suggested from locale and timezone and confirmed with one tap; template or
+- Onboarding: country suggested from locale and timezone, confirmed with one tap when the suggestion
+  is high or medium and chosen from the list otherwise (`docs/JURISDICTIONS.md` §3); template or
   custom; monthly amount, first buy, optional starting amount with the currency set by the country;
   custom path: coins and split, then dates; the user's one sentence; reminder step offers "Add to
   calendar" (an `.ics` with the monthly recurrence on the buy day) and "Later" (the email option

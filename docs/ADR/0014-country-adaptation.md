@@ -66,3 +66,22 @@ relabels"); the rest of the decision stands.
   rule and the rule version. The pay and display currencies stay as they are unless the person says
   the amounts were paid in the new country's currency; nothing is ever converted (ADR-0053,
   `docs/DOMAIN.md` §2.1 and §6 "Change country").
+
+## Deviations recorded on 2026-11-18
+
+The decision stands: the country is selected by the user in onboarding, suggested from locale and
+timezone, never taken silently from IP. How the suggestion is offered deviates from "confirmed with one
+tap" in Option 3 (`docs/JURISDICTIONS.md` §3 owns the rules):
+
+- **One tap for `high` and `medium`.** Such a suggestion is preselected and confirmed with one tap.
+- **`low` is named and chosen.** The device's reading names the country and lists it first, but does not
+  preselect it; "Continue with …" appears once the person chooses a country, so a guess from an
+  English device in Lisbon is never confirmed by a reflex.
+- **Nothing is named without a usable timezone.** A missing, empty, `UTC` or `Etc/*` zone names no
+  country, and the list opens with "Other country": a language says what someone reads, not where they
+  live, so the language-only fallback is gone.
+- **The residence line.** "Residence, not language, decides tax." shows whenever the first readable
+  language tag is not English, has a region, and that region is a served profile other than the named
+  country (any served profile when nothing is named).
+
+For the owner's sign-off at the end of M2.

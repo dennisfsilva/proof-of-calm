@@ -1619,7 +1619,7 @@ the prototype itself merged under a file are applied silently, as it did. `recog
 a Proof of Calm backup from a prototype export. Settings' import takes the file chosen or the text pasted into
 its paste box (the DCA plan page's export copied whole), read by the same path; a pasted backup is read as a
 backup. It (`docs/CONTENT-STYLE.md` §3) passes the plan's
-country when a plan exists, otherwise the one the user confirms with one tap in onboarding's country step,
+country when a plan exists, otherwise the one the user chooses in onboarding's country step (`docs/JURISDICTIONS.md` §3),
 and applies the result through `applyImport` in either mode, as a backup (§3.13); the device preferences
 are written only when the file's plan is taken (no plan, or `Replace everything`), never by `Add missing
 entries only`. That mode keeps this plan, so its report keeps only the notes with a count, those on the file's
