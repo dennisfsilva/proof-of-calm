@@ -154,7 +154,8 @@ export function templateFigureProblems(path: string, t: Figures): Problem[] {
         const id = idOf.get(name) ?? '';
         const split = t.split[id];
         const coin = printedText(id, []);
-        const share = split === undefined ? `${coin}, which has no share` : `${coin}'s share of ${split} %`;
+        // Like fallOf's no-row arm, the clause closes on a comma: " in" always follows it in a detail.
+        const share = split === undefined ? `${coin}, which has no share,` : `${coin}'s share of ${split} %`;
         if (seen.has(id))
           report('figure-form', `${quote(figure)} gives ${quote(name)} a second share beside ${share}`, 3);
         else if (split === undefined || compare(figure.replace(/\D/g, ''), split) !== 0) {
