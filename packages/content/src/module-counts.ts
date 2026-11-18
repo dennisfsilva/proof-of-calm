@@ -1,4 +1,4 @@
-// A Learn module's counts and their nouns (docs/CONTENT-STYLE.md §4): a figure before a noun a closed list names is
+// A Learn module's counts and their nouns (docs/CONTENT-STYLE.md §4, R7): a figure before a noun a closed list names is
 // joined to it by exactly one U+00A0, so that no line ends between them. The list holds the counts the modules write
 // and the 25z probe joined, in Calm Sans at the Learn sheet's paragraph styles, in Chromium and WebKit, 240 to 400 px,
 // at 16/24 and 20/30 px. B's count (falls, quedas) stays off it: R6 in module-figures.ts reads that one. Years, dates,
@@ -41,7 +41,7 @@ export function moduleCountProblems(
       if (gap === NBSP) return [];
       const shown = noun.replace(/\s+/gu, ' ');
       const detail = `${field}: the count "${printedText(count, [NBSP])}" and its noun "${shown}" are joined by \
-${printedGap(gap, []).trim()}, not U+00A0; write one U+00A0 between them (docs/CONTENT-STYLE.md §4)`;
+${printedGap(gap, []).trim()}, not U+00A0; write one U+00A0 between them; R7 (docs/CONTENT-STYLE.md §4)`;
       return [{ path, code: 'figure-join', detail }];
     }),
   );
