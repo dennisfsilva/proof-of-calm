@@ -412,7 +412,9 @@ module's note, on the fact entry or cycles file its figure rests on. After §1's
 translated module's note included, set that mark only when the run would otherwise stage nothing:
 on the cycles file when the reverted change reached a chart row, otherwise on the fact entry the
 note names first, or, when the note names only a module, on the fact entry that the first key of
-that module's front-matter `facts:` names (`a.btc-drawdowns` for `learn/cycles.mdx`). Give that file its
+that module's front-matter `facts:` names (`a.btc-drawdowns` for `learn/cycles.mdx`); a module
+with no such key, `learn/start-here.mdx`, cites no source and quotes no figure, so no change of
+yours reaches it (§4 step 1) and no revert names it. Give that file its
 `reviewed` row. The pull request then carries the note: the finish accepts a change of the mark alone and
 refuses a run with nothing staged. Leave the rules files as the generator writes them.
 The finish refuses a changed entry at any other value.
