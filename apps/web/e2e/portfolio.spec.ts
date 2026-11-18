@@ -38,10 +38,10 @@ const loosely = (text: string) =>
 
 /**
  * Answers /api/history/:coin, never CoinGecko: a year of daily closes ending on `nowMs`'s date at the
- * fixture prices, rising by about 0.1 % a day; after `held` settles when one is given.
+ * fixture prices, rising by `daily` a day (about 0.1 % by default); after `held` settles when one is given.
  */
 const history =
-  (nowMs: number, held: Promise<void> = Promise.resolve()) =>
+  (nowMs: number, { held = Promise.resolve(), daily = 0.999 }: { held?: Promise<void>; daily?: number } = {}) =>
   async (route: Route) => {
     await held;
     const url = new URL(route.request().url());
@@ -49,7 +49,7 @@ const history =
     const last = coin === 'ETH' ? 2500.5 : 60000.12;
     const closes = Array.from({ length: 365 }, (_, index) => {
       const back = 364 - index;
-      const close = Math.round(last * 0.999 ** back * 100) / 100;
+      const close = Math.round(last * daily ** back * 100) / 100;
       return [new Date(nowMs - back * 86_400_000).toISOString().slice(0, 10), String(close)];
     });
     return route.fulfill({
@@ -74,7 +74,7 @@ test('the value chart takes its loaded height before the closes arrive, so nothi
   const held = new Promise<void>((resolve) => {
     release = resolve;
   });
-  await page.route('**/api/history/*', history(nowMs, held));
+  await page.route('**/api/history/*', history(nowMs, { held }));
   await seedPlan(page, fixtureSnapshot());
   await page.goto('/portfolio');
 
@@ -103,12 +103,15 @@ for (const phase of Object.keys(FIXTURE_DATES) as FixturePhase[]) {
         },
       }),
     );
+    // The charts draw, as they do whenever the upstream answers: BTC's 30 days of closes, 0.3 % a day,
+    // span its average cost, so the open row's chart labels that level inside the holdings table.
+    await page.route('**/api/history/*', history(nowMs, { daily: 0.997 }));
     await seedPlan(page, fixtureSnapshot());
     await page.goto('/portfolio');
     await expect(page.getByRole('heading', { level: 1, name: 'Portfolio' })).toBeVisible();
 
     // BTC 0.02215 at 60,000.12 and ETH 0.119 at 2,500.5; 1,700 invested and 150 back from a sale.
-    await expect(page.getByText(loosely(money('1626.562158')))).toBeVisible();
+    await expect(page.getByRole('definition').filter({ hasText: loosely(money('1626.562158')) })).toBeVisible();
     await expect(page.getByText(loosely(`${money('76.562158', true)} (+4,5%)`))).toBeVisible();
     await expect(page.getByText('Fees (not in P/L)')).toBeVisible();
     await expect(page.getByRole('img', { name: /^Allocation by value: BTC 82\s*%, ETH 18\s*%$/ })).toBeVisible();
@@ -119,10 +122,13 @@ for (const phase of Object.keys(FIXTURE_DATES) as FixturePhase[]) {
     const btc = holdings.getByRole('button', { name: 'BTC' });
     await btc.click();
     await expect(btc).toHaveAttribute('aria-expanded', 'true');
-    // Every row holds its detail; BTC's comes first and only it is open.
-    await expect(holdings.getByText('Average cost').first()).toBeVisible();
-    await expect(holdings.getByText('Average cost').last()).toBeHidden();
-    await expect(holdings.getByText(loosely(money('56433.408577')))).toBeVisible();
+    // Every row holds its detail; BTC's comes first and only it is open. The details' terms and figure,
+    // never the open chart's average-cost label or legend entry.
+    const averageCost = holdings.getByRole('term', { includeHidden: true }).filter({ hasText: /^Average cost$/ });
+    await expect(averageCost).toHaveCount(2);
+    await expect(averageCost.first()).toBeVisible();
+    await expect(averageCost.last()).toBeHidden();
+    await expect(holdings.getByRole('definition').filter({ hasText: loosely(money('56433.408577')) })).toBeVisible();
 
     // The open table fits its wrapper at every width and text size, so it needs no scrolling region.
     const fit = await holdings.evaluate((table) => ({
