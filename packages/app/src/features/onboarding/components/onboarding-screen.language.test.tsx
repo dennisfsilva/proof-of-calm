@@ -37,7 +37,8 @@ afterEach(() => {
 await preloadLazyModules();
 
 const LISBON = { languages: ['pt-PT'], timeZone: 'Europe/Lisbon' } as const;
-const BERLIN = { languages: ['pt-PT'], timeZone: 'Europe/Berlin' } as const;
+/** German among the languages makes Germany a confident suggestion, preselected, so one tap continues. */
+const BERLIN = { languages: ['pt-PT', 'de-DE'], timeZone: 'Europe/Berlin' } as const;
 const english = TEMPLATES.map((template) => template.name);
 
 type TestServices = ReturnType<typeof createTestServices>;
