@@ -33,7 +33,7 @@
       },
       "tax": {
         "title": "Impostos",
-        "p1": "Vender, trocar ou gastar moedas pode implicar imposto a pagar, e as regras de cada país são diferentes e mudam. A {product} mostra as regras de detenção dos países que abrange, com as fontes e a data da última revisão de cada uma, exceto enquanto uma regra está em revisão. Quando o plano tem uma regra de detenção, a {product} mostra a data de fim do período de detenção de cada compra. É informação e não constitui aconselhamento fiscal. Um consultor fiscal ou a sua autoridade tributária pode dizer-lhe o que se aplica a si."
+        "p1": "Vender, trocar ou gastar moedas pode implicar imposto a pagar, e as regras de cada país são diferentes e mudam. A {product} mostra as regras de detenção dos países que abrange, com as fontes e a data da última revisão de cada uma, exceto enquanto uma regra está em revisão. Quando o plano tem uma regra de detenção, a {product} mostra, para cada compra, o primeiro dia depois do período dessa regra. É informação e não constitui aconselhamento fiscal. Um consultor fiscal ou a sua autoridade tributária pode dizer-lhe o que se aplica a si."
       },
       "scams": {
         "title": "Burlas",
