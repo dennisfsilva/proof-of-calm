@@ -3,7 +3,7 @@ import { expect, type Page, type TestInfo } from '@playwright/test';
 import { FIXTURE_DATES, fixtureNowMs, fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
 import { UNDO_WINDOW_MS } from '@proofofcalm/core';
 import { seedPlan } from './seed';
-import { applyTextZoom, test } from './support';
+import { applyTextZoom, routeFixturePrices, test } from './support';
 
 // Flows across Settings, the Log, Plan and Portfolio on the viewport matrix (docs/DOMAIN.md §3.13,
 // docs/CONTENT-STYLE.md §3 "Import a file"): the JSON backup this device exports, imported on a fresh
@@ -11,7 +11,7 @@ import { applyTextZoom, test } from './support';
 // everything", shows the same screens; "Add missing entries only" keeps a deletion and a new entry made
 // here since the export; "Replace everything" over a changed plan asks first and its "Export a copy first"
 // saves a file. A deletion in the Log stays undone after a reload, and stays deleted once the toast is gone.
-// /api/prices is answered by each page's route, so nothing reaches CoinGecko.
+// /api/prices and /api/history are answered by each page's routes, so nothing reaches CoinGecko.
 
 test.use({ serviceWorkers: 'block' });
 
@@ -20,18 +20,11 @@ const live = fixture.entries.filter((entry) => entry.deletedAt === null).length;
 const toast = (page: Page) => page.locator('[data-slot="toast"]:not([hidden])');
 const ready = (page: Page) => expect(page.locator('main#main')).not.toHaveAttribute('aria-busy', 'true');
 
-/** The page's clock at the fixture's buying-phase date, and both coins priced. */
+/** The page's clock at the fixture's buying-phase date, and both coins priced, with their history. */
 async function atBuyDate(page: Page) {
   const nowMs = fixtureNowMs('buy');
   await page.clock.setFixedTime(new Date(nowMs));
-  await page.route('**/api/prices?*', (route) =>
-    route.fulfill({
-      json: {
-        at: new Date(nowMs - 30_000).toISOString(),
-        prices: { BTC: { EUR: '60000.12', USD: '70000' }, ETH: { EUR: '2500.5', USD: '2900' } },
-      },
-    }),
-  );
+  await routeFixturePrices(page, nowMs);
 }
 
 /** Settings → Currency & data; without a plan the screen opens on it. */
