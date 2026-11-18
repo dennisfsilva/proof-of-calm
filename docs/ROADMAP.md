@@ -363,9 +363,20 @@ external links and the Risk link in the mobile export (M3).
   module's count before a listed noun is joined to it, and 28 counts are joined (#386). R7's detail
   prints each run of white space inside its quoted noun as one space. An agent compared each
   image before 10 English baselines were updated. fix/review-note-forms waits with one
-  confirmed finding after two review rounds. Five items move to #387, which comes before #271.
-  With #340, #343, #349, #355, #358, #361, #368, #370, #377, #381 and #387, pt-PT takes 20 build
-  sessions more than #269 planned before German starts. A render-and-axe-only pt-PT
+  confirmed finding after two review rounds. Five items move to #387, which comes before #271. On
+  2026-11-18, #387 merged only its docs sync. fix/review-note-forms waits after two review rounds.
+  Each round found one more test that pins a chart row: first
+  `packages/app/src/lib/services/red-day.test.ts`, then
+  `packages/content/src/template-figures.test.ts` with
+  `packages/app/src/features/onboarding/components/template-step.test.tsx`, both through the
+  templates' explanation sentences. fix/r7-hidden-break waits after two review rounds. Round 1
+  found a hidden character at a word edge, and round 2 a default-ignorable that is itself a mark or
+  a letter at an edge. #388 carries both branches, each after a design check, then the review
+  skill's older gaps, and comes before #271. The in-app Learn hash-link scroll was dropped on
+  2026-11-18. Nothing writes a `learn/<slug>#` URL. The app's section links open the sheet and
+  focus the section. The site pages' anchors land.
+  With #340, #343, #349, #355, #358, #361, #368, #370, #377, #381, #387 and #388, pt-PT takes 21
+  build sessions more than #269 planned before German starts. A render-and-axe-only pt-PT
   story run waits for #271, once every namespace is translated. CSV import, free (ADR-0039), for the
   main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
   Republic; Kraken's ledger reader built on 2026-11-13 (#168) and the core's import plan against the
