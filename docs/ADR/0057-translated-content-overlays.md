@@ -250,10 +250,11 @@ generated rules files of each language.
   ADR-0048's Deviations entry of 2026-11-17 on `virtual:learn-meta/<language>`.
 - **2026-11-18.** `overlay-percent-mismatch` reads every percentage a template's text writes: a
   figure, a gap of nothing, white space, hyphens, or hidden characters, and any of the signs `%`,
-  `٪`, `﹪`, `％`, `‰`, or `‱`. Its detail names each gap character other than the ordinary space
-  by its code point, then the sign (`40U+0009 U+0009 %, English 40 %`), and no form to write. Before,
-  it read only `%` after at most one space, so `40٪` or `40-%` was missing from the translation's
-  list rather than named. Its pattern stays in `packages/content/src/i18n/overlay-validate.ts`,
+  `٪`, `﹪`, `％`, `‰`, or `‱`. Its detail shows a gap of one ordinary space as that space, and
+  names every character of any other gap by its code point, the ordinary space as U+0020, then
+  the sign (`40U+2060 U+0020 ‰, English 40 %`), and no form to write. Before, it read only `%`
+  after at most one space, so `40٪` or `40-%` was missing from the translation's list rather
+  than named. Its pattern stays in `packages/content/src/i18n/overlay-validate.ts`,
   apart from `packages/content/src/percent-token.ts`: that file holds the one token the app
   formats, while this check compares two texts and reads more than the app formats. Profiles keep
   their own percent rules, as above.

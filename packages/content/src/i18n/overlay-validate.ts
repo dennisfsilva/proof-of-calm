@@ -83,14 +83,15 @@ export type NumberLocales = readonly [english: string, translated: string];
 // each value read with its own text's separators (`31.4 %` in English is `31,4 %` in pt-PT; ADR-0057's Corrections).
 // It stays apart from percent-token.ts (decided 2026-11-18): that file holds the one token the app formats, `N %` in a
 // template's explanation, while this one compares two texts of any kind, so it reads more than the app formats
-// (`‰`, `‱`, a hidden character) and names each gap's code points, never a form to write.
+// (`‰`, `‱`, a hidden character) and names each gap's code points, never a form to write. A gap of one ordinary space
+// shows as that space; any other gap names every character, the ordinary space as U+0020, so that no space after a
+// code point reads as the separator (`40U+2060 U+0020 ‰`).
 const PERCENT_TOKEN = /(\d+(?:[.,]\d+)*)((?:\s|-|\p{Cf})*)([%٪﹪％‰‱])/gu;
-const codePoint = (char: string) =>
-  char === ' ' ? ' ' : `U+${char.codePointAt(0)?.toString(16).toUpperCase().padStart(4, '0')} `;
+const codePoint = (char: string) => `U+${char.codePointAt(0)?.toString(16).toUpperCase().padStart(4, '0')} `;
 const percentsIn = (text: string, locale: string) =>
   [...text.matchAll(PERCENT_TOKEN)]
     .map(({ 1: run = '', 2: gap = '', 3: sign = '' }) => {
-      const joiner = [...gap].map(codePoint).join('');
+      const joiner = gap === ' ' ? ' ' : [...gap].map(codePoint).join('');
       return `${valuesOf(run, decimalSeparator(locale)).join('/')}${joiner}${sign}`;
     })
     .join(', ') || 'none';
