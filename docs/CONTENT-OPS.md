@@ -361,15 +361,22 @@ fact to the window its URL names (the skill's §4 step 3).
    the pt-PT translation of Germany is read in de-DE, as its English file is, so it copies each
    figure as written: `EUR 20 350` stays `EUR 20 350` and `5,5 %` stays `5,5 %`, since a
    profile's English figures already take the page's form and draw `decimal-separator` or
-   `number-group` otherwise). Then, for each `translation for the owner:` note (a letter, word or
-   citation the English change altered that the translation repeats outside its figures, which
-   the agent leaves: the skill's §1), make that change in the translation's own wording, at the
-   path and field the note names, in a commit on the agent's branch before merging; the guard
-   accepts a JSON translation (§3). pt-PT writes the English `55(1)\x{2060}(e)` as `al. e)`.
+   `number-group` otherwise). Then take each `translation for the owner:` note: a letter, word,
+   name or citation the English change altered that a translation repeats outside its figures,
+   which the agent leaves (the skill's §1). Make that change in the translation's own wording,
+   at the path and field the note names. pt-PT writes the English `55(1)\x{2060}(e)` as `al. e)`.
+   The note's path sets the route. A JSON translation's change goes in a commit on the agent's
+   branch before merging. After the change, run `pnpm --filter @proofofcalm/content rules` and
+   commit each file it changes under `packages/content/rules/<locale>/` with it. A change to a
+   field the rules file carries (`holdingRuleConditions`, `changeNotice`) makes it stale, and
+   `packages/content/src/loaders/rules.test.ts` then keeps `verify` red. The guard accepts the JSON
+   translation and its locale's rules files (§3). A translated module's change
+   (`i18n/<locale>/learn/*.mdx`) goes in a pull request of your own after the review merges, since
+   the guard refuses that path on the agent's branch (§3 step 3).
    When the notes name a JSON translation's figure that still fails `overlay-number-mismatch` (§3
    step 3), write that figure in the translation, in its number locale's format (the skill's §1),
    or revert the English change, in a commit on the agent's branch before merging; `verify` stays
-   red until then. A note for a translated module or a chart row names a change the agent
+   red until then. A `translated module for the owner:` or chart row note names a change the agent
    reverted: make it in a pull request of your own, never on the agent's branch. A chart row note
    that ends `keeps its series, unregained` (a coin of `UNREGAINED_KEYS`) asks no change: record
    its reading in the log (step 5) and leave the row, since `packages/content/src/cycles.test.ts`
