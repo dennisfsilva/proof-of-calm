@@ -471,23 +471,23 @@ part of the gap between a count and its noun, as nothing between two digits of a
 and never as a letter, mark or number beside either. A count is a run of number characters (`\p{N}`) that no
 letter, mark or number character touches, its groups split by a comma, a dot or U+00A0 (`750,000`, `210 000`).
 A default-ignorable code point inside a count is refused (`figure-join`) even when the gap is one U+00A0, since
-a zero-width space or a soft hyphen lets a line end there, and such a count is never a year. Four ASCII digits
-from 1900 to 2099 with no group separator are a year (`the 2017 and 2021 cycles`) and stay unread, so a count
-written like a year (`2016 blocks`) is not read either. Between the count and its noun R7 reads B's gap, the
-class in `packages/content/src/module-figures.ts`, and every default-ignorable code point: a run of JS white
-space (`\s`), format characters (`\p{Cf}`), control characters (`\p{Cc}`) or default-ignorable code points. It
-refuses any such gap other than one U+00A0 (`figure-join`), U+00A0 beside a default-ignorable code point included
-(`U+00A0 U+200B`). The fix, one U+00A0 in place of the whole gap, removes it. The detail quotes the count, the
-noun and the gap as written and names the gap by its code points. It quotes each run of spaces, tabs, line
-feeds, carriage returns or form feeds in the noun as one space (`pageSpaces` in
-`packages/content/src/module-figures.ts`), and names each other hidden or look-alike character in the count or
-the noun by its code point, as `printedText` in `packages/content/src/percent-gap.ts` prints it (`6U+FE0F 0`,
-`dataU+2009 points`, `inU+00AD puts`). Any other character between the two, a hyphen or a word, leaves the pair
-unread. A noun matches whole and in any case, with no letter, mark or number character after it; a space inside
-one (`data points`) matches any run of white space. R7 also judges the count's start and the noun's end as the
-file writes them. A default-ignorable code point there separates the count or the noun from the word beside it,
-and R7 reads the pair. It does not read R5's `ignorable` mark, which only a paragraph carries and which names no
-place (decided 2026-11-18, #387). The lists are closed, one per language, and hold the nouns
+a zero-width space or a soft hyphen lets a line end there. The fix deletes it. Such a count is never read as a
+year. Four ASCII digits from 1900 to 2099 with no group separator are a year (`the 2017 and 2021 cycles`) and
+stay unread, so a count written like a year (`2016 blocks`) is not read either. Between the count and its noun
+R7 reads B's gap, the class in `packages/content/src/module-figures.ts`, and every default-ignorable code point:
+a run of JS white space (`\s`), format characters (`\p{Cf}`), control characters (`\p{Cc}`) or default-ignorable
+code points. It refuses any such gap other than one U+00A0 (`figure-join`), U+00A0 beside a default-ignorable
+code point included (`U+00A0 U+200B`). The fix replaces the whole gap with one U+00A0, the hidden code point
+with it. The detail quotes the count, the noun and the gap as written and names the gap by its code points. It
+quotes each run of spaces, tabs, line feeds, carriage returns or form feeds in the noun as one space
+(`pageSpaces` in `packages/content/src/module-figures.ts`), and names each other hidden or look-alike character
+in the count or the noun by its code point, as `printedText` in `packages/content/src/percent-gap.ts` prints it
+(`6U+FE0F 0`, `dataU+2009 points`, `inU+00AD puts`). Any other character between the two, a hyphen or a word,
+leaves the pair unread. A noun matches whole and in any case, with no letter, mark or number character after it;
+a space inside one (`data points`) matches any run of white space. So a default-ignorable code point between a
+word and the count or the noun separates them, and R7 reads the pair. It does not read R5's `ignorable` mark,
+which only a paragraph carries and which names no place (decided 2026-11-18, #387). The lists are closed, one
+per language, and hold the nouns
 of the counts a census of the modules found (16 of them could end a line apart from their noun): in
 English `blocks`, `data points`, `inputs`, `components`, `indexes`, `bitcoins`, `episodes`, `start months`,
 `countries`, `completed cycles`, `cycles`, `parts` and `signs`, and in pt-PT the nine §9 names. B's noun

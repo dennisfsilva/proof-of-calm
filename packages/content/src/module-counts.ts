@@ -4,7 +4,8 @@
 // at 16/24 and 20/30 px. B's count (falls, quedas) stays off it: R6 in module-figures.ts reads that one. Years (YEAR
 // below), dates, amounts and unlisted nouns are not counts here. R7 reads the count, the gap and the noun as the
 // file writes them. A default-ignorable code point is part of the gap, nothing between two digits of a count or two
-// letters of a noun, and never a letter, mark or digit beside either, so a hidden character never hides the pair.
+// letters of a noun, and never a letter, mark or digit beside either, so a hidden character never hides the pair, and
+// one inside a count is refused.
 import { pageSpaces } from './module-figures.ts';
 import { printedGap, printedText } from './percent-gap.ts';
 import type { Problem } from './problem.ts';
