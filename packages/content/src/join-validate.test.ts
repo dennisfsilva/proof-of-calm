@@ -313,7 +313,10 @@ describe('a law name, a date and a range in pt-PT prose (docs/CONTENT-STYLE.md Â
       ['Pela TCGA 1992.', 'TCGA', '1992'],
     ];
     for (const [text, name, number] of kept) {
-      expect(pt(text).filter((detail) => !detail.includes('"art."')), text).toEqual([named(name, number)]);
+      expect(
+        pt(text).filter((detail) => !detail.includes('"art."')),
+        text,
+      ).toEqual([named(name, number)]);
       expect(pt(text.replaceAll(' ', nbsp)), text).toEqual([]);
     }
   });
