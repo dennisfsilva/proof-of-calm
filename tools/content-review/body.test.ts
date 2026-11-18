@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { printedText } from '../../packages/content/src/percent-gap.ts';
 import {
   allowedDomains,
   type Change,
@@ -338,6 +339,28 @@ describe('spellJoiners', () => {
     );
     expect(spellJoiners('a\u00adb\u2009c\ufeffd\u0600e')).toBe('a\\x{00AD}b\\x{2009}c\\x{FEFF}d\\x{0600}e');
     expect(spellJoiners('plain words, a-b \u2013 c')).toBe('plain words, a-b \u2013 c');
+  });
+
+  it('spellJoiners spells every character printedText names, but a space, a tab, a line feed or a carriage return', () => {
+    const named = [0x34f, 0xfe0f, 0x3164, 0xe0100, 0x2028, 0x2029, 0x2010, 0x85, 0xc];
+    for (const point of named) {
+      const hex = point.toString(16).toUpperCase().padStart(4, '0');
+      expect(spellJoiners(`a${String.fromCodePoint(point)}b`)).toBe(`a\\x{${hex}}b`);
+    }
+    expect(spellJoiners('a\tb\nc\rd e')).toBe('a\tb\nc\rd e');
+  });
+
+  it('spellJoiners and printedText agree on every code point', () => {
+    const lines = new Set(['\t', '\n', '\r']);
+    const disagree: string[] = [];
+    for (let point = 0; point <= 0x10ffff; point++) {
+      if (point >= 0xd800 && point <= 0xdfff) continue;
+      const char = String.fromCodePoint(point);
+      const named = printedText(char, []) !== char && !lines.has(char);
+      const hex = point.toString(16).toUpperCase().padStart(4, '0');
+      if (spellJoiners(char) !== (named ? `\\x{${hex}}` : char)) disagree.push(hex);
+    }
+    expect(disagree).toEqual([]);
   });
 });
 
