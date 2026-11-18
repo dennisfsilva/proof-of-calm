@@ -1,7 +1,7 @@
 // The sentences of a Learn module's chart section, on the page the build's compiler gives (`pageOf`), read against the
 // chart's rows (docs/CONTENT-STYLE.md §4, R5 and R6; docs/research/review-safe-figures.md, amendment 8).
 import type { LearnModule } from './loaders/modules.ts';
-import { printedGap } from './percent-gap.ts';
+import { printedGap, printedText } from './percent-gap.ts';
 import { MODULE_PERCENT_JOINERS } from './percent-token.ts';
 import type { Problem } from './problem.ts';
 import type { ContentCoin } from './schema/coin.ts';
@@ -161,16 +161,17 @@ const CONTAINERS = {
   blockquote: ['a quote', 'quote'],
   mdxJsxFlowElement: ['an element', 'element'],
 } as const;
+// Every quoted text, as the page shows it, with each refused joiner by its code point (percent-gap.ts).
+const q = (t: string) => printedText(t, MODULE_PERCENT_JOINERS);
 /** A block a closed section refuses, as a detail names it. */
 const named = (block: PageBlock) => {
   if (block.kind === 'element') return `the element <${block.name} />`;
-  const shown = block.text.replace(/\s+/gu, ' ').trim();
+  const shown = q(block.text.replace(/[ \t\n\r\f]+/gu, ' ').trim());
   return shown === ''
     ? `an empty ${block.kind}`
     : `the ${block.kind === 'code' ? 'code block' : block.kind} "${shown}"`;
 };
 const year = (date: string) => Number(date.slice(0, 4));
-const quote = (text: string) => JSON.stringify(text).slice(1, -1);
 /** Items as an English list: `a and b`, or `a, b, and c` with the serial comma. */
 const list = (items: readonly string[]) =>
   items.length < 3 ? items.join(' and ') : `${items.slice(0, -1).join(', ')}, and ${items.at(-1)}`;
@@ -246,7 +247,7 @@ ${empty ? 'remove the list marker' : `write it outside the ${out}`}`);
 the section`);
       continue;
     }
-    const shown = block.text.replace(/\s+/gu, ' ').trim();
+    const shown = q(block.text.replace(/[ \t\n\r\f]+/gu, ' ').trim());
     if (block.kind === 'code') {
       report(`the code block "${shown}" sits in the chart's section, which holds no code block`);
       continue;
@@ -256,7 +257,7 @@ the section`);
     const hit = triggerIn(block.text);
     const allListed = sentencesOf(block.text).every((sentence) => listed.has(sentence));
     if (hit === null && (!closed || (allListed && block.marks === undefined))) continue;
-    const holds = hit === null ? '' : ` ${hit.kind} "${hit.token}"`;
+    const holds = hit === null ? '' : ` ${hit.kind} "${q(hit.token)}"`;
     if (block.kind === 'heading') {
       report(
         hit === null
@@ -272,8 +273,7 @@ remove it`
 which reads plain text only`);
       continue;
     }
-    // The app formats N % only with one joiner it knows, in one string (withJoiner); sentencesOf collapses white space,
-    // and so does the quoted sentence, so any other gap is named by its code points (printedGap).
+    // The app formats N % only with one joiner it knows (withJoiner); any other gap is named by its code points.
     for (const [, figure = '', joiner = '', sign] of block.text.matchAll(
       new RegExp(`(${NUMERAL})(\\s*)(${SIGNS})`, 'gu'),
     )) {
@@ -289,7 +289,7 @@ figure, one ordinary or no-break space, and %`,
       const b = shapes?.b.exec(sentence)?.groups;
       if (shapes !== undefined && b?.c !== undefined && (b.k === '1') === (b.falls === shapes.one)) {
         const [k, falls, n, y1, y2] = [Number(b.k), b.falls ?? '', b.n ?? '', Number(b.y1), Number(b.y2)];
-        bounds.push({ sentence, id: names.get(b.c) ?? '', name: bare(b.c), k, falls, n, y1, y2 });
+        bounds.push({ sentence: q(sentence), id: names.get(b.c) ?? '', name: bare(b.c), k, falls, n, y1, y2 });
       } else if (shapes?.e.test(sentence) === true) {
         const clauses: (typeof exacts)[number]['clauses'] = [];
         for (const { groups } of sentence.matchAll(shapes.clause)) {
@@ -297,11 +297,11 @@ figure, one ordinary or no-break space, and %`,
             clauses.push({ name: bare(groups.c), id: names.get(groups.c) ?? '', figures: [] });
           else if (groups?.f !== undefined) clauses.at(-1)?.figures.push(groups.f);
         }
-        exacts.push({ sentence, clauses });
+        exacts.push({ sentence: q(sentence), clauses });
       } else {
         const where = shapes === undefined ? `, and ${language} has no shapes for a chart's section yet` : '';
         const what =
-          found === null ? `is not a sentence ${language}'s list holds` : `holds ${found.kind} "${quote(found.token)}"`;
+          found === null ? `is not a sentence ${language}'s list holds` : `holds ${found.kind} "${q(found.token)}"`;
         // Only an unlisted sentence with no trigger can pass by listing; one with a trigger in a closed section passes
         // only as B or E, so its fix names them where its language has them.
         const shapesFix = 'write it as B or E (docs/CONTENT-STYLE.md §9)';
@@ -311,7 +311,7 @@ figure, one ordinary or no-break space, and %`,
               ? `; ${shapesFix}`
               : ''
             : `; ${shapes === undefined ? '' : `${shapesFix}, or `}${LIST_IT}`;
-        report(`"${sentence}" ${what} and matches neither shape of a chart's section${where}${fix}`);
+        report(`"${q(sentence)}" ${what} and matches neither shape of a chart's section${where}${fix}`);
       }
     }
   }

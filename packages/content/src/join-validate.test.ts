@@ -22,9 +22,7 @@ const refused = (pair: string, figure: string) =>
 
 describe('a currency code or a form name joined to its figure (docs/CONTENT-STYLE.md §4)', () => {
   it('refuses an ordinary space between a code and its figure, before or after it, and after a form name', () => {
-    expect(joins(`Up to EUR 20${nbsp}350 a year.`)).toEqual([
-      refused('"EUR" and its figure', `"20${String.fromCodePoint(0x5c)}u00a0350"`),
-    ]);
+    expect(joins(`Up to EUR 20${nbsp}350 a year.`)).toEqual([refused('"EUR" and its figure', '"20U+00A0 350"')]);
     expect(joins('Each plan buys 100 USD a month.')).toEqual([refused('"USD" and its figure', '"100"')]);
     expect(joins('Declare it on Modelo 721.')).toEqual([refused('the name "Modelo" and its number', '"721"')]);
   });
@@ -127,8 +125,8 @@ const wj = String.fromCodePoint(0x2060);
 const nb = String.fromCodePoint(0x2011);
 const codes = (problems: readonly { code: string }[]) => problems.map(({ code }) => code);
 const ranged = (range: string) =>
-  `card.caveats.0: the range ${JSON.stringify(range)} can break after its dash (docs/CONTENT-STYLE.md §4)`;
-// The figure as the detail types it, U+2060 written as its escape.
+  `card.caveats.0: the range "${range}" can break after its dash (docs/CONTENT-STYLE.md §4)`;
+// The figure as the detail prints it, a hidden character by its code point (`02-U+2060 01-03`).
 const hyphened = (figure: string) =>
   `card.caveats.0: the range or number "${figure}" can break after its hyphen (docs/CONTENT-STYLE.md §4)`;
 const named = (name: string, number: string) =>
@@ -144,7 +142,7 @@ describe('a law name, a date and a range in English prose (docs/CONTENT-STYLE.md
       ['Article 6(5) applies.', 'Article', '6'],
       ['The section 104 pool.', 'section', '104'],
       ['Rule no. 3 applies.', 'no.', '3'],
-      [`Under Lei 24${nb}D/2022.`, 'Lei', `24${nb}D/2022`],
+      [`Under Lei 24${nb}D/2022.`, 'Lei', '24U+2011 D/2022'],
     ];
     for (const [text, name, number] of cases) {
       expect(joins(text), text).toEqual([named(name, number)]);
@@ -174,7 +172,7 @@ describe('a law name, a date and a range in English prose (docs/CONTENT-STYLE.md
     expect(joins('The 2026-27 tax year.')).toEqual([hyphened('2026-27')]);
     expect(joins(`Under Notice${nbsp}2023-27.`)).toEqual([hyphened('2023-27')]);
     expect(joins(`Manual Part${nbsp}02-01-03.`)).toEqual([hyphened('02-01-03')]);
-    expect(joins(`Manual Part${nbsp}02-${wj}01-03.`)).toEqual([hyphened(`02-${String.fromCodePoint(0x5c)}u206001-03`)]);
+    expect(joins(`Manual Part${nbsp}02-${wj}01-03.`)).toEqual([hyphened('02-U+2060 01-03')]);
     const joined = [`The 2026-${wj}27 tax year.`, `Under Notice${nbsp}2023-${wj}27.`, `Part${nbsp}02-${wj}01-${wj}03.`];
     expect(joined.flatMap(joins)).toEqual([]);
     const letters = [

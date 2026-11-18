@@ -1,11 +1,13 @@
 // A currency code joined to its figure and a form's name joined to its number by a no-break space
 // (docs/CONTENT-STYLE.md §4), for percent-validate.ts. Pure; relative imports name their .ts files, so that Node runs
 // the CLI without a build step.
+import { printedGap, printedText } from './percent-gap.ts';
 import type { Problem } from './problem.ts';
 import { FILE_ONLY_PROFILE_TEXT, sourceTitles } from './profile-texts.ts';
 import type { CountryProfile } from './schema/jurisdiction.ts';
 
 const NBSP = String.fromCodePoint(0xa0);
+const NB_HYPHEN = String.fromCodePoint(0x2011);
 /** A URL in prose: its figures (`n-23-27.pdf`) and percent-escapes are a path, so the checks here read the pieces
  * of a text between its URLs each on its own, and percent-validate.ts reads the text with each URL replaced by a
  * space. No capture group, so that `split` returns no part of a URL. */
@@ -116,10 +118,8 @@ const ORDINAL_SUFFIX = new RegExp(
   'gu',
 );
 
-const codePoints = (text: string) =>
-  [...new Set(text)].map((char) => `U+${(char.codePointAt(0) ?? 0).toString(16).toUpperCase().padStart(4, '0')}`);
-const escaped = (code: string) => `${String.fromCodePoint(0x5c)}u${code}`;
-const typed = (text: string) => JSON.stringify(text).replaceAll(NBSP, escaped('00a0')).replaceAll(WJ, escaped('2060'));
+// A quoted text and a gap print by every code point they hold (percent-gap.ts), two spaces as `U+0020 U+0020`.
+const quoted = (text: string) => `"${printedText(text, [])}"`;
 const joined = (path: string, field: string, pair: string, figure: string, gap: string): Problem[] =>
   gap === NBSP
     ? []
@@ -127,7 +127,7 @@ const joined = (path: string, field: string, pair: string, figure: string, gap: 
         {
           path,
           code: 'figure-join',
-          detail: `${field}: ${pair} ${typed(figure)} are joined by ${codePoints(gap).join(' ')}, not U+00A0 (docs/CONTENT-STYLE.md §4)`,
+          detail: `${field}: ${pair} ${quoted(figure)} are joined by ${printedGap(gap, []).trimEnd()}, not U+00A0 (docs/CONTENT-STYLE.md §4)`,
         },
       ];
 
@@ -142,10 +142,10 @@ function dateGaps(
   linker: string,
   linkerGap: string,
 ): Problem[] {
-  if (linker === '') return joined(path, field, `the ${left} ${typed(before)} and its ${right}`, after, gap);
+  if (linker === '') return joined(path, field, `the ${left} ${quoted(before)} and its ${right}`, after, gap);
   return [
-    ...joined(path, field, `the ${left} ${typed(before)} and its linker`, linker, gap),
-    ...joined(path, field, `the linker ${typed(linker)} and its ${right}`, after, linkerGap),
+    ...joined(path, field, `the ${left} ${quoted(before)} and its linker`, linker, gap),
+    ...joined(path, field, `the linker ${quoted(linker)} and its ${right}`, after, linkerGap),
   ];
 }
 
@@ -163,7 +163,7 @@ function proseProblems(path: string, field: string, text: string, language: stri
   const inNumber = (at: number) => numbers.some(([start, end]) => at >= start && at < end);
   return [
     ...named.flatMap(([, name = '', gap = '', number = '']) => [
-      ...joined(path, field, `the name ${typed(name)} and its number`, number, gap),
+      ...joined(path, field, `the name ${quoted(name)} and its number`, number, gap),
       ...(OPEN_LAW_HYPHEN.test(number) ? [hyphenProblem(path, field, number)] : []),
     ]),
     ...[...text.matchAll(dates)].flatMap(([, day, dayGap = '', dayLink = '', monthGap = '', month = '', ...rest]) => {
@@ -176,7 +176,7 @@ function proseProblems(path: string, field: string, text: string, language: stri
       ];
     }),
     ...[...text.matchAll(RANGE)].map(([range]): Problem => {
-      const detail = `${field}: the range ${typed(range)} can break after its dash (docs/CONTENT-STYLE.md §4)`;
+      const detail = `${field}: the range ${quoted(range)} can break after its dash (docs/CONTENT-STYLE.md §4)`;
       return { path, code: 'range-join', detail };
     }),
     ...[...text.matchAll(HYPHENED)].flatMap(([figure]) =>
@@ -186,11 +186,11 @@ function proseProblems(path: string, field: string, text: string, language: stri
       inNumber(index) ? [] : [hyphenProblem(path, field, figure)],
     ),
     ...[...text.matchAll(units)].flatMap(([, figure = '', gap = '', unit = '']) =>
-      joined(path, field, `the figure ${typed(figure)} and its unit`, unit, gap),
+      joined(path, field, `the figure ${quoted(figure)} and its unit`, unit, gap),
     ),
     ...[...text.matchAll(CITATION)].flatMap(([citation]): Problem[] => {
       if (!citation.includes(')(')) return [];
-      const detail = `${field}: the citation ${typed(citation)} can break between its brackets (docs/CONTENT-STYLE.md §4)`;
+      const detail = `${field}: the citation ${quoted(citation)} can break between its brackets (docs/CONTENT-STYLE.md §4)`;
       return [{ path, code: 'citation-join', detail }];
     }),
   ];
@@ -199,16 +199,22 @@ function proseProblems(path: string, field: string, text: string, language: stri
 const hyphenProblem = (path: string, field: string, figure: string): Problem => ({
   path,
   code: 'range-join',
-  detail: `${field}: the range or number ${typed(figure)} can break after its hyphen (docs/CONTENT-STYLE.md §4)`,
+  detail: `${field}: the range or number ${quoted(figure)} can break after its hyphen (docs/CONTENT-STYLE.md §4)`,
 });
 
 /** Each source title's joins, read in the language its `lang` names: `en` as English, `pt` as pt-PT; a title in
- * any other language stays unchecked until that language has its lists. */
+ * any other language stays unchecked until that language has its lists. A title of any language never holds U+2011:
+ * it keeps the published hyphen-minus (docs/CONTENT-STYLE.md §4). */
 const TITLE_LANGUAGES: Readonly<Record<string, string>> = { en: 'en', pt: 'pt-PT' };
 export const titleJoinProblems = (path: string, profile: CountryProfile): Problem[] =>
   sourceTitles(profile).flatMap(([field, text, lang]) => {
     const language = Object.hasOwn(TITLE_LANGUAGES, lang) ? TITLE_LANGUAGES[lang] : undefined;
-    return language === undefined ? [] : joinProblems(path, [[field, text]], language);
+    const detail = `${field}: the title ${quoted(text)} holds U+2011; a source's title keeps the published U+002D, with \
+U+2060 after it inside a law number (docs/CONTENT-STYLE.md §4)`;
+    return [
+      ...(text.includes(NB_HYPHEN) ? [{ path, code: 'range-join', detail }] : []),
+      ...(language === undefined ? [] : joinProblems(path, [[field, text]], language)),
+    ];
   });
 
 /**
@@ -247,7 +253,8 @@ function codeProblems(path: string, field: string, text: string): Problem[] {
       figureAfterCode ?? figureBefore ?? number,
     ];
     const code = codeBefore ?? codeAfter;
-    const pair = code === undefined ? `the name ${typed(form ?? '')} and its number` : `${typed(code)} and its figure`;
+    const pair =
+      code === undefined ? `the name ${quoted(form ?? '')} and its number` : `${quoted(code)} and its figure`;
     return joined(path, field, pair, figure, gap);
   });
 }

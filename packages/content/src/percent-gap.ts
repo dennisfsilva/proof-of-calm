@@ -1,5 +1,6 @@
-// How a check's detail prints the gap between a figure and its sign (ADR-0057's Corrections, docs/CONTENT-STYLE.md §4).
-// The overlay check and a module's figure check both read it here, so a gap prints one way in every detail.
+// How a check's detail prints a quoted text and the gap between a figure and its sign or its pair (ADR-0057's
+// Corrections, docs/CONTENT-STYLE.md §4): by code point for every hidden or look-alike character. The overlay check,
+// a module's figure check and the joins check all print here, so a character prints one way in every detail.
 
 const codePoint = (char: string) => `U+${char.codePointAt(0)?.toString(16).toUpperCase().padStart(4, '0')} `;
 
@@ -10,3 +11,11 @@ const codePoint = (char: string) => `U+${char.codePointAt(0)?.toString(16).toUpp
  */
 export const printedGap = (gap: string, shown: readonly string[]) =>
   shown.includes(gap) ? gap : [...gap].map(codePoint).join('');
+
+// Hidden or look-alike: any space separator but U+0020, a format or control character, U+2010 and U+2011.
+const HIDDEN = /(?! )[\p{Z}\p{Cf}\p{Cc}‐‑]/gu;
+
+/** A quoted text as a detail prints it: each hidden or look-alike character not in `shown` by its code point, as
+ * printedGap prints it (`fellU+2009 50 %`), everything else as written. */
+export const printedText = (text: string, shown: readonly string[]) =>
+  text.replace(HIDDEN, (char) => (shown.includes(char) ? char : codePoint(char)));
