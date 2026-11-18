@@ -268,9 +268,9 @@ generated rules files of each language.
   (`printedGap`), so two ordinary spaces print `U+0020 U+0020` and a no-break hyphen `U+2011`
   rather than a character a reader cannot tell from `-`. A Learn module's quoted text first folds
   tabs, line breaks and runs of spaces into one space, as the page does. It shows its no-break
-  percent joiner (U+00A0; its other, U+0020, is never named) as written only directly before a
-  percent sign, the one place its check accepts one, and names it anywhere else
-  (`EtherU+00A0 fell`, `printedPercentText`).
+  percent joiner, U+00A0, as written only directly before a percent sign, the one place its
+  check accepts one. Anywhere else the detail names it (`EtherU+00A0 fell`,
+  `printedPercentText`); the other joiner, U+0020, is never named.
   Before, the joins check printed JSON escapes (`\u00a0`, `\u2060`) and the module check
   folded every white space into one space, which hid the very gap it refused. The overlay's
   percent gap now reads every hyphen and dash (`\p{Pd}`), not the hyphen-minus alone, so `40–%`
