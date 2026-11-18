@@ -31,8 +31,9 @@ export async function bundleWorker(root: string): Promise<WorkerResult> {
     swDest: join(root, 'dist', 'sw.js'),
     globDirectory: join(root, 'dist'),
     globPatterns: ['app.html', '~offline.html', 'assets/**/*.{js,css,woff2}', 'icons/*.png', 'manifest.webmanifest'],
-    // The site pages' islands load on their own page alone, and another language's messages only for a person
-    // who chose it (ADR-0045 §8, the entry of 2026-11-15); the assets route keeps the files a visitor loaded.
+    // The site pages' islands load on their own page alone, and another language's messages only for a person whose
+    // choice or device gives the language (ADR-0045 §8, the entries of 2026-11-15 and 2026-11-18); the assets route
+    // keeps the files a visitor loaded.
     globIgnores: ['assets/islands/**', 'assets/messages/**'],
     dontCacheBustURLsMatching: /^assets\//,
     manifestTransforms: [

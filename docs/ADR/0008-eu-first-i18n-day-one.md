@@ -53,3 +53,14 @@ corrected here instead of rewritten (`docs/ADR/README.md`).
   never shows an all-numeric date: a date in copy is the day, the month's name and the year in the UI
   language (ADR-0023, corrections of 2026-10-20; `dateOptions` in
   `packages/app/src/lib/format/time.ts`), so a Portuguese user of the English UI reads `16 Oct 2026`.
+
+## Deviations recorded on 2026-11-18
+
+The decision stands but for one sentence; this is for the owner's sign-off at the end of M2.
+
+- **Decision: "The language suggestion follows the country's main locale but is a separate, changeable
+  setting".** The UI language follows the device's languages among the ones the build offers, never
+  the country: the country step comes after the first words a person reads, and a language says what
+  someone reads, not where they live (ADR-0023, Deviations of 2026-11-18, the default). It stays a
+  separate, changeable device preference (Settings' picker, where two languages are offered). ADR-0014's
+  "suggested language" in a country profile is not built.
