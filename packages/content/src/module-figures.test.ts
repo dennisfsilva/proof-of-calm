@@ -543,3 +543,33 @@ describe("each detail quotes its sentence and names its figure and rule (§4's l
     );
   });
 });
+
+// C1 of #370: B's count joins its noun with U+00A0, so the count never ends a line (the probe, comment 6971015219).
+describe("B's count and its noun (R6)", () => {
+  const NBSP = String.fromCodePoint(0xa0);
+  const R6 = '; R6 (docs/CONTENT-STYLE.md §4)';
+  /** S1 with `gap` between its count and its noun. */
+  const joined = (gap: string) => S1.replace(/(?<=had 4)\s(?=falls)/u, gap);
+  const shown = (gap: string) => nb(joined(gap));
+
+  it.each([
+    ['an ordinary space', ' ', 'U+0020', ' '],
+    ['U+202F', String.fromCodePoint(0x202f), 'U+202F', 'U+202F '],
+    ['a source line break', '\n', 'U+0020', ' '],
+  ])('joined by %s gives one figure-join naming it', async (_, gap, named, quoted) => {
+    expect(await details(body(`${joined(gap)} ${S2}`))).toEqual([
+      `figure-join: body: the count "4" and its noun "falls" are joined by ${named}, not U+00A0, in "${shown(quoted)}"${R6}`,
+    ]);
+  });
+
+  it('joined by U+00A0 passes', async () => {
+    expect(await details(body(`${joined(NBSP)} ${S2}`))).toEqual([]);
+  });
+
+  it('quotes the accepted U+00A0 as written in a detail for another reason', async () => {
+    const [first, ...rest] = await details(body(`${joined(NBSP).replace('4', '3')} ${S2}`));
+    expect(rest).toEqual([]);
+    expect(first).toContain(`in "${shown(NBSP).replace('4', '3')}"`);
+    expect(first).not.toContain('U+00A0');
+  });
+});

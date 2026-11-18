@@ -36,6 +36,14 @@ describe('printedPercentText', () => {
     );
     expect(printedPercentText(`4${nnbsp} %, 9${char(0x2009)}%`, joiners)).toBe('4U+202F  %, 9U+2009 %');
   });
+
+  it('keeps as written each hidden character a match of `joined` covers, and names the rest', () => {
+    const [nbsp, nnbsp] = [char(0xa0), char(0x202f)];
+    const joined = new RegExp(`(?<=had [0-9]+)${nbsp}(?=falls)`, 'gu');
+    expect(printedPercentText(`had 4${nbsp}falls, had 4${nnbsp}falls, a${nbsp}fall`, [nbsp], joined)).toBe(
+      `had 4${nbsp}falls, had 4U+202F falls, aU+00A0 fall`,
+    );
+  });
 });
 
 describe('printedGap', () => {
