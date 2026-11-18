@@ -138,7 +138,8 @@ Arguments: $ARGUMENTS
   bound, a coin the chart draws no fall of, or a row you would remove; after any English change,
   one on a translated module (above); in a module, one whose fix needs U+00A0 (below). Before
   the revert, make every edit the items above allow
-  and run the checks, so the note names each file and field the change reaches; then revert them
+  and run the checks, so the note names each file and field the change reaches (they run before
+  any mark of §6, so they show no `agent-draft` failure); then revert them
   all. Revert that item's change in every file it touched (the fact, the English module, a chart
   row, the templates' copies of it and their explanations, and a translation's figure, a template
   explanation's included), add one note, and
@@ -162,8 +163,8 @@ Arguments: $ARGUMENTS
   `agent-draft` checks and the content gates excepted, and each pin the search finds, in a test
   only CI runs or a screenshot too. Write a pin only CI runs as `<file>:<line> (only CI runs it)`,
   and a `toHaveScreenshot` line with the pages it captures that show the value, as
-  `<file>:<line> (only CI runs it; pages <page>, <page>)`: for example
-  `apps/web/e2e/matrix.spec.ts:<line> (only CI runs it; pages learn-risk-honestly, site-learn-risk, risk)`.
+  `<file>:<line> (only CI runs it, pages <page>, <page>)`: for example
+  `apps/web/e2e/matrix.spec.ts:<line> (only CI runs it, pages learn-risk-honestly, site-learn-risk, risk)`.
   A content gate is a test that runs a check on the real files
   and expects `[]` or `null`: it fails on any refusal of that check and pins no value (§7 step 1's
   sentences on the content test). A check of a translated module against the rows is a content
@@ -303,7 +304,8 @@ For each profile in `packages/content/jurisdictions/`:
    that published the passage, as `docs/EDUCATION.md` §9 dates a fact: a passage noted "(Redação da
    Lei n.º 24-D/2022, de 30 de dezembro)" was published on 2022-12-30. When neither shows (no start date in the passage, and `published: null`), change
    nothing. Add the note `correction, no date on the source: <item> <field>: <wording>; "<quote>"`
-   and leave the line as it is. An HTML quote is WebFetch's rendering, so the owner's read on the
+   and leave the line as it is. A check's refusal of a figure's form (a separator, a group, a
+   joiner) is fixed as its message says (below and §1), whatever the source's dates show. An HTML quote is WebFetch's rendering, so the owner's read on the
    source's site (`docs/CONTENT-OPS.md` §8, step 1) stays the check. WebFetch summarises a verbatim
    passage over about 125 characters: in the first prompt for a page, ask for each passage in
    consecutive verbatim pieces under 125 characters, and join them. WebFetch renders a sentence
