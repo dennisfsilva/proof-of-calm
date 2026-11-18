@@ -68,22 +68,22 @@ describe('moduleCountProblems: a count and its listed noun, joined by one U+00A0
     const report = (text: string, field: string, language: 'en' | 'pt-PT') =>
       moduleCountProblems(at, [[field, text]], language).map(({ detail }) => detail);
     expect(report('It mixes 6 inputs, as published.', 'body', 'en')).toEqual([
-      'body: the count "6" and its noun "inputs" are joined by U+0020, not U+00A0; write one U+00A0 between them; ' +
+      'body: the count "6" and its noun "inputs" are joined by U+0020, not U+00A0; replace the gap with one U+00A0; ' +
         'R7 (docs/CONTENT-STYLE.md §4)',
     ]);
     expect(report(`about 750${NBSP}000${cp(0x85)}bitcoins`, 'idea', 'pt-PT')).toEqual([
-      `idea: the count "750${NBSP}000" and its noun "bitcoins" are joined by U+0085, not U+00A0; write one U+00A0 ` +
-        'between them; R7 (docs/CONTENT-STYLE.md §4)',
+      `idea: the count "750${NBSP}000" and its noun "bitcoins" are joined by U+0085, not U+00A0; replace the gap ` +
+        'with one U+00A0; R7 (docs/CONTENT-STYLE.md §4)',
     ]);
     expect(report('Every plan, 118 start\nmonths from Jan 2013', 'body', 'en')).toEqual([
-      'body: the count "118" and its noun "start months" are joined by U+0020, not U+00A0; write one U+00A0 between ' +
-        'them; R7 (docs/CONTENT-STYLE.md §4)',
+      'body: the count "118" and its noun "start months" are joined by U+0020, not U+00A0; replace the gap with one ' +
+        'U+00A0; R7 (docs/CONTENT-STYLE.md §4)',
     ]);
   });
 
   it('prints a hidden character inside a noun by code point, and a source line break there as one space', () => {
     const report = (text: string) => moduleCountProblems(at, [['body', text]], 'en').map(({ detail }) => detail);
-    const tail = 'are joined by U+0020, not U+00A0; write one U+00A0 between them; R7 (docs/CONTENT-STYLE.md §4)';
+    const tail = 'are joined by U+0020, not U+00A0; replace the gap with one U+00A0; R7 (docs/CONTENT-STYLE.md §4)';
     expect(report(`It read 40 data${cp(0x2009)}points in a row.`)).toEqual([
       `body: the count "40" and its noun "dataU+2009 points" ${tail}`,
     ]);
@@ -95,12 +95,12 @@ describe('moduleCountProblems: a count and its listed noun, joined by one U+00A0
   it('finds the pair as the reader reads it and quotes the count, the noun and the gap as written', () => {
     const report = (text: string) => moduleCountProblems(at, [['body', text]], 'en').map(({ detail }) => detail);
     expect(report(`It mixes 6${cp(0x200b)}0 inputs.`)).toEqual([
-      'body: the count "6U+200B 0" and its noun "inputs" are joined by U+0020, not U+00A0; write one U+00A0 between ' +
-        'them; R7 (docs/CONTENT-STYLE.md §4)',
+      'body: the count "6U+200B 0" and its noun "inputs" are joined by U+0020, not U+00A0; replace the gap with one ' +
+        'U+00A0; R7 (docs/CONTENT-STYLE.md §4)',
     ]);
     expect(report(`It mixes 6${cp(0xe0001)} inputs.`)).toEqual([
-      'body: the count "6" and its noun "inputs" are joined by U+E0001 U+0020, not U+00A0; write one U+00A0 between ' +
-        'them; R7 (docs/CONTENT-STYLE.md §4)',
+      'body: the count "6" and its noun "inputs" are joined by U+E0001 U+0020, not U+00A0; replace the gap with one ' +
+        'U+00A0; R7 (docs/CONTENT-STYLE.md §4)',
     ]);
     expect(report('It mixes 6inputs.')).toEqual([]);
   });
@@ -112,8 +112,8 @@ describe('moduleCountProblems: a count and its listed noun, joined by one U+00A0
     const report = (text: string, field: string) =>
       moduleCountProblems(at, [[field, text]], 'en').map(({ detail }) => detail);
     const joined = (field: string) =>
-      `${field}: the count "6" and its noun "inputs" are joined by U+0020, not U+00A0; write one U+00A0 between ` +
-      'them; R7 (docs/CONTENT-STYLE.md §4)';
+      `${field}: the count "6" and its noun "inputs" are joined by U+0020, not U+00A0; replace the gap with one ` +
+      'U+00A0; R7 (docs/CONTENT-STYLE.md §4)';
     for (const field of ['idea', 'body']) {
       expect([field, report(`It mixes${zwsp}6 inputs.`, field)]).toEqual([field, [joined(field)]]);
       expect([field, report(`It mixes 6 inputs${zwsp}x.`, field)]).toEqual([field, [joined(field)]]);

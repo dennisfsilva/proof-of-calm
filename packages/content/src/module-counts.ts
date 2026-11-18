@@ -99,7 +99,7 @@ export function moduleCountProblems(
       const writtenNoun = written.slice(at.noun, at.end);
       const shown = printedText(pageSpaces(writtenNoun), []);
       const detail = `${field}: the count "${printedText(writtenCount, [NBSP])}" and its noun "${shown}" are joined by \
-${printedGap(writtenGap, []).trim()}, not U+00A0; write one U+00A0 between them; R7 (docs/CONTENT-STYLE.md §4)`;
+${printedGap(writtenGap, []).trim()}, not U+00A0; replace the gap with one U+00A0; R7 (docs/CONTENT-STYLE.md §4)`;
       return [{ path, code: 'figure-join', detail }];
     }),
   );
