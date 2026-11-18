@@ -502,8 +502,8 @@ pt-PT, and `es`, `fr` and `it` with lists that `titleJoinProblems` in
 names. Spanish's names are `Ley`, `Real Decreto`, `Orden` and `art.`, its months with the linker
 `de` (`25 de marzo`). French's are `LOI n°` and `article`, its months with no linker
 (`25 juin 2026`). Italian's are `Legge`, `n.`, `art.` and `fascicolo`, its months with no linker
-(`22 dicembre 1986`). None of the three lists adds a unit: their titles are read with every
-language's units, as every text of a language with lists is (above). An `nl` title is read for the
+(`22 dicembre 1986`). None of the three lists adds a unit: like every text of a language with lists
+(above), their titles are read with every language's units. An `nl` title is read for the
 code and form joins only, since its titles hold no name, date or unit. A title in any other
 language (`de`) stays unchecked for joins until it has its lists (#381, decided 2026-11-18), though
 U+2011 is refused in every title. A source title's words stay as published, so the ban list and
