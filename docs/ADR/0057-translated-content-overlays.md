@@ -303,6 +303,7 @@ generated rules files of each language.
   a template with no texts in the map, as after the screen's empty fallback, shows its English
   marked `en`: the name, the risk label, the one line and the explanation, while the split, the band
   and the custom card keep the page's language; the summary marks the template's name the same way,
-  the country's name with its rules' language and the general profile's text with the profile's,
-  while the name inside the rule's sentence, the person's own sentence and the UI's lines keep the
-  page's.
+  the country's name and the general profile's text with the profile's language, while the name
+  inside the rule's sentence, the person's own sentence and the UI's lines keep the page's. The
+  screen's rules are `countryRules`' copy of the profile, which carries no mark, so its country card
+  takes the profile's mark, for the summary and the early-opening notice's conditions alike.
