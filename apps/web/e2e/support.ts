@@ -1,7 +1,7 @@
 // Shared by the specs: the headers every response carries (docs/SECURITY.md §4, written into vercel.json
 // by lib/vercel-config.ts), the deployment-protection bypass for a run against a deployment
 // (docs/OWNER-SETUP.md §3), the zoom-125 project's text zoom (docs/ENGINEERING.md §3) and the fixture
-// answers of /api/prices and /api/history/:coin.
+// answers of /api/prices and /api/history/:coin (the latter alone for a spec with its own prices).
 import { test as base, type Page, type TestInfo } from '@playwright/test';
 
 /**
@@ -50,26 +50,42 @@ function shapeFactors(shape: HistoryShape): number[] {
   return values.map((value) => value / (fall.at(-1) ?? 100));
 }
 
+/** The fixture's EUR prices, the last close of each coin's history; a coin not listed closes at BTC's. */
+const FIXTURE_EUR = { BTC: '60000.12', ETH: '2500.5' } as const;
+
 /**
  * Answers /api/prices and /api/history/:coin from fixtures, never CoinGecko: the fixture prices fetched
  * 30 s before `nowMs`, and a year of daily closes of `shape` ending on `nowMs`'s date with the fixture price.
  * A request the service worker makes itself passes the page's routes by, so the caller blocks the worker.
  */
 export async function routeFixturePrices(page: Page, nowMs: number, shape: HistoryShape = 'rise'): Promise<void> {
-  const factors = shapeFactors(shape);
   await page.route('**/api/prices?*', (route) =>
     route.fulfill({
       json: {
         at: new Date(nowMs - 30_000).toISOString(),
-        prices: { BTC: { EUR: '60000.12', USD: '70000' }, ETH: { EUR: '2500.5', USD: '2900' } },
+        prices: { BTC: { EUR: FIXTURE_EUR.BTC, USD: '70000' }, ETH: { EUR: FIXTURE_EUR.ETH, USD: '2900' } },
       },
     }),
   );
+  await routeFixtureHistory(page, nowMs, shape);
+}
+
+/**
+ * Answers /api/history/:coin from fixtures, never CoinGecko: a year of daily closes of `shape` ending on
+ * `nowMs`'s date with the coin's price in `prices` (the spec's own /api/prices answer, so no figure moves).
+ */
+export async function routeFixtureHistory(
+  page: Page,
+  nowMs: number,
+  shape: HistoryShape = 'rise',
+  prices: Readonly<Record<string, string>> = FIXTURE_EUR,
+): Promise<void> {
+  const factors = shapeFactors(shape);
   await page.route('**/api/history/*', (route) => {
     const url = new URL(route.request().url());
     const coin = decodeURIComponent(url.pathname.split('/').at(-1) ?? '');
     const currency = url.searchParams.get('currency') ?? 'EUR';
-    const last = coin === 'ETH' ? 2500.5 : 60000.12;
+    const last = Number(prices[coin] ?? FIXTURE_EUR.BTC);
     const closes = factors.map((factor, index) => {
       const back = 364 - index;
       const close = Math.round(last * factor * 100) / 100;

@@ -2,15 +2,15 @@ import { readFileSync } from 'node:fs';
 import { expect, type Page } from '@playwright/test';
 import { createFormatters } from '@proofofcalm/app/lib/format';
 import { type CurrencyCode, type Decimal, fromFloat } from '@proofofcalm/core';
-import { test } from './support';
+import { routeFixtureHistory, test } from './support';
 
 // The four synthetic exports of the DCA plan page (tools/golden/states.ts), pasted into Settings → Currency &
 // data on a device with no plan, then read on Today and Portfolio as the prototype read them
 // (docs/DOMAIN.md §3.3, §7). Issue #168 decision 4: the golden comparison runs on the desktop project only,
 // since the figures do not depend on the viewport; the paste flow itself runs on the whole matrix. Each
-// state is pasted at its own `today`, with /api/prices answered from its `prices`; the expected figures come
-// from the fixture files in packages/core/test/golden, read here as data. The owner's own export never
-// enters git, so this check covers the synthetic states only.
+// state is pasted at its own `today`, with /api/prices and /api/history answered from its `prices`; the
+// expected figures come from the fixture files in packages/core/test/golden, read here as data. The owner's
+// own export never enters git, so this check covers the synthetic states only.
 
 test.use({ serviceWorkers: 'block' });
 
@@ -61,6 +61,8 @@ async function openAt(page: Page, fixture: Fixture) {
   await page.route('**/api/prices?*', (route) =>
     route.fulfill({ json: { at: new Date(nowMs - 30_000).toISOString(), prices } }),
   );
+  // Today's red-day foot and Portfolio's charts read the history: closes ending on the state's own prices.
+  await routeFixtureHistory(page, nowMs, 'rise', fixture.prices);
   await page.goto('/settings');
   await expect(page.locator('main#main')).not.toHaveAttribute('aria-busy', 'true');
   await expect(page.getByRole('heading', { level: 2, name: 'Your data' })).toBeVisible();
