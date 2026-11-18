@@ -337,8 +337,10 @@ external links and the Risk link in the mobile export (M3).
   section instead of listing words: each sentence is B, E or a listed one, and #361 builds it. On
   2026-11-18, #361 merged the English profile joins (#364), Risk honestly in pt-PT on its closed
   chart section (#365), the review-content skill's route for a fact value or FALLS row change (#366)
-  and the pt-PT overlay joins (#367). The figure wording, the review-content route's remaining gaps
-  and pt-PT's form name move to #368, which comes before #271. With
+  and the pt-PT overlay joins (#367). Portugal's card still splits a figure from its unit word
+  (`365 days`, `365 dias`) and a source title's law number, which the joins rule never covered; those
+  joins, the figure wording, the review-content route's remaining gaps and pt-PT's form name move to
+  #368, which comes before #271. With
   #340, #343, #349, #355, #358, #361 and #368, pt-PT takes 16 build sessions more than
   #269 planned before German starts. A render-and-axe-only pt-PT
   story run waits for #271, once every namespace is translated. CSV import, free (ADR-0039), for the
