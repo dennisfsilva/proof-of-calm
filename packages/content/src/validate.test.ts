@@ -1318,7 +1318,7 @@ describe('validateContent: translated overlays (ADR-0057)', () => {
       // D16 of #318: the mismatch and English's figure as written, no computed fix.
       'overlay-number-mismatch: card.caveats.0: 1.000, English 1000',
       // S3(b) of #318's design check: English reads 1.000 as 1, the page as 1000, so no suggestion.
-      String.raw`number-group: card.caveats.0: "1.000 euros" has a point that is a decimal in English and a group on this page (de-DE), so it has no suggestion. Write it by hand as CONTENT-STYLE §4 does: groups of three joined by U+00A0 from 10 000, none below, and a comma before the decimals. An amount of 1 to 999 with three decimals takes a fourth (EUR 1,1250)`,
+      String.raw`number-group: card.caveats.0: "1.000 euros" has a point that is a decimal in English and a group on this page (de-DE), so it has no suggestion. Write it by hand as CONTENT-STYLE §4 does: from 10 000 up, groups of three joined by U+00A0; none below; a comma before the decimals. An amount of 1 to 999 with three decimals takes a fourth (EUR 1,1250)`,
     ]);
     const two = 'packages/content/templates/two-coins.json';
     const fell = file(two, template({ explanation: 'Each coin fell 31.4 % in its worst year.' }));
