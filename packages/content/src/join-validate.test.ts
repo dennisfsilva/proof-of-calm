@@ -188,6 +188,19 @@ describe('a law name, a date and a range in English prose (docs/CONTENT-STYLE.md
     expect(joins(`See Notice${nbsp}2023-${wj}27 at ${url} for 2023–2025.`)).toEqual([ranged('2023–2025')]);
   });
 
+  it('reads no join across a URL: the words on either side of it are not adjacent (J5 round 2)', () => {
+    expect(joins('Paid in EUR https://x.example/a 20 times')).toEqual([]);
+    expect(joins('Notice https://www.irs.gov/n.pdf 2023-27')).toEqual([hyphened('2023-27')]);
+    expect(joins('Paid in EUR https://a.example/1 https://b.example/2 20 times')).toEqual([]);
+    expect(joins('See https://a.example/1 Notice 2023-27 at https://b.example/2-3')).toEqual([
+      named('Notice', '2023-27'),
+      hyphened('2023-27'),
+    ]);
+    expect(joins('https://x.example/2023-27 EUR 20 a month')).toEqual([refused('"EUR" and its figure', '"20"')]);
+    expect(joins('Paid EUR 20 at https://x.example/2023-27')).toEqual([refused('"EUR" and its figure', '"20"')]);
+    expect(joins(`https://x.example/2023-27 EUR${nbsp}20 at https://y.example/n-23-27.pdf`)).toEqual([]);
+  });
+
   it('starts a figure at a point after a letter, never at one inside a figure (J3, J4)', () => {
     expect(joins('Under s.104-105 TCGA.')).toEqual([hyphened('104-105')]);
     expect(joins('Under Rev.Proc.2025-32.')).toEqual([hyphened('2025-32')]);
