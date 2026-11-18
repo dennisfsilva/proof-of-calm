@@ -557,3 +557,37 @@ move it out of the section; R5 (docs/CONTENT-STYLE.md §4)`,
     expect(await codes(en(`${EN1}\n\n1. ${EN2.replace('97', '96')}`), 'en')).toEqual([FC]);
   });
 });
+
+// C1 of #370: B's count joins its noun with U+00A0, so the count never ends a line (the probe, comment 6971015219).
+describe("pt-PT's B: the count and its noun (R6)", () => {
+  const NBSP = String.fromCodePoint(0xa0);
+  const R6 = '; R6 (docs/CONTENT-STYLE.md §4)';
+  const pairs = async (source: string) => (await problemsOf(source)).map(({ code, detail }) => [code, detail] as const);
+  /** S1 with `gap` between its count and its noun. */
+  const joined = (gap: string) => S1.replace(/(?<=teve 4)\s(?=quedas)/u, gap);
+  const shown = (gap: string) => nb(joined(gap));
+
+  it.each([
+    ['an ordinary space', ' ', 'U+0020', ' '],
+    ['U+202F', String.fromCodePoint(0x202f), 'U+202F', 'U+202F '],
+    ['a source line break', '\n', 'U+0020', ' '],
+  ])('joined by %s gives one figure-join naming it', async (_, gap, named, quoted) => {
+    expect(await pairs(pt(`${joined(gap)} ${S2}`))).toEqual([
+      [
+        'figure-join',
+        `body: the count "4" and its noun "quedas" are joined by ${named}, not U+00A0, in "${shown(quoted)}"${R6}`,
+      ],
+    ]);
+  });
+
+  it('joined by U+00A0 passes', async () => {
+    expect(await codes(pt(`${joined(NBSP)} ${S2}`))).toEqual([]);
+  });
+
+  it('quotes the accepted U+00A0 as written in a detail for another reason', async () => {
+    const [first, ...rest] = await pairs(pt(`${joined(NBSP).replace('4', '3')} ${S2}`));
+    expect(rest).toEqual([]);
+    expect(first?.[1]).toContain(`"${shown(NBSP).replace('4', '3')}"`);
+    expect(first?.[1]).not.toContain('U+00A0');
+  });
+});
