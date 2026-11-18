@@ -22,6 +22,19 @@ const B = 'b.alt-drawdowns';
 const BITSTAMP = 'Bitstamp';
 const COINBASE = 'Coinbase';
 const CMC = 'CoinMarketCap';
+// A row of the file as [coin, high, publisher], and the clause that quotes it as [key, opening, figure, series].
+type Fall = {
+  readonly row: readonly [string, string, string];
+  readonly fact: readonly [string, string, string, string];
+};
+type Drawdown = {
+  readonly coin: string;
+  readonly high: string;
+  readonly low: string;
+  readonly fall: string;
+  readonly publisher: string;
+};
+type Read = (key: string) => string;
 // Each fall opens its own clause of the fact, and the words after `fact`'s key are that opening. A value holds every
 // cycle's dates and figures, so a row is read inside its clause alone.
 const FALLS = [
@@ -34,16 +47,58 @@ const FALLS = [
   { row: ['LINK', '2018-01-08', CMC], fact: [B, 'LINK 2018', '−88.7 %', CMC] },
   { row: ['LINK', '2021-05-10', BITSTAMP], fact: [B, 'LINK 2021', '−90.7 %', COINBASE] },
   { row: ['SOL', '2021-11-06', COINBASE], fact: [B, 'SOL (Coinbase)', '−96.9 %', COINBASE] },
-] as const;
+] as const satisfies readonly Fall[];
+// A FALLS literal that a merged review replaced, until the log PR writes its new value here (docs/CONTENT-OPS.md §8
+// steps 4 and 5). Keyed `<coin> <high>` of the literal, the value the whole entry that replaces it. The owner's session
+// PR adds the entry to main, which reads the literal until the review merges and `now` after; the agent's branch
+// cannot change this file (CI's guard). The log PR writes `now` into FALLS and removes the entry.
+const unloggedFalls: ReadonlyMap<string, Fall> = new Map([]);
+
 // What follows the last row's clause of each fact: the current cycle, and the line at the 16 Oct 2026 close. Fact b
 // names its coins by ticker in its opening too, so SOL's clause opens with its series, read as plain text.
 const literally = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
-const CLAUSE_STARTS = new RegExp(
-  `(?=${[...FALLS.map(({ fact }) => fact[1]), 'current cycle,', 'At the close on 16 Oct'].map(literally).join('|')})`,
-  'u',
-);
-const clauseOf = (value: string, opening: string) =>
-  value.split(CLAUSE_STARTS).find((clause) => clause.startsWith(opening)) ?? '';
+const clauseStarts = (falls: readonly Fall[]) =>
+  new RegExp(
+    `(?=${[...falls.map(({ fact }) => fact[1]), 'current cycle,', 'At the close on 16 Oct'].map(literally).join('|')})`,
+    'u',
+  );
+const clauseOf = (value: string, opening: string, starts: RegExp) =>
+  value.split(starts).find((clause) => clause.startsWith(opening)) ?? '';
+const figureIn = ([, , figure, series]: Fall['fact']) =>
+  new RegExp(`${literally(series)}[^%]*${literally(figure)}`, 'u');
+const keyOf = ({ row: [coin, high] }: Fall) => `${coin} ${high}`;
+
+/** FALLS with each pending entry's `now` in its literal's place where the file's row and its fact's clause read `now`. */
+function heldFalls(
+  falls: readonly Fall[],
+  _drawdowns: readonly Drawdown[],
+  _factValue: Read,
+  _pending: ReadonlyMap<string, Fall>,
+): Fall[] {
+  return [...falls];
+}
+
+/** The keys of `pending` that name no literal of `falls`, or whose entry its literal already reads. */
+function staleFalls(_falls: readonly Fall[], _pending: ReadonlyMap<string, Fall>): string[] {
+  return [];
+}
+
+/** Each row of `drawdowns` is the fall at its index: the same row, and its fact's clause reads its figure and dates. */
+function expectFallsRead(falls: readonly Fall[], drawdowns: readonly Drawdown[], factValue: Read) {
+  const starts = clauseStarts(falls);
+  expect(drawdowns.map(({ coin, high, publisher }) => [coin, high, publisher])).toEqual(falls.map(({ row }) => row));
+  for (const [index, { fact }] of falls.entries()) {
+    const [key, opening, figure] = fact;
+    const { high = '', low = '', fall } = drawdowns[index] ?? {};
+    const clause = clauseOf(factValue(key), opening, starts);
+    expect(clause).toMatch(figureIn(fact));
+    expect(Math.round(Number(figure.replace(/[^\d.]/gu, '')))).toBe(Number(fall));
+    expect(clause).toContain(written(high));
+    expect(clause).toContain(written(low));
+  }
+}
+const factValue: Read = (key) => facts.find((each) => each.key === key)?.value ?? '';
+
 const asWritten = new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeZone: 'UTC' });
 const written = (date: string) => asWritten.format(new Date(`${date}T00:00:00Z`));
 
@@ -60,16 +115,12 @@ const BREAKS = [
 describe('the cycles file (docs/EDUCATION.md §2 and §6)', () => {
   it('each row of drawdowns.json reads the same fall as facts a and b', () => {
     const { drawdowns } = CycleDrawdownsSchema.parse(cycles);
-    expect(drawdowns.map(({ coin, high, publisher }) => [coin, high, publisher])).toEqual(FALLS.map(({ row }) => row));
-    for (const [index, { fact }] of FALLS.entries()) {
-      const [key, opening, figure, series] = fact;
-      const { high = '', low = '', fall } = drawdowns[index] ?? {};
-      const clause = clauseOf(facts.find((each) => each.key === key)?.value ?? '', opening);
-      expect(clause).toMatch(new RegExp(`${series}[^%]*${figure}`, 'u'));
-      expect(Math.round(Number(figure.replace(/[^\d.]/gu, '')))).toBe(Number(fall));
-      expect(clause).toContain(written(high));
-      expect(clause).toContain(written(low));
-    }
+    expectFallsRead(heldFalls(FALLS, drawdowns, factValue, unloggedFalls), drawdowns, factValue);
+  });
+
+  // A stale entry: the log PR wrote `now` into FALLS and kept the entry, or the literal it names is gone.
+  it('the unloggedFalls list names only FALLS literals, each with an entry that differs from it', () => {
+    expect(staleFalls(FALLS, unloggedFalls)).toEqual([]);
   });
 
   it("cites Coinbase Exchange's daily candles for each Coinbase row, a request of at most 300 holding its date", () => {
@@ -176,5 +227,70 @@ describe('the cycles file (docs/EDUCATION.md §2 and §6)', () => {
       `Mt. Gox, CoinMarketCap, and Bitstamp intraday highs and lows in US dollars, ${written(first)} to ${written(last)}; ` +
         "the falls are Proof of Calm's own computation. <PastPerformance />",
     );
+  });
+});
+
+// Literal rows, clauses and entries, never the live files: a review may change any of those.
+describe('a FALLS literal with a pending entry (docs/CONTENT-OPS.md §8 steps 4 and 5)', () => {
+  const btc: Fall = { row: ['BTC', '2017-12-17', BITSTAMP], fact: ['x.one', '2017 to 2018,', '−84.1 %', BITSTAMP] };
+  const link: Fall = { row: ['LINK', '2021-05-10', BITSTAMP], fact: ['x.one', 'LINK 2021', '−90.7 %', COINBASE] };
+  const falls = [btc, link];
+  // A review moves BTC's clause to −84.2 % (its row's fall stays 84), or LINK's high a day on.
+  const btcNow: Fall = { row: btc.row, fact: ['x.one', '2017 to 2018,', '−84.2 %', BITSTAMP] };
+  const linkNow: Fall = { row: ['LINK', '2021-05-11', BITSTAMP], fact: link.fact };
+  const file = (linkHigh = '2021-05-10'): Drawdown[] => [
+    { coin: 'BTC', high: '2017-12-17', low: '2018-12-15', fall: '84', publisher: BITSTAMP },
+    { coin: 'LINK', high: linkHigh, low: '2023-06-10', fall: '91', publisher: BITSTAMP },
+  ];
+  const clauses =
+    (figure: string, linkHigh = '10 May 2021'): Read =>
+    () =>
+      `2017 to 2018, Bitstamp: 17 Dec 2017 to 15 Dec 2018, ${figure}. ` +
+      `LINK 2021, Coinbase: ${linkHigh} to 10 Jun 2023, −90.7 %. At the close on 16 Oct 2026, nothing.`;
+  const none: ReadonlyMap<string, Fall> = new Map();
+  const pending = (...entries: [string, Fall][]): ReadonlyMap<string, Fall> => new Map(entries);
+  const check =
+    (rows: Drawdown[], read: Read, entries: ReadonlyMap<string, Fall>, literals = falls) =>
+    () =>
+      expectFallsRead(heldFalls(literals, rows, read, entries), rows, read);
+
+  it('data at the literal passes', () => {
+    expect(check(file(), clauses('−84.1 %'), none)).not.toThrow();
+  });
+
+  it('a changed figure with no entry fails', () => {
+    expect(check(file(), clauses('−84.2 %'), none)).toThrow(/to match/u);
+  });
+
+  it("data at the entry's now passes", () => {
+    expect(check(file(), clauses('−84.2 %'), pending(['BTC 2017-12-17', btcNow]))).not.toThrow();
+  });
+
+  it("data one character off the entry's now fails, in the clause or in the row", () => {
+    expect(check(file(), clauses('−84.3 %'), pending(['BTC 2017-12-17', btcNow]))).toThrow(/to match/u);
+    const offRow = pending(['LINK 2021-05-10', { row: ['LINK', '2021-05-12', BITSTAMP], fact: link.fact }]);
+    expect(check(file('2021-05-11'), clauses('−84.1 %', '11 May 2021'), offRow)).toThrow(/to deeply equal/u);
+  });
+
+  it('the old data with the entries present passes (main before the merge)', () => {
+    const both = pending(['BTC 2017-12-17', btcNow], ['LINK 2021-05-10', linkNow]);
+    expect(check(file(), clauses('−84.1 %'), both)).not.toThrow();
+  });
+
+  it('a high-date change passes with its entry, and fails the whole-array comparison without it', () => {
+    const moved = clauses('−84.1 %', '11 May 2021');
+    expect(check(file('2021-05-11'), moved, pending(['LINK 2021-05-10', linkNow]))).not.toThrow();
+    expect(check(file('2021-05-11'), moved, none)).toThrow(/to deeply equal/u);
+  });
+
+  it("the log PR's updated literal is stale while its entry stays, and passes once it is removed", () => {
+    expect(staleFalls([btcNow, link], pending(['BTC 2017-12-17', btcNow]))).toEqual(['BTC 2017-12-17']);
+    expect(staleFalls([btc, linkNow], pending(['LINK 2021-05-10', linkNow]))).toEqual(['LINK 2021-05-10']);
+    expect(staleFalls([btcNow, linkNow], none)).toEqual([]);
+    expect(check(file('2021-05-11'), clauses('−84.2 %', '11 May 2021'), none, [btcNow, linkNow])).not.toThrow();
+  });
+
+  it('an entry that differs from the literal it names is not stale', () => {
+    expect(staleFalls(falls, pending(['BTC 2017-12-17', btcNow], ['LINK 2021-05-10', linkNow]))).toEqual([]);
   });
 });
