@@ -253,7 +253,7 @@
         "coin-added": "{coin} had purchases but was not in the file's list of coins, so it was added to the plan.",
         "coin-not-in-plan": "{count, plural, one {{figure} purchase of {coin} was} other {{figure} purchases of {coin} were}} added. This plan does not list {coin}, so Portfolio shows it after the plan's coins; you can add it in Coins & split.",
         "split-from-dca-split": "The split comes from the file's older monthly split.",
-        "split-normalised": "The {coin} share changed from {from} to {to}, so the split adds up to 100 %.",
+        "split-normalised": "The {coin} share changed from {from} to {to}, so the split adds up to {whole}.",
         "currency-defaulted": "{field, select, payCurrency {The currency you pay in} other {The currency shown}} was missing or unknown, so it is {field, select, payCurrency {EUR} other {USD}}.",
         "starting-amount-from-steps": "The starting amount is the sum of the file's lump-sum steps.",
         "plan-amounts-rounded": "The monthly and starting amounts were rounded to the cent.",
