@@ -3,7 +3,7 @@ import { expect, type Locator, type Page } from '@playwright/test';
 import { fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
 import type { CalendarDate } from '@proofofcalm/core';
 import { seedPlan } from './seed';
-import { test } from './support';
+import { routeFixturePrices, test } from './support';
 
 // The "Why?" links on the viewport matrix (docs/CONTENT-STYLE.md §3): each opens its module in a sheet over the
 // screen it stands on, on its section, and closing gives the focus back. The real module, not the fixture: the
@@ -34,14 +34,8 @@ const LINKS = [
 
 async function seedInHold(page: Page) {
   await page.clock.setFixedTime(new Date(HOLD_MS));
-  await page.route('**/api/prices?*', (route) =>
-    route.fulfill({
-      json: {
-        at: new Date(HOLD_MS - 30_000).toISOString(),
-        prices: { BTC: { EUR: '60000.12', USD: '70000' }, ETH: { EUR: '2500.5', USD: '2900' } },
-      },
-    }),
-  );
+  // The history too, before the seed: Today's red-day foot and Portfolio's charts ask for it.
+  await routeFixturePrices(page, HOLD_MS);
   await seedPlan(page, snapshot);
 }
 
