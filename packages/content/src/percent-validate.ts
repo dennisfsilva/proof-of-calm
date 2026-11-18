@@ -1,7 +1,7 @@
 // A country profile's locale tags, the joiner and decimal of its literal percentages and its money figures' grouping
 // (docs/CONTENT-STYLE.md §4), for validate.ts. Pure; relative imports name their .ts files, so that Node runs the CLI
 // without a build step.
-import { joinProblems } from './join-validate.ts';
+import { joinProblems, URL_IN_TEXT } from './join-validate.ts';
 import { numberLocaleFor } from './loaders/locales.ts';
 import type { Problem } from './problem.ts';
 import type { CountryProfile } from './schema/jurisdiction.ts';
@@ -51,7 +51,6 @@ export const PERCENT_FOLLOWS = new RegExp(String.raw`^(?:${RANGE_JOINER}${FIGURE
 const SIGN = String.raw`(\s*)%(?![\dA-Fa-f]{2})`;
 const PERCENT = new RegExp(`${FIGURE}${SIGN}`, 'g');
 const PERCENT_RANGE = new RegExp(`${FIGURE}(?:${RANGE_JOINER}${FIGURE})?${SIGN}`, 'g');
-const URL_IN_TEXT = /https?:\/\/\S+/g;
 
 /**
  * Each literal percentage in a profile's prose takes its number locale's joiner, so the sign never wraps away from
