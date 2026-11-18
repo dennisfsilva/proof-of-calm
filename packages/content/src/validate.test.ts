@@ -1347,7 +1347,10 @@ describe('validateContent: translated overlays (ADR-0057)', () => {
     const overlay = {
       nickname: 'PT',
       sources: [{ url: 'https://example.com/' }],
-      card: { reporting: ['a', 'b'], summary60: 'Compras detidas 366\u00a0dias ou mais estão isentas; o resto paga 28%.' },
+      card: {
+        reporting: ['a', 'b'],
+        summary60: 'Compras detidas 366\u00a0dias ou mais estão isentas; o resto paga 28%.',
+      },
     };
     expect(overlaid([file(pt, profile()), file(overlayOf(pt), overlay)])).toEqual([
       'overlay-unknown-path: nickname',

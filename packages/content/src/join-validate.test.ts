@@ -177,7 +177,13 @@ describe('a law name, a date and a range in English prose (docs/CONTENT-STYLE.md
     expect(joins(`Manual Part${nbsp}02-${wj}01-03.`)).toEqual([hyphened(`02-${String.fromCodePoint(0x5c)}u206001-03`)]);
     const joined = [`The 2026-${wj}27 tax year.`, `Under Notice${nbsp}2023-${wj}27.`, `Part${nbsp}02-${wj}01-${wj}03.`];
     expect(joined.flatMap(joins)).toEqual([]);
-    const letters = ['COVID-19 relief.', 'An e-money token.', `Form${nbsp}1099-DA.`, `art.${nbsp}10 c.${nbsp}1‑bis`, `c.${nbsp}1-${wj}bis`];
+    const letters = [
+      'COVID-19 relief.',
+      'An e-money token.',
+      `Form${nbsp}1099-DA.`,
+      `art.${nbsp}10 c.${nbsp}1‑bis`,
+      `c.${nbsp}1-${wj}bis`,
+    ];
     expect(letters.flatMap(joins)).toEqual([]);
     expect(joins(`art.${nbsp}10 c.${nbsp}1-bis`)).toEqual([hyphened('1-bis')]);
   });
