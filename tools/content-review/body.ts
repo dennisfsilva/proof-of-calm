@@ -202,6 +202,19 @@ export function defuseCell(text: string): string {
 /** U+2060 WORD JOINER, written by code point so that no invisible character sits in the source. */
 const WJ = String.fromCodePoint(0x2060);
 
+/**
+ * A change row's `old` and `new` with each format character (`\p{Cf}`), each space separator but
+ * U+0020 (`\p{Zs}`) and U+2011 written as `\x{HHHH}`, upper-case hex of at least four digits, the
+ * spelling the skill gives a note, so the table and a note quote one value alike and `defuseCell`
+ * finds no such character left to drop.
+ */
+export function spellJoiners(text: string): string {
+  return text.replace(/(?! )[\p{Cf}\p{Zs}\u2011]/gu, (char) => {
+    const hex = (char.codePointAt(0) ?? 0).toString(16).toUpperCase().padStart(4, '0');
+    return `\\x{${hex}}`;
+  });
+}
+
 /** Characters a source URL may hold: RFC 3986's, less `[`, `]` and those a table or a parse could split on. */
 const URL_CHARS = /^[A-Za-z0-9\-._~:/?#@!$&'()*+,;=%]+$/;
 
@@ -241,7 +254,7 @@ const FILLS: Record<string, Fill | null> = {
           `|${' --- |'.repeat(11)}`,
           ...d.changes.map(
             (c, i) =>
-              `| ${cells([c.item, c.field, c.old, c.new, c.quote, c.eventDate])} | ${link(c.url, `changes[${i}].url`, c.item)} | ${cells([c.accessed, c.confidence, c.substantive ? 'yes' : 'no', c.reason])} |`,
+              `| ${cells([c.item, c.field, spellJoiners(c.old), spellJoiners(c.new), c.quote, c.eventDate])} |${link(c.url, `changes[${i}].url`, c.item)} | ${cells([c.accessed, c.confidence, c.substantive ? 'yes' : 'no', c.reason])} |`,
           ),
         ].join('\n'),
   'Verified, no change': (d, link) =>
