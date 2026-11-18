@@ -483,6 +483,8 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
     expect(figureProblems[0]?.detail).toMatch(
       /^body: "A monthly plan sets when you buy\." is not a sentence pt-PT's list holds and matches neither shape /u,
     );
-    expect(figureProblems[3]?.detail).toMatch(/"In the chart, .* matches neither shape of a chart's section; R5 /u);
+    expect(figureProblems[3]?.detail).toMatch(
+      /"In the chart, .* matches neither shape of a chart's section; write it as B or E \(docs\/CONTENT-STYLE\.md §9\); R5 /u,
+    );
   });
 });
