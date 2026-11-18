@@ -334,7 +334,7 @@ fact to the window its URL names (the skill's §4 step 3).
    set `changedOn` and write `changeNotice` when a rule changed in substance; a bump that corrects our
    own file also writes a `changeNotice` that says so (`docs/JURISDICTIONS.md` §6). When `verify`
    fails on `pnpm test`, or an end-to-end spec fails in CI, because a test asserts a value the review
-   changed other than `reviewedBy` (named in the notes, with those in the app, web and end-to-end
+   changed other than `reviewedBy` (named in the notes, which also list the app, web, and end-to-end
    tests only CI runs, or shown only by CI), have every assertion that pins the old value removed in a session pull
    request to main first, not only the line a failure prints (Vitest prints a test's first failing
    assertion alone; the notes name each, a constant's line with every assertion that reads it),
@@ -381,8 +381,8 @@ fact to the window its URL names (the skill's §4 step 3).
    row's high, it also writes the new `<coin> <high>` in place of the old one in that test's
    `UNREGAINED_KEYS`, which reads the old key through the entry only while it stays (its check
    names a key no `FALLS` literal holds). A changed publisher needs no such edit, since the test
-   reads its Coinbase rows from `FALLS` and the entries. It writes back, at the new value, each
-   assertion the session pull request of step 4 removed, those in app, web and end-to-end
-   tests too, and writes the new value into each passing test the review's notes name for the log pull
+   reads its Coinbase rows from the held falls, `FALLS` read through any entry. The log PR writes
+   back each assertion step 4 removed at the new value, app, web, and end-to-end tests included. It
+   also writes the new value into each passing test the review's notes name for the log pull
    request. These changes make the log PR a tier 2 pull request with the content roles
    (`.claude/rules/content.md`).

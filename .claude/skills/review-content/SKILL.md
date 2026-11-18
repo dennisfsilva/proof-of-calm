@@ -391,16 +391,16 @@ The finish refuses a changed entry at any other value.
    a test that failed: it pins the value when an assertion reads it, directly or through a constant
    it defines (in `packages/content/src/loaders/templates.test.ts` a row's `const` and each
    `expect` that reads it). A hit outside `packages/content` is in a test only CI runs (an app,
-   web or end-to-end test, such as `apps/web/src/site/legal.test.ts`): read it the same way, and
+   web, or end-to-end test, such as `apps/web/src/site/legal.test.ts`): read it the same way, and
    name each assertion that reads the old value as one only CI runs. A hit in a content test that
-   passed is a fixture of its own, unless the test reads a live data file and names the old value
-   (`packages/content/src/fact-windows.test.ts` names fact b's old low in its window): name that
-   line and both values in the notes for the log pull request, which writes the new value there.
+   passed is a fixture of its own. When that test reads a live data file and names the old value
+   (`packages/content/src/fact-windows.test.ts` names fact b's old low in its window), name that
+   line and both values in the notes for the log pull request.
    A `FALLS` literal or a key of `UNREGAINED_KEYS` takes the note below. Name each pinning
    assertion's file and line and both values in the draft's notes and your closing report, and say in
    both that `verify` fails on `pnpm test` until the owner removes those assertions, the ones only CI
    runs too, in a pull request of its own (`docs/ENGINEERING.md` §2): one changed to your new value
-   would fail on main, where the data still holds the old one; the log pull request writes each
+   would fail on main, where the data still holds the old one. The log pull request writes each
    back at your new value (`docs/CONTENT-OPS.md` §8 step 5). In `packages/content/src/cycles.test.ts`, a chart row's change
    meets its tie to fact a's or b's clause (§4 step 1). A literal of its `FALLS` table that your
    change replaced (a clause's one-decimal fall, a row's high or publisher) takes no such removal:
@@ -415,7 +415,7 @@ The finish refuses a changed entry at any other value.
    through the entry only while it stays: when your change moves a high, say in the notes that
    the log pull request writes the new `<coin> <high>` in place of the old one there when it
    removes the entry (`docs/CONTENT-OPS.md` §8 step 5). A changed publisher takes no such note:
-   the test reads its Coinbase rows from the entry. A change §1 reverted takes no such note: its `tests:` list names the
+   the test reads its Coinbase rows from the held falls, `FALLS` read through any entry. A change §1 reverted takes no such note: its `tests:` list names the
    literal. For the tie
    of a fact's value to its `docs/EDUCATION.md` §9 row (`packages/content/src/facts.test.ts`), say
    instead that the owner's pull request to main records the fact's old and new value as an

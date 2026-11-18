@@ -344,7 +344,7 @@ describe('a FALLS literal with a pending entry (docs/CONTENT-OPS.md §8 steps 4 
 });
 
 // A review moves ETH's 2021 row from Coinbase's series to Bitstamp's, or LINK's 2021 row from Bitstamp's to Coinbase's.
-// Main stays green in each state: main with the entry, the merged review (the flip changes no row or clause) and the
+// Main stays green in each state: main with the entry, the merged review (the flip changes no row or clause), and the
 // log PR, which writes `now` into the literals and removes the entry.
 describe('a publisher change through an entry (docs/CONTENT-OPS.md §8 steps 4 and 5)', () => {
   const eth: Fall = { row: ['ETH', '2021-11-10', COINBASE], fact: ['x.two', 'ETH 2022', '−81.9 %', COINBASE] };
