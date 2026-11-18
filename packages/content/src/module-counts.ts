@@ -67,7 +67,7 @@ export function moduleCountProblems(
       if (YEAR.test(count)) return [];
       const pair = `the count "${printedText(count, [NBSP])}"`;
       const shown = printedText(pageSpaces(noun), []);
-      const held = [...new Set(count.match(IN_COUNT))];
+      const held = count.match(IN_COUNT) ?? [];
       return [
         ...(gap === NBSP
           ? []
