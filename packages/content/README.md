@@ -74,8 +74,8 @@ sentence there that holds one of §4's triggers and matches neither closed shape
 neither shape nor `LISTED` holds, or a figure that is not its row's, is `figure-chart`, and a coin
 the chart draws whose rows no sentence states is `figure-unstated`. In every English and pt-PT module,
 `src/module-counts.ts` reads the front matter's `title`, `idea` and `caveat` and each compiled block that holds text
-(R7): a count before a noun on its language's closed list, joined to it by anything but one U+00A0, is
-`figure-join`, and a bare year from 1900 to 2099 is not a count. `scripts/validate.ts` takes the root it reads as
+(R7). A count before a noun on its language's closed list, joined to it by anything but one U+00A0, is
+`figure-join`. A bare year from 1900 to 2099 is not a count. `scripts/validate.ts` takes the root it reads as
 its first argument.
 A translation under `i18n/`, every `.json` file at any depth (`scripts/overlay-paths.ts`), is checked
 against its English file (`src/i18n/overlay-validate.ts`, ADR-0057): the `overlay-*` problems for its
