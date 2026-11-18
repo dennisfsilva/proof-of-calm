@@ -1,4 +1,5 @@
 import { AppRoutes, AppShell } from '@proofofcalm/app/features/shell';
+import { deviceLocale } from '@proofofcalm/app/lib/adapters';
 import {
   type Boot,
   bootLanguage,
@@ -18,8 +19,9 @@ import './app.css';
 // behind the hash of the one document, so the wrapper's file server never resolves a deep path. No
 // service worker (the factory defines VITE_SERVICE_WORKER off, and the shell gets no `registerUpdates`)
 // and the API at the absolute origin the factory defines as VITE_API_BASE.
-// The UI language as the web host boots it (ADR-0023; apps/web/src/main.tsx says how); the factory's flag is
-// `visible` on this host, so Settings offers English alone.
+// The UI language as the web host boots it (ADR-0023; apps/web/src/main.tsx says how): the stored choice,
+// else the device's languages among the offered ones, never written. The factory's flag is `visible` on this
+// host, so it offers English alone and a device derives English.
 const LANGUAGES = listedLanguages(__POC_LANGUAGES__);
 
 function App({ boot: { language, messages }, services }: { boot: Boot; services: Services }) {
@@ -38,7 +40,7 @@ function App({ boot: { language, messages }, services }: { boot: Boot; services:
 
 const root = document.getElementById('root');
 if (root === null) throw new Error('index.html has no #root element');
-void bootLanguage(readLanguage(localStorageOrNull())).then((boot) => {
+void bootLanguage(readLanguage(localStorageOrNull(), deviceLocale().languages, LANGUAGES)).then((boot) => {
   document.documentElement.lang = boot.language;
   messageRegistry.setLanguage(boot.language);
   const services = createBrowserServices({ apiBase: import.meta.env.VITE_API_BASE, language: boot.language });

@@ -1,4 +1,5 @@
 import { AppRoutes, AppShell } from '@proofofcalm/app/features/shell';
+import { deviceLocale } from '@proofofcalm/app/lib/adapters';
 import {
   type Boot,
   bootLanguage,
@@ -19,11 +20,13 @@ import { installChunkReload } from './chunk-reload';
 // The web host's entry (ADR-0045 §9 and §12): the services over the browser's adapters with the API on
 // the same origin, the browser location, the static namespaces every screen needs (§8; a lazy route
 // loads its own), the shell around the route table. The host adds nothing a screen could own.
-// The UI language, a device preference read before the first render (ADR-0023): `bootLanguage` loads
-// another language's static namespaces first and falls back to English whole if they cannot, and the
-// language it gives sets the document's lang, the registry the lazy screens load from, the formatters and
-// the services. Settings offers the languages of the build's flag, `__POC_LANGUAGES__`, which the factory sets from
-// VERCEL_ENV alone: the preview languages on a preview deployment, English everywhere else (ADR-0023, 2026-11-18).
+// The UI language, a device preference read before the first render (ADR-0023): the stored choice, else the
+// device's languages among the offered ones (the reading the country suggestion makes), derived at every boot
+// and never written; a `languagechange` mid-session is ignored. `bootLanguage` loads another language's static
+// namespaces first and falls back to English whole if they cannot, and the language it gives sets the
+// document's lang, the registry the lazy screens load from, the formatters and the services. The build's flag,
+// `__POC_LANGUAGES__`, which the factory sets from VERCEL_ENV alone, gives the offered languages: the preview
+// languages on a preview deployment, English everywhere else (ADR-0023, 2026-11-18).
 const LANGUAGES = listedLanguages(__POC_LANGUAGES__);
 
 // The worker, in production builds of the web host only (ADR-0033, ADR-0045 §5 and §10); the wrapper's
@@ -63,7 +66,7 @@ function App({ boot: { language, messages }, services }: { boot: Boot; services:
 
 const root = document.getElementById('root');
 if (root === null) throw new Error('app.html has no #root element');
-void bootLanguage(readLanguage(localStorageOrNull())).then((boot) => {
+void bootLanguage(readLanguage(localStorageOrNull(), deviceLocale().languages, LANGUAGES)).then((boot) => {
   document.documentElement.lang = boot.language;
   messageRegistry.setLanguage(boot.language);
   const services = createBrowserServices({ apiBase: '', language: boot.language });
