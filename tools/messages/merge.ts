@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url';
 export type MessageTree = { [key: string]: string | MessageTree };
 
 /** The locales the merge writes; a translation sits beside English as `messages/<locale>.json`. */
-export const LOCALES = ['en', 'pt-PT'] as const;
+export const LOCALES = ['en', 'pt-PT', 'de'] as const;
 
 /** Feature name → that feature's messages, merged under the feature name, in a stable order. */
 export function mergeMessages(byFeature: Record<string, MessageTree>): MessageTree {
