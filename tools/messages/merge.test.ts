@@ -67,8 +67,8 @@ describe('complete', () => {
 });
 
 describe('run', () => {
-  it('lists English and pt-PT', () => {
-    expect(LOCALES).toEqual(['en', 'pt-PT']);
+  it('lists English, pt-PT and German', () => {
+    expect(LOCALES).toEqual(['en', 'pt-PT', 'de']);
   });
 
   it('writes the merged English file and one complete file per namespace for each locale, then reports nothing in check mode', () => {
@@ -76,13 +76,16 @@ describe('run', () => {
       today: { en: { title: 'Today', save: 'Save' }, 'pt-PT': { title: 'Hoje' } },
       log: { en: { title: 'Log' } },
     });
-    expect(run(root, true)).toHaveLength(5);
+    expect(run(root, true)).toHaveLength(7);
     expect(run(root, false)).toEqual([]);
     expect(read(root, 'en.json')).toEqual({ log: { title: 'Log' }, today: { title: 'Today', save: 'Save' } });
     expect(read(root, 'en/log.json')).toEqual({ title: 'Log' });
     expect(read(root, 'en/today.json')).toEqual({ title: 'Today', save: 'Save' });
     expect(read(root, 'pt-PT/today.json')).toEqual({ title: 'Hoje', save: 'Save' });
     expect(read(root, 'pt-PT/log.json')).toEqual({ title: 'Log' });
+    // A locale with no message file of its own gets English's, one file per namespace.
+    expect(read(root, 'de/today.json')).toEqual({ title: 'Today', save: 'Save' });
+    expect(read(root, 'de/log.json')).toEqual({ title: 'Log' });
     expect(exists(root, 'pt-PT.json')).toBe(false);
     expect(run(root, true)).toEqual([]);
   });
@@ -126,8 +129,8 @@ describe('run', () => {
   it('fails the check on a file that no message file produces, and deletes it on write', () => {
     const root = fixture({ today: { en: { title: 'Today' } } });
     run(root, false);
-    mkdirSync(join(root, 'messages', 'de'));
-    const leftovers = ['de.json', 'de/today.json', 'en/log.json', 'pt-PT.json'];
+    mkdirSync(join(root, 'messages', 'fr'));
+    const leftovers = ['fr.json', 'fr/today.json', 'en/log.json', 'pt-PT.json'];
     for (const path of leftovers) writeFileSync(join(root, 'messages', path), '{}\n');
     const problems = run(root, true);
     expect(problems).toHaveLength(4);
