@@ -2,7 +2,7 @@ import { failOnClassConflicts, globalTypes, VIEWPORTS, withGlobals } from '@proo
 import type { Decorator, Preview } from '@storybook/react-vite';
 import { type ReactNode, useEffect, useState } from 'react';
 import { EMPTY_SNAPSHOT } from '../src/lib/adapters';
-import { I18nProvider, type Messages, messageRegistry, messages, type UiLanguage } from '../src/lib/i18n';
+import { I18nProvider, isUiLanguage, type Messages, messageRegistry, messages, type UiLanguage } from '../src/lib/i18n';
 import { NavigationProvider } from '../src/lib/navigation';
 import type { Snapshot } from '../src/lib/ports';
 import { type Services, ServicesProvider } from '../src/lib/services';
@@ -18,18 +18,24 @@ import './preview.css';
 // shell's appearance effect sets what the globals' decorator set. Every module the product reaches with
 // import() loads with this file, before any story and outside any test's timeout, so a play function's
 // findBy waits on renders, not on Vite's first transform of a chunk, a namespace or a profile (seconds
-// under load). The language global renders a story in English or pt-PT: the provider's locale, that
-// language's merged namespaces whole, the files `loadNamespace` reads and the services' formatters (a
+// under load). The language global renders a story in English, pt-PT or German: the provider's locale,
+// that language's merged namespaces whole, the files `loadNamespace` reads and the services' formatters (a
 // story with its own services factory keeps English formats).
 
-const PORTUGUESE = Object.fromEntries(
-  Object.entries(
-    import.meta.glob<Messages[keyof Messages]>('../src/messages/pt-PT/*.json', { eager: true, import: 'default' }),
-  ).map(([path, namespace]) => [/([^/]+)\.json$/.exec(path)?.[1], namespace]),
-) as Messages;
-const MESSAGES: Readonly<Record<'en' | 'pt-PT', Messages>> = { en: messages, 'pt-PT': PORTUGUESE };
-const languageOf = (globals: Record<string, unknown>): 'en' | 'pt-PT' =>
-  globals.language === 'pt-PT' ? 'pt-PT' : 'en';
+type Namespace = Messages[keyof Messages];
+
+/** A language's namespace files, globbed eagerly, as one messages object keyed by namespace. */
+const byNamespace = (files: Record<string, Namespace>) =>
+  Object.fromEntries(
+    Object.entries(files).map(([path, namespace]) => [/([^/]+)\.json$/.exec(path)?.[1], namespace]),
+  ) as Messages;
+const MESSAGES: Readonly<Record<UiLanguage, Messages>> = {
+  en: messages,
+  'pt-PT': byNamespace(import.meta.glob<Namespace>('../src/messages/pt-PT/*.json', { eager: true, import: 'default' })),
+  de: byNamespace(import.meta.glob<Namespace>('../src/messages/de/*.json', { eager: true, import: 'default' })),
+};
+const languageOf = (globals: Record<string, unknown>): UiLanguage =>
+  isUiLanguage(globals.language) ? globals.language : 'en';
 
 const withNavigation: Decorator = (Story, { parameters }) => (
   <NavigationProvider location="memory" initialPath={typeof parameters.path === 'string' ? parameters.path : '/today'}>
@@ -104,6 +110,7 @@ const preview: Preview = {
         items: [
           { value: 'en', title: 'English' },
           { value: 'pt-PT', title: 'Português (pt-PT)' },
+          { value: 'de', title: 'Deutsch (de)' },
         ],
         dynamicTitle: true,
       },
