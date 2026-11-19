@@ -12,7 +12,7 @@ lint (`lint/styles.ts`), message merging (`messages/merge.ts`), the secret scan 
 pipeline (`tools/data/`, ADR-0036) arrives in M2.
 
 `messages/merge.ts` reads every feature's and lib module's `messages/<locale>.json` for the locales
-in its `LOCALES` list (`en`, `pt-PT`) and writes, into `packages/app/src/messages`, one
+in its `LOCALES` list (`en`, `pt-PT`, `de`) and writes, into `packages/app/src/messages`, one
 `<locale>/<namespace>.json` per namespace and locale and the merged `en.json` for English alone. A
 translated file is completed from English (`complete`): a missing key takes English's message, and a
 key English lacks, or a file in a locale the list does not name, stops the merge (ADR-0045,
