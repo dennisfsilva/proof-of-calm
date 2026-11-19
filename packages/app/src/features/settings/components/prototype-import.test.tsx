@@ -25,7 +25,7 @@ const NOTE: ReportNote = {
 };
 const NO_BREAK_SPACE = String.fromCodePoint(0xa0);
 
-async function reportLine(country: CountryCode, language: UiLanguage): Promise<string> {
+async function reportLine(country: CountryCode, language: UiLanguage, note: ReportNote = NOTE): Promise<string> {
   const snapshot = fixtureSnapshot();
   const plan = snapshot.plan === null ? null : { ...snapshot.plan, country };
   const services = createTestServices({ snapshot: { ...snapshot, plan }, language });
@@ -33,7 +33,7 @@ async function reportLine(country: CountryCode, language: UiLanguage): Promise<s
   render(
     <ServicesProvider services={services}>
       <I18nProvider locale={language} messages={{ settings: language === 'en' ? en : pt }}>
-        <PrototypeReport notes={[NOTE]} />
+        <PrototypeReport notes={[note]} />
       </I18nProvider>
     </ServicesProvider>,
   );
@@ -59,4 +59,17 @@ describe('PrototypeReport’s split line', () => {
       expect(spacing[0]).toBe(country === 'DE' ? NO_BREAK_SPACE : '');
     },
   );
+
+  // A share closed within the rounding tolerance can change by less than 0.005: at two decimals the line read
+  // "from 50,00% to 50,00%". Both figures take the fewest decimals, from 2 to 4, that tell them apart.
+  it.each([
+    ['PT', 'en'],
+    ['PT', 'pt-PT'],
+    ['DE', 'en'],
+    ['DE', 'pt-PT'],
+  ] as const)('never writes the same figure twice in %s’s numbers in %s', async (country, language) => {
+    const note: ReportNote = { ...NOTE, from: '49.995' as Percent, to: '50' as Percent };
+    const percentages = [...(await reportLine(country, language, note)).matchAll(/(\d[\d.,]*)\s?%/gu)];
+    expect(percentages.map(([, figure]) => figure)).toEqual(['49,995', '50,000', '100']);
+  });
 });
