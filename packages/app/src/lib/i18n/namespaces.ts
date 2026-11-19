@@ -38,11 +38,19 @@ const PORTUGUESE: NamespaceLoaders = {
   settings: () => import('../../messages/pt-PT/settings.json'),
 };
 
-/** German reads English's files until the merge writes its own. */
+const GERMAN: NamespaceLoaders = {
+  learn: () => import('../../messages/de/learn.json'),
+  log: () => import('../../messages/de/log.json'),
+  onboarding: () => import('../../messages/de/onboarding.json'),
+  plan: () => import('../../messages/de/plan.json'),
+  portfolio: () => import('../../messages/de/portfolio.json'),
+  settings: () => import('../../messages/de/settings.json'),
+};
+
 export const NAMESPACE_LOADERS: Record<UiLanguage, NamespaceLoaders> = {
   en: ENGLISH,
   'pt-PT': PORTUGUESE,
-  de: ENGLISH,
+  de: GERMAN,
 };
 
 type StaticMessages = Pick<Messages, StaticNamespace>;
@@ -58,9 +66,9 @@ const STATIC_LOADERS: Record<Exclude<UiLanguage, 'en'>, () => Promise<StaticMess
   },
   de: async () => {
     const [errors, shell, today] = await Promise.all([
-      import('../../messages/en/errors.json'),
-      import('../../messages/en/shell.json'),
-      import('../../messages/en/today.json'),
+      import('../../messages/de/errors.json'),
+      import('../../messages/de/shell.json'),
+      import('../../messages/de/today.json'),
     ]);
     return { errors: errors.default, shell: shell.default, today: today.default };
   },
