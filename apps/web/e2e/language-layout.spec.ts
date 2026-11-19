@@ -4,6 +4,8 @@ import { expect, type Locator, type Page } from '@playwright/test';
 import type { Snapshot } from '@proofofcalm/app/lib/ports';
 import { fixtureNowMs, fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
 import type { CalendarDate, Entry } from '@proofofcalm/core';
+import dePortfolio from '../../../packages/app/src/messages/de/portfolio.json' with { type: 'json' };
+import deToday from '../../../packages/app/src/messages/de/today.json' with { type: 'json' };
 import enLog from '../../../packages/app/src/messages/en/log.json' with { type: 'json' };
 import enPlan from '../../../packages/app/src/messages/en/plan.json' with { type: 'json' };
 import enPortfolio from '../../../packages/app/src/messages/en/portfolio.json' with { type: 'json' };
@@ -17,6 +19,7 @@ import ptToday from '../../../packages/app/src/messages/pt-PT/today.json' with {
 import { seedPlan } from './seed';
 import { routeFixturePrices, test } from './support';
 
+// The tables' cases run in German's formats too, with English's copy until its translation lands (ADR-0045 §8).
 // pt-PT's long dates on the narrow projects, android-small and zoom-125 (docs/DESIGN.md §7 and §8): "28 de fevereiro
 // de 2026" keeps its month name and its no-break spaces (docs/CONTENT-STYLE.md §4), so a table whose columns are then
 // wider than its box stacks each row's cells, measured afresh at every change and stored nowhere
@@ -33,9 +36,17 @@ const LANGUAGE_STORAGE_KEY = 'poc.language';
 const SUMMARIES = {
   en: { today: enToday.strip.table, portfolio: enPortfolio.chart.table.summary },
   'pt-PT': { today: ptToday.strip.table, portfolio: ptPortfolio.chart.table.summary },
+  de: { today: deToday.strip.table, portfolio: dePortfolio.chart.table.summary },
 } as const;
 
 type Language = keyof typeof SUMMARIES;
+
+/**
+ * A date of the table's in each language after English, as `dateOptions` writes it: pt-PT's long month ("28 de
+ * fevereiro de 2026") and German's short one ("28. Feb. 2026"), each with no-break spaces.
+ */
+const DATED = { 'pt-PT': /de\s\S+\sde\s20\d\d/, de: /\d\d?\.\s\S+\s20\d\d/ } as const;
+const TRANSLATED = Object.keys(DATED) as (keyof typeof DATED)[];
 
 /** The fixture with an extra buy of 1234.56 EUR on 28 February, the longest Portuguese month, beside its 20 September sale. */
 function withLongDates(): Snapshot {
@@ -160,30 +171,32 @@ function rootFont(page: Page, size: string) {
 // The fixture prices answer /api/prices and /api/history here, which the service worker's own requests would pass by.
 test.use({ serviceWorkers: 'block' });
 
-for (const screen of ['log', 'today', 'portfolio'] as const) {
-  test(`pt-PT: ${screen}'s table stays inside its box, stacked exactly when its columns are wider`, async ({
-    page,
-  }, testInfo) => {
-    const errors = await boot(page, 'pt-PT');
-    const table = await tableOf(page, screen, 'pt-PT');
-    await expect(page.locator('html')).toHaveAttribute('lang', 'pt-PT');
-    await expect(table).toContainText(/de\s\S+\sde\s20\d\d/);
-    const money = screen !== 'today';
-    const first = await expectFitting(table, money);
-    // The Log's long dates are 2 px too wide at 125 % text: it stacks there.
-    if (screen === 'log' && testInfo.project.name === 'zoom-125') expect(first.stacked).toBe(true);
+for (const language of TRANSLATED)
+  for (const screen of ['log', 'today', 'portfolio'] as const) {
+    test(`${language}: ${screen}'s table stays inside its box, stacked exactly when its columns are wider`, async ({
+      page,
+    }, testInfo) => {
+      const errors = await boot(page, language);
+      const table = await tableOf(page, screen, language);
+      await expect(page.locator('html')).toHaveAttribute('lang', language);
+      await expect(table).toContainText(DATED[language]);
+      const money = screen !== 'today';
+      const first = await expectFitting(table, money);
+      // pt-PT's long dates make the Log 2 px too wide at 125 % text: it stacks there.
+      if (language === 'pt-PT' && screen === 'log' && testInfo.project.name === 'zoom-125')
+        expect(first.stacked).toBe(true);
 
-    // Rotated and back: measured afresh each time.
-    const size = page.viewportSize();
-    if (size === null) throw new Error('the project sets a viewport');
-    await page.setViewportSize({ width: size.height, height: size.width });
-    await expectFitting(table, money);
-    await page.setViewportSize(size);
-    const back = await expectFitting(table, money);
-    expect(back.stacked).toBe(first.stacked);
-    expect(errors).toEqual([]);
-  });
-}
+      // Rotated and back: measured afresh each time.
+      const size = page.viewportSize();
+      if (size === null) throw new Error('the project sets a viewport');
+      await page.setViewportSize({ width: size.height, height: size.width });
+      await expectFitting(table, money);
+      await page.setViewportSize(size);
+      const back = await expectFitting(table, money);
+      expect(back.stacked).toBe(first.stacked);
+      expect(errors).toEqual([]);
+    });
+  }
 
 test("pt-PT: a coin's daily closes open in Holdings stack inside its row and keep Holdings inside its box", async ({
   page,
@@ -226,31 +239,32 @@ test('pt-PT at 125 % text: the Log unstacks at a 16 px root and stacks again at 
   expect(errors).toEqual([]);
 });
 
-test('pt-PT: the keyboard reaches the first row toggle with its ring, and axe finds nothing on the Log', async ({
-  page,
-}, testInfo) => {
-  const errors = await boot(page, 'pt-PT');
-  const table = await tableOf(page, 'log', 'pt-PT');
-  const { stacked } = await expectFitting(table);
-  if (testInfo.project.name === 'zoom-125') expect(stacked).toBe(true);
-  const toggle = table.locator('tbody button[aria-expanded]').first();
-  for (let press = 0; press < 40; press += 1) {
-    if (await toggle.evaluate((element) => element === document.activeElement)) break;
-    await page.keyboard.press('Tab');
-  }
-  await expect(toggle).toBeFocused();
-  const ring = await toggle.evaluate((element) => {
-    const style = getComputedStyle(element);
-    return { style: style.outlineStyle, width: style.outlineWidth };
+for (const language of TRANSLATED)
+  test(`${language}: the keyboard reaches the first row toggle with its ring, and axe finds nothing on the Log`, async ({
+    page,
+  }, testInfo) => {
+    const errors = await boot(page, language);
+    const table = await tableOf(page, 'log', language);
+    const { stacked } = await expectFitting(table);
+    if (language === 'pt-PT' && testInfo.project.name === 'zoom-125') expect(stacked).toBe(true);
+    const toggle = table.locator('tbody button[aria-expanded]').first();
+    for (let press = 0; press < 40; press += 1) {
+      if (await toggle.evaluate((element) => element === document.activeElement)) break;
+      await page.keyboard.press('Tab');
+    }
+    await expect(toggle).toBeFocused();
+    const ring = await toggle.evaluate((element) => {
+      const style = getComputedStyle(element);
+      return { style: style.outlineStyle, width: style.outlineWidth };
+    });
+    expect(ring.style).not.toBe('none');
+    expect(ring.width).not.toBe('0px');
+    const axe = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+      .analyze();
+    expect(axe.violations.map((violation) => `${violation.id}: ${violation.help}`)).toEqual([]);
+    expect(errors).toEqual([]);
   });
-  expect(ring.style).not.toBe('none');
-  expect(ring.width).not.toBe('0px');
-  const axe = await new AxeBuilder({ page })
-    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
-    .analyze();
-  expect(axe.violations.map((violation) => `${violation.id}: ${violation.help}`)).toEqual([]);
-  expect(errors).toEqual([]);
-});
 
 /** Widens every glyph's advance by `spacing`, through the CSSOM: a stand-in for a platform whose fonts run wider. */
 function widerText(page: Page, spacing: string) {
