@@ -9,6 +9,18 @@ import { UI_LANGUAGES } from './locale';
 import { messages } from './messages';
 import { bootLanguage, loadStaticNamespaces, NAMESPACE_LOADERS, STATIC_NAMESPACES } from './namespaces';
 
+// German's files hold English's text until its translation lands, so each stands in here for a marker that names
+// its own path: a loader that reads English's file instead fails below.
+vi.mock('../../messages/de/errors.json', () => ({ default: { from: 'de/errors' } }));
+vi.mock('../../messages/de/shell.json', () => ({ default: { from: 'de/shell' } }));
+vi.mock('../../messages/de/today.json', () => ({ default: { from: 'de/today' } }));
+vi.mock('../../messages/de/learn.json', () => ({ default: { from: 'de/learn' } }));
+vi.mock('../../messages/de/log.json', () => ({ default: { from: 'de/log' } }));
+vi.mock('../../messages/de/onboarding.json', () => ({ default: { from: 'de/onboarding' } }));
+vi.mock('../../messages/de/plan.json', () => ({ default: { from: 'de/plan' } }));
+vi.mock('../../messages/de/portfolio.json', () => ({ default: { from: 'de/portfolio' } }));
+vi.mock('../../messages/de/settings.json', () => ({ default: { from: 'de/settings' } }));
+
 // Every namespace of the merged file reaches a screen one way: the hosts import the static ones, a
 // lazy screen loads its own (ADR-0045 §8). A feature that adds a `messages/` folder without a loader
 // line fails here, before a screen shows bare keys.
@@ -36,13 +48,19 @@ describe('the message namespaces', () => {
       ]);
   });
 
-  it("give German English's loaders until its files exist", () => {
-    expect(NAMESPACE_LOADERS.de).toBe(NAMESPACE_LOADERS.en);
+  it("give German loaders of its own, each reading German's file of its namespace", async () => {
+    expect(NAMESPACE_LOADERS.de).not.toBe(NAMESPACE_LOADERS.en);
+    for (const [namespace, load] of Object.entries(NAMESPACE_LOADERS.de))
+      expect((await load()).default).toEqual({ from: `de/${namespace}` });
   });
 
   it('load the static namespaces of a language other than English from its files', async () => {
     expect(await loadStaticNamespaces('pt-PT')).toEqual({ errors, shell, today });
-    expect(Object.keys(await loadStaticNamespaces('de')).sort()).toEqual([...STATIC_NAMESPACES]);
+    expect(await loadStaticNamespaces('de')).toEqual({
+      errors: { from: 'de/errors' },
+      shell: { from: 'de/shell' },
+      today: { from: 'de/today' },
+    });
   });
 });
 
