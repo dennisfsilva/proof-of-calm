@@ -1544,3 +1544,21 @@ The decision stands; this gives the site pages of §6 a second language without 
   nothing stored, the device's languages give the UI language among the ones the build offers
   (ADR-0023, Deviations of 2026-11-18), so the files reach a person whose choice or device gives the
   language, from the assets route like any visited file; the folder stays out of the precache.
+
+## Deviations recorded on 2026-11-19
+
+The decision stands; German gets its own message files, wired as pt-PT's were on 2026-11-15.
+
+- **2026-11-19, German's files are its own** (§8; replaces "German reads English's files until the
+  merge lists it" in the entry of 2026-11-15 on translations). `LOCALES` in
+  `tools/messages/merge.ts` lists `en`, `pt-PT` and `de`, and the merge writes
+  `packages/app/src/messages/de/<namespace>.json`, each English's copy until a German message file
+  lands beside a feature's `en.json`. `bootLanguage` loads German's static namespaces from those
+  files and `NAMESPACE_LOADERS.de` its lazy ones (`packages/app/src/lib/i18n/namespaces.ts`), so a
+  stored `de` boots with `lang="de"`, German's formats and its chunks under `assets/messages/de/`,
+  which the worker leaves out of its precache; a failed load boots English whole
+  (`apps/web/e2e/language.spec.ts`), and the narrow tables' layout cases run in German's formats too
+  (`apps/web/e2e/language-layout.spec.ts`). The Storybook language global offers German. German
+  stays hidden: no picker offers it. Measured on the web build: 70 precache entries and 1,389,768
+  bytes before, 70 and 1,390,087 after, none under `assets/messages/`; Today's application code
+  (`node tools/size/today.ts`) went from 42,607 to 42,692 bytes, German's six lazy loaders.
