@@ -18,6 +18,7 @@ import { loadNamespace } from '../../../lib/i18n';
 import { useFormatters, useServices } from '../../../lib/services';
 import { CountryStep } from '../../onboarding';
 import type { ReportNote } from '../actions';
+import { sharePrecision } from '../model/share-precision';
 
 // A file from the DCA plan page in Settings → data (docs/DOMAIN.md §7), chosen or pasted into the paste box:
 // the file line, then over a plan the two
@@ -159,15 +160,17 @@ export function PrototypeReport({ notes }: { readonly notes: readonly ReportNote
       {notes.map((note) => {
         const { code, ...values } = note;
         // The percentages, the whole of the split's 100 included, and the date in the locale; the scenario under its own name, since `key` reads as filler.
+        // The split's two shares take the decimals that tell them apart (`49,995%` to `50,000%`), never `50,00%` twice.
         // A count selects the plural as it is and is shown as a figure, grouped as the file line's (`1.234`).
+        const decimals = note.code === 'split-normalised' ? sharePrecision(note.from, note.to) : 0;
         const shown =
           note.code === 'last-buy-defaulted'
             ? { date: format.date(note.date) }
             : note.code === 'split-normalised'
               ? {
                   coin: note.coin,
-                  from: format.percent(note.from, { decimals: 2 }),
-                  to: format.percent(note.to, { decimals: 2 }),
+                  from: format.percent(note.from, { decimals }),
+                  to: format.percent(note.to, { decimals }),
                   whole: format.percent(decimal('100'), { decimals: 0 }),
                 }
               : note.code === 'expectation-dropped'
