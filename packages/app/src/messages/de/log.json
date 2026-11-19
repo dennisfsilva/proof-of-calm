@@ -1,0 +1,159 @@
+{
+  "title": "Log",
+  "table": {
+    "entry": "Entry",
+    "amount": "Amount"
+  },
+  "kind": {
+    "dca": "Monthly buy",
+    "lump": "Starting amount",
+    "extra": "Extra buy",
+    "sell": "Sale",
+    "held": "Coins added",
+    "move": "Coins moved"
+  },
+  "month": {
+    "bought": "bought {amount}",
+    "sold": "sold {amount}"
+  },
+  "skip": {
+    "line": "Skipped",
+    "lineWithNote": "Skipped · {note}",
+    "title": "Skip {month}",
+    "note": "Note (optional)",
+    "placeholder": "e.g. car repair",
+    "done": "{month} skipped.",
+    "alreadySkipped": "{month} is already skipped."
+  },
+  "row": {
+    "item": "{units} for {amount}",
+    "estimate": "{units} (estimated) for {amount}",
+    "fee": "Fee {amount}",
+    "move": "{at, select, venue {{units} moved from {from} to {to}} other {{units} with no venue moved to {to}}}",
+    "moveFee": "Network fee {units}",
+    "moveOutside": "The Log shows {outside} outside {to} on this day, {short} fewer than this move sends. Check this move's date and venues against the entries before it.",
+    "edit": "Edit entry",
+    "delete": "Delete entry",
+    "deleted": "{count, plural, one {Entry deleted.} other {{figure} entries deleted.}}",
+    "undo": "Undo",
+    "notRestored": "{reason, select, skipped {{count, plural, one {{month} was skipped after you deleted this entry, so it stays deleted.} other {{month} was skipped after you deleted these {figure} entries, so they stay deleted.}}} other {{count, plural, one {{month} was recorded after you deleted this entry, so it stays deleted.} other {{month} was recorded after you deleted these {figure} entries, so they stay deleted.}}}}",
+    "notRestoredReplaced": "{count, plural, one {A backup replaced your plan after you deleted this entry, so it stays deleted.} other {A backup replaced your plan after you deleted these {figure} entries, so they stay deleted.}}",
+    "notRestoredSold": "{count, plural, one {Restoring this entry would leave your {coin} sale on {date} without the units it sells, so it stays deleted.} other {Restoring these {figure} entries would leave your {coin} sale on {date} without the units it sells, so they stay deleted.}}",
+    "notRestoredOwnSale": "{count, plural, one {Restoring this sale would leave it without the units it sells, so it stays deleted.} other {Restoring these {figure} entries would leave the {coin} sale among them without the units it sells, so they stay deleted.}}",
+    "notRestoredFee": "{count, plural, one {Restoring this entry would leave your {coin} move on {date} without the units its network fee takes, so it stays deleted.} other {Restoring these {figure} entries would leave your {coin} move on {date} without the units its network fee takes, so they stay deleted.}}",
+    "notRestoredOwnFee": "Restoring this move would leave it without the units its network fee takes, so it stays deleted.",
+    "notRestoredFull": "{count, plural, one {Restoring this entry would take the plan past the {max} entries a plan holds, so it stays deleted.} other {Restoring these {figure} entries would take the plan past the {max} entries a plan holds, so they stay deleted.}}",
+    "notRestoredCurrency": "{count, plural, one {Your plan's currency changed from {from} to {to} after the delete, so this entry stays deleted. It was recorded in {from}; log it again only if you paid it in {to}.} other {Your plan's currency changed from {from} to {to} after the delete, so these {figure} entries stay deleted. They were recorded in {from}; log them again only if you paid them in {to}.}}",
+    "noCost": "Cost unknown",
+    "notDeleted": "{kind, select, held {{count, plural, one {Deleting this Coins added entry would leave your {coin} sale on {date} without the units it sells, so the entry stays. Check that sale in the Log.} other {Deleting these {figure} Coins added entries would leave your {coin} sale on {date} without the units it sells, so the entries stay. Check that sale in the Log.}}} other {Deleting this purchase would leave your {coin} sale on {date} without the units it sells, so the purchase stays. Check that sale in the Log.}}",
+    "notDeletedFee": "{kind, select, held {{count, plural, one {Deleting this Coins added entry would leave your {coin} move on {date} without the units its network fee takes, so the entry stays. Check that move in the Log.} other {Deleting these {figure} Coins added entries would leave your {coin} move on {date} without the units its network fee takes, so the entries stay. Check that move in the Log.}}} other {Deleting this purchase would leave your {coin} move on {date} without the units its network fee takes, so the purchase stays. Check that move in the Log.}}",
+    "failed": "The change could not be saved. Try again."
+  },
+  "holding": {
+    "exempt": "Tax-free from {date}",
+    "lowerRate": "Long-term rate from {date}",
+    "why": "{effect, select, exempt {Why? The tax-free date} other {Why? The long-term rate date}}",
+    "note": "Computed from your dates, not tax advice"
+  },
+  "showAll": "Show all {count} entries",
+  "empty": {
+    "noPlan": "No entries yet. Set up a plan or import a file.",
+    "firstBuy": "No entries yet. Your first buy day is {date}.",
+    "firstBuyPast": "No entries yet. Your first buy day was {date}."
+  },
+  "form": {
+    "movesShort": "After this change, your move to {to} on {date} sends {short} more than the Log shows outside {to} that day. Check that move's date and venues in the Log after you save.",
+    "title": {
+      "dca": "Log the monthly buy",
+      "lump": "Log the starting amount",
+      "extra": "Log an extra buy",
+      "sell": "Log a sale",
+      "held": "Log coins you already have",
+      "edit": "Edit the entry"
+    },
+    "kind": {
+      "label": "Type of transaction"
+    },
+    "date": "Date",
+    "dateInvalid": "Choose a full date: day, month, and year.",
+    "slot": "For {month}",
+    "amount": "{coin} cost before fees ({currency})",
+    "units": "{coin} received (units)",
+    "sold": "{coin} sold (units)",
+    "received": "{coin} sold for, before fees ({currency})",
+    "price": "{coin} price ({currency})",
+    "cost": "{coin} cost ({currency}, if known)",
+    "costHint": "Leave it empty if you do not know the cost: Invested, the average cost, and the P/L then leave these units out. Type 0 if you paid nothing.",
+    "heldDate": "The day you bought or received them.{rule, select, none {} other { If you are not sure, the latest possible day never starts a holding rule too early.}} The value chart counts the coins from that day.",
+    "hint": "Type 2 of the 3; the form fills the third.",
+    "estimateHint": "Bought as planned filled in these units from the day's price. Any fee or venue it copied came from your latest purchase or sale that recorded one. Type the units from your exchange's confirmation.",
+    "venuesHint": "{named, plural, one {Venue} other {Venues}} on these entries: {venues}.{unnamed, plural, =0 {} one { {figure} entry has none.} other { {figure} entries have none.}} Each keeps its own unless you type a venue for all of them.",
+    "earlierDate": "The price the form filled in does not apply to an earlier date. Type the cost before fees and the units received, as your exchange's confirmation shows them.",
+    "fee": "Fee ({currency}, optional)",
+    "details": "Venue and note",
+    "addNote": "Add a note",
+    "venue": "Venue (optional)",
+    "note": "Note (optional)",
+    "save": "Save",
+    "saleWarning": {
+      "exempt": "{share, select, none {None of the {sold} sold{at, select, venue { at {venue}} unnamed { with no venue} other {}} is past the holding rule on {date}. It may be taxed.} other {Only {eligible} of the {sold} sold{at, select, venue { at {venue}} unnamed { with no venue} other {}} are past the holding rule on {date}. The rest may be taxed.}}",
+      "lowerRate": "{share, select, none {None of the {sold} sold{at, select, venue { at {venue}} unnamed { with no venue} other {}} is past the holding rule on {date}. It may be taxed at the short-term rate.} other {Only {eligible} of the {sold} sold{at, select, venue { at {venue}} unnamed { with no venue} other {}} are past the holding rule on {date}. The rest may be taxed at the short-term rate.}}"
+    },
+    "coversSale": "This change leaves your {coin} sale on {date} without the units it sells. Check that sale in the Log.",
+    "close": "Close",
+    "saved": "Entry saved.",
+    "deleted": "This entry was deleted in another browser tab, so the change was not saved.",
+    "planDeleted": "The plan was deleted in another browser tab, so this entry was not saved."
+  },
+  "move": {
+    "title": {
+      "new": "Log coins you moved",
+      "edit": "Edit the move"
+    },
+    "coin": "Coin",
+    "date": "Date",
+    "dateHint": "The day the coins left, as the withdrawal record shows it.",
+    "from": "Venue the coins left",
+    "noVenue": "With no venue",
+    "to": "Venue the coins went to",
+    "toHint": "The exchange's or wallet's name, as your other entries write it, never its address.",
+    "sent": "Units sent",
+    "all": "Fill in all units",
+    "received": "Units received",
+    "fee": "Network fee {units}",
+    "sourceShort": "{at, select, venue {The Log shows {held} at {from} on {date}.} other {The Log shows {held} with no venue on {date}.}}{found, select, yes {} other { The Log looks for the other {short} in the units you held outside {to} on that day.}}",
+    "sourceFound": "Outside {to}, the Log shows {outside} in all on that day, {short} fewer than this move sends.",
+    "duplicate": "The Log already has this move on {date}. Save it only if you moved these coins twice.",
+    "laterShort": "After this move, your move to {to} on {date} sends {short} more than the Log shows outside {to} that day. If both record the same withdrawal, leave only one of them in the Log. If not, check the units that move sends.",
+    "saleShort": "This move's network fee leaves your {coin} sale on {date} without the units it sells. Check the units received against the deposit record, or change that sale first.",
+    "feeShort": "This move's network fee leaves your {coin} move on {date} without the units its network fee takes. Check the units received against the deposit record.",
+    "ownFeeShort": "This move's network fee takes more units than your other {coin} entries leave for it. Check the units received against the deposit record.",
+    "note": "Note (optional)",
+    "save": "Save",
+    "deleted": "This move was deleted in another browser tab, so the change was not saved.",
+    "issue": {
+      "coin-empty": "Choose the coin you moved.",
+      "date-invalid": "Choose a full date: day, month, and year.",
+      "from-empty": "Choose the venue the coins left.",
+      "to-empty": "Enter the venue the coins went to.",
+      "sent-zero": "Enter more than 0 units sent.",
+      "received-zero": "Enter more than 0 units received."
+    }
+  },
+  "record": "Record a purchase",
+  "recordHeld": "Add coins you already have",
+  "recordMoved": "Log coins you moved",
+  "recorded": {
+    "one": "Recorded: {amount} of {coin} on {date}.",
+    "several": "Recorded: {amount} on {date}.",
+    "sold": {
+      "one": "Recorded: sold {amount} of {coin} on {date}.",
+      "several": "Recorded: sold {amount} on {date}."
+    },
+    "held": {
+      "one": "Recorded: {units} added{cost, select, known { for {amount}} other {}} on {date}.",
+      "several": "Recorded: {units} added on {date}."
+    },
+    "moved": "{at, select, venue {Recorded: {units} moved from {from} to {to} on {date}.} other {Recorded: {units} with no venue moved to {to} on {date}.}}"
+  }
+}
