@@ -44,27 +44,57 @@ const ptCondition = (index: number) =>
     ptConditions.length === portugal.holdingRuleConditions.length ? ptConditions[index] : undefined,
   );
 
-test('boots in pt-PT from the stored language: the lang attribute, its message files and no bare key', async ({
-  page,
-}) => {
-  await bootIn(page, 'pt-PT');
-  const translated: string[] = [];
-  page.on('response', (response) => {
-    if (new URL(response.url()).pathname.startsWith('/assets/messages/pt-PT/')) translated.push(response.url());
-  });
-  await page.goto('/today');
-  await expect(page.locator('html')).toHaveAttribute('lang', 'pt-PT');
-  await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
-  await expect(screenArea(page)).not.toHaveText(BARE_KEY);
-  expect(translated.some((url) => /\/today-[^/]+\.js$/.test(url))).toBe(true);
+/** The hidden languages after English, each booted from its own files under assets/messages/<locale>/. */
+const HIDDEN = ['pt-PT', 'de'] as const;
 
-  // A lazy screen loads its namespace from the language's files and renders copy, not keys.
-  await page.goto('/learn');
-  await expect(page.locator('html')).toHaveAttribute('lang', 'pt-PT');
-  await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
-  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-  await expect(screenArea(page)).not.toHaveText(BARE_KEY);
-  expect(translated.some((url) => /\/learn-[^/]+\.js$/.test(url))).toBe(true);
+/** 5 October 2026 as `dateOptions` writes it in each language (`packages/app/src/lib/format/time.ts`). */
+const OCTOBER_5: Record<(typeof HIDDEN)[number], RegExp> = {
+  'pt-PT': /5\sde\soutubro\sde\s2026/,
+  de: /5\.\sOkt\.\s2026/,
+};
+
+for (const language of HIDDEN) {
+  test(`boots in ${language} from the stored language: the lang attribute, its message files and no bare key`, async ({
+    page,
+  }) => {
+    await bootIn(page, language);
+    const translated: string[] = [];
+    page.on('response', (response) => {
+      if (new URL(response.url()).pathname.startsWith(`/assets/messages/${language}/`)) translated.push(response.url());
+    });
+    await page.goto('/today');
+    await expect(page.locator('html')).toHaveAttribute('lang', language);
+    await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
+    await expect(screenArea(page)).not.toHaveText(BARE_KEY);
+    expect(translated.some((url) => /\/today-[^/]+\.js$/.test(url))).toBe(true);
+
+    // A lazy screen loads its namespace from the language's files and renders copy, not keys.
+    await page.goto('/learn');
+    await expect(page.locator('html')).toHaveAttribute('lang', language);
+    await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await expect(screenArea(page)).not.toHaveText(BARE_KEY);
+    expect(translated.some((url) => /\/learn-[^/]+\.js$/.test(url))).toBe(true);
+  });
+}
+
+test.describe("Today's dates in the stored language", () => {
+  // The fixture prices answer /api/prices here, which the service worker's own requests would pass by.
+  test.use({ serviceWorkers: 'block' });
+
+  for (const language of HIDDEN) {
+    test(`${language}: the late buy day reads in the language's date format`, async ({ page }) => {
+      await bootIn(page, language);
+      // The fixture plan on 20 October 2026, whose October buy (5 October) is late.
+      const nowMs = fixtureNowMs('buy');
+      await page.clock.setFixedTime(new Date(nowMs));
+      await routeFixturePrices(page, nowMs);
+      await seedPlan(page, fixtureSnapshot());
+      await expect(page.locator('html')).toHaveAttribute('lang', language);
+      await expect(screenArea(page)).toContainText(OCTOBER_5[language]);
+      await expect(screenArea(page)).not.toHaveText(BARE_KEY);
+    });
+  }
 });
 
 test('boots in English when the stored language is not one the app has', async ({ page }) => {
@@ -100,34 +130,36 @@ test.describe('on a pt-PT device with nothing stored', () => {
 test.describe('when the stored language cannot load its static namespaces', () => {
   test.use({ serviceWorkers: 'block' });
 
-  test("boots in English whole: the lang attribute, English's copy and English's date format", async ({
-    page,
-  }, testInfo) => {
-    // biome-ignore lint/suspicious/noSkippedTests: a runtime skip on every project but desktop, not a disabled test
-    test.skip(testInfo.project.name !== 'desktop', 'the boot does not depend on the viewport');
-    await bootIn(page, 'pt-PT');
-    const aborted: string[] = [];
-    await page.route('**/assets/messages/pt-PT/**', (route) => {
-      aborted.push(route.request().url());
-      return route.abort();
+  for (const language of HIDDEN) {
+    test(`${language}: boots in English whole, the lang attribute, English's copy and English's date format`, async ({
+      page,
+    }, testInfo) => {
+      // biome-ignore lint/suspicious/noSkippedTests: a runtime skip on every project but desktop, not a disabled test
+      test.skip(testInfo.project.name !== 'desktop', 'the boot does not depend on the viewport');
+      await bootIn(page, language);
+      const aborted: string[] = [];
+      await page.route(`**/assets/messages/${language}/**`, (route) => {
+        aborted.push(route.request().url());
+        return route.abort();
+      });
+      // The fixture plan on 20 October 2026, whose October buy (5 October) is late; /api/prices answered here.
+      const nowMs = fixtureNowMs('buy');
+      await page.clock.setFixedTime(new Date(nowMs));
+      await page.route('**/api/prices?*', (route) =>
+        route.fulfill({
+          json: {
+            at: new Date(nowMs - 30_000).toISOString(),
+            prices: { BTC: { EUR: '60000.12' }, ETH: { EUR: '2500.5' } },
+          },
+        }),
+      );
+      await seedPlan(page, fixtureSnapshot());
+      await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
+      expect(aborted.some((url) => /\/today-[^/]+\.js$/.test(url))).toBe(true);
+      await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+      await expect(page.getByText('Buy day was 5 Oct 2026, 15 days ago. Record it or skip the month.')).toBeVisible();
     });
-    // The fixture plan on 20 October 2026, whose October buy (5 October) is late; /api/prices answered here.
-    const nowMs = fixtureNowMs('buy');
-    await page.clock.setFixedTime(new Date(nowMs));
-    await page.route('**/api/prices?*', (route) =>
-      route.fulfill({
-        json: {
-          at: new Date(nowMs - 30_000).toISOString(),
-          prices: { BTC: { EUR: '60000.12' }, ETH: { EUR: '2500.5' } },
-        },
-      }),
-    );
-    await seedPlan(page, fixtureSnapshot());
-    await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
-    expect(aborted.some((url) => /\/today-[^/]+\.js$/.test(url))).toBe(true);
-    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-    await expect(page.getByText('Buy day was 5 Oct 2026, 15 days ago. Record it or skip the month.')).toBeVisible();
-  });
+  }
 });
 
 test.describe("when the language's rules chunk cannot load (offline before it was ever fetched)", () => {
