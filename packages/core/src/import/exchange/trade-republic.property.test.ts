@@ -1,9 +1,10 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { anEntry, date, money, month } from '../../../test/builders';
+import { anEntry, date, instant, money, month, units } from '../../../test/builders';
 import { CHOICES, LISBON, NOW, PLAN, testId } from '../../../test/exchange/plan-fixture';
+import { saveTransaction, storedOver } from '../../actions/entries';
 import { addDays } from '../../dates/calendar';
-import type { Entry } from '../../schema/entry';
+import { type Entry, isEstimate } from '../../schema/entry';
 import type { ExchangeFile } from './kraken';
 import { type ExchangeImportPlan, planExchangeImport } from './plan';
 import { readTradeRepublic, TR_COLUMNS } from './trade-republic';
@@ -91,7 +92,15 @@ const cancelling = fc.record({
     }),
     { maxLength: 3 },
   ),
+  change: fc.oneof(
+    fc.constant({ kind: 'none' as const }),
+    fc.record({ kind: fc.constant('deleted' as const), of: fc.nat() }),
+    fc.record({ kind: fc.constant('edited' as const), of: fc.nat() }),
+  ),
 });
+type Change = (typeof cancelling extends fc.Arbitrary<infer T> ? T : never)['change'];
+const HAND = instant('2026-11-01T08:00:00Z');
+const LATER = instant('2026-11-12T18:00:00Z');
 /** One-tap estimates as the person taps them, live, near their month's due date. */
 const tapsOf = (taps: readonly { coin: string; month: number; late: number; amount: string }[]) =>
   taps.map(({ coin, month: m, late, amount }) =>
@@ -129,6 +138,34 @@ function store(entries: readonly Entry[], plan: ExchangeImportPlan): Entry[] {
 }
 const planned = (file: ExchangeFile, entries: readonly Entry[]) =>
   planExchangeImport(file, { plan: PLAN, entries }, CHOICES, LISBON);
+
+/** The Log before the imports: the taps, one of them deleted by hand when the change says so. */
+const startOf = (tapped: readonly Entry[], change: Change) =>
+  tapped.map((entry, index) =>
+    change.kind === 'deleted' && index === change.of % tapped.length
+      ? { ...entry, deletedAt: HAND, updatedAt: HAND }
+      : entry,
+  );
+/** The Log between the imports: a live estimate's row saved in the Log with other units, the person's own record. */
+function between(log: readonly Entry[], change: Change): readonly Entry[] {
+  const estimates = log.filter((entry) => entry.deletedAt === null && isEstimate(entry));
+  const estimate = change.kind === 'edited' ? estimates[change.of % Math.max(estimates.length, 1)] : undefined;
+  if (estimate === undefined) return log;
+  const { date: day, slot, fee, venue, coin, id, amount } = estimate;
+  const held = units(estimate.units === '0.00777' ? '0.00778' : '0.00777');
+  const rows = [{ coin, entry: id, amount, units: held }];
+  const draft = { kind: 'dca' as const, date: day, slot, fee, note: 'edited', venue, rows };
+  const saved = saveTransaction(draft, {
+    plan: PLAN,
+    entries: log,
+    editing: [estimate],
+    ids: [],
+    now: LATER,
+    source: 'manual',
+  });
+  if (!saved.ok) throw new Error(`the edit is refused: ${saved.error.code}`);
+  return storedOver(log, saved.value);
+}
 
 /** The file's items without their lines, in an order that ignores the file's. */
 function unlined(file: ExchangeFile) {
@@ -170,7 +207,7 @@ describe('readTradeRepublic (property)', () => {
     'a whole file names exactly the stored live buys its cancellations pair; deleting them leaves one import’s live Log, but for the estimates it names',
     () => {
       fc.assert(
-        fc.property(cancelling, ({ buys, cancels, cut, taps }) => {
+        fc.property(cancelling, ({ buys, cancels, cut, taps, change }) => {
           const rows = [
             ...buys.map((buy, index) => tradeRow('buy', buy, index * 2, `B${index}`)),
             ...cancels.map(({ of, late }, index) => {
@@ -182,8 +219,10 @@ describe('readTradeRepublic (property)', () => {
           const at = instants[cut % (instants.length + 1)] ?? '~';
           const whole = read(rows.map((cells) => cells.slice(1)));
           const part = read(rows.filter((cells) => (cells[0] as string) < at).map((cells) => cells.slice(1)));
-          const tapped = tapsOf(taps);
-          const log = store(tapped, planned(part, tapped));
+          // At most one hand change to the Log: a tap deleted before the imports (both worlds start with the delete) or a
+          // row edit between them (one import's world starts without it).
+          const tapped = startOf(tapsOf(taps), change);
+          const log = between(store(tapped, planned(part, tapped)), change);
           const then = planned(whole, log);
           const paired = new Set(whole.cancelled.map((movement) => testId(movement.key)));
           const named = then.cancelled.map(({ entry }) => entry.id).sort();
@@ -193,13 +232,34 @@ describe('readTradeRepublic (property)', () => {
               .map((entry) => entry.id)
               .sort(),
           );
-          // The exception, exactly: each estimate a named entry carries is live in one import and tombstoned in two.
           const carried = new Set(then.cancelled.flatMap(({ estimates }) => estimates.map((entry) => entry.id)));
           const deleted = log.map((entry) => (named.includes(entry.id) ? { ...entry, deletedAt: NOW } : entry));
           const [two, one] = [store(deleted, then), store(tapped, planned(whole, tapped))];
+          // Never silently: (i) a month the line names holds no live estimate of its coin; (ii) an estimate one import of
+          // the whole file keeps live and two tombstone is in a month the line names, or its month keeps a monthly buy of
+          // the coin that is not imported (the person's own record).
+          const monthOf = (entry: Entry) => `${entry.coin}|${entry.slot}`;
+          const months = new Set(
+            then.cancelled.flatMap(({ entry, estimates }) => (estimates.length > 0 ? [monthOf(entry)] : [])),
+          );
+          const liveIn = (entries: readonly Entry[]) => entries.filter((entry) => entry.deletedAt === null);
+          expect(liveIn(two).filter((entry) => isEstimate(entry) && months.has(monthOf(entry)))).toEqual([]);
+          const own = new Set(
+            liveIn(two)
+              .filter((entry) => entry.kind === 'dca' && !isEstimate(entry) && entry.source !== 'import-csv')
+              .map(monthOf),
+          );
+          const tombstoned = new Set(two.filter((entry) => entry.deletedAt !== null).map((entry) => entry.id));
+          const silent = liveIn(one).filter(
+            (entry) =>
+              isEstimate(entry) && tombstoned.has(entry.id) && !months.has(monthOf(entry)) && !own.has(monthOf(entry)),
+          );
+          expect(silent).toEqual([]);
+          if (change.kind !== 'none') return;
+          // With no hand change, the exception exactly: each estimate a named entry carries is live in one import and
+          // tombstoned in two, and the two Logs are otherwise equal.
           const liveOf = (entries: readonly Entry[]) =>
-            entries
-              .filter((entry) => entry.deletedAt === null)
+            liveIn(entries)
               .map((entry) => `${entry.id}:${entry.kind}:${entry.slot}:${entry.coin}:${entry.units}`)
               .sort();
           expect(two.filter((entry) => carried.has(entry.id) && entry.deletedAt === null)).toEqual([]);
