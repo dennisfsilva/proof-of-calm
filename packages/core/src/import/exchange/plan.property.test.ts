@@ -95,10 +95,12 @@ function ranges(drawn: World, at: number) {
  * amount and late starting purchases, seeds 1 to 8: the worst was 3.47 s (the prefix-adds one, seed 7); six times it,
  * 20.8 s, passed a third of 60 s, so the timeout is 90 s (a third of it 30 s). Measured again on 2026-11-23, after
  * the prefix properties except the cover's stated exception (`coverCut`), seeds 1 to 8: the worst was 3.88 s (the
- * prefix-adds one, seed 7); six times it, 23.3 s.
+ * prefix-adds one, seed 7); six times it, 23.3 s. Measured again on 2026-11-23, after the half gate left a file's
+ * cancelled buys out (these worlds cancel none), seeds 1 to 8 and seed 8 twice: the worst was 5.03 s (the prefix-adds
+ * one, seed 8); six times it, 30.2 s, passed a third of 90 s, so the timeout is 120 s (a third of it 40 s).
  */
 const TWICE = { numRuns: 1500 };
-const TIMEOUT = 90_000;
+const TIMEOUT = 120_000;
 
 /** A guard reaches the sale (DOMAIN §3.13, after step 4): the starting amount's 15 days, or a hand `held` entry on or after it. */
 function reached({ plan, entries }: World, sale: Entry) {
