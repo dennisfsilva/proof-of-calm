@@ -829,6 +829,19 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   reported the exchange property files green at seeds 1 to 40, but the first world of
   `plan-remedy.property.test.ts`'s sentence property did not change with the seed; CI's random seeds
   then failed two of its properties, a gap open since #423 (#429, 2026-11-23).
+- A property that asserts it reached a case fails at a seed that draws none. Before such a count is
+  added, measure its minimum over 200 seeds; otherwise pin the case with a unit test, or run the
+  count at a fixed seed as the lesson on every outcome says, and keep no reach count in a
+  random-seed run. Session 22m's `carriedUnderHalf > 0` in `trade-republic.property.test.ts` failed
+  at fast-check seed 167 (0 of 300 runs reached the case, about one CI run in 200) with nothing
+  wrong in the code; 22n dropped it, and the unit tests "Nina, both buys in the earlier export" pin
+  both worlds (#429, #424, #431, 2026-11-23).
+- A rule that tells who wrote a record by a shared instant holds only while no other writer stamps
+  that instant. Before such a rule is chosen, list every writer of the stamp and walk each; where
+  the stored shape holds no provenance, state the cost instead. 22n's first fix told an import's
+  tombstone from a hand delete by the import write's one `now`, but the Log's row edit
+  (`saveTransaction`) also stamps the rows it keeps and the ones it drops with one `now`, so an
+  estimate cleared from a Log row beside an imported buy passed as an import's (#431, 2026-11-23).
 
 ## Known gaps
 
