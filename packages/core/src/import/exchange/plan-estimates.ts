@@ -27,6 +27,8 @@ type Input = {
   readonly add: (day: Day, kind: 'dca', slot: MonthKey, note: string) => readonly EntityId[];
   /** The entries this import has added so far, which `add` grows. */
   readonly added: readonly Entry[];
+  /** The live entries this file names for deletion as cancelled (step 1). */
+  readonly gone: ReadonlySet<EntityId>;
 };
 
 /**
@@ -34,10 +36,11 @@ type Input = {
  * neither skipped nor paused, or when the Log holds a one-tap estimate of C for S, live or tombstoned"; each takes the
  * note of C's first estimate for S in `compareEntries` order. C's live estimates for S are tombstoned only when this
  * import adds a monthly buy of C for S and the exchange-imported monthly buys of C for S, the live ones of any file and
- * this import's, fees excluded, come to at least half the largest of them; otherwise they stay beside the buys.
+ * this import's, fees excluded, come to at least half the largest of them; otherwise they stay beside the buys. A live
+ * buy the file names as cancelled is not counted, so the parts of an export end where the whole file does.
  */
 export function fillMonths(input: Input): { replaced: EstimateGroup[]; kept: (EstimateGroup & { imported: Money })[] } {
-  const { plan, live, monthOf, add, added } = input;
+  const { plan, live, monthOf, add, added, gone } = input;
   const shares = new Set(plannedParts(plan, plan.monthlyAmount).map((part) => part.coin));
   const open = new Set(
     input.months.filter((each) => each.status !== 'skipped' && each.status !== 'paused').map((m) => m.key),
@@ -66,7 +69,7 @@ export function fillMonths(input: Input): { replaced: EstimateGroup[]; kept: (Es
     const [{ coin, slot }] = group.estimates as [Entry];
     // A monthly buy always has a cost: only a `held` entry may have none.
     const imported = sum(
-      [...live, ...added]
+      [...live.filter((each) => !gone.has(each.id)), ...added]
         .filter(
           (each) => each.source === 'import-csv' && each.kind === 'dca' && each.coin === coin && each.slot === slot,
         )
