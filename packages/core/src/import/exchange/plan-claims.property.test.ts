@@ -12,8 +12,8 @@ import { type ExchangeImportPlan, leftOutBefore, planExchangeImport } from './pl
 
 // Steps 2 to 6 of the exchange import's plan (docs/DOMAIN.md §3.13) over generated files and Logs: any window
 // of a file's rows, stored before the whole file, leaves the Log one import leaves, field by field; no purchase step 3
-// or step 4 leaves out is stored, in one import or two; two exchanges' files leave one Log in either order; and no
-// purchase a hand monthly buy claims in one import is stored in two.
+// or step 4 leaves out is stored, in one import or two; two exchanges' files leave one Log in either order once each is
+// chosen again after the other; and no purchase a hand monthly buy claims in one import is stored in two.
 
 /** What the write does with a plan: tombstones the estimates it replaces and adds its entries. */
 function store(entries: readonly Entry[], plan: ExchangeImportPlan): Entry[] {
@@ -204,7 +204,7 @@ describe('planExchangeImport, by windows and by exchanges', () => {
   );
 
   it(
-    'a Kraken file and a Trade Republic file leave one Log in either order',
+    'a Kraken file and a Trade Republic file leave one Log in either order once each is chosen again after the other; before that, only sales the first import of their file left out differ',
     () => {
       fc.assert(
         fc.property(world, fc.array(fc.boolean(), { maxLength: 30 }), (drawn, sides) => {
@@ -215,11 +215,18 @@ describe('planExchangeImport, by windows and by exchanges', () => {
             key: movement.key.replace('|kraken|', '|trade-republic|'),
           }));
           const tr: ExchangeFile = { ...fileOf(rekeyed), exchange: 'trade-republic' };
+          /** The two files in turn, then the first again after the second (DOMAIN §3.13 step 5). */
           const then = (a: ExchangeFile, b: ExchangeFile) => {
-            const after = store(drawn.entries, run(drawn, drawn.entries, a));
-            return store(after, run(drawn, after, b));
+            const first = run(drawn, drawn.entries, a);
+            const after = store(drawn.entries, first);
+            const two = store(after, run(drawn, after, b));
+            return { first, two, again: store(two, run(drawn, two, a)) };
           };
-          expect(seen(then(tr, kraken))).toEqual(seen(then(kraken, tr)));
+          const [krakenFirst, trFirst] = [then(kraken, tr), then(tr, kraken)];
+          expect(seen(trFirst.again)).toEqual(seen(krakenFirst.again));
+          const out = new Set([...krakenFirst.first.uncovered, ...trFirst.first.uncovered].map(({ id }) => id));
+          const rest = (entries: readonly Entry[]) => seen(entries.filter((entry) => !out.has(entry.id)));
+          expect(rest(trFirst.two)).toEqual(rest(krakenFirst.two));
         }),
         RUNS,
       );

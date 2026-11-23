@@ -5,12 +5,18 @@ import { fileOf, heldGuards, type World, world } from '../../../test/exchange/pl
 import { added, BERLIN, LISBON, NOW, testId, trade } from '../../../test/exchange/plan-fixture';
 import { preCut, skipped } from '../../../test/exchange/plan-late';
 import { addDays, type CalendarDate } from '../../dates/calendar';
-import { compare, isPositive, sum } from '../../money/decimal';
+import { compare, isPositive, max, sum } from '../../money/decimal';
 import { plannedParts } from '../../plan/parts';
 import { slotStatuses } from '../../plan/statuses';
 import { type Entry, EntrySchema, isEstimate, writtenEntryVersion } from '../../schema/entry';
 import type { ExchangeFile } from './kraken';
-import { type ExchangeImportPlan, type ImportChoices, type ImportContext, planExchangeImport } from './plan';
+import {
+  type ExchangeImportPlan,
+  type ImportChoices,
+  type ImportContext,
+  leftOutBefore,
+  planExchangeImport,
+} from './plan';
 
 // The exchange import's plan (docs/DOMAIN.md §3.13) over generated files and Logs: storing a plan's entries and
 // planning again adds nothing, an import in two parts leaves the Log one import leaves, the person's answer to the
@@ -56,6 +62,18 @@ function twoWays(drawn: World, cut: number) {
   return { once, first, then, oneLog: store(drawn.entries, once), twoLog: store(after, then) };
 }
 
+/** The file in two date ranges, the rows before a Lisbon date and the rest, as a yearly export gives them. */
+function ranges(drawn: World, at: number) {
+  const dates = [...new Set(drawn.file.movements.map((movement) => LISBON.dateOf(movement.at)))].sort();
+  const cut = dates[at % (dates.length + 1)] ?? '9999-12-31';
+  const part = (early: boolean) => {
+    const movements = drawn.file.movements.filter((movement) => LISBON.dateOf(movement.at) < cut === early);
+    preCut(drawn, movements);
+    return fileOf(movements);
+  };
+  return [part(true), part(false)] as const;
+}
+
 /**
  * The two-import properties run 1,500 times with a 60 s timeout each (the core's default is Vitest's 5 s). Measured
  * on 2026-11-13 under the full core suite with coverage, seeds 1 to 8: 1.7 to 2.8 s locally per property (the first
@@ -87,18 +105,65 @@ function reached({ plan, entries }: World, sale: Entry) {
     own.some((entry) => entry.kind === 'held' && entry.source !== 'import-csv' && entry.date >= sale.date)
   );
 }
-/** The sale's coin on or before its date in `log`: the person's entries but estimates, and the file's. */
-function cover({ file }: World, log: readonly Entry[], sale: Entry) {
+const counts = (entry: Entry, coin: string, on: CalendarDate) =>
+  entry.coin === coin &&
+  entry.date <= on &&
+  ['dca', 'extra', 'lump', 'held'].includes(entry.kind) &&
+  !(isEstimate(entry) && entry.kind === 'dca');
+
+/**
+ * Each sale of one import judged by DOMAIN §3.13 step 4's cover, worked out from the file, the Log before it and the
+ * plan: a reached sale stored whose cover is short, a sale left out whose cover holds it, and a line that is false.
+ */
+function judged(drawn: World, before: readonly Entry[], file: ExchangeFile, plan: ExchangeImportPlan) {
   const ids = new Set(file.movements.map((movement) => testId(movement.key)));
-  const counted = live(log).filter(
-    (entry) =>
-      entry.coin === sale.coin &&
-      entry.date <= sale.date &&
-      ['dca', 'extra', 'lump', 'held'].includes(entry.kind) &&
-      !(isEstimate(entry) && entry.kind === 'dca') &&
-      (entry.source !== 'import-csv' || ids.has(entry.id)),
+  const known = new Set([...before, ...plan.entries].map((entry) => entry.id));
+  const claims = plan.recorded.flatMap(({ coin, dates, entry }) =>
+    dates.map((day) => `${coin}|${entry.kind === 'sell' ? 'sale' : 'purchase'}|${day}`),
   );
-  return sum(counted.map((entry) => entry.units));
+  /** F: C's earliest purchase or receipt this file considers and neither stores nor claims in step 2. */
+  const from = (coin: string) =>
+    file.movements
+      .filter(
+        (movement) =>
+          movement.coin === coin &&
+          leftOutBefore(drawn.plan, movement) === null &&
+          movement.role !== 'sale' &&
+          !known.has(testId(movement.key)) &&
+          !claims.includes(`${coin}|${movement.role}|${LISBON.dateOf(movement.at)}`),
+      )
+      .map((movement) => LISBON.dateOf(movement.at))
+      .sort()[0];
+  const unitsOf = (entry: Entry) => {
+    const claimed = plan.recorded.find((recorded) => recorded.entry.id === entry.id);
+    return entry.kind === 'lump' && entry.source === 'one-tap' && claimed
+      ? max(entry.units, claimed.units)
+      : entry.units;
+  };
+  const after = live(store(before, plan));
+  const cover = (coin: string, on: CalendarDate) => {
+    const f = from(coin);
+    const counted = after.filter(
+      (entry) =>
+        counts(entry, coin, on) &&
+        (entry.source !== 'import-csv' || ids.has(entry.id) || f === undefined || entry.date < f),
+    );
+    return sum(counted.map(unitsOf));
+  };
+  const line = (coin: string, on: CalendarDate) =>
+    sum(
+      [...live(before).filter((entry) => entry.source !== 'import-csv'), ...plan.entries]
+        .filter((entry) => counts(entry, coin, on))
+        .map((entry) => entry.units),
+    );
+  const sales = plan.entries.filter((sale) => sale.kind === 'sell' && reached(drawn, sale));
+  return {
+    stored: sales.length,
+    out: plan.uncovered.length,
+    short: sales.filter((sale) => compare(cover(sale.coin, sale.date), sale.units) < 0),
+    covered: plan.uncovered.filter(({ coin, date, units }) => compare(cover(coin, date), units) >= 0),
+    false: plan.uncovered.filter(({ coin, date, units }) => compare(line(coin, date), units) >= 0),
+  };
 }
 
 /**
@@ -226,27 +291,31 @@ describe('planExchangeImport', () => {
   );
 
   it(
-    'no sale a guard reaches is stored short, in one import or two',
+    'a reached sale is stored exactly when its cover holds its units, in one import, a prefix then the whole file, or two date ranges',
     () => {
+      const seen = { stored: 0, out: 0 };
       fc.assert(
-        fc.property(world, fc.nat(), (drawn, cut) => {
-          const { once, first, then, oneLog, twoLog } = twoWays(drawn, cut);
-          const after = store(drawn.entries, first);
-          const stored = [
-            [once, oneLog],
-            [first, after],
-            [then, twoLog],
-          ] as const;
-          const short = stored.flatMap(([plan, log]) =>
-            plan.entries.filter(
-              (sale) =>
-                sale.kind === 'sell' && reached(drawn, sale) && compare(cover(drawn, log, sale), sale.units) < 0,
-            ),
-          );
-          expect(short).toEqual([]);
+        fc.property(world, fc.nat(), fc.nat(), (drawn, cut, at) => {
+          const { once, first, then } = twoWays(drawn, cut);
+          const prefix = fileOf(drawn.file.movements.slice(0, cut % (drawn.file.movements.length + 1)));
+          const [early, late] = ranges(drawn, at);
+          const one = run(drawn, drawn.entries, early);
+          const afterEarly = store(drawn.entries, one);
+          const imports = [
+            judged(drawn, drawn.entries, drawn.file, once),
+            judged(drawn, drawn.entries, prefix, first),
+            judged(drawn, store(drawn.entries, first), drawn.file, then),
+            judged(drawn, drawn.entries, early, one),
+            judged(drawn, afterEarly, late, run(drawn, afterEarly, late)),
+          ];
+          for (const each of imports) [seen.stored, seen.out] = [seen.stored + each.stored, seen.out + each.out];
+          expect(imports.flatMap((each) => [...each.short, ...each.covered, ...each.false])).toEqual([]);
         }),
         TWICE,
       );
+      // The generator reaches both sides of the rule.
+      expect(seen.stored).toBeGreaterThan(0);
+      expect(seen.out).toBeGreaterThan(0);
     },
     TIMEOUT,
   );
