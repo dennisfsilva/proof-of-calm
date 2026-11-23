@@ -81,6 +81,13 @@ branch, and a `#` or a `{date:<field>}` placeholder that opens a branch is its f
 after a dot inside a branch opens a new sentence and is read as any sentence is. German and
 Portuguese: below. Template names need a human sign-off.
 
+The German line rule below also reads English text, as every row reads every text, and it refuses
+more than English needs on purpose: in a line that names an asset, the English words spelled like
+one of its forms fail, `spare`, `spar`, `halt`, `hole` and `staple`, in lower case anywhere and
+with a capital where a clause opens. So `Keep a spare copy of your Bitcoin plan` fails; English copy
+avoids those words beside an asset name (`a second copy`, `pause`), and `money you can spare` passes
+in a line that names none.
+
 The Portuguese rows (decided 2026-11-15; the voice is §9):
 
 - Every row above has its Portuguese form, except the words of the next bullet: `recomendamos`;
@@ -246,12 +253,14 @@ The German rows (decided 2026-11-23; the voice is §10):
      `umschichten`, `abstoßen`, `einsteigen`, `aussteigen`, `zugreifen`, `zuschlagen`, `mitnehmen`,
      `festhalten`, `durchhalten`, `beibehalten`, `ausnutzen`, `absichern`, `aufbewahren` and
      `glattstellen`. The forms that count:
-     - the infinitive and the zu-infinitive, in any case and anywhere (`zum Verkaufen`, `das Halten`);
+     - the infinitive and the zu-infinitive, in lower case or with a capital and anywhere (`zum
+       Verkaufen`, `das Halten`);
      - the present and imperative of `du`, `ihr` and `Sie`, and the past forms that address the
-       reader (`kaufst`, `kauft`, `kauf`, `verkauften`, `hieltest`), so every participle spelled like
-       them fails too (`verkauft`, `investiert`, `behalten`);
+       reader (present and imperative: `kaufst`, `kauft`, `kauf`; past: `verkauften`, `hieltest`),
+       so every participle spelled like them fails too (`verkauft`, `investiert`, `behalten`);
      - a separable verb's base with its particle closing the clause (`Legen Sie Ihr Geld in Bitcoin
-       an`);
+       an`); every occurrence of a base is read, so a noun spelled like one before it hides nothing
+       (`Nach dem Kauf von BTC legen Sie den Rest in ETH an`);
      - `setzen` with a later `auf`;
      - `durchführen`, `ausführen`, `vornehmen`, `abschließen` and `tätigen` when the line holds a
        purchase noun.
@@ -263,11 +272,13 @@ The German rows (decided 2026-11-23; the voice is §10):
      `nicht` and their kin between. Elsewhere a capital marks a noun, so `der Kauf`, `Erster Kauf`,
      `Kauftag` and `Haltefrist` pass, and so do `hält`, `kaufte` and the `ge-` participles
      (`gekauft`, `gehalten`).
-  2. A line is the unit, and dots, `!` and `?` end none. A sentence that ends in an ordinal takes no
+  2. A line is the unit, and dots, `!` and `?` end no line, though each still opens a clause for
+     item 1's capital test. A sentence that ends in an ordinal takes no
      second dot (Duden D 154, `Wir treffen uns am 15.`), so no cut tells them apart, and an
      abbreviation list never closes. So `Kaufen Sie am 1. November BTC` and `Haben Sie Bitcoins? Dann
-     verkaufen Sie sie nicht.` fail. In the read of a Learn module that joins its lines, a paragraph
-     is one line. The text is read with soft hyphens and zero-width characters taken out.
+     verkaufen Sie sie nicht.` fail. A Learn module's German lines are read only in the read that
+     joins its lines: a paragraph is one line, and a source wrap neither ends a line nor opens a
+     clause. The text is read with soft hyphens and zero-width characters taken out.
   3. The asset names, for every language: those of the Portuguese item 1; every word that begins
      `bitcoin` or `crypto`, holds `krypto` or ends in `coin` or `coins`; `Münze`, `Token`, `moeda`,
      `moedas`; the names of `packages/content/coins.json` as written, with a genitive `s`; and their
@@ -276,27 +287,28 @@ The German rows (decided 2026-11-23; the voice is §10):
   4. A form of `müssen` or `sollen`, or `am besten`, `besser`, `lieber`, `sinnvoll`, `lohnt` or
      `lohnenswert`, fails with an infinitive of item 1 anywhere in the line, with or without an
      asset (`Sie müssen jetzt verkaufen`, `Kaufen sollten Sie jetzt nicht`).
-  5. A form of item 1 that opens an ICU branch fails in any case, with or without an asset name
-     (`{kind, select, sell {Verkauf eintragen} …}`); `{count, plural, one {# Kauf} other {# Käufe}}`
-     passes.
+  5. A form of item 1 that opens an ICU branch fails in lower case or with a capital, with or
+     without an asset name (`{kind, select, sell {Verkauf eintragen} …}`); a branch that opens with
+     `#` or a placeholder passes, so `{count, plural, one {# Kauf} other {# Käufe}}` and the German
+     plurals' `{count, plural, one {{figure} Kauf} other {{figure} Käufe}}` pass alike.
   6. Write instead a noun after a determiner (`ein Verkauf von {coin}`), `Bestand` for "what you
      hold", the plan with a noun (`Der Plan sieht jeden Monat einen Kauf von BTC vor`), a `ge-`
      participle, or a line that names no asset. The table below holds the commonest cases.
 
   | Refused (German) | Write instead |
   |---|---|
-  | `Proof of Calm verwahrt nie Ihr Geld oder Ihre Coins. Sie kaufen und verwahren Coins bei einem Anbieter Ihrer Wahl oder in einer eigenen Wallet.` | `Proof of Calm hat nie Zugriff auf Ihr Geld oder Ihre Coins. Für Kauf und Aufbewahrung wählen Sie einen Anbieter oder eine eigene Wallet.` |
-  | `Wenn Sie Coins selbst verwahren und die Seed-Phrase verlieren, kann niemand sie wiederherstellen.` | `Bei Coins in eigener Verwahrung kann niemand eine verlorene Seed-Phrase wiederherstellen.` |
+  | `Proof of Calm verwahrt nie Ihr Geld oder Ihre Coins. Sie kaufen und verwahren Coins bei einem Anbieter Ihrer Wahl oder in einer eigenen Wallet.` | `Proof of Calm hat nie Ihr Geld oder Ihre Coins in Verwahrung. Für den Kauf und die Aufbewahrung wählen Sie einen Anbieter oder eine eigene Wallet.` |
+  | `Wenn Sie Coins selbst verwahren und die Seed-Phrase verlieren, kann niemand sie wiederherstellen.` | `Bei Coins in eigener Verwahrung und verlorener Seed-Phrase kann niemand die Coins wiederherstellen.` |
   | `Eingetragen: {amount} {coin} am {date} verkauft.` | `Eingetragen: ein Verkauf von {amount} {coin} am {date}.` |
-  | `Dieser Verkauf ist {excess} mehr, als Sie halten ({held} am {date}).` | `Dieser Verkauf übersteigt Ihren Bestand um {excess} ({held} am {date}).` |
+  | `Dieser Verkauf ist {excess} mehr, als Sie halten ({held} am {date}).` | `Dieser Verkauf übersteigt Ihren Bestand ({held} am {date}) um {excess}.` |
   | `Ein Rückgang der Coins, die Sie halten, ist im Gange.` | `Ein Rückgang der Coins in Ihrem Bestand ist im Gange.` |
   | `Deutschland: Kryptowerte, die Sie länger als ein Jahr halten, sind beim Verkauf steuerfrei.` | `Deutschland: Ein Verkauf von Kryptowerten mehr als ein Jahr nach dem Kauf ist steuerfrei.` |
-  | `Der Plan kauft am 1. jedes Monats Bitcoin.` | `Der Kauf von Bitcoin findet am 1. jedes Monats statt.` |
+  | `Der Plan kauft am 1. jedes Monats Bitcoin.` | `Der Plan sieht am 1. jedes Monats einen Kauf von Bitcoin vor.` |
   | `Kauf von 0,01 BTC erfasst.` | `Eingetragen: ein Kauf von 0,01 BTC.` |
   | `{count, plural, one {Kauf} other {Käufe}} von BTC eingetragen.` | `{count, plural, one {# Kauf} other {# Käufe}} von BTC eingetragen.` |
   | `Der 1. Kauf von BTC ist am {date}.` | `Der erste Kauf von BTC ist am {date}.` |
-  | `Legen Sie einen Plan für BTC an.` | `Richten Sie einen Plan für BTC ein.` |
-  | `Halten Sie jeden Kauf von BTC fest.` | `Tragen Sie jeden Kauf von BTC ein.` |
+  | `Legen Sie einen Plan für BTC an.` | `Richten Sie einen Plan ein.` |
+  | `Halten Sie jeden Kauf von BTC fest.` | `Jeden Kauf eintragen` |
   | `Sie müssen nichts verkaufen.` | `Der Plan verlangt keinen Verkauf.` |
   | `Prüfen Sie den Anbieter, bevor Sie Kryptowerte kaufen.` | `Prüfen Sie jeden Anbieter vor dem ersten Kauf von Kryptowerten.` |
   | `Bitcoin wurde 2021 von vielen verkauft.` | `2021 gab es viele Verkäufe von Bitcoin.` |
@@ -307,8 +319,8 @@ The German rows (decided 2026-11-23; the voice is §10):
   particle after the clause (`Steigen Sie ein bei Bitcoin`); an asset named in another message; and
   a directive with no asset (`Jetzt kaufen`, as `Buy now` passes).
 - The quoted label „Investiert“ and the Portuguese tab «Regra e venda» are on the allow-list, each
-  with its reason, and so is the Risk page's Portuguese scams sentence in its fixed wording
-  (`docs/LEGAL.md` §5).
+  with its reason, and so is the Portuguese text of `docs/LEGAL.md` §5's fixed scams sentence
+  (`legal.risk.scams.p1`).
 
 A negation does not lift a ban; say what the app does instead. "No alerts" is still `alert`: write
 `no price notifications`, then what the app shows in their place (one line on Today, once per fall).
@@ -1023,7 +1035,7 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
 - **Address the reader as `Sie`**, with `Sie`, `Ihr` and `Ihnen` capitalised, in every string, site
   page, module, email and legal page, as the ESAs' German texts do; never `du`. Serious is not formal
   (§1.5): short active sentences, no `erfolgt` or `Durchführung`. `Ihr` only where it removes doubt:
-  `der Plan`, `die Einträge`, but `Ihr privater Schlüssel`.
+  `der Plan`, `die Einträge`, but `Ihr privater Schlüssel` and `Ihr Bestand`.
 - **Buttons, labels and headings in the infinitive, the verb last**: `Speichern`, `Einen Kauf
   eintragen`, `Oktober überspringen`, `CSV-Protokoll exportieren`. A change of the form of address
   then touches only the sentences, so no control holds `Sie` (`Vorhandene Coins hinzufügen`). A link
@@ -1044,11 +1056,15 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
 - **"Ensure" is `prüfen`**, since every form of `sicher` stays banned (§2): `Prüfen Sie das Datum vor
   dem Speichern`, never `Stellen Sie sicher` or `Sind Sie sicher?`; the `garant` row refuses
   `Garantie`.
-- **No line, label or ICU branch opens with a form of §2's German list** (`Kauf`, `Verkauf`,
-  `Halten`, `Tausch`); every dot opens a clause for the lint, so none stands right after an ordinal
-  or an abbreviation (`2. Kauf`, `z. B. Kauf`). In a line that names an asset, write a noun after a
-  determiner (`ein Verkauf von {coin}`) and `Bestand`, never `die Sie halten`; the label is quoted
-  „Investiert“ (allow-listed).
+- **No ICU branch, and no line that names an asset, opens a clause with a form of §2's German
+  list** (`Kauf`, `Verkauf`, `Halten`, `Tausch`), as the lint refuses. A label that is the whole
+  message passes bare, as the entry sheet's kind labels do (`Monatskauf`, `Startbetrag`,
+  `Zusatzkauf`, `Verkauf`, `Hinzugefügte Coins`, `Übertragene Coins`, the glossary below), while
+  the same `Verkauf` opening an ICU branch fails (§2 German item 5). Every dot
+  opens a clause for the lint, so in a line that names an asset no form stands right after an
+  ordinal or an abbreviation (`2. Kauf`, `z. B. Kauf`). There, write a noun after a determiner (`ein
+  Verkauf von {coin}`) and `Bestand`, never `die Sie halten`. The label `Investiert` stands bare; a
+  sentence that names it quotes „Investiert“, which the allow-list passes.
 - **The asset and the name.** A coin's name takes no article (`Ethereum fiel 2018 um 94 %`); the
   unit is `der Bitcoin`, the network `das Bitcoin-Netzwerk`. The product's name stays in English,
   with no article and no genitive `s` (`Proof of Calm berechnet`, `die Daten von Proof of Calm`;
@@ -1062,9 +1078,10 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
   never a translation back from English: Delegated Regulation 2017/565 art. 44(4)(d), „Die frühere
   Wertentwicklung ist kein verlässlicher Indikator für künftige Ergebnisse.“; MiCA art. 6(5)(a), „Der
   Kryptowert kann seinen Wert ganz oder teilweise verlieren.“; (e) and (f), the `Systeme für die
-  Entschädigung der Anleger` and the `Einlagensicherungssysteme`, in §2's statement on status, which
-  reads `Proof of Calm ist bei keiner Finanzaufsicht registriert und unterliegt keiner Aufsicht`; the ESAs' warning of 2022-03-17 in
-  its German version. "Not advice" reads `keine Beratung`, "no financial or tax advice" `keine
+  Entschädigung der Anleger` and the `Einlagensicherungssysteme`, in the statement on status of
+  `docs/LEGAL.md` §5, which reads
+  `Proof of Calm ist bei keiner Finanzaufsicht registriert und unterliegt nicht deren Aufsicht`;
+  the ESAs' warning of 2022-03-17 in its German version. "Not advice" reads `keine Beratung`, "no financial or tax advice" `keine
   Anlage- oder Steuerberatung`. The plan-creation text stays English until counsel approves a German
   one (`docs/LEGAL.md` §4).
 - **Numerals for every number**, 2 to 9 included: `2 Coins`, `vor 15 Tagen`, `4‑mal`. Numbers,
