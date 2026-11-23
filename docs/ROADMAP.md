@@ -416,7 +416,8 @@ external links and the Risk link in the mobile export (M3).
   Republic; Kraken's ledger reader built on 2026-11-13 (#168) and the core's import plan against the
   Log the same day (#178, `docs/DOMAIN.md` §3.13, "Meeting the Log"), then its write (#183) and the
   Settings step that previews and imports the ledger (#184, #185); Trade Republic's reader (#191) and
-  the same step for its transaction export, recognised by its header, shipped on 2026-11-14), and a receipt at no cost in an
+  the same step for its transaction export, recognised by its header, shipped on 2026-11-14; a month's
+  one-tap estimates replaced only when its imported buys reach half of them, 2026-11-23), and a receipt at no cost in an
   export (a welcome bonus, an airdrop) recorded as coins held (`held`) with the amount 0, the one kind
   that allows it (decided 2026-11-05, the kind 2026-11-06: the invested total adds nothing, the
   average cost and the P/L count the units, the tax-year export carries the lot at cost 0, and the
@@ -578,7 +579,9 @@ states (a purchase counted twice, 1,700 against 1,400, or a purchase left out, 4
 where the import now stores a late starting purchase as a monthly buy with no line (2,400 against 1,400).
 
 Free in the core (ADR-0039). After the preview, an import replaces the matching one-tap estimates
-by the rules `docs/DOMAIN.md` §3.13 owns (ADR-0056), as the Kraken and Trade Republic imports do.
+by the rules `docs/DOMAIN.md` §3.13 owns (ADR-0056), as the Kraken and Trade Republic imports do. A month whose imported
+buys come to less than half of its estimate keeps it (step 5's half gate); the per-month answer, cutting
+that estimate to what was bought from the preview, waits here.
 
 ---
 

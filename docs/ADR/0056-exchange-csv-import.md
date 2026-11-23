@@ -226,3 +226,17 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   shorter export lets step 2 claim a different purchase for the lump, so a cover that follows the claim
   made two imports store a sale one import leaves out (fast-check seeds 13 and 14); it went to #424 with
   a design check of a lump's claim across cuts. The rest stands.
+- 2026-11-23, the half gate: a month's one-tap estimates were replaced by any monthly buy a file
+  added for it, so Trade Republic's 1.37 of round-up savings for a month of Bought as planned at 600
+  removed the 600 and Invested fell to 1.37 (Bruno). Step 5 now tombstones C's live estimates for S only
+  when the import adds a monthly buy of C for S and the imported buys of C for S, the sum of `amount`
+  over the live `import-csv` monthly buys from any file and this import's, fees excluded, reach half the
+  largest estimate (`F + F >= largest`, a tie replaces). Under half, the estimates stay beside the buys,
+  which are still added as monthly buys (604.11 for Bruno), and the preview says `Keeps` with one item
+  per estimate. No venue is read: a later Kraken file of 200 for Bruno's month replaces the estimate
+  (201.37), and two files in either order leave one Log. Step 2's claims take the same line: an item
+  whose dates come to less than half of its hand entry (Hugo's 5.47 against a monthly buy of 70) asks
+  for no delete and says the dates count as recorded and are less than half of its amount. The cost,
+  stated: an estimate tapped for a month whose only purchase is the file's, under half of it, stays
+  counted until it is deleted in the Log; cutting the estimate from the preview is planned
+  (M4). The rest stands.

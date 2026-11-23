@@ -1087,13 +1087,15 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      leaves out. A date's amount is all the file's purchases of C on it, fees
      excluded (§2.2). A claimed date is `looks recorded already`: left out and named with every date the
      entry claimed, both figures and the entry's venue. The amount is the entry's own, never the plan's.
+     A claim costs the file its dates even under half of the entry: Hugo's 5.47 on 3 Apr against his hand
+     monthly buy of 70 at Kraken stays out, and the item asks for no delete ("Lines that ask for a change").
      Amounts are positive and part of an export keeps the whole file's order, so an import of part of it
      stores no date that the whole file's import claims, but one exception: an export that cuts inside a
      purchase date of C within 3 days of a live `lump` of C whose amount is not C's monthly part, whichever
      side (it ends inside the date, begins inside it, or both), can change the Log (W2). The shorter
      export, then the whole file, leaves the Log one import leaves, plus the purchases the shorter export
      stored of the purchase dates hand entries, or live one-tap `lump`s, claim in one import (with the
-     one-tap estimates they replace; a hand sale claims sales only, never a date's purchases, #228), less
+     one-tap estimates whose months' imported buys then reach half; a hand sale claims sales only, never a date's purchases, #228), less
      the purchases of the dates a hand entry, or a live one-tap `lump`, that falls back to its nearest
      date (an extra buy, a monthly buy whose month has no date, a `lump` at its coin's monthly part, hand
      or one-tap) claims in the second import instead
@@ -1190,10 +1192,18 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   5. The monthly buys (decided 2026-11-14, ADR-0056, Corrections): "Every purchase date of C whose month
      is S, left by steps 2 to 4, is a monthly buy for S when C's share is above 0 and S is neither skipped
      nor paused, or when the Log holds a one-tap estimate of C for S, live or tombstoned. C's live estimates
-     for S are tombstoned. Every entry added for C and S takes the note of C's first estimate for S, live or
-     tombstoned, in `compareEntries` order, else none. Every other purchase is an extra buy." The estimates
-     are tombstoned only when the file adds a monthly buy of C for S, so an extra buy of a coin at 0 % or of
-     a skipped or paused month without an estimate replaces none. Each entry
+     for S are tombstoned when this import adds a monthly buy of C for S and the imported buys of C for S
+     reach half the largest of them (the half gate, decided 2026-11-23, ADR-0056, Corrections). Every entry
+     added for C and S takes the note of C's first estimate for S, live or tombstoned, in `compareEntries`
+     order, else none. Every other purchase is an extra buy." The imported buys are the sum of `amount`, fees
+     excluded, over the live `import-csv` monthly buys of C for S from any file and this import's: `F + F >=
+     largest` replaces, a tie included; under half, the estimates stay live beside the buys, which are still
+     added as monthly buys, and the preview says "Keeps" (`kept`, one item per estimate with what the
+     imported buys come to). No venue is read, so Bought as planned at 600 and Trade Republic's file of 2,
+     1.37 in its month, keeps the estimate (604.11 in all), and a later Kraken file of 200 for that month
+     replaces it (201.37). The estimates are tombstoned only when the file adds a monthly buy of C for S, so
+     an extra buy of a coin at 0 % or of a skipped or paused month without an estimate replaces none. A
+     per-month answer to an estimate kept (cut it to what was bought) is planned (M4). Each entry
      takes the import's venue, whatever venue the estimates carried. No stored entry other than an estimate
      decides a kind: a month done by another coin, another exchange or a hand entry turns no purchase into
      an extra buy, so the Log is the same whether an export comes whole or in parts, and whichever
@@ -1245,7 +1255,10 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   sale left uncovered, the file's own sales included once imported), and planning the file again on the
   Log after that delete (`changedLog`), with the box for coins held unticked as choosing the file again
   opens it, adds every date its items name, all the file's movements of that coin and role on each that
-  the plan considers (none in another currency or of a coin the plan does not list), a
+  the plan considers (none in another currency or of a coin the plan does not list); an item whose dates
+  come to less than half of its entry's amount (`underHalf`, `plus(amount, amount) < entry`) asks for no
+  change: its row is no candidate, and the item says the dates count as recorded and that they are less
+  than half of its amount, with no "looks like" and no delete sentence (decided 2026-11-23), a
   monthly buy's as monthly buys for its month, while keeping every other entry the import adds (every field
   but `updatedAt`) and every estimate it replaces, except those of a month the delete frees, which step 5
   replaces (`keepsPromise`); a sale the shown plan leaves out uncovered (step 4's sales) that the change
