@@ -169,7 +169,6 @@ describe('readTradeRepublic (property)', () => {
   it(
     'a whole file names exactly the stored live buys its cancellations pair; deleting them leaves one import’s live Log, but for the estimates it names',
     () => {
-      let carriedUnderHalf = 0;
       fc.assert(
         fc.property(cancelling, ({ buys, cancels, cut, taps }) => {
           const rows = [
@@ -206,18 +205,13 @@ describe('readTradeRepublic (property)', () => {
           expect(two.filter((entry) => carried.has(entry.id) && entry.deletedAt === null)).toEqual([]);
           expect(one.filter((entry) => carried.has(entry.id) && entry.deletedAt === null)).toHaveLength(carried.size);
           expect(liveOf(two)).toEqual(liveOf(one.filter((entry) => !carried.has(entry.id))));
-          // Step 5's half gate across the cancellation: a named buy carries a tap the part's import replaced while its
-          // month keeps imported buys under half of it. Measured on 2026-11-23 at seeds 1 to 25: 1 to 8 runs of 300.
-          // The other world, a month the whole file keeps beside a named buy, came 0 to 4 times, so it is not asserted:
-          // plan-estimates.test.ts pins it (Nina).
-          const slotOf = (entry: Entry) => `${entry.coin}|${entry.slot}`;
-          const bought = new Set(two.filter((entry) => entry.deletedAt === null && entry.kind === 'dca').map(slotOf));
-          if (then.cancelled.some(({ entry, estimates }) => estimates.length > 0 && bought.has(slotOf(entry))))
-            carriedUnderHalf += 1;
+          // Step 5's half gate across the cancellation is drawn here but not counted, since no seed is sure to reach it
+          // (0 of 300 runs at seed 167): plan-estimates.test.ts pins both worlds, a named buy carrying a tap the part's
+          // import replaced while its month keeps an imported buy under half ("Nina, both buys in the earlier export"),
+          // and a month the whole file keeps beside a named buy ("Nina: an earlier export stores 60").
         }),
         TWICE,
       );
-      expect(carriedUnderHalf).toBeGreaterThan(0);
     },
     TIMEOUT,
   );
