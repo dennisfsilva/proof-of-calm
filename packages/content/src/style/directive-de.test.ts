@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { findBanned } from './banned.ts';
+import { opensWithGermanForm } from './directive-de.ts';
 
 // The German line rule (directive-de.ts, docs/CONTENT-STYLE.md §2) beyond the D1 judge's corpora: every start of a
 // split verb is tested, and the rule's reach into English text is pinned.
@@ -49,5 +50,29 @@ describe('the German line rule over English text', () => {
   it('passes those words in a line that names no asset', () => {
     expect(findBanned('Only put in money you can spare.')).toEqual([]);
     expect(findBanned('Halt: prices fall too.')).toEqual([]);
+  });
+});
+
+describe('a branch that opens with a placeholder', () => {
+  // The German plurals write `{figure}`, the number in the country's format, where English writes `#`.
+  it('opens with no listed form, as `#` does', () => {
+    expect(opensWithGermanForm('{figure} Kauf')).toBe(false);
+    expect(opensWithGermanForm('# Kauf')).toBe(false);
+    expect(findBanned('{count, plural, one {{figure} Kauf} other {{figure} Käufe}}')).toEqual([]);
+    expect(findBanned('{count, plural, one {# Kauf} other {# Käufe}}')).toEqual([]);
+  });
+});
+
+describe('the German copy of §10 (docs/CONTENT-STYLE.md)', () => {
+  it.each([
+    'Proof of Calm ist bei keiner Finanzaufsicht registriert und unterliegt nicht deren Aufsicht',
+    'Verkauf',
+    'Investiert',
+    'Monatskauf',
+    'Startbetrag',
+    'Zusatzkauf',
+    'Ihr Bestand',
+  ])('passes %j', (text) => {
+    expect(findBanned(text)).toEqual([]);
   });
 });
