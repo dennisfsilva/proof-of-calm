@@ -83,8 +83,9 @@ export function fillMonths(input: Input): { replaced: EstimateGroup[]; kept: (Es
 }
 
 /**
- * Step 1's named monthly buy: C's tombstoned estimates for its month, when the monthly buys of C for it the Log keeps
- * once this import adds its entries and the person deletes the named ones (`left` holds those of every month) are all
+ * Step 1's named monthly buy: C's estimates for its month that are tombstoned or that this import replaces (`replaced`),
+ * when the monthly buys of C for it the Log keeps once this import is applied, its entries added and the estimates it
+ * replaces tombstoned, and the person deletes the named ones (`left` holds those of every month) are all
  * exchange-imported and come to less than half the largest of them, none at all included. It is written for an earlier
  * import's buy that replaced the estimate and that this file cancels, where one import of the whole file keeps the
  * estimate live. A tombstone does not record who made it, so one the person deleted or cleared by hand counts too,

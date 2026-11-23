@@ -301,8 +301,9 @@ export function planExchangeImport(
   const filled = fillMonths({ plan, stored: stored.entries, live, days, months, monthOf, add, added: entries, gone });
   for (const day of days.filter((each) => !each.claimed)) add(day, KIND[day.role], null, '');
 
-  // The import never brings a tombstone back: a named monthly buy carries C's tombstoned estimates for its month that
-  // one import of the whole file would keep live (plan-estimates.ts).
+  // The import never brings a tombstone back: a named monthly buy carries C's estimates for its month, tombstoned or
+  // replaced here, when `left`, the Log once this import is applied and the named entries deleted, keeps only imported
+  // monthly buys of C for it under half the largest (plan-estimates.ts).
   const replacing = new Set(filled.replaced.flatMap((group) => group.estimates.map((each) => each.id)));
   const left = [...live, ...entries].filter((other) => !gone.has(other.id) && !replacing.has(other.id));
   const cancelled = paired.map((entry) => ({ entry, estimates: carried(entry, left, stored.entries, replacing) }));
