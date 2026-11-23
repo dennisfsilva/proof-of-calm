@@ -2,7 +2,9 @@
 // messages: advice-shaped words in English, German and Portuguese, the filler words of the voice rules,
 // a percentage next to a return, and an imperative about buying or holding next to an asset name.
 // Allow-listed phrases, each with its reason in style/banned.json, are taken out first.
+import coins from '../../coins.json' with { type: 'json' };
 import banned from '../../style/banned.json' with { type: 'json' };
+import { hasGermanDirective, hasGermanFrame, opensWithGermanForm } from './directive-de.ts';
 import { hasPortugueseDirective } from './directive-pt.ts';
 
 export type Finding = {
@@ -43,28 +45,39 @@ const RETURN_PERCENTAGE = new RegExp(
     `(?:ganhe|ganhar|ganha|ganham)(?:\\s+${CONNECTOR_PT})?\\s+${PERCENT})`,
   'giu',
 );
-// Names in any case, with their plurals and the Portuguese names; the tickers only in capitals, because "link"
-// and "sol" are also ordinary words.
+// One asset class for every language (docs/CONTENT-STYLE.md §2, item 3): the general words in any case, with
+// their plurals and the Portuguese and German names; the catalogue's names as written, with a plural s; its
+// tickers only in capitals, because "link", "sol" and "render" are also ordinary words.
 const ASSET_NAME = between(
   [
-    'bitcoins?',
+    String.raw`bitcoin\p{L}*`,
     'ether(?:eum|s)?',
     'solana',
     'chainlink',
-    'crypto(?:currenc(?:y|ies))?',
+    String.raw`crypto\p{L}*`,
     'cripto(?:moedas?|-?ac?tivos?)?',
+    String.raw`\p{L}*krypto\p{L}*`,
+    String.raw`\p{L}*coins?`,
+    'münzen?',
+    'tokens?',
+    'moedas?',
   ],
   'iu',
 );
-const TICKER = between(['BTC', 'ETH', 'SOL', 'LINK'], 'u');
+const NAMES = new RegExp(
+  `(?<![\\p{L}\\p{N}])(?:${longestFirst(coins.map(({ name }) => name)).join('|')})s?(?![\\p{L}\\p{N}])`,
+  'u',
+);
+const TICKER = between(longestFirst(coins.map(({ id }) => id)), 'u');
 // The messages' placeholders the app fills with a coin: {coin} with its ticker, {coins} and {names} with a list of
 // coins, and the names each format.units caller in packages/app fills with units and their ticker ("0.5 BTC"). A name
 // the app also fills with money, a link or a currency ({fee}, {sold}, {log}, {file}) stays out. An ICU argument on
 // them ({coins, select, …}) chooses words and stays copy.
 const COIN_PLACEHOLDER = /\{(?:coins?|names|units|held(?:Units)?|sent|excess|short|outside)\}/u;
-// An English or German imperative is the bare verb, so it counts only at the start of a sentence or of an ICU branch;
-// "Buy day" is the plan's noun. The Portuguese forms count anywhere (directive-pt.ts).
-const IMPERATIVE = /^\s*(buy|sell|hold|invest|get|grab|kaufe?n?)(?![\p{L}\p{N}])(?!\s+days?\b)/iu;
+// An English imperative is the bare verb, so it counts only at the start of a sentence or of an ICU branch; "Buy day"
+// is the plan's noun. The Portuguese forms count anywhere (directive-pt.ts), the German ones over a line
+// (directive-de.ts).
+const IMPERATIVE = /^\s*(buy|sell|hold|invest|get|grab)(?![\p{L}\p{N}])(?!\s+days?\b)/iu;
 // A sentence ends at "!", "?", a line end or a dot that no digit follows, so "Buy 0.5 BTC" and "1.000 €" stay whole.
 const SENTENCE_END = /[!?\n]+|\.(?!\d)/;
 // A template's date placeholder ({date:sellWindow.opens}, template-dates.ts) is one word the person reads as a date,
@@ -75,15 +88,20 @@ const DATE_PLACEHOLDER = /\{date:[^{}\s]+\}/gu;
 // The token is U+E000, the index, U+E001: private-use characters no copy holds, invisible in most diffs.
 const TOKEN = /(\d+)/gu;
 
-/** The text's sentences, each as the lint reads it and as written. */
-function sentences(text: string) {
+/** The text cut at `end`, each piece as the lint reads it and as written. */
+function pieces(text: string, end: RegExp) {
   const held: string[] = [];
   const masked = text.replace(DATE_PLACEHOLDER, (whole) => `${held.push(whole) - 1}`);
-  return masked.split(SENTENCE_END).map((read) => ({
+  return masked.split(end).map((read) => ({
     read,
     written: read.replace(TOKEN, (_, index: string) => held[Number(index)] ?? ''),
   }));
 }
+const sentences = (text: string) => pieces(text, SENTENCE_END);
+// The German rule reads a line: a dot ends nothing, since ordinals and abbreviations cannot be told from an end.
+const lines = (text: string) => pieces(text, /\n+/u);
+// Soft hyphens and zero-width characters would split a word the reader sees whole.
+const INVISIBLE = /[­​-‍⁠]/gu;
 
 // An argument that chooses its words: `{count, plural, …}`, `{formal, select, …}`, `{n, selectordinal, …}`.
 const BRANCHING = /^\s*[^\s,{}]+\s*,\s*(?:plural|select|selectordinal)\s*,/u;
@@ -154,23 +172,33 @@ function branchTexts(message: string): readonly string[] {
 const findAll = (pattern: RegExp, text: string, rule: Finding['rule']): Finding[] =>
   [...text.matchAll(pattern)].map((match) => ({ rule, match: match[0] }));
 
-const namesAsset = (read: string) => ASSET_NAME.test(read) || TICKER.test(read) || COIN_PLACEHOLDER.test(read);
+const namesAsset = (read: string) =>
+  ASSET_NAME.test(read) || NAMES.test(read) || TICKER.test(read) || COIN_PLACEHOLDER.test(read);
 
 export function findBanned(text: string): Finding[] {
-  const kept = text.replace(ALLOWED, ' ').normalize('NFC');
+  const kept = text.normalize('NFC').replace(INVISIBLE, '').replace(ALLOWED, ' ');
   const imperatives = sentences(kept)
     .filter(({ read }) => (IMPERATIVE.test(read) || hasPortugueseDirective(read)) && namesAsset(read))
     .map(({ written }): Finding => ({ rule: 'imperative', match: written.trim() }));
+  const german = lines(kept);
+  const germanImperatives = german
+    .filter(({ read }) => hasGermanDirective(read) && namesAsset(read))
+    .map(({ written }): Finding => ({ rule: 'imperative', match: written.trim() }));
+  const germanFrames = german
+    .filter(({ read }) => hasGermanFrame(read))
+    .map(({ written }): Finding => ({ rule: 'advice', match: written.trim() }));
   // A branch's first words open the sentence the person reads, whatever stands before the argument.
   const branchImperatives = branchTexts(kept)
     .map((branch) => sentences(branch)[0])
-    .filter((first) => first !== undefined && IMPERATIVE.test(first.read))
+    .filter((first) => first !== undefined && (IMPERATIVE.test(first.read) || opensWithGermanForm(first.read)))
     .map((first): Finding => ({ rule: 'imperative', match: first?.written.trim() ?? '' }));
   return [
     ...findAll(ADVICE, kept, 'advice'),
     ...findAll(FILLER, kept, 'filler'),
     ...findAll(RETURN_PERCENTAGE, kept, 'return-percentage'),
+    ...germanFrames,
     ...imperatives,
+    ...germanImperatives,
     ...branchImperatives,
   ];
 }
