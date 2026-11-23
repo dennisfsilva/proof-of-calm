@@ -164,7 +164,7 @@ landing page says so in one sentence. It loses a few sign-ups and keeps the wron
 | Signature page | "What this app leaves out": news, price notifications (one line on Today, once per fall, in their place), sentiment indexes, ads, affiliate links, streaks and badges, trading, exchange keys, a token; one sentence of reason for each |
 | Look | The ring is the plan and the accent dot is "now" (`docs/DESIGN.md` §1–2); warm paper, matte charcoal, no gradients or illustration. Marketing images show the mark, a product screen or one sentence, never a price chart |
 | Descriptor | "DCA planner" in English; the German and Portuguese descriptors chosen by native speakers against the search terms in §4.1 |
-| Form of address | German "du" or "Sie", decided once, before its translation (§9). Portuguese: formal third-person forms without "você" (decided 2026-11-15, `docs/CONTENT-STYLE.md` §9). "Du" reads as the careful friend, "Sie" as a bank |
+| Form of address | German: "Sie", with Sie, Ihr and Ihnen capitalised (decided 2026-11-23 under the unattended M2 rule, `docs/CONTENT-STYLE.md` §10). Portuguese: formal third-person forms without "você" (decided 2026-11-15, `docs/CONTENT-STYLE.md` §9). "Du" would read as the careful friend and "Sie" as a bank; Sie keeps one voice with the ESAs' German texts and the legal pages, and controls take the infinitive in both languages, so a change touches only sentences. The owner confirms the German one at the end of M2 (§9) |
 | About the name | On the About page only: "Proof of work. Proof of stake. Proof of calm." Rule 5 of the content style says no jokes; the owner decides whether the name's own pun is the exception (§9) |
 
 ### 2.6 Domain and site structure
@@ -595,9 +595,10 @@ signature; record #409):
 
 Still open, for the owner:
 
-1. The German form of address (§2.5); the Portuguese one (`docs/CONTENT-STYLE.md` §9), set on
-   2026-11-15 under the unattended M2 rule, was decided on the owner's delegation of 2026-11-18
-   (#320).
+1. The German form of address (§2.5): Sie, decided on 2026-11-23 under the unattended M2 rule
+   (`docs/CONTENT-STYLE.md` §10), for the owner to confirm at the end of M2; the Portuguese one
+   (`docs/CONTENT-STYLE.md` §9), set on 2026-11-15 under the unattended M2 rule, was decided on the
+   owner's delegation of 2026-11-18 (#320).
 2. The social accounts to run and the ones only to reserve (§4.3).
 3. The list provider and its consent text (§4.5).
 4. (Decided on 2026-11-23: see above.)

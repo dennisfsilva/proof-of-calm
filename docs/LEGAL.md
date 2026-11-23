@@ -216,12 +216,14 @@ EU"); a sentence may say where one kind of data is stored when that is true (ADR
 The lint runs over UI messages, content, templates, the landing page and site pages
 (`apps/web/messages`), and, from M3, emails; the list is
 `packages/content/style/banned.json` (what it holds: `docs/CONTENT-STYLE.md` §2; the allow-list's
-legal entries are "API key", "private key" and the Risk page's register sentence). It
-also flags, in English and German, a sentence with an asset name that opens with a buying, selling
-or holding verb on its list, and such a verb that opens an ICU `plural`, `select` or
-`selectordinal` branch with or without an asset name (`docs/CONTENT-STYLE.md` §2); in Portuguese,
-a sentence with an asset name that holds a buying, selling or holding form on its list anywhere
-(the forms and the gaps: `docs/CONTENT-STYLE.md` §2); and any percentage next to a gain word.
+legal entries are "API key", "private key", the Risk page's register sentence and its Portuguese
+scams sentence in §5's fixed wording). It also flags, in English, a sentence with an asset name
+that opens with a buying, selling or holding verb on its list, and such a verb that opens an ICU
+`plural`, `select` or `selectordinal` branch with or without an asset name; in German, a line with
+an asset name that holds such a form on its list anywhere, a modal or advice frame with such an
+infinitive in any line, and such a form that opens an ICU branch; in Portuguese, a sentence with an
+asset name that holds such a form anywhere (the forms, the asset names and the gaps:
+`docs/CONTENT-STYLE.md` §2); and any percentage next to a gain word.
 Template names need a human sign-off.
 
 The counsel checklist, answered for every change to messages, content, Learn, emails, site pages or
