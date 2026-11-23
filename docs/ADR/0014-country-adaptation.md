@@ -85,3 +85,15 @@ tap" in Option 3 (`docs/JURISDICTIONS.md` §3 owns the rules):
   country (any served profile when nothing is named).
 
 For the owner's sign-off at the end of M2.
+
+**2026-11-23, the outcome: the four rules stand.** They were decided on the owner's delegation of
+2026-11-18 ("have it decide the Needs you items and have it decide them for me") by the session that
+delegation started; the owner's own sign-off is not given, and the decision is on the list the owner
+confirms at the end of M2 (#409). Each rule is at least as careful as the "confirmed with one tap"
+it deviates from: before #404 the step preselected every suggestion, a `low` one and one made from
+the language alone included. `medium` keeps its one tap; what `high` and `medium` contain stays with
+`docs/JURISDICTIONS.md` §3, and three cases found in the audit of 2026-11-19 (#271, the outcome
+comment) go to #21: a first language without a region, a late `en-US`, and `englishConfidence`,
+which only Portugal's profile sets. The Decision's "suggested language" among what the profile sets
+is not built: the UI language follows the device (ADR-0008, Deviations of 2026-11-18). The residence
+line's wording for a person a country taxes by citizenship stays with counsel (#21).

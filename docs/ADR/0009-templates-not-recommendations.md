@@ -69,3 +69,37 @@ about 2029) and that its explanation must say so in the first sentence.
   explanation, the drawdown row and the band follow it; the other three falls hold. A fall now runs to
   the lowest low before the coin regains its high (`docs/CONTENT-OPS.md` §7). The owner delegated this
   change with the read (ADR-0015 Deviations).
+
+## Readings
+
+- **2026-11-23, the product's own example images name no coin.** Decided on the owner's delegation
+  of 2026-11-18; not the owner's own review or signature. It keeps the Decision ("Never personalise,
+  never rank") and counsel's ruling of 2026-11-15 (#17).
+  - The rule: no example image the product makes (the manifest screenshots, the landing page, store
+    listings, posts, the press page) names a coin of the catalogue. No image shows a plan's coins, a
+    template card, a coin chip, a country card that names a coin, or a chart of falls.
+  - Placeholder coins ("Coin A") are not used: `docs/RELEASE.md` asks for screenshots from the real
+    app, and a coin outside the catalogue was never rendered on Today or the Log.
+  - Counsel's other rules for every example image stand (#17, rules 2 to 6). No sell window, or none
+    in 2029. The figures that may show are the monthly and starting amounts, invested totals, units,
+    counts, buy dates and the holding date, with "Computed from your dates, not tax advice" and the
+    country's date line in frame as the app renders them. No P/L, return, percentage change, value
+    chart or value above invested; no Red day banner and no fall figure; no gain or loss on a sale
+    row and no line that applies "tax-free" or a rate to the plan's units, so the sale is left out;
+    no invented price under "Price data by CoinGecko" or on a real date for a named coin. No
+    disclaimer, banner, risk line or past-performance line in or on the image. Each label says what
+    the screen is and that the data is an example, in sentence case, in about 10 words or fewer,
+    without "your", and passes the banned-words lint. `manifest.webmanifest` stays inside the GB
+    route, and the image files live under a path that route covers, never `icons/` or `assets/`,
+    with a request test in `apps/web/e2e/uk-block.spec.ts` that expects a 451 for one of them. A
+    store listing that reuses the images gets no UK storefront (ADR-0029).
+  - The set that shows the app in use: Today with the current month recorded and no price answer (it
+    shows Invested, the next buy day and the plan strip), from a seeded plan with no sell window and
+    no template's dates; the Learn index; Portugal's country page (checked on 2026-11-19 to hold no
+    catalogue coin's name; Germany's names two in its pending change); the public holding-date page
+    with a result for Portugal. A capture spec counts catalogue names and tickers in each page's
+    text and passes only on zero. Counsel and brand read each image before it ships.
+  - The cost, stated: no image shows the Log, a buy day or the record across venues, so the
+    listing's words carry that difference (`docs/GROWTH.md` §2.1 and §4.6).
+  - A change (named coins under conditions, for the store listings) is the owner's own decision with
+    counsel's read, as a new dated entry here, before the store listings are made.

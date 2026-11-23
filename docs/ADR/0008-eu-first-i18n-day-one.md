@@ -64,3 +64,24 @@ The decision stands but for one sentence; this is for the owner's sign-off at th
   someone reads, not where they live (ADR-0023, Deviations of 2026-11-18, the default). It stays a
   separate, changeable device preference (Settings' picker, where two languages are offered). ADR-0014's
   "suggested language" in a country profile is not built.
+
+**2026-11-23, the outcome: the deviation stands.** It was decided on the owner's delegation of
+2026-11-18 ("have it decide the Needs you items and have it decide them for me") by the session that
+delegation started; the owner's own sign-off is not given, and the decision is on the list the owner
+confirms at the end of M2 (#409). An audit of main at c5bea4df on 2026-11-19 (#271, the outcome
+comment) found the code as the entry and ADR-0023's default say: both hosts call `readLanguage`
+(`packages/app/src/lib/i18n/language.ts`) with the device's languages and no country, and only
+Settings' picker writes `poc.language`. The sentence it replaces was never built: before #405 the UI
+stayed English until a stored value said otherwise. The entry's two reasons are the design check's
+(#271, the judge's verdict, Q1); ADR-0023's entry holds the mechanism. Accepted with it: a device
+that lists English first stays in English whatever country is chosen, and where a build offers a
+second language Settings' picker is the way to it. What pt-PT's visibility brings, an English-made
+plan on a Portuguese device changing language with no notice, is #21's.
+
+**2026-11-23, Consequences: "Date inputs show the country's format".** Not built, and decided on the
+owner's delegation of 2026-11-18 to stay so; not the owner's own review or signature. The date field
+is the native `<input type="date">` that ADR-0034 chose, and a native field shows the order of the
+person's own browser or device, never the country's or the page's: ADR-0034's Reading of 2026-11-23
+holds what each engine does. Its value is `YYYY-MM-DD` whatever it shows, and the Log and every
+holding line show the saved date with the month's name (ADR-0023). Not taken: writing the picked
+date out beside the field, which adds a line to a form meant to take under a minute.

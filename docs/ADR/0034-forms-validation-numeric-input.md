@@ -105,6 +105,31 @@ The decision stands; these are the choices its text left open, made while implem
   `countryLocales(code)`, not in the UI language's locale; the 2026-10-21 Reading's fallback no
   longer holds. The change is in ADR-0023, Deviations of 2026-11-15, and ADR-0049, Deviations of
   2026-11-15.
+- **Dates: what a native date field shows** (2026-11-23). The field shows a date in the order of the
+  person's browser or device, not in the page's language and not in the order of the plan's country.
+  Read on 2026-11-19, each from its source: the HTML standard leaves the displayed format to the
+  browser, by the locale of the element's language or by the person's preferred locale, and defines
+  no attribute that sets it (https://html.spec.whatwg.org/multipage/input.html#input-impl-notes);
+  MDN says the shown date follows the locale of the person's browser while the value is always
+  `yyyy-mm-dd` (https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/date,
+  last modified 2026-10-14). Chromium reads the element's language only behind its switch
+  LangAttributeAwareFormControlUI, which is off, so the field uses the browser's default locale, the
+  language of the browser application
+  (https://raw.githubusercontent.com/chromium/chromium/main/third_party/blink/renderer/core/dom/document.cc,
+  lines 9240 to 9244, with runtime_enabled_features.json5 and platform_locale.cc of the same tree).
+  WebKit has the same switch, off by default, and on Apple's platforms formats the shown value with
+  the system's current locale, the device's Language & Region
+  (https://raw.githubusercontent.com/WebKit/WebKit/main/Source/WebCore/dom/Document.cpp, with
+  Settings.yaml and LocalizedDateCache.mm of the same tree). Firefox builds the day, month and year
+  parts from the window's locales, which default to the browser's own, and reads no `lang` attribute
+  (https://raw.githubusercontent.com/mozilla-firefox/firefox/main/toolkit/content/widgets/datetimebox.js
+  and https://firefox-source-docs.mozilla.org/intl/locale.html). Not seen: no real iPhone and no
+  Firefox was looked at; the engines were read from their source and documentation. The "10/20/2026"
+  an evaluator saw on a pt-PT screen on 2026-11-16 was the test browser's own locale: it is the
+  en-US short order, where pt-PT gives 20/10/2026 (Node 24.20's ICU, run on 2026-11-19), and
+  `apps/web/playwright.config.ts` sets `en-GB` for the page, which the field does not read. Decided
+  on the owner's delegation of 2026-11-18, not the owner's own review or signature: accepted as the
+  platform's behaviour. ADR-0008's entry of 2026-11-23 records the consequence that was not built.
 
 ## Disagreement
 
