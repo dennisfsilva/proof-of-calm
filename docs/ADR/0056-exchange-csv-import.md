@@ -182,3 +182,15 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   several purchases only when leaving out any one takes the rest farther from the target, so a date that
   also holds the month's buy asks for no change; and `Matching entries` marks a one-tap entry's units
   (estimated), as the starting line does. The rest stands.
+- 2026-11-23, the costs that stand after the audit of the import: no `Add them again` control exists,
+  so a deleted imported entry is never imported again, nor are the imported entries a Replace
+  everything with an older backup tombstoned, replacing Consequences' "until `Add them again`". The
+  cancelled buy an earlier import stored moves to M4 (the lone cancellation in `docs/ROADMAP.md` M4),
+  replacing "(planned: M2)" in the entries of 2026-11-13 and 2026-11-14. Decision's "Bitpanda next"
+  defers to the order of readers in `docs/ROADMAP.md` M4. In rule G's entry, "Only a date at the
+  file's edge shows a cut" holds for the first import only, and its price (a) reads 1,300 against
+  1,800; a lump at its coin's monthly part tapped within 3 days of a later buy date still takes that
+  month's purchase (400 against 500), a late starting purchase dated more than 15 days after the
+  first buy day is imported as a monthly buy with no line (2,400 against 1,400), and a tapped lump
+  that claims its purchase keeps its estimated units (rule R; `docs/DOMAIN.md` §3.13 step 2 states
+  each). The rest stands.
