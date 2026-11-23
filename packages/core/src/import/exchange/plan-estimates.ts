@@ -86,18 +86,12 @@ export function fillMonths(input: Input): { replaced: EstimateGroup[]; kept: (Es
  * Step 1's named monthly buy: C's tombstoned estimates for its month, when the monthly buys of C for it the Log keeps
  * once this import adds its entries and the person deletes the named ones (`left` holds those of every month) are all
  * exchange-imported and come to less than half the largest of them, none at all included: one import of the whole
- * file keeps those estimates live. Only an import write's tombstones count: the write stamps its entries' `updatedAt`
- * and its tombstones' `deletedAt` at one instant, so a tombstone counts when a stored `import-csv` entry not deleted at
- * that instant carries it as its `updatedAt`; a hand delete never shares it.
+ * file keeps those estimates live. A tombstone does not record who made it, so one the person deleted or cleared by
+ * hand counts too, and the line can show where one import keeps no estimate: it errs only toward showing.
  */
 export function carried(entry: Entry, left: readonly Entry[], stored: readonly Entry[]): Entry[] {
   const same = (other: Entry) => other.kind === 'dca' && other.coin === entry.coin && other.slot === entry.slot;
-  const writes = new Set(
-    stored
-      .filter((each) => each.source === 'import-csv' && each.deletedAt !== each.updatedAt)
-      .map((each) => each.updatedAt),
-  );
-  const taps = tapsOf(stored).filter((tap) => tap.deletedAt !== null && writes.has(tap.deletedAt) && same(tap));
+  const taps = tapsOf(stored).filter((tap) => tap.deletedAt !== null && same(tap));
   const rest = left.filter(same);
   if (entry.kind !== 'dca' || taps.length === 0 || rest.some((other) => other.source !== 'import-csv')) return [];
   const imported = sum(rest.map((each) => each.amount as Money));
