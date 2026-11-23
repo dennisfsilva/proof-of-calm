@@ -128,29 +128,34 @@ const counts = (line: string, index: number, word: string) =>
 const FORM = between(ALL_FORMS, 'giu');
 // A split verb's particle closes the clause: the line ends, a mark follows, or a conjunction does.
 const CLOSE = String.raw`\s*(?=$|[.,;:!?)\]}»“"'–—]|\s(?:${CONJUNCTIONS})${E})`;
-const split = (entries: readonly Separable[]) =>
-  new RegExp(
-    entries
-      .map(([base, particles]) => `${W}(?:${forms(base).join('|')})${E}.*?${W}(?:${particles.join('|')})${CLOSE}`)
-      .join('|'),
-    'giu',
-  );
+/** A base form and what must follow it later in the line. */
+type Split = { readonly base: RegExp; readonly rest: RegExp };
+const split = (entries: readonly Separable[]): readonly Split[] =>
+  entries.map(([base, particles]) => ({
+    base: between(forms(base), 'giu'),
+    rest: new RegExp(`${W}(?:${particles.join('|')})${CLOSE}`, 'iu'),
+  }));
 const SPLIT = split(SEPARABLE);
-const SETZEN_AUF = new RegExp(`${W}(?:setzen|setze|setzt|setz)${E}.*?${W}auf${E}`, 'giu');
+const SETZEN_AUF: Split = { base: between(['setzen', 'setze', 'setzt', 'setz'], 'giu'), rest: between(['auf'], 'iu') };
 const LIGHT_FORM = between(longestFirst([...LIGHT.flatMap(([base]) => forms(base)), ...LIGHT.flatMap(joined)]), 'giu');
 const LIGHT_JOINED = between(longestFirst(LIGHT_SIMPLE.flatMap(forms)), 'giu');
 const LIGHT_SPLIT = split(LIGHT);
 
-const firstWord = (match: string) => /^\p{L}+/u.exec(match)?.[0] ?? '';
 const anyCounts = (line: string, patterns: readonly RegExp[]) =>
-  patterns.some((pattern) =>
-    [...line.matchAll(pattern)].some((match) => counts(line, match.index, firstWord(match[0]))),
+  patterns.some((pattern) => [...line.matchAll(pattern)].some((match) => counts(line, match.index, match[0])));
+// Every occurrence of a base is its own start, so a noun spelled like one (`Kauf`, `Tausch`) cannot hide a later
+// directive: each is tested for the capital and for its particle after it.
+const anySplit = (line: string, splits: readonly Split[]) =>
+  splits.some(({ base, rest }) =>
+    [...line.matchAll(base)].some(
+      (match) => counts(line, match.index, match[0]) && rest.test(line.slice(match.index + match[0].length)),
+    ),
   );
 
 /** Whether a line holds a listed form, a split verb, `setzen … auf`, or a light verb beside a purchase noun. */
 export function hasGermanDirective(line: string): boolean {
-  if (anyCounts(line, [FORM, SPLIT, SETZEN_AUF])) return true;
-  return PURCHASE_NOUN.test(line) && anyCounts(line, [LIGHT_FORM, LIGHT_JOINED, LIGHT_SPLIT]);
+  if (anyCounts(line, [FORM]) || anySplit(line, [...SPLIT, SETZEN_AUF])) return true;
+  return PURCHASE_NOUN.test(line) && (anyCounts(line, [LIGHT_FORM, LIGHT_JOINED]) || anySplit(line, LIGHT_SPLIT));
 }
 
 const MODAL = [
