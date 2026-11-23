@@ -1,21 +1,28 @@
 // Rule M, the oracle of step 5's gate (docs/DOMAIN.md §3.13), written from the rule, not from plan-estimates.ts:
 // a coin's live one-tap estimates for a month go when `added` holds a monthly buy of the coin for that month and the
 // exchange-imported monthly buys of the coin for it, the Log's live ones and `added`'s, fees excluded, come to at least
-// half of each of those estimates. An estimate whose month `added` holds no monthly buy for is not named.
+// half of each of those estimates. A live buy in `gone`, one the file names for deletion as cancelled, is not counted.
+// An estimate whose month `added` holds no monthly buy for is not named.
 import { compare, type Money, plus, sum } from '../../src/money/decimal';
 import { type Entry, isEstimate } from '../../src/schema/entry';
 import type { EntityId } from '../../src/schema/ids';
 
 export type Verdict = { readonly go: boolean; readonly imported: Money };
 
-export function ruleM(before: readonly Entry[], added: readonly Entry[]): Map<EntityId, Verdict> {
+export function ruleM(
+  before: readonly Entry[],
+  added: readonly Entry[],
+  gone: ReadonlySet<EntityId> = new Set(),
+): Map<EntityId, Verdict> {
   const live = before.filter((entry) => entry.deletedAt === null);
   const verdicts = new Map<EntityId, Verdict>();
   for (const estimate of live.filter((entry) => isEstimate(entry) && entry.kind === 'dca')) {
     const same = (entry: Entry) => entry.kind === 'dca' && entry.coin === estimate.coin && entry.slot === estimate.slot;
     if (!added.some(same)) continue;
     const imported = sum(
-      [...live, ...added].filter((entry) => same(entry) && entry.source === 'import-csv').map((e) => e.amount as Money),
+      [...live.filter((entry) => !gone.has(entry.id)), ...added]
+        .filter((entry) => same(entry) && entry.source === 'import-csv')
+        .map((e) => e.amount as Money),
     );
     const go = live
       .filter((entry) => same(entry) && isEstimate(entry))

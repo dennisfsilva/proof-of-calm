@@ -393,7 +393,7 @@ describe('planExchangeImport', () => {
       // 2026-11-23 at seeds 1 to 4, 1,500 runs each: 506 to 522 groups replaced and 14 to 36 kept.
       const reach = { go: 0, keep: 0 };
       const judge = (before: readonly Entry[], plan: ExchangeImportPlan) => {
-        const verdicts = ruleM(before, plan.entries);
+        const verdicts = ruleM(before, plan.entries, new Set(plan.cancelled.map((line) => line.entry.id)));
         const named = (groups: readonly { estimates: readonly Entry[] }[]) =>
           groups.flatMap((group) => group.estimates.map((entry) => entry.id)).sort();
         const by = (go: boolean) => [...verdicts].filter(([, each]) => each.go === go).map(([id]) => id);
