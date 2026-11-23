@@ -1,11 +1,13 @@
 import { readFileSync } from 'node:fs';
 import { expect, type Page } from '@playwright/test';
 import { fixtureNowMs, fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
+import deToday from '../../../packages/app/src/messages/de/today.json' with { type: 'json' };
 import ptLearn from '../../../packages/app/src/messages/pt-PT/learn.json' with { type: 'json' };
 import ptPlan from '../../../packages/app/src/messages/pt-PT/plan.json' with { type: 'json' };
 import ptPortfolio from '../../../packages/app/src/messages/pt-PT/portfolio.json' with { type: 'json' };
 import ptSettings from '../../../packages/app/src/messages/pt-PT/settings.json' with { type: 'json' };
 import ptShell from '../../../packages/app/src/messages/pt-PT/shell.json' with { type: 'json' };
+import ptToday from '../../../packages/app/src/messages/pt-PT/today.json' with { type: 'json' };
 import germanyPt from '../../../packages/content/i18n/pt-PT/jurisdictions/de.json' with { type: 'json' };
 import portugalPt from '../../../packages/content/i18n/pt-PT/jurisdictions/pt.json' with { type: 'json' };
 import portugal from '../../../packages/content/jurisdictions/pt.json' with { type: 'json' };
@@ -53,6 +55,9 @@ const OCTOBER_5: Record<(typeof HIDDEN)[number], RegExp> = {
   de: /5\.\sOkt\.\s2026/,
 };
 
+/** Today's heading in each language: Today, the shell and the errors are whole in both (`locales.test.ts`). */
+const TODAY_TITLE: Record<(typeof HIDDEN)[number], string> = { 'pt-PT': ptToday.title, de: deToday.title };
+
 for (const language of HIDDEN) {
   test(`boots in ${language} from the stored language: the lang attribute, its message files and no bare key`, async ({
     page,
@@ -92,6 +97,7 @@ test.describe("Today's dates in the stored language", () => {
       await seedPlan(page, fixtureSnapshot());
       await expect(page.locator('html')).toHaveAttribute('lang', language);
       await expect(screenArea(page)).toContainText(OCTOBER_5[language]);
+      await expect(page.getByRole('heading', { level: 1, name: TODAY_TITLE[language], exact: true })).toBeVisible();
       await expect(screenArea(page)).not.toHaveText(BARE_KEY);
     });
   }
