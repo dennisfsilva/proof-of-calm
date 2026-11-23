@@ -68,9 +68,8 @@ allow-list holds proper names of taxes such as "imposta di bollo" or "box 3":
 The patterns of the lint (EN, DE and PT), the filler words of §1 in English and Portuguese, the
 regulators a status claim names and the allow-list with a reason per phrase live in
 `packages/content/style/banned.json`. The lint also flags any `%` next to a gain word, and, in
-English and German, a sentence with an asset name that opens with a buying, selling or holding verb
-on its list: `Buy Bitcoin every month`, `Kaufen Sie Ethereum`; `Buy day` is the plan's noun and
-passes. The placeholders that item 1 of the imperative rule below lists count as asset names here
+English, a sentence with an asset name that opens with a buying, selling or holding verb on its
+list: `Buy Bitcoin every month`; `Buy day` is the plan's noun and passes. The placeholders that item 1 of the imperative rule below lists count as asset names here
 too, so `Sell {units} now` fails. The lint does not count `{sold}`, `{fee}`, `{log}` and `{file}`
 as asset names, as in the imperative rule's item 1; the copy review (§8) checks them by hand. A
 `{date:<field>}` placeholder counts as one word, as it does there. Only a verb that opens the
@@ -79,8 +78,8 @@ branch, nested ones included, as a sentence start, and a verb on the list there 
 without an asset name. `{count, plural, one {Sell it} other {Sell them}}` fails, and so does
 `{coins, select, one {} other {Hold}} the amounts on {date}.` A quoted brace (`'{'`) opens no
 branch, and a `#` or a `{date:<field>}` placeholder that opens a branch is its first word. A verb
-after a dot inside a branch opens a new sentence and is read as any sentence is. Portuguese:
-below. Template names need a human sign-off.
+after a dot inside a branch opens a new sentence and is read as any sentence is. German and
+Portuguese: below. Template names need a human sign-off.
 
 The Portuguese rows (decided 2026-11-15; the voice is §9):
 
@@ -157,7 +156,10 @@ The Portuguese rows (decided 2026-11-15; the voice is §9):
      `converta`, `liquide` and `diversifique`. This covers `desde que as mantenha` and `se vender`.
      The asset names, in any case: `bitcoin`, `bitcoins`, `ether`, `ethers`, `ethereum`, `solana`,
      `chainlink`, `crypto`, `cripto`, `criptomoeda`, `criptomoedas`, `criptoativo`, `cripto-ativo`
-     and `criptoactivo`, singular or plural; the tickers `BTC`, `ETH`, `SOL` and `LINK` in capitals.
+     and `criptoactivo`, singular or plural; `moeda` and `moedas`; every word that ends in `coin` or
+     `coins`; `token` and `tokens`; the names of `packages/content/coins.json` as written and its
+     tickers in capitals (`BTC`, `ETH`, `SOL`, `LINK`). The German rows below add theirs, and every
+     language reads the one list.
      A sentence ends at `!`, `?`, a line end or a dot that no digit follows, so
      `Compre 1.000 € de BTC` is one sentence; the text is read with its accents composed. A
      `{date:<field>}` placeholder counts as one word. Its dots end no sentence, and a ticker in its
@@ -175,7 +177,8 @@ The Portuguese rows (decided 2026-11-15; the voice is §9):
      `à`, `pela`, `após`, `sua`, `última` and their kin), after `compra e` or `compras e`, or after
      an `a` that opens the sentence or a clause (not after a comma) or follows a preposition, `e` or
      `ou` (`Após a venda de ETH`).
-  3. Where the sentence or a clause opens (after a comma, colon, semicolon, bracket, quote, dash or
+  3. In a sentence that names an asset (item 1's names and placeholders), where the sentence or a
+     clause opens (after a comma, colon, semicolon, bracket, quote, dash or
      bullet), with only `já`, `agora`, `hoje`, `também`, `sempre`, `só`, `apenas`, `então`, `depois` or
      `primeiro` before it, the informal imperative
      fails: `compra`, `vende`, `mantém`, `detém`, `guarda`, `investe`, `acumula`, `reforça`,
@@ -225,6 +228,87 @@ The Portuguese rows (decided 2026-11-15; the voice is §9):
 - The lint reports early, on the forms these rows list; it is not the gate. A form it does not list,
   another verb, connector or spelling with the banned sense, belongs to counsel's read of each
   translation in the copy review (§8).
+
+The German rows (decided 2026-11-23; the voice is §10):
+
+- The imperative rule (`packages/content/src/style/directive-de.ts`). Spelling cannot tell the
+  Sie-imperative from the infinitive or the present, the ihr-imperative from the 3rd person or the
+  participle (`verkauft`, `investiert`), or the du-imperative from the noun (`Kauf`, `Tausch`), and
+  an infinitive is itself a command (`Jetzt Bitcoin kaufen`). So the rule reads forms, over whole
+  lines:
+  1. A line that names an asset fails when it holds a form of one of these verbs: `kaufen`,
+     `verkaufen`, `halten`, `behalten`, `investieren`, `reinvestieren`, `erwerben`, `veräußern`,
+     `akkumulieren`, `sparen`, `besparen`, `tauschen`, `wechseln`, `liquidieren`, `diversifizieren`,
+     `realisieren`, `sichern`, `verwahren`, `wetten`, `spekulieren`, `nutzen`, `streuen`, `stapeln`,
+     `sammeln` and `holen`, and the separable `nachkaufen`, `zukaufen`, `dazukaufen`, `einkaufen`,
+     `ankaufen`, `aufkaufen`, `anlegen`, `nachlegen`, `zulegen`, `ansparen`, `aufstocken`,
+     `ansammeln`, `einsammeln`, `aufbauen`, `anschaffen`, `umtauschen`, `eintauschen`, `umwechseln`,
+     `umschichten`, `abstoßen`, `einsteigen`, `aussteigen`, `zugreifen`, `zuschlagen`, `mitnehmen`,
+     `festhalten`, `durchhalten`, `beibehalten`, `ausnutzen`, `absichern`, `aufbewahren` and
+     `glattstellen`. The forms that count:
+     - the infinitive and the zu-infinitive, in any case and anywhere (`zum Verkaufen`, `das Halten`);
+     - the present and imperative of `du`, `ihr` and `Sie`, and the past forms that address the
+       reader (`kaufst`, `kauft`, `kauf`, `verkauften`, `hieltest`), so every participle spelled like
+       them fails too (`verkauft`, `investiert`, `behalten`);
+     - a separable verb's base with its particle closing the clause (`Legen Sie Ihr Geld in Bitcoin
+       an`);
+     - `setzen` with a later `auf`;
+     - `durchführen`, `ausführen`, `vornehmen`, `abschließen` and `tätigen` when the line holds a
+       purchase noun.
+
+     A form in lower case or capitals counts anywhere. With a capital initial, a finite form counts
+     only where a clause opens: the line's start; after any dot, an ordinal's and an abbreviation's
+     included, `!`, `?`, `:`, `;`, `,`, an opening quote or bracket, a dash or a bullet; or after
+     `und`, `oder`, `aber`, `sondern` or `denn`; with only `jetzt`, `heute`, `sofort`, `auch`, `dann`,
+     `nicht` and their kin between. Elsewhere a capital marks a noun, so `der Kauf`, `Erster Kauf`,
+     `Kauftag` and `Haltefrist` pass, and so do `hält`, `kaufte` and the `ge-` participles
+     (`gekauft`, `gehalten`).
+  2. A line is the unit, and dots, `!` and `?` end none. A sentence that ends in an ordinal takes no
+     second dot (Duden D 154, `Wir treffen uns am 15.`), so no cut tells them apart, and an
+     abbreviation list never closes. So `Kaufen Sie am 1. November BTC` and `Haben Sie Bitcoins? Dann
+     verkaufen Sie sie nicht.` fail. In the read of a Learn module that joins its lines, a paragraph
+     is one line. The text is read with soft hyphens and zero-width characters taken out.
+  3. The asset names, for every language: those of the Portuguese item 1; every word that begins
+     `bitcoin` or `crypto`, holds `krypto` or ends in `coin` or `coins`; `Münze`, `Token`, `moeda`,
+     `moedas`; the names of `packages/content/coins.json` as written, with a genitive `s`; and their
+     tickers in capitals. So `Halten Sie Ihre Coins bis 2029`, `Hold your coins until 2029` and
+     `Compre Cardano todos os meses` fail.
+  4. A form of `müssen` or `sollen`, or `am besten`, `besser`, `lieber`, `sinnvoll`, `lohnt` or
+     `lohnenswert`, fails with an infinitive of item 1 anywhere in the line, with or without an
+     asset (`Sie müssen jetzt verkaufen`, `Kaufen sollten Sie jetzt nicht`).
+  5. A form of item 1 that opens an ICU branch fails in any case, with or without an asset name
+     (`{kind, select, sell {Verkauf eintragen} …}`); `{count, plural, one {# Kauf} other {# Käufe}}`
+     passes.
+  6. Write instead a noun after a determiner (`ein Verkauf von {coin}`), `Bestand` for "what you
+     hold", the plan with a noun (`Der Plan sieht jeden Monat einen Kauf von BTC vor`), a `ge-`
+     participle, or a line that names no asset. The table below holds the commonest cases.
+
+  | Refused (German) | Write instead |
+  |---|---|
+  | `Proof of Calm verwahrt nie Ihr Geld oder Ihre Coins. Sie kaufen und verwahren Coins bei einem Anbieter Ihrer Wahl oder in einer eigenen Wallet.` | `Proof of Calm hat nie Zugriff auf Ihr Geld oder Ihre Coins. Für Kauf und Aufbewahrung wählen Sie einen Anbieter oder eine eigene Wallet.` |
+  | `Wenn Sie Coins selbst verwahren und die Seed-Phrase verlieren, kann niemand sie wiederherstellen.` | `Bei Coins in eigener Verwahrung kann niemand eine verlorene Seed-Phrase wiederherstellen.` |
+  | `Eingetragen: {amount} {coin} am {date} verkauft.` | `Eingetragen: ein Verkauf von {amount} {coin} am {date}.` |
+  | `Dieser Verkauf ist {excess} mehr, als Sie halten ({held} am {date}).` | `Dieser Verkauf übersteigt Ihren Bestand um {excess} ({held} am {date}).` |
+  | `Ein Rückgang der Coins, die Sie halten, ist im Gange.` | `Ein Rückgang der Coins in Ihrem Bestand ist im Gange.` |
+  | `Deutschland: Kryptowerte, die Sie länger als ein Jahr halten, sind beim Verkauf steuerfrei.` | `Deutschland: Ein Verkauf von Kryptowerten mehr als ein Jahr nach dem Kauf ist steuerfrei.` |
+  | `Der Plan kauft am 1. jedes Monats Bitcoin.` | `Der Kauf von Bitcoin findet am 1. jedes Monats statt.` |
+  | `Kauf von 0,01 BTC erfasst.` | `Eingetragen: ein Kauf von 0,01 BTC.` |
+  | `{count, plural, one {Kauf} other {Käufe}} von BTC eingetragen.` | `{count, plural, one {# Kauf} other {# Käufe}} von BTC eingetragen.` |
+  | `Der 1. Kauf von BTC ist am {date}.` | `Der erste Kauf von BTC ist am {date}.` |
+  | `Legen Sie einen Plan für BTC an.` | `Richten Sie einen Plan für BTC ein.` |
+  | `Halten Sie jeden Kauf von BTC fest.` | `Tragen Sie jeden Kauf von BTC ein.` |
+  | `Sie müssen nichts verkaufen.` | `Der Plan verlangt keinen Verkauf.` |
+  | `Prüfen Sie den Anbieter, bevor Sie Kryptowerte kaufen.` | `Prüfen Sie jeden Anbieter vor dem ersten Kauf von Kryptowerten.` |
+  | `Bitcoin wurde 2021 von vielen verkauft.` | `2021 gab es viele Verkäufe von Bitcoin.` |
+
+  The rule misses, and leaves to counsel and the native reader: passive and participle commands
+  (`Jetzt wird BTC gekauft`); verbless ones (`Rein in Bitcoin`); unlisted verbs (`bleiben`,
+  `loswerden`, `umsteigen`); 3rd-person statements (`Wer BTC länger als ein Jahr hält, …`); a
+  particle after the clause (`Steigen Sie ein bei Bitcoin`); an asset named in another message; and
+  a directive with no asset (`Jetzt kaufen`, as `Buy now` passes).
+- The quoted label „Investiert“ and the Portuguese tab «Regra e venda» are on the allow-list, each
+  with its reason, and so is the Risk page's Portuguese scams sentence in its fixed wording
+  (`docs/LEGAL.md` §5).
 
 A negation does not lift a ban; say what the app does instead. "No alerts" is still `alert`: write
 `no price notifications`, then what the app shows in their place (one line on Today, once per fall).
@@ -927,3 +1011,150 @@ depois do período dessa regra»), and `não tributado a partir de <data>` (the 
 `data de exclusão de tributação` (the noun) is its tax status in Portugal. `data de fim do período
 de detenção` reads as the period's last day, one day before that date, so it names neither; no
 shipped string uses it (counsel on #401, 2026-11-18).
+
+## 10. German (de-DE)
+
+The ten rules of §1 and the ban list of §2 hold in German; this section adds what the language
+needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm at the end of M2,
+`docs/GROWTH.md` §9). The native reader's review is §8 item 9.
+
+- **Standard spelling with ß, nouns and months capitalised** (`1. März 2027`); quotation marks are
+  `„…“`, never `«…»`.
+- **Address the reader as `Sie`**, with `Sie`, `Ihr` and `Ihnen` capitalised, in every string, site
+  page, module, email and legal page, as the ESAs' German texts do; never `du`. Serious is not formal
+  (§1.5): short active sentences, no `erfolgt` or `Durchführung`. `Ihr` only where it removes doubt:
+  `der Plan`, `die Einträge`, but `Ihr privater Schlüssel`.
+- **Buttons, labels and headings in the infinitive, the verb last**: `Speichern`, `Einen Kauf
+  eintragen`, `Oktober überspringen`, `CSV-Protokoll exportieren`. A change of the form of address
+  then touches only the sentences, so no control holds `Sie` (`Vorhandene Coins hinzufügen`). A link
+  that ends a sentence takes its imperative (`Exportieren Sie eine Kopie.`); a standalone control
+  takes the infinitive (`Kopie exportieren`).
+- **§3's participle buttons keep the participle**: `Wie geplant gekauft`, `Anderen Betrag gekauft`.
+- **A control named inside a sentence stands in `„…“`**, as the control shows it, its placeholders
+  included: `wählen Sie im Protokoll „Vorhandene Coins hinzufügen“`. A screen named as a place stays
+  a bare noun (`im Protokoll`, `im Portfolio`, `in den Einstellungen`). `Heute` and `Lernen`, which
+  read as an adverb and a verb, stand in `„…“` wherever a sentence or a control names them
+  (`Akzeptieren und „Heute“ öffnen`, `Zurück zu „Lernen“`); where a tab shares a screen's name, the
+  quotes mark the tab (`Prüfen Sie das unter „Plan“.`). An entry kind stays a noun (`eine
+  Übertragung`). `packages/app/src/lib/i18n/control-names.test.ts` reads pt-PT only; the first German
+  strings bring its German check.
+- **No courtesy words and no `wir` in an error** (§1.6, §1.8): no `bitte`, `leider`,
+  `Entschuldigung`, `danke`, `Achtung:` or `Hinweis:`. `Wählen Sie ein Datum ab dem ersten Kauf`,
+  never `Wir konnten das nicht speichern`.
+- **"Ensure" is `prüfen`**, since every form of `sicher` stays banned (§2): `Prüfen Sie das Datum vor
+  dem Speichern`, never `Stellen Sie sicher` or `Sind Sie sicher?`; the `garant` row refuses
+  `Garantie`.
+- **No line, label or ICU branch opens with a form of §2's German list** (`Kauf`, `Verkauf`,
+  `Halten`, `Tausch`); every dot opens a clause for the lint, so none stands right after an ordinal
+  or an abbreviation (`2. Kauf`, `z. B. Kauf`). In a line that names an asset, write a noun after a
+  determiner (`ein Verkauf von {coin}`) and `Bestand`, never `die Sie halten`; the label is quoted
+  „Investiert“ (allow-listed).
+- **The asset and the name.** A coin's name takes no article (`Ethereum fiel 2018 um 94 %`); the
+  unit is `der Bitcoin`, the network `das Bitcoin-Netzwerk`. The product's name stays in English,
+  with no article and no genitive `s` (`Proof of Calm berechnet`, `die Daten von Proof of Calm`;
+  ADR-0040). Never echo it as reassurance: no `Ruhe`, `gelassen` or `keine Sorge` about the market
+  or the plan.
+- **People and places.** Name the function (`Fragen für die Steuerberatung`) or write the ESAs' pair
+  (`Verbraucherinnen und Verbraucher`), never `*`, `:` or an inner capital I; a quoted law keeps its
+  wording (`Anleger`). A country whose name takes an article takes it in its own ICU branch (`für die
+  Niederlande`, `in den USA`); a bare `{country}` stands only where none is needed.
+- **Disclosures take the official German text** of each regulator phrasing in `docs/LEGAL.md` §4,
+  never a translation back from English: Delegated Regulation 2017/565 art. 44(4)(d), „Die frühere
+  Wertentwicklung ist kein verlässlicher Indikator für künftige Ergebnisse.“; MiCA art. 6(5)(a), „Der
+  Kryptowert kann seinen Wert ganz oder teilweise verlieren.“; (e) and (f), the `Systeme für die
+  Entschädigung der Anleger` and the `Einlagensicherungssysteme`, in §2's statement on status, which
+  reads `Proof of Calm ist bei keiner Finanzaufsicht registriert und unterliegt keiner Aufsicht`; the ESAs' warning of 2022-03-17 in
+  its German version. "Not advice" reads `keine Beratung`, "no financial or tax advice" `keine
+  Anlage- oder Steuerberatung`. The plan-creation text stays English until counsel approves a German
+  one (`docs/LEGAL.md` §4).
+- **Numerals for every number**, 2 to 9 included: `2 Coins`, `vor 15 Tagen`, `4‑mal`. Numbers,
+  percentages and dates are formatted by the country's locale (§4): `40 %` and `0,00094000 BTC` on a
+  German plan, `40%` on a Portuguese one, never typed by hand where `lib/format` writes them.
+- **A template's name spells out its number**, as English does (`Drei Coins, ohne
+  Verkaufsfenster`); its other texts keep numerals, and its explanation writes `N %`, the token of §9.
+- **Elsewhere, U+00A0 joins** a numeral to `%` and to its unit (`40 %`, `365 Tage`); `§`, `§§`,
+  `Abs.`, `Satz`, `Nr.` and `Art.` to their numbers (`§ 23 Abs. 1 Satz 1 Nr. 2 EStG`, the law's own
+  form); a currency code to its figure (`EUR 20 350`, §4's grouping); each gap of a hand-written date
+  (`15. März 2027`); and `z. B.`. U+2060 follows an en dash between figures (`2023–2025`); U+2011
+  joins a numeral compound (`90‑Tage‑Hoch`). Prose ranges take `bis`. Never `Uhr` after a time, since
+  `lib/format` may add the zone (`14:05 MESZ`), and never a placeholder in a compound (`Kosten für
+  {coin}`, not `{coin}-Kosten`). `packages/content/src/join-validate.ts` and
+  `packages/content/src/hyphen-validate.ts` hold no German lists yet; a German overlay waits for them.
+- **The tax authority's own terms**: `privates Veräußerungsgeschäft`, `Freigrenze`, `Anlage SO`,
+  `Finanzamt`, `BMF-Schreiben`; a rule quoted from the law keeps its wording („nicht mehr als ein
+  Jahr beträgt“). A tax name the lint refuses goes on the allow-list with its reason (§2).
+- **Lists take no comma before `und`**, as `lib/format` writes them: `BTC, ETH und SOL`.
+- **A module's chart section has no German shapes of §4 R5 yet**, so it fails closed until they are
+  decided as pt-PT's were.
+- **A country card's summary keeps the 60-word limit**, and content still in English on a German
+  screen is marked: `lang="en"`, and on a country card `Die folgenden Regeln sind auf Englisch.`
+  under its title (ADR-0057).
+
+The product's nouns, one German word each, in every string, the site pages and the Learn modules:
+
+| English | de-DE |
+|---|---|
+| Today (the screen) | Heute |
+| Log (the screen) | Protokoll |
+| an entry | Eintrag |
+| record (the verb) | eintragen (`Eingetragen: …`) |
+| move (an entry between venues) | Übertragung, übertragen; never `Überweisung`, which moves money |
+| Portfolio (the screen) | Portfolio; never `Depot`, an account a provider keeps (ADR-0039) |
+| Holdings | Bestand |
+| Invested | investiert |
+| average cost | durchschnittlicher Kaufpreis |
+| averaging (the method, DCA) | `DCA`, explained once as `regelmäßige Käufe mit festem Betrag`; never `Cost-Average-Effekt`, a benefit stated as fact, nor `Durchschnittsmethode`, the BMF's lot method |
+| P/L | Ergebnis |
+| share / allocation / split | Anteil / Verteilung / Aufteilung |
+| a wallet | die Wallet |
+| Plan / Learn / Settings | Plan / Lernen / Einstellungen |
+| buy day | Kauftag |
+| monthly buy, starting amount, extra buy | Monatskauf, Startbetrag, Zusatzkauf |
+| first buy, last buy | erster Kauf, letzter Kauf |
+| due {date} | geplant für den {date}; never `fällig`, a bill's word |
+| skip, skipped / paused / Resume | überspringen, übersprungen / pausiert / Fortsetzen |
+| sale | Verkauf |
+| coins added at no cost (held) | Hinzugefügte Coins |
+| coins moved (the kind) | Übertragene Coins |
+| sell window | Verkaufsfenster |
+| holding period, holding rule | Haltefrist, one noun for both (`Keine Haltefrist`, `Eigene Haltefrist`); never `Spekulationsfrist` |
+| holding date | der erste Tag nach der Haltefrist |
+| hold phase | Haltephase |
+| the plan strip's Buying, Holding, Selling, Out by | Kaufphase, Haltephase, Verkaufsfenster, Ausstieg, each before a range or `ab {date}`; never `Kauf` or `Halten`, which read as instructions |
+| tax-free | `Steuerfrei ab 2. März 2027` for the status, which does not inflect and needs no subject; `der erste steuerfreie Tag` for the noun (`Warum? Der erste steuerfreie Tag`); `Last buy tax-free` is `Letzter Kauf: erster steuerfreier Tag`, so no buy is called tax-free; never `steuerbefreit`, an exemption |
+| Long-term rate from {date} | Langfristiger Steuersatz ab {date} |
+| venue | Ort (`ohne Ort`) |
+| units / (estimated) | Einheiten / (geschätzt), never inflected |
+| fee, network fee | Gebühr, Netzwerkgebühr |
+| coin | Coin (der, die Coins); `Kryptowert` in a disclosure and in legal text, as MiCA writes it; never `Kryptowährung` |
+| currency | Währung (`Zahlungswährung` where the pay currency is meant) |
+| the Settings tabs | `Plan`, `Coins & Anteile`, `Frist & Verkauf`, `Währung & Daten`, with U+00A0 after each `&`; no word over 7 letters, since an 8-letter pt-PT word ran past its tab at 125 % zoom; quoted wherever a string names one |
+| Undo / Delete / Dismiss / Review (the control) | Rückgängig / Löschen / Ausblenden / Prüfen |
+| Reviewed on {date} | Stand: {date}; under review `Seit {date} nicht überprüft`; never `geprüft`, which reads as a seal (§2) |
+| backup / keep (data) | Backup (`JSON-Backup exportieren`) / aufbewahren |
+| offline / app / halving | offline / App / Halving |
+| Risk disclosure (the link) | Risikohinweise |
+| daily close / Price data by CoinGecko | Tagesschlusskurs / Kursdaten von CoinGecko; `Kurs` is the market's price, `Preis` what the person paid |
+| a fall | Rückgang; never `Crash`, `Einbruch` or `Dip` |
+| 90-day high | 90‑Tage‑Hoch, U+2011 twice |
+| template | Ausgangspunkt, its name after it unquoted |
+| country card / general profile | Länderprofil / das allgemeine Profil |
+| tax-year file | Datei für das Steuerjahr (`Steuerjahr als CSV exportieren`) |
+| crypto-asset service provider | Anbieter von Kryptowerte-Dienstleistungen |
+
+Two terms name the same date in two frames: `der erste Tag nach der Haltefrist` is the date in the
+holding rule's own frame (the hold-phase card, the holding-date tool, the tax-year file's
+`eligible_from` line), and `steuerfrei ab <Datum>` (the status) or `der erste steuerfreie Tag` (the
+noun) is its tax status in Germany. § 23 EStG taxes a sale when „der Zeitraum zwischen Anschaffung
+und Veräußerung nicht mehr als ein Jahr beträgt“: bought on 15 March 2026, a sale on 15 March 2027 is
+still inside the year, and the app shows `16. März 2027` (`packages/content/jurisdictions/de.json`).
+`Ende der Haltefrist`, `Haltefrist endet am`, `Fristende`, `Ablaufdatum` and `bis <Datum>` name
+15 March, the day before, so they name neither; no form of `Ablauf` or `ablaufen` stands in this copy.
+
+For the native reader (§8 item 9): `Sie`; `steuerfrei ab` against `nicht steuerbar ab`, and `Letzter
+Kauf: erster steuerfreier Tag`; `Protokoll`, `Lernen`, `Ort`, `Coin`, `die Wallet`, `Backup` (pt-PT
+kept `cópia de segurança`), `durchschnittlicher Kaufpreis` against `Einstandspreis`, `Stand:` and
+`geplant für den`; the Settings tabs, the tab bar and the entry sheet's kinds at 360 px with 125 %
+text, with `Land & Daten` if `Währung` runs past; the German "not tax advice" line, pending the StBerG
+question (`docs/BENCHMARK.md` §4), its candidate `Aus Ihren Einträgen berechnet, keine
+Steuerberatung`; the descriptor against `Krypto-Sparplan` (`docs/GROWTH.md` §2.5).
