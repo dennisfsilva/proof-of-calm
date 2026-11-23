@@ -85,6 +85,19 @@ const scrolledWith = (element: Element) => {
 const HELD_LINE =
   'Your Log has 0,002 BTC as a Coins added entry at Ledger, dated 13 Oct 2026. 2 BTC transactions in this file, ' +
   '0,002 BTC in all, are dated on or before it and may be those coins. They are not added unless you choose to.';
+/** A BTC sale the day before the Coins added entry that only the file's two purchases, which it guards, cover. */
+const soldRead = readExchangeFile(
+  krakenLedger([
+    ['TQ9ZZZ-SYNTH-000001', '2026-10-05 09:00:00', 'trade', 'EUR', '-70.0000', '0.1800'],
+    ['TQ9ZZZ-SYNTH-000001', '2026-10-05 09:00:00', 'trade', 'BTC', '0.0012000000', '0.0000000000'],
+    ['TQ9ZZZ-SYNTH-000003', '2026-10-12 12:00:00', 'trade', 'EUR', '-50.0000', '0.1300'],
+    ['TQ9ZZZ-SYNTH-000003', '2026-10-12 12:00:00', 'trade', 'BTC', '0.0008000000', '0.0000000000'],
+    ['TQ9ZZZ-SYNTH-000006', '2026-10-12 13:00:00', 'trade', 'BTC', '-0.0230000000', '0.0000000000'],
+    ['TQ9ZZZ-SYNTH-000006', '2026-10-12 13:00:00', 'trade', 'EUR', '1500.0000', '1.0000'],
+  ]),
+);
+if (!soldRead.ok) throw new Error('the synthetic ledger reads');
+const SOLD = soldRead.value;
 
 describe('ExchangeImport', () => {
   it('names the file, the zone and the venue, then the summary, the held line and the sections, and focuses its heading', async () => {
@@ -188,19 +201,7 @@ describe('ExchangeImport', () => {
   });
 
   it('unticked, names the sale ticking adds back and has nothing to add; ticked, adds it and says no more', async () => {
-    // A BTC sale the day before the Coins added entry that only the file's two purchases, which it guards, cover.
-    const sold = readExchangeFile(
-      krakenLedger([
-        ['TQ9ZZZ-SYNTH-000001', '2026-10-05 09:00:00', 'trade', 'EUR', '-70.0000', '0.1800'],
-        ['TQ9ZZZ-SYNTH-000001', '2026-10-05 09:00:00', 'trade', 'BTC', '0.0012000000', '0.0000000000'],
-        ['TQ9ZZZ-SYNTH-000003', '2026-10-12 12:00:00', 'trade', 'EUR', '-50.0000', '0.1300'],
-        ['TQ9ZZZ-SYNTH-000003', '2026-10-12 12:00:00', 'trade', 'BTC', '0.0008000000', '0.0000000000'],
-        ['TQ9ZZZ-SYNTH-000006', '2026-10-12 13:00:00', 'trade', 'BTC', '-0.0230000000', '0.0000000000'],
-        ['TQ9ZZZ-SYNTH-000006', '2026-10-12 13:00:00', 'trade', 'EUR', '1500.0000', '1.0000'],
-      ]),
-    );
-    if (!sold.ok) throw new Error('the synthetic ledger reads');
-    await mount([HELD], undefined, {}, { file: sold.value, name: 'kraken-ledgers.csv' });
+    await mount([HELD], undefined, {}, { file: SOLD, name: 'kraken-ledgers.csv' });
     expect(texts()).toEqual(
       expect.arrayContaining([`${HELD_LINE} If you add them, they also add 1 sale.`, 'Nothing to add from this file.']),
     );
@@ -209,6 +210,16 @@ describe('ExchangeImport', () => {
     fireEvent.click(screen.getByRole('checkbox', { name: 'Add these transactions too' }));
     expect(texts()).toContain(HELD_LINE);
     expect(button('Import 3 entries')).not.toBeNull();
+  });
+
+  // Review: "the held line joins heldAnswer, then heldSales, then heldReplaces, while CONTENT-STYLE gives the replaces
+  // sentence first, then the sales sentence. Both counts can be above 0 together, and no test has both."
+  it('when ticking both replaces an estimate and adds back a sale, names the estimate first, then the sale', async () => {
+    await mount([ONE_TAP_OCTOBER, HELD], undefined, {}, { file: SOLD, name: 'kraken-ledgers.csv' });
+    expect(texts().find((line) => line.startsWith('Your Log has'))).toBe(
+      `${HELD_LINE} If you add them, they also replace 1 estimate from Bought as planned. ` +
+        'If you add them, they also add 1 sale.',
+    );
   });
 
   it('imports with the venue typed and the answer given, and ends with the outcome', async () => {
