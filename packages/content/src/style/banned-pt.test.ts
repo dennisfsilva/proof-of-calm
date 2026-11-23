@@ -1084,7 +1084,6 @@ const NEEDED: string[] = [
   'Está em curso uma queda das moedas que detém.',
   'Mostrar a data em que uma compra cumpre esta regra de detenção',
   'O Registo do Proof of Calm mostra o dia em que cada compra cumpre o período de detenção do plano, quando existe.',
-  'Venda por moeda com curso legal',
   'Registar uma venda',
   'Registado: vendeu {amount} de {coin} em {date}.',
   'Esta alteração deixa a sua venda de {coin} em {date} sem as unidades que vende. Verifique essa venda no Registo.',
@@ -1094,7 +1093,6 @@ const NEEDED: string[] = [
   '{invested} de {planned} investidos até agora ({percent}). Compras restantes: {left}.',
   'Manter o plano como está',
   'Terminar as compras',
-  'O {product} nunca detém o seu dinheiro nem as suas moedas. Compra e guarda moedas num prestador à sua escolha, ou numa carteira sua.',
   'Um prestador pode falir, ser alvo de um ataque informático ou suspender levantamentos, com as moedas dos clientes lá dentro.',
   'Sinais de burla: a promessa de que o dinheiro vai crescer depressa com pouco risco, um desconhecido que leva a conversa para investimentos, ou qualquer pedido da sua frase de recuperação, de uma chave privada, ou da chave de API ou do acesso de uma corretora.',
   'A ESMA mantém um registo público dos prestadores autorizados ao abrigo do MiCA: <link>{label}</link>. Consulte aí qualquer prestador antes de enviar dinheiro.',
@@ -1180,7 +1178,6 @@ const NEEDED: string[] = [
   'As comissões pagas numa venda, com comprovativo, reduzem o preço de venda.',
   'O valor de todas as suas detenções no momento de cada venda.',
   'O Proof of Calm lista cada compra e deixa o agrupamento ao contabilista.',
-  'Vender tokens por dinheiro é uma alienação; a mais-valia ou menos-valia é calculada em cada alienação.',
   'A regra dos 30 dias em torno de qualquer venda.',
   'Não há alienação enquanto a pessoa mantiver a propriedade efetiva, por exemplo ao mover tokens entre endereços públicos que controla.',
   'Primeiro a entrar, primeiro a sair: a regra da Revenue para ações trata as unidades mais antigas como vendidas primeiro.',
@@ -1425,6 +1422,16 @@ const REWORDED: [string, string][] = [
   ],
   ['Se vendesse BTC hoje, a mais-valia seria tributada.', 'Uma venda de BTC hoje tornaria a mais-valia tributável.'],
   ['Aconselha-se a confirmação junto de um contabilista local.', 'Confirme junto de um contabilista local.'],
+  // «moeda», «moedas» and «tokens» name an asset since 2026-11-23 (docs/CONTENT-STYLE.md §2, German, item 3).
+  ['Venda por moeda com curso legal', 'A venda por moeda com curso legal'],
+  [
+    'O {product} nunca detém o seu dinheiro nem as suas moedas. Compra e guarda moedas num prestador à sua escolha, ou numa carteira sua.',
+    'A {product} nunca detém o seu dinheiro nem as suas moedas. Quem a usa compra e guarda as moedas junto de um prestador à sua escolha ou numa carteira própria.',
+  ],
+  [
+    'Vender tokens por dinheiro é uma alienação; a mais-valia ou menos-valia é calculada em cada alienação.',
+    'A venda de tokens por dinheiro é uma alienação; a mais-valia ou menos-valia é calculada em cada alienação.',
+  ],
 ];
 
 const TOKENS = [
