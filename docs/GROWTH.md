@@ -88,16 +88,18 @@ The name carries the calm; the line under it carries the category. People search
 | Layer | What it says | Where it appears |
 |---|---|---|
 | Name | Calm, and a nod to crypto's "proof of work" and "proof of stake" | everywhere |
-| Category | A DCA planner for Bitcoin, Ether, Solana and Chainlink | store titles, page titles, the first line of every listing and post |
-| Difference | Every purchase kept with its date and price after the coins leave the exchange; one record across exchanges and wallets; the day each purchase passes the holding period in Portugal and Germany; a plan with its end decided in advance; custody-free and usable without an account; no news, no feed and no price notifications (one line on Today, once per fall) | the landing page, screenshots, store subtitles |
+| Category | A crypto DCA planner and purchase log | page titles and the first line of every listing and post; a store title carries the descriptor (§4.6), and the description under a title is the message `manifest.description` |
+| Difference | Every purchase kept with its date and price after the coins leave the exchange; one record across exchanges and wallets; the day each purchase passes the holding period in Portugal and Germany; a plan with its end decided in advance; custody-free and usable without an account; no news, no feed and no price notifications (one line on Today, once per fall) | the landing page and store subtitles in words; example images follow ADR-0009's Reading of 2026-11-23 and show none of it |
 | Proof | Dated country rules with sources; a "what this app leaves out" page; a simulator that shows drawdowns first; "free core forever" in writing; no affiliate links; never asks for keys (ADR-0039) | the site, the press page |
 | Promise about DCA | It takes the timing decision away. It does not make crypto less risky. | the landing page, store descriptions, Learn "Start here" |
 
-Counsel ruled on 2026-11-15 that the Category line, which names four of the catalogue's coins in the
-Cycle plan's order, reads as a pick (`docs/LEGAL.md` §3.3 and §6 Q3 and Q12, ADR-0009, ADR-0029). Until
-the owner rewords it, public copy (the manifest, link previews, store titles, listings and posts) names
-no coin; the manifest and the link previews read the message `manifest.description` in
-`apps/web/messages/en.json`, which owns that line.
+Counsel ruled on 2026-11-15 that the earlier Category line, which named four of the catalogue's
+coins in the Cycle plan's order, read as a pick (`docs/LEGAL.md` §3.3 and §6 Q3 and Q12, ADR-0009,
+ADR-0029). The line above was decided on 2026-11-23 on the owner's delegation of 2026-11-18, not by
+the owner's own rewording. The manifest, link previews, store titles, listings and posts name the
+category in these words or in `manifest.description`'s sentence (`apps/web/messages/en.json`, which
+owns that line), and no coin. Each translation of the Category line takes counsel's read with its
+language's copy review, and the Portuguese and German lines are the native readers' (§2.5, #414).
 
 ### 2.2 What exchanges and wallets show, and what they cannot
 
@@ -331,7 +333,8 @@ Technical:
 - The performance budgets of `docs/ENGINEERING.md`.
 - Google Search Console, and Bing Webmaster Tools with IndexNow, since Bing's index also feeds
   Microsoft Copilot and other assistants.
-- AI crawlers: allowing them in `robots.txt` is what makes citation possible; the owner decides (§9).
+- AI crawlers: allowing them in `robots.txt` is what makes citation possible; decided on 2026-11-23,
+  every crawler stays allowed (§9).
 
 Links: the dated German-law explainer, offered to the journalists who cover the law; the
 reference-close dataset as open data, if the Kraken and Bitstamp terms allow it (ADR-0036); the Show
@@ -411,8 +414,10 @@ Decided on 2026-10-17: yes (§0, item 6). The provider and its consent text are 
   noise" (29).
 - iOS keywords (100 characters) and the Google Play short description (80): the category and the
   local terms from §4.1; never another company's name.
-- Screenshots, one idea each: the monthly loop in one tap; the date per purchase; the record across
-  venues; the Red day page; what the app leaves out.
+- Screenshots: the set of ADR-0009's Reading of 2026-11-23, which names no coin. Four images: Today
+  with the current month recorded and no price answer; the Learn index; Portugal's country page; the
+  public holding-date page with a result for Portugal. The "What this app leaves out" page joins
+  once it exists.
 - No UK storefront (ADR-0029). Listing text lives in the repository, under the lint.
 
 ### 4.7 Launch moments and the calendar
@@ -580,13 +585,22 @@ Decided on 2026-10-17:
 - No orders, no exchange keys, no address watching; CSV import in the free core (ADR-0039).
 - The motto: "Discipline. Consistency. Averaging." (§2.5).
 
+Decided on 2026-11-23, on the owner's delegation of 2026-11-18 (not the owner's own review or
+signature; record #409):
+
+- The Category line (§2.1).
+- Every crawler stays allowed in `robots.txt`, the AI crawlers included (§4.1): the aim is to be
+  cited, the pages' text is public in the repository already, and a block list ages.
+- The product's own example images name no coin (ADR-0009, Readings).
+
 Still open, for the owner:
 
-1. The German form of address (§2.5); the Portuguese one was decided on 2026-11-15 under the
-   unattended M2 rule (`docs/CONTENT-STYLE.md` §9), for the owner to confirm at the end of M2.
+1. The German form of address (§2.5); the Portuguese one (`docs/CONTENT-STYLE.md` §9), set on
+   2026-11-15 under the unattended M2 rule, was decided on the owner's delegation of 2026-11-18
+   (#320).
 2. The social accounts to run and the ones only to reserve (§4.3).
 3. The list provider and its consent text (§4.5).
-4. AI crawlers in `robots.txt` (§4.1).
+4. (Decided on 2026-11-23: see above.)
 5. Publishing the reference-close dataset, if its licences allow (§4.1).
 6. Repository visibility (`docs/LEGAL.md` §9): a public repository is a trust signal and the Show HN
    story.
