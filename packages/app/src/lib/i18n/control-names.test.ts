@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 // (`escolha «Adicionar moedas que já tem»`). The list comes from the English messages: a label of more than one word,
 // or one with a placeholder, that another message names after a lower-case word. Its pt-PT sentence then names the
 // pt-PT label only in guillemets. An entry kind (`a Coins added entry`) is a noun in pt-PT (`um movimento de moedas
-// adicionadas`) and never shows the label verbatim, so it is not checked.
+// adicionadas`) and never shows the label verbatim, so it is not checked. German's check is at the end of the file.
 
 type Tree = { [key: string]: string | Tree };
 const files = import.meta.glob<Tree>('../../messages/*/*.json', { eager: true, import: 'default' });
@@ -24,7 +24,6 @@ function leaves(language: string): Map<string, string> {
 }
 
 const en = leaves('en');
-const pt = leaves('pt-PT');
 const literal = (text: string) => text.replace(/[{}()[\]^$.*+?|\\]/gu, '\\$&');
 const isLabel = (text: string) => /^\p{Lu}/u.test(text) && text.length <= 40 && !/[.:?]$/u.test(text);
 // A one-word label is also a screen's or a coin's name, so it counts only where English says to choose it, in any
@@ -32,17 +31,35 @@ const isLabel = (text: string) => /^\p{Lu}/u.test(text) && text.length <= 40 && 
 const isPhrase = (text: string) => text.includes(' ') || text.includes('{');
 const choose = 'cho(?:ose|se|sen)';
 
-/** Each English label another English message names mid-sentence, with that message's key and both pt-PT texts. */
-const found = [...en].flatMap(([labelKey, label]) => {
+/** Each English label another English message names mid-sentence, with that message's key. */
+const english = [...en].flatMap(([labelKey, label]) => {
   if (!isLabel(label)) return [];
   const inSentence = new RegExp(`${isPhrase(label) ? '\\p{Ll}' : choose} ${literal(label)}(?!\\p{L})`, 'u');
-  const ptLabel = pt.get(labelKey) ?? '';
-  return [...en]
-    .filter(([key, text]) => key !== labelKey && inSentence.test(text) && (pt.get(key) ?? '').includes(ptLabel))
-    .map(([key]) => ({ labelKey, key, label: ptLabel, sentence: pt.get(key) ?? '' }));
+  return [...en].filter(([key, text]) => key !== labelKey && inSentence.test(text)).map(([key]) => ({ labelKey, key }));
 });
-/** One check per pt-PT label and sentence: a tab's name is also a legend's and a summary row's. */
-const named = [...new Map(found.map((pair) => [`${pair.label} in ${pair.key}`, pair])).values()];
+/** Whether `language` translates the label: German's merged files still show English where a namespace is not. */
+const translates = (local: Map<string, string>, labelKey: string) => local.get(labelKey) !== en.get(labelKey);
+
+/** The English pairs whose sentence in `language` holds that language's label, with both texts. */
+function pairs(language: string, translatedOnly = false) {
+  const local = leaves(language);
+  return english.flatMap(({ labelKey, key }) => {
+    const label = local.get(labelKey) ?? '';
+    const sentence = local.get(key) ?? '';
+    if (translatedOnly && !translates(local, labelKey)) return [];
+    return sentence.includes(label) ? [{ labelKey, key, label, sentence }] : [];
+  });
+}
+/** One check per label and sentence: a tab's name is also a legend's and a summary row's. */
+const once = (found: ReturnType<typeof pairs>) => [
+  ...new Map(found.map((pair) => [`${pair.label} in ${pair.key}`, pair])).values(),
+];
+/** Whether `sentence` still shows `label` once every quoted use of it is taken out. */
+const showsBare = (sentence: string, label: string, [open, close]: readonly [string, string]) =>
+  sentence.split(`${open}${label}${close}`).join('').includes(label);
+
+const found = pairs('pt-PT');
+const named = once(found);
 
 describe('a control named inside a pt-PT sentence', () => {
   it('is found for the controls the English sentences name', () => {
@@ -75,8 +92,31 @@ describe('a control named inside a pt-PT sentence', () => {
   it.each(named.map(({ label, key, sentence }) => [label, key, sentence]))(
     'stands in guillemets: %s in %s',
     (label, _key, sentence) => {
-      const bare = sentence.split(`«${label}»`).join('');
-      expect(bare.includes(label)).toBe(false);
+      expect(showsBare(sentence, label, ['«', '»'])).toBe(false);
     },
   );
+});
+
+// German (docs/CONTENT-STYLE.md §10) names the same controls in „…“, as the control shows it
+// (`wählen Sie im Protokoll „Vorhandene Coins hinzufügen“`). German is translated namespace by namespace, so the
+// check reads only the labels its files translate; a sentence still in English cannot hold a German label.
+describe('a control named inside a German sentence', () => {
+  const de = leaves('de');
+  const german = pairs('de', true);
+
+  it('reads the controls the German files translate', () => {
+    const translated = new Set(english.filter(({ labelKey }) => translates(de, labelKey)).map(({ labelKey }) => labelKey));
+    expect(translated).toContain('today.action.asPlanned');
+  });
+
+  it('tells a quoted name from a bare one', () => {
+    const quotes = ['„', '“'] as const;
+    expect(showsBare('Wählen Sie „Wie geplant gekauft“.', 'Wie geplant gekauft', quotes)).toBe(false);
+    expect(showsBare('Wählen Sie Wie geplant gekauft.', 'Wie geplant gekauft', quotes)).toBe(true);
+  });
+
+  it('stands in „…“ in every German sentence that names one', () => {
+    const bare = once(german).filter(({ label, sentence }) => showsBare(sentence, label, ['„', '“']));
+    expect(bare.map(({ label, key }) => `${label} in ${key}`)).toEqual([]);
+  });
 });
