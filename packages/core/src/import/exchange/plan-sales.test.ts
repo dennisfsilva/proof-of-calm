@@ -208,6 +208,47 @@ describe("Greta's sale and the coins another import bought (the cover's date gat
   it('B4: an export holding only the sale, then the whole file, holds 0.4 (pin)', () => {
     expect(holds([{ movements: [sale] }, kraken])).toBe('0.4');
   });
+
+  it('a prefix that holds none of the left-out purchases stores the sale the whole file leaves out (pin)', () => {
+    // Seed 13's first world (DOMAIN §3.13 step 5's exception), its BTC rows and the prefix's ETH rows: first buy 1 Mar
+    // 2026, a starting amount of 500; another import's Coins added entry of 0.12409 BTC on 30 Jan. The prefix is the
+    // file's first 3 rows; the whole file also buys BTC on 27 Jan, 29 Jan and 2 Feb, which step 3 leaves out (F = 27 Jan),
+    // so the other import's entry, dated on or after F, no longer counts.
+    const plan = aPlan({ firstBuy: date('2026-03-01'), startingAmount: money('500') });
+    const other = { ...held('2026-01-30', '0.12409', null), source: 'import-csv' as const, id: testId('other|held') };
+    const prefix = [
+      trade('P1', 'purchase', 'ETH', '2026-10-17', { units: '0.34112', amount: '300', fee: '1' }, 2),
+      trade('P2', 'purchase', 'ETH', '2026-10-17T10:01:00Z', { units: '0.00884', amount: '30', fee: '1' }, 4),
+      sell('S', '2026-01-30T23:30:00Z', '0.12409'),
+    ];
+    const whole = [
+      ...prefix,
+      ...[
+        ['2026-01-27', '0.06251'],
+        ['2026-01-27T10:01:00Z', '0.51424'],
+        ['2026-01-29', '0.90801'],
+        ['2026-02-02', '0.10677'],
+        ['2026-02-02T10:01:00Z', '0.05009'],
+      ].map(([day, units_], index) => buy(`B${index}`, day as string, units_ as string)),
+    ];
+    const once = planOf(plan, [other], { movements: whole, addHeld: true });
+    expect([once.startingAmount?.items[0]?.date, once.uncovered.map(({ date: on }) => on)]).toEqual([
+      '2026-01-27',
+      ['2026-01-30'],
+    ]);
+    const first = planOf(plan, [other], { movements: prefix, addHeld: true });
+    expect([first.startingAmount, sold(first.entries)]).toEqual([null, 1]);
+    const one = walk(plan, [other], [{ movements: whole, addHeld: true }]);
+    const two = walk(
+      plan,
+      [other],
+      [
+        { movements: prefix, addHeld: true },
+        { movements: whole, addHeld: true },
+      ],
+    );
+    expect([one.after, two.after, sold(one.log), sold(two.log)]).toEqual([['0.12409'], ['0', '0'], 0, 1]);
+  });
 });
 
 describe('each sale decided alone', () => {

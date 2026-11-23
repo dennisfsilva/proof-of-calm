@@ -1,6 +1,7 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { type World, world } from '../../../test/exchange/plan-arbitraries';
+import { coverCut, excepted, withoutExcepted } from '../../../test/exchange/plan-cover';
 import { LISBON, NOW } from '../../../test/exchange/plan-fixture';
 import { lumpCut, partOf, splitsLumpDay, withLumpCut } from '../../../test/exchange/plan-late';
 import { type CalendarDate, daysBetween } from '../../dates/calendar';
@@ -118,7 +119,9 @@ const property = (reach: Map<string, number>) =>
     };
     const swapped = first.replaced.filter((group) => group.by.some((id) => ids.has(id)));
     const plus = store(store(drawn.entries, kept), { ...first, entries: doubled, replaced: swapped });
-    expect(held(drawn, twice)).toEqual(held(drawn, plus));
+    // DOMAIN §3.13 step 5's one exception: a sale the shorter export stores on another import's entry (plan-cover.ts).
+    const out = coverCut(drawn.entries, drawn.file, first, once);
+    expect(held(drawn, withoutExcepted(twice, out))).toEqual(held(drawn, plus));
     if (gone.length > 0) expect(doubled.length).toBeGreaterThan(0);
     const cuts = cutDays(drawn.file, shorter);
     for (const entry of doubled) {
@@ -150,7 +153,9 @@ describe("planExchangeImport, an export cut at a lump's date", () => {
   it(
     "a shorter export, then the whole file: one import's Log, plus the stored purchases of its claimed dates, less those claimed instead",
     () => {
+      excepted.worlds = 0;
       fc.assert(property(new Map()), RUNS);
+      expect(excepted.worlds).toBeLessThan(RUNS.numRuns / 10);
     },
     TIMEOUT,
   );
@@ -159,6 +164,7 @@ describe("planExchangeImport, an export cut at a lump's date", () => {
     `at seed ${REACH_SEED}, each side of the cut, above and below the part, reaches both outcomes`,
     () => {
       const reach = new Map<string, number>();
+      excepted.worlds = 0;
       fc.assert(property(reach), { ...RUNS, seed: REACH_SEED });
       // A slice below the part diverges rarely; `instead`, a fallback claim moved, a hand entry's or a live one-tap
       // `lump`'s, is checked when reached and pinned by hand.
@@ -173,6 +179,7 @@ describe("planExchangeImport, an export cut at a lump's date", () => {
         }
       }
       expect(count(/^below\|.*\|twice$/)).toBeGreaterThan(0);
+      expect(excepted.worlds).toBeLessThan(RUNS.numRuns / 10);
     },
     TIMEOUT,
   );

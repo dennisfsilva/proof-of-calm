@@ -2,6 +2,7 @@ import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { anEntry, aPlan, date, money, month } from '../../../test/builders';
 import { fileOf, heldGuards, type World, world } from '../../../test/exchange/plan-arbitraries';
+import { coverCut, excepted, withoutExcepted } from '../../../test/exchange/plan-cover';
 import { added, BERLIN, LISBON, NOW, testId, trade } from '../../../test/exchange/plan-fixture';
 import { preCut, skipped } from '../../../test/exchange/plan-late';
 import { addDays, type CalendarDate } from '../../dates/calendar';
@@ -192,19 +193,22 @@ describe('planExchangeImport', () => {
   it(
     "a prefix of a file's rows, stored, then the whole file adds the ids and units per coin the whole file adds at once",
     () => {
-      skipped.cuts = 0;
+      [skipped.cuts, excepted.worlds] = [0, 0];
       fc.assert(
         fc.property(world, fc.nat(), (drawn, cut) => {
           const { once, first, then } = twoWays(drawn, cut);
-          const twice = [...first.entries, ...then.entries];
+          // DOMAIN §3.13 step 5's one exception: a sale the prefix stores on another import's entry (plan-cover.ts).
+          const out = coverCut(drawn.entries, drawn.file, first, once);
+          const twice = withoutExcepted([...first.entries, ...then.entries], out);
           expect(ids(twice)).toEqual(ids(once.entries));
           expect(unitsPerCoin(twice)).toEqual(unitsPerCoin(once.entries));
         }),
         TWICE,
       );
       // A cut at splitsLumpDay's width can count the whole file's claimed date twice (DOMAIN §3.13 step 2), so it is
-      // skipped, a few a run; plan-lump-cut.property.test.ts covers it.
+      // skipped, a few a run; plan-lump-cut.property.test.ts covers it. The excepted sales come rarer still.
       expect(skipped.cuts).toBeLessThan(TWICE.numRuns / 10);
+      expect(excepted.worlds).toBeLessThan(TWICE.numRuns / 10);
     },
     TIMEOUT,
   );
@@ -212,14 +216,17 @@ describe('planExchangeImport', () => {
   it(
     "a prefix of a file's rows, stored, then the whole file leaves the Log with the live ids and units per coin one import leaves",
     () => {
+      excepted.worlds = 0;
       fc.assert(
         fc.property(world, fc.nat(), (drawn, cut) => {
-          const { oneLog, twoLog } = twoWays(drawn, cut);
-          expect(ids(live(twoLog))).toEqual(ids(live(oneLog)));
-          expect(unitsPerCoin(live(twoLog))).toEqual(unitsPerCoin(live(oneLog)));
+          const { once, first, oneLog, twoLog } = twoWays(drawn, cut);
+          const two = withoutExcepted(live(twoLog), coverCut(drawn.entries, drawn.file, first, once));
+          expect(ids(two)).toEqual(ids(live(oneLog)));
+          expect(unitsPerCoin(two)).toEqual(unitsPerCoin(live(oneLog)));
         }),
         { ...TWICE, examples: [STORED_WALK] },
       );
+      expect(excepted.worlds).toBeLessThan(TWICE.numRuns / 10);
     },
     TIMEOUT,
   );
