@@ -83,7 +83,9 @@ const EXAMPLES = [
   ],
 ] as const;
 
-// The five facts as the delegated read trimmed them (D7; EDUCATION §9 row k follows them, facts.test.ts).
+// The five facts as the delegated read trimmed them (D7; EDUCATION §9 row k follows them, facts.test.ts). Since the
+// review of 2026-11-23 k.it-2026 states the e-money clause of its comma again, dated by the law that added it
+// (docs/content-review-log.md).
 const TRIMMED = {
   'k.pt-2023': [
     'Portugal taxed crypto gains from 1 Jan 2023, with a 365-day exclusion under conditions (Lei 24-D/2022).',
@@ -96,9 +98,9 @@ const TRIMMED = {
     '2024-03-27',
   ],
   'k.it-2026': [
-    'Italy raised the substitute tax on crypto gains realised from 1 Jan 2026 from 26 % to 33 % (L. 207/2024).',
+    'Italy raised the substitute tax on crypto gains realised from 1 Jan 2026 from 26 % to 33 %; income from holding, selling, or using euro-denominated e-money tokens stays at 26 % (L. 207/2024, art. 1 c. 24, as amended by L. 199/2025).',
     '% rate',
-    '2024-12-30',
+    '2025-12-30',
   ],
   'k.be-2026': [
     'Belgium introduced a 10 % tax on gains on financial assets, crypto included, from 1 Jan 2026 (law of 6 Apr 2026).',

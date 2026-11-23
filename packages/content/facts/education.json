@@ -217,14 +217,14 @@
   },
   {
     "key": "k.it-2026",
-    "value": "Italy raised the substitute tax on crypto gains realised from 1 Jan 2026 from 26 % to 33 % (L. 207/2024).",
+    "value": "Italy raised the substitute tax on crypto gains realised from 1 Jan 2026 from 26 % to 33 %; income from holding, selling, or using euro-denominated e-money tokens stays at 26 % (L. 207/2024, art. 1 c. 24, as amended by L. 199/2025).",
     "unit": "% rate",
-    "date": "2024-12-30",
+    "date": "2025-12-30",
     "source": "https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:2024-12-30;207!vig=2026-11-02",
     "publisher": "Normattiva",
-    "accessed": "2026-11-12",
+    "accessed": "2026-11-23",
     "confidence": "high",
-    "lastReviewed": "2026-11-12",
+    "lastReviewed": "2026-11-23",
     "reviewedBy": "owner"
   },
   {
