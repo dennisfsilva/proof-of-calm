@@ -511,7 +511,9 @@ entry's source: `docs/DOMAIN.md` §2.2), so no export tells an estimated cost by
 - Sync per ADR-0021: offline-first, last-writer-wins per entity with tombstones, convergence proven by
   property tests; the local-only user upgrades without losing data; sign-out keeps a local copy by
   choice; account deletion removes server data within the stated period and sends a final export.
-  The merge keeps `MAX_ENTRIES` (`docs/DOMAIN.md` §9). Sync brings other devices' pauses, so Plan offers
+  The merge keeps `MAX_ENTRIES` (`docs/DOMAIN.md` §9). A purged tombstone ends a one-tap estimate's
+  reach in an exchange import, so the purge's design checks that reach (`docs/DOMAIN.md` §3.13, steps 5
+  and 6). Sync brings other devices' pauses, so Plan offers
   ending an open-ended pause still to come (`resumePlan` already handles it), and other devices' ends
   while this window has the focus, so the focus is read before such a change is committed and handed on
   when it unmounts the control that held it (Pause from today, Resume, End buying). In M1 only another
@@ -566,6 +568,12 @@ imports first, stays at Invested €1,050 against €950 (€100 counted twice) 
 purchase as the next month's monthly buy; and after an
 import, Today's "Record it or skip the month" can still lead to a purchase counted twice, since no
 preview line about a month still late can be true before then (`docs/DOMAIN.md` §3.13).
+
+Two more import lines wait here (`docs/DOMAIN.md` §3.13 step 2 states both costs): a named line for an
+export that cuts inside a purchase date within 3 days of a starting amount, on either side the step
+states (a purchase counted twice, 1,700 against 1,400, or a purchase left out, 400 less: 3,100 against
+3,500); and the per-purchase choice of the starting amount extended past the first buy day plus 15 days,
+where the import now stores a late starting purchase as a monthly buy with no line (2,400 against 1,400).
 
 Free in the core (ADR-0039). After the preview, an import replaces the matching one-tap estimates
 by the rules `docs/DOMAIN.md` §3.13 owns (ADR-0056), as the Kraken and Trade Republic imports do.
