@@ -1,6 +1,6 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { anEntry, date, month } from '../../../test/builders';
+import { anEntry, date, money, month } from '../../../test/builders';
 import { CHOICES, LISBON, NOW, PLAN, testId } from '../../../test/exchange/plan-fixture';
 import { addDays } from '../../dates/calendar';
 import type { Entry } from '../../schema/entry';
@@ -84,19 +84,21 @@ const cancelling = fc.record({
   taps: fc.array(
     fc.record({
       coin: fc.constantFrom('BTC', 'ETH'),
-      month: fc.constantFrom(4, 5, 6),
+      month: fc.constantFrom(4, 5, 5, 6),
       late: fc.integer({ min: -3, max: 20 }),
+      amount: fc.constantFrom('70', '250'),
     }),
     { maxLength: 3 },
   ),
 });
 /** One-tap estimates as the person taps them, live, near their month's due date. */
-const tapsOf = (taps: readonly { coin: string; month: number; late: number }[]) =>
-  taps.map(({ coin, month: m, late }) =>
+const tapsOf = (taps: readonly { coin: string; month: number; late: number; amount: string }[]) =>
+  taps.map(({ coin, month: m, late, amount }) =>
     anEntry({
       coin: coin as Entry['coin'],
       slot: month(`2026-0${m}`),
       date: addDays(date(`2026-0${m}-01`), late),
+      amount: money(amount),
       source: 'one-tap',
       venue: 'Bitvavo',
     }),
@@ -166,6 +168,7 @@ describe('readTradeRepublic (property)', () => {
   it(
     'a whole file names exactly the stored live buys its cancellations pair; deleting them leaves one import’s live Log, but for the estimates it names',
     () => {
+      let carriedUnderHalf = 0;
       fc.assert(
         fc.property(cancelling, ({ buys, cancels, cut, taps }) => {
           const rows = [
@@ -202,9 +205,18 @@ describe('readTradeRepublic (property)', () => {
           expect(two.filter((entry) => carried.has(entry.id) && entry.deletedAt === null)).toEqual([]);
           expect(one.filter((entry) => carried.has(entry.id) && entry.deletedAt === null)).toHaveLength(carried.size);
           expect(liveOf(two)).toEqual(liveOf(one.filter((entry) => !carried.has(entry.id))));
+          // Step 5's half gate across the cancellation: a named buy carries a tap the part's import replaced while its
+          // month keeps imported buys under half of it. Measured on 2026-11-23 at seeds 1 to 25: 1 to 8 runs of 300.
+          // The other world, a month the whole file keeps beside a named buy, came 0 to 4 times, so it is not asserted:
+          // plan-estimates.test.ts pins it (Nina).
+          const slotOf = (entry: Entry) => `${entry.coin}|${entry.slot}`;
+          const bought = new Set(two.filter((entry) => entry.deletedAt === null && entry.kind === 'dca').map(slotOf));
+          if (then.cancelled.some(({ entry, estimates }) => estimates.length > 0 && bought.has(slotOf(entry))))
+            carriedUnderHalf += 1;
         }),
         TWICE,
       );
+      expect(carriedUnderHalf).toBeGreaterThan(0);
     },
     TIMEOUT,
   );
