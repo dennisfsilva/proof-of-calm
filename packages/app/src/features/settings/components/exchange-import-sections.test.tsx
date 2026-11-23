@@ -359,7 +359,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
     expect(sections()).toEqual(['Monthly buys (1)', 'Estimates it keeps (1)']);
     expect(lines('Estimates it keeps (1)')).toEqual([
       'Monthly buy for October 2026: the estimate of 0,00119 BTC at Bitvavo for 70,00 € stays; the purchases ' +
-        'imported for that month come to 30,00 €.',
+        'imported for its coin and month come to 30,00 €.',
     ]);
   });
 
@@ -409,6 +409,11 @@ describe('ExchangeSummary and ExchangeSections', () => {
       'Mantém 1 estimativa de «Comprado como planeado»: as compras importadas da mesma moeda e do mesmo mês somam ' +
         'menos de metade dela.',
     );
+    expect(lines('Estimativas que mantém (1)')).toEqual([
+      expect.stringMatching(
+        /^Na compra mensal de outubro de 2026, a estimativa de .+ mantém-se; as compras importadas da mesma moeda e do mesmo mês somam 30,00 €\.$/,
+      ),
+    ]);
     cleanup();
     const [first, second] = [
       { ...ONE_TAP_OCTOBER, amount: '120' as Entry['amount'] },
