@@ -1,0 +1,47 @@
+{
+  "skip": "Zum Inhalt springen",
+  "why": {
+    "link": "Warum?",
+    "failed": "Diese Erklärung konnte nicht geladen werden. Prüfen Sie die Verbindung und laden Sie die Seite dann neu."
+  },
+  "holdingConditions": {
+    "more": "{count} weitere {count, plural, one {Bedingung} other {Bedingungen}} anzeigen"
+  },
+  "countryLine": {
+    "plain": "Stand: {date} · allgemeine Informationen, keine Beratung",
+    "generic": "Stand: {date} · das allgemeine Profil, keine Regel für Ihr Land · allgemeine Informationen, keine Beratung",
+    "sources": "Stand: {date} · allgemeine Informationen, keine Beratung · <sources>Quellen</sources>",
+    "underReview": "Seit {date} nicht überprüft · allgemeine Informationen, keine Beratung"
+  },
+  "nav": {
+    "label": "Hauptnavigation",
+    "today": "Heute",
+    "portfolio": "Portfolio",
+    "log": "Protokoll",
+    "learn": "Lernen"
+  },
+  "settings": "Einstellungen",
+  "toast": {
+    "close": "Schließen"
+  },
+  "update": {
+    "title": "Eine neue Version ist bereit.",
+    "reload": "Neu laden"
+  },
+  "failure": {
+    "title": "Die Daten konnten nicht geöffnet werden.",
+    "retry": "Erneut versuchen"
+  },
+  "newer": {
+    "title": "Der Plan wurde von einer neueren Version von {product} gespeichert.",
+    "line": "Diese Version kann ihn nicht öffnen, daher bleibt er so, wie er gespeichert wurde. Laden Sie die Seite neu, um ihn in der neueren Version zu öffnen.",
+    "again": "Wenn diese Ansicht nach dem Neuladen wieder erscheint, bleibt der Plan ungelesen auf diesem Gerät; eine neuere Version von {product} kann ihn öffnen.",
+    "reload": "Neu laden",
+    "entries": "{count, plural, one {{figure} Eintrag wurde} other {{figure} Einträge wurden}} von einer neueren Version von {product} gespeichert und {count, plural, one {wird} other {werden}} daher hier nicht angezeigt. Laden Sie die Seite neu, um {count, plural, one {ihn} other {sie}} zu sehen."
+  },
+  "screenError": {
+    "title": "Diese Ansicht konnte nicht geladen werden.",
+    "line": "Prüfen Sie die Verbindung und laden Sie die Seite dann neu.",
+    "reload": "Neu laden"
+  }
+}
