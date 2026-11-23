@@ -12,9 +12,10 @@ import type { CoinId, EntityId } from '../../schema/ids';
 import type { Plan } from '../../schema/plan';
 import type { ExchangeFile, LeftOutRow, Movement } from './kraken';
 import { claimRecorded, type Recorded } from './plan-claims';
-import { type Day, type HeldCoin, heldGuard, startingGuard } from './plan-guards';
+import { type Day, type HeldCoin, heldGuard, saleGuard, startingGuard, type Uncovered } from './plan-guards';
 
 export type { Recorded } from './plan-claims';
+export type { Uncovered } from './plan-guards';
 
 export type ImportChoices = { readonly venue: string | null; readonly addHeld: boolean };
 
@@ -73,6 +74,8 @@ export type ExchangeImportPlan = {
    * the file now gives them (`date`), which the line names when the entry holds another. */
   readonly short: readonly { readonly entry: Entry; readonly units: Units; readonly date: CalendarDate }[];
   readonly withdrawals: { readonly logged: readonly CoinUnits[]; readonly notLogged: readonly CoinUnits[] };
+  /** The sales a guard reaches that the units of their coin before them do not cover, in date order. */
+  readonly uncovered: readonly Uncovered[];
   readonly leftOut: readonly ImportLeftOut[];
   readonly noneInCurrency: readonly string[] | null;
   readonly imported: number;
@@ -205,6 +208,7 @@ export function planExchangeImport(
   const earlier: Day[] = [];
   const counts = { imported: 0, deleted: 0, unitsCut: 0, feesInCoin: 0 };
   const short: { entry: Entry; units: Units; date: CalendarDate }[] = [];
+  const ids = new Set<EntityId>();
   // "A trade a cancellation in the file pairs, whose id is a live entry, is named: delete it in the Log."
   const paired = file.cancelled.flatMap((movement) => {
     const entry = known.get(context.idOf(movement.key));
@@ -217,6 +221,7 @@ export function planExchangeImport(
   };
   for (const movement of file.movements) {
     const id = context.idOf(movement.key);
+    ids.add(id);
     const entry = known.get(id);
     const coin = plan.coins.find((each) => each.id === movement.coin)?.id;
     const item = { movement, id, date: context.dateOf(movement.at), coin: coin as CoinId };
@@ -272,9 +277,11 @@ export function planExchangeImport(
   const recorded = claimRecorded(plan, live, days, earlier, monthOf);
 
   // Steps 3 and 4 leave purchases out before any is stored: every purchase up to the first buy's 15 days in a plan
-  // with a starting amount or of a coin with a live `lump` (only dates step 2 left), then those a `held` entry fits.
+  // with a starting amount or of a coin with a live `lump` (only dates step 2 left), then those a `held` entry fits;
+  // then the sales either reaches that the units before them do not cover.
   const startingAmount = startingGuard(plan, live, days);
   const held = heldGuard(plan, live, days, choices.addHeld);
+  const uncovered = saleGuard(plan, live, days, ids);
 
   // Steps 5 and 6: "every unclaimed purchase date of C whose month is S is a monthly buy for S when C's share is above
   // 0 and S is neither skipped nor paused, or when the Log holds a one-tap estimate of C for S, live or tombstoned";
@@ -332,6 +339,7 @@ export function planExchangeImport(
     cancelled,
     short,
     withdrawals: withdrawals(file.leftOut, live, plan, choices.venue, context),
+    uncovered,
     leftOut: list(),
     noneInCurrency: currencies.size === 0 || currencies.has(plan.payCurrency) ? null : [...currencies].sort(),
     ...counts,

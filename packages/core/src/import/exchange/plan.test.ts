@@ -582,3 +582,23 @@ describe('planExchangeImport, in one import or two', () => {
     });
   });
 });
+
+describe('planExchangeImport, a sale no guard reaches', () => {
+  const plan = aPlan({ firstBuy: date('2026-03-01'), lastBuy: date('2026-12-01') });
+  const sold = trade('U-sale', 'sale', 'BTC', '2026-09-01', { units: '0.01', amount: '900', fee: '1' }, 2);
+  const run = (movements: readonly Movement[]) =>
+    planExchangeImport({ ...FILE, movements, leftOut: [] }, { plan, entries: [] }, CHOICES, LISBON);
+
+  it('a sale whose purchases were paid in another currency is stored short, as before', () => {
+    const inUsd = trade('U-buy', 'purchase', 'BTC', '2026-08-10', { units: '0.01', amount: '900', fee: '1' }, 4, {
+      currency: 'USD',
+    });
+    const planned = run([inUsd, sold]);
+    expect([planned.entries.map((entry) => entry.kind), planned.uncovered]).toEqual([['sell'], []]);
+  });
+
+  it('an export of a later range that holds only the sale stores it, as before', () => {
+    const planned = run([sold]);
+    expect([planned.entries.map((entry) => entry.kind), planned.uncovered]).toEqual([['sell'], []]);
+  });
+});

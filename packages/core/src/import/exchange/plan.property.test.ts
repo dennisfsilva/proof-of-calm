@@ -5,7 +5,7 @@ import { fileOf, heldGuards, type World, world } from '../../../test/exchange/pl
 import { added, BERLIN, LISBON, NOW, testId, trade } from '../../../test/exchange/plan-fixture';
 import { preCut, skipped } from '../../../test/exchange/plan-late';
 import { addDays, type CalendarDate } from '../../dates/calendar';
-import { sum } from '../../money/decimal';
+import { compare, isPositive, sum } from '../../money/decimal';
 import { plannedParts } from '../../plan/parts';
 import { slotStatuses } from '../../plan/statuses';
 import { type Entry, EntrySchema, isEstimate, writtenEntryVersion } from '../../schema/entry';
@@ -77,6 +77,29 @@ function twoWays(drawn: World, cut: number) {
  */
 const TWICE = { numRuns: 1500 };
 const TIMEOUT = 90_000;
+
+/** A guard reaches the sale (DOMAIN §3.13, after step 4): the starting amount's 15 days, or a hand `held` entry on or after it. */
+function reached({ plan, entries }: World, sale: Entry) {
+  const own = live(entries).filter((entry) => entry.coin === sale.coin);
+  const starting = isPositive(plan.startingAmount) || own.some((entry) => entry.kind === 'lump');
+  return (
+    (starting && sale.date <= addDays(plan.firstBuy, 15)) ||
+    own.some((entry) => entry.kind === 'held' && entry.source !== 'import-csv' && entry.date >= sale.date)
+  );
+}
+/** The sale's coin on or before its date in `log`: the person's entries but estimates, and the file's. */
+function cover({ file }: World, log: readonly Entry[], sale: Entry) {
+  const ids = new Set(file.movements.map((movement) => testId(movement.key)));
+  const counted = live(log).filter(
+    (entry) =>
+      entry.coin === sale.coin &&
+      entry.date <= sale.date &&
+      ['dca', 'extra', 'lump', 'held'].includes(entry.kind) &&
+      !(isEstimate(entry) && entry.kind === 'dca') &&
+      (entry.source !== 'import-csv' || ids.has(entry.id)),
+  );
+  return sum(counted.map((entry) => entry.units));
+}
 
 /**
  * Seed -343831661's world, shrunk (path 1109:414:1:7:2:3:3:3:4:2:2:2:3:2:2:6:5:5:5:5:6:11:11:12:7:12:12): July's buy
@@ -202,6 +225,50 @@ describe('planExchangeImport', () => {
     TIMEOUT,
   );
 
+  it(
+    'no sale a guard reaches is stored short, in one import or two',
+    () => {
+      fc.assert(
+        fc.property(world, fc.nat(), (drawn, cut) => {
+          const { once, first, then, oneLog, twoLog } = twoWays(drawn, cut);
+          const after = store(drawn.entries, first);
+          const stored = [
+            [once, oneLog],
+            [first, after],
+            [then, twoLog],
+          ] as const;
+          const short = stored.flatMap(([plan, log]) =>
+            plan.entries.filter(
+              (sale) =>
+                sale.kind === 'sell' && reached(drawn, sale) && compare(cover(drawn, log, sale), sale.units) < 0,
+            ),
+          );
+          expect(short).toEqual([]);
+        }),
+        TWICE,
+      );
+    },
+    TIMEOUT,
+  );
+
+  it(
+    'ticking the box takes no sale away',
+    () => {
+      fc.assert(
+        fc.property(world, (drawn) => {
+          const sales = (addHeld: boolean) =>
+            run(drawn, drawn.entries, drawn.file, addHeld)
+              .entries.filter((entry) => entry.kind === 'sell')
+              .map((entry) => entry.id);
+          const ticked = new Set(sales(true));
+          expect(sales(false).filter((id) => !ticked.has(id))).toEqual([]);
+        }),
+        TWICE,
+      );
+    },
+    TIMEOUT,
+  );
+
   it('no entry but a one-tap monthly estimate is tombstoned, and no hand, `held`, move or imported entry changes', () => {
     fc.assert(
       fc.property(world, (drawn) => {
@@ -257,6 +324,7 @@ describe('planExchangeImport', () => {
             ? 0
             : plan.held.coins.reduce((total, each) => total + each.purchases, 0)) +
           (plan.startingAmount?.purchases ?? 0) +
+          plan.uncovered.length +
           plan.imported +
           plan.deleted +
           plan.leftOut.reduce((total, each) => total + each.count, 0) +

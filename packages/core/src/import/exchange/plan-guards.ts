@@ -1,10 +1,10 @@
 // The two steps of the exchange import's plan that leave purchases out before any month is filled (docs/DOMAIN.md
-// §3.13): the starting amount (step 3) and the coins the person added (step 4).
+// §3.13): the starting amount (step 3) and the coins the person added (step 4), and the sales they reach.
 import { IMPORT_MATCH_DAYS } from '../../constants';
-import { addDays, type CalendarDate } from '../../dates/calendar';
-import { compare, isPositive, isZero, type Money, sum, type Units } from '../../money/decimal';
+import { addDays, type CalendarDate, compareDates } from '../../dates/calendar';
+import { compare, isPositive, isZero, type Money, plus, sum, type Units } from '../../money/decimal';
 import { compareEntries } from '../../portfolio/lots';
-import type { Entry } from '../../schema/entry';
+import { type Entry, isEstimate } from '../../schema/entry';
 import type { CoinId, EntityId } from '../../schema/ids';
 import type { Plan } from '../../schema/plan';
 import type { Movement } from './kraken';
@@ -106,4 +106,67 @@ export function heldGuard(plan: Plan, live: readonly Entry[], days: readonly Day
     coins.push({ coin, purchases: items.length, units, through: latest.date, entries });
   }
   return coins.length === 0 ? null : { added: addHeld, coins };
+}
+
+/** A sale the plan leaves out after step 4, and the guard that reaches it: the starting amount's or a `held` entry's. */
+export type Uncovered = {
+  readonly id: EntityId;
+  readonly coin: CoinId;
+  readonly date: CalendarDate;
+  readonly units: Units;
+  readonly amount: Money;
+  readonly reach:
+    | { readonly kind: 'starting'; readonly through: CalendarDate }
+    | { readonly kind: 'held'; readonly units: Units; readonly date: CalendarDate };
+};
+
+const COVERS: ReadonlySet<Entry['kind']> = new Set(['dca', 'extra', 'lump', 'held']);
+
+/**
+ * After step 4: "A sale of C that step 2 left is left out and named when a guard reaches it and its cover is short."
+ * The reach is step 3's (on or before `firstBuy` + 15 days, in a plan with a starting amount above 0 or for a coin with
+ * a live `lump`), which wins, or a live hand `held` entry of C dated on or after the sale, the earliest named. The
+ * cover is C's units dated on or before the sale from the person's live entries, one-tap monthly estimates excepted,
+ * the live entries an earlier import stored from this file (`ids`), and this file's purchases and receipts steps 2 to 4
+ * leave; it is summed once per coin, in date order, and each sale is decided alone.
+ */
+export function saleGuard(
+  plan: Plan,
+  live: readonly Entry[],
+  days: readonly Day[],
+  ids: ReadonlySet<EntityId>,
+): readonly Uncovered[] {
+  const through = addDays(plan.firstBuy, IMPORT_MATCH_DAYS);
+  const lumps = new Set(live.filter((entry) => entry.kind === 'lump').map((entry) => entry.coin));
+  const uncovered: Uncovered[] = [];
+  for (const { id: coin } of plan.coins) {
+    const own = live.filter((entry) => entry.coin === coin && (entry.source !== 'import-csv' || ids.has(entry.id)));
+    const hands = own.filter((entry) => entry.kind === 'held' && entry.source !== 'import-csv').sort(compareEntries);
+    const covers: { readonly date: CalendarDate; readonly units: Units }[] = [
+      ...own.filter((entry) => COVERS.has(entry.kind) && !(isEstimate(entry) && entry.kind === 'dca')),
+      ...days
+        .filter((day) => !day.claimed && day.coin === coin && day.role !== 'sale')
+        .flatMap((day) => day.items.map(({ date, movement }) => ({ date, units: movement.units }))),
+    ].sort((a, b) => compareDates(a.date, b.date));
+    let [next, cover] = [0, '0' as Units];
+    for (const day of days.filter((each) => !each.claimed && each.coin === coin && each.role === 'sale')) {
+      for (let at = covers[next]; at !== undefined && at.date <= day.date; next += 1, at = covers[next])
+        cover = plus(cover, at.units);
+      const starting = day.date <= through && (isPositive(plan.startingAmount) || lumps.has(coin));
+      const entry = hands.find((each) => each.date >= day.date);
+      const reach: Uncovered['reach'] | null = starting
+        ? { kind: 'starting', through }
+        : entry === undefined
+          ? null
+          : { kind: 'held', units: entry.units, date: entry.date };
+      if (reach === null) continue;
+      const short = day.items.filter((item) => compare(cover, item.movement.units) < 0);
+      // A sale always has an amount (kraken.ts, trade-republic.ts).
+      for (const { id, date, movement } of short)
+        uncovered.push({ id, coin, date, units: movement.units, amount: movement.amount as Money, reach });
+      day.items.splice(0, day.items.length, ...day.items.filter((item) => !short.includes(item)));
+      day.claimed = day.items.length === 0;
+    }
+  }
+  return uncovered.sort((a, b) => compareDates(a.date, b.date));
 }
