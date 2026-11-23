@@ -171,5 +171,7 @@ a null MX (`MX 0 .`), so the domain has no MX record and mail sent to it is not 
 - The answers to the letters to Kraken and Bitstamp (ADR-0036), drafted as
   `docs/research/letters/kraken.md` and `docs/research/letters/bitstamp.md`: sent on 2026-11-09,
   Bitstamp's to partners@bitstamp.net and Kraken's through Kraken Institutional's contact form; the
-  answers are recorded in ADR-0036 when they arrive. Only the answers keep this item open.
+  answers are recorded in ADR-0036 when they arrive. Bitstamp answered by 2026-11-23 (ADR-0036's
+  Reading of 2026-11-23): non-commercial use, an attestation letter to follow, its history later.
+  Kraken's answer and Bitstamp's attestation keep this item open.
 - The email provider's final pick at M3 (ADR-0026); the `Mailer` port makes it a one-file change.

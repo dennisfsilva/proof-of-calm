@@ -138,6 +138,44 @@ data, and the value cells wait for the reference closes of `packages/data` (plan
 caches above already keep a copy one day from the fetch. The paid plan (Basic at least) and the
 credit's link stay the owner's decision in #21.
 
+### Reading of 2026-11-23: Bitstamp allows non-commercial use, without its history yet
+
+The owner's letter (`docs/research/letters/bitstamp.md`, sent on 2026-11-09) asked for the Data
+License Agreement and its price, for derived daily closes in an app that is free and may add a paid
+tier, and whether publishing them needs the agreement at all. Bitstamp's answer, relayed by the
+owner on 2026-11-23:
+
+- "We will follow up with an attestation letter that allows you to use our data for non commercial
+  purposes."
+- "For now feel free to use our public APIs to get the data."
+- "However, please note that historical data is not possible at this moment, we will try to get
+  this sorted by end of year."
+
+The answer names no agreement and no price. The public API already returns past daily candles (the
+Learn facts cite such requests in `packages/content/facts/education.json`), so "historical data" is
+read as the history the letter asked for, which the answer leaves for later, not as what the
+endpoint can return.
+
+Decided:
+
+- Bitstamp's half of session 19's gate (#13) is answered. The session still waits for Kraken's
+  answer, which carries the long history (Kraken's bulk files).
+- The free app is read as the non-commercial use the answer allows, since the letter described it
+  as free, with a paid tier that may follow. The attestation's words settle it once it arrives; the
+  owner keeps the attestation outside the repository, and its date and scope are recorded here.
+- Until Bitstamp says its history is possible, or that the public API's past candles may be read,
+  the pipeline reads no Bitstamp candle dated before its first run. From that run on it reads the
+  previous day's candle once a day per pair, as the letter described. The USD start of 2011-08 waits
+  for that history.
+- `DATA-LICENSE.md` states the condition for every close that includes Bitstamp's, in the
+  attestation's words: non-commercial use, for the app and for anyone who reuses the dataset.
+- Before a paid tier launches, the Data License Agreement is signed, or the reference closes are
+  recomputed without Bitstamp's.
+- The Learn facts that quote Bitstamp closes stay as they are: a few dated figures read from the
+  public API, each with Bitstamp named as its source, in the free app's lessons.
+- If Kraken refuses before Bitstamp's history is possible, the Consequences' fallback (Bitstamp plus
+  Coinbase) has Bitstamp's closes only from the pipeline's first run.
+
 ## Disagreement
 
 None beyond the source change recorded in ADR-0006.
