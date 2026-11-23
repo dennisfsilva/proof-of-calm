@@ -19,9 +19,9 @@ import { importRemedies } from './plan-remedy';
 // of BTC on the 2nd of July to November.
 
 let line = 2;
-const buy = (day: string, amount: string, held: string) => {
+const buy = (day: string, amount: string, held: string, coin: 'BTC' | 'ETH' = 'BTC') => {
   line += 2;
-  return trade(`C${line}`, 'purchase', 'BTC', day, { units: held, amount, fee: '0' }, line);
+  return trade(`C${line}`, 'purchase', coin, day, { units: held, amount, fee: '0' }, line);
 };
 const P6 = aPlan({
   firstBuy: date('2026-07-02'),
@@ -75,6 +75,28 @@ describe("a one-tap lump's claim, the costs that stand", () => {
       });
     });
   }
+
+  // The change shows only when the starting line's rule finds one date for every coin; when it finds none, 400 stands.
+  const HALVES = { ...AT_PART, split: split({ BTC: '50', ETH: '50' }) };
+  const MONTHS = ['2026-07', '2026-08', '2026-09', '2026-10', '2026-11'];
+  const APART = MONTHS.flatMap((slot) => [buy(`${slot}-02`, '50', '0.000625'), buy(`${slot}-03`, '50', '0.02', 'ETH')]);
+  const none = { recorded: new Set(), starting: null, estimates: [] };
+
+  for (const day of ['2026-09-02', '2026-09-03', '2026-09-05']) {
+    it(`BTC and ETH at the part bought on different days, tapped ${day}: 400, and no line asks for a change`, () => {
+      const after = imported(HALVES, APART, tap(HALVES, day));
+      expect(liveEntries(after).filter((entry) => entry.slot === '2026-09')).toEqual([]);
+      expect(portfolio(HALVES, after).invested).toBe('400');
+      expect(importRemedies(fileOf(APART), { plan: HALVES, entries: tap(HALVES, day) }, false, LISBON)).toEqual(none);
+    });
+  }
+
+  it('a file with no July purchase, tapped 2 Sep: 400, and no line asks for a change', () => {
+    const file = M.slice(1);
+    const entries = tap(AT_PART, '2026-09-02');
+    expect(portfolio(AT_PART, imported(AT_PART, file, entries)).invested).toBe('400');
+    expect(importRemedies(fileOf(file), { plan: AT_PART, entries }, false, LISBON).starting).toBe(null);
+  });
 
   it('the same lump tapped 20 Sep, more than 3 days from a purchase, leaves September imported: 500', () => {
     expect(portfolio(AT_PART, imported(AT_PART, M, tap(AT_PART, '2026-09-20'))).invested).toBe('500');
