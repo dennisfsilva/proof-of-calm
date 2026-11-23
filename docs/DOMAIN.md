@@ -1157,21 +1157,36 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      `firstBuy` + `IMPORT_MATCH_DAYS`, in a plan with a starting amount above 0 or for a coin with a live
      `lump`; step 4 reaches it when a live hand `held` entry of C is dated on or after it. Its cover is the
      units of C dated on or before its date in live entries of kind `dca`, `extra`, `lump` or `held` whose
-     source is not `import-csv` (one-tap monthly estimates aside), in live entries whose id is one of this
-     file's, and in this file's purchases and receipts that steps 2 to 4 left. Other sales and other files'
-     entries never count." Each sale is decided alone, against its coin's cover up to its date, worked out
-     once per coin; short is `compare(cover, units) < 0`, and the starting reach is named when both reach
-     it. The left-out item (`uncovered`, in date order) names the sale, its reach (the cut-off, or the
-     earliest such `held` entry in `compareEntries` order) and that the person's own entries and the file
-     hold less of C up to that date; the held line counts the sales ticking the box adds back
-     (`held.sales`). The reason: the guards leave out purchases a sale may have sold, and the sale stored
+     source is not `import-csv` (one-tap monthly estimates aside; a one-tap `lump` that records purchases in
+     step 2 counts at its units or theirs, whichever is more); in live entries whose id is one of this
+     file's; in this file's purchases and receipts that steps 2 to 4 left; and in live entries other imports
+     stored, dated before F, C's earliest purchase or receipt that steps 3 and 4 leave out of this file
+     (step 4's only unticked), or all of them when they leave out none. Sales never count." Each sale is decided alone, against its coin's cover up to
+     its date, worked out once per coin; short is `compare(cover, units) < 0`, and the starting reach is
+     named when both reach it; both reaches stay by date, and the `lump` counts at its own date. The
+     left-out item (`uncovered`, in date order) names the sale, its reach (the cut-off, or the earliest
+     such `held` entry in `compareEntries` order) and that by the sale's date the purchases this file
+     imports and the person's own entries, monthly estimates aside, hold less of C; that is true under any
+     cover, since both are part of it. The held line counts the sales ticking the box adds back
+     (`held.sales`). The reasons: the guards leave out purchases a sale may have sold, and the sale stored
      alone would leave the Log holding less of C than the person sold, or a balance below zero once the
-     purchases are recorded. The cost, stated: a guard that leaves out none of the purchases that covered
-     the sale stores it, so a Coins added entry of 0.4 BTC on 10 Nov 2026 over a file of 1 BTC bought on 1
-     Feb 2025 and 0.6 sold on 1 Sep 2025 shows 0.8 BTC where the person holds 0.4. What stays out: a sale
-     dated after the reach of purchases step 3 left out is stored as before (0 BTC in the Log where those
-     purchases held more), and the starting line is its fix; no other file's entries cover a sale; a sale
-     left out is in no tax-year file until it is imported; choosing per purchase is planned (M4).
+     purchases are recorded. A sale takes the earliest units first (§3.7), so a sale whose left-out history
+     comes first goes with it, and a gift that guards nothing no longer strands a sale another export
+     covers. The whole Log as cover would store a sale silently when Trade Republic's buys, interleaved with
+     the left-out history, come first (0.5 BTC shown where the person holds 1.1); and "nothing left out
+     before the sale" would break yearly exports (0.35 against 0.23 BTC). The costs, stated: a guard that
+     leaves out none of the purchases that covered the sale stores it, so a Coins added entry of 0.4 BTC on
+     10 Nov 2026 over a file of 1 BTC bought on 1 Feb 2025 and 0.6 sold on 1 Sep 2025 shows 0.8 BTC where
+     the person holds 0.4. Each sale is decided alone, not first in first out, since ticking the box would
+     then take a sale away: unticked, 0.1 BTC with 0.3 unmatched; a hand sale between two files leaves
+     −0.0049. Coins another import bought before the left-out history do not count: Trade Republic's 0.7
+     bought on 31 Jan 2025, imported first, gives 0.5 where the person holds 1.1 (bought on 1 Feb or later,
+     1.1). A window holding the sale but none of its left-out purchases, after the other file, gives 0.5. A
+     tapped `lump` that records more units than its estimate stores a sale of the file's units, short by the
+     difference, which Portfolio names; a sale in a later file than the lump's claim is checked against the
+     estimate. What stays out: a sale dated after the reach of purchases step 3 left out is stored as before
+     (0 BTC in the Log where those purchases held more), and the starting line is its fix; a sale left out
+     is in no tax-year file until it is imported; choosing per purchase is planned (M4).
   5. The monthly buys (decided 2026-11-14, ADR-0056, Corrections): "Every purchase date of C whose month
      is S, left by steps 2 to 4, is a monthly buy for S when C's share is above 0 and S is neither skipped
      nor paused, or when the Log holds a one-tap estimate of C for S, live or tombstoned. C's live estimates
@@ -1182,7 +1197,10 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      takes the import's venue, whatever venue the estimates carried. No stored entry other than an estimate
      decides a kind: a month done by another coin, another exchange or a hand entry turns no purchase into
      an extra buy, so the Log is the same whether an export comes whole or in parts, and whichever
-     exchange's file comes first. Two devices can tap one month, so a month's estimates of a coin go
+     exchange's file comes first, except step 4's sales. One whose cover only the other file holds stays
+     out until its file is chosen again after the other. An export in date ranges differs from one import
+     only where another import's entries fall between the ranges' earliest left-out purchases, or where a
+     tapped `lump` records its purchases in an earlier range. Two devices can tap one month, so a month's estimates of a coin go
      together. A month can hold several monthly buys of a coin (a savings plan that runs every two weeks);
      the month's status sums them and dates it by the earliest (§3.2).
   6. The months: "A purchase date's month is the plan's month with the anchor nearest it, the earlier month

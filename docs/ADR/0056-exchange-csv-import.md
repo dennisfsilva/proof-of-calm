@@ -202,3 +202,22 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   sales its purchases cover, and a line that asks for a change may add a sale it covers. The cost,
   stated: a guard that leaves out none of the purchases that covered a sale stores it (0.8 BTC against
   0.4). Choosing per purchase (M4) brings back the sales it covers. The rest stands.
+- 2026-11-23, the cover across imports: the cover in the entry above counted no other import's
+  entries, so a sale another exchange's export covers was left out whenever a Coins added entry or the
+  starting amount reached it (0.01 BTC on 1 Sep 2026 against 0.02 bought elsewhere). Now the cover
+  also counts the live entries other imports stored, dated before the coin's earliest purchase or
+  receipt that steps 3 and 4 leave out of this file (step 4's only unticked), or all of them when they
+  leave out none; and a one-tap `lump` that records purchases in step 2 counts at its units or theirs,
+  whichever is more, at its own date (`docs/DOMAIN.md` §3.13, step 4). This replaces the entry above's
+  cover. The reasons: a sale takes the earliest units first (`docs/DOMAIN.md` §3.7), so one whose
+  left-out history comes first goes with it; the whole Log as cover would store a sale silently when
+  another exchange's buys, interleaved with that history, come first (0.5 BTC shown where 1.1 is held);
+  and counting only what comes before the sale's own left-out history would break yearly exports (0.35
+  against 0.23 BTC). The line now says `By {date}, the purchases this file imports and your own
+  entries, monthly estimates from Bought as planned aside, hold less {coin} than it sells.`, true under
+  either cover. Two exchanges' files leave one Log in either order once each is chosen again after the
+  other; before that, only sales the first import of their file left out differ. The costs, stated:
+  each sale is still decided alone (a hand sale between two files leaves −0.0049 BTC); coins another
+  import bought before the left-out history do not count (0.5 BTC where 1.1 is held); and a tapped lump
+  that records more than its estimate stores a sale short by the difference, which Portfolio names. The
+  rest stands.
