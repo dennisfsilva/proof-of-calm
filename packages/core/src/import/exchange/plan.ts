@@ -289,7 +289,7 @@ export function planExchangeImport(
   // then the sales either reaches that the units before them do not cover.
   const startingAmount = startingGuard(plan, live, days);
   const held = heldGuard(plan, live, days, choices.addHeld);
-  const uncovered = saleGuard(plan, live, days, { ids, recorded, from: leftOutFrom(startingAmount, held) });
+  const uncovered = saleGuard(plan, live, days, { ids, from: leftOutFrom(startingAmount, held) });
 
   // Steps 5 and 6: "every unclaimed purchase date of C whose month is S is a monthly buy for S when C's share is above
   // 0 and S is neither skipped nor paused, or when the Log holds a one-tap estimate of C for S, live or tombstoned";

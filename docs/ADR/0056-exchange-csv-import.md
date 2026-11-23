@@ -207,9 +207,7 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   starting amount reached it (0.01 BTC on 1 Sep 2026 against 0.02 bought elsewhere). Now the cover
   also counts the live entries other imports stored, dated before the coin's earliest purchase or
   receipt that steps 3 and 4 leave out of this file (step 4's only unticked), or all of them when they
-  leave out none; and a one-tap `lump` that records purchases in step 2 counts at its units or theirs,
-  whichever is more, at its own date (`docs/DOMAIN.md` §3.13, step 4). This replaces the entry above's
-  cover. The reasons: a sale takes the earliest units first (`docs/DOMAIN.md` §3.7), so one whose
+  leave out none (`docs/DOMAIN.md` §3.13, step 4). This replaces the entry above's cover. The reasons: a sale takes the earliest units first (`docs/DOMAIN.md` §3.7), so one whose
   left-out history comes first goes with it; the whole Log as cover would store a sale silently when
   another exchange's buys, interleaved with that history, come first (0.5 BTC shown where 1.1 is held);
   and counting only what comes before the sale's own left-out history would break yearly exports (0.35
@@ -218,6 +216,10 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   cover. Two exchanges' files leave one Log in either order once each is chosen again after the
   other; before that, only sales the first import of their file left out differ. The costs, stated:
   each sale is still decided alone (a hand sale between two files leaves −0.0049 BTC); coins another
-  import bought before the left-out history do not count (0.5 BTC where 1.1 is held); and a tapped lump
-  that records more than its estimate stores a sale short by the difference, which Portfolio names. The
-  rest stands.
+  import bought before the left-out history do not count (0.5 BTC where 1.1 is held); and a one-tap
+  `lump` counts at its own units, so a sale of the file's units of a purchase it records stays out while
+  the estimate is smaller (0.0125 BTC sold against 0.01219512 tapped). Set aside in this change: a
+  one-tap `lump` that records purchases in step 2 counting at the larger of its units and theirs. A
+  shorter export lets step 2 claim a different purchase for the lump, so a cover that follows the claim
+  made two imports store a sale one import leaves out (fast-check seeds 13 and 14); it went to #424 with
+  a design check of a lump's claim across cuts. The rest stands.

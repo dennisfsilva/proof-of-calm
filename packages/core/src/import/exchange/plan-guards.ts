@@ -2,7 +2,7 @@
 // §3.13): the starting amount (step 3) and the coins the person added (step 4), and the sales they reach.
 import { IMPORT_MATCH_DAYS } from '../../constants';
 import { addDays, type CalendarDate, compareDates } from '../../dates/calendar';
-import { compare, isPositive, isZero, type Money, max, plus, sum, type Units } from '../../money/decimal';
+import { compare, isPositive, isZero, type Money, plus, sum, type Units } from '../../money/decimal';
 import { compareEntries } from '../../portfolio/lots';
 import { type Entry, isEstimate } from '../../schema/entry';
 import type { CoinId, EntityId } from '../../schema/ids';
@@ -141,10 +141,9 @@ export function leftOutFrom(
   return from;
 }
 
-/** What the sale guard reads of the plan beside the Log: this file's ids, step 2's claims and `leftOutFrom`. */
+/** What the sale guard reads of the plan beside the Log: this file's ids and `leftOutFrom`. */
 export type SaleContext = {
   readonly ids: ReadonlySet<EntityId>;
-  readonly recorded: readonly { readonly entry: Entry; readonly units: Units }[];
   readonly from: ReadonlyMap<CoinId, CalendarDate>;
 };
 
@@ -153,24 +152,18 @@ export type SaleContext = {
  * The reach is step 3's (on or before `firstBuy` + 15 days, in a plan with a starting amount above 0 or for a coin with
  * a live `lump`), which wins, or a live hand `held` entry of C dated on or after the sale, the earliest named. The
  * cover is C's units dated on or before the sale from the person's live entries, one-tap monthly estimates excepted
- * and a one-tap `lump` at its units or the file's it records in step 2, whichever is more; the live entries an earlier
- * import stored from this file (`ids`); the live entries other imports stored, dated before `from`'s date for C, or all
- * when it has none; and this file's purchases and receipts steps 2 to 4 leave. It is summed once per coin, in date
- * order, and each sale is decided alone.
+ * (a one-tap `lump` at its own units); the live entries an earlier import stored from this file (`ids`); the live
+ * entries other imports stored, dated before `from`'s date for C, or all when it has none; and this file's purchases
+ * and receipts steps 2 to 4 leave. It is summed once per coin, in date order, and each sale is decided alone.
  */
 export function saleGuard(
   plan: Plan,
   live: readonly Entry[],
   days: readonly Day[],
-  { ids, recorded, from }: SaleContext,
+  { ids, from }: SaleContext,
 ): readonly Uncovered[] {
   const through = addDays(plan.firstBuy, IMPORT_MATCH_DAYS);
   const lumps = new Set(live.filter((entry) => entry.kind === 'lump').map((entry) => entry.coin));
-  const claimed = new Map(recorded.map(({ entry, units }) => [entry.id, units]));
-  const unitsOf = (entry: Entry) =>
-    entry.kind === 'lump' && entry.source === 'one-tap'
-      ? max(entry.units, claimed.get(entry.id) ?? entry.units)
-      : entry.units;
   const uncovered: Uncovered[] = [];
   for (const { id: coin } of plan.coins) {
     const before = from.get(coin);
@@ -181,9 +174,7 @@ export function saleGuard(
     );
     const hands = own.filter((entry) => entry.kind === 'held' && entry.source !== 'import-csv').sort(compareEntries);
     const covers: { readonly date: CalendarDate; readonly units: Units }[] = [
-      ...own
-        .filter((entry) => COVERS.has(entry.kind) && !(isEstimate(entry) && entry.kind === 'dca'))
-        .map((entry) => ({ date: entry.date, units: unitsOf(entry) })),
+      ...own.filter((entry) => COVERS.has(entry.kind) && !(isEstimate(entry) && entry.kind === 'dca')),
       ...days
         .filter((day) => !day.claimed && day.coin === coin && day.role !== 'sale')
         .flatMap((day) => day.items.map(({ date, movement }) => ({ date, units: movement.units }))),

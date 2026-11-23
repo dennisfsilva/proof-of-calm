@@ -14,8 +14,8 @@ import type { ExchangeFile, LeftOutRow, Movement } from './kraken';
 import { planExchangeImport } from './plan';
 
 // The sale guard's cover across imports (docs/DOMAIN.md §3.13 step 4): the entries other imports stored before the
-// file's earliest left-out purchase, the one-tap `lump` at the larger of its units and the file's it records, and each
-// sale decided alone. Every walk is the design check's of 2026-11-23, on its own synthetic rows.
+// file's earliest left-out purchase, the one-tap `lump` at its own units, and each sale decided alone. Every walk is
+// the design check's of 2026-11-23, on its own synthetic rows.
 
 const PLAIN = aPlan({ firstBuy: date('2026-03-01'), lastBuy: date('2026-12-01') });
 const BTC = 'BTC' as CoinId;
@@ -297,24 +297,26 @@ describe('a one-tap starting amount in the cover', () => {
   const stored = (entries: readonly Entry[], movements: readonly Movement[]) =>
     planOf(P6, entries, { movements }).entries.some((entry) => entry.kind === 'sell');
 
-  it('a lump that records more units than its estimate counts at the file units it records', () => {
-    for (const day of ['2026-06-30', '2026-07-02', '2026-07-03'])
+  it('the stated cost: the lump counts at its own units, so a sale of the file units it records stays out (pin)', () => {
+    for (const day of ['2026-06-30', '2026-07-02', '2026-07-03']) {
+      expect(tap(day).map((entry) => entry.units)).toEqual(['0.01219512']);
       for (const units_ of ['0.01219513', '0.01249999', '0.0125'])
-        expect(stored(tap(day), [JUNE, sale(units_)])).toBe(true);
-    const { after, log } = walk(P6, tap('2026-06-30'), [{ movements: [JUNE, sale('0.0125')] }]);
-    expect([after, unmatched(log)]).toEqual([['-0.00030488'], '0.00030488']);
-  });
-
-  it('pins: the estimate covers its own units; a sale above the file units, or before the lump, stays out', () => {
-    expect(stored(tap('2026-06-30'), [JUNE, sale('0.01219512')])).toBe(true);
+        expect(stored(tap(day), [JUNE, sale(units_)])).toBe(false);
+      expect(stored(tap(day), [JUNE, sale('0.01219512')])).toBe(true);
+    }
     expect(stored(tap('2026-06-30'), [JUNE, sale('0.01250001')])).toBe(false);
     expect(stored(tap('2026-07-02'), [JUNE, sale('0.0125', '2026-07-01')])).toBe(false);
   });
 
-  it('June then July: a sale in a later file than the claim is checked against the estimate (pin)', () => {
+  it("one file or two, the 0.0125 sale stays out; the lump's units changed to the file's import it (pin)", () => {
+    const once = walk(P6, tap('2026-06-30'), [{ movements: [JUNE, sale('0.0125')] }]);
     const twice = walk(P6, tap('2026-06-30'), [{ movements: [JUNE] }, { movements: [sale('0.0125')] }]);
-    expect(twice.after).toEqual(['0.01219512', '0.01219512']);
-    expect(walk(P6, tap('2026-06-30'), [{ movements: [JUNE, sale('0.0125')] }]).after).toEqual(['-0.00030488']);
+    expect([once.after, twice.after]).toEqual([['0.01219512'], ['0.01219512', '0.01219512']]);
+    const edited = once.log.map((entry) =>
+      entry.kind === 'lump' ? { ...entry, units: units('0.0125'), source: 'manual' as const } : entry,
+    );
+    const again = walk(P6, edited, [{ movements: [JUNE, sale('0.0125')] }]);
+    expect([again.after, sold(again.log), unmatched(again.log)]).toEqual([['0'], 1, '0']);
   });
 
   it('an estimate above the file units counts at its own: at €78,000, 0.0128 is stored, 0.01282052 is not (pin)', () => {
