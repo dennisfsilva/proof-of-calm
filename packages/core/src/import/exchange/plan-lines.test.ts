@@ -330,4 +330,23 @@ describe('the estimate line', () => {
     const changed = edit(equal, equal.entries, E(equal), '2026-10-19', BOUGHT) as Entry[];
     expect(liveEntries(changed).map((entry) => entry.source)).toEqual(['one-tap', 'one-tap']);
   });
+
+  // CI's seed 1965070715 of the estimate line's property, in one coin: a Coins added entry of 0.0021 BTC on 15 Oct
+  // guards March's late purchase of 0.0021 (step 4), so the sale of 0.00016 on 14 Sep it reaches has no cover (the
+  // tap is a one-tap estimate) and stays out. The line's change types the purchase into the tap, which then covers it.
+  it('a sale the shown plan leaves out uncovered comes in once the change covers it, as `keepsPromise` allows', () => {
+    const sale = trade('S1', 'sale', 'BTC', '2026-09-14', { units: '0.00016', amount: '5', fee: '0' }, 90);
+    const held = hand({ kind: 'held', date: date('2026-10-15'), amount: null, units: units('0.0021'), slot: null });
+    const c: Case = { plan: ONE, file: [buy('BTC', '2026-03-17', '100', '0.0021'), sale], entries: [tap('2026-03', '2026-03-01'), held] };
+    const ticked = importRemedies(fileOf(c.file), { plan: c.plan, entries: c.entries }, true, LISBON).estimates;
+    expect(ticked.map(brief)).toEqual([[[''], '2026-03', '2026-03-17', '2026-04']]);
+    expect(planOf(c, c.entries).uncovered.map((each) => [each.date, each.units])).toEqual([['2026-09-14', '0.00016']]);
+    const changed = edit(c, c.entries, E(c), '2026-03-17', { BTC: { amount: '100', units: '0.0021' } }) as Entry[];
+    const again = planOf(c, changed);
+    expect(recordedBy(c, changed, E(c).id)).toEqual(['2026-03-17']);
+    expect([again.uncovered, again.entries.map((entry) => [entry.kind, entry.date, entry.units])]).toEqual([
+      [],
+      [['sell', '2026-09-14', '0.00016']],
+    ]);
+  });
 });
