@@ -38,8 +38,7 @@ gate and this checklist; every merge to `main` goes to production, tagged or not
 - [ ] The four legal texts (Terms, Privacy, Contact/Impressum, the Cookie-free statement's launch
       text) signed by the owner through the needs-owner PR that fills in the owner's identity, which
       only the owner merges; their visual baselines rendered after that merge.
-- [ ] The name cleared: the TMview search and, if it is clean, the EUTM filed in classes 9, 41 and
-  42
+- [ ] The name cleared: the TMview search and, if it is clean, the EUTM filed in classes 9, 41 and 42
       (`docs/LEGAL.md` §1).
 - [ ] Vercel Pro in place, since the free tier forbids commercial use (ADR-0005).
 - [ ] Portuguese (pt-PT) and German (de) read by native readers before the language picker shows
@@ -90,8 +89,7 @@ gate and this checklist; every merge to `main` goes to production, tagged or not
       `VersionError` and shows its failure screen. Such a release says so in its PR, ships the
       reader of the new shape one release before the writer where it can, and is rolled forward,
       not back, once deployed.
-- [ ] The owner's own prototype export compared with the prototype on the owner's own device:
-  Today's
+- [ ] The owner's own prototype export compared with the prototype on the owner's own device: Today's
       lead, Portfolio's Invested and Value, whether the import reported adjustments, and one
       purchase's holding date. No file is handed to a session (decided on 2026-11-23 on the owner's
       delegation of 2026-11-18; not the owner's own review or signature).
