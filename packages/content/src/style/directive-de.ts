@@ -115,7 +115,7 @@ const CONJUNCTIONS = 'und|oder|aber|sondern|denn';
  * since neither can be told from a sentence's end), ! ? : ; , an opening quote or bracket, a bullet, a dash or a
  * spaced hyphen, or a conjunction; with only the listed adverbs between.
  */
-export const OPENS = new RegExp(
+const OPENS = new RegExp(
   String.raw`(?:^|[.!?:;,„“"«»‚‘(\[{•·*–—]|\s-|${W}(?:${CONJUNCTIONS}))\s*(?:(?:${ADVERBS})\s+)*$`,
   'iu',
 );
