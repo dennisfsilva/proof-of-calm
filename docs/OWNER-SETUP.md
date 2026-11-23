@@ -56,9 +56,10 @@ updates on Monday mornings, three-day release age, majors separate, the Playwrig
 pinned container together and never automerged. Keep Dependabot **security alerts** on (Settings →
 Code security); Dependabot version updates stay off (ADR-0025).
 
-Socket (ADR-0025): install the free Socket GitHub app on this repository, so that pull requests that
-change dependencies get its supply-chain check. Not installed as of 2026-10-18; until then
-OSV-Scanner (`.github/workflows/osv-scanner.yml`) is the only dependency scanner in CI.
+Socket (ADR-0025): not installed, and it stays so, decided on 2026-11-23 on the owner's delegation
+of 2026-11-18 (not the owner's own review or signature; ADR-0025, Deviations recorded on
+2026-11-23, holds the reasons). OSV-Scanner (`.github/workflows/osv-scanner.yml`) is the only
+dependency scanner in CI. To reverse it, install the free Socket GitHub app on this repository.
 
 ## 3. Vercel
 
@@ -94,6 +95,14 @@ required from launch because Hobby forbids commercial use (ADR-0005).
   price store (Upstash Redis in `eu-central-1`); until then each function instance keeps its own
   copy. Add them before launch, and check the names if a marketplace integration creates them.
   `.env.example` lists the full shape.
+- Not set yet: the deploy hook for the daily production rebuild (`docs/RELEASE.md`). The owner
+  creates it in Vercel for `main` and stores its URL as the repository secret
+  `VERCEL_DEPLOY_HOOK_URL` with `gh secret set`; the URL has no other protection, so it is kept
+  like a password. Until then the public pages keep the date of the last merge's build, and they
+  stay out of search.
+- Before turning on Vercel's Observability Plus, change the Privacy text (`docs/LEGAL.md` §5):
+  runtime logs are then kept 30 days, not the 1 day of Pro
+  (`docs/research/legal-pages-questions.md`). Until then the text's 1 day holds.
 - Functions run in `fra1` (ADR-0005), pinned in `apps/web/vercel.json`; Hobby allows one region.
 - Deployment Protection keeps Vercel Authentication (Standard Protection) on, so a preview needs a
   login. Its "Protection Bypass for Automation" secret, created on 2026-10-17, is in the
@@ -142,6 +151,13 @@ a null MX (`MX 0 .`), so the domain has no MX record and mail sent to it is not 
 - Before launch: a CAA record for the certificate authority Vercel uses (Let's Encrypt issued the
   certificate of 2026-10-17), and `security@`, `privacy@` and a contact address that are read
   (`docs/LEGAL.md` §5, `docs/RELEASE.md`).
+- Before the public pages are indexed (`docs/RELEASE.md`): Google Search Console with the domain as
+  a
+  Domain property, verified by a DNS TXT record at Spaceship that stays in place, and Bing Webmaster
+  Tools (`docs/GROWTH.md` §4.1). Both need the owner's accounts; until then nothing reports how
+  search reads the pages.
+- Once a year: delete support mail older than 24 months after its thread's last message
+  (`docs/LEGAL.md` §5 and §9). Until a mailbox exists there is nothing to delete.
 
 ## 5. Keys and accounts
 
@@ -152,7 +168,8 @@ a null MX (`MX 0 .`), so the domain has no MX record and mail sent to it is not 
 
 ## 6. Still open from the planning sessions
 
-- The TMview search and the EUTM filing in classes 9, 36, 41 and 42 (`docs/LEGAL.md` §1).
+- The EUTM filing in classes 9, 41 and 42 (`docs/LEGAL.md` §1); the TMview search was done on
+  2026-11-09 (`docs/research/trademark-search.md`).
 - The answers to the letters to Kraken and Bitstamp (ADR-0036), drafted as
   `docs/research/letters/kraken.md` and `docs/research/letters/bitstamp.md`: sent on 2026-11-09,
   Bitstamp's to partners@bitstamp.net and Kraken's through Kraken Institutional's contact form; the

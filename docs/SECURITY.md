@@ -182,8 +182,9 @@ days) with `minimumReleaseAgeStrict`; `trustPolicy: no-downgrade`; `blockExoticS
 age gate), configured in `renovate.json` and installed by the owner (`docs/OWNER-SETUP.md` §2), with
 the full gate on every update; Dependabot security alerts on; OSV-Scanner in CI (accepted advisories
 in development and build tooling are listed in `osv-scanner.toml`, each with its reason and an expiry
-date; fixed releases in the same major are pinned through pnpm `overrides`); Socket's free GitHub app, as ADR-0025
-decides, once the owner installs it (`docs/OWNER-SETUP.md` §2); CodeQL if the repository is public;
+date; fixed releases in the same major are pinned through pnpm `overrides`); Socket's free GitHub
+app is not installed (ADR-0025, Deviations recorded on 2026-11-23; `docs/OWNER-SETUP.md` §2); CodeQL
+if the repository is public;
 GitHub Actions pinned to commit digests with `permissions: {}` at the top of every workflow except
 `snapshots.yml`, which sets `contents: read` there for its one job; lockfile changes reviewed by a
 human. The content review reads source PDFs with pdftotext from Git for Windows, not a package:

@@ -118,7 +118,9 @@ account-free reminder, legal pages, no account yet.
   assertion everywhere; touch targets ≥ 44 px assertion on interactive elements.
 - Component tests for every stateful component (form, coin editor, range selector, toast with undo).
 - Core golden tests pass with the owner's migrated data; the migrated Today page shows the same primary
-  action the prototype shows on the same date.
+  action the prototype shows on the same date. On 2026-11-23, on the owner's delegation of
+  2026-11-18, the check on the owner's export became the owner's own-device comparison of
+  `docs/RELEASE.md`; no file is handed to a session.
 - Lighthouse CI budgets enforced on the preview deployment.
 
 **Not in M1**: accounts, sync, email, Learn modules beyond a placeholder screen, Red day, simulator,
@@ -432,7 +434,8 @@ external links and the Risk link in the mobile export (M3).
   identity), live before the public launch per `docs/RELEASE.md`; the Risk disclosure built at
   launch quality, with the dated falls, on 2026-11-15 (#250).
 - **The name is Proof of Calm** (ADR-0040). Before anything public ships: the TMview search in
-  classes 9, 36, 41 and 42 and, if it is clean, the EUTM filed in those classes (`docs/LEGAL.md` §1).
+  classes 9, 36, 41 and 42 and, if it is clean, the EUTM filed in classes 9, 41 and 42
+  (`docs/LEGAL.md` §1).
   The WebAuthn Relying Party ID is proofofcalm.com; the sending domain is mail.proofofcalm.com.
 - Carried from M1, before the build that needs each: the screen for rows from a newer version, built
   on 2026-10-30 (#291); it ships in a release before any build writes plans above v3, entries above v2
