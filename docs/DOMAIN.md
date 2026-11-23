@@ -1075,10 +1075,13 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      of the 135 tap days; one of W1's pieces with the lump on 31 Aug: 1,900; both against 1,400); (d) claims are per date: a starting purchase on a buy day's date takes that
      day's buy with it (1,300 against 1,400), as Kai's date requires. A one-tap `lump` that claims its
      own starting purchase keeps its estimated units, and no line asks for a change (rule R: 0.01219512 BTC
-     against the file's 0.0125); a `lump` at its coin's monthly part that claims a monthly buy gets the starting
-     line's change, which names the date to change it to and the file's purchases on it (P6 at 100 tapped
-     2 Sep or 5 Sep: change it to 2 Jul, one purchase of 100 EUR and 0.00125 BTC); `packages/core/src/import/exchange/plan-claims.test.ts`
-     pins both and that lump's 400 against 500. A monthly buy whose
+     against the file's 0.0125); a `lump` at its coin's monthly part that claims a monthly buy is asked to change
+     only when the starting line has a "change" candidate (below, "Lines that ask for a change"), which names
+     the date to change it to and the file's purchases on it (P6 at 100 with file M, 100 EUR of BTC on the 2nd
+     of July to November, tapped 2 Sep or 5 Sep: change it to 2 Jul, one purchase of 100 EUR and 0.00125 BTC);
+     when that rule finds no one date, no line asks for a change and the 400 stands (BTC and ETH at 50 EUR
+     each bought on the 2nd and the 3rd; file M without July). `packages/core/src/import/exchange/plan-claims.test.ts`
+     pins all three and that lump's 400 against 500. A monthly buy whose
      walk takes only stored dates claims nothing (decided 2026-11-14): part of a file can claim a date that
      the whole file walks past, so a fallback on claiming nothing stored in two imports a date that one import
      leaves out. A date's amount is all the file's purchases of C on it, fees
