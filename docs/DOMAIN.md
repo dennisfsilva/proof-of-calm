@@ -1178,9 +1178,10 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      10 Nov 2026 over a file of 1 BTC bought on 1 Feb 2025 and 0.6 sold on 1 Sep 2025 shows 0.8 BTC where
      the person holds 0.4. Each sale is decided alone, not first in first out, since ticking the box would
      then take a sale away: unticked, 0.1 BTC with 0.3 unmatched; a hand sale between two files leaves
-     −0.0049. Coins another import bought before the left-out history do not count: Trade Republic's 0.7
-     bought on 31 Jan 2025, imported first, gives 0.5 where the person holds 1.1 (bought on 1 Feb or later,
-     1.1). A window holding the sale but none of its left-out purchases, after the other file, gives 0.5. A
+     −0.0049. Coins another import bought before the left-out history count: Trade Republic's 0.7 bought
+     on 31 Jan 2025, imported first, covers the 0.6 sale, so the sale is stored and the Log shows 0.5 where
+     the person holds 1.1; bought on 1 Feb or later, they do not count, the sale stays out and the Log
+     shows 1.1. A window holding the sale but none of its left-out purchases, after the other file, gives 0.5. A
      one-tap `lump` counts at its own units, so a sale of the file's units of a purchase the lump records
      stays out while the estimate is smaller (0.0125 BTC sold against 0.01219512 tapped at €82,000; changing
      the lump's units in the Log to the file's and choosing the file again imports it). What stays out: a sale dated after the reach of purchases step 3 left out is stored as before
