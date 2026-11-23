@@ -105,7 +105,9 @@ describe('a control named inside a German sentence', () => {
   const german = pairs('de', true);
 
   it('reads the controls the German files translate', () => {
-    const translated = new Set(english.filter(({ labelKey }) => translates(de, labelKey)).map(({ labelKey }) => labelKey));
+    const translated = new Set(
+      english.filter(({ labelKey }) => translates(de, labelKey)).map(({ labelKey }) => labelKey),
+    );
     expect(translated).toContain('today.action.asPlanned');
   });
 
