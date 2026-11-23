@@ -200,4 +200,29 @@ describe('planExchangeImport, the estimates a month keeps', () => {
     expect(invested(BRUNO, deleted)).toBe('250');
     expect(invested(BRUNO, applyExchangeImport(log, whole(log), NOW).entries)).toBe('250');
   });
+
+  it('Nina, both buys in the earlier export: 110 replaces the tap, so the cancelled 60 names it, live once (250)', () => {
+    const log = [tap('BTC', '2026-09', '2026-09-01', '200', '0.002')];
+    const [b1, b2] = [buy('BTC', '2026-09-02', '60', '0.0006'), buy('BTC', '2026-09-03', '50', '0.0005')];
+    const whole = (entries: readonly Entry[]) =>
+      planExchangeImport(
+        { ...fileOf([b2]), cancelled: [b1] },
+        { plan: BRUNO, entries },
+        { venue: 'Kraken', addHeld: false },
+        LISBON,
+      );
+    const part = importAll(BRUNO, log, [b1, b2]);
+    expect(invested(BRUNO, part)).toBe('110');
+    // Deleting the 60 leaves 50 of September's imported buys, under half of the tap the earlier import tombstoned.
+    const shown = whole(part);
+    expect(shown.cancelled.map((line) => [line.entry.amount, line.estimates.map((each) => each.id)])).toEqual([
+      ['60', log.map((each) => each.id)],
+    ]);
+    const named = new Set(shown.cancelled.map((line) => line.entry.id));
+    const deleted = applyExchangeImport(part, shown, NOW).entries.map((entry) =>
+      named.has(entry.id) ? { ...entry, deletedAt: NOW } : entry,
+    );
+    expect(invested(BRUNO, deleted)).toBe('50');
+    expect(invested(BRUNO, applyExchangeImport(log, whole(log), NOW).entries)).toBe('250');
+  });
 });
