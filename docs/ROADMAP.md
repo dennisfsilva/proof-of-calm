@@ -423,8 +423,8 @@ external links and the Risk link in the mobile export (M3).
   entries' version is 3, which the newer-version screen of 2026-10-30 covers; a gift is not such a
   receipt, since Germany, Italy and the United States carry the giver's cost, so it goes in as coins
   held with its cost unknown); a sale the starting amount's or a Coins added entry's guard reaches,
-  left out and named when the entries before it hold less of its coin (2026-11-23,
-  `docs/DOMAIN.md` §3.13, step 4);
+  left out and named when its cover, which counts other imports' entries too, holds less of its coin
+  (2026-11-23, `docs/DOMAIN.md` §3.13, step 4);
   the Learn modules, the country pages and the holding-date page public and indexable
   (`docs/GROWTH.md` §4.1): the Learn index and every module, Taxes with every country's row,
   the country list, one page per country and the holding-date page's static half prerendered under
