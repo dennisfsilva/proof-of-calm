@@ -18,7 +18,8 @@ gate and this checklist; every merge to `main` goes to production, tagged or not
 - [ ] Performance: Today first-load JS under budget; Lighthouse mobile ≥ 95 on Today, Portfolio, Log,
       Plan on the preview.
 - [ ] Accessibility: axe clean; one manual keyboard pass through the monthly loop; before launch and
-      yearly a screen-reader pass (VoiceOver iOS, TalkBack Android).
+      yearly a screen-reader pass (VoiceOver iOS, TalkBack Android), which includes a stacked table
+      in Safari with VoiceOver, upright and sideways (`docs/DESIGN.md` §8).
 - [ ] Offline: install the preview on one phone, go offline, open Today, log an entry, come back online.
 - [ ] Storage migration: if the IndexedDB schema version changed, the migration ran on a fixture
       database from the previous release (automated test) and on a real device.
@@ -37,7 +38,9 @@ gate and this checklist; every merge to `main` goes to production, tagged or not
 - [ ] The four legal texts (Terms, Privacy, Contact/Impressum, the Cookie-free statement's launch
       text) signed by the owner through the needs-owner PR that fills in the owner's identity, which
       only the owner merges; their visual baselines rendered after that merge.
-- [ ] The name cleared: the TMview search and, if it is clean, the EUTM filed (`docs/LEGAL.md` §1).
+- [ ] The name cleared: the TMview search and, if it is clean, the EUTM filed in classes 9, 41 and
+  42
+      (`docs/LEGAL.md` §1).
 - [ ] Vercel Pro in place, since the free tier forbids commercial use (ADR-0005).
 - [ ] Portuguese (pt-PT) and German (de) read by native readers before the language picker shows
       them (`docs/CONTENT-STYLE.md` §8).
@@ -45,9 +48,15 @@ gate and this checklist; every merge to `main` goes to production, tagged or not
       (`docs/CONTENT-OPS.md` §3).
 - [ ] If the simulator ships: its attribution text under every price and chart (ADR-0036).
 - [ ] Before the public pages under `/en/` are indexed: a daily production rebuild in place, since they
-      render at the build's UTC date (ADR-0045, Deviations of 2026-11-15).
+      render at the build's UTC date (ADR-0045, Deviations of 2026-11-15). The mechanism: a Vercel
+      deploy hook called once a day by a scheduled workflow, which fails when production does not
+      show the day's build afterwards. GitHub switches a public repository's schedule off after 60
+      days without activity (GitHub's documentation, read 2026-11-19), so that failure has to be
+      seen.
 - [ ] The `PUBLIC_INDEXABLE` switch (ADR-0045, Deviations of 2026-11-15), the owner-approved PR that
       opens `/en/` to search, merged after brand's search polish of those pages (`docs/GROWTH.md` §4.1).
+      True before it is merged: the EU trade mark filed, the legal pages merged (#255), the daily
+      rebuild running, Vercel Pro in place (above), and a visitor walked through the public pages.
 - [ ] UK handling implemented as decided in ADR-0029 and tested; the two checks below run once
       from a UK vantage point against the production domain, because the e2e suite only injects
       Vercel's geolocation header (ADR-0045 Risks).
@@ -81,6 +90,11 @@ gate and this checklist; every merge to `main` goes to production, tagged or not
       `VersionError` and shows its failure screen. Such a release says so in its PR, ships the
       reader of the new shape one release before the writer where it can, and is rolled forward,
       not back, once deployed.
+- [ ] The owner's own prototype export compared with the prototype on the owner's own device:
+  Today's
+      lead, Portfolio's Invested and Value, whether the import reported adjustments, and one
+      purchase's holding date. No file is handed to a session (decided on 2026-11-23 on the owner's
+      delegation of 2026-11-18; not the owner's own review or signature).
 - [x] Repository visibility decided (`docs/LEGAL.md` §9): public since 2026-11-08, from a fresh
       history with no personal email address (ADR-0051). A licence is still the owner's choice.
 
