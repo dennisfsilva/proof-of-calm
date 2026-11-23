@@ -96,6 +96,13 @@ const cancelling = fc.record({
     fc.constant({ kind: 'none' as const }),
     fc.record({ kind: fc.constant('deleted' as const), of: fc.nat() }),
     fc.record({ kind: fc.constant('edited' as const), of: fc.nat() }),
+    fc.record({
+      kind: fc.constant('added' as const),
+      coin: fc.constantFrom('BTC', 'ETH'),
+      month: fc.constantFrom(4, 5, 5, 6),
+      late: fc.integer({ min: -3, max: 20 }),
+      amount: fc.constantFrom('70', '250'),
+    }),
   ),
 });
 type Change = (typeof cancelling extends fc.Arbitrary<infer T> ? T : never)['change'];
@@ -146,10 +153,14 @@ const startOf = (tapped: readonly Entry[], change: Change) =>
       ? { ...entry, deletedAt: HAND, updatedAt: HAND }
       : entry,
   );
-/** The Log between the imports: a live estimate's row saved in the Log with other units, the person's own record. */
-function between(log: readonly Entry[], change: Change): readonly Entry[] {
+/**
+ * The Log between the imports: a live estimate's row saved in the Log with other units, which makes it the person's own
+ * record (`manual`), or a tap added as a JSON import brings one; `added` is that tap.
+ */
+function between(log: readonly Entry[], change: Change, added: Entry | null): readonly Entry[] {
+  if (added !== null) return [...log, added];
   const estimates = log.filter((entry) => entry.deletedAt === null && isEstimate(entry));
-  const estimate = change.kind === 'edited' ? estimates[change.of % Math.max(estimates.length, 1)] : undefined;
+  const estimate = estimates[change.kind === 'edited' ? change.of % Math.max(estimates.length, 1) : -1];
   if (estimate === undefined) return log;
   const { date: day, slot, fee, venue, coin, id, amount } = estimate;
   const held = units(estimate.units === '0.00777' ? '0.00778' : '0.00777');
@@ -219,10 +230,13 @@ describe('readTradeRepublic (property)', () => {
           const at = instants[cut % (instants.length + 1)] ?? '~';
           const whole = read(rows.map((cells) => cells.slice(1)));
           const part = read(rows.filter((cells) => (cells[0] as string) < at).map((cells) => cells.slice(1)));
-          // At most one hand change to the Log: a tap deleted before the imports (both worlds start with the delete) or a
-          // row edit between them (one import's world starts without it).
+          // At most one hand change to the Log: a tap deleted before the imports (both worlds start with the delete), a
+          // row edit between them (one import's world starts without it) or a tap added between them (one import's
+          // world holds it from the start).
           const tapped = startOf(tapsOf(taps), change);
-          const log = between(store(tapped, planned(part, tapped)), change);
+          const added = change.kind === 'added' ? (tapsOf([change])[0] as Entry) : null;
+          const earlier = planned(part, tapped);
+          const log = between(store(tapped, earlier), change, added);
           const then = planned(whole, log);
           const paired = new Set(whole.cancelled.map((movement) => testId(movement.key)));
           const named = then.cancelled.map(({ entry }) => entry.id).sort();
@@ -234,10 +248,13 @@ describe('readTradeRepublic (property)', () => {
           );
           const carried = new Set(then.cancelled.flatMap(({ estimates }) => estimates.map((entry) => entry.id)));
           const deleted = log.map((entry) => (named.includes(entry.id) ? { ...entry, deletedAt: NOW } : entry));
-          const [two, one] = [store(deleted, then), store(tapped, planned(whole, tapped))];
+          const first = added === null ? tapped : [...tapped, added];
+          const [two, one] = [store(deleted, then), store(first, planned(whole, first))];
           // Never silently: (i) a month the line names holds no live estimate of its coin; (ii) an estimate one import of
           // the whole file keeps live and two tombstone is in a month the line names, or its month keeps a monthly buy of
-          // the coin that is not imported (the person's own record).
+          // the coin that is not imported (the person's own record), or (iii) the earlier import tombstoned it, before the
+          // hand change, and the line names none of its coin's monthly buys for its month: that replace was in the
+          // earlier import's preview, and its buys are all in this file.
           const monthOf = (entry: Entry) => `${entry.coin}|${entry.slot}`;
           const months = new Set(
             then.cancelled.flatMap(({ entry, estimates }) => (estimates.length > 0 ? [monthOf(entry)] : [])),
@@ -250,9 +267,17 @@ describe('readTradeRepublic (property)', () => {
               .map(monthOf),
           );
           const tombstoned = new Set(two.filter((entry) => entry.deletedAt !== null).map((entry) => entry.id));
+          const replacedEarlier = new Set(
+            earlier.replaced.flatMap(({ estimates }) => estimates.map((entry) => entry.id)),
+          );
+          const namedMonths = new Set(then.cancelled.map(({ entry }) => monthOf(entry)));
           const silent = liveIn(one).filter(
             (entry) =>
-              isEstimate(entry) && tombstoned.has(entry.id) && !months.has(monthOf(entry)) && !own.has(monthOf(entry)),
+              isEstimate(entry) &&
+              tombstoned.has(entry.id) &&
+              !months.has(monthOf(entry)) &&
+              !own.has(monthOf(entry)) &&
+              !(replacedEarlier.has(entry.id) && !namedMonths.has(monthOf(entry))),
           );
           expect(silent).toEqual([]);
           if (change.kind !== 'none') return;
