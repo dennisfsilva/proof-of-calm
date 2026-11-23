@@ -251,33 +251,24 @@ describe('readTradeRepublic (property)', () => {
           const first = added === null ? tapped : [...tapped, added];
           const [two, one] = [store(deleted, then), store(first, planned(whole, first))];
           // Never silently: (i) a month the line names holds no live estimate of its coin; (ii) an estimate one import of
-          // the whole file keeps live and two tombstone is in a month the line names, or its month keeps a monthly buy of
-          // the coin that is not imported (the person's own record), or (iii) the earlier import tombstoned it, before the
-          // hand change, and the line names none of its coin's monthly buys for its month: that replace was in the
-          // earlier import's preview, and its buys are all in this file.
+          // the whole file keeps live and two tombstone is in a month the line names, or the Log two imports end with keeps
+          // in its month a live monthly buy of the coin that is not exchange-imported: a live one-tap estimate or an entry
+          // of the person's own, so the month is not left without its monthly buy. Read from that Log, not from the plan.
           const monthOf = (entry: Entry) => `${entry.coin}|${entry.slot}`;
           const months = new Set(
             then.cancelled.flatMap(({ entry, estimates }) => (estimates.length > 0 ? [monthOf(entry)] : [])),
           );
           const liveIn = (entries: readonly Entry[]) => entries.filter((entry) => entry.deletedAt === null);
           expect(liveIn(two).filter((entry) => isEstimate(entry) && months.has(monthOf(entry)))).toEqual([]);
-          const own = new Set(
+          const kept = new Set(
             liveIn(two)
-              .filter((entry) => entry.kind === 'dca' && !isEstimate(entry) && entry.source !== 'import-csv')
+              .filter((entry) => entry.kind === 'dca' && entry.source !== 'import-csv')
               .map(monthOf),
           );
           const tombstoned = new Set(two.filter((entry) => entry.deletedAt !== null).map((entry) => entry.id));
-          const replacedEarlier = new Set(
-            earlier.replaced.flatMap(({ estimates }) => estimates.map((entry) => entry.id)),
-          );
-          const namedMonths = new Set(then.cancelled.map(({ entry }) => monthOf(entry)));
           const silent = liveIn(one).filter(
             (entry) =>
-              isEstimate(entry) &&
-              tombstoned.has(entry.id) &&
-              !months.has(monthOf(entry)) &&
-              !own.has(monthOf(entry)) &&
-              !(replacedEarlier.has(entry.id) && !namedMonths.has(monthOf(entry))),
+              isEstimate(entry) && tombstoned.has(entry.id) && !months.has(monthOf(entry)) && !kept.has(monthOf(entry)),
           );
           expect(silent).toEqual([]);
           if (change.kind !== 'none') return;
