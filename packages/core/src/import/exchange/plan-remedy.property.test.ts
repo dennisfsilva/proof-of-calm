@@ -280,9 +280,11 @@ const estimateWorld = fc
 /**
  * Follows the estimate line as the Log makes it (`changedLog`, Edit entry on the row: its date and each staying coin's
  * cost and units set to the file's). Returns what goes wrong, none when the file chosen again records the date by each
- * coin's estimate, adds every other date group as the preview shown, and leaves nothing for a third import.
+ * coin's estimate, adds every other date group as the preview shown, and leaves nothing for a third import. A sale the
+ * shown plan left out uncovered that the change covers may come in, as `keepsPromise` allows; never the reverse. Each
+ * line whose change lets one in counts in `covered`.
  */
-function followEstimate(drawn: World, stored: Stored, line: EstimateLine) {
+function followEstimate(drawn: World, stored: Stored, line: EstimateLine, covered: { count: number }) {
   const ofCoin = (coin: CoinId) => line.added.filter((entry) => entry.coin === coin);
   const row = liveEntries(stored.entries).filter(
     (entry) => transactionKey(entry) === transactionKey(line.estimates[0] as Entry),
@@ -301,9 +303,12 @@ function followEstimate(drawn: World, stored: Stored, line: EstimateLine) {
   const shown = anew(drawn, stored.entries);
   const again = anew(drawn, changed);
   const touched = new Set(line.estimates.map((each) => `${each.coin}|${line.date}|purchase`));
+  const uncovered = new Set(shown.uncovered.map((each) => each.id));
+  const comes = (entry: Entry) => entry.kind === 'sell' && uncovered.has(entry.id);
+  if (again.entries.some(comes)) covered.count += 1;
   const rest = (plan: ExchangeImportPlan) =>
     plan.entries
-      .filter((entry) => !touched.has(groupOf(entry)))
+      .filter((entry) => !touched.has(groupOf(entry)) && !(plan === again && comes(entry)))
       .map(({ updatedAt: _, ...each }) => JSON.stringify(each))
       .sort();
   const final = applyExchangeImport(changed, again, NOW).entries;
@@ -485,19 +490,23 @@ describe('importRemedies, over generated files and Logs', () => {
     'following the estimate line, before importing or after a shorter export, records its date by the estimates',
     () => {
       const reached = { before: 0, after: 0, shorter: 0 };
+      const covered = { count: 0 };
       fc.assert(
         fc.property(fc.oneof(world, estimateWorld), fc.nat(), (drawn, cut) => {
           for (const [order, stored] of orders(drawn, cut)) {
             const { estimates } = importRemedies(drawn.file, stored, drawn.addHeld, LISBON);
             if (estimates.length > 0) reached[order as keyof typeof reached] += 1;
-            expect(estimates.map((line) => followEstimate(drawn, stored, line))).toEqual(estimates.map(() => []));
+            const problems = estimates.map((line) => followEstimate(drawn, stored, line, covered));
+            expect(problems).toEqual(estimates.map(() => []));
           }
         }),
         RUNS,
       );
       // Before importing and after a shorter export the line is reached (the note above), so the property is not
       // vacuous; after importing the file the purchase is stored and no line shows (it is checked before the import).
+      // A sale the change covers is the rare case (CI's seed 1965070715), under a tenth of the runs.
       expect([reached.before > 0, reached.after, reached.shorter > 0]).toEqual([true, 0, true]);
+      expect(covered.count).toBeLessThan(RUNS.numRuns / 10);
     },
     TIMEOUT,
   );
