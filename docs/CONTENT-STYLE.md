@@ -724,7 +724,12 @@ unsubscribe header; nothing is ever sent that was not asked for.
 8. History is dated and windowed; forecasts are absent; "past performance" line present where
    required.
 9. German and Portuguese strings reviewed by a native reader for the same rules (from M2, before
-   the launch; ADR-0041).
+   the launch; ADR-0041). The read, decided on 2026-11-23 on the owner's delegation of 2026-11-18
+   (not the owner's own review or signature): one native reader per language, who lives or grew up
+   in the country of the variant. The reader gets one capture of every screen and the list of named
+   questions (#414 for pt-PT), with a page that states the register and what is fixed (§9). Every
+   answer that is applied passes the banned-words lint, brand's read and, for a legal or risk text,
+   counsel's read. A changed term is recorded in §9.
 10. Template names signed off by the owner.
 11. The balance step, for every new or moved disclosure (ADR-0047): what decision does this line
     protect; is a warning already on this path (then it is a repeat and goes); one competitor
