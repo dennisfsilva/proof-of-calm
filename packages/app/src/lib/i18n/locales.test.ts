@@ -129,13 +129,16 @@ describe('the translations in the repository', () => {
     },
   );
 
-  // Today's entry boots with these three in Portuguese (ADR-0045 §8), so they are whole while pt-PT is
-  // still hidden: a key the merge completed from English would show English on Today.
-  it.each(['errors', 'shell', 'today'])('%s is whole in pt-PT', (folder) => {
-    const translated = byFolder.get(`${folder}/pt-PT`)?.tree;
-    expect(translated, `${folder} has no pt-PT file`).toBeDefined();
-    expect(problems(byFolder.get(`${folder}/en`)?.tree ?? {}, translated ?? {}, true)).toEqual([]);
-  });
+  // Today's entry boots with these three in the stored language (ADR-0045 §8), so they are whole while pt-PT and
+  // German are still hidden: a key the merge completed from English would show English on Today.
+  it.each(['errors', 'shell', 'today'].flatMap((folder) => ['pt-PT', 'de'].map((locale) => [folder, locale])))(
+    '%s is whole in %s',
+    (folder, locale) => {
+      const translated = byFolder.get(`${folder}/${locale}`)?.tree;
+      expect(translated, `${folder} has no ${locale} file`).toBeDefined();
+      expect(problems(byFolder.get(`${folder}/en`)?.tree ?? {}, translated ?? {}, true)).toEqual([]);
+    },
+  );
 
   it('are complete for every visible locale', () => {
     const folders = [...byFolder.values()].filter(({ locale }) => locale === 'en').map(({ folder }) => folder);
