@@ -136,6 +136,7 @@ describe('planExchangeImport', () => {
           purchases: 4,
           units: '0.00251',
           through: '2026-05-01',
+          from: '2026-03-10',
           entries: [{ units: '0.05', date: '2026-05-01', venue: 'Ledger' }],
         },
       ],
