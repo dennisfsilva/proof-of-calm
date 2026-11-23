@@ -101,8 +101,7 @@ required from launch because Hobby forbids commercial use (ADR-0005).
   like a password. Until then the public pages keep the date of the last merge's build, and they
   stay out of search.
 - Before turning on Vercel's Observability Plus, change the Privacy text (`docs/LEGAL.md` §5):
-  runtime logs are then kept 30 days, not the 1 day of Pro
-  (`docs/research/legal-pages-questions.md`). Until then the text's 1 day holds.
+  runtime logs are then kept 30 days, not the 1 day of Pro. Until then the text's 1 day holds.
 - Functions run in `fra1` (ADR-0005), pinned in `apps/web/vercel.json`; Hobby allows one region.
 - Deployment Protection keeps Vercel Authentication (Standard Protection) on, so a preview needs a
   login. Its "Protection Bypass for Automation" secret, created on 2026-10-17, is in the
