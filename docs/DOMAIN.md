@@ -1029,7 +1029,8 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      0.0000000040 BTC on 1 Dec and 0.00005 BTC on 3 Dec, the 3 Dec row exported first): a line naming two
      equal figures would read as no change, so the Log keeps the earlier import's date and units for it. A
      named monthly buy carries its coin's tombstoned one-tap estimates for its month when deleting the named
-     entries leaves that month no monthly buy, and the line says deleting it leaves the month without its
+     entries leaves that month no monthly buy but imported ones that come to less than half the largest of
+     those estimates (step 5's gate, under which one import of the whole file keeps them live), and the line says deleting it leaves the month without its
      estimate, to record again if bought: the import never un-tombstones, and an import's tombstone is not
      told from a hand delete. Once the person makes the named changes, the live Log equals one import's of
      the whole file, except that each named estimate is live in one import and tombstoned in two, and each
@@ -1196,7 +1197,8 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      reach half the largest of them (the half gate, decided 2026-11-23, ADR-0056, Corrections). Every entry
      added for C and S takes the note of C's first estimate for S, live or tombstoned, in `compareEntries`
      order, else none. Every other purchase is an extra buy." The imported buys are the sum of `amount`, fees
-     excluded, over the live `import-csv` monthly buys of C for S from any file and this import's: `F + F >=
+     excluded, over the live `import-csv` monthly buys of C for S from any file and this import's, but a live
+     one this file names for deletion as cancelled (step 1), so an export in parts ends as the whole: `F + F >=
      largest` replaces, a tie included; under half, the estimates stay live beside the buys, which are still
      added as monthly buys, and the preview says "Keeps" (`kept`, one item per estimate with what the
      imported buys come to). No venue is read, so Bought as planned at 600 and Trade Republic's file of 2,
