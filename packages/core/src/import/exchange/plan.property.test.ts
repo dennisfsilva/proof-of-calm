@@ -5,6 +5,7 @@ import { fileOf, heldGuards, type World, world } from '../../../test/exchange/pl
 import { coverCut, excepted, withoutExcepted } from '../../../test/exchange/plan-cover';
 import { added, BERLIN, LISBON, NOW, testId, trade } from '../../../test/exchange/plan-fixture';
 import { preCut, skipped } from '../../../test/exchange/plan-late';
+import { ruleM } from '../../../test/exchange/plan-months';
 import { addDays, type CalendarDate } from '../../dates/calendar';
 import { compare, isPositive, sum } from '../../money/decimal';
 import { plannedParts } from '../../plan/parts';
@@ -384,6 +385,39 @@ describe('planExchangeImport', () => {
       }),
     );
   });
+
+  it(
+    'estimates go exactly when this import adds a monthly buy for their month and the imported buys reach half the largest',
+    () => {
+      // Rule M (test/exchange/plan-months.ts) over one import, a prefix and the whole file after it. Measured on
+      // 2026-11-23 at seeds 1 to 4, 1,500 runs each: 506 to 522 groups replaced and 14 to 36 kept.
+      const reach = { go: 0, keep: 0 };
+      const judge = (before: readonly Entry[], plan: ExchangeImportPlan) => {
+        const verdicts = ruleM(before, plan.entries);
+        const named = (groups: readonly { estimates: readonly Entry[] }[]) =>
+          groups.flatMap((group) => group.estimates.map((entry) => entry.id)).sort();
+        const by = (go: boolean) => [...verdicts].filter(([, each]) => each.go === go).map(([id]) => id);
+        expect([named(plan.replaced), named(plan.kept)]).toEqual([by(true).sort(), by(false).sort()]);
+        for (const group of plan.kept) {
+          for (const entry of group.estimates) expect(verdicts.get(entry.id)?.imported).toBe(group.imported);
+        }
+        reach.go += plan.replaced.length;
+        reach.keep += plan.kept.length;
+      };
+      fc.assert(
+        fc.property(world, fc.nat(), (drawn, cut) => {
+          const { once, first, then } = twoWays(drawn, cut);
+          judge(drawn.entries, once);
+          judge(drawn.entries, first);
+          judge(store(drawn.entries, first), then);
+        }),
+        TWICE,
+      );
+      expect(reach.go).toBeGreaterThan(0);
+      expect(reach.keep).toBeGreaterThan(0);
+    },
+    TIMEOUT,
+  );
 
   it('every movement and left-out row is counted once', () => {
     fc.assert(
