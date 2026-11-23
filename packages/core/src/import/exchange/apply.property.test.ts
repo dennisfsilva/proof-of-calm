@@ -2,6 +2,7 @@ import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { anEntry, instant } from '../../../test/builders';
 import { heldGuards, type World, worldOf } from '../../../test/exchange/plan-arbitraries';
+import { coverCut, excepted, withoutExcepted } from '../../../test/exchange/plan-cover';
 import { LISBON, NOW } from '../../../test/exchange/plan-fixture';
 import { preCut } from '../../../test/exchange/plan-late';
 import { compareInstants, stampAfter } from '../../dates/calendar';
@@ -96,14 +97,18 @@ describe('applyExchangeImport over planExchangeImport, with importId', () => {
   it(
     "a prefix of a file's rows, written, then the whole file leaves the Log with the live ids and units per coin one import leaves",
     () => {
+      excepted.worlds = 0;
       fc.assert(
         fc.property(world, fc.nat(), (drawn, cut) => {
-          const { oneLog, twoLog } = twoWays(drawn, cut);
-          expect(ids(live(twoLog))).toEqual(ids(live(oneLog)));
-          expect(unitsPerCoin(live(twoLog))).toEqual(unitsPerCoin(live(oneLog)));
+          const { once, first, oneLog, twoLog } = twoWays(drawn, cut);
+          // DOMAIN §3.13 step 5's one exception: a sale the prefix stores on another import's entry (plan-cover.ts).
+          const two = withoutExcepted(live(twoLog), coverCut(drawn.entries, drawn.file, first, once, importId));
+          expect(ids(two)).toEqual(ids(live(oneLog)));
+          expect(unitsPerCoin(two)).toEqual(unitsPerCoin(live(oneLog)));
         }),
         TWICE,
       );
+      expect(excepted.worlds).toBeLessThan(TWICE.numRuns / 10);
     },
     TIMEOUT,
   );
