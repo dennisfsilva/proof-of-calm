@@ -7,6 +7,7 @@ import {
   type ExchangeImportPlan,
   type ImportRemedies,
   liveEntries,
+  underHalf,
 } from '@proofofcalm/core';
 
 /** Each exchange's name, the venue field's default (D7); a proper name, the same in every language. */
@@ -40,6 +41,8 @@ export function previewModel(plan: ExchangeImportPlan, ticked: ExchangeImportPla
     }));
   });
   const replaced = estimatesOf(plan);
+  // The estimates a month keeps, below half: one item each, with what the month's imported buys come to.
+  const kept = plan.kept.flatMap(({ estimates, imported }) => estimates.map((estimate) => ({ estimate, imported })));
   return {
     summary: {
       entries: plan.entries.length,
@@ -48,6 +51,7 @@ export function previewModel(plan: ExchangeImportPlan, ticked: ExchangeImportPla
       sales: of('sell').length,
       added: of('held').length,
       replaced,
+      kept: kept.length,
     },
     noneInCurrency: plan.noneInCurrency,
     // Ticking also adds the sales a guard left out uncovered that the Coins added entries then cover.
@@ -61,10 +65,15 @@ export function previewModel(plan: ExchangeImportPlan, ticked: ExchangeImportPla
           },
     fills: of('dca').filter((entry) => !replacing.has(entry.id)),
     replaces,
+    kept,
     extra: of('extra'),
     sales: of('sell'),
     added: of('held'),
-    recorded: plan.recorded.map((item) => ({ ...item, remedy: remedies.recorded.has(item.entry.id) })),
+    recorded: plan.recorded.map((item) => ({
+      ...item,
+      remedy: remedies.recorded.has(item.entry.id),
+      under: underHalf(item),
+    })),
     startingAmount: plan.startingAmount === null ? null : { ...plan.startingAmount, remedy: remedies.starting },
     cancelled: plan.cancelled,
     short: plan.short,

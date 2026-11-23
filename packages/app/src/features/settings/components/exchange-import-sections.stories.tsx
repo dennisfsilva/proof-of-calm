@@ -22,7 +22,7 @@ import { ExchangeSections, ExchangeSummary } from './exchange-import-sections';
 // Republic export (ADR-0056): an import that replaces an estimate, one that fills October's months, one the Log
 // records already, one with an item that says to delete its entry and one that does not, one whose rows are all left
 // out, a purchase the file cannot show to be part of the starting amount the Log holds, purchases the line asks to
-// change the starting amount to, an estimate the file leaves, Trade Republic's rows left out in its words, and a file imported
+// change the starting amount to, an estimate the file leaves, estimates kept and a claim under half, Trade Republic's rows left out in its words, and a file imported
 // before, with nothing to add. Each play opens its sections, so the test projects of
 // vitest.config.ts check the open lists at 360 and 1280 px, light and dark, with axe.
 
@@ -126,6 +126,37 @@ export const RecordedWithAndWithoutTheSentence: Story = {
     await expect(items.map((text) => text.endsWith(sentence))).toEqual([true, false]);
     // Its own line at the end of the item, in the secondary ink.
     await expect(canvas.getByText(sentence)).toHaveClass('block', 'text-ink-2');
+  },
+};
+
+// A purchase of 30 against October's estimate of 70: under half, the estimate stays beside the monthly buy.
+const thirty = krakenLedger([
+  ['TK1', '2026-10-05 09:00:00', 'trade', 'EUR', '-30.0000', '0.0800'],
+  ['TK1', '2026-10-05 09:00:00', 'trade', 'BTC', '0.0005000000', '0.0000000000'],
+]);
+
+export const EstimatesKept: Story = {
+  args: { shown: planOf(thirty, [...fixture.entries, ONE_TAP_OCTOBER]) },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText(/^Keeps 1 estimate from Bought as planned/)).toBeVisible();
+    await userEvent.click(canvas.getByRole('button', { name: 'Estimates it keeps (1)' }));
+    await expect(canvas.getByRole('list', { name: 'Estimates it keeps (1)' })).toBeVisible();
+  },
+};
+
+// The same purchase against a monthly buy of 120 typed by hand: counted as recorded, under half, with no sentence.
+const typed120: Entry = { ...typed, amount: '120' as Entry['amount'], units: '0.002' as Entry['units'] };
+
+export const UnderHalf: Story = {
+  args: {
+    shown: planOf(thirty, [...fixture.entries, typed120]),
+    remedies: remediesOf(thirty, [...fixture.entries, typed120]),
+  },
+  play: async ({ canvas }) => {
+    const name = 'Matching entries in the Log, not added (1)';
+    await userEvent.click(canvas.getByRole('button', { name }));
+    const [item] = canvas.getAllByRole('listitem').map((each) => each.textContent ?? '');
+    await expect(item).toMatch(/That is less than half of its amount\.$/);
   },
 };
 

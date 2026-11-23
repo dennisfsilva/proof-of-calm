@@ -5,6 +5,7 @@ import {
   type Entry,
   type ExchangeId,
   IMPORT_MATCH_DAYS,
+  IMPORT_TYPED_DAYS,
   isEstimate,
   isZero,
   MAX_UNIT_DECIMALS,
@@ -20,6 +21,7 @@ import { createNumberInput } from '../../../lib/format';
 import { useFormatters } from '../../../lib/services';
 import type { previewModel } from '../model/exchange-preview';
 import { useEstimateLines } from './exchange-estimate-line';
+import { useKeptItems } from './exchange-kept';
 import { useUncoveredItems } from './exchange-uncovered';
 
 // The exchange import's preview, worded (CONTENT-STYLE §3 "Import an exchange's file"): the summary, then one section
@@ -61,7 +63,7 @@ export function ExchangeSummary({ model, plan }: Props) {
   const t = useTranslations('settings.data.exchange');
   const w = useWords(plan);
   const estimates = useEstimateLines(model.estimates, w);
-  const { entries, replaced, ...kinds } = model.summary;
+  const { entries, replaced, kept, ...kinds } = model.summary;
   const named = (['monthly', 'extra', 'sales', 'added'] as const).flatMap((kind) =>
     kinds[kind] === 0 ? [] : [t(`kinds.${kind}`, w.counted(kinds[kind]))],
   );
@@ -99,6 +101,7 @@ export function ExchangeSummary({ model, plan }: Props) {
     <>
       <p>{entries === 0 ? t('nothing') : t('summary', { ...w.counted(entries), kinds: w.format.list(named) })}</p>
       {replaced > 0 && <p>{t('replaces', w.counted(replaced))}</p>}
+      {kept > 0 && <p>{t('keeps', w.counted(kept))}</p>}
       {model.noneInCurrency !== null && (
         <p>{t('noneInCurrency', { plan: plan.payCurrency, file: w.format.list(model.noneInCurrency) })}</p>
       )}
@@ -162,8 +165,8 @@ export function ExchangeSections({ model, plan, exchange }: SectionsProps) {
     });
   const each = (entries: readonly Entry[], text: (entry: Entry) => string) =>
     entries.map((entry) => ({ key: entry.id, text: text(entry) }));
-  const title = (key: 'fills' | 'replaces' | 'extra' | 'sales' | 'added' | 'recorded' | 'leftOut', items: unknown[]) =>
-    t(`section.${key}`, { count: w.figure(items.length) });
+  type Key = 'fills' | 'replaces' | 'keeps' | 'extra' | 'sales' | 'added' | 'recorded' | 'leftOut';
+  const title = (key: Key, items: unknown[]) => t(`section.${key}`, { count: w.figure(items.length) });
   const leftOut = useLeftOut({ model, plan, exchange }, w);
   const replaces = model.replaces.map(({ estimate, by, otherVenue }) => {
     // Several purchases are summed as the recorded line sums a hand entry's dates: their count, units, amount and fees
@@ -190,8 +193,10 @@ export function ExchangeSections({ model, plan, exchange }: SectionsProps) {
     });
     return { key: estimate.id, text };
   });
+  const kept = useKeptItems(model.kept, { money: w.money, month, estimate: (entry) => piece(entry, [], true) });
   const recorded = model.recorded.map((row) => {
-    const text = t('recorded', {
+    // Under half of the entry's amount, the item states the claim and asks for nothing (docs/DOMAIN.md §3.13).
+    const text = t(row.under ? 'recordedUnder' : 'recorded', {
       // Counted by transaction, as the hint is: several on one date read as purchases (or sales) in all.
       count: row.count,
       role: row.entry.kind === 'sell' ? 'sale' : 'purchase',
@@ -201,6 +206,7 @@ export function ExchangeSections({ model, plan, exchange }: SectionsProps) {
       label: t('label', { kind: row.entry.kind, month: month(row.entry), date: on(row.entry) }),
       // A one-tap entry's units are an estimate, as the Left out line marks its lump.
       entry: piece(row.entry, [row.units], true, isEstimate(row.entry)),
+      days: w.figure(IMPORT_TYPED_DAYS),
     });
     // Only where deleting the entry imports what the item says (importRemedies, docs/DOMAIN.md §3.13).
     // Counted by transaction: several on one date are several (`count`).
@@ -216,6 +222,7 @@ export function ExchangeSections({ model, plan, exchange }: SectionsProps) {
         items={each(model.fills, (entry) => t('fill', { month: month(entry), piece: piece(entry), date: on(entry) }))}
       />
       <Section title={title('replaces', replaces)} items={replaces} />
+      <Section title={title('keeps', kept)} items={kept} />
       <Section
         title={title('extra', model.extra)}
         items={each(model.extra, (entry) => t('extra', { piece: piece(entry), date: on(entry) }))}
