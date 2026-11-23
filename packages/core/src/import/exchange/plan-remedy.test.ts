@@ -336,6 +336,33 @@ describe('importRemedies', () => {
     expect(remedies(SHARED, { plan: PLAN, entries: changed }).has(second.id)).toBe(false);
   });
 
+  // CI's seed -1611705441 of the sentence's property, in short: a hand extra of 0.001 BTC records the file's purchase of
+  // 0.9 on 6 Feb (step 2), and a Coins added entry of 0.00001 BTC on 29 Aug reaches the sale of 0.78 on 9 Aug, which the
+  // extra alone does not cover, so it stays out. Deleting the extra adds 6 Feb, which covers the sale, so it comes in.
+  const UNCOVERED: Case = (() => {
+    const file = [bought('BTC', '2026-02-06', '900', '0.9'), sold('BTC', '2026-08-09', '90', '0.78')];
+    const coins = hand({ kind: 'held', slot: null, date: date('2026-08-29'), amount: null, units: units('0.00001') });
+    return { plan: PLAN, file, shorter: [], entries: [extra('2026-02-06', '70', { units: units('0.001') }), coins] };
+  })();
+
+  it('a sale left out uncovered: the sentence shows, and deleting the row adds the date and the sale it covers', () => {
+    const typed = UNCOVERED.entries[0] as Entry;
+    const stored = { plan: PLAN, entries: UNCOVERED.entries };
+    expect(remedies(UNCOVERED, stored)).toEqual(new Set([typed.id]));
+    expect(planOf(UNCOVERED, UNCOVERED.entries).uncovered.map((each) => [each.date, each.units])).toEqual([
+      ['2026-08-09', '0.78'],
+    ]);
+    const { again, log } = follow(UNCOVERED, stored, typed);
+    expect([again.uncovered, again.entries.map((entry) => [entry.kind, entry.date, entry.units])]).toEqual([
+      [],
+      [
+        ['dca', '2026-02-06', '0.9'],
+        ['sell', '2026-08-09', '0.78'],
+      ],
+    ]);
+    expect(invested(UNCOVERED, log)).toBe('900');
+  });
+
   const MANY: Case = (() => {
     const days = Array.from({ length: IMPORT_RECORDED_CHECKS + 1 }, (_, index) =>
       addDays(date('2026-01-01'), index * 5),
