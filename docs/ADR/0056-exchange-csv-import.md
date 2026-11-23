@@ -231,7 +231,11 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   removed the 600 and Invested fell to 1.37 (Bruno). Step 5 now tombstones C's live estimates for S only
   when the import adds a monthly buy of C for S and the imported buys of C for S, the sum of `amount`
   over the live `import-csv` monthly buys from any file and this import's, fees excluded, reach half the
-  largest estimate (`F + F >= largest`, a tie replaces). Under half, the estimates stay beside the buys,
+  largest estimate (`F + F >= largest`, a tie replaces). A live buy the file names for deletion as
+  cancelled (step 1) is not counted, and a named monthly buy carries its month's tombstoned estimates
+  when the buys left once the named entries are deleted are all imported and under half the largest of
+  them, so the parts of an export end where one import of the whole file does (Nina: an export stores
+  60 against a tap of 200, the whole file holds 50 and cancels the 60: 250 either way). Under half, the estimates stay beside the buys,
   which are still added as monthly buys (604.11 for Bruno), and the preview says `Keeps` with one item
   per estimate. No venue is read: a later Kraken file of 200 for Bruno's month replaces the estimate
   (201.37), and two files in either order leave one Log. Step 2's claims take the same line: an item
