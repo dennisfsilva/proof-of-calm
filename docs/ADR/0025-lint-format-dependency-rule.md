@@ -143,5 +143,5 @@ corrected here instead of rewritten (`docs/ADR/README.md`).
   of the unattended sessions: it scans a pull request when it is opened and on each push
   (https://docs.socket.dev/docs/socket-for-github-pull-request-scanning.md, read 2026-11-19), and a
   session's wait on a pull request's checks reads every row, so a pending or failed one lengthens or
-  trips the wait. The owner can reverse this with a free install of about two minutes
+  trips the wait. The owner can reverse this by installing the free app
   (https://docs.socket.dev/docs/socket-for-github-installation.md, read 2026-11-19).

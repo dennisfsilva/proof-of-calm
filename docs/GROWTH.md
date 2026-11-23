@@ -89,7 +89,7 @@ The name carries the calm; the line under it carries the category. People search
 |---|---|---|
 | Name | Calm, and a nod to crypto's "proof of work" and "proof of stake" | everywhere |
 | Category | A crypto DCA planner and purchase log | page titles and the first line of every listing and post; a store title carries the descriptor (§4.6), and the description under a title is the message `manifest.description` |
-| Difference | Every purchase kept with its date and price after the coins leave the exchange; one record across exchanges and wallets; the day each purchase passes the holding period in Portugal and Germany; a plan with its end decided in advance; custody-free and usable without an account; no news, no feed and no price notifications (one line on Today, once per fall) | the landing page and store subtitles in words; example images follow ADR-0009's Reading of 2026-11-23 and show none of it |
+| Difference | Every purchase kept with its date and price after the coins leave the exchange; one record across exchanges and wallets; the day each purchase passes the holding period in Portugal and Germany; a plan with its end decided in advance; custody-free and usable without an account; no news, no feed and no price notifications (one line on Today, once per fall) | the landing page and store subtitles in words; example images follow ADR-0009's Reading of 2026-11-23 and show only the holding date, on the public holding-date page |
 | Proof | Dated country rules with sources; a "what this app leaves out" page; a simulator that shows drawdowns first; "free core forever" in writing; no affiliate links; never asks for keys (ADR-0039) | the site, the press page |
 | Promise about DCA | It takes the timing decision away. It does not make crypto less risky. | the landing page, store descriptions, Learn "Start here" |
 
@@ -183,7 +183,7 @@ landing page says so in one sentence. It loses a few sign-ups and keeps the wron
 
 ### 2.7 Brand protection
 
-- The EU trade mark in classes 9, 36, 41 and 42 once the TMview search is clean (`docs/LEGAL.md` §1).
+- The EU trade mark, as the word mark in classes 9, 41 and 42 (`docs/LEGAL.md` §1).
 - Handles checked on 2026-10-17: free on YouTube (@proofofcalm), TikTok (@proofofcalm), Bluesky
   (proofofcalm.bsky.social), GitHub (organisation proof-of-calm) and npm (organisation proofofcalm);
   probably free on Telegram; X, Instagram, Threads, LinkedIn and Reddit could not be checked
@@ -414,10 +414,10 @@ Decided on 2026-10-17: yes (§0, item 6). The provider and its consent text are 
   noise" (29).
 - iOS keywords (100 characters) and the Google Play short description (80): the category and the
   local terms from §4.1; never another company's name.
-- Screenshots: the set of ADR-0009's Reading of 2026-11-23, which names no coin. Four images: Today
-  with the current month recorded and no price answer; the Learn index; Portugal's country page; the
-  public holding-date page with a result for Portugal. The "What this app leaves out" page joins
-  once it exists.
+- Screenshots: the set of ADR-0009's Reading of 2026-11-23, which names no coin. Four images, the
+  one that shows the difference first: the public holding-date page with a result for Portugal;
+  Portugal's country page; Today with the current month recorded and no price answer; the Learn
+  index. The "What this app leaves out" page joins once it exists.
 - No UK storefront (ADR-0029). Listing text lives in the repository, under the lint.
 
 ### 4.7 Launch moments and the calendar
@@ -543,7 +543,7 @@ Cash for growth in year 1, apart from the product's running costs:
 | Item | Cost |
 |---|---|
 | Domains (.com and .app) | about €20 a year |
-| EU trade mark, three or four classes | €1,050 or €1,200 in official fees, plus an optional clearance opinion of €600–1,500 (`docs/LEGAL.md` §1) |
+| EU trade mark, three classes | €1,050 in official fees; no clearance opinion is bought (`docs/LEGAL.md` §1) |
 | An address for the Impressum, never the home address (`docs/LEGAL.md` §5) | a monthly fee for a domiciliation or coworking address |
 | A native German reviewer for the pages and the app | an estimate of €500–1,500 |
 | The mailing list | €0 on a free tier for the first months |
