@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { aMove, anEntry, aPlan, date, instant, money, month, units } from '../../../test/builders';
+import { aMove, anEntry, aPlan, date, instant, money, month, split, units } from '../../../test/builders';
 import { CHOICES, FILE, LISBON, NOW, testId, trade } from '../../../test/exchange/plan-fixture';
+import { minus, plus } from '../../money/decimal';
 import { compareEntries } from '../../portfolio/lots';
 import type { Entry } from '../../schema/entry';
 import type { CoinId } from '../../schema/ids';
 import type { Plan } from '../../schema/plan';
+import { applyExchangeImport } from './apply';
 import type { LeftOutRow, Movement } from './kraken';
 import { type ExchangeImportPlan, planExchangeImport, shownPlaces } from './plan';
 
@@ -405,5 +407,124 @@ describe('the move check, at the places the preview shows', () => {
       logged: [{ coin: 'BTC', units: '0.01000000001', count: 1 }],
       notLogged: [{ coin: 'BTC', units: '0.01000000002', count: 1 }],
     });
+  });
+});
+
+describe('the sales a guard reaches', () => {
+  // Sofia: a starting amount of €1,000 and a first buy on 1 Nov 2026; her Kraken history holds four 2025 purchases of
+  // 1.0 BTC in all, 0.6 BTC sold on 1 Sept 2025 for €57,000, then 0.002 BTC bought on 1 Nov and on 1 Dec.
+  const sofia = aPlan({
+    firstBuy: date('2026-11-01'),
+    lastBuy: date('2027-06-01'),
+    startingAmount: money('1000'),
+    split: split({ BTC: '100', ETH: '0' }),
+  });
+  const greta = { ...sofia, startingAmount: money('0') };
+  const DECEMBER = { ...LISBON, today: date('2026-12-05') };
+  const history = ['2025-02-01', '2025-04-01', '2025-06-01', '2025-08-01'].map((day, n) =>
+    buy(`H-${n}`, 'BTC', day, '0.25', '20000'),
+  );
+  const sale = (day: string, units_ = '0.6', ref = `S-${day}`) =>
+    trade(ref, 'sale', 'BTC', day, { units: units_, amount: '57000', fee: '57' }, 40);
+  const [NOV, DEC] = [
+    buy('N-1101', 'BTC', '2026-11-01', '0.002', '100'),
+    buy('N-1201', 'BTC', '2026-12-01', '0.002', '100'),
+  ];
+  const whole = [...history, sale('2025-09-01'), NOV, DEC];
+  const planOf = (plan: Plan, entries: readonly Entry[], movements: readonly Movement[], addHeld = false) =>
+    planExchangeImport({ ...FILE, movements, leftOut: [] }, { plan, entries }, { ...CHOICES, addHeld }, DECEMBER);
+  const store = (plan: Plan, entries: readonly Entry[], movements: readonly Movement[], addHeld = false) =>
+    applyExchangeImport(entries, planOf(plan, entries, movements, addHeld), NOW).entries;
+  /** BTC the Log holds: every live entry's units, a sale's taken away and a move's left out. */
+  const btc = (entries: readonly Entry[]) =>
+    entries
+      .filter((entry) => entry.deletedAt === null && entry.coin === 'BTC' && entry.kind !== 'move')
+      .reduce(
+        (total, entry) => (entry.kind === 'sell' ? minus(total, entry.units) : plus(total, entry.units)),
+        units('0'),
+      );
+  const late = (movements: readonly Movement[]) => movements.filter((m) => LISBON.dateOf(m.at) >= '2026-01-01');
+  const early = (movements: readonly Movement[]) => movements.filter((m) => LISBON.dateOf(m.at) < '2026-01-01');
+  const coinsAdded = (day: string, units_: string) => held(day, units_, '1000');
+
+  it('Sofia: the sale her starting amount reaches is left out and named, in one import and in two either way', () => {
+    const plan = planOf(sofia, [], whole);
+    expect(plan.entries.map((entry) => entry.date)).toEqual(['2026-12-01']);
+    expect(plan.uncovered).toEqual([
+      {
+        id: testId(sale('2025-09-01').key),
+        coin: 'BTC',
+        date: '2025-09-01',
+        units: '0.6',
+        amount: '57000',
+        reach: { kind: 'starting', through: '2026-11-16' },
+      },
+    ]);
+    const once = store(sofia, [], whole);
+    const lateFirst = store(sofia, store(sofia, [], late(whole)), early(whole));
+    const earlyFirst = store(sofia, store(sofia, [], early(whole)), late(whole));
+    expect([once, lateFirst, earlyFirst].map(btc)).toEqual(['0.002', '0.002', '0.002']);
+    expect(planOf(sofia, lateFirst, whole).uncovered).toHaveLength(1);
+  });
+
+  it('Sofia: a sale on 16 Nov, the last day the starting amount reaches, is left out; one on 17 Nov is stored', () => {
+    expect(planOf(sofia, [], [...history, sale('2026-11-16'), NOV, DEC]).uncovered).toHaveLength(1);
+    const after = planOf(sofia, [], [...history, sale('2026-11-17'), NOV, DEC]);
+    expect([after.uncovered, after.entries.map((entry) => entry.kind)]).toEqual([[], ['sell', 'dca']]);
+  });
+
+  it('Sofia with Coins added 0.4 on 1 Nov: the starting reach is named, and the Log holds 0.402', () => {
+    const entries = [coinsAdded('2026-11-01', '0.4')];
+    expect(planOf(sofia, entries, whole).uncovered[0]?.reach).toEqual({ kind: 'starting', through: '2026-11-16' });
+    expect(btc(store(sofia, entries, whole))).toBe('0.402');
+  });
+
+  it('Greta: unticked nothing is added and the Log holds 0.4; ticked 6 entries and 0.802; unticked then ticked 0.802', () => {
+    const entries = [coinsAdded('2026-11-10', '0.4')];
+    const file = [...history, sale('2025-09-01'), NOV];
+    const unticked = planOf(greta, entries, file);
+    expect([unticked.entries, btc(store(greta, entries, file))]).toEqual([[], '0.4']);
+    expect(unticked.uncovered.map((each) => each.reach)).toEqual([{ kind: 'held', units: '0.4', date: '2026-11-10' }]);
+    const ticked = planOf(greta, entries, file, true);
+    expect([ticked.entries.length, ticked.uncovered, btc(store(greta, entries, file, true))]).toEqual([6, [], '0.802']);
+    expect(btc(store(greta, store(greta, entries, file), file, true))).toBe('0.802');
+  });
+
+  it('Greta2: one purchase of 1.0 the Coins added entry does not fit covers the sale: 0.8, the cost stated', () => {
+    const file = [buy('G2', 'BTC', '2025-02-01', '1', '80000'), sale('2025-09-01')];
+    const plan = planOf(greta, [coinsAdded('2026-11-10', '0.4')], file);
+    expect([plan.uncovered, btc(store(greta, [coinsAdded('2026-11-10', '0.4')], file))]).toEqual([[], '0.8']);
+  });
+
+  it('cover: a hand purchase of 0.6 before the sale covers it; one of 0.5999 does not', () => {
+    const typed = (units_: string) =>
+      anEntry({ kind: 'extra', slot: null, date: date('2025-08-01'), units: units(units_) });
+    const file = [sale('2025-09-01'), DEC];
+    expect(planOf(sofia, [typed('0.6')], file).uncovered).toEqual([]);
+    expect(planOf(sofia, [typed('0.5999')], file).uncovered).toHaveLength(1);
+  });
+
+  it('Bea2: the history typed by hand covers the sale, so it is stored: 0.402', () => {
+    const typed = history.map((movement) =>
+      anEntry({
+        kind: 'extra',
+        slot: null,
+        date: LISBON.dateOf(movement.at),
+        units: movement.units,
+        amount: money('20000'),
+      }),
+    );
+    expect(planOf(sofia, typed, whole).uncovered).toEqual([]);
+    expect(btc(store(sofia, typed, whole))).toBe('0.402');
+  });
+
+  it('the tick walk: a one-tap estimate never covers a sale, so it is left out ticked and unticked', () => {
+    const estimate = anEntry({ slot: month('2026-08'), date: date('2026-08-01'), source: 'one-tap' });
+    const entries = [estimate, held('2026-08-30', '0.001', '70')];
+    const file = [sale('2026-08-05', '0.0005'), buy('T-0810', 'BTC', '2026-08-10', '0.0008')];
+    for (const addHeld of [false, true]) {
+      const plan = planOf(PLAIN, entries, file, addHeld);
+      expect([plan.uncovered.length, plan.entries.filter((entry) => entry.kind === 'sell')]).toEqual([1, []]);
+    }
   });
 });

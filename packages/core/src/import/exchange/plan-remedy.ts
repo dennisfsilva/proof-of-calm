@@ -46,7 +46,8 @@ function ends(touched: Touched, again: ExchangeImportPlan) {
 
 /**
  * Every untouched date group added exactly as in `shown` or not at all; the same tombstones but for a touched date's
- * new month; each touched group ends as it says.
+ * new month; each touched group ends as it says. A sale `shown` leaves out uncovered that `again` adds is no change,
+ * since the change covers it; never the reverse.
  */
 export function keepsPromise(
   shown: ExchangeImportPlan,
@@ -54,7 +55,11 @@ export function keepsPromise(
   touched: readonly Touched[],
 ): boolean {
   const ids = new Set(touched.flatMap((each) => each.ids));
-  const untouched = (plan: ExchangeImportPlan) => plan.entries.filter((entry) => !ids.has(entry.id)).map(shape);
+  const covered = new Set(shown.uncovered.map((each) => each.id));
+  const untouched = (plan: ExchangeImportPlan) =>
+    plan.entries
+      .filter((entry) => !ids.has(entry.id) && !(plan === again && entry.kind === 'sell' && covered.has(entry.id)))
+      .map(shape);
   const freed = new Set(
     again.entries.filter((entry) => ids.has(entry.id) && entry.kind === 'dca').map((e) => `${e.coin}|${e.slot}`),
   );

@@ -385,9 +385,11 @@ function followStart(drawn: World, stored: Stored, line: StartingRemedy, lumps: 
     ...[...coins, ...lumps.map((each) => each.coin)].map((coin) => `${coin}|${line.date}|purchase`),
     ...before.flatMap((item) => item.dates.map((day) => `${item.coin}|${day}|purchase`)),
   ]);
+  // A sale the shown plan left out uncovered that the change covers may come back; never the reverse.
+  const covered = new Set(shown.uncovered.map((each) => each.id));
   const rest = (plan: ExchangeImportPlan) =>
     plan.entries
-      .filter((entry) => !touched.has(groupOf(entry)))
+      .filter((entry) => !touched.has(groupOf(entry)) && !(plan === again && covered.has(entry.id)))
       .map(({ updatedAt: _, ...each }) => JSON.stringify(each))
       .sort();
   // A date the edited row recorded before may come back as a monthly buy, which frees its month's one-tap estimate.

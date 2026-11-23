@@ -1343,3 +1343,27 @@ describe('the starting line, its totals', () => {
     },
   );
 });
+
+describe('the starting line, with a sale its reach leaves out', () => {
+  // The starting amount bought on 1 Oct, 0.005 BTC of it sold on 5 Oct, the first buy on 1 Nov: the sale is left out
+  // while 1 Oct is, and recording 1 Oct covers it, so the instruction shows and following it imports the sale.
+  const SOLD = trade('S-1005', 'sale', 'BTC', '2026-10-05', { units: '0.005', amount: '400', fee: '0' }, 900);
+  const OCTOBER: Case = {
+    plan: aPlan({
+      firstBuy: date('2026-11-01'),
+      startingAmount: money('1000'),
+      split: split({ BTC: '100', ETH: '0' }),
+    }),
+    file: [buy('BTC', '2026-10-01', '1000', '0.0125'), SOLD],
+    entries: [],
+  };
+
+  it('record it on 1 Oct, then the sale is imported', () => {
+    expect(planOf(OCTOBER, []).uncovered.map((each) => each.id)).toEqual([testId(SOLD.key)]);
+    expect(starting(OCTOBER, [])).toEqual(instruction('record', '2026-10-01', ['BTC', '1000', '0.0125', 1]));
+    const changed = record(OCTOBER, [], 'lump', '2026-10-01', TEN_JUNE) as Entry[];
+    expect(starting(OCTOBER, changed)).toBeNull();
+    const again = planOf(OCTOBER, changed);
+    expect([again.uncovered, again.entries.map((entry) => entry.id)]).toEqual([[], [testId(SOLD.key)]]);
+  });
+});
