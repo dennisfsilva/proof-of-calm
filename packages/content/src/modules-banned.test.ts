@@ -29,10 +29,10 @@ describe('the ban lint on a wrapped paragraph of a Learn module', () => {
     expect(banned(paragraph)).toContain('banned-imperative');
   });
 
-  it.each([
-    'Some people say:\nBuy Bitcoin every month.',
-    'Há quem diga:\nCompre Bitcoin todos os meses.',
-  ])('keeps the raw read’s English and Portuguese refusal: %j', (paragraph) => {
-    expect(banned(paragraph)).toContain('banned-imperative');
-  });
+  it.each(['Some people say:\nBuy Bitcoin every month.', 'Há quem diga:\nCompre Bitcoin todos os meses.'])(
+    'keeps the raw read’s English and Portuguese refusal: %j',
+    (paragraph) => {
+      expect(banned(paragraph)).toContain('banned-imperative');
+    },
+  );
 });
