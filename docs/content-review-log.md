@@ -17,9 +17,10 @@ BTC late-2011 windows and Bitcoinity's Mt. Gox export; at 08:34 art. 1 commi 23 
 Normattiva, in the view in force that day and in the view the fact cites, and art. 1 comma 28 of
 L. 199/2025; at 08:35 twelve consecutive ETH-USD windows from 1 Jan 2017 to 17 Oct 2026 (3,577 daily
 candles, no gap), recomputed with the method of `docs/research/scripts/analysis/analyze.py`
-(`dca_windows`), and CoinMarketCap's LINK 2019 window and four BTC windows. Normattiva was read through
-WebFetch, which returns a comma as quoted fragments in order; the raw HTML was not opened. The fragments
-of both views and of the amending comma agree word for word.
+(`dca_windows`), and CoinMarketCap's LINK 2019 window and four BTC windows; at 08:42 Bitstamp's BTC/USD
+daily candles (8 requests, each HTTP 200). Normattiva was read through WebFetch, which returns a comma as
+quoted fragments in order; the raw HTML was not opened. The fragments of both views and of the amending
+comma agree word for word.
 
 | Item | Source | What the source holds | Verdict |
 |---|---|---|---|
@@ -37,6 +38,8 @@ of both views and of the amending comma agree word for word.
 | `a.btc-drawdowns` and `i.diminishing`: the 2011 Mt. Gox high | Bitcoinity's Mt. Gox daily export, `https://data.bitcoinity.org/export_data.csv?currency=USD&data_type=price&exchange=mtgox&r=day&t=l&timespan=all`, the `source` of the cycles file's BTC 2011 row | HTTP 200, header `Time,avg,max,min`, 1,374 rows from 2010-07-17 to 2014-05-18; "2011-06-08 00:00:00 UTC,27.2782783028475,31.9099,22.2135", the highest `max` of 2011; 29 Nov 2013: `max` 1242.0 | Holds ($31.91 on 8 Jun 2011; $1,242 a day before Bitstamp's high); the same answer covers fact i |
 | `a.btc-drawdowns` and `i.diminishing`: the 2011 low | CoinMarketCap historical, id 1, `timeStart=1317600000&timeEnd=1325376000` (91 quotes), the row's `lowSource` | Lowest low 1.91631609 on 22 Nov 2011; from 31.9099 a fall of 93.995 % | Holds ($1.92, −94.0 %) |
 | `a.btc-drawdowns`: the CoinMarketCap figures in brackets | CoinMarketCap historical, id 1, windows 2013-11-01 to 2015-02-01, 2017-12-01 to 2018-01-01 and 2025-09-25 to 2025-10-20 | High 1156.1400146484 on 30 Nov 2013 to low 171.5099945068 on 14 Jan 2015, 85.165 %; high 20089 on 17 Dec 2017; high 126198.0696034339 on 6 Oct 2025 | Hold (−85.2 %, $20,089, $126,198.07) |
+| `a.btc-drawdowns` and `i.diminishing`: the Bitstamp figures | Bitstamp BTC/USD OHLC, the facts' `source` (`limit=1000&start=1385769600`, 1,000 candles from 2013-11-30) and six requests with `start` moved, 2012-11-28 to 2026-11-23 (5,109 candles, no gap) | Highs 1163 on 30 Nov 2013, 19666 on 17 Dec 2017, 69000 on 10 Nov 2021 and 126272 on 6 Oct 2025; lows 152.4 on 14 Jan 2015, 3122.28 on 15 Dec 2018, 15479 on 21 Nov 2022 and, to 16 Oct 2026, 57734.63 on 1 Jul 2026: falls of 86.896, 84.123, 77.567 and 54.278 %; on closes 84.858, 83.429, 76.663 and 53.077 %. After the facts' date: a low of 55081.31 on 21 Nov 2026, 56.379 % below the high | The figures hold as dated, to 16 Oct 2026; the dates do not move, because the current cycle's low has moved since (below) |
+| `c.current-cycle` | Bitstamp BTC/USD OHLC, the fact's `source` (`limit=376&start=1759708800`, 376 candles, 2025-10-06 to 2026-10-16) | High 126272 and highest close 124728 on 6 Oct 2025; lowest low 57734.63 on 1 Jul 2026; lowest close 58526.17 on 30 Jun 2026; month-end closes 109554, 90382, 87496, 78635, 66985, 68215, 76310, 73567.99, 58526.17, 62817.96, 78571.17 and 83562.58; close 81501.1 on 16 Oct 2026, 35.456 % below the high, 41.165 % above the low, 375 days after the high | The figures hold as dated; the dates do not move (below) |
 
 | Kind | What was wrong | What it became |
 |---|---|---|
@@ -58,10 +61,25 @@ dates stay.
 
 Left for the owner's review due 2027-01-01: the Taxes module's Italy example, in English and in pt-PT, and
 "flat 33%" in Italy's `summary60`, to be read again when the comma moves to D.Lgs. 117/2026; and the eight
-Bitstamp facts whose source URLs #332 changed (`a.btc-drawdowns`, `c.current-cycle`, `h.halving-to-high`,
-`i.diminishing`, `o.dca-windows`, `p.simulator-examples`, `q.red-day-frequency` and
-`q.red-day-frequency-eth`), which this read did not recompute: they keep `accessed` 2026-11-02. The modules'
-`Last reviewed` dates stay as they were (`docs/CONTENT-OPS.md` §1).
+Bitstamp facts whose source URLs #332 changed, which all keep `accessed` 2026-11-02 and their
+`lastReviewed`:
+
+- `a.btc-drawdowns`, `i.diminishing` and `c.current-cycle` were re-read (the last two rows of the table) and
+  every figure holds as dated, to 16 Oct 2026. Bitstamp's lowest low since the 2025 high is now 55,081.31 on
+  21 Nov 2026, 56.4 % below the high, where the three facts give $57,735 on 1 Jul 2026 and −54.3 % (in
+  fact i, −54 %) so far, and the Cycles module quotes that low. A review dated today cannot sign a low the
+  series has since passed, and a new low is a change of figures in the facts and in the module that quotes
+  them, which this branch does not make.
+- `h.halving-to-high` rests on the halving block times of fact g, whose source this read did not open; the
+  four high days it counts to hold on Bitstamp (the table's row on the Bitstamp figures).
+- `o.dca-windows`, `p.simulator-examples`, `q.red-day-frequency` and `q.red-day-frequency-eth` were not
+  recomputed. The scripts under `docs/research/scripts/analysis/` do not give every figure of these facts
+  from Bitstamp's candles as they stand: `analyze.py` and `extra.py` read another series' file and hold no
+  median, maximum, month-ends below cost, simulator example or buy-day comparison; `analyze2.py` takes the
+  90-day high from the 90 days before the date, where `docs/EDUCATION.md` §9 reads the date and the 89 before
+  it, and reads ETH from Coinbase.
+
+The modules' `Last reviewed` dates stay as they were (`docs/CONTENT-OPS.md` §1).
 
 ## 2026-11-15: When the market drops and the BIS fact, the delegated read
 
