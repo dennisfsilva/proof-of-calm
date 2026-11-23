@@ -1288,7 +1288,11 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   D are all monthly buys for one month or all extra buys. It shows only when its check passes: the row
   edited as the Log edits it (`changedLog`, kind `edit`) to D, each staying coin's cost and units set to
   its purchases on D, the row's other coins kept, and the file planned again records D by each estimate
-  and keeps every other date group (`keepsPromise`). It is checked on the Log as shown only, before the
+  and keeps every other date group (`keepsPromise`), but for a sale the shown plan leaves out uncovered
+  that the edit covers, which may be added as for the other lines: a Coins added entry of 0.0021 BTC on
+  15 Oct guards March's purchase of 0.0021 on 17 Mar, so a sale of 0.00016 on 14 Sep stays out until
+  the tap, edited to that purchase, covers it (`packages/core/src/import/exchange/plan-lines.test.ts`).
+  It is checked on the Log as shown only, before the
   import, since the import stores the purchase and the line then no longer applies; an estimate whose
   units the edit leaves unchanged stays one-tap (`savedSource`), so its check fails and no line shows. At
   most `IMPORT_ESTIMATE_CHECKS` rows (§9), newest first, none past `IMPORT_REMEDY_MAX_MOVEMENTS`.
