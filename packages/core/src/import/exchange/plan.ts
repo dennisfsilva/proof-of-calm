@@ -225,6 +225,7 @@ export function planExchangeImport(
     const entry = known.get(context.idOf(movement.key));
     return entry === undefined || entry.deletedAt !== null ? [] : [entry];
   });
+  const gone = new Set(paired.map((entry) => entry.id));
   const put = (list: Day[], item: Day['items'][number], role: Movement['role']) => {
     const day = list.find((each) => each.coin === item.coin && each.role === role && each.date === item.date);
     if (day === undefined) list.push({ coin: item.coin, role, date: item.date, items: [item], claimed: list !== days });
@@ -296,12 +297,11 @@ export function planExchangeImport(
 
   // Steps 5 and 6 (plan-estimates.ts): the monthly buys and the one-tap estimates they replace or keep; every other
   // purchase is an extra buy.
-  const filled = fillMonths({ plan, stored: stored.entries, live, days, months, monthOf, add, added: entries });
+  const filled = fillMonths({ plan, stored: stored.entries, live, days, months, monthOf, add, added: entries, gone });
   for (const day of days.filter((each) => !each.claimed)) add(day, KIND[day.role], null, '');
 
   // The import never brings a tombstone back: a named monthly buy carries C's tombstoned estimates for its month when,
   // once this import adds its entries and the person deletes the named ones, no live monthly buy of C for it is left.
-  const gone = new Set(paired.map((entry) => entry.id));
   const bought = (entry: Entry) =>
     [...live, ...entries].some(
       (other) => other.kind === 'dca' && other.coin === entry.coin && other.slot === entry.slot && !gone.has(other.id),
