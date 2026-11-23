@@ -101,3 +101,9 @@ corrected here instead of rewritten (`docs/ADR/README.md`).
   module's product sentences against the code (#24's comment 6839452863), so on the module and its five
   facts `reviewedBy: owner` records the 2026-11-12 delegation, not a person's read. What it found:
   `docs/content-review-log.md`. The rule stands for every other content PR.
+- 2026-11-23: on the owner's delegation of 2026-11-18 (the tracker's Needs-you items, with leave for the
+  deciding session to merge its content fixes), a session made the read and the merge of this pull request's
+  facts: `k.it-2026`, `b.alt-drawdowns`, `o.dca-windows-eth` and `p.simulator-examples-eth`. An agent opened
+  each source and recomputed every figure; no person opened the sources, so on those facts
+  `reviewedBy: owner` records the delegation, not a person's read. What it found:
+  `docs/content-review-log.md`. The rule stands for every other content PR.
