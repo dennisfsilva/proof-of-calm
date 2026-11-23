@@ -40,12 +40,12 @@ describe('previewModel', () => {
   it('counts each kind, the estimates replaced, and gives each section its entries', () => {
     const shown = planOn([...fixtureSnapshot().entries, ONE_TAP_OCTOBER], false);
     const model = previewModel(shown);
-    expect(model.summary).toEqual({ entries: 5, monthly: 3, extra: 0, sales: 1, added: 1, replaced: 1 });
+    expect(model.summary).toEqual({ entries: 5, monthly: 3, extra: 0, sales: 1, added: 1, replaced: 1, kept: 0 });
     const btc = shown.entries.filter((entry) => entry.kind === 'dca' && entry.coin === 'BTC');
     expect(btc.map((entry) => entry.date)).toEqual(['2026-10-05', '2026-10-12']);
     expect(model.fills.map((entry) => [entry.coin, entry.date])).toEqual([['ETH', '2026-10-05']]);
     expect(model.replaces).toEqual([{ estimate: ONE_TAP_OCTOBER, by: btc, otherVenue: true }]);
-    expect(model.extra).toEqual([]);
+    expect([model.extra, model.kept]).toEqual([[], []]);
     expect(model.sales.map((entry) => [entry.coin, entry.units])).toEqual([['ETH', '0.01']]);
     expect(model.added.map((entry) => [entry.coin, entry.amount])).toEqual([['BTC', '0']]);
     expect([model.held, model.noneInCurrency, model.recorded, model.startingAmount]).toEqual([null, null, [], null]);
@@ -108,6 +108,16 @@ describe('previewModel', () => {
       [eth.id, false],
     ]);
     expect(previewModel(shown).recorded.map((item) => item.remedy)).toEqual([false, false]);
+    // The file's 30 of ETH on 5 Oct is less than half of the typed 70: that item says so.
+    expect(marked.map((item) => item.under)).toEqual([false, true]);
+  });
+
+  it('keeps an estimate whose month the imported buys come to less than half of, with what they come to', () => {
+    const tap = { ...ONE_TAP_OCTOBER, amount: money('300') };
+    const model = previewModel(planOn([...fixtureSnapshot().entries, tap], false));
+    expect([model.summary.replaced, model.summary.kept, model.replaces]).toEqual([0, 1, []]);
+    expect(model.kept).toEqual([{ estimate: tap, imported: '120' }]);
+    expect(model.fills.map((entry) => [entry.coin, entry.date])).toContainEqual(['BTC', '2026-10-12']);
   });
 
   it('gives the starting line the instruction the remedies found, and none without them', () => {
