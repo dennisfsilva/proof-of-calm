@@ -95,11 +95,11 @@ about 2029) and that its explanation must say so in the first sentence.
     store listing that reuses the images gets no UK storefront (ADR-0029).
   - The set that shows the app in use: Today with the current month recorded and no price answer (it
     shows Invested, the next buy day and the plan strip), from a seeded plan with no sell window and
-    no template's dates; the Learn index; Portugal's country page (checked on 2026-11-19 to hold no
-    catalogue coin's name; Germany's names two in its pending change); the public holding-date page
-    with a result for Portugal. A capture spec counts catalogue names and tickers in each page's
-    text and passes only on zero. Counsel and brand read each image before it ships.
-  - The cost, stated: no image shows the Log, a buy day or the record across venues, so the
-    listing's words carry that difference (`docs/GROWTH.md` §2.1 and §4.6).
+    no template's dates; the Learn index; Portugal's country page; the public holding-date page
+    with a result for Portugal. On 2026-11-23 the live text of those three public pages held none
+    of the catalogue's names or tickers. A capture spec counts catalogue names and tickers in each
+    page's text and passes only on zero. Counsel and brand read each image before it ships.
+  - The cost, stated: no image shows the Log, the logging of a purchase or the record across
+    venues, so the listing's words carry that difference (`docs/GROWTH.md` §2.1 and §4.6).
   - A change (named coins under conditions, for the store listings) is the owner's own decision with
     counsel's read, as a new dated entry here, before the store listings are made.
