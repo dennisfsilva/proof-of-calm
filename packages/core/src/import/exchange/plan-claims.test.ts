@@ -12,6 +12,7 @@ import type { PriceSnapshot } from '../../schema/prices';
 import { applyExchangeImport } from './apply';
 import type { Movement } from './kraken';
 import { planExchangeImport } from './plan';
+import { importRemedies } from './plan-remedy';
 
 // Two costs of a one-tap `lump`'s claim in step 2 (docs/DOMAIN.md §3.13) that stand: pins of today's figures, so
 // they fail only when the behaviour moves. The plan: BTC 100 %, 100 EUR a month from 2 Jul 2026; the file buys 100 EUR
@@ -64,18 +65,30 @@ describe("a one-tap lump's claim, the costs that stand", () => {
       expect(liveEntries(after).filter((entry) => entry.slot === '2026-09')).toEqual([]);
       expect(portfolio(AT_PART, after).invested).toBe('400');
     });
+
+    it(`the starting line asks to change that lump tapped ${day}, naming July's buy`, () => {
+      const { starting } = importRemedies(fileOf(M), { plan: AT_PART, entries: tap(AT_PART, day) }, false, LISBON);
+      expect(starting).toEqual({
+        kind: 'change',
+        date: '2026-07-02',
+        totals: [{ coin: 'BTC', amount: '100', units: '0.00125', count: 1 }],
+      });
+    });
   }
 
   it('the same lump tapped 20 Sep, more than 3 days from a purchase, leaves September imported: 500', () => {
     expect(portfolio(AT_PART, imported(AT_PART, M, tap(AT_PART, '2026-09-20'))).invested).toBe('500');
   });
 
-  it("a tapped lump that claims its purchase keeps its estimated units: 0.01219512 against the file's 0.0125", () => {
+  it("a tapped lump that claims its own purchase keeps its estimated units, no line asking for a change: 0.01219512 against the file's 0.0125", () => {
     const file = [...M, buy('2026-09-03', '1000', '0.0125')];
     const after = liveEntries(imported(P6, file, tap(P6, '2026-09-03')));
     expect(after.filter((entry) => entry.date === '2026-09-03').map((entry) => [entry.source, entry.units])).toEqual([
       ['one-tap', '0.01219512'],
     ]);
     expect(portfolio(P6, after).invested).toBe('1400');
+    expect(importRemedies(fileOf(file), { plan: P6, entries: tap(P6, '2026-09-03') }, false, LISBON).starting).toBe(
+      null,
+    );
   });
 });
