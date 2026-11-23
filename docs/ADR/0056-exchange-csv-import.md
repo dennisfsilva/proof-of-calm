@@ -216,7 +216,9 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   cover. Two exchanges' files leave one Log in either order once each is chosen again after the
   other; before that, only sales the first import of their file left out differ. The costs, stated:
   each sale is still decided alone (a hand sale between two files leaves −0.0049 BTC); coins another
-  import bought before the left-out history do not count (0.5 BTC where 1.1 is held); and a one-tap
+  import bought before the left-out history count, so they cover the sale and it is stored (0.5 BTC
+  where 1.1 is held; bought on or after that history's first day, they do not count and the Log shows
+  1.1 BTC); and a one-tap
   `lump` counts at its own units, so a sale of the file's units of a purchase it records stays out while
   the estimate is smaller (0.0125 BTC sold against 0.01219512 tapped). Set aside in this change: a
   one-tap `lump` that records purchases in step 2 counting at the larger of its units and theirs. A
