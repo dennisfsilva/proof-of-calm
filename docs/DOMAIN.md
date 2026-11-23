@@ -1031,8 +1031,11 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      named monthly buy carries its coin's tombstoned one-tap estimates for its month when deleting the named
      entries leaves that month no monthly buy but imported ones that come to less than half the largest of
      those estimates (step 5's gate, under which one import of the whole file keeps them live), and the line says deleting it leaves the month without its
-     estimate, to record again if bought: the import never un-tombstones, and an import's tombstone is not
-     told from a hand delete. Once the person makes the named changes, the live Log equals one import's of
+     estimate, to record again if bought: the import never un-tombstones. Only an import write's tombstones
+     count, those whose `deletedAt` is the `updatedAt` of a stored `import-csv` entry not deleted at that
+     instant: the write stamps its entries and its tombstones at one instant (`packages/app/src/features/settings/exchange-actions.ts`), and a
+     hand delete never shares it. A tombstone no such entry carries reads as a hand delete, so when every
+     entry the replacing import stored has been edited or deleted since, the line does not show. Once the person makes the named changes, the live Log equals one import's of
      the whole file, except that each named estimate is live in one import and tombstoned in two, and each
      receipt left unnamed that way keeps the earlier import's date and units. Step 1
      only compares and names: it tombstones and changes nothing.
