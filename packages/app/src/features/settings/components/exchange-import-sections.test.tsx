@@ -369,21 +369,20 @@ describe('ExchangeSummary and ExchangeSections', () => {
     await mount(planOf(csv, entries), PLAN, 'kraken', remediesOf(csv, entries));
     expect(lines('Matching entries in the Log, not added (1)')).toEqual([
       "The file's 0,0008 BTC for 50,00 € on 5 Oct 2026 counts as recorded by your monthly buy for October 2026: " +
-        '0,0020 BTC at Bitvavo for 120,00 €. That entry is for the same month or dated within 3 days, and 50,00 € is ' +
-        'less than half of its amount.',
+        "0,0020 BTC at Bitvavo for 120,00 €. 50,00 € is less than half of that entry's amount.",
     ]);
   });
 
-  // DOMAIN §3.13 step 2: a monthly buy claims its month's dates whatever its own date, so the item names no date the
-  // entry's breaks: October's buy dated 10 Nov 2026 claims 5 Oct, 36 days from its date and in another month.
-  it('word a claim under half by a monthly buy dated in a later month without dating the entry near the file', async () => {
+  // DOMAIN §3.13 step 2: a plan month reaches 15 days either side of its due date, so the item names no date clause:
+  // October's buy dated 10 Nov 2026 claims 5 Oct, 36 days from its date and in another month.
+  it('word a claim under half by a monthly buy dated in a later month with no date clause', async () => {
     const csv = btcBuys([['U1', '2026-10-05 09:00:00', '50.0000', '0.0008000000', '0.0000']]);
     const entries = [...fixture.entries, typed120('2026-11-10')];
     await mount(planOf(csv, entries), PLAN, 'kraken', remediesOf(csv, entries));
     const [item] = lines('Matching entries in the Log, not added (1)') as [string];
     expect(item).toContain('on 5 Oct 2026 counts as recorded by your monthly buy for October 2026');
-    expect(item).not.toMatch(/dated in the same month/);
-    expect(item).toMatch(/That entry is for the same month or dated within 3 days, and 50,00 € is less than half/);
+    expect(item).not.toMatch(/same month|within \d+ days/);
+    expect(item).toMatch(/\. 50,00 € is less than half of that entry's amount\.$/);
   });
 
   // Two estimates of one month, 120 and 200, and a purchase of 60: both stay, and the plural names the largest.
@@ -431,8 +430,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
     await mount(planOf(under, entries), PLAN, 'kraken', remediesOf(under, entries), 'pt-PT');
     expect(lines('Movimentos correspondentes no Registo, não adicionados (1)')).toEqual([
       'Os 0,0008 BTC por 50,00 € do ficheiro, a 5 de outubro de 2026, contam como registados: a compra mensal de ' +
-        'outubro de 2026 (0,0020 BTC em Bitvavo por 120,00 €). Esse movimento é do mesmo mês ou tem data até 3 dias ' +
-        'de diferença, e 50,00 € é menos de metade do seu montante.',
+        'outubro de 2026 (0,0020 BTC em Bitvavo por 120,00 €). 50,00 € é menos de metade do montante desse movimento.',
     ]);
   });
 
