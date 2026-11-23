@@ -1,0 +1,101 @@
+{
+  "title": "Heute",
+  "empty": {
+    "title": "Noch kein Plan",
+    "noPlan": "<setup>Richten Sie einen Plan ein</setup> oder <import>importieren Sie eine Datei</import>."
+  },
+  "action": {
+    "late": "{month} ist noch offen",
+    "lateBody": "Der Kauftag war am {date}, vor {days, plural, one {{figure} Tag} other {{figure} Tagen}}. Tragen Sie den Kauf ein oder überspringen Sie den Monat.",
+    "due": "Heute ist der Kauftag für {month}",
+    "upcoming": "Nächster Kauftag: {date}",
+    "noneLeft": "Keine Kauftage mehr",
+    "starting": "Startbetrag: geplant für den {date}",
+    "startingLate": "Er war für den {date} geplant, vor {days, plural, one {{figure} Tag} other {{figure} Tagen}}.",
+    "done": "{month} ist eingetragen",
+    "skipped": "{month} ist übersprungen",
+    "pausedMonth": "{month} ist pausiert",
+    "paused": "Pausiert bis {date}",
+    "pausedOpen": "Pausiert seit {date}",
+    "resume": "Fortsetzen",
+    "next": "Nächster Kauftag: {date}.",
+    "record": "Einen Kauf eintragen",
+    "asPlanned": "Wie geplant gekauft",
+    "different": "Anderen Betrag gekauft",
+    "skip": "{month} überspringen",
+    "edit": "Bearbeiten",
+    "recorded": "Der Kauf ist eingetragen.",
+    "parts": "Geplante Aufteilung"
+  },
+  "phase": {
+    "hold": "In der Haltephase",
+    "holdBody": "Das Verkaufsfenster öffnet am {date}.",
+    "sell": "Im Verkaufsfenster",
+    "sellBody": "Es schließt am {date}.",
+    "exit": "Das Verkaufsfenster ist geschlossen",
+    "exitBody": "Der Plan endet am {date}.",
+    "done": "Der Plan endete am {date}"
+  },
+  "why": {
+    "hold": "Warum? Die Haltephase",
+    "window": "Warum? Das Verkaufsfenster"
+  },
+  "pending": {
+    "heading": "Ebenfalls offen",
+    "dca": "{month}: geplant für den {date}"
+  },
+  "portfolio": {
+    "value": "Wert des Portfolios",
+    "invested": "Investiert"
+  },
+  "prices": {
+    "asOf": "Kurse vom {date}, {time}",
+    "asOfLive": "Kurse vom {date}, {time} · Kursdaten von CoinGecko",
+    "delayed": "Kurse vom {date}, {time} · verzögert",
+    "delayedLive": "Kurse vom {date}, {time} · verzögert · Kursdaten von CoinGecko",
+    "fromOffline": "Kurse vom {date}, {time} · offline",
+    "fromOfflineLive": "Kurse vom {date}, {time} · offline · Kursdaten von CoinGecko"
+  },
+  "strip": {
+    "link": "Der Plan",
+    "buy": "Kaufphase",
+    "hold": "Haltephase",
+    "sell": "Verkaufsfenster",
+    "exit": "Ausstieg",
+    "range": "{from} bis {to}",
+    "from": "ab {from}",
+    "label": "Plan {open, select, yes {ab {start}, ohne festgelegtes Ende} other {vom {start} bis {end}}}. Heute ist der {today}.",
+    "table": "Die Phasen als Tabelle anzeigen",
+    "phase": "Phase",
+    "start": "Von",
+    "end": "Bis"
+  },
+  "banner": {
+    "never": "Die Daten sind nur auf diesem Gerät gespeichert. <link>Exportieren Sie eine Kopie.</link>",
+    "last": "Die Daten sind nur auf diesem Gerät gespeichert. Letzter Export: {date}. <link>Exportieren Sie eine Kopie.</link>"
+  },
+  "ruleChange": {
+    "notice": "{date}: {notice}",
+    "generic": "{date}: {kind, select, generic {Das allgemeine Profil hat sich geändert} other {Die Regeln für das Land des Plans ({country}) haben sich geändert}}. Prüfen Sie den Plan.",
+    "review": "Prüfen",
+    "dismiss": "Ausblenden",
+    "failed": "Der Hinweis konnte nicht ausgeblendet werden. Versuchen Sie es erneut."
+  },
+  "review": {
+    "created": "Sie haben diesen Plan am {date} eingerichtet.",
+    "reviewed": "Sie haben diesen Plan zuletzt am {date} überprüft.",
+    "question": "Stimmt er noch? Haben sich die Regeln geändert?",
+    "open": "Den Plan prüfen",
+    "later": "Später",
+    "failed": "Die Prüfung konnte nicht verschoben werden. Versuchen Sie es erneut."
+  },
+  "redDay": {
+    "week": "{names}{coins, select, one { fiel} other { fielen, in den Mengen Ihres Bestands,}} in den 7 Tagen bis zum {date} um {fall}.",
+    "high": "Am {date} {coins, select, one {lag {names}} other {lagen {names}, in den Mengen Ihres Bestands,}} {fall} unter {coins, select, one {dem} other {dem gemeinsamen}} 90‑Tage‑Hoch.",
+    "open": "Den laufenden Rückgang ansehen",
+    "dismiss": "Ausblenden",
+    "failed": "Der Hinweis konnte auf diesem Gerät nicht ausgeblendet werden und erscheint daher vielleicht erneut."
+  },
+  "durability": "Die Daten sind nur in diesem Browser gespeichert. Installieren Sie die App oder exportieren Sie eine Kopie, um sie aufzubewahren.",
+  "durabilityInstalled": "Die Daten sind nur auf diesem Gerät gespeichert. Exportieren Sie eine Kopie, um sie aufzubewahren."
+}
