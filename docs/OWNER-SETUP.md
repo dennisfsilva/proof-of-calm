@@ -150,8 +150,7 @@ a null MX (`MX 0 .`), so the domain has no MX record and mail sent to it is not 
 - Before launch: a CAA record for the certificate authority Vercel uses (Let's Encrypt issued the
   certificate of 2026-10-17), and `security@`, `privacy@` and a contact address that are read
   (`docs/LEGAL.md` §5, `docs/RELEASE.md`).
-- Before the public pages are indexed (`docs/RELEASE.md`): Google Search Console with the domain as
-  a
+- Before the public pages are indexed (`docs/RELEASE.md`): Google Search Console with the domain as a
   Domain property, verified by a DNS TXT record at Spaceship that stays in place, and Bing Webmaster
   Tools (`docs/GROWTH.md` §4.1). Both need the owner's accounts; until then nothing reports how
   search reads the pages.
