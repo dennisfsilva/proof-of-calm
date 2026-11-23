@@ -1197,9 +1197,13 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      decides a kind: a month done by another coin, another exchange or a hand entry turns no purchase into
      an extra buy, so the Log is the same whether an export comes whole or in parts, and whichever
      exchange's file comes first, except step 4's sales. One whose cover only the other file holds stays
-     out until its file is chosen again after the other. An export in date ranges differs from one import
-     only where another import's entries fall between the ranges' earliest left-out purchases, or where a
-     tapped `lump` records its purchases in an earlier range. Two devices can tap one month, so a month's estimates of a coin go
+     out until its file is chosen again after the other. A shorter export (a prefix of an export's rows, a
+     window of them or one of its date ranges) differs from one import only where another import's entry of
+     a coin falls on or after the whole file's F and on or before a sale the shorter export stores while
+     the whole file leaves it out: the shorter export, holding none of the coin's left-out purchases before
+     that entry, counts it in the sale's cover (a Coins added entry of 0.12409 BTC from another import on
+     30 Jan 2026 covers a sale of 0.12409 in a prefix of 3 rows; the whole file buys BTC on 27 Jan, which
+     the starting amount leaves out). Two devices can tap one month, so a month's estimates of a coin go
      together. A month can hold several monthly buys of a coin (a savings plan that runs every two weeks);
      the month's status sums them and dates it by the earliest (§3.2).
   6. The months: "A purchase date's month is the plan's month with the anchor nearest it, the earlier month
