@@ -365,4 +365,54 @@ describe('planExchangeImport, the estimates a cancelled monthly buy carries', ()
       { estimates: ['200'], buys: [['import-csv', '30', '2026-09-04', '0.0003']] },
     ]);
   });
+
+  // The line reads the Log once this import is applied: its entries added and the estimates it replaces tombstoned.
+  it('P1: the 600 that replaced a tap of 1000 goes with it and with the 200 this import replaces (150 and 1350)', () => {
+    const a = tap('BTC', '2026-09', '2026-09-01', '1000', '0.01');
+    const [b1, b2] = [buy('BTC', '2026-09-03', '600', '0.006'), buy('BTC', '2026-09-04', '150', '0.0015')];
+    // A tap for a month already done comes in as a JSON import brings one (Today offers none, DOMAIN §3.2).
+    const b = tap('BTC', '2026-09', '2026-09-05', '200', '0.002');
+    const part = [...importAt([a], [b1], EARLIER), b];
+    expect(invested(BRUNO, part)).toBe('800');
+    // 150 replaces the 200 (at least half of it) and is under half of the 1000 the earlier import replaced.
+    expect(whole(part, b2, b1).replaced.map((group) => group.estimates.map((each) => each.amount))).toEqual([['200']]);
+    expect(carriedOf(whole(part, b2, b1))).toEqual([['600', ['1000', '200']]]);
+    // Once the person deletes the named 600, the two Logs differ only by the 1000 and the 200, which one import keeps.
+    const one = applyExchangeImport([a, b], whole([a, b], b2, b1), NOW).entries;
+    const two = namedDeleted(part, whole(part, b2, b1));
+    expect([invested(BRUNO, two), invested(BRUNO, one)]).toEqual(['150', '1350']);
+    expect([september(two), september(one)]).toEqual([
+      { estimates: [], buys: [['import-csv', '150', '2026-09-04', '0.0015']] },
+      { estimates: ['1000', '200'], buys: [['import-csv', '150', '2026-09-04', '0.0015']] },
+    ]);
+  });
+
+  it('P2: the cost: a hand-deleted 1000 and the 200 this import replaces go with the cancelled 50, Logs equal', () => {
+    const log = [
+      deletedByHand(tap('BTC', '2026-09', '2026-09-01', '1000', '0.01')),
+      tap('BTC', '2026-09', '2026-09-02', '200', '0.002'),
+    ];
+    const [b1, b2] = [buy('BTC', '2026-09-03', '50', '0.0005'), buy('BTC', '2026-09-04', '150', '0.0015')];
+    const part = importAt(log, [b1], EARLIER);
+    // 50 is under half of the live 200, so the earlier import keeps it.
+    expect(invested(BRUNO, part)).toBe('250');
+    expect(carriedOf(whole(part, b2, b1))).toEqual([['50', ['1000', '200']]]);
+    // Once the person deletes the named 50, the two Logs are equal: one import keeps no estimate live either.
+    const one = applyExchangeImport(log, whole(log, b2, b1), NOW).entries;
+    const two = namedDeleted(part, whole(part, b2, b1));
+    expect([september(two), invested(BRUNO, two)]).toEqual([september(one), '150']);
+    expect(september(one)).toEqual({ estimates: [], buys: [['import-csv', '150', '2026-09-04', '0.0015']] });
+  });
+
+  it('no line: a live 200 kept beside an earlier 50, then a whole file of 150 that cancels the 50 replaces it', () => {
+    const log = [tap('BTC', '2026-09', '2026-09-02', '200', '0.002')];
+    const [b1, b2] = [buy('BTC', '2026-09-03', '50', '0.0005'), buy('BTC', '2026-09-04', '150', '0.0015')];
+    const part = importAt(log, [b1], EARLIER);
+    expect(invested(BRUNO, part)).toBe('250');
+    // 150 reaches half the 200 it replaces, so the largest it counts is the 200 and the line does not show.
+    expect(carriedOf(whole(part, b2, b1))).toEqual([['50', []]]);
+    expect(september(namedDeleted(part, whole(part, b2, b1)))).toEqual(
+      september(applyExchangeImport(log, whole(log, b2, b1), NOW).entries),
+    );
+  });
 });
