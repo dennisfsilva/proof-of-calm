@@ -18,10 +18,12 @@ The product is called **Proof of Calm** (ADR-0040). Before anything public ships
    for the first class, EUR 50 for the second and EUR 150 for the third, so EUR 1,050. Class 36 is
    left out: the product is software and education and offers no financial service, and the search
    of 2026-11-09 (`docs/research/trademark-search.md`) found CALM registered in class 36 and a
-   pending PROOF in 9 and 36; the owner can add it for EUR 150. No clearance opinion is bought. The
-   filing publishes the applicant's name and address, so it uses the non-home address of §5's
-   Contact row. The filing's facts and the two-step route through a national application are in
-   `docs/research/trademark-filing.md`. Item 1's class list stays as history of the search.
+   pending PROOF in 9 and 36; the owner can add it at filing for EUR 150, and after filing a class
+   needs a new application, since a filed list can be restricted but not extended (Regulation (EU)
+   2017/1001 art. 49). No clearance opinion is bought. The filing publishes the applicant's name and
+   address, so it uses the non-home address of §5's Contact row. The filing's facts and the two-step
+   route through a national application are in `docs/research/trademark-filing.md`. Item 1's class
+   list stays as history of the search.
 3. Register every handle (`docs/GROWTH.md` §2.7): those found free on 2026-10-17 (YouTube, TikTok,
    Bluesky, the GitHub and npm organisations, and probably Telegram), and X, Instagram, Threads,
    LinkedIn and Reddit once checked by hand.
@@ -343,7 +345,8 @@ signature; a lawyer has not read these answers):
 
 - The consumer-dispute (RAL) information and the electronic complaints book stay for before charging
   (§5, §7). Lei 144/2015 art. 3 g) defines a service contract by a price the consumer pays or
-  undertakes to pay, and art. 18 speaks of the RAL entities a provider is bound to. Directive (EU)
+  undertakes to pay; art. 18, which sets the duty to name the RAL entities a provider is bound to,
+  does not itself mention payment. Directive (EU)
   2025/2647 says the ADR Directive applies today only to contracts for which the consumer pays or
   undertakes to pay a price. DL 156/2005 art. 2(2) is wider: it binds every supplier and service
   provider, those working through digital means included, and the articles read hold no condition

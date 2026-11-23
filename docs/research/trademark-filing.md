@@ -50,7 +50,11 @@ application. The fee is due within one month of filing for the filing date to ho
   of cryptocurrency" (360140), which describe services the product does not offer. The search of
   2026-11-09 found in this class the registered word mark CALM (EUTM 014834733) and a pending
   figurative PROOF (EUTM application 019370556, classes 9 and 36). As a third or fourth class it
-  costs EUR 150.
+  costs EUR 150, at filing only: the applicant may restrict a filed list at any time, and an
+  amendment may not extend it (Regulation (EU) 2017/1001 art. 49(1) and (2), read on 2026-11-23 in
+  the text as adopted, in the UK's copy at
+  https://www.legislation.gov.uk/eur/2017/1001/article/49/adopted, since EUR-Lex answered with an
+  empty page that day). After filing, class 36 is a new application at EUR 850.
 
 ## The application and the register
 
