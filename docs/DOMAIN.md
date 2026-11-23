@@ -1157,13 +1157,12 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      `firstBuy` + `IMPORT_MATCH_DAYS`, in a plan with a starting amount above 0 or for a coin with a live
      `lump`; step 4 reaches it when a live hand `held` entry of C is dated on or after it. Its cover is the
      units of C dated on or before its date in live entries of kind `dca`, `extra`, `lump` or `held` whose
-     source is not `import-csv` (one-tap monthly estimates aside; a one-tap `lump` that records purchases in
-     step 2 counts at its units or theirs, whichever is more); in live entries whose id is one of this
+     source is not `import-csv` (one-tap monthly estimates aside); in live entries whose id is one of this
      file's; in this file's purchases and receipts that steps 2 to 4 left; and in live entries other imports
      stored, dated before F, C's earliest purchase or receipt that steps 3 and 4 leave out of this file
      (step 4's only unticked), or all of them when they leave out none. Sales never count." Each sale is decided alone, against its coin's cover up to
      its date, worked out once per coin; short is `compare(cover, units) < 0`, and the starting reach is
-     named when both reach it; both reaches stay by date, and the `lump` counts at its own date. The
+     named when both reach it; both reaches stay by date. The
      left-out item (`uncovered`, in date order) names the sale, its reach (the cut-off, or the earliest
      such `held` entry in `compareEntries` order) and that by the sale's date the purchases this file
      imports and the person's own entries, monthly estimates aside, hold less of C; that is true under any
@@ -1182,9 +1181,9 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      −0.0049. Coins another import bought before the left-out history do not count: Trade Republic's 0.7
      bought on 31 Jan 2025, imported first, gives 0.5 where the person holds 1.1 (bought on 1 Feb or later,
      1.1). A window holding the sale but none of its left-out purchases, after the other file, gives 0.5. A
-     tapped `lump` that records more units than its estimate stores a sale of the file's units, short by the
-     difference, which Portfolio names; a sale in a later file than the lump's claim is checked against the
-     estimate. What stays out: a sale dated after the reach of purchases step 3 left out is stored as before
+     one-tap `lump` counts at its own units, so a sale of the file's units of a purchase the lump records
+     stays out while the estimate is smaller (0.0125 BTC sold against 0.01219512 tapped at €82,000; changing
+     the lump's units in the Log to the file's and choosing the file again imports it). What stays out: a sale dated after the reach of purchases step 3 left out is stored as before
      (0 BTC in the Log where those purchases held more), and the starting line is its fix; a sale left out
      is in no tax-year file until it is imported; choosing per purchase is planned (M4).
   5. The monthly buys (decided 2026-11-14, ADR-0056, Corrections): "Every purchase date of C whose month

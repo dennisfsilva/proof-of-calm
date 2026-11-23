@@ -5,7 +5,7 @@ import { fileOf, heldGuards, type World, world } from '../../../test/exchange/pl
 import { added, BERLIN, LISBON, NOW, testId, trade } from '../../../test/exchange/plan-fixture';
 import { preCut, skipped } from '../../../test/exchange/plan-late';
 import { addDays, type CalendarDate } from '../../dates/calendar';
-import { compare, isPositive, max, sum } from '../../money/decimal';
+import { compare, isPositive, sum } from '../../money/decimal';
 import { plannedParts } from '../../plan/parts';
 import { slotStatuses } from '../../plan/statuses';
 import { type Entry, EntrySchema, isEstimate, writtenEntryVersion } from '../../schema/entry';
@@ -134,12 +134,6 @@ function judged(drawn: World, before: readonly Entry[], file: ExchangeFile, plan
       )
       .map((movement) => LISBON.dateOf(movement.at))
       .sort()[0];
-  const unitsOf = (entry: Entry) => {
-    const claimed = plan.recorded.find((recorded) => recorded.entry.id === entry.id);
-    return entry.kind === 'lump' && entry.source === 'one-tap' && claimed
-      ? max(entry.units, claimed.units)
-      : entry.units;
-  };
   const after = live(store(before, plan));
   const cover = (coin: string, on: CalendarDate) => {
     const f = from(coin);
@@ -148,7 +142,7 @@ function judged(drawn: World, before: readonly Entry[], file: ExchangeFile, plan
         counts(entry, coin, on) &&
         (entry.source !== 'import-csv' || ids.has(entry.id) || f === undefined || entry.date < f),
     );
-    return sum(counted.map(unitsOf));
+    return sum(counted.map((entry) => entry.units));
   };
   const line = (coin: string, on: CalendarDate) =>
     sum(
