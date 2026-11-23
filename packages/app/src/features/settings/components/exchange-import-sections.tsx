@@ -5,7 +5,6 @@ import {
   type Entry,
   type ExchangeId,
   IMPORT_MATCH_DAYS,
-  IMPORT_TYPED_DAYS,
   isEstimate,
   isZero,
   MAX_UNIT_DECIMALS,
@@ -206,7 +205,6 @@ export function ExchangeSections({ model, plan, exchange }: SectionsProps) {
       label: t('label', { kind: row.entry.kind, month: month(row.entry), date: on(row.entry) }),
       // A one-tap entry's units are an estimate, as the Left out line marks its lump.
       entry: piece(row.entry, [row.units], true, isEstimate(row.entry)),
-      days: w.figure(IMPORT_TYPED_DAYS),
     });
     // Only where deleting the entry imports what the item says (importRemedies, docs/DOMAIN.md §3.13).
     // Counted by transaction: several on one date are several (`count`).

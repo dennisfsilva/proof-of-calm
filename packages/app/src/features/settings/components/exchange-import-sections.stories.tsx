@@ -158,9 +158,8 @@ export const UnderHalf: Story = {
     const name = 'Matching entries in the Log, not added (1)';
     await userEvent.click(canvas.getByRole('button', { name }));
     const [item] = canvas.getAllByRole('listitem').map((each) => each.textContent ?? '');
-    await expect(item).toMatch(
-      /That entry is for the same month or dated within 3 days, and .+ is less than half of its amount\.$/,
-    );
+    await expect(item).toMatch(/ is less than half of that entry's amount\.$/);
+    await expect(item).not.toMatch(/same month|within \d+ days/);
   },
 };
 
