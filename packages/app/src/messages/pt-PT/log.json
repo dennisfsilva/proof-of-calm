@@ -123,7 +123,7 @@
     "fee": "Comissão de rede {units}",
     "sourceShort": "{at, select, venue {O Registo mostra {held} em {from} a {date}.} other {O Registo mostra {held} sem local a {date}.}}{found, select, yes {} other { O Registo procura os outros {short} nas unidades detidas fora de {to} nesse dia.}}",
     "sourceFound": "Fora de {to}, o Registo mostra {outside} no total nesse dia, menos {short} do que esta transferência envia.",
-    "duplicate": "O Registo já tem esta transferência a {date}. Guarde-a apenas se transferiu estas moedas 2 vezes.",
+    "duplicate": "O Registo já tem esta transferência a {date}. Guarde-a apenas se fez esta transferência 2 vezes.",
     "laterShort": "Depois desta transferência, a transferência para {to} de {date} envia mais {short} do que o Registo mostra fora de {to} nesse dia. Se ambas registarem o mesmo levantamento, deixe apenas uma delas no Registo. Se não, verifique as unidades que essa transferência envia.",
     "saleShort": "A comissão de rede desta transferência deixa a sua venda de {coin} de {date} sem as unidades que vende. Verifique as unidades recebidas face ao comprovativo de depósito, ou altere primeiro essa venda.",
     "feeShort": "A comissão de rede desta transferência deixa a transferência de {coin} de {date} sem as unidades que a respetiva comissão de rede leva. Verifique as unidades recebidas face ao comprovativo de depósito.",
