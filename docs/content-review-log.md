@@ -5,6 +5,64 @@ What each owner's review found wrong in the drafts, so the review skill improves
 its PR, the model and what the owner corrected. Each row names the kind of mistake, which is what the
 next draft can check for.
 
+## 2026-11-23: the English facts, a review made on the owner's delegation
+
+The owner delegated the tracker's Needs-you items on 2026-11-18 ("have it decide the Needs you items and
+have it decide them for me") and allowed the deciding session to merge its content fixes (record: #409;
+ADR-0015 Deviations). `reviewedBy: owner` on facts `k.it-2026`, `b.alt-drawdowns`, `o.dca-windows-eth` and
+`p.simulator-examples-eth` records that delegation; no person opened the sources. An agent opened each
+source on 2026-11-23 (WET = UTC): at 08:33 Coinbase Exchange's daily candles (26 requests for ETH-USD,
+SOL-USD and LINK-USD, each under 300 days at `T00:00:00Z`, each HTTP 200), CoinMarketCap's LINK 2018 and
+BTC late-2011 windows and Bitcoinity's Mt. Gox export; at 08:34 art. 1 commi 23 and 24 of L. 207/2024 on
+Normattiva, in the view in force that day and in the view the fact cites, and art. 1 comma 28 of
+L. 199/2025; at 08:35 twelve consecutive ETH-USD windows from 1 Jan 2017 to 17 Oct 2026 (3,577 daily
+candles, no gap), recomputed with the method of `docs/research/scripts/analysis/analyze.py`
+(`dca_windows`), and CoinMarketCap's LINK 2019 window and four BTC windows. Normattiva was read through
+WebFetch, which returns a comma as quoted fragments in order; the raw HTML was not opened. The fragments
+of both views and of the amending comma agree word for word.
+
+| Item | Source | What the source holds | Verdict |
+|---|---|---|---|
+| `k.it-2026`: 33 % on gains realised from 1 Jan 2026 | L. 207/2024 art. 1 c. 24 on Normattiva, at `!vig=2026-11-23` ("Testo in vigore dal: 12-11-2026 al: 31-12-2026") and at the fact's `!vig=2026-11-02` ("dal: 23-10-2026 al: 11-11-2026") | "realizzati a decorrere dal 1° gennaio 2026, l'imposta sostitutiva di cui agli articoli 5, 6 e 7 del decreto legislativo 21 novembre 1997, n. 461, è applicata con l'aliquota del 33 per cento." | Holds |
+| `k.it-2026`: "from 26 %" | The same article, c. 23 | "L'aliquota dell'imposta sostitutiva sulle plusvalenze e sugli altri redditi diversi, di cui all'articolo 5 del decreto legislativo 21 novembre 1997, n. 461, è pari al 26 per cento." | Holds, as the read of 2026-11-12 found |
+| `k.it-2026`: 26 % kept for euro-denominated e-money tokens | C. 24, second sentence, in both views | "Le disposizioni di cui al primo periodo si applicano con l'aliquota del 26 per cento, in luogo di quella ordinaria del 33 per cento, ai redditi diversi e agli altri proventi di cui alla lettera c-sexies) del comma 1 dell'articolo 67 del testo unico delle imposte sui redditi, di cui al decreto del Presidente della Repubblica 22 dicembre 1986, n. 917, derivanti da operazioni di detenzione, cessione o impiego di token di moneta elettronica denominati in euro, di cui all'articolo 3, paragrafo 1, numero 7), del regolamento (UE) 2023/ 1114 del Parlamento europeo e del Consiglio, del 31 maggio 2023." | Holds; the value now states it: "income from holding, selling, or using euro-denominated e-money tokens stays at 26 %" |
+| `k.it-2026`: "as amended by L. 199/2025", and the fact's `date` | L. 199/2025 art. 1 c. 28 on Normattiva (GU n. 301 of 30-12-2025, Suppl. Ordinario n. 42) | "All'articolo 1, comma 24, della legge 30 dicembre 2024, n. 207, sono aggiunti, in fine, i seguenti periodi:", then the 26 % sentence, the definition of a euro-denominated e-money token and the sentence on conversion and redemption | Holds; `date` becomes 2025-12-30, the update that published what the value quotes (`docs/EDUCATION.md` §9) |
+| `b.alt-drawdowns`: ETH 2018 | Coinbase ETH-USD, 2017-12-01 to 2018-09-26 (300 candles) and 2018-09-26 to 2019-01-31 (128); the twelve windows for the years after | High 1419.96 on 13 Jan 2018, low 80.6 on 14 Dec 2018, a fall of 94.324 %; the high regained on 19 Jan 2021, no lower low before | Holds ($1,420, $80.60, −94.3 %) |
+| `b.alt-drawdowns`: ETH 2022 | Coinbase ETH-USD, 2021-10-01 to 2022-07-27 (300 candles), the fact's `source`; the twelve windows for the years after | High 4867.81 on 10 Nov 2021, low 879.8 on 18 Jun 2022, 81.926 %; the high regained on 22 Aug 2025, no lower low before | Holds ($4,868, $880, −81.9 %) |
+| `b.alt-drawdowns`: SOL, and SOL at the close of 16 Oct 2026 | Coinbase SOL-USD, 2021-10-01 to 2022-07-27 (300) and 2022-07-27 to 2023-01-31 (189), then five windows to 2026-10-17 (300, 300, 300, 300, 160) | High 260 on 6 Nov 2021, low 8 on 29 Dec 2022, 96.923 %; the high passed on 10 days from 22 Nov 2024 to 25 Jan 2025; close 104.32 on 16 Oct 2026, 59.877 % below 260 | Holds ($260, $8.00, −96.9 %, 60 %) |
+| `b.alt-drawdowns`: LINK 2018 | CoinMarketCap historical, id 1975, `timeStart=1514764800&timeEnd=1546300800` (366 quotes, the `source` of the cycles file's LINK 2018 row) and the year after (366 quotes); Coinbase LINK-USD, 2018-01-01 to 2018-10-27 | High 1.4350199699 on 8 Jan 2018, lowest low after it 0.162135005 on 29 Jun 2018, 88.702 %; the high regained on 22 May 2019, lowest low of 2019 before that 0.2894066132. Coinbase answers 0 candles; its first LINK-USD candle is 27 Jun 2019 | Holds ($1.435, $0.1621, −88.7 %, "CoinMarketCap series only") |
+| `b.alt-drawdowns`: LINK 2021 to 2023, and LINK at the close of 16 Oct 2026 | Coinbase LINK-USD, eight windows from 2021-01-01 to 2026-11-23 (2,153 candles, no gap) | High 52.99 on 10 May 2021, lowest low since 4.926 on 10 Jun 2023, 90.704 %; no day at or above the high since; close 12.331 on 16 Oct 2026, 76.730 % below | Holds ($52.99, $4.93, −90.7 %, 77 %) |
+| `o.dca-windows-eth` | Coinbase ETH-USD, 2017-01-01 to 2017-10-27 (300 candles), the fact's `source`, and eleven windows on to 2026-10-17 | Close 8.18 on 1 Jan 2017; 70 windows of 48 months, start months Jan 2017 to Oct 2022, the last valued on 1 Oct 2026; 63 above cost; minimum 0.752× (start Jul 2022) | Holds (63 of 70) |
+| `p.simulator-examples-eth` | Coinbase ETH-USD, 2021-11-01 to 2022-08-27 (300 candles), the fact's `source`, and the same twelve windows | Close 4322.89 on 1 Nov 2021; 60 buys, $6,000; close 2419.92 on 16 Oct 2026; multiple 1.0885; worst value-to-cost 0.3233 on 18 Jun 2022; longest run below cost 488 days, 3 Dec 2021 to 4 Apr 2023 | Holds ($2,420, 1.09×, 0.32×, 488 days) |
+| `a.btc-drawdowns` and `i.diminishing`: the 2011 Mt. Gox high | Bitcoinity's Mt. Gox daily export, `https://data.bitcoinity.org/export_data.csv?currency=USD&data_type=price&exchange=mtgox&r=day&t=l&timespan=all`, the `source` of the cycles file's BTC 2011 row | HTTP 200, header `Time,avg,max,min`, 1,374 rows from 2010-07-17 to 2014-05-18; "2011-06-08 00:00:00 UTC,27.2782783028475,31.9099,22.2135", the highest `max` of 2011; 29 Nov 2013: `max` 1242.0 | Holds ($31.91 on 8 Jun 2011; $1,242 a day before Bitstamp's high); the same answer covers fact i |
+| `a.btc-drawdowns` and `i.diminishing`: the 2011 low | CoinMarketCap historical, id 1, `timeStart=1317600000&timeEnd=1325376000` (91 quotes), the row's `lowSource` | Lowest low 1.91631609 on 22 Nov 2011; from 31.9099 a fall of 93.995 % | Holds ($1.92, −94.0 %) |
+| `a.btc-drawdowns`: the CoinMarketCap figures in brackets | CoinMarketCap historical, id 1, windows 2013-11-01 to 2015-02-01, 2017-12-01 to 2018-01-01 and 2025-09-25 to 2025-10-20 | High 1156.1400146484 on 30 Nov 2013 to low 171.5099945068 on 14 Jan 2015, 85.165 %; high 20089 on 17 Dec 2017; high 126198.0696034339 on 6 Oct 2025 | Hold (−85.2 %, $20,089, $126,198.07) |
+
+| Kind | What was wrong | What it became |
+|---|---|---|
+| A clause of the cited comma left out | `k.it-2026` gave the 33 % without the 26 % that the same comma keeps for euro-denominated e-money tokens | The clause stated in the comma's own terms, cited to the comma as amended |
+| A read day older than the request beside it | Three Coinbase facts kept `accessed` 2026-11-02 beside request windows first fetched on 2026-11-17 | `accessed` and `lastReviewed` at the day of this read |
+| A figure whose URL sits in another file | The 2011 Mt. Gox high of facts a and i has no URL in the fact entry | `docs/EDUCATION.md` §9 row a points to the cycles file's BTC 2011 row, which holds it |
+
+What the session decided on the delegation, and why. Italy's fact now states the e-money clause, which
+reverses D7 of #24: the delegated read of 2026-11-12 had dropped it because it came from a second law. That
+law, L. 199/2025, wrote the sentence into comma 24 itself, so the comma the fact cites holds both rates in
+the view the fact cites, and a value with the 33 % alone said less than its source. The fact's `date` is the
+day of the law that published the sentence. Fact b keeps one source: a fact holds one URL, the review
+reaches the rest of a series by moving the window and another coin by its product
+(`docs/CONTENT-OPS.md` §7), and LINK's 2018 figures are read against the cycles file's LINK 2018 row. Its
+`publisher` field names the exchange of the one request; the value's opening names every series. The Mt. Gox
+figure is sourced in the cycles file: the BTC 2011 row holds Bitcoinity's URL and
+`packages/content/src/cycles.test.ts` ties the row to the fact. Facts a and i changed in nothing, so their
+dates stay.
+
+Left for the owner's review due 2027-01-01: the Taxes module's Italy example, in English and in pt-PT, and
+"flat 33%" in Italy's `summary60`, to be read again when the comma moves to D.Lgs. 117/2026; and the eight
+Bitstamp facts whose source URLs #332 changed (`a.btc-drawdowns`, `c.current-cycle`, `h.halving-to-high`,
+`i.diminishing`, `o.dca-windows`, `p.simulator-examples`, `q.red-day-frequency` and
+`q.red-day-frequency-eth`), which this read did not recompute: they keep `accessed` 2026-11-02. The modules'
+`Last reviewed` dates stay as they were (`docs/CONTENT-OPS.md` §1).
+
 ## 2026-11-15: When the market drops and the BIS fact, the delegated read
 
 The owner delegated this read and the merge to the session, for the unattended M2 run (#23, answer 2;
