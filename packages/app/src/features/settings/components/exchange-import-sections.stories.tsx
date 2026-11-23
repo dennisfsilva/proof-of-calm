@@ -159,7 +159,7 @@ export const UnderHalf: Story = {
     await userEvent.click(canvas.getByRole('button', { name }));
     const [item] = canvas.getAllByRole('listitem').map((each) => each.textContent ?? '');
     await expect(item).toMatch(
-      /That entry is dated in the same month or within 3 days, and .+ is less than half of its amount\.$/,
+      /That entry is for the same month or dated within 3 days, and .+ is less than half of its amount\.$/,
     );
   },
 };
