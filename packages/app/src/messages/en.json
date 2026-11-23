@@ -888,7 +888,7 @@
         "piece": "{units}{estimated, select, yes { (estimated)} other {}}{hasVenue, select, yes { at {venue}} other {}} for {amount}{hasFee, select, yes {, fee {fee}} other {}}",
         "fill": "Monthly buy for {month}: {piece}, on {date}.",
         "replace": "{count, plural, one {Monthly buy for {month}: the estimate of {estimate} becomes {by}, on {dates}.} other {Monthly buy for {month}: the estimate of {estimate} becomes {figure} purchases{hasVenue, select, yes { at {venue}} other {}}, {units} for {amount} in all{fees, select, none {} one {, fee {fee}} other {, fees {fee}}}, on {dates}.}}",
-        "keep": "Monthly buy for {month}: the estimate of {estimate} stays; the purchases imported for that month come to {amount}.",
+        "keep": "Monthly buy for {month}: the estimate of {estimate} stays; the purchases imported for its coin and month come to {amount}.",
         "extra": "Extra buy: {piece}, on {date}.",
         "sale": "Sale: {piece}, on {date}.",
         "added": "Coins added: {units} at no cost, on {date}.",

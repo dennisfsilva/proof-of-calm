@@ -169,7 +169,7 @@
       "piece": "{units}{estimated, select, yes { (estimados)} other {}}{hasVenue, select, yes { em {venue}} other {}} por {amount}{hasFee, select, yes {, comissão {fee}} other {}}",
       "fill": "Para a compra mensal de {month}: {piece}, a {date}.",
       "replace": "{count, plural, one {Na compra mensal de {month}, a estimativa de {estimate} passa a {by}, a {dates}.} other {Na compra mensal de {month}, a estimativa de {estimate} passa a {figure} compras{hasVenue, select, yes { em {venue}} other {}}, {units} por {amount} no total{fees, select, none {} one {, comissão {fee}} other {, comissões {fee}}}, a {dates}.}}",
-      "keep": "Na compra mensal de {month}, a estimativa de {estimate} mantém-se; as compras importadas para esse mês somam {amount}.",
+      "keep": "Na compra mensal de {month}, a estimativa de {estimate} mantém-se; as compras importadas da mesma moeda e do mesmo mês somam {amount}.",
       "extra": "Uma compra adicional: {piece}, a {date}.",
       "sale": "Uma venda: {piece}, a {date}.",
       "added": "Moedas adicionadas: {units} sem custo, a {date}.",
