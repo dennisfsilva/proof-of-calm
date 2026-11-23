@@ -51,6 +51,25 @@ const btc = (plan: Plan, entries: readonly Entry[]) =>
   portfolio(plan, entries).positions.find((each) => each.coin === 'BTC')?.units;
 const keptMonths = (plan: Plan, entries: readonly Entry[], file: readonly Movement[]) =>
   planOf(plan, entries, file).kept.map((group) => [group.estimates.map((each) => each.slot), group.imported]);
+/** The live one-tap estimates and the live monthly buys of BTC for September, to set two Logs side by side. */
+const september = (entries: readonly Entry[]) => {
+  const live = entries.filter(
+    (each) => each.deletedAt === null && each.kind === 'dca' && each.coin === 'BTC' && each.slot === '2026-09',
+  );
+  return {
+    estimates: live.filter((each) => each.source === 'one-tap').map((each) => each.amount),
+    buys: live
+      .filter((each) => each.source !== 'one-tap')
+      .map((each) => [each.source, each.amount, each.date, each.units]),
+  };
+};
+/** The Log once `shown` is written and the person deletes the monthly buys its cancelled lines name. */
+const namedDeleted = (entries: readonly Entry[], shown: ReturnType<typeof planExchangeImport>) => {
+  const named = new Set(shown.cancelled.map((each) => each.entry.id));
+  return applyExchangeImport(entries, shown, NOW).entries.map((entry) =>
+    named.has(entry.id) ? { ...entry, deletedAt: NOW } : entry,
+  );
+};
 
 // Bruno taps 200 a month for August to October and imports Trade Republic's Saveback of 1.37 a month.
 const BRUNO = BTC_ONLY('200');
@@ -226,6 +245,12 @@ describe('planExchangeImport, the estimates a month keeps', () => {
     );
     expect(invested(BRUNO, deleted)).toBe('50');
     expect(invested(BRUNO, applyExchangeImport(log, whole(log), NOW).entries)).toBe('250');
+    // The named 200 is live in one import and tombstoned in two; September's monthly buys are the same in both.
+    const one = september(applyExchangeImport(log, whole(log), NOW).entries);
+    expect([september(deleted), one]).toEqual([
+      { estimates: [], buys: one.buys },
+      { estimates: ['200'], buys: [['import-csv', '50', '2026-09-03', '0.0005']] },
+    ]);
   });
 });
 
@@ -278,6 +303,11 @@ describe('planExchangeImport, the estimates a cancelled monthly buy carries', ()
       '35',
       [],
     ]);
+    // Once the person deletes the named 40, the two Logs are equal: no estimate is live in either.
+    expect([september(namedDeleted(part, whole(part, b2, b1))), september(one)]).toEqual([
+      { estimates: [], buys: [['import-csv', '35', '2026-09-04', '0.00035']] },
+      { estimates: [], buys: [['import-csv', '35', '2026-09-04', '0.00035']] },
+    ]);
   });
 
   it('the mirror: the 100 the earlier import replaced still goes with its cancelled 60, the hand-deleted 200 too', () => {
@@ -291,6 +321,12 @@ describe('planExchangeImport, the estimates a cancelled monthly buy carries', ()
     // 40 left is under half of 100: one import of the whole file keeps the 100 live (140).
     expect(carriedOf(whole(part, b2, b1))).toEqual([['60', ['200', '100']]]);
     expect(invested(BRUNO, applyExchangeImport(log, whole(log, b2, b1), NOW).entries)).toBe('140');
+    // Once the person deletes the named 60: the 100 is live in one import and tombstoned in two, the 200 in neither.
+    const one = september(applyExchangeImport(log, whole(log, b2, b1), NOW).entries);
+    expect([september(namedDeleted(part, whole(part, b2, b1))), one]).toEqual([
+      { estimates: [], buys: one.buys },
+      { estimates: ['100'], buys: [['import-csv', '40', '2026-09-04', '0.0004']] },
+    ]);
   });
 
   it('the cost through a Log edit: clearing the 200 from its row with the imported 40 shows the line for 40', () => {
@@ -321,5 +357,12 @@ describe('planExchangeImport, the estimates a cancelled monthly buy carries', ()
     const cleared = edited.find((each) => each.id === estimate.id);
     expect([cleared?.deletedAt, edited.find((each) => each.id === id)?.updatedAt]).toEqual([LATER, LATER]);
     expect(carriedOf(whole(edited, b2, b1))).toEqual([['40', ['200']]]);
+    // Once the person deletes the named 40: the 200 cleared by hand is live in one import (30 against 200) and
+    // tombstoned in two; September's monthly buys are the same in both.
+    const one = september(applyExchangeImport(log, whole(log, b2, b1), NOW).entries);
+    expect([september(namedDeleted(edited, whole(edited, b2, b1))), one]).toEqual([
+      { estimates: [], buys: one.buys },
+      { estimates: ['200'], buys: [['import-csv', '30', '2026-09-04', '0.0003']] },
+    ]);
   });
 });
