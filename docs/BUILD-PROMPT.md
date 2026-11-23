@@ -850,6 +850,17 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   import replaced stayed silent where one import keeps the earlier one live. The Trade Republic
   property drew only estimates that start live, so neither state could fail it (#432, #435,
   2026-11-23).
+- An oracle's escape case quotes the condition the code documents, never a paraphrase of it. 22o's
+  brief gave the Trade Republic property's second case as "a monthly buy of the coin that is not
+  imported (the person's own record)", and two builders read it as hand entries only. The property
+  then stopped twice on months that kept a live tap, which `carried()`'s doc comment already counts
+  ("are all exchange-imported"), and each stop cost a builder round (#435, 2026-11-23).
+- A property failure seen once in a check is hunted to its seed before the merge, on the branch and
+  on main. 22q's hunt ran seeds 1 to 100 at 3,000 runs in four parallel lanes, in 18 minutes. Seed
+  93 of the window property in `plan-claims.property.test.ts` fails at run 203 of its 300 on main as
+  well: rule F's cost in a window that drops the file's earliest left-out purchase, which the
+  property does not excuse. A world that rare (1 in 9,200) fails about one CI run in 100, and a
+  25-seed sweep at 300 runs misses it (#435, #433, 2026-11-23).
 
 ## Known gaps
 
