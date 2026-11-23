@@ -147,7 +147,7 @@
       "nothing": "Nada a adicionar deste ficheiro.",
       "replaces": "Substitui {count, plural, one {{figure} estimativa} other {{figure} estimativas}} de «Comprado como planeado».",
       "keeps": "Mantém {count, plural, one {{figure} estimativa} other {{figure} estimativas}} de «Comprado como planeado»: {count, plural, one {as compras importadas da mesma moeda e do mesmo mês somam menos de metade dela} other {para cada moeda em cada mês, as compras importadas somam menos de metade da maior estimativa}}.",
-      "noneInCurrency": "Nenhuma compra e nenhuma venda deste ficheiro está em {plan}, a moeda de pagamento deste plano: estão em {file}. Os montantes nunca são convertidos.",
+      "noneInCurrency": "Nenhuma das compras e vendas deste ficheiro está em {plan}, a moeda de pagamento deste plano: estão em {file}. Os montantes nunca são convertidos.",
       "cancelled": "O Registo tem {count, plural, one {{figure} movimento importado anteriormente, que este ficheiro mostra como cancelado} other {{figure} movimentos importados anteriormente, que este ficheiro mostra como cancelados}}: {items}. {count, plural, one {Elimine-o} other {Elimine-os}} no Registo.",
       "cancelledItem": "{hasAmount, select, yes {{units} por {amount} a {date}} other {{units} a {date}}}",
       "cancelledEstimates": "{count, plural, one {Eliminá-lo} other {Eliminá-los}} deixa {months} sem {monthCount, plural, one {a respetiva estimativa} other {as respetivas estimativas}}, que esta importação não consegue repor. Registe {monthCount, plural, one {esse mês} other {esses meses}} de novo no Registo se fez compras {monthCount, plural, one {nesse mês} other {nesses meses}}.",

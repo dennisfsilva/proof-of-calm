@@ -25,7 +25,7 @@
       "custody": {
         "title": "Custódia e contrapartes",
         "p1": "A {product} nunca detém o seu dinheiro nem as suas moedas. Quem a usa compra e guarda as moedas junto de um prestador à sua escolha ou numa carteira própria.",
-        "p2": "Um prestador pode falir, ser alvo de um ataque informático ou suspender os levantamentos, com as moedas dos clientes lá dentro. Com as moedas guardadas por conta própria, se a frase de recuperação se perder, ninguém as pode restaurar."
+        "p2": "Um prestador pode falir, ser alvo de um ataque informático ou suspender os levantamentos, com as moedas dos clientes lá dentro. No caso de moedas guardadas por conta própria, ninguém as pode restaurar se a frase de recuperação se perder."
       },
       "status": {
         "title": "Sem supervisor nem sistema de indemnização",
@@ -33,7 +33,7 @@
       },
       "tax": {
         "title": "Impostos",
-        "p1": "A venda, a troca ou o gasto de moedas pode implicar imposto a pagar, e as regras de cada país são diferentes e mudam. A {product} mostra as regras de detenção dos países que abrange, com as fontes e a data da última revisão de cada uma, exceto enquanto uma regra está em revisão. Quando o plano tem uma regra de detenção, a {product} mostra, para cada compra, o primeiro dia depois do período dessa regra. É informação e não constitui aconselhamento fiscal. Um consultor fiscal ou a sua autoridade tributária pode dizer-lhe o que se aplica a si."
+        "p1": "A venda, a troca ou o pagamento com moedas pode implicar imposto a pagar, e as regras de cada país são diferentes e mudam. A {product} mostra as regras de detenção dos países que abrange, com as fontes e a data da última revisão de cada uma, exceto enquanto uma regra está em revisão. Quando o plano tem uma regra de detenção, a {product} mostra, para cada compra, o primeiro dia depois do período dessa regra. É informação e não constitui aconselhamento fiscal. Um consultor fiscal ou a sua autoridade tributária pode dizer-lhe o que se aplica a si."
       },
       "scams": {
         "title": "Burlas",
