@@ -35,7 +35,7 @@
   "newer": {
     "title": "Der Plan wurde von einer neueren Version von {product} gespeichert.",
     "line": "Diese Version kann ihn nicht öffnen, daher bleibt er so, wie er gespeichert wurde. Laden Sie die Seite neu, um ihn in der neueren Version zu öffnen.",
-    "again": "Wenn diese Ansicht nach dem Neuladen wieder erscheint, bleibt der Plan ungelesen auf diesem Gerät; eine neuere Version von {product} kann ihn öffnen.",
+    "again": "Wenn diese Ansicht nach dem Neuladen wieder erscheint, bleibt der Plan unverändert auf diesem Gerät; eine neuere Version von {product} kann ihn öffnen.",
     "reload": "Neu laden",
     "entries": "{count, plural, one {{figure} Eintrag wurde} other {{figure} Einträge wurden}} von einer neueren Version von {product} gespeichert und {count, plural, one {wird} other {werden}} daher hier nicht angezeigt. Laden Sie die Seite neu, um {count, plural, one {ihn} other {sie}} zu sehen."
   },

@@ -45,7 +45,7 @@
     "dca": "{month}: geplant für den {date}"
   },
   "portfolio": {
-    "value": "Wert des Portfolios",
+    "value": "Portfoliowert",
     "invested": "Investiert"
   },
   "prices": {
@@ -84,7 +84,7 @@
   "review": {
     "created": "Sie haben diesen Plan am {date} eingerichtet.",
     "reviewed": "Sie haben diesen Plan zuletzt am {date} überprüft.",
-    "question": "Stimmt er noch? Haben sich die Regeln geändert?",
+    "question": "Passt er noch? Haben sich die Regeln geändert?",
     "open": "Den Plan prüfen",
     "later": "Später",
     "failed": "Die Prüfung konnte nicht verschoben werden. Versuchen Sie es erneut."
