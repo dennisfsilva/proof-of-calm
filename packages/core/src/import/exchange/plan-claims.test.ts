@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { aPlan, date, money, split } from '../../../test/builders';
+import { anEntry, aPlan, date, money, split } from '../../../test/builders';
 import { fileOf } from '../../../test/exchange/plan-arbitraries';
 import { LISBON, NOW, testId, trade } from '../../../test/exchange/plan-fixture';
-import type { Units } from '../../money/decimal';
+import type { Money, Units } from '../../money/decimal';
 import { defaultFee, lastVenue, oneTapEntries } from '../../plan/parts';
 import { actionsNow, liveEntries, primaryAction } from '../../plan/statuses';
 import { portfolio } from '../../portfolio/portfolio';
@@ -11,7 +11,7 @@ import type { Plan } from '../../schema/plan';
 import type { PriceSnapshot } from '../../schema/prices';
 import { applyExchangeImport } from './apply';
 import type { Movement } from './kraken';
-import { planExchangeImport } from './plan';
+import { planExchangeImport, type Recorded, underHalf } from './plan';
 import { importRemedies } from './plan-remedy';
 
 // Two costs of a one-tap `lump`'s claim in step 2 (docs/DOMAIN.md §3.13) that stand: pins of today's figures, so
@@ -112,5 +112,26 @@ describe("a one-tap lump's claim, the costs that stand", () => {
     expect(importRemedies(fileOf(file), { plan: P6, entries: tap(P6, '2026-09-03') }, false, LISBON).starting).toBe(
       null,
     );
+  });
+});
+
+describe('underHalf', () => {
+  const item = (entry: string | null, claimed: string | null): Recorded => ({
+    dates: [],
+    coin: 'BTC' as Recorded['coin'],
+    units: '0.001' as Units,
+    amount: claimed as Money | null,
+    count: 1,
+    entry: anEntry({ amount: entry as Money | null }),
+  });
+
+  it("holds only when both amounts are known and twice the claimed one is below the entry's", () => {
+    const pairs = [
+      ['70', '34.99'],
+      ['70', '35'],
+      ['70', null],
+      [null, '1'],
+    ] as const;
+    expect(pairs.map(([entry, claimed]) => underHalf(item(entry, claimed)))).toEqual([true, false, false, false]);
   });
 });

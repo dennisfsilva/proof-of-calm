@@ -12,7 +12,7 @@ import type { Entry } from '../../schema/entry';
 import type { Plan } from '../../schema/plan';
 import { applyExchangeImport } from './apply';
 import type { ExchangeFile, Movement } from './kraken';
-import { planExchangeImport } from './plan';
+import { planExchangeImport, underHalf } from './plan';
 import { changedLog, importRemedies, keepsPromise, type Stored } from './plan-remedy';
 
 // The Matching entries' sentence (docs/DOMAIN.md §3.13, "Lines that ask for a change"): each test deletes the row as the
@@ -378,6 +378,31 @@ describe('importRemedies', () => {
         .map((entry) => entry.id)
         .sort(),
     );
+  });
+
+  // Hugo typed April's buy of 70 at Kraken on 1 Apr; Trade Republic's file buys 5.47 on 3 Apr, which the entry claims
+  // (docs/DOMAIN.md §3.13 step 2). Under half of the entry's amount, the item says so and asks for no delete.
+  const HUGO = (amount: string): Case => {
+    const file = [bought('BTC', '2026-04-03', amount)];
+    return { plan: PLAN, file, shorter: [], entries: [monthly('2026-04-01', '2026-04', '70', { venue: 'Kraken' })] };
+  };
+  const claims = (c: Case, entries: readonly Entry[]) =>
+    planOf(c, entries).recorded.map((item) => [item.entry.id, item.amount, underHalf(item)]);
+
+  it("Hugo's 5.47 is recorded by his April buy of 70, under half: no sentence, before and after importing", () => {
+    const c = HUGO('5.47');
+    const april = (c.entries[0] as Entry).id;
+    for (const entries of [c.entries, imported(c, c.entries)]) {
+      expect(claims(c, entries)).toEqual([[april, '5.47', true]]);
+      expect(remedies(c, { plan: c.plan, entries }).size).toBe(0);
+    }
+  });
+
+  it("a Kraken file's 70 on 3 Apr is half or more: the sentence stays", () => {
+    const c = HUGO('70');
+    const april = (c.entries[0] as Entry).id;
+    expect(claims(c, c.entries)).toEqual([[april, '70', false]]);
+    expect([...remedies(c, { plan: c.plan, entries: c.entries })]).toEqual([april]);
   });
 });
 

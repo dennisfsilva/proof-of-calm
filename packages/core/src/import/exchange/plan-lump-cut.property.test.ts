@@ -4,6 +4,7 @@ import { type World, world } from '../../../test/exchange/plan-arbitraries';
 import { coverCut, excepted, withoutExcepted } from '../../../test/exchange/plan-cover';
 import { LISBON, NOW } from '../../../test/exchange/plan-fixture';
 import { lumpCut, partOf, splitsLumpDay, withLumpCut } from '../../../test/exchange/plan-late';
+import { storedByRuleM } from '../../../test/exchange/plan-months';
 import { type CalendarDate, daysBetween } from '../../dates/calendar';
 import { compare, type Money } from '../../money/decimal';
 import { portfolio } from '../../portfolio/portfolio';
@@ -109,17 +110,12 @@ const property = (reach: Map<string, number>) =>
       (entry.kind === 'dca' || entry.kind === 'extra') && keys.has(`${entry.coin}|${entry.date}`);
     const doubled = first.entries.filter((entry) => on(claims, entry));
     const gone = once.entries.filter((entry) => on(claims2, entry) && !on(claims, entry));
-    // The one-tap estimates the doubled purchases replaced are tombstoned too; those only the gone ones replaced stay
-    // live.
-    const ids = new Set(doubled.map((entry) => entry.id));
+    // The Log predicted: the stored one, plus one import's entries less `gone`, plus `doubled`, its estimates
+    // tombstoned by rule M over that Log (step 5's gate): a coin's estimates for a month go when it adds a monthly buy
+    // for it and the live exchange-imported buys reach half the largest.
     const goneIds = new Set(gone.map((entry) => entry.id));
-    const kept = {
-      ...once,
-      entries: once.entries.filter((entry) => !goneIds.has(entry.id)),
-      replaced: once.replaced.filter((group) => group.by.some((id) => !goneIds.has(id))),
-    };
-    const swapped = first.replaced.filter((group) => group.by.some((id) => ids.has(id)));
-    const plus = store(store(drawn.entries, kept), { ...first, entries: doubled, replaced: swapped });
+    const added = [...once.entries.filter((entry) => !goneIds.has(entry.id)), ...doubled];
+    const plus = storedByRuleM(drawn.entries, added, NOW);
     // DOMAIN §3.13 step 5's one exception: a sale the shorter export stores on another import's entry (plan-cover.ts).
     const out = coverCut(drawn.entries, drawn.file, first, once);
     expect(held(drawn, withoutExcepted(twice, out))).toEqual(held(drawn, plus));
