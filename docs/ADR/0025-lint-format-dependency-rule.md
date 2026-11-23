@@ -127,3 +127,21 @@ corrected here instead of rewritten (`docs/ADR/README.md`).
 
 - **The 2026-10-18 correction on the required checks.** `lighthouse` and `lighthouse-vercel` left
   them on 2026-11-05 (ADR-0024, deviation of 2026-11-05); `docs/OWNER-SETUP.md` §1 has the list.
+
+## Deviations recorded on 2026-11-23
+
+- **Decision, supply chain: "Socket (free) in CI".** Not installed, and it stays so: decided on the
+  owner's delegation of 2026-11-18; not the owner's own review or signature (#409). What stands
+  without it: OSV-Scanner on pull requests that touch the lockfile, a `package.json` or
+  `pnpm-workspace.yaml`, and on every push to `main` (`.github/workflows/osv-scanner.yml`); pnpm's
+  three-day release age and its install scripts off but for the `allowBuilds` list
+  (`pnpm-workspace.yaml`); exact pins; Dependabot security alerts, on since 2026-11-08
+  (`docs/OWNER-SETUP.md` §1). The app asks for read and write access to the contents and the pull
+  requests of the repository (https://docs.socket.dev/docs/permissions.md, read 2026-11-19), and
+  here every merge to `main` deploys to production with no approval (`docs/RELEASE.md`), so the
+  required checks are what guards `main`. Its checks and comments would also sit in the merge loops
+  of the unattended sessions: it scans a pull request when it is opened and on each push
+  (https://docs.socket.dev/docs/socket-for-github-pull-request-scanning.md, read 2026-11-19), and a
+  session's wait on a pull request's checks reads every row, so a pending or failed one lengthens or
+  trips the wait. The owner can reverse this with a free install of about two minutes
+  (https://docs.socket.dev/docs/socket-for-github-installation.md, read 2026-11-19).
