@@ -351,7 +351,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
     await mount(planOf(csv, [...fixture.entries, ONE_TAP_OCTOBER]));
     expect(texts()).toEqual([
       'Adds 1 entry: 1 monthly buy.',
-      'Keeps 1 estimate from Bought as planned: the purchases imported for its month come to less than half of it.',
+      'Keeps 1 estimate from Bought as planned: the purchases of the same coin imported for its month come to less ' +
+        'than half of it.',
     ]);
     expect(sections()).toEqual(['Monthly buys (1)', 'Estimates it keeps (1)']);
     expect(lines('Estimates it keeps (1)')).toEqual([
@@ -366,8 +367,24 @@ describe('ExchangeSummary and ExchangeSections', () => {
     await mount(planOf(csv, entries), PLAN, 'kraken', remediesOf(csv, entries));
     expect(lines('Matching entries in the Log, not added (1)')).toEqual([
       "The file's 0,0008 BTC for 50,00 € on 5 Oct 2026 counts as recorded by your monthly buy for October 2026: " +
-        '0,0020 BTC at Bitvavo for 120,00 €, dated in its month or within 3 days. That is less than half of its amount.',
+        '0,0020 BTC at Bitvavo for 120,00 €. That entry is dated in the same month or within 3 days, and 50,00 € is ' +
+        'less than half of its amount.',
     ]);
+  });
+
+  // Two estimates of one month, 120 and 200, and a purchase of 60: both stay, and the plural names the largest.
+  it('word two estimates kept for one month with the plural, by the largest estimate', async () => {
+    const csv = btcBuys([['K1', '2026-10-05 09:00:00', '60.0000', '0.0006000000', '0.0000']]);
+    const [first, second] = [
+      { ...ONE_TAP_OCTOBER, amount: '120' as Entry['amount'] },
+      { ...ONE_TAP_OCTOBER, id: 'aaaaaaaa-0000-4000-8000-000000000011' as EntityId, amount: '200' as Entry['amount'] },
+    ];
+    await mount(planOf(csv, [...fixture.entries, first, second]));
+    expect(texts()).toContain(
+      'Keeps 2 estimates from Bought as planned: for each coin and month, the purchases imported come to less than ' +
+        'half the largest estimate.',
+    );
+    expect(sections()).toContain('Estimates it keeps (2)');
   });
 
   // DOMAIN §3.13 step 2: a date's amount is all the file's purchases of the coin on it, so the dates claimed are not
