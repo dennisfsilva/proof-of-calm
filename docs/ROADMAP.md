@@ -422,7 +422,9 @@ external links and the Risk link in the mobile export (M3).
   average cost and the P/L count the units, the tax-year export carries the lot at cost 0, and the
   entries' version is 3, which the newer-version screen of 2026-10-30 covers; a gift is not such a
   receipt, since Germany, Italy and the United States carry the giver's cost, so it goes in as coins
-  held with its cost unknown);
+  held with its cost unknown); a sale the starting amount's or a Coins added entry's guard reaches,
+  left out and named when the entries before it hold less of its coin (2026-11-23,
+  `docs/DOMAIN.md` §3.13, step 4);
   the Learn modules, the country pages and the holding-date page public and indexable
   (`docs/GROWTH.md` §4.1): the Learn index and every module, Taxes with every country's row,
   the country list, one page per country and the holding-date page's static half prerendered under
@@ -561,7 +563,7 @@ by unit tests per parser and a Playwright flow per exchange.
 
 Two import choices wait here too (ADR-0056, Corrections, 2026-11-14): choosing, per purchase, whether
 one dated on or before the first buy day plus 15 days is the starting amount, where the import now
-leaves them out and names them; and a lone cancellation whose trade the file no longer holds, matched
+leaves them out and names them, and brings back the sales it covers; and a lone cancellation whose trade the file no longer holds, matched
 by its figures, where the import now names only a trade the file pairs with its cancellation.
 Two cases of #200's design check (2026-11-14) wait for them or for the month rule: Ana*, who
 imports first, stays at Invested €1,050 against €950 (€100 counted twice) with no line, because the import stored a

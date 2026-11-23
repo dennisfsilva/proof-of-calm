@@ -194,3 +194,11 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   first buy day is imported as a monthly buy with no line (2,400 against 1,400), and a tapped lump
   that claims its purchase keeps its estimated units (rule R; `docs/DOMAIN.md` §3.13 step 2 states
   each). The rest stands.
+- 2026-11-23, the sales a guard reaches: the starting amount's and the Coins added entries' guards left
+  out purchases while the file's sales went in, so a sale could be stored with nothing before it (0.6
+  BTC sold of 1 BTC bought before the first buy day left the Log below zero). Now a sale either guard reaches is left out and named when the person's own entries
+  (one-tap monthly estimates aside), the file's entries stored earlier and the file's purchases left
+  hold less of its coin up to its date (`docs/DOMAIN.md` §3.13, step 4); ticking the box adds back the
+  sales its purchases cover, and a line that asks for a change may add a sale it covers. The cost,
+  stated: a guard that leaves out none of the purchases that covered a sale stores it (0.8 BTC against
+  0.4). Choosing per purchase (M4) brings back the sales it covers. The rest stands.

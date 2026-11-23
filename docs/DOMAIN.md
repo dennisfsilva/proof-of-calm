@@ -1151,6 +1151,27 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      more than one does, every such entry in `compareEntries` order (units, date, venue), each transaction
      dated on or before one of them.
      This narrows step 2's holding to the purchases and receipts an entry guards.
+     The sales either guard reaches (decided 2026-11-23, ADR-0056, Corrections; `saleGuard` in
+     `packages/core/src/import/exchange/plan-guards.ts`): "A sale of C that step 2 left is left out and
+     named when a guard reaches it and its cover is short. Step 3 reaches it when it is dated on or before
+     `firstBuy` + `IMPORT_MATCH_DAYS`, in a plan with a starting amount above 0 or for a coin with a live
+     `lump`; step 4 reaches it when a live hand `held` entry of C is dated on or after it. Its cover is the
+     units of C dated on or before its date in live entries of kind `dca`, `extra`, `lump` or `held` whose
+     source is not `import-csv` (one-tap monthly estimates aside), in live entries whose id is one of this
+     file's, and in this file's purchases and receipts that steps 2 to 4 left. Other sales and other files'
+     entries never count." Each sale is decided alone, against its coin's cover up to its date, worked out
+     once per coin; short is `compare(cover, units) < 0`, and the starting reach is named when both reach
+     it. The left-out item (`uncovered`, in date order) names the sale, its reach (the cut-off, or the
+     earliest such `held` entry in `compareEntries` order) and that the person's own entries and the file
+     hold less of C up to that date; the held line counts the sales ticking the box adds back
+     (`held.sales`). The reason: the guards leave out purchases a sale may have sold, and the sale stored
+     alone would leave the Log holding less of C than the person sold, or a balance below zero once the
+     purchases are recorded. The cost, stated: a guard that leaves out none of the purchases that covered
+     the sale stores it, so a Coins added entry of 0.4 BTC on 10 Nov 2026 over a file of 1 BTC bought on 1
+     Feb 2025 and 0.6 sold on 1 Sep 2025 shows 0.8 BTC where the person holds 0.4. What stays out: a sale
+     dated after the reach of purchases step 3 left out is stored as before (0 BTC in the Log where those
+     purchases held more), and the starting line is its fix; no other file's entries cover a sale; a sale
+     left out is in no tax-year file until it is imported; choosing per purchase is planned (M4).
   5. The monthly buys (decided 2026-11-14, ADR-0056, Corrections): "Every purchase date of C whose month
      is S, left by steps 2 to 4, is a monthly buy for S when C's share is above 0 and S is neither skipped
      nor paused, or when the Log holds a one-tap estimate of C for S, live or tombstoned. C's live estimates
@@ -1205,7 +1226,8 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   the plan considers (none in another currency or of a coin the plan does not list), a
   monthly buy's as monthly buys for its month, while keeping every other entry the import adds (every field
   but `updatedAt`) and every estimate it replaces, except those of a month the delete frees, which step 5
-  replaces (`keepsPromise`). The promise: a person who follows the line, before importing or after, gets
+  replaces (`keepsPromise`); a sale the shown plan leaves out uncovered (step 4's sales) that the change
+  covers may be added, since the change covers it, never the reverse. The promise: a person who follows the line, before importing or after, gets
   the file's transactions for those dates, and every other entry the import adds and estimate it replaces
   stays as it was. The starting line's instruction (`startingRemedies`) is the first candidate that keeps
   the same promise in both orders, the Log changed by `changedLog` as the Log would save it. For a coin,
