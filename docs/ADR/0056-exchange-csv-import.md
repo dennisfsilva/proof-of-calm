@@ -211,8 +211,8 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   left-out history comes first goes with it; the whole Log as cover would store a sale silently when
   another exchange's buys, interleaved with that history, come first (0.5 BTC shown where 1.1 is held);
   and counting only what comes before the sale's own left-out history would break yearly exports (0.35
-  against 0.23 BTC). The line now says `On {date}, it sells more {coin} than the purchases this file imports and
-  your own entries hold. Monthly estimates from Bought as planned do not count.`, true under either
+  against 0.23 BTC). The line now says `On {date}, the purchases this file imports and your own entries hold
+  less {coin} than the sale. Monthly estimates from Bought as planned do not count.`, true under either
   cover. Two exchanges' files leave one Log in either order once each is chosen again after the
   other; before that, only sales the first import of their file left out differ. The costs, stated:
   each sale is still decided alone (a hand sale between two files leaves −0.0049 BTC); coins another
