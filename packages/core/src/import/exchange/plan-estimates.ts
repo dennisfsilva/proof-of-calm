@@ -14,7 +14,7 @@ import type { Day } from './plan-guards';
 export type EstimateGroup = { readonly estimates: readonly Entry[]; readonly by: readonly EntityId[] };
 
 /** The one-tap monthly estimates the Log holds, live or tombstoned, in `compareEntries` order. */
-export const tapsOf = (entries: readonly Entry[]) =>
+const tapsOf = (entries: readonly Entry[]) =>
   entries.filter((entry) => isEstimate(entry) && entry.kind === 'dca').sort(compareEntries);
 
 type Input = {
