@@ -9,7 +9,7 @@ import { I18nProvider } from '../../../lib/i18n';
 import type { PlanStore, Snapshot } from '../../../lib/ports';
 import { ServicesProvider } from '../../../lib/services';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
-import { KRAKEN_OCTOBER, ONE_TAP_OCTOBER } from '../../../lib/services/kraken.testing';
+import { KRAKEN_OCTOBER, krakenLedger, ONE_TAP_OCTOBER } from '../../../lib/services/kraken.testing';
 import { createTestServices, TEST_NOW_MS, type TestServicesOptions } from '../../../lib/services/testing';
 import { TRADE_REPUBLIC_OCTOBER } from '../../../lib/services/trade-republic.testing';
 import { crossTabChannel } from '../../../lib/store/channel';
@@ -185,6 +185,30 @@ describe('ExchangeImport', () => {
     expect(texts().find((line) => line.startsWith('Adds '))).not.toBe(summaryBefore);
     const after = screen.getByRole('button', { name: /^Import \d+ entr/ }).textContent ?? '';
     expect(Number(after.replace(/\D/g, ''))).toBe(Number(before.replace(/\D/g, '')) + 2);
+  });
+
+  it('unticked, names the sale ticking adds back and has nothing to add; ticked, adds it and says no more', async () => {
+    // A BTC sale the day before the Coins added entry that only the file's two purchases, which it guards, cover.
+    const sold = readExchangeFile(
+      krakenLedger([
+        ['TQ9ZZZ-SYNTH-000001', '2026-10-05 09:00:00', 'trade', 'EUR', '-70.0000', '0.1800'],
+        ['TQ9ZZZ-SYNTH-000001', '2026-10-05 09:00:00', 'trade', 'BTC', '0.0012000000', '0.0000000000'],
+        ['TQ9ZZZ-SYNTH-000003', '2026-10-12 12:00:00', 'trade', 'EUR', '-50.0000', '0.1300'],
+        ['TQ9ZZZ-SYNTH-000003', '2026-10-12 12:00:00', 'trade', 'BTC', '0.0008000000', '0.0000000000'],
+        ['TQ9ZZZ-SYNTH-000006', '2026-10-12 13:00:00', 'trade', 'BTC', '-0.0230000000', '0.0000000000'],
+        ['TQ9ZZZ-SYNTH-000006', '2026-10-12 13:00:00', 'trade', 'EUR', '1500.0000', '1.0000'],
+      ]),
+    );
+    if (!sold.ok) throw new Error('the synthetic ledger reads');
+    await mount([HELD], undefined, {}, { file: sold.value, name: 'kraken-ledgers.csv' });
+    expect(texts()).toEqual(
+      expect.arrayContaining([`${HELD_LINE} If you add them, they also add 1 sale.`, 'Nothing to add from this file.']),
+    );
+    expect(button(/^Import/)).toBeNull();
+
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Add these transactions too' }));
+    expect(texts()).toContain(HELD_LINE);
+    expect(button('Import 3 entries')).not.toBeNull();
   });
 
   it('imports with the venue typed and the answer given, and ends with the outcome', async () => {

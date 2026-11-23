@@ -22,7 +22,8 @@ const NONE: ImportRemedies = { recorded: new Set(), starting: null, estimates: [
 
 /**
  * The preview of `plan`; `ticked` is the plan the same file and Log give with `addHeld: true`, passed whenever the
- * held line shows unticked, so the line can count the estimates ticking would replace; `remedies` marks the Matching
+ * held line shows unticked, so the line can count the estimates ticking would replace and the sales it would add;
+ * `remedies` marks the Matching
  * entries whose item says to delete the entry, gives the starting line its instruction and the estimate lines
  * (`importRemedies`).
  */
@@ -49,7 +50,15 @@ export function previewModel(plan: ExchangeImportPlan, ticked: ExchangeImportPla
       replaced,
     },
     noneInCurrency: plan.noneInCurrency,
-    held: plan.held === null ? null : { ...plan.held, replaces: estimatesOf(ticked) - replaced },
+    // Ticking also adds the sales a guard left out uncovered that the Coins added entries then cover.
+    held:
+      plan.held === null
+        ? null
+        : {
+            ...plan.held,
+            replaces: estimatesOf(ticked) - replaced,
+            sales: ticked.entries.filter((entry) => entry.kind === 'sell' && !byId.has(entry.id)).length,
+          },
     fills: of('dca').filter((entry) => !replacing.has(entry.id)),
     replaces,
     extra: of('extra'),
@@ -61,6 +70,7 @@ export function previewModel(plan: ExchangeImportPlan, ticked: ExchangeImportPla
     short: plan.short,
     estimates: remedies.estimates,
     withdrawals: plan.withdrawals,
+    uncovered: plan.uncovered,
     leftOut: plan.leftOut,
     counted: { imported: plan.imported, deleted: plan.deleted, unitsCut: plan.unitsCut, feesInCoin: plan.feesInCoin },
   };

@@ -166,6 +166,7 @@ function Preview({ file, name, onDone, onBusy, plan: livePlan }: Props & { reado
         return t('heldMany', { ...counted, entries: w.figure(entries.length), items });
       }),
       t('heldAnswer', { transactions }),
+      held.sales > 0 ? t('heldSales', { ...w.counted(held.sales), transactions }) : '',
       held.replaces > 0 ? t('heldReplaces', { ...w.counted(held.replaces), transactions }) : '',
     ]
       .filter((line) => line !== '')
