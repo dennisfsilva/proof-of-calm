@@ -1028,9 +1028,11 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      gives it, so one that grows only below those places is not named either (a Kraken bonus of
      0.0000000040 BTC on 1 Dec and 0.00005 BTC on 3 Dec, the 3 Dec row exported first): a line naming two
      equal figures would read as no change, so the Log keeps the earlier import's date and units for it. A
-     named monthly buy carries its coin's tombstoned one-tap estimates for its month when deleting the named
-     entries leaves that month no monthly buy but imported ones that come to less than half the largest of
-     those estimates, none at all included, and the line says deleting it leaves the month without its
+     named monthly buy carries its coin's one-tap estimates for its month that are tombstoned or that this
+     import replaces when the Log once this import is applied (its entries added and the estimates it
+     replaces tombstoned) and the named entries deleted leaves that month no monthly buy but imported ones
+     that come to less than half the largest of those estimates, none at all included, and the line says
+     deleting it leaves the month without its
      estimate, to record again if bought: the import never un-tombstones. The line is written for an earlier
      import's buy that replaced the month's estimate and that this file cancels: one import of the whole
      file keeps that estimate live (step 5's gate). A tombstone does not record who made it, so an estimate
@@ -1040,7 +1042,11 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      the named entry leaves the month without a live estimate this import cannot bring back, and it errs
      only toward showing. Once the person makes the named changes, the live Log equals one import's of the
      whole file, except that an estimate the line names can be tombstoned where one import keeps it live,
-     and each receipt left unnamed that way keeps the earlier import's date and units. Step 1 only compares
+     and each receipt left unnamed that way keeps the earlier import's date and units. It differs too where
+     an estimate an earlier import replaced stays tombstoned while, once the named changes are made, its
+     month keeps a live estimate or a hand-recorded monthly buy of its coin: one import of the whole file
+     can keep that estimate live there, beside a tap recorded between the imports (as a JSON import brings
+     one), and no line names it, since the month is not left without a monthly buy. Step 1 only compares
      and names: it tombstones and changes nothing.
   2. "Hand-recorded entries (source `manual`, `import-prototype` or `import-json`; `held` entries and moves
      claim nothing) and a live one-tap `lump`, in `compareEntries` order, claim unclaimed dates", monthly
