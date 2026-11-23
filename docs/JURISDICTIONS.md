@@ -122,7 +122,7 @@ export const CountryProfileSchema = z.object({
   code: z.string().regex(/^[A-Z]{2}$/),   // ISO 3166-1 alpha-2; "XX" is the generic no-exemption profile
   name: z.string(),
   currency: z.enum(['EUR', 'USD', 'GBP', 'CHF']),   // the v1 set of docs/DOMAIN.md §1; another currency needs its minor unit in the core first
-  locales: z.array(z.string()).min(1),    // BCP 47, first is the suggested UI language
+  locales: z.array(z.string()).min(1),    // BCP 47; the country suggestion reads them (§3); the UI language follows the device, never these (ADR-0023)
   numberFormatLocale: z.string(),         // drives Intl.NumberFormat
   dateFormatLocale: z.string(),           // the numeric date order where digits are needed; dates in copy follow the UI language (ADR-0023)
   timezones: z.array(z.string()).min(1),  // IANA, used for the suggestion logic
@@ -508,6 +508,34 @@ is why entries carry an optional venue label.
 | Caveats | the exact day count; the EUR 1000 cliff; staking and lending (EUR 256 rule); the reform's cut-off and grandfathering (a draft, may change); losses; church tax; the records the Finanzamt expects |
 | Decisive sources | § 23 EStG, § 22 EStG, § 32a EStG, gesetze-im-internet.de, accessed 2026-10-16 (§ 23 again on 2026-11-03), https://www.gesetze-im-internet.de/estg/__23.html (and __22, __32a) · § 3 SolZG 1995, https://www.gesetze-im-internet.de/solzg_1995/__3.html · BMF-Schreiben 2025-03-06, IV C 1 - S 2256/00042/064/043, https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Einkommensteuer/2025-03-06-einzelfragen-kryptowerte.html (server error on 2026-10-16; content via Forvis Mazars 2025 and CMS 2025-06-26, medium-high; the letter's PDF read on 2026-11-04, https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Einkommensteuer/2025-03-06-einzelfragen-kryptowerte-bmf-schreiben.pdf?__blob=publicationFile&v=2) · BMF-Schreiben 2022-05-10, IV C 1 - S 2256/19/10003 :001, accessed 2026-11-04, https://www.bundesfinanzministerium.de/Content/DE/Pressemitteilungen/Finanzpolitik/2022/05/2022-05-09-einzelfragen-zur-ertragsteuerrechtlichen-behandlung-von-virtuellen-waehrungen-und-von-sonstigen-token-bmf-schreiben.pdf?__blob=publicationFile&v=1 · BFH, Urteil of 2023-02-14, IX R 3/22, accessed 2026-11-04, https://www.bundesfinanzhof.de/en/entscheidungen/entscheidungen-online/decision-detail/STRE202310057/ · § 108 AO, §§ 187–188 BGB, gesetze-im-internet.de, accessed 2026-11-04, https://www.gesetze-im-internet.de/ao_1977/__108.html (and bgb/__187, bgb/__188) · PwC Germany on the Referentenentwurf, 2026-10-05, https://blogs.pwc.de/de/steuern-und-recht/article/257144/ · Grant Thornton, 2026-09-25, https://www.grantthornton.de/themen/2026/bmf-plant-reform-der-krypto-besteuerung/ · ETL, 2026-10-12, https://www.etl.de/aktuelles/kryptobesteuerung-soll-sich-ab-2027-aendern/ · Haufe on the DAC8-Umsetzungsgesetz, 2025-12-19, https://www.haufe.de/steuern/gesetzgebung-politik/dac8-umsetzungsgesetz_168_635554.html · the BMF draft PDF (to be read by the reviewer): https://www.bundesfinanzministerium.de/Content/DE/Gesetzestexte/Gesetze_Gesetzesvorhaben/Abteilungen/Abteilung_IV/21_Legislaturperiode/2026-09-30-Reform-Besteuerung-Kryptowerte-PV/1-Referentenentwurf.pdf |
 
+Queued for the next full review (due 2027-01-01), decided 2026-11-23 on the owner's delegation of
+2026-11-18 (not the owner's own review or signature; #409). The lot rule and the reporting line keep
+their two secondary sources, `de-forvis-mazars-bmf-2025` and `de-cms-bmf-2025`, until then: a
+truthful change rewords three lines a person reads and adds a source, so the card's "Reviewed on"
+date must move with a read of every source of the file, which is the owner's full review. What that
+review applies, from the BMF letter of 6 March 2025 as read on 2026-11-19:
+
+- `lotRule` and `reporting` point to `de-bmf-2025-03-06`, the BMF letter and already a source of the
+  file, and the entries `de-forvis-mazars-bmf-2025` and `de-cms-bmf-2025` go.
+- The lot-rule text and its note follow Rz. 61 and 62: unit by unit where each unit can be
+  identified; otherwise first in, first out per wallet and per crypto-asset for the holding period,
+  with cost by the average method or, as a simplification, first in, first out. Write "the average
+  method", never "average cost", which is Portfolio's own label.
+- The reporting line follows Rz. 87 to 90: the facts lie with the taxpayer, who must cooperate;
+  missing records count against the taxpayer; a tax report that appears plausible can be the basis
+  of the assessment. It drops "bears the burden of proof" and does not write "must keep records":
+  the letter says neither.
+- A source `de-solzg-4` is added (§ 4 SolZG 1995, which states the 5.5 % and the sliding zone;
+  https://www.gesetze-im-internet.de/solzg_1995/__4.html, read 2026-11-19), and the rate's label
+  names §§ 3 and 4.
+- The pt-PT overlay follows with the same figures.
+- Then the two exceptions in `packages/content/src/profiles/invariants.test.ts` go and the rule
+  moves into the validator.
+
+One more lead for that review: `filingNote`'s 31 July 2027 falls on a Saturday, and § 108(3) AO
+moves a deadline that ends on a Saturday to the next working day
+(https://www.gesetze-im-internet.de/ao_1977/__108.html, read 2026-11-19); check it.
+
 ### 7.8 Netherlands (NL) — confidence high
 
 | Field | Value |
@@ -546,6 +574,14 @@ is why entries carry an optional venue label.
 | summary60 | "Spain: every sale, crypto-to-crypto swap, or payment with crypto is a taxable event. No holding-period exemption. Net gains are taxed in the savings base at 19 % to 30 %. First-in, first-out per coin. Losses offset gains and carry forward 4 years. Crypto held with a foreign custodian above EUR 50 000 must be reported on Modelo 721 by 31 March." |
 | Caveats | the FIFO dispute; staking and airdrop classification; the 25 % cross-offset; gifts (the giver pays); regional wealth tax; Basque and Navarre foral rules; the pending DAC8 law; post-election changes |
 | Decisive sources | AEAT, Manual práctico de Renta 2025, "Compra y venta de monedas virtuales", updated 2026-03-17, https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025/c11-ganancias-perdidas-patrimoniales/monedas-virtuales/compra-venta-monedas-virtuales-tributacion-inversor.html · AEAT manual, savings-base scale (gravamen estatal / autonómico) and integración y compensación pages (same manual) · AEAT, Modelo 721 FAQ and deadlines, https://sede.agenciatributaria.gob.es/Sede/todas-gestiones/impuestos-tasas/declaraciones-informativas/modelo-721-decla-sobre-monedas-extranjero/preguntas-frecuentes-sobre-modelo-721.html, and its deadlines page, published 2026-09-08, https://sede.agenciatributaria.gob.es/Sede/todas-gestiones/impuestos-tasas/declaraciones-informativas/modelo-721-decla-sobre-monedas-extranjero/plazos-presentacion.html · BOE, RD 1065/2007 (RGAT) art. 42 quater, https://www.boe.es/buscar/act.php?id=BOE-A-2007-15984 · La Moncloa, election announcement, 2026-10-05, https://www.lamoncloa.gob.es/presidente/actividades/Paginas/2026/051026-sanchez-convocatoria-elecciones.aspx · Ministerio de Hacienda, prórroga PGE, 2025-12-23 · Cuatrecasas, "El TSJPV resuelve que el método FIFO no se aplica a criptomonedas", 2025-02-28, https://www.cuatrecasas.com/es/spain/fiscalidad/art/criptomonedas-metodo-fifo-hacienda-foral (medium; the judgment's text not fetched) · Congreso de los Diputados, initiative 121/000060 (proyecto de ley, presented 2025-06-05, "Caducado"), read 2026-11-05, https://www.congreso.es/es/busqueda-de-iniciativas?p_p_id=iniciativas&p_p_lifecycle=0&p_p_state=normal&p_p_mode=view&_iniciativas_mode=mostrarDetalle&_iniciativas_legislatura=XV&_iniciativas_id=121%2F000060 |
+
+For the next full review (due 2027-01-01), noted on 2026-11-23: `summary60` says that crypto held
+with a foreign custodian above EUR 50,000 must be reported on Modelo 721 by 31 March, while art. 42
+quater.6 RGAT makes a return in later years obligatory only after the joint balance has risen by
+more than EUR 20,000 over the one of the last return filed
+(https://www.boe.es/buscar/act.php?id=BOE-A-2007-15984, read 2026-11-19). The card's Allowances row
+already holds the later-years rule. The summary is at its 60-word limit in English and in pt-PT, so
+the review agent cannot make the change, and the owner rewrites the sentence by hand.
 
 ### 7.10 France (FR) — confidence high
 
