@@ -1,47 +1,47 @@
 {
-  "skip": "Skip to content",
+  "skip": "Zum Inhalt springen",
   "why": {
-    "link": "Why?",
-    "failed": "This explanation could not be loaded. Check your connection, then reload the page."
+    "link": "Warum?",
+    "failed": "Diese Erklärung konnte nicht geladen werden. Prüfen Sie die Verbindung und laden Sie die Seite dann neu."
   },
   "holdingConditions": {
-    "more": "Show {count} more {count, plural, one {condition} other {conditions}}"
+    "more": "{count} weitere {count, plural, one {Bedingung} other {Bedingungen}} anzeigen"
   },
   "countryLine": {
-    "plain": "Reviewed on {date} · general information, not advice",
-    "generic": "Reviewed on {date}: the general profile, not a rule for your country · general information, not advice",
-    "sources": "Reviewed on {date} · general information, not advice · <sources>Sources</sources>",
-    "underReview": "Not reviewed since {date} · general information, not advice"
+    "plain": "Stand: {date} · allgemeine Informationen, keine Beratung",
+    "generic": "Stand: {date} · das allgemeine Profil, keine Regel für Ihr Land · allgemeine Informationen, keine Beratung",
+    "sources": "Stand: {date} · allgemeine Informationen, keine Beratung · <sources>Quellen</sources>",
+    "underReview": "Seit {date} nicht überprüft · allgemeine Informationen, keine Beratung"
   },
   "nav": {
-    "label": "Main",
-    "today": "Today",
+    "label": "Hauptnavigation",
+    "today": "Heute",
     "portfolio": "Portfolio",
-    "log": "Log",
-    "learn": "Learn"
+    "log": "Protokoll",
+    "learn": "Lernen"
   },
-  "settings": "Settings",
+  "settings": "Einstellungen",
   "toast": {
-    "close": "Close"
+    "close": "Schließen"
   },
   "update": {
-    "title": "A new version is ready.",
-    "reload": "Reload"
+    "title": "Eine neue Version ist bereit.",
+    "reload": "Neu laden"
   },
   "failure": {
-    "title": "Your data could not be opened.",
-    "retry": "Try again"
+    "title": "Die Daten konnten nicht geöffnet werden.",
+    "retry": "Erneut versuchen"
   },
   "newer": {
-    "title": "Your plan was saved by a newer version of {product}.",
-    "line": "This version cannot open it, so it stays as it was saved. Reload the page to open it in the newer version.",
-    "again": "If this screen comes back after the reload, your plan stays on this device, unread; a newer version of {product} can open it.",
-    "reload": "Reload",
-    "entries": "{count, plural, one {{figure} entry was} other {{figure} entries were}} saved by a newer version of {product}, so {count, plural, one {it is} other {they are}} not shown here. Reload the page to see {count, plural, one {it} other {them}}."
+    "title": "Der Plan wurde von einer neueren Version von {product} gespeichert.",
+    "line": "Diese Version kann ihn nicht öffnen, daher bleibt er so, wie er gespeichert wurde. Laden Sie die Seite neu, um ihn in der neueren Version zu öffnen.",
+    "again": "Wenn diese Ansicht nach dem Neuladen wieder erscheint, bleibt der Plan ungelesen auf diesem Gerät; eine neuere Version von {product} kann ihn öffnen.",
+    "reload": "Neu laden",
+    "entries": "{count, plural, one {{figure} Eintrag wurde} other {{figure} Einträge wurden}} von einer neueren Version von {product} gespeichert und {count, plural, one {wird} other {werden}} daher hier nicht angezeigt. Laden Sie die Seite neu, um {count, plural, one {ihn} other {sie}} zu sehen."
   },
   "screenError": {
-    "title": "This screen could not be loaded.",
-    "line": "Check your connection, then reload the page.",
-    "reload": "Reload"
+    "title": "Diese Ansicht konnte nicht geladen werden.",
+    "line": "Prüfen Sie die Verbindung und laden Sie die Seite dann neu.",
+    "reload": "Neu laden"
   }
 }
