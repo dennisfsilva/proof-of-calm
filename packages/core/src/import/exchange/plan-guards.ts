@@ -2,7 +2,7 @@
 // §3.13): the starting amount (step 3) and the coins the person added (step 4), and the sales they reach.
 import { IMPORT_MATCH_DAYS } from '../../constants';
 import { addDays, type CalendarDate, compareDates } from '../../dates/calendar';
-import { compare, isPositive, isZero, type Money, plus, sum, type Units } from '../../money/decimal';
+import { compare, isPositive, isZero, type Money, max, plus, sum, type Units } from '../../money/decimal';
 import { compareEntries } from '../../portfolio/lots';
 import { type Entry, isEstimate } from '../../schema/entry';
 import type { CoinId, EntityId } from '../../schema/ids';
@@ -30,6 +30,8 @@ export type HeldCoin = {
   readonly purchases: number;
   readonly units: Units;
   readonly through: CalendarDate;
+  /** The earliest date it guards. */
+  readonly from: CalendarDate;
   /** Every entry that guards a date, oldest first: the latest is `through`. */
   readonly entries: readonly { readonly units: Units; readonly date: CalendarDate; readonly venue: string | null }[];
 };
@@ -100,10 +102,10 @@ export function heldGuard(plan: Plan, live: readonly Entry[], days: readonly Day
       day.claimed = day.items.length === 0;
     }
     const entries = [...guarding].sort(compareEntries).map(({ units, date, venue }) => ({ units, date, venue }));
-    const latest = entries.at(-1);
-    if (latest === undefined) continue;
+    const [first, latest] = [items[0], entries.at(-1)];
+    if (first === undefined || latest === undefined) continue;
     const units = sum(items.map((item) => item.movement.units));
-    coins.push({ coin, purchases: items.length, units, through: latest.date, entries });
+    coins.push({ coin, purchases: items.length, units, through: latest.date, from: first.date, entries });
   }
   return coins.length === 0 ? null : { added: addHeld, coins };
 }
@@ -123,27 +125,65 @@ export type Uncovered = {
 const COVERS: ReadonlySet<Entry['kind']> = new Set(['dca', 'extra', 'lump', 'held']);
 
 /**
+ * Each coin's earliest purchase or receipt that steps 3 and 4 leave out of this file, step 4's only when it holds them
+ * back (F in docs/DOMAIN.md §3.13 step 4): the entries other imports stored count in a sale's cover only before it.
+ */
+export function leftOutFrom(
+  starting: { readonly items: readonly { readonly coin: CoinId; readonly date: CalendarDate }[] } | null,
+  held: { readonly added: boolean; readonly coins: readonly HeldCoin[] } | null,
+): ReadonlyMap<CoinId, CalendarDate> {
+  const from = new Map<CoinId, CalendarDate>();
+  const back = held === null || held.added ? [] : held.coins.map(({ coin, from: date }) => ({ coin, date }));
+  for (const { coin, date } of [...(starting?.items ?? []), ...back]) {
+    const earliest = from.get(coin);
+    if (earliest === undefined || date < earliest) from.set(coin, date);
+  }
+  return from;
+}
+
+/** What the sale guard reads of the plan beside the Log: this file's ids, step 2's claims and `leftOutFrom`. */
+export type SaleContext = {
+  readonly ids: ReadonlySet<EntityId>;
+  readonly recorded: readonly { readonly entry: Entry; readonly units: Units }[];
+  readonly from: ReadonlyMap<CoinId, CalendarDate>;
+};
+
+/**
  * After step 4: "A sale of C that step 2 left is left out and named when a guard reaches it and its cover is short."
  * The reach is step 3's (on or before `firstBuy` + 15 days, in a plan with a starting amount above 0 or for a coin with
  * a live `lump`), which wins, or a live hand `held` entry of C dated on or after the sale, the earliest named. The
- * cover is C's units dated on or before the sale from the person's live entries, one-tap monthly estimates excepted,
- * the live entries an earlier import stored from this file (`ids`), and this file's purchases and receipts steps 2 to 4
- * leave; it is summed once per coin, in date order, and each sale is decided alone.
+ * cover is C's units dated on or before the sale from the person's live entries, one-tap monthly estimates excepted
+ * and a one-tap `lump` at its units or the file's it records in step 2, whichever is more; the live entries an earlier
+ * import stored from this file (`ids`); the live entries other imports stored, dated before `from`'s date for C, or all
+ * when it has none; and this file's purchases and receipts steps 2 to 4 leave. It is summed once per coin, in date
+ * order, and each sale is decided alone.
  */
 export function saleGuard(
   plan: Plan,
   live: readonly Entry[],
   days: readonly Day[],
-  ids: ReadonlySet<EntityId>,
+  { ids, recorded, from }: SaleContext,
 ): readonly Uncovered[] {
   const through = addDays(plan.firstBuy, IMPORT_MATCH_DAYS);
   const lumps = new Set(live.filter((entry) => entry.kind === 'lump').map((entry) => entry.coin));
+  const claimed = new Map(recorded.map(({ entry, units }) => [entry.id, units]));
+  const unitsOf = (entry: Entry) =>
+    entry.kind === 'lump' && entry.source === 'one-tap'
+      ? max(entry.units, claimed.get(entry.id) ?? entry.units)
+      : entry.units;
   const uncovered: Uncovered[] = [];
   for (const { id: coin } of plan.coins) {
-    const own = live.filter((entry) => entry.coin === coin && (entry.source !== 'import-csv' || ids.has(entry.id)));
+    const before = from.get(coin);
+    const own = live.filter(
+      (entry) =>
+        entry.coin === coin &&
+        (entry.source !== 'import-csv' || ids.has(entry.id) || before === undefined || entry.date < before),
+    );
     const hands = own.filter((entry) => entry.kind === 'held' && entry.source !== 'import-csv').sort(compareEntries);
     const covers: { readonly date: CalendarDate; readonly units: Units }[] = [
-      ...own.filter((entry) => COVERS.has(entry.kind) && !(isEstimate(entry) && entry.kind === 'dca')),
+      ...own
+        .filter((entry) => COVERS.has(entry.kind) && !(isEstimate(entry) && entry.kind === 'dca'))
+        .map((entry) => ({ date: entry.date, units: unitsOf(entry) })),
       ...days
         .filter((day) => !day.claimed && day.coin === coin && day.role !== 'sale')
         .flatMap((day) => day.items.map(({ date, movement }) => ({ date, units: movement.units }))),

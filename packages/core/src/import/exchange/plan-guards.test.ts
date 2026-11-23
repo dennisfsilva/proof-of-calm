@@ -275,6 +275,7 @@ describe('step 4: the coins the person added', () => {
         purchases: 2,
         units: '0.00505',
         through: '2026-05-01',
+        from: '2026-02-15',
         entries: [
           { units: '0.01', date: '2026-03-01', venue: 'Ledger' },
           { units: '0.0001', date: '2026-05-01', venue: 'Ledger' },
