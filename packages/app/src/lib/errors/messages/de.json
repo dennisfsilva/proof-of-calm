@@ -1,0 +1,44 @@
+{
+  "input": {
+    "number-empty": "Geben Sie eine Zahl ein.",
+    "number-negative": "Geben Sie die Zahl ohne Minuszeichen ein.",
+    "number-invalid": "Geben Sie eine Zahl wie {example} ein."
+  },
+  "action": {
+    "no-coins": "Geben Sie mindestens einen Coin ein.",
+    "amount-and-units": "{coin}: Geben Sie den Betrag und die Einheiten ein.",
+    "unknown-coin": "{coin} ist nicht im Plan. Fügen Sie den Coin zuerst in den Einstellungen hinzu.",
+    "units-precision": "{coin}: Verwenden Sie höchstens 10 Nachkommastellen.",
+    "fee-negative": "Geben Sie eine Gebühr von null oder mehr ein.",
+    "fee-not-allowed": "Lassen Sie die Gebühr bei hinzugefügten Coins leer; rechnen Sie eine gezahlte Gebühr in die Kosten ein.",
+    "slot-required": "Wählen Sie den Monat, für den dieser Kauf gilt.",
+    "slot-not-allowed": "Nur ein Monatskauf hat einen Monat.",
+    "unknown-slot": "{slot} ist kein Monat des Plans.",
+    "fee-exceeds-held": "Durch diese Änderung fehlen der Übertragung von {coin} am {date} die Einheiten für ihre Netzwerkgebühr ({held} im Bestand davor). Prüfen Sie diese Übertragung und die Einträge davor im Protokoll.",
+    "sell-exceeds-held": "Dieser Verkauf übersteigt Ihren Bestand ({held} am {date}) um {excess}. Prüfen Sie den Betrag und das Datum, oder tragen Sie zuerst die fehlenden Käufe ein.",
+    "slot-done": "{slot} ist bereits eingetragen. Bearbeiten oder löschen Sie diesen Eintrag im Protokoll.",
+    "slot-skipped": "{slot} ist bereits übersprungen. Tragen Sie diesen Kauf als Zusatzkauf ein.",
+    "note-too-long": "Verwenden Sie in der Notiz höchstens {max} Zeichen.",
+    "venue-too-long": "Verwenden Sie beim Ort höchstens {max} Zeichen.",
+    "pause-order": "Wählen Sie ein Ende am oder nach dem Beginn.",
+    "pauses-overlap": "Diese Pause überschneidet sich mit einer anderen. Wählen Sie einen anderen Zeitraum.",
+    "not-paused": "Der Plan ist nicht pausiert.",
+    "before-first-buy": "Der Plan hat noch nicht begonnen, daher gibt es keine Kaufphase zu beenden.",
+    "buying-over": "Die Kaufphase ist bereits beendet.",
+    "plan-changed": "Der Plan wurde in einem anderen Browser-Tab geändert, daher ist dieser Kauf nicht eingetragen. Prüfen Sie die angezeigten Beträge und tragen Sie ihn dann erneut ein.",
+    "too-many-entries": "Mit diesem Eintrag hätte der Plan mehr als {max} Einträge, die Höchstzahl für einen Plan. Löschen Sie Einträge im Protokoll, um Platz zu schaffen.",
+    "move-exceeds-held": "Diese Übertragung sendet {sent}, mehr als Ihr Bestand ({held} am {date}). Prüfen Sie die Einheiten und das Datum, oder tragen Sie zuerst die fehlenden Käufe ein.",
+    "same-venue": "Wählen Sie einen anderen Ort als den, von dem die Coins kamen.",
+    "received-exceeds-sent": "Geben Sie nicht mehr empfangene als gesendete Einheiten ein."
+  },
+  "backup": {
+    "not-recognised": "Diese Datei hat kein Format, das {product} lesen kann. Wählen Sie ein Backup von {product}, einen Export der DCA-Planseite, den Ledgers-Export von Kraken oder den Transaktionsexport von Trade Republic.",
+    "not-recognised-pasted": "Dieser Text hat kein Format, das {product} lesen kann. Kopieren Sie den ganzen Export erneut und fügen Sie ihn dann ein.",
+    "prototype-invalid": "Der Plan in dieser Datei der DCA-Planseite ist unvollständig, daher wurde nichts importiert. Prüfen Sie dort die Beträge und Datumsangaben, exportieren Sie ihn erneut und importieren Sie dann die neue Datei.",
+    "newer-version": "Dieses Backup stammt von einer neueren Version von {product}. Aktualisieren Sie die App und importieren Sie es dann erneut.",
+    "invalid-backup": "Dieses Backup ist beschädigt und kann nicht importiert werden. Exportieren Sie ein neues.",
+    "not-prototype": "Diese Datei ist kein Backup der DCA-Planseite.",
+    "invalid-plan": "Der Plan in dieser Datei ist unvollständig. Prüfen Sie die Datumsangaben und Beträge und importieren Sie ihn dann erneut."
+  },
+  "unknown": "Das konnte nicht abgeschlossen werden. Versuchen Sie es erneut; wenn es wieder passiert, exportieren Sie eine Kopie der Daten."
+}
