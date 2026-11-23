@@ -819,6 +819,11 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   designers, the judge and three review rounds walked only Coins added entries that guarded the
   file's own purchases, and the integration read found a sale another file covers left out (#423,
   #425, 2026-11-23).
+- A design check's judge runs the settled rule against the two-import properties at 25 seeds or
+  more, not 8, when the rule reads a claim step 2 makes. #425's judge measured seeds 1 to 8; the
+  build's 25-seed run found that a shorter export moves a one-tap lump's claim to another purchase,
+  so the lump rule that counted the claimed units made two imports differ from one at seeds 13 and
+  14, and it left the build for its own design check (#427, #424, 2026-11-23).
 
 ## Known gaps
 
