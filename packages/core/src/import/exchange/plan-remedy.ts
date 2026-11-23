@@ -14,7 +14,7 @@ import { applyExchangeImport } from './apply';
 import type { ExchangeFile, Movement } from './kraken';
 import { type ExchangeImportPlan, type ImportContext, leftOutBefore, planExchangeImport } from './plan';
 import { changedLog, type LogChange, type Stored } from './plan-change';
-import { HAND, nearTarget } from './plan-claims';
+import { HAND, nearTarget, underHalf } from './plan-claims';
 import { type EstimateLine, estimateLines } from './plan-lines';
 
 export { changedLog, type LogChange, type Stored } from './plan-change';
@@ -280,7 +280,8 @@ export function importRemedies(
   const none = { recorded: new Set<EntityId>(), starting: null, estimates: [] };
   if (file.movements.length > IMPORT_REMEDY_MAX_MOVEMENTS) return none;
   const shown = planExchangeImport(file, stored, { venue: null, addHeld }, context);
-  const records = new Set(shown.recorded.map((item) => item.entry.id));
+  // A claim under half of its entry's amount asks for no delete, so its row is no candidate.
+  const records = new Set(shown.recorded.filter((item) => !underHalf(item)).map((item) => item.entry.id));
   const candidate = (row: readonly Entry[]) =>
     !row.some((entry) => entry.kind === 'lump' || !HAND.has(entry.source) || !records.has(entry.id));
   const keys = [...new Set(shown.recorded.map((item) => transactionKey(item.entry)))].slice(0, IMPORT_RECORDED_CHECKS);

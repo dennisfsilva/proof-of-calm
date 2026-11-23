@@ -4,7 +4,6 @@
 import { IMPORT_MATCH_DAYS, IMPORT_TYPED_DAYS } from '../../constants';
 import { type CalendarDate, compareDates, daysBetween, type Instant, type MonthKey } from '../../dates/calendar';
 import { compare, type Money, plus, round, type Units } from '../../money/decimal';
-import { plannedParts } from '../../plan/parts';
 import { liveEntries, type SlotStatus, slotStatuses } from '../../plan/statuses';
 import { compareEntries } from '../../portfolio/lots';
 import { type Entry, isEstimate } from '../../schema/entry';
@@ -12,6 +11,7 @@ import type { CoinId, EntityId } from '../../schema/ids';
 import type { Plan } from '../../schema/plan';
 import type { ExchangeFile, LeftOutRow, Movement } from './kraken';
 import { claimRecorded, type Recorded } from './plan-claims';
+import { type EstimateGroup, fillMonths, tapsOf } from './plan-estimates';
 import {
   type Day,
   type HeldCoin,
@@ -22,7 +22,8 @@ import {
   type Uncovered,
 } from './plan-guards';
 
-export type { Recorded } from './plan-claims';
+export { type Recorded, underHalf } from './plan-claims';
+export type { EstimateGroup } from './plan-estimates';
 export type { Uncovered } from './plan-guards';
 
 export type ImportChoices = { readonly venue: string | null; readonly addHeld: boolean };
@@ -56,7 +57,9 @@ export type CoinUnits = { readonly coin: string; units: Units; count: number };
 
 export type ExchangeImportPlan = {
   readonly entries: readonly Entry[];
-  readonly replaced: readonly { readonly estimates: readonly Entry[]; readonly by: readonly EntityId[] }[];
+  readonly replaced: readonly EstimateGroup[];
+  /** The groups whose month this import adds monthly buys to, below half the largest estimate, with what they come to. */
+  readonly kept: readonly (EstimateGroup & { readonly imported: Money })[];
   readonly recorded: readonly Recorded[];
   readonly held: { readonly added: boolean; readonly coins: readonly HeldCoin[] } | null;
   readonly startingAmount: {
@@ -291,48 +294,26 @@ export function planExchangeImport(
   const held = heldGuard(plan, live, days, choices.addHeld);
   const uncovered = saleGuard(plan, live, days, { ids, from: leftOutFrom(startingAmount, held) });
 
-  // Steps 5 and 6: "every unclaimed purchase date of C whose month is S is a monthly buy for S when C's share is above
-  // 0 and S is neither skipped nor paused, or when the Log holds a one-tap estimate of C for S, live or tombstoned";
-  // each takes the note of C's first estimate for S in `compareEntries` order, and C's live estimates for S are
-  // tombstoned once a date is added for them. Every other purchase is an extra buy.
-  const shares = new Set(plannedParts(plan, plan.monthlyAmount).map((part) => part.coin));
-  const open = new Set(
-    months.filter((each) => each.status !== 'skipped' && each.status !== 'paused').map((m) => m.key),
-  );
-  const taps = stored.entries.filter((entry) => isEstimate(entry) && entry.kind === 'dca').sort(compareEntries);
-  const groups = new Map<string, { estimates: Entry[]; by: EntityId[] }>();
-  for (const estimate of live
-    .filter((entry) => isEstimate(entry) && entry.kind === 'dca')
-    .sort((a, b) => compareDates(a.slot as MonthKey, b.slot as MonthKey) || compareEntries(a, b))) {
-    const key = `${estimate.coin}|${estimate.slot}`;
-    const group = groups.get(key) ?? { estimates: [], by: [] };
-    groups.set(key, group);
-    group.estimates.push(estimate);
-  }
-  for (const day of days.filter((each) => !each.claimed && each.role === 'purchase')) {
-    const slot = monthOf(day.coin, day.date);
-    if (slot === undefined) continue;
-    const tapped = taps.filter((tap) => tap.coin === day.coin && tap.slot === slot);
-    if (tapped.length === 0 && !(shares.has(day.coin) && open.has(slot))) continue;
-    const by = add(day, 'dca', slot, tapped[0]?.note ?? '');
-    groups.get(`${day.coin}|${slot}`)?.by.push(...by);
-  }
-  const replaced = [...groups.values()].filter((group) => group.by.length > 0);
+  // Steps 5 and 6 (plan-estimates.ts): the monthly buys and the one-tap estimates they replace or keep; every other
+  // purchase is an extra buy.
+  const filled = fillMonths({ plan, stored: stored.entries, live, days, months, monthOf, add, added: entries });
   for (const day of days.filter((each) => !each.claimed)) add(day, KIND[day.role], null, '');
 
   // The import never brings a tombstone back: a named monthly buy carries C's tombstoned estimates for its month when,
   // once this import adds its entries and the person deletes the named ones, no live monthly buy of C for it is left.
   const gone = new Set(paired.map((entry) => entry.id));
-  const kept = (entry: Entry) =>
+  const bought = (entry: Entry) =>
     [...live, ...entries].some(
       (other) => other.kind === 'dca' && other.coin === entry.coin && other.slot === entry.slot && !gone.has(other.id),
     );
   const cancelled = paired.map((entry) => ({
     entry,
     estimates:
-      entry.kind !== 'dca' || kept(entry)
+      entry.kind !== 'dca' || bought(entry)
         ? []
-        : taps.filter((tap) => tap.deletedAt !== null && tap.coin === entry.coin && tap.slot === entry.slot),
+        : tapsOf(stored.entries).filter(
+            (tap) => tap.deletedAt !== null && tap.coin === entry.coin && tap.slot === entry.slot,
+          ),
   }));
 
   for (const row of file.leftOut)
@@ -340,7 +321,8 @@ export function planExchangeImport(
   const currencies = new Set(file.movements.flatMap((movement) => movement.currency ?? []));
   return {
     entries: entries.sort(compareEntries),
-    replaced,
+    replaced: filled.replaced,
+    kept: filled.kept,
     recorded,
     held,
     startingAmount,

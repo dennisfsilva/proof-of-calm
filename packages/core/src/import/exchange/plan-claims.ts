@@ -29,6 +29,13 @@ export type Recorded = {
   readonly entry: Entry;
 };
 
+/**
+ * A claim whose purchases or sales come to less than half of the claiming entry's amount: the preview says so and asks
+ * for no delete (docs/DOMAIN.md §3.13, "Lines that ask"). False when either amount is unknown.
+ */
+export const underHalf = (item: Recorded) =>
+  item.amount !== null && item.entry.amount !== null && compare(plus(item.amount, item.amount), item.entry.amount) < 0;
+
 /** The plan month a purchase date of a coin belongs to (step 6's rule), or none. */
 export type MonthOf = (coin: CoinId, date: CalendarDate) => MonthKey | undefined;
 
