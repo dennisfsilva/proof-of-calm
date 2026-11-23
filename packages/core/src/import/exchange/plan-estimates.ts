@@ -85,9 +85,11 @@ export function fillMonths(input: Input): { replaced: EstimateGroup[]; kept: (Es
 /**
  * Step 1's named monthly buy: C's tombstoned estimates for its month, when the monthly buys of C for it the Log keeps
  * once this import adds its entries and the person deletes the named ones (`left` holds those of every month) are all
- * exchange-imported and come to less than half the largest of them, none at all included: one import of the whole
- * file keeps those estimates live. A tombstone does not record who made it, so one the person deleted or cleared by
- * hand counts too, and the line can show where one import keeps no estimate: it errs only toward showing.
+ * exchange-imported and come to less than half the largest of them, none at all included. It is written for an earlier
+ * import's buy that replaced the estimate and that this file cancels, where one import of the whole file keeps the
+ * estimate live. A tombstone does not record who made it, so one the person deleted or cleared by hand counts too,
+ * among those named and in the largest: the line can then show where one import keeps no estimate live, or keeps live
+ * one the person cleared. It errs only toward showing.
  */
 export function carried(entry: Entry, left: readonly Entry[], stored: readonly Entry[]): Entry[] {
   const same = (other: Entry) => other.kind === 'dca' && other.coin === entry.coin && other.slot === entry.slot;

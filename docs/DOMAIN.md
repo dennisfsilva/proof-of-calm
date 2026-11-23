@@ -1030,15 +1030,18 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      equal figures would read as no change, so the Log keeps the earlier import's date and units for it. A
      named monthly buy carries its coin's tombstoned one-tap estimates for its month when deleting the named
      entries leaves that month no monthly buy but imported ones that come to less than half the largest of
-     those estimates (step 5's gate, under which one import of the whole file keeps them live), and the line says deleting it leaves the month without its
-     estimate, to record again if bought: the import never un-tombstones. A tombstone does not record who
-     made it, so a month whose estimate the person deleted or cleared by hand can show the line where one
-     import of the whole file keeps no estimate; the line stays true there, since deleting the named entry
-     leaves the month without a live estimate this import cannot bring back, and it errs only toward
-     showing. Once the person makes the named changes, the live Log equals one import's of
-     the whole file, except that each named estimate is live in one import and tombstoned in two, and each
-     receipt left unnamed that way keeps the earlier import's date and units. Step 1
-     only compares and names: it tombstones and changes nothing.
+     those estimates, none at all included, and the line says deleting it leaves the month without its
+     estimate, to record again if bought: the import never un-tombstones. The line is written for an earlier
+     import's buy that replaced the month's estimate and that this file cancels: one import of the whole
+     file keeps that estimate live (step 5's gate). A tombstone does not record who made it, so an estimate
+     the person deleted or cleared by hand (the Log's delete or its row edit) counts too, among those named
+     and in the largest; the line can then show where one import of the whole file keeps no estimate live,
+     or where it keeps live one the person cleared. The line stays true in every such state, since deleting
+     the named entry leaves the month without a live estimate this import cannot bring back, and it errs
+     only toward showing. Once the person makes the named changes, the live Log equals one import's of the
+     whole file, except that an estimate the line names can be tombstoned where one import keeps it live,
+     and each receipt left unnamed that way keeps the earlier import's date and units. Step 1 only compares
+     and names: it tombstones and changes nothing.
   2. "Hand-recorded entries (source `manual`, `import-prototype` or `import-json`; `held` entries and moves
      claim nothing) and a live one-tap `lump`, in `compareEntries` order, claim unclaimed dates", monthly
      buys first (decided
