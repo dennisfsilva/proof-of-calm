@@ -1062,15 +1062,20 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      lump of 1 Sep, which takes 4 Sep: 1,700 against 1,600). A starting amount tapped on a
      later buy day no longer takes that day's monthly buy, and one bought in pieces on days near it is
      recorded whole (W1: 500 on 3 Sep and 4 Sep, 1,400), except by a `lump` at its coin's monthly part, which
-     claims one date: its pieces on other days are imported beside it (35 on 3 Sep and 4 Sep beside a lump of
+     claims one date: tapped within 3 days of a later buy date it takes that month's purchase (P6 with a
+     starting amount of 100, its part, tapped 2 Sep or 5 Sep: 400 against 500), and
+     its pieces on other days are imported beside it (35 on 3 Sep and 4 Sep beside a lump of
      70, BTC's part: 105 against 70). Four prices stand in one import: (a) a purchase of C
      of at least the square root of A x p and below (A + p) / 2 within 3 days of a live lump's date counts
-     as starting money (P6 tapped 2 Sep beside a 400 EUR catch-up bought that day: 1,300 against 1,700;
-     from (A + p) / 2 up a 600 EUR catch-up gives 1,300 against 1,900 too); (b) a starting amount below the
+     as starting money (P6 tapped 2 Sep beside a 400 EUR catch-up bought that day: 1,300 against 1,800;
+     from (A + p) / 2 up a 600 EUR catch-up gives 1,300 against 2,000); (b) a starting amount below the
      monthly part bought on a buy day is imported with that day's buy (500 against 450); (c) a late
-     starting purchase more than 3 days from the lump's date is imported beside it (file L: 2,400 on 128
-     of the 135 tap days); (d) claims are per date: a starting purchase on a buy day's date takes that
-     day's buy with it (1,300 against 1,400), as Kai's date requires. A monthly buy whose
+     starting purchase more than 3 days from the lump's date is imported beside it, with no line: dated more
+     than 15 days after the first buy day, it is a monthly buy (file L: 2,400 on 128
+     of the 135 tap days; one of W1's pieces with the lump on 31 Aug: 1,900; both against 1,400); (d) claims are per date: a starting purchase on a buy day's date takes that
+     day's buy with it (1,300 against 1,400), as Kai's date requires. A one-tap `lump` that claims its
+     purchase keeps its estimated units, and no line asks for a change (rule R: 0.01219512 BTC against the
+     file's 0.0125); `packages/core/src/import/exchange/plan-claims.test.ts` pins this and the lump at the part. A monthly buy whose
      walk takes only stored dates claims nothing (decided 2026-11-14): part of a file can claim a date that
      the whole file walks past, so a fallback on claiming nothing stored in two imports a date that one import
      leaves out. A date's amount is all the file's purchases of C on it, fees

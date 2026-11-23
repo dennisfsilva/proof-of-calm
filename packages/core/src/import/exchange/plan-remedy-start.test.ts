@@ -701,7 +701,7 @@ describe("a lump's claim reads its amount", () => {
 
   // Step 2's price (a): a purchase of at least the square root of A x p (316.23 EUR for P6) and below (A + p) / 2
   // within 3 days counts as starting money, and a date's purchases are claimed together: 2 Sep's 400 catch-up and its
-  // 100 buy are recorded with the lump, 1,300 against 1,700.
+  // 100 buy are recorded with the lump, 1,300 against 1,800.
   for (const [catchUp, total] of [
     ['400', '1300'],
     ['600', '1300'],
