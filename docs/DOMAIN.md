@@ -1160,10 +1160,10 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      source is not `import-csv` (one-tap monthly estimates aside); in live entries whose id is one of this
      file's; in this file's purchases and receipts that steps 2 to 4 left; and in live entries other imports
      stored, dated before F, C's earliest purchase or receipt that steps 3 and 4 leave out of this file
-     (step 4's only unticked), or all of them when they leave out none. Sales never count." Each sale is decided alone, against its coin's cover up to
-     its date, worked out once per coin; short is `compare(cover, units) < 0`, and the starting reach is
-     named when both reach it; both reaches stay by date. The
-     left-out item (`uncovered`, in date order) names the sale, its reach (the cut-off, or the earliest
+     (step 4's only unticked), or all of them when they leave out none. Sales never count." Each sale is
+     decided alone, against its coin's cover up to its date, worked out once per coin; short is
+     `compare(cover, units) < 0`, and the starting reach is named when both reach it; both reaches stay
+     by date. The left-out item (`uncovered`, in date order) names the sale, its reach (the cut-off, or the earliest
      such `held` entry in `compareEntries` order) and that by the sale's date the purchases this file
      imports and the person's own entries, monthly estimates aside, hold less of C; that is true under any
      cover, since both are part of it. The held line counts the sales ticking the box adds back
