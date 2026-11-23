@@ -60,7 +60,7 @@ in `.claude/rules/` list them per path.
 | 0036 | Market data providers and licensing | Accepted; Next's Data Cache superseded by 0045; the credit's link superseded by 0050; the four coins of the reference closes and the hand-picked allow-list superseded by 0052 | `apps/web/server` (prices); `packages/data`; `tools` (the data pipeline, M2) |
 | 0037 | Scheduled jobs | Accepted | `.github/workflows` (scheduled jobs); `apps/web/server` (the cron route, M3) |
 | 0038 | Payments: merchant of record (deferred to M5, constraints recorded) | Accepted; its CSV-import finding settled by 0039 (all CSV import in the free core) | `packages/app` features: account, settings (M5) |
-| 0039 | Automation limits: no orders, no exchange keys, no address watching; CSV import in the free core | Accepted; its "same buy day" read by 0056 as the same month's buy | the product's scope; `packages/app/src/lib/adapters` (imports); `apps/web/server` |
+| 0039 | Automation limits: no orders, no exchange keys, no address watching; CSV import in the free core | Accepted; its "same buy day" read by 0056 as the same month's buy, of at least half the estimate | the product's scope; `packages/app/src/lib/adapters` (imports); `apps/web/server` |
 | 0040 | The name is Proof of Calm | Accepted | `packages/app/src/lib/brand`; the site pages; `apps/web/lib/pwa` |
 | 0041 | Position and launch plan | Accepted | `docs/GROWTH.md`; the site pages |
 | 0042 | `todayIn` lives in the shell's Clock adapter | Accepted | `packages/app/src/lib/adapters` (clock); `packages/core` (dates) |
