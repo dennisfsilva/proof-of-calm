@@ -1,101 +1,101 @@
 {
-  "title": "Today",
+  "title": "Heute",
   "empty": {
-    "title": "No plan yet",
-    "noPlan": "<setup>Set up a plan</setup> or <import>import a file</import>."
+    "title": "Noch kein Plan",
+    "noPlan": "<setup>Richten Sie einen Plan ein</setup> oder <import>importieren Sie eine Datei</import>."
   },
   "action": {
-    "late": "{month} is still open",
-    "lateBody": "Buy day was {date}, {days, plural, one {{figure} day} other {{figure} days}} ago. Record it or skip the month.",
-    "due": "Today is the {month} buy day",
-    "upcoming": "Next buy day: {date}",
-    "noneLeft": "No buy days left",
-    "starting": "Starting amount: due {date}",
-    "startingLate": "It was due on {date}, {days, plural, one {{figure} day} other {{figure} days}} ago.",
-    "done": "{month} is recorded",
-    "skipped": "{month} is skipped",
-    "pausedMonth": "{month} is paused",
-    "paused": "Paused until {date}",
-    "pausedOpen": "Paused since {date}",
-    "resume": "Resume",
-    "next": "Next buy day: {date}.",
-    "record": "Record a purchase",
-    "asPlanned": "Bought as planned",
-    "different": "Bought a different amount",
-    "skip": "Skip {month}",
-    "edit": "Edit",
-    "recorded": "Purchase recorded.",
-    "parts": "Planned split"
+    "late": "{month} ist noch offen",
+    "lateBody": "Der Kauftag war am {date}, vor {days, plural, one {{figure} Tag} other {{figure} Tagen}}. Tragen Sie den Kauf ein oder überspringen Sie den Monat.",
+    "due": "Heute ist der Kauftag für {month}",
+    "upcoming": "Nächster Kauftag: {date}",
+    "noneLeft": "Keine Kauftage mehr",
+    "starting": "Startbetrag: geplant für den {date}",
+    "startingLate": "Er war für den {date} geplant, vor {days, plural, one {{figure} Tag} other {{figure} Tagen}}.",
+    "done": "{month} ist eingetragen",
+    "skipped": "{month} ist übersprungen",
+    "pausedMonth": "{month} ist pausiert",
+    "paused": "Pausiert bis {date}",
+    "pausedOpen": "Pausiert seit {date}",
+    "resume": "Fortsetzen",
+    "next": "Nächster Kauftag: {date}.",
+    "record": "Einen Kauf eintragen",
+    "asPlanned": "Wie geplant gekauft",
+    "different": "Anderen Betrag gekauft",
+    "skip": "{month} überspringen",
+    "edit": "Bearbeiten",
+    "recorded": "Der Kauf ist eingetragen.",
+    "parts": "Geplante Aufteilung"
   },
   "phase": {
-    "hold": "In the hold phase",
-    "holdBody": "The sell window opens on {date}.",
-    "sell": "In the sell window",
-    "sellBody": "It closes on {date}.",
-    "exit": "The sell window has closed",
-    "exitBody": "The plan ends on {date}.",
-    "done": "The plan ended on {date}"
+    "hold": "In der Haltephase",
+    "holdBody": "Das Verkaufsfenster öffnet am {date}.",
+    "sell": "Im Verkaufsfenster",
+    "sellBody": "Es schließt am {date}.",
+    "exit": "Das Verkaufsfenster ist geschlossen",
+    "exitBody": "Der Plan endet am {date}.",
+    "done": "Der Plan endete am {date}"
   },
   "why": {
-    "hold": "Why? The hold phase",
-    "window": "Why? The sell window"
+    "hold": "Warum? Die Haltephase",
+    "window": "Warum? Das Verkaufsfenster"
   },
   "pending": {
-    "heading": "Also open",
-    "dca": "{month}: due {date}"
+    "heading": "Ebenfalls offen",
+    "dca": "{month}: geplant für den {date}"
   },
   "portfolio": {
-    "value": "Portfolio value",
-    "invested": "Invested"
+    "value": "Wert des Portfolios",
+    "invested": "Investiert"
   },
   "prices": {
-    "asOf": "Prices as of {time}, {date}",
-    "asOfLive": "Prices as of {time}, {date} · Price data by CoinGecko",
-    "delayed": "Prices as of {time}, {date} · delayed",
-    "delayedLive": "Prices as of {time}, {date} · delayed · Price data by CoinGecko",
-    "fromOffline": "Prices from {time}, {date} · offline",
-    "fromOfflineLive": "Prices from {time}, {date} · offline · Price data by CoinGecko"
+    "asOf": "Kurse vom {date}, {time}",
+    "asOfLive": "Kurse vom {date}, {time} · Kursdaten von CoinGecko",
+    "delayed": "Kurse vom {date}, {time} · verzögert",
+    "delayedLive": "Kurse vom {date}, {time} · verzögert · Kursdaten von CoinGecko",
+    "fromOffline": "Kurse vom {date}, {time} · offline",
+    "fromOfflineLive": "Kurse vom {date}, {time} · offline · Kursdaten von CoinGecko"
   },
   "strip": {
-    "link": "Your plan",
-    "buy": "Buying",
-    "hold": "Holding",
-    "sell": "Selling",
-    "exit": "Out by",
-    "range": "{from} to {to}",
-    "from": "from {from}",
-    "label": "Plan from {start}{open, select, yes {, with no end set} other { to {end}}}. Today is {today}.",
-    "table": "Show the dates as a table",
+    "link": "Der Plan",
+    "buy": "Kaufphase",
+    "hold": "Haltephase",
+    "sell": "Verkaufsfenster",
+    "exit": "Ausstieg",
+    "range": "{from} bis {to}",
+    "from": "ab {from}",
+    "label": "Plan {open, select, yes {ab {start}, ohne festgelegtes Ende} other {vom {start} bis {end}}}. Heute ist der {today}.",
+    "table": "Die Phasen als Tabelle anzeigen",
     "phase": "Phase",
-    "start": "From",
-    "end": "To"
+    "start": "Von",
+    "end": "Bis"
   },
   "banner": {
-    "never": "Your data lives only on this device. <link>Export a copy.</link>",
-    "last": "Your data lives only on this device. Last export {date}. <link>Export a copy.</link>"
+    "never": "Die Daten sind nur auf diesem Gerät gespeichert. <link>Exportieren Sie eine Kopie.</link>",
+    "last": "Die Daten sind nur auf diesem Gerät gespeichert. Letzter Export: {date}. <link>Exportieren Sie eine Kopie.</link>"
   },
   "ruleChange": {
     "notice": "{date}: {notice}",
-    "generic": "{date}: {kind, select, generic {the general profile} other {the rules for {country}}} changed. Review your plan.",
-    "review": "Review",
-    "dismiss": "Dismiss",
-    "failed": "The notice could not be dismissed. Try again."
+    "generic": "{date}: {kind, select, generic {Das allgemeine Profil hat sich geändert} other {Die Regeln für das Land des Plans ({country}) haben sich geändert}}. Prüfen Sie den Plan.",
+    "review": "Prüfen",
+    "dismiss": "Ausblenden",
+    "failed": "Der Hinweis konnte nicht ausgeblendet werden. Versuchen Sie es erneut."
   },
   "review": {
-    "created": "You set up this plan on {date}.",
-    "reviewed": "You last reviewed this plan on {date}.",
-    "question": "Is it still right? Have the rules changed?",
-    "open": "Review the plan",
-    "later": "Later",
-    "failed": "The review could not be postponed. Try again."
+    "created": "Sie haben diesen Plan am {date} eingerichtet.",
+    "reviewed": "Sie haben diesen Plan zuletzt am {date} überprüft.",
+    "question": "Stimmt er noch? Haben sich die Regeln geändert?",
+    "open": "Den Plan prüfen",
+    "later": "Später",
+    "failed": "Die Prüfung konnte nicht verschoben werden. Versuchen Sie es erneut."
   },
   "redDay": {
-    "week": "{names}{coins, select, one {} other {, in the amounts you hold,}} fell {fall} in the 7 days to {date}.",
-    "high": "On {date} {names}{coins, select, one { was} other {, in the amounts you hold, were}} {fall} below {coins, select, one {its} other {their combined}} 90‑day high.",
-    "open": "See the fall under way",
-    "dismiss": "Dismiss",
-    "failed": "The notice could not be dismissed on this device, so it may show again."
+    "week": "{names}{coins, select, one { fiel} other { fielen, in den Mengen Ihres Bestands,}} in den 7 Tagen bis zum {date} um {fall}.",
+    "high": "Am {date} {coins, select, one {lag {names}} other {lagen {names}, in den Mengen Ihres Bestands,}} {fall} unter {coins, select, one {dem} other {dem gemeinsamen}} 90‑Tage‑Hoch.",
+    "open": "Den laufenden Rückgang ansehen",
+    "dismiss": "Ausblenden",
+    "failed": "Der Hinweis konnte auf diesem Gerät nicht ausgeblendet werden und erscheint daher vielleicht erneut."
   },
-  "durability": "Your data lives only in this browser. Install the app or export a copy to keep it.",
-  "durabilityInstalled": "Your data lives only on this device. Export a copy to keep it."
+  "durability": "Die Daten sind nur in diesem Browser gespeichert. Installieren Sie die App oder exportieren Sie eine Kopie, um sie aufzubewahren.",
+  "durabilityInstalled": "Die Daten sind nur auf diesem Gerät gespeichert. Exportieren Sie eine Kopie, um sie aufzubewahren."
 }
