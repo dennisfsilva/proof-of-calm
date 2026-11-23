@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { anEntry, aPlan, date, instant, money, month, split, units } from '../../../test/builders';
 import { fileOf } from '../../../test/exchange/plan-arbitraries';
 import { LISBON, NOW, trade } from '../../../test/exchange/plan-fixture';
+import { saveTransaction, storedOver } from '../../actions/entries';
 import type { Instant } from '../../dates/calendar';
 import { portfolio } from '../../portfolio/portfolio';
 import type { Entry } from '../../schema/entry';
@@ -228,8 +229,9 @@ describe('planExchangeImport, the estimates a month keeps', () => {
   });
 });
 
-// Step 1's named monthly buy counts only the estimates an import write tombstoned: the write stamps its entries'
-// `updatedAt` and its tombstones' `deletedAt` at one instant, which a hand delete never shares.
+// Step 1's named monthly buy counts every tombstoned estimate of its coin and month: a tombstone does not record who
+// made it, and the import write, the Log's delete and its row edit each stamp one instant over several rows. These pin
+// the stated cost: an estimate deleted or cleared by hand can show the line where one import keeps no estimate.
 describe('planExchangeImport, the estimates a cancelled monthly buy carries', () => {
   const HAND = instant('2026-11-01T08:00:00Z');
   const EARLIER = instant('2026-11-10T09:30:00Z');
@@ -260,7 +262,7 @@ describe('planExchangeImport, the estimates a cancelled monthly buy carries', ()
   const carriedOf = (shown: ReturnType<typeof whole>) =>
     shown.cancelled.map((each) => [each.entry.amount, each.estimates.map((estimate) => estimate.amount)]);
 
-  it('a hand-deleted 200 beside a live 60: 40 then a whole file of 35 that cancels it carries nothing, as one import', () => {
+  it('the cost: a hand-deleted 200 beside a live 60, 40 then a whole file of 35 that cancels it carries both', () => {
     const log = [
       deletedByHand(tap('BTC', '2026-09', '2026-09-01', '200', '0.002')),
       tap('BTC', '2026-09', '2026-09-02', '60', '0.0006'),
@@ -268,8 +270,9 @@ describe('planExchangeImport, the estimates a cancelled monthly buy carries', ()
     const [b1, b2] = [buy('BTC', '2026-09-03', '40', '0.0004'), buy('BTC', '2026-09-04', '35', '0.00035')];
     const part = importAt(log, [b1], EARLIER);
     expect(invested(BRUNO, part)).toBe('40');
-    // The 200 was deleted by hand, so 35 against the 60 the earlier import replaced is the gate: 70 is at least 60.
-    expect(carriedOf(whole(part, b2, b1))).toEqual([['40', []]]);
+    // A tombstone does not record who made it, so the hand-deleted 200 counts too: 70 is under half of 200 and the line
+    // shows, where one import of the whole file keeps no estimate (70 is at least the live 60).
+    expect(carriedOf(whole(part, b2, b1))).toEqual([['40', ['200', '60']]]);
     const one = applyExchangeImport(log, whole(log, b2, b1), NOW).entries;
     expect([invested(BRUNO, one), one.filter((each) => each.deletedAt === null && each.source === 'one-tap')]).toEqual([
       '35',
@@ -277,7 +280,7 @@ describe('planExchangeImport, the estimates a cancelled monthly buy carries', ()
     ]);
   });
 
-  it('the mirror: the 100 the earlier import replaced still goes with its cancelled 60, the hand-deleted 200 does not', () => {
+  it('the mirror: the 100 the earlier import replaced still goes with its cancelled 60, the hand-deleted 200 too', () => {
     const log = [
       deletedByHand(tap('BTC', '2026-09', '2026-09-01', '200', '0.002')),
       tap('BTC', '2026-09', '2026-09-02', '100', '0.001'),
@@ -286,30 +289,37 @@ describe('planExchangeImport, the estimates a cancelled monthly buy carries', ()
     const part = importAt(log, [b1], EARLIER);
     expect(invested(BRUNO, part)).toBe('60');
     // 40 left is under half of 100: one import of the whole file keeps the 100 live (140).
-    expect(carriedOf(whole(part, b2, b1))).toEqual([['60', ['100']]]);
+    expect(carriedOf(whole(part, b2, b1))).toEqual([['60', ['200', '100']]]);
     expect(invested(BRUNO, applyExchangeImport(log, whole(log, b2, b1), NOW).entries)).toBe('140');
   });
 
-  it('the limit: when every entry the replacing import stored was edited since, its tombstone reads as a hand delete', () => {
-    const log = [tap('BTC', '2026-09', '2026-09-01', '200', '0.002')];
-    const [b1, b2] = [buy('BTC', '2026-09-03', '100', '0.001'), buy('BTC', '2026-09-04', '30', '0.0003')];
+  it('the cost through a Log edit: clearing the 200 from its row with the imported 40 shows the line for 40', () => {
+    const log = [tap('BTC', '2026-09', '2026-09-03', '200', '0.002')];
+    const [b1, b2] = [buy('BTC', '2026-09-03', '40', '0.0004'), buy('BTC', '2026-09-04', '30', '0.0003')];
     const part = importAt(log, [b1], EARLIER);
-    expect(carriedOf(whole(part, b2, b1))).toEqual([['100', ['200']]]);
-    const edited = part.map((each) =>
-      each.source === 'import-csv' ? { ...each, note: 'card', updatedAt: LATER } : each,
+    // 40 is under half of 200, so the estimate stays live in one Log row with the imported buy (same kind, date, slot).
+    const live = part.filter((each) => each.deletedAt === null);
+    const estimate = live.find((each) => each.source === 'one-tap');
+    const imported = live.find((each) => each.source !== 'one-tap');
+    if (estimate === undefined || imported === undefined) throw new Error('the row holds the estimate and the buy');
+    expect([imported.source, imported.date, imported.slot]).toEqual(['import-csv', estimate.date, estimate.slot]);
+    const { amount, units, coin, id } = imported;
+    const saved = saveTransaction(
+      {
+        kind: 'dca',
+        date: imported.date,
+        slot: imported.slot,
+        fee: imported.fee,
+        note: '',
+        venue: imported.venue,
+        rows: [{ coin, entry: id, amount, units }],
+      },
+      { plan: BRUNO, entries: part, editing: [estimate, imported], ids: [], now: LATER, source: 'manual' },
     );
-    expect(carriedOf(whole(edited, b2, b1))).toEqual([['100', []]]);
-  });
-
-  it('a Log row deleted by hand, an imported buy with its estimate, shares the instant and is still a hand delete', () => {
-    const imported = anEntry({
-      slot: month('2026-09'),
-      date: date('2026-09-02'),
-      amount: money('10'),
-      source: 'import-csv',
-    });
-    const log = [tap('BTC', '2026-09', '2026-09-01', '200', '0.002'), imported].map(deletedByHand);
-    const [b1, b2] = [buy('BTC', '2026-09-03', '100', '0.001'), buy('BTC', '2026-09-04', '30', '0.0003')];
-    expect(carriedOf(whole(importAt(log, [b1], EARLIER), b2, b1))).toEqual([['100', []]]);
+    const edited = storedOver(part, saved.ok ? saved.value : []);
+    // The edit stamps the buy it keeps and the estimate it drops at one instant, as an import write does.
+    const cleared = edited.find((each) => each.id === estimate.id);
+    expect([cleared?.deletedAt, edited.find((each) => each.id === id)?.updatedAt]).toEqual([LATER, LATER]);
+    expect(carriedOf(whole(edited, b2, b1))).toEqual([['40', ['200']]]);
   });
 });
