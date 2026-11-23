@@ -13,9 +13,15 @@ The product is called **Proof of Calm** (ADR-0040). Before anything public ships
 1. Search TMview by hand for "Proof of Calm" and close variants in classes 9, 36, 41 and 42, at the
    EUIPO and at the national offices of the launch countries. If it finds an identical or confusingly
    similar earlier mark, ADR-0040 is superseded before launch.
-2. If the search is clean, file the EUTM in classes 9, 36, 41 and 42: EUR 850 for the first class,
-   EUR 50 for the second and EUR 150 for each further class, so EUR 1,200 for four. A professional EU
-   clearance opinion costs about EUR 600–1,500 and is optional.
+2. Decided on 2026-11-23 on the owner's delegation of 2026-11-18 (not the owner's own review or
+   signature): file the EU trade mark at EUIPO as the word mark, in classes 9, 41 and 42: EUR 850
+   for the first class, EUR 50 for the second and EUR 150 for the third, so EUR 1,050. Class 36 is
+   left out: the product is software and education and offers no financial service, and the search
+   of 2026-11-09 (`docs/research/trademark-search.md`) found CALM registered in class 36 and a
+   pending PROOF in 9 and 36; the owner can add it for EUR 150. No clearance opinion is bought. The
+   filing publishes the applicant's name and address, so it uses the non-home address of §5's
+   Contact row. The filing's facts and the two-step route through a national application are in
+   `docs/research/trademark-filing.md`. Item 1's class list stays as history of the search.
 3. Register every handle (`docs/GROWTH.md` §2.7): those found free on 2026-10-17 (YouTube, TikTok,
    Bluesky, the GitHub and npm organisations, and probably Telegram), and X, Instagram, Threads,
    LinkedIn and Reddit once checked by hand.
@@ -153,7 +159,7 @@ adapted: FCA COBS 4.12A.11R's fixed-top warning, a UK promotion rule (ADR-0029).
 
 | Page | When | Outline |
 |---|---|---|
-| Terms of use | L (Plus section P) | who we are; what Proof of Calm is and is not; 18+; blocked jurisdictions; the account (one plan, code or passkey, local-only means we hold nothing); acceptable use and the DSA notice channel; your data; prices and market data are third-party and may be wrong: CoinGecko named as the owner of the price data with its liability exclusion and its data disclaimers as its terms §7 require, and the ECB named for the reference exchange rates; risk acknowledgement; availability and changes (free core stays free); liability within the law, consumer rights unaffected; Portuguese law with home-country consumer protections; ADR information; Proof of Calm Plus section (P): what it includes, price incl. VAT, cycle, renewal, cancellation, change process, refunds, 14-day withdrawal with model form, who the seller is; tips (P); version and date |
+| Terms of use | L (Plus section P) | who we are; what Proof of Calm is and is not; 18+; blocked jurisdictions; the account (one plan, code or passkey, local-only means we hold nothing); acceptable use and the DSA notice channel; your data; prices and market data are third-party and may be wrong: CoinGecko named as the owner of the price data with its liability exclusion and its data disclaimers as its terms §7 require, and the ECB named for the reference exchange rates; risk acknowledgement; availability and changes (free core stays free); liability within the law, consumer rights unaffected; Portuguese law with home-country consumer protections; ADR information (P, as the Contact row has it: before anything is charged, and anything charged includes tips); Proof of Calm Plus section (P): what it includes, price incl. VAT, cycle, renewal, cancellation, change process, refunds, 14-day withdrawal with model form, who the seller is; tips (P); version and date |
 | Privacy notice | L (update P) | controller identity; what is collected per feature and that local-only mode collects nothing; purposes and lawful bases (table in the research file §3.1); recipients: Supabase (Supabase Pte. Ltd., Singapore; EU region Frankfurt; SCCs), Vercel (US; functions in Frankfurt; DPF/SCCs), the mail provider (ADR-0026), Sentry (US entity; EU event storage; DPF/SCCs), CoinGecko (no personal data), later the payment provider; transfers and safeguards; retention (below); rights and how to use them (self-service export and delete; privacy@ address; one month); complaint to the CNPD; security in one paragraph; 18+; storage (link to the cookie-free statement); date |
 | Risk disclosure | L, built (#250) | the one-paragraph warning; what DCA does and does not do; volatility and drawdowns with dated ranges; custody and counterparty risks; the only statement on status, in these words: "not registered with or supervised by any financial supervisor, and no investor-compensation or deposit-protection scheme covers crypto-assets"; tax; scams, in these words: "Proof of Calm never offers you an investment and never asks for your seed phrase, a private key, an exchange's API key or login, or for coins or money to buy them." (`legal.risk.scams.p1`; claims that stay true with reminder emails and a paid plan, ADR-0039); the register sentence: "ESMA keeps a public register of the providers authorised under MiCA: [ESMA's register of crypto-asset service providers]. Check any provider there before sending money. Proof of Calm is not a provider and is not listed." (§3.4; the link label carries no status word); how to find a professional adviser; links to official warnings (CMVM, BaFin, FCA) and to the ESAs' joint factsheet on crypto-assets and MiCA of 2025-10-06 in PT, DE and EN. The page has no draft notice. Its volatility is the cycles file's falls as a dated table with §4's intraday source line, and no other volatility figure. The official links and the day each was read live in `apps/web/src/site/risk-links.ts`, not in `packages/content`, and the page shows that day beside each link; each label says only what its page holds (CMVM's link is its investor portal's page "Criptoativos: o que precisa de saber", read in a browser since the portal loads its pages by script; BaFin's is its Risks in Focus page on crypto-asset investments and social media, since BaFin keeps no consumer crypto page a plain fetch reads) |
 | Cookie-free statement | L | what we do not do (no advertising or analytics cookies, no third-party scripts, no fingerprinting); what the browser stores and why (the session, from M3 with accounts; the plan, the entries, and the prices fetched for your coins, so the app works offline in local-only and offline mode; the app's files in Cache Storage, so the app opens offline; the pages opened, the app's and the site's, for up to 7 days, and the latest price answers for 24 hours, so they show offline, with the date each copy was saved, so expired copies are cleared; the display settings you set: theme, reduced motion, chart range, the Log's view, and the language once there is more than one; the dates of your last JSON backup and last change, for the backup reminder; the banners you dismissed or that showed once, so they stay hidden; the date of your last annual review, for the next one (from M2); a record of the entries deleted on this device, so a later import with "Add missing entries only" does not bring them back, and the plan and entries a "Replace everything" removed, in full and marked as deleted, for the same reason; in M1 these records stay until "Delete everything" or until the person clears the site's data, and from M3 on the purge of `docs/DOMAIN.md` §3.15 applies; a random device identifier in IndexedDB (`meta` `deviceId`), which orders writes and in M1 leaves the browser in no request and no backup; an outbox copy of each plan and entry row written, for M3's sync, which M1 does not do; stored rows that failed their check on read, set aside (`meta` `corrupt`) instead of deleted; form drafts in session storage, until the tab closes; the one-reload note `poc.preload-reload` in session storage, so a tab whose update failed to load reloads once, until the tab closes); how visits are counted (server-side aggregates, no identifiers); why there is no banner; references (ePrivacy art. 5(3); Lei 41/2004; § 25 TDDDG; PECR); date |
@@ -168,8 +174,10 @@ screens: the app's own `/learn` index still has no line (ADR-0047).
 
 Retention: account and plan for the life of the account plus 30 days after deletion (undo), inactive
 accounts warned at 24 months and deleted at 27; auth and security logs 90 days; error events 30 days;
-mail logs per the provider (30 days); backups 35 days; support correspondence 24 months; aggregate
-counters 24 months (no personal data); invoices 10 years (Portuguese tax law).
+the host's runtime logs, up to 1 day (Vercel's documented period on its Hobby and Pro plans without
+Observability Plus; `docs/research/legal-pages-questions.md`); mail logs per the provider (30 days);
+backups 35 days; support correspondence 24 months; aggregate counters 24 months (no personal data);
+invoices 10 years (Portuguese tax law).
 
 Age: 18+ by policy, stated at sign-up, no verification (the lawful basis is contract; the digital-consent ages, 13 in Portugal, are irrelevant).
 
@@ -292,6 +300,11 @@ the rule); the others are findings the PR fixes.
 7. Copy review of all paid-tier text against §6.
 8. UK and US VAT or sales tax are the merchant of record's problem; if selling direct, UK VAT
    registration from the first UK sale (moot while the UK is blocked).
+9. A lawyer's review, with four questions: the consumer-dispute (RAL) information and the electronic
+   complaints book for an app that charges nothing, and the outbox copy (§9 holds both answers as
+   settled without a lawyer); §6 Q4's carve-out that names Kraken and Trade Republic;
+   `docs/BENCHMARK.md` §4's open StBerG § 2(2) question on the German holding-period line. The owner
+   may take it earlier.
 
 ## 8. Other regimes checked
 
@@ -324,5 +337,30 @@ Settled on 2026-11-08, by the owner:
 
 - Repository visibility: public, from fresh history, with the earlier history kept private
   (ADR-0051).
+
+Settled on 2026-11-23, on the owner's delegation of 2026-11-18 (not the owner's own review or
+signature; a lawyer has not read these answers):
+
+- The consumer-dispute (RAL) information and the electronic complaints book stay for before charging
+  (§5, §7). Lei 144/2015 art. 3 g) defines a service contract by a price the consumer pays or
+  undertakes to pay, and art. 18 speaks of the RAL entities a provider is bound to. Directive (EU)
+  2025/2647 says the ADR Directive applies today only to contracts for which the consumer pays or
+  undertakes to pay a price. DL 156/2005 art. 2(2) is wider: it binds every supplier and service
+  provider, those working through digital means included, and the articles read hold no condition
+  that the service be paid. Its art. 9-A gives a warning with 90 consecutive days to comply before
+  any proceeding is opened. If such a warning comes, or once anything is charged, both are
+  published. The articles and their sources, read 2026-11-19:
+  `docs/research/legal-pages-questions.md`.
+- The outbox copy: the app stops writing it until the sync exists, the store is emptied in the same
+  release, and the Cookie-free statement then drops its sentence; a session builds it (#409 names
+  the issue). A copy kept for a function the app does not offer does not meet the "explicitly
+  requested" test of the Article 29 Working Party's Opinion 04/2012, and Lei 41/2004 art. 14 fines a
+  breach.
+- A lawyer's review is not a condition of the free launch. It is part of §7's list before charging,
+  with these questions: the two above; §6 Q4's carve-out that names Kraken and Trade Republic;
+  `docs/BENCHMARK.md` §4's open StBerG § 2(2) question on the German holding-period line. The owner
+  may take it earlier.
+- Support mail is kept 24 months after the last message; the owner deletes older threads once a
+  year.
 
 None is open.
