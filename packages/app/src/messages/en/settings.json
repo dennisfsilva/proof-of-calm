@@ -146,7 +146,7 @@
       },
       "nothing": "Nothing to add from this file.",
       "replaces": "Replaces {count, plural, one {{figure} estimate} other {{figure} estimates}} from Bought as planned.",
-      "keeps": "Keeps {count, plural, one {{figure} estimate} other {{figure} estimates}} from Bought as planned: the purchases imported for {count, plural, one {its month come to less than half of it} other {their months come to less than half of each}}.",
+      "keeps": "Keeps {count, plural, one {{figure} estimate} other {{figure} estimates}} from Bought as planned: {count, plural, one {the purchases of the same coin imported for its month come to less than half of it} other {for each coin and month, the purchases imported come to less than half the largest estimate}}.",
       "noneInCurrency": "No purchase or sale in this file is in {plan}, this plan's currency: they are in {file}. Amounts are never converted.",
       "cancelled": "Your Log has {count, plural, one {{figure} entry} other {{figure} entries}} imported earlier that this file shows as cancelled: {items}. Delete {count, plural, one {it} other {them}} in the Log.",
       "cancelledItem": "{hasAmount, select, yes {{units} for {amount} on {date}} other {{units} on {date}}}",
@@ -175,7 +175,7 @@
       "added": "Coins added: {units} at no cost, on {date}.",
       "label": "{kind, select, dca {monthly buy for {month}} lump {starting amount of {date}} extra {extra buy of {date}} other {sale of {date}}}",
       "recorded": "{count, plural, one {The file's {units} for {amount} on {dates} looks like your {label}: {entry}.} other {The file's {role, select, sale {sales} other {purchases}} of {units} for {amount} in all, on {dates}, look like your {label}: {entry}.}}",
-      "recordedUnder": "{count, plural, one {The file's {units} for {amount} on {dates} counts as recorded by your {label}: {entry}, dated in its month or within {days} days.} other {The file's {role, select, sale {sales} other {purchases}} of {units} for {amount} in all, on {dates}, count as recorded by your {label}: {entry}, dated in its month or within {days} days.}} That is less than half of its amount.",
+      "recordedUnder": "{count, plural, one {The file's {units} for {amount} on {dates} counts as recorded by your {label}: {entry}.} other {The file's {role, select, sale {sales} other {purchases}} of {units} for {amount} in all, on {dates}, count as recorded by your {label}: {entry}.}} That entry is dated in the same month or within {days} days, and {amount} is less than half of its amount.",
       "recordedHint": "To import the file's {count, plural, one {transaction} other {transactions}} instead, delete that entry in the Log, then choose the file again.",
       "leftOut": {
         "currency": "{count, plural, one {{figure} purchase or sale in {currencies}} other {{figure} purchases and sales in {currencies}}}, not imported: amounts are never converted.",
