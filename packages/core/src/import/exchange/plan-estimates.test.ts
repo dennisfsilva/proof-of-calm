@@ -438,4 +438,32 @@ describe('planExchangeImport, the estimates a cancelled monthly buy carries', ()
     expect(september(one)).toEqual({ estimates: ['70', '250'], buys: september(two).buys });
     expect([invested(BRUNO, two), invested(BRUNO, one)]).toEqual(['300', '370']);
   });
+
+  it('no line: a second 70 tapped after the 50 replaced the first, then a whole file that cancels the 50', () => {
+    const first = tap('BTC', '2026-09', '2026-09-01', '70', '0.0007');
+    const b1 = buy('BTC', '2026-09-03', '50', '0.0005');
+    // A tap for a month already done comes in as a JSON import brings one (Today offers none, DOMAIN §3.2).
+    const second = tap('BTC', '2026-09', '2026-09-05', '70', '0.0007');
+    const part = [...importAt([first], [b1], EARLIER), second];
+    expect(part.find((each) => each.id === first.id)?.deletedAt).toBe(EARLIER);
+    const cancelling = (entries: readonly Entry[]) =>
+      planExchangeImport(
+        { ...fileOf([]), cancelled: [b1] },
+        { plan: BRUNO, entries },
+        { venue: 'Kraken', addHeld: false },
+        LISBON,
+      );
+    // The line names the 50 and carries nothing: September keeps the second 70 live, a monthly buy not imported.
+    expect(carriedOf(cancelling(part))).toEqual([['50', []]]);
+    const two = namedDeleted(part, cancelling(part));
+    expect(september(two)).toEqual({ estimates: ['70'], buys: [] });
+    const stored = part.find((each) => each.source === 'import-csv');
+    expect(two.filter((each) => each.deletedAt !== null).map((each) => each.id)).toEqual([first.id, stored?.id]);
+    // One import over a Log holding both taps imports nothing and replaces nothing: both 70s stay live (140).
+    const once = cancelling([first, second]);
+    expect([once.entries, once.replaced, once.cancelled]).toEqual([[], [], []]);
+    const one = applyExchangeImport([first, second], once, NOW).entries;
+    expect(september(one)).toEqual({ estimates: ['70', '70'], buys: [] });
+    expect([invested(BRUNO, two), invested(BRUNO, one)]).toEqual(['70', '140']);
+  });
 });
