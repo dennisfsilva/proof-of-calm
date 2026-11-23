@@ -807,6 +807,18 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   to spare source wraps; the second review round found that read was the only one refusing German
   list items and headings (`- Kauft BTC jeden Monat`), since the joined read joins them into one
   line (#20, 2026-11-23).
+- A document sentence that says when a line asks for a change is written from that line's own
+  function, one assertion per state the line can be in, never from one example. The import's costs
+  branch stated a tapped lump's line three times, and each review round found one more state: a lump
+  at the monthly part gets the starting line, and that line shows only when its rule finds one date
+  for every coin; `packages/core/src/import/exchange/plan-claims.test.ts` now pins each (#422,
+  2026-11-23).
+- A guard's reach over a second kind of movement is walked with an entry that guards nothing in the
+  file and with cover that sits in another file. The sale guard took any later Coins added entry as
+  its reach and counted only the file's own and the person's own entries as cover; two blind
+  designers, the judge and three review rounds walked only Coins added entries that guarded the
+  file's own purchases, and the integration read found a sale another file covers left out (#423,
+  #425, 2026-11-23).
 
 ## Known gaps
 
