@@ -166,8 +166,9 @@ function Preview({ file, name, onDone, onBusy, plan: livePlan }: Props & { reado
         return t('heldMany', { ...counted, entries: w.figure(entries.length), items });
       }),
       t('heldAnswer', { transactions }),
-      held.sales > 0 ? t('heldSales', { ...w.counted(held.sales), transactions }) : '',
+      // The estimates it replaces, then the sales it adds back (CONTENT-STYLE §3 "Import an exchange's file").
       held.replaces > 0 ? t('heldReplaces', { ...w.counted(held.replaces), transactions }) : '',
+      held.sales > 0 ? t('heldSales', { ...w.counted(held.sales), transactions }) : '',
     ]
       .filter((line) => line !== '')
       .join(' ');
