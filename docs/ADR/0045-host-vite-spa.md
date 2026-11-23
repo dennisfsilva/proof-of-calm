@@ -1562,3 +1562,11 @@ The decision stands; German gets its own message files, wired as pt-PT's were on
   stays hidden: no picker offers it. Measured on the web build: 70 precache entries and 1,389,768
   bytes before, 70 and 1,390,087 after, none under `assets/messages/`; Today's application code
   (`node tools/size/today.ts`) went from 42,607 to 42,692 bytes, German's six lazy loaders.
+
+## Corrections recorded on 2026-11-23
+
+- **2026-11-23, German's errors, shell and today files are whole too** (the correction of 2026-11-16
+  on pt-PT's translations). Today's entry boots with them in the stored language, so
+  `packages/app/src/lib/i18n/locales.test.ts` holds them whole in German as in pt-PT while both stay
+  hidden (#419); every other German namespace may be partial, its untranslated keys filled from
+  English.

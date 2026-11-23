@@ -793,6 +793,20 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   builds, and the others reuse its worktree. #271's pt-PT sweep ran
   `pnpm install --frozen-lockfile --offline` beside the changed-flows evaluator's, started in the same
   second; it stalled for about 40 minutes and the sweep walked no flow (2026-11-18).
+- Vitest 5 keeps a persistent module cache (`fsModuleCache`, on by default, in the workspace root's
+  node_modules, folder .vitest-cache): an unchanged test file kept its old `import.meta.glob` expansion,
+  so #413's German files failed
+  `packages/app/src/features/onboarding/model/disclosure.test.ts` locally while CI and fresh
+  worktrees passed (2026-11-23). Clear the cache before treating such a failure as the branch's.
+- A translation can be built before its ban rows land when the design check's judge leaves a
+  runnable prototype of the final rule: #419's 139 German strings were checked against the D1
+  judge's merged `findBanned` while the rule's own branch was still in review, and needed no change
+  for it (2026-11-23).
+- A fix that turns a rule off for one read first pins what that read alone refused. The German
+  directive rule's first fix round let a Learn module's raw per-line read skip the German line rule
+  to spare source wraps; the second review round found that read was the only one refusing German
+  list items and headings (`- Kauft BTC jeden Monat`), since the joined read joins them into one
+  line (#20, 2026-11-23).
 
 ## Known gaps
 
