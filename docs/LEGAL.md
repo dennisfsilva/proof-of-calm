@@ -352,10 +352,9 @@ signature; a lawyer has not read these answers):
   published. The articles and their sources, read 2026-11-19:
   `docs/research/legal-pages-questions.md`.
 - The outbox copy: the app stops writing it until the sync exists, the store is emptied in the same
-  release, and the Cookie-free statement then drops its sentence; a session builds it (#409 names
-  the issue). A copy kept for a function the app does not offer does not meet the "explicitly
-  requested" test of the Article 29 Working Party's Opinion 04/2012, and Lei 41/2004 art. 14 fines a
-  breach.
+  release, and the Cookie-free statement then drops its sentence; a session builds it (#415). A copy
+  kept for a function the app does not offer does not meet the "explicitly requested" test of the
+  Article 29 Working Party's Opinion 04/2012, and Lei 41/2004 art. 14 fines a breach.
 - A lawyer's review is not a condition of the free launch. It is part of §7's list before charging,
   with these questions: the two above; §6 Q4's carve-out that names Kraken and Trade Republic;
   `docs/BENCHMARK.md` §4's open StBerG § 2(2) question on the German holding-period line. The owner
