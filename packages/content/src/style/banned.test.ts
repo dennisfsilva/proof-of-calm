@@ -115,7 +115,8 @@ describe('findBanned (docs/CONTENT-STYLE.md §2, docs/LEGAL.md §6)', () => {
       'imperative: Buy Bitcoin every month',
       'imperative: Hold ETH until 2029',
     ]);
-    expect(rules('Kaufen Sie Ethereum.')).toEqual(['imperative: Kaufen Sie Ethereum']);
+    // A German finding is the whole line (banned-de.test.ts).
+    expect(rules('Kaufen Sie Ethereum.')).toEqual(['imperative: Kaufen Sie Ethereum.']);
   });
 });
 
@@ -705,8 +706,12 @@ describe('findBanned in Portuguese: the gaps and over-catches of the second revi
   });
 
   it('finds the necessity and preference rows before every buying or holding verb', () => {
+    // «moedas» names an asset, so the sentence is an imperative too.
+    expect(rules('Precisa de guardar as moedas.')).toEqual([
+      'advice: Precisa de guardar',
+      'imperative: Precisa de guardar as moedas',
+    ]);
     for (const [copy, match] of [
-      ['Precisa de guardar as moedas.', 'Precisa de guardar'],
       ['Precisam de acumular.', 'Precisam de acumular'],
       ['Vale a pena vender.', 'Vale a pena vender'],
       ['Vale a pena acumular.', 'Vale a pena acumular'],
