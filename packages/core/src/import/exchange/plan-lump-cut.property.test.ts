@@ -84,7 +84,8 @@ function cutDays(file: ExchangeFile, shorter: ExchangeFile) {
  * generators or to the import that leaves one unreached fails there on every run, never by chance; scan the seeds
  * again then. Measured on 2026-11-16 under the full core suite with coverage, seeds 1 to 8: the first `it`'s worst
  * was 4.26 s (seed 8; the best 3.33 s, seed 5), six times it 25.6 s, and the second's worst 3.82 s, six times it
- * 22.9 s, each under 30 s.
+ * 22.9 s, each under 30 s. Measured again on 2026-11-23, after the shorter export excepts the cover's stated exception
+ * (`coverCut`): the first `it`'s worst was 3.43 s (seed 2), six times it 20.6 s, and the second's 2.64 s (seed 4), 15.8 s.
  */
 const RUNS = { numRuns: 600 };
 const TIMEOUT = 90_000;

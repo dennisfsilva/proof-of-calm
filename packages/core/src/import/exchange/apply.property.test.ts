@@ -62,7 +62,9 @@ function twoWays(drawn: World, cut: number) {
  * amount and late starting purchases, seeds 1 to 8: the worst was 4.52 s (the second plan, seed 3); six times it, 27.1 s.
  * Measured again on 2026-11-15, after a `lump` walks its dates by rule G and every hand monthly buy claims before a
  * lump, seeds 1 to 8: the worst was 6.15 s (the second plan, seed 4), on a loaded machine; six times it, 36.9 s, is
- * over a third of 90 s, so the timeout went to 120 s.
+ * over a third of 90 s, so the timeout went to 120 s. Measured again on 2026-11-23, after the prefix property excepts
+ * the cover's stated exception (`coverCut`), seeds 1 to 8: the prefix one's worst was 3.32 s (seed 1), six times it
+ * 19.9 s; the worst of the file was 4.70 s (the second plan, seed 3), six times it 28.2 s, under 40 s.
  */
 const TWICE = { numRuns: 1500 };
 const TIMEOUT = 120_000;
