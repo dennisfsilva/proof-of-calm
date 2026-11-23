@@ -415,4 +415,27 @@ describe('planExchangeImport, the estimates a cancelled monthly buy carries', ()
       september(applyExchangeImport(log, whole(log, b2, b1), NOW).entries),
     );
   });
+
+  it('no line: a 250 tapped after the 50 replaced a 70, then the same file again; one import keeps all three', () => {
+    const seventy = tap('BTC', '2026-09', '2026-09-01', '70', '0.0007');
+    const b1 = buy('BTC', '2026-09-03', '50', '0.0005');
+    // A tap for a month already done comes in as a JSON import brings one (Today offers none, DOMAIN §3.2).
+    const later = tap('BTC', '2026-09', '2026-09-05', '250', '0.0025');
+    const part = [...importAt([seventy], [b1], EARLIER), later];
+    // The earlier import's 50 reaches half the 70 and replaces it; the whole file stores nothing new and replaces none.
+    expect(part.find((each) => each.id === seventy.id)?.deletedAt).toBe(EARLIER);
+    const again = planExchangeImport(
+      fileOf([b1]),
+      { plan: BRUNO, entries: part },
+      { venue: 'Kraken', addHeld: false },
+      LISBON,
+    );
+    expect([again.entries, again.replaced, again.cancelled]).toEqual([[], [], []]);
+    const two = applyExchangeImport(part, again, NOW).entries;
+    expect(september(two)).toEqual({ estimates: ['250'], buys: [['import-csv', '50', '2026-09-03', '0.0005']] });
+    // One import over a Log holding both taps: 50 is under half of the 250, so all three stay live (370).
+    const one = importAt([seventy, later], [b1], NOW);
+    expect(september(one)).toEqual({ estimates: ['70', '250'], buys: september(two).buys });
+    expect([invested(BRUNO, two), invested(BRUNO, one)]).toEqual(['300', '370']);
+  });
 });
