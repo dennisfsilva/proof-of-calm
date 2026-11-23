@@ -337,7 +337,11 @@ describe('the estimate line', () => {
   it('a sale the shown plan leaves out uncovered comes in once the change covers it, as `keepsPromise` allows', () => {
     const sale = trade('S1', 'sale', 'BTC', '2026-09-14', { units: '0.00016', amount: '5', fee: '0' }, 90);
     const held = hand({ kind: 'held', date: date('2026-10-15'), amount: null, units: units('0.0021'), slot: null });
-    const c: Case = { plan: ONE, file: [buy('BTC', '2026-03-17', '100', '0.0021'), sale], entries: [tap('2026-03', '2026-03-01'), held] };
+    const c: Case = {
+      plan: ONE,
+      file: [buy('BTC', '2026-03-17', '100', '0.0021'), sale],
+      entries: [tap('2026-03', '2026-03-01'), held],
+    };
     const ticked = importRemedies(fileOf(c.file), { plan: c.plan, entries: c.entries }, true, LISBON).estimates;
     expect(ticked.map(brief)).toEqual([[[''], '2026-03', '2026-03-17', '2026-04']]);
     expect(planOf(c, c.entries).uncovered.map((each) => [each.date, each.units])).toEqual([['2026-09-14', '0.00016']]);
