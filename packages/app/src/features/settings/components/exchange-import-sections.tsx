@@ -20,6 +20,7 @@ import { createNumberInput } from '../../../lib/format';
 import { useFormatters } from '../../../lib/services';
 import type { previewModel } from '../model/exchange-preview';
 import { useEstimateLines } from './exchange-estimate-line';
+import { useUncoveredItems } from './exchange-uncovered';
 
 // The exchange import's preview, worded (CONTENT-STYLE §3 "Import an exchange's file"): the summary, then one section
 // per kind of entry with one sentence each, collapsed until opened, the rows left out with their reasons and the
@@ -335,6 +336,8 @@ function useLeftOut({ model, plan, exchange }: SectionsProps, w: ReturnType<type
     add(`not-in-plan-${coin.key}`, t('not-in-plan', { coin: coin.key, ...w.counted(coin.count) }));
   const starting = useStartingLine(model, w);
   if (starting !== null) add('starting', starting.text, starting.hint);
+  // Each sale a guard left out uncovered, in date order (DOMAIN §3.13, after step 4).
+  for (const item of useUncoveredItems(model.uncovered, w)) add(item.key, item.text);
   for (const reason of ['reward', 'coin-deposit'] as const) {
     const found = group(reason);
     add(reason, found ? t(reason, { units: coins(found.by), exchange, ...w.counted(found.count) }) : null);

@@ -416,6 +416,37 @@ describe('ExchangeSummary and ExchangeSections', () => {
     ]);
   });
 
+  it('names a sale the starting amount’s reach leaves out, after the starting line, as a fact', async () => {
+    const csv = krakenLedger([
+      ['S1', '2026-03-20 09:00:00', 'trade', 'EUR', '-1000.0000', '0.0000'],
+      ['S1', '2026-03-20 09:00:00', 'trade', 'BTC', '0.0125000000', '0.0000000000'],
+      ['S2', '2026-04-10 09:00:00', 'trade', 'BTC', '-0.0050000000', '0.0000000000'],
+      ['S2', '2026-04-10 09:00:00', 'trade', 'EUR', '400.0000', '0.0000'],
+    ]);
+    const shown = planOf(csv, []);
+    expect([shown.entries, shown.uncovered.map((item) => item.date)]).toEqual([[], ['2026-04-10']]);
+    await mount(shown);
+    expect(lines('Left out (2)')[1]).toBe(
+      '0,005 BTC sold for 400,00 € on 10 Apr 2026, not imported. It is dated on or before 20 Apr 2026, 15 days after ' +
+        'your first buy day, and your own entries (estimates from Bought as planned aside) and this file hold less BTC ' +
+        'up to that date than it sells.',
+    );
+  });
+
+  it('names a sale a Coins added entry’s reach leaves out by that entry, its units at the places both need', async () => {
+    const held = anEntry({ kind: 'held', coin: BTC, date: date('2026-10-13'), amount: null, units: units('0.02') });
+    const csv = krakenLedger([
+      ['S1', '2026-10-12 13:00:00', 'trade', 'BTC', '-0.0230000000', '0.0000000000'],
+      ['S1', '2026-10-12 13:00:00', 'trade', 'EUR', '1500.0000', '1.0000'],
+    ]);
+    await mount(planOf(csv, [...fixture.entries, held]));
+    expect(lines('Left out (1)')).toEqual([
+      '0,023 BTC sold for 1500,00 € on 12 Oct 2026, not imported. It is dated on or before your Coins added entry of ' +
+        '0,020 BTC on 13 Oct 2026, and your own entries (estimates from Bought as planned aside) and this file hold less ' +
+        'BTC up to that date than it sells.',
+    ]);
+  });
+
   describe('the estimate line: the coins whose estimate stays, the file’s pieces and the change', () => {
     const ETH = 'ETH' as Entry['coin'];
     const tapped = (coin: Entry['coin'], n: number) =>

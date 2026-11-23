@@ -50,7 +50,7 @@ describe('previewModel', () => {
     expect(model.added.map((entry) => [entry.coin, entry.amount])).toEqual([['BTC', '0']]);
     expect([model.held, model.noneInCurrency, model.recorded, model.startingAmount]).toEqual([null, null, [], null]);
     expect(model.counted).toEqual({ imported: 0, deleted: 0, unitsCut: 0, feesInCoin: 0 });
-    expect(model.leftOut).toBe(shown.leftOut);
+    expect([model.leftOut, model.uncovered]).toEqual([shown.leftOut, []]);
     expect(model.withdrawals).toBe(shown.withdrawals);
   });
 
@@ -64,6 +64,34 @@ describe('previewModel', () => {
     ]);
     expect([model.summary.replaced, model.replaces]).toEqual([0, []]);
     expect(previewModel(planOn(entries, true)).held).toMatchObject({ added: true, replaces: 0 });
+  });
+
+  it('gives the sales a guard leaves out uncovered, and counts on the held line those ticking adds back', () => {
+    // A BTC sale on 12 Oct, the day before the Coins added entry: the Log's BTC up to that day is 0.02215, so only the
+    // file's 0.002 BTC bought on 5 and 12 Oct, which ticking adds, covers the 0.023 it sells.
+    const sale = readExchangeFile(
+      krakenLedger([
+        ['TQ9ZZZ-SYNTH-000001', '2026-10-05 09:00:00', 'trade', 'EUR', '-70.0000', '0.1800'],
+        ['TQ9ZZZ-SYNTH-000001', '2026-10-05 09:00:00', 'trade', 'BTC', '0.0012000000', '0.0000000000'],
+        ['TQ9ZZZ-SYNTH-000003', '2026-10-12 12:00:00', 'trade', 'EUR', '-50.0000', '0.1300'],
+        ['TQ9ZZZ-SYNTH-000003', '2026-10-12 12:00:00', 'trade', 'BTC', '0.0008000000', '0.0000000000'],
+        ['TQ9ZZZ-SYNTH-000006', '2026-10-12 13:00:00', 'trade', 'BTC', '-0.0230000000', '0.0000000000'],
+        ['TQ9ZZZ-SYNTH-000006', '2026-10-12 13:00:00', 'trade', 'EUR', '1500.0000', '1.0000'],
+      ]),
+    );
+    if (!sale.ok) throw new Error('the synthetic ledger reads');
+    const entries = [...fixtureSnapshot().entries, HELD];
+    const on = (addHeld: boolean) =>
+      planExchangeImport(sale.value, { plan, entries }, { venue: 'Kraken', addHeld }, CONTEXT);
+    const shown = on(false);
+    const model = previewModel(shown, on(true));
+    expect(model.uncovered).toBe(shown.uncovered);
+    expect(model.uncovered.map(({ coin, date, units, reach }) => [coin, date, units, reach])).toEqual([
+      ['BTC', '2026-10-12', '0.023', { kind: 'held', units: '0.002', date: '2026-10-13' }],
+    ]);
+    expect([model.summary.sales, model.held?.sales]).toEqual([0, 1]);
+    expect(previewModel(on(true)).held?.sales).toBe(0);
+    expect(previewModel(planOn(entries, false), planOn(entries, true)).held?.sales).toBe(0);
   });
 
   it('marks the Matching entries whose item says to delete the entry, and none without remedies', () => {
