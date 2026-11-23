@@ -824,6 +824,11 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   build's 25-seed run found that a shorter export moves a one-tap lump's claim to another purchase,
   so the lump rule that counted the claimed units made two imports differ from one at seeds 13 and
   14, and it left the build for its own design check (#427, #424, 2026-11-23).
+- A seed sweep counts only after a printed first world per seed shows that the seed changes what
+  each property draws. Session 22l's builders set `fc.configureGlobal({ seed })` in a setup file and
+  reported the exchange property files green at seeds 1 to 40, but the first world of
+  `plan-remedy.property.test.ts`'s sentence property did not change with the seed; CI's random seeds
+  then failed two of its properties, a gap open since #423 (#429, 2026-11-23).
 
 ## Known gaps
 
