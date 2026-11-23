@@ -409,9 +409,9 @@ external links and the Risk link in the mobile export (M3).
   for a control named inside a sentence (#406); the re-rendered baselines follow in #407. pt-PT now
   waits for the owner's native read (`docs/CONTENT-STYLE.md` §8). German started on 2026-11-23,
   still hidden: its own message files and loaders (#413, ADR-0045 Deviations of 2026-11-19) and its
-  first strings, Today, the shell, the errors and one Plan key (#419). The German voice and the
-  directive rule are designed (#20's comments 7095208321 and 7096014700); their branch waits for
-  session 26b. CSV import, free (ADR-0039), for the
+  first strings (Today, the shell, the errors and one Plan key, #419). The German voice and the
+  directive rule are designed (#20's comments 7095208321 and 7096014700); their branch is the next
+  German step. CSV import, free (ADR-0039), for the
   main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
   Republic; Kraken's ledger reader built on 2026-11-13 (#168) and the core's import plan against the
   Log the same day (#178, `docs/DOMAIN.md` §3.13, "Meeting the Log"), then its write (#183) and the
