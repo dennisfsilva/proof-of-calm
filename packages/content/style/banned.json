@@ -214,6 +214,18 @@
     {
       "phrase": "prestadores autorizados ao abrigo do MiCA",
       "reason": "the Risk page's register sentence in Portuguese (docs/LEGAL.md §3.4)"
+    },
+    {
+      "phrase": "„Investiert“",
+      "reason": "the plan totals' label in German, quoted where a sentence names it (docs/CONTENT-STYLE.md §10)"
+    },
+    {
+      "phrase": "«Regra e venda»",
+      "reason": "the Settings tab's name in Portuguese, quoted where a sentence names it (docs/CONTENT-STYLE.md §9)"
+    },
+    {
+      "phrase": "nem moedas nem dinheiro para as comprar",
+      "reason": "the Risk page's scams sentence in its fixed Portuguese wording (docs/LEGAL.md §5, legal.risk.scams.p1)"
     }
   ]
 }

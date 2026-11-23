@@ -192,10 +192,7 @@ const REWORDED: [string, string][] = [
     'Diese Übertragung übersteigt Ihren Bestand um {excess} ({held} am {date}).',
   ],
   ['…{coins, select, one {} other {, in den Mengen, die Sie halten,}}…', '…, gewichtet nach Ihrem Bestand,…'],
-  [
-    'Ein Rückgang der Coins, die Sie halten, ist im Gange.',
-    'Ein Rückgang der Coins in Ihrem Bestand ist im Gange.',
-  ],
+  ['Ein Rückgang der Coins, die Sie halten, ist im Gange.', 'Ein Rückgang der Coins in Ihrem Bestand ist im Gange.'],
   [
     '{units} verkauft ohne einen Kauf am oder vor dem Verkaufsdatum. …',
     'Für den Verkauf von {units} gibt es keinen Kauf am oder vor seinem Datum. Prüfen Sie Daten und Beträge im Protokoll.',
