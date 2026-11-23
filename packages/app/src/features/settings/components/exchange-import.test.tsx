@@ -203,7 +203,10 @@ describe('ExchangeImport', () => {
   it('unticked, names the sale ticking adds back and has nothing to add; ticked, adds it and says no more', async () => {
     await mount([HELD], undefined, {}, { file: SOLD, name: 'kraken-ledgers.csv' });
     expect(texts()).toEqual(
-      expect.arrayContaining([`${HELD_LINE} If you add them, they also add 1 sale.`, 'Nothing to add from this file.']),
+      expect.arrayContaining([
+        `${HELD_LINE} If you add them, 1 sale from Left out is imported too.`,
+        'Nothing to add from this file.',
+      ]),
     );
     expect(button(/^Import/)).toBeNull();
 
@@ -218,7 +221,7 @@ describe('ExchangeImport', () => {
     await mount([ONE_TAP_OCTOBER, HELD], undefined, {}, { file: SOLD, name: 'kraken-ledgers.csv' });
     expect(texts().find((line) => line.startsWith('Your Log has'))).toBe(
       `${HELD_LINE} If you add them, they also replace 1 estimate from Bought as planned. ` +
-        'If you add them, they also add 1 sale.',
+        'If you add them, 1 sale from Left out is imported too.',
     );
   });
 
