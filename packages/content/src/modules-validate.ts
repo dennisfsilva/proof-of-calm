@@ -46,14 +46,15 @@ const CHART = '<Chart />';
 const PAST_PERFORMANCE = /past(?:[\s\p{Pd}\\]|&#?\w+;)+performance/iu;
 
 /**
- * Two reads: as it stands, for the rule imperative alone, so a line that opens with an imperative fires; and with each
- * single newline as a space for every rule, so a phrase cannot hide across a line and an allow-listed phrase holds
- * across one. An imperative of the second read that holds one of the first is that same finding. Both reads drop the
- * hard-break backslash at a line end.
+ * Two reads: as it stands, for the rule imperative alone, so a line that opens with an English or Portuguese
+ * imperative fires; and with each single newline as a space for every rule, so a phrase cannot hide across a line and
+ * an allow-listed phrase holds across one. The German line rule reads only the second, where a paragraph is one line:
+ * a source wrap opens no clause (docs/CONTENT-STYLE.md §2). An imperative of the second read that holds one of the
+ * first is that same finding. Both reads drop the hard-break backslash at a line end.
  */
 function bodyFindings(body: string) {
   const text = plainText(body).replace(HARD_BREAK, '');
-  const imperatives = findBanned(text).filter(({ rule }) => rule === 'imperative');
+  const imperatives = findBanned(text, { germanLines: false }).filter(({ rule }) => rule === 'imperative');
   const isNew = ({ rule, match }: Finding) =>
     rule !== 'imperative' || !imperatives.some((seen) => match.includes(seen.match));
   return [...imperatives, ...findBanned(text.replace(SINGLE_NEWLINE, ' ')).filter(isNew)];

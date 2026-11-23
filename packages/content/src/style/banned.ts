@@ -175,12 +175,20 @@ const findAll = (pattern: RegExp, text: string, rule: Finding['rule']): Finding[
 const namesAsset = (read: string) =>
   ASSET_NAME.test(read) || NAMES.test(read) || TICKER.test(read) || COIN_PLACEHOLDER.test(read);
 
-export function findBanned(text: string): Finding[] {
+type Read = {
+  /**
+   * False where a newline is no line the person reads, a Learn module's source wrap (modules-validate.ts): the German
+   * line rule then waits for the read that joins the paragraph, since a wrapped noun would open a clause.
+   */
+  readonly germanLines?: boolean;
+};
+
+export function findBanned(text: string, { germanLines = true }: Read = {}): Finding[] {
   const kept = text.normalize('NFC').replace(INVISIBLE, '').replace(ALLOWED, ' ');
   const imperatives = sentences(kept)
     .filter(({ read }) => (IMPERATIVE.test(read) || hasPortugueseDirective(read)) && namesAsset(read))
     .map(({ written }): Finding => ({ rule: 'imperative', match: written.trim() }));
-  const german = lines(kept);
+  const german = germanLines ? lines(kept) : [];
   const germanImperatives = german
     .filter(({ read }) => hasGermanDirective(read) && namesAsset(read))
     .map(({ written }): Finding => ({ rule: 'imperative', match: written.trim() }));
