@@ -303,8 +303,9 @@ export function planExchangeImport(
 
   // The import never brings a tombstone back: a named monthly buy carries C's tombstoned estimates for its month that
   // one import of the whole file would keep live (plan-estimates.ts).
-  const left = [...live, ...entries].filter((other) => !gone.has(other.id));
-  const cancelled = paired.map((entry) => ({ entry, estimates: carried(entry, left, stored.entries) }));
+  const replacing = new Set(filled.replaced.flatMap((group) => group.estimates.map((each) => each.id)));
+  const left = [...live, ...entries].filter((other) => !gone.has(other.id) && !replacing.has(other.id));
+  const cancelled = paired.map((entry) => ({ entry, estimates: carried(entry, left, stored.entries, replacing) }));
 
   for (const row of file.leftOut)
     if (row.reason !== 'coin-withdrawal') leave(row.reason, row.lines, row.coin, row.units);

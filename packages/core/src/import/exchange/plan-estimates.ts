@@ -91,9 +91,14 @@ export function fillMonths(input: Input): { replaced: EstimateGroup[]; kept: (Es
  * among those named and in the largest: the line can then show where one import keeps no estimate live, or keeps live
  * one the person cleared. It errs only toward showing.
  */
-export function carried(entry: Entry, left: readonly Entry[], stored: readonly Entry[]): Entry[] {
+export function carried(
+  entry: Entry,
+  left: readonly Entry[],
+  stored: readonly Entry[],
+  replaced: ReadonlySet<EntityId>,
+): Entry[] {
   const same = (other: Entry) => other.kind === 'dca' && other.coin === entry.coin && other.slot === entry.slot;
-  const taps = tapsOf(stored).filter((tap) => tap.deletedAt !== null && same(tap));
+  const taps = tapsOf(stored).filter((tap) => (tap.deletedAt !== null || replaced.has(tap.id)) && same(tap));
   const rest = left.filter(same);
   if (entry.kind !== 'dca' || taps.length === 0 || rest.some((other) => other.source !== 'import-csv')) return [];
   const imported = sum(rest.map((each) => each.amount as Money));
