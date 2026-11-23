@@ -138,7 +138,9 @@ const thirty = krakenLedger([
 export const EstimatesKept: Story = {
   args: { shown: planOf(thirty, [...fixture.entries, ONE_TAP_OCTOBER]) },
   play: async ({ canvas }) => {
-    await expect(canvas.getByText(/^Keeps 1 estimate from Bought as planned/)).toBeVisible();
+    await expect(
+      canvas.getByText(/^Keeps 1 estimate from Bought as planned: the purchases imported for its coin and month /),
+    ).toBeVisible();
     await userEvent.click(canvas.getByRole('button', { name: 'Estimates it keeps (1)' }));
     await expect(canvas.getByRole('list', { name: 'Estimates it keeps (1)' })).toBeVisible();
   },

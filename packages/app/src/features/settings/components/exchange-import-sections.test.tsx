@@ -75,13 +75,15 @@ async function mount(
   plan = PLAN,
   exchange: ExchangeId = 'kraken',
   remedies?: ImportRemedies,
+  locale: 'en' | 'pt-PT' = 'en',
 ) {
-  const services = createTestServices({ snapshot: { ...fixture, plan } });
+  const language = locale === 'pt-PT' ? { language: locale } : {};
+  const services = createTestServices({ snapshot: { ...fixture, plan }, ...language });
   await act(() => services.start());
   const model = previewModel(shown, shown, remedies);
   render(
     <ServicesProvider services={services}>
-      <I18nProvider messages={{ settings }}>
+      <I18nProvider locale={locale} messages={{ settings: locale === 'pt-PT' ? settingsPt : settings }}>
         <ExchangeSummary model={model} plan={plan} />
         <ExchangeSections model={model} plan={plan} exchange={exchange} />
       </I18nProvider>
@@ -351,8 +353,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
     await mount(planOf(csv, [...fixture.entries, ONE_TAP_OCTOBER]));
     expect(texts()).toEqual([
       'Adds 1 entry: 1 monthly buy.',
-      'Keeps 1 estimate from Bought as planned: the purchases of the same coin imported for its month come to less ' +
-        'than half of it.',
+      'Keeps 1 estimate from Bought as planned: the purchases imported for its coin and month come to less than ' +
+        'half of it.',
     ]);
     expect(sections()).toEqual(['Monthly buys (1)', 'Estimates it keeps (1)']);
     expect(lines('Estimates it keeps (1)')).toEqual([
@@ -385,6 +387,36 @@ describe('ExchangeSummary and ExchangeSections', () => {
         'half the largest estimate.',
     );
     expect(sections()).toContain('Estimates it keeps (2)');
+  });
+
+  // CONTENT-STYLE §9: pt-PT names the coin and month as the English does, and the under-half item ends at the entry.
+  it('word the kept estimates and a claim under half in pt-PT, one coin and month each', async () => {
+    const kept = btcBuys([['K1', '2026-10-05 09:00:00', '30.0000', '0.0005000000', '0.0800']]);
+    await mount(planOf(kept, [...fixture.entries, ONE_TAP_OCTOBER]), PLAN, 'kraken', undefined, 'pt-PT');
+    expect(texts()).toContain(
+      'Mantém 1 estimativa de «Comprado como planeado»: as compras importadas da mesma moeda e do mesmo mês somam ' +
+        'menos de metade dela.',
+    );
+    cleanup();
+    const [first, second] = [
+      { ...ONE_TAP_OCTOBER, amount: '120' as Entry['amount'] },
+      { ...ONE_TAP_OCTOBER, id: 'aaaaaaaa-0000-4000-8000-000000000011' as EntityId, amount: '200' as Entry['amount'] },
+    ];
+    const sixty = btcBuys([['K1', '2026-10-05 09:00:00', '60.0000', '0.0006000000', '0.0000']]);
+    await mount(planOf(sixty, [...fixture.entries, first, second]), PLAN, 'kraken', undefined, 'pt-PT');
+    expect(texts()).toContain(
+      'Mantém 2 estimativas de «Comprado como planeado»: para cada moeda em cada mês, as compras importadas somam ' +
+        'menos de metade da maior estimativa.',
+    );
+    cleanup();
+    const under = btcBuys([['U1', '2026-10-05 09:00:00', '50.0000', '0.0008000000', '0.0000']]);
+    const entries = [...fixture.entries, typed120('2026-10-06')];
+    await mount(planOf(under, entries), PLAN, 'kraken', remediesOf(under, entries), 'pt-PT');
+    expect(lines('Movimentos correspondentes no Registo, não adicionados (1)')).toEqual([
+      'Os 0,0008 BTC por 50,00 € do ficheiro, a 5 de outubro de 2026, contam como registados: a compra mensal de ' +
+        'outubro de 2026 (0,0020 BTC em Bitvavo por 120,00 €). Esse movimento tem data no mesmo mês ou até 3 dias de ' +
+        'diferença, e 50,00 € é menos de metade do seu montante.',
+    ]);
   });
 
   // DOMAIN §3.13 step 2: a date's amount is all the file's purchases of the coin on it, so the dates claimed are not
