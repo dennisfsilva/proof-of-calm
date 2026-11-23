@@ -842,6 +842,14 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   tombstone from a hand delete by the import write's one `now`, but the Log's row edit
   (`saveTransaction`) also stamps the rows it keeps and the ones it drops with one `now`, so an
   estimate cleared from a Log row beside an imported buy passed as an import's (#431, 2026-11-23).
+- A sentence that states when a function acts is checked against how each of its inputs is built,
+  and against a property that draws every history the sentence names. 22o rewrote the cancelled
+  line's documents from `carried()`'s condition as the session's brief gave it, but `left` in
+  `packages/core/src/import/exchange/plan.ts` still holds the live estimates the same import
+  replaces. The documents named a line the code never shows, and a month whose later estimate this
+  import replaced stayed silent where one import keeps the earlier one live. The Trade Republic
+  property drew only estimates that start live, so neither state could fail it (#432, #435,
+  2026-11-23).
 
 ## Known gaps
 
