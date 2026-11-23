@@ -81,3 +81,19 @@ export function fillMonths(input: Input): { replaced: EstimateGroup[]; kept: (Es
   }
   return { replaced, kept };
 }
+
+/**
+ * Step 1's named monthly buy: C's tombstoned estimates for its month, when the monthly buys of C for it the Log keeps
+ * once this import adds its entries and the person deletes the named ones (`left` holds those of every month) are all
+ * exchange-imported and come to less than half the largest of them, none at all included: one import of the whole
+ * file keeps those estimates live.
+ */
+export function carried(entry: Entry, left: readonly Entry[], stored: readonly Entry[]): Entry[] {
+  const same = (other: Entry) => other.kind === 'dca' && other.coin === entry.coin && other.slot === entry.slot;
+  const taps = tapsOf(stored).filter((tap) => tap.deletedAt !== null && same(tap));
+  const rest = left.filter(same);
+  if (entry.kind !== 'dca' || taps.length === 0 || rest.some((other) => other.source !== 'import-csv')) return [];
+  const imported = sum(rest.map((each) => each.amount as Money));
+  const [first, ...more] = taps.map((each) => each.amount as Money) as [Money, ...Money[]];
+  return compare(plus(imported, imported), max(first, ...more)) < 0 ? taps : [];
+}
