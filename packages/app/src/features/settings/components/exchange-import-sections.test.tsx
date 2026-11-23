@@ -428,8 +428,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
     await mount(shown);
     expect(lines('Left out (2)')[1]).toBe(
       '0,005 BTC sold for 400,00 € on 10 Apr 2026, not imported. It is dated on or before 20 Apr 2026, 15 days after ' +
-        'your first buy day. By 10 Apr 2026, the purchases this file imports and your own entries, monthly estimates ' +
-        'from Bought as planned aside, hold less BTC than it sells.',
+        'your first buy day. On 10 Apr 2026, it sells more BTC than the purchases this file imports and your own ' +
+        'entries hold. Monthly estimates from Bought as planned do not count.',
     );
   });
 
@@ -442,8 +442,8 @@ describe('ExchangeSummary and ExchangeSections', () => {
     await mount(planOf(csv, [...fixture.entries, held]));
     expect(lines('Left out (1)')).toEqual([
       '0,023 BTC sold for 1500,00 € on 12 Oct 2026, not imported. It is dated on or before your Coins added entry of ' +
-        '0,020 BTC on 13 Oct 2026. By 12 Oct 2026, the purchases this file imports and your own entries, monthly ' +
-        'estimates from Bought as planned aside, hold less BTC than it sells.',
+        '0,020 BTC on 13 Oct 2026. On 12 Oct 2026, it sells more BTC than the purchases this file imports and your ' +
+        'own entries hold. Monthly estimates from Bought as planned do not count.',
     ]);
   });
 
