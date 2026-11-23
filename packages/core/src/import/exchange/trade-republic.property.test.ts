@@ -18,6 +18,7 @@ const RUNS = { numRuns: 100 };
 // The cancellation property plans two imports over the reader, over live one-tap estimates, so it runs 300 times with
 // a 60 s timeout. Measured again on 2026-11-14 under the whole core suite with coverage, seeds 1 to 8: the worst was
 // 0.53 s (seed 4); six times it, 3.2 s, stays under a third of the timeout (20 s). The reader's own properties took at most 0.15 s there.
+// Measured again on 2026-11-23, with taps of 70 and 250, seeds 1 to 8: the worst was 0.69 s (seed 8); six times it, 4.1 s.
 const TWICE = { numRuns: 300 };
 const TIMEOUT = 60_000;
 
