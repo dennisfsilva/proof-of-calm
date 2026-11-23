@@ -244,6 +244,22 @@ visible rather than impossible:
 There is no model job in CI (ADR-0037 Deviations), so no model credential goes into GitHub. The run
 costs the owner's Claude subscription and the owner's time; there is no API cost.
 
+Decided on 2026-11-23, on the owner's delegation of 2026-11-18 (not the owner's own review or
+signature):
+
+- No session starts `/review-content`: the skill sets `disable-model-invocation`, and the run and
+  its merge are the owner's (§1). The first real run is `/review-content IE`.
+- The skill's `allowed-tools` gain no rule for `node tools/content-review/pdf.ts` and none for the
+  translations: in the default permission mode each PDF fetch and each edit of a translation asks,
+  and that question is the owner's look at the URL or at the translated figure. The three
+  translation rules, should the owner want them later, are
+  `Edit(/packages/content/i18n/*/jurisdictions/*.json)`,
+  `Edit(/packages/content/i18n/*/templates/*.json)` and
+  `Edit(/packages/content/i18n/*/facts/*.json)`, added with the pinned list in
+  `tools/content-review/propose.test.ts` in the same change; they would open the prose of every JSON
+  overlay to edits that ask nothing. Looked at again after the first review that changes a
+  translation.
+
 ## 4. Pull request template
 
 `.github/PULL_REQUEST_TEMPLATE/content-review.md` owns the body's headings and the owner's checklist;
