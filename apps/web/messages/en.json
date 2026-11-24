@@ -17,11 +17,11 @@
       "nif": "[Owner: NIF or NIPC]",
       "privacyEmail": "[Owner: privacy e-mail]",
       "dsaEmail": "[Owner: DSA contact e-mail]",
-      "mailHost": "[Owner: mail host, its country, its transfer safeguard, and how long it keeps its mail logs]",
-      "date": "[Owner: date of publication]",
-      "vat": "[Owner: VAT number, or empty while no activity is opened]",
-      "register": "[Owner: commercial register and number, or empty while no activity is opened]",
-      "manager": "[Owner: manager, or empty while no activity is opened]"
+      "mailHost": "[Owner: the mail host as one phrase: Name, in Country, under Safeguard (or inside the EU), which keeps its mail logs for N days]",
+      "date": "[Owner: date of publication, as 1\u00a0Dec\u00a02026]",
+      "vat": "[Owner: VAT number, or leave it as \"\" until you open an activity (início de atividade)]",
+      "register": "[Owner: commercial register and number, or leave it as \"\" until you open an activity (início de atividade)]",
+      "manager": "[Owner: manager, or leave it as \"\" until you open an activity (início de atividade)]"
     },
     "version": "Version 1, {date}.",
     "terms": {
@@ -88,7 +88,7 @@
       },
       "device": {
         "title": "What stays on your device",
-        "p1": "{product} has no accounts. Your plan, your entries, and your settings stay in your browser on this device. {product}'s server sees only the coin and currency each price request names.",
+        "p1": "{product} has no accounts. Your plan, your entries, and your settings stay in your browser on this device. Each price request names only a coin and a currency; the Hosting section says what else reaches the host.",
         "p2": "{product} never offers you an investment and never asks for your seed phrase, a private key, an exchange's API key or login, or for coins or money to buy them."
       },
       "requests": {
@@ -99,7 +99,7 @@
       "hosting": {
         "title": "Hosting: Vercel",
         "notice": "Vercel's privacy notice",
-        "p1": "Vercel Inc., in the United States, hosts the site and the server, whose functions run in Frankfurt. It receives each request your browser sends, with its internet address and browser name. Vercel keeps the host's runtime logs for up to 1 day. Anything else Vercel keeps follows its own privacy notice.",
+        "p1": "Vercel Inc., in the United States, hosts the site and the server, whose functions run in Frankfurt. It receives each request your browser sends, with its internet address and browser name. Vercel keeps its runtime logs for up to 1 day. Vercel's own privacy notice, linked below, covers anything else it keeps.",
         "p2": "Vercel reads the country of each request, so visitors in the United Kingdom see the page that says {product} is not available there.",
         "p3": "Data reaches Vercel in the United States under the EU-U.S. Data Privacy Framework and the EU's standard contractual clauses. The legal basis is {product}'s legitimate interest in serving the site and protecting it from abuse (GDPR art. 6(1)(f))."
       },
@@ -109,7 +109,7 @@
       },
       "mail": {
         "title": "E-mail",
-        "p1": "If you write to {product}, its mail host, {mailHost}, keeps your e-mail address and your messages for 24 months after the last one, to answer follow-up questions (GDPR art. 6(1)(b) and (f))."
+        "p1": "If you write to {product}, its mail host keeps your e-mail address and your messages for 24 months after the last one, to answer follow-up questions (GDPR art. 6(1)(b) and (f)). The mail host is {mailHost}."
       },
       "rights": {
         "title": "Your rights",
