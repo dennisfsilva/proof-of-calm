@@ -104,27 +104,27 @@
     "XX": "Länderprofile ansehen"
   },
   "plan.earlyWindow.notice": {
-    "DE": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist für Deutschland. Sie können auch diese Änderung abbrechen und unter „Frist &\u00a0Verkauf“ ein späteres Öffnungsdatum wählen.",
-    "ES": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist für Spanien. Sie können auch diese Änderung abbrechen und unter „Frist &\u00a0Verkauf“ ein späteres Öffnungsdatum wählen.",
-    "FR": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist für Frankreich. Sie können auch diese Änderung abbrechen und unter „Frist &\u00a0Verkauf“ ein späteres Öffnungsdatum wählen.",
-    "GB": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist für das Vereinigte Königreich. Sie können auch diese Änderung abbrechen und unter „Frist &\u00a0Verkauf“ ein späteres Öffnungsdatum wählen.",
-    "IE": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist für Irland. Sie können auch diese Änderung abbrechen und unter „Frist &\u00a0Verkauf“ ein späteres Öffnungsdatum wählen.",
-    "IT": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist für Italien. Sie können auch diese Änderung abbrechen und unter „Frist &\u00a0Verkauf“ ein späteres Öffnungsdatum wählen.",
-    "NL": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist für die Niederlande. Sie können auch diese Änderung abbrechen und unter „Frist &\u00a0Verkauf“ ein späteres Öffnungsdatum wählen.",
-    "PT": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist für Portugal. Sie können auch diese Änderung abbrechen und unter „Frist &\u00a0Verkauf“ ein späteres Öffnungsdatum wählen.",
-    "US": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist für die USA. Sie können auch diese Änderung abbrechen und unter „Frist &\u00a0Verkauf“ ein späteres Öffnungsdatum wählen.",
-    "XX": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist des allgemeinen Profils. Sie können auch diese Änderung abbrechen und unter „Frist &\u00a0Verkauf“ ein späteres Öffnungsdatum wählen."
+    "DE": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist für Deutschland. Sie können auch diese Änderung abbrechen und unter „Frist\u00a0& Verkauf“ ein späteres Öffnungsdatum wählen.",
+    "ES": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist für Spanien. Sie können auch diese Änderung abbrechen und unter „Frist\u00a0& Verkauf“ ein späteres Öffnungsdatum wählen.",
+    "FR": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist für Frankreich. Sie können auch diese Änderung abbrechen und unter „Frist\u00a0& Verkauf“ ein späteres Öffnungsdatum wählen.",
+    "GB": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist für das Vereinigte Königreich. Sie können auch diese Änderung abbrechen und unter „Frist\u00a0& Verkauf“ ein späteres Öffnungsdatum wählen.",
+    "IE": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist für Irland. Sie können auch diese Änderung abbrechen und unter „Frist\u00a0& Verkauf“ ein späteres Öffnungsdatum wählen.",
+    "IT": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist für Italien. Sie können auch diese Änderung abbrechen und unter „Frist\u00a0& Verkauf“ ein späteres Öffnungsdatum wählen.",
+    "NL": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist für die Niederlande. Sie können auch diese Änderung abbrechen und unter „Frist\u00a0& Verkauf“ ein späteres Öffnungsdatum wählen.",
+    "PT": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist für Portugal. Sie können auch diese Änderung abbrechen und unter „Frist\u00a0& Verkauf“ ein späteres Öffnungsdatum wählen.",
+    "US": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist für die USA. Sie können auch diese Änderung abbrechen und unter „Frist\u00a0& Verkauf“ ein späteres Öffnungsdatum wählen.",
+    "XX": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist des allgemeinen Profils. Sie können auch diese Änderung abbrechen und unter „Frist\u00a0& Verkauf“ ein späteres Öffnungsdatum wählen."
   },
   "plan.holdingRule.country": {
-    "DE": "Die Haltefrist für Deutschland",
-    "ES": "Die Haltefrist für Spanien",
-    "FR": "Die Haltefrist für Frankreich",
-    "GB": "Die Haltefrist für das Vereinigte Königreich",
-    "IE": "Die Haltefrist für Irland",
-    "IT": "Die Haltefrist für Italien",
-    "NL": "Die Haltefrist für die Niederlande",
-    "PT": "Die Haltefrist für Portugal",
-    "US": "Die Haltefrist für die USA",
-    "XX": "Die Haltefrist des allgemeinen Profils"
+    "DE": "Die Regel für Deutschland",
+    "ES": "Die Regel für Spanien",
+    "FR": "Die Regel für Frankreich",
+    "GB": "Die Regel für das Vereinigte Königreich",
+    "IE": "Die Regel für Irland",
+    "IT": "Die Regel für Italien",
+    "NL": "Die Regel für die Niederlande",
+    "PT": "Die Regel für Portugal",
+    "US": "Die Regel für die USA",
+    "XX": "Die Regel des allgemeinen Profils"
   }
 }
