@@ -177,7 +177,7 @@ describe('the country names in prose', () => {
     const de = articleNames(forms('de'));
     expect(
       findings(
-        'Steuern im Usage, im Usability-Test, beim USAmerikaner, zum USA‑Profil, zum USA-Profil; in Usage, mit USAmerikanern, für Niederländer.',
+        'Steuern im Usage, im Usability-Test, beim USAmerikaner, beim Usambaraveilchen, zum USA‑Profil, zum USA-Profil; in Usage, mit USAmerikanern, für Niederländer.',
         'de',
         de,
       ),
