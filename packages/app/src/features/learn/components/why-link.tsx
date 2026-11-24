@@ -16,10 +16,10 @@ export type WhyLinkProps = {
   readonly standalone?: boolean;
 };
 
-// The sheet and its messages load on the first press, so a screen with a link carries no module text or
-// metadata (ADR-0048 Deviations); declared at module level, as `lazy` requires.
+// The sheet and its messages, the country card's forms among them, load on the first press, so a screen with a
+// link carries no module text or metadata (ADR-0048 Deviations); declared at module level, as `lazy` requires.
 const ModuleSheet = lazy(async () => {
-  const [sheet] = await Promise.all([import('./module-sheet'), loadNamespace('learn')]);
+  const [sheet] = await Promise.all([import('./module-sheet'), loadNamespace('learn'), loadNamespace('countries')]);
   return { default: sheet.ModuleSheet };
 });
 

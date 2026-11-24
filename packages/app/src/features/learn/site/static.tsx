@@ -3,14 +3,16 @@ import { createContext, type ReactNode, useContext, useMemo } from 'react';
 import { IntlProvider } from 'use-intl';
 import { createFormatters, type Formatters } from '../../../lib/format';
 import { localesFor } from '../../../lib/i18n';
+import countries from '../../../messages/en/countries.json';
 import learn from '../../../messages/en/learn.json';
 import shell from '../../../messages/en/shell.json';
 
 // What the static Learn pages render in (ADR-0048 Deviations of 2026-11-15): English, as the app's `I18nProvider` sets
 // it, and the formatters of no country, since a public page belongs to no plan. No services, no router and no clock:
-// the web host's prerender passes the day the pages are read at. Of `shell`, only the country cards' date line.
+// the web host's prerender passes the day the pages are read at. Of `shell`, only the country cards' date line; the
+// country forms (`countries`) for the cards' headings.
 
-const MESSAGES = { learn, shell: { countryLine: shell.countryLine } };
+const MESSAGES = { countries, learn, shell: { countryLine: shell.countryLine } };
 
 /** The site's paths; `apps/web` owns the values, so these pages link with plain anchors and no router. */
 export type SiteLinks = {

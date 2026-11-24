@@ -22,7 +22,10 @@ const ReviewScreen = lazyScreen('plan', () => import('../plan').then((m) => ({ d
 const SettingsScreen = lazyScreen('settings', () =>
   Promise.all([import('../settings'), loadNamespace('plan')]).then(([m]) => ({ default: m.SettingsScreen })),
 );
-const LearnScreen = lazyScreen('learn', loadLearnScreen);
+// The country cards name their country through its forms: the `countries` messages load with the screen.
+const LearnScreen = lazyScreen('learn', () =>
+  Promise.all([loadLearnScreen(), loadNamespace('countries')]).then(([m]) => m),
+);
 // Onboarding's numbers step shows the plan feature's early-window notice: its messages load with the screen.
 const OnboardingScreen = lazyScreen('onboarding', () =>
   Promise.all([import('../onboarding'), loadNamespace('plan')]).then(([m]) => ({ default: m.OnboardingScreen })),
