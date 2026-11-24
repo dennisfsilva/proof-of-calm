@@ -171,7 +171,7 @@ describe('the Cookie-free statement (docs/LEGAL.md §5)', () => {
     // Production offers one language and stores none, so the statement names it only where there is a choice.
     expect(stored).toContain('the language, where the app offers a choice');
     expect(page).toContain('until the tab closes');
-    expect(page).toContain('Delete everything in Settings clears these too.');
+    expect(page).toContain('Delete everything in Settings clears it too.');
   });
 
   it('lists what the browser keeps in order, with what lasts only for the tab last', () => {
@@ -180,7 +180,7 @@ describe('the Cookie-free statement (docs/LEGAL.md §5)', () => {
       'Your browser keeps your plan',
       'Your browser also keeps your display settings',
       'Your browser keeps a record of the entries you deleted',
-      'It keeps a random identifier for this device',
+      'Your browser keeps any stored data that failed its check',
       'Your browser keeps form drafts until the tab closes',
     ];
     expect(paragraphs.slice(-starts.length).map((p) => p.slice(3, 3 + 60))).toEqual(
@@ -204,8 +204,6 @@ describe('the Cookie-free statement (docs/LEGAL.md §5)', () => {
       'so that import cannot bring the entries back either',
     ],
     ['These records stay', "until you choose Delete everything in Settings or clear this site's data in your browser"],
-    ['a random identifier for this device', 'so your changes apply in the order you made them'],
-    ['It does not leave this browser', 'no request and no backup carries it'],
     [
       'any stored data that failed its check when read',
       'set aside instead of deleted, so a failed check erases nothing',
@@ -225,5 +223,12 @@ describe('the Cookie-free statement (docs/LEGAL.md §5)', () => {
     const page = main('cookies');
     expect(page).not.toContain('a copy of each change');
     expect(page).not.toContain('syncing between devices');
+  });
+
+  // Every row carries one fixed id until M3's sync, the same in every browser (ADR-0019 Readings, 2026-11-24).
+  it('names no device identifier', () => {
+    const page = main('cookies');
+    expect(page).not.toContain('identifier');
+    expect(page).not.toContain('the order you made them');
   });
 });
