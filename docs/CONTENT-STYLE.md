@@ -1009,14 +1009,17 @@ needs (decided 2026-11-15). The native reader's review is §8 item 9.
   dias»). A tax name that a string shows the lint refusing goes on the allow-list with its reason
   (§2).
 - **Lists take no comma before `e`**, as `lib/format` writes them: `BTC, ETH e SOL`.
-- **A country in a sentence takes its form** (`packages/app/src/lib/countries/messages/pt-PT.json`), never
-  `{country}` after a preposition or an article. Each form carries its preposition and article, contracted:
-  `{countryFor}` and `{countryFrom}` take `de` (`dos Países Baixos`, `do Reino Unido`, `da Alemanha`, `de
-  Portugal`), `{countryIn}` takes `em` (`nos Estados Unidos`, `em Portugal`), `{countryTo}` `para`, `{countryWith}`
-  `com`, and `{countryThe}` is the name with its article as an object (`sugere a França`). Espanha, França and Itália take no article after a
-  preposition (`em França`, `de Espanha`, `para Itália`) and take it as an object; the native reader confirms it
-  (§8 item 9). A bare `{country}` stands only after a colon, a middle dot or in parentheses (`País do plano: Países
-  Baixos.`). The general profile is `o perfil geral`.
+- **A country in a sentence takes its form**
+  (`packages/app/src/lib/countries/messages/pt-PT.json`), never `{country}` after a preposition or
+  an article. Each form carries its preposition and article, contracted where Portuguese contracts
+  them (`do`, `na`, `nos`): `{countryFor}` and `{countryFrom}` take `de` (`dos Países Baixos`,
+  `do Reino Unido`, `da Alemanha`, `de Portugal`), `{countryIn}` takes `em` (`nos Estados Unidos`,
+  `em Portugal`), `{countryTo}` `para`, `{countryWith}` `com`, and `{countryThe}` is the name with
+  its article as an object (`sugere a França`; Portugal takes none: `sugere Portugal`). Espanha,
+  França and Itália take no article after a preposition (`em França`, `de Espanha`, `para Itália`)
+  and take it as an object; the native reader confirms it (§8 item 9). A bare `{country}` stands
+  only after a colon, a middle dot or in parentheses (`País do plano: Países Baixos.`). The general
+  profile is `o perfil geral`.
 - **A module's chart section takes pt-PT's two shapes of §4 R5** (decided 2026-11-17): B,
   `No gráfico, C teve K quedas de mais de N entre Y e Y.` with `1 queda` for one, and E, `C caiu L.` or
   `C caiu L`, then any number of `, C L`, then ` e C L.`, with no comma before `e`; `L` is `N`, `N e N`, or two or
