@@ -39,25 +39,46 @@ const capitalisable = (word: string) => `[${word[0]}${word[0]?.toUpperCase()}]${
 const words = (list: readonly string[]) => list.map(capitalisable).join('|');
 
 /**
- * Each wrong form in `text`, as it reads there. The names keep their own case and end at a letter boundary, so `in
- * Usage` and `beim USAmerikaner` are not `in USA` and `beim USA`; only a preposition's or article's first letter is
- * case-free (`Im Vereinigtes`).
+ * The case endings each German name takes before the letter boundary, so a writer who drops the article still meets
+ * the check with the inflected name (`in Niederlanden`, `im Niederlanden`; right: `in den Niederlanden`): the dative
+ * plural `-n` of Niederlande, the genitive `-s` or `-es` of Königreich, none for the abbreviation USA. A name the
+ * forms files add fails the first test until it has its row here. pt-PT has no such table: its names (Alemanha, Reino
+ * Unido, Irlanda, Países Baixos, Estados Unidos) take no case ending, so they end at the boundary as written.
+ */
+const ENDINGS: Readonly<Record<string, string>> = {
+  'Vereinigtes Königreich': '(?:e?s)?',
+  Niederlande: 'n?',
+  USA: '',
+};
+
+/** A German name with its case endings; the fused pattern reads only the first word of a longer name. */
+const inflected = (name: string) => `${literal(name)}${ENDINGS[name] ?? ''}`;
+
+/**
+ * Each wrong form in `text`, as it reads there. The names keep their own case and end at a letter boundary after
+ * their case endings, so `in Usage` and `beim USAmerikaner` are not `in USA` and `beim USA`; only a preposition's or
+ * article's first letter is case-free (`Im Vereinigtes`).
  */
 function findings(text: string, locale: Locale, names: readonly string[]): string[] {
+  const name = locale === 'de' ? inflected : literal;
   const bare = new RegExp(
-    `(?<!\\p{L})(?:${words(PREPOSITIONS[locale])})\\s+(?:${names.map(literal).join('|')})(?!\\p{L})`,
+    `(?<!\\p{L})(?:${words(PREPOSITIONS[locale])})\\s+(?:${names.map(name).join('|')})(?!\\p{L})`,
     'gu',
   );
   const found = [...text.matchAll(bare)].map(([match]) => match);
   if (locale === 'de') {
+    // `Vereinigtes` takes no ending here: its inflected forms (`Vereinigten`, `Vereinigtem`) are other words, and
+    // `des Vereinigten Königreichs` is right.
     const article = new RegExp(`(?<!\\p{L})(?:${words(['das', 'dem', 'des', 'die'])})\\s+Vereinigtes(?!\\p{L})`, 'gu');
     found.push(...[...text.matchAll(article)].map(([match]) => match));
     // A singular article fused into the preposition fits none of these names: `Vereinigtes` wants the dative's
-    // `Vereinigten` after it, and the plural names take `den`. A hyphen joins the name to a noun (`zum USA-Profil`),
+    // `Vereinigten` after it, and the plural names take `den`. A one-word name keeps its endings (`im Niederlanden`);
+    // the first word of a longer one takes none, as above. A hyphen joins the name to a noun (`zum USA-Profil`),
     // U+002D or the no-break hyphen U+2011 (§10 keeps it for numeral compounds); the en dash U+2013 does not, since
     // right after a name it is a range or a Gedankenstrich, so `zum USA–Profil` stays refused.
+    const first = (each: string) => (each.includes(' ') ? literal(each.split(' ')[0] ?? '') : inflected(each));
     const fused = new RegExp(
-      `(?<!\\p{L})(?:${words(FUSED)})\\s+(?:${names.map((name) => literal(name.split(' ')[0] ?? '')).join('|')})(?![\\p{L}\\u002D\\u2011])`,
+      `(?<!\\p{L})(?:${words(FUSED)})\\s+(?:${names.map(first).join('|')})(?![\\p{L}\\u002D\\u2011])`,
       'gu',
     );
     found.push(...[...text.matchAll(fused)].map(([match]) => match));
@@ -104,6 +125,7 @@ describe('the country names in prose', () => {
       'Estados Unidos',
     ]);
     expect(articleNames(forms('de'))).toEqual(['Vereinigtes Königreich', 'Niederlande', 'USA']);
+    expect(Object.keys(ENDINGS)).toEqual(articleNames(forms('de')));
   });
 
   it('catch a bare preposition before such a name, and German Vereinigtes after an article', () => {
