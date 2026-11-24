@@ -2,8 +2,10 @@ import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { anEntry, aPlan, date, money, month } from '../../../test/builders';
 import { fileOf, heldGuards, startingGuards, type World, world } from '../../../test/exchange/plan-arbitraries';
+import { coverCut, excepted, withoutExcepted } from '../../../test/exchange/plan-cover';
 import { LISBON, NOW, testId, trade } from '../../../test/exchange/plan-fixture';
 import { partOf, preCut } from '../../../test/exchange/plan-late';
+import { WINDOW_93 } from '../../../test/exchange/plan-seeds';
 import { addDays, type CalendarDate, clampDay, daysBetween } from '../../dates/calendar';
 import { abs, compare, type Money, minus, plus, product, sum } from '../../money/decimal';
 import type { Entry } from '../../schema/entry';
@@ -11,9 +13,10 @@ import type { ExchangeFile, Movement } from './kraken';
 import { type ExchangeImportPlan, leftOutBefore, planExchangeImport } from './plan';
 
 // Steps 2 to 6 of the exchange import's plan (docs/DOMAIN.md §3.13) over generated files and Logs: any window
-// of a file's rows, stored before the whole file, leaves the Log one import leaves, field by field; no purchase step 3
-// or step 4 leaves out is stored, in one import or two; two exchanges' files leave one Log in either order once each is
-// chosen again after the other; and no purchase a hand monthly buy claims in one import is stored in two.
+// of a file's rows, stored before or after the whole file, leaves the Log one import leaves, field by field, but for
+// the sales `coverCut` excepts (plan-cover.ts); no purchase step 3 or step 4 leaves out is stored, in one import or
+// two; two exchanges' files leave one Log in either order once each is chosen again after the other; and no purchase
+// a hand monthly buy claims in one import is stored in two.
 
 /** What the write does with a plan: tombstones the estimates it replaces and adds its entries. */
 function store(entries: readonly Entry[], plan: ExchangeImportPlan): Entry[] {
@@ -75,20 +78,31 @@ const LUMP_TIMEOUT = 120_000;
 
 describe('planExchangeImport, by windows and by exchanges', () => {
   it(
-    'a window of the file, stored, then the whole file leaves the Log one import leaves, and a third import adds nothing',
+    'a window of the file, stored before or after the whole file, leaves the Log one import leaves but for the sales step 5 excepts, and a third import adds nothing',
     () => {
+      excepted.worlds = 0;
       fc.assert(
         fc.property(world, windowOf, (drawn, window) => {
-          preCut(drawn, cut(drawn.file, window).movements);
-          const once = store(drawn.entries, run(drawn, drawn.entries, drawn.file));
-          const first = store(drawn.entries, run(drawn, drawn.entries, cut(drawn.file, window)));
+          const part = cut(drawn.file, window);
+          preCut(drawn, part.movements);
+          const oncePlan = run(drawn, drawn.entries, drawn.file);
+          const once = store(drawn.entries, oncePlan);
+          const firstPlan = run(drawn, drawn.entries, part);
+          const first = store(drawn.entries, firstPlan);
           const twice = store(first, run(drawn, first, drawn.file));
-          expect(seen(twice)).toEqual(seen(once));
+          expect(seen(withoutExcepted(twice, coverCut(drawn.entries, drawn.file, firstPlan, oncePlan)))).toEqual(
+            seen(once),
+          );
           const third = run(drawn, twice, drawn.file);
           expect([third.entries, third.replaced]).toEqual([[], []]);
+          // The window after the whole file stores nothing but the sales `coverCut` excepts (plan-cover.ts).
+          const back = run(drawn, once, part);
+          const backOut = coverCut(drawn.entries, drawn.file, back, oncePlan);
+          expect([back.entries.filter((entry) => !backOut.has(entry.id)), back.replaced]).toEqual([[], []]);
         }),
-        RUNS,
+        { ...RUNS, examples: [WINDOW_93] },
       );
+      expect(excepted.worlds).toBeLessThan(RUNS.numRuns / 10);
     },
     TIMEOUT,
   );

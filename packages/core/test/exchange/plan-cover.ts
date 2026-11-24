@@ -15,8 +15,10 @@ const COVERS: ReadonlySet<Entry['kind']> = new Set(['dca', 'extra', 'lump', 'hel
  * range): the sales `shorter` stores that one import of the whole `file` leaves out (`whole.uncovered`), each because
  * its cover counts another import's live entry of its coin in `entries`, the Log before both, dated on or after the
  * whole file's F (its coin's earliest purchase or receipt steps 3 and 4 leave out) and on or before the sale, which
- * the shorter export counts because it leaves out none of that coin's purchases before the entry. Seed 13's first
- * world is pinned in plan-sales.test.ts ("a prefix that holds none of the left-out purchases").
+ * the shorter export counts because it leaves out none of that coin's purchases or receipts dated on or before the
+ * entry: it holds none of the whole file's left-out purchases so dated, or only ones step 2 claims there. The window
+ * property excepts it in either order (`WINDOW_93`). Seed 13's first world is pinned in plan-sales.test.ts ("a prefix
+ * that holds none of the left-out purchases").
  */
 export function coverCut(
   entries: readonly Entry[],
