@@ -125,7 +125,7 @@
     "NL": "Changing to the Netherlands:",
     "PT": "Changing to Portugal:",
     "US": "Changing to the United States:",
-    "XX": "Changing to the general profile:"
+    "XX": "Changing country:"
   },
   "settings.country.row.country": {
     "PT-DE": "Country now: Portugal. After the change: Germany.",
@@ -197,7 +197,7 @@
     "NL": "Change country to the Netherlands",
     "PT": "Change country to Portugal",
     "US": "Change country to the United States",
-    "XX": "Change country to the general profile"
+    "XX": "Use the general profile"
   },
   "settings.country.changed": {
     "DE": "Country changed to Germany.",
@@ -209,7 +209,7 @@
     "NL": "Country changed to the Netherlands.",
     "PT": "Country changed to Portugal.",
     "US": "Country changed to the United States.",
-    "XX": "Country changed to the general profile."
+    "XX": "Country changed. The general profile now applies."
   },
   "settings.country.alreadyChanged": {
     "DE": "Your plan was changed to Germany in another browser tab.",
@@ -221,7 +221,7 @@
     "NL": "Your plan was changed to the Netherlands in another browser tab.",
     "PT": "Your plan was changed to Portugal in another browser tab.",
     "US": "Your plan was changed to the United States in another browser tab.",
-    "XX": "Your plan was changed to the general profile in another browser tab."
+    "XX": "Your plan's country was changed in another browser tab. The general profile now applies."
   },
   "settings.data.taxYear.file.title": {
     "DE": "Proof of Calm tax-year file · Germany · 2026-01-01 to 2026-12-31",

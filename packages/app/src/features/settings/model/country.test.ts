@@ -5,7 +5,7 @@ import { FIXTURE_RULES, fixturePlan } from '@proofofcalm/core/testing/country-ch
 import { describe, expect, it } from 'vitest';
 import { createFormatters } from '../../../lib/format';
 import { earlyOpenOf, holdingCountryOf, sellWindowValueOf } from '../../plan';
-import { countryOptions, countrySummary, ruleWordsOf } from './country';
+import { changeKindOf, countryOptions, countrySummary, ruleWordsOf } from './country';
 
 // The core's country-change fixture holds three countries' rules as literals, so a content review changes none of
 // them (docs/ENGINEERING.md §2): this test checks that the fields no source states equal the live profiles'.
@@ -144,5 +144,12 @@ describe('ruleWordsOf', () => {
   it("gives the general profile's own text in place of its rule", async () => {
     const xx = holdingCountryOf(FIXTURE_RULES.XX, '17 Oct 2026', await loadProfile('XX'), TODAY);
     expect(ruleWordsOf(xx, { key: 'none', values: {} })).toEqual({ text: xx.unreviewed?.text });
+  });
+});
+
+describe('changeKindOf', () => {
+  it('words the general profile as the rule set that applies, every other code as a country', () => {
+    expect(changeKindOf('XX')).toBe('generic');
+    expect(changeKindOf('NL')).toBe('country');
   });
 });

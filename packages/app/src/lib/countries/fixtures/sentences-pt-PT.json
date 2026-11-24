@@ -125,7 +125,7 @@
     "NL": "Ao mudar para os Países Baixos:",
     "PT": "Ao mudar para Portugal:",
     "US": "Ao mudar para os Estados Unidos:",
-    "XX": "Ao mudar para o perfil geral:"
+    "XX": "Ao mudar de país:"
   },
   "settings.country.row.country": {
     "PT-DE": "País atual: Portugal. Depois da alteração: Alemanha.",
@@ -197,7 +197,7 @@
     "NL": "Mudar o país para os Países Baixos",
     "PT": "Mudar o país para Portugal",
     "US": "Mudar o país para os Estados Unidos",
-    "XX": "Mudar o país para o perfil geral"
+    "XX": "Usar o perfil geral"
   },
   "settings.country.changed": {
     "DE": "País alterado para a Alemanha.",
@@ -209,7 +209,7 @@
     "NL": "País alterado para os Países Baixos.",
     "PT": "País alterado para Portugal.",
     "US": "País alterado para os Estados Unidos.",
-    "XX": "País alterado para o perfil geral."
+    "XX": "País alterado. Aplica-se agora o perfil geral."
   },
   "settings.country.alreadyChanged": {
     "DE": "O país do plano foi alterado para a Alemanha noutro separador do navegador.",
@@ -221,7 +221,7 @@
     "NL": "O país do plano foi alterado para os Países Baixos noutro separador do navegador.",
     "PT": "O país do plano foi alterado para Portugal noutro separador do navegador.",
     "US": "O país do plano foi alterado para os Estados Unidos noutro separador do navegador.",
-    "XX": "O país do plano foi alterado para o perfil geral noutro separador do navegador."
+    "XX": "O país do plano foi alterado noutro separador do navegador. Aplica-se agora o perfil geral."
   },
   "settings.data.taxYear.file.title": {
     "DE": "Ficheiro do ano fiscal da Proof of Calm · Alemanha · 2026-01-01 a 2026-12-31",
