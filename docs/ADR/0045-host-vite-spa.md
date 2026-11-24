@@ -1570,3 +1570,15 @@ The decision stands; German gets its own message files, wired as pt-PT's were on
   `packages/app/src/lib/i18n/locales.test.ts` holds them whole in German as in pt-PT while both stay
   hidden (#419); every other German namespace may be partial, its untranslated keys filled from
   English.
+
+## Deviations recorded on 2026-11-24
+
+The decision stands; the four legal pages are drafts now, not placeholders, and stay English in pt-PT.
+
+- **2026-11-24, the drafted legal pages in pt-PT** (§6; the entry of 2026-11-18 on site messages per
+  language). Besides the four pages' objects, `legal.owner` (the identity fields the owner fills in)
+  and `legal.version` stay English in pt-PT (`apps/web/src/site/site-language.test.ts`). pt-PT shows
+  the four English drafts, so its `legal.placeholder` is gone. The `lang="en"` marking goes element
+  by element through `englishLang` (`apps/web/lib/site-messages.ts`), so a part pt-PT translates
+  inside an English section carries `lang="pt-PT"`: Terms' link to the Risk page, whose title is
+  translated.
