@@ -96,7 +96,7 @@ const NEEDED: string[] = [
   'Steuerfrei ab {date}',
   'Warum? Der erste steuerfreie Tag',
   'Letzter Kauf: erster steuerfreier Tag',
-  'Proof of Calm ist bei keiner Finanzaufsicht registriert und unterliegt nicht deren Aufsicht; kein System für die Entschädigung der Anleger und kein Einlagensicherungssystem deckt Kryptowerte ab.',
+  'Proof of Calm ist bei keiner Finanzaufsicht registriert und unterliegt keiner Aufsicht; kein System für die Entschädigung der Anleger und kein Einlagensicherungssystem deckt Kryptowerte ab.',
   'Keine Tätigkeit, die der behördlichen Zulassung bedarf; keine Aufsichtsbehörde.',
   'Anbieter von Kryptowerte-Dienstleistungen, die in der EU tätig sind.',
   'ESMA führt ein öffentliches Register der nach MiCA zugelassenen Anbieter.',

@@ -1083,7 +1083,7 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
   Kryptowert kann seinen Wert ganz oder teilweise verlieren.“; (e) and (f), the `Systeme für die
   Entschädigung der Anleger` and the `Einlagensicherungssysteme`, in the German text of
   `docs/LEGAL.md` §5's statement on status, which opens
-  `Proof of Calm ist bei keiner Finanzaufsicht registriert und unterliegt nicht deren Aufsicht`;
+  `Proof of Calm ist bei keiner Finanzaufsicht registriert und unterliegt keiner Aufsicht`;
   the ESAs' warning of 2022-03-17 in its German version. "Not advice" reads `keine Beratung`, "no financial or tax advice" `keine
   Anlage- oder Steuerberatung`. The plan-creation text stays English until counsel approves a German
   one (`docs/LEGAL.md` §4).
