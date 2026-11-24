@@ -4,6 +4,7 @@ import type { CalendarDate } from '@proofofcalm/core';
 import type { ReactNode } from 'react';
 import { useLocale, useTranslations } from 'use-intl';
 import type { Formatters } from '../../../lib/format';
+import { useCountryArgs } from '../../../lib/countries';
 import { textLang } from '../../../lib/i18n/text-lang';
 import { type CountryCardModel, useFormatters } from '../../../lib/services';
 import { CountryDateLine } from './country-date-line';
@@ -41,6 +42,7 @@ export function CountryCard(props: CountryCardProps) {
 
 export function CountryCardView({ country, level, id, f }: CountryCardProps & { readonly f: Formatters }) {
   const t = useTranslations('learn.card');
+  const forms = useCountryArgs();
   const { card, generic, underReview: stale } = country;
   // The profile's text in a language other than the screen's carries its own (WCAG 2.2 SC 3.1.2, ADR-0057).
   const lang = textLang(country.language, useLocale());
@@ -167,7 +169,7 @@ export function CountryCardView({ country, level, id, f }: CountryCardProps & { 
           {line}
           {!generic &&
             section(
-              t('sourceList', { code: country.code, country: country.name }),
+              t('sourceList', forms(country.code)),
               <ul className="flex flex-col gap-stack-sm">
                 {country.sources.map((source) => (
                   <li key={source.key} className="flex flex-col">

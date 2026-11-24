@@ -29,7 +29,7 @@ export type CountryEntry = {
 
 /** What a country's card renders (docs/JURISDICTIONS.md §1 and §2, docs/EDUCATION.md §4). */
 export type CountryCardModel = {
-  /** The profile's upper-case code; pt-PT's headings choose the article of the name by it. */
+  /** The profile's upper-case code; the headings take the name's forms by it (`lib/countries`). */
   readonly code: string;
   readonly name: string;
   /** The generic profile: the generic date line, no source link, never under review. */
