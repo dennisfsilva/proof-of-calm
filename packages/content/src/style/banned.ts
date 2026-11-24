@@ -24,17 +24,19 @@ const REGISTRATION =
   String.raw`(?:n[oa]s?|pel[oa]s?|por|junto\s+d[oa]s?|perante\s+[oa]s?|com\s+[oa]s?)\s+` +
   `(?:${[...longestFirst(banned.regulators), 'regulador(?:es)?'].join('|')})`;
 // A German one: bei, von or durch, an optional article (der, dem, den, or durch's die and das), a regulator of the
-// list, "Finanzaufsicht" or "Aufsichtsbehörde", up to three words ("als Anbieter"), then registriert, eingetragen,
-// gemeldet or beaufsichtigt; the participle first; or "Aufsicht der", "des" or "durch die" and a regulator. "Bei
-// keiner Finanzaufsichtsbehörde registriert" has no article, so it passes.
+// list, "Finanzaufsicht" or "Aufsichtsbehörde", up to three words of letters, numerals and inner hyphens ("als
+// Krypto-Dienstleister", "seit 2024"), then registriert, eingetragen, gemeldet or beaufsichtigt; the participle
+// first; or "Aufsicht der", "des" or "durch die" and a regulator. "Bei keiner Finanzaufsichtsbehörde registriert"
+// has no article, so it passes.
 const REGULATOR_DE = [
   ...longestFirst(banned.regulators),
   String.raw`finanzaufsicht\p{L}*`,
   String.raw`aufsichtsbehörde\p{L}*`,
 ];
 const BY_REGULATOR_DE = String.raw`(?:(?:bei|von)\s+(?:der\s+|dem\s+|den\s+)?|durch\s+(?:die\s+|den\s+|das\s+)?)(?:${REGULATOR_DE.join('|')})`;
+const GAP_WORD_DE = String.raw`[\p{L}\p{N}]+(?:-[\p{L}\p{N}]+)*`;
 const REGISTRATION_DE = [
-  String.raw`${BY_REGULATOR_DE}(?:\s+\p{L}+){0,3}?\s+(?:registriert|eingetragen|gemeldet|beaufsichtigt)\p{L}*`,
+  String.raw`${BY_REGULATOR_DE}(?:\s+${GAP_WORD_DE}){0,3}?\s+(?:registriert|eingetragen|gemeldet|beaufsichtigt)\p{L}*`,
   String.raw`(?:registriert|eingetragen|gemeldet)\p{L}*\s+${BY_REGULATOR_DE}`,
   String.raw`aufsicht\s+(?:der|des|durch\s+die)\s+(?:${REGULATOR_DE.join('|')})`,
 ];
