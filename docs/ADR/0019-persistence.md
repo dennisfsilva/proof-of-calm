@@ -258,6 +258,17 @@ The decision stands; these are the choices its text left open, made while implem
   rewrites them. M3's sync makes the device's id when it registers the device at sign-in (ADR-0021,
   local-only to account) and stamps the rows it marks pending. The read tests are in
   `packages/app/src/lib/adapters/idb/outbox.test.ts`.
+- **2026-11-24, the cleanup never blocks the open** (corrects the two entries above, which stay as
+  history: their cleanup ran as part of the open, so a failure there closed the connection and
+  rejected it). The cleanup is best effort: when `clearBeforeSync` fails for any reason, the open
+  keeps its connection and resolves as if it had succeeded. A cleanup the person does not need must
+  not lock them out of their plan or its export: on a nearly full disk a put fails with
+  `QuotaExceededError` at every open, so every load failed, the history cache with it, and the shell
+  showed only Retry, where the build before the cleanup loaded the same database (the refuter's run
+  on #443's parent). The cleanup is one transaction, so a failure changes nothing, and the next open
+  tries it whole again; until one succeeds the copies and the random ids stay. They are harmless
+  meanwhile: only one live plan row reads, and a tie in `updatedAt` adds 1 ms whatever the id. The
+  tests are in `packages/app/src/lib/adapters/idb/outbox.test.ts`.
 
 ## Disagreement
 
