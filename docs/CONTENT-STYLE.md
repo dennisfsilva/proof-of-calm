@@ -165,8 +165,9 @@ The Portuguese rows (decided 2026-11-15; the voice is §9):
      `chainlink`, `crypto`, `cripto`, `criptomoeda`, `criptomoedas`, `criptoativo`, `cripto-ativo`
      and `criptoactivo`, singular or plural; `moeda` and `moedas`; every word that ends in `coin` or
      `coins`; `token` and `tokens`; the names of `packages/content/coins.json` as written and its
-     tickers in capitals (`BTC`, `ETH`, `SOL`, `LINK`). The German rows below add theirs, and every
-     language reads the one list.
+     26 tickers in capitals, as `packages/content/src/style/banned.ts` takes them (`BTC`, `ETH`,
+     `SOL` and `LINK` among them). The German rows below add theirs, and every language reads the
+     one list.
      A sentence ends at `!`, `?`, a line end or a dot that no digit follows, so
      `Compre 1.000 € de BTC` is one sentence; the text is read with its accents composed. A
      `{date:<field>}` placeholder counts as one word. Its dots end no sentence, and a ticker in its
@@ -342,9 +343,10 @@ The German rows (decided 2026-11-23; the voice is §10):
      item 1's capital test. A sentence that ends in an ordinal takes no
      second dot (Duden D 154, `Wir treffen uns am 15.`), so no cut tells them apart, and an
      abbreviation list never closes. So `Kaufen Sie am 1. November BTC` and `Haben Sie Bitcoins? Dann
-     verkaufen Sie sie nicht.` fail. A Learn module's German lines are read twice: joined, where a
-     paragraph is one line and a source wrap neither ends a line nor opens a clause; and as the page
-     sets them, one line per paragraph, heading, list item, quote paragraph or code block, where a
+     verkaufen Sie sie nicht.` fail. A Learn module's German lines are read three times: first
+     as the source stands, for the English and Portuguese imperatives alone, the German line rule
+     left out; then joined, where a paragraph is one line and a source wrap neither ends a line nor
+     opens a clause; and as the page sets them, one line per paragraph, heading, list item, quote paragraph or code block, where a
      hard break, each code line and a `<PastPerformance />` beside words open a clause inside the
      line, and so does an item number other than 1 or a line of `=` that may go on with the
      paragraph. The text is read with soft hyphens and zero-width characters taken out.
