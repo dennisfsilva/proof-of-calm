@@ -120,6 +120,18 @@ describe('a control named inside a German sentence', () => {
     );
   });
 
+  // German Onboarding names the Log's control and its own reminder choice in sentences, so the check reads both.
+  it('finds the controls German Onboarding names', () => {
+    const inOnboarding = german.filter(({ key }) => key.startsWith('onboarding.'));
+    expect(new Set(inOnboarding.map(({ labelKey, key }) => `${labelKey} in ${key}`))).toEqual(
+      new Set([
+        'log.recordHeld in onboarding.dates.startingHint',
+        'log.recordHeld in onboarding.numbers.startingHint',
+        'onboarding.reminder.later in onboarding.reminder.notSaved',
+      ]),
+    );
+  });
+
   it('tells a quoted name from a bare one', () => {
     const quotes = ['„', '“'] as const;
     expect(showsBare('Wählen Sie „Wie geplant gekauft“.', 'Wie geplant gekauft', quotes)).toBe(false);
