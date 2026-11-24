@@ -660,6 +660,41 @@ test("de: Today's red-day banner keeps its link inside its card and the page at 
   expect(errors).toEqual([]);
 });
 
+// The move sheet's „Preencher todas as unidades“ shares its row with the sent units' input: at zoom-125 and on
+// android-small, at the project's text size and at 125 % text, the button lies inside the sheet and its label inside
+// the button (docs/DESIGN.md §8, Button).
+test("pt-PT: the Log's move sheet keeps its fill-all button inside the sheet at 125 % text", async ({ page }) => {
+  expect(ptLog.move.all, 'the merged pt-PT file holds the button').not.toBe(enLog.move.all);
+  const errors = await boot(page, 'pt-PT');
+  await open(page, '/log');
+  await page.getByRole('button', { name: ptLog.recordMoved, exact: true }).click();
+  const sheet = page.getByRole('dialog');
+  await expect(sheet.getByRole('heading', { name: ptLog.move.title.new, exact: true })).toBeVisible();
+  await sheet.evaluate((element) => Promise.all(element.getAnimations({ subtree: true }).map((each) => each.finished)));
+  const all = sheet.getByRole('button', { name: ptLog.move.all, exact: true });
+  for (const size of [null, '20px'] as const) {
+    if (size !== null) await rootFont(page, size);
+    await settled(page);
+    await expect(all).toBeVisible();
+    const boxes = await all.evaluate((element) => {
+      const dialog = element.closest('[role="dialog"]');
+      if (dialog === null) throw new Error('the button sits in the sheet');
+      const own = element.getBoundingClientRect();
+      const box = dialog.getBoundingClientRect();
+      return {
+        inside: own.left >= box.left - 0.5 && own.right <= box.right + 0.5,
+        own: [own.left, own.right],
+        box: [box.left, box.right],
+        label: { scroll: element.scrollWidth, client: element.clientWidth },
+      };
+    });
+    const at = size ?? "the project's text size";
+    expect(boxes.inside, `at ${at}, the button's box ${boxes.own} lies inside the sheet's ${boxes.box}`).toBe(true);
+    expect(boxes.label.scroll, `at ${at}, its label stays inside its box`).toBeLessThanOrEqual(boxes.label.client);
+  }
+  expect(errors).toEqual([]);
+});
+
 test("in English, the Log's, Today's dates and Portfolio's value tables keep their columns", async ({ page }) => {
   const errors = await boot(page, null);
   for (const screen of ['log', 'today', 'portfolio'] as const) {
