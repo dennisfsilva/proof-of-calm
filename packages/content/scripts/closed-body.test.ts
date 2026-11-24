@@ -445,7 +445,7 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
       const blocksOf = (body: string) => body.split(/\n[ \t]*\n/);
       // Every order of up to 5 blocks (120 at most); a body of more than 5 blocks takes its rotations and its
       // reversal, which keep the run short.
-      const ordersOf = <T,>(items: readonly T[]): T[][] => {
+      const ordersOf = (items: readonly string[]): string[][] => {
         if (items.length > 5) {
           const rotations = items.map((_, start) => [...items.slice(start), ...items.slice(0, start)]);
           return [...rotations, [...items].reverse()];
