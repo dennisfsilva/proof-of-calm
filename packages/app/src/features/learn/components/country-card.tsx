@@ -3,8 +3,8 @@
 import type { CalendarDate } from '@proofofcalm/core';
 import type { ReactNode } from 'react';
 import { useLocale, useTranslations } from 'use-intl';
-import type { Formatters } from '../../../lib/format';
 import { useCountryArgs } from '../../../lib/countries';
+import type { Formatters } from '../../../lib/format';
 import { textLang } from '../../../lib/i18n/text-lang';
 import { type CountryCardModel, useFormatters } from '../../../lib/services';
 import { CountryDateLine } from './country-date-line';
