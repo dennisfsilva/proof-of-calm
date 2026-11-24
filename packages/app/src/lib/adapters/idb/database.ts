@@ -1,7 +1,9 @@
 // The IndexedDB database of ADR-0019: its name, its seven stores and the migrations that build them.
 // The version is the number of migrations. A shipped migration never changes; each schema change adds
 // one, tested against a database of the previous version (docs/RELEASE.md, "Storage migration").
+import { EntityIdSchema } from '@proofofcalm/core';
 import { type DBSchema, type IDBPDatabase, type IDBPTransaction, openDB } from 'idb';
+import { ROW_SCHEMA_VERSIONS, type RowVersions, readEntryRow, readPlanRow, type SyncedStore } from './rows';
 
 /**
  * Like the backup format marker, the name stays "proof-of-calm" whatever the product is called
@@ -53,22 +55,67 @@ export type ConnectionEvents = {
   readonly closed: () => void;
 };
 
+/** The meta key under which builds before 2026-11-24 kept a random id for the browser. */
+export const DEVICE_ID_KEY = 'deviceId';
 /**
- * No write puts a copy in the outbox before M3's sync, so every open empties the copies an older build
- * wrote, before a rollback or since. Emptying changes no store, key or index, so the version stays 1
- * (ADR-0019 Readings, 2026-11-24); M3 removes this in the branch that first writes pending records.
+ * The one device id every row is stamped with until M3's sync, the same in every browser. Rows of one
+ * device all carried the same id before as well, so the order of writes (`compareWrites`: `updatedAt`,
+ * then the id) is unchanged; M3 makes the device's id when it registers the device (ADR-0021).
  */
-async function emptyOutbox(database: Database): Promise<void> {
-  await database.clear('outbox');
+export const LOCAL_DEVICE_ID = EntityIdSchema.parse('00000000-0000-4000-8000-000000000000');
+
+/**
+ * Nothing before M3's sync needs a copy in the outbox or an id per browser, so every open empties the
+ * copies an older build wrote, deletes its random id from meta and stamps its plan and entry rows with
+ * the local id, before a rollback or since (ADR-0019 Readings, 2026-11-24). Only a row this build reads
+ * is rewritten: a later version's row stays byte for byte, and one that fails its check stays as it is
+ * for the load to set aside. This changes no store, key or index, so the version stays 1; M3 removes it
+ * in the branch that first writes pending records. One transaction: a failure leaves everything as it was.
+ */
+async function clearBeforeSync(database: Database, versions: RowVersions): Promise<void> {
+  const tx = database.transaction(['outbox', 'meta', 'plans', 'entries'], 'readwrite');
+  const restamp = async (name: SyncedStore) => {
+    const read = name === 'plans' ? readPlanRow : readEntryRow;
+    const store = tx.objectStore(name);
+    for (const raw of await store.getAll()) {
+      const row = read(raw, versions);
+      if (row.ok && row.value.row.deviceId !== LOCAL_DEVICE_ID) {
+        await store.put({ ...row.value.row, deviceId: LOCAL_DEVICE_ID });
+      }
+    }
+  };
+  const steps = async () => {
+    await tx.objectStore('outbox').clear();
+    await tx.objectStore('meta').delete(DEVICE_ID_KEY);
+    await restamp('plans');
+    await restamp('entries');
+  };
+  await Promise.all([
+    steps().catch((error: unknown) => {
+      // A call that threw leaves the transaction running; a failed request has aborted it already.
+      try {
+        tx.abort();
+      } catch {
+        // Already finished: nothing to undo.
+      }
+      throw error;
+    }),
+    tx.done,
+  ]);
 }
 
 /**
  * Opens the database at version `migrations.length`, running the missing migrations in order. They
  * share the one upgrade transaction, so the first that fails aborts it: the open rejects with that
- * failure and the database stays at its old version, untouched. The open then empties the outbox; a
- * failure there closes the connection and rejects the open the same way.
+ * failure and the database stays at its old version, untouched. The open then clears what no build
+ * needs before the sync (`clearBeforeSync`, at the row versions given); a failure there closes the
+ * connection and rejects the open the same way.
  */
-export async function openDatabase(migrations: readonly Migration[], events: ConnectionEvents): Promise<Database> {
+export async function openDatabase(
+  migrations: readonly Migration[],
+  events: ConnectionEvents,
+  versions: RowVersions = ROW_SCHEMA_VERSIONS,
+): Promise<Database> {
   let failure: unknown = null;
   let opened: Database | null = null;
   try {
@@ -95,7 +142,7 @@ export async function openDatabase(migrations: readonly Migration[], events: Con
       terminated: () => events.closed(),
     });
     try {
-      await emptyOutbox(opened);
+      await clearBeforeSync(opened, versions);
     } catch (error) {
       opened.close();
       throw error;

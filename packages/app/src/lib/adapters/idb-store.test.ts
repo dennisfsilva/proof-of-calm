@@ -40,14 +40,13 @@ import { RISK_WORDING_LANGUAGES } from '../brand';
 import type { CachedHistory, PricesState } from '../ports';
 import { localOnly } from '../store/channel';
 import { createDomainStore } from '../store/domain';
-import { DATABASE_NAME, STORE_NAMES, type StoreName } from './idb/database';
+import { DATABASE_NAME, LOCAL_DEVICE_ID, STORE_NAMES, type StoreName } from './idb/database';
 import { ROW_SCHEMA_VERSIONS } from './idb/rows';
 import { PREVIOUS_BUILD } from './idb/rows.testing';
 import { type IdbPlanStore, type IdbPlanStoreOptions, idbPlanStore } from './idb-store';
 import { EMPTY_SNAPSHOT } from './memory-store';
 
 const NOW = instant('2026-10-17T09:00:00.000Z');
-const DEVICE = '0f5c1a3e-8d2b-4c6f-9a7e-1b2c3d4e5f60' as EntityId;
 const clock = { now: () => NOW };
 const prices: PricesState = {
   snapshot: {
@@ -71,7 +70,7 @@ type PlanStamp = { id: EntityId; updatedAt: Instant; deletedAt: Instant | null; 
 
 const opened: IdbPlanStore[] = [];
 function open(options: Partial<IdbPlanStoreOptions> = {}): IdbPlanStore {
-  const store = idbPlanStore({ clock, randomUUID: () => DEVICE, ...options });
+  const store = idbPlanStore({ clock, ...options });
   opened.push(store);
   return store;
 }
@@ -209,7 +208,7 @@ describe('idb plan store: load and write (ADR-0019)', () => {
         payload: asV2Plan(plan),
         updatedAt: plan.updatedAt,
         deletedAt: null,
-        deviceId: DEVICE,
+        deviceId: LOCAL_DEVICE_ID,
         schemaVersion: 2,
         encVersion: 0,
       },
@@ -220,7 +219,7 @@ describe('idb plan store: load and write (ADR-0019)', () => {
         payload: early,
         updatedAt: early.updatedAt,
         deletedAt: null,
-        deviceId: DEVICE,
+        deviceId: LOCAL_DEVICE_ID,
         schemaVersion: 2,
         encVersion: 0,
         planId: null,
@@ -230,7 +229,7 @@ describe('idb plan store: load and write (ADR-0019)', () => {
         payload: entry,
         updatedAt: entry.updatedAt,
         deletedAt: null,
-        deviceId: DEVICE,
+        deviceId: LOCAL_DEVICE_ID,
         schemaVersion: 2,
         encVersion: 0,
         planId: plan.id,
@@ -960,7 +959,7 @@ describe('idb plan store: entries v3, coins held (docs/DOMAIN.md §2.2, docs/REL
     const previous = others();
     for (const entry of previous) {
       const { updatedAt, deletedAt } = entry;
-      const stamps = { updatedAt, deletedAt, deviceId: DEVICE, encVersion: 0, planId: plan.id };
+      const stamps = { updatedAt, deletedAt, deviceId: LOCAL_DEVICE_ID, encVersion: 0, planId: plan.id };
       await put('entries', { id: entry.id, payload: entry, ...stamps, schemaVersion: 2 });
     }
     const coins = held();
@@ -1058,7 +1057,7 @@ describe('idb plan store: entries v4, moves (docs/DOMAIN.md §2.2, docs/RELEASE.
     const previous = [...others(), held()];
     for (const entry of previous) {
       const { updatedAt, deletedAt } = entry;
-      const stamps = { updatedAt, deletedAt, deviceId: DEVICE, encVersion: 0, planId: plan.id };
+      const stamps = { updatedAt, deletedAt, deviceId: LOCAL_DEVICE_ID, encVersion: 0, planId: plan.id };
       const schemaVersion = entry.kind === 'held' ? 3 : 2;
       await put('entries', { id: entry.id, payload: entry, ...stamps, schemaVersion });
     }
@@ -1224,25 +1223,21 @@ describe('idb plan store: the rows a prototype import writes (docs/DOMAIN.md §7
 });
 
 describe('idb plan store: device id, wipe, connection', () => {
-  it('makes the device id once and keeps it across opens', async () => {
-    const randomUUID = vi.fn(() => DEVICE);
-    const first = open({ randomUUID });
-    expect(await first.deviceId()).toBe(DEVICE);
-    await first.close();
-    const second = open({ randomUUID: () => 'not used' });
-    expect(await second.deviceId()).toBe(DEVICE);
-    expect(randomUUID).toHaveBeenCalledTimes(1);
+  it('gives the local device id and stores nothing, before and after a write', async () => {
+    const store = open();
+    expect(await store.deviceId()).toBe(LOCAL_DEVICE_ID);
+    await store.write({ plan: aPlan(), entries: [anEntry()] });
+    expect(await store.deviceId()).toBe(LOCAL_DEVICE_ID);
+    expect(await raw('meta')).toStrictEqual([]);
   });
 
-  it('replaces an unreadable device id and sets the old one aside', async () => {
+  it('deletes a device id an older build kept in meta at the next open, an unreadable one too', async () => {
     await open().load();
     await put('meta', 42, 'deviceId');
     const store = open();
-    expect(await store.deviceId()).toBe(DEVICE);
-    expect((await store.load()).quarantined).toBe(1);
-    expect(await raw('meta')).toContainEqual([
-      { store: 'meta', id: 'deviceId', raw: 42, issues: ['row: invalid_type'], at: NOW },
-    ]);
+    expect(await store.deviceId()).toBe(LOCAL_DEVICE_ID);
+    expect((await store.load()).quarantined).toBe(0);
+    expect(await raw('meta')).toStrictEqual([]);
   });
 
   it('removes everything on "Delete everything", the device id included', async () => {
@@ -1254,8 +1249,7 @@ describe('idb plan store: device id, wipe, connection', () => {
     for (const name of ['plans', 'entries', 'prefs', 'prices', 'history', 'outbox', 'meta'] as const) {
       expect(await raw(name)).toEqual([]);
     }
-    const next = '7d444840-9dc0-41a3-bd1a-c4a1e5c7a3f2' as EntityId;
-    expect(await open({ randomUUID: () => next }).deviceId()).toBe(next);
+    expect(await open().deviceId()).toBe(LOCAL_DEVICE_ID);
   });
 
   it('gives back every row byte for byte when "Delete everything" is undone, set-aside and later rows included', async () => {

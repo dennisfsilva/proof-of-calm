@@ -7,7 +7,6 @@
 import 'fake-indexeddb/auto';
 import {
   applyExchangeImport,
-  type EntityId,
   type Entry,
   exportBackup,
   importId,
@@ -27,14 +26,13 @@ import { DATABASE_NAME, STORE_NAMES } from './idb/database';
 import { type IdbPlanStore, type IdbPlanStoreOptions, idbPlanStore } from './idb-store';
 
 const NOW = instant('2026-10-20T10:00:00.000Z');
-const DEVICE = '0f5c1a3e-8d2b-4c6f-9a7e-1b2c3d4e5f62' as EntityId;
 /** The row versions of the build before moves, frozen: plans and entries at v3 (idb-store.test.ts). */
 const PREVIOUS_BUILD = { plans: 3, entries: 3 } as const;
 const VERSION_8 = /^[0-9a-f]{8}-[0-9a-f]{4}-8[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
 const opened: IdbPlanStore[] = [];
 function open(options: Partial<IdbPlanStoreOptions> = {}): IdbPlanStore {
-  const store = idbPlanStore({ clock: { now: () => NOW }, randomUUID: () => DEVICE, ...options });
+  const store = idbPlanStore({ clock: { now: () => NOW }, ...options });
   opened.push(store);
   return store;
 }

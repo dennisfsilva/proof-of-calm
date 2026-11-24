@@ -3,7 +3,7 @@
 // prototype import already did. No row version changes for it; the rollback read proves that the build before
 // ADR-0053 reads and rewrites such a plan as it is (docs/RELEASE.md, rollback; .claude/rules/app-storage.md).
 import 'fake-indexeddb/auto';
-import { acknowledge, changeCountry, type EntityId, type Plan } from '@proofofcalm/core';
+import { acknowledge, changeCountry, type Plan } from '@proofofcalm/core';
 import { anEntry, aPlan, asV3Plan, instant } from '@proofofcalm/core/testing';
 import { FIXTURE_RULES } from '@proofofcalm/core/testing/country-change';
 import { IDBFactory } from 'fake-indexeddb';
@@ -14,14 +14,13 @@ import { type IdbPlanStore, type IdbPlanStoreOptions, idbPlanStore } from './idb
 import { EMPTY_SNAPSHOT } from './memory-store';
 
 const NOW = instant('2026-11-09T09:00:00.000Z');
-const DEVICE = '0f5c1a3e-8d2b-4c6f-9a7e-1b2c3d4e5f61' as EntityId;
 /** The row versions of the build before ADR-0053, frozen: plans and entries at v3 (rows.ts at ee4439e6). */
 const PREVIOUS_BUILD = { plans: 3, entries: 3 } as const;
 const uk = { ...FIXTURE_RULES.DE, code: 'GB' as Plan['country'], currency: 'GBP' as const };
 
 const opened: IdbPlanStore[] = [];
 function open(options: Partial<IdbPlanStoreOptions> = {}): IdbPlanStore {
-  const store = idbPlanStore({ clock: { now: () => NOW }, randomUUID: () => DEVICE, ...options });
+  const store = idbPlanStore({ clock: { now: () => NOW }, ...options });
   opened.push(store);
   return store;
 }
