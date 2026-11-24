@@ -11,6 +11,14 @@ import pt from '../../../messages/pt-PT/settings.json';
 import type { ReportNote } from '../actions';
 import { PrototypeImport, PrototypeReport } from './prototype-import';
 
+// The country step suggests from the device (`deviceLocale()`): the device is a Lisbon one, as in onboarding's
+// tests, so the suggestion does not depend on the machine's time zone (CI's runner is UTC).
+const LISBON = { languages: ['en-GB', 'pt-PT'], timeZone: 'Europe/Lisbon' } as const;
+vi.mock('../../../lib/adapters', async (original) => ({
+  ...(await original<typeof import('../../../lib/adapters')>()),
+  deviceLocale: () => LISBON,
+}));
+
 // The report's split line names three percentages, the coin's old and new share and the whole they add up to: all
 // three take the spacing of the plan's country (docs/CONTENT-STYLE.md §4), `100%` in Portugal and `100 %` with a
 // no-break space in Germany, in English and in pt-PT alike, never a spacing typed into the message.
