@@ -478,7 +478,12 @@ the form), so it waits for a screen that does. Notes, and the values this docume
   a `flex min-w-0` wrapper and the input in a `flex min-w-20 flex-1` one: the input keeps room for an
   amount and the label wraps in the rest. Without them the pt-PT fill-all button (`log.move.all`) of
   `packages/app/src/features/log/components/move-form.tsx` crossed the move sheet at 125 % text
-  (2026-11-24; the pt-PT move-sheet case in the same spec).
+  (2026-11-24; the pt-PT move-sheet case in the same spec). An input that takes an 8-decimal amount
+  needs more than that room, so such a row wraps (`flex-wrap`), the input's wrapper takes `flex min-w-0
+  grow basis-40`, and the button goes below the input whenever its one-line label and 10rem of input do
+  not fit side by side; the input then takes the row's width. The move sheet's units row does this:
+  beside the button at 125 % text, `0,00012345` showed only its tail, 143 of 98 px at zoom-125
+  (2026-11-24; the 8-decimal move-sheet cases in the same spec).
 - **Tabs.** The list never scrolls sideways: the tabs share its width and a long label wraps onto a
   second, balanced line, so four tabs fit a 360 px phone at 125 % text. The list is padded by the focus
   ring's extent (§6), so nothing clips a focused tab's ring, and the active tab's 2 px `ink` underline
