@@ -1,0 +1,24 @@
+{
+  "learn.countries.countryHeadTitle": {
+    "DE": "Crypto tax in Germany",
+    "ES": "Crypto tax in Spain",
+    "FR": "Crypto tax in France",
+    "GB": "Crypto tax in the United Kingdom",
+    "IE": "Crypto tax in Ireland",
+    "IT": "Crypto tax in Italy",
+    "NL": "Crypto tax in the Netherlands",
+    "PT": "Crypto tax in Portugal",
+    "US": "Crypto tax in the United States"
+  },
+  "learn.card.sourceList": {
+    "DE": "Sources for Germany",
+    "ES": "Sources for Spain",
+    "FR": "Sources for France",
+    "GB": "Sources for the United Kingdom",
+    "IE": "Sources for Ireland",
+    "IT": "Sources for Italy",
+    "NL": "Sources for the Netherlands",
+    "PT": "Sources for Portugal",
+    "US": "Sources for the United States"
+  }
+}

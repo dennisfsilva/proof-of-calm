@@ -1,0 +1,24 @@
+{
+  "learn.countries.countryHeadTitle": {
+    "DE": "Tributação dos criptoativos na Alemanha",
+    "ES": "Tributação dos criptoativos em Espanha",
+    "FR": "Tributação dos criptoativos em França",
+    "GB": "Tributação dos criptoativos no Reino Unido",
+    "IE": "Tributação dos criptoativos na Irlanda",
+    "IT": "Tributação dos criptoativos em Itália",
+    "NL": "Tributação dos criptoativos nos Países Baixos",
+    "PT": "Tributação dos criptoativos em Portugal",
+    "US": "Tributação dos criptoativos nos Estados Unidos"
+  },
+  "learn.card.sourceList": {
+    "DE": "Fontes da Alemanha",
+    "ES": "Fontes de Espanha",
+    "FR": "Fontes de França",
+    "GB": "Fontes do Reino Unido",
+    "IE": "Fontes da Irlanda",
+    "IT": "Fontes de Itália",
+    "NL": "Fontes dos Países Baixos",
+    "PT": "Fontes de Portugal",
+    "US": "Fontes dos Estados Unidos"
+  }
+}
