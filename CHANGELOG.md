@@ -65,6 +65,8 @@ release.
   everything.
 - Import the buys and sales from an exchange's export file into the Log, after a preview; the import
   lists the formats it reads.
+- Your browser keeps no identifier for your device and no copy of your changes for syncing, which
+  the app does not offer.
 
 ### Risks
 
