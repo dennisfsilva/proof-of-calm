@@ -432,6 +432,55 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
       const twoLines = `${D4_ROWS.find(([id]) => id === 'b:E4')?.[1]}\n`;
       expect(await asTranslation(twoLines)).toHaveLength(2);
     }, 60_000);
+
+    // Review round 2 of this branch: a greedy pairing took the first block finding a source finding matched, so a
+    // source finding that matched only a later-taken block finding stayed unpaired and was reported a second time.
+    describe('pairs the two reads by a maximum matching, whatever the order of the blocks', () => {
+      const codes = (problems: readonly Problem[]) => problems.map(({ code }) => code).sort();
+      const sameCodes = async (body: string) => {
+        const english = codes(asEnglish(body));
+        expect(codes(await asTranslation(body))).toEqual(english);
+        return english;
+      };
+      const blocksOf = (body: string) => body.split(/\n[ \t]*\n/);
+      // Every order of up to 5 blocks (120 at most); a body of more than 5 blocks takes its rotations and its
+      // reversal, which keep the run short.
+      const ordersOf = <T,>(items: readonly T[]): T[][] => {
+        if (items.length > 5) {
+          const rotations = items.map((_, start) => [...items.slice(start), ...items.slice(0, start)]);
+          return [...rotations, [...items].reverse()];
+        }
+        if (items.length <= 1) return [[...items]];
+        return items.flatMap((item, index) =>
+          ordersOf([...items.slice(0, index), ...items.slice(index + 1)]).map((rest) => [item, ...rest]),
+        );
+      };
+
+      it("gives English's count per code for a line refused alone and inside another block, in both orders", async () => {
+        const wrapped = 'Compre\nsempre Bitcoin todos os meses.';
+        const quoted = 'Há quem diga:\nCompre Bitcoin.';
+        expect(await sameCodes(`${wrapped}\n\n${quoted}\n`)).toHaveLength(2);
+        expect(await sameCodes(`${quoted}\n\n${wrapped}\n`)).toHaveLength(2);
+      });
+
+      it("gives English's count per code for every D4 row of two or more blocks, in every order", async () => {
+        const rows: string[] = [];
+        const counted: string[] = [];
+        for (const [ids, body] of D4_ROWS) {
+          const blocks = blocksOf(body);
+          if (blocks.length < 2) continue;
+          rows.push(ids);
+          for (const order of ordersOf(blocks)) {
+            const reordered = `${order.join('\n\n')}\n`;
+            const english = codes(asEnglish(reordered));
+            const mine = codes(await asTranslation(reordered));
+            if (mine.join() !== english.join()) counted.push(`${ids} ${JSON.stringify(order)}: ${english} / ${mine}`);
+          }
+        }
+        expect(counted).toEqual([]);
+        expect(rows.length).toBeGreaterThan(0);
+      }, 30_000);
+    });
   });
 
   // Review 25m round 2 (D12; #322's D3 and D4): the checks read each compiled block on its own, with every
