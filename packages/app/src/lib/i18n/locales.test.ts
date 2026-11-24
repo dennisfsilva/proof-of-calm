@@ -180,6 +180,16 @@ describe('the pt-PT onboarding, portfolio and plan', () => {
   });
 });
 
+// German Portfolio and Log are whole while German is hidden: a key the merge completed from English would show
+// English on either screen (docs/CONTENT-STYLE.md §10).
+describe('the German portfolio and log', () => {
+  it.each(['portfolio', 'log'])('%s is whole in de', (folder) => {
+    const translated = byFolder.get(`${folder}/de`)?.tree;
+    expect(translated, `${folder} has no de file`).toBeDefined();
+    expect(problems(byFolder.get(`${folder}/en`)?.tree ?? {}, translated ?? {}, true)).toEqual([]);
+  });
+});
+
 // A count is a figure in the country's number format: a plural picks its form from the count and writes the
 // formatted figure, never ICU's `#`, which follows the language (docs/CONTENT-STYLE.md §4).
 describe('a translated plural', () => {
