@@ -54,9 +54,19 @@ export type ConnectionEvents = {
 };
 
 /**
+ * No write puts a copy in the outbox before M3's sync, so every open empties the copies an older build
+ * wrote, before a rollback or since. Emptying changes no store, key or index, so the version stays 1
+ * (ADR-0019 Readings, 2026-11-24); M3 removes this in the branch that first writes pending records.
+ */
+async function emptyOutbox(database: Database): Promise<void> {
+  await database.clear('outbox');
+}
+
+/**
  * Opens the database at version `migrations.length`, running the missing migrations in order. They
  * share the one upgrade transaction, so the first that fails aborts it: the open rejects with that
- * failure and the database stays at its old version, untouched.
+ * failure and the database stays at its old version, untouched. The open then empties the outbox; a
+ * failure there closes the connection and rejects the open the same way.
  */
 export async function openDatabase(migrations: readonly Migration[], events: ConnectionEvents): Promise<Database> {
   let failure: unknown = null;
@@ -84,6 +94,12 @@ export async function openDatabase(migrations: readonly Migration[], events: Con
       },
       terminated: () => events.closed(),
     });
+    try {
+      await emptyOutbox(opened);
+    } catch (error) {
+      opened.close();
+      throw error;
+    }
     return opened;
   } catch (error) {
     throw failure ?? error;

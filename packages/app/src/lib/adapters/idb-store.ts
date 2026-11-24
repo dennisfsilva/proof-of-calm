@@ -1,7 +1,7 @@
 // The PlanStore of ADR-0019 on IndexedDB through idb: the database is read whole into one snapshot at
 // startup (and again when another tab writes), and each change is written in one transaction. Rows have
 // the sync shape (idb/rows.ts); every row read passes its schema or is set aside (idb/quarantine.ts);
-// the outbox keeps one copy of each synced row for the push of M3 (ADR-0021).
+// no write puts a copy in the outbox before M3's sync (ADR-0019 Readings, 2026-11-24).
 import {
   DEFAULT_PREFS,
   type EntityId,
@@ -32,7 +32,6 @@ import {
   entryRow,
   isLaterVersion,
   newest,
-  outboxRecord,
   type PlanRow,
   planRow,
   planTombstone,
@@ -94,7 +93,7 @@ function touches(changes: Changes) {
   const synced = changes.plan !== undefined || entries > 0;
   const prefsChanged = changes.prefs !== undefined || changes.changedAt !== undefined;
   const stores: StoreName[] = [
-    ...(synced ? (['plans', 'outbox', 'meta'] as const) : []),
+    ...(synced ? (['plans', 'meta'] as const) : []),
     ...(entries > 0 ? (['entries'] as const) : []),
     ...(prefsChanged ? (['prefs'] as const) : []),
     ...(changes.prices === undefined ? [] : (['prices'] as const)),
@@ -141,15 +140,13 @@ export function idbPlanStore(options: IdbPlanStoreOptions): IdbPlanStore {
 
   /**
    * One live plan at a time: a plan with another id tombstones the old one, null tombstones it. Entry
-   * rows are stamped with the plan live after the write. Every row written joins the outbox. A stored entry
-   * of a later version is never written over, a tombstone included: its id is skipped, row and outbox copy
-   * (ADR-0019 readings). It gives back the entries it wrote; `writeChanges` has already stopped at a plan
+   * rows are stamped with the plan live after the write. A stored entry of a later version is never written
+   * over, a tombstone included: its id is skipped (ADR-0019 readings). It gives back the entries it wrote; `writeChanges` has already stopped at a plan
    * held at a later version.
    */
   async function writeSynced(tx: Tx, plan: Plan | null | undefined, entries: readonly Entry[], now: Instant) {
     const deviceId = await deviceIdIn(tx.objectStore('meta'), now);
     const plans = tx.objectStore('plans');
-    const outbox = tx.objectStore('outbox');
     const stored = (await plans.getAll()).flatMap((raw) => {
       const read = readPlanRow(raw, rowVersions);
       return read.ok ? [read.value.row] : [];
@@ -168,8 +165,8 @@ export function idbPlanStore(options: IdbPlanStoreOptions): IdbPlanStore {
     const written = entries.filter((_, index) => !isLaterVersion(held[index], 'entries', rowVersions));
     const entryRows = written.map((entry) => entryRow(entry, planId, deviceId, rowVersions));
     await Promise.all([
-      ...planRows.flatMap((row) => [plans.put(row), outbox.put(outboxRecord('plans', row))]),
-      ...entryRows.flatMap((row) => [tx.objectStore('entries').put(row), outbox.put(outboxRecord('entries', row))]),
+      ...planRows.map((row) => plans.put(row)),
+      ...entryRows.map((row) => tx.objectStore('entries').put(row)),
     ]);
     return written;
   }
