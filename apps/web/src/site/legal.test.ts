@@ -171,7 +171,7 @@ describe('the Cookie-free statement (docs/LEGAL.md §5)', () => {
     // Production offers one language and stores none, so the statement names it only where there is a choice.
     expect(stored).toContain('the language, where the app offers a choice');
     expect(page).toContain('until the tab closes');
-    expect(page).toContain('Delete everything in Settings clears it too.');
+    expect(page).toContain('Delete everything in Settings clears this data too.');
   });
 
   it('lists what the browser keeps in order, with what lasts only for the tab last', () => {
