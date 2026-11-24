@@ -44,6 +44,10 @@ const prepositions = [...byPart.matchAll(/((?:`[^`]+`[^`(]*?)+)\(with or without
   ),
 );
 const registerPrepositions = backticked(byPart.slice(byPart.lastIndexOf(')')));
+// The contractions, then the prepositions with an article they stand for, in the same order.
+const [contractions = [], contracted = []] = ((group) => [backticked(group?.[1] ?? ''), backticked(group?.[2] ?? '')])(
+  /((?:`[^`]+`[^`()]*?)+)\(([^)]*) contracted\)/u.exec(byPart),
+);
 const registerParts = backticked(sentence('That register is'));
 const adjectiveSentence = sentence('Each article');
 const adjectiveContractions = backticked(adjectiveSentence.slice(0, adjectiveSentence.indexOf('may take')));
@@ -100,6 +104,9 @@ describe('§2’s German registration claim, read from the document', () => {
       'durch den',
       'durch das',
     ]);
+    expect(contractions).toEqual(['beim', 'vom']);
+    expect(contracted).toEqual(['bei dem', 'von dem']);
+    expect(contracted.every((preposition) => prepositions.includes(preposition))).toBe(true);
     expect(registerPrepositions).toEqual(['im', 'ins', 'in das', 'in dem']);
     // A plain U+002D: §10 keeps the no-break hyphen U+2011 for numeral compounds.
     expect(registerParts).toEqual(['-', 'Register', 'ESMA-Registereintrag', 'Register der', 'Register des']);
@@ -110,7 +117,7 @@ describe('§2’s German registration claim, read from the document', () => {
       'Register der BaFin',
       'Register des Banco de España',
     ]);
-    expect(adjectiveContractions).toEqual(['im', 'ins']);
+    expect(adjectiveContractions).toEqual(['beim', 'vom', 'im', 'ins']);
     expect(adjectiveBound).toBe(2);
     expect(adjectiveEndings).toEqual(['e', 'en', 'er', 'es']);
     expect(barePrepositions).toEqual(['bei', 'von', 'durch']);
@@ -244,6 +251,20 @@ describe('§2’s German registration claim, read from the document', () => {
     expect(rules(`Eingetragen ${preposition} BaFin.`)).toEqual([`advice: Eingetragen ${preposition} BaFin`]);
   });
 
+  // Both stand for an article that takes a masculine regulator, so each reads before der Banco de Portugal of the list.
+  it.each(contractions)(
+    'refuses the contraction %j before the regulator, with and without adjectives',
+    (contraction) => {
+      for (const adjectives of ['', 'zuständigen ', 'zuständigen portugiesischen ']) {
+        const regulator = `${contraction} ${adjectives}Banco de Portugal`;
+        expect(rules(`Proof of Calm ist ${regulator} registriert.`)).toEqual([`advice: ${regulator} registriert`]);
+        expect(rules(`Eingetragen ${regulator}.`)).toEqual([`advice: Eingetragen ${regulator}`]);
+      }
+      const over = `Proof of Calm ist ${contraction} neuen zuständigen portugiesischen Banco de Portugal registriert.`;
+      expect(findBanned(over), over).toEqual([]);
+    },
+  );
+
   it.each(registerPrepositions.flatMap((preposition) => registers.map((register) => `${preposition} ${register}`)))(
     'refuses the register %j with a participle last and first',
     (register) => {
@@ -267,8 +288,13 @@ describe('§2’s German registration claim, read from the document', () => {
     expect(rules(`Eingetragen im Register der ${adjective} BaFin.`)).toEqual([
       `advice: Eingetragen im Register der ${adjective} BaFin`,
     ]);
-    // The register's prepositions hold an article (im, ins) or are one with it (in das, in dem), so each takes one too.
-    expect(adjectiveContractions.every((contraction) => registerPrepositions.includes(contraction))).toBe(true);
+    // The register's prepositions hold an article (im, ins) or are one with it (in das, in dem), so each takes one too;
+    // beim and vom hold one as well.
+    expect(
+      adjectiveContractions.every(
+        (contraction) => registerPrepositions.includes(contraction) || contractions.includes(contraction),
+      ),
+    ).toBe(true);
     for (const preposition of registerPrepositions) {
       for (const register of registers) {
         const claim = `${preposition} öffentlich${ending} ${register} eingetragen`;

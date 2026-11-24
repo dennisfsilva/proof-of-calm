@@ -25,8 +25,9 @@ const REGISTRATION =
   `(?:${[...longestFirst(banned.regulators), 'regulador(?:es)?'].join('|')})`;
 // A German one (docs/CONTENT-STYLE.md §2): a regulator of the list, "Finanzaufsicht" or "Aufsichtsbehörde" or a
 // longer word that begins with one; before it bei, von or durch with an optional article (der, dem, den, or durch's
-// die and das), or im, ins, in das or in dem before its register (the regulator, a hyphen and a word that begins
-// with "Register", or "Register der" or "des" and the regulator); each article, and the one inside im and ins, may
+// die and das), beim or vom (bei dem and von dem contracted), or im, ins, in das or in dem before its register (the
+// regulator, a hyphen and a word that begins with "Register", or "Register der" or "des" and the regulator); each
+// article, and the one inside beim, vom, im and ins, may
 // take up to two adjectives, and bei, von and durch with no article may too, unless the first begins with "kein";
 // an adjective is words of letters and numerals joined by inner hyphens, the last ending in e, en, er or es ("bei
 // der zuständigen deutschen Aufsichtsbehörde", "bei deutscher Finanzaufsicht", "bei der EU-weiten Aufsichtsbehörde");
@@ -49,7 +50,7 @@ const ADJECTIVE_WORD_DE = String.raw`(?:[\p{L}\p{N}]+${HYPHEN_DE})*[\p{L}\p{N}]+
 const ARTICLE_ADJECTIVE_DE = `(?:${ADJECTIVE_WORD_DE}){0,2}`;
 const ARTICLE_DE = (articles: string) => String.raw`\s+(?:${articles})\s+${ARTICLE_ADJECTIVE_DE}`;
 const BARE_DE = String.raw`\s+(?:(?!kein)${ADJECTIVE_WORD_DE}){0,2}`;
-const PREPOSITION_DE = `(?:(?:bei|von)(?:${ARTICLE_DE('der|dem|den')}|${BARE_DE})|durch(?:${ARTICLE_DE('die|den|das')}|${BARE_DE}))${REGULATOR_DE}`;
+const PREPOSITION_DE = `(?:(?:bei|von)(?:${ARTICLE_DE('der|dem|den')}|${BARE_DE})|durch(?:${ARTICLE_DE('die|den|das')}|${BARE_DE})|(?:beim|vom)\\s+${ARTICLE_ADJECTIVE_DE})${REGULATOR_DE}`;
 const BY_REGULATOR_DE =
   `${PREPOSITION_DE}|` +
   String.raw`(?:im|ins|in\s+das|in\s+dem)\s+${ARTICLE_ADJECTIVE_DE}(?:${REGULATOR_DE}${HYPHEN_DE}register\p{L}*|register${ARTICLE_DE('der|des')}${REGULATOR_DE})`;

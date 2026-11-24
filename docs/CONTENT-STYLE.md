@@ -268,11 +268,12 @@ The German rows (decided 2026-11-23; the voice is §10):
     or a longer word that begins with `Finanzaufsicht` or `Aufsichtsbehörde`
     (`Finanzaufsichtsbehörde`). Its preposition is `bei` or
     `von` (with or without `der`, `dem`, or `den`), `durch` (with or without `die`, `den`, or
-    `das`), or `im`, `ins`, `in das`, or `in dem` before the regulator's register. That register
+    `das`), `beim` or `vom` (`bei dem` and `von dem` contracted), or `im`, `ins`, `in das`, or
+    `in dem` before the regulator's register. That register
     is the regulator, a hyphen (`-` or U+2011), and a word that begins with `Register`
     (`ESMA-Registereintrag`, with the plain hyphen U+002D, since §10 keeps U+2011 for numeral
     compounds), or `Register der` or `Register des` and the regulator. Each article, and the one
-    inside `im` and `ins`, may take up to two adjectives, each a word of letters, digits, and inner
+    inside `beim`, `vom`, `im`, and `ins`, may take up to two adjectives, each a word of letters, digits, and inner
     hyphens whose last part ends in `e`, `en`, `er`, or `es`. With no article, `bei`, `von`, and
     `durch` take them too, unless the first begins with `kein` (fails:
     `bei der zuständigen deutschen Aufsichtsbehörde registriert`,

@@ -796,6 +796,56 @@ describe('the German claim reach, round 3 (docs/CONTENT-STYLE.md §2)', () => {
     }
   });
 
+  // Counsel's contraction gap: beim and vom are bei dem and von dem, so they take a masculine regulator of the list
+  // and up to two adjectives as the article does.
+  it('refuses beim and vom before a regulator, with no adjective, two adjectives and a gap', () => {
+    refuses([
+      ['Proof of Calm ist beim Banco de Portugal registriert.', 'beim Banco de Portugal registriert'],
+      ['Proof of Calm wird vom Banco de España überwacht.', 'vom Banco de España überwacht'],
+      [
+        'Proof of Calm ist beim zuständigen portugiesischen Banco de Portugal registriert.',
+        'beim zuständigen portugiesischen Banco de Portugal registriert',
+      ],
+      [
+        'Proof of Calm wird vom zuständigen spanischen Banco de España beaufsichtigt.',
+        'vom zuständigen spanischen Banco de España beaufsichtigt',
+      ],
+      ['Registriert beim Banco de Portugal.', 'Registriert beim Banco de Portugal'],
+      ['Proof of Calm hat vom Banco de España eine Zulassung.', 'vom Banco de España eine Zulassung'],
+    ]);
+    for (const hyphen of hyphens) {
+      refuses([
+        [
+          `Proof of Calm ist beim Banco de Portugal als Krypto${hyphen}Anbieter registriert.`,
+          `beim Banco de Portugal als Krypto${hyphen}Anbieter registriert`,
+        ],
+        [
+          `Proof of Calm ist beim Banco de Portugal als 24${hyphen}Stunden${hyphen}Anbieter registriert.`,
+          `beim Banco de Portugal als 24${hyphen}Stunden${hyphen}Anbieter registriert`,
+        ],
+        [
+          `Proof of Calm wird vom Banco de España als Krypto${hyphen}Anbieter überwacht.`,
+          `vom Banco de España als Krypto${hyphen}Anbieter überwacht`,
+        ],
+        [
+          `Proof of Calm wird vom Banco de España als 24${hyphen}Stunden${hyphen}Anbieter überwacht.`,
+          `vom Banco de España als 24${hyphen}Stunden${hyphen}Anbieter überwacht`,
+        ],
+      ]);
+    }
+  });
+
+  // Each names where a public list or warning is kept and claims no status for anyone: no participle or status noun
+  // stands within the gap of beim or vom and the regulator.
+  it('passes beim and vom before a regulator in a sentence that claims no status', () => {
+    for (const text of [
+      'Das öffentliche Register beim Banco de Portugal zeigt, welche Anbieter dort stehen.',
+      'Die Warnliste vom Banco de España ist öffentlich und kostenlos.',
+    ]) {
+      expect(findBanned(text), text).toEqual([]);
+    }
+  });
+
   it('passes a word that begins with kein after bei, von or durch, and §10’s statement on status', () => {
     for (const text of [
       'Bei keiner Finanzaufsichtsbehörde registriert.',
