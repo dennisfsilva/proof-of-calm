@@ -156,7 +156,9 @@ describe('the tax-year header lines', () => {
       /^Regeln für die Niederlande, Stand: \d{4}-\d{2}-\d{2} · allgemeine Informationen, keine Beratung/u,
     );
     const british = (await header('GB', 'de')).split('\n').map(uncell);
-    expect(british[0]).toBe('﻿Datei für das Steuerjahr von Proof of Calm · Vereinigtes Königreich · 2026-04-06 bis 2027-04-05');
+    expect(british[0]).toBe(
+      '﻿Datei für das Steuerjahr von Proof of Calm · Vereinigtes Königreich · 2026-04-06 bis 2027-04-05',
+    );
     expect(british[3]).toMatch(/^Regeln für das Vereinigte Königreich, Stand: /u);
     const portugal = (await header('PT', 'de')).split('\n').map(uncell);
     expect(portugal[3]).toMatch(/^Regeln für Portugal, Stand: /u);
@@ -193,7 +195,12 @@ describe('the tax-year header lines', () => {
     });
     const keys = Object.keys(english.data.taxYear.file).sort();
     const whole = Object.entries(own)
-      .filter(([, tree]) => Object.keys(tree.data?.taxYear?.file ?? {}).sort().join() === keys.join())
+      .filter(
+        ([, tree]) =>
+          Object.keys(tree.data?.taxYear?.file ?? {})
+            .sort()
+            .join() === keys.join(),
+      )
       .map(([path]) => /([^/]+)\.json$/u.exec(path)?.[1] ?? '');
     expect([...HEADER_LANGUAGES].sort()).toEqual(whole.sort());
   });
