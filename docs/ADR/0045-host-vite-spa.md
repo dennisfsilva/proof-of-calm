@@ -1573,7 +1573,8 @@ The decision stands; German gets its own message files, wired as pt-PT's were on
 
 ## Deviations recorded on 2026-11-24
 
-The decision stands; one lib namespace joins the lazy ones.
+The decision stands; one lib namespace joins the lazy ones, and the plan feature exports its
+screens by loaders.
 
 - **2026-11-24, each language's country forms are the lazy namespace `countries`** (§8; the entry of
   2026-11-15 on translations). `packages/app/src/lib/countries/messages` holds seven forms per
@@ -1584,3 +1585,12 @@ The decision stands; one lib namespace joins the lazy ones.
   that sheet. Today loads
   none, so its line keeps the name in parentheses. The shape test counts a country slot's forms as
   one argument.
+
+- **2026-11-24, a feature's `index.ts` exports its screens only as loaders** (§9). Onboarding and
+  Settings import `packages/app/src/features/plan/index.ts` for its editors, and the routes'
+  `import()` of that file made it Plan's lazy chunk. With the country forms shared by the three
+  screens, Rolldown put the modules they share into that chunk, Plan's screen code with them, and
+  Onboarding imported it statically: its first visit loaded about 57 kB more minified script, and
+  `/plan` needed none that Onboarding had not loaded (`apps/web/e2e/chunk-reload.spec.ts` failed).
+  As `loadLearnScreen` does, the plan feature exports `loadPlanScreen` and `loadReviewScreen`, so
+  each screen is a chunk of its own that only its route loads.
