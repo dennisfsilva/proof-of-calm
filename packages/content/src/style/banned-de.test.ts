@@ -96,7 +96,7 @@ const NEEDED: string[] = [
   'Steuerfrei ab {date}',
   'Warum? Der erste steuerfreie Tag',
   'Letzter Kauf: erster steuerfreier Tag',
-  'Proof of Calm ist bei keiner Finanzaufsicht registriert und unterliegt keiner Finanzaufsicht; kein System für die Entschädigung der Anleger und kein Einlagensicherungssystem deckt Kryptowerte ab.',
+  'Proof of Calm ist bei keiner Finanzaufsichtsbehörde registriert und unterliegt keiner Finanzaufsicht; kein System für die Entschädigung der Anleger und kein Einlagensicherungssystem deckt Kryptowerte ab.',
   'Keine Tätigkeit, die der behördlichen Zulassung bedarf; keine Aufsichtsbehörde.',
   'Anbieter von Kryptowerte-Dienstleistungen, die in der EU tätig sind.',
   'ESMA führt ein öffentliches Register der nach MiCA zugelassenen Anbieter.',
@@ -422,7 +422,7 @@ const ROWS_REWORDED: [string, string][] = [
   ],
   [
     'Proof of Calm ist bei keiner Finanzaufsicht registriert und wird von keiner beaufsichtigt.',
-    'Proof of Calm ist bei keiner Finanzaufsicht registriert und unterliegt keiner Finanzaufsicht.',
+    'Proof of Calm ist bei keiner Finanzaufsichtsbehörde registriert und unterliegt keiner Finanzaufsicht.',
   ],
   [
     'Wenn Sie nicht sicher sind, beginnt die Haltefrist später.',
@@ -522,7 +522,10 @@ describe('§2’s German row and kept-off bullets and §10’s statement on stat
   it('finds the bullets and the statement', () => {
     expect(rowWords.length).toBeGreaterThan(100);
     expect(keptOff.length).toBeGreaterThan(30);
-    expect(statusStatement).not.toBe('');
+    // The authority, then the supervision, as pt-PT's «supervisor … supervisão financeira».
+    expect(statusStatement).toBe(
+      'Proof of Calm ist bei keiner Finanzaufsichtsbehörde registriert und unterliegt keiner Finanzaufsicht',
+    );
   });
 
   it.each(rowWords)('refuses the row word %j', (word) => {
