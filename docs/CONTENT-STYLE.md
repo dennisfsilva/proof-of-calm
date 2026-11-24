@@ -263,17 +263,23 @@ The German rows (decided 2026-11-23; the voice is §10):
   - `Glückwunsch`, `Abzeichen`, `Badge`, `Medaille`, `Streak` and `Level-up`;
   - the status words `reguliert`, `lizenziert`, `zugelassen`, `beaufsichtigt`, `genehmigt`,
     `autorisiert`, every word that begins `Erlaubnis`, `MiCA-konform` and `Kaufsignal`;
-  - a registration claim with the participle last or first. Its regulator is one of the list's
-    `regulators`, `Finanzaufsicht`, or `Aufsichtsbehörde`. Its preposition is `bei` or `von` (with
-    or without `der`, `dem`, or `den`) or `durch` (with or without `die`, `den`, or `das`). Last:
-    the preposition and the regulator, then at most three other words, each of letters, digits,
-    and inner hyphens (`-` or the no-break hyphen U+2011), then `registriert`, `eingetragen`,
-    `gemeldet`, or `beaufsichtigt`, or a longer word that begins with one of them
-    (`registrierter`). First: `registriert`, `eingetragen`, or `gemeldet`, or a longer word that
-    begins with one of them, then the preposition and the regulator; a bare `beaufsichtigt` first
-    fails as a status word. Or `Aufsicht` with `der`, `des`, or `durch die`, then a regulator
-    (`bei der BaFin registriert`, `registriert bei der BaFin`, `durch die BaFin registriert`,
-    `bei der BaFin als Krypto-Dienstleister registriert`, `bei der BaFin seit 2024 registriert`).
+  - a registration claim with the participle last, first, or joined. Its regulator is one of the
+    list's `regulators`, `Finanzaufsicht`, or `Aufsichtsbehörde`, or a longer word that begins with
+    either (`Finanzaufsichtsbehörde`). Its preposition is `bei` or `von` (with or without `der`,
+    `dem`, or `den`), `durch` (with or without `die`, `den`, or `das`), or `im`, `ins`, `in das`, or
+    `in dem` before the regulator's register (`BaFin-Register`, or `Register der` or `des` and the
+    regulator). Its participle is `registriert`, `eingetragen`, `gemeldet`, `beaufsichtigt`,
+    `überwacht`, or `kontrolliert`, or a longer word that begins with one of them
+    (`registrierter`). A gap is at most three other words, each of letters, digits, and inner
+    hyphens (`-` or the no-break hyphen U+2011). Last: the preposition and the regulator, a gap,
+    then the participle. First: the participle, a gap, then the preposition and the regulator.
+    Joined: the regulator, a hyphen (`-` or U+2011), then the participle or `Aufsicht`. Or
+    `Aufsicht` with `der`, `des`, or `durch die`, or a form of `unterliegen` with `der`, `dem`, or
+    `den`, then a regulator (`bei der BaFin registriert`, `registriert bei der BaFin`,
+    `durch die BaFin registriert`, `bei der BaFin als Krypto-Dienstleister registriert`,
+    `bei der BaFin seit 2024 registriert`, `registriert als Krypto-Dienstleister bei der BaFin`,
+    `BaFin-registriert`, `im BaFin-Register eingetragen`, `unterliegt der BaFin-Aufsicht`,
+    `unterliegt der Finanzaufsicht`, `von der BaFin überwacht`, `von der BaFin kontrolliert`).
 
   German adds praise and reassurance (`gut gemacht`, `weiter so`, `super`, `toll`, `keine Sorge`,
   `keine Panik`, `bleiben Sie ruhig`, `Seelenfrieden`, `auf dem richtigen Weg`,
@@ -298,10 +304,10 @@ The German rows (decided 2026-11-23; the voice is §10):
   `erzielen`, `erwirtschaften`, `einbringen`, and `abwerfen`, fail next to a percentage.
   `Kapitalertragsteuer`, `Gewinner`, `Vertrag`, `Übertrag`, and their compounds pass
   (`Laut Vertrag 2 % Gebühr`, `Sparvertrag mit 3 %`).
-  - A noun may take `pro Jahr`, `im Jahr`, `p. a.`, or `im Schnitt`; then a colon, `von`,
-    `in Höhe von`, or a form of `betragen`, `liegen bei`, or `sein`; then `bis zu`, `über`,
-    `mehr als`, `rund`, `etwa`, `ca.`, `ungefähr`, `um (die)`, `durchschnittlich`, `jährlich`, or
-    `monatlich`.
+  - A noun may take `pro Jahr`, `im Jahr`, `je Jahr`, `pro Monat`, `im Monat`, `je Monat`,
+    `p. a.`, `p.a.`, or `im Schnitt`; then a colon, `von`, `in Höhe von`, or a form of `betragen`,
+    `liegen bei`, or `sein`; then `bis zu`, `über`, `mehr als`, `rund`, `etwa`, `ca.`, `circa`,
+    `ungefähr`, `um`, `um die`, `durchschnittlich`, `jährlich`, or `monatlich`.
   - A figure first takes up to two of `jährlich`, `monatlich`, `durchschnittlich`, `erwartet`,
     `möglich`, `potenziell`, `zusätzlich`, `garantiert`, or `realistisch` with the ending `e`,
     `en`, `er`, `es`, or `em` or none (`jährliche`), `mehr`, or `an`, or a hyphen (`-` or the
@@ -314,7 +320,8 @@ The German rows (decided 2026-11-23; the voice is §10):
   - German has no counterpart of `sobre`: a gain word after `auf`, `für`, `aus` or `des` fails like
     any other (`Freuen Sie sich auf Gewinne von 25 %`), so `Die Steuer auf Kapitalerträge beträgt
     25 %` is written `Kapitalerträge werden mit 25 % besteuert`.
-  - `Prozent` reads as `%`.
+  - `Prozent` reads as `%`, and a figure joins it by a space, a hyphen (`-` or the no-break hyphen
+    U+2011), or nothing, so `5-Prozent-Rendite` fails and `5-Prozent-Hürde` passes.
 - The imperative rule (`packages/content/src/style/directive-de.ts`). Spelling cannot tell the
   Sie-imperative from the infinitive or the present, the ihr-imperative from the 3rd person or the
   participle (`verkauft`, `investiert`), or the du-imperative from the noun (`Kauf`, `Tausch`), and
