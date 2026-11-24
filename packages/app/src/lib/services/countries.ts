@@ -67,6 +67,7 @@ export type ProfileLoaders = {
 const RULES: readonly RuleKey[] = ['holdingRule', 'lotRule', 'rates', 'losses', 'reporting'];
 
 export function countryEntries(profiles: readonly CountryProfile[], today: CalendarDate): CountryEntry[] {
+  // Sorted in English collation, which orders every UI language's names as its own does (lib/countries/forms.test.ts).
   return profiles
     .filter((profile) => profile.code !== GENERIC_COUNTRY)
     .map((profile) => {
@@ -79,7 +80,6 @@ export function countryEntries(profiles: readonly CountryProfile[], today: Calen
         underReview: underReview(status, today),
       };
     })
-    // English collation orders every UI language's names as its own does (lib/countries/forms.test.ts).
     .sort((a, b) => a.name.localeCompare(b.name, 'en'));
 }
 
