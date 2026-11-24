@@ -69,7 +69,9 @@ function cut(file: ExchangeFile, { shape, byDay, from, to }: Drawn<typeof window
  * the ratio (rule G), seeds 1 to 8: the window property's worst was 1.33 s (seed 5), six times it 8.0 s. The `lump`
  * property runs 1,600 times with a 120 s timeout, since a lump that records several dates is rare (4 to 9 in 1,200
  * runs at seeds 1 to 8, none in 300 at seed 5): its worst was 2.99 s (seed 8), six times it 17.9 s, under a third of
- * its timeout (40 s).
+ * its timeout (40 s). Measured again on 2026-11-24, after the window property plans the window again after the whole
+ * file and excepts `coverCut`'s sales in both orders, seeds 1 to 8, the lower of two runs: the window property's worst
+ * was 1.61 s (seed 7; the best 1.32 s, seed 1), six times it 9.6 s, under 20 s.
  */
 const RUNS = { numRuns: 300 };
 const TIMEOUT = 60_000;
