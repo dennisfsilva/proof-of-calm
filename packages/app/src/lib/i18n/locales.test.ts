@@ -89,6 +89,15 @@ describe('the ICU shape', () => {
     expect(shape('Plain words.')).toEqual([]);
     expect(() => shape('{n, plural, one {# day}}')).toThrow();
   });
+
+  // A translation may take another form of a country than English does (lib/countries), never another slot.
+  it("counts a country slot's forms as one argument", () => {
+    expect(shape('{country} rules')).toEqual(shape('Regras {countryFor}'));
+    expect(shape('{country} rules')).toEqual(['arg:country:form']);
+    expect(shape('Paid in {countryCurrency}')).toEqual(['arg:countryCurrency:plain']);
+    expect(shape('{oldThe}')).not.toEqual(shape('{country}'));
+    expect(shape('{country, select, PT {a} other {b}}')).toEqual(['arg:country:1']);
+  });
 });
 
 describe('a translated file', () => {
