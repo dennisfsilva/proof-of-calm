@@ -1133,6 +1133,68 @@ describe("a lump's claim reads its amount", () => {
     expect(invested(c, cut)).toBe('91');
   });
 
+  /** Each lump's amount and dates in `entries`' plan of `file`, and Invested and `coin`'s units once it is imported. */
+  const claimsAndHeld = (c: Case, entries: readonly Entry[], coin: CoinId, file?: ExchangeFile) => {
+    const shown = portfolio(c.plan, imported(c, entries, file));
+    return {
+      recorded: planOf(c, entries, file).recorded.map((item) => `${item.entry.amount}:${item.dates.join('+')}`),
+      held: [shown.invested, shown.positions.find((position) => position.coin === coin)?.units],
+    };
+  };
+
+  // Seed 46 (plan-lump-cut.property.test.ts, CUT_46), reduced: ETH's monthly part is 30. 72 x 72 is under 173.50 x
+  // 30, so an export from 1 Oct's 72 fails the first lump's ratio and leaves the cut date's part to the lump of 90,
+  // whose walk then stores 2 Oct's 54; above the part, a doubled date the shorter export's lump reached (W2).
+  it("two one-tap lumps: an export from 1 Oct's 72 leaves it to the lump of 90 and 2 Oct's 54 counts twice", () => {
+    const plan = aPlan({ firstBuy: date('2026-03-01'), startingAmount: money('500') });
+    const first = lump('2026-10-01', { coin: ETH, source: 'one-tap', amount: money('173.50'), units: units('0.001') });
+    const second = lump('2026-10-01', { coin: ETH, source: 'one-tap', amount: money('90'), units: units('0.0122') });
+    const file = [
+      buy('ETH', '2026-10-01T08:00:00Z', '9', '0.001'),
+      buy('ETH', '2026-10-01T12:00:00Z', '72', '0.002'),
+      buy('ETH', '2026-10-02T10:00:00Z', '54', '0.005'),
+    ];
+    const c = of(file, [first, second], plan);
+    const shorter = fileOf(file.filter((m) => m.at >= '2026-10-01T12:00:00Z'));
+    const once = claimsAndHeld(c, c.entries, ETH);
+    expect(once.recorded).toEqual(['173.50:2026-10-01', '90:2026-10-02']);
+    expect(claimsAndHeld(c, c.entries, ETH, shorter).recorded).toEqual(['90:2026-10-01']);
+    const after = claimsAndHeld(c, imported(c, c.entries, shorter), ETH);
+    expect(after.recorded).toEqual(['173.50:2026-10-01']);
+    expect([once.held, after.held]).toEqual([
+      ['263.5', '0.0132'],
+      ['317.5', '0.0182'],
+    ]);
+  });
+
+  // Seed 212 (plan-lump-cut.property.test.ts, CUT_212), reduced: BTC's monthly part is 70. 252 x 252 is under 1,000 x
+  // 70, so an export from 31 May's 112 stores 31 May's 252, which the lump of 1,000 passes over for 1 Jun; the lump of
+  // 280 then stops at 31 May's part before 4 Jun, so 4 Jun's 175.50 is stored too (W2).
+  it("a hand lump of 1,000 and a one-tap lump of 280: 31 May's 252 stops the lump of 280 before 4 Jun", () => {
+    const plan = aPlan({ firstBuy: date('2026-03-01') });
+    const thousand = lump('2026-06-02', { units: units('0.001') });
+    const tapped = lump('2026-06-02', { source: 'one-tap', amount: money('280'), units: units('0.0122') });
+    const file = [
+      buy('BTC', '2026-05-31T08:00:00Z', '28', '0.001'),
+      buy('BTC', '2026-05-31T10:00:00Z', '112', '0.005'),
+      buy('BTC', '2026-05-31T12:00:00Z', '140', '0.002'),
+      buy('BTC', '2026-06-01', '314', '0.78788'),
+      buy('BTC', '2026-06-02', '162.50', '0.95066'),
+      buy('BTC', '2026-06-04', '175.50', '0.83575'),
+    ];
+    const c = of(file, [thousand, tapped], plan);
+    const shorter = fileOf(file.filter((m) => m.at >= '2026-05-31T10:00:00Z'));
+    const once = claimsAndHeld(c, c.entries, BTC);
+    expect(once.recorded).toEqual(['1000:2026-05-31+2026-06-01', '280:2026-06-02+2026-06-04']);
+    expect(claimsAndHeld(c, c.entries, BTC, shorter).recorded).toEqual(['1000:2026-06-01', '280:2026-06-02']);
+    const second = claimsAndHeld(c, imported(c, c.entries, shorter), BTC);
+    expect(second.recorded).toEqual(['1000:2026-05-31+2026-06-01', '280:2026-06-02']);
+    expect([once.held, second.held]).toEqual([
+      ['1280', '0.0132'],
+      ['1707.5', '0.85595'],
+    ]);
+  });
+
   // CI's world of 2026-11-15 (seed -605869711, plan-lump-cut.property.test.ts), shrunk: a one-tap lump of 140, twice
   // BTC's monthly part, on 1 Apr, whose three fills of 14 it passes over, and a hand sale of 8 Sep beside a purchase of
   // 17.50 that day. The hand sale claims 8 Sep's sales alone, so an export beginning inside 1 Apr stores 8 Sep's
