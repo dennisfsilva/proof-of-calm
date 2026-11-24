@@ -161,7 +161,7 @@ test("de: Portfolio keeps its value table, its ranges and its P/L inside their b
   await ownBoxes(page, {
     pnl,
     pnlFigure: pnl.locator('xpath=following-sibling::dd[1]'),
-    why: page.getByRole('link', { name: words.why, exact: true }),
+    why: button(page, words.why),
     '7d': button(page, words['7d']),
     '30d': button(page, words['30d']),
     '90d': button(page, words['90d']),
