@@ -651,10 +651,19 @@ describe('the German word rows, filler words and gain patterns (docs/CONTENT-STY
 
   it('refuses one adjective after im, ins, in das or in dem before the register, and passes two', () => {
     for (const [text, match] of [
-      ['Proof of Calm ist im öffentlichen Register der BaFin eingetragen.', 'im öffentlichen Register der BaFin eingetragen'],
+      [
+        'Proof of Calm ist im öffentlichen Register der BaFin eingetragen.',
+        'im öffentlichen Register der BaFin eingetragen',
+      ],
       ['Proof of Calm ist im öffentlichen BaFin-Register eingetragen.', 'im öffentlichen BaFin-Register eingetragen'],
-      ['Proof of Calm ist in dem öffentlichen BaFin-Register eingetragen.', 'in dem öffentlichen BaFin-Register eingetragen'],
-      ['Proof of Calm ist in das öffentliche BaFin-Register eingetragen.', 'in das öffentliche BaFin-Register eingetragen'],
+      [
+        'Proof of Calm ist in dem öffentlichen BaFin-Register eingetragen.',
+        'in dem öffentlichen BaFin-Register eingetragen',
+      ],
+      [
+        'Proof of Calm ist in das öffentliche BaFin-Register eingetragen.',
+        'in das öffentliche BaFin-Register eingetragen',
+      ],
       ['Eingetragen ins öffentliche Register der BaFin.', 'Eingetragen ins öffentliche Register der BaFin'],
     ]) {
       expect(rules(text ?? ''), text).toEqual([`advice: ${match}`]);
