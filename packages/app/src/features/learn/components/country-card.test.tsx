@@ -5,8 +5,10 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { I18nProvider } from '../../../lib/i18n';
 import { countryCardModel, ServicesProvider } from '../../../lib/services';
 import { createTestServices } from '../../../lib/services/testing';
+import countries from '../../../messages/en/countries.json';
 import learn from '../../../messages/en/learn.json';
 import shell from '../../../messages/en/shell.json';
+import countriesPt from '../../../messages/pt-PT/countries.json';
 import learnPt from '../../../messages/pt-PT/learn.json';
 import shellPt from '../../../messages/pt-PT/shell.json';
 import { GENERIC, GERMANY, PORTUGAL, SHAPES } from '../fixtures/profiles';
@@ -32,7 +34,7 @@ async function mount({ profile = PORTUGAL, level = 1, id, nowMs }: Options = {})
   const country = countryCardModel(profile, services.clock.today());
   const view = render(
     <ServicesProvider services={services}>
-      <I18nProvider messages={{ learn, shell }}>
+      <I18nProvider messages={{ countries, learn, shell }}>
         <CountryCard country={country} level={level} {...(id !== undefined && { id })} />
       </I18nProvider>
     </ServicesProvider>,
@@ -113,7 +115,7 @@ describe('CountryCard', () => {
     });
   });
 
-  // The sources heading takes the article the title gives the name (`learn.sourceList`, CONTENT-STYLE §1.2).
+  // The sources heading takes the name's `for` form (`learn.sourceList`, lib/countries).
   it.each([
     ['NL', 'Sources for the Netherlands'],
     ['DE', 'Sources for Germany'],
@@ -213,7 +215,7 @@ describe('CountryCard in pt-PT (WCAG 2.2 SC 3.1.2, ADR-0057)', () => {
     await services.start();
     const view = render(
       <ServicesProvider services={services}>
-        <I18nProvider locale="pt-PT" messages={{ learn: learnPt, shell: shellPt }}>
+        <I18nProvider locale="pt-PT" messages={{ countries: countriesPt, learn: learnPt, shell: shellPt }}>
           <CountryCard country={countryCardModel(profile, services.clock.today())} level={1} />
         </I18nProvider>
       </ServicesProvider>,
@@ -248,7 +250,7 @@ describe('CountryCard in pt-PT (WCAG 2.2 SC 3.1.2, ADR-0057)', () => {
     expect(screen.queryByText(IN_ENGLISH)).toBeNull();
   });
 
-  // The sources heading takes the article countryHeadTitle gives each name (`learn.sourceList`, ADR-0057).
+  // The sources heading takes the name's `for` form, contracted (`learn.sourceList`, CONTENT-STYLE §9).
   it.each([
     ['NL', 'Fontes dos Países Baixos'],
     ['DE', 'Fontes da Alemanha'],
@@ -269,7 +271,7 @@ describe('CountryCard in pt-PT (WCAG 2.2 SC 3.1.2, ADR-0057)', () => {
     await services.start();
     const { container } = render(
       <ServicesProvider services={services}>
-        <I18nProvider messages={{ learn, shell }}>
+        <I18nProvider messages={{ countries, learn, shell }}>
           <CountryCard country={countryCardModel(portugal, services.clock.today())} level={1} />
         </I18nProvider>
       </ServicesProvider>,
