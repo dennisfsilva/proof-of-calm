@@ -33,3 +33,8 @@ export const RISK_WORDING_LANGUAGES: readonly UiLanguage[] = ['en', 'pt-PT'];
 export function riskWordingLanguage(shown: UiLanguage, approved = RISK_WORDING_LANGUAGES): UiLanguage {
   return approved.includes(shown) ? shown : 'en';
 }
+
+/** The `lang` of the disclosure text on a screen in `shown` (WCAG 2.2 SC 3.1.2): `en` where it shows English. */
+export function disclosureLang(shown: string, approved = RISK_WORDING_LANGUAGES): 'en' | undefined {
+  return approved.some((language) => language === shown) ? undefined : 'en';
+}
