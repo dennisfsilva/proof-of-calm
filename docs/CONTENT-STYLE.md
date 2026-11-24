@@ -448,6 +448,15 @@ you decide, you can change this, record, log, schedule, the asset you chose.
 
 Sentence case, no exclamation marks, numbers with a unit and a date, verbs on buttons.
 
+A country in a sentence takes its form (`packages/app/src/lib/countries/messages/en.json`), never a
+bare `{country}` after a preposition or as an object: `This device suggests the Netherlands.`,
+`Continue with the Netherlands`, `Changing to the Netherlands:`. A bare name stands only in a label
+row, after a colon (`Country now: Portugal. After the change: Netherlands.`). A sentence names a
+country's rule `the rule for Portugal`, never by a possessive (`Portugal's rule`, `the Portugal
+rule`). The general profile's `name`, `Other country`, stands only in labels (the select, the label
+row); its forms in sentences are `the general profile` (`Changing to the general profile:`), and its
+rule keeps `The general profile's rule`. Portuguese has its own forms (§9).
+
 | Moment | Copy |
 |---|---|
 | Buy day, the one tap | Button `Bought as planned`. Toast (8 s): `Recorded: €100.00 of BTC on 16 Oct 2026.` with `Edit`. If the Log's messages cannot load after the save (offline, another language's message files outside the precache): toast (8 s, no action) `Purchase recorded.` Secondary: `Bought a different amount` · `Skip October`. Another browser tab changed the amount or the split since the card showed them: nothing is recorded, toast (8 s, no action) `Your plan changed in another browser tab, so this purchase was not recorded. Check the amounts shown, then record it again.` A tap that would take the plan past 10,000 entries: nothing is recorded, toast (8 s, no action) `Recording this would take the plan past 10,000 entries, the most a plan holds. Delete entries in the Log to make room.` |
@@ -1052,9 +1061,9 @@ needs (decided 2026-11-15). The native reader's review is §8 item 9.
   and take it as an object; the native reader confirms it (§8 item 9). A bare `{country}` stands
   only after a colon, a middle dot or in parentheses (`País do plano: Países Baixos.`). The general
   profile is `o perfil geral`. A rule's name inside a sentence carries no article (`regra dos Países
-  Baixos`), so the sentence writes its own (`a {name}`, `em vez da {from}`). A sentence names a
-  country's rule as `the rule for Portugal`, never by a possessive; the general profile keeps
-  `The general profile's rule`, and its `name` (`Other country`, `Outro país`) stands only in labels.
+  Baixos`), so the sentence writes its own (`a {name}`, `em vez da {from}`). A country's rule is
+  `a regra {countryFor}` (`a regra dos Países Baixos`) and the general profile's `a regra do perfil
+  geral`; its `name`, `Outro país`, stands only in labels, as English's does (§3).
 - **A module's chart section takes pt-PT's two shapes of §4 R5** (decided 2026-11-17): B,
   `No gráfico, C teve K quedas de mais de N entre Y e Y.` with `1 queda` for one, and E, `C caiu L.` or
   `C caiu L`, then any number of `, C L`, then ` e C L.`, with no comma before `e`; `L` is `N`, `N e N`, or two or
