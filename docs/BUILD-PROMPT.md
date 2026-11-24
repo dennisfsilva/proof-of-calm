@@ -878,6 +878,24 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   resumed. A second builder checked the branch against the note, ran the sweeps and reported in 75
   tool calls. Brief such a branch as two rounds: the build, then the checks and the sweeps (#441,
   2026-11-24).
+- A decision that removes one stored item to meet a legal test checks every other stored item
+  against the same test before the plan is written. LEGAL §9 settled the outbox copy alone;
+  counsel's read of #443 then found the random device identifier failed the same test, and a second
+  storage branch (#444) followed inside the session (2026-11-24).
+- Work the app does at open that the person does not need is best effort: a failure lets the open
+  go ahead and the next open retries. #443 and #444 rejected the open when the cleanup failed, so a
+  full disk would have locked the person out of their plan and its export; the integration read
+  found it and its refuter's run showed the code before #443 loaded fine; the rework is
+  fix/cleanup-never-blocks-open (2026-11-24).
+- A test guard that must ignore known values in a text renders the text with neutral tokens in
+  their place, and a placeholder check looks for its marker anywhere in a value. #255's first guard
+  stripped the owner's values with a replace, so a one-character value blinded it, and an `[Owner:`
+  fragment inside a longer value passed as filled (2026-11-24).
+- A pull request that waits on the owner and falls far behind main is carried on a new branch with
+  fast-forward pushes, and the session moves the pull request's branch once with a lease push.
+  #255, 1,038 commits behind, took three builder rounds on feat/legal-drafts-rebased; the last
+  rebase's builder handed back a local commit, checked by `git range-diff`, instead of pushing
+  (2026-11-24).
 
 ## Known gaps
 
