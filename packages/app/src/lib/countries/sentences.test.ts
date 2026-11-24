@@ -3,6 +3,7 @@ import {
   type ContentLanguage,
   GENERIC_COUNTRY,
   loadProfile,
+  loadRules,
   type ProfileCode,
 } from '@proofofcalm/content';
 import compile from 'icu-minify/compile';
@@ -46,6 +47,8 @@ type Sentence = {
   readonly cases: readonly string[];
   /** The call site's other arguments. */
   readonly values?: (input: Case) => Readonly<Record<string, string | number>>;
+  /** The call site names the country by its rules file, which is English in a language without one (Today). */
+  readonly byRules?: true;
 };
 
 const RULE = '1 year, then tax-free.';
@@ -55,6 +58,16 @@ const generalWords = async (language: ContentLanguage) =>
 const GENERAL_WORDS: Readonly<Record<string, string>> = {
   en: await generalWords('en'),
   'pt-PT': await generalWords('pt-PT'),
+};
+/** Each code's name in its rules file, by tabled language: German has no rules files yet, so its names are English. */
+const rulesNames = async (language: ContentLanguage) =>
+  new Map(
+    await Promise.all(COUNTRY_CODES.map(async (code) => [code, (await loadRules(code, language))?.name] as const)),
+  );
+const RULES_NAMES: Readonly<Record<string, ReadonlyMap<ProfileCode, string | undefined>>> = {
+  en: await rulesNames('en'),
+  'pt-PT': await rulesNames('pt-PT'),
+  de: await rulesNames('de'),
 };
 const NOW = { date: '16 Oct 2026' };
 const LENGTH = { unit: 'years', count: 1, figure: '1' };
@@ -151,6 +164,7 @@ const SENTENCES: readonly Sentence[] = [
     key: 'today.ruleChange.generic',
     cases: ALL,
     values: ({ code }) => ({ ...NOW, kind: generic(code) ? 'generic' : 'country' }),
+    byRules: true,
   },
 ];
 
@@ -189,7 +203,7 @@ function rendered(locale: string): Tree {
   const rule = (code: ProfileCode) =>
     format('settings.country.ruleName', { kind: generic(code) ? 'generic' : 'country', ...countryArgs(t, code) }) ?? '';
   const table: Tree = {};
-  for (const { key, cases, values } of SENTENCES) {
+  for (const { key, cases, values, byRules } of SENTENCES) {
     if (ownMessage(key, locale) === undefined) continue;
     table[key] = Object.fromEntries(
       cases.map((name) => {
@@ -200,6 +214,7 @@ function rendered(locale: string): Tree {
           ...values?.({ code, old, rule, words: generic(code) ? (GENERAL_WORDS[locale] ?? '') : RULE }),
           ...countryArgs(t, code),
           ...(old === undefined ? {} : { ...countryArgs(t, old, 'old'), ...countryArgs(t, code, 'new') }),
+          ...(byRules ? { country: RULES_NAMES[locale]?.get(code) ?? '' } : {}),
         };
         return [name, format(key, args) ?? ''];
       }),
@@ -214,8 +229,9 @@ const LOCALES = Object.keys(tables).map((path) => /sentences-([^/]+)\.json$/.exe
 const takesCountry = (message: string) => /\{(?:country|old|new)(?:The|In|For|From|To|With)?\}/u.test(message);
 
 describe('the sentences that name a country', () => {
-  it('are tabled for English and pt-PT', () => {
-    expect(LOCALES).toEqual(expect.arrayContaining(['en', 'pt-PT']));
+  // German's table holds the keys its own files translate so far, with the German forms.
+  it('are tabled for English, pt-PT and German', () => {
+    expect(LOCALES).toEqual(expect.arrayContaining(['en', 'pt-PT', 'de']));
   });
 
   it.each(LOCALES)('read in %s as the table writes them', (locale) => {
