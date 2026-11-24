@@ -1,4 +1,10 @@
-import { COUNTRY_CODES, GENERIC_COUNTRY, type ProfileCode } from '@proofofcalm/content';
+import {
+  COUNTRY_CODES,
+  type ContentLanguage,
+  GENERIC_COUNTRY,
+  loadProfile,
+  type ProfileCode,
+} from '@proofofcalm/content';
 import compile from 'icu-minify/compile';
 import { _createCache, _createIntlFormatters } from 'use-intl/core';
 import formatOnly from 'use-intl/format-message/format-only';
@@ -29,6 +35,8 @@ type Case = {
   readonly old: ProfileCode | undefined;
   /** `settings.country.ruleName` for a code, as the country section words it. */
   readonly rule: (code: ProfileCode) => string;
+  /** The words after a rule's name: the general profile's own holding-rule text, as the screens print it. */
+  readonly words: string;
 };
 
 type Sentence = {
@@ -41,6 +49,13 @@ type Sentence = {
 };
 
 const RULE = '1 year, then tax-free.';
+/** The general profile's own holding-rule text in each tabled language (its card, docs/JURISDICTIONS.md §1). */
+const generalWords = async (language: ContentLanguage) =>
+  (await loadProfile(GENERIC_COUNTRY, language))?.card.holdingRuleText ?? '';
+const GENERAL_WORDS: Readonly<Record<string, string>> = {
+  en: await generalWords('en'),
+  'pt-PT': await generalWords('pt-PT'),
+};
 const NOW = { date: '16 Oct 2026' };
 const LENGTH = { unit: 'years', count: 1, figure: '1' };
 
@@ -52,7 +67,7 @@ const SENTENCES: readonly Sentence[] = [
   {
     key: 'onboarding.summary.holdingRuleValue',
     cases: ALL,
-    values: ({ code }) => ({ kind: generic(code) ? 'generic' : 'named', words: RULE }),
+    values: ({ code, words }) => ({ kind: generic(code) ? 'generic' : 'named', words }),
   },
   { key: 'plan.review.rules.country', cases: LISTED },
   {
@@ -84,8 +99,16 @@ const SENTENCES: readonly Sentence[] = [
   },
   { key: 'settings.country.summary', cases: ALL },
   { key: 'settings.country.row.country', cases: CHANGES },
-  { key: 'settings.country.row.ruleNow', cases: ALL, values: ({ code, rule }) => ({ name: rule(code), rule: RULE }) },
-  { key: 'settings.country.row.ruleAfter', cases: ALL, values: ({ code, rule }) => ({ name: rule(code), rule: RULE }) },
+  {
+    key: 'settings.country.row.ruleNow',
+    cases: ALL,
+    values: ({ code, rule, words }) => ({ name: rule(code), rule: words }),
+  },
+  {
+    key: 'settings.country.row.ruleAfter',
+    cases: ALL,
+    values: ({ code, rule, words }) => ({ name: rule(code), rule: words }),
+  },
   {
     key: 'settings.country.ruleName',
     cases: ALL,
@@ -168,7 +191,7 @@ function rendered(locale: string): Tree {
         const code = codeOf(second ?? first);
         const old = second === undefined ? undefined : codeOf(first);
         const args = {
-          ...values?.({ code, old, rule }),
+          ...values?.({ code, old, rule, words: generic(code) ? (GENERAL_WORDS[locale] ?? '') : RULE }),
           ...countryArgs(t, code),
           ...(old === undefined ? {} : { ...countryArgs(t, old, 'old'), ...countryArgs(t, code, 'new') }),
         };
