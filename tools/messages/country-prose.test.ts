@@ -167,6 +167,22 @@ describe('the country names in prose', () => {
     expect(findings('Em Alemanha. Sobre Reino Unido.', 'pt-PT', pt)).toEqual(['Em Alemanha', 'Sobre Reino Unido']);
   });
 
+  it('refuse a dropped article before a name with its German case ending', () => {
+    const de = articleNames(forms('de'));
+    expect(findings('Steuern in Niederlanden. Steuern aus Niederlanden. Steuern im Niederlanden.', 'de', de)).toEqual([
+      'in Niederlanden',
+      'aus Niederlanden',
+      'im Niederlanden',
+    ]);
+    expect(findings('Regeln aus Vereinigtes Königreichs, mit Vereinigtes Königreiches.', 'de', de)).toEqual([
+      'aus Vereinigtes Königreichs',
+      'mit Vereinigtes Königreiches',
+    ]);
+    expect(
+      findings('Steuern in den Niederlanden, aus den Niederlanden, des Vereinigten Königreichs; USAs.', 'de', de),
+    ).toEqual([]);
+  });
+
   it('found the pt-PT overlays and the site messages', () => {
     expect(files('pt-PT')).toEqual(
       expect.arrayContaining([
