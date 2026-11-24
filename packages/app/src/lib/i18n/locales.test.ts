@@ -1,6 +1,7 @@
 import compile from 'icu-minify/compile';
 import { describe, expect, it } from 'vitest';
 import { RISK_WORDING_LANGUAGES } from '../brand';
+import { COUNTRY_FORMS, COUNTRY_SLOTS } from '../countries/forms';
 import { VISIBLE_LANGUAGES } from './language';
 import type { UiLanguage } from './locale';
 
@@ -15,18 +16,23 @@ const leaves = (node: string | Tree, path = ''): [string, string][] =>
     ? [[path, node]]
     : Object.entries(node).flatMap(([key, value]) => leaves(value, path === '' ? key : `${path}.${key}`));
 
+const capitalized = COUNTRY_FORMS.slice(1).map((form) => `${form.charAt(0).toUpperCase()}${form.slice(1)}`);
+const COUNTRY_FORM = new RegExp(`^(${COUNTRY_SLOTS.join('|')})(?:${capitalized.join('|')})?$`, 'u');
+
 /**
  * A message's ICU shape from icu-minify's compiled form, where a message or branch is a string or a list of
  * parts: `arg:<name>:<type code>` per argument (a name and a numeric type, or a name alone) and
- * `tag:<name>` per rich tag (a name and its parts), sorted, without repeats. The compiler itself throws
- * on a plural or select without `other`.
+ * `tag:<name>` per rich tag (a name and its parts), sorted, without repeats. A plain country argument in any of
+ * its forms (`{country}`, `{countryFor}`, `{oldThe}`) is `arg:<slot>:form`, since every call site passes the whole
+ * family (lib/countries). The compiler itself throws on a plural or select without `other`.
  */
 function shape(message: string): string[] {
   const found = new Set<string>();
   const part = (node: unknown): void => {
     if (!Array.isArray(node) || typeof node[0] !== 'string') return;
     const [name, type, branches] = node as [string, unknown, unknown];
-    if (node.length === 1) found.add(`arg:${name}:plain`);
+    const slot = COUNTRY_FORM.exec(name)?.[1];
+    if (node.length === 1) found.add(slot === undefined ? `arg:${name}:plain` : `arg:${slot}:form`);
     else if (typeof type === 'number') {
       found.add(`arg:${name}:${type}`);
       if (branches !== null && typeof branches === 'object')
