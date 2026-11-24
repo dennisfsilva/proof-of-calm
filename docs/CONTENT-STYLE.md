@@ -1319,7 +1319,7 @@ The product's nouns, one German word each, in every string, the site pages and t
 | coins added at no cost (held) | Hinzugefügte Coins |
 | coins moved (the kind) | Übertragene Coins |
 | sell window | Verkaufsfenster |
-| holding period, holding rule | Haltefrist, one noun for both (`Keine Haltefrist`, `Eigene Haltefrist`); never `Spekulationsfrist` |
+| holding period, holding rule | Haltefrist for the period itself and the person's own rule (`Keine Haltefrist`, `Eigene Haltefrist`); a country's or the general profile's rule is `die Regel …` (`die Regel für Spanien`, `die Regel des allgemeinen Profils`) wherever the English says "the rule …", since a profile can set no holding period (ES, FR and NL do not); never `Spekulationsfrist` |
 | holding date | der erste Tag nach der Haltefrist |
 | hold phase | Haltephase |
 | the plan strip's Buying, Holding, Selling, Out by | Kaufphase, Haltephase, Verkaufsfenster, Ausstieg, each before a range or `ab {date}`; never `Kauf` or `Halten`, which read as instructions |
