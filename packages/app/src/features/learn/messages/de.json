@@ -5,7 +5,7 @@
   },
   "module": {
     "back": "Zurück zu „Lernen“",
-    "lastReviewed": "Stand: {date}{state, select, overdue { · <ink>Prüfung überfällig</ink>} next { · <keep>Nächste Prüfung am {due}</keep>} other {}}",
+    "lastReviewed": "Stand: {date}{state, select, overdue { · <ink>Überprüfung verspätet</ink>} next { · <keep>Nächste Überprüfung geplant für den {due}</keep>} other {}}",
     "taxOverdue": "Die Regeln können sich seit dem {date} geändert haben. Prüfen Sie vor der Steuererklärung die Angaben Ihrer Steuerbehörde.",
     "taxSiteLead": "Die Abschnitte vor „How fast rules change“ beschreiben, was die App nach der Einrichtung eines Plans zeigt. Die Liste am Ende verweist auf die Seite jedes Landes.",
     "pastPerformance": "Die frühere Wertentwicklung ist kein verlässlicher Indikator für künftige Ergebnisse.",
@@ -15,19 +15,19 @@
   "countries": {
     "title": "Länder",
     "other": "Andere Länder",
-    "line": "Steuerregeln und Haltefristen nach Land, mit ihren Quellen und dem Datum der letzten Prüfung.",
+    "line": "Steuerregeln und Haltefristen nach Land, mit ihren Quellen und dem Datum der letzten Überprüfung.",
     "back": "Zurück zu den Ländern",
     "headTitle": "Krypto-Steuerregeln nach Land",
     "countryHeadTitle": "Krypto-Steuern {countryIn}",
     "lastReviewed": "Stand: {date}",
     "notReviewedSince": "Seit {date} nicht überprüft",
-    "holdingTool": "Das Datum zeigen, ab dem ein Kauf diese Haltefrist erfüllt"
+    "holdingTool": "Den ersten Tag nach dieser Haltefrist zeigen"
   },
   "holding": {
     "title": "Haltefristen nach Land",
-    "line": "Die Haltefrist jedes Landes mit jeder Bedingung, ihren Quellen und dem Datum der letzten Prüfung.",
+    "line": "Die Haltefrist jedes Landes mit jeder Bedingung, ihren Quellen und dem Datum der letzten Überprüfung.",
     "tool": {
-      "app": "Das Protokoll von Proof of Calm zeigt den Tag, ab dem jeder Kauf die Haltefrist des Plans erfüllt, wo es eine gibt.",
+      "app": "Das Protokoll von Proof of Calm zeigt für jeden Kauf den ersten Tag nach der Haltefrist des Plans, wo es eine gibt.",
       "country": "Land",
       "noCountry": "Wählen Sie ein Land.",
       "bought": "Kaufdatum",
@@ -51,7 +51,7 @@
     "data": "Tagesschlusskurse in {currency}, {first} bis {last} · Kursdaten von CoinGecko",
     "failed": "Der Kursverlauf konnte nicht geladen werden, daher werden die heutigen Zahlen nicht gezeigt. Öffnen Sie diese Seite erneut, um es noch einmal zu versuchen.",
     "fallsOf": "Frühere Rückgänge von {coin}, von {product} aus den Tageshochs und Tagestiefs jeder Quelle in US-Dollar berechnet:",
-    "fall": "{fall} von {high} auf {low} · {publisher}",
+    "fall": "{fall} vom {high} bis zum {low} · {publisher}",
     "noFalls": "{product} hat keinen datierten früheren Rückgang für {coin}.",
     "fallsFailed": "Die früheren Rückgänge konnten nicht geladen werden. Öffnen Sie diese Seite erneut, um es noch einmal zu versuchen.",
     "nextBuy": "Ihr nächster Kauftag ist der {date}. Heute ist kein Kauftag, außer Sie haben das vorher so entschieden.",
@@ -77,19 +77,19 @@
     },
     "taxable": {
       "yes": "Steuerpflichtig",
-      "no": "Zum Zeitpunkt nicht besteuert",
+      "no": "Zu diesem Zeitpunkt nicht besteuert",
       "depends": "In manchen Fällen steuerpflichtig"
     },
     "rates": "Steuersätze",
     "rateLine": "{label}: {value}",
     "validFrom": "Ab {date}",
     "validRange": "{from} bis {to}",
-    "allowances": "Freibeträge",
+    "allowances": "Freibeträge und Freigrenzen",
     "holdingRule": "Haltefrist",
     "lotRule": "Zuordnung von Verkäufen zu Käufen",
     "losses": "Verluste",
     "reporting": "Meldepflichten",
-    "caveats": "Fragen an eine Steuerberatung",
+    "caveats": "Fragen für die Steuerberatung",
     "sources": "Quellen",
     "sourceList": "Quellen {countryFor}",
     "sourcePublished": "{publisher} · vom {date}",
@@ -99,7 +99,7 @@
   },
   "chart": {
     "label": "Rückgänge von jedem Hoch zum tiefsten Tief danach für {coins}, {first} bis {last}",
-    "description": "Ein Balken je Coin und Zyklus, seine Länge der Rückgang vom Tageshoch zum Tagestief, in US-Dollar.",
+    "description": "Ein Balken je Coin und Zyklus; seine Länge zeigt den Rückgang vom Tageshoch zum Tagestief in US-Dollar.",
     "bar": "{coin} {year}",
     "summary": "Die Rückgänge als Tabelle zeigen",
     "columns": {
