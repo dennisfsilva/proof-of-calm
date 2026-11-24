@@ -6,7 +6,7 @@ import { Redirect, Route, Switch, usePathname } from '../../lib/navigation';
 import { useSnapshot } from '../../lib/services';
 import { loadLearnScreen } from '../learn';
 import { loadLogScreen } from '../log';
-import { loadOnboardingScreen } from '../onboarding';
+import { loadOnboardingScreen, loadReacknowledge } from '../onboarding';
 import { loadPlanScreen, loadReviewScreen } from '../plan';
 import { loadPortfolioScreen } from '../portfolio';
 import { loadSettingsScreen } from '../settings';
@@ -40,8 +40,8 @@ const OnboardingScreen = lazyScreen('onboarding', () =>
 );
 // `lazyScreen` takes screens without props: this one takes the version it records, so it spells the helper out.
 const Reacknowledge = lazy(async () => {
-  const [onboarding] = await Promise.all([import('../onboarding'), loadNamespace('onboarding')]);
-  return { default: onboarding.Reacknowledge };
+  const [reacknowledge] = await Promise.all([loadReacknowledge(), loadNamespace('onboarding')]);
+  return reacknowledge;
 });
 
 /** Today, or in its place the re-ask of the risk text while the plan is due (docs/DOMAIN.md §2.1). */
