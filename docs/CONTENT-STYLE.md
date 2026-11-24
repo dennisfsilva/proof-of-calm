@@ -1207,7 +1207,7 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
   read as an adverb and a verb, stand in `„…“` wherever a sentence or a control names them
   (`Akzeptieren und „Heute“ öffnen`, `Zurück zu „Lernen“`); where a tab shares a screen's name, the
   quotes mark the tab (`Prüfen Sie das unter „Plan“.`). An entry kind stays a noun (`eine
-  Übertragung`). `packages/app/src/lib/i18n/control-names.test.ts` reads pt-PT and German, German's
+  Übertragung`). `packages/app/src/lib/i18n/control-names.test.ts` reads pt-PT and German, German
   only for the labels its files translate.
 - **No courtesy words and no `wir` in an error** (§1.6, §1.8): no `bitte`, `leider`,
   `Entschuldigung`, `danke`, `Achtung:` or `Hinweis:`. `Wählen Sie ein Datum ab dem ersten Kauf`,
@@ -1287,8 +1287,9 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
 - **The tax authority's own terms**: `privates Veräußerungsgeschäft`, `Freigrenze`, `Anlage SO`,
   `Finanzamt`, `BMF-Schreiben`; a rule quoted from the law keeps its wording („nicht mehr als ein
   Jahr beträgt“). A tax name the lint refuses goes on the allow-list with its reason (§2).
-- **A downloaded file takes ordinary spaces and the ASCII hyphen**, never U+00A0 or U+2011, since
-  a spreadsheet or a text editor reads it: the tax-year file in de and in pt-PT (#483).
+- **The tax-year file's own lines keep the ordinary space and U+002D in German too**
+  (`data.taxYear.file`, #483). §9 owns the rule and its limits: the holding conditions the file
+  copies from a profile keep their joins, as screens show them.
 - **Lists take no comma before `und`**, as `lib/format` writes them: `BTC, ETH und SOL`.
 - **A module's chart section has no German shapes of §4 R5 yet**, so it fails closed until they are
   decided as pt-PT's were.
@@ -1354,7 +1355,7 @@ The product's nouns, one German word each, in every string, the site pages and t
 | value chart | `Portfoliowert, …` as the chart's own name; `das Diagramm` in Portfolio's own sentences; `Wertdiagramm` where a sentence on another screen names the chart (`log.form.heldDate`) |
 | Close (the price table's column) | Schlusskurs, as the column only; elsewhere Tagesschlusskurs |
 | Type of transaction (the entry sheet's kind) | Art des Eintrags |
-| Fill in all units (the move sheet) | Alle Einheiten einsetzen; never `eintragen`, which records an entry; units a button fills in are `eingesetzt` everywhere (`aus dem Kurs des Tages eingesetzt`), never `ergänzt` |
+| Fill in all units (the move sheet) | Alle Einheiten einsetzen; never `eintragen`, which records an entry; units a button fills in (`Wie geplant gekauft`) are `eingesetzt` (`aus dem Kurs des Tages eingesetzt`); the value the form computes from the other two stays `ergänzt` (`das Formular ergänzt den dritten`) |
 | sold for (a sale's amount) | Erlös (`Erlös aus {coin} vor Gebühren`) |
 | note | Notiz |
 | exchange | Börse, a broker such as Trade Republic included |
@@ -1377,7 +1378,7 @@ The product's nouns, one German word each, in every string, the site pages and t
 | pool, pooling | Poolbildung (`für die Poolbildung aufgeführt`) |
 | last in, first out / first in, first out | Lifo-Methode (last in, first out) / Fifo-Methode (first in, first out), the English expansion in parentheses |
 | disposal | Veräußerung, the term of § 23 EStG |
-| your accountant | „Ihre Steuerberatung“ (`bleibt Ihrer Steuerberatung überlassen`), the function, not a person |
+| your accountant | `Ihre Steuerberatung` (`bleibt Ihrer Steuerberatung überlassen`), the function, not a person |
 | the venue the coins went to | Zielort |
 | 30-day rule | 30-Tage-Regel |
 | decimal point | Dezimalpunkt (`verwenden einen Dezimalpunkt, kein Komma`), „kein Komma“ added, since German writes a comma |
