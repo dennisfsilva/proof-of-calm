@@ -1243,11 +1243,11 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
   `die` before `Vereinigtes`; and `im`, `vom`, `zum`, `beim` or `ins`, which fuse a singular article,
   before `Vereinigtes`, `Niederlande` or `USA` unless a hyphen (`-` or the no-break hyphen U+2011, not
   the en dash) joins the name to a noun (`zum USA-Profil`). A name with a German case ending is still
-  refused after a bare or fused preposition (`in Niederlanden`, `im Niederlanden`; right: `in den
-  Niederlanden`). A name keeps its case and ends at a letter boundary, so a word that starts with its
-  letters in another case passes (`beim Usambaraveilchen`); only the preposition's or article's first
-  letter may be capitalised (`Im Vereinigtes Königreich` is refused). Another preposition is the
-  writer's to check; the test holds pt-PT's prose the same way.
+  refused after a bare or fused preposition (`in Niederlanden`, `im Niederlanden`; right:
+  `in den Niederlanden`). A name keeps its case and ends at a letter boundary, so a word that starts
+  with its letters in another case passes (`beim Usambaraveilchen`). The test reads a preposition or
+  article with a capital first letter the same way (`Im Vereinigtes Königreich` is refused). Another
+  preposition is the writer's to check; the test holds pt-PT's prose the same way.
 - **Disclosures take the official German text** of each regulator phrasing in `docs/LEGAL.md` §4,
   never a translation back from English: Delegated Regulation 2017/565 art. 44(4)(d), „Die frühere
   Wertentwicklung ist kein verlässlicher Indikator für künftige Ergebnisse.“; MiCA art. 6(5)(a), „Der
