@@ -29,6 +29,20 @@ vi.mock('virtual:learn-modules', async (original) => {
   };
 });
 
+// The namespaces answer from memory (lib/services/testing-modules.ts); `formsOffline` fails the country forms, as
+// a chunk that does not arrive does.
+const network = vi.hoisted(() => ({ formsOffline: false }));
+vi.mock('../../../lib/i18n/namespaces', async (original) => {
+  const { namespacesInMemory } = await import('../../../lib/services/testing-modules');
+  const namespaces = await namespacesInMemory(await original<typeof import('../../../lib/i18n/namespaces')>());
+  const { countries } = namespaces.NAMESPACE_LOADERS.en;
+  const load = () => (network.formsOffline ? Promise.reject(new Error('Failed to fetch')) : countries());
+  return {
+    ...namespaces,
+    NAMESPACE_LOADERS: { ...namespaces.NAMESPACE_LOADERS, en: { ...namespaces.NAMESPACE_LOADERS.en, countries: load } },
+  };
+});
+
 // The fixtures through the real pipeline, as the hosts' build gives them; loaded here so that a findBy waits
 // on React's render of the lazy body, not on Vite's first transform of it.
 await preloadLazyModules([
@@ -145,6 +159,7 @@ describe('ModuleSheet: the tax module', () => {
     country: string | null,
     props: Partial<ComponentProps<typeof ModuleSheet>> = {},
     options: Options = {},
+    Sheet = ModuleSheet,
   ) => {
     const snapshot = fixtureSnapshot();
     const services = createTestServices({
@@ -162,7 +177,7 @@ describe('ModuleSheet: the tax module', () => {
           <I18nProvider messages={{ learn, shell }}>
             <Boundary>
               <Suspense fallback={null}>
-                <ModuleSheet slug={TAXES_MODULE} open onOpenChange={vi.fn()} {...props} />
+                <Sheet slug={TAXES_MODULE} open onOpenChange={vi.fn()} {...props} />
               </Suspense>
             </Boundary>
           </I18nProvider>
@@ -181,6 +196,29 @@ describe('ModuleSheet: the tax module', () => {
     expect(card.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(within(dialog).queryByText('Other countries')).toBeNull();
     expect(within(dialog).queryByText('Countries')).toBeNull();
+  });
+
+  // The card is the sheet's one reader of the country forms, so the sheet loads them with the card (ADR-0045 §8);
+  // the host's provider here holds no `countries`, as WhyLink's loads none.
+  it("names the card's sources through the country's forms, which the sheet loads itself", async () => {
+    await sheetAt('PT');
+    const dialog = await screen.findByRole('dialog');
+    expect(await within(dialog).findByText('Sources for Portugal')).toBeDefined();
+  });
+
+  it("country forms that cannot load fail the tax module's sheet to the host's boundary", async () => {
+    network.formsOffline = true;
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    onTestFinished(() => {
+      network.formsOffline = false;
+      vi.restoreAllMocks();
+    });
+    // A copy of the module, by a query, since React keeps a rejected `lazy` as long as its module lives.
+    const path = './module-sheet?forms-offline';
+    const { ModuleSheet: Sheet } = (await import(/* @vite-ignore */ path)) as typeof import('./module-sheet');
+    await sheetAt('PT', {}, {}, Sheet);
+    await screen.findByText('The boundary');
+    expect(screen.queryByText(/^A rate of 28/)).toBeNull();
   });
 
   it("with the section your-country the focus lands on the card's heading", async () => {
