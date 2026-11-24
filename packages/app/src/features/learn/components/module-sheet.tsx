@@ -4,8 +4,9 @@ import type { LearnModuleMeta } from '@proofofcalm/content';
 import { Button } from '@proofofcalm/ui/components/button';
 import { Sheet, SheetClose, SheetContent, SheetTitle } from '@proofofcalm/ui/components/sheet';
 import { XIcon } from 'lucide-react';
-import { type ComponentProps, useRef } from 'react';
+import { type ComponentProps, lazy, useRef } from 'react';
 import { useTranslations } from 'use-intl';
+import { loadNamespace } from '../../../lib/i18n';
 import { useFormatters, useServices } from '../../../lib/services';
 import { useModuleBody } from '../lib/bodies';
 import { moduleJoiner, withJoiner } from '../lib/body-elements';
@@ -74,6 +75,11 @@ export function ModuleSheet({ slug, section, open, onOpenChange, finalFocus }: M
   );
 }
 
+// The card is the sheet's one reader of the country forms, so they load with it and no other sheet asks for them
+// (ADR-0045 §8); a load that fails reaches the host's boundary, as the card's profile does. Module level, as `lazy`
+// requires.
+const SheetCountryCard = lazy(() => loadNamespace('countries').then(() => ({ default: PlanCountryCard })));
+
 /** The module inside the popup, so a closed sheet loads nothing: its translation's chunk loads as it opens. */
 function SheetModule({ slug }: { slug: string }) {
   const f = useFormatters();
@@ -87,7 +93,7 @@ function SheetModule({ slug }: { slug: string }) {
       Body={Body}
       language={language}
       heading={<SheetTitle lang={lang}>{withJoiner(module.idea, moduleJoiner(module, f))}</SheetTitle>}
-      lead={slug === TAXES_MODULE ? <PlanCountryCard /> : undefined}
+      lead={slug === TAXES_MODULE ? <SheetCountryCard /> : undefined}
     />
   );
 }
