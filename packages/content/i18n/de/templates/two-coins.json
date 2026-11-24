@@ -1,0 +1,6 @@
+{
+  "name": "Zwei Coins, ohne Verkaufsfenster",
+  "oneLine": "Jeder monatliche Betrag wird auf Bitcoin und Ethereum aufgeteilt; ein Verkaufsfenster können Sie hinzufügen.",
+  "riskLabel": "Hohes Risiko",
+  "explanation": "2 Coins, Bitcoin und Ethereum, jeden Monat gekauft und gehalten, ohne Datum für einen Verkauf, es sei denn, Sie fügen eines hinzu. Bitcoin fiel um 78 % vom Hoch am {date:drawdowns.BTC.high} bis zum Tief am {date:drawdowns.BTC.low}. Ethereum fiel um 82 % vom Hoch am {date:drawdowns.ETH.high} bis zum Tief am {date:drawdowns.ETH.low}.\n\nDiesen Ausgangspunkt wählen Menschen, die 2 Coins statt 3 oder 4 wollen. Was schiefgehen kann: Beide Rückgänge begannen am selben Tag, daher sind 2 Coins keine 2 getrennten Risiken. Ein Rückgang dieser Größe kann sich wiederholen."
+}

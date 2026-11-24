@@ -1,0 +1,6 @@
+{
+  "name": "Nur Bitcoin, ohne Verkaufsfenster",
+  "oneLine": "Jeder monatliche Betrag fließt in Bitcoin, ohne Verkaufsfenster.",
+  "riskLabel": "Hohes Risiko · nur ein Coin",
+  "explanation": "1 Coin und kein Datum für einen Verkauf. Diesen Ausgangspunkt wählen Menschen, die möglichst wenige Entscheidungen wollen: 1 Coin, 1 Betrag, 1 Kauftag im Monat und keine Entscheidung über einen Verkauf. Was schiefgehen kann: Jeder Betrag fließt in 1 Coin. Bitcoin fiel um 78 % vom Hoch am {date:drawdowns.BTC.high} bis zum Tief am {date:drawdowns.BTC.low}. Ohne Verkaufsfenster hängt der Wert des Plans an dem Tag, an dem das Geld gebraucht wird, vom Kurs dieses Tages ab."
+}

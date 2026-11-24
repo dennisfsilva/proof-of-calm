@@ -1,0 +1,6 @@
+{
+  "name": "Drei Coins, ohne Verkaufsfenster",
+  "oneLine": "Jeder monatliche Betrag wird auf Bitcoin, Ethereum und Solana aufgeteilt, ohne Verkaufsfenster.",
+  "riskLabel": "Sehr hohes Risiko",
+  "explanation": "3 Coins, jeden Monat gekauft und gehalten, ohne Datum für einen Verkauf. Diesen Ausgangspunkt wählen Menschen, die ihren Bestand über viele Jahre vergrößern wollen, ohne im Voraus zu entscheiden, wann Geld herausgenommen wird. Was schiefgehen kann: 20 % jedes Betrags fließen in Solana. Solana fiel um 97 % vom Hoch am {date:drawdowns.SOL.high} bis zum Tief am {date:drawdowns.SOL.low}. Ohne Verkaufsfenster hängt der Wert des Plans an dem Tag, an dem das Geld gebraucht wird, von den Kursen dieses Tages ab."
+}
