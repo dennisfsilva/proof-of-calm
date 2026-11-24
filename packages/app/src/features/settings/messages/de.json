@@ -18,7 +18,7 @@
     "line": "Das Land, in dem Sie leben, bestimmt die Haltefrist des Plans, die Währung für neue Beträge und wie Zahlen und Datumsangaben geschrieben werden.",
     "label": "Land",
     "notLoaded": "Die Länderprofile sind auf diesem Gerät nicht geladen.",
-    "ruleNotLoaded": "Die Haltefrist Ihres Landes ist auf diesem Gerät nicht geladen. Laden Sie die Seite neu, wenn Sie online sind, um das Land umzustellen.",
+    "ruleNotLoaded": "Die Regel Ihres Landes ist auf diesem Gerät nicht geladen. Laden Sie die Seite neu, wenn Sie online sind, um das Land umzustellen.",
     "summary": "{kind, select, generic {Umstellung des Landes:} other {Umstellung {countryTo}:}}",
     "row": {
       "country": "Land jetzt: {old}. Nach der Änderung: {new}.",
@@ -29,7 +29,7 @@
       "lastBuyEligible": "{effect, select, exempt {Letzter Kauf: erster steuerfreier Tag bisher am {from}, nach der Änderung am {to}} other {Letzter Kauf: langfristiger Steuersatz bisher ab {from}, nach der Änderung ab {to}}}",
       "amount": "{field, select, startingAmount {Startbetrag} other {Monatsbetrag}}: {from} wird zu {to}. Prüfen Sie ihn unter „Plan“."
     },
-    "ruleName": "{kind, select, own {Ihre eigene Haltefrist} generic {die Haltefrist des allgemeinen Profils} other {die Haltefrist {countryFor}}}",
+    "ruleName": "{kind, select, own {Ihre eigene Haltefrist} generic {die Regel des allgemeinen Profils} other {die Regel {countryFor}}}",
     "logged": "Bereits eingetragene Beträge bleiben, wie eingegeben; nichts wird umgerechnet.",
     "question": {
       "legend": "{count, plural, one {{figure} Eintrag vom {first} hat einen Betrag oder eine Gebühr in {logged}. In welcher Währung wurde er bezahlt?} other {{figure} Einträge vom {first} bis zum {last} haben Beträge oder Gebühren in {logged}. In welcher Währung wurden sie bezahlt?}}",
@@ -46,8 +46,8 @@
       "button": "Auf {countryCurrency} umstellen",
       "changed": "Planwährung auf {countryCurrency} umgestellt."
     },
-    "confirmRule": "Haltefrist ersetzen: {from} durch {to}",
-    "confirmRuleIssue": "Kreuzen Sie das Kästchen an, um die Haltefrist zu ersetzen.",
+    "confirmRule": "Regel ersetzen: {from} durch {to}",
+    "confirmRuleIssue": "Kreuzen Sie das Kästchen an, um die Regel zu ersetzen.",
     "notSaved": "Nicht gespeichert: Diese Änderung widerspricht einem anderen Teil des Plans. Prüfen Sie „Plan“ und „Frist\u00a0& Verkauf“ und stellen Sie dann das Land erneut um.",
     "confirm": "{kind, select, generic {Das allgemeine Profil verwenden} other {Land {countryTo} umstellen}}",
     "changed": "{kind, select, generic {Land umgestellt. Jetzt gilt das allgemeine Profil.} other {Land {countryTo} umgestellt.}}",
