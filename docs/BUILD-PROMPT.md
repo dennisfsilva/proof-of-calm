@@ -797,7 +797,8 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   node_modules, folder .vitest-cache): an unchanged test file kept its old `import.meta.glob` expansion,
   so #413's German files failed
   `packages/app/src/features/onboarding/model/disclosure.test.ts` locally while CI and fresh
-  worktrees passed (2026-11-23). Clear the cache before treating such a failure as the branch's.
+  worktrees passed (2026-11-23). The app's unit project turns it off (`packages/app/vitest.config.ts`),
+  at about 2 s more of a warm run; a package whose tests glob files it does not import turns it off too.
 - A translation can be built before its ban rows land when the design check's judge leaves a
   runnable prototype of the final rule: #419's 139 German strings were checked against the D1
   judge's merged `findBanned` while the rule's own branch was still in review, and needed no change

@@ -68,6 +68,11 @@ export default defineConfig({
           // (`// @vitest-environment jsdom`, ADR-0024).
           name: 'unit',
           environment: 'node',
+          // Vitest 5's persistent module cache would keep an unchanged test's old `import.meta.glob`
+          // expansion, so a new message file went unread locally (#413). Off for the tests that glob
+          // the message files: lib/i18n's locales, language, control-names, precompiled and twins,
+          // and onboarding's disclosure test.
+          fsModuleCache: false,
           include: ['src/**/*.test.{ts,tsx}'],
         },
       },
