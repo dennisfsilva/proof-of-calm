@@ -697,12 +697,14 @@ test("pt-PT: the Log's move sheet keeps its fill-all button inside the sheet at 
 
 // An 8-decimal amount in the sent units' input showed only its tail beside the fill-all button: scroll width against
 // visible width, pt-PT 115/78 on android-small and 143/98 at zoom-125, English 143/127 at zoom-125 (2026-11-24). The
-// row puts the button below the input when both do not fit on one line (docs/DESIGN.md §8, Button).
+// row puts the button below the input when both do not fit on one line (docs/DESIGN.md §8, Button). The move sheet's
+// sent-units row is the one row in packages/app where a button shares a row with an input that takes the rest of it
+// (swept 2026-11-24), so this case also guards the button's box against the input's.
 for (const [language, messages, amount] of [
   ['en', enLog, '0.00012345'],
   ['pt-PT', ptLog, '0,00012345'],
 ] as const) {
-  test(`${language}: the Log's move sheet shows a whole 8-decimal amount in its units input at 125 % text`, async ({
+  test(`${language}: the Log's move sheet shows a whole 8-decimal amount in its units input, the button off it, at 125 % text`, async ({
     page,
   }) => {
     const errors = await boot(page, language === 'en' ? null : language);
@@ -725,12 +727,26 @@ for (const [language, messages, amount] of [
       expect(shown.scroll, `at ${at}, the amount fits its input (${shown.scroll}/${shown.client})`).toBeLessThanOrEqual(
         shown.client,
       );
-      const inside = await all.evaluate((element) => {
+      const field = await input.evaluate((element) => {
+        const { left, right, top, bottom } = element.getBoundingClientRect();
+        return { left, right, top, bottom };
+      });
+      const boxes = await all.evaluate((element, field) => {
         const own = element.getBoundingClientRect();
         const box = element.closest('[role="dialog"]')?.getBoundingClientRect();
-        return box !== undefined && own.left >= box.left - 0.5 && own.right <= box.right + 0.5;
-      });
-      expect(inside, `at ${at}, the fill-all button lies inside the sheet`).toBe(true);
+        return {
+          inside: box !== undefined && own.left >= box.left - 0.5 && own.right <= box.right + 0.5,
+          overlaps:
+            own.left < field.right - 0.5 &&
+            own.right > field.left + 0.5 &&
+            own.top < field.bottom - 0.5 &&
+            own.bottom > field.top + 0.5,
+          own: [own.left, own.top, own.right, own.bottom].map(Math.round),
+        };
+      }, field);
+      expect(boxes.inside, `at ${at}, the fill-all button lies inside the sheet`).toBe(true);
+      const held = [field.left, field.top, field.right, field.bottom].map(Math.round);
+      expect(boxes.overlaps, `at ${at}, the fill-all button ${boxes.own} keeps off the input ${held}`).toBe(false);
     }
     expect(errors).toEqual([]);
   });
