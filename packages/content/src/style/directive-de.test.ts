@@ -76,13 +76,14 @@ describe('§2’s German item 1 (docs/CONTENT-STYLE.md)', () => {
     for (const infinitive of SEPARABLE_VERBS) expect(zuInfinitive(infinitive), infinitive).not.toBe('');
   });
 
+  // "Sie sollten" is also a German word row (docs/CONTENT-STYLE.md §2), so that line reports advice twice.
   it.each(SIMPLE_VERBS)('refuses %j in a frame, as the infinitive and with zu', (infinitive) => {
-    expect(rules(`Sie sollten Ihre Bitcoin ${infinitive}.`)).toEqual(['advice', 'imperative']);
+    expect(rules(`Sie sollten Ihre Bitcoin ${infinitive}.`)).toEqual(['advice', 'advice', 'imperative']);
     expect(rules(`Es ist sinnvoll, Ihre BTC zu ${infinitive}.`)).toEqual(['advice', 'imperative']);
   });
 
   it.each(SEPARABLE_VERBS)('refuses %j in a frame, as the infinitive and the zu-infinitive', (infinitive) => {
-    expect(rules(`Sie sollten Ihre Bitcoin ${infinitive}.`)).toEqual(['advice', 'imperative']);
+    expect(rules(`Sie sollten Ihre Bitcoin ${infinitive}.`)).toEqual(['advice', 'advice', 'imperative']);
     expect(rules(`Es ist sinnvoll, Ihre BTC ${zuInfinitive(infinitive)}.`)).toEqual(['advice', 'imperative']);
   });
 });
