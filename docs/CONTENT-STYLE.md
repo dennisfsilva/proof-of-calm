@@ -951,8 +951,8 @@ unsubscribe header; nothing is ever sent that was not asked for.
    questions (#414 for pt-PT), with a page that states the register and what is fixed (§9). Every
    answer that is applied passes the banned-words lint, brand's read and, for a legal or risk text,
    counsel's read. A changed term is recorded in §9 for pt-PT and in German's own section, which
-   the first German change adds. German's first strings (Today, the shell, the errors and one Plan key;
-   2026-11-23, #419) exist and stay hidden until the native reader's read.
+   the first German change adds. German's strings so far (`docs/ROADMAP.md`, M2's German item) stay
+   hidden until the native reader's read.
 10. Template names signed off by the owner.
 11. The balance step, for every new or moved disclosure (ADR-0047): what decision does this line
     protect; is a warning already on this path (then it is a repeat and goes); one competitor
