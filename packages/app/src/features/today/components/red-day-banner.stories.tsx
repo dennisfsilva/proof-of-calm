@@ -31,15 +31,24 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
+/** The element's box lies inside its banner's, within half a pixel of rounding. */
+const expectInsideBanner = async (element: HTMLElement) => {
+  const banner = element.closest('[data-slot="banner"]');
+  await expect(banner).not.toBeNull();
+  const own = element.getBoundingClientRect();
+  const box = banner?.getBoundingClientRect() ?? new DOMRect();
+  await expect(own.left).toBeGreaterThanOrEqual(box.left - 0.5);
+  await expect(own.right).toBeLessThanOrEqual(box.right + 0.5);
+};
+
 export const SevenDays: Story = {
   play: async ({ args, canvas, userEvent }) => {
     await expect(canvas.getByText(/^Bitcoin fell 16% in the 7 days to 19/u)).toBeVisible();
     const link = canvas.getByRole('link', { name: 'See the fall under way' });
     await expect(link).toBeVisible();
-    // The label keeps to one line (the button's base is nowrap), so at 360 px it must fit the banner's width.
-    const actions = link.parentElement;
-    await expect(link.scrollWidth).toBeLessThanOrEqual(link.clientWidth);
-    await expect(actions?.scrollWidth).toBeLessThanOrEqual(actions?.clientWidth ?? 0);
+    // A label wider than its row wraps onto a second line (docs/DESIGN.md §8, Button), so the link's own scroll width
+    // never exceeds its box: what must hold is that its box lies inside the banner, as the e2e case for German does.
+    await expectInsideBanner(link);
     await expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(window.innerWidth);
     await userEvent.click(canvas.getByRole('button', { name: 'Dismiss' }));
     await expect(args.onDismiss).toHaveBeenCalledOnce();
