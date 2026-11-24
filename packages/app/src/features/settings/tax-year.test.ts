@@ -128,7 +128,8 @@ describe('the tax-year header lines', () => {
   // does, so "the Netherlands" and "the United States" keep their article; the title keeps the bare name as a label.
   it('the English lines name the country with its article: the review, holding and plan-rule lines', async () => {
     const dutch = (await header('NL', 'en')).split('\n').map(uncell);
-    expect(dutch[0]).toMatch(/^Proof of Calm tax-year file · Netherlands · /u);
+    // The saved file opens with a byte order mark before the title.
+    expect(dutch[0]).toMatch(/^﻿Proof of Calm tax-year file · Netherlands · /u);
     expect(dutch[3]).toMatch(/^Rules for the Netherlands reviewed on \d{4}-\d{2}-\d{2} · general information/u);
     const british = (await header('GB', 'en')).split('\n').map(uncell);
     expect(british[3]).toMatch(/^Rules for the United Kingdom reviewed on /u);
