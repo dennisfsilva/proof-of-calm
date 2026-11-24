@@ -71,7 +71,7 @@ function cut(file: ExchangeFile, { shape, byDay, from, to }: Drawn<typeof window
  * runs at seeds 1 to 8, none in 300 at seed 5): its worst was 2.99 s (seed 8), six times it 17.9 s, under a third of
  * its timeout (40 s). Measured again on 2026-11-24, after the window property plans the window again after the whole
  * file and excepts `coverCut`'s sales in both orders, seeds 1 to 8, the lower of two runs: the window property's worst
- * was 1.61 s (seed 7; the best 1.32 s, seed 1), six times it 9.6 s, under 20 s.
+ * was 1.61 s (seed 7; the best 1.32 s, seed 1), six times it 9.7 s, under 20 s.
  */
 const RUNS = { numRuns: 300 };
 const TIMEOUT = 60_000;
