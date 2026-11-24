@@ -1161,6 +1161,8 @@ The product's nouns, one German word each, in every string, the site pages and t
 | country card / general profile | Länderprofil / das allgemeine Profil |
 | tax-year file | Datei für das Steuerjahr (`Steuerjahr als CSV exportieren`) |
 | crypto-asset service provider | Anbieter von Kryptowerte-Dienstleistungen |
+| screen (#419's shell strings) | Ansicht (`Diese Ansicht konnte nicht geladen werden.`) |
+| unread (a plan this version cannot read, `shell.newer.again`) | ungelesen |
 
 Two terms name the same date in two frames: `der erste Tag nach der Haltefrist` is the date in the
 holding rule's own frame (the hold-phase card, the holding-date tool, the tax-year file's
@@ -1177,4 +1179,5 @@ kept `cópia de segurança`), `durchschnittlicher Kaufpreis` against `Einstandsp
 `geplant für den`; the Settings tabs, the tab bar and the entry sheet's kinds at 360 px with 125 %
 text, with `Land & Daten` if `Währung` runs past; the German "not tax advice" line, pending the StBerG
 question (`docs/BENCHMARK.md` §4), its candidate `Aus Ihren Einträgen berechnet, keine
-Steuerberatung`; the descriptor against `Krypto-Sparplan` (`docs/GROWTH.md` §2.5).
+Steuerberatung`; the descriptor against `Krypto-Sparplan` (`docs/GROWTH.md` §2.5); `ungelesen`
+against `nicht eingelesen` for `shell.newer.again`.
