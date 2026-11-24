@@ -10,10 +10,9 @@ import { DEFAULT_PREFS, type Prefs } from '@proofofcalm/core';
 //
 // The device id: the rows carry a fixed id, not the one in this device's `meta` store (a fresh device
 // has none until its first write). The store only compares row stamps for sync, so a foreign id is
-// what an imported or synced row would carry. Nothing goes to the outbox: a seeded plan is not a write
-// waiting for sync. The prefs are left as they are, unless the spec passes some: then the defaults with those
-// fields go in under the store's one prefs key, `'device'` (PREFS_KEY in
-// packages/app/src/lib/adapters/idb-store.ts:47), in the same transaction.
+// what an imported or synced row would carry. The prefs are left as they are, unless the spec passes
+// some: then the defaults with those fields go in under the store's one prefs key, `'device'` (PREFS_KEY
+// in packages/app/src/lib/adapters/idb-store.ts:46), in the same transaction.
 const SEED_DEVICE_ID = '00000000-0000-4000-8000-00000000e2e0' as Parameters<typeof planRow>[1];
 
 type Rows = { readonly plans: PlanRow[]; readonly entries: EntryRow[] };
