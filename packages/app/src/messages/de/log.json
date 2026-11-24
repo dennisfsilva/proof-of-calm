@@ -86,7 +86,7 @@
     "costHint": "Lassen Sie das Feld leer, wenn Sie die Kosten nicht kennen: „Investiert“, der durchschnittliche Kaufpreis und das Ergebnis lassen diese Einheiten dann aus. Geben Sie 0 ein, wenn Sie nichts bezahlt haben.",
     "heldDate": "Der Tag, an dem Sie sie gekauft oder erhalten haben.{rule, select, none {} other { Im Zweifel wählen Sie den spätestmöglichen Tag: Mit ihm beginnt eine Haltefrist nie zu früh.}} Das Wertdiagramm zählt die Coins ab diesem Tag.",
     "hint": "Geben Sie 2 der 3 Werte ein; das Formular ergänzt den dritten.",
-    "estimateHint": "„Wie geplant gekauft“ hat diese Einheiten aus dem Kurs des Tages ergänzt. Eine übernommene Gebühr oder ein übernommener Ort stammt aus dem letzten Kauf oder Verkauf, der diese Angabe hat. Geben Sie die Einheiten aus der Bestätigung Ihrer Börse ein.",
+    "estimateHint": "„Wie geplant gekauft“ hat diese Einheiten aus dem Kurs des Tages eingesetzt. Eine übernommene Gebühr oder ein übernommener Ort stammt aus dem letzten Kauf oder Verkauf, der diese Angabe hat. Geben Sie die Einheiten aus der Bestätigung Ihrer Börse ein.",
     "venuesHint": "{named, plural, one {Ort} other {Orte}} dieser Einträge: {venues}.{unnamed, plural, =0 {} one { {figure} Eintrag hat keinen.} other { {figure} Einträge haben keinen.}} Jeder Eintrag bleibt bei seinem eigenen Ort, außer Sie geben einen Ort für alle ein.",
     "earlierDate": "Der vom Formular ergänzte Kurs gilt nicht für ein früheres Datum. Geben Sie die Kosten vor Gebühren und die erhaltenen Einheiten so ein, wie die Bestätigung Ihrer Börse sie zeigt.",
     "fee": "Gebühr ({currency}, optional)",
