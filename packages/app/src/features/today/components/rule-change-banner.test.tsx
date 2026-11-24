@@ -5,14 +5,20 @@ import { Toaster } from '@proofofcalm/ui/components/toast';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { memoryPlanStore } from '../../../lib/adapters/memory-store';
-import { I18nProvider } from '../../../lib/i18n';
+import { I18nProvider, type Messages } from '../../../lib/i18n';
 import { NavigationProvider, usePathname } from '../../../lib/navigation';
 import type { PlanStore, Snapshot } from '../../../lib/ports';
 import { type Services, ServicesProvider } from '../../../lib/services';
 import { fixtureNowMs, fixtureSnapshot } from '../../../lib/services/fixtures';
 import { clearRedDay, createTestServices } from '../../../lib/services/testing';
+import countriesDe from '../../../messages/de/countries.json';
+import shellDe from '../../../messages/de/shell.json';
+import todayDe from '../../../messages/de/today.json';
 import shell from '../../../messages/en/shell.json';
 import today from '../../../messages/en/today.json';
+import countriesPt from '../../../messages/pt-PT/countries.json';
+import shellPt from '../../../messages/pt-PT/shell.json';
+import todayPt from '../../../messages/pt-PT/today.json';
 import { TodayScreen } from './today-screen';
 
 // The rule-change notice at Today's foot (docs/DOMAIN.md §3.11, §3.12): the fixture plan on 20 October 2026
@@ -45,18 +51,35 @@ function Path() {
   return <output data-testid="path">{usePathname()}</output>;
 }
 
+type Locale = 'en' | 'de' | 'pt-PT';
+
+// Another language's screen is given its country forms whole: the registry loads English's, as no host booted.
+const MESSAGES: Readonly<Record<Locale, Partial<Messages>>> = {
+  en: { shell, today },
+  de: { shell: shellDe, today: todayDe, countries: countriesDe },
+  'pt-PT': { shell: shellPt, today: todayPt, countries: countriesPt },
+};
+
 type Options = {
   readonly changeNotice?: string | null;
   readonly planStore?: PlanStore;
-  readonly rules?: CountryRules;
+  /** The rules the loader gives; null as when they did not load. */
+  readonly rules?: CountryRules | null;
+  readonly locale?: Locale;
 };
 
-async function mount({ changeNotice = null, planStore = memoryPlanStore(unseen()), rules = PORTUGAL }: Options = {}) {
+async function mount({
+  changeNotice = null,
+  planStore = memoryPlanStore(unseen()),
+  rules = PORTUGAL,
+  locale = 'en',
+}: Options = {}) {
   const changedOn = '2027-01-01' as CalendarDate;
   const created = createTestServices({
     planStore,
     nowMs: fixtureNowMs('buy'),
-    rules: async () => ({ ...rules, status: { ...rules.status, changedOn, changeNotice } }),
+    language: locale,
+    rules: async () => rules && { ...rules, status: { ...rules.status, changedOn, changeNotice } },
   });
   // No episode under way: the foot settles on the notice inside the render's act.
   const services = { ...created, redDay: clearRedDay() };
@@ -65,7 +88,7 @@ async function mount({ changeNotice = null, planStore = memoryPlanStore(unseen()
     render(
       <NavigationProvider location="memory" initialPath="/today">
         <ServicesProvider services={services}>
-          <I18nProvider messages={{ shell, today }}>
+          <I18nProvider locale={locale} messages={MESSAGES[locale]}>
             <Toaster closeLabel="Close" toastManager={services.toasts}>
               <TodayScreen />
               <Path />
@@ -93,8 +116,45 @@ describe('RuleChangeBanner', () => {
   it('a null sentence gets the generic one', async () => {
     await mount();
     expect(
-      screen.getByText("1 Jan 2027: the rules for your plan's country (Portugal) changed. Review your plan."),
+      await screen.findByText("1 Jan 2027: the rules for your plan's country (Portugal) changed. Review your plan."),
     ).toBeDefined();
+  });
+
+  // The generic sentence names the plan's country in the UI language, by its forms (docs/CONTENT-STYLE.md §9,
+  // §10), never by the rules file's name, which is English where a language has no rules files.
+  describe('names the plan’s country in the UI language', () => {
+    const germany = async () => {
+      const found = await loadProfile('DE');
+      if (found === null) throw new Error('no DE profile');
+      return countryRules(found);
+    };
+    const inGermany = () => {
+      const snapshot = unseen();
+      return memoryPlanStore({ ...snapshot, plan: snapshot.plan && { ...snapshot.plan, country: 'DE' } });
+    };
+
+    it('German takes the form after its preposition: „für Deutschland“', async () => {
+      await mount({ planStore: inGermany(), rules: await germany(), locale: 'de' });
+      expect(
+        await screen.findByText(/: Die Regeln für Deutschland haben sich geändert\. Prüfen Sie den Plan\.$/u),
+      ).toBeDefined();
+      expect(screen.queryByText(/Germany|\(DE\)/u)).toBeNull();
+    });
+
+    it('pt-PT keeps the name in parentheses, in Portuguese', async () => {
+      await mount({ planStore: inGermany(), rules: await germany(), locale: 'pt-PT' });
+      expect(
+        await screen.findByText(/: as regras do país do plano \(Alemanha\) mudaram\. Reveja o plano\.$/u),
+      ).toBeDefined();
+    });
+
+    // The notice is the rules' own news, so without them there is none, and no bare code stands in a sentence.
+    it('rules that did not load: no notice and no bare code', async () => {
+      await mount({ planStore: inGermany(), rules: null, locale: 'de' });
+      expect(screen.getByRole('heading', { level: 1 })).toBeDefined();
+      expect(screen.queryByRole('button', { name: 'Ausblenden' })).toBeNull();
+      expect(screen.queryByText(/\bDE\b|Germany/u)).toBeNull();
+    });
   });
 
   it('the generic profile is named as the general profile, never as a country', async () => {
