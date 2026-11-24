@@ -154,7 +154,7 @@ export const lumpCut = fc.record({
   to: fc.nat(),
   source: fc.constantFrom<Entry['source']>('one-tap', 'manual'),
 });
-type LumpCut = typeof lumpCut extends fc.Arbitrary<infer U> ? U : never;
+export type LumpCut = typeof lumpCut extends fc.Arbitrary<infer U> ? U : never;
 
 /**
  * `drawn` with `cut`'s lump and purchases added, the cut date, and the export `cut` keeps: the movements up to a fill
