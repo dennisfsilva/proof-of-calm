@@ -96,6 +96,11 @@ function expectGerman<T extends Record<string, string>>(words: T, english: T) {
 
 /** What a screen shows of a message: its words before the first placeholder. */
 const shown = (message: string) => message.slice(0, message.indexOf('{')).trim();
+/** A message's words between its first two placeholders ("überprüft. Nächste Überprüfung ab" of `review.marked`). */
+const between = (message: string) => {
+  const end = message.indexOf('}') + 1;
+  return message.slice(end, message.indexOf('{', end)).trim();
+};
 /** A select's `other` branch up to its first placeholder ("Länderprofil" of "Länderprofil {countryFor} ansehen"). */
 const otherLead = (message: string) => /other \{([^{}]*)\{/.exec(message)?.[1]?.trim() ?? '';
 /** A message's words with its regular-expression characters escaped. */
@@ -174,6 +179,7 @@ test('de: the review keeps its headings, the country line and each control insid
     mark: plan.review.mark,
     edit: plan.edit,
     marked: shown(plan.review.marked),
+    markedThen: between(plan.review.marked),
   });
   const words = pick(dePlan);
   expectGerman(words, pick(enPlan));
@@ -201,7 +207,9 @@ test('de: the review keeps its headings, the country line and each control insid
   await expect(card).toHaveText(new RegExp(`^${literal(words.card)} für Portugal ansehen$`, 'u'));
 
   await button(page, words.mark).click();
-  await expect(page.getByText(new RegExp(`^${literal(words.marked)}`, 'u'))).toBeVisible();
+  // The lead alone also matches the set-up line („… eingerichtet.“) that can stand until the screen re-renders.
+  const marked = new RegExp(`^${literal(words.marked)} .+ ${literal(words.markedThen)} `, 'u');
+  await expect(page.getByText(marked)).toBeVisible();
   await ownBoxes(page, { back: link(page, words.back), log: link(page, words.log) });
   expect(errors).toEqual([]);
 });
