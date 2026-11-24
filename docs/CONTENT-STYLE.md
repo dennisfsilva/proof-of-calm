@@ -610,9 +610,9 @@ The tabs of Settings and the save of the Plan, Coins & split and Hold & sell tab
 ## 4. Numbers and dates in copy
 
 Per `docs/DESIGN.md` §5: numbers are formatted by the country's locale and dates by the UI language
-(ADR-0023), never hand-built. Every percentage on a
-page takes the spacing of the country's number locale, as `format.percent` writes it: `70%` in
-Portugal, `40 %` with a no-break space in Germany. Research figures in messages go through
+(ADR-0023), never hand-built. Every percentage on a page takes the spacing of the country's number
+locale whatever the UI language, as `format.percent` writes it: `70%` in Portugal, `40 %` with a
+no-break space in Germany, in the German UI too. Research figures in messages go through
 `format.percent`, and a country profile writes its literal percentages with its own locale's joiner,
 which `pnpm validate:content` checks, so the sign never wraps away from its number. A profile's
 literal percentage also takes the decimal separator of the profile's number locale in the page's
@@ -1231,10 +1231,15 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
   or the plan.
 - **People and places.** Name the function (`Fragen für die Steuerberatung`) or write the ESAs' pair
   (`Verbraucherinnen und Verbraucher`), never `*`, `:` or an inner capital I; a quoted law keeps its
-  wording (`Anleger`). A country in a sentence takes its form from
-  `packages/app/src/lib/countries/messages/de.json` (planned: M2), each with its preposition, article and case
-  (`für die Niederlande`, `im Vereinigten Königreich`, `mit den Niederlanden`, `auf die USA`, `vom Vereinigten
-  Königreich`); a bare `{country}` stands only after a colon, a middle dot or in parentheses (§9).
+  wording (`Anleger`). The names: Deutschland, Spanien, Frankreich, Vereinigtes Königreich (not
+  `Großbritannien`, which leaves out Northern Ireland), Irland, Italien, Niederlande, Portugal, USA;
+  „Anderes Land“ is the picker's label and „das allgemeine Profil“ the general profile in a sentence.
+  A country in a sentence takes its form from `packages/app/src/lib/countries/messages/de.json`, each
+  with its preposition, article and case (`für die Niederlande`, `im Vereinigten Königreich`, `mit den
+  Niederlanden`, `auf die USA`, `vom Vereinigten Königreich`); a bare `{country}` stands only after a
+  colon, a middle dot or in parentheses (§9). In the content overlays and the site's messages no
+  preposition stands right before Vereinigtes Königreich, Niederlande or USA, and no article before
+  `Vereinigtes` (`tools/messages/country-prose.test.ts`, which holds pt-PT's prose the same way).
 - **Disclosures take the official German text** of each regulator phrasing in `docs/LEGAL.md` §4,
   never a translation back from English: Delegated Regulation 2017/565 art. 44(4)(d), „Die frühere
   Wertentwicklung ist kein verlässlicher Indikator für künftige Ergebnisse.“; MiCA art. 6(5)(a), „Der
@@ -1332,6 +1337,16 @@ The product's nouns, one German word each, in every string, the site pages and t
 | crypto-asset service provider | Anbieter von Kryptowerte-Dienstleistungen |
 | screen (#419's shell strings) | Ansicht (`Diese Ansicht konnte nicht geladen werden.`) |
 | unread (a plan this version cannot read, `shell.newer.again`) | ungelesen |
+| Chart range (the control) | Zeitraum des Diagramms |
+| 7D / 30D / 90D / 1Y / All (the ranges) | 7T / 30T / 90T / 1J / Alle, each read out by its spoken name (`letzte 7 Tage` to `seit dem ersten Eintrag`) |
+| value chart | Wertdiagramm |
+| Close (the price table's column) | Schlusskurs, as the column only; elsewhere Tagesschlusskurs |
+| Type of transaction (the entry sheet's kind) | Art des Eintrags |
+| Fill in all units (the move sheet) | Alle Einheiten einsetzen; never `eintragen`, which records an entry |
+| sold for (a sale's amount) | Erlös (`Erlös aus {coin} vor Gebühren`) |
+| note | Notiz |
+| exchange | Börse |
+| withdrawal / deposit (a move's records) | Auszahlung / Einzahlung |
 
 Two terms name the same date in two frames: `der erste Tag nach der Haltefrist` is the date in the
 holding rule's own frame (the hold-phase card, the holding-date tool, the tax-year file's
@@ -1349,4 +1364,8 @@ kept `cópia de segurança`), `durchschnittlicher Kaufpreis` against `Einstandsp
 text, with `Land & Daten` if `Währung` runs past; the German "not tax advice" line, pending the StBerG
 question (`docs/BENCHMARK.md` §4), its candidate `Aus Ihren Einträgen berechnet, keine
 Steuerberatung`; the descriptor against `Krypto-Sparplan` (`docs/GROWTH.md` §2.5); `ungelesen`
-against `nicht eingelesen` for `shell.newer.again`.
+against `nicht eingelesen` for `shell.newer.again`; „nach {to}“ or „auf {to}“ in the move strings;
+`move.toHint`'s „nie ihre Adresse“; `chart.empty`'s „Es gibt keinen Wert zum Zeichnen“; the range
+„Alle“ against „Max“; the country forms: `USA` (`die USA`) against `Vereinigte Staaten`, `auf` for
+a change of country (`Land auf die Niederlande umstellen`, `von Portugal auf …` in its row) and
+„das allgemeine Profil“ in a sentence.

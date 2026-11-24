@@ -17,6 +17,8 @@ in its `LOCALES` list (`en`, `pt-PT`, `de`) and writes, into `packages/app/src/m
 translated file is completed from English (`complete`): a missing key takes English's message, and a
 key English lacks, or a file in a locale the list does not name, stops the merge (ADR-0045,
 Deviations of 2026-11-15). `--check` reports a missing, stale or leftover file and writes nothing.
+`messages/country-prose.test.ts`, a test with no script, holds the pt-PT and German content overlays
+and site messages to the country forms' articles (the rule: `docs/CONTENT-STYLE.md` §10's places bullet).
 
 `content-review/reminder.ts` is the content review's reminder (`docs/CONTENT-OPS.md` §2): `issue`
 opens or comments on the `content-review` issue for the content-review-reminder.yml workflow
