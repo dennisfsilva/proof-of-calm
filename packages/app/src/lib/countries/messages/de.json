@@ -1,0 +1,92 @@
+{
+  "DE": {
+    "name": "Deutschland",
+    "the": "Deutschland",
+    "in": "in Deutschland",
+    "for": "für Deutschland",
+    "from": "von Deutschland",
+    "to": "auf Deutschland",
+    "with": "mit Deutschland"
+  },
+  "ES": {
+    "name": "Spanien",
+    "the": "Spanien",
+    "in": "in Spanien",
+    "for": "für Spanien",
+    "from": "von Spanien",
+    "to": "auf Spanien",
+    "with": "mit Spanien"
+  },
+  "FR": {
+    "name": "Frankreich",
+    "the": "Frankreich",
+    "in": "in Frankreich",
+    "for": "für Frankreich",
+    "from": "von Frankreich",
+    "to": "auf Frankreich",
+    "with": "mit Frankreich"
+  },
+  "GB": {
+    "name": "Vereinigtes Königreich",
+    "the": "das Vereinigte Königreich",
+    "in": "im Vereinigten Königreich",
+    "for": "für das Vereinigte Königreich",
+    "from": "vom Vereinigten Königreich",
+    "to": "auf das Vereinigte Königreich",
+    "with": "mit dem Vereinigten Königreich"
+  },
+  "IE": {
+    "name": "Irland",
+    "the": "Irland",
+    "in": "in Irland",
+    "for": "für Irland",
+    "from": "von Irland",
+    "to": "auf Irland",
+    "with": "mit Irland"
+  },
+  "IT": {
+    "name": "Italien",
+    "the": "Italien",
+    "in": "in Italien",
+    "for": "für Italien",
+    "from": "von Italien",
+    "to": "auf Italien",
+    "with": "mit Italien"
+  },
+  "NL": {
+    "name": "Niederlande",
+    "the": "die Niederlande",
+    "in": "in den Niederlanden",
+    "for": "für die Niederlande",
+    "from": "von den Niederlanden",
+    "to": "auf die Niederlande",
+    "with": "mit den Niederlanden"
+  },
+  "PT": {
+    "name": "Portugal",
+    "the": "Portugal",
+    "in": "in Portugal",
+    "for": "für Portugal",
+    "from": "von Portugal",
+    "to": "auf Portugal",
+    "with": "mit Portugal"
+  },
+  "US": {
+    "name": "USA",
+    "the": "die USA",
+    "in": "in den USA",
+    "for": "für die USA",
+    "from": "von den USA",
+    "to": "auf die USA",
+    "with": "mit den USA"
+  },
+  "XX": {
+    "name": "Anderes Land",
+    "the": "das allgemeine Profil",
+    "in": "im allgemeinen Profil",
+    "for": "für das allgemeine Profil",
+    "from": "vom allgemeinen Profil",
+    "to": "auf das allgemeine Profil",
+    "with": "mit dem allgemeinen Profil"
+  }
+}

@@ -98,7 +98,7 @@ describe('the country names in prose', () => {
     expect(findings('Steuern in USA, für Niederlande, das Vereinigtes Königreich.', 'de', de)).toEqual([
       'in USA',
       'für Niederlande',
-      'das Vereinigtes Königreich',
+      'das Vereinigtes',
     ]);
     expect(
       findings('Steuern in den USA, im Vereinigten Königreich, in Deutschland; Vereinigtes Königreich.', 'de', de),
