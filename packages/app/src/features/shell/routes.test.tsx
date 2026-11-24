@@ -48,7 +48,7 @@ afterEach(() => {
 await preloadLazyModules([
   () => import('../learn').then((m) => m.loadLearnScreen()),
   () => import('../log').then((m) => m.loadLogScreen()),
-  () => import('../onboarding'),
+  () => import('../onboarding').then((m) => m.loadReacknowledge()),
   () => import('../onboarding').then((m) => m.loadOnboardingScreen()),
   () => import('../plan').then((m) => m.loadPlanScreen()),
   () => import('../plan').then((m) => m.loadReviewScreen()),

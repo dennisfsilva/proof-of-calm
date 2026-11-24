@@ -52,7 +52,10 @@ vi.mock('../../../lib/i18n/namespaces', async (original) =>
 afterEach(cleanup);
 // The log feature behind the Edit and Log sheets, its namespace and the profiles load while the file
 // loads, outside any timeout, so a findBy on a sheet waits on renders, not on Vite's first transform.
-await preloadLazyModules([() => import('../../log')]);
+await preloadLazyModules([
+  () => import('../../log').then((log) => log.loadEntrySheet()),
+  () => import('../../log').then((log) => log.loadSkipSheet()),
+]);
 
 /** The card as Today renders it, its action read from the store as `TodayBody` reads it (today-screen.tsx). */
 function Live() {

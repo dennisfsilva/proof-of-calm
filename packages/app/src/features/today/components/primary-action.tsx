@@ -27,6 +27,7 @@ import { loadNamespace } from '../../../lib/i18n';
 import { Link } from '../../../lib/navigation';
 import { useFormatters, useServices, useSnapshot, useToday } from '../../../lib/services';
 import { WhyLink } from '../../learn';
+import { loadEntrySheet, loadSkipSheet } from '../../log';
 import { type Shown, todayActions } from '../actions';
 
 // Today's hero (docs/DOMAIN.md §3.3, §3.5; docs/DESIGN.md §7): the one action that still asks for a buy,
@@ -39,13 +40,13 @@ import { type Shown, todayActions } from '../actions';
 
 /** The Log's entry sheet with its messages, loaded on first use: never part of Today's script budget. */
 const EntrySheet = lazy(async () => {
-  const [log] = await Promise.all([import('../../log'), loadNamespace('log')]);
-  return { default: log.EntrySheet };
+  const [sheet] = await Promise.all([loadEntrySheet(), loadNamespace('log')]);
+  return sheet;
 });
 /** The Log's skip sheet, loaded the same way. */
 const SkipSheet = lazy(async () => {
-  const [log] = await Promise.all([import('../../log'), loadNamespace('log')]);
-  return { default: log.SkipSheet };
+  const [sheet] = await Promise.all([loadSkipSheet(), loadNamespace('log')]);
+  return sheet;
 });
 
 export type PrimaryActionProps = {
