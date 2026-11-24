@@ -196,6 +196,13 @@ describe('the German files', () => {
   });
 
   it.each(german.map(({ folder }) => folder))('%s is whole in de', (folder) => wholeness(folder, 'de'));
+
+  // A partial file leaves the list in the branch that completes it.
+  it.each(GERMAN_PARTIAL)('%s is listed while its de file is partial', (folder) => {
+    const translated = byFolder.get(`${folder}/de`)?.tree;
+    expect(translated, `${folder} has no de file`).toBeDefined();
+    expect(problems(byFolder.get(`${folder}/en`)?.tree ?? {}, translated ?? {}, true)).not.toEqual([]);
+  });
 });
 
 // A count is a figure in the country's number format: a plural picks its form from the count and writes the
