@@ -133,6 +133,12 @@ test('de: every onboarding step keeps its controls inside their boxes with wider
   await expect(select).toHaveText(new RegExp(nl.name, 'u'));
   const confirm = button(page, `Weiter ${netherlands.with}`);
   await ownBoxes(page, { select, confirm });
+  // The longest confirm, the United Kingdom's, chosen by the English name the picker shows; then back.
+  await select.click();
+  await page.getByRole('option', { name: gb.name, exact: true }).click();
+  await ownBoxes(page, { select, confirm: button(page, `Weiter ${deCountries.GB.with}`) });
+  await select.click();
+  await page.getByRole('option', { name: nl.name, exact: true }).click();
   await confirm.click();
 
   // Template: the German name of the two-coins starting point.
@@ -164,7 +170,7 @@ test('de: every onboarding step keeps its controls inside their boxes with wider
 
   // Summary: the Netherlands' holding rule in its `for` form, the English disclosure marked as English.
   await expect(heading(page, 2, words.summary)).toBeFocused();
-  await expect(page.getByText(`Die Haltefrist ${netherlands.for}.`, { exact: false })).toBeVisible();
+  await expect(page.getByText(`Die Regel ${netherlands.for}.`, { exact: false })).toBeVisible();
   const disclosure = page.getByText(enOnboarding.disclosure.text.slice('{product}'.length, 50), { exact: false });
   await expect(disclosure).toHaveAttribute('lang', 'en');
   const risk = page.getByRole('link', { name: words.riskLink, exact: true });
