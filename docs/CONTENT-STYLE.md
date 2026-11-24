@@ -269,10 +269,12 @@ The German rows (decided 2026-11-23; the voice is §10):
     `von` (with or without `der`, `dem`, or `den`), `durch` (with or without `die`, `den`, or
     `das`), or `im`, `ins`, `in das`, or `in dem` before the regulator's register. That register
     is the regulator, a hyphen (`-` or U+2011), and a word that begins with `Register`
-    (`ESMA‑Registereintrag`), or `Register der` or `Register des` and the regulator. Each article
-    may take one adjective, a word of letters that ends in `e`, `en`, `er`, or `es` (fails:
-    `bei der zuständigen Aufsichtsbehörde registriert`; passes: `bei keiner zuständigen
-    Aufsichtsbehörde registriert`, with no article). Its participle is `registriert`,
+    (`ESMA‑Registereintrag`), or `Register der` or `Register des` and the regulator. Each article,
+    and the one inside `im` and `ins`, may take one adjective, a word of letters that ends in `e`,
+    `en`, `er`, or `es` (fails: `bei der zuständigen Aufsichtsbehörde registriert`,
+    `im öffentlichen Register der BaFin eingetragen`, `in das öffentliche BaFin-Register
+    eingetragen`; passes: `bei keiner zuständigen Aufsichtsbehörde registriert`, with no article,
+    `im neuen öffentlichen BaFin-Register eingetragen`, with two). Its participle is `registriert`,
     `eingetragen`, `gemeldet`, `beaufsichtigt`, `überwacht`, or `kontrolliert`, or a longer word
     that begins with one of them (`registrierter`). Its noun is `Lizenz`, `Zulassung`,
     `Registrierung`, `Eintragung`, `Genehmigung`, or `Erlaubnis`, BaFin's own term. A gap is at
