@@ -2,8 +2,12 @@ import { createDateFormatter } from '@proofofcalm/app/lib/format';
 import { localesFor } from '@proofofcalm/app/lib/i18n';
 import learnMessages from '@proofofcalm/app/messages/en/learn.json';
 import type { CalendarDate } from '@proofofcalm/core';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import messages from '../../messages/en.json';
+import { ProviderFields } from './contact';
+import { legalValues, OPTIONAL_OWNER_FIELDS } from './legal';
 import { loadSiteData, renderSitePage } from './render';
 import { RISK_LINKS } from './risk-links';
 
@@ -32,6 +36,45 @@ const pageSection = (name: LegalName, page: string, id: string) =>
 
 /** One section of the Risk page by its id. */
 const section = (page: string, id: string) => pageSection('risk', page, id);
+
+type Owner = typeof messages.legal.owner;
+type OwnerState =
+  | { state: 'draft' }
+  | { state: 'filled' }
+  | { state: 'half'; placeholders: string[]; missing: string[] };
+
+const PLACEHOLDER = /^\[Owner: [^\]]+\]$/;
+const optional = (field: string) => (OPTIONAL_OWNER_FIELDS as readonly string[]).includes(field);
+
+/**
+ * Where the owner file stands: every field a placeholder (the draft), every field filled but the optional ones, which
+ * may be empty (signed), or anything between, with the fields still a placeholder and the required ones left empty.
+ */
+function ownerState(owner: Owner): OwnerState {
+  const entries = Object.entries(owner);
+  const placeholders = entries.filter(([, value]) => PLACEHOLDER.test(value)).map(([field]) => field);
+  if (placeholders.length === entries.length) return { state: 'draft' };
+  const missing = entries.filter(([field, value]) => value.trim() === '' && !optional(field)).map(([field]) => field);
+  return placeholders.length === 0 && missing.length === 0
+    ? { state: 'filled' }
+    : { state: 'half', placeholders, missing };
+}
+
+/** A signed owner file of fictional values, with the three optional fields empty. */
+const FILLED: Owner = {
+  name: 'Filled name',
+  legalForm: 'Filled legal form',
+  address: 'Rua Exemplo 1, 0000-000 Exemplo',
+  email: 'hello@example.test',
+  nif: 'Filled NIF',
+  privacyEmail: 'privacy@example.test',
+  dsaEmail: 'dsa@example.test',
+  mailHost: 'Filled mail host',
+  date: 'Filled date',
+  vat: '',
+  register: '',
+  manager: '',
+};
 
 describe('the Risk disclosure (docs/LEGAL.md §5)', () => {
   const risk = messages.legal.risk;
@@ -333,15 +376,22 @@ describe('the launch drafts of Terms, Privacy and Contact (docs/LEGAL.md §5)', 
     expect(text(pageSection('privacy', page, 'requests'))).toContain(
       'with no page, internet address, or browser name.',
     );
-    expect(text(pageSection('privacy', page, 'hosting'))).toContain(
-      `It keeps its request logs for ${messages.legal.owner.logPeriod}.`,
+    const hosting = pageSection('privacy', page, 'hosting');
+    expect(text(hosting)).toContain(
+      "It receives each request your browser sends, with its internet address and browser name. Vercel keeps the host's runtime logs for up to 1 day. Anything else Vercel keeps follows its own privacy notice.",
     );
-    expect(text(pageSection('privacy', page, 'hosting'))).toContain(
+    expect(text(hosting)).toContain(
       "The legal basis is Proof of Calm's legitimate interest in serving the site and protecting it from abuse",
     );
-    expect(text(pageSection('privacy', page, 'mail'))).toContain(
-      'for 24 months after the last one, to answer follow-up questions (GDPR art. 6(1)(b) and (f)). The mail host keeps its mail logs for 30 days.',
+    const notice = hosting.match(/<a [^>]*href="https:\/\/vercel\.com\/legal\/privacy-policy"[^>]*>(.*?)<\/a>/);
+    expect(notice?.[1]).toBe("Vercel's privacy notice");
+    expect(notice?.[0]).toContain('target="_blank"');
+    expect(notice?.[0]).toContain('rel="noopener noreferrer"');
+    const mail = text(pageSection('privacy', page, 'mail'));
+    expect(mail).toContain(
+      `its mail host, ${messages.legal.owner.mailHost}, keeps your e-mail address and your messages for 24 months after the last one, to answer follow-up questions (GDPR art. 6(1)(b) and (f)).`,
     );
+    expect(mail).not.toContain('30 days');
     expect(text(pageSection('privacy', page, 'rights'))).toContain('You can also object to its use.');
     expect(text(pageSection('privacy', page, 'rights'))).toContain(
       'Proof of Calm makes no automated decision about you and builds no profile of you.',
@@ -360,33 +410,75 @@ describe('the launch drafts of Terms, Privacy and Contact (docs/LEGAL.md §5)', 
     );
   });
 
-  it('no legal page shows an e-mail, street address or tax number: each identity field is an [Owner: …] placeholder', () => {
-    const owner = messages.legal.owner as Record<string, string>;
-    expect(Object.keys(owner).sort()).toEqual(
-      [
-        'name',
-        'legalForm',
-        'address',
-        'email',
-        'nif',
-        'vat',
-        'register',
-        'manager',
-        'privacyEmail',
-        'dsaEmail',
-        'mailHost',
-        'logPeriod',
-        'date',
-      ].sort(),
-    );
-    for (const [field, value] of Object.entries(owner)) expect(value, field).toMatch(/^\[Owner: [^\]]+\]$/);
+  it('the owner file is either every field a placeholder or every required field filled', () => {
+    const owner = messages.legal.owner;
+    expect(Object.keys(owner)).toEqual([
+      'name',
+      'legalForm',
+      'address',
+      'email',
+      'nif',
+      'privacyEmail',
+      'dsaEmail',
+      'mailHost',
+      'date',
+      'vat',
+      'register',
+      'manager',
+    ]);
+    expect(OPTIONAL_OWNER_FIELDS).toEqual(['vat', 'register', 'manager']);
+    expect(['draft', 'filled']).toContain(ownerState(owner).state);
     const pages = LEGAL.map((name) => text(main(name))).join(' ');
-    for (const [field, value] of Object.entries(owner)) expect(pages, field).toContain(value);
-    expect(text(main('privacy'))).toContain(
-      "It keeps its request logs for [Owner: the request-log period of Vercel's plan, as a numeral with its unit, such as 1 day].",
-    );
+    for (const [field, value] of Object.entries(owner)) if (value !== '') expect(pages, field).toContain(value);
+  });
+
+  it('refuses a half-filled owner file and a filled one missing a required field', () => {
+    const draft = Object.fromEntries(Object.keys(FILLED).map((field) => [field, `[Owner: ${field}]`])) as Owner;
+    expect(ownerState(draft)).toEqual({ state: 'draft' });
+    expect(ownerState(FILLED)).toEqual({ state: 'filled' });
+    expect(
+      ownerState({ ...FILLED, vat: 'Filled VAT', register: 'Filled register', manager: 'Filled manager' }),
+    ).toEqual({
+      state: 'filled',
+    });
+    expect(ownerState({ ...draft, name: 'Filled name' })).toEqual({
+      state: 'half',
+      placeholders: Object.keys(draft).filter((field) => field !== 'name'),
+      missing: [],
+    });
+    expect(ownerState({ ...FILLED, vat: draft.vat })).toEqual({ state: 'half', placeholders: ['vat'], missing: [] });
+    expect(ownerState({ ...FILLED, email: '', date: ' ' })).toEqual({
+      state: 'half',
+      placeholders: [],
+      missing: ['email', 'date'],
+    });
+  });
+
+  it('Contact drops the line of an empty optional field', () => {
+    const fields = messages.legal.contact.fields;
+    const markup = (owner: Owner) =>
+      unescaped(renderToStaticMarkup(createElement(ProviderFields, { values: legalValues(owner) })));
+    const full = markup({ ...FILLED, vat: 'Filled VAT', register: 'Filled register', manager: 'Filled manager' });
+    expect(full.match(/<dt/g) ?? []).toHaveLength(8);
+    expect(full).toContain(`<dt class="text-ink-2">${fields.vat}</dt><dd>Filled VAT</dd>`);
+    const noVat = markup({ ...FILLED, vat: '', register: 'Filled register', manager: 'Filled manager' });
+    expect(noVat.match(/<dt/g) ?? []).toHaveLength(7);
+    expect(noVat.match(/<dd/g) ?? []).toHaveLength(7);
+    expect(noVat).not.toContain(fields.vat);
+    expect(noVat).toContain(`<dt class="text-ink-2">${fields.register}</dt><dd>Filled register</dd>`);
+    const signed = markup(FILLED);
+    expect(signed.match(/<dt/g) ?? []).toHaveLength(5);
+    for (const field of OPTIONAL_OWNER_FIELDS) expect(signed).not.toContain(fields[field]);
+    // A required field keeps its line whatever it holds; the owner-file test refuses it empty.
+    expect(markup({ ...FILLED, email: '' }).match(/<dt/g) ?? []).toHaveLength(5);
+  });
+
+  it("no page shows an e-mail, street address, postal code or 9-digit number outside the owner's values", () => {
+    const values = Object.values(messages.legal.owner)
+      .filter((value) => value !== '')
+      .sort((a, b) => b.length - a.length);
     for (const name of LEGAL) {
-      const shown = text(main(name));
+      const shown = values.reduce((page, value) => page.replaceAll(value, ' '), text(main(name)));
       expect(shown, name).not.toMatch(/[\w.+-]+@[\w-]+\.[a-z]{2,}/i);
       expect(shown, name).not.toMatch(/\b(Rua|Avenida|Travessa|Largo|Stra(ss|ß)e|Street)\b|\b\d{4}-\d{3}\b/);
       expect(shown, name).not.toMatch(/\b(PT ?)?\d{9}\b/);
