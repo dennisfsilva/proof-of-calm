@@ -104,12 +104,29 @@ describe('a control named inside a pt-PT sentence', () => {
 describe('a control named inside a German sentence', () => {
   const de = leaves('de');
   const german = pairs('de', true);
+  /** The Settings tabs a sentence names; `Plan` is one word, so only `choose Plan` would count. */
+  const TABS = ['settings.tabs.coins', 'settings.tabs.hold', 'settings.tabs.data'];
 
   it('reads the controls the German files translate', () => {
     const translated = new Set(
       english.filter(({ labelKey }) => translates(de, labelKey)).map(({ labelKey }) => labelKey),
     );
-    expect(translated).toContain('today.action.asPlanned');
+    expect([...translated]).toEqual(expect.arrayContaining(['today.action.asPlanned', ...TABS]));
+  });
+
+  // German Settings names its own tabs in its sentences, so the check reads each of them against the tab's label.
+  it('finds every German sentence that names a Settings tab', () => {
+    const naming = german.filter(({ labelKey }) => TABS.includes(labelKey));
+    expect(new Set(naming.map(({ labelKey, key }) => `${labelKey} in ${key}`))).toEqual(
+      new Set([
+        'settings.tabs.hold in settings.country.notSaved',
+        'settings.tabs.hold in settings.data.prototype.country',
+        'settings.tabs.data in settings.data.prototype.country',
+        'settings.tabs.coins in settings.data.prototype.report.coins-defaulted',
+        'settings.tabs.coins in settings.data.prototype.report.coin-not-in-plan',
+        'settings.tabs.hold in settings.data.prototype.report.sell-window-dropped',
+      ]),
+    );
   });
 
   // German Portfolio names the Log's control in a sentence, so the check reads it.
