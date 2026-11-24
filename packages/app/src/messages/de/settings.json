@@ -12,13 +12,13 @@
   "save": "Änderungen speichern",
   "saved": "Änderungen gespeichert.",
   "notSaved": "Nicht gespeichert: Diese Änderung widerspricht einem anderen Teil des Plans.",
-  "changed": "Der Plan wurde in einem anderen Browser-Tab geändert, daher wurde diese Änderung nicht gespeichert. Das Formular zeigt jetzt den gespeicherten Plan; nehmen Sie Ihre Änderung erneut vor.",
+  "changed": "Der Plan wurde in einem anderen Browser-Tab geändert, daher wurde diese Änderung nicht gespeichert. Das Formular zeigt jetzt den gespeicherten Plan; ändern Sie ihn erneut.",
   "country": {
     "heading": "Land",
     "line": "Das Land, in dem Sie leben, bestimmt die Haltefrist des Plans, die Währung für neue Beträge und wie Zahlen und Datumsangaben geschrieben werden.",
     "label": "Land",
     "notLoaded": "Die Länderprofile sind auf diesem Gerät nicht geladen.",
-    "ruleNotLoaded": "Die Haltefrist Ihres Landes ist auf diesem Gerät nicht geladen. Laden Sie die Seite neu, wenn Sie online sind, um das Land umzustellen.",
+    "ruleNotLoaded": "Die Regel Ihres Landes ist auf diesem Gerät nicht geladen. Laden Sie die Seite neu, wenn Sie online sind, um das Land umzustellen.",
     "summary": "{kind, select, generic {Umstellung des Landes:} other {Umstellung {countryTo}:}}",
     "row": {
       "country": "Land jetzt: {old}. Nach der Änderung: {new}.",
@@ -29,7 +29,7 @@
       "lastBuyEligible": "{effect, select, exempt {Letzter Kauf: erster steuerfreier Tag bisher am {from}, nach der Änderung am {to}} other {Letzter Kauf: langfristiger Steuersatz bisher ab {from}, nach der Änderung ab {to}}}",
       "amount": "{field, select, startingAmount {Startbetrag} other {Monatsbetrag}}: {from} wird zu {to}. Prüfen Sie ihn unter „Plan“."
     },
-    "ruleName": "{kind, select, own {Ihre eigene Haltefrist} generic {die Haltefrist des allgemeinen Profils} other {die Haltefrist {countryFor}}}",
+    "ruleName": "{kind, select, own {Ihre eigene Haltefrist} generic {die Regel des allgemeinen Profils} other {die Regel {countryFor}}}",
     "logged": "Bereits eingetragene Beträge bleiben, wie eingegeben; nichts wird umgerechnet.",
     "question": {
       "legend": "{count, plural, one {{figure} Eintrag vom {first} hat einen Betrag oder eine Gebühr in {logged}. In welcher Währung wurde er bezahlt?} other {{figure} Einträge vom {first} bis zum {last} haben Beträge oder Gebühren in {logged}. In welcher Währung wurden sie bezahlt?}}",
@@ -46,8 +46,8 @@
       "button": "Auf {countryCurrency} umstellen",
       "changed": "Planwährung auf {countryCurrency} umgestellt."
     },
-    "confirmRule": "Haltefrist ersetzen: {from} durch {to}",
-    "confirmRuleIssue": "Kreuzen Sie das Kästchen an, um die Haltefrist zu ersetzen.",
+    "confirmRule": "Regel ersetzen: {from} durch {to}",
+    "confirmRuleIssue": "Kreuzen Sie das Kästchen an, um die Regel zu ersetzen.",
     "notSaved": "Nicht gespeichert: Diese Änderung widerspricht einem anderen Teil des Plans. Prüfen Sie „Plan“ und „Frist & Verkauf“ und stellen Sie dann das Land erneut um.",
     "confirm": "{kind, select, generic {Das allgemeine Profil verwenden} other {Land {countryTo} umstellen}}",
     "changed": "{kind, select, generic {Land umgestellt. Jetzt gilt das allgemeine Profil.} other {Land {countryTo} umgestellt.}}",
@@ -131,7 +131,7 @@
       "currencyMismatchPasted": "Die Käufe im eingefügten Text sind in {file}, die dieses Plans in {plan}, daher wurde nichts hinzugefügt. Beträge werden nie umgerechnet. Wenn Sie den eingefügten Plan und seine Währung statt dieses Plans möchten, fügen Sie den Text erneut ein und wählen Sie dann „Alles ersetzen“.",
       "tooManyEntries": "Mit diesen Einträgen hätte dieser Plan {entries} Einträge, mehr als die {max}, die ein Plan fasst, daher wurde nichts hinzugefügt. Löschen Sie Einträge im Protokoll und importieren Sie dann erneut. Um nur die Einträge der Datei zu behalten, importieren Sie erneut mit „Alles ersetzen“.",
       "tooManyInFile": "Dieser Export der DCA-Planseite hat {file} Käufe, mehr als die {max} Einträge, die ein Plan fasst, daher wurde nichts importiert. Löschen Sie dort Käufe, exportieren Sie erneut und importieren Sie dann die neue Datei.",
-      "tooLarge": "Diese Datei ist größer als {max} MB, daher wurde sie nicht gelesen. Ist sie der Export einer Börse, exportieren Sie dort einen kürzeren Zeitraum und wählen Sie dann die neue Datei.",
+      "tooLarge": "Diese Datei ist größer als {max} MB, daher wurde sie nicht gelesen. Wenn sie der Export einer Börse ist, exportieren Sie dort einen kürzeren Zeitraum und wählen Sie dann die neue Datei.",
       "newerRows": "Eine neuere Version von {product} hat auf diesem Gerät Einträge gespeichert oder gelöscht, daher wurde nichts importiert. Laden Sie die Seite neu und importieren Sie dann erneut.",
       "invalidEntries": "{count, plural, one {{figure} Eintrag in diesem Import kann} other {{figure} Einträge in diesem Import können}} nicht gespeichert werden, daher wurde nichts importiert. Exportieren Sie ein neues Backup aus {product} auf dem Gerät, das es erstellt hat, und importieren Sie dann die neue Datei.",
       "invalidEntriesPasted": "{count, plural, one {{figure} Eintrag im eingefügten Text kann} other {{figure} Einträge im eingefügten Text können}} nicht gespeichert werden, daher wurde nichts importiert. Exportieren Sie ein neues Backup aus {product} auf dem Gerät, das es erstellt hat, und fügen Sie dann den neuen Text ein."
@@ -253,7 +253,7 @@
       "file": "{name}, exportiert von der DCA-Planseite. Käufe in dieser Datei: {count}.",
       "pasted": "Eingefügter Text, exportiert von der DCA-Planseite. Käufe in diesem Text: {count}.",
       "country": "Dateien der DCA-Planseite haben kein Land. Wählen Sie das Land, in dem Sie leben; der Plan übernimmt die Haltefrist und die Währungen der Datei, die Sie unter „Frist & Verkauf“ und „Land & Daten“ ändern können.",
-      "confirmBody": "Der Plan und die Käufe in dieser Datei treten an ihre Stelle, mit der Haltefrist der Datei; exportieren Sie zuerst eine Kopie, wenn Sie diesen Plan behalten möchten.",
+      "confirmBody": "Der Plan und die Käufe dieser Datei ersetzen diesen Plan und seine Einträge, mit der Haltefrist der Datei; exportieren Sie zuerst eine Kopie, wenn Sie diesen Plan behalten möchten.",
       "report": {
         "coins-defaulted": "Die Datei nannte keine Coins, daher hat der Plan die vier Anfangs-Coins der DCA-Planseite: Bitcoin, Chainlink, Ethereum und Solana. Sie können sie unter „Coins & Anteile“ ändern.",
         "coin-added": "{coin} hatte Käufe, stand aber nicht in der Coin-Liste der Datei, daher wurde {coin} zum Plan hinzugefügt.",
@@ -281,7 +281,7 @@
     },
     "confirm": {
       "title": "Diesen Plan und {count, plural, one {seinen {figure} Eintrag} other {seine {figure} Einträge}} ersetzen?",
-      "body": "Plan und Einträge des Backups treten an ihre Stelle; exportieren Sie zuerst eine Kopie, wenn Sie diesen Plan behalten möchten.",
+      "body": "Der Plan und die Einträge des Backups ersetzen diesen Plan und seine Einträge; exportieren Sie zuerst eine Kopie, wenn Sie diesen Plan behalten möchten.",
       "export": "Zuerst eine Kopie exportieren",
       "cancel": "Diesen Plan behalten",
       "replace": "Alles ersetzen"
@@ -310,12 +310,12 @@
     "legal": "Rechtliche Informationen",
     "terms": "Nutzungsbedingungen",
     "privacy": "Datenschutzhinweise",
-    "cookies": "Erklärung zur Cookie-Freiheit",
+    "cookies": "Cookie-Erklärung",
     "contact": "Kontakt"
   },
   "reminder": {
     "heading": "Kalendererinnerung",
-    "line": "Ein Termin an jedem verbleibenden Kauftag des Plans. Fügen Sie ihn hinzu, wenn Sie „Später“ gewählt haben, oder erneut, nachdem Sie den Kauftag geändert haben. Ihr Kalender behält den früheren Termin womöglich; löschen Sie ihn dort.",
+    "line": "Ein Termin an jedem verbleibenden Kauftag des Plans. Fügen Sie die Erinnerung hinzu, wenn Sie „Später“ gewählt haben, oder erneut, nachdem Sie den Kauftag geändert haben. Ihr Kalender kann den früheren Termin behalten; löschen Sie ihn dort.",
     "calendar": "Zum Kalender hinzufügen",
     "saved": "Kalenderdatei gespeichert.",
     "notSaved": "Die Kalenderdatei wurde nicht gespeichert. Fügen Sie sie erneut hinzu.",
