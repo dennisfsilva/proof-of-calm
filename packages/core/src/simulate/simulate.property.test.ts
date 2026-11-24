@@ -73,6 +73,12 @@ function run(input: SimulationInput) {
 }
 
 describe('simulator properties (docs/EDUCATION.md §8)', () => {
+  /**
+   * The property runs 60 times with a 20 s timeout (the core's default is Vitest's 5 s). Measured on 2026-11-24 under
+   * the full core suite with coverage, seeds 1 to 8 (fast-check's global seed), each seed twice and the lower of the
+   * two taken, since other core suites ran on the machine: the worst was 0.84 s (seed 7; the best 0.52 s, seed 1), so
+   * six times the worst, the margin budgeted for CI's slower runner, is 5.0 s, under a third of the timeout (6.7 s).
+   */
   it('returns exactly 1 − fee at a constant price', () => {
     const feeArb = fc.integer({ min: 0, max: 500 }).map((bps) => decimal<Percent>((bps / 100).toFixed(2)));
     fc.assert(
@@ -83,8 +89,14 @@ describe('simulator properties (docs/EDUCATION.md §8)', () => {
       }),
       { numRuns: 60 },
     );
-  });
+  }, 20_000);
 
+  /**
+   * The property runs 40 times over 410-day histories with a 40 s timeout. Measured on 2026-11-24 under the full core
+   * suite with coverage, seeds 1 to 8, each seed twice and the lower of the two taken: the worst was 1.78 s (seed 7;
+   * the best 1.15 s, seed 1), six times it 10.7 s, under a third of the timeout (13.3 s). On 2026-11-23 it ran past the
+   * 5 s default (5.4 to 7.7 s) while four core suites ran at once (issue #435).
+   */
   it('never lowers what was invested and keeps the drawdown within −100 % and 0', () => {
     fc.assert(
       fc.property(planArb, fc.array(closeArb, { minLength: 410, maxLength: 410 }), (plan, closes) => {
@@ -107,8 +119,13 @@ describe('simulator properties (docs/EDUCATION.md §8)', () => {
       }),
       { numRuns: 40 },
     );
-  });
+  }, 40_000);
 
+  /**
+   * The property runs 40 times over 410-day histories, two simulations each, with a 90 s timeout. Measured on
+   * 2026-11-24 under the full core suite with coverage, seeds 1 to 8, each seed twice and the lower of the two taken:
+   * the worst was 3.31 s (seed 7; the best 1.55 s, seed 1), six times it 19.9 s, under a third of the timeout (30 s).
+   */
   it('gives the same result for one coin as for N coins with identical histories', () => {
     fc.assert(
       fc.property(planArb, fc.array(closeArb, { minLength: 410, maxLength: 410 }), (plan, closes) => {
@@ -128,6 +145,5 @@ describe('simulator properties (docs/EDUCATION.md §8)', () => {
       }),
       { numRuns: 40 },
     );
-    // 40 runs over 410-day histories passed the 5 s default on CI (run 39439755397).
-  }, 30_000);
+  }, 90_000);
 });
