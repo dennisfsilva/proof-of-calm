@@ -460,6 +460,18 @@ describe('the German word rows, filler words and gain patterns (docs/CONTENT-STY
     }
   });
 
+  // §10: U+2011 joins a numeral compound, so the hyphen between the figure's unit and the gain word may be either.
+  it('refuses a percentage joined to its gain word by the no-break hyphen, as its ASCII form', () => {
+    for (const noBreak of ['Eine 8 %‑Rendite ist möglich.', 'Eine 8 %‑jährliche Rendite ist möglich.']) {
+      const ascii = findBanned(noBreak.replaceAll('‑', '-'));
+      expect(ascii, noBreak).toHaveLength(1);
+      expect(
+        findBanned(noBreak).map((finding) => ({ ...finding, match: finding.match.replaceAll('‑', '-') })),
+        noBreak,
+      ).toEqual(ascii);
+    }
+  });
+
   // Vertrag and Übertrag end in "ertrag" but name no gain. A savings contract's rate (Sparvertrag) is no comparison
   // with Tagesgeld, Festgeld or Sparbuch either, so no row refuses it; the copy review (§8) catches a comparison.
   it('reads Vertrag, Übertrag and their compounds as no gain noun', () => {
