@@ -1,7 +1,7 @@
 // The rows of ADR-0019, shaped like the sync rows of ADR-0021: an envelope that sync and the v2
-// encryption read (id, stamps, versions) around a payload that only the client reads (ADR-0030). The
-// outbox keeps the synced part of each row; M3's push maps it to ADR-0021's columns (snake case, with
-// user_id and seq from the server) and drops the outbox's local `store` key. In v1 the payload is the entity itself, in plain text (encVersion 0); the
+// encryption read (id, stamps, versions) around a payload that only the client reads (ADR-0030). M3's
+// push maps the synced part of each row to ADR-0021's columns (snake case, with user_id and seq from the
+// server). In v1 the payload is the entity itself, in plain text (encVersion 0); the
 // envelope's stamps repeat the entity's, so nothing that compares or purges rows needs the payload.
 // v2's keyId and nonce join the envelope through a migration. A row that names a later schema or
 // encryption version (an encrypted one, a newer payload) is left where it is, unread but counted for the
@@ -129,13 +129,6 @@ export function entryRow(
 }
 
 export type SyncedStore = 'plans' | 'entries';
-
-/** The synced part of a row, as last written, under [store, id] so that a later write replaces it. */
-export function outboxRecord(store: SyncedStore, row: PlanRow | EntryRow) {
-  // The entry row's planId is a local index, never synced (ADR-0019 readings).
-  const { planId: _local, ...synced } = row as EntryRow;
-  return { store, ...synced };
-}
 
 /** The item with the latest write by the sync comparator (ADR-0021), or null. */
 export function newest<T>(items: readonly T[], stamp: (item: T) => SyncStamp): T | null {

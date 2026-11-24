@@ -42,6 +42,7 @@ import { localOnly } from '../store/channel';
 import { createDomainStore } from '../store/domain';
 import { DATABASE_NAME, STORE_NAMES, type StoreName } from './idb/database';
 import { ROW_SCHEMA_VERSIONS } from './idb/rows';
+import { PREVIOUS_BUILD } from './idb/rows.testing';
 import { type IdbPlanStore, type IdbPlanStoreOptions, idbPlanStore } from './idb-store';
 import { EMPTY_SNAPSHOT } from './memory-store';
 
@@ -61,11 +62,6 @@ const prices: PricesState = {
 };
 const prefs = { ...DEFAULT_PREFS, theme: 'dark' as const, dismissedBanners: ['backup-needed:2026-10-01'] };
 
-/**
- * The row versions the previous build read and wrote, the build before the entries' v4 rise, moves (rows.ts). A store
- * opened with them writes what that build wrote: no entry row above its own `entries` (`entryRow`).
- */
-const PREVIOUS_BUILD = { plans: 3, entries: 3 } as const;
 /** The row versions of the build before coins held: plans at v3, entries at v2 (rows.ts). */
 const ENTRIES_V2_BUILD = { plans: 3, entries: 2 } as const;
 /** The row versions of the build before the risk acknowledgement: plans and entries at v2 (rows.ts). */
@@ -266,28 +262,24 @@ describe('idb plan store: load and write (ADR-0019)', () => {
     ]);
   });
 
-  it('keeps one outbox record per synced row however often it is written', async () => {
+  it('writes no outbox copy for a plan or entry, however often it is written', async () => {
     const store = open();
     const plan = aPlan();
     const entry = anEntry();
     for (const note of ['one', 'two', 'three']) {
       await store.write({ plan: { ...plan, why: note }, entries: [{ ...entry, note }] });
+      // No copy before M3's sync (ADR-0019 Readings, 2026-11-24).
+      expect(await raw('outbox')).toStrictEqual([]);
     }
     await store.write({ prefs, prices });
-    const outbox = await raw('outbox');
-    expect(outbox).toHaveLength(2);
-    const [entryRow] = await raw('entries');
-    const [planRow] = await raw('plans');
-    // The outbox holds the synced row only: the entry row's planId is a local index (ADR-0019 readings).
-    const { planId: _local, ...syncedEntry } = entryRow as Record<string, unknown>;
-    expect(outbox).toStrictEqual([
-      { store: 'entries', ...syncedEntry },
-      { store: 'plans', ...(planRow as object) },
+    expect(await raw('outbox')).toStrictEqual([]);
+    expect(await raw('plans')).toStrictEqual([
+      expect.objectContaining({ payload: asV2Plan({ ...plan, why: 'three' }) }),
     ]);
-    expect(entryRow).toEqual(expect.objectContaining({ payload: { ...entry, note: 'three' } }));
+    expect(await raw('entries')).toStrictEqual([expect.objectContaining({ payload: { ...entry, note: 'three' } })]);
   });
 
-  it('stamps a plan written again over its own tombstone after the tombstone, in its row and the outbox', async () => {
+  it('stamps a plan written again over its own tombstone after the tombstone, in its row', async () => {
     let now = NOW;
     const store = open({ clock: { now: () => now } });
     const [first, second] = [aPlan({ updatedAt: instant('2026-10-01T08:00:00.000Z') }), aPlan()];
@@ -300,19 +292,15 @@ describe('idb plan store: load and write (ADR-0019)', () => {
     now = instant('2026-10-17T09:00:05.000Z');
     await store.write({ plan: first }); // an undo, or a switch back to the earlier plan
     expect((await store.load()).plan).toStrictEqual(first);
-    const row = (rows: unknown[]) =>
-      rows.find((candidate) => (candidate as { id: string }).id === first.id) as {
-        updatedAt: Instant;
-        deviceId: EntityId;
-        deletedAt: Instant | null;
-        payload: unknown;
-      };
-    const [planRow, outboxRow] = [row(await raw('plans')), row(await raw('outbox'))];
-    for (const revived of [planRow, outboxRow]) {
-      expect(revived.deletedAt).toBeNull();
-      expect(revived.payload).toStrictEqual(asV2Plan(first));
-      expect(compareWrites(revived, tombstone)).toBe(1);
-    }
+    const revived = (await raw('plans')).find((candidate) => (candidate as { id: string }).id === first.id) as {
+      updatedAt: Instant;
+      deviceId: EntityId;
+      deletedAt: Instant | null;
+      payload: unknown;
+    };
+    expect(revived.deletedAt).toBeNull();
+    expect(revived.payload).toStrictEqual(asV2Plan(first));
+    expect(compareWrites(revived, tombstone)).toBe(1);
   });
 
   it("keeps the entity's own stamp when it is already after the tombstone", async () => {
@@ -834,11 +822,10 @@ describe('idb plan store: a write over a row of a later version (ADR-0019 readin
     return { store, plan, entry, planRow, entryRow };
   }
 
-  it('a write over a later-version entry of the same id leaves it byte for byte, with no outbox copy', async () => {
+  it('a write over a later-version entry of the same id leaves it byte for byte, and the outbox stays empty', async () => {
     const { store, entry, entryRow } = await stored();
     const newer = { ...entryRow, schemaVersion: 5, payload: unknown, keyId: 'k1' };
     await put('entries', newer);
-    const outbox = await raw('outbox');
     const beside = anEntry();
 
     await store.write({ entries: [{ ...entry, updatedAt: NOW }, beside] });
@@ -847,8 +834,7 @@ describe('idb plan store: a write over a row of a later version (ADR-0019 readin
     expect(await raw('entries')).toHaveLength(2);
     expect(await raw('entries')).toContainEqual(newer);
     expect(await raw('entries')).toContainEqual(expect.objectContaining({ id: beside.id, schemaVersion: 2 }));
-    expect(await raw('outbox')).toEqual(expect.arrayContaining(outbox));
-    expect(await raw('outbox')).toHaveLength(outbox.length + 1);
+    expect(await raw('outbox')).toStrictEqual([]);
   });
 
   it('a write of a plan over a later-version row of its id leaves it', async () => {
