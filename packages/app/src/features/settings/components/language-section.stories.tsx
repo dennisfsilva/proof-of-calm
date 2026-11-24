@@ -46,7 +46,7 @@ export const ChoosesPortuguese: Story = {
     await userEvent.click(await canvas.findByRole('combobox', { name: 'Language' }));
     const popup = within(canvasElement.ownerDocument.body);
     const options = await popup.findAllByRole('option');
-    await expect(options.map((option) => option.getAttribute('lang'))).toEqual(['en', 'pt-PT']);
+    await expect(options.map((option) => option.getAttribute('lang'))).toEqual(['en', 'pt-PT', 'de']);
     await userEvent.click(await popup.findByRole('option', { name: 'Português (Portugal)' }));
     await waitFor(() => expect(args.reload).toHaveBeenCalledTimes(1));
     canvasElement.ownerDocument.defaultView?.localStorage.removeItem('poc.language');

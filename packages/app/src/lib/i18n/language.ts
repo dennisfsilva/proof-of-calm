@@ -8,11 +8,14 @@ import { UI_LANGUAGES, type UiLanguage } from './locale';
 // the derived language is never written (only Settings' picker writes it). Until pt-PT is visible
 // (#21), every stored UI language reads back, the hidden ones included.
 
-/** The languages a picker offers; it shows only when it has two. pt-PT and German stay hidden until complete. */
+/** The languages a picker offers; it shows only when it has two. pt-PT and German stay hidden until their native read. */
 export const VISIBLE_LANGUAGES: readonly UiLanguage[] = ['en'];
 
-/** The languages the picker offers on a preview deployment, for the native read (ADR-0023, Deviations of 2026-11-18). */
-export const PREVIEW_LANGUAGES: readonly UiLanguage[] = ['en', 'pt-PT'];
+/**
+ * The languages the picker offers on a preview deployment, for the native read (ADR-0023, Deviations of 2026-11-18),
+ * each whole in every namespace (locales.test.ts); a device in one of them opens a preview in it.
+ */
+export const PREVIEW_LANGUAGES: readonly UiLanguage[] = ['en', 'pt-PT', 'de'];
 
 /** The hosts' build flag, `__POC_LANGUAGES__`: only a web preview or development build is `listed`. */
 export type LanguagesFlag = 'listed' | 'visible';

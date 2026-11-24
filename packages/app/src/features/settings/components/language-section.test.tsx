@@ -46,6 +46,7 @@ describe('LanguageSection', () => {
     expect(options.map((option) => [option.textContent, option.getAttribute('lang')])).toEqual([
       ['English', 'en'],
       ['Português (Portugal)', 'pt-PT'],
+      ['Deutsch', 'de'],
     ]);
   });
 
@@ -66,6 +67,15 @@ describe('LanguageSection', () => {
     await user.click(await languageSelect());
     await user.click(await screen.findByRole('option', { name: 'Português (Portugal)' }));
     expect(localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBe('pt-PT');
+    expect(reload).toHaveBeenCalledTimes(1);
+  });
+
+  it('stores de and reloads once when Deutsch is chosen', async () => {
+    const reload = mount(PREVIEW_LANGUAGES);
+    const user = userEvent.setup({ document });
+    await user.click(await languageSelect());
+    await user.click(await screen.findByRole('option', { name: 'Deutsch' }));
+    expect(localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBe('de');
     expect(reload).toHaveBeenCalledTimes(1);
   });
 

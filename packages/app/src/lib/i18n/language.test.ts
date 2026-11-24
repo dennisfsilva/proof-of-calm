@@ -42,7 +42,7 @@ describe('the UI language (ADR-0023, the device preference)', () => {
   it("lists the preview languages only on the flag 'listed' (ADR-0023, Deviations of 2026-11-18)", () => {
     expect(listedLanguages('listed')).toEqual(PREVIEW_LANGUAGES);
     expect(listedLanguages('visible')).toEqual(VISIBLE_LANGUAGES);
-    expect(PREVIEW_LANGUAGES).toEqual(['en', 'pt-PT']);
+    expect(PREVIEW_LANGUAGES).toEqual(['en', 'pt-PT', 'de']);
   });
 
   it('previews only UI languages, English first, each with every namespace English has', () => {
@@ -111,8 +111,6 @@ describe('the UI language (ADR-0023, the device preference)', () => {
 });
 
 const PRODUCTION: readonly UiLanguage[] = ['en'];
-const PREVIEW: readonly UiLanguage[] = ['en', 'pt-PT'];
-const WITH_GERMAN: readonly UiLanguage[] = ['en', 'pt-PT', 'de'];
 
 describe("the device's language (ADR-0023, Deviations of 2026-11-18)", () => {
   // [the device's languages, production, preview]
@@ -125,7 +123,8 @@ describe("the device's language (ADR-0023, Deviations of 2026-11-18)", () => {
     [['it-IT'], 'en', 'en'],
     [['ja-JP', 'en-US'], 'en', 'en'],
     [['en-GB', 'pt-PT'], 'en', 'en'],
-    [['de-DE', 'pt-PT'], 'en', 'pt-PT'],
+    [['de-DE', 'pt-PT'], 'en', 'de'],
+    [['de-AT'], 'en', 'de'],
     [['PT-br'], 'en', 'pt-PT'],
     [['pt_PT'], 'en', 'pt-PT'],
     [['pt-AO'], 'en', 'pt-PT'],
@@ -136,13 +135,13 @@ describe("the device's language (ADR-0023, Deviations of 2026-11-18)", () => {
 
   it.each(rows)('%j gives %s in production and %s on a preview', (device, production, preview) => {
     expect(deviceLanguage(device, PRODUCTION)).toBe(production);
-    expect(deviceLanguage(device, PREVIEW)).toBe(preview);
+    expect(deviceLanguage(device, PREVIEW_LANGUAGES)).toBe(preview);
   });
 
   it('walks the list in order, so the first offered language wins once German is offered', () => {
-    expect(deviceLanguage(['de-DE', 'pt-PT'], WITH_GERMAN)).toBe('de');
-    expect(deviceLanguage(['de'], WITH_GERMAN)).toBe('de');
-    expect(deviceLanguage(['en-GB', 'de-DE'], WITH_GERMAN)).toBe('en');
+    expect(deviceLanguage(['de-DE', 'pt-PT'], PREVIEW_LANGUAGES)).toBe('de');
+    expect(deviceLanguage(['de'], PREVIEW_LANGUAGES)).toBe('de');
+    expect(deviceLanguage(['en-GB', 'de-DE'], PREVIEW_LANGUAGES)).toBe('en');
   });
 
   it('gives no two UI languages the same primary subtag', () => {
@@ -152,15 +151,15 @@ describe("the device's language (ADR-0023, Deviations of 2026-11-18)", () => {
 
   it('derives from the device with nothing valid stored, and writes nothing', () => {
     const storage = memoryStorage();
-    expect(readLanguage(storage, ['pt-PT', 'en'], PREVIEW)).toBe('pt-PT');
+    expect(readLanguage(storage, ['pt-PT', 'en'], PREVIEW_LANGUAGES)).toBe('pt-PT');
     expect(readLanguage(storage, ['pt-PT', 'en'], PRODUCTION)).toBe('en');
     storage.setItem(LANGUAGE_STORAGE_KEY, 'fr');
-    expect(readLanguage(storage, ['pt-BR'], PREVIEW)).toBe('pt-PT');
+    expect(readLanguage(storage, ['pt-BR'], PREVIEW_LANGUAGES)).toBe('pt-PT');
     storage.removeItem(LANGUAGE_STORAGE_KEY);
-    expect(readLanguage(storage, ['pt-BR'], PREVIEW)).toBe('pt-PT');
+    expect(readLanguage(storage, ['pt-BR'], PREVIEW_LANGUAGES)).toBe('pt-PT');
     expect(storage.getItem(LANGUAGE_STORAGE_KEY)).toBeNull();
     expect(storage.length).toBe(0);
-    expect(readLanguage(null, ['pt-PT'], PREVIEW)).toBe('pt-PT');
+    expect(readLanguage(null, ['pt-PT'], PREVIEW_LANGUAGES)).toBe('pt-PT');
   });
 
   it('derives from the device when the storage throws', () => {
@@ -169,14 +168,14 @@ describe("the device's language (ADR-0023, Deviations of 2026-11-18)", () => {
         throw new DOMException('blocked', 'SecurityError');
       },
     };
-    expect(readLanguage(blocked, ['pt-PT'], PREVIEW)).toBe('pt-PT');
+    expect(readLanguage(blocked, ['pt-PT'], PREVIEW_LANGUAGES)).toBe('pt-PT');
     expect(readLanguage(blocked, ['pt-PT'], PRODUCTION)).toBe('en');
   });
 
   it('lets a stored English win on a pt-PT device', () => {
     const storage = memoryStorage();
     writeLanguage(storage, 'en');
-    expect(readLanguage(storage, ['pt-PT', 'pt'], PREVIEW)).toBe('en');
+    expect(readLanguage(storage, ['pt-PT', 'pt'], PREVIEW_LANGUAGES)).toBe('en');
   });
 
   it('still reads a stored hidden language, offered or not, until pt-PT is visible (#21)', () => {
@@ -184,7 +183,7 @@ describe("the device's language (ADR-0023, Deviations of 2026-11-18)", () => {
     writeLanguage(storage, 'pt-PT');
     expect(readLanguage(storage, ['en-GB'], PRODUCTION)).toBe('pt-PT');
     writeLanguage(storage, 'de');
-    expect(readLanguage(storage, ['en-GB'], PREVIEW)).toBe('de');
+    expect(readLanguage(storage, ['en-GB'], PREVIEW_LANGUAGES)).toBe('de');
   });
 
   it('defaults to the visible languages', () => {
