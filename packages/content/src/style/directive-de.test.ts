@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { findBanned } from './banned.ts';
 import { opensWithGermanForm } from './directive-de.ts';
@@ -27,6 +28,62 @@ describe('a split verb after a noun spelled like a separable base', () => {
   it('still passes the noun when no directive follows it', () => {
     expect(findBanned('Nach dem Kauf von BTC ist der Plan an.')).toEqual([]);
     expect(findBanned('Der Tausch von BTC in ETH ist ein Verkauf.')).toEqual([]);
+  });
+});
+
+const rules = (text: string) => findBanned(text).map(({ rule }) => rule);
+
+describe('beibehalten, a separable verb on behalten', () => {
+  // `behalten` inside `beibehalten` fails the word-boundary lookbehind, so the joined forms must come from
+  // `behalten`'s own row with the particle `bei`, as `festhalten`'s come from `halten`'s.
+  it.each([
+    ['Sie sollten Ihre Bitcoin beibehalten.', 'Sie sollten Ihre Bitcoin festhalten.'],
+    ['Es ist sinnvoll, Ihre BTC beizubehalten.', 'Es ist sinnvoll, Ihre BTC festzuhalten.'],
+    ['Bitcoin jetzt beibehalten', 'Bitcoin jetzt festhalten'],
+  ])('refuses %j as it refuses %j', (text, festhalten) => {
+    expect(rules(text)).not.toEqual([]);
+    expect(rules(text)).toEqual(rules(festhalten));
+  });
+
+  it('still refuses the split form', () => {
+    expect(rules('Behalten Sie Ihre Bitcoin bei.')).toContain('imperative');
+  });
+});
+
+// §2's German item 1, read from the document itself: every verb it lists is refused in a frame, so the document
+// and the code cannot part.
+const styleGuide = readFileSync(new URL('../../../../docs/CONTENT-STYLE.md', import.meta.url), 'utf8');
+const section2 = styleGuide.slice(styleGuide.indexOf('## 2. '), styleGuide.indexOf('## 3. '));
+const item1 = section2.slice(
+  section2.indexOf('1. A line that names an asset fails'),
+  section2.indexOf('The forms that count'),
+);
+const listed = (text: string) => [...text.matchAll(/`([^`]+)`/g)].map((match) => match[1] ?? '');
+const separableAt = item1.indexOf('and the separable');
+const SIMPLE_VERBS = listed(item1.slice(0, separableAt));
+const SEPARABLE_VERBS = listed(item1.slice(separableAt));
+const PARTICLES = ['dazu', 'durch', 'glatt', 'fest', 'nach', 'auf', 'aus', 'bei', 'ein', 'mit', 'ab', 'an', 'um', 'zu'];
+const zuInfinitive = (infinitive: string) => {
+  const particle = PARTICLES.find((candidate) => infinitive.startsWith(candidate));
+  return particle === undefined ? '' : `${particle}zu${infinitive.slice(particle.length)}`;
+};
+
+describe('§2’s German item 1 (docs/CONTENT-STYLE.md)', () => {
+  it('lists its verbs, each separable one on a known particle', () => {
+    expect(SIMPLE_VERBS).toContain('behalten');
+    expect(SEPARABLE_VERBS).toContain('beibehalten');
+    expect(SEPARABLE_VERBS.length).toBeGreaterThanOrEqual(30);
+    for (const infinitive of SEPARABLE_VERBS) expect(zuInfinitive(infinitive), infinitive).not.toBe('');
+  });
+
+  it.each(SIMPLE_VERBS)('refuses %j in a frame, as the infinitive and with zu', (infinitive) => {
+    expect(rules(`Sie sollten Ihre Bitcoin ${infinitive}.`)).toEqual(['advice', 'imperative']);
+    expect(rules(`Es ist sinnvoll, Ihre BTC zu ${infinitive}.`)).toEqual(['advice', 'imperative']);
+  });
+
+  it.each(SEPARABLE_VERBS)('refuses %j in a frame, as the infinitive and the zu-infinitive', (infinitive) => {
+    expect(rules(`Sie sollten Ihre Bitcoin ${infinitive}.`)).toEqual(['advice', 'imperative']);
+    expect(rules(`Es ist sinnvoll, Ihre BTC ${zuInfinitive(infinitive)}.`)).toEqual(['advice', 'imperative']);
   });
 });
 
