@@ -939,20 +939,20 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   applied without another review round; only a code change goes back to the reviewer. Each round's
   roles proposed new wordings on the last round's (on C2: 9 in the first delta, 7 in the second), so
   a review round per wording pass would not end (#455, 2026-11-24).
-- A test whose screen suggests from the device (`deviceLocale()`: the time zone and the languages)
-  stubs the device, as `onboarding-screen.test.tsx` does with its LISBON fixture. This machine's
-  time zone is Europe/Lisbon and CI's runner is UTC, so the prototype import's country-step test
-  passed here and failed in CI (#463, 2026-11-24).
+- A test whose screen suggests a country or a language from the device (`deviceLocale()`: the time
+  zone and the languages) stubs the device, as `onboarding-screen.test.tsx` does with its LISBON
+  fixture. This machine's time zone is Europe/Lisbon and CI's runner is UTC, so the prototype
+  import's country-step test passed here and failed in CI (#463, 2026-11-24).
 - A branch that changes a lazy route's loader, or what a feature's index exports, runs
-  `apps/web/e2e/chunk-reload.spec.ts` on one project and compares the chunks the first screen and
-  the changed screen load (the build's `apps/web/dist`). The plan barrel was Plan's dynamic entry and
-  Onboarding's static import, so once both shared `lib/countries`, the bundler moved Plan's screen
-  code into the chunk Onboarding loads, about 57 kB more on its first visit (#463; ADR-0045's
-  Deviations entry of 2026-11-24).
-- A rule the document states for every position ("each article may take one adjective") is asserted
-  by a test that enumerates every position the code has, contractions included. §2 said so while
-  the register prepositions `im` and `ins` took none, and only the delta review found it (#462,
-  2026-11-24).
+  `apps/web/e2e/chunk-reload.spec.ts` on one project. It compares the chunks the first screen and
+  the changed screen load (the build's `apps/web/dist`). The plan barrel was Plan's dynamic entry
+  and Onboarding's static import, so once both shared `lib/countries`, the bundler moved Plan's
+  screen code into the chunk Onboarding loads, about 57 kB more minified script on its first visit
+  (#463; ADR-0045's Deviations entry of 2026-11-24).
+- A test that lists every position the code has asserts a rule the document states for every
+  position ("each article may take one adjective"), contractions included. `docs/CONTENT-STYLE.md`
+  §2 said so while the article inside `im` and `ins` took no adjective, and only the delta review
+  found it (#462, 2026-11-24).
 
 ## Known gaps
 

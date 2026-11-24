@@ -136,12 +136,10 @@ profile or a message namespace answers them from memory through the `vi.mock` fa
 
 Seven Playwright projects (ADR-0024), each running every flow but the request-level specs (desktop
 only), two specs on iphone and desktop only (`language.spec.ts` and `import-failure.spec.ts`), and
-the long-date layout
-specs (`language-layout.spec.ts` and `language-layout-de.spec.ts`, android-small and zoom-125
-only): two phones (one WebKit), a tablet,
-two desktops, a 125 % text-zoom phone and a reduced-motion phone, defined in
-`apps/web/playwright.config.ts` (the three lists are its `requestOnly`, `phoneAndDesktop` and
-`narrowOnly`).
+the long-date layout specs (`language-layout.spec.ts` and `language-layout-de.spec.ts`,
+android-small and zoom-125 only): two phones (one WebKit), a tablet, two desktops, a 125 % text-zoom
+phone and a reduced-motion phone, defined in `apps/web/playwright.config.ts` (the three lists are
+its `requestOnly`, `phoneAndDesktop` and `narrowOnly`).
 Assertions in every flow: `document.documentElement.scrollWidth <= window.innerWidth` (no horizontal
 page scroll); every interactive element's bounding box at least 44 × 44 px (or 24 px with sufficient
 spacing per WCAG 2.5.8, checked only where the layout forces it and documented); forms remain usable
