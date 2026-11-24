@@ -1,7 +1,7 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { anEntry, aPlan, date, money, month, units } from '../../../test/builders';
-import { fileOf, type World, world } from '../../../test/exchange/plan-arbitraries';
+import { fileOf, restarted, type World, world } from '../../../test/exchange/plan-arbitraries';
 import { LISBON, NOW, trade } from '../../../test/exchange/plan-fixture';
 import { preCut } from '../../../test/exchange/plan-late';
 import { IMPORT_ESTIMATE_CHECKS, IMPORT_RECORDED_CHECKS, IMPORT_REMEDY_MAX_MOVEMENTS } from '../../constants';
@@ -181,7 +181,7 @@ function pieces<T extends Money | Units>(whole: T, count: number, dp: number): T
  * purchase is cut into 1 to 3 fills that day, and a third of the worlds also hold a purchase of each coin's monthly part
  * that day with a one-tap estimate of the first month, so the totals and d*'s guard are reached.
  */
-const startWorld = fc
+const startWorlds = fc
   .record({
     drawn: world.filter((each) => isPositive(each.plan.startingAmount)),
     offset: fc.integer({ min: -40, max: 15 }),
@@ -243,7 +243,7 @@ const startWorld = fc
  * reach, and whose Log holds a one-tap row for that month dated 3 days before its due date to 40 after, so the estimate
  * line is reached.
  */
-const estimateWorld = fc
+const estimateWorlds = fc
   .record({
     drawn: world,
     which: fc.nat(),
@@ -458,7 +458,7 @@ describe('importRemedies, over generated files and Logs', () => {
     () => {
       const reached = { before: 0, after: 0, shorter: 0, record: 0, change: 0, summed: 0 };
       fc.assert(
-        fc.property(fc.oneof(world, startWorld), fc.nat(), (drawn, cut) => {
+        fc.property(fc.oneof(world, restarted(startWorlds)), fc.nat(), (drawn, cut) => {
           for (const [order, stored] of orders(drawn, cut)) {
             const { starting } = importRemedies(drawn.file, stored, drawn.addHeld, LISBON);
             if (starting === null) continue;
@@ -492,7 +492,7 @@ describe('importRemedies, over generated files and Logs', () => {
     () => {
       const reached = { before: 0, after: 0, shorter: 0 };
       fc.assert(
-        fc.property(fc.oneof(world, estimateWorld), fc.nat(), (drawn, cut) => {
+        fc.property(fc.oneof(world, restarted(estimateWorlds)), fc.nat(), (drawn, cut) => {
           for (const [order, stored] of orders(drawn, cut)) {
             const { estimates } = importRemedies(drawn.file, stored, drawn.addHeld, LISBON);
             if (estimates.length > 0) reached[order as keyof typeof reached] += 1;

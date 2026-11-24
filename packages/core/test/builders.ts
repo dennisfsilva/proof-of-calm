@@ -21,6 +21,10 @@ export function id(): EntityId {
   sequence += 1;
   return `00000000-0000-4000-8000-${String(sequence).padStart(12, '0')}` as EntityId;
 }
+/** Restarts id() for one generator draw, so a drawn world's ids depend on its draw alone. */
+export function restartIds() {
+  sequence = 1_000_000_000;
+}
 
 export const BTC: Coin = { id: coinId('BTC'), name: 'Bitcoin', geckoId: 'bitcoin', decimals: 8 };
 export const ETH: Coin = { id: coinId('ETH'), name: 'Ethereum', geckoId: 'ethereum', decimals: 6 };

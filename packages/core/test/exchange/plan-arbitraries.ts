@@ -7,7 +7,7 @@ import { slots } from '../../src/plan/slots';
 import type { Entry } from '../../src/schema/entry';
 import type { CoinId, EntityId } from '../../src/schema/ids';
 import type { Plan } from '../../src/schema/plan';
-import { aMove, anEntry, date, instant, money, units } from '../builders';
+import { aMove, anEntry, date, instant, money, restartIds, units } from '../builders';
 import { LISBON, NOW, PLAN, STARTING_PLAN, testId } from './plan-fixture';
 import { lateOf, laterDues, lateStart, lumpAmount, lumpPick } from './plan-late';
 
@@ -297,8 +297,15 @@ function log(
     ]);
 }
 
+/** `inner`, each draw restarting `id()` first, so a drawn world's ids depend on its draw alone; one per Log. */
+export const restarted = <T>(inner: fc.Arbitrary<T>) =>
+  fc.constant(null).chain(() => {
+    restartIds();
+    return inner;
+  });
 /** Worlds whose earlier imported rows carry the ids `idOf` gives (`testId`, or the write's `importId`). */
-export const worldOf = (idOf: (key: string) => EntityId) =>
+export const worldOf = (idOf: (key: string) => EntityId) => restarted(worldsOf(idOf));
+const worldsOf = (idOf: (key: string) => EntityId) =>
   fc
     .record({
       drawn: file,
