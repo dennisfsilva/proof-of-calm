@@ -1330,7 +1330,7 @@ The product's nouns, one German word each, in every string, the site pages and t
 | fee, network fee | Gebühr, Netzwerkgebühr |
 | coin | Coin (der, die Coins); `Kryptowert` in a disclosure and in legal text, as MiCA writes it; never `Kryptowährung` |
 | currency | Währung (`Zahlungswährung` where the pay currency is meant) |
-| the Settings tabs | `Plan`, `Coins & Anteile`, `Frist & Verkauf`, `Währung & Daten`, with U+00A0 after each `&`; no word over 7 letters, since an 8-letter pt-PT word ran past its tab at 125 % zoom; quoted wherever a string names one |
+| the Settings tabs | `Plan`, `Coins & Anteile`, `Frist & Verkauf`, `Land & Daten`, with U+00A0 before each `&`, so a label breaks after the `&`; `Land`, since `Währung & Daten` and an `&` held to the next word ran past the 82 px tab at 125 % zoom; no word over 7 letters, since an 8-letter pt-PT word ran past its tab at 125 % zoom; quoted wherever a string names one |
 | Undo / Delete / Dismiss / Review (the control) | Rückgängig / Löschen / Ausblenden / Prüfen |
 | Reviewed on {date} | Stand: {date}; under review `Seit {date} nicht überprüft`; never `geprüft`, which reads as a seal (§2) |
 | backup / keep (data) | Backup (`JSON-Backup exportieren`) / aufbewahren |
@@ -1369,7 +1369,7 @@ For the native reader (§8 item 9): `Sie`; `steuerfrei ab` against `nicht steuer
 Kauf: erster steuerfreier Tag`; `Protokoll`, `Lernen`, `Ort`, `Coin`, `die Wallet`, `Backup` (pt-PT
 kept `cópia de segurança`), `durchschnittlicher Kaufpreis` against `Einstandspreis`, `Stand:` and
 `geplant für den`; the Settings tabs, the tab bar and the entry sheet's kinds at 360 px with 125 %
-text, with `Land & Daten` if `Währung` runs past; the German "not tax advice" line, pending the StBerG
+text, `Land & Daten` against `Währung & Daten`; the German "not tax advice" line, pending the StBerG
 question (`docs/BENCHMARK.md` §4), its candidate `Aus Ihren Einträgen berechnet, keine
 Steuerberatung`; the descriptor against `Krypto-Sparplan` (`docs/GROWTH.md` §2.5); `ungelesen`
 against `nicht eingelesen` for `shell.newer.again`; „nach {to}“ or „auf {to}“ in the move strings;
