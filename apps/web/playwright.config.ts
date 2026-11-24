@@ -14,9 +14,9 @@ const requestOnly = /(csp|csp-report|deployment|prices|pwa|site|uk-block)\.spec\
 // The UI-language specs boot the shell in another language, and the import-failure spec aborts chunks in the
 // built app: neither depends on the viewport, so one phone and one desktop project (one per engine) cover them.
 const phoneAndDesktop = /(language|import-failure)\.spec\.ts$/;
-// The long-date layout spec lays pt-PT's and German's tables out where they are narrowest: android-small and
+// The long-date layout specs lay pt-PT's and German's screens out where they are narrowest: android-small and
 // zoom-125 only.
-const narrowOnly = /language-layout\.spec\.ts$/;
+const narrowOnly = /language-layout(-de)?\.spec\.ts$/;
 const elsewhere = [requestOnly, phoneAndDesktop];
 const notNarrow = [...elsewhere, narrowOnly];
 
