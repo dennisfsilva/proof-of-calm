@@ -84,7 +84,14 @@ describe('PrototypeImport’s country step', () => {
     render(
       <ServicesProvider services={services}>
         <I18nProvider messages={{ settings: en }}>
-          <PrototypeImport name={null} count={3} hasPlan={false} pending={false} onReplace={vi.fn()} onImport={vi.fn()} />
+          <PrototypeImport
+            name={null}
+            count={3}
+            hasPlan={false}
+            pending={false}
+            onReplace={vi.fn()}
+            onImport={vi.fn()}
+          />
         </I18nProvider>
       </ServicesProvider>,
     );
