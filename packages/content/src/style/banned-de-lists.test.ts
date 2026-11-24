@@ -69,6 +69,8 @@ const registers = [
   ...registerParts.slice(2, 3),
   ...registerParts.slice(3).map((form) => `${form} ${genitive[form.replace(/^Register /u, '')] ?? ''}`),
 ];
+const genitiveSentence = sentence('Genitive:');
+const genitiveArticles = backticked(genitiveSentence.slice(0, genitiveSentence.indexOf('(')));
 const aufsicht = sentence('Or `Aufsicht`');
 const [aufsichtPart = '', unterliegenPart = ''] = aufsicht.slice(0, aufsicht.indexOf('(fails:')).split('a word that');
 const plural = (noun: string) => (noun === 'Erlaubnis' ? 'Erlaubnisse' : `${noun}en`);
@@ -205,6 +207,24 @@ describe('§2’s German registration claim, read from the document', () => {
     // Lengthened past its plural, a joined noun names a procedure („BaFin-Zulassungsverfahren“), so it passes.
     expect(rules(`Das BaFin-${noun}sverfahren.`)).toEqual(byItself(`${noun}sverfahren`));
     expect(rules(`Im BaFin-Register stehen Anbieter mit ${noun}.`)).toEqual(byItself(noun));
+  });
+
+  it.each(nouns)('refuses the noun %j in the genitive of each listed article, and passes another article', (noun) => {
+    expect(genitiveArticles).toEqual(['der', 'des']);
+    for (const article of genitiveArticles) {
+      const regulator = genitive[article] ?? '';
+      expect(rules(`Eine ${noun} ${article} ${regulator}.`)).toEqual([`advice: ${noun} ${article} ${regulator}`]);
+      expect(rules(`Eine ${noun} ${article} zuständigen ${regulator}.`)).toEqual([
+        `advice: ${noun} ${article} zuständigen ${regulator}`,
+      ]);
+      expect(rules(`Die ${noun}snummer ${article} ${regulator}.`)).toEqual([
+        `advice: ${noun}snummer ${article} ${regulator}`,
+      ]);
+    }
+    for (const article of ['die', 'dem', 'den']) {
+      expect(rules(`Eine ${noun} ${article} BaFin.`), article).toEqual(byItself(noun));
+    }
+    expect(rules(`Eine ${noun} der neuen deutschen BaFin.`)).toEqual(byItself(noun));
   });
 
   it.each(hyphens)('counts the gap’s words with the hyphen %j, up to the bound, in both orders', (hyphen) => {
