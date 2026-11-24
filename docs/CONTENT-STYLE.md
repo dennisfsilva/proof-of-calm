@@ -1172,7 +1172,8 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
   `lib/format` may add the zone (`14:05 MESZ`), and never a placeholder in a compound (`Kosten für
   {coin}`, not `{coin}-Kosten`). `packages/content/src/hyphen-validate.ts` refuses a German unit
   hyphened to its numeral (`365-Tage`, `1-jährige`, `4-mal`); `packages/content/src/join-validate.ts`
-  holds no German lists yet, and a German overlay waits for it.
+  holds no German lists yet, and a German profile or module overlay waits for it; a template's texts
+  never reach it, and the German templates hold no date, law name or unit it would join.
 - **The tax authority's own terms**: `privates Veräußerungsgeschäft`, `Freigrenze`, `Anlage SO`,
   `Finanzamt`, `BMF-Schreiben`; a rule quoted from the law keeps its wording („nicht mehr als ein
   Jahr beträgt“). A tax name the lint refuses goes on the allow-list with its reason (§2).
