@@ -411,7 +411,12 @@ external links and the Risk link in the mobile export (M3).
   still hidden: its own message files and loaders (#413, ADR-0045 Deviations of 2026-11-19) and its
   first strings (Today, the shell, the errors and one Plan key, #419). The German voice and the
   directive rule, designed in #20's comments 7095208321 and 7096014700, were merged on 2026-11-24
-  (#449; `docs/CONTENT-STYLE.md` §2 and §10). CSV import, free (ADR-0039), for the
+  (#449; `docs/CONTENT-STYLE.md` §2 and §10). The German rows of the ban list and the German
+  template overlays followed (#455), then a translated module's body read with English's module
+  reads too (#456, ADR-0048 Deviations), and each language's country forms with Learn's two
+  sentences that name a country (#457, ADR-0045 Deviations of 2026-11-24). Still to come: German
+  Portfolio and Log, the other screens' sentences on the country forms, German's forms, the
+  remaining German namespaces and the native read. CSV import, free (ADR-0039), for the
   main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
   Republic; Kraken's ledger reader built on 2026-11-13 (#168) and the core's import plan against the
   Log the same day (#178, `docs/DOMAIN.md` §3.13, "Meeting the Log"), then its write (#183) and the
