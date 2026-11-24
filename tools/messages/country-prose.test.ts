@@ -160,12 +160,9 @@ describe('the country names in prose', () => {
         de,
       ),
     ).toEqual([]);
-    expect(findings('Zum USA–Profil. Im Vereinigtes Königreich. In USA. Das Vereinigtes Königreich.', 'de', de)).toEqual([
-      'In USA',
-      'Das Vereinigtes',
-      'Zum USA',
-      'Im Vereinigtes',
-    ]);
+    expect(
+      findings('Zum USA–Profil. Im Vereinigtes Königreich. In USA. Das Vereinigtes Königreich.', 'de', de),
+    ).toEqual(['In USA', 'Das Vereinigtes', 'Zum USA', 'Im Vereinigtes']);
     const pt = articleNames(forms('pt-PT'));
     expect(findings('Em Alemanha. Sobre Reino Unido.', 'pt-PT', pt)).toEqual(['Em Alemanha', 'Sobre Reino Unido']);
   });
