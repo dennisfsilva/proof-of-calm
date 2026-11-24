@@ -298,7 +298,7 @@ The German rows (decided 2026-11-23; the voice is §10):
   | Refused (German) | Write instead |
   |---|---|
   | `Proof of Calm verwahrt nie Ihr Geld oder Ihre Coins. Sie kaufen und verwahren Coins bei einem Anbieter Ihrer Wahl oder in einer eigenen Wallet.` | `Proof of Calm hat nie Ihr Geld oder Ihre Coins in Verwahrung. Für den Kauf und die Aufbewahrung wählen Sie einen Anbieter oder eine eigene Wallet.` |
-  | `Wenn Sie Coins selbst verwahren und die Seed-Phrase verlieren, kann niemand sie wiederherstellen.` | `Bei Coins in eigener Verwahrung und verlorener Seed-Phrase kann niemand die Coins wiederherstellen.` |
+  | `Wenn Sie Coins selbst verwahren und die Seed-Phrase verlieren, kann niemand sie wiederherstellen.` | `Ist bei Coins in eigener Verwahrung die Seed-Phrase verloren, kann niemand die Coins wiederherstellen.` |
   | `Eingetragen: {amount} {coin} am {date} verkauft.` | `Eingetragen: ein Verkauf von {amount} {coin} am {date}.` |
   | `Dieser Verkauf ist {excess} mehr, als Sie halten ({held} am {date}).` | `Dieser Verkauf übersteigt Ihren Bestand ({held} am {date}) um {excess}.` |
   | `Ein Rückgang der Coins, die Sie halten, ist im Gange.` | `Ein Rückgang der Coins in Ihrem Bestand ist im Gange.` |
@@ -308,7 +308,7 @@ The German rows (decided 2026-11-23; the voice is §10):
   | `{count, plural, one {Kauf} other {Käufe}} von BTC eingetragen.` | `{count, plural, one {# Kauf} other {# Käufe}} von BTC eingetragen.` |
   | `Der 1. Kauf von BTC ist am {date}.` | `Der erste Kauf von BTC ist am {date}.` |
   | `Legen Sie einen Plan für BTC an.` | `Richten Sie einen Plan ein.` |
-  | `Halten Sie jeden Kauf von BTC fest.` | `Jeden Kauf eintragen` |
+  | `Halten Sie jeden Kauf von BTC fest.` | `Tragen Sie jeden Kauf ein.` |
   | `Sie müssen nichts verkaufen.` | `Der Plan verlangt keinen Verkauf.` |
   | `Prüfen Sie den Anbieter, bevor Sie Kryptowerte kaufen.` | `Prüfen Sie jeden Anbieter vor dem ersten Kauf von Kryptowerten.` |
   | `Bitcoin wurde 2021 von vielen verkauft.` | `2021 gab es viele Verkäufe von Bitcoin.` |
@@ -1078,8 +1078,8 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
   never a translation back from English: Delegated Regulation 2017/565 art. 44(4)(d), „Die frühere
   Wertentwicklung ist kein verlässlicher Indikator für künftige Ergebnisse.“; MiCA art. 6(5)(a), „Der
   Kryptowert kann seinen Wert ganz oder teilweise verlieren.“; (e) and (f), the `Systeme für die
-  Entschädigung der Anleger` and the `Einlagensicherungssysteme`, in the statement on status of
-  `docs/LEGAL.md` §5, which reads
+  Entschädigung der Anleger` and the `Einlagensicherungssysteme`, in the German text of
+  `docs/LEGAL.md` §5's statement on status, which opens
   `Proof of Calm ist bei keiner Finanzaufsicht registriert und unterliegt nicht deren Aufsicht`;
   the ESAs' warning of 2022-03-17 in its German version. "Not advice" reads `keine Beratung`, "no financial or tax advice" `keine
   Anlage- oder Steuerberatung`. The plan-creation text stays English until counsel approves a German
