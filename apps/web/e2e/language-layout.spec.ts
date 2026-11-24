@@ -710,7 +710,9 @@ for (const [language, messages, amount] of [
     await page.getByRole('button', { name: messages.recordMoved, exact: true }).click();
     const sheet = page.getByRole('dialog');
     await expect(sheet.getByRole('heading', { name: messages.move.title.new, exact: true })).toBeVisible();
-    await sheet.evaluate((element) => Promise.all(element.getAnimations({ subtree: true }).map((each) => each.finished)));
+    await sheet.evaluate((element) =>
+      Promise.all(element.getAnimations({ subtree: true }).map((each) => each.finished)),
+    );
     const input = sheet.getByRole('textbox', { name: messages.move.sent, exact: true });
     await input.fill(amount);
     await expect(input).toHaveValue(amount);
