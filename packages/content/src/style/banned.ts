@@ -24,11 +24,12 @@ const REGISTRATION =
   String.raw`(?:n[oa]s?|pel[oa]s?|por|junto\s+d[oa]s?|perante\s+[oa]s?|com\s+[oa]s?)\s+` +
   `(?:${[...longestFirst(banned.regulators), 'regulador(?:es)?'].join('|')})`;
 // A German one: bei, von or durch, an optional article (der, dem, den, or durch's die and das), a regulator of the
-// list, "Finanzaufsicht" or "Aufsichtsbehörde", up to three words of letters, numerals and inner hyphens, U+002D or
-// the no-break hyphen U+2011 a numeral takes before its unit ("als Krypto-Dienstleister", "seit 2024", "als
-// 24‑Stunden‑Anbieter"), then registriert, eingetragen, gemeldet or beaufsichtigt; the participle first; or
-// "Aufsicht" with "der", "des" or "durch die", then a regulator. "Bei keiner Finanzaufsichtsbehörde registriert"
-// passes, since "keiner" is neither an article nor a regulator.
+// list, "Finanzaufsicht" or "Aufsichtsbehörde", up to three words of letters, numerals and inner hyphens (U+002D,
+// or the no-break hyphen U+2011 that joins a numeral compound, docs/CONTENT-STYLE.md §10; "als
+// Krypto-Dienstleister", "seit 2024", "als 24‑Stunden‑Anbieter"), then registriert, eingetragen, gemeldet, or
+// beaufsichtigt, or a longer word that begins with one (registrierter); the participle first (registriert,
+// eingetragen, or gemeldet); or "Aufsicht" with "der", "des" or "durch die", then a regulator. "Bei keiner
+// Finanzaufsichtsbehörde registriert" passes, since "keiner" is neither an article nor a regulator.
 const REGULATOR_DE = [
   ...longestFirst(banned.regulators),
   String.raw`finanzaufsicht\p{L}*`,

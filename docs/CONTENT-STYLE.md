@@ -263,12 +263,15 @@ The German rows (decided 2026-11-23; the voice is §10):
   - `Glückwunsch`, `Abzeichen`, `Badge`, `Medaille`, `Streak` and `Level-up`;
   - the status words `reguliert`, `lizenziert`, `zugelassen`, `beaufsichtigt`, `genehmigt`,
     `autorisiert`, every word that begins `Erlaubnis`, `MiCA-konform` and `Kaufsignal`;
-  - a registration claim with the participle last or first: `bei` or `von` (with or without `der`,
-    `dem` or `den`) or `durch` (with or without `die`, `den` or `das`), then a regulator of the
-    list's `regulators`, `Finanzaufsicht` or `Aufsichtsbehörde`, then at most three other words,
-    each of letters, digits and inner hyphens (`-` or the no-break hyphen U+2011), then
-    `registriert`, `eingetragen`, `gemeldet` or `beaufsichtigt` or a word that begins with one of
-    them (`registrierter`); or `Aufsicht` with `der`, `des` or `durch die`, then a regulator
+  - a registration claim with the participle last or first. Its regulator is one of the list's
+    `regulators`, `Finanzaufsicht`, or `Aufsichtsbehörde`. Its preposition is `bei` or `von` (with
+    or without `der`, `dem`, or `den`) or `durch` (with or without `die`, `den`, or `das`). Last:
+    the preposition and the regulator, then at most three other words, each of letters, digits,
+    and inner hyphens (`-` or the no-break hyphen U+2011), then `registriert`, `eingetragen`,
+    `gemeldet`, or `beaufsichtigt`, or a longer word that begins with one of them
+    (`registrierter`). First: `registriert`, `eingetragen`, or `gemeldet`, or a longer word that
+    begins with one of them, then the preposition and the regulator; a bare `beaufsichtigt` first
+    fails as a status word. Or `Aufsicht` with `der`, `des`, or `durch die`, then a regulator
     (`bei der BaFin registriert`, `registriert bei der BaFin`, `durch die BaFin registriert`,
     `bei der BaFin als Krypto-Dienstleister registriert`, `bei der BaFin seit 2024 registriert`).
 
@@ -295,12 +298,14 @@ The German rows (decided 2026-11-23; the voice is §10):
   `erzielen`, `erwirtschaften`, `einbringen`, and `abwerfen`, fail next to a percentage.
   `Kapitalertragsteuer`, `Gewinner`, `Vertrag`, `Übertrag`, and their compounds pass
   (`Laut Vertrag 2 % Gebühr`, `Sparvertrag mit 3 %`).
-  - A noun may take `pro Jahr`, `im Jahr`, `p. a.` or `im Schnitt`; then a colon, `von`,
-    `in Höhe von`, or a form of `betragen`, `liegen bei` or `sein`; then `bis zu`, `über`,
-    `mehr als`, `rund`, `etwa`, `ca.`, `ungefähr`, `um (die)`, `durchschnittlich`, `jährlich` or
+  - A noun may take `pro Jahr`, `im Jahr`, `p. a.`, or `im Schnitt`; then a colon, `von`,
+    `in Höhe von`, or a form of `betragen`, `liegen bei`, or `sein`; then `bis zu`, `über`,
+    `mehr als`, `rund`, `etwa`, `ca.`, `ungefähr`, `um (die)`, `durchschnittlich`, `jährlich`, or
     `monatlich`.
-  - A figure first takes up to two of `jährlich`, `durchschnittlich`, `erwartet`, `möglich`,
-    `potenziell`, `garantiert`, `mehr` or `an`, or a hyphen (`-` or the no-break hyphen U+2011).
+  - A figure first takes up to two of `jährlich`, `monatlich`, `durchschnittlich`, `erwartet`,
+    `möglich`, `potenziell`, `zusätzlich`, `garantiert`, or `realistisch` with the ending `e`,
+    `en`, `er`, `es`, or `em` or none (`jährliche`), `mehr`, or `an`, or a hyphen (`-` or the
+    no-break hyphen U+2011).
   - These fail: `Eine Rendite von 8 % pro Jahr`, `Rendite: 8 %`, `Bis zu 12 % Rendite im Jahr`,
     `Kursgewinne von über 300 %`, `Tagesgeld bringt 3 % Zinsen`, `Verdienen Sie bis zu 8 %`,
     `ein Plus von 48 %`, `wirft 5 % im Jahr ab`.
