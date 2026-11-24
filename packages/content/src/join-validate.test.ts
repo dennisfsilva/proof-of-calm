@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import allowList from '../sources.allow.json' with { type: 'json' };
 import { applyOverlay } from './i18n/overlay.ts';
@@ -796,7 +796,7 @@ describe('the real profiles and their overlays', () => {
   it('join every code, form name, law name and date part with U+00A0, and every English range after its dash', () => {
     const english = jsonIn('jurisdictions/').map((name) => `jurisdictions/${name}`);
     const overlays = readdirSync(new URL('i18n/', root), { withFileTypes: true })
-      .filter((entry) => entry.isDirectory())
+      .filter((entry) => entry.isDirectory() && existsSync(new URL(`i18n/${entry.name}/jurisdictions/`, root)))
       .flatMap(({ name: language }) => jsonIn(`i18n/${language}/jurisdictions/`).map((name) => ({ language, name })));
     expect(english).toHaveLength(10);
     expect(overlays.length).toBeGreaterThan(0);

@@ -2,7 +2,7 @@
 // in jurisdictions/ as `countryRules` maps it, and rules/locales.json, every profile's locales by code
 // (src/loaders/locales.ts). The shell boots on a country's rules/<code>.json (the measurement:
 // ADR-0049); the profile's card text and sources load only where a card, a source link or the picker shows
-// them. Each content language with a folder under i18n/ gets rules/<language>/ over its translations (ADR-0057).
+// them. Each content language with profiles in i18n/<language>/jurisdictions gets rules/<language>/ over them (ADR-0057).
 // A rules file with no profile is removed. The files are committed and never edited by hand:
 // src/loaders/rules.test.ts fails while one is stale or missing. The profiles are read from disk, as
 // scripts/validate.ts reads them.
@@ -100,9 +100,14 @@ const isMain = process.argv[1] !== undefined && fileURLToPath(import.meta.url) =
 if (isMain) {
   const root = fileURLToPath(new URL('../', import.meta.url));
   const i18n = join(root, 'i18n');
-  // English, then each content language with a folder under i18n/ (ADR-0057).
+  // English, then each content language with profiles under i18n/<language>/jurisdictions (ADR-0057).
   const languages = existsSync(i18n)
-    ? readdirSync(i18n).filter((name) => name !== 'en' && (CONTENT_LANGUAGES as readonly string[]).includes(name))
+    ? readdirSync(i18n).filter(
+        (name) =>
+          name !== 'en' &&
+          (CONTENT_LANGUAGES as readonly string[]).includes(name) &&
+          existsSync(join(i18n, name, 'jurisdictions')),
+      )
     : [];
   for (const language of ['', ...languages.sort()]) {
     const { written, removed } = writeRules({

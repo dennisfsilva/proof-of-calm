@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -18,9 +18,12 @@ const RULES = fileURLToPath(new URL('../../rules/', import.meta.url));
 const PROFILES = fileURLToPath(new URL('../../jurisdictions/', import.meta.url));
 const STALE = 'stale rules file: run `pnpm --filter @proofofcalm/content rules` and commit the result';
 const fileName = (code: string) => `${code.toLowerCase()}.json`;
-// The script writes rules/<language>/ for each content language with a folder under i18n/ (ADR-0057).
-const I18N_LANGUAGES = readdirSync(fileURLToPath(new URL('../../i18n/', import.meta.url)))
+// The script writes rules/<language>/ for each content language with profiles under i18n/<language>/jurisdictions
+// (ADR-0057); a language with only template overlays (de, so far) has none.
+const I18N = fileURLToPath(new URL('../../i18n/', import.meta.url));
+const I18N_LANGUAGES = readdirSync(I18N)
   .filter((name): name is OverlayLanguage => (CONTENT_LANGUAGES as readonly string[]).includes(name) && name !== 'en')
+  .filter((name) => existsSync(join(I18N, name, 'jurisdictions')))
   .sort();
 const profileFile = (code: string) =>
   JSON.parse(readFileSync(join(PROFILES, fileName(code)), 'utf8')) as CountryProfile;
@@ -59,7 +62,7 @@ describe('packages/content/rules', () => {
 });
 
 describe('packages/content/rules/<language> (ADR-0057)', () => {
-  it('has a folder, and a loadRules record, for each language with a folder under i18n/', () => {
+  it('has a folder, and a loadRules record, for each language with profiles under i18n/', () => {
     expect(I18N_LANGUAGES).toContain('pt-PT');
     expect([...RULES_LANGUAGES].sort()).toEqual(I18N_LANGUAGES);
   });
