@@ -233,8 +233,9 @@ The decision stands; these are the choices its text left open, made while implem
   With pt-PT approved (#268, 2026-11-16), a pt-PT acknowledgement writes a v4 row, which the build
   before #275 answers with the newer-version screen. So the branch that approves pt-PT merges only
   after a production deployment that holds #275's reader.
-- **2026-11-24, no outbox copy before the sync** (replaces Outbox, and "with their outbox copies"
-  under Write order). No write puts a copy in `outbox` until M3's sync: a copy kept for a function
+- **2026-11-24, no outbox copy before the sync** (replaces Outbox, "with their outbox copies"
+  under Write order, the outbox copy under Row shape and `planId`, and the Decision's "append the
+  rows to the `outbox` store"). No write puts a copy in `outbox` until M3's sync: a copy kept for a function
   the app does not offer is not one the person asked for (`docs/LEGAL.md` §9, settled 2026-11-23).
   Every open empties the store (`emptyOutbox` in `idb/database.ts`) after the upgrade, at version 1:
   emptying changes no store, key or index, so it is not a schema change. It is not a numbered
