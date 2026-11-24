@@ -1,4 +1,4 @@
-import { COUNTRY_CODES, GENERIC_COUNTRY, loadProfile } from '@proofofcalm/content';
+import { COUNTRY_CODES, GENERIC_COUNTRY, loadProfile, PROFILE_OVERLAYS } from '@proofofcalm/content';
 import { describe, expect, it } from 'vitest';
 import { COUNTRY_FORMS, type CountriesTranslator, countryArgs } from './forms';
 
@@ -20,13 +20,59 @@ const translator =
     return forms[code]?.[form] ?? key;
   };
 
-// The words that end the general profile's forms, in each language whose forms are whole.
+// The words that end the general profile's forms, in each language whose forms end with the name.
 const GENERAL = { en: 'general profile', 'pt-PT': 'perfil geral' } as const;
 const WHOLE = Object.keys(GENERAL) as (keyof typeof GENERAL)[];
 
+/** German's preposition of each form, before a name it writes the same after every preposition. */
+const PREPOSITION = { in: 'in', for: 'für', from: 'von', to: 'auf', with: 'mit' } as const;
+const unchanged = (name: string) => ({
+  name,
+  the: name,
+  ...Object.fromEntries(Object.entries(PREPOSITION).map(([form, word]) => [form, `${word} ${name}`])),
+});
+const row = (...forms: string[]) => Object.fromEntries(COUNTRY_FORMS.map((form, index) => [form, forms[index]]));
+/** D3's verdict §4, German, in COUNTRY_CODES order. */
+const GERMAN = {
+  DE: unchanged('Deutschland'),
+  ES: unchanged('Spanien'),
+  FR: unchanged('Frankreich'),
+  GB: row(
+    'Vereinigtes Königreich',
+    'das Vereinigte Königreich',
+    'im Vereinigten Königreich',
+    'für das Vereinigte Königreich',
+    'vom Vereinigten Königreich',
+    'auf das Vereinigte Königreich',
+    'mit dem Vereinigten Königreich',
+  ),
+  IE: unchanged('Irland'),
+  IT: unchanged('Italien'),
+  NL: row(
+    'Niederlande',
+    'die Niederlande',
+    'in den Niederlanden',
+    'für die Niederlande',
+    'von den Niederlanden',
+    'auf die Niederlande',
+    'mit den Niederlanden',
+  ),
+  PT: unchanged('Portugal'),
+  US: row('USA', 'die USA', 'in den USA', 'für die USA', 'von den USA', 'auf die USA', 'mit den USA'),
+  XX: row(
+    'Anderes Land',
+    'das allgemeine Profil',
+    'im allgemeinen Profil',
+    'für das allgemeine Profil',
+    'vom allgemeinen Profil',
+    'auf das allgemeine Profil',
+    'mit dem allgemeinen Profil',
+  ),
+};
+
 describe('the country forms', () => {
-  it('are written whole in English and pt-PT', () => {
-    expect([...byLocale.keys()]).toEqual(expect.arrayContaining(WHOLE));
+  it('are written whole in English, pt-PT and German', () => {
+    expect([...byLocale.keys()]).toEqual(expect.arrayContaining([...WHOLE, 'de']));
   });
 
   it.each([...byLocale.keys()])('of %s hold every code with every form, in order and none empty', (locale) => {
@@ -48,6 +94,18 @@ describe('the country forms', () => {
         expect(forms[code]?.[form], `${code}.${form}`).toMatch(new RegExp(`${end}$`, 'u'));
     }
   });
+
+  // German writes the case into the name after a preposition (`im Vereinigten Königreich`), so no form ends with the
+  // label: every form is pinned to D3's verdict (§4), and `name` to the German profile once its overlay exists.
+  it('of de are the forms of the verdict, every code and every form', () => {
+    expect(own('de')).toEqual(GERMAN);
+  });
+
+  // Skipped per code while packages/content has no German profile for it: the label then comes from this file alone.
+  for (const code of COUNTRY_CODES)
+    it.skipIf(PROFILE_OVERLAYS.de[code] === undefined)(`of de name ${code} as its German profile does`, async () => {
+      expect(own('de')[code]?.name).toBe((await loadProfile(code, 'de'))?.name);
+    });
 
   it.each([...byLocale.keys()])('of %s start each phrase with its preposition in lower case', (locale) => {
     const forms = own(locale);

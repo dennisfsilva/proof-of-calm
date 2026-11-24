@@ -165,29 +165,37 @@ describe('the translations in the repository', () => {
   });
 });
 
-// Onboarding, Portfolio and Plan are whole in pt-PT, but for the acknowledged disclosure: a language shows its
-// own text only once counsel approved it as the English text's equal (RISK_WORDING_LANGUAGES, docs/LEGAL.md §4).
-describe('the pt-PT onboarding, portfolio and plan', () => {
-  const owesEnglish = (folder: string, locale: UiLanguage) =>
-    folder === 'onboarding' && !RISK_WORDING_LANGUAGES.includes(locale) ? ['disclosure.text: not translated'] : [];
+// A translated file is whole but for the acknowledged disclosure: a language shows its own text only once counsel
+// approved it as the English text's equal (RISK_WORDING_LANGUAGES, docs/LEGAL.md §4).
+const owesEnglish = (folder: string, locale: UiLanguage) =>
+  folder === 'onboarding' && !RISK_WORDING_LANGUAGES.includes(locale) ? ['disclosure.text: not translated'] : [];
 
-  it.each(['onboarding', 'portfolio', 'plan'])('%s is whole in pt-PT', (folder) => {
-    const translated = byFolder.get(`${folder}/pt-PT`)?.tree;
-    expect(translated, `${folder} has no pt-PT file`).toBeDefined();
-    expect(problems(byFolder.get(`${folder}/en`)?.tree ?? {}, translated ?? {}, true)).toEqual(
-      owesEnglish(folder, 'pt-PT'),
-    );
-  });
+const wholeness = (folder: string, locale: UiLanguage) => {
+  const translated = byFolder.get(`${folder}/${locale}`)?.tree;
+  expect(translated, `${folder} has no ${locale} file`).toBeDefined();
+  expect(problems(byFolder.get(`${folder}/en`)?.tree ?? {}, translated ?? {}, true)).toEqual(
+    owesEnglish(folder, locale),
+  );
+};
+
+describe('the pt-PT onboarding, portfolio and plan', () => {
+  it.each(['onboarding', 'portfolio', 'plan'])('%s is whole in pt-PT', (folder) => wholeness(folder, 'pt-PT'));
 });
 
-// German Portfolio and Log are whole while German is hidden: a key the merge completed from English would show
-// English on either screen (docs/CONTENT-STYLE.md §10).
-describe('the German portfolio and log', () => {
-  it.each(['portfolio', 'log'])('%s is whole in de', (folder) => {
-    const translated = byFolder.get(`${folder}/de`)?.tree;
-    expect(translated, `${folder} has no de file`).toBeDefined();
-    expect(problems(byFolder.get(`${folder}/en`)?.tree ?? {}, translated ?? {}, true)).toEqual([]);
+// While German is hidden, a German file is whole once it exists: a key the merge completed from English would show
+// English inside a German screen (docs/CONTENT-STYLE.md §10). The one exception is a file that holds a few keys
+// ahead of its screen's translation. The rule is by file, not by a list of screens, so a branch that adds a
+// German screen's file needs no line here.
+const GERMAN_PARTIAL = ['plan'];
+
+describe('the German files', () => {
+  const german = translations.filter(({ folder, locale }) => locale === 'de' && !GERMAN_PARTIAL.includes(folder));
+
+  it('hold the screens translated so far', () => {
+    expect(german.map(({ folder }) => folder)).toEqual(expect.arrayContaining(['countries', 'portfolio', 'log']));
   });
+
+  it.each(german.map(({ folder }) => folder))('%s is whole in de', (folder) => wholeness(folder, 'de'));
 });
 
 // A count is a figure in the country's number format: a plural picks its form from the count and writes the
