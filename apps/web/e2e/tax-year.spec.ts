@@ -7,10 +7,10 @@ import {
   fixtureSnapshot,
 } from '@proofofcalm/app/lib/services/fixtures';
 import type { Plan } from '@proofofcalm/core';
+import countries from '../../../packages/app/src/messages/en/countries.json' with { type: 'json' };
 import france from '../../../packages/content/jurisdictions/fr.json' with { type: 'json' };
 import britain from '../../../packages/content/jurisdictions/gb.json' with { type: 'json' };
 import netherlands from '../../../packages/content/jurisdictions/nl.json' with { type: 'json' };
-import countries from '../../../packages/app/src/messages/en/countries.json' with { type: 'json' };
 import portugal from '../../../packages/content/jurisdictions/pt.json' with { type: 'json' };
 import { seedPlan } from './seed';
 import { cspViolations, recordCspViolations, test } from './support';
