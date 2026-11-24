@@ -124,6 +124,22 @@ describe('the tax-year header lines', () => {
     },
   );
 
+  // English names the country by its `for` form (docs/CONTENT-STYLE.md §3, the Tax-year file header row), as pt-PT
+  // does, so "the Netherlands" and "the United States" keep their article; the title keeps the bare name as a label.
+  it('the English lines name the country with its article: the review, holding and plan-rule lines', async () => {
+    const dutch = (await header('NL', 'en')).split('\n').map(uncell);
+    expect(dutch[0]).toMatch(/^Proof of Calm tax-year file · Netherlands · /u);
+    expect(dutch[3]).toMatch(/^Rules for the Netherlands reviewed on \d{4}-\d{2}-\d{2} · general information/u);
+    const british = (await header('GB', 'en')).split('\n').map(uncell);
+    expect(british[3]).toMatch(/^Rules for the United Kingdom reviewed on /u);
+    const american = (await header('US', 'en')).split('\n').map(uncell);
+    expect(american[3]).toMatch(/^Rules for the United States reviewed on /u);
+    expect(american).toContain(
+      'eligible_from: the first day past the holding rule for the United States (1 year). Computed from your dates, not tax advice.',
+    );
+    expect(american).toContain('Your plan uses its own holding rule. This file uses the rule for the United States.');
+  });
+
   it("PT's pt-PT file holds the pt-PT profile's lot note on line 6 and its conditions from line 8, none with a ';'", async () => {
     // The profile in pt-PT, its overlay over English (ADR-0057): a review may change the texts and their count.
     const portugal = await loadProfile('PT', 'pt-PT');

@@ -10,6 +10,7 @@ import type { Plan } from '@proofofcalm/core';
 import france from '../../../packages/content/jurisdictions/fr.json' with { type: 'json' };
 import britain from '../../../packages/content/jurisdictions/gb.json' with { type: 'json' };
 import netherlands from '../../../packages/content/jurisdictions/nl.json' with { type: 'json' };
+import countries from '../../../packages/app/src/messages/en/countries.json' with { type: 'json' };
 import portugal from '../../../packages/content/jurisdictions/pt.json' with { type: 'json' };
 import { seedPlan } from './seed';
 import { cspViolations, recordCspViolations, test } from './support';
@@ -181,14 +182,14 @@ async function expected(code: Code, name: string) {
   title[1] = profile.name;
   header[0] = cell(title.join(' · '));
   header[3] = cell(
-    `${profile.name} rules reviewed on ${profile.status.lastReviewed} · general information, not advice · Sources: ${sources.join(', ')}`,
+    `Rules ${countries[code].for} reviewed on ${profile.status.lastReviewed} · general information, not advice · Sources: ${sources.join(', ')}`,
   );
   if (lotNote !== undefined) header[lotNote] = cell(profile.lotRuleNote);
   if (holding !== undefined) {
     header[holding] = cell(
       unquoted(header[holding] ?? '').replace(
-        /^eligible_from: the first day past the .+? holding rule \(\d+ (?:day|year)s?\)\./u,
-        `eligible_from: the first day past the ${profile.name} holding rule (${ruleLength(profile.holdingRule)}).`,
+        /^eligible_from: the first day past the holding rule .+? \(\d+ (?:day|year)s?\)\./u,
+        `eligible_from: the first day past the holding rule ${countries[code].for} (${ruleLength(profile.holdingRule)}).`,
       ),
     );
   }

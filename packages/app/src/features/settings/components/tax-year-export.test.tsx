@@ -253,10 +253,10 @@ describe('TaxYearExport', () => {
         'Proof of Calm tax-year file · Portugal · 2025-01-01 to 2025-12-31',
         'Data from your log. Not a tax computation.',
         'Amounts are as you logged them and are not converted. Your pay currency is EUR.',
-        `Portugal rules reviewed on 2026-11-05 · general information, not advice · Sources: ${PT_SOURCES}`,
+        `Rules for Portugal reviewed on 2026-11-05 · general information, not advice · Sources: ${PT_SOURCES}`,
         'Each sale is matched to purchases of the same coin, first in, first out.',
         profile.lotRuleNote,
-        'eligible_from: the first day past the Portugal holding rule (365 days). past_holding_rule: whether that day had come by the sale, or by 2025-12-31 for units still held. Computed from your dates, not tax advice.',
+        'eligible_from: the first day past the holding rule for Portugal (365 days). past_holding_rule: whether that day had come by the sale, or by 2025-12-31 for units still held. Computed from your dates, not tax advice.',
         ...profile.holdingRuleConditions,
         'Sales are matched per venue as named in the Log. Entries with no venue are one group.',
         HELD_AT,
@@ -345,7 +345,7 @@ describe('TaxYearExport', () => {
     const platform = await mount(withPlan({}, yearEarlier), { nowMs: Date.parse('2029-01-01T10:00:00Z') });
     const header = headerOf((await exportYear(platform, '2025')).content);
     const profile = TAX_YEAR_PROFILES.PT;
-    expect(header).toContain('Portugal rules not reviewed since 2026-11-05 · general information, not advice');
+    expect(header).toContain('Rules for Portugal not reviewed since 2026-11-05 · general information, not advice');
     expect(header).not.toContain('Sources');
     expect(header).not.toContain(profile.lotRuleNote);
     for (const condition of profile.holdingRuleConditions) expect(header).not.toContain(condition);
@@ -380,6 +380,19 @@ describe('TaxYearExport', () => {
     expect(header).toContain('Made on 2026-10-20: purchases after that day are not in this file.');
     expect(header).toContain('The tax year ends on 2027-04-05. This file shows your log as of 2026-10-20.');
     expect(file.content).toContain('\n\nkind,date,coin,venue,units,cost_basis,fee,eligible_from,proceeds,');
+  });
+
+  // The review line takes the country's `for` form, so a name that needs its article keeps it; the title's label
+  // keeps the bare name (docs/CONTENT-STYLE.md §3).
+  it("the Dutch and British review lines keep the country's article", async () => {
+    const dutch = await mount(withPlan({ country: 'NL' as Plan['country'] }));
+    const nl = headerOf((await exportYear(dutch, '2026 (still running)')).content).split('\n');
+    expect(nl[0]).toBe('Proof of Calm tax-year file · Netherlands · 2026-01-01 to 2026-12-31');
+    expect(nl[3]).toMatch(/^"Rules for the Netherlands reviewed on 2026-11-05 · general information, not advice · /u);
+    cleanup();
+    const british = await mount(withPlan({ country: 'GB' as Plan['country'], payCurrency: 'GBP' }));
+    const gb = headerOf((await exportYear(british, '2026 to 2027 (still running)')).content).split('\n');
+    expect(gb[3]).toMatch(/^"Rules for the United Kingdom reviewed on 2026-11-05 · /u);
   });
 
   it.each(Object.entries(TAX_YEAR_PROFILES))('the literal %s profile passes the schema', (_, profile) => {
