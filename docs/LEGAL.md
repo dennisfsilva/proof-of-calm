@@ -365,9 +365,8 @@ signature; a lawyer has not read these answers):
 - Support mail is kept 24 months after the last message; the owner deletes older threads once a
   year.
 
-Settled on 2026-11-24, by session 24c in the unattended M2 run, on this section's own rule for the
-outbox copy above and from counsel's read of #443 (not the owner's own review; a lawyer has not read
-it):
+Settled on 2026-11-24 in the unattended M2 run (#415), on this section's own rule for the outbox
+copy above, after counsel's question on #443 (not the owner's own review; a lawyer has not read it):
 
 - The device identifier: until the sync exists, every row carries one fixed id, the same in every
   browser; each open deletes the random id that older builds kept (`meta` `deviceId`) and stamps
