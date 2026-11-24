@@ -198,9 +198,12 @@ function PlanMoveForm({ plan, numberInput: mounted, editing, onDone }: PlanMoveF
   const units = (field: 'sent' | 'received', onValue: (typed: string) => void, after?: ReactNode) => (
     <Field invalid={problem(field) !== null}>
       <FieldLabel>{t(`log.move.${field}`)}</FieldLabel>
+      {/* The input keeps room for an amount; the button beside it wraps in the rest (docs/DESIGN.md §8, Button). */}
       <div className="flex gap-stack-sm">
-        <NumericInput value={state[field]} onChange={(event) => onValue(event.target.value)} />
-        {after}
+        <div className="flex min-w-20 flex-1">
+          <NumericInput value={state[field]} onChange={(event) => onValue(event.target.value)} />
+        </div>
+        {after !== undefined && <div className="flex min-w-0">{after}</div>}
       </div>
       <Problem text={problem(field)} />
     </Field>
