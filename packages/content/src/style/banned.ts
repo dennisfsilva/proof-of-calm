@@ -58,7 +58,7 @@ const TAX_PROSE = String.raw`(?<!(?<![\p{L}\p{N}])(?:sobre(?:\s+(?:as?|os?))?|da
 const ADJECTIVE_PT = String.raw`(?:\s+(?:anua(?:l|is)|mensa(?:l|is)|médi[oa]s?|tota(?:l|is)|potencia(?:l|is)|esperad[oa]s?)){0,2}`;
 const CONNECTOR_PT = String.raw`(?:cerca\s+de|até|mais\s+de|superior\s+a|acima\s+de)`;
 const JOIN_PT = String.raw`\s+(?:(?:é|são)\s+)?(?:de(?:\s+${CONNECTOR_PT})?|${CONNECTOR_PT})`;
-// German (D1 of #449's design, 2026-11-23): a figure with a sign or "Prozent"; a noun ending in a gain word, an
+// German (the D1 judge's rule, 2026-11-23): a figure with a sign or "Prozent"; a noun ending in a gain word, an
 // optional qualifier ("pro Jahr", "p. a."), join ("beträgt", "liegt bei", "von", a colon) and connector ("bis zu",
 // "über", "um die"), then the figure; the figure, up to two adjectives ("jährliche", "garantierte") and the noun; a
 // gain verb ("verdienen", "erzielen"), a pronoun and a connector, then the figure; the figure, then that verb,
