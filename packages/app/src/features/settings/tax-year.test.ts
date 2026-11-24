@@ -6,11 +6,13 @@ import { headerTexts } from '../../../../content/src/header-validate.ts';
 import type { Snapshot } from '../../lib/ports';
 import { fixtureSnapshot } from '../../lib/services/fixtures';
 import { createTestServices, preloadLazyModules, recordingPlatform } from '../../lib/services/testing';
+import germanCountries from '../../messages/de/countries.json';
+import german from '../../messages/de/settings.json';
 import englishCountries from '../../messages/en/countries.json';
 import english from '../../messages/en/settings.json';
 import portugueseCountries from '../../messages/pt-PT/countries.json';
 import portuguese from '../../messages/pt-PT/settings.json';
-import { downloadTaxYear } from './tax-year';
+import { downloadTaxYear, HEADER_LANGUAGES } from './tax-year';
 
 // D10 (docs/DOMAIN.md §3.13): the tax-year file's header lines follow the UI language, and none holds a `;`, the
 // list separator a spreadsheet in a comma-decimal locale splits a cell on. A line is a message of
@@ -26,8 +28,8 @@ vi.mock('@proofofcalm/content', async (original) =>
 
 await preloadLazyModules();
 
-const LANGUAGES = { en: english, 'pt-PT': portuguese } as const;
-const COUNTRIES = { en: englishCountries, 'pt-PT': portugueseCountries } as const;
+const LANGUAGES = { en: english, 'pt-PT': portuguese, de: german } as const;
+const COUNTRIES = { en: englishCountries, 'pt-PT': portugueseCountries, de: germanCountries } as const;
 type Language = keyof typeof LANGUAGES;
 const LANGUAGE_TAGS = Object.keys(LANGUAGES) as Language[];
 
@@ -67,8 +69,11 @@ function flagged(country: string): Snapshot {
   };
 }
 
-/** The header of the running year's file of `country`, worded in `language`. */
-async function header(country: CountryCode, language: Language): Promise<string> {
+/**
+ * The header of the running year's file of `country` on a screen in `language`, its words in `words` (the screen's
+ * own, or English's where a language's messages write no header).
+ */
+async function header(country: CountryCode, language: Language, words: Language = language): Promise<string> {
   const snapshot = flagged(country);
   const platform = recordingPlatform();
   const services = createTestServices({ snapshot, platform, rules, language });
@@ -77,12 +82,13 @@ async function header(country: CountryCode, language: Language): Promise<string>
   const loaded = services.ui.getState().rules?.rules;
   if (loaded === undefined || loaded === null) throw new Error(`no rules for ${country}`);
   const t = {
-    file: createTranslator({ locale: language, messages: { settings: LANGUAGES[language] }, namespace: FILE }),
+    file: createTranslator({ locale: words, messages: { settings: LANGUAGES[words] }, namespace: FILE }),
     countries: createTranslator({
       locale: language,
       messages: { countries: COUNTRIES[language] },
       namespace: 'countries',
     }),
+    language: words,
   };
   const endingIn = taxYearEndingIn(services.ui.getState().today, loaded.taxYear);
   const plan = { plan: snapshot.plan as Plan, entries: snapshot.entries };
@@ -139,6 +145,57 @@ describe('the tax-year header lines', () => {
       'eligible_from: the first day past the holding rule for the United States (1 year). Computed from your dates, not tax advice.',
     );
     expect(american).toContain('Your plan uses its own holding rule. This file uses the rule for the United States.');
+  });
+
+  // German names the country by its `for` form too (`für die Niederlande`, `für das Vereinigte Königreich`), and
+  // dates each review with `Stand:`, never `geprüft` (docs/CONTENT-STYLE.md §10).
+  it('the German lines name the country by its for form: the review, holding and plan-rule lines', async () => {
+    const dutch = (await header('NL', 'de')).split('\n').map(uncell);
+    expect(dutch[0]).toMatch(/^﻿Datei für das Steuerjahr von Proof of Calm · Niederlande · /u);
+    expect(dutch[3]).toMatch(
+      /^Regeln für die Niederlande, Stand: \d{4}-\d{2}-\d{2} · allgemeine Informationen, keine Beratung/u,
+    );
+    const british = (await header('GB', 'de')).split('\n').map(uncell);
+    expect(british[0]).toBe('﻿Datei für das Steuerjahr von Proof of Calm · Vereinigtes Königreich · 2026-04-06 bis 2027-04-05');
+    expect(british[3]).toMatch(/^Regeln für das Vereinigte Königreich, Stand: /u);
+    const portugal = (await header('PT', 'de')).split('\n').map(uncell);
+    expect(portugal[3]).toMatch(/^Regeln für Portugal, Stand: /u);
+    expect(portugal).toContainEqual(
+      expect.stringMatching(/^eligible_from: der erste Tag nach der Haltefrist für Portugal \(365 Tage\)\. /u),
+    );
+    const germany = (await header('DE', 'de')).split('\n').map(uncell);
+    expect(germany).toContain(
+      'eligible_from: der erste Tag nach der Haltefrist für Deutschland (1 Jahr). past_holding_rule: ob dieser Tag bis zum Verkauf erreicht war, bei Einheiten im Bestand bis zum 2026-10-20. Aus Ihren Einträgen berechnet, keine Steuerberatung.',
+    );
+    expect(germany).toContain('Ihr Plan hat eine eigene Regel. Diese Datei verwendet die Haltefrist für Deutschland.');
+    // France has no holding period (`kind: none`), so no line of its file names one.
+    const french = (await header('FR', 'de')).split('\n').map(uncell);
+    expect(french[3]).toMatch(/^Regeln für Frankreich, Stand: /u);
+    expect(french.filter((line) => line.includes('Haltefrist'))).toEqual([]);
+  });
+
+  // The guard: a header's country forms come from the language of its words. A screen whose language writes no
+  // header of its own gets English's words, and with them English's forms, never „für Deutschland“ in an English line.
+  it('a header in English words on a German screen takes the English country forms', async () => {
+    const lines = (await header('DE', 'de', 'en')).split('\n').map(uncell);
+    expect(lines[0]).toMatch(/^﻿Proof of Calm tax-year file · Germany · /u);
+    expect(lines[3]).toMatch(/^Rules for Germany reviewed on /u);
+    expect(lines).toContain('Your plan uses its own holding rule. This file uses the rule for Germany.');
+    expect(lines).toContainEqual(
+      expect.stringMatching(/^eligible_from: the first day past the holding rule for Germany \(1 year\)\. /u),
+    );
+  });
+
+  it('are written in the languages whose settings messages hold the whole file block', () => {
+    const own = import.meta.glob<{ data?: { taxYear?: { file?: object } } }>('./messages/*.json', {
+      eager: true,
+      import: 'default',
+    });
+    const keys = Object.keys(english.data.taxYear.file).sort();
+    const whole = Object.entries(own)
+      .filter(([, tree]) => Object.keys(tree.data?.taxYear?.file ?? {}).sort().join() === keys.join())
+      .map(([path]) => /([^/]+)\.json$/u.exec(path)?.[1] ?? '');
+    expect([...HEADER_LANGUAGES].sort()).toEqual(whole.sort());
   });
 
   it("PT's pt-PT file holds the pt-PT profile's lot note on line 6 and its conditions from line 8, none with a ';'", async () => {
