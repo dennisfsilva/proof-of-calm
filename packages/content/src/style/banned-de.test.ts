@@ -665,6 +665,26 @@ describe('the German word rows, filler words and gain patterns (docs/CONTENT-STY
     expect(findBanned('Im öffentlichen BaFin-Register stehen Anbieter mit Lizenz.')).toEqual([]);
   });
 
+  // The genitive names whose status it is, so the noun, der or des and the regulator fail as the noun with bei does.
+  // Refused on purpose: a lint cannot tell the subject, so a sentence on the duty fails as well; its rewording,
+  // with the regulator in its own clause, passes.
+  it('refuses the nouns of a status before der or des and the regulator, the duty sentence too', () => {
+    for (const [text, match] of [
+      ['Proof of Calm hat eine Zulassung der BaFin.', 'Zulassung der BaFin'],
+      ['Proof of Calm hat eine Lizenz der BaFin.', 'Lizenz der BaFin'],
+      ['Proof of Calm hat eine Erlaubnis der BaFin.', 'Erlaubnis der BaFin'],
+      ['Proof of Calm hat eine Lizenz der zuständigen Aufsichtsbehörde.', 'Lizenz der zuständigen Aufsichtsbehörde'],
+      ['Die Registrierungsnummer des Banco de España lautet 1.', 'Registrierungsnummer des Banco de España'],
+      ['Die Zulassung der BaFin ist für Anbieter Pflicht.', 'Zulassung der BaFin'],
+    ]) {
+      expect(rules(text ?? ''), text).toEqual([`advice: ${match}`]);
+    }
+    expect(findBanned('Anbieter brauchen eine Zulassung, die die BaFin erteilt.')).toEqual([]);
+    expect(findBanned('Anbieter brauchen eine Zulassung; die BaFin erteilt sie.')).toEqual([]);
+    expect(findBanned('Die Zulassung der Anbieter prüft die BaFin.')).toEqual([]);
+    expect(findBanned('Proof of Calm hat eine Lizenz der neuen deutschen BaFin.')).toEqual([]);
+  });
+
   // A joined noun lengthened past its plural names a procedure or a duty, as „BaFin-Aufsichtsrecht“ names the law.
   // „Erlaubnispflicht“ stays refused on purpose: §2's status words take every word that begins „Erlaubnis“.
   it('passes a joined noun lengthened past its plural, but not a word that begins with Erlaubnis', () => {
