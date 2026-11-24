@@ -1,0 +1,90 @@
+{
+  "title": "Einen Plan einrichten",
+  "back": "Zurück",
+  "next": "Weiter",
+  "start": "Akzeptieren und den Plan starten",
+  "country": {
+    "heading": "Wo wohnen Sie?",
+    "suggested": "Dieses Gerät schlägt {countryThe} vor.",
+    "confirm": "Weiter {countryWith}",
+    "label": "Land",
+    "placeholder": "Ein Land wählen",
+    "languageDiffers": "Über die Steuer entscheidet der Wohnsitz, nicht die Sprache."
+  },
+  "template": {
+    "heading": "Einen Ausgangspunkt wählen",
+    "line": "Ein Ausgangspunkt, den manche Menschen nutzen. Sie wählen jede Einstellung. Keine Beratung.",
+    "band": "{falls}, {count, plural, one {vom Hoch zum Tief} other {jeweils vom Hoch zum Tief}} zwischen {from} und {to}",
+    "about": "Zeigen, wie es funktioniert und was schiefgehen kann",
+    "custom": {
+      "title": "Eigene Coins",
+      "line": "Sie wählen die Coins und wie jeder Kauf auf sie aufgeteilt wird."
+    }
+  },
+  "coins": {
+    "heading": "Coins und ihre Anteile wählen"
+  },
+  "dates": {
+    "heading": "Beträge und Daten wählen",
+    "startingHint": "Einmal am ersten Kauftag gekauft und wie jeder Monatskauf auf Ihre Coins aufgeteilt. Geben Sie 0 ein, wenn Sie keinen möchten. Für Coins, die Sie bereits haben, wählen Sie nach der Einrichtung im Protokoll „Vorhandene Coins hinzufügen“."
+  },
+  "numbers": {
+    "heading": "Beträge und Daten",
+    "monthly": "Monatsbetrag ({currency})",
+    "starting": "Startbetrag ({currency})",
+    "startingHint": "Einmal am ersten Kauftag gekauft und wie jeder Monatskauf auf Ihre Coins aufgeteilt. Geben Sie 0 ein, wenn Sie keinen möchten. Für Coins, die Sie bereits haben, wählen Sie nach der Einrichtung im Protokoll „Vorhandene Coins hinzufügen“.",
+    "firstBuy": "Erster Kauf",
+    "lastBuy": "Letzter Kauf",
+    "dateEmpty": "Wählen Sie ein vollständiges Datum: Tag, Monat und Jahr.",
+    "issue": {
+      "no-amount": "Geben Sie einen Monatsbetrag, einen Startbetrag oder beides ein.",
+      "amount-precision": "Verwenden Sie höchstens {max} Nachkommastellen.",
+      "last-buy-before-first-buy": "{field, select, firstBuy {Wählen Sie einen ersten Kauf am oder vor dem {date}, dem letzten Kauf dieses Ausgangspunkts.} other {Wählen Sie einen letzten Kauf am oder nach dem ersten Kauf.}}",
+      "plan-too-long": "{field, select, firstBuy {Ein Plan umfasst höchstens {max} Monatskäufe. Wählen Sie einen späteren ersten Kauf.} other {Ein Plan umfasst höchstens {max} Monatskäufe. Wählen Sie einen früheren letzten Kauf.}}"
+    }
+  },
+  "why": {
+    "heading": "Warum tun Sie das, in einem Satz?",
+    "line": "Sie sehen ihn an den Tagen, an denen der Markt fällt.",
+    "placeholder": "Ich kaufe am 1. und sehe an anderen Tagen nicht auf den Kurs."
+  },
+  "reminder": {
+    "heading": "Wohin soll die monatliche Erinnerung?",
+    "calendar": "Zum Kalender hinzufügen",
+    "later": "Später",
+    "noneLeftHeading": "Monatliche Erinnerung",
+    "noneLeft": "Es bleiben keine Kauftage, also gibt es keine Erinnerung zum Hinzufügen.",
+    "notSaved": "Die Kalenderdatei wurde nicht gespeichert. Fügen Sie sie erneut hinzu oder wählen Sie „Später“."
+  },
+  "summary": {
+    "heading": "Ihren Plan prüfen",
+    "country": "Land",
+    "holdingRule": "Haltefrist",
+    "holdingRuleValue": "{kind, select, generic {Die Haltefrist des allgemeinen Profils} other {Die Haltefrist {countryFor}}}. {words}",
+    "startingPoint": "Ausgangspunkt",
+    "coins": "Coins und Anteile",
+    "monthly": "Monatsbetrag",
+    "starting": "Startbetrag",
+    "firstBuy": "Erster Kauf",
+    "buyDay": "Kauftag",
+    "buyDayValue": "Am {day}. jedes Monats",
+    "lastBuy": "Letzter Kauf",
+    "sellWindow": "Verkaufsfenster",
+    "sellWindowValue": "{opens} bis {closes}",
+    "sellWindowEarly": "{opens} bis {closes}, es öffnet vor dem Ende der Haltefrist des letzten Kaufs, wie von Ihnen akzeptiert",
+    "why": "Ihr Satz",
+    "reminder": "Erinnerung",
+    "reminderValue": "{choice, select, calendar {Kalenderdatei gespeichert} other {Keine Erinnerung eingerichtet}}"
+  },
+  "disclosure": {
+    "riskLink": "Risikohinweise"
+  },
+  "reask": {
+    "title": "Der Risikotext hat sich geändert",
+    "continue": "Akzeptieren und „Heute“ öffnen"
+  },
+  "existing": {
+    "body": "Auf diesem Gerät ist bereits ein Plan eingerichtet.",
+    "link": "Den Plan öffnen"
+  }
+}
