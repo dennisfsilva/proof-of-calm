@@ -26,8 +26,9 @@ const REGISTRATION =
 // A German one (docs/CONTENT-STYLE.md §2): a regulator of the list, "Finanzaufsicht" or "Aufsichtsbehörde" or a
 // longer word that begins with one; before it bei, von or durch with an optional article (der, dem, den, or durch's
 // die and das), or im, ins, in das or in dem before its register (the regulator, a hyphen and a word that begins
-// with "Register", or "Register der" or "des" and the regulator); each article may take one adjective, a word of
-// letters ending in e, en, er or es ("bei der zuständigen Aufsichtsbehörde"); a participle, registriert,
+// with "Register", or "Register der" or "des" and the regulator); each article, and the one inside im and ins, may
+// take one adjective, a word of letters ending in e, en, er or es ("bei der zuständigen Aufsichtsbehörde", "im
+// öffentlichen BaFin-Register"); a participle, registriert,
 // eingetragen, gemeldet, beaufsichtigt, überwacht or kontrolliert, or a longer word that begins with one
 // (registrierter); a noun, Lizenz, Zulassung, Registrierung, Eintragung, Genehmigung or Erlaubnis; between them a
 // gap of up to three words of letters, numerals and inner hyphens (U+002D, or the no-break hyphen U+2011 that joins
@@ -41,10 +42,11 @@ const REGISTRATION =
 // article. These rows go before the word lists, so "beaufsichtigt bei der BaFin" is reported whole.
 const REGULATOR_DE = `(?:${[...longestFirst(banned.regulators), String.raw`finanzaufsicht\p{L}*`, String.raw`aufsichtsbehörde\p{L}*`].join('|')})`;
 const HYPHEN_DE = '[\\-‑]';
-const ARTICLE_DE = (articles: string) => String.raw`\s+(?:${articles})\s+(?:\p{L}+(?:e|en|er|es)\s+)?`;
+const ARTICLE_ADJECTIVE_DE = String.raw`(?:\p{L}+(?:e|en|er|es)\s+)?`;
+const ARTICLE_DE = (articles: string) => String.raw`\s+(?:${articles})\s+${ARTICLE_ADJECTIVE_DE}`;
 const BY_REGULATOR_DE =
   String.raw`(?:(?:bei|von)(?:${ARTICLE_DE('der|dem|den')}|\s+)|durch(?:${ARTICLE_DE('die|den|das')}|\s+))${REGULATOR_DE}|` +
-  String.raw`(?:im|ins|in\s+das|in\s+dem)\s+(?:${REGULATOR_DE}${HYPHEN_DE}register\p{L}*|register${ARTICLE_DE('der|des')}${REGULATOR_DE})`;
+  String.raw`(?:im|ins|in\s+das|in\s+dem)\s+${ARTICLE_ADJECTIVE_DE}(?:${REGULATOR_DE}${HYPHEN_DE}register\p{L}*|register${ARTICLE_DE('der|des')}${REGULATOR_DE})`;
 const GAP_DE = String.raw`(?:\s+[\p{L}\p{N}]+(?:${HYPHEN_DE}[\p{L}\p{N}]+)*){0,3}?\s+`;
 const PARTICIPLE_DE = String.raw`(?:registriert|eingetragen|gemeldet|beaufsichtigt|überwacht|kontrolliert)\p{L}*`;
 const NOUN_STATUS_DE = '(?:lizenz|zulassung|registrierung|eintragung|genehmigung|erlaubnis)';
