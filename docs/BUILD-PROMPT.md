@@ -953,6 +953,21 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   position ("each article may take one adjective"), contractions included. `docs/CONTENT-STYLE.md`
   §2 said so while the article inside `im` and `ins` took no adjective, and only the delta review
   found it (#462, 2026-11-24).
+- A branch that moves an import between static and dynamic (a barrel's export, a loader, a route)
+  runs `pnpm build` before it hands back: `pnpm check` builds nothing, and Rolldown's chunk-cycle
+  check runs only in the build. The first loaders head passed the check and failed the build on the
+  static cycle today, entry-sheet, today (26f, #469, 2026-11-24).
+- Before a document says a word is never used on a screen, `git grep` the feature message files for
+  it: a content role's "no shipped string uses it" is a claim to check, not a fact. The value chart's
+  row said `Wertdiagramm` never stands on a screen, while `log.form.heldDate` writes it (26f,
+  the German country forms branch, 2026-11-24).
+- A pattern that refuses a name after a word ends the name at a letter boundary and keeps the name's
+  own case: with the `i` flag and no boundary, `USA` also matches the start of `Usage` and
+  `USAmerikaner` (26f, the country prose check, 2026-11-24).
+- A guard whose first run on main may fail says in its brief what the builder does then: fix the
+  offender with the pattern the guard enforces, or name an exception with its reason, so the branch
+  grows with a reason instead of stopping. The loaders guard found four barrels (26f, #469,
+  2026-11-24).
 
 ## Known gaps
 
