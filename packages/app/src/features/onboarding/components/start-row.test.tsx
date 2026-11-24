@@ -2,6 +2,8 @@
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { I18nProvider } from '../../../lib/i18n';
+import { BRAND } from '../../../lib/brand';
+import onboardingDe from '../../../messages/de/onboarding.json';
 import onboarding from '../../../messages/en/onboarding.json';
 import { StartRow } from './start-row';
 
@@ -32,6 +34,23 @@ describe('StartRow', () => {
     await act(() => fireEvent.click(back));
     await act(() => fireEvent.click(start));
     expect([onBack.mock.calls.length, onStart.mock.calls.length]).toEqual([1, 1]);
+  });
+
+  // docs/LEGAL.md §4: a language counsel has not approved shows the English text, marked as English (WCAG 2.2
+  // SC 3.1.2), while the link and the buttons stay in the screen's language.
+  it('marks the English disclosure lang=en on a German screen, and leaves it unmarked in English', () => {
+    const words = onboarding.disclosure.text.replace('{product}', BRAND.name);
+    const { unmount } = render(
+      <I18nProvider locale="de" messages={{ onboarding: onboardingDe }}>
+        <StartRow onBack={vi.fn()} onStart={vi.fn()} />
+      </I18nProvider>,
+    );
+    expect(screen.getByText(words).closest('[lang]')?.getAttribute('lang')).toBe('en');
+    const link = screen.getByRole('link', { name: onboardingDe.disclosure.riskLink });
+    expect(link.closest('[lang]')).toBeNull();
+    unmount();
+    mount();
+    expect(screen.getByText(words).closest('[lang]')).toBeNull();
   });
 
   // docs/DESIGN.md §6: Start stays focusable while the plan is written, so the focus never drops to the body.
