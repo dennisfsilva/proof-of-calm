@@ -78,6 +78,45 @@ const FILLED: Owner = {
   manager: '',
 };
 
+/** Identity data that only the owner's values may put on a page. */
+const IDENTITY: readonly (readonly [string, RegExp])[] = [
+  ['e-mail', /[\w.+-]+@[\w-]+\.[a-z]{2,}/i],
+  ['street address', /\b(Rua|Avenida|Travessa|Largo|Stra(ss|ß)e|Street)\b/],
+  ['postal code', /\b\d{4}-\d{3}\b/],
+  ['9-digit number', /\b(PT ?)?\d{9}\b/],
+];
+
+/**
+ * The legal pages' text with `owner` as the owner file and `stray` appended to Contact's DSA paragraph, the messages
+ * restored after.
+ */
+function legalTexts(owner: Owner, stray = ''): (readonly [LegalName, string])[] {
+  const saved = { ...messages.legal.owner };
+  const dsa = messages.legal.contact.dsa.p1;
+  Object.assign(messages.legal.owner, owner);
+  messages.legal.contact.dsa.p1 = dsa + stray;
+  try {
+    return LEGAL.map((name) => [name, text(main(name))] as const);
+  } finally {
+    Object.assign(messages.legal.owner, saved);
+    messages.legal.contact.dsa.p1 = dsa;
+  }
+}
+
+/**
+ * Each page and kind of identity data it shows outside the owner's values, as `page: kind`. The pages render with one
+ * neutral token in place of every value the owner filled (an empty one stays empty, so Contact drops its line as it
+ * would), so what the values hold can neither add to the text read nor hide anything in it.
+ */
+function strayIdentity(owner: Owner, stray = ''): string[] {
+  const neutral = Object.fromEntries(
+    Object.entries(owner).map(([field, value]) => [field, value.trim() === '' ? value : 'Owner value']),
+  ) as Owner;
+  return legalTexts(neutral, stray).flatMap(([name, page]) =>
+    IDENTITY.filter(([, pattern]) => pattern.test(page)).map(([kind]) => `${name}: ${kind}`),
+  );
+}
+
 describe('the Risk disclosure (docs/LEGAL.md §5)', () => {
   const risk = messages.legal.risk;
 
@@ -489,15 +528,19 @@ describe('the launch drafts of Terms, Privacy and Contact (docs/LEGAL.md §5)', 
   });
 
   it("no page shows an e-mail, street address, postal code or 9-digit number outside the owner's values", () => {
-    const values = Object.values(messages.legal.owner)
-      .filter((value) => value !== '')
-      .sort((a, b) => b.length - a.length);
-    for (const name of LEGAL) {
-      const shown = values.reduce((page, value) => page.replaceAll(value, ' '), text(main(name)));
-      expect(shown, name).not.toMatch(/[\w.+-]+@[\w-]+\.[a-z]{2,}/i);
-      expect(shown, name).not.toMatch(/\b(Rua|Avenida|Travessa|Largo|Stra(ss|ß)e|Street)\b|\b\d{4}-\d{3}\b/);
-      expect(shown, name).not.toMatch(/\b(PT ?)?\d{9}\b/);
-    }
+    expect(strayIdentity(messages.legal.owner)).toEqual([]);
+    expect(strayIdentity(FILLED)).toEqual([]);
+  });
+
+  it('a short owner value cannot hide an e-mail, street address, postal code or 9-digit number outside the owner\'s values', () => {
+    const short: Owner = { ...FILLED, vat: 'a', register: '-', manager: '1' };
+    const stray = ' Write to help@calm-mail.pt at Rua Nova 2, 1000-001 Lisboa, NIF 123456789.';
+    expect(strayIdentity(short, stray)).toEqual([
+      'contact: e-mail',
+      'contact: street address',
+      'contact: postal code',
+      'contact: 9-digit number',
+    ]);
   });
 
   it('Contact keeps #security and the security.txt link', () => {
