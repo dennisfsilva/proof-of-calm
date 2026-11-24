@@ -1233,7 +1233,7 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
   (`Verbraucherinnen und Verbraucher`), never `*`, `:` or an inner capital I; a quoted law keeps its
   wording (`Anleger`). The names: Deutschland, Spanien, Frankreich, Vereinigtes Königreich (not
   `Großbritannien`, which leaves out Northern Ireland), Irland, Italien, Niederlande, Portugal, USA;
-  „Anderes Land“ is the picker's label and „das allgemeine Profil“ the general profile in a sentence.
+  `Anderes Land` is the picker's label and `das allgemeine Profil` the general profile in a sentence.
   A country in a sentence takes its form from `packages/app/src/lib/countries/messages/de.json`, each
   with its preposition, article and case (`für die Niederlande`, `im Vereinigten Königreich`, `mit den
   Niederlanden`, `auf die USA`, `vom Vereinigten Königreich`); a bare `{country}` stands only after a
@@ -1342,8 +1342,8 @@ The product's nouns, one German word each, in every string, the site pages and t
 | screen (#419's shell strings) | Ansicht (`Diese Ansicht konnte nicht geladen werden.`) |
 | unread (a plan this version cannot read, `shell.newer.again`) | ungelesen |
 | Chart range (the control) | Zeitraum des Diagramms |
-| 7D / 30D / 90D / 1Y / All (the ranges) | 7T / 30T / 90T / 1J / Alle, each read out by its spoken name (`letzte 7 Tage` to `seit dem ersten Eintrag`) |
-| value chart | Wertdiagramm |
+| 7D / 30D / 90D / 1Y / All (the ranges) | `7T / 30T / 90T / 1J / Alle`, read out as `letzte 7 Tage`, `letzte 30 Tage`, `letzte 90 Tage`, `letzte 12 Monate`, `seit dem ersten Eintrag` |
+| value chart | `Portfoliowert, …` as the chart's name; `das Diagramm` in a sentence; never `Wertdiagramm` on a screen |
 | Close (the price table's column) | Schlusskurs, as the column only; elsewhere Tagesschlusskurs |
 | Type of transaction (the entry sheet's kind) | Art des Eintrags |
 | Fill in all units (the move sheet) | Alle Einheiten einsetzen; never `eintragen`, which records an entry |
@@ -1372,4 +1372,7 @@ against `nicht eingelesen` for `shell.newer.again`; „nach {to}“ or „auf {t
 `move.toHint`'s „nie ihre Adresse“; `chart.empty`'s „Es gibt keinen Wert zum Zeichnen“; the range
 „Alle“ against „Max“; the country forms: `USA` (`die USA`) against `Vereinigte Staaten`, `auf` for
 a change of country (`Land auf die Niederlande umstellen`, `von Portugal auf …` in its row) and
-„das allgemeine Profil“ in a sentence.
+„das allgemeine Profil“ in a sentence; `Börse` against `Handelsplattform`, since `Börse` can suggest a
+regulated exchange (brand and counsel; a voice choice for the reader); „bevor Sie ihm Geld senden“
+against „bevor Sie ihm Geld überweisen“ (brand, on the claim-reach branch; counsel's gap (6) on #462
+keeps „senden“ until the reader answers).
