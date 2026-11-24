@@ -521,8 +521,9 @@ describe('the German word rows, filler words and gain patterns (docs/CONTENT-STY
     const noBreak = 'Proof of Calm ist bei der BaFin als 24‑Stunden‑Anbieter registriert.';
     expect(rules(noBreak)).toEqual(['advice: bei der BaFin als 24‑Stunden‑Anbieter registriert']);
     const ascii = findBanned(noBreak.replaceAll('‑', '-'));
-    expect(findBanned(noBreak).map((finding) => ({ ...finding, match: finding.match.replaceAll('‑', '-') })))
-      .toEqual(ascii);
+    expect(findBanned(noBreak).map((finding) => ({ ...finding, match: finding.match.replaceAll('‑', '-') }))).toEqual(
+      ascii,
+    );
     expect(ascii).toHaveLength(1);
   });
 
