@@ -861,6 +861,23 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   well: rule F's cost in a window that drops the file's earliest left-out purchase, which the
   property does not excuse. A world that rare (1 in 9,200) fails about one CI run in 100, and a
   25-seed sweep at 300 runs misses it (#435, #433, 2026-11-23).
+- A clause read off one failing seed's world is checked against the shrunk world of every other
+  failing seed before it is settled. Both of #433's blind designers wrote the lump-cut property's
+  two-lump clause from seed 46's world (the doubled date's lump claims the cut date). The judge
+  replayed seeds 190, 212 and 314: at seed 212 the lump stops its walk at the cut date's part
+  instead, so the settled check reuses the test below the part (#441, 2026-11-24).
+- A first world printed per seed skips the assert's `examples` and the entries' ids. Fast-check runs
+  the examples first, so their hash is the same at every seed. `id()` numbered entries across every
+  earlier run, shrink and seed of the process, so a sweep that looped seeds in one process drew
+  other ids than fresh processes did, though never another outcome. The import's property
+  arbitraries now restart `id()` for each draw (`restarted()` in
+  `packages/core/test/exchange/plan-arbitraries.ts`; #441, 2026-11-24).
+- A brief that asks one builder round for the build and its seed sweeps outruns the builder's 120
+  turns. #441's first builder pushed all eight commits (nine tests, two properties, four doc
+  passages) and stopped before its checks and its report. Under Remote Control it could not be
+  resumed. A second builder checked the branch against the note, ran the sweeps and reported in 75
+  tool calls. Brief such a branch as two rounds: the build, then the checks and the sweeps (#441,
+  2026-11-24).
 
 ## Known gaps
 
