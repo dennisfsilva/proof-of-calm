@@ -79,7 +79,7 @@ const FILLED: Owner = {
   nif: 'Filled NIF',
   privacyEmail: 'privacy@example.test',
   dsaEmail: 'dsa@example.test',
-  mailHost: 'Example Mail, in Exampleland, under SCCs, which keeps its mail logs for 30 days',
+  mailHost: 'Example Mail, in Exampleland under SCCs; it keeps its mail logs for 30 days',
   date: 'Filled date',
   vat: '',
   register: '',
@@ -417,7 +417,7 @@ describe('the launch drafts of Terms, Privacy and Contact (docs/LEGAL.md §5)', 
     const page = main('privacy');
     expect(pageSection('privacy', page, 'controller')).toContain(href('/contact'));
     expect(text(pageSection('privacy', page, 'device'))).toContain(
-      'Your plan, your entries, and your settings stay in your browser on this device. Each price request names only a coin and a currency; the Hosting section says what else reaches the host.',
+      'Your plan, your entries, and your settings stay in your browser on this device. Each price request names at most a coin and a currency; the Hosting section says what else reaches Vercel.',
     );
     expect(text(page)).not.toContain('server sees only');
     expect(text(pageSection('privacy', page, 'requests'))).toContain(
@@ -524,14 +524,14 @@ describe('the launch drafts of Terms, Privacy and Contact (docs/LEGAL.md §5)', 
   });
 
   it('refuses a filled mailHost that states no mail-log period', () => {
-    const host = 'Example Mail, in Exampleland, under SCCs';
+    const host = 'Example Mail, in Exampleland under SCCs';
     const noPeriod = { state: 'half', placeholders: [], missing: ['mailHost: mail-log period'] };
     expect(ownerState({ ...FILLED, mailHost: host })).toEqual(noPeriod);
-    expect(ownerState({ ...FILLED, mailHost: `${host}, which keeps its mail logs for thirty days` })).toEqual(noPeriod);
-    expect(ownerState({ ...FILLED, mailHost: `${host}, which keeps its mail logs for 30 weeks` })).toEqual(noPeriod);
-    expect(ownerState({ ...FILLED, mailHost: `${host}, which keeps mail for 30 days` })).toEqual(noPeriod);
+    expect(ownerState({ ...FILLED, mailHost: `${host}; it keeps its mail logs for thirty days` })).toEqual(noPeriod);
+    expect(ownerState({ ...FILLED, mailHost: `${host}; it keeps its mail logs for 30 weeks` })).toEqual(noPeriod);
+    expect(ownerState({ ...FILLED, mailHost: `${host}; it keeps mail for 30 days` })).toEqual(noPeriod);
     for (const period of ['1 day', '48 hours', '1 hour', '12 months', '1 month', '30 days']) {
-      expect(ownerState({ ...FILLED, mailHost: `${host}, which keeps its mail logs for ${period}` }), period).toEqual({
+      expect(ownerState({ ...FILLED, mailHost: `${host}; it keeps its mail logs for ${period}` }), period).toEqual({
         state: 'filled',
       });
     }

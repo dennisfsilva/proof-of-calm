@@ -17,7 +17,7 @@
       "nif": "[Owner: NIF or NIPC]",
       "privacyEmail": "[Owner: privacy e-mail]",
       "dsaEmail": "[Owner: DSA contact e-mail]",
-      "mailHost": "[Owner: the mail host as one phrase: Name, in Country, under Safeguard (or inside the EU), which keeps its mail logs for N days]",
+      "mailHost": "[Owner: the mail host as one phrase: Name, in Country under Safeguard (or inside the EU); it keeps its mail logs for N days]",
       "date": "[Owner: date of publication, as 1\u00a0Dec\u00a02026]",
       "vat": "[Owner: VAT number, or leave it as \"\" until you open an activity (início de atividade)]",
       "register": "[Owner: commercial register and number, or leave it as \"\" until you open an activity (início de atividade)]",
@@ -88,7 +88,7 @@
       },
       "device": {
         "title": "What stays on your device",
-        "p1": "{product} has no accounts. Your plan, your entries, and your settings stay in your browser on this device. Each price request names only a coin and a currency; the Hosting section says what else reaches the host.",
+        "p1": "{product} has no accounts. Your plan, your entries, and your settings stay in your browser on this device. Each price request names at most a coin and a currency; the Hosting section says what else reaches Vercel.",
         "p2": "{product} never offers you an investment and never asks for your seed phrase, a private key, an exchange's API key or login, or for coins or money to buy them."
       },
       "requests": {
