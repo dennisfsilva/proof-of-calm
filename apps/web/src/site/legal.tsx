@@ -1,12 +1,7 @@
 import { BRAND } from '@proofofcalm/app/lib/brand';
 import type { ReactNode } from 'react';
 import { LEGAL_PAGES, type LegalSlug } from '../../lib/site/pages';
-import {
-  englishLang,
-  type SiteLanguage,
-  siteTranslator,
-  useSiteLanguage,
-} from '../../lib/site-messages';
+import { englishLang, type SiteLanguage, siteTranslator, useSiteLanguage } from '../../lib/site-messages';
 import messages from '../../messages/en.json';
 import { SiteMain } from './layout';
 
