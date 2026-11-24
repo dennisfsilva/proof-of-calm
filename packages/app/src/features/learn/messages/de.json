@@ -1,0 +1,114 @@
+{
+  "title": "Lernen",
+  "index": {
+    "readingTime": "{minutes}\u00a0Min. Lesezeit"
+  },
+  "module": {
+    "back": "Zurück zu „Lernen“",
+    "lastReviewed": "Stand: {date}{state, select, overdue { · <ink>Prüfung überfällig</ink>} next { · <keep>Nächste Prüfung am {due}</keep>} other {}}",
+    "taxOverdue": "Die Regeln können sich seit dem {date} geändert haben. Prüfen Sie vor der Steuererklärung die Angaben Ihrer Steuerbehörde.",
+    "taxSiteLead": "Die Abschnitte vor „How fast rules change“ beschreiben, was die App nach der Einrichtung eines Plans zeigt. Die Liste am Ende verweist auf die Seite jedes Landes.",
+    "pastPerformance": "Die frühere Wertentwicklung ist kein verlässlicher Indikator für künftige Ergebnisse.",
+    "riskLink": "Risikohinweise",
+    "fallUnderWay": "Ein Rückgang der Coins in Ihrem Bestand ist im Gange. <page>Die Zahlen dazu ansehen</page>"
+  },
+  "countries": {
+    "title": "Länder",
+    "other": "Andere Länder",
+    "line": "Steuerregeln und Haltefristen nach Land, mit ihren Quellen und dem Datum der letzten Prüfung.",
+    "back": "Zurück zu den Ländern",
+    "headTitle": "Krypto-Steuerregeln nach Land",
+    "countryHeadTitle": "Krypto-Steuern {countryIn}",
+    "lastReviewed": "Stand: {date}",
+    "notReviewedSince": "Seit {date} nicht überprüft",
+    "holdingTool": "Das Datum zeigen, ab dem ein Kauf diese Haltefrist erfüllt"
+  },
+  "holding": {
+    "title": "Haltefristen nach Land",
+    "line": "Die Haltefrist jedes Landes mit jeder Bedingung, ihren Quellen und dem Datum der letzten Prüfung.",
+    "tool": {
+      "app": "Das Protokoll von Proof of Calm zeigt den Tag, ab dem jeder Kauf die Haltefrist des Plans erfüllt, wo es eine gibt.",
+      "country": "Land",
+      "noCountry": "Wählen Sie ein Land.",
+      "bought": "Kaufdatum",
+      "submit": "Das Datum zeigen",
+      "invalid": "Wählen Sie ein Kaufdatum vom {min} bis zum {max}.",
+      "exempt": "Steuerfrei ab <date></date>",
+      "lowerRate": "Langfristiger Steuersatz ab <date></date>",
+      "from": "Für einen Kauf am <date></date>",
+      "note": "Aus Ihren Datumsangaben berechnet, keine Steuerberatung",
+      "more": "{count} weitere {count, plural, one {Bedingung} other {Bedingungen}} zeigen"
+    }
+  },
+  "thisFall": {
+    "row": "Die Coins in Ihrem Bestand, gemessen an ihrem 90\u2011Tage\u2011Hoch, und die früheren Rückgänge jedes Coins.",
+    "back": "Zurück zu „Heute“",
+    "title": "Der laufende Rückgang und Ihr Plan",
+    "one": "{coin} liegt {high} unter {window, select, short {seinem höchsten Schlusskurs seit dem {since}} other {seinem 90\u2011Tage\u2011Hoch}}{change, select, fell { und fiel in den 7\u00a0Tagen bis zum {date} um {seven}.} rose { und stieg in den 7\u00a0Tagen bis zum {date} um {seven}.} other { ({date}).}}",
+    "several": "{coins} liegen in den Mengen Ihres Bestands {high} unter {window, select, short {ihrem höchsten Schlusskurs seit dem {since}} other {ihrem 90\u2011Tage\u2011Hoch}}{change, select, fell {. Sie fielen in den 7\u00a0Tagen bis zum {date} um {seven}.} rose {. Sie stiegen in den 7\u00a0Tagen bis zum {date} um {seven}.} other { ({date}).}}",
+    "why": "Warum? Der laufende Rückgang",
+    "missing": "{coin} fehlt in diesen Zahlen: {product} hat keinen Kursverlauf dafür.",
+    "data": "Tagesschlusskurse in {currency}, {first} bis {last} · Kursdaten von CoinGecko",
+    "failed": "Der Kursverlauf konnte nicht geladen werden, daher werden die heutigen Zahlen nicht gezeigt. Öffnen Sie diese Seite erneut, um es noch einmal zu versuchen.",
+    "fallsOf": "Frühere Rückgänge von {coin}, von {product} aus den Tageshochs und Tagestiefs jeder Quelle in US-Dollar berechnet:",
+    "fall": "{fall} von {high} auf {low} · {publisher}",
+    "noFalls": "{product} hat keinen datierten früheren Rückgang für {coin}.",
+    "fallsFailed": "Die früheren Rückgänge konnten nicht geladen werden. Öffnen Sie diese Seite erneut, um es noch einmal zu versuchen.",
+    "nextBuy": "Ihr nächster Kauftag ist der {date}. Heute ist kein Kauftag, außer Sie haben das vorher so entschieden.",
+    "buyDayToday": "Heute, am {date}, ist Ihr Kauftag.",
+    "note": "Ihre Notiz an sich selbst",
+    "noteLine": "{date}: „{why}“"
+  },
+  "sheet": {
+    "close": "Schließen"
+  },
+  "card": {
+    "classification": "Wie Krypto eingestuft wird",
+    "events": "Was besteuert wird",
+    "eventLine": "{event} · {taxable}",
+    "event": {
+      "sale-to-fiat": "Verkauf gegen Geld",
+      "crypto-to-crypto": "Ein Coin gegen einen anderen",
+      "crypto-to-stablecoin": "Ein Coin gegen einen Stablecoin",
+      "spending": "Bezahlen mit Krypto",
+      "own-wallet-transfer": "Übertragung von Coins zwischen eigenen Wallets",
+      "gift-or-inheritance": "Eine Schenkung oder eine Erbschaft",
+      "staking-or-airdrop": "Staking-Erträge und Airdrops"
+    },
+    "taxable": {
+      "yes": "Steuerpflichtig",
+      "no": "Zum Zeitpunkt nicht besteuert",
+      "depends": "In manchen Fällen steuerpflichtig"
+    },
+    "rates": "Steuersätze",
+    "rateLine": "{label}: {value}",
+    "validFrom": "Ab {date}",
+    "validRange": "{from} bis {to}",
+    "allowances": "Freibeträge",
+    "holdingRule": "Haltefrist",
+    "lotRule": "Zuordnung von Verkäufen zu Käufen",
+    "losses": "Verluste",
+    "reporting": "Meldepflichten",
+    "caveats": "Fragen an eine Steuerberatung",
+    "sources": "Quellen",
+    "sourceList": "Quellen {countryFor}",
+    "sourcePublished": "{publisher} · vom {date}",
+    "sourceAccessed": "{publisher} · abgerufen am {date}",
+    "sourcesName": "Quellen für {rule, select, rates {die Steuersätze} holdingRule {die Haltefrist} lotRule {die Zuordnung von Verkäufen zu Käufen} losses {Verluste} reporting {Meldepflichten} other {diese Regel}}",
+    "inEnglish": "Die folgenden Regeln sind auf Englisch."
+  },
+  "chart": {
+    "label": "Rückgänge von jedem Hoch zum tiefsten Tief danach für {coins}, {first} bis {last}",
+    "description": "Ein Balken je Coin und Zyklus, seine Länge der Rückgang vom Tageshoch zum Tagestief, in US-Dollar.",
+    "bar": "{coin} {year}",
+    "summary": "Die Rückgänge als Tabelle zeigen",
+    "columns": {
+      "coin": "Coin",
+      "high": "Datum des Hochs",
+      "low": "Datum des Tiefs",
+      "fall": "Rückgang"
+    },
+    "source": "Tageshochs und Tagestiefs von {publishers} in US-Dollar, {first} bis {last}; die Rückgänge sind eine eigene Berechnung von {product}.",
+    "failed": "Die früheren Rückgänge konnten nicht geladen werden. Öffnen Sie diese Seite erneut, um es noch einmal zu versuchen."
+  }
+}
