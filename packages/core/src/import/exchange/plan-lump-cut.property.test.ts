@@ -5,6 +5,7 @@ import { coverCut, excepted, withoutExcepted } from '../../../test/exchange/plan
 import { LISBON, NOW } from '../../../test/exchange/plan-fixture';
 import { lumpCut, partOf, splitsLumpDay, withLumpCut } from '../../../test/exchange/plan-late';
 import { storedByRuleM } from '../../../test/exchange/plan-months';
+import { CUT_46, CUT_212 } from '../../../test/exchange/plan-seeds';
 import { type CalendarDate, daysBetween } from '../../dates/calendar';
 import { compare, type Money } from '../../money/decimal';
 import { portfolio } from '../../portfolio/portfolio';
@@ -18,10 +19,11 @@ import { type ExchangeImportPlan, planExchangeImport } from './plan';
 // hand entry, or a live one-tap `lump`, claims in one import (with the one-tap estimates they replace), less the
 // purchases of the dates a hand entry, or a live one-tap `lump`, that falls back to its nearest date (an extra buy, a
 // monthly buy whose month has no date, a `lump` at its coin's monthly part, hand or one-tap) claims in the second
-// import instead (with those dates' estimates left live). Each
-// such date of a `lump` above the monthly part is the cut date; below it, it lies wholly in the shorter export while
-// that export's `lump` claimed the cut date's part or stopped its walk at that part, every date it claimed nearer its
-// date than the cut date, or as near and earlier (CI's world of 2026-11-15, seed -1110155515, pinned in
+// import instead (with those dates' estimates left live). Each such date of a `lump` above the monthly part is the
+// cut date, or, as below it, a date the shorter export stored while its lump claimed the cut date's part or stopped
+// its walk at that part (seeds 46 and 212, the first `it`'s examples); below it, only such a date: it lies wholly in
+// the shorter export while that export's `lump` claimed the cut date's part or stopped its walk at that part, every
+// date it claimed nearer its date than the cut date, or as near and earlier (CI's world of 2026-11-15, seed -1110155515, pinned in
 // plan-remedy-start.test.ts: "the lump stops at the cut date"). Measured on 2026-11-15 over seeds 1 to 8, CI's and 16
 // others, 600 runs each: 541 such dates below the part, 538 with the cut date claimed, 3 with the walk stopped there.
 // The lump's own walk claims what it claims in one import, since stored dates take their place in its order and sum;
@@ -129,18 +131,18 @@ const property = (reach: Map<string, number>) =>
       expect(splitsLumpDay(drawn, shorter.movements)).toBe(true);
       if (claimer.kind !== 'lump') continue;
       const above = compare(claimer.amount as Money, partOf(drawn.plan, drawn.plan.monthlyAmount, claimer.coin)) > 0;
-      if (above) expect(cuts.has(key)).toBe(true);
-      else {
-        const short = first.recorded.find((item) => item.entry.id === claimer.id)?.dates ?? [];
-        expect(cuts.has(key)).toBe(false);
-        // The shorter export's lump claimed the cut date, or every date it claimed comes before it in its walk.
-        const far = (each: CalendarDate) => Math.abs(daysBetween(claimer.date, each));
-        const reached = (day: CalendarDate) =>
-          short.includes(day) ||
-          (short.length > 0 && short.every((each) => far(each) < far(day) || (far(each) === far(day) && each < day)));
-        const days = [...cuts].filter((each) => each.startsWith(`${claimer.coin}|`));
-        expect(days.some((each) => reached(each.slice(each.indexOf('|') + 1) as CalendarDate))).toBe(true);
-      }
+      // The shorter export's lump claimed a cut date, or every date it claimed comes before one in its walk.
+      const short = first.recorded.find((item) => item.entry.id === claimer.id)?.dates ?? [];
+      const far = (each: CalendarDate) => Math.abs(daysBetween(claimer.date, each));
+      const reached = (day: CalendarDate) =>
+        short.includes(day) ||
+        (short.length > 0 && short.every((each) => far(each) < far(day) || (far(each) === far(day) && each < day)));
+      const met = [...cuts]
+        .filter((each) => each.startsWith(`${claimer.coin}|`))
+        .some((each) => reached(each.slice(each.indexOf('|') + 1) as CalendarDate));
+      // Above the part the doubled date is the cut date or such a date (seeds 46 and 212); below it, only such a date.
+      if (above) expect(cuts.has(key) || met).toBe(true);
+      else expect([cuts.has(key), met]).toEqual([false, true]);
     }
     const size = compare(lump.amount as Money, part);
     const outcome = doubled.length === 0 ? 'equal' : gone.length === 0 ? 'twice' : 'instead';
@@ -153,7 +155,7 @@ describe("planExchangeImport, an export cut at a lump's date", () => {
     "a shorter export, then the whole file: one import's Log, plus the stored purchases of its claimed dates, less those claimed instead",
     () => {
       excepted.worlds = 0;
-      fc.assert(property(new Map()), RUNS);
+      fc.assert(property(new Map()), { ...RUNS, examples: [CUT_46, CUT_212] });
       expect(excepted.worlds).toBeLessThan(RUNS.numRuns / 10);
     },
     TIMEOUT,
