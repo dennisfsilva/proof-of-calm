@@ -159,7 +159,7 @@
       "section": {
         "fills": "Compras mensais ({count})",
         "replaces": "Estimativas que substitui ({count})",
-        "keeps": "Estimativas que mantém ({count})",
+        "keeps": "Estimativas que ficam ({count})",
         "extra": "Compras adicionais ({count})",
         "sales": "Vendas ({count})",
         "added": "Moedas adicionadas sem custo ({count})",
