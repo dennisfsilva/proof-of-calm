@@ -263,23 +263,37 @@ The German rows (decided 2026-11-23; the voice is §10):
   - `Glückwunsch`, `Abzeichen`, `Badge`, `Medaille`, `Streak` and `Level-up`;
   - the status words `reguliert`, `lizenziert`, `zugelassen`, `beaufsichtigt`, `genehmigt`,
     `autorisiert`, every word that begins `Erlaubnis`, `MiCA-konform` and `Kaufsignal`;
-  - a registration claim with the participle last, first, or joined. Its regulator is one of the
-    list's `regulators`, `Finanzaufsicht`, or `Aufsichtsbehörde`, or a longer word that begins with
-    either (`Finanzaufsichtsbehörde`). Its preposition is `bei` or `von` (with or without `der`,
-    `dem`, or `den`), `durch` (with or without `die`, `den`, or `das`), or `im`, `ins`, `in das`, or
-    `in dem` before the regulator's register (`BaFin-Register`, or `Register der` or `des` and the
-    regulator). Its participle is `registriert`, `eingetragen`, `gemeldet`, `beaufsichtigt`,
-    `überwacht`, or `kontrolliert`, or a longer word that begins with one of them
-    (`registrierter`). A gap is at most three other words, each of letters, digits, and inner
-    hyphens (`-` or the no-break hyphen U+2011). Last: the preposition and the regulator, a gap,
-    then the participle. First: the participle, a gap, then the preposition and the regulator.
-    Joined: the regulator, a hyphen (`-` or U+2011), then the participle or `Aufsicht`. Or
-    `Aufsicht` with `der`, `des`, or `durch die`, or a form of `unterliegen` with `der`, `dem`, or
-    `den`, then a regulator (`bei der BaFin registriert`, `registriert bei der BaFin`,
-    `durch die BaFin registriert`, `bei der BaFin als Krypto-Dienstleister registriert`,
-    `bei der BaFin seit 2024 registriert`, `registriert als Krypto-Dienstleister bei der BaFin`,
-    `BaFin-registriert`, `im BaFin-Register eingetragen`, `unterliegt der BaFin-Aufsicht`,
-    `unterliegt der Finanzaufsicht`, `von der BaFin überwacht`, `von der BaFin kontrolliert`).
+  - a registration claim with its status last, first, or joined. Its regulator is one of the
+    list's `regulators`, `Finanzaufsicht`, `Aufsichtsbehörde`, or a longer word that begins with
+    `Finanzaufsicht` or `Aufsichtsbehörde` (`Finanzaufsichtsbehörde`). Its preposition is `bei` or
+    `von` (with or without `der`, `dem`, or `den`), `durch` (with or without `die`, `den`, or
+    `das`), or `im`, `ins`, `in das`, or `in dem` before the regulator's register. That register
+    is the regulator, a hyphen (`-` or U+2011), and a word that begins with `Register`
+    (`ESMA‑Registereintrag`), or `Register der` or `Register des` and the regulator. Each article
+    may take one adjective, a word of letters that ends in `e`, `en`, `er`, or `es` (fails:
+    `bei der zuständigen Aufsichtsbehörde registriert`; passes: `bei keiner zuständigen
+    Aufsichtsbehörde registriert`, with no article). Its participle is `registriert`,
+    `eingetragen`, `gemeldet`, `beaufsichtigt`, `überwacht`, or `kontrolliert`, or a longer word
+    that begins with one of them (`registrierter`). Its noun is `Lizenz`, `Zulassung`,
+    `Registrierung`, `Eintragung`, `Genehmigung`, or `Erlaubnis`, BaFin's own term. A gap is at
+    most three other words, each of letters, digits, and inner hyphens (`-` or the no-break hyphen
+    U+2011). Last: the preposition and the regulator, a gap, then the participle (fails:
+    `bei der BaFin seit 2024 registriert`, `von der BaFin überwacht`). First: the participle, or
+    the noun or a longer word that begins with it, a gap, then the preposition and the regulator
+    (fails: `registriert als Krypto-Dienstleister bei der BaFin`, `Zulassung durch die BaFin`). A
+    noun last passes, since a sentence about the register ends with one (passes:
+    `Im BaFin-Register stehen Anbieter mit Lizenz`). Joined: the regulator, a hyphen, then the
+    participle, the noun or its plural, or the whole word `Aufsicht` (fails: `BaFin-registriert`,
+    `BaFin-Lizenz`; passes: `BaFin-Aufsichtsrecht`, `BaFin-Zulassungsverfahren`, which name the
+    law and a procedure). The joined form reads no word before it (fails:
+    `unterliegt keiner BaFin-Aufsicht`; passes: `unterliegt keiner Finanzaufsicht`, §10's
+    wording). Or `Aufsicht` with `der`, `des`, or `durch die`, or a word that begins with
+    `unterlieg` (`unterliegt`, `unterliegen`) with `der`, `dem`, or `den`, then a regulator (fails:
+    `unter Aufsicht der BaFin`, `unterliegt der deutschen Finanzaufsicht`). The past forms pass,
+    since `Unterlagen der BaFin` names documents (passes: `unterlag der BaFin`). A lint cannot tell
+    the subject, so a sentence on the law fails as well (fails:
+    `Krypto-Dienstleister in der EU unterliegen der MiCA-Verordnung`; passes:
+    `Die MiCA-Verordnung gilt für Krypto-Dienstleister in der EU`).
 
   German adds praise and reassurance (`gut gemacht`, `weiter so`, `super`, `toll`, `keine Sorge`,
   `keine Panik`, `bleiben Sie ruhig`, `Seelenfrieden`, `auf dem richtigen Weg`,
@@ -321,7 +335,9 @@ The German rows (decided 2026-11-23; the voice is §10):
     any other (`Freuen Sie sich auf Gewinne von 25 %`), so `Die Steuer auf Kapitalerträge beträgt
     25 %` is written `Kapitalerträge werden mit 25 % besteuert`.
   - `Prozent` reads as `%`, and a figure joins it by a space, a hyphen (`-` or the no-break hyphen
-    U+2011), or nothing, so `5-Prozent-Rendite` fails and `5-Prozent-Hürde` passes.
+    U+2011), or nothing. Either may take an ending that begins with `ig` (`5-prozentige`, `5%ige`).
+    So `5-Prozent-Rendite`, `5-prozentige Rendite`, and `5%ige Rendite` fail, and `5‑Prozent‑Hürde`
+    passes.
 - The imperative rule (`packages/content/src/style/directive-de.ts`). Spelling cannot tell the
   Sie-imperative from the infinitive or the present, the ihr-imperative from the 3rd person or the
   participle (`verkauft`, `investiert`), or the du-imperative from the noun (`Kauf`, `Tausch`), and
@@ -1188,7 +1204,12 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
   `Proof of Calm ist bei keiner Finanzaufsichtsbehörde registriert und unterliegt keiner Finanzaufsicht`;
   the ESAs' warning of 2022-03-17 in its German version. "Not advice" reads `keine Beratung`, "no financial or tax advice" `keine
   Anlage- oder Steuerberatung`. The plan-creation text stays English until counsel approves a German
-  one (`docs/LEGAL.md` §4).
+  one (`docs/LEGAL.md` §4). The Risk page's register sentence (`docs/LEGAL.md` §3.4) points to the
+  register with `dort`, `Prüfen Sie dort, ob ein Anbieter eingetragen ist.` and
+  `Proof of Calm ist kein Anbieter und ist dort nicht eingetragen.`, since §2 refuses the register
+  beside its participle whoever the subject is (`im ESMA-Register eingetragen`,
+  `im Register der ESMA eingetragen`); a German register sentence worded otherwise needs an
+  allow-list entry with its reason, as the Portuguese scams sentence has.
 - **Numerals for every number**, 2 to 9 included: `2 Coins`, `vor 15 Tagen`, `4‑mal`. Numbers,
   percentages and dates are formatted by the country's locale (§4): `40 %` and `0,00094000 BTC` on a
   German plan, `40%` on a Portuguese one, never typed by hand where `lib/format` writes them.
