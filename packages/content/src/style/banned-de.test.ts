@@ -503,6 +503,17 @@ describe('the German word rows, filler words and gain patterns (docs/CONTENT-STY
     ]);
   });
 
+  // §4 and §10: a numeral joins its unit with the no-break hyphen U+2011 in text a screen shows, so a gap word
+  // takes it as an inner hyphen as well as U+002D.
+  it('counts a word with the no-break hyphen as one of the three words, as its ASCII form', () => {
+    const noBreak = 'Proof of Calm ist bei der BaFin als 24‑Stunden‑Anbieter registriert.';
+    expect(rules(noBreak)).toEqual(['advice: bei der BaFin als 24‑Stunden‑Anbieter registriert']);
+    const ascii = findBanned(noBreak.replaceAll('‑', '-'));
+    expect(findBanned(noBreak).map((finding) => ({ ...finding, match: finding.match.replaceAll('‑', '-') })))
+      .toEqual(ascii);
+    expect(ascii).toHaveLength(1);
+  });
+
   // The bound: four words between the regulator and the participle pass the lint; the copy review (§8) reads
   // the longer claims.
   it('passes four words between the regulator and the participle', () => {
