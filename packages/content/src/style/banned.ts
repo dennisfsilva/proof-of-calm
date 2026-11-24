@@ -23,8 +23,28 @@ const REGISTRATION =
   String.raw`(?:regist(?:r)?ad|inscrit|supervisionad)(?:o|a|os|as)\s+` +
   String.raw`(?:n[oa]s?|pel[oa]s?|por|junto\s+d[oa]s?|perante\s+[oa]s?|com\s+[oa]s?)\s+` +
   `(?:${[...longestFirst(banned.regulators), 'regulador(?:es)?'].join('|')})`;
-const ADVICE = between([...banned.advice.en, ...banned.advice.de, ...banned.advice.pt, REGISTRATION]);
-const FILLER = between([...banned.filler.en, ...banned.filler.pt]);
+// A German one: bei, von or durch, an optional article, a regulator of the list, "Finanzaufsicht" or
+// "Aufsichtsbehörde", then registriert, eingetragen, gemeldet or beaufsichtigt; the participle first; or "Aufsicht
+// der", "des" or "durch die" and a regulator. "Bei keiner Finanzaufsicht registriert" has no article, so it passes.
+const REGULATOR_DE = [
+  ...longestFirst(banned.regulators),
+  String.raw`finanzaufsicht\p{L}*`,
+  String.raw`aufsichtsbehörde\p{L}*`,
+];
+const BY_REGULATOR_DE = String.raw`(?:bei|von|durch)\s+(?:der\s+|dem\s+|den\s+)?(?:${REGULATOR_DE.join('|')})`;
+const REGISTRATION_DE = [
+  String.raw`${BY_REGULATOR_DE}\s+(?:registriert|eingetragen|gemeldet|beaufsichtigt)\p{L}*`,
+  String.raw`(?:registriert|eingetragen|gemeldet)\p{L}*\s+${BY_REGULATOR_DE}`,
+  String.raw`aufsicht\s+(?:der|des|durch\s+die)\s+(?:${REGULATOR_DE.join('|')})`,
+];
+const ADVICE = between([
+  ...banned.advice.en,
+  ...banned.advice.de,
+  ...banned.advice.pt,
+  REGISTRATION,
+  ...REGISTRATION_DE,
+]);
+const FILLER = between([...banned.filler.en, ...banned.filler.de, ...banned.filler.pt]);
 const ALLOWED = between(longestFirst(banned.allow.map((entry) => entry.phrase)));
 // A gain word right next to a percentage, in either order: English joins them with "of"; Portuguese puts up to
 // two adjectives after the noun ("rendimento médio anual de 8 %") and joins it to the figure with "de", "é de",
@@ -38,11 +58,37 @@ const TAX_PROSE = String.raw`(?<!(?<![\p{L}\p{N}])(?:sobre(?:\s+(?:as?|os?))?|da
 const ADJECTIVE_PT = String.raw`(?:\s+(?:anua(?:l|is)|mensa(?:l|is)|médi[oa]s?|tota(?:l|is)|potencia(?:l|is)|esperad[oa]s?)){0,2}`;
 const CONNECTOR_PT = String.raw`(?:cerca\s+de|até|mais\s+de|superior\s+a|acima\s+de)`;
 const JOIN_PT = String.raw`\s+(?:(?:é|são)\s+)?(?:de(?:\s+${CONNECTOR_PT})?|${CONNECTOR_PT})`;
+// German (D1 of #449's design, 2026-11-23): a figure with a sign or "Prozent"; a noun ending in a gain word, an
+// optional qualifier ("pro Jahr", "p. a."), join ("beträgt", "liegt bei", "von", a colon) and connector ("bis zu",
+// "über", "um die"), then the figure; the figure, up to two adjectives ("jährliche", "garantierte") and the noun; a
+// gain verb ("verdienen", "erzielen"), a pronoun and a connector, then the figure; the figure, then that verb,
+// "einbringen" or "abwerfen"; "Plus von" and the figure; "wirft" or "bringt", the figure, "ab" or "ein". Any other
+// word between them ("werden mit 25 % besteuert") is tax prose.
+const END = String.raw`(?![\p{L}\p{N}])`;
+const PERCENT_DE = String.raw`[+−-]?\d+(?:[.,]\d+)?\s?(?:%|prozent${END})`;
+const NOUN_DE =
+  String.raw`\p{L}*(?:rendite(?:n)?|gewinn(?:e|en|es|s)?|ertr(?:ag(?:s|es)?|äge(?:n)?)|zins(?:en|es)?|verzinsung(?:en)?|` +
+  `profit(?:e|en|s)?|rentabilität|wertzuw(?:achs(?:es)?|ächse(?:n)?)|wertsteigerung(?:en)?|wertentwicklung(?:en)?|performance)`;
+const CONNECTOR_DE = String.raw`(?:bis\s+zu|über|mehr\s+als|rund|etwa|ca\.|circa|ungefähr|durchschnittlich|jährlich|monatlich|um(?:\s+die)?)`;
+const JOIN_DE = String.raw`(?:beträgt|betragen|betrug|betrugen|(?:liegt|liegen|lag|lagen)\s+bei|ist|sind|war|waren|wäre|wären|von|in\s+höhe\s+von)`;
+const QUALIFIER_DE = String.raw`(?:\s+(?:pro|im|je)\s+(?:jahr|monat)|\s+p\.\s?a\.|\s+im\s+schnitt)?`;
+const ADJECTIVE_DE = `(?:(?:jährlich|monatlich|durchschnittlich|erwartet|möglich|potenziell|zusätzlich|garantiert|realistisch)(?:e|en|er|es|em)?|mehr|an)`;
+const VERB_DE = String.raw`(?:gewinn(?:e|en|t|st)?|verdien\p{L}*|erziel\p{L}*|erwirtschaft\p{L}*)`;
+const GAIN_DE = [
+  String.raw`${NOUN_DE}${QUALIFIER_DE}(?:\s*:|\s+${JOIN_DE})?(?:\s+${CONNECTOR_DE})?\s+${PERCENT_DE}`,
+  String.raw`${PERCENT_DE}${QUALIFIER_DE}(?:[\s-]+${ADJECTIVE_DE}){0,2}[\s-]*${NOUN_DE}${END}`,
+  String.raw`${VERB_DE}(?:\s+(?:sie|du|ihr|wir|man))?(?:\s+${CONNECTOR_DE})?\s+${PERCENT_DE}`,
+  String.raw`${PERCENT_DE}${QUALIFIER_DE}(?:\s+(?:jährlich|monatlich))?\s+(?:${VERB_DE}|einbringen|abwerfen)${END}`,
+  String.raw`plus\s+von(?:\s+${CONNECTOR_DE})?\s+${PERCENT_DE}`,
+  String.raw`(?:wirft|werfen|bringt|bringen)(?:\s+${CONNECTOR_DE})?\s+${PERCENT_DE}${QUALIFIER_DE}\s+(?:ab|ein)${END}`,
+];
 const RETURN_PERCENTAGE = new RegExp(
   `${PERCENT}\\s*${GAIN}|${GAIN}\\s+(?:of\\s+)?${PERCENT}|(?<![\\p{L}\\p{N}])(?:` +
     `${PERCENT}\\s*(?:de\\s+)?${NOUN_PT}(?![\\p{L}\\p{N}])|` +
     `${TAX_PROSE}${NOUN_PT}${ADJECTIVE_PT}(?:${JOIN_PT})?\\s+${PERCENT}|` +
-    `(?:ganhe|ganhar|ganha|ganham)(?:\\s+${CONNECTOR_PT})?\\s+${PERCENT})`,
+    `(?:ganhe|ganhar|ganha|ganham)(?:\\s+${CONNECTOR_PT})?\\s+${PERCENT}|` +
+    GAIN_DE.join('|') +
+    ')',
   'giu',
 );
 // One asset class for every language (docs/CONTENT-STYLE.md §2, item 3): the general words in any case, with
