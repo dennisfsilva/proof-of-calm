@@ -8,9 +8,8 @@ import { DEFAULT_PREFS, type Prefs } from '@proofofcalm/core';
 // rows are built here, in Node, by the store's own row builders, and put into the database the app has
 // already opened, then the page reloads and the services read them as any stored plan.
 //
-// The device id: the rows carry a fixed id, not the one in this device's `meta` store (a fresh device
-// has none until its first write). The store only compares row stamps for sync, so a foreign id is
-// what an imported or synced row would carry. The prefs are left as they are, unless the spec passes
+// The device id: the rows carry a fixed foreign id, as an older build's rows would; the reload's open
+// stamps them with the local id, as it does every row it reads (ADR-0019 Readings, 2026-11-24). The prefs are left as they are, unless the spec passes
 // some: then the defaults with those fields go in under the store's one prefs key, `'device'` (PREFS_KEY
 // in packages/app/src/lib/adapters/idb-store.ts:46), in the same transaction.
 const SEED_DEVICE_ID = '00000000-0000-4000-8000-00000000e2e0' as Parameters<typeof planRow>[1];

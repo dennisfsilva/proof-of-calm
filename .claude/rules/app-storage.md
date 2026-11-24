@@ -32,8 +32,8 @@ Rules and the tool that checks each:
   the fields it does not read (reads forward, reads back and rewrites; `idb-store.test.ts`). Removing
   a field from such a record needs an explicit delete (a numbered migration or a write that drops
   the key), because the merged write keeps every key it does not know.
-- One transaction per write: the rows (no outbox copy before M3's sync, ADR-0019 Readings
-  2026-11-24), then the snapshot, then the cross-tab channel (`docs/ARCHITECTURE.md`, data flow). The domain store writes whole entities.
+- One transaction per write: the rows (stamped with the one local device id and no outbox copy
+  before M3's sync, ADR-0019 Readings 2026-11-24), then the snapshot, then the cross-tab channel (`docs/ARCHITECTURE.md`, data flow). The domain store writes whole entities.
 - Export and import stay round-trip exact (`docs/DOMAIN.md` §3.13); the prototype import follows §7.
 - The UI store holds nothing that must survive a reload (ADR-0020); drafts go to session storage.
 

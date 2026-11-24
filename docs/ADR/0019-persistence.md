@@ -244,6 +244,19 @@ The decision stands; these are the choices its text left open, made while implem
   `[store, id]`: M3 marks every row pending at sign-in (ADR-0021, local-only to account) and removes
   the clear in the branch that first writes pending records. The read tests are
   `packages/app/src/lib/adapters/idb/outbox.test.ts`.
+- **2026-11-24, one local device id before the sync** (replaces "The device id is a UUID made once"
+  under Device-local records). Until M3's sync every plan and entry row is stamped with one fixed id,
+  the same in every browser (`LOCAL_DEVICE_ID` in `idb/database.ts`); nothing is kept in `meta` for
+  it (`docs/LEGAL.md` §9, settled 2026-11-24). `compareWrites` orders by `updatedAt`, then by the id,
+  and every row of one browser already carried the same id, so the order on a device is unchanged.
+  The open's cleanup (`clearBeforeSync`, which replaces `emptyOutbox`) also deletes `meta.deviceId`
+  and stamps with the local id every row this build reads that carries another; a later version's
+  row stays byte for byte, and one that fails its check stays as it is for the load to set aside.
+  The rows keep their shape, so the version stays 1. An older build, after a rollback or in an old
+  tab, makes a random id at its next write and stamps the rows it writes; this build's next open
+  rewrites them. M3's sync makes the device's id when it registers the device at sign-in (ADR-0021,
+  local-only to account) and stamps the rows it marks pending. The read tests are in
+  `packages/app/src/lib/adapters/idb/outbox.test.ts`.
 
 ## Disagreement
 
