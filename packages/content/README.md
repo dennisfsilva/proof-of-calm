@@ -19,7 +19,7 @@ of it. Specifications: `docs/JURISDICTIONS.md`, `docs/EDUCATION.md`, `docs/CONTE
 | `jurisdictions/us.json` | country profile (M2) | `docs/JURISDICTIONS.md` §7.5 and the research file |
 | `jurisdictions/xx.json` | the generic profile for every other country | `docs/JURISDICTIONS.md` §2 |
 | `rules/<code>.json` | generated: the core's `CountryRules` of each profile, what the shell boots on (ADR-0049); never edited | `pnpm --filter @proofofcalm/content rules` (`scripts/rules.ts`); a test fails while one is stale |
-| `rules/<language>/<code>.json` | generated: the same rules over each profile's translation, one folder per content language with a folder under `i18n/` (`pt-PT` today), with no `locales.json` of its own (ADR-0057); never edited | `pnpm --filter @proofofcalm/content rules` (`scripts/rules.ts`); a test fails while one is stale |
+| `rules/<language>/<code>.json` | generated: the same rules over each profile's translation, one folder per content language with profiles under `i18n/<language>/jurisdictions/` (`pt-PT` today), with no `locales.json` of its own (ADR-0057); never edited | `pnpm --filter @proofofcalm/content rules` (`scripts/rules.ts`); a test fails while one is stale |
 | `rules/locales.json` | generated: every profile's locales by code, shipped statically in the app's entry chunk as the fallback when a rules file fails to load (ADR-0049, Deviations of 2026-11-15); never edited | `pnpm --filter @proofofcalm/content rules` (`scripts/rules.ts`); a test fails while it is stale |
 | `templates/*.json` | the four starting points | `docs/DOMAIN.md` §5, ADR-0009 |
 | `cycles/drawdowns.json` | the completed cycles' maximum drawdowns per coin, each recomputed from its source | `docs/EDUCATION.md` §2, §6 and §9 |
@@ -28,6 +28,7 @@ of it. Specifications: `docs/JURISDICTIONS.md`, `docs/EDUCATION.md`, `docs/CONTE
 | `sources.allow.json` | the domains a primary source may come from | `docs/CONTENT-OPS.md` §5 |
 | `learn/*.mdx` | the Learn modules: flat front matter and a closed body | `docs/EDUCATION.md`, `docs/CONTENT-STYLE.md` §5, ADR-0048 |
 | `i18n/pt-PT/` | the European Portuguese translations, sparse: prose only, at the English paths, under the English file name in `jurisdictions/`, `templates/`, `facts/` or `learn/` (what is translated so far: `i18n/pt-PT/README.md`; validated) | ADR-0057, ADR-0048 |
+| `i18n/de/` | the German translations, sparse, in the same shape as pt-PT's (what is translated so far: `i18n/de/README.md`; validated) | ADR-0057, ADR-0048 |
 
 A profile's translation loads once `PROFILE_OVERLAYS` lists it, a template's once `TEMPLATE_OVERLAYS` does, a Learn
 module's once `LEARN_TRANSLATIONS` lists it, and the facts' never, since their loader is cut.
@@ -115,7 +116,7 @@ Corrections of 2026-11-18). A pair that a `figure-chart` detail builds from the 
 | `countryChoices(profiles, suggestion)` | the picker's order | the onboarding, Settings |
 | `TEMPLATES`, `templateById(id)` | `OfferedTemplate`: the core's `Template` with its `drawdowns` and its `dates`, each date field by its `{date:<field>}` path | `planFromTemplate`, `followsTemplate`, the card's dated band, the template step's texts |
 | `loadTemplateTexts(language)`, `TemplateTexts` | every template's `name`, `oneLine`, `riskLabel` and `explanation` in `language` (default `'en'`) by template id, in `TEMPLATES`' order: the English texts with the template's translation from `TEMPLATE_OVERLAYS` applied, kept once loaded; the English texts, not kept, for a template without a translation or when its import fails or resolves to undefined (ADR-0057, Corrections of 2026-11-16) | the template step and the onboarding summary in the UI language |
-| `TEMPLATE_OVERLAYS` | one lazy import per translated template file by overlay language and template id (the four pt-PT templates today) | `loadTemplateTexts`; the test that holds it to the files under `i18n/<language>/templates/` |
+| `TEMPLATE_OVERLAYS` | one lazy import per translated template file by overlay language and template id (the four templates in pt-PT and in de today) | `loadTemplateTexts`; the test that holds it to the files under `i18n/<language>/templates/` |
 | `contentLanguageOf(value)` | the language of the text in a profile, a rules file or a template's texts as its loader returned it (`'en'` for English and every fallback, an overlay's language where it applied), `undefined` for an object no loader returned, a copy or a parse (`src/loaders/language.ts`; ADR-0057, Corrections of 2026-11-16) | `textLang` (`packages/app/src/lib/i18n/text-lang.ts`), which marks English text on a screen in another language `lang="en"` |
 | `fillTemplateDates(text, dates, formatDate)`, `templateDatePaths(template)` | the text with each `{date:<field>}` placeholder written by `formatDate`; every date field of a content template by its path | the template step (`packages/app/src/features/onboarding/components/template-step.tsx`), which writes each date with `format.date`; the loader, which builds `dates` |
 | `COINS` | the core's `Coin` | the coin picker, `/api/prices` |
