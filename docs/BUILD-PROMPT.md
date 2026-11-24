@@ -972,6 +972,19 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   name's case endings, and the fix's census compares every verdict with the base over the shipped
   texts and the test inputs: #473's letter boundary after `Niederlande` passed „in Niederlanden“,
   the dropped article the prose check exists to refuse, and only a third review round caught it.
+- A builder's result reports each of the design note's "Tests first" items by name, with the test
+  that holds it. #478's builder missed the design's control-names tab check, and only round 1 of
+  the review found it, as a judgment (2026-11-24).
+- A layout spec that finds a sentence by its lead matches the lead, a value and the words after it,
+  since a sibling sentence can open the same way. #477's reviewed line and its set-up line both
+  opened „Sie haben diesen Plan am“, and the strict-mode race failed 1 of 4 runs twice before the
+  fix matched the lead, the date and the words after it (2026-11-24).
+- When a content role's judgment on one branch states a rule, the session applies it to the
+  sibling branches in the same round and writes it once, with its exceptions, in the owning
+  document. Counsel's „die Regel …“, found on Onboarding (#476) and Settings (#478), also held for
+  Plan (#477), and the `docs/CONTENT-STYLE.md` §10 row, first written without the early window and
+  the term, drew a finding from the review, counsel, brand and the integration read in turn
+  (2026-11-24).
 
 ## Known gaps
 
