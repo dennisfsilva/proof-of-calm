@@ -649,7 +649,7 @@ describe('the German word rows, filler words and gain patterns (docs/CONTENT-STY
     }
   });
 
-  it('refuses one adjective after im, ins, in das or in dem before the register, and passes two', () => {
+  it('refuses one adjective after im, ins, in das or in dem before the register', () => {
     for (const [text, match] of [
       [
         'Proof of Calm ist im öffentlichen Register der BaFin eingetragen.',
@@ -668,8 +668,6 @@ describe('the German word rows, filler words and gain patterns (docs/CONTENT-STY
     ]) {
       expect(rules(text ?? ''), text).toEqual([`advice: ${match}`]);
     }
-    expect(findBanned('Proof of Calm ist im neuen öffentlichen BaFin-Register eingetragen.')).toEqual([]);
-    expect(findBanned('Proof of Calm ist im neuen öffentlichen Register der BaFin eingetragen.')).toEqual([]);
     expect(findBanned('Im BaFin-Register stehen Anbieter mit Lizenz.')).toEqual([]);
     expect(findBanned('Im öffentlichen BaFin-Register stehen Anbieter mit Lizenz.')).toEqual([]);
   });
@@ -691,7 +689,6 @@ describe('the German word rows, filler words and gain patterns (docs/CONTENT-STY
     expect(findBanned('Anbieter brauchen eine Zulassung, die die BaFin erteilt.')).toEqual([]);
     expect(findBanned('Anbieter brauchen eine Zulassung; die BaFin erteilt sie.')).toEqual([]);
     expect(findBanned('Die Zulassung der Anbieter prüft die BaFin.')).toEqual([]);
-    expect(findBanned('Proof of Calm hat eine Lizenz der neuen deutschen BaFin.')).toEqual([]);
   });
 
   // A joined noun lengthened past its plural names a procedure or a duty, as „BaFin-Aufsichtsrecht“ names the law.
@@ -709,6 +706,164 @@ describe('the German word rows, filler words and gain patterns (docs/CONTENT-STY
     expect(rules('Ein 3,5-prozentiger Zins.')).toEqual(['return-percentage: 3,5-prozentiger Zins']);
     expect(findBanned('Eine 5-prozentige Hürde.')).toEqual([]);
     expect(findBanned('Eine 5%ige Hürde.')).toEqual([]);
+  });
+});
+
+// Counsel's six reach gaps of #462's second round, each with U+002D, U+2011 and a digit where the claim has a gap.
+describe('the German claim reach, round 3 (docs/CONTENT-STYLE.md §2)', () => {
+  const hyphens = ['-', '‑'];
+  const refuses = (cases: readonly (readonly [string, string])[]) => {
+    for (const [text, match] of cases) expect(rules(text), text).toEqual([`advice: ${match}`]);
+  };
+
+  it('refuses up to two adjectives after an article, the contractions included', () => {
+    refuses([
+      [
+        'Proof of Calm ist bei der zuständigen deutschen Aufsichtsbehörde registriert.',
+        'bei der zuständigen deutschen Aufsichtsbehörde registriert',
+      ],
+      [
+        'Von der zuständigen deutschen Finanzaufsicht überwacht.',
+        'Von der zuständigen deutschen Finanzaufsicht überwacht',
+      ],
+      [
+        'Kontrolliert durch die staatliche deutsche Aufsichtsbehörde.',
+        'Kontrolliert durch die staatliche deutsche Aufsichtsbehörde',
+      ],
+      [
+        'Proof of Calm ist im öffentlichen deutschen BaFin-Register eingetragen.',
+        'im öffentlichen deutschen BaFin-Register eingetragen',
+      ],
+      [
+        'Eingetragen ins öffentliche europäische Register der ESMA.',
+        'Eingetragen ins öffentliche europäische Register der ESMA',
+      ],
+      [
+        'Proof of Calm hat eine Lizenz der zuständigen deutschen Aufsichtsbehörde.',
+        'Lizenz der zuständigen deutschen Aufsichtsbehörde',
+      ],
+      [
+        'Proof of Calm unterliegt der zuständigen deutschen Finanzaufsicht.',
+        'unterliegt der zuständigen deutschen Finanzaufsicht',
+      ],
+      ['Unter Aufsicht der zuständigen europäischen ESMA.', 'Aufsicht der zuständigen europäischen ESMA'],
+    ]);
+    for (const hyphen of hyphens) {
+      refuses([
+        [
+          `Proof of Calm ist bei der EU${hyphen}weiten zuständigen Aufsichtsbehörde registriert.`,
+          `bei der EU${hyphen}weiten zuständigen Aufsichtsbehörde registriert`,
+        ],
+        [
+          `Proof of Calm ist bei der EU${hyphen}27${hyphen}weiten Aufsichtsbehörde registriert.`,
+          `bei der EU${hyphen}27${hyphen}weiten Aufsichtsbehörde registriert`,
+        ],
+      ]);
+    }
+  });
+
+  // Three adjectives pass the lint only; §2's status row still refuses them in copy.
+  it('passes three adjectives after an article, a numeral and an ending the list leaves out', () => {
+    for (const text of [
+      'Proof of Calm ist bei der zuständigen deutschen staatlichen Aufsichtsbehörde registriert.',
+      'Proof of Calm ist im öffentlichen amtlichen deutschen BaFin-Register eingetragen.',
+      'Proof of Calm ist bei der 2024 BaFin registriert.',
+      'Proof of Calm ist bei der zuständigem BaFin registriert.',
+    ]) {
+      expect(findBanned(text), text).toEqual([]);
+    }
+  });
+
+  it('refuses an adjective with no article after bei, von or durch', () => {
+    refuses([
+      ['Proof of Calm ist bei deutscher Finanzaufsicht registriert.', 'bei deutscher Finanzaufsicht registriert'],
+      ['Proof of Calm wird von staatlicher Finanzaufsicht überwacht.', 'von staatlicher Finanzaufsicht überwacht'],
+      ['Kontrolliert durch staatliche Aufsichtsbehörden.', 'Kontrolliert durch staatliche Aufsichtsbehörden'],
+      ['Registriert bei europäischer Finanzaufsicht.', 'Registriert bei europäischer Finanzaufsicht'],
+      ['Proof of Calm ist bei einer Aufsichtsbehörde registriert.', 'bei einer Aufsichtsbehörde registriert'],
+    ]);
+    for (const hyphen of hyphens) {
+      refuses([
+        [
+          `Proof of Calm ist bei EU${hyphen}weiter Finanzaufsicht registriert.`,
+          `bei EU${hyphen}weiter Finanzaufsicht registriert`,
+        ],
+        [
+          `Proof of Calm ist bei EU${hyphen}27${hyphen}weiter Finanzaufsicht registriert.`,
+          `bei EU${hyphen}27${hyphen}weiter Finanzaufsicht registriert`,
+        ],
+      ]);
+    }
+  });
+
+  it('passes a word that begins with kein after bei, von or durch, and §10’s statement on status', () => {
+    for (const text of [
+      'Bei keiner Finanzaufsichtsbehörde registriert.',
+      'Proof of Calm ist bei keiner zuständigen Aufsichtsbehörde registriert.',
+      'Proof of Calm wird von keiner staatlichen Finanzaufsicht überwacht.',
+      'Proof of Calm unterliegt keiner Finanzaufsicht.',
+      'Proof of Calm ist bei keiner Finanzaufsichtsbehörde registriert und unterliegt keiner Finanzaufsicht.',
+    ]) {
+      expect(findBanned(text), text).toEqual([]);
+    }
+  });
+
+  it('refuses a status noun in the gap after bei, von or durch and a regulator', () => {
+    refuses([
+      ['Proof of Calm hat bei der BaFin eine Lizenz.', 'bei der BaFin eine Lizenz'],
+      ['Proof of Calm hat bei der BaFin seit 2024 eine Zulassung.', 'bei der BaFin seit 2024 eine Zulassung'],
+      ['Proof of Calm hat von der BaFin eine Genehmigung.', 'von der BaFin eine Genehmigung'],
+      ['Proof of Calm hat durch die BaFin eine Registrierung.', 'durch die BaFin eine Registrierung'],
+      ['Proof of Calm hat bei der BaFin die Eintragungsnummer 1.', 'bei der BaFin die Eintragungsnummer'],
+    ]);
+    for (const hyphen of hyphens) {
+      refuses([
+        [
+          `Proof of Calm hat bei der BaFin als Krypto${hyphen}Anbieter eine Lizenz.`,
+          `bei der BaFin als Krypto${hyphen}Anbieter eine Lizenz`,
+        ],
+        [
+          `Proof of Calm hat bei der BaFin als 24${hyphen}Stunden${hyphen}Anbieter eine Zulassung.`,
+          `bei der BaFin als 24${hyphen}Stunden${hyphen}Anbieter eine Zulassung`,
+        ],
+      ]);
+    }
+  });
+
+  it('passes a status noun after the register, and after a gap past the bound', () => {
+    for (const text of [
+      'Im BaFin-Register stehen Anbieter mit Lizenz.',
+      'Im Register der BaFin stehen Anbieter mit Lizenz.',
+      'Proof of Calm hat bei der BaFin als ein großer Krypto-Anbieter eine Lizenz.',
+    ]) {
+      expect(findBanned(text), text).toEqual([]);
+    }
+  });
+
+  it('refuses a joined status noun with nummer, and the joined aufsichtspflichtig in either case', () => {
+    for (const hyphen of hyphens) {
+      refuses([
+        [`Die BaFin${hyphen}Lizenznummer lautet 12345.`, `BaFin${hyphen}Lizenznummer`],
+        [`Die BaFin${hyphen}Registrierungsnummer lautet 12345.`, `BaFin${hyphen}Registrierungsnummer`],
+        [`Die BaFin${hyphen}Zulassungsnummern lauten 1 und 2.`, `BaFin${hyphen}Zulassungsnummern`],
+        [`Die BaFin${hyphen}Erlaubnisnummer lautet 12345.`, `BaFin${hyphen}Erlaubnisnummer`],
+        [`Proof of Calm ist BaFin${hyphen}aufsichtspflichtig.`, `BaFin${hyphen}aufsichtspflichtig`],
+        [`Ein BaFin${hyphen}Aufsichtspflichtiger Anbieter.`, `BaFin${hyphen}Aufsichtspflichtiger`],
+        [`Ein ESMA${hyphen}aufsichtspflichtiges Unternehmen.`, `ESMA${hyphen}aufsichtspflichtiges`],
+      ]);
+    }
+  });
+
+  it('passes a joined Aufsicht that names the law, a notice or a duty, and a joined noun that names a procedure', () => {
+    for (const text of [
+      'Das BaFin-Aufsichtsrecht gilt.',
+      'Die BaFin‑Aufsichtsmitteilung zu Kryptowerten ist öffentlich.',
+      'Die BaFin-Aufsichtspflicht gilt.',
+      'Das BaFin-Zulassungsverfahren dauert Monate.',
+      'Die BaFin-Lizenzpflicht gilt.',
+    ]) {
+      expect(findBanned(text), text).toEqual([]);
+    }
   });
 });
 
