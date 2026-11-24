@@ -1319,7 +1319,7 @@ The product's nouns, one German word each, in every string, the site pages and t
 | coins added at no cost (held) | Hinzugefügte Coins |
 | coins moved (the kind) | Übertragene Coins |
 | sell window | Verkaufsfenster |
-| holding period, holding rule | Haltefrist for the period itself and the person's own rule (`Keine Haltefrist`, `Eigene Haltefrist`); a country's or the general profile's rule is `die Regel …` (`die Regel für Spanien`, `die Regel des allgemeinen Profils`) wherever the English says "the rule …", since a profile can set no holding period (ES, FR and NL do not); never `Spekulationsfrist` |
+| holding period, holding rule | `die Regel …` for a named country's or the general profile's rule where it can be a rule without a period (`die Regel für Spanien`, `die Regel des allgemeinen Profils`, `Die Regel Ihres Landes`), since ES, FR and NL set none; `Haltefrist` for "holding period", for the term "holding rule" as a field, a section or a title (`Haltefrist` over its value, `Quellen für die Haltefrist`, `Haltefristen nach Land`, `bestimmt die Haltefrist des Plans`), for the person's own rule (`Eigene Haltefrist`, `Keine Haltefrist`), and where the screen shows a period (the early window's `gemäß der Haltefrist {countryFor}`, which exists only with a period); never `Spekulationsfrist` |
 | holding date | der erste Tag nach der Haltefrist |
 | hold phase | Haltephase |
 | the plan strip's Buying, Holding, Selling, Out by | Kaufphase, Haltephase, Verkaufsfenster, Ausstieg, each before a range or `ab {date}`; never `Kauf` or `Halten`, which read as instructions |
@@ -1355,6 +1355,19 @@ The product's nouns, one German word each, in every string, the site pages and t
 | note | Notiz |
 | exchange | Börse |
 | withdrawal / deposit (a move's records) | Auszahlung / Einzahlung |
+| purchase date (a date typed, not an entry) | Kaufdatum |
+| price history | Kursverlauf |
+| daily highs and lows | Tageshoch und Tagestief (`aus den Tageshochs und Tagestiefs`) |
+| rates (a profile's tax rates) | Steuersätze |
+| monthly amount | Monatsbetrag |
+| calendar file / calendar reminder / reminder | Kalenderdatei / Kalendererinnerung / Erinnerung (`Zum Kalender hinzufügen`) |
+| decimal places | Nachkommastellen |
+| cycle (a market cycle) | Zyklus |
+| the plan's country | Land des Plans |
+| review (the plan's, the noun) / Mark as reviewed | Überprüfung / Als überprüft markieren |
+| Pause from today / Paused since {date} | Ab heute pausieren / Pausiert seit {date} |
+| the sell window's opening, closing and out-by dates | Öffnungsdatum, Schlussdatum, Ausstiegsdatum |
+| DCA Plan page (the prototype) | DCA-Planseite |
 
 Two terms name the same date in two frames: `der erste Tag nach der Haltefrist` is the date in the
 holding rule's own frame (the hold-phase card, the holding-date tool, the tax-year file's
@@ -1371,7 +1384,7 @@ kept `cópia de segurança`), `durchschnittlicher Kaufpreis` against `Einstandsp
 `geplant für den`; the Settings tabs, the tab bar and the entry sheet's kinds at 360 px with 125 %
 text, `Land & Daten` against `Währung & Daten`; „die Regel für Spanien“ against „die Haltefrist für
 Spanien“; the German "not tax advice" line, pending the StBerG question (`docs/BENCHMARK.md` §4),
-its candidate `Aus Ihren Einträgen berechnet, keine Steuerberatung`; the descriptor against
+its candidates naming each screen's source of dates, so one answer covers every screen: the Log's `Aus Ihren Einträgen berechnet, keine Steuerberatung`, Plan's `Aus Ihren Terminen und Einträgen berechnet` (and `Aus den Terminen des Ausgangspunkts berechnet`) and Learn's holding tool `Aus Ihrem Kaufdatum berechnet`, whether `Terminen` reads as appointments there; the descriptor against
 `Krypto-Sparplan` (`docs/GROWTH.md` §2.5); `ungelesen` against `nicht eingelesen` for
 `shell.newer.again`; „nach {to}“ or „auf {to}“ in the move strings; `move.toHint`'s „nie ihre
 Adresse“; `chart.empty`'s „Es gibt keinen Wert zum Zeichnen“; the range „Alle“ against „Max“; the
@@ -1380,4 +1393,4 @@ auf die Niederlande umstellen`, `von Portugal auf …` in its row) and „das al
 sentence; `Börse` against `Handelsplattform`, since `Börse` can suggest a
 regulated exchange (brand and counsel; a voice choice for the reader); „bevor Sie ihm Geld senden“
 against „bevor Sie ihm Geld überweisen“ (brand, on the claim-reach branch; counsel's gap (6) on #462
-keeps „senden“ until the reader answers).
+keeps „senden“ until the reader answers); `Am {day}. jedes Monats` against `jeden Monats`, and „im Monat am Tag {buyDay}“ against „jeweils am {buyDay}. des Monats“; „sehe“ or „schaue … nicht auf den Kurs“; „Wohin soll die monatliche Erinnerung?“; „in den Mengen Ihres Bestands“ against „gewichtet nach Ihrem Bestand“; `Meldepflichten` against `Erklärungspflichten`; „Quellen für“ against „Quellen zu“; `Krypto-Steuern` against `Kryptosteuern` as a searched title; `Zyklus` for a market cycle; whether „Zeigen, wie es funktioniert und was schiefgehen kann“ reads as a control; „gemäß“ against „laut der Haltefrist“; „Aktivieren Sie das Kästchen“ against „Setzen Sie das Häkchen“, and „früher“ against „vorzeitig öffnen“; whether „{units} jetzt verkaufbar“ reads as a status or an invitation; the word order of „„Investiert“ im Portfolio zählt ihn mit“; whether „die Seite des DCA-Plans“ names the source clearly; whether the Settings tabs read naturally with an `&` ending the first line, „Frist“ as the holding period and „Anteile“ as the split; „Land … umstellen“ and „Umstellung auf“ against „wechseln“ and „Wechsel nach“; „bisher am {from}“ against „jetzt am {from}“ in `row.lastBuyEligible`; „Eingefügten Text lesen“ against „einlesen“; `DCA-Planseite` against `DCA-Plan-Seite`; „Über die App“ and „Cookie-Erklärung“ as titles; „die Regel“ said twice in the replace confirm (brand, on #476, #477 and #478).
