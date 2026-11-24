@@ -527,7 +527,8 @@ describe('the German word rows, filler words and gain patterns (docs/CONTENT-STY
   });
 
   // The bound: four words between the regulator and the participle pass the lint; the copy review (§8) reads
-  // the longer claims.
+  // the longer claims, such as „bei der BaFin als Anbieter von Kryptowerten registriert“ (four words) and „bei der
+  // BaFin, der deutschen Finanzaufsicht, registriert“ (the gap stops at the comma).
   it('passes four words between the regulator and the participle', () => {
     expect(findBanned('Proof of Calm ist bei der BaFin als ein großer Krypto-Anbieter registriert.')).toEqual([]);
   });
