@@ -1,91 +1,91 @@
 {
-  "title": "Set up a plan",
-  "back": "Back",
-  "next": "Continue",
-  "start": "Accept and start the plan",
+  "title": "Einen Plan einrichten",
+  "back": "Zurück",
+  "next": "Weiter",
+  "start": "Akzeptieren und den Plan starten",
   "country": {
-    "heading": "Where do you live?",
-    "suggested": "This device suggests {countryThe}.",
-    "confirm": "Continue {countryWith}",
-    "label": "Country",
-    "placeholder": "Choose a country",
-    "languageDiffers": "Residence, not language, decides tax."
+    "heading": "Wo wohnen Sie?",
+    "suggested": "Dieses Gerät schlägt {countryThe} vor.",
+    "confirm": "Weiter {countryWith}",
+    "label": "Land",
+    "placeholder": "Ein Land wählen",
+    "languageDiffers": "Über die Steuer entscheidet der Wohnsitz, nicht die Sprache."
   },
   "template": {
-    "heading": "Choose a starting point",
-    "line": "A starting point some people use. You choose every setting. Not advice.",
-    "band": "{falls}, {count, plural, one {high to low} other {each high to low}} between {from} and {to}",
-    "about": "Show how it works and what can go wrong",
+    "heading": "Einen Ausgangspunkt wählen",
+    "line": "Ein Ausgangspunkt, den manche Menschen nutzen. Sie wählen jede Einstellung. Keine Beratung.",
+    "band": "{falls}, {count, plural, one {vom Hoch zum Tief} other {jeweils vom Hoch zum Tief}} zwischen {from} und {to}",
+    "about": "Zeigen, wie es funktioniert und was schiefgehen kann",
     "custom": {
-      "title": "Your own coins",
-      "line": "You choose the coins and how each buy is split across them."
+      "title": "Eigene Coins",
+      "line": "Sie wählen die Coins und wie jeder Kauf auf sie aufgeteilt wird."
     }
   },
   "coins": {
-    "heading": "Choose your coins and their split"
+    "heading": "Coins und ihre Anteile wählen"
   },
   "dates": {
-    "heading": "Choose the amounts and dates",
-    "startingHint": "Bought once on the first buy day and split across your coins like each monthly buy. Enter 0 for none. For coins you already have, choose Add coins you already have on the Log after setup."
+    "heading": "Beträge und Daten wählen",
+    "startingHint": "Einmal am ersten Kauftag gekauft und wie jeder Monatskauf auf Ihre Coins aufgeteilt. Geben Sie 0 ein, wenn Sie keinen möchten. Für Coins, die Sie bereits haben, wählen Sie nach der Einrichtung im Protokoll „Vorhandene Coins hinzufügen“."
   },
   "numbers": {
-    "heading": "Amounts and dates",
-    "monthly": "Monthly amount ({currency})",
-    "starting": "Starting amount ({currency})",
-    "startingHint": "Bought once on the first buy day and split across your coins like each monthly buy. Enter 0 for none. For coins you already have, choose Add coins you already have on the Log after setup.",
-    "firstBuy": "First buy",
-    "lastBuy": "Last buy",
-    "dateEmpty": "Choose a full date: day, month, and year.",
+    "heading": "Beträge und Daten",
+    "monthly": "Monatsbetrag ({currency})",
+    "starting": "Startbetrag ({currency})",
+    "startingHint": "Einmal am ersten Kauftag gekauft und wie jeder Monatskauf auf Ihre Coins aufgeteilt. Geben Sie 0 ein, wenn Sie keinen möchten. Für Coins, die Sie bereits haben, wählen Sie nach der Einrichtung im Protokoll „Vorhandene Coins hinzufügen“.",
+    "firstBuy": "Erster Kauf",
+    "lastBuy": "Letzter Kauf",
+    "dateEmpty": "Wählen Sie ein vollständiges Datum: Tag, Monat und Jahr.",
     "issue": {
-      "no-amount": "Enter a monthly amount, a starting amount, or both.",
-      "amount-precision": "Use at most {max} decimal places.",
-      "last-buy-before-first-buy": "{field, select, firstBuy {Choose a first buy on or before {date}, this starting point's last buy.} other {Choose a last buy on or after the first buy.}}",
-      "plan-too-long": "{field, select, firstBuy {A plan holds at most {max} monthly buys. Choose a later first buy.} other {A plan holds at most {max} monthly buys. Choose an earlier last buy.}}"
+      "no-amount": "Geben Sie einen Monatsbetrag, einen Startbetrag oder beides ein.",
+      "amount-precision": "Verwenden Sie höchstens {max} Nachkommastellen.",
+      "last-buy-before-first-buy": "{field, select, firstBuy {Wählen Sie einen ersten Kauf am oder vor dem {date}, dem letzten Kauf dieses Ausgangspunkts.} other {Wählen Sie einen letzten Kauf am oder nach dem ersten Kauf.}}",
+      "plan-too-long": "{field, select, firstBuy {Ein Plan umfasst höchstens {max} Monatskäufe. Wählen Sie einen späteren ersten Kauf.} other {Ein Plan umfasst höchstens {max} Monatskäufe. Wählen Sie einen früheren letzten Kauf.}}"
     }
   },
   "why": {
-    "heading": "In one sentence, why are you doing this?",
-    "line": "You will see it on the days the market falls.",
-    "placeholder": "I buy on the 1st and I do not check the price on other days."
+    "heading": "Warum tun Sie das, in einem Satz?",
+    "line": "Sie sehen ihn an den Tagen, an denen der Markt fällt.",
+    "placeholder": "Ich kaufe am 1. und sehe an anderen Tagen nicht auf den Kurs."
   },
   "reminder": {
-    "heading": "Where should the monthly reminder go?",
-    "calendar": "Add to calendar",
-    "later": "Later",
-    "noneLeftHeading": "Monthly reminder",
-    "noneLeft": "No buy days left, so there is no reminder to add.",
-    "notSaved": "The calendar file was not saved. Add it again, or choose Later."
+    "heading": "Wohin soll die monatliche Erinnerung?",
+    "calendar": "Zum Kalender hinzufügen",
+    "later": "Später",
+    "noneLeftHeading": "Monatliche Erinnerung",
+    "noneLeft": "Es bleiben keine Kauftage, also gibt es keine Erinnerung zum Hinzufügen.",
+    "notSaved": "Die Kalenderdatei wurde nicht gespeichert. Fügen Sie sie erneut hinzu oder wählen Sie „Später“."
   },
   "summary": {
-    "heading": "Check your plan",
-    "country": "Country",
-    "holdingRule": "Holding rule",
-    "holdingRuleValue": "{kind, select, generic {The general profile's rule} other {The rule {countryFor}}}. {words}",
-    "startingPoint": "Starting point",
-    "coins": "Coins & split",
-    "monthly": "Monthly amount",
-    "starting": "Starting amount",
-    "firstBuy": "First buy",
-    "buyDay": "Buy day",
-    "buyDayValue": "Day {day} of each month",
-    "lastBuy": "Last buy",
-    "sellWindow": "Sell window",
-    "sellWindowValue": "{opens} to {closes}",
-    "sellWindowEarly": "{opens} to {closes}, opening before the last buy passes the holding rule, as you accepted",
-    "why": "Your sentence",
-    "reminder": "Reminder",
-    "reminderValue": "{choice, select, calendar {Calendar file saved} other {No reminder set}}"
+    "heading": "Ihren Plan prüfen",
+    "country": "Land",
+    "holdingRule": "Haltefrist",
+    "holdingRuleValue": "{kind, select, generic {Die Haltefrist des allgemeinen Profils} other {Die Haltefrist {countryFor}}}. {words}",
+    "startingPoint": "Ausgangspunkt",
+    "coins": "Coins und Anteile",
+    "monthly": "Monatsbetrag",
+    "starting": "Startbetrag",
+    "firstBuy": "Erster Kauf",
+    "buyDay": "Kauftag",
+    "buyDayValue": "Am {day}. jedes Monats",
+    "lastBuy": "Letzter Kauf",
+    "sellWindow": "Verkaufsfenster",
+    "sellWindowValue": "{opens} bis {closes}",
+    "sellWindowEarly": "{opens} bis {closes}, es öffnet vor dem Ende der Haltefrist des letzten Kaufs, wie von Ihnen akzeptiert",
+    "why": "Ihr Satz",
+    "reminder": "Erinnerung",
+    "reminderValue": "{choice, select, calendar {Kalenderdatei gespeichert} other {Keine Erinnerung eingerichtet}}"
   },
   "disclosure": {
     "text": "{product} is software for a plan you design: no orders, no financial or tax advice. You can lose all of it: Bitcoin has fallen more than 75 % from a high four times since 2011; Ethereum fell 94 % in 2018. Use only money you will not need for years.",
-    "riskLink": "Risk disclosure"
+    "riskLink": "Risikohinweise"
   },
   "reask": {
-    "title": "The risk text has changed",
-    "continue": "Accept and open Today"
+    "title": "Der Risikotext hat sich geändert",
+    "continue": "Akzeptieren und „Heute“ öffnen"
   },
   "existing": {
-    "body": "A plan is already set up on this device.",
-    "link": "Open the plan"
+    "body": "Auf diesem Gerät ist bereits ein Plan eingerichtet.",
+    "link": "Den Plan öffnen"
   }
 }
