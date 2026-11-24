@@ -186,8 +186,9 @@ describe('the pt-PT onboarding, portfolio and plan', () => {
 // English inside a German screen (docs/CONTENT-STYLE.md §10). The exceptions are a file that holds a few keys
 // ahead of its screen's translation, and the file of a screen translated over several branches, until its last
 // one. The rule is by file, not by a list of screens, so a branch that adds a German screen's file needs no line here.
-// A branch that lands such a file adds it here.
-const GERMAN_PARTIAL: readonly string[] = ['settings'];
+// No file is partial now: Settings' last branch, the exchange import, completed it. A branch that lands such a file
+// adds it here.
+const GERMAN_PARTIAL: readonly string[] = [];
 
 describe('the German files', () => {
   const german = translations.filter(({ folder, locale }) => locale === 'de' && !GERMAN_PARTIAL.includes(folder));
