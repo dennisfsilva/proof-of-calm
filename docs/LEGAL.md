@@ -377,9 +377,11 @@ copy above, after counsel's question on #443 (not the owner's own review; a lawy
   as the outbox copy. M3's sync makes the device's id when it registers the device at sign-in
   (ADR-0021) and stamps the rows it marks pending.
 - The cleanup at open is best effort: emptying the outbox, deleting the random id and restamping
-  the rows never blocks the open. If it fails, as on a nearly full disk, the app opens anyway, so
-  the person keeps their plan and its export, and the next open tries again; until one succeeds,
-  the copies and the random id an older build left stay on the device (ADR-0019 Readings of
+  the rows never blocks the open. If it fails, as on a nearly full disk, the app opens anyway and
+  the person keeps their plan and its export. The next open tries again. Until an open succeeds,
+  Delete everything runs or the site's data is cleared, the outbox copies and the random id an
+  older build left (in `meta` and on the rows not yet restamped) stay on the device. This build
+  never sends them, and never reads the outbox copies or the id in `meta` (ADR-0019 Readings of
   2026-11-24).
 
 None is open.
