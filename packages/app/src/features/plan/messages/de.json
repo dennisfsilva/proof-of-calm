@@ -1,5 +1,214 @@
 {
+  "title": "Plan",
+  "edit": "Plan bearbeiten",
+  "change": {
+    "heading": "Plan ändern",
+    "review": "Plan prüfen"
+  },
   "review": {
-    "since": "{kind, select, reviewed {Sie haben diesen Plan zuletzt am {date} überprüft.} other {Sie haben diesen Plan am {date} eingerichtet.}}"
+    "title": "Plan prüfen",
+    "back": "Zurück zum Plan",
+    "since": "{kind, select, reviewed {Sie haben diesen Plan zuletzt am {date} überprüft.} other {Sie haben diesen Plan am {date} eingerichtet.}}",
+    "right": {
+      "heading": "Passt der Plan noch?",
+      "noteLabel": "Ihre Notiz an sich selbst",
+      "note": "{date}: „{note}“"
+    },
+    "rules": {
+      "heading": "Haben sich die Regeln geändert?",
+      "country": "Land des Plans: {country}.",
+      "notice": "{date}: {notice}",
+      "changed": "{date}: {kind, select, generic {Das allgemeine Profil hat sich geändert} other {Die Regeln {countryFor} haben sich geändert}}.",
+      "link": "{kind, select, generic {Länderprofile ansehen} other {Länderprofil {countryFor} ansehen}}"
+    },
+    "where": {
+      "heading": "Wo Ihre Coins liegen",
+      "intro": "Zum Tagesende am {date}, nach den Verkäufen und Übertragungen bis zu diesem Tag, zeigt das Protokoll diese Einheiten an jedem Ort.",
+      "noVenue": "Ohne Ort",
+      "estimated": "{count, plural, one {„Wie geplant gekauft“ hat die Einheiten von {figure} Eintrag für {coin} aus dem Tageskurs geschätzt. Die Bestätigung Ihrer Börse nennt die genauen Einheiten.} other {„Wie geplant gekauft“ hat die Einheiten von {figure} Einträgen für {coin} aus dem Tageskurs geschätzt. Die Bestätigungen Ihrer Börse nennen die genauen Einheiten.}}",
+      "differs": "Wo Ihre Börse oder Wallet andere Einheiten zeigt, tragen Sie den fehlenden Eintrag ein (einen Kauf, einen Verkauf, eine Übertragung oder hinzugefügte Coins) oder korrigieren Sie Einheiten, Ort oder Datum eines Eintrags.",
+      "log": "Protokoll öffnen",
+      "none": "Das Protokoll zeigt zum Tagesende am {date} keinen Bestand."
+    },
+    "mark": "Als überprüft markieren",
+    "marked": "Sie haben diesen Plan am {date} überprüft. Nächste Überprüfung ab {next}.",
+    "failed": "Die Überprüfung konnte nicht gespeichert werden. Versuchen Sie es erneut."
+  },
+  "why": {
+    "window": "Warum? Das Verkaufsfenster",
+    "parts": "Warum? Die 3 Teile",
+    "partsLine": "Das Verkaufsfenster hat 3 Teile."
+  },
+  "reference": {
+    "window": "Ihr Plan sieht Käufe bis {lastBuy} vor, dann die Haltephase und einen Verkauf in 3 Teilen zwischen {opens} und {closes}, mit Ausstieg bis {exitBy}.",
+    "openEnded": "Ihr Plan sieht Käufe bis {lastBuy} vor, danach die Haltephase ohne Verkaufsfenster.",
+    "amounts": "{starting} als Startbetrag, dann {monthly} im Monat am Tag {buyDay}: {split}.",
+    "monthly": "{monthly} im Monat am Tag {buyDay}: {split}.",
+    "why": "In Ihren Worten: {why}"
+  },
+  "totals": {
+    "planned": "{invested} von {planned} bisher investiert ({percent}). Verbleibende Käufe: {left}.",
+    "sellPhase": "{invested} von {planned} investiert ({percent}).",
+    "nothingPlanned": "Bisher {invested} investiert.",
+    "ended": "{invested} investiert. Die Käufe endeten am {date}.",
+    "beforeFirstBuy": "{count, plural, one {{figure} Zusatzkauf mit Datum vor dem ersten Kauftag, dem {date}, ist nicht im oben genannten Betrag enthalten. „Investiert“ im Portfolio zählt ihn mit.} other {{figure} Zusatzkäufe mit Datum vor dem ersten Kauftag, dem {date}, sind nicht im oben genannten Betrag enthalten. „Investiert“ im Portfolio zählt sie mit.}}",
+    "heldWithCost": "{count, plural, one {{figure} Eintrag hinzugefügter Coins mit erfasstem Preis ist nicht im oben genannten Betrag enthalten. „Investiert“ im Portfolio zählt ihn mit.} other {{figure} Einträge hinzugefügter Coins mit erfasstem Preis sind nicht im oben genannten Betrag enthalten. „Investiert“ im Portfolio zählt sie mit.}}",
+    "beforeFirstBuyAndHeld": "{count, plural, one {{figure} Zusatzkauf mit Datum vor dem ersten Kauftag, dem {date}, ist nicht im oben genannten Betrag enthalten.} other {{figure} Zusatzkäufe mit Datum vor dem ersten Kauftag, dem {date}, sind nicht im oben genannten Betrag enthalten.}} {held, plural, one {Auch {heldFigure} Eintrag hinzugefügter Coins mit erfasstem Preis ist nicht darin enthalten.} other {Auch {heldFigure} Einträge hinzugefügter Coins mit erfasstem Preis sind nicht darin enthalten.}} „Investiert“ im Portfolio zählt alle mit."
+  },
+  "sellable": {
+    "now": "{units} jetzt verkaufbar",
+    "later": "{units} ab {date}"
+  },
+  "coins": {
+    "legend": "Coins &\u00a0Aufteilung",
+    "share": "Anteil von {coin} (%)",
+    "remove": "{coin} entfernen",
+    "add": "Coin hinzufügen",
+    "addCoin": "{coin} hinzufügen",
+    "limit": "Ein Plan umfasst höchstens {max} Coins.",
+    "issue": {
+      "split-sum": "Wählen Sie Anteile, die zusammen 100\u00a0% ergeben.",
+      "split-precision": "Verwenden Sie höchstens 4 Nachkommastellen."
+    }
+  },
+  "schedule": {
+    "legend": "Beträge und Termine",
+    "monthly": "Monatlicher Betrag ({currency})",
+    "starting": "Startbetrag ({currency})",
+    "startingHint": "Einmal am ersten Kauftag gekauft und wie jeder Monatskauf auf Ihre Coins aufgeteilt. Geben Sie 0 ein, wenn es keinen gibt.",
+    "firstBuy": "Erster Kauf",
+    "buyDay": "Kauftag",
+    "buyDayHint": "Der Tag im Monat für jeden Kauf nach dem ersten.",
+    "lastBuy": "Letzter Kauf",
+    "issue": {
+      "no-amount": "Geben Sie einen monatlichen Betrag, einen Startbetrag oder beides ein.",
+      "amount-precision": "Verwenden Sie höchstens {max} Nachkommastellen.",
+      "date-required": "Wählen Sie ein vollständiges Datum: Tag, Monat und Jahr.",
+      "last-buy-before-first-buy": "Wählen Sie einen letzten Kauf am oder nach dem ersten Kauf.",
+      "plan-too-long": "Ein Plan umfasst höchstens {max} Monatskäufe. Wählen Sie einen früheren letzten Kauf.",
+      "plan-too-long-years": "Ein Plan dauert höchstens {years}\u00a0Jahre ab dem ersten Kauf. Wählen Sie einen früheren letzten Kauf."
+    }
+  },
+  "sellWindow": {
+    "legend": "Verkaufsfenster",
+    "none": "Kein Verkaufsfenster",
+    "noneLine": "Ihr Plan sieht Käufe und danach die Haltephase vor.",
+    "dates": "Ein Verkaufsfenster",
+    "datesLine": "Ihr Plan sieht einen Verkauf in 3 Teilen zwischen dem Öffnungs- und dem Schlussdatum vor, mit Ausstieg spätestens am letzten der 3 Daten.",
+    "opens": "Öffnet am",
+    "closes": "Schließt am",
+    "exitBy": "Ausstieg bis",
+    "issue": {
+      "date-required": "Wählen Sie ein vollständiges Datum: Tag, Monat und Jahr.",
+      "order": {
+        "closes": "Wählen Sie ein Schlussdatum am oder nach dem Öffnungsdatum.",
+        "exitBy": "Wählen Sie ein Ausstiegsdatum am oder nach dem Schlussdatum."
+      }
+    }
+  },
+  "earlyWindow": {
+    "notice": "Das Verkaufsfenster öffnet am {opensOn}. {on, select, lastBuy {Für diesen letzten Kauf} template {Für den letzten Kauf des Ausgangspunkts} other {Für Ihren letzten Kauf}} ist der {eligibleOn} {effect, select, exempt {der erste steuerfreie Tag} other {der erste Tag mit langfristigem Steuersatz}} gemäß {rule, select, country {der Haltefrist Ihres Plans} named {der Haltefrist {countryFor}} generic {der Haltefrist des allgemeinen Profils} other {Ihrer eigenen Haltefrist}}. Sie können auch {on, select, lastBuy {einen früheren letzten Kauf wählen} template {einen anderen Ausgangspunkt wählen} other {{host, select, country {diese Änderung abbrechen und unter „Frist &\u00a0Verkauf“ ein späteres Öffnungsdatum wählen} other {ein späteres Öffnungsdatum wählen}}}}.",
+    "accept": "Das Verkaufsfenster am {opensOn} öffnen, bevor {on, select, lastBuy {dieser letzte Kauf} template {der letzte Kauf des Ausgangspunkts} other {Ihr letzter Kauf}} die Haltefrist überschritten hat",
+    "refused": "{on, select, template {Aktivieren Sie das Kästchen, um das Verkaufsfenster früher zu öffnen, oder wählen Sie einen anderen Ausgangspunkt.} lastBuy {Aktivieren Sie das Kästchen, um das Verkaufsfenster früher zu öffnen, oder wählen Sie einen früheren letzten Kauf.} other {{host, select, country {Aktivieren Sie das Kästchen, um das Verkaufsfenster früher zu öffnen, oder brechen Sie diese Änderung ab und wählen Sie unter „Frist &\u00a0Verkauf“ ein späteres Öffnungsdatum.} other {Aktivieren Sie das Kästchen, um das Verkaufsfenster früher zu öffnen, oder wählen Sie ein späteres Öffnungsdatum.}}}}"
+  },
+  "holding": {
+    "exempt": "Steuerfrei ab {date}",
+    "lowerRate": "Langfristiger Steuersatz ab {date}",
+    "note": "Aus den Terminen Ihres Plans berechnet, keine Steuerberatung",
+    "templateNote": "Aus den Terminen des Ausgangspunkts berechnet, keine Steuerberatung"
+  },
+  "holdingRule": {
+    "legend": "Haltefrist",
+    "country": "{kind, select, named {Die Haltefrist {countryFor}} generic {Die Haltefrist des allgemeinen Profils} other {Die Haltefrist Ihres Landes}}",
+    "countryUnknown": "Die Haltefrist Ihres Landes ist auf diesem Gerät nicht geladen.",
+    "own": "Eigene Haltefrist",
+    "ownLine": "Sie gilt für jeden Kauf, unabhängig von seinem Datum.",
+    "kind": "Frist",
+    "kinds": {
+      "none": "Keine Haltefrist",
+      "days": "Eine Anzahl von Tagen",
+      "years": "Eine Anzahl von Jahren"
+    },
+    "count": {
+      "days": "Tage",
+      "years": "Jahre"
+    },
+    "effect": "Nach der Frist",
+    "effects": {
+      "exempt": "Steuerfrei",
+      "lower-rate": "Langfristiger Steuersatz"
+    },
+    "text": {
+      "none": "Keine Haltefrist.",
+      "days": "{count, plural, one {{figure}\u00a0Tag} other {{figure}\u00a0Tage}}, dann {effect, select, exempt {steuerfrei} other {der langfristige Steuersatz}}.",
+      "years": "{count, plural, one {{figure}\u00a0Jahr} other {{figure}\u00a0Jahre}}, dann {effect, select, exempt {steuerfrei} other {der langfristige Steuersatz}}."
+    },
+    "issue": {
+      "count-whole": "Geben Sie eine ganze Zahl von {kind, select, years {Jahren} other {Tagen}} ein.",
+      "count-range": "Geben Sie {min} bis {max}\u00a0{kind, select, years {Jahre} other {Tage}} ein.",
+      "country-unknown": "Die Haltefrist Ihres Landes ist auf diesem Gerät nicht geladen. Wählen Sie eine eigene Haltefrist."
+    }
+  },
+  "timeline": {
+    "heading": "Zeitleiste",
+    "phase": {
+      "buy": "Kaufphase",
+      "hold": "Haltephase",
+      "sell": "Verkaufsfenster",
+      "exit": "Ausstieg"
+    },
+    "current": {
+      "buy": "in der Kaufphase",
+      "hold": "in der Haltephase",
+      "sell": "im Verkaufsfenster",
+      "exit": "nach dem Ende des Verkaufsfensters"
+    },
+    "milestone": {
+      "first": "Erster Kauf",
+      "last": "Letzter Kauf",
+      "exempt": "Letzter Kauf: erster steuerfreier Tag",
+      "lowerRate": "Letzter Kauf: erster Tag mit langfristigem Steuersatz",
+      "part1": "Teil 1 von 3: ein Drittel Ihres Bestands",
+      "part2": "Teil 2 von 3: ein Drittel Ihres Bestands",
+      "part3": "Teil 3 von 3: der Rest Ihres Bestands",
+      "out": "Ausstieg",
+      "today": "Heute",
+      "halving": "Halving",
+      "peak": "Zyklushoch, von dem {source, select, template {der Ausgangspunkt} other {die Seite des DCA-Plans}} ausgeht"
+    },
+    "range": "{from} bis {to}",
+    "noEnd": "Kein Ende festgelegt",
+    "around": "Etwa im {month}",
+    "today": "Heute, {date}",
+    "label": "Plan {open, select, yes {ab {start}, ohne festgelegtes Ende} other {vom {start} bis {end}}}.",
+    "labelToday": "Plan {open, select, yes {ab {start}, ohne festgelegtes Ende} other {vom {start} bis {end}}}. Heute, am {date}, ist der Plan {phase}.",
+    "table": {
+      "summary": "Als Tabelle anzeigen",
+      "date": "Datum",
+      "milestone": "Meilenstein"
+    }
+  },
+  "pause": {
+    "heading": "Plan pausieren",
+    "body": "Kauftage in der Pause gelten als pausiert, nicht als versäumt. Ihre Einträge bleiben erhalten. Die Termine einer Kalenderdatei, die Sie hinzugefügt haben, bleiben bestehen. Beim Fortsetzen ändern sich die Daten des nächsten Kauftags und des letzten Kaufs nicht.",
+    "pause": "Ab heute pausieren",
+    "since": "Pausiert seit {date}",
+    "resume": "Fortsetzen",
+    "overlap": "Der Plan wurde nicht pausiert, weil sich eine spätere Pause mit einer Pause ab heute überschneiden würde."
+  },
+  "endBuying": {
+    "title": "Käufe beenden",
+    "body": "Keine Kauftage nach heute, dem {date}.{count, plural, =0 {{window, select, yes { Das Verkaufsfenster bleibt.} other {}}} one { {figure} Eintrag{window, select, yes { und Ihr Verkaufsfenster bleiben} other { bleibt}}.} other { {figure} Einträge{window, select, yes { und Ihr Verkaufsfenster bleiben} other { bleiben}}.}} Die Termine einer Kalenderdatei, die Sie hinzugefügt haben, bleiben bestehen.",
+    "confirm": "Käufe heute beenden",
+    "keep": "Plan unverändert lassen",
+    "ended": "Die Käufe endeten am {date}.",
+    "undo": "Rückgängig",
+    "notRestored": "Ihr Plan hat sich nach dem Ende der Käufe geändert, daher wurde der frühere letzte Kauf nicht wiederhergestellt."
+  },
+  "reminder": {
+    "event": {
+      "summary": "Ihr Kauftag",
+      "description": "Heute ist Ihr Kauftag. Öffnen Sie {product}, um ihn einzutragen."
+    }
   }
 }
