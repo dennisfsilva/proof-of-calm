@@ -18,8 +18,18 @@ const leaves = (node: string | Tree, path = ''): [string, string][] =>
     ? [[path, node]]
     : Object.entries(node).flatMap(([key, value]) => leaves(value, path === '' ? key : `${path}.${key}`));
 
-/** The four legal pages whose English waits for the owner: their objects stay English in every language. */
-const ENGLISH_ONLY = ['legal.terms.', 'legal.privacy.', 'legal.cookies.', 'legal.contact.'];
+/**
+ * The four legal pages whose English waits for the owner, the identity fields the owner fills in and the drafts'
+ * version line: their objects stay English in every language.
+ */
+const ENGLISH_ONLY = [
+  'legal.terms.',
+  'legal.privacy.',
+  'legal.cookies.',
+  'legal.contact.',
+  'legal.owner.',
+  'legal.version',
+];
 const englishOnly = (key: string) => ENGLISH_ONLY.some((prefix) => key.startsWith(prefix));
 
 /** A message's ICU arguments and rich tags, sorted: the site messages use plain arguments only. */
@@ -111,6 +121,11 @@ describe('a site page in pt-PT', () => {
   it('marks the Risk page’s table of falls, read from the English Learn messages, as English', () => {
     const html = renderSitePage('risk', ASSETS, data, 'pt-PT');
     expect(html).toMatch(/<div lang="en" class="contents"><div[^>]*role="region"/);
+  });
+
+  it('Terms in pt-PT marks its link to the Risk page, whose title is translated, as pt-PT', () => {
+    const html = unescaped(renderSitePage('terms', ASSETS, data, 'pt-PT'));
+    expect(html).toMatch(new RegExp(`<a href="/risk" lang="pt-PT"[^>]*>${portuguese.legal.risk.title}</a>`));
   });
 
   it('writes the day each official link was read in Portuguese', () => {
