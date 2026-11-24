@@ -1010,10 +1010,10 @@ needs (decided 2026-11-15). The native reader's review is §8 item 9.
   (§2).
 - **Lists take no comma before `e`**, as `lib/format` writes them: `BTC, ETH e SOL`.
 - **A country in a sentence takes its form** (`packages/app/src/lib/countries/messages/pt-PT.json`), never
-  `{country}` after a preposition or an article: `{countryFor}` is `de` with its article, contracted (`dos Países
-  Baixos`, `do Reino Unido`, `da Alemanha`, `de Portugal`), `{countryIn}` `em` (`nos Estados Unidos`, `em
-  Portugal`), `{countryFrom}` the country changed from, `{countryTo}` `para`, `{countryWith}` `com`, `{countryThe}`
-  the name with its article as an object (`sugere a França`). Espanha, França and Itália take no article after a
+  `{country}` after a preposition or an article. Each form carries its preposition and article, contracted:
+  `{countryFor}` and `{countryFrom}` take `de` (`dos Países Baixos`, `do Reino Unido`, `da Alemanha`, `de
+  Portugal`), `{countryIn}` takes `em` (`nos Estados Unidos`, `em Portugal`), `{countryTo}` `para`, `{countryWith}`
+  `com`, and `{countryThe}` is the name with its article as an object (`sugere a França`). Espanha, França and Itália take no article after a
   preposition (`em França`, `de Espanha`, `para Itália`) and take it as an object; the native reader confirms it
   (§8 item 9). A bare `{country}` stands only after a colon, a middle dot or in parentheses (`País do plano: Países
   Baixos.`). The general profile is `o perfil geral`.
@@ -1168,7 +1168,7 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
   wording (`Anleger`). A country in a sentence takes its form from
   `packages/app/src/lib/countries/messages/de.json` (planned: M2), each with its preposition, article and case
   (`für die Niederlande`, `im Vereinigten Königreich`, `mit den Niederlanden`, `auf die USA`, `vom Vereinigten
-  Königreich`); a bare `{country}` stands only after a colon or in parentheses.
+  Königreich`); a bare `{country}` stands only after a colon, a middle dot or in parentheses (§9).
 - **Disclosures take the official German text** of each regulator phrasing in `docs/LEGAL.md` §4,
   never a translation back from English: Delegated Regulation 2017/565 art. 44(4)(d), „Die frühere
   Wertentwicklung ist kein verlässlicher Indikator für künftige Ergebnisse.“; MiCA art. 6(5)(a), „Der
