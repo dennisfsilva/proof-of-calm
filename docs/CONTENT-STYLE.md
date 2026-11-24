@@ -263,11 +263,13 @@ The German rows (decided 2026-11-23; the voice is §10):
   - `Glückwunsch`, `Abzeichen`, `Badge`, `Medaille`, `Streak` and `Level-up`;
   - the status words `reguliert`, `lizenziert`, `zugelassen`, `beaufsichtigt`, `genehmigt`,
     `autorisiert`, every word that begins `Erlaubnis`, `MiCA-konform` and `Kaufsignal`;
-  - a registration claim with the participle last or first: `bei` or `von` (with `der`, `dem` or
-    `den`) or `durch` (with `die`, `den` or `das`), then a regulator of the list's `regulators`,
-    `Finanzaufsicht` or `Aufsichtsbehörde`, up to three words, then `registriert`, `eingetragen`,
-    `gemeldet` or `beaufsichtigt`; or `Aufsicht der` and a regulator (`bei der BaFin registriert`,
-    `registriert bei der BaFin`, `durch die BaFin registriert`, `bei der BaFin als Anbieter registriert`).
+  - a registration claim with the participle last or first: `bei` or `von` (with or without `der`,
+    `dem` or `den`) or `durch` (with or without `die`, `den` or `das`), then a regulator of the
+    list's `regulators`, `Finanzaufsicht` or `Aufsichtsbehörde`, then at most three other words,
+    each of letters, digits and inner hyphens, then `registriert`, `eingetragen`, `gemeldet` or
+    `beaufsichtigt`; or `Aufsicht der`, `des` or `durch die` and a regulator
+    (`bei der BaFin registriert`, `registriert bei der BaFin`, `durch die BaFin registriert`,
+    `bei der BaFin als Krypto-Dienstleister registriert`, `bei der BaFin seit 2024 registriert`).
 
   German adds praise and reassurance (`gut gemacht`, `weiter so`, `super`, `toll`, `keine Sorge`,
   `keine Panik`, `bleiben Sie ruhig`, `Seelenfrieden`, `auf dem richtigen Weg`,
@@ -288,10 +290,10 @@ The German rows (decided 2026-11-23; the voice is §10):
     (§8) catches their banned use.
 - The gain words, any word that ends in `Rendite`, `Gewinn`, `Ertrag` or `Erträge`, `Zins`,
   `Verzinsung`, `Profit`, `Rentabilität`, `Wertzuwachs`, `Wertsteigerung`, `Wertentwicklung` or
-  `Performance` (`Jahresrendite`, `Kapitalerträge`; `Kapitalertragsteuer`, `Gewinner`, and `Vertrag`,
-  `Übertrag` and their compounds pass: `Laut Vertrag 2 % Gebühr`, `Sparvertrag mit 3 %`), and
-  the verbs `gewinnen`, `verdienen`, `erzielen`, `erwirtschaften`, `einbringen` and `abwerfen`, fail
-  next to a percentage.
+  `Performance` (`Jahresrendite`, `Kapitalerträge`), and the verbs `gewinnen`, `verdienen`,
+  `erzielen`, `erwirtschaften`, `einbringen` and `abwerfen`, fail next to a percentage.
+  `Kapitalertragsteuer`, `Gewinner`, `Vertrag`, `Übertrag`, and their compounds pass
+  (`Laut Vertrag 2 % Gebühr`, `Sparvertrag mit 3 %`).
   - A noun may take `pro Jahr`, `im Jahr`, `p. a.` or `im Schnitt`; then a colon, `von`,
     `in Höhe von`, or a form of `betragen`, `liegen bei` or `sein`; then `bis zu`, `über`,
     `mehr als`, `rund`, `etwa`, `ca.`, `ungefähr`, `um (die)`, `durchschnittlich`, `jährlich` or
