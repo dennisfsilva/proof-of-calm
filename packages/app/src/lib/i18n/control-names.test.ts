@@ -128,6 +128,28 @@ describe('a control named inside a German sentence', () => {
         'settings.tabs.coins in settings.data.prototype.report.coins-defaulted',
         'settings.tabs.coins in settings.data.prototype.report.coin-not-in-plan',
         'settings.tabs.hold in settings.data.prototype.report.sell-window-dropped',
+        'settings.tabs.coins in settings.data.exchange.leftOut.not-in-plan',
+      ]),
+    );
+  });
+
+  // German Settings' exchange import names Today's one-tap button and the Log's two controls for coins from
+  // elsewhere, so the check reads each of them; the Log's move control and its sheet's title share one label.
+  it('finds the controls the German exchange import names', () => {
+    const inExchange = german.filter(({ key }) => key.startsWith('settings.data.exchange.'));
+    expect(new Set(inExchange.map(({ labelKey, key }) => `${labelKey} in ${key}`))).toEqual(
+      new Set([
+        'today.action.asPlanned in settings.data.exchange.replaces',
+        'today.action.asPlanned in settings.data.exchange.keeps',
+        'today.action.asPlanned in settings.data.exchange.estimateLeft',
+        'today.action.asPlanned in settings.data.exchange.heldReplaces',
+        'today.action.asPlanned in settings.data.exchange.leftOut.uncovered',
+        'log.recordHeld in settings.data.exchange.leftOut.coin-deposit',
+        'log.recordMoved in settings.data.exchange.leftOut.coin-deposit',
+        'log.recordMoved in settings.data.exchange.leftOut.notLogged',
+        'log.move.title.new in settings.data.exchange.leftOut.coin-deposit',
+        'log.move.title.new in settings.data.exchange.leftOut.notLogged',
+        'settings.tabs.coins in settings.data.exchange.leftOut.not-in-plan',
       ]),
     );
   });
