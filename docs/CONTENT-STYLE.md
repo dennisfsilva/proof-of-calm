@@ -1207,8 +1207,8 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
   read as an adverb and a verb, stand in `„…“` wherever a sentence or a control names them
   (`Akzeptieren und „Heute“ öffnen`, `Zurück zu „Lernen“`); where a tab shares a screen's name, the
   quotes mark the tab (`Prüfen Sie das unter „Plan“.`). An entry kind stays a noun (`eine
-  Übertragung`). `packages/app/src/lib/i18n/control-names.test.ts` reads pt-PT only; the first German
-  strings bring its German check.
+  Übertragung`). `packages/app/src/lib/i18n/control-names.test.ts` reads pt-PT and German, German's
+  only for the labels its files translate.
 - **No courtesy words and no `wir` in an error** (§1.6, §1.8): no `bitte`, `leider`,
   `Entschuldigung`, `danke`, `Achtung:` or `Hinweis:`. `Wählen Sie ein Datum ab dem ersten Kauf`,
   never `Wir konnten das nicht speichern`.
@@ -1223,7 +1223,9 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
   opens a clause for the lint, so in a line that names an asset no form stands right after an
   ordinal or an abbreviation (`2. Kauf`, `z. B. Kauf`). There, write a noun after a determiner (`ein
   Verkauf von {coin}`) and `Bestand`, never `die Sie halten`. The label `Investiert` stands bare; a
-  sentence that names it quotes „Investiert“, which the allow-list passes.
+  sentence that names it quotes „Investiert“, which the allow-list passes. An ICU label branch the
+  ban list would refuse opens with „Ihr …“ instead: „Ihr Monatskauf für {month}“, „Ihr Verkauf vom
+  {date}“ (#484).
 - **The asset and the name.** A coin's name takes no article (`Ethereum fiel 2018 um 94 %`); the
   unit is `der Bitcoin`, the network `das Bitcoin-Netzwerk`. The product's name stays in English,
   with no article and no genitive `s` (`Proof of Calm berechnet`, `die Daten von Proof of Calm`;
@@ -1285,6 +1287,8 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
 - **The tax authority's own terms**: `privates Veräußerungsgeschäft`, `Freigrenze`, `Anlage SO`,
   `Finanzamt`, `BMF-Schreiben`; a rule quoted from the law keeps its wording („nicht mehr als ein
   Jahr beträgt“). A tax name the lint refuses goes on the allow-list with its reason (§2).
+- **A downloaded file takes ordinary spaces and the ASCII hyphen**, never U+00A0 or U+2011, since
+  a spreadsheet or a text editor reads it: the tax-year file in de and in pt-PT (#483).
 - **Lists take no comma before `und`**, as `lib/format` writes them: `BTC, ETH und SOL`.
 - **A module's chart section has no German shapes of §4 R5 yet**, so it fails closed until they are
   decided as pt-PT's were.
@@ -1316,7 +1320,7 @@ The product's nouns, one German word each, in every string, the site pages and t
 | due {date} | geplant für den {date}; never `fällig`, a bill's word |
 | skip, skipped / paused / Resume | überspringen, übersprungen / pausiert / Fortsetzen |
 | sale | Verkauf |
-| coins added at no cost (held) | Hinzugefügte Coins |
+| coins added at no cost (held) | Hinzugefügte Coins; a Coins added entry is `Eintrag mit hinzugefügten Coins`, a held row of the tax-year file `Zeile mit hinzugefügten Coins` |
 | coins moved (the kind) | Übertragene Coins |
 | sell window | Verkaufsfenster |
 | holding period, holding rule | `die Regel …` for a named country's or the general profile's rule where it can be a rule without a period (`die Regel für Spanien`, `die Regel des allgemeinen Profils`, `Die Regel Ihres Landes`), since ES, FR and NL set none, and the plural `die Regeln …` for a country's tax rules as a whole (`Die Regeln {countryFor} haben sich geändert`); `Haltefrist` for "holding period", for the term "holding rule" as a field, a section or a title (`Haltefrist` over its value, `Quellen für die Haltefrist`, `Haltefristen nach Land`, `bestimmt die Haltefrist des Plans`), for the person's own rule (`Eigene Haltefrist`, `Keine Haltefrist`), and where the screen shows a period (the early window's `gemäß der Haltefrist {countryFor}`, which exists only with a period); never `Spekulationsfrist` |
@@ -1350,10 +1354,10 @@ The product's nouns, one German word each, in every string, the site pages and t
 | value chart | `Portfoliowert, …` as the chart's own name; `das Diagramm` in Portfolio's own sentences; `Wertdiagramm` where a sentence on another screen names the chart (`log.form.heldDate`) |
 | Close (the price table's column) | Schlusskurs, as the column only; elsewhere Tagesschlusskurs |
 | Type of transaction (the entry sheet's kind) | Art des Eintrags |
-| Fill in all units (the move sheet) | Alle Einheiten einsetzen; never `eintragen`, which records an entry |
+| Fill in all units (the move sheet) | Alle Einheiten einsetzen; never `eintragen`, which records an entry; units a button fills in are `eingesetzt` everywhere (`aus dem Kurs des Tages eingesetzt`), never `ergänzt` |
 | sold for (a sale's amount) | Erlös (`Erlös aus {coin} vor Gebühren`) |
 | note | Notiz |
-| exchange | Börse |
+| exchange | Börse, a broker such as Trade Republic included |
 | withdrawal / deposit (a move's records) | Auszahlung / Einzahlung |
 | purchase date (a date typed, not an entry) | Kaufdatum |
 | price history | Kursverlauf |
@@ -1368,6 +1372,30 @@ The product's nouns, one German word each, in every string, the site pages and t
 | Pause from today / Paused since {date} | Ab heute pausieren / Pausiert seit {date} |
 | the sell window's opening, closing and out-by dates | Öffnungsdatum, Schlussdatum, Ausstiegsdatum |
 | DCA Plan page (the prototype) | DCA-Planseite (Plan's peak line says `die Seite des DCA-Plans` until the native reader answers) |
+| acquired date (the tax-year file) | Erwerbsdatum (`Zeilen ohne Erwerbsdatum`) |
+| holding row / sale row / move row (the tax-year file) | Bestandszeile / Verkaufszeile / Übertragungszeile |
+| pool, pooling | Poolbildung (`für die Poolbildung aufgeführt`) |
+| last in, first out / first in, first out | Lifo-Methode (last in, first out) / Fifo-Methode (first in, first out), the English expansion in parentheses |
+| disposal | Veräußerung, the term of § 23 EStG |
+| your accountant | „Ihre Steuerberatung“ (`bleibt Ihrer Steuerberatung überlassen`), the function, not a person |
+| the venue the coins went to | Zielort |
+| 30-day rule | 30-Tage-Regel |
+| decimal point | Dezimalpunkt (`verwenden einen Dezimalpunkt, kein Komma`), „kein Komma“ added, since German writes a comma |
+| Made on {today} / as of {today} (the tax-year file) | Erstellt am {today} / mit Stand {today} |
+| transaction (an exchange export's) | Transaktion |
+| Left out (the import preview's section) | Nicht importiert |
+| Kraken ledger / Trade Republic transaction export | Ledgers-Export von Kraken / Transaktionsexport von Trade Republic |
+| trade (an exchange's) | Trade |
+| cancellation, cancelled | Stornierung, storniert |
+| exchange of one coin for another | Umwandlung eines Coins in einen anderen |
+| rewards, staking rewards | Belohnungen, Staking-Belohnungen |
+| Saveback cash credit | Saveback-Gutschrift |
+| estimate (a Bought as planned entry) | Schätzung |
+| Venue for these entries | Ort für diese Einträge |
+| row, line (of a file) | Zeile |
+| preview | Vorschau |
+| Pasted text | Eingefügter Text |
+| time zone | Zeitzone |
 
 Two terms name the same date in two frames: `der erste Tag nach der Haltefrist` is the date in the
 holding rule's own frame (the hold-phase card, the holding-date tool, the tax-year file's
@@ -1393,4 +1421,4 @@ auf die Niederlande umstellen`, `von Portugal auf …` in its row) and „das al
 sentence; `Börse` against `Handelsplattform`, since `Börse` can suggest a
 regulated exchange (brand and counsel; a voice choice for the reader); „bevor Sie ihm Geld senden“
 against „bevor Sie ihm Geld überweisen“ (brand, on the claim-reach branch; counsel's gap (6) on #462
-keeps „senden“ until the reader answers); `Am {day}. jedes Monats` against `jeden Monats`, and „im Monat am Tag {buyDay}“ against „jeweils am {buyDay}. des Monats“; „sehe“ or „schaue … nicht auf den Kurs“; „Wohin soll die monatliche Erinnerung?“; „in den Mengen Ihres Bestands“ against „gewichtet nach Ihrem Bestand“; `Meldepflichten` against `Erklärungspflichten`; „Quellen für“ against „Quellen zu“; `Krypto-Steuern` against `Kryptosteuern` as a searched title; `Zyklus` for a market cycle; whether „Zeigen, wie es funktioniert und was schiefgehen kann“ reads as a control; „gemäß“ against „laut der Haltefrist“; „Aktivieren Sie das Kästchen“ (Plan) and „Kreuzen Sie das Kästchen an“ (Settings) against „Setzen Sie das Häkchen“, and „früher“ against „vorzeitig öffnen“; whether „{units} jetzt verkaufbar“ reads as a status or an invitation; the word order of „„Investiert“ im Portfolio zählt ihn mit“; whether „die Seite des DCA-Plans“ names the source clearly; whether the Settings tabs read naturally with an `&` ending the first line, „Frist“ as the holding period and „Anteile“ as the split; „Land … umstellen“ and „Umstellung auf“ against „wechseln“ and „Wechsel nach“; „bisher am {from}“ against „jetzt am {from}“ in `row.lastBuyEligible`; „Eingefügten Text lesen“ against „einlesen“; `DCA-Planseite` against `DCA-Plan-Seite`; „Über die App“ and „Cookie-Erklärung“ as titles; „die Regel“ said twice in the replace confirm (brand, on #476, #477 and #478).
+keeps „senden“ until the reader answers); `Am {day}. jedes Monats` against `jeden Monats`, and „im Monat am Tag {buyDay}“ against „jeweils am {buyDay}. des Monats“; „sehe“ or „schaue … nicht auf den Kurs“; „Wohin soll die monatliche Erinnerung?“; „in den Mengen Ihres Bestands“ against „gewichtet nach Ihrem Bestand“; `Meldepflichten` against `Erklärungspflichten`; „Quellen für“ against „Quellen zu“; `Krypto-Steuern` against `Kryptosteuern` as a searched title; `Zyklus` for a market cycle; whether „Zeigen, wie es funktioniert und was schiefgehen kann“ reads as a control; „gemäß“ against „laut der Haltefrist“; „Aktivieren Sie das Kästchen“ (Plan) and „Kreuzen Sie das Kästchen an“ (Settings) against „Setzen Sie das Häkchen“, and „früher“ against „vorzeitig öffnen“; whether „{units} jetzt verkaufbar“ reads as a status or an invitation; the word order of „„Investiert“ im Portfolio zählt ihn mit“; whether „die Seite des DCA-Plans“ names the source clearly; whether the Settings tabs read naturally with an `&` ending the first line, „Frist“ as the holding period and „Anteile“ as the split; „Land … umstellen“ and „Umstellung auf“ against „wechseln“ and „Wechsel nach“; „bisher am {from}“ against „jetzt am {from}“ in `row.lastBuyEligible`; „Eingefügten Text lesen“ against „einlesen“; `DCA-Planseite` against `DCA-Plan-Seite`; „Über die App“ and „Cookie-Erklärung“ as titles; „die Regel“ said twice in the replace confirm (brand, on #476, #477 and #478); `Erwerbsdatum` against `Anschaffungsdatum`, and whether „Ihre Steuerberatung“ reads as a person (#483); „Nicht importiert“ against „Nicht übernommen“; „kann diese Coins betreffen“; „Trade“ against „Order“ and „Handelsgeschäft“; `Börse` for a broker such as Trade Republic; „Die {units} … sehen aus wie Ihr Monatskauf für {month}“; the coin-deposit line „Ein Geschenk tragen Sie mit „…“ ein; für Ihre eigenen Coins, die zurückkommen, wählen Sie „…““ (#484); and „übernommen“, which now stands both for copied (a fee or venue taken from the latest purchase) and for imported too (`heldSales`).

@@ -1619,3 +1619,15 @@ screens by loaders.
   2026-11-19). German stays hidden in production: no production picker offers it. A preview's
   picker does (ADR-0023, Corrections of 2026-11-24), and its files still load from the assets
   route; the worker's precache leaves `assets/messages/` out as before.
+- **2026-11-24, Today loads the country forms for its rule-change notice** (amends "Today loads
+  none, so its line keeps the name in parentheses" in the Deviations entry of the same day on the
+  lazy namespace `countries`). Since #482 Today's rule-change banner
+  (`packages/app/src/features/today/components/rule-change-banner.tsx`) loads `countries` itself
+  when it shows the generic sentence, and only then; German takes Plan's wording with the German
+  form. A failed load shows no notice for that page load: nothing is recorded, so it comes back on
+  a later visit. The tax-year export (`packages/app/src/features/settings/tax-year.ts`, #483) loads
+  the English forms through `NAMESPACE_LOADERS.en.countries()` for a UI language without file
+  words, which none of today's three reaches.
+- **2026-11-24, `GERMAN_PARTIAL` stands empty again** (amends the entry above on `GERMAN_PARTIAL`
+  holding `settings`). German Settings' tax-year file (#483) and exchange import (#484) followed
+  the same day, and the exchange import emptied the list, so every German file is whole.

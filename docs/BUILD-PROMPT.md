@@ -985,6 +985,15 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   Plan (#477), and the `docs/CONTENT-STYLE.md` §10 row, first written without the early window and
   the term, drew a finding from the review, counsel, brand and the integration read in turn
   (2026-11-24).
+- A design note names a fixture by its file, and the brief checks the file exists before relying on
+  it. #484's design named a Bitvavo fixture of `apps/web/e2e/exchange-import.spec.ts`, which holds
+  none; the builder used the core's synthetic Kraken ledger instead (2026-11-24).
+- A counterexample a design gives for a guard is run on today's data before the brief names it.
+  #485's `'sv'` was to show the collation guard bite, but no country name starts with an umlaut, so
+  only `'haw'` reordered them (2026-11-24).
+- When a fix round renames a label, the round rereads every sentence that quotes it. #484's
+  „Ausgelassen“ became „Nicht importiert“, and `heldSales` then said „aus „Nicht importiert“
+  importiert“, which only brand's delta read caught (2026-11-24).
 
 ## Known gaps
 
