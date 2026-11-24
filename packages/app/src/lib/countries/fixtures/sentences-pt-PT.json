@@ -176,16 +176,16 @@
     "XX": "regra do perfil geral"
   },
   "settings.country.confirmRule": {
-    "PT-DE": "Substituir a regra de detenção: em vez da regra de Portugal, a regra da Alemanha",
-    "PT-ES": "Substituir a regra de detenção: em vez da regra de Portugal, a regra de Espanha",
-    "PT-FR": "Substituir a regra de detenção: em vez da regra de Portugal, a regra de França",
-    "PT-GB": "Substituir a regra de detenção: em vez da regra de Portugal, a regra do Reino Unido",
-    "PT-IE": "Substituir a regra de detenção: em vez da regra de Portugal, a regra da Irlanda",
-    "PT-IT": "Substituir a regra de detenção: em vez da regra de Portugal, a regra de Itália",
-    "PT-NL": "Substituir a regra de detenção: em vez da regra de Portugal, a regra dos Países Baixos",
-    "PT-US": "Substituir a regra de detenção: em vez da regra de Portugal, a regra dos Estados Unidos",
-    "PT-XX": "Substituir a regra de detenção: em vez da regra de Portugal, a regra do perfil geral",
-    "XX-PT": "Substituir a regra de detenção: em vez da regra do perfil geral, a regra de Portugal"
+    "PT-DE": "Substituir a regra de Portugal pela regra da Alemanha",
+    "PT-ES": "Substituir a regra de Portugal pela regra de Espanha",
+    "PT-FR": "Substituir a regra de Portugal pela regra de França",
+    "PT-GB": "Substituir a regra de Portugal pela regra do Reino Unido",
+    "PT-IE": "Substituir a regra de Portugal pela regra da Irlanda",
+    "PT-IT": "Substituir a regra de Portugal pela regra de Itália",
+    "PT-NL": "Substituir a regra de Portugal pela regra dos Países Baixos",
+    "PT-US": "Substituir a regra de Portugal pela regra dos Estados Unidos",
+    "PT-XX": "Substituir a regra de Portugal pela regra do perfil geral",
+    "XX-PT": "Substituir a regra do perfil geral pela regra de Portugal"
   },
   "settings.country.confirm": {
     "DE": "Mudar o país para a Alemanha",

@@ -46,7 +46,7 @@
       "button": "Mudar para {countryCurrency}",
       "changed": "Moeda de pagamento do plano alterada para {countryCurrency}."
     },
-    "confirmRule": "Substituir a regra de detenção: em vez da {from}, a {to}",
+    "confirmRule": "Substituir a {from} pela {to}",
     "confirmRuleIssue": "Marque a caixa para substituir a regra de detenção.",
     "notSaved": "Não guardado: esta alteração entra em conflito com outra parte do plano. Verifique «Plano» e «Regra e venda» e depois mude de país novamente.",
     "confirm": "Mudar o país {countryTo}",
