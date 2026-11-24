@@ -6,7 +6,8 @@ import { describe, expect, it } from 'vitest';
 // The prose that names a country without the app's forms (D3's verdict §8): the content overlays under
 // packages/content/i18n/<locale> (JSON and MDX) and the site's messages in apps/web/messages/<locale>.json. A name
 // that takes an article after a preposition (pt-PT `na Alemanha`, German `in den Niederlanden`) never follows the
-// bare preposition, and German never writes `Vereinigtes` after an article (docs/CONTENT-STYLE.md §9, §10). The
+// bare preposition, German never writes `Vereinigtes` after an article, and no German preposition with an article
+// fused in (`im`, `vom`, `zum`, `beim`, `ins`) stands before such a name (docs/CONTENT-STYLE.md §9, §10). The
 // names come from the app's forms files: a name whose `with` form is not the preposition and the bare name.
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
@@ -16,6 +17,8 @@ const PREPOSITIONS = {
   'pt-PT': ['em', 'de', 'para', 'com', 'por', 'segundo', 'sobre'],
   de: ['in', 'für', 'mit', 'von', 'aus', 'auf', 'nach', 'bei', 'zu'],
 } as const;
+/** German's prepositions with a singular article fused in (`im` is `in dem`). */
+const FUSED = ['im', 'vom', 'zum', 'beim', 'ins'] as const;
 type Locale = keyof typeof PREPOSITIONS;
 const LOCALES = Object.keys(PREPOSITIONS) as Locale[];
 
@@ -38,8 +41,16 @@ function findings(text: string, locale: Locale, names: readonly string[]): strin
     'giu',
   );
   const found = [...text.matchAll(bare)].map(([match]) => match);
-  if (locale === 'de')
+  if (locale === 'de') {
     found.push(...[...text.matchAll(/(?<!\p{L})(?:das|dem|des|die)\s+Vereinigtes/giu)].map(([match]) => match));
+    // A singular article fused into the preposition fits none of these names: `Vereinigtes` wants the dative's
+    // `Vereinigten` after it, and the plural names take `den`; a hyphen joins the name to a noun (`zum USA-Profil`).
+    const fused = new RegExp(
+      `(?<!\\p{L})(?:${FUSED.join('|')})\\s+(?:${names.map((name) => literal(name.split(' ')[0] ?? '')).join('|')})(?!-)`,
+      'giu',
+    );
+    found.push(...[...text.matchAll(fused)].map(([match]) => match));
+  }
   return found;
 }
 
@@ -103,6 +114,30 @@ describe('the country names in prose', () => {
     expect(
       findings('Steuern in den USA, im Vereinigten Königreich, in Deutschland; Vereinigtes Königreich.', 'de', de),
     ).toEqual([]);
+  });
+
+  it('catch an article fused into a German preposition before such a name', () => {
+    const de = articleNames(forms('de'));
+    expect(
+      findings(
+        'Steuern im Vereinigtes Königreich, vom Vereinigtes Königreich, zum Vereinigtes Königreich, beim Vereinigtes Königreich, ins Vereinigtes Königreich.',
+        'de',
+        de,
+      ),
+    ).toEqual(['im Vereinigtes', 'vom Vereinigtes', 'zum Vereinigtes', 'beim Vereinigtes', 'ins Vereinigtes']);
+    expect(findings('Im Niederlande, vom USA, zum Niederlande.', 'de', de)).toEqual([
+      'Im Niederlande',
+      'vom USA',
+      'zum Niederlande',
+    ]);
+    expect(
+      findings(
+        'Steuern im Vereinigten Königreich, vom Vereinigten Königreich, das Vereinigte Königreich; zum USA-Profil.',
+        'de',
+        de,
+      ),
+    ).toEqual([]);
+    expect(findings(strings(forms('de') as Tree).join('\n'), 'de', de)).toEqual([]);
   });
 
   it('found the pt-PT overlays and the site messages', () => {

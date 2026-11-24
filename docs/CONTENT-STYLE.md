@@ -1237,9 +1237,13 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
   A country in a sentence takes its form from `packages/app/src/lib/countries/messages/de.json`, each
   with its preposition, article and case (`für die Niederlande`, `im Vereinigten Königreich`, `mit den
   Niederlanden`, `auf die USA`, `vom Vereinigten Königreich`); a bare `{country}` stands only after a
-  colon, a middle dot or in parentheses (§9). In the content overlays and the site's messages no
-  preposition stands right before Vereinigtes Königreich, Niederlande or USA, and no article before
-  `Vereinigtes` (`tools/messages/country-prose.test.ts`, which holds pt-PT's prose the same way).
+  colon, a middle dot or in parentheses (§9). In the content overlays and the site's messages
+  `tools/messages/country-prose.test.ts` refuses `in`, `für`, `mit`, `von`, `aus`, `auf`, `nach`,
+  `bei` or `zu` right before Vereinigtes Königreich, Niederlande or USA; `das`, `dem`, `des` or
+  `die` before `Vereinigtes`; and `im`, `vom`, `zum`, `beim` or `ins`, which fuse a singular article,
+  before `Vereinigtes`, `Niederlande` or `USA` unless a hyphen joins the name to a noun (`zum
+  USA-Profil`). Another preposition is the writer's to check; the test holds pt-PT's prose the same
+  way.
 - **Disclosures take the official German text** of each regulator phrasing in `docs/LEGAL.md` §4,
   never a translation back from English: Delegated Regulation 2017/565 art. 44(4)(d), „Die frühere
   Wertentwicklung ist kein verlässlicher Indikator für künftige Ergebnisse.“; MiCA art. 6(5)(a), „Der
