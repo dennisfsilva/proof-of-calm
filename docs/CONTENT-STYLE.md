@@ -1166,7 +1166,8 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
   German plan, `40%` on a Portuguese one, never typed by hand where `lib/format` writes them.
 - **A template's name spells out its number**, as English does (`Drei Coins, ohne
   Verkaufsfenster`); its other texts keep numerals, and its explanation writes `N %`, the token of §9.
-- **Elsewhere, U+00A0 joins** a numeral to `%` and to its unit (`40 %`, `365 Tage`); `§`, `§§`,
+- **U+00A0 joins** a numeral to its unit, in a template's texts too (`365 Tage`, `etwa 4 Jahre`;
+  a counted word such as `3 Coins` is no unit, §4), and outside a template to `%` (`40 %`); `§`, `§§`,
   `Abs.`, `Satz`, `Nr.` and `Art.` to their numbers (`§ 23 Abs. 1 Satz 1 Nr. 2 EStG`, the law's own
   form); a currency code to its figure (`EUR 20 350`, §4's grouping); each gap of a hand-written date
   (`15. März 2027`); and `z. B.`. U+2060 follows an en dash between figures (`2023–2025`); U+2011
@@ -1174,8 +1175,9 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
   `lib/format` may add the zone (`14:05 MESZ`), and never a placeholder in a compound (`Kosten für
   {coin}`, not `{coin}-Kosten`). `packages/content/src/hyphen-validate.ts` refuses a German unit
   hyphened to its numeral (`365-Tage`, `1-jährige`, `4-mal`); `packages/content/src/join-validate.ts`
-  holds no German lists yet, and a German profile or module overlay waits for it; a template's texts
-  never reach it, and the German templates hold no date, law name or unit it would join.
+  holds no German lists yet, and a German profile or module overlay waits for it. A template's texts
+  never reach it: `packages/content/src/loaders/templates-language.test.ts` holds the German
+  templates to the unit join, with the hyphen lint's units.
 - **The tax authority's own terms**: `privates Veräußerungsgeschäft`, `Freigrenze`, `Anlage SO`,
   `Finanzamt`, `BMF-Schreiben`; a rule quoted from the law keeps its wording („nicht mehr als ein
   Jahr beträgt“). A tax name the lint refuses goes on the allow-list with its reason (§2).
