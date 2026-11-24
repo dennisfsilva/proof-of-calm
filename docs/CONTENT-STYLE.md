@@ -293,13 +293,14 @@ The German rows (decided 2026-11-23; the voice is §10):
     `Anbieter brauchen eine Zulassung, die die BaFin erteilt`). Joined: the regulator, a hyphen, then the
     participle, the noun or its plural, or the whole word `Aufsicht` (fails: `BaFin-registriert`,
     `BaFin-Lizenz`; passes: `BaFin-Aufsichtsrecht`, `BaFin-Zulassungsverfahren`, which name the
-    law and a procedure). The joined form reads no word before it (fails:
-    `unterliegt keiner BaFin-Aufsicht`; passes: `unterliegt keiner Finanzaufsicht`, §10's
+    law and a procedure). The joined form fails whatever word stands before it, `keiner` included
+    (fails: `unterliegt keiner BaFin-Aufsicht`; passes: `unterliegt keiner Finanzaufsicht`, §10's
     wording). Or `Aufsicht` with `der`, `des`, or `durch die`, or a word that begins with
     `unterlieg` (`unterliegt`, `unterliegen`) with `der`, `dem`, or `den`, then a regulator (fails:
-    `unter Aufsicht der BaFin`, `unterliegt der deutschen Finanzaufsicht`). The past forms pass,
-    since `Unterlagen der BaFin` names documents (passes: `unterlag der BaFin`). A lint cannot tell
-    the subject, so a sentence on the law fails as well (fails:
+    `unter Aufsicht der BaFin`, `unterliegt der deutschen Finanzaufsicht`). The past forms pass the
+    lint only, since `Unterlagen der BaFin` names documents (passes: `unterlag der BaFin`); the
+    table's status row still refuses them in copy, since a claim of status is never written. A
+    lint cannot tell the subject, so a sentence on the law fails as well (fails:
     `Krypto-Dienstleister in der EU unterliegen der MiCA-Verordnung`; passes:
     `Die MiCA-Verordnung gilt für Krypto-Dienstleister in der EU`).
 
