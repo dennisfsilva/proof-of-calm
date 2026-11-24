@@ -107,7 +107,7 @@ const link = (scope: Page | Locator, name: string) => scope.getByRole('link', { 
 // The fixture prices answer /api/prices and /api/history here, which the service worker's own requests would pass by.
 test.use({ serviceWorkers: 'block' });
 
-test("de: Plan keeps its reference, totals, timeline and holding rule, and each control inside its box", async ({
+test('de: Plan keeps its reference, totals, timeline and holding rule, and each control inside its box', async ({
   page,
 }) => {
   // The screen's name is `Plan` in both languages, so it is no sign of the translation.
