@@ -1603,3 +1603,9 @@ screens by loaders.
   `loadEntrySheet` and `loadSkipSheet` and the onboarding barrel `loadReacknowledge`, and a lazy
   component another feature shows is loaded through such a loader, never by an `import()` of a
   barrel.
+
+## Corrections recorded on 2026-11-24
+
+- **2026-11-24, every German file is whole once it exists** (the correction of 2026-11-23).
+  `packages/app/src/lib/i18n/locales.test.ts` holds each German message file whole but a file in its
+  `GERMAN_PARTIAL` list, which holds a few keys ahead of its screen's translation (Plan's, #473).

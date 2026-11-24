@@ -417,9 +417,11 @@ external links and the Risk link in the mobile export (M3).
   sentences that name a country (#457, ADR-0045 Deviations of 2026-11-24). German Portfolio and Log
   followed the same day (#460), with the other screens' sentences on the country forms (#463,
   ADR-0045 Deviations of 2026-11-24) and the German registration-claim patterns of the ban list
-  (#462; `docs/CONTENT-STYLE.md` §2 and §10), their third round on 2026-11-24 (#467). Still to
-  come: German's forms (D3's PR 3, #464), the remaining German namespaces (Onboarding, Learn, Plan
-  and Settings) and the native read. CSV import, free (ADR-0039), for the
+  (#462; `docs/CONTENT-STYLE.md` §2 and §10), their third round on 2026-11-24 (#467). German's
+  country forms and the prose check (D3's PR 3, #473) followed, with the German Log's two change
+  lines (#472). Still to come: the German Onboarding with Learn and the German Plan (as designed on
+  #464), then German Settings, the German profile and module overlays, and de in the picker after
+  the native read. CSV import, free (ADR-0039), for the
   main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
   Republic; Kraken's ledger reader built on 2026-11-13 (#168) and the core's import plan against the
   Log the same day (#178, `docs/DOMAIN.md` §3.13, "Meeting the Log"), then its write (#183) and the
