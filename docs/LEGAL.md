@@ -184,7 +184,7 @@ screens: the app's own `/learn` index still has no line (ADR-0047).
 Retention: account and plan for the life of the account plus 30 days after deletion (undo), inactive
 accounts warned at 24 months and deleted at 27; auth and security logs 90 days; error events 30 days;
 the host's runtime logs, up to 1 day (Vercel's documented period on its Hobby and Pro plans without
-Observability Plus; `docs/research/legal-pages-questions.md`); mail logs per the provider (30 days);
+Observability Plus; `docs/research/legal-pages-questions.md`); mail logs per the provider (the period the owner's `mailHost` value states);
 backups 35 days; support correspondence 24 months; aggregate counters 24 months (no personal data);
 invoices 10 years (Portuguese tax law).
 
