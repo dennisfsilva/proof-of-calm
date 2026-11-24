@@ -5,6 +5,7 @@ import { checkModuleBody } from '@proofofcalm/config/vite';
 import { describe, expect, it } from 'vitest';
 import { moduleTranslationProblems } from '../src/i18n/module-overlay-validate.ts';
 import { parseModule } from '../src/loaders/modules.ts';
+import { moduleProblems } from '../src/modules-validate.ts';
 import type { Problem } from '../src/problem.ts';
 import { figureContext } from '../src/validate.ts';
 import { closedBodyProblems } from './closed-body.ts';
@@ -24,11 +25,13 @@ const elementsOnly = (problems: readonly Problem[]) => problems.filter(({ code }
 
 // A literal English noise module and its literal pt-PT translation, through both checks as scripts/validate.ts runs them.
 const at = 'packages/content/i18n/pt-PT/learn/noise.mdx';
-const englishOf = (body: string, chart = 'none') => {
+const englishSource = (body: string, chart = 'none') => {
   const front = ['---', 'slug: noise', 'title: Noise', 'idea: Most price moves are noise.'];
   const rest = ['caveat: A plan can lose money.', `chart: ${chart}`, 'facts: ', 'lastReviewed: 2026-11-02'];
-  const lines = [...front, ...rest, 'nextReviewDue: 2027-11-02', 'reviewedBy: owner', '---', '', body];
-  const parsed = parseModule('packages/content/learn/noise.mdx', lines.join('\n'));
+  return [...front, ...rest, 'nextReviewDue: 2027-11-02', 'reviewedBy: owner', '---', '', body].join('\n');
+};
+const englishOf = (body: string, chart = 'none') => {
+  const parsed = parseModule('packages/content/learn/noise.mdx', englishSource(body, chart));
   if (!parsed.ok) throw new Error('the English fixture does not parse');
   return [parsed.value];
 };
@@ -342,6 +345,64 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
     });
   });
 
+  // D4's carry-over (#421, 2026-11-24): English's three module reads also run on a translation's source body, beside
+  // the block read, so a line the page starts inside a block and a phrase across a source wrap are refused alike.
+  describe("a translation's ban list, by English's module reads on its source as well", () => {
+    const TEXT = 'Text.\n';
+    const imperative = (match: string) =>
+      `banned-imperative: body: "${match}" is on the ban list; reword it (docs/CONTENT-STYLE.md §2)`;
+    const refusals = (problems: readonly Problem[]) => problems.filter(({ code }) => code.startsWith('banned-'));
+    const asEnglish = (body: string) =>
+      refusals(
+        moduleProblems(
+          { path: 'packages/content/learn/noise.mdx', source: englishSource(body) },
+          { facts: new Map(), today: '2026-11-24' },
+        ),
+      );
+    const asTranslation = async (body: string) => {
+      const files = [{ language: 'pt-PT', path: at, source: translationOf(body) }];
+      return refusals(await closedBodyProblems(files, { english: englishOf(body), figures }));
+    };
+
+    it('refuses a capital German form after a hard break, which the block read joins with a space', async () => {
+      expect(await validated(TEXT, 'Der Plan bleibt gleich\\\nHalte Bitcoin bis zum Ende\n')).toEqual([
+        imperative('Der Plan bleibt gleich — Halte Bitcoin bis zum Ende'),
+      ]);
+    });
+
+    it("refuses as a translation's body every D4 row English's module reads refuse, 106 of 148", async () => {
+      const refused: string[] = [];
+      const missed: string[] = [];
+      for (const [ids, body] of D4_ROWS) {
+        if (asEnglish(`${body}\n`).length === 0) continue;
+        refused.push(ids);
+        if ((await asTranslation(`${body}\n`)).length === 0) missed.push(ids);
+      }
+      expect(missed).toEqual([]);
+      expect(refused).toHaveLength(106);
+    }, 60_000);
+
+    // D4 §7 item 2 named the English imperative whose asset follows a wrap: b:R7 in a module, a:O1 in an overlay.
+    it("passes b:R7 in English, the gap carried over, and refuses a:O1 now in a translation's body too", async () => {
+      const row = (ids: string) => `${D4_ROWS.find(([id]) => id === ids)?.[1]}\n`;
+      expect(asEnglish(row('b:R7'))).toEqual([]);
+      const shown = (problems: readonly Problem[]) => problems.map(({ code, detail }) => `${code}: ${detail}`);
+      expect(shown(await asTranslation(row('b:R7')))).toEqual([imperative('Buy every month some Bitcoin')]);
+      expect(asEnglish(row('a:O1 b:R1')).map(({ code }) => code)).toEqual(['banned-imperative']);
+      expect((await asTranslation(row('a:O1 b:R1'))).map(({ code }) => code)).toEqual(['banned-imperative']);
+    });
+
+    it('gives one finding for a line both the block read and the module reads refuse', async () => {
+      expect(await validated(TEXT, 'Recomendamos manter o plano.\n')).toEqual([banned('Recomendamos')]);
+      expect(await validated(TEXT, 'Ein Rückgang ist kein Grund zur Eile.\nKauf jeden Monat BTC.\n')).toEqual([
+        imperative('Ein Rückgang ist kein Grund zur Eile. Kauf jeden Monat BTC.'),
+      ]);
+      expect(await validated(TEXT, '- Ein ruhiger Plan\n- Kauf jeden Monat BTC\n')).toEqual([
+        imperative('Kauf jeden Monat BTC'),
+      ]);
+    });
+  });
+
   // Review 25m round 2 (D12; #322's D3 and D4): the checks read each compiled block on its own, with every
   // default-ignorable code point removed, so no phrase or figure is read across a block or hidden inside a word.
   describe("a translation's checks, per compiled block, on the characters the page shows", () => {
@@ -638,3 +699,160 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
     );
   });
 });
+
+// D4's 148 decided rows (#421's verdict, 2026-11-24): designer a's and b's cases, the English collisions and the
+// structure rows, by their ids, each body as the case table holds it. The judge's verdicts are D4's; these tests
+// hold a translation's ban list to what English's module reads refuse.
+const D4_ROWS: readonly (readonly [string, string])[] = [
+  ['a:P1 b:P2', 'Ein Rückgang allein ist kein Grund für einen\nKauf von Bitcoin.'],
+  ['a:P2', 'Nach dem Rückgang war der\nTausch von ETH in BTC teurer.'],
+  ['a:P3 b:P3', 'Ein Rückgang ist kein Grund zur Eile.\nKauf jeden Monat BTC.'],
+  ['a:P4 b:P4', 'Ein Rückgang ist kein Grund zur Eile.\nKaufen Sie trotzdem Bitcoin.'],
+  ['a:P5 b:P5', 'Nach einem Rückgang legen Sie Ihr Geld\nin Bitcoin an.'],
+  ['a:P6', 'Nach dem Kauf legen Sie den Plan an\neinem ruhigen Tag für BTC fest.'],
+  ['a:P7', 'Ein ruhiger Plan\nKauf jeden Monat BTC'],
+  ['a:P8', 'Ein ruhiger Plan, der jeden Monat\nBitcoin kauft.'],
+  ['a:H1 b:H1', 'Ein ruhiger Plan\\\nKauf jeden Monat BTC'],
+  ['a:H2 b:H2', 'Ein ruhiger Plan  \nKauf jeden Monat BTC'],
+  ['a:H3', 'Ein Rückgang ist kein Grund für einen\\\nKauf von Bitcoin.'],
+  ['a:H4', 'Kaufen Sie jeden Monat\\\nBitcoin.'],
+  ['a:H5', 'Legen Sie Ihr Geld in Bitcoin an\\\nein ruhiger Plan'],
+  ['a:L1 b:L1', '- Ein ruhiger Plan\n- Kauft BTC jeden Monat'],
+  ['a:L2', '* Ein ruhiger Plan\n* Kauf jeden Monat BTC'],
+  ['a:L3', '+ Ein ruhiger Plan\n+ Kauf jeden Monat BTC'],
+  ['a:L4', '1. Ein ruhiger Plan\n2. Kauf jeden Monat BTC'],
+  ['a:L5', '1) Ein ruhiger Plan\n2) Kauf jeden Monat BTC'],
+  ['a:L6', '- Ein ruhiger Plan\n  - Kauf jeden Monat BTC'],
+  ['a:L7', '- Ein Rückgang ist kein Grund für einen\n  Kauf von Bitcoin.'],
+  ['a:L8', '- Ein Rückgang ist kein Grund für einen\nKauf von Bitcoin.'],
+  ['a:L9', '- Ein ruhiger Plan\n\n- Kauf jeden Monat BTC'],
+  ['a:L10', '- Legen Sie Ihr Geld in Bitcoin an\n- Ein ruhiger Plan'],
+  ['a:L11', 'Ein ruhiger Plan\n- Kauf jeden Monat BTC'],
+  ['a:L12', 'Der Kurs fiel im Jahr\n2018. Kauf von BTC war danach billiger.'],
+  ['a:L13', '- Prices fall\n- Halt: Bitcoin prices fall too.'],
+  ['a:G1 b:T1', '# Ein ruhiger Plan\nKauf jeden Monat BTC'],
+  ['a:G2 b:T2', '## Ein ruhiger Plan\nKauf jeden Monat BTC'],
+  ['a:G3 b:T3', '### Ein ruhiger Plan\nKauf jeden Monat BTC'],
+  ['a:G4 b:T4', '#### Ein ruhiger Plan\nKauf jeden Monat BTC'],
+  ['a:G5 b:T5', '##### Ein ruhiger Plan\nKauf jeden Monat BTC'],
+  ['a:G6 b:T6', '###### Ein ruhiger Plan\nKauf jeden Monat BTC'],
+  ['a:G7', '####### Ein ruhiger Plan\nKauf jeden Monat BTC'],
+  ['a:G8', '## Kauf jeden Monat BTC\nEin ruhiger Plan.'],
+  ['a:G9', '## Kaufen Sie jeden Monat\nBitcoin ist volatil.'],
+  ['a:G10 b:T8', '## Ein ruhiger Plan\n\nKauf jeden Monat BTC'],
+  ['a:G11', 'Ein ruhiger Plan\n---\nKauf jeden Monat BTC'],
+  ['a:G12 b:S1', 'Ein ruhiger Plan\n===\nKauf jeden Monat BTC'],
+  ['a:G13', 'Ein Rückgang ist kein Grund für einen\nKauf von Bitcoin\n---'],
+  ['a:T1 b:S5', 'Ein ruhiger Plan\n***\nKauf jeden Monat BTC'],
+  ['a:T2', 'Ein ruhiger Plan\n\n- - -\nKauf jeden Monat BTC'],
+  ['a:Q1 b:Q1', '> Kauf jeden Monat BTC'],
+  ['a:Q2', '> Ein Rückgang ist kein Grund für einen\n> Kauf von Bitcoin.'],
+  ['a:Q3', '> Ein ruhiger Plan\n> Kauf jeden Monat BTC'],
+  ['a:Q4 b:Q4', '> Ein ruhiger Plan\n>\n> Kauf jeden Monat BTC'],
+  ['a:Q5 b:Q8', 'Ein ruhiger Plan\n> Kauf jeden Monat BTC'],
+  ['a:Q6', '> Ein Rückgang ist kein Grund für einen\nKauf von Bitcoin.'],
+  ['a:Q7', '> Ein ruhiger Plan\n> - Kauf jeden Monat BTC'],
+  ['a:Q8', '> ## Ein ruhiger Plan\n> Kauf jeden Monat BTC'],
+  ['a:X1', '| Kauf | BTC |\n|---|---|\n| 100 € | monatlich |'],
+  ['a:X2', '| Plan | Schritt |\n|---|---|\n| BTC | Jetzt kaufen |'],
+  ['a:X3', '| Plan | Schritt |\n|---|---|\n| BTC | Kauf jeden Monat |'],
+  ['a:X4', '| Plan | Schritt |\n|---|---|\n| BTC | ein Kauf pro Monat |'],
+  ['a:E1 b:I1', '**Kauf** jeden Monat BTC'],
+  ['a:E2', 'Ein **Kauf** von BTC ist eine Entscheidung.'],
+  ['a:E3', 'Ein ruhiger Plan: **Kauf** jeden Monat BTC'],
+  ['a:E5', 'Die Taste `Kauf` trägt einen Kauf von BTC ein.'],
+  ['a:E6 b:I4', '`Kauf` jeden Monat BTC'],
+  ['a:J1', 'Ein ruhiger Plan\n<Chart />\nKauf jeden Monat BTC'],
+  ['a:J2', 'Ein ruhiger Plan\n<PastPerformance />\nKauf jeden Monat BTC'],
+  ['a:J3', 'Die Zahlen sind Schlusskurse <PastPerformance /> Kauf jeden Monat BTC'],
+  ['a:Z2', 'Ab \\{date\\} gilt ein Kauf von BTC als steuerfrei.'],
+  ['a:C1', '```\nEin ruhiger Plan\nKauf jeden Monat BTC\n```'],
+  ['a:C2', '```text\nKauf jeden Monat BTC\n```'],
+  ['a:C3', '~~~\nKauf jeden Monat BTC\n~~~'],
+  ['a:C4', 'Ein ruhiger Plan\n```\nKauf jeden Monat BTC\n```'],
+  ['a:O1 b:R1', 'Some people say:\nBuy Bitcoin every month.'],
+  ['a:O2 b:R2', 'Há quem diga:\nCompre Bitcoin todos os meses.'],
+  ['a:O3', 'Some think you\nshould buy the dip in BTC.'],
+  ['a:O4', '- Some buy the\n- dip of BTC.'],
+  ['a:O5', '## Die Zeile\n„Investiert“ zeigt BTC.'],
+  ['a:O6', 'Sie sollten Ihre Coins\nnicht verkaufen.'],
+  ['b:P1', 'Ein Rückgang allein ist kein Grund für einen\nVerkauf von Bitcoin.'],
+  ['b:P6', 'Nach einem Rückgang\nverkaufen Sie Ihre Coins.'],
+  ['b:P7', 'Kauf jeden Monat\nfür 100 € BTC.'],
+  ['b:P8', 'Der Plan begann im Jahr\n2022. Kauf von BTC folgte.'],
+  ['b:P9', 'Verkaufen Sie am\n15. März Ihre BTC.'],
+  ['b:P10', 'Der Kurs von BTC fiel am\n15. März um 30 %.'],
+  ['b:H3', 'Ein Rückgang ist kein Grund für einen\\\nVerkauf von Bitcoin.'],
+  ['b:L2', '* Ein ruhiger Plan\n* Kauf BTC jeden Monat'],
+  ['b:L3', '+ Ein ruhiger Plan\n+ Kauf BTC jeden Monat'],
+  ['b:L4', '1. Ein ruhiger Plan\n2. Kauf BTC jeden Monat'],
+  ['b:L5', '1) Ein ruhiger Plan\n2) Kauf BTC jeden Monat'],
+  ['b:L6', '- Ein ruhiger Plan\n  - Kauf BTC jeden Monat'],
+  ['b:L7', '- Ein Rückgang ist kein Grund für einen\n  Verkauf von Bitcoin.'],
+  ['b:L8', '- Ein Rückgang ist kein Grund für einen\nVerkauf von Bitcoin.'],
+  ['b:L9', '- Ein ruhiger Plan\n\n- Kauf BTC jeden Monat'],
+  ['b:L10', 'Ein ruhiger Plan\n- Kauf BTC jeden Monat'],
+  ['b:L11', '- Der Kauf von BTC\n- Der Verkauf von ETH'],
+  ['b:L12', '- Ein ruhiger Plan\n- Kauf von BTC am 1.'],
+  ['b:L13', 'Ein ruhiger Plan\n2) Kauf BTC jeden Monat'],
+  ['b:L14', '- Kaufen Sie jeden Monat\n- Bitcoin'],
+  ['b:L15', '- Ein ruhiger Plan\n\n  Kauf jeden Monat BTC'],
+  ['b:L16', '- A calm plan\n- Halt: Bitcoin trading stopped for a day.'],
+  ['b:T7', '## Kauft BTC jeden Monat'],
+  ['b:T9', '## Der Kauf von BTC\nDer Plan sieht jeden Monat einen Kauf vor.'],
+  ['b:T10', '## Bitcoin\nKaufen Sie jeden Monat.'],
+  ['b:T11', '## Why a halt?\nBitcoin withdrawals stopped for 3 weeks.'],
+  ['b:S2', 'Kauf jeden Monat BTC\n---'],
+  ['b:S3', 'Ein Rückgang ist kein Grund für einen\nVerkauf von Bitcoin\n---'],
+  ['b:S4', 'Ein ruhiger Plan.\n\n---\n\nKauf jeden Monat BTC'],
+  ['b:Q2', '> Ein ruhiger Plan.\n> Kauf jeden Monat BTC.'],
+  ['b:Q3', '> Ein Rückgang ist kein Grund für einen\n> Verkauf von Bitcoin.'],
+  ['b:Q5', '> Ein Rückgang ist kein Grund für einen\nVerkauf von Bitcoin.'],
+  ['b:Q6', '> Ein ruhiger Plan\n>> Kauf jeden Monat BTC'],
+  ['b:Q7', '> - Ein ruhiger Plan\n> - Kauf jeden Monat BTC'],
+  ['b:G1', '| Plan | Betrag |\n|---|---|\n| Kauft BTC | 100 € |'],
+  ['b:G2', '| Plan | Betrag |\n|---|---|\n| Monatlich | Kauft BTC |'],
+  ['b:G3', '| Kauf | Betrag |\n|---|---|\n| BTC | 100 € |'],
+  ['b:I2', 'Der **Kauf** von BTC ist im Plan.'],
+  ['b:I3', '_Kauft_ BTC jeden Monat'],
+  ['b:I5', 'Ein Rückgang ist kein Grund für *einen\nVerkauf* von Bitcoin.'],
+  ['b:E1', 'Ein ruhiger Plan.\n\n<Chart />\n\nKauf jeden Monat BTC'],
+  ['b:E2', 'Ein ruhiger Plan.\n\n<Chart />\nKauf jeden Monat BTC'],
+  ['b:E3', 'Ein ruhiger Plan <PastPerformance /> Kauf jeden Monat BTC'],
+  ['b:E4', 'Bitcoin fiel um 77 %. <PastPerformance />\nKauf jeden Monat BTC'],
+  ['b:C1', '```\nKauft BTC jeden Monat\n```'],
+  ['b:C2', '```\nEin ruhiger Plan\nKauft BTC jeden Monat\n```'],
+  ['b:C3', '```text\nKauft BTC jeden Monat\n```'],
+  ['b:C4', 'Ein ruhiger Plan\n~~~\nKauft BTC jeden Monat\n~~~'],
+  ['b:X1', 'Ein ruhiger Plan\n—\nKauf jeden Monat BTC'],
+  ['b:X2', 'Ein ruhiger Plan\n…\nKauf jeden Monat BTC'],
+  ['b:R3', '- A calm plan\n- Buy Bitcoin every month'],
+  ['b:R4', 'Many say you\nshould hold BTC for years.'],
+  ['b:R5', 'Check the list of providers authorised\nunder MiCA.'],
+  ['b:R6', 'Bitcoin ist keine sichere\nAnlage.'],
+  ['b:R7', '## A plan\nBuy every month\nsome Bitcoin.'],
+  ['b:R8', 'Kaufen Sie jeden Monat Bitcoin.'],
+  ['j:E1', 'Keep a spare copy of your Bitcoin plan.'],
+  ['j:E2', '- A calm plan\n- Spare coins sit in a wallet.'],
+  ['j:E3', '## Why trading can halt\nBitcoin exchanges pause in a crash.'],
+  ['j:E4', 'Money you can spare\n\nBitcoin is volatile.'],
+  ['j:E5', '- Halt\n- Bitcoin trading paused for a day.'],
+  ['j:E6', 'Bitcoin fell for a year\\\nHole by hole the plan held.'],
+  ['j:E7', 'A plan is a staple of calm\nfor people who hold coins.'],
+  ['j:E8', '## Bitcoin\nHalt: the exchange paused.'],
+  ['j:S1', 'Ein Text.\n\n    Ein ruhiger Plan\n    Kauf jeden Monat BTC'],
+  ['j:S2', '- Bitcoin und Ether\n\n    Ein Rückgang ist kein Grund für einen\n    Kauf von Bitcoin.'],
+  ['j:S3', '- ## Ein ruhiger Plan\nKauf jeden Monat BTC'],
+  ['j:S4', '-\nKauf jeden Monat BTC'],
+  ['j:S5', '```\nBTC fällt\n\nKauft jeden Monat\n```'],
+  ['j:S6', '1. Bitcoin seit 2009\n2. Kauf: einmal im Monat'],
+  ['j:S6u', '1. Bitcoin seit 2009\n2. Kauf und Verkauf trägt man selbst ein'],
+  [
+    'j:S7',
+    'Ein Plan hält fest:\n- Coins und Anteile: BTC 70 %, ETH 30 %\n- Kauftag: der 5. jedes Monats\n- Verkauf: ab dem Datum, das Sie wählen',
+  ],
+  ['j:S8', 'Ein Plan für Bitcoin\\\nKauft jeden Monat'],
+  ['j:S9', 'Der Kurs fiel am\n3. Kauf von BTC folgte.'],
+  ['j:S10', 'Bitcoin fiel stark <PastPerformance />\nKauft jeden Monat'],
+  ['j:S11', '## Bitcoin und Ether\nKauf: einmal im Monat.'],
+];
