@@ -1596,4 +1596,10 @@ screens by loaders.
   each screen is a chunk of its own that only its route loads. The Log, Onboarding, Portfolio and
   Settings barrels followed (Settings imports Onboarding's for its country step), and
   `packages/app/src/features/screen-loaders.test.ts` fails on any barrel's export named `*Screen`
-  but Today's, which the entry imports statically.
+  but Today's, which the entry imports statically. Since the routes import the loaders statically,
+  each of these barrels sits in Today's chunk, and an `import()` of one there makes that chunk
+  import the chunk behind it back: Today's `import()` of the log barrel for its sheets failed the
+  build on the chunk-cycle check (today, entry-sheet, today). So the log barrel exports
+  `loadEntrySheet` and `loadSkipSheet` and the onboarding barrel `loadReacknowledge`, and a lazy
+  component another feature shows is loaded through such a loader, never by an `import()` of a
+  barrel.
