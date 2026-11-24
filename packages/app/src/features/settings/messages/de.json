@@ -2,9 +2,9 @@
   "title": "Einstellungen",
   "tabs": {
     "plan": "Plan",
-    "coins": "Coins &\u00a0Anteile",
-    "hold": "Frist &\u00a0Verkauf",
-    "data": "Währung &\u00a0Daten"
+    "coins": "Coins\u00a0& Anteile",
+    "hold": "Frist\u00a0& Verkauf",
+    "data": "Land\u00a0& Daten"
   },
   "plan": {
     "ended": "Die Kaufphase endete am {date}. Ein späterer letzter Kauf fügt beim Speichern wieder Kauftage hinzu."
@@ -48,7 +48,7 @@
     },
     "confirmRule": "Haltefrist ersetzen: {from} durch {to}",
     "confirmRuleIssue": "Kreuzen Sie das Kästchen an, um die Haltefrist zu ersetzen.",
-    "notSaved": "Nicht gespeichert: Diese Änderung widerspricht einem anderen Teil des Plans. Prüfen Sie „Plan“ und „Frist &\u00a0Verkauf“ und stellen Sie dann das Land erneut um.",
+    "notSaved": "Nicht gespeichert: Diese Änderung widerspricht einem anderen Teil des Plans. Prüfen Sie „Plan“ und „Frist\u00a0& Verkauf“ und stellen Sie dann das Land erneut um.",
     "confirm": "{kind, select, generic {Das allgemeine Profil verwenden} other {Land {countryTo} umstellen}}",
     "changed": "{kind, select, generic {Land umgestellt. Jetzt gilt das allgemeine Profil.} other {Land {countryTo} umgestellt.}}",
     "alreadyChanged": "{kind, select, generic {Das Land des Plans wurde in einem anderen Browser-Tab umgestellt. Jetzt gilt das allgemeine Profil.} other {Der Plan wurde in einem anderen Browser-Tab {countryTo} umgestellt.}}"
@@ -100,12 +100,12 @@
     "prototype": {
       "file": "{name}, exportiert von der DCA-Planseite. Käufe in dieser Datei: {count}.",
       "pasted": "Eingefügter Text, exportiert von der DCA-Planseite. Käufe in diesem Text: {count}.",
-      "country": "Dateien der DCA-Planseite haben kein Land. Wählen Sie das Land, in dem Sie leben; der Plan übernimmt die Haltefrist und die Währungen der Datei, die Sie unter „Frist &\u00a0Verkauf“ und „Währung &\u00a0Daten“ ändern können.",
+      "country": "Dateien der DCA-Planseite haben kein Land. Wählen Sie das Land, in dem Sie leben; der Plan übernimmt die Haltefrist und die Währungen der Datei, die Sie unter „Frist\u00a0& Verkauf“ und „Land\u00a0& Daten“ ändern können.",
       "confirmBody": "Der Plan und die Käufe in dieser Datei treten an ihre Stelle, mit der Haltefrist der Datei; exportieren Sie zuerst eine Kopie, wenn Sie diesen Plan behalten möchten.",
       "report": {
-        "coins-defaulted": "Die Datei nannte keine Coins, daher hat der Plan die vier Anfangs-Coins der DCA-Planseite: Bitcoin, Chainlink, Ethereum und Solana. Sie können sie unter „Coins &\u00a0Anteile“ ändern.",
+        "coins-defaulted": "Die Datei nannte keine Coins, daher hat der Plan die vier Anfangs-Coins der DCA-Planseite: Bitcoin, Chainlink, Ethereum und Solana. Sie können sie unter „Coins\u00a0& Anteile“ ändern.",
         "coin-added": "{coin} hatte Käufe, stand aber nicht in der Coin-Liste der Datei, daher wurde {coin} zum Plan hinzugefügt.",
-        "coin-not-in-plan": "{count, plural, one {{figure} Kauf von {coin} wurde} other {{figure} Käufe von {coin} wurden}} hinzugefügt. Dieser Plan listet {coin} nicht, daher erscheint {coin} im Portfolio nach den Coins des Plans; Sie können {coin} unter „Coins &\u00a0Anteile“ hinzufügen.",
+        "coin-not-in-plan": "{count, plural, one {{figure} Kauf von {coin} wurde} other {{figure} Käufe von {coin} wurden}} hinzugefügt. Dieser Plan listet {coin} nicht, daher erscheint {coin} im Portfolio nach den Coins des Plans; Sie können {coin} unter „Coins\u00a0& Anteile“ hinzufügen.",
         "split-from-dca-split": "Die Aufteilung stammt aus der älteren monatlichen Aufteilung der Datei.",
         "split-normalised": "Der Anteil von {coin} wurde von {from} auf {to} geändert, damit die Aufteilung {whole} ergibt.",
         "currency-defaulted": "{field, select, payCurrency {Die Zahlungswährung} other {Die angezeigte Währung}} fehlte oder war unbekannt, daher ist sie {field, select, payCurrency {EUR} other {USD}}.",
@@ -115,7 +115,7 @@
         "last-buy-defaulted": "Die Datei hatte keinen letzten Kauf, daher ist er am {date}, wie auf der DCA-Planseite.",
         "buy-day-clamped": "Der Kauftag der Datei lag außerhalb von 1 bis 28, daher ist jetzt Tag {day} der Kauftag.",
         "hold-days-defaulted": "Die Datei hatte keine Haltefrist, daher beträgt die Haltefrist 365\u00a0Tage.",
-        "sell-window-dropped": "Beim Verkaufsfenster der Datei fehlte ein Datum, daher hat der Plan kein Verkaufsfenster. Sie können eines unter „Frist &\u00a0Verkauf“ festlegen.",
+        "sell-window-dropped": "Beim Verkaufsfenster der Datei fehlte ein Datum, daher hat der Plan kein Verkaufsfenster. Sie können eines unter „Frist\u00a0& Verkauf“ festlegen.",
         "sell-window-accepted-early": "Das Verkaufsfenster öffnet, bevor der letzte Kauf die Haltefrist überschritten hat; es bleibt so, wie die Datei es hatte.",
         "expectation-dropped": "Der {scenario, select, bear {niedrige} base {mittlere} other {hohe}} Multiplikator, den Sie auf der DCA-Planseite festgelegt haben, war keine Zahl, daher wurde er weggelassen.",
         "tax-note-dropped": "Die Steuernotiz der Datei wurde nicht importiert. Kopieren Sie sie von der DCA-Planseite, wenn Sie sie aufbewahren möchten.",
