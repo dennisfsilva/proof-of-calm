@@ -8,7 +8,8 @@ import { numbersIn } from '../src/i18n/overlay-validate.ts';
 import { type LearnModule, parseModule, readFields } from '../src/loaders/modules.ts';
 import { moduleCountProblems, moduleCountTexts } from '../src/module-counts.ts';
 import { type FigureContext, moduleContext, moduleFigureProblems } from '../src/module-figures.ts';
-import { bannedProblems, type Problem } from '../src/problem.ts';
+import { bodyFindings } from '../src/modules-validate.ts';
+import { bannedProblems, findingProblems, type Problem } from '../src/problem.ts';
 
 type ModuleFile = { readonly path: string; readonly source: string };
 
@@ -52,6 +53,21 @@ function frontOf(path: string, source: string) {
   return lines[0] === '---' && close !== -1 ? Object.fromEntries(readFields(path, lines.slice(1, close)).fields) : {};
 }
 
+// The body exactly as parseModule takes it, the lines after the front matter joined by \n, whether or not its fields
+// parse; a file with no front matter is all body (`moduleTranslationProblems` reports it).
+function bodyOf(source: string) {
+  const lines = source.split(/\r?\n/);
+  const close = lines.indexOf('---', 1);
+  return lines.slice(lines[0] === '---' && close !== -1 ? close + 1 : 0).join('\n');
+}
+
+// One problem per code and detail, so a line two reads refuse alike is reported once.
+const once = (problems: readonly Problem[]) =>
+  problems.filter(
+    (problem, index) =>
+      problems.findIndex(({ code, detail }) => code === problem.code && detail === problem.detail) === index,
+  );
+
 const listed = (elements: readonly string[]) => elements.join(', ') || 'none';
 
 // A block's words with each line end a space, so a phrase cannot hide across a line inside one block.
@@ -70,13 +86,23 @@ const numbers = (page: ModuleBodyCheck['page'], language: string) =>
 /**
  * A translation's compiled body, as the page shows it, block by block: the ban list and the no-break hyphen on each
  * block's words, and, against its English module's compiled body, its elements and depth-2 headings in order and
- * its numbers. A body English's compiler refuses gives the ban list and the hyphen check only; English's own run
- * reports that body.
+ * its numbers. The ban list also reads the source body with English's three module reads (`bodyFindings`), so a line
+ * the page starts inside a block and a phrase across a source wrap are refused as in English (ADR-0048 Deviations).
+ * A body English's compiler refuses gives the ban list and the hyphen check only; English's own run reports that body.
  */
-async function translationProblems(path: string, language: string, mine: ModuleBodyCheck, english?: LearnModule) {
-  const own = mine.blocks
-    .map(spaced)
-    .flatMap((words) => [...bannedProblems(path, 'body', words), ...hyphenProblems(path, 'body', words)]);
+async function translationProblems(
+  path: string,
+  language: string,
+  source: string,
+  mine: ModuleBodyCheck,
+  english?: LearnModule,
+) {
+  const own = once([
+    ...mine.blocks
+      .map(spaced)
+      .flatMap((words) => [...bannedProblems(path, 'body', words), ...hyphenProblems(path, 'body', words)]),
+    ...findingProblems(path, 'body', bodyFindings(bodyOf(source))),
+  ]);
   if (english === undefined) return own;
   const theirs = await checkModuleBody(
     english.body,
@@ -99,7 +125,8 @@ async function translationProblems(path: string, language: string, mine: ModuleB
  * One `module-closed-body` problem per module the build would refuse, and one `module-chart-element` problem
  * per module that compiles with a chart count its chart does not name; the empty list is a pass. With
  * `english`, every file is a translation of one of them, also held to its elements (`module-overlay-elements`)
- * and numbers, and read by the ban list and the hyphen check, on the text its compiled page shows. Every module
+ * and numbers, and read by the ban list and the hyphen check, on the text its compiled page shows, and by the ban
+ * list's module reads on its source body. Every module
  * that compiles has its chart's section read against `figures` (`figure-chart`, `figure-unstated`), and every English
  * or pt-PT module that compiles has its counts read in the title, idea, caveat and body (`figure-join`,
  * src/module-counts.ts).
@@ -131,7 +158,7 @@ export async function closedBodyProblems(
       if (counted === 'en' || counted === 'pt-PT')
         problems.push(...moduleCountProblems(path, moduleCountTexts(frontOf(path, source), read.page), counted));
       if (english !== undefined && language !== undefined)
-        problems.push(...(await translationProblems(path, language, read, englishOf(path, english))));
+        problems.push(...(await translationProblems(path, language, source, read, englishOf(path, english))));
       continue;
     }
     // The compiler's message opens with `<path>:<line>: `; the report already names the path.

@@ -116,9 +116,10 @@ const words = (match: string) => match.replaceAll(LINE_START, ' ');
  * allow-listed phrase holds across one; and the German line rule alone on the page's lines (pageLines), where a source
  * wrap opens no clause and a line the page starts opens one (docs/CONTENT-STYLE.md §2). An imperative of the second
  * read that holds one of the first is that same finding, and so is a finding of the third that a finding before it
- * holds. The first two drop the hard-break backslash at a line end.
+ * holds. The first two drop the hard-break backslash at a line end. scripts/closed-body.ts runs them on a translation's
+ * source body as well, beside its block read (ADR-0048 Deviations).
  */
-function bodyFindings(body: string) {
+export function bodyFindings(body: string): Finding[] {
   const text = plainText(body).replace(HARD_BREAK, '');
   const imperatives = findBanned(text, { germanLines: false }).filter(({ rule }) => rule === 'imperative');
   const isNew = ({ rule, match }: Finding) =>

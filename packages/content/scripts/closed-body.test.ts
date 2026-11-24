@@ -307,8 +307,9 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
       expect(await validated(TEXT, 'Texto.\n\n```\nimperdível\n```\n')).toEqual([banned('imperdível')]);
     });
 
-    it("reads no fence's info string, which the page does not show", async () => {
-      expect(await validated(TEXT, 'Texto.\n\n```imperdível\ncódigo\n```\n')).toEqual([]);
+    // The block read takes no info string; English's module reads on the source keep it (plainText), as on English.
+    it("refuses a banned word in a fence's info string once, as English's module reads do", async () => {
+      expect(await validated(TEXT, 'Texto.\n\n```imperdível\ncódigo\n```\n')).toEqual([banned('imperdível')]);
     });
 
     it('joins a word split by emphasis, as the page shows it', async () => {
