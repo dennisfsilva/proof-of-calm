@@ -9,7 +9,8 @@ import { type LearnModule, parseModule, readFields } from '../src/loaders/module
 import { moduleCountProblems, moduleCountTexts } from '../src/module-counts.ts';
 import { type FigureContext, moduleContext, moduleFigureProblems } from '../src/module-figures.ts';
 import { bodyFindings } from '../src/modules-validate.ts';
-import { bannedProblems, findingProblems, type Problem } from '../src/problem.ts';
+import { findingProblems, type Problem } from '../src/problem.ts';
+import { type Finding, findBanned } from '../src/style/banned.ts';
 
 type ModuleFile = { readonly path: string; readonly source: string };
 
@@ -61,12 +62,29 @@ function bodyOf(source: string) {
   return lines.slice(lines[0] === '---' && close !== -1 ? close + 1 : 0).join('\n');
 }
 
-// One problem per code and detail, so a line two reads refuse alike is reported once.
-const once = (problems: readonly Problem[]) =>
-  problems.filter(
-    (problem, index) =>
-      problems.findIndex(({ code, detail }) => code === problem.code && detail === problem.detail) === index,
-  );
+// A finding's words, its letters and digits, in order.
+const wordsOf = ({ match }: Finding) => match.match(/[\p{L}\p{N}]+/gu) ?? [];
+// Whether every word of `part` stands in `whole` in the same order, other words between them allowed.
+const within = (part: readonly string[], whole: readonly string[]) =>
+  part.length === whole.reduce((found, word) => found + Number(word === part[found]), 0);
+// Two reads of one line: the same rule, and one quote's words within the other's. The block read quotes its block,
+// a list marker and a list item's number included; English's module reads quote the line or its joined lines.
+const sameLine = (shown: Finding, read: Finding) =>
+  shown.rule === read.rule && (within(wordsOf(shown), wordsOf(read)) || within(wordsOf(read), wordsOf(shown)));
+
+/**
+ * English's module reads of a translation's source body, less each that is one of the block read's findings: every
+ * block finding pairs with at most one source finding, so a line both reads refuse is reported once, by the block
+ * read's quote, and a phrase refused on two lines is reported twice.
+ */
+function sourceOnly(shown: readonly Finding[], source: string) {
+  const unpaired = [...shown];
+  return bodyFindings(bodyOf(source)).filter((read) => {
+    const pair = unpaired.findIndex((finding) => sameLine(finding, read));
+    if (pair !== -1) unpaired.splice(pair, 1);
+    return pair === -1;
+  });
+}
 
 const listed = (elements: readonly string[]) => elements.join(', ') || 'none';
 
@@ -97,12 +115,15 @@ async function translationProblems(
   mine: ModuleBodyCheck,
   english?: LearnModule,
 ) {
-  const own = once([
-    ...mine.blocks
-      .map(spaced)
-      .flatMap((words) => [...bannedProblems(path, 'body', words), ...hyphenProblems(path, 'body', words)]),
-    ...findingProblems(path, 'body', bodyFindings(bodyOf(source))),
-  ]);
+  const blocks = mine.blocks.map(spaced);
+  const shown = blocks.map((words) => findBanned(words));
+  const own = [
+    ...blocks.flatMap((words, index) => [
+      ...findingProblems(path, 'body', shown[index] ?? []),
+      ...hyphenProblems(path, 'body', words),
+    ]),
+    ...findingProblems(path, 'body', sourceOnly(shown.flat(), source)),
+  ];
   if (english === undefined) return own;
   const theirs = await checkModuleBody(
     english.body,
