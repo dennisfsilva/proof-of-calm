@@ -92,7 +92,8 @@ await preloadLazyModules([
   () => import('../src/features/learn/fixtures/start-here.mdx'),
   () => import('../src/features/log'),
   () => import('../src/features/onboarding'),
-  () => import('../src/features/plan'),
+  () => import('../src/features/plan').then((plan) => plan.loadPlanScreen()),
+  () => import('../src/features/plan').then((plan) => plan.loadReviewScreen()),
   () => import('../src/features/portfolio'),
   () => import('../src/features/settings'),
 ]);
