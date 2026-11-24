@@ -1573,7 +1573,7 @@ The decision stands; German gets its own message files, wired as pt-PT's were on
 
 ## Deviations recorded on 2026-11-24
 
-The decision stands; one lib namespace joins the lazy ones, and the plan feature exports its
+The decision stands; one lib namespace joins the lazy ones, and the features but Today export their
 screens by loaders.
 
 - **2026-11-24, each language's country forms are the lazy namespace `countries`** (§8; the entry of
@@ -1593,4 +1593,7 @@ screens by loaders.
   Onboarding imported it statically: its first visit loaded about 57 kB more minified script, and
   `/plan` needed none that Onboarding had not loaded (`apps/web/e2e/chunk-reload.spec.ts` failed).
   As `loadLearnScreen` does, the plan feature exports `loadPlanScreen` and `loadReviewScreen`, so
-  each screen is a chunk of its own that only its route loads.
+  each screen is a chunk of its own that only its route loads. The Log, Onboarding, Portfolio and
+  Settings barrels followed (Settings imports Onboarding's for its country step), and
+  `packages/app/src/features/screen-loaders.test.ts` fails on any barrel's export named `*Screen`
+  but Today's, which the entry imports statically.
