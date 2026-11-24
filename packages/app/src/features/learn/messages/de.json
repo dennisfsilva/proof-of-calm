@@ -36,7 +36,7 @@
       "exempt": "Steuerfrei ab <date></date>",
       "lowerRate": "Langfristiger Steuersatz ab <date></date>",
       "from": "Für einen Kauf am <date></date>",
-      "note": "Aus Ihren Datumsangaben berechnet, keine Steuerberatung",
+      "note": "Aus Ihrem Kaufdatum berechnet, keine Steuerberatung",
       "more": "{count} weitere {count, plural, one {Bedingung} other {Bedingungen}} zeigen"
     }
   },
@@ -73,7 +73,7 @@
       "spending": "Bezahlen mit Krypto",
       "own-wallet-transfer": "Übertragung von Coins zwischen eigenen Wallets",
       "gift-or-inheritance": "Eine Schenkung oder eine Erbschaft",
-      "staking-or-airdrop": "Staking-Erträge und Airdrops"
+      "staking-or-airdrop": "Staking-Belohnungen und Airdrops"
     },
     "taxable": {
       "yes": "Steuerpflichtig",
