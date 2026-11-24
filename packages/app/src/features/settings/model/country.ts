@@ -85,3 +85,10 @@ export function ruleWordsOf(
   if (card.unreviewed !== undefined) return card.unreviewed.text === null ? null : { text: card.unreviewed.text };
   return card.source === null ? null : words;
 }
+
+/**
+ * The branch a change-of-country sentence takes: the general profile is never where a plan goes, so its sentences
+ * say it applies (docs/CONTENT-STYLE.md §3, docs/JURISDICTIONS.md "Generic profile `XX`").
+ */
+export const changeKindOf = (code: CountryCode): 'generic' | 'country' =>
+  code === GENERIC_COUNTRY ? 'generic' : 'country';

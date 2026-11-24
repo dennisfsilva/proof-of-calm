@@ -19,7 +19,7 @@
     "label": "Country",
     "notLoaded": "The country profiles are not loaded on this device.",
     "ruleNotLoaded": "Your country's rule is not loaded on this device. Reload the page when you are online to change the country.",
-    "summary": "Changing {countryTo}:",
+    "summary": "{kind, select, generic {Changing country:} other {Changing {countryTo}:}}",
     "row": {
       "country": "Country now: {old}. After the change: {new}.",
       "payCurrency": "Currency for new amounts: {from} to {to}",
@@ -49,9 +49,9 @@
     "confirmRule": "Replace {from} with {to}",
     "confirmRuleIssue": "Tick the box to replace the holding rule.",
     "notSaved": "Not saved: this change conflicts with another part of your plan. Check Plan and Hold & sell, then change the country again.",
-    "confirm": "Change country {countryTo}",
-    "changed": "Country changed {countryTo}.",
-    "alreadyChanged": "Your plan was changed {countryTo} in another browser tab."
+    "confirm": "{kind, select, generic {Use the general profile} other {Change country {countryTo}}}",
+    "changed": "{kind, select, generic {Country changed. The general profile now applies.} other {Country changed {countryTo}.}}",
+    "alreadyChanged": "{kind, select, generic {Your plan's country was changed in another browser tab. The general profile now applies.} other {Your plan was changed {countryTo} in another browser tab.}}"
   },
   "data": {
     "heading": "Your data",

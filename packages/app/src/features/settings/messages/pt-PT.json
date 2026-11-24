@@ -19,7 +19,7 @@
     "label": "País",
     "notLoaded": "Os perfis dos países não estão carregados neste dispositivo.",
     "ruleNotLoaded": "A regra do país não está carregada neste dispositivo. Recarregue a página quando tiver ligação para alterar o país.",
-    "summary": "Ao mudar {countryTo}:",
+    "summary": "{kind, select, generic {Ao mudar de país:} other {Ao mudar {countryTo}:}}",
     "row": {
       "country": "País atual: {old}. Depois da alteração: {new}.",
       "payCurrency": "Moeda de pagamento dos novos montantes: de {from} para {to}",
@@ -49,9 +49,9 @@
     "confirmRule": "Substituir a {from} pela {to}",
     "confirmRuleIssue": "Marque a caixa para substituir a regra de detenção.",
     "notSaved": "Não guardado: esta alteração entra em conflito com outra parte do plano. Verifique «Plano» e «Regra e venda» e depois mude de país novamente.",
-    "confirm": "Mudar o país {countryTo}",
-    "changed": "País alterado {countryTo}.",
-    "alreadyChanged": "O país do plano foi alterado {countryTo} noutro separador do navegador."
+    "confirm": "{kind, select, generic {Usar o perfil geral} other {Mudar o país {countryTo}}}",
+    "changed": "{kind, select, generic {País alterado. Aplica-se agora o perfil geral.} other {País alterado {countryTo}.}}",
+    "alreadyChanged": "{kind, select, generic {O país do plano foi alterado noutro separador do navegador. Aplica-se agora o perfil geral.} other {O país do plano foi alterado {countryTo} noutro separador do navegador.}}"
   },
   "data": {
     "heading": "Dados",

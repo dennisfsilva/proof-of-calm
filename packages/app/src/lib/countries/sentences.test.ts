@@ -97,7 +97,11 @@ const SENTENCES: readonly Sentence[] = [
     cases: ALL,
     values: ({ code }) => ({ kind: generic(code) ? 'generic' : 'named' }),
   },
-  { key: 'settings.country.summary', cases: ALL },
+  {
+    key: 'settings.country.summary',
+    cases: ALL,
+    values: ({ code }) => ({ kind: generic(code) ? 'generic' : 'country' }),
+  },
   { key: 'settings.country.row.country', cases: CHANGES },
   {
     key: 'settings.country.row.ruleNow',
@@ -119,9 +123,11 @@ const SENTENCES: readonly Sentence[] = [
     cases: CHANGES,
     values: ({ code, old, rule }) => ({ from: rule(old ?? code), to: rule(code) }),
   },
-  { key: 'settings.country.confirm', cases: ALL },
-  { key: 'settings.country.changed', cases: ALL },
-  { key: 'settings.country.alreadyChanged', cases: ALL },
+  ...['confirm', 'changed', 'alreadyChanged'].map((name) => ({
+    key: `settings.country.${name}`,
+    cases: ALL,
+    values: ({ code }: Case) => ({ kind: generic(code) ? 'generic' : 'country' }),
+  })),
   {
     key: 'settings.data.taxYear.file.title',
     cases: ALL,

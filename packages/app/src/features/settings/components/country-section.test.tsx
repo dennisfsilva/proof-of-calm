@@ -594,14 +594,19 @@ describe('CountrySection', () => {
   it('refuses a change once another tab moved the plan, and shows the plan as stored', async () => {
     const services = await mount();
     await choose('Other country');
+    // The general profile applies to the plan; no sentence sends the plan to it (docs/CONTENT-STYLE.md §3).
+    expect(screen.getByText('Changing country:')).toBeTruthy();
+    const useGeneral = () =>
+      act(async () => fireEvent.click(screen.getByRole('button', { name: 'Use the general profile' })));
     await act(() => services.domain.write({ plan: { ...stored(services), holdingRule: { kind: 'none' } } }));
     fireEvent.click(screen.getByRole('checkbox', { name: /^Replace the rule for Portugal with/ }));
-    await confirm('the general profile');
+    await useGeneral();
     expect(screen.getByRole('alert').textContent).toContain('Your plan changed in another browser tab');
     expect(stored(services).country).toBe('PT');
     expect(screen.queryByRole('checkbox')).toBeNull();
-    await confirm('the general profile');
+    await useGeneral();
     expect(stored(services)).toMatchObject({ country: 'XX', holdingRule: { kind: 'none' } });
+    expect(screen.getByText('Country changed. The general profile now applies.')).toBeTruthy();
   });
 
   it('asks for the tick again once another tab set the plan an own rule', async () => {

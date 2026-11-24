@@ -35,7 +35,7 @@ import {
   sellWindowValueOf,
 } from '../../plan';
 import { changeCountryOf } from '../actions';
-import { countryOptions, countrySummary, type RuleWords, ruleWordsOf } from '../model/country';
+import { changeKindOf, countryOptions, countrySummary, type RuleWords, ruleWordsOf } from '../model/country';
 import {
   AmountRows,
   CurrencyQuestionGroup,
@@ -146,6 +146,8 @@ export function CountrySection() {
     const rules = options.find((candidate) => candidate.code === country) ?? null;
     return t('ruleName', { kind: ruleNameOf(rule, rules), ...forms(country) });
   };
+  // The general profile is never where a plan goes: its sentences say it applies (docs/CONTENT-STYLE.md §3).
+  const toArgs = (code: CountryCode) => ({ kind: changeKindOf(code), ...forms(code) });
   // A country's card as Hold & sell shows it, from the profile the section loaded.
   const cardOf = (rules: CountryRules) =>
     holdingCountryOf(
@@ -228,7 +230,7 @@ export function CountrySection() {
       busy.current = false;
       setChanging(false);
     }
-    const to = forms(pending.rules.code);
+    const to = toArgs(pending.rules.code);
     if (outcome.ok) {
       done(outcome.value.written ? t('changed', to) : '');
       return;
@@ -282,7 +284,7 @@ export function CountrySection() {
           </Select>
           {pending !== null && change !== null && (
             <>
-              <p className="text-16 text-ink">{t('summary', forms(pending.rules.code))}</p>
+              <p className="text-16 text-ink">{t('summary', toArgs(pending.rules.code))}</p>
               <ul className={SUMMARY_LIST}>
                 {rows.map((row) =>
                   row.field === 'holdingRule' ? (
@@ -377,7 +379,7 @@ export function CountrySection() {
                 {/* Busy, not natively disabled, while the change is written: a `disabled` attribute on the focused
                     button drops the focus to `body` (Base UI's Button docs, "Loading states"). */}
                 <Button type="submit" disabled={changing} focusableWhenDisabled>
-                  {t('confirm', forms(pending.rules.code))}
+                  {t('confirm', toArgs(pending.rules.code))}
                 </Button>
               </div>
             </>

@@ -148,7 +148,7 @@ test('a change refused because another tab moved the plan focuses the line that 
   expect((await status.boundingBox())?.y, 'room above the focused result line').toBeGreaterThanOrEqual(16);
   await other.close();
 
-  await page.getByRole('button', { name: 'Change country to the general profile' }).click();
+  await page.getByRole('button', { name: 'Use the general profile' }).click();
   const line = page.getByRole('alert').filter({ hasText: 'Your plan changed in another browser tab' });
   await expect(line).toBeFocused();
   expect(await page.evaluate(() => document.activeElement?.tagName)).not.toBe('BODY');
