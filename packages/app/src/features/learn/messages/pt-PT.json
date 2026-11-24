@@ -18,7 +18,7 @@
     "line": "Regras fiscais e de detenção por país, com as fontes e a data da última revisão de cada uma.",
     "back": "Voltar aos países",
     "headTitle": "Tributação dos criptoativos por país",
-    "countryHeadTitle": "Tributação dos criptoativos {code, select, DE {na } IE {na } GB {no } NL {nos } US {nos } other {em }}{country}",
+    "countryHeadTitle": "Tributação dos criptoativos {countryIn}",
     "lastReviewed": "Revisto a {date}",
     "notReviewedSince": "Sem revisão desde {date}",
     "holdingTool": "Mostrar a data em que uma compra cumpre esta regra de detenção"
@@ -91,7 +91,7 @@
     "reporting": "Declaração",
     "caveats": "Perguntas para um contabilista",
     "sources": "Fontes",
-    "sourceList": "Fontes {code, select, DE {da } IE {da } GB {do } NL {dos } US {dos } other {de }}{country}",
+    "sourceList": "Fontes {countryFor}",
     "sourcePublished": "{publisher} · datado de {date}",
     "sourceAccessed": "{publisher} · consultado a {date}",
     "sourcesName": "Fontes {rule, select, rates {das taxas} holdingRule {da regra de detenção} lotRule {da correspondência entre vendas e compras} losses {das perdas} reporting {da declaração} other {desta regra}}",

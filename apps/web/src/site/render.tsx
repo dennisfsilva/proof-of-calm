@@ -19,6 +19,8 @@ import {
   StaticLearn,
 } from '@proofofcalm/app/features/learn/site';
 import { BRAND } from '@proofofcalm/app/lib/brand';
+import { countryArgs } from '@proofofcalm/app/lib/countries';
+import countryMessages from '@proofofcalm/app/messages/en/countries.json';
 import learnMessages from '@proofofcalm/app/messages/en/learn.json';
 import type { LearnModuleMeta } from '@proofofcalm/content';
 import type { CalendarDate } from '@proofofcalm/core';
@@ -132,6 +134,7 @@ function publicPage(name: PublicPage, { learn, countries, today, islands }: Site
   );
   const common = { canonical: `/${name}`, indexable: PUBLIC_INDEXABLE };
   const t = createTranslator({ locale: 'en', messages: { learn: learnMessages }, namespace: 'learn' });
+  const forms = createTranslator({ locale: 'en', messages: { countries: countryMessages }, namespace: 'countries' });
   const { entries, cards, rules } = countries;
   if (name === 'en/learn') {
     return { ...common, title: t('title'), body: page(<SiteLearnIndex modules={learn.modules} links={SITE_LINKS} />) };
@@ -165,7 +168,7 @@ function publicPage(name: PublicPage, { learn, countries, today, islands }: Site
     const holding = rules.get(code);
     return {
       ...common,
-      title: t('countries.countryHeadTitle', { country: card.name, code }),
+      title: t('countries.countryHeadTitle', countryArgs(forms, code)),
       body: page(<SiteCountryPage card={card} holding={holding && { code, rules: holding }} links={SITE_LINKS} />),
     };
   }

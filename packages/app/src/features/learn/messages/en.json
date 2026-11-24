@@ -18,7 +18,7 @@
     "line": "Tax and holding rules by country, with their sources and the date each was last reviewed.",
     "back": "Back to countries",
     "headTitle": "Crypto tax rules by country",
-    "countryHeadTitle": "Crypto tax in {code, select, GB {the } NL {the } US {the } other {}}{country}",
+    "countryHeadTitle": "Crypto tax {countryIn}",
     "lastReviewed": "Last reviewed {date}",
     "notReviewedSince": "Not reviewed since {date}",
     "holdingTool": "Show the date a purchase passes this holding rule"
@@ -91,7 +91,7 @@
     "reporting": "Reporting",
     "caveats": "Questions for an accountant",
     "sources": "Sources",
-    "sourceList": "Sources for {code, select, GB {the } NL {the } US {the } other {}}{country}",
+    "sourceList": "Sources {countryFor}",
     "sourcePublished": "{publisher} · dated {date}",
     "sourceAccessed": "{publisher} · accessed {date}",
     "sourcesName": "Sources for {rule, select, rates {the rates} holdingRule {the holding rule} lotRule {matching sales to purchases} losses {losses} reporting {reporting} other {this rule}}",
