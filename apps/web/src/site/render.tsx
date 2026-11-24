@@ -35,10 +35,12 @@ import { CookiesPage } from './cookies';
 import { headAssets, pageHead } from './head';
 import { HomePage } from './home';
 import { SiteLayout } from './layout';
-import { LegalPage, legalTitle } from './legal';
+import { legalTitle } from './legal';
 import { NotFoundPage } from './not-found';
 import { OfflinePage } from './offline';
+import { PrivacyPage } from './privacy';
 import { RiskPage } from './risk';
+import { TermsPage } from './terms';
 
 export { headAssets };
 
@@ -191,14 +193,25 @@ function publicPage(name: PublicPage, { learn, countries, today, islands }: Site
   };
 }
 
-const legal = (slug: LegalSlug, language: SiteLanguage): Rendered => ({
-  title: legalTitle(slug, language),
-  body: (
-    <SiteLayout>
-      <LegalPage slug={slug} />
-    </SiteLayout>
-  ),
-});
+/** The legal pages other than Risk, which reads the site data (docs/LEGAL.md §5). */
+const LEGAL_BODIES: Record<Exclude<LegalSlug, 'risk'>, () => ReactNode> = {
+  terms: TermsPage,
+  privacy: PrivacyPage,
+  cookies: CookiesPage,
+  contact: ContactPage,
+};
+
+const legal = (slug: Exclude<LegalSlug, 'risk'>, language: SiteLanguage): Rendered => {
+  const Body = LEGAL_BODIES[slug];
+  return {
+    title: legalTitle(slug, language),
+    body: (
+      <SiteLayout>
+        <Body />
+      </SiteLayout>
+    ),
+  };
+};
 
 /**
  * The Risk disclosure (docs/LEGAL.md §5): its dated falls are the cycles file's rows the Learn pages read. Its falls
@@ -224,24 +237,6 @@ function page(name: Exclude<(typeof SITE_PAGES)[number], 'not-available' | 'risk
         body: (
           <SiteLayout>
             <HomePage />
-          </SiteLayout>
-        ),
-      };
-    case 'cookies':
-      return {
-        title: legalTitle('cookies', language),
-        body: (
-          <SiteLayout>
-            <CookiesPage />
-          </SiteLayout>
-        ),
-      };
-    case 'contact':
-      return {
-        title: legalTitle('contact', language),
-        body: (
-          <SiteLayout>
-            <ContactPage />
           </SiteLayout>
         ),
       };

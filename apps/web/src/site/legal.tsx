@@ -1,24 +1,39 @@
 import { BRAND } from '@proofofcalm/app/lib/brand';
 import type { ReactNode } from 'react';
-import type { LegalSlug } from '../../lib/site/pages';
-import {
-  englishLang,
-  type SiteLanguage,
-  siteTranslator,
-  useSiteLanguage,
-  useSiteTranslator,
-} from '../../lib/site-messages';
+import { LEGAL_PAGES, type LegalSlug } from '../../lib/site/pages';
+import { englishLang, type SiteLanguage, siteTranslator, useSiteLanguage } from '../../lib/site-messages';
+import messages from '../../messages/en.json';
 import { SiteMain } from './layout';
 
-// A legal page: its title and its lead, then, while the page is a draft, the notice that the full text comes before
-// opening (docs/LEGAL.md §5). The footer of the site layout carries the disclaimer line (§4).
+// A legal page: its title and its lead, then its sections (docs/LEGAL.md §5). The footer of the site layout carries
+// the disclaimer line (§4).
 export function legalTitle(slug: LegalSlug, language: SiteLanguage = 'en'): string {
   return siteTranslator('legal', language)(`${slug}.title`);
 }
 
-type LegalPageProps = { slug: LegalSlug; draft?: boolean; children?: ReactNode };
+/**
+ * The identity fields the owner may leave empty while no activity is opened (docs/LEGAL.md §5): Contact then shows no
+ * line for them. Every other field is required once the owner fills the file in.
+ */
+export const OPTIONAL_OWNER_FIELDS = ['vat', 'register', 'manager'] as const;
 
-export function LegalPage({ slug, draft = true, children }: LegalPageProps) {
+/** An owner value that holds nothing but white space counts as empty, on the page and in the owner-file test alike. */
+export const emptyOwnerValue = (value: string) => value.trim() === '';
+
+/**
+ * The values every legal message may use: the product's name and the identity fields the owner fills in before the
+ * pages are published (docs/LEGAL.md §5), each a visible `[Owner: …]` placeholder under `legal.owner` until then.
+ * A test passes another owner file.
+ */
+export function legalValues(
+  owner: typeof messages.legal.owner = messages.legal.owner,
+): typeof messages.legal.owner & { product: string } {
+  return { ...owner, product: BRAND.name };
+}
+
+type LegalPageProps = { slug: LegalSlug; children?: ReactNode };
+
+export function LegalPage({ slug, children }: LegalPageProps) {
   const language = useSiteLanguage();
   const t = siteTranslator('legal', language);
   return (
@@ -27,7 +42,6 @@ export function LegalPage({ slug, draft = true, children }: LegalPageProps) {
         {t(`${slug}.title`)}
       </h1>
       <p lang={englishLang(language, `legal.${slug}.lead`)}>{t(`${slug}.lead`, { product: BRAND.name })}</p>
-      {draft && <p>{t('placeholder', { product: BRAND.name })}</p>}
       {children}
     </SiteMain>
   );
@@ -43,13 +57,20 @@ type LegalSectionsProps = {
   after?: Readonly<Partial<Record<string, ReactNode>>>;
 };
 
-/** The sections in the order given, each a region named by its heading. */
+/** The sections in the order given, each a region named by its heading and marked `lang="en"` where it is English. */
 export function LegalSections({ slug, sections, after = {} }: LegalSectionsProps) {
-  const t = useSiteTranslator('legal');
+  const language = useSiteLanguage();
+  const t = siteTranslator('legal', language);
+  const values = legalValues();
   // The keys are built from the section list, so the typed translator cannot check them; a missing one throws.
-  const message = (key: string) => t(`${slug}.${key}` as Parameters<typeof t>[0], { product: BRAND.name });
+  const message = (key: string) => t(`${slug}.${key}` as Parameters<typeof t>[0], values);
   return sections.map(({ id, paragraphs }) => (
-    <section key={id} aria-labelledby={`${slug}-${id}-title`} className="flex flex-col gap-stack-sm">
+    <section
+      key={id}
+      aria-labelledby={`${slug}-${id}-title`}
+      className="flex flex-col gap-stack-sm"
+      lang={englishLang(language, `legal.${slug}.${id}`)}
+    >
       <h2 id={`${slug}-${id}-title`} className="text-20">
         {message(`${id}.title`)}
       </h2>
@@ -59,4 +80,31 @@ export function LegalSections({ slug, sections, after = {} }: LegalSectionsProps
       {after[id]}
     </section>
   ));
+}
+
+/**
+ * A link to another legal page, labelled with its title, on a line of its own. The four drafted pages that carry it
+ * stay English, so a title the language translates (Risk's) carries that language's mark.
+ */
+export function LegalLink({ slug }: { slug: LegalSlug }) {
+  const language = useSiteLanguage();
+  const path = LEGAL_PAGES.find((page) => page.slug === slug)?.path;
+  const lang = language === 'en' ? undefined : (englishLang(language, `legal.${slug}.title`) ?? language);
+  return (
+    <p>
+      <a href={path} lang={lang} className="text-ink underline underline-offset-4 hover:text-ink-2">
+        {legalTitle(slug, language)}
+      </a>
+    </p>
+  );
+}
+
+/** The closing line of a drafted page: its version and the date the owner publishes it, English in every language. */
+export function LegalVersion() {
+  const language = useSiteLanguage();
+  return (
+    <p className="text-13 text-ink-2" lang={englishLang(language, 'legal.version')}>
+      {siteTranslator('legal', language)('version', legalValues())}
+    </p>
+  );
 }
