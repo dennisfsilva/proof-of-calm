@@ -234,5 +234,83 @@
     "PT": "Der Plan wurde in einem anderen Browser-Tab auf Portugal umgestellt.",
     "US": "Der Plan wurde in einem anderen Browser-Tab auf die USA umgestellt.",
     "XX": "Das Land des Plans wurde in einem anderen Browser-Tab umgestellt. Jetzt gilt das allgemeine Profil."
+  },
+  "settings.data.taxYear.file.title": {
+    "DE": "Datei für das Steuerjahr von Proof of Calm · Deutschland · 2026-01-01 bis 2026-12-31",
+    "ES": "Datei für das Steuerjahr von Proof of Calm · Spanien · 2026-01-01 bis 2026-12-31",
+    "FR": "Datei für das Steuerjahr von Proof of Calm · Frankreich · 2026-01-01 bis 2026-12-31",
+    "GB": "Datei für das Steuerjahr von Proof of Calm · Vereinigtes Königreich · 2026-01-01 bis 2026-12-31",
+    "IE": "Datei für das Steuerjahr von Proof of Calm · Irland · 2026-01-01 bis 2026-12-31",
+    "IT": "Datei für das Steuerjahr von Proof of Calm · Italien · 2026-01-01 bis 2026-12-31",
+    "NL": "Datei für das Steuerjahr von Proof of Calm · Niederlande · 2026-01-01 bis 2026-12-31",
+    "PT": "Datei für das Steuerjahr von Proof of Calm · Portugal · 2026-01-01 bis 2026-12-31",
+    "US": "Datei für das Steuerjahr von Proof of Calm · USA · 2026-01-01 bis 2026-12-31",
+    "XX": "Datei für das Steuerjahr von Proof of Calm · Anderes Land · 2026-01-01 bis 2026-12-31"
+  },
+  "settings.data.taxYear.file.reviewed": {
+    "DE": "Regeln für Deutschland, Stand: 2026-10-01 · allgemeine Informationen, keine Beratung",
+    "ES": "Regeln für Spanien, Stand: 2026-10-01 · allgemeine Informationen, keine Beratung",
+    "FR": "Regeln für Frankreich, Stand: 2026-10-01 · allgemeine Informationen, keine Beratung",
+    "GB": "Regeln für das Vereinigte Königreich, Stand: 2026-10-01 · allgemeine Informationen, keine Beratung",
+    "IE": "Regeln für Irland, Stand: 2026-10-01 · allgemeine Informationen, keine Beratung",
+    "IT": "Regeln für Italien, Stand: 2026-10-01 · allgemeine Informationen, keine Beratung",
+    "NL": "Regeln für die Niederlande, Stand: 2026-10-01 · allgemeine Informationen, keine Beratung",
+    "PT": "Regeln für Portugal, Stand: 2026-10-01 · allgemeine Informationen, keine Beratung",
+    "US": "Regeln für die USA, Stand: 2026-10-01 · allgemeine Informationen, keine Beratung"
+  },
+  "settings.data.taxYear.file.reviewedSources": {
+    "DE": "Regeln für Deutschland, Stand: 2026-10-01 · allgemeine Informationen, keine Beratung · Quellen: https://example.org",
+    "ES": "Regeln für Spanien, Stand: 2026-10-01 · allgemeine Informationen, keine Beratung · Quellen: https://example.org",
+    "FR": "Regeln für Frankreich, Stand: 2026-10-01 · allgemeine Informationen, keine Beratung · Quellen: https://example.org",
+    "GB": "Regeln für das Vereinigte Königreich, Stand: 2026-10-01 · allgemeine Informationen, keine Beratung · Quellen: https://example.org",
+    "IE": "Regeln für Irland, Stand: 2026-10-01 · allgemeine Informationen, keine Beratung · Quellen: https://example.org",
+    "IT": "Regeln für Italien, Stand: 2026-10-01 · allgemeine Informationen, keine Beratung · Quellen: https://example.org",
+    "NL": "Regeln für die Niederlande, Stand: 2026-10-01 · allgemeine Informationen, keine Beratung · Quellen: https://example.org",
+    "PT": "Regeln für Portugal, Stand: 2026-10-01 · allgemeine Informationen, keine Beratung · Quellen: https://example.org",
+    "US": "Regeln für die USA, Stand: 2026-10-01 · allgemeine Informationen, keine Beratung · Quellen: https://example.org"
+  },
+  "settings.data.taxYear.file.underReview": {
+    "DE": "Regeln für Deutschland seit 2025-10-01 nicht überprüft · allgemeine Informationen, keine Beratung",
+    "ES": "Regeln für Spanien seit 2025-10-01 nicht überprüft · allgemeine Informationen, keine Beratung",
+    "FR": "Regeln für Frankreich seit 2025-10-01 nicht überprüft · allgemeine Informationen, keine Beratung",
+    "GB": "Regeln für das Vereinigte Königreich seit 2025-10-01 nicht überprüft · allgemeine Informationen, keine Beratung",
+    "IE": "Regeln für Irland seit 2025-10-01 nicht überprüft · allgemeine Informationen, keine Beratung",
+    "IT": "Regeln für Italien seit 2025-10-01 nicht überprüft · allgemeine Informationen, keine Beratung",
+    "NL": "Regeln für die Niederlande seit 2025-10-01 nicht überprüft · allgemeine Informationen, keine Beratung",
+    "PT": "Regeln für Portugal seit 2025-10-01 nicht überprüft · allgemeine Informationen, keine Beratung",
+    "US": "Regeln für die USA seit 2025-10-01 nicht überprüft · allgemeine Informationen, keine Beratung"
+  },
+  "settings.data.taxYear.file.holding": {
+    "DE": "eligible_from: der erste Tag nach der Haltefrist für Deutschland (1 Jahr). past_holding_rule: ob dieser Tag bis zum Verkauf erreicht war, bei Einheiten im Bestand bis zum 2026-10-20. Aus Ihren Einträgen berechnet, keine Steuerberatung.",
+    "ES": "eligible_from: der erste Tag nach der Haltefrist für Spanien (1 Jahr). past_holding_rule: ob dieser Tag bis zum Verkauf erreicht war, bei Einheiten im Bestand bis zum 2026-10-20. Aus Ihren Einträgen berechnet, keine Steuerberatung.",
+    "FR": "eligible_from: der erste Tag nach der Haltefrist für Frankreich (1 Jahr). past_holding_rule: ob dieser Tag bis zum Verkauf erreicht war, bei Einheiten im Bestand bis zum 2026-10-20. Aus Ihren Einträgen berechnet, keine Steuerberatung.",
+    "GB": "eligible_from: der erste Tag nach der Haltefrist für das Vereinigte Königreich (1 Jahr). past_holding_rule: ob dieser Tag bis zum Verkauf erreicht war, bei Einheiten im Bestand bis zum 2026-10-20. Aus Ihren Einträgen berechnet, keine Steuerberatung.",
+    "IE": "eligible_from: der erste Tag nach der Haltefrist für Irland (1 Jahr). past_holding_rule: ob dieser Tag bis zum Verkauf erreicht war, bei Einheiten im Bestand bis zum 2026-10-20. Aus Ihren Einträgen berechnet, keine Steuerberatung.",
+    "IT": "eligible_from: der erste Tag nach der Haltefrist für Italien (1 Jahr). past_holding_rule: ob dieser Tag bis zum Verkauf erreicht war, bei Einheiten im Bestand bis zum 2026-10-20. Aus Ihren Einträgen berechnet, keine Steuerberatung.",
+    "NL": "eligible_from: der erste Tag nach der Haltefrist für die Niederlande (1 Jahr). past_holding_rule: ob dieser Tag bis zum Verkauf erreicht war, bei Einheiten im Bestand bis zum 2026-10-20. Aus Ihren Einträgen berechnet, keine Steuerberatung.",
+    "PT": "eligible_from: der erste Tag nach der Haltefrist für Portugal (1 Jahr). past_holding_rule: ob dieser Tag bis zum Verkauf erreicht war, bei Einheiten im Bestand bis zum 2026-10-20. Aus Ihren Einträgen berechnet, keine Steuerberatung.",
+    "US": "eligible_from: der erste Tag nach der Haltefrist für die USA (1 Jahr). past_holding_rule: ob dieser Tag bis zum Verkauf erreicht war, bei Einheiten im Bestand bis zum 2026-10-20. Aus Ihren Einträgen berechnet, keine Steuerberatung."
+  },
+  "settings.data.taxYear.file.holdingRaw": {
+    "DE": "eligible_from: der erste Tag nach der Haltefrist für Deutschland (1 Jahr). Aus Ihren Einträgen berechnet, keine Steuerberatung.",
+    "ES": "eligible_from: der erste Tag nach der Haltefrist für Spanien (1 Jahr). Aus Ihren Einträgen berechnet, keine Steuerberatung.",
+    "FR": "eligible_from: der erste Tag nach der Haltefrist für Frankreich (1 Jahr). Aus Ihren Einträgen berechnet, keine Steuerberatung.",
+    "GB": "eligible_from: der erste Tag nach der Haltefrist für das Vereinigte Königreich (1 Jahr). Aus Ihren Einträgen berechnet, keine Steuerberatung.",
+    "IE": "eligible_from: der erste Tag nach der Haltefrist für Irland (1 Jahr). Aus Ihren Einträgen berechnet, keine Steuerberatung.",
+    "IT": "eligible_from: der erste Tag nach der Haltefrist für Italien (1 Jahr). Aus Ihren Einträgen berechnet, keine Steuerberatung.",
+    "NL": "eligible_from: der erste Tag nach der Haltefrist für die Niederlande (1 Jahr). Aus Ihren Einträgen berechnet, keine Steuerberatung.",
+    "PT": "eligible_from: der erste Tag nach der Haltefrist für Portugal (1 Jahr). Aus Ihren Einträgen berechnet, keine Steuerberatung.",
+    "US": "eligible_from: der erste Tag nach der Haltefrist für die USA (1 Jahr). Aus Ihren Einträgen berechnet, keine Steuerberatung."
+  },
+  "settings.data.taxYear.file.planRule": {
+    "DE": "Ihr Plan hat eine eigene Regel. Diese Datei verwendet die Haltefrist für Deutschland.",
+    "ES": "Ihr Plan hat eine eigene Regel. Diese Datei verwendet die Haltefrist für Spanien.",
+    "FR": "Ihr Plan hat eine eigene Regel. Diese Datei verwendet die Haltefrist für Frankreich.",
+    "GB": "Ihr Plan hat eine eigene Regel. Diese Datei verwendet die Haltefrist für das Vereinigte Königreich.",
+    "IE": "Ihr Plan hat eine eigene Regel. Diese Datei verwendet die Haltefrist für Irland.",
+    "IT": "Ihr Plan hat eine eigene Regel. Diese Datei verwendet die Haltefrist für Italien.",
+    "NL": "Ihr Plan hat eine eigene Regel. Diese Datei verwendet die Haltefrist für die Niederlande.",
+    "PT": "Ihr Plan hat eine eigene Regel. Diese Datei verwendet die Haltefrist für Portugal.",
+    "US": "Ihr Plan hat eine eigene Regel. Diese Datei verwendet die Haltefrist für die USA."
   }
 }
