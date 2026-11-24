@@ -268,8 +268,23 @@ describe('§2’s German registration claim, read from the document', () => {
     }
   });
 
+  it('refuses the joined form after whatever word stands before it, the named one included', () => {
+    const joinedSentence = sentence('The joined form fails whatever word stands before it');
+    const named = backticked(joinedSentence.slice(0, joinedSentence.indexOf('(')));
+    expect(named).toEqual(['keiner']);
+    for (const word of [...named, 'keine', 'nicht', 'ohne', 'eine']) {
+      for (const joined of ['Aufsicht', 'Lizenz', 'registriert']) {
+        expect(rules(`Proof of Calm hat ${word} BaFin-${joined}.`), `${word} ${joined}`).toEqual([
+          `advice: BaFin-${joined}`,
+        ]);
+      }
+    }
+  });
+
   it('reads the past forms of unterliegen as passes, since Unterlagen names documents', () => {
     expect(backticked(sentence('The past forms pass'))).toEqual(['Unterlagen der BaFin', 'unterlag der BaFin']);
+    // They pass the lint only: the table's status row still refuses them in copy, since no status is claimed.
+    expect(sentence('The past forms pass')).toMatch(/pass the lint only.*status row.*refuses them in copy/u);
     expect(findBanned('Proof of Calm unterlag der BaFin.')).toEqual([]);
     expect(findBanned('Die Unterlagen der BaFin sind öffentlich.')).toEqual([]);
   });
