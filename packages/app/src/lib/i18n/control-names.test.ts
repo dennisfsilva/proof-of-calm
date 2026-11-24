@@ -134,7 +134,8 @@ describe('a control named inside a German sentence', () => {
   });
 
   // German Settings' exchange import names Today's one-tap button and the Log's two controls for coins from
-  // elsewhere, so the check reads each of them; the Log's move control and its sheet's title share one label.
+  // elsewhere, so the check reads each of them; the Log's move control and its sheet's title share one label, and
+  // the Coins tab's name is also the Plan legend's and the Onboarding summary row's.
   it('finds the controls the German exchange import names', () => {
     const inExchange = german.filter(({ key }) => key.startsWith('settings.data.exchange.'));
     expect(new Set(inExchange.map(({ labelKey, key }) => `${labelKey} in ${key}`))).toEqual(
@@ -150,6 +151,8 @@ describe('a control named inside a German sentence', () => {
         'log.move.title.new in settings.data.exchange.leftOut.coin-deposit',
         'log.move.title.new in settings.data.exchange.leftOut.notLogged',
         'settings.tabs.coins in settings.data.exchange.leftOut.not-in-plan',
+        'plan.coins.legend in settings.data.exchange.leftOut.not-in-plan',
+        'onboarding.summary.coins in settings.data.exchange.leftOut.not-in-plan',
       ]),
     );
   });
