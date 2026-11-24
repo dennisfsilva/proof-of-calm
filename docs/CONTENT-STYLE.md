@@ -1241,8 +1241,9 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
   `tools/messages/country-prose.test.ts` refuses `in`, `für`, `mit`, `von`, `aus`, `auf`, `nach`,
   `bei` or `zu` right before Vereinigtes Königreich, Niederlande or USA; `das`, `dem`, `des` or
   `die` before `Vereinigtes`; and `im`, `vom`, `zum`, `beim` or `ins`, which fuse a singular article,
-  before `Vereinigtes`, `Niederlande` or `USA` unless a hyphen joins the name to a noun (`zum
-  USA-Profil`). Another preposition is the writer's to check; the test holds pt-PT's prose the same
+  before `Vereinigtes`, `Niederlande` or `USA` unless a hyphen (`-` or the no-break hyphen U+2011, not
+  the en dash) joins the name to a noun (`zum USA-Profil`); a name keeps its case and ends at a letter
+  boundary (`im Usage`, `beim USAmerikaner` pass). Another preposition is the writer's to check; the test holds pt-PT's prose the same
   way.
 - **Disclosures take the official German text** of each regulator phrasing in `docs/LEGAL.md` §4,
   never a translation back from English: Delegated Regulation 2017/565 art. 44(4)(d), „Die frühere
@@ -1343,7 +1344,7 @@ The product's nouns, one German word each, in every string, the site pages and t
 | unread (a plan this version cannot read, `shell.newer.again`) | ungelesen |
 | Chart range (the control) | Zeitraum des Diagramms |
 | 7D / 30D / 90D / 1Y / All (the ranges) | `7T / 30T / 90T / 1J / Alle`, read out as `letzte 7 Tage`, `letzte 30 Tage`, `letzte 90 Tage`, `letzte 12 Monate`, `seit dem ersten Eintrag` |
-| value chart | `Portfoliowert, …` as the chart's name; `das Diagramm` in a sentence; never `Wertdiagramm` on a screen |
+| value chart | `Portfoliowert, …` as the chart's own name; `das Diagramm` in Portfolio's own sentences; `Wertdiagramm` where a sentence on another screen names the chart (`log.form.heldDate`) |
 | Close (the price table's column) | Schlusskurs, as the column only; elsewhere Tagesschlusskurs |
 | Type of transaction (the entry sheet's kind) | Art des Eintrags |
 | Fill in all units (the move sheet) | Alle Einheiten einsetzen; never `eintragen`, which records an entry |
