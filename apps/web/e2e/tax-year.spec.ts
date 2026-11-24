@@ -7,6 +7,8 @@ import {
   fixtureSnapshot,
 } from '@proofofcalm/app/lib/services/fixtures';
 import type { Plan } from '@proofofcalm/core';
+import deCountries from '../../../packages/app/src/messages/de/countries.json' with { type: 'json' };
+import deSettings from '../../../packages/app/src/messages/de/settings.json' with { type: 'json' };
 import countries from '../../../packages/app/src/messages/en/countries.json' with { type: 'json' };
 import france from '../../../packages/content/jurisdictions/fr.json' with { type: 'json' };
 import britain from '../../../packages/content/jurisdictions/gb.json' with { type: 'json' };
@@ -25,7 +27,8 @@ import { cspViolations, recordCspViolations, test } from './support';
 // change (docs/ENGINEERING.md §2), through no code the spec tests: the spec reads the JSON and quotes each cell
 // itself. Portugal's plan holds the profile's holding rule, as a change of country would derive it. The local run
 // sends no UK geolocation, so ADR-0029's 451 route does not apply. The Tax year select opens with no CSP violation,
-// and on the sell clock the latest ended year is chosen and downloads.
+// and on the sell clock the latest ended year is chosen and downloads. On a German screen the Netherlands' file opens
+// with the German header lines of the merged German messages and keeps the English file's columns and rows.
 
 test.use({ serviceWorkers: 'block' });
 
@@ -255,3 +258,49 @@ for (const country of ['FR', 'NL'] as const) {
     expect(file.text).toBe(await expected(country, `tax-year-2026-${country}.csv`));
   });
 }
+
+/** `LANGUAGE_STORAGE_KEY` of `packages/app/src/lib/i18n/language.ts`, whose index Node cannot import (JSON). */
+const LANGUAGE_STORAGE_KEY = 'poc.language';
+/** A header message with its plain arguments filled; the lines read here hold no select or plural. */
+const fill = (message: string, values: Readonly<Record<string, string>>) =>
+  message.replaceAll(/\{(\w+)\}/gu, (whole, name: string) => values[name] ?? whole);
+
+// D10 in German (docs/DOMAIN.md §3.13): on a German screen the header's lines come from the merged German messages,
+// the country in its German `for` form (`für die Niederlande`), while the columns and the rows stay the file's own.
+test('in German the NL file opens with the German header lines and keeps the rows', async ({ page }) => {
+  await page.addInitScript((key) => window.localStorage.setItem(key, 'de'), LANGUAGE_STORAGE_KEY);
+  await page.clock.setFixedTime(new Date(fixtureNowMs('buy')));
+  await seedPlan(page, { ...fixture, plan: { ...plan, country: 'NL' as Plan['country'] } });
+  await page.goto('/settings');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'de');
+  await expect(page.locator('main#main')).not.toHaveAttribute('aria-busy', 'true');
+  await page.getByRole('tab', { name: deSettings.tabs.data, exact: true }).click();
+  await expect(page.getByRole('heading', { level: 2, name: deSettings.data.heading })).toBeVisible();
+  const words = deSettings.data.taxYear;
+  await page.getByRole('combobox', { name: words.label }).click();
+  await page.getByRole('option', { name: fill(words.running, { year: '2026' }) }).click();
+  const event = page.waitForEvent('download');
+  await page.getByRole('button', { name: words.export }).click();
+  const bytes = await readFile(await (await event).path());
+  const text = bytes.subarray(3).toString('utf8');
+  const english = await expected('NL', 'tax-year-2026-NL.csv');
+  const split = text.indexOf('\n\n');
+  const header = text.slice(0, split).split('\n').map(unquoted);
+  const sources = [...new Set([sourceOf(netherlands, 'lotRule'), sourceOf(netherlands, 'holdingRule')])];
+  const file = words.file;
+  expect(header.slice(0, 4)).toEqual([
+    fill(file.title, { product: 'Proof of Calm', country: deCountries.NL.name, from: '2026-01-01', to: '2026-12-31' }),
+    file.owned,
+    fill(file.currency, { currency: 'EUR' }),
+    fill(file.reviewedSources, {
+      countryFor: deCountries.NL.for,
+      date: netherlands.status.lastReviewed,
+      sources: sources.join(', '),
+    }),
+  ]);
+  expect(header[3]).toMatch(/^Regeln für die Niederlande, Stand: /u);
+  expect(header).toContain(file.format);
+  const englishSplit = english.indexOf('\n\n');
+  expect(header).toHaveLength(english.slice(0, englishSplit).split('\n').length);
+  expect(text.slice(split)).toBe(english.slice(englishSplit));
+});
