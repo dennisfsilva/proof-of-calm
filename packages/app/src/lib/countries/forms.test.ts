@@ -113,6 +113,14 @@ describe('the country forms', () => {
       for (const form of ['in', 'for', 'from', 'to', 'with'] as const)
         expect(forms[code]?.[form], `${code}.${form}`).toMatch(/^\p{Ll}/u);
   });
+
+  // The country lists sort their names with English collation whatever the UI's language (features/settings,
+  // lib/services/countries): that holds while each language's own collation orders its names the same way.
+  it.each([...byLocale.keys()])("orders each UI language's country names as English collation does: %s", (locale) => {
+    const names = Object.values(own(locale)).map((forms) => forms.name ?? '');
+    const sorted = (language: string) => [...names].sort((a, b) => a.localeCompare(b, language));
+    expect(sorted(locale)).toEqual(sorted('en'));
+  });
 });
 
 describe('countryArgs', () => {

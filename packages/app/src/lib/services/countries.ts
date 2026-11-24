@@ -79,6 +79,7 @@ export function countryEntries(profiles: readonly CountryProfile[], today: Calen
         underReview: underReview(status, today),
       };
     })
+    // English collation orders every UI language's names as its own does (lib/countries/forms.test.ts).
     .sort((a, b) => a.name.localeCompare(b.name, 'en'));
 }
 
