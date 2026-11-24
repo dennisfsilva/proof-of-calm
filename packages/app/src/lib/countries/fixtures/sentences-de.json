@@ -1,4 +1,61 @@
 {
+  "learn.card.sourceList": {
+    "DE": "Quellen für Deutschland",
+    "ES": "Quellen für Spanien",
+    "FR": "Quellen für Frankreich",
+    "GB": "Quellen für das Vereinigte Königreich",
+    "IE": "Quellen für Irland",
+    "IT": "Quellen für Italien",
+    "NL": "Quellen für die Niederlande",
+    "PT": "Quellen für Portugal",
+    "US": "Quellen für die USA"
+  },
+  "learn.countries.countryHeadTitle": {
+    "DE": "Krypto-Steuern in Deutschland",
+    "ES": "Krypto-Steuern in Spanien",
+    "FR": "Krypto-Steuern in Frankreich",
+    "GB": "Krypto-Steuern im Vereinigten Königreich",
+    "IE": "Krypto-Steuern in Irland",
+    "IT": "Krypto-Steuern in Italien",
+    "NL": "Krypto-Steuern in den Niederlanden",
+    "PT": "Krypto-Steuern in Portugal",
+    "US": "Krypto-Steuern in den USA"
+  },
+  "onboarding.country.confirm": {
+    "DE": "Weiter mit Deutschland",
+    "ES": "Weiter mit Spanien",
+    "FR": "Weiter mit Frankreich",
+    "GB": "Weiter mit dem Vereinigten Königreich",
+    "IE": "Weiter mit Irland",
+    "IT": "Weiter mit Italien",
+    "NL": "Weiter mit den Niederlanden",
+    "PT": "Weiter mit Portugal",
+    "US": "Weiter mit den USA",
+    "XX": "Weiter mit dem allgemeinen Profil"
+  },
+  "onboarding.country.suggested": {
+    "DE": "Dieses Gerät schlägt Deutschland vor.",
+    "ES": "Dieses Gerät schlägt Spanien vor.",
+    "FR": "Dieses Gerät schlägt Frankreich vor.",
+    "GB": "Dieses Gerät schlägt das Vereinigte Königreich vor.",
+    "IE": "Dieses Gerät schlägt Irland vor.",
+    "IT": "Dieses Gerät schlägt Italien vor.",
+    "NL": "Dieses Gerät schlägt die Niederlande vor.",
+    "PT": "Dieses Gerät schlägt Portugal vor.",
+    "US": "Dieses Gerät schlägt die USA vor."
+  },
+  "onboarding.summary.holdingRuleValue": {
+    "DE": "Die Haltefrist für Deutschland. 1 year, then tax-free.",
+    "ES": "Die Haltefrist für Spanien. 1 year, then tax-free.",
+    "FR": "Die Haltefrist für Frankreich. 1 year, then tax-free.",
+    "GB": "Die Haltefrist für das Vereinigte Königreich. 1 year, then tax-free.",
+    "IE": "Die Haltefrist für Irland. 1 year, then tax-free.",
+    "IT": "Die Haltefrist für Italien. 1 year, then tax-free.",
+    "NL": "Die Haltefrist für die Niederlande. 1 year, then tax-free.",
+    "PT": "Die Haltefrist für Portugal. 1 year, then tax-free.",
+    "US": "Die Haltefrist für die USA. 1 year, then tax-free.",
+    "XX": "Die Haltefrist des allgemeinen Profils. "
+  },
   "today.ruleChange.generic": {
     "DE": "16 Oct 2026: Die Regeln für das Land des Plans (Germany) haben sich geändert. Prüfen Sie den Plan.",
     "ES": "16 Oct 2026: Die Regeln für das Land des Plans (Spain) haben sich geändert. Prüfen Sie den Plan.",

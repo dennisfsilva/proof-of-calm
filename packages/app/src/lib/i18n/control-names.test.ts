@@ -120,7 +120,8 @@ describe('a control named inside a German sentence', () => {
     );
   });
 
-  // German Onboarding names the Log's control and its own reminder choice in sentences, so the check reads both.
+  // German Onboarding names the Log's control and its own reminder choice in sentences, so the check reads both;
+  // Today's review choice shows the same word („Später“), so it is found in the same sentence.
   it('finds the controls German Onboarding names', () => {
     const inOnboarding = german.filter(({ key }) => key.startsWith('onboarding.'));
     expect(new Set(inOnboarding.map(({ labelKey, key }) => `${labelKey} in ${key}`))).toEqual(
@@ -128,6 +129,7 @@ describe('a control named inside a German sentence', () => {
         'log.recordHeld in onboarding.dates.startingHint',
         'log.recordHeld in onboarding.numbers.startingHint',
         'onboarding.reminder.later in onboarding.reminder.notSaved',
+        'today.review.later in onboarding.reminder.notSaved',
       ]),
     );
   });
