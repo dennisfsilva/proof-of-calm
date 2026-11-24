@@ -37,16 +37,16 @@
     "deleted": "{count, plural, one {Eintrag gelöscht.} other {{figure} Einträge gelöscht.}}",
     "undo": "Rückgängig",
     "notRestored": "{reason, select, skipped {{count, plural, one {{month} wurde übersprungen, nachdem Sie diesen Eintrag gelöscht hatten, daher bleibt er gelöscht.} other {{month} wurde übersprungen, nachdem Sie diese {figure} Einträge gelöscht hatten, daher bleiben sie gelöscht.}}} other {{count, plural, one {{month} wurde eingetragen, nachdem Sie diesen Eintrag gelöscht hatten, daher bleibt er gelöscht.} other {{month} wurde eingetragen, nachdem Sie diese {figure} Einträge gelöscht hatten, daher bleiben sie gelöscht.}}}}",
-    "notRestoredReplaced": "{count, plural, one {Ein Backup hat Ihren Plan ersetzt, nachdem Sie diesen Eintrag gelöscht hatten, daher bleibt er gelöscht.} other {Ein Backup hat Ihren Plan ersetzt, nachdem Sie diese {figure} Einträge gelöscht hatten, daher bleiben sie gelöscht.}}",
-    "notRestoredSold": "{count, plural, one {Mit diesem Eintrag fehlten Ihrem Verkauf von {coin} am {date} Einheiten, daher bleibt er gelöscht.} other {Mit diesen {figure} Einträgen fehlten Ihrem Verkauf von {coin} am {date} Einheiten, daher bleiben sie gelöscht.}}",
-    "notRestoredOwnSale": "{count, plural, one {Diesem Verkauf fehlten nach dem Wiederherstellen Einheiten, daher bleibt er gelöscht.} other {Dem Verkauf von {coin} unter diesen {figure} Einträgen fehlten nach dem Wiederherstellen Einheiten, daher bleiben sie gelöscht.}}",
-    "notRestoredFee": "{count, plural, one {Mit diesem Eintrag fehlten Ihrer Übertragung von {coin} am {date} die Einheiten für ihre Netzwerkgebühr, daher bleibt er gelöscht.} other {Mit diesen {figure} Einträgen fehlten Ihrer Übertragung von {coin} am {date} die Einheiten für ihre Netzwerkgebühr, daher bleiben sie gelöscht.}}",
-    "notRestoredOwnFee": "Dieser Übertragung fehlten nach dem Wiederherstellen die Einheiten für ihre Netzwerkgebühr, daher bleibt sie gelöscht.",
+    "notRestoredReplaced": "{count, plural, one {Ein Backup hat den Plan ersetzt, nachdem Sie diesen Eintrag gelöscht hatten, daher bleibt er gelöscht.} other {Ein Backup hat den Plan ersetzt, nachdem Sie diese {figure} Einträge gelöscht hatten, daher bleiben sie gelöscht.}}",
+    "notRestoredSold": "{count, plural, one {Nach dem Wiederherstellen dieses Eintrags würden dem Verkauf von {coin} am {date} Einheiten fehlen, daher bleibt er gelöscht.} other {Nach dem Wiederherstellen dieser {figure} Einträge würden dem Verkauf von {coin} am {date} Einheiten fehlen, daher bleiben sie gelöscht.}}",
+    "notRestoredOwnSale": "{count, plural, one {Nach dem Wiederherstellen würden diesem Verkauf Einheiten fehlen, daher bleibt er gelöscht.} other {Nach dem Wiederherstellen dieser {figure} Einträge würden dem Verkauf von {coin} unter ihnen Einheiten fehlen, daher bleiben sie gelöscht.}}",
+    "notRestoredFee": "{count, plural, one {Nach dem Wiederherstellen dieses Eintrags würden der Übertragung von {coin} am {date} die Einheiten für ihre Netzwerkgebühr fehlen, daher bleibt er gelöscht.} other {Nach dem Wiederherstellen dieser {figure} Einträge würden der Übertragung von {coin} am {date} die Einheiten für ihre Netzwerkgebühr fehlen, daher bleiben sie gelöscht.}}",
+    "notRestoredOwnFee": "Nach dem Wiederherstellen würden dieser Übertragung die Einheiten für ihre Netzwerkgebühr fehlen, daher bleibt sie gelöscht.",
     "notRestoredFull": "{count, plural, one {Mit diesem Eintrag hätte der Plan mehr als die {max} Einträge, die ein Plan fasst, daher bleibt er gelöscht.} other {Mit diesen {figure} Einträgen hätte der Plan mehr als die {max} Einträge, die ein Plan fasst, daher bleiben sie gelöscht.}}",
-    "notRestoredCurrency": "{count, plural, one {Die Währung Ihres Plans wurde nach dem Löschen von {from} auf {to} geändert, daher bleibt dieser Eintrag gelöscht. Er wurde in {from} eingetragen; tragen Sie ihn nur dann erneut ein, wenn Sie ihn in {to} bezahlt haben.} other {Die Währung Ihres Plans wurde nach dem Löschen von {from} auf {to} geändert, daher bleiben diese {figure} Einträge gelöscht. Sie wurden in {from} eingetragen; tragen Sie sie nur dann erneut ein, wenn Sie sie in {to} bezahlt haben.}}",
+    "notRestoredCurrency": "{count, plural, one {Die Währung des Plans wurde nach dem Löschen von {from} auf {to} geändert, daher bleibt dieser Eintrag gelöscht. Er wurde in {from} eingetragen; tragen Sie ihn nur dann erneut ein, wenn Sie ihn in {to} bezahlt haben.} other {Die Währung des Plans wurde nach dem Löschen von {from} auf {to} geändert, daher bleiben diese {figure} Einträge gelöscht. Sie wurden in {from} eingetragen; tragen Sie sie nur dann erneut ein, wenn Sie sie in {to} bezahlt haben.}}",
     "noCost": "Kosten unbekannt",
-    "notDeleted": "{kind, select, held {{count, plural, one {Ohne diesen Eintrag mit hinzugefügten Coins fehlten Ihrem Verkauf von {coin} am {date} Einheiten, daher bleibt der Eintrag bestehen. Prüfen Sie diesen Verkauf im Protokoll.} other {Ohne diese {figure} Einträge mit hinzugefügten Coins fehlten Ihrem Verkauf von {coin} am {date} Einheiten, daher bleiben die Einträge bestehen. Prüfen Sie diesen Verkauf im Protokoll.}}} other {Ohne diesen Kauf fehlten Ihrem Verkauf von {coin} am {date} Einheiten, daher bleibt der Kauf bestehen. Prüfen Sie diesen Verkauf im Protokoll.}}",
-    "notDeletedFee": "{kind, select, held {{count, plural, one {Ohne diesen Eintrag mit hinzugefügten Coins fehlten Ihrer Übertragung von {coin} am {date} die Einheiten für ihre Netzwerkgebühr, daher bleibt der Eintrag bestehen. Prüfen Sie diese Übertragung im Protokoll.} other {Ohne diese {figure} Einträge mit hinzugefügten Coins fehlten Ihrer Übertragung von {coin} am {date} die Einheiten für ihre Netzwerkgebühr, daher bleiben die Einträge bestehen. Prüfen Sie diese Übertragung im Protokoll.}}} other {Ohne diesen Kauf fehlten Ihrer Übertragung von {coin} am {date} die Einheiten für ihre Netzwerkgebühr, daher bleibt der Kauf bestehen. Prüfen Sie diese Übertragung im Protokoll.}}",
+    "notDeleted": "{kind, select, held {{count, plural, one {Ohne diesen Eintrag mit hinzugefügten Coins würden dem Verkauf von {coin} am {date} Einheiten fehlen, daher bleibt der Eintrag bestehen. Prüfen Sie diesen Verkauf im Protokoll.} other {Ohne diese {figure} Einträge mit hinzugefügten Coins würden dem Verkauf von {coin} am {date} Einheiten fehlen, daher bleiben die Einträge bestehen. Prüfen Sie diesen Verkauf im Protokoll.}}} other {Ohne diesen Kauf würden dem Verkauf von {coin} am {date} Einheiten fehlen, daher bleibt der Kauf bestehen. Prüfen Sie diesen Verkauf im Protokoll.}}",
+    "notDeletedFee": "{kind, select, held {{count, plural, one {Ohne diesen Eintrag mit hinzugefügten Coins würden der Übertragung von {coin} am {date} die Einheiten für ihre Netzwerkgebühr fehlen, daher bleibt der Eintrag bestehen. Prüfen Sie diese Übertragung im Protokoll.} other {Ohne diese {figure} Einträge mit hinzugefügten Coins würden der Übertragung von {coin} am {date} die Einheiten für ihre Netzwerkgebühr fehlen, daher bleiben die Einträge bestehen. Prüfen Sie diese Übertragung im Protokoll.}}} other {Ohne diesen Kauf würden der Übertragung von {coin} am {date} die Einheiten für ihre Netzwerkgebühr fehlen, daher bleibt der Kauf bestehen. Prüfen Sie diese Übertragung im Protokoll.}}",
     "failed": "Die Änderung konnte nicht gespeichert werden. Versuchen Sie es erneut."
   },
   "holding": {
@@ -58,11 +58,11 @@
   "showAll": "Alle {count} Einträge anzeigen",
   "empty": {
     "noPlan": "Noch keine Einträge. Richten Sie einen Plan ein oder importieren Sie eine Datei.",
-    "firstBuy": "Noch keine Einträge. Ihr erster Kauftag ist am {date}.",
-    "firstBuyPast": "Noch keine Einträge. Ihr erster Kauftag war am {date}."
+    "firstBuy": "Noch keine Einträge. Der erste Kauftag ist am {date}.",
+    "firstBuyPast": "Noch keine Einträge. Der erste Kauftag war am {date}."
   },
   "form": {
-    "movesShort": "Nach dieser Änderung sendet Ihre Übertragung nach {to} am {date} {short} mehr, als das Protokoll an diesem Tag außerhalb von {to} zeigt. Prüfen Sie nach dem Speichern Datum und Orte dieser Übertragung im Protokoll.",
+    "movesShort": "Nach dieser Änderung sendet die Übertragung nach {to} am {date} {short} mehr, als das Protokoll an diesem Tag außerhalb von {to} zeigt. Prüfen Sie nach dem Speichern Datum und Orte dieser Übertragung im Protokoll.",
     "title": {
       "dca": "Monatskauf eintragen",
       "lump": "Startbetrag eintragen",
@@ -78,15 +78,15 @@
     "dateInvalid": "Wählen Sie ein vollständiges Datum: Tag, Monat und Jahr.",
     "slot": "Für {month}",
     "amount": "Kosten für {coin} vor Gebühren ({currency})",
-    "units": "{coin} erhalten (Einheiten)",
-    "sold": "{coin} im Verkauf (Einheiten)",
+    "units": "Erhaltene Einheiten von {coin}",
+    "sold": "Einheiten von {coin} in diesem Verkauf",
     "received": "Erlös aus {coin} vor Gebühren ({currency})",
     "price": "Preis von {coin} ({currency})",
     "cost": "Kosten für {coin} ({currency}, falls bekannt)",
     "costHint": "Lassen Sie das Feld leer, wenn Sie die Kosten nicht kennen: „Investiert“, der durchschnittliche Kaufpreis und das Ergebnis lassen diese Einheiten dann aus. Geben Sie 0 ein, wenn Sie nichts bezahlt haben.",
-    "heldDate": "Der Tag, an dem Sie sie gekauft oder erhalten haben.{rule, select, none {} other { Im Zweifel beginnt mit dem spätestmöglichen Tag nie eine Haltefrist zu früh.}} Das Wertdiagramm zählt die Coins ab diesem Tag.",
+    "heldDate": "Der Tag, an dem Sie sie gekauft oder erhalten haben.{rule, select, none {} other { Im Zweifel wählen Sie den spätestmöglichen Tag: Mit ihm beginnt eine Haltefrist nie zu früh.}} Das Wertdiagramm zählt die Coins ab diesem Tag.",
     "hint": "Geben Sie 2 der 3 Werte ein; das Formular ergänzt den dritten.",
-    "estimateHint": "„Wie geplant gekauft“ hat diese Einheiten aus dem Kurs des Tages ergänzt. Eine Gebühr oder ein Ort, die es übernommen hat, stammt aus Ihrem letzten Eintrag eines Kaufs oder eines Verkaufs mit dieser Angabe. Geben Sie die Einheiten aus der Bestätigung Ihrer Börse ein.",
+    "estimateHint": "„Wie geplant gekauft“ hat diese Einheiten aus dem Kurs des Tages ergänzt. Eine übernommene Gebühr oder ein übernommener Ort stammt aus dem letzten Kauf oder Verkauf, der diese Angabe hat. Geben Sie die Einheiten aus der Bestätigung Ihrer Börse ein.",
     "venuesHint": "{named, plural, one {Ort} other {Orte}} dieser Einträge: {venues}.{unnamed, plural, =0 {} one { {figure} Eintrag hat keinen.} other { {figure} Einträge haben keinen.}} Jeder Eintrag bleibt bei seinem eigenen Ort, außer Sie geben einen Ort für alle ein.",
     "earlierDate": "Der vom Formular ergänzte Kurs gilt nicht für ein früheres Datum. Geben Sie die Kosten vor Gebühren und die erhaltenen Einheiten so ein, wie die Bestätigung Ihrer Börse sie zeigt.",
     "fee": "Gebühr ({currency}, optional)",
@@ -96,10 +96,10 @@
     "note": "Notiz (optional)",
     "save": "Speichern",
     "saleWarning": {
-      "exempt": "{share, select, none {Am {date} liegt keine Einheit der {sold} dieses Verkaufs{at, select, venue { bei {venue}} unnamed { ohne Ort} other {}} nach der Haltefrist. Der Verkauf kann besteuert werden.} other {Am {date} liegen nur {eligible} der {sold} dieses Verkaufs{at, select, venue { bei {venue}} unnamed { ohne Ort} other {}} nach der Haltefrist. Der Rest kann besteuert werden.}}",
-      "lowerRate": "{share, select, none {Am {date} liegt keine Einheit der {sold} dieses Verkaufs{at, select, venue { bei {venue}} unnamed { ohne Ort} other {}} nach der Haltefrist. Der Verkauf kann mit dem kurzfristigen Steuersatz besteuert werden.} other {Am {date} liegen nur {eligible} der {sold} dieses Verkaufs{at, select, venue { bei {venue}} unnamed { ohne Ort} other {}} nach der Haltefrist. Der Rest kann mit dem kurzfristigen Steuersatz besteuert werden.}}"
+      "exempt": "{share, select, none {Am {date} hat keine Einheit der {sold} dieses Verkaufs{at, select, venue { bei {venue}} unnamed { ohne Ort} other {}} die Haltefrist überschritten. Der Verkauf kann besteuert werden.} other {Am {date} haben nur {eligible} der {sold} dieses Verkaufs{at, select, venue { bei {venue}} unnamed { ohne Ort} other {}} die Haltefrist überschritten. Der Rest kann besteuert werden.}}",
+      "lowerRate": "{share, select, none {Am {date} hat keine Einheit der {sold} dieses Verkaufs{at, select, venue { bei {venue}} unnamed { ohne Ort} other {}} die Haltefrist überschritten. Der Verkauf kann mit dem kurzfristigen Steuersatz besteuert werden.} other {Am {date} haben nur {eligible} der {sold} dieses Verkaufs{at, select, venue { bei {venue}} unnamed { ohne Ort} other {}} die Haltefrist überschritten. Der Rest kann mit dem kurzfristigen Steuersatz besteuert werden.}}"
     },
-    "coversSale": "Nach dieser Änderung fehlen Ihrem Verkauf von {coin} am {date} Einheiten. Prüfen Sie diesen Verkauf im Protokoll.",
+    "coversSale": "Nach dieser Änderung fehlen dem Verkauf von {coin} am {date} Einheiten. Prüfen Sie diesen Verkauf im Protokoll.",
     "close": "Schließen",
     "saved": "Eintrag gespeichert.",
     "deleted": "Dieser Eintrag wurde in einem anderen Browser-Tab gelöscht, daher wurde die Änderung nicht gespeichert.",
@@ -118,15 +118,15 @@
     "to": "Ort, an den die Coins gingen",
     "toHint": "Der Name der Börse oder der Wallet, wie Ihre anderen Einträge ihn schreiben, nie ihre Adresse.",
     "sent": "Gesendete Einheiten",
-    "all": "Alle Einheiten eintragen",
+    "all": "Alle Einheiten einsetzen",
     "received": "Erhaltene Einheiten",
     "fee": "Netzwerkgebühr {units}",
     "sourceShort": "{at, select, venue {Das Protokoll zeigt am {date} {held} bei {from}.} other {Das Protokoll zeigt am {date} {held} ohne Ort.}}{found, select, yes {} other { Das Protokoll sucht die übrigen {short} in den Einheiten, die Sie an diesem Tag außerhalb von {to} hatten.}}",
     "sourceFound": "Außerhalb von {to} zeigt das Protokoll an diesem Tag insgesamt {outside}, {short} weniger, als diese Übertragung sendet.",
-    "duplicate": "Das Protokoll hat diese Übertragung am {date} bereits. Speichern Sie sie nur, wenn Sie diese Coins zweimal übertragen haben.",
-    "laterShort": "Nach dieser Übertragung sendet Ihre Übertragung nach {to} am {date} {short} mehr, als das Protokoll an diesem Tag außerhalb von {to} zeigt. Betreffen beide dieselbe Auszahlung, lassen Sie nur eine davon im Protokoll. Wenn nicht, prüfen Sie die Einheiten, die diese Übertragung sendet.",
-    "saleShort": "Durch die Netzwerkgebühr dieser Übertragung fehlen Ihrem Verkauf von {coin} am {date} Einheiten. Prüfen Sie die erhaltenen Einheiten anhand der Einzahlung oder ändern Sie zuerst diesen Verkauf.",
-    "feeShort": "Durch die Netzwerkgebühr dieser Übertragung fehlen Ihrer Übertragung von {coin} am {date} die Einheiten für ihre Netzwerkgebühr. Prüfen Sie die erhaltenen Einheiten anhand der Einzahlung.",
+    "duplicate": "Das Protokoll hat diese Übertragung am {date} bereits. Speichern Sie sie nur, wenn Sie diese Coins 2‑mal übertragen haben.",
+    "laterShort": "Nach dieser Übertragung sendet die Übertragung nach {to} am {date} {short} mehr, als das Protokoll an diesem Tag außerhalb von {to} zeigt. Betreffen beide dieselbe Auszahlung, lassen Sie nur eine davon im Protokoll. Wenn nicht, prüfen Sie die Einheiten, die diese Übertragung sendet.",
+    "saleShort": "Durch die Netzwerkgebühr dieser Übertragung fehlen dem Verkauf von {coin} am {date} Einheiten. Prüfen Sie die erhaltenen Einheiten anhand der Einzahlung oder ändern Sie zuerst diesen Verkauf.",
+    "feeShort": "Durch die Netzwerkgebühr dieser Übertragung fehlen der Übertragung von {coin} am {date} die Einheiten für ihre Netzwerkgebühr. Prüfen Sie die erhaltenen Einheiten anhand der Einzahlung.",
     "ownFeeShort": "Die Netzwerkgebühr dieser Übertragung braucht mehr Einheiten, als Ihre anderen Einträge zu {coin} dafür übrig lassen. Prüfen Sie die erhaltenen Einheiten anhand der Einzahlung.",
     "note": "Notiz (optional)",
     "save": "Speichern",
@@ -151,7 +151,7 @@
       "several": "Eingetragen: ein Verkauf für {amount} am {date}."
     },
     "held": {
-      "one": "Eingetragen: {units} hinzugefügt{cost, select, known { für {amount}} other {}} am {date}.",
+      "one": "Eingetragen: {units}{cost, select, known { für {amount}} other {}} am {date} hinzugefügt.",
       "several": "Eingetragen: {units} am {date} hinzugefügt."
     },
     "moved": "{at, select, venue {Eingetragen: {units} am {date} von {from} nach {to} übertragen.} other {Eingetragen: {units} ohne Ort am {date} nach {to} übertragen.}}"
