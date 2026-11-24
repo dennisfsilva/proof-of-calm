@@ -126,5 +126,113 @@
     "PT": "Die Regel für Portugal",
     "US": "Die Regel für die USA",
     "XX": "Die Regel des allgemeinen Profils"
+  },
+  "settings.country.summary": {
+    "DE": "Umstellung auf Deutschland:",
+    "ES": "Umstellung auf Spanien:",
+    "FR": "Umstellung auf Frankreich:",
+    "GB": "Umstellung auf das Vereinigte Königreich:",
+    "IE": "Umstellung auf Irland:",
+    "IT": "Umstellung auf Italien:",
+    "NL": "Umstellung auf die Niederlande:",
+    "PT": "Umstellung auf Portugal:",
+    "US": "Umstellung auf die USA:",
+    "XX": "Umstellung des Landes:"
+  },
+  "settings.country.row.country": {
+    "PT-DE": "Land jetzt: Portugal. Nach der Änderung: Deutschland.",
+    "PT-ES": "Land jetzt: Portugal. Nach der Änderung: Spanien.",
+    "PT-FR": "Land jetzt: Portugal. Nach der Änderung: Frankreich.",
+    "PT-GB": "Land jetzt: Portugal. Nach der Änderung: Vereinigtes Königreich.",
+    "PT-IE": "Land jetzt: Portugal. Nach der Änderung: Irland.",
+    "PT-IT": "Land jetzt: Portugal. Nach der Änderung: Italien.",
+    "PT-NL": "Land jetzt: Portugal. Nach der Änderung: Niederlande.",
+    "PT-US": "Land jetzt: Portugal. Nach der Änderung: USA.",
+    "PT-XX": "Land jetzt: Portugal. Nach der Änderung: Anderes Land.",
+    "XX-PT": "Land jetzt: Anderes Land. Nach der Änderung: Portugal."
+  },
+  "settings.country.row.ruleNow": {
+    "DE": "Jetzt gilt die Haltefrist für Deutschland. 1 year, then tax-free.",
+    "ES": "Jetzt gilt die Haltefrist für Spanien. 1 year, then tax-free.",
+    "FR": "Jetzt gilt die Haltefrist für Frankreich. 1 year, then tax-free.",
+    "GB": "Jetzt gilt die Haltefrist für das Vereinigte Königreich. 1 year, then tax-free.",
+    "IE": "Jetzt gilt die Haltefrist für Irland. 1 year, then tax-free.",
+    "IT": "Jetzt gilt die Haltefrist für Italien. 1 year, then tax-free.",
+    "NL": "Jetzt gilt die Haltefrist für die Niederlande. 1 year, then tax-free.",
+    "PT": "Jetzt gilt die Haltefrist für Portugal. 1 year, then tax-free.",
+    "US": "Jetzt gilt die Haltefrist für die USA. 1 year, then tax-free.",
+    "XX": "Jetzt gilt die Haltefrist des allgemeinen Profils. "
+  },
+  "settings.country.row.ruleAfter": {
+    "DE": "Nach der Änderung gilt die Haltefrist für Deutschland. 1 year, then tax-free.",
+    "ES": "Nach der Änderung gilt die Haltefrist für Spanien. 1 year, then tax-free.",
+    "FR": "Nach der Änderung gilt die Haltefrist für Frankreich. 1 year, then tax-free.",
+    "GB": "Nach der Änderung gilt die Haltefrist für das Vereinigte Königreich. 1 year, then tax-free.",
+    "IE": "Nach der Änderung gilt die Haltefrist für Irland. 1 year, then tax-free.",
+    "IT": "Nach der Änderung gilt die Haltefrist für Italien. 1 year, then tax-free.",
+    "NL": "Nach der Änderung gilt die Haltefrist für die Niederlande. 1 year, then tax-free.",
+    "PT": "Nach der Änderung gilt die Haltefrist für Portugal. 1 year, then tax-free.",
+    "US": "Nach der Änderung gilt die Haltefrist für die USA. 1 year, then tax-free.",
+    "XX": "Nach der Änderung gilt die Haltefrist des allgemeinen Profils. "
+  },
+  "settings.country.ruleName": {
+    "DE": "die Haltefrist für Deutschland",
+    "ES": "die Haltefrist für Spanien",
+    "FR": "die Haltefrist für Frankreich",
+    "GB": "die Haltefrist für das Vereinigte Königreich",
+    "IE": "die Haltefrist für Irland",
+    "IT": "die Haltefrist für Italien",
+    "NL": "die Haltefrist für die Niederlande",
+    "PT": "die Haltefrist für Portugal",
+    "US": "die Haltefrist für die USA",
+    "XX": "die Haltefrist des allgemeinen Profils"
+  },
+  "settings.country.confirmRule": {
+    "PT-DE": "Haltefrist ersetzen: die Haltefrist für Portugal durch die Haltefrist für Deutschland",
+    "PT-ES": "Haltefrist ersetzen: die Haltefrist für Portugal durch die Haltefrist für Spanien",
+    "PT-FR": "Haltefrist ersetzen: die Haltefrist für Portugal durch die Haltefrist für Frankreich",
+    "PT-GB": "Haltefrist ersetzen: die Haltefrist für Portugal durch die Haltefrist für das Vereinigte Königreich",
+    "PT-IE": "Haltefrist ersetzen: die Haltefrist für Portugal durch die Haltefrist für Irland",
+    "PT-IT": "Haltefrist ersetzen: die Haltefrist für Portugal durch die Haltefrist für Italien",
+    "PT-NL": "Haltefrist ersetzen: die Haltefrist für Portugal durch die Haltefrist für die Niederlande",
+    "PT-US": "Haltefrist ersetzen: die Haltefrist für Portugal durch die Haltefrist für die USA",
+    "PT-XX": "Haltefrist ersetzen: die Haltefrist für Portugal durch die Haltefrist des allgemeinen Profils",
+    "XX-PT": "Haltefrist ersetzen: die Haltefrist des allgemeinen Profils durch die Haltefrist für Portugal"
+  },
+  "settings.country.confirm": {
+    "DE": "Land auf Deutschland umstellen",
+    "ES": "Land auf Spanien umstellen",
+    "FR": "Land auf Frankreich umstellen",
+    "GB": "Land auf das Vereinigte Königreich umstellen",
+    "IE": "Land auf Irland umstellen",
+    "IT": "Land auf Italien umstellen",
+    "NL": "Land auf die Niederlande umstellen",
+    "PT": "Land auf Portugal umstellen",
+    "US": "Land auf die USA umstellen",
+    "XX": "Das allgemeine Profil verwenden"
+  },
+  "settings.country.changed": {
+    "DE": "Land auf Deutschland umgestellt.",
+    "ES": "Land auf Spanien umgestellt.",
+    "FR": "Land auf Frankreich umgestellt.",
+    "GB": "Land auf das Vereinigte Königreich umgestellt.",
+    "IE": "Land auf Irland umgestellt.",
+    "IT": "Land auf Italien umgestellt.",
+    "NL": "Land auf die Niederlande umgestellt.",
+    "PT": "Land auf Portugal umgestellt.",
+    "US": "Land auf die USA umgestellt.",
+    "XX": "Land umgestellt. Jetzt gilt das allgemeine Profil."
+  },
+  "settings.country.alreadyChanged": {
+    "DE": "Der Plan wurde in einem anderen Browser-Tab auf Deutschland umgestellt.",
+    "ES": "Der Plan wurde in einem anderen Browser-Tab auf Spanien umgestellt.",
+    "FR": "Der Plan wurde in einem anderen Browser-Tab auf Frankreich umgestellt.",
+    "GB": "Der Plan wurde in einem anderen Browser-Tab auf das Vereinigte Königreich umgestellt.",
+    "IE": "Der Plan wurde in einem anderen Browser-Tab auf Irland umgestellt.",
+    "IT": "Der Plan wurde in einem anderen Browser-Tab auf Italien umgestellt.",
+    "NL": "Der Plan wurde in einem anderen Browser-Tab auf die Niederlande umgestellt.",
+    "PT": "Der Plan wurde in einem anderen Browser-Tab auf Portugal umgestellt.",
+    "US": "Der Plan wurde in einem anderen Browser-Tab auf die USA umgestellt.",
+    "XX": "Das Land des Plans wurde in einem anderen Browser-Tab umgestellt. Jetzt gilt das allgemeine Profil."
   }
 }
