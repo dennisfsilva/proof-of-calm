@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it, vi } from 'vitest';
+import { numberUnitHyphens } from '../hyphen-validate.ts';
 import { CONTENT_LANGUAGES, TRANSLATABLE } from '../i18n/overlay.ts';
 import { contentLanguageOf } from './language.ts';
 import { loadTemplateTexts, TEMPLATE_OVERLAYS, TEMPLATES } from './templates.ts';
@@ -82,6 +83,19 @@ describe('loadTemplateTexts in a content language (ADR-0057)', () => {
       }
     },
   );
+
+  // A template's texts never reach join-validate.ts, so this holds the de overlays to §10's join (docs/CONTENT-STYLE.md):
+  // U+00A0 between a numeral and a unit of hyphen-validate.ts's list. A counted word (3 Coins) is no unit (§4).
+  const plainUnitJoins = (text: string) => numberUnitHyphens(text.replaceAll(/(\d) (?=\p{L})/gu, '$1-'));
+  it('refuses a numeral, a plain space and a German unit in a de template field', () => {
+    expect(plainUnitJoins('etwa 4 Jahre auseinander, 2 Monate, 15 Tage')).toEqual(['4-Jahre', '2-Monate', '15-Tage']);
+    expect(plainUnitJoins('etwa 4 Jahre, 3 Coins, 1 Coin, 40 % Bitcoin')).toEqual([]);
+    for (const templateId of TEMPLATE_IDS) {
+      for (const [field, text] of Object.entries(overlayFile('de', templateId))) {
+        expect(plainUnitJoins(String(text)), `${templateId}.${field}`).toEqual([]);
+      }
+    }
+  });
 
   it('takes only the four texts from an overlay, whatever else it holds', async () => {
     const loader = await fresh();
