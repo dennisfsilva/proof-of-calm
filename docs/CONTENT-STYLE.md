@@ -65,7 +65,7 @@ allow-list holds proper names of taxes such as "imposta di bollo" or "box 3":
 | any second-person imperative about buying or holding | advice | the user's rule in their words: `your rule: €100 on the 1st` |
 | regulated, licensed, authorised, MiCA-compliant, approved by (any claim of status) | raises demand and false confidence (`docs/BENCHMARK.md` §3) | nothing; the Risk page's negative statement is the only one (`docs/LEGAL.md` §5) |
 
-The patterns of the lint (EN, DE and PT), the filler words of §1 in English and Portuguese, the
+The patterns of the lint (EN, DE and PT), the filler words of §1 in English, German and Portuguese, the
 regulators a status claim names and the allow-list with a reason per phrase live in
 `packages/content/style/banned.json`. The lint also flags any `%` next to a gain word, and, in
 English, a sentence with an asset name that opens with a buying, selling or holding verb on its
@@ -238,6 +238,72 @@ The Portuguese rows (decided 2026-11-15; the voice is §9):
 
 The German rows (decided 2026-11-23; the voice is §10):
 
+- Every row above has its German form:
+  - every word that holds `empfehl`, `empfohl`, `empfiehl` or `empfahl` (`Kaufempfehlung`);
+    `ratsam`, `Ratschlag` and `wir raten Ihnen`;
+  - `Sie sollten`, `sollten Sie` and `man sollte` and their kin, which German's verb-final order
+    never puts beside the infinitive (`Sie sollten BTC kaufen`); `wir schlagen vor`, `unser Tipp`,
+    `unsere Wahl` and every word that ends in `Tipp`; `lohnt sich` and `lohnenswert`;
+  - every form of `sicher` (`sicherem`, `sicherste`), `risikolos`, `risikofrei` and `ohne Risiko`;
+    every word that holds `garant` (`Renditegarantie`);
+  - `Vermögen` alone and `Vermögensaufbau`, `reich werden`, `Reichtum`, `Wohlstand` and
+    `finanzielle Freiheit`; `passives Einkommen`, `Geld verdienen` and `Gewinne mitnehmen`;
+  - `erwartete Rendite`, `Kursziel`, `Preisziel`, `Kursprognose`, `prognostiziert`, `projiziert`,
+    `wird steigen` and `wird sich erholen`; every word that begins `explodier` or `bereu`; `zum Mond`;
+  - `beste Coins` and `Top-Coins`; `HODL`, `Sats`, `Aufwärtstrend`, `bullisch`, `bärisch` and
+    `Rücksetzer`;
+  - `Chance` and every word that ends in `Gelegenheit`, `nicht verpassen`, `jetzt oder nie`,
+    `der richtige Zeitpunkt`, `nur heute`, `Eilmeldung`, `Kursalarm`, `Preiswarnung` and
+    `keine Alarme`;
+  - uninflected `einfach`, `kinderleicht`, `mühelos` and `im Handumdrehen`;
+  - `Inflationsschutz`, `vor Inflation`, `gegen die Inflation`, `digitales Gold` and `Wertspeicher`;
+  - `unterbewertet`, `Schnäppchen` and `Ausverkauf`;
+  - `den Markt schlagen`, `Tagesgeld`, `Festgeld` and `Sparbuch`;
+  - `Glückwunsch`, `Abzeichen`, `Badge`, `Medaille`, `Streak` and `Level-up`;
+  - the status words `reguliert`, `lizenziert`, `zugelassen`, `beaufsichtigt`, `genehmigt`,
+    `autorisiert`, every word that begins `Erlaubnis`, `MiCA-konform` and `Kaufsignal`;
+  - a registration claim with the participle last or first: `bei`, `von` or `durch` (with `der`,
+    `dem` or `den`), then a regulator of the list's `regulators`, `Finanzaufsicht` or
+    `Aufsichtsbehörde`, then `registriert`, `eingetragen`, `gemeldet` or `beaufsichtigt`; or
+    `Aufsicht der` and a regulator (`bei der BaFin registriert`, `registriert bei der BaFin`).
+
+  German adds praise and reassurance (`gut gemacht`, `weiter so`, `super`, `toll`, `keine Sorge`,
+  `keine Panik`, `bleiben Sie ruhig`, `Seelenfrieden`, `auf dem richtigen Weg`,
+  `investiert bleiben`). The filler words are `befähigen`, `Hebel`, `Schlüsselfaktor` and its kin,
+  `robust`, `optimieren`, `nahtlos`, `leistungsstark`, `mächtig`, `Reise`, `freischalten` and `boosten`, plus
+  `bitte`, `leider`, `danke`, `entschuldigen`, `bedauern` and `tut uns leid` (§1.6, §1.8).
+- Words with an everyday sense the copy needs stay off the list: `nur`, `bloß`, `leicht`,
+  `günstig`, `billig`, `Rabatt`, `kostenlos`, `Warnung` and `Alarm` alone (the Risk page links
+  official warnings), `Rückgang`, `Serie`, `Gewinner`, `Schlüssel` alone (`privater Schlüssel`,
+  `API-Schlüssel`), `liefern`, `vereinfachen`, `entsperren`, `voraussichtlich`, `Anlageberatung`
+  (`keine Anlageberatung`), `Plus` (Proof of Calm Plus; `Plus von` before a percentage fails),
+  `Prognose` (the cycle plan names its forecast), `Rendite`, `Gewinn`, `Ertrag` and `Anlage` alone,
+  `Kurs`, `Trend`, `Ziel`, `bleiben`, `Sicherheit`, `Zulassung`, and the inflected `einfache`.
+  - `sicher` and `zugelassen` fail in every sense: write `Im Zweifel` and `Wirklich alles löschen?`.
+  - The Impressum's line takes DDG § 5 Abs. 1 Nr. 3's word: `Keine Tätigkeit, die der behördlichen
+    Zulassung bedarf; keine Aufsichtsbehörde.`
+  - Smart money, hot, crush and win have no German word with only the banned sense; the copy review
+    (§8) catches their banned use.
+- The gain words, any word that ends in `Rendite`, `Gewinn`, `Ertrag` or `Erträge`, `Zins`,
+  `Verzinsung`, `Profit`, `Rentabilität`, `Wertzuwachs`, `Wertsteigerung`, `Wertentwicklung` or
+  `Performance` (`Jahresrendite`, `Kapitalerträge`; `Kapitalertragsteuer` and `Gewinner` pass), and
+  the verbs `gewinnen`, `verdienen`, `erzielen`, `erwirtschaften`, `einbringen` and `abwerfen`, fail
+  next to a percentage.
+  - A noun may take `pro Jahr`, `im Jahr`, `p. a.` or `im Schnitt`; then a colon, `von`,
+    `in Höhe von`, or a form of `betragen`, `liegen bei` or `sein`; then `bis zu`, `über`,
+    `mehr als`, `rund`, `etwa`, `ca.`, `ungefähr`, `um (die)`, `durchschnittlich`, `jährlich` or
+    `monatlich`.
+  - A figure first takes up to two of `jährlich`, `durchschnittlich`, `erwartet`, `möglich`,
+    `potenziell`, `garantiert`, `mehr` or `an`, or a hyphen.
+  - These fail: `Eine Rendite von 8 % pro Jahr`, `Rendite: 8 %`, `Bis zu 12 % Rendite im Jahr`,
+    `Kursgewinne von über 300 %`, `Tagesgeld bringt 3 % Zinsen`, `Verdienen Sie bis zu 8 %`,
+    `ein Plus von 48 %`, `wirft 5 % im Jahr ab`.
+  - Any other word between noun and figure is tax prose and passes:
+    `Kapitalerträge werden mit 25 % besteuert`, `25 % Abgeltungsteuer auf Kapitalerträge`.
+  - German has no counterpart of `sobre`: a gain word after `auf`, `für`, `aus` or `des` fails like
+    any other (`Freuen Sie sich auf Gewinne von 25 %`), so `Die Steuer auf Kapitalerträge beträgt
+    25 %` is written `Kapitalerträge werden mit 25 % besteuert`.
+  - `Prozent` reads as `%`.
 - The imperative rule (`packages/content/src/style/directive-de.ts`). Spelling cannot tell the
   Sie-imperative from the infinitive or the present, the ihr-imperative from the 3rd person or the
   participle (`verkauft`, `investiert`), or the du-imperative from the noun (`Kauf`, `Tausch`), and
@@ -321,6 +387,8 @@ The German rows (decided 2026-11-23; the voice is §10):
   `loswerden`, `umsteigen`); 3rd-person statements (`Wer BTC länger als ein Jahr hält, …`); a
   particle after the clause (`Steigen Sie ein bei Bitcoin`); an asset named in another message; and
   a directive with no asset (`Jetzt kaufen`, as `Buy now` passes).
+- The Risk page's statement on status passes with no allow-list entry when it writes
+  `unterliegt keiner Aufsicht`, as Portuguese writes `nem sujeita à sua supervisão`.
 - The quoted label „Investiert“ and the Portuguese tab «Regra e venda» are on the allow-list, each
   with its reason, and so is the Portuguese text of `docs/LEGAL.md` §5's fixed scams sentence
   (`legal.risk.scams.p1`).
@@ -1098,8 +1166,9 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
   (`15. März 2027`); and `z. B.`. U+2060 follows an en dash between figures (`2023–2025`); U+2011
   joins a numeral compound (`90‑Tage‑Hoch`). Prose ranges take `bis`. Never `Uhr` after a time, since
   `lib/format` may add the zone (`14:05 MESZ`), and never a placeholder in a compound (`Kosten für
-  {coin}`, not `{coin}-Kosten`). `packages/content/src/join-validate.ts` and
-  `packages/content/src/hyphen-validate.ts` hold no German lists yet; a German overlay waits for them.
+  {coin}`, not `{coin}-Kosten`). `packages/content/src/hyphen-validate.ts` refuses a German unit
+  hyphened to its numeral (`365-Tage`, `1-jährige`, `4-mal`); `packages/content/src/join-validate.ts`
+  holds no German lists yet, and a German overlay waits for it.
 - **The tax authority's own terms**: `privates Veräußerungsgeschäft`, `Freigrenze`, `Anlage SO`,
   `Finanzamt`, `BMF-Schreiben`; a rule quoted from the law keeps its wording („nicht mehr als ein
   Jahr beträgt“). A tax name the lint refuses goes on the allow-list with its reason (§2).
