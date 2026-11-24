@@ -900,6 +900,18 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - A reader that reads no tree keeps an uncertain line start inside its block, never a block end: an
   over-start at a lazy `3.` cut a form from its asset, since plainText drops the dot (D4, #421,
   2026-11-24).
+- A rule whose word list a document also lists gets a test that reads the document's list and
+  asserts each entry, so the two cannot part. The German separable row built `beihalten` while
+  CONTENT-STYLE §2 listed `beibehalten`, and two review rounds passed it before a fresh review found
+  it; `directive-de.test.ts` now reads §2's verbs (#449, 2026-11-24).
+- A brief that hands a builder a design check judge's proposed sources asks it to run the package's
+  typecheck and lint on them and to check each line against the note before it builds on them. D4's
+  imported a helper that only the judge's harness exported and held an expression Biome refuses
+  (#449, 2026-11-24).
+- A wording a content role proposes is run against the rows the next branch adds before it is taken.
+  Counsel's „… wird von keiner beaufsichtigt“ trips German's status rows, which D1's verdict had
+  recorded, so #449 kept D1's „… unterliegt keiner Aufsicht“ and sent counsel's later
+  „… keiner Finanzaufsicht“ to the branch that adds the rows (2026-11-24).
 
 ## Known gaps
 
