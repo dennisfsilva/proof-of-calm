@@ -45,15 +45,16 @@ test('a public page under /en/ answers at its nested clean URL, out of search un
 });
 
 // The checklist runs on previews only, where VERCEL_ENV lists the preview languages (ADR-0023, Deviations of
-// 2026-11-18): Settings offers English and Português, each named in itself with its lang. Nothing is chosen, so
-// the run stays in English.
-test('Settings lists English and Português on the preview', async ({ page }) => {
+// 2026-11-18): Settings offers English, Português and Deutsch, each named in itself with its lang. Nothing is
+// chosen, so the run stays in English.
+test('Settings lists English, Português and Deutsch on the preview', async ({ page }) => {
   await page.goto('/settings');
   await expect(page.locator('main#main')).not.toHaveAttribute('aria-busy', 'true');
   await page.getByRole('combobox', { name: 'Language', exact: true }).click();
   await expect(page.getByRole('option', { name: 'English' })).toHaveAttribute('lang', 'en');
   await expect(page.getByRole('option', { name: 'Português (Portugal)' })).toHaveAttribute('lang', 'pt-PT');
-  await expect(page.getByRole('option')).toHaveCount(2);
+  await expect(page.getByRole('option', { name: 'Deutsch' })).toHaveAttribute('lang', 'de');
+  await expect(page.getByRole('option')).toHaveCount(3);
 });
 
 // With nothing stored, the device's languages give the UI language among the offered ones, and the derived one is
@@ -69,6 +70,19 @@ test.describe('on a pt-PT device with nothing stored', () => {
     await expect(page.locator('main#main')).not.toHaveAttribute('aria-busy', 'true');
     await expect(page.locator('html')).toHaveAttribute('lang', 'pt-PT');
     await expect(page.getByRole('combobox', { name: 'Idioma', exact: true })).toContainText('Português (Portugal)');
+    expect(await storedLanguage(page)).toBeNull();
+  });
+});
+
+// A preview offers German too, so a German device opens it in German; the select is named in German's words.
+test.describe('on a de-DE device with nothing stored', () => {
+  test.use({ locale: 'de-DE' });
+
+  test('the preview boots in German', async ({ page }) => {
+    await page.goto('/settings');
+    await expect(page.locator('main#main')).not.toHaveAttribute('aria-busy', 'true');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'de');
+    await expect(page.getByRole('combobox', { name: 'Sprache', exact: true })).toContainText('Deutsch');
     expect(await storedLanguage(page)).toBeNull();
   });
 });
