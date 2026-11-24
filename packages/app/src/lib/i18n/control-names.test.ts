@@ -114,11 +114,14 @@ describe('a control named inside a German sentence', () => {
     expect([...translated]).toEqual(expect.arrayContaining(['today.action.asPlanned', ...TABS]));
   });
 
-  // German Settings names its own tabs in its sentences, so the check reads each of them against the tab's label.
+  // German Settings names its own tabs in its sentences, and German Plan's early-window lines name the holding
+  // tab, so the check reads each of them against the tab's label.
   it('finds every German sentence that names a Settings tab', () => {
     const naming = german.filter(({ labelKey }) => TABS.includes(labelKey));
     expect(new Set(naming.map(({ labelKey, key }) => `${labelKey} in ${key}`))).toEqual(
       new Set([
+        'settings.tabs.hold in plan.earlyWindow.notice',
+        'settings.tabs.hold in plan.earlyWindow.refused',
         'settings.tabs.hold in settings.country.notSaved',
         'settings.tabs.hold in settings.data.prototype.country',
         'settings.tabs.data in settings.data.prototype.country',
