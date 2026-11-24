@@ -6,10 +6,10 @@ import 'fake-indexeddb/auto';
 import type { EntityId } from '@proofofcalm/core';
 import { anEntry, aPlan, instant } from '@proofofcalm/core/testing';
 import { IDBFactory } from 'fake-indexeddb';
-import { openDB } from 'idb';
+import { deleteDB, openDB } from 'idb';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { type IdbPlanStoreOptions, idbPlanStore } from '../idb-store';
-import { DATABASE_NAME, type StoreName } from './database';
+import { DATABASE_NAME, MIGRATIONS, openDatabase, type StoreName } from './database';
 import { PREVIOUS_BUILD } from './rows.testing';
 
 const clock = { now: () => instant('2026-10-17T09:00:00.000Z') };
@@ -120,5 +120,25 @@ describe('the outbox before the sync (ADR-0019 Readings, 2026-11-24)', () => {
     expect(await store.load()).toStrictEqual(snapshot);
     await store.close();
     expect(await raw('outbox')).toStrictEqual([]);
+  });
+
+  it('a failed clear closes the connection it opened, so nothing blocks a later upgrade or delete', async () => {
+    await written();
+    await putCopies();
+    const clear = vi.spyOn(IDBObjectStore.prototype, 'clear').mockImplementationOnce(() => {
+      throw new DOMException('The disk is full.', 'QuotaExceededError');
+    });
+    const closed = vi.fn();
+    await expect(openDatabase(MIGRATIONS, { closed })).rejects.toThrow('The disk is full.');
+    clear.mockRestore();
+
+    // A connection left open would get the upgrade's versionchange and say it closed; a closed one gets nothing.
+    const blocked = vi.fn();
+    const newer = await openDB(DATABASE_NAME, MIGRATIONS.length + 1, { blocked });
+    expect(newer.version).toBe(MIGRATIONS.length + 1);
+    newer.close();
+    await deleteDB(DATABASE_NAME, { blocked });
+    expect(blocked).not.toHaveBeenCalled();
+    expect(closed).not.toHaveBeenCalled();
   });
 });
