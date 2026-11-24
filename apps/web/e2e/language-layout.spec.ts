@@ -628,6 +628,38 @@ test("pt-PT: the Log keeps its table, a row's details and the add sheet inside t
   expect(errors).toEqual([]);
 });
 
+// German's „Den laufenden Rückgang ansehen“ was 352 px wide on one line in a 308 px row at zoom-125, past its card and
+// the page (docs/DESIGN.md §8, Button): a default-size button's label wraps onto a second line instead.
+test("de: Today's red-day banner keeps its link inside its card and the page at 125 % text", async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(`pageerror: ${error.message}`));
+  await page.addInitScript((key) => window.localStorage.setItem(key, 'de'), LANGUAGE_STORAGE_KEY);
+  const nowMs = fixtureNowMs('buy');
+  await page.clock.setFixedTime(new Date(nowMs));
+  await routeFixturePrices(page, nowMs, 'week-fall');
+  await seedPlan(page, fixtureSnapshot());
+  await expect(page.locator('main#main')).not.toHaveAttribute('aria-busy', 'true');
+  // zoom-125's root already; android-small's 360 px at 125 % text is narrower still.
+  await rootFont(page, '20px');
+  const link = page.getByRole('link', { name: deToday.redDay.open, exact: true });
+  await expect(link).toBeVisible();
+  const boxes = await link.evaluate((element) => {
+    const card = element.closest('[data-slot="banner"]');
+    if (card === null) throw new Error('the link sits in a banner');
+    const own = element.getBoundingClientRect();
+    const box = card.getBoundingClientRect();
+    return {
+      inside: own.left >= box.left - 0.5 && own.right <= box.right + 0.5,
+      height: own.height,
+      page: { scroll: document.documentElement.scrollWidth, client: document.documentElement.clientWidth },
+    };
+  });
+  expect(boxes.inside, "the link's box lies inside its card").toBe(true);
+  expect(boxes.page.scroll, 'no page-wide horizontal scroll').toBeLessThanOrEqual(boxes.page.client);
+  expect(boxes.height, 'still a 44 px target').toBeGreaterThanOrEqual(44);
+  expect(errors).toEqual([]);
+});
+
 test("in English, the Log's, Today's dates and Portfolio's value tables keep their columns", async ({ page }) => {
   const errors = await boot(page, null);
   for (const screen of ['log', 'today', 'portfolio'] as const) {

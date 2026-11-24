@@ -465,6 +465,12 @@ the form), so it waits for a screen that does. Notes, and the values this docume
   refused field's is. Disabled boolean controls and choice cards are drawn at half opacity. The
   checkbox's focus ring is drawn just inside its 44 px target (an offset of minus the ring's width,
   the one exception to §6's offset), so it keeps clear of the label 4 px beside it.
+- **Button.** A default-size button's label wraps onto a second, balanced line, centred, and the button
+  is never wider than its container; the row it sits in is never stacked for it. A one-line button stays
+  the 44 px target, and a wrapped one grows with 8 px above and below its lines. German's Today link
+  „Den laufenden Rückgang ansehen“ was 352 px on one line in a 308 px row at zoom-125, past its card and
+  the page (measured 2026-11-23; `apps/web/e2e/language-layout.spec.ts`). The icon and inline sizes stay
+  on one line.
 - **Tabs.** The list never scrolls sideways: the tabs share its width and a long label wraps onto a
   second, balanced line, so four tabs fit a 360 px phone at 125 % text. The list is padded by the focus
   ring's extent (§6), so nothing clips a focused tab's ring, and the active tab's 2 px `ink` underline
