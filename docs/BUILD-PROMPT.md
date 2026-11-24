@@ -897,6 +897,9 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   #255, 1,038 commits behind, took three builder rounds on feat/legal-drafts-rebased; the last
   rebase's builder handed back a local commit, checked by `git range-diff`, instead of pushing
   (2026-11-24).
+- A reader that reads no tree keeps an uncertain line start inside its block, never a block end: an
+  over-start at a lazy `3.` cut a form from its asset, since plainText drops the dot (D4, #421,
+  2026-11-24).
 
 ## Known gaps
 

@@ -276,9 +276,12 @@ The German rows (decided 2026-11-23; the voice is §10):
      item 1's capital test. A sentence that ends in an ordinal takes no
      second dot (Duden D 154, `Wir treffen uns am 15.`), so no cut tells them apart, and an
      abbreviation list never closes. So `Kaufen Sie am 1. November BTC` and `Haben Sie Bitcoins? Dann
-     verkaufen Sie sie nicht.` fail. A Learn module's German lines are read only in the read that
-     joins its lines: a paragraph is one line, and a source wrap neither ends a line nor opens a
-     clause. The text is read with soft hyphens and zero-width characters taken out.
+     verkaufen Sie sie nicht.` fail. A Learn module's German lines are read twice: joined, where a
+     paragraph is one line and a source wrap neither ends a line nor opens a clause; and as the page
+     sets them, one line per paragraph, heading, list item, quote paragraph or code block, where a
+     hard break, each code line and a `<PastPerformance />` beside words open a clause inside the
+     line, and so does an item number other than 1 or a line of `=` that may go on with the
+     paragraph. The text is read with soft hyphens and zero-width characters taken out.
   3. The asset names, for every language: those of the Portuguese item 1; every word that begins
      `bitcoin` or `crypto`, holds `krypto` or ends in `coin` or `coins`; `Münze`, `Token`, `moeda`,
      `moedas`; the names of `packages/content/coins.json` as written, with a genitive `s`; and their
