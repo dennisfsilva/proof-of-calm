@@ -76,7 +76,7 @@
   },
   "ruleChange": {
     "notice": "{date}: {notice}",
-    "generic": "{date}: {kind, select, generic {Das allgemeine Profil hat sich geändert} other {Die Regeln für das Land des Plans ({country}) haben sich geändert}}. Prüfen Sie den Plan.",
+    "generic": "{date}: {kind, select, generic {Das allgemeine Profil hat sich geändert} other {Die Regeln {countryFor} haben sich geändert}}. Prüfen Sie den Plan.",
     "review": "Prüfen",
     "dismiss": "Ausblenden",
     "failed": "Der Hinweis konnte nicht ausgeblendet werden. Versuchen Sie es erneut."

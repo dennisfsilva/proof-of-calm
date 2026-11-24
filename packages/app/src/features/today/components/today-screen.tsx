@@ -258,7 +258,7 @@ function NextBanner({ plan, today, phase, held, redDay }: NextBannerProps) {
     return liveEntries(entries).length > 0 ? <p className="text-14 text-ink-2">{line}</p> : null;
   }
   if (banner.kind === 'rule-change' && ruleChange !== null) {
-    return <RuleChangeBanner notice={ruleChange} country={rules?.name ?? ruleChange.country} />;
+    return <RuleChangeBanner notice={ruleChange} />;
   }
   if (banner.kind === 'annual-review' && dates !== null) {
     const key = banner.key;
