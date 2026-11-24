@@ -912,6 +912,19 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   Counsel's „… wird von keiner beaufsichtigt“ trips German's status rows, which D1's verdict had
   recorded, so #449 kept D1's „… unterliegt keiner Aufsicht“ and sent counsel's later
   „… keiner Finanzaufsicht“ to the branch that adds the rows (2026-11-24).
+- A dedupe that pairs two reads' findings is a maximum matching, not a first fit, and its test runs
+  the inputs in every order. The translated module read's first fit in block order let a short quote
+  take the block finding a longer one needed, so one line was reported twice in a translation where
+  English reports it once (D4's carry-over, 2026-11-24).
+- A row that allows words between two of its parts says what a word may hold, in the code and in
+  the document, and its tests put a hyphened compound and a number in the gap. The German
+  registration row took up to three letter-only words, so „bei der BaFin als Krypto-Dienstleister
+  registriert“ and „… seit 2024 registriert“ passed while CONTENT-STYLE §2 said "up to three words"
+  (2026-11-24).
+- A brief that takes a content role's wording for a length-capped field names the field's length
+  and its limit. The Cycle plan's German `oneLine` and `explanation` sat at 193 of 200 and 1,196 of
+  1,200 characters, so brand's longer wordings were cut down in the fix round and the next review
+  reopened two of them (2026-11-24).
 
 ## Known gaps
 
