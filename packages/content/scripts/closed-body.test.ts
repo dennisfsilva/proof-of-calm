@@ -402,6 +402,36 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
         imperative('Kauf jeden Monat BTC'),
       ]);
     });
+
+    // Review round 1 of this branch: the block read quotes the whole block, the module reads the line, so the two
+    // quotes of one refused line differ.
+    it('gives one finding for a line both reads refuse when each read quotes another span of it', async () => {
+      expect(await validated(TEXT, 'Há quem diga:\nCompre Bitcoin todos os meses.\n')).toHaveLength(1);
+    });
+
+    it('keeps a second refusal of one phrase on another line, by each read', async () => {
+      expect(await validated(TEXT, 'Recomendamos manter o plano.\n\nRecomendamos esperar.\n')).toEqual([
+        banned('Recomendamos'),
+        banned('Recomendamos'),
+      ]);
+      const twice = 'Há quem diga:\nCompre Bitcoin todos os meses.\n\nCompre Bitcoin todos os meses.\n';
+      expect(await validated(TEXT, twice)).toHaveLength(asEnglish(twice).length);
+    });
+
+    // On the branch before the fix, 10 rows gave English 1 and a translation 2 (a:L12, a:G8, a:G12 b:S1, a:O2 b:R2,
+    // a:O4, b:P8, b:P9, b:S2, j:S4, j:S9); b:E4 refuses two lines in both.
+    it("reports each refused line of a D4 row once per code, as many per code as English's module reads", async () => {
+      const codes = (problems: readonly Problem[]) => problems.map(({ code }) => code).sort();
+      const counted: string[] = [];
+      for (const [ids, body] of D4_ROWS) {
+        const english = codes(asEnglish(`${body}\n`));
+        const mine = codes(await asTranslation(`${body}\n`));
+        if (english.length > 0 && mine.join() !== english.join()) counted.push(`${ids}: ${english} / ${mine}`);
+      }
+      expect(counted).toEqual([]);
+      const twoLines = `${D4_ROWS.find(([id]) => id === 'b:E4')?.[1]}\n`;
+      expect(await asTranslation(twoLines)).toHaveLength(2);
+    }, 60_000);
   });
 
   // Review 25m round 2 (D12; #322's D3 and D4): the checks read each compiled block on its own, with every
