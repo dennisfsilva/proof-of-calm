@@ -1615,3 +1615,7 @@ screens by loaders.
   empty: German Settings' screen (#478) put `settings` in it under a widened exception, a screen
   translated over several branches, until its last one. Its tax-year file and exchange import
   follow, and the exchange branch empties the list.
+- **2026-11-24, a preview offers German** (amends "no picker offers it" in the entry of
+  2026-11-19). German stays hidden in production: no production picker offers it. A preview's
+  picker does (ADR-0023, Corrections of 2026-11-24), and its files still load from the assets
+  route; the worker's precache leaves `assets/messages/` out as before.
