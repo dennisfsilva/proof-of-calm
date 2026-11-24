@@ -183,11 +183,11 @@ describe('the pt-PT onboarding, portfolio and plan', () => {
 });
 
 // While German is hidden, a German file is whole once it exists: a key the merge completed from English would show
-// English inside a German screen (docs/CONTENT-STYLE.md §10). The one exception is a file that holds a few keys
-// ahead of its screen's translation. The rule is by file, not by a list of screens, so a branch that adds a
-// German screen's file needs no line here.
-// The list is empty while no German file runs ahead of its screen; a branch that lands such a file adds it here.
-const GERMAN_PARTIAL: readonly string[] = [];
+// English inside a German screen (docs/CONTENT-STYLE.md §10). The exceptions are a file that holds a few keys
+// ahead of its screen's translation, and the file of a screen translated over several branches, until its last
+// one. The rule is by file, not by a list of screens, so a branch that adds a German screen's file needs no line here.
+// A branch that lands such a file adds it here.
+const GERMAN_PARTIAL: readonly string[] = ['settings'];
 
 describe('the German files', () => {
   const german = translations.filter(({ folder, locale }) => locale === 'de' && !GERMAN_PARTIAL.includes(folder));
