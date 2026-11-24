@@ -1009,6 +1009,14 @@ needs (decided 2026-11-15). The native reader's review is §8 item 9.
   dias»). A tax name that a string shows the lint refusing goes on the allow-list with its reason
   (§2).
 - **Lists take no comma before `e`**, as `lib/format` writes them: `BTC, ETH e SOL`.
+- **A country in a sentence takes its form** (`packages/app/src/lib/countries/messages/pt-PT.json`), never
+  `{country}` after a preposition or an article: `{countryFor}` is `de` with its article, contracted (`dos Países
+  Baixos`, `do Reino Unido`, `da Alemanha`, `de Portugal`), `{countryIn}` `em` (`nos Estados Unidos`, `em
+  Portugal`), `{countryFrom}` the country changed from, `{countryTo}` `para`, `{countryWith}` `com`, `{countryThe}`
+  the name with its article as an object (`sugere a França`). Espanha, França and Itália take no article after a
+  preposition (`em França`, `de Espanha`, `para Itália`) and take it as an object; the native reader confirms it
+  (§8 item 9). A bare `{country}` stands only after a colon, a middle dot or in parentheses (`País do plano: Países
+  Baixos.`). The general profile is `o perfil geral`.
 - **A module's chart section takes pt-PT's two shapes of §4 R5** (decided 2026-11-17): B,
   `No gráfico, C teve K quedas de mais de N entre Y e Y.` with `1 queda` for one, and E, `C caiu L.` or
   `C caiu L`, then any number of `, C L`, then ` e C L.`, with no comma before `e`; `L` is `N`, `N e N`, or two or
@@ -1157,8 +1165,10 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
   or the plan.
 - **People and places.** Name the function (`Fragen für die Steuerberatung`) or write the ESAs' pair
   (`Verbraucherinnen und Verbraucher`), never `*`, `:` or an inner capital I; a quoted law keeps its
-  wording (`Anleger`). A country whose name takes an article takes it in its own ICU branch (`für die
-  Niederlande`, `in den USA`); a bare `{country}` stands only where none is needed.
+  wording (`Anleger`). A country in a sentence takes its form from
+  `packages/app/src/lib/countries/messages/de.json` (planned: M2), each with its preposition, article and case
+  (`für die Niederlande`, `im Vereinigten Königreich`, `mit den Niederlanden`, `auf die USA`, `vom Vereinigten
+  Königreich`); a bare `{country}` stands only after a colon or in parentheses.
 - **Disclosures take the official German text** of each regulator phrasing in `docs/LEGAL.md` §4,
   never a translation back from English: Delegated Regulation 2017/565 art. 44(4)(d), „Die frühere
   Wertentwicklung ist kein verlässlicher Indikator für künftige Ergebnisse.“; MiCA art. 6(5)(a), „Der
