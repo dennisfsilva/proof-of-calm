@@ -114,7 +114,7 @@
   "holding": {
     "exempt": "Steuerfrei ab {date}",
     "lowerRate": "Langfristiger Steuersatz ab {date}",
-    "note": "Aus den Terminen Ihres Plans berechnet, keine Steuerberatung",
+    "note": "Aus Ihren Terminen und Einträgen berechnet, keine Steuerberatung",
     "templateNote": "Aus den Terminen des Ausgangspunkts berechnet, keine Steuerberatung"
   },
   "holdingRule": {
