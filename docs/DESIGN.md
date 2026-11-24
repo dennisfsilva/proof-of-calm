@@ -465,17 +465,15 @@ the form), so it waits for a screen that does. Notes, and the values this docume
   refused field's is. Disabled boolean controls and choice cards are drawn at half opacity. The
   checkbox's focus ring is drawn just inside its 44 px target (an offset of minus the ring's width,
   the one exception to §6's offset), so it keeps clear of the label 4 px beside it.
-- **Button.** In every variant (primary, secondary, ghost, link, destructive), a default-size button's
-  label, or that of an element styled with `buttonVariants` at the default size, wraps onto a second,
-  balanced line, centred, and the button is never wider than its container; the row it sits in is never
-  stacked for it. A link-variant button takes the default size unless it is given `inline`. A one-line
-  button stays the 44 px target, and a wrapped one grows with 8 px above and below its lines. The icon
-  and inline sizes stay on one line. The measured case is Today's red-day link (`today.redDay.open`),
-  which `packages/app/src/features/today/components/red-day-banner.tsx` renders with
-  `buttonVariants({ variant: 'secondary' })` at the default size: its German label was 352 px on one
-  line in a 308 px row at zoom-125, past its card and the page (measured 2026-11-23; the case "de:
-  Today's red-day banner keeps its link inside its card and the page at 125 % text" in
-  `apps/web/e2e/language-layout.spec.ts`).
+- **Button.** In every variant §8's inventory names, a default-size button's label, or that of an
+  element styled with `buttonVariants` at the default size, wraps onto a second, balanced line,
+  centred, and the button is never wider than its container; the row it sits in is never stacked for
+  it. A link-variant button takes the default size unless it is given `inline`. A one-line button stays
+  the 44 px target, and a wrapped one grows with 8 px above and below its lines. The icon and inline
+  sizes stay on one line. The measured case is Today's red-day link (`today.redDay.open`), which
+  `packages/app/src/features/today/components/red-day-banner.tsx` styles as a default-size secondary
+  button: its German label was 352 px on one line in a 308 px row at zoom-125, past its card and the
+  page (measured 2026-11-23; the German red-day case in `apps/web/e2e/language-layout.spec.ts`).
 - **Tabs.** The list never scrolls sideways: the tabs share its width and a long label wraps onto a
   second, balanced line, so four tabs fit a 360 px phone at 125 % text. The list is padded by the focus
   ring's extent (§6), so nothing clips a focused tab's ring, and the active tab's 2 px `ink` underline
