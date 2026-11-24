@@ -117,7 +117,9 @@ async function dialogOf(page: Page, control: Locator) {
   await control.click();
   const dialog = page.getByRole('dialog');
   await expect(dialog).toBeVisible();
-  await dialog.evaluate((element) => Promise.all(element.getAnimations({ subtree: true }).map((each) => each.finished)));
+  await dialog.evaluate((element) =>
+    Promise.all(element.getAnimations({ subtree: true }).map((each) => each.finished)),
+  );
   return dialog;
 }
 
