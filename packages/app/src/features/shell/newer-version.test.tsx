@@ -66,7 +66,7 @@ describe('NewerVersion (ADR-0019 readings)', () => {
   it('in German, the line after the reload says the plan stays unread', async () => {
     await setup({ plans: 1, entries: 0 }, '/today', 'de');
     expect(screen.getByText(/^Wenn diese Ansicht nach dem Neuladen wieder erscheint/).textContent).toContain(
-      'unverändert und ungelesen auf diesem Gerät',
+      'bleibt der Plan ungelesen auf diesem Gerät',
     );
   });
 
