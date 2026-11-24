@@ -7,6 +7,7 @@ import { I18nProvider } from '../../lib/i18n';
 import { NavigationProvider } from '../../lib/navigation';
 import { ServicesProvider } from '../../lib/services';
 import { createTestServices, recordingPlatform } from '../../lib/services/testing';
+import shellDe from '../../messages/de/shell.json';
 import shell from '../../messages/en/shell.json';
 import { NewerVersion } from './newer-version';
 
@@ -18,14 +19,14 @@ afterEach(cleanup);
 const LINE =
   '2 entries were saved by a newer version of Proof of Calm, so they are not shown here. Reload the page to see them.';
 
-async function setup(newer: { plans: number; entries: number }, path = '/today') {
+async function setup(newer: { plans: number; entries: number }, path = '/today', locale: 'en' | 'de' = 'en') {
   const platform = recordingPlatform();
   const services = createTestServices({ platform, snapshot: { ...EMPTY_SNAPSHOT, entries: [anEntry()], newer } });
   await act(() => services.start());
   render(
     <ServicesProvider services={services}>
       <NavigationProvider location="memory" initialPath={path}>
-        <I18nProvider messages={{ shell }}>
+        <I18nProvider locale={locale} messages={{ shell: locale === 'de' ? shellDe : shell }}>
           <NewerVersion>
             <h1>The screen</h1>
           </NewerVersion>
@@ -59,6 +60,14 @@ describe('NewerVersion (ADR-0019 readings)', () => {
     expect(screen.queryByText(LINE)).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Reload' }));
     expect(platform.calls.reloads).toBe(1);
+  });
+
+  // The English says the plan stays "unread"; the German says so too (counsel on #419).
+  it('in German, the line after the reload says the plan stays unread', async () => {
+    await setup({ plans: 1, entries: 0 }, '/today', 'de');
+    expect(screen.getByText(/^Wenn diese Ansicht nach dem Neuladen wieder erscheint/).textContent).toContain(
+      'unverändert und ungelesen auf diesem Gerät',
+    );
   });
 
   it('one line on Today, above the screen, when only entries are newer', async () => {
