@@ -135,7 +135,7 @@ async function sheetOf(page: Page, control: Locator, heading: string) {
 // The fixture prices answer /api/prices and /api/history here, which the service worker's own requests would pass by.
 test.use({ serviceWorkers: 'block' });
 
-test("de: Portfolio keeps its value table, its ranges and its P/L inside their boxes with wider text", async ({
+test('de: Portfolio keeps its value table, its ranges and its P/L inside their boxes with wider text', async ({
   page,
 }) => {
   const range = (portfolio: typeof enPortfolio, key: keyof typeof enPortfolio.chart.ranges) =>
@@ -169,7 +169,9 @@ test("de: Portfolio keeps its value table, its ranges and its P/L inside their b
     all: button(page, words.all),
   });
 
-  const details = page.locator('details[data-slot="chart-table"]', { has: page.getByText(words.table, { exact: true }) });
+  const details = page.locator('details[data-slot="chart-table"]', {
+    has: page.getByText(words.table, { exact: true }),
+  });
   await details.locator('summary').click();
   await expect(details).toHaveAttribute('open', '');
   const table = details.locator('table');
