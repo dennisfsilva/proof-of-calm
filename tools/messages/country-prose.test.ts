@@ -33,21 +33,32 @@ function articleNames(forms: Forms): string[] {
 }
 
 const literal = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
+/** A word whose first letter may start a sentence: `[iI]m`; the rest keeps its case. */
+const capitalisable = (word: string) => `[${word[0]}${word[0]?.toUpperCase()}]${literal(word.slice(1))}`;
+/** A list of words whose first letter is case-free. */
+const words = (list: readonly string[]) => list.map(capitalisable).join('|');
 
-/** Each wrong form in `text`, as it reads there. */
+/**
+ * Each wrong form in `text`, as it reads there. The names keep their own case and end at a letter boundary, so `in
+ * Usage` and `beim USAmerikaner` are not `in USA` and `beim USA`; only a preposition's or article's first letter is
+ * case-free (`Im Vereinigtes`).
+ */
 function findings(text: string, locale: Locale, names: readonly string[]): string[] {
   const bare = new RegExp(
-    `(?<!\\p{L})(?:${PREPOSITIONS[locale].join('|')})\\s+(?:${names.map(literal).join('|')})`,
-    'giu',
+    `(?<!\\p{L})(?:${words(PREPOSITIONS[locale])})\\s+(?:${names.map(literal).join('|')})(?!\\p{L})`,
+    'gu',
   );
   const found = [...text.matchAll(bare)].map(([match]) => match);
   if (locale === 'de') {
-    found.push(...[...text.matchAll(/(?<!\p{L})(?:das|dem|des|die)\s+Vereinigtes/giu)].map(([match]) => match));
+    const article = new RegExp(`(?<!\\p{L})(?:${words(['das', 'dem', 'des', 'die'])})\\s+Vereinigtes(?!\\p{L})`, 'gu');
+    found.push(...[...text.matchAll(article)].map(([match]) => match));
     // A singular article fused into the preposition fits none of these names: `Vereinigtes` wants the dative's
-    // `Vereinigten` after it, and the plural names take `den`; a hyphen joins the name to a noun (`zum USA-Profil`).
+    // `Vereinigten` after it, and the plural names take `den`. A hyphen joins the name to a noun (`zum USA-Profil`),
+    // U+002D or the no-break hyphen U+2011 (§10 keeps it for numeral compounds); the en dash U+2013 does not, since
+    // right after a name it is a range or a Gedankenstrich, so `zum USA–Profil` stays refused.
     const fused = new RegExp(
-      `(?<!\\p{L})(?:${FUSED.join('|')})\\s+(?:${names.map((name) => literal(name.split(' ')[0] ?? '')).join('|')})(?!-)`,
-      'giu',
+      `(?<!\\p{L})(?:${words(FUSED)})\\s+(?:${names.map((name) => literal(name.split(' ')[0] ?? '')).join('|')})(?![\\p{L}\\u002D\\u2011])`,
+      'gu',
     );
     found.push(...[...text.matchAll(fused)].map(([match]) => match));
   }
