@@ -5,7 +5,7 @@
 // random id it kept in meta; these tests put such copies and ids in raw, as it did, and prove both
 // directions of a rollback.
 import 'fake-indexeddb/auto';
-import type { EntityId } from '@proofofcalm/core';
+import type { CoinId, EntityId } from '@proofofcalm/core';
 import { anEntry, aPlan, instant } from '@proofofcalm/core/testing';
 import { IDBFactory } from 'fake-indexeddb';
 import { deleteDB, openDB } from 'idb';
@@ -18,6 +18,11 @@ import { PREVIOUS_BUILD } from './rows.testing';
 const clock = { now: () => instant('2026-10-17T09:00:00.000Z') };
 /** The random id the previous build made once per browser and stamped on every row it wrote. */
 const RANDOM = '3b9e2f4a-6c1d-4e8b-a5f7-2d9c8b7a6e51' as EntityId;
+
+/** What a put or clear does when the disk is full. */
+function diskFull(): never {
+  throw new DOMException('The disk is full.', 'QuotaExceededError');
+}
 
 beforeEach(() => {
   globalThis.indexedDB = new IDBFactory();
@@ -148,39 +153,80 @@ describe('the outbox before the sync (ADR-0019 Readings, 2026-11-24)', () => {
     expect(await raw('outbox')).toStrictEqual([]);
   });
 
-  it('rejects the open when the outbox cannot be emptied, and the next open empties it', async () => {
+  it('opens when the outbox cannot be emptied, keeps the copies until then, and the next open empties it', async () => {
     const snapshot = await written();
     await putCopies();
-    const clear = vi.spyOn(IDBObjectStore.prototype, 'clear').mockImplementationOnce(() => {
-      throw new DOMException('The disk is full.', 'QuotaExceededError');
-    });
+    const clear = vi.spyOn(IDBObjectStore.prototype, 'clear').mockImplementationOnce(diskFull);
 
     const store = idbPlanStore({ clock });
-    await expect(store.load()).rejects.toThrow('The disk is full.');
-    clear.mockRestore();
     expect(await store.load()).toStrictEqual(snapshot);
+    clear.mockRestore();
     await store.close();
+    expect(await raw('outbox')).toHaveLength(5);
+    expect(await withStore((next) => next.load())).toStrictEqual(snapshot);
     expect(await raw('outbox')).toStrictEqual([]);
   });
 
-  it('a failed clear closes the connection it opened, so nothing blocks a later upgrade or delete', async () => {
+  it('the connection kept after a failed cleanup serves reads and still closes on versionchange, so it blocks no later upgrade', async () => {
     await written();
     await putCopies();
-    const clear = vi.spyOn(IDBObjectStore.prototype, 'clear').mockImplementationOnce(() => {
-      throw new DOMException('The disk is full.', 'QuotaExceededError');
-    });
+    const clear = vi.spyOn(IDBObjectStore.prototype, 'clear').mockImplementationOnce(diskFull);
     const closed = vi.fn();
-    await expect(openDatabase(MIGRATIONS, { closed })).rejects.toThrow('The disk is full.');
+    const db = await openDatabase(MIGRATIONS, { closed });
     clear.mockRestore();
+    expect(await db.getAll('outbox')).toHaveLength(5);
 
-    // A connection left open would get the upgrade's versionchange and say it closed; a closed one gets nothing.
     const blocked = vi.fn();
     const newer = await openDB(DATABASE_NAME, MIGRATIONS.length + 1, { blocked });
     expect(newer.version).toBe(MIGRATIONS.length + 1);
     newer.close();
     await deleteDB(DATABASE_NAME, { blocked });
     expect(blocked).not.toHaveBeenCalled();
-    expect(closed).not.toHaveBeenCalled();
+    expect(closed).toHaveBeenCalledOnce();
+  });
+});
+
+describe('a failed cleanup never blocks the open (ADR-0019 Readings, 2026-11-24)', () => {
+  it('opens and reads every row when the cleanup fails on every attempt, as on a full disk', async () => {
+    const snapshot = await written();
+    await putCopies();
+    await stampAsPreviousBuild();
+    // Every put and clear fails, the load's own writes as well: the mock shows that the open, the load
+    // and the history cache read through it, not that a new entry saves on a full disk (it cannot).
+    const puts = vi.spyOn(IDBObjectStore.prototype, 'put').mockImplementation(diskFull);
+    const clears = vi.spyOn(IDBObjectStore.prototype, 'clear').mockImplementation(diskFull);
+    try {
+      const store = idbPlanStore({ clock });
+      expect(await store.load()).toStrictEqual(snapshot);
+      expect(await store.history.get('BTC' as CoinId, 'EUR', clock.now())).toBeNull();
+      await store.close();
+      expect(await withStore((next) => next.load())).toStrictEqual(snapshot);
+      expect(clears).toHaveBeenCalledTimes(2);
+    } finally {
+      puts.mockRestore();
+      clears.mockRestore();
+    }
+    expect(await raw('outbox')).toHaveLength(5);
+    expect(await metaKeys()).toContain(DEVICE_ID_KEY);
+  });
+
+  it('the next open after a failed cleanup empties the outbox and restamps the rows', async () => {
+    const snapshot = await written();
+    await putCopies();
+    await stampAsPreviousBuild();
+    const [plans, entries] = [await raw('plans'), await raw('entries')];
+    const failing = vi.spyOn(IDBObjectStore.prototype, 'put').mockImplementationOnce(diskFull);
+
+    expect(await withStore((store) => store.load())).toStrictEqual(snapshot);
+    failing.mockRestore();
+    expect(await raw('outbox')).toHaveLength(5);
+    expect(await raw('plans')).toStrictEqual(plans);
+
+    expect(await withStore((store) => store.load())).toStrictEqual(snapshot);
+    expect(await raw('outbox')).toStrictEqual([]);
+    expect(await metaKeys()).not.toContain(DEVICE_ID_KEY);
+    expect(await raw('plans')).toStrictEqual(stampedLocal(plans));
+    expect(await raw('entries')).toStrictEqual(stampedLocal(entries));
   });
 });
 
@@ -242,19 +288,21 @@ describe('the device id before the sync (ADR-0019 Readings, 2026-11-24)', () => 
     expect(await raw('plans')).toStrictEqual(stampedLocal(await raw('plans')));
   });
 
-  it('rejects the open when a row cannot be rewritten, keeps the old id until then, and the next open rewrites it', async () => {
+  it('opens when a row cannot be rewritten, keeps the old id until then, and the next open rewrites it', async () => {
     const snapshot = await written();
     await stampAsPreviousBuild();
-    const failing = vi.spyOn(IDBObjectStore.prototype, 'put').mockImplementationOnce(() => {
-      throw new DOMException('The disk is full.', 'QuotaExceededError');
-    });
+    const [plans, entries] = [await raw('plans'), await raw('entries')];
+    const failing = vi.spyOn(IDBObjectStore.prototype, 'put').mockImplementationOnce(diskFull);
 
     const store = idbPlanStore({ clock });
-    await expect(store.load()).rejects.toThrow('The disk is full.');
-    failing.mockRestore();
-    expect(await metaKeys()).toContain(DEVICE_ID_KEY);
     expect(await store.load()).toStrictEqual(snapshot);
+    failing.mockRestore();
     await store.close();
+    expect(await metaKeys()).toContain(DEVICE_ID_KEY);
+    expect(await raw('entries')).toStrictEqual(entries);
+    expect(await withStore((next) => next.load())).toStrictEqual(snapshot);
     expect(await metaKeys()).not.toContain(DEVICE_ID_KEY);
+    expect(await raw('plans')).toStrictEqual(stampedLocal(plans));
+    expect(await raw('entries')).toStrictEqual(stampedLocal(entries));
   });
 });

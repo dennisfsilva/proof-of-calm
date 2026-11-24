@@ -70,7 +70,8 @@ export const LOCAL_DEVICE_ID = EntityIdSchema.parse('00000000-0000-4000-8000-000
  * the local id, before a rollback or since (ADR-0019 Readings, 2026-11-24). Only a row this build reads
  * is rewritten: a later version's row stays byte for byte, and one that fails its check stays as it is
  * for the load to set aside. This changes no store, key or index, so the version stays 1; M3 removes it
- * in the branch that first writes pending records. One transaction: a failure leaves everything as it was.
+ * in the branch that first writes pending records. One transaction: a failure leaves everything as it was
+ * for the next open to try again.
  */
 async function clearBeforeSync(database: Database, versions: RowVersions): Promise<void> {
   const tx = database.transaction(['outbox', 'meta', 'plans', 'entries'], 'readwrite');
@@ -108,8 +109,8 @@ async function clearBeforeSync(database: Database, versions: RowVersions): Promi
  * Opens the database at version `migrations.length`, running the missing migrations in order. They
  * share the one upgrade transaction, so the first that fails aborts it: the open rejects with that
  * failure and the database stays at its old version, untouched. The open then clears what no build
- * needs before the sync (`clearBeforeSync`, at the row versions given); a failure there closes the
- * connection and rejects the open the same way.
+ * needs before the sync (`clearBeforeSync`, at the row versions given); a failure there keeps the
+ * connection and resolves the open all the same (ADR-0019 Readings, 2026-11-24).
  */
 export async function openDatabase(
   migrations: readonly Migration[],
@@ -141,12 +142,10 @@ export async function openDatabase(
       },
       terminated: () => events.closed(),
     });
-    try {
-      await clearBeforeSync(opened, versions);
-    } catch (error) {
-      opened.close();
-      throw error;
-    }
+    // Best effort: a cleanup the person does not need must never lock them out of their plan or its
+    // export (a full disk fails it on every open). The aborted transaction changed nothing, and the next
+    // open tries it whole again; the copies and the old ids stay harmless until then.
+    await clearBeforeSync(opened, versions).catch(() => undefined);
     return opened;
   } catch (error) {
     throw failure ?? error;
