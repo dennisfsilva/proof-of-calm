@@ -177,13 +177,18 @@ const namesAsset = (read: string) =>
 
 type Read = {
   /**
-   * False where a newline is no line the person reads, a Learn module's source wrap (modules-validate.ts): the German
-   * line rule then waits for the read that joins the paragraph, since a wrapped noun would open a clause.
+   * False where a newline is no line the person reads: a Learn module's body as it stands (modules-validate.ts), whose
+   * German lines are its joined read and its page lines.
    */
   readonly germanLines?: boolean;
+  /**
+   * True for the German line rule alone, on lines its caller sets: a Learn module's page lines
+   * (modules-validate.ts).
+   */
+  readonly germanOnly?: boolean;
 };
 
-export function findBanned(text: string, { germanLines = true }: Read = {}): Finding[] {
+export function findBanned(text: string, { germanLines = true, germanOnly = false }: Read = {}): Finding[] {
   const kept = text.normalize('NFC').replace(INVISIBLE, '').replace(ALLOWED, ' ');
   const imperatives = sentences(kept)
     .filter(({ read }) => (IMPERATIVE.test(read) || hasPortugueseDirective(read)) && namesAsset(read))
@@ -195,6 +200,7 @@ export function findBanned(text: string, { germanLines = true }: Read = {}): Fin
   const germanFrames = german
     .filter(({ read }) => hasGermanFrame(read))
     .map(({ written }): Finding => ({ rule: 'advice', match: written.trim() }));
+  if (germanOnly) return [...germanFrames, ...germanImperatives];
   // A branch's first words open the sentence the person reads, whatever stands before the argument.
   const branchImperatives = branchTexts(kept)
     .map((branch) => sentences(branch)[0])

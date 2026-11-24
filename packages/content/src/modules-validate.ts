@@ -45,19 +45,89 @@ const CHART = '<Chart />';
 // So a module never writes those words itself: in any case, across marks, a line end, a dash, an escape or an entity.
 const PAST_PERFORMANCE = /past(?:[\s\p{Pd}\\]|&#?\w+;)+performance/iu;
 
+// Where the page starts a line (docs/CONTENT-STYLE.md §2, German item 2), from each source line with its quote and
+// list marks taken off: a block at a heading, an item, a fence, a rule or underline or a quote that opens, and after a
+// heading, a rule or an empty item; a line inside a block after a hard break, on each line of a fence, and at an item
+// number other than 1 or a line of `=`, which may go on with the paragraph above (CommonMark), so the dash keeps the
+// block's asset in reach and stands in for the dot plainText drops. Any other single newline is a source wrap. It
+// reads no tree and may start a line the compiler goes on with: a capital there is refused, which costs a re-wrap.
+const QUOTES = /^(?:[ \t]*>)+/;
+const MARKS = /^(?:[ \t]*(?:>|(?:[-*+]|\d{1,9}[.)])(?=[ \t]|$)))*[ \t]*/;
+const ITEM = /^[ \t]*(?:[-*+]|\d{1,9}[.)])(?:[ \t]|$)/;
+const ORDERED = /^[ \t]*\d{1,9}[.)](?:[ \t]|$)/;
+const NOT_ONE = /^[ \t]*(?!0*1[.)])\d{1,9}[.)](?:[ \t]|$)/;
+const HEADING = /^#{1,6}(?:[ \t]|$)/;
+const RULE = /^(?:[-*_][ \t]*)+$/;
+const EQUALS = /^=+[ \t]*$/;
+// 3 or more backticks (none after them) or tildes; a fence closes on a bare run of its mark, at least as long.
+const FENCE = /^(`{3,}(?=[^`]*$)|~{3,})(.*)$/;
+const BREAK_END = /(?:\\| {2,})$/;
+// A dash opens and closes a clause for the German rule (directive-de.ts), and shows where the page breaks the line.
+const LINE_START = ' — ';
+
+const unquoted = (line: string) => line.replace(QUOTES, '');
+const inner = (line: string) => line.replace(MARKS, '');
+const depth = (line: string) => (QUOTES.exec(line)?.[0].split('>').length ?? 1) - 1;
+const shown = (line: string) =>
+  plainText(line.trim() === ELEMENT ? line : line.replaceAll(ELEMENT, LINE_START))
+    .replace(HARD_BREAK, '')
+    .trim();
+
+/** What the page sets before each source line: a line's end, a dash inside a block, or a space (a source wrap). */
+function breaks(source: readonly string[]): string[] {
+  let open = '';
+  const code = source.map((line) => {
+    const [, marks, rest = ''] = FENCE.exec(inner(line)) ?? [];
+    if (open === '') {
+      if (marks === undefined) return '';
+      open = marks;
+      return 'fence';
+    }
+    if (marks === undefined || marks[0] !== open[0] || marks.length < open.length || rest.trim() !== '') return 'code';
+    open = '';
+    return 'fence';
+  });
+  return source.map((line, index) => {
+    const above = source[index - 1] ?? '';
+    const [before, here] = [inner(above), inner(line)];
+    if (code[index] === 'code' && code[index - 1] === 'code') return LINE_START;
+    if (index === 0 || shown(above) === '' || shown(line) === '' || code[index] !== '' || code[index - 1] !== '')
+      return '\n';
+    if (HEADING.test(before) || RULE.test(before) || (ITEM.test(unquoted(above)) && before === '')) return '\n';
+    const lazy = depth(line) <= depth(above) && NOT_ONE.test(unquoted(line)) && !ORDERED.test(unquoted(above));
+    if (lazy || EQUALS.test(before) || EQUALS.test(here)) return LINE_START;
+    if (ITEM.test(unquoted(line)) || HEADING.test(here) || RULE.test(here) || depth(line) > depth(above)) return '\n';
+    return BREAK_END.test(above) ? LINE_START : ' ';
+  });
+}
+
+/** The body as its page sets the lines: one per block, a source wrap a space, a line started inside a block a dash. */
+function pageLines(body: string): string {
+  const source = body.split('\n');
+  const between = breaks(source);
+  return source.map((line, index) => `${index === 0 ? '' : between[index]}${shown(line)}`).join('');
+}
+
+const words = (match: string) => match.replaceAll(LINE_START, ' ');
+
 /**
- * Two reads: as it stands, for the rule imperative alone, so a line that opens with an English or Portuguese
- * imperative fires; and with each single newline as a space for every rule, so a phrase cannot hide across a line and
- * an allow-listed phrase holds across one. The German line rule reads only the second, where a paragraph is one line:
- * a source wrap opens no clause (docs/CONTENT-STYLE.md §2). An imperative of the second read that holds one of the
- * first is that same finding. Both reads drop the hard-break backslash at a line end.
+ * Three reads: as it stands, for the rule imperative alone, so a line that opens with an English or Portuguese
+ * imperative fires; with each single newline as a space for every rule, so a phrase cannot hide across a line and an
+ * allow-listed phrase holds across one; and the German line rule alone on the page's lines (pageLines), where a source
+ * wrap opens no clause and a line the page starts opens one (docs/CONTENT-STYLE.md §2). An imperative of the second
+ * read that holds one of the first is that same finding, and so is a finding of the third that a finding before it
+ * holds. The first two drop the hard-break backslash at a line end.
  */
 function bodyFindings(body: string) {
   const text = plainText(body).replace(HARD_BREAK, '');
   const imperatives = findBanned(text, { germanLines: false }).filter(({ rule }) => rule === 'imperative');
   const isNew = ({ rule, match }: Finding) =>
     rule !== 'imperative' || !imperatives.some((seen) => match.includes(seen.match));
-  return [...imperatives, ...findBanned(text.replace(SINGLE_NEWLINE, ' ')).filter(isNew)];
+  const found = [...imperatives, ...findBanned(text.replace(SINGLE_NEWLINE, ' ')).filter(isNew)];
+  const unseen = (finding: Finding) =>
+    isNew(finding) &&
+    !found.some(({ rule, match }) => rule === finding.rule && words(match).includes(words(finding.match)));
+  return [...found, ...findBanned(pageLines(body), { germanOnly: true }).filter(unseen)];
 }
 
 /** From each line alone, and whether the line above is blank; `offset` is the lines above the body in the file. */
