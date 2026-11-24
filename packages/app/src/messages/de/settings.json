@@ -71,7 +71,7 @@
       "noEntries": "Noch keine Einträge, daher gibt es kein Steuerjahr zum Exportieren.",
       "notLoaded": "Die Regeln Ihres Landes sind auf diesem Gerät nicht geladen. Laden Sie die Seite neu, wenn Sie online sind, um ein Steuerjahr zu exportieren.",
       "file": {
-        "title": "Datei für das Steuerjahr von {product} · {country} · {from} bis {to}",
+        "title": "{product}: Datei für das Steuerjahr · {country} · {from} bis {to}",
         "owned": "Daten aus Ihrem Protokoll. Keine Steuerberechnung.",
         "currency": "Die Beträge stehen so, wie Sie sie eingetragen haben, und sind nicht umgerechnet. Ihre Zahlungswährung ist {currency}.",
         "notConverted": "Die Beträge stehen so, wie Sie sie eingetragen haben, und sind nicht in {countryCurrency} umgerechnet. Ihre Zahlungswährung ist {currency}.",
