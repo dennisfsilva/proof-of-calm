@@ -302,7 +302,9 @@ The German rows (decided 2026-11-23; the voice is §10):
     fails as well (fails: `Die Zulassung der BaFin ist für Anbieter Pflicht`; passes:
     `Anbieter brauchen eine Zulassung, die die BaFin erteilt`). Joined: the regulator, a hyphen,
     then the participle, the noun, its plural, the noun joined to `nummer`, the whole word
-    `Aufsicht`, or `aufsichtspflichtig` with either initial (fails: `BaFin-registriert`,
+    `Aufsicht`, or `aufsichtspflichtig` with a capital or a small initial, by itself or as
+    `aufsichtspflichtige`, `aufsichtspflichtigen`, `aufsichtspflichtiger`, `aufsichtspflichtiges`,
+    or `aufsichtspflichtigem`, and no longer word (fails: `BaFin-registriert`,
     `BaFin-Lizenz`, `BaFin-Lizenznummer`, `BaFin-aufsichtspflichtig`; passes:
     `BaFin-Aufsichtsrecht`, `BaFin-Aufsichtsmitteilung`, `BaFin-Zulassungsverfahren`, which name
     the law, a notice, and a procedure). The joined form fails whatever word stands before it,
@@ -1245,7 +1247,7 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
   one (`docs/LEGAL.md` §4). The Risk page's register sentences (`docs/LEGAL.md` §3.4) name the
   register first, `Die ESMA führt ein öffentliches Register der Anbieter von Kryptowerte-Dienstleistungen.`,
   then point to it with `dort`, `Prüfen Sie dort, ob ein Anbieter eingetragen ist, bevor Sie ihm Geld senden.`
-  and `Proof of Calm ist kein Anbieter und dort nicht eingetragen.`, since §2 refuses the register
+  and `Proof of Calm ist kein Anbieter und dort nicht eingetragen.`, since §2's status row refuses the register
   beside its participle whoever the subject is (`im ESMA-Register eingetragen`,
   `im Register der ESMA eingetragen`). They hold one term, `Anbieter`, the short form of the
   glossary's `Anbieter von Kryptowerte-Dienstleistungen`. A German register sentence worded

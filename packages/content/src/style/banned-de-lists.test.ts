@@ -211,16 +211,30 @@ describe('§2’s German registration claim, read from the document', () => {
     },
   );
 
-  it('refuses each noun joined to nummer and the joined aufsichtspflichtig with either initial', () => {
+  it('refuses each noun joined to nummer and the joined aufsichtspflichtig and its forms with either initial', () => {
     const joined = backticked(sentence('Joined:').slice(0, sentence('Joined:').indexOf('(')));
-    expect(joined).toEqual(['nummer', 'Aufsicht', 'aufsichtspflichtig']);
+    const [joinedNummer, joinedAufsicht, ...pflichtig] = joined;
+    expect([joinedNummer, joinedAufsicht]).toEqual(['nummer', 'Aufsicht']);
+    expect(pflichtig).toEqual([
+      'aufsichtspflichtig',
+      'aufsichtspflichtige',
+      'aufsichtspflichtigen',
+      'aufsichtspflichtiger',
+      'aufsichtspflichtiges',
+      'aufsichtspflichtigem',
+    ]);
+    const initials = (word: string) => [word, `${word.charAt(0).toUpperCase()}${word.slice(1)}`];
     for (const hyphen of hyphens) {
       for (const noun of nouns) {
         const word = `BaFin${hyphen}${noun}${noun.endsWith('ung') ? 's' : ''}nummer`;
         expect(rules(`Die ${word} lautet 12345.`), word).toEqual([`advice: ${word}`]);
       }
-      for (const word of ['aufsichtspflichtig', 'Aufsichtspflichtig']) {
-        expect(rules(`Proof of Calm ist BaFin${hyphen}${word}.`)).toEqual([`advice: BaFin${hyphen}${word}`]);
+      for (const word of pflichtig.flatMap(initials)) {
+        expect(rules(`Proof of Calm ist BaFin${hyphen}${word}.`), word).toEqual([`advice: BaFin${hyphen}${word}`]);
+      }
+      // No longer word: the noun names the duty, not a status.
+      for (const word of initials('aufsichtspflichtigkeit')) {
+        expect(findBanned(`Die BaFin${hyphen}${word} gilt.`), word).toEqual([]);
       }
     }
   });
