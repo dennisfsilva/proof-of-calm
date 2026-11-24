@@ -225,7 +225,7 @@ The Portuguese rows (decided 2026-11-15; the voice is §9):
   sentence (`16 de out. de 2026`); and `junto ao` before a regulator.
 - The Risk page's statement on status (`docs/LEGAL.md` §5) passes in Portuguese with no allow-list
   entry, as the Impressum's line does, and the lint's tests hold it: «não está registada junto de
-  nenhum supervisor financeiro nem sujeita à sua supervisão, e nenhum sistema de indemnização dos
+  nenhum supervisor financeiro nem sujeita a qualquer supervisão financeira, e nenhum sistema de indemnização dos
   investidores ou de proteção de depósitos cobre os criptoativos».
 - The tax authority's proper names need no allow-list entry, since none puts a gain word right
   beside a percentage: `Imposto sobre o Rendimento das Pessoas Singulares`,
@@ -388,7 +388,7 @@ The German rows (decided 2026-11-23; the voice is §10):
   particle after the clause (`Steigen Sie ein bei Bitcoin`); an asset named in another message; and
   a directive with no asset (`Jetzt kaufen`, as `Buy now` passes).
 - The Risk page's statement on status passes with no allow-list entry when it writes
-  `unterliegt keiner Aufsicht`, as Portuguese writes `nem sujeita à sua supervisão`.
+  `unterliegt keiner Finanzaufsicht`, as Portuguese writes `nem sujeita a qualquer supervisão financeira`.
 - The quoted label „Investiert“ and the Portuguese tab «Regra e venda» are on the allow-list, each
   with its reason, and so is the Portuguese text of `docs/LEGAL.md` §5's fixed scams sentence
   (`legal.risk.scams.p1`).
@@ -1151,7 +1151,7 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
   Kryptowert kann seinen Wert ganz oder teilweise verlieren.“; (e) and (f), the `Systeme für die
   Entschädigung der Anleger` and the `Einlagensicherungssysteme`, in the German text of
   `docs/LEGAL.md` §5's statement on status, which opens
-  `Proof of Calm ist bei keiner Finanzaufsicht registriert und unterliegt keiner Aufsicht`;
+  `Proof of Calm ist bei keiner Finanzaufsicht registriert und unterliegt keiner Finanzaufsicht`;
   the ESAs' warning of 2022-03-17 in its German version. "Not advice" reads `keine Beratung`, "no financial or tax advice" `keine
   Anlage- oder Steuerberatung`. The plan-creation text stays English until counsel approves a German
   one (`docs/LEGAL.md` §4).

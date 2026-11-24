@@ -1353,7 +1353,7 @@ const REWORDED: [string, string][] = [
   ],
   [
     'A {product} não está registada junto de nenhum supervisor financeiro nem é supervisionada por nenhum, e nenhum sistema de indemnização dos investidores ou de garantia de depósitos cobre os criptoativos.',
-    'A {product} não está registada junto de nenhum supervisor financeiro nem sujeita à sua supervisão, e nenhum sistema de indemnização dos investidores ou de proteção de depósitos cobre os criptoativos.',
+    'A {product} não está registada junto de nenhum supervisor financeiro nem sujeita a qualquer supervisão financeira, e nenhum sistema de indemnização dos investidores ou de proteção de depósitos cobre os criptoativos.',
   ],
   [
     'Para aconselhamento sobre a sua situação, procure um consultor financeiro registado na CMVM.',

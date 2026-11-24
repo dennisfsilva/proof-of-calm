@@ -820,7 +820,7 @@ describe('findBanned in Portuguese: the gaps and over-catches of the second revi
   // reads as a claim, so it passes with no allow-list entry, as the Impressum's line does.
   it('passes the Risk page’s status sentence in Portuguese without an allow-list entry', () => {
     const status =
-      'não está registada junto de nenhum supervisor financeiro nem sujeita à sua supervisão, e nenhum sistema de indemnização dos investidores ou de proteção de depósitos cobre os criptoativos';
+      'não está registada junto de nenhum supervisor financeiro nem sujeita a qualquer supervisão financeira, e nenhum sistema de indemnização dos investidores ou de proteção de depósitos cobre os criptoativos';
     expect(rules(status)).toEqual([]);
     expect(rules(`A Proof of Calm ${status}.`)).toEqual([]);
     const phrases = banned.allow.map((entry) => entry.phrase.toLowerCase());
