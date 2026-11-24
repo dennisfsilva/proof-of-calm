@@ -99,7 +99,7 @@
       "exempt": "{share, select, none {Am {date} hat keine Einheit der {sold} dieses Verkaufs{at, select, venue { bei {venue}} unnamed { ohne Ort} other {}} die Haltefrist überschritten. Der Verkauf kann besteuert werden.} other {Am {date} haben nur {eligible} der {sold} dieses Verkaufs{at, select, venue { bei {venue}} unnamed { ohne Ort} other {}} die Haltefrist überschritten. Der Rest kann besteuert werden.}}",
       "lowerRate": "{share, select, none {Am {date} hat keine Einheit der {sold} dieses Verkaufs{at, select, venue { bei {venue}} unnamed { ohne Ort} other {}} die Haltefrist überschritten. Der Verkauf kann mit dem kurzfristigen Steuersatz besteuert werden.} other {Am {date} haben nur {eligible} der {sold} dieses Verkaufs{at, select, venue { bei {venue}} unnamed { ohne Ort} other {}} die Haltefrist überschritten. Der Rest kann mit dem kurzfristigen Steuersatz besteuert werden.}}"
     },
-    "coversSale": "Nach dieser Änderung fehlen dem Verkauf von {coin} am {date} Einheiten. Prüfen Sie diesen Verkauf im Protokoll.",
+    "coversSale": "Mit dieser Änderung fehlen dem Verkauf von {coin} am {date} Einheiten. Prüfen Sie diesen Verkauf im Protokoll.",
     "close": "Schließen",
     "saved": "Eintrag gespeichert.",
     "deleted": "Dieser Eintrag wurde in einem anderen Browser-Tab gelöscht, daher wurde die Änderung nicht gespeichert.",
