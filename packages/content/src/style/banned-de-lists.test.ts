@@ -47,8 +47,12 @@ const registerPrepositions = backticked(byPart.slice(byPart.lastIndexOf(')')));
 const registerParts = backticked(sentence('That register is'));
 const adjectiveSentence = sentence('Each article');
 const adjectiveContractions = backticked(adjectiveSentence.slice(0, adjectiveSentence.indexOf('may take')));
-const adjectiveEndings = backticked(
-  adjectiveSentence.slice(adjectiveSentence.indexOf('a word of letters'), adjectiveSentence.indexOf('(')),
+const adjectiveBound =
+  ['one', 'two', 'three'].indexOf(/up to (\w+) adjectives/u.exec(adjectiveSentence)?.[1] ?? '') + 1;
+const adjectiveEndings = backticked(adjectiveSentence.slice(adjectiveSentence.indexOf('whose last part')));
+const bareSentence = sentence('With no article');
+const [barePrepositions, bareException] = ((words) => [words.slice(0, -1), words.at(-1) ?? ''] as const)(
+  backticked(bareSentence.slice(0, bareSentence.indexOf('('))),
 );
 const [participleList = '', participleExample = ''] = sentence('Its participle is').split('(');
 const participles = backticked(participleList);
@@ -97,16 +101,20 @@ describe('§2’s German registration claim, read from the document', () => {
       'durch das',
     ]);
     expect(registerPrepositions).toEqual(['im', 'ins', 'in das', 'in dem']);
-    expect(registerParts).toEqual(['-', 'Register', 'ESMA‑Registereintrag', 'Register der', 'Register des']);
+    // A plain U+002D: §10 keeps the no-break hyphen U+2011 for numeral compounds.
+    expect(registerParts).toEqual(['-', 'Register', 'ESMA-Registereintrag', 'Register der', 'Register des']);
     expect(registers).toEqual([
       'BaFin-Register',
       'BaFin‑Register',
-      'ESMA‑Registereintrag',
+      'ESMA-Registereintrag',
       'Register der BaFin',
       'Register des Banco de España',
     ]);
     expect(adjectiveContractions).toEqual(['im', 'ins']);
+    expect(adjectiveBound).toBe(2);
     expect(adjectiveEndings).toEqual(['e', 'en', 'er', 'es']);
+    expect(barePrepositions).toEqual(['bei', 'von', 'durch']);
+    expect(bareException).toBe('kein');
     expect(participles).toEqual([
       'registriert',
       'eingetragen',
@@ -119,8 +127,95 @@ describe('§2’s German registration claim, read from the document', () => {
     expect(nouns).toEqual(['Lizenz', 'Zulassung', 'Registrierung', 'Eintragung', 'Genehmigung', 'Erlaubnis']);
     expect(gapBound).toBe(3);
     expect(hyphens).toEqual(['-', '‑']);
-    expect(examples('fails').length).toBeGreaterThan(10);
-    expect(examples('passes').length).toBeGreaterThan(5);
+  });
+
+  // Every example is listed, so one cut from the document fails here as well as one added unread.
+  it('finds every example', () => {
+    expect(examples('fails')).toEqual([
+      'bei der zuständigen deutschen Aufsichtsbehörde registriert',
+      'im öffentlichen Register der BaFin eingetragen',
+      'in das öffentliche BaFin-Register eingetragen',
+      'bei deutscher Finanzaufsicht registriert',
+      'bei der EU-weiten Aufsichtsbehörde registriert',
+      'bei der BaFin seit 2024 registriert',
+      'von der BaFin überwacht',
+      'hat bei der BaFin eine Lizenz',
+      'bei der BaFin die Registrierungsnummer',
+      'registriert als Krypto-Dienstleister bei der BaFin',
+      'Zulassung durch die BaFin',
+      'eine Zulassung der BaFin',
+      'eine Lizenz der BaFin',
+      'Erlaubnis der zuständigen deutschen Aufsichtsbehörde',
+      'Die Zulassung der BaFin ist für Anbieter Pflicht',
+      'BaFin-registriert',
+      'BaFin-Lizenz',
+      'BaFin-Lizenznummer',
+      'BaFin-aufsichtspflichtig',
+      'unterliegt keiner BaFin-Aufsicht',
+      'unter Aufsicht der BaFin',
+      'unterliegt der deutschen Finanzaufsicht',
+      'Krypto-Dienstleister in der EU unterliegen der MiCA-Verordnung',
+    ]);
+    expect(examples('passes')).toEqual([
+      'bei keiner zuständigen Aufsichtsbehörde registriert',
+      'bei der zuständigen deutschen staatlichen Aufsichtsbehörde registriert',
+      'Im BaFin-Register stehen Anbieter mit Lizenz',
+      'Zulassung der Anbieter',
+      'Anbieter brauchen eine Zulassung, die die BaFin erteilt',
+      'BaFin-Aufsichtsrecht',
+      'BaFin-Aufsichtsmitteilung',
+      'BaFin-Zulassungsverfahren',
+      'unterliegt keiner Finanzaufsicht',
+      'unterlag der BaFin',
+      'Die MiCA-Verordnung gilt für Krypto-Dienstleister in der EU',
+    ]);
+  });
+
+  // A status claim the lint lets through says so: §2's status row still refuses it in copy.
+  it('marks the adjective bound’s pass as the lint’s only', () => {
+    expect(sentence('Three adjectives pass')).toMatch(
+      /pass the lint only; §2's status row still refuses them in copy/u,
+    );
+    expect(registration).not.toMatch(/table's status row|neuen/u);
+  });
+
+  it.each(adjectiveEndings)(
+    'refuses up to the bound of adjectives with the ending %j, with or without an article',
+    (ending) => {
+      const adjectives = (count: number) =>
+        ['staatlich', 'zuständig', 'deutsch']
+          .slice(0, count)
+          .map((stem) => `${stem}${ending}`)
+          .join(' ');
+      for (let count = 1; count <= adjectiveBound; count += 1) {
+        for (const preposition of [...barePrepositions, 'bei der']) {
+          const claim = `${preposition} ${adjectives(count)} Finanzaufsicht registriert`;
+          expect(rules(`Proof of Calm ist ${claim}.`), claim).toEqual([`advice: ${claim}`]);
+        }
+      }
+      for (const preposition of [...barePrepositions, 'bei der']) {
+        const over = `Proof of Calm ist ${preposition} ${adjectives(adjectiveBound + 1)} Finanzaufsicht registriert.`;
+        expect(findBanned(over), over).toEqual([]);
+      }
+      for (const preposition of barePrepositions) {
+        const negation = `Proof of Calm ist ${preposition} ${bareException}${ending} Finanzaufsicht registriert.`;
+        expect(findBanned(negation), negation).toEqual([]);
+      }
+    },
+  );
+
+  it('refuses each noun joined to nummer and the joined aufsichtspflichtig with either initial', () => {
+    const joined = backticked(sentence('Joined:').slice(0, sentence('Joined:').indexOf('(')));
+    expect(joined).toEqual(['nummer', 'Aufsicht', 'aufsichtspflichtig']);
+    for (const hyphen of hyphens) {
+      for (const noun of nouns) {
+        const word = `BaFin${hyphen}${noun}${noun.endsWith('ung') ? 's' : ''}nummer`;
+        expect(rules(`Die ${word} lautet 12345.`), word).toEqual([`advice: ${word}`]);
+      }
+      for (const word of ['aufsichtspflichtig', 'Aufsichtspflichtig']) {
+        expect(rules(`Proof of Calm ist BaFin${hyphen}${word}.`)).toEqual([`advice: BaFin${hyphen}${word}`]);
+      }
+    }
   });
 
   it.each([...regulators, ...longerRegulators])(
@@ -159,7 +254,7 @@ describe('§2’s German registration claim, read from the document', () => {
 
   it('reads the register as a word that begins with Register', () => {
     expect(registerParts[1]).toBe('Register');
-    expect(registerParts[2]?.split('‑')[1]?.startsWith('Register')).toBe(true);
+    expect(registerParts[2]?.split('-')[1]?.startsWith('Register')).toBe(true);
   });
 
   it.each(adjectiveEndings)('refuses one adjective with the ending %j after each article', (ending) => {
@@ -325,13 +420,27 @@ describe('§2’s German registration claim, read from the document', () => {
 const section10 = styleGuide.slice(styleGuide.indexOf('## 10. '));
 const pointer = /`(Prüfen Sie dort[^`]*)`/u.exec(section10)?.[1] ?? '';
 const notListed = /`(Proof of Calm ist kein Anbieter[^`]*)`/u.exec(section10)?.[1] ?? '';
+const registerNamed = /`(Die ESMA führt[^`]*)`/u.exec(section10)?.[1] ?? '';
+const term = /They hold one term, `([^`]+)`, the short form of the\s+glossary's `([^`]+)`/u.exec(section10);
 
 describe('§10’s German register sentences, read from the document', () => {
-  it('finds both and passes them', () => {
-    expect(pointer).toBe('Prüfen Sie dort, ob ein Anbieter eingetragen ist.');
-    expect(notListed).toBe('Proof of Calm ist kein Anbieter und ist dort nicht eingetragen.');
-    expect(findBanned(pointer)).toEqual([]);
-    expect(findBanned(notListed)).toEqual([]);
+  it('finds the three and passes them, alone and together', () => {
+    expect(registerNamed).toBe(
+      'Die ESMA führt ein öffentliches Register der Anbieter von Kryptowerte-Dienstleistungen.',
+    );
+    expect(pointer).toBe('Prüfen Sie dort, ob ein Anbieter eingetragen ist, bevor Sie ihm Geld senden.');
+    expect(notListed).toBe('Proof of Calm ist kein Anbieter und dort nicht eingetragen.');
+    for (const text of [registerNamed, pointer, notListed, `${registerNamed} ${pointer} ${notListed}`]) {
+      expect(findBanned(text), text).toEqual([]);
+    }
+  });
+
+  it('holds one term, the short form of the glossary’s', () => {
+    const [, short = '', long = ''] = term ?? [];
+    expect(short).toBe('Anbieter');
+    expect(section10).toContain(`| ${long} |`);
+    expect(long.startsWith(`${short} `)).toBe(true);
+    for (const text of [registerNamed, pointer, notListed]) expect(text).toContain(short);
   });
 
   // Refused on purpose: a lint cannot tell the subject, so the register with a participle fails whoever is in it.
