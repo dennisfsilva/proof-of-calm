@@ -157,6 +157,16 @@ describe('a control named inside a German sentence', () => {
     );
   });
 
+  // The held question names the preview's left-out section by its title, which carries a count, so the English
+  // finder cannot pair them: the check reads the title without its count in the sentence.
+  it("names the preview's left-out section in „…“", () => {
+    const title = (de.get('settings.data.exchange.section.leftOut') ?? '').replace(/ \(\{count\}\)$/u, '');
+    const sentence = de.get('settings.data.exchange.heldSales') ?? '';
+    expect(title).toBe('Nicht importiert');
+    expect(sentence).toContain(`„${title}“`);
+    expect(showsBare(sentence, title, ['„', '“'])).toBe(false);
+  });
+
   // German Portfolio names the Log's control in a sentence, so the check reads it.
   it('finds the control German Portfolio names', () => {
     const inPortfolioOrLog = german.filter(({ key }) => /^(?:portfolio|log)\./u.test(key));
