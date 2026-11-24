@@ -123,7 +123,7 @@ describe('a branch that opens with a placeholder', () => {
 
 describe('the German copy of §10 (docs/CONTENT-STYLE.md)', () => {
   it.each([
-    'Proof of Calm ist bei keiner Finanzaufsicht registriert und unterliegt keiner Finanzaufsicht',
+    'Proof of Calm ist bei keiner Finanzaufsichtsbehörde registriert und unterliegt keiner Finanzaufsicht',
     'Verkauf',
     'Investiert',
     'Monatskauf',
