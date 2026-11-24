@@ -1,7 +1,7 @@
 import { Button } from '@proofofcalm/ui/components/button';
 import { useEffect, useRef, useState } from 'react';
-import { useTranslations } from 'use-intl';
-import { BRAND } from '../../../lib/brand';
+import { useLocale, useTranslations } from 'use-intl';
+import { BRAND, disclosureLang } from '../../../lib/brand';
 import { useServices } from '../../../lib/services';
 import { reacknowledge } from '../actions';
 
@@ -16,6 +16,7 @@ export type ReacknowledgeProps = {
 export function Reacknowledge({ version }: ReacknowledgeProps) {
   const t = useTranslations('onboarding');
   const errors = useTranslations('errors');
+  const locale = useLocale();
   const services = useServices();
   const [failed, setFailed] = useState(false);
   const tapped = useRef(false);
@@ -45,7 +46,8 @@ export function Reacknowledge({ version }: ReacknowledgeProps) {
     <div className="mx-auto flex w-full max-w-reading flex-col gap-stack-lg px-gutter py-stack-lg">
       <h1 className="font-semibold text-28 tracking-heading">{t('reask.title')}</h1>
       <p>
-        {t('disclosure.text', { product: BRAND.name })} <a href="/risk">{t('disclosure.riskLink')}</a>
+        <span lang={disclosureLang(locale)}>{t('disclosure.text', { product: BRAND.name })}</span>{' '}
+        <a href="/risk">{t('disclosure.riskLink')}</a>
       </p>
       <div className="flex flex-wrap gap-target-gap">
         <Button onClick={accept}>{t('reask.continue')}</Button>
