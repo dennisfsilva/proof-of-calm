@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { I18nProvider } from '../../../lib/i18n';
 import { BRAND } from '../../../lib/brand';
+import { I18nProvider } from '../../../lib/i18n';
 import onboardingDe from '../../../messages/de/onboarding.json';
 import onboarding from '../../../messages/en/onboarding.json';
 import { StartRow } from './start-row';
