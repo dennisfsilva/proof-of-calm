@@ -90,12 +90,14 @@ await preloadLazyModules([
   () => import('../src/features/learn/components/module-sheet'),
   // The file behind LEARN_BODIES here (main.ts); only the learn feature imports the virtual module itself.
   () => import('../src/features/learn/fixtures/start-here.mdx'),
-  () => import('../src/features/log'),
-  () => import('../src/features/onboarding'),
+  // Each loader imports its barrel first, so the barrel's own exports (Log's sheets, Onboarding's country step
+  // and re-ask) are warmed with the screen: a barrel exports its screen only as a loader (ADR-0045 §9).
+  () => import('../src/features/log').then((log) => log.loadLogScreen()),
+  () => import('../src/features/onboarding').then((onboarding) => onboarding.loadOnboardingScreen()),
   () => import('../src/features/plan').then((plan) => plan.loadPlanScreen()),
   () => import('../src/features/plan').then((plan) => plan.loadReviewScreen()),
-  () => import('../src/features/portfolio'),
-  () => import('../src/features/settings'),
+  () => import('../src/features/portfolio').then((portfolio) => portfolio.loadPortfolioScreen()),
+  () => import('../src/features/settings').then((settings) => settings.loadSettingsScreen()),
 ]);
 
 const preview: Preview = {
