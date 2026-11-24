@@ -27,35 +27,41 @@ const REGISTRATION =
 // longer word that begins with one; before it bei, von or durch with an optional article (der, dem, den, or durch's
 // die and das), or im, ins, in das or in dem before its register (the regulator, a hyphen and a word that begins
 // with "Register", or "Register der" or "des" and the regulator); each article, and the one inside im and ins, may
-// take one adjective, a word of letters ending in e, en, er or es ("bei der zuständigen Aufsichtsbehörde", "im
-// öffentlichen BaFin-Register"); a participle, registriert,
-// eingetragen, gemeldet, beaufsichtigt, überwacht or kontrolliert, or a longer word that begins with one
-// (registrierter); a noun, Lizenz, Zulassung, Registrierung, Eintragung, Genehmigung or Erlaubnis; between them a
-// gap of up to three words of letters, numerals and inner hyphens (U+002D, or the no-break hyphen U+2011 that joins
-// a numeral compound, §10; "als Krypto-Dienstleister", "seit 2024", "als 24‑Stunden‑Anbieter"). The participle
-// comes last; the participle or the noun, or a longer word that begins with the noun, comes first; or that noun
-// comes before "der" or "des" and the regulator, the genitive ("Zulassung der BaFin"); or the regulator
-// joins by a hyphen the participle, the noun or its plural, or the whole word "Aufsicht" ("BaFin-registriert",
-// "BaFin-Lizenz", "BaFin-Aufsicht", while "BaFin-Aufsichtsrecht" names the law); or "Aufsicht" with "der", "des" or
-// "durch die", or a word that begins with "unterlieg" with "der", "dem" or "den", comes before a regulator.
-// "Unterlagen der BaFin" and "unterlag" pass. "Bei keiner Finanzaufsichtsbehörde registriert" and "unterliegt keiner
-// Finanzaufsicht" pass, since "keiner" is neither an article nor a regulator, and no adjective stands without an
-// article. These rows go before the word lists, so "beaufsichtigt bei der BaFin" is reported whole.
+// take up to two adjectives, and bei, von and durch with no article may too, unless the first begins with "kein";
+// an adjective is words of letters and numerals joined by inner hyphens, the last ending in e, en, er or es ("bei
+// der zuständigen deutschen Aufsichtsbehörde", "bei deutscher Finanzaufsicht", "bei der EU-weiten Aufsichtsbehörde");
+// a participle, registriert, eingetragen, gemeldet, beaufsichtigt, überwacht or kontrolliert, or a longer word that
+// begins with one (registrierter); a noun, Lizenz, Zulassung, Registrierung, Eintragung, Genehmigung or Erlaubnis;
+// between them a gap of up to three words of letters, numerals and inner hyphens (U+002D, or the no-break hyphen
+// U+2011 that joins a numeral compound, §10; "als Krypto-Dienstleister", "seit 2024", "als 24‑Stunden‑Anbieter").
+// The participle comes last; the noun, or a longer word that begins with it, comes last after bei, von or durch
+// ("hat bei der BaFin eine Lizenz"), never after the register; the participle or the noun comes first; or that
+// noun comes before "der" or "des" and the regulator, the genitive ("Zulassung der BaFin"); or the regulator joins
+// by a hyphen the participle, the noun, its plural or the noun with "nummer", the whole word "Aufsicht", or
+// "aufsichtspflichtig" ("BaFin-registriert", "BaFin-Lizenznummer", "BaFin-Aufsicht", while "BaFin-Aufsichtsrecht"
+// names the law); or "Aufsicht" with "der", "des" or "durch die", or a word that begins with "unterlieg" with "der",
+// "dem" or "den", comes before a regulator. "Unterlagen der BaFin" and "unterlag" pass. "Bei keiner
+// Finanzaufsichtsbehörde registriert" and "unterliegt keiner Finanzaufsicht" pass, since "keiner" is neither an
+// article nor a regulator. These rows go before the word lists, so "beaufsichtigt bei der BaFin" is reported whole.
 const REGULATOR_DE = `(?:${[...longestFirst(banned.regulators), String.raw`finanzaufsicht\p{L}*`, String.raw`aufsichtsbehörde\p{L}*`].join('|')})`;
 const HYPHEN_DE = '[\\-‑]';
-const ARTICLE_ADJECTIVE_DE = String.raw`(?:\p{L}+(?:e|en|er|es)\s+)?`;
+const ADJECTIVE_WORD_DE = String.raw`(?:[\p{L}\p{N}]+${HYPHEN_DE})*[\p{L}\p{N}]+(?:e|en|er|es)\s+`;
+const ARTICLE_ADJECTIVE_DE = `(?:${ADJECTIVE_WORD_DE}){0,2}`;
 const ARTICLE_DE = (articles: string) => String.raw`\s+(?:${articles})\s+${ARTICLE_ADJECTIVE_DE}`;
+const BARE_DE = String.raw`\s+(?:(?!kein)${ADJECTIVE_WORD_DE}){0,2}`;
+const PREPOSITION_DE = `(?:(?:bei|von)(?:${ARTICLE_DE('der|dem|den')}|${BARE_DE})|durch(?:${ARTICLE_DE('die|den|das')}|${BARE_DE}))${REGULATOR_DE}`;
 const BY_REGULATOR_DE =
-  String.raw`(?:(?:bei|von)(?:${ARTICLE_DE('der|dem|den')}|\s+)|durch(?:${ARTICLE_DE('die|den|das')}|\s+))${REGULATOR_DE}|` +
+  `${PREPOSITION_DE}|` +
   String.raw`(?:im|ins|in\s+das|in\s+dem)\s+${ARTICLE_ADJECTIVE_DE}(?:${REGULATOR_DE}${HYPHEN_DE}register\p{L}*|register${ARTICLE_DE('der|des')}${REGULATOR_DE})`;
 const GAP_DE = String.raw`(?:\s+[\p{L}\p{N}]+(?:${HYPHEN_DE}[\p{L}\p{N}]+)*){0,3}?\s+`;
 const PARTICIPLE_DE = String.raw`(?:registriert|eingetragen|gemeldet|beaufsichtigt|überwacht|kontrolliert)\p{L}*`;
 const NOUN_STATUS_DE = '(?:lizenz|zulassung|registrierung|eintragung|genehmigung|erlaubnis)';
 const REGISTRATION_DE = [
   `(?:${BY_REGULATOR_DE})${GAP_DE}${PARTICIPLE_DE}`,
+  String.raw`${PREPOSITION_DE}${GAP_DE}${NOUN_STATUS_DE}\p{L}*`,
   String.raw`(?:${PARTICIPLE_DE}|${NOUN_STATUS_DE}\p{L}*)${GAP_DE}(?:${BY_REGULATOR_DE})`,
   String.raw`${NOUN_STATUS_DE}\p{L}*${ARTICLE_DE('der|des')}${REGULATOR_DE}`,
-  `${REGULATOR_DE}${HYPHEN_DE}(?:${PARTICIPLE_DE}|${NOUN_STATUS_DE}(?:en|se)?|aufsicht)`,
+  `${REGULATOR_DE}${HYPHEN_DE}(?:${PARTICIPLE_DE}|${NOUN_STATUS_DE}(?:s?nummern?|en|se)?|aufsicht(?:spflichtig(?:e|en|er|es|em)?)?)`,
   String.raw`(?:aufsicht${ARTICLE_DE(String.raw`der|des|durch\s+die`)}|unterlieg\p{L}*${ARTICLE_DE('der|dem|den')})${REGULATOR_DE}(?:${HYPHEN_DE}aufsicht\p{L}*)?`,
 ];
 const ADVICE = between([
