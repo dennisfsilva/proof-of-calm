@@ -119,8 +119,8 @@
   },
   "holdingRule": {
     "legend": "Haltefrist",
-    "country": "{kind, select, named {Die Haltefrist {countryFor}} generic {Die Haltefrist des allgemeinen Profils} other {Die Haltefrist Ihres Landes}}",
-    "countryUnknown": "Die Haltefrist Ihres Landes ist auf diesem Gerät nicht geladen.",
+    "country": "{kind, select, named {Die Regel {countryFor}} generic {Die Regel des allgemeinen Profils} other {Die Regel Ihres Landes}}",
+    "countryUnknown": "Die Regel Ihres Landes ist auf diesem Gerät nicht geladen.",
     "own": "Eigene Haltefrist",
     "ownLine": "Sie gilt für jeden Kauf, unabhängig von seinem Datum.",
     "kind": "Frist",
@@ -146,7 +146,7 @@
     "issue": {
       "count-whole": "Geben Sie eine ganze Zahl von {kind, select, years {Jahren} other {Tagen}} ein.",
       "count-range": "Geben Sie {min} bis {max}\u00a0{kind, select, years {Jahre} other {Tage}} ein.",
-      "country-unknown": "Die Haltefrist Ihres Landes ist auf diesem Gerät nicht geladen. Wählen Sie eine eigene Haltefrist."
+      "country-unknown": "Die Regel Ihres Landes ist auf diesem Gerät nicht geladen. Wählen Sie eine eigene Haltefrist."
     }
   },
   "timeline": {
