@@ -73,17 +73,39 @@ const sameLine = (shown: Finding, read: Finding) =>
   shown.rule === read.rule && (within(wordsOf(shown), wordsOf(read)) || within(wordsOf(read), wordsOf(shown)));
 
 /**
- * English's module reads of a translation's source body, less each that is one of the block read's findings: every
- * block finding pairs with at most one source finding, so a line both reads refuse is reported once, by the block
- * read's quote, and a phrase refused on two lines is reported twice.
+ * A maximum matching between `left` and `right`, an edge wherever `pairs` holds, by augmenting paths (Kuhn): each item
+ * of either side in one pair at most, and as many pairs as the edges allow, whatever the order of either side. The
+ * indices of the `left` items it pairs.
  */
-function sourceOnly(shown: readonly Finding[], source: string) {
-  const unpaired = [...shown];
-  return bodyFindings(bodyOf(source)).filter((read) => {
-    const pair = unpaired.findIndex((finding) => sameLine(finding, read));
-    if (pair !== -1) unpaired.splice(pair, 1);
-    return pair === -1;
-  });
+function matched(
+  left: readonly Finding[],
+  right: readonly Finding[],
+  pairs: (a: Finding, b: Finding) => boolean,
+): ReadonlySet<number> {
+  const edges = left.map((a) => right.flatMap((b, to) => (pairs(a, b) ? [to] : [])));
+  const owner = new Map<number, number>();
+  const augment = (from: number, seen: Set<number>): boolean =>
+    (edges[from] ?? []).some((to) => {
+      if (seen.has(to)) return false;
+      seen.add(to);
+      const held = owner.get(to);
+      if (held !== undefined && !augment(held, seen)) return false;
+      owner.set(to, from);
+      return true;
+    });
+  for (const from of left.keys()) augment(from, new Set());
+  return new Set(owner.values());
+}
+
+/**
+ * English's module reads of a translation's source body, less those a maximum matching pairs with the block read's
+ * findings. Each block finding pairs with at most one source finding, so a line both reads refuse is reported once,
+ * in the block read's quote, and a phrase refused on two lines is reported twice.
+ */
+function sourceOnly(shown: readonly Finding[], source: string): Finding[] {
+  const reads = bodyFindings(bodyOf(source));
+  const paired = matched(reads, shown, (read, finding) => sameLine(finding, read));
+  return reads.filter((_, index) => !paired.has(index));
 }
 
 const listed = (elements: readonly string[]) => elements.join(', ') || 'none';
