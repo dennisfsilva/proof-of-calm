@@ -925,6 +925,20 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   and its limit. The Cycle plan's German `oneLine` and `explanation` sat at 193 of 200 and 1,196 of
   1,200 characters, so brand's longer wordings were cut down in the fix round and the next review
   reopened two of them (2026-11-24).
+- A character class for a word in a ban-list pattern takes every character the style guide makes
+  copy write inside a word, not only ASCII. C2's German gap word took U+002D only, so „bei der BaFin
+  als 24‑Stunden‑Anbieter registriert“ with the no-break hyphen U+2011 (CONTENT-STYLE §4) passed,
+  and the German gain join had the same gap (#455, 2026-11-24). A brief for such a pattern names
+  those characters and asks for the same search across the file's other patterns.
+- A namespace that one variant of a shared component reads loads with that variant, behind its own
+  `lazy`, not in the loader every caller shares. The country forms' first build loaded `countries`
+  in the "Why?" link's loader, so Today's links fetched a chunk their sheets never read, and failed
+  with it (#457, 2026-11-24). A brief that adds a namespace lists each component that reads it and
+  the screens that render each.
+- A content role's judgment that changes only docs, a comment or a capped field within its limit is
+  applied without another review round; only a code change goes back to the reviewer. Each round's
+  roles proposed new wordings on the last round's (on C2: 9 in the first delta, 7 in the second), so
+  a review round per wording pass would not end (#455, 2026-11-24).
 
 ## Known gaps
 
