@@ -43,16 +43,18 @@ type OwnerState =
   | { state: 'filled' }
   | { state: 'half'; placeholders: string[]; missing: string[] };
 
-const PLACEHOLDER = /^\[Owner: [^\]]+\]$/;
+/** A value that holds this anywhere still holds a placeholder, whole or as a fragment left inside a filled value. */
+const PLACEHOLDER = '[Owner:';
 const optional = (field: string) => (OPTIONAL_OWNER_FIELDS as readonly string[]).includes(field);
 
 /**
  * Where the owner file stands: every field a placeholder (the draft), every field filled but the optional ones, which
- * may be empty (signed), or anything between, with the fields still a placeholder and the required ones left empty.
+ * may be empty (signed), or anything between, with the fields still holding a placeholder and the required ones left
+ * empty.
  */
 function ownerState(owner: Owner): OwnerState {
   const entries = Object.entries(owner);
-  const placeholders = entries.filter(([, value]) => PLACEHOLDER.test(value)).map(([field]) => field);
+  const placeholders = entries.filter(([, value]) => value.includes(PLACEHOLDER)).map(([field]) => field);
   if (placeholders.length === entries.length) return { state: 'draft' };
   const missing = entries.filter(([field, value]) => value.trim() === '' && !optional(field)).map(([field]) => field);
   return placeholders.length === 0 && missing.length === 0
@@ -451,6 +453,19 @@ describe('the launch drafts of Terms, Privacy and Contact (docs/LEGAL.md §5)', 
       state: 'half',
       placeholders: [],
       missing: ['email', 'date'],
+    });
+  });
+
+  it('refuses a filled owner file with a placeholder left inside a value', () => {
+    expect(ownerState({ ...FILLED, address: 'Rua Exemplo 1, [Owner: postal code] Exemplo' })).toEqual({
+      state: 'half',
+      placeholders: ['address'],
+      missing: [],
+    });
+    expect(ownerState({ ...FILLED, name: 'Filled name [Owner:' })).toEqual({
+      state: 'half',
+      placeholders: ['name'],
+      missing: [],
     });
   });
 
