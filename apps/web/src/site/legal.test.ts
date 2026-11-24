@@ -7,7 +7,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import messages from '../../messages/en.json';
 import { ProviderFields } from './contact';
-import { legalValues, OPTIONAL_OWNER_FIELDS } from './legal';
+import { emptyOwnerValue, legalValues, OPTIONAL_OWNER_FIELDS } from './legal';
 import { loadSiteData, renderSitePage } from './render';
 import { RISK_LINKS } from './risk-links';
 
@@ -56,7 +56,9 @@ function ownerState(owner: Owner): OwnerState {
   const entries = Object.entries(owner);
   const placeholders = entries.filter(([, value]) => value.includes(PLACEHOLDER)).map(([field]) => field);
   if (placeholders.length === entries.length) return { state: 'draft' };
-  const missing = entries.filter(([field, value]) => value.trim() === '' && !optional(field)).map(([field]) => field);
+  const missing = entries
+    .filter(([field, value]) => emptyOwnerValue(value) && !optional(field))
+    .map(([field]) => field);
   return placeholders.length === 0 && missing.length === 0
     ? { state: 'filled' }
     : { state: 'half', placeholders, missing };
@@ -110,7 +112,7 @@ function legalTexts(owner: Owner, stray = ''): (readonly [LegalName, string])[] 
  */
 function strayIdentity(owner: Owner, stray = ''): string[] {
   const neutral = Object.fromEntries(
-    Object.entries(owner).map(([field, value]) => [field, value.trim() === '' ? value : 'Owner value']),
+    Object.entries(owner).map(([field, value]) => [field, emptyOwnerValue(value) ? value : 'Owner value']),
   ) as Owner;
   return legalTexts(neutral, stray).flatMap(([name, page]) =>
     IDENTITY.filter(([, pattern]) => pattern.test(page)).map(([kind]) => `${name}: ${kind}`),
@@ -514,12 +516,23 @@ describe('the launch drafts of Terms, Privacy and Contact (docs/LEGAL.md §5)', 
     expect(markup({ ...FILLED, email: '' }).match(/<dt/g) ?? []).toHaveLength(5);
   });
 
+  it('Contact drops the line of an optional field that holds only spaces', () => {
+    const fields = messages.legal.contact.fields;
+    const spaces: Owner = { ...FILLED, vat: ' ', register: '  ', manager: 'Filled manager' };
+    expect(ownerState(spaces)).toEqual({ state: 'filled' });
+    const markup = unescaped(renderToStaticMarkup(createElement(ProviderFields, { values: legalValues(spaces) })));
+    expect(markup.match(/<dt/g) ?? []).toHaveLength(6);
+    expect(markup).not.toContain(fields.vat);
+    expect(markup).not.toContain(fields.register);
+    expect(markup).toContain(`<dt class="text-ink-2">${fields.manager}</dt><dd>Filled manager</dd>`);
+  });
+
   it("no page shows an e-mail, street address, postal code or 9-digit number outside the owner's values", () => {
     expect(strayIdentity(messages.legal.owner)).toEqual([]);
     expect(strayIdentity(FILLED)).toEqual([]);
   });
 
-  it('a short owner value cannot hide an e-mail, street address, postal code or 9-digit number outside the owner\'s values', () => {
+  it("a short owner value cannot hide an e-mail, street address, postal code or 9-digit number outside the owner's values", () => {
     const short: Owner = { ...FILLED, vat: 'a', register: '-', manager: '1' };
     const stray = ' Write to help@calm-mail.pt at Rua Nova 2, 1000-001 Lisboa, NIF 123456789.';
     expect(strayIdentity(short, stray)).toEqual([
