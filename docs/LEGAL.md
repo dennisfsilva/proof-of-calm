@@ -190,21 +190,25 @@ representative only if UK users are ever served.
 ## 6. Copy review (the legal half; voice in `docs/CONTENT-STYLE.md`)
 
 Banned or restricted, in EN, DE and PT: recommend/recommended/recommendation (empfehlen, Empfehlung /
-recomendar, recomendação); should buy, you should, must buy (sollten kaufen / deve comprar); safe,
-secure investment (sicher, sichere Anlage / seguro); guaranteed (garantiert / garantido); wealth, build
-wealth, get rich (Vermögen aufbauen, reich werden / riqueza, enriquecer); best coin, top coins,
+recomendar, recomendação); should buy, you should, must buy (Sie sollten, sollten kaufen / deve
+comprar); safe, secure investment (sicher, sichere Anlage, risikolos / seguro); guaranteed (garantiert,
+Garantie / garantido); wealth, build wealth, get rich (Vermögen, Vermögen aufbauen, reich werden /
+riqueza, enriquecer); best coin, top coins,
 winners; will rise, will go up, bound to recover; expected return, target price, projected; passive
 income, yield, earn; we suggest, our pick, tip; opportunity, don't miss, now is the time, buy the dip,
 stack sats; inflation hedge, digital gold, store of value stated as fact; cheap, undervalued,
 discount; profit, gains, returns as promises; outperform, beat the market, beat inflation; comparisons
 with savings accounts or pensions; any second-person imperative about buying or holding; any claim of
 regulatory status or compliance: regulated, licensed, authorised, authorized, MiCA-compliant,
-approved by (reguliert, lizenziert, zugelassen / regulado, licenciado, autorizado), because telling
+approved by (reguliert, lizenziert, zugelassen, beaufsichtigt, genehmigt, Erlaubnis / regulado,
+licenciado, autorizado), because telling
 people that crypto-assets are "regulated" raises demand and false confidence (FCA research note,
 `docs/BENCHMARK.md` §3); the only statement on status is the Risk page's (§5). The ban keeps the
 Impressum's identification line, "no authorisation scheme applies; no supervisory authority" (§5;
 DL 7/2004 art. 10, DDG § 5): it carries no status word, so the lint passes it without an allow-list
-entry (`packages/content/src/style/banned.test.ts` holds the case).
+entry (`packages/content/src/style/banned.test.ts` holds the case). In German the line takes DDG § 5
+Abs. 1 Nr. 3's words, „Keine Tätigkeit, die der behördlichen Zulassung bedarf; keine
+Aufsichtsbehörde.“, since `Erlaubnis` is a status word.
 
 Allowed: template, starting point, a rule some people follow, the plan you set, your rule, data not
 advice, historically / in the 2013–2022 cycles (dated), what happened, drawdown, volatility, you

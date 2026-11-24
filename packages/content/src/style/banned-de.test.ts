@@ -483,13 +483,17 @@ const bullet = (opening: string) => {
   const end = germanRows.indexOf('\n- ', start + 1);
   return start === -1 ? '' : germanRows.slice(start, end);
 };
-const rowsBullet = bullet('- Every row above has its German form');
+// The bullet's list of rows, then its paragraph of praise, reassurance and filler words, every word of which fails.
+const [rowList = '', ...rowParagraphs] = bullet('- Every row above has its German form').split('\n\n');
 // A registration claim's sub-bullet names its parts; only its examples, in the last brackets, are whole claims.
-const rowWords = rowsBullet
-  .split(/\n {2}- /u)
-  .flatMap((item) =>
-    item.startsWith('a registration claim') ? backticked(item.slice(item.lastIndexOf('('))) : backticked(item),
-  );
+const rowWords = [
+  ...rowList
+    .split(/\n {2}- /u)
+    .flatMap((item) =>
+      item.startsWith('a registration claim') ? backticked(item.slice(item.lastIndexOf('('))) : backticked(item),
+    ),
+  ...backticked(rowParagraphs.join('\n')),
+];
 const keptOff = backticked(bullet('- Words with an everyday sense').split('\n  - ')[0] ?? '');
 const statusStatement = /`(Proof of Calm ist bei keiner[^`]*)`/u.exec(section10)?.[1] ?? '';
 
