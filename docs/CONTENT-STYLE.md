@@ -266,8 +266,9 @@ The German rows (decided 2026-11-23; the voice is §10):
   - a registration claim with the participle last or first: `bei` or `von` (with or without `der`,
     `dem` or `den`) or `durch` (with or without `die`, `den` or `das`), then a regulator of the
     list's `regulators`, `Finanzaufsicht` or `Aufsichtsbehörde`, then at most three other words,
-    each of letters, digits and inner hyphens, then `registriert`, `eingetragen`, `gemeldet` or
-    `beaufsichtigt`; or `Aufsicht der`, `des` or `durch die` and a regulator
+    each of letters, digits and inner hyphens (`-` or the no-break hyphen U+2011), then
+    `registriert`, `eingetragen`, `gemeldet` or `beaufsichtigt` or a word that begins with one of
+    them (`registrierter`); or `Aufsicht` with `der`, `des` or `durch die`, then a regulator
     (`bei der BaFin registriert`, `registriert bei der BaFin`, `durch die BaFin registriert`,
     `bei der BaFin als Krypto-Dienstleister registriert`, `bei der BaFin seit 2024 registriert`).
 
@@ -289,9 +290,9 @@ The German rows (decided 2026-11-23; the voice is §10):
   - Smart money, hot, crush and win have no German word with only the banned sense; the copy review
     (§8) catches their banned use.
 - The gain words, any word that ends in `Rendite`, `Gewinn`, `Ertrag` or `Erträge`, `Zins`,
-  `Verzinsung`, `Profit`, `Rentabilität`, `Wertzuwachs`, `Wertsteigerung`, `Wertentwicklung` or
+  `Verzinsung`, `Profit`, `Rentabilität`, `Wertzuwachs`, `Wertsteigerung`, `Wertentwicklung`, or
   `Performance` (`Jahresrendite`, `Kapitalerträge`), and the verbs `gewinnen`, `verdienen`,
-  `erzielen`, `erwirtschaften`, `einbringen` and `abwerfen`, fail next to a percentage.
+  `erzielen`, `erwirtschaften`, `einbringen`, and `abwerfen`, fail next to a percentage.
   `Kapitalertragsteuer`, `Gewinner`, `Vertrag`, `Übertrag`, and their compounds pass
   (`Laut Vertrag 2 % Gebühr`, `Sparvertrag mit 3 %`).
   - A noun may take `pro Jahr`, `im Jahr`, `p. a.` or `im Schnitt`; then a colon, `von`,
@@ -299,7 +300,7 @@ The German rows (decided 2026-11-23; the voice is §10):
     `mehr als`, `rund`, `etwa`, `ca.`, `ungefähr`, `um (die)`, `durchschnittlich`, `jährlich` or
     `monatlich`.
   - A figure first takes up to two of `jährlich`, `durchschnittlich`, `erwartet`, `möglich`,
-    `potenziell`, `garantiert`, `mehr` or `an`, or a hyphen.
+    `potenziell`, `garantiert`, `mehr` or `an`, or a hyphen (`-` or the no-break hyphen U+2011).
   - These fail: `Eine Rendite von 8 % pro Jahr`, `Rendite: 8 %`, `Bis zu 12 % Rendite im Jahr`,
     `Kursgewinne von über 300 %`, `Tagesgeld bringt 3 % Zinsen`, `Verdienen Sie bis zu 8 %`,
     `ein Plus von 48 %`, `wirft 5 % im Jahr ab`.
