@@ -178,9 +178,9 @@ describe('§2’s German registration claim, read from the document', () => {
       for (const register of registers) {
         const claim = `${preposition} öffentlich${ending} ${register} eingetragen`;
         expect(rules(`Proof of Calm ist ${claim}.`), claim).toEqual([`advice: ${claim}`]);
-        expect(findBanned(`Proof of Calm ist ${preposition} neuen öffentlich${ending} ${register} eingetragen.`)).toEqual(
-          [],
-        );
+        expect(
+          findBanned(`Proof of Calm ist ${preposition} neuen öffentlich${ending} ${register} eingetragen.`),
+        ).toEqual([]);
       }
     }
     expect(rules(`Proof of Calm unterliegt der ${adjective} BaFin.`)).toEqual([
