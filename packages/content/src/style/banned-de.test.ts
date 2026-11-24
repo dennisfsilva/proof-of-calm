@@ -649,6 +649,22 @@ describe('the German word rows, filler words and gain patterns (docs/CONTENT-STY
     }
   });
 
+  it('refuses one adjective after im, ins, in das or in dem before the register, and passes two', () => {
+    for (const [text, match] of [
+      ['Proof of Calm ist im öffentlichen Register der BaFin eingetragen.', 'im öffentlichen Register der BaFin eingetragen'],
+      ['Proof of Calm ist im öffentlichen BaFin-Register eingetragen.', 'im öffentlichen BaFin-Register eingetragen'],
+      ['Proof of Calm ist in dem öffentlichen BaFin-Register eingetragen.', 'in dem öffentlichen BaFin-Register eingetragen'],
+      ['Proof of Calm ist in das öffentliche BaFin-Register eingetragen.', 'in das öffentliche BaFin-Register eingetragen'],
+      ['Eingetragen ins öffentliche Register der BaFin.', 'Eingetragen ins öffentliche Register der BaFin'],
+    ]) {
+      expect(rules(text ?? ''), text).toEqual([`advice: ${match}`]);
+    }
+    expect(findBanned('Proof of Calm ist im neuen öffentlichen BaFin-Register eingetragen.')).toEqual([]);
+    expect(findBanned('Proof of Calm ist im neuen öffentlichen Register der BaFin eingetragen.')).toEqual([]);
+    expect(findBanned('Im BaFin-Register stehen Anbieter mit Lizenz.')).toEqual([]);
+    expect(findBanned('Im öffentlichen BaFin-Register stehen Anbieter mit Lizenz.')).toEqual([]);
+  });
+
   // A joined noun lengthened past its plural names a procedure or a duty, as „BaFin-Aufsichtsrecht“ names the law.
   // „Erlaubnispflicht“ stays refused on purpose: §2's status words take every word that begins „Erlaubnis“.
   it('passes a joined noun lengthened past its plural, but not a word that begins with Erlaubnis', () => {

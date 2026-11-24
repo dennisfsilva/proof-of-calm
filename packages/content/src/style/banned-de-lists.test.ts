@@ -45,8 +45,11 @@ const prepositions = [...byPart.matchAll(/((?:`[^`]+`[^`(]*?)+)\(with or without
 );
 const registerPrepositions = backticked(byPart.slice(byPart.lastIndexOf(')')));
 const registerParts = backticked(sentence('That register is'));
-const adjectiveSentence = sentence('Each article may take');
-const adjectiveEndings = backticked(adjectiveSentence.slice(0, adjectiveSentence.indexOf('(')));
+const adjectiveSentence = sentence('Each article');
+const adjectiveContractions = backticked(adjectiveSentence.slice(0, adjectiveSentence.indexOf('may take')));
+const adjectiveEndings = backticked(
+  adjectiveSentence.slice(adjectiveSentence.indexOf('a word of letters'), adjectiveSentence.indexOf('(')),
+);
 const [participleList = '', participleExample = ''] = sentence('Its participle is').split('(');
 const participles = backticked(participleList);
 const nouns = backticked(sentence('Its noun is'));
@@ -100,6 +103,7 @@ describe('§2’s German registration claim, read from the document', () => {
       'Register der BaFin',
       'Register des Banco de España',
     ]);
+    expect(adjectiveContractions).toEqual(['im', 'ins']);
     expect(adjectiveEndings).toEqual(['e', 'en', 'er', 'es']);
     expect(participles).toEqual([
       'registriert',
@@ -166,6 +170,17 @@ describe('§2’s German registration claim, read from the document', () => {
     expect(rules(`Eingetragen im Register der ${adjective} BaFin.`)).toEqual([
       `advice: Eingetragen im Register der ${adjective} BaFin`,
     ]);
+    // The register's prepositions hold an article (im, ins) or are one with it (in das, in dem), so each takes one too.
+    expect(adjectiveContractions.every((contraction) => registerPrepositions.includes(contraction))).toBe(true);
+    for (const preposition of registerPrepositions) {
+      for (const register of registers) {
+        const claim = `${preposition} öffentlich${ending} ${register} eingetragen`;
+        expect(rules(`Proof of Calm ist ${claim}.`), claim).toEqual([`advice: ${claim}`]);
+        expect(findBanned(`Proof of Calm ist ${preposition} neuen öffentlich${ending} ${register} eingetragen.`)).toEqual(
+          [],
+        );
+      }
+    }
     expect(rules(`Proof of Calm unterliegt der ${adjective} BaFin.`)).toEqual([
       `advice: unterliegt der ${adjective} BaFin`,
     ]);
