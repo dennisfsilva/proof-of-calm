@@ -406,6 +406,9 @@ const ROWS_REFUSED: [string, Finding['rule']][] = [
   ['durch die BaFin registriert', 'advice'],
   ['Proof of Calm ist bei der BaFin als Anbieter registriert.', 'advice'],
   ['Von der BaFin offiziell als Dienstleister eingetragen.', 'advice'],
+  ['Proof of Calm ist bei der BaFin als Krypto-Dienstleister registriert.', 'advice'],
+  ['Proof of Calm ist bei der BaFin als MiCA-Anbieter registriert.', 'advice'],
+  ['Proof of Calm ist bei der BaFin seit 2024 registriert.', 'advice'],
 ];
 
 // Each tax or status line the rows refuse, then its rewording, which must pass.
@@ -489,6 +492,21 @@ describe('the German word rows, filler words and gain patterns (docs/CONTENT-STY
     expect(rules('Registriert bei der Bundesanstalt für Finanzdienstleistungsaufsicht.')).toEqual([
       'advice: Registriert bei der Bundesanstalt für Finanzdienstleistungsaufsicht',
     ]);
+  });
+
+  it('counts a hyphenated word or a number as one of the three words between the regulator and the participle', () => {
+    expect(rules('Proof of Calm ist bei der BaFin als Krypto-Dienstleister registriert.')).toEqual([
+      'advice: bei der BaFin als Krypto-Dienstleister registriert',
+    ]);
+    expect(rules('Proof of Calm ist bei der BaFin seit 2024 registriert.')).toEqual([
+      'advice: bei der BaFin seit 2024 registriert',
+    ]);
+  });
+
+  // The bound: four words between the regulator and the participle pass the lint; the copy review (§8) reads
+  // the longer claims.
+  it('passes four words between the regulator and the participle', () => {
+    expect(findBanned('Proof of Calm ist bei der BaFin als ein großer Krypto-Anbieter registriert.')).toEqual([]);
   });
 });
 
