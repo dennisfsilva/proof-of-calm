@@ -73,9 +73,9 @@ const sameLine = (shown: Finding, read: Finding) =>
   shown.rule === read.rule && (within(wordsOf(shown), wordsOf(read)) || within(wordsOf(read), wordsOf(shown)));
 
 /**
- * A maximum matching between `left` and `right`, an edge wherever `pairs` holds, by augmenting paths (Kuhn): each item
- * of either side in one pair at most, and as many pairs as the edges allow, whatever the order of either side. The
- * indices of the `left` items it pairs.
+ * A maximum matching between `left` and `right` by augmenting paths (Kuhn), with an edge wherever `pairs` holds. Each
+ * item is in at most one pair, and the matching takes as many pairs as the edges allow in any order of either side. It
+ * returns the indices of the `left` items it pairs.
  */
 function matched(
   left: readonly Finding[],

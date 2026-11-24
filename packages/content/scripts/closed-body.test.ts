@@ -433,8 +433,8 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
       expect(await asTranslation(twoLines)).toHaveLength(2);
     }, 60_000);
 
-    // Review round 2 of this branch: a greedy pairing took the first block finding a source finding matched, so a
-    // source finding that matched only a later-taken block finding stayed unpaired and was reported a second time.
+    // A greedy pairing took the first block finding a source finding matched. A source finding that matched only a
+    // block finding already taken stayed unpaired and was reported twice.
     describe('pairs the two reads by a maximum matching, whatever the order of the blocks', () => {
       const codes = (problems: readonly Problem[]) => problems.map(({ code }) => code).sort();
       const sameCodes = async (body: string) => {
