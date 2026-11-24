@@ -186,22 +186,28 @@ describe('the pt-PT onboarding, portfolio and plan', () => {
 // English inside a German screen (docs/CONTENT-STYLE.md §10). The one exception is a file that holds a few keys
 // ahead of its screen's translation. The rule is by file, not by a list of screens, so a branch that adds a
 // German screen's file needs no line here.
-const GERMAN_PARTIAL = ['plan'];
+// The list is empty while no German file runs ahead of its screen; a branch that lands such a file adds it here.
+const GERMAN_PARTIAL: readonly string[] = [];
 
 describe('the German files', () => {
   const german = translations.filter(({ folder, locale }) => locale === 'de' && !GERMAN_PARTIAL.includes(folder));
 
   it('hold the screens translated so far', () => {
-    expect(german.map(({ folder }) => folder)).toEqual(expect.arrayContaining(['countries', 'portfolio', 'log']));
+    expect(german.map(({ folder }) => folder)).toEqual(
+      expect.arrayContaining(['countries', 'portfolio', 'log', 'plan']),
+    );
   });
 
   it.each(german.map(({ folder }) => folder))('%s is whole in de', (folder) => wholeness(folder, 'de'));
 
-  // A partial file leaves the list in the branch that completes it.
-  it.each(GERMAN_PARTIAL)('%s is listed while its de file is partial', (folder) => {
-    const translated = byFolder.get(`${folder}/de`)?.tree;
-    expect(translated, `${folder} has no de file`).toBeDefined();
-    expect(problems(byFolder.get(`${folder}/en`)?.tree ?? {}, translated ?? {}, true)).not.toEqual([]);
+  // A partial file leaves the list in the branch that completes it. One case over the whole list, so an empty
+  // list is a passing case rather than a table with no rows.
+  it('list only files that are still partial', () => {
+    for (const folder of GERMAN_PARTIAL) {
+      const translated = byFolder.get(`${folder}/de`)?.tree;
+      expect(translated, `${folder} has no de file`).toBeDefined();
+      expect(problems(byFolder.get(`${folder}/en`)?.tree ?? {}, translated ?? {}, true), folder).not.toEqual([]);
+    }
   });
 });
 

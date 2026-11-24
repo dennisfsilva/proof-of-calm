@@ -67,5 +67,64 @@
     "PT": "16 Oct 2026: Die Regeln für das Land des Plans (Portugal) haben sich geändert. Prüfen Sie den Plan.",
     "US": "16 Oct 2026: Die Regeln für das Land des Plans (United States) haben sich geändert. Prüfen Sie den Plan.",
     "XX": "16 Oct 2026: Das allgemeine Profil hat sich geändert. Prüfen Sie den Plan."
+  },
+  "plan.review.rules.country": {
+    "DE": "Land des Plans: Deutschland.",
+    "ES": "Land des Plans: Spanien.",
+    "FR": "Land des Plans: Frankreich.",
+    "GB": "Land des Plans: Vereinigtes Königreich.",
+    "IE": "Land des Plans: Irland.",
+    "IT": "Land des Plans: Italien.",
+    "NL": "Land des Plans: Niederlande.",
+    "PT": "Land des Plans: Portugal.",
+    "US": "Land des Plans: USA."
+  },
+  "plan.review.rules.changed": {
+    "DE": "16 Oct 2026: Die Regeln für Deutschland haben sich geändert.",
+    "ES": "16 Oct 2026: Die Regeln für Spanien haben sich geändert.",
+    "FR": "16 Oct 2026: Die Regeln für Frankreich haben sich geändert.",
+    "GB": "16 Oct 2026: Die Regeln für das Vereinigte Königreich haben sich geändert.",
+    "IE": "16 Oct 2026: Die Regeln für Irland haben sich geändert.",
+    "IT": "16 Oct 2026: Die Regeln für Italien haben sich geändert.",
+    "NL": "16 Oct 2026: Die Regeln für die Niederlande haben sich geändert.",
+    "PT": "16 Oct 2026: Die Regeln für Portugal haben sich geändert.",
+    "US": "16 Oct 2026: Die Regeln für die USA haben sich geändert.",
+    "XX": "16 Oct 2026: Das allgemeine Profil hat sich geändert."
+  },
+  "plan.review.rules.link": {
+    "DE": "Länderprofil für Deutschland ansehen",
+    "ES": "Länderprofil für Spanien ansehen",
+    "FR": "Länderprofil für Frankreich ansehen",
+    "GB": "Länderprofil für das Vereinigte Königreich ansehen",
+    "IE": "Länderprofil für Irland ansehen",
+    "IT": "Länderprofil für Italien ansehen",
+    "NL": "Länderprofil für die Niederlande ansehen",
+    "PT": "Länderprofil für Portugal ansehen",
+    "US": "Länderprofil für die USA ansehen",
+    "XX": "Länderprofile ansehen"
+  },
+  "plan.earlyWindow.notice": {
+    "DE": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist für Deutschland. Sie können auch diese Änderung abbrechen und unter „Frist &\u00a0Verkauf“ ein späteres Öffnungsdatum wählen.",
+    "ES": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist für Spanien. Sie können auch diese Änderung abbrechen und unter „Frist &\u00a0Verkauf“ ein späteres Öffnungsdatum wählen.",
+    "FR": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist für Frankreich. Sie können auch diese Änderung abbrechen und unter „Frist &\u00a0Verkauf“ ein späteres Öffnungsdatum wählen.",
+    "GB": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist für das Vereinigte Königreich. Sie können auch diese Änderung abbrechen und unter „Frist &\u00a0Verkauf“ ein späteres Öffnungsdatum wählen.",
+    "IE": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist für Irland. Sie können auch diese Änderung abbrechen und unter „Frist &\u00a0Verkauf“ ein späteres Öffnungsdatum wählen.",
+    "IT": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist für Italien. Sie können auch diese Änderung abbrechen und unter „Frist &\u00a0Verkauf“ ein späteres Öffnungsdatum wählen.",
+    "NL": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist für die Niederlande. Sie können auch diese Änderung abbrechen und unter „Frist &\u00a0Verkauf“ ein späteres Öffnungsdatum wählen.",
+    "PT": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist für Portugal. Sie können auch diese Änderung abbrechen und unter „Frist &\u00a0Verkauf“ ein späteres Öffnungsdatum wählen.",
+    "US": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist für die USA. Sie können auch diese Änderung abbrechen und unter „Frist &\u00a0Verkauf“ ein späteres Öffnungsdatum wählen.",
+    "XX": "Das Verkaufsfenster öffnet am 1 Sept 2029. Für Ihren letzten Kauf ist der 5 Mar 2030 der erste steuerfreie Tag gemäß der Haltefrist des allgemeinen Profils. Sie können auch diese Änderung abbrechen und unter „Frist &\u00a0Verkauf“ ein späteres Öffnungsdatum wählen."
+  },
+  "plan.holdingRule.country": {
+    "DE": "Die Haltefrist für Deutschland",
+    "ES": "Die Haltefrist für Spanien",
+    "FR": "Die Haltefrist für Frankreich",
+    "GB": "Die Haltefrist für das Vereinigte Königreich",
+    "IE": "Die Haltefrist für Irland",
+    "IT": "Die Haltefrist für Italien",
+    "NL": "Die Haltefrist für die Niederlande",
+    "PT": "Die Haltefrist für Portugal",
+    "US": "Die Haltefrist für die USA",
+    "XX": "Die Haltefrist des allgemeinen Profils"
   }
 }
