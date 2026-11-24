@@ -25,27 +25,34 @@ const REGISTRATION =
   `(?:${[...longestFirst(banned.regulators), 'regulador(?:es)?'].join('|')})`;
 // A German one (docs/CONTENT-STYLE.md §2): a regulator of the list, "Finanzaufsicht" or "Aufsichtsbehörde" or a
 // longer word that begins with one; before it bei, von or durch with an optional article (der, dem, den, or durch's
-// die and das), or im, ins, in das or in dem before its register ("BaFin-Register", "Register der BaFin"); a
-// participle, registriert, eingetragen, gemeldet, beaufsichtigt, überwacht or kontrolliert, or a longer word that
-// begins with one (registrierter); between them a gap of up to three words of letters, numerals and inner hyphens
-// (U+002D, or the no-break hyphen U+2011 that joins a numeral compound, §10; "als Krypto-Dienstleister", "seit
-// 2024", "als 24‑Stunden‑Anbieter"). The participle comes last or first, or joins the regulator by a hyphen
-// ("BaFin-registriert"), as "Aufsicht" does ("BaFin-Aufsicht"); or "Aufsicht" with "der", "des" or "durch die", or
-// a form of unterliegen with "der", "dem" or "den", comes before a regulator. "Bei keiner Finanzaufsichtsbehörde
-// registriert" and "unterliegt keiner Finanzaufsicht" pass, since "keiner" is neither an article nor a regulator.
-// These rows go before the word lists, so "beaufsichtigt bei der BaFin" is reported whole.
+// die and das), or im, ins, in das or in dem before its register (the regulator, a hyphen and a word that begins
+// with "Register", or "Register der" or "des" and the regulator); each article may take one adjective, a word of
+// letters ending in e, en, er or es ("bei der zuständigen Aufsichtsbehörde"); a participle, registriert,
+// eingetragen, gemeldet, beaufsichtigt, überwacht or kontrolliert, or a longer word that begins with one
+// (registrierter); a noun, Lizenz, Zulassung, Registrierung, Eintragung, Genehmigung or Erlaubnis; between them a
+// gap of up to three words of letters, numerals and inner hyphens (U+002D, or the no-break hyphen U+2011 that joins
+// a numeral compound, §10; "als Krypto-Dienstleister", "seit 2024", "als 24‑Stunden‑Anbieter"). The participle
+// comes last; the participle or the noun, or a longer word that begins with the noun, comes first; or the regulator
+// joins by a hyphen the participle, the noun or its plural, or the whole word "Aufsicht" ("BaFin-registriert",
+// "BaFin-Lizenz", "BaFin-Aufsicht", while "BaFin-Aufsichtsrecht" names the law); or "Aufsicht" with "der", "des" or
+// "durch die", or a word that begins with "unterlieg" with "der", "dem" or "den", comes before a regulator.
+// "Unterlagen der BaFin" and "unterlag" pass. "Bei keiner Finanzaufsichtsbehörde registriert" and "unterliegt keiner
+// Finanzaufsicht" pass, since "keiner" is neither an article nor a regulator, and no adjective stands without an
+// article. These rows go before the word lists, so "beaufsichtigt bei der BaFin" is reported whole.
 const REGULATOR_DE = `(?:${[...longestFirst(banned.regulators), String.raw`finanzaufsicht\p{L}*`, String.raw`aufsichtsbehörde\p{L}*`].join('|')})`;
 const HYPHEN_DE = '[\\-‑]';
+const ARTICLE_DE = (articles: string) => String.raw`\s+(?:${articles})\s+(?:\p{L}+(?:e|en|er|es)\s+)?`;
 const BY_REGULATOR_DE =
-  String.raw`(?:(?:bei|von)\s+(?:der\s+|dem\s+|den\s+)?|durch\s+(?:die\s+|den\s+|das\s+)?)${REGULATOR_DE}|` +
-  String.raw`(?:im|ins|in\s+das|in\s+dem)\s+(?:${REGULATOR_DE}${HYPHEN_DE}register\p{L}*|register\s+(?:der|des)\s+${REGULATOR_DE})`;
+  String.raw`(?:(?:bei|von)(?:${ARTICLE_DE('der|dem|den')}|\s+)|durch(?:${ARTICLE_DE('die|den|das')}|\s+))${REGULATOR_DE}|` +
+  String.raw`(?:im|ins|in\s+das|in\s+dem)\s+(?:${REGULATOR_DE}${HYPHEN_DE}register\p{L}*|register${ARTICLE_DE('der|des')}${REGULATOR_DE})`;
 const GAP_DE = String.raw`(?:\s+[\p{L}\p{N}]+(?:${HYPHEN_DE}[\p{L}\p{N}]+)*){0,3}?\s+`;
 const PARTICIPLE_DE = String.raw`(?:registriert|eingetragen|gemeldet|beaufsichtigt|überwacht|kontrolliert)\p{L}*`;
+const NOUN_STATUS_DE = '(?:lizenz|zulassung|registrierung|eintragung|genehmigung|erlaubnis)';
 const REGISTRATION_DE = [
   `(?:${BY_REGULATOR_DE})${GAP_DE}${PARTICIPLE_DE}`,
-  `${PARTICIPLE_DE}${GAP_DE}(?:${BY_REGULATOR_DE})`,
-  `${REGULATOR_DE}${HYPHEN_DE}(?:${PARTICIPLE_DE}|aufsicht\\p{L}*)`,
-  String.raw`(?:aufsicht\s+(?:der|des|durch\s+die)|unterlieg\p{L}*\s+(?:der|dem|den))\s+${REGULATOR_DE}(?:${HYPHEN_DE}aufsicht\p{L}*)?`,
+  String.raw`(?:${PARTICIPLE_DE}|${NOUN_STATUS_DE}\p{L}*)${GAP_DE}(?:${BY_REGULATOR_DE})`,
+  `${REGULATOR_DE}${HYPHEN_DE}(?:${PARTICIPLE_DE}|${NOUN_STATUS_DE}(?:en|se)?|aufsicht)`,
+  String.raw`(?:aufsicht${ARTICLE_DE(String.raw`der|des|durch\s+die`)}|unterlieg\p{L}*${ARTICLE_DE('der|dem|den')})${REGULATOR_DE}(?:${HYPHEN_DE}aufsicht\p{L}*)?`,
 ];
 const ADVICE = between([
   ...REGISTRATION_DE,
@@ -76,8 +83,9 @@ const JOIN_PT = String.raw`\s+(?:(?:é|são)\s+)?(?:de(?:\s+${CONNECTOR_PT})?|${
 // "einbringen" or "abwerfen"; "Plus von" and the figure; "wirft" or "bringt", the figure, "ab" or "ein". Any other
 // word between them ("werden mit 25 % besteuert") is tax prose.
 const END = String.raw`(?![\p{L}\p{N}])`;
-// "Prozent" joins its figure by a space, U+002D, U+2011 or nothing ("5-Prozent-Rendite").
-const PERCENT_DE = String.raw`[+−-]?\d+(?:[.,]\d+)?(?:\s?%|[\s\-‑]?prozent${END})`;
+// "Prozent" joins its figure by a space, U+002D, U+2011 or nothing ("5-Prozent-Rendite"); it and "%" may take an
+// ending that begins with "ig" ("5-prozentige", "5%ige").
+const PERCENT_DE = String.raw`[+−-]?\d+(?:[.,]\d+)?(?:\s?%(?:ig\p{L}*${END})?|[\s\-‑]?prozent(?:ig\p{L}*)?${END})`;
 // Vertrag and Übertrag end in "ertrag" but are no gain words, so the noun is no compound of either.
 const NOUN_DE =
   String.raw`\p{L}*(?:rendite(?:n)?|gewinn(?:e|en|es|s)?|(?<!v|üb)ertr(?:ag(?:s|es)?|äge(?:n)?)|zins(?:en|es)?|verzinsung(?:en)?|` +
