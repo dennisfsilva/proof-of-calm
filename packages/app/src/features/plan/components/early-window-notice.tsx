@@ -3,6 +3,7 @@
 import { Checkbox } from '@proofofcalm/ui/components/checkbox';
 import { useId } from 'react';
 import { useLocale, useTranslations } from 'use-intl';
+import { useCountryArgs } from '../../../lib/countries';
 import type { Formatters } from '../../../lib/format';
 import { textLang } from '../../../lib/i18n';
 import { useFormatters } from '../../../lib/services';
@@ -41,6 +42,7 @@ export function EarlyWindowNotice(props: EarlyWindowNoticeProps) {
   const { eligibleOn, effect, opensOn, rule, on, accepted, onAccept, invalid, country, taxLine = true } = props;
   const t = useTranslations('plan.earlyWindow');
   const holding = useTranslations('plan.holding');
+  const forms = useCountryArgs();
   const plans = useFormatters();
   const f = props.format ?? plans;
   const locale = useLocale();
@@ -57,7 +59,7 @@ export function EarlyWindowNotice(props: EarlyWindowNoticeProps) {
           eligibleOn: f.date(eligibleOn),
           effect,
           rule: rule === 'country' && country !== undefined ? 'named' : rule,
-          country: country?.name ?? '',
+          ...forms(country?.code ?? ''),
           on,
           host,
         })}

@@ -5,10 +5,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createFormatters } from '../../../lib/format';
 import { I18nProvider } from '../../../lib/i18n';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
+import countries from '../../../messages/en/countries.json';
 import errors from '../../../messages/en/errors.json';
 import onboarding from '../../../messages/en/onboarding.json';
 import plan from '../../../messages/en/plan.json';
 import shell from '../../../messages/en/shell.json';
+import countriesPt from '../../../messages/pt-PT/countries.json';
 import errosPt from '../../../messages/pt-PT/errors.json';
 import onboardingPt from '../../../messages/pt-PT/onboarding.json';
 import planoPt from '../../../messages/pt-PT/plan.json';
@@ -52,7 +54,7 @@ const words = (text: string) => text.split(/\s+/).filter((word) => /[\p{L}\p{N}]
 function mount(props: Partial<SummaryStepProps> = {}) {
   const handlers = { onBack: vi.fn(), onStart: vi.fn() };
   render(
-    <I18nProvider messages={{ errors, onboarding, plan, shell }}>
+    <I18nProvider messages={{ countries, errors, onboarding, plan, shell }}>
       <SummaryStep
         plan={fixturePlan()}
         holding={PORTUGAL}
@@ -146,9 +148,9 @@ describe('SummaryStep', () => {
     expect(terms.indexOf('Holding rule')).toBe(terms.indexOf('Country') + 1);
     const rule = value('Holding rule');
     expect(rule?.textContent).toBe(
-      "Germany's rule. 1 year, then tax-free.Reviewed on 16\u00a0Oct\u00a02026 · general information, not advice · Sources",
+      'The rule for Germany. 1 year, then tax-free.Reviewed on 16\u00a0Oct\u00a02026 · general information, not advice · Sources',
     );
-    expect(screen.getByText("Germany's rule. 1 year, then tax-free.")).toBeDefined();
+    expect(screen.getByText('The rule for Germany. 1 year, then tax-free.')).toBeDefined();
     expect(screen.getByRole('link', { name: 'Sources' }).getAttribute('href')).toBe(GERMANY.source);
     expect(screen.queryByText(/Tax-free from|Long-term rate from/)).toBeNull();
   });
@@ -187,7 +189,7 @@ describe('SummaryStep on a pt-PT screen: content text keeps its own language (AD
     render(
       <I18nProvider
         locale="pt-PT"
-        messages={{ errors: errosPt, onboarding: onboardingPt, plan: planoPt, shell: shellPt }}
+        messages={{ countries: countriesPt, errors: errosPt, onboarding: onboardingPt, plan: planoPt, shell: shellPt }}
       >
         <SummaryStep
           plan={fixturePlan()}

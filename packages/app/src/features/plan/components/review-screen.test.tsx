@@ -10,6 +10,7 @@ import type { Snapshot } from '../../../lib/ports';
 import { ServicesProvider } from '../../../lib/services';
 import { fixtureNowMs, fixtureSnapshot } from '../../../lib/services/fixtures';
 import { createTestServices } from '../../../lib/services/testing';
+import countries from '../../../messages/en/countries.json';
 import plan from '../../../messages/en/plan.json';
 import shell from '../../../messages/en/shell.json';
 import today from '../../../messages/en/today.json';
@@ -75,7 +76,7 @@ async function mount({
   render(
     <NavigationProvider location="memory" initialPath="/plan/review">
       <ServicesProvider services={services}>
-        <I18nProvider messages={{ plan, shell, today }}>
+        <I18nProvider messages={{ countries, plan, shell, today }}>
           <ReviewScreen />
         </I18nProvider>
       </ServicesProvider>

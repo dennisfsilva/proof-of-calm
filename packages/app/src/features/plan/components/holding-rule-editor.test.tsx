@@ -7,9 +7,11 @@ import { userEvent } from 'storybook/test';
 import { afterEach, describe, expect, it } from 'vitest';
 import { createFormatters, createNumberInput } from '../../../lib/format';
 import { I18nProvider } from '../../../lib/i18n';
+import countries from '../../../messages/en/countries.json';
 import errors from '../../../messages/en/errors.json';
 import plan from '../../../messages/en/plan.json';
 import shell from '../../../messages/en/shell.json';
+import countriesPt from '../../../messages/pt-PT/countries.json';
 import errorsPt from '../../../messages/pt-PT/errors.json';
 import planPt from '../../../messages/pt-PT/plan.json';
 import shellPt from '../../../messages/pt-PT/shell.json';
@@ -63,7 +65,7 @@ function Host({
 function mount(initial: HoldingValue = COUNTRY, country: HoldingCountry | null = portugal) {
   const seen: HoldingValue[] = [];
   render(
-    <I18nProvider messages={{ plan, errors, shell }}>
+    <I18nProvider messages={{ countries, plan, errors, shell }}>
       <Host initial={initial} country={country} seen={seen} />
     </I18nProvider>,
   );
@@ -76,7 +78,7 @@ describe('HoldingRuleEditor', () => {
   it("shows the country's rule in words with its review date, chosen", () => {
     mount();
     expect(screen.getByRole('group', { name: 'Holding rule' })).toBeDefined();
-    const country = radio("Portugal's rule");
+    const country = radio('The rule for Portugal');
     expect(country.getAttribute('aria-checked')).toBe('true');
     expect(country.textContent).toContain('365 days, then tax-free.');
     const sources = screen.getByRole('link', { name: 'Sources' });
@@ -92,7 +94,7 @@ describe('HoldingRuleEditor', () => {
   it('keeps the arrow keys on the Sources link from changing the choice', async () => {
     const seen = mount();
     const user = userEvent.setup({ document });
-    const country = radio("Portugal's rule");
+    const country = radio('The rule for Portugal');
     const sources = screen.getByRole('link', { name: 'Sources' });
     country.focus();
     await user.tab({ shift: true });
@@ -108,7 +110,7 @@ describe('HoldingRuleEditor', () => {
 
   it("describes the country's card with its rule and its date line", () => {
     mount();
-    const described = (radio("Portugal's rule").getAttribute('aria-describedby') ?? '')
+    const described = (radio('The rule for Portugal').getAttribute('aria-describedby') ?? '')
       .split(' ')
       .map((id) => document.getElementById(id)?.textContent);
     expect(described).toEqual([
@@ -122,7 +124,7 @@ describe('HoldingRuleEditor', () => {
     mount(COUNTRY, { ...portugal, source: null });
     expect(screen.queryByRole('link', { name: 'Sources' })).toBeNull();
     expect(screen.getByText('Reviewed on 16 Oct 2026 · general information, not advice')).toBeDefined();
-    expect(radio("Portugal's rule").textContent).toBe("PTPortugal's rule");
+    expect(radio('The rule for Portugal').textContent).toBe('PTThe rule for Portugal');
   });
 
   it('shows the status and the holding text of a profile with no reviewed rule, with no source', () => {
@@ -167,7 +169,10 @@ describe('HoldingRuleEditor', () => {
     const [rules, profile] = await Promise.all([loadRules('XX', 'pt-PT'), loadProfile('XX', 'pt-PT')]);
     if (rules === null || profile === null) throw new Error('XX did not load');
     render(
-      <I18nProvider locale="pt-PT" messages={{ plan: planPt, errors: errorsPt, shell: shellPt }}>
+      <I18nProvider
+        locale="pt-PT"
+        messages={{ countries: countriesPt, plan: planPt, errors: errorsPt, shell: shellPt }}
+      >
         <HoldingRuleEditor
           value={{ source: 'country', kind: 'none', count: '', effect: 'exempt' }}
           issues={[]}

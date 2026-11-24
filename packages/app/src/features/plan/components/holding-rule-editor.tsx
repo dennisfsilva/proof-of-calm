@@ -14,6 +14,7 @@ import {
 } from '@proofofcalm/ui/components/select';
 import { useId } from 'react';
 import { useLocale, useTranslations } from 'use-intl';
+import { useCountryArgs } from '../../../lib/countries';
 import type { Formatters } from '../../../lib/format';
 import { textLang } from '../../../lib/i18n';
 import { CountryDateLine } from '../../learn';
@@ -41,6 +42,7 @@ const EFFECTS = ['exempt', 'lower-rate'] as const;
 
 export function HoldingRuleEditor({ value, issues, country, onChange, format }: HoldingRuleEditorProps) {
   const t = useTranslations('plan.holdingRule');
+  const forms = useCountryArgs();
   const locale = useLocale();
   const input = useTranslations('errors.input');
   const legend = useId();
@@ -105,7 +107,7 @@ export function HoldingRuleEditor({ value, issues, country, onChange, format }: 
               badge={country?.code}
               title={t('country', {
                 kind: country === null ? 'unknown' : country.unreviewed !== undefined ? 'generic' : 'named',
-                name: country?.name ?? '',
+                ...forms(country?.code ?? ''),
               })}
               line={country === null ? t('countryUnknown') : countryText(country)}
               describedBy={country === null ? undefined : dateLine}

@@ -44,7 +44,7 @@ export function PayCurrencyLine({ plan, rules, onDone }: PayCurrencyLineProps) {
     }
     if (outcome.ok) {
       setProblem(null);
-      onDone(outcome.value.written ? t('changed', { country }) : '');
+      onDone(outcome.value.written ? t('changed', { countryCurrency: country }) : '');
       return;
     }
     setProblem(Array.isArray(outcome.error) ? 'notSaved' : 'changed');
@@ -53,7 +53,7 @@ export function PayCurrencyLine({ plan, rules, onDone }: PayCurrencyLineProps) {
 
   return (
     <div className="flex flex-col gap-stack-sm">
-      <p className="text-13 text-ink-2">{t('line', { logged: plan.payCurrency, country })}</p>
+      <p className="text-13 text-ink-2">{t('line', { logged: plan.payCurrency, countryCurrency: country })}</p>
       {problem !== null && (
         <p ref={problemLine} tabIndex={-1} role="alert" className="text-13 text-negative">
           {settings(problem)}
@@ -61,7 +61,7 @@ export function PayCurrencyLine({ plan, rules, onDone }: PayCurrencyLineProps) {
       )}
       <div>
         <Button variant="secondary" onClick={() => void change()}>
-          {t('button', { country })}
+          {t('button', { countryCurrency: country })}
         </Button>
       </div>
     </div>

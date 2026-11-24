@@ -18,8 +18,8 @@
       "heading": "Have the rules changed?",
       "country": "Your plan's country: {country}.",
       "notice": "{date}: {notice}",
-      "changed": "{date}: {kind, select, generic {the general profile} other {the rules for {country}}} changed.",
-      "link": "{kind, select, generic {See the countries} other {See the card for {country}}}"
+      "changed": "{date}: {kind, select, generic {the general profile} other {the rules {countryFor}}} changed.",
+      "link": "{kind, select, generic {See the countries} other {See the card {countryFor}}}"
     },
     "where": {
       "heading": "Where your coins are",
@@ -107,7 +107,7 @@
     }
   },
   "earlyWindow": {
-    "notice": "The sell window opens on {opensOn}. {on, select, lastBuy {This last buy} template {The template's last buy} other {Your last buy}} is {effect, select, exempt {tax-free} other {at the long-term rate}} from {eligibleOn} under {rule, select, country {your plan's holding rule} named {{country}'s rule} generic {the general profile's rule} other {your own rule}}. You can also {on, select, lastBuy {choose an earlier last buy} template {choose another starting point} other {{host, select, country {cancel this change and choose a later opening date on Hold & sell} other {choose a later opening date}}}}.",
+    "notice": "The sell window opens on {opensOn}. {on, select, lastBuy {This last buy} template {The template's last buy} other {Your last buy}} is {effect, select, exempt {tax-free} other {at the long-term rate}} from {eligibleOn} under {rule, select, country {your plan's holding rule} named {the rule {countryFor}} generic {the general profile's rule} other {your own rule}}. You can also {on, select, lastBuy {choose an earlier last buy} template {choose another starting point} other {{host, select, country {cancel this change and choose a later opening date on Hold & sell} other {choose a later opening date}}}}.",
     "accept": "Open the sell window on {opensOn}, before {on, select, lastBuy {this} template {the template's} other {your}} last buy passes the holding rule",
     "refused": "{on, select, template {Tick the box to open the sell window early, or choose another starting point.} lastBuy {Tick the box to open the sell window early, or choose an earlier last buy.} other {{host, select, country {Tick the box to open the sell window early, or cancel this change and choose a later opening date on Hold & sell.} other {Tick the box to open the sell window early, or choose a later opening date.}}}}"
   },
@@ -119,7 +119,7 @@
   },
   "holdingRule": {
     "legend": "Holding rule",
-    "country": "{kind, select, named {{name}'s rule} generic {The general profile's rule} other {Your country's rule}}",
+    "country": "{kind, select, named {The rule {countryFor}} generic {The general profile's rule} other {Your country's rule}}",
     "countryUnknown": "Your country's rule is not loaded on this device.",
     "own": "Your own rule",
     "ownLine": "It applies to every purchase, whatever its date.",

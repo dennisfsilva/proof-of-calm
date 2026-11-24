@@ -92,7 +92,9 @@ describe('RuleChangeBanner', () => {
 
   it('a null sentence gets the generic one', async () => {
     await mount();
-    expect(screen.getByText('1 Jan 2027: the rules for Portugal changed. Review your plan.')).toBeDefined();
+    expect(
+      screen.getByText("1 Jan 2027: the rules for your plan's country (Portugal) changed. Review your plan."),
+    ).toBeDefined();
   });
 
   it('the generic profile is named as the general profile, never as a country', async () => {

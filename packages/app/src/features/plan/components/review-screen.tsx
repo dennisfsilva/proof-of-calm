@@ -3,6 +3,7 @@ import { type Plan, type ReviewDates, UNDO_WINDOW_MS } from '@proofofcalm/core';
 import { Button, buttonVariants } from '@proofofcalm/ui/components/button';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'use-intl';
+import { useCountryArgs } from '../../../lib/countries';
 import { reportError } from '../../../lib/errors';
 import { Link } from '../../../lib/navigation';
 import {
@@ -70,6 +71,7 @@ export function ReviewScreen() {
 function ReviewBody({ plan, onRefused }: { readonly plan: Plan; readonly onRefused: () => void }) {
   const t = useTranslations('plan.review');
   const tPlan = useTranslations('plan');
+  const forms = useCountryArgs();
   const f = useFormatters();
   const services = useServices();
   const dates = useReviewDates();
@@ -150,7 +152,7 @@ function ReviewBody({ plan, onRefused }: { readonly plan: Plan; readonly onRefus
           <p className="text-16">
             {notice.changeNotice === null
               ? t('rules.changed', {
-                  country: held.country,
+                  ...forms(plan.country),
                   date: f.date(notice.changedOn),
                   kind: notice.country === GENERIC_COUNTRY ? 'generic' : 'country',
                 })
@@ -159,7 +161,7 @@ function ReviewBody({ plan, onRefused }: { readonly plan: Plan; readonly onRefus
         )}
         {held !== null && (
           <>
-            {!held.generic && <p className="text-16">{t('rules.country', { country: held.country })}</p>}
+            {!held.generic && <p className="text-16">{t('rules.country', forms(plan.country))}</p>}
             <CountryDateLine
               country={{
                 reviewed: f.date(held.checkedOn),
@@ -171,7 +173,7 @@ function ReviewBody({ plan, onRefused }: { readonly plan: Plan; readonly onRefus
           </>
         )}
         <Link href={card} className={SECONDARY}>
-          {t('rules.link', { kind: generic ? 'generic' : 'country', country: held?.country ?? '' })}
+          {t('rules.link', { kind: generic ? 'generic' : 'country', ...forms(plan.country) })}
         </Link>
       </section>
       <VenueList venues={venues} today={today} />

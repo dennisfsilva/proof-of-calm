@@ -19,9 +19,9 @@
     "label": "Country",
     "notLoaded": "The country profiles are not loaded on this device.",
     "ruleNotLoaded": "Your country's rule is not loaded on this device. Reload the page when you are online to change the country.",
-    "summary": "Changing to {name}:",
+    "summary": "Changing {countryTo}:",
     "row": {
-      "country": "Country: {from} to {to}",
+      "country": "Country now: {old}. After the change: {new}.",
       "payCurrency": "Currency for new amounts: {from} to {to}",
       "displayCurrency": "Currency shown: {from} to {to}",
       "ruleNow": "Holding rule now: {name}. {rule}",
@@ -29,29 +29,29 @@
       "lastBuyEligible": "{effect, select, exempt {Last buy tax-free} other {Last buy at the long-term rate}} from {from} now, from {to} after the change",
       "amount": "{field, select, startingAmount {Starting amount} other {Monthly amount}}: {from} becomes {to}. Check it in Plan."
     },
-    "ruleName": "{kind, select, own {your own rule} generic {the general profile's rule} other {{country}'s rule}}",
+    "ruleName": "{kind, select, own {your own rule} generic {the general profile's rule} other {the rule {countryFor}}}",
     "logged": "Amounts you already logged stay as typed; nothing is converted.",
     "question": {
       "legend": "{count, plural, one {{figure} logged entry, on {first}, holds an amount or a fee in {logged}. Which currency was it paid in?} other {{figure} logged entries, from {first} to {last}, hold amounts or fees in {logged}. Which currency were they paid in?}}",
       "keep": "Keep {logged}",
       "keepLine": "{count, plural, one {If you moved: it was paid in {logged}, and new amounts are logged in {logged} too.} other {If you moved: they were paid in {logged}, and new amounts are logged in {logged} too.}}",
-      "country": "Change to {country}",
-      "countryLine": "{count, plural, one {If the country was wrong from the start: it was paid in {country}. It shows as {country}, as typed; nothing is converted.} other {If the country was wrong from the start: they were paid in {country}. They show as {country}, as typed; nothing is converted.}}",
-      "oneCurrency": "A plan holds one currency. To pay in {country} from now on, keep {logged}, export a copy, and start a new plan in {country}.",
-      "issue": "Choose Keep {logged} or Change to {country}."
+      "country": "Change to {countryCurrency}",
+      "countryLine": "{count, plural, one {If the country was wrong from the start: it was paid in {countryCurrency}. It shows as {countryCurrency}, as typed; nothing is converted.} other {If the country was wrong from the start: they were paid in {countryCurrency}. They show as {countryCurrency}, as typed; nothing is converted.}}",
+      "oneCurrency": "A plan holds one currency. To pay in {countryCurrency} from now on, keep {logged}, export a copy, and start a new plan in {countryCurrency}.",
+      "issue": "Choose Keep {logged} or Change to {countryCurrency}."
     },
     "files": "Tax-year files follow your current country's rules until you change country. Export the years you need first.",
     "payCurrency": {
-      "line": "Your plan is in {logged}, and your country's currency is {country}. If your amounts were paid in {country}, change the plan to {country}. Every amount then shows as {country}, as typed; nothing is converted.",
-      "button": "Change to {country}",
-      "changed": "Plan currency changed to {country}."
+      "line": "Your plan is in {logged}, and your country's currency is {countryCurrency}. If your amounts were paid in {countryCurrency}, change the plan to {countryCurrency}. Every amount then shows as {countryCurrency}, as typed; nothing is converted.",
+      "button": "Change to {countryCurrency}",
+      "changed": "Plan currency changed to {countryCurrency}."
     },
     "confirmRule": "Replace {from} with {to}",
     "confirmRuleIssue": "Tick the box to replace the holding rule.",
     "notSaved": "Not saved: this change conflicts with another part of your plan. Check Plan and Hold & sell, then change the country again.",
-    "confirm": "Change country to {name}",
-    "changed": "Country changed to {name}.",
-    "alreadyChanged": "Your plan was changed to {name} in another browser tab."
+    "confirm": "Change country {countryTo}",
+    "changed": "Country changed {countryTo}.",
+    "alreadyChanged": "Your plan was changed {countryTo} in another browser tab."
   },
   "data": {
     "heading": "Your data",

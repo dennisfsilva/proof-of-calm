@@ -14,6 +14,7 @@ import { type Services, ServicesProvider } from '../../../lib/services';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
 import { createTestServices, preloadLazyModules } from '../../../lib/services/testing';
 import { crossTabChannel } from '../../../lib/store/channel';
+import countries from '../../../messages/en/countries.json';
 import errors from '../../../messages/en/errors.json';
 import plan from '../../../messages/en/plan.json';
 import settings from '../../../messages/en/settings.json';
@@ -80,7 +81,7 @@ async function mount(
   render(
     <NavigationProvider location="memory" initialPath="/settings">
       <ServicesProvider services={services}>
-        <I18nProvider messages={{ settings, plan, errors, today, shell }}>
+        <I18nProvider messages={{ countries, settings, plan, errors, today, shell }}>
           <CountrySection />
         </I18nProvider>
       </ServicesProvider>
@@ -138,20 +139,20 @@ describe('CountrySection', () => {
     ]);
   });
 
-  it("lists the change, names Portugal's rule being replaced, and waits for the tick", async () => {
+  it('lists the change, names the rule for Portugal being replaced, and waits for the tick', async () => {
     const services = await mount();
     await choose('Germany');
-    expect(items()[0]).toBe('Country: Portugal to Germany');
+    expect(items()[0]).toBe('Country now: Portugal. After the change: Germany.');
     expect(ruleLines()).toEqual([
-      "Holding rule now: Portugal's rule. 365 days, then tax-free.",
+      'Holding rule now: the rule for Portugal. 365 days, then tax-free.',
       dated('5\u00a0Nov\u00a02026'),
-      "After the change: Germany's rule. 1 year, then tax-free.",
+      'After the change: the rule for Germany. 1 year, then tax-free.',
       dated('5\u00a0Nov\u00a02026'),
     ]);
     // Each rule in its own item; then the day the last buy (5 Mar 2027) passes each rule, with the note once.
     const [, now, after, lastBuy] = screen.getAllByRole('listitem');
-    expect(now?.textContent).toMatch(/^Holding rule now: Portugal's rule\./);
-    expect(after?.textContent).toMatch(/^After the change: Germany's rule\./);
+    expect(now?.textContent).toMatch(/^Holding rule now: the rule for Portugal\./);
+    expect(after?.textContent).toMatch(/^After the change: the rule for Germany\./);
     // Under the note, the new country's first condition, the rest behind one control (docs/LEGAL.md \u00a74).
     expect(Array.from(lastBuy?.querySelectorAll('p') ?? [], (p) => p.textContent)).toEqual([
       'Last buy tax-free from 4\u00a0Mar\u00a02028 now, from 6\u00a0Mar\u00a02028 after the change',
@@ -168,7 +169,7 @@ describe('CountrySection', () => {
     await confirm('Germany');
     expect(screen.getByRole('alert').textContent).toBe('Tick the box to replace the holding rule.');
     expect(stored(services).country).toBe('PT');
-    const tick = screen.getByRole('checkbox', { name: "Replace Portugal's rule with Germany's rule" });
+    const tick = screen.getByRole('checkbox', { name: 'Replace the rule for Portugal with the rule for Germany' });
     expect(document.activeElement).toBe(tick);
     fireEvent.click(tick);
     await confirm('Germany');
@@ -179,7 +180,7 @@ describe('CountrySection', () => {
   it('focus moves to the result line after a change', async () => {
     const services = await mount();
     await choose('Germany');
-    fireEvent.click(screen.getByRole('checkbox', { name: "Replace Portugal's rule with Germany's rule" }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Replace the rule for Portugal with the rule for Germany' }));
     screen.getByRole('button', { name: 'Change country to Germany' }).focus();
     await confirm('Germany');
     expect(stored(services).country).toBe('DE');
@@ -200,7 +201,7 @@ describe('CountrySection', () => {
   it('focuses the result line only once the confirmation has left the document', async () => {
     await mount();
     await choose('Germany');
-    fireEvent.click(screen.getByRole('checkbox', { name: "Replace Portugal's rule with Germany's rule" }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Replace the rule for Portugal with the rule for Germany' }));
     const button = screen.getByRole('button', { name: 'Change country to Germany' });
     button.focus();
     const focus = HTMLElement.prototype.focus;
@@ -221,7 +222,7 @@ describe('CountrySection', () => {
   it('a second activation while the change is written does nothing and the line reports the change', async () => {
     const services = await mount();
     await choose('Germany');
-    fireEvent.click(screen.getByRole('checkbox', { name: "Replace Portugal's rule with Germany's rule" }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Replace the rule for Portugal with the rule for Germany' }));
     const button = screen.getByRole('button', { name: 'Change country to Germany' });
     await act(async () => {
       fireEvent.click(button);
@@ -237,7 +238,7 @@ describe('CountrySection', () => {
   it('keeps the focus on the button while the change is written, aria-disabled and not disabled', async () => {
     const services = await mount();
     await choose('Germany');
-    fireEvent.click(screen.getByRole('checkbox', { name: "Replace Portugal's rule with Germany's rule" }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Replace the rule for Portugal with the rule for Germany' }));
     const write = services.domain.write.bind(services.domain);
     let release = () => {};
     const held = new Promise<void>((resolve) => {
@@ -261,7 +262,7 @@ describe('CountrySection', () => {
   it('choosing another country empties the result line', async () => {
     await mount();
     await choose('Germany');
-    fireEvent.click(screen.getByRole('checkbox', { name: "Replace Portugal's rule with Germany's rule" }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Replace the rule for Portugal with the rule for Germany' }));
     await confirm('Germany');
     expect(resultLine().textContent).toBe('Country changed to Germany.');
     await choose('Portugal');
@@ -291,13 +292,15 @@ describe('CountrySection', () => {
     await mount(snapshot, rules, createTestServices({ snapshot, rules, nowMs }));
     await choose('Germany');
     expect(ruleLines()).toEqual([
-      "Holding rule now: Portugal's rule. ",
+      'Holding rule now: the rule for Portugal. ',
       'Not reviewed since 5 Nov 2026 · general information, not advice',
-      "After the change: Germany's rule. ",
+      'After the change: the rule for Germany. ',
       'Not reviewed since 5 Nov 2026 · general information, not advice',
     ]);
     expect(screen.queryByRole('link', { name: 'Sources' })).toBeNull();
-    expect(screen.getByRole('checkbox', { name: "Replace Portugal's rule with Germany's rule" })).toBeTruthy();
+    expect(
+      screen.getByRole('checkbox', { name: 'Replace the rule for Portugal with the rule for Germany' }),
+    ).toBeTruthy();
   });
 
   // A count in the rule's words is a figure in the plan's number locale (docs/CONTENT-STYLE.md §4).
@@ -355,7 +358,7 @@ describe('CountrySection', () => {
     const services = await mount();
     await choose('United Kingdom');
     for (const box of screen.getAllByRole('checkbox')) fireEvent.click(box);
-    await confirm('United Kingdom');
+    await confirm('the United Kingdom');
     expect(screen.getByRole('alert').textContent).toBe('Choose Keep EUR or Change to GBP.');
     const group = screen.getByRole('radiogroup');
     expect(group.getAttribute('aria-invalid')).toBe('true');
@@ -375,7 +378,7 @@ describe('CountrySection', () => {
     const cards = screen.getAllByRole('radio');
     expect(cards.map((card) => card.getAttribute('aria-checked'))).toEqual(['false', 'false']);
     for (const box of screen.getAllByRole('checkbox')) fireEvent.click(box);
-    await confirm('United Kingdom');
+    await confirm('the United Kingdom');
     expect(screen.getByRole('alert').textContent).toBe('Choose Keep EUR or Change to GBP.');
     expect(stored(services)).toMatchObject({ country: 'PT', payCurrency: 'EUR', displayCurrency: 'EUR' });
   });
@@ -386,7 +389,7 @@ describe('CountrySection', () => {
     fireEvent.click(screen.getByRole('radio', { name: /^Keep EUR/ }));
     expect(items().filter((item) => item?.startsWith('Currency') || item?.includes('becomes'))).toEqual([]);
     for (const box of screen.getAllByRole('checkbox')) fireEvent.click(box);
-    await confirm('United Kingdom');
+    await confirm('the United Kingdom');
     expect(stored(services)).toMatchObject({ country: 'GB', payCurrency: 'EUR', displayCurrency: 'EUR' });
   });
 
@@ -399,7 +402,7 @@ describe('CountrySection', () => {
     expect(rows.slice(0, 2)).toEqual(['Currency for new amounts: EUR to GBP', 'Currency shown: EUR to GBP']);
     expect(rows.slice(2)).toHaveLength(2);
     for (const box of screen.getAllByRole('checkbox')) fireEvent.click(box);
-    await confirm('United Kingdom');
+    await confirm('the United Kingdom');
     expect(stored(services)).toMatchObject({
       country: 'GB',
       payCurrency: 'GBP',
@@ -487,7 +490,7 @@ describe('CountrySection', () => {
   it('a country change of a plan with no entries does not say that logged amounts stay as typed', async () => {
     await mount({ ...fixtureSnapshot(), entries: [] });
     await choose('Germany');
-    expect(screen.getByText('Country: Portugal to Germany')).toBeTruthy();
+    expect(screen.getByText('Country now: Portugal. After the change: Germany.')).toBeTruthy();
     expect(screen.queryByText('Amounts you already logged stay as typed; nothing is converted.')).toBeNull();
   });
 
@@ -525,7 +528,7 @@ describe('CountrySection', () => {
       'Currency shown: EUR to GBP',
     ]);
     for (const box of screen.getAllByRole('checkbox')) fireEvent.click(box);
-    await confirm('United Kingdom');
+    await confirm('the United Kingdom');
     expect(stored(services)).toMatchObject({ country: 'GB', payCurrency: 'GBP', displayCurrency: 'GBP' });
   });
 
@@ -536,7 +539,7 @@ describe('CountrySection', () => {
     >;
     await mount(withPlan({ sellWindow: early }));
     await choose('Germany');
-    fireEvent.click(screen.getByRole('checkbox', { name: "Replace Portugal's rule with Germany's rule" }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Replace the rule for Portugal with the rule for Germany' }));
     expect(document.querySelector('[aria-invalid="true"]')).toBeNull();
     expect(screen.queryByRole('alert')).toBeNull();
     expect(screen.queryByText(/^Tick the box/)).toBeNull();
@@ -548,14 +551,14 @@ describe('CountrySection', () => {
     >;
     const services = await mount(withPlan({ sellWindow: early }));
     await choose('Germany');
-    fireEvent.click(screen.getByRole('checkbox', { name: "Replace Portugal's rule with Germany's rule" }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Replace the rule for Portugal with the rule for Germany' }));
     await confirm('Germany');
     expect(stored(services).country).toBe('PT');
     const accept = screen.getByRole('checkbox', { name: /^Open the sell window on/ });
     expect(accept.getAttribute('aria-invalid')).toBe('true');
     expect(
       screen.getByText(
-        /under Germany's rule\. You can also cancel this change and choose a later opening date on Hold & sell\.$/,
+        /under the rule for Germany\. You can also cancel this change and choose a later opening date on Hold & sell\.$/,
       ),
     ).toBeTruthy();
     // The last-buy row and the notice both show the dates: the note shows once, under the row, and the new
@@ -577,7 +580,7 @@ describe('CountrySection', () => {
     >;
     const services = await mount(withPlan({ sellWindow: early }));
     await choose('Germany');
-    fireEvent.click(screen.getByRole('checkbox', { name: "Replace Portugal's rule with Germany's rule" }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Replace the rule for Portugal with the rule for Germany' }));
     await confirm('Germany');
     expect(stored(services).country).toBe('PT');
     const refusal = screen.getByRole('alert');
@@ -592,24 +595,24 @@ describe('CountrySection', () => {
     const services = await mount();
     await choose('Other country');
     await act(() => services.domain.write({ plan: { ...stored(services), holdingRule: { kind: 'none' } } }));
-    fireEvent.click(screen.getByRole('checkbox', { name: /^Replace Portugal's rule with/ }));
-    await confirm('Other country');
+    fireEvent.click(screen.getByRole('checkbox', { name: /^Replace the rule for Portugal with/ }));
+    await confirm('the general profile');
     expect(screen.getByRole('alert').textContent).toContain('Your plan changed in another browser tab');
     expect(stored(services).country).toBe('PT');
     expect(screen.queryByRole('checkbox')).toBeNull();
-    await confirm('Other country');
+    await confirm('the general profile');
     expect(stored(services)).toMatchObject({ country: 'XX', holdingRule: { kind: 'none' } });
   });
 
   it('asks for the tick again once another tab set the plan an own rule', async () => {
     const services = await mount();
     await choose('Germany');
-    fireEvent.click(screen.getByRole('checkbox', { name: "Replace Portugal's rule with Germany's rule" }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Replace the rule for Portugal with the rule for Germany' }));
     const own = { kind: 'days', days: 730, effect: 'exempt' } as const;
     await act(() => services.domain.write({ plan: { ...stored(services), holdingRule: own } }));
     await confirm('Germany');
     expect(screen.getByRole('alert').textContent).toContain('Your plan changed in another browser tab');
-    const tick = screen.getByRole('checkbox', { name: "Replace your own rule with Germany's rule" });
+    const tick = screen.getByRole('checkbox', { name: 'Replace your own rule with the rule for Germany' });
     expect(tick.getAttribute('aria-checked')).toBe('false');
     await confirm('Germany');
     expect(screen.getByText('Tick the box to replace the holding rule.')).toBeTruthy();
@@ -619,13 +622,13 @@ describe('CountrySection', () => {
   it('shows the early-window notice once another tab moved the last buy, then saves with it accepted', async () => {
     const services = await mount();
     await choose('Germany');
-    fireEvent.click(screen.getByRole('checkbox', { name: "Replace Portugal's rule with Germany's rule" }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Replace the rule for Portugal with the rule for Germany' }));
     await act(() => services.domain.write({ plan: { ...stored(services), lastBuy: '2028-09-01' as Plan['lastBuy'] } }));
     await confirm('Germany');
     expect(screen.getByRole('alert').textContent).toContain('Your plan changed in another browser tab');
     const accept = screen.getByRole('checkbox', { name: /^Open the sell window on/ });
     expect(accept.getAttribute('aria-checked')).toBe('false');
-    fireEvent.click(screen.getByRole('checkbox', { name: "Replace Portugal's rule with Germany's rule" }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Replace the rule for Portugal with the rule for Germany' }));
     fireEvent.click(accept);
     await confirm('Germany');
     expect(stored(services)).toMatchObject({
@@ -639,7 +642,9 @@ describe('CountrySection', () => {
     const services = await mount();
     await choose('Germany');
     const tick = () =>
-      fireEvent.click(screen.getByRole('checkbox', { name: "Replace Portugal's rule with Germany's rule" }));
+      fireEvent.click(
+        screen.getByRole('checkbox', { name: 'Replace the rule for Portugal with the rule for Germany' }),
+      );
     tick();
     await act(() => services.domain.write({ plan: { ...stored(services), payCurrency: 'USD' } }));
     await confirm('Germany');
@@ -656,7 +661,7 @@ describe('CountrySection', () => {
   it('focus moves to the plan-changed line when another tab moved the plan', async () => {
     const services = await mount();
     await choose('Germany');
-    fireEvent.click(screen.getByRole('checkbox', { name: "Replace Portugal's rule with Germany's rule" }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Replace the rule for Portugal with the rule for Germany' }));
     await act(() => services.domain.write({ plan: { ...stored(services), payCurrency: 'USD' } }));
     screen.getByRole('button', { name: 'Change country to Germany' }).focus();
     await confirm('Germany');
@@ -668,7 +673,7 @@ describe('CountrySection', () => {
   it('focus moves to the not-saved line when the change is not saved', async () => {
     const services = await mount();
     await choose('Germany');
-    fireEvent.click(screen.getByRole('checkbox', { name: "Replace Portugal's rule with Germany's rule" }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Replace the rule for Portugal with the rule for Germany' }));
     const write = services.domain.write.bind(services.domain);
     vi.spyOn(services.domain, 'write').mockImplementationOnce((changes) =>
       write(typeof changes === 'function' ? (snapshot) => changes({ ...snapshot, plan: null }) : changes),
@@ -683,7 +688,7 @@ describe('CountrySection', () => {
   it('clears the not-saved line once the change saves on the second try', async () => {
     const services = await mount();
     await choose('Germany');
-    fireEvent.click(screen.getByRole('checkbox', { name: "Replace Portugal's rule with Germany's rule" }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Replace the rule for Portugal with the rule for Germany' }));
     // The first write's turn finds no plan stored, as when another tab's wipe lands in that turn.
     const write = services.domain.write.bind(services.domain);
     vi.spyOn(services.domain, 'write').mockImplementationOnce((changes) =>
@@ -700,7 +705,7 @@ describe('CountrySection', () => {
   it('names the fix when the core refuses the changed plan, and focuses that line', async () => {
     const services = await mount();
     await choose('Germany');
-    fireEvent.click(screen.getByRole('checkbox', { name: "Replace Portugal's rule with Germany's rule" }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Replace the rule for Portugal with the rule for Germany' }));
     // An amount the new currency cannot hold: an invariant of the plan the change re-derives (docs/DOMAIN.md §6).
     const write = services.domain.write.bind(services.domain);
     vi.spyOn(services.domain, 'write').mockImplementationOnce((changes) =>
@@ -727,7 +732,7 @@ describe('CountrySection', () => {
   it('closes on a plan another tab already moved to the chosen country with an own rule', async () => {
     const services = await mount();
     await choose('Germany');
-    fireEvent.click(screen.getByRole('checkbox', { name: "Replace Portugal's rule with Germany's rule" }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Replace the rule for Portugal with the rule for Germany' }));
     const own = { kind: 'days', days: 730, effect: 'exempt' } as const;
     await act(() => services.domain.write({ plan: { ...stored(services), country: 'DE', holdingRule: own } }));
     await confirm('Germany');
@@ -763,7 +768,7 @@ describe('CountrySection', () => {
     await other.start();
     const services = await mount(undefined, rules, tab());
     await choose('Germany');
-    fireEvent.click(screen.getByRole('checkbox', { name: "Replace Portugal's rule with Germany's rule" }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Replace the rule for Portugal with the rule for Germany' }));
     await act(async () => void (await changeCountryOf(other, FIXTURE_RULES.DE, stored(other), false, null)));
     await waitFor(() => expect(stored(services).country).toBe('DE'));
     const updatedAt = shared.current().plan?.updatedAt;
@@ -799,7 +804,7 @@ describe('CountrySection on a pt-PT screen (WCAG 2.2 SC 3.1.2, ADR-0057)', () =>
     render(
       <NavigationProvider location="memory" initialPath="/settings">
         <ServicesProvider services={services}>
-          <I18nProvider locale="pt-PT" messages={{ settings, plan, errors, today, shell }}>
+          <I18nProvider locale="pt-PT" messages={{ countries, settings, plan, errors, today, shell }}>
             <CountrySection />
           </I18nProvider>
         </ServicesProvider>

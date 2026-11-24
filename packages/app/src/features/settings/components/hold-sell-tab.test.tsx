@@ -10,6 +10,7 @@ import type { Snapshot } from '../../../lib/ports';
 import { type Services, ServicesProvider } from '../../../lib/services';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
 import { createTestServices, preloadLazyModules } from '../../../lib/services/testing';
+import countries from '../../../messages/en/countries.json';
 import errors from '../../../messages/en/errors.json';
 import plan from '../../../messages/en/plan.json';
 import settings from '../../../messages/en/settings.json';
@@ -48,7 +49,7 @@ function view(services: Services) {
   render(
     <NavigationProvider location="memory" initialPath="/settings">
       <ServicesProvider services={services}>
-        <I18nProvider messages={{ settings, plan, errors, today, shell }}>
+        <I18nProvider messages={{ countries, settings, plan, errors, today, shell }}>
           <HoldSellTab />
         </I18nProvider>
       </ServicesProvider>
@@ -77,10 +78,10 @@ const save = () => act(async () => fireEvent.click(screen.getByRole('button', { 
 describe('HoldSellTab', () => {
   it("shows the country's rule chosen, in words with its review date", async () => {
     await mount();
-    expect(radio("Portugal's rule").getAttribute('aria-checked')).toBe('true');
+    expect(radio('The rule for Portugal').getAttribute('aria-checked')).toBe('true');
     // The rule in words shows with its source, once the profile is loaded.
     const sources = await screen.findByRole('link', { name: 'Sources' });
-    expect(radio("Portugal's rule").textContent).toContain('365 days, then tax-free.');
+    expect(radio('The rule for Portugal').textContent).toContain('365 days, then tax-free.');
     expect(sources.parentElement?.textContent).toMatch(
       /^Reviewed on \d+\s\w+\s\d{4} · general information, not advice · Sources$/,
     );
@@ -97,7 +98,7 @@ describe('HoldSellTab', () => {
     // No await between the render and the look: the hook's effect answers on a later microtask.
     view(services);
     expect(screen.getByRole('link', { name: 'Sources' }).getAttribute('href')).toMatch(/^https:/);
-    expect(radio("Portugal's rule").textContent).toContain('365 days, then tax-free.');
+    expect(radio('The rule for Portugal').textContent).toContain('365 days, then tax-free.');
     services.dispose();
   });
 
@@ -109,7 +110,8 @@ describe('HoldSellTab', () => {
       return rules === null ? null : { ...rules, code: 'JP' as CountryRules['code'] };
     });
     await act(() => Promise.resolve());
-    const country = radio("Portugal's rule");
+    // A code with no country forms reads as the general profile, as its plan would (lib/countries).
+    const country = radio('The rule for the general profile');
     expect(country.getAttribute('aria-checked')).toBe('true');
     expect(country.textContent).not.toContain('365 days, then tax-free.');
     expect(screen.queryByRole('link', { name: 'Sources' })).toBeNull();
@@ -127,7 +129,7 @@ describe('HoldSellTab', () => {
     render(
       <NavigationProvider location="memory" initialPath="/settings">
         <ServicesProvider services={services}>
-          <I18nProvider messages={{ settings, plan, errors, today, shell }}>
+          <I18nProvider messages={{ countries, settings, plan, errors, today, shell }}>
             <HoldSellTab />
           </I18nProvider>
         </ServicesProvider>
@@ -165,14 +167,14 @@ describe('HoldSellTab', () => {
     fireEvent.change(days(), { target: { value: '365' } });
     await save();
     expect(stored(services).holdingRule).toEqual(COUNTRY);
-    expect(radio("Portugal's rule").getAttribute('aria-checked')).toBe('true');
+    expect(radio('The rule for Portugal').getAttribute('aria-checked')).toBe('true');
     services.dispose();
   });
 
   it("saves the country's rule chosen over an own rule", async () => {
     const services = await mount(withRule(OWN));
     const user = userEvent.setup({ document });
-    await user.click(radio("Portugal's rule"));
+    await user.click(radio('The rule for Portugal'));
     await save();
     expect(stored(services).holdingRule).toEqual(COUNTRY);
     services.dispose();
@@ -263,9 +265,9 @@ describe('HoldSellTab', () => {
     const sellWindow = { opens: '2027-06-01', closes: '2028-05-31', exitBy: '2028-12-31' } as Window;
     const services = await mount({ ...snapshot, plan: { ...opened, sellWindow } });
     const user = userEvent.setup({ document });
-    await user.click(radio("Portugal's rule"));
-    // The notice names Portugal's rule, then the note and Portugal's date line, its Sources as on the card.
-    expect(await screen.findByText(/ under Portugal's rule\. /)).toBeDefined();
+    await user.click(radio('The rule for Portugal'));
+    // The notice names the rule for Portugal, then the note and Portugal's date line, its Sources as on the card.
+    expect(await screen.findByText(/ under the rule for Portugal\. /)).toBeDefined();
     expect(screen.getByText('Computed from your dates, not tax advice')).toBeDefined();
     const [card, notice] = await screen.findAllByRole('link', { name: 'Sources' });
     expect(notice?.getAttribute('href')).toBe(card?.getAttribute('href'));

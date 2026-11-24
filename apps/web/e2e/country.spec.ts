@@ -5,7 +5,7 @@ import { seedPlan } from './seed';
 import { applyTextZoom, cspViolations, recordCspViolations, test } from './support';
 
 // Settings → Currency & data, the country change on the viewport matrix (docs/DOMAIN.md §6 "Change country",
-// docs/CONTENT-STYLE.md "Change country"): Portugal to Germany lists the change and names Portugal's rule being
+// docs/CONTENT-STYLE.md "Change country"): Portugal to Germany lists the change and names the rule for Portugal being
 // replaced and the day the last buy passes each rule, waits for the tick, then changes the plan and focuses the
 // line that says so; the Plan page and a reload show Germany's plan. Portugal to the United Kingdom with EUR
 // amounts logged asks which currency they were paid in (ADR-0053), and "Keep EUR" leaves them in €, with the
@@ -34,11 +34,11 @@ test('a change from Portugal to Germany lists the rule it replaces, then changes
   await expect(select).toHaveText(/Portugal/);
   await select.click();
   await page.getByRole('option', { name: 'Germany' }).click();
-  await expect(page.getByText('Country: Portugal to Germany')).toBeVisible();
+  await expect(page.getByText('Country now: Portugal. After the change: Germany.')).toBeVisible();
   // Each rule by its name; its words are the profile's, which a content review may change (the unit test of the
   // section holds them on literal rules, docs/ENGINEERING.md §2).
-  await expect(page.getByText(/^Holding rule now: Portugal's rule\. /)).toBeVisible();
-  await expect(page.getByText(/^After the change: Germany's rule\. /)).toBeVisible();
+  await expect(page.getByText(/^Holding rule now: the rule for Portugal\. /)).toBeVisible();
+  await expect(page.getByText(/^After the change: the rule for Germany\. /)).toBeVisible();
   await expect(
     page.getByRole('listitem').filter({ hasText: /^Last buy tax-free from .* now, from .* after the change/ }),
   ).toBeVisible();
@@ -47,7 +47,7 @@ test('a change from Portugal to Germany lists the rule it replaces, then changes
 
   const change = page.getByRole('button', { name: 'Change country to Germany' });
   await change.click();
-  const tick = page.getByRole('checkbox', { name: "Replace Portugal's rule with Germany's rule" });
+  const tick = page.getByRole('checkbox', { name: 'Replace the rule for Portugal with the rule for Germany' });
   await expect(tick).toBeFocused();
   await expect(page.getByText('Tick the box to replace the holding rule.')).toBeVisible();
   await tick.click();
@@ -85,13 +85,13 @@ test('a change from Portugal to the United Kingdom with EUR amounts asks, and Ke
   await expect(page.getByRole('radio', { name: /^Change to GBP/ })).toBeVisible();
   await expect(page.getByText(/^Tax-year files follow your current country's rules/)).toBeVisible();
   for (const box of await page.getByRole('checkbox').all()) await box.click();
-  const change = page.getByRole('button', { name: 'Change country to United Kingdom' });
+  const change = page.getByRole('button', { name: 'Change country to the United Kingdom' });
   // Nothing is chosen for the person: a confirm without an answer is refused next to the question.
   await change.click();
   await expect(page.getByRole('alert').filter({ hasText: 'Choose Keep EUR or Change to GBP.' })).toBeVisible();
   await keep.click();
   await change.click();
-  await expect(page.getByRole('status').filter({ hasText: 'Country changed to United Kingdom.' })).toBeFocused();
+  await expect(page.getByRole('status').filter({ hasText: 'Country changed to the United Kingdom.' })).toBeFocused();
   // The plan stays in EUR, so Currency & data offers the country's currency, and the amounts still read in €.
   await expect(page.getByText(/^Your plan is in EUR, and your country's currency is GBP\./)).toBeVisible();
   await expect(page.getByRole('button', { name: 'Change to GBP' })).toBeVisible();
@@ -112,8 +112,8 @@ test('a card past its review reads Not reviewed since', async ({ page }) => {
   await expect(page.locator('main#main')).not.toHaveAttribute('aria-busy', 'true');
   await page.getByRole('tab', { name: 'Hold & sell' }).click();
   await expect(page.getByText(/^Not reviewed since /)).toBeVisible();
-  await expect(page.getByRole('radio', { name: /^Portugal's rule/ })).toBeVisible();
-  // No rule words of any length or effect, whatever a review makes Portugal's rule (the plan messages' rule words).
+  await expect(page.getByRole('radio', { name: /^The rule for Portugal/ })).toBeVisible();
+  // No rule words of any length or effect, whatever a review makes the rule for Portugal (the plan messages' rule words).
   await expect(page.getByText(/\d+ (?:day|year)s?, then (?:tax-free|the long-term rate)\./u)).toHaveCount(0);
   await expect(page.getByRole('link', { name: 'Sources' })).toHaveCount(0);
 });
@@ -133,7 +133,7 @@ test('a change refused because another tab moved the plan focuses the line that 
     await tab.getByRole('tab', { name: 'Currency & data' }).click();
     await tab.getByRole('combobox', { name: 'Country' }).click();
     await tab.getByRole('option', { name }).click();
-    await tab.getByRole('checkbox', { name: /^Replace Portugal's rule with/ }).click();
+    await tab.getByRole('checkbox', { name: /^Replace the rule for Portugal with/ }).click();
   };
   await open(page, 'Other country');
 
@@ -148,7 +148,7 @@ test('a change refused because another tab moved the plan focuses the line that 
   expect((await status.boundingBox())?.y, 'room above the focused result line').toBeGreaterThanOrEqual(16);
   await other.close();
 
-  await page.getByRole('button', { name: 'Change country to Other country' }).click();
+  await page.getByRole('button', { name: 'Change country to the general profile' }).click();
   const line = page.getByRole('alert').filter({ hasText: 'Your plan changed in another browser tab' });
   await expect(line).toBeFocused();
   expect(await page.evaluate(() => document.activeElement?.tagName)).not.toBe('BODY');

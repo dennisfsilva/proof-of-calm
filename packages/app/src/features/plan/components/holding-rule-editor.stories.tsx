@@ -47,7 +47,7 @@ type Story = StoryObj<typeof meta>;
 
 export const CountryRule: Story = {
   play: async ({ canvas }) => {
-    const country = canvas.getByRole('radio', { name: "Portugal's rule" });
+    const country = canvas.getByRole('radio', { name: 'The rule for Portugal' });
     await expect(country).toHaveAttribute('aria-checked', 'true');
     await expect(country).toHaveAccessibleDescription(/365 days, then tax-free/);
     await expect(canvas.getByRole('link', { name: 'Sources' })).toHaveAttribute('target', '_blank');

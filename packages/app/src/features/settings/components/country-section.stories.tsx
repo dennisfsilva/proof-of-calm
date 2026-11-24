@@ -67,8 +67,10 @@ export const ToGermany: Story = {
   parameters: at(fixture),
   play: async ({ canvas }) => {
     await choose(canvas, 'Germany');
-    await expect(canvas.getByText('Country: Portugal to Germany')).toBeVisible();
-    await expect(canvas.getByRole('checkbox', { name: "Replace Portugal's rule with Germany's rule" })).toBeVisible();
+    await expect(canvas.getByText('Country now: Portugal. After the change: Germany.')).toBeVisible();
+    await expect(
+      canvas.getByRole('checkbox', { name: 'Replace the rule for Portugal with the rule for Germany' }),
+    ).toBeVisible();
     await expect(canvas.getAllByRole('link', { name: 'Sources' })).toHaveLength(2);
     await expect(
       canvas.getByText('Last buy tax-free from 4 Mar 2028 now, from 6 Mar 2028 after the change'),
@@ -95,7 +97,7 @@ export const ToUnitedKingdom: Story = {
     await choose(canvas, 'United Kingdom');
     await expect(canvas.getByRole('radiogroup')).toBeVisible();
     for (const box of canvas.getAllByRole('checkbox')) await userEvent.click(box);
-    await userEvent.click(canvas.getByRole('button', { name: 'Change country to United Kingdom' }));
+    await userEvent.click(canvas.getByRole('button', { name: 'Change country to the United Kingdom' }));
     await expect(await canvas.findByRole('alert')).toHaveTextContent('Choose Keep EUR or Change to GBP.');
     await userEvent.click(canvas.getByRole('radio', { name: /^Change to GBP/ }));
     // The row lands under the cards, the amount after in the new country's format (ADR-0023's Context).
@@ -127,7 +129,9 @@ export const OpensEarly: Story = {
       canvas.getByText(/You can also cancel this change and choose a later opening date on Hold & sell\.$/),
     ).toBeVisible();
     // A change without the tick: the refusal sends the person to Hold & sell, where the opening date is.
-    await userEvent.click(canvas.getByRole('checkbox', { name: "Replace Portugal's rule with Germany's rule" }));
+    await userEvent.click(
+      canvas.getByRole('checkbox', { name: 'Replace the rule for Portugal with the rule for Germany' }),
+    );
     await userEvent.click(canvas.getByRole('button', { name: 'Change country to Germany' }));
     await expect(await canvas.findByRole('alert')).toHaveTextContent(
       'Tick the box to open the sell window early, or cancel this change and choose a later opening date on Hold & sell.',

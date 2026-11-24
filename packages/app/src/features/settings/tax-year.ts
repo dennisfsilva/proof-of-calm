@@ -41,13 +41,15 @@ import {
 } from '@proofofcalm/core';
 import { useTranslations } from 'use-intl';
 import { BRAND } from '../../lib/brand';
+import { type CountryArgs, countryArgs } from '../../lib/countries';
 import type { Services } from '../../lib/services';
 
-/** The header's words, `settings.data.taxYear.file` in the UI language. */
+/** The header's words in the UI language: `settings.data.taxYear.file`, and the country forms its lines take. */
 export function useTaxYearWords() {
-  return useTranslations('settings.data.taxYear.file');
+  return { file: useTranslations('settings.data.taxYear.file'), countries: useTranslations('countries') };
 }
 export type TaxYearWords = ReturnType<typeof useTaxYearWords>;
+type FileWords = TaxYearWords['file'];
 
 /** What the rows tell the header: the per-lot file's flags, or the raw listing's (no matching, no venue groups). */
 type FileFacts = {
@@ -86,6 +88,8 @@ type HeaderInput = {
   readonly profile: CountryProfile;
   readonly span: TaxYearSpan;
   readonly today: CalendarDate;
+  /** The plan's country in the forms of `countries` (docs/CONTENT-STYLE.md §9). */
+  readonly country: CountryArgs;
 };
 
 /** A profile more than twelve months past its review keeps no rule words (docs/JURISDICTIONS.md §1). */
@@ -93,13 +97,12 @@ const reviewingOf = ({ rules, today }: HeaderInput) =>
   rules.code !== GENERIC_COUNTRY && underReview(rules.status, today);
 
 /** The lines every file opens with: the app, the country and the span, the export sentence, the currency, the review. */
-function openingLines(input: HeaderInput, t: TaxYearWords): string[] {
-  const { plan, rules, profile, span } = input;
-  const country = rules.name;
+function openingLines(input: HeaderInput, t: FileWords): string[] {
+  const { plan, rules, profile, span, country } = input;
   const date = rules.status.lastReviewed;
   const sources = [...new Set([ruleSource(profile, 'lotRule'), ruleSource(profile, 'holdingRule')].filter(notNull))];
   return [
-    t('title', { product: BRAND.name, country, from: span.from, to: span.to }),
+    t('title', { product: BRAND.name, ...country, from: span.from, to: span.to }),
     t('owned'),
     plan.payCurrency === rules.currency
       ? t('currency', { currency: plan.payCurrency })
@@ -107,17 +110,16 @@ function openingLines(input: HeaderInput, t: TaxYearWords): string[] {
     rules.code === GENERIC_COUNTRY
       ? t('generic', { date })
       : reviewingOf(input)
-        ? t('underReview', { country, date })
+        ? t('underReview', { ...country, date })
         : sources.length === 0
-          ? t('reviewed', { country, date })
-          : t('reviewedSources', { country, date, sources: sources.join(', ') }),
+          ? t('reviewed', { ...country, date })
+          : t('reviewedSources', { ...country, date, sources: sources.join(', ') }),
   ];
 }
 
 /** The per-lot file's and the raw listing's header, in docs/DOMAIN.md §3.13's order; each line one cell of the file. */
-function taxYearHeader(input: HeaderInput & { readonly facts: FileFacts }, t: TaxYearWords): string[] {
-  const { plan, rules, profile, span, facts, today } = input;
-  const country = rules.name;
+function taxYearHeader(input: HeaderInput & { readonly facts: FileFacts }, t: FileWords): string[] {
+  const { plan, rules, profile, span, facts, today, country } = input;
   const reviewing = reviewingOf(input);
   const length = ruleLength(rules.holdingRule);
   const holding =
@@ -125,10 +127,10 @@ function taxYearHeader(input: HeaderInput & { readonly facts: FileFacts }, t: Ta
       ? []
       : [
           facts.raw
-            ? t('holdingRaw', { country, ...length })
-            : t('holding', { country, ...length, held: today < span.to ? today : span.to }),
+            ? t('holdingRaw', { ...country, ...length })
+            : t('holding', { ...country, ...length, held: today < span.to ? today : span.to }),
           ...(reviewing ? [] : profile.holdingRuleConditions),
-          ...(sameHoldingRule(plan.holdingRule, rules.holdingRule) ? [] : [t('planRule', { country })]),
+          ...(sameHoldingRule(plan.holdingRule, rules.holdingRule) ? [] : [t('planRule', country)]),
         ];
   const pooled = rules.lotRule === 'pooled';
   return [
@@ -165,7 +167,7 @@ function taxYearHeader(input: HeaderInput & { readonly facts: FileFacts }, t: Ta
  * The cessions file's header (France): no lot, matching or holding-rule line, and no threshold or form line number.
  * Its estimate line names the block, since a sale row carries the flag of every row in it.
  */
-function cessionsHeader(input: HeaderInput, file: TaxYearCessions, t: TaxYearWords): string[] {
+function cessionsHeader(input: HeaderInput, file: TaxYearCessions, t: FileWords): string[] {
   return [
     ...openingLines(input, t),
     t('cessions'),
@@ -180,7 +182,7 @@ function cessionsHeader(input: HeaderInput, file: TaxYearCessions, t: TaxYearWor
 }
 
 /** The snapshot file's header (the Netherlands), naming the columns by the dates the core writes into them. */
-function snapshotHeader(input: HeaderInput, file: TaxYearSnapshot, t: TaxYearWords): string[] {
+function snapshotHeader(input: HeaderInput, file: TaxYearSnapshot, t: FileWords): string[] {
   const { reference } = file;
   const columns = { opening: reference.slice(5), closing: input.span.to.slice(5) };
   return [
@@ -217,7 +219,7 @@ function rawMoveFees(rows: readonly PoolRow[], span: TaxYearSpan): boolean {
 }
 
 /** The per-lot model's file: the lot pieces for a matched lot rule, else the raw listing. */
-function perLotFile(input: HeaderInput, entries: readonly Entry[], t: TaxYearWords): string {
+function perLotFile(input: HeaderInput, entries: readonly Entry[], t: FileWords): string {
   const { plan, rules, span, today } = input;
   const header = (facts: FileFacts) => taxYearHeader({ ...input, facts }, t);
   switch (rules.lotRule) {
@@ -246,7 +248,7 @@ export async function downloadTaxYear(
   services: Services,
   { plan, entries }: { readonly plan: Plan; readonly entries: readonly Entry[] },
   endingIn: number,
-  t: TaxYearWords,
+  words: TaxYearWords,
 ): Promise<boolean> {
   const loaded = services.ui.getState().rules;
   const rules = loaded !== null && loaded.country === plan.country ? loaded.rules : null;
@@ -254,7 +256,8 @@ export async function downloadTaxYear(
   if (rules === null || profile === null) throw new Error("the country's rules or profile are not loaded");
   const today = services.ui.getState().today;
   const span = taxYearSpan(rules.taxYear, endingIn);
-  const input: HeaderInput = { plan, rules, profile, span, today };
+  const input: HeaderInput = { plan, rules, profile, span, today, country: countryArgs(words.countries, rules.code) };
+  const t = words.file;
   // No closes: the value cells stay empty until the reference closes of packages/data exist (ADR-0036 Readings).
   const noCloses: PriceHistories = { currency: plan.payCurrency, coins: {} };
   const model = rules.computationModel;

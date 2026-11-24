@@ -7,10 +7,12 @@ import { I18nProvider, type UiLanguage } from '../../../lib/i18n';
 import { NavigationProvider } from '../../../lib/navigation';
 import { ServicesProvider } from '../../../lib/services';
 import { createTestServices, preloadLazyModules } from '../../../lib/services/testing';
+import countries from '../../../messages/en/countries.json';
 import errors from '../../../messages/en/errors.json';
 import onboarding from '../../../messages/en/onboarding.json';
 import plan from '../../../messages/en/plan.json';
 import shell from '../../../messages/en/shell.json';
+import countriesPt from '../../../messages/pt-PT/countries.json';
 import errosPt from '../../../messages/pt-PT/errors.json';
 import portuguese from '../../../messages/pt-PT/onboarding.json';
 import planoPt from '../../../messages/pt-PT/plan.json';
@@ -51,8 +53,8 @@ async function mount(
 ) {
   const messages =
     language === 'en'
-      ? { errors, onboarding, plan, shell }
-      : { errors: errosPt, onboarding: portuguese, plan: planoPt, shell: shellPt };
+      ? { countries, errors, onboarding, plan, shell }
+      : { countries: countriesPt, errors: errosPt, onboarding: portuguese, plan: planoPt, shell: shellPt };
   render(
     <NavigationProvider location="memory" initialPath="/onboarding">
       <ServicesProvider services={services}>
@@ -192,7 +194,7 @@ describe("OnboardingScreen: the early window's conditions in pt-PT (ADR-0057)", 
     vi.mocked(loadProfiles).mockResolvedValueOnce(profiles);
     const texts = await loadTemplateTexts('pt-PT');
     await mount('pt-PT', undefined, BERLIN);
-    await confirm(`Continuar com ${profiles.find((profile) => profile.code === 'DE')?.name ?? ''}`);
+    await confirm('Continuar com a Alemanha');
     const cycle = await screen.findByRole('radio', { name: texts.get('cycle-plan')?.name ?? '' });
     await act(() => fireEvent.click(cycle));
     await act(() => fireEvent.click(screen.getByRole('button', { name: portuguese.next })));

@@ -7,7 +7,7 @@ import { fixtureNowMs, fixtureSnapshot } from '../../../lib/services/fixtures';
 import { createTestServices } from '../../../lib/services/testing';
 import { HoldSellTab } from './hold-sell-tab';
 
-// Settings' Hold & sell tab over the fixture plan with Portugal's rules loaded: Portugal's rule chosen,
+// Settings' Hold & sell tab over the fixture plan with Portugal's rules loaded: the rule for Portugal chosen,
 // an own rule and the country's that each open the sell window early, awaiting the acceptance (the refusal line
 // only after a refused save), and the empty state; the
 // test projects of vitest.config.ts render each at 360 and 1280 px, light and dark, with axe.
@@ -48,7 +48,7 @@ type Story = StoryObj<typeof meta>;
 export const CountryRule: Story = {
   parameters: at(fixture),
   play: async ({ canvas }) => {
-    const country = await canvas.findByRole('radio', { name: "Portugal's rule" });
+    const country = await canvas.findByRole('radio', { name: 'The rule for Portugal' });
     await expect(country).toHaveAttribute('aria-checked', 'true');
     // The rule in words shows with its source, once the profile is loaded.
     await canvas.findByRole('link', { name: 'Sources' });
@@ -87,7 +87,7 @@ export const EarlyWindowAwaitsAcceptance: Story = {
 export const CountryRuleOpensEarly: Story = {
   parameters: at(early),
   play: async ({ canvas }) => {
-    const country = await canvas.findByRole('radio', { name: "Portugal's rule" });
+    const country = await canvas.findByRole('radio', { name: 'The rule for Portugal' });
     await userEvent.click(country);
     await userEvent.click(canvas.getByRole('button', { name: 'Save changes' }));
     await waitFor(() => expect(canvas.getByRole('checkbox')).toHaveFocus());
