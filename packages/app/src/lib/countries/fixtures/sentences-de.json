@@ -236,16 +236,16 @@
     "XX": "Das Land des Plans wurde in einem anderen Browser-Tab umgestellt. Jetzt gilt das allgemeine Profil."
   },
   "settings.data.taxYear.file.title": {
-    "DE": "Datei für das Steuerjahr von Proof of Calm · Deutschland · 2026-01-01 bis 2026-12-31",
-    "ES": "Datei für das Steuerjahr von Proof of Calm · Spanien · 2026-01-01 bis 2026-12-31",
-    "FR": "Datei für das Steuerjahr von Proof of Calm · Frankreich · 2026-01-01 bis 2026-12-31",
-    "GB": "Datei für das Steuerjahr von Proof of Calm · Vereinigtes Königreich · 2026-01-01 bis 2026-12-31",
-    "IE": "Datei für das Steuerjahr von Proof of Calm · Irland · 2026-01-01 bis 2026-12-31",
-    "IT": "Datei für das Steuerjahr von Proof of Calm · Italien · 2026-01-01 bis 2026-12-31",
-    "NL": "Datei für das Steuerjahr von Proof of Calm · Niederlande · 2026-01-01 bis 2026-12-31",
-    "PT": "Datei für das Steuerjahr von Proof of Calm · Portugal · 2026-01-01 bis 2026-12-31",
-    "US": "Datei für das Steuerjahr von Proof of Calm · USA · 2026-01-01 bis 2026-12-31",
-    "XX": "Datei für das Steuerjahr von Proof of Calm · Anderes Land · 2026-01-01 bis 2026-12-31"
+    "DE": "Proof of Calm: Datei für das Steuerjahr · Deutschland · 2026-01-01 bis 2026-12-31",
+    "ES": "Proof of Calm: Datei für das Steuerjahr · Spanien · 2026-01-01 bis 2026-12-31",
+    "FR": "Proof of Calm: Datei für das Steuerjahr · Frankreich · 2026-01-01 bis 2026-12-31",
+    "GB": "Proof of Calm: Datei für das Steuerjahr · Vereinigtes Königreich · 2026-01-01 bis 2026-12-31",
+    "IE": "Proof of Calm: Datei für das Steuerjahr · Irland · 2026-01-01 bis 2026-12-31",
+    "IT": "Proof of Calm: Datei für das Steuerjahr · Italien · 2026-01-01 bis 2026-12-31",
+    "NL": "Proof of Calm: Datei für das Steuerjahr · Niederlande · 2026-01-01 bis 2026-12-31",
+    "PT": "Proof of Calm: Datei für das Steuerjahr · Portugal · 2026-01-01 bis 2026-12-31",
+    "US": "Proof of Calm: Datei für das Steuerjahr · USA · 2026-01-01 bis 2026-12-31",
+    "XX": "Proof of Calm: Datei für das Steuerjahr · Anderes Land · 2026-01-01 bis 2026-12-31"
   },
   "settings.data.taxYear.file.reviewed": {
     "DE": "Regeln für Deutschland, Stand: 2026-10-01 · allgemeine Informationen, keine Beratung",

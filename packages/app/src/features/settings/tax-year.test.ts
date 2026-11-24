@@ -151,13 +151,13 @@ describe('the tax-year header lines', () => {
   // dates each review with `Stand:`, never `geprüft` (docs/CONTENT-STYLE.md §10).
   it('the German lines name the country by its for form: the review, holding and plan-rule lines', async () => {
     const dutch = (await header('NL', 'de')).split('\n').map(uncell);
-    expect(dutch[0]).toMatch(/^﻿Datei für das Steuerjahr von Proof of Calm · Niederlande · /u);
+    expect(dutch[0]).toMatch(/^﻿Proof of Calm: Datei für das Steuerjahr · Niederlande · /u);
     expect(dutch[3]).toMatch(
       /^Regeln für die Niederlande, Stand: \d{4}-\d{2}-\d{2} · allgemeine Informationen, keine Beratung/u,
     );
     const british = (await header('GB', 'de')).split('\n').map(uncell);
     expect(british[0]).toBe(
-      '﻿Datei für das Steuerjahr von Proof of Calm · Vereinigtes Königreich · 2026-04-06 bis 2027-04-05',
+      '﻿Proof of Calm: Datei für das Steuerjahr · Vereinigtes Königreich · 2026-04-06 bis 2027-04-05',
     );
     expect(british[3]).toMatch(/^Regeln für das Vereinigte Königreich, Stand: /u);
     const portugal = (await header('PT', 'de')).split('\n').map(uncell);
