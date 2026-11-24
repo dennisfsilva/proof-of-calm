@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { anEntry, aPlan, date, money, split, units } from '../../../test/builders';
+import { coverCut } from '../../../test/exchange/plan-cover';
 import { CHOICES, FILE, LISBON, NOW, testId, trade } from '../../../test/exchange/plan-fixture';
+import { WINDOW_93 } from '../../../test/exchange/plan-seeds';
 import { minus, plus, type Units } from '../../money/decimal';
 import { defaultFee, lastVenue, oneTapEntries } from '../../plan/parts';
 import { actionsNow, liveEntries, primaryAction } from '../../plan/statuses';
@@ -12,13 +14,14 @@ import type { PriceSnapshot } from '../../schema/prices';
 import { applyExchangeImport } from './apply';
 import type { ExchangeFile, LeftOutRow, Movement } from './kraken';
 import { planExchangeImport } from './plan';
+import { leftOutFrom } from './plan-guards';
 
 // The sale guard's cover across imports (docs/DOMAIN.md §3.13 step 4): the entries other imports stored before the
 // file's earliest left-out purchase, the one-tap `lump` at its own units, and each sale decided alone. Every walk is
 // the design check's of 2026-11-23, on its own synthetic rows.
 
 const PLAIN = aPlan({ firstBuy: date('2026-03-01'), lastBuy: date('2026-12-01') });
-const BTC = 'BTC' as CoinId;
+const [BTC, ETH] = ['BTC' as CoinId, 'ETH' as CoinId];
 const buy = (ref: string, day: string, units_: string, amount = '1400') =>
   trade(ref, 'purchase', 'BTC', day, { units: units_, amount, fee: '1' }, 2);
 const sell = (ref: string, day: string, units_: string, amount = '900') =>
@@ -44,14 +47,15 @@ const planOf = (plan: Plan, entries: readonly Entry[], file: Import, context = L
     { venue: file.tr === true ? 'Trade Republic' : CHOICES.venue, addHeld: file.addHeld ?? false },
     context,
   );
-/** BTC the Log holds: every live entry's units, a sale's taken away. */
-const btc = (entries: readonly Entry[]) =>
+/** `coin` the Log holds: every live entry's units, a sale's taken away. */
+const holding = (coin: string) => (entries: readonly Entry[]) =>
   liveEntries(entries)
-    .filter((entry) => entry.coin === 'BTC' && entry.kind !== 'move')
+    .filter((entry) => entry.coin === coin && entry.kind !== 'move')
     .reduce(
       (total, entry) => (entry.kind === 'sell' ? minus(total, entry.units) : plus(total, entry.units)),
       units('0'),
     );
+const [btc, eth] = [holding('BTC'), holding('ETH')];
 /** The imports in order, from `entries`: what the Log holds after each, and the Log after the last. */
 function walk(plan: Plan, entries: readonly Entry[], imports: readonly Import[], context = LISBON) {
   const after: Units[] = [];
@@ -249,6 +253,98 @@ describe("Greta's sale and the coins another import bought (the cover's date gat
     );
     expect([one.after, two.after, sold(one.log), sold(two.log)]).toEqual([['0.12409'], ['0', '0'], 0, 1]);
   });
+
+  it("a window from 11 Dec counts another import's Coins added entry for the 6 Mar sale the whole file leaves out, in either order; recorded, the left-out purchases end it", () => {
+    // Seed 93's world (WINDOW_93, step 5's exception): the whole file's F is 10 Dec, so the other import's entry of 11
+    // Dec no longer counts; the window from 13 Dec has F 13 Dec and counts it. A hand lump recording both left-out
+    // purchases leaves the starting amount nothing, so the two imports agree.
+    const [{ plan, entries, file }] = WINDOW_93;
+    const choices = { venue: 'Kraken', addHeld: false };
+    const window = { ...file, movements: file.movements.slice(1) };
+    const planned = (log: readonly Entry[], of: ExchangeFile) =>
+      planExchangeImport(of, { plan, entries: log }, choices, LISBON);
+    const after = (log: readonly Entry[], files: readonly ExchangeFile[]) => {
+      const last = files.reduce((acc, of) => applyExchangeImport(acc, planned(acc, of), NOW).entries, log);
+      return [eth(last), sold(last)];
+    };
+    const once = planned(entries, file);
+    expect(once.uncovered.map(({ units: held_, date: on, reach }) => [held_, on, reach.kind])).toEqual([
+      ['0.50046', '2026-03-06', 'starting'],
+    ]);
+    expect(once.startingAmount?.items[0]?.date).toBe('2025-12-10');
+    const part = planned(entries, window);
+    const sales = part.entries.filter((entry) => entry.kind === 'sell').map((entry) => entry.id);
+    expect([leftOutFrom(part.startingAmount, part.held).get(ETH), sales.length]).toEqual(['2025-12-13', 1]);
+    expect([...coverCut(entries, file, part, once)]).toEqual(sales);
+    expect([after(entries, [file]), after(entries, [window, file]), after(entries, [file, window])]).toEqual([
+      ['0.50046', 0],
+      ['0', 1],
+      ['0', 1],
+    ]);
+    const recorded = [
+      ...entries,
+      anEntry({
+        kind: 'lump',
+        slot: null,
+        coin: ETH,
+        date: date('2025-12-10'),
+        amount: money('1823'),
+        units: units('0.55843'),
+      }),
+    ];
+    expect(planned(recorded, file).recorded.map((item) => item.dates)).toEqual([['2025-12-10', '2025-12-13']]);
+    expect([after(recorded, [window, file]), after(recorded, [file, window])]).toEqual([
+      ['0.55843', 1],
+      ['0.55843', 1],
+    ]);
+  });
+
+  it('a prefix to 9 Mar whose hand extra buy claims the purchase the whole file leaves out stores the sale, and so do two date ranges', () => {
+    // A hand extra buy of 10 Mar claims the whole file's 11 Mar purchase, so step 3 leaves out 8 Mar's and the 9 Mar
+    // sale is uncovered; the prefix holds no 11 Mar, so the extra buy claims 8 Mar and the sale is stored.
+    const plan = aPlan({ firstBuy: date('2026-03-01'), startingAmount: money('500') });
+    const extra = { kind: 'extra' as const, slot: null, coin: BTC };
+    const log = [
+      anEntry({ ...extra, date: date('2026-03-10'), amount: money('70'), units: units('0.001'), source: 'manual' }),
+      anEntry({
+        ...extra,
+        id: testId('tr|0308'),
+        date: date('2026-03-08'),
+        amount: money('700'),
+        units: units('0.01'),
+        venue: 'Trade Republic',
+        source: 'import-csv',
+      }),
+    ];
+    const rows = [
+      trade('R1', 'purchase', 'BTC', '2026-03-08', { units: '0.01', amount: '700', fee: '0' }, 2),
+      trade('R2', 'sale', 'BTC', '2026-03-09', { units: '0.01', amount: '720', fee: '0' }, 4),
+      trade('R3', 'purchase', 'BTC', '2026-03-11', { units: '0.001', amount: '70', fee: '0' }, 6),
+    ];
+    const [whole, prefix, last] = [{ movements: rows }, { movements: rows.slice(0, 2) }, { movements: rows.slice(2) }];
+    const once = planOf(plan, log, whole);
+    expect([
+      once.recorded.map((item) => item.dates),
+      once.startingAmount?.items.map((item) => item.date),
+      once.uncovered.map((sale) => sale.date),
+    ]).toEqual([[['2026-03-11']], ['2026-03-08'], ['2026-03-09']]);
+    const first = planOf(plan, log, prefix);
+    expect([first.recorded.map((item) => item.dates), first.startingAmount, sold(first.entries)]).toEqual([
+      [['2026-03-08']],
+      null,
+      1,
+    ]);
+    const held_ = (imports: readonly Import[]) => {
+      const walked = walk(plan, log, imports).log;
+      return [btc(walked), sold(walked)];
+    };
+    expect([held_([whole]), held_([prefix, whole]), held_([whole, prefix]), held_([prefix, last])]).toEqual([
+      ['0.011', 0],
+      ['0.001', 1],
+      ['0.001', 1],
+      ['0.001', 1],
+    ]);
+  });
 });
 
 describe('each sale decided alone', () => {
@@ -364,5 +460,40 @@ describe('a one-tap starting amount in the cover', () => {
     const lump = tap('2026-06-30', '78000');
     expect(lump.map((entry) => entry.units)).toEqual(['0.01282051']);
     expect([stored(lump, [JUNE, sale('0.0128')]), stored(lump, [JUNE, sale('0.01282052')])]).toEqual([true, false]);
+  });
+
+  it("a prefix without the lump's date moves its claim to 5 Dec; its own units keep both imports' sales out", () => {
+    // Seed 13's ETH world: the one-tap lump of 30 counts at its own 0.001 ETH in either import, whichever date it claims,
+    // so neither the prefix nor the whole file stores a sale its units do not reach.
+    const plan = aPlan({ firstBuy: date('2026-03-15'), startingAmount: money('500') });
+    const tapped = anEntry({
+      kind: 'lump',
+      slot: null,
+      coin: ETH,
+      date: date('2025-12-04'),
+      amount: money('30'),
+      units: units('0.001'),
+      source: 'one-tap',
+    });
+    const ether = (ref: string, kind: 'purchase' | 'sale', day: string, figures: [string, string], line: number) =>
+      trade(ref, kind, 'ETH', day, { units: figures[0], amount: figures[1], fee: '0' }, line);
+    const prefix = {
+      movements: [
+        ether('E1', 'purchase', '2025-12-05', ['0.55623', '360.50'], 2),
+        ether('E2', 'sale', '2026-02-22T10:01:00Z', ['0.49880', '341.50'], 4),
+        ether('E3', 'sale', '2026-02-22T10:02:00Z', ['0.41170', '653.50'], 6),
+      ],
+    };
+    const whole = { movements: [...prefix.movements, ether('E4', 'purchase', '2025-12-04', ['0.16378', '674.50'], 8)] };
+    const claims = (log: readonly Entry[], file: Import) =>
+      planOf(plan, log, file).recorded.flatMap((item) => item.dates);
+    const one = walk(plan, [tapped], [prefix, whole]).log;
+    const two = walk(plan, [tapped], [whole, prefix]).log;
+    expect([claims([tapped], whole), claims([tapped], prefix), claims(one, whole)]).toEqual([
+      ['2025-12-04'],
+      ['2025-12-05'],
+      ['2025-12-04'],
+    ]);
+    expect([eth(one), sold(one), eth(two), sold(two)]).toEqual(['0.001', 0, '0.001', 0]);
   });
 });
