@@ -1104,7 +1104,9 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
 - **Standard spelling with ß, nouns and months capitalised** (`1. März 2027`); quotation marks are
   `„…“`, never `«…»`.
 - **Address the reader as `Sie`**, with `Sie`, `Ihr` and `Ihnen` capitalised, in every string, site
-  page, module, email and legal page, as the ESAs' German texts do; never `du`. Serious is not formal
+  page, module, email and legal page, as the ESAs' German texts do; never `du`. `du` would read as
+  the careful friend of §1 and `Sie` as a bank, but `Sie` keeps one voice with the ESAs' texts and
+  the legal pages, for the owner to weigh at the end of M2. Serious is not formal
   (§1.5): short active sentences, no `erfolgt` or `Durchführung`. `Ihr` only where it removes doubt:
   `der Plan`, `die Einträge`, but `Ihr privater Schlüssel` and `Ihr Bestand`.
 - **Buttons, labels and headings in the infinitive, the verb last**: `Speichern`, `Einen Kauf
