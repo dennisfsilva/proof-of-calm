@@ -14,7 +14,7 @@
     "slot-required": "Wählen Sie den Monat, für den dieser Kauf gilt.",
     "slot-not-allowed": "Nur ein Monatskauf hat einen Monat.",
     "unknown-slot": "{slot} ist kein Monat des Plans.",
-    "fee-exceeds-held": "Nach dieser Änderung deckt der Bestand die Netzwerkgebühr der Übertragung von {coin} am {date} nicht mehr ({held} davor). Prüfen Sie diese Übertragung und die Einträge davor im Protokoll.",
+    "fee-exceeds-held": "Mit dieser Änderung deckt der Bestand die Netzwerkgebühr der Übertragung von {coin} am {date} nicht mehr ({held} davor). Prüfen Sie diese Übertragung und die Einträge davor im Protokoll.",
     "sell-exceeds-held": "Dieser Verkauf übersteigt Ihren Bestand ({held} am {date}) um {excess}. Prüfen Sie den Betrag und das Datum, oder tragen Sie zuerst die fehlenden Käufe ein.",
     "slot-done": "{slot} ist bereits eingetragen. Bearbeiten oder löschen Sie diesen Eintrag im Protokoll.",
     "slot-skipped": "{slot} ist bereits übersprungen. Tragen Sie diesen Kauf als Zusatzkauf ein.",
