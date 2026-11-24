@@ -178,8 +178,12 @@ describe('§2’s German registration claim, read from the document', () => {
       for (const register of registers) {
         const claim = `${preposition} öffentlich${ending} ${register} eingetragen`;
         expect(rules(`Proof of Calm ist ${claim}.`), claim).toEqual([`advice: ${claim}`]);
+        const two = `${preposition} amtlich${ending} öffentlich${ending} ${register} eingetragen`;
+        expect(rules(`Proof of Calm ist ${two}.`), two).toEqual([`advice: ${two}`]);
         expect(
-          findBanned(`Proof of Calm ist ${preposition} neuen öffentlich${ending} ${register} eingetragen.`),
+          findBanned(
+            `Proof of Calm ist ${preposition} neu${ending} amtlich${ending} öffentlich${ending} ${register} eingetragen.`,
+          ),
         ).toEqual([]);
       }
     }
@@ -224,7 +228,10 @@ describe('§2’s German registration claim, read from the document', () => {
     for (const article of ['die', 'dem', 'den']) {
       expect(rules(`Eine ${noun} ${article} BaFin.`), article).toEqual(byItself(noun));
     }
-    expect(rules(`Eine ${noun} der neuen deutschen BaFin.`)).toEqual(byItself(noun));
+    expect(rules(`Eine ${noun} der zuständigen deutschen BaFin.`)).toEqual([
+      `advice: ${noun} der zuständigen deutschen BaFin`,
+    ]);
+    expect(rules(`Eine ${noun} der zuständigen deutschen staatlichen BaFin.`)).toEqual(byItself(noun));
   });
 
   it.each(hyphens)('counts the gap’s words with the hyphen %j, up to the bound, in both orders', (hyphen) => {
@@ -297,7 +304,7 @@ describe('§2’s German registration claim, read from the document', () => {
     expect(findBanned(text)).toEqual([]);
   });
 
-  it('passes the near misses: no regulator, an article the list leaves out, another verb, two adjectives', () => {
+  it('passes the near misses: no regulator, an article the list leaves out, another verb, three adjectives', () => {
     for (const text of [
       'Proof of Calm unterliegt keiner Aufsicht.',
       'Proof of Calm unterliegt keiner Finanzaufsicht.',
@@ -306,7 +313,7 @@ describe('§2’s German registration claim, read from the document', () => {
       'Die BaFin führt ein öffentliches Register.',
       'Im BaFin-Register stehen Anbieter mit Lizenz.',
       'Von der BaFin veröffentlicht.',
-      'Proof of Calm ist bei der zuständigen deutschen Aufsichtsbehörde registriert.',
+      'Proof of Calm ist bei der zuständigen deutschen staatlichen Aufsichtsbehörde registriert.',
       'Proof of Calm ist bei der zuständigem BaFin registriert.',
       'Proof of Calm ist bei der 2024 BaFin registriert.',
     ]) {
