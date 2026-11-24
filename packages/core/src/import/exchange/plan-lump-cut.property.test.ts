@@ -90,7 +90,10 @@ function cutDays(file: ExchangeFile, shorter: ExchangeFile) {
  * 22.9 s, each under 30 s. Measured again on 2026-11-23, after the shorter export excepts the cover's stated exception
  * (`coverCut`): the first `it`'s worst was 3.43 s (seed 2), six times it 20.6 s, and the second's 2.64 s (seed 4), 15.8 s.
  * Measured again on 2026-11-23, after the half gate (rule M), at seeds 1 to 8: the first `it`'s worst was 5.13 s (seed 5),
- * six times it 30.8 s, past a third of 90 s, so the timeout is 120 s (a third: 40 s).
+ * six times it 30.8 s, past a third of 90 s, so the timeout is 120 s (a third: 40 s). Measured again on 2026-11-24,
+ * after a doubled date above the part may be one the shorter export's lump reached (seeds 46 and 212, the first
+ * `it`'s examples), seeds 1 to 8, the lower of two runs: the first `it`'s worst was 4.07 s (seed 5; the best 3.25 s,
+ * seed 2), six times it 24.4 s, and the second's 3.08 s (seed 4), 18.5 s, each under 40 s.
  */
 const RUNS = { numRuns: 600 };
 const TIMEOUT = 120_000;
