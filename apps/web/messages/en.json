@@ -15,14 +15,13 @@
       "address": "[Owner: establishment address, not a home address]",
       "email": "[Owner: contact e-mail]",
       "nif": "[Owner: NIF or NIPC]",
-      "vat": "[Owner: VAT number]",
-      "register": "[Owner: commercial register and number, or none]",
-      "manager": "[Owner: manager, or none]",
       "privacyEmail": "[Owner: privacy e-mail]",
       "dsaEmail": "[Owner: DSA contact e-mail]",
-      "mailHost": "[Owner: mail host, its country and its transfer safeguard]",
-      "logPeriod": "[Owner: the request-log period of Vercel's plan, as a numeral with its unit, such as 1 day]",
-      "date": "[Owner: date of publication]"
+      "mailHost": "[Owner: mail host, its country, its transfer safeguard, and how long it keeps its mail logs]",
+      "date": "[Owner: date of publication]",
+      "vat": "[Owner: VAT number, or empty while no activity is opened]",
+      "register": "[Owner: commercial register and number, or empty while no activity is opened]",
+      "manager": "[Owner: manager, or empty while no activity is opened]"
     },
     "version": "Version 1, {date}.",
     "terms": {
@@ -99,7 +98,8 @@
       },
       "hosting": {
         "title": "Hosting: Vercel",
-        "p1": "Vercel Inc., in the United States, hosts the site and the server, whose functions run in Frankfurt. It receives each request your browser sends, with its internet address and browser name. It keeps its request logs for {logPeriod}.",
+        "notice": "Vercel's privacy notice",
+        "p1": "Vercel Inc., in the United States, hosts the site and the server, whose functions run in Frankfurt. It receives each request your browser sends, with its internet address and browser name. Vercel keeps the host's runtime logs for up to 1 day. Anything else Vercel keeps follows its own privacy notice.",
         "p2": "Vercel reads the country of each request, so visitors in the United Kingdom see the page that says {product} is not available there.",
         "p3": "Data reaches Vercel in the United States under the EU-U.S. Data Privacy Framework and the EU's standard contractual clauses. The legal basis is {product}'s legitimate interest in serving the site and protecting it from abuse (GDPR art. 6(1)(f))."
       },
@@ -109,7 +109,7 @@
       },
       "mail": {
         "title": "E-mail",
-        "p1": "If you write to {product}, its mail host, {mailHost}, keeps your e-mail address and your messages for 24 months after the last one, to answer follow-up questions (GDPR art. 6(1)(b) and (f)). The mail host keeps its mail logs for 30 days."
+        "p1": "If you write to {product}, its mail host, {mailHost}, keeps your e-mail address and your messages for 24 months after the last one, to answer follow-up questions (GDPR art. 6(1)(b) and (f))."
       },
       "rights": {
         "title": "Your rights",

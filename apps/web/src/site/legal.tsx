@@ -12,11 +12,20 @@ export function legalTitle(slug: LegalSlug, language: SiteLanguage = 'en'): stri
 }
 
 /**
+ * The identity fields the owner may leave empty while no activity is opened (docs/LEGAL.md §5): Contact then shows no
+ * line for them. Every other field is required once the owner fills the file in.
+ */
+export const OPTIONAL_OWNER_FIELDS = ['vat', 'register', 'manager'] as const;
+
+/**
  * The values every legal message may use: the product's name and the identity fields the owner fills in before the
  * pages are published (docs/LEGAL.md §5), each a visible `[Owner: …]` placeholder under `legal.owner` until then.
+ * A test passes another owner file.
  */
-export function legalValues(): typeof messages.legal.owner & { product: string } {
-  return { ...messages.legal.owner, product: BRAND.name };
+export function legalValues(
+  owner: typeof messages.legal.owner = messages.legal.owner,
+): typeof messages.legal.owner & { product: string } {
+  return { ...owner, product: BRAND.name };
 }
 
 type LegalPageProps = { slug: LegalSlug; children?: ReactNode };
