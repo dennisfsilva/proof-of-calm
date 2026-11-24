@@ -220,8 +220,8 @@ legal entries are "API key", "private key", the Risk page's register sentence an
 text of §5's fixed scams sentence (`legal.risk.scams.p1`)). It also flags, in English, a sentence
 with an asset name that opens with a buying, selling or holding verb on its list, and such a verb
 that opens an ICU `plural`, `select` or `selectordinal` branch with or without an asset name; in
-German, a line with an asset name that holds such a form on its list (in capitals only where a
-clause opens), a modal or advice frame with such an infinitive in any line, and such a form that
+German, a line with an asset name that holds such a form on its list (in lower case anywhere,
+with a capital only where a clause opens), a modal or advice frame with such an infinitive in any line, and such a form that
 opens an ICU branch; in Portuguese, a sentence with an asset name that holds such a form anywhere
 (the forms, the asset names and the gaps: `docs/CONTENT-STYLE.md` §2); and any percentage next to
 a gain word. Each language's rule reads every text, so the German line rule also reads English and
