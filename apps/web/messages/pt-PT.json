@@ -9,7 +9,6 @@
     "home": "Início"
   },
   "legal": {
-    "placeholder": "Esta página é publicada na íntegra antes de a {product} abrir. Até lá, o serviço não está disponível e não recolhe nada.",
     "risk": {
       "title": "Aviso sobre riscos",
       "lead": "A {product} é software para um plano definido por si. Não dá aconselhamento financeiro, de investimento nem fiscal; as moedas, os montantes e os dias de um plano são os que definir. A maioria dos criptoativos é muito volátil; pode perder todo o dinheiro investido. Use apenas dinheiro de que não precise durante anos.",
