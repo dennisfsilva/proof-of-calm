@@ -533,6 +533,72 @@ describe('the German word rows, filler words and gain patterns (docs/CONTENT-STY
   it('passes four words between the regulator and the participle', () => {
     expect(findBanned('Proof of Calm ist bei der BaFin als ein großer Krypto-Anbieter registriert.')).toEqual([]);
   });
+
+  // The participle first takes the same gap as the participle last: up to three words of letters, digits and inner
+  // hyphens (U+002D or U+2011), then the preposition and the regulator.
+  it('counts up to three words between a participle first and the regulator', () => {
+    expect(rules('Proof of Calm ist registriert als Krypto-Dienstleister bei der BaFin.')).toEqual([
+      'advice: registriert als Krypto-Dienstleister bei der BaFin',
+    ]);
+    expect(rules('Eingetragen seit 2024 bei der Finanzaufsicht.')).toEqual([
+      'advice: Eingetragen seit 2024 bei der Finanzaufsicht',
+    ]);
+    expect(rules('Registriert als ein 24‑Stunden‑Anbieter bei der BaFin.')).toEqual([
+      'advice: Registriert als ein 24‑Stunden‑Anbieter bei der BaFin',
+    ]);
+    expect(rules('Registriert als ein 24-Stunden-Anbieter bei der BaFin.')).toEqual([
+      'advice: Registriert als ein 24-Stunden-Anbieter bei der BaFin',
+    ]);
+    expect(findBanned('Registriert als ein großer Krypto-Anbieter bei der BaFin.')).toEqual([]);
+  });
+
+  it('refuses the regulator in a compound and the verbs of supervision', () => {
+    for (const [text, match] of [
+      ['Proof of Calm ist BaFin-registriert.', 'BaFin-registriert'],
+      ['Proof of Calm ist BaFin‑registriert.', 'BaFin‑registriert'],
+      ['Proof of Calm ist im BaFin-Register eingetragen.', 'im BaFin-Register eingetragen'],
+      ['Proof of Calm ist im Register der BaFin eingetragen.', 'im Register der BaFin eingetragen'],
+      ['Eingetragen ins BaFin‑Register.', 'Eingetragen ins BaFin‑Register'],
+      ['Proof of Calm unterliegt der BaFin-Aufsicht.', 'unterliegt der BaFin-Aufsicht'],
+      ['Unter BaFin‑Aufsicht.', 'BaFin‑Aufsicht'],
+      ['Proof of Calm unterliegt der Finanzaufsicht.', 'unterliegt der Finanzaufsicht'],
+      ['Proof of Calm wird von der BaFin überwacht.', 'von der BaFin überwacht'],
+      ['Proof of Calm wird von der BaFin kontrolliert.', 'von der BaFin kontrolliert'],
+      [
+        'Überwacht von der Bundesanstalt für Finanzdienstleistungsaufsicht.',
+        'Überwacht von der Bundesanstalt für Finanzdienstleistungsaufsicht',
+      ],
+      ['Kontrolliert durch die Aufsichtsbehörde.', 'Kontrolliert durch die Aufsichtsbehörde'],
+    ]) {
+      expect(rules(text ?? ''), text).toEqual([`advice: ${match}`]);
+    }
+  });
+
+  // „Prozent“ stands for „%“, and a figure joins it by a space, U+002D, the no-break hyphen U+2011 of a numeral
+  // compound (§10) or nothing.
+  it('refuses a figure hyphened to Prozent before a gain word, with either hyphen', () => {
+    expect(rules('Eine 5-Prozent-Rendite ist möglich.')).toEqual(['return-percentage: 5-Prozent-Rendite']);
+    expect(rules('Eine 5‑Prozent‑Rendite ist möglich.')).toEqual(['return-percentage: 5‑Prozent‑Rendite']);
+    expect(rules('Eine 5,5-Prozent-Verzinsung.')).toEqual(['return-percentage: 5,5-Prozent-Verzinsung']);
+    expect(rules('Eine Rendite von 5-Prozent.')).toEqual(['return-percentage: Rendite von 5-Prozent']);
+  });
+
+  // A negation, or a supervision with no regulator, names no status; the 5-Prozent-Hürde is no gain word.
+  it('passes a status that names no regulator, the statement on status and a percentage with no gain word', () => {
+    for (const text of [
+      'Proof of Calm unterliegt keiner Aufsicht.',
+      'Proof of Calm unterliegt keiner Finanzaufsicht.',
+      'Bei keiner Finanzaufsichtsbehörde registriert.',
+      'Proof of Calm ist bei keiner Finanzaufsichtsbehörde registriert und unterliegt keiner Finanzaufsicht.',
+      'Die BaFin führt ein öffentliches Register.',
+      'Im Register der BaFin stehen Anbieter mit Lizenz.',
+      'Sie haben jeden Kauf kontrolliert.',
+      'Die 5-Prozent-Hürde gilt.',
+      'Die 5‑Prozent‑Hürde gilt.',
+    ]) {
+      expect(findBanned(text), text).toEqual([]);
+    }
+  });
 });
 
 // §2's German table, read from the document itself.
