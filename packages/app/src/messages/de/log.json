@@ -39,7 +39,7 @@
     "notRestored": "{reason, select, skipped {{count, plural, one {{month} wurde übersprungen, nachdem Sie diesen Eintrag gelöscht hatten, daher bleibt er gelöscht.} other {{month} wurde übersprungen, nachdem Sie diese {figure} Einträge gelöscht hatten, daher bleiben sie gelöscht.}}} other {{count, plural, one {{month} wurde eingetragen, nachdem Sie diesen Eintrag gelöscht hatten, daher bleibt er gelöscht.} other {{month} wurde eingetragen, nachdem Sie diese {figure} Einträge gelöscht hatten, daher bleiben sie gelöscht.}}}}",
     "notRestoredReplaced": "{count, plural, one {Ein Backup hat den Plan ersetzt, nachdem Sie diesen Eintrag gelöscht hatten, daher bleibt er gelöscht.} other {Ein Backup hat den Plan ersetzt, nachdem Sie diese {figure} Einträge gelöscht hatten, daher bleiben sie gelöscht.}}",
     "notRestoredSold": "{count, plural, one {Nach dem Wiederherstellen dieses Eintrags würden dem Verkauf von {coin} am {date} Einheiten fehlen, daher bleibt er gelöscht.} other {Nach dem Wiederherstellen dieser {figure} Einträge würden dem Verkauf von {coin} am {date} Einheiten fehlen, daher bleiben sie gelöscht.}}",
-    "notRestoredOwnSale": "{count, plural, one {Nach dem Wiederherstellen würden diesem Verkauf Einheiten fehlen, daher bleibt er gelöscht.} other {Nach dem Wiederherstellen dieser {figure} Einträge würden dem Verkauf von {coin} unter ihnen Einheiten fehlen, daher bleiben sie gelöscht.}}",
+    "notRestoredOwnSale": "{count, plural, one {Nach dem Wiederherstellen würden diesem Verkauf Einheiten fehlen, daher bleibt er gelöscht.} other {Nach dem Wiederherstellen würden dem Verkauf von {coin} unter diesen {figure} Einträgen Einheiten fehlen, daher bleiben sie gelöscht.}}",
     "notRestoredFee": "{count, plural, one {Nach dem Wiederherstellen dieses Eintrags würden der Übertragung von {coin} am {date} die Einheiten für ihre Netzwerkgebühr fehlen, daher bleibt er gelöscht.} other {Nach dem Wiederherstellen dieser {figure} Einträge würden der Übertragung von {coin} am {date} die Einheiten für ihre Netzwerkgebühr fehlen, daher bleiben sie gelöscht.}}",
     "notRestoredOwnFee": "Nach dem Wiederherstellen würden dieser Übertragung die Einheiten für ihre Netzwerkgebühr fehlen, daher bleibt sie gelöscht.",
     "notRestoredFull": "{count, plural, one {Mit diesem Eintrag hätte der Plan mehr als die {max} Einträge, die ein Plan fasst, daher bleibt er gelöscht.} other {Mit diesen {figure} Einträgen hätte der Plan mehr als die {max} Einträge, die ein Plan fasst, daher bleiben sie gelöscht.}}",
@@ -62,7 +62,7 @@
     "firstBuyPast": "Noch keine Einträge. Der erste Kauftag war am {date}."
   },
   "form": {
-    "movesShort": "Nach dieser Änderung sendet die Übertragung nach {to} am {date} {short} mehr, als das Protokoll an diesem Tag außerhalb von {to} zeigt. Prüfen Sie nach dem Speichern Datum und Orte dieser Übertragung im Protokoll.",
+    "movesShort": "Mit dieser Änderung sendet die Übertragung nach {to} am {date} {short} mehr, als das Protokoll an diesem Tag außerhalb von {to} zeigt. Prüfen Sie nach dem Speichern Datum und Orte dieser Übertragung im Protokoll.",
     "title": {
       "dca": "Monatskauf eintragen",
       "lump": "Startbetrag eintragen",
@@ -124,7 +124,7 @@
     "sourceShort": "{at, select, venue {Das Protokoll zeigt am {date} {held} bei {from}.} other {Das Protokoll zeigt am {date} {held} ohne Ort.}}{found, select, yes {} other { Das Protokoll sucht die übrigen {short} in den Einheiten, die Sie an diesem Tag außerhalb von {to} hatten.}}",
     "sourceFound": "Außerhalb von {to} zeigt das Protokoll an diesem Tag insgesamt {outside}, {short} weniger, als diese Übertragung sendet.",
     "duplicate": "Das Protokoll hat diese Übertragung am {date} bereits. Speichern Sie sie nur, wenn Sie diese Coins 2‑mal übertragen haben.",
-    "laterShort": "Nach dieser Übertragung sendet die Übertragung nach {to} am {date} {short} mehr, als das Protokoll an diesem Tag außerhalb von {to} zeigt. Betreffen beide dieselbe Auszahlung, lassen Sie nur eine davon im Protokoll. Wenn nicht, prüfen Sie die Einheiten, die diese Übertragung sendet.",
+    "laterShort": "Mit dieser Übertragung sendet die spätere Übertragung nach {to} am {date} {short} mehr, als das Protokoll an diesem Tag außerhalb von {to} zeigt. Betreffen beide dieselbe Auszahlung, lassen Sie nur eine davon im Protokoll. Wenn nicht, prüfen Sie die Einheiten, die diese Übertragung sendet.",
     "saleShort": "Durch die Netzwerkgebühr dieser Übertragung fehlen dem Verkauf von {coin} am {date} Einheiten. Prüfen Sie die erhaltenen Einheiten anhand der Einzahlung oder ändern Sie zuerst diesen Verkauf.",
     "feeShort": "Durch die Netzwerkgebühr dieser Übertragung fehlen der Übertragung von {coin} am {date} die Einheiten für ihre Netzwerkgebühr. Prüfen Sie die erhaltenen Einheiten anhand der Einzahlung.",
     "ownFeeShort": "Die Netzwerkgebühr dieser Übertragung braucht mehr Einheiten, als Ihre anderen Einträge zu {coin} dafür übrig lassen. Prüfen Sie die erhaltenen Einheiten anhand der Einzahlung.",
