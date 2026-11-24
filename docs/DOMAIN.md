@@ -1494,8 +1494,11 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   line names a gain, a loss, tax due, a
   rate or an allowance, calls a row exempt, tax-free or taxable, or calls the file complete or ready to file.
   The header lines follow the UI language (D10, decided 2026-11-16): `useTaxYearWords` reads them from
-  `settings.data.taxYear.file` of the language shown, pt-PT's own since 2026-11-16, English for every other
-  language. The column names stay the core's identifiers in every language, and the cells keep their formats
+  `settings.data.taxYear.file` of the language shown, pt-PT's own since 2026-11-16, German's own since
+  2026-11-24, English for a language whose messages write no header (`HEADER_LANGUAGES` in
+  `packages/app/src/features/settings/tax-year.ts`). The country forms come from the language of those words:
+  a header in English words names the country in English's forms, never „für Deutschland“ in an English
+  line. The column names stay the core's identifiers in every language, and the cells keep their formats
   (`YYYY-MM-DD`, a decimal point, `yes` and `no`), so a spreadsheet or an accountant reads one file shape. No
   header line holds a `;`, the list separator a comma-decimal spreadsheet splits a cell on: the app's own words
   hold none in any language (`packages/app/src/features/settings/tax-year.test.ts`), and `pnpm validate:content`
