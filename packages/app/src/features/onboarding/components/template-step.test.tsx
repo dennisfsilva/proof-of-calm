@@ -16,6 +16,8 @@ import { createFormatters, type Formatters } from '../../../lib/format';
 import { I18nProvider, localesFor } from '../../../lib/i18n';
 import onboarding from '../../../messages/en/onboarding.json';
 import shell from '../../../messages/en/shell.json';
+import german from '../../../messages/de/onboarding.json';
+import germanShell from '../../../messages/de/shell.json';
 import portuguese from '../../../messages/pt-PT/onboarding.json';
 import { type TemplateChoice, TemplateStep } from './template-step';
 
@@ -444,5 +446,41 @@ describe('TemplateStep in pt-PT (ADR-0057)', () => {
     await mountPortuguese({ kind: 'template', id: 'cycle-plan' });
     await act(() => fireEvent.click(screen.getByRole('button', { name: portuguese.template.about })));
     expect(document.querySelector('[lang]')).toBeNull();
+  });
+});
+
+// A German UI writes a percentage in the plan's country's number format (docs/CONTENT-STYLE.md §4 and §10), never the
+// language's: `40%` on a Portuguese plan, `40 %` with U+00A0 on a German one.
+describe('TemplateStep in German', () => {
+  async function mountGerman(code: string) {
+    const profile = await loadProfile(code);
+    if (profile === null) throw new Error(`no profile ${code}`);
+    const locales = localesFor('de', countryRules(profile));
+    const texts = await loadTemplateTexts('de');
+    render(
+      <I18nProvider locale="de" messages={{ onboarding: german, shell: germanShell }}>
+        <TemplateStep
+          value={{ kind: 'template', id: 'cycle-plan' }}
+          format={createFormatters(locales.numbers, locales.ui)}
+          texts={texts}
+          onChoose={vi.fn()}
+          onBack={vi.fn()}
+        />
+      </I18nProvider>,
+    );
+    await act(() => fireEvent.click(screen.getByRole('button', { name: german.template.about })));
+    return document.body.textContent ?? '';
+  }
+
+  it('writes 40% on a Portuguese plan', async () => {
+    const text = await mountGerman('PT');
+    expect(text).toContain('40% Bitcoin, 30% Ethereum');
+    expect(text).not.toMatch(/\d[\s ]%/u);
+  });
+
+  it('writes 40 % with U+00A0 on a German plan', async () => {
+    const text = await mountGerman('DE');
+    expect(text).toContain(`40${NO_BREAK}% Bitcoin, 30${NO_BREAK}% Ethereum`);
+    expect(text).not.toMatch(/\d %/);
   });
 });
