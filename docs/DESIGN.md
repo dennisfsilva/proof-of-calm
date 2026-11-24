@@ -474,6 +474,11 @@ the form), so it waits for a screen that does. Notes, and the values this docume
   `packages/app/src/features/today/components/red-day-banner.tsx` styles as a default-size secondary
   button: its German label was 352 px on one line in a 308 px row at zoom-125, past its card and the
   page (measured 2026-11-23; the German red-day case in `apps/web/e2e/language-layout.spec.ts`).
+  The button's base keeps `shrink-0`, so a button that shares a flex row with a `w-full` input sits in
+  a `flex min-w-0` wrapper and the input in a `flex min-w-20 flex-1` one: the input keeps room for an
+  amount and the label wraps in the rest. Without them the pt-PT fill-all button (`log.move.all`) of
+  `packages/app/src/features/log/components/move-form.tsx` crossed the move sheet at 125 % text
+  (2026-11-24; the pt-PT move-sheet case in the same spec).
 - **Tabs.** The list never scrolls sideways: the tabs share its width and a long label wraps onto a
   second, balanced line, so four tabs fit a 360 px phone at 125 % text. The list is padded by the focus
   ring's extent (§6), so nothing clips a focused tab's ring, and the active tab's 2 px `ink` underline
