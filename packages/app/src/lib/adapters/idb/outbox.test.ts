@@ -1,7 +1,9 @@
 // @vitest-environment node
-// No outbox copy before M3's sync (ADR-0019 Readings, 2026-11-24): no write puts one, and every open
-// empties the store at version 1. The previous build wrote a copy of each plan and entry row; these tests
-// put such copies in raw, as it did, and prove both directions of a rollback.
+// No outbox copy and no random device id before M3's sync (ADR-0019 Readings, 2026-11-24): no write puts
+// a copy, every row is stamped with the one local id, and every open empties the store and rewrites the
+// ids at version 1. The previous build wrote a copy of each plan and entry row and stamped them with a
+// random id it kept in meta; these tests put such copies and ids in raw, as it did, and prove both
+// directions of a rollback.
 import 'fake-indexeddb/auto';
 import type { EntityId } from '@proofofcalm/core';
 import { anEntry, aPlan, instant } from '@proofofcalm/core/testing';
@@ -9,11 +11,13 @@ import { IDBFactory } from 'fake-indexeddb';
 import { deleteDB, openDB } from 'idb';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { type IdbPlanStoreOptions, idbPlanStore } from '../idb-store';
-import { DATABASE_NAME, MIGRATIONS, openDatabase, type StoreName } from './database';
+import { DATABASE_NAME, DEVICE_ID_KEY, LOCAL_DEVICE_ID, MIGRATIONS, openDatabase, type StoreName } from './database';
+import { CORRUPT_KEY } from './quarantine';
 import { PREVIOUS_BUILD } from './rows.testing';
 
 const clock = { now: () => instant('2026-10-17T09:00:00.000Z') };
-const randomUUID = () => '0f5c1a3e-8d2b-4c6f-9a7e-1b2c3d4e5f60' as EntityId;
+/** The random id the previous build made once per browser and stamped on every row it wrote. */
+const RANDOM = '3b9e2f4a-6c1d-4e8b-a5f7-2d9c8b7a6e51' as EntityId;
 
 beforeEach(() => {
   globalThis.indexedDB = new IDBFactory();
@@ -24,7 +28,7 @@ async function withStore<T>(
   step: (store: ReturnType<typeof idbPlanStore>) => Promise<T>,
   options: Partial<IdbPlanStoreOptions> = {},
 ): Promise<T> {
-  const store = idbPlanStore({ clock, randomUUID, ...options });
+  const store = idbPlanStore({ clock, ...options });
   try {
     return await step(store);
   } finally {
@@ -62,6 +66,43 @@ async function putCopies(): Promise<void> {
     db.close();
   }
 }
+
+/** The keys in meta, where the previous build kept its device id. */
+async function metaKeys(): Promise<IDBValidKey[]> {
+  const db = await openDB(DATABASE_NAME);
+  try {
+    return await db.getAllKeys('meta');
+  } finally {
+    db.close();
+  }
+}
+
+async function put(store: StoreName, value: unknown, key?: string): Promise<void> {
+  const db = await openDB(DATABASE_NAME);
+  try {
+    await db.put(store, value, key);
+  } finally {
+    db.close();
+  }
+}
+
+/** What the previous build's next write leaves: its random id in meta, stamped on the rows it writes. */
+async function stampAsPreviousBuild(): Promise<void> {
+  const db = await openDB(DATABASE_NAME);
+  try {
+    await db.put('meta', RANDOM, DEVICE_ID_KEY);
+    for (const name of ['plans', 'entries'] as const) {
+      for (const row of (await db.getAll(name)) as Record<string, unknown>[]) {
+        await db.put(name, { ...row, deviceId: RANDOM });
+      }
+    }
+  } finally {
+    db.close();
+  }
+}
+
+const stampedLocal = (rows: readonly unknown[]) =>
+  rows.map((row) => ({ ...(row as Record<string, unknown>), deviceId: LOCAL_DEVICE_ID }));
 
 /** A plan replaced by another (a tombstone among the rows) and entries, one of them deleted. */
 async function written() {
@@ -114,7 +155,7 @@ describe('the outbox before the sync (ADR-0019 Readings, 2026-11-24)', () => {
       throw new DOMException('The disk is full.', 'QuotaExceededError');
     });
 
-    const store = idbPlanStore({ clock, randomUUID });
+    const store = idbPlanStore({ clock });
     await expect(store.load()).rejects.toThrow('The disk is full.');
     clear.mockRestore();
     expect(await store.load()).toStrictEqual(snapshot);
@@ -140,5 +181,80 @@ describe('the outbox before the sync (ADR-0019 Readings, 2026-11-24)', () => {
     await deleteDB(DATABASE_NAME, { blocked });
     expect(blocked).not.toHaveBeenCalled();
     expect(closed).not.toHaveBeenCalled();
+  });
+});
+
+describe('the device id before the sync (ADR-0019 Readings, 2026-11-24)', () => {
+  it('forward: this build replaces the random device id a previous build stored with the local id and reads every row otherwise unchanged', async () => {
+    const snapshot = await written();
+    await stampAsPreviousBuild();
+    const [plans, entries] = [await raw('plans'), await raw('entries')];
+
+    expect(await withStore((store) => store.load())).toStrictEqual(snapshot);
+    expect(await metaKeys()).not.toContain(DEVICE_ID_KEY);
+    expect(await raw('plans')).toStrictEqual(stampedLocal(plans));
+    expect(await raw('entries')).toStrictEqual(stampedLocal(entries));
+    expect(await version()).toBe(1);
+  });
+
+  it('rollback: the previous build reads rows stamped with the local id, and the random id it stores is gone at this build’s next open', async () => {
+    const snapshot = await written();
+    const [plans, entries] = [await raw('plans'), await raw('entries')];
+    expect(await metaKeys()).not.toContain(DEVICE_ID_KEY);
+    expect([...plans, ...entries].map((row) => (row as { deviceId: unknown }).deviceId)).toStrictEqual(
+      Array.from({ length: 5 }, () => LOCAL_DEVICE_ID),
+    );
+    expect(await withStore((store) => store.load(), { rowVersions: PREVIOUS_BUILD })).toStrictEqual(snapshot);
+
+    await stampAsPreviousBuild(); // the previous build's next write, after the rollback
+    expect(await withStore((store) => store.load())).toStrictEqual(snapshot);
+    expect(await metaKeys()).not.toContain(DEVICE_ID_KEY);
+    expect(await raw('plans')).toStrictEqual(plans);
+    expect(await raw('entries')).toStrictEqual(entries);
+  });
+
+  it('leaves a row that fails the row check as it was, so the load sets it aside, its random id included', async () => {
+    await written();
+    await stampAsPreviousBuild();
+    const [first, second, third] = (await raw('entries')) as Record<string, unknown>[];
+    const badDevice = { ...first, deviceId: 'not-a-device' };
+    const badPayload = { ...second, payload: null };
+    await put('entries', badDevice);
+    await put('entries', badPayload);
+
+    expect((await withStore((store) => store.load())).quarantined).toBe(2);
+    const db = await openDB(DATABASE_NAME);
+    const corrupt = (await db.get('meta', CORRUPT_KEY)) as { raw: unknown }[];
+    db.close();
+    expect(corrupt.map((item) => item.raw)).toStrictEqual(expect.arrayContaining([badDevice, badPayload]));
+    expect(await raw('entries')).toStrictEqual(stampedLocal([third]));
+  });
+
+  it('keeps a row of a later version byte for byte, its random id included', async () => {
+    await written();
+    await stampAsPreviousBuild();
+    const [first] = (await raw('entries')) as Record<string, unknown>[];
+    const later = { ...first, schemaVersion: 5, keyId: 'k1' };
+    await put('entries', later);
+
+    await withStore((store) => store.load());
+    expect(await raw('entries')).toContainEqual(later);
+    expect(await raw('plans')).toStrictEqual(stampedLocal(await raw('plans')));
+  });
+
+  it('rejects the open when a row cannot be rewritten, keeps the old id until then, and the next open rewrites it', async () => {
+    const snapshot = await written();
+    await stampAsPreviousBuild();
+    const failing = vi.spyOn(IDBObjectStore.prototype, 'put').mockImplementationOnce(() => {
+      throw new DOMException('The disk is full.', 'QuotaExceededError');
+    });
+
+    const store = idbPlanStore({ clock });
+    await expect(store.load()).rejects.toThrow('The disk is full.');
+    failing.mockRestore();
+    expect(await metaKeys()).toContain(DEVICE_ID_KEY);
+    expect(await store.load()).toStrictEqual(snapshot);
+    await store.close();
+    expect(await metaKeys()).not.toContain(DEVICE_ID_KEY);
   });
 });

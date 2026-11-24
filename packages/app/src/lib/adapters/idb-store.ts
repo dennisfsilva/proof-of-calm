@@ -1,11 +1,11 @@
 // The PlanStore of ADR-0019 on IndexedDB through idb: the database is read whole into one snapshot at
 // startup (and again when another tab writes), and each change is written in one transaction. Rows have
 // the sync shape (idb/rows.ts); every row read passes its schema or is set aside (idb/quarantine.ts);
-// no write puts a copy in the outbox before M3's sync (ADR-0019 Readings, 2026-11-24).
+// no write puts a copy in the outbox before M3's sync, and every row is stamped with the one local device
+// id (ADR-0019 Readings, 2026-11-24).
 import {
   DEFAULT_PREFS,
   type EntityId,
-  EntityIdSchema,
   type Entry,
   type Instant,
   type Plan,
@@ -19,6 +19,7 @@ import { assertStorableChanges, issueCodes } from './checks';
 import { pricesKept } from './history';
 import {
   type Database,
+  LOCAL_DEVICE_ID,
   MIGRATIONS,
   type Migration,
   openDatabase,
@@ -45,14 +46,10 @@ import {
 
 const PREFS_KEY = 'device';
 const PRICES_KEY = 'latest';
-const DEVICE_ID_KEY = 'deviceId';
 const LOAD_STORES: StoreName[] = ['plans', 'entries', 'prefs', 'prices', 'history', 'meta'];
-const META: StoreName[] = ['meta'];
 
 export type IdbPlanStoreOptions = {
   readonly clock: Pick<Clock, 'now'>;
-  /** Makes the device id, once: crypto.randomUUID unless a test brings its own. */
-  readonly randomUUID?: () => string;
   /** The schema versions; a test appends a synthetic next one. */
   readonly migrations?: readonly Migration[];
   /** The payload versions the rows are read and written at; a test passes the previous build's. */
@@ -60,7 +57,7 @@ export type IdbPlanStoreOptions = {
 };
 
 export type IdbPlanStore = PlanStore & {
-  /** This device's id, made once and kept in meta; it stamps every row the device writes. */
+  /** The id that stamps every row: the local one, the same in every browser, until M3's sync (ADR-0019 Readings). */
   deviceId(): Promise<EntityId>;
   /** Closes the connection; the next call opens it again. */
   close(): Promise<void>;
@@ -93,7 +90,7 @@ function touches(changes: Changes) {
   const synced = changes.plan !== undefined || entries > 0;
   const prefsChanged = changes.prefs !== undefined || changes.changedAt !== undefined;
   const stores: StoreName[] = [
-    ...(synced ? (['plans', 'meta'] as const) : []),
+    ...(synced ? (['plans'] as const) : []),
     ...(entries > 0 ? (['entries'] as const) : []),
     ...(prefsChanged ? (['prefs'] as const) : []),
     ...(changes.prices === undefined ? [] : (['prices'] as const)),
@@ -103,7 +100,6 @@ function touches(changes: Changes) {
 
 export function idbPlanStore(options: IdbPlanStoreOptions): IdbPlanStore {
   const { clock, migrations = MIGRATIONS, rowVersions = ROW_SCHEMA_VERSIONS } = options;
-  const randomUUID = options.randomUUID ?? (() => crypto.randomUUID());
   let connection: Promise<Database> | null = null;
 
   /** Drops a connection that closed or failed to open, unless a newer one has taken its place. */
@@ -113,7 +109,7 @@ export function idbPlanStore(options: IdbPlanStoreOptions): IdbPlanStore {
 
   function connect(): Promise<Database> {
     if (connection !== null) return connection;
-    const opening: Promise<Database> = openDatabase(migrations, { closed: () => forget(opening) }).catch(
+    const opening: Promise<Database> = openDatabase(migrations, { closed: () => forget(opening) }, rowVersions).catch(
       (error: unknown) => {
         forget(opening);
         throw error;
@@ -123,21 +119,6 @@ export function idbPlanStore(options: IdbPlanStoreOptions): IdbPlanStore {
     return opening;
   }
 
-  /** The id in meta, or a new one; an unreadable id is set aside like any row and replaced. */
-  async function deviceIdIn(meta: Store<'meta'>, now: Instant): Promise<EntityId> {
-    const raw = await meta.get(DEVICE_ID_KEY);
-    const stored = EntityIdSchema.safeParse(raw);
-    if (stored.success) return stored.data;
-    if (raw !== undefined) {
-      const { list } = quarantineList(await meta.get(CORRUPT_KEY), now);
-      const item = quarantineRecord('meta', DEVICE_ID_KEY, raw, issueCodes(stored.error.issues, null), now);
-      await meta.put([...list, item], CORRUPT_KEY);
-    }
-    const fresh = EntityIdSchema.parse(randomUUID());
-    await meta.put(fresh, DEVICE_ID_KEY);
-    return fresh;
-  }
-
   /**
    * One live plan at a time: a plan with another id tombstones the old one, null tombstones it. Entry
    * rows are stamped with the plan live after the write. A stored entry of a later version is never written
@@ -145,7 +126,7 @@ export function idbPlanStore(options: IdbPlanStoreOptions): IdbPlanStore {
    * held at a later version.
    */
   async function writeSynced(tx: Tx, plan: Plan | null | undefined, entries: readonly Entry[], now: Instant) {
-    const deviceId = await deviceIdIn(tx.objectStore('meta'), now);
+    const deviceId = LOCAL_DEVICE_ID;
     const plans = tx.objectStore('plans');
     const stored = (await plans.getAll()).flatMap((raw) => {
       const read = readPlanRow(raw, rowVersions);
@@ -365,9 +346,7 @@ export function idbPlanStore(options: IdbPlanStoreOptions): IdbPlanStore {
     history: idbHistoryCache(connect),
 
     async deviceId() {
-      const tx = (await connect()).transaction(META, 'readwrite');
-      const [id] = await Promise.all([deviceIdIn(tx.objectStore('meta'), clock.now()), tx.done]);
-      return id;
+      return LOCAL_DEVICE_ID;
     },
 
     async close() {

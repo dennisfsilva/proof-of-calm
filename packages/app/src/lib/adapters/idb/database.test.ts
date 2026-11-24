@@ -12,7 +12,6 @@ import { idbPlanStore } from '../idb-store';
 import { DATABASE_NAME, MIGRATIONS, type Migration, openDatabase } from './database';
 
 const clock = { now: () => instant('2026-10-17T09:00:00.000Z') };
-const randomUUID = () => '0f5c1a3e-8d2b-4c6f-9a7e-1b2c3d4e5f60';
 
 beforeEach(() => {
   globalThis.indexedDB = new IDBFactory();
@@ -20,7 +19,7 @@ beforeEach(() => {
 
 /** A version 1 database holding a plan and entries written before the plan existed (planId null). */
 async function v1Fixture() {
-  const store = idbPlanStore({ clock, randomUUID });
+  const store = idbPlanStore({ clock });
   const plan = aPlan();
   const entries = [anEntry(), anEntry()];
   await store.write({ entries });
@@ -65,7 +64,7 @@ describe('database and migrations', () => {
   it('runs a new version once over a version 1 database and keeps its data', async () => {
     const { plan, entries, snapshot } = await v1Fixture();
     const v2 = vi.fn(backfillPlanIds);
-    const store = idbPlanStore({ clock, randomUUID, migrations: [...MIGRATIONS, v2] });
+    const store = idbPlanStore({ clock, migrations: [...MIGRATIONS, v2] });
     expect(await store.load()).toStrictEqual(snapshot);
     expect(v2).toHaveBeenCalledTimes(1);
     await store.close();
@@ -76,7 +75,7 @@ describe('database and migrations', () => {
     expect(database.transaction('entries').store.indexNames.contains('deletedAt')).toBe(true);
     database.close();
 
-    const again = idbPlanStore({ clock, randomUUID, migrations: [...MIGRATIONS, v2] });
+    const again = idbPlanStore({ clock, migrations: [...MIGRATIONS, v2] });
     expect(await again.load()).toStrictEqual(snapshot);
     expect(v2).toHaveBeenCalledTimes(1);
     await again.close();
@@ -88,18 +87,18 @@ describe('database and migrations', () => {
       await backfillPlanIds(database, transaction);
       throw new Error('migration 2 failed');
     };
-    const store = idbPlanStore({ clock, randomUUID, migrations: [...MIGRATIONS, failing] });
+    const store = idbPlanStore({ clock, migrations: [...MIGRATIONS, failing] });
     await expect(store.load()).rejects.toThrow('migration 2 failed');
 
     const database = await openDB(DATABASE_NAME);
     expect(database.version).toBe(1);
     expect(database.transaction('entries').store.indexNames.contains('deletedAt')).toBe(false);
     database.close();
-    const v1 = idbPlanStore({ clock, randomUUID });
+    const v1 = idbPlanStore({ clock });
     expect(await v1.load()).toStrictEqual(snapshot);
     await v1.close();
     // The failed upgrade let go of its connection: the fixed migration can run next.
-    const fixed = idbPlanStore({ clock, randomUUID, migrations: [...MIGRATIONS, backfillPlanIds] });
+    const fixed = idbPlanStore({ clock, migrations: [...MIGRATIONS, backfillPlanIds] });
     expect(await fixed.load()).toStrictEqual(snapshot);
     await fixed.close();
   });
