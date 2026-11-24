@@ -233,6 +233,17 @@ The decision stands; these are the choices its text left open, made while implem
   With pt-PT approved (#268, 2026-11-16), a pt-PT acknowledgement writes a v4 row, which the build
   before #275 answers with the newer-version screen. So the branch that approves pt-PT merges only
   after a production deployment that holds #275's reader.
+- **2026-11-24, no outbox copy before the sync** (replaces Outbox, and "with their outbox copies"
+  under Write order). No write puts a copy in `outbox` until M3's sync: a copy kept for a function
+  the app does not offer is not one the person asked for (`docs/LEGAL.md` §9, settled 2026-11-23).
+  Every open empties the store (`emptyOutbox` in `idb/database.ts`) after the upgrade, at version 1:
+  emptying changes no store, key or index, so it is not a schema change. It is not a numbered
+  migration because the first version bump locks a rolled-back deployment and every older tab out
+  with a `VersionError` (The database, above). An older build, after a rollback or in an old tab, may
+  write copies again; this build's next open clears them. The `outbox` store stays, keyed
+  `[store, id]`: M3 marks every row pending at sign-in (ADR-0021, local-only to account) and removes
+  the clear in the branch that first writes pending records. The read tests are
+  `packages/app/src/lib/adapters/idb/outbox.test.ts`.
 
 ## Disagreement
 
