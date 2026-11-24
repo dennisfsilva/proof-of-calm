@@ -16,19 +16,28 @@ const PortfolioScreen = lazyScreen('portfolio', () =>
   import('../portfolio').then((m) => ({ default: m.PortfolioScreen })),
 );
 const LogScreen = lazyScreen('log', () => import('../log').then((m) => ({ default: m.LogScreen })));
-const PlanScreen = lazyScreen('plan', () => import('../plan').then((m) => ({ default: m.PlanScreen })));
-const ReviewScreen = lazyScreen('plan', () => import('../plan').then((m) => ({ default: m.ReviewScreen })));
+// A screen whose messages name a country takes it through its forms (docs/CONTENT-STYLE.md §9): the `countries`
+// messages load with Plan, Review, Settings, Learn and Onboarding.
+const PlanScreen = lazyScreen('plan', () =>
+  Promise.all([import('../plan'), loadNamespace('countries')]).then(([m]) => ({ default: m.PlanScreen })),
+);
+const ReviewScreen = lazyScreen('plan', () =>
+  Promise.all([import('../plan'), loadNamespace('countries')]).then(([m]) => ({ default: m.ReviewScreen })),
+);
 // Settings' Plan and Coins & split tabs are the plan feature's editors: their messages load with the screen.
 const SettingsScreen = lazyScreen('settings', () =>
-  Promise.all([import('../settings'), loadNamespace('plan')]).then(([m]) => ({ default: m.SettingsScreen })),
+  Promise.all([import('../settings'), loadNamespace('plan'), loadNamespace('countries')]).then(([m]) => ({
+    default: m.SettingsScreen,
+  })),
 );
-// The country cards name their country through its forms: the `countries` messages load with the screen.
 const LearnScreen = lazyScreen('learn', () =>
   Promise.all([loadLearnScreen(), loadNamespace('countries')]).then(([m]) => m),
 );
 // Onboarding's numbers step shows the plan feature's early-window notice: its messages load with the screen.
 const OnboardingScreen = lazyScreen('onboarding', () =>
-  Promise.all([import('../onboarding'), loadNamespace('plan')]).then(([m]) => ({ default: m.OnboardingScreen })),
+  Promise.all([import('../onboarding'), loadNamespace('plan'), loadNamespace('countries')]).then(([m]) => ({
+    default: m.OnboardingScreen,
+  })),
 );
 // `lazyScreen` takes screens without props: this one takes the version it records, so it spells the helper out.
 const Reacknowledge = lazy(async () => {

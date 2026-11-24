@@ -8,6 +8,7 @@ import { ServicesProvider } from '../../lib/services';
 import { fixtureSnapshot } from '../../lib/services/fixtures';
 import { createTestServices, preloadLazyModules } from '../../lib/services/testing';
 import errors from '../../messages/en/errors.json';
+import shellMessages from '../../messages/en/shell.json';
 import today from '../../messages/en/today.json';
 import { AppRoutes } from './index';
 
@@ -19,13 +20,27 @@ vi.mock('@proofofcalm/content', async (original) =>
     await original<typeof import('@proofofcalm/content')>(),
   ),
 );
-vi.mock('../../lib/i18n/namespaces', async (original) =>
-  (await import('../../lib/services/testing-modules')).namespacesInMemory(
+// The `countries` loads are counted: each screen whose messages name a country loads them with it.
+const countriesLoads = vi.hoisted(() => ({ count: 0 }));
+vi.mock('../../lib/i18n/namespaces', async (original) => {
+  const module = await (await import('../../lib/services/testing-modules')).namespacesInMemory(
     await original<typeof import('../../lib/i18n/namespaces')>(),
-  ),
-);
+  );
+  const load = module.NAMESPACE_LOADERS.en.countries;
+  module.NAMESPACE_LOADERS.en.countries = () => {
+    countriesLoads.count += 1;
+    return load();
+  };
+  return module;
+});
 
-afterEach(cleanup);
+const logged = vi.spyOn(console, 'error');
+afterEach(() => {
+  cleanup();
+  const missing = logged.mock.calls.filter((call) => String(call[0]).includes('MISSING_MESSAGE'));
+  logged.mockClear();
+  expect(missing).toEqual([]);
+});
 
 // The screens' modules and namespaces load while the file loads, outside any test's or hook's timeout,
 // so a findBy below waits on renders, not on Vite's first transform of a chunk (seconds under load);
@@ -47,7 +62,7 @@ const shell = (initialPath: string) =>
     <NavigationProvider location="memory" initialPath={initialPath}>
       {/* The screens that read the plan need the services; not started, so the snapshot stays empty. */}
       <ServicesProvider services={createTestServices()}>
-        <I18nProvider messages={{ today }}>
+        <I18nProvider messages={{ shell: shellMessages, today }}>
           <AppRoutes />
           <Path />
         </I18nProvider>
@@ -76,11 +91,22 @@ describe('AppRoutes', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Portfolio' })).toBeDefined();
   });
 
+  // The screens whose messages name a country (docs/CONTENT-STYLE.md §9); each test is that route's first visit.
+  const namesCountry = new Set(['/plan', '/settings', '/learn', '/onboarding']);
+
   it.each(screens)('%s renders its heading and no main', async (path, name) => {
+    const before = countriesLoads.count;
     shell(path);
     expect(await screen.findByRole('heading', { level: 1, name })).toBeDefined();
     expect(screen.getByTestId('path').textContent).toBe(path);
     expect(screen.queryByRole('main')).toBeNull();
+    expect(countriesLoads.count - before).toBe(namesCountry.has(path) ? 1 : 0);
+  });
+
+  it('/plan/review loads the country forms with the screen', async () => {
+    const before = countriesLoads.count;
+    shell('/plan/review');
+    await vi.waitFor(() => expect(countriesLoads.count - before).toBe(1));
   });
 
   // Today imports the feature for its link, so the feature's index must not pull the screen in with it.
@@ -155,7 +181,7 @@ describe('AppRoutes', () => {
       const view = render(
         <NavigationProvider location="memory" initialPath={initialPath}>
           <ServicesProvider services={services}>
-            <I18nProvider messages={{ errors, today }}>
+            <I18nProvider messages={{ errors, shell: shellMessages, today }}>
               <AppRoutes riskWording={riskWording} />
               <Path />
             </I18nProvider>

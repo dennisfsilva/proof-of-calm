@@ -2,13 +2,14 @@
 import { GENERIC_COUNTRY, loadProfiles } from '@proofofcalm/content';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { Suspense } from 'react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { systemClock } from '../../../lib/adapters/clock';
 import { I18nProvider } from '../../../lib/i18n';
 import { NavigationProvider, Route, usePathname } from '../../../lib/navigation';
 import { ServicesProvider } from '../../../lib/services';
 import { createCountries } from '../../../lib/services/countries';
 import { createTestServices, type TestServicesOptions } from '../../../lib/services/testing';
+import countries from '../../../messages/en/countries.json';
 import learn from '../../../messages/en/learn.json';
 import shell from '../../../messages/en/shell.json';
 import { GENERIC, GERMANY, PORTUGAL } from '../fixtures/profiles';
@@ -19,7 +20,13 @@ import { LearnScreen } from './learn-screen';
 // names are read from the profiles, never written here, so a profile's rewording cannot break the test. The screens
 // read the test services' countries port, whose profiles load once per file and answer from memory.
 
-afterEach(cleanup);
+const logged = vi.spyOn(console, 'error');
+afterEach(() => {
+  cleanup();
+  const missing = logged.mock.calls.filter((call) => String(call[0]).includes('MISSING_MESSAGE'));
+  logged.mockClear();
+  expect(missing).toEqual([]);
+});
 
 /** The names the list shows: the test services' profiles (loaded as `testing.ts` loads them) but the generic one, by name. */
 const NAMES = (await loadProfiles())
@@ -37,7 +44,7 @@ async function mount(initialPath: string, nowMs?: number, options: TestServicesO
     render(
       <NavigationProvider location="memory" initialPath={initialPath}>
         <ServicesProvider services={services}>
-          <I18nProvider messages={{ learn, shell }}>
+          <I18nProvider messages={{ countries, learn, shell }}>
             <Suspense fallback={<p>pending</p>}>
               <Route path="/learn" nest>
                 <LearnScreen />
