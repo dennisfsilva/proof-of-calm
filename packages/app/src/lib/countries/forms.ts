@@ -11,7 +11,7 @@ import { useTranslations } from 'use-intl';
 // their role, since English is the source every translator reads.
 
 export const COUNTRY_FORMS = ['name', 'the', 'in', 'for', 'from', 'to', 'with'] as const;
-export type CountryForm = (typeof COUNTRY_FORMS)[number];
+type CountryForm = (typeof COUNTRY_FORMS)[number];
 
 export const COUNTRY_SLOTS = ['country', 'old', 'new'] as const;
 export type CountrySlot = (typeof COUNTRY_SLOTS)[number];
