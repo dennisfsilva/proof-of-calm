@@ -68,6 +68,7 @@ export function countryOptions(loaded: readonly (CountryRules | null)[]): readon
   const known = loaded.filter((rules): rules is CountryRules => rules !== null);
   const named = known
     .filter((rules) => rules.code !== GENERIC_COUNTRY)
+    // English collation orders every UI language's names as its own does (lib/countries/forms.test.ts).
     .sort((a, b) => a.name.localeCompare(b.name, 'en'));
   return [...named, ...known.filter((rules) => rules.code === GENERIC_COUNTRY)];
 }
