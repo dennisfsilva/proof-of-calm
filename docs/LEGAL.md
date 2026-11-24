@@ -225,8 +225,8 @@ with a capital only where a clause opens), a modal or advice frame with such an 
 opens an ICU branch; in Portuguese, a sentence with an asset name that holds such a form anywhere
 (the forms, the asset names and the gaps: `docs/CONTENT-STYLE.md` §2); and any percentage next to
 a gain word. Each language's rule reads every text, so the German line rule also reads English and
-refuses, beside an asset name, the English words spelled like its forms (`spare`, `spar`, `halt`,
-`hole`, `staple`): a deliberate over-refusal, which English copy avoids.
+refuses, beside an asset name, the English words spelled like its forms (the words and the
+over-refusal: `docs/CONTENT-STYLE.md` §2).
 Template names need a human sign-off.
 
 The counsel checklist, answered for every change to messages, content, Learn, emails, site pages or
