@@ -408,7 +408,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
       'Fica 1 estimativa de «Comprado como planeado»: as compras importadas da mesma moeda e do mesmo mês somam ' +
         'menos de metade dela.',
     );
-    expect(lines('Estimativas que mantém (1)')).toEqual([
+    expect(lines('Estimativas que ficam (1)')).toEqual([
       expect.stringMatching(
         /^Na compra mensal de outubro de 2026, a estimativa de .+ mantém-se; as compras importadas da mesma moeda e do mesmo mês somam 30,00 €\.$/,
       ),
