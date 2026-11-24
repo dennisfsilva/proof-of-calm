@@ -2,7 +2,7 @@ import compile from 'icu-minify/compile';
 import { describe, expect, it } from 'vitest';
 import { RISK_WORDING_LANGUAGES } from '../brand';
 import { COUNTRY_FORMS, COUNTRY_SLOTS } from '../countries/forms';
-import { VISIBLE_LANGUAGES } from './language';
+import { PREVIEW_LANGUAGES, VISIBLE_LANGUAGES } from './language';
 import type { UiLanguage } from './locale';
 
 // The translations beside English (ADR-0045 §8, the entry of 2026-11-15): `<folder>/messages/<locale>.json`,
@@ -209,6 +209,23 @@ describe('the German files', () => {
       expect(translated, `${folder} has no de file`).toBeDefined();
       expect(problems(byFolder.get(`${folder}/en`)?.tree ?? {}, translated ?? {}, true), folder).not.toEqual([]);
     }
+  });
+});
+
+// A preview deployment's picker offers PREVIEW_LANGUAGES to the native reader (ADR-0023, Deviations of 2026-11-18),
+// and a device in one of them opens in it, so every screen is whole in each: a key the merge completed from English
+// would show English inside it. The onboarding disclosure stays owed while counsel has not approved its text.
+describe('the preview languages', () => {
+  const folders = [...byFolder.values()].filter(({ locale }) => locale === 'en').map(({ folder }) => folder);
+  const previewed = PREVIEW_LANGUAGES.filter((language) => language !== 'en');
+
+  it.each(previewed.flatMap((language) => folders.map((folder) => [folder, language] as const)))(
+    '%s is whole in the preview language %s',
+    (folder, language) => wholeness(folder, language),
+  );
+
+  it('GERMAN_PARTIAL is empty while de is previewed', () => {
+    expect(PREVIEW_LANGUAGES.includes('de') ? GERMAN_PARTIAL : []).toEqual([]);
   });
 });
 
