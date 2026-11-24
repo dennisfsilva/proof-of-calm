@@ -104,7 +104,7 @@ translation's own words count under the row's 40 to 50 words. The approved list 
 (`RISK_WORDING_LANGUAGES` in `packages/app/src/lib/brand/index.ts`; pt-PT by counsel's approval of #268,
 2026-11-16, of the text at `onboarding.disclosure.text` in
 `packages/app/src/features/onboarding/messages/pt-PT.json`, since the table holds only the English), so every
-other UI language shows the English text and records `en`. `docs/DOMAIN.md` §2.1 also says when the same
+other UI language shows the English text, marked `lang="en"` (`disclosureLang`), and records `en`. `docs/DOMAIN.md` §2.1 also says when the same
 text is asked again: in Today's place, never as a modal; an import triggers nothing new of its own, and a
 plan brought in by "Replace everything" or the import with no plan, with an older recorded version, is asked
 once, on Today. Asked again, the text counts under the row's 40 to 50 words, not under Today's 30 or the path's

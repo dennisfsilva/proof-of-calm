@@ -419,8 +419,9 @@ external links and the Risk link in the mobile export (M3).
   ADR-0045 Deviations of 2026-11-24) and the German registration-claim patterns of the ban list
   (#462; `docs/CONTENT-STYLE.md` §2 and §10), their third round on 2026-11-24 (#467). German's
   country forms and the prose check (D3's PR 3, #473) followed, with the German Log's two change
-  lines (#472). Still to come: the German Onboarding with Learn and the German Plan (as designed on
-  #464), then German Settings, the German profile and module overlays, and de in the picker after
+  lines (#472). German Onboarding and Learn followed (as designed on #464), the risk disclosure left
+  in English and marked `lang="en"` (`docs/LEGAL.md` §4). Still to come: the German Plan (#464), then
+  German Settings, the German profile and module overlays, and de in the picker after
   the native read. CSV import, free (ADR-0039), for the
   main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
   Republic; Kraken's ledger reader built on 2026-11-13 (#168) and the core's import plan against the
