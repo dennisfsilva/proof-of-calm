@@ -80,7 +80,12 @@ export const TEMPLATE_OVERLAYS: Readonly<Record<OverlayLanguage, Partial<Record<
     'cycle-plan': () => import('../../i18n/pt-PT/templates/cycle-plan.json'),
     'two-coins': () => import('../../i18n/pt-PT/templates/two-coins.json'),
   },
-  de: {},
+  de: {
+    accumulate: () => import('../../i18n/de/templates/accumulate.json'),
+    'btc-only-hold': () => import('../../i18n/de/templates/btc-only-hold.json'),
+    'cycle-plan': () => import('../../i18n/de/templates/cycle-plan.json'),
+    'two-coins': () => import('../../i18n/de/templates/two-coins.json'),
+  },
 };
 
 // The English texts, marked English (./language.ts); a translation over them is marked with its language.
