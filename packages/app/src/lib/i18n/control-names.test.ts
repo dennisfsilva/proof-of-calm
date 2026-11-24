@@ -112,6 +112,14 @@ describe('a control named inside a German sentence', () => {
     expect(translated).toContain('today.action.asPlanned');
   });
 
+  // German Portfolio names the Log's control in a sentence, so the check reads it.
+  it('finds the control German Portfolio names', () => {
+    const inPortfolioOrLog = german.filter(({ key }) => /^(?:portfolio|log)\./u.test(key));
+    expect(new Set(inPortfolioOrLog.map(({ labelKey, key }) => `${labelKey} in ${key}`))).toEqual(
+      new Set(['log.recordHeld in portfolio.notBought']),
+    );
+  });
+
   it('tells a quoted name from a bare one', () => {
     const quotes = ['„', '“'] as const;
     expect(showsBare('Wählen Sie „Wie geplant gekauft“.', 'Wie geplant gekauft', quotes)).toBe(false);
