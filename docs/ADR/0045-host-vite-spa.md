@@ -1570,3 +1570,13 @@ The decision stands; German gets its own message files, wired as pt-PT's were on
   `packages/app/src/lib/i18n/locales.test.ts` holds them whole in German as in pt-PT while both stay
   hidden (#419); every other German namespace may be partial, its untranslated keys filled from
   English.
+
+## Deviations recorded on 2026-11-24
+
+The decision stands; one lib namespace joins the lazy ones.
+
+- **2026-11-24, each language's country forms are the lazy namespace `countries`** (§8; the entry of
+  2026-11-15 on translations). `packages/app/src/lib/countries/messages` writes seven forms per
+  profile code in each language, loaded by each screen whose messages name a country; Today loads
+  none, so its line keeps the name in parentheses. The shape test counts a country slot's forms as
+  one argument.
