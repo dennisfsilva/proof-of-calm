@@ -401,6 +401,11 @@ const ROWS_REFUSED: [string, Finding['rule']][] = [
   ['Eingetragen bei der Finanzaufsicht.', 'advice'],
   ['Unter Aufsicht der BaFin.', 'advice'],
   ['Ein sicherem Gefühl.', 'advice'],
+  ['Zinserträge von 3 %', 'return-percentage'],
+  ['Ein Ertrag von 3 %', 'return-percentage'],
+  ['durch die BaFin registriert', 'advice'],
+  ['Proof of Calm ist bei der BaFin als Anbieter registriert.', 'advice'],
+  ['Von der BaFin offiziell als Dienstleister eingetragen.', 'advice'],
 ];
 
 // Each tax or status line the rows refuse, then its rewording, which must pass.
@@ -447,6 +452,22 @@ describe('the German word rows, filler words and gain patterns (docs/CONTENT-STY
       'Die Kapitalertragsteuer beträgt 25 %.',
       'Die Gewinner des Jahres stiegen um 40 %.',
       'Proof of Calm Plus kostet 3 € im Monat.',
+    ]) {
+      expect(findBanned(text), text).toEqual([]);
+    }
+  });
+
+  // Vertrag and Übertrag end in "ertrag" but name no gain. A savings contract's rate (Sparvertrag) is no comparison
+  // with Tagesgeld, Festgeld or Sparbuch either, so no row refuses it; the copy review (§8) catches a comparison.
+  it('reads Vertrag, Übertrag and their compounds as no gain noun', () => {
+    for (const text of [
+      'Laut Vertrag 2 % Gebühr.',
+      'Der Kaufvertrag: 2 % Gebühr.',
+      'Laut Mietvertrag von 3 %.',
+      'Übertrag 2 %',
+      'Übertragung 2 %',
+      'Sparvertrag mit 3 %',
+      'Verträge von 3 %',
     ]) {
       expect(findBanned(text), text).toEqual([]);
     }
