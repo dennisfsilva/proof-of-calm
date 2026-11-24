@@ -307,3 +307,10 @@ generated rules files of each language.
   inside the rule's sentence, the person's own sentence and the UI's lines keep the page's. The
   screen's rules are `countryRules`' copy of the profile, which carries no mark, so its country card
   takes the profile's mark, for the summary and the early-opening notice's conditions alike.
+- **2026-11-24.** The German unit stems that the entry of 2026-11-17 left for later have joined the
+  number-unit hyphen check: Tag, Woche, Monat, Jahr, Stunde and Minute with their plural and genitive forms, the
+  adjectives on -tägig, -wöchig, -monatig, -jährig and -stündig with their endings, and `mal`, so
+  `365-Tage`, `1-jährige`, `12-Monats` and `4-mal` are refused and take U+2011
+  (`docs/CONTENT-STYLE.md` §10). The German words are matched case-sensitively, as German writes
+  its nouns with a capital and `mal` in lower case; a tax year (`2026-27`) and a URL still pass.
+  Found by the design of the German templates (#451).
