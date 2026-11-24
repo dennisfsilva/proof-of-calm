@@ -140,6 +140,25 @@ describe('the country names in prose', () => {
     expect(findings(strings(forms('de') as Tree).join('\n'), 'de', de)).toEqual([]);
   });
 
+  it('end a name at a letter boundary in its own case, and let only a hyphen join it to a noun', () => {
+    const de = articleNames(forms('de'));
+    expect(
+      findings(
+        'Steuern im Usage, im Usability-Test, beim USAmerikaner, zum USA‑Profil, zum USA-Profil; in Usage, mit USAmerikanern, für Niederländer.',
+        'de',
+        de,
+      ),
+    ).toEqual([]);
+    expect(findings('Zum USA–Profil. Im Vereinigtes Königreich. In USA. Das Vereinigtes Königreich.', 'de', de)).toEqual([
+      'In USA',
+      'Das Vereinigtes',
+      'Zum USA',
+      'Im Vereinigtes',
+    ]);
+    const pt = articleNames(forms('pt-PT'));
+    expect(findings('Em Alemanha. Sobre Reino Unido.', 'pt-PT', pt)).toEqual(['Em Alemanha', 'Sobre Reino Unido']);
+  });
+
   it('found the pt-PT overlays and the site messages', () => {
     expect(files('pt-PT')).toEqual(
       expect.arrayContaining([
