@@ -64,7 +64,8 @@ const CONNECTOR_PT = String.raw`(?:cerca\s+de|até|mais\s+de|superior\s+a|acima\
 const JOIN_PT = String.raw`\s+(?:(?:é|são)\s+)?(?:de(?:\s+${CONNECTOR_PT})?|${CONNECTOR_PT})`;
 // German (the D1 judge's rule, 2026-11-23): a figure with a sign or "Prozent"; a noun ending in a gain word, an
 // optional qualifier ("pro Jahr", "p. a."), join ("beträgt", "liegt bei", "von", a colon) and connector ("bis zu",
-// "über", "um die"), then the figure; the figure, up to two adjectives ("jährliche", "garantierte") and the noun; a
+// "über", "um die"), then the figure; the figure, up to two adjectives ("jährliche", "garantierte") and the noun,
+// joined by spaces, U+002D or the no-break hyphen U+2011 of a numeral compound (docs/CONTENT-STYLE.md §10); a
 // gain verb ("verdienen", "erzielen"), a pronoun and a connector, then the figure; the figure, then that verb,
 // "einbringen" or "abwerfen"; "Plus von" and the figure; "wirft" or "bringt", the figure, "ab" or "ein". Any other
 // word between them ("werden mit 25 % besteuert") is tax prose.
@@ -81,7 +82,7 @@ const ADJECTIVE_DE = `(?:(?:jährlich|monatlich|durchschnittlich|erwartet|mögli
 const VERB_DE = String.raw`(?:gewinn(?:e|en|t|st)?|verdien\p{L}*|erziel\p{L}*|erwirtschaft\p{L}*)`;
 const GAIN_DE = [
   String.raw`${NOUN_DE}${QUALIFIER_DE}(?:\s*:|\s+${JOIN_DE})?(?:\s+${CONNECTOR_DE})?\s+${PERCENT_DE}`,
-  String.raw`${PERCENT_DE}${QUALIFIER_DE}(?:[\s-]+${ADJECTIVE_DE}){0,2}[\s-]*${NOUN_DE}${END}`,
+  String.raw`${PERCENT_DE}${QUALIFIER_DE}(?:[\s\-‑]+${ADJECTIVE_DE}){0,2}[\s\-‑]*${NOUN_DE}${END}`,
   String.raw`${VERB_DE}(?:\s+(?:sie|du|ihr|wir|man))?(?:\s+${CONNECTOR_DE})?\s+${PERCENT_DE}`,
   String.raw`${PERCENT_DE}${QUALIFIER_DE}(?:\s+(?:jährlich|monatlich))?\s+(?:${VERB_DE}|einbringen|abwerfen)${END}`,
   String.raw`plus\s+von(?:\s+${CONNECTOR_DE})?\s+${PERCENT_DE}`,
