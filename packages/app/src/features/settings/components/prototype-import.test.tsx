@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import type { CoinId, CountryCode, Percent } from '@proofofcalm/core';
 import { act, cleanup, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { I18nProvider, type UiLanguage } from '../../../lib/i18n';
 import { ServicesProvider } from '../../../lib/services';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
@@ -9,7 +9,7 @@ import { createTestServices } from '../../../lib/services/testing';
 import en from '../../../messages/en/settings.json';
 import pt from '../../../messages/pt-PT/settings.json';
 import type { ReportNote } from '../actions';
-import { PrototypeReport } from './prototype-import';
+import { PrototypeImport, PrototypeReport } from './prototype-import';
 
 // The report's split line names three percentages, the coin's old and new share and the whole they add up to: all
 // three take the spacing of the plan's country (docs/CONTENT-STYLE.md §4), `100%` in Portugal and `100 %` with a
@@ -71,5 +71,26 @@ describe('PrototypeReport’s split line', () => {
     const note: ReportNote = { ...NOTE, from: '49.995' as Percent, to: '50' as Percent };
     const percentages = [...(await reportLine(country, language, note)).matchAll(/(\d[\d.,]*)\s?%/gu)];
     expect(percentages.map(([, figure]) => figure)).toEqual(['49,995', '50,000', '100']);
+  });
+});
+
+// The country step names its country through its forms (docs/CONTENT-STYLE.md §9): it loads the `countries` messages with
+// onboarding's, so no line renders a bare key.
+describe('PrototypeImport’s country step', () => {
+  it('loads the country forms with the step', async () => {
+    const logged = vi.spyOn(console, 'error');
+    const services = createTestServices({ snapshot: { ...fixtureSnapshot(), plan: null }, language: 'en' });
+    await act(() => services.start());
+    render(
+      <ServicesProvider services={services}>
+        <I18nProvider messages={{ settings: en }}>
+          <PrototypeImport name={null} count={3} hasPlan={false} pending={false} onReplace={vi.fn()} onImport={vi.fn()} />
+        </I18nProvider>
+      </ServicesProvider>,
+    );
+    expect(await screen.findByText('This device suggests Portugal.', {}, { timeout: 4000 })).toBeDefined();
+    expect(logged.mock.calls.filter((call) => String(call[0]).includes('MISSING_MESSAGE'))).toEqual([]);
+    logged.mockRestore();
+    services.dispose();
   });
 });

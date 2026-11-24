@@ -9,8 +9,10 @@ import { NavigationProvider, Route } from '../../../lib/navigation';
 import { ServicesProvider } from '../../../lib/services';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
 import { createTestServices, preloadLazyModules } from '../../../lib/services/testing';
+import countries from '../../../messages/en/countries.json';
 import learn from '../../../messages/en/learn.json';
 import shell from '../../../messages/en/shell.json';
+import countriesPt from '../../../messages/pt-PT/countries.json';
 import learnPt from '../../../messages/pt-PT/learn.json';
 import shellPt from '../../../messages/pt-PT/shell.json';
 import { TAXES_MODULE, YOUR_COUNTRY } from '../lib/taxes';
@@ -35,7 +37,13 @@ await preloadLazyModules([
   () => import('virtual:learn-modules').then((modules) => modules.LEARN_BODIES[TAXES_MODULE]?.()),
 ]);
 
-afterEach(cleanup);
+const logged = vi.spyOn(console, 'error');
+afterEach(() => {
+  cleanup();
+  const missing = logged.mock.calls.filter((call) => String(call[0]).includes('MISSING_MESSAGE'));
+  logged.mockClear();
+  expect(missing).toEqual([]);
+});
 
 const NAMES = (await loadProfiles())
   .filter((profile) => profile.code !== GENERIC_COUNTRY)
@@ -66,7 +74,7 @@ async function mount(country: string | null, options: Options = {}) {
     render(
       <NavigationProvider location="memory" initialPath={`/learn/${TAXES_MODULE}`}>
         <ServicesProvider services={services}>
-          <I18nProvider messages={{ learn, shell }}>
+          <I18nProvider messages={{ countries, learn, shell }}>
             <Boundary>
               <Suspense fallback={<p>pending</p>}>
                 <Route path="/learn" nest>
@@ -140,7 +148,7 @@ describe('the index on a pt-PT screen', () => {
     const { container } = render(
       <NavigationProvider location="memory" initialPath="/learn">
         <ServicesProvider services={services}>
-          <I18nProvider locale="pt-PT" messages={{ learn: learnPt, shell: shellPt }}>
+          <I18nProvider locale="pt-PT" messages={{ countries: countriesPt, learn: learnPt, shell: shellPt }}>
             <Route path="/learn" nest>
               <LearnScreen />
             </Route>

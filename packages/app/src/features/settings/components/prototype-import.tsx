@@ -112,7 +112,7 @@ function PrototypeCountry({ pending, onChoose }: { readonly pending: boolean; on
   const [failed, setFailed] = useState(false);
   useEffect(() => {
     let live = true;
-    Promise.all([loadProfiles(language), loadNamespace('onboarding')])
+    Promise.all([loadProfiles(language), loadNamespace('onboarding'), loadNamespace('countries')])
       .then(([loaded]) => live && setProfiles(loaded))
       .catch((error: unknown) => {
         reportError(error);
