@@ -33,7 +33,8 @@ const choose = 'cho(?:ose|se|sen)';
 
 /** Each English label another English message names mid-sentence, with that message's key. */
 const english = [...en].flatMap(([labelKey, label]) => {
-  if (!isLabel(label)) return [];
+  // A country's name is no control: its forms (the `countries` namespace) name it after their preposition.
+  if (!isLabel(label) || labelKey.startsWith('countries.')) return [];
   const inSentence = new RegExp(`${isPhrase(label) ? '\\p{Ll}' : choose} ${literal(label)}(?!\\p{L})`, 'u');
   return [...en].filter(([key, text]) => key !== labelKey && inSentence.test(text)).map(([key]) => ({ labelKey, key }));
 });

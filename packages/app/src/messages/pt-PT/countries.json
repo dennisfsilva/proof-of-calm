@@ -1,0 +1,92 @@
+{
+  "DE": {
+    "name": "Alemanha",
+    "the": "a Alemanha",
+    "in": "na Alemanha",
+    "for": "da Alemanha",
+    "from": "da Alemanha",
+    "to": "para a Alemanha",
+    "with": "com a Alemanha"
+  },
+  "ES": {
+    "name": "Espanha",
+    "the": "a Espanha",
+    "in": "em Espanha",
+    "for": "de Espanha",
+    "from": "de Espanha",
+    "to": "para Espanha",
+    "with": "com Espanha"
+  },
+  "FR": {
+    "name": "França",
+    "the": "a França",
+    "in": "em França",
+    "for": "de França",
+    "from": "de França",
+    "to": "para França",
+    "with": "com França"
+  },
+  "GB": {
+    "name": "Reino Unido",
+    "the": "o Reino Unido",
+    "in": "no Reino Unido",
+    "for": "do Reino Unido",
+    "from": "do Reino Unido",
+    "to": "para o Reino Unido",
+    "with": "com o Reino Unido"
+  },
+  "IE": {
+    "name": "Irlanda",
+    "the": "a Irlanda",
+    "in": "na Irlanda",
+    "for": "da Irlanda",
+    "from": "da Irlanda",
+    "to": "para a Irlanda",
+    "with": "com a Irlanda"
+  },
+  "IT": {
+    "name": "Itália",
+    "the": "a Itália",
+    "in": "em Itália",
+    "for": "de Itália",
+    "from": "de Itália",
+    "to": "para Itália",
+    "with": "com Itália"
+  },
+  "NL": {
+    "name": "Países Baixos",
+    "the": "os Países Baixos",
+    "in": "nos Países Baixos",
+    "for": "dos Países Baixos",
+    "from": "dos Países Baixos",
+    "to": "para os Países Baixos",
+    "with": "com os Países Baixos"
+  },
+  "PT": {
+    "name": "Portugal",
+    "the": "Portugal",
+    "in": "em Portugal",
+    "for": "de Portugal",
+    "from": "de Portugal",
+    "to": "para Portugal",
+    "with": "com Portugal"
+  },
+  "US": {
+    "name": "Estados Unidos",
+    "the": "os Estados Unidos",
+    "in": "nos Estados Unidos",
+    "for": "dos Estados Unidos",
+    "from": "dos Estados Unidos",
+    "to": "para os Estados Unidos",
+    "with": "com os Estados Unidos"
+  },
+  "XX": {
+    "name": "Outro país",
+    "the": "o perfil geral",
+    "in": "no perfil geral",
+    "for": "do perfil geral",
+    "from": "do perfil geral",
+    "to": "para o perfil geral",
+    "with": "com o perfil geral"
+  }
+}

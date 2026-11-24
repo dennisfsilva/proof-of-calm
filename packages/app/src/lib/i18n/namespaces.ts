@@ -21,6 +21,7 @@ export type LazyNamespace = Exclude<Namespace, StaticNamespace>;
 export type NamespaceLoaders = { [N in LazyNamespace]: () => Promise<{ default: Messages[N] }> };
 
 const ENGLISH: NamespaceLoaders = {
+  countries: () => import('../../messages/en/countries.json'),
   learn: () => import('../../messages/en/learn.json'),
   log: () => import('../../messages/en/log.json'),
   onboarding: () => import('../../messages/en/onboarding.json'),
@@ -30,6 +31,7 @@ const ENGLISH: NamespaceLoaders = {
 };
 
 const PORTUGUESE: NamespaceLoaders = {
+  countries: () => import('../../messages/pt-PT/countries.json'),
   learn: () => import('../../messages/pt-PT/learn.json'),
   log: () => import('../../messages/pt-PT/log.json'),
   onboarding: () => import('../../messages/pt-PT/onboarding.json'),
@@ -39,6 +41,7 @@ const PORTUGUESE: NamespaceLoaders = {
 };
 
 const GERMAN: NamespaceLoaders = {
+  countries: () => import('../../messages/de/countries.json'),
   learn: () => import('../../messages/de/learn.json'),
   log: () => import('../../messages/de/log.json'),
   onboarding: () => import('../../messages/de/onboarding.json'),

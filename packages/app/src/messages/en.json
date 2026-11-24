@@ -1,4 +1,96 @@
 {
+  "countries": {
+    "DE": {
+      "name": "Germany",
+      "the": "Germany",
+      "in": "in Germany",
+      "for": "for Germany",
+      "from": "from Germany",
+      "to": "to Germany",
+      "with": "with Germany"
+    },
+    "ES": {
+      "name": "Spain",
+      "the": "Spain",
+      "in": "in Spain",
+      "for": "for Spain",
+      "from": "from Spain",
+      "to": "to Spain",
+      "with": "with Spain"
+    },
+    "FR": {
+      "name": "France",
+      "the": "France",
+      "in": "in France",
+      "for": "for France",
+      "from": "from France",
+      "to": "to France",
+      "with": "with France"
+    },
+    "GB": {
+      "name": "United Kingdom",
+      "the": "the United Kingdom",
+      "in": "in the United Kingdom",
+      "for": "for the United Kingdom",
+      "from": "from the United Kingdom",
+      "to": "to the United Kingdom",
+      "with": "with the United Kingdom"
+    },
+    "IE": {
+      "name": "Ireland",
+      "the": "Ireland",
+      "in": "in Ireland",
+      "for": "for Ireland",
+      "from": "from Ireland",
+      "to": "to Ireland",
+      "with": "with Ireland"
+    },
+    "IT": {
+      "name": "Italy",
+      "the": "Italy",
+      "in": "in Italy",
+      "for": "for Italy",
+      "from": "from Italy",
+      "to": "to Italy",
+      "with": "with Italy"
+    },
+    "NL": {
+      "name": "Netherlands",
+      "the": "the Netherlands",
+      "in": "in the Netherlands",
+      "for": "for the Netherlands",
+      "from": "from the Netherlands",
+      "to": "to the Netherlands",
+      "with": "with the Netherlands"
+    },
+    "PT": {
+      "name": "Portugal",
+      "the": "Portugal",
+      "in": "in Portugal",
+      "for": "for Portugal",
+      "from": "from Portugal",
+      "to": "to Portugal",
+      "with": "with Portugal"
+    },
+    "US": {
+      "name": "United States",
+      "the": "the United States",
+      "in": "in the United States",
+      "for": "for the United States",
+      "from": "from the United States",
+      "to": "to the United States",
+      "with": "with the United States"
+    },
+    "XX": {
+      "name": "Other country",
+      "the": "the general profile",
+      "in": "under the general profile",
+      "for": "for the general profile",
+      "from": "from the general profile",
+      "to": "to the general profile",
+      "with": "with the general profile"
+    }
+  },
   "errors": {
     "input": {
       "number-empty": "Enter a number.",

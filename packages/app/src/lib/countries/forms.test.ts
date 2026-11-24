@@ -38,13 +38,14 @@ describe('the country forms', () => {
     }
   });
 
-  it.each(WHOLE)("of %s name each country as its profile does, and end every form with that name", async (locale) => {
+  it.each(WHOLE)('of %s name each country as its profile does, and end every form with that name', async (locale) => {
     const forms = own(locale);
     for (const code of COUNTRY_CODES) {
       const name = forms[code]?.name ?? '';
       expect(name, code).toBe((await loadProfile(code, locale))?.name);
       const end = code === GENERIC_COUNTRY ? GENERAL[locale] : name;
-      for (const form of COUNTRY_FORMS.slice(1)) expect(forms[code]?.[form], `${code}.${form}`).toMatch(new RegExp(`${end}$`, 'u'));
+      for (const form of COUNTRY_FORMS.slice(1))
+        expect(forms[code]?.[form], `${code}.${form}`).toMatch(new RegExp(`${end}$`, 'u'));
     }
   });
 

@@ -14,6 +14,7 @@ import { bootLanguage, loadStaticNamespaces, NAMESPACE_LOADERS, STATIC_NAMESPACE
 vi.mock('../../messages/de/errors.json', () => ({ default: { from: 'de/errors' } }));
 vi.mock('../../messages/de/shell.json', () => ({ default: { from: 'de/shell' } }));
 vi.mock('../../messages/de/today.json', () => ({ default: { from: 'de/today' } }));
+vi.mock('../../messages/de/countries.json', () => ({ default: { from: 'de/countries' } }));
 vi.mock('../../messages/de/learn.json', () => ({ default: { from: 'de/learn' } }));
 vi.mock('../../messages/de/log.json', () => ({ default: { from: 'de/log' } }));
 vi.mock('../../messages/de/onboarding.json', () => ({ default: { from: 'de/onboarding' } }));
@@ -39,6 +40,7 @@ describe('the message namespaces', () => {
     expect(Object.keys(NAMESPACE_LOADERS).sort()).toEqual([...UI_LANGUAGES].sort());
     for (const language of UI_LANGUAGES)
       expect(Object.keys(NAMESPACE_LOADERS[language]).sort()).toEqual([
+        'countries',
         'learn',
         'log',
         'onboarding',
