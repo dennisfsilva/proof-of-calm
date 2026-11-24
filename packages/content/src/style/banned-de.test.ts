@@ -599,6 +599,72 @@ describe('the German word rows, filler words and gain patterns (docs/CONTENT-STY
       expect(findBanned(text), text).toEqual([]);
     }
   });
+
+  // The joined row takes the whole word „Aufsicht“: a longer compound names the law, a duty or a power.
+  it('passes a regulator joined to a longer word that begins with Aufsicht', () => {
+    for (const text of [
+      'Das BaFin-Aufsichtsrecht gilt.',
+      'Die BaFin-Aufsichtspflicht gilt.',
+      'Die ESMA-Aufsichtsbefugnisse gelten.',
+      'Die BaFin‑Aufsichtsmitteilung zu Kryptowerten ist öffentlich.',
+    ]) {
+      expect(findBanned(text), text).toEqual([]);
+    }
+  });
+
+  // Refused on purpose: the joined row reads no word to its left, so „keiner“ does not save it. §10's statement
+  // on status writes „unterliegt keiner Finanzaufsicht“, which passes.
+  it('refuses a regulator joined to Aufsicht after keiner', () => {
+    expect(rules('Proof of Calm unterliegt keiner BaFin-Aufsicht.')).toEqual(['advice: BaFin-Aufsicht']);
+    expect(findBanned('Proof of Calm unterliegt keiner Finanzaufsicht.')).toEqual([]);
+  });
+
+  it('refuses one adjective between the article and the regulator, and passes it with no article', () => {
+    for (const [text, match] of [
+      [
+        'Proof of Calm ist bei der zuständigen Aufsichtsbehörde registriert.',
+        'bei der zuständigen Aufsichtsbehörde registriert',
+      ],
+      ['Proof of Calm unterliegt der deutschen Finanzaufsicht.', 'unterliegt der deutschen Finanzaufsicht'],
+      ['Proof of Calm wird von der deutschen Finanzaufsicht überwacht.', 'von der deutschen Finanzaufsicht überwacht'],
+      ['Kontrolliert durch die zuständige Aufsichtsbehörde.', 'Kontrolliert durch die zuständige Aufsichtsbehörde'],
+    ]) {
+      expect(rules(text ?? ''), text).toEqual([`advice: ${match}`]);
+    }
+    expect(findBanned('Proof of Calm ist bei keiner zuständigen Aufsichtsbehörde registriert.')).toEqual([]);
+  });
+
+  // The nouns of a status take the joined row and the row with the status first; a noun last passes, since a
+  // sentence about the register ends with one („Im BaFin-Register stehen Anbieter mit Lizenz.“).
+  it('refuses the nouns of a status joined to the regulator or before its preposition', () => {
+    for (const [text, match] of [
+      ['Proof of Calm hat eine BaFin-Lizenz.', 'BaFin-Lizenz'],
+      ['Proof of Calm hat eine BaFin‑Erlaubnis.', 'BaFin‑Erlaubnis'],
+      ['Anbieter mit BaFin-Lizenzen.', 'BaFin-Lizenzen'],
+      ['Ein Anbieter mit Registrierung bei der BaFin.', 'Registrierung bei der BaFin'],
+      ['Proof of Calm hat eine Zulassung durch die BaFin.', 'Zulassung durch die BaFin'],
+      ['Die Registrierungsnummer bei der BaFin lautet 1.', 'Registrierungsnummer bei der BaFin'],
+    ]) {
+      expect(rules(text ?? ''), text).toEqual([`advice: ${match}`]);
+    }
+  });
+
+  // A joined noun lengthened past its plural names a procedure or a duty, as „BaFin-Aufsichtsrecht“ names the law.
+  // „Erlaubnispflicht“ stays refused on purpose: §2's status words take every word that begins „Erlaubnis“.
+  it('passes a joined noun lengthened past its plural, but not a word that begins with Erlaubnis', () => {
+    expect(findBanned('Das BaFin-Zulassungsverfahren dauert Monate.')).toEqual([]);
+    expect(findBanned('Die BaFin-Lizenzpflicht gilt.')).toEqual([]);
+    expect(rules('Für Krypto-Dienstleister gilt eine Erlaubnispflicht.')).toEqual(['advice: Erlaubnispflicht']);
+  });
+
+  it('refuses a figure with prozentig or %ig before a gain word, and passes it before any other word', () => {
+    expect(rules('Eine 5-prozentige Rendite.')).toEqual(['return-percentage: 5-prozentige Rendite']);
+    expect(rules('Eine 5‑prozentige Rendite.')).toEqual(['return-percentage: 5‑prozentige Rendite']);
+    expect(rules('Eine 5%ige Rendite.')).toEqual(['return-percentage: 5%ige Rendite']);
+    expect(rules('Ein 3,5-prozentiger Zins.')).toEqual(['return-percentage: 3,5-prozentiger Zins']);
+    expect(findBanned('Eine 5-prozentige Hürde.')).toEqual([]);
+    expect(findBanned('Eine 5%ige Hürde.')).toEqual([]);
+  });
 });
 
 // §2's German table, read from the document itself.
@@ -615,13 +681,18 @@ const bullet = (opening: string) => {
 };
 // The bullet's list of rows, then its paragraph of praise, reassurance and filler words, every word of which fails.
 const [rowList = '', ...rowParagraphs] = bullet('- Every row above has its German form').split('\n\n');
-// A registration claim's sub-bullet names its parts; only its examples, in the last brackets, are whole claims.
+// A registration claim's sub-bullet names its parts; only the parts of its brackets marked „fails:“ are whole
+// claims (banned-de-lists.test.ts passes those marked „passes:“).
+const failing = (item: string) =>
+  [...item.matchAll(/\(([^)]*)\)/gu)].flatMap((bracket) =>
+    (bracket[1] ?? '')
+      .split(';')
+      .flatMap((part) => (part.trim().startsWith('fails:') ? backticked(part.replace(/\s+/gu, ' ')) : [])),
+  );
 const rowWords = [
   ...rowList
     .split(/\n {2}- /u)
-    .flatMap((item) =>
-      item.startsWith('a registration claim') ? backticked(item.slice(item.lastIndexOf('('))) : backticked(item),
-    ),
+    .flatMap((item) => (item.startsWith('a registration claim') ? failing(item) : backticked(item))),
   ...backticked(rowParagraphs.join('\n')),
 ];
 const keptOff = backticked(bullet('- Words with an everyday sense').split('\n  - ')[0] ?? '');
