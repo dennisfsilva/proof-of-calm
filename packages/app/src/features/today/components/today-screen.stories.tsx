@@ -134,11 +134,12 @@ const unseen = () => {
 };
 
 // Read at the foot, the notice's Dismiss by keyboard puts the focus on the action card's heading, which
-// comes into view by the least scroll, however far above the window it was (docs/DESIGN.md §6).
+// comes into view by the least scroll, however far above the window it was (docs/DESIGN.md §6). The generic
+// notice comes behind its own lazy, with the country forms: up to 2.3 s here with four projects at once.
 export const RuleNoticeDismissed: Story = {
   parameters: unseen(),
   play: async ({ canvas, canvasElement, userEvent }) => {
-    const dismiss = await canvas.findByRole('button', { name: 'Dismiss' });
+    const dismiss = await canvas.findByRole('button', { name: 'Dismiss' }, { timeout: 5000 });
     const view = canvasElement.ownerDocument.defaultView;
     view?.scrollTo(0, canvasElement.ownerDocument.documentElement.scrollHeight);
     dismiss.focus({ preventScroll: true });

@@ -18,17 +18,22 @@ const meta = {
   title: 'Features/Today/RuleChangeBanner',
   component: RuleChangeBanner,
   parameters: { path: '/today', snapshot: fixtureSnapshot(), nowMs: fixtureNowMs('buy') },
-  args: { notice, country: 'Portugal' },
+  args: { notice },
 } satisfies Meta<typeof RuleChangeBanner>;
 
 export default meta;
 
 type Story = StoryObj<typeof meta>;
 
+// The generic sentence waits for the country forms, which load with it.
 export const Generic: Story = {
   play: async ({ canvas }) => {
     await expect(
-      canvas.getByText("16 Oct 2026: the rules for your plan's country (Portugal) changed. Review your plan."),
+      await canvas.findByText(
+        "16 Oct 2026: the rules for your plan's country (Portugal) changed. Review your plan.",
+        {},
+        { timeout: 5000 },
+      ),
     ).toBeVisible();
     await expect(canvas.getByRole('link', { name: 'Review' })).toBeVisible();
     await expect(canvas.getByRole('button', { name: 'Dismiss' })).toBeVisible();
@@ -36,9 +41,11 @@ export const Generic: Story = {
 };
 
 export const GenericProfile: Story = {
-  args: { notice: { ...notice, country: 'XX' as CountryCode }, country: 'Other country' },
+  args: { notice: { ...notice, country: 'XX' as CountryCode } },
   play: async ({ canvas }) => {
-    await expect(canvas.getByText('16 Oct 2026: the general profile changed. Review your plan.')).toBeVisible();
+    await expect(
+      await canvas.findByText('16 Oct 2026: the general profile changed. Review your plan.', {}, { timeout: 5000 }),
+    ).toBeVisible();
   },
 };
 
