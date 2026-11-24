@@ -404,8 +404,9 @@ describe('the launch drafts of Terms, Privacy and Contact (docs/LEGAL.md §5)', 
     const page = main('privacy');
     expect(pageSection('privacy', page, 'controller')).toContain(href('/contact'));
     expect(text(pageSection('privacy', page, 'device'))).toContain(
-      "Your plan, your entries, and your settings stay in your browser on this device. Proof of Calm's server sees only the coin and currency each price request names.",
+      'Your plan, your entries, and your settings stay in your browser on this device. Each price request names only a coin and a currency; the Hosting section says what else reaches the host.',
     );
+    expect(text(page)).not.toContain('server sees only');
     expect(text(pageSection('privacy', page, 'requests'))).toContain(
       'These requests name at most a coin and a currency. They carry no identifier that Proof of Calm sets, and none of your entries, amounts, or dates.',
     );
@@ -414,7 +415,7 @@ describe('the launch drafts of Terms, Privacy and Contact (docs/LEGAL.md §5)', 
     );
     const hosting = pageSection('privacy', page, 'hosting');
     expect(text(hosting)).toContain(
-      "It receives each request your browser sends, with its internet address and browser name. Vercel keeps the host's runtime logs for up to 1 day. Anything else Vercel keeps follows its own privacy notice.",
+      "It receives each request your browser sends, with its internet address and browser name. Vercel keeps its runtime logs for up to 1 day. Vercel's own privacy notice, linked below, covers anything else it keeps.",
     );
     expect(text(hosting)).toContain(
       "The legal basis is Proof of Calm's legitimate interest in serving the site and protecting it from abuse",
@@ -423,11 +424,14 @@ describe('the launch drafts of Terms, Privacy and Contact (docs/LEGAL.md §5)', 
     expect(notice?.[1]).toBe("Vercel's privacy notice");
     expect(notice?.[0]).toContain('target="_blank"');
     expect(notice?.[0]).toContain('rel="noopener noreferrer"');
+    // "linked below": the link follows the paragraph that points at it.
+    expect(hosting.indexOf(notice?.[0] ?? '<none>')).toBeGreaterThan(hosting.indexOf('linked below'));
     const mail = text(pageSection('privacy', page, 'mail'));
     expect(mail).toContain(
-      `its mail host, ${messages.legal.owner.mailHost}, keeps your e-mail address and your messages for 24 months after the last one, to answer follow-up questions (GDPR art. 6(1)(b) and (f)).`,
+      `If you write to Proof of Calm, its mail host keeps your e-mail address and your messages for 24 months after the last one, to answer follow-up questions (GDPR art. 6(1)(b) and (f)). The mail host is ${messages.legal.owner.mailHost}.`,
     );
-    expect(mail).not.toContain('30 days');
+    // The mail-log period is the owner's to state in mailHost; the notice's own words name none.
+    expect(messages.legal.privacy.mail.p1).not.toMatch(/\d+ (hours?|days?)\b/);
     expect(text(pageSection('privacy', page, 'rights'))).toContain('You can also object to its use.');
     expect(text(pageSection('privacy', page, 'rights'))).toContain(
       'Proof of Calm makes no automated decision about you and builds no profile of you.',
@@ -465,7 +469,10 @@ describe('the launch drafts of Terms, Privacy and Contact (docs/LEGAL.md §5)', 
     expect(OPTIONAL_OWNER_FIELDS).toEqual(['vat', 'register', 'manager']);
     expect(['draft', 'filled']).toContain(ownerState(owner).state);
     const pages = LEGAL.map((name) => text(main(name))).join(' ');
-    for (const [field, value] of Object.entries(owner)) if (value !== '') expect(pages, field).toContain(value);
+    // The page text joins every run of white space, the date's no-break spaces too, so the value is read the same way.
+    for (const [field, value] of Object.entries(owner)) {
+      if (!emptyOwnerValue(value)) expect(pages, field).toContain(value.replace(/\s+/g, ' '));
+    }
   });
 
   it('refuses a half-filled owner file and a filled one missing a required field', () => {
