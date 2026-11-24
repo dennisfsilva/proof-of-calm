@@ -45,16 +45,16 @@
     "US": "Dieses Gerät schlägt die USA vor."
   },
   "onboarding.summary.holdingRuleValue": {
-    "DE": "Die Haltefrist für Deutschland. 1 year, then tax-free.",
-    "ES": "Die Haltefrist für Spanien. 1 year, then tax-free.",
-    "FR": "Die Haltefrist für Frankreich. 1 year, then tax-free.",
-    "GB": "Die Haltefrist für das Vereinigte Königreich. 1 year, then tax-free.",
-    "IE": "Die Haltefrist für Irland. 1 year, then tax-free.",
-    "IT": "Die Haltefrist für Italien. 1 year, then tax-free.",
-    "NL": "Die Haltefrist für die Niederlande. 1 year, then tax-free.",
-    "PT": "Die Haltefrist für Portugal. 1 year, then tax-free.",
-    "US": "Die Haltefrist für die USA. 1 year, then tax-free.",
-    "XX": "Die Haltefrist des allgemeinen Profils. "
+    "DE": "Die Regel für Deutschland. 1 year, then tax-free.",
+    "ES": "Die Regel für Spanien. 1 year, then tax-free.",
+    "FR": "Die Regel für Frankreich. 1 year, then tax-free.",
+    "GB": "Die Regel für das Vereinigte Königreich. 1 year, then tax-free.",
+    "IE": "Die Regel für Irland. 1 year, then tax-free.",
+    "IT": "Die Regel für Italien. 1 year, then tax-free.",
+    "NL": "Die Regel für die Niederlande. 1 year, then tax-free.",
+    "PT": "Die Regel für Portugal. 1 year, then tax-free.",
+    "US": "Die Regel für die USA. 1 year, then tax-free.",
+    "XX": "Die Regel des allgemeinen Profils. "
   },
   "today.ruleChange.generic": {
     "DE": "16 Oct 2026: Die Regeln für das Land des Plans (Germany) haben sich geändert. Prüfen Sie den Plan.",
