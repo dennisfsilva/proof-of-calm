@@ -33,7 +33,8 @@ const REGISTRATION =
 // (registrierter); a noun, Lizenz, Zulassung, Registrierung, Eintragung, Genehmigung or Erlaubnis; between them a
 // gap of up to three words of letters, numerals and inner hyphens (U+002D, or the no-break hyphen U+2011 that joins
 // a numeral compound, §10; "als Krypto-Dienstleister", "seit 2024", "als 24‑Stunden‑Anbieter"). The participle
-// comes last; the participle or the noun, or a longer word that begins with the noun, comes first; or the regulator
+// comes last; the participle or the noun, or a longer word that begins with the noun, comes first; or that noun
+// comes before "der" or "des" and the regulator, the genitive ("Zulassung der BaFin"); or the regulator
 // joins by a hyphen the participle, the noun or its plural, or the whole word "Aufsicht" ("BaFin-registriert",
 // "BaFin-Lizenz", "BaFin-Aufsicht", while "BaFin-Aufsichtsrecht" names the law); or "Aufsicht" with "der", "des" or
 // "durch die", or a word that begins with "unterlieg" with "der", "dem" or "den", comes before a regulator.
@@ -53,6 +54,7 @@ const NOUN_STATUS_DE = '(?:lizenz|zulassung|registrierung|eintragung|genehmigung
 const REGISTRATION_DE = [
   `(?:${BY_REGULATOR_DE})${GAP_DE}${PARTICIPLE_DE}`,
   String.raw`(?:${PARTICIPLE_DE}|${NOUN_STATUS_DE}\p{L}*)${GAP_DE}(?:${BY_REGULATOR_DE})`,
+  String.raw`${NOUN_STATUS_DE}\p{L}*${ARTICLE_DE('der|des')}${REGULATOR_DE}`,
   `${REGULATOR_DE}${HYPHEN_DE}(?:${PARTICIPLE_DE}|${NOUN_STATUS_DE}(?:en|se)?|aufsicht)`,
   String.raw`(?:aufsicht${ARTICLE_DE(String.raw`der|des|durch\s+die`)}|unterlieg\p{L}*${ARTICLE_DE('der|dem|den')})${REGULATOR_DE}(?:${HYPHEN_DE}aufsicht\p{L}*)?`,
 ];

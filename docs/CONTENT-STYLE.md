@@ -284,7 +284,13 @@ The German rows (decided 2026-11-23; the voice is §10):
     the noun or a longer word that begins with it, a gap, then the preposition and the regulator
     (fails: `registriert als Krypto-Dienstleister bei der BaFin`, `Zulassung durch die BaFin`). A
     noun last passes, since a sentence about the register ends with one (passes:
-    `Im BaFin-Register stehen Anbieter mit Lizenz`). Joined: the regulator, a hyphen, then the
+    `Im BaFin-Register stehen Anbieter mit Lizenz`). Genitive: the noun or a longer word that
+    begins with it, then `der` or `des` and the regulator (fails: `eine Zulassung der BaFin`,
+    `eine Lizenz der BaFin`, `Erlaubnis der zuständigen Aufsichtsbehörde`; passes:
+    `Zulassung der Anbieter`, `Lizenz der neuen deutschen BaFin`, with two adjectives). A lint
+    cannot tell whose status the noun names, so a sentence on the duty fails as well (fails:
+    `Die Zulassung der BaFin ist für Anbieter Pflicht`; passes:
+    `Anbieter brauchen eine Zulassung, die die BaFin erteilt`). Joined: the regulator, a hyphen, then the
     participle, the noun or its plural, or the whole word `Aufsicht` (fails: `BaFin-registriert`,
     `BaFin-Lizenz`; passes: `BaFin-Aufsichtsrecht`, `BaFin-Zulassungsverfahren`, which name the
     law and a procedure). The joined form reads no word before it (fails:
