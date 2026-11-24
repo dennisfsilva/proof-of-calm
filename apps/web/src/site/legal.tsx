@@ -17,6 +17,9 @@ export function legalTitle(slug: LegalSlug, language: SiteLanguage = 'en'): stri
  */
 export const OPTIONAL_OWNER_FIELDS = ['vat', 'register', 'manager'] as const;
 
+/** An owner value that holds nothing but white space counts as empty, on the page and in the owner-file test alike. */
+export const emptyOwnerValue = (value: string) => value.trim() === '';
+
 /**
  * The values every legal message may use: the product's name and the identity fields the owner fills in before the
  * pages are published (docs/LEGAL.md §5), each a visible `[Owner: …]` placeholder under `legal.owner` until then.
