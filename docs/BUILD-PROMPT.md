@@ -968,6 +968,10 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   offender with the pattern the guard enforces, or name an exception with its reason, so the branch
   grows with a reason instead of stopping. The loaders guard found four barrels (26f, #469,
   2026-11-24).
+- A boundary added to a check's pattern after a name in an inflecting language comes after the
+  name's case endings, and the fix's census compares every verdict with the base over the shipped
+  texts and the test inputs: #473's letter boundary after `Niederlande` passed „in Niederlanden“,
+  the dropped article the prose check exists to refuse, and only a third review round caught it.
 
 ## Known gaps
 
