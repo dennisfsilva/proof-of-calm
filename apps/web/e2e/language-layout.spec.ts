@@ -695,6 +695,45 @@ test("pt-PT: the Log's move sheet keeps its fill-all button inside the sheet at 
   expect(errors).toEqual([]);
 });
 
+// An 8-decimal amount in the sent units' input showed only its tail beside the fill-all button: scroll width against
+// visible width, pt-PT 115/78 on android-small and 143/98 at zoom-125, English 143/127 at zoom-125 (2026-11-24). The
+// row puts the button below the input when both do not fit on one line (docs/DESIGN.md §8, Button).
+for (const [language, messages, amount] of [
+  ['en', enLog, '0.00012345'],
+  ['pt-PT', ptLog, '0,00012345'],
+] as const) {
+  test(`${language}: the Log's move sheet shows a whole 8-decimal amount in its units input at 125 % text`, async ({
+    page,
+  }) => {
+    const errors = await boot(page, language === 'en' ? null : language);
+    await open(page, '/log');
+    await page.getByRole('button', { name: messages.recordMoved, exact: true }).click();
+    const sheet = page.getByRole('dialog');
+    await expect(sheet.getByRole('heading', { name: messages.move.title.new, exact: true })).toBeVisible();
+    await sheet.evaluate((element) => Promise.all(element.getAnimations({ subtree: true }).map((each) => each.finished)));
+    const input = sheet.getByRole('textbox', { name: messages.move.sent, exact: true });
+    await input.fill(amount);
+    await expect(input).toHaveValue(amount);
+    const all = sheet.getByRole('button', { name: messages.move.all, exact: true });
+    for (const size of [null, '20px'] as const) {
+      if (size !== null) await rootFont(page, size);
+      await settled(page);
+      const at = size ?? "the project's text size";
+      const shown = await input.evaluate((element) => ({ scroll: element.scrollWidth, client: element.clientWidth }));
+      expect(shown.scroll, `at ${at}, the amount fits its input (${shown.scroll}/${shown.client})`).toBeLessThanOrEqual(
+        shown.client,
+      );
+      const inside = await all.evaluate((element) => {
+        const own = element.getBoundingClientRect();
+        const box = element.closest('[role="dialog"]')?.getBoundingClientRect();
+        return box !== undefined && own.left >= box.left - 0.5 && own.right <= box.right + 0.5;
+      });
+      expect(inside, `at ${at}, the fill-all button lies inside the sheet`).toBe(true);
+    }
+    expect(errors).toEqual([]);
+  });
+}
+
 test("in English, the Log's, Today's dates and Portfolio's value tables keep their columns", async ({ page }) => {
   const errors = await boot(page, null);
   for (const screen of ['log', 'today', 'portfolio'] as const) {
