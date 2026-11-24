@@ -1,6 +1,7 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { anEntry, date, instant, money, month, units } from '../../../test/builders';
+import { restarted } from '../../../test/exchange/plan-arbitraries';
 import { CHOICES, LISBON, NOW, PLAN, testId } from '../../../test/exchange/plan-fixture';
 import { saveTransaction, storedOver } from '../../actions/entries';
 import { addDays } from '../../dates/calendar';
@@ -218,7 +219,7 @@ describe('readTradeRepublic (property)', () => {
     'a whole file names exactly the stored live buys its cancellations pair; deleting them leaves one import’s live Log, but for the estimates it names',
     () => {
       fc.assert(
-        fc.property(cancelling, ({ buys, cancels, cut, taps, change }) => {
+        fc.property(restarted(cancelling), ({ buys, cancels, cut, taps, change }) => {
           const rows = [
             ...buys.map((buy, index) => tradeRow('buy', buy, index * 2, `B${index}`)),
             ...cancels.map(({ of, late }, index) => {
