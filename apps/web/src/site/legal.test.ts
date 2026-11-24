@@ -206,7 +206,6 @@ describe('the Cookie-free statement (docs/LEGAL.md §5)', () => {
     ['These records stay', "until you choose Delete everything in Settings or clear this site's data in your browser"],
     ['a random identifier for this device', 'so your changes apply in the order you made them'],
     ['It does not leave this browser', 'no request and no backup carries it'],
-    ['a copy of each change to your plan and entries', 'for syncing between devices, which the app does not offer'],
     [
       'any stored data that failed its check when read',
       'set aside instead of deleted, so a failed check erases nothing',
@@ -219,5 +218,12 @@ describe('the Cookie-free statement (docs/LEGAL.md §5)', () => {
       .find((s) => s.includes(item));
     expect(sentence).toBeDefined();
     expect(sentence).toContain(why);
+  });
+
+  // No write keeps a copy for the sync before M3 (ADR-0019 Readings, 2026-11-24).
+  it('names no copy kept for syncing', () => {
+    const page = main('cookies');
+    expect(page).not.toContain('a copy of each change');
+    expect(page).not.toContain('syncing between devices');
   });
 });
