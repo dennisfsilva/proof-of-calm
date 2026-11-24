@@ -405,7 +405,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
     const kept = btcBuys([['K1', '2026-10-05 09:00:00', '30.0000', '0.0005000000', '0.0800']]);
     await mount(planOf(kept, [...fixture.entries, ONE_TAP_OCTOBER]), PLAN, 'kraken', undefined, 'pt-PT');
     expect(texts()).toContain(
-      'Mantém 1 estimativa de «Comprado como planeado»: as compras importadas da mesma moeda e do mesmo mês somam ' +
+      'Fica 1 estimativa de «Comprado como planeado»: as compras importadas da mesma moeda e do mesmo mês somam ' +
         'menos de metade dela.',
     );
     expect(lines('Estimativas que mantém (1)')).toEqual([
@@ -421,7 +421,7 @@ describe('ExchangeSummary and ExchangeSections', () => {
     const sixty = btcBuys([['K1', '2026-10-05 09:00:00', '60.0000', '0.0006000000', '0.0000']]);
     await mount(planOf(sixty, [...fixture.entries, first, second]), PLAN, 'kraken', undefined, 'pt-PT');
     expect(texts()).toContain(
-      'Mantém 2 estimativas de «Comprado como planeado»: para cada moeda em cada mês, as compras importadas somam ' +
+      'Ficam 2 estimativas de «Comprado como planeado»: para cada moeda em cada mês, as compras importadas somam ' +
         'menos de metade da maior estimativa.',
     );
     cleanup();
