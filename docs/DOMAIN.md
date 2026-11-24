@@ -1113,12 +1113,21 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      date (an extra buy, a monthly buy whose month has no date, a `lump` at its coin's monthly part, hand
      or one-tap) claims in the second import instead
      (with those dates' estimates left live; a part of 500, a lump of 1,000 on 3 Sep and a lump of 500 on
-     4 Sep: 3,100 against 3,500). Above the part each doubled date is the cut date, its stored part under
-     the square root of A x p (300 + 700 on 3 Sep: 1,700 against 1,400); below it, a date the whole file's lump walks that the
-     shorter export stored while its lump claimed the cut date's part or stopped its walk at that part,
-     every date it claimed nearer its date than the cut date, or as near and earlier (2,550 against 2,450;
-     91 against 87.50 when 1 Apr's 49 stops a lump of 35 at 2 Apr's 10.50 and 3 Apr's 3.50 is stored;
-     2,450 either way when that date lies after the export's end). The lump's own walk claims what it
+     4 Sep: 3,100 against 3,500). Below the part each doubled date is a date the whole file's lump walks
+     that the shorter export stored while its lump claimed the cut date's part or stopped its walk at
+     that part, every date it claimed nearer its date than the cut date, or as near and earlier (2,550
+     against 2,450; 91 against 87.50 when 1 Apr's 49 stops a lump of 35 at 2 Apr's 10.50 and 3 Apr's 3.50
+     is stored; 2,450 either way when that date lies after the export's end). Above the part each doubled
+     date is the cut date, its stored part under the square root of A x p (300 + 700 on 3 Sep: 1,700
+     against 1,400), or such a date, as when the cut date's part fails the ratio of the first of two live
+     lumps of the coin and the other meets it: with one-tap lumps of 173.50 and 90 EUR of ETH on 1 Oct
+     2026, ETH's part 30, and 9 and 72 EUR bought on 1 Oct and 54 on 2 Oct, an export that begins at 1
+     Oct's 72 leaves that part to the lump of 90 (72 x 72 is under 173.50 x 30), so 2 Oct's 54 is stored
+     (317.50 against 263.50); with a hand lump of 1,000 and a one-tap lump of 280 of BTC on 2 Jun, BTC's
+     part 70, and 28, 112 and 140 bought on 31 May, 314 on 1 Jun, 162.50 on 2 Jun and 175.50 on 4 Jun, an
+     export that begins at 31 May's 112 stores 31 May's 252 (252 x 252 is under 1,000 x 70), which stops
+     the lump of 280 before 4 Jun, so 4 Jun's 175.50 is stored too (1,707.50 against 1,280). The lump's
+     own walk claims what it
      claims in one import. No cut at a date boundary changes anything. The property
      `packages/core/src/import/exchange/plan-lump-cut.property.test.ts` checks this condition on every
      such cut, and `plan-remedy-start.test.ts` pins each case. The 3
@@ -1196,10 +1205,31 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      −0.0049. Coins another import bought before the left-out history count: Trade Republic's 0.7 bought
      on 31 Jan 2025, imported first, covers the 0.6 sale, so the sale is stored and the Log shows 0.5 where
      the person holds 1.1; bought on 1 Feb or later, they do not count, the sale stays out and the Log
-     shows 1.1. A window holding the sale but none of its left-out purchases, after the other file, gives 0.5. A
-     one-tap `lump` counts at its own units, so a sale of the file's units of a purchase the lump records
-     stays out while the estimate is smaller (0.0125 BTC sold against 0.01219512 tapped at €82,000; changing
-     the lump's units in the Log to the file's and choosing the file again imports it). What stays out: a sale dated after the reach of purchases step 3 left out is stored as before
+     shows 1.1. A shorter export of the file can store a sale one import of the whole file leaves out,
+     before or after the whole file (step 5's one exception): a window holding only the sale, after the
+     other file, gives 0.5; a window from 11 Dec 2025 holds the later of the file's two left-out ETH
+     purchases, 13 Dec's, so it counts another import's Coins added entry of 0.50046 ETH on 11 Dec and
+     stores a sale of 0.50046 on 6 Mar 2026 that the whole file, buying ETH on 10 Dec, leaves out (0 ETH
+     against 0.50046); a prefix to 9 Mar 2026 whose hand extra buy of 10 Mar claims 8 Mar's purchase,
+     which the whole file leaves out since the buy claims 11 Mar's there, counts Trade Republic's 0.01
+     BTC of 8 Mar for a sale of 0.01 on 9 Mar (0.001 BTC against 0.011); and, unticked, Kraken's file
+     from 1 Sep 2026, as a date range or a window, counts Trade Republic's 0.003 BTC of 5 Aug for a sale
+     of 0.0124 on 10 Oct that the whole file leaves out, since a Coins added entry guards its buys from 2
+     Aug (0.00604512 BTC against 0.01844512). Ticked, the purchases a Coins added entry guards set no F,
+     so only step 3's left-out purchases can make the difference. It ends once the left-out purchases are
+     in the Log: a hand lump of 1,823 EUR for 10 and 13 Dec's 0.55843 ETH leaves 0.55843 either way. A
+     one-tap `lump` counts at its own units, whatever step 2 claims for it, so its part of the cover is
+     the same in one import and in every part of a file: a sale of the file's units of a purchase the
+     lump records stays out while the estimate is smaller (0.0125 BTC sold against 0.01219512 tapped at
+     €82,000; changing the lump's units in the Log to the file's and choosing the file again imports it),
+     and one up to an estimate above them is stored (0.0128 BTC against 0.01282051 tapped at €78,000).
+     Counting what it claims would follow the claim, which part of a file moves: a prefix without 4 Dec
+     2025's 0.16378 ETH makes a one-tap lump of 30 EUR, ETH's part, claim 5 Dec's 0.55623 instead, and
+     two imports would store two sales (0.49880 and 0.41170 ETH) that one import leaves out; a date range
+     that holds the sale but not the claimed purchase holds no claim, so two ranges would leave out a
+     sale one import stores (0.01544512 BTC against 0.00304512); and a lump at its coin's part claims its
+     nearest date whatever it holds (a €30 tap would count 2.60347 ETH). What stays out: a sale dated
+     after the reach of purchases step 3 left out is stored as before
      (0 BTC in the Log where those purchases held more), and the starting line is its fix; a sale left out
      is in no tax-year file until it is imported; choosing per purchase is planned (M4).
   5. The monthly buys (decided 2026-11-14, ADR-0056, Corrections): "Every purchase date of C whose month
@@ -1222,13 +1252,15 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
      decides a kind: a month done by another coin, another exchange or a hand entry turns no purchase into
      an extra buy, so the Log is the same whether an export comes whole or in parts, and whichever
      exchange's file comes first, except step 4's sales. One whose cover only the other file holds stays
-     out until its file is chosen again after the other. A shorter export (a prefix of an export's rows, a
-     window of them or one of its date ranges) differs from one import only where another import's entry of
-     a coin falls on or after the whole file's F and on or before a sale the shorter export stores while
-     the whole file leaves it out: the shorter export, holding none of the coin's left-out purchases before
-     that entry, counts it in the sale's cover (a Coins added entry of 0.12409 BTC from another import on
-     30 Jan 2026 covers a sale of 0.12409 in a prefix of 3 rows; the whole file buys BTC on 27 Jan, which
-     the starting amount leaves out). Two devices can tap one month, so a month's estimates of a coin go
+     out until its file is chosen again after the other. A shorter export (a prefix of an export's rows,
+     a window of them or one of its date ranges), imported before or after the whole file, differs from
+     one import only where another import's entry of a coin falls on or after the whole file's F and on
+     or before a sale the shorter export stores while the whole file leaves it out: the shorter export
+     leaves out none of that coin's purchases or receipts dated on or before that entry, so it counts the
+     entry in the sale's cover. It holds none of the whole file's left-out purchases so dated, or only
+     ones step 2 claims there (step 4); a Coins added entry of 0.12409 BTC from another import on 30 Jan
+     2026 covers a sale of 0.12409 in a prefix of 3 rows, where the whole file buys BTC on 27 Jan, which
+     the starting amount leaves out. Two devices can tap one month, so a month's estimates of a coin go
      together. A month can hold several monthly buys of a coin (a savings plan that runs every two weeks);
      the month's status sums them and dates it by the earliest (§3.2).
   6. The months: "A purchase date's month is the plan's month with the anchor nearest it, the earlier month
