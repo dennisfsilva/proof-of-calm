@@ -244,3 +244,22 @@ The rules, worded in `docs/DOMAIN.md` §2.2 and §3.13:
   stated: an estimate tapped for a month whose only purchase is the file's, under half of it, stays
   counted until it is deleted in the Log; cutting the estimate from the preview is planned
   (M4). The rest stands.
+- 2026-11-24, a lump's claim and a shorter export's cover (#433): both costs stand, and the properties
+  except exactly their states. A one-tap `lump` keeps counting at its own units in a sale's cover. A
+  cover that counts what the lump claims in step 2 follows the claim, which part of a file moves: a
+  prefix without 4 Dec 2025's purchase made a one-tap lump of 30 EUR, ETH's part, claim 5 Dec's, so the
+  larger of its units and theirs stored two sales (0.49880 and 0.41170 ETH) that one import leaves out
+  (fast-check seed 13); it also left out of two date ranges a sale one import stores (0.01544512
+  against 0.00304512 BTC), and counted a €30 tap at its nearest date's 2.60347 ETH (seed 14, where only
+  the one-import property `a reached sale is stored exactly` failed, not a two-import one as the entry
+  on the cover across imports says). F stays the file's: no F read from a file knows the whole file's,
+  and counting no other import's entries, or all of them, brings back the costs that entry set aside. A
+  shorter export, before or after the whole file, that leaves out none of a coin's purchases or
+  receipts dated on or before another import's entry dated from the whole file's F to a sale counts
+  that entry and can store the sale, whether it holds none of the whole file's left-out purchases so
+  dated or only ones step 2 claims there (seed 93: a window from 11 Dec 2025, 0 ETH against 0.50046; a
+  prefix to 9 Mar 2026 whose hand extra buy claims 8 Mar's purchase, 0.001 BTC against 0.011); the
+  difference ends once the left-out purchases are recorded. Rule G's entry narrows: above the part a
+  doubled date is the cut date or, as below it, a date the shorter export stored while its lump claimed
+  the cut date's part or stopped its walk at that part, as two live lumps of a coin can do (317.50
+  against 263.50 at seed 46; 1,707.50 against 1,280 at seed 212). The rest stands.
