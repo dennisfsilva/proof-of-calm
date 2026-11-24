@@ -1,8 +1,9 @@
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { expect, type Locator, type Page } from '@playwright/test';
 import type { Snapshot } from '@proofofcalm/app/lib/ports';
 import { FIXTURE_DATES, fixtureNowMs, fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
-import { exportBackup, type Instant, type Plan } from '@proofofcalm/core';
+import { type CalendarDate, type Entry, exportBackup, type Instant, type Plan } from '@proofofcalm/core';
 import deCountries from '../../../packages/app/src/messages/de/countries.json' with { type: 'json' };
 import deSettings from '../../../packages/app/src/messages/de/settings.json' with { type: 'json' };
 import enSettings from '../../../packages/app/src/messages/en/settings.json' with { type: 'json' };
@@ -13,7 +14,8 @@ import { routeFixturePrices, test } from './support';
 // German Settings on the narrow projects, android-small and zoom-125 (docs/DESIGN.md §7 and §8,
 // docs/CONTENT-STYLE.md §10), found by the merged German file's words: the tab bar, the Plan tab's save and calendar
 // rows, the country change from the Netherlands to the United Kingdom with its currency question, the exports, the
-// backup's replace dialog, the pasted file of the DCA plan page with its report, and the delete dialog with its undo.
+// backup's replace dialog, the pasted file of the DCA plan page with its report, an exchange's file through its held
+// question, its sections and the import, and the delete dialog with its undo.
 // Each control holds its own text inside its own box with text set wider than this platform's fonts, and nothing
 // ends past the viewport. This file runs only where language-layout.spec.ts does (playwright.config.ts, `narrowOnly`).
 
@@ -31,14 +33,13 @@ const inTheNetherlands: Snapshot = {
 };
 
 /** The plan in German on the fixture's buy-phase day; the page and console errors seen since. */
-async function boot(page: Page, snapshot: Snapshot = fixture): Promise<string[]> {
+async function boot(page: Page, snapshot: Snapshot = fixture, nowMs = fixtureNowMs('buy')): Promise<string[]> {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(`pageerror: ${error.message}`));
   page.on('console', (message) => {
     if (message.type() === 'error') errors.push(`console: ${message.text()}`);
   });
   await page.addInitScript((key) => window.localStorage.setItem(key, 'de'), LANGUAGE_STORAGE_KEY);
-  const nowMs = fixtureNowMs('buy');
   await page.clock.setFixedTime(new Date(nowMs));
   await routeFixturePrices(page, nowMs);
   await seedPlan(page, snapshot);
@@ -252,6 +253,99 @@ test('de: a pasted file of the DCA plan page and its report hold their words in 
   const report = await taxNote.locator('xpath=..').getByRole('listitem').all();
   expect(report.length, 'the report lists what the import adjusted').toBeGreaterThan(0);
   await ownBoxes(page, Object.fromEntries(report.map((item, index) => [`report line ${index + 1}`, item])));
+  expect(errors).toEqual([]);
+});
+
+// The core's synthetic Kraken ledger of December 2025 (exchange-import.spec.ts reads it in English), over the fixture
+// plan moved to its months, with BTC added at Ledger on 2 Dec, after the ledger's first BTC purchase, so the preview
+// asks whether that purchase is those coins.
+const LEDGER = fileURLToPath(
+  new URL('../../../packages/core/test/exchange/kraken-synthetic-2025-12.csv', import.meta.url),
+);
+const LEDGER_NOW = Date.parse('2026-01-20T10:00:00Z');
+const at = (day: string) => `${day}T18:00:00+01:00` as Instant;
+const ledgerPlan: Plan = {
+  ...plan,
+  startingAmount: '0' as Plan['startingAmount'],
+  firstBuy: '2025-12-01' as CalendarDate,
+  buyDay: 1,
+  lastBuy: '2026-11-01' as CalendarDate,
+  skips: [],
+  createdAt: at('2025-11-20'),
+  updatedAt: at('2025-11-20'),
+};
+const heldAtLedger: Entry = {
+  id: 'aaaaaaaa-0000-4000-8000-000000000020' as Entry['id'],
+  kind: 'held',
+  date: '2025-12-02' as CalendarDate,
+  coin: 'BTC' as Entry['coin'],
+  amount: null,
+  units: '0.002' as Entry['units'],
+  fee: null,
+  note: '',
+  slot: null,
+  venue: 'Ledger',
+  source: 'manual',
+  createdAt: at('2025-12-02'),
+  updatedAt: at('2025-12-02'),
+  deletedAt: null,
+};
+
+/** A message whose arguments are each a count, or a plural of one, as a pattern of every text it can show. */
+function shown(message: string, whole = true) {
+  const branches = [...message.matchAll(/(?:one|other) \{((?:[^{}]|\{[^{}]*\})*)\}/gu)].map((match) => match[1] ?? '');
+  const escape = (text: string) => text.replace(/[()[\]^$.*+?|\\]/gu, '\\$&').replace(/\{[a-z]+\}/gu, '\\d+');
+  const any = (branches.length > 0 ? branches : [message]).map(escape).join('|');
+  return new RegExp(whole ? `^(?:${any})$` : any, 'u');
+}
+
+test("de: an exchange's file, its held question, its sections and the import hold their words in their boxes", async ({
+  page,
+}) => {
+  const pick = (settings: typeof enSettings) => ({
+    heading: settings.data.exchange.heading,
+    venue: settings.data.exchange.venue,
+    addHeld: settings.data.exchange.addHeld,
+    import: settings.data.exchange.import,
+    cancel: settings.data.exchange.cancel,
+    result: settings.data.exchange.result,
+    ...Object.fromEntries(
+      Object.entries(settings.data.exchange.section).map(([key, text]) => [`section.${key}`, text]),
+    ),
+  });
+  const words = pick(deSettings);
+  expectGerman(words, pick(enSettings));
+  const errors = await boot(page, { ...fixture, plan: ledgerPlan, entries: [heldAtLedger] }, LEDGER_NOW);
+  await openTab(page, 'data');
+  await page.locator('input[type="file"]').setInputFiles(LEDGER);
+  const preview = page.getByRole('region', { name: words.heading, exact: true });
+  await expect(page.getByRole('heading', { name: words.heading, exact: true })).toBeFocused();
+  await expect(preview.locator('[lang="en"]'), 'no English line in the German preview').toHaveCount(0);
+
+  const held = preview.getByRole('checkbox', { name: shown(words.addHeld) });
+  await held.check();
+  const sections = Object.values(deSettings.data.exchange.section).map((title) =>
+    preview.getByRole('button', { name: shown(title) }),
+  );
+  const shownSections = [];
+  for (const section of sections) if ((await section.count()) > 0) shownSections.push(section);
+  expect(
+    shownSections.length,
+    'the preview shows its monthly buys, sale, coins added and left-out lines',
+  ).toBeGreaterThanOrEqual(4);
+  for (const section of shownSections) await section.click();
+  await ownBoxes(page, {
+    venue: page.getByRole('textbox', { name: words.venue, exact: true }),
+    held,
+    import: preview.getByRole('button', { name: shown(words.import) }),
+    cancel: button(preview, words.cancel),
+    ...Object.fromEntries(shownSections.map((section, index) => [`section ${index + 1}`, section])),
+  });
+  const lines = await preview.getByRole('listitem').all();
+  await ownBoxes(page, Object.fromEntries(lines.map((line, index) => [`preview line ${index + 1}`, line])));
+
+  await preview.getByRole('button', { name: shown(words.import) }).click();
+  await expect(page.getByRole('status').filter({ hasText: shown(words.result, false) })).toBeFocused();
   expect(errors).toEqual([]);
 });
 
