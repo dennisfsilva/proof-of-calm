@@ -196,14 +196,18 @@ Recorded on 2026-11-15, when the site's half of the rendering points landed in `
   character reference, so on English they can over-report or miss: a limit carried to the next session.
 - 2026-11-24: a translated body's ban list also reads its source body with the English module's three reads
   (`bodyFindings`, `packages/content/src/modules-validate.ts`: as it stands, joined, and the German line rule on the
-  lines the page sets), beside the block read of the entry above, with no change to `pageOf`; one problem per code
-  and detail, so a line both reads refuse is reported once. The block read joins a hard break, an inline
-  `<PastPerformance />` and a fence's lines with a space and reads every block whole, so it passed 21 of the 148
-  decided rows of D4's case table (#421) that the English module refuses, a capital German form after a hard break
-  among them; with both reads a translation's body refuses each of the 106 rows English refuses. The source read
-  brings English's limits with it: a fence's info string is read, which the page does not show. The English
-  imperative whose asset follows a source wrap (b:R7) still passes in English and is refused in a translation by its
-  block read. The 6 pt-PT translations give 0 new findings.
+  lines the page sets), beside the block read of the entry above, with no change to `pageOf`. A source finding is a
+  block finding when both have one rule and the words of one stand in order within the other's, and each block
+  finding pairs with one source finding at most, so a line both reads refuse is reported once, in the block read's
+  quote, and a phrase refused on two lines is reported twice. Neither read gives a source line to key on, so the
+  pairing can merge two lines when each read refuses only one of them and the same words stand in both. The block
+  read joins a hard break, an inline `<PastPerformance />`, and a fence's lines with a space and reads every block
+  whole. Alone, it passed 21 of the 148 decided rows of D4's case table (#421) that English refuses, among them a
+  capital German form after a hard break. With both reads a translation's body refuses each of the 106 rows English
+  refuses, as many times per rule as English. The source read brings English's limits with it: a fence's info
+  string is read, which the page does not show. The English imperative whose asset follows a source wrap (b:R7)
+  still passes in English and is refused in a translation by its block read. The 6 pt-PT translations give 0 new
+  findings.
 - 2026-11-17: the plugin reads the modules' translations from `packages/content/i18n/<language>/learn/`, the
   folder beside `dir` (`translations` overrides it, `packages/config/vite/learn-translations.ts`). The build fails on
   a translation whose slug has no English module or whose front matter holds a key a translation does not take. A
