@@ -489,7 +489,8 @@ describe('a one-tap starting amount in the cover', () => {
       planOf(plan, log, file).recorded.flatMap((item) => item.dates);
     const one = walk(plan, [tapped], [prefix, whole]).log;
     const two = walk(plan, [tapped], [whole, prefix]).log;
-    expect([claims([tapped], whole), claims([tapped], prefix), claims(one, whole)]).toEqual([
+    const afterPrefix = walk(plan, [tapped], [prefix]).log;
+    expect([claims([tapped], whole), claims([tapped], prefix), claims(afterPrefix, whole)]).toEqual([
       ['2025-12-04'],
       ['2025-12-05'],
       ['2025-12-04'],
