@@ -11,6 +11,7 @@ import {
 } from '@proofofcalm/ui/components/select';
 import { useState } from 'react';
 import { useTranslations } from 'use-intl';
+import { useCountryArgs } from '../../../lib/countries';
 
 // The country (docs/JURISDICTIONS.md §3, never the IP address): a high or medium suggestion confirmed with
 // one tap, a low one named but chosen in the list. Residence decides tax, so the line says so whenever the
@@ -27,6 +28,7 @@ export type CountryStepProps = {
 
 export function CountryStep({ choices, suggestion, value, pending = false, onChoose }: CountryStepProps) {
   const t = useTranslations('onboarding.country');
+  const forms = useCountryArgs();
   const suggested = choices.find((choice) => choice.code === suggestion?.country);
   const confident = suggestion?.confidence === 'high' || suggestion?.confidence === 'medium';
   const [picked, setPicked] = useState<ProfileCode | null>(
@@ -39,7 +41,7 @@ export function CountryStep({ choices, suggestion, value, pending = false, onCho
       <h2 tabIndex={-1} className="font-semibold text-20 tracking-heading">
         {t('heading')}
       </h2>
-      {suggested !== undefined && <p>{t('suggested', { country: suggested.name })}</p>}
+      {suggested !== undefined && <p>{t('suggested', forms(suggested.code))}</p>}
       {suggestion?.languageDiffers === true && <p className="text-ink-2">{t('languageDiffers')}</p>}
       <Select<ProfileCode> items={items} value={picked} onValueChange={(code) => code !== null && setPicked(code)}>
         <SelectLabel>{t('label')}</SelectLabel>
@@ -61,7 +63,7 @@ export function CountryStep({ choices, suggestion, value, pending = false, onCho
           focusableWhenDisabled
           onClick={() => onChoose(chosen.code as ProfileCode)}
         >
-          {t('confirm', { country: chosen.name })}
+          {t('confirm', forms(chosen.code))}
         </Button>
       )}
     </section>

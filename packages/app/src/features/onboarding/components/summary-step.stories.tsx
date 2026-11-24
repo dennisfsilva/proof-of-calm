@@ -7,8 +7,8 @@ import type { HoldingCountry } from '../../plan';
 import { SummaryStep } from './summary-step';
 
 // The summary of both paths: the fixture plan from a template with its window, sentence and calendar file,
-// under Portugal's rule; your own coins with no window, sentence or starting amount; Start while the plan is
-// being written; Germany's rule with an early sell window the person accepted; the general profile's rule.
+// under the rule for Portugal; your own coins with no window, sentence or starting amount; Start while the plan is
+// being written; the rule for Germany with an early sell window the person accepted; the general profile's rule.
 
 const plan = fixtureSnapshot().plan as Plan;
 
@@ -86,7 +86,7 @@ export const GermanyEarlyWindow: Story = {
     },
   },
   play: async ({ canvas }) => {
-    await expect(canvas.getByText("Germany's rule. 1 year, then tax-free.")).toBeVisible();
+    await expect(canvas.getByText('The rule for Germany. 1 year, then tax-free.')).toBeVisible();
     await expect(canvas.getByRole('link', { name: 'Sources' })).toHaveAttribute('href', germany.source);
     await expect(
       canvas.getByText(/, opening before the last buy passes the holding rule, as you accepted$/),

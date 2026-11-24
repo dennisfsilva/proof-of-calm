@@ -37,7 +37,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await unseen(page);
       const date = createFormatters('pt-PT', 'en-GB').date(portugal.status.changedOn as CalendarDate);
       const changeNotice: string | null = portugal.status.changeNotice;
-      const notice = `${date}: ${changeNotice ?? 'the rules for Portugal changed. Review your plan.'}`;
+      const notice = `${date}: ${changeNotice ?? "the rules for your plan's country (Portugal) changed. Review your plan."}`;
       await expect(page.getByText(notice)).toBeVisible();
       await expect(page.getByRole('link', { name: 'Review' })).toHaveAttribute('href', '/plan');
       const axe = await new AxeBuilder({ page })

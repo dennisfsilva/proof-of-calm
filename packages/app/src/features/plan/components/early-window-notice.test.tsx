@@ -8,6 +8,7 @@ import { I18nProvider } from '../../../lib/i18n';
 import { ServicesProvider } from '../../../lib/services';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
 import { createTestServices } from '../../../lib/services/testing';
+import countries from '../../../messages/en/countries.json';
 import plan from '../../../messages/en/plan.json';
 import shell from '../../../messages/en/shell.json';
 import type { HoldingCountry } from '../lib/holding';
@@ -61,7 +62,7 @@ function mount(invalid?: boolean, shown: Shown = {}) {
   const seen: boolean[] = [];
   render(
     <ServicesProvider services={createTestServices({ snapshot: fixtureSnapshot() })}>
-      <I18nProvider messages={{ plan, shell }}>
+      <I18nProvider messages={{ countries, plan, shell }}>
         <Host invalid={invalid} seen={seen} shown={shown} />
       </I18nProvider>
     </ServicesProvider>,
@@ -134,7 +135,7 @@ describe('EarlyWindowNotice', () => {
   it("names the country's rule, then the note and the country's date line with its Sources, above the checkbox", () => {
     mount(undefined, { on: 'window', country: PORTUGAL });
     const notice = screen.getByText(
-      "The sell window opens on 1 Sept 2029. Your last buy is tax-free from 5 Jan 2031 under Portugal's rule. " +
+      'The sell window opens on 1 Sept 2029. Your last buy is tax-free from 5 Jan 2031 under the rule for Portugal. ' +
         'You can also choose a later opening date.',
     );
     const note = screen.getByText(NOTE);

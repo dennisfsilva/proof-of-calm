@@ -103,7 +103,7 @@ export const Invalid: Story = {
 export const Named: Story = {
   args: { country: portugal },
   play: async ({ canvas, userEvent }) => {
-    await expect(canvas.getByText(/ under Portugal's rule\. /)).toBeVisible();
+    await expect(canvas.getByText(/ under the rule for Portugal\. /)).toBeVisible();
     await expect(canvas.getByText('Computed from your dates, not tax advice')).toBeVisible();
     // Under the note, Portugal's first condition and the rest behind one control (docs/LEGAL.md §4).
     const [first, ...rest] = FIXTURE_RULES.PT.holdingRuleConditions;

@@ -5,8 +5,8 @@
   "start": "Aceitar e iniciar o plano",
   "country": {
     "heading": "Onde vive?",
-    "suggested": "Este dispositivo sugere {country}.",
-    "confirm": "Continuar com {country}",
+    "suggested": "Este dispositivo sugere {countryThe}.",
+    "confirm": "Continuar {countryWith}",
     "label": "País",
     "placeholder": "Escolher um país",
     "languageDiffers": "A residência, não a língua, determina os impostos."
@@ -60,7 +60,7 @@
     "heading": "Rever o plano",
     "country": "País",
     "holdingRule": "Regra de detenção",
-    "holdingRuleValue": "{kind, select, generic {A regra do perfil geral} other {A regra de {name}}}. {words}",
+    "holdingRuleValue": "{kind, select, generic {A regra do perfil geral} other {A regra {countryFor}}}. {words}",
     "startingPoint": "Ponto de partida",
     "coins": "Moedas e pesos",
     "monthly": "Montante mensal",

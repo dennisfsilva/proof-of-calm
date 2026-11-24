@@ -9,6 +9,7 @@ import type { Snapshot } from '../../../lib/ports';
 import { type Services, ServicesProvider } from '../../../lib/services';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
 import { createTestServices, preloadLazyModules } from '../../../lib/services/testing';
+import countries from '../../../messages/en/countries.json';
 import errors from '../../../messages/en/errors.json';
 import plan from '../../../messages/en/plan.json';
 import settings from '../../../messages/en/settings.json';
@@ -41,7 +42,7 @@ async function mount(snapshot: Snapshot = fixtureSnapshot(), rules?: Rules): Pro
   render(
     <NavigationProvider location="memory" initialPath="/settings">
       <ServicesProvider services={services}>
-        <I18nProvider messages={{ settings, plan, errors, today, shell }}>
+        <I18nProvider messages={{ countries, settings, plan, errors, today, shell }}>
           <PlanTab />
         </I18nProvider>
       </ServicesProvider>
@@ -170,7 +171,7 @@ describe('PlanTab', () => {
     services.dispose();
   });
 
-  it("names Portugal's rule for an early last buy, with the note and Portugal's date line and its Sources", async () => {
+  it("names the rule for Portugal for an early last buy, with the note and Portugal's date line and its Sources", async () => {
     // Portugal's rules with the fixture plan's holding rule as a literal: a content review may change the profile's
     // (docs/ENGINEERING.md §2), and the date and the rule's name follow it.
     const pt = await loadProfile('PT');
@@ -181,7 +182,7 @@ describe('PlanTab', () => {
     type('Last buy', '2030-01-05');
     expect(
       screen.getByText(
-        "The sell window opens on 1 Sept 2029. This last buy is tax-free from 5 Jan 2031 under Portugal's rule. " +
+        'The sell window opens on 1 Sept 2029. This last buy is tax-free from 5 Jan 2031 under the rule for Portugal. ' +
           'You can also choose an earlier last buy.',
       ),
     ).toBeDefined();

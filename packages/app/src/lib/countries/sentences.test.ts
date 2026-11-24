@@ -60,7 +60,11 @@ const SENTENCES: readonly Sentence[] = [
     cases: ALL,
     values: ({ code }) => ({ ...NOW, kind: generic(code) ? 'generic' : 'country' }),
   },
-  { key: 'plan.review.rules.link', cases: ALL, values: ({ code }) => ({ kind: generic(code) ? 'generic' : 'country' }) },
+  {
+    key: 'plan.review.rules.link',
+    cases: ALL,
+    values: ({ code }) => ({ kind: generic(code) ? 'generic' : 'country' }),
+  },
   {
     key: 'plan.earlyWindow.notice',
     cases: ALL,
@@ -73,7 +77,11 @@ const SENTENCES: readonly Sentence[] = [
       host: 'country',
     }),
   },
-  { key: 'plan.holdingRule.country', cases: ALL, values: ({ code }) => ({ kind: generic(code) ? 'generic' : 'named' }) },
+  {
+    key: 'plan.holdingRule.country',
+    cases: ALL,
+    values: ({ code }) => ({ kind: generic(code) ? 'generic' : 'named' }),
+  },
   { key: 'settings.country.summary', cases: ALL },
   { key: 'settings.country.row.country', cases: CHANGES },
   { key: 'settings.country.row.ruleNow', cases: ALL, values: ({ code, rule }) => ({ name: rule(code), rule: RULE }) },
@@ -174,8 +182,7 @@ function rendered(locale: string): Tree {
 const LOCALES = Object.keys(tables).map((path) => /sentences-([^/]+)\.json$/.exec(path)?.[1] ?? '');
 
 /** Whether a message takes a country, bare or through one of its forms (`{country}`, `{countryFor}`, `{newTo}`). */
-const takesCountry = (message: string) =>
-  /\{(?:country|old|new)(?:The|In|For|From|To|With)?\}/u.test(message);
+const takesCountry = (message: string) => /\{(?:country|old|new)(?:The|In|For|From|To|With)?\}/u.test(message);
 
 describe('the sentences that name a country', () => {
   it('are tabled for English and pt-PT', () => {

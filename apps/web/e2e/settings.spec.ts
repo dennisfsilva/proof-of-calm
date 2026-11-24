@@ -60,7 +60,7 @@ test('adds a coin, sets the split, saves both, and Plan shows them', async ({ pa
 
 test("saves an own holding rule, then goes back to the country's", async ({ page }) => {
   await openPlanTab(page, 'Hold & sell');
-  const country = page.getByRole('radio', { name: "Portugal's rule" });
+  const country = page.getByRole('radio', { name: 'The rule for Portugal' });
   const own = page.getByRole('radio', { name: 'Your own rule' });
   await expect(country).toHaveAttribute('aria-checked', 'true');
   await own.click();

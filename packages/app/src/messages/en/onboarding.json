@@ -5,8 +5,8 @@
   "start": "Accept and start the plan",
   "country": {
     "heading": "Where do you live?",
-    "suggested": "This device suggests {country}.",
-    "confirm": "Continue with {country}",
+    "suggested": "This device suggests {countryThe}.",
+    "confirm": "Continue {countryWith}",
     "label": "Country",
     "placeholder": "Choose a country",
     "languageDiffers": "Residence, not language, decides tax."
@@ -60,7 +60,7 @@
     "heading": "Check your plan",
     "country": "Country",
     "holdingRule": "Holding rule",
-    "holdingRuleValue": "{kind, select, generic {The general profile's rule} other {{name}'s rule}}. {words}",
+    "holdingRuleValue": "{kind, select, generic {The general profile's rule} other {The rule {countryFor}}}. {words}",
     "startingPoint": "Starting point",
     "coins": "Coins & split",
     "monthly": "Monthly amount",

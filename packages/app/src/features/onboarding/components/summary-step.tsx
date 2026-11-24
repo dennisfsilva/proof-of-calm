@@ -2,6 +2,7 @@ import type { ContentLanguage } from '@proofofcalm/content';
 import { isPositive, type Percent, type Plan } from '@proofofcalm/core';
 import type { ReactNode } from 'react';
 import { useLocale, useTranslations } from 'use-intl';
+import { useCountryArgs } from '../../../lib/countries';
 import type { Formatters } from '../../../lib/format';
 import { textLang } from '../../../lib/i18n';
 import { CountryDateLine, type HoldingCountry, holdingRuleText } from '../../plan';
@@ -43,6 +44,7 @@ export function SummaryStep({
 }: SummaryStepProps) {
   const t = useTranslations('onboarding');
   const rule = useTranslations('plan.holdingRule');
+  const forms = useCountryArgs();
   const locale = useLocale();
   // Each content text keeps the `lang` of the object it comes from where that is not the screen's (ADR-0057, WCAG 2.2
   // SC 3.1.2): the country's name its rules', the template's name its texts', the general profile's text its own.
@@ -59,7 +61,11 @@ export function SummaryStep({
   // The rule in words only beside its source (docs/LEGAL.md §6 question 13); the generic profile's own text.
   const { key, values } = holdingRuleText(plan.holdingRule, format);
   const words = generic ? (holding.unreviewed?.text ?? '') : holding.source === null ? '' : rule(`text.${key}`, values);
-  const ruleValue = t('summary.holdingRuleValue', { kind: generic ? 'generic' : 'named', name: holding.name, words });
+  const ruleValue = t('summary.holdingRuleValue', {
+    kind: generic ? 'generic' : 'named',
+    ...forms(holding.code),
+    words,
+  });
   // The profile's text closes the sentence in every language: split off, it keeps the profile's `lang`.
   const ruleHead = generic && words !== '' && ruleValue.endsWith(words) ? ruleValue.slice(0, -words.length) : null;
   // Tabular figures only on the values that are numbers or dates (docs/DESIGN.md §5); the country, the rule,

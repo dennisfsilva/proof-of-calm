@@ -29,7 +29,9 @@ const BEFORE: Readonly<Record<string, readonly string[]>> = {
 
 const capital = (form: string) => `${form.charAt(0).toUpperCase()}${form.slice(1)}`;
 const SLOT = COUNTRY_SLOTS.join('|');
-const FORM = COUNTRY_FORMS.filter((form) => form !== 'name').map(capital).join('|');
+const FORM = COUNTRY_FORMS.filter((form) => form !== 'name')
+  .map(capital)
+  .join('|');
 /** A country argument, bare or by a form: `{country}`, `{countryFor}`, `{newTo}`. */
 const COUNTRY = `\\{(?:${SLOT})(?:${FORM})?\\}`;
 const NOT_CURRENCY = new Set(['countryCurrency']);

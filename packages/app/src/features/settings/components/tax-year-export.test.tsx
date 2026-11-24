@@ -11,6 +11,7 @@ import type { Snapshot } from '../../../lib/ports';
 import { ServicesProvider } from '../../../lib/services';
 import { fixtureNowMs, fixtureSnapshot } from '../../../lib/services/fixtures';
 import { createTestServices, preloadLazyModules, recordingPlatform } from '../../../lib/services/testing';
+import countries from '../../../messages/en/countries.json';
 import errors from '../../../messages/en/errors.json';
 import settings from '../../../messages/en/settings.json';
 import gbFile from '../fixtures/tax-year-2026-27-GB.csv?raw';
@@ -74,7 +75,7 @@ async function mountServices(snapshot: Snapshot, { load = rules, nowMs }: MountO
   await services.start();
   render(
     <ServicesProvider services={services}>
-      <I18nProvider messages={{ settings, errors }}>
+      <I18nProvider messages={{ countries, settings, errors }}>
         <TaxYearExport />
       </I18nProvider>
     </ServicesProvider>,

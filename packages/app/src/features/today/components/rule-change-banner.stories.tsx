@@ -27,7 +27,9 @@ type Story = StoryObj<typeof meta>;
 
 export const Generic: Story = {
   play: async ({ canvas }) => {
-    await expect(canvas.getByText('16 Oct 2026: the rules for Portugal changed. Review your plan.')).toBeVisible();
+    await expect(
+      canvas.getByText("16 Oct 2026: the rules for your plan's country (Portugal) changed. Review your plan."),
+    ).toBeVisible();
     await expect(canvas.getByRole('link', { name: 'Review' })).toBeVisible();
     await expect(canvas.getByRole('button', { name: 'Dismiss' })).toBeVisible();
   },

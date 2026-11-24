@@ -78,18 +78,18 @@ export function CurrencyQuestionGroup({ question, onAnswer, invalid }: QuestionP
         />
         <RadioCard
           value="country"
-          title={t('country', { country })}
-          line={t('countryLine', { count, country })}
+          title={t('country', { countryCurrency: country })}
+          line={t('countryLine', { count, countryCurrency: country })}
           describedBy={ids.line}
         />
       </RadioGroup>
       {invalid && (
         <p id={ids.issue} role="alert" className="text-13 text-negative">
-          {t('issue', { logged, country })}
+          {t('issue', { logged, countryCurrency: country })}
         </p>
       )}
       <p id={ids.line} className="text-13 text-ink-2">
-        {t('oneCurrency', { logged, country })}
+        {t('oneCurrency', { logged, countryCurrency: country })}
       </p>
     </div>
   );

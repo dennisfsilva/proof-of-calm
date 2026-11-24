@@ -1,1 +1,1 @@
-export { type CountriesTranslator, countryArgs, useCountryArgs } from './forms';
+export { type CountriesTranslator, type CountryArgs, countryArgs, useCountryArgs } from './forms';

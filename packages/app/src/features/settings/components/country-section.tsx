@@ -22,6 +22,7 @@ import {
 import { reveal } from '@proofofcalm/ui/lib/reveal';
 import { type FormEvent, useEffect, useId, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'use-intl';
+import { useCountryArgs } from '../../../lib/countries';
 import { textLang } from '../../../lib/i18n';
 import { useFormatters, useServices, useSnapshot, useToday } from '../../../lib/services';
 import { ConditionLines } from '../../learn';
@@ -67,6 +68,7 @@ export function CountrySection() {
   const settings = useTranslations('settings');
   const ruleText = useTranslations('plan.holdingRule.text');
   const holding = useTranslations('plan.holding');
+  const forms = useCountryArgs();
   const services = useServices();
   const locale = useLocale();
   const f = useFormatters();
@@ -142,7 +144,7 @@ export function CountrySection() {
   const nameOf = (code: CountryCode) => options.find((rules) => rules.code === code)?.name ?? code;
   const ruleName = (rule: HoldingRule, country: CountryCode) => {
     const rules = options.find((candidate) => candidate.code === country) ?? null;
-    return t('ruleName', { kind: ruleNameOf(rule, rules), country: nameOf(country) });
+    return t('ruleName', { kind: ruleNameOf(rule, rules), ...forms(country) });
   };
   // A country's card as Hold & sell shows it, from the profile the section loaded.
   const cardOf = (rules: CountryRules) =>
@@ -226,9 +228,9 @@ export function CountrySection() {
       busy.current = false;
       setChanging(false);
     }
-    const name = pending.rules.name;
+    const to = forms(pending.rules.code);
     if (outcome.ok) {
-      done(outcome.value.written ? t('changed', { name }) : '');
+      done(outcome.value.written ? t('changed', to) : '');
       return;
     }
     // A refused write keeps the confirmation open: the focus goes to the line that says why (docs/DESIGN.md §6). An
@@ -243,7 +245,7 @@ export function CountrySection() {
     // treats the plan's own country): the confirmation closes and the result line says what happened.
     const opened = outcome.error.plan;
     if (opened.country === pending.rules.code) {
-      done(t('alreadyChanged', { name }));
+      done(t('alreadyChanged', to));
       return;
     }
     reopen({ ...pending, opened }, 'changed');
@@ -280,7 +282,7 @@ export function CountrySection() {
           </Select>
           {pending !== null && change !== null && (
             <>
-              <p className="text-16 text-ink">{t('summary', { name: pending.rules.name })}</p>
+              <p className="text-16 text-ink">{t('summary', forms(pending.rules.code))}</p>
               <ul className={SUMMARY_LIST}>
                 {rows.map((row) =>
                   row.field === 'holdingRule' ? (
@@ -304,7 +306,7 @@ export function CountrySection() {
                   ) : (
                     <li key={row.field}>
                       {row.field === 'country'
-                        ? t('row.country', { from: nameOf(row.from), to: nameOf(row.to) })
+                        ? t('row.country', { ...forms(row.from, 'old'), ...forms(row.to, 'new') })
                         : t(`row.${row.field}`, { from: row.from, to: row.to })}
                     </li>
                   ),
@@ -375,7 +377,7 @@ export function CountrySection() {
                 {/* Busy, not natively disabled, while the change is written: a `disabled` attribute on the focused
                     button drops the focus to `body` (Base UI's Button docs, "Loading states"). */}
                 <Button type="submit" disabled={changing} focusableWhenDisabled>
-                  {t('confirm', { name: pending.rules.name })}
+                  {t('confirm', forms(pending.rules.code))}
                 </Button>
               </div>
             </>

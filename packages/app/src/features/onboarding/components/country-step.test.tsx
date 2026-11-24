@@ -3,6 +3,7 @@ import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { userEvent } from 'storybook/test';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { I18nProvider } from '../../../lib/i18n';
+import countries from '../../../messages/en/countries.json';
 import onboarding from '../../../messages/en/onboarding.json';
 import { CountryStep, type CountryStepProps } from './country-step';
 
@@ -17,7 +18,7 @@ const CHOICES = [
 function mount(props: Partial<CountryStepProps>) {
   const onChoose = vi.fn();
   render(
-    <I18nProvider messages={{ onboarding }}>
+    <I18nProvider messages={{ countries, onboarding }}>
       <CountryStep choices={CHOICES} suggestion={null} value={null} onChoose={onChoose} {...props} />
     </I18nProvider>,
   );
@@ -82,7 +83,7 @@ describe('CountryStep (docs/JURISDICTIONS.md §3)', () => {
   it('continues with a country chosen earlier, over the suggestion', async () => {
     const onChoose = mount({ value: 'XX', suggestion: { country: 'PT', confidence: 'high', languageDiffers: false } });
     expect(screen.getByText('This device suggests Portugal.')).toBeDefined();
-    await act(() => fireEvent.click(screen.getByRole('button', { name: 'Continue with Other country' })));
+    await act(() => fireEvent.click(screen.getByRole('button', { name: 'Continue with the general profile' })));
     expect(onChoose).toHaveBeenCalledWith('XX');
   });
 });

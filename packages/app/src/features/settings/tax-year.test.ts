@@ -6,7 +6,9 @@ import { headerTexts } from '../../../../content/src/header-validate.ts';
 import type { Snapshot } from '../../lib/ports';
 import { fixtureSnapshot } from '../../lib/services/fixtures';
 import { createTestServices, preloadLazyModules, recordingPlatform } from '../../lib/services/testing';
+import englishCountries from '../../messages/en/countries.json';
 import english from '../../messages/en/settings.json';
+import portugueseCountries from '../../messages/pt-PT/countries.json';
 import portuguese from '../../messages/pt-PT/settings.json';
 import { downloadTaxYear } from './tax-year';
 
@@ -25,6 +27,7 @@ vi.mock('@proofofcalm/content', async (original) =>
 await preloadLazyModules();
 
 const LANGUAGES = { en: english, 'pt-PT': portuguese } as const;
+const COUNTRIES = { en: englishCountries, 'pt-PT': portugueseCountries } as const;
 type Language = keyof typeof LANGUAGES;
 const LANGUAGE_TAGS = Object.keys(LANGUAGES) as Language[];
 
@@ -73,7 +76,14 @@ async function header(country: CountryCode, language: Language): Promise<string>
   await vi.waitFor(() => expect(services.ui.getState().rules?.country).toBe(country));
   const loaded = services.ui.getState().rules?.rules;
   if (loaded === undefined || loaded === null) throw new Error(`no rules for ${country}`);
-  const t = createTranslator({ locale: language, messages: { settings: LANGUAGES[language] }, namespace: FILE });
+  const t = {
+    file: createTranslator({ locale: language, messages: { settings: LANGUAGES[language] }, namespace: FILE }),
+    countries: createTranslator({
+      locale: language,
+      messages: { countries: COUNTRIES[language] },
+      namespace: 'countries',
+    }),
+  };
   const endingIn = taxYearEndingIn(services.ui.getState().today, loaded.taxYear);
   const plan = { plan: snapshot.plan as Plan, entries: snapshot.entries };
   await downloadTaxYear(services, plan, endingIn, t);

@@ -11,6 +11,7 @@ import type { AnalyticsEvent } from '../../../lib/ports';
 import { type Services, ServicesProvider } from '../../../lib/services';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
 import { createTestServices, preloadLazyModules } from '../../../lib/services/testing';
+import countries from '../../../messages/en/countries.json';
 import errors from '../../../messages/en/errors.json';
 import onboarding from '../../../messages/en/onboarding.json';
 import plan from '../../../messages/en/plan.json';
@@ -74,7 +75,7 @@ function show(services: Services, device: Device = LISBON) {
   render(
     <NavigationProvider location="memory" initialPath="/onboarding">
       <ServicesProvider services={services}>
-        <I18nProvider messages={{ errors, onboarding, plan, shell }}>
+        <I18nProvider messages={{ countries, errors, onboarding, plan, shell }}>
           <OnboardingScreen device={device} />
           <Path />
         </I18nProvider>
@@ -270,7 +271,7 @@ describe('OnboardingScreen', () => {
     expect(
       screen.getByText(
         "The sell window opens on 1 Jun 2029. The template's last buy is tax-free from 2 Jun 2029 under " +
-          "Germany's rule. You can also choose another starting point.",
+          'the rule for Germany. You can also choose another starting point.',
       ),
     ).toBeDefined();
     // Under the notice, the template's note and Germany's date line with its source (docs/LEGAL.md §6 question 13).
@@ -323,7 +324,7 @@ describe('OnboardingScreen', () => {
     await act(() => fireEvent.click(accept));
     expect(screen.queryByRole('alert')).toBeNull();
     await toSummary();
-    expect(screen.getByText("Germany's rule. 1 year, then tax-free.")).toBeDefined();
+    expect(screen.getByText('The rule for Germany. 1 year, then tax-free.')).toBeDefined();
     expect(screen.getByRole('link', { name: 'Sources' }).getAttribute('href')).toBe(GERMAN_LAW);
     expect(
       screen.getByText(/^1 Jun 2029 to .+, opening before the last buy passes the holding rule, as you accepted$/),

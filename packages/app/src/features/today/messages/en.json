@@ -76,7 +76,7 @@
   },
   "ruleChange": {
     "notice": "{date}: {notice}",
-    "generic": "{date}: {kind, select, generic {the general profile} other {the rules for {country}}} changed. Review your plan.",
+    "generic": "{date}: {kind, select, generic {the general profile} other {the rules for your plan's country ({country})}} changed. Review your plan.",
     "review": "Review",
     "dismiss": "Dismiss",
     "failed": "The notice could not be dismissed. Try again."
