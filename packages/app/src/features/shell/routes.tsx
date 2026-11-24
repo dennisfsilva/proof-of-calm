@@ -5,6 +5,7 @@ import { lazyScreen, loadNamespace } from '../../lib/i18n';
 import { Redirect, Route, Switch, usePathname } from '../../lib/navigation';
 import { useSnapshot } from '../../lib/services';
 import { loadLearnScreen } from '../learn';
+import { loadPlanScreen, loadReviewScreen } from '../plan';
 import { TodayScreen } from '../today';
 import { ScreenBoundary } from './screen-error';
 import { ScreenPending } from './screen-frame';
@@ -19,10 +20,10 @@ const LogScreen = lazyScreen('log', () => import('../log').then((m) => ({ defaul
 // A screen whose messages name a country takes it through its forms (docs/CONTENT-STYLE.md §9): the `countries`
 // messages load with Plan, Review, Settings, Learn and Onboarding.
 const PlanScreen = lazyScreen('plan', () =>
-  Promise.all([import('../plan'), loadNamespace('countries')]).then(([m]) => ({ default: m.PlanScreen })),
+  Promise.all([loadPlanScreen(), loadNamespace('countries')]).then(([m]) => m),
 );
 const ReviewScreen = lazyScreen('plan', () =>
-  Promise.all([import('../plan'), loadNamespace('countries')]).then(([m]) => ({ default: m.ReviewScreen })),
+  Promise.all([loadReviewScreen(), loadNamespace('countries')]).then(([m]) => m),
 );
 // Settings' Plan and Coins & split tabs are the plan feature's editors: their messages load with the screen.
 const SettingsScreen = lazyScreen('settings', () =>

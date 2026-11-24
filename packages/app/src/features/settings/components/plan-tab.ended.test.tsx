@@ -12,7 +12,7 @@ import plan from '../../../messages/en/plan.json';
 import settings from '../../../messages/en/settings.json';
 import shell from '../../../messages/en/shell.json';
 import today from '../../../messages/en/today.json';
-import { PlanScreen } from '../../plan';
+import { loadPlanScreen } from '../../plan';
 import { PlanTab } from './plan-tab';
 
 // Settings' Plan tab on a plan whose buying was ended (docs/DOMAIN.md §2, §6 "Edit the plan"): a save that moves
@@ -33,6 +33,7 @@ afterEach(() => {
   expect(missing).toEqual([]);
 });
 await preloadLazyModules();
+const { default: PlanScreen } = await loadPlanScreen();
 
 const ENDED_ON = '2026-10-20' as CalendarDate;
 
