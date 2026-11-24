@@ -263,10 +263,11 @@ The German rows (decided 2026-11-23; the voice is §10):
   - `Glückwunsch`, `Abzeichen`, `Badge`, `Medaille`, `Streak` and `Level-up`;
   - the status words `reguliert`, `lizenziert`, `zugelassen`, `beaufsichtigt`, `genehmigt`,
     `autorisiert`, every word that begins `Erlaubnis`, `MiCA-konform` and `Kaufsignal`;
-  - a registration claim with the participle last or first: `bei`, `von` or `durch` (with `der`,
-    `dem` or `den`), then a regulator of the list's `regulators`, `Finanzaufsicht` or
-    `Aufsichtsbehörde`, then `registriert`, `eingetragen`, `gemeldet` or `beaufsichtigt`; or
-    `Aufsicht der` and a regulator (`bei der BaFin registriert`, `registriert bei der BaFin`).
+  - a registration claim with the participle last or first: `bei` or `von` (with `der`, `dem` or
+    `den`) or `durch` (with `die`, `den` or `das`), then a regulator of the list's `regulators`,
+    `Finanzaufsicht` or `Aufsichtsbehörde`, up to three words, then `registriert`, `eingetragen`,
+    `gemeldet` or `beaufsichtigt`; or `Aufsicht der` and a regulator (`bei der BaFin registriert`,
+    `registriert bei der BaFin`, `durch die BaFin registriert`, `bei der BaFin als Anbieter registriert`).
 
   German adds praise and reassurance (`gut gemacht`, `weiter so`, `super`, `toll`, `keine Sorge`,
   `keine Panik`, `bleiben Sie ruhig`, `Seelenfrieden`, `auf dem richtigen Weg`,
@@ -287,7 +288,8 @@ The German rows (decided 2026-11-23; the voice is §10):
     (§8) catches their banned use.
 - The gain words, any word that ends in `Rendite`, `Gewinn`, `Ertrag` or `Erträge`, `Zins`,
   `Verzinsung`, `Profit`, `Rentabilität`, `Wertzuwachs`, `Wertsteigerung`, `Wertentwicklung` or
-  `Performance` (`Jahresrendite`, `Kapitalerträge`; `Kapitalertragsteuer` and `Gewinner` pass), and
+  `Performance` (`Jahresrendite`, `Kapitalerträge`; `Kapitalertragsteuer`, `Gewinner`, and `Vertrag`,
+  `Übertrag` and their compounds pass: `Laut Vertrag 2 % Gebühr`, `Sparvertrag mit 3 %`), and
   the verbs `gewinnen`, `verdienen`, `erzielen`, `erwirtschaften`, `einbringen` and `abwerfen`, fail
   next to a percentage.
   - A noun may take `pro Jahr`, `im Jahr`, `p. a.` or `im Schnitt`; then a colon, `von`,

@@ -23,17 +23,18 @@ const REGISTRATION =
   String.raw`(?:regist(?:r)?ad|inscrit|supervisionad)(?:o|a|os|as)\s+` +
   String.raw`(?:n[oa]s?|pel[oa]s?|por|junto\s+d[oa]s?|perante\s+[oa]s?|com\s+[oa]s?)\s+` +
   `(?:${[...longestFirst(banned.regulators), 'regulador(?:es)?'].join('|')})`;
-// A German one: bei, von or durch, an optional article, a regulator of the list, "Finanzaufsicht" or
-// "Aufsichtsbehörde", then registriert, eingetragen, gemeldet or beaufsichtigt; the participle first; or "Aufsicht
-// der", "des" or "durch die" and a regulator. "Bei keiner Finanzaufsicht registriert" has no article, so it passes.
+// A German one: bei, von or durch, an optional article (der, dem, den, or durch's die and das), a regulator of the
+// list, "Finanzaufsicht" or "Aufsichtsbehörde", up to three words ("als Anbieter"), then registriert, eingetragen,
+// gemeldet or beaufsichtigt; the participle first; or "Aufsicht der", "des" or "durch die" and a regulator. "Bei
+// keiner Finanzaufsichtsbehörde registriert" has no article, so it passes.
 const REGULATOR_DE = [
   ...longestFirst(banned.regulators),
   String.raw`finanzaufsicht\p{L}*`,
   String.raw`aufsichtsbehörde\p{L}*`,
 ];
-const BY_REGULATOR_DE = String.raw`(?:bei|von|durch)\s+(?:der\s+|dem\s+|den\s+)?(?:${REGULATOR_DE.join('|')})`;
+const BY_REGULATOR_DE = String.raw`(?:(?:bei|von)\s+(?:der\s+|dem\s+|den\s+)?|durch\s+(?:die\s+|den\s+|das\s+)?)(?:${REGULATOR_DE.join('|')})`;
 const REGISTRATION_DE = [
-  String.raw`${BY_REGULATOR_DE}\s+(?:registriert|eingetragen|gemeldet|beaufsichtigt)\p{L}*`,
+  String.raw`${BY_REGULATOR_DE}(?:\s+\p{L}+){0,3}?\s+(?:registriert|eingetragen|gemeldet|beaufsichtigt)\p{L}*`,
   String.raw`(?:registriert|eingetragen|gemeldet)\p{L}*\s+${BY_REGULATOR_DE}`,
   String.raw`aufsicht\s+(?:der|des|durch\s+die)\s+(?:${REGULATOR_DE.join('|')})`,
 ];
@@ -66,8 +67,9 @@ const JOIN_PT = String.raw`\s+(?:(?:é|são)\s+)?(?:de(?:\s+${CONNECTOR_PT})?|${
 // word between them ("werden mit 25 % besteuert") is tax prose.
 const END = String.raw`(?![\p{L}\p{N}])`;
 const PERCENT_DE = String.raw`[+−-]?\d+(?:[.,]\d+)?\s?(?:%|prozent${END})`;
+// Vertrag and Übertrag end in "ertrag" but are no gain words, so the noun is no compound of either.
 const NOUN_DE =
-  String.raw`\p{L}*(?:rendite(?:n)?|gewinn(?:e|en|es|s)?|ertr(?:ag(?:s|es)?|äge(?:n)?)|zins(?:en|es)?|verzinsung(?:en)?|` +
+  String.raw`\p{L}*(?:rendite(?:n)?|gewinn(?:e|en|es|s)?|(?<!v|üb)ertr(?:ag(?:s|es)?|äge(?:n)?)|zins(?:en|es)?|verzinsung(?:en)?|` +
   `profit(?:e|en|s)?|rentabilität|wertzuw(?:achs(?:es)?|ächse(?:n)?)|wertsteigerung(?:en)?|wertentwicklung(?:en)?|performance)`;
 const CONNECTOR_DE = String.raw`(?:bis\s+zu|über|mehr\s+als|rund|etwa|ca\.|circa|ungefähr|durchschnittlich|jährlich|monatlich|um(?:\s+die)?)`;
 const JOIN_DE = String.raw`(?:beträgt|betragen|betrug|betrugen|(?:liegt|liegen|lag|lagen)\s+bei|ist|sind|war|waren|wäre|wären|von|in\s+höhe\s+von)`;
