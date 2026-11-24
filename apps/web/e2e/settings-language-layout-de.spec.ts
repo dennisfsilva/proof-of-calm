@@ -294,8 +294,8 @@ const heldAtLedger: Entry = {
 /** A message whose arguments are each a count, or a plural of one, as a pattern of every text it can show. */
 function shown(message: string, whole = true) {
   const branches = [...message.matchAll(/(?:one|other) \{((?:[^{}]|\{[^{}]*\})*)\}/gu)].map((match) => match[1] ?? '');
-  const escape = (text: string) => text.replace(/[()[\]^$.*+?|\\]/gu, '\\$&').replace(/\{[a-z]+\}/gu, '\\d+');
-  const any = (branches.length > 0 ? branches : [message]).map(escape).join('|');
+  const pattern = (text: string) => text.replace(/[()[\]^$.*+?|\\]/gu, '\\$&').replace(/\{[a-z]+\}/gu, '\\d+');
+  const any = (branches.length > 0 ? branches : [message]).map(pattern).join('|');
   return new RegExp(whole ? `^(?:${any})$` : any, 'u');
 }
 
