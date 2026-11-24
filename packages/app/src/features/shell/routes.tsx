@@ -5,7 +5,11 @@ import { lazyScreen, loadNamespace } from '../../lib/i18n';
 import { Redirect, Route, Switch, usePathname } from '../../lib/navigation';
 import { useSnapshot } from '../../lib/services';
 import { loadLearnScreen } from '../learn';
+import { loadLogScreen } from '../log';
+import { loadOnboardingScreen } from '../onboarding';
 import { loadPlanScreen, loadReviewScreen } from '../plan';
+import { loadPortfolioScreen } from '../portfolio';
+import { loadSettingsScreen } from '../settings';
 import { TodayScreen } from '../today';
 import { ScreenBoundary } from './screen-error';
 import { ScreenPending } from './screen-frame';
@@ -13,10 +17,8 @@ import { ScreenPending } from './screen-frame';
 // The app's route table (ADR-0045 §9). Today is in the entry chunk; every other screen is a chunk of
 // its own, loaded with its messages on the first visit, and every unknown path lands on Today. The
 // routes are flat: a screen with sub-routes adds `nest` to its own `Route` line and switches inside.
-const PortfolioScreen = lazyScreen('portfolio', () =>
-  import('../portfolio').then((m) => ({ default: m.PortfolioScreen })),
-);
-const LogScreen = lazyScreen('log', () => import('../log').then((m) => ({ default: m.LogScreen })));
+const PortfolioScreen = lazyScreen('portfolio', loadPortfolioScreen);
+const LogScreen = lazyScreen('log', loadLogScreen);
 // A screen whose messages name a country takes it through its forms (docs/CONTENT-STYLE.md §9): the `countries`
 // messages load with Plan, Review, Settings, Learn and Onboarding.
 const PlanScreen = lazyScreen('plan', () =>
@@ -27,18 +29,14 @@ const ReviewScreen = lazyScreen('plan', () =>
 );
 // Settings' Plan and Coins & split tabs are the plan feature's editors: their messages load with the screen.
 const SettingsScreen = lazyScreen('settings', () =>
-  Promise.all([import('../settings'), loadNamespace('plan'), loadNamespace('countries')]).then(([m]) => ({
-    default: m.SettingsScreen,
-  })),
+  Promise.all([loadSettingsScreen(), loadNamespace('plan'), loadNamespace('countries')]).then(([m]) => m),
 );
 const LearnScreen = lazyScreen('learn', () =>
   Promise.all([loadLearnScreen(), loadNamespace('countries')]).then(([m]) => m),
 );
 // Onboarding's numbers step shows the plan feature's early-window notice: its messages load with the screen.
 const OnboardingScreen = lazyScreen('onboarding', () =>
-  Promise.all([import('../onboarding'), loadNamespace('plan'), loadNamespace('countries')]).then(([m]) => ({
-    default: m.OnboardingScreen,
-  })),
+  Promise.all([loadOnboardingScreen(), loadNamespace('plan'), loadNamespace('countries')]).then(([m]) => m),
 );
 // `lazyScreen` takes screens without props: this one takes the version it records, so it spells the helper out.
 const Reacknowledge = lazy(async () => {

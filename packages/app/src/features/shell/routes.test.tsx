@@ -47,12 +47,13 @@ afterEach(() => {
 // React still resolves each lazy component on its first visit.
 await preloadLazyModules([
   () => import('../learn').then((m) => m.loadLearnScreen()),
-  () => import('../log'),
+  () => import('../log').then((m) => m.loadLogScreen()),
   () => import('../onboarding'),
+  () => import('../onboarding').then((m) => m.loadOnboardingScreen()),
   () => import('../plan').then((m) => m.loadPlanScreen()),
   () => import('../plan').then((m) => m.loadReviewScreen()),
-  () => import('../portfolio'),
-  () => import('../settings'),
+  () => import('../portfolio').then((m) => m.loadPortfolioScreen()),
+  () => import('../settings').then((m) => m.loadSettingsScreen()),
   () => import('virtual:learn-modules').then((modules) => modules.LEARN_BODIES['start-here']?.()),
 ]);
 
