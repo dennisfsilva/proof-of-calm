@@ -1369,14 +1369,15 @@ For the native reader (§8 item 9): `Sie`; `steuerfrei ab` against `nicht steuer
 Kauf: erster steuerfreier Tag`; `Protokoll`, `Lernen`, `Ort`, `Coin`, `die Wallet`, `Backup` (pt-PT
 kept `cópia de segurança`), `durchschnittlicher Kaufpreis` against `Einstandspreis`, `Stand:` and
 `geplant für den`; the Settings tabs, the tab bar and the entry sheet's kinds at 360 px with 125 %
-text, `Land & Daten` against `Währung & Daten`; the German "not tax advice" line, pending the StBerG
-question (`docs/BENCHMARK.md` §4), its candidate `Aus Ihren Einträgen berechnet, keine
-Steuerberatung`; the descriptor against `Krypto-Sparplan` (`docs/GROWTH.md` §2.5); `ungelesen`
-against `nicht eingelesen` for `shell.newer.again`; „nach {to}“ or „auf {to}“ in the move strings;
-`move.toHint`'s „nie ihre Adresse“; `chart.empty`'s „Es gibt keinen Wert zum Zeichnen“; the range
-„Alle“ against „Max“; the country forms: `USA` (`die USA`) against `Vereinigte Staaten`, `auf` for
-a change of country (`Land auf die Niederlande umstellen`, `von Portugal auf …` in its row) and
-„das allgemeine Profil“ in a sentence; `Börse` against `Handelsplattform`, since `Börse` can suggest a
+text, `Land & Daten` against `Währung & Daten`; „die Regel für Spanien“ against „die Haltefrist für
+Spanien“; the German "not tax advice" line, pending the StBerG question (`docs/BENCHMARK.md` §4),
+its candidate `Aus Ihren Einträgen berechnet, keine Steuerberatung`; the descriptor against
+`Krypto-Sparplan` (`docs/GROWTH.md` §2.5); `ungelesen` against `nicht eingelesen` for
+`shell.newer.again`; „nach {to}“ or „auf {to}“ in the move strings; `move.toHint`'s „nie ihre
+Adresse“; `chart.empty`'s „Es gibt keinen Wert zum Zeichnen“; the range „Alle“ against „Max“; the
+country forms: `USA` (`die USA`) against `Vereinigte Staaten`, `auf` for a change of country (`Land
+auf die Niederlande umstellen`, `von Portugal auf …` in its row) and „das allgemeine Profil“ in a
+sentence; `Börse` against `Handelsplattform`, since `Börse` can suggest a
 regulated exchange (brand and counsel; a voice choice for the reader); „bevor Sie ihm Geld senden“
 against „bevor Sie ihm Geld überweisen“ (brand, on the claim-reach branch; counsel's gap (6) on #462
 keeps „senden“ until the reader answers).
