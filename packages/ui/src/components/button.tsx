@@ -5,9 +5,10 @@ import { cn } from '#lib/utils';
 
 // shadcn's base-nova Button, restyled on the tokens (docs/DESIGN.md §8): primary is the accent fill
 // with on-accent text, secondary an outline in line-2, destructive the negative ink; every size but
-// `inline` is a 44 px target, and focus is the global ring.
+// `inline` is a 44 px target, and focus is the global ring. A default-size label wider than its container wraps
+// onto a second, balanced line inside it; the icon and inline sizes stay on one line.
 const buttonVariants = cva(
-  'inline-flex shrink-0 cursor-pointer select-none items-center justify-center gap-2 whitespace-nowrap rounded-md border font-medium text-16 transition-colors duration-(--duration-fast) ease-enter data-disabled:cursor-not-allowed data-disabled:text-ink-3 [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0',
+  'inline-flex shrink-0 cursor-pointer select-none items-center justify-center gap-2 rounded-md border font-medium text-16 transition-colors duration-(--duration-fast) ease-enter data-disabled:cursor-not-allowed data-disabled:text-ink-3 [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0',
   {
     // Each variant names its own border colour: `cn` does not merge, so the base sets only the width.
     variants: {
@@ -19,10 +20,10 @@ const buttonVariants = cva(
         destructive: 'border-negative bg-transparent text-negative hover:bg-surface-2 data-disabled:border-line',
       },
       size: {
-        default: 'min-h-target px-4',
-        icon: 'size-target',
+        default: 'min-h-target max-w-full px-4 py-2 whitespace-normal text-balance text-center',
+        icon: 'size-target whitespace-nowrap',
         /** For a link-styled button inside running text: inline text links are exempt from the 44 px rule. */
-        inline: 'h-auto p-0',
+        inline: 'h-auto whitespace-nowrap p-0',
       },
     },
     defaultVariants: { variant: 'primary', size: 'default' },

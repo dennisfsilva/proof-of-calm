@@ -15,8 +15,9 @@ type Story = StoryObj<typeof meta>;
 export const Primary: Story = {
   play: async ({ canvas }) => {
     const button = canvas.getByRole('button', { name: 'Bought as planned' });
+    // One line keeps the 44 px target exactly: the vertical padding only shows once a label wraps.
     const { height } = button.getBoundingClientRect();
-    await expect(height).toBeGreaterThanOrEqual(44);
+    await expect(height).toBe(44);
   },
 };
 
@@ -35,6 +36,33 @@ export const Icon: Story = {
   play: async ({ canvas }) => {
     const { width, height } = canvas.getByRole('button', { name: 'Add a purchase' }).getBoundingClientRect();
     await expect(Math.min(width, height)).toBeGreaterThanOrEqual(44);
+  },
+};
+
+/** The distinct line tops of an element's text, so a wrapped label counts its lines. */
+function lineCount(element: HTMLElement): number {
+  const range = document.createRange();
+  range.selectNodeContents(element);
+  return new Set([...range.getClientRects()].map((rect) => Math.round(rect.top))).size;
+}
+
+// German's Today link on a 308 px row at 125 % text (docs/DESIGN.md §8): a label wider than its container wraps onto
+// a second, balanced line inside it, and the button stays a 44 px target.
+export const LongLabel: Story = {
+  args: { variant: 'secondary', children: 'Den laufenden Rückgang ansehen und den Plan prüfen' },
+  render: (args) => (
+    <div lang="de" data-testid="row" className="w-77">
+      <Button {...args} />
+    </div>
+  ),
+  play: async ({ canvas }) => {
+    const row = canvas.getByTestId('row').getBoundingClientRect();
+    const button = canvas.getByRole('button');
+    const box = button.getBoundingClientRect();
+    await expect(box.left).toBeGreaterThanOrEqual(row.left - 0.5);
+    await expect(box.right).toBeLessThanOrEqual(row.right + 0.5);
+    await expect(lineCount(button)).toBe(2);
+    await expect(box.height).toBeGreaterThanOrEqual(44);
   },
 };
 
