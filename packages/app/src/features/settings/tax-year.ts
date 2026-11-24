@@ -39,17 +39,40 @@ import {
   taxYearSpan,
   underReview,
 } from '@proofofcalm/core';
-import { useTranslations } from 'use-intl';
+import { useLocale, useTranslations } from 'use-intl';
+import { createTranslator } from 'use-intl/core';
 import { BRAND } from '../../lib/brand';
-import { type CountryArgs, countryArgs } from '../../lib/countries';
+import { type CountriesTranslator, type CountryArgs, countryArgs } from '../../lib/countries';
+import { NAMESPACE_LOADERS, type UiLanguage } from '../../lib/i18n';
 import type { Services } from '../../lib/services';
 
-/** The header's words in the UI language: `settings.data.taxYear.file`, and the country forms its lines take. */
+/** The languages whose settings messages write the header's own words; every other screen gets English's (D10). */
+export const HEADER_LANGUAGES: readonly UiLanguage[] = ['en', 'pt-PT', 'de'];
+
+/**
+ * The header's words, `settings.data.taxYear.file`, the country forms of the UI language, and the language the words
+ * are in: the UI language where it writes a header, else English, whose merged words stand in for it.
+ */
 export function useTaxYearWords() {
-  return { file: useTranslations('settings.data.taxYear.file'), countries: useTranslations('countries') };
+  const locale = useLocale();
+  return {
+    file: useTranslations('settings.data.taxYear.file'),
+    countries: useTranslations('countries'),
+    language: HEADER_LANGUAGES.find((each) => each === locale) ?? 'en',
+  };
 }
 export type TaxYearWords = ReturnType<typeof useTaxYearWords>;
 type FileWords = TaxYearWords['file'];
+
+/**
+ * The country forms of the header's language: the screen's own where its words are the screen's language, else
+ * English's, so an English line never names „für Deutschland“ (`services.language` is the UI language, ADR-0057).
+ */
+async function headerForms(services: Services, words: TaxYearWords): Promise<CountriesTranslator> {
+  if (words.language === services.language) return words.countries;
+  const { default: countries } = await NAMESPACE_LOADERS.en.countries();
+  return createTranslator({ locale: 'en', messages: { countries }, namespace: 'countries' });
+}
 
 /** What the rows tell the header: the per-lot file's flags, or the raw listing's (no matching, no venue groups). */
 type FileFacts = {
@@ -256,7 +279,8 @@ export async function downloadTaxYear(
   if (rules === null || profile === null) throw new Error("the country's rules or profile are not loaded");
   const today = services.ui.getState().today;
   const span = taxYearSpan(rules.taxYear, endingIn);
-  const input: HeaderInput = { plan, rules, profile, span, today, country: countryArgs(words.countries, rules.code) };
+  const country = countryArgs(await headerForms(services, words), rules.code);
+  const input: HeaderInput = { plan, rules, profile, span, today, country };
   const t = words.file;
   // No closes: the value cells stay empty until the reference closes of packages/data exist (ADR-0036 Readings).
   const noCloses: PriceHistories = { currency: plan.payCurrency, coins: {} };
