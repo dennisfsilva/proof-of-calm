@@ -45,6 +45,8 @@ type OwnerState =
 
 /** A value that holds this anywhere still holds a placeholder, whole or as a fragment left inside a filled value. */
 const PLACEHOLDER = '[Owner:';
+/** The log period a filled `mailHost` states, as its placeholder asks: "keeps its mail logs for 30 days". */
+const MAIL_LOG_PERIOD = /\bkeeps its mail logs for \d+ (hours?|days?|months?)\b/;
 const optional = (field: string) => (OPTIONAL_OWNER_FIELDS as readonly string[]).includes(field);
 
 /**
@@ -59,6 +61,10 @@ function ownerState(owner: Owner): OwnerState {
   const missing = entries
     .filter(([field, value]) => emptyOwnerValue(value) && !optional(field))
     .map(([field]) => field);
+  const mailHost = owner.mailHost;
+  if (!mailHost.includes(PLACEHOLDER) && !emptyOwnerValue(mailHost) && !MAIL_LOG_PERIOD.test(mailHost)) {
+    missing.push('mailHost: mail-log period');
+  }
   return placeholders.length === 0 && missing.length === 0
     ? { state: 'filled' }
     : { state: 'half', placeholders, missing };
@@ -73,7 +79,7 @@ const FILLED: Owner = {
   nif: 'Filled NIF',
   privacyEmail: 'privacy@example.test',
   dsaEmail: 'dsa@example.test',
-  mailHost: 'Filled mail host',
+  mailHost: 'Example Mail, in Exampleland, under SCCs, which keeps its mail logs for 30 days',
   date: 'Filled date',
   vat: '',
   register: '',
@@ -508,6 +514,20 @@ describe('the launch drafts of Terms, Privacy and Contact (docs/LEGAL.md §5)', 
       placeholders: ['name'],
       missing: [],
     });
+  });
+
+  it('refuses a filled mailHost that states no mail-log period', () => {
+    const host = 'Example Mail, in Exampleland, under SCCs';
+    const noPeriod = { state: 'half', placeholders: [], missing: ['mailHost: mail-log period'] };
+    expect(ownerState({ ...FILLED, mailHost: host })).toEqual(noPeriod);
+    expect(ownerState({ ...FILLED, mailHost: `${host}, which keeps its mail logs for thirty days` })).toEqual(noPeriod);
+    expect(ownerState({ ...FILLED, mailHost: `${host}, which keeps its mail logs for 30 weeks` })).toEqual(noPeriod);
+    expect(ownerState({ ...FILLED, mailHost: `${host}, which keeps mail for 30 days` })).toEqual(noPeriod);
+    for (const period of ['1 day', '48 hours', '1 hour', '12 months', '1 month', '30 days']) {
+      expect(ownerState({ ...FILLED, mailHost: `${host}, which keeps its mail logs for ${period}` }), period).toEqual({
+        state: 'filled',
+      });
+    }
   });
 
   it('Contact drops the line of an empty optional field', () => {
