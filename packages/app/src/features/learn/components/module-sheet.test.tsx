@@ -4,7 +4,7 @@ import { loadRules } from '@proofofcalm/content';
 import type { Plan } from '@proofofcalm/core';
 import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import { Component, type ComponentProps, type ReactNode, Suspense } from 'react';
-import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, onTestFinished, vi } from 'vitest';
 import { I18nProvider } from '../../../lib/i18n';
 import { ServicesProvider } from '../../../lib/services';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
@@ -81,6 +81,21 @@ const tree = (props: Partial<ComponentProps<typeof ModuleSheet>> = {}) => (
 );
 
 const mount = (props?: Partial<ComponentProps<typeof ModuleSheet>>) => render(tree(props));
+
+// Each module's body, and the tax module's country card, is a `lazy` that React resolves on its first render in this
+// file, by an import() that under Vitest asks the main process for the module even once it is loaded
+// (lib/services/testing-modules.ts). The preload above spares the transform, not that round trip, and under the whole
+// suite's load it outlasted the 1 s a findBy waits: the first test to show the tax module found no dialog (#520). One
+// render of each sheet before the tests resolves them, so a test's findBy waits on React's renders only.
+const PRIMING = { timeout: 5_000 };
+const PRIMING_HOOK = 30_000;
+beforeAll(async () => {
+  for (const slug of ['start-here', 'when-the-market-drops', 'risk-honestly'] as const) {
+    mount({ slug });
+    await screen.findByRole('dialog', {}, PRIMING);
+    cleanup();
+  }
+}, PRIMING_HOOK);
 
 describe('ModuleSheet', () => {
   it("the sheet's title is the module's idea, with the last-reviewed line under it", async () => {
@@ -199,6 +214,13 @@ describe('ModuleSheet: the tax module', () => {
       );
     });
   };
+
+  // The tax module's body and the card under a plan, resolved before the tests (the note above the first describe).
+  beforeAll(async () => {
+    await sheetAt('PT');
+    await screen.findByRole('heading', { level: 2, name: 'Portugal' }, PRIMING);
+    cleanup();
+  }, PRIMING_HOOK);
 
   it("a plan in Portugal leads with Portugal's card at level 2, and no list", async () => {
     await sheetAt('PT');
