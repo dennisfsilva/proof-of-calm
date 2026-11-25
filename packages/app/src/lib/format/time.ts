@@ -57,6 +57,15 @@ export function createTimeFormatters(formattingLocale: string, uiLocale: string)
     format.formatToParts(ms).find((candidate) => candidate.type === 'timeZoneName')?.value;
   const offset = (timeZone: string, ms: number) =>
     part(cached(`offset ${timeZone}`, { timeZone, timeZoneName: 'longOffset' }, 'en'), ms);
+  // A screen passes one `now` to every time it writes (the value chart's reserve about 325 at load), so the
+  // offset of the last zone and `now` asked is kept rather than read again on each call.
+  let last: { timeZone: string; ms: number; offset: string | undefined } | null = null;
+  const offsetNow = (timeZone: string, ms: number) => {
+    if (last === null || last.timeZone !== timeZone || last.ms !== ms) {
+      last = { timeZone, ms, offset: offset(timeZone, ms) };
+    }
+    return last.offset;
+  };
   const zoneName = (timeZone: string, ms: number) =>
     part(cached(`name ${timeZone}`, { timeZone, timeZoneName: 'short' }, uiLocale), ms);
   const relative = new Intl.RelativeTimeFormat(uiLocale, { ...LATIN_DIGITS, numeric: 'auto' });
@@ -66,7 +75,7 @@ export function createTimeFormatters(formattingLocale: string, uiLocale: string)
   return {
     time(instant, timeZone, now) {
       const ms = epochMs(instant);
-      if (now === undefined || offset(timeZone, ms) === offset(timeZone, epochMs(now))) {
+      if (now === undefined || offset(timeZone, ms) === offsetNow(timeZone, epochMs(now))) {
         return face(timeZone, false).format(ms);
       }
       const name = zoneName(timeZone, ms);
