@@ -75,13 +75,13 @@ const press = (name: string) => act(async () => fireEvent.click(screen.getByRole
 
 describe('LogScreen past LOG_WINDOW transactions', () => {
   // At the cap: Show all mounted 10,000 rows in one render of 17 to 20 s at 6x (docs/ENGINEERING.md §4).
-  it('shows all 10,000 entries 48 at a time, the 13th row focused', { timeout: 15_000 }, async () => {
+  it('shows all 10,000 entries 100 at a time, the 13th row focused', { timeout: 15_000 }, async () => {
     await mount(withBuys(MAX_ENTRIES - fixtureSnapshot().entries.length));
-    const button = screen.getByRole('button', { name: /^Show all 9[\s.,]?9\d\d entries, 48 at a time$/ });
+    const button = screen.getByRole('button', { name: /^Show all 9[\s.,]?9\d\d entries, 100 at a time$/ });
     button.focus();
     await act(async () => fireEvent.click(button));
     expect(toggles()).toHaveLength(LOG_WINDOW);
-    expect(caption().textContent).toMatch(/^Entries 1 to 48 of 9[\s.,]?9\d\d$/);
+    expect(caption().textContent).toMatch(/^Entries 1 to 100 of 9[\s.,]?9\d\d$/);
     expect(document.activeElement).toBe(toggles()[12]);
     expect(screen.queryByRole('button', { name: /^Show all/ })).toBeNull();
   });
@@ -89,26 +89,26 @@ describe('LogScreen past LOG_WINDOW transactions', () => {
   it('opens on the first window when the stored preference says Show all, as a build before the window wrote it', async () => {
     await mount(withBuys(250, true));
     expect(toggles()).toHaveLength(LOG_WINDOW);
-    expect(caption().textContent).toBe('Entries 1 to 48 of 258');
+    expect(caption().textContent).toBe('Entries 1 to 100 of 258');
   });
 
   it('writes the preference a build before the window reads, and moves through the windows', async () => {
     const services = await mount(withBuys(250));
-    await press('Show all 258 entries, 48 at a time');
+    await press('Show all 258 entries, 100 at a time');
     const prefs = services.domain.store.getState().snapshot.prefs;
     expect(z.object(PrefsSchema.shape).safeParse(prefs).success).toBe(true);
     expect(screen.queryByRole('button', { name: 'Show newer entries' })).toBeNull();
     await press('Show older entries');
-    expect(caption().textContent).toBe('Entries 49 to 96 of 258');
+    expect(caption().textContent).toBe('Entries 101 to 200 of 258');
     expect(document.activeElement).toBe(toggles()[0]);
     expect(scrolled).toHaveBeenLastCalledWith({ block: 'start' });
     expect(scrolled.mock.contexts.at(-1)).toBe(caption());
-    for (const _ of [97, 145, 193, 241]) await press('Show older entries');
-    expect(caption().textContent).toBe('Entries 241 to 258 of 258');
-    expect(toggles()).toHaveLength(18);
+    await press('Show older entries');
+    expect(caption().textContent).toBe('Entries 201 to 258 of 258');
+    expect(toggles()).toHaveLength(58);
     expect(screen.queryByRole('button', { name: 'Show older entries' })).toBeNull();
     await press('Show newer entries');
-    expect(caption().textContent).toBe('Entries 193 to 240 of 258');
+    expect(caption().textContent).toBe('Entries 101 to 200 of 258');
     expect(document.activeElement).toBe(toggles()[0]);
   });
 
@@ -119,7 +119,7 @@ describe('LogScreen past LOG_WINDOW transactions', () => {
     expect(year.textContent).toContain('2026');
     await user.click(year);
     await user.click(await screen.findByRole('option', { name: '2025' }));
-    await vi.waitFor(() => expect(caption().textContent).toBe('Entries 103 to 150 of 258'));
+    await vi.waitFor(() => expect(caption().textContent).toBe('Entries 103 to 202 of 258'));
     expect(toggles()[0]?.textContent).toMatch(/^31\sDec\s2025Extra buy/);
     expect(document.activeElement).toBe(screen.getByRole('combobox', { name: 'Go to year' }));
   });
@@ -131,7 +131,7 @@ describe('LogScreen past LOG_WINDOW transactions', () => {
     fireEvent.click(last);
     await press('Delete entry');
     expect(toggles()).toHaveLength(LOG_WINDOW);
-    expect(caption().textContent).toBe('Entries 1 to 48 of 257');
+    expect(caption().textContent).toBe('Entries 1 to 100 of 257');
     expect(document.activeElement).toBe(toggles()[LOG_WINDOW - 1]);
     expect(document.activeElement?.textContent).not.toBe(lastText);
   });

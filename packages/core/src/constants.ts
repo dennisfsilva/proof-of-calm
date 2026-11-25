@@ -66,9 +66,11 @@ export const LOG_PAGE = 12;
 
 /**
  * After "Show all", the Log shows at most this many transactions at a time, with newer and older pages, so its render
- * stays bounded at the cap (docs/DOMAIN.md §3.9, docs/ENGINEERING.md §4 "The Log at the cap").
+ * stays bounded at the cap (docs/DOMAIN.md §3.9, docs/ENGINEERING.md §4 "The Log at the cap"). 100, not 48: at 48 Show
+ * all's longest task (314 to 321 ms) and opening Go to year (172 to 197 ms) measured as at 100, while a Log of 49 to 100
+ * transactions paged; at 100 Show older and Show newer stay under the rule (82 to 95 ms at 6x).
  */
-export const LOG_WINDOW = 48;
+export const LOG_WINDOW = 100;
 
 /** How long a deleted entry can be restored from the toast. */
 export const UNDO_WINDOW_MS = 8000;
