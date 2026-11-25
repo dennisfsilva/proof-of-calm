@@ -29,4 +29,39 @@ describe('Select', () => {
     const styles = [...document.querySelectorAll('style')].map((style) => style.textContent ?? '');
     expect(styles.filter((text) => text.includes('base-ui-disable-scrollbar'))).toEqual([]);
   });
+
+  // Base UI's aligned layout reads the positioner's bottom margin (docs/DESIGN.md §7): the bar's height only when the
+  // list would reach the bar, as a margin it does not need lifts the list off its trigger.
+  const positioner = async () => {
+    await userEvent.click(screen.getByRole('combobox', { name: 'Country' }));
+    await screen.findByRole('option', { name: 'Germany' });
+    return document.querySelector('[data-slot="select-content"]')?.parentElement;
+  };
+  const country = (
+    <Select<string> defaultValue="pt">
+      <SelectLabel>Country</SelectLabel>
+      <SelectTrigger>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="pt">Portugal</SelectItem>
+        <SelectItem value="de">Germany</SelectItem>
+      </SelectContent>
+    </Select>
+  );
+
+  it('leaves the bottom margin to Base UI on a page without the tab bar', async () => {
+    render(country);
+    expect((await positioner())?.className).toBe('isolate z-50');
+  });
+
+  it("gives the open list the tab bar's margin when it would reach the bar", async () => {
+    render(
+      <>
+        {country}
+        <div data-slot="tab-bar" ref={(bar) => bar && Object.defineProperty(bar, 'offsetHeight', { value: 70 })} />
+      </>,
+    );
+    expect((await positioner())?.className).toBe('isolate z-50 mb-(--bottom-bar)');
+  });
 });
