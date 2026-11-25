@@ -47,7 +47,9 @@ export const PROFILE_OVERLAYS: Readonly<
     US: () => import('../../i18n/pt-PT/jurisdictions/us.json'),
     XX: () => import('../../i18n/pt-PT/jurisdictions/xx.json'),
   },
-  de: {},
+  de: {
+    DE: () => import('../../i18n/de/jurisdictions/de.json'),
+  },
 };
 
 const isProfileCode = (code: string): code is ProfileCode => Object.hasOwn(FILES, code);

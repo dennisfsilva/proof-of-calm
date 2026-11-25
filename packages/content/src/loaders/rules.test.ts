@@ -19,7 +19,7 @@ const PROFILES = fileURLToPath(new URL('../../jurisdictions/', import.meta.url))
 const STALE = 'stale rules file: run `pnpm --filter @proofofcalm/content rules` and commit the result';
 const fileName = (code: string) => `${code.toLowerCase()}.json`;
 // The script writes rules/<language>/ for each content language with profiles under i18n/<language>/jurisdictions
-// (ADR-0057); a language with only template overlays (de, so far) has none.
+// (ADR-0057), over every profile code: a code without that language's profile file gets English's text there.
 const I18N = fileURLToPath(new URL('../../i18n/', import.meta.url));
 const I18N_LANGUAGES = readdirSync(I18N)
   .filter((name): name is OverlayLanguage => (CONTENT_LANGUAGES as readonly string[]).includes(name) && name !== 'en')
@@ -63,7 +63,7 @@ describe('packages/content/rules', () => {
 
 describe('packages/content/rules/<language> (ADR-0057)', () => {
   it('has a folder, and a loadRules record, for each language with profiles under i18n/', () => {
-    expect(I18N_LANGUAGES).toContain('pt-PT');
+    expect(I18N_LANGUAGES).toEqual(expect.arrayContaining(['pt-PT', 'de']));
     expect([...RULES_LANGUAGES].sort()).toEqual(I18N_LANGUAGES);
   });
 
@@ -76,14 +76,20 @@ describe('packages/content/rules/<language> (ADR-0057)', () => {
   });
 
   // The overlay read here, at test time: the translated file is English's but for the texts the overlay holds.
-  const overlayFile = (code: string) =>
-    JSON.parse(
-      readFileSync(fileURLToPath(new URL(`../../i18n/pt-PT/jurisdictions/${fileName(code)}`, import.meta.url)), 'utf8'),
-    ) as { name?: string; holdingRuleConditions?: (string | null)[]; status?: { changeNotice?: string | null } };
-  it.each(['PT', 'XX'])("pt-PT/%s is English's outside the name, the conditions and the change notice", (code) => {
+  const overlayFile = (language: string, code: string) =>
+    JSON.parse(readFileSync(join(I18N, language, 'jurisdictions', fileName(code)), 'utf8')) as {
+      name?: string;
+      holdingRuleConditions?: (string | null)[];
+      status?: { changeNotice?: string | null };
+    };
+  it.each([
+    ['pt-PT', 'PT'],
+    ['pt-PT', 'XX'],
+    ['de', 'DE'],
+  ])("%s/%s is English's outside the name, the conditions and the change notice", (language, code) => {
     const english = countryRules(profileFile(code));
-    const overlay = overlayFile(code);
-    const translated = JSON.parse(readFileSync(join(RULES, 'pt-PT', fileName(code)), 'utf8'));
+    const overlay = overlayFile(language, code);
+    const translated = JSON.parse(readFileSync(join(RULES, language, fileName(code)), 'utf8'));
     const conditions = english.holdingRuleConditions.map(
       (text, index) => overlay.holdingRuleConditions?.[index] ?? text,
     );
@@ -102,22 +108,35 @@ describe('packages/content/rules/<language> (ADR-0057)', () => {
     if (overlay.name !== undefined) expect(translated.name).not.toBe(english.name);
   });
 
-  it("answers English's own file in English and in a language without generated files", async () => {
+  it("answers English's own file in English, and English's text marked English over a code without a translation", async () => {
     const english = await loadRules('PT');
     expect(await loadRules('PT', 'en')).toBe(english);
-    expect(await loadRules('PT', 'de')).toBe(english);
+    for (const code of COUNTRY_CODES.filter((each) => PROFILE_OVERLAYS.de[each] === undefined)) {
+      const rules = await loadRules(code, 'de');
+      expect(rules, code).toEqual(await loadRules(code));
+      expect(rules === null ? null : contentLanguageOf(rules), code).toBe('en');
+    }
     expect(await loadRules('ZZ', 'pt-PT')).toBeNull();
+  });
+
+  it('gives DE in German the German conditions of its profile file, marked de', async () => {
+    const rules = await loadRules('DE', 'de');
+    expect(rules?.holdingRuleConditions).toEqual(overlayFile('de', 'DE').holdingRuleConditions);
+    expect(rules?.holdingRuleConditions).not.toEqual((await loadRules('DE'))?.holdingRuleConditions);
+    expect(rules === null ? null : contentLanguageOf(rules)).toBe('de');
   });
 });
 
 describe('contentLanguageOf over the rules (ADR-0057, Corrections of 2026-11-16)', () => {
   it("gives a translated profile's rules its language, and English rules English, whatever their folder", async () => {
-    const translated = new Set(Object.keys(PROFILE_OVERLAYS['pt-PT']));
-    for (const code of COUNTRY_CODES) {
-      const rules = await loadRules(code, 'pt-PT');
-      expect(rules === null ? null : contentLanguageOf(rules)).toBe(translated.has(code) ? 'pt-PT' : 'en');
-      const english = await loadRules(code);
-      expect(english === null ? null : contentLanguageOf(english)).toBe('en');
+    for (const language of ['pt-PT', 'de'] as const) {
+      const translated = new Set(Object.keys(PROFILE_OVERLAYS[language]));
+      for (const code of COUNTRY_CODES) {
+        const rules = await loadRules(code, language);
+        expect(rules === null ? null : contentLanguageOf(rules)).toBe(translated.has(code) ? language : 'en');
+        const english = await loadRules(code);
+        expect(english === null ? null : contentLanguageOf(english)).toBe('en');
+      }
     }
   });
 

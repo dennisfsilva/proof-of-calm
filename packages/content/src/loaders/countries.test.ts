@@ -174,8 +174,16 @@ describe('loadProfile and loadProfiles in a content language (ADR-0057)', () => 
   it('answers the English profile itself in English and in a language without a translation of the file', async () => {
     const english = await loadProfile('PT');
     expect(await loadProfile('PT', 'en')).toBe(english);
-    expect(await loadProfile('PT', 'de')).toBe(english);
-    expect(await loadProfiles('de')).toEqual(profiles);
+    // German's files arrive one branch at a time (#486): each code without one answers its English profile.
+    const german = await loadProfiles('de');
+    COUNTRY_CODES.forEach((code, index) => {
+      if (PROFILE_OVERLAYS.de[code] === undefined) expect(german[index], code).toEqual(profiles[index]);
+      else expect(german[index]?.code, code).toBe(code);
+    });
+    vi.resetModules();
+    const fresh = await import('./countries.ts');
+    delete fresh.PROFILE_OVERLAYS.de.DE;
+    expect(await fresh.loadProfile('DE', 'de')).toBe(await fresh.loadProfile('DE'));
     expect(await loadProfile('ZZ', 'pt-PT')).toBeNull();
   });
 
@@ -220,7 +228,7 @@ describe('loadProfile and loadProfiles in a content language (ADR-0057)', () => 
 });
 
 describe('contentLanguageOf over the profiles (ADR-0057, Corrections of 2026-11-16)', () => {
-  const loaded = async (code: string, language: 'en' | 'pt-PT') => {
+  const loaded = async (code: string, language: 'en' | 'pt-PT' | 'de') => {
     const found = await loadProfile(code, language);
     if (found === null) throw new Error(`no profile ${code}`);
     return found;
@@ -258,6 +266,23 @@ describe('contentLanguageOf over the profiles (ADR-0057, Corrections of 2026-11-
     const profile = await loaded(code, 'pt-PT');
     expect(profile.name).toBe(name);
     expect(contentLanguageOf(profile)).toBe('pt-PT');
+  });
+
+  // D1 of #486: German's first profile file; every other code in German stays English until its file arrives.
+  it('gives Germany its German name and text, marked de, and a code without a German file English', async () => {
+    const germany = await loaded('DE', 'de');
+    expect(germany.name).toBe('Deutschland');
+    expect(contentLanguageOf(germany)).toBe('de');
+    const translated = new Set(Object.keys(PROFILE_OVERLAYS.de));
+    for (const each of await loadProfiles('de'))
+      expect(contentLanguageOf(each), each.code).toBe(translated.has(each.code) ? 'de' : 'en');
+    vi.resetModules();
+    const fresh = await import('./countries.ts');
+    const { contentLanguageOf: languageOf } = await import('./language.ts');
+    delete fresh.PROFILE_OVERLAYS.de.DE;
+    const english = await fresh.loadProfile('DE', 'de');
+    expect(english?.name).toBe('Germany');
+    expect(english === null ? null : languageOf(english)).toBe('en');
   });
 
   it('lists none of those eight English names in pt-PT', async () => {
