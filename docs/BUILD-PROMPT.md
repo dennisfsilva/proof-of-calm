@@ -1012,6 +1012,10 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - A review workflow's reviewer can hand back an empty list on a translation within two minutes; the
   delegated module read, with its figure-by-figure table, is the record that the figures were read
   (25, 118 and 22 figures on #497, #499 and #500; 2026-11-25).
+- A roadmap line that calls a language's build complete is checked against the earlier language's
+  path to its native read. The sync of 2026-11-25 called German complete after its six module
+  overlays while the site's messages, part of pt-PT's #401, had no plan, and only the sync's review
+  found it (#502; 2026-11-25).
 
 ## Known gaps
 
