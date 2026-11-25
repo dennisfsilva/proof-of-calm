@@ -184,14 +184,17 @@ export function initialState(
     return { kind, date: '', slot: null, fee: '', venue: '', note: '', rows };
   }
   // Every held coin in the portfolio's order (DOMAIN §3.6), as saveTransaction accepts; with nothing held the
-  // plan's coins, so a sale typed anyway meets the save's sell-exceeds-held message rather than an empty form.
-  const held = coinsWithEntries(plan, live).filter((coin) => isPositive(heldUnits(live, coin)));
-  const sellable = held.length > 0 ? held : plan.coins.map((coin) => coin.id);
+  // plan's coins, so a sale typed anyway meets the save's sell-exceeds-held message rather than an empty form. Only a
+  // sale scans what is held: at the cap the scan per coin is a real part of a sheet's opening (ENGINEERING §4).
+  const sellable = () => {
+    const held = coinsWithEntries(plan, live).filter((coin) => isPositive(heldUnits(live, coin)));
+    return held.length > 0 ? held : plan.coins.map((coin) => coin.id);
+  };
   const rows =
     kind === 'dca' || kind === 'lump'
       ? plannedRows(kind, ctx)
       : kind === 'sell'
-        ? sellable.map((coin) => emptyRow(plan, coin))
+        ? sellable().map((coin) => emptyRow(plan, coin))
         : plan.coins.map((coin) => buyRow(coin.id, null, ctx));
   return {
     kind,
