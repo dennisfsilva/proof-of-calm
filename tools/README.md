@@ -101,7 +101,10 @@ key, valid a week, kept in memory), and keeps the whole policy. Lighthouse runs 
 simulation gives an http/1.1 origin six connections and an h2 one a single multiplexed connection, as
 Vercel serves: `/log` measured 3,223 and 3,459 ms of LCP over http/1.1 and 2,214 ms over h2 on
 2026-11-25 (one run each, 34 requests). Its Chrome takes `--ignore-certificate-errors`, without which
-the service worker does not register, and `lighthouse/vercel.ts` leaves that flag out at a deployment.
+the service worker does not register, from the local run's own rc layer, `apps/web/lighthouse/local.cjs`
+(`lighthouserc.json` plus that flag), never from `lighthouserc.json`: `lighthouse-vercel.yml` reads the
+rc from the deployed commit and `lighthouse/vercel.ts` from the workflow's, which may be one that copies
+the launch options unchanged. `lighthouse/vercel.ts` still drops every certificate-ignoring option.
 
 Turbo hashes a task over its own package and its dependencies, so a test here that reads another
 package's files names them in `turbo.json`'s `test.inputs` with `$TURBO_ROOT$`; otherwise a change to

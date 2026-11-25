@@ -1666,5 +1666,9 @@ The decision stands; this gives the site pages of §6 their third language on th
   (medians of five, LCP): Today 1,902 against 2,417 ms, Portfolio 2,150 against 2,952 ms, Log 2,162
   against 3,195 ms, Plan 2,153 against 2,814 ms, every request h2 and no console error. The run's
   Chrome takes `--allow-insecure-localhost` and `--ignore-certificate-errors`, since the service
-  worker refuses to register on a certificate error otherwise; `tools/lighthouse/vercel.ts` drops the
-  second for every deployment. The e2e suite keeps plain http.
+  worker refuses to register on a certificate error otherwise. The second comes from the local run's
+  own rc layer, `apps/web/lighthouse/local.cjs`, which the `lighthouse` script names and which adds
+  it to `lighthouserc.json`; the shared rc never carries it, because `lighthouse-vercel.yml` reads the
+  rc from the deployed commit and `tools/lighthouse/vercel.ts` from the workflow's, and main's copy
+  before this entry passed the launch options through unchanged. `vercel.ts` also drops every
+  certificate-ignoring option for every deployment. The e2e suite keeps plain http.
