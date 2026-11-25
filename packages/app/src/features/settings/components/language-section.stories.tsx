@@ -49,9 +49,12 @@ export const ChoosesPortuguese: Story = {
     await expect(options.map((option) => option.getAttribute('lang'))).toEqual(['en', 'pt-PT', 'de']);
     await userEvent.click(await popup.findByRole('option', { name: 'Português (Portugal)' }));
     await waitFor(() => expect(args.reload).toHaveBeenCalledTimes(1));
-    // axe runs after the play: by then the select's popup and its aria-hidden focus guards must be gone.
-    await expect(popup.queryByRole('listbox')).toBeNull();
-    await expect(canvasElement.ownerDocument.querySelector('[data-base-ui-focus-guard]')).toBeNull();
+    // Wait for the select to close: until its popup unmounts, Base UI's focus guards are focusable while
+    // aria-hidden, and axe, which runs after the play, fails on them (as country-section.stories.tsx waits).
+    await waitFor(() => {
+      expect(popup.queryByRole('listbox')).toBeNull();
+      expect(canvasElement.ownerDocument.querySelector('[data-base-ui-focus-guard]')).toBeNull();
+    });
     canvasElement.ownerDocument.defaultView?.localStorage.removeItem('poc.language');
   },
 };
