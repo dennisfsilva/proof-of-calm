@@ -557,6 +557,62 @@ describe('a law name, a date and a range in pt-PT prose (docs/CONTENT-STYLE.md �
   });
 });
 
+// D2 of #486 (docs/CONTENT-STYLE.md §10): German's law names, its months long and short with the day's point
+// (`15. März 2027`) and its unit words, each case-sensitive, so that a German profile overlay keeps its joins.
+describe('a law name, a date and a unit in German prose (docs/CONTENT-STYLE.md §10)', () => {
+  const de = (text: string) => joinProblems(path, [['card.caveats.0', text]], 'de').map(({ detail }) => detail);
+  const unit = (figure: string, word: string) => refused(`the figure "${figure}" and its unit`, `"${word}"`);
+
+  it('refuses both gaps of a date with its day’s point, and passes it joined (G1)', () => {
+    expect(de('Gekauft am 15. März 2027.')).toEqual([dayed('15.', 'März'), yeared('März', '2027')]);
+    expect(de(`Gekauft am 15.${nbsp}März${nbsp}2027.`)).toEqual([]);
+    expect(de('Ab 1. Jan. 2026 und bis 31. Dez.')).toEqual([
+      dayed('1.', 'Jan.'),
+      yeared('Jan.', '2026'),
+      dayed('31.', 'Dez.'),
+    ]);
+  });
+
+  it('refuses each name of a German citation pair by pair, and passes it joined (G2)', () => {
+    expect(de('Nach § 23 Abs. 1 Satz 1 Nr. 2 EStG.')).toEqual([
+      named('§', '23'),
+      named('Abs.', '1'),
+      named('Satz', '1'),
+      named('Nr.', '2'),
+    ]);
+    expect(de(`Nach §${nbsp}23 Abs.${nbsp}1 Satz${nbsp}1 Nr.${nbsp}2 EStG, Art.${nbsp}3 und §§${nbsp}187.`)).toEqual(
+      [],
+    );
+    expect(de('Nach Art. 3.')).toEqual([named('Art.', '3')]);
+  });
+
+  it('refuses an ordinary space between a figure and its German unit word (G3)', () => {
+    expect(de('Nach 365 Tage und 1 Jahr.')).toEqual([unit('365', 'Tage'), unit('1', 'Jahr')]);
+    expect(de('Seit 10 Jahren, 2 Wochen, 3 Monaten, 1 Tag.')).toHaveLength(4);
+    expect(de(`Nach 365${nbsp}Tagen und 1${nbsp}Jahr.`)).toEqual([]);
+  });
+
+  it('reads no unit or date in a year after its noun, a URL, a joined range or a lower-case word (G4)', () => {
+    const plain = [
+      'Seit Beginn des Jahres 2026.',
+      'Siehe https://www.bundesfinanzministerium.de/2026/1 Jahr.',
+      `Im Steuerjahr 2026-${wj}27.`,
+      'Nach 2 tagen und 3 märz.',
+      'Im März wird erklärt.',
+    ];
+    expect(plain.flatMap(de)).toEqual([]);
+  });
+
+  it('leaves English and pt-PT as they were (G5)', () => {
+    expect(joins('From 1 January 2023, held 365 days.')).toEqual([
+      dayed('1', 'January'),
+      yeared('January', '2023'),
+      unit('365', 'days'),
+    ]);
+    expect(joins('From 15. März 2027.')).toEqual([]);
+  });
+});
+
 // #368 A (docs/CONTENT-STYLE.md §4 and §9): a figure and its unit word, a citation's brackets, an identifier, a law
 // number's hyphen and pt-PT's form name, each of which a narrow screen split in the probe of #368.
 describe('a figure and its unit, a citation and an identifier (docs/CONTENT-STYLE.md §4)', () => {
@@ -587,7 +643,7 @@ describe('a figure and its unit, a citation and an identifier (docs/CONTENT-STYL
 
   it('leaves a unit word after a word, inside a word, and in a language without lists (U3)', () => {
     expect(joins('For many days, a 365-day rule, 5 yearsago.')).toEqual([]);
-    expect(joinProblems(path, [['card.caveats.0', 'Held under 365 days.']], 'de')).toEqual([]);
+    expect(joinProblems(path, [['card.caveats.0', 'Held under 365 days.']], 'nl')).toEqual([]);
   });
 
   it('refuses a citation whose brackets meet with no U+2060, and passes one with it (C1)', () => {
