@@ -17,7 +17,7 @@
       "numberOfRuns": 5,
       "puppeteerScript": "node_modules/.cache/lighthouse/seed.cjs",
       "puppeteerLaunchOptions": {
-        "args": ["--no-sandbox", "--allow-insecure-localhost", "--ignore-certificate-errors"]
+        "args": ["--no-sandbox", "--allow-insecure-localhost"]
       },
       "settings": {
         "clearStorageTypes": ["file_systems", "shader_cache", "service_workers", "cache_storage"]

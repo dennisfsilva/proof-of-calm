@@ -37,15 +37,21 @@ const NO_CONSOLE_ERROR: Assertion = ['error', { maxLength: 0 }];
 const PRODUCTION_ORIGIN = 'https://proofofcalm.com';
 
 /**
- * The local server's certificate is self-signed (tools/serve/vercel-local.ts --tls), so the local run tells
- * Chrome to ignore certificate errors, or the service worker does not register; a deployment's
- * certificate is real and stays checked. `--allow-insecure-localhost` touches localhost alone and stays.
+ * The local server's certificate is self-signed (tools/serve/vercel-local.ts --tls), so the local run's own
+ * layer (apps/web/lighthouse/local.cjs) tells Chrome to ignore certificate errors, or the service worker
+ * does not register; lighthouserc.json never carries that. Should a commit's rc carry it, or another
+ * certificate-ignoring option, it is dropped here: a deployment's certificate is real and stays checked.
+ * `--allow-insecure-localhost` touches localhost alone and stays.
  */
-const LOCAL_ONLY_ARGS = new Set(['--ignore-certificate-errors']);
+const IGNORES_CERTIFICATES = /^--ignore-certificate-errors(?:$|[-=])/;
+const INSECURE_OPTIONS = new Set(['acceptInsecureCerts', 'ignoreHTTPSErrors']);
 
 function deploymentLaunch(options: Record<string, unknown>): Record<string, unknown> {
-  const { args } = options;
-  return Array.isArray(args) ? { ...options, args: args.filter((arg) => !LOCAL_ONLY_ARGS.has(arg)) } : options;
+  const checked = Object.fromEntries(Object.entries(options).filter(([key]) => !INSECURE_OPTIONS.has(key)));
+  const { args } = checked;
+  return Array.isArray(args)
+    ? { ...checked, args: args.filter((arg) => typeof arg !== 'string' || !IGNORES_CERTIFICATES.test(arg)) }
+    : checked;
 }
 
 /** An assertion the local run only warns on fails at a deployment; `off` stays off. */
