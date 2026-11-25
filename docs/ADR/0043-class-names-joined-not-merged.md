@@ -44,3 +44,14 @@ that owns it. tailwind-merge moves to the UI package's devDependencies.
   framework at Vercel's compression, half of the 45 kB ADR-0005 meant for application code. If it
   cannot, that is ADR-0005's plan B trigger, decided in its own ADR with the measurements, not a quiet
   raise of the budget.
+
+## Corrections recorded on 2026-11-25
+
+The decision stands; this statement of the text above is no longer true of the repository, and is
+corrected here instead of rewritten (`docs/ADR/README.md`).
+
+- **Decision: "`packages/ui/src/lib/class-conflicts.ts`".** The module is
+  `packages/ui/src/lib/class-conflicts.testing.ts` since 2026-11-25, named as test data so that the
+  dependency rule `no-test-data-in-product` keeps it out of product code (`docs/ARCHITECTURE.md`,
+  `packages/config/dependency-cruiser.cjs`). The story decorator imports it from
+  `packages/ui/.storybook/shared.ts` and the e2e matrix as `@proofofcalm/ui/lib/class-conflicts.testing`.
