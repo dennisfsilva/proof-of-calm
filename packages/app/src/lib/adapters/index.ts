@@ -5,7 +5,7 @@ export { HISTORY_TTL_MS } from './history';
 export { apiHistorySource } from './history-source';
 export { type CalendarReminder, calendarReminder } from './ics';
 export { DATABASE_NAME } from './idb/database';
-export { type IdbPlanStore, type IdbPlanStoreOptions, idbPlanStore } from './idb-store';
+export { type IdbPlanStore, type IdbPlanStoreOptions, idbPlanStore, PREFS_KEY, prefsRecord } from './idb-store';
 export { applyChanges, EMPTY_SNAPSHOT, memoryPlanStore } from './memory-store';
 export {
   apiPriceSource,

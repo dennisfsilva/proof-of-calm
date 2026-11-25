@@ -44,7 +44,8 @@ import {
   type Unread,
 } from './idb/rows';
 
-const PREFS_KEY = 'device';
+/** The one prefs record's key (out of line); the Lighthouse seed puts its record there too. */
+export const PREFS_KEY = 'device';
 const PRICES_KEY = 'latest';
 const LOAD_STORES: StoreName[] = ['plans', 'entries', 'prefs', 'prices', 'history', 'meta'];
 
@@ -96,6 +97,22 @@ function touches(changes: Changes) {
     ...(changes.prices === undefined ? [] : (['prices'] as const)),
   ];
   return { synced, prefsChanged, stores };
+}
+
+/**
+ * The preferences are written whole, but the stored row may carry fields of a later build that this
+ * build's read schema dropped (PrefsReadSchema): they are kept under the validated change, so a
+ * rollback or an old tab does not reset them (docs/RELEASE.md, rollback). A row that is not a record
+ * has nothing to keep. `changedAt` belongs to the stamp alone: the row's own stays under a changed
+ * record, which may be built from an older read, and only `stampedAt` sets it, on the row as stored
+ * (the defaults when there is none or it does not read), so neither puts back what another tab wrote
+ * since this tab read.
+ */
+export function prefsRecord(stored: unknown, changed: Prefs | undefined, stampedAt?: Instant) {
+  const kept = typeof stored === 'object' && stored !== null && !Array.isArray(stored) ? stored : DEFAULT_PREFS;
+  const own = PrefsSchema.shape.changedAt.safeParse('changedAt' in kept ? kept.changedAt : undefined);
+  const changedAt = stampedAt ?? (own.success ? own.data : DEFAULT_PREFS.changedAt);
+  return { ...kept, ...changed, changedAt };
 }
 
 export function idbPlanStore(options: IdbPlanStoreOptions): IdbPlanStore {
@@ -152,21 +169,9 @@ export function idbPlanStore(options: IdbPlanStoreOptions): IdbPlanStore {
     return written;
   }
 
-  /**
-   * The preferences are written whole, but the stored row may carry fields of a later build that this
-   * build's read schema dropped (PrefsReadSchema): they are kept under the validated change, so a
-   * rollback or an old tab does not reset them (docs/RELEASE.md, rollback). A row that is not a record
-   * has nothing to keep. `changedAt` belongs to the stamp alone: the row's own stays under a changed
-   * record, which may be built from an older read, and only `stampedAt` sets it, on the row as stored
-   * (the defaults when there is none or it does not read), so neither puts back what another tab wrote
-   * since this tab read.
-   */
+  /** The preferences as `prefsRecord` builds them over the stored row. */
   async function writePrefs(prefs: Store<'prefs'>, changed: Prefs | undefined, stampedAt?: Instant): Promise<void> {
-    const stored = await prefs.get(PREFS_KEY);
-    const kept = typeof stored === 'object' && stored !== null && !Array.isArray(stored) ? stored : DEFAULT_PREFS;
-    const own = PrefsSchema.shape.changedAt.safeParse('changedAt' in kept ? kept.changedAt : undefined);
-    const changedAt = stampedAt ?? (own.success ? own.data : DEFAULT_PREFS.changedAt);
-    await prefs.put({ ...kept, ...changed, changedAt }, PREFS_KEY);
+    await prefs.put(prefsRecord(await prefs.get(PREFS_KEY), changed, stampedAt), PREFS_KEY);
   }
 
   /**
