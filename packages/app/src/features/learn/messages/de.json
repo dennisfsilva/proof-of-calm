@@ -7,7 +7,7 @@
     "back": "Zurück zu „Lernen“",
     "lastReviewed": "Stand: {date}{state, select, overdue { · <ink>Überprüfung verspätet</ink>} next { · <keep>Nächste Überprüfung geplant für den {due}</keep>} other {}}",
     "taxOverdue": "Die Regeln können sich seit dem {date} geändert haben. Prüfen Sie vor der Steuererklärung die Angaben Ihrer Steuerbehörde.",
-    "taxSiteLead": "Die Abschnitte vor „How fast rules change“ beschreiben, was die App nach der Einrichtung eines Plans zeigt. Die Liste am Ende verweist auf die Seite jedes Landes.",
+    "taxSiteLead": "Die Abschnitte vor „Wie schnell sich die Regeln ändern“ beschreiben, was die App nach der Einrichtung eines Plans zeigt. Die Liste am Ende verweist auf die Seite jedes Landes.",
     "pastPerformance": "Die frühere Wertentwicklung ist kein verlässlicher Indikator für künftige Ergebnisse.",
     "riskLink": "Risikohinweise",
     "fallUnderWay": "Ein Rückgang der Coins in Ihrem Bestand ist im Gange. <page>Die Zahlen dazu ansehen</page>"
