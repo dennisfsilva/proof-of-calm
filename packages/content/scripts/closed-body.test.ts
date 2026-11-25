@@ -866,6 +866,34 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
       /"In the chart, .* matches neither shape of a chart's section; write it as B or E \(docs\/CONTENT-STYLE\.md §9\); R5 /u,
     );
   });
+
+  // R6's details quote pt-PT's own span and threshold, as German's do (§9): the live module against rows that move
+  // bitcoin's first high past 2011, then against rows whose bitcoin falls are none of them more than 75 %.
+  it("quotes pt-PT B's own span and threshold in R6's details", async () => {
+    const at = 'packages/content/i18n/pt-PT/learn/risk-honestly.mdx';
+    const source = readFileSync(join(i18n, 'pt-PT', 'learn', 'risk-honestly.mdx'), 'utf8');
+    const english = parseModule(
+      'packages/content/learn/risk-honestly.mdx',
+      readFileSync(join(learn, 'risk-honestly.mdx'), 'utf8'),
+    );
+    if (!english.ok || figures.rows === null) throw new Error('the live risk-honestly or the rows do not load');
+    const r6 = async (rows: NonNullable<typeof figures.rows>) =>
+      (
+        await closedBodyProblems([{ language: 'pt-PT', path: at, source }], {
+          english: [english.value],
+          figures: { ...figures, rows },
+        })
+      ).flatMap(({ detail }) => (detail.endsWith('R6 (docs/CONTENT-STYLE.md §4)') ? [detail.split('" in "')[0]] : []));
+    const btc = (row: (typeof figures.rows)[number]) => row.coin === 'BTC';
+    const later = figures.rows.filter((row) => !btc(row) || !row.high.startsWith('2011'));
+    const lower = figures.rows.map((row) => (btc(row) ? { ...row, fall: '70' } : row));
+    const NBSP = String.fromCodePoint(0xa0);
+    expect([await r6(figures.rows), await r6(later), await r6(lower)]).toEqual([
+      [],
+      ['body: "4 quedas', 'body: "entre 2011 e 2022'],
+      [`body: "mais de 75${NBSP}%`],
+    ]);
+  });
 });
 
 // D4's 148 decided rows (#421's verdict, 2026-11-24): designer a's and b's cases, the English collisions and the

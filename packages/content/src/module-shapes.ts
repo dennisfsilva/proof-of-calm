@@ -48,11 +48,12 @@ export function shapesOf(language: string, C: string, C1: string): Shapes | unde
     };
   }
   if (language !== 'pt-PT') return undefined;
-  // No comma before `e`, in a list of figures or between clauses (§9).
+  // No comma before `e`, in a list of figures or between clauses (§9). B names its threshold and span, as German's
+  // does, so R6's details quote pt-PT's own words.
   const L = `${F}(?: e ${F}|(?:, ${F})+ e ${F})?`;
   return {
     b: new RegExp(
-      `^No gráfico, ${B(C)} teve ${K}${GAP}(?<falls>quedas?) de mais de (?<n>${N})${J}% entre (?<y1>${Y}) e (?<y2>${Y})\\.$`,
+      `^No gráfico, ${B(C)} teve ${K}${GAP}(?<falls>quedas?) de (?<more>mais de (?<n>${N})${J}%) (?<span>entre (?<y1>${Y}) e (?<y2>${Y}))\\.$`,
       'u',
     ),
     e: new RegExp(`^(?:${C1}) caiu ${L}(?:(?:, (?:${C}) ${L})* e (?:${C}) ${L})?\\.$`, 'u'),
