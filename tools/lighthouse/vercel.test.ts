@@ -30,13 +30,35 @@ describe('vercelConfig', () => {
     expect(kept).toMatchObject({ numberOfRuns: 5, puppeteerScript: 'node_modules/.cache/lighthouse/seed.cjs' });
   });
 
-  // The local server's certificate is self-signed (tools/serve/self-signed.ts), so Chrome ignores
-  // certificate errors there, or the service worker does not register; a deployment's certificate is real
-  // and checked. --allow-insecure-localhost applies to localhost alone and comes along unchanged.
-  it("takes the local server's https and certificate flags to no deployment", () => {
-    expect(rc.ci.collect.puppeteerLaunchOptions?.args).toContain('--ignore-certificate-errors');
+  // The local server's certificate is self-signed (tools/serve/self-signed.ts), so the local run's own
+  // layer (apps/web/lighthouse/local.cjs) has Chrome ignore certificate errors, or the service worker does
+  // not register; lighthouserc.json never carries that, and should a commit's rc carry it or another
+  // certificate-ignoring option, it still reaches no deployment, whose certificate is real and checked.
+  // --allow-insecure-localhost applies to localhost alone and comes along unchanged.
+  it("takes the local server's https and any certificate-ignoring option to no deployment", () => {
     expect(rc.ci.collect.url.every((url) => url.startsWith('https://localhost:'))).toBe(true);
+    const insecure: LighthouseRc = {
+      ci: {
+        ...rc.ci,
+        collect: {
+          ...rc.ci.collect,
+          puppeteerLaunchOptions: {
+            args: [
+              '--no-sandbox',
+              '--allow-insecure-localhost',
+              '--ignore-certificate-errors',
+              '--ignore-certificate-errors-spki-list=AAAA',
+            ],
+            acceptInsecureCerts: true,
+            ignoreHTTPSErrors: true,
+          },
+        },
+      },
+    };
     for (const origin of [preview, production]) {
+      expect(vercelConfig(insecure, origin).ci.collect.puppeteerLaunchOptions).toEqual({
+        args: ['--no-sandbox', '--allow-insecure-localhost'],
+      });
       const config = vercelConfig(rc, origin);
       expect(config.ci.collect.puppeteerLaunchOptions).toEqual({
         args: ['--no-sandbox', '--allow-insecure-localhost'],
