@@ -168,8 +168,11 @@ reminder (ics / email / push) → opens /today
 
 `domain.write` takes the changes or a function of the snapshot. The function runs in the store's queue,
 on the rows as stored, read in the write's own transaction (`PlanStore.update`, ADR-0019 Readings), so a
-change built from the current state (Show all, a delete and its Undo) never drops a write still on its
-way, from this tab or another. A write of the plan or of at least one
+change built from the current state (a delete and its Undo) never drops a write still on its
+way, from this tab or another. A preference alone (Show all, the chart range) goes through `domain.writePrefs`
+in the same queue: `PlanStore.updatePrefs` builds it on the prefs row as stored, in a transaction over that
+row alone, and the snapshot keeps its plan and entries by identity, so no view keyed on them is computed again
+(ADR-0019 Readings, 2026-11-25). A write of the plan or of at least one
 entry stamps `prefs.changedAt` with `clock.now()` in the same stored write, which `backupNeeded`
 compares with `lastBackupAt` (`docs/DOMAIN.md` §3.11). The stamp travels as `changedAt` beside the
 changes and the adapter sets it on the prefs row as stored, so it never puts back preferences another
