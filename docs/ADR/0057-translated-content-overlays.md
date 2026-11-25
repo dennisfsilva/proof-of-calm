@@ -323,3 +323,16 @@ generated rules files of each language.
   and short, a day written with its point (`15. März`), and the units matched case-sensitively, so
   English and pt-PT texts read as before. A German source's title is not checked yet, and the
   languages whose titles are checked stay as they were. Their first run found no offender.
+- **2026-11-25.** Three sites are known to be unmarked offline (WCAG 2.2 SC 3.1.2, as the entry of
+  2026-11-16 on the marked sites cites). A language's rules chunks (`packages/content/rules/de`) build
+  outside the worker's precache (`globIgnores` in `apps/web/scripts/bundle-worker.ts`), so offline on a
+  German screen, before that chunk was ever fetched, `loadRules` answers English
+  (`packages/content/src/loaders/rules.ts`). Today's rule-change banner
+  (`packages/app/src/features/today/components/rule-change-banner.tsx`) and Plan review
+  (`packages/app/src/features/plan/components/review-screen.tsx`) show the notice that core's
+  `ruleChangeNotice` copies from the rules, which drops the mark, and Settings' country select
+  (`packages/app/src/features/settings/components/country-section.tsx`) shows `rules.name`; all three
+  then show English with no `lang="en"`. pt-PT has the same gap. They stay unmarked for now: the gap
+  holds only offline before the chunk was fetched, and German and pt-PT stay out of production's
+  picker until their native reads. Carrying the rules' language into the notice and the select's
+  options is a carry-over of the next German session.
