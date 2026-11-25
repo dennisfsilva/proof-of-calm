@@ -424,8 +424,13 @@ external links and the Risk link in the mobile export (M3).
   Settings' screen (#478) followed on 2026-11-24, then the same day the tax-year file's German
   header (#483), the German exchange import (#484, which made German whole and emptied
   `GERMAN_PARTIAL`), German Today's rule-change notice with the country forms (#482) and de in the
-  preview's language picker (#485, production unchanged). Still to come: the German profile and
-  module overlays, then German in production's picker after the native read. CSV import, free (ADR-0039), for the
+  preview's language picker (#485, production unchanged). The ten German profile overlays followed
+  on 2026-11-25 (#490, #493, #491 and #492; ADR-0057 Corrections of 2026-11-25), each whole by a
+  test, with the German prose joins (`docs/CONTENT-STYLE.md` §10). Still to come: the German Learn
+  module overlays in three branches (Start here and Noise with German count nouns; When the market
+  drops, Cycles and Taxes where you live; Risk honestly behind a design check of closed German
+  chart shapes and the split of `packages/content/src/module-figures.ts`), then German in
+  production's picker after the native read. CSV import, free (ADR-0039), for the
   main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
   Republic; Kraken's ledger reader built on 2026-11-13 (#168) and the core's import plan against the
   Log the same day (#178, `docs/DOMAIN.md` §3.13, "Meeting the Log"), then its write (#183) and the
