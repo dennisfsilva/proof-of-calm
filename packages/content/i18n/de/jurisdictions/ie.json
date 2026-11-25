@@ -1,0 +1,72 @@
+{
+  "name": "Irland",
+  "filingNote": "Kalenderjahr als Steuerjahr. CGT auf Veräußerungen vom 1.\u00a0Januar bis 30.\u00a0November wird bis 15.\u00a0Dezember desselben Jahres gezahlt, die für Dezember bis 31.\u00a0Januar. Erklärung (Form\u00a0CG1, Form\u00a011 oder Form\u00a012) bis 31.\u00a0Oktober des Folgejahres.",
+  "lotRuleNote": "First in, first out, die Regel von Revenue für Aktien: Bei einer Veräußerung zählen die ältesten Einheiten zuerst. Das Handbuch zu Kryptowerten legt keine Zuordnungsregel fest und schweigt zu den 4\u2011Wochen\u2011Regeln für Aktien.",
+  "card": {
+    "classification": "Kryptowerte unterliegen der Capital Gains Tax: Ein Verkauf, eine Übertragung oder eine Einlösung ist sehr wahrscheinlich eine Veräußerung (Tax and Duty Manual Part\u00a002-\u206001-\u206003). Gewerblicher Handel fällt dagegen unter die Einkommensteuer.",
+    "taxableEvents": [
+      {
+        "note": "Eine Veräußerung: Der CGT-pflichtige Betrag ist der Erlös abzüglich der Kosten des Vermögenswerts, für jede Veräußerung einzeln berechnet."
+      },
+      {
+        "note": "Der Tausch eines Vermögenswerts gegen einen anderen ist eine Veräußerung (Revenue, CGT on the disposal of an asset)."
+      },
+      {
+        "note": "Ein Tausch eines Vermögenswerts gegen einen anderen wie jeder andere; keine Seite von Revenue legt eine eigene Regel für Stablecoins fest."
+      },
+      {
+        "note": "Beispiel\u00a03 des Handbuchs: Die Bezahlung von Waren in einem Café vor Ort mit Kryptowerten ist eine Veräußerung im Sinne der CGT."
+      },
+      {
+        "note": "Es gibt weder einen Verkauf noch eine Schenkung noch einen Tausch, daher ist die Definition einer Veräußerung von Revenue nicht erfüllt; keine Seite von Revenue behandelt den Fall (mittlere Sicherheit)."
+      },
+      {
+        "note": "Eine Schenkung ist eine Veräußerung der schenkenden Person; die beschenkte kann Capital Acquisitions Tax auf den Marktwert in Euro am Stichtag schulden. Keine CGT bei Übergang im Todesfall; Kosten der Erben: Marktwert am Todestag."
+      },
+      {
+        "note": "Das Handbuch schweigt zu Staking und Airdrops. Ein gewerblicher Handel mit Kryptowerten unterliegt der Einkommensteuer; erhaltene Einheiten sind Kryptowerte, deren spätere Veräußerung ein CGT-Vorgang ist (mittlere Sicherheit)."
+      }
+    ],
+    "rates": [
+      {
+        "label": "Capital Gains Tax",
+        "value": "31%",
+        "note": "Festgelegt durch Financial Resolution No.\u00a03 vom 6.\u00a0Oktober\u00a02026 (Budget\u00a02027), in Kraft nach dem Provisional Collection of Taxes Act\u00a01927 bis zur Verabschiedung des Finance (No.\u00a02) Bill\u00a02026."
+      },
+      {
+        "label": "Capital Gains Tax bis 6.\u00a0Oktober\u00a02026",
+        "value": "33%",
+        "note": "33% auf Veräußerungen vom 6.\u00a0Dezember\u00a02012 (Finance Act\u00a02013 s.\u00a043; die Steuersatztabelle von Revenue nennt für diese Zeile den 6.\u00a0Dezember\u00a02021) bis 6.\u00a0Oktober\u00a02026. Für Bauland bleibt es bei 33%."
+      }
+    ],
+    "allowances": [
+      "EUR\u00a01,270 steuerpflichtige Gewinne je Person und Jahr sind frei, abgezogen nach den abzugsfähigen Verlusten. Der Freibetrag mindert nur die steuerpflichtigen Gewinne dieses Jahres; ein ungenutzter Rest verfällt."
+    ],
+    "holdingRuleText": "Keine Haltefristregel: Jede Veräußerung ist ein CGT-Vorgang, unabhängig von der Haltedauer. Der CGT-pflichtige Betrag wird für jeden Vermögenswert und jede Veräußerung einzeln ermittelt, als Erlös abzüglich der Kosten (Tax and Duty Manual Part\u00a002-\u206001-\u206003).",
+    "lotRuleText": "First in, first out: Nach der Regel von Revenue für Aktien zählen bei einer Veräußerung die ältesten Einheiten zuerst. Das Handbuch zu Kryptowerten legt keine Zuordnungsregel fest und schweigt zu den 4\u2011Wochen\u2011Regeln für Aktien.",
+    "losses": "Ein abzugsfähiger Verlust wird von den steuerpflichtigen Gewinnen desselben Steuerjahres abgezogen. Verluste darüber hinaus werden auf die nächsten verfügbaren Gewinne späterer Jahre vorgetragen.",
+    "reporting": [
+      "Erklärung bis 31.\u00a0Oktober des Jahres nach der Veräußerung. Form\u00a0CG1 ohne jährliche Steuererklärung oder mit dem Online-Form\u00a012. Form\u00a011 für Selbstständige oder bei Einkünften außerhalb von PAYE, das Form\u00a012 auf Papier unter PAYE.",
+      "Die Erklärung ist auch dann abzugeben, wenn wegen Ermäßigungen oder abzugsfähiger Verluste keine Steuer anfällt. Eine verspätete Zahlung kostet Zinsen, eine verspätete Erklärung eine Strafzahlung.",
+      "Zahlung: für Veräußerungen vom 1.\u00a0Januar bis 30.\u00a0November bis 15.\u00a0Dezember desselben Jahres; für Veräußerungen im Dezember bis 31.\u00a0Januar des Folgejahres."
+    ],
+    "caveats": [
+      "Ob die 4\u2011Wochen\u2011Regeln für Aktien (ein Verkauf binnen 4\u00a0Wochen nach einem Kauf wird diesem Kauf zugeordnet; ein Verlust bei Aktien, die binnen 4\u00a0Wochen erneut erworben werden, ist beschränkt) auch für Kryptowerte gelten.",
+      "Einkünfte aus Staking und Airdrops.",
+      "Gewerbe oder Kapitalanlage: ob die Tätigkeit ein gewerblicher Handel mit Kryptowerten ist.",
+      "Capital Acquisitions Tax auf Schenkungen und Erbschaften.",
+      "Welcher Satz, 33% oder 31%, für eine Veräußerung gilt, solange der Finance (No.\u00a02) Bill\u00a02026 noch nicht verabschiedet ist."
+    ],
+    "summary60": "Irland erhebt Capital Gains Tax auf jede Veräußerung von Kryptowerten: einen Verkauf, einen Tausch, eine Zahlung oder eine Schenkung. 33% bis 6.\u00a0Oktober\u00a02026, 31% ab 7.\u00a0Oktober\u00a02026, nach EUR\u00a01,270 Freibetrag jährlich. Keine Befreiung durch Haltefrist. Zahlung bis 15.\u00a0Dezember für Januar bis November, bis 31.\u00a0Januar für Dezember; Erklärung bis 31.\u00a0Oktober des Folgejahres. Verlustvortrag möglich."
+  },
+  "pendingChanges": [
+    {
+      "title": "Finance (No.\u00a02) Bill\u00a02026, section\u00a036: der Satz von 31%",
+      "summary": "Section\u00a036 setzt 31\u00a0Prozent statt 33\u00a0Prozent in section\u00a028(3) des Taxes Consolidation Act\u00a01997 ein, für Veräußerungen ab 7.\u00a0Oktober\u00a02026. Am 20.\u00a0Oktober\u00a02026 im Dáil in der Second Stage angenommen und an den Select Committee on Finance, Public Expenditure, Public Service Reform and Digitalisation, and Taoiseach verwiesen (Dáil record). Bis dahin beruht der Satz auf Financial Resolution No.\u00a03."
+    },
+    {
+      "title": "DAC8: Meldungen durch Anbieter von Kryptowerte-Dienstleistungen",
+      "summary": "Section\u00a0891HA des Taxes Consolidation Act\u00a01997, eingefügt durch section\u00a092 des Finance Act\u00a02025, gilt ab 1.\u00a0Januar\u00a02026. Ein meldender Anbieter von Kryptowerte-Dienstleistungen meldet relevante Transaktionen bis 31.\u00a0Mai für das vorige Kalenderjahr an Revenue, erstmals bis 31.\u00a0Mai\u00a02027, und gibt allen Nutzerinnen und Nutzern bis 31.\u00a0Mai eine Kopie ihrer Daten."
+    }
+  ]
+}
