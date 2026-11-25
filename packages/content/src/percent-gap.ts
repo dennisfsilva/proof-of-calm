@@ -15,14 +15,20 @@ export const printedGap = (gap: string, shown: readonly string[]) =>
 // Hidden or look-alike: any space separator but U+0020, a format or control character, any default-ignorable code
 // point (the class the page reader drops, packages/config/vite/page-blocks.ts), U+2010 and U+2011.
 const HIDDEN = /(?! )[\p{Z}\p{Cf}\p{Cc}\p{Default_Ignorable_Code_Point}‐‑]/gu;
+// The same class without the global flag, so a test keeps no lastIndex: a text it finds nothing in skips the replace.
+const HAS_HIDDEN = new RegExp(HIDDEN.source, 'u');
+const HAS_MARK = /\p{M}/u;
 
 // A combining mark that NFC composes with the character before it prints by its code point (`RuU+0308 ckgang`): the
-// decomposed letter looks like the composed one a shape or a list holds, and neither matches it.
+// decomposed letter looks like the composed one a shape or a list holds, and neither matches it. A text without a
+// mark has no such run, so it returns as written without the replace and its normalize.
 const printedMarks = (text: string, spell: (char: string) => string) =>
-  text.replace(/\P{M}\p{M}+/gu, (run) => {
-    const [base = '', ...marks] = [...run];
-    return run.normalize('NFC') === run ? run : base + marks.map(spell).join('');
-  });
+  HAS_MARK.test(text)
+    ? text.replace(/\P{M}\p{M}+/gu, (run) => {
+        const [base = '', ...marks] = [...run];
+        return run.normalize('NFC') === run ? run : base + marks.map(spell).join('');
+      })
+    : text;
 
 /**
  * The one definition of the characters a detail names by code point: each hidden or look-alike character that `keep`
@@ -36,7 +42,7 @@ export const spellNamed = (
   keep: (char: string, at: number) => boolean,
 ) =>
   printedMarks(
-    text.replace(HIDDEN, (char, at: number) => (keep(char, at) ? char : spell(char))),
+    HAS_HIDDEN.test(text) ? text.replace(HIDDEN, (char, at: number) => (keep(char, at) ? char : spell(char))) : text,
     spell,
   );
 
