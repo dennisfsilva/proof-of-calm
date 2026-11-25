@@ -1515,8 +1515,8 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   words when the profile chunk fails) is accepted while pt-PT is hidden, as hidden chunks are not precached.
   A German file's profile lines (`profile.lotRuleNote` and `profile.holdingRuleConditions`, through
   `loadProfile(code, 'de')`) come the same way from the profile's German overlay where one exists (since
-  2026-11-25; the translated profiles: `packages/content/i18n/de/README.md`), and are the profile's English text
-  otherwise; that mix of English profile lines among German words is accepted while German is hidden from
+  2026-11-25; the translated profiles: `packages/content/i18n/de/README.md`). The German file's offline mix
+  (English profile lines among German words when the profile chunk fails) is accepted while German is hidden from
   production's language picker (`packages/app/src/lib/i18n/language.ts`).
 - `snapshotValue(plan, entries, histories, date)`: the portfolio value at the end of a calendar date (decided
   2026-11-08): the units of the live entries dated on or before `date` (sales subtract; a negative holding counts

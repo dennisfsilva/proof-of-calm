@@ -994,6 +994,13 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - When a fix round renames a label, the round rereads every sentence that quotes it. #484's
   „Ausgelassen“ became „Nicht importiert“, and `heldSales` then said „aus „Nicht importiert“
   importiert“, which only brand's delta read caught (2026-11-24).
+- Branches that each add files to one shared registry build beside the branch that creates it: their
+  first round adds only new files, so the rebase onto its merge stays clean, and their registry lines
+  and tests come after the rebase. The first branch makes the shared tests and specs derive from the
+  registry, so later branches leave them alone (#486, #490 to #493; 2026-11-25).
+- Parallel copy branches in one language get one term read across all their files before review,
+  and the first branch to merge records the terms in the glossary. Left to themselves, three
+  builders wrote three German words for "medium confidence" (#486; 2026-11-25).
 
 ## Known gaps
 
