@@ -6,6 +6,7 @@ import {
   ENTRY_NOTE_MAX_LENGTH,
   type Entry,
   matchLots,
+  movesLeftShort,
   type Plan,
   VENUE_MAX_LENGTH,
 } from '@proofofcalm/core';
@@ -25,6 +26,12 @@ import { EntryForm, type EntryFormProps } from './entry-form';
 
 // The entry form (ADR-0034) over the test services: the clock reads 20 Oct 2026, BTC costs €60,000.12. The plan is
 // Portugal's, so the form shows its numbers in pt-PT, rules loaded or not (ADR-0023).
+
+// movesLeftShort counted, as the core computes it: a keystroke with no move stored reads no move line.
+vi.mock('@proofofcalm/core', async (original) => {
+  const core = await original<typeof import('@proofofcalm/core')>();
+  return { ...core, movesLeftShort: vi.fn(core.movesLeftShort) };
+});
 
 afterEach(cleanup);
 // jsdom has no `scrollIntoView`: a save refused from a field scrolls its alert line into view.
@@ -1270,5 +1277,29 @@ describe('EntryForm', () => {
     );
     expect(onDone).not.toHaveBeenCalled();
     expect(stored(services).find((entry) => entry.id === older.id)?.date).toBe('2025-09-01');
+  });
+
+  // docs/ENGINEERING.md §4, the Log at the cap: with no move stored, no save leaves one short, so a keystroke reads
+  // no move line (DOMAIN §3.7), while the holding warning still reads every entry.
+  it('at 10,000 entries with no move stored, a keystroke in an edit reads no move line and keeps the warning', async () => {
+    const past = { ...older, units: units('0.10') };
+    const recent = Array.from({ length: 9_998 }, (_, index) =>
+      anEntry({
+        ...october,
+        id: `00000000-0000-4000-8000-${String(700_000 + index).padStart(12, '0')}` as Entry['id'],
+        units: units('0.00001'),
+      }),
+    );
+    // At the cap a new sale is refused before any move line is read, so the sale edited is the 10,000th entry.
+    const sale = anEntry({ kind: 'sell', slot: null, date: date('2026-10-20'), units: units('0.15') });
+    await renderForm({ kind: 'sell', editing: [sale] }, [past, ...recent, sale]);
+    type('BTC sold for, before fees (EUR)', '9000.0');
+    const warning = 'Only 0,10 of the 0,15 BTC sold are past the holding rule on 20 Oct 2026. The rest may be taxed.';
+    const statuses = () => screen.getAllByRole('status').map((each) => each.textContent?.replace(/ /g, ' '));
+    expect(statuses()).toEqual([warning]);
+    vi.mocked(movesLeftShort).mockClear();
+    type('BTC sold for, before fees (EUR)', '9000.00');
+    expect(movesLeftShort).not.toHaveBeenCalled();
+    expect(statuses()).toEqual([warning]);
   });
 });
