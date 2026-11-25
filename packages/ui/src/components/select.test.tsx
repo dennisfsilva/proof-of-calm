@@ -59,7 +59,12 @@ describe('Select', () => {
     render(
       <>
         {country}
-        <div data-slot="tab-bar" ref={(bar) => bar && Object.defineProperty(bar, 'offsetHeight', { value: 70 })} />
+        <div
+          data-slot="tab-bar"
+          ref={(bar) => {
+            if (bar) Object.defineProperty(bar, 'offsetHeight', { value: 70 });
+          }}
+        />
       </>,
     );
     expect((await positioner())?.className).toBe('isolate z-50 mb-(--bottom-bar)');
