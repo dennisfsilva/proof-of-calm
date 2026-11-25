@@ -20,7 +20,7 @@
   },
   "holdingRuleOverrides": [],
   "holdingRuleConditions": [
-    "Ein Tausch oder ein mit Kryptowerten bezahlter Kauf startet für die erhaltenen Coins eine neue Haltefrist.",
+    "Nach einem Tausch oder einem mit Kryptowerten bezahlten Kauf beginnt für die erhaltenen Coins eine neue Haltefrist.",
     "Bei einer Schenkung gilt die Haltefrist der schenkenden Person weiter."
   ],
   "lotRule": "fifo",

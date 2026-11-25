@@ -248,7 +248,7 @@ describe("OnboardingScreen in German: Germany's German profile (ADR-0057, Correc
     await click(german.next);
     await type(/^Monatsbetrag/, '100');
     const [first] = (await loadProfile('DE', 'de'))?.holdingRuleConditions ?? [];
-    expect(first).toMatch(/^Ein Tausch/);
+    expect(first).toMatch(/^Nach einem Tausch/);
     expect(screen.getByText(first ?? '').closest('[lang]')).toBeNull();
   });
 
