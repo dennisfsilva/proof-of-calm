@@ -1,0 +1,60 @@
+{
+  "name": "Frankreich",
+  "filingNote": "Das Steuerjahr ist das Kalenderjahr. Die Online-Erklärung öffnet im April des Folgejahres; die Abgabefrist ist je nach département verschieden.",
+  "lotRuleNote": "Keine Zuordnung nach Posten: Der Gewinn jedes steuerpflichtigen Verkaufs wird auf das gesamte Portfolio berechnet (Art.\u00a0150 VH bis III CGI).",
+  "card": {
+    "classification": "Gewinne aus gelegentlichen Verkäufen von Privatpersonen (Art.\u00a0150 VH bis CGI; ab 1.\u00a0Januar\u00a02026 nur Kryptowerte nach MiCA; NFTs: Art.\u00a0150 VH ter). Berufsmäßiger Handel: nichtgewerbliche Gewinne (BNC); als Unternehmen: gewerbliche (BIC).",
+    "taxableEvents": [
+      {
+        "note": "Jeder Verkauf gegen ein gesetzliches Zahlungsmittel, unabhängig von der Haltedauer; steuerpflichtig ab dem ersten Euro, sobald die Verkaufspreise des Haushalts im Jahr EUR\u00a0305 übersteigen."
+      },
+      {
+        "note": "Aufgeschoben: Ein Tausch eines Kryptowerts gegen einen anderen ohne Ausgleichszahlung in Geld (soulte) ist kein steuerpflichtiger Vorgang; ein Tausch mit Ausgleichszahlung ist steuerpflichtig."
+      },
+      { "note": "Aufgeschoben wie jeder Tausch." },
+      { "note": "Eine Zahlung für eine Ware oder eine Dienstleistung mit Kryptowerten ist ein steuerpflichtiger Verkauf." },
+      { "note": "Kein entgeltlicher Verkauf: Im Gegenzug wird nichts erhalten." },
+      {
+        "note": "Kein entgeltlicher Verkauf. Für die beschenkte oder erbende Person ist der Anschaffungspreis der Wert, der für die Schenkungs- oder Erbschaftsteuer angesetzt wird (droits de mutation à titre gratuit, Art.\u00a0150 VH bis III)."
+      },
+      {
+        "note": "Belohnungen aus Mining oder Staking werden als nichtgewerbliche Gewinne (BNC) besteuert. Die FAQ der Steuerverwaltung behandeln Airdrops nicht (mittlere Belastbarkeit)."
+      }
+    ],
+    "rates": [
+      {
+        "label": "Pauschalsatz (PFU)",
+        "value": "31,4\u00a0%",
+        "note": "12,8\u00a0% Einkommensteuer zuzüglich 18,6\u00a0% Sozialabgaben. Eine unwiderrufliche Option (Feld\u00a03CN) unterwirft die Gewinne dem progressiven Tarif."
+      }
+    ],
+    "allowances": [
+      "Keine Steuer, wenn die Verkaufspreise des Haushalts im Jahr (nicht die Gewinne) zusammen EUR\u00a0305 oder weniger betragen, ohne aufgeschobene Tauschvorgänge; über EUR\u00a0305 wird jeder Gewinn des Jahres besteuert (Art.\u00a0150 VH bis II B).",
+      "Bei einem Verkauf gezahlte Gebühren mindern mit Beleg den Verkaufspreis."
+    ],
+    "holdingRuleText": "Keine Haltefrist: Ein Verkauf gegen Euro oder eine Zahlung mit Kryptowerten ist unabhängig von der Haltedauer steuerpflichtig, sobald die Verkaufspreise des Haushalts im Jahr EUR\u00a0305 übersteigen. Ein Tausch zwischen Kryptowerten ohne Ausgleichszahlung ist bis zu einem steuerpflichtigen Verkauf aufgeschoben.",
+    "lotRuleText": "Keine Postenzuordnung. Gewinn eines Verkaufs: Verkaufspreis minus sein Anteil an den Gesamtkosten des Portfolios (Gesamtkosten × Verkaufspreis ÷ Portfoliowert kurz vor dem Verkauf); dieser Anteil scheidet danach aus den Gesamtkosten aus.",
+    "losses": "Ein Verlust wird nur mit Gewinnen derselben Art aus demselben Jahr verrechnet; er wird nicht in spätere Jahre vorgetragen.",
+    "reporting": [
+      "Formular\u00a02042\u00a0C: Feld\u00a03AN für einen Nettogewinn, 3BN für einen Nettoverlust, 3CN für die Wahl des progressiven Tarifs.",
+      "Annexe\u00a02086 listet jeden steuerpflichtigen Verkauf: Datum, Wert des gesamten Portfolios, Verkaufspreis, Gebühren, gesamter Anschaffungspreis und dessen bei früheren Verkäufen angesetzter Teil („fractions de capital initial“ im Formular).",
+      "Formular\u00a03916\u2011bis für jedes Konto mit Kryptowerten auf einer Plattform im Ausland."
+    ],
+    "caveats": [
+      "Der Wert Ihres gesamten Bestands im Zeitpunkt jedes Verkaufs.",
+      "Die Schwelle von EUR\u00a0305, gemessen an den Verkaufspreisen.",
+      "Verluste, nur im selben Jahr nutzbar.",
+      "Erklärungen zu Plattformen im Ausland und die Bußgelder dazu.",
+      "Staking-Belohnungen und Airdrops.",
+      "Zuschläge auf hohe Einkommen.",
+      "Die Maßnahmen des Haushalts 2027, die noch nicht Gesetz sind."
+    ],
+    "summary60": "Frankreich: Ein Verkauf von Kryptowerten gegen Euro und eine Zahlung mit Kryptowerten sind steuerpflichtig, ein Tausch gegen einen anderen Kryptowert nicht. Gewinne werden pauschal mit 31,4\u00a0% besteuert, auf Antrag nach Ihrem progressiven Satz. Betragen die Verkäufe Ihres Haushalts im Jahr höchstens EUR\u00a0305, ist nichts zu zahlen. Gewinne werden auf Ihr gesamtes Portfolio berechnet, nicht je Coin."
+  },
+  "pendingChanges": [
+    {
+      "title": "Loi n°\u00a02026-\u2060534 vom 25.\u00a0Juni\u00a02026 gegen Sozial- und Steuerbetrug, Art.\u00a091",
+      "summary": "Art.\u00a0150 VH bis gilt nun für Kryptowerte nach der Verordnung (EU)\u00a02023/1114 (MiCA); der neue Art.\u00a0150 VH ter besteuert einzigartige, nicht fungible Kryptowerte (NFTs) nach den Regeln des Werts, den sie verkörpern. Beide gelten für Verkäufe ab dem 1.\u00a0Januar\u00a02026. Die Artikel\u00a01649 bis C und 1736 erweitern die Kontenerklärungen und die Bußgelder dazu um im Ausland gehaltene NFTs."
+    }
+  ]
+}
