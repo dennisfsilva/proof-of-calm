@@ -269,6 +269,19 @@ The decision stands; these are the choices its text left open, made while implem
   tries it whole again; until one succeeds the copies and the random ids stay. They are harmless
   meanwhile: only one live plan row reads, and a tie in `updatedAt` adds 1 ms whatever the id. The
   tests are in `packages/app/src/lib/adapters/idb/outbox.test.ts`.
+- **2026-11-25, a preference alone reads the prefs row alone** (narrows "a write built on
+  the rows as stored", 2026-10-21, for a change of the preferences alone). Show all at the cap had a longest task of 303 to 339 ms at 6× CPU
+  in six runs on 2026-11-25 (`docs/ENGINEERING.md` §4, "The Log at the cap"): its write went
+  through `update`, which read and validated all 10,000 entry rows, and the domain store then installed
+  that freshly read array, so the Log computed its rows again. `PlanStore.updatePrefs(build)` builds the
+  preferences on the prefs row as stored, in one readwrite transaction over `prefs` alone with the
+  relaxed durability `write` uses for preferences; the row is parsed with the same read schema and
+  written with the same merged record, so the record's shape, the keys a later build added and the
+  stored `changedAt` stay as they were. A stored row that does not read takes `update` instead, which
+  sets it aside as `load` does and builds on the defaults; the tab's quarantine count shows it at its
+  next load. `domain.writePrefs` runs in the write queue, so a preference written before it is kept, and
+  replaces only the snapshot's preferences. The forward, rollback and whole-record tests are in
+  `packages/app/src/lib/adapters/idb-store.test.ts`.
 
 ## Disagreement
 
