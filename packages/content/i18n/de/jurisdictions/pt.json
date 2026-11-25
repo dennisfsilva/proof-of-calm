@@ -9,13 +9,13 @@
   ],
   "lotRuleNote": "Fifo-Methode (first in, first out), getrennt je Verwahrstelle oder Plattform, wenn Einheiten bei mehr als einer liegen (Art.\u00a043 n.º\u00a09 CIRS, früher n.º\u00a07).",
   "card": {
-    "classification": "Gewinne der Kategorie G (Art.\u00a010(1)\u2060(k) CIRS) bei Kryptowerten, die keine Wertpapiere sind; Kategorie E (28%) bei Staking oder Verleih mit Vergütung in Fiatgeld; Kategorie B bei gewohnheitsmäßiger oder beruflicher Tätigkeit und immer bei Mining und Validierung. NFTs sind ausgenommen.",
+    "classification": "Gewinne der Kategorie G (Art.\u00a010(1)\u2060(k) CIRS) bei Kryptowerten ohne Wertpapiercharakter; E (28%) bei Staking oder Verleih gegen Fiatgeld; B bei gewohnheitsmäßiger oder beruflicher Tätigkeit, stets bei Mining und Validierung. Ohne NFTs.",
     "taxableEvents": [
       {
-        "note": "Von der Steuer ausgenommen bei einer Haltedauer von 365\u00a0Tagen oder mehr und einer Gegenpartei mit steuerlicher Ansässigkeit in der EU, im EWR oder in einem Staat mit Doppelbesteuerungsabkommen. Ausgenommene Veräußerungen sind trotzdem zu erklären (Anexo\u00a0G1 Quadro\u00a07)."
+        "note": "Von der Steuer ausgenommen bei einer Haltedauer ab 365\u00a0Tagen und einer Gegenpartei, die in der EU, im EWR oder in einem DBA-Staat steuerlich ansässig ist. Auch ausgenommene Veräußerungen sind zu erklären (Anexo\u00a0G1 Quadro\u00a07)."
       },
       {
-        "note": "Aufgeschoben: Der erhaltene Kryptowert übernimmt den Anschaffungswert des hingegebenen, außer eine der Parteien ist außerhalb der EU, des EWR oder eines Staates mit Doppelbesteuerungsabkommen steuerlich ansässig (Art.\u00a010 n.ºs\u00a023–\u206024 CIRS, in Dokumenten von 2023–\u20602025 als n.ºs\u00a020–\u206021 nummeriert)."
+        "note": "Aufgeschoben: Der erhaltene Kryptowert übernimmt den Anschaffungswert des hingegebenen, außer eine Partei ist außerhalb von EU, EWR und DBA-Staaten steuerlich ansässig (Art.\u00a010 n.ºs\u00a023–\u206024 CIRS, in Dokumenten von 2023–\u20602025 n.ºs\u00a020–\u206021)."
       },
       {
         "note": "Aufgeschoben wie jeder Tausch; die verbindliche Auskunft PIV\u00a028969 der AT vom 31.\u00a0Oktober\u00a02025 behandelt eine sofortige technische Umwandlung als steuerlich unbeachtlich (mittlere Belastbarkeit)."
@@ -27,7 +27,7 @@
         "note": "Eine Übertragung von Einheiten zwischen Wallets derselben Person ist keine Veräußerung; es gibt nichts zu erklären."
       },
       {
-        "note": "Keine Einkommensteuer (IRS); Stempelsteuer von 10% auf Kryptowerte bei einem Institut in Portugal oder ohne Institut, wenn die beschenkte oder die verstorbene Person dort ihren Wohnsitz hat; Personen in Ehe oder Lebensgemeinschaft, Nachkommen und Vorfahren sind befreit (mittlere Belastbarkeit)."
+        "note": "Keine IRS; Stempelsteuer von 10% auf Kryptowerte bei einem Institut in Portugal oder ohne Institut, wenn Beschenkte oder Verstorbene dort wohnen; befreit sind Ehe- und Lebenspartner, Nachkommen und Vorfahren (mittlere Belastbarkeit)."
       },
       {
         "note": "Kategorie E mit 28% bei Vergütung in Fiatgeld; bei Vergütung in Kryptowerten Besteuerung als Gewinn beim Verkauf der Einheiten."
@@ -37,7 +37,7 @@
       {
         "label": "Gesonderter Steuersatz auf Gewinne aus Kryptowerten",
         "value": "28%",
-        "note": "Auf den positiven Saldo der Gewinne aus Kryptowerten der Kategorie G (Art.\u00a072(1)\u2060(c) CIRS). Der Satz von 35% für Steueroasen auf der schwarzen Liste nennt Kryptowerte nicht; dort entfallen stattdessen die Ausnahme von der Steuer und der Aufschub beim Tausch."
+        "note": "Auf den positiven Saldo der Gewinne aus Kryptowerten der Kategorie G (Art.\u00a072(1)\u2060(c) CIRS). Der Satz von 35% für Steueroasen nennt Kryptowerte nicht; dort entfallen stattdessen die Ausnahme und der Aufschub beim Tausch."
       },
       {
         "label": "Wahlweise Einbeziehung in das Gesamteinkommen (englobamento)",
@@ -52,7 +52,7 @@
     ],
     "holdingRuleText": "Gewinne und Verluste aus Kryptowerten, die 365\u00a0Tage oder länger gehalten wurden, sind von der Steuer ausgenommen: „detidos por um período igual ou superior a 365\u00a0dias“ (Art.\u00a010 n.º\u00a022 CIRS, in Dokumenten von 2023–\u20602025 als n.º\u00a019 nummeriert). Eine am 1.\u00a0März\u00a02026 gekaufte Einheit fällt am 1.\u00a0März\u00a02027 unter die Ausnahme.",
     "lotRuleText": "Fifo-Methode, first in, first out („os alienados são os adquiridos há mais tempo“, Art.\u00a043 n.º\u00a08(g) CIRS, früher n.º\u00a06(g)), getrennt je Verwahrstelle oder Plattform (Art.\u00a043 n.º\u00a09, früher n.º\u00a07).",
-    "losses": "Verluste werden mit Gewinnen aus Kryptowerten desselben Jahres verrechnet; Einheiten mit einer Haltedauer von 365\u00a0Tagen oder mehr bleiben außen vor. Ein Nettoverlust wird nur bei Einbeziehung in das Gesamteinkommen 5\u00a0Jahre vorgetragen (Art.\u00a055(1)\u2060(d)); Verluste mit Gegenparteien auf der schwarzen Liste zählen nie (Art.\u00a043 n.º\u00a07).",
+    "losses": "Verrechnung mit Gewinnen aus Kryptowerten desselben Jahres, ohne Einheiten ab 365\u00a0Tagen Haltedauer. Ein Nettoverlust wird nur mit englobamento 5\u00a0Jahre vorgetragen (Art.\u00a055(1)\u2060(d)); Verluste mit Steueroasen zählen nie (Art.\u00a043 n.º\u00a07).",
     "reporting": [
       "Modelo\u00a03, Anexo\u00a0G Quadro\u00a018A: Veräußerungen von Einheiten mit einer Haltedauer unter 365\u00a0Tagen, je Vorgang, mit dem Land der Gegenpartei.",
       "Anexo\u00a0G Quadro\u00a018B: Veräußerungen mit einer Gegenpartei außerhalb der EU oder des EWR.",
@@ -83,7 +83,7 @@
     },
     {
       "title": "Niedrigere Sätze in 6 IRS-Stufen (Decreto-Lei n.º\u00a0212/2026)",
-      "summary": "Der Satz von 28% nach Art.\u00a072(1)\u2060(c) ändert sich nicht. Decreto-Lei n.º\u00a0212/2026 vom 4.\u00a0November\u00a02026 (Diário da República n.º\u00a0214/2026, Série\u00a0I), gestützt auf Lei n.º\u00a064\u2011B/2026 (Proposta de Lei n.º\u00a0108/XVII/2.ª), senkt die ersten 6 Sätze von Art.\u00a068 n.º\u00a01 CIRS auf 12,2%, 15,2%, 20,7%, 23,6%, 30,6% und 34,6%. In Kraft seit dem 5.\u00a0November\u00a02026; die Präambel wendet die Senkung auf Einkünfte des Jahres 2026 ab dem 1.\u00a0Januar\u00a02026 an."
+      "summary": "Der Satz von 28% nach Art.\u00a072(1)\u2060(c) bleibt. Decreto-Lei n.º\u00a0212/2026 vom 4.\u00a0November\u00a02026 (Diário da República n.º\u00a0214/2026, Série\u00a0I), gestützt auf Lei n.º\u00a064\u2011B/2026 (Proposta de Lei n.º\u00a0108/XVII/2.ª), senkt die ersten 6 Sätze von Art.\u00a068 n.º\u00a01 CIRS auf 12,2%, 15,2%, 20,7%, 23,6%, 30,6% und 34,6%. In Kraft seit 5.\u00a0November\u00a02026; laut Präambel gilt die Senkung für Einkünfte 2026 ab 1.\u00a0Januar\u00a02026."
     },
     {
       "title": "Verbindliche Auskunft der AT, PIV\u00a028969",
