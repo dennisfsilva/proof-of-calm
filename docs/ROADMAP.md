@@ -430,9 +430,12 @@ external links and the Risk link in the mobile export (M3).
   overlays followed on 2026-11-25: Start here and Noise with the German count nouns (#497), the
   closed German chart shapes (#498, after the shapes moved to
   `packages/content/src/module-shapes.ts`, #496), When the market drops, Cycles and Taxes where you
-  live (#499) and Risk honestly (#500). Still to come: the German site's messages without routes,
-  as pt-PT's (#401), in #502, then the native read (`docs/CONTENT-STYLE.md` §8 item 9), then German
-  in production's picker. CSV import, free (ADR-0039), for the
+  live (#499) and Risk honestly (#500). The German site's messages followed on 2026-11-25 without
+  routes, as pt-PT's (#401): every site message but the four legal pages' own objects, which stay
+  English and marked `lang="en"`, and the site languages typed as the UI languages (#507, ADR-0045
+  Deviations of 2026-11-25). The same day pt-PT's modules came to read as many counts as English's
+  (#506). Still to come: the native read (`docs/CONTENT-STYLE.md` §8 item 9), then German in
+  production's picker. CSV import, free (ADR-0039), for the
   main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
   Republic; Kraken's ledger reader built on 2026-11-13 (#168) and the core's import plan against the
   Log the same day (#178, `docs/DOMAIN.md` §3.13, "Meeting the Log"), then its write (#183) and the
