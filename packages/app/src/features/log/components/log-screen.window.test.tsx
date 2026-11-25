@@ -145,6 +145,32 @@ describe('LogScreen past LOG_WINDOW transactions', () => {
     expect(document.activeElement?.textContent).not.toBe(lastText);
   });
 
+  it('focuses the row before the only row of the last window once it is deleted and the range goes', async () => {
+    await mount(withBuys(93, true));
+    const before = toggles()[LOG_WINDOW - 1]?.textContent;
+    await press('Show older entries');
+    expect(screen.getByText('Entry 101 of 101')).toBeTruthy();
+    fireEvent.click(toggles()[0] as HTMLElement);
+    await press('Delete entry');
+    expect(toggles()).toHaveLength(LOG_WINDOW);
+    expect(screen.queryByText(/^Entr(y|ies) \d+/)).toBeNull();
+    expect(document.activeElement).toBe(toggles()[LOG_WINDOW - 1]);
+    expect(document.activeElement?.textContent).toBe(before);
+  });
+
+  it('focuses the row before the only row of the last window once it is deleted and the window moves back', async () => {
+    await mount(withBuys(193, true));
+    await press('Show older entries');
+    const before = toggles()[LOG_WINDOW - 1]?.textContent;
+    await press('Show older entries');
+    expect(screen.getByText('Entry 201 of 201')).toBeTruthy();
+    fireEvent.click(toggles()[0] as HTMLElement);
+    await press('Delete entry');
+    expect(caption().textContent).toBe('Entries 101 to 200 of 200');
+    expect(document.activeElement).toBe(toggles()[LOG_WINDOW - 1]);
+    expect(document.activeElement?.textContent).toBe(before);
+  });
+
   it('moves no focus later for an Undo pressed after the window moved away', async () => {
     const services = await mount(withBuys(250, true));
     fireEvent.click(toggles()[5] as HTMLElement);
