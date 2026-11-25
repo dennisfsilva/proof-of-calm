@@ -56,9 +56,10 @@
     "note": "Aus Ihren Einträgen berechnet, keine Steuerberatung"
   },
   "showAll": "Alle {count} Einträge anzeigen",
-  "showPaged": "Alle {count} Einträge zu je {size} anzeigen",
+  "showPaged": "Alle {count} Einträge anzeigen, jeweils {size}",
   "page": {
     "range": "Einträge {first} bis {last} von {count}",
+    "rangeOne": "Eintrag {first} von {count}",
     "newer": "Neuere Einträge anzeigen",
     "older": "Ältere Einträge anzeigen",
     "year": "Zum Jahr springen"
