@@ -103,12 +103,12 @@ describe('packages/content/rules/<language> (ADR-0057)', () => {
       holdingRuleConditions: conditions,
       status: { ...english.status, changeNotice },
     });
-    // Each text the overlay translates reads differently from English's, one by one.
+    // Each text the overlay translates reads differently from English's, one by one; a name may be the same word
+    // in both languages (German's Portugal), so the name is held to the overlay's above and nothing more.
     english.holdingRuleConditions.forEach((text, index) => {
       if (typeof overlay.holdingRuleConditions?.[index] === 'string') expect(conditions[index]).not.toBe(text);
     });
     if (typeof overlay.status?.changeNotice === 'string') expect(changeNotice).not.toBe(english.status.changeNotice);
-    if (overlay.name !== undefined) expect(translated.name).not.toBe(english.name);
   });
 
   it("answers English's own file in English, and English's text marked English over a code without a translation", async () => {

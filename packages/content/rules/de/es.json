@@ -1,6 +1,6 @@
 {
   "code": "ES",
-  "name": "Spain",
+  "name": "Spanien",
   "currency": "EUR",
   "locales": ["es-ES", "ca-ES", "gl-ES", "eu-ES"],
   "numberFormatLocale": "es-ES",
