@@ -122,6 +122,19 @@ describe('the Risk page’s statement on status', () => {
   });
 });
 
+describe('the German Risk page’s lead', () => {
+  // ESA 2022 15, the ESAs' joint warning of 2022-03-17 in its German version, read on 2026-11-25:
+  // https://www.esma.europa.eu/sites/default/files/library/esa_2022_15_joint_esas_warning_on_crypto-assets_de.pdf
+  const ESAS = 'Sie können das gesamte investierte Geld verlieren.';
+
+  it('takes the ESAs’ German loss sentence, and opens with one sentence on the plan as English does', () => {
+    const lead = german.legal.risk.lead;
+    expect(lead).toContain(` ${ESAS} `);
+    expect(lead.startsWith('{product} ist Software für einen Plan, den Sie selbst festlegen. Es gibt keine ')).toBe(true);
+    expect(unescaped(renderSitePage('risk', ASSETS, data, 'de'))).toContain(ESAS);
+  });
+});
+
 // The footer and Settings' About line are one disclaimer, and its loss clause is MiCA art. 6(5)(a)'s official text in
 // the language (CONTENT-STYLE §10), never a translation back from English.
 describe.each([
