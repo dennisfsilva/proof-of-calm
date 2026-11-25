@@ -1037,7 +1037,9 @@ needs (decided 2026-11-15). The native reader's review is §8 item 9.
 - **Disclosures take the official Portuguese text** of each regulator phrasing in `docs/LEGAL.md`
   §4, never a translation back from English: MiFID II Delegated Regulation 2017/565 art. 44(4)(d),
   «os resultados registados no passado não constituem um indicador fiável dos resultados futuros»;
-  MiCA art. 6(5)(a), «O criptoativo pode perder parcial ou totalmente o seu valor», and (e), «O
+  MiCA art. 6(5)(a), «O criptoativo pode perder parcial ou totalmente o seu valor», which the site
+  footer and Settings' About line write in the plural, «Os criptoativos podem perder parcial ou
+  totalmente o seu valor.», and (e), «O
   criptoativo não está abrangido pelos sistemas de indemnização dos investidores»; the
   deposit-guarantee statement is MiCA art. 6(5)(f), its own point: as the English Risk page writes
   `deposit-protection`, the Portuguese one adapts the scheme's name to `proteção de depósitos`, with
@@ -1262,19 +1264,30 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
 - **Disclosures take the official German text** of each regulator phrasing in `docs/LEGAL.md` §4,
   never a translation back from English: Delegated Regulation 2017/565 art. 44(4)(d), „Die frühere
   Wertentwicklung ist kein verlässlicher Indikator für künftige Ergebnisse.“; MiCA art. 6(5)(a), „Der
-  Kryptowert kann seinen Wert ganz oder teilweise verlieren.“; (e) and (f), the `Systeme für die
+  Kryptowert kann seinen Wert ganz oder teilweise verlieren.“, which the site footer and Settings'
+  About line write in the plural, „Kryptowerte können ihren Wert ganz oder teilweise verlieren.“
+  (#507, as pt-PT's pair does, §9); (e) and (f), the `Systeme für die
   Entschädigung der Anleger` and the `Einlagensicherungssysteme`, in the German text of
   `docs/LEGAL.md` §5's statement on status, which opens
   `Proof of Calm ist bei keiner Finanzaufsichtsbehörde registriert und unterliegt keiner Finanzaufsicht`;
-  the ESAs' warning of 2022-03-17 in its German version. "Not advice" reads `keine Beratung`, "no financial or tax advice" `keine
-  Anlage- oder Steuerberatung`. The plan-creation text stays English until counsel approves a German
+  the ESAs' warning of 2022-03-17 (ESA 2022 15) in its German version: the Risk page's lead quotes
+  its „Sie können das gesamte investierte Geld verlieren.“ (read in the German PDF on
+  esma.europa.eu on 2026-11-25), the one place `investierte` stands against the glossary's
+  `eingesetzt` row, since the official text wins; the German lint passes it with no allow-list
+  entry, as it names no asset. "Not advice" reads `keine Beratung`, "no financial or tax advice" `keine
+  Anlage- oder Steuerberatung`; the Risk lead names who gives none,
+  `Die Software gibt keine Finanz-, Anlage- oder Steuerberatung`, never `Es gibt keine …`, which
+  reads as "there is no advice" (#507). The plan-creation text stays English until counsel approves a German
   one (`docs/LEGAL.md` §4). The Risk page's register sentences (`docs/LEGAL.md` §3.4) name the
   register first, `Die ESMA führt ein öffentliches Register der Anbieter von Kryptowerte-Dienstleistungen.`,
   then point to it with `dort`, `Prüfen Sie dort, ob ein Anbieter eingetragen ist, bevor Sie ihm Geld senden.`
   and `Proof of Calm ist kein Anbieter und dort nicht eingetragen.`, since §2's status row refuses the register
   beside its participle whoever the subject is (`im ESMA-Register eingetragen`,
   `im Register der ESMA eingetragen`). They hold one term, `Anbieter`, the short form of the
-  glossary's `Anbieter von Kryptowerte-Dienstleistungen`. A German register sentence worded
+  glossary's `Anbieter von Kryptowerte-Dienstleistungen`. They leave out English's "authorised
+  under MiCA" (`docs/LEGAL.md` §5's register sentence): §2's German status rows refuse `zugelassen`
+  and `autorisiert`, and MiCA's defined term `Anbieter von Kryptowerte-Dienstleistungen` names only
+  authorised providers (counsel on #507, decided 2026-11-25). A German register sentence worded
   otherwise needs an allow-list entry with its reason, as the Portuguese scams sentence has.
 - **Numerals for every number**, 2 to 9 included: `2 Coins`, `vor 15 Tagen`, `4‑mal`. Numbers,
   percentages and dates are formatted by the country's locale (§4): `40 %` and `0,00094000 BTC` on a
@@ -1472,7 +1485,7 @@ The Learn modules' terms (the term read of 2026-11-25; counsel's read wins where
 | crypto-assets (module prose) | `Kryptowerte`, as a profile's text writes them; the coin row keeps `Kryptowert` for disclosures and legal text |
 | no tax due | `keine zu zahlende Steuer`; never `fällig`; no `Steuerschuld` |
 | a taxable gain, a tax loss | `weder einen steuerpflichtigen Gewinn noch einen steuerlichen Verlust`, Proof of Calm the subject of each clause |
-| average cost, above or below the amount invested | `durchschnittlicher Kaufpreis`; `über oder unter dem eingesetzten Betrag` (`eingesetzt` here is an amount put in, not the units a button fills in on the move sheet); never `investierten` in a line that names an asset (§2's verb list); never `Anschaffungskosten` |
+| average cost, above or below the amount invested | `durchschnittlicher Kaufpreis`; `über oder unter dem eingesetzten Betrag` (`eingesetzt` here is an amount put in, not the units a button fills in on the move sheet); never `investierten` in a line that names an asset (§2's verb list); the ESAs' sentence the Risk lead quotes is the exception (the disclosures bullet above); never `Anschaffungskosten` |
 | allowance, exemption threshold | `Freibetrag`, `Freigrenze` only as a dated fact or in a negation, never applied to a figure of the person's or set beside one |
 | not a tax computation | `keine Steuerberechnung` |
 | leverage | `Handel mit geliehenem Geld`; never `Hebel` |
