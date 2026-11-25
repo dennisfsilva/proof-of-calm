@@ -1455,7 +1455,7 @@ The Learn modules' terms (the term read of 2026-11-25; counsel's read wins where
 | crypto-assets (module prose) | `Kryptowerte`, as a profile's text writes them; the coin row keeps `Kryptowert` for disclosures and legal text |
 | no tax due | `keine zu zahlende Steuer`; never `fällig`; no `Steuerschuld` |
 | a taxable gain, a tax loss | `weder einen steuerpflichtigen Gewinn noch einen steuerlichen Verlust`, Proof of Calm the subject of each clause |
-| average cost, above or below the amount invested | `durchschnittlicher Kaufpreis`; `über` or `unter dem investierten Betrag`; never `Anschaffungskosten` |
+| average cost, above or below the amount invested | `durchschnittlicher Kaufpreis`; `über oder unter dem eingesetzten Betrag` (`eingesetzt` here is an amount put in, not the units a button fills in on the move sheet); never `investierten` in a line that names an asset (§2's verb list); never `Anschaffungskosten` |
 | allowance, exemption threshold | `Freibetrag`, `Freigrenze` only as a dated fact or in a negation, never applied to a figure of the person's or set beside one |
 | not a tax computation | `keine Steuerberechnung` |
 | leverage | `Handel mit geliehenem Geld`; never `Hebel` |
