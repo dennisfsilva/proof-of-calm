@@ -1432,7 +1432,7 @@ The Learn modules' terms (the term read of 2026-11-25; counsel's read wins where
 
 | English | de-DE |
 |---|---|
-| Start here, Noise (the titles) | `Hier beginnen`, `Rauschen`; never `Lärm`, a sound |
+| Start here, Noise (the titles) | `Hier beginnen`, `Rauschen`; never `Lärm`, a sound (until the native reader answers) |
 | news, headline, feed | `Nachrichten`, `Schlagzeile`, `Feed` (`kein Newsfeed`) |
 | price notifications | `Kursbenachrichtigungen`; `Kursalarm` and `Preiswarnung` are on §2's list |
 | sentiment index, index | `Stimmungsindex`; `der Index`, `die Indizes`; `Crypto Fear & Greed Index` stays English |
@@ -1440,7 +1440,7 @@ The Learn modules' terms (the term read of 2026-11-25; counsel's read wins where
 | traders, a monthly buyer | `beim Trading`; `wer einen Monatsplan verfolgt`; never `Trader`, `Käufer` or `wer monatlich kauft` |
 | Why some people hold | `Warum manche eine Haltephase planen` |
 | keeping coins yourself | `Coins in eigener Verwahrung`, always with `eigener`; `hat nie … in Verwahrung`, never `verwahrt` |
-| exchange (in a module) | `Börse` in Start here; `Handelsplattform` for a failed or unknown venue (risk) |
+| exchange (in a module) | `Börse` in Start here (until the native reader answers); `Handelsplattform` for a failed or unknown venue (risk) |
 | signal service, tax tool, advice service | `Signaldienst`, `Steuerprogramm`, `Beratungsdienst`, in a negation |
 | keys, funds, exchange logins | `Ihre Schlüssel, Ihr Geld oder Ihre Zugangsdaten zu Börsen` |
 | a forecast | `Vorhersage`; `Prognose` only for the Zyklusplan's labelled assumption with its source |
@@ -1452,6 +1452,14 @@ The Learn modules' terms (the term read of 2026-11-25; counsel's read wins where
 | How fast rules change (Taxes) | `Wie schnell sich die Regeln ändern`; `learn.module.taxSiteLead` quotes it once the module is German |
 | an amount in a module | the source's code and figure, U+00A0, §4's grouping: `EUR 600`, `GBP 12 300`, `USD 900`, `über 8 Mrd. US-Dollar`; no `£` |
 | a grouped count in a module | U+00A0 groups: `210 000 Blöcke`, `750 000 Bitcoins` |
+| crypto-assets (module prose) | `Kryptowerte`, as a profile's text writes them; the coin row keeps `Kryptowert` for disclosures and legal text |
+| no tax due | `keine zu zahlende Steuer`; never `fällig`; no `Steuerschuld` |
+| a taxable gain, a tax loss | `weder einen steuerpflichtigen Gewinn noch einen steuerlichen Verlust`, Proof of Calm the subject of each clause |
+| average cost, above or below the amount invested | `durchschnittlicher Kaufpreis`; `über` or `unter dem investierten Betrag`; never `Anschaffungskosten` |
+| allowance, exemption threshold | `Freibetrag`, `Freigrenze` only as a dated fact or in a negation, never applied to a figure of the person's |
+| not a tax computation | `keine Steuerberechnung` |
+| leverage | `Handel mit geliehenem Geld`; never `Hebel` |
+| liquidation, forced sale | `Liquidation`, `Zwangsverkauf` as nouns only; `liquidieren` is on §2's verb list |
 
 Two terms name the same date in two frames: `der erste Tag nach der Haltefrist` is the date in the
 holding rule's own frame (the hold-phase card, the holding-date tool, the tax-year file's
