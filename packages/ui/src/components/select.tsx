@@ -3,6 +3,7 @@
 import { CSPProvider } from '@base-ui/react/csp-provider';
 import { Select as SelectPrimitive } from '@base-ui/react/select';
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
+import { createContext, use, useState } from 'react';
 import type { WithClassName } from '#lib/types';
 import { cn } from '#lib/utils';
 
@@ -11,13 +12,29 @@ import { cn } from '#lib/utils';
 // option is a 44 px target and the selected one carries a check, not only a colour. Base UI's inline
 // <style> for its scrollbar class is off, as the hashed CSP refuses it (docs/SECURITY.md §4); globals.css
 // holds the rule. The provider's context crosses the portal, so it covers the popup.
+// The popup keeps clear of the phone tab bar (TabBar, below 48rem): Base UI's layout that aligns the selected item with
+// the trigger reads the positioner's bottom margin, and the one that places it beside the trigger takes a collision
+// padding in pixels, the tab bar's spacer measured as the popup opens (it hid an option at zoom-125, 2026-11-25).
 
-function Select<Value, Multiple extends boolean | undefined = false>(
-  props: SelectPrimitive.Root.Props<Value, Multiple>,
-) {
+const BottomBar = createContext(0);
+const bottomBar = () => document.querySelector<HTMLElement>('[data-slot="tab-bar"]')?.offsetHeight ?? 0;
+
+function Select<Value, Multiple extends boolean | undefined = false>({
+  onOpenChange,
+  ...props
+}: SelectPrimitive.Root.Props<Value, Multiple>) {
+  const [bottom, setBottom] = useState(0);
   return (
     <CSPProvider disableStyleElements>
-      <SelectPrimitive.Root<Value, Multiple> {...props} />
+      <BottomBar value={bottom}>
+        <SelectPrimitive.Root<Value, Multiple>
+          {...props}
+          onOpenChange={(open, details) => {
+            if (open) setBottom(bottomBar());
+            onOpenChange?.(open, details);
+          }}
+        />
+      </BottomBar>
     </CSPProvider>
   );
 }
@@ -65,6 +82,8 @@ function SelectContent({
   alignItemWithTrigger = true,
   ...props
 }: SelectContentProps) {
+  // Base UI's default padding of 5 px on every side, the tab bar's height added at the bottom.
+  const bottom = use(BottomBar) + 5;
   return (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Positioner
@@ -73,7 +92,8 @@ function SelectContent({
         align={align}
         alignOffset={alignOffset}
         alignItemWithTrigger={alignItemWithTrigger}
-        className="isolate z-50"
+        collisionPadding={{ top: 5, right: 5, bottom, left: 5 }}
+        className="isolate z-50 mb-(--bottom-bar)"
       >
         <SelectPrimitive.Popup
           data-slot="select-content"

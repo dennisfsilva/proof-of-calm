@@ -346,6 +346,8 @@ text size; in rem, so larger text keeps the tab bar longer) and the top navigati
 tablet in portrait gets the top navigation. The tab bar is 56 px (`--tab-bar-height`) plus the home
 indicator's inset, fixed, with an in-flow spacer of its height, so the end of a page scrolls clear of
 it; while one is on the page, `--bottom-bar` holds that height and the toast viewport sits above it.
+A Select's open list stays above the bar too: its positioner's bottom margin is `--bottom-bar`, and
+its collision padding adds the spacer's height, measured as the list opens.
 `<html>` takes the larger of `--bottom-bar` and `--toast-inset` (in `max()`, never their sum) plus
 the focus ring's extent (§6) as `scroll-padding-bottom`: while a toast shows, its viewport sets
 `--toast-inset` (`0px` by default) on `<html>` to the band the toast covers, measured from its top to
