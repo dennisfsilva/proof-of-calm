@@ -19,12 +19,12 @@ const RULE_MS = 100;
 // A run took 27 to 29 s on this machine with the window (2026-11-25), the seed's 7 s included.
 const TIMEOUT_MS = 420_000;
 /**
- * The inputs this machine measured under half the rule at 6x, asserted under it. On 2026-11-25, with a window of 48:
- * Show older entries, input 32 ms and no long task. Not asserted: opening a row 88 ms, Edit entry 240 to 272, a
- * keystroke in the amount 40 to 48 (48 to 64 in earlier runs), closing the sheet 64 to 72, Show all's longest task 314
- * to 321, Show newer entries' 0 to 52, opening Go to year's 172 to 197 and choosing its oldest year's 60 to 327.
+ * The inputs this machine measured under half the rule at 6x, asserted under it: none with the window of 100. On
+ * 2026-11-25 every input passed 50 ms in some run (docs/ENGINEERING.md §4 has the figures): Show older entries' longest
+ * task 65 to 115, Show newer entries' 71 to 114, closing the sheet's 0 to 69, the amount's keystroke 0 with its input 32
+ * to 48; Show all, Edit entry and opening Go to year stay over the rule.
  */
-const ASSERTED: ReadonlySet<string> = new Set<string>(['Show older entries']);
+const ASSERTED: ReadonlySet<string> = new Set<string>();
 
 /** The fixture plan with extra buys on the days before its first buy day, up to MAX_ENTRIES live entries. */
 function atTheCap(): Snapshot {
