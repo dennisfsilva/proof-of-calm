@@ -7,7 +7,7 @@
     "Ob die Haltefrist bei einem Tausch zwischen Kryptowerten weiterläuft, ist ungeklärt. Proof of Calm behandelt einen Tausch als Verkauf und neuen Kauf, daher beginnt für die erhaltenen Coins eine neue Haltefrist.",
     "Der Verlust der steuerlichen Ansässigkeit in Portugal gilt als Veräußerung (Art.\u00a010 n.º\u00a025 CIRS, in Dokumenten von 2023–\u20602025 als n.º\u00a022 nummeriert)."
   ],
-  "lotRuleNote": "Fifo-Methode (first in, first out), getrennt je Verwahrstelle oder Plattform, wenn Einheiten bei mehr als einer liegen (Art.\u00a043 n.º\u00a09 CIRS, früher n.º\u00a07).",
+  "lotRuleNote": "Fifo-Methode (first in, first out), getrennt pro Verwahrstelle oder Plattform, wenn Einheiten bei mehr als einer liegen (Art. 43 n.º 9 CIRS, früher n.º 7).",
   "card": {
     "classification": "Gewinne der Kategorie G (Art.\u00a010(1)\u2060(k) CIRS) bei Kryptowerten ohne Wertpapiercharakter; E (28%) bei Staking oder Verleih gegen Fiatgeld; B bei gewohnheitsmäßiger oder beruflicher Tätigkeit, stets bei Mining und Validierung. Ohne NFTs.",
     "taxableEvents": [
@@ -51,15 +51,15 @@
       "Käufe vor 2023 zählen für die 365\u00a0Tage mit (Art.\u00a0220 Lei\u00a024\u2011D/2022)."
     ],
     "holdingRuleText": "Gewinne und Verluste aus Kryptowerten, die 365\u00a0Tage oder länger gehalten wurden, sind steuerfrei: „detidos por um período igual ou superior a 365\u00a0dias“ (Art.\u00a010 n.º\u00a022 CIRS, in Dokumenten von 2023–\u20602025 als n.º\u00a019 nummeriert). Eine am 1.\u00a0März\u00a02026 gekaufte Einheit kommt ab dem 1.\u00a0März\u00a02027 für die Steuerfreiheit in Frage.",
-    "lotRuleText": "Fifo-Methode, first in, first out („os alienados são os adquiridos há mais tempo“, Art.\u00a043 n.º\u00a08(g) CIRS, früher n.º\u00a06(g)), getrennt je Verwahrstelle oder Plattform (Art.\u00a043 n.º\u00a09, früher n.º\u00a07).",
+    "lotRuleText": "Fifo-Methode (first in, first out): „os alienados são os adquiridos há mais tempo“ (Art.\u00a043 n.º\u00a08(g) CIRS, früher n.º\u00a06(g)), getrennt pro Verwahrstelle oder Plattform (Art.\u00a043 n.º\u00a09, früher n.º\u00a07).",
     "losses": "Verrechnung mit Krypto-Gewinnen desselben Jahres, ohne Einheiten ab 365\u00a0Tagen Haltedauer. Nettoverlust: Vortrag 5\u00a0Jahre nur mit englobamento (Art.\u00a055(1)\u2060(d)); Verluste mit Gegenparteien in gelisteten Steueroasen zählen nie (Art.\u00a043 n.º\u00a07).",
     "reporting": [
-      "Modelo\u00a03, Anexo\u00a0G Quadro\u00a018A: Veräußerungen von Einheiten mit einer Haltedauer unter 365\u00a0Tagen, je Vorgang, mit dem Land der Gegenpartei.",
+      "Modelo\u00a03, Anexo\u00a0G Quadro\u00a018A: Veräußerungen von Einheiten mit einer Haltedauer unter 365\u00a0Tagen, pro Vorgang, mit dem Land der Gegenpartei.",
       "Anexo\u00a0G Quadro\u00a018B: Veräußerungen mit einer Gegenpartei außerhalb der EU oder des EWR.",
       "Anexo\u00a0G1 Quadro\u00a07: steuerfreie Veräußerungen, verpflichtend.",
       "Anexo\u00a0J Quadro\u00a09.4 für Einkünfte, die als ausländische gelten; welche Anlage für einen Verkauf an einer ausländischen Börse gilt, ist eine wiederkehrende Frage in der Praxis.",
       "Anexo\u00a0E Code E21 für Einkünfte aus Kryptowerten; Anexo\u00a0B Felder\u00a0419 und 422 für Handel und Mining als Gewerbe.",
-      "DAC8: Lei n.º\u00a026/2026 vom 3.\u00a0Juni\u00a02026, mit Wirkung ab dem 1.\u00a0Januar\u00a02026; Anbieter melden in Portugal ansässige Personen bis zum 31.\u00a0Mai des Folgejahres an die AT, erstmals am 31.\u00a0Mai\u00a02027."
+      "DAC8: Lei n.º\u00a026/2026 vom 3.\u00a0Juni\u00a02026, mit Wirkung ab dem 1.\u00a0Januar\u00a02026; Anbieter von Kryptowerte-Dienstleistungen melden in Portugal ansässige Personen bis zum 31.\u00a0Mai des Folgejahres an die AT, erstmals am 31.\u00a0Mai\u00a02027."
     ],
     "caveats": [
       "Gegenparteien außerhalb der EU oder des EWR.",
@@ -70,7 +70,7 @@
       "Das Risiko, dass die Tätigkeit als beruflich gilt.",
       "Stempelsteuer auf Schenkungen."
     ],
-    "summary60": "Portugal: Gewinne aus Kryptowerten mit einer Haltedauer unter 365\u00a0Tagen werden standardmäßig mit 28% besteuert. Ab 365\u00a0Tagen sind sie steuerfrei, wenn die Gegenpartei in der EU, im EWR oder in einem Staat mit Doppelbesteuerungsabkommen steuerlich ansässig ist; jeder Verkauf ist trotzdem zu erklären. Ein Tausch zwischen Kryptowerten wird nicht sofort besteuert. Fifo je Plattform. Erklärung von April bis Juni."
+    "summary60": "Portugal: Gewinne aus Kryptowerten mit einer Haltedauer unter 365\u00a0Tagen werden standardmäßig mit 28% besteuert. Ab 365\u00a0Tagen sind sie steuerfrei, wenn die Gegenpartei in der EU, im EWR oder in einem Staat mit Doppelbesteuerungsabkommen steuerlich ansässig ist; jeder Verkauf ist trotzdem zu erklären. Ein Tausch zwischen Kryptowerten wird nicht sofort besteuert. Fifo-Methode pro Plattform. Erklärung von April bis Juni."
   },
   "pendingChanges": [
     {
@@ -83,7 +83,7 @@
     },
     {
       "title": "Niedrigere Sätze in 6 IRS-Stufen (Decreto-Lei n.º\u00a0212/2026)",
-      "summary": "Der Satz von 28% nach Art.\u00a072(1)\u2060(c) bleibt. Decreto-Lei n.º\u00a0212/2026 vom 4.\u00a0November\u00a02026 (Diário da República n.º\u00a0214/2026, Série\u00a0I), gestützt auf Lei n.º\u00a064\u2011B/2026 (Proposta de Lei n.º\u00a0108/XVII/2.ª), senkt die ersten 6 Sätze von Art.\u00a068 n.º\u00a01 CIRS auf 12,2%, 15,2%, 20,7%, 23,6%, 30,6% und 34,6%. In Kraft seit 5.\u00a0November\u00a02026; laut Präambel gilt die Senkung für Einkünfte 2026 ab 1.\u00a0Januar\u00a02026."
+      "summary": "Der Satz von 28% nach Art.\u00a072(1)\u2060(c) bleibt. Decreto-Lei n.º\u00a0212/2026 vom 4.\u00a0November\u00a02026 (Diário da República n.º\u00a0214/2026, Série\u00a0I), nach Lei n.º\u00a064\u2011B/2026 (Proposta de Lei n.º\u00a0108/XVII/2.ª), senkt die ersten 6 Sätze von Art.\u00a068 n.º\u00a01 CIRS auf 12,2%, 15,2%, 20,7%, 23,6%, 30,6% und 34,6%. In Kraft seit dem 5.\u00a0November\u00a02026; laut Präambel gilt die Senkung für Einkünfte 2026 ab dem 1.\u00a0Januar\u00a02026."
     },
     {
       "title": "Verbindliche Auskunft der AT, PIV\u00a028969",
@@ -91,7 +91,7 @@
     },
     {
       "title": "Verbindliche Auskunft der AT, PIV\u00a029052",
-      "summary": "Käufe ab 2019 zählen für die 365\u00a0Tage mit; die Ausnahme gilt nur für Gegenparteien in der EU, im EWR oder in einem Staat mit Doppelbesteuerungsabkommen; ein Test der Gewohnheitsmäßigkeit entscheidet über Kategorie B."
+      "summary": "Käufe ab 2019 zählen für die 365\u00a0Tage mit; die Steuerfreiheit gilt nur für Gegenparteien in der EU, im EWR oder in einem Staat mit Doppelbesteuerungsabkommen; ein Test der Gewohnheitsmäßigkeit entscheidet über Kategorie B."
     },
     {
       "title": "Neu nummerierte Regeln zu Kryptowerten in Art.\u00a010 CIRS",

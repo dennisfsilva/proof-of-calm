@@ -3,7 +3,7 @@
   "filingNote": "Das Steuerjahr ist das Kalenderjahr. Die Online-Erklärung öffnet im April des Folgejahres; die Abgabefrist ist je nach département verschieden.",
   "lotRuleNote": "Keine Postenzuordnung: Der Gewinn jedes steuerpflichtigen Verkaufs wird auf das gesamte Portfolio berechnet (Art. 150 VH bis III CGI).",
   "card": {
-    "classification": "Gewinne aus gelegentlichen Verkäufen von Privatpersonen (Art.\u00a0150 VH bis CGI; ab 1.\u00a0Januar\u00a02026 nur Kryptowerte nach MiCA; NFTs: Art.\u00a0150 VH ter). Handel wie ein Profi: nichtgewerbliche Gewinne (BNC); als Unternehmen: gewerbliche (BIC).",
+    "classification": "Gewinne aus gelegentlichen Verkäufen von Privatpersonen (Art.\u00a0150 VH bis CGI; ab dem 1.\u00a0Januar\u00a02026 nur Kryptowerte nach MiCA; NFTs: Art.\u00a0150 VH ter). Handel wie ein Profi: nichtgewerbliche Gewinne (BNC); als Unternehmen: gewerbliche (BIC).",
     "taxableEvents": [
       {
         "note": "Jeder Verkauf gegen ein gesetzliches Zahlungsmittel, unabhängig von der Haltedauer; steuerpflichtig ab dem ersten Euro, sobald die Verkaufspreise des Haushalts im Jahr EUR\u00a0305 übersteigen."
@@ -51,7 +51,7 @@
       "Zuschläge auf hohe Einkommen.",
       "Die Maßnahmen des Haushalts 2027, die noch nicht Gesetz sind."
     ],
-    "summary60": "Frankreich: Ein Verkauf von Kryptowerten gegen Euro und eine Zahlung mit Kryptowerten sind steuerpflichtig, ein Tausch gegen einen anderen Kryptowert nicht. Gewinne werden pauschal mit 31,4\u00a0% besteuert, auf Antrag nach dem progressiven Tarif. Betragen die Verkäufe Ihres Haushalts im Jahr höchstens EUR\u00a0305, ist nichts zu zahlen. Gewinne werden auf Ihr gesamtes Portfolio berechnet, nicht je Coin."
+    "summary60": "Frankreich: Ein Verkauf von Kryptowerten gegen Euro und eine Zahlung mit Kryptowerten sind steuerpflichtig, ein Tausch gegen einen anderen Kryptowert nicht. Gewinne werden pauschal mit 31,4\u00a0% besteuert, auf Antrag nach dem progressiven Tarif. Betragen die Verkäufe Ihres Haushalts im Jahr höchstens EUR\u00a0305, ist nichts zu zahlen. Gewinne werden auf Ihr gesamtes Portfolio berechnet, nicht pro Coin."
   },
   "pendingChanges": [
     {

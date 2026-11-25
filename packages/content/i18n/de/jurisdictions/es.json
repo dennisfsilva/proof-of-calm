@@ -1,7 +1,7 @@
 {
   "name": "Spanien",
   "filingNote": "Das Steuerjahr ist das Kalenderjahr. Die Renta (Modelo\u00a0D-100) für 2025: vom 8.\u00a0April bis 30.\u00a0Juni\u00a02026 (Orden\u00a0HAC/277/2026); die Termine setzt jährlich eine Verordnung. Kryptowerte im Ausland (Modelo\u00a0721): vom 1.\u00a0Januar bis 31.\u00a0März.",
-  "lotRuleNote": "Fifo-Methode (first in, first out) je Art von Coin: Bei einem Teilverkauf von Coins, die zu verschiedenen Zeitpunkten und Werten gekauft wurden, gehen die zuerst erworbenen zuerst ab („criterio FIFO“ im Renta-Handbuch der AEAT).",
+  "lotRuleNote": "Fifo-Methode (first in, first out) pro Art von Coin: Bei einem Teilverkauf von Coins, die zu verschiedenen Zeitpunkten und Werten gekauft wurden, gehen die zuerst erworbenen zuerst ab („criterio FIFO“ im Renta-Handbuch der AEAT).",
   "card": {
     "classification": "Gewinne und Verluste in der Sparbasis (base del ahorro, Art.\u00a046 b LIRPF) außerhalb einer wirtschaftlichen Tätigkeit; jede Art von Coin ist ein eigener Vermögenswert. Keine gelesene Seite der AEAT behandelt Staking oder Airdrops.",
     "taxableEvents": [
@@ -39,7 +39,7 @@
       "Modelo\u00a0721 nur, wenn im Ausland verwahrte Kryptowerte am 31.\u00a0Dezember EUR\u00a050\u00a0000 übersteigen; erneut, wenn ihr Wert seit der letzten Erklärung um mehr als EUR\u00a020\u00a0000 wächst (Art.\u00a042 quater RGAT). Coins in Eigenverwahrung zählen nicht."
     ],
     "holdingRuleText": "Keine Haltefrist: Jeder Verkauf, jeder Tausch und jede Zahlung ist ein steuerpflichtiger Vorgang, unabhängig von der Haltedauer. Derselbe Tarif der Sparbasis gilt für einen Coin, der 1\u00a0Tag oder 10\u00a0Jahre gehalten wurde.",
-    "lotRuleText": "Fifo je Coin-Art („criterio FIFO“, Renta-Handbuch der AEAT): Bei einem Teilverkauf von Coins aus Käufen zu verschiedenen Zeiten und Werten gehen die zuerst erworbenen zuerst ab. Das gelesene Handbuch nennt keine Trennung nach Plattform.",
+    "lotRuleText": "Fifo-Methode pro Coin-Art („criterio FIFO“, Renta-Handbuch der AEAT): Bei einem Teilverkauf von Coins aus Käufen zu verschiedenen Zeiten und Werten gehen die ältesten zuerst ab. Das gelesene Handbuch nennt keine Trennung nach Plattform.",
     "losses": "Verluste werden innerhalb der Sparbasis des Jahres verrechnet; ein verbleibender negativer Saldo wird mit Kapitaleinkünften des Jahres verrechnet, höchstens mit 25\u00a0% davon, und der Rest wird 4\u00a0Jahre vorgetragen (Art.\u00a049.1 LIRPF).",
     "reporting": [
       "Die Renta-Erklärung (Modelo\u00a0D-100): der Abschnitt „Ganancias y pérdidas patrimoniales derivadas de la transmisión o permuta de monedas virtuales por particulares“.",
@@ -47,7 +47,7 @@
       "Modelo\u00a0721, vom 1.\u00a0Januar bis zum 31.\u00a0März, für Kryptowerte bei einer Verwahrstelle im Ausland über EUR\u00a050\u00a0000 am 31.\u00a0Dezember; für Bestände von 2025 vom 1.\u00a0Januar bis zum 31.\u00a0März\u00a02026."
     ],
     "caveats": [
-      "Ob die Fifo-Methode verpflichtend ist und ob je Plattform oder insgesamt.",
+      "Ob die Fifo-Methode (first in, first out) verpflichtend ist und ob pro Plattform oder insgesamt.",
       "Staking-Prämien und Airdrops.",
       "Die Verrechnung von 25\u00a0% mit Kapitaleinkünften.",
       "Schenkungen: Es zahlt die schenkende Person.",
@@ -56,6 +56,6 @@
       "Meldungen nach DAC8 durch Anbieter von Kryptowerte-Dienstleistungen: ob Spanien sie umgesetzt hat.",
       "Was sich nach der Wahl vom 29.\u00a0November\u00a02026 ändert."
     ],
-    "summary60": "Spanien: Jeder Verkauf, jeder Tausch zwischen Kryptowerten und jede Zahlung mit Kryptowerten ist steuerpflichtig. Keine Steuerfreiheit nach einer Haltefrist. Nettogewinne werden in der Sparbasis mit 19\u00a0% bis 30\u00a0% besteuert. Fifo je Coin. Verluste mindern Gewinne und werden 4\u00a0Jahre vorgetragen. Kryptowerte bei einer ausländischen Verwahrstelle über EUR\u00a050\u00a0000 sind bis zum 31.\u00a0März in Modelo\u00a0721 zu erklären."
+    "summary60": "Spanien: Jeder Verkauf, jeder Tausch zwischen Kryptowerten und jede Zahlung mit Kryptowerten ist steuerpflichtig. Keine Steuerfreiheit nach einer Haltefrist. Nettogewinne werden in der Sparbasis mit 19\u00a0% bis 30\u00a0% besteuert. Fifo-Methode pro Coin. Verluste mindern Gewinne und werden 4\u00a0Jahre vorgetragen. Kryptowerte bei einer ausländischen Verwahrstelle über EUR\u00a050\u00a0000 sind bis zum 31.\u00a0März in Modelo\u00a0721 zu erklären."
   }
 }
