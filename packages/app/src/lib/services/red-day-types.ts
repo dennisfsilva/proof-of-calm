@@ -1,8 +1,23 @@
 // The red-day port's types (docs/DOMAIN.md §3.11), apart from `./red-day` so the lazy model imports them without a
 // cycle back into the stub that loads it.
-import type { CalendarDate, CoinId, CurrencyCode, Entry, Percent, Plan, RedDayEpisode } from '@proofofcalm/core';
+import type {
+  CalendarDate,
+  CoinId,
+  CurrencyCode,
+  Entry,
+  HoldingContext,
+  Percent,
+  Plan,
+  RedDayEpisode,
+} from '@proofofcalm/core';
 
-export type RedDayInput = { readonly plan: Plan; readonly entries: readonly Entry[]; readonly today: CalendarDate };
+/** `holding`: the plan's holding context, so the model's portfolio is the one Today computed (`heldPortfolio`). */
+export type RedDayInput = {
+  readonly plan: Plan;
+  readonly entries: readonly Entry[];
+  readonly today: CalendarDate;
+  readonly holding?: HoldingContext;
+};
 
 /** The figures of the held portfolio at today's units over the complete closes (docs/DOMAIN.md §3.11). */
 type RedDayFigure = {
