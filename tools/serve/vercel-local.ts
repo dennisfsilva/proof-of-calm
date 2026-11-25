@@ -2,18 +2,27 @@
 // Vercel reads, runs the API function from its bundle and answers with brotli at Vercel's quality, so the
 // e2e suite and Lighthouse see what a deployment serves (docs/ENGINEERING.md §4). From apps/web:
 //   node ../../tools/serve/vercel-local.ts [--port 3000] [--dir dist] [--config vercel.json]
-//     [--api server-dist/api.mjs] [--env .env.local]
+//     [--api server-dist/api.mjs] [--env .env.local] [--tls]
+// --tls serves https with HTTP/2 (and HTTP/1.1 by ALPN) on a self-signed certificate made at start, as
+// Vercel serves h2; Lighthouse uses it, the e2e suite keeps plain http.
 // It emulates only what this repository's vercel.json uses and refuses anything else at start, so no rule
 // passes unnoticed. Not emulated: the CDN cache, which also takes s-maxage and stale-while-revalidate out
 // of the Cache-Control a browser receives (https://vercel.com/docs/caching/cache-control-headers).
 // size-lint-allow: one server, one file, 34 tests
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
+import {
+  createSecureServer,
+  type Http2SecureServer,
+  type Http2ServerRequest,
+  type Http2ServerResponse,
+} from 'node:http2';
 import { extname, join, resolve, sep } from 'node:path';
 import { arrayBuffer } from 'node:stream/consumers';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 import { brotliCompressSync, constants } from 'node:zlib';
+import { selfSignedCert } from './self-signed.ts';
 
 // The types Vercel's CDN compresses (https://vercel.com/docs/how-vercel-cdn-works/compression, read
 // 2026-10-17), and HTML, which that list leaves out but which Vercel was measured compressing (ADR-0024).
@@ -323,12 +332,26 @@ function filesIn(dir: string): Set<string> {
   );
 }
 
-/** Writes a response as Vercel's CDN would send it, from this plain-http origin. */
-function send(req: IncomingMessage, res: ServerResponse, status: number, headers: Headers, body: Buffer): void {
+type Request1or2 = IncomingMessage | Http2ServerRequest;
+type Response1or2 = ServerResponse | Http2ServerResponse;
+
+// Hop-by-hop headers, which an HTTP/2 response must not carry (RFC 9113 §8.2.2): Node throws
+// ERR_HTTP2_INVALID_CONNECTION_HEADERS on them.
+const CONNECTION_HEADERS = ['connection', 'keep-alive', 'proxy-connection', 'transfer-encoding', 'upgrade'];
+
+/** Writes a response as Vercel's CDN would send it, from this origin (`tls`: https, else plain http). */
+function sendAs(
+  req: Request1or2,
+  res: Response1or2,
+  status: number,
+  headers: Headers,
+  body: Buffer,
+  tls = false,
+): void {
   // Over plain http WebKit upgrades every subresource to https and fails, so the directive goes, as buildCsp
-  // leaves it out without https (ADR-0045 §11).
+  // leaves it out without https (ADR-0045 §11); over https it stays, as Vercel sends it.
   const policy = headers.get('content-security-policy');
-  if (policy !== null) {
+  if (policy !== null && !tls) {
     const directives = policy.split(';').map((directive) => directive.trim());
     const kept = directives.filter((directive) => directive !== 'upgrade-insecure-requests');
     headers.set('content-security-policy', kept.join('; '));
@@ -342,47 +365,71 @@ function send(req: IncomingMessage, res: ServerResponse, status: number, headers
     headers.append('vary', 'Accept-Encoding');
   }
   headers.delete('transfer-encoding');
+  if (req.httpVersionMajor === 2) for (const name of CONNECTION_HEADERS) headers.delete(name);
   if (status === 204 || status === 304) headers.delete('content-length');
   else headers.set('content-length', String(payload.length));
   const cookies = headers.getSetCookie();
-  res.writeHead(status, { ...Object.fromEntries(headers), ...(cookies.length > 0 ? { 'set-cookie': cookies } : {}) });
+  const head = { ...Object.fromEntries(headers), ...(cookies.length > 0 ? { 'set-cookie': cookies } : {}) };
+  // The compatibility API of node:http2 mirrors node:http's; a union of the two has no common signature.
+  (res as ServerResponse).writeHead(status, head);
   res.end(payload);
 }
 
-/** The server, not yet listening, for the build in `dir` (read once: a deployment is fixed) and `config`. */
-export function createVercelLocal({ dir, config, api }: { dir: string; config: unknown; api: FetchHandler }): Server {
+export type VercelLocal = Server | Http2SecureServer;
+
+/**
+ * The server, not yet listening, for the build in `dir` (read once: a deployment is fixed) and `config`:
+ * plain http/1.1, or with `tls` https with HTTP/2 and HTTP/1.1 by ALPN, as Vercel serves (Lighthouse's
+ * simulation gives an h2 origin one multiplexed connection, and an http/1.1 one six).
+ */
+export function createVercelLocal({
+  dir,
+  config,
+  api,
+  tls,
+}: {
+  dir: string;
+  config: unknown;
+  api: FetchHandler;
+  tls?: { key: string; cert: string };
+}): VercelLocal {
   const files = filesIn(dir);
   const route = createRouter(config, files);
   const read = (file: string) => readFileSync(join(dir, file));
+  const secure = tls !== undefined;
 
-  async function respond(req: IncomingMessage, res: ServerResponse): Promise<void> {
+  async function respond(req: Request1or2, res: Response1or2): Promise<void> {
+    const send = (status: number, headers: Headers, body: Buffer) => sendAs(req, res, status, headers, body, secure);
     const method = req.method ?? 'GET';
-    const url = new URL(req.url ?? '/', `http://${req.headers.host ?? 'localhost'}`);
+    const host = req.headers.host ?? req.headers[':authority'] ?? 'localhost';
+    const url = new URL(req.url ?? '/', `${secure ? 'https' : 'http'}://${host}`);
     // A malformed escape is a 400. The rules then see the path undecoded: decoded, %2F would become a
     // separator in a redirect's Location (/%2Fevil.example/ to //evil.example, another origin).
-    if (decoded(url.pathname) === undefined) return send(req, res, 400, new Headers(), Buffer.from('Bad request'));
+    if (decoded(url.pathname) === undefined) return send(400, new Headers(), Buffer.from('Bad request'));
     const headers = new Headers();
     for (let i = 0; i + 1 < req.rawHeaders.length; i += 2) {
-      headers.append(req.rawHeaders[i] ?? '', req.rawHeaders[i + 1] ?? '');
+      const name = req.rawHeaders[i] ?? '';
+      // HTTP/2's pseudo-headers (:method, :path, …), which Headers refuses.
+      if (!name.startsWith(':')) headers.append(name, req.rawHeaders[i + 1] ?? '');
     }
     const outcome = route({ method, path: url.pathname, headers });
     switch (outcome.kind) {
       case 'empty':
-        return send(req, res, outcome.status, outcome.headers, Buffer.alloc(0));
+        return send(outcome.status, outcome.headers, Buffer.alloc(0));
       case 'missing': {
         const page = files.has('404.html');
         outcome.headers.set('content-type', page ? HTML_TYPE : 'text/plain; charset=utf-8');
-        return send(req, res, 404, outcome.headers, page ? read('404.html') : Buffer.from('Not found'));
+        return send(404, outcome.headers, page ? read('404.html') : Buffer.from('Not found'));
       }
       case 'file': {
         if (outcome.status === 200 && method !== 'GET' && method !== 'HEAD') {
           outcome.headers.set('allow', 'GET, HEAD');
-          return send(req, res, 405, outcome.headers, Buffer.alloc(0));
+          return send(405, outcome.headers, Buffer.alloc(0));
         }
         if (!outcome.headers.has('content-type')) {
           outcome.headers.set('content-type', CONTENT_TYPES[extname(outcome.file)] ?? 'application/octet-stream');
         }
-        return send(req, res, outcome.status, outcome.headers, read(outcome.file));
+        return send(outcome.status, outcome.headers, read(outcome.file));
       }
       case 'function': {
         const body = method === 'GET' || method === 'HEAD' ? null : await arrayBuffer(req);
@@ -392,17 +439,18 @@ export function createVercelLocal({ dir, config, api }: { dir: string; config: u
           if (key === 'set-cookie') outcome.headers.append(key, value);
           else outcome.headers.set(key, value);
         });
-        return send(req, res, response.status, outcome.headers, Buffer.from(await response.arrayBuffer()));
+        return send(response.status, outcome.headers, Buffer.from(await response.arrayBuffer()));
       }
     }
   }
 
-  return createServer((req, res) => {
+  const handle = (req: Request1or2, res: Response1or2) => {
     respond(req, res).catch((error: unknown) => {
       console.error(error);
-      if (!res.headersSent) send(req, res, 500, new Headers(), Buffer.from('A server error has occurred'));
+      if (!res.headersSent) sendAs(req, res, 500, new Headers(), Buffer.from('A server error has occurred'), secure);
     });
-  });
+  };
+  return tls === undefined ? createServer(handle) : createSecureServer({ allowHTTP1: true, ...tls }, handle);
 }
 
 function isFetchHandler(value: unknown): value is FetchHandler {
@@ -416,32 +464,42 @@ export async function loadApi(file: string): Promise<FetchHandler> {
   return api;
 }
 
-async function main(): Promise<void> {
+/** The command's work, its paths resolved against `cwd`: the server, listening, and its origin. */
+export async function start(args: readonly string[], cwd: string): Promise<{ server: VercelLocal; origin: string }> {
   const { values } = parseArgs({
+    args: [...args],
     options: {
       port: { type: 'string', default: '3000' },
       dir: { type: 'string', default: 'dist' },
       config: { type: 'string', default: 'vercel.json' },
       api: { type: 'string', default: 'server-dist/api.mjs' },
       env: { type: 'string', default: '.env.local' },
+      tls: { type: 'boolean', default: false },
     },
   });
+  const env = resolve(cwd, values.env);
   // Before the function's module loads, as it may read its configuration then; set variables win.
-  if (existsSync(values.env)) process.loadEnvFile(values.env);
-  const config: unknown = JSON.parse(readFileSync(values.config, 'utf8'));
-  const server = createVercelLocal({ dir: resolve(values.dir), config, api: await loadApi(resolve(values.api)) });
-  server.listen(Number(values.port), () => {
-    const address = server.address();
-    const port = typeof address === 'object' && address !== null ? address.port : values.port;
-    // Lighthouse CI and Playwright wait for this line.
-    console.log(`Ready on http://localhost:${port}`);
+  if (existsSync(env)) process.loadEnvFile(env);
+  const config: unknown = JSON.parse(readFileSync(resolve(cwd, values.config), 'utf8'));
+  const api = await loadApi(resolve(cwd, values.api));
+  const tls = values.tls ? selfSignedCert({ hostname: 'localhost', now: new Date() }) : undefined;
+  const server = createVercelLocal({ dir: resolve(cwd, values.dir), config, api, ...(tls ? { tls } : {}) });
+  await new Promise<void>((done, fail) => {
+    server.once('error', fail);
+    server.listen(Number(values.port), done);
   });
+  const address = server.address();
+  const port = typeof address === 'object' && address !== null ? address.port : values.port;
+  return { server, origin: `${tls ? 'https' : 'http'}://localhost:${port}` };
 }
 
 const isMain = process.argv[1] !== undefined && fileURLToPath(import.meta.url) === process.argv[1];
 if (isMain) {
-  main().catch((error: unknown) => {
-    console.error(error instanceof Error ? error.message : error);
-    process.exit(1);
-  });
+  // Lighthouse CI and Playwright wait for the "Ready on" line.
+  start(process.argv.slice(2), process.cwd())
+    .then(({ origin }) => console.log(`Ready on ${origin}`))
+    .catch((error: unknown) => {
+      console.error(error instanceof Error ? error.message : error);
+      process.exit(1);
+    });
 }
