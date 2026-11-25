@@ -1,0 +1,27 @@
+{
+  "name": "Anderes Land",
+  "filingNote": "Für Ihr Land nicht überprüft: Das Kalenderjahr steht für das Steuerjahr, und die Abgabefristen bestätigt eine Steuerberatung vor Ort.",
+  "lotRuleNote": "Für Ihr Land nicht überprüft. Die App ordnet jedem Verkauf die ältesten Käufe desselben Coins zu (Fifo-Methode, first in, first out).",
+  "card": {
+    "classification": "Nicht überprüft: Proof of Calm hat für Ihr Land keine überprüften Regeln.",
+    "taxableEvents": [
+      { "note": "Jeder Verkauf kann steuerpflichtig sein." },
+      { "note": "Ein Tausch kann als Verkauf gelten." },
+      { "note": "Eine Zahlung mit Kryptowerten kann als Verkauf gelten." }
+    ],
+    "rates": [{ "label": "Steuersatz auf Gewinne", "value": "Für Ihr Land nicht überprüft" }],
+    "allowances": ["Für Ihr Land nicht überprüft."],
+    "holdingRuleText": "Proof of Calm wendet für Ihr Land keine Steuerbefreiung nach einer Haltefrist an: Jeder Verkauf kann steuerpflichtig sein.",
+    "lotRuleText": "Für Ihr Land nicht überprüft.",
+    "losses": "Für Ihr Land nicht überprüft.",
+    "reporting": [
+      "Für Ihr Land nicht überprüft.",
+      "In der EU melden Anbieter von Kryptowerte-Dienstleistungen ab dem Kalenderjahr 2026 die Transaktionen ihrer Kundschaft an die Steuerbehörden (DAC8). Der erste Austausch der Mitgliedstaaten ist bis zum 30.\u00a0September\u00a02027 fällig."
+    ],
+    "caveats": [
+      "Ob Ihr Land jeden Verkauf, jeden Tausch oder jede Zahlung besteuert, und zu welchem Steuersatz.",
+      "Ob Ihr Land Kryptowerte nach einer Haltedauer von der Steuer befreit."
+    ],
+    "summary60": "Proof of Calm hat für Ihr Land keine überprüften Regeln. Jeder Verkauf kann steuerpflichtig sein: Prüfen Sie das mit einer Steuerberatung vor Ort. Plan, Protokoll und Portfolio können Sie weiter verwenden."
+  }
+}
