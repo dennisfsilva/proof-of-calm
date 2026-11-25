@@ -1636,7 +1636,7 @@ screens by loaders.
 
 The decision stands; this gives the site pages of §6 their third language on the model of
 2026-11-18, still without a route for it, records how the local Lighthouse run of §11 is served,
-and when §5's update handler is handed over.
+when §5's update handler is handed over, and where the site pages name the build's day.
 
 - **2026-11-25, German site messages, no routes** (§6, §8; extends the entry of 2026-11-18 on site
   messages per language). `apps/web/messages/de.json` translates the same keys as
@@ -1679,3 +1679,12 @@ and when §5's update handler is handed over.
   hidden fetches nothing until it shows, so the shell waits for `visibilitychange` and then reuses
   the refresh the shell's prices effect starts; a failed boot still hands it over at once
   (`packages/app/src/features/shell/app-shell.tsx`, #513).
+- **2026-11-25, the build's day in the site pages' head, not in the offline page** (§5, §6; the
+  entry of 2026-11-15 on the pages rendering at the build's UTC date). Every site page rendered from
+  the site data carries `<meta name="build-date" content="YYYY-MM-DD">` with `SiteData.today`
+  (`apps/web/src/site/head.ts`), which `tools/rebuild/check.ts` reads after the daily rebuild of
+  `.github/workflows/daily-rebuild.yml` (`docs/RELEASE.md`). The pages the worker precaches leave it
+  out (`PRECACHED` in `apps/web/src/site/render.tsx`; today the offline page, which
+  `apps/web/scripts/bundle-worker.ts` globs): a dated offline page would change `sw.js` with every
+  daily rebuild and offer every installed app an update each day with no code changed (#523's
+  review).
