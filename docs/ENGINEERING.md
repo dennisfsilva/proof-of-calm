@@ -203,31 +203,43 @@ platform without one.
   the fixture plan in IndexedDB (`apps/web/lighthouse/seed.ts`, run before each URL; Lighthouse's reset
   before every run clears the worker and the caches and keeps the store), so the median is of cold loads
   of a screen with data.
-- Where they fail: production's deployment (`lighthouse-vercel`, by itself on main's head) fails on
-  any of them, and so does a preview measured by hand; at its branch URL a preview passes only while
-  its commit is the branch's head (the header of `.github/workflows/lighthouse-vercel.yml`). The local run
-  (`apps/web/lighthouserc.json`, ci.yml's `lighthouse` job on push to main, the same steps in
-  lighthouse-branch.yml on a branch) serves the real handlers with CoinGecko as a fixture
-  (`apps/web/lighthouse/api.ts`: BTC and ETH in EUR and USD, flat daily closes ending that day), so
-  the keyless upstream's 503 no longer fails Today's console check, as it did three times on
-  2026-11-15 and 2026-11-16; the deployment runs keep the live API. It holds
-  the performance score, TBT and LCP of Today, Portfolio, Log and Plan at warn with the same values,
-  and every other assertion (the script budget, Accessibility, CLS, console errors, all of `/` and of the public pages `/en/learn/risk-honestly`, `/en/countries/pt` and `/en/holding-date`, the last with a script budget of 12,288 bytes for its island (ADR-0045 Deviations of 2026-11-15), paths
-  `tools/lighthouse/vercel.ts` measures at a deployment too) at
-  error: the local medians of 2026-10-23 below miss LCP on three screens and the score on Log, Today's
-  LCP sat within 6 % of the budget (2,423 ms locally; 2,349 ms in CI without data, run 39973216176 on
-  main, 2026-10-23), and a check that could fail main lands in warn first (`.claude/rules/tools-ci.md`).
-  The first CI run with data, dispatch 40312910780 on 2026-10-26 (medians of five), missed all three
-  on every seeded screen: Today LCP 2,526 ms, performance 0.91, TBT 300 ms, CLS 0.007; Portfolio
-  2,733 ms, 0.92, 224 ms, 0; Log 3,232 ms, 0.88, 238 ms, 0.047; Plan 2,742 ms, 0.92, 226 ms, 0.019.
-  With TBT at warn as well, dispatch 40314073836 on 2026-10-26 passed the job: Today 2,520 ms, 0.82,
-  578 ms, 0.007; Portfolio 2,740 ms, 0.91, 247 ms, 0; Log 3,226 ms, 0.87, 254 ms, 0.047; Plan
-  2,699 ms, 0.93, 192 ms, 0.019; `/` 1,356 ms, 1.00, 0 ms, 0.
-  The flip: a one-line PR sets them to error once a push run on main measures them within budget.
-  Production Portfolio's TBT failed `lighthouse-vercel` run 40679020243 on 51a3cf60 (2026-10-28)
-  with a median of 205.5 ms (runs of 318, 205.5, 97, 215.5 and 187.5 ms; green on re-run). Decided
-  2026-10-29: the check keeps five runs and 200 ms, and the screen does less main-thread work at load,
-  since it measured 26 ms on deedc753 and more runs would hide that growth rather than remove it.
+- Where they fail: wherever they are measured. Production's deployment (`lighthouse-vercel`, by itself
+  on main's head) fails on any of them, and so does a preview measured by hand; at its branch URL a
+  preview passes only while its commit is the branch's head (the header of
+  `.github/workflows/lighthouse-vercel.yml`). `tools/lighthouse/vercel.ts` turns every warn of the
+  measured commit's rc into error, so a deployment asserted the seeded screens at error before the
+  local flip below as after it; the `lighthouse-vercel` status is not a required check, so a miss there
+  turns it red and blocks no merge. The local run (`apps/web/lighthouserc.json`, ci.yml's `lighthouse`
+  job on push to main, the same steps in lighthouse-branch.yml on a branch) fails the job on any
+  assertion: the four seeded screens, and `/` and the public pages `/en/learn/risk-honestly`, `/en/countries/pt` and `/en/holding-date`, the last with a script budget of 12,288 bytes for its island (ADR-0045 Deviations of 2026-11-15). It
+  serves the real handlers with CoinGecko as a fixture (`apps/web/lighthouse/api.ts`: BTC and ETH in
+  EUR and USD, flat daily closes ending that day), so the keyless upstream's 503 no longer fails
+  Today's console check, as it did three times on 2026-11-15 and 2026-11-16; the deployment runs keep
+  the live API. It serves HTTP/2 over TLS, as a deployment does (`tools/serve/vercel-local.ts --tls`,
+  ADR-0045 Deviations of 2026-11-25): Lantern, Lighthouse's simulation, gives an HTTP/1.1 origin six
+  connections, and so a round trip per wave of lazy chunks, where an h2 origin gets one multiplexed
+  connection, which put the plain server's LCP up to about 1 s above a deployment's.
+  The seeded screens' performance score, TBT and LCP held at warn until then, since a check that
+  could fail main lands in warn first (`.claude/rules/tools-ci.md`): over HTTP/1.1 the first CI run
+  with data, dispatch 40312910780 on 2026-10-26, missed all three on every seeded screen (medians of
+  five: Today LCP 2,526 ms, performance 0.91, TBT 300 ms; Portfolio 2,733 ms, 0.92, 224 ms; Log
+  3,232 ms, 0.88, 238 ms; Plan 2,742 ms, 0.92, 226 ms). The first push run on main over HTTP/2, ci.yml
+  run 45606457093 on 9d3f57b9 (2026-11-25), measured them within budget (medians of five, benchmark
+  index medians 4,163.5 to 4,278.5): Today LCP 1,888 ms, performance 0.99, TBT 43.5 ms; Portfolio
+  2,145 ms, 0.99, 23 ms; Log 2,159 ms, 0.98, 28 ms; Plan 2,143 ms, 0.98, 18 ms. Every TBT median sat
+  at or below 130 ms, 65 % of the budget, so a runner at two-thirds that speed still passes, and the
+  twelve went to error on 2026-11-25.
+- A slow runner may fail TBT. No automatic retry and no runner gate: decided 2026-10-29, when
+  production Portfolio's TBT failed `lighthouse-vercel` run 40679020243 on 51a3cf60 with a median of
+  205.5 ms (runs of 318, 205.5, 97, 215.5 and 187.5 ms; green on re-run), the check keeps five runs
+  and 200 ms, and the screen does less main-thread work at load, since it measured 26 ms on deedc753
+  and more runs would hide that growth rather than remove it. Production's Today measured 202 and
+  217 ms in 2 of 14 runs to 2026-10-30, each green on re-run; one commit, fce8b9b8, measured 60 and
+  191 ms, and a docs-only commit failed; `lighthouse-vercel` run 45454233866 measured a median of
+  204.5 ms (374.5, 204.5, 228.5, 127.5 and 132 ms). So a TBT miss, local or at a deployment, is read at
+  its benchmark index (`environment.benchmarkIndex` in each report): a miss on a run whose index median
+  is below that of the last green production run is re-run once, as an upstream outage is below, and
+  the re-run's result stands; a miss at an index at or above it is the code's.
 - Why these numbers, and what the Next floor measured: ADR-0005, ADR-0043, ADR-0045. The Vite
   floor (the script transfer on Today before session 4's shell and lazy screens): 78,268 bytes
   locally, the median of five Lighthouse runs through `tools/serve/vercel-local.ts` on 2026-10-19
