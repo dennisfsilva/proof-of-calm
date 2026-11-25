@@ -1383,7 +1383,7 @@ The product's nouns, one German word each, in every string, the site pages and t
 | Reviewed on {date} | Stand: {date}; under review `Seit {date} nicht überprüft`; never `geprüft`, which reads as a seal (§2) |
 | backup / keep (data) | Backup (`JSON-Backup exportieren`) / aufbewahren |
 | offline / app / halving | offline / App / Halving |
-| Risk disclosure (the link) | Risikohinweise |
+| Risk disclosure (the link) / Read the risk disclosure | Risikohinweise / `Risikohinweise lesen` (#507, decided 2026-11-25) |
 | daily close / Price data by CoinGecko | Tagesschlusskurs / Kursdaten von CoinGecko; `Kurs` is the market's price, `Preis` what the person paid |
 | a fall | Rückgang; never `Crash`, `Einbruch` or `Dip` |
 | 90-day high | 90‑Tage‑Hoch, U+2011 twice |
@@ -1422,7 +1422,7 @@ The product's nouns, one German word each, in every string, the site pages and t
 | pool, pooling | Poolbildung (`für die Poolbildung aufgeführt`) |
 | last in, first out / first in, first out, LIFO / FIFO | Lifo-Methode (last in, first out) / Fifo-Methode (first in, first out), the English expansion in parentheses; in a profile's text the expansion at the first mention in each field, `Fifo-Methode` after that and in `summary60`, the US's and Ireland's included; a quotation keeps its own wording (`criterio FIFO`), and `L.I.F.O.` stands only inside the Italian quotation (decided 2026-11-25) |
 | disposal | Veräußerung, the term of § 23 EStG |
-| your accountant, an accountant, the accountant | `Ihre Steuerberatung` (`bleibt Ihrer Steuerberatung überlassen`), the function, not a person; never `der Steuerberatung` in a sentence; the general profile's "a local accountant" is `eine Steuerberatung vor Ort` (decided 2026-11-25) |
+| your accountant, an accountant, the accountant, a tax adviser | `Ihre Steuerberatung` (`bleibt Ihrer Steuerberatung überlassen`), the function, not a person; never `der Steuerberatung` in a sentence; the general profile's "a local accountant" is `eine Steuerberatung vor Ort` (decided 2026-11-25) |
 | the venue the coins went to | Zielort |
 | 30-day rule, a figure compound in a profile | `30‑Tage‑Regel` with U+2011 twice in text a screen shows; the tax-year file's lines and a profile's `lotRuleNote` keep U+002D, `30-Tage-Regel` (§4; decided 2026-11-25) |
 | decimal point | Dezimalpunkt (`verwenden einen Dezimalpunkt, kein Komma`), „kein Komma“ added, since German writes a comma |
@@ -1457,6 +1457,22 @@ The product's nouns, one German word each, in every string, the site pages and t
 | a tax authority | its own name (AEAT, AT, HMRC, Revenue, IRS, Belastingdienst); `Steuerbehörde(n)` for a generic one; `Finanzamt` for Germany's only (decided 2026-11-25) |
 | Bill / Act (a law's name) | die Bill (Duden), der Act (decided 2026-11-25) |
 | a time | `um 00:00`; never `Uhr` after a time (decided 2026-11-25) |
+| Link checked {date} (the Risk page's official links) | `Abgerufen am {date}.`, the day the link was read; never `geprüft` (#507, decided 2026-11-25) |
+| No connection (the offline page's title) | `Keine Verbindung`; "offline" stays the adjective, as pt-PT's `Sem ligação` does (#507, decided 2026-11-25) |
+| schedule (a plan's) | Zeitplan (#507, decided 2026-11-25) |
+| planner (the descriptor) | `Planer`, as Start here writes it, until the native reader chooses the descriptor (`docs/GROWTH.md` §2.5) (#507, decided 2026-11-25) |
+| Home (the site's link) | Startseite (#507, decided 2026-11-25) |
+| Legal information | `Rechtliche Informationen`, as Settings has it (#507, decided 2026-11-25) |
+| counterparties | `Gegenparteien`, the custody sense and the profiles' tax sense alike (#507, decided 2026-11-25) |
+| a provider fails | `scheitern`, as the module writes it; never `zahlungsunfähig werden` or `Insolvenz`, which name one way to fail (#507, decided 2026-11-25) |
+| compensation scheme | `Entschädigungssystem` in a title; MiCA's `Systeme für die Entschädigung der Anleger` in the text (#507, decided 2026-11-25) |
+| supervisor, financial supervisor | `Aufsichtsbehörde`, `Finanzaufsichtsbehörde`; never beside a participle (§2's status row) (#507, decided 2026-11-25) |
+| financial adviser / advice | `Finanzberatung`, the function, as `Steuerberatung` is; `Beratung` for advice (#507, decided 2026-11-25) |
+| factsheet | Informationsblatt (#507, decided 2026-11-25) |
+| Official warnings | Offizielle Warnungen (#507, decided 2026-11-25) |
+| scam, signs of a scam | `Betrug`, `Anzeichen für Betrug` (#507, decided 2026-11-25) |
+| collect (data) | `erheben` (`erhebt keine Daten`); never `erfassen`, which reads as recording an entry, the app's `eintragen` (#507, decided 2026-11-25) |
+| how far (a price falls) | `wie tief` (#507, decided 2026-11-25) |
 
 The Learn modules' terms (the term read of 2026-11-25; counsel's read wins where it differs):
 
@@ -1472,7 +1488,7 @@ The Learn modules' terms (the term read of 2026-11-25; counsel's read wins where
 | keeping coins yourself | `Coins in eigener Verwahrung`, always with `eigener`; `hat nie … in Verwahrung`, never `verwahrt` |
 | exchange (in a module) | `Börse` in Start here (until the native reader answers); `Handelsplattform` for a failed or unknown venue (risk) |
 | signal service, tax tool, advice service | `Signaldienst`, `Steuerprogramm`, `Beratungsdienst`, in a negation |
-| keys, funds, exchange logins | `Ihre Schlüssel, Ihr Geld oder Ihre Zugangsdaten zu Börsen` |
+| keys, funds, exchange logins; an exchange's login | `Ihre Schlüssel, Ihr Geld oder Ihre Zugangsdaten zu Börsen`; one is `die Zugangsdaten zu einer Börse` (#507, decided 2026-11-25) |
 | a forecast | `Vorhersage`; `Prognose` only for the Zyklusplan's labelled assumption with its source |
 | customer deposits, bitcoins deposited by users | `Kundengelder`, never `Einlagen`; `von Nutzerinnen und Nutzern eingezahlte Bitcoins` |
 | civil rehabilitation, a complaint (court) | `ein Sanierungsverfahren (civil rehabilitation)`, not `Insolvenz`; `Klageschrift` |
