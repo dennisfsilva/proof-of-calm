@@ -240,6 +240,9 @@ dark mode uses the dark steps above, not an inversion; the validator runs whenev
   an element that may sit under the tab bar (a row after "Show all", the row in a deleted row's
   place, the row an Undo restores) focuses with `preventScroll` and then calls `scrollIntoView({ block: 'nearest' })`:
   Chromium's own focus scroll ignores the padding and leaves the element partly under the bar.
+  Show newer or Show older entries focuses the window's first row with `preventScroll` and brings the
+  line `Entries 1 to 48 of N` to the top (`scrollIntoView({ block: 'start' })`); Go to year keeps the
+  focus on its choice, and a move of the window drops the focus an Undo would have moved later.
   The row an edit moved to another date, or the Log's heading when that row is not shown, takes the
   focus from the closing Sheet, which focuses without scrolling; a frame later, once the Sheet's
   scroll lock has let go of the page, the same least scroll brings it into view (the row stayed
