@@ -3,14 +3,17 @@ import { createDateFormatter } from '@proofofcalm/app/lib/format';
 import { localesFor } from '@proofofcalm/app/lib/i18n';
 import type { CalendarDate } from '@proofofcalm/core';
 import { describe, expect, it } from 'vitest';
+import { siteTranslator } from '../../lib/site-messages';
+import german from '../../messages/de.json';
 import english from '../../messages/en.json';
 import portuguese from '../../messages/pt-PT.json';
 import { loadSiteData, renderSitePage, type SitePage, sitePages } from './render';
 import { RISK_LINKS } from './risk-links';
 
-// The site pages in pt-PT before the native read (ADR-0045, the Deviations of 2026-11-18): every site message but the
-// four legal pages' own objects is translated, the pages that carry them render in pt-PT with their English parts
-// marked `lang="en"`, and no public page has a pt-PT version. English stays as it was.
+// The site pages in pt-PT and German before the native read (ADR-0045, the Deviations of 2026-11-18 and 2026-11-25):
+// every site message but the four legal pages' own objects is translated, the pages that carry them render in the
+// language with their English parts marked `lang="en"`, and no public page has a version in either. English stays as
+// it was.
 
 type Tree = { [key: string]: string | Tree };
 const leaves = (node: string | Tree, path = ''): [string, string][] =>
@@ -67,8 +70,14 @@ const fragments = (keys: (key: string) => boolean) =>
     .map((part) => part.trim())
     .filter((part) => part.length >= 4);
 
-describe('the pt-PT site messages', () => {
-  const translated = new Map(leaves(portuguese));
+const TRANSLATED = [
+  ['pt-PT', portuguese],
+  ['de', german],
+] as const;
+const style = readFileSync(new URL('../../../../docs/CONTENT-STYLE.md', import.meta.url), 'utf8');
+
+describe.each(TRANSLATED)('the %s site messages', (_, messages) => {
+  const translated = new Map(leaves(messages));
 
   it('translates every English key but the four legal pages’ objects, with the same arguments and tags', () => {
     const source = new Map(leaves(english));
@@ -85,45 +94,72 @@ describe('the pt-PT site messages', () => {
     }
     expect(problems).toEqual([]);
   });
+});
 
-  it('words the Risk page’s status as CONTENT-STYLE §2 holds it', () => {
-    const style = readFileSync(new URL('../../../../docs/CONTENT-STYLE.md', import.meta.url), 'utf8');
+describe('the Risk page’s statement on status', () => {
+  it('words it in pt-PT as CONTENT-STYLE §2 holds it', () => {
     const quoted = /The Risk page's statement on status[\s\S]*?«([^»]+)»/.exec(style)?.[1]?.replace(/\s+/g, ' ');
     expect(quoted).toBeDefined();
-    expect(translated.get('legal.risk.status.p1')).toBe(`A {product} ${quoted}.`);
+    expect(portuguese.legal.risk.status.p1).toBe(`A {product} ${quoted}.`);
     expect(unescaped(renderSitePage('risk', ASSETS, data, 'pt-PT'))).toContain(`A Proof of Calm ${quoted}.`);
+  });
+
+  it('words it in German with CONTENT-STYLE §10’s official text', () => {
+    const bullet = /- \*\*Disclosures take the official German text\*\*[\s\S]*?\n- \*\*/.exec(style)?.[0] ?? '';
+    const [investors, deposits] = [...bullet.matchAll(/the `([^`]+)`/g)].map(([, term]) => term);
+    const opening = /statement on status, which opens\s+`([^`]+)`/.exec(bullet)?.[1]?.replace(/\s+/g, ' ');
+    expect([opening, investors, deposits]).toEqual([
+      'Proof of Calm ist bei keiner Finanzaufsichtsbehörde registriert und unterliegt keiner Finanzaufsicht',
+      'Systeme für die Entschädigung der Anleger',
+      'Einlagensicherungssysteme',
+    ]);
+    const status = german.legal.risk.status.p1;
+    expect(status.startsWith(opening?.replace('Proof of Calm', '{product}') ?? '-')).toBe(true);
+    for (const term of [investors, deposits]) expect(status).toContain(term);
+    expect(unescaped(renderSitePage('risk', ASSETS, data, 'de'))).toContain(opening);
   });
 });
 
-describe('a site page in pt-PT', () => {
-  const portugueseOnly = fragments((key) => !englishOnly(key));
+describe.each(TRANSLATED)('a site page in %s', (language) => {
+  const translatedOnly = fragments((key) => !englishOnly(key));
   const legalOnly = fragments(englishOnly);
 
-  it.each(COVERED)('%s is in Portuguese, its English parts marked', (name) => {
-    const html = unescaped(renderSitePage(name, ASSETS, data, 'pt-PT'));
-    expect(html).toContain('<html lang="pt-PT">');
-    const portugueseText = outsideEnglish(html.slice(html.indexOf('<html')));
-    expect(portugueseOnly.filter((part) => portugueseText.includes(part))).toEqual([]);
+  it.each(COVERED)(`%s is in ${language}, its English parts marked`, (name) => {
+    const html = unescaped(renderSitePage(name, ASSETS, data, language));
+    expect(html).toContain(`<html lang="${language}">`);
+    const translatedText = outsideEnglish(html.slice(html.indexOf('<html')));
+    expect(translatedOnly.filter((part) => translatedText.includes(part))).toEqual([]);
     const body = outsideEnglish(html.slice(html.indexOf('<body>')));
     expect(legalOnly.filter((part) => body.includes(part))).toEqual([]);
   });
 
   it('marks the Risk page’s table of falls, read from the English Learn messages, as English', () => {
-    const html = renderSitePage('risk', ASSETS, data, 'pt-PT');
+    const html = renderSitePage('risk', ASSETS, data, language);
     expect(html).toMatch(/<div lang="en" class="contents"><div[^>]*role="region"/);
   });
 
-  it('writes the day each official link was read in Portuguese', () => {
-    const html = renderSitePage('risk', ASSETS, data, 'pt-PT');
-    const date = createDateFormatter(localesFor('pt-PT', null).ui);
-    for (const link of RISK_LINKS) expect(html, link.id).toContain(`Ligação verificada a ${date(link.accessed)}.`);
+  it('writes the day each official link was read in the language', () => {
+    const html = unescaped(renderSitePage('risk', ASSETS, data, language));
+    const date = createDateFormatter(localesFor(language, null).ui);
+    const checked = siteTranslator('legal', language);
+    for (const link of RISK_LINKS) {
+      const line = checked('risk.checked', { date: date(link.accessed) });
+      expect(line, link.id).not.toBe(siteTranslator('legal')('risk.checked', { date: date(link.accessed) }));
+      expect(html, link.id).toContain(line);
+    }
   });
 
   it('exists for no public page', () => {
     for (const name of sitePages(data).filter((page) => page.startsWith('en/'))) {
-      expect(() => renderSitePage(name, ASSETS, data, 'pt-PT'), name).toThrow(`${name} has no pt-PT page`);
+      expect(() => renderSitePage(name, ASSETS, data, language), name).toThrow(`${name} has no ${language} page`);
     }
   });
+});
+
+it('writes the Portuguese checked line as before', () => {
+  const html = renderSitePage('risk', ASSETS, data, 'pt-PT');
+  const date = createDateFormatter(localesFor('pt-PT', null).ui);
+  for (const link of RISK_LINKS) expect(html, link.id).toContain(`Ligação verificada a ${date(link.accessed)}.`);
 });
 
 describe('a site page in English', () => {

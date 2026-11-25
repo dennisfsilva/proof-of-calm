@@ -1119,6 +1119,15 @@ describe('validateContent: messages and other files', () => {
     expect(codes([file('apps/web/messages/en.json', ['Safe and sound'])])).toEqual([banned('advice', '0', 'Safe')]);
   });
 
+  it('lints the German site messages with the German rows', () => {
+    const site = 'apps/web/messages/de.json';
+    expect(codes([file(site, { a: 'Wir empfehlen diesen Plan.' })])).toEqual([banned('advice', 'a', 'empfehlen')]);
+    expect(codes([file(site, { a: 'Halten Sie Ihre Coins bis 2029.' })])).toEqual([
+      banned('imperative', 'a', 'Halten Sie Ihre Coins bis 2029.'),
+    ]);
+    expect(codes([file(site, { a: 'Daten und Werkzeuge, keine Beratung.' })])).toEqual([]);
+  });
+
   it('lints a pt-PT message file with the Portuguese rows, and its other checks pass correct Portuguese', () => {
     const today = 'packages/app/src/features/today/messages/pt-PT.json';
     expect(codes([file(today, { lead: 'Recomendamos este plano.' })])).toEqual([
