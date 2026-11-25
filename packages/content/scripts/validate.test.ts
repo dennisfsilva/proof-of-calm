@@ -63,12 +63,15 @@ describe('scripts/validate.ts on a copy of the files it reads', () => {
     }
   });
 
-  // Fixed bodies, so that no review of the live module or its translation changes what a test pins; `more` follows
-  // English's chart section, and the test restores both files.
+  // Fixed bodies, so that no review of the live module or its translations changes what a test pins; `more` follows
+  // English's chart section and `german` the German one, and the test restores every file. The German overlay
+  // states the same section in German's shapes (§10), so that only the pt-PT file a test writes can fail.
   const translated = 'packages/content/i18n/pt-PT/learn/risk-honestly.mdx';
-  const fixedBodies = (more = '') => {
+  const deutsch = 'packages/content/i18n/de/learn/risk-honestly.mdx';
+  const fixedBodies = (more = '', german = '') => {
     const english = readFileSync(at(MODULE), 'utf8');
     const had = existsSync(at(translated)) ? readFileSync(at(translated), 'utf8') : null;
+    const hadDe = existsSync(at(deutsch)) ? readFileSync(at(deutsch), 'utf8') : null;
     const [, front = ''] = english.split(/^---\n/mu);
     const kept = front
       .split('\n')
@@ -80,10 +83,16 @@ describe('scripts/validate.ts on a copy of the files it reads', () => {
       at(MODULE),
       `---\n${front}---\nA monthly plan sets when you buy. It does not limit how far a price can fall.\n\n<Chart />\n\nIn the chart, bitcoin had 4 falls of more than 75 % between 2011 and 2022. Ether fell 94 % and 82 %,\nChainlink 89 % and 91 %, and Solana 97 %.\n${more}`,
     );
+    writeFileSync(
+      at(deutsch),
+      `---\n${kept}\n---\n<Chart />\n\nVon 2011 bis 2022 hatte Bitcoin im Diagramm 4 Rückgänge um mehr als 75 %.\nEthereum fiel um 94 % und 82 %, Chainlink um 89 % und 91 % und Solana um 97 %.\n${german}`,
+    );
     const restore = () => {
       writeFileSync(at(MODULE), english);
       if (had === null) rmSync(at(translated));
       else writeFileSync(at(translated), had);
+      if (hadDe === null) rmSync(at(deutsch));
+      else writeFileSync(at(deutsch), hadDe);
     };
     return { pt, restore };
   };
@@ -111,7 +120,10 @@ describe('scripts/validate.ts on a copy of the files it reads', () => {
 
   // Review of #361 round 1: an ordered list's item shows its number, which no block's text holds.
   it("4: ties an ordered item's shown number in a translation to English's", () => {
-    const { pt, restore } = fixedBodies('\n## Steps\n\n1. Buy on a set day.\n');
+    const { pt, restore } = fixedBodies(
+      '\n## Steps\n\n1. Buy on a set day.\n',
+      '\n## Schritte\n\n1. Ein Kauf an einem festen Tag.\n',
+    );
     const steps = (n: number) => `\n## Passos\n\n${n}. Compre num dia fixo.`;
     try {
       writeFileSync(at(translated), pt('97', steps(1)));
