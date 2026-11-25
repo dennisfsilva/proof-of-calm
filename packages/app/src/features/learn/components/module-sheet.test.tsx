@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 
+import { loadRules } from '@proofofcalm/content';
 import type { Plan } from '@proofofcalm/core';
 import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import { Component, type ComponentProps, type ReactNode, Suspense } from 'react';
@@ -8,6 +9,7 @@ import { I18nProvider } from '../../../lib/i18n';
 import { ServicesProvider } from '../../../lib/services';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
 import { createTestServices, preloadLazyModules } from '../../../lib/services/testing';
+import learnDe from '../../../messages/de/learn.json';
 import learn from '../../../messages/en/learn.json';
 import shell from '../../../messages/en/shell.json';
 import learnPt from '../../../messages/pt-PT/learn.json';
@@ -16,16 +18,28 @@ import { ModuleSheet } from './module-sheet';
 
 // The second fixture as a module with a chart whose idea and caveat write `N %` with an ordinary space and with a
 // no-break one, as real ones do (docs/CONTENT-STYLE.md §4); its body holds no `<Chart />`, so nothing is drawn.
-const { CHARTED } = vi.hoisted(() => ({ CHARTED: 'Falls of 80 % came back, and so did falls of 94\u00a0%.' }));
+// The third fixture, risk-honestly, draws the chart in its body, under a sentence that writes `75 %` as the real
+// module's German text does.
+const { CHARTED, DRAWN } = vi.hoisted(() => ({
+  CHARTED: 'Falls of 80 % came back, and so did falls of 94\u00a0%.',
+  DRAWN: 'Bitcoin had 4 falls of more than 75 % between 2011 and 2022.',
+}));
 vi.mock('virtual:learn-modules', async (original) => {
   const modules = await original<typeof import('virtual:learn-modules')>();
+  const { createElement, Fragment } = await import('react');
+  type Body = Awaited<ReturnType<NonNullable<(typeof modules.LEARN_BODIES)[string]>>>['default'];
+  const Drawn: Body = ({ components }) =>
+    createElement(Fragment, null, createElement(components.Chart), createElement(components.p, null, DRAWN));
   return {
     ...modules,
     LEARN_MODULES: modules.LEARN_MODULES.map((module) =>
       module.slug === 'when-the-market-drops'
         ? { ...module, chart: 'drawdowns-bar', idea: CHARTED, caveat: CHARTED }
-        : module,
+        : module.slug === 'risk-honestly'
+          ? { ...module, chart: 'drawdowns-bar' }
+          : module,
     ),
+    LEARN_BODIES: { ...modules.LEARN_BODIES, 'risk-honestly': async () => ({ default: Drawn }) },
   };
 });
 
@@ -265,5 +279,44 @@ describe('ModuleSheet: the tax module', () => {
     );
     await screen.findByText('The boundary');
     expect(screen.queryByText(/^A rate of 28/)).toBeNull();
+  });
+});
+
+// A chart in a sheet takes the page's formatters, as on the route (ADR-0023, docs/CONTENT-STYLE.md §4 and §10): on a
+// German screen under a plan in Portugal, the plan's country's number locale, so Portfolio's sheet shows `−94%`; with
+// no plan, German's, `−94 %` with a no-break space, as the route shows it (module-chart.test.tsx). The module's text
+// beside it takes the joiner of the same formatter, as a module with a chart does (`moduleJoiner`), so its written
+// `75 %` reads `75%` under the Portuguese plan. The language is passed, never read from the device.
+describe('ModuleSheet: a chart under a plan', () => {
+  it.each([
+    ['a plan in Portugal', 'PT', ''],
+    ['no plan', null, ' '],
+  ])("on a German screen with %s, the chart and the text beside it take the page's percent", async (_, country, joiner) => {
+    const snapshot = fixtureSnapshot();
+    const services = createTestServices({
+      language: 'de',
+      snapshot:
+        country === null
+          ? { ...snapshot, plan: null, entries: [] }
+          : { ...snapshot, plan: { ...(snapshot.plan as Plan), country: country as Plan['country'] } },
+      rules: (code) => loadRules(code),
+    });
+    await services.start();
+    const { container } = render(
+      <ServicesProvider services={services}>
+        <I18nProvider locale="de" messages={{ learn: learnDe }}>
+          <Suspense fallback={null}>
+            <ModuleSheet slug="risk-honestly" open onOpenChange={vi.fn()} />
+          </Suspense>
+        </I18nProvider>
+      </ServicesProvider>,
+    );
+    const dialog = await screen.findByRole('dialog');
+    await within(dialog).findByRole('img');
+    const values = [...container.ownerDocument.querySelectorAll('[data-slot="bar-chart-value"]')];
+    expect(values.map((value) => value.textContent).slice(0, 2)).toEqual([`−94${joiner}%`, `−87${joiner}%`]);
+    expect(within(dialog).getByText(/^Bitcoin had 4 falls/).textContent).toBe(
+      `Bitcoin had 4 falls of more than 75${joiner}% between 2011 and 2022.`,
+    );
   });
 });
