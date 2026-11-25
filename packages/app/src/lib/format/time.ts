@@ -35,28 +35,38 @@ export function dateOptions(uiLocale: string): Intl.DateTimeFormatOptions {
 /** A date in copy never breaks across lines (docs/CONTENT-STYLE.md §4): its spaces become no-break spaces. */
 export const unbroken = (text: string) => text.replaceAll(' ', '\u00a0');
 
+/** The value `make` returns, made on the first call and kept: an Intl formatter a screen may never ask for. */
+export function once<T>(make: () => T): () => T {
+  let made: { value: T } | null = null;
+  return () => {
+    made ??= { value: make() };
+    return made.value;
+  };
+}
+
 export function createTimeFormatters(formattingLocale: string, uiLocale: string): TimeFormatters {
   const formats = new Map<string, Intl.DateTimeFormat>();
-  const cached = (key: string, options: Intl.DateTimeFormatOptions, locale = formattingLocale) => {
+  // The options are written only when the formatter is built, not on each call that finds it.
+  const cached = (key: string, options: () => Intl.DateTimeFormatOptions, locale = formattingLocale) => {
     let format = formats.get(key);
     if (format === undefined) {
-      format = new Intl.DateTimeFormat(locale, { ...LATIN_DIGITS, ...options });
+      format = new Intl.DateTimeFormat(locale, { ...LATIN_DIGITS, ...options() });
       formats.set(key, format);
     }
     return format;
   };
-  const hour = hourStyle(formattingLocale);
+  const hour = once(() => hourStyle(formattingLocale));
   const face = (timeZone: string, zone: boolean) =>
-    cached(`face ${timeZone} ${zone}`, {
+    cached(`face ${timeZone} ${zone}`, () => ({
       timeZone,
-      hour,
+      hour: hour(),
       minute: '2-digit',
       ...(zone ? { timeZoneName: 'short' } : {}),
-    });
+    }));
   const part = (format: Intl.DateTimeFormat, ms: number) =>
     format.formatToParts(ms).find((candidate) => candidate.type === 'timeZoneName')?.value;
   const offset = (timeZone: string, ms: number) =>
-    part(cached(`offset ${timeZone}`, { timeZone, timeZoneName: 'longOffset' }, 'en'), ms);
+    part(cached(`offset ${timeZone}`, () => ({ timeZone, timeZoneName: 'longOffset' }), 'en'), ms);
   // A screen passes one `now` to every time it writes (the value chart's reserve about 325 at load), so the
   // offset of the last zone and `now` asked is kept rather than read again on each call.
   let last: { timeZone: string; ms: number; offset: string | undefined } | null = null;
@@ -67,10 +77,10 @@ export function createTimeFormatters(formattingLocale: string, uiLocale: string)
     return last.offset;
   };
   const zoneName = (timeZone: string, ms: number) =>
-    part(cached(`name ${timeZone}`, { timeZone, timeZoneName: 'short' }, uiLocale), ms);
-  const relative = new Intl.RelativeTimeFormat(uiLocale, { ...LATIN_DIGITS, numeric: 'auto' });
+    part(cached(`name ${timeZone}`, () => ({ timeZone, timeZoneName: 'short' }), uiLocale), ms);
+  const relative = once(() => new Intl.RelativeTimeFormat(uiLocale, { ...LATIN_DIGITS, numeric: 'auto' }));
   // dateOptions builds a formatter to read the locale's month, so it is read once, not per day written.
-  const day = dateOptions(uiLocale);
+  const day = once(() => dateOptions(uiLocale));
 
   return {
     time(instant, timeZone, now) {
@@ -85,8 +95,8 @@ export function createTimeFormatters(formattingLocale: string, uiLocale: string)
         .join('');
     },
     instantDate: (instant, timeZone) =>
-      unbroken(cached(`day ${timeZone}`, { timeZone, ...day }, uiLocale).format(epochMs(instant))),
-    relativeDays: (date, today) => relative.format(daysBetween(today, date), 'day'),
+      unbroken(cached(`day ${timeZone}`, () => ({ timeZone, ...day() }), uiLocale).format(epochMs(instant))),
+    relativeDays: (date, today) => relative().format(daysBetween(today, date), 'day'),
   };
 }
 
