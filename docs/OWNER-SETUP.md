@@ -102,7 +102,7 @@ required from launch because Hobby forbids commercial use (ADR-0005).
   stay out of search; `.github/workflows/daily-rebuild.yml` already runs at 00:17 UTC and ends each
   run green with a notice that the secret is missing. Once the secret is set, a dispatch (`gh
   workflow run daily-rebuild.yml`) proves the hook: the run fails unless production's
-  `/en/holding-date` names the day in its build-date meta within 20 minutes.
+  `/en/holding-date` names the day, or a later one, in its build-date meta within 20 minutes.
 - Before turning on Vercel's Observability Plus, change the Privacy text (`docs/LEGAL.md` §5):
   runtime logs are then kept 30 days, not the 1 day of Pro. Until then the text's 1 day holds.
 - Functions run in `fra1` (ADR-0005), pinned in `apps/web/vercel.json`; Hobby allows one region.

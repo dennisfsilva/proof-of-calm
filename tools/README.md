@@ -70,7 +70,8 @@ that does not exist.
 which daily-rebuild.yml runs on `https://proofofcalm.com/en/holding-date` after calling the deploy hook,
 fetches the page every 30 s, 40 times, each request stopped after 20 s and sent past every cache, prints
 one line per attempt and exits 1 unless the page's build-date meta (`apps/web/src/site/head.ts`, the
-site data's `today`) names the UTC day the check started. `rebuild/workflow.test.ts` holds the workflow's
+site data's `today`) names the UTC day the check started or a later one (a build that renders after midnight
+names the next day). `rebuild/workflow.test.ts` holds the workflow's
 schedule, its permissions, the secret read only through a step's env, and runs its hook step in bash with
 and without the secret.
 

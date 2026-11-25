@@ -1,9 +1,12 @@
 // The daily rebuild's check (docs/RELEASE.md; .github/workflows/daily-rebuild.yml): after the deploy hook's
-// POST, production must show the build of the UTC day the check ran, which the site pages name in their
-// build-date meta (apps/web/src/site/head.ts). `node tools/rebuild/check.ts <url>` polls the page every 30 s,
-// 40 times (20 minutes), each request stopped after 20 s, prints one line per attempt and exits 1 on a miss.
+// POST, production must show a build of the UTC day the check started or a later one (a build that renders after
+// midnight names the next day), which the site pages name in their build-date meta (apps/web/src/site/head.ts).
+// `node tools/rebuild/check.ts <url>` polls the page every 30 s, 40 times (20 minutes), each request stopped after
+// 20 s, prints one line per attempt and exits 1 on a miss.
 import { fileURLToPath } from 'node:url';
 
+// The date helpers are here, not packages/core's calendar module: that module imports zod, and the workflow runs
+// this script on a bare checkout with no install (the workspace-package rule of tools/README.md).
 /** A `YYYY-MM-DD` string that names a real day. */
 export type CalendarDate = string & { readonly calendarDate: unique symbol };
 type Result<T, E> = { readonly ok: true; readonly value: T } | { readonly ok: false; readonly error: E };
@@ -38,6 +41,11 @@ export function utcDay(now: Date): CalendarDate {
   return now.toISOString().slice(0, 10) as CalendarDate;
 }
 
+/** Whether `shown` is `day` or a later day, compared as UTC midnights. */
+function onOrAfter(shown: CalendarDate, day: CalendarDate): boolean {
+  return Date.parse(`${shown}T00:00:00Z`) >= Date.parse(`${day}T00:00:00Z`);
+}
+
 type Wait = {
   url: string;
   day: CalendarDate;
@@ -59,18 +67,18 @@ async function look(url: string, fetch: Wait['fetch']): Promise<{ day: CalendarD
   }
 }
 
-/** Polls `url` until its build-date meta reads `day`, at most `attempts` times, 30 s apart. */
+/** Polls `url` until its build-date meta reads `day` or a later day, at most `attempts` times, 30 s apart. */
 export async function waitForBuild({ url, day, fetch, sleep, attempts, log }: Wait): Promise<Result<void, string>> {
   let last = 'no answer';
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     const { day: shown, seen } = await look(url, fetch);
     log?.(`attempt ${attempt}/${attempts}: ${seen}`);
-    if (shown === day) return { ok: true, value: undefined };
+    if (shown !== null && onOrAfter(shown, day)) return { ok: true, value: undefined };
     last = seen;
     if (attempt < attempts) await sleep(INTERVAL_MS);
   }
   const times = attempts === 1 ? 'attempt' : 'attempts';
-  return { ok: false, error: `${url} did not show the build of ${day} after ${attempts} ${times} (last: ${last})` };
+  return { ok: false, error: `${url} did not show a build of ${day} or later after ${attempts} ${times} (last: ${last})` };
 }
 
 const isMain = process.argv[1] !== undefined && fileURLToPath(import.meta.url) === process.argv[1];
