@@ -106,7 +106,7 @@ describe('the Risk page’s statement on status', () => {
 
   it('words it in German with CONTENT-STYLE §10’s official text', () => {
     const bullet = /- \*\*Disclosures take the official German text\*\*[\s\S]*?\n- \*\*/.exec(style)?.[0] ?? '';
-    const [investors, deposits] = [...bullet.matchAll(/the `([^`]+)`/g)].map(([, term]) => term);
+    const [investors, deposits] = [...bullet.matchAll(/the `([^`]+)`/g)].map(([, term]) => term?.replace(/\s+/g, ' '));
     const opening = /statement on status, which opens\s+`([^`]+)`/.exec(bullet)?.[1]?.replace(/\s+/g, ' ');
     expect([opening, investors, deposits]).toEqual([
       'Proof of Calm ist bei keiner Finanzaufsichtsbehörde registriert und unterliegt keiner Finanzaufsicht',
