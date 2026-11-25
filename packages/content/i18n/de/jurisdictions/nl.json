@@ -1,0 +1,72 @@
+{
+  "name": "Niederlande",
+  "filingNote": "Kalenderjahr als Steuerjahr. Frist ist das Datum im Schreiben des Belastingdienst, oft der 1.\u00a0Mai des Folgejahres. Für 2025 verlängert ein Antrag vor dem 1.\u00a0Mai\u00a02026 die Frist bis zum 1.\u00a0September\u00a02026, wenn Sie das Schreiben erhielten.",
+  "lotRuleNote": "Kein Verkauf wird einem Kauf zugeordnet: Box\u00a03 besteuert den Wert des Bestands am 1.\u00a0Januar, nicht das Ergebnis eines Verkaufs.",
+  "card": {
+    "classification": "Box\u00a03: Ihre Kryptowerte zählen mit ihrem Wert am 1.\u00a0Januar. Besteuert wird eine fiktive Rendite darauf, nicht der Erlös eines Verkaufs. Bringt Arbeit über die übliche Vermögensverwaltung hinaus oft Einkünfte, werden diese erklärt.",
+    "taxableEvents": [
+      {
+        "note": "Nicht als Verkauf besteuert: Bei Vermögensverwaltung mit Spekulation auf den Kurs werden Handelserlöse nicht erklärt. Der Wert Ihres Bestands am 1.\u00a0Januar zählt in Box\u00a03."
+      },
+      {
+        "note": "Ein Tausch gilt als Handel: Bei Vermögensverwaltung mit Spekulation auf den Kurs werden die Erlöse nicht erklärt. Es zählt nur der Wert des Bestands am 1.\u00a0Januar, zum Kurs der genutzten Börse."
+      },
+      {
+        "note": "Wie jeder andere Tausch behandelt: nicht erklärt; es zählt der Wert des Bestands am 1.\u00a0Januar."
+      },
+      {
+        "note": "Kein Vorgang in Box\u00a03: Es zählt nur Ihr Gesamtbestand am 1.\u00a0Januar."
+      },
+      {
+        "note": "Eine Übertragung zwischen Ihren eigenen Wallets ändert nichts; es zählt Ihr Gesamtbestand am 1.\u00a0Januar."
+      },
+      {
+        "note": "Kein Vorgang in Box\u00a03; dort zählt der Wert am 1.\u00a0Januar. Eine etwaige Schenkungsteuer erklärt und zahlt meist die beschenkte Person. Erbschaftsteuer erklären die Erben, wenn sie mehr als den Freibetrag erben."
+      },
+      {
+        "note": "Die Quellen nennen weder Staking noch Airdrops. Box\u00a03 zählt Ihren Bestand am 1.\u00a0Januar; bei der Option der tatsächlichen Rendite zählen alle Einkünfte aus Ihrem Kapital im Jahr. Mining-Erlöse werden nur über den Kosten erklärt."
+      }
+    ],
+    "rates": [
+      {
+        "label": "Steuersatz in Box\u00a03 auf die fiktive Rendite",
+        "value": "36%",
+        "note": "Auf die fiktive Rendite für 2026 (auch 2025 und 2024: 36%). Der pauschale Prozentsatz für Kryptowerte beträgt 2026 6,00% (2025: 5,88%) und gilt für den Wert des Bestands am 1.\u00a0Januar über dem Freibetrag."
+      }
+    ],
+    "allowances": [
+      "Steuerfreies Kapital (heffingsvrij vermogen): EUR\u00a059\u00a0357 pro Person 2026, EUR\u00a0118\u00a0714 für steuerliche Partner; die fiktive Rendite wird nur auf den Wert darüber besteuert.",
+      "Kein Freibetrag bei der Option der tatsächlichen Rendite, wie der Oberste Gerichtshof (Hoge Raad) entschieden hat."
+    ],
+    "holdingRuleText": "Keine Haltefrist. Die Niederlande besteuern Ihren Verkauf nicht: Box\u00a03 besteuert eine fiktive Rendite auf Ihren Bestand am 1.\u00a0Januar um 00:00\u00a0Uhr. Der Wert folgt dem Kurs der Börse, die Sie genutzt haben. Wie lange Sie einen Coin schon besitzen, ändert nichts.",
+    "lotRuleText": "Nicht anwendbar: Kein Verkauf wird einem Kauf zugeordnet, weil die Steuer am Wert des Bestands am 1.\u00a0Januar ansetzt, nicht am Ergebnis eines Verkaufs.",
+    "losses": "Die fiktive Rendite kennt keinen Verlust. Bei der Option der tatsächlichen Rendite gilt ein negatives Jahr als EUR\u00a00 und ist nicht mit einem anderen Jahr verrechenbar; Kosten sind nicht abziehbar, außer Zinsen auf Schulden in Box\u00a03.",
+    "reporting": [
+      "Box\u00a03 der Einkommensteuererklärung hat ein Feld „Cryptobezittingen“ (Kryptobestände) für den Wert am 1.\u00a0Januar zum Kurs der genutzten Börse.",
+      "Ab der Erklärung 2025 fragt das Formular, ob Sie auch Ihre tatsächliche Rendite angeben; dafür braucht es die Werte am 1.\u00a0Januar und 31.\u00a0Dezember sowie die Summe der Käufe und Verkäufe des Jahres."
+    ],
+    "caveats": [
+      "Ob Sie Ihre tatsächliche Rendite angeben: Ein Wertzuwachs zählt auch ohne Verkauf.",
+      "Der Freibetrag 2027, der vom Steuerplan 2027 (Belastingplan\u00a02027) abhängt, und der pauschale Prozentsatz 2027.",
+      "Das für 2029 geplante System (2028, wenn machbar) und die Stellung von Kryptowerten darin.",
+      "Arbeit über die übliche Vermögensverwaltung hinaus, die oft zusätzliche Einkünfte bringt.",
+      "Der Kurs Ihrer Börse am 1.\u00a0Januar.",
+      "Was Ihre Börse ab 2026 an den Belastingdienst meldet."
+    ],
+    "summary60": "Die Niederlande besteuern keine Veräußerung von Kryptowerten, keinen Tausch und keine Zahlung damit. Ihr Bestand am 1.\u00a0Januar zählt in Box\u00a03: 2026 werden 6,00% der Vermögenswerte über EUR\u00a059\u00a0357 pro Person als Rendite angesetzt und mit 36% besteuert. War Ihr tatsächlicher Ertrag niedriger, können Sie ihn angeben. Für 2029 ist die Besteuerung tatsächlicher Erträge geplant."
+  },
+  "pendingChanges": [
+    {
+      "title": "Steuerplan 2027 (Belastingplan\u00a02027): die Zahlen für Box\u00a03 im Jahr 2027",
+      "summary": "Laut Bericht vom 17.\u00a0September\u00a02026: Der pauschale Prozentsatz für andere Vermögenswerte liegt bei 6,37%, und der Steuersatz bleibt 2027 bei 36% (mittlere Gewissheit)."
+    },
+    {
+      "title": "Gesetz zur tatsächlichen Rendite in Box\u00a03 (Wet werkelijk rendement box\u00a03)",
+      "summary": "Am 3.\u00a0November\u00a02026 hat das Kabinett eine Änderung (novelle) vorgelegt, die den Teil des Gesetzentwurfs für Box\u00a03 zu Kapitalgewinnen erweitert, und einen Start am 1.\u00a0Januar\u00a02029 vorgeschlagen, oder 2028, wenn machbar."
+    },
+    {
+      "title": "DAC8: Anbieter von Kryptowerte-Dienstleistungen melden ihre Kundschaft",
+      "summary": "Wet implementatie EU-richtlijn gegevensuitwisseling cryptoactiva: Anbieter speichern ab dem 1.\u00a0Januar\u00a02026 Daten ihrer Kundschaft und übermitteln sie bis zum 31.\u00a0Januar\u00a02027 an den Belastingdienst, danach jedes Jahr bis zum 31.\u00a0Januar. An der Besteuerung von Kryptowerten ändert sich nichts."
+    }
+  ]
+}
