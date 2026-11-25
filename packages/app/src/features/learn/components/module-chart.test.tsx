@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
+
+import { countryLocales } from '@proofofcalm/content';
 import { loadCycleDrawdowns } from '@proofofcalm/content/cycles';
 import { cleanup, render, screen } from '@testing-library/react';
-import { countryLocales } from '@proofofcalm/content';
 import { afterEach, describe, expect, it } from 'vitest';
 import { createFormatters } from '../../../lib/format';
 import { I18nProvider } from '../../../lib/i18n';
