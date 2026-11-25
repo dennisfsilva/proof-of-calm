@@ -12,6 +12,7 @@
         "$TURBO_ROOT$/.github/workflows/ci.yml",
         "$TURBO_ROOT$/.github/workflows/lighthouse-branch.yml",
         "$TURBO_ROOT$/.github/workflows/content-review.yml",
+        "$TURBO_ROOT$/.github/PULL_REQUEST_TEMPLATE/content-review.md",
         "$TURBO_ROOT$/apps/web/public/**",
         "$TURBO_ROOT$/apps/web/lib/pwa/brand-colors.json",
         "$TURBO_ROOT$/packages/app/src/lib/brand/**",
