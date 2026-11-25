@@ -36,6 +36,18 @@ const NO_CONSOLE_ERROR: Assertion = ['error', { maxLength: 0 }];
 /** The public origin: no deployment protection, so no bypass and no redirect of any request. */
 const PRODUCTION_ORIGIN = 'https://proofofcalm.com';
 
+/**
+ * The local server's certificate is self-signed (tools/serve/vercel-local.ts --tls), so the local run tells
+ * Chrome to ignore certificate errors, or the service worker does not register; a deployment's
+ * certificate is real and stays checked. `--allow-insecure-localhost` touches localhost alone and stays.
+ */
+const LOCAL_ONLY_ARGS = new Set(['--ignore-certificate-errors']);
+
+function deploymentLaunch(options: Record<string, unknown>): Record<string, unknown> {
+  const { args } = options;
+  return Array.isArray(args) ? { ...options, args: args.filter((arg) => !LOCAL_ONLY_ARGS.has(arg)) } : options;
+}
+
 /** An assertion the local run only warns on fails at a deployment; `off` stays off. */
 function atError(assertion: Assertion): Assertion {
   if (Array.isArray(assertion)) return assertion[0] === 'warn' ? ['error', assertion[1]] : assertion;
@@ -58,7 +70,9 @@ export function vercelConfig(rc: LighthouseRc, url: string): LighthouseRc {
   const { url: paths, numberOfRuns, settings, puppeteerScript, puppeteerLaunchOptions } = rc.ci.collect;
   const seed = {
     ...(puppeteerScript === undefined ? {} : { puppeteerScript }),
-    ...(puppeteerLaunchOptions === undefined ? {} : { puppeteerLaunchOptions }),
+    ...(puppeteerLaunchOptions === undefined
+      ? {}
+      : { puppeteerLaunchOptions: deploymentLaunch(puppeteerLaunchOptions) }),
   };
   const { assertMatrix } = rc.ci.assert;
   if (!assertMatrix.some(({ matchingUrlPattern }) => matchingUrlPattern === ROOT_PAGE)) {
