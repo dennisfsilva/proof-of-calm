@@ -1000,7 +1000,18 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   registry, so later branches leave them alone (#486, #490 to #493; 2026-11-25).
 - Parallel copy branches in one language get one term read across all their files before review,
   and the first branch to merge records the terms in the glossary. Left to themselves, three
-  builders wrote three German words for "medium confidence" (#486; 2026-11-25).
+  builders wrote three German words for "medium confidence" (#486; 2026-11-25). Read before any
+  builder translated (brand proposes, counsel reads the perimeter), it kept four module branches on
+  one word per term (#497 to #500; 2026-11-25).
+- A content role's wording runs against the lint before it is recorded as a rule. Counsel's cost
+  row „über/unter dem investierten Betrag“ failed the German directive rule in a line that names an
+  asset, and the glossary row had to change (#499; 2026-11-25).
+- A shared helper that changes how a detail prints changes every reader promised to print alike.
+  `printedMarks` made details spell a decomposed letter's marks by code point while the review
+  table's `spellJoiners` did not, until both took one definition, `spellNamed` (#498; 2026-11-25).
+- A review workflow's reviewer can hand back an empty list on a translation within two minutes; the
+  delegated module read, with its figure-by-figure table, is the record that the figures were read
+  (25, 118 and 22 figures on #497, #499 and #500; 2026-11-25).
 
 ## Known gaps
 

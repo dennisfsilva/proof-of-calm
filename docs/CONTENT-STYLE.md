@@ -733,8 +733,7 @@ per language, and hold the nouns of the counts a census of the modules found (16
 from their noun): in English `blocks`, `data points`, `inputs`, `components`, `indexes`, `bitcoins`, `episodes`,
 `start months`, `countries`, `completed cycles`, `cycles`, `parts` and `signs`, in pt-PT the nine §9 names, and
 in German the §10 count nouns. B's noun (`falls`, `quedas`) is on no list: R6 reads it. German's (`Rückgang`,
-`Rückgänge`) is on none either, though no German shape of R5 or R6 exists yet. A count before any other noun stays
-unread. A
+`Rückgänge`) is on none either: R6 reads it in German's B (§10). A count before any other noun stays unread. A
 probe joined the 28 counts the English (15) and pt-PT (13) modules write before these nouns by U+00A0. At 161
 widths from 240 to 400 px, at 100 % and 125 % zoom, in Chromium and WebKit, none split and none overflowed
 (decided 2026-11-18).
@@ -1463,7 +1462,7 @@ The Learn modules' terms (the term read of 2026-11-25; counsel's read wins where
 | before investing, an investment | `vor einer Geldanlage`, `eine Geldanlage`; never `sichere Anlage` |
 | emergency fund (the FCA's) | `Notfallreserve`, without `in bar`; never `Sparkonto`; reported speech with the FCA and its date |
 | the median investor (BIS) | `im Median`, with Konjunktiv II (`hätten … verloren`) and the source in the paragraph |
-| How fast rules change (Taxes) | `Wie schnell sich die Regeln ändern`; `learn.module.taxSiteLead` quotes it once the module is German |
+| How fast rules change (Taxes) | `Wie schnell sich die Regeln ändern`; `learn.module.taxSiteLead` quotes it |
 | an amount in a module | the source's code and figure, U+00A0, §4's grouping: `EUR 600`, `GBP 12 300`, `USD 900`, `über 8 Mrd. US-Dollar`; no `£` |
 | a grouped count in a module | U+00A0 groups: `210 000 Blöcke`, `750 000 Bitcoins` |
 | crypto-assets (module prose) | `Kryptowerte`, as a profile's text writes them; the coin row keeps `Kryptowert` for disclosures and legal text |
@@ -1474,6 +1473,14 @@ The Learn modules' terms (the term read of 2026-11-25; counsel's read wins where
 | not a tax computation | `keine Steuerberechnung` |
 | leverage | `Handel mit geliehenem Geld`; never `Hebel` |
 | liquidation, forced sale | `Liquidation`, `Zwangsverkauf` as nouns only; `liquidieren` is on §2's verb list |
+| placing orders | `Aufträge erteilen`, the one form, always negated for the product (`erteilt keine Aufträge`, ADR-0039) |
+| the window's last month | `Schlussmonat`, beside the plan's `Schlussdatum` |
+| high, low (a cycle's) | `Hoch`, plural `Hochs`, `Tief`; `bisheriges Hoch` for the running cycle's |
+| ETFs, interest rates | `börsengehandelte Fonds`, `Zinsen` |
+| a measurement window | `Zeitfenster`, only for one; the plan's is always `Verkaufsfenster` |
+| a control named in prose | `die Schaltfläche „Prüfen“` |
+| a dated notice | `datierter Hinweis`; the noun is allowed, only `Hinweis:` as a prefix is not |
+| a starting point (the tax-year file) | `Arbeitsgrundlage` |
 
 Two terms name the same date in two frames: `der erste Tag nach der Haltefrist` is the date in the
 holding rule's own frame (the hold-phase card, the holding-date tool, the tax-year file's
@@ -1487,7 +1494,13 @@ still inside the year, and the app shows `16. März 2027` (`packages/content/jur
 For the native reader (§8 item 9), the Learn modules first: `Rauschen` against `Lärm`; `Hier
 beginnen` against `Erste Schritte`; `Börse` against `Handelsplattform` in Start here; `DCA nimmt
 Ihnen die Entscheidungen über den Zeitpunkt ab`; `beim Trading` and `wer einen Monatsplan
-verfolgt`; `Kursbenachrichtigungen`; „Greed“ (Gier) beside a bare „Neutral“. Then: `Sie`; `steuerfrei ab` against `nicht steuerbar ab`, and `Letzter
+verfolgt`, and the heading „Was bei einem monatlichen Plan möglich ist“; `Kursbenachrichtigungen`; „Greed“ (Gier) beside a bare „Neutral“;
+„über/unter dem eingesetzten Betrag“ for above or below cost; „nur bei einem Besuch“; „Aufträge
+erteilen“; `Schlussmonat`; „Hochs“; „Die 4 abgeschlossenen Zyklen von Bitcoin“; „Steuerjahr
+2023/2024“ for the UK tax year; „die Schaltfläche „Prüfen“, die zum Plan führt“; `Haltedauer`; the
+title „Das Risiko, ehrlich betrachtet“; „Aufforderung, die Seed-Phrase weiterzugeben“; a bare
+„FCA“ at first mention against „die britische Finanzaufsicht FCA“; „tippt sie nie auf einer
+Website ein“. Then: `Sie`; `steuerfrei ab` against `nicht steuerbar ab`, and `Letzter
 Kauf: erster steuerfreier Tag`; `Protokoll`, `Lernen`, `Ort`, `Coin`, `die Wallet`, `Backup` (pt-PT
 kept `cópia de segurança`), `durchschnittlicher Kaufpreis` against `Einstandspreis`, `Stand:` and
 `geplant für den`; the Settings tabs, the tab bar and the entry sheet's kinds at 360 px with 125 %
