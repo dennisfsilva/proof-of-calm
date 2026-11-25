@@ -16,10 +16,18 @@ export const printedGap = (gap: string, shown: readonly string[]) =>
 // point (the class the page reader drops, packages/config/vite/page-blocks.ts), U+2010 and U+2011.
 const HIDDEN = /(?! )[\p{Z}\p{Cf}\p{Cc}\p{Default_Ignorable_Code_Point}‐‑]/gu;
 
+// A combining mark that NFC composes with the character before it prints by its code point (`RuU+0308 ckgang`): the
+// decomposed letter looks like the composed one a shape or a list holds, and neither matches it.
+const printedMarks = (text: string) =>
+  text.replace(/\P{M}\p{M}+/gu, (run) => {
+    const [base = '', ...marks] = [...run];
+    return run.normalize('NFC') === run ? run : base + marks.map(codePoint).join('');
+  });
+
 /** A quoted text as a detail prints it: each hidden or look-alike character not in `shown` by its code point, as
  * printedGap prints it (`fellU+2009 50 %`), everything else as written. */
 export const printedText = (text: string, shown: readonly string[]) =>
-  text.replace(HIDDEN, (char) => (shown.includes(char) ? char : codePoint(char)));
+  printedMarks(text.replace(HIDDEN, (char) => (shown.includes(char) ? char : codePoint(char))));
 
 /** A quoted text of a Learn module's chart section: as printedText prints it, but a joiner of `joiners` prints as
  * written only directly before a percent sign, and any hidden character a match of the global `joined` covers prints
@@ -30,7 +38,9 @@ export const printedPercentText = (text: string, joiners: readonly string[], joi
       Array.from({ length: match.length }, (_, offset) => index + offset),
     ),
   );
-  return text.replace(HIDDEN, (char, at: number) =>
-    kept.has(at) || (joiners.includes(char) && text[at + 1] === '%') ? char : codePoint(char),
+  return printedMarks(
+    text.replace(HIDDEN, (char, at: number) =>
+      kept.has(at) || (joiners.includes(char) && text[at + 1] === '%') ? char : codePoint(char),
+    ),
   );
 };

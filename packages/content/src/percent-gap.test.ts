@@ -69,6 +69,21 @@ describe('printedPercentText', () => {
   });
 });
 
+describe('a decomposed character', () => {
+  const [umlaut, acute] = [char(0x308), char(0x301)];
+  it('prints each combining mark NFC would compose by its code point, in both quoted texts', () => {
+    expect(printedText(`Ru${umlaut}ckga${umlaut}nge`, [])).toBe('RuU+0308 ckgaU+0308 nge');
+    expect(printedPercentText(`Ru${umlaut}ckgang 75${char(0xa0)}%`, [char(0xa0)])).toBe(
+      `RuU+0308 ckgang 75${char(0xa0)}%`,
+    );
+  });
+
+  it('keeps a composed letter and a mark NFC leaves as it is', () => {
+    expect(printedText('Rückgang', [])).toBe('Rückgang');
+    expect(printedText(`q${acute}`, [])).toBe(`q${acute}`);
+  });
+});
+
 describe('printedGap', () => {
   it('prints every character of a gap, two spaces as two U+0020', () => {
     expect(printedGap('  ', [])).toBe('U+0020 U+0020 ');
