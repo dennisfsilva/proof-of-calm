@@ -1,0 +1,104 @@
+{
+  "name": "Portugal",
+  "filingNote": "Das Steuerjahr ist das Kalenderjahr. Die Erklärung (Modelo\u00a03) wird vom 1.\u00a0April bis zum 30.\u00a0Juni des Folgejahres eingereicht.",
+  "holdingRuleConditions": [
+    "Steuerfrei nur, wenn die Gegenpartei in der EU, im EWR oder in einem Staat mit Doppelbesteuerungsabkommen steuerlich ansässig ist (sonst Erklärung in Anexo\u00a0G Q18B).",
+    "Auch steuerfreie Veräußerungen sind zu erklären (Anexo\u00a0G1 Q7).",
+    "Ob die Haltefrist bei einem Tausch zwischen Kryptowerten weiterläuft, ist ungeklärt. Proof of Calm behandelt einen Tausch als Verkauf und neuen Kauf, daher beginnt für die erhaltenen Coins eine neue Haltefrist.",
+    "Der Verlust der steuerlichen Ansässigkeit in Portugal gilt als Veräußerung (Art.\u00a010 n.º\u00a025 CIRS, in Dokumenten von 2023–\u20602025 als n.º\u00a022 nummeriert)."
+  ],
+  "lotRuleNote": "Fifo-Methode (first in, first out), getrennt je Verwahrstelle oder Plattform, wenn Einheiten bei mehr als einer liegen (Art.\u00a043 n.º\u00a09 CIRS, früher n.º\u00a07).",
+  "card": {
+    "classification": "Gewinne der Kategorie G (Art.\u00a010(1)\u2060(k) CIRS) bei Kryptowerten, die keine Wertpapiere sind; Kategorie E (28%) bei Staking oder Verleih mit Vergütung in Fiatgeld; Kategorie B bei gewohnheitsmäßiger oder beruflicher Tätigkeit und immer bei Mining und Validierung. NFTs sind ausgenommen.",
+    "taxableEvents": [
+      {
+        "note": "Von der Steuer ausgenommen bei einer Haltedauer von 365\u00a0Tagen oder mehr und einer Gegenpartei mit steuerlicher Ansässigkeit in der EU, im EWR oder in einem Staat mit Doppelbesteuerungsabkommen. Ausgenommene Veräußerungen sind trotzdem zu erklären (Anexo\u00a0G1 Quadro\u00a07)."
+      },
+      {
+        "note": "Aufgeschoben: Der erhaltene Kryptowert übernimmt den Anschaffungswert des hingegebenen, außer eine der Parteien ist außerhalb der EU, des EWR oder eines Staates mit Doppelbesteuerungsabkommen steuerlich ansässig (Art.\u00a010 n.ºs\u00a023–\u206024 CIRS, in Dokumenten von 2023–\u20602025 als n.ºs\u00a020–\u206021 nummeriert)."
+      },
+      {
+        "note": "Aufgeschoben wie jeder Tausch; die verbindliche Auskunft PIV\u00a028969 der AT vom 31.\u00a0Oktober\u00a02025 behandelt eine sofortige technische Umwandlung als steuerlich unbeachtlich (mittlere Belastbarkeit)."
+      },
+      {
+        "note": "Eine Zahlung für Waren oder Dienstleistungen mit Kryptowerten löst die Steuer wie ein Verkauf aus."
+      },
+      {
+        "note": "Eine Übertragung von Einheiten zwischen Wallets derselben Person ist keine Veräußerung; es gibt nichts zu erklären."
+      },
+      {
+        "note": "Keine Einkommensteuer (IRS); Stempelsteuer von 10% auf Kryptowerte bei einem Institut in Portugal oder ohne Institut, wenn die beschenkte oder die verstorbene Person dort ihren Wohnsitz hat; Personen in Ehe oder Lebensgemeinschaft, Nachkommen und Vorfahren sind befreit (mittlere Belastbarkeit)."
+      },
+      {
+        "note": "Kategorie E mit 28% bei Vergütung in Fiatgeld; bei Vergütung in Kryptowerten Besteuerung als Gewinn beim Verkauf der Einheiten."
+      }
+    ],
+    "rates": [
+      {
+        "label": "Gesonderter Steuersatz auf Gewinne aus Kryptowerten",
+        "value": "28%",
+        "note": "Auf den positiven Saldo der Gewinne aus Kryptowerten der Kategorie G (Art.\u00a072(1)\u2060(c) CIRS). Der Satz von 35% für Steueroasen auf der schwarzen Liste nennt Kryptowerte nicht; dort entfallen stattdessen die Ausnahme von der Steuer und der Aufschub beim Tausch."
+      },
+      {
+        "label": "Wahlweise Einbeziehung in das Gesamteinkommen (englobamento)",
+        "value": "12,2–\u206048% je nach Stufe, zuzüglich Solidaritätszuschlag",
+        "note": "Der progressive Tarif 2026 (Art.\u00a068(1) CIRS), geändert durch Decreto-Lei n.º\u00a0212/2026 vom 4.\u00a0November\u00a02026 für Einkünfte des Jahres 2026 ab dem 1.\u00a0Januar\u00a02026. Die Stufen: 12,2%, 15,2%, 20,7%, 23,6%, 30,6%, 34,6%, 43,1%, 44,6% und 48%."
+      }
+    ],
+    "allowances": [
+      "Kein Freibetrag: Die einzige Entlastung ist die Ausnahme nach 365\u00a0Tagen.",
+      "Gebühren, die notwendig waren und tatsächlich gezahlt wurden („necessárias e efetivamente suportadas“), sind abziehbar.",
+      "Käufe vor 2023 zählen für die 365\u00a0Tage mit (Art.\u00a0220 Lei\u00a024\u2011D/2022)."
+    ],
+    "holdingRuleText": "Gewinne und Verluste aus Kryptowerten, die 365\u00a0Tage oder länger gehalten wurden, sind von der Steuer ausgenommen: „detidos por um período igual ou superior a 365\u00a0dias“ (Art.\u00a010 n.º\u00a022 CIRS, in Dokumenten von 2023–\u20602025 als n.º\u00a019 nummeriert). Eine am 1.\u00a0März\u00a02026 gekaufte Einheit fällt am 1.\u00a0März\u00a02027 unter die Ausnahme.",
+    "lotRuleText": "Fifo-Methode, first in, first out („os alienados são os adquiridos há mais tempo“, Art.\u00a043 n.º\u00a08(g) CIRS, früher n.º\u00a06(g)), getrennt je Verwahrstelle oder Plattform (Art.\u00a043 n.º\u00a09, früher n.º\u00a07).",
+    "losses": "Verluste werden mit Gewinnen aus Kryptowerten desselben Jahres verrechnet; Einheiten mit einer Haltedauer von 365\u00a0Tagen oder mehr bleiben außen vor. Ein Nettoverlust wird nur bei Einbeziehung in das Gesamteinkommen 5\u00a0Jahre vorgetragen (Art.\u00a055(1)\u2060(d)); Verluste mit Gegenparteien auf der schwarzen Liste zählen nie (Art.\u00a043 n.º\u00a07).",
+    "reporting": [
+      "Modelo\u00a03, Anexo\u00a0G Quadro\u00a018A: Veräußerungen von Einheiten mit einer Haltedauer unter 365\u00a0Tagen, je Vorgang, mit dem Land der Gegenpartei.",
+      "Anexo\u00a0G Quadro\u00a018B: Veräußerungen mit einer Gegenpartei außerhalb der EU oder des EWR.",
+      "Anexo\u00a0G1 Quadro\u00a07: von der Steuer ausgenommene Veräußerungen, verpflichtend.",
+      "Anexo\u00a0J Quadro\u00a09.4 für Einkünfte, die als ausländische gelten; welche Anlage für einen Verkauf an einer ausländischen Börse gilt, ist eine wiederkehrende Frage in der Praxis.",
+      "Anexo\u00a0E Code E21 für Einkünfte aus Kryptowerten; Anexo\u00a0B Felder\u00a0419 und 422 für Handel und Mining als Gewerbe.",
+      "DAC8: Lei n.º\u00a026/2026 vom 3.\u00a0Juni\u00a02026, mit Wirkung ab dem 1.\u00a0Januar\u00a02026; Anbieter melden in Portugal ansässige Personen bis zum 31.\u00a0Mai des Folgejahres an die AT, erstmals am 31.\u00a0Mai\u00a02027."
+    ],
+    "caveats": [
+      "Gegenparteien außerhalb der EU oder des EWR.",
+      "Ob die Haltefrist bei einem Tausch weiterläuft.",
+      "Anexo\u00a0G Quadro\u00a018A oder Anexo\u00a0J Quadro\u00a09.4 bei ausländischen Plattformen.",
+      "Verluste, nur bei Einbeziehung in das Gesamteinkommen nutzbar.",
+      "Einkünfte aus Staking.",
+      "Das Risiko, dass die Tätigkeit als beruflich gilt.",
+      "Stempelsteuer auf Schenkungen."
+    ],
+    "summary60": "Portugal: Gewinne aus Kryptowerten mit einer Haltedauer unter 365\u00a0Tagen werden standardmäßig mit 28% besteuert. Ab 365\u00a0Tagen sind sie steuerfrei, wenn die Gegenpartei in der EU, im EWR oder in einem Staat mit Doppelbesteuerungsabkommen steuerlich ansässig ist; jeder Verkauf ist trotzdem zu erklären. Ein Tausch zwischen Kryptowerten wird nicht sofort besteuert. Fifo je Plattform. Erklärung von April bis Juni."
+  },
+  "pendingChanges": [
+    {
+      "title": "Entwurf des Staatshaushalts\u00a02027 (OE2027)",
+      "summary": "Am 8.\u00a0Oktober\u00a02026 ohne Maßnahme zu Kryptowerten vorgelegt; Generaldebatte ab dem 27.\u00a0Oktober\u00a02026, Schlussabstimmung Ende November\u00a02026 erwartet."
+    },
+    {
+      "title": "Staatshaushalt\u00a02026 (Lei n.º\u00a073\u2011A/2025)",
+      "summary": "Keine Änderung bei der Besteuerung von Kryptowerten, so die Berichte zum Haushalt; der Gesetzestext selbst ist noch nicht gelesen (mittlere Belastbarkeit)."
+    },
+    {
+      "title": "Niedrigere Sätze in 6 IRS-Stufen (Decreto-Lei n.º\u00a0212/2026)",
+      "summary": "Der Satz von 28% nach Art.\u00a072(1)\u2060(c) ändert sich nicht. Decreto-Lei n.º\u00a0212/2026 vom 4.\u00a0November\u00a02026 (Diário da República n.º\u00a0214/2026, Série\u00a0I), gestützt auf Lei n.º\u00a064\u2011B/2026 (Proposta de Lei n.º\u00a0108/XVII/2.ª), senkt die ersten 6 Sätze von Art.\u00a068 n.º\u00a01 CIRS auf 12,2%, 15,2%, 20,7%, 23,6%, 30,6% und 34,6%. In Kraft seit dem 5.\u00a0November\u00a02026; die Präambel wendet die Senkung auf Einkünfte des Jahres 2026 ab dem 1.\u00a0Januar\u00a02026 an."
+    },
+    {
+      "title": "Verbindliche Auskunft der AT, PIV\u00a028969",
+      "summary": "Eine sofortige technische Umwandlung in einen Stablecoin, um ein Euro-Paar zu erreichen, ist kein steuerlich relevanter Zeitpunkt; der ursprüngliche Wert bleibt daher von der Steuer ausgenommen (mittlere Belastbarkeit)."
+    },
+    {
+      "title": "Verbindliche Auskunft der AT, PIV\u00a029052",
+      "summary": "Käufe ab 2019 zählen für die 365\u00a0Tage mit; die Ausnahme gilt nur für Gegenparteien in der EU, im EWR oder in einem Staat mit Doppelbesteuerungsabkommen; ein Test der Gewohnheitsmäßigkeit entscheidet über Kategorie B."
+    },
+    {
+      "title": "Neu nummerierte Regeln zu Kryptowerten in Art.\u00a010 CIRS",
+      "summary": "Die konsolidierte Fassung der AT nummeriert die Regeln zu Kryptowerten als n.ºs\u00a020 bis 25 (früher 17 bis 22); dieses Profil zitiert beide Nummerierungen."
+    }
+  ],
+  "status": {
+    "changeNotice": "Portugal hat die Sätze von 6 IRS-Stufen für Einkünfte des Jahres 2026 gesenkt. Der Satz von 28% und die 365\u2011Tage\u2011Regel bleiben unverändert."
+  }
+}
