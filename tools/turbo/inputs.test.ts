@@ -97,6 +97,7 @@ describe('turbo inputs', () => {
       '.github/workflows/lighthouse-vercel.yml', // lighthouse/vercel.test.ts: the resolve step's allow-list
       '.github/workflows/ci.yml', // lighthouse/workflows.test.ts: the two lighthouse jobs' steps
       '.github/workflows/lighthouse-branch.yml',
+      '.github/workflows/content-review.yml', // content-review/workflow-paths.test.ts: the paths filter
       ...filesUnder('apps/web/public'), // icons/icons.test.ts, security-txt/check.test.ts
       'apps/web/lib/pwa/brand-colors.json', // icons/generate.ts
       ...filesUnder('packages/app/src/lib/brand'),
