@@ -351,7 +351,10 @@ resizes it. The screen area's bottom padding takes the inset less the bar's spac
 paints over the toast: it stays under the scrim, out of reach, and its window waits until the last
 modal has closed (WCAG 2.2.1; each popup counts in `packages/ui/src/lib/modal-layer.ts` while it is
 mounted). The insets apply once the host's
-viewport sets `viewport-fit=cover`. The current destination is marked by `aria-current="page"`,
+viewport sets `viewport-fit=cover`. The web host sets no `viewport-fit=cover` (2026-11-25): iOS
+keeps the home indicator's strip out of the viewport there, so the bottom bar clears it with a zero
+inset; the mobile host (`apps/mobile/index.html`) keeps its own setting. The check on a real iPhone
+install is a step of the owner's device sitting in `docs/RELEASE.md`. The current destination is marked by `aria-current="page"`,
 weight 600 and a 2 px `ink` bar (above the tab's icon, under the top navigation's word, under the
 Settings gear's icon), never by colour alone. Neighbouring tabs and links sit 8 px apart
 (`--target-gap`, §6). The header is not sticky. Links render through the link component the app

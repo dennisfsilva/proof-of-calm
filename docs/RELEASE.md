@@ -93,6 +93,9 @@ gate and this checklist; every merge to `main` goes to production, tagged or not
       lead, Portfolio's Invested and Value, whether the import reported adjustments, and one
       purchase's holding date. No file is handed to a session (decided on 2026-11-23 on the owner's
       delegation of 2026-11-18; not the owner's own review or signature).
+- [ ] On the owner's iPhone, in the same install of the web app (added on 2026-11-25): Start here's
+      JSON backup download produces a file in an installed iOS app, and the bottom bar clears the
+      home indicator (`docs/DESIGN.md` §7).
 - [x] Repository visibility decided (`docs/LEGAL.md` §9): public since 2026-11-08, from a fresh
       history with no personal email address (ADR-0051). A licence is still the owner's choice.
 

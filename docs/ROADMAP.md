@@ -475,6 +475,14 @@ external links and the Risk link in the mobile export (M3).
   prototype import) with `saleWarning`'s per-lot effect, built when the first profile holds
   `holdingRuleOverrides`; none does in M2 (DE's change is a proposal, `docs/JURISDICTIONS.md` §7.7),
   and until then `pnpm validate:content` refuses a profile that holds one.
+- Three items no build can reach yet, each built when it becomes reachable (Germany's card under
+  review on 2 Jan 2028, or the first profile at a rule version above 1), added on 2026-11-25:
+  `Tax-free from` on the Log's and Plan's rows while the card is under review (`docs/JURISDICTIONS.md`
+  §1 speaks of the card); the dates computed under a rule the card shows as not reviewed, decided as
+  one set (`Tax-free from`, `Last buy tax-free`, `Sellable now`, the sale's holding warning, the
+  early-window notice, Change country's `Last buy tax-free from … now`), with sources beside them for
+  `docs/LEGAL.md` §6 Q13's source half; and a plan left on an earlier rule after a rule-version bump
+  showing that it still uses the earlier rule.
 - The disclosure's acknowledgement is asked again when the recorded wording version is below the
   current one (`docs/DOMAIN.md` §2.1 owns when, an import's case among it), built on 2026-11-02
   (#308); its tests pass a raised version, and no build reaches the screen until the text gets a
