@@ -731,7 +731,7 @@ word and the count or the noun separates them, and R7 reads the pair. It does no
 which only a paragraph carries and which names no place (decided 2026-11-18, #387). The lists are closed, one
 per language, and hold the nouns of the counts a census of the modules found (16 of them could end a line apart
 from their noun): in English `blocks`, `data points`, `inputs`, `components`, `indexes`, `bitcoins`, `episodes`,
-`start months`, `countries`, `completed cycles`, `cycles`, `parts` and `signs`, in pt-PT the nine §9 names, and
+`start months`, `countries`, `completed cycles`, `cycles`, `parts` and `signs`, in pt-PT the eleven §9 names, and
 in German the §10 count nouns. B's noun (`falls`, `quedas`) is on no list: R6 reads it. German's (`Rückgang`,
 `Rückgänge`) is on none either: R6 reads it in German's B (§10). A count before any other noun stays unread. A
 probe joined the 28 counts the English (15) and pt-PT (13) modules write before these nouns by U+00A0. At 161
@@ -1064,8 +1064,11 @@ needs (decided 2026-11-15). The native reader's review is §8 item 9.
   `ano` with their plurals, and `Suplemento` after an ordinal (`2.º Suplemento`); a form's name may be
   a `Formulário` (#368, decided 2026-11-18). A source title in Portuguese (`lang` `pt`) is read with
   these lists. In a module, a count before pt-PT's nouns `blocos`, `observações`, `componentes`,
-  `índices`, `bitcoins`, `países`, `ciclos`, `partes` and `sinais` is joined to its noun by U+00A0
-  (`95 países`, §4 R7); `quedas` stays with R6.
+  `índices`, `bitcoins`, `episódios`, `meses de início`, `países`, `ciclos`, `partes` and `sinais` is
+  joined to its noun by U+00A0 (`95 países`, §4 R7); `quedas` stays with R6. English's "start months" is
+  `meses de início`, never a bare `meses`, which stays off as English's `months` does (`12 meses`
+  stays unread), so a module reads as many counts as its English (#502, decided 2026-11-25);
+  `packages/content/src/module-counts.test.ts` reads this list.
 - **The tax authority's own terms**, never a translation back from English: `CIRS`, `Anexo G`,
   `Anexo G1`, `Quadro 18A`, `mais-valias`, `Autoridade Tributária e Aduaneira`; a rule quoted from the
   law keeps the law's wording in quotation marks («detidos por um período igual ou superior a 365
