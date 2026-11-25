@@ -1,6 +1,6 @@
 {
   "code": "GB",
-  "name": "United Kingdom",
+  "name": "Vereinigtes Königreich",
   "currency": "GBP",
   "locales": ["en-GB", "cy-GB"],
   "numberFormatLocale": "en-GB",
