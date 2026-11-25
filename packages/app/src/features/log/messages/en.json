@@ -59,6 +59,7 @@
   "showPaged": "Show all {count} entries, {size} at a time",
   "page": {
     "range": "Entries {first} to {last} of {count}",
+    "rangeOne": "Entry {first} of {count}",
     "newer": "Show newer entries",
     "older": "Show older entries",
     "year": "Go to year"

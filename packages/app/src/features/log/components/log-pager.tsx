@@ -29,13 +29,20 @@ export type LogPagerProps = {
   readonly onYear: (start: number) => void;
 };
 
-/** "Entries 1 to 100 of N" above the window: the line a move of the window brings to the top of the page. */
+/**
+ * "Entries 1 to 100 of N" above the window, "Entry N of N" when it holds one: the line a move of the window brings to
+ * the top of the page.
+ */
 export function LogRangeLine({ range, ref }: { readonly range: LogRange; readonly ref: Ref<HTMLParagraphElement> }) {
   const t = useTranslations('log');
   const f = useFormatters();
+  const first = figure(f, range.first);
+  const count = figure(f, range.count);
   return (
     <p ref={ref} aria-live="polite" className="nums scroll-mt-result text-ink-2">
-      {t('page.range', { first: figure(f, range.first), last: figure(f, range.last), count: figure(f, range.count) })}
+      {range.first === range.last
+        ? t('page.rangeOne', { first, count })
+        : t('page.range', { first, last: figure(f, range.last), count })}
     </p>
   );
 }

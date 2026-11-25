@@ -112,6 +112,15 @@ describe('LogScreen past LOG_WINDOW transactions', () => {
     expect(document.activeElement).toBe(toggles()[0]);
   });
 
+  it('names the one entry of a window that holds one transaction', async () => {
+    await mount(withBuys(93, true));
+    expect(caption().textContent).toBe('Entries 1 to 100 of 101');
+    await press('Show older entries');
+    expect(toggles()).toHaveLength(1);
+    expect(screen.getByText('Entry 101 of 101').getAttribute('aria-live')).toBe('polite');
+    expect(screen.queryByText(/^Entries \d+ to \d+ of /)).toBeNull();
+  });
+
   it("goes to a year's newest entry and keeps the focus on the choice", async () => {
     await mount(withBuys(250, true));
     const user = userEvent.setup({ document });

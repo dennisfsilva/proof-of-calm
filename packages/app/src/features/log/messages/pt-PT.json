@@ -59,6 +59,7 @@
   "showPaged": "Mostrar todos os {count} movimentos, {size} de cada vez",
   "page": {
     "range": "Movimentos {first} a {last} de {count}",
+    "rangeOne": "Movimento {first} de {count}",
     "newer": "Mostrar movimentos mais recentes",
     "older": "Mostrar movimentos mais antigos",
     "year": "Ir para o ano"
