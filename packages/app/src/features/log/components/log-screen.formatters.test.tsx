@@ -3,9 +3,8 @@ import type { CalendarDate, Entry } from '@proofofcalm/core';
 import { Toaster } from '@proofofcalm/ui/components/toast';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createFormatters } from '../../../lib/format';
 import { I18nProvider } from '../../../lib/i18n';
-import { ServicesProvider } from '../../../lib/services';
+import { ServicesProvider, useFormatters } from '../../../lib/services';
 import { fixtureNowMs, fixtureSnapshot } from '../../../lib/services/fixtures';
 import { createTestServices, preloadLazyModules } from '../../../lib/services/testing';
 import errors from '../../../messages/en/errors.json';
@@ -13,13 +12,14 @@ import log from '../../../messages/en/log.json';
 import shell from '../../../messages/en/shell.json';
 import { LogScreen } from './log-screen';
 
-// The Log builds its formatters once for the screen, never once per row (docs/ENGINEERING.md §4, the Log at the
+// The Log asks for its formatters once for the screen, never once per row (docs/ENGINEERING.md §4, the Log at the
 // cap): a profile of Show all at 10,000 entries spent a third of its render in each row's own `useFormatters`.
-// Every formatter set the app makes goes through `createFormatters`, so its calls count them.
+// The hook's calls count it: `createFormatters` cannot, since the hook shares one set per pair of locales, so a
+// row that called the hook again would build nothing new but still pay the hook and the prop change per row.
 
-vi.mock('../../../lib/format', async (original) => {
-  const format = await original<typeof import('../../../lib/format')>();
-  return { ...format, createFormatters: vi.fn(format.createFormatters) };
+vi.mock('../../../lib/services', async (original) => {
+  const services = await original<typeof import('../../../lib/services')>();
+  return { ...services, useFormatters: vi.fn(services.useFormatters) };
 });
 vi.mock('@proofofcalm/content', async (original) =>
   (await import('../../../lib/services/testing-modules')).profilesInMemory(
@@ -54,10 +54,10 @@ function withBuys(count: number) {
 }
 
 describe('LogScreen formatters', () => {
-  it('builds the formatters a constant number of times, not once per row, when Show all mounts 300 more rows', async () => {
+  it('asks for the formatters a constant number of times, not once per row, when Show all mounts 300 more rows', async () => {
     const services = createTestServices({ snapshot: withBuys(300), nowMs: fixtureNowMs('buy') });
     await act(() => services.start());
-    vi.mocked(createFormatters).mockClear();
+    vi.mocked(useFormatters).mockClear();
     render(
       <ServicesProvider services={services}>
         <I18nProvider messages={{ errors, log, shell }}>
@@ -69,6 +69,7 @@ describe('LogScreen formatters', () => {
     );
     await act(async () => fireEvent.click(screen.getByRole('button', { name: /^Show all \d+ entries$/ })));
     expect(document.querySelectorAll('tbody [data-slot="table-row"]').length).toBeGreaterThan(300);
-    expect(vi.mocked(createFormatters).mock.calls.length).toBeLessThanOrEqual(2);
+    // Once per render of the screen (two here: the first page, then Show all); a row of its own makes it 324.
+    expect(vi.mocked(useFormatters).mock.calls.length).toBeLessThanOrEqual(10);
   });
 });
