@@ -271,8 +271,8 @@ platform without one.
   before the screen settles, passes 100 ms there is fixed: Event Timing ends at the next paint and
   misses a render that blocks the main thread after it, which a person waits through all the same.
   `apps/web/e2e/log-cap.spec.ts` fills the fixture plan to `MAX_ENTRIES` live entries and records
-  each input's duration and longest task as annotations; it asserts nothing and takes about two
-  minutes, so it runs only on request (`LOG_CAP=1` on the desktop project, the command in
+  each input's duration and longest task as annotations; it asserts only the inputs measured under
+  half the rule here (Show older entries) and takes about half a minute, so it runs only on request (`LOG_CAP=1` on the desktop project, the command in
   `CLAUDE.md`). The figures are local: Windows, Playwright's Chromium, five runs, 2026-11-25. Fixed
   here, with nothing the Log shows changed: each row built its own formatters and every toggle
   rendered every row (unthrottled, Show all took 15.2 s, 5.1 s of it in the rows' formatters); rows
@@ -290,12 +290,17 @@ platform without one.
   `entry-sheet.test.tsx` and `entry-form.test.tsx` count `heldUnits` and `movesLeftShort`). Three
   runs at 6× after that fix (same machine, 2026-11-25): one keystroke 48 to 64 ms and closing the
   sheet 80 to 88 ms, under the rule; Show all's longest task 17 to 20 s; the heading after 3.0 to
-  3.7 s. Three items stay over the rule (planned: M2). Opening a row, 104 to 152 ms, and Edit
-  entry, 320 to 352 ms, by Event Timing: a profile of Edit entry finds the sheet's mount, focus and
-  layout, no scan of the entries, and a store with a move still pays the move line per keystroke.
-  Show all, by its longest task: its input takes 24 to 32 ms, but the render it starts blocks the
-  main thread for 17 to 20 s; paging or a virtual list changes what the Log shows, so it waits for
-  a design check.
+  3.7 s. Show all then mounted every row (its longest task 17 to 20 s); it now shows a window of
+  `LOG_WINDOW` transactions with Show newer and Show older entries and Go to year (`docs/DOMAIN.md`
+  §3.9). Three runs at 6× with a window of 100 (2026-11-25): Show all's longest task 318 to 389 ms,
+  Show older and Show newer 82 to 95 ms, the window's commit after a reload 54 to 71 ms; with 48, the
+  window it keeps, Show all 314 to 321 ms, Show older and Show newer 0 to 52 ms (inputs 24 to 40 ms),
+  choosing a year 56 to 64 ms (longest task 60 to 327 ms), the window's commit after a reload under
+  50 ms, the heading after 2.1 to 2.5 s (longest task 450 to 487 ms). Over the rule still (planned:
+  M2): opening a row, 88 ms by Event Timing; Edit entry, 240 to 272 ms, a profile of which finds the
+  sheet's mount, focus and layout, no scan of the entries, and a store with a move still pays the
+  move line per keystroke; Show all, whose input takes 24 ms but whose longest task, the same at 48
+  and 100 rows, is not the window's render; opening Go to year, 172 to 197 ms, the choice's own popup.
 - An upstream outage may fail the production check. It measures what production serves: a 502 that
   reaches the browser is a fault people see, and `errors-in-console` names it. Since Portfolio's
   layout holds on that path (`lighthouse-vercel` run 40917845879 on a20d28d9, 2026-10-29, measured
