@@ -33,7 +33,7 @@ describe('constants', () => {
     expect(ENTRY_NOTE_MAX_LENGTH).toBe(500);
     expect(VENUE_MAX_LENGTH).toBe(40);
     expect(LOG_PAGE).toBe(12);
-    expect(LOG_WINDOW).toBe(100);
+    expect(LOG_WINDOW).toBe(48);
     expect(UNDO_WINDOW_MS).toBe(8000);
     expect(TOMBSTONE_TTL_DAYS).toBe(90);
     expect(RED_DAY).toEqual({ sevenDay: '-10', fromHigh90: '-30', episodeClearDays: 7, coverDays: 7, keptDays: 365 });

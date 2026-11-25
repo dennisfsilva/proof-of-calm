@@ -29,7 +29,7 @@ export type LogPagerProps = {
   readonly onYear: (start: number) => void;
 };
 
-/** "Entries 1 to 100 of N" above the window: the line a move of the window brings to the top of the page. */
+/** "Entries 1 to 48 of N" above the window: the line a move of the window brings to the top of the page. */
 export function LogRangeLine({ range, ref }: { readonly range: LogRange; readonly ref: Ref<HTMLParagraphElement> }) {
   const t = useTranslations('log');
   const f = useFormatters();
