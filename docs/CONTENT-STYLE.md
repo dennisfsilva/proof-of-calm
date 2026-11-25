@@ -1351,7 +1351,8 @@ The product's nouns, one German word each, in every string, the site pages and t
 | template | Ausgangspunkt, its name after it unquoted |
 | country card / general profile | Länderprofil / das allgemeine Profil |
 | tax-year file | Datei für das Steuerjahr (`Steuerjahr als CSV exportieren`) |
-| crypto-asset service provider, provider | Anbieter von Kryptowerte-Dienstleistungen, short `Anbieter`; the US's `Broker` and Italy's `Intermediär` stay, those laws' terms (decided 2026-11-25) |
+| crypto-asset service provider | Anbieter von Kryptowerte-Dienstleistungen |
+| provider (the short form of the row above) | Anbieter; the US's `Broker` and Italy's `Intermediär` stay, those laws' terms (decided 2026-11-25) |
 | screen (#419's shell strings) | Ansicht (`Diese Ansicht konnte nicht geladen werden.`) |
 | unread (a plan this version cannot read, `shell.newer.again`) | ungelesen |
 | Chart range (the control) | Zeitraum des Diagramms |
