@@ -1631,3 +1631,25 @@ screens by loaders.
 - **2026-11-24, `GERMAN_PARTIAL` stands empty again** (amends the entry above on `GERMAN_PARTIAL`
   holding `settings`). German Settings' tax-year file (#483) and exchange import (#484) followed
   the same day, and the exchange import emptied the list, so every German file is whole.
+
+## Deviations recorded on 2026-11-25
+
+The decision stands; this gives the site pages of §6 their third language on the model of
+2026-11-18, still without a route for it.
+
+- **2026-11-25, German site messages, no routes** (§6, §8; extends the entry of 2026-11-18 on site
+  messages per language). `apps/web/messages/de.json` translates the same keys as
+  `apps/web/messages/pt-PT.json`: every site message but the four legal pages' own objects, which
+  stay English and carry `lang="en"`, as does the Risk page's table of falls. The Risk page's
+  status opens with the official German text `docs/CONTENT-STYLE.md` §10 names, with the
+  `Systeme für die Entschädigung der Anleger` and the `Einlagensicherungssysteme`. In German
+  `renderSitePage` renders the same pages as in pt-PT with `<html lang="de">`, the day each
+  official link was read in German's date; a public page under `/en/` refuses German, and
+  `scripts/build.ts` still writes English only: the German pages exist for the native read, and a
+  route, hreflang and the sitemap come with the decision to publish them.
+- **2026-11-25, the site languages are the UI languages.** `SiteLanguage` in
+  `apps/web/lib/site-messages.ts` is `UiLanguage` from `@proofofcalm/app/lib/i18n`, and each
+  translation sits in one record keyed by the languages other than English, so a UI language
+  without a site file fails the typecheck. `englishLang` reads the page's own language file; it
+  read the Portuguese one for every language but English, which no page could show while pt-PT
+  was the only translation.
