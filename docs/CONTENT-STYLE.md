@@ -1304,7 +1304,8 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
   `Startmonate`, `Startmonaten`, `Länder`, `Ländern`, `abgeschlossene Zyklen`, `abgeschlossenen
   Zyklen`, `Zyklen`, `Teile`, `Teilen` and `Anzeichen`. `Punkte` and `Monatsenden` stay off, as
   English's `points` and `month-ends` do, so a module reads as many counts as its English; they still
-  take U+00A0 (`13 Punkte`).
+  take U+00A0 (`13 Punkte`, `12 Monatsenden`), as `Rückgänge` and the time units do, and the German
+  figure-join test in `packages/content/scripts/closed-body.test.ts` reads them.
 - **A country card's summary keeps the 60-word limit**, and content still in English on a German
   screen is marked: `lang="en"`, and on a country card `Die folgenden Regeln sind auf Englisch.`
   under its title (ADR-0057).
