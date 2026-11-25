@@ -1,6 +1,14 @@
 // @vitest-environment jsdom
 import { countryRules, loadProfile } from '@proofofcalm/content';
-import { type CalendarDate, type Entry, heldUnits, liveEntries, MAX_ENTRIES, type MonthKey } from '@proofofcalm/core';
+import {
+  type CalendarDate,
+  type Entry,
+  heldUnits,
+  liveEntries,
+  MAX_ENTRIES,
+  type MonthKey,
+  transactions,
+} from '@proofofcalm/core';
 import { Toaster } from '@proofofcalm/ui/components/toast';
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { type ReactNode, useState } from 'react';
@@ -40,6 +48,11 @@ vi.mock('@proofofcalm/content', async (original) =>
     await original<typeof import('@proofofcalm/content')>(),
   ),
 );
+// The Log's rows come from the core's `transactions`: a test counts its calls to see the rows computed again.
+vi.mock('@proofofcalm/core', async (original) => {
+  const core = await original<typeof import('@proofofcalm/core')>();
+  return { ...core, transactions: vi.fn(core.transactions) };
+});
 // The jurisdiction profiles behind `portugal` load while the file loads, outside any test's timeout, so a
 // findBy waits on renders, not on Vite's first transform (seconds under load).
 await preloadLazyModules();
@@ -588,6 +601,35 @@ describe('LogScreen', () => {
       ),
     );
     expect(liveEntries(services.domain.store.getState().snapshot.entries)).toHaveLength(MAX_ENTRIES);
+  });
+
+  // Show all writes the preference alone, on the prefs row as stored (ADR-0019 Readings, 2026-11-25). The store
+  // below hands back a new entries array from each whole-snapshot read, as IndexedDB does, so a Show all written
+  // through that read computes the Log's rows over the 10,000 entries again.
+  it('writes Show all at 10,000 entries without computing the rows again', { timeout: 15_000 }, async () => {
+    const snapshot = fixtureSnapshot();
+    // One a day back from the plan's start: buys of one day share a row, so each date is its own transaction.
+    const dayBefore = Date.UTC(2026, 3, 4);
+    const daily = toTheCap(snapshot).map((entry, index) => ({
+      ...entry,
+      date: new Date(dayBefore - index * 86_400_000).toISOString().slice(0, 10) as CalendarDate,
+    }));
+    const store = memoryPlanStore({ ...snapshot, entries: [...snapshot.entries, ...daily] });
+    const planStore = {
+      ...store,
+      update: async (build: Parameters<typeof store.update>[0]) => {
+        const read = await store.update(build);
+        return { ...read, snapshot: { ...read.snapshot, entries: [...read.snapshot.entries] } };
+      },
+    };
+    const services = createTestServices({ planStore, nowMs: fixtureNowMs('buy'), rules: portugal });
+    await act(() => services.start());
+    view(services);
+    const button = await screen.findByRole('button', { name: /^Show all/ });
+    vi.mocked(transactions).mockClear();
+    await act(async () => fireEvent.click(button));
+    expect(services.domain.store.getState().snapshot.prefs.logShowAll).toBe(true);
+    expect(vi.mocked(transactions)).not.toHaveBeenCalled();
   });
 
   // DESIGN §6 "Focus after an action": the deleted row's place, never the page's top.
