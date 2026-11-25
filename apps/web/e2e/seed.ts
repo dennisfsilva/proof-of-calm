@@ -11,15 +11,22 @@ import { DEFAULT_PREFS, type Prefs } from '@proofofcalm/core';
 // The device id: the rows carry a fixed foreign id, as an older build's rows would; the reload's open
 // stamps them with the local id, as it does every row it reads (ADR-0019 Readings, 2026-11-24). The prefs are left as they are, unless the spec passes
 // some: then the defaults with those fields go in under the store's one prefs key, `'device'` (PREFS_KEY
-// in packages/app/src/lib/adapters/idb-store.ts:46), in the same transaction.
+// in packages/app/src/lib/adapters/idb-store.ts:46), in the same transaction. `timeout` bounds each wait for Today to
+// load, for a plan that takes longer to read than the default (the Log at the cap, `log-cap.spec.ts`).
 const SEED_DEVICE_ID = '00000000-0000-4000-8000-00000000e2e0' as Parameters<typeof planRow>[1];
 
 type Rows = { readonly plans: PlanRow[]; readonly entries: EntryRow[] };
 
-export async function seedPlan(page: Page, snapshot: Snapshot, prefs?: Partial<Prefs>): Promise<void> {
+export async function seedPlan(
+  page: Page,
+  snapshot: Snapshot,
+  prefs?: Partial<Prefs>,
+  { timeout }: { readonly timeout?: number } = {},
+): Promise<void> {
   const screenArea = page.locator('main#main');
+  const loaded = timeout === undefined ? {} : { timeout };
   await page.goto('/today');
-  await expect(screenArea).not.toHaveAttribute('aria-busy', 'true');
+  await expect(screenArea).not.toHaveAttribute('aria-busy', 'true', loaded);
   const { plan } = snapshot;
   const rows: Rows = {
     plans: plan === null ? [] : [planRow(plan, SEED_DEVICE_ID)],
@@ -46,5 +53,5 @@ export async function seedPlan(page: Page, snapshot: Snapshot, prefs?: Partial<P
     { name: DATABASE_NAME, rows, prefs: prefs === undefined ? null : { ...DEFAULT_PREFS, ...prefs } },
   );
   await page.reload();
-  await expect(screenArea).not.toHaveAttribute('aria-busy', 'true');
+  await expect(screenArea).not.toHaveAttribute('aria-busy', 'true', loaded);
 }
