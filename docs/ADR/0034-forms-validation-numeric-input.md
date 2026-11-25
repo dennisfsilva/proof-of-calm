@@ -130,6 +130,9 @@ The decision stands; these are the choices its text left open, made while implem
   `apps/web/playwright.config.ts` sets `en-GB` for the page, which the field does not read. Decided
   on the owner's delegation of 2026-11-18, not the owner's own review or signature: accepted as the
   platform's behaviour. ADR-0008's entry of 2026-11-23 records the consequence that was not built.
+- **The date input keeps no `min` or `max`** (2026-11-25). A native `min` or `max` refuses no typed
+  date, `docs/DOMAIN.md` §6 holds no future-date rule, and the kind `held` has no natural minimum,
+  so the attributes would give a person only a picker hint.
 
 ## Disagreement
 
