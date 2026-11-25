@@ -110,6 +110,8 @@ describe('turbo inputs', () => {
       'packages/content/jurisdictions/ie.json', // content-review/example.test.ts: the example's leaves
       'packages/content/sources.allow.json', // content-review/example.test.ts: the example's links
       '.claude/crew.json', // lint/copy-paths.test.ts: the copy paths, and the tax-year files it lists
+      ...filesUnder('.claude/rules').filter((path) => /^\.claude\/rules\/[^/]+\.md$/.test(path)), // lint/rules.test.ts
+      ...filesUnder('packages/content/i18n').filter((path) => /\.(json|mdx)$/.test(path)), // messages/country-prose.test.ts
       ...trackedFiles().filter(isScanned),
     ];
     expect(read).toContain('packages/app/src/features/today/messages/en.json');
