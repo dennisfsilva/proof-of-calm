@@ -1,13 +1,17 @@
 // @vitest-environment jsdom
 import { loadCycleDrawdowns } from '@proofofcalm/content/cycles';
 import { cleanup, render, screen } from '@testing-library/react';
+import { countryLocales } from '@proofofcalm/content';
 import { afterEach, describe, expect, it } from 'vitest';
+import { createFormatters } from '../../../lib/format';
 import { I18nProvider } from '../../../lib/i18n';
+import { localesFor } from '../../../lib/i18n/locale';
 import { ServicesProvider } from '../../../lib/services';
 import { createTestServices } from '../../../lib/services/testing';
+import learnDe from '../../../messages/de/learn.json';
 import learn from '../../../messages/en/learn.json';
 import learnPt from '../../../messages/pt-PT/learn.json';
-import { DRAWDOWN_COINS, ModuleChart } from './module-chart';
+import { DRAWDOWN_COINS, DrawdownBars, fallPercent, ModuleChart } from './module-chart';
 
 // The risk module's chart (docs/EDUCATION.md §2): the cycles file's rows through the red-day port, then, inside the
 // element, the publishers as text, the source's span and the past-performance line (docs/LEGAL.md §3.4 and §4).
@@ -106,5 +110,47 @@ describe('ModuleChart', () => {
       </ServicesProvider>,
     );
     expect(container.innerHTML).toBe('');
+  });
+});
+
+// A chart's percentages take the page's formatters (ADR-0023's Decision, docs/CONTENT-STYLE.md §4 and §10): the stored
+// plan's country's number locale, or the UI language's with no plan. So on a German screen the same fall reads
+// `−94 %` with no plan and `−94%` under a plan in Portugal. The language is passed, never read from the device, and a
+// percentage holds no date, so neither this machine's time zone nor CI's changes what these tests see.
+describe("DrawdownBars: the page's number locale", () => {
+  const barsIn = async (rules: Parameters<typeof localesFor>[1]) => {
+    const locales = localesFor('de', rules);
+    const f = createFormatters(locales.numbers, locales.ui);
+    const services = createTestServices({ language: 'de' });
+    const falls = await services.redDay.pastFalls(DRAWDOWN_COINS);
+    const { container } = render(
+      <ServicesProvider services={services}>
+        <I18nProvider locale="de" messages={{ learn: learnDe }}>
+          <DrawdownBars falls={falls} f={f} />
+        </I18nProvider>
+      </ServicesProvider>,
+    );
+    // The first bar, Bitcoin's from its 2011 high, the `−94 %` the German route showed (#502).
+    const [first] = falls;
+    if (first === undefined) throw new Error('no falls');
+    const values = [...container.querySelectorAll('[data-slot="bar-chart-value"]')].map((value) => value.textContent);
+    const cells = [...container.querySelectorAll('details tbody tr')].map((row) => row.lastElementChild?.textContent);
+    return { written: fallPercent(f, first.fall), first, values, cells };
+  };
+
+  it('a German screen with no plan writes the first fall as de-DE does, a no-break space before the sign', async () => {
+    const { written, first, values, cells } = await barsIn(null);
+    expect([first.coin, first.high.slice(0, 4), first.fall]).toEqual(['BTC', '2011', '94']);
+    // U+2212 for the sign (lib/format), U+00A0 between the numeral and `%`, as de-DE's percent format writes it.
+    expect(written).toBe('−94 %');
+    expect(values[0]).toBe(written);
+    expect(cells[0]).toBe(written);
+  });
+
+  it('a German screen under a plan in Portugal writes the first fall as pt-PT does, with no space', async () => {
+    const { written, values, cells } = await barsIn(countryLocales('PT'));
+    expect(written).toBe('−94%');
+    expect(values[0]).toBe(written);
+    expect(cells[0]).toBe(written);
   });
 });
