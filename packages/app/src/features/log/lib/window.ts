@@ -27,6 +27,11 @@ export function clampStart(start: number, count: number, size: number): number {
   return start < count ? start : Math.max(0, count - size);
 }
 
+/** The keys of all the Log's transactions, newest first: a row's position among them outlives a move of the window. */
+export function transactionKeys(rows: readonly LogRow[]): readonly string[] {
+  return rows.flatMap((row) => (row.type === 'transaction' ? [row.key] : []));
+}
+
 /** Each year's newest transaction, as a window start, newest year first. */
 export function yearStarts(rows: readonly LogRow[]): readonly { year: number; start: number }[] {
   const starts: { year: number; start: number }[] = [];

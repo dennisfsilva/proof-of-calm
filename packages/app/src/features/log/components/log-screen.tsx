@@ -33,7 +33,7 @@ import { logActions } from '../actions';
 import { figure } from '../lib/figure';
 import { recordedTitle } from '../lib/recorded';
 import { deleteRefusalTitle, undoRefusalTitle } from '../lib/row-refusal';
-import { yearStarts } from '../lib/window';
+import { transactionKeys, yearStarts } from '../lib/window';
 import { EntrySheet, type EntrySheetProps } from './entry-sheet';
 import { LogPager, LogRangeLine } from './log-pager';
 import { LOG_COLUMNS, LogRow } from './log-row';
@@ -84,9 +84,9 @@ export function LogScreen() {
   const revealing = useRef(false);
   // The key of the row an Undo is restoring: once it is back, focus goes to its toggle.
   const restoring = useRef<string | null>(null);
-  // The key of the row being deleted and its index among the transaction toggles shown: once it is gone, focus goes
-  // to the toggle now at that index, else to the one before, else to the heading (docs/DESIGN.md §6).
-  const deleting = useRef<{ key: string; index: number } | null>(null);
+  // The key of the row being deleted and its position among all transactions, so a window that moves back keeps it: once
+  // it is gone, focus goes to the one now there, else the one before, if shown, else to the heading (docs/DESIGN.md §6).
+  const deleting = useRef<{ key: string; position: number } | null>(null);
   // While the rules of the plan's country load (after a change of country), no row shows a holding date:
   // it would be computed with no country's overrides (ADR-0020 readings, "The first-boot gate").
   const log = useMemo(() => {
@@ -149,20 +149,20 @@ export function LogScreen() {
     restoring.current = null;
     focusInView(mark.closest('button'));
   }, [log]);
-  // Set before the write and moved here once the commit has removed the row: before it, that index is still the row.
+  // Set before the write and moved here once the commit has removed the row: before it, that position is still the row.
   useEffect(() => {
     const target = deleting.current;
     const marks = [...(screenRef.current?.querySelectorAll<HTMLElement>('[data-row]') ?? [])];
     if (target === null || marks.some((mark) => mark.dataset.row === target.key)) return;
     deleting.current = null;
-    const toggle = marks[target.index] ?? marks[target.index - 1];
-    focusInView(toggle?.closest('button') ?? heading.current);
+    const keys = transactionKeys(log?.rows ?? NO_ROWS);
+    const near = keys[target.position] ?? keys[target.position - 1];
+    focusInView(marks.find((mark) => mark.dataset.row === near)?.closest('button') ?? heading.current);
   }, [log]);
   const remove = async (row: TransactionRow) => {
     const ids = row.items.map((item) => item.id);
     restoring.current = null;
-    const marks = [...(screenRef.current?.querySelectorAll<HTMLElement>('[data-row]') ?? [])];
-    deleting.current = { key: row.key, index: marks.findIndex((mark) => mark.dataset.row === row.key) };
+    deleting.current = { key: row.key, position: transactionKeys(log?.rows ?? NO_ROWS).indexOf(row.key) };
     let before: SlotsAtDelete;
     try {
       const deleted = await actions.deleteTransaction(ids);
