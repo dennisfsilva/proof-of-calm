@@ -1113,6 +1113,15 @@ needs (decided 2026-11-15). The native reader's review is §8 item 9.
 - **Content still in English on a pt-PT screen is marked, not hidden**: its element takes `lang="en"`
   and a country card says `As regras abaixo estão em inglês.` under its title (ADR-0057, the
   Corrections of 2026-11-16).
+- **A foreign term in parentheses stays unmarked**, in a module body and in a profile's text alike:
+  „a franquia anual (annual exempt amount)“ in Taxes where you live and „Franquia anual (annual
+  exempt amount)“ in `packages/content/i18n/pt-PT/jurisdictions/gb.json` carry no `lang`. SC 3.1.2
+  reads „The human language of each passage or phrase in the content can be programmatically
+  determined except for proper names, technical terms, words of indeterminate language, and words or
+  phrases that have become part of the vernacular of the immediately surrounding text.“ (W3C, read
+  2026-11-25), and the glossary prescribes the parenthetical official term, a technical term, as
+  `docs/JURISDICTIONS.md` §2 reads the exemption for a source's publisher (D4, #502, decided
+  2026-11-25).
 
 The product's nouns, one Portuguese word each, in every string, the site pages and the Learn modules:
 
@@ -1339,6 +1348,12 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
 - **A country card's summary keeps the 60-word limit**, and content still in English on a German
   screen is marked: `lang="en"`, and on a country card `Die folgenden Regeln sind auf Englisch.`
   under its title (ADR-0057).
+- **A foreign term in parentheses stays unmarked**, in a module body and in a profile's text alike,
+  as §9 has it from WCAG 2.2 SC 3.1.2's exception for technical terms: „ein Sanierungsverfahren
+  (civil rehabilitation)“ in Risk honestly, „Ersatzsteuer (imposta sostitutiva)“ and „Der jährliche
+  Freibetrag (annual exempt amount)“ in Taxes where you live, and „Jährlicher Freibetrag (annual
+  exempt amount)“ in `packages/content/i18n/de/jurisdictions/gb.json` carry no `lang` (D4, #502,
+  decided 2026-11-25).
 
 The product's nouns, one German word each, in every string, the site pages and the Learn modules:
 
