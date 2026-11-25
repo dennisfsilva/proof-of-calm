@@ -19,7 +19,7 @@
     "test": { "dependsOn": ["transit"] },
     "test:watch": { "cache": false, "persistent": true },
     "test:coverage": { "dependsOn": ["transit"], "outputs": ["coverage/**"] },
-    "test:e2e": { "cache": false, "dependsOn": ["build"], "passThroughEnv": ["PORT"] },
+    "test:e2e": { "cache": false, "dependsOn": ["build"], "passThroughEnv": ["PORT", "LOG_CAP"] },
     "storybook": { "cache": false, "persistent": true },
     "storybook:build": { "dependsOn": ["transit"], "outputs": ["storybook-static/**"] },
     "storybook:test": { "dependsOn": ["transit"], "passThroughEnv": ["PLAYWRIGHT_BROWSERS_PATH"] }
