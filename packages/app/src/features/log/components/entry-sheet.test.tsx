@@ -20,6 +20,12 @@ import { EntrySheet } from './entry-sheet';
 // sheet: the kind it opened on, chosen, then "Extra buy", then "Sale" while coins are held. The choice remounts the
 // form with the kind, each kind keeps its own session draft, and each opening starts on the kind it opened on.
 
+// heldUnits counted, as the core computes it: a closed sheet's render reads nothing held.
+vi.mock('@proofofcalm/core', async (original) => {
+  const core = await original<typeof import('@proofofcalm/core')>();
+  return { ...core, heldUnits: vi.fn(core.heldUnits) };
+});
+
 beforeEach(() => {
   vi.spyOn(document, 'hasFocus').mockReturnValue(true);
   Element.prototype.scrollIntoView = vi.fn();
@@ -218,5 +224,26 @@ describe('EntrySheet', () => {
     expect(isPositive(heldUnits(services.domain.store.getState().snapshot.entries, BTC.id))).toBe(false);
     expect(screen.getByRole('dialog', { name: 'Log a sale' })).toBeTruthy();
     expect(screen.getByLabelText<HTMLInputElement>('BTC sold (units)').value).toBe('0.001');
+  });
+
+  // docs/ENGINEERING.md §4, the Log at the cap: what is held is read once as the sheet opens, never on a closed
+  // sheet's render, which at 10,000 entries scanned them per coin on every render of the Log.
+  it("reads what is held only as it opens, never on a closed sheet's re-render", async () => {
+    const services = createTestServices({ snapshot: fixtureSnapshot(), nowMs: fixtureNowMs('buy') });
+    await act(() => services.start());
+    const sheet = (open: boolean) => (
+      <ServicesProvider services={services}>
+        <I18nProvider messages={{ errors, log }}>
+          <EntrySheet kind="dca" editing={[]} offerKinds open={open} onOpenChange={() => undefined} onDone={() => {}} />
+        </I18nProvider>
+      </ServicesProvider>
+    );
+    const { rerender } = render(sheet(false));
+    vi.mocked(heldUnits).mockClear();
+    rerender(sheet(false));
+    expect(heldUnits).not.toHaveBeenCalled();
+    rerender(sheet(true));
+    expect(kinds()).toEqual(['Monthly buy (pressed)', 'Extra buy', 'Sale']);
+    expect(heldUnits).toHaveBeenCalled();
   });
 });
