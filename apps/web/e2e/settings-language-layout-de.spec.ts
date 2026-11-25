@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { expect, type Locator, type Page } from '@playwright/test';
 import type { Snapshot } from '@proofofcalm/app/lib/ports';
@@ -7,6 +7,7 @@ import { type CalendarDate, type Entry, exportBackup, type Instant, type Plan } 
 import deCountries from '../../../packages/app/src/messages/de/countries.json' with { type: 'json' };
 import deSettings from '../../../packages/app/src/messages/de/settings.json' with { type: 'json' };
 import enSettings from '../../../packages/app/src/messages/en/settings.json' with { type: 'json' };
+import unitedKingdom from '../../../packages/content/jurisdictions/gb.json' with { type: 'json' };
 import netherlands from '../../../packages/content/jurisdictions/nl.json' with { type: 'json' };
 import { seedPlan } from './seed';
 import { routeFixturePrices, test } from './support';
@@ -25,6 +26,17 @@ const LANGUAGE_STORAGE_KEY = 'poc.language';
 const fixture = fixtureSnapshot();
 if (fixture.plan === null) throw new Error('the fixture has a plan');
 const plan: Plan = fixture.plan;
+
+const english = { nl: netherlands, gb: unitedKingdom } as const;
+
+/**
+ * The profile's name as the German select shows it: the overlay's where `packages/content/i18n/de/jurisdictions` holds
+ * the profile's file, as onboarding-language-layout-de.spec.ts's `inGerman` reads it, and English otherwise.
+ */
+const profileName = (code: keyof typeof english) =>
+  existsSync(new URL(`../../../packages/content/i18n/de/jurisdictions/${code}.json`, import.meta.url))
+    ? deCountries[code.toUpperCase() as Uppercase<typeof code>].name
+    : english[code].name;
 
 /** The fixture plan in the Netherlands: its EUR entries make the change to the United Kingdom ask for the currency. */
 const inTheNetherlands: Snapshot = {
@@ -160,11 +172,11 @@ test('de: the change from the Netherlands to the United Kingdom asks for the cur
   const errors = await boot(page, inTheNetherlands);
   await openTab(page, 'data');
   // The select names a country in the screen's language where that language has an overlay for its profile, and in
-  // English otherwise, so each pattern accepts both names.
+  // English otherwise: each expectation follows the overlay file, so an English name beside a German overlay fails.
   const select = page.getByRole('combobox', { name: deSettings.country.label, exact: true });
-  await expect(select).toHaveText(new RegExp(`${deCountries.NL.name}|Netherlands`, 'u'));
+  await expect(select).toHaveText(new RegExp(profileName('nl'), 'u'));
   await select.click();
-  await page.getByRole('option', { name: new RegExp(`^(${deCountries.GB.name}|United Kingdom)$`, 'u') }).click();
+  await page.getByRole('option', { name: new RegExp(`^${profileName('gb')}$`, 'u') }).click();
   await expect(page.getByText(otherBranch(deSettings.country.summary, { countryTo: deCountries.GB.to }))).toBeVisible();
   await ownBoxes(page, {
     select,
