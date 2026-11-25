@@ -1,4 +1,4 @@
-import { expect, type Page } from '@playwright/test';
+import { expect, type Page, type TestInfo } from '@playwright/test';
 import type { Snapshot } from '@proofofcalm/app/lib/ports';
 import { fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
 import { type CalendarDate, type Entry, LOG_WINDOW, liveEntries, MAX_ENTRIES } from '@proofofcalm/core';
@@ -26,8 +26,11 @@ const TIMEOUT_MS = 420_000;
  */
 const ASSERTED: ReadonlySet<string> = new Set<string>();
 
-/** The fixture plan with extra buys on the days before its first buy day, up to MAX_ENTRIES live entries. */
-function atTheCap(): Snapshot {
+/**
+ * The fixture plan with extra buys on the days before its first buy day, up to MAX_ENTRIES live entries; `withMove`
+ * puts one live move of the first entry's coin, on its date, in the place of the oldest extra buy.
+ */
+function atTheCap(withMove = false): Snapshot {
   const snapshot = fixtureSnapshot();
   const [first] = snapshot.entries as [Entry];
   const dayBefore = Date.parse(`${snapshot.plan?.firstBuy ?? '2026-04-05'}T00:00:00Z`) - 86_400_000;
@@ -44,7 +47,18 @@ function atTheCap(): Snapshot {
       units: '0.0003' as Entry['units'],
     }),
   );
-  return { ...snapshot, entries: [...snapshot.entries, ...more] };
+  if (!withMove) return { ...snapshot, entries: [...snapshot.entries, ...more] };
+  const move: Entry = {
+    ...first,
+    id: '00000000-0000-4000-8000-000000000799' as Entry['id'],
+    kind: 'move',
+    slot: null,
+    amount: null,
+    units: '0.0001' as Entry['units'],
+    to: 'Ledger',
+    received: '0.0001' as Entry['units'],
+  };
+  return { ...snapshot, entries: [...snapshot.entries, ...more.slice(0, -1), move] };
 }
 
 type Perf = {
@@ -104,22 +118,22 @@ async function measure(page: Page, act: () => Promise<void>, shown: () => Promis
   return { input, task: Math.max(0, ...tasks.map((task) => task.duration)) };
 }
 
-test.use({ serviceWorkers: 'block' });
-
-test(`the Log at ${MAX_ENTRIES} entries: each input, Show all and its window at ${CPU_RATE}x CPU, against the ${RULE_MS} ms rule`, async ({
-  page,
-}, testInfo) => {
-  test.setTimeout(TIMEOUT_MS);
-  const record = (what: string, figures: Record<string, number>) => {
+/** An annotation of `figures`, in ms, under `what`. */
+const recorder =
+  (testInfo: TestInfo) =>
+  (what: string, figures: Record<string, number>): void => {
     const parts = Object.entries(figures).map(([name, ms]) => `${name} ${Math.round(ms)} ms`);
     testInfo.annotations.push({ type: 'perf', description: `${what}: ${parts.join(', ')} at ${CPU_RATE}x CPU` });
   };
-  // Today reads the 10,000 entries before the seed's reload settles, and the Log at 6x reads them again.
-  const loading = { timeout: TIMEOUT_MS / 6 };
+
+// Today reads the 10,000 entries before the seed's reload settles, and the Log at 6x reads them again.
+const loading = { timeout: TIMEOUT_MS / 6 };
+
+/** Seeds `snapshot`, throttles the CPU and opens the Log; gives back the time to its heading, in ms. */
+async function openTheLog(page: Page, snapshot: Snapshot): Promise<number> {
   await routeFixturePrices(page, Date.now());
   await page.addInitScript(observe);
-  await seedPlan(page, atTheCap(), undefined, loading);
-
+  await seedPlan(page, snapshot, undefined, loading);
   const cdp = await page.context().newCDPSession(page);
   await cdp.send('Emulation.setCPUThrottlingRate', { rate: CPU_RATE });
   const navigated = Date.now();
@@ -127,6 +141,17 @@ test(`the Log at ${MAX_ENTRIES} entries: each input, Show all and its window at 
   await expect(page.locator('main#main h1')).toBeVisible(loading);
   const toHeading = Date.now() - navigated;
   await expect(page.locator('main#main')).not.toHaveAttribute('aria-busy', 'true', loading);
+  return toHeading;
+}
+
+test.use({ serviceWorkers: 'block' });
+
+test(`the Log at ${MAX_ENTRIES} entries: each input, Show all and its window at ${CPU_RATE}x CPU, against the ${RULE_MS} ms rule`, async ({
+  page,
+}, testInfo) => {
+  test.setTimeout(TIMEOUT_MS);
+  const record = recorder(testInfo);
+  const toHeading = await openTheLog(page, atTheCap());
   const load = await perfOf(page);
   const beforeHeading = load.tasks.filter((task) => load.heading === null || task.start < load.heading);
   record('Load to the heading', {
@@ -226,4 +251,61 @@ test(`the Log at ${MAX_ENTRIES} entries: each input, Show all and its window at 
     'longest task after it': Math.max(0, ...reload.tasks.filter((t) => t.start >= at).map((t) => t.duration)),
     'until the heading shows': reloadToHeading,
   });
+
+  // Recorded for the next fixes, never asserted: a row's Delete entry and the toast's Undo, then Edit entry's Save
+  // with a changed amount, on the window the stored Show all opened (the figures above come first, unchanged).
+  const before = (await range.textContent()) ?? '';
+  const monthly = page.locator('tbody button[aria-expanded]', { hasText: 'Monthly buy' }).first();
+  await monthly.click();
+  const remove = await measure(
+    page,
+    () => page.getByRole('button', { name: 'Delete entry' }).click(),
+    () => expect(range).not.toHaveText(before, loading),
+  );
+  const undo = await measure(
+    page,
+    () => page.getByRole('button', { name: 'Undo' }).click(),
+    () => expect(range).toHaveText(before, loading),
+  );
+  // The Undo puts the row back in a deferred render, which can replace the row a first click reached.
+  const editEntry = page.getByRole('button', { name: 'Edit entry' });
+  await expect(async () => {
+    if ((await monthly.getAttribute('aria-expanded')) !== 'true') await monthly.click();
+    await expect(editEntry).toBeVisible({ timeout: 5_000 });
+  }).toPass(loading);
+  await editEntry.click();
+  await expect(sheet).toContainText('Edit the entry', loading);
+  await sheet.getByLabel('BTC cost before fees (EUR)').fill('80');
+  const save = await measure(
+    page,
+    () => sheet.getByRole('button', { name: 'Save' }).click(),
+    () => expect(sheet).toBeHidden(loading),
+  );
+  const writes = { 'Delete entry': remove, "the toast's Undo": undo, 'Save with a changed amount': save };
+  for (const [what, { input, task }] of Object.entries(writes)) {
+    record(`${what} (not asserted)`, { input, 'longest task': task });
+  }
+});
+
+// The amount's keystroke with a live move stored: the form then reads the units the move took. Its own seed, so
+// the test above keeps the snapshot its figures were measured on; recorded, never asserted.
+test(`the Log at ${MAX_ENTRIES} entries with a live move: one keystroke in the amount at ${CPU_RATE}x CPU`, async ({
+  page,
+}, testInfo) => {
+  test.setTimeout(TIMEOUT_MS);
+  await openTheLog(page, atTheCap(true));
+  const row = page.locator('tbody button[aria-expanded]', { hasText: 'Monthly buy' }).first();
+  await row.click();
+  await expect(row).toHaveAttribute('aria-expanded', 'true', loading);
+  const sheet = page.getByRole('dialog');
+  await page.getByRole('button', { name: 'Edit entry' }).click();
+  await expect(sheet).toContainText('Edit the entry', loading);
+  const amount = sheet.getByLabel('BTC cost before fees (EUR)');
+  await amount.click();
+  const { input, task } = await measure(
+    page,
+    () => amount.press('5'),
+    () => expect(amount).toHaveValue(/5/, loading),
+  );
+  recorder(testInfo)('one keystroke in the amount with a live move (not asserted)', { input, 'longest task': task });
 });
