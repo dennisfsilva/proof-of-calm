@@ -12,7 +12,9 @@
         "note": "Aufgeschoben: Ein Tausch eines Kryptowerts gegen einen anderen ohne Ausgleichszahlung in Geld (soulte) ist kein steuerpflichtiger Vorgang; ein Tausch mit Ausgleichszahlung ist steuerpflichtig."
       },
       { "note": "Aufgeschoben wie jeder Tausch." },
-      { "note": "Eine Zahlung für eine Ware oder eine Dienstleistung mit Kryptowerten ist ein steuerpflichtiger Verkauf." },
+      {
+        "note": "Eine Zahlung für eine Ware oder eine Dienstleistung mit Kryptowerten ist ein steuerpflichtiger Verkauf."
+      },
       { "note": "Kein entgeltlicher Verkauf: Im Gegenzug wird nichts erhalten." },
       {
         "note": "Kein entgeltlicher Verkauf. Für die beschenkte oder erbende Person ist der Anschaffungspreis der Wert, der für die Schenkungs- oder Erbschaftsteuer angesetzt wird (droits de mutation à titre gratuit, Art.\u00a0150 VH bis III)."
