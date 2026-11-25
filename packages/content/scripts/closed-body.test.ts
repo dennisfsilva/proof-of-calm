@@ -777,9 +777,9 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
       const seeded = source.replace(`6${NBSP}Komponenten`, '6 Komponenten');
       expect(seeded).not.toBe(source);
       const codes = async (text: string) =>
-        (
-          await closedBodyProblems([{ language: 'de', path, source: text }], { english: [english.value], figures })
-        ).map(({ code }) => code);
+        (await closedBodyProblems([{ language: 'de', path, source: text }], { english: [english.value], figures })).map(
+          ({ code }) => code,
+        );
       expect([await codes(source), await codes(seeded)]).toEqual([[], ['figure-join']]);
     });
 
