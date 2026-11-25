@@ -314,3 +314,12 @@ generated rules files of each language.
   (`docs/CONTENT-STYLE.md` §10). The German words are matched case-sensitively, as German writes
   its nouns with a capital and `mal` in lower case; a tax year (`2026-27`) and a URL still pass.
   Found by the design of the German templates (#451).
+- **2026-11-25.** Germany's profile has its German overlay, and the overlays need two rules to be
+  whole (#486). D1: a German profile overlay holds a German text at every translatable path its English
+  file holds, by a test (`packages/content/src/i18n/profile-overlays-de.test.ts`). The profile keeps its
+  one mark for the whole object, so an English string at a translatable path of a German overlay would
+  show in German markup; a mark per path is not built. D2: the German prose joins (`docs/CONTENT-STYLE.md`
+  §10): the names `§`, `§§`, `Abs.`, `Satz`, `Nr.` and `Art.` with the English ones, the months long
+  and short, a day written with its point (`15. März`), and the units matched case-sensitively, so
+  English and pt-PT texts read as before. A German source's title is not checked yet, and the
+  languages whose titles are checked stay as they were. Their first run found no offender.
