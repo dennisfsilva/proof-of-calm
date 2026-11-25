@@ -285,6 +285,21 @@ describe('contentLanguageOf over the profiles (ADR-0057, Corrections of 2026-11-
     expect(english === null ? null : languageOf(english)).toBe('en');
   });
 
+  // The country select lists the loaded profiles' names; a profile marked de shows unmarked on a German screen.
+  it('lists Italy, the Netherlands and the general profile by their German names in de, each marked de', async () => {
+    const german = await loadProfiles('de');
+    const names = countryChoices(german, null).map(({ name }) => name);
+    expect(names).toEqual(expect.arrayContaining(['Italien', 'Niederlande', 'Anderes Land']));
+    for (const code of ['IT', 'NL', 'XX'])
+      expect(contentLanguageOf(await loaded(code, 'de')), code).toBe('de');
+  });
+
+  it('gives the general profile a German holding text that names Proof of Calm as applying no exemption', async () => {
+    const { holdingRuleText } = (await loaded('XX', 'de')).card;
+    expect(holdingRuleText).toMatch(/^Proof of Calm wendet .*keine Steuerfreiheit/u);
+    expect(holdingRuleText).not.toBe((await loaded('XX', 'en')).card.holdingRuleText);
+  });
+
   it('lists none of those eight English names in pt-PT', async () => {
     const names = (await loadProfiles('pt-PT')).map(({ name }) => name);
     for (const code of ['DE', 'ES', 'GB', 'IE', 'US', 'FR', 'IT', 'NL'])

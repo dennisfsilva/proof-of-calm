@@ -90,8 +90,11 @@ describe('packages/content/rules/<language> (ADR-0057)', () => {
     ['de', 'FR'],
     ['de', 'GB'],
     ['de', 'IE'],
+    ['de', 'IT'],
+    ['de', 'NL'],
     ['de', 'PT'],
     ['de', 'US'],
+    ['de', 'XX'],
   ])("%s/%s is English's outside the name, the conditions and the change notice", (language, code) => {
     const english = countryRules(profileFile(code));
     const overlay = overlayFile(language, code);
@@ -156,6 +159,18 @@ describe('packages/content/rules/<language> (ADR-0057)', () => {
     const rules = await loadRules(code, 'de');
     expect(rules?.name).toBe(overlayFile('de', code).name);
     expect(rules?.name).not.toBe((await loadRules(code))?.name);
+    expect(rules === null ? null : contentLanguageOf(rules)).toBe('de');
+  });
+
+  it.each([
+    ['IT', 'Italien'],
+    ['NL', 'Niederlande'],
+    ['XX', 'Anderes Land'],
+  ])('writes %s in German into its de file, marked de', async (code, name) => {
+    const file = JSON.parse(readFileSync(join(RULES, 'de', fileName(code)), 'utf8')) as { name: string };
+    expect(file.name).toBe(name);
+    const rules = await loadRules(code, 'de');
+    expect(rules?.name).toBe(name);
     expect(rules === null ? null : contentLanguageOf(rules)).toBe('de');
   });
 });
