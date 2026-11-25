@@ -31,7 +31,7 @@
       {
         "label": "Tarif der Sparbasis",
         "value": "19\u00a0% bis 30\u00a0% je nach Stufe",
-        "note": "Staatliche (Art.\u00a066.1 LIRPF) und regionale Hälfte (Art.\u00a076) nach demselben Tarif: 19\u00a0% bis EUR\u00a06000; 21\u00a0% bis EUR\u00a050\u00a0000; 23\u00a0% bis EUR\u00a0200\u00a0000; 27\u00a0% bis EUR\u00a0300\u00a0000; 30\u00a0% darüber. Die Stufe von 30\u00a0% gilt seit 1.\u00a0Januar\u00a02025 (Ley\u00a07/2024)."
+        "note": "Staatliche (Art.\u00a066.1 LIRPF) und regionale Hälfte (Art.\u00a076) nach demselben Tarif: 19\u00a0% bis EUR\u00a06000; 21\u00a0% bis EUR\u00a050\u00a0000; 23\u00a0% bis EUR\u00a0200\u00a0000; 27\u00a0% bis EUR\u00a0300\u00a0000; 30\u00a0% darüber, die Stufe von 30\u00a0% seit dem 1.\u00a0Januar\u00a02025 (Ley\u00a07/2024)."
       }
     ],
     "allowances": [
@@ -39,7 +39,7 @@
       "Modelo\u00a0721 nur, wenn im Ausland verwahrte Kryptowerte am 31.\u00a0Dezember EUR\u00a050\u00a0000 übersteigen; erneut, wenn ihr Wert seit der letzten Erklärung um mehr als EUR\u00a020\u00a0000 wächst (Art.\u00a042 quater RGAT). Coins in Eigenverwahrung zählen nicht."
     ],
     "holdingRuleText": "Keine Haltefrist: Jeder Verkauf, jeder Tausch und jede Zahlung ist ein steuerpflichtiger Vorgang, unabhängig von der Haltedauer. Derselbe Tarif der Sparbasis gilt für einen Coin, der 1\u00a0Tag oder 10\u00a0Jahre gehalten wurde.",
-    "lotRuleText": "Fifo-Methode pro Coin-Art („criterio FIFO“, Renta-Handbuch der AEAT): Bei einem Teilverkauf von Coins aus Käufen zu verschiedenen Zeiten und Werten gehen die ältesten zuerst ab. Das gelesene Handbuch nennt keine Trennung nach Plattform.",
+    "lotRuleText": "Fifo-Methode (first in, first out) pro Coin-Art („criterio FIFO“, Renta-Handbuch der AEAT): Bei einem Teilverkauf gehen die zuerst erworbenen Coins zuerst ab. Das gelesene Handbuch nennt keine Trennung nach Plattform.",
     "losses": "Verluste werden innerhalb der Sparbasis des Jahres verrechnet; ein verbleibender negativer Saldo wird mit Kapitaleinkünften des Jahres verrechnet, höchstens mit 25\u00a0% davon, und der Rest wird 4\u00a0Jahre vorgetragen (Art.\u00a049.1 LIRPF).",
     "reporting": [
       "Die Renta-Erklärung (Modelo\u00a0D-100): der Abschnitt „Ganancias y pérdidas patrimoniales derivadas de la transmisión o permuta de monedas virtuales por particulares“.",
