@@ -56,6 +56,13 @@
     "note": "Aus Ihren Einträgen berechnet, keine Steuerberatung"
   },
   "showAll": "Alle {count} Einträge anzeigen",
+  "showPaged": "Alle {count} Einträge zu je {size} anzeigen",
+  "page": {
+    "range": "Einträge {first} bis {last} von {count}",
+    "newer": "Neuere Einträge anzeigen",
+    "older": "Ältere Einträge anzeigen",
+    "year": "Zum Jahr springen"
+  },
   "empty": {
     "noPlan": "Noch keine Einträge. Richten Sie einen Plan ein oder importieren Sie eine Datei.",
     "firstBuy": "Noch keine Einträge. Der erste Kauftag ist am {date}.",

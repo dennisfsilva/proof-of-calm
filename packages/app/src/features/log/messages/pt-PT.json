@@ -56,6 +56,13 @@
     "note": "Calculado a partir das suas datas, não constitui aconselhamento fiscal"
   },
   "showAll": "Mostrar todos os {count} movimentos",
+  "showPaged": "Mostrar todos os {count} movimentos, {size} de cada vez",
+  "page": {
+    "range": "Movimentos {first} a {last} de {count}",
+    "newer": "Mostrar movimentos mais recentes",
+    "older": "Mostrar movimentos mais antigos",
+    "year": "Ir para o ano"
+  },
   "empty": {
     "noPlan": "Ainda sem movimentos. Crie um plano ou importe um ficheiro.",
     "firstBuy": "Ainda sem movimentos. O primeiro dia de compra é a {date}.",

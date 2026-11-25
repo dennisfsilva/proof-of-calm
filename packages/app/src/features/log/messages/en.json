@@ -56,6 +56,13 @@
     "note": "Computed from your dates, not tax advice"
   },
   "showAll": "Show all {count} entries",
+  "showPaged": "Show all {count} entries, {size} at a time",
+  "page": {
+    "range": "Entries {first} to {last} of {count}",
+    "newer": "Show newer entries",
+    "older": "Show older entries",
+    "year": "Go to year"
+  },
   "empty": {
     "noPlan": "No entries yet. Set up a plan or import a file.",
     "firstBuy": "No entries yet. Your first buy day is {date}.",
