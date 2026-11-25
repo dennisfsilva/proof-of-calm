@@ -113,7 +113,8 @@ function TodayBody({ plan }: { plan: Plan }) {
       <PendingList actions={pending} />
       <PortfolioNumber plan={plan} />
       <PlanStrip plan={plan} today={today} />
-      <FootBanner plan={plan} today={today} phase={phase.kind} />
+      {/* Keyed on the plan: another plan written while Today is open starts a new visit of the foot (DOMAIN §3.12). */}
+      <FootBanner key={plan.id} plan={plan} today={today} phase={phase.kind} />
     </>
   );
 }
