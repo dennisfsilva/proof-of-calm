@@ -77,7 +77,10 @@ export const LogRow = memo(function LogRow({
   const coin = (id: Entry['coin']) => plan.coins.findIndex((candidate) => candidate.id === id);
   const decimals = (id: Entry['coin']) => plan.coins[coin(id)]?.decimals ?? 8;
   const holding = row.holding?.kind === 'dated' ? row.holding : null;
-  const units = (item: Entry, value: Entry['units'] = item.units) => f.units(value, item.coin, decimals(item.coin));
+  // No default parameter read from another (`value = item.units`): the React Compiler cannot reorder one and would
+  // skip the whole row (`log-row.compile.test.ts`).
+  const units = (item: Entry, value?: Entry['units']) =>
+    f.units(value === undefined ? item.units : value, item.coin, decimals(item.coin));
   // Prose figures (DESIGN §5 rule 7): both at the places the more precise one needs.
   const shortfall = (value: Entry['units']) =>
     row.outside === null
