@@ -66,7 +66,10 @@ export function createTimeFormatters(formattingLocale: string, uiLocale: string)
   const part = (format: Intl.DateTimeFormat, ms: number) =>
     format.formatToParts(ms).find((candidate) => candidate.type === 'timeZoneName')?.value;
   const offset = (timeZone: string, ms: number) =>
-    part(cached(`offset ${timeZone}`, () => ({ timeZone, timeZoneName: 'longOffset' }), 'en'), ms);
+    part(
+      cached(`offset ${timeZone}`, () => ({ timeZone, timeZoneName: 'longOffset' }), 'en'),
+      ms,
+    );
   // A screen passes one `now` to every time it writes (the value chart's reserve about 325 at load), so the
   // offset of the last zone and `now` asked is kept rather than read again on each call.
   let last: { timeZone: string; ms: number; offset: string | undefined } | null = null;
@@ -77,7 +80,10 @@ export function createTimeFormatters(formattingLocale: string, uiLocale: string)
     return last.offset;
   };
   const zoneName = (timeZone: string, ms: number) =>
-    part(cached(`name ${timeZone}`, () => ({ timeZone, timeZoneName: 'short' }), uiLocale), ms);
+    part(
+      cached(`name ${timeZone}`, () => ({ timeZone, timeZoneName: 'short' }), uiLocale),
+      ms,
+    );
   const relative = once(() => new Intl.RelativeTimeFormat(uiLocale, { ...LATIN_DIGITS, numeric: 'auto' }));
   // dateOptions builds a formatter to read the locale's month, so it is read once, not per day written.
   const day = once(() => dateOptions(uiLocale));

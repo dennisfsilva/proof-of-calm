@@ -13,7 +13,7 @@ import { createTestServices } from './testing';
 
 afterEach(cleanup);
 
-const withPlan: Snapshot ={ ...EMPTY_SNAPSHOT, plan: aPlan() };
+const withPlan: Snapshot = { ...EMPTY_SNAPSHOT, plan: aPlan() };
 const portugal = { locales: ['pt-PT'], numberFormatLocale: 'pt-PT', dateFormatLocale: 'pt-PT' } as CountryRules;
 
 function Probe() {
