@@ -861,7 +861,9 @@ cardinal, an ordinal, or a word such as `once`, `half`, `double`, or `couple`; a
 for ETH, or its ticker as written. Anything else fails (`figure-chart`). So does a code block in the section, a heading
 there that holds one of them, a figure joined to a sign (`%`, `٪`, `﹪`, `％`, `‰`, or `‱`) unless one ordinary or
 no-break space joins it to `%`, and a paragraph that holds one of them beside emphasis, strong text, a code span, a
-hard break, a text element, or a hidden character (one the page does not show).
+hard break, a text element, or a hidden character (one the page does not show). German's section takes one joiner
+before `%`, U+00A0 (§10): an ordinary space there is one `figure-chart`, whose detail names the gap by its code point
+and the fix as one U+00A0.
 
 E states each coin's falls in the chart's order, oldest high first. Each `N` is the row's whole fall, and the falls
 a B counts are left out. A coin the chart draws no fall of fails (`figure-chart`). The section states every row: a coin
@@ -880,13 +882,13 @@ there is U+0020. The fix is one U+00A0 in its place (decided 2026-11-18). Any ot
 written, as it shows a joiner before `%`.
 
 Each detail quotes the sentence and names its own figure and rule, never a row or a count to copy (decided
-2026-11-17). In a translation the section is closed: each sentence and heading there is its language's B or E (§9) or
+2026-11-17). In a translation the section is closed: each sentence and heading there is its language's B or E (§9, §10) or
 one its language's list holds, character for character; a language without shapes fails closed. The section holds only
 top-level paragraphs and headings and the chart (decided 2026-11-18). A block in a list item, a quote or an element,
 and any other element, fails, since the page shows a list item's number (`1975. Text.`) that no sentence holds. The
 section ends only at a top-level heading. An unlisted sentence's detail names B or E, or a listing in a reviewed pull
 request; an unlisted heading's names the listing or its removal. In a translation whose language has shapes, a
-sentence refused for a trigger above names B or E (§9), since no listing passes it; an empty list item's detail says
+sentence refused for a trigger above names B or E and its language's section (§9 or §10), since no listing passes it; an empty list item's detail says
 to remove the list marker (decided 2026-11-18).
 A chart other than `drawdowns-bar` has no rows, so any figure in its section fails.
 
@@ -1297,8 +1299,6 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
   (`data.taxYear.file`, #483). §9 owns the rule and its limits: the holding conditions the file
   copies from a profile keep their joins, as screens show them.
 - **Lists take no comma before `und`**, as `lib/format` writes them: `BTC, ETH und SOL`.
-- **A module's chart section has no German shapes of §4 R5 yet**, so it fails closed until they are
-  decided as pt-PT's were.
 - **A module's German count nouns** (§4 R7), with the dative plurals the modules write: `Blöcke`,
   `Blöcken`, `Datenpunkte`, `Datenpunkten`, `Komponenten`, `Indizes`, `Bitcoins`, `Episoden`,
   `Startmonate`, `Startmonaten`, `Länder`, `Ländern`, `abgeschlossene Zyklen`, `abgeschlossenen
@@ -1306,6 +1306,24 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
   English's `points` and `month-ends` do, so a module reads as many counts as its English; they still
   take U+00A0 (`13 Punkte`, `12 Monatsenden`), as `Rückgänge` and the time units do, and the German
   figure-join test in `packages/content/scripts/closed-body.test.ts` reads them.
+- **A module's chart section takes German's two shapes of §4 R5** (design check D5, decided
+  2026-11-25): B, `Von Y bis Y hatte C im Diagramm K Rückgänge um mehr als N.` with `1 Rückgang` for
+  one, the years first, so no two numerals touch; and E, `C fiel um L.`, then any number of `, C um L`,
+  then ` und C um L.`: the verb once, `um` once before each coin's figures, no comma before `und`. `L`
+  is `N`, `N und N`, or two or more `N` joined by `, ` with ` und ` before the last. `C` is a
+  catalogue coin's name exactly as the catalogue writes it, with no article and no lower-case form,
+  `Ethereum` for ETH (`Ether`, `der Bitcoin` and `bitcoin` fail). `K` joins `Rückgänge` or
+  `Rückgang` by U+00A0, as R6 has it, and `N` joins `%` by U+00A0 only (R5); `Y` is §4's. So the
+  real section reads `Ethereum fiel um 94 % und 82 %, Chainlink um 89 % und 91 % und Solana um 97 %.`
+  Every other sentence of the section, and a heading there, is one `LISTED` in
+  `packages/content/src/module-figures.ts` holds for German, as the page shows it, character for
+  character: „Ein monatlicher Plan legt den Tag jedes Kaufs fest.“, „Er begrenzt nicht, wie tief ein
+  Kurs fallen kann, und ein Coin kann fast seinen ganzen Wert verlieren.“ and „Jeder Balken unten
+  zeigt einen Rückgang eines Coins, von einem Zyklushoch zum tiefsten Kurs danach.“, each in NFC (a
+  decomposed `ü` fails, and its detail prints the mark by code point). A new or reworded sentence
+  fails until it is written as B or E, or listed in a reviewed pull request, as §9 has it; a
+  refusal's fix names this section, and R6's details quote B's own words („Von 2010 bis 2024“,
+  „mehr als 95 %“).
 - **A country card's summary keeps the 60-word limit**, and content still in English on a German
   screen is marked: `lang="en"`, and on a country card `Die folgenden Regeln sind auf Englisch.`
   under its title (ADR-0057).
@@ -1488,4 +1506,4 @@ auf die Niederlande umstellen`, `von Portugal auf …` in its row) and „das al
 sentence; `Börse` against `Handelsplattform`, since `Börse` can suggest a
 regulated exchange (brand and counsel; a voice choice for the reader); „bevor Sie ihm Geld senden“
 against „bevor Sie ihm Geld überweisen“ (brand, on the claim-reach branch; counsel's gap (6) on #462
-keeps „senden“ until the reader answers); `Am {day}. jedes Monats` against `jeden Monats`, and „im Monat am Tag {buyDay}“ against „jeweils am {buyDay}. des Monats“; „sehe“ or „schaue … nicht auf den Kurs“; „Wohin soll die monatliche Erinnerung?“; „in den Mengen Ihres Bestands“ against „gewichtet nach Ihrem Bestand“; `Meldepflichten` against `Erklärungspflichten`; „Quellen für“ against „Quellen zu“; `Krypto-Steuern` against `Kryptosteuern` as a searched title; `Zyklus` for a market cycle; whether „Zeigen, wie es funktioniert und was schiefgehen kann“ reads as a control; „gemäß“ against „laut der Haltefrist“; „Aktivieren Sie das Kästchen“ (Plan) and „Kreuzen Sie das Kästchen an“ (Settings) against „Setzen Sie das Häkchen“, and „früher“ against „vorzeitig öffnen“; whether „{units} jetzt verkaufbar“ reads as a status or an invitation; the word order of „„Investiert“ im Portfolio zählt ihn mit“; whether „die Seite des DCA-Plans“ names the source clearly; whether the Settings tabs read naturally with an `&` ending the first line, „Frist“ as the holding period and „Anteile“ as the split; „Land … umstellen“ and „Umstellung auf“ against „wechseln“ and „Wechsel nach“; „bisher am {from}“ against „jetzt am {from}“ in `row.lastBuyEligible`; „Eingefügten Text lesen“ against „einlesen“; `DCA-Planseite` against `DCA-Plan-Seite`; „Über die App“ and „Cookie-Erklärung“ as titles; „die Regel“ said twice in the replace confirm (brand, on #476, #477 and #478); `Erwerbsdatum` against `Anschaffungsdatum`, and whether „Ihre Steuerberatung“ reads as a person (#483); „Nicht importiert“ against „Nicht übernommen“; „kann diese Coins betreffen“; „Trade“ against „Order“ and „Handelsgeschäft“; `Börse` for a broker such as Trade Republic; „Die {units} … sehen aus wie Ihr Monatskauf für {month}“; the coin-deposit line „Ein Geschenk tragen Sie mit „…“ ein; für Ihre eigenen Coins, die zurückkommen, wählen Sie „…““ (#484); „übernommen“, which now stands both for copied (a fee or venue taken from the latest purchase) and for imported too (`heldSales`); „mittlere Belastbarkeit“ for "medium confidence" in the profiles; and „DBA-Staat“ in a profile's fields capped at 240 characters.
+keeps „senden“ until the reader answers); `Am {day}. jedes Monats` against `jeden Monats`, and „im Monat am Tag {buyDay}“ against „jeweils am {buyDay}. des Monats“; „sehe“ or „schaue … nicht auf den Kurs“; „Wohin soll die monatliche Erinnerung?“; „in den Mengen Ihres Bestands“ against „gewichtet nach Ihrem Bestand“; `Meldepflichten` against `Erklärungspflichten`; „Quellen für“ against „Quellen zu“; `Krypto-Steuern` against `Kryptosteuern` as a searched title; `Zyklus` for a market cycle; whether „Zeigen, wie es funktioniert und was schiefgehen kann“ reads as a control; „gemäß“ against „laut der Haltefrist“; „Aktivieren Sie das Kästchen“ (Plan) and „Kreuzen Sie das Kästchen an“ (Settings) against „Setzen Sie das Häkchen“, and „früher“ against „vorzeitig öffnen“; whether „{units} jetzt verkaufbar“ reads as a status or an invitation; the word order of „„Investiert“ im Portfolio zählt ihn mit“; whether „die Seite des DCA-Plans“ names the source clearly; whether the Settings tabs read naturally with an `&` ending the first line, „Frist“ as the holding period and „Anteile“ as the split; „Land … umstellen“ and „Umstellung auf“ against „wechseln“ and „Wechsel nach“; „bisher am {from}“ against „jetzt am {from}“ in `row.lastBuyEligible`; „Eingefügten Text lesen“ against „einlesen“; `DCA-Planseite` against `DCA-Plan-Seite`; „Über die App“ and „Cookie-Erklärung“ as titles; „die Regel“ said twice in the replace confirm (brand, on #476, #477 and #478); `Erwerbsdatum` against `Anschaffungsdatum`, and whether „Ihre Steuerberatung“ reads as a person (#483); „Nicht importiert“ against „Nicht übernommen“; „kann diese Coins betreffen“; „Trade“ against „Order“ and „Handelsgeschäft“; `Börse` for a broker such as Trade Republic; „Die {units} … sehen aus wie Ihr Monatskauf für {month}“; the coin-deposit line „Ein Geschenk tragen Sie mit „…“ ein; für Ihre eigenen Coins, die zurückkommen, wählen Sie „…““ (#484); „übernommen“, which now stands both for copied (a fee or venue taken from the latest purchase) and for imported too (`heldSales`); „mittlere Belastbarkeit“ for "medium confidence" in the profiles; „DBA-Staat“ in a profile's fields capped at 240 characters; whether the chart section's „Von 2011 bis 2022 hatte Bitcoin im Diagramm 4 Rückgänge um mehr als 75 %. Ethereum fiel um 94 % und 82 %, Chainlink um 89 % und 91 % und Solana um 97 %.“ reads as natural, unambiguous German: „im Diagramm“ after the coin, „um mehr als“ against „von mehr als“, the digit in „1 Rückgang“, three „und“ in a row (D5); and whether „Ein monatlicher Plan legt den Tag jedes Kaufs fest.“ says what "A monthly plan sets when you buy" says without reading as advice, and whether „Zyklushoch“ and „zeigt“ read naturally in „Jeder Balken unten zeigt einen Rückgang eines Coins, von einem Zyklushoch zum tiefsten Kurs danach.“ (D5).
