@@ -1,9 +1,10 @@
 // @vitest-environment jsdom
 import type { CountryRules } from '@proofofcalm/core';
-import { anEntry, aPlan, date, money } from '@proofofcalm/core/testing';
+import { anEntry, aPlan, date, instant, money, month, units } from '@proofofcalm/core/testing';
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { EMPTY_SNAPSHOT } from '../adapters/memory-store';
+import { createFormatters, type Formatters } from '../format';
 import type { Snapshot } from '../ports';
 import type { Services } from './create';
 import { useBoot, useFormatters, useNumberInput, useRules, useRulesSettled, useSnapshot, useToday } from './hooks';
@@ -12,7 +13,7 @@ import { createTestServices } from './testing';
 
 afterEach(cleanup);
 
-const withPlan: Snapshot = { ...EMPTY_SNAPSHOT, plan: aPlan() };
+const withPlan: Snapshot ={ ...EMPTY_SNAPSHOT, plan: aPlan() };
 const portugal = { locales: ['pt-PT'], numberFormatLocale: 'pt-PT', dateFormatLocale: 'pt-PT' } as CountryRules;
 
 function Probe() {
@@ -99,6 +100,41 @@ describe('the services hooks', () => {
     // Dates keep the English month name, never Portugal's 04/03/2028, which a reader can take as 3 April.
     expect(text('date')).toBe('4\u00a0Mar\u00a02028');
     expect(text('money')).toBe('1234,56 €');
+  });
+
+  it('useFormatters gives every mount of the same locales one set of formatters, written as createFormatters writes', async () => {
+    const seen: Formatters[] = [];
+    function Grab() {
+      seen.push(useFormatters());
+      return null;
+    }
+    const services = createTestServices({ snapshot: withPlan, rules: async () => portugal });
+    render(
+      <ServicesProvider services={services}>
+        <Grab />
+        <Grab />
+      </ServicesProvider>,
+    );
+    await act(() => services.start());
+    const [first, second] = [seen[0], seen.at(-1)];
+    if (first === undefined || second === undefined) throw new Error('no formatters');
+    expect(new Set(seen.filter((format) => format.locales.numbers === 'en-GB')).size).toBe(1);
+    expect(new Set(seen.filter((format) => format.locales.numbers === 'pt-PT')).size).toBe(1);
+    const fresh = createFormatters(second.locales.numbers, second.locales.ui);
+    const write = (format: Formatters) => [
+      format.money(money('-1234.56'), 'EUR', { signed: true }),
+      format.units(units('0.00123456'), 'BTC', 8),
+      format.percent(money('12.34')),
+      format.date(date('2028-03-04')),
+      format.dayMonth(date('2028-03-04')),
+      format.month(month('2028-03')),
+      format.list(['BTC', 'ETH', 'SOL']),
+      format.time(instant('2026-03-29T00:30:00Z'), 'Europe/Lisbon', instant('2026-03-01T12:00:00Z')),
+      format.instantDate(instant('2026-03-29T00:30:00Z'), 'Europe/Lisbon'),
+      format.relativeDays(date('2028-03-02'), date('2028-03-04')),
+    ];
+    expect(write(second)).toEqual(write(fresh));
+    expect(write(first)).toEqual(write(createFormatters(first.locales.numbers, first.locales.ui)));
   });
 
   it('useRules hides another country’s rules while the formatters keep their locale until the new ones load', async () => {
