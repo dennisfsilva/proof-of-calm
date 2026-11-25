@@ -112,71 +112,72 @@ export const LogRow = memo(function LogRow({
     </span>
   );
   // A row the screen holds closed builds no detail, so a window of closed rows renders only their summaries.
-  const detail = open === false ? null : (
-    <div className="flex flex-col items-start gap-2">
-      <ul className="flex flex-col gap-1">
-        {row.items.map((item) => (
-          <li key={item.id} className="nums">
-            {row.kind === 'move'
-              ? move(item)
-              : item.amount === null
-                ? units(item)
-                : t(isEstimate(item) ? 'row.estimate' : 'row.item', {
-                    units: units(item),
-                    amount: f.money(item.amount, currency),
-                  })}
-          </li>
-        ))}
-      </ul>
-      {coinFees.map((item) => (
-        <p key={item.id} className="nums">
-          {t('row.moveFee', { units: units(item, unitsOut(item)) })}
-        </p>
-      ))}
-      {/* A move the Log finds short outside its destination says so, without refusing anything (DOMAIN §3.7). */}
-      {row.outside !== null && (
-        <p className="nums">
-          {t('row.moveOutside', {
-            outside: shortfall(row.outside.outside),
-            to: row.outside.to,
-            short: shortfall(row.outside.short),
-          })}
-        </p>
-      )}
-      {row.items.some((item) => item.fee !== null) && <p>{t('row.fee', { amount: f.money(row.fees, currency) })}</p>}
-      {holding !== null && (
-        <>
-          <p>
-            {/* A status line beside a date, so its Why? stands right after the date with the 44 px target (#24 D8,
-                docs/DESIGN.md §6); the tax module opens on the plan's country's card. Never beside a money figure. */}
-            <span className="flex flex-wrap items-center gap-x-stack-xs">
-              <span>
-                {t(holding.effect === 'exempt' ? 'holding.exempt' : 'holding.lowerRate', {
-                  date: f.date(holding.from),
-                })}
-              </span>
-              <WhyLink
-                module="taxes-where-you-live"
-                section="your-country"
-                name={t('holding.why', { effect: holding.effect })}
-                standalone
-              />
-            </span>
-            {note && <span className="block text-13 text-ink-2">{t('holding.note')}</span>}
+  const detail =
+    open === false ? null : (
+      <div className="flex flex-col items-start gap-2">
+        <ul className="flex flex-col gap-1">
+          {row.items.map((item) => (
+            <li key={item.id} className="nums">
+              {row.kind === 'move'
+                ? move(item)
+                : item.amount === null
+                  ? units(item)
+                  : t(isEstimate(item) ? 'row.estimate' : 'row.item', {
+                      units: units(item),
+                      amount: f.money(item.amount, currency),
+                    })}
+            </li>
+          ))}
+        </ul>
+        {coinFees.map((item) => (
+          <p key={item.id} className="nums">
+            {t('row.moveFee', { units: units(item, unitsOut(item)) })}
           </p>
-          {note && <HoldingConditions />}
-        </>
-      )}
-      <div className="flex flex-wrap gap-target-gap">
-        <Button variant="secondary" onClick={() => onEdit(row)}>
-          {t('row.edit')}
-        </Button>
-        <Button variant="destructive" onClick={() => onDelete(row)}>
-          {t('row.delete')}
-        </Button>
+        ))}
+        {/* A move the Log finds short outside its destination says so, without refusing anything (DOMAIN §3.7). */}
+        {row.outside !== null && (
+          <p className="nums">
+            {t('row.moveOutside', {
+              outside: shortfall(row.outside.outside),
+              to: row.outside.to,
+              short: shortfall(row.outside.short),
+            })}
+          </p>
+        )}
+        {row.items.some((item) => item.fee !== null) && <p>{t('row.fee', { amount: f.money(row.fees, currency) })}</p>}
+        {holding !== null && (
+          <>
+            <p>
+              {/* A status line beside a date, so its Why? stands right after the date with the 44 px target (#24 D8,
+                docs/DESIGN.md §6); the tax module opens on the plan's country's card. Never beside a money figure. */}
+              <span className="flex flex-wrap items-center gap-x-stack-xs">
+                <span>
+                  {t(holding.effect === 'exempt' ? 'holding.exempt' : 'holding.lowerRate', {
+                    date: f.date(holding.from),
+                  })}
+                </span>
+                <WhyLink
+                  module="taxes-where-you-live"
+                  section="your-country"
+                  name={t('holding.why', { effect: holding.effect })}
+                  standalone
+                />
+              </span>
+              {note && <span className="block text-13 text-ink-2">{t('holding.note')}</span>}
+            </p>
+            {note && <HoldingConditions />}
+          </>
+        )}
+        <div className="flex flex-wrap gap-target-gap">
+          <Button variant="secondary" onClick={() => onEdit(row)}>
+            {t('row.edit')}
+          </Button>
+          <Button variant="destructive" onClick={() => onDelete(row)}>
+            {t('row.delete')}
+          </Button>
+        </div>
       </div>
-    </div>
-  );
+    );
   // The toggle is where the Log's script focus moves land (the row after Show all, the row an Undo restores): it
   // keeps a stack step above it after the least scroll (docs/DESIGN.md §6). The table's toggle takes no class itself.
   return (

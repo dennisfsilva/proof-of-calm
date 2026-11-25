@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import type { CalendarDate, Entry } from '@proofofcalm/core';
+import { type CalendarDate, type Entry, LOG_WINDOW } from '@proofofcalm/core';
 import { Toaster } from '@proofofcalm/ui/components/toast';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -54,7 +54,7 @@ function withBuys(count: number) {
 }
 
 describe('LogScreen formatters', () => {
-  it('asks for the formatters a constant number of times, not once per row, when Show all mounts 300 more rows', async () => {
+  it('asks for the formatters a constant number of times, not once per row, when Show all mounts a window of 100 rows', async () => {
     const services = createTestServices({ snapshot: withBuys(300), nowMs: fixtureNowMs('buy') });
     await act(() => services.start());
     vi.mocked(useFormatters).mockClear();
@@ -67,9 +67,11 @@ describe('LogScreen formatters', () => {
         </I18nProvider>
       </ServicesProvider>,
     );
-    await act(async () => fireEvent.click(screen.getByRole('button', { name: /^Show all \d+ entries$/ })));
-    expect(document.querySelectorAll('tbody [data-slot="table-row"]').length).toBeGreaterThan(300);
-    // Once per render of the screen (two here: the first page, then Show all); a row of its own makes it 324.
+    await act(async () =>
+      fireEvent.click(screen.getByRole('button', { name: /^Show all \d+ entries, 100 at a time$/ })),
+    );
+    expect(document.querySelectorAll('tbody [data-row]')).toHaveLength(LOG_WINDOW);
+    // Once per render of the screen (the first page, then the window); a row of its own makes it over 100.
     expect(vi.mocked(useFormatters).mock.calls.length).toBeLessThanOrEqual(10);
   });
 });

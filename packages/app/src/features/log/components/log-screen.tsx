@@ -10,6 +10,7 @@ import {
   holdingContext,
   isPositive,
   LOG_PAGE,
+  LOG_WINDOW,
   type LogRow as LogRowData,
   liveEntries,
   type Money,
@@ -32,14 +33,19 @@ import { logActions } from '../actions';
 import { figure } from '../lib/figure';
 import { recordedTitle } from '../lib/recorded';
 import { deleteRefusalTitle, undoRefusalTitle } from '../lib/row-refusal';
+import { yearStarts } from '../lib/window';
 import { EntrySheet, type EntrySheetProps } from './entry-sheet';
+import { LogPager, LogRangeLine } from './log-pager';
 import { LOG_COLUMNS, LogRow } from './log-row';
 import { MoveSheet } from './move-sheet';
+import { focusInView, rowToggle } from './row-focus';
+import { useLogWindow } from './use-log-window';
 
 // The Log (docs/DOMAIN.md §3.9): the plan's transactions and skipped months, newest first under month
 // headers with the month's bought and sold totals; the last 12 transactions with the skipped months among
 // them (a skip does not count), then "Show all N entries" with N the transactions; that choice is the
-// device preference `logShowAll` (§2.3), so the Log opens the same way next time. A deletion is a
+// device preference `logShowAll` (§2.3), so the Log opens the same way next time. Past LOG_WINDOW transactions it
+// shows a window of that many at a time under "Entries 1 to 100 of N", with the pager (use-log-window.ts). A deletion is a
 // soft delete written through the domain store, then the toast "Entry deleted." ("N entries deleted." for a row
 // of several) whose Undo restores the entries within UNDO_WINDOW_MS, unless a monthly buy's month was skipped or
 // recorded since: then they stay deleted and a toast says why (§6, docs/CONTENT-STYLE.md §3). "Record a purchase"
@@ -54,27 +60,7 @@ import { MoveSheet } from './move-sheet';
 
 type Target = Pick<EntrySheetProps, 'kind' | 'editing' | 'slot' | 'offerKinds'>;
 
-/** The rows down to the `page`-th transaction, or all of them when no transaction is older. */
-function lastTransactions(rows: readonly LogRowData[], page: number): readonly LogRowData[] {
-  let seen = 0;
-  const last = rows.findIndex((row) => row.type === 'transaction' && ++seen === page);
-  const older = last !== -1 && rows.slice(last + 1).some((row) => row.type === 'transaction');
-  return older ? rows.slice(0, last + 1) : rows;
-}
-
-/**
- * Focuses a row's toggle and brings it into view within the page's scroll padding: the browser's own
- * focus scroll leaves a row that starts under the phone tab bar there (docs/DESIGN.md §6).
- */
-function focusInView(element: HTMLElement | null | undefined) {
-  element?.focus({ preventScroll: true });
-  element?.scrollIntoView({ block: 'nearest' });
-}
-
-/** The toggle of the nth transaction, by the mark inside it, since an open detail can hold other controls. */
-function rowToggle(list: HTMLElement | null, index: number) {
-  return list?.querySelectorAll<HTMLElement>('[data-row]')[index]?.closest('button');
-}
+const NO_ROWS: readonly LogRowData[] = [];
 
 export function LogScreen() {
   const t = useTranslations('log');
@@ -109,6 +95,11 @@ export function LogScreen() {
     if (rules !== null) return log;
     return { ...log, rows: log.rows.map((row) => (row.type === 'transaction' ? { ...row, holding: null } : row)) };
   }, [plan, entries, rules]);
+  const view = useLogWindow(log?.rows ?? NO_ROWS, all);
+  const years = useMemo(() => yearStarts(log?.rows ?? NO_ROWS), [log]);
+  const caption = useRef<HTMLParagraphElement>(null);
+  // Set by Show newer or Show older entries: once the window has moved, focus goes to its first row.
+  const paging = useRef(false);
   // The key of the row being edited, and the key its entries have after the save ('' when nothing was saved).
   const edited = useRef<{ from: string; to: string | null }>({ from: '', to: null });
 
@@ -129,13 +120,26 @@ export function LogScreen() {
         failed();
       });
   };
-  // The button is gone once all rows show: focus moves to the toggle of the first row it revealed, the
-  // transaction after the last LOG_PAGE, so the keyboard continues where the new rows start.
+  // The button stays until the revealed rows commit, then goes: focus moves to the toggle of the first row it
+  // revealed, the transaction after the last LOG_PAGE, so the keyboard continues where the new rows start.
   useEffect(() => {
-    if (!all || !revealing.current) return;
+    if (!view.revealed || !revealing.current) return;
     revealing.current = false;
     focusInView(rowToggle(screenRef.current, LOG_PAGE));
-  }, [all]);
+  }, [view.revealed]);
+  // A move of the window drops an Undo's focus target, which may now be out of it; Go to year keeps the focus on
+  // its choice, the others move it to the window's first row and bring the range line to the top (DESIGN §6).
+  const page = (go: () => void, focus: boolean) => {
+    restoring.current = null;
+    paging.current = focus;
+    go();
+  };
+  useEffect(() => {
+    if (!paging.current) return;
+    paging.current = false;
+    rowToggle(screenRef.current, 0)?.focus({ preventScroll: true });
+    caption.current?.scrollIntoView({ block: 'start' });
+  }, [view.range?.first]);
   useEffect(() => {
     const key = restoring.current;
     if (key === null || log === null) return;
@@ -256,7 +260,7 @@ export function LogScreen() {
   // "No entries yet" while no entry is live; the skipped months, the person's own record, stay listed under it.
   const empty = plan === null || live.length === 0;
   const past = plan !== null && compareDates(plan.firstBuy, today) < 0;
-  const visible = log === null ? [] : all ? log.rows : lastTransactions(log.rows, LOG_PAGE);
+  const { visible, range } = view;
   const finalFocus = () => {
     const { from, to } = edited.current;
     edited.current = { from: '', to: null };
@@ -307,8 +311,10 @@ export function LogScreen() {
         />,
       );
     }
+    const year = visible.find((row) => row.type === 'transaction')?.date.slice(0, 4);
     content = (
       <>
+        {range !== null && <LogRangeLine ref={caption} range={range} />}
         {/* pt-PT's long dates can make the two columns wider than a phone: each row then stacks its amount below its date. */}
         <Table stack>
           <TableHeader>
@@ -321,10 +327,22 @@ export function LogScreen() {
           </TableHeader>
           <TableBody>{body}</TableBody>
         </Table>
-        {!all && count > LOG_PAGE && (
+        {!view.revealed && count > LOG_PAGE && (
           <Button variant="secondary" className="self-start" onClick={showAll}>
-            {t('showAll', { count })}
+            {count > LOG_WINDOW
+              ? t('showPaged', { count: figure(f, count), size: figure(f, LOG_WINDOW) })
+              : t('showAll', { count })}
           </Button>
+        )}
+        {range !== null && (
+          <LogPager
+            range={range}
+            years={years}
+            year={year === undefined ? null : Number(year)}
+            onNewer={() => page(view.newer, true)}
+            onOlder={() => page(view.older, true)}
+            onYear={(start) => page(() => view.goTo(start), false)}
+          />
         )}
       </>
     );
