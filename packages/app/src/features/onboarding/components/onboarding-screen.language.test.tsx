@@ -7,6 +7,11 @@ import { I18nProvider, type UiLanguage } from '../../../lib/i18n';
 import { NavigationProvider } from '../../../lib/navigation';
 import { ServicesProvider } from '../../../lib/services';
 import { createTestServices, preloadLazyModules } from '../../../lib/services/testing';
+import countriesDe from '../../../messages/de/countries.json';
+import errorsDe from '../../../messages/de/errors.json';
+import german from '../../../messages/de/onboarding.json';
+import planDe from '../../../messages/de/plan.json';
+import shellDe from '../../../messages/de/shell.json';
 import countries from '../../../messages/en/countries.json';
 import errors from '../../../messages/en/errors.json';
 import onboarding from '../../../messages/en/onboarding.json';
@@ -54,7 +59,9 @@ async function mount(
   const messages =
     language === 'en'
       ? { countries, errors, onboarding, plan, shell }
-      : { countries: countriesPt, errors: errosPt, onboarding: portuguese, plan: planoPt, shell: shellPt };
+      : language === 'de'
+        ? { countries: countriesDe, errors: errorsDe, onboarding: german, plan: planDe, shell: shellDe }
+        : { countries: countriesPt, errors: errosPt, onboarding: portuguese, plan: planoPt, shell: shellPt };
   render(
     <NavigationProvider location="memory" initialPath="/onboarding">
       <ServicesProvider services={services}>
@@ -223,5 +230,47 @@ describe("OnboardingScreen: the early window's conditions in pt-PT (ADR-0057)", 
     const [first] = translated.find((profile) => profile.code === 'DE')?.holdingRuleConditions ?? [];
     expect(first).toMatch(/^Uma troca/);
     expect(screen.getByText(first ?? '').closest('[lang]')).toBeNull();
+  });
+});
+
+describe("OnboardingScreen in German: Germany's German profile (ADR-0057, Corrections of 2026-11-25)", () => {
+  const click = (name: string) => act(() => fireEvent.click(screen.getByRole('button', { name })));
+  const type = (label: RegExp, value: string) =>
+    act(() => fireEvent.change(screen.getByLabelText(label), { target: { value } }));
+
+  it("shows Germany's German conditions unmarked under the early window", async () => {
+    const texts = await loadTemplateTexts('de');
+    await mount('de', undefined, BERLIN);
+    await confirm('Weiter mit Deutschland');
+    await act(async () =>
+      fireEvent.click(await screen.findByRole('radio', { name: texts.get('cycle-plan')?.name ?? '' })),
+    );
+    await click(german.next);
+    await type(/^Monatsbetrag/, '100');
+    const [first] = (await loadProfile('DE', 'de'))?.holdingRuleConditions ?? [];
+    expect(first).toMatch(/^Ein Tausch/);
+    expect(screen.getByText(first ?? '').closest('[lang]')).toBeNull();
+  });
+
+  it("names Germany „Deutschland“ on the summary, unmarked, and the rule's sentence is German (#476)", async () => {
+    const texts = await loadTemplateTexts('de');
+    await mount('de', undefined, BERLIN);
+    await confirm('Weiter mit Deutschland');
+    await act(async () =>
+      fireEvent.click(await screen.findByRole('radio', { name: texts.get('two-coins')?.name ?? '' })),
+    );
+    await click(german.next);
+    await type(/^Monatsbetrag/, '100');
+    await type(/^Letzter Kauf/, '2036-10-01');
+    await click(german.next);
+    await click(german.next);
+    await click(german.reminder.later);
+    await screen.findByRole('heading', { level: 2, name: german.summary.heading });
+    const country = screen.getByText(german.summary.country, { selector: 'dt' }).nextElementSibling;
+    expect(country?.textContent).toBe('Deutschland');
+    expect(country?.querySelector('[lang]')).toBeNull();
+    const rule = screen.getByText(german.summary.holdingRule, { selector: 'dt' }).nextElementSibling;
+    expect(rule?.textContent).toMatch(/^Die Regel für Deutschland\. /);
+    expect(rule?.querySelector('[lang]')).toBeNull();
   });
 });
