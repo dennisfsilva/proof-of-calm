@@ -21,10 +21,10 @@
         "note": "Eine Übertragung zwischen Ihren eigenen Wallets ändert nichts; es zählt Ihr Gesamtbestand am 1.\u00a0Januar."
       },
       {
-        "note": "Kein Vorgang in Box\u00a03; dort zählt der Wert am 1.\u00a0Januar. Eine etwaige Schenkungsteuer erklärt und zahlt meist die beschenkte Person. Erbschaftsteuer erklären die Erben, wenn sie mehr als den Freibetrag erben."
+        "note": "Kein Vorgang in Box\u00a03; dort zählt der Wert am 1.\u00a0Januar. Eine etwaige Schenkungsteuer erklärt die beschenkte Person, die sie meist auch zahlt. Erbschaftsteuer erklären die Erben, wenn sie mehr als den Freibetrag erben."
       },
       {
-        "note": "Die Quellen nennen weder Staking noch Airdrops. Box\u00a03 zählt Ihren Bestand am 1.\u00a0Januar; bei der Option der tatsächlichen Rendite zählen alle Einkünfte aus Ihrem Kapital im Jahr. Mining-Erlöse werden nur über den Kosten erklärt."
+        "note": "Die Quellen nennen weder Staking noch Airdrops. Box\u00a03 zählt Ihren Bestand am 1.\u00a0Januar, die Option der tatsächlichen Rendite alle Jahreseinkünfte aus Ihren Vermögenswerten. Mining-Erlöse erklären Sie nur, wenn sie die Kosten übersteigen."
       }
     ],
     "rates": [
@@ -48,12 +48,12 @@
     "caveats": [
       "Ob Sie Ihre tatsächliche Rendite angeben: Ein Wertzuwachs zählt auch ohne Verkauf.",
       "Der Freibetrag 2027, der vom Steuerplan 2027 (Belastingplan\u00a02027) abhängt, und der pauschale Prozentsatz 2027.",
-      "Das für 2029 geplante System (2028, wenn machbar) und die Stellung von Kryptowerten darin.",
+      "Das für 2029 vorgeschlagene System (2028, wenn machbar) und die Stellung von Kryptowerten darin.",
       "Arbeit über die übliche Vermögensverwaltung hinaus, die oft zusätzliche Einkünfte bringt.",
       "Der Kurs Ihrer Börse am 1.\u00a0Januar.",
       "Was Ihre Börse ab 2026 an den Belastingdienst meldet."
     ],
-    "summary60": "Die Niederlande besteuern keine Veräußerung von Kryptowerten, keinen Tausch und keine Zahlung damit. Ihr Bestand am 1.\u00a0Januar zählt in Box\u00a03: 2026 werden 6,00% der Vermögenswerte über EUR\u00a059\u00a0357 pro Person als Rendite angesetzt und mit 36% besteuert. War Ihr tatsächlicher Ertrag niedriger, können Sie ihn angeben. Für 2029 ist die Besteuerung tatsächlicher Erträge geplant."
+    "summary60": "Die Niederlande besteuern keine Veräußerung von Kryptowerten, keinen Tausch und keine Zahlung damit. Ihr Bestand am 1.\u00a0Januar zählt in Box\u00a03: 2026 werden 6,00% der Vermögenswerte über EUR\u00a059\u00a0357 pro Person als Rendite angesetzt und mit 36% besteuert. War Ihr tatsächlicher Ertrag niedriger, können Sie ihn angeben. Für 2029 ist die Besteuerung tatsächlicher Erträge vorgeschlagen."
   },
   "pendingChanges": [
     {
