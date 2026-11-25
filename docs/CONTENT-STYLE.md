@@ -1308,22 +1308,18 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
   figure-join test in `packages/content/scripts/closed-body.test.ts` reads them.
 - **A module's chart section takes German's two shapes of §4 R5** (design check D5, decided
   2026-11-25): B, `Von Y bis Y hatte C im Diagramm K Rückgänge um mehr als N.` with `1 Rückgang` for
-  one, the years first, so no two numerals touch; and E, `C fiel um L.`, then any number of `, C um L`,
+  one, the years first, so no two numerals touch. E is `C fiel um L.`, then any number of `, C um L`,
   then ` und C um L.`: the verb once, `um` once before each coin's figures, no comma before `und`. `L`
   is `N`, `N und N`, or two or more `N` joined by `, ` with ` und ` before the last. `C` is a
   catalogue coin's name exactly as the catalogue writes it, with no article and no lower-case form,
   `Ethereum` for ETH (`Ether`, `der Bitcoin` and `bitcoin` fail). `K` joins `Rückgänge` or
-  `Rückgang` by U+00A0, as R6 has it, and `N` joins `%` by U+00A0 only (R5); `Y` is §4's. So the
-  real section reads `Ethereum fiel um 94 % und 82 %, Chainlink um 89 % und 91 % und Solana um 97 %.`
+  `Rückgang` by U+00A0, as R6 has it, and `N` joins `%` by U+00A0 only (R5); `Y` is §4's.
   Every other sentence of the section, and a heading there, is one `LISTED` in
   `packages/content/src/module-figures.ts` holds for German, as the page shows it, character for
-  character: „Ein monatlicher Plan legt den Tag jedes Kaufs fest.“, „Er begrenzt nicht, wie tief ein
-  Kurs fallen kann, und ein Coin kann fast seinen ganzen Wert verlieren.“ and „Jeder Balken unten
-  zeigt einen Rückgang eines Coins, von einem Zyklushoch zum tiefsten Kurs danach.“, each in NFC (a
-  decomposed `ü` fails, and its detail prints the mark by code point). A new or reworded sentence
-  fails until it is written as B or E, or listed in a reviewed pull request, as §9 has it; a
-  refusal's fix names this section, and R6's details quote B's own words („Von 2010 bis 2024“,
-  „mehr als 95 %“).
+  character, in NFC (a decomposed `ü` fails, and its detail prints the mark by code point). A new or
+  reworded sentence fails until it is written as B or E, or listed in a reviewed pull request, as §9
+  has it; a refusal for a trigger names this section, and R6's details quote German's own span and
+  threshold.
 - **A country card's summary keeps the 60-word limit**, and content still in English on a German
   screen is marked: `lang="en"`, and on a country card `Die folgenden Regeln sind auf Englisch.`
   under its title (ADR-0057).
