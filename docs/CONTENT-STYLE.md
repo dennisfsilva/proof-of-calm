@@ -716,7 +716,7 @@ A default-ignorable code point inside a count is refused (`figure-join`) even wh
 a zero-width space or a soft hyphen lets a line end there. The fix deletes it. Such a count is never read as a
 year. Four ASCII digits from 1900 to 2099 with no group separator are a year (`the 2017 and 2021 cycles`) and
 stay unread, so a count written like a year (`2016 blocks`) is not read either. Between the count and its noun
-R7 reads B's gap, the class in `packages/content/src/module-figures.ts`, and every default-ignorable code point:
+R7 reads B's gap, the class in `packages/content/src/module-shapes.ts`, and every default-ignorable code point:
 a run of JS white space (`\s`), format characters (`\p{Cf}`), control characters (`\p{Cc}`) or default-ignorable
 code points. It refuses any such gap other than one U+00A0 (`figure-join`), U+00A0 beside a default-ignorable
 code point included (`U+00A0 U+200B`). The fix replaces the whole gap, any hidden code point in it included,
