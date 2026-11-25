@@ -68,7 +68,7 @@ export const LOG_PAGE = 12;
  * After "Show all", the Log shows at most this many transactions at a time, with newer and older pages, so its render
  * stays bounded at the cap (docs/DOMAIN.md §3.9, docs/ENGINEERING.md §4 "The Log at the cap").
  */
-export const LOG_WINDOW = 100;
+export const LOG_WINDOW = 48;
 
 /** How long a deleted entry can be restored from the toast. */
 export const UNDO_WINDOW_MS = 8000;

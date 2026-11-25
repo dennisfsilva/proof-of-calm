@@ -45,7 +45,7 @@ import { useLogWindow } from './use-log-window';
 // headers with the month's bought and sold totals; the last 12 transactions with the skipped months among
 // them (a skip does not count), then "Show all N entries" with N the transactions; that choice is the
 // device preference `logShowAll` (§2.3), so the Log opens the same way next time. Past LOG_WINDOW transactions it
-// shows a window of that many at a time under "Entries 1 to 100 of N", with the pager (use-log-window.ts). A deletion is a
+// shows a window of that many at a time under "Entries 1 to 48 of N", with the pager (use-log-window.ts). A deletion is a
 // soft delete written through the domain store, then the toast "Entry deleted." ("N entries deleted." for a row
 // of several) whose Undo restores the entries within UNDO_WINDOW_MS, unless a monthly buy's month was skipped or
 // recorded since: then they stay deleted and a toast says why (§6, docs/CONTENT-STYLE.md §3). "Record a purchase"

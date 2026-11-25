@@ -54,7 +54,7 @@ function withBuys(count: number) {
 }
 
 describe('LogScreen formatters', () => {
-  it('asks for the formatters a constant number of times, not once per row, when Show all mounts a window of 100 rows', async () => {
+  it('asks for the formatters a constant number of times, not once per row, when Show all mounts a window of 48 rows', async () => {
     const services = createTestServices({ snapshot: withBuys(300), nowMs: fixtureNowMs('buy') });
     await act(() => services.start());
     vi.mocked(useFormatters).mockClear();
@@ -68,10 +68,10 @@ describe('LogScreen formatters', () => {
       </ServicesProvider>,
     );
     await act(async () =>
-      fireEvent.click(screen.getByRole('button', { name: /^Show all \d+ entries, 100 at a time$/ })),
+      fireEvent.click(screen.getByRole('button', { name: /^Show all \d+ entries, 48 at a time$/ })),
     );
     expect(document.querySelectorAll('tbody [data-row]')).toHaveLength(LOG_WINDOW);
-    // Once per render of the screen (the first page, then the window); a row of its own makes it over 100.
+    // Once per render of the screen (the first page, then the window); a row of its own makes it one more per row.
     expect(vi.mocked(useFormatters).mock.calls.length).toBeLessThanOrEqual(10);
   });
 });
