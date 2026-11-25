@@ -1011,11 +1011,38 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   table's `spellJoiners` did not, until both took one definition, `spellNamed` (#498; 2026-11-25).
 - A review workflow's reviewer can hand back an empty list on a translation within two minutes; the
   delegated module read, with its figure-by-figure table, is the record that the figures were read
-  (25, 118 and 22 figures on #497, #499 and #500; 2026-11-25).
+  (25, 118 and 22 figures on #497, #499 and #500; 2026-11-25); again on #507, where two branches
+  came back empty in 118 s while counsel, brand and the figure read found two official texts, eight
+  wordings and the register divergence (2026-11-25).
 - A roadmap line that calls a language's build complete is checked against the earlier language's
   path to its native read. The sync of 2026-11-25 called German complete after its six module
   overlays while the site's messages, part of pt-PT's #401, had no plan, and only the sync's review
   found it (#502; 2026-11-25).
+- A design note that predicts how a screen prints a figure is checked against the code before the
+  test that pins it is written. D3's note expected a sheet's module text to keep its written „75 %“
+  under a Portuguese plan, while a charted module joins its `N %` with the page's joiner on the
+  route and in the sheet alike; the builder pinned the code's behaviour and the ADR-0023 reading
+  says so (#505; 2026-11-25).
+- A translated line that a document prescribes as an official text is checked against that
+  document, never copied from an earlier translation of the same line. German Settings' About line
+  had translated English's "can lose all their value" back (#478), the German site footer copied
+  it, and only counsel's read found that `docs/CONTENT-STYLE.md` §10 prescribes MiCA's German
+  (#507; 2026-11-25).
+- A content role's proposal and the session's own wording note run against the glossary rows
+  before a builder applies them. Brand's „die Haltefristen“ for every covered country (Spain,
+  France and the Netherlands set no holding period) and a figure read's indefinite „Eine
+  Steuerberatung“ (the accountant row says `Ihre Steuerberatung`) each took another round (#507;
+  2026-11-25).
+- A story whose play ends right after choosing an option lets the after-visit axe pass see the
+  closing popup's focus guards. The language section's Chooses Portuguese failed twice on CI within
+  20 minutes and passed on rerun; its play now waits for `[data-base-ui-focus-guard]` to leave, as
+  country-section's choose helper did, and the onboarding country step had the same race (#509;
+  2026-11-25).
+- A test that reads a repository file outside its package adds that file to the package's turbo
+  inputs and to `tools/turbo/inputs.test.ts`'s list in the same PR, reads through helpers such as
+  `fromRepo` included. #504's `workflow-paths.test.ts` read `content-review.yml`, which the tools
+  test task did not hash, and the fix found more unhashed reads, one of them through a helper
+  (#510; 2026-11-25).
 
 ## Known gaps
 
