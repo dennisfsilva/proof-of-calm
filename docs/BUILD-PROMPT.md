@@ -1043,6 +1043,23 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   `fromRepo` included. #504's `workflow-paths.test.ts` read `content-review.yml`, which the tools
   test task did not hash, and the fix found more unhashed reads, one of them through a helper
   (#510; 2026-11-25).
+- A file a workflow reads from the deployed commit and a script it runs from its own commit skew on
+  a dispatch from an older ref (`lighthouse-vercel.yml` reads `apps/web/lighthouserc.json` from the
+  deployed commit and `tools/lighthouse/vercel.ts` from the workflow's): a filter in the script does
+  not cover the file's new content until main carries the script, so the shared file stays safe by
+  itself and a local-only setting goes in a layer the deployment path never reads (#514's first
+  review round; 2026-11-25).
+- An environment variable an opt-in test reads reaches the task only when turbo's `passThroughEnv`
+  for that task names it (strict env mode strips the rest): a brief for one names that line and a
+  `--list` check of the documented command (#516's first review round; 2026-11-25).
+- A guard that counts a factory's calls stops guarding once a cache sits between the hook and the
+  factory: a performance guard counts the call the fix removed, and the integration read runs the
+  old shape against it (#516's guard after #515's cache, fixed in #518; 2026-11-25).
+- Total blocking time sums each long task's time over 50 ms, so it grows faster than a runner slows:
+  a margin is read from runs on a slower runner, never scaled from the budget (#517's review;
+  2026-11-25).
+- A measurement that asserts nothing runs opt-in, outside the default suite, with its command in
+  `CLAUDE.md` (#516; 2026-11-25).
 
 ## Known gaps
 
