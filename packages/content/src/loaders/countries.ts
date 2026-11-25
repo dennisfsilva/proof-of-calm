@@ -53,8 +53,11 @@ export const PROFILE_OVERLAYS: Readonly<
     FR: () => import('../../i18n/de/jurisdictions/fr.json'),
     GB: () => import('../../i18n/de/jurisdictions/gb.json'),
     IE: () => import('../../i18n/de/jurisdictions/ie.json'),
+    IT: () => import('../../i18n/de/jurisdictions/it.json'),
+    NL: () => import('../../i18n/de/jurisdictions/nl.json'),
     PT: () => import('../../i18n/de/jurisdictions/pt.json'),
     US: () => import('../../i18n/de/jurisdictions/us.json'),
+    XX: () => import('../../i18n/de/jurisdictions/xx.json'),
   },
 };
 
