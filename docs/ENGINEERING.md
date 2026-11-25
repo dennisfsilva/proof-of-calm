@@ -272,7 +272,7 @@ platform without one.
   misses a render that blocks the main thread after it, which a person waits through all the same.
   `apps/web/e2e/log-cap.spec.ts` fills the fixture plan to `MAX_ENTRIES` live entries and records
   each input's duration and longest task as annotations; it asserts only the inputs measured under
-  half the rule here (Show older entries) and takes about half a minute, so it runs only on request (`LOG_CAP=1` on the desktop project, the command in
+  half the rule here (none with the window of 100) and takes about half a minute, so it runs only on request (`LOG_CAP=1` on the desktop project, the command in
   `CLAUDE.md`). The figures are local: Windows, Playwright's Chromium, five runs, 2026-11-25. Fixed
   here, with nothing the Log shows changed: each row built its own formatters and every toggle
   rendered every row (unthrottled, Show all took 15.2 s, 5.1 s of it in the rows' formatters); rows
@@ -292,15 +292,24 @@ platform without one.
   sheet 80 to 88 ms, under the rule; Show all's longest task 17 to 20 s; the heading after 3.0 to
   3.7 s. Show all then mounted every row (its longest task 17 to 20 s); it now shows a window of
   `LOG_WINDOW` transactions with Show newer and Show older entries and Go to year (`docs/DOMAIN.md`
-  §3.9). Three runs at 6× with a window of 100 (2026-11-25): Show all's longest task 318 to 389 ms,
-  Show older and Show newer 82 to 95 ms, the window's commit after a reload 54 to 71 ms; with 48, the
-  window it keeps, Show all 314 to 321 ms, Show older and Show newer 0 to 52 ms (inputs 24 to 40 ms),
-  choosing a year 56 to 64 ms (longest task 60 to 327 ms), the window's commit after a reload under
-  50 ms, the heading after 2.1 to 2.5 s (longest task 450 to 487 ms). Over the rule still (planned:
-  M2): opening a row, 88 ms by Event Timing; Edit entry, 240 to 272 ms, a profile of which finds the
-  sheet's mount, focus and layout, no scan of the entries, and a store with a move still pays the
-  move line per keystroke; Show all, whose input takes 24 ms but whose longest task, the same at 48
-  and 100 rows, is not the window's render; opening Go to year, 172 to 197 ms, the choice's own popup.
+  §3.9). With the window of 100 it keeps, six runs at 6× (2026-11-25, three at a time as the command
+  runs them; one stopped after Show older), as median and range of input / longest task: Show all
+  20 (16 to 24) / 331 (303 to 339) ms, Show older 16 (16 to 32) / 79 (65 to 115) ms, Show newer 24
+  (16 to 32) / 95 (71 to 114) ms, opening Go to year 32 (24 to 32) / 153 (138 to 162) ms, choosing
+  the oldest year 56 / 71 (56 to 226) ms, opening a row 96 (80 to 112) / 79 (55 to 97) ms, Edit
+  entry 212 (208 to 240) / 181 (170 to 207) ms, one keystroke 36 (32 to 48) / 0 ms, closing the
+  sheet 64 (56 to 88) / 53 (0 to 69) ms; the heading after 2.1 s (2.0 to 2.8 s, longest task 434 to
+  505 ms), and after a reload with Show all stored 2.3 s (2.2 to 2.3 s, longest task 392 to 423 ms),
+  the window's commit after it 55 (0 to 62) ms. A window of 48 was tried and not kept: Show all's
+  longest task (314 to 321 ms) and opening Go to year (172 to 197 ms) measured as at 100, and only
+  the moves shortened (0 to 52 ms), while a Log of 49 to 100 transactions would page. Over the rule
+  still (planned: M2): Show all's longest task, the same at 48 and 100 rows, so not the window's
+  render (suspected: the `logShowAll` preference write over the 10,000-entry snapshot; not
+  profiled); opening Go to year (suspected: the Base UI Select popup with about 28 years); choosing
+  the oldest year in two of five runs, Show older in one of six and Show newer in two of five
+  (suspected: the commit of a window of 100 rows, since at 48 the moves stayed under); opening a row, by Event Timing; Edit entry, a
+  profile of which finds the sheet's mount, focus and layout, no scan of the entries, and a store
+  with a move still pays the move line per keystroke.
 - An upstream outage may fail the production check. It measures what production serves: a 502 that
   reaches the browser is a fault people see, and `errors-in-console` names it. Since Portfolio's
   layout holds on that path (`lighthouse-vercel` run 40917845879 on a20d28d9, 2026-10-29, measured
