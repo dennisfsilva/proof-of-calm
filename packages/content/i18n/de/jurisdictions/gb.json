@@ -1,0 +1,79 @@
+{
+  "name": "Vereinigtes Königreich",
+  "filingNote": "Steuerjahr vom 6.\u00a0April bis 5.\u00a0April. Nach dem Steuerjahr: die Online-Erklärung im Self Assessment bis 31.\u00a0Januar; der real time Capital Gains Tax service nimmt die Meldung bis 31.\u00a0Dezember an, die Zahlung bis 31.\u00a0Januar.",
+  "lotRuleNote": "Ein section\u00a0104 pool je Token-Art, nach der Same-Day-Regel und der 30\u2011Tage\u2011Regel (TCGA\u00a01992 ss. 104, 105 und 106A). Proof of Calm listet jeden Kauf und überlässt die Poolbildung der Steuerberatung.",
+  "card": {
+    "classification": "Die meisten Privatpersonen besitzen Token als Kapitalanlage und zahlen bei der Veräußerung Capital Gains Tax. Income Tax gilt für Token vom Arbeitgeber, aus Mining, Transaktionsbestätigung oder manchen Airdrops und bei einem Gewerbe.",
+    "taxableEvents": [
+      {
+        "note": "Ein Verkauf von Token gegen Geld ist eine Veräußerung; Gewinn oder Verlust werden für jede Veräußerung einzeln ermittelt (HMRC Cryptoassets Manual CRYPTO22100)."
+      },
+      { "note": "Ein Tausch von Token gegen eine andere Token-Art ist eine Veräußerung (CRYPTO22100)." },
+      {
+        "note": "Ein Tausch von Token gegen einen Stablecoin ist ein Tausch gegen eine andere Token-Art und damit eine Veräußerung (CRYPTO22100)."
+      },
+      { "note": "Die Bezahlung von Waren oder Dienstleistungen mit Token ist eine Veräußerung (CRYPTO22100)." },
+      {
+        "note": "Keine Veräußerung, solange das wirtschaftliche Eigentum durchgehend bei der Person bleibt, etwa bei einer Übertragung von Token zwischen öffentlichen Adressen, die sie kontrolliert (CRYPTO22100)."
+      },
+      {
+        "note": "Eine Schenkung von Token ist eine Veräußerung zum Wert in Pfund Sterling, außer an Ehe- oder Lebenspartner. Spende an eine Charity: keine Capital Gains Tax, außer sie ist tainted (CRYPTO22100). Geerbte Token: nicht in diesem Profil."
+      },
+      {
+        "note": "Staking-Belohnungen außerhalb eines Gewerbes: sonstige Einkünfte zum Wert in Pfund Sterling bei Erhalt (CRYPTO21200). Airdrops ohne Gegenleistung: keine Income Tax (CRYPTO21250). Capital Gains Tax bei einer späteren Veräußerung."
+      }
+    ],
+    "rates": [
+      {
+        "label": "Veräußerungsgewinne im Basic Rate Band",
+        "value": "18%",
+        "note": "Veräußerungen ab 30.\u00a0Oktober\u00a02024. Das Basic Rate Band beträgt £37,700 im Steuerjahr 2026 bis 2027. Gewinne kommen zum Einkommen hinzu, daher wird der ungenutzte Teil des Bands mit 18% besteuert."
+      },
+      {
+        "label": "Veräußerungsgewinne über dem Basic Rate Band",
+        "value": "24%",
+        "note": "Veräußerungen ab 30.\u00a0Oktober\u00a02024, für jeden Betrag über dem Basic Rate Band und für Steuerpflichtige mit higher oder additional rate."
+      },
+      {
+        "label": "Veräußerungsgewinne im Basic Rate Band, 6.\u00a0April bis 29.\u00a0Oktober\u00a02024",
+        "value": "10%",
+        "note": "Veräußerungen vom 6.\u00a0April\u00a02024 bis 29.\u00a0Oktober\u00a02024, außer Wohnimmobilien und carried interest (Tabelle der Steuersätze und Freibeträge auf GOV.UK)."
+      },
+      {
+        "label": "Veräußerungsgewinne über dem Basic Rate Band, 6.\u00a0April bis 29.\u00a0Oktober\u00a02024",
+        "value": "20%",
+        "note": "Veräußerungen vom 6.\u00a0April\u00a02024 bis 29.\u00a0Oktober\u00a02024, außer Wohnimmobilien und carried interest (Tabelle der Steuersätze und Freibeträge auf GOV.UK)."
+      }
+    ],
+    "allowances": [
+      "Jährlicher Freibetrag (annual exempt amount) von £3,000 je Person in den Steuerjahren 2024 bis 2025, 2025 bis 2026 und 2026 bis 2027. Steuer fällt nur auf Gewinne darüber an."
+    ],
+    "holdingRuleText": "Keine Steuerbefreiung nach einer Haltefrist: Jeder Verkauf ist ein steuerpflichtiger Vorgang.",
+    "lotRuleText": "Token einer Art bilden einen Pool mit abzugsfähigem Kostenbetrag (section\u00a0104 pool, TCGA\u00a01992 s.\u00a0104). Zuerst gilt die Same-Day-Regel (s.\u00a0105); ein Erwerb in den 30\u00a0Tagen nach einer Veräußerung zählt zu ihr, die früheste zuerst (s.\u00a0106A).",
+    "losses": "Antrag in der Steuererklärung, bis zu 4\u00a0Jahre nach Ende des Steuerjahres der Veräußerung. Abzug von den Gewinnen desselben Jahres, Vortrag des Rests. Ein negligible value claim für wertlose Token umfasst den ganzen section\u00a0104 pool.",
+    "reporting": [
+      "Das SA108 (Capital Gains Tax summary im Self Assessment) hat für das Steuerjahr 2024 bis 2025 den Abschnitt Cryptoassets, Felder\u00a013.1 bis 13.8: Zahl der Veräußerungen, Erlöse, abzugsfähige Kosten, Gewinne, Verluste und die Berechnungen.",
+      "Real time Capital Gains Tax service: Gewinn oder Verlust aus Token, die schon darüber gemeldet wurden, gehört in Feld\u00a013.7, die schon gezahlte Steuer in Feld\u00a013.8, die Referenznummern in Feld\u00a054 (Erläuterungen zum SA108, 2024 bis 2025)."
+    ],
+    "caveats": [
+      "In welches Band der Income Tax die Gewinne fallen.",
+      "Die 30\u2011Tage\u2011Regel rund um jeden Verkauf.",
+      "Der gepoolte Kostenbetrag je Token-Art: Proof of Calm listet jeden Kauf und überlässt die Poolbildung der Steuerberatung.",
+      "Einkünfte aus Staking und Airdrops.",
+      "Geerbte Token.",
+      "Anträge wegen geringfügigen Werts (negligible value claims).",
+      "Krypto-Darlehen und Liquiditätspools ab 6.\u00a0April\u00a02027, ein Vorschlag im Finance Bill\u00a02026-\u206027."
+    ],
+    "summary60": "Das Vereinigte Königreich besteuert Kryptogewinne über £3,000 Freibetrag mit 18% oder 24%, je nach Band. Verkäufe, Tauschvorgänge, Zahlungen und Schenkungen (außer an Ehe- oder Lebenspartner) sind Veräußerungen, Transfers zwischen eigenen Wallets nicht. Keine Befreiung durch Haltefrist. Kosten gepoolt je Token, mit Same-Day- und 30\u2011Tage\u2011Regel. Self Assessment bis 31.\u00a0Januar, real time service bis 31.\u00a0Dezember."
+  },
+  "pendingChanges": [
+    {
+      "title": "Krypto-Darlehen und Liquiditätspools: bestimmte Transfers in und aus qualifizierten Vereinbarungen ohne Gewinn oder Verlust bis zur wirtschaftlichen Veräußerung",
+      "summary": "Budget\u00a02026 vom 28.\u00a0Oktober\u00a02026, OOTLAR Absatz\u00a01.48: Die Regierung wird im Finance Bill\u00a02026-\u206027 Regeln zu Krypto-Darlehen und Liquiditätspools vorlegen. Bestimmte Transfers von Privatpersonen und Trustees in und aus qualifizierten Vereinbarungen wären ohne Gewinn oder Verlust (no gain no loss) bis zur wirtschaftlichen Veräußerung. Das gälte ab 6.\u00a0April\u00a02027; bis zum Royal Assent ein Vorschlag."
+    },
+    {
+      "title": "Cryptoasset Reporting Framework (CARF): Anbieter melden die Daten ihrer Nutzerinnen und Nutzer an HMRC",
+      "summary": "Anbieter von Kryptowerte-Dienstleistungen im Vereinigten Königreich reichen ihre erste Meldung bis 31.\u00a0Mai\u00a02027 ein, mit Daten vom 1.\u00a0Januar\u00a02026 bis 31.\u00a0Dezember\u00a02026. Diese erheben Daten aller Nutzerinnen und Nutzer und melden sie samt einer Übersicht der Transaktionen derer, die im Vereinigten Königreich oder in einem anderen Land steuerlich ansässig sind, das die CARF-Regeln übernommen hat."
+    }
+  ]
+}
