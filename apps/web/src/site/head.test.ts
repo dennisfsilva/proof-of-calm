@@ -85,6 +85,13 @@ describe('pageHead', () => {
       '<title>A &amp; B · Proof of Calm</title>',
     );
   });
+
+  // The daily rebuild's check (.github/workflows/daily-rebuild.yml) reads the day the build rendered at.
+  it('names the build’s day in a build-date meta only when given one', () => {
+    const dated = pageHead({ title: null, assets: [], indexable: false, buildDate: '2026-11-25' as CalendarDate });
+    expect(dated).toContain('<meta name="build-date" content="2026-11-25">');
+    expect(head).not.toContain('build-date');
+  });
 });
 
 describe('renderSitePage (ADR-0045 §6)', () => {
@@ -259,6 +266,15 @@ describe('renderSitePage (ADR-0045 §6)', () => {
     const plain = renderSitePage('en/holding-date', assets, data);
     expect(plain).not.toContain('<form');
     expect(plain).not.toContain('<script');
+  });
+
+  it('dates every page rendered from the site data with its day, in the head (the daily rebuild’s check)', () => {
+    for (const name of sitePages(data).filter((page) => page !== 'not-available')) {
+      const html = renderSitePage(name, assets, data);
+      const head = html.slice(0, html.indexOf('</head>'));
+      expect(head, name).toContain('<meta name="build-date" content="2026-10-20">');
+      expect(html.match(/name="build-date"/g), name).toHaveLength(1);
+    }
   });
 
   it('writes the not-available page as the UK block defines it', () => {

@@ -4,6 +4,7 @@
 // the worker serves in place of the app (ADR-0045, the deviation of 2026-10-19; docs/DESIGN.md §3).
 import { BRAND } from '@proofofcalm/app/lib/brand';
 import { THEME_BEFORE_PAINT } from '@proofofcalm/app/lib/theme';
+import type { CalendarDate } from '@proofofcalm/core';
 import { escapeHtml } from '../../lib/geo/uk-block';
 import colours from '../../lib/pwa/brand-colors.json';
 import { type SiteLanguage, siteTranslator } from '../../lib/site-messages';
@@ -41,6 +42,8 @@ type PageHead = {
   indexable: boolean;
   /** The language of the page's words; the link preview's fallback description follows it. */
   language?: SiteLanguage;
+  /** The day the build rendered the page at (`SiteData.today`), which the daily rebuild's check reads. */
+  buildDate?: CalendarDate;
 };
 
 /** The link preview's image, written by `node tools/icons/generate.ts` (docs/DESIGN.md §9). */
@@ -66,7 +69,7 @@ function openGraph(title: string | null, description: string): string[] {
 
 /** The inner HTML of a site page's head (docs/DESIGN.md §9 for the icons, the OG image and the theme colours). */
 export function pageHead(head: PageHead): string {
-  const { title, assets, themeScript = false, description, canonical, indexable, language = 'en' } = head;
+  const { title, assets, themeScript = false, description, canonical, indexable, language = 'en', buildDate } = head;
   return [
     '<meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
@@ -75,6 +78,7 @@ export function pageHead(head: PageHead): string {
     `<title>${escapeHtml(pageTitle(title))}</title>`,
     ...(description === undefined ? [] : [`<meta name="description" content="${escapeHtml(description)}">`]),
     ...(canonical === undefined ? [] : [`<link rel="canonical" href="${escapeHtml(`${BRAND.origin}${canonical}`)}">`]),
+    ...(buildDate === undefined ? [] : [`<meta name="build-date" content="${escapeHtml(buildDate)}">`]),
     ...openGraph(title, description ?? siteTranslator('manifest', language)('description')),
     '<link rel="icon" href="/favicon.svg" type="image/svg+xml">',
     '<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">',
