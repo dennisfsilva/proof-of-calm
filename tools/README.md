@@ -66,6 +66,14 @@ transitively, so `packages/content/src/percent-gap.ts`, which `body.ts` imports,
 refuses a workspace-package import in a watched script (the jobs install none) and a non-glob entry
 that does not exist.
 
+`rebuild/check.ts` is the daily rebuild's check (`docs/RELEASE.md`): `node tools/rebuild/check.ts <url>`,
+which daily-rebuild.yml runs on `https://proofofcalm.com/en/holding-date` after calling the deploy hook,
+fetches the page every 30 s, 40 times, each request stopped after 20 s and sent past every cache, prints
+one line per attempt and exits 1 unless the page's build-date meta (`apps/web/src/site/head.ts`, the
+site data's `today`) names the UTC day the check started. `rebuild/workflow.test.ts` holds the workflow's
+schedule, its permissions, the secret read only through a step's env, and runs its hook step in bash with
+and without the secret.
+
 `check.ts` (`pnpm check`) runs the gate's fast half with colour off and vitest's dot reporter, prints
 one line per step and only a failing step's last 40 lines. `lint/docs.ts` (`pnpm lint:docs`) checks
 that the documents name only paths, commands and ADRs that exist, mark planned items, keep each owned

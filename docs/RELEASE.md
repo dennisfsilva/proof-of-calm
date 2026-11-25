@@ -49,7 +49,9 @@ gate and this checklist; every merge to `main` goes to production, tagged or not
 - [ ] Before the public pages under `/en/` are indexed: a daily production rebuild in place, since they
       render at the build's UTC date (ADR-0045, Deviations of 2026-11-15). The mechanism: a Vercel
       deploy hook called once a day by a scheduled workflow, which fails when production does not
-      show the day's build afterwards. GitHub switches a public repository's schedule off after 60
+      show the day's build afterwards: `.github/workflows/daily-rebuild.yml` at 00:17 UTC, which
+      reads the build-date meta of `/en/holding-date` (`tools/rebuild/check.ts`) and ends with a
+      notice until the owner stores the hook (`docs/OWNER-SETUP.md` §3). GitHub switches a public repository's schedule off after 60
       days without activity (GitHub's documentation, read 2026-11-19), so that failure has to be
       seen.
 - [ ] The `PUBLIC_INDEXABLE` switch (ADR-0045, Deviations of 2026-11-15), the owner-approved PR that
