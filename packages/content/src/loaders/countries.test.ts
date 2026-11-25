@@ -290,8 +290,7 @@ describe('contentLanguageOf over the profiles (ADR-0057, Corrections of 2026-11-
     const german = await loadProfiles('de');
     const names = countryChoices(german, null).map(({ name }) => name);
     expect(names).toEqual(expect.arrayContaining(['Italien', 'Niederlande', 'Anderes Land']));
-    for (const code of ['IT', 'NL', 'XX'])
-      expect(contentLanguageOf(await loaded(code, 'de')), code).toBe('de');
+    for (const code of ['IT', 'NL', 'XX']) expect(contentLanguageOf(await loaded(code, 'de')), code).toBe('de');
   });
 
   it('gives the general profile a German holding text that names Proof of Calm as applying no exemption', async () => {
