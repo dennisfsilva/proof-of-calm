@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, fn, within } from 'storybook/test';
+import { expect, fn, waitFor, within } from 'storybook/test';
 import { CountryStep } from './country-step';
 
 // The country step as the onboarding will host it (docs/JURISDICTIONS.md §3): no suggestion, a suggestion
@@ -47,6 +47,9 @@ export const Low: Story = {
     await userEvent.click(canvas.getByRole('combobox', { name: 'Country' }));
     const body = within(canvasElement.ownerDocument.body);
     await userEvent.click(await body.findByRole('option', { name: 'Portugal' }));
+    // Until the select's popup unmounts, Base UI's focus guards are focusable while aria-hidden, and axe, which
+    // runs after the play, fails on them: wait for them to go (as country-section.stories.tsx does).
+    await waitFor(() => expect(canvasElement.ownerDocument.querySelector('[data-base-ui-focus-guard]')).toBeNull());
     await userEvent.click(canvas.getByRole('button', { name: 'Continue with Portugal' }));
     await expect(args.onChoose).toHaveBeenCalledWith('PT');
   },
