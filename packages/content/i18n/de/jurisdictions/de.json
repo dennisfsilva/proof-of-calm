@@ -7,7 +7,7 @@
   ],
   "lotRuleNote": "Pro Wallet: Das BMF akzeptiert First in, first out oder die Einzelzuordnung, gewählt pro Wallet und pro Kryptowert und einheitlich angewendet, ersatzweise die Durchschnittsmethode (Konfidenz mittel bis hoch).",
   "card": {
-    "classification": "Privates Veräußerungsgeschäft (§\u00a023 Abs.\u00a01 Satz\u00a01 Nr.\u00a02 EStG) zum progressiven Tarif, nicht zur pauschalen Abgeltungsteuer; Staking und Lending: §\u00a022 Nr.\u00a03 EStG. Grundlage: BMF-Schreiben vom 6.\u00a0März\u00a02025; BFH IX R 3/22 vom 14.\u00a0Februar\u00a02023.",
+    "classification": "Privates Veräußerungsgeschäft (§\u00a023 Abs.\u00a01 Satz\u00a01 Nr.\u00a02 EStG) zum progressiven Tarif, nicht zur Abgeltungsteuer; Staking- und Lending-Einkünfte: §\u00a022 Nr.\u00a03 EStG. Grundlage: BMF-Schreiben vom 6.\u00a0März\u00a02025; BFH IX R 3/22 vom 14.\u00a0Februar\u00a02023.",
     "taxableEvents": [
       {
         "note": "Steuerpflichtig, wenn zwischen Kauf und Verkauf ein Jahr oder weniger liegt; nach mehr als einem Jahr steuerfrei."
@@ -45,7 +45,7 @@
       }
     ],
     "allowances": [
-      "Freigrenze von EUR\u00a01000 pro Jahr für alle Gewinne nach §\u00a023 zusammen (Kryptowerte und andere private Veräußerungen): ab EUR\u00a01000 ist alles steuerpflichtig, eine Grenze, kein Freibetrag. Seit dem Veranlagungsjahr 2024 (vorher EUR\u00a0600).",
+      "Freigrenze von EUR\u00a01000 pro Jahr für alle Gewinne nach §\u00a023 zusammen (Kryptowerte und andere private Veräußerungen): ab EUR\u00a01000 ist der ganze Gewinn steuerpflichtig (kein Freibetrag). Seit dem Veranlagungszeitraum 2024 (vorher EUR\u00a0600).",
       "Freigrenze von EUR\u00a0256 pro Jahr für Einkünfte nach §\u00a022 Nr.\u00a03 (Staking, Lending).",
       "Der Sparer-Pauschbetrag gilt derzeit nicht für Gewinne nach §\u00a023."
     ],
@@ -64,7 +64,7 @@
       "Kirchensteuer.",
       "Die Aufzeichnungen, die das Finanzamt erwartet."
     ],
-    "summary60": "Deutschland: Der Gewinn aus einem Verkauf mehr als ein Jahr nach dem Kauf ist steuerfrei. Innerhalb eines Jahres wird er mit Ihrem persönlichen Einkommensteuersatz besteuert, und auch ein Tausch und Käufe mit Kryptowerten zählen als Verkäufe. Alle solchen Gewinne unter EUR\u00a01000 pro Jahr sind steuerfrei. FIFO pro Wallet. Ein Gesetzentwurf würde die Jahresfrist für Käufe ab 2027 beenden."
+    "summary60": "Deutschland: Der Gewinn aus einem Verkauf mehr als ein Jahr nach dem Kauf ist steuerfrei. Innerhalb eines Jahres wird er mit dem persönlichen Einkommensteuersatz besteuert, und ein Tausch und Käufe mit Kryptowerten zählen als Verkäufe. Solche Gewinne von zusammen unter EUR\u00a01000 pro Jahr sind steuerfrei. FIFO pro Wallet. Ein Gesetzentwurf würde die Jahresfrist für Käufe ab 2027 beenden."
   },
   "pendingChanges": [
     {
