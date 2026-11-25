@@ -24,7 +24,12 @@ export function useLogWindow(rows: readonly LogRow[], all: boolean) {
   const last = at + visible.filter(transaction).length;
   // A range only when a window holds fewer than all: up to LOG_WINDOW transactions, Show all shows them all.
   const range: LogRange | null = revealed && count > LOG_WINDOW ? { first: at + 1, last, count } : null;
-  const move = (next: number) => startTransition(() => setStart(clampStart(Math.max(0, next), count, size)));
+  // Says whether the window moves (a year whose newest transaction the window already starts on does not).
+  const move = (next: number) => {
+    const to = clampStart(Math.max(0, next), count, size);
+    startTransition(() => setStart(to));
+    return to !== at;
+  };
   return {
     visible,
     range,
