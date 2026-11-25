@@ -38,12 +38,19 @@ const LISTED: Readonly<Record<string, readonly string[]>> = {
     'Não limita até onde um preço pode cair, e uma moeda pode perder quase todo o seu valor.',
     'Cada barra abaixo é uma queda de uma moeda, desde um máximo de ciclo até ao preço mais baixo depois desse máximo.',
   ],
+  de: [
+    'Ein monatlicher Plan legt den Tag jedes Kaufs fest.',
+    'Er begrenzt nicht, wie tief ein Kurs fallen kann, und ein Coin kann fast seinen ganzen Wert verlieren.',
+    'Jeder Balken unten zeigt einen Rückgang eines Coins, von einem Zyklushoch zum tiefsten Kurs danach.',
+  ],
 };
 
 export const moduleContext = ({ chart }: Pick<LearnModule, 'chart'>, language: string, all: FigureContext) =>
   ({ chart, language, listed: LISTED[language] ?? [], ...all }) satisfies ModuleFigures;
 
 const RULE = '(docs/CONTENT-STYLE.md §4)';
+// The section of docs/CONTENT-STYLE.md that writes a closed language's B and E, for a refusal's fix.
+const SHAPES_AT: Readonly<Record<string, string>> = { 'pt-PT': '§9', de: '§10' };
 const alt = (names: readonly string[]) =>
   [...new Set(names)]
     .sort((a, b) => b.length - a.length)
@@ -90,6 +97,11 @@ const MARKS: Readonly<Record<string, string>> = {
 };
 
 const NBSP = String.fromCodePoint(0xa0);
+// The joiners a section writes between a figure and `%`, and the fix's words: German only U+00A0 (§10).
+const PERCENT_JOIN: Readonly<Record<string, { readonly joiners: readonly string[]; readonly words: string }>> = {
+  de: { joiners: [NBSP], words: 'one U+00A0' },
+};
+const ANY_JOIN = { joiners: MODULE_PERCENT_JOINERS, words: 'one ordinary or no-break space' };
 
 // The fix a closed section's refusal names (docs/CONTENT-STYLE.md §1 rule 8).
 const LIST_IT = 'list it in LISTED in packages/content/src/module-figures.ts in a reviewed pull request';
@@ -102,7 +114,9 @@ const CONTAINERS = {
 // Every quoted text, as the page shows it, with each joiner but one before % or B's U+00A0 after its count by its code
 // point (percent-gap.ts).
 const COUNT_JOIN = new RegExp(
-  `(?<=(?:had|teve) [1-9][0-9]?)${NBSP}(?=(?:falls?|quedas?)(?![\\p{L}\\p{M}\\p{N}]))`,
+  `(?<=(?:had|teve) [1-9][0-9]?)${NBSP}(?=(?:falls?|quedas?)(?![\\p{L}\\p{M}\\p{N}]))|` +
+    // German B puts the coin and `im Diagramm` between the verb and the count, so its join is found by the noun.
+    `(?<=(?<![\\p{L}\\p{M}\\p{N}])[1-9][0-9]?)${NBSP}(?=(?:Rückgänge|Rückgang)(?![\\p{L}\\p{M}\\p{N}]))`,
   'gu',
 );
 const q = (t: string) => printedPercentText(t, MODULE_PERCENT_JOINERS, COUNT_JOIN);
@@ -127,6 +141,7 @@ export function moduleFigureProblems(path: string, page: readonly PageBlock[], c
   // No chart, or no element (module-chart-element reports that one).
   if (context.chart === 'none' || at === -1) return problems;
   const { rows, coins, language } = context;
+  const join = PERCENT_JOIN[language] ?? ANY_JOIN;
   const closed = language !== 'en';
   const listed = new Set(context.listed);
   if (rows === null || coins === null) {
@@ -168,6 +183,9 @@ export function moduleFigureProblems(path: string, page: readonly PageBlock[], c
     k: number;
     falls: string;
     n: string;
+    // B's own span and threshold phrase, where its shape names them, for R6's quotes.
+    span: string | undefined;
+    more: string | undefined;
     y1: number;
     y2: number;
   };
@@ -220,10 +238,10 @@ which reads plain text only`);
     for (const [, figure = '', joiner = '', sign] of block.text.matchAll(
       new RegExp(`(${NUMERAL})(\\s*)(${SIGNS})`, 'gu'),
     )) {
-      if (!MODULE_PERCENT_JOINERS.includes(joiner) || sign !== '%')
+      if (!join.joiners.includes(joiner) || sign !== '%')
         report(
-          `"${figure}${printedGap(joiner, MODULE_PERCENT_JOINERS)}${sign}" in "${shown}" joins a figure to a sign; write the \
-figure, one ordinary or no-break space, and %`,
+          `"${figure}${printedGap(joiner, join.joiners)}${sign}" in "${shown}" joins a figure to a sign; write the \
+figure, ${join.words}, and %`,
         );
     }
     for (const sentence of sentencesOf(block.text)) {
@@ -239,7 +257,8 @@ U+00A0, in "${q(sentence)}"`,
             'R6',
             'figure-join',
           );
-        bounds.push({ sentence: q(sentence), id: names.get(b.c) ?? '', name: bare(b.c), k, falls, n, y1, y2 });
+        const [id, { span, more }] = [names.get(b.c) ?? '', b];
+        bounds.push({ sentence: q(sentence), id, name: bare(b.c), k, falls, n, span, more, y1, y2 });
       } else if (shapes?.e.test(sentence) === true) {
         const clauses: (typeof exacts)[number]['clauses'] = [];
         for (const { groups } of sentence.matchAll(shapes.clause)) {
@@ -254,7 +273,7 @@ U+00A0, in "${q(sentence)}"`,
           found === null ? `is not a sentence ${language}'s list holds` : `holds ${found.kind} "${q(found.token)}"`;
         // Only an unlisted sentence with no trigger can pass by listing; one with a trigger in a closed section passes
         // only as B or E, so its fix names them where its language has them.
-        const shapesFix = 'write it as B or E (docs/CONTENT-STYLE.md §9)';
+        const shapesFix = `write it as B or E (docs/CONTENT-STYLE.md ${SHAPES_AT[language] ?? '§9'})`;
         const fix =
           found !== null
             ? closed && shapes !== undefined
@@ -279,7 +298,7 @@ U+00A0, in "${q(sentence)}"`,
     if (rowsOf(b.id).length === 0) noFall(b.name, b.sentence, 'R6');
     else if (hits.length === 0)
       report(
-        `"more than ${b.n} %" in "${b.sentence}" holds for none of ${b.name}'s falls in the chart ${between}`,
+        `"${b.more === undefined ? `more than ${b.n} %` : q(b.more)}" in "${b.sentence}" holds for none of ${b.name}'s falls in the chart ${between}`,
         'R6',
       );
     else {
@@ -291,7 +310,7 @@ chart are more than ${b.n} % ${between}`,
         );
       if (Math.min(...hits.map((r) => year(r.high))) !== b.y1 || Math.max(...hits.map((r) => year(r.low))) !== b.y2)
         report(
-          `"${between}" in "${b.sentence}" does not run from the year of the first high to the year of the last low \
+          `"${b.span ?? between}" in "${b.sentence}" does not run from the year of the first high to the year of the last low \
 of the falls it counts`,
           'R6',
         );

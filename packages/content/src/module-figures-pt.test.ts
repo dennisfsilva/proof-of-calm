@@ -322,15 +322,15 @@ space, and %; R5 (docs/CONTENT-STYLE.md §4)`,
     );
   });
 
-  // N10: the intro's three sentences, B and E each fail, since de lists none and has no shapes.
+  // N10: the intro's three sentences, B and E each fail, since fr lists none and has no shapes.
   it('9: a language without shapes still fails closed, its intro too', async () => {
-    const found = await problemsOf(pt(), 'de');
+    const found = await problemsOf(pt(), 'fr');
     expect(found.map(({ code }) => code)).toEqual([FC, FC, FC, FC, FC, ...FU4]);
     expect(found[0]?.detail).toBe(
-      `body: "Um plano mensal define o dia de cada compra." is not a sentence de's list holds and matches neither shape of a chart's section, and de has no shapes for a chart's section yet; ${LIST_IT}; R5 (docs/CONTENT-STYLE.md §4)`,
+      `body: "Um plano mensal define o dia de cada compra." is not a sentence fr's list holds and matches neither shape of a chart's section, and fr has no shapes for a chart's section yet; ${LIST_IT}; R5 (docs/CONTENT-STYLE.md §4)`,
     );
     expect(found[3]?.detail).toBe(
-      `body: "${nb(S1)}" holds a figure "4" and matches neither shape of a chart's section, and de has no shapes for a chart's section yet; R5 (docs/CONTENT-STYLE.md §4)`,
+      `body: "${nb(S1)}" holds a figure "4" and matches neither shape of a chart's section, and fr has no shapes for a chart's section yet; R5 (docs/CONTENT-STYLE.md §4)`,
     );
   });
 });
