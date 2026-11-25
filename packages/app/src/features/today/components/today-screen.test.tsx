@@ -489,6 +489,16 @@ describe('TodayScreen, the annual review', () => {
     expect(screen.queryByText(REVIEW)).toBeNull();
     expect(screen.getByText(BACKUP)).toBeDefined();
   });
+
+  it('another plan written while Today is open starts a new foot: `held` is the new plan’s, not the old visit’s', async () => {
+    // Past the exit date with no units held: no review; another tab imports a plan with the same dates and coins.
+    const { services } = await mount({ ...fixtureSnapshot(), entries: [] }, at('2031-02-01'));
+    expect(screen.queryByText(REVIEW)).toBeNull();
+    const { plan, entries } = fixtureSnapshot();
+    const other = { ...(plan as Plan), id: '00000000-0000-4000-8000-000000009999' as Plan['id'] };
+    await act(() => services.domain.write({ plan: other, entries }));
+    expect(screen.getByText(REVIEW)).toBeDefined();
+  });
 });
 
 const CLEAR_LAST = { date: '2026-10-19' as CalendarDate, sevenDay: null, fromHigh90: '-1' as Percent };

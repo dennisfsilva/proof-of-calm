@@ -408,6 +408,35 @@ describe('AppShell', () => {
     expect(registerUpdates).toHaveBeenCalledTimes(1);
   });
 
+  it('fetches no price and registers nothing while booting hidden, then does both once the page shows', async () => {
+    vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden');
+    let answer = () => undefined as void;
+    const latest = vi.fn<PriceSource['latest']>(
+      (currency) =>
+        new Promise((resolve) => {
+          answer = () => resolve(ok({ ...pricesAt(FIXTURE_PRICES, TEST_NOW_MS), currency }));
+        }),
+    );
+    // Stored prices older than the client TTL, so a refresh asks the source.
+    const snapshot = { ...fixtureSnapshot(), prices: pricesAt(FIXTURE_PRICES, TEST_NOW_MS - 5 * 60_000) };
+    const services = createTestServices({ snapshot, priceSource: { latest } });
+    const registerUpdates = vi.fn();
+    renderShell(services, { registerUpdates });
+    await start(services);
+    passTime(120_000);
+    expect(latest).not.toHaveBeenCalled();
+    expect(registerUpdates).not.toHaveBeenCalled();
+    vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('visible');
+    act(() => void document.dispatchEvent(new Event('visibilitychange')));
+    expect(latest).toHaveBeenCalledTimes(1);
+    expect(registerUpdates).not.toHaveBeenCalled();
+    await act(async () => answer());
+    expect(registerUpdates).toHaveBeenCalledTimes(1);
+    act(() => void document.dispatchEvent(new Event('visibilitychange')));
+    await act(async () => undefined);
+    expect(registerUpdates).toHaveBeenCalledTimes(1);
+  });
+
   it('ticks and refreshes the prices once ready, and again when the page becomes visible', async () => {
     const services = createTestServices();
     const refresh = vi.spyOn(services.prices, 'refresh');
