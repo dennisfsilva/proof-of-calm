@@ -127,12 +127,12 @@ export function LogScreen() {
     revealing.current = false;
     focusInView(rowToggle(screenRef.current, LOG_PAGE));
   }, [view.revealed]);
-  // A move of the window drops an Undo's focus target, which may now be out of it; Go to year keeps the focus on
-  // its choice, the others move it to the window's first row and bring the range line to the top (DESIGN §6).
-  const page = (go: () => void, focus: boolean) => {
-    restoring.current = null;
-    paging.current = focus;
-    go();
+  // A move of the window drops an Undo's focus target, which may now be out of it, moves the focus to the window's
+  // first row and brings the range line to the top (DESIGN §6); Go to year's choice keeps its focus when none moves.
+  const page = (moves: boolean) => {
+    if (moves) restoring.current = null;
+    paging.current = moves;
+    return moves;
   };
   useEffect(() => {
     if (!paging.current) return;
@@ -339,9 +339,9 @@ export function LogScreen() {
             range={range}
             years={years}
             year={year === undefined ? null : Number(year)}
-            onNewer={() => page(view.newer, true)}
-            onOlder={() => page(view.older, true)}
-            onYear={(start) => page(() => view.goTo(start), false)}
+            onNewer={() => page(view.newer())}
+            onOlder={() => page(view.older())}
+            onYear={(start) => page(view.goTo(start))}
           />
         )}
       </>

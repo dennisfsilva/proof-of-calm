@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@proofofcalm/ui/components/select';
-import type { Ref } from 'react';
+import { type Ref, useRef } from 'react';
 import { useTranslations } from 'use-intl';
 import { useFormatters } from '../../../lib/services';
 import { figure } from '../lib/figure';
@@ -17,7 +17,7 @@ import type { LogRange } from './use-log-window';
 
 // Under the Log's window of transactions (docs/DOMAIN.md §3.9, docs/CONTENT-STYLE.md §3): "Show newer entries" while
 // a newer one is outside it, "Show older entries" while an older one is, and "Go to year" with each year that has a
-// transaction, newest first, on the year of the window's first one. The screen moves the focus after a move.
+// transaction, newest first, on the year of the window's first one. The screen moves the focus after each move.
 
 export type LogPagerProps = {
   readonly range: LogRange;
@@ -26,7 +26,8 @@ export type LogPagerProps = {
   readonly year: number | null;
   readonly onNewer: () => void;
   readonly onOlder: () => void;
-  readonly onYear: (start: number) => void;
+  /** Goes to the transaction at `start` and says whether the window moved. */
+  readonly onYear: (start: number) => boolean;
 };
 
 /**
@@ -49,9 +50,17 @@ export function LogRangeLine({ range, ref }: { readonly range: LogRange; readonl
 
 export function LogPager({ range, years, year, onNewer, onOlder, onYear }: LogPagerProps) {
   const t = useTranslations('log');
+  // A year that moved the window leaves the focus to the screen, which moves it once the window commits; the list
+  // closing would otherwise return it to the choice, under the grown window (zoom-125, 2026-11-25).
+  const moved = useRef(false);
   const choose = (chosen: number | null) => {
     const start = years.find((candidate) => candidate.year === chosen)?.start;
-    if (start !== undefined) onYear(start);
+    moved.current = start !== undefined && onYear(start);
+  };
+  const finalFocus = () => {
+    const returns = !moved.current;
+    moved.current = false;
+    return returns;
   };
   return (
     <div className="flex flex-wrap items-end gap-target-gap">
@@ -72,7 +81,7 @@ export function LogPager({ range, years, year, onNewer, onOlder, onYear }: LogPa
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent finalFocus={finalFocus}>
               {years.map((candidate) => (
                 <SelectItem key={candidate.year} value={candidate.year}>
                   {String(candidate.year)}

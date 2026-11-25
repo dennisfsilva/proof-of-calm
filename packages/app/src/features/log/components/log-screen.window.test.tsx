@@ -121,7 +121,8 @@ describe('LogScreen past LOG_WINDOW transactions', () => {
     expect(screen.queryByText(/^Entries \d+ to \d+ of /)).toBeNull();
   });
 
-  it("goes to a year's newest entry and keeps the focus on the choice", async () => {
+  // The choice sits under the window, which grows above it: the focus would stay off-screen (zoom-125, 2026-11-25).
+  it("goes to a year's newest entry, focuses it and brings the range line to the top", async () => {
     await mount(withBuys(250, true));
     const user = userEvent.setup({ document });
     const year = screen.getByRole('combobox', { name: 'Go to year' });
@@ -130,7 +131,23 @@ describe('LogScreen past LOG_WINDOW transactions', () => {
     await user.click(await screen.findByRole('option', { name: '2025' }));
     await vi.waitFor(() => expect(caption().textContent).toBe('Entries 103 to 202 of 258'));
     expect(toggles()[0]?.textContent).toMatch(/^31\sDec\s2025Extra buy/);
+    await vi.waitFor(() => expect(screen.queryByRole('listbox')).toBeNull());
+    await act(() => new Promise((resolve) => setTimeout(resolve, 50)));
+    expect(document.activeElement).toBe(toggles()[0]);
+    expect(scrolled).toHaveBeenLastCalledWith({ block: 'start' });
+    expect(scrolled.mock.contexts.at(-1)).toBe(caption());
+  });
+
+  it("keeps the focus on the choice when the window already starts on the year's newest entry", async () => {
+    await mount(withBuys(250, true));
+    const user = userEvent.setup({ document });
+    await user.click(screen.getByRole('combobox', { name: 'Go to year' }));
+    await user.click(await screen.findByRole('option', { name: '2026' }));
+    await vi.waitFor(() => expect(screen.queryByRole('listbox')).toBeNull());
+    await act(() => new Promise((resolve) => setTimeout(resolve, 50)));
+    expect(caption().textContent).toBe('Entries 1 to 100 of 258');
     expect(document.activeElement).toBe(screen.getByRole('combobox', { name: 'Go to year' }));
+    expect(scrolled).not.toHaveBeenCalledWith({ block: 'start' });
   });
 
   it('slides the next row into a window whose last row was deleted, and focuses it', async () => {
