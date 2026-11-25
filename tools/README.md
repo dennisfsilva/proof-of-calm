@@ -93,8 +93,15 @@ The root `turbo.json` lists the report among the build's outputs, so a cache hit
 `serve/vercel-local.ts` is the local stand-in for Vercel (ADR-0045 §11 and its deviations): it serves a
 static build through its `vercel.json`, runs the API function from its bundle and compresses as Vercel
 does; `apps/web/playwright.config.ts` and `apps/web/lighthouserc.json` start it (`--port`, `--dir`,
-`--api`, `--env`; it prints `Ready on` when it listens). It emulates only what the repository's
-`vercel.json` uses and refuses anything else at start.
+`--api`, `--env`, `--tls`; it prints `Ready on` and its origin when it listens). It emulates only what
+the repository's `vercel.json` uses and refuses anything else at start. Plain, it speaks http/1.1 and
+drops the policy's `upgrade-insecure-requests` (the e2e suite); with `--tls` it speaks HTTP/2, and
+HTTP/1.1 by ALPN, over https on a certificate `serve/self-signed.ts` makes at each start (an EC P-256
+key, valid a week, kept in memory), and keeps the whole policy. Lighthouse runs that way, because its
+simulation gives an http/1.1 origin six connections and an h2 one a single multiplexed connection, as
+Vercel serves: `/log` measured 3,223 and 3,459 ms of LCP over http/1.1 and 2,214 ms over h2 on
+2026-11-25 (one run each, 34 requests). Its Chrome takes `--ignore-certificate-errors`, without which
+the service worker does not register, and `lighthouse/vercel.ts` leaves that flag out at a deployment.
 
 Turbo hashes a task over its own package and its dependencies, so a test here that reads another
 package's files names them in `turbo.json`'s `test.inputs` with `$TURBO_ROOT$`; otherwise a change to
