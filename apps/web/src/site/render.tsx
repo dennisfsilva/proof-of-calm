@@ -65,6 +65,12 @@ type PublicPage =
 export type SitePage = (typeof SITE_PAGES)[number] | PublicPage;
 
 /**
+ * The site pages the service worker precaches (`scripts/bundle-worker.ts`), whose revision is their content: they
+ * carry no build date, or every daily rebuild would ship a new worker and an update offer to every installed app.
+ */
+const PRECACHED: ReadonlySet<SitePage> = new Set(['~offline']);
+
+/**
  * What `scripts/bundle-islands.ts` built: the boot script's fixed text (`BOOT_SCRIPT`, hashed in the CSP) and each
  * island's URL, which the boot script loads from its `data-entry`. Without them the holding-date page is static.
  */
@@ -300,7 +306,7 @@ export function renderSitePage(
       indexable,
       language,
       ...(canonical !== undefined && { canonical }),
-      ...(data !== undefined && { buildDate: data.today }),
+      ...(data !== undefined && !PRECACHED.has(name) && { buildDate: data.today }),
     }),
     '</head>',
     '<body>',
