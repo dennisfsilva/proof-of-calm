@@ -19,11 +19,27 @@ describe('siteTranslator', () => {
     );
   });
 
+  it('words them in German, the four legal pages’ objects falling back to English key by key', () => {
+    const legal = siteTranslator('legal', 'de');
+    expect(legal('risk.title')).toBe('Risikohinweise');
+    expect(legal('terms.title')).toBe('Terms of use');
+    expect(siteTranslator('unavailable', 'de')('body', { product: 'Product' })).toBe(
+      'Product ist im Vereinigten Königreich noch nicht verfügbar.',
+    );
+  });
+
   it('marks as English only what a language leaves in English', () => {
     expect(englishLang('pt-PT', 'legal.terms.title')).toBe('en');
     expect(englishLang('pt-PT', 'legal.cookies.storesTab')).toBe('en');
     expect(englishLang('pt-PT', 'legal.risk.title')).toBeUndefined();
     expect(englishLang('en', 'legal.terms.title')).toBeUndefined();
+  });
+
+  it('reads German’s own file for what German leaves in English', () => {
+    expect(englishLang('de', 'legal.terms.title')).toBe('en');
+    expect(englishLang('de', 'legal.contact.security')).toBe('en');
+    expect(englishLang('de', 'legal.risk.title')).toBeUndefined();
+    expect(englishLang('de', 'notFound.body')).toBeUndefined();
   });
 
   it('names the links the 404 page has, the home page and the legal pages, and no more', () => {
@@ -47,6 +63,7 @@ describe('siteTranslator', () => {
     const description = [
       siteTranslator('manifest')('description'),
       siteTranslator('manifest', 'pt-PT')('description'),
+      siteTranslator('manifest', 'de')('description'),
     ].join(' ');
     const named = COINS.flatMap((coin) => [coin.name, coin.id]).filter((word) =>
       new RegExp(`\\b${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(description),
