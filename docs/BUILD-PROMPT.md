@@ -1060,6 +1060,29 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   2026-11-25).
 - A measurement that asserts nothing runs opt-in, outside the default suite, with its command in
   `CLAUDE.md` (#516; 2026-11-25).
+- A design check's fallback names the cost it rests on, and a miss is profiled before the fallback
+  runs. #527's design note said "on a miss, set `LOG_WINDOW = 48`"; at 48, Show all's longest task
+  (314–321 ms) and opening Go to year (172–197 ms) measured as at 100, since neither cost is the
+  window's rows, while 48 made a Log of 49 to 100 transactions page, so the session set 100 back
+  (#527; 2026-11-25).
+- A baseline figure names the commit it was measured on, and a builder measures a control beside
+  its change. #524's control, Show all at the cap, read 17–20 s against #516's 43–47 s, because #516
+  measured on a branch whose last commit predates #515's formatter cache (#524; 2026-11-25).
+- `--repeat-each=3` runs the cap's repeats on parallel Playwright workers, three throttled Chromium
+  instances on one machine: a figure within about a fifth of the 100 ms rule is measured again
+  before it decides a constant (#527's window moves read 82–95 ms in one measurement and up to
+  115 ms in the next; 2026-11-25).
+- Paired `lighthouse-branch.yml` dispatches land on runners of different speed: one of #526's three
+  pairs fell within 10 % of each other's benchmarkIndex (the others 16 % and 42 % apart), so a brief
+  that needs a matched pair budgets three dispatches of each (#526; 2026-11-25).
+- A change to a shared ui component is evaluated on every consumer, main against the branch, option
+  by option. #527's bottom margin kept every Select's list above the phone tab bar and lost no
+  option, but it lifted the lists opened by click about 60 px at 125 % text even far from the bar,
+  which only the comparison showed (#527; 2026-11-25).
+- A push during a GitHub incident can leave a pull request on its old head with no CI run: compare
+  `gh api repos/<owner>/<repo>/pulls/<n> --jq .head.sha` with `git ls-remote origin <branch>`
+  before reading its checks, and close and reopen the pull request to sync it (#527, GitHub's
+  incident of 2026-11-25).
 
 ## Known gaps
 
