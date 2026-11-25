@@ -3,7 +3,7 @@
   "filingNote": "Das Steuerjahr ist das Kalenderjahr. Die Online-Erklärung öffnet im April des Folgejahres; die Abgabefrist ist je nach département verschieden.",
   "lotRuleNote": "Keine Zuordnung nach Posten: Der Gewinn jedes steuerpflichtigen Verkaufs wird auf das gesamte Portfolio berechnet (Art.\u00a0150 VH bis III CGI).",
   "card": {
-    "classification": "Gewinne aus gelegentlichen Verkäufen von Privatpersonen (Art.\u00a0150 VH bis CGI; ab 1.\u00a0Januar\u00a02026 nur Kryptowerte nach MiCA; NFTs: Art.\u00a0150 VH ter). Berufsmäßiger Handel: nichtgewerbliche Gewinne (BNC); als Unternehmen: gewerbliche (BIC).",
+    "classification": "Gewinne aus gelegentlichen Verkäufen von Privatpersonen (Art.\u00a0150 VH bis CGI; ab 1.\u00a0Januar\u00a02026 nur Kryptowerte nach MiCA; NFTs: Art.\u00a0150 VH ter). Handel wie ein Profi: nichtgewerbliche Gewinne (BNC); als Unternehmen: gewerbliche (BIC).",
     "taxableEvents": [
       {
         "note": "Jeder Verkauf gegen ein gesetzliches Zahlungsmittel, unabhängig von der Haltedauer; steuerpflichtig ab dem ersten Euro, sobald die Verkaufspreise des Haushalts im Jahr EUR\u00a0305 übersteigen."
