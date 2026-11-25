@@ -88,7 +88,10 @@ describe('packages/content/rules/<language> (ADR-0057)', () => {
     ['de', 'DE'],
     ['de', 'ES'],
     ['de', 'FR'],
+    ['de', 'GB'],
+    ['de', 'IE'],
     ['de', 'PT'],
+    ['de', 'US'],
   ])("%s/%s is English's outside the name, the conditions and the change notice", (language, code) => {
     const english = countryRules(profileFile(code));
     const overlay = overlayFile(language, code);
@@ -122,10 +125,17 @@ describe('packages/content/rules/<language> (ADR-0057)', () => {
     expect(await loadRules('ZZ', 'pt-PT')).toBeNull();
   });
 
-  it('gives DE in German the German conditions of its profile file, marked de', async () => {
-    const rules = await loadRules('DE', 'de');
-    expect(rules?.holdingRuleConditions).toEqual(overlayFile('de', 'DE').holdingRuleConditions);
-    expect(rules?.holdingRuleConditions).not.toEqual((await loadRules('DE'))?.holdingRuleConditions);
+  it.each(['DE', 'US'])('gives %s in German the German conditions of its profile file, marked de', async (code) => {
+    const rules = await loadRules(code, 'de');
+    expect(rules?.holdingRuleConditions).toEqual(overlayFile('de', code).holdingRuleConditions);
+    expect(rules?.holdingRuleConditions).not.toEqual((await loadRules(code))?.holdingRuleConditions);
+    expect(rules === null ? null : contentLanguageOf(rules)).toBe('de');
+  });
+
+  it.each(['GB', 'IE'])('gives %s in German its German name, marked de', async (code) => {
+    const rules = await loadRules(code, 'de');
+    expect(rules?.name).toBe(overlayFile('de', code).name);
+    expect(rules?.name).not.toBe((await loadRules(code))?.name);
     expect(rules === null ? null : contentLanguageOf(rules)).toBe('de');
   });
 

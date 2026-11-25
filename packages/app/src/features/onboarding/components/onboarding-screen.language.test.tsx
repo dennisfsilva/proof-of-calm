@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { loadProfile, loadProfiles, loadTemplateTexts, TEMPLATES, type TemplateTexts } from '@proofofcalm/content';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { userEvent } from 'storybook/test';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { EMPTY_SNAPSHOT, memoryPlanStore } from '../../../lib/adapters';
 import { I18nProvider, type UiLanguage } from '../../../lib/i18n';
@@ -237,6 +238,17 @@ describe("OnboardingScreen in German: Germany's German profile (ADR-0057, Correc
   const click = (name: string) => act(() => fireEvent.click(screen.getByRole('button', { name })));
   const type = (label: RegExp, value: string) =>
     act(() => fireEvent.change(screen.getByLabelText(label), { target: { value } }));
+
+  it('names the United Kingdom, Ireland and the USA in German in the country list, unmarked', async () => {
+    await mount('de');
+    const user = userEvent.setup({ document });
+    await user.click(await screen.findByRole('combobox', { name: german.country.label }));
+    for (const name of ['Vereinigtes Königreich', 'Irland', 'USA']) {
+      const option = await screen.findByRole('option', { name });
+      expect(option.closest('[lang]'), name).toBeNull();
+      expect(option.querySelector('[lang]'), name).toBeNull();
+    }
+  });
 
   it("shows Germany's German conditions unmarked under the early window", async () => {
     const texts = await loadTemplateTexts('de');
