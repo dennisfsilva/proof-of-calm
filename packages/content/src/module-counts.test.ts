@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { COUNT_NOUNS, moduleCountProblems, moduleCountTexts } from './module-counts.ts';
+import { COUNT_NOUNS, isCountLanguage, moduleCountProblems, moduleCountTexts } from './module-counts.ts';
 
 // docs/CONTENT-STYLE.md §4: a Learn module joins a count to a listed noun with one U+00A0, so that a line never ends
 // between them (the 25z probe, Chromium and WebKit, 240 to 400 px). Every hidden character here is built from its
@@ -24,7 +24,28 @@ const NOUNS = {
     'signs',
   ],
   'pt-PT': ['blocos', 'observações', 'componentes', 'índices', 'bitcoins', 'países', 'ciclos', 'partes', 'sinais'],
+  de: [
+    'Blöcke',
+    'Blöcken',
+    'Datenpunkte',
+    'Datenpunkten',
+    'Komponenten',
+    'Indizes',
+    'Bitcoins',
+    'Episoden',
+    'Startmonate',
+    'Startmonaten',
+    'Länder',
+    'Ländern',
+    'Zyklen',
+    'abgeschlossene Zyklen',
+    'abgeschlossenen Zyklen',
+    'Teile',
+    'Teilen',
+    'Anzeichen',
+  ],
 } as const;
+type Language = keyof typeof NOUNS;
 // Each gap that is not exactly one U+00A0: a space, a thin space, a tab, U+00A0 with a space on either side, a format
 // character (U+0600), a control character (U+0085) and a source line break.
 const GAPS: readonly (readonly [string, string])[] = [
@@ -37,11 +58,11 @@ const GAPS: readonly (readonly [string, string])[] = [
   [cp(0x85), 'U+0085'],
   ['\n', 'U+000A'],
 ];
-const codes = (text: string, language: 'en' | 'pt-PT', field = 'body') =>
+const codes = (text: string, language: Language, field = 'body') =>
   moduleCountProblems(at, [[field, text]], language).map(({ code }) => code);
 
 describe('moduleCountProblems: a count and its listed noun, joined by one U+00A0 (docs/CONTENT-STYLE.md §4)', () => {
-  for (const language of ['en', 'pt-PT'] as const) {
+  for (const language of ['en', 'pt-PT', 'de'] as const) {
     it(`refuses every gap but one U+00A0 before each ${language} noun`, () => {
       for (const noun of NOUNS[language]) {
         const reported = GAPS.map(([gap]) => codes(`It holds 6${gap}${noun}, as written.`, language));
@@ -52,14 +73,23 @@ describe('moduleCountProblems: a count and its listed noun, joined by one U+00A0
   }
 
   it('lists exactly the nouns the probe joined', () => {
-    for (const language of ['en', 'pt-PT'] as const)
+    for (const language of ['en', 'pt-PT', 'de'] as const)
       for (const noun of NOUNS[language])
         expect([language, noun, COUNT_NOUNS[language].test(noun)]).toEqual([language, noun, true]);
     expect(['falls', 'quedas', 'years', 'anos'].filter((noun) => COUNT_NOUNS.en.test(noun))).toEqual([]);
+    expect(['Rückgänge', 'Rückgang', 'Jahre'].filter((noun) => COUNT_NOUNS.de.test(noun))).toEqual([]);
+  });
+
+  it('accepts the module counts only in a language whose nouns it lists', () => {
+    expect(['en', 'pt-PT', 'de', 'fr', 'pt', ''].filter((language) => isCountLanguage(language))).toEqual([
+      'en',
+      'pt-PT',
+      'de',
+    ]);
   });
 
   it('prints the gap by code point, the field and the noun as the page shows it', () => {
-    const report = (text: string, field: string, language: 'en' | 'pt-PT') =>
+    const report = (text: string, field: string, language: Language) =>
       moduleCountProblems(at, [[field, text]], language).map(({ detail }) => detail);
     expect(report('It mixes 6 inputs, as published.', 'body', 'en')).toEqual([
       'body: the count "6" and its noun "inputs" are joined by U+0020, not U+00A0; replace the gap with one U+00A0; ' +
@@ -132,7 +162,7 @@ describe('moduleCountProblems: a count and its listed noun, joined by one U+00A0
     'one U+00A0; R7 (docs/CONTENT-STYLE.md §4)';
   const holds = (count: string, noun: string, held: string, field = 'body') =>
     `${field}: the count "${count}" before its noun "${noun}" holds ${held}; delete it; R7 (docs/CONTENT-STYLE.md §4)`;
-  const details = (text: string, field = 'body', language: 'en' | 'pt-PT' = 'en') =>
+  const details = (text: string, field = 'body', language: Language = 'en') =>
     moduleCountProblems(at, [[field, text]], language).map(({ detail }) => detail);
 
   it('refuses a default-ignorable at every place around a count and its noun, of every general category', () => {
@@ -244,6 +274,21 @@ describe('moduleCountProblems: a count and its listed noun, joined by one U+00A0
     expect(codes('2013 cycles began the chart.', 'en')).toEqual([]);
     expect(codes('1900 blocks and 2099 cycles', 'en')).toEqual([]);
     expect(codes('A 9 de julho de 2016 blocos pagaram metade.', 'pt-PT')).toEqual([]);
+  });
+
+  it('reads a German year before a listed noun as a year', () => {
+    expect(codes('Die 2017 und 2021 Zyklen hatten Höchststände.', 'de')).toEqual([]);
+    expect(codes(`Am 9.${NBSP}Juli 2016 Blöcke zahlten halb so viel.`, 'de')).toEqual([]);
+    expect(codes('1899 Blöcke', 'de')).toEqual(['figure-join']);
+  });
+
+  it(`reads \`210${NBSP}000 Blöcke\` with U+00A0 groups as one count`, () => {
+    expect(codes(`alle 210${NBSP}000${NBSP}Blöcke`, 'de')).toEqual([]);
+    expect(codes(`alle 210${NBSP}000 Blöcke`, 'de')).toEqual(['figure-join']);
+    expect(details(`alle 210${NBSP}000 Blöcke`, 'body', 'de')).toEqual([
+      `body: the count "210${NBSP}000" and its noun "Blöcke" are joined by U+0020, not U+00A0; replace the gap with ` +
+        'one U+00A0; R7 (docs/CONTENT-STYLE.md §4)',
+    ]);
   });
 
   it('still reads a count outside the years, or one with a group separator', () => {
