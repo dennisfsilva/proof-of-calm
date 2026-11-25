@@ -659,7 +659,9 @@ a dash or hyphen with no joiner after it (`range-join`).
 
 A figure and its unit are joined by U+00A0 as well (`365 days`, `5 anos`): the units are a closed
 list, `day`, `week`, `month` and `year` with their plurals in English, and `dia`, `semana`, `mês`,
-`ano` with their plurals in pt-PT. Every text of a language with lists is read with every
+`ano` with their plurals in pt-PT, and `Tag`, `Woche`, `Monat`, `Jahr`, `Stunde` and `Minute` with
+their plural and case forms in German, read with their capital only, so that a lower-case word
+never matches (decided 2026-11-25). Every text of a language with lists is read with every
 language's units, since an English card quotes its country's law in that law's language
 (`365 dias` in Portugal's English card, decided 2026-11-18). `Suplemento` is checked only after an ordinal figure, as an
 ordinal and its noun (`2.º Suplemento`, §9). A word counted after a figure (`6 escalões`,
@@ -1281,7 +1283,9 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
   `lib/format` may add the zone (`14:05 MESZ`), and never a placeholder in a compound (`Kosten für
   {coin}`, not `{coin}-Kosten`). `packages/content/src/hyphen-validate.ts` refuses a German unit
   hyphened to its numeral (`365-Tage`, `1-jährige`, `4-mal`); `packages/content/src/join-validate.ts`
-  holds no German lists yet, and a German profile or module overlay waits for it. A template's texts
+  holds the German lists since 2026-11-25 (the names `§`, `§§`, `Abs.`, `Satz`, `Nr.` and `Art.` with
+  the English ones; the months, long and short; the units, §4), so a German profile overlay is checked;
+  a German source's title is not yet. A template's texts
   never reach it: `packages/content/src/loaders/templates-language.test.ts` holds the German
   templates to the unit join, with the hyphen lint's units.
 - **The tax authority's own terms**: `privates Veräußerungsgeschäft`, `Freigrenze`, `Anlage SO`,

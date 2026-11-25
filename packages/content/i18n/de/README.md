@@ -1,7 +1,11 @@
 # de
 
-The German translations of the content, sparse, in `templates/` under the English file's name (ADR-0057): the four templates (`templates/accumulate.json`, `templates/btc-only-hold.json`, `templates/cycle-plan.json`, `templates/two-coins.json`) so far. No profile, fact or Learn module is translated yet, so no `rules/de/` folder is generated.
+The German translations of the content, sparse, in `templates/` and `jurisdictions/` under the English file's name (ADR-0057): the four templates (`templates/accumulate.json`, `templates/btc-only-hold.json`, `templates/cycle-plan.json`, `templates/two-coins.json`) and country profiles, each `jurisdictions/<code>.json` registered in `PROFILE_OVERLAYS.de` (`packages/content/src/loaders/countries.ts`). No fact or Learn module is translated yet. The rules files the shell boots on in German are generated into `packages/content/rules/de/`; never edit them by hand.
+
+A German profile is whole: it holds a German text at every path of its English file that a translation can hold (`packages/content/src/i18n/profile-overlays-de.test.ts`), since the app marks the whole profile German. The figures, dates and sources stay in the English file; the German file writes them as the English does, in Germany's number format (`EUR 20 350`, `5,5 %`).
 
 For translators: write German as `docs/CONTENT-STYLE.md` §10 sets it (`Sie`, the glossary, the imperative rule of §2's German rows), and write every number as a numeral, as the English does, except in a template's name, which spells out its number (`Drei Coins, ohne Verkaufsfenster`).
+
+In a profile, join with a no-break space (`\u00a0` in JSON) a currency code to its figure (`EUR 1000`), a law's parts to their numbers (`§ 23 Abs. 1 Satz 1 Nr. 2 EStG`), a date's day, month and year (`15. März 2027`) and a number to its unit (`365 Tage`); `pnpm validate:content` checks these (`figure-join`, `docs/CONTENT-STYLE.md` §4 and §10).
 
 In a template's texts, keep each `{date:<field>}` placeholder of the English text, and write each percentage as the English does, `40 %` with an ordinary space, in the same order: the app writes it in the plan's format (`overlay-percent-mismatch` otherwise). Keep the explanation's paragraphs, each after a blank line as in the English, and no other line break.
