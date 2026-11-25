@@ -76,7 +76,7 @@ const PROSE_JOINS: Readonly<Record<string, ProseJoins>> = {
     // `Suplemento` only after an ordinal figure (`2.º Suplemento`, CONTENT-STYLE §9): `2 Suplemento` is no unit.
     units: new RegExp(String.raw`dias?|semanas?|mês|meses|anos?|(?<=\d\.º${SPACE}+)Suplemento`, 'u'),
   },
-  // D2 of #486 (2026-11-25), for the German profile overlays: German's citation names with English's, which a
+  // D2 of ADR-0057's Corrections of 2026-11-25, for the German profile overlays: German's citation names with English's, which a
   // translation keeps where another country's law is cited; months long and short as lib/format writes them in de,
   // the day with its point; nouns capitalised, so a lower-case word is never read as a month or a unit.
   de: {

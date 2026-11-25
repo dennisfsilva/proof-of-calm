@@ -557,7 +557,7 @@ describe('a law name, a date and a range in pt-PT prose (docs/CONTENT-STYLE.md �
   });
 });
 
-// D2 of #486 (docs/CONTENT-STYLE.md §10): German's law names, its months long and short with the day's point
+// D2 of ADR-0057's Corrections of 2026-11-25 (docs/CONTENT-STYLE.md §10): German's law names, its months long and short with the day's point
 // (`15. März 2027`) and its unit words, each case-sensitive, so that a German profile overlay keeps its joins.
 describe('a law name, a date and a unit in German prose (docs/CONTENT-STYLE.md §10)', () => {
   const de = (text: string) => joinProblems(path, [['card.caveats.0', text]], 'de').map(({ detail }) => detail);

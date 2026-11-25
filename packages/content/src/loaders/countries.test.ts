@@ -174,7 +174,7 @@ describe('loadProfile and loadProfiles in a content language (ADR-0057)', () => 
   it('answers the English profile itself in English and in a language without a translation of the file', async () => {
     const english = await loadProfile('PT');
     expect(await loadProfile('PT', 'en')).toBe(english);
-    // German's files arrive one branch at a time (#486): each code without one answers its English profile.
+    // German's files arrive one branch at a time: each code without one answers its English profile.
     const german = await loadProfiles('de');
     COUNTRY_CODES.forEach((code, index) => {
       if (PROFILE_OVERLAYS.de[code] === undefined) expect(german[index], code).toEqual(profiles[index]);
@@ -268,7 +268,7 @@ describe('contentLanguageOf over the profiles (ADR-0057, Corrections of 2026-11-
     expect(contentLanguageOf(profile)).toBe('pt-PT');
   });
 
-  // D1 of #486: German's first profile file; every other code in German stays English until its file arrives.
+  // D1 of ADR-0057's Corrections of 2026-11-25: German's first profile file; every other code in German stays English until its file arrives.
   it('gives Germany its German name and text, marked de, and a code without a German file English', async () => {
     const germany = await loaded('DE', 'de');
     expect(germany.name).toBe('Deutschland');

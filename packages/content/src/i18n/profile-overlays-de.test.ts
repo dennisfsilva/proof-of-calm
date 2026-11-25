@@ -8,7 +8,7 @@ import type { CountryProfile } from '../schema/jurisdiction.ts';
 import { type ContentFile, validateContent } from '../validate.ts';
 import { isRecord, isTranslatable, type Segment } from './overlay.ts';
 
-// D1 of #486 (ADR-0057, Corrections of 2026-11-25): a German profile overlay is whole. Its profile is marked `de` as a
+// D1 of ADR-0057's Corrections of 2026-11-25: a German profile overlay is whole. Its profile is marked `de` as a
 // whole object (`contentLanguageOf`), so every text it can translate is German: an English string left at a
 // translatable path would show in German markup. The codes come from PROFILE_OVERLAYS.de, so each later file joins
 // these cases with its registry line alone.
