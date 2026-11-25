@@ -54,7 +54,7 @@
     "NL": "Die Regel für die Niederlande. 1 year, then tax-free.",
     "PT": "Die Regel für Portugal. 1 year, then tax-free.",
     "US": "Die Regel für die USA. 1 year, then tax-free.",
-    "XX": "Die Regel des allgemeinen Profils. "
+    "XX": "Die Regel des allgemeinen Profils. Proof of Calm wendet für Ihr Land keine Steuerfreiheit nach einer Haltefrist an: Jeder Verkauf kann steuerpflichtig sein."
   },
   "today.ruleChange.generic": {
     "DE": "16 Oct 2026: Die Regeln für Deutschland haben sich geändert. Prüfen Sie den Plan.",
@@ -161,7 +161,7 @@
     "NL": "Jetzt gilt die Regel für die Niederlande. 1 year, then tax-free.",
     "PT": "Jetzt gilt die Regel für Portugal. 1 year, then tax-free.",
     "US": "Jetzt gilt die Regel für die USA. 1 year, then tax-free.",
-    "XX": "Jetzt gilt die Regel des allgemeinen Profils. "
+    "XX": "Jetzt gilt die Regel des allgemeinen Profils. Proof of Calm wendet für Ihr Land keine Steuerfreiheit nach einer Haltefrist an: Jeder Verkauf kann steuerpflichtig sein."
   },
   "settings.country.row.ruleAfter": {
     "DE": "Nach der Änderung gilt die Regel für Deutschland. 1 year, then tax-free.",
@@ -173,7 +173,7 @@
     "NL": "Nach der Änderung gilt die Regel für die Niederlande. 1 year, then tax-free.",
     "PT": "Nach der Änderung gilt die Regel für Portugal. 1 year, then tax-free.",
     "US": "Nach der Änderung gilt die Regel für die USA. 1 year, then tax-free.",
-    "XX": "Nach der Änderung gilt die Regel des allgemeinen Profils. "
+    "XX": "Nach der Änderung gilt die Regel des allgemeinen Profils. Proof of Calm wendet für Ihr Land keine Steuerfreiheit nach einer Haltefrist an: Jeder Verkauf kann steuerpflichtig sein."
   },
   "settings.country.ruleName": {
     "DE": "die Regel für Deutschland",
