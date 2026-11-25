@@ -1,0 +1,30 @@
+{
+  "code": "IT",
+  "name": "Italy",
+  "currency": "EUR",
+  "locales": ["it-IT"],
+  "numberFormatLocale": "it-IT",
+  "dateFormatLocale": "it-IT",
+  "timezones": ["Europe/Rome"],
+  "taxYear": {
+    "start": "01-01",
+    "end": "12-31"
+  },
+  "computationModel": {
+    "kind": "per-lot"
+  },
+  "holdingRule": {
+    "kind": "none"
+  },
+  "holdingRuleOverrides": [],
+  "holdingRuleConditions": [],
+  "lotRule": "lifo",
+  "lotScope": "global",
+  "status": {
+    "version": 1,
+    "changedOn": "2026-01-01",
+    "changeNotice": null,
+    "lastReviewed": "2026-11-05",
+    "nextReviewDue": "2027-01-01"
+  }
+}

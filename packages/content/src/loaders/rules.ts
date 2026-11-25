@@ -38,6 +38,18 @@ const TRANSLATED: Readonly<Partial<Record<OverlayLanguage, typeof RULES>>> = {
     US: () => import('../../rules/pt-PT/us.json'),
     XX: () => import('../../rules/pt-PT/xx.json'),
   },
+  de: {
+    DE: () => import('../../rules/de/de.json'),
+    ES: () => import('../../rules/de/es.json'),
+    FR: () => import('../../rules/de/fr.json'),
+    GB: () => import('../../rules/de/gb.json'),
+    IE: () => import('../../rules/de/ie.json'),
+    IT: () => import('../../rules/de/it.json'),
+    NL: () => import('../../rules/de/nl.json'),
+    PT: () => import('../../rules/de/pt.json'),
+    US: () => import('../../rules/de/us.json'),
+    XX: () => import('../../rules/de/xx.json'),
+  },
 };
 
 /** The languages with generated rules files, for the stale test. */
