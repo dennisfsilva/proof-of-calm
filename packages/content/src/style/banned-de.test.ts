@@ -102,6 +102,7 @@ const NEEDED: string[] = [
   'ESMA führt ein öffentliches Register der nach MiCA zugelassenen Anbieter.',
   'Daten und Werkzeuge, keine Anlage- oder Steuerberatung.',
   'Daten und Werkzeuge, keine Beratung. Kryptowerte können ihren gesamten Wert verlieren.',
+  'Daten und Werkzeuge, keine Beratung. Kryptowerte können ihren Wert ganz oder teilweise verlieren.',
   'Die frühere Wertentwicklung ist kein verlässlicher Indikator für künftige Ergebnisse.',
   'Der Kryptowert kann seinen Wert ganz oder teilweise verlieren.',
   'Prüfen Sie das Datum vor dem Speichern.',
