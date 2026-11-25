@@ -130,7 +130,9 @@ describe('the German Risk page’s lead', () => {
   it('takes the ESAs’ German loss sentence, and opens with one sentence on the plan as English does', () => {
     const lead = german.legal.risk.lead;
     expect(lead).toContain(` ${ESAS} `);
-    expect(lead).toMatch(/^\{product\} ist Software für einen Plan, den Sie selbst festlegen\. Die Software gibt keine /);
+    expect(lead).toMatch(
+      /^\{product\} ist Software für einen Plan, den Sie selbst festlegen\. Die Software gibt keine /,
+    );
     expect(unescaped(renderSitePage('risk', ASSETS, data, 'de'))).toContain(ESAS);
   });
 });
