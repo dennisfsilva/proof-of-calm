@@ -1,7 +1,7 @@
 {
   "name": "Italien",
   "filingNote": "Das Steuerjahr ist das Kalenderjahr. Den Modello Redditi Persone fisiche geben Sie bis zum 31.\u00a0Oktober des Folgejahres online ab (für 2025: 2.\u00a0November\u00a02026, da der 31.\u00a0Oktober\u00a02026 ein Samstag ist), den Modello\u00a0730 bis zum 30.\u00a0September.",
-  "lotRuleNote": "Bei einer Veräußerung zählen die zuletzt gekauften Coins zuerst: Die Circolare 30/E §3.2.1 nennt die Methode L.I.F.O. für cripto-attività derselben Bezeichnung im regime dichiarativo. Kosten ohne Nachweis zählen als null.",
+  "lotRuleNote": "Bei einer Veräußerung zählen die zuletzt gekauften Coins zuerst: Die Circolare 30/E §3.2.1 nennt die Lifo-Methode (last in, first out) für cripto-attività derselben Bezeichnung im regime dichiarativo. Kosten ohne Nachweis zählen als null.",
   "card": {
     "classification": "Cripto-attività: Gewinne und andere Erträge aus der Rückgabe, der entgeltlichen Veräußerung, dem Tausch oder dem Besitz sind redditi diversi mit einer Ersatzsteuer (art.\u00a067 c.\u00a01 lett. c\u2011sexies TUIR, eingefügt durch L.\u00a0197/2022).",
     "taxableEvents": [
@@ -59,11 +59,11 @@
       "Staking-Belohnungen und Airdrops: Die Regel der Bruttoerträge gilt seit dem 1.\u00a0Januar\u00a02023; der Einbehalt von 26% durch ein italienisches Unternehmen, das sie gutschreibt, war bis zum 31.\u00a0Dezember\u00a02022 die Regelung der Circolare\u00a030/E.",
       "Veräußerungen von 2025, deren Preis 2026 einging.",
       "Quadro\u00a0RW und die Steuer von 0,2%, wenn eine italienische Börse die Stempelsteuer erhebt.",
-      "Welche Kostenmethode der Intermediär anwendet: Im wählbaren risparmio amministrato sind es die gewichteten Durchschnittskosten, nicht die Lifo-Methode (Circolare\u00a030/E §3.2.2). Eine Frage für Ihre Steuerberatung.",
+      "Welche Kostenmethode der Intermediär anwendet: Im wählbaren risparmio amministrato sind es die gewichteten Durchschnittskosten, nicht die Lifo-Methode (last in, first out; Circolare\u00a030/E §3.2.2). Eine Frage für Ihre Steuerberatung.",
       "Das Haushaltsgesetz 2027, am 5.\u00a0November\u00a02026 im Parlament.",
       "Kostennachweis: Kosten ohne Nachweis zählen als null."
     ],
-    "summary60": "Italien besteuert Gewinne aus Kryptowerten ab dem 1.\u00a0Januar\u00a02026 pauschal mit 33% (2025: 26%), ohne Freibetrag und ohne Befreiung nach einer Haltefrist. Ein Tausch gegen einen ähnlichen Kryptowert wird nicht besteuert, ein Verkauf gegen Euro oder E-Geld-Token schon. Lifo-Methode. Verluste lassen sich 4\u00a0Jahre vortragen. Bestände werden jährlich gemeldet (Quadro\u00a0RW, 0,2% Steuer auf ihren Wert)."
+    "summary60": "Italien besteuert Gewinne aus Kryptowerten ab dem 1.\u00a0Januar\u00a02026 pauschal mit 33% (2025: 26%), ohne Freibetrag und ohne Steuerfreiheit nach einer Haltefrist. Ein Tausch gegen einen ähnlichen Kryptowert wird nicht besteuert, ein Verkauf gegen Euro oder E-Geld-Token schon. Es gilt die Lifo-Methode. Verluste lassen sich 4\u00a0Jahre vortragen. Bestände werden jährlich gemeldet (Quadro\u00a0RW, 0,2% Steuer auf ihren Wert)."
   },
   "pendingChanges": [
     {
