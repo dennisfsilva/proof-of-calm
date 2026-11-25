@@ -26,6 +26,7 @@ import { useTranslations } from 'use-intl';
 import { reportError } from '../../../lib/errors';
 import { Link } from '../../../lib/navigation';
 import {
+  heldPortfolio,
   reviewSince,
   useClock,
   useFormatters,
@@ -128,7 +129,10 @@ function PortfolioNumber({ plan }: { plan: Plan }) {
   const rules = useRules();
   // The profile's lot scope and rule decide which sales take units with no recorded cost (DOMAIN §3.6).
   const value = useMemo(
-    () => portfolio(plan, entries, prices?.snapshot ?? null, holdingContext(plan, rules)),
+    () =>
+      prices === null
+        ? heldPortfolio(plan, entries, holdingContext(plan, rules))
+        : portfolio(plan, entries, prices.snapshot, holdingContext(plan, rules)),
     [plan, entries, prices, rules],
   );
   const priced = value.value !== null && prices !== null;
@@ -202,7 +206,11 @@ function PlanStrip({ plan, today }: { plan: Plan; today: CalendarDate }) {
  */
 function FootBanner({ plan, today, phase }: { plan: Plan; today: CalendarDate; phase: PhaseKind }) {
   const entries = useSnapshot((snapshot) => snapshot.entries);
-  const [held] = useState(() => portfolio(plan, entries).positions.some((position) => isPositive(position.units)));
+  const rules = useRules();
+  // The number above asks the same question with the same context: one computation serves both.
+  const [held] = useState(() =>
+    heldPortfolio(plan, entries, holdingContext(plan, rules)).positions.some((position) => isPositive(position.units)),
+  );
   const next = (redDay: RedDayEpisode | null) => (
     <NextBanner plan={plan} today={today} phase={phase} held={held} redDay={redDay} />
   );

@@ -1,6 +1,7 @@
 export { createBrowserServices } from './browser';
 export { type Countries, type CountryCardModel, type CountryEntry, countryCardModel } from './countries';
 export { createServices, type Services, type ServicesOptions } from './create';
+export { heldPortfolio } from './held';
 export {
   useBoot,
   useClock,

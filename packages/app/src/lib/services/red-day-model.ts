@@ -15,7 +15,6 @@ import {
   isPositive,
   nextBuyReminder,
   type PriceHistories,
-  portfolio,
   RED_DAY,
   type RedDayEpisode,
   type RedDayFlag,
@@ -25,6 +24,7 @@ import {
 } from '@proofofcalm/core';
 import { epochMs, todayIn } from '../adapters/clock';
 import type { CachedHistory, HistorySource } from '../ports';
+import { heldPortfolio } from './held';
 import type { PastFall, RedDayInput, RedDayModel } from './red-day-types';
 
 const WINDOW_DAYS = 90;
@@ -114,9 +114,9 @@ export async function recentEpisode(
 }
 
 export async function redDayModel(history: HistorySource, input: RedDayInput): Promise<RedDayModel> {
-  const { plan, entries, today } = input;
+  const { plan, entries, today, holding } = input;
   const nextBuy = nextBuyReminder(plan, entries, today)?.due ?? null;
-  const held = portfolio(plan, entries).positions.filter((position) => isPositive(position.units));
+  const held = heldPortfolio(plan, entries, holding).positions.filter((position) => isPositive(position.units));
   const none = {
     held: held.map(({ coin }) => ({ coin, name: nameOf(plan, coin) })),
     figure: null,

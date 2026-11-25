@@ -1,8 +1,15 @@
-import { type BannerKey, bannerFor, type Plan, type RedDayEpisode, UNDO_WINDOW_MS } from '@proofofcalm/core';
+import {
+  type BannerKey,
+  bannerFor,
+  holdingContext,
+  type Plan,
+  type RedDayEpisode,
+  UNDO_WINDOW_MS,
+} from '@proofofcalm/core';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'use-intl';
 import { reportError } from '../../../lib/errors';
-import { type RedDayModel, useServices } from '../../../lib/services';
+import { type RedDayModel, useRules, useServices } from '../../../lib/services';
 import { todayActions } from '../actions';
 import { RedDayBanner } from './red-day-banner';
 
@@ -25,6 +32,8 @@ function useRedDay(plan: Plan) {
   const t = useTranslations('today.redDay');
   const services = useServices();
   const [visit] = useState(plan);
+  const rules = useRules();
+  const [holding] = useState(() => holdingContext(plan, rules));
   const [shown, setShown] = useState<Shown | null | undefined>(undefined);
   // The episode under way, whether its banner shows on this visit or showed on an earlier one: it holds the annual
   // review back (docs/DOMAIN.md §3.12).
@@ -36,7 +45,7 @@ function useRedDay(plan: Plan) {
     const today = clock.today();
     const settle = async () => {
       const model = await redDay
-        .model({ plan: visit, entries: domain.store.getState().snapshot.entries, today })
+        .model({ plan: visit, entries: domain.store.getState().snapshot.entries, today, holding })
         .catch(() => null);
       if (!live) return;
       setEpisode(model?.episode ?? null);
@@ -64,7 +73,7 @@ function useRedDay(plan: Plan) {
     return () => {
       live = false;
     };
-  }, [visit, services]);
+  }, [visit, holding, services]);
   const record = async (key: BannerKey) => {
     if (recorded.current) return;
     try {
