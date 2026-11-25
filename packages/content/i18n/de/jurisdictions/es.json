@@ -15,10 +15,10 @@
         "note": "Ein Stablecoin ist eine andere Art von Coin, daher ist der Tausch eine permuta wie jede andere."
       },
       {
-        "note": "Eine Zahlung für Waren oder Dienstleistungen mit Kryptowerten ändert die Zusammensetzung des Vermögens (Art.\u00a033.1 LIRPF): Gewinn oder Verlust wie bei einem Verkauf; keine gelesene AEAT-Seite nennt Zahlungen (mittlere Belastbarkeit)."
+        "note": "Eine Zahlung für Waren oder Dienstleistungen mit Kryptowerten ändert die Zusammensetzung des Besitzes (Art.\u00a033.1 LIRPF): Gewinn oder Verlust wie bei einem Verkauf; keine gelesene AEAT-Seite nennt Zahlungen (mittlere Belastbarkeit)."
       },
       {
-        "note": "Eine Übertragung von Coins zwischen Wallets derselben Person ändert die Zusammensetzung des Vermögens nicht: kein Gewinn, kein Verlust (Art.\u00a033.1 LIRPF). Coins mit privaten Schlüsseln in eigener Hand zählen für Modelo\u00a0721 nicht."
+        "note": "Eine Übertragung von Coins zwischen Wallets derselben Person ändert die Zusammensetzung des Besitzes nicht: kein Gewinn, kein Verlust (Art.\u00a033.1 LIRPF). Coins mit privaten Schlüsseln in eigener Hand zählen für Modelo\u00a0721 nicht."
       },
       {
         "note": "Bei Schenkung folgt der Gewinn dem Wert der Schenkungsteuer (ISD), höchstens dem Marktwert (Art.\u00a036 LIRPF); im Todesfall keiner (Art.\u00a033.3.b). Ein Schenkungsverlust ist nicht abziehbar (Art.\u00a033.5.c). Beschenkte: ISD, nicht IRPF (Art.\u00a06.4)."
@@ -36,7 +36,7 @@
     ],
     "allowances": [
       "Kein Freibetrag für Gewinne aus Kryptowerten; die Gebühren und Steuern des Vorgangs, die die steuerpflichtige Person gezahlt hat, fließen in die Werte ein.",
-      "Modelo\u00a0721 nur, wenn Kryptowerte in ausländischer Verwahrung am 31.\u00a0Dezember EUR\u00a050\u00a0000 übersteigen; erneut, wenn er seit der letzten Erklärung um mehr als EUR\u00a020\u00a0000 wächst (Art.\u00a042 quater RGAT). Coins in Eigenverwahrung zählen nicht."
+      "Modelo\u00a0721 nur, wenn im Ausland verwahrte Kryptowerte am 31.\u00a0Dezember EUR\u00a050\u00a0000 übersteigen; erneut, wenn ihr Wert seit der letzten Erklärung um mehr als EUR\u00a020\u00a0000 wächst (Art.\u00a042 quater RGAT). Coins in Eigenverwahrung zählen nicht."
     ],
     "holdingRuleText": "Keine Haltefrist: Jeder Verkauf, jeder Tausch und jede Zahlung ist ein steuerpflichtiger Vorgang, unabhängig von der Haltedauer. Derselbe Tarif der Sparbasis gilt für einen Coin, der 1\u00a0Tag oder 10\u00a0Jahre gehalten wurde.",
     "lotRuleText": "Fifo je Coin-Art („criterio FIFO“, Renta-Handbuch der AEAT): Bei einem Teilverkauf von Coins aus Käufen zu verschiedenen Zeiten und Werten gehen die zuerst erworbenen zuerst ab. Das gelesene Handbuch nennt keine Trennung nach Plattform.",

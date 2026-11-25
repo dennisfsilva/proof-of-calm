@@ -37,7 +37,7 @@
       {
         "label": "Gesonderter Steuersatz auf Gewinne aus Kryptowerten",
         "value": "28%",
-        "note": "Auf den positiven Saldo der Gewinne aus Kryptowerten der Kategorie G (Art.\u00a072(1)\u2060(c) CIRS). Der Satz von 35% für Steueroasen nennt Kryptowerte nicht; dort entfallen stattdessen die Ausnahme und der Aufschub beim Tausch."
+        "note": "Auf den positiven Saldo der Gewinne aus Kryptowerten der Kategorie G (Art.\u00a072(1)\u2060(c) CIRS). Der Satz von 35% für gelistete Steueroasen nennt Kryptowerte nicht; dort entfallen stattdessen die Steuerfreiheit und der Aufschub beim Tausch."
       },
       {
         "label": "Wahlweise Einbeziehung in das Gesamteinkommen (englobamento)",
@@ -52,7 +52,7 @@
     ],
     "holdingRuleText": "Gewinne und Verluste aus Kryptowerten, die 365\u00a0Tage oder länger gehalten wurden, sind von der Steuer ausgenommen: „detidos por um período igual ou superior a 365\u00a0dias“ (Art.\u00a010 n.º\u00a022 CIRS, in Dokumenten von 2023–\u20602025 als n.º\u00a019 nummeriert). Eine am 1.\u00a0März\u00a02026 gekaufte Einheit fällt am 1.\u00a0März\u00a02027 unter die Ausnahme.",
     "lotRuleText": "Fifo-Methode, first in, first out („os alienados são os adquiridos há mais tempo“, Art.\u00a043 n.º\u00a08(g) CIRS, früher n.º\u00a06(g)), getrennt je Verwahrstelle oder Plattform (Art.\u00a043 n.º\u00a09, früher n.º\u00a07).",
-    "losses": "Verrechnung mit Gewinnen aus Kryptowerten desselben Jahres, ohne Einheiten ab 365\u00a0Tagen Haltedauer. Ein Nettoverlust wird nur mit englobamento 5\u00a0Jahre vorgetragen (Art.\u00a055(1)\u2060(d)); Verluste mit Steueroasen zählen nie (Art.\u00a043 n.º\u00a07).",
+    "losses": "Verrechnung mit Krypto-Gewinnen desselben Jahres, ohne Einheiten ab 365\u00a0Tagen Haltedauer. Nettoverlust: Vortrag 5\u00a0Jahre nur mit englobamento (Art.\u00a055(1)\u2060(d)); Verluste mit Gegenparteien in gelisteten Steueroasen zählen nie (Art.\u00a043 n.º\u00a07).",
     "reporting": [
       "Modelo\u00a03, Anexo\u00a0G Quadro\u00a018A: Veräußerungen von Einheiten mit einer Haltedauer unter 365\u00a0Tagen, je Vorgang, mit dem Land der Gegenpartei.",
       "Anexo\u00a0G Quadro\u00a018B: Veräußerungen mit einer Gegenpartei außerhalb der EU oder des EWR.",
@@ -87,7 +87,7 @@
     },
     {
       "title": "Verbindliche Auskunft der AT, PIV\u00a028969",
-      "summary": "Eine sofortige technische Umwandlung in einen Stablecoin, um ein Euro-Paar zu erreichen, ist kein steuerlich relevanter Zeitpunkt; der ursprüngliche Wert bleibt daher von der Steuer ausgenommen (mittlere Belastbarkeit)."
+      "summary": "Eine sofortige technische Umwandlung in einen Stablecoin, um ein Euro-Paar zu erreichen, ist kein steuerlich relevanter Zeitpunkt; die Steuerfreiheit des ursprünglichen Kryptowerts bleibt daher erhalten (mittlere Belastbarkeit)."
     },
     {
       "title": "Verbindliche Auskunft der AT, PIV\u00a029052",
