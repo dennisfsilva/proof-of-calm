@@ -9,7 +9,7 @@
         "note": "Ein Verkauf gegen Euro ist eine entgeltliche Veräußerung (cessione a titolo oneroso): Der Gewinn ist der erhaltene Preis abzüglich der belegten Kosten oder des Kaufwerts (art.\u00a068 c.\u00a09\u2011bis TUIR, so die Istruzioni)."
       },
       {
-        "note": "Ein Tausch zwischen Kryptowerten mit denselben Merkmalen und Funktionen (mit Bitcoin gekauftes Ether, im Beispiel der Circolare) ist nicht steuerpflichtig; die erhaltenen Coins übernehmen deren Kosten. Ein Tausch gegen ein NFT schon."
+        "note": "Ein Tausch zwischen Kryptowerten mit denselben Merkmalen und Funktionen (mit Bitcoin gekauftes Ether, im Beispiel der Circolare) wird nicht besteuert; die erhaltenen Coins übernehmen die Kosten der abgegebenen. Ein Tausch in ein NFT schon."
       },
       {
         "note": "Ein Tausch in einen E-Geld-Token (einen Stablecoin, den sein Emittent zum Nennwert in einer amtlichen Währung zurücknimmt) ist steuerpflichtig; ein Tausch in einen vermögenswertereferenzierten Token nicht (Circolare\u00a030/E)."
@@ -47,7 +47,7 @@
     "allowances": [
       "Keine Freigrenze: L.\u00a0207/2024 art.\u00a01 c.\u00a025 hat für Veräußerungen ab dem 1.\u00a0Januar\u00a02025 den jährlichen Betrag von EUR\u00a02000 gestrichen, unter dem Gewinne und Verluste nicht zählten."
     ],
-    "holdingRuleText": "Keine Haltefrist: Jede Veräußerung ist unabhängig von der Haltedauer steuerpflichtig, ab dem ersten Euro Gewinn seit dem 1.\u00a0Januar\u00a02025. Das gilt für einen Verkauf gegen Euro, gegen einen Stablecoin, der ein E-Geld-Token ist, oder gegen Waren. Ein Tausch zwischen Kryptowerten mit denselben Merkmalen und Funktionen ist nicht steuerpflichtig (art.\u00a067 c.\u00a01 lett. c\u2011sexies TUIR).",
+    "holdingRuleText": "Keine Haltefrist: Jeder Verkauf ist unabhängig von der Haltedauer steuerpflichtig, ab dem ersten Euro Gewinn seit dem 1.\u00a0Januar\u00a02025. Das gilt für einen Verkauf gegen Euro, gegen einen Stablecoin, der ein E-Geld-Token ist, oder gegen Waren. Ein Tausch zwischen Kryptowerten mit denselben Merkmalen und Funktionen ist nicht steuerpflichtig (art.\u00a067 c.\u00a01 lett. c\u2011sexies TUIR).",
     "lotRuleText": "Lifo-Methode (last in, first out): Die zuletzt erworbenen Coins gelten als zuerst abgegeben. Circolare\u00a030/E §3.2.1, regime dichiarativo: „deve essere assunto come costo o valore di acquisto quello determinato con il metodo L.I.F.O.“",
     "losses": "Verluste werden im selben Jahr mit Gewinnen derselben Art verrechnet; ein Überschuss lässt sich bis ins vierte Folgejahr vortragen, wenn er in der Erklärung des Entstehungsjahres steht (art.\u00a068 c.\u00a09\u2011bis TUIR, so die Istruzioni).",
     "reporting": [
