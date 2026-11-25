@@ -1635,7 +1635,8 @@ screens by loaders.
 ## Deviations recorded on 2026-11-25
 
 The decision stands; this gives the site pages of §6 their third language on the model of
-2026-11-18, still without a route for it.
+2026-11-18, still without a route for it, records how the local Lighthouse run of §11 is served,
+and when §5's update handler is handed over.
 
 - **2026-11-25, German site messages, no routes** (§6, §8; extends the entry of 2026-11-18 on site
   messages per language). `apps/web/messages/de.json` translates the same keys as
@@ -1672,3 +1673,9 @@ The decision stands; this gives the site pages of §6 their third language on th
   rc from the deployed commit and `tools/lighthouse/vercel.ts` from the workflow's, and main's copy
   before this entry passed the launch options through unchanged. `vercel.ts` also drops every
   certificate-ignoring option for every deployment. The e2e suite keeps plain http.
+- **2026-11-25, the update handler waits for a visible page** (§5; the entry of 2026-10-26 on
+  Today's TBT). That entry's "after the first boot and the first prices refresh" now reads: after
+  the first boot and the first prices refresh that runs while the page is visible. A page that boots
+  hidden fetches nothing until it shows, so the shell waits for `visibilitychange` and then reuses
+  the refresh the shell's prices effect starts; a failed boot still hands it over at once
+  (`packages/app/src/features/shell/app-shell.tsx`, #513).
