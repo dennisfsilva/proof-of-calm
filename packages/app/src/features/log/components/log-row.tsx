@@ -111,7 +111,8 @@ export const LogRow = memo(function LogRow({
       </span>
     </span>
   );
-  const detail = (
+  // A row the screen holds closed builds no detail, so a window of closed rows renders only their summaries.
+  const detail = open === false ? null : (
     <div className="flex flex-col items-start gap-2">
       <ul className="flex flex-col gap-1">
         {row.items.map((item) => (

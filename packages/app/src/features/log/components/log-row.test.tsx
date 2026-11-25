@@ -43,7 +43,12 @@ function ScreenRow(props: Omit<LogRowProps, 'formatters'>) {
   return <LogRow {...props} formatters={useFormatters()} />;
 }
 
-type Handlers = { note?: boolean; onDelete?: (row: TransactionRow) => void; onEdit?: (row: TransactionRow) => void };
+type Handlers = {
+  note?: boolean;
+  open?: boolean;
+  onDelete?: (row: TransactionRow) => void;
+  onEdit?: (row: TransactionRow) => void;
+};
 
 async function mount(row: Row, plan: Plan, options: Handlers = {}) {
   const services: Services = createTestServices({
@@ -61,6 +66,7 @@ async function mount(row: Row, plan: Plan, options: Handlers = {}) {
               row={row}
               plan={plan}
               note={options.note ?? false}
+              {...(options.open !== undefined && { open: options.open })}
               onDelete={options.onDelete ?? (() => undefined)}
               onEdit={options.onEdit ?? (() => undefined)}
             />
@@ -91,6 +97,18 @@ describe('LogRow', () => {
     fireEvent.click(toggle);
     expect(toggle.getAttribute('aria-expanded')).toBe('false');
     expect(screen.queryByRole('button', { name: 'Delete entry' })).toBeNull();
+  });
+
+  // At the cap a window mounts 100 rows, nearly all closed: a closed row builds no detail (docs/ENGINEERING.md §4).
+  it('builds no detail while the screen holds it closed, and builds it once open', async () => {
+    const lump = find(await fixtureRows(), 'lump');
+    await mount(lump, plan, { open: false });
+    const detail = document.querySelector('[data-slot="table-detail-row"]');
+    expect(detail?.textContent).toBe('');
+    expect(screen.queryByRole('button', { name: 'Delete entry', hidden: true })).toBeNull();
+    cleanup();
+    await mount(lump, plan, { open: true });
+    expect(screen.getByRole('button', { name: 'Delete entry' })).toBeTruthy();
   });
 
   it('says the cost is unknown for coins added with no recorded cost, and names their units alone', async () => {
