@@ -1,23 +1,23 @@
 {
   "ci": {
     "collect": {
-      "startServerCommand": "node ../../tools/serve/vercel-local.ts --port 3000 --api node_modules/.cache/lighthouse/api.mjs",
+      "startServerCommand": "node ../../tools/serve/vercel-local.ts --port 3000 --tls --api node_modules/.cache/lighthouse/api.mjs",
       "startServerReadyPattern": "Ready on",
       "startServerReadyTimeout": 60000,
       "url": [
-        "http://localhost:3000/today",
-        "http://localhost:3000/portfolio",
-        "http://localhost:3000/log",
-        "http://localhost:3000/plan",
-        "http://localhost:3000/",
-        "http://localhost:3000/en/learn/risk-honestly",
-        "http://localhost:3000/en/countries/pt",
-        "http://localhost:3000/en/holding-date"
+        "https://localhost:3000/today",
+        "https://localhost:3000/portfolio",
+        "https://localhost:3000/log",
+        "https://localhost:3000/plan",
+        "https://localhost:3000/",
+        "https://localhost:3000/en/learn/risk-honestly",
+        "https://localhost:3000/en/countries/pt",
+        "https://localhost:3000/en/holding-date"
       ],
       "numberOfRuns": 5,
       "puppeteerScript": "node_modules/.cache/lighthouse/seed.cjs",
       "puppeteerLaunchOptions": {
-        "args": ["--no-sandbox"]
+        "args": ["--no-sandbox", "--allow-insecure-localhost", "--ignore-certificate-errors"]
       },
       "settings": {
         "clearStorageTypes": ["file_systems", "shader_cache", "service_workers", "cache_storage"]

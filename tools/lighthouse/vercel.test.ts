@@ -21,8 +21,37 @@ describe('vercelConfig', () => {
       url: _url,
       ...kept
     } = rc.ci.collect as LighthouseRc['ci']['collect'] & Record<string, unknown>;
-    expect(vercelConfig(rc, preview).ci.collect).toEqual({ ...kept, url: expect.any(Array) });
+    const launch = { args: ['--no-sandbox', '--allow-insecure-localhost'] };
+    expect(vercelConfig(rc, preview).ci.collect).toEqual({
+      ...kept,
+      puppeteerLaunchOptions: launch,
+      url: expect.any(Array),
+    });
     expect(kept).toMatchObject({ numberOfRuns: 5, puppeteerScript: 'node_modules/.cache/lighthouse/seed.cjs' });
+  });
+
+  // The local server's certificate is self-signed (tools/serve/self-signed.ts), so Chrome ignores
+  // certificate errors there, or the service worker does not register; a deployment's certificate is real
+  // and checked. --allow-insecure-localhost applies to localhost alone and comes along unchanged.
+  it("takes the local server's https and certificate flags to no deployment", () => {
+    expect(rc.ci.collect.puppeteerLaunchOptions?.args).toContain('--ignore-certificate-errors');
+    expect(rc.ci.collect.url.every((url) => url.startsWith('https://localhost:'))).toBe(true);
+    for (const origin of [preview, production]) {
+      const config = vercelConfig(rc, origin);
+      expect(config.ci.collect.puppeteerLaunchOptions).toEqual({
+        args: ['--no-sandbox', '--allow-insecure-localhost'],
+      });
+      expect(config.ci.collect.url.every((url) => url.startsWith(`${origin}/`))).toBe(true);
+      expect(config.ci.collect.settings).toEqual(rc.ci.collect.settings);
+      const text = JSON.stringify(config);
+      for (const local of ['localhost:', '--tls', 'startServer', 'ignore-certificate-errors', 'extraHeaders']) {
+        expect(text, local).not.toContain(local);
+      }
+    }
+    const { puppeteerLaunchOptions: _launch, ...noLaunch } = rc.ci.collect;
+    expect(vercelConfig({ ci: { ...rc.ci, collect: noLaunch } }, preview).ci.collect).not.toHaveProperty(
+      'puppeteerLaunchOptions',
+    );
   });
 
   it('measures the four seeded screens, /, a public Learn page, a country page and the holding-date tool at every target, at the deployment it is given', () => {
