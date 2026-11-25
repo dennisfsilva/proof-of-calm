@@ -35,6 +35,12 @@ their own. Their prototypes, harnesses (`cases.mjs`, `harness.mjs`; `run.mjs`) a
    nested in a table's cell is `width: 0; min-width: 100%`: it adds nothing to the cell's min-content width, so its
    probe measures the cell and it stacks there (Holdings in pt-PT at 360 px: 442 px before, 328 px after, 2026-11-16).
    A table that is not rendered is skipped (`checkVisibility`, Safari 17.4; without it the check always runs).
+   Since 2026-11-25 the checks are batched: one ResizeObserver serves every probe, and the checks of one callback,
+   or of one task's mutations in a microtask, remove every attribute, read every width in one layout and set every
+   attribute. The mount's check is the probe's first observation, which runs after the frame's layout (a microtask
+   where there is no ResizeObserver), and an observation of the sizes the last check saw starts none. A check in a
+   layout effect, and again in that first observation, forced the page's layout at mount: Portfolio's useStack self
+   time at 4× CPU went from 40 to 106 ms to under 6 ms over three cold loads.
 3. The Table's tab stop (`scrolls`) comes from the same callback.
 4. Stacked, only the cells (`th`, `td`) become blocks; the table, its row groups and rows keep their display, so the
    accessibility tree is the same in both layouts.
