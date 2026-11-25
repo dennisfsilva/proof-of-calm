@@ -6,7 +6,7 @@
 // ./number-input.
 import { type CalendarDate, type CurrencyCode, type Decimal, dateParts, type MonthKey } from '@proofofcalm/core';
 import { LATIN_DIGITS } from './digits';
-import { createTimeFormatters, dateOptions, type TimeFormatters, unbroken } from './time';
+import { createTimeFormatters, dateOptions, once, type TimeFormatters, unbroken } from './time';
 
 export { createNumberInput, type NumberInput, type NumberInputError } from './number-input';
 
@@ -78,18 +78,20 @@ export function createFormatters(formattingLocale: string, uiLocale: string): Fo
     numbers.set(key, made);
     return made;
   };
-  const date = createDateFormatter(uiLocale);
-  const days = new Intl.DateTimeFormat(uiLocale, { ...LATIN_DIGITS, timeZone: 'UTC', day: 'numeric', month: 'long' });
-  const months = new Intl.DateTimeFormat(uiLocale, {
-    ...LATIN_DIGITS,
-    timeZone: 'UTC',
-    month: 'long',
-    year: 'numeric',
-  });
+  // The others are built on first use too: a screen writes a few of these kinds, and each costs a long task's share.
+  const date = once(() => createDateFormatter(uiLocale));
+  const days = once(
+    () => new Intl.DateTimeFormat(uiLocale, { ...LATIN_DIGITS, timeZone: 'UTC', day: 'numeric', month: 'long' }),
+  );
+  const months = once(
+    () => new Intl.DateTimeFormat(uiLocale, { ...LATIN_DIGITS, timeZone: 'UTC', month: 'long', year: 'numeric' }),
+  );
   // English lists take the serial comma, en-GB's included (docs/CONTENT-STYLE.md §1 rule 9); other languages keep
   // their own rule.
-  const listLocale = new Intl.Locale(uiLocale).language === 'en' ? 'en-US' : uiLocale;
-  const lists = new Intl.ListFormat(listLocale, { type: 'conjunction' });
+  const lists = once(
+    () =>
+      new Intl.ListFormat(new Intl.Locale(uiLocale).language === 'en' ? 'en-US' : uiLocale, { type: 'conjunction' }),
+  );
   const sign = (signed: boolean | undefined) => (signed === true ? 'exceptZero' : 'negative');
 
   return {
@@ -120,10 +122,10 @@ export function createFormatters(formattingLocale: string, uiLocale: string): Fo
       ),
     multiple: (value, decimals = 2) =>
       `${render(number({ minimumFractionDigits: decimals, maximumFractionDigits: decimals, signDisplay: 'negative' }), value)}\u00d7`,
-    date,
-    dayMonth: (date) => unbroken(days.format(utc(date))),
-    month: (key) => unbroken(months.format(utc(`${key}-01` as CalendarDate))),
-    list: (items) => lists.format(items),
+    date: (day) => date()(day),
+    dayMonth: (day) => unbroken(days().format(utc(day))),
+    month: (key) => unbroken(months().format(utc(`${key}-01` as CalendarDate))),
+    list: (items) => lists().format(items),
     ...createTimeFormatters(formattingLocale, uiLocale),
   };
 }
