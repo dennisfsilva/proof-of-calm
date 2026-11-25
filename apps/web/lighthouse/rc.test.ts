@@ -1,4 +1,6 @@
 import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
 // The wiring of the fixture API (apps/web/lighthouse/api.ts): the server Lighthouse CI starts loads the
@@ -25,9 +27,37 @@ describe('the Lighthouse wiring (apps/web/lighthouserc.json, apps/web/package.js
     expect(rc.ci.collect.startServerCommand).toMatch(/^node \.\.\/\.\.\/tools\/serve\/vercel-local\.ts .*--tls\b/);
     expect(rc.ci.collect.url.length).toBeGreaterThan(0);
     for (const url of rc.ci.collect.url) expect(new URL(url).origin).toBe('https://localhost:3000');
-    expect(rc.ci.collect.puppeteerLaunchOptions.args).toEqual(
-      expect.arrayContaining(['--allow-insecure-localhost', '--ignore-certificate-errors']),
-    );
+    expect(rc.ci.collect.puppeteerLaunchOptions.args).toContain('--allow-insecure-localhost');
+  });
+
+  // lighthouse-vercel.yml reads lighthouserc.json from the deployed commit and tools/lighthouse/vercel.ts
+  // from its own, main's on the documented dispatch, which copies the launch options through unchanged; so
+  // no certificate-ignoring option may sit in this file, where any commit's vercel.ts would hand it to a
+  // run against a deployment, with the bypass header on a preview.
+  it('carries no option that ignores a certificate, which a deployment run would copy', () => {
+    const text = JSON.stringify(rc);
+    for (const option of [
+      'ignore-certificate-errors',
+      'acceptInsecureCerts',
+      'ignoreHTTPSErrors',
+      'ignoreHttpsErrors',
+    ]) {
+      expect(text, option).not.toContain(option);
+    }
+  });
+
+  // The local run names its own layer, which vercel.ts never reads: lighthouserc.json plus the one flag the
+  // self-signed certificate needs, or the service worker does not register ("An SSL certificate error
+  // occurred when fetching the script"). Loaded by LHCI's own loader, the one autorun reads the rc with.
+  it('adds --ignore-certificate-errors in the local layer alone, which lhci autorun loads', () => {
+    expect(scripts.lighthouse).toMatch(/&& lhci autorun --config=lighthouse\/local\.cjs$/);
+    const lhci = createRequire(createRequire(import.meta.url).resolve('@lhci/cli/package.json'));
+    const { loadRcFile } = lhci('@lhci/utils/src/lighthouserc.js') as { loadRcFile: (path: string) => unknown };
+    const local = loadRcFile(fileURLToPath(new URL('local.cjs', import.meta.url))) as typeof rc;
+    const { puppeteerLaunchOptions, ...collect } = local.ci.collect;
+    const { puppeteerLaunchOptions: shared, ...sharedCollect } = rc.ci.collect;
+    expect(puppeteerLaunchOptions).toEqual({ ...shared, args: [...shared.args, '--ignore-certificate-errors'] });
+    expect({ ...local, ci: { ...local.ci, collect } }).toEqual({ ...rc, ci: { ...rc.ci, collect: sharedCollect } });
   });
 
   it('bundles lighthouse/api.ts in lighthouse:api', () => {
