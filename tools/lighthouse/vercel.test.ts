@@ -147,27 +147,34 @@ describe('vercelConfig', () => {
     expect(vercelConfig(rc, production).ci.assert).toMatchObject({ assertMatrix: budgets });
   });
 
-  // The local run (ci.yml's lighthouse job on push to main, lighthouse-branch.yml's on a branch) holds the
-  // performance score, TBT and LCP of the seeded screens at warn until a push run on main measures them within budget
-  // (docs/ENGINEERING.md §4, the warn-first rule of .claude/rules/tools-ci.md); every other local
-  // assertion fails the job.
-  it('warns locally on the performance score, TBT and LCP of the seeded screens only', () => {
-    const warned = rc.ci.assert.assertMatrix.flatMap(({ matchingUrlPattern, assertions }) =>
-      Object.entries(assertions)
-        .filter(([, assertion]) => (Array.isArray(assertion) ? assertion[0] : assertion) !== 'error')
-        .map(([audit]) => `${matchingUrlPattern} ${audit}`),
-    );
-    expect(warned).toEqual(
-      ['/today$', '/portfolio$', '/log$', '/plan$'].flatMap((pattern) => [
-        `${pattern} categories:performance`,
-        `${pattern} total-blocking-time`,
-        `${pattern} largest-contentful-paint`,
-      ]),
-    );
+  // The local levels are pinned by apps/web/lighthouse/rc.test.ts, every one at error since the flip
+  // (docs/ENGINEERING.md §4). A deployment run reads the rc of the commit it measures, and a commit from
+  // before the flip held the seeded screens' performance score, TBT and LCP at warn: those still fail there.
+  it('turns every warn of an older commit rc into error', () => {
+    const older: LighthouseRc = {
+      ...rc,
+      ci: {
+        ...rc.ci,
+        assert: {
+          assertMatrix: rc.ci.assert.assertMatrix.map((entry) => ({
+            ...entry,
+            assertions: Object.fromEntries(
+              Object.entries(entry.assertions).map(([audit, assertion]) => [
+                audit,
+                Array.isArray(assertion) ? ['warn', assertion[1]] : 'warn',
+              ]),
+            ),
+          })),
+        },
+      },
+    };
+    for (const url of [preview, production]) {
+      expect(vercelConfig(older, url).ci.assert).toEqual(vercelConfig(rc, url).ci.assert);
+    }
   });
 
   // A deployment is measured at the budgets themselves: the preview, a requested URL and production fail
-  // on every seeded assertion that lighthouserc.json only warns on locally.
+  // on every assertion, the seeded screens' performance score, TBT and LCP among them.
   it.each([
     ['the preview', preview],
     ['a requested deployment', 'https://proof-of-calm-git-main-incubating.vercel.app'],
