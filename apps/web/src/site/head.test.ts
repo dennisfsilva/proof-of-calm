@@ -269,12 +269,20 @@ describe('renderSitePage (ADR-0045 §6)', () => {
   });
 
   it('dates every page rendered from the site data with its day, in the head (the daily rebuild’s check)', () => {
-    for (const name of sitePages(data).filter((page) => page !== 'not-available')) {
+    for (const name of sitePages(data).filter((page) => page !== 'not-available' && page !== '~offline')) {
       const html = renderSitePage(name, assets, data);
       const head = html.slice(0, html.indexOf('</head>'));
       expect(head, name).toContain('<meta name="build-date" content="2026-10-20">');
       expect(html.match(/name="build-date"/g), name).toHaveLength(1);
     }
+  });
+
+  // The worker precaches the offline page by its content (scripts/bundle-worker.ts): a dated page would make every
+  // daily rebuild a new worker, and every installed app would offer an update each day.
+  it('leaves the precached offline page undated, the same on every day', () => {
+    const on = (today: string) => renderSitePage('~offline', assets, { ...data, today: today as CalendarDate });
+    expect(on('2026-11-25')).toBe(on('2026-11-26'));
+    expect(on('2026-11-25')).not.toContain('build-date');
   });
 
   it('writes the not-available page as the UK block defines it', () => {
