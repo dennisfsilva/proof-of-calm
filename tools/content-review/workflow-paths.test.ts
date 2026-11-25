@@ -13,13 +13,13 @@ import { expect, it } from 'vitest';
 const ROOT = fileURLToPath(new URL('../../', import.meta.url));
 const workflow = readFileSync(resolve(ROOT, '.github/workflows/content-review.yml'), 'utf8');
 const block = /^ {4}paths:\r?\n((?: {6}- .+\r?\n)+)/m.exec(workflow)?.[1] ?? '';
-const watched = [...block.matchAll(/- (.+)/g)].map((match) => match[1].trim());
+const watched = [...block.matchAll(/- (.+)/g)].map((match) => (match[1] ?? '').trim());
 const covered = (path: string) =>
   watched.some((entry) => (entry.endsWith('/**') ? path.startsWith(entry.slice(0, -2)) : path === entry));
 const fromRoot = (file: string) => relative(ROOT, file).split('\\').join('/');
 
 const specifiers = (file: string) =>
-  [...readFileSync(file, 'utf8').matchAll(/^\s*(?:import|export)\b[^;]*?\bfrom\s*'([^']+)'/gms)].map((m) => m[1]);
+  [...readFileSync(file, 'utf8').matchAll(/^\s*(?:import|export)\b[^;]*?\bfrom\s*'([^']+)'/gms)].map((m) => m[1] ?? '');
 
 it('reads the workflow’s paths block', () => {
   expect(watched).toContain('tools/content-review/body.ts');
