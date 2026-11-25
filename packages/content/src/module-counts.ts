@@ -18,7 +18,7 @@ const HIDDEN = `${IGNORABLE}*`;
 // Each noun as an alternation; a space inside a noun is any run of white space, as a source line break writes it.
 const NOUNS: Readonly<Record<Language, string>> = {
   en: 'blocks|data points|inputs|components|indexes|bitcoins|episodes|start months|countries|completed cycles|cycles|parts|signs',
-  // English's "start months" is `meses de início`, never a bare `meses` (D5, #502).
+  // English's "start months" is `meses de início`, never a bare `meses` (D5, decided 2026-11-25, docs/CONTENT-STYLE.md §9).
   'pt-PT': 'blocos|observações|componentes|índices|bitcoins|episódios|meses de início|países|ciclos|partes|sinais',
   // The dative plurals the modules write too (`in 95 Ländern`); the two-word noun before its last word.
   de: 'Blöcke|Blöcken|Datenpunkte|Datenpunkten|Komponenten|Indizes|Bitcoins|Episoden|Startmonate|Startmonaten|Länder|Ländern|abgeschlossene Zyklen|abgeschlossenen Zyklen|Zyklen|Teile|Teilen|Anzeichen',
