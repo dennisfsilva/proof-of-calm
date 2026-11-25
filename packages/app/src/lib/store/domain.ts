@@ -4,7 +4,7 @@
 // A write in another tab arrives on the cross-tab channel and reloads this tab's snapshot; a wipe there
 // also clears this tab's drafts.
 
-import { type Instant, liveEntries, type Plan } from '@proofofcalm/core';
+import { type Instant, liveEntries, type Plan, type Prefs } from '@proofofcalm/core';
 import { createStore, type StoreApi } from 'zustand/vanilla';
 import { applyChanges, EMPTY_SNAPSHOT } from '../adapters/memory-store';
 import type { Built, Changes, PlanStore, Snapshot, WipedRows } from '../ports';
@@ -36,6 +36,13 @@ export type DomainStore = {
    * never do.
    */
   write(changes: Changes | ((snapshot: Snapshot) => Built)): Promise<void>;
+  /**
+   * A preference alone, built in its turn of the same queue on the prefs row as stored (PlanStore.updatePrefs),
+   * so a preference written before it is kept; the tab then shows those preferences with the plan and the
+   * entries as they were, by identity, so no view keyed on them is computed again. It stamps no `changedAt`
+   * and tells the other tabs, as a preferences-only `write` does.
+   */
+  writePrefs(build: (prefs: Prefs) => Prefs): Promise<void>;
   /**
    * "Delete everything" (Settings), at once: the stored rows go, `afterWipe` forgets what the device keeps
    * beside them, the snapshot empties and the other tabs follow (each clearing its own drafts). It gives
@@ -116,6 +123,13 @@ export function createDomainStore(
     }
   }
 
+  /** After a failed hydration a write loads first, and is refused with the load's error while that still fails. */
+  async function loadedForWrite(): Promise<void> {
+    if (store.getState().status === 'ready') return;
+    const failure = await load();
+    if (failure !== null) throw failure;
+  }
+
   /**
    * The changes with `changedAt` when they write the plan or at least one entry (an import too); an
    * empty list of entries changes nothing to back up. The stamp goes to the stored prefs row alone:
@@ -163,10 +177,7 @@ export function createDomainStore(
       }),
     write: (next) =>
       serially(async () => {
-        if (store.getState().status !== 'ready') {
-          const failure = await load();
-          if (failure !== null) throw failure;
-        }
+        await loadedForWrite();
         if (typeof next === 'function') {
           // Built on the rows as stored, in the store's transaction: a write another tab made since this
           // tab last loaded is one the change sees, never one it overwrites (ADR-0019, Readings).
@@ -182,6 +193,13 @@ export function createDomainStore(
         noteOwn(store.getState().snapshot.plan, changes);
         store.setState({ snapshot: applyChanges(store.getState().snapshot, changes) });
         if (toldToOtherTabs(changes)) channel.post();
+      }),
+    writePrefs: (build) =>
+      serially(async () => {
+        await loadedForWrite();
+        const prefs = await planStore.updatePrefs(build);
+        store.setState({ snapshot: { ...store.getState().snapshot, prefs } });
+        channel.post();
       }),
     wipe: () =>
       serially(async () => {

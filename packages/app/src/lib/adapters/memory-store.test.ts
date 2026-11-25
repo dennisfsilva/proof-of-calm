@@ -88,6 +88,38 @@ describe('memory plan store', () => {
     expect(await store.restore(wiped)).toBe(false);
     expect(await store.load()).toBe(after);
   });
+
+  it('updatePrefs builds on the preferences held, keeps their changedAt and the entries by identity', async () => {
+    const entries = [anEntry(), anEntry()];
+    const held = { ...DEFAULT_PREFS, theme: 'dark' as const, changedAt: NOW };
+    const store = memoryPlanStore({ ...EMPTY_SNAPSHOT, plan: aPlan(), entries, prefs: held });
+    const before = store.current();
+    const written = await store.updatePrefs((prefs) => ({ ...prefs, changedAt: null, logShowAll: true }));
+    expect(written).toStrictEqual({ ...held, logShowAll: true });
+    expect(store.current().prefs).toStrictEqual(written);
+    expect(store.current().entries).toBe(before.entries);
+    expect(store.current().plan).toBe(before.plan);
+  });
+
+  it('updatePrefs refuses preferences the schema rejects, or a build that throws, and keeps the snapshot', async () => {
+    const store = memoryPlanStore({ ...EMPTY_SNAPSHOT, prefs: { ...DEFAULT_PREFS, theme: 'dark' } });
+    const before = store.current();
+    await expect(store.updatePrefs((prefs) => ({ ...prefs, theme: 'sepia' as never }))).rejects.toThrow(TypeError);
+    const refused = new Error('refused in the build');
+    await expect(
+      store.updatePrefs(() => {
+        throw refused;
+      }),
+    ).rejects.toBe(refused);
+    expect(store.current()).toBe(before);
+  });
+
+  it('updatePrefs writes through write, so a store whose write fails fails it too', async () => {
+    const store = memoryPlanStore();
+    const failing = { ...store, write: () => Promise.reject(new Error('QuotaExceededError')) };
+    await expect(failing.updatePrefs((prefs) => ({ ...prefs, logShowAll: true }))).rejects.toThrow('QuotaExceededError');
+    expect(store.current().prefs).toStrictEqual(DEFAULT_PREFS);
+  });
 });
 
 describe('history cache (ADR-0036: at most 24 hours)', () => {

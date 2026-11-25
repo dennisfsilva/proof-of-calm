@@ -309,6 +309,40 @@ export function idbPlanStore(options: IdbPlanStoreOptions): IdbPlanStore {
       return result;
     },
 
+    async updatePrefs(build) {
+      // The prefs row alone, durable as `write` keeps preferences: reading every entry for a preference made
+      // the Log's rows anew at the cap (ADR-0019 Readings, 2026-11-25). Null: the row does not read.
+      const tx = (await connect()).transaction('prefs', 'readwrite', { durability: 'relaxed' });
+      const prefs = tx.objectStore('prefs');
+      let refused = false;
+      const run = async (): Promise<Prefs | null> => {
+        const raw = await prefs.get(PREFS_KEY);
+        const parsed = raw === undefined ? null : PrefsReadSchema.safeParse(raw);
+        if (parsed?.success === false) return null;
+        const stored = parsed?.data ?? DEFAULT_PREFS;
+        let built: Prefs;
+        try {
+          built = build(stored);
+          assertStorableChanges({ prefs: built });
+        } catch (error) {
+          refused = true;
+          tx.abort();
+          throw error;
+        }
+        await prefs.put(prefsRecord(raw, built), PREFS_KEY);
+        return { ...built, changedAt: stored.changedAt };
+      };
+      // As `update`: the abort a refused build causes is not the error to give back.
+      const done = tx.done.catch((error: unknown) => {
+        if (!refused) throw error;
+      });
+      const [written] = await Promise.all([run(), done]);
+      if (written !== null) return written;
+      // Set aside with the whole read, in its own transaction, as `load` would; the build gets the defaults.
+      const { snapshot, changes } = await this.update((stored) => ({ prefs: build(stored.prefs) }));
+      return { ...(changes.prefs ?? snapshot.prefs), changedAt: snapshot.prefs.changedAt };
+    },
+
     async wipe() {
       // One transaction reading, then clearing, every store; deleting the database would wait for every tab
       // to close it. The rows go back as they were read, unparsed, so the undo returns them byte for byte.

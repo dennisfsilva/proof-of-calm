@@ -70,6 +70,13 @@ export function memoryPlanStore(initial: Snapshot = EMPTY_SNAPSHOT): PlanStore &
       await this.write(changes);
       return { snapshot: read, changes };
     },
+    // Through `write` too; the entries and the plan stay as they are, and `changedAt` as held.
+    async updatePrefs(build) {
+      const read = snapshot.prefs;
+      const prefs = build(read);
+      await this.write({ prefs });
+      return { ...prefs, changedAt: read.changedAt };
+    },
     // The undo gives back the snapshot; cached closes are not kept for it, a chart fetches them again.
     wipe: async () => {
       const taken: MemoryWiped = { memory: snapshot };

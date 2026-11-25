@@ -134,6 +134,13 @@ export interface PlanStore {
    */
   update(build: (stored: Snapshot) => Built): Promise<{ readonly snapshot: Snapshot; readonly changes: Changes }>;
   /**
+   * A preference alone, built on the prefs row as stored in one transaction over that row, so a preference
+   * another tab wrote is kept and no entry is read (ADR-0019 Readings, 2026-11-25). `build` runs synchronously,
+   * as `update`'s; `changedAt` stays as stored. It gives back the preferences as written. A stored row that does
+   * not read goes through `update`, which sets it aside as `load` does, and `build` gets the defaults.
+   */
+  updatePrefs(build: (prefs: Prefs) => Prefs): Promise<Prefs>;
+  /**
    * "Delete everything" (Settings), at once: one transaction reads every store's rows as stored, then clears
    * the stores, and gives the rows back for the undo. What the device keeps outside these stores (the form
    * drafts) is the domain store's `afterWipe`.

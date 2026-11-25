@@ -16,6 +16,8 @@ import {
   type Money,
   type Percent,
   type Plan,
+  type Prefs,
+  PrefsSchema,
   type Price,
   type PriceHistory,
   type PriceSnapshot,
@@ -35,16 +37,24 @@ import {
 import { forceCloseDatabase, IDBFactory } from 'fake-indexeddb';
 import { openDB } from 'idb';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import * as z from 'zod/mini';
 import twoCoins from '../../../../core/test/golden/two-coins.json';
 import { RISK_WORDING_LANGUAGES } from '../brand';
 import type { CachedHistory, PricesState } from '../ports';
 import { localOnly } from '../store/channel';
 import { createDomainStore } from '../store/domain';
 import { DATABASE_NAME, LOCAL_DEVICE_ID, STORE_NAMES, type StoreName } from './idb/database';
-import { ROW_SCHEMA_VERSIONS } from './idb/rows';
+import { ROW_SCHEMA_VERSIONS, readEntryRow } from './idb/rows';
 import { PREVIOUS_BUILD } from './idb/rows.testing';
 import { type IdbPlanStore, type IdbPlanStoreOptions, idbPlanStore, PREFS_KEY, prefsRecord } from './idb-store';
 import { EMPTY_SNAPSHOT } from './memory-store';
+
+// Every entry row a read parses goes through readEntryRow: a preferences write that reads none counts 0 calls
+// (the call a whole-snapshot read made 10,000 times at the cap, which updatePrefs removes).
+vi.mock('./idb/rows', async (original) => {
+  const rows = await original<typeof import('./idb/rows')>();
+  return { ...rows, readEntryRow: vi.fn(rows.readEntryRow) };
+});
 
 const NOW = instant('2026-10-17T09:00:00.000Z');
 const clock = { now: () => NOW };
@@ -449,6 +459,114 @@ describe('idb plan store: update, a write on the rows as stored (ADR-0019 readin
     expect(domain.store.getState().snapshot).toBe(before);
     expect(post).not.toHaveBeenCalled();
     domain.dispose();
+  });
+});
+
+describe('idb plan store: updatePrefs, a preference on the prefs row as stored (ADR-0019 Readings, 2026-11-25)', () => {
+  /** Every field away from its default, so a read that drops or resets one fails. */
+  const full: Prefs = {
+    theme: 'dark',
+    chartRange: '1y',
+    lastBackupAt: instant('2026-10-01T08:00:00.000Z'),
+    changedAt: instant('2026-10-02T08:00:00.000Z'),
+    dismissedBanners: ['backup-needed:2026-10-01'],
+    reviewedAt: instant('2026-10-03T08:00:00.000Z'),
+    logShowAll: true,
+    motion: 'reduce',
+  };
+  /** The previous build's read of the prefs row: main's PrefsReadSchema at 11e29df42 (no prefs field changes here). */
+  const PreviousBuildPrefsReadSchema = z.object(PrefsSchema.shape);
+
+  it('builds on the stored row in one transaction over prefs alone, relaxed, and reads no entry row', async () => {
+    const store = open();
+    await store.write({ plan: aPlan(), entries: [anEntry(), anEntry(), anEntry()], prefs });
+    // Another tab, with its own connection, changes a preference after this tab last read.
+    await open().write({ prefs: { ...prefs, theme: 'light' } });
+    await store.load(); // opens the connection, whose cleanup reads the entry rows
+    vi.mocked(readEntryRow).mockClear();
+    const transactions = vi.spyOn(IDBDatabase.prototype, 'transaction');
+    const written = await store.updatePrefs((stored) => ({ ...stored, logShowAll: true }));
+    expect(vi.mocked(readEntryRow)).not.toHaveBeenCalled();
+    expect(transactions).toHaveBeenCalledTimes(1);
+    expect(transactions.mock.calls[0]?.slice(0, 3)).toEqual(['prefs', 'readwrite', { durability: 'relaxed' }]);
+    transactions.mockRestore();
+    expect(written).toStrictEqual({ ...prefs, theme: 'light', logShowAll: true });
+    expect((await store.load()).prefs).toStrictEqual(written);
+    // The counter counts: the whole-snapshot read parses each of the three entry rows.
+    vi.mocked(readEntryRow).mockClear();
+    await store.update((stored) => ({ prefs: { ...stored.prefs, logShowAll: false } }));
+    expect(vi.mocked(readEntryRow)).toHaveBeenCalledTimes(3);
+  });
+
+  it('keeps the stored changedAt, which only a stamp moves, and starts from the defaults when no row is stored', async () => {
+    const store = open();
+    expect(await store.updatePrefs((stored) => ({ ...stored, chartRange: '1y' }))).toStrictEqual({
+      ...DEFAULT_PREFS,
+      chartRange: '1y',
+    });
+    await store.write({ entries: [anEntry()], changedAt: NOW });
+    const written = await store.updatePrefs((stored) => ({ ...stored, changedAt: null, logShowAll: true }));
+    expect(written).toStrictEqual({ ...DEFAULT_PREFS, chartRange: '1y', logShowAll: true, changedAt: NOW });
+    expect((await store.load()).prefs).toStrictEqual(written);
+  });
+
+  it('forward: load reads back every field of the record updatePrefs writes', async () => {
+    const store = open();
+    await store.write({ prefs: full, changedAt: full.changedAt ?? undefined });
+    await store.updatePrefs((stored) => ({ ...stored, chartRange: 'all' }));
+    const expected = { ...full, chartRange: 'all' };
+    expect(await raw('prefs')).toStrictEqual([expected]);
+    expect((await open().load()).prefs).toStrictEqual(expected);
+  });
+
+  it('rollback: the previous build reads the record updatePrefs writes, with every field', async () => {
+    const store = open();
+    await store.write({ prefs: full, changedAt: full.changedAt ?? undefined });
+    await store.updatePrefs((stored) => ({ ...stored, theme: 'system' }));
+    const [record] = await raw('prefs');
+    const read = PreviousBuildPrefsReadSchema.safeParse(record);
+    expect(read.success && read.data).toStrictEqual({ ...full, theme: 'system' });
+  });
+
+  it('whole record: keeps the fields of a later build, and the previous build’s rewrite keeps them too', async () => {
+    const store = open();
+    await store.write({ prefs: full, changedAt: full.changedAt ?? undefined });
+    await put('prefs', { ...full, compactCharts: true }, PREFS_KEY);
+    await store.updatePrefs((stored) => ({ ...stored, logShowAll: false }));
+    expect(await raw('prefs')).toStrictEqual([{ ...full, logShowAll: false, compactCharts: true }]);
+    // The previous build reads the record, changes a preference and writes it back whole with its own write.
+    const read = PreviousBuildPrefsReadSchema.parse((await raw('prefs'))[0]);
+    await open().write({ prefs: { ...read, theme: 'light' } });
+    expect(await raw('prefs')).toStrictEqual([{ ...full, logShowAll: false, theme: 'light', compactCharts: true }]);
+    expect(await raw('meta')).toEqual([]);
+  });
+
+  it('falls back to update for a stored row that does not read, which sets it aside as load does', async () => {
+    const store = open();
+    await store.write({ plan: aPlan(), entries: [anEntry()] });
+    const broken = { ...prefs, theme: 'sepia' };
+    await put('prefs', broken, PREFS_KEY);
+    const written = await store.updatePrefs((stored) => ({ ...stored, logShowAll: true }));
+    expect(written).toStrictEqual({ ...DEFAULT_PREFS, logShowAll: true });
+    const [corrupt] = (await raw('meta')).filter(Array.isArray) as Record<string, unknown>[][];
+    expect(corrupt).toEqual([expect.objectContaining({ store: 'prefs', id: PREFS_KEY, raw: broken })]);
+    const loaded = await store.load();
+    expect(loaded.prefs).toStrictEqual(written);
+    expect(loaded.quarantined).toBe(1);
+  });
+
+  it('writes nothing when the build throws or returns preferences the schema rejects', async () => {
+    const store = open();
+    await store.write({ prefs });
+    const refused = new Error('refused in the build');
+    await expect(
+      store.updatePrefs(() => {
+        throw refused;
+      }),
+    ).rejects.toBe(refused);
+    await expect(store.updatePrefs((stored) => ({ ...stored, theme: 'sepia' as never }))).rejects.toThrow(TypeError);
+    expect(await raw('prefs')).toStrictEqual([prefs]);
+    expect((await store.load()).prefs).toStrictEqual(prefs);
   });
 });
 
