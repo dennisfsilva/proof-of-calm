@@ -17,8 +17,9 @@ import { downloadTaxYear, HEADER_LANGUAGES } from './tax-year';
 // D10 (docs/DOMAIN.md §3.13): the tax-year file's header lines follow the UI language, and none holds a `;`, the
 // list separator a spreadsheet in a comma-decimal locale splits a cell on. A line is a message of
 // `settings.data.taxYear.file`, filled with the country's name, its sources, dates, counts and codes, or one of the
-// English profile's texts (the lot note, the holding rule's conditions). packages/content refuses a `;` in every
-// profile text `headerTexts` names (`header-semicolon`); the drift case below keeps that list the header's.
+// profile's texts in the file's language (the lot note, the holding rule's conditions).
+// packages/content refuses a `;` in every profile text `headerTexts` names (`header-semicolon`).
+// The drift case below keeps that list the header's.
 
 vi.mock('@proofofcalm/content', async (original) =>
   (await import('../../lib/services/testing-modules')).profilesInMemory(
@@ -174,6 +175,19 @@ describe('the tax-year header lines', () => {
     const french = (await header('FR', 'de')).split('\n').map(uncell);
     expect(french[3]).toMatch(/^Regeln für Frankreich, Stand: /u);
     expect(french.filter((line) => line.includes('Haltefrist'))).toEqual([]);
+  });
+
+  // Germany's German profile (ADR-0057, Corrections of 2026-11-25): its lot note and conditions are German lines.
+  it("Germany's German file copies the German profile's lot note and conditions, none of English's", async () => {
+    const lines = (await header('DE', 'de')).split('\n').map(uncell);
+    const englishProfile = await loadProfile('DE');
+    const germanProfile = await loadProfile('DE', 'de');
+    if (englishProfile === null || germanProfile === null) throw new Error('no DE profile');
+    expect(germanProfile.lotRuleNote).toMatch(/^Pro Wallet: /u);
+    expect(lines).toContain(germanProfile.lotRuleNote);
+    for (const condition of germanProfile.holdingRuleConditions) expect(lines).toContain(condition);
+    for (const text of [englishProfile.lotRuleNote, ...englishProfile.holdingRuleConditions])
+      expect(lines).not.toContain(text);
   });
 
   // The guard: a header's country forms come from the language of its words. A screen whose language writes no
