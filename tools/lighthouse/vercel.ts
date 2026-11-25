@@ -1,6 +1,7 @@
 // Lighthouse CI against a Vercel deployment (lighthouse-vercel.yml, ADR-0024): the URLs, runs, seed,
 // settings and budgets of apps/web/lighthouserc.json without the local server it starts, every budget at
-// error where the local run only warns (docs/ENGINEERING.md §4), no console error
+// error (since #517 the local rc holds each at error; a warn the job turns into error is an older deployed
+// commit's, docs/ENGINEERING.md §4), no console error
 // on `/` (and on the seeded screens at the production origin), and a check that every report measured the
 // page it asked for.
 // The configuration holds no header: the job hands the bypass headers to Lighthouse through the
@@ -54,7 +55,10 @@ function deploymentLaunch(options: Record<string, unknown>): Record<string, unkn
     : checked;
 }
 
-/** An assertion the local run only warns on fails at a deployment; `off` stays off. */
+/**
+ * A warn fails at a deployment; `off` stays off. The current rc has no warn left (#517): this serves the
+ * rc of an older commit, which the job reads from the deployment it measures.
+ */
 function atError(assertion: Assertion): Assertion {
   if (Array.isArray(assertion)) return assertion[0] === 'warn' ? ['error', assertion[1]] : assertion;
   return assertion === 'warn' ? 'error' : assertion;
