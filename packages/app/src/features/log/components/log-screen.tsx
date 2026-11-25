@@ -240,6 +240,16 @@ export function LogScreen() {
     setMoveOpen(false);
     saved(entries, (move?.editing ?? null) !== null);
   };
+  // Each one function for every row, so a memoised row renders again only when its own props change (log-row.tsx).
+  const toggle = (next: boolean, key: string) =>
+    setOpen((keys) => {
+      const changed = new Set(keys);
+      if (next) changed.add(key);
+      else changed.delete(key);
+      return changed;
+    });
+  const removeRow = (row: TransactionRow) => void remove(row);
+  const months = useMemo(() => new Map(log?.months.map((header) => [header.month, header])), [log]);
   const live = liveEntries(entries);
   const holds = plan !== null && coinsWithEntries(plan, live).some((coin) => isPositive(heldUnits(live, coin)));
 
@@ -271,17 +281,10 @@ export function LogScreen() {
     const noted = visible.find(
       (row) => row.type === 'transaction' && row.holding?.kind === 'dated' && open.has(row.key),
     )?.key;
-    const toggle = (key: string) => (next: boolean) =>
-      setOpen((keys) => {
-        const changed = new Set(keys);
-        if (next) changed.add(key);
-        else changed.delete(key);
-        return changed;
-      });
     const body: ReactNode[] = [];
     let month: string | null = null;
     for (const row of visible) {
-      const header = log.months.find((candidate) => candidate.month === monthKey(row.date));
+      const header = months.get(monthKey(row.date));
       if (header !== undefined && header.month !== month) {
         month = header.month;
         body.push(
@@ -295,10 +298,11 @@ export function LogScreen() {
           key={row.key}
           row={row}
           plan={plan}
+          formatters={f}
           note={row.key === noted}
           open={open.has(row.key)}
-          onOpenChange={toggle(row.key)}
-          onDelete={(r) => void remove(r)}
+          onOpenChange={toggle}
+          onDelete={removeRow}
           onEdit={edit}
         />,
       );

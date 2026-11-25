@@ -14,12 +14,12 @@ import { Table, TableBody } from '@proofofcalm/ui/components/table';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { I18nProvider } from '../../../lib/i18n';
-import { type Services, ServicesProvider } from '../../../lib/services';
+import { type Services, ServicesProvider, useFormatters } from '../../../lib/services';
 import { fixtureNowMs, fixtureSnapshot } from '../../../lib/services/fixtures';
 import { createTestServices } from '../../../lib/services/testing';
 import log from '../../../messages/en/log.json';
 import shell from '../../../messages/en/shell.json';
-import { LogRow } from './log-row';
+import { LogRow, type LogRowProps } from './log-row';
 
 // One row of the Log (docs/DOMAIN.md §3.9): a transaction opens to its items, its one holding line and
 // the delete button; a skipped month is a line of its own. Portugal's rules, as the browser loads them.
@@ -38,6 +38,11 @@ async function fixtureRows(plan: Plan = fixtureSnapshot().plan as Plan) {
   return transactions(plan, fixtureSnapshot().entries, holdingContext(plan, await portugal())).rows;
 }
 
+// The screen passes its formatters to every row; here the row gets them as the screen does.
+function ScreenRow(props: Omit<LogRowProps, 'formatters'>) {
+  return <LogRow {...props} formatters={useFormatters()} />;
+}
+
 type Handlers = { note?: boolean; onDelete?: (row: TransactionRow) => void; onEdit?: (row: TransactionRow) => void };
 
 async function mount(row: Row, plan: Plan, options: Handlers = {}) {
@@ -52,7 +57,7 @@ async function mount(row: Row, plan: Plan, options: Handlers = {}) {
       <I18nProvider messages={{ log, shell }}>
         <Table>
           <TableBody>
-            <LogRow
+            <ScreenRow
               row={row}
               plan={plan}
               note={options.note ?? false}
