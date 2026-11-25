@@ -702,7 +702,7 @@ keeps between the count and its noun makes the sentence match neither shape (`fi
 R7: in a Learn module, a count before a listed noun is joined to it by exactly one U+00A0 (`6 inputs`,
 `95 países`), written as the character itself, so that no line ends between them. `moduleCountProblems` in
 `packages/content/src/module-counts.ts` reads it, and `packages/content/scripts/closed-body.ts` runs it in
-`pnpm validate:content` on every English and pt-PT module that compiles. It reads the front matter's title, idea
+`pnpm validate:content` on every English, pt-PT and German module that compiles. It reads the front matter's title, idea
 and caveat as written, and every block of the compiled page that holds text, including a heading, a paragraph in
 a list item or a quote, and a code block (`packages/config/vite/page-blocks.ts`). It reads an ordered list
 item's first block after the number the page shows (`3. `). It reads each block as the parser decoded it,
@@ -731,8 +731,10 @@ word and the count or the noun separates them, and R7 reads the pair. It does no
 which only a paragraph carries and which names no place (decided 2026-11-18, #387). The lists are closed, one
 per language, and hold the nouns of the counts a census of the modules found (16 of them could end a line apart
 from their noun): in English `blocks`, `data points`, `inputs`, `components`, `indexes`, `bitcoins`, `episodes`,
-`start months`, `countries`, `completed cycles`, `cycles`, `parts` and `signs`, and in pt-PT the nine §9 names.
-B's noun (`falls`, `quedas`) is on neither list: R6 reads it. A count before any other noun stays unread. A
+`start months`, `countries`, `completed cycles`, `cycles`, `parts` and `signs`, in pt-PT the nine §9 names, and
+in German the §10 count nouns. B's noun (`falls`, `quedas`) is on no list: R6 reads it. German's (`Rückgang`,
+`Rückgänge`) is on none either, though no German shape of R5 or R6 exists yet. A count before any other noun stays
+unread. A
 probe joined the 28 counts the English (15) and pt-PT (13) modules write before these nouns by U+00A0. At 161
 widths from 240 to 400 px, at 100 % and 125 % zoom, in Chromium and WebKit, none split and none overflowed
 (decided 2026-11-18).
@@ -1297,6 +1299,12 @@ needs (decided 2026-11-23 under the unattended M2 rule, for the owner to confirm
 - **Lists take no comma before `und`**, as `lib/format` writes them: `BTC, ETH und SOL`.
 - **A module's chart section has no German shapes of §4 R5 yet**, so it fails closed until they are
   decided as pt-PT's were.
+- **A module's German count nouns** (§4 R7), with the dative plurals the modules write: `Blöcke`,
+  `Blöcken`, `Datenpunkte`, `Datenpunkten`, `Komponenten`, `Indizes`, `Bitcoins`, `Episoden`,
+  `Startmonate`, `Startmonaten`, `Länder`, `Ländern`, `abgeschlossene Zyklen`, `abgeschlossenen
+  Zyklen`, `Zyklen`, `Teile`, `Teilen` and `Anzeichen`. `Punkte` and `Monatsenden` stay off, as
+  English's `points` and `month-ends` do, so a module reads as many counts as its English; they still
+  take U+00A0 (`13 Punkte`).
 - **A country card's summary keeps the 60-word limit**, and content still in English on a German
   screen is marked: `lang="en"`, and on a country card `Die folgenden Regeln sind auf Englisch.`
   under its title (ADR-0057).
@@ -1419,6 +1427,31 @@ The product's nouns, one German word each, in every string, the site pages and t
 | Bill / Act (a law's name) | die Bill (Duden), der Act (decided 2026-11-25) |
 | a time | `um 00:00`; never `Uhr` after a time (decided 2026-11-25) |
 
+The Learn modules' terms (the term read of 2026-11-25; counsel's read wins where it differs):
+
+| English | de-DE |
+|---|---|
+| Start here, Noise (the titles) | `Hier beginnen`, `Rauschen`; never `Lärm`, a sound |
+| news, headline, feed | `Nachrichten`, `Schlagzeile`, `Feed` (`kein Newsfeed`) |
+| price notifications | `Kursbenachrichtigungen`; `Kursalarm` and `Preiswarnung` are on §2's list |
+| sentiment index, index | `Stimmungsindex`; `der Index`, `die Indizes`; `Crypto Fear & Greed Index` stays English |
+| inputs, components (of an index) | `Komponenten` for both, so the two indexes read alike |
+| traders, a monthly buyer | `beim Trading`; `wer einen Monatsplan verfolgt`; never `Trader`, `Käufer` or `wer monatlich kauft` |
+| Why some people hold | `Warum manche eine Haltephase planen` |
+| keeping coins yourself | `Coins in eigener Verwahrung`, always with `eigener`; `hat nie … in Verwahrung`, never `verwahrt` |
+| exchange (in a module) | `Börse` in Start here; `Handelsplattform` for a failed or unknown venue (risk) |
+| signal service, tax tool, advice service | `Signaldienst`, `Steuerprogramm`, `Beratungsdienst`, in a negation |
+| keys, funds, exchange logins | `Ihre Schlüssel, Ihr Geld oder Ihre Zugangsdaten zu Börsen` |
+| a forecast | `Vorhersage`; `Prognose` only for the Zyklusplan's labelled assumption with its source |
+| customer deposits, bitcoins deposited by users | `Kundengelder`, never `Einlagen`; `von Nutzerinnen und Nutzern eingezahlte Bitcoins` |
+| civil rehabilitation, a complaint (court) | `ein Sanierungsverfahren (civil rehabilitation)`, not `Insolvenz`; `Klageschrift` |
+| before investing, an investment | `vor einer Geldanlage`, `eine Geldanlage`; never `sichere Anlage` |
+| emergency fund (the FCA's) | `Notfallreserve`, without `in bar`; never `Sparkonto`; reported speech with the FCA and its date |
+| the median investor (BIS) | `im Median`, with Konjunktiv II (`hätten … verloren`) and the source in the paragraph |
+| How fast rules change (Taxes) | `Wie schnell sich die Regeln ändern`; `learn.module.taxSiteLead` quotes it once the module is German |
+| an amount in a module | the source's code and figure, U+00A0, §4's grouping: `EUR 600`, `GBP 12 300`, `USD 900`, `über 8 Mrd. US-Dollar`; no `£` |
+| a grouped count in a module | U+00A0 groups: `210 000 Blöcke`, `750 000 Bitcoins` |
+
 Two terms name the same date in two frames: `der erste Tag nach der Haltefrist` is the date in the
 holding rule's own frame (the hold-phase card, the holding-date tool, the tax-year file's
 `eligible_from` line), and `steuerfrei ab <Datum>` (the status) or `der erste steuerfreie Tag` (the
@@ -1428,7 +1461,10 @@ still inside the year, and the app shows `16. März 2027` (`packages/content/jur
 `Ende der Haltefrist`, `Haltefrist endet am`, `Fristende`, `Ablaufdatum` and `bis <Datum>` name
 15 March, the day before, so they name neither; no form of `Ablauf` or `ablaufen` stands in this copy.
 
-For the native reader (§8 item 9): `Sie`; `steuerfrei ab` against `nicht steuerbar ab`, and `Letzter
+For the native reader (§8 item 9), the Learn modules first: `Rauschen` against `Lärm`; `Hier
+beginnen` against `Erste Schritte`; `Börse` against `Handelsplattform` in Start here; `DCA nimmt
+Ihnen die Entscheidungen über den Zeitpunkt ab`; `beim Trading` and `wer einen Monatsplan
+verfolgt`; `Kursbenachrichtigungen`; „Greed“ (Gier) beside a bare „Neutral“. Then: `Sie`; `steuerfrei ab` against `nicht steuerbar ab`, and `Letzter
 Kauf: erster steuerfreier Tag`; `Protokoll`, `Lernen`, `Ort`, `Coin`, `die Wallet`, `Backup` (pt-PT
 kept `cópia de segurança`), `durchschnittlicher Kaufpreis` against `Einstandspreis`, `Stand:` and
 `geplant für den`; the Settings tabs, the tab bar and the entry sheet's kinds at 360 px with 125 %

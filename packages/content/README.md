@@ -74,7 +74,7 @@ of each module and translation against the cycles file and the catalogue (`docs/
 sentence there that holds one of §4's triggers and matches neither closed shape, or in a translation any sentence
 neither shape nor `LISTED` holds, or a figure that is not its row's, is `figure-chart`, and a coin
 the chart draws whose rows no sentence states is `figure-unstated`, and a B sentence whose count meets its
-noun through anything but one U+00A0 is `figure-join` (R6). In every English and pt-PT module,
+noun through anything but one U+00A0 is `figure-join` (R6). In every English, pt-PT and German module,
 `src/module-counts.ts` reads the front matter's `title`, `idea` and `caveat` and each compiled block that holds text
 (R7). A count before a noun on its language's closed list, joined to it by anything but one U+00A0, is
 `figure-join`. A bare year from 1900 to 2099 is not a count. `scripts/validate.ts` takes the root it reads as
