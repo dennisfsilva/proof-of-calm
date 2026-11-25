@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { createDateFormatter } from '@proofofcalm/app/lib/format';
 import { localesFor } from '@proofofcalm/app/lib/i18n';
+import germanSettings from '@proofofcalm/app/messages/de/settings.json';
+import portugueseSettings from '@proofofcalm/app/messages/pt-PT/settings.json';
 import type { CalendarDate } from '@proofofcalm/core';
 import { describe, expect, it } from 'vitest';
 import { siteTranslator } from '../../lib/site-messages';
@@ -117,6 +119,19 @@ describe('the Risk page’s statement on status', () => {
     expect(status.startsWith(opening?.replace('Proof of Calm', '{product}') ?? '-')).toBe(true);
     for (const term of [investors, deposits]) expect(status).toContain(term);
     expect(unescaped(renderSitePage('risk', ASSETS, data, 'de'))).toContain(opening);
+  });
+});
+
+// The footer and Settings' About line are one disclaimer, and its loss clause is MiCA art. 6(5)(a)'s official text in
+// the language (CONTENT-STYLE §10), never a translation back from English.
+describe.each([
+  ['pt-PT', portuguese, portugueseSettings, 'Os criptoativos podem perder parcial ou totalmente o seu valor.'],
+  ['de', german, germanSettings, 'Kryptowerte können ihren Wert ganz oder teilweise verlieren.'],
+] as const)('the %s footer', (language, site, settings, mica) => {
+  it('is Settings’ About line, with MiCA’s loss clause', () => {
+    expect(site.site.footer).toBe(settings.about.line);
+    expect(site.site.footer.endsWith(` ${mica}`)).toBe(true);
+    expect(unescaped(renderSitePage('index', ASSETS, data, language))).toContain(mica);
   });
 });
 
