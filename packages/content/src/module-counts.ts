@@ -1,7 +1,7 @@
 // A Learn module's counts and their nouns (docs/CONTENT-STYLE.md §4, R7): a figure before a noun a closed list names is
 // joined to it by exactly one U+00A0, so that no line ends between them. The list holds the counts the modules write
 // and the 25z probe joined, in Calm Sans at the Learn sheet's paragraph styles, in Chromium and WebKit, 240 to 400 px,
-// at 16/24 and 20/30 px. B's count (falls, quedas) stays off it: R6 in module-figures.ts reads that one. Years (YEAR
+// at 16/24 and 20/30 px. B's count (falls, quedas, Rückgänge) stays off it: R6 in module-figures.ts reads that one. Years (YEAR
 // below), dates, amounts and unlisted nouns are not counts here. R7 reads the count, the gap and the noun as the
 // file writes them. A default-ignorable code point is part of the gap, nothing between two digits of a count or two
 // letters of a noun, and never a letter, mark or digit beside either, so a hidden character never hides the pair, and
@@ -10,7 +10,7 @@ import { pageSpaces } from './paragraphs.ts';
 import { printedGap, printedText } from './percent-gap.ts';
 import type { Problem } from './problem.ts';
 
-type Language = 'en' | 'pt-PT';
+type Language = 'en' | 'pt-PT' | 'de';
 const NBSP = String.fromCodePoint(0xa0);
 const IGNORABLE = '\\p{Default_Ignorable_Code_Point}';
 const HIDDEN = `${IGNORABLE}*`;
@@ -19,7 +19,12 @@ const HIDDEN = `${IGNORABLE}*`;
 const NOUNS: Readonly<Record<Language, string>> = {
   en: 'blocks|data points|inputs|components|indexes|bitcoins|episodes|start months|countries|completed cycles|cycles|parts|signs',
   'pt-PT': 'blocos|observações|componentes|índices|bitcoins|países|ciclos|partes|sinais',
+  // The dative plurals the modules write too (`in 95 Ländern`); the two-word noun before its last word.
+  de: 'Blöcke|Blöcken|Datenpunkte|Datenpunkten|Komponenten|Indizes|Bitcoins|Episoden|Startmonate|Startmonaten|Länder|Ländern|abgeschlossene Zyklen|abgeschlossenen Zyklen|Zyklen|Teile|Teilen|Anzeichen',
 };
+const LANGUAGES = Object.keys(NOUNS);
+/** Whether `language` is one whose count nouns R7 lists, so its modules' counts are read. */
+export const isCountLanguage = (language: string): language is Language => LANGUAGES.includes(language);
 const nouns = (language: Language) => NOUNS[language].replaceAll(' ', '\\s+');
 // The nouns as the file writes them: any default-ignorable code points between two letters or beside a space.
 const written = (language: Language) =>
@@ -37,6 +42,7 @@ const written = (language: Language) =>
 export const COUNT_NOUNS: Readonly<Record<Language, RegExp>> = {
   en: new RegExp(`^(?:${nouns('en')})$`, 'iu'),
   'pt-PT': new RegExp(`^(?:${nouns('pt-PT')})$`, 'iu'),
+  de: new RegExp(`^(?:${nouns('de')})$`, 'iu'),
 };
 
 // A figure, its groups split by a comma, a dot or U+00A0 (`750,000`, `210 000`), R7's gap (B's gap in

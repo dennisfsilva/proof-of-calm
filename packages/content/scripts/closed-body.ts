@@ -6,7 +6,7 @@ import { hyphenProblems } from '../src/hyphen-validate.ts';
 import type { TranslationFile } from '../src/i18n/module-overlay-validate.ts';
 import { numbersIn } from '../src/i18n/overlay-validate.ts';
 import { type LearnModule, parseModule, readFields } from '../src/loaders/modules.ts';
-import { moduleCountProblems, moduleCountTexts } from '../src/module-counts.ts';
+import { isCountLanguage, moduleCountProblems, moduleCountTexts } from '../src/module-counts.ts';
 import { type FigureContext, moduleContext, moduleFigureProblems } from '../src/module-figures.ts';
 import { bodyFindings } from '../src/modules-validate.ts';
 import { findingProblems, type Problem } from '../src/problem.ts';
@@ -170,8 +170,8 @@ async function translationProblems(
  * `english`, every file is a translation of one of them, also held to its elements (`module-overlay-elements`)
  * and numbers, and read by the ban list and the hyphen check, on the text its compiled page shows, and by the ban
  * list's module reads on its source body. Every module
- * that compiles has its chart's section read against `figures` (`figure-chart`, `figure-unstated`), and every English
- * or pt-PT module that compiles has its counts read in the title, idea, caveat and body (`figure-join`,
+ * that compiles has its chart's section read against `figures` (`figure-chart`, `figure-unstated`), and every English,
+ * pt-PT or German module that compiles has its counts read in the title, idea, caveat and body (`figure-join`,
  * src/module-counts.ts).
  */
 export function closedBodyProblems(
@@ -198,7 +198,7 @@ export async function closedBodyProblems(
         problems.push(...moduleFigureProblems(path, read.page, context));
       }
       const counted = language ?? 'en';
-      if (counted === 'en' || counted === 'pt-PT')
+      if (isCountLanguage(counted))
         problems.push(...moduleCountProblems(path, moduleCountTexts(frontOf(path, source), read.page), counted));
       if (english !== undefined && language !== undefined)
         problems.push(...(await translationProblems(path, language, source, read, englishOf(path, english))));
