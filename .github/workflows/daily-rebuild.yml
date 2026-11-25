@@ -1,0 +1,55 @@
+# The daily production rebuild (docs/RELEASE.md; ADR-0045, Deviations of 2026-11-15): the public pages
+# render at the build's UTC date, so once a day this calls the Vercel deploy hook for main and fails unless
+# https://proofofcalm.com/en/holding-date then names the day in its build-date meta
+# (`node tools/rebuild/check.ts`, 30 s apart for up to 20 minutes). The hook URL is the repository secret
+# VERCEL_DEPLOY_HOOK_URL (docs/OWNER-SETUP.md §3), read only through a step's env; while it is absent a run
+# ends green with a notice. GitHub turns a public repository's schedule off after 60 days without
+# activity, so a missing run, like a failed one, has to be seen.
+name: Daily rebuild
+
+on:
+  schedule:
+    - cron: "17 0 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: daily-rebuild
+  cancel-in-progress: false
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - name: Look for the deploy hook
+        id: hook
+        env:
+          VERCEL_DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$VERCEL_DEPLOY_HOOK_URL" ]; then
+            echo "::notice::No VERCEL_DEPLOY_HOOK_URL secret yet (docs/OWNER-SETUP.md §3): nothing rebuilt"
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.hook.outputs.present == 'true'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - if: steps.hook.outputs.present == 'true'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+      - name: Call the deploy hook
+        if: steps.hook.outputs.present == 'true'
+        env:
+          VERCEL_DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+        # The runner masks the secret in the log; curl's own errors name the host at most.
+        run: curl --fail --silent --show-error --max-time 30 --request POST --output /dev/null "$VERCEL_DEPLOY_HOOK_URL"
+      - name: Wait for the day's build on production
+        if: steps.hook.outputs.present == 'true'
+        run: node tools/rebuild/check.ts https://proofofcalm.com/en/holding-date
