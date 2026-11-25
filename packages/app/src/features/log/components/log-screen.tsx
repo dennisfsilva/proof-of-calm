@@ -114,7 +114,7 @@ export function LogScreen() {
     revealing.current = true;
     // Built in its turn, so a preference still being written (the theme) is kept.
     void domain
-      .write((snapshot) => ({ prefs: { ...snapshot.prefs, logShowAll: true } }))
+      .writePrefs((prefs) => ({ ...prefs, logShowAll: true }))
       .catch(() => {
         revealing.current = false;
         failed();

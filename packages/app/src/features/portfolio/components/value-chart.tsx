@@ -46,7 +46,7 @@ export function ValueChart({ currency, range, state }: ValueChartProps) {
 
   const choose = (next: ChartRange) => {
     void domain
-      .write((snapshot) => ({ prefs: { ...snapshot.prefs, chartRange: next } }))
+      .writePrefs((prefs) => ({ ...prefs, chartRange: next }))
       .catch(() => toasts.add({ title: t('failed'), timeout: UNDO_WINDOW_MS }));
   };
 
