@@ -1,6 +1,6 @@
 import type { Decorator, Preview } from '@storybook/react-vite';
 import { createElement, type ReactNode, useLayoutEffect } from 'react';
-import { findClassConflicts } from '../src/lib/class-conflicts.ts';
+import { findClassConflicts } from '../src/lib/class-conflicts.testing.ts';
 
 // What every Storybook of the repository shares (`@proofofcalm/ui/storybook`): the seven viewports,
 // the theme, motion and text-size globals with the decorator that applies them, and the class-conflict

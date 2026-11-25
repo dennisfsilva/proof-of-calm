@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { classConflicts, findClassConflicts, SPACING_ALIASES, TEXT_SIZES } from './class-conflicts';
+import { classConflicts, findClassConflicts, SPACING_ALIASES, TEXT_SIZES } from './class-conflicts.testing';
 
 const theme = readFileSync(fileURLToPath(new URL('../styles/theme.css', import.meta.url)), 'utf8');
 const declared = (namespace: string) =>

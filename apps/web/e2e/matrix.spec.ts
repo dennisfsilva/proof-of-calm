@@ -4,7 +4,7 @@ import { expect, type Page } from '@playwright/test';
 import type { Snapshot } from '@proofofcalm/app/lib/ports';
 import { type FixturePhase, fixtureNowMs, fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
 import type { CalendarDate, Instant, Entry as PlanEntry } from '@proofofcalm/core';
-import { classConflicts } from '@proofofcalm/ui/lib/class-conflicts';
+import { classConflicts } from '@proofofcalm/ui/lib/class-conflicts.testing';
 import portugal from '../../../packages/content/jurisdictions/pt.json' with { type: 'json' };
 import { seedPlan } from './seed';
 import { routeFixturePrices, test } from './support';
