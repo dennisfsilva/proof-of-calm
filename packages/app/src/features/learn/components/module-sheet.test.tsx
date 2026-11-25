@@ -291,32 +291,35 @@ describe('ModuleSheet: a chart under a plan', () => {
   it.each([
     ['a plan in Portugal', 'PT', ''],
     ['no plan', null, ' '],
-  ])("on a German screen with %s, the chart and the text beside it take the page's percent", async (_, country, joiner) => {
-    const snapshot = fixtureSnapshot();
-    const services = createTestServices({
-      language: 'de',
-      snapshot:
-        country === null
-          ? { ...snapshot, plan: null, entries: [] }
-          : { ...snapshot, plan: { ...(snapshot.plan as Plan), country: country as Plan['country'] } },
-      rules: (code) => loadRules(code),
-    });
-    await services.start();
-    const { container } = render(
-      <ServicesProvider services={services}>
-        <I18nProvider locale="de" messages={{ learn: learnDe }}>
-          <Suspense fallback={null}>
-            <ModuleSheet slug="risk-honestly" open onOpenChange={vi.fn()} />
-          </Suspense>
-        </I18nProvider>
-      </ServicesProvider>,
-    );
-    const dialog = await screen.findByRole('dialog');
-    await within(dialog).findByRole('img');
-    const values = [...container.ownerDocument.querySelectorAll('[data-slot="bar-chart-value"]')];
-    expect(values.map((value) => value.textContent).slice(0, 2)).toEqual([`−94${joiner}%`, `−87${joiner}%`]);
-    expect(within(dialog).getByText(/^Bitcoin had 4 falls/).textContent).toBe(
-      `Bitcoin had 4 falls of more than 75${joiner}% between 2011 and 2022.`,
-    );
-  });
+  ])(
+    "on a German screen with %s, the chart and the text beside it take the page's percent",
+    async (_, country, joiner) => {
+      const snapshot = fixtureSnapshot();
+      const services = createTestServices({
+        language: 'de',
+        snapshot:
+          country === null
+            ? { ...snapshot, plan: null, entries: [] }
+            : { ...snapshot, plan: { ...(snapshot.plan as Plan), country: country as Plan['country'] } },
+        rules: (code) => loadRules(code),
+      });
+      await services.start();
+      const { container } = render(
+        <ServicesProvider services={services}>
+          <I18nProvider locale="de" messages={{ learn: learnDe }}>
+            <Suspense fallback={null}>
+              <ModuleSheet slug="risk-honestly" open onOpenChange={vi.fn()} />
+            </Suspense>
+          </I18nProvider>
+        </ServicesProvider>,
+      );
+      const dialog = await screen.findByRole('dialog');
+      await within(dialog).findByRole('img');
+      const values = [...container.ownerDocument.querySelectorAll('[data-slot="bar-chart-value"]')];
+      expect(values.map((value) => value.textContent).slice(0, 2)).toEqual([`−94${joiner}%`, `−87${joiner}%`]);
+      expect(within(dialog).getByText(/^Bitcoin had 4 falls/).textContent).toBe(
+        `Bitcoin had 4 falls of more than 75${joiner}% between 2011 and 2022.`,
+      );
+    },
+  );
 });
