@@ -1,0 +1,61 @@
+{
+  "name": "Spanien",
+  "filingNote": "Kalenderjahr als Steuerjahr. Die Renta (Modelo\u00a0D-100) für 2025 wird vom 8.\u00a0April bis 30.\u00a0Juni\u00a02026 eingereicht (Orden\u00a0HAC/277/2026); die Termine setzt jährlich eine Verordnung. Kryptowerte im Ausland (Modelo\u00a0721): 1.\u00a0Januar bis 31.\u00a0März.",
+  "lotRuleNote": "Fifo-Methode (first in, first out) je Art von Coin: Bei einem Teilverkauf von Coins, die zu verschiedenen Zeitpunkten und Werten gekauft wurden, gehen die zuerst erworbenen zuerst ab („criterio FIFO“, das Renta-Handbuch der AEAT).",
+  "card": {
+    "classification": "Gewinne und Verluste in der Sparbasis (base del ahorro, Art.\u00a046 b LIRPF) außerhalb einer wirtschaftlichen Tätigkeit; jede Art von Coin ist ein eigener Vermögenswert. Keine gelesene Seite der AEAT behandelt Staking oder Airdrops.",
+    "taxableEvents": [
+      {
+        "note": "Gewinn oder Verlust ist der Übertragungswert abzüglich des Anschaffungswerts, unter Berücksichtigung der Gebühren und Steuern des Vorgangs, die die steuerpflichtige Person gezahlt hat; steuerpflichtig unabhängig von der Haltedauer."
+      },
+      {
+        "note": "Ein Tausch zwischen verschiedenen Coins ist ein Sachtausch (permuta, Art.\u00a037.1.h LIRPF). Gewinn: der höhere der beiden Marktwerte minus Anschaffungswert der hingegebenen Coins; dieser höhere Wert sind die Anschaffungskosten der erhaltenen."
+      },
+      {
+        "note": "Ein Stablecoin ist eine andere Art von Coin, daher ist der Tausch eine permuta wie jede andere."
+      },
+      {
+        "note": "Eine Zahlung für Waren oder Dienstleistungen mit Kryptowerten ändert die Zusammensetzung des Vermögens (Art.\u00a033.1 LIRPF): Gewinn oder Verlust wie bei einem Verkauf; keine gelesene AEAT-Seite nennt Zahlungen (mittlere Belastbarkeit)."
+      },
+      {
+        "note": "Eine Übertragung von Coins zwischen Wallets derselben Person ändert die Zusammensetzung des Vermögens nicht: kein Gewinn, kein Verlust (Art.\u00a033.1 LIRPF). Coins mit privaten Schlüsseln in eigener Hand zählen für Modelo\u00a0721 nicht."
+      },
+      {
+        "note": "Bei Schenkung folgt der Gewinn dem Wert der Schenkungsteuer (ISD), höchstens dem Marktwert (Art.\u00a036 LIRPF); im Todesfall keiner (Art.\u00a033.3.b). Ein Schenkungsverlust ist nicht abziehbar (Art.\u00a033.5.c). Beschenkte: ISD, nicht IRPF (Art.\u00a06.4)."
+      },
+      {
+        "note": "Keine gelesene Seite der AEAT behandelt Staking-Prämien oder Airdrops; so erhaltene Coins werden beim Verkauf als Gewinn besteuert, ihr Anschaffungswert ist eine offene Frage (mittlere Belastbarkeit)."
+      }
+    ],
+    "rates": [
+      {
+        "label": "Tarif der Sparbasis",
+        "value": "19\u00a0% bis 30\u00a0% je nach Stufe",
+        "note": "Staatliche (Art.\u00a066.1 LIRPF) und regionale Hälfte (Art.\u00a076) nach demselben Tarif: 19\u00a0% bis EUR\u00a06000; 21\u00a0% bis EUR\u00a050\u00a0000; 23\u00a0% bis EUR\u00a0200\u00a0000; 27\u00a0% bis EUR\u00a0300\u00a0000; 30\u00a0% darüber. Die Stufe von 30\u00a0% gilt seit 1.\u00a0Januar\u00a02025 (Ley\u00a07/2024)."
+      }
+    ],
+    "allowances": [
+      "Kein Freibetrag für Gewinne aus Kryptowerten; die Gebühren und Steuern des Vorgangs, die die steuerpflichtige Person gezahlt hat, fließen in die Werte ein.",
+      "Modelo\u00a0721 nur, wenn Kryptowerte in ausländischer Verwahrung am 31.\u00a0Dezember EUR\u00a050\u00a0000 übersteigen; erneut, wenn er seit der letzten Erklärung um mehr als EUR\u00a020\u00a0000 wächst (Art.\u00a042 quater RGAT). Coins in Eigenverwahrung zählen nicht."
+    ],
+    "holdingRuleText": "Keine Haltefrist: Jeder Verkauf, jeder Tausch und jede Zahlung ist ein steuerpflichtiger Vorgang, unabhängig von der Haltedauer. Derselbe Tarif der Sparbasis gilt für einen Coin, der 1\u00a0Tag oder 10\u00a0Jahre gehalten wurde.",
+    "lotRuleText": "Fifo je Coin-Art („criterio FIFO“, Renta-Handbuch der AEAT): Bei einem Teilverkauf von Coins aus Käufen zu verschiedenen Zeiten und Werten gehen die zuerst erworbenen zuerst ab. Das gelesene Handbuch nennt keine Trennung nach Plattform.",
+    "losses": "Verluste werden innerhalb der Sparbasis des Jahres verrechnet; ein verbleibender negativer Saldo wird mit Kapitaleinkünften des Jahres verrechnet, höchstens mit 25\u00a0% davon, und der Rest wird 4\u00a0Jahre vorgetragen (Art.\u00a049.1 LIRPF).",
+    "reporting": [
+      "Die Renta-Erklärung (Modelo\u00a0D-100): der Abschnitt „Ganancias y pérdidas patrimoniales derivadas de la transmisión o permuta de monedas virtuales por particulares“.",
+      "Verluste, die noch in späteren Jahren zu verrechnen sind, stehen in Anhang\u00a0C der Erklärung.",
+      "Modelo\u00a0721, vom 1.\u00a0Januar bis zum 31.\u00a0März, für Kryptowerte bei einer Verwahrstelle im Ausland über EUR\u00a050\u00a0000 am 31.\u00a0Dezember; für Bestände von 2025 vom 1.\u00a0Januar bis zum 31.\u00a0März\u00a02026."
+    ],
+    "caveats": [
+      "Ob die Fifo-Methode verpflichtend ist, und ob je Plattform oder insgesamt.",
+      "Staking-Prämien und Airdrops.",
+      "Die Verrechnung von 25\u00a0% mit Kapitaleinkünften.",
+      "Schenkungen: Es zahlt die schenkende Person.",
+      "Der Impuesto sobre el Patrimonio und seine regionalen Regeln.",
+      "Das Baskenland und Navarra mit eigener IRPF.",
+      "Meldungen nach DAC8 durch Anbieter von Kryptowerten: ob Spanien sie umgesetzt hat.",
+      "Was sich nach der Wahl vom 29.\u00a0November\u00a02026 ändert."
+    ],
+    "summary60": "Spanien: Jeder Verkauf, jeder Tausch zwischen Kryptowerten und jede Zahlung mit Kryptowerten ist steuerpflichtig. Keine Steuerfreiheit nach einer Haltefrist. Nettogewinne werden in der Sparbasis mit 19\u00a0% bis 30\u00a0% besteuert. Fifo je Coin. Verluste mindern Gewinne und werden 4\u00a0Jahre vorgetragen. Kryptowerte bei einer ausländischen Verwahrstelle über EUR\u00a050\u00a0000 sind bis zum 31.\u00a0März in Modelo\u00a0721 zu erklären."
+  }
+}
