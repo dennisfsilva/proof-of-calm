@@ -71,7 +71,7 @@ coin. Each Learn module's body also goes through the build's own compiler and el
 (`scripts/closed-body.ts`, ADR-0048 Deviations): one `module-closed-body` problem, with the line, per
 module the build would refuse. On the page that compiler gives, `src/module-figures.ts` reads the chart's section
 of each module and translation against the cycles file and the catalogue (`docs/CONTENT-STYLE.md` §4, R5 and R6): a
-sentence there that holds one of §4's triggers and matches neither closed shape, or in a translation any sentence
+sentence there that holds one of §4's triggers and matches neither closed shape (`src/module-shapes.ts`), or in a translation any sentence
 neither shape nor `LISTED` holds, or a figure that is not its row's, is `figure-chart`, and a coin
 the chart draws whose rows no sentence states is `figure-unstated`, and a B sentence whose count meets its
 noun through anything but one U+00A0 is `figure-join` (R6). In every English, pt-PT and German module,

@@ -426,11 +426,12 @@ external links and the Risk link in the mobile export (M3).
   `GERMAN_PARTIAL`), German Today's rule-change notice with the country forms (#482) and de in the
   preview's language picker (#485, production unchanged). The ten German profile overlays followed
   on 2026-11-25 (#490, #493, #491 and #492; ADR-0057 Corrections of 2026-11-25), each whole by a
-  test, with the German prose joins (`docs/CONTENT-STYLE.md` §10). Still to come: the German Learn
-  module overlays in three branches (Start here and Noise with German count nouns; When the market
-  drops, Cycles and Taxes where you live; Risk honestly behind a design check of closed German
-  chart shapes and the split of `packages/content/src/module-figures.ts`), then German in
-  production's picker after the native read. CSV import, free (ADR-0039), for the
+  test, with the German prose joins (`docs/CONTENT-STYLE.md` §10). The six German Learn module
+  overlays followed on 2026-11-25: Start here and Noise with the German count nouns (#497), the
+  closed German chart shapes (#498, after the shapes moved to
+  `packages/content/src/module-shapes.ts`, #496), When the market drops, Cycles and Taxes where you
+  live (#499) and Risk honestly (#500), so German's build is complete. Still to come: the native
+  read (`docs/CONTENT-STYLE.md` §8 item 9), then German in production's picker. CSV import, free (ADR-0039), for the
   main exchanges of Portugal and Germany, chosen from research and recorded in ADR-0056 (Kraken, then Trade
   Republic; Kraken's ledger reader built on 2026-11-13 (#168) and the core's import plan against the
   Log the same day (#178, `docs/DOMAIN.md` §3.13, "Meeting the Log"), then its write (#183) and the

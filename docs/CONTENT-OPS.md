@@ -210,8 +210,9 @@ visible rather than impossible:
   literal text, and `tools/content-review/render-check.ts` proves that through GitHub's renderer in
   the `render` job of `.github/workflows/content-review.yml`. A cell loses its format
   characters (`defuseCell`), except a `changes` row's `old` and `new`, which first spell each
-  character a check's detail names by code point (`printedText` in
-  `packages/content/src/percent-gap.ts`) as `\x{HHHH}` in upper-case hex (`spellJoiners`), as the
+  character a check's detail names by code point (`spellNamed` in
+  `packages/content/src/percent-gap.ts`, the one definition both use, a decomposed letter's
+  combining marks included) as `\x{HHHH}` in upper-case hex (`spellJoiners`), as the
   skill spells it in a note, so the table and a note quote one value alike. U+0020, a tab, a line
   feed and a carriage return stay as written there, and every cell writes them as a space, so for
   those three line characters a note and the table can differ.
