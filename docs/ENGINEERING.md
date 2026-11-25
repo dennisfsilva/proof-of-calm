@@ -263,7 +263,7 @@ platform without one.
   Show all's longest task from 94.4 s to 43 to 47 s and its rows from 158 s to 93 to 100 s
   (`log-screen.formatters.test.tsx` fails while rows build their own). After the fix the heading
   shows after 4.5 to 5.2 s (longest task 1.1 to 1.2 s), a load the rule does not cover, since it
-  measures the screen's inputs once it shows. Two items stay over the rule, each moved to session 27a. The entry
+  measures the screen's inputs once it shows. Two items stay over the rule (planned: M2). The entry
   sheet and form at the cap, which scan the 10,000 entries, over it by Event Timing: opening a row
   136 to 192 ms, Edit entry 1,160 to 1,288 ms, one keystroke in the amount 648 to 776 ms and
   closing the sheet 720 to 800 ms, with only the first page of rows on screen; the fix is invisible,
