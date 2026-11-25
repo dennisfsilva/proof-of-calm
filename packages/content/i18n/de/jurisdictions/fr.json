@@ -1,7 +1,7 @@
 {
   "name": "Frankreich",
   "filingNote": "Das Steuerjahr ist das Kalenderjahr. Die Online-Erklärung öffnet im April des Folgejahres; die Abgabefrist ist je nach département verschieden.",
-  "lotRuleNote": "Keine Zuordnung nach Posten: Der Gewinn jedes steuerpflichtigen Verkaufs wird auf das gesamte Portfolio berechnet (Art.\u00a0150 VH bis III CGI).",
+  "lotRuleNote": "Keine Postenzuordnung: Der Gewinn jedes steuerpflichtigen Verkaufs wird auf das gesamte Portfolio berechnet (Art. 150 VH bis III CGI).",
   "card": {
     "classification": "Gewinne aus gelegentlichen Verkäufen von Privatpersonen (Art.\u00a0150 VH bis CGI; ab 1.\u00a0Januar\u00a02026 nur Kryptowerte nach MiCA; NFTs: Art.\u00a0150 VH ter). Handel wie ein Profi: nichtgewerbliche Gewinne (BNC); als Unternehmen: gewerbliche (BIC).",
     "taxableEvents": [
@@ -43,7 +43,7 @@
       "Formular\u00a03916\u2011bis für jedes Konto mit Kryptowerten auf einer Plattform im Ausland."
     ],
     "caveats": [
-      "Der Wert Ihres gesamten Bestands im Zeitpunkt jedes Verkaufs.",
+      "Der Wert Ihres gesamten Bestands zum Zeitpunkt jedes Verkaufs.",
       "Die Schwelle von EUR\u00a0305, gemessen an den Verkaufspreisen.",
       "Verluste, nur im selben Jahr nutzbar.",
       "Erklärungen zu Plattformen im Ausland und die Bußgelder dazu.",
@@ -51,7 +51,7 @@
       "Zuschläge auf hohe Einkommen.",
       "Die Maßnahmen des Haushalts 2027, die noch nicht Gesetz sind."
     ],
-    "summary60": "Frankreich: Ein Verkauf von Kryptowerten gegen Euro und eine Zahlung mit Kryptowerten sind steuerpflichtig, ein Tausch gegen einen anderen Kryptowert nicht. Gewinne werden pauschal mit 31,4\u00a0% besteuert, auf Antrag nach Ihrem progressiven Satz. Betragen die Verkäufe Ihres Haushalts im Jahr höchstens EUR\u00a0305, ist nichts zu zahlen. Gewinne werden auf Ihr gesamtes Portfolio berechnet, nicht je Coin."
+    "summary60": "Frankreich: Ein Verkauf von Kryptowerten gegen Euro und eine Zahlung mit Kryptowerten sind steuerpflichtig, ein Tausch gegen einen anderen Kryptowert nicht. Gewinne werden pauschal mit 31,4\u00a0% besteuert, auf Antrag nach dem progressiven Tarif. Betragen die Verkäufe Ihres Haushalts im Jahr höchstens EUR\u00a0305, ist nichts zu zahlen. Gewinne werden auf Ihr gesamtes Portfolio berechnet, nicht je Coin."
   },
   "pendingChanges": [
     {
