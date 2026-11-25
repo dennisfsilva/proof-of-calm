@@ -391,9 +391,10 @@ cells one under another while its columns side by side are wider than its box, a
 are at 360 px and at 125 % text, and keeps its columns while they fit: a probe in the wrapper, as wide
 as the box and holding a hidden line of text, is measured against the table with `data-stacked`
 removed at every change of the box, the text size, the font, the rows, a `<details>` in or around it
-or a table in it stacking, in sub-pixels and before paint. A chart's table view in a table's cell (a
+or a table in it stacking, in sub-pixels and before paint; the checks of one frame run together (every
+attribute removed, every width read, every attribute set), the mount's after the frame's layout. A chart's table view in a table's cell (a
 coin's detail row in Holdings) has no width of its own and at least the cell's, so it stacks in the
-cell instead of widening the outer table. Nothing is stored, since a stored width goes stale with every input it
+cell instead of widening the outer table. No width that decides it is stored, since a stored width goes stale with every input it
 depends on (`docs/research/narrow-tables.md`, 2026-11-16). Stacked, only the cells become blocks, so
 assistive technology reads the same table; empty cells lose their padding. The
 charts draw the core's geometry as SVG attributes (positions, path data) and keep text in HTML: the
