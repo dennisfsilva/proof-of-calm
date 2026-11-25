@@ -1,7 +1,7 @@
 import { expect, type Page } from '@playwright/test';
 import type { Snapshot } from '@proofofcalm/app/lib/ports';
 import { fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
-import { type CalendarDate, type Entry, liveEntries, MAX_ENTRIES } from '@proofofcalm/core';
+import { type CalendarDate, type Entry, LOG_WINDOW, liveEntries, MAX_ENTRIES } from '@proofofcalm/core';
 import { seedPlan } from './seed';
 import { routeFixturePrices, test } from './support';
 
@@ -16,14 +16,15 @@ import { routeFixturePrices, test } from './support';
 
 const CPU_RATE = 6;
 const RULE_MS = 100;
-// A run took 113 to 121 s on this machine (2026-11-25), the seed's 7 s included.
+// A run took 27 to 29 s on this machine with the window (2026-11-25), the seed's 7 s included.
 const TIMEOUT_MS = 420_000;
 /**
- * The inputs this machine measured under half the rule at 6x, asserted under it. None on 2026-11-25, after the sheet
- * and form stopped scanning the entries: opening a row took 104 to 152 ms, Edit entry 320 to 352, a keystroke in the
- * amount 48 to 64 and closing the sheet 80 to 88.
+ * The inputs this machine measured under half the rule at 6x, asserted under it. On 2026-11-25, with a window of 48:
+ * Show older entries, input 32 ms and no long task. Not asserted: opening a row 88 ms, Edit entry 240 to 272, a
+ * keystroke in the amount 40 to 48 (48 to 64 in earlier runs), closing the sheet 64 to 72, Show all's longest task 314
+ * to 321, Show newer entries' 0 to 52, opening Go to year's 172 to 197 and choosing its oldest year's 60 to 327.
  */
-const ASSERTED: ReadonlySet<string> = new Set<string>([]);
+const ASSERTED: ReadonlySet<string> = new Set<string>(['Show older entries']);
 
 /** The fixture plan with extra buys on the days before its first buy day, up to MAX_ENTRIES live entries. */
 function atTheCap(): Snapshot {
@@ -105,7 +106,7 @@ async function measure(page: Page, act: () => Promise<void>, shown: () => Promis
 
 test.use({ serviceWorkers: 'block' });
 
-test(`the Log at ${MAX_ENTRIES} entries: each input and Show all at ${CPU_RATE}x CPU, against the ${RULE_MS} ms rule`, async ({
+test(`the Log at ${MAX_ENTRIES} entries: each input, Show all and its window at ${CPU_RATE}x CPU, against the ${RULE_MS} ms rule`, async ({
   page,
 }, testInfo) => {
   test.setTimeout(TIMEOUT_MS);
@@ -133,8 +134,7 @@ test(`the Log at ${MAX_ENTRIES} entries: each input and Show all at ${CPU_RATE}x
     'until the heading shows': toHeading,
   });
 
-  // The four inputs on the Log as it opens, its last LOG_PAGE transactions; with every row shown each one waits on
-  // the 10,000 rows' render, which is over the rule, so Show all comes last.
+  // The four inputs on the Log as it opens, its last LOG_PAGE transactions, then Show all and the moves of its window.
   const row = page.locator('tbody button[aria-expanded]', { hasText: 'Monthly buy' }).first();
   const open = await measure(
     page,
@@ -160,33 +160,70 @@ test(`the Log at ${MAX_ENTRIES} entries: each input and Show all at ${CPU_RATE}x
     () => expect(sheet).toBeHidden(loading),
   );
 
+  // Show all shows a window of LOG_WINDOW transactions under its range line (docs/DOMAIN.md §3.9); the moves through
+  // the windows are transitions that keep the shown rows until the next ones are ready.
+  const range = page.locator('main#main p', { hasText: /^Entries \S+ to \S+ of / });
+  const showAll = page.locator('main#main button', { hasText: /^Show all/ });
+  const firstWindow = new RegExp(`^Entries 1 to ${LOG_WINDOW} of `);
+  const all = await measure(
+    page,
+    () => showAll.click(),
+    () => expect(range).toHaveText(firstWindow, loading),
+  );
+  const older = await measure(
+    page,
+    () => page.getByRole('button', { name: 'Show older entries' }).click(),
+    () => expect(range).toHaveText(new RegExp(`^Entries ${LOG_WINDOW + 1} to ${2 * LOG_WINDOW} of `), loading),
+  );
+  const newer = await measure(
+    page,
+    () => page.getByRole('button', { name: 'Show newer entries' }).click(),
+    () => expect(range).toHaveText(firstWindow, loading),
+  );
+  const year = page.getByRole('combobox', { name: 'Go to year' });
+  const choose = await measure(
+    page,
+    () => year.click(),
+    () => expect(page.getByRole('option').last()).toBeVisible(loading),
+  );
+  const oldest = await measure(
+    page,
+    () => page.getByRole('option').last().click(),
+    () => expect(range).not.toHaveText(firstWindow, loading),
+  );
+
   const inputs = {
     'open a row': open,
     'Edit entry': edit,
     'one keystroke in the amount': typed,
     'close the sheet': close,
+    'Show all': all,
+    'Show older entries': older,
+    'Show newer entries': newer,
+    'open Go to year': choose,
+    'choose the oldest year': oldest,
   };
   for (const [what, { input, task }] of Object.entries(inputs)) {
     // An input over the rule that no invisible change fixed stays recorded, not asserted (docs/ENGINEERING.md §4).
-    record(ASSERTED.has(what) ? what : `${what} (over the rule)`, { input, 'longest task': task });
+    record(ASSERTED.has(what) ? what : `${what} (not asserted)`, { input, 'longest task': task });
     if (ASSERTED.has(what)) {
       expect(input, `${what} at ${CPU_RATE}x CPU`).toBeLessThan(RULE_MS);
       expect(task, `${what}'s longest task at ${CPU_RATE}x CPU`).toBeLessThan(RULE_MS);
     }
   }
 
-  const showAll = page.locator('main#main button', { hasText: /^Show all/ });
-  const started = Date.now();
-  const all = await measure(
-    page,
-    () => showAll.click(),
-    () => expect(showAll).toHaveCount(0, { timeout: TIMEOUT_MS / 2 }),
-  );
-  // Over the rule: Show all renders every row in one task, so a person waits that long for them; making it shorter
-  // changes what the Log shows (paging or a virtual list, a design decision), so it is recorded here and not asserted.
-  record('Show all (over the rule)', {
-    input: all.input,
-    'longest task': all.task,
-    'until the rows show': Date.now() - started,
+  // The stored Show all: the Log opens on its last LOG_PAGE transactions, and the window follows in a deferred render.
+  const reloaded = Date.now();
+  await page.reload();
+  await expect(page.locator('main#main h1')).toBeVisible(loading);
+  const reloadToHeading = Date.now() - reloaded;
+  await expect(range).toHaveText(firstWindow, loading);
+  await settle(page);
+  const reload = await perfOf(page);
+  const at = reload.heading ?? 0;
+  record('Reload with Show all stored', {
+    'longest task to the heading': Math.max(0, ...reload.tasks.filter((t) => t.start < at).map((t) => t.duration)),
+    'longest task after it': Math.max(0, ...reload.tasks.filter((t) => t.start >= at).map((t) => t.duration)),
+    'until the heading shows': reloadToHeading,
   });
 });
