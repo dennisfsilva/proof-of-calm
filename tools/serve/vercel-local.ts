@@ -3,12 +3,12 @@
 // e2e suite and Lighthouse see what a deployment serves (docs/ENGINEERING.md §4). From apps/web:
 //   node ../../tools/serve/vercel-local.ts [--port 3000] [--dir dist] [--config vercel.json]
 //     [--api server-dist/api.mjs] [--env .env.local] [--tls]
+// size-lint-allow: one server, one file, 35 tests
 // --tls serves https with HTTP/2 (and HTTP/1.1 by ALPN) on a self-signed certificate made at start, as
 // Vercel serves h2; Lighthouse uses it, the e2e suite keeps plain http.
 // It emulates only what this repository's vercel.json uses and refuses anything else at start, so no rule
 // passes unnoticed. Not emulated: the CDN cache, which also takes s-maxage and stale-while-revalidate out
 // of the Cache-Control a browser receives (https://vercel.com/docs/caching/cache-control-headers).
-// size-lint-allow: one server, one file, 34 tests
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import {
