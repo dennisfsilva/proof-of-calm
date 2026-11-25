@@ -99,8 +99,7 @@ drops the policy's `upgrade-insecure-requests` (the e2e suite); with `--tls` it 
 HTTP/1.1 by ALPN, over https on a certificate `serve/self-signed.ts` makes at each start (an EC P-256
 key, valid a week, kept in memory), and keeps the whole policy. Lighthouse runs that way, because its
 simulation gives an http/1.1 origin six connections and an h2 one a single multiplexed connection, as
-Vercel serves: `/log` measured 3,223 and 3,459 ms of LCP over http/1.1 and 2,214 ms over h2 on
-2026-11-25 (one run each, 34 requests). Its Chrome takes `--ignore-certificate-errors`, without which
+Vercel serves (the measurements: ADR-0045, Deviations of 2026-11-25). Its Chrome takes `--ignore-certificate-errors`, without which
 the service worker does not register, from the local run's own rc layer, `apps/web/lighthouse/local.cjs`
 (`lighthouserc.json` plus that flag), never from `lighthouserc.json`: `lighthouse-vercel.yml` reads the
 rc from the deployed commit and `lighthouse/vercel.ts` from the workflow's, which may be one that copies
