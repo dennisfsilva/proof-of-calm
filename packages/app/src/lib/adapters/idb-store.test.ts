@@ -43,7 +43,7 @@ import { createDomainStore } from '../store/domain';
 import { DATABASE_NAME, LOCAL_DEVICE_ID, STORE_NAMES, type StoreName } from './idb/database';
 import { ROW_SCHEMA_VERSIONS } from './idb/rows';
 import { PREVIOUS_BUILD } from './idb/rows.testing';
-import { type IdbPlanStore, type IdbPlanStoreOptions, idbPlanStore } from './idb-store';
+import { type IdbPlanStore, type IdbPlanStoreOptions, idbPlanStore, PREFS_KEY, prefsRecord } from './idb-store';
 import { EMPTY_SNAPSHOT } from './memory-store';
 
 const NOW = instant('2026-10-17T09:00:00.000Z');
@@ -170,6 +170,14 @@ describe('idb plan store: load and write (ADR-0019)', () => {
     await put('prefs', { ...prefs, changedAt: 'yesterday' }, 'device');
     await open().write({ prefs: { ...prefs, logShowAll: true, changedAt: NOW } });
     expect(await open().load()).toStrictEqual({ ...EMPTY_SNAPSHOT, prefs: { ...prefs, logShowAll: true } });
+  });
+
+  // The Lighthouse seed (apps/web/lighthouse/seed.ts) puts this record from outside the store, under PREFS_KEY.
+  it('reads forward the prefs record prefsRecord builds for a database with none, as the Lighthouse seed puts it', async () => {
+    await open().load(); // creates the database, as the app does before the seed writes
+    await put('prefs', prefsRecord(undefined, { ...DEFAULT_PREFS, reviewedAt: NOW }, NOW), PREFS_KEY);
+    const loaded = await open().load();
+    expect(loaded).toStrictEqual({ ...EMPTY_SNAPSHOT, prefs: { ...DEFAULT_PREFS, reviewedAt: NOW, changedAt: NOW } });
   });
 
   it('stamps changedAt on the default preferences when no prefs row is stored yet', async () => {
