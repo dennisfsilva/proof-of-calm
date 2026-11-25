@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { countryRules, GENERIC_COUNTRY, loadProfile } from '@proofofcalm/content';
+import { countryRules, GENERIC_COUNTRY, loadProfile, loadRules } from '@proofofcalm/content';
 import type { CalendarDate, CountryRules } from '@proofofcalm/core';
 import { Toaster } from '@proofofcalm/ui/components/toast';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
@@ -155,6 +155,18 @@ describe('RuleChangeBanner', () => {
       expect(screen.queryByRole('button', { name: 'Ausblenden' })).toBeNull();
       expect(screen.queryByText(/\bDE\b|Germany/u)).toBeNull();
     });
+  });
+
+  // The notice is the German rules file's own sentence (26i's evaluator saw Portugal's English one on a German screen).
+  it('a German screen with a PT rule change shows the German sentence, with no lang="en"', async () => {
+    const rules = await loadRules('PT', 'de');
+    const notice = rules?.status.changeNotice;
+    if (rules === null || notice == null) throw new Error('no German PT notice');
+    expect(notice).not.toBe(PORTUGAL.status.changeNotice);
+    await mount({ rules, changeNotice: notice, locale: 'de' });
+    const escaped = notice.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
+    expect(await screen.findByText(new RegExp(`: ${escaped}$`, 'u'))).toBeDefined();
+    expect(document.body.querySelector('[lang="en"]')).toBeNull();
   });
 
   it('the generic profile is named as the general profile, never as a country', async () => {

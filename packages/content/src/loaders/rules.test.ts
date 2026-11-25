@@ -86,6 +86,9 @@ describe('packages/content/rules/<language> (ADR-0057)', () => {
     ['pt-PT', 'PT'],
     ['pt-PT', 'XX'],
     ['de', 'DE'],
+    ['de', 'ES'],
+    ['de', 'FR'],
+    ['de', 'PT'],
   ])("%s/%s is English's outside the name, the conditions and the change notice", (language, code) => {
     const english = countryRules(profileFile(code));
     const overlay = overlayFile(language, code);
@@ -123,6 +126,26 @@ describe('packages/content/rules/<language> (ADR-0057)', () => {
     const rules = await loadRules('DE', 'de');
     expect(rules?.holdingRuleConditions).toEqual(overlayFile('de', 'DE').holdingRuleConditions);
     expect(rules?.holdingRuleConditions).not.toEqual((await loadRules('DE'))?.holdingRuleConditions);
+    expect(rules === null ? null : contentLanguageOf(rules)).toBe('de');
+  });
+
+  // 26i's evaluator saw Portugal's English notice inside a German screen: the German file holds both texts.
+  it('gives PT in German the German conditions and change notice of its profile file, marked de', async () => {
+    const rules = await loadRules('PT', 'de');
+    const english = await loadRules('PT');
+    const overlay = overlayFile('de', 'PT');
+    expect(rules?.holdingRuleConditions).toEqual(overlay.holdingRuleConditions);
+    expect(rules?.holdingRuleConditions).not.toEqual(english?.holdingRuleConditions);
+    expect(rules?.status.changeNotice).toBe(overlay.status?.changeNotice);
+    expect(rules?.status.changeNotice).not.toBe(english?.status.changeNotice);
+    expect(rules === null ? null : contentLanguageOf(rules)).toBe('de');
+  });
+
+  // Spain and France hold no condition and no notice, so their German files differ from English's by the name.
+  it.each(['ES', 'FR'])('gives %s in German the German name of its profile file, marked de', async (code) => {
+    const rules = await loadRules(code, 'de');
+    expect(rules?.name).toBe(overlayFile('de', code).name);
+    expect(rules?.name).not.toBe((await loadRules(code))?.name);
     expect(rules === null ? null : contentLanguageOf(rules)).toBe('de');
   });
 });
