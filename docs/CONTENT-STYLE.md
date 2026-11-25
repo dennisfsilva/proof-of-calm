@@ -1456,7 +1456,7 @@ The Learn modules' terms (the term read of 2026-11-25; counsel's read wins where
 | no tax due | `keine zu zahlende Steuer`; never `fällig`; no `Steuerschuld` |
 | a taxable gain, a tax loss | `weder einen steuerpflichtigen Gewinn noch einen steuerlichen Verlust`, Proof of Calm the subject of each clause |
 | average cost, above or below the amount invested | `durchschnittlicher Kaufpreis`; `über` or `unter dem investierten Betrag`; never `Anschaffungskosten` |
-| allowance, exemption threshold | `Freibetrag`, `Freigrenze` only as a dated fact or in a negation, never applied to a figure of the person's |
+| allowance, exemption threshold | `Freibetrag`, `Freigrenze` only as a dated fact or in a negation, never applied to a figure of the person's or set beside one |
 | not a tax computation | `keine Steuerberechnung` |
 | leverage | `Handel mit geliehenem Geld`; never `Hebel` |
 | liquidation, forced sale | `Liquidation`, `Zwangsverkauf` as nouns only; `liquidieren` is on §2's verb list |
