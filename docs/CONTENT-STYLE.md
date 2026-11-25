@@ -1095,7 +1095,8 @@ needs (decided 2026-11-15). The native reader's review is §8 item 9.
   `No gráfico, C teve K quedas de mais de N entre Y e Y.` with `1 queda` for one, and E, `C caiu L.` or
   `C caiu L`, then any number of `, C L`, then ` e C L.`, with no comma before `e`; `L` is `N`, `N e N`, or two or
   more `N` joined by `, ` with ` e ` before the last; `K` joins `quedas` or `queda` by U+00A0, as R6
-  has it. `C` is `a` and a catalogue coin's name, as written or with its
+  has it, and R6's details quote pt-PT's own span and threshold (`entre 2011 e 2022`, `mais de 75 %`,
+  #502). `C` is `a` and a catalogue coin's name, as written or with its
   first letter in lower case, or `o ether` for ETH; only E's first `C` capitalises its article (`O ether caiu`,
   `A Solana caiu`), and the article agrees (`A ether caiu`, `o Solana` and `a Ether` fail). `N`, `K` and `Y` are
   §4's. Every other sentence of the section, and a heading there, is one `LISTED` in
