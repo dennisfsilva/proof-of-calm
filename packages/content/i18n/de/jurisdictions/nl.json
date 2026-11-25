@@ -21,7 +21,7 @@
         "note": "Eine Übertragung zwischen Ihren eigenen Wallets ändert nichts; es zählt Ihr Gesamtbestand am 1.\u00a0Januar."
       },
       {
-        "note": "Kein Vorgang in Box\u00a03; dort zählt der Wert am 1.\u00a0Januar. Eine etwaige Schenkungsteuer erklärt die beschenkte Person, die sie meist auch zahlt. Erbschaftsteuer erklären die Erben, wenn sie mehr als den Freibetrag erben."
+        "note": "Kein Vorgang in Box\u00a03; dort zählt der Wert am 1.\u00a0Januar. Eine etwaige Schenkungsteuer erklärt die beschenkte Person, die sie meist auch zahlt. Erbschaftsteuer erklären die erbenden Personen, wenn sie mehr als den Freibetrag erben."
       },
       {
         "note": "Die Quellen nennen weder Staking noch Airdrops. Box\u00a03 zählt Ihren Bestand am 1.\u00a0Januar, die Option der tatsächlichen Rendite alle Jahreseinkünfte aus Ihren Vermögenswerten. Mining-Erlöse erklären Sie nur, wenn sie die Kosten übersteigen."
@@ -58,7 +58,7 @@
   "pendingChanges": [
     {
       "title": "Steuerplan 2027 (Belastingplan\u00a02027): die Zahlen für Box\u00a03 im Jahr 2027",
-      "summary": "Laut Bericht vom 17.\u00a0September\u00a02026: Der pauschale Prozentsatz für andere Vermögenswerte liegt bei 6,37%, und der Steuersatz bleibt 2027 bei 36% (mittlere Gewissheit)."
+      "summary": "Laut Bericht vom 17.\u00a0September\u00a02026: Der pauschale Prozentsatz für andere Vermögenswerte liegt bei 6,37%, und der Steuersatz bleibt 2027 bei 36% (mittlere Belastbarkeit)."
     },
     {
       "title": "Gesetz zur tatsächlichen Rendite in Box\u00a03 (Wet werkelijk rendement box\u00a03)",

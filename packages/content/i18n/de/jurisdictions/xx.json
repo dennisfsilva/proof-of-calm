@@ -11,16 +11,16 @@
     ],
     "rates": [{ "label": "Steuersatz auf Gewinne", "value": "Für Ihr Land nicht überprüft" }],
     "allowances": ["Für Ihr Land nicht überprüft."],
-    "holdingRuleText": "Proof of Calm wendet für Ihr Land keine Steuerbefreiung nach einer Haltefrist an: Jeder Verkauf kann steuerpflichtig sein.",
+    "holdingRuleText": "Proof of Calm wendet für Ihr Land keine Steuerfreiheit nach einer Haltefrist an: Jeder Verkauf kann steuerpflichtig sein.",
     "lotRuleText": "Für Ihr Land nicht überprüft.",
     "losses": "Für Ihr Land nicht überprüft.",
     "reporting": [
       "Für Ihr Land nicht überprüft.",
-      "In der EU melden Anbieter von Kryptowerte-Dienstleistungen ab dem Kalenderjahr 2026 die Transaktionen ihrer Kundschaft an die Steuerbehörden (DAC8). Der erste Austausch zwischen den Mitgliedstaaten ist bis zum 30.\u00a0September\u00a02027 vorgesehen."
+      "In der EU melden Anbieter von Kryptowerte-Dienstleistungen den Steuerbehörden ab dem Kalenderjahr 2026 Transaktionen ihrer Nutzerinnen und Nutzer (DAC8). Der erste Austausch unter den EU-Staaten ist bis zum 30.\u00a0September\u00a02027 vorgesehen."
     ],
     "caveats": [
       "Ob Ihr Land jeden Verkauf, jeden Tausch oder jede Zahlung besteuert, und zu welchem Steuersatz.",
-      "Ob Ihr Land Kryptowerte nach einer Haltedauer von der Steuer befreit."
+      "Ob Ihr Land Kryptowerte nach einer Haltedauer steuerfrei stellt."
     ],
     "summary60": "Proof of Calm hat für Ihr Land keine überprüften Regeln. Jeder Verkauf kann steuerpflichtig sein: Prüfen Sie das mit einer Steuerberatung vor Ort. Plan, Protokoll und Portfolio können Sie weiter verwenden."
   }
