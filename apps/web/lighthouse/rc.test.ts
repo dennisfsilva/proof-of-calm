@@ -6,8 +6,12 @@ import { describe, expect, it } from 'vitest';
 // The wiring of the fixture API (apps/web/lighthouse/api.ts): the server Lighthouse CI starts loads the
 // bundle that `lighthouse:api` writes, and `lighthouse` writes it before LHCI runs.
 const read = (file: string): unknown => JSON.parse(readFileSync(new URL(file, import.meta.url), 'utf8'));
+type Assertion = string | [string, Record<string, unknown>];
 const rc = read('../lighthouserc.json') as {
-  ci: { collect: { startServerCommand: string; url: string[]; puppeteerLaunchOptions: { args: string[] } } };
+  ci: {
+    collect: { startServerCommand: string; url: string[]; puppeteerLaunchOptions: { args: string[] } };
+    assert: { assertMatrix: { matchingUrlPattern: string; assertions: Record<string, Assertion> }[] };
+  };
 };
 const { scripts } = read('../package.json') as { scripts: Record<string, string> };
 
@@ -58,6 +62,24 @@ describe('the Lighthouse wiring (apps/web/lighthouserc.json, apps/web/package.js
     const { puppeteerLaunchOptions: shared, ...sharedCollect } = rc.ci.collect;
     expect(puppeteerLaunchOptions).toEqual({ ...shared, args: [...shared.args, '--ignore-certificate-errors'] });
     expect({ ...local, ci: { ...local.ci, collect } }).toEqual({ ...rc, ci: { ...rc.ci, collect: sharedCollect } });
+  });
+
+  // The seeded screens' performance score, TBT and LCP waited at warn until a push run on main measured
+  // them within budget over HTTP/2 (ci.yml run 45606457093 on 9d3f57b9, docs/ENGINEERING.md §4); since
+  // then every assertion of the local run fails the job, as at a deployment.
+  it('asserts every budget at error, the seeded screens performance, TBT and LCP among them', () => {
+    const levels = rc.ci.assert.assertMatrix.flatMap(({ matchingUrlPattern, assertions }) =>
+      Object.entries(assertions).map(([audit, assertion]) => [
+        `${matchingUrlPattern} ${audit}`,
+        Array.isArray(assertion) ? assertion[0] : assertion,
+      ]),
+    );
+    expect(levels.filter(([, level]) => level !== 'error')).toEqual([]);
+    for (const pattern of ['/today$', '/portfolio$', '/log$', '/plan$']) {
+      for (const audit of ['categories:performance', 'total-blocking-time', 'largest-contentful-paint']) {
+        expect(levels).toContainEqual([`${pattern} ${audit}`, 'error']);
+      }
+    }
   });
 
   it('bundles lighthouse/api.ts in lighthouse:api', () => {
