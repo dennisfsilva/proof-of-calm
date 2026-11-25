@@ -34,5 +34,3 @@ export function useLogWindow(rows: readonly LogRow[], all: boolean) {
     goTo: (next: number) => move(next),
   };
 }
-
-export type LogWindow = ReturnType<typeof useLogWindow>;
