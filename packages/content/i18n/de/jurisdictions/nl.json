@@ -1,7 +1,7 @@
 {
   "name": "Niederlande",
-  "filingNote": "Kalenderjahr als Steuerjahr. Frist ist das Datum im Schreiben des Belastingdienst, oft der 1.\u00a0Mai des Folgejahres. Für 2025 verlängert ein Antrag vor dem 1.\u00a0Mai\u00a02026 die Frist bis zum 1.\u00a0September\u00a02026, wenn Sie das Schreiben erhielten.",
-  "lotRuleNote": "Kein Verkauf wird einem Kauf zugeordnet: Box\u00a03 besteuert den Wert des Bestands am 1.\u00a0Januar, nicht das Ergebnis eines Verkaufs.",
+  "filingNote": "Das Steuerjahr ist das Kalenderjahr. Die Frist ist das Datum im Schreiben des Belastingdienst, oft der 1.\u00a0Mai des Folgejahres. Haben Sie es für 2025 erhalten, verlängert ein Antrag vor dem 1.\u00a0Mai\u00a02026 die Frist bis zum 1.\u00a0September\u00a02026.",
+  "lotRuleNote": "Kein Verkauf wird einem Kauf zugeordnet: Box 3 besteuert den Wert des Bestands am 1. Januar, nicht das Ergebnis eines Verkaufs.",
   "card": {
     "classification": "Box\u00a03: Ihre Kryptowerte zählen mit ihrem Wert am 1.\u00a0Januar. Besteuert wird eine fiktive Rendite darauf, nicht der Erlös eines Verkaufs. Bringt Arbeit über die übliche Vermögensverwaltung hinaus oft Einkünfte, werden diese erklärt.",
     "taxableEvents": [
@@ -35,10 +35,10 @@
       }
     ],
     "allowances": [
-      "Steuerfreies Kapital (heffingsvrij vermogen): EUR\u00a059\u00a0357 pro Person 2026, EUR\u00a0118\u00a0714 für steuerliche Partner; die fiktive Rendite wird nur auf den Wert darüber besteuert.",
+      "Freibetrag (heffingsvrij vermogen): EUR\u00a059\u00a0357 pro Person 2026, EUR\u00a0118\u00a0714 für steuerliche Partner; die fiktive Rendite wird nur auf den Wert darüber besteuert.",
       "Kein Freibetrag bei der Option der tatsächlichen Rendite, wie der Oberste Gerichtshof (Hoge Raad) entschieden hat."
     ],
-    "holdingRuleText": "Keine Haltefrist. Die Niederlande besteuern Ihren Verkauf nicht: Box\u00a03 besteuert eine fiktive Rendite auf Ihren Bestand am 1.\u00a0Januar um 00:00\u00a0Uhr. Der Wert folgt dem Kurs der Börse, die Sie genutzt haben. Wie lange Sie einen Coin schon besitzen, ändert nichts.",
+    "holdingRuleText": "Keine Haltefrist. Die Niederlande besteuern Ihren Verkauf nicht: Box\u00a03 besteuert eine fiktive Rendite auf Ihren Bestand am 1.\u00a0Januar um 00:00. Der Wert folgt dem Kurs der Börse, die Sie genutzt haben. Wie lange Sie einen Coin schon besitzen, ändert nichts.",
     "lotRuleText": "Nicht anwendbar: Kein Verkauf wird einem Kauf zugeordnet, weil die Steuer am Wert des Bestands am 1.\u00a0Januar ansetzt, nicht am Ergebnis eines Verkaufs.",
     "losses": "Die fiktive Rendite kennt keinen Verlust. Bei der Option der tatsächlichen Rendite gilt ein negatives Jahr als EUR\u00a00 und ist nicht mit einem anderen Jahr verrechenbar; Kosten sind nicht abziehbar, außer Zinsen auf Schulden in Box\u00a03.",
     "reporting": [

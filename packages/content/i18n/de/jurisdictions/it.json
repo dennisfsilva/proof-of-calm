@@ -1,6 +1,6 @@
 {
   "name": "Italien",
-  "filingNote": "Steuerjahr ist das Kalenderjahr. Der Modello Redditi Persone fisiche geht bis zum 31.\u00a0Oktober des Folgejahres online ein (für 2025: 2.\u00a0November\u00a02026, da der 31.\u00a0Oktober\u00a02026 ein Samstag ist). Der Modello\u00a0730 bis zum 30.\u00a0September.",
+  "filingNote": "Das Steuerjahr ist das Kalenderjahr. Den Modello Redditi Persone fisiche geben Sie bis zum 31.\u00a0Oktober des Folgejahres online ab (für 2025: 2.\u00a0November\u00a02026, da der 31.\u00a0Oktober\u00a02026 ein Samstag ist), den Modello\u00a0730 bis zum 30.\u00a0September.",
   "lotRuleNote": "Bei einer Veräußerung zählen die zuletzt gekauften Coins zuerst: Die Circolare 30/E §3.2.1 nennt die Methode L.I.F.O. für cripto-attività derselben Bezeichnung im regime dichiarativo. Kosten ohne Nachweis zählen als null.",
   "card": {
     "classification": "Cripto-attività: Gewinne und andere Erträge aus der Rückgabe, der entgeltlichen Veräußerung, dem Tausch oder dem Besitz sind redditi diversi mit einer Ersatzsteuer (art.\u00a067 c.\u00a01 lett. c\u2011sexies TUIR, eingefügt durch L.\u00a0197/2022).",
@@ -24,7 +24,7 @@
         "note": "Für die schenkende Person keine Veräußerung. Wer beschenkt wird, übernimmt deren Kosten; wer erbt, den für die Erbschaftsteuer erklärten Wert (art.\u00a068 c.\u00a09\u2011bis TUIR, so die Istruzioni). Erbschaft- und Schenkungsteuer sind eine eigene Frage."
       },
       {
-        "note": "Erträge aus dem Besitz von Kryptowerten (Staking, im Beispiel des Rundschreibens) sind redditi diversi und werden seit dem 1.\u00a0Januar\u00a02023 brutto ohne Abzug besteuert (art.\u00a068 c.\u00a09\u2011bis TUIR, so die Circolare\u00a030/E §3.1)."
+        "note": "Erträge aus dem Besitz von Kryptowerten (Staking, im Beispiel der Circolare\u00a030/E) sind redditi diversi und werden seit dem 1.\u00a0Januar\u00a02023 brutto ohne Abzug besteuert (art.\u00a068 c.\u00a09\u2011bis TUIR, so die Circolare\u00a030/E §3.1)."
       }
     ],
     "rates": [
@@ -45,7 +45,7 @@
       }
     ],
     "allowances": [
-      "Keine Freigrenze: L.\u00a0207/2024 art.\u00a01 c.\u00a025 hat für Veräußerungen ab dem 1.\u00a0Januar\u00a02025 den jährlichen Betrag von EUR\u00a02000 gestrichen, unter dem Gewinne und Verluste nicht zählten."
+      "Kein Freibetrag: L.\u00a0207/2024 art.\u00a01 c.\u00a025 hat für Veräußerungen ab dem 1.\u00a0Januar\u00a02025 den jährlichen Betrag von EUR\u00a02000 gestrichen, unter dem Gewinne und Verluste nicht zählten."
     ],
     "holdingRuleText": "Keine Haltefrist: Jeder Verkauf ist unabhängig von der Haltedauer steuerpflichtig, ab dem ersten Euro Gewinn seit dem 1.\u00a0Januar\u00a02025. Das gilt für einen Verkauf gegen Euro, gegen einen Stablecoin, der ein E-Geld-Token ist, oder gegen Waren. Ein Tausch zwischen Kryptowerten mit denselben Merkmalen und Funktionen ist nicht steuerpflichtig (art.\u00a067 c.\u00a01 lett. c\u2011sexies TUIR).",
     "lotRuleText": "Lifo-Methode (last in, first out): Die zuletzt erworbenen Coins gelten als zuerst abgegeben. Circolare\u00a030/E §3.2.1, regime dichiarativo: „deve essere assunto come costo o valore di acquisto quello determinato con il metodo L.I.F.O.“",
@@ -56,7 +56,7 @@
     ],
     "caveats": [
       "Welche Tauschvorgänge als Tausch zwischen Kryptowerten mit denselben Merkmalen und Funktionen gelten.",
-      "Staking-Belohnungen und Airdrops: Die Regel der Bruttoerträge gilt seit dem 1.\u00a0Januar\u00a02023; der Einbehalt von 26% durch ein italienisches Unternehmen, das sie gutschreibt, war bis zum 31.\u00a0Dezember\u00a02022 die Regelung des Rundschreibens.",
+      "Staking-Belohnungen und Airdrops: Die Regel der Bruttoerträge gilt seit dem 1.\u00a0Januar\u00a02023; der Einbehalt von 26% durch ein italienisches Unternehmen, das sie gutschreibt, war bis zum 31.\u00a0Dezember\u00a02022 die Regelung der Circolare\u00a030/E.",
       "Veräußerungen von 2025, deren Preis 2026 einging.",
       "Quadro\u00a0RW und die Steuer von 0,2%, wenn eine italienische Börse die Stempelsteuer erhebt.",
       "Welche Kostenmethode der Intermediär anwendet: Im wählbaren risparmio amministrato sind es die gewichteten Durchschnittskosten, nicht die Lifo-Methode (Circolare\u00a030/E §3.2.2). Eine Frage für Ihre Steuerberatung.",

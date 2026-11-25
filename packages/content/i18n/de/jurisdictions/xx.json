@@ -1,7 +1,7 @@
 {
   "name": "Anderes Land",
   "filingNote": "Für Ihr Land nicht überprüft: Das Kalenderjahr steht für das Steuerjahr, und die Abgabefristen bestätigt eine Steuerberatung vor Ort.",
-  "lotRuleNote": "Für Ihr Land nicht überprüft. Die App ordnet jedem Verkauf die ältesten Käufe desselben Coins zu (Fifo-Methode, first in, first out).",
+  "lotRuleNote": "Für Ihr Land nicht überprüft. Die App ordnet jedem Verkauf die ältesten Käufe desselben Coins zu: Fifo-Methode (first in, first out).",
   "card": {
     "classification": "Nicht überprüft: Proof of Calm hat für Ihr Land keine überprüften Regeln.",
     "taxableEvents": [
@@ -16,7 +16,7 @@
     "losses": "Für Ihr Land nicht überprüft.",
     "reporting": [
       "Für Ihr Land nicht überprüft.",
-      "In der EU melden Anbieter von Kryptowerte-Dienstleistungen ab dem Kalenderjahr 2026 die Transaktionen ihrer Kundschaft an die Steuerbehörden (DAC8). Der erste Austausch der Mitgliedstaaten ist bis zum 30.\u00a0September\u00a02027 fällig."
+      "In der EU melden Anbieter von Kryptowerte-Dienstleistungen ab dem Kalenderjahr 2026 die Transaktionen ihrer Kundschaft an die Steuerbehörden (DAC8). Der erste Austausch zwischen den Mitgliedstaaten ist bis zum 30.\u00a0September\u00a02027 vorgesehen."
     ],
     "caveats": [
       "Ob Ihr Land jeden Verkauf, jeden Tausch oder jede Zahlung besteuert, und zu welchem Steuersatz.",
