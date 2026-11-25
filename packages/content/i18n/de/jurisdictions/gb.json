@@ -64,7 +64,7 @@
       "Anträge wegen geringfügigen Werts (negligible value claims).",
       "Krypto-Darlehen und Liquiditätspools ab 6.\u00a0April\u00a02027, ein Vorschlag im Finance Bill\u00a02026-\u206027."
     ],
-    "summary60": "Das Vereinigte Königreich besteuert Kryptogewinne über £3,000 Freibetrag mit 18% oder 24%, je nach Band. Verkäufe, Tauschvorgänge, Zahlungen und Schenkungen (außer an Ehe- oder Lebenspartner) sind Veräußerungen, Transfers zwischen eigenen Wallets nicht. Keine Befreiung durch Haltefrist. Kosten gepoolt je Token, mit Same-Day- und 30\u2011Tage\u2011Regel. Self Assessment bis 31.\u00a0Januar, real time service bis 31.\u00a0Dezember."
+    "summary60": "Das Vereinigte Königreich besteuert Gewinne aus Kryptowerten über £3,000 Freibetrag mit 18% oder 24% je nach Einkommensband. Verkauf, Tausch, Zahlung, Schenkung (außer an Ehe- oder Lebenspartner) sind Veräußerungen, Übertragungen auf eigene Wallets nicht. Keine Steuerfreiheit nach einer Haltefrist. Kostenpool pro Token, Same-Day- und 30\u2011Tage\u2011Regel. Fristen: Self Assessment 31.\u00a0Januar, real time service 31.\u00a0Dezember."
   },
   "pendingChanges": [
     {
@@ -73,7 +73,7 @@
     },
     {
       "title": "Cryptoasset Reporting Framework (CARF): Anbieter melden die Daten ihrer Nutzerinnen und Nutzer an HMRC",
-      "summary": "Anbieter von Kryptowerte-Dienstleistungen im Vereinigten Königreich reichen ihre erste Meldung bis 31.\u00a0Mai\u00a02027 ein, mit Daten vom 1.\u00a0Januar\u00a02026 bis 31.\u00a0Dezember\u00a02026. Diese erheben Daten aller Nutzerinnen und Nutzer und melden sie samt einer Übersicht der Transaktionen derer, die im Vereinigten Königreich oder in einem anderen Land steuerlich ansässig sind, das die CARF-Regeln übernommen hat."
+      "summary": "Anbieter von Kryptowerte-Dienstleistungen im Vereinigten Königreich melden erstmals bis zum 31.\u00a0Mai\u00a02027, mit Daten vom 1.\u00a0Januar\u00a02026 bis 31.\u00a0Dezember\u00a02026. Sie erheben Daten aller Nutzerinnen und Nutzer und melden für alle, die im Vereinigten Königreich oder in einem anderen Land, das die CARF-Regeln übernommen hat, steuerlich ansässig sind, deren Daten und eine Übersicht ihrer Transaktionen."
     }
   ]
 }
