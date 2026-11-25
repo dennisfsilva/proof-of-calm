@@ -1,6 +1,6 @@
 # The daily production rebuild (docs/RELEASE.md; ADR-0045, Deviations of 2026-11-15): the public pages
 # render at the build's UTC date, so once a day this calls the Vercel deploy hook for main and fails unless
-# https://proofofcalm.com/en/holding-date then names the day in its build-date meta
+# https://proofofcalm.com/en/holding-date then names that day, or a later one, in its build-date meta
 # (`node tools/rebuild/check.ts`, 30 s apart for up to 20 minutes). The hook URL is the repository secret
 # VERCEL_DEPLOY_HOOK_URL (docs/OWNER-SETUP.md §3), read only through a step's env; while it is absent a run
 # ends green with a notice. GitHub turns a public repository's schedule off after 60 days without
