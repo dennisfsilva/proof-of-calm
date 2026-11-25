@@ -19,8 +19,9 @@ const RULE_MS = 100;
 // A run took 113 to 121 s on this machine (2026-11-25), the seed's 7 s included.
 const TIMEOUT_MS = 420_000;
 /**
- * The inputs this machine measured under half the rule at 6x, asserted under it. None on 2026-11-25: opening a row
- * took 136 to 192 ms, Edit entry 1,160 to 1,288, a keystroke in the amount 648 to 776 and closing the sheet 720 to 800.
+ * The inputs this machine measured under half the rule at 6x, asserted under it. None on 2026-11-25, after the sheet
+ * and form stopped scanning the entries: opening a row took 104 to 152 ms, Edit entry 320 to 352, a keystroke in the
+ * amount 48 to 64 and closing the sheet 80 to 88.
  */
 const ASSERTED: ReadonlySet<string> = new Set<string>([]);
 

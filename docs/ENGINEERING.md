@@ -282,13 +282,20 @@ platform without one.
   while each row calls it again; the formatters' calls cannot show it, since the hook shares one
   set per pair of locales). After the fix the heading
   shows after 4.5 to 5.2 s (longest task 1.1 to 1.2 s), a load the rule does not cover, since it
-  measures the screen's inputs once it shows. Two items stay over the rule (planned: M2). The entry
-  sheet and form at the cap, which scan the 10,000 entries, over it by Event Timing: opening a row
-  136 to 192 ms, Edit entry 1,160 to 1,288 ms, one keystroke in the amount 648 to 776 ms and
-  closing the sheet 720 to 800 ms, with only the first page of rows on screen; the fix is invisible,
-  in their scans. Show all at the cap, over it by its longest task: its input takes 24 to 56 ms, but
-  the render it starts blocks the main thread for 43 to 47 s; paging or a virtual list changes what
-  the Log shows, so it waits for a design check.
+  measures the screen's inputs once it shows. The entry sheet and form scanned the 10,000 entries
+  on every render (opening a row 136 to 192 ms, Edit entry 1,160 to 1,288 ms, one keystroke in the
+  amount 648 to 776 ms, closing the sheet 720 to 800 ms): the sheet now reads what is held once as
+  it opens, never while closed, and the form runs neither the save nor the move line before Save
+  while no live move is stored, since no save can leave a move short then (`docs/DOMAIN.md` §3.7;
+  `entry-sheet.test.tsx` and `entry-form.test.tsx` count `heldUnits` and `movesLeftShort`). Three
+  runs at 6× after that fix (same machine, 2026-11-25): one keystroke 48 to 64 ms and closing the
+  sheet 80 to 88 ms, under the rule; Show all's longest task 17 to 20 s; the heading after 3.0 to
+  3.7 s. Three items stay over the rule (planned: M2). Opening a row, 104 to 152 ms, and Edit
+  entry, 320 to 352 ms, by Event Timing: a profile of Edit entry finds the sheet's mount, focus and
+  layout, no scan of the entries, and a store with a move still pays the move line per keystroke.
+  Show all, by its longest task: its input takes 24 to 32 ms, but the render it starts blocks the
+  main thread for 17 to 20 s; paging or a virtual list changes what the Log shows, so it waits for
+  a design check.
 - An upstream outage may fail the production check. It measures what production serves: a 502 that
   reaches the browser is a fault people see, and `errors-in-console` names it. Since Portfolio's
   layout holds on that path (`lighthouse-vercel` run 40917845879 on a20d28d9, 2026-10-29, measured
