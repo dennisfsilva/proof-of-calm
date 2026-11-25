@@ -60,7 +60,11 @@ resumes only a part-way failure (`docs/research/review-resume.md`). When nothing
 writes the body to `.content-review/` (gitignored) and, without `--dry`, commits on the day's first
 free name, pushes it with a plain push and opens the PR labelled needs-owner and content-review; it
 never merges and never forces a push. The `finish-dry` job runs it on the fixtures: one change
-accepted, five refused.
+accepted, five refused. `workflow-paths.test.ts` (in `pnpm test`, not in the workflow's jobs) holds
+content-review.yml's `paths:` to every repository file the watched scripts import, followed
+transitively, so `packages/content/src/percent-gap.ts`, which `body.ts` imports, is watched; it also
+refuses a workspace-package import in a watched script (the jobs install none) and a non-glob entry
+that does not exist.
 
 `check.ts` (`pnpm check`) runs the gate's fast half with colour off and vitest's dot reporter, prints
 one line per step and only a failing step's last 40 lines. `lint/docs.ts` (`pnpm lint:docs`) checks
