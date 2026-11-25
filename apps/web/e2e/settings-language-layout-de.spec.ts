@@ -159,7 +159,8 @@ test('de: the change from the Netherlands to the United Kingdom asks for the cur
   expectGerman({ keep, change, confirm }, { keep: 'Keep EUR', change: 'Change to GBP', confirm: englishConfirm });
   const errors = await boot(page, inTheNetherlands);
   await openTab(page, 'data');
-  // The select names each country by its rules file, which is English in a language without one, as German is.
+  // The select names a country in the screen's language where that language has an overlay for its profile, and in
+  // English otherwise, so each pattern accepts both names.
   const select = page.getByRole('combobox', { name: deSettings.country.label, exact: true });
   await expect(select).toHaveText(new RegExp(`${deCountries.NL.name}|Netherlands`, 'u'));
   await select.click();
