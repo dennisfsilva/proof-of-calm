@@ -1,7 +1,11 @@
 import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
-import { transformSync } from '@babel/core';
 import { describe, expect, it } from 'vitest';
+
+// @babel/core ships no types and the repository adds no @types package for one test: the one call is typed here.
+type TransformSync = (code: string, options: object) => { readonly code?: string | null } | null;
+const { transformSync } = createRequire(import.meta.url)('@babel/core') as { transformSync: TransformSync };
 
 // The Log's row compiles under the React Compiler (ADR-0045, docs/ENGINEERING.md §4, "The Log at the cap"): the
 // hosts' preset skips a component it cannot compile without a word, and the row then rebuilds its summary, its
