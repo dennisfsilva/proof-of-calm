@@ -1,7 +1,7 @@
 {
   "name": "Vereinigtes Königreich",
-  "filingNote": "Steuerjahr vom 6.\u00a0April bis 5.\u00a0April. Nach dem Steuerjahr: die Online-Erklärung im Self Assessment bis 31.\u00a0Januar; der real time Capital Gains Tax service nimmt die Meldung bis 31.\u00a0Dezember an, die Zahlung bis 31.\u00a0Januar.",
-  "lotRuleNote": "Ein section 104 pool pro Token-Art, nach der Same-Day-Regel und der 30-Tage-Regel (TCGA 1992 ss. 104, 105 und 106A). Proof of Calm listet jeden Kauf; die Poolbildung bleibt Ihrer Steuerberatung überlassen.",
+  "filingNote": "Steuerjahr vom 6.\u00a0April bis 5.\u00a0April. Nach dem Steuerjahr: die Online-Erklärung im Self Assessment bis zum 31.\u00a0Januar; der real time Capital Gains Tax service nimmt die Meldung bis zum 31.\u00a0Dezember an, die Zahlung bis zum 31.\u00a0Januar.",
+  "lotRuleNote": "Ein section 104 pool pro Token-Art, nach der Same-Day-Regel und der 30-Tage-Regel (TCGA 1992 ss. 104, 105 und 106A). Proof of Calm listet jeden Kauf. Die Poolbildung bleibt Ihrer Steuerberatung überlassen.",
   "card": {
     "classification": "Die meisten Privatpersonen besitzen Token als Kapitalanlage und zahlen bei der Veräußerung Capital Gains Tax. Income Tax gilt für Token vom Arbeitgeber, aus Mining, Transaktionsbestätigung oder manchen Airdrops und bei einem Gewerbe.",
     "taxableEvents": [
@@ -27,12 +27,12 @@
       {
         "label": "Veräußerungsgewinne im Basic Rate Band",
         "value": "18%",
-        "note": "Veräußerungen ab 30.\u00a0Oktober\u00a02024. Das Basic Rate Band beträgt £37,700 im Steuerjahr 2026 bis 2027. Gewinne kommen zum Einkommen hinzu, daher wird der ungenutzte Teil des Bands mit 18% besteuert."
+        "note": "Veräußerungen ab dem 30.\u00a0Oktober\u00a02024. Das Basic Rate Band beträgt £37,700 im Steuerjahr 2026 bis 2027. Gewinne kommen zum Einkommen hinzu, daher wird der ungenutzte Teil des Bands mit 18% besteuert."
       },
       {
         "label": "Veräußerungsgewinne über dem Basic Rate Band",
         "value": "24%",
-        "note": "Veräußerungen ab 30.\u00a0Oktober\u00a02024, für jeden Betrag über dem Basic Rate Band und für Steuerpflichtige mit higher oder additional rate."
+        "note": "Veräußerungen ab dem 30.\u00a0Oktober\u00a02024, für jeden Betrag über dem Basic Rate Band und für Steuerpflichtige mit higher oder additional rate."
       },
       {
         "label": "Veräußerungsgewinne im Basic Rate Band, 6.\u00a0April bis 29.\u00a0Oktober\u00a02024",
@@ -46,9 +46,9 @@
       }
     ],
     "allowances": [
-      "Jährlicher Freibetrag (annual exempt amount) von £3,000 je Person in den Steuerjahren 2024 bis 2025, 2025 bis 2026 und 2026 bis 2027. Steuer fällt nur auf Gewinne darüber an."
+      "Jährlicher Freibetrag (annual exempt amount) von £3,000 pro Person in den Steuerjahren 2024 bis 2025, 2025 bis 2026 und 2026 bis 2027. Steuer fällt nur auf Gewinne darüber an."
     ],
-    "holdingRuleText": "Keine Steuerbefreiung nach einer Haltefrist: Jeder Verkauf ist ein steuerpflichtiger Vorgang.",
+    "holdingRuleText": "Keine Steuerfreiheit nach einer Haltefrist: Jeder Verkauf ist ein steuerpflichtiger Vorgang.",
     "lotRuleText": "Pro Token-Art ein Pool mit abzugsfähigen Kosten (section\u00a0104 pool, TCGA\u00a01992 s.\u00a0104). Zuerst gilt die Same-Day-Regel (s.\u00a0105); ein Erwerb in den 30\u00a0Tagen nach einer Veräußerung wird ihr zugeordnet, die früheste Veräußerung zuerst (s.\u00a0106A).",
     "losses": "Antrag in der Steuererklärung, bis zu 4\u00a0Jahre nach Ende des Steuerjahres der Veräußerung. Abzug von den Gewinnen desselben Jahres, Vortrag des Rests. Ein negligible value claim für wertlose Token umfasst den ganzen section\u00a0104 pool.",
     "reporting": [
@@ -64,11 +64,11 @@
       "Anträge wegen geringfügigen Werts (negligible value claims).",
       "Krypto-Darlehen und Liquiditätspools ab dem 6.\u00a0April\u00a02027, ein Vorschlag in der Finance Bill\u00a02026-\u206027."
     ],
-    "summary60": "Das Vereinigte Königreich besteuert Gewinne aus Kryptowerten über £3,000 Freibetrag mit 18% oder 24% je nach Einkommensband. Verkauf, Tausch, Zahlung, Schenkung (außer an Ehe- oder Lebenspartner) sind Veräußerungen, Übertragungen auf eigene Wallets nicht. Keine Steuerfreiheit nach einer Haltefrist. Kostenpool pro Token, Same-Day- und 30\u2011Tage\u2011Regel. Fristen: Self Assessment 31.\u00a0Januar, real time service 31.\u00a0Dezember."
+    "summary60": "Das Vereinigte Königreich besteuert Gewinne aus Kryptowerten nach £3,000 Freibetrag zu 18% oder 24% je nach Einkommensband. Veräußerungen: Verkäufe, Tauschvorgänge, Zahlungen, Schenkungen (außer an Ehe- oder Lebenspartner), nicht Übertragungen auf eigene Wallets. Keine Steuerfreiheit nach einer Haltefrist. Kostenpool pro Token, Same-Day- und 30\u2011Tage\u2011Regel. Self Assessment: 31.\u00a0Januar, real time service: 31.\u00a0Dezember."
   },
   "pendingChanges": [
     {
-      "title": "Krypto-Darlehen und Liquiditätspools: bestimmte Transfers in und aus qualifizierten Vereinbarungen ohne Gewinn oder Verlust bis zur wirtschaftlichen Veräußerung",
+      "title": "Krypto-Darlehen, Liquiditätspools: bestimmte Übertragungen in und aus qualifizierten Vereinbarungen ohne Gewinn und Verlust bis zur wirtschaftlichen Veräußerung",
       "summary": "Budget\u00a02026 (28.\u00a0Oktober\u00a02026), OOTLAR Abs.\u00a01.48: Die Regierung legt in der Finance Bill\u00a02026-\u206027 Regeln zu Krypto-Darlehen und Liquiditätspools vor. Bestimmte Übertragungen von Privatpersonen und Trustees in und aus qualifizierten Vereinbarungen wären ohne Gewinn und Verlust (no gain no loss) bis zur wirtschaftlichen Veräußerung. Das gälte ab dem 6.\u00a0April\u00a02027; bis zum Royal Assent ein Vorschlag."
     },
     {
