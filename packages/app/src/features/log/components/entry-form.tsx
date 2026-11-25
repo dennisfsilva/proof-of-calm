@@ -34,23 +34,22 @@ import { emptiedFills, withDate } from '../lib/dated';
 import { draftBase, draftEntity, EntryFormDraftSchema, restoredState, sameForm } from '../lib/draft';
 import {
   actionMessage,
-  changedFields,
   type DetailField,
   detailFieldOf,
   editRow,
   type FieldIssue,
   type FormState,
   initialState,
-  moveShortLines,
   proseDigits,
   saveOn,
   toDraft,
 } from '../lib/form';
 import { reveal } from '../lib/reveal-box';
-import { freshIds, storedSales } from '../lib/source';
-import { namedWarnings, saleWarningKey } from '../lib/warning';
+import { freshIds } from '../lib/source';
+import { saleWarningKey } from '../lib/warning';
 import { EntryDetails } from './entry-details';
 import { FormHints } from './form-hints';
+import { useFormLines } from './use-form-lines';
 
 export type EntryFormProps = {
   /** A purchase or a sale (`sell`); an edit takes its kind from the entries. */
@@ -204,28 +203,8 @@ function PlanEntryForm({ plan, numberInput: mounted, kind, editing, slot, onDone
   const holding = holdingContext(plan, rules);
   // Where the venue decides the warning (per-venue lots), a sale shows it beside the units; coins added always do.
   const venueShown = added || (sale && holding.lotScope === 'per-venue');
-  // A sale taking more units than are past the holding rule on its date says so, without blocking the save, which
-  // replaces every entry edited, so none counts; each sale is read as the save stores it (DOMAIN §3.7).
-  const drafted = sale ? toDraft(state, numberInput) : null;
-  const venueChanged = changedFields(initial, state).venue;
-  const warnings =
-    drafted?.ok === true
-      ? namedWarnings(
-          plan,
-          entries,
-          storedSales(drafted.value, state.rows, editing, ids, venueChanged, clock.now()),
-          drafted.value.date,
-          holding,
-          editing.map((entry) => entry.id),
-        )
-      : [];
-  // A stored move the save would leave short outside its destination is named before Save, never refused (DOMAIN §3.7):
-  // read on the entries the save stores, so an unchanged Venue field keeps each entry's venue.
-  const typed = drafted ?? toDraft(state, numberInput);
-  const save = { plan, editing, ids: freshIds(ids, state.rows, editing), now: clock.now(), source: 'manual' as const };
-  const [moveShort] = typed.ok
-    ? moveShortLines(typed.value, { entries, save: { ...save, initial, current: state }, holding })
-    : [];
+  const lines = { plan, entries, editing, ids, state, initial, numberInput, holding, now: clock.now() };
+  const { warnings, saleDate, moveShort } = useFormLines(lines);
   const decimalsOf = (coin: Entry['coin']) =>
     state.rows.find((row) => row.coin === coin)?.decimals ?? MAX_UNIT_DECIMALS;
   // A cleared or partly typed date input gives '': toDraft refuses it before the save.
@@ -336,7 +315,7 @@ function PlanEntryForm({ plan, numberInput: mounted, kind, editing, slot, onDone
               venue: warning.venue ?? '',
               eligible: numberInput.format(warning.eligible, digits),
               sold: format.units(warning.sold, warning.coin, digits),
-              date: format.date(drafted?.ok === true ? drafted.value.date : today),
+              date: format.date(saleDate ?? today),
             })}
           </p>
         );
