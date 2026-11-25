@@ -200,7 +200,8 @@ platform without one.
   82 ms to 47 ms (main 43 ms), with no long task of its own, on 2026-11-09.
 - Lighthouse mobile ≥ 95 for Performance (TBT ≤ 200 ms, LCP ≤ 2.5 s, CLS ≤ 0.1) and 100 for
   Accessibility on Today, Portfolio, Log, Plan; five runs per measured deployment, each screen with
-  the fixture plan in IndexedDB (`apps/web/lighthouse/seed.ts`, run before each URL; Lighthouse's reset
+  the fixture plan in IndexedDB and a prefs record reviewed at the run's now, so the annual review
+  never takes the backup box's place on Today (`apps/web/lighthouse/seed.ts`, run before each URL; Lighthouse's reset
   before every run clears the worker and the caches and keeps the store), so the median is of cold loads
   of a screen with data.
 - Where they fail: wherever they are measured. Production's deployment (`lighthouse-vercel`, by itself
