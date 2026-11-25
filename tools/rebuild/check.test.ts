@@ -85,7 +85,17 @@ describe('waitForBuild', () => {
     expect(first?.cache).toBe('no-store');
   });
 
-  it('fails after the last attempt, naming what production showed last', async () => {
+  // A check started at 23:58 UTC waits on a build that renders after midnight and names the next day.
+  it('succeeds on a page that shows a later day than the check’s', async () => {
+    sleeps.length = 0;
+    const { fetch, calls } = fetchOf(['2026-11-26']);
+    const result = await waitForBuild({ url: URL, day: DAY, fetch, sleep, attempts: 40 });
+    expect(result).toEqual({ ok: true, value: undefined });
+    expect(calls).toHaveLength(1);
+    expect(sleeps).toEqual([]);
+  });
+
+  it('waits on a page of the day before and fails after the last attempt, naming what production showed last', async () => {
     sleeps.length = 0;
     const { fetch, calls } = fetchOf(['2026-11-24']);
     const result = await waitForBuild({ url: URL, day: DAY, fetch, sleep, attempts: 3 });
@@ -93,7 +103,7 @@ describe('waitForBuild', () => {
     expect(sleeps).toHaveLength(2);
     expect(result).toEqual({
       ok: false,
-      error: `${URL} did not show the build of 2026-11-25 after 3 attempts (last: build-date 2026-11-24)`,
+      error: `${URL} did not show a build of 2026-11-25 or later after 3 attempts (last: build-date 2026-11-24)`,
     });
   });
 
@@ -102,7 +112,7 @@ describe('waitForBuild', () => {
     const result = await waitForBuild({ url: URL, day: DAY, fetch, sleep, attempts: 1 });
     expect(result).toEqual({
       ok: false,
-      error: `${URL} did not show the build of 2026-11-25 after 1 attempt (last: no build-date meta)`,
+      error: `${URL} did not show a build of 2026-11-25 or later after 1 attempt (last: no build-date meta)`,
     });
   });
 });
