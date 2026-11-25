@@ -811,12 +811,11 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
     });
 
     // A translation reads as many counts as its English module: with every U+00A0 an ordinary space, each count the
-    // English list reads is refused once, so a German count its own list does not read shows as a gap. German only:
-    // pt-PT's when-the-market-drops reads 1 count to English's 3, its list naming neither episódios nor meses.
+    // English list reads is refused once, so a translated count its own list does not read shows as a gap.
     const r7 = (problems: readonly Problem[]) =>
       problems.filter(({ code, detail }) => code === 'figure-join' && detail.endsWith('R7 (docs/CONTENT-STYLE.md §4)'))
         .length;
-    for (const language of ['de'])
+    for (const language of LEARN_LANGUAGES)
       for (const { name, path, source } of translatedModules(language))
         it(`reads as many counts in ${language}'s ${name} as in its English module`, async () => {
           const theirs = live(`learn/${name}`);

@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { COUNT_NOUNS, isCountLanguage, moduleCountProblems, moduleCountTexts } from './module-counts.ts';
 
@@ -23,7 +24,19 @@ const NOUNS = {
     'parts',
     'signs',
   ],
-  'pt-PT': ['blocos', 'observações', 'componentes', 'índices', 'bitcoins', 'países', 'ciclos', 'partes', 'sinais'],
+  'pt-PT': [
+    'blocos',
+    'observações',
+    'componentes',
+    'índices',
+    'bitcoins',
+    'episódios',
+    'meses de início',
+    'países',
+    'ciclos',
+    'partes',
+    'sinais',
+  ],
   de: [
     'Blöcke',
     'Blöcken',
@@ -78,6 +91,30 @@ describe('moduleCountProblems: a count and its listed noun, joined by one U+00A0
         expect([language, noun, COUNT_NOUNS[language].test(noun)]).toEqual([language, noun, true]);
     expect(['falls', 'quedas', 'years', 'anos'].filter((noun) => COUNT_NOUNS.en.test(noun))).toEqual([]);
     expect(['Rückgänge', 'Rückgang', 'Jahre'].filter((noun) => COUNT_NOUNS.de.test(noun))).toEqual([]);
+  });
+
+  // §9 lists pt-PT's count nouns too, so the document and the rule cannot part (docs/BUILD-PROMPT.md's lessons).
+  it("holds docs/CONTENT-STYLE.md §9's pt-PT count nouns to the list R7 reads", () => {
+    const guide = readFileSync(new URL('../../../docs/CONTENT-STYLE.md', import.meta.url), 'utf8');
+    const lead = "In a module, a count before pt-PT's nouns";
+    const item = guide.slice(guide.indexOf(lead), guide.indexOf('joined to its noun by U+00A0', guide.indexOf(lead)));
+    const listed = [...item.matchAll(/`([^`]+)`/gu)].map(([, noun = '']) => noun.replaceAll(/\s+/gu, ' '));
+    // The rule's own alternation, each `\s+` a space again.
+    const rule = COUNT_NOUNS['pt-PT'].source
+      .replace(/^\^\(\?:|\)\$$/gu, '')
+      .replaceAll('\\s+', ' ')
+      .split('|');
+    expect([listed, rule]).toEqual([[...NOUNS['pt-PT']], [...NOUNS['pt-PT']]]);
+  });
+
+  // D5 (#502): pt-PT counts English's "start months" as `meses de início`, never a bare `meses`.
+  it('reads episódios and meses de início in pt-PT, and leaves a bare meses alone', () => {
+    expect(codes('Cerca de 6 episódios por ano.', 'pt-PT')).toEqual(['figure-join']);
+    expect(codes(`Cerca de 6${NBSP}episódios por ano.`, 'pt-PT')).toEqual([]);
+    expect(codes('Os 118 meses de início terminaram acima.', 'pt-PT')).toEqual(['figure-join']);
+    expect(codes(`Os 118${NBSP}meses de\ninício terminaram acima.`, 'pt-PT')).toEqual([]);
+    expect(codes(`Os 118${NBSP}meses de início terminaram acima.`, 'pt-PT')).toEqual([]);
+    expect(codes('Durante 12 meses seguidos.', 'pt-PT')).toEqual([]);
   });
 
   it('accepts the module counts only in a language whose nouns it lists', () => {
