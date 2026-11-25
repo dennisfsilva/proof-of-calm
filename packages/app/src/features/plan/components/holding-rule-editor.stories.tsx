@@ -93,7 +93,7 @@ export const NoReviewedRule: Story = {
       source: null,
       unreviewed: {
         status: 'Not reviewed: no reviewed rule set for your country.',
-        text: 'No holding exemption is applied.',
+        text: 'Proof of Calm applies no holding exemption for your country.',
       },
     },
   },

@@ -136,11 +136,16 @@ describe('HoldingRuleEditor', () => {
         rule: { kind: 'none' },
         reviewed: '17 Oct 2026',
         source: null,
-        unreviewed: { status: 'Not reviewed: no reviewed rule set.', text: 'No holding exemption is applied.' },
+        unreviewed: {
+          status: 'Not reviewed: no reviewed rule set.',
+          text: 'Proof of Calm applies no holding exemption for your country.',
+        },
       },
     );
     const country = radio("The general profile's rule");
-    expect(country.textContent).toContain('Not reviewed: no reviewed rule set. No holding exemption is applied.');
+    expect(country.textContent).toContain(
+      'Not reviewed: no reviewed rule set. Proof of Calm applies no holding exemption for your country.',
+    );
     expect(country.textContent).not.toContain('No holding rule.');
     expect(screen.queryByRole('link', { name: 'Sources' })).toBeNull();
     expect(

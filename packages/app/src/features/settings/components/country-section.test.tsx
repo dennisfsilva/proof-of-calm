@@ -277,8 +277,8 @@ describe('CountrySection', () => {
     ).toBeTruthy();
     expect(ruleLines()).toEqual([
       'Holding rule now: your own rule. 730 days, then tax-free.',
-      "After the change: the general profile's rule. No holding exemption is applied: treat every sale as a " +
-        'possibly taxable event.',
+      "After the change: the general profile's rule. Proof of Calm applies no holding exemption for your country: " +
+        'treat every sale as a possibly taxable event.',
       'Reviewed on 17\u00a0Oct\u00a02026: the general profile, not a rule for your country · general information, not advice',
     ]);
     expect(screen.queryByRole('link', { name: 'Sources' })).toBeNull();

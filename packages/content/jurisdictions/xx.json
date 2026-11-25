@@ -32,7 +32,7 @@
       }
     ],
     "allowances": ["Not reviewed for your country."],
-    "holdingRuleText": "No holding exemption is applied: treat every sale as a possibly taxable event.",
+    "holdingRuleText": "Proof of Calm applies no holding exemption for your country: treat every sale as a possibly taxable event.",
     "lotRuleText": "Not reviewed for your country.",
     "losses": "Not reviewed for your country.",
     "reporting": [
