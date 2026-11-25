@@ -54,7 +54,7 @@
     "NL": "A regra dos Países Baixos. 1 year, then tax-free.",
     "PT": "A regra de Portugal. 1 year, then tax-free.",
     "US": "A regra dos Estados Unidos. 1 year, then tax-free.",
-    "XX": "A regra do perfil geral. A aplicação não considera nenhuma exclusão por período de detenção: cada venda pode ser um facto tributável."
+    "XX": "A regra do perfil geral. A Proof of Calm não aplica nenhuma exclusão por período de detenção para o seu país: cada venda pode ser um facto tributável."
   },
   "plan.review.rules.country": {
     "DE": "País do plano: Alemanha.",
@@ -149,7 +149,7 @@
     "NL": "Regra de detenção atual: a regra dos Países Baixos. 1 year, then tax-free.",
     "PT": "Regra de detenção atual: a regra de Portugal. 1 year, then tax-free.",
     "US": "Regra de detenção atual: a regra dos Estados Unidos. 1 year, then tax-free.",
-    "XX": "Regra de detenção atual: a regra do perfil geral. A aplicação não considera nenhuma exclusão por período de detenção: cada venda pode ser um facto tributável."
+    "XX": "Regra de detenção atual: a regra do perfil geral. A Proof of Calm não aplica nenhuma exclusão por período de detenção para o seu país: cada venda pode ser um facto tributável."
   },
   "settings.country.row.ruleAfter": {
     "DE": "Depois da alteração: a regra da Alemanha. 1 year, then tax-free.",
@@ -161,7 +161,7 @@
     "NL": "Depois da alteração: a regra dos Países Baixos. 1 year, then tax-free.",
     "PT": "Depois da alteração: a regra de Portugal. 1 year, then tax-free.",
     "US": "Depois da alteração: a regra dos Estados Unidos. 1 year, then tax-free.",
-    "XX": "Depois da alteração: a regra do perfil geral. A aplicação não considera nenhuma exclusão por período de detenção: cada venda pode ser um facto tributável."
+    "XX": "Depois da alteração: a regra do perfil geral. A Proof of Calm não aplica nenhuma exclusão por período de detenção para o seu país: cada venda pode ser um facto tributável."
   },
   "settings.country.ruleName": {
     "DE": "regra da Alemanha",

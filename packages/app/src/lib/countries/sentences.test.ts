@@ -55,6 +55,7 @@ const generalWords = async (language: ContentLanguage) =>
 const GENERAL_WORDS: Readonly<Record<string, string>> = {
   en: await generalWords('en'),
   'pt-PT': await generalWords('pt-PT'),
+  de: await generalWords('de'),
 };
 const NOW = { date: '16 Oct 2026' };
 const LENGTH = { unit: 'years', count: 1, figure: '1' };
