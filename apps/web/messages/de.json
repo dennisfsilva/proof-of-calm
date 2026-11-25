@@ -12,7 +12,7 @@
     "placeholder": "Diese Seite erscheint vollständig, bevor {product} öffnet. Bis dahin ist der Dienst nicht verfügbar und erfasst nichts.",
     "risk": {
       "title": "Risikohinweise",
-      "lead": "{product} ist Software für einen Plan, den Sie selbst festlegen, und gibt keine Finanz-, Anlage- oder Steuerberatung; die Coins, Beträge und Tage eines Plans sind die, die Sie festlegen. Die meisten Kryptowerte sind sehr volatil; Sie können das gesamte eingesetzte Geld verlieren. Verwenden Sie nur Geld, das Sie jahrelang nicht brauchen.",
+      "lead": "{product} ist Software für einen Plan, den Sie selbst festlegen. Es gibt keine Finanz-, Anlage- oder Steuerberatung; die Coins, Beträge und Tage eines Plans sind die, die Sie festlegen. Die meisten Kryptowerte sind sehr volatil; Sie können das gesamte investierte Geld verlieren. Verwenden Sie nur Geld, das Sie jahrelang nicht brauchen.",
       "dca": {
         "title": "Was ein Plan leistet und was nicht",
         "p1": "Ein Plan legt den Betrag und den Zeitplan jedes Kaufs fest, daher entscheidet nicht der Kurs eines einzelnen Tages, was Sie im Durchschnitt zahlen. {product} trägt jeden Kauf mit Datum, Betrag und Einheiten ein und zeigt, wo Sie im Plan stehen.",
