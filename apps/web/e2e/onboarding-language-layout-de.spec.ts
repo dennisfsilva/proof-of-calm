@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { expect, type Locator, type Page } from '@playwright/test';
 import deCountries from '../../../packages/app/src/lib/countries/messages/de.json' with { type: 'json' };
 import deLearn from '../../../packages/app/src/messages/de/learn.json' with { type: 'json' };
@@ -16,6 +17,21 @@ import { test } from './support';
 // text inside its own box. The device sits in Amsterdam, so Onboarding names the Netherlands in its German forms;
 // the disclosure stays English (docs/LEGAL.md §4) and says so with lang="en". This file runs only where
 // language-layout.spec.ts does (playwright.config.ts, `narrowOnly`).
+
+const english = { nl, gb, us };
+type Code = keyof typeof english;
+
+/**
+ * Whether the profile has its German overlay, which the profile loader then answers on a German screen: the overlays
+ * of the other countries arrive branch by branch, so each expectation follows the file (the registry test holds the
+ * files and `PROFILE_OVERLAYS.de` equal).
+ */
+const inGerman = (code: Code) =>
+  existsSync(new URL(`../../../packages/content/i18n/de/jurisdictions/${code}.json`, import.meta.url));
+
+/** The profile's name as a German screen shows it: the overlay's, which `forms.test.ts` holds to these forms, or English. */
+const profileName = (code: Code) =>
+  inGerman(code) ? deCountries[code.toUpperCase() as Uppercase<Code>].name : english[code].name;
 
 /** `LANGUAGE_STORAGE_KEY` of `packages/app/src/lib/i18n/language.ts`, whose index Node cannot import (JSON). */
 const LANGUAGE_STORAGE_KEY = 'poc.language';
@@ -127,18 +143,18 @@ test('de: every onboarding step keeps its controls inside their boxes with wider
   await expect(heading(page, 1, words.title)).toBeVisible();
 
   // Country: Amsterdam's device in Dutch suggests the Netherlands with confidence, so the confirm stands ready and
-  // names them in their `with` form (the picker's own names are out of this branch: they stay the profiles').
+  // names them in their `with` form (the picker shows each profile's own name, German once its overlay exists).
   await expect(page.getByText(`Dieses Gerät schlägt ${netherlands.the} vor.`, { exact: true })).toBeVisible();
   const select = page.getByRole('combobox', { name: words.label });
-  await expect(select).toHaveText(new RegExp(nl.name, 'u'));
+  await expect(select).toHaveText(new RegExp(profileName('nl'), 'u'));
   const confirm = button(page, `Weiter ${netherlands.with}`);
   await ownBoxes(page, { select, confirm });
-  // The longest confirm, the United Kingdom's, chosen by the English name the picker shows; then back.
+  // The longest confirm, the United Kingdom's, chosen by the name the picker shows; then back.
   await select.click();
-  await page.getByRole('option', { name: gb.name, exact: true }).click();
+  await page.getByRole('option', { name: profileName('gb'), exact: true }).click();
   await ownBoxes(page, { select, confirm: button(page, `Weiter ${deCountries.GB.with}`) });
   await select.click();
-  await page.getByRole('option', { name: nl.name, exact: true }).click();
+  await page.getByRole('option', { name: profileName('nl'), exact: true }).click();
   await confirm.click();
 
   // Template: the German name of the two-coins starting point.
@@ -200,15 +216,19 @@ test('de: Learn keeps its index and the NL, GB and US cards inside the page with
   const row = page.getByRole('link', { name: new RegExp(`^${words.countries}`, 'u') });
   await ownBoxes(page, { row });
 
-  for (const [code, country] of [
-    ['nl', nl],
-    ['gb', gb],
-    ['us', us],
-  ] as const) {
+  for (const code of ['nl', 'gb', 'us'] as const) {
     await open(page, `/learn/countries/${code}`);
-    await expect(heading(page, 1, country.name)).toHaveAttribute('lang', 'en');
+    const title = heading(page, 1, profileName(code));
     const card = page.getByRole('article');
-    await expect(card.getByText(words.inEnglish, { exact: true })).toBeVisible();
+    const inEnglish = card.getByText(words.inEnglish, { exact: true });
+    if (inGerman(code)) {
+      await expect(title).toBeVisible();
+      await expect(title).not.toHaveAttribute('lang', 'en');
+      await expect(inEnglish).toHaveCount(0);
+    } else {
+      await expect(title).toHaveAttribute('lang', 'en');
+      await expect(inEnglish).toBeVisible();
+    }
     const forms = deCountries[code.toUpperCase() as keyof typeof deCountries];
     const sources = card.getByRole('heading', { level: 2, name: `Quellen ${forms.for}`, exact: true });
     const back = page.getByRole('link', { name: words.back, exact: true });
