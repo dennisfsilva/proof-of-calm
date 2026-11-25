@@ -53,17 +53,19 @@ export function EntrySheet({ open, onOpenChange, finalFocus, onUndone, offerKind
   const [chosen, setChosen] = useState<TransactionKind | null>(null);
   // Whether coins are held is read once per opening (CONTENT-STYLE §3, Record a sale): a sale being typed stays
   // a sale when another tab sells the last units, and the save then names what is held. Read only then: at the cap
-  // the scan per coin costs every closed sheet's render (docs/ENGINEERING.md §4, the Log at the cap).
-  const [heldAtOpen, setHeldAtOpen] = useState(() => open && holds(plan, entries));
+  // the scan per coin costs every closed sheet's render, and only a sheet that offers kinds reads it: an edit or a
+  // host that does not opt in skips the scan as it opens (docs/ENGINEERING.md §4, the Log at the cap).
+  const offers = offerKinds && form.editing.length === 0 && plan !== null;
+  const [heldAtOpen, setHeldAtOpen] = useState(() => open && offers && holds(plan, entries));
   const [wasOpen, setWasOpen] = useState(open);
   if (open !== wasOpen) {
     setWasOpen(open);
     if (open) {
       setChosen(null);
-      setHeldAtOpen(holds(plan, entries));
+      setHeldAtOpen(offers && holds(plan, entries));
     }
   }
-  const kinds = offerKinds && form.editing.length === 0 && plan !== null ? kindsFor(form.kind, heldAtOpen) : [];
+  const kinds = offers ? kindsFor(form.kind, heldAtOpen) : [];
   const kind = chosen !== null && kinds.includes(chosen) ? chosen : form.kind;
   const current: EntryFormProps = { ...form, kind };
   const title = form.editing.length > 0 ? t('form.title.edit') : t(`form.title.${kind}`);

@@ -246,4 +246,39 @@ describe('EntrySheet', () => {
     expect(kinds()).toEqual(['Monthly buy (pressed)', 'Extra buy', 'Sale']);
     expect(heldUnits).toHaveBeenCalled();
   });
+
+  // The Log at the cap: a profile of Edit entry at 10,000 entries at 6x spent about a fifth of the sheet's opening in
+  // the scan per coin of what is held, which only the choice of kinds reads, and an edit or a host that does not opt
+  // in offers none.
+  it('reads nothing held as it opens on an edit or for a host that offers no kinds', async () => {
+    const services = createTestServices({ snapshot: fixtureSnapshot(), nowMs: fixtureNowMs('buy') });
+    await act(() => services.start());
+    const lump = fixtureSnapshot().entries.filter((entry) => entry.kind === 'lump');
+    const sheet = (open: boolean, editing: readonly Entry[], offerKinds: boolean) => (
+      <ServicesProvider services={services}>
+        <I18nProvider messages={{ errors, log }}>
+          <EntrySheet
+            kind={editing.length > 0 ? 'lump' : 'dca'}
+            editing={editing}
+            offerKinds={offerKinds}
+            open={open}
+            onOpenChange={() => undefined}
+            onDone={() => {}}
+          />
+        </I18nProvider>
+      </ServicesProvider>
+    );
+    for (const [editing, offerKinds, title] of [
+      [lump, true, 'Edit the entry'],
+      [[], false, 'Log the monthly buy'],
+    ] as const) {
+      const { rerender, unmount } = render(sheet(false, editing, offerKinds));
+      vi.mocked(heldUnits).mockClear();
+      rerender(sheet(true, editing, offerKinds));
+      expect(screen.getByRole('dialog', { name: title })).toBeTruthy();
+      expect(kinds()).toBeNull();
+      expect(heldUnits).not.toHaveBeenCalled();
+      unmount();
+    }
+  });
 });
