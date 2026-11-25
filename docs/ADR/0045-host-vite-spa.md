@@ -1641,9 +1641,8 @@ The decision stands; this gives the site pages of §6 their third language on th
   messages per language). `apps/web/messages/de.json` translates the same keys as
   `apps/web/messages/pt-PT.json`: every site message but the four legal pages' own objects, which
   stay English and carry `lang="en"`, as does the Risk page's table of falls. Those four pages'
-  `<title>` stays English on a German or pt-PT page too, as their objects do, although it cannot
-  be marked `lang="en"`: a browser and a screen reader take a `<title>` in the page's language
-  (the evaluator's observation on 2026-11-25). The Risk page's
+  `<title>` stays English on a German or pt-PT page too, as their objects do, and carries no `lang`
+  of its own (the evaluator's observation on 2026-11-25; pt-PT's pages are the same). The Risk page's
   status opens with the official German text `docs/CONTENT-STYLE.md` §10 names, with the
   `Systeme für die Entschädigung der Anleger` and the `Einlagensicherungssysteme`. In German
   `renderSitePage` renders the same pages as in pt-PT with `<html lang="de">`, the day each
