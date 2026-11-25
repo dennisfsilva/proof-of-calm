@@ -133,7 +133,7 @@ test(`the Log at ${MAX_ENTRIES} entries: each input and Show all at ${CPU_RATE}x
   });
 
   // The four inputs on the Log as it opens, its last LOG_PAGE transactions; with every row shown each one waits on
-  // the 10,000 rows' render (27a), so Show all comes last.
+  // the 10,000 rows' render, which is over the rule, so Show all comes last.
   const row = page.locator('tbody button[aria-expanded]', { hasText: 'Monthly buy' }).first();
   const open = await measure(
     page,
@@ -166,8 +166,8 @@ test(`the Log at ${MAX_ENTRIES} entries: each input and Show all at ${CPU_RATE}x
     'close the sheet': close,
   };
   for (const [what, { input, task }] of Object.entries(inputs)) {
-    // An input over the rule that no invisible change fixed waits on 27a (docs/ENGINEERING.md §4).
-    record(ASSERTED.has(what) ? what : `${what} (27a)`, { input, 'longest task': task });
+    // An input over the rule that no invisible change fixed stays recorded, not asserted (docs/ENGINEERING.md §4).
+    record(ASSERTED.has(what) ? what : `${what} (over the rule)`, { input, 'longest task': task });
     if (ASSERTED.has(what)) {
       expect(input, `${what} at ${CPU_RATE}x CPU`).toBeLessThan(RULE_MS);
       expect(task, `${what}'s longest task at ${CPU_RATE}x CPU`).toBeLessThan(RULE_MS);
@@ -181,7 +181,11 @@ test(`the Log at ${MAX_ENTRIES} entries: each input and Show all at ${CPU_RATE}x
     () => showAll.click(),
     () => expect(showAll).toHaveCount(0, { timeout: TIMEOUT_MS / 2 }),
   );
-  // 27a: Show all renders every row in one task, so a person waits that long for them; making it shorter changes
-  // what the Log shows (paging or a virtual list, a design decision), so it is recorded here and not asserted.
-  record('Show all (27a)', { input: all.input, 'longest task': all.task, 'until the rows show': Date.now() - started });
+  // Over the rule: Show all renders every row in one task, so a person waits that long for them; making it shorter
+  // changes what the Log shows (paging or a virtual list, a design decision), so it is recorded here and not asserted.
+  record('Show all (over the rule)', {
+    input: all.input,
+    'longest task': all.task,
+    'until the rows show': Date.now() - started,
+  });
 });
