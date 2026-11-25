@@ -6,7 +6,7 @@
     "Mit einem Tausch oder einem mit digitalen Vermögenswerten bezahlten Kauf beginnt für die erhaltenen Einheiten eine neue Haltefrist (IRS FAQ Q16 und Q29).",
     "Für geschenkte Einheiten gilt die Haltefrist der schenkenden Person weiter, wenn Aufzeichnungen sie belegen, und geerbte Einheiten sind sofort langfristig (IRS FAQ Q33 und IRS Publication\u00a0544)."
   ],
-  "lotRuleNote": "Sie bestimmen, welche Einheiten ein Verkauf betrifft, wenn Ihre Aufzeichnungen sie und ihre Kosten ausweisen, geführt pro Konto, Wallet oder Adresse. Sonst gilt die Fifo-Methode, first in, first out (IRS FAQ Q39 bis Q41).",
+  "lotRuleNote": "Sie bestimmen, welche Einheiten ein Verkauf betrifft, wenn Ihre Aufzeichnungen sie und ihre Kosten ausweisen, geführt pro Konto, Wallet oder Adresse. Sonst gilt die Fifo-Methode (first in, first out) nach IRS FAQ Q39 bis Q41.",
   "card": {
     "classification": "Bundessteuerlich Eigentum, keine Währung. Ein Verkauf, ein Tausch oder eine Ausgabe von Kapitalvermögen ergibt Gewinn oder Verlust; Belohnungen, Mining, Staking und Entgelt für Dienste sind ordentliches Einkommen (IRS, Digital assets).",
     "taxableEvents": [
@@ -55,7 +55,7 @@
       "Ein Nettokapitalverlust mindert anderes Einkommen um bis zu USD\u00a03,000 im Jahr, USD\u00a01,500 bei getrennter Veranlagung Verheirateter (Topic\u00a0409)."
     ],
     "holdingRuleText": "Nach mehr als einem Jahr Haltedauer ist ein Gewinn oder Verlust langfristig, mit den niedrigeren Sätzen für Kapitalgewinne. Bei einem Jahr oder weniger ist er kurzfristig, besteuert als ordentliches Einkommen. Die Frist beginnt am Tag nach dem Erwerb und endet am Tag des Verkaufs oder Tauschs (IRS FAQ Q6). Eine am 15.\u00a0März\u00a02026 gekaufte Einheit ist beim Verkauf ab dem 16.\u00a0März\u00a02027 langfristig.",
-    "lotRuleText": "Sie bestimmen, welche Einheiten ein Verkauf betrifft, wenn Ihre Aufzeichnungen sie und ihre Kosten ausweisen, geführt pro Konto, Wallet oder Adresse. Sonst gilt die Fifo-Methode, first in, first out (IRS FAQ Q39 bis Q41).",
+    "lotRuleText": "Sie bestimmen, welche Einheiten ein Verkauf betrifft, wenn Ihre Aufzeichnungen sie und ihre Kosten ausweisen, geführt pro Konto, Wallet oder Adresse. Sonst gilt die Fifo-Methode (first in, first out) nach IRS FAQ Q39 bis Q41.",
     "losses": "Kurz- und langfristige Gewinne und Verluste werden verrechnet; ein Nettoverlust mindert anderes Einkommen um höchstens USD\u00a03,000 (USD\u00a01,500 für getrennt veranlagte Verheiratete), der Rest wird auf spätere Jahre vorgetragen (Topic\u00a0409).",
     "reporting": [
       "Form\u00a01040 fragt alle Steuerpflichtigen, ob es im Jahr einen Erhalt, einen Verkauf, einen Tausch oder eine andere Veräußerung eines digitalen Vermögenswerts gab (IRS, Digital assets).",
