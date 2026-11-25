@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkModuleBody } from '@proofofcalm/config/vite';
@@ -20,6 +20,25 @@ const figures = figureContext(
     json: JSON.parse(readFileSync(join(content, name), 'utf8')),
   })),
 );
+// The live English modules, and each translated language's modules, every .mdx of its i18n/<language>/learn folder.
+const i18n = fileURLToPath(new URL('../i18n/', import.meta.url));
+const LEARN_LANGUAGES = readdirSync(i18n).filter((name) => existsSync(join(i18n, name, 'learn')));
+const englishModules = () =>
+  readdirSync(learn)
+    .filter((name) => name.endsWith('.mdx'))
+    .map((name) => parseModule(`packages/content/learn/${name}`, readFileSync(join(learn, name), 'utf8')))
+    .flatMap((parsed) => (parsed.ok ? [parsed.value] : []));
+const translatedModules = (language: string) => {
+  const folder = join(i18n, language, 'learn');
+  return readdirSync(folder)
+    .filter((name) => name.endsWith('.mdx'))
+    .map((name) => ({
+      language,
+      name,
+      path: `packages/content/i18n/${language}/learn/${name}`,
+      source: readFileSync(join(folder, name), 'utf8'),
+    }));
+};
 // The element tests' bodies state no figures; src/module-figures.test.ts holds the figure rule.
 const elementsOnly = (problems: readonly Problem[]) => problems.filter(({ code }) => !code.startsWith('figure-'));
 
@@ -240,26 +259,18 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
       expect(await closedBodyProblems(files, { english: [english.value], figures })).toEqual([]);
     });
 
-    it('passes every real pt-PT module against the real English modules, by both checks', async () => {
-      const english = readdirSync(learn)
-        .filter((name) => name.endsWith('.mdx'))
-        .map((name) => parseModule(`packages/content/learn/${name}`, readFileSync(join(learn, name), 'utf8')))
-        .flatMap((parsed) => (parsed.ok ? [parsed.value] : []));
-      const translated = fileURLToPath(new URL('../i18n/pt-PT/learn/', import.meta.url));
-      const files = readdirSync(translated)
-        .filter((name) => name.endsWith('.mdx'))
-        .map((name) => ({
-          language: 'pt-PT',
-          path: `packages/content/i18n/pt-PT/learn/${name}`,
-          source: readFileSync(join(translated, name), 'utf8'),
-        }));
-      expect(files.length).toBeGreaterThan(0);
-      const problems = [
-        ...moduleTranslationProblems(files, english),
-        ...(await closedBodyProblems(files, { english, figures })),
-      ];
-      expect(problems).toEqual([]);
-    });
+    // Every language folder under i18n/ that holds a learn/ folder, read by folder, as scripts/validate.ts finds them.
+    for (const language of LEARN_LANGUAGES)
+      it(`passes every real ${language} module against the real English modules, by both checks`, async () => {
+        const files = translatedModules(language);
+        expect(files.length).toBeGreaterThan(0);
+        const english = englishModules();
+        const problems = [
+          ...moduleTranslationProblems(files, english),
+          ...(await closedBodyProblems(files, { english, figures })),
+        ];
+        expect(problems).toEqual([]);
+      });
 
     // D12 of #322: a pt-PT module joins a numeral to its sign or unit word with U+00A0, as English joins its figure,
     // so a line never breaks inside a figure; an ordinary space or a source line break would render as a breakable one.
@@ -274,6 +285,22 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
       expect(names.length).toBeGreaterThan(0);
       const found = names.flatMap((name) =>
         [...readFileSync(join(translated, name), 'utf8').matchAll(broken)].map((match) => `${name}: ${match[0]}`),
+      );
+      expect(found).toEqual([]);
+    });
+
+    // docs/CONTENT-STYLE.md §10: a German module joins a numeral to its sign, unit word or currency code with U+00A0,
+    // as pt-PT does, so a line never breaks inside a figure.
+    it('joins every numeral of a real German module to its sign, unit word or currency code with a no-break space', () => {
+      const units =
+        'Tage?n?|Tages|Wochen?|Monate?n?|Monats|Jahre?n?|Jahres|Stunden?|Minuten?|Punkte?n?|Episoden|Mrd\\.|Mio\\.|EUR|GBP|USD';
+      const gap = '[ \\t\\r\\n]+';
+      const before = `(?<![\\p{L}\\d])(?:EUR|GBP|USD)${gap}\\d`;
+      const broken = new RegExp(`\\d${gap}(?:%|×|(?:${units})(?![\\p{L}\\d]))|${before}`, 'gu');
+      const files = translatedModules('de');
+      expect(files.length).toBeGreaterThan(0);
+      const found = files.flatMap(({ path, source }) =>
+        [...source.matchAll(broken)].map((match) => `${path}: ${match[0]}`),
       );
       expect(found).toEqual([]);
     });
@@ -742,6 +769,41 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
       });
       expect(problems.map(({ code }) => code)).toEqual(['figure-join']);
     });
+
+    it('refuses a German count joined to its noun by an ordinary space (figure-join)', async () => {
+      if (!english.ok) throw new Error('the English noise does not parse');
+      const path = 'packages/content/i18n/de/learn/noise.mdx';
+      const source = live('i18n/de/learn/noise.mdx');
+      const seeded = source.replace(`6${NBSP}Komponenten`, '6 Komponenten');
+      expect(seeded).not.toBe(source);
+      const codes = async (text: string) =>
+        (
+          await closedBodyProblems([{ language: 'de', path, source: text }], { english: [english.value], figures })
+        ).map(({ code }) => code);
+      expect([await codes(source), await codes(seeded)]).toEqual([[], ['figure-join']]);
+    });
+
+    // A translation reads as many counts as its English module: with every U+00A0 an ordinary space, each count the
+    // English list reads is refused once, so a German count its own list does not read shows as a gap. German only:
+    // pt-PT's when-the-market-drops reads 1 count to English's 3, its list naming neither episódios nor meses.
+    const r7 = (problems: readonly Problem[]) =>
+      problems.filter(({ code, detail }) => code === 'figure-join' && detail.endsWith('R7 (docs/CONTENT-STYLE.md §4)'))
+        .length;
+    for (const language of ['de'])
+      for (const { name, path, source } of translatedModules(language))
+        it(`reads as many counts in ${language}'s ${name} as in its English module`, async () => {
+          const theirs = live(`learn/${name}`);
+          const at = `packages/content/learn/${name}`;
+          const parsed = parseModule(at, theirs);
+          if (!parsed.ok) throw new Error(`the English ${name} does not parse`);
+          const spaced = (text: string) => text.replaceAll(NBSP, ' ');
+          const ours = await closedBodyProblems([{ language, path, source: spaced(source) }], {
+            english: [parsed.value],
+            figures,
+          });
+          const english = await closedBodyProblems([{ path: at, source: spaced(theirs) }], { figures });
+          expect([name, r7(ours)]).toEqual([name, r7(english)]);
+        });
   });
 
   // The figure rules on the path scripts/validate.ts runs: its context from the live files, on a compiled module;
