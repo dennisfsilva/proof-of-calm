@@ -278,7 +278,9 @@ platform without one.
   rendered every row (unthrottled, Show all took 15.2 s, 5.1 s of it in the rows' formatters); rows
   now take the screen's formatters and skip their render while their props stay the same, which took
   Show all's longest task from 94.4 s to 43 to 47 s and its rows from 158 s to 93 to 100 s
-  (`log-screen.formatters.test.tsx` fails while rows build their own). After the fix the heading
+  (`log-screen.formatters.test.tsx` counts the `useFormatters` calls under Show all and fails
+  while each row calls it again; the formatters' calls cannot show it, since the hook shares one
+  set per pair of locales). After the fix the heading
   shows after 4.5 to 5.2 s (longest task 1.1 to 1.2 s), a load the rule does not cover, since it
   measures the screen's inputs once it shows. Two items stay over the rule (planned: M2). The entry
   sheet and form at the cap, which scan the 10,000 entries, over it by Event Timing: opening a row
