@@ -290,18 +290,45 @@ describe('closedBodyProblems: pnpm validate:content refuses what the build refus
     });
 
     // docs/CONTENT-STYLE.md §10: a German module joins a numeral to its sign, unit word or currency code with U+00A0,
-    // as pt-PT does, so a line never breaks inside a figure.
+    // as pt-PT does, so a line never breaks inside a figure. The unit words: every noun the English modules count or
+    // measure that src/module-counts.ts's German list leaves off (Monatsenden, Punkte, Rückgänge among them).
+    const germanUnits =
+      'Tage?n?|Tages|Wochen?|Monate?n?|Monats|Monatsenden?|Jahre?n?|Jahres|Stunden?|Minuten?|Punkte?n?|Episoden|Rückgang|Rückgänge?n?|Mrd\\.|Mio\\.|EUR|GBP|USD';
+    const germanGap = '[ \\t\\r\\n]+';
+    const germanBroken = new RegExp(
+      `\\d${germanGap}(?:%|×|(?:${germanUnits})(?![\\p{L}\\d]))|(?<![\\p{L}\\d])(?:EUR|GBP|USD)${germanGap}\\d`,
+      'gu',
+    );
+    const unjoined = (text: string) => [...text.matchAll(germanBroken)].map((match) => match[0]);
+    const nbsp = String.fromCodePoint(0xa0);
+
+    it('finds a German count before a unit word that an ordinary space joins', () => {
+      expect(
+        [
+          '12 Monatsenden in Folge',
+          '1 Monatsende',
+          '4 Rückgänge',
+          '1 Rückgang',
+          'nach 2 Rückgängen',
+          '3 Monate',
+          '13 Punkte auseinander',
+        ].map(unjoined),
+      ).toEqual([
+        ['2 Monatsenden'],
+        ['1 Monatsende'],
+        ['4 Rückgänge'],
+        ['1 Rückgang'],
+        ['2 Rückgängen'],
+        ['3 Monate'],
+        ['3 Punkte'],
+      ]);
+      expect(unjoined(`12${nbsp}Monatsenden, 4${nbsp}Rückgänge, Monatsende 2026`)).toEqual([]);
+    });
+
     it('joins every numeral of a real German module to its sign, unit word or currency code with a no-break space', () => {
-      const units =
-        'Tage?n?|Tages|Wochen?|Monate?n?|Monats|Jahre?n?|Jahres|Stunden?|Minuten?|Punkte?n?|Episoden|Mrd\\.|Mio\\.|EUR|GBP|USD';
-      const gap = '[ \\t\\r\\n]+';
-      const before = `(?<![\\p{L}\\d])(?:EUR|GBP|USD)${gap}\\d`;
-      const broken = new RegExp(`\\d${gap}(?:%|×|(?:${units})(?![\\p{L}\\d]))|${before}`, 'gu');
       const files = translatedModules('de');
       expect(files.length).toBeGreaterThan(0);
-      const found = files.flatMap(({ path, source }) =>
-        [...source.matchAll(broken)].map((match) => `${path}: ${match[0]}`),
-      );
+      const found = files.flatMap(({ path, source }) => unjoined(source).map((match) => `${path}: ${match}`));
       expect(found).toEqual([]);
     });
   });
