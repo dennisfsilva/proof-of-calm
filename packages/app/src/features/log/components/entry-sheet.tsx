@@ -52,15 +52,15 @@ export function EntrySheet({ open, onOpenChange, finalFocus, onUndone, offerKind
   const [skipping, setSkipping] = useState<{ readonly slot: MonthKey; readonly open: boolean } | null>(null);
   const [chosen, setChosen] = useState<TransactionKind | null>(null);
   // Whether coins are held is read once per opening (CONTENT-STYLE §3, Record a sale): a sale being typed stays
-  // a sale when another tab sells the last units, and the save then names what is held.
-  const held = plan !== null && holds(plan, entries);
-  const [heldAtOpen, setHeldAtOpen] = useState(held);
+  // a sale when another tab sells the last units, and the save then names what is held. Read only then: at the cap
+  // the scan per coin costs every closed sheet's render (docs/ENGINEERING.md §4, the Log at the cap).
+  const [heldAtOpen, setHeldAtOpen] = useState(() => open && holds(plan, entries));
   const [wasOpen, setWasOpen] = useState(open);
   if (open !== wasOpen) {
     setWasOpen(open);
     if (open) {
       setChosen(null);
-      setHeldAtOpen(held);
+      setHeldAtOpen(holds(plan, entries));
     }
   }
   const kinds = offerKinds && form.editing.length === 0 && plan !== null ? kindsFor(form.kind, heldAtOpen) : [];
@@ -109,8 +109,9 @@ export function EntrySheet({ open, onOpenChange, finalFocus, onUndone, offerKind
   );
 }
 
-/** Whether any of the plan's or the entries' coins has units held, so a sale has something to sell. */
-function holds(plan: Plan, entries: readonly Entry[]) {
+/** Whether any of the plan's or the entries' coins has units held, so a sale has something to sell; none without a plan. */
+function holds(plan: Plan | null, entries: readonly Entry[]) {
+  if (plan === null) return false;
   const coins = new Set([...plan.coins.map((coin) => coin.id), ...entries.map((entry) => entry.coin)]);
   return [...coins].some((coin) => isPositive(heldUnits(entries, coin)));
 }

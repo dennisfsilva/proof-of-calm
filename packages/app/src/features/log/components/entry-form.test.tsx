@@ -1280,8 +1280,11 @@ describe('EntryForm', () => {
   });
 
   // docs/ENGINEERING.md §4, the Log at the cap: with no move stored, no save leaves one short, so a keystroke reads
-  // no move line (DOMAIN §3.7), while the holding warning still reads every entry.
-  it('at 10,000 entries with no move stored, a keystroke in an edit reads no move line and keeps the warning', async () => {
+  // no move line (DOMAIN §3.7), while the holding warning still reads every entry. The warning's renders over the
+  // 10,000 entries take 0.65 s alone here (2.5 s while the move line ran), so the timeout keeps the margin for CI.
+  it('at 10,000 entries with no move stored, a keystroke in an edit reads no move line and keeps the warning', {
+    timeout: 6_000,
+  }, async () => {
     const past = { ...older, units: units('0.10') };
     const recent = Array.from({ length: 9_998 }, (_, index) =>
       anEntry({
