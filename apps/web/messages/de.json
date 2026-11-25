@@ -9,14 +9,14 @@
     "home": "Startseite"
   },
   "legal": {
-    "placeholder": "Diese Seite erscheint vollständig, bevor {product} öffnet. Bis dahin ist der Dienst nicht verfügbar und erfasst nichts.",
+    "placeholder": "Diese Seite erscheint vollständig, bevor {product} öffnet. Bis dahin ist der Dienst nicht verfügbar und erhebt keine Daten.",
     "risk": {
       "title": "Risikohinweise",
       "lead": "{product} ist Software für einen Plan, den Sie selbst festlegen. Es gibt keine Finanz-, Anlage- oder Steuerberatung; die Coins, Beträge und Tage eines Plans sind die, die Sie festlegen. Die meisten Kryptowerte sind sehr volatil; Sie können das gesamte investierte Geld verlieren. Verwenden Sie nur Geld, das Sie jahrelang nicht brauchen.",
       "dca": {
         "title": "Was ein Plan leistet und was nicht",
         "p1": "Ein Plan legt den Betrag und den Zeitplan jedes Kaufs fest, daher entscheidet nicht der Kurs eines einzelnen Tages, was Sie im Durchschnitt zahlen. {product} trägt jeden Kauf mit Datum, Betrag und Einheiten ein und zeigt, wo Sie im Plan stehen.",
-        "p2": "Ein Plan begrenzt nicht, wie weit ein Kurs fallen kann, macht ein besseres Ergebnis nicht wahrscheinlicher und schützt nicht, was Sie ausgeben. Fallen die Kurse und bleiben sie niedrig, kann ein Plan am Ende weniger wert sein, als er gekostet hat."
+        "p2": "Ein Plan begrenzt nicht, wie tief ein Kurs fallen kann, macht ein besseres Ergebnis nicht wahrscheinlicher und schützt nicht, was Sie ausgeben. Fallen die Kurse und bleiben sie niedrig, kann ein Plan am Ende weniger wert sein, als er gekostet hat."
       },
       "falls": {
         "title": "Rückgänge von einem Hoch",
@@ -25,7 +25,7 @@
       "custody": {
         "title": "Verwahrung und Gegenparteien",
         "p1": "{product} hat nie Ihr Geld oder Ihre Coins in Verwahrung. Für den Kauf und die Aufbewahrung wählen Sie einen Anbieter oder eine eigene Wallet.",
-        "p2": "Ein Anbieter kann zahlungsunfähig werden, gehackt werden oder Auszahlungen aussetzen, während die Coins seiner Kundschaft bei ihm liegen. Ist bei Coins in eigener Verwahrung die Seed-Phrase verloren, kann niemand die Coins wiederherstellen."
+        "p2": "Ein Anbieter kann scheitern, gehackt werden oder Auszahlungen aussetzen, während die Coins seiner Kundschaft bei ihm liegen. Ist bei Coins in eigener Verwahrung die Seed-Phrase verloren, kann niemand die Coins wiederherstellen."
       },
       "status": {
         "title": "Keine Aufsicht und kein Entschädigungssystem",
@@ -33,12 +33,12 @@
       },
       "tax": {
         "title": "Steuern",
-        "p1": "Ein Verkauf, ein Tausch oder eine Zahlung mit Coins kann Steuern zur Folge haben, und die Regeln sind in jedem Land anders und ändern sich. {product} zeigt für die Länder, die es abdeckt, die Regeln zur Haltefrist mit ihren Quellen und dem Datum ihrer letzten Überprüfung, außer solange eine Regel überprüft wird. Gilt für Ihren Plan eine Regel mit Haltefrist, zeigt {product} für jeden Kauf den ersten Tag nach der Haltefrist. Das sind Informationen, keine Steuerberatung. Ihre Steuerberatung oder Ihre Steuerbehörde kann Ihnen sagen, was in Ihrem Fall gilt."
+        "p1": "Ein Verkauf, ein Tausch oder eine Zahlung mit Coins kann Steuern zur Folge haben, und die Regeln sind in jedem Land anders und ändern sich. {product} zeigt für die Länder, die es abdeckt, die Haltefristen mit ihren Quellen und dem Datum ihrer letzten Überprüfung, außer solange eine Regel überprüft wird. Gilt für Ihren Plan eine Regel mit Haltefrist, zeigt {product} für jeden Kauf den ersten Tag nach der Haltefrist. Das sind Informationen, keine Steuerberatung. Eine Steuerberatung oder Ihre Steuerbehörde kann Ihnen sagen, was in Ihrem Fall gilt."
       },
       "scams": {
         "title": "Betrug",
-        "p1": "{product} bietet Ihnen nie eine Geldanlage an und fragt nie nach Ihrer Seed-Phrase, einem privaten Schlüssel, dem API-Schlüssel oder den Zugangsdaten einer Börse oder nach Coins oder Geld für deren Kauf. Eine Nachricht, die das tut, stammt nicht von {product}, von wem auch immer sie zu kommen scheint.",
-        "p2": "Anzeichen für Betrug: ein Versprechen, dass Geld schnell und mit wenig Risiko wächst, eine fremde Person, die das Gespräch auf das Thema Geldanlage lenkt, oder jede Anfrage nach Ihrer Seed-Phrase, einem privaten Schlüssel, dem API-Schlüssel oder den Zugangsdaten einer Börse."
+        "p1": "{product} bietet Ihnen nie eine Geldanlage an und fragt nie nach Ihrer Seed-Phrase, einem privaten Schlüssel, dem API-Schlüssel oder den Zugangsdaten zu einer Börse oder nach Coins oder Geld für deren Kauf. Eine Nachricht, die das tut, stammt nicht von {product}, von wem auch immer sie zu kommen scheint.",
+        "p2": "Anzeichen für Betrug: ein Versprechen, dass Geld schnell und mit wenig Risiko wächst, eine fremde Person, die das Gespräch auf das Thema Geldanlage lenkt, oder jede Anfrage nach Ihrer Seed-Phrase, einem privaten Schlüssel, dem API-Schlüssel oder den Zugangsdaten zu einer Börse."
       },
       "register": {
         "title": "Einen Anbieter prüfen",
