@@ -1,5 +1,5 @@
 import { countryRules, loadProfile } from '@proofofcalm/content';
-import type { CalendarDate } from '@proofofcalm/core';
+import type { CalendarDate, Entry } from '@proofofcalm/core';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { EMPTY_SNAPSHOT } from '../../../lib/adapters';
@@ -10,7 +10,7 @@ import { LogScreen } from './log-screen';
 
 // The Log at 360 and 1280 px, light and dark, with axe: the fixture plan in the buying phase with
 // Portugal's rules as the browser loads them, one row opened; a plan with no entries yet; a plan with
-// only July's skip, which stays listed under the empty line; no plan.
+// only July's skip, which stays listed under the empty line; no plan; 250 more buys, shown 100 at a time.
 
 const portugal = async () => {
   const profile = await loadProfile('PT');
@@ -70,6 +70,31 @@ export const RecordSheet: Story = {
 };
 
 const plan = fixtureSnapshot().plan;
+
+/** The fixture's 8 transactions and 250 extra buys, one a day before its first buy day: 258 in windows of 100. */
+const withBuys = (count: number): Snapshot => {
+  const snapshot = fixtureSnapshot();
+  const [first] = snapshot.entries as [Entry];
+  const more = Array.from({ length: count }, (_, index): Entry => {
+    const date = new Date(Date.UTC(2026, 3, 4) - index * 86_400_000).toISOString().slice(0, 10) as CalendarDate;
+    const id = `00000000-0000-4000-8000-${String(800_000 + index).padStart(12, '0')}` as Entry['id'];
+    return { ...first, id, kind: 'extra', slot: null, date, deletedAt: null };
+  });
+  return { ...snapshot, entries: [...snapshot.entries, ...more] };
+};
+
+export const ShowAllInWindows: Story = {
+  parameters: { services: services(withBuys(250)) },
+  play: async ({ canvas }) => {
+    await userEvent.click(await canvas.findByRole('button', { name: 'Show all 258 entries, 100 at a time' }));
+    await expect(await canvas.findByText('Entries 1 to 100 of 258')).toBeVisible();
+    await userEvent.click(canvas.getByRole('button', { name: 'Show older entries' }));
+    await expect(await canvas.findByText('Entries 101 to 200 of 258')).toBeVisible();
+    await waitFor(() => expect(canvas.getAllByRole('button', { expanded: false })[0]).toHaveFocus());
+    await expect(canvas.getByRole('button', { name: 'Show newer entries' })).toBeVisible();
+    await expect(canvas.getByRole('combobox', { name: 'Go to year' })).toHaveTextContent('2026');
+  },
+};
 
 export const NoEntriesYet: Story = {
   parameters: {
