@@ -78,7 +78,10 @@ export async function waitForBuild({ url, day, fetch, sleep, attempts, log }: Wa
     if (attempt < attempts) await sleep(INTERVAL_MS);
   }
   const times = attempts === 1 ? 'attempt' : 'attempts';
-  return { ok: false, error: `${url} did not show a build of ${day} or later after ${attempts} ${times} (last: ${last})` };
+  return {
+    ok: false,
+    error: `${url} did not show a build of ${day} or later after ${attempts} ${times} (last: ${last})`,
+  };
 }
 
 const isMain = process.argv[1] !== undefined && fileURLToPath(import.meta.url) === process.argv[1];
