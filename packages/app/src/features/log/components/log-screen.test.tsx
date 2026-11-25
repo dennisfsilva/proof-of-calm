@@ -566,9 +566,12 @@ describe('LogScreen', () => {
     expect(liveEntries(services.domain.store.getState().snapshot.entries)).toHaveLength(MAX_ENTRIES);
   });
 
-  // The Log renders the 10,000 entries' rows twice in jsdom (2.6 s here under the whole suite's load, over 5 s on CI).
+  // The Log renders its rows over the 10,000 entries twice in jsdom, after the other tab's write and after the Undo:
+  // about 0.6 s of the test's 0.7 s alone, where the write itself takes 0.05 s, and 1.5 to 1.8 s under the whole
+  // suite's load (2026-11-25). That work is the scenario, so the test cannot be lighter: its timeout is three times
+  // the over 5 s CI's runner took, since a run here under builders' load once outlasted 8 s (#520).
   it('keeps an entry deleted and says why when the plan reached 10,000 entries before the Undo', {
-    timeout: 8_000,
+    timeout: 15_000,
   }, async () => {
     const snapshot = withMoreBuys();
     const services = await mount(snapshot);
