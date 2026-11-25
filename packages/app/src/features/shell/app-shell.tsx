@@ -158,15 +158,30 @@ export function AppShell({ registerUpdates, children }: AppShellProps) {
 
   // The update toast's handler, handed to the host once: a service worker registers once, whatever the
   // shell re-renders (StrictMode keeps the ref through its second mount). It waits for the screen to settle,
-  // the first boot and the first prices refresh (the in-flight one of the effect above), so the worker's
-  // install never runs beside the first screen's render (ADR-0045 §5, the deviation of 2026-10-26).
+  // the first boot and the first prices refresh that runs while the page is visible, so the worker's install
+  // never runs beside the first screen's render (ADR-0045 §5, the deviation of 2026-10-26). A page that boots
+  // hidden fetches nothing until it shows: the refresh then reuses the one the effect above starts.
   const registered = useRef(false);
   useEffect(() => {
     if (registered.current || registerUpdates === undefined || boot === 'loading') return;
-    registered.current = true;
     const hand = () => registerUpdates(updateToast(toasts, { title: t('update.title'), reload: t('update.reload') }));
-    if (boot === 'failed') hand();
-    else void services.prices.refresh().then(hand, hand);
+    const settle = () => {
+      if (document.visibilityState !== 'visible') return false;
+      registered.current = true;
+      void services.prices.refresh().then(hand, hand);
+      return true;
+    };
+    if (boot === 'failed') {
+      registered.current = true;
+      hand();
+      return;
+    }
+    if (settle()) return;
+    const shown = () => {
+      if (settle()) document.removeEventListener('visibilitychange', shown);
+    };
+    document.addEventListener('visibilitychange', shown);
+    return () => document.removeEventListener('visibilitychange', shown);
   }, [boot, registerUpdates, services, toasts, t]);
 
   const items: NavItem[] = DESTINATIONS.map(({ href, key, icon }) => ({
