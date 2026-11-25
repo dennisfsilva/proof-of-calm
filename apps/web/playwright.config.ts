@@ -17,8 +17,10 @@ const phoneAndDesktop = /(language|import-failure)\.spec\.ts$/;
 // The long-date layout specs lay pt-PT's and German's screens out where they are narrowest: android-small and
 // zoom-125 only.
 const narrowOnly = /language-layout(-de)?\.spec\.ts$/;
-// The Log at the cap throttles the CPU through Chromium's DevTools protocol: one Chromium project, desktop.
+// The Log at the cap throttles the CPU through Chromium's DevTools protocol: one Chromium project, desktop,
+// and only on request (LOG_CAP=1), since it measures for minutes and asserts nothing (docs/ENGINEERING.md §4).
 const desktopOnly = /log-cap\.spec\.ts$/;
+const optIn = process.env.LOG_CAP === '1' ? [] : [desktopOnly];
 const elsewhere = [requestOnly, phoneAndDesktop, desktopOnly];
 const notNarrow = [...elsewhere, narrowOnly];
 
@@ -64,7 +66,7 @@ export default defineConfig({
     },
     {
       name: 'desktop',
-      testIgnore: narrowOnly,
+      testIgnore: [narrowOnly, ...optIn],
       use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } },
     },
     {

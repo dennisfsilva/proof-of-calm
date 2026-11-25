@@ -141,7 +141,8 @@ the long-date and German layout specs (`language-layout.spec.ts`, `language-layo
 `settings-language-layout-de.spec.ts`, android-small and zoom-125 only): two phones (one WebKit), a tablet, two desktops, a 125 % text-zoom
 phone and a reduced-motion phone, defined in `apps/web/playwright.config.ts` (the four lists are
 its `requestOnly`, `phoneAndDesktop`, `narrowOnly` and `desktopOnly`, the last holding the Log at the
-cap, `log-cap.spec.ts`, §4).
+cap, `log-cap.spec.ts`, §4, which the desktop project runs only with `LOG_CAP=1`, the command in
+`CLAUDE.md`).
 Assertions in every flow: `document.documentElement.scrollWidth <= window.innerWidth` (no horizontal
 page scroll); every interactive element's bounding box at least 44 × 44 px (or 24 px with sufficient
 spacing per WCAG 2.5.8, checked only where the layout forces it and documented); forms remain usable
