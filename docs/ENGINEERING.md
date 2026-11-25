@@ -226,9 +226,14 @@ platform without one.
   3,232 ms, 0.88, 238 ms; Plan 2,742 ms, 0.92, 226 ms). The first push run on main over HTTP/2, ci.yml
   run 45606457093 on 9d3f57b9 (2026-11-25), measured them within budget (medians of five, benchmark
   index medians 4,163.5 to 4,278.5): Today LCP 1,888 ms, performance 0.99, TBT 43.5 ms; Portfolio
-  2,145 ms, 0.99, 23 ms; Log 2,159 ms, 0.98, 28 ms; Plan 2,143 ms, 0.98, 18 ms. Every TBT median sat
-  at or below 130 ms, 65 % of the budget, so a runner at two-thirds that speed still passes, and the
-  twelve went to error on 2026-11-25.
+  2,145 ms, 0.99, 23 ms; Log 2,159 ms, 0.98, 28 ms; Plan 2,143 ms, 0.98, 18 ms. The gate,
+  lighthouse-branch.yml run 45608826901 on 64e178de9 (2026-11-25), ran at a benchmark index of about
+  2,500, about 0.58 of that speed, and passed every budget at error with TBT medians of Today 114 ms,
+  Portfolio 39 ms, Log 47 ms and Plan 45 ms. TBT grows faster than the slowdown, since it sums each
+  long task's time over 50 ms (a 180 ms task gives 130 ms; at 1.5 times as slow it takes 270 ms and
+  gives 220 ms): Today's grew 2.6 times and Plan's 2.5 times, Portfolio's and Log's about 1.7 times.
+  So the margin is read from runs like these, not scaled from one, and the twelve went to error on
+  2026-11-25.
 - A slow runner may fail TBT. No automatic retry and no runner gate: decided 2026-10-29, when
   production Portfolio's TBT failed `lighthouse-vercel` run 40679020243 on 51a3cf60 with a median of
   205.5 ms (runs of 318, 205.5, 97, 215.5 and 187.5 ms; green on re-run), the check keeps five runs
