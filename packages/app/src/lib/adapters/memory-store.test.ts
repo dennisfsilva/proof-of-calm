@@ -117,7 +117,9 @@ describe('memory plan store', () => {
   it('updatePrefs writes through write, so a store whose write fails fails it too', async () => {
     const store = memoryPlanStore();
     const failing = { ...store, write: () => Promise.reject(new Error('QuotaExceededError')) };
-    await expect(failing.updatePrefs((prefs) => ({ ...prefs, logShowAll: true }))).rejects.toThrow('QuotaExceededError');
+    await expect(failing.updatePrefs((prefs) => ({ ...prefs, logShowAll: true }))).rejects.toThrow(
+      'QuotaExceededError',
+    );
     expect(store.current().prefs).toStrictEqual(DEFAULT_PREFS);
   });
 });

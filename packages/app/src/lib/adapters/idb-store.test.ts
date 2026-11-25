@@ -463,12 +463,13 @@ describe('idb plan store: update, a write on the rows as stored (ADR-0019 readin
 });
 
 describe('idb plan store: updatePrefs, a preference on the prefs row as stored (ADR-0019 Readings, 2026-11-25)', () => {
+  const stamp = instant('2026-10-02T08:00:00.000Z');
   /** Every field away from its default, so a read that drops or resets one fails. */
   const full: Prefs = {
     theme: 'dark',
     chartRange: '1y',
     lastBackupAt: instant('2026-10-01T08:00:00.000Z'),
-    changedAt: instant('2026-10-02T08:00:00.000Z'),
+    changedAt: stamp,
     dismissedBanners: ['backup-needed:2026-10-01'],
     reviewedAt: instant('2026-10-03T08:00:00.000Z'),
     logShowAll: true,
@@ -512,7 +513,7 @@ describe('idb plan store: updatePrefs, a preference on the prefs row as stored (
 
   it('forward: load reads back every field of the record updatePrefs writes', async () => {
     const store = open();
-    await store.write({ prefs: full, changedAt: full.changedAt ?? undefined });
+    await store.write({ prefs: full, changedAt: stamp });
     await store.updatePrefs((stored) => ({ ...stored, chartRange: 'all' }));
     const expected = { ...full, chartRange: 'all' };
     expect(await raw('prefs')).toStrictEqual([expected]);
@@ -521,7 +522,7 @@ describe('idb plan store: updatePrefs, a preference on the prefs row as stored (
 
   it('rollback: the previous build reads the record updatePrefs writes, with every field', async () => {
     const store = open();
-    await store.write({ prefs: full, changedAt: full.changedAt ?? undefined });
+    await store.write({ prefs: full, changedAt: stamp });
     await store.updatePrefs((stored) => ({ ...stored, theme: 'system' }));
     const [record] = await raw('prefs');
     const read = PreviousBuildPrefsReadSchema.safeParse(record);
@@ -530,7 +531,7 @@ describe('idb plan store: updatePrefs, a preference on the prefs row as stored (
 
   it('whole record: keeps the fields of a later build, and the previous build’s rewrite keeps them too', async () => {
     const store = open();
-    await store.write({ prefs: full, changedAt: full.changedAt ?? undefined });
+    await store.write({ prefs: full, changedAt: stamp });
     await put('prefs', { ...full, compactCharts: true }, PREFS_KEY);
     await store.updatePrefs((stored) => ({ ...stored, logShowAll: false }));
     expect(await raw('prefs')).toStrictEqual([{ ...full, logShowAll: false, compactCharts: true }]);
