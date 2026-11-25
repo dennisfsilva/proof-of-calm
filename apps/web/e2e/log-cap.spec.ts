@@ -8,8 +8,9 @@ import { routeFixturePrices, test } from './support';
 // The Log at the cap on a slow phone (docs/ENGINEERING.md §4, "The Log at the cap"): the fixture plan filled to
 // MAX_ENTRIES live entries (docs/DOMAIN.md §6), one extra buy a day before the first buy day, BTC and ETH in turn,
 // so every entry is a row of its own. Chromium's CPU throttle at 6x stands in for the phone. Event Timing gives each
-// input's duration, from the input to the next paint; a longtask observer gives the longest task from the navigation
-// to the Log's heading. An input is asserted only while this machine measured it under half the 100 ms rule, since
+// input's duration, from the input to the next paint; a longtask observer gives the longest task the input starts
+// before the screen settles, which Event Timing misses, and the longest task from the navigation to the Log's heading.
+// The rule holds both. An input is asserted only while this machine measured both under half the 100 ms rule, since
 // CI's shared runners are slower and vary; the others are annotations with their figures. Desktop project only
 // (apps/web/playwright.config.ts): the throttle is a Chromium DevTools command.
 
@@ -167,7 +168,10 @@ test(`the Log at ${MAX_ENTRIES} entries: each input and Show all at ${CPU_RATE}x
   for (const [what, { input, task }] of Object.entries(inputs)) {
     // An input over the rule that no invisible change fixed waits on 27a (docs/ENGINEERING.md §4).
     record(ASSERTED.has(what) ? what : `${what} (27a)`, { input, 'longest task': task });
-    if (ASSERTED.has(what)) expect(input, `${what} at ${CPU_RATE}x CPU`).toBeLessThan(RULE_MS);
+    if (ASSERTED.has(what)) {
+      expect(input, `${what} at ${CPU_RATE}x CPU`).toBeLessThan(RULE_MS);
+      expect(task, `${what}'s longest task at ${CPU_RATE}x CPU`).toBeLessThan(RULE_MS);
+    }
   }
 
   const showAll = page.locator('main#main button', { hasText: /^Show all/ });

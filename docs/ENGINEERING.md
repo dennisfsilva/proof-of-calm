@@ -250,7 +250,9 @@ platform without one.
   once for each set of locales, zone, year, clock changes and words, not on every mount. A failed
   read keeps the same structure, with its line in the empty frame's place (`docs/DESIGN.md` §6).
 - The Log at the cap (decided 2026-11-25). The rule: Chromium's CPU throttle at 6× stands in for a
-  slow phone, and an input whose Event Timing duration passes 100 ms there is fixed.
+  slow phone, and an input on the screen whose Event Timing duration, or the longest task it starts
+  before the screen settles, passes 100 ms there is fixed: Event Timing ends at the next paint and
+  misses a render that blocks the main thread after it, which a person waits through all the same.
   `apps/web/e2e/log-cap.spec.ts` fills the fixture plan to `MAX_ENTRIES` live entries and records
   each input's duration and longest task as annotations; it asserts nothing and takes about two
   minutes, so it runs only on request (`LOG_CAP=1` on the desktop project, the command in
@@ -260,12 +262,14 @@ platform without one.
   now take the screen's formatters and skip their render while their props stay the same, which took
   Show all's longest task from 94.4 s to 43 to 47 s and its rows from 158 s to 93 to 100 s
   (`log-screen.formatters.test.tsx` fails while rows build their own). After the fix the heading
-  shows after 4.5 to 5.2 s (longest task 1.1 to 1.2 s) and Show all's input takes 24 to 56 ms. Two
-  items stay over the rule, each moved to session 27a. The entry sheet and form at the cap, which
-  scan the 10,000 entries: opening a row 136 to 192 ms, Edit entry 1,160 to 1,288 ms, one keystroke
-  in the amount 648 to 776 ms and closing the sheet 720 to 800 ms, with only the first page of rows
-  on screen; the fix is invisible, in their scans. Show all at the cap: one task of 43 to 47 s;
-  paging or a virtual list changes what the Log shows, so it waits for a design check.
+  shows after 4.5 to 5.2 s (longest task 1.1 to 1.2 s), a load the rule does not cover, since it
+  measures the screen's inputs once it shows. Two items stay over the rule, each moved to session 27a. The entry
+  sheet and form at the cap, which scan the 10,000 entries, over it by Event Timing: opening a row
+  136 to 192 ms, Edit entry 1,160 to 1,288 ms, one keystroke in the amount 648 to 776 ms and
+  closing the sheet 720 to 800 ms, with only the first page of rows on screen; the fix is invisible,
+  in their scans. Show all at the cap, over it by its longest task: its input takes 24 to 56 ms, but
+  the render it starts blocks the main thread for 43 to 47 s; paging or a virtual list changes what
+  the Log shows, so it waits for a design check.
 - An upstream outage may fail the production check. It measures what production serves: a 502 that
   reaches the browser is a fault people see, and `errors-in-console` names it. Since Portfolio's
   layout holds on that path (`lighthouse-vercel` run 40917845879 on a20d28d9, 2026-10-29, measured
