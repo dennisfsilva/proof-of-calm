@@ -1475,9 +1475,9 @@ The Learn modules' terms (the term read of 2026-11-25; counsel's read wins where
 | liquidation, forced sale | `Liquidation`, `Zwangsverkauf` as nouns only; `liquidieren` is on §2's verb list |
 | placing orders | `Aufträge erteilen`, the one form, always negated for the product (`erteilt keine Aufträge`, ADR-0039) |
 | the window's last month | `Schlussmonat`, beside the plan's `Schlussdatum` |
-| high, low (a cycle's) | `Hoch`, plural `Hochs`, `Tief`; `bisheriges Hoch` for the running cycle's |
+| high, low (a cycle's) | `Hoch`, plural `Hochs`, `Tief`; `bisheriges Hoch` and `bisheriges Tief` for the running cycle's |
 | ETFs, interest rates | `börsengehandelte Fonds`, `Zinsen` |
-| a measurement window | `Zeitfenster`, only for one; the plan's is always `Verkaufsfenster` |
+| a measurement window | `Zeitfenster`, only for one; the plan's is `Verkaufsfenster` at first mention, then `Fenster` |
 | a control named in prose | `die Schaltfläche „Prüfen“` |
 | a dated notice | `datierter Hinweis`; the noun is allowed, only `Hinweis:` as a prefix is not |
 | a starting point (the tax-year file) | `Arbeitsgrundlage` |
@@ -1495,11 +1495,11 @@ For the native reader (§8 item 9), the Learn modules first: `Rauschen` against 
 beginnen` against `Erste Schritte`; `Börse` against `Handelsplattform` in Start here; `DCA nimmt
 Ihnen die Entscheidungen über den Zeitpunkt ab`; `beim Trading` and `wer einen Monatsplan
 verfolgt`, and the heading „Was bei einem monatlichen Plan möglich ist“; `Kursbenachrichtigungen`; „Greed“ (Gier) beside a bare „Neutral“;
-„über/unter dem eingesetzten Betrag“ for above or below cost; „nur bei einem Besuch“; „Aufträge
-erteilen“; `Schlussmonat`; „Hochs“; „Die 4 abgeschlossenen Zyklen von Bitcoin“; „Steuerjahr
+„über dem eingesetzten Betrag“ and „unter dem eingesetzten Betrag“ for above and below cost; „nur
+bei einem Besuch“; `Aufträge erteilen`; `Schlussmonat`; `Hochs`; „Die 4 abgeschlossenen Zyklen von Bitcoin“; „Steuerjahr
 2023/2024“ for the UK tax year; „die Schaltfläche „Prüfen“, die zum Plan führt“; `Haltedauer`; the
 title „Das Risiko, ehrlich betrachtet“; „Aufforderung, die Seed-Phrase weiterzugeben“; a bare
-„FCA“ at first mention against „die britische Finanzaufsicht FCA“; „tippt sie nie auf einer
+`FCA` at first mention against `die britische Finanzaufsicht FCA`; „tippt sie nie auf einer
 Website ein“. Then: `Sie`; `steuerfrei ab` against `nicht steuerbar ab`, and `Letzter
 Kauf: erster steuerfreier Tag`; `Protokoll`, `Lernen`, `Ort`, `Coin`, `die Wallet`, `Backup` (pt-PT
 kept `cópia de segurança`), `durchschnittlicher Kaufpreis` against `Einstandspreis`, `Stand:` and
