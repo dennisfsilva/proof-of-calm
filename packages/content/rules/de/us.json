@@ -1,6 +1,6 @@
 {
   "code": "US",
-  "name": "United States",
+  "name": "USA",
   "currency": "USD",
   "locales": ["en-US"],
   "numberFormatLocale": "en-US",
@@ -28,9 +28,9 @@
   },
   "holdingRuleOverrides": [],
   "holdingRuleConditions": [
-    "Federal rate only. Most states tax the gain at their own rates: 42 levy an income tax (Tax Foundation, 2026, medium confidence). Confirm your state.",
-    "A swap or a purchase paid in crypto starts a new holding period for the units received (IRS FAQ Q16 and Q29).",
-    "Gifted units keep the giver's holding period when records show it, and inherited units are long-term at once (IRS FAQ Q33 and IRS Publication 544)."
+    "Nur der Bundessteuersatz. Die meisten Bundesstaaten besteuern den Gewinn zu eigenen Sätzen: 42 erheben eine Einkommensteuer (Tax Foundation, 2026, mittlere Belastbarkeit). Prüfen Sie die Regeln Ihres Bundesstaats.",
+    "Mit einem Tausch oder einem mit digitalen Vermögenswerten bezahlten Kauf beginnt für die erhaltenen Einheiten eine neue Haltefrist (IRS FAQ Q16 und Q29).",
+    "Für geschenkte Einheiten gilt die Haltefrist der schenkenden Person weiter, wenn Aufzeichnungen sie belegen, und geerbte Einheiten sind sofort langfristig (IRS FAQ Q33 und IRS Publication 544)."
   ],
   "lotRule": "specific",
   "lotScope": "per-venue",
