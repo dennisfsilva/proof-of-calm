@@ -139,8 +139,9 @@ only), two specs on iphone and desktop only (`language.spec.ts` and `import-fail
 the long-date and German layout specs (`language-layout.spec.ts`, `language-layout-de.spec.ts`,
 `onboarding-language-layout-de.spec.ts`, `plan-language-layout-de.spec.ts` and
 `settings-language-layout-de.spec.ts`, android-small and zoom-125 only): two phones (one WebKit), a tablet, two desktops, a 125 % text-zoom
-phone and a reduced-motion phone, defined in `apps/web/playwright.config.ts` (the three lists are
-its `requestOnly`, `phoneAndDesktop` and `narrowOnly`).
+phone and a reduced-motion phone, defined in `apps/web/playwright.config.ts` (the four lists are
+its `requestOnly`, `phoneAndDesktop`, `narrowOnly` and `desktopOnly`, the last holding the Log at the
+cap, `log-cap.spec.ts`, §4).
 Assertions in every flow: `document.documentElement.scrollWidth <= window.innerWidth` (no horizontal
 page scroll); every interactive element's bounding box at least 44 × 44 px (or 24 px with sufficient
 spacing per WCAG 2.5.8, checked only where the layout forces it and documented); forms remain usable
@@ -247,6 +248,21 @@ platform without one.
   of another length wraps onto another number of lines (the chart's source line); the forms are built
   once for each set of locales, zone, year, clock changes and words, not on every mount. A failed
   read keeps the same structure, with its line in the empty frame's place (`docs/DESIGN.md` §6).
+- The Log at the cap (decided 2026-11-25): Chromium's CPU throttle at 6× stands in for a slow phone,
+  and an input whose Event Timing duration passes 100 ms there is fixed, in the branch that finds it
+  when the fix changes nothing the Log shows, else in 27a (paging or a virtual list).
+  `apps/web/e2e/log-cap.spec.ts` (desktop project) fills the fixture plan to `MAX_ENTRIES` live
+  entries and records each figure as an annotation; it asserts an input only once this machine
+  measures it under 50 ms. A profile of Show all showed each row building its own formatters (a third
+  of the render) and every toggle rendering every row: rows now take the screen's formatters and skip
+  their render while their props stay the same, which took Show all's longest task from 94 s to about
+  45 s and its rows from 158 s to about 96 s. Local figures after that change, five runs on Windows in
+  this machine's Playwright Chromium: the heading after 4.5 to 5.2 s (longest task 1.1 to 1.2 s);
+  opening a row 136 to 192 ms, Edit entry 1,160 to 1,288 ms, one keystroke in the amount 648 to
+  776 ms, closing the sheet 720 to 800 ms (all on the Log as it opens, its last page of rows), Show
+  all's input 24 to 56 ms with its longest task 43 to 47 s. All four inputs miss the rule; the sheet's
+  three are not the rows (they hold on the first page), so they go to 27a with the rows. CI adds its
+  figures from the session that merges this.
 - An upstream outage may fail the production check. It measures what production serves: a 502 that
   reaches the browser is a fault people see, and `errors-in-console` names it. Since Portfolio's
   layout holds on that path (`lighthouse-vercel` run 40917845879 on a20d28d9, 2026-10-29, measured
