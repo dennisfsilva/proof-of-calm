@@ -1309,7 +1309,7 @@ The product's nouns, one German word each, in every string, the site pages and t
 | Log (the screen) | Protokoll |
 | an entry | Eintrag |
 | record (the verb) | eintragen (`Eingetragen: …`) |
-| move (an entry between venues) | Übertragung, übertragen; never `Überweisung`, which moves money |
+| move (an entry between venues), transfer between one's own wallets | Übertragung, übertragen; never `Überweisung`, which moves money, nor `Transfer` (decided 2026-11-25) |
 | Portfolio (the screen) | Portfolio; never `Depot`, an account a provider keeps (ADR-0039) |
 | Holdings | Bestand |
 | Invested | investiert |
@@ -1322,7 +1322,7 @@ The product's nouns, one German word each, in every string, the site pages and t
 | buy day | Kauftag |
 | monthly buy, starting amount, extra buy | Monatskauf, Startbetrag, Zusatzkauf |
 | first buy, last buy | erster Kauf, letzter Kauf |
-| due {date} | geplant für den {date}; never `fällig`, a bill's word |
+| due {date} | geplant für den {date}; never `fällig`, a bill's word; a date in a profile's text is `vorgesehen` or `bis zum …` (decided 2026-11-25) |
 | skip, skipped / paused / Resume | überspringen, übersprungen / pausiert / Fortsetzen |
 | sale | Verkauf |
 | coins added at no cost (held) | Hinzugefügte Coins; a Coins added entry is `Eintrag mit hinzugefügten Coins`, a held row of the tax-year file `Zeile mit hinzugefügten Coins` |
@@ -1332,7 +1332,7 @@ The product's nouns, one German word each, in every string, the site pages and t
 | holding date | der erste Tag nach der Haltefrist |
 | hold phase | Haltephase |
 | the plan strip's Buying, Holding, Selling, Out by | Kaufphase, Haltephase, Verkaufsfenster, Ausstieg, each before a range or `ab {date}`; never `Kauf` or `Halten`, which read as instructions |
-| tax-free | `Steuerfrei ab 2. März 2027` for the status, which does not inflect and needs no subject; `der erste steuerfreie Tag` for the noun (`Warum? Der erste steuerfreie Tag`); `Last buy tax-free` is `Letzter Kauf: erster steuerfreier Tag`, so no buy is called tax-free; never `steuerbefreit`, an exemption |
+| tax-free | `Steuerfrei ab 2. März 2027` for the status, which does not inflect and needs no subject; `der erste steuerfreie Tag` for the noun (`Warum? Der erste steuerfreie Tag`); `Last buy tax-free` is `Letzter Kauf: erster steuerfreier Tag`, so no buy is called tax-free; never `steuerbefreit`, an exemption; in a profile's text an exclusion that frees from tax is `Steuerfreiheit`, never `ausgenommen` or `Ausnahme` for Portugal's 365-day exclusion, and no unit is called tax-free without the condition the English states (counsel; decided 2026-11-25) |
 | Long-term rate from {date} | Langfristiger Steuersatz ab {date} |
 | venue | Ort (`ohne Ort`) |
 | units / (estimated) | Einheiten / (geschätzt), never inflected |
@@ -1351,7 +1351,7 @@ The product's nouns, one German word each, in every string, the site pages and t
 | template | Ausgangspunkt, its name after it unquoted |
 | country card / general profile | Länderprofil / das allgemeine Profil |
 | tax-year file | Datei für das Steuerjahr (`Steuerjahr als CSV exportieren`) |
-| crypto-asset service provider | Anbieter von Kryptowerte-Dienstleistungen |
+| crypto-asset service provider, provider | Anbieter von Kryptowerte-Dienstleistungen, short `Anbieter`; the US's `Broker` and Italy's `Intermediär` stay, those laws' terms (decided 2026-11-25) |
 | screen (#419's shell strings) | Ansicht (`Diese Ansicht konnte nicht geladen werden.`) |
 | unread (a plan this version cannot read, `shell.newer.again`) | ungelesen |
 | Chart range (the control) | Zeitraum des Diagramms |
@@ -1380,11 +1380,11 @@ The product's nouns, one German word each, in every string, the site pages and t
 | acquired date (the tax-year file) | Erwerbsdatum (`Zeilen ohne Erwerbsdatum`) |
 | holding row / sale row / move row (the tax-year file) | Bestandszeile / Verkaufszeile / Übertragungszeile |
 | pool, pooling | Poolbildung (`für die Poolbildung aufgeführt`) |
-| last in, first out / first in, first out | Lifo-Methode (last in, first out) / Fifo-Methode (first in, first out), the English expansion in parentheses |
+| last in, first out / first in, first out, LIFO / FIFO | Lifo-Methode (last in, first out) / Fifo-Methode (first in, first out), the English expansion in parentheses; in a profile's text the expansion at the first mention in each field, `Fifo-Methode` after that and in `summary60`, the US's and Ireland's included; a quotation keeps its own wording (`criterio FIFO`), and `L.I.F.O.` stands only inside the Italian quotation (decided 2026-11-25) |
 | disposal | Veräußerung, the term of § 23 EStG |
-| your accountant | `Ihre Steuerberatung` (`bleibt Ihrer Steuerberatung überlassen`), the function, not a person |
+| your accountant, an accountant, the accountant | `Ihre Steuerberatung` (`bleibt Ihrer Steuerberatung überlassen`), the function, not a person; never `der Steuerberatung` in a sentence; the general profile's "a local accountant" is `eine Steuerberatung vor Ort` (decided 2026-11-25) |
 | the venue the coins went to | Zielort |
-| 30-day rule | 30-Tage-Regel |
+| 30-day rule, a figure compound in a profile | `30‑Tage‑Regel` with U+2011 twice in text a screen shows; the tax-year file's lines and a profile's `lotRuleNote` keep U+002D, `30-Tage-Regel` (§4; decided 2026-11-25) |
 | decimal point | Dezimalpunkt (`verwenden einen Dezimalpunkt, kein Komma`), „kein Komma“ added, since German writes a comma |
 | Made on {today} / as of {today} (the tax-year file) | Erstellt am {today} / mit Stand {today} |
 | transaction (an exchange export's) | Transaktion |
@@ -1401,6 +1401,22 @@ The product's nouns, one German word each, in every string, the site pages and t
 | preview | Vorschau |
 | Pasted text | Eingefügter Text |
 | time zone | Zeitzone |
+| Calendar tax year. (a profile's filing note) | `Das Steuerjahr ist das Kalenderjahr.`, a whole sentence; the general profile keeps its own sentence (decided 2026-11-25) |
+| (medium confidence), (medium-high confidence) | `(mittlere Belastbarkeit)`, `(Belastbarkeit mittel bis hoch)`; inside a source's brackets `(Tax Foundation, 2026, mittlere Belastbarkeit)`; never `Sicherheit`, a form of `sicher` (§2), `Gewissheit`, which reassures, or `Konfidenz` (decided 2026-11-25) |
+| crypto, crypto-assets (a profile's text) | `Kryptowerte`, `mit Kryptowerten`, `Gewinne aus Kryptowerten`; never a bare `Krypto` or `Kryptogewinne`; `Krypto-Darlehen` may stay as the name of the UK measure (decided 2026-11-25) |
+| tokens (HMRC's word) | `Token` in the UK's profile only, `Kryptowerte` elsewhere (decided 2026-11-25) |
+| time held | Haltedauer; never `Haltefristregel` (decided 2026-11-25) |
+| starts a new holding period | `beginnt … eine neue Haltefrist`; never `startet` (decided 2026-11-25) |
+| No holding exemption | `Keine Steuerfreiheit nach einer Haltefrist` (`ohne Steuerfreiheit nach einer Haltefrist`); the general profile keeps its counsel-read sentence with Proof of Calm as subject; never `steuerbefreit` or `Befreiung` (decided 2026-11-25) |
+| swap, exchange (crypto for crypto, a profile's text) | Tausch, plural `Tauschvorgänge`; `Umtausch` only for fiat into a token (decided 2026-11-25) |
+| gain, loss | Gewinn, Verlust; the law's own term where the English quotes it: the US's `Kapitalgewinn`, the UK's CGT labels `Veräußerungsgewinn` (decided 2026-11-25) |
+| by, until, from {date} in a sentence | `bis zum {date}`, `ab dem {date}`; a bare `bis` only inside a range `vom … bis …` (decided 2026-11-25) |
+| per person, per wallet, per year | `pro`; `je nach` (depending on) stays (decided 2026-11-25) |
+| users / customers (of a provider) | `Nutzerinnen und Nutzer` / `Kundschaft`, following the English word (decided 2026-11-25) |
+| giver, heir | schenkende Person, erbende Person (decided 2026-11-25) |
+| a tax authority | its own name (AEAT, AT, HMRC, Revenue, IRS, Belastingdienst); `Steuerbehörde(n)` for a generic one; `Finanzamt` for Germany's only (decided 2026-11-25) |
+| Bill / Act (a law's name) | die Bill (Duden), der Act (decided 2026-11-25) |
+| a time | `um 00:00`; never `Uhr` after a time (decided 2026-11-25) |
 
 Two terms name the same date in two frames: `der erste Tag nach der Haltefrist` is the date in the
 holding rule's own frame (the hold-phase card, the holding-date tool, the tax-year file's
@@ -1426,4 +1442,4 @@ auf die Niederlande umstellen`, `von Portugal auf …` in its row) and „das al
 sentence; `Börse` against `Handelsplattform`, since `Börse` can suggest a
 regulated exchange (brand and counsel; a voice choice for the reader); „bevor Sie ihm Geld senden“
 against „bevor Sie ihm Geld überweisen“ (brand, on the claim-reach branch; counsel's gap (6) on #462
-keeps „senden“ until the reader answers); `Am {day}. jedes Monats` against `jeden Monats`, and „im Monat am Tag {buyDay}“ against „jeweils am {buyDay}. des Monats“; „sehe“ or „schaue … nicht auf den Kurs“; „Wohin soll die monatliche Erinnerung?“; „in den Mengen Ihres Bestands“ against „gewichtet nach Ihrem Bestand“; `Meldepflichten` against `Erklärungspflichten`; „Quellen für“ against „Quellen zu“; `Krypto-Steuern` against `Kryptosteuern` as a searched title; `Zyklus` for a market cycle; whether „Zeigen, wie es funktioniert und was schiefgehen kann“ reads as a control; „gemäß“ against „laut der Haltefrist“; „Aktivieren Sie das Kästchen“ (Plan) and „Kreuzen Sie das Kästchen an“ (Settings) against „Setzen Sie das Häkchen“, and „früher“ against „vorzeitig öffnen“; whether „{units} jetzt verkaufbar“ reads as a status or an invitation; the word order of „„Investiert“ im Portfolio zählt ihn mit“; whether „die Seite des DCA-Plans“ names the source clearly; whether the Settings tabs read naturally with an `&` ending the first line, „Frist“ as the holding period and „Anteile“ as the split; „Land … umstellen“ and „Umstellung auf“ against „wechseln“ and „Wechsel nach“; „bisher am {from}“ against „jetzt am {from}“ in `row.lastBuyEligible`; „Eingefügten Text lesen“ against „einlesen“; `DCA-Planseite` against `DCA-Plan-Seite`; „Über die App“ and „Cookie-Erklärung“ as titles; „die Regel“ said twice in the replace confirm (brand, on #476, #477 and #478); `Erwerbsdatum` against `Anschaffungsdatum`, and whether „Ihre Steuerberatung“ reads as a person (#483); „Nicht importiert“ against „Nicht übernommen“; „kann diese Coins betreffen“; „Trade“ against „Order“ and „Handelsgeschäft“; `Börse` for a broker such as Trade Republic; „Die {units} … sehen aus wie Ihr Monatskauf für {month}“; the coin-deposit line „Ein Geschenk tragen Sie mit „…“ ein; für Ihre eigenen Coins, die zurückkommen, wählen Sie „…““ (#484); and „übernommen“, which now stands both for copied (a fee or venue taken from the latest purchase) and for imported too (`heldSales`).
+keeps „senden“ until the reader answers); `Am {day}. jedes Monats` against `jeden Monats`, and „im Monat am Tag {buyDay}“ against „jeweils am {buyDay}. des Monats“; „sehe“ or „schaue … nicht auf den Kurs“; „Wohin soll die monatliche Erinnerung?“; „in den Mengen Ihres Bestands“ against „gewichtet nach Ihrem Bestand“; `Meldepflichten` against `Erklärungspflichten`; „Quellen für“ against „Quellen zu“; `Krypto-Steuern` against `Kryptosteuern` as a searched title; `Zyklus` for a market cycle; whether „Zeigen, wie es funktioniert und was schiefgehen kann“ reads as a control; „gemäß“ against „laut der Haltefrist“; „Aktivieren Sie das Kästchen“ (Plan) and „Kreuzen Sie das Kästchen an“ (Settings) against „Setzen Sie das Häkchen“, and „früher“ against „vorzeitig öffnen“; whether „{units} jetzt verkaufbar“ reads as a status or an invitation; the word order of „„Investiert“ im Portfolio zählt ihn mit“; whether „die Seite des DCA-Plans“ names the source clearly; whether the Settings tabs read naturally with an `&` ending the first line, „Frist“ as the holding period and „Anteile“ as the split; „Land … umstellen“ and „Umstellung auf“ against „wechseln“ and „Wechsel nach“; „bisher am {from}“ against „jetzt am {from}“ in `row.lastBuyEligible`; „Eingefügten Text lesen“ against „einlesen“; `DCA-Planseite` against `DCA-Plan-Seite`; „Über die App“ and „Cookie-Erklärung“ as titles; „die Regel“ said twice in the replace confirm (brand, on #476, #477 and #478); `Erwerbsdatum` against `Anschaffungsdatum`, and whether „Ihre Steuerberatung“ reads as a person (#483); „Nicht importiert“ against „Nicht übernommen“; „kann diese Coins betreffen“; „Trade“ against „Order“ and „Handelsgeschäft“; `Börse` for a broker such as Trade Republic; „Die {units} … sehen aus wie Ihr Monatskauf für {month}“; the coin-deposit line „Ein Geschenk tragen Sie mit „…“ ein; für Ihre eigenen Coins, die zurückkommen, wählen Sie „…““ (#484); „übernommen“, which now stands both for copied (a fee or venue taken from the latest purchase) and for imported too (`heldSales`); „mittlere Belastbarkeit“ for "medium confidence" in the profiles; and „DBA-Staat“ in a profile's fields capped at 240 characters.
