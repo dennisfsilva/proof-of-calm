@@ -13,8 +13,9 @@ import { Button } from '@proofofcalm/ui/components/button';
 import { CoinChip } from '@proofofcalm/ui/components/coin-chip';
 import { TableCell, TableExpandableRow, TableRow } from '@proofofcalm/ui/components/table';
 import { coinColour } from '@proofofcalm/ui/lib/series';
+import { memo } from 'react';
 import { useTranslations } from 'use-intl';
-import { useFormatters } from '../../../lib/services';
+import type { Formatters } from '../../../lib/format';
 import { HoldingConditions, WhyLink } from '../../learn';
 import { proseDigits } from '../lib/form';
 
@@ -26,25 +27,39 @@ import { proseDigits } from '../lib/form';
 // coin when units were lost on the way, and the edit and delete buttons; its amount cell shows its units sent. The
 // screen holds which rows are open and decides which one carries the "Computed from your dates" line and the country's conditions, so they
 // appear once, beside the first date shown (docs/LEGAL.md §4).
+// At the cap a Log shows 10,000 rows (docs/ENGINEERING.md §4, "The Log at the cap"): a row takes the screen's
+// formatters, since a set made for each row took a third of Show all's render, and skips its render while its props
+// stay the same, so opening one row renders that row.
 
 export const LOG_COLUMNS = 2;
 
 export type LogRowProps = {
   readonly row: Row;
   readonly plan: Plan;
+  /** The screen's formatters (`useFormatters`), made once for all its rows. */
+  readonly formatters: Formatters;
   /** This row carries the screen's one "Computed from your dates, not tax advice" line and the conditions. */
   readonly note: boolean;
   /** Whether the detail is open, when the screen holds it; the row holds it otherwise. */
   readonly open?: boolean;
-  readonly onOpenChange?: (open: boolean) => void;
+  /** With the row's key, so one function serves every row. */
+  readonly onOpenChange?: (open: boolean, key: string) => void;
   readonly onDelete: (row: TransactionRow) => void;
   /** Opens the row's form on it: the entry form for a purchase or a sale, the move form for a move. */
   readonly onEdit: (row: TransactionRow) => void;
 };
 
-export function LogRow({ row, plan, note, open, onOpenChange, onDelete, onEdit }: LogRowProps) {
+export const LogRow = memo(function LogRow({
+  row,
+  plan,
+  formatters: f,
+  note,
+  open,
+  onOpenChange,
+  onDelete,
+  onEdit,
+}: LogRowProps) {
   const t = useTranslations('log');
-  const f = useFormatters();
   if (row.type === 'skip') {
     // The month header above the row names the month, so the line does not repeat it.
     const text = row.skip.note.trim();
@@ -170,7 +185,7 @@ export function LogRow({ row, plan, note, open, onOpenChange, onDelete, onEdit }
       colSpan={LOG_COLUMNS}
       className="[&>td>button]:scroll-mt-result"
       {...(open !== undefined && { open })}
-      {...(onOpenChange !== undefined && { onOpenChange })}
+      {...(onOpenChange !== undefined && { onOpenChange: (next: boolean) => onOpenChange(next, row.key) })}
     >
       {/* A move shows its units sent, as its line does; coins added with no recorded cost say so; at no cost they show
           0 (DOMAIN §2.2, CONTENT-STYLE §3 "Log, a move"). Stacked, it starts under the date, past the chevron. */}
@@ -183,4 +198,4 @@ export function LogRow({ row, plan, note, open, onOpenChange, onDelete, onEdit }
       </TableCell>
     </TableExpandableRow>
   );
-}
+});
