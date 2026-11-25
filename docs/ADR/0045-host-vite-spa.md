@@ -1655,3 +1655,16 @@ The decision stands; this gives the site pages of §6 their third language on th
   without a site file fails the typecheck. `englishLang` reads the page's own language file; it
   read the Portuguese one for every language but English, which no page could show while pt-PT
   was the only translation.
+- **2026-11-25, the local Lighthouse run serves HTTP/2 over TLS** (§11; the entry of 2026-10-26 on
+  the seeded screens). `apps/web/lighthouserc.json` starts `tools/serve/vercel-local.ts --tls`, which
+  speaks HTTP/2, and HTTP/1.1 by ALPN, over https on a self-signed certificate that
+  `tools/serve/self-signed.ts` makes in memory at each start, and keeps the whole policy, its
+  `upgrade-insecure-requests` included. Lantern simulates an HTTP/1.1 origin with six connections and
+  an h2 origin with one multiplexed connection, so the plain server added round trips a Vercel
+  deployment, which serves h2, does not. Step 0 on `/log` (one local run each, 34 requests): LCP
+  3,223 and 3,459 ms over HTTP/1.1, 2,214 ms over h2. Run 45597820273 against main's 45586163941
+  (medians of five, LCP): Today 1,902 against 2,417 ms, Portfolio 2,150 against 2,952 ms, Log 2,162
+  against 3,195 ms, Plan 2,153 against 2,814 ms, every request h2 and no console error. The run's
+  Chrome takes `--allow-insecure-localhost` and `--ignore-certificate-errors`, since the service
+  worker refuses to register on a certificate error otherwise; `tools/lighthouse/vercel.ts` drops the
+  second for every deployment. The e2e suite keeps plain http.
