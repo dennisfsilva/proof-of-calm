@@ -47,7 +47,7 @@ const GENERIC: HoldingCountry = {
   rule: { kind: 'none' },
   reviewed: '17\u00a0Oct\u00a02026',
   source: null,
-  unreviewed: { status: 'Not reviewed.', text: 'No holding exemption is applied.' },
+  unreviewed: { status: 'Not reviewed.', text: 'Proof of Calm applies no holding exemption for your country.' },
 };
 const words = (text: string) => text.split(/\s+/).filter((word) => /[\p{L}\p{N}]/u.test(word)).length;
 
@@ -158,7 +158,7 @@ describe('SummaryStep', () => {
   it("names the general profile's rule with its own text and the generic date line, without Sources", () => {
     mount({ plan: { ...fixturePlan(), holdingRule: { kind: 'none' } }, holding: GENERIC });
     expect(value('Holding rule')?.textContent).toMatch(
-      /^The general profile's rule\. No holding exemption is applied\./,
+      /^The general profile's rule\. Proof of Calm applies no holding exemption for your country\./,
     );
     expect(
       screen.getByText(
@@ -230,11 +230,15 @@ describe('SummaryStep on a pt-PT screen: content text keeps its own language (AD
   });
 
   it("marks the general profile's English text, not the sentence around it", () => {
-    const unreviewed = { status: null, text: 'No holding exemption is applied.', language: 'en' } as const;
+    const unreviewed = {
+      status: null,
+      text: 'Proof of Calm applies no holding exemption for your country.',
+      language: 'en',
+    } as const;
     mountPt({ plan: { ...fixturePlan(), holdingRule: { kind: 'none' } }, holding: { ...GENERIC, unreviewed } });
-    expect(langOf('No holding exemption is applied.')).toBe('en');
+    expect(langOf('Proof of Calm applies no holding exemption for your country.')).toBe('en');
     expect(value(onboardingPt.summary.holdingRule)?.textContent).toMatch(
-      /^A regra do perfil geral\. No holding exemption is applied\./,
+      /^A regra do perfil geral\. Proof of Calm applies no holding exemption for your country\./,
     );
     cleanup();
     mountPt({

@@ -36,7 +36,7 @@ const generic: HoldingCountry = {
   source: null,
   unreviewed: {
     status: 'Not reviewed: no reviewed rule set for your country.',
-    text: 'No holding exemption is applied: treat every sale as a possibly taxable event.',
+    text: 'Proof of Calm applies no holding exemption for your country: treat every sale as a possibly taxable event.',
   },
 };
 
@@ -99,7 +99,7 @@ export const GeneralProfile: Story = {
   play: async ({ canvas }) => {
     // The profile's text sits in its own element, which carries the profile's `lang` where it differs (ADR-0057).
     await expect(canvas.getByText(/^The general profile's rule\.\s*$/)).toBeVisible();
-    await expect(canvas.getByText(/^No holding exemption is applied/)).toBeVisible();
+    await expect(canvas.getByText(/^Proof of Calm applies no holding exemption/)).toBeVisible();
     await expect(canvas.queryByRole('link', { name: 'Sources' })).toBeNull();
   },
 };

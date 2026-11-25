@@ -181,7 +181,7 @@ describe('holdingCountryOf', () => {
       source: null,
       unreviewed: {
         status: 'Not reviewed: Proof of Calm has no reviewed rule set for your country.',
-        text: 'No holding exemption is applied: treat every sale as a possibly taxable event.',
+        text: 'Proof of Calm applies no holding exemption for your country: treat every sale as a possibly taxable event.',
       },
     });
     expect(holdingCountryOf(FIXTURE_RULES.XX, '17 Oct 2026', null, TODAY).unreviewed).toEqual({
@@ -205,7 +205,7 @@ describe('holdingCountryOf', () => {
     const long = holdingCountryOf(FIXTURE_RULES.XX, '17 Oct 2026', xx, '2099-01-01' as CalendarDate);
     expect(long.underReview).toBeUndefined();
     expect(long.unreviewed?.text).toBe(
-      'No holding exemption is applied: treat every sale as a possibly taxable event.',
+      'Proof of Calm applies no holding exemption for your country: treat every sale as a possibly taxable event.',
     );
   });
 });

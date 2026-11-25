@@ -54,7 +54,7 @@
     "NL": "The rule for the Netherlands. 1 year, then tax-free.",
     "PT": "The rule for Portugal. 1 year, then tax-free.",
     "US": "The rule for the United States. 1 year, then tax-free.",
-    "XX": "The general profile's rule. No holding exemption is applied: treat every sale as a possibly taxable event."
+    "XX": "The general profile's rule. Proof of Calm applies no holding exemption for your country: treat every sale as a possibly taxable event."
   },
   "plan.review.rules.country": {
     "DE": "Your plan's country: Germany.",
@@ -149,7 +149,7 @@
     "NL": "Holding rule now: the rule for the Netherlands. 1 year, then tax-free.",
     "PT": "Holding rule now: the rule for Portugal. 1 year, then tax-free.",
     "US": "Holding rule now: the rule for the United States. 1 year, then tax-free.",
-    "XX": "Holding rule now: the general profile's rule. No holding exemption is applied: treat every sale as a possibly taxable event."
+    "XX": "Holding rule now: the general profile's rule. Proof of Calm applies no holding exemption for your country: treat every sale as a possibly taxable event."
   },
   "settings.country.row.ruleAfter": {
     "DE": "After the change: the rule for Germany. 1 year, then tax-free.",
@@ -161,7 +161,7 @@
     "NL": "After the change: the rule for the Netherlands. 1 year, then tax-free.",
     "PT": "After the change: the rule for Portugal. 1 year, then tax-free.",
     "US": "After the change: the rule for the United States. 1 year, then tax-free.",
-    "XX": "After the change: the general profile's rule. No holding exemption is applied: treat every sale as a possibly taxable event."
+    "XX": "After the change: the general profile's rule. Proof of Calm applies no holding exemption for your country: treat every sale as a possibly taxable event."
   },
   "settings.country.ruleName": {
     "DE": "the rule for Germany",
